@@ -139,6 +139,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     }
     deployment.addContainerPort(serviceName, port, portProtocol)
   })
+  // TODO: Add the lbgroup info to annotation, group id or 'none'
+  service.addLBGroupAnnotation("none")
   // 设置进入点
   let {
     entrypoint,

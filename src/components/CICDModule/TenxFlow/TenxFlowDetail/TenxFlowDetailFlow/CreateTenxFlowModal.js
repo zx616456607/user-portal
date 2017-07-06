@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, Tooltip, Spin } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, Tooltip, Spin, Popover, Menu } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -30,7 +30,7 @@ import { isStandardMode } from '../../../../../common/tools'
 import PopTabSelect from '../../../../PopTabSelect'
 import { loadClusterList } from '../../../../../actions/cluster'
 import { getAllClusterNodes } from '../../../../../actions/cluster_node'
-
+import DockerfileModal from '../../../DockerfileModal'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -275,6 +275,7 @@ let CreateTenxFlowModal = React.createClass({
       shellModalShow: false,
       scriptsTextarea: '',
       saveShellCodeBtnLoading: false,
+      dockerfileEditMode: 'textEditing',
     }
   },
   getUniformRepo() {
@@ -929,7 +930,10 @@ let CreateTenxFlowModal = React.createClass({
                 let dockerfilebody = {
                   content: _this.state.dockerFileTextarea,
                   flowId: flowId,
-                  stageId: res.data.results.stageId
+                  stageId: res.data.results.stageId,
+                  type: _this.state.dockerfileEditMode === 'textEditing'
+                        ? 0
+                        : 1
                 }
                 createDockerfile(dockerfilebody, {
                   success: {
@@ -1374,6 +1378,33 @@ let CreateTenxFlowModal = React.createClass({
       ],
       initialValue: buildClusters[0]
     })
+    const dockerfileEditModeList = (
+      <Menu className="dockerfileEditModeList"
+        onClick={({ key }) => this.setState({ dockerfileEditMode: key, dockerFileModalShow: true })}
+      >
+        <Menu.Item key="visualEditing">简单可视化编辑</Menu.Item>
+        <Menu.Item key="textEditing">完整编辑</Menu.Item>
+      </Menu>
+    )
+    const isDockerfile = this.state.dockerFileTextarea && this.state.dockerFileTextarea.length > 0
+    const dockerfileEditBtnProps= {}
+    if (isDockerfile) {
+      dockerfileEditBtnProps.onClick = this.openDockerFileModal
+    }
+    const dockerfileEditBtn = (
+      <Button
+        className={this.state.noDockerfileInput ? 'noCodeStoreButton' : null}
+        type={isDockerfile ? 'primary' : 'ghost'}
+        size='large'
+        {...dockerfileEditBtnProps}
+      >
+        {
+          isDockerfile
+          ? [<span>编辑云端 Dockerfile</span>]
+          : [<FormattedMessage {...menusText.createNewDockerFile} />]
+        }
+      </Button>
+    )
     return (
       <div id='CreateTenxFlowModal' key='CreateTenxFlowModal'>
         <div className='titleBox'>
@@ -1549,10 +1580,20 @@ let CreateTenxFlowModal = React.createClass({
                       (this.state.currentCodeStore ? !this.state.useDockerfile : true) ? [
                         <QueueAnim key='useDockerFileAnimate' style={{ float: 'left' }}>
                           <div key='useDockerFileAnimateSecond'>
-                            <Button className={this.state.noDockerfileInput ? 'noCodeStoreButton' : null} type={(this.state.dockerFileTextarea && this.state.dockerFileTextarea.length > 0) ? 'primary' : 'ghost'} size='large'
-                              onClick={this.openDockerFileModal}>
-                              {(this.state.dockerFileTextarea && this.state.dockerFileTextarea.length > 0)  ? [<span>编辑云端 Dockerfile</span>] : [<FormattedMessage {...menusText.createNewDockerFile} />]}
-                            </Button>
+                            {
+                              isDockerfile
+                              ? dockerfileEditBtn
+                              : [
+                                <Popover
+                                  content={dockerfileEditModeList}
+                                  title="请选择编辑模式"
+                                  trigger="click"
+                                  getTooltipContainer={() => document.getElementById('TenxFlowDetail')}
+                                >
+                                  {dockerfileEditBtn}
+                                </Popover>
+                              ]
+                            }
                             <span className={this.state.noDockerfileInput ? 'noCodeStoreSpan CodeStoreSpan' : 'CodeStoreSpan'}><FormattedMessage {...menusText.noDockerFileInput} /></span>
                           </div>
                         </QueueAnim>
@@ -1701,7 +1742,10 @@ let CreateTenxFlowModal = React.createClass({
           }
           <Modal className='dockerFileEditModal'
             title={<FormattedMessage {...menusText.dockerFileTitle} />}
-            visible={this.state.dockerFileModalShow}
+            visible={
+              this.state.dockerfileEditMode === 'textEditing' &&
+              this.state.dockerFileModalShow
+            }
             maskClosable={false}
             footer={null}
             >
@@ -1715,6 +1759,18 @@ let CreateTenxFlowModal = React.createClass({
               </Button>
             </div>
           </Modal>
+          <DockerfileModal
+            visible={
+              this.state.dockerfileEditMode === 'visualEditing' &&
+              this.state.dockerFileModalShow
+            }
+            onCancel={this.closeDockerFileModal}
+            onChange={
+              (value, submit) => this.setState({dockerFileTextarea: value}, () => {
+                submit && this.closeDockerFileModal()
+              })
+            }
+          />
           <Modal className='dockerFileEditModal'
             title="创建脚本文件"
             visible={this.state.shellModalShow}

@@ -105,9 +105,9 @@ let CreateImageEnvComponent = React.createClass({
           }, 300)
           if (res.message == 'Failed to find any tag') {
             notify.error('获取镜像信息失败，请检查该基础镜像是否存在')
-            return
+          } else {
+            notify.error('获取基础镜像信息失败: ' + res.statusCode)
           }
-          notify.error(res.message.message)
         }
       }
     })

@@ -108,9 +108,9 @@ let EnvComponent = React.createClass({
           const notify = new NotificationHandler()
           if (res.message == 'Failed to find any tag') {
             notify.error('获取镜像信息失败，请检查镜像是否存在')
-            return
+          } else {
+            notify.error('获取基础镜像信息失败: ' + res.statusCode)
           }
-          notify.error(res.message)
         }
       }
     })

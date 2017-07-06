@@ -90,7 +90,8 @@ let ImageEnvComponent = React.createClass({
           const notify = new NotificationHandler()
           if (res.message == 'Failed to find any tag' || res.statusCode == 404) {
             notify.error('获取基础镜像信息失败，请检查镜像是否存在')
-            return
+          } else {
+            notify.error('获取基础镜像信息失败: ' + res.statusCode)
           }
         }
       }

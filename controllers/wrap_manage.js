@@ -44,8 +44,10 @@ exports.downloadPkg = function*() {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const id = this.params.id
-  const file = yield api.pkg.getBy([id])
-  this.body = file
+  const file = yield api.pkg.downloadFile([id])
+  this.set('content-disposition', file.headers['content-disposition'])
+  this.set('content-type', file.headers['content-type'])
+  this.body = file.data
 }
 
 exports.deletePkg = function* () {
@@ -59,7 +61,9 @@ exports.deletePkg = function* () {
 exports.localUploadPkg = function*() {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const { filename,filetag,filetype } = this.params
+  const filename = this.params.filename
+  const filetag = this.params.filetag
+  const filetype = this.params.filetype
   const parts = parse(this, {
     autoFields: true
   })
@@ -81,8 +85,10 @@ exports.localUploadPkg = function*() {
 exports.romoteUploadPkg = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  console.log(this.params)
-  const { filename,filetag,filetype } = this.params
-  const body = yield api.pkg.createBy([filename,filetag,filetype,'remote'])
+  console.log(this.request.body)
+  const filename = this.params.filename
+  const filetag = this.params.filetag
+  const filetype = this.params.filetype
+  const body = yield api.pkg.createBy([filename,filetag,filetype,'remote'],null,this.request.body)
   this.body = body
 }

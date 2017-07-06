@@ -18,17 +18,19 @@ import Title from '../Title'
 import './style/AppWrapManage.less'
 import NotificationHandler from '../../components/Notification'
 import { formatDate } from '../../common/tools'
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE} from '../../../constants'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
+import { API_URL_PREFIX } from '../../constants'
 
-import { wrapManageList, deleteWrapManage ,downloadWrap} from '../../actions/app_center'
+import { wrapManageList, deleteWrapManage, uploadWrap } from '../../actions/app_center'
 const RadioGroup = Radio.Group
 const Dragger = Upload.Dragger
 const TabPane = Tabs.TabPane
 let uploadFile = false // in upload file name
+const notificat = new NotificationHandler()
 
 // file type
-const wrapType = ['.jar','.war','.tar.gz','.zip']
-const wrapTypelist = ['jar','war','tar.gz','zip']
+const wrapType = ['.jar','.war','.tar','.tar.gz','.zip']
+const wrapTypelist = ['jar','war','tar','tar.gz','zip']
 
 class UploadModal extends Component {
   constructor(props) {
@@ -42,98 +44,257 @@ class UploadModal extends Component {
   componentWillReceiveProps(nextProps) {
     if (!nextProps.visible) {
       this.props.form.resetFields()
+      this.setState({fileCallback: false})
     }
   }
   handleSubmit() {
     const { func,form } = this.props
-    form.validateFields((errors, values) => {
+    if (!uploadFile && this.state.type === 'local') {
+      notificat.info('请选择文件')
+      return
+    }
+    // local upload
+    let validateFields = ['wrapName','versionLabel']
+    // remote http upload
+    if (this.state.type !== 'local') {
+      validateFields.push('protocolUrl')
+      // remote ftp upload
+      if (this.state.protocol == 'ftp') {
+        validateFields.push('username','password')
+      }
+    }
+    form.validateFields(validateFields,(errors,values) => {
       if (!!errors) {
         return;
       }
-      // if(this.state.resolve) {
-      //   this.state.resolve(true)
-      // }
-      func.uploadModal(false)
-      func.getList()
+
+      if(this.state.type === 'local' && this.state.resolve) {
+        this.state.resolve(true)
+        const fileCallback = notificat.spin('上传中...')
+        this.setState({fileCallback:fileCallback})
+        return
+      }
+      let fileType = 'war'
+      let isType = false
+      wrapType.every((types, index)=> {
+        if (/\.(jar|war|tar|tar.gz|zip)$/.test(values.protocolUrl)) {
+          fileType = wrapTypelist[index]
+          isType = true
+          return false
+        }
+        return true
+      })
+      if (!isType) {
+        notificat.error('上传文件地址格式错误', '支持：'+ wrapTypelist.join(', '))
+        return
+      }
+      const body = {
+        fileName:values.wrapName,
+        fileTag: values.versionLabel,
+        fileType: fileType,
+        body:{
+          sourceURL: values.protocolUrl,
+          userName: values.username,
+          password: values.password
+        }
+      }
+
+      const fileCallback = notificat.spin('上传中...')
+
+      this.setState({fileCallback: fileCallback})
+
+      func.uploadWrap(body,{
+        success:{
+          func:()=> {
+            const notificat = new NotificationHandler()
+            notificat.success('上传成功')
+            func.getList()
+            func.uploadModal(false)
+            uploadFile = false
+
+          },
+          isAsync: true
+        },
+        failed:{
+          func:(err)=> {
+            if (err.message.code == 409) {
+              notificat.error('上传失败','远程上传的文件和本地的包名称已存在')
+              return
+            }
+            if (err.message) {
+              if (err.message.message == 'LOGIN_ERROR') {
+                notificat.error('上传失败','用户名或密码错误')
+                return
+              }
+              if (err.message.message == 'NETWORK_ERROR') {
+                notificat.error('上传失败','地址有误')
+                return
+              }
+              if (err.message.message == 'NO_SUCH_FILE') {
+                notificat.error('上传失败','未找到文件')
+                return
+              }
+            }
+            notificat.error('上传失败',err.message.message || err.message)
+          }
+        },
+        finally: {
+          func:() => {
+            this.state.fileCallback()
+            this.setState({fileCallback: false})
+          }
+        }
+
+      })
+
+      // "sourceURL": "xxxx",
+      //   "userName": "xxxxx"
+      //   "password": "xxxxx"
 
     });
   }
   changeprotocol = (e) => {
     this.setState({protocol: e.target.value})
+    this.props.form.resetFields(['protocolUrl'])
   }
   changeTabs = (type)=> {
     this.setState({type})
   }
-  wraptypeList() {
-    return wrapTypelist.map(types => {
-      return <Select.Option value={types}>{types}</Select.Option>
-    })
+
+  validateName = (rule, value, callback)=> {
+    if (!value) {
+      return callback('请输入包名称')
+    }
+    if (value.length <3 || value.length >64) {
+      return callback('包名称长度为3~64位字符')
+    }
+    if (!/^[A-Za-z0-9]+[A-Za-z0-9_-]+[A-Za-z0-9]$/.test(value)) {
+      return callback('以英文字母和数字开头中间可[-_]')
+    }
+    this.setState({fileName: value})
+    return callback()
   }
-  validateVersion(rule, value, callback) {
-    if(!value) {
+  validateVersion = (rule, value, callback)=> {
+    if (!value) {
       return callback('请输入版本')
+    }
+    if (!/^([a-z0-9]+((?:[._]|__|[-]*)[a-z0-9]+)*)?$/.test(value)){
+      return callback('由小写字母或数字开头和结尾中间可[._-]')
+    }
+    if (value.length > 128){
+      return callback('最多只能为128个字符')
+    }
+    this.setState({fileTag: value})
+    return callback()
+  }
+  checkedUrl = (rule, value, callback)=> {
+    if (!value) {
+      return callback('请输入地址')
+    }
+    if (/^https:/.test(value)) {
+      return callback('暂不支持https')
+    }
+    let protocol = 'ftp'
+    if (this.state.protocol !== 'ftp') {
+      protocol= 'http'
+      if (!/^http:\/\/?/.test(value)) {
+        return callback(`请以http协议开头，如：${protocol}://www.demo.com/app.jar`)
+      }
+    } else {
+      if (!/^ftp:\/\/?/.test(value)) {
+        return callback(`请以ftp协议开头，如：${protocol}://www.demo.com/app.jar`)
+      }
+    }
+    let fileType
+    wrapType.every((types, index)=> {
+      if (/\.(jar|war|tar|tar.gz|zip)$/.test(value)) {
+        fileType = wrapTypelist[index]
+        return false
+      }
+      return true
+    })
+    if (!fileType) {
+      return callback(`文件格式错误，如：${protocol}://www.demo.com/app.jar`)
     }
     return callback()
   }
-  validateType(e) {
-    this.setState({fileType: e})
-  }
   render() {
-    const { form, func} = this.props
-    const { type,fileType } = this.state
-    const isReq = type =='local' ? false : true
+    const { form, func } = this.props
+    const { fileType,fileName,fileTag } = this.state
+    // const isReq = type =='local' ? false : true
     const wrapName = form.getFieldProps('wrapName',{
-      rules: [{required: true,whitespace: true, message: '请输入包名称'}]
+      rules: [
+        { whitespace: true },
+        {validator: this.validateName}
+      ]
     })
     const versionLabel = form.getFieldProps('versionLabel',{
       rules: [
-        {required: true, whitespace: true, message: '请输入版本'},
-        // {validator: this.validateVersion}
+        { whitespace: true },
+        {validator: this.validateVersion}
       ],
-
     })
     const protocolUrl = form.getFieldProps('protocolUrl',{
-      rules: [{required: isReq,whitespace: true, message: '请输入远程地址'}]
+      rules: [
+        {validator: this.checkedUrl}
+      ]
+    })
+    const username = form.getFieldProps('username',{
+      rules: [{whitespace: true }]
+    })
+    const password = form.getFieldProps('password',{
+      rules: [{whitespace: true }]
     })
     const formItemLayout = {
-      labelCol: { span: 5},
+      labelCol: { span: 4},
       wrapperCol: { span: 18 },
     }
     const self = this
-    const fileName = form.getFieldValue('wrapName')
-    const fileTag = form.getFieldValue('versionLabel')
-    const actionUrl = `/api/v2/${fileName}/${fileTag}/${fileType}`
+    // const fileName = form.getFieldValue('wrapName')
+    // const fileTag = form.getFieldValue('versionLabel')
+    const actionUrl = `${API_URL_PREFIX}/${fileName}/${fileTag}/${fileType}`
     const selfProps = {
-      name: 'file',
+      name: 'pkg',
       action: actionUrl,
       beforeUpload(file) {
-        const notificat = new NotificationHandler()
         if (!fileName || !fileTag) {
           notificat.info('请先输入包名称和版本标签')
           return false
         }
-        // form.validateFields((err, value) => {
-          // if(err) return false
-          let isType = false
-          wrapType.every(type => {
-            if (file.name.indexOf(type) > -1) {
-              isType = true
-              return false
-            }
-            return true
-          })
-          if (!isType) {
-            notificat.error('上传文件格式错误', '支持有：jar, tar.gz, war, zip')
+        // x-tar x-gzip zip java-archive war=''
+        let fileType = 'war'
+        let isType = false
+        wrapType.every((type, index)=> {
+          if (/\.(jar|war|tar|tar.gz|zip)$/.test(file.name)) {
+            isType = true
+            fileType = wrapTypelist[index]
             return false
           }
           return true
-          // return new Promise((resolve, reject) => {
-          //   self.setState({
-          //     resolve: resolve
-          //   })
-          // })
+        })
 
-        // })
+        if (!isType) {
+          notificat.error('上传文件格式错误', '支持：'+ wrapTypelist.join(', '))
+          return false
+        }
+        self.setState({fileType})
+        uploadFile = file.name // show upload file name
+        // return true
+        return new Promise((resolve, reject) => {
+          self.setState({
+            resolve: resolve
+          })
+        })
+      },
+      onChange(e) {
+        const notificat = new NotificationHandler()
+        if (e.file.status == 'done') {
+          self.state.fileCallback()
+          notificat.success('上传成功')
+          uploadFile = false
+          func.uploadModal(false)
+          func.getList()
+        }
       }
     }
     return (
@@ -143,25 +304,22 @@ class UploadModal extends Component {
         maskClosable={false}
         okText="立即提交"
         className="uploadModal"
+        confirmLoading={this.state.fileCallback}
         >
         <Form>
           <Form.Item {...formItemLayout} label="应用包名称">
-              <Input {...wrapName} placeholder="请输入名称来标记此次上传文件" style={{ width: '300px' }} />
+            <Input {...wrapName} placeholder="请输入名称" />
           </Form.Item>
-          <Form.Item {...formItemLayout} label="应用包格式">
-            <Select defaultValue={wrapTypelist[0]} style={{ width: '300px' }} onChange={(e) => this.validateType(e)}>
-              { this.wraptypeList() }
-            </Select>
-          </Form.Item>
+
           <Form.Item {...formItemLayout} label="版本标签">
-              <Input {...versionLabel} placeholder="请输入版本标签来标记此次上传文件" style={{ width: '300px' }} />
+            <Input {...versionLabel} placeholder="请输入版本标签来标记此次上传文件" />
           </Form.Item>
-          <br />
           <Tabs defaultActiveKey="local" onChange={this.changeTabs} size="small">
             <TabPane tab="本地上传" key="local">
               <div className="dragger">
                 <Dragger {...selfProps}>
                   拖动文件到这里以上传，或点击 <a>选择文件</a>
+                  {uploadFile ? <div>文件名称：{uploadFile}</div>: null}
                 </Dragger>
               </div>
             </TabPane>
@@ -169,18 +327,21 @@ class UploadModal extends Component {
               <Form.Item {...formItemLayout} label="协议">
               <RadioGroup onChange={this.changeprotocol} value={this.state.protocol}>
                 <Radio key="ftp" value="ftp">ftp</Radio>
-                <Radio key="http|https" value="http|https">http | https</Radio>
+                <Radio key="http" value="http">http</Radio>
               </RadioGroup>
               </Form.Item>
-              <Form.Item {...formItemLayout} label="地址">
-                <Input {...protocolUrl} style={{ width: '300px' }} placeholder="请输入远程文件地址，如 ftp://server.helloworld.jar" />
+              <Form.Item {...formItemLayout} label={<span><span style={{color:'red',fontFamily: 'SimSun'}}>*</span> 地址</span>}>
+                <Input {...protocolUrl} placeholder={`请输入远程文件地址，如 ${this.state.protocol}://www.demo.com/app.jar`} />
               </Form.Item>
-              <Form.Item {...formItemLayout} label="用户名">
-                <Input style={{ width: '200px' }} placeholder="请输入用户名" />
-              </Form.Item>
-              <Form.Item {...formItemLayout} label="密码">
-                <Input style={{ width: '200px' }} placeholder="请输入密码" />
-              </Form.Item>
+              {this.state.protocol === 'ftp'?
+              [<Form.Item {...formItemLayout} label="用户名" key="ftp">
+                <Input {...username} style={{ width: '200px' }} placeholder="请输入用户名" />
+              </Form.Item>,
+              <Form.Item {...formItemLayout} label="密码" key="pass">
+                <Input {...password} style={{ width: '200px' }} placeholder="请输入密码" />
+              </Form.Item>]
+              :null
+              }
             </TabPane>
           </Tabs>
         </Form>
@@ -195,28 +356,36 @@ class WrapManage extends Component {
   constructor(props) {
     super()
     this.state = {
-      selectedRowKeys: []
+      selectedRowKeys: [],
+      page: 1,
     }
   }
   getList = (e)=> {
-    if (!e || e.target.value == '') {
-      this.props.wrapManageList()
+    const inputValue = this.refs.wrapSearch.refs.input.value
+    if (!e || inputValue == '') {
+      this.loadData()
       return
     }
     const query = {
-      filter: `fileName contains ${e.target.value}`,
+      filter: `fileName contains ${inputValue}`,
     }
     this.props.wrapManageList(query)
   }
-  queryList = (e)=> {
-    this.props.wrapManageList(e)
+  loadData(current) {
+    current = current || this.state.page
+    this.setState({page: current})
+    let from = {
+      from: (current-1) * DEFAULT_PAGE_SIZE,
+      size: DEFAULT_PAGE_SIZE
+    }
+    this.props.wrapManageList(from)
   }
   componentWillMount() {
-    this.getList()
+    this.loadData()
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.space.namespace !== this.props.space.namespace) {
-      this.getList()
+      this.loadData()
     }
   }
 
@@ -227,17 +396,28 @@ class WrapManage extends Component {
     },200)
   }
   deleteAction(status,id) {
-    id = [id] || null
-    this.setState({delAll: status,id})
+    if (status) {
+      id = [id]
+      this.setState({delAll: true,id})
+      return
+    }
+    this.setState({delAll: false})
   }
   deleteVersion = ()=> {
-    const notificat = new NotificationHandler()
-    const { id } = this.state
+    // const notificat = new NotificationHandler()
+    const { id,page } = this.state
+    const { wrapList } = this.props
+    this.setState({selectedRowKeys:[]})
     this.props.deleteWrapManage({ids: id},{
       success: {
         func:()=> {
           notificat.success('删除成功')
-          this.getList()
+          let newPage = Math.floor((wrapList.total - id.length) / DEFAULT_PAGE_SIZE)
+          if (newPage < page) {
+            this.loadData(page -1)
+            return
+          }
+          this.loadData(page)
         },isAsync: true
       },
       failed: {
@@ -261,7 +441,7 @@ class WrapManage extends Component {
         dataIndex: 'fileName',
         key: 'name',
         width: '20%',
-        render: (text,row) => <a onClick={()=> this.props.downloadWrap(row.id)}>{text}</a>
+        render: (text,row) => <a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}>{text}</a>
       }, {
         title: '版本标签',
         dataIndex: 'fileTag',
@@ -290,22 +470,24 @@ class WrapManage extends Component {
     const paginationOpts = {
       size: "small",
       pageSize: DEFAULT_PAGE_SIZE,
+      current: this.state.page,
       total: dataSource.total,
-      // onChange: current => func.loadData({ page: current }),
+      onChange: current => this.loadData(current),
       showTotal: total => `共计： ${total} 条 `,
     }
     const funcCallback = {
       uploadModal: this.uploadModal,
-      getList: this.getList
+      getList: this.getList,
+      uploadWrap: this.props.uploadWrap
     }
     const _this = this
     const rowSelection = {
       selectedRowKeys: this.state.selectedRowKeys, // 控制checkbox是否选中
       onChange(selectedRowKeys, selectedRows) {
-        // const strategyID = selectedRows.map((list)=> {
-        //   return list.strategyID
-        // })
-        _this.setState({ selectedRowKeys })
+        const ids = selectedRows.map(row => {
+          return row.id
+        })
+        _this.setState({ selectedRowKeys,id:ids })
       }
     }
 
@@ -316,9 +498,9 @@ class WrapManage extends Component {
           <div className="btnRow">
             <Button size="large" type="primary" icon="plus" onClick={() => this.uploadModal(true)}>上传包文件</Button>
             <Button size="large" style={{ margin: '0 10px' }} onClick={()=> this.getList()}><i className='fa fa-refresh' />&nbsp;刷 新</Button>
-            <Button size="large" onClick={()=> this.deleteAction(true)} icon="delete" style={{ marginRight: '10px' }} disabled={this.state.selectedRowKeys.length == 0}>删 除</Button>
-            <Input size="large" onPressEnter={(e)=> this.getList(e)} style={{ width: 180 }} placeholder="请输入包名称或标签搜索" ref="wrapSearch" />
-            <i className="fa fa-search btn-search" onClick={()=> this.getList()}/>
+            <Button size="large" onClick={()=> this.setState({delAll: true})} icon="delete" style={{ marginRight: '10px' }} disabled={this.state.selectedRowKeys.length == 0}>删 除</Button>
+            <Input size="large" onPressEnter={()=> this.getList(true)} style={{ width: 180 }} placeholder="请输入包名称或标签搜索" ref="wrapSearch" />
+            <i className="fa fa-search btn-search" onClick={()=> this.getList(true)}/>
           </div>
           <Card className="wrap_content">
             <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource.pkgs} columns={columns} pagination={paginationOpts} />
@@ -366,5 +548,5 @@ function mapStateToProps(state,props) {
 export default connect(mapStateToProps,{
   wrapManageList,
   deleteWrapManage,
-  downloadWrap
+  uploadWrap
 })(WrapManage)

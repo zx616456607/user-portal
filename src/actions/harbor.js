@@ -344,7 +344,7 @@ function fetchRepositoriesTags(registry, imageName, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function loadRepositoriesTags(registry, imageName,callback) {
+export function loadRepositoriesTags(registry, imageName, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchRepositoriesTags(registry, imageName, callback))
   }

@@ -9,7 +9,6 @@
  */
 import React, { Component, PropTypes } from 'react'
 import SecondSider from '../../components/SecondSider'
-import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppCenter.less'
 
@@ -51,7 +50,7 @@ export default class ImageCenter extends Component {
           key='ImageCenterSiderAnimate'
           type='left'
           >
-          <div key="menu-appcenter" className={ this.state.containerSiderStyle == 'normal' ?  'imageMenu CommonSecondMenu' : 'hiddenMenu imageMenu CommonSecondMenu'} key='imageSider'>
+          <div className={ this.state.containerSiderStyle == 'normal' ?  'imageMenu CommonSecondMenu' : 'hiddenMenu imageMenu CommonSecondMenu'} key='imageSider'>
             <SecondSider menuList={menuList} scope={scope} />
           </div>
         </QueueAnim>

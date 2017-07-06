@@ -541,7 +541,10 @@ function fetchPutDockerfile(flows, callback) {
       schema: {},
       options: {
         method: 'PUT',
-        body: { content: flows.content }
+        body: {
+          content: flows.content,
+          type: flows.type,
+        }
       }
     },
     callback
@@ -566,7 +569,10 @@ function fetchCreateDockerfile(flows, callback) {
       schema: {},
       options: {
         method: 'POST',
-        body: { content: flows.content }
+        body: {
+          content: flows.content,
+          type: flows.type,
+        }
       }
     },
     callback

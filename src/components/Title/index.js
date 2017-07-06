@@ -34,9 +34,7 @@ class Title extends Component {
     document.title = topTitle
   }
   render() {
-    return (
-      <span></span>
-    )
+    return null
   }
 }
 
