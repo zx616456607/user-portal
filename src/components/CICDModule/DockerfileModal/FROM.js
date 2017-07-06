@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { camelize } from 'humps'
 import { loadProjectList, loadProjectRepos, loadRepositoriesTags, loadRepositoriesTagConfigInfo } from '../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import Notification from '../../Notification'
+import Notification from '../../../common/notification_handler'
 
 const FormItem = Form.Item
 const Option = Select.Option
