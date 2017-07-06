@@ -335,7 +335,7 @@ function fetchProxy(cluster, needFetching, callback) {
   return {
     [FETCH_API]: {
       types: [PROXY_GET_REQUEST, PROXY_GET_SUCCESS, PROXY_GET_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/proxy`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/proxies`,
       schema: {}
     },
     callback,
@@ -361,7 +361,7 @@ function fetchUpdateProxy(cluster, body, callback) {
   return {
     [FETCH_API]: {
       types: [PROXY_UPDATE_REQUEST, PROXY_UPDATE_SUCCESS, PROXY_UPDATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/proxy`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/proxies`,
       schema: {},
       options: {
         method: 'PUT',

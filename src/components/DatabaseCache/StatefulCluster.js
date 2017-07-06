@@ -23,17 +23,21 @@ import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../assets/img/database_cache/elasticsearch.jpg'
-import noDbImgs from '../../assets/img/no_data/no_db.png'
+import noZookeeper from '../../assets/img/database_cache/no_zookeeper.png'
+import noElasticSearch from '../../assets/img/database_cache/no_elasticsearch.png'
+
 import Title from '../Title'
 
 const clusterTable = {
   zookeeper: {
     displayName: 'ZooKeeper',
     image: zkImg,
+    noDBImage: noZookeeper,
   },
   elasticsearch: {
     displayName: 'ElasticSearch',
-    image: esImg
+    image: esImg,
+    noDBImage: noElasticSearch,
   },
   mongodb: {
     displayName: 'MongoDB',
@@ -71,7 +75,7 @@ let MyComponent = React.createClass({
     if (!config || config.length == 0) {
       return (
         <div className="text-center">
-          <img src={noDbImgs} />
+          <img src={literal.noDBImage} />
           <div>还没有 {literal.displayName} 集群，创建一个！ <Tooltip title={title} placement="right">
             <Button type="primary" size="large"
               onClick={() => this.props.scope.createDatabaseShow()}
