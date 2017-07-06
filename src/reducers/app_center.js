@@ -286,6 +286,11 @@ export function images(state = { publicImages: {} }, action) {
       SUCCESS: ActionTypes.DEL_ENTERPRISE_APP_CENTER_BIND_SUCCESS,
       FAILURE: ActionTypes.DEL_ENTERPRISE_APP_CENTER_BIND_FAILURE
     }, state.deleteAppCenterBindUser, action),
+    wrapList: reducerFactory({
+      REQUEST: ActionTypes.GET_WRAP_MANAGE_LIST_REQUEST,
+      SUCCESS: ActionTypes.GET_WRAP_MANAGE_LIST_SUCCESS,
+      FAILURE: ActionTypes.GET_WRAP_MANAGE_LIST_FAILURE,
+    }, state.wrapList, action,{overwrite: true}),
     // deleteStack: deleteStack(state.deleteStack, action)
   }
 }

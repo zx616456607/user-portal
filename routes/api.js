@@ -41,6 +41,9 @@ const labelController = require('../controllers/labels')
 const ldapController = require('../controllers/ldap_manage')
 const oemController = require('../controllers/oem_info')
 const projectController =require('../controllers/project')
+const permissionController = require('../controllers/permission')
+const roleController = require('../controllers/role')
+const pkgController =require('../controllers/wrap_manage')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -474,6 +477,7 @@ module.exports = function (Router) {
   router.post('/charge/user', chargeController.chargeUser)
   router.post('/charge/teamspace', chargeController.chargeTeamspace)
   router.post('/charge/project', chargeController.chargeProject)
+
   //setting
   router.post('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
   router.put('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
@@ -532,6 +536,31 @@ module.exports = function (Router) {
   router.put('/oem/info/default', oemController.restoreDefaultInfo)
   router.put('/oem/logo/default', oemController.restoreDefaultLogo)
   router.put('/oem/color/default', oemController.restoreDefaultColor)
+  
+  //permission
+  router.get('/permission',permissionController.list)
+  router.get('/permission/:id/retrieve',permissionController.get)
+  router.get('/permission/withCount',permissionController.listWithCount)
+  router.get('/permission/:id/retrieve/withCount',permissionController.getWithCount)
+  router.get('/permission/:id/dependent',permissionController.getAllDependent)
+  
+  //role
+  router.post('/role',roleController.create)
+  router.delete('/role/:id',roleController.remove)
+  router.put('/role',roleController.update)
+  router.put('/role/:id/addPermission',roleController.addPermission)
+  router.put('/role/:id/removePermission',roleController.removePermission)
+  router.get('/role/:id',roleController.get)
+  router.get('/role',roleController.list)
+  router.get('/role/:name/existence',roleController.existence)
+  router.get('/role/:id/allowUpdate',roleController.allowUpdate)
 
+  // package manage
+  router.get('/pkg', pkgController.getPkgManageList)
+  router.get('/pkg/:id', pkgController.downloadPkg)
+  router.post('/pkg/batch-delete', pkgController.deletePkg)
+  router.post('/:filename/:filetag/:filetype', pkgController.localUploadPkg)
+  router.post('/:filename/:filetag/:filetype/remote', pkgController.romoteUploadPkg)
+  
   return router.routes()
 }
