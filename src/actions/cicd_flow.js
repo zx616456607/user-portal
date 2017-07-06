@@ -541,7 +541,10 @@ function fetchPutDockerfile(flows, callback) {
       schema: {},
       options: {
         method: 'PUT',
-        body: { content: flows.content }
+        body: {
+          content: flows.content,
+          type: flows.type,
+        }
       }
     },
     callback
