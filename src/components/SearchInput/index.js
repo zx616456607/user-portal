@@ -21,8 +21,11 @@ class SearchInput extends Component{
     this.handleInt = this.handleInt.bind(this)
     this.handleSearch = this.handleSearch.bind(this)
     this.handleSelect = this.handleSelect.bind(this)
+
+    let { searchIntOption } = this.props
+    const { defaultSearchValue } = searchIntOption
     this.state = {
-      selecteValue: '',
+      selecteValue: defaultSearchValue,
       searchValue: '',
     }
   }
