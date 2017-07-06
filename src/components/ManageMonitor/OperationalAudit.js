@@ -967,7 +967,7 @@ function formatResourceName(resourceName, resourceId) {
       }
       return resourceId;
     }
-    return resourceName
+    return resourceName;
   }
 }
 
