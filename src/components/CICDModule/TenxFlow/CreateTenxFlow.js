@@ -222,7 +222,7 @@ let CreateTenxFlow = React.createClass({
   },
   nameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
-    const { currentFlow } = this.state;
+    const { scope } = this.props;
     if (this.state.currentType == '2') {
       return callback()
     };
@@ -231,7 +231,7 @@ let CreateTenxFlow = React.createClass({
     let errorMsg = appNameCheck(value, 'TenxFlow名称');
     if (errorMsg == 'success') {
       flowList.map((item) => {
-        if((item.name == value) && (item.name != currentFlow.name)) {
+        if((item.name == value) && !(scope.state.forEdit)) {
           flag = true;
           errorMsg = appNameCheck(value, 'TenxFlow名称', true);
           callback([new Error(errorMsg)]);
