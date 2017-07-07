@@ -34,7 +34,6 @@ class WrapListTbale extends Component {
   constructor(props) {
     super()
     this.state = {
-      selectedRowKeys: [],
       page: 1,
     }
   }
@@ -58,9 +57,7 @@ class WrapListTbale extends Component {
     }
     this.props.wrapManageList(from)
   }
-  componentWillMount() {
-    this.loadData()
-  }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.space.namespace !== this.props.space.namespace) {
       this.loadData()
@@ -78,8 +75,8 @@ class WrapListTbale extends Component {
   deleteVersion = ()=> {
     // const notificat = new NotificationHandler()
     const { id,page } = this.state
-    const { wrapList } = this.props
-    this.setState({selectedRowKeys:[]})
+    const { wrapList,func } = this.props
+    func.scope.setState({selectedRowKeys:[]}) // set parent state
     this.props.deleteWrapManage({ids: id},{
       success: {
         func:()=> {
@@ -137,7 +134,7 @@ class WrapListTbale extends Component {
         width:'150px',
         render: (e,row) => {
           if (rowCheckbox) {
-            return [<Button type="primary" key="1" onClick={()=> func.goDeploy()}>部署</Button>,
+            return [<Button type="primary" key="1" onClick={()=> func.goDeploy(row.fileName)}>部署</Button>,
                 <Button key="2" style={{ marginLeft: 10 }} onClick={()=> this.deleteAction(true,row.id)}>删除</Button>
             ]
           }
@@ -156,12 +153,12 @@ class WrapListTbale extends Component {
     }
     const _this = this
     let rowSelection = {
-      selectedRowKeys: this.state.selectedRowKeys, // 控制checkbox是否选中
+      selectedRowKeys: this.props.selectedRowKeys, // 控制checkbox是否选中
       onChange(selectedRowKeys, selectedRows) {
         const ids = selectedRows.map(row => {
           return row.id
         })
-        _this.setState({ selectedRowKeys,id:ids })
+        _this.setState({id:ids })
 
         func && func.scope.setState({selectedRowKeys,id:ids})
       }

@@ -880,3 +880,29 @@ export function uploadWrap(body, callback) {
     return dispatch(fetchUploadWrap(body, callback))
   }
 }
+
+
+export const CHECK_WRAP_MANAGE_REQUEST = 'CHECK_WRAP_MANAGE_REQUEST'
+export const CHECK_WRAP_MANAGE_SUCCESS = 'CHECK_WRAP_MANAGE_SUCCESS'
+export const CHECK_WRAP_MANAGE_FAILURE = 'CHECK_WRAP_MANAGE_FAILURE'
+
+function fetchCheckWrapManage(query,callback) {
+  let endpointUrl = `${API_URL_PREFIX}/pkg`
+  if (query) {
+    endpointUrl += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [CHECK_WRAP_MANAGE_REQUEST, CHECK_WRAP_MANAGE_SUCCESS, CHECK_WRAP_MANAGE_FAILURE],
+      endpoint: endpointUrl,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
+  }
+}
+
+export function checkWrapName(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCheckWrapManage(query, callback))
+  }
+}
