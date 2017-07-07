@@ -110,7 +110,7 @@ class VisitType extends Component{
         initGroupID: undefined
       });
     }
-    if (service.metadata.name === this.props.service.metadata.name) {
+    if (service.metadata && this.props.service.metadata && service.metadata.name === this.props.service.metadata.name) {
       return
     }
       this.setState({
