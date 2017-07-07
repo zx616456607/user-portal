@@ -194,6 +194,7 @@ let CreateDatabase = React.createClass({
           externalIP = ips[0]
         }
       }
+      let lbGroupID = 'none'
       const replicas = this.state.currentType == 'zookeeper' ? values.zkReplicas : values.replicas
       const body = {
         cluster: values.clusterSelect,
@@ -203,7 +204,8 @@ let CreateDatabase = React.createClass({
         replicas: replicas,
         volumeSize: values.storageSelect,
         teamspace: newSpace.namespace,
-        templateId
+        templateId,
+        lbGroupID,
       }
       CreateDbCluster(body, {
         success: {
