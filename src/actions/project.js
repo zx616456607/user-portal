@@ -559,3 +559,31 @@ export function GetProjectsRelatedRoles(body, callback) {
 		return dispatch(fetchGetProjectsRelatedRoles(body, callback))
 	}
 }
+
+
+export const PROJECTS_MEMBERS_LIST_REQUEST = 'PROJECTS_MEMBERS_LIST_REQUEST'
+export const PROJECTS_MEMBERS_LIST_SUCCESS = 'PROJECTS_MEMBERS_LIST_SUCCESS'
+export const PROJECTS_MEMBERS_LIST_FAILURE = 'PROJECTS_MEMBERS_LIST_FAILURE'
+// Fetches upgrade or renewals from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchGetProjectsMembers(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/members`
+	return {
+		[FETCH_API]: {
+			types: [PROJECTS_MEMBERS_LIST_REQUEST, PROJECTS_MEMBERS_LIST_SUCCESS, PROJECTS_MEMBERS_LIST_FAILURE],
+			endpoint,
+			schema: {},
+			options: {
+				method: 'GET'
+			},
+		},
+		callback
+	}
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function GetProjectsMembers(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchGetProjectsMembers(body, callback))
+	}
+}

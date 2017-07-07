@@ -97,6 +97,7 @@ export function fetchCreateApp(appConfig, callback) {
         body: {
           name: appConfig.appName,
           template: appConfig.template,
+          appPkgID:appConfig.appPkgID,
           desc: appConfig.desc
         }
       },

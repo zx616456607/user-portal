@@ -268,7 +268,7 @@ class QuickCreateApp extends Component {
     })
     const {
       fields, current, loginUser,
-      createApp, addService,
+      createApp, addService,location
     } = this.props
     const { clusterID } = current.cluster
     const template = []
@@ -364,10 +364,15 @@ class QuickCreateApp extends Component {
       addService(clusterID, this.state.appName, body, callback)
       return
     }
+    let appPkgID
+    if (location.query && location.query.appPkgID) {
+      appPkgID = location.query.appPkgID
+    }
     const appConfig = {
       cluster: clusterID,
       template: template.join('---\n'),
       appName: this.getAppName(fields),
+      appPkgID: appPkgID
     }
     createApp(appConfig, callback)
   }

@@ -769,6 +769,7 @@ class TenxFlowDetailFlowCard extends Component {
         <Modal
           visible={this.state.setStageFileModal}
           className='tenxFlowCicdSetting'
+          onCancel={()=>this.setState({setStageFileModal:false})}
           >
           <SetStageFileLink scope={scopeThis} flowId={flowId} config={config} />
         </Modal>
