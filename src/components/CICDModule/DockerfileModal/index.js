@@ -10,6 +10,7 @@
  */
 
 import React from 'react'
+import { connect } from 'react-redux'
 import { Modal, Form, Button, Radio, Select, Input, Alert, Row, Col, Icon } from 'antd'
 import classNames from 'classnames'
 import { parse } from 'docker-file-parser'
@@ -68,7 +69,6 @@ let DockerfileModal = React.createClass({
     this.initialize = false
     return {
       editMode: 'visualEditing',
-      addFileType: 'lastShareDir',
       addKeys: {},
       runKeys: {},
       grammarModules: [ BTN ],
@@ -94,7 +94,7 @@ let DockerfileModal = React.createClass({
   },
 
   init(nextProps) {
-    const { defaultValue, form } = nextProps || this.props
+    const { defaultValue, form, loginUser } = nextProps || this.props
     if (!defaultValue || typeof defaultValue !== 'string') {
       return
     }
@@ -102,6 +102,7 @@ let DockerfileModal = React.createClass({
     if (dkfArray.length === 0) {
       return
     }
+    const regServer = loginUser.registryConfig.server || ''
     this.uuid = {
       [ADD]: {},
       [RUN]: {},
@@ -109,25 +110,33 @@ let DockerfileModal = React.createClass({
     const { FROMData } = this.state
     const { setFieldsValue } = form
     // set FROM
-    // '192.168.1.52/carrot/hahala:latest'
-    // '192.168.1.52/carrot/hahala'
     const FROMObj = dkfArray[0]
     let from = FROMObj.args
     const FROMArgs = from.split(':')
     const tag = FROMArgs[FROMArgs.length - 1]
     from = from.replace(`:${tag}`, '')
     const fromArray = from.split('/')
-    const harborProject = fromArray[fromArray.length - 2]
-    const image = fromArray[fromArray.length - 2]
+    let harborProject = fromArray[fromArray.length - 2]
+    const image = fromArray[fromArray.length - 1]
     const server = from.replace(`/${harborProject}/${image}:${tag}`, '')
+    let imageUrl
+    if (regServer.indexOf(server) < 0) {
+      imageUrl = FROMObj.args
+      harborProject = 'imageUrl'
+    }
     this.setState({
-      FROMData: Object.assign({}, FormData, { server })
+      FROMData: Object.assign({}, FormData, { server }),
     })
-    setFieldsValue({
+    const configs = {
       harborProject,
-      image,
-      tag,
-    })
+    }
+    if (imageUrl) {
+      configs.imageUrl = imageUrl
+    } else {
+      configs.image = image
+      configs.tag = tag
+    }
+    setFieldsValue(configs)
     this.initialize = true
     // set ADD RUN
     const visualArray = []
@@ -161,10 +170,19 @@ let DockerfileModal = React.createClass({
         modules.map((_module, _index) => {
           addKeys[currentAddModuleIndex].push(_index)
           this.uuid[ADD][currentAddModuleIndex]++
-          setFieldsValue({
-            [`src-${currentAddModuleIndex}-${_index}`]: _module.args[0],
+          const addFileType = /^(http|https):/.test(_module.args[0])
+                              ? 'httpAddress'
+                              : 'lastShareDir'
+          const addFields = {
+            [`addFileType-${currentAddModuleIndex}`]: addFileType,
             [`target-${currentAddModuleIndex}-${_index}`]: _module.args[1],
-          })
+          }
+          if (addFileType === 'httpAddress') {
+            addFields[`src-http-${currentAddModuleIndex}-${_index}`] = _module.args[0]
+          } else {
+            addFields[`src-${currentAddModuleIndex}-${_index}`] = _module.args[0]
+          }
+          setFieldsValue(addFields)
         })
       } else if (modules[0].name === RUN) {
         btnsArray = btnsArray.concat([ RUN, BTN ])
@@ -343,14 +361,18 @@ let DockerfileModal = React.createClass({
   },
 
   renderGrammarAddModule(index, currentModuleIndex) {
-    const { addFileType, addKeys } = this.state
+    const { addKeys } = this.state
+    const { form } = this.props
+    const addFileTypeProps = form.getFieldProps(`addFileType-${currentModuleIndex}`, {
+      initialValue: 'lastShareDir',
+    })
     return (
       <div key={`grammar-add-${currentModuleIndex}`}>
         <FormItem
           {...FORM_ITEM_LAYOUT}
           label="添加文件(ADD)"
         >
-          <RadioGroup value={addFileType} onChange={e => this.setState({addFileType: e.target.value})}>
+          <RadioGroup {...addFileTypeProps}>
             {
               this.addFileTypes.map(type => (
                 <Radio value={type.key} disabled={type.disabled}>{type.label}</Radio>
@@ -443,12 +465,36 @@ let DockerfileModal = React.createClass({
     })
   },
 
+   checkHttpAddress(rule, value, callback) {
+    if (!value) {
+      callback()
+      return
+    }
+    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+      return callback('请输入合法的远程文件获取地址')
+    }
+    callback()
+  },
+
   renderAddKey(moduleIndex, currentModuleIndex, key) {
     const { form } = this.props
-    const { addFileType, FROMData } = this.state
+    const { FROMData } = this.state
     const mountPath = FROMData.mountPath || []
-    const { getFieldProps } = form
-    const srcProps = getFieldProps(`src-${currentModuleIndex}-${key}`)
+    const { getFieldProps, getFieldValue } = form
+    const addFileType = getFieldValue(`addFileType-${currentModuleIndex}`)
+    const srcKey = `src-${currentModuleIndex}-${key}`
+    const srcHttpKey = `src-http-${currentModuleIndex}-${key}`
+    let srcProps
+    let srcHttpProps
+    if (addFileType === 'httpAddress') {
+      srcHttpProps = getFieldProps(srcHttpKey, {
+        rules: [
+          { validator: this.checkHttpAddress },
+        ],
+      })
+    } else {
+      srcProps = getFieldProps(srcKey)
+    }
     const targetProps = getFieldProps(`target-${currentModuleIndex}-${key}`)
     let srcPlaceholder
     this.addFileTypes.every(addType => {
@@ -462,9 +508,20 @@ let DockerfileModal = React.createClass({
       <Row gutter={16} key={`add-row-${key}`}>
         <Col span={FORM_ITEM_LAYOUT.labelCol.span}></Col>
         <Col span={9}>
-          <FormItem>
-            <Input {...srcProps} placeholder={srcPlaceholder} />
-          </FormItem>
+        {
+          srcProps && (
+            <FormItem>
+              <Input {...srcProps} placeholder={srcPlaceholder} />
+            </FormItem>
+          )
+        }
+        {
+          srcHttpProps && (
+            <FormItem>
+              <Input {...srcHttpProps} placeholder={srcPlaceholder} />
+            </FormItem>
+          )
+        }
         </Col>
         <Col span={7}>
           <FormItem>
@@ -533,9 +590,13 @@ let DockerfileModal = React.createClass({
         currentAddModuleIndex ++
         const keys = addKeys[currentAddModuleIndex]
         keys.map(key => {
+          const addFileTypeKey = `addFileType-${currentAddModuleIndex}`
           const srcKey = `src-${currentAddModuleIndex}-${key}`
+          const srcHttpKey = `src-http-${currentAddModuleIndex}-${key}`
           const targetKey = `target-${currentAddModuleIndex}-${key}`
-          const src = getFieldValue(srcKey)
+          const src = getFieldValue(addFileTypeKey) === 'httpAddress'
+                      ? getFieldValue(srcHttpKey)
+                      : getFieldValue(srcKey)
           const target = getFieldValue(targetKey)
           if (src && target) {
             dkfArray.push({
@@ -646,11 +707,6 @@ let DockerfileModal = React.createClass({
             {
               grammarModules.map(this.renderGrammarModule)
             }
-            <Row>
-              <a href="javascript:void(0)" onClick={() => this.setState({grammarModules: [ BTN ]})}>
-                <Icon type="delete" /> 清除 Dockerfile
-              </a>
-            </Row>
           </div>
           <div className={textEditing}>
             <DockerFileEditor value={dockerfile || ''}/>
@@ -662,4 +718,13 @@ let DockerfileModal = React.createClass({
 })
 
 DockerfileModal = Form.create()(DockerfileModal)
-export default DockerfileModal
+
+function mapStateToProps(state) {
+  return {
+    loginUser: state.entities.loginUser.info,
+  }
+}
+
+export default connect(mapStateToProps, {
+  //
+})(DockerfileModal)

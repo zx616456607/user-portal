@@ -121,7 +121,7 @@ exports.addConfigsForFrontend = function (user, loginUser) {
   user.proxy_type = constants.PROXY_TYPE
   // Add registry config
   user.registryConfig = {
-    server: global.globalConfig.registryConfig.v2Server
+    server: global.globalConfig.registryConfig.url
   }
   // Add oem info
   user.oemInfo = global.globalConfig.oemInfo
