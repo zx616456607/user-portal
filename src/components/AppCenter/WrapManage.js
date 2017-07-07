@@ -67,7 +67,7 @@ class UploadModal extends Component {
       if (!!errors) {
         return;
       }
-
+      const notificat = new NotificationHandler()
       if(this.state.type === 'local' && this.state.resolve) {
         this.state.resolve(true)
         const fileCallback = notificat.spin('上传中...')
