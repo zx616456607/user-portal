@@ -21,7 +21,7 @@ import { formatDate } from '../../common/tools'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { API_URL_PREFIX } from '../../constants'
 import WrapListTable from './AppWrap/WrapListTable'
-import { wrapManageList, deleteWrapManage, uploadWrap } from '../../actions/app_center'
+import { wrapManageList, deleteWrapManage, uploadWrap, checkWrapName } from '../../actions/app_center'
 const RadioGroup = Radio.Group
 const Dragger = Upload.Dragger
 const TabPane = Tabs.TabPane
@@ -151,7 +151,36 @@ class UploadModal extends Component {
   changeTabs = (type)=> {
     this.setState({type})
   }
+  checkNameVersion = (name)=> {
+    const query = {
+      filter: `fileName contains ${name}`,
+    }
+    const { form,func } = this.props
+    const wrapName = form.getFieldValue('wrapName')
+    const labelVersion = form.getFieldValue('versionLabel')
+    if (!wrapName) return
+    if (!labelVersion) return
 
+    let isEq = false
+    func.checkWrapName(query,{
+      success:{
+        func: ret => {
+          if (Array.isArray(ret.data.pkgs)) {
+            ret.data.pkgs.every(item => {
+              if (item.fileTag == labelVersion && item.fileName == name) {
+                isEq = true
+                return false
+              }
+              return true
+            })
+          }
+          if (isEq) {
+            notificat.info('应用包名称和版本重复，继续上传会覆盖原有的')
+          }
+        }
+      }
+    })
+  }
   validateName = (rule, value, callback)=> {
     if (!value) {
       return callback('请输入包名称')
@@ -163,6 +192,7 @@ class UploadModal extends Component {
       return callback('以英文字母和数字开头中间可[-_]')
     }
     this.setState({fileName: value})
+    this.checkNameVersion(value)
     return callback()
   }
   validateVersion = (rule, value, callback)=> {
@@ -176,6 +206,7 @@ class UploadModal extends Component {
       return callback('最多只能为128个字符')
     }
     this.setState({fileTag: value})
+    this.checkNameVersion(value)
     return callback()
   }
   checkedUrl = (rule, value, callback)=> {
@@ -265,7 +296,6 @@ class UploadModal extends Component {
         })
       },
       onChange(e) {
-        const notificat = new NotificationHandler()
         if (e.file.status == 'done') {
           self.state.fileCallback()
           notificat.success('上传成功')
@@ -358,9 +388,9 @@ class WrapManage extends Component {
     }
     this.props.wrapManageList(from)
   }
-  // componentWillMount() {
-  //   this.loadData()
-  // }
+  componentWillMount() {
+    this.loadData()
+  }
   // componentWillReceiveProps(nextProps) {
   //   if (nextProps.space.namespace !== this.props.space.namespace) {
   //     this.loadData()
@@ -373,7 +403,7 @@ class WrapManage extends Component {
       document.getElementById('wrapName').focus()
     },200)
   }
-deleteAction(status,id) {
+  deleteAction(status,id) {
     if (status) {
       id = [id]
       this.setState({delAll: true,id})
@@ -410,15 +440,16 @@ deleteAction(status,id) {
       }
     })
   }
-   goDeploy() {
+   goDeploy(fileName) {
     // /app_manage/app_create/quick_create#configure-service
-    browserHistory.push('/app_manage/deploy_wrap')
+    browserHistory.push('/app_manage/deploy_wrap?fileName='+fileName)
   }
   render() {
     const funcCallback = {
       uploadModal: this.uploadModal,
       getList: this.getList,
-      uploadWrap: this.props.uploadWrap
+      uploadWrap: this.props.uploadWrap,
+      checkWrapName: this.props.checkWrapName
     }
     const func = {
       scope: this,
@@ -437,7 +468,7 @@ deleteAction(status,id) {
             <i className="fa fa-search btn-search" onClick={()=> this.getList(true)}/>
           </div>
           <Card className="wrap_content">
-            <WrapListTable func={func} rowCheckbox={true}/>
+            <WrapListTable func={func} rowCheckbox={true} selectedRowKeys={this.state.selectedRowKeys} />
           </Card>
         </div>
 
@@ -454,11 +485,20 @@ deleteAction(status,id) {
 }
 
 function mapStateToProps(state,props) {
-  return props
+  const { wrapList } = state.images
+  const list = wrapList || {}
+  let datalist = {pkgs:[],total:0}
+  if (list.result) {
+    datalist = list.result.data
+  }
+  return {
+    wrapList: datalist,
+  }
 }
 
 export default connect(mapStateToProps,{
   wrapManageList,
   deleteWrapManage,
-  uploadWrap
+  uploadWrap,
+  checkWrapName
 })(WrapManage)

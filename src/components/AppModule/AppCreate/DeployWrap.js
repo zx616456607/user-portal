@@ -52,8 +52,16 @@ class WrapManage extends Component {
       ]
     }
   }
-  componentWillMount() {
-    this.props.wrapManageList()
+   componentWillMount() {
+    const { location } = this.props
+    if (location && location.query.fileName) {
+      const query = {
+        filter: `fileName contains ${location.query.fileName}`,
+      }
+      this.props.wrapManageList(query)
+      return
+    }
+    this.loadData()
   }
   getList(e) {
     let inputValue = e.target.value
