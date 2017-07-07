@@ -8,7 +8,7 @@
  * @author Baiyu
  */
 import React, { Component } from 'react'
-import { Input, Button, Card, Table, Steps, Row, Col } from 'antd'
+import { Input, Button, Card, Steps, Row, Col, Select,Icon } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { Link, browserHistory } from 'react-router'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
@@ -17,11 +17,11 @@ import { wrapManageList } from '../../../actions/app_center'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../constants'
 import { API_URL_PREFIX } from '../../../constants'
 import { formatDate } from '../../../common/tools'
-import javaImage from '../../../assets/img/appstore/Java.png'
+import javaImage from '../../../assets/img/appstore/java.png'
 import tomcatImage from '../../../assets/img/appstore/tomcat.png'
 import Title from '../../Title'
 import NotificationHandler from '../../../components/Notification'
-
+import WrapListTable from '../../AppCenter/AppWrap/WrapListTable'
 import { connect } from 'react-redux'
 import './style/WrapManage.less'
 const notificat = new NotificationHandler()
@@ -41,13 +41,13 @@ class WrapManage extends Component {
           registry: DEFAULT_REGISTRY,
           name: 'appdeploy/java',
           imageUrl: javaImage,
-          version: [7, 8]
+          version: ['8','7']
         },
         {
           registry: DEFAULT_REGISTRY,
           name: 'appdeploy/tomcat',
           imageUrl: tomcatImage,
-          version: [7, 8, 9]
+          version: ['9','8','7']
         }
       ]
     }
@@ -108,15 +108,20 @@ class WrapManage extends Component {
       priceMonth,
     }
   }
-  changTemplate(num) {
-    this.setState({defaultTemplate: num})
+  changTemplate(num,item) {
+    this.setState({defaultTemplate: num,version:item.version[0]})
   }
   templateList() {
-    return this.state.template.map((item,index) => {
+    const { template,defaultTemplate } = this.state
+    return template.map((item,index) => {
       return (
-        <div className="template cursor" key={item.name} onClick={()=> this.changTemplate(index)}>
+        <div className="template cursor" key={item.name} onClick={()=> this.changTemplate(index,item)}>
           <img src={`${item.imageUrl}`} />
-          <i className="selectIcon fa fa-check-circle"></i>
+          {defaultTemplate == index?
+          [<span className="triangle" key={index+1}></span>,
+          <Icon type="check" key={index +2}/>]
+          :null
+          }
           <span className="textoverflow">{item.name.split('/')[1]}</span>
         </div>
       )
@@ -126,69 +131,43 @@ class WrapManage extends Component {
   templateVersion() {
     const { defaultTemplate, template } = this.state
     return template[defaultTemplate].version.map(item=> {
-      return <Button className="version" onClick={()=> this.setState({version: item})} type={this.state.version == item ?'primary':'ghost'}>{item}</Button>
+      return <Select.Option key={item}>{item}</Select.Option>
     })
   }
-  goDeploy(id) {
+  goDeploy = (id)=> {
     // /app_manage/app_create/quick_create#configure-service
     const { version, defaultTemplate, template } = this.state
+    const { wrapList } = this.props
+    let registry = wrapList.registry
+    registry = registry && registry.split(/^(http:\/\/|https:\/\/)/)[2]
+    // if (!version) {
+    //   notificat.info('请选择版本')
+    //   return
+    // }
+    let tag = version
     if (!version) {
-      notificat.info('请选择版本')
+      tag = template[defaultTemplate].version[0]
+    }
+    if (!registry) {
+      notificat.error('镜像地址获取失败','尝试刷新后重试')
       return
     }
-    if (template[defaultTemplate].version.indexOf(version) == -1) {
+    if (template[defaultTemplate].version.indexOf(tag) == -1) {
       notificat.info('版本有误，请重新选择版本')
       return
     }
 
-    const imageName ='?imageName='+this.state.template[defaultTemplate].name +'&registryServer=192.168.1.52&appPkgID='+ id
+    const imageName ='?imageName='+this.state.template[defaultTemplate].name +`&tag=${tag}`+`&registryServer=${registry}&appPkgID=`+ id
     browserHistory.push('/app_manage/app_create/quick_create'+imageName)
 
   }
   render() {
-    const { serviceList } = this.state
+    const { serviceList, template, defaultTemplate, version } = this.state
     const { current } = this.props
     const { resource, priceHour, priceMonth } = this.getAppResources()
-    const dataSource = this.props.wrapList
-    const columns = [
-      {
-        title: '包名称',
-        dataIndex: 'fileName',
-        key: 'name',
-        width: '20%',
-        render: (text, row) => <a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}>{text}</a>
-      }, {
-        title: '版本标签',
-        dataIndex: 'fileTag',
-        key: 'tag',
-        width: '20%',
-      }, {
-        title: '包类型',
-        dataIndex: 'fileType',
-        key: 'type',
-      }, {
-        title: '上传时间',
-        dataIndex: 'creationTime',
-        key: 'creationTime',
-        render: text => formatDate(text)
-      }, {
-        title: '操作',
-        dataIndex: 'actions',
-        key: 'actions',
-        width: '150px',
-        render: (e, row) => <Button type="primary" onClick={()=> this.goDeploy(row.id)} key="1">部署</Button>
-      }
-    ]
-    const paginationOpts = {
-      size: "small",
-      pageSize: DEFAULT_PAGE_SIZE,
-      current: this.state.page,
-      total: dataSource.total,
-      onChange: current => this.loadData(current),
-      showTotal: total => `共计： ${total} 条 `,
+    const funcCallback = {
+      goDeploy: this.goDeploy
     }
-    const _this = this
-
 
     const steps = (
       <Steps size="small" className="steps" status={this.state.stepStatus} current={this.getStepsCurrent()}>
@@ -211,9 +190,9 @@ class WrapManage extends Component {
               </div>
               <div className="list_row">
                 <span className="wrap_key">选择版本</span>
-                {
-                  this.templateVersion()
-                }
+                <Select style={{width:180}} size="large" value={version || template[defaultTemplate].version[0]} onChange={(e)=> this.setState({version: e})}>
+                  { this.templateVersion() }
+                </Select>
               </div>
               <div className="list_row">
                 <span className="wrap_key">选择应用包</span>
@@ -224,10 +203,9 @@ class WrapManage extends Component {
                 </span>
               </div>
               <br />
-              <Table className="strategyTable" loading={this.props.isFetching} dataSource={dataSource.pkgs} columns={columns} pagination={paginationOpts} />
+              <WrapListTable func={funcCallback}/>
               <div className="footerBtn">
                 <Button onClick={() => browserHistory.goBack()}>上一步</Button>
-                <Button style={{ marginLeft: 10 }} type="primary" onClick={() => this.goDeploy()}>下一步</Button>
               </div>
             </Card>
           </Col>
