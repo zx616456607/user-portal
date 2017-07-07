@@ -89,7 +89,7 @@ export default class ProgressList extends Component {
             </QueueAnim>
           ] : null
           }
-          {createModel == "layout" ? [
+          {createModel == "deploy_wrap" ? [
             <QueueAnim className="ProgressList" key="ProgressList" type="left">
               <div key="c">
                 <div className="firstStep step">
@@ -108,13 +108,13 @@ export default class ProgressList extends Component {
                   <svg className="commonLine">
                     <use xlinkHref="#stepline" />
                   </svg>
-                  <span>选择应用</span>
+                  <span>选择镜像</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
                   <svg className="commonCircle">
                     <use xlinkHref="#step" />
                   </svg>
-                  <span>编排文件</span>
+                  <span>配置服务</span>
                 </div>
               </div>
             </QueueAnim>
