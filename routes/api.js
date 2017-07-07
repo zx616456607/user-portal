@@ -107,7 +107,7 @@ module.exports = function (Router) {
   // For bind node when create service(lite only)
   router.get('/clusters/:cluster/nodes', clusterController.getNodes)
   router.get('/clusters/add-cluster-cmd', clusterController.getAddClusterCMD)
-  router.get('/clusters/:cluster/proxies', middlewares.isAdminUser, clusterController.getProxy)
+  router.get('/clusters/:cluster/proxies', clusterController.getProxy)
   router.put('/clusters/:cluster/proxies', middlewares.isAdminUser, clusterController.updateProxies)
   router.put('/clusters/:cluster/proxies/:groupID', middlewares.isAdminUser, clusterController.updateProxy)
   router.put('/clusters/:cluster/proxies/:groupID/as_default', middlewares.isAdminUser, clusterController.setDefaultProxy)

@@ -240,7 +240,7 @@ exports.verifyUser = function* (next) {
 
 exports.isAdminUser = function* (next) {
   if(this.session.loginUser.role != 2) {
-    const err  = new Error('Is not admin user')
+    const err  = new Error('Is not admin user - role check')
     err.status = 401
     throw err
   }
