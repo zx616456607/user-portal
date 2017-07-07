@@ -382,7 +382,7 @@ let ConfigureService = React.createClass({
     })
     const imageUrlProps = getFieldProps('imageUrl', {
       rules: [
-        { required: true, message: '请选择镜像版本' }
+        { required: true, message: '请输入镜像地址' }
       ],
     })
     const imageTagProps = getFieldProps('imageTag', {

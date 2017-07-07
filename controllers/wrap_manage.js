@@ -37,6 +37,9 @@ exports.getPkgManageList = function*() {
   // }
 
   const list = yield api.pkg.get(query)
+  if (list.data) {
+    list.data.registry = global.globalConfig.registryConfig.url
+  }
   this.body = list
 }
 
