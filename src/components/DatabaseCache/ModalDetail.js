@@ -284,6 +284,7 @@ class VisitTypes extends Component{
   componentWillMount() {
     const { service, getProxy, clusterID, databaseInfo } = this.props;
     const lbinfo = databaseInfo.serviceInfo.annotations[ANNOTATION_LBGROUP_NAME]
+   
     if(lbinfo == 'none') {
       this.setState({
         initValue: 1,
@@ -306,9 +307,6 @@ class VisitTypes extends Component{
         isAsync: true
       },
     })
-    // this.setState({
-    //    svcDomain:parseServiceDomain('test',bindingDomains,bindingIPs)
-    // })
   }
   componentWillReceiveProps(nextProps) {
     const { detailModal, isCurrentTab } = nextProps;
@@ -376,7 +374,8 @@ class VisitTypes extends Component{
             if (value ===1) {
               this.setState({
                 initValue: 1,
-                initSelectDics: true
+                initSelectDics: true,
+                addrHide: true
               })
               this.setState({
                 isinternal:false,
@@ -453,21 +452,29 @@ class VisitTypes extends Component{
     })
   }
   render() {
-    const { bindingIPs, domainSuffix, databaseInfo ,dbName } = this.props
-    const { value, disabled, forEdit, selectDis, deleteHint, svcDomain, copyStatus,isInternal, addrHide, proxyArr, selectValue, initValue, initGroupID, initSelectDics } = this.state;
+    const { bindingIPs, domainSuffix, databaseInfo } = this.props
+    console.log(databaseInfo)
+    const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, addrHide, proxyArr, initValue, initGroupID, initSelectDics } = this.state;
     const { form } = this.props
-    const domainList = svcDomain && svcDomain.map((item,index)=>{
-        if (item.isInternal === isInternal) {
+    let clusterAdd = [];
+    let port = databaseInfo.serviceInfo.ports[0].port;
+    let serviceName = databaseInfo.serviceInfo.name;
+    let portNum = databaseInfo.podList.listMeta.total;
+    for (let i = 0; i < portNum; i++) {
+      clusterAdd.push({
+        start:`${serviceName}-${i}`,
+        end:`${serviceName}-${i}.${serviceName}:${port}`
+      })
+    }
+    const domainList = clusterAdd && clusterAdd.map((item,index)=>{
           return (
-            <dd key={index} className="addrList">
-              容器端口：{item.interPort}
-              <span className="domain">{item.domain}</span>
+            <dd className="addrList" key={item.start}>
+              <span className="domain">{item.end}</span>
               <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, item.domain)} onClick={this.copyTest.bind(this)}/>
+                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,item.end)} onClick={this.copyTest.bind(this)}/>
               </Tooltip>
             </dd>
           )
-        }
       })
     let validator = (rule, value, callback) => callback()
     if(value == 2) {
@@ -522,8 +529,8 @@ class VisitTypes extends Component{
           <div className="visitTypeInnerBox">
             {
               forEdit ? [
-                <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>,
-                <Button key="cancel" type="primary" size="large" onClick={this.cancelEdit.bind(this)}>取消</Button>
+                <Button key="cancel" size="large" onClick={this.cancelEdit.bind(this)}>取消</Button>,
+                <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>
               ] :
                 <Button type="primary" size="large" onClick={this.toggleDisabled.bind(this)}>编辑</Button>
             }
@@ -558,17 +565,13 @@ class VisitTypes extends Component{
               <Icon type="link"/>出口地址：
               <span className="domain">{externalUrl}</span>
               <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this)} onClick={this.copyTest.bind(this)}/>
+                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,externalUrl)} onClick={this.copyTest.bind(this)}/>
               </Tooltip>
             </div>
             <dl className="addrListBox">
               <dt className="addrListTitle"><Icon type="link"/>集群内实例访问地址</dt>
               <dd className="addrList">
-                www-0：
-                <span className="domain">{databaseInfo.serviceInfo.name + ':' + databaseInfo.serviceInfo.ports[0].port}</span>
-                <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                  <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this)} onClick={this.copyTest.bind(this)}/>
-                </Tooltip>
+                {domainList}
               </dd>
             </dl>
           </div>

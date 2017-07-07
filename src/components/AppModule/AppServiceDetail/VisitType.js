@@ -9,13 +9,14 @@
  */
 
 import React, { Component } from 'react'
-import { Alert, Card, Input, Button, Select,form, Radio, Icon, Modal, Tooltip } from 'antd'
+import { Alert, Card, Input, Button, Select, Radio, Icon, Modal, Tooltip, Form } from 'antd'
 import { Link } from 'react-router'
 import classNames from 'classnames'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
 import "./style/VisitType.less"
 import { setServiceProxyGroup } from '../../../actions/services'
+import { loadAllServices } from '../../../actions/services'
 import { getProxy } from '../../../actions/cluster'
 import NotificationHandler from '../../../common/notification_handler'
 import { parseServiceDomain } from '../../parseDomain'
@@ -25,22 +26,62 @@ class VisitType extends Component{
   constructor(props) {
     super(props)
     this.state = {
-      value: 1,
+      value: undefined,
       disabled:true,
       forEdit: false,
       selectDis: false,
       deleteHint: true,
       svcDomain: [],
       copyStatus: false,
-      isInternal: false,
+      isInternal: undefined,
       addrHide: false,
       proxyArr: [],
       currentProxy: [],
-      groupID:'',
-      selectValue: ''
+      selectValue: '',
+      groupID: undefined,
+      initValue: undefined,
+      initGroupID:undefined
     }
   }
   componentWillMount() {
+    const { service, bindingDomains, bindingIPs, getProxy, cluster } = this.props;
+    this.setState({
+      svcDomain:parseServiceDomain(service,bindingDomains,bindingIPs)
+    })
+    if (service.lbgroup.type === 'none') {
+      this.setState({
+        initValue: 3,
+        initSelectDics: true,
+        addrHide: true
+      })
+      return
+    }
+    if (service.lbgroup.id === 'mismatch') {
+      this.setState({
+        addrHide: true
+      })
+      return
+    }
+    if (service.lbgroup.type === 'private') {
+      this.setState({
+        initValue: 2,
+        initSelectDics: false,
+        initGroupID: service.lbgroup.id,
+        isInternal: true
+      })
+      this.getProxyData('private')
+    } else {
+      this.setState({
+        initValue: 1,
+        initSelectDics: false,
+        initGroupID: service.lbgroup.id,
+        isInternal: false
+      })
+      this.getProxyData('public')
+    }
+    
+  }
+  getProxyData(type) {
     const { service, bindingDomains, bindingIPs, getProxy, cluster } = this.props;
     getProxy(cluster,true,{
       success: {
@@ -48,20 +89,29 @@ class VisitType extends Component{
           this.setState({
             proxyArr:res[camelize(cluster)].data
           },()=>{
-            this.selectProxyArr('public')
+            this.selectProxyArr(type)
           })
         },
         isAsync: true
       },
     })
-    this.setState({
-      svcDomain:parseServiceDomain(service,bindingDomains,bindingIPs)
-    })
   }
   componentWillReceiveProps(nextProps) {
+    let preShow = this.props.serviceDetailmodalShow;
+    let preTab  = this.props.isCurrentTab
     const { serviceDetailmodalShow, isCurrentTab } = nextProps;
-    if (!serviceDetailmodalShow || !isCurrentTab) {
-      this.cancelEdit()
+    
+    if ((!serviceDetailmodalShow && preShow )|| (!isCurrentTab && preTab)) {
+      //this.cancelEdit()
+  
+      this.setState({
+        disabled: true,
+        forEdit:false,
+        value: undefined,
+        groupID: undefined,
+        initValue: undefined,
+        initGroupID: undefined
+      });
     }
   }
   selectProxyArr(type) {
@@ -75,6 +125,7 @@ class VisitType extends Component{
     })
   }
   onChange(e) {
+    const { form } = this.props;
     let value = e.target.value;
     let flag;
     if (value === 1) {
@@ -86,7 +137,8 @@ class VisitType extends Component{
     this.setState({
       value: value,
       selectDis: false,
-      selectValue: null
+      selectValue: null,
+      groupID:undefined
     });
     if (value === 3){
       this.info()
@@ -94,6 +146,9 @@ class VisitType extends Component{
         selectDis:true
       })
     }
+    form.setFieldsValue({
+      groupID:undefined
+    })
   }
   toggleDisabled() {
     this.setState({
@@ -102,8 +157,18 @@ class VisitType extends Component{
     });
   }
   saveEdit() {
-    const { value, groupID } = this.state;
-    const { service, setServiceProxyGroup, cluster } = this.props;
+    const { value } = this.state;
+    const { service, setServiceProxyGroup, cluster, form, loadAllServices } = this.props;
+    let val = value
+    if(!val) {
+      val = this.state.initValue
+    }
+    let groupID = 'none'
+    if(val !== 3) {
+      groupID = form.getFieldValue('groupID')
+    }
+    const notification = new NotificationHandler()
+    notification.spin('保存中更改中')
     setServiceProxyGroup({
       cluster,
       service: service.metadata.name,
@@ -111,38 +176,45 @@ class VisitType extends Component{
     },{
       success: {
         func: (res) => {
-          console.log(res)
+            notification.close()
+            notification.success('出口方式更改成功')
+            this.setState({
+              disabled: true,
+              forEdit:false
+            });
+            if (val === 3) {
+              this.setState({
+                addrHide: true,
+              })
+            } else if (val ===1) {
+              this.setState({
+                isInternal:false,
+                addrHide: false
+              })
+            } else {
+              this.setState({
+                isInternal:true,
+                addrHide: false
+              })
+            }
         },
         isAsync: true
       }
     })
-    this.setState({
-      disabled: true,
-      forEdit:false
-    });
-    if (value === 3) {
-      this.setState({
-        addrHide: true,
-      })
-    } else if (value ===1) {
-      this.setState({
-        isInternal:false,
-        addrHide: false
-      })
-    } else {
-      this.setState({
-        isInternal:true,
-        addrHide: false
-      })
-    }
   }
   cancelEdit() {
+    const { initValue, initGroupID, value, groupID } = this.state;
+    const { form } = this.props;
     this.setState({
       disabled: true,
       forEdit:false,
-      value: 1
+      value: initValue,
+      groupID: initGroupID
+    },()=>{
+      form.setFieldsValue({
+        groupID: this.state.groupID
+      })
     });
-    this.selectProxyArr('public')
   }
   handleChange(value) {
     this.setState({
@@ -175,7 +247,27 @@ class VisitType extends Component{
     });
   }
   render() {
-    const { value, disabled, forEdit, selectDis, deleteHint, svcDomain, copyStatus,isInternal, addrHide, currentProxy, selectValue } = this.state;
+    const { service, form } = this.props;
+    const { getFieldProps } = form;
+    const { value, disabled, forEdit, selectDis, deleteHint, svcDomain, copyStatus,isInternal, addrHide, currentProxy, selectValue, initGroupID, initValue, initSelectDics } = this.state;
+    console.log(service)
+    console.log('svc')
+    console.log(svcDomain)
+    let validator = (rule, value, callback) => callback()
+    if(value == 2) {
+      validator = (rule, value, callback) => {
+        if(!value) {
+          return callback('请选择网络出口')
+        }
+        return callback()
+      }
+    }
+    const selectGroup = getFieldProps("groupID", {
+      rules:[{
+        validator
+      }],
+      initialValue: initGroupID
+    })
     const domainList = svcDomain && svcDomain.map((item,index)=>{
       if (item.isInternal === isInternal) {
         return (
@@ -189,26 +281,38 @@ class VisitType extends Component{
         )
       }
     })
+    const clusterAdd = svcDomain && svcDomain.map((item,index)=>{
+        if (item.isInternal === true) {
+          return (
+            <dd key={index} className="addrList">
+              容器端口：{item.interPort}
+              <span className="domain">{item.domain}</span>
+              <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, item.domain)} onClick={this.copyTest.bind(this)}/>
+              </Tooltip>
+            </dd>
+          )
+        }
+      })
     const proxyNode = currentProxy.length > 0 ? currentProxy.map((item,index)=>{
-      console.log(item)
         return (
-          <Option key={item.id} value={item.id}>{item.address}</Option>
+          <Option key={item.id} value={item.id}>{item.id}</Option>
         )
     }):null
     return (
       <Card id="visitTypePage">
         <div className="visitTypeTopBox">
-          <div className="visitTypeTitle">集群访问方式</div>
+          <div className="visitTypeTitle">服务访问方式</div>
           <div className="visitTypeInnerBox">
             {
               forEdit ? [
-                <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>,
-                <Button key="cancel" type="primary" size="large" onClick={this.cancelEdit.bind(this)}>取消</Button>
+                <Button key="cancel" size="large" onClick={this.cancelEdit.bind(this)}>取消</Button>,
+                <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>
               ] :
               <Button type="primary" size="large" onClick={this.toggleDisabled.bind(this)}>编辑</Button>
             }
             <div className="radioBox">
-              <RadioGroup onChange={this.onChange.bind(this)} value={value}>
+              <RadioGroup onChange={this.onChange.bind(this)} value={value || initValue}>
                 <Radio key="a" value={1} disabled={disabled}>可公网访问</Radio>
                 <Radio key="b" value={2} disabled={disabled}>内网访问</Radio>
                 <Radio key="c" value={3} disabled={disabled}>仅在集群内访问</Radio>
@@ -224,12 +328,14 @@ class VisitType extends Component{
                   value === 3 ? '服务仅提供给集群内其他服务访问；':''
                 }
               </p>
-              <div className={classNames("inlineBlock selectBox",{'hide': selectDis})}>
-                <Select size="large" style={{ width: 180 }} onChange={this.handleChange.bind(this)} disabled={disabled}
-                  getPopupContainer={()=>document.getElementsByClassName('selectBox')[0]} value={selectValue}
-                >
-                  {proxyNode}
-                </Select>
+              <div className={classNames("inlineBlock selectBox",{'hide': selectDis || initSelectDics})}>
+                <Form.Item>
+                  <Select size="large" style={{ width: 180 }} {...selectGroup} disabled={disabled}
+                          getPopupContainer={()=>document.getElementsByClassName('selectBox')[0]}
+                  >
+                    {proxyNode}
+                  </Select>
+                </Form.Item>
               </div>
               <div className={classNames("inlineBlock deleteHint",{'hide': deleteHint})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>该网络出口已被管理员删除，请选择其他网络出口或方式</div>
             </div>
@@ -245,7 +351,7 @@ class VisitType extends Component{
             </dl>
             <dl className="addrListBox">
               <dt className="addrListTitle"><Icon type="link"/>集群内访问地址</dt>
-              {domainList}
+              {clusterAdd}
             </dl>
           </div>
         </div>
@@ -263,6 +369,7 @@ function mapSateToProp(state) {
 
 VisitType = connect(mapSateToProp, {
   setServiceProxyGroup,
-  getProxy
-})(VisitType)
+  getProxy,
+  loadAllServices
+})(Form.create()(VisitType))
 export default VisitType;
