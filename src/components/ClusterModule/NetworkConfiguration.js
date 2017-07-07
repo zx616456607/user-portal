@@ -265,6 +265,7 @@ let NetworkConfiguration = React.createClass ({
       const body = []
       networkConfigArray.forEach(item => {
         let obj = {
+          'id': values[`groupId${item.key}`],
           "name": values[`name${item.key}`],
           "type": values[`networkType${item.key}`],
           "address": values[`address${item.key}`],
@@ -700,7 +701,12 @@ let NetworkConfiguration = React.createClass ({
         let nameProps
         let addressProps
         let domainProps
+        let groupidProps
         if(editCluster){
+          groupidProps = getFieldProps(`groupId${item.key}`,{
+            initialValue: data[item.key] && data[item.key].id ? data[item.key].id : '',
+          })
+
           nameProps = getFieldProps(`name${item.key}`,{
             initialValue: data[item.key] && data[item.key].name ? data[item.key].name : undefined,
             rules:[{
