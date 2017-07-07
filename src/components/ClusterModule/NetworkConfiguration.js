@@ -41,7 +41,8 @@ let NetworkConfiguration = React.createClass ({
       settingDefalutLoading: true,
       defaultSetting: undefined,
       deleteDefaultGroup: false,
-      currentItem: {}
+      currentItem: {},
+      defaultGroup: undefined,
     }
   },
   componentWillMount(){
@@ -71,6 +72,12 @@ let NetworkConfiguration = React.createClass ({
               let nodesItem = {
                 key: index,
                 nodesKey: item.nodes.length - 1
+              }
+
+              if(item.isDefault){
+                this.setState({
+                  defaultGroup: item.id
+                })
               }
 
               item.nodes.forEach((nodeItem, nodeIndex) => {
@@ -304,10 +311,10 @@ let NetworkConfiguration = React.createClass ({
         failed: {
           func: () => {
             notify.close()
-            notify.error('代理出口更新失败')
+            notify.error('代理出口更新失败，请重试')
             this.setState({
               saveBtnDisabled: false,
-              editCluster: false
+              editCluster: true
             })
 
           }
@@ -346,6 +353,30 @@ let NetworkConfiguration = React.createClass ({
       })
       return
     }
+  },
+  nodeChange(value, networkKey, key){
+    const { nodeList, cluster, form } = this.props
+    const clusterID = cluster.clusterID
+    if(!nodeList || nodeList[clusterID].isFetching){
+      return
+    }
+    let nodes = []
+    if(nodeList[clusterID].nodes && nodeList[clusterID].nodes.clusters && nodeList[clusterID].nodes.clusters.nodes && nodeList[clusterID].nodes.clusters.nodes.nodes){
+      nodes = nodeList[clusterID].nodes.clusters.nodes.nodes
+    }
+    let address = undefined
+    for(let i=0; i < nodes.length; i++){
+      if(nodes[i].objectMeta.name === value){
+        address = nodes[i].address
+        break
+      }
+    }
+    form.setFieldsValue({
+      [`nodeIP-${networkKey}-${key}`]: address
+    })
+    setTimeout(() => {
+      this.validAllField('IP')
+    }, 100)
   },
   getItems(config) {
     const { cluster, form, clusterProxy } = this.props
@@ -386,7 +417,8 @@ let NetworkConfiguration = React.createClass ({
                     }
                     callback()
                   }
-                }]
+                }],
+                onChange:(value) => this.nodeChange(value, networkKey, item)
               })}  placeholder="选择服务节点">
               {this.getSelectItem()}
             </Select> :
@@ -498,19 +530,29 @@ let NetworkConfiguration = React.createClass ({
       return this.setState({
         deleteDefaultGroup: true,
         currentItem: item,
-        currentName: record.name
+        currentName: record.name,
+        currentGroup: record.isDefault
       })
+      return
     }
-    networkConfigArray.forEach(config => {
-      if(item.key !== config.key){
-        newnetworkConfigArray.push(config)
-      }
-    })
-    form.setFieldsValue({
-      'networkConfigArray': newnetworkConfigArray
-    })
-    this.setState({
-      deleteDefaultGroup: false
+    if(!record || record == 'confirm'){
+      networkConfigArray.forEach(config => {
+        if(item.key !== config.key){
+          newnetworkConfigArray.push(config)
+        }
+      })
+      form.setFieldsValue({
+        'networkConfigArray': newnetworkConfigArray
+      })
+      this.setState({
+        deleteDefaultGroup: false
+      })
+      return
+    }
+    return this.setState({
+      deleteDefaultGroup: true,
+      currentItem: item,
+      currentName: record.name
     })
   },
   networkTypeText(type){
@@ -518,9 +560,9 @@ let NetworkConfiguration = React.createClass ({
       return <span>公网</span>
     }
     if(type == 'private'){
-      return <span></span>
+      return <span>内网</span>
     }
-    return <span>不填写</span>
+    return <span></span>
   },
   typeIcon(type){
     if(type == "public"){
@@ -670,12 +712,12 @@ let NetworkConfiguration = React.createClass ({
 
           addressProps = getFieldProps(`address${item.key}`,{
             initialValue: data[item.key] && data[item.key].address ? data[item.key].address : '',
-            rules:[{required: false}]
+            rules:[{required: true, message: '服务出口不能为空'}]
           })
 
           domainProps = getFieldProps(`domain${item.key}`,{
             initialValue: data[item.key] && data[item.key].domain ? data[item.key].domain: '',
-            rules: [{ required: true,message: '域名不能为空' }]
+            rules: [{ required: false }]
           })
         }
         return  <Row className="clusterTable">
@@ -712,7 +754,7 @@ let NetworkConfiguration = React.createClass ({
                 <Col span="11">
                   类型
                   <span style={{color: 'red'}}>*</span>
-                  <Tooltip title='该类型决定该网络代理在创建服务时出现在那种服务访问方式中'>
+                  <Tooltip title='该类型决定该网络出口在创建服务时出现在哪种服务访问方式中'>
                     <Icon type="question-circle-o" className='qustionIcon'/>
                   </Tooltip>
                   { this.typeIcon(networkType)}
@@ -760,8 +802,7 @@ let NetworkConfiguration = React.createClass ({
                   {this.titleStar(networkType)}
                 </Col>
                 <Col span="11">
-                  服务域名配置
-                  {this.titleStar(networkType)}
+                  服务域名配置（可选）
                 </Col>
               </Row>
 
@@ -828,10 +869,15 @@ let NetworkConfiguration = React.createClass ({
               <Icon type="question-circle-o" className='qustionIcon'/>
             </Tooltip>
             <span className="sketchMap" onClick={()=> this.setState({visible:true})}>查看示意图</span>
-            <Tooltip title='设置默认网络'>
-              <Button icon="setting" className='settingDefalut' disabled={!editCluster} onClick={() => this.setState({settingDefalut: true})}/>
-            </Tooltip>
-            <Button type="primary" className='addPublick' disabled={!editCluster} onClick={this.addPublic}>添加服务外网</Button>
+            {
+              editCluster
+              ? <Tooltip title='设置默认网络'>
+                <Button icon="setting" className='settingDefalut' onClick={() => this.setState({settingDefalut: true})}/>
+              </Tooltip>
+              : <Button icon="setting" className='settingDefalut' disabled/>
+            }
+
+            <Button type="primary" className='addPublick' disabled={!editCluster} onClick={this.addPublic}>添加网络出口</Button>
           </Col>
         </Row>
 
@@ -870,6 +916,7 @@ let NetworkConfiguration = React.createClass ({
                style={{width:'180px'}}
                placeholder='选择默认网络出口'
                {...getFieldProps('defaultSetting',{
+                 initialValue: this.state.defaultGroup,
                  onChange: this.selectSettingChange
                })}
              >
@@ -883,7 +930,7 @@ let NetworkConfiguration = React.createClass ({
           title="删除网络出口"
           visible={this.state.deleteDefaultGroup}
           closable={true}
-          onOk={() => this.deletePublic(this.state.currentItem)}
+          onOk={() => this.deletePublic(this.state.currentItem, 'confirm')}
           onCancel={() => this.setState({deleteDefaultGroup: false})}
           width='570px'
           maskClosable={false}
@@ -891,8 +938,14 @@ let NetworkConfiguration = React.createClass ({
         >
           <div className='tips'>
             <i className="fa fa-exclamation-triangle warningIcon" aria-hidden="true"></i>
-            删除该网络出口后，已使用此网络出口的服务将不能通过此网络出口被访问
+            <div>删除该网络出口后，已使用此网络出口的服务将不能通过此网络出口被访问</div>
+            {/*{*/}
+              {/*this.state.currentGroup*/}
+              {/*? <div>2、此网络出口为默认网络出口，删除后，创建服务或数据库与缓存集群时，将没有默认的网络出口，建议设置其他网络出口作为默认</div>*/}
+              {/*: null*/}
+            {/*}*/}
           </div>
+
           <div className='message'>
             <Icon type="question-circle-o questionIcon" />
             是否确定删除 { this.state.currentName } 网络出口?

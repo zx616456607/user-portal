@@ -24,9 +24,39 @@ class AccessMethod extends Component {
   }
 
   componentWillMount() {
-    const { getProxy,currentCluster } = this.props
+    const { getProxy,currentCluster, form } = this.props
     const clusterID = currentCluster.clusterID
-    getProxy(clusterID)
+    let clusterId = camelize(currentCluster.clusterID)
+    getProxy(clusterID,{
+      success: {
+        func: (res) => {
+          let data = res[clusterId].data
+          let defaultGroup = undefined
+          console.log('data=',data)
+          for(let i = 0; i < data.length; i++){
+            if(data[i].type == "public" && data[i].isDefault){
+              defaultGroup = data[i].id
+              break
+            }
+          }
+          console.log('defaultGroup=',defaultGroup)
+          setTimeout(() => {
+            form.setFieldsValue({
+              'publicNetwork': defaultGroup
+            })
+          },100)
+        }
+      },
+      failed: {
+        func: () => {
+          setTimeout(() => {
+            form.setFieldsValue({
+              'publicNetwork': undefined
+            })
+          },100)
+        }
+      }
+    })
   }
 
   accessMethodTips = type => {
@@ -132,11 +162,36 @@ class AccessMethod extends Component {
     }
   }
 
+  accessTypeChange = e => {
+    const { form } = this.props
+    let type = e.target.value
+    let optionArray = this.formatGroupArray(type)
+    let defaultGroup = undefined
+    optionArray.forEach(item => {
+      if(item.isDefault){
+        defaultGroup = item.id
+      }
+    })
+    if(type == 'PublicNetwork'){
+      form.setFieldsValue({
+        'publicNetwork': defaultGroup
+      })
+      return
+    }
+    if(type == 'Internaletwork'){
+      form.setFieldsValue({
+        'internaletwork': defaultGroup
+      })
+      return
+    }
+  }
+
   render() {
     const { formItemLayout,form } = this.props
     const { getFieldProps,getFieldValue } = form
     const accessMethodProps = getFieldProps('accessMethod',{
       initialValue: 'PublicNetwork',
+      onChange: this.accessTypeChange
     })
     const accessMethodValue = getFieldValue('accessMethod')
     return (

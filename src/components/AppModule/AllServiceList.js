@@ -396,6 +396,29 @@ const MyComponent = React.createClass({
       document.getElementById('name').focus()
     },500)
   },
+  renderGroupIcon(group){
+    if(!group || !group.id || group.type == 'none'){
+      return <span></span>
+    }
+    if(group.id == "mismatch"){
+      return <Tooltip title='网络出口已删除'>
+        <span className='standrand netcolor'>网</span>
+      </Tooltip>
+
+    }
+    switch(group.type){
+      case 'private':
+        return <Tooltip title='该服务可内网访问'>
+          <span className='standrand privateColor'>内</span>
+        </Tooltip>
+      case 'public':
+        return <Tooltip title='该服务可公网访问'>
+          <span className='standrand publicColor'>公</span>
+        </Tooltip>
+      default:
+        return <span></span>
+    }
+  },
   render: function () {
     const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs, loginUser, scope } = this.props
     if (loading) {
@@ -518,6 +541,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="name commonData">
             <span className="viewBtn" onClick={() => this.modalShow(item)}>
+              { this.renderGroupIcon(item.lbgroup)}
               {item.metadata.name}
             </span>
           </div>

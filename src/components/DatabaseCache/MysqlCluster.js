@@ -15,6 +15,7 @@ import { Modal, Button, Icon, Input, Spin, Tooltip } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbCacheList , searchDbservice } from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
+import { getProxy } from '../../actions/cluster'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
@@ -144,13 +145,13 @@ class MysqlCluster extends Component {
     }
   }
   componentWillMount() {
-    const { loadDbCacheList, cluster } = this.props
+    const { loadDbCacheList, cluster, getProxy } = this.props
     if (cluster == undefined) {
       let notification = new NotificationHandler()
       notification.error('请选择集群','invalid cluster ID')
       return
     }
-
+    getProxy(cluster)
     loadDbCacheList(cluster, 'mysql')
   }
   componentDidMount() {
@@ -214,7 +215,7 @@ class MysqlCluster extends Component {
 
   render() {
     const _this = this;
-    const { isFetching, databaseList } = this.props;
+    const { isFetching, databaseList, clusterProxy } = this.props;
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
@@ -256,7 +257,7 @@ class MysqlCluster extends Component {
           title='创建数据库集群'
           onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } }
           >
-          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database='mysql' />
+          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database='mysql' clusterProxy={clusterProxy}/>
         </Modal>
       </QueueAnim>
     )
@@ -278,6 +279,7 @@ function mapStateToProps(state, props) {
   const { databaseAllList } = state.databaseCache
   const { database, databaseList, isFetching } = databaseAllList.mysql || defaultMysqlList
   const teamCluster = state.team.teamClusters
+  let clusterProxy = state.cluster.proxy.result || {}
   return {
     cluster: cluster.clusterID,
     // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11',
@@ -286,6 +288,7 @@ function mapStateToProps(state, props) {
     databaseList: databaseList,
     isFetching,
     teamCluster,
+    clusterProxy,
   }
 }
 
@@ -303,5 +306,6 @@ MysqlCluster = injectIntl(MysqlCluster, {
 export default connect(mapStateToProps, {
   loadDbCacheList,
   loadMyStack,
-  searchDbservice
+  searchDbservice,
+  getProxy,
 })(MysqlCluster)

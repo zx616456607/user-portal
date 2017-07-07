@@ -42,7 +42,7 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
       bindingDomain = [ domain ]
       bindingDomainStr = JSON.stringify(bindingDomain)
     }
-    if (type === 'none' || id === 'mistach') {
+    if (type === 'none' || id === 'mismatch') {
       bindingDomain = []
       bindingDomainStr = JSON.stringify(bindingDomain)
       portsForExternal = null
