@@ -15,6 +15,7 @@ import { Modal, Form, Button, Radio, Select, Input, Alert, Row, Col, Icon } from
 import classNames from 'classnames'
 import { parse } from 'docker-file-parser'
 import DockerFileEditor from '../../Editor/DockerFile'
+import { URL_REG_EXP } from '../../../constants'
 import FROM from './FROM'
 import './style/index.less'
 
@@ -118,7 +119,7 @@ let DockerfileModal = React.createClass({
     const fromArray = from.split('/')
     let harborProject = fromArray[fromArray.length - 2]
     const image = fromArray[fromArray.length - 1]
-    const server = from.replace(`/${harborProject}/${image}:${tag}`, '')
+    const server = FROMObj.args.replace(`/${harborProject}/${image}:${tag}`, '')
     let imageUrl
     if (regServer.indexOf(server) < 0) {
       imageUrl = FROMObj.args
@@ -470,7 +471,7 @@ let DockerfileModal = React.createClass({
       callback()
       return
     }
-    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+    if (!URL_REG_EXP.test(value)) {
       return callback('请输入合法的远程文件获取地址')
     }
     callback()
