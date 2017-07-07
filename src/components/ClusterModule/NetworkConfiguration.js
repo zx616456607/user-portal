@@ -401,62 +401,69 @@ let NetworkConfiguration = React.createClass ({
       if(proxy[networkKey] && proxy[networkKey].nodes){
         nodes = proxy[networkKey].nodes
       }
-      return <div key={item} id="error-s" style={{display:'flex'}}>
-        <Form.Item style={{flex:'5',paddingRight:'5px'}}>
-          { editCluster ? 
-              <Select style={{width:'100%'}} {...getFieldProps(`nodeSelect-${networkKey}-${item}`, {
-                initialValue: nodes && nodes[item] ? nodes[item].host : undefined,
-                rules: [{
-                  validator: (rule, value, callback) => {
-                    if(!value) {
-                      return callback('请选择节点')
-                    }
-                    this.validAllField('node')
-                    if(this.isExistRepeat('node', config, item).nodeResult) {
-                      return callback('代理节点重复')
-                    }
-                    callback()
-                  }
-                }],
-                onChange:(value) => this.nodeChange(value, networkKey, item)
-              })}  placeholder="选择服务节点">
-              {this.getSelectItem()}
-            </Select> :
-            <span className="h5" style={{width: "100%",display:'inline-block'}}>{nodes && nodes[item] ? nodes[item].host : ''}</span>
-          }
-          </Form.Item>
-          <Form.Item style={{flex:'5',paddingLeft:'5px'}}>
-            { editCluster ?
-              <Input {...getFieldProps(`nodeIP-${config.key}-${item}`,{
-                initialValue: nodes && nodes[item] ? nodes[item].address : undefined,
-                rules: [
-                  {
+      return <div key={item} id="error-s" style={{height: '57px'}}>
+        <Row style={{width: '100%'}}>
+          <Col xs={{span: 11}} style={{paddingRight: '10px'}}>
+            <Form.Item>
+              { editCluster ?
+                <Select {...getFieldProps(`nodeSelect-${networkKey}-${item}`, {
+                  initialValue: nodes && nodes[item] ? nodes[item].host : undefined,
+                  rules: [{
                     validator: (rule, value, callback) => {
                       if(!value) {
-                        return callback('请填写网卡 IP')
+                        return callback('请选择节点')
                       }
-                      if (!IP_REGEX.test(value)) {
-                        return callback([new Error('请填写正确的网卡 IP')])
-                      }
-                      this.validAllField('IP')
-                      if(this.isExistRepeat('IP', config, item).IPResult) {
-                        return callback('节点网卡重复')
+                      this.validAllField('node')
+                      if(this.isExistRepeat('node', config, item).nodeResult) {
+                        return callback('代理节点重复')
                       }
                       callback()
                     }
-                  }
-                ]
-              })
-            } style={{width:'100%'}}  placeholder="输入服务出口 IP" />
-            :
-              <span className="h5" style={{display:'inline-block'}}>{nodes && nodes[item] ? nodes[item].address : ''}</span>
+                  }],
+                  onChange:(value) => this.nodeChange(value, networkKey, item)
+                })}  placeholder="选择服务节点">
+                  {this.getSelectItem()}
+                </Select> :
+                <span>{nodes && nodes[item] ? nodes[item].host : ''}</span>
+              }
+            </Form.Item>
+          </Col>
+          <Col xs={{span: 11}} style={{paddingRight:'10px'}}>
+            <Form.Item>
+              { editCluster ?
+                <Input {...getFieldProps(`nodeIP-${config.key}-${item}`,{
+                  initialValue: nodes && nodes[item] ? nodes[item].address : undefined,
+                  rules: [
+                    {
+                      validator: (rule, value, callback) => {
+                        if(!value) {
+                          return callback('请填写网卡 IP')
+                        }
+                        if (!IP_REGEX.test(value)) {
+                          return callback([new Error('请填写正确的网卡 IP')])
+                        }
+                        this.validAllField('IP')
+                        if(this.isExistRepeat('IP', config, item).IPResult) {
+                          return callback('节点网卡重复')
+                        }
+                        callback()
+                      }
+                    }
+                  ]
+                })
+                } placeholder="输入服务出口 IP" />
+                :
+                <span>{nodes && nodes[item] ? nodes[item].address : ''}</span>
+              }
+            </Form.Item>
+
+          </Col>
+          <Col xs={{span:2}}>
+            {
+              editCluster ?  <p className="delete-p"><Icon style={{paddingTop:'5px',cursor:'pointer'}}  type="delete" onClick={() => this.handDelete(config, item)}/></p> : <span></span>
             }
-        </Form.Item>
-
-        {
-          editCluster ?  <p className="delete-p"><Icon style={{paddingTop:'5px',paddingLeft:'5px',cursor:'pointer'}}  type="delete" onClick={() => this.handDelete(config, item)}/></p> : <span></span>
-        }
-
+          </Col>
+        </Row>
       </div>
     })
   },
@@ -730,8 +737,8 @@ let NetworkConfiguration = React.createClass ({
           <Col xs={{span:10}}>
             <div className="formItem inner-mesh">
               <Row className='innerItemTitle'>
-                <Col xs={{span:12}}>代理节点</Col>
-                <Col xs={{span:12}}>节点的网卡IP(多网卡时请确认)</Col>
+                <Col xs={{span:11}}>代理节点</Col>
+                <Col xs={{span:13}}>节点的网卡IP(多网卡时请确认)</Col>
               </Row>
               {this.getItems(item)}
               {editCluster ?
@@ -937,13 +944,19 @@ let NetworkConfiguration = React.createClass ({
           wrapClassName="deleteDefaultGroup"
         >
           <div className='tips'>
-            <i className="fa fa-exclamation-triangle warningIcon" aria-hidden="true"></i>
-            <div>删除该网络出口后，已使用此网络出口的服务将不能通过此网络出口被访问</div>
-            {/*{*/}
-              {/*this.state.currentGroup*/}
-              {/*? <div>2、此网络出口为默认网络出口，删除后，创建服务或数据库与缓存集群时，将没有默认的网络出口，建议设置其他网络出口作为默认</div>*/}
-              {/*: null*/}
-            {/*}*/}
+            <i className="fa fa-exclamation-triangle warningIcon" aria-hidden="true" style={{top: this.state.currentGroup ? '28px' : '14px' }}></i>
+            <div>
+            {
+              this.state.currentGroup
+              ? <span>1、</span>
+              : null
+            }
+              删除该网络出口后，已使用此网络出口的服务将不能通过此网络出口被访问</div>
+            {
+              this.state.currentGroup
+              ? <div>2、此网络出口为默认网络出口，删除后，创建服务或数据库与缓存集群时，将没有默认的网络出口，建议设置其他网络出口作为默认</div>
+              : null
+            }
           </div>
 
           <div className='message'>

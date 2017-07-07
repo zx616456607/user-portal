@@ -417,6 +417,7 @@ let CreateDatabase = React.createClass({
                   <FormItem>
                     <Select
                       {...outClusterProps}
+                      placeholder='选择网络出口'
                     >
                       { this.renderSelectOption() }
                     </Select>
