@@ -89,7 +89,7 @@ const MyComponent = React.createClass({
             editDockerFileModal: true,
             dockerfiles: result.content,
             dockerfileId: item,
-            currentDockerfileType: result.type,
+            currentDockerfileType: result.type || 0,
             currentDockerfileId: item,
           })
         },
@@ -253,7 +253,7 @@ const MyComponent = React.createClass({
               submit && this.editDockerFile()
             })
           }
-          defaultValue={this.state.dockerfiles}
+          defaultValue={this.state.currentDockerfileType === 1 && this.state.dockerfiles}
           id={this.state.currentDockerfileId}
         />
       </div>

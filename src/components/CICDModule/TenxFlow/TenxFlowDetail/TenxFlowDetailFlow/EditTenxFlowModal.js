@@ -344,9 +344,9 @@ let EditTenxFlowModal = React.createClass({
             const result = res.data.message || {}
             _this.setState({
               isDockerfile: true,
-              dockerfileEditMode: result.type === 0
-                                  ? 'textEditing'
-                                  : 'visualEditing',
+              dockerfileEditMode: result.type === 1
+                                  ? 'visualEditing'
+                                  : 'textEditing',
               dockerFileTextarea: result.content
             })
           },
