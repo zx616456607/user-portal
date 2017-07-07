@@ -33,6 +33,7 @@ exports.DEFAULT_PAGE_SIZE = 10
 exports.MAX_PAGE_SIZE = 100
 exports.USER_CURRENT_CONFIG = 'tce_user_current_config'
 exports.ANNOTATION_SVC_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname'
+exports.ANNOTATION_LBGROUP_NAME = 'system/lbgroup'
 exports.ANNOTATION_HTTPS = 'tenxcloud.com/https'
 exports.ROLE_USER = 0
 exports.ROLE_TEAM_ADMIN = 1

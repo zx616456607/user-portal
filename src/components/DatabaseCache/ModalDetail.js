@@ -22,8 +22,8 @@ import { parseServiceDomain } from '../parseDomain'
 import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import { calcuDate, parseAmount} from '../../common/tools.js'
-import NotificationHandler from '../../components/Notification'
-import { ANNOTATION_SVC_SCHEMA_PORTNAME } from '../../../constants'
+import NotificationHandler from '../../common/notification_handler'
+import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../constants'
 import mysqlImg from '../../assets/img/database_cache/mysql.png'
 import redisImg from '../../assets/img/database_cache/redis.jpg'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
@@ -283,7 +283,7 @@ class VisitTypes extends Component{
   }
   componentWillMount() {
     const { service, getProxy, clusterID, databaseInfo } = this.props;
-    const lbinfo = databaseInfo.serviceInfo.annotations['system/lbgroup']
+    const lbinfo = databaseInfo.serviceInfo.annotations[ANNOTATION_LBGROUP_NAME]
     if(lbinfo == 'none') {
       this.setState({
         initValue: 1,

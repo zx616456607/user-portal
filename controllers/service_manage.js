@@ -121,6 +121,7 @@ exports.getServiceDetail = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'services', serviceName])
+  const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
   const deployment = (result.data[serviceName] && result.data[serviceName].deployment) || {}
   deployment.images = []
   if (deployment.spec) {
@@ -129,7 +130,7 @@ exports.getServiceDetail = function* () {
     })
   }
   if (result.data[serviceName] && result.data[serviceName].service) {
-    portHelper.addPort(deployment, result.data[serviceName].service)
+    portHelper.addPort(deployment, result.data[serviceName].service, lbgroupSettings.data)
   }
   this.body = {
     cluster,
@@ -476,9 +477,10 @@ exports.getAllService = function*() {
 	}
   const api = apiFactory.getK8sApi(this.session.loginUser)
 	const response = yield api.getBy([cluster, 'services'], queryObj, null)
+  const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
 	this.status = response.code
   response.data.services.map((item) => {
-    portHelper.addPort(item.deployment, item.service)
+    portHelper.addPort(item.deployment, item.service, lbgroupSettings.data)
   })
 	this.body = response
 }
