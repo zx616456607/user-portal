@@ -48,7 +48,8 @@ class VisitType extends Component{
     this.setState({
       svcDomain:parseServiceDomain(service,bindingDomains,bindingIPs)
     })
-    if (service.lbgroup.type === 'none') {
+    
+    if (service.lbgroup&&service.lbgroup.type === 'none') {
       this.setState({
         initValue: 3,
         initSelectDics: true,
@@ -56,40 +57,37 @@ class VisitType extends Component{
       })
       return
     }
-    if (service.lbgroup.id === 'mismatch') {
-      this.setState({
-        addrHide: true
-      })
-      return
-    }
-    if (service.lbgroup.type === 'private') {
-      this.setState({
-        initValue: 2,
-        initSelectDics: false,
-        initGroupID: service.lbgroup.id,
-        isInternal: true
-      })
-      this.getProxyData('private')
-    } else {
-      this.setState({
-        initValue: 1,
-        initSelectDics: false,
-        initGroupID: service.lbgroup.id,
-        isInternal: false
-      })
-      this.getProxyData('public')
-    }
     
-  }
-  getProxyData(type) {
-    const { service, bindingDomains, bindingIPs, getProxy, cluster } = this.props;
+    if (service.lbgroup&&service.lbgroup.id === 'mismatch') {
+      this.setState({
+        initValue:-1,
+        addrHide: true,
+        initSelectDics: true,
+      })
+    }
     getProxy(cluster,true,{
       success: {
         func: (res) => {
           this.setState({
             proxyArr:res[camelize(cluster)].data
           },()=>{
-            this.selectProxyArr(type)
+            if (service.lbgroup&&service.lbgroup.type === 'private') {
+              this.setState({
+                initValue: 2,
+                initSelectDics: false,
+                initGroupID: service.lbgroup&&service.lbgroup.id,
+                isInternal: true
+              })
+              this.selectProxyArr('private')
+            } else if (service.lbgroup&&service.lbgroup.type === 'public'){
+              this.setState({
+                initValue: 1,
+                initSelectDics: false,
+                initGroupID: service.lbgroup&&service.lbgroup.id,
+                isInternal: false
+              })
+              this.selectProxyArr('public')
+            }
           })
         },
         isAsync: true
@@ -99,11 +97,10 @@ class VisitType extends Component{
   componentWillReceiveProps(nextProps) {
     let preShow = this.props.serviceDetailmodalShow;
     let preTab  = this.props.isCurrentTab
-    const { serviceDetailmodalShow, isCurrentTab } = nextProps;
+    const { serviceDetailmodalShow, isCurrentTab, service, bindingDomains, bindingIPs,cluster, getProxy} = nextProps;
     
     if ((!serviceDetailmodalShow && preShow )|| (!isCurrentTab && preTab)) {
       //this.cancelEdit()
-  
       this.setState({
         disabled: true,
         forEdit:false,
@@ -113,12 +110,62 @@ class VisitType extends Component{
         initGroupID: undefined
       });
     }
+    if (service.metadata.name === this.props.service.metadata.name) {
+      return
+    }
+      this.setState({
+        svcDomain:parseServiceDomain(service,bindingDomains,bindingIPs)
+      })
+      getProxy(cluster,true,{
+        success: {
+          func: (res) => {
+            this.setState({
+              proxyArr:res[camelize(cluster)].data
+            },()=>{
+              if (service.lbgroup&&service.lbgroup.type === 'private') {
+                this.setState({
+                  initValue: 2,
+                  initSelectDics: false,
+                  initGroupID: service.lbgroup&&service.lbgroup.id,
+                  isInternal: true
+                })
+                this.selectProxyArr('private')
+              } else if (service.lbgroup&&service.lbgroup.type === 'public'){
+                this.setState({
+                  initValue: 1,
+                  initSelectDics: false,
+                  initGroupID: service.lbgroup&&service.lbgroup.id,
+                  isInternal: false
+                })
+                this.selectProxyArr('public')
+              }
+            })
+        
+          },
+          isAsync: true
+        },
+      })
+      if (service.lbgroup&&service.lbgroup.type === 'none') {
+        this.setState({
+          initValue: 3,
+          initSelectDics: true,
+          addrHide: true
+        })
+      }
+      if (service.lbgroup&&service.lbgroup.id === 'mismatch') {
+        this.setState({
+          initValue:-1,
+          addrHide: true,
+          initSelectDics: true,
+        })
+      }
+    
   }
   selectProxyArr(type) {
     const { proxyArr } = this.state;
     let data = proxyArr.slice(0)
     data = data.filter((item)=>{
-      return item.type === type
+      return !type || item.type === type
     })
     this.setState({
       currentProxy: data
@@ -130,22 +177,32 @@ class VisitType extends Component{
     let flag;
     if (value === 1) {
       flag = 'public'
+      this.setState({
+        value: value,
+        selectDis: false,
+        selectValue: null,
+        groupID:undefined,
+        initSelectDics:false
+      });
+      this.selectProxyArr(flag)
     } else if (value === 2) {
       flag = 'private'
-    }
-    this.selectProxyArr(flag)
-    this.setState({
-      value: value,
-      selectDis: false,
-      selectValue: null,
-      groupID:undefined
-    });
-    if (value === 3){
+      this.setState({
+        value: value,
+        selectDis: false,
+        selectValue: null,
+        groupID:undefined,
+        initSelectDics:false
+      });
+      this.selectProxyArr(flag)
+    } else {
       this.info()
       this.setState({
-        selectDis:true
+        selectDis:true,
+        value: 3,
       })
     }
+    // form.resetFields([ 'groupID' ])
     form.setFieldsValue({
       groupID:undefined
     })
@@ -249,10 +306,7 @@ class VisitType extends Component{
   render() {
     const { service, form } = this.props;
     const { getFieldProps } = form;
-    const { value, disabled, forEdit, selectDis, deleteHint, svcDomain, copyStatus,isInternal, addrHide, currentProxy, selectValue, initGroupID, initValue, initSelectDics } = this.state;
-    console.log(service)
-    console.log('svc')
-    console.log(svcDomain)
+    const { value, disabled, forEdit, selectDis, deleteHint, svcDomain, copyStatus,isInternal, addrHide, currentProxy, selectValue, initGroupID, initValue, initSelectDics, proxyArr } = this.state;
     let validator = (rule, value, callback) => callback()
     if(value == 2) {
       validator = (rule, value, callback) => {
@@ -296,7 +350,7 @@ class VisitType extends Component{
       })
     const proxyNode = currentProxy.length > 0 ? currentProxy.map((item,index)=>{
         return (
-          <Option key={item.id} value={item.id}>{item.id}</Option>
+          <Option key={item.id}>{item.name}</Option>
         )
     }):null
     return (

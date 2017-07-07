@@ -375,9 +375,7 @@ class VisitTypes extends Component{
               this.setState({
                 initValue: 1,
                 initSelectDics: true,
-                addrHide: true
-              })
-              this.setState({
+                addrHide: true,
                 isinternal:false,
                 addrhide: false,
                 value: undefined,
@@ -387,16 +385,14 @@ class VisitTypes extends Component{
               this.setState({
                 initValue: 2,
                 initGroupID: groupID,
-                initSelectDics: false
+                initSelectDics: false,
+                addrHide: false,
+                selectDics: undefined,
+                value: undefined,
+                isinternal:true,
               })
               form.setFieldsValue({
                 groupID
-              })
-              this.setState({
-                isinternal:true,
-                addrhide: false,
-                value: undefined,
-                selectDics: undefined
               })
             }
           },
@@ -453,7 +449,6 @@ class VisitTypes extends Component{
   }
   render() {
     const { bindingIPs, domainSuffix, databaseInfo } = this.props
-    console.log(databaseInfo)
     const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, addrHide, proxyArr, initValue, initGroupID, initSelectDics } = this.state;
     const { form } = this.props
     let clusterAdd = [];
