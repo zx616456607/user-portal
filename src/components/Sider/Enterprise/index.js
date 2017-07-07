@@ -105,6 +105,10 @@ class Sider extends Component {
         currentOpenMenu = ['app_manage','app_manage_default']
         currentSelectedMenu = currentOpenMenu
       }
+      if (pathname.indexOf('app_manage/deploy_wrap') > -1) {
+        currentOpenMenu = ['app_manage','app_manage_default']
+        currentSelectedMenu = currentOpenMenu
+      }
       this.setState({
         currentKey: currentKey,
         currentOpenMenu: currentOpenMenu,

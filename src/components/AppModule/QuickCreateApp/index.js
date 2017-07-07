@@ -213,7 +213,11 @@ class QuickCreateApp extends Component {
     this.setState({
       stepStatus: 'process',
     })
-    const { removeFormFields } = this.props
+    const { removeFormFields, location } = this.props
+    if (location.query.appPkgID) {
+      browserHistory.push('/app_manage/deploy_wrap')
+      return
+    }
     const { validateFieldsAndScroll } = this.form
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {

@@ -8,7 +8,7 @@
  * @author Baiyu
  */
 import React, { Component } from 'react'
-import { Input, Button, Card, Table, Steps, Row, Col, Select,Icon } from 'antd'
+import { Input, Button, Card, Steps, Row, Col, Select,Icon } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { Link, browserHistory } from 'react-router'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
@@ -21,7 +21,7 @@ import javaImage from '../../../assets/img/appstore/java.png'
 import tomcatImage from '../../../assets/img/appstore/tomcat.png'
 import Title from '../../Title'
 import NotificationHandler from '../../../components/Notification'
-
+import WrapListTable from '../../AppCenter/AppWrap/WrapListTable'
 import { connect } from 'react-redux'
 import './style/WrapManage.less'
 const notificat = new NotificationHandler()
@@ -134,7 +134,7 @@ class WrapManage extends Component {
       return <Select.Option key={item}>{item}</Select.Option>
     })
   }
-  goDeploy(id) {
+  goDeploy = (id)=> {
     // /app_manage/app_create/quick_create#configure-service
     const { version, defaultTemplate, template } = this.state
     const { wrapList } = this.props
@@ -165,46 +165,9 @@ class WrapManage extends Component {
     const { serviceList, template, defaultTemplate, version } = this.state
     const { current } = this.props
     const { resource, priceHour, priceMonth } = this.getAppResources()
-    const dataSource = this.props.wrapList
-    const columns = [
-      {
-        title: '包名称',
-        dataIndex: 'fileName',
-        key: 'name',
-        width: '20%',
-        render: (text, row) => <a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}>{text}</a>
-      }, {
-        title: '版本标签',
-        dataIndex: 'fileTag',
-        key: 'tag',
-        width: '20%',
-      }, {
-        title: '包类型',
-        dataIndex: 'fileType',
-        key: 'type',
-      }, {
-        title: '上传时间',
-        dataIndex: 'creationTime',
-        key: 'creationTime',
-        render: text => formatDate(text)
-      }, {
-        title: '操作',
-        dataIndex: 'actions',
-        key: 'actions',
-        width: '150px',
-        render: (e, row) => <Button type="primary" onClick={()=> this.goDeploy(row.id)} key="1">部署</Button>
-      }
-    ]
-    const paginationOpts = {
-      size: "small",
-      pageSize: DEFAULT_PAGE_SIZE,
-      current: this.state.page,
-      total: dataSource.total,
-      onChange: current => this.loadData(current),
-      showTotal: total => `共计： ${total} 条 `,
+    const funcCallback = {
+      goDeploy: this.goDeploy
     }
-    const _this = this
-
 
     const steps = (
       <Steps size="small" className="steps" status={this.state.stepStatus} current={this.getStepsCurrent()}>
@@ -240,7 +203,7 @@ class WrapManage extends Component {
                 </span>
               </div>
               <br />
-              <Table className="strategyTable" loading={this.props.isFetching} dataSource={dataSource.pkgs} columns={columns} pagination={paginationOpts} />
+              <WrapListTable func={funcCallback}/>
               <div className="footerBtn">
                 <Button onClick={() => browserHistory.goBack()}>上一步</Button>
               </div>
