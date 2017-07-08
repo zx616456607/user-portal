@@ -170,7 +170,7 @@ class BaseInfo extends Component {
     return ""
   }
   render() {
-    const { bindingIPs, domainSuffix, databaseInfo ,dbName } = this.props
+    const { bindingIPs, databaseInfo ,dbName } = this.props
     const parentScope = this.props.scope
     const rootScope = parentScope.props.scope
     const selfScope = this
@@ -284,7 +284,7 @@ class VisitTypes extends Component{
   componentWillMount() {
     const { service, getProxy, clusterID, databaseInfo } = this.props;
     const lbinfo = databaseInfo.serviceInfo.annotations[ANNOTATION_LBGROUP_NAME]
-   
+
     if(lbinfo == 'none') {
       this.setState({
         initValue: 1,
@@ -448,13 +448,15 @@ class VisitTypes extends Component{
     })
   }
   render() {
-    const { bindingIPs, domainSuffix, databaseInfo } = this.props
+    const { bindingIPs, domainSuffix, databaseInfo, form } = this.props
     const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, addrHide, proxyArr, initValue, initGroupID, initSelectDics } = this.state;
-    const { form } = this.props
+    const lbinfo = databaseInfo.serviceInfo.annotations[ANNOTATION_LBGROUP_NAME]
     let clusterAdd = [];
     let port = databaseInfo.serviceInfo.ports[0].port;
     let serviceName = databaseInfo.serviceInfo.name;
     let portNum = databaseInfo.podList.listMeta.total;
+    console.log("lbinfo================")
+    console.log(lbinfo)
     for (let i = 0; i < portNum; i++) {
       clusterAdd.push({
         start:`${serviceName}-${i}`,
@@ -499,6 +501,15 @@ class VisitTypes extends Component{
     if (bindingIPs) {
       bindingIP = eval(bindingIPs)[0]
     }
+    // get domain, ip from lbgroup
+    proxyArr && proxyArr.every(proxy => {
+      if (proxy.id === lbinfo) {
+        domain = proxy.domain
+        bindingIP = proxy.address
+        return false
+      }
+      return true
+    })
     let portAnnotation = databaseInfo.serviceInfo.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
     let externalPort = ''
     if (portAnnotation) {
@@ -531,8 +542,8 @@ class VisitTypes extends Component{
             }
             <div className="radioBox">
               <RadioGroup onChange={this.onChange.bind(this)} value={radioValue}>
-                <Radio key="a" value={1} disabled={disabled}>仅在集群内访问</Radio>
                 <Radio key="b" value={2} disabled={disabled}>可集群外访问</Radio>
+                <Radio key="a" value={1} disabled={disabled}>仅在集群内访问</Radio>
               </RadioGroup>
               <p className="typeHint">
                 {
@@ -542,7 +553,7 @@ class VisitTypes extends Component{
               <div className={classNames("inlineBlock selectBox",{'hide': hide})}>
                 <Form.Item>
                   <Select size="large" style={{ width: 180 }} {...selectGroup} disabled={disabled}
-                        getPopupContainer={()=>document.getElementsByClassName('selectBox')[0]} 
+                        getPopupContainer={()=>document.getElementsByClassName('selectBox')[0]}
                 >
                   {proxyNode}
                 </Select>

@@ -226,7 +226,7 @@ class VisitType extends Component{
   }
   cancelEdit() {
     const { initValue, initSelect, initGroupID } = this.state;
-    this.selectProxyArr(initSelect[0].type)
+    this.selectProxyArr(initSelect && initSelect[0] && initSelect[0].type)
     const { form } = this.props;
     this.setState({
       disabled: true,

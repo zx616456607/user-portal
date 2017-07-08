@@ -280,7 +280,7 @@ let CreateDatabase = React.createClass({
       ],
     });
     const accessTypeProps = getFieldProps('accessType',{
-      initialValue: 'none',
+      initialValue: 'outcluster',
       rules: [{
         required: true,
         message: '请选择集群访问方式'
@@ -397,8 +397,8 @@ let CreateDatabase = React.createClass({
               <div className='radioBox'>
                 <FormItem>
                   <Radio.Group {...accessTypeProps}>
-                    <Radio value="none" key="1">仅在集群内访问</Radio>
                     <Radio value="outcluster" key="2">可集群外访问</Radio>
+                    <Radio value="none" key="1">仅在集群内访问</Radio>
                   </Radio.Group>
                 </FormItem>
                 {
