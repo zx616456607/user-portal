@@ -44,16 +44,16 @@ class VisitType extends Component{
   }
   componentWillMount() {
     const { service, bindingDomains, bindingIPs, getProxy, cluster } = this.props;
-    this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
-  }
-  componentWillReceiveProps(nextProps) {
-    let preShow = this.props.serviceDetailmodalShow;
-    const { serviceDetailmodalShow, service, bindingDomains, bindingIPs,cluster, getProxy, form} = nextProps;
-    if (service.lbgroup && this.props.service.lbgroup && (service.lbgroup.type !== this.props.service.lbgroup.type)) {
-      this.getSvcDomain()
-    }
-    if (service.metadata && this.props.service.metadata && (service.metadata.name === this.props.service.metadata.name)) {
-      return
+    this.setState({
+      svcDomain:parseServiceDomain(service,bindingDomains,bindingIPs)
+    })
+    
+    if (service.lbgroup&&service.lbgroup.type === 'none') {
+      this.setState({
+        initValue: 3,
+        initSelectDics: true,
+        addrHide: true
+      })
     }
     if (serviceDetailmodalShow && !preShow ) {
     this.setState({
