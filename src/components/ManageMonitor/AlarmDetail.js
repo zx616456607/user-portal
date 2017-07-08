@@ -19,6 +19,7 @@ import './style/AlarmDetail.less'
 import Title from '../Title'
 import { getAlertSetting, getSettingList, batchEnableEmail, batchDisableEmail, deleteRule } from '../../actions/alert'
 const RadioGroup = Radio.Group
+import { SHOW_BILLING } from '../../constants'
 
 
 class AlarmDetail extends Component {
@@ -255,7 +256,7 @@ class AlarmDetail extends Component {
           </div>
           <Row gutter={16} className="details">
             <Col className="Basicattributes" span="7">
-              <Card style={{paddingBottom:'20px'}}>
+              <Card style={{paddingBottom:'30px'}}>
                 <div className="title">基本属性</div>
                 <div className="baseAttr"><span className="keys">策略名称：</span><div className="ant-radio-group">{leftSetting.strategyName}</div></div>
                 <div className="baseAttr"><span className="keys">类型：</span>{leftSetting.targetType == '1' ? '节点' : '服务'}</div>
@@ -273,10 +274,13 @@ class AlarmDetail extends Component {
                 <div className="baseAttr"><span className="keys">通知列表：</span><div className="ant-radio-group">{leftSetting.receivers}</div></div>
                 <div className="baseAttr"><span className="keys">创建时间：</span>{formatDate(leftSetting.createTime)}</div>
               </Card>
+              { SHOW_BILLING ?
               <Card style={{marginTop:'15px',paddingBottom:'50px'}}>
                 <div className="title">租赁信息</div>
                 <div className="baseAttr" style={{color: '#2DB7F5'}}>本服务暂不收费！</div>
               </Card>
+              :null
+              }
             </Col>
             <Col span="17">
               <Card style={{paddingBottom: 50}}>

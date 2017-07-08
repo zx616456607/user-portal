@@ -20,6 +20,7 @@ import NotificationHandler from '../../components/Notification'
 import { MY_SPACE } from '../../constants'
 import { parseAmount } from '../../common/tools.js'
 import './style/CreateDatabase.less'
+import { SHOW_BILLING } from '../../constants'
 
 const Option = Select.Option;
 const createForm = Form.create;
@@ -398,6 +399,7 @@ let CreateDatabase = React.createClass({
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>}
+            { SHOW_BILLING ?
             <div className="modal-price">
               <div className="price-left">
                 <div className="keys">实例：{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
@@ -408,6 +410,8 @@ let CreateDatabase = React.createClass({
                 <p className="unit">（约：{ countPrice.fullAmount }/月）</p>
               </div>
             </div>
+            :null
+            }
           </div>
           <div className='btnBox'>
             <Button size='large' onClick={this.handleReset}>

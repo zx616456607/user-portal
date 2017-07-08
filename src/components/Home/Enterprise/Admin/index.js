@@ -14,6 +14,7 @@ import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
 import { loadTeamInfo } from '../../../../actions/overview_team'
 import { parseAmount } from '../../../../common/tools'
+import { SHOW_BILLING } from '../../../../constants'
 
 function getOption(cost, rest) {
   return {

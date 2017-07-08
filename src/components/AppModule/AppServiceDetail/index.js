@@ -39,6 +39,7 @@ import { ANNOTATION_HTTPS } from '../../../../constants'
 import { camelize } from 'humps'
 import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 import Title from '../../Title'
+import { SHOW_BILLING } from '../../../constants'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -433,12 +434,18 @@ class AppServiceDetail extends Component {
                   serviceDetail={serviceDetail}
                 relative/>
               </TabPane>
+              {SHOW_BILLING ?
+              [<TabPane tab='事件' key='#events'>
+                <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} type={'replicaset'} serviceDetailmodalShow={serviceDetailmodalShow}/>
+              </TabPane>,
+              <TabPane tab='租赁信息' key='#rentalInfo'>
+                <AppServiceRental serviceName={service.metadata.name} serviceDetail={[serviceDetail]} />
+              </TabPane>]
+              :
               <TabPane tab='事件' key='#events'>
                 <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} type={'replicaset'} serviceDetailmodalShow={serviceDetailmodalShow}/>
               </TabPane>
-              <TabPane tab='租赁信息' key='#rentalInfo'>
-                <AppServiceRental serviceName={service.metadata.name} serviceDetail={[serviceDetail]} />
-              </TabPane>
+              }
             </Tabs>
           </div>
           <div className='contentBox'>

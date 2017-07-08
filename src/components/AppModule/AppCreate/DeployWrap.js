@@ -25,6 +25,7 @@ import WrapListTable from '../../AppCenter/AppWrap/WrapListTable'
 import { connect } from 'react-redux'
 import './style/WrapManage.less'
 const notificat = new NotificationHandler()
+import { SHOW_BILLING } from '../../../constants'
 
 const Step = Steps.Step
 
@@ -176,7 +177,10 @@ class WrapManage extends Component {
     const funcCallback = {
       goDeploy: this.goDeploy
     }
-
+    let showprice = 18
+    if (!SHOW_BILLING) {
+      showprice = 24
+    }
     const steps = (
       <Steps size="small" className="steps" status={this.state.stepStatus} current={this.getStepsCurrent()}>
         <Step title="部署方式" />
@@ -188,7 +192,7 @@ class WrapManage extends Component {
       <QueueAnim id="deploy_wrap">
         <Title title="部署应用"/>
         <Row gutter={16}>
-          <Col span="18">
+          <Col span={showprice}>
             <Card key="wrap_manage" className="wrap_manage" title={steps}>
               <div className="list_row" style={{ height: 'auto' }}>
                 <span className="wrap_key" style={{ float: 'left' }}>选择模板</span>
@@ -217,50 +221,53 @@ class WrapManage extends Component {
               </div>
             </Card>
           </Col>
-          <Col span="6">
-            <Card title={
-              <Row className="title">
-                <Col span={16}>已添加服务</Col>
-                <Col span={8} className="textAlignRight">操作</Col>
-              </Row>
-            }>
-              <div className="serviceList">
-                {serviceList}
-              </div>
-              <div className="resourcePrice">
-                <div className="resource">
-                  计算资源：
-                    <span>{resource}</span>
+          { SHOW_BILLING ?
+            <Col span="6">
+              <Card title={
+                <Row className="title">
+                  <Col span={16}>已添加服务</Col>
+                  <Col span={8} className="textAlignRight">操作</Col>
+                </Row>
+              }>
+                <div className="serviceList">
+                  {serviceList}
+                </div>
+                <div className="resourcePrice">
+                  <div className="resource">
+                    计算资源：
+                      <span>{resource}</span>
+                  </div>
+                  {
+                    current.unit === '¥'
+                      ? (
+                        <div className="price">
+                          合计：
+                          <span className="hourPrice"><font>¥</font> {priceHour}/小时</span>
+                          <span className="monthPrice">（合 <font>¥</font> {priceMonth}/月）</span>
+                        </div>
+                      )
+                      : (
+                        <div className="price">
+                          合计：
+                          <span className="hourPrice">{priceHour} {current.unit}/小时</span>
+                          <span className="monthPrice">（合 {priceMonth} {current.unit}/月）</span>
+                        </div>
+                      )
+                  }
                 </div>
                 {
-                  current.unit === '¥'
-                    ? (
-                      <div className="price">
-                        合计：
-                        <span className="hourPrice"><font>¥</font> {priceHour}/小时</span>
-                        <span className="monthPrice">（合 <font>¥</font> {priceMonth}/月）</span>
-                      </div>
-                    )
-                    : (
-                      <div className="price">
-                        合计：
-                        <span className="hourPrice">{priceHour} {current.unit}/小时</span>
-                        <span className="monthPrice">（合 {priceMonth} {current.unit}/月）</span>
-                      </div>
-                    )
+                  (serviceList.length > 0 && currentStep === 1) && (
+                    <div className="createApp">
+                      <Button type="primary" size="large" onClick={this.onCreateAppOrAddServiceClick.bind(this, false)}>
+                        {this.renderCreateBtnText()}
+                      </Button>
+                    </div>
+                  )
                 }
-              </div>
-              {
-                (serviceList.length > 0 && currentStep === 1) && (
-                  <div className="createApp">
-                    <Button type="primary" size="large" onClick={this.onCreateAppOrAddServiceClick.bind(this, false)}>
-                      {this.renderCreateBtnText()}
-                    </Button>
-                  </div>
-                )
-              }
-            </Card>
-          </Col>
+              </Card>
+            </Col>
+          :null
+          }
         </Row>
       </QueueAnim>
     )

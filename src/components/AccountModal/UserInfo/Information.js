@@ -20,7 +20,8 @@ import MemberRecharge from '../_Enterprise/Recharge'
 import { chargeUser } from '../../../actions/charge'
 import { loadLoginUserDetail } from '../../../actions/entities'
 import { loadUserDetail, changeUserRole  } from '../../../actions/user'
-import { MAX_CHARGE }  from '../../../constants'
+import { MAX_CHARGE }  from '../../../../constants'
+import { SHOW_BILLING } from '../../../constants'
 
 
 const RadioGroup = Radio.Group
@@ -337,6 +338,7 @@ class Information extends Component {
             }
           </Col>
         </Row> : ''}
+        { SHOW_BILLING ?
         <Row className="Item" style={{ border: 'none' }}>
           <Col span={4}>余额</Col>
           <Col span={2}>{balance}T</Col>
@@ -346,6 +348,8 @@ class Information extends Component {
             :null
           }
         </Row>
+        :null
+        }
          {/* 充值modal */}
         <Modal title="成员充值" visible={this.state.visibleMember}
          onCancel={()=> this.setState({visibleMember: false,number: 10})}

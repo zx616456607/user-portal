@@ -19,6 +19,7 @@ import NotificationHandler from '../../../components/Notification'
 import { parseAmount } from '../../../common/tools'
 import SpaceRecharge from '../_Enterprise/Recharge/SpaceRecharge'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
+import { SHOW_BILLING }  from '../../../constants'
 
 
 let PersonalSpace = React.createClass({
@@ -117,12 +118,15 @@ let TeamSpace = React.createClass({
       }
       return (
         <Row className={className} key={teamspace.spaceName}>
-          <Col span={4}>{teamspace.spaceName}</Col>
-          <Col span={5}>{teamspace.teamName}</Col>
+          <Col span={SHOW_BILLING?4:6}>{teamspace.spaceName}</Col>
+          <Col span={SHOW_BILLING?5:6}>{teamspace.teamName}</Col>
           <Col span={2}>{teamspace.appCount}</Col>
           <Col span={2}>{teamspace.serviceCount}</Col>
           <Col span={2}>{teamspace.containerCount}</Col>
+          {SHOW_BILLING?
           <Col span={3}>{parseAmount(teamspace.balance).fullAmount}</Col>
+          :null
+          }
           <Col span={6}>
             <Popover
               placement="right"
@@ -139,7 +143,7 @@ let TeamSpace = React.createClass({
               onVisibleChange={this.handleVisibleChange.bind(this, teamspace)}>
               <Button type="primary">进入空间</Button>
             </Popover>
-            {(userDetail.role == ROLE_SYS_ADMIN) ?
+            {(userDetail.role == ROLE_SYS_ADMIN && SHOW_BILLING) ?
               <Button type="primary" style={{marginLeft:'20px'}} onClick={()=>　this.props.scope.btnRecharge(index)}>充值</Button>
               :null
             }
@@ -150,13 +154,13 @@ let TeamSpace = React.createClass({
     return (
       <div>
         <Row className="contentTop">
-          <Col span={4}>
+          <Col span={SHOW_BILLING?4:6}>
             <svg className="infSvg" style={{ marginRight: 8 }}>
               <use xlinkHref="#settingname" />
             </svg>
             <span className="infSvgTxt">空间名称</span>
           </Col>
-          <Col span={5}>
+          <Col span={SHOW_BILLING?5:6}>
             <svg className="infSvg" style={{ marginRight: 8 }}>
               <use xlinkHref="#settingownteam" />
             </svg>
@@ -180,12 +184,15 @@ let TeamSpace = React.createClass({
             </svg>
             <span className="infSvgTxt">容器</span>
           </Col>
+          {SHOW_BILLING ?
           <Col span={3}>
             <svg className="infSvg" style={{ marginRight: 8 }}>
               <use xlinkHref="#settingbalance" />
             </svg>
             <span className="infSvgTxt">余额</span>
           </Col>
+          :null
+          }
           <Col span={6}>
             <svg className="infSvg" style={{ marginRight: 8 }}>
               <use xlinkHref="#settingopt" />
