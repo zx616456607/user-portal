@@ -44,16 +44,13 @@ class VisitType extends Component{
   }
   componentWillMount() {
     const { service, bindingDomains, bindingIPs, getProxy, cluster } = this.props;
-    this.setState({
-      svcDomain:parseServiceDomain(service,bindingDomains,bindingIPs)
-    })
-    
-    if (service.lbgroup&&service.lbgroup.type === 'none') {
-      this.setState({
-        initValue: 3,
-        initSelectDics: true,
-        addrHide: true
-      })
+    this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
+  }
+  componentWillReceiveProps(nextProps) {
+    let preShow = this.props.serviceDetailmodalShow;
+    const { serviceDetailmodalShow, service, bindingDomains, bindingIPs,cluster, getProxy, form} = nextProps;
+    if (service.metadata && this.props.service.metadata && (service.metadata.name === this.props.service.metadata.name)) {
+      return
     }
     if (serviceDetailmodalShow && !preShow ) {
     this.setState({
@@ -72,14 +69,10 @@ class VisitType extends Component{
     }
     this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
   }
-  getSvcDomain(){
-    const { service, bindingDomains, bindingIPs } = this.props;
+  getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs) {
     this.setState({
       svcDomain:parseServiceDomain(service,bindingDomains,bindingIPs)
     })
-  }
-  getDomainAndProxy(getProxy,service,cluster) {
-    this.getSvcDomain()
     getProxy(cluster,true,{
       success: {
         func: (res) => {
@@ -185,6 +178,7 @@ class VisitType extends Component{
   saveEdit() {
     const { value } = this.state;
     const { service, setServiceProxyGroup, cluster, form } = this.props;
+    const notification = new NotificationHandler()
     let val = value
     if(!val) {
       val = this.state.initValue
@@ -192,8 +186,10 @@ class VisitType extends Component{
     let groupID = 'none'
     if(val !== 3) {
       groupID = form.getFieldValue('groupID')
+      if (groupID === undefined) {
+        return notification.info('请选择网络出口')
+      }
     }
-    const notification = new NotificationHandler()
     notification.spin('保存中更改中')
     setServiceProxyGroup({
       cluster,
@@ -202,7 +198,6 @@ class VisitType extends Component{
     },{
       success: {
         func: (res) => {
-            this.getSvcDomain()
             notification.close()
             notification.success('出口方式更改成功')
             this.setState({
@@ -285,20 +280,8 @@ class VisitType extends Component{
   render() {
     const { form } = this.props;
     const { getFieldProps } = form;
-    const { value, disabled, forEdit, selectDis, deleteHint, svcDomain, copyStatus,privateNet, addrHide, currentProxy, initGroupID, initValue, initSelectDics } = this.state;
-    let validator = (rule, value, callback) => callback()
-    if(value !== 3) {
-      validator = (rule, value, callback) => {
-        if(!value) {
-          return callback('请选择网络出口')
-        }
-        return callback()
-      }
-    }
+    const { value, disabled, forEdit, selectDis, deleteHint,privateNet, addrHide, currentProxy, initGroupID, initValue, initSelectDics } = this.state;
     const selectGroup = getFieldProps("groupID", {
-      rules:[{
-        validator
-      }],
       initialValue: initGroupID
     })
     const proxyNode = currentProxy.length > 0 ? currentProxy.map((item,index)=>{
@@ -306,32 +289,6 @@ class VisitType extends Component{
           <Option key={item.id} value={item.id}>{item.name}</Option>
         )
     }):null
-    const up = svcDomain && svcDomain.map((item,index)=>{
-        if (item.isInternal === false) {
-          return (
-            <dd key={index} className="addrList">
-              容器端口：{item.interPort}
-              <span className="domain">{item.domain}</span>
-              <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, item.domain)} onClick={this.copyTest.bind(this)}/>
-              </Tooltip>
-            </dd>
-          )
-        }
-      })
-    const down = svcDomain && svcDomain.map((item,index)=>{
-        if (item.isInternal === true) {
-          return (
-            <dd key={index} className="addrList">
-              容器端口：{item.interPort}
-              <span className="domain">{item.domain}</span>
-              <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, item.domain)} onClick={this.copyTest.bind(this)}/>
-              </Tooltip>
-            </dd>
-          )
-        }
-      })
     return (
       <Card id="visitTypePage">
         <div className="visitTypeTopBox">
@@ -363,7 +320,7 @@ class VisitType extends Component{
               </p>
               <div className={classNames("inlineBlock selectBox",{'hide': selectDis || initSelectDics})}>
                 <Form.Item>
-                  <Select size="large" style={{ width: 180 }} {...selectGroup} disabled={disabled}
+                  <Select size="large" style={{ width: 180 }} {...selectGroup} disabled={disabled} placeholder='选择网络出口'
                           getPopupContainer={()=>document.getElementsByClassName('selectBox')[0]}
                   >
                     {proxyNode}
@@ -380,11 +337,11 @@ class VisitType extends Component{
             <input type="text" className="copyTest" style={{opacity:0}}/>
             <dl className={classNames("addrListBox",{'hide':addrHide})}>
               <dt className="addrListTitle"><Icon type="link"/>{privateNet ? '内网' : '公网'}地址</dt>
-              {up}
+              {this.domainList(false)}
             </dl>
             <dl className="addrListBox">
               <dt className="addrListTitle"><Icon type="link"/>集群内访问地址</dt>
-              {down}
+              {this.domainList(true)}
             </dl>
           </div>
         </div>
