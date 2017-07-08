@@ -53,6 +53,10 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
   let nameInfo = item.metadata.name
   if (portsForExternal) {
     portsForExternal.map((port) => {
+      if (!port.proxyPort) {
+        // If no proxyPort, just return as no external port defined
+        return
+      }
       let portInfo = ":" + port.proxyPort
       if (bindingIP && bindingDomain && port.protocol.toLowerCase() == 'http') {
         portInfo = ''
