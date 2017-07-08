@@ -455,8 +455,6 @@ class VisitTypes extends Component{
     let port = databaseInfo.serviceInfo.ports[0].port;
     let serviceName = databaseInfo.serviceInfo.name;
     let portNum = databaseInfo.podList.listMeta.total;
-    console.log("lbinfo================")
-    console.log(lbinfo)
     for (let i = 0; i < portNum; i++) {
       clusterAdd.push({
         start:`${serviceName}-${i}`,
