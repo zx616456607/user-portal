@@ -32,6 +32,7 @@ import Topology from './AppServiceDetail/Topology'
 import { loadServiceList } from '../../actions/services'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../../constants'
 import Title from '../Title'
+import { SHOW_BILLING } from '../../constants'
 
 const DEFAULT_TAB = '#service'
 
@@ -277,15 +278,24 @@ class AppDetail extends Component {
                     cluster={this.props.cluster}
                     appName={appName} />
                 </TabPane>
-                <TabPane tab="租赁信息" key="#rentalInfo">
-                  <AppServiceRental serviceName={appName} serviceDetail={app.services} />
-                </TabPane>
-                <TabPane tab="告警策略" key="#strategy">
-                  <AlarmStrategy appName={appName} cluster={this.props.cluster} currentApp={currentApp}/>
-                </TabPane>
-                <TabPane tab="拓扑图" key="#topology">
-                  <Topology appName={appName} cluster={this.props.cluster} teamspace={this.props.teamspace} />
-                </TabPane>
+                { SHOW_BILLING ?
+                  [<TabPane tab="租赁信息" key="#rentalInfo">
+                    <AppServiceRental serviceName={appName} serviceDetail={app.services} />
+                  </TabPane>,
+                  <TabPane tab="告警策略" key="#strategy">
+                    <AlarmStrategy appName={appName} cluster={this.props.cluster} currentApp={currentApp}/>
+                  </TabPane>,
+                  <TabPane tab="拓扑图" key="#topology">
+                    <Topology appName={appName} cluster={this.props.cluster} teamspace={this.props.teamspace} />
+                  </TabPane>]
+                :
+                  [<TabPane tab="告警策略" key="#strategy">
+                    <AlarmStrategy appName={appName} cluster={this.props.cluster} currentApp={currentApp}/>
+                  </TabPane>,
+                  <TabPane tab="拓扑图" key="#topology">
+                    <Topology appName={appName} cluster={this.props.cluster} teamspace={this.props.teamspace} />
+                  </TabPane>]
+                }
               </Tabs>
             </Card>
           </div>

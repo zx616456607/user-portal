@@ -20,7 +20,7 @@ import CreateUserModal from '../../CreateUserModal'
 import NotificationHandler from '../../../../components/Notification'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../../constants'
 import MemberRecharge from '../Recharge'
-import { MAX_CHARGE }  from '../../../../constants'
+import { MAX_CHARGE, SHOW_BILLING }  from '../../../../constants'
 import Title from '../../../Title'
 
 const confirm = Modal.confirm
@@ -361,6 +361,7 @@ let MemberTable = React.createClass({
       },
       {
         title: (
+          SHOW_BILLING ?
           <div onClick={this.handleSortBalance}>
             余额
             <div className="ant-table-column-sorter">
@@ -372,10 +373,17 @@ let MemberTable = React.createClass({
               </span>
             </div>
           </div>
+          :null
         ),
         dataIndex: 'balance',
         key: 'balance',
-        width: '10%',
+        width: SHOW_BILLING ? '10%':0,
+        render:text => {
+          if (SHOW_BILLING) {
+            return text
+          }
+          return null
+        }
       },
       {
         title: 'LDAP',
@@ -397,7 +405,7 @@ let MemberTable = React.createClass({
             <Button icon="delete" className="delBtn setBtn" onClick={() => this.setState({delModal: true,userManage: record})}>
               删除
             </Button>
-            { record.role == ROLE_SYS_ADMIN ?
+            { record.role == ROLE_SYS_ADMIN && SHOW_BILLING ?
               <Button className="setBtn" onClick={()=> scope.memberRecharge(record)}>充值</Button>
               :null
             }

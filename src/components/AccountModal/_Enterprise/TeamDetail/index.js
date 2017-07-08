@@ -26,6 +26,7 @@ import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../../constants'
 import { parseAmount } from '../../../../common/tools'
 import SpaceRecharge  from '../Recharge/SpaceRecharge'
 import PopContent from '../../../PopSelect/Content'
+import { SHOW_BILLING }  from '../../../../constants'
 
 let MemberList = React.createClass({
   getInitialState() {
@@ -405,10 +406,15 @@ let TeamList = React.createClass({
         key: 'appCount',
       },
       {
-        title: '余额',
+        title: SHOW_BILLING ? '余额': null,
         dataIndex: 'balance',
         key: 'balance',
-        render: (text) => parseAmount(text, 4).fullAmount
+        render: (text) => {
+          if (SHOW_BILLING) {
+            return parseAmount(text, 4).fullAmount
+          }
+          return null
+        }
       },
       {
         title: '操作',
@@ -418,10 +424,10 @@ let TeamList = React.createClass({
           <div><Button icon="delete" className="delBtn" onClick={()=> this.setState({TeamModal: true, spaceID: record.spaceID, teamName: record.spaceName})}>
             删除
           </Button>
-          {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN) ?
+          {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN && SHOW_BILLING) ?
             <Button className="addBtn" onClick={()=> scope.btnRecharge(index)}>充值
             </Button>
-          :null
+          :<span className="addBtn"></span>
           }
           <Popover
               title="请选择集群"
