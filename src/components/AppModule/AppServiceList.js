@@ -149,95 +149,7 @@ const MyComponent = React.createClass({
           service.checked = !service.checked
         }
       })
-      const checkedList = serviceList.filter((service) => service.checked)
-      if (checkedList.length === 0) {
-        scope.setState({
-          runBtn: false,
-          stopBtn: false,
-          restartBtn: false,
-          redeploybtn: false,
-        })
-        return
-      }
-      if (checkedList.length === 1) {
-        if(checkedList[0].status.phase === 'Pending'){
-          scope.setState({
-            runBtn: false,
-            stopBtn: true,
-            restartBtn: false,
-            redeploybtn: true,
-          })
-          return
-        }
-        if (checkedList[0].status.phase === 'Running') {
-          scope.setState({
-            runBtn: false,
-            stopBtn: true,
-            restartBtn: true,
-            redeploybtn: true,
-          })
-        }
-        if (checkedList[0].status.phase === 'Stopped') {
-          scope.setState({
-            runBtn: true,
-            stopBtn: false,
-            restartBtn: false,
-            redeploybtn: false,
-          })
-        }
-        if (checkedList[0].status.phase === 'Starting' || checkedList[0].status.phase === 'Deploying') {
-          scope.setState({
-            runBtn: false,
-            stopBtn: true,
-            restartBtn: true,
-            redeploybtn: true,
-          })
-        }
-      } else if (checkedList.length > 1) {
-        let runCount = 0
-        let stopCount = 0
-        let pending = 0
-        checkedList.forEach((item, index) => {
-          if (item.status.phase === 'Running') {
-            runCount++
-          }
-          else if (item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
-            pending++
-          } else {
-            stopCount++
-          }
-        })
-        if (runCount + pending === checkedList.length) {
-          scope.setState({
-            runBtn: false,
-            stopBtn: true,
-            restartBtn: true,
-            redeploybtn: true,
-          })
-          if (pending) {
-            scope.setState({
-              restartBtn: true
-            })
-          }
-          return
-        }
-        if (stopCount === checkedList.length) {
-          scope.setState({
-            runBtn: true,
-            stopBtn: false,
-            restartBtn: false,
-            redeploybtn: false,
-          })
-          return
-        }
-        scope.setState({
-          runBtn: true,
-          stopBtn: true,
-          restartBtn: true,
-          redeploybtn: true,
-        })
-        return
-      }
+      handleStateOfServiceList(scope, serviceList)
       scope.setState({
         serviceList
       })
@@ -409,7 +321,7 @@ const MyComponent = React.createClass({
     const items = serviceList.map((item) => {
       item.cluster = cluster
       let isHaveVolume = false
-      let redeployDisable = false
+      let redeployDisable = true
       if (item.spec.template.spec.volumes) {
         isHaveVolume = item.spec.template.spec.volumes.some(volume => {
           if (!volume) return false
@@ -417,7 +329,7 @@ const MyComponent = React.createClass({
         })
       }
       if(item.status.phase == 'Running' || item.status.phase == 'Pending'){
-        redeployDisable = true
+        redeployDisable = false
       }
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width:'100px'}} id="appservicelistDropdownMenu">
@@ -638,6 +550,7 @@ class AppServiceList extends Component {
         restartBtn: false,
       })
     }
+    handleStateOfServiceList(this, serviceList)
   }
 
   componentWillMount() {
@@ -1295,6 +1208,98 @@ AppServiceList.propTypes = {
   size: PropTypes.number.isRequired,
   // total: PropTypes.number.isRequired,
   onServicesChange: PropTypes.func.isRequired, // For change app status when service list change
+}
+
+function handleStateOfServiceList(scope, serviceList) {
+  const checkedList = serviceList.filter((service) => service.checked)
+  if (checkedList.length === 0) {
+    scope.setState({
+      runBtn: false,
+      stopBtn: false,
+      restartBtn: false,
+      redeploybtn: false,
+    })
+    return
+  }
+  if (checkedList.length === 1) {
+    if(checkedList[0].status.phase === 'Pending'){
+      scope.setState({
+        runBtn: false,
+        stopBtn: true,
+        restartBtn: false,
+        redeploybtn: true,
+      })
+      return
+    }
+    if (checkedList[0].status.phase === 'Running') {
+      scope.setState({
+        runBtn: false,
+        stopBtn: true,
+        restartBtn: true,
+        redeploybtn: true,
+      })
+    }
+    if (checkedList[0].status.phase === 'Stopped') {
+      scope.setState({
+        runBtn: true,
+        stopBtn: false,
+        restartBtn: false,
+        redeploybtn: false,
+      })
+    }
+    if (checkedList[0].status.phase === 'Starting' || checkedList[0].status.phase === 'Deploying') {
+      scope.setState({
+        runBtn: false,
+        stopBtn: true,
+        restartBtn: true,
+        redeploybtn: true,
+      })
+    }
+  } else if (checkedList.length > 1) {
+    let runCount = 0
+    let stopCount = 0
+    let pending = 0
+    checkedList.forEach((item, index) => {
+      if (item.status.phase === 'Running') {
+        runCount++
+      }
+      else if (item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
+        pending++
+      } else {
+        stopCount++
+      }
+    })
+    if (runCount + pending === checkedList.length) {
+      scope.setState({
+        runBtn: false,
+        stopBtn: true,
+        restartBtn: true,
+        redeploybtn: true,
+      })
+      if (pending) {
+        scope.setState({
+          restartBtn: true
+        })
+      }
+      return
+    }
+    if (stopCount === checkedList.length) {
+      scope.setState({
+        runBtn: true,
+        stopBtn: false,
+        restartBtn: false,
+        redeploybtn: false,
+      })
+      return
+    }
+    scope.setState({
+      runBtn: true,
+      stopBtn: true,
+      restartBtn: true,
+      redeploybtn: true,
+    })
+    return
+  }
 }
 
 function mapStateToProps(state, props) {
