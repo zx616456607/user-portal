@@ -264,7 +264,7 @@ let shellUid = 0;
 let EditTenxFlowModal = React.createClass({
   getInitialState: function () {
     const { config } = this.props
-    const scriptsId = config.spec.container.scriptId
+    const scriptsId = config.spec.container.scriptsId
     return {
       otherFlowType: 3,
       useDockerfile: false,
@@ -360,7 +360,7 @@ let EditTenxFlowModal = React.createClass({
       })
     }
     // 获取脚本
-    const scriptsId = config.spec.container.scriptId
+    const scriptsId = config.spec.container.scriptsId
     if (scriptsId) {
       getScriptsById(scriptsId, {
         success: {
@@ -1066,7 +1066,7 @@ let EditTenxFlowModal = React.createClass({
       }
       // 增加 scripts id
       if (_this.state.shellCodeType === 'scripts') {
-        body.spec.container.script_id = _this.state.scriptsId
+        body.spec.container.scripts_id = _this.state.scriptsId
       }
       //if user select the customer type (5), ths customType must be input
       if (this.state.otherFlowType == 5) {
