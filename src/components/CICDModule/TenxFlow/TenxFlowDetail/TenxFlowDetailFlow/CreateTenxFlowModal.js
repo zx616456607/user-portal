@@ -966,7 +966,8 @@ let CreateTenxFlowModal = React.createClass({
           }
         });
       }
-      if (_this.state.shellCodeType === 'cmd') {
+      // 使用命令或构建镜像时直接创建 stage 跳过创建脚本
+      if (_this.state.shellCodeType === 'cmd' || body.metadata.type === 3) {
         return _createTenxFlowState()
       }
       const { createScripts } = _this.props
