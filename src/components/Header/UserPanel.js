@@ -164,17 +164,23 @@ class UserPanel extends Component {
       })
     }
     if (SHOW_BILLING) {
-      menuItems.push({
-        to: '/account/costCenter#consumptions',
-        svgHref: '#logcostrecord',
-        text: '消费记录'
-      })
-      if (role !== ROLE_TEAM_ADMIN || role !== ROLE_SYS_ADMIN) {
+      if (role === ROLE_TEAM_ADMIN || role === ROLE_SYS_ADMIN) {
+        menuItems.push({
+          to: '/account/costCenter#consumptions',
+          svgHref: '#logcostrecord',
+          text: '消费记录',
+        })
+      } else {
         menuItems.push({
           to: '/account/costCenter#payments',
           // TODO: replace it
           svgHref: '#logpayment',
           text: '充值记录',
+        },
+        {
+          to: '/account/costCenter#consumptions',
+          svgHref: '#logcostrecord',
+          text: '消费记录',
         })
       }
 
