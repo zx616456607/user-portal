@@ -433,7 +433,7 @@ let DockerfileModal = React.createClass({
       <Row gutter={16} key={`run-row-${key}`}>
         <Col span={16}>
           <FormItem>
-            <Input {...runProps} type="textarea" autosize placeholder="请填写运行指令(ADD)" />
+            <Input {...runProps} type="textarea" autosize placeholder="请填写运行指令(RUN)" />
           </FormItem>
         </Col>
         <Col span={2} className="deleteKeyBtn">
