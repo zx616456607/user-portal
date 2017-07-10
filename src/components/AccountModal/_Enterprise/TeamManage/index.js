@@ -27,6 +27,7 @@ import CreateTeamModal from '../../CreateTeamModal'
 import NotificationHandler from '../../../../components/Notification'
 import SpaceRecharge from '../Recharge/SpaceRecharge'
 import Title from '../../../Title'
+import { SHOW_BILLING }  from '../../../../constants'
 
 let TeamTable = React.createClass({
   getInitialState() {
@@ -343,7 +344,7 @@ let TeamTable = React.createClass({
               <div className="Deleterechargea">
                 <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
                 <Button icon="delete" className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
-                {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN) ?
+                {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN && SHOW_BILLING) ?
                   <Button icon="pay-circle-o" className="addBtn" style={{marginLeft:'12px'}} onClick={() => this.btnRecharge(record.key)}>充值</Button>
                 :null
                 }
@@ -351,7 +352,7 @@ let TeamTable = React.createClass({
               <div className="Deleterechargeb">
                 <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
                 {
-                  this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN
+                  this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN && SHOW_BILLING
                   ? (
                     <Dropdown.Button
                       onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}

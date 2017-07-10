@@ -16,6 +16,7 @@ import { calcuDate, parseAmount, formatDate } from '../../common/tools'
 import { SnapshotClone, createStorage, loadStorageList } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL } from '../../constants'
 import NotificationHandler from '../../components/Notification'
+import { SHOW_BILLING } from '../../constants'
 
 const messages = defineMessages({
   name: {
@@ -464,6 +465,7 @@ class CreateVolume extends Component {
               </Button>
             </Col>
           </Row>
+          { SHOW_BILLING ?
           <div className="modal-price">
             <div className="price-left">
               存储：{hourPrice.unit == '￥' ? '￥' : ''}{ storagePrice } {hourPrice.unit == '￥' ? '' : ' T'}/(GB*小时)
@@ -473,6 +475,8 @@ class CreateVolume extends Component {
               <p><span className="unit">（约：</span><span className="unit">{ countPrice.fullAmount }/月）</span></p>
             </div>
           </div>
+          :null
+          }
         </Form>
         <div className='createVolumeFooter'>
           <Button size='large' type="primary" className='buttonConfirm' onClick={this.handleComfirmCreateVolume} loading={this.state.loading}>确定</Button>

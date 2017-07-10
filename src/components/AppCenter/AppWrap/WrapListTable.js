@@ -34,7 +34,6 @@ class WrapListTbale extends Component {
   constructor(props) {
     super()
     this.state = {
-      selectedRowKeys: [],
       page: 1,
     }
   }
@@ -58,9 +57,7 @@ class WrapListTbale extends Component {
     }
     this.props.wrapManageList(from)
   }
-  componentWillMount() {
-    this.loadData()
-  }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.space.namespace !== this.props.space.namespace) {
       this.loadData()
@@ -78,8 +75,8 @@ class WrapListTbale extends Component {
   deleteVersion = ()=> {
     // const notificat = new NotificationHandler()
     const { id,page } = this.state
-    const { wrapList } = this.props
-    this.setState({selectedRowKeys:[]})
+    const { wrapList,func } = this.props
+    func.scope.setState({selectedRowKeys:[]}) // set parent state
     this.props.deleteWrapManage({ids: id},{
       success: {
         func:()=> {
@@ -104,9 +101,11 @@ class WrapListTbale extends Component {
       }
     })
   }
+
   render() {
     // jar war ,tar.gz zip
     const dataSource = this.props.wrapList
+    const { func,rowCheckbox } = this.props
     const columns = [
       {
         title: '包名称',
@@ -133,10 +132,15 @@ class WrapListTbale extends Component {
         dataIndex: 'actions',
         key: 'actions',
         width:'150px',
-        render: (e,row) => [
-          <Button type="primary" key="1">部署</Button>,
-          <Button key="2" style={{ marginLeft: 10 }} onClick={()=> this.deleteAction(true,row.id)}>删除</Button>
-         ]
+        render: (e,row) => {
+          if (rowCheckbox) {
+            return [<Button type="primary" key="1" onClick={()=> func.goDeploy(row.fileName)}>部署</Button>,
+                <Button key="2" style={{ marginLeft: 10 }} onClick={()=> this.deleteAction(true,row.id)}>删除</Button>
+            ]
+          }
+          return <Button type="primary" onClick={()=> func.goDeploy(row.id)} key="1">部署</Button>
+        }
+
       }
     ]
     const paginationOpts = {
@@ -148,21 +152,23 @@ class WrapListTbale extends Component {
       showTotal: total => `共计： ${total} 条 `,
     }
     const _this = this
-    const { func } = this.props
-    const rowSelection = {
-      selectedRowKeys: this.state.selectedRowKeys, // 控制checkbox是否选中
+    let rowSelection = {
+      selectedRowKeys: this.props.selectedRowKeys, // 控制checkbox是否选中
       onChange(selectedRowKeys, selectedRows) {
         const ids = selectedRows.map(row => {
           return row.id
         })
-        _this.setState({ selectedRowKeys,id:ids })
+        _this.setState({id:ids })
 
         func && func.scope.setState({selectedRowKeys,id:ids})
       }
     }
+    if (!rowCheckbox) {
+      rowSelection = null
+    }
 
     return (
-      <Card className="wrap_content">
+      <div className="wrapListTable">
         <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource.pkgs} columns={columns} pagination={paginationOpts} />
         <Modal title="删除操作" visible={this.state.delAll}
           onCancel={()=> this.deleteAction(false)}
@@ -170,8 +176,7 @@ class WrapListTbale extends Component {
           >
           <div className="confirmText">确定要删除所选版本？</div>
         </Modal>
-      </Card>
-
+      </div>
     )
   }
 }

@@ -23,6 +23,7 @@ import proIconGray from '../../assets/img/version/proIcon-gray.png'
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
 import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../constants'
+import { SHOW_BILLING }  from '../../constants'
 
 /**
  * User panel in the upper right corner
@@ -200,6 +201,7 @@ class UserPanel extends Component {
     }
     return (
       <div className='logMenu'>
+        { SHOW_BILLING ?
         <div className='rechangeInf'>
           <div className='balance'>
             <p>帐户余额 &nbsp;:</p>
@@ -211,6 +213,7 @@ class UserPanel extends Component {
               }
             </p>
           </div>
+
           {
             mode === standard &&
             <Button className="payButton" onClick={() => browserHistory.push('/account/balance/payment')}>
@@ -218,6 +221,7 @@ class UserPanel extends Component {
             </Button>
           }
         </div>
+        :null}
         <table className='navTab'>
           <tbody>
             <tr>

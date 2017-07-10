@@ -28,6 +28,7 @@ import mysqlImg from '../../assets/img/database_cache/mysql.png'
 import redisImg from '../../assets/img/database_cache/redis.jpg'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../assets/img/database_cache/elasticsearch.jpg'
+import { SHOW_BILLING } from '../../constants'
 
 const Panel = Collapse.Panel;
 const ButtonGroup = Button.Group
@@ -537,7 +538,7 @@ class VisitTypes extends Component{
               <div className={classNames("inlineBlock selectBox",{'hide': hide})}>
                 <Form.Item>
                   <Select size="large" style={{ width: 180 }} {...selectGroup} disabled={disabled}
-                        getPopupContainer={()=>document.getElementsByClassName('selectBox')[0]} 
+                        getPopupContainer={()=>document.getElementsByClassName('selectBox')[0]}
                 >
                   {proxyNode}
                 </Select>
@@ -863,12 +864,18 @@ class ModalDetail extends Component {
               <TabPane tab='基础信息' key='#BaseInfo'>
                 <BaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
               </TabPane>
-              <TabPane tab='事件' key='#events'>
-                <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
-              </TabPane>
-              <TabPane tab='租赁信息' key='#leading'>
-                <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
-              </TabPane>
+              { SHOW_BILLING ?
+                [<TabPane tab='事件' key='#events'>
+                  <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
+                </TabPane>,
+                <TabPane tab='租赁信息' key='#leading'>
+                  <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
+                </TabPane>]
+                :
+                <TabPane tab='事件' key='#events'>
+                  <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
+                </TabPane>
+              }
             </Tabs>
           </div>
         </div>
