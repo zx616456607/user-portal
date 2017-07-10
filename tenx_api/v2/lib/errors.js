@@ -8,6 +8,7 @@
  * @author Zhangpc
  */
 'use strict'
+const logger = require('../../../utils/logger').getLogger(`tenx_api/errors`)
 
 class ClientError extends Error {
   constructor(data, statusCode) {
@@ -94,6 +95,10 @@ class InvalidHttpCodeError extends Error {
 function get(res) {
   const statusCode = res.statusCode
   const data = res.data || {}
+  const requestUrls = res.requestUrls
+  if (requestUrls && requestUrls.length > 0) {
+    logger.error(`request urls error: ${res.requestUrls.join(', ')}`)
+  }
   switch (statusCode) {
     case 400:
       return new InvalidDataError(data)
