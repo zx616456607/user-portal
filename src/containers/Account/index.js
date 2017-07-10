@@ -16,6 +16,7 @@ import QueueAnim from 'rc-queue-anim'
 import './style/account.less'
 import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../constants'
 
+import { SHOW_BILLING } from '../../constants'
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
 let menuList = []
@@ -102,6 +103,10 @@ class Account extends Component {
     super(props)
     this.state = {
       containerSiderStyle: 'normal'
+    }
+    if (!SHOW_BILLING) {
+      menuList_enterprise_user.splice(1)
+      menuList_enterprise_admin.splice(3)
     }
   }
 
