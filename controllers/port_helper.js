@@ -28,7 +28,7 @@ exports.addPort =  function (deployment, serviceList) {
           if (!serviceList[i].metadata.annotations) {
             return
           }
-          let annotations = serviceList[i].metadata.annotations[constants.ANNOTATION_SVC_SCHEMA_PORTNAME]
+          let annotations = serviceList[i].metadata.annotations[constants.ANNOTATION_SVC_SCHEMA_PORTNAME] || ''
           let portDef = annotations.split(",")
           for (let i = 0; i< portDef.length; i++) {
             let p = portDef[i].split('/')

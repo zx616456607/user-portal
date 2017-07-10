@@ -341,7 +341,7 @@ class Information extends Component {
         { SHOW_BILLING ?
         <Row className="Item" style={{ border: 'none' }}>
           <Col span={4}>余额</Col>
-          <Col span={2}>{balance}T</Col>
+          <Col span={3}>{balance}T</Col>
           {/*  system user  */}
           {(ROLE_SYS_ADMIN == this.props.loginUser.role) ?
             <Col span={16}><Button type="primary" onClick={()=>　this.memberRecharge(userDetail,roleName)}>充值</Button></Col>
