@@ -13,14 +13,13 @@ import './style/ProjectManage.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree, Dropdown, Menu, Spin, Form } from 'antd'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
-import { ListProjects, DeleteProjects, UpdateProjects } from '../../../actions/project'
+import { ListProjects, DeleteProjects, UpdateProjects, GetProjectsMembers } from '../../../actions/project'
 import { ListRole, CreateRole, GetRole, ExistenceRole } from '../../../actions/role'
 import { PermissionAndCount } from '../../../actions/permission'
 import { chargeProject } from '../../../actions/charge'
+import { parseAmount } from '../../../common/tools'
 import Notification from '../../../components/Notification'
 import CommonSearchInput from '../../../components/CommonSearchInput'
-const InputGroup = Input.Group;
-import cloneDeep from 'lodash/cloneDeep'
 class ProjectManage extends Component{
   constructor(props) {
     super(props)
@@ -48,13 +47,8 @@ class ProjectManage extends Component{
   componentWillMount() {
     this.refresh('tableLoading')
   }
-  updateProjectName(name) {
-    this.setState({
-      projectName:name
-    })
-  }
   componentWillReceiveProps(nextProps) {
-    const step = nextProps.location.query.step || '';
+    const step = nextProps.location.query.step;
     if (step) {
       let newStep;
       if (step === 'first') {
@@ -67,7 +61,19 @@ class ProjectManage extends Component{
       this.setState({
         current: newStep
       })
+    } else {
+      this.setState({
+        projectName: undefined,
+        description: undefined,
+        authorizedCluster: [],
+        RoleKeys: []
+      })
     }
+  }
+  updateProjectName(name) {
+    this.setState({
+      projectName:name
+    })
   }
   updateProjectDesc(desc) {
     this.setState({
@@ -293,19 +299,27 @@ class ProjectManage extends Component{
       dataIndex: 'role',
       key: 'role',
       filters: [{
+        text: '系统管理员',
+        value: 'admin',
+      }, {
+        text: '管理员',
+        value: 'manager',
+      }, {
+        text: '访客',
+        value: 'advisor',
+      }, {
         text: '创建者',
-        value: '创建者',
-      }, {
-        text: '项目管理员',
-        value: '项目管理员',
-      }, {
-        text: '项目访客',
-        value: '项目访客',
+        value: 'creator',
       }],
       onFilter: (value, record) => record.role.indexOf(value) === 0,
       render: (data) =>
         <div>
-          <div>{data}</div>
+          <div>
+            {data === 'admin' ? '系统管理员' : ''}
+            {data === 'manager' ? '管理员' : ''}
+            {data === 'creator' ? '创建者' : ''}
+            {data === 'advisor' ? '访客' : ''}
+          </div>
         </div>
     }, {
       title: '备注',
@@ -316,6 +330,7 @@ class ProjectManage extends Component{
       dataIndex: 'clusterCount',
       key: 'clusterCount',
       sorter: (a, b) => a.clusterCount - b.clusterCount,
+      render: (text) => <span>{text ? text : 0}</span>
     }, {
       title: '成员',
       dataIndex: 'userCount',
@@ -325,14 +340,14 @@ class ProjectManage extends Component{
       title: '创建时间',
       dataIndex: 'creationTime',
       key: 'creationTime',
-      filters: [{
-        text: '2017',
-        value: '2017',
-      }, {
-        text: '2016',
-        value: '2016',
-      }],
-      onFilter: (value, record) => record.creationTime.indexOf(value) === 0,
+      // filters: [{
+      //   text: '2017',
+      //   value: '2017',
+      // }, {
+      //   text: '2016',
+      //   value: '2016',
+      // }],
+      // onFilter: (value, record) => record.creationTime.indexOf(value) === 0,
       render: (data) =>
         <div>
           <div>{data}</div>
@@ -343,7 +358,7 @@ class ProjectManage extends Component{
       dataIndex: 'balance',
       key: 'balance',
       sorter: (a, b) => a.balance - b.balance,
-      render: (text)=><span className="balanceColor">{text ? text : 0}T</span>
+      render: (text)=><span className="balanceColor">{parseAmount(text,4).fullAmount}</span>
     }, {
       title: '操作',
       key: 'operation',
@@ -393,7 +408,7 @@ class ProjectManage extends Component{
             <dt>项目名</dt><dd>{paySinglePro[0]&&paySinglePro[0].projectName}</dd>
           </dl>
           <dl className="paySingleList">
-            <dt>余额</dt><dd>{paySinglePro[0]&&paySinglePro[0].balance}T</dd>
+            <dt>余额</dt><dd>{parseAmount(paySinglePro[0]&&paySinglePro[0].balance,4).fullAmount}</dd>
           </dl>
           <dl className="paySingleList">
             <dt>充值金额</dt>
@@ -452,13 +467,13 @@ class ProjectManage extends Component{
             }
           </div>
           <div className={classNames({'hidden' : step !=='first'})}>
-              <CreateStepFirst clusters = { clusters } step = {step} updateProjectName={this.updateProjectName.bind(this)} updateProjectDesc={this.updateProjectDesc.bind(this)} updateCluster={this.updateCluster.bind(this)}/>
+              <CreateStepFirst clusters = { clusters } scope = {this} step = {step} updateProjectName={this.updateProjectName.bind(this)} updateProjectDesc={this.updateProjectDesc.bind(this)} updateCluster={this.updateCluster.bind(this)}/>
           </div>
           <div className={classNames({'hidden' : step !=='second'})}>
-            <CreateStepSecond scope={this} updateRole={this.updateRole.bind(this)}/>
+            <CreateStepSecond scope={this} step = {step}  updateRole={this.updateRole.bind(this)}/>
           </div>
           <div className={classNames({'hidden' : step !=='third'})}>
-            <CreateStepThird scope={this} updateRole={this.updateRole.bind(this)}/>
+            <CreateStepThird scope={this} step = {step}  updateRole={this.updateRole.bind(this)}/>
           </div>
         </div>
         
@@ -582,7 +597,7 @@ class PayTable extends Component{
   }
   componentWillReceiveProps(nextProps){
     const { visible } = nextProps;
-    const { updatePayNumber } = this.props;
+    const { updatePayNumber } = nextProps;
     if (!visible) {
       this.setState({
         selectedRowKeys: [],
@@ -632,7 +647,7 @@ class PayTable extends Component{
       width: '45%',
       render:(text,record)=>{
         return (
-          <span className="balanceColor">{text ? text : 0}T</span>
+          <span className="balanceColor">{parseAmount(text,4).fullAmount}</span>
         )
       }
     }];
@@ -673,11 +688,11 @@ class CreateStepFirst extends Component{
   componentWillMount() {
     const { selectedClusters } = this.state;
     const { clusters, step } = this.props;
-    if (step !== 'first') {
-      this.setState({
-        dropVisible:false
-      })
-    }
+    // if (step !== 'first') {
+    //   this.setState({
+    //     dropVisible:false
+    //   })
+    // }
     if (selectedClusters.length === 0) {
       this.setState({
         choosableClusters:clusters
@@ -686,11 +701,14 @@ class CreateStepFirst extends Component{
   }
   componentWillReceiveProps(nextProps) {
     const { selectedClusters } = this.state;
-    const { clusters, step } = nextProps;
+    const { clusters, step, form } = nextProps;
     if (step !== 'first') {
       this.setState({
         dropVisible:false
       })
+    }
+    if (!step) {
+      form.resetFields()
     }
     if (selectedClusters.length === 0) {
       this.setState({
@@ -853,9 +871,13 @@ class CreateStepSecond extends Component{
   }
   componentWillReceiveProps(nextProps) {
     const { allPermission } = this.state;
+    const { step, form, scope } = nextProps;
     this.loadRoleList()
     if (!allPermission) {
       this.getPermission()
+    }
+    if (!step) {
+      form.resetFields()
     }
   }
   generateDatas(_tns ) {
@@ -883,8 +905,8 @@ class CreateStepSecond extends Component{
             let result = res.data.data.items;
             for (let i = 0 ; i < result.length; i++) {
               const data = {
-                key: `${result[i].id},${result[i].comment}`,
-                title: result[i].comment,
+                key: `${result[i].id},${result[i].name}`,
+                title: result[i].name,
                 description: result[i].comment,
                 chosen: false,
               };
@@ -1024,7 +1046,7 @@ class CreateStepSecond extends Component{
   renderItem(item) {
     return(
       <Row key={item&&item.key}>
-        <Col span={20}>{item&&item.comment}</Col>
+        <Col span={20}>{item&&item.name}</Col>
         <Col span={4}>{item&&item.count}</Col>
       </Row>
     )
@@ -1037,6 +1059,10 @@ class CreateStepSecond extends Component{
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 15 },
+    };
+    const projectNameLayout = {
+      labelCol: { span: 4 },
+      wrapperCol: { span: 15, offset: 1 },
     };
     const loop = data => data.map((item) => {
       if (item.children) {
@@ -1060,7 +1086,6 @@ class CreateStepSecond extends Component{
                 rules: [
                   { validator: (rules,value,callback)=>this.roleName(rules,value,callback)}
                 ],
-                initialValue:  '',
               }) }
               />
             </Form.Item>
@@ -1069,7 +1094,6 @@ class CreateStepSecond extends Component{
                 rules: [
                   { validator: (rules,value,callback)=>this.roleDesc(rules,value,callback)}
                 ],
-                initialValue: '',
               }) }/>
             </Form.Item>
           </Form>
@@ -1095,8 +1119,12 @@ class CreateStepSecond extends Component{
           </div>
         </Modal>
         <div className="inputBox">
-          <span>项目名称</span>
-          <input type="text" className="projectName" disabled={true} value={scope.state.projectName}/>
+          <Form.Item label="项目名称" {...projectNameLayout}>
+            <Input disabled {...getFieldProps(`projectName`, {
+              initialValue:  scope.state.projectName,
+            }) }
+            />
+          </Form.Item>
         </div>
         <div className="inputBox">
           <span>角色</span>
@@ -1157,9 +1185,10 @@ class CreateStepThird extends Component{
   }
   componentDidMount() {
     this.getMock();
+    this.getProjectMember()
   }
   componentWillReceiveProps(nextProps) {
-    const { scope } = nextProps;
+    const { scope, step, form } = nextProps;
     let RoleKeys = scope.state.RoleKeys;
     if ((RoleKeys.length > 0)) {
         this.getCurrentRole(RoleKeys[0].split(',')[0])
@@ -1169,6 +1198,20 @@ class CreateStepThird extends Component{
         currentRoleInfo: {}
       })
     }
+    if (!step) {
+      form.resetFields()
+    }
+  }
+  getProjectMember() {
+    const { GetProjectsMembers } = this.props;
+    GetProjectsMembers({},{
+      success: {
+        func: (res) => {
+        
+        },
+        isAsync: true
+      }
+    })
   }
   getMock() {
     const targetKeys = [];
@@ -1272,9 +1315,14 @@ class CreateStepThird extends Component{
     updateRole(Array.from(roleSet))
   }
   render() {
-    const { scope } = this.props;
+    const { scope, form } = this.props;
     const TreeNode = Tree.TreeNode;
     const { currentRolePermission, currentRoleInfo } = this.state;
+    const { getFieldProps } = form;
+    const projectNameLayout = {
+      labelCol: { span: 4 },
+      wrapperCol: { span: 15, offset: 1 },
+    };
     const roleList = scope.state.RoleKeys.length > 0 ? scope.state.RoleKeys.map((item)=>{
         return (
           <li onClick={()=>this.getCurrentRole.call(this,item.split(',')[0])} key={item.split(',')[1]}>{item.split(',')[1]}<Icon type="delete" onClick={(e)=>this.deleteRole(e,item)} className="pointer"/></li>
@@ -1294,8 +1342,12 @@ class CreateStepThird extends Component{
     return (
       <div id="projectCreateStepThird">
         <div className="inputBox">
-          <span>项目名称</span>
-          <input type="text" className="projectName" disabled={true} value={'xx项目'}/>
+          <Form.Item label="项目名称" {...projectNameLayout}>
+            <Input disabled {...getFieldProps(`projectName`, {
+              initialValue:  scope.state.projectName,
+            }) }
+            />
+          </Form.Item>
         </div>
         <div className="clearfix characterWrapper">
           <span className="pull-left">已添加角色</span>
@@ -1305,7 +1357,7 @@ class CreateStepThird extends Component{
             </ul>
             <div className="inlineBlock pull-left rightBox">
               <div className="authBox inlineBlock">
-                <p className="authTitle">{currentRoleInfo.role && currentRoleInfo.role.comment || '--' }共 <span style={{color:'#59c3f5'}}>{currentRolePermission.length > 0 && currentRolePermission.length || '--'}</span> 个权限</p>
+                <p className="authTitle">{currentRoleInfo.role && currentRoleInfo.role.name || '--' }共 <span style={{color:'#59c3f5'}}>{currentRoleInfo.role && currentRoleInfo.role.count}</span> 个权限</p>
                 <div className="treeBox">
                   {
                     currentRolePermission.length > 0 && (
@@ -1362,5 +1414,6 @@ function mapStateToThirdProp(state, props) {
 }
 
 CreateStepThird = connect(mapStateToThirdProp, {
-  GetRole
-})(CreateStepThird)
+  GetRole,
+  GetProjectsMembers
+})(Form.create()(CreateStepThird))

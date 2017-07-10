@@ -38,6 +38,14 @@ const tenantRoutes = [{
   {
     path: 'rolemanagement/rolename/TID',
     component: require('../components/TenantManage/TenantDetail').default,
+  },
+  {
+    path: 'team',
+    component: require('../components/TenantManage/_Enterprise/TeamManage').default,
+  },
+  {
+    path: 'team/:team_name/:team_id',
+    component: require('../components/TenantManage/_Enterprise/TeamDetail').default,
   }
 ]
 
