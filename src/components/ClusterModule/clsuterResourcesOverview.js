@@ -120,9 +120,6 @@ class ClusterResourcesOverview extends Component{
     }
     return <div id="cluster__resourcesoverview">
       <ClusterInfo cluster={cluster}/>
-
-      <NetworkConfiguration id="Network" cluster={cluster}/>
-
       <Row className="nodeList">
         <Col span={6} style={{padding:'0 8px'}}>
           <Card>
@@ -202,6 +199,7 @@ class ClusterResourcesOverview extends Component{
           </Card>
         </Col>
       </Row>
+      <NetworkConfiguration id="Network" cluster={cluster}/>
     </div>
   }
 }

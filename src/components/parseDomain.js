@@ -6,6 +6,7 @@
  */
 
 import { isDomain } from '../common/tools'
+import cloneDeep from 'lodash/cloneDeep'
 
 export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
   let bindingDomain = []
@@ -24,10 +25,38 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
   }
 
   let domains = []
+
+  if (!item || !item.metadata) {
+    return domains
+  }
+
+  let portsForExternal = cloneDeep(item.portsForExternal)
+  let portForInternal = cloneDeep(item.portForInternal)
+
+  const lbgroup = item.lbgroup
+  if (lbgroup) {
+    const { type, id, address, domain } = lbgroup
+    if (type === 'public' || type === 'private') {
+      bindingIP = [ address ]
+      bindingIPStr = JSON.stringify(bindingIP)
+      bindingDomain = [ domain ]
+      bindingDomainStr = JSON.stringify(bindingDomain)
+    }
+    if (type === 'none' || id === 'mismatch') {
+      bindingDomain = []
+      bindingDomainStr = JSON.stringify(bindingDomain)
+      portsForExternal = null
+    }
+  }
+
   // parse external domain, item.portsForExternal is array like [{name:"abasd",port:12345,protocol:"TCP",targetPort:1234},...]
-  if (item && item.metadata && item.portsForExternal) {
-    item.portsForExternal.map((port) => {
-      let nameInfo = item.metadata.name
+  let nameInfo = item.metadata.name
+  if (portsForExternal) {
+    portsForExternal.map((port) => {
+      if (!port.proxyPort) {
+        // If no proxyPort, just return as no external port defined
+        return
+      }
       let portInfo = ":" + port.proxyPort
       if (bindingIP && bindingDomain && port.protocol.toLowerCase() == 'http') {
         portInfo = ''
@@ -38,7 +67,12 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
           let domain = bindingIP + portInfo
           domain = domain.replace(/^(http:\/\/.*):80$/, '$1')
           domain = domain.replace(/^(https:\/\/.*):443$/, '$1')
-          domains.push({domain, isInternal: false, interPort: port.targetPort})
+          domains.push({
+            lbgroup,
+            domain,
+            isInternal: false,
+            interPort: port.targetPort
+          })
         })
       }
       else if (isDomain(bindingDomainStr)) {
@@ -57,15 +91,28 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
           domain = domain.replace(/^(http:\/\/.*):80$/, '$1')
           // if prefix is https://, remove suffix :443
           domain = domain.replace(/^(https:\/\/.*):443$/, '$1')
-          domains.push({domain, isInternal: false, interPort: port.targetPort})
+          domains.push({
+            lbgroup,
+            domain,
+            isInternal: false,
+            interPort: port.targetPort
+          })
         })
       }
     })
   }
   // parse interanl domain item.portForInternal is ["1234", "4567", "5234"]
-  if (item && item.metadata.name && item.portForInternal) {
-    item.portForInternal.map((port) => domains.push({domain: item.metadata.name + ":" + port, isInternal: true, interPort: port}))
+  if (nameInfo && portForInternal) {
+    portForInternal.map(port => {
+      domains.push({
+        lbgroup,
+        domain: `${nameInfo}:${port}`,
+        isInternal: true,
+        interPort: port
+      })
+    })
   }
+
   return domains
 }
 

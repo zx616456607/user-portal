@@ -1776,7 +1776,7 @@ let EditTenxFlowModal = React.createClass({
                 <Button
                   size="large"
                   disabled={this.state.otherFlowType == 3}
-                  type={(!this.state.scriptsId) ? 'primary' : 'ghost'}
+                  type={(this.state.scriptsId) ? 'primary' : 'ghost'}
                   onClick={() => this.setState({ shellModalShow: true })}
                 >
                   {

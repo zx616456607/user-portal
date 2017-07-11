@@ -34,7 +34,10 @@ class PublicProject extends Component {
       searchInput: '',
     }
   }
-
+  componentDidUpdate() {
+    let inputSearch = document.getElementsByClassName('search')[0];
+    inputSearch && inputSearch.focus()
+  }
   loadData(query) {
     const { loadProjectList } = this.props
     loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, query))

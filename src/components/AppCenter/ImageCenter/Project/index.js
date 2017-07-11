@@ -147,7 +147,10 @@ class Project extends Component {
     this.loadData()
     this.props.loadSysteminfo(DEFAULT_REGISTRY)
   }
-
+  componentDidUpdate() {
+    let searchInput = document.getElementsByClassName('search')[0]
+    searchInput && searchInput.focus()
+  }
   searchProjects() {
     this.loadData({ project_name: this.state.searchInput })
   }
@@ -214,9 +217,9 @@ class Project extends Component {
                   <Button
                     type="primary"
                     size="large"
-                    icon="plus"
                     onClick={this.openCreateModal.bind(this)}
                   >
+                    <i className='fa fa-plus'/>&nbsp;
                     新建仓库组
                   </Button>
                 }
