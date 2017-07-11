@@ -133,6 +133,16 @@ class VisitType extends Component{
     this.setState({
       currentProxy: data,
       initSelect: selectData
+    },()=>{
+      if (this.state.currentProxy.length > 0) {
+        this.setState({
+          deleteHint: true
+        })
+      } else {
+        this.setState({
+          deleteHint: false
+        })
+      }
     })
     form.setFieldsValue({
       groupID: initGroupID
@@ -163,6 +173,7 @@ class VisitType extends Component{
       this.setState({
         selectDis:true,
         value: 3,
+        deleteHint: true
       })
     }
     form.setFieldsValue({
@@ -180,24 +191,25 @@ class VisitType extends Component{
     const { service, setServiceProxyGroup, cluster, form } = this.props;
     const notification = new NotificationHandler()
     let val = value
-    if(!val) {
-      val = this.state.initValue
-    }
-    let groupID = 'none'
-    if(val !== 3) {
-      groupID = form.getFieldValue('groupID')
-      if (groupID === undefined) {
-        return notification.info('请选择网络出口')
+    form.validateFields((errors,values)=>{
+      if (!!errors) {
+        return;
       }
-    }
-    notification.spin('保存中更改中')
-    setServiceProxyGroup({
-      cluster,
-      service: service.metadata.name,
-      groupID
-    },{
-      success: {
-        func: (res) => {
+      if(!val) {
+        val = this.state.initValue
+      }
+      let groupID = 'none'
+      if(val !== 3) {
+        groupID = values.groupID;
+      }
+      notification.spin('保存中更改中')
+      setServiceProxyGroup({
+        cluster,
+        service: service.metadata.name,
+        groupID
+      },{
+        success: {
+          func: (res) => {
             notification.close()
             notification.success('出口方式更改成功')
             this.setState({
@@ -219,10 +231,12 @@ class VisitType extends Component{
                 addrHide: false
               })
             }
-        },
-        isAsync: true
-      }
+          },
+          isAsync: true
+        }
+      })
     })
+    
   }
   cancelEdit() {
     const { initValue, initSelect, initGroupID } = this.state;
@@ -282,6 +296,9 @@ class VisitType extends Component{
     const { getFieldProps } = form;
     const { value, disabled, forEdit, selectDis, deleteHint,privateNet, addrHide, currentProxy, initGroupID, initValue, initSelectDics } = this.state;
     const selectGroup = getFieldProps("groupID", {
+      rules:[
+        { required: deleteHint && value !== 3 ? true : false, message: "请选择网络出口" }
+      ],
       initialValue: initGroupID
     })
     const proxyNode = currentProxy.length > 0 ? currentProxy.map((item,index)=>{
