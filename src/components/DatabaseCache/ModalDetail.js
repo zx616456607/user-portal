@@ -11,22 +11,30 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Slider, Timeline, Popover, InputNumber, Tabs, Tooltip} from 'antd'
+import { camelize } from 'humps'
+import classNames from 'classnames'
+import { Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Slider, Timeline, Popover, InputNumber, Tabs, Tooltip, Card, Radio, Select, Form} from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbClusterDetail, deleteDatabaseCluster, putDbClusterDetail, loadDbCacheList } from '../../actions/database_cache'
+import { setServiceProxyGroup } from '../../actions/services'
+import { getProxy } from '../../actions/cluster'
+import { parseServiceDomain } from '../parseDomain'
 import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import { calcuDate, parseAmount} from '../../common/tools.js'
-import NotificationHandler from '../../components/Notification'
-import { ANNOTATION_SVC_SCHEMA_PORTNAME } from '../../../constants'
+import NotificationHandler from '../../common/notification_handler'
+import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../constants'
 import mysqlImg from '../../assets/img/database_cache/mysql.png'
 import redisImg from '../../assets/img/database_cache/redis.jpg'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../assets/img/database_cache/elasticsearch.jpg'
+import { SHOW_BILLING } from '../../constants'
 
+const Option = Select.Option;
 const Panel = Collapse.Panel;
 const ButtonGroup = Button.Group
 const TabPane = Tabs.TabPane;
+const RadioGroup = Radio.Group;
 
 class VolumeHeader extends Component {
   constructor(props) {
@@ -162,7 +170,7 @@ class BaseInfo extends Component {
     return ""
   }
   render() {
-    const { bindingIPs, domainSuffix, databaseInfo ,dbName } = this.props
+    const { bindingIPs, databaseInfo ,dbName } = this.props
     const parentScope = this.props.scope
     const rootScope = parentScope.props.scope
     const selfScope = this
@@ -178,30 +186,7 @@ class BaseInfo extends Component {
     const showCountPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * this.props.currentData.desired +  this.props.currentData.desired * containerPrc) * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
-    let domain = ''
-    if (domainSuffix) {
-      domain = eval(domainSuffix)[0]
-    }
-    let bindingIP = ''
-    if (bindingIPs) {
-      bindingIP = eval(bindingIPs)[0]
-    }
-    let portAnnotation = databaseInfo.serviceInfo.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
-    let externalPort = ''
-    if (portAnnotation) {
-      externalPort = portAnnotation.split('/')
-      if (externalPort && externalPort.length > 1) {
-        externalPort = externalPort[2]
-      }
-    }
-    let externalUrl = '-'
-    if (externalPort != '') {
-      if (domain) {
-        externalUrl = databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort
-      } else {
-        externalUrl = bindingIP + ':' + externalPort
-      }
-    }
+
     const modalContent = (
       <div className="modal-content">
         <div className="modal-header">更改实例数  <Icon type='cross' onClick={() => parentScope.colseModal()} className='cursor' style={{ float: 'right' }} /></div>
@@ -250,32 +235,6 @@ class BaseInfo extends Component {
     return (
       <div className='modalDetailBox' id="dbClusterDetailInfo">
         <div className='configContent'>
-          <div className='configHead'>配置信息</div>
-          <div className='configList'>
-            <span className='listKey'>
-              <Icon type='link' />&nbsp;内网地址：
-            </span>
-            <span className='listLink'>
-              {databaseInfo.serviceInfo.name + ':' + databaseInfo.serviceInfo.ports[0].port}
-            </span>
-            <Tooltip placement='top' title={this.state.copySuccess ? '复制成功' : '点击复制'}>
-              <Icon type="copy" style={{color:'#2db7f5',cursor:'pointer',marginLeft: '5px'}} onClick={()=> this.copyDownloadCode(0)} onMouseLeave={()=> this.returnDefaultTooltip()}/>
-            </Tooltip>
-            <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {databaseInfo.serviceInfo.name + ':' + databaseInfo.serviceInfo.ports[0].port}/>
-          </div>
-          <div className='configList'>
-            <span className='listKey'>
-              <Icon type='link' />&nbsp;出口地址：
-            </span>
-            <span className='listLink'>
-              {externalUrl}
-            </span>
-            <Tooltip placement='top' title={this.state.copySuccess ? '复制成功' : '点击复制'}>
-              <Icon type="copy" style={{color:'#2db7f5',cursor:'pointer',marginLeft: '5px'}} onClick={()=> this.copyDownloadCode(1)} onMouseLeave={()=> this.returnDefaultTooltip()}/>
-            </Tooltip>
-            <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalUrl}/>
-          </div>
-          <div className='configList'><span className='listKey'>副本数：</span>{this.props.currentData.pending + this.props.currentData.running}/{this.props.currentData.desired}个</div>
           {this.props.database === 'elasticsearch' ? null :
           <div><div className='configHead'>参数</div>
             <ul className='parse-list'>
@@ -302,6 +261,344 @@ class BaseInfo extends Component {
     )
   }
 }
+
+class VisitTypes extends Component{
+  constructor(props) {
+    super(props)
+    this.state = {
+      value: 0,
+      disabled:true,
+      forEdit: false,
+      selectDis: undefined,
+      deleteHint: true,
+      svcDomain: [],
+      copyStatus: false,
+      isInternal: false,
+      addrHide: false,
+      proxyArr: [],
+      currentProxy: [],
+      groupID:'',
+      selectValue: ''
+    }
+  }
+  componentWillMount() {
+    const { service, getProxy, clusterID, databaseInfo } = this.props;
+    const lbinfo = databaseInfo.serviceInfo.annotations[ANNOTATION_LBGROUP_NAME]
+
+    if(lbinfo == 'none') {
+      this.setState({
+        initValue: 1,
+        initSelectDics: true
+      })
+    } else {
+      this.setState({
+        initValue: 2,
+        initGroupID: lbinfo,
+        initSelectDics: false,
+      })
+    }
+    getProxy(clusterID,true,{
+      success: {
+        func: (res) => {
+          this.setState({
+            proxyArr:res[camelize(clusterID)].data
+          })
+        },
+        isAsync: true
+      },
+    })
+  }
+  componentWillReceiveProps(nextProps) {
+    const { detailModal, isCurrentTab } = nextProps;
+    if ((!detailModal && this.props.detailModal != nextProps.detailModal) || (!isCurrentTab && isCurrentTab != this.props.isCurrentTab)) {
+      this.cancelEdit()
+    }
+  }
+  onChange(e) {
+    let value = e.target.value;
+    let flag;
+    this.setState({
+      value: value,
+      selectDis: false,
+      selectValue: null
+    });
+    if (value === 1) {
+      flag = 'incluster'
+      this.setState({
+        selectDis: true
+      })
+    } else {
+      flag = 'other'
+    }
+  }
+  toggleDisabled() {
+    this.setState({
+      disabled: false,
+      forEdit:true
+    });
+  }
+  saveEdit() {
+    const { groupid, initValue } = this.state;
+    let value = this.state.value
+    if(!value) {
+      value = this.state.initValue
+    }
+    const { databaseInfo, setServiceProxyGroup, clusterID, form, scope } = this.props;
+    form.validateFields((err, values) => {
+      if(err) {
+        return
+      }
+      let groupID = 'none'
+      if(value == 2) {
+        groupID = form.getFieldValue('groupID')
+      }
+      const notification = new NotificationHandler()
+      notification.spin('保存中更改中')
+      setServiceProxyGroup({
+        cluster: clusterID,
+        service: databaseInfo.serviceInfo.externalName,
+        groupID
+      },{
+        success: {
+          func: (res) => {
+            notification.close()
+            notification.success('出口方式更改成功')
+            const { loadDbClusterDetail } = scope.props
+            setTimeout(() => {
+              loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, false)
+            }, 0)
+            this.setState({
+              disabled: true,
+              forEdit:false
+            });
+            if (value ===1) {
+              this.setState({
+                initValue: 1,
+                initSelectDics: true,
+                addrHide: true,
+                isinternal:false,
+                addrhide: false,
+                value: undefined,
+                selectDics: undefined
+              })
+            } else {
+              this.setState({
+                initValue: 2,
+                initGroupID: groupID,
+                initSelectDics: false,
+                addrHide: false,
+                selectDics: undefined,
+                value: undefined,
+                isinternal:true,
+              })
+              form.setFieldsValue({
+                groupID
+              })
+            }
+          },
+          isAsync: false
+        },
+        failed: (res) => {
+          notification.close()
+          let message = '更改出口方式失败'
+          if(res.message) {
+            message = res.message
+          }
+          if(res.message && res.message.message) {
+            message = res.message.message
+          }
+          notification.error(message)
+        }
+      })
+    })
+  }
+  cancelEdit() {
+    this.setState({
+      disabled: true,
+      forEdit:false,
+      value: this.state.initValue,
+      selectDis: this.state.initSelectDis,
+    });
+    const { form } = this.props
+    form.setFieldsValue({
+      groupID: this.state.initGroupID
+    })
+  }
+  handleChange(value) {
+    this.setState({
+      groupID: value,
+      selectValue: value
+    })
+  }
+  copyTest() {
+    let target = document.getElementsByClassName('copyTest')[0];
+    target.select()
+    document.execCommand("Copy", false);
+    this.setState({
+      copyStatus: true
+    })
+  }
+  startCopyCode(domain){
+    let target = document.getElementsByClassName('copyTest')[0];
+    target.value = domain;
+  }
+  returnDefaultTooltip() {
+    this.setState({
+      copyStatus: false
+    })
+  }
+  render() {
+    const { bindingIPs, domainSuffix, databaseInfo, form } = this.props
+    const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, addrHide, proxyArr, initValue, initGroupID, initSelectDics } = this.state;
+    const lbinfo = databaseInfo.serviceInfo.annotations[ANNOTATION_LBGROUP_NAME]
+    let clusterAdd = [];
+    let port = databaseInfo.serviceInfo.ports[0].port;
+    let serviceName = databaseInfo.serviceInfo.name;
+    let portNum = databaseInfo.podList.listMeta.total;
+    for (let i = 0; i < portNum; i++) {
+      clusterAdd.push({
+        start:`${serviceName}-${i}`,
+        end:`${serviceName}-${i}.${serviceName}:${port}`
+      })
+    }
+    const domainList = clusterAdd && clusterAdd.map((item,index)=>{
+          return (
+            <dd className="addrList" key={item.start}>
+              <span className="domain">{item.end}</span>
+              <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,item.end)} onClick={this.copyTest.bind(this)}/>
+              </Tooltip>
+            </dd>
+          )
+      })
+    let validator = (rule, value, callback) => callback()
+    if(value == 2) {
+      validator = (rule, value, callback) => {
+        if(!value) {
+          return callback('请选择网络出口')
+        }
+        return callback()
+      }
+    }
+    const selectGroup = form.getFieldProps("groupID", {
+      rules:[{
+        validator
+      }],
+      initialValue: initGroupID
+    })
+    const proxyNode = proxyArr.length > 0 ? proxyArr.map((item,index)=>{
+      return (
+          <Option key={item.id} value={item.id}>{item.type == 'public' ? '公网：' : '内网：'}{item.name}</Option>
+      )
+    }):null
+    let domain = ''
+    if (domainSuffix) {
+      domain = eval(domainSuffix)[0]
+    }
+    let bindingIP = ''
+    if (bindingIPs) {
+      bindingIP = eval(bindingIPs)[0]
+    }
+    // get domain, ip from lbgroup
+    proxyArr && proxyArr.every(proxy => {
+      if (proxy.id === lbinfo) {
+        domain = proxy.domain
+        bindingIP = proxy.address
+        return false
+      }
+      return true
+    })
+    let portAnnotation = databaseInfo.serviceInfo.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
+    let externalPort = ''
+    if (portAnnotation) {
+      externalPort = portAnnotation.split('/')
+      if (externalPort && externalPort.length > 1) {
+        externalPort = externalPort[2]
+      }
+    }
+    let externalUrl = '-'
+    if (externalPort != '') {
+      if (domain) {
+        externalUrl = databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort
+      } else {
+        externalUrl = bindingIP + ':' + externalPort
+      }
+    }
+    const radioValue = value || initValue
+    const hide = selectDis == undefined ? initSelectDics : selectDis
+    return (
+      <Card id="visitsTypePage">
+        <div className="visitTypeTopBox">
+          <div className="visitTypeTitle">集群访问方式</div>
+          <div className="visitTypeInnerBox">
+            {
+              forEdit ? [
+                <Button key="cancel" size="large" onClick={this.cancelEdit.bind(this)}>取消</Button>,
+                <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>
+              ] :
+                <Button type="primary" size="large" onClick={this.toggleDisabled.bind(this)}>编辑</Button>
+            }
+            <div className="radioBox">
+              <RadioGroup onChange={this.onChange.bind(this)} value={radioValue}>
+                <Radio key="b" value={2} disabled={disabled}>可集群外访问</Radio>
+                <Radio key="a" value={1} disabled={disabled}>仅在集群内访问</Radio>
+              </RadioGroup>
+              <p className="typeHint">
+                {
+                  radioValue === 1 ? '选择后该数据库与缓存集群仅提供集群内访问；':'数据库与缓存集群可提供集群外访问；“确保集群内节点有外网带宽，否则创建数据库与缓存失败” ；选择一个网络出口'
+                }
+              </p>
+              <div className={classNames("inlineBlock selectBox",{'hide': hide})}>
+                <Form.Item>
+                  <Select size="large" style={{ width: 180 }} {...selectGroup} disabled={disabled}
+                        getPopupContainer={()=>document.getElementsByClassName('selectBox')[0]}
+                >
+                  {proxyNode}
+                </Select>
+               </Form.Item>
+              </div>
+              <div className={classNames("inlineBlock deleteHint",{'hide': deleteHint})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>该网络出口已被管理员删除，请选择其他网络出口或方式</div>
+            </div>
+          </div>
+        </div>
+        <div className="visitTypeBottomBox">
+          <div className="visitTypeTitle">访问地址</div>
+          <div className="visitAddrInnerBox">
+            <input type="text" className="copyTest" style={{opacity:0}}/>
+            <div className={classNames("outPutBox",{'hide':addrHide})}>
+              <Icon type="link"/>出口地址：
+              <span className="domain">{externalUrl}</span>
+              <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,externalUrl)} onClick={this.copyTest.bind(this)}/>
+              </Tooltip>
+            </div>
+            <dl className="addrListBox">
+              <dt className="addrListTitle"><Icon type="link"/>集群内实例访问地址</dt>
+              <dd className="addrList">
+                {domainList}
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </Card>
+    )
+  }
+}
+
+function mapSateToProp(state) {
+  const { current } = state.entities;
+  const { clusterID } = current.cluster
+  return {
+    bindingDomains: state.entities.current.cluster.bindingDomains,
+    bindingIPs: state.entities.current.cluster.bindingIPs,
+    clusterID
+  }
+}
+
+VisitTypes = connect(mapSateToProp, {
+  setServiceProxyGroup,
+  getProxy
+})(Form.create()(VisitTypes))
 
 class LeasingInfo extends Component {
   constructor(props) {
@@ -576,12 +873,26 @@ class ModalDetail extends Component {
               <TabPane tab='基础信息' key='#BaseInfo'>
                 <BaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
               </TabPane>
-              <TabPane tab='事件' key='#events'>
-                <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
-              </TabPane>
-              <TabPane tab='租赁信息' key='#leading'>
-                <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
-              </TabPane>
+              { SHOW_BILLING ?
+                [<TabPane tab='访问方式' key='#VisitType'>
+                 <VisitTypes isCurrentTab={this.state.activeTabKey==='#VisitType'} domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} detailModal={this.props.detailModal}
+                              databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                 </TabPane>,
+                 <TabPane tab='事件' key='#events'>
+                   <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
+                 </TabPane>,
+                 <TabPane tab='租赁信息' key='#leading'>
+                   <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
+                 </TabPane>]
+                :
+                [<TabPane tab='访问方式' key='#VisitType'>
+                 <VisitTypes isCurrentTab={this.state.activeTabKey==='#VisitType'} domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} detailModal={this.props.detailModal}
+                            databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                 </TabPane>,
+                <TabPane tab='事件' key='#events'>
+                  <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
+                </TabPane>]
+              }
             </Tabs>
           </div>
         </div>

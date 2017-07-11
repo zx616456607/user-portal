@@ -199,13 +199,19 @@
         height: 40px;
         display: inline-flex;
         align-items: center;
-        justify-content: space-around;
+        justify-content: space-between;
         border-left: 2px solid white;
+        padding: 0 5px;
         &:hover{
           background-color: #effdff;
           color: #00a0ea;
           border-left: 2px solid #00a0ea;
         }
+      }
+      .active{
+        background-color: #effdff;
+        color: #00a0ea;
+        border-left: 2px solid #00a0ea;
       }
       li:not(last-of-type){
         border-bottom: 1px solid #dadada;

@@ -114,3 +114,24 @@
     background: white;
   }
 }
+
+.logModal {
+  height: 100%;
+  width: 100% !important;
+  position: absolute;
+  top: 0;
+  overflow: auto;
+  margin: 0;
+  padding: 0;
+  .ant-modal-body {
+    padding:0;
+    .closeBtn {
+      border:1px dashed #666;
+      padding:3px 6px !important;
+      &:hover {
+        color:#2db7f5;
+        border-color: #2db7f5;
+      }
+    }
+  }
+}

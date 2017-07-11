@@ -18,7 +18,7 @@ import QueueAnim from 'rc-queue-anim'
 import NotificationHandler from '../../../components/Notification'
 // import { loadUserDetail } from '../../../actions/user'
 import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN,  } from '../../../../constants'
-import { NEED_BUILD_IMAGE } from '../../../constants'
+import { NEED_BUILD_IMAGE, SHOW_BILLING } from '../../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -102,6 +102,10 @@ class Sider extends Component {
         }
       }
       if (pathname.indexOf('app_manage/detail/') > -1) {
+        currentOpenMenu = ['app_manage','app_manage_default']
+        currentSelectedMenu = currentOpenMenu
+      }
+      if (pathname.indexOf('app_manage/deploy_wrap') > -1) {
         currentOpenMenu = ['app_manage','app_manage_default']
         currentSelectedMenu = currentOpenMenu
       }
@@ -679,16 +683,20 @@ class Sider extends Component {
                    <span><div className='sideCircle'></div> 费用中心</span>
                    </Link>
                    </Menu.Item>*/}
-                  <Menu.Item key='costCenter#consumptions'>
-                    <Link to='/account/costCenter#consumptions'>
-                      <span><div className='sideCircle'></div> 消费记录</span>
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key='costCenter#payments'>
-                    <Link to='/account/costCenter#payments'>
-                      <span><div className='sideCircle'></div> 充值记录</span>
-                    </Link>
-                  </Menu.Item>
+                  { SHOW_BILLING ?
+                    [<Menu.Item key='costCenter#consumptions'>
+                      <Link to='/account/costCenter#consumptions'>
+                        <span><div className='sideCircle'></div> 消费记录</span>
+                      </Link>
+                    </Menu.Item>,
+                    <Menu.Item key='costCenter#payments'>
+                      <Link to='/account/costCenter#payments'>
+                        <span><div className='sideCircle'></div> 充值记录</span>
+                      </Link>
+                    </Menu.Item>]
+                    :
+                    <Menu.Item key="none-cost" style={{ display: 'none' }}></Menu.Item>
+                  }
                   {role == ROLE_SYS_ADMIN ?
                     <Menu.Item key='ldap'>
                       <Link to='/account/ldap'>
@@ -717,6 +725,11 @@ class Sider extends Component {
                   <Menu.Item key="membermanagement">
                     <Link to='/tenant_manage/membermanagement'>
                       <span><div className='sideCircle'></div> 成员管理</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key="teammanagement">
+                    <Link to='/tenant_manage/team'>
+                      <span><div className='sideCircle'></div> 团队管理</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='projectManage'>

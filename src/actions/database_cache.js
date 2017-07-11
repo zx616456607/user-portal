@@ -140,7 +140,7 @@ export const GET_DATABASE_DETAIL_INFO_REQUEST = 'GET_DATABASE_DETAIL_INFO_REQUES
 export const GET_DATABASE_DETAIL_INFO_SUCCESS = 'GET_DATABASE_DETAIL_INFO_SUCCESS'
 export const GET_DATABASE_DETAIL_INFO_FAILURE = 'GET_DATABASE_DETAIL_INFO_FAILURE'
 
-function getDbClusterDetail(cluster, dbName, callback) {
+function getDbClusterDetail(cluster, dbName, needLoading, callback) {
   return {
     cluster,
     [FETCH_API]: {
@@ -148,13 +148,18 @@ function getDbClusterDetail(cluster, dbName, callback) {
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/dbservices/${dbName}`,
       schema: {}
     },
-    callback
+    callback,
+    needLoading
   }
 }
 
-export function loadDbClusterDetail(cluster, dbName, callback) {
+export function loadDbClusterDetail(cluster, dbName, needLoading, callback) {
+  if(typeof needLoading != 'boolean') {
+    callback = needLoading
+    needLoading = true
+  }
   return (dispatch) => {
-    return dispatch(getDbClusterDetail(cluster, dbName, callback))
+    return dispatch(getDbClusterDetail(cluster, dbName, needLoading, callback))
   }
 }
 

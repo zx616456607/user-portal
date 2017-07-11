@@ -26,7 +26,10 @@ const appManageRoutes = [{
     path: 'compose_file',
     component: require('../components/AppModule/AppCreate/ComposeFile').default,
   }]
-},{
+}, {
+    path: 'deploy_wrap',
+    component: require('../components/AppModule/AppCreate/DeployWrap').default,
+}, {
   path: 'app_create/quick_create',
   component: require('../components/AppModule/QuickCreateApp').default,
 }, {

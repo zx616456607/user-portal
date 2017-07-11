@@ -124,6 +124,19 @@ let ConfigureService = React.createClass({
            if (result.data.indexOf(LATEST) > -1) {
              imageTag = LATEST
            }
+           if (location.query.tag) {
+              let hasTag
+              result.data.every(tags =>{
+                if (tags == location.query.tag) {
+                  hasTag = true
+                  return false
+                }
+                return true
+              })
+              if (hasTag) {
+                imageTag = location.query.tag
+              }
+            }
            setFieldsValue({
              imageTag,
            })
@@ -382,7 +395,7 @@ let ConfigureService = React.createClass({
     })
     const imageUrlProps = getFieldProps('imageUrl', {
       rules: [
-        { required: true, message: '请选择镜像版本' }
+        { required: true, message: '请输入镜像地址' }
       ],
     })
     const imageTagProps = getFieldProps('imageTag', {
@@ -458,6 +471,7 @@ let ConfigureService = React.createClass({
                 showSearch
                 optionFilterProp="children"
                 {...imageTagProps}
+                disabled={location.query.tag}
               >
                 {
                   imageTags.list.map(tag => (

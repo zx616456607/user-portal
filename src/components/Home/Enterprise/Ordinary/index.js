@@ -24,7 +24,7 @@ import homeRedis from '../../../../assets/img/homeRedis.png'
 import homeZookeeper from '../../../../assets/img/homeZookeeper.png'
 import homeElasticSearch from '../../../../assets/img/homeElasticSearch.png'
 import { Link } from 'react-router'
-import { AVATAR_HOST } from '../../../../constants'
+import { AVATAR_HOST, SHOW_BILLING } from '../../../../constants'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -192,7 +192,7 @@ class Ordinary extends Component {
       return $1 + ",";
     }));
   }
-  
+
   handleSize(size) {
     if (!size) {
       return 0 + 'MB'
@@ -383,7 +383,7 @@ class Ordinary extends Component {
       tab5: false,
       statefulApp: 'MySQL',
     }
-    const onStatefulAppOptionClick = function (app) { 
+    const onStatefulAppOptionClick = function (app) {
       const tab = statefulAppTabMapping[app]
       const newState = {
         [tab]: true,
@@ -1121,6 +1121,7 @@ class Ordinary extends Component {
       <div id='Ordinary'>
         <Row className="title">{spaceName} - {clusterName}集群</Row>
         <Row className="content" gutter={16}>
+          { SHOW_BILLING?
           <Col span={6} className='clusterCost'>
             <Card title="帐户余额" bordered={false} bodyStyle={{height: 220, padding: '36px 24px'}}>
               <div className='costInfo'>
@@ -1139,7 +1140,7 @@ class Ordinary extends Component {
                         </p>
                       </Link>
                       <Tooltip title={email}>
-                        <p className="email">{email || '...'}</p>
+                        <p className="email textoverflow">{email || '...'}</p>
                       </Tooltip>
                     </div>
                   </div>
@@ -1177,6 +1178,31 @@ class Ordinary extends Component {
               </div>
             </Card>
           </Col>
+          :
+          <Col span={6} className='clusterCost'>
+            <Card title="帐户信息" bordered={false} bodyStyle={{height: 220, padding: '36px 24px'}}>
+                <div className='loginUser'>
+                  <div className='logAvatar' style={{float:'none',margin:'0 auto'}}>
+                    <Link to='/account'>
+                      <span style={{color: 'white'}}>{img}</span>
+                      {/*<img alt={userName} src={`${AVATAR_HOST}${avatar}`} />*/}
+                    </Link>
+                  </div>
+                </div>
+               <div className="text-center" style={{fontSize:16,marginTop:20}}>
+                <Link to='/account'>
+                  <p className="userName textoverflow">
+                    {userName}
+                  </p>
+                </Link>
+                <Tooltip title={email}>
+                  <p className="textoverflow" style={{marginTop:5}}>{email || '...'}</p>
+                </Tooltip>
+              </div>
+
+            </Card>
+          </Col>
+          }
           <Col span={6} className='clusterStatus'>
             <Card title="本集群资源分配状况" bordered={false} bodyStyle={{ height: 220, padding: '0 24px' }}>
               <div className='clusterStatusTitle'>

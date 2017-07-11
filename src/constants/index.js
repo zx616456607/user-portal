@@ -22,6 +22,7 @@ export const USERNAME_REG_EXP_NEW = /^[a-z][-a-z0-9]{3,38}[a-z0-9]$/
 export const STORAGENAME_REG_EXP = /^[a-z][-a-z0-9_]{2,14}$/
 export const EMAIL_REG_EXP = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/
 export const VERSION_REG_EXP = /\bv\d\.\d\.\d/
+export const URL_REG_EXP = /^https?:\/\/(([a-zA-Z0-9_-])+(\.)?)*(:\d+)?(\/((\.)?(\?)?=?&?[a-zA-Z0-9_-](\?)?)*)*$/i
 export const HOST = 'localhost:8003'
 export const AVATAR_HOST = 'https://dn-tenx-avatars.qbox.me/'
 
@@ -118,4 +119,5 @@ export const PLUGIN_DEFAULT_CONFIG = {
     memory: 200
   }
 }
+export const SHOW_BILLING = true
 export const DEFAULT_SHARE_DIR = '/tenxcloud-tmp-dir'

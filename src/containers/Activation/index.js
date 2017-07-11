@@ -155,11 +155,14 @@ let Activation = React.createClass({
 
 function mapStateToProps(state, props) {
   const defaultState = {data: {'platformid': ''}}
+  const defaultOemInfo = {
+    company:{}
+  }
   const {data} = state.license.platform.result || defaultState
   const { result } = state.personalized.info
   return {
    platform: data,
-   result
+   result: result || defaultOemInfo
   }
 }
 

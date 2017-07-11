@@ -158,102 +158,8 @@ const MyComponent = React.createClass({
           service.checked = !service.checked
         }
       })
-      const checkedList = serviceList.filter((service) => service.checked)
-      if (checkedList.length === 0) {
-        scope.setState({
-          runBtn: false,
-          stopBtn: false,
-          restartBtn: false,
-          redeploybtn: false,
-        })
-        return
-      }
-      if (checkedList.length === 1) {
-        if(checkedList[0].status.phase === 'Pending'){
-          scope.setState({
-            runBtn: false,
-            stopBtn: true,
-            restartBtn: false,
-            redeploybtn: true,
-          })
-          return
-        }
-        if (checkedList[0].status.phase === 'Running') {
-          scope.setState({
-            runBtn: false,
-            stopBtn: true,
-            restartBtn: true,
-            redeploybtn: true,
-          })
-          return
-        }
-        if (checkedList[0].status.phase === 'Stopped') {
-          scope.setState({
-            runBtn: true,
-            stopBtn: false,
-            restartBtn: false,
-            redeploybtn: false,
-          })
-          return
-        }
-        if (checkedList[0].status.phase === 'Starting' || checkedList[0].status.phase === 'Deploying') {
-          scope.setState({
-            runBtn: false,
-            stopBtn: true,
-            restartBtn: true,
-            redeploybtn: true,
-          })
-        }
-      }
-      if (checkedList.length > 1) {
-        let runCount = 0
-        let stopCount = 0
-        let pending = 0
-        checkedList.map((item, index) => {
-          if (item.status.phase === 'Running') {
-            runCount++
-          }
-          else if (item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
-            pending++
-          } else {
-            stopCount++
-          }
-        })
-
-        if (runCount + pending === checkedList.length) {
-          scope.setState({
-            runBtn: false,
-            stopBtn: true,
-            restartBtn: true,
-            redeploybtn: true,
-          })
-          if (pending) {
-            scope.setState({
-              restartBtn: true
-            })
-          }
-          return
-        }
-        if (stopCount === checkedList.length) {
-          scope.setState({
-            runBtn: true,
-            stopBtn: false,
-            restartBtn: false,
-            redeploybtn: false,
-          })
-          return
-        }
-        scope.setState({
-          runBtn: true,
-          stopBtn: true,
-          restartBtn: true,
-          redeploybtn: true,
-        })
-        return
-      }
-      scope.setState({
-        serviceList
-      })
+      // handle state of serviceList
+      handleStateOfServiceList(scope, serviceList)
     }
   },
   modalShow(item) {
@@ -396,6 +302,29 @@ const MyComponent = React.createClass({
       document.getElementById('name').focus()
     },500)
   },
+  renderGroupIcon(group){
+    if(!group || !group.id || group.type == 'none'){
+      return <span></span>
+    }
+    if(group.id == "mismatch"){
+      return <Tooltip title='网络出口已删除'>
+        <span className='standrand netcolor'>网</span>
+      </Tooltip>
+
+    }
+    switch(group.type){
+      case 'private':
+        return <Tooltip title='该服务可内网访问'>
+          <span className='standrand privateColor'>内</span>
+        </Tooltip>
+      case 'public':
+        return <Tooltip title='该服务可公网访问'>
+          <span className='standrand publicColor'>公</span>
+        </Tooltip>
+      default:
+        return <span></span>
+    }
+  },
   render: function () {
     const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs, loginUser, scope } = this.props
     if (loading) {
@@ -415,7 +344,7 @@ const MyComponent = React.createClass({
     const items = serviceList.map((item) => {
       item.cluster = cluster
       let isHaveVolume = false
-      let redeployDisable = false
+      let redeployDisable = true
       if(item.spec.template.spec.volumes) {
         isHaveVolume = item.spec.template.spec.volumes.some(volume => {
           if(!volume) return false
@@ -423,7 +352,7 @@ const MyComponent = React.createClass({
         })
       }
       if(item.status.phase == 'Running' || item.status.phase == 'Pending'){
-        redeployDisable = true
+        redeployDisable = false
       }
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width: '100px'}} id="allservicelistDropdownMenu">
@@ -518,6 +447,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="name commonData">
             <span className="viewBtn" onClick={() => this.modalShow(item)}>
+              { this.renderGroupIcon(item.lbgroup)}
               {item.metadata.name}
             </span>
           </div>
@@ -722,6 +652,7 @@ class ServiceList extends Component {
         restartBtn: false,
       })
     }
+    handleStateOfServiceList(this, serviceList)
   }
 
   componentWillMount() {
@@ -1528,6 +1459,104 @@ class ServiceList extends Component {
   }
 }
 
+function handleStateOfServiceList (scope, serviceList) {
+  const checkedList = serviceList.filter((service) => service.checked)
+  if (checkedList.length === 0) {
+    scope.setState({
+      runBtn: false,
+      stopBtn: false,
+      restartBtn: false,
+      redeploybtn: false,
+    })
+    return
+  }
+  if (checkedList.length === 1) {
+    if(checkedList[0].status.phase === 'Pending'){
+      scope.setState({
+        runBtn: false,
+        stopBtn: true,
+        restartBtn: false,
+        redeploybtn: true,
+      })
+      return
+    }
+    if (checkedList[0].status.phase === 'Running') {
+      scope.setState({
+        runBtn: false,
+        stopBtn: true,
+        restartBtn: true,
+        redeploybtn: true,
+      })
+      return
+    }
+    if (checkedList[0].status.phase === 'Stopped') {
+      scope.setState({
+        runBtn: true,
+        stopBtn: false,
+        restartBtn: false,
+        redeploybtn: false,
+      })
+      return
+    }
+    if (checkedList[0].status.phase === 'Starting' || checkedList[0].status.phase === 'Deploying') {
+      scope.setState({
+        runBtn: false,
+        stopBtn: true,
+        restartBtn: true,
+        redeploybtn: true,
+      })
+    }
+  }
+  if (checkedList.length > 1) {
+    let runCount = 0
+    let stopCount = 0
+    let pending = 0
+    checkedList.map((item, index) => {
+      if (item.status.phase === 'Running') {
+        runCount++
+      }
+      else if (item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
+        pending++
+      } else {
+        stopCount++
+      }
+    })
+
+    if (runCount + pending === checkedList.length) {
+      scope.setState({
+        runBtn: false,
+        stopBtn: true,
+        restartBtn: true,
+        redeploybtn: true,
+      })
+      if (pending) {
+        scope.setState({
+          restartBtn: true
+        })
+      }
+      return
+    }
+    if (stopCount === checkedList.length) {
+      scope.setState({
+        runBtn: true,
+        stopBtn: false,
+        restartBtn: false,
+        redeploybtn: false,
+      })
+      return
+    }
+    scope.setState({
+      runBtn: true,
+      stopBtn: true,
+      restartBtn: true,
+      redeploybtn: true,
+    })
+    return
+  }
+  scope.setState({
+    serviceList
+  })
+}
 
 function mapStateToProps(state, props) {
   const { query, pathname } = props.location

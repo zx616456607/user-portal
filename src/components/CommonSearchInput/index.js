@@ -35,7 +35,6 @@ export default class CommonSearchInput extends Component{
   handleSearch() {
     if (this.props.onSearch) {
       this.props.onSearch(this.state.value);
-      this.setState({value:''})
     }
   }
   render() {

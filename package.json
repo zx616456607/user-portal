@@ -107,6 +107,7 @@
     "color-hash": "^1.0.3",
     "cross-env": "^3.1.4",
     "css-loader": "^0.24.0",
+    "docker-file-parser": "^1.0.2",
     "echarts": "~3.1.1",
     "echarts-for-react": "^1.1.5",
     "es3ify-loader": "^0.2.0",

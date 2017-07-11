@@ -24,6 +24,7 @@ import AppServiceRental from './AppServiceRental'
 import AppSettingsHttps from './AppSettingsHttps'
 import ServiceMonitor from './ServiceMonitor'
 import AppAutoScale from './AppAutoScale'
+import VisitType from './VisitType'
 import AlarmStrategy from '../../ManageMonitor/AlarmStrategy'
 import { loadServiceDetail, loadServiceContainerList, loadK8sService } from '../../../actions/services'
 import { addTerminal } from '../../../actions/terminal'
@@ -39,6 +40,7 @@ import { ANNOTATION_HTTPS } from '../../../../constants'
 import { camelize } from 'humps'
 import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 import Title from '../../Title'
+import { SHOW_BILLING } from '../../../constants'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -374,6 +376,16 @@ class AppServiceDetail extends Component {
                   isCurrentTab={activeTabKey==='#binddomain'}
                   />
               </TabPane>
+              <TabPane tab='访问方式' key='#visitType'>
+                <VisitType
+                  cluster={service.cluster}
+                  serviceName={service.metadata.name}
+                  serviceDetailmodalShow={serviceDetailmodalShow}
+                  service={serviceDetail}
+                  activeKey={activeTabKey}
+                  isCurrentTab={activeTabKey==='#visitType'}
+                />
+              </TabPane>
               <TabPane tab='端口' key='#ports'>
                 <PortDetail
                   serviceName={service.metadata.name}
@@ -433,12 +445,18 @@ class AppServiceDetail extends Component {
                   serviceDetail={serviceDetail}
                 relative/>
               </TabPane>
+              {SHOW_BILLING ?
+              [<TabPane tab='事件' key='#events'>
+                <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} type={'replicaset'} serviceDetailmodalShow={serviceDetailmodalShow}/>
+              </TabPane>,
+              <TabPane tab='租赁信息' key='#rentalInfo'>
+                <AppServiceRental serviceName={service.metadata.name} serviceDetail={[serviceDetail]} />
+              </TabPane>]
+              :
               <TabPane tab='事件' key='#events'>
                 <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} type={'replicaset'} serviceDetailmodalShow={serviceDetailmodalShow}/>
               </TabPane>
-              <TabPane tab='租赁信息' key='#rentalInfo'>
-                <AppServiceRental serviceName={service.metadata.name} serviceDetail={[serviceDetail]} />
-              </TabPane>
+              }
             </Tabs>
           </div>
           <div className='contentBox'>

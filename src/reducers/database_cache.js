@@ -147,7 +147,7 @@ function databaseClusterDetail(state = {}, action) {
   switch (action.type) {
     case ActionTypes.GET_DATABASE_DETAIL_INFO_REQUEST:
       return merge({}, defaultState, state, {
-        databaseInfo: { isFetching: true }
+        databaseInfo: { isFetching: action.needLoading }
       })
     case ActionTypes.GET_DATABASE_DETAIL_INFO_SUCCESS:
       return Object.assign({}, state, {

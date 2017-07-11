@@ -21,6 +21,7 @@ import "./style/StorageDetail.less"
 import { DEFAULT_IMAGE_POOL } from '../../constants'
 import storagePNG from '../../assets/img/storage.png'
 import Title from '../Title'
+import { SHOW_BILLING } from '../../constants'
 
 function loadData(props) {
   const { loadStorageInfo } = props
@@ -129,12 +130,18 @@ class StorageDetail extends Component {
                 tabPosition="top"
                 defaultActiveKey="1"
               >
+              {SHOW_BILLING ?
+                [<TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="1" >
+                  <StorageBind pool={StorageInfo.imagePool} cluster={StorageInfo.cluster} volumeName={ StorageInfo.volumeName } />
+                </TabPane>,
+                <TabPane tab="租赁信息" key="2" >
+                  <StorageRental config={this.props.resourcePrice} size={StorageInfo.size}/>
+                </TabPane>]
+                :
                 <TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="1" >
                   <StorageBind pool={StorageInfo.imagePool} cluster={StorageInfo.cluster} volumeName={ StorageInfo.volumeName } />
                 </TabPane>
-                <TabPane tab="租赁信息" key="2" >
-                  <StorageRental config={this.props.resourcePrice} size={StorageInfo.size}/>
-                </TabPane>
+              }
               </Tabs>
             </Card>
           </div>

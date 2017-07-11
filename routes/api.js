@@ -86,13 +86,16 @@ module.exports = function (Router) {
   router.get('/projects/approval-clusters',projectController.getProjectApprovalClusters)
   router.put('/projects/:name/clusters',projectController.updateProjectClusters)
   router.put('/projects/clusters',projectController.updateProjectApprovalClusters)
-
+  router.get('/projects/members',projectController.getProjectMembers)
   router.get('/projects/:name/users',projectController.getProjectRelatedUsers)
   router.post('/projects/:name/users',projectController.addProjectRelatedUsers)
   router.post('/projects/:name/users/batch-delete',projectController.deleteProjectRelatedUsers)
   router.put('/projects/:name/users',projectController.updateProjectRelatedUsers)
   router.get('/projects/:name/roles',projectController.getProjectRelatedRoles)
   router.put('/projects/:name/roles',projectController.updateProjectRelatedRoles)
+  router.post('/projects/:name/roles/batch-delete',projectController.deleteProjectRelatedRoles)
+
+  
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
@@ -104,8 +107,10 @@ module.exports = function (Router) {
   // For bind node when create service(lite only)
   router.get('/clusters/:cluster/nodes', clusterController.getNodes)
   router.get('/clusters/add-cluster-cmd', clusterController.getAddClusterCMD)
-  router.get('/clusters/:cluster/proxies', middlewares.isAdminUser, clusterController.getProxy)
-  router.put('/clusters/:cluster/proxies', middlewares.isAdminUser, clusterController.updateProxy)
+  router.get('/clusters/:cluster/proxies', clusterController.getProxy)
+  router.put('/clusters/:cluster/proxies', middlewares.isAdminUser, clusterController.updateProxies)
+  router.put('/clusters/:cluster/proxies/:groupID', middlewares.isAdminUser, clusterController.updateProxy)
+  router.put('/clusters/:cluster/proxies/:groupID/as_default', middlewares.isAdminUser, clusterController.setDefaultProxy)
   router.get('/clusters/:cluster/node_addr', middlewares.isAdminUser, clusterController.getClusterNodeAddr)
   router.get('/clusters/:cluster/plugins', middlewares.isAdminUser, clusterController.getClusterPlugins)
   router.put('/clusters/:cluster/plugins/:name', middlewares.isAdminUser, clusterController.updateClusterPlugins)
@@ -132,6 +137,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:app_name/logs', appController.getAppLogs)
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
   router.get('/clusters/:cluster/services/:service/existence', serviceController.checkServiceName)
+  router.put('/clusters/:cluster/services/:service/lbgroups/:groupID', serviceController.setServiceProxyGroup)
 
   // AppTemplates
   router.get('/templates', appTemplateController.listTemplates)

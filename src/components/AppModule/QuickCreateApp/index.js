@@ -26,6 +26,7 @@ import { createApp } from '../../../actions/app_manage'
 import { addService } from '../../../actions/services'
 import { buildJson, getFieldsValues } from './utils'
 import './style/index.less'
+import { SHOW_BILLING } from '../../../constants'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -213,7 +214,11 @@ class QuickCreateApp extends Component {
     this.setState({
       stepStatus: 'process',
     })
-    const { removeFormFields } = this.props
+    const { removeFormFields, location } = this.props
+    if (location.query.appPkgID) {
+      browserHistory.push('/app_manage/deploy_wrap')
+      return
+    }
     const { validateFieldsAndScroll } = this.form
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
@@ -268,7 +273,7 @@ class QuickCreateApp extends Component {
     })
     const {
       fields, current, loginUser,
-      createApp, addService,
+      createApp, addService,location
     } = this.props
     const { clusterID } = current.cluster
     const template = []
@@ -364,10 +369,15 @@ class QuickCreateApp extends Component {
       addService(clusterID, this.state.appName, body, callback)
       return
     }
+    let appPkgID
+    if (location.query && location.query.appPkgID) {
+      appPkgID = location.query.appPkgID
+    }
     const appConfig = {
       cluster: clusterID,
       template: template.join('---\n'),
       appName: this.getAppName(fields),
+      appPkgID: appPkgID
     }
     createApp(appConfig, callback)
   }
@@ -636,6 +646,10 @@ class QuickCreateApp extends Component {
     })
     const serviceList = this.renderServiceList()
     const currentStep = this.getStepsCurrent()
+    let showprice = 18
+    if (!SHOW_BILLING) {
+      showprice = 24
+    }
     return (
       <div id="quickCreateApp" className={quickCreateAppClass}>
         {
@@ -643,12 +657,13 @@ class QuickCreateApp extends Component {
         }
         <div className={quickCreateAppContentClass}>
           <Row gutter={16}>
-            <Col span={18}>
+            <Col span={showprice}>
               <Card className="leftCard" title={steps}>
                 { this.renderBody() }
                 { this.renderFooterSteps() }
               </Card>
             </Col>
+            { SHOW_BILLING ?
             <Col span={6}>
               <Card
                 className="rightCard"
@@ -696,6 +711,8 @@ class QuickCreateApp extends Component {
                 }
               </Card>
             </Col>
+            :null
+            }
           </Row>
           <Modal
             title="返回上一步"

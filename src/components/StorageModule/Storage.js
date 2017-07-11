@@ -26,6 +26,7 @@ import NotificationHandler from '../../components/Notification'
 import noStorageImg from '../../assets/img/no_data/no_storage.png'
 import ResourceQuotaModal from '../ResourceQuotaModal/Storage'
 import CreateVolume from '../StorageModule/CreateVolume'
+import { SHOW_BILLING } from '../../constants'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -505,6 +506,7 @@ let MyComponent = React.createClass({
                 <span style={{ paddingLeft: 10 }} >MB</span>
               </Col>
             </Row>
+            { SHOW_BILLING ?
             <div className="modal-price">
               <div className="price-left">
                 存储：{hourPrice.unit == '￥'? '￥': ''}{ resourcePrice.storage /10000 } {hourPrice.unit == '￥'? '': ' T'}/(GB*小时)
@@ -514,6 +516,8 @@ let MyComponent = React.createClass({
                 <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }/月）</span></p>
               </div>
             </div>
+            :null
+            }
 
           </div>
           <div className={this.state.modalType === 'format' ? 'show' : 'hide'}>
