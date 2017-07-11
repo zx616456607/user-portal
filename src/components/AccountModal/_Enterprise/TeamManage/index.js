@@ -175,13 +175,14 @@ let TeamTable = React.createClass({
     const { page, size, sort, filter} = this.props.scope.state
     if (targetKeys.length !== 0) {
       const newtargetKeys = targetKeys.map(item=> {
-      return {
-        userID:Number(item.split('/')[0]),
-        userName:item.split('/')[1]
-      }
-    })
+        return {
+          userID:Number(item.split('/')[0]),
+          userName:item.split('/')[1]
+        }
+      })
+      const targetKeysMap = {"users":newtargetKeys}
       addTeamusers(nowTeamID,
-        newtargetKeys
+        targetKeysMap
         , {
           success: {
             func: () => {

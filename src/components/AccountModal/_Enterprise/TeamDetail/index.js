@@ -546,9 +546,10 @@ class TeamDetail extends Component {
         userID:Number(item.split('/')[0]),
         userName:item.split('/')[1]
       }
-     })
+      })
+      const targetKeysMap = {"users":newtargetKeys}
       addTeamusers(teamID,
-        newtargetKeys
+        targetKeysMap
         , {
           success: {
             func: () => {
