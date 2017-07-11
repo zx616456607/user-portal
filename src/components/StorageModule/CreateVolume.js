@@ -208,11 +208,9 @@ class CreateVolume extends Component {
                 notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
                 return
               }
-              if (err.message) {
-                notification.error(err.message)
-                return
+              if (err.statusCode !== 402) {
+                notification.error('创建存储卷失败',err.message.message || err.message)
               }
-              notification.error('创建存储卷失败')
             }
           }
         })
