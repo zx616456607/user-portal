@@ -161,7 +161,7 @@ class ProjectDetail extends Component{
             let relatedRoles = projectDetail.relatedRoles;
             for (let i = 0 ; i < result.length; i++) {
               let flag = false;
-              if (relatedRoles.length > 0) {
+              if (relatedRoles && relatedRoles.length > 0) {
                 for (let j = 0 ; j < relatedRoles.length; j++) {
                   if (result[i].id === relatedRoles[j].roleId) {
                     flag = true;
@@ -170,7 +170,7 @@ class ProjectDetail extends Component{
               }
               const data = {
                 key: `${result[i].id},${result[i].name}`,
-                //title: result[i].name,
+                title: result[i].name,
                 description: result[i].name,
                 chosen: flag,
               };
@@ -193,7 +193,6 @@ class ProjectDetail extends Component{
   }
   getProjectDetail() {
     const { name } = this.props.location.query;
-    const { projectDetail } = this.state;
     const { GetProjectsDetail } = this.props;
     GetProjectsDetail({
       projectsName: name
@@ -519,7 +518,6 @@ class ProjectDetail extends Component{
     },{
       success: {
         func: (res) => {
-          
           this.getProjectDetail()
         },
         isAsync: true
@@ -723,26 +721,26 @@ class ProjectDetail extends Component{
                       </div>
                     </Col>
                   </Row>
-                  <Row gutter={16}>
-                    <Col className='gutter-row' span={4}>
-                      <div className="gutter-box">
-                        余额预警
-                      </div>
-                    </Col>
-                    <Col className='gutter-row' span={20}>
-                      <div className="gutter-box">
-                        <Switch checkedChildren="开" unCheckedChildren="关" defaultChecked={false}  onChange={(checked)=>this.switchChange(checked)}/>
-                        {
-                          this.state.switchState ?
-                            <span>
-                              <span className="balanceTip">项目余额小于 <span className="themeColor">2T</span> 时预警</span>
-                              <span className="alertBtn themeColor pointer" onClick={()=>this.setState({balanceWarning:true})}>修改</span>
-                            </span>
-                            : ''
-                        }
-                      </div>
-                    </Col>
-                  </Row>
+                  {/*<Row gutter={16}>*/}
+                    {/*<Col className='gutter-row' span={4}>*/}
+                      {/*<div className="gutter-box">*/}
+                        {/*余额预警*/}
+                      {/*</div>*/}
+                    {/*</Col>*/}
+                    {/*<Col className='gutter-row' span={20}>*/}
+                      {/*<div className="gutter-box">*/}
+                        {/*<Switch checkedChildren="开" unCheckedChildren="关" defaultChecked={false}  onChange={(checked)=>this.switchChange(checked)}/>*/}
+                        {/*{*/}
+                          {/*this.state.switchState ?*/}
+                            {/*<span>*/}
+                              {/*<span className="balanceTip">项目余额小于 <span className="themeColor">2T</span> 时预警</span>*/}
+                              {/*<span className="alertBtn themeColor pointer" onClick={()=>this.setState({balanceWarning:true})}>修改</span>*/}
+                            {/*</span>*/}
+                            {/*: ''*/}
+                        {/*}*/}
+                      {/*</div>*/}
+                    {/*</Col>*/}
+                  {/*</Row>*/}
                   <Row gutter={16}>
                     <Col className='gutter-row' span={4}>
                       <div className="gutter-box">
@@ -900,7 +898,7 @@ class ProjectDetail extends Component{
             <Card title="项目中角色关联的对象" className="clearfix">
               <div className="connectLeft pull-left">
                 <span className="leftTitle">已添加角色</span>
-                <ul className="characterListBox">
+                <ul className={classNames("characterListBox",{'borderHide': projectDetail.relatedRoles === null})}>
                   {roleList}
                 </ul>
                 <Button type="primary" size="large" icon="plus" onClick={()=>this.setState({addCharacterModal:true})}> 管理角色</Button><br/>
