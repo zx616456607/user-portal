@@ -463,6 +463,7 @@ class Snapshot extends Component {
       },{
         title:'创建时间',
         key:'CreateTime',
+        width:'18%',
         dataIndex:'createTime',
         render: (createTime) => <div>{formatDate(createTime)}</div>,
         sorter:(a, b) => soterCreateTime(a.createTime, b.createTime)
@@ -470,6 +471,7 @@ class Snapshot extends Component {
         title:'操作',
         key:'Handle',
         dataIndex:'key',
+        width:'15%',
         render: (key) => <div>
           <Dropdown.Button onClick={ this.handleRollbackSnapback.bind(this, key)} overlay={menu[key]} type="ghost">
             回滚
