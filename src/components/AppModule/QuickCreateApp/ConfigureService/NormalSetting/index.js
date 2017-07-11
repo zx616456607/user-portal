@@ -16,6 +16,7 @@ import { Row, Col, Form, InputNumber, Tooltip, Icon, Switch, Select, Radio, Tag 
 import ResourceSelect from '../../../../ResourceSelect'
 import Storage from './Storage'
 import Ports from './Ports'
+import AccessMethod from './AccessMethod'
 import { getNodes, getClusterLabel } from '../../../../../actions/cluster_node'
 import {
   SYSTEM_DEFAULT_SCHEDULE,
@@ -427,6 +428,13 @@ const Normal = React.createClass({
             />
             <div className="unit">个</div>
           </FormItem>
+          <AccessMethod
+            formItemLayout={formItemLayout}
+            fields={fields}
+            form={form}
+            currentCluster={currentCluster}
+            key="accessmethod"
+          />
           <Ports
             formItemLayout={formItemLayout}
             form={form}

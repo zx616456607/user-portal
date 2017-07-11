@@ -15,6 +15,7 @@ import { Modal, Button, Icon, Input, Spin, Tooltip } from 'antd'
 import { injectIntl } from 'react-intl'
 import { loadDbCacheList, searchDbservice } from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
+import { getProxy } from '../../actions/cluster'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
@@ -150,7 +151,7 @@ class StatefulCluster extends Component {
   }
   clusterRefresh() {
     const _this = this
-    const { loadDbCacheList, cluster, clusterType } = this.props
+    const { loadDbCacheList, cluster, clusterType, getProxy } = this.props
     this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
       success: {
         func: (res) => {
@@ -160,6 +161,7 @@ class StatefulCluster extends Component {
         }
       }
     })
+    getProxy(cluster)
     loadDbCacheList(cluster, clusterType)
   }
   componentWillMount() {
@@ -227,7 +229,7 @@ class StatefulCluster extends Component {
 
   render() {
     const _this = this;
-    const { isFetching, databaseList, clusterType } = this.props;
+    const { isFetching, databaseList, clusterType, clusterProxy } = this.props;
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
@@ -277,7 +279,7 @@ class StatefulCluster extends Component {
             this.setState({ CreateDatabaseModalShow: false })
           }}
         >
-          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} />
+          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy}/>
         </Modal>
       </div>
     )
@@ -296,6 +298,7 @@ function mapStateToProps(state, props) {
   const { databaseAllList } = state.databaseCache
   const { database, databaseList, isFetching } = databaseAllList[clusterType] || defaultList
   const { current } = state.entities
+  let clusterProxy = state.cluster.proxy.result || {}
   return {
     cluster: cluster.clusterID,
     current,
@@ -303,6 +306,7 @@ function mapStateToProps(state, props) {
     databaseList: databaseList,
     isFetching,
     clusterType,
+    clusterProxy,
   }
 }
 
@@ -320,5 +324,6 @@ StatefulCluster = injectIntl(StatefulCluster, {
 export default connect(mapStateToProps, {
   loadDbCacheList,
   loadMyStack,
-  searchDbservice
+  searchDbservice,
+  getProxy,
 })(StatefulCluster)

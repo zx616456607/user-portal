@@ -318,19 +318,23 @@ let MyComponent = React.createClass({
           if(port) {
             port = parseInt(port)
           }
-          body.push({
-            ['container_port']: parseInt(form.getFieldValue(`port${key}`)),
-            protocol: protocol,
-            ['service_port']: port
-          })
+          if (parseInt(form.getFieldValue(`port${key}`)) && protocol) {
+            body.push({
+              ['container_port']: parseInt(form.getFieldValue(`port${key}`)),
+              protocol: protocol,
+              ['service_port']: port
+            })
+          }
         })
         const newKeys = form.getFieldValue('newKeys')
         newKeys.forEach(key => {
-          body.push({
-            ['container_port']: parseInt(form.getFieldValue(`newport${key}`)),
-            protocol: form.getFieldValue(`newssl${key}`),
-            ['service_port']: parseInt(form.getFieldValue(`newinputPort${key}`))
-          })
+          if (parseInt(form.getFieldValue(`newport${key}`)) && form.getFieldValue(`newssl${key}`)) {
+            body.push({
+              ['container_port']: parseInt(form.getFieldValue(`newport${key}`)),
+              protocol: form.getFieldValue(`newssl${key}`),
+              ['service_port']: parseInt(form.getFieldValue(`newinputPort${key}`))
+            })
+          }
         })
         const { cluster, serviceName } = self.props
         const notification = new NotificationHandler()

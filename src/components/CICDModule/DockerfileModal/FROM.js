@@ -15,11 +15,11 @@ import { connect } from 'react-redux'
 import { camelize } from 'humps'
 import { loadProjectList, loadProjectRepos, loadRepositoriesTags, loadRepositoriesTagConfigInfo } from '../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import Notification from '../../Notification'
+import NotificationHandler from '../../../common/notification_handler'
 
 const FormItem = Form.Item
 const Option = Select.Option
-const notification = new Notification()
+const notification = new NotificationHandler()
 const PROJECT_ID = camelize('project_id')
 
 const FROM = React.createClass({

@@ -978,7 +978,7 @@ let CreateTenxFlowModal = React.createClass({
       createScripts(scripts, {
         success: {
           func: res => {
-            body.spec.container.script_id = res.data.id
+            body.spec.container.scripts_id = res.data.id
             _createTenxFlowState()
           },
           isAsync: true,

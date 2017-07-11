@@ -22,8 +22,8 @@ import {
 import { chargeTeamspace } from '../../../../actions/charge'
 import { ROLE_SYS_ADMIN } from '../../../../../constants'
 
-import MemberTransfer from '../../MemberTransfer'
-import CreateTeamModal from '../../CreateTeamModal'
+import MemberTransfer from '../../../AccountModal/MemberTransfer'
+import CreateTeamModal from '../../../AccountModal/CreateTeamModal'
 import NotificationHandler from '../../../../components/Notification'
 import SpaceRecharge from '../Recharge/SpaceRecharge'
 import Title from '../../../Title'
@@ -277,7 +277,7 @@ let TeamTable = React.createClass({
         width: '16%',
         className: 'teamName',
         render: (text, record, index) => (
-          <Link to={`/account/team/${record.team}/${record.key}`}>{text}</Link>
+          <Link to={`/tenant_manage/team/${record.team}/${record.key}`}>{text}</Link>
         )
       },
       {
@@ -488,7 +488,7 @@ class TeamManage extends Component {
       checkTeamName
     }
     return (
-      <div id="TeamManage">
+      <div id="TeamsManage">
         <Title title="团队管理" />
         <Alert message={`团队，由若干个成员组成的一个集体，可等效于公司的部门、项目组、或子公司，
           包含『团队空间』这一逻辑隔离层，以实现对应您企业内部各个不同项目，或者不同逻辑组在云平台上操作对象的隔离，团队管理员可见对应团队的所有空间的应用等对象。`}

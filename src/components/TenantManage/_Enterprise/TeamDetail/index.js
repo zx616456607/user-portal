@@ -19,8 +19,8 @@ import {
   loadTeamClustersList,
 } from '../../../../actions/team'
 import { connect } from 'react-redux'
-import MemberTransfer from '../../MemberTransfer'
-import CreateSpaceModal from '../../CreateSpaceModal'
+import MemberTransfer from '../../../AccountModal/MemberTransfer'
+import CreateSpaceModal from '../../../AccountModal/CreateSpaceModal'
 import NotificationHandler from '../../../../components/Notification'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../../constants'
 import { parseAmount } from '../../../../common/tools'

@@ -24,6 +24,7 @@ import AppServiceRental from './AppServiceRental'
 import AppSettingsHttps from './AppSettingsHttps'
 import ServiceMonitor from './ServiceMonitor'
 import AppAutoScale from './AppAutoScale'
+import VisitType from './VisitType'
 import AlarmStrategy from '../../ManageMonitor/AlarmStrategy'
 import { loadServiceDetail, loadServiceContainerList, loadK8sService } from '../../../actions/services'
 import { addTerminal } from '../../../actions/terminal'
@@ -374,6 +375,16 @@ class AppServiceDetail extends Component {
                   activeKey={activeTabKey}
                   isCurrentTab={activeTabKey==='#binddomain'}
                   />
+              </TabPane>
+              <TabPane tab='访问方式' key='#visitType'>
+                <VisitType
+                  cluster={service.cluster}
+                  serviceName={service.metadata.name}
+                  serviceDetailmodalShow={serviceDetailmodalShow}
+                  service={serviceDetail}
+                  activeKey={activeTabKey}
+                  isCurrentTab={activeTabKey==='#visitType'}
+                />
               </TabPane>
               <TabPane tab='端口' key='#ports'>
                 <PortDetail
