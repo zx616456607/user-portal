@@ -147,7 +147,10 @@ class Project extends Component {
     this.loadData()
     this.props.loadSysteminfo(DEFAULT_REGISTRY)
   }
-
+  componentDidUpdate() {
+    let searchInput = document.getElementsByClassName('search')[0]
+    searchInput && searchInput.focus()
+  }
   searchProjects() {
     this.loadData({ project_name: this.state.searchInput })
   }
