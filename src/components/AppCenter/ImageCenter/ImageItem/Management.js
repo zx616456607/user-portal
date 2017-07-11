@@ -375,8 +375,8 @@ class Management extends Component {
               <Button
                 type="primary"
                 size="large"
-                icon="plus"
                 onClick={()=> this.goAddUser()}>
+                <i className='fa fa-plus'/>&nbsp;
                 添加成员
               </Button>
             )

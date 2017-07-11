@@ -214,9 +214,9 @@ class Project extends Component {
                   <Button
                     type="primary"
                     size="large"
-                    icon="plus"
                     onClick={this.openCreateModal.bind(this)}
                   >
+                    <i className='fa fa-plus'/>&nbsp;
                     新建仓库组
                   </Button>
                 }

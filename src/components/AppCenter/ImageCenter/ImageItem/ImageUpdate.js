@@ -1029,7 +1029,7 @@ class ImageUpdate extends Component {
       <div id='imageUpdata'>
         <div className='rules'>
           <div className='header'>
-            <Button type="primary" size='large' icon="plus" className='buttonadd' onClick={this.handleAddRules}>添加规则</Button>
+            <Button type="primary" size='large' className='buttonadd' onClick={this.handleAddRules}><i className='fa fa-plus'/>&nbsp;添加规则</Button>
             {/*<span className='searchBox'>
               <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
                 onChange={this.handleInputValue}/>
