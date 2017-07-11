@@ -42,6 +42,10 @@ class Logs extends Component {
       <Option key="repo_name">镜像名称</Option>
     </Select>
   }
+  componentDidUpdate() {
+    let searchInput = document.getElementById('logSearch')
+    searchInput && searchInput.focus()
+  }
   searchType(e) {
     this.setState({
       searchType: e
@@ -170,7 +174,7 @@ class Logs extends Component {
           <i className='fa fa-search' onClick={this.handleSearch} />
         </div>
         <div className="topRow">
-          <Input addonBefore={this.select} placeholder="搜索" className="search" size='large' onPressEnter={(e) => this.searchLogs(e)} />
+          <Input addonBefore={this.select} placeholder="搜索" className="search" id="logSearch" size='large' onPressEnter={(e) => this.searchLogs(e)} />
           {/*{total >0 ?
             <span className="totalPage">共计：{total} 条</span>
           :null
