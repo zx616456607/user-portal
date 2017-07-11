@@ -300,3 +300,20 @@ exports.getProjectMembers = function* () {
   this.status = response.statusCode
   this.body = response
 }
+
+exports.deleteProjectRelatedRoles = function* () {
+  const project = this.request.body
+  const projectName = this.params.name
+  if (!project || !projectName) {
+    this.status = 400
+    this.body = {
+      message: 'request body or projectName was  empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.createBy([projectName, 'roles','batch-delete'], null, this.request.body)
+  this.status = response.statusCode
+  this.body = response
+}

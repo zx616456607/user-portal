@@ -93,6 +93,7 @@ module.exports = function (Router) {
   router.put('/projects/:name/users',projectController.updateProjectRelatedUsers)
   router.get('/projects/:name/roles',projectController.getProjectRelatedRoles)
   router.put('/projects/:name/roles',projectController.updateProjectRelatedRoles)
+  router.post('/projects/:name/roles/batch-delete',projectController.deleteProjectRelatedRoles)
 
   
 
