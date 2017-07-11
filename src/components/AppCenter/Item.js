@@ -397,7 +397,7 @@ class ImageCenter extends Component {
             <span className={this.state.itemType =='public' ?'tab active':'tab'} onClick={()=> this.setItem('public')}>公开仓库组</span>
             {OtherItem}
             <span style={{display:'inline-block',float:'right'}}>
-              <Button type="primary" size="large" icon="plus" onClick={()=> this.setState({createModalShow:true})}>添加第三方</Button>
+              <Button type="primary" size="large" onClick={()=> this.setState({createModalShow:true})}><i className='fa fa-plus'/>&nbsp;添加第三方</Button>
               <Tooltip title='镜像仓库用于存放镜像，您可关联第三方镜像仓库，使用公开云中私有空间镜像；关联后，该仓库也用于存放通过 TenxFlow 构建出来的镜像新建仓库组' placement="bottomRight">
                 <Button icon='question-circle-o' style={{margin:'0 10px'}} type='ghost'></Button>
               </Tooltip>
