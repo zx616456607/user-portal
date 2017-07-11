@@ -151,11 +151,6 @@ class UserPanel extends Component {
         text: '帐户信息',
       },
       {
-        to: '/account/costCenter#consumptions',
-        svgHref: '#logcostrecord',
-        text: '消费记录',
-      },
-      {
         to: '/account#edit_pass',
         svgHref: '#logchangepass',
         text: '修改密码',
@@ -167,13 +162,28 @@ class UserPanel extends Component {
         svgHref: '#logteam',
         text: '我的团队',
       })
-    } else {
-      menuItems.push({
-        to: '/account/costCenter#payments',
-        // TODO: replace it
-        svgHref: '#logpayment',
-        text: '充值记录',
-      })
+    }
+    if (SHOW_BILLING) {
+      if (role === ROLE_TEAM_ADMIN || role === ROLE_SYS_ADMIN) {
+        menuItems.push({
+          to: '/account/costCenter#consumptions',
+          svgHref: '#logcostrecord',
+          text: '消费记录',
+        })
+      } else {
+        menuItems.push({
+          to: '/account/costCenter#payments',
+          // TODO: replace it
+          svgHref: '#logpayment',
+          text: '充值记录',
+        },
+        {
+          to: '/account/costCenter#consumptions',
+          svgHref: '#logcostrecord',
+          text: '消费记录',
+        })
+      }
+
     }
     if (mode === standard) {
       menuItems = [
