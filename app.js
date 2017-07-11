@@ -47,7 +47,11 @@ co(function*(){
 
 app.use(function* (next) {
   if (!global.globalConfig.oemInfo) {
-    yield oemInfo.initOEMInfo()
+    try {
+      yield oemInfo.initOEMInfo()
+    } catch (error) {
+      logger.error('oem-info', error.message)
+    }
   }
   yield next
 })

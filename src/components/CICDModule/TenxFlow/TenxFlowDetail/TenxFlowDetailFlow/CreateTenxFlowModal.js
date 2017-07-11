@@ -1542,7 +1542,7 @@ let CreateTenxFlowModal = React.createClass({
                 <Button
                   size="large"
                   disabled={this.state.otherFlowType == 3}
-                  type={(this.state.isCreateScripts) ? 'primary' : 'ghost'}
+                  type={(!this.state.isCreateScripts) ? 'primary' : 'ghost'}
                   onClick={() => this.setState({ shellModalShow: true })}
                 >
                   {
