@@ -45,7 +45,6 @@ class Logs extends Component {
   componentDidUpdate() {
     let searchInput = document.getElementById('logSearch')
     searchInput && searchInput.focus()
-    console.log(searchInput)
   }
   searchType(e) {
     this.setState({
