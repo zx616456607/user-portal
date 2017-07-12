@@ -19,7 +19,7 @@ const notification = new Notification()
 const messages = defineMessages({
   error: {
     id: 'App.error',
-    defaultMessage: '请求错误',
+    defaultMessage: '出错啦/(ㄒoㄒ)/~~',
   },
   error400: {
     id: 'App.error.400',
@@ -51,7 +51,7 @@ const messages = defineMessages({
   },
   error503: {
     id: 'App.error.503',
-    defaultMessage: '网络或服务暂时不可用，请稍后重试',
+    defaultMessage: '网络或服务暂时不可用，请您稍后再试',
   },
   error504: {
     id: 'App.error.504',
@@ -70,7 +70,7 @@ export default function handler(error, intl) {
   const defaultError = formatMessage(messages.error)
   let { message, description, duration } = _errorFormat(error)
   if (typeof message !== 'string') {
-    message = '请求错误'
+    message = '出错啦/(ㄒoㄒ)/~~'
   }
   if (typeof description !== 'string') {
     description = ''
