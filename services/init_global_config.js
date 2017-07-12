@@ -54,7 +54,7 @@ exports.initGlobalConfig = function* () {
   configs.forEach(item => {
     const configType = item.ConfigType
     let configDetail = JSON.parse(item.ConfigDetail)
-    if (configType == 'mail') {
+    if (configType == 'mail' && configDetail.mailServer) {
       let arr = configDetail.mailServer.split(':')
       let port = arr[1]
       let host = arr[0]
