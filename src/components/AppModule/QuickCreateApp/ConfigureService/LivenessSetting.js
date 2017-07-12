@@ -21,6 +21,10 @@ const FormItem = Form.Item
 const RadioGroup = Radio.Group
 
 const LivenessSetting = React.createClass({
+  componentDidUpdate() {
+    let portInput = document.getElementById('livenessPort')
+    portInput && portInput.focus()
+  },
   render() {
     const { formItemLayout, form } = this.props
     const { getFieldProps, getFieldValue } = form
