@@ -270,6 +270,7 @@ let NetworkConfiguration = React.createClass ({
           "type": values[`networkType${item.key}`],
           "address": values[`address${item.key}`],
           "domain": values[`domain${item.key}`],
+          'is_default': values[`isDefaultGroupAttr${item.key}`],
         }
         let nodes = []
         item.arr.forEach(arrItem => {
@@ -702,9 +703,14 @@ let NetworkConfiguration = React.createClass ({
         let addressProps
         let domainProps
         let groupidProps
+        let isDefaultGroupAttr
         if(editCluster){
           groupidProps = getFieldProps(`groupId${item.key}`,{
             initialValue: data[item.key] && data[item.key].id ? data[item.key].id : '',
+          })
+
+          isDefaultGroupAttr = getFieldProps(`isDefaultGroupAttr${item.key}`,{
+            initialValue: data[item.key] && data[item.key].isDefault ? data[item.key].isDefault : false,
           })
 
           nameProps = getFieldProps(`name${item.key}`,{
@@ -758,7 +764,7 @@ let NetworkConfiguration = React.createClass ({
           </Col>
           <Col style={{height:'100%'}} xs={{span:4}}>
             <div className="imgBox imgboxa">
-              <img style={{width:'90%'}} src={mappingImg}/>
+              <img style={{width:'90%', maxWidth: '190px'}} src={mappingImg}/>
             </div>
           </Col>
           <Col xs={{span:10}}>
