@@ -279,7 +279,7 @@ class AppServiceDetail extends Component {
     })
       let onTerminal = containers.map((item, index) => {
         return (
-          <Button className='loginBtn' type='primary' size='large'>
+          <Button className='loginBtn' type='primary' size='large' key={index}>
             <svg className='terminal'>
               <use xlinkHref='#terminal'/>
             </svg>
