@@ -617,30 +617,3 @@ export function GetProjectsMembers(body, callback) {
 	}
 }
 
-export const PROJECTS_ROLE_DELETE_REQUEST = 'PROJECTS_ROLE_DELETE_REQUEST'
-export const PROJECTS_ROLE_DELETE_SUCCESS = 'PROJECTS_ROLE_DELETE_SUCCESS'
-export const PROJECTS_ROLE_DELETE_FAILURE = 'PROJECTS_ROLE_DELETE_FAILURE'
-// Fetches upgrade or renewals from API.
-// Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchDeleteProjectsRelatedRoles(body, callback) {
-  let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/roles/batch-delete`
-  return {
-    [FETCH_API]: {
-      types: [PROJECTS_ROLE_DELETE_REQUEST, PROJECTS_ROLE_DELETE_SUCCESS, PROJECTS_ROLE_DELETE_FAILURE],
-      endpoint,
-      schema: {},
-      options: {
-        body: body.body,
-        method: 'POST'
-      },
-    },
-    callback
-  }
-}
-// Fetches upgrade or renewals from API
-// Relies on Redux Thunk middleware.
-export function DeleteProjectsRelatedRoles(body, callback) {
-  return (dispatch) => {
-    return dispatch(fetchDeleteProjectsRelatedRoles(body, callback))
-  }
-}
