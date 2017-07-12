@@ -277,6 +277,16 @@ class AppServiceDetail extends Component {
         </div>
       )
     })
+      let onTerminal = containers.map((item, index) => {
+        return (
+          <Button className='loginBtn' type='primary' size='large' key={index}>
+            <svg className='terminal'>
+              <use xlinkHref='#terminal'/>
+            </svg>
+            <span onClick={this.openTerminalModal.bind('', item)}>登录终端</span>
+          </Button>
+          )
+      })
     return (
       <div id='AppServiceDetail'>
         <div className='titleBox'>
@@ -315,14 +325,19 @@ class AppServiceDetail extends Component {
               </div>
             </div>
             <div className='rightBox'>
-              <Popover content={containerShow} title='选择实例链接' trigger='click' getTooltipContainer={() => document.getElementById('AppServiceDetail')}>
-                <Button className='loginBtn' type='primary' size='large'>
-                  <svg className='terminal'>
-                    <use xlinkHref='#terminal' />
-                  </svg>
-                  <span>登录终端</span>
-                </Button>
-              </Popover>
+              {
+                containerShow.length > 1 ?
+                  <Popover content={containerShow} title='选择实例链接' trigger='click' getTooltipContainer={() => document.getElementById('AppServiceDetail')}>
+                    <Button className='loginBtn' type='primary' size='large'>
+                      <svg className='terminal'>
+                        <use xlinkHref='#terminal'/>
+                      </svg>
+                      <span>登录终端</span>
+                    </Button>
+                  </Popover>
+                  :
+                  onTerminal
+              }
               <Dropdown overlay={operaMenu} trigger={['click']}>
                 <Button type='ghost' size='large' className='ant-dropdown-link' href='#'>
                   服务相关 <i className='fa fa-caret-down'></i>
