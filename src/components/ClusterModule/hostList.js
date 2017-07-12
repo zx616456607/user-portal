@@ -9,7 +9,7 @@ import { Card, Button, Tooltip, Icon, Input, Select, Spin, Menu, Dropdown, Switc
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import {  getAllClusterNodes, getKubectlsPods, deleteClusterNode, getClusterLabel, changeClusterNodeSchedule } from '../../actions/cluster_node'
+import { getAllClusterNodes, getClusterNodesMetrics, getKubectlsPods, deleteClusterNode, getClusterLabel, changeClusterNodeSchedule } from '../../actions/cluster_node'
 import { addTerminal } from '../../actions/terminal'
 import { NOT_AVAILABLE } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
@@ -144,7 +144,7 @@ const MyComponent = React.createClass({
     )
   },
   render: function () {
-    const { isFetching, containerList, nodeList, cpuMetric, memoryMetric, clusterID, license } = this.props
+    const { isFetching, nodeList, cpuMetric, memoryMetric, clusterID, license, podCount } = this.props
     const root = this
     let dropdown
     let maxNodes
@@ -233,7 +233,7 @@ const MyComponent = React.createClass({
           title: '容器数',
           dataIndex: 'objectMeta',
           render: (objectMeta) => <div>
-            <span>{getContainerNum(objectMeta.name, containerList)}</span>
+            <span>{getContainerNum(objectMeta.name, podCount)}</span>
           </div>
         },{
           title: 'CPU使用',
@@ -379,7 +379,7 @@ class hostList extends Component {
     this.state = {
       addClusterOrNodeModalVisible:false,
       nodeList: [],
-      podCount: [],
+      podCount: null,
       currentContainer:[],
       manageLabelContainer:[],
       manageLabelModal : false,
@@ -390,8 +390,9 @@ class hostList extends Component {
   }
 
   loadData() {
-    const { clusterID } = this.props
-    this.props.getAllClusterNodes(clusterID, {
+    const { clusterID, getClusterNodesMetrics, getAllClusterNodes, getKubectlsPods } = this.props
+    const notification = new NotificationHandler()
+    getAllClusterNodes(clusterID, {
       success: {
         func: (result) => {
           let nodeList = result.data.clusters.nodes.nodes;
@@ -401,11 +402,18 @@ class hostList extends Component {
             podCount: podCount,
             summary: [],
           })
+          getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
+            failed: {
+              func: err => {
+                notification.error('获取节点监控数据失败')
+              }
+            }
+          })
         },
         isAsync: true
       }
     })
-    this.props.getKubectlsPods(clusterID)
+    getKubectlsPods(clusterID)
   }
   componentWillMount() {
     this.loadData()
@@ -543,7 +551,7 @@ class hostList extends Component {
   deleteClusterNode(){
     //this function for delete cluster node
     let notification = new NotificationHandler()
-    const {clusterID, deleteClusterNode, getAllClusterNodes} = this.props;
+    const { clusterID, deleteClusterNode, getAllClusterNodes, getClusterNodesMetrics } = this.props;
     const {deleteNode} = this.state;
     const _this = this;
     if(deleteNode.isMaster){
@@ -555,12 +563,19 @@ class hostList extends Component {
         func: () =>{
           getAllClusterNodes(clusterID, {
             success: {
-              func: (result) =>{
+              func: (result) => {
                 let nodeList = result.data.clusters.nodes.nodes;
                 notification.success('主机节点删除成功');
                 _this.setState({
                   nodeList: nodeList,
                   deleteNodeModal: false
+                })
+                getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
+                  failed: {
+                    func: err => {
+                      notification.error('获取节点监控数据失败')
+                    }
+                  }
                 })
               },
               isAsync: true
@@ -587,7 +602,7 @@ class hostList extends Component {
 
   render() {
     const { addNodeCMD, labels } = this.props
-    const { deleteNode } = this.state
+    const { deleteNode, podCount } = this.state
     const scope = this;
     return <div id="cluster__hostlist">
       <Card className='ClusterListCard'>
@@ -634,7 +649,7 @@ class hostList extends Component {
         </div>
         <div className='dataBox'>
           <div className='datalist'>
-            <MyComponent {...this.props} nodeList={this.state.nodeList} scope={scope}/>
+            <MyComponent {...this.props} nodeList={this.state.nodeList} scope={scope} podCount={podCount} />
           </div>
         </div>
       </Card>
@@ -707,6 +722,7 @@ function mapStateToProps(state, props) {
 }
 export default connect(mapStateToProps, {
   getAllClusterNodes,
+  getClusterNodesMetrics,
   addTerminal,
   getKubectlsPods,
   deleteClusterNode,

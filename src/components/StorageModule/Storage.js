@@ -974,7 +974,7 @@ class Storage extends Component {
             </div>
             <div className="clearDiv"></div>
           </div>
-          {!Array.isArray(dataStorage) || dataStorage.length >0 ?
+          {Array.isArray(dataStorage) && dataStorage.length >0 ?
 
           <Card className="storageBox appBox">
             <div className="appTitle">

@@ -35,39 +35,40 @@ exports.getClusterNodes = function* () {
   if (!license.max_clusters || license.max_clusters < DEFAULT_LICENSE.max_clusters) {
     license.max_clusters = DEFAULT_LICENSE.max_clusters
   }
-  let cpuMetric
-  let memoryMetric
-  try {
-    let podList = [];
-    clusters.nodes.nodes.map((node) => {
-      podList.push(node.objectMeta.name);
-    });
-    let cpuBody = {
-      targetType: 'node',
-      type: 'cpu/usage_rate',
-      source: 'prometheus'
-    }
-    let memoryBody = {
-      targetType: 'node',
-      type: 'memory/usage',
-      source: 'prometheus'
-    }
-    const metricsReqArray = []
-    metricsReqArray.push(api.clusters.getBy([cluster, 'metric', podList, 'metric', 'instant'], cpuBody))
-    metricsReqArray.push(api.clusters.getBy([cluster, 'metric', podList, 'metric', 'instant'], memoryBody))
-    const metricsReqArrayResult = yield metricsReqArray
-    cpuMetric = metricsReqArrayResult[0].data
-    memoryMetric = metricsReqArrayResult[1].data
-  } catch (error) {
-    // Catch error for show node list
-  }
   clusters.nodes.nodes.forEach(node => node.objectMeta.labels = JSON.stringify(node.objectMeta.labels))
   this.body = {
     data: {
       clusters,
+      license
+    }
+  }
+}
+
+exports.getClusterNodesMetric = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const api = apiFactory.getApi(loginUser)
+  const podList = this.query.pods
+  const cpuBody = {
+    targetType: 'node',
+    type: 'cpu/usage_rate',
+    source: 'prometheus'
+  }
+  const memoryBody = {
+    targetType: 'node',
+    type: 'memory/usage',
+    source: 'prometheus'
+  }
+  const metricsReqArray = []
+  metricsReqArray.push(api.clusters.getBy([cluster, 'metric', podList, 'metric', 'instant'], cpuBody))
+  metricsReqArray.push(api.clusters.getBy([cluster, 'metric', podList, 'metric', 'instant'], memoryBody))
+  const metricsReqArrayResult = yield metricsReqArray
+  const cpuMetric = metricsReqArrayResult[0].data
+  const memoryMetric = metricsReqArrayResult[1].data
+  this.body = {
+    data: {
       cpuMetric,
       memoryMetric,
-      license
     }
   }
 }
