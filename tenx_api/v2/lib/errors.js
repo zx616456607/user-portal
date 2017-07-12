@@ -56,7 +56,7 @@ class ServerError extends ClientError {
         this.message = `Request ${data.host} ENOTFOUND`
         break
       default:
-        this.message = 'Internal server error'
+        this.message = data.message || 'Internal server error'
     }
     this.statusCode = 500
   }
@@ -70,7 +70,7 @@ class InvalidHttpCodeError extends Error {
       case 'ResponseTimeoutError':
       case 'ConnectionTimeoutError':
         this.statusCode = 504
-        this.message = `Gateway Timeout`
+        this.message = this.message || `Gateway Timeout`
         break
       case 'RequestError':
         this.statusCode = 503
@@ -81,11 +81,11 @@ class InvalidHttpCodeError extends Error {
     // For request error
     switch (err.code) {
       case 'ETIMEDOUT':
-        this.message = `Gateway Timeout`
+        this.message = this.message || `Gateway Timeout`
         this.statusCode = 504
         break
       case 'ECONNREFUSED':
-        this.message = `The connection could not be established`
+        this.message = this.message || `The connection could not be established`
         this.statusCode = 501
         break
     }
@@ -99,6 +99,7 @@ function get(res) {
   if (requestUrls && requestUrls.length > 0) {
     logger.error(`request urls error: ${res.requestUrls.join(', ')}`)
   }
+  logger.error('Error data: ' + JSON.stringify(data))
   switch (statusCode) {
     case 400:
       return new InvalidDataError(data)
