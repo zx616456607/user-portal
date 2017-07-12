@@ -167,7 +167,7 @@ class ContainerLogs extends Component {
     }
     this.setState(initState)
     const { cluster, containerName, loginUser, current, loadContainerDetailEvents } = this.props
-    if (!cluster || containerName) return
+    if (!cluster || !containerName) return
     this.ws = ws
     const { watchToken, namespace } = loginUser
     const watchAuthInfo = {
