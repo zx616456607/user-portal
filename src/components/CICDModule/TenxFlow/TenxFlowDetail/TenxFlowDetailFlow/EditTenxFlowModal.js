@@ -1719,6 +1719,8 @@ let EditTenxFlowModal = React.createClass({
                   {baseImage}
                 </Select>*/}
                 <PopTabSelect
+                  placement="right"
+                  placeholder="输入基础镜像"
                   value={currenImageName || this.state.baseImageUrl}
                   onChange={this.baseImageChange}
                   getTooltipContainer={() => document.getElementById('TenxFlowDetailFlow')}

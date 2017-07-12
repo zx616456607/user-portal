@@ -256,7 +256,7 @@ export default class PopTabSelect extends Component {
               <Input
                 id={this.searchInputId}
                 onPressEnter={this.handleSearch}
-                placeholder="输入分支或标签"
+                placeholder={placeholder}
                 onChange={this.handleSearch} />
             </Col>
             <Col span={colSpan.btn} className="btns">
