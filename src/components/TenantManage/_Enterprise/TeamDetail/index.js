@@ -656,7 +656,7 @@ class TeamDetail extends Component {
     }
     return (
       <div id='TeamDetail'>
-        <Row style={{ marginBottom: 20,height:50,paddingTop:'20px' }}>
+        <Row style={{ marginBottom: 20,height:50,padding:'20px 0 0 25px' }}>
           <Link className="back" to="/account/team">
             <span className="backjia"></span>
             <span className="btn-back">返回</span>
