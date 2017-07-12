@@ -836,7 +836,7 @@ class ContainerList extends Component {
                 type='primary' size='large'
                 disabled={!isChecked}
                 onClick={this.batchDeleteContainers}>
-                <i className='fa fa-power-off'></i>
+                <i className='fa fa-undo' />
                 重新分配
               </Button>
               <Button
