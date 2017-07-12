@@ -164,7 +164,7 @@ class TenxFlowDetail extends Component {
           if (!firstStage) {
             return
           }
-          const { id, branch } = firstStage.spec.project
+          const { id, branch } = firstStage.spec.project || { id: undefined, branch: undefined}
           this.setState({
             projectId: id,
             projectBranch: branch,
@@ -426,6 +426,7 @@ class TenxFlowDetail extends Component {
 
     return (
       <PopTabSelect
+        placeholder="输入分支或标签"
         onChange={this.startBuildStage}
         targetElement={targetElement}
         loading={loading}

@@ -279,6 +279,7 @@ let MyComponent = React.createClass({
     </Dropdown.Button>*/
     return (
       <PopTabSelect
+        placeholder="请输入分支或标签"
         style={{float: 'left'}}
         onChange={this.startBuildStage.bind(this, item, index)}
         targetElement={targetElement}

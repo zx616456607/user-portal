@@ -35,7 +35,7 @@ let TeamList = React.createClass ({
   render: function () {
     let firstRow = true
     let className = ""
-    const { teams } = this.props
+    const { teams, user } = this.props
     let { sortedInfo } = this.state;
     sortedInfo = sortedInfo || {};
     const columns = [
@@ -78,8 +78,8 @@ let TeamList = React.createClass ({
       <div>
         <Table columns={columns} dataSource={teams} onChange={this.handleChange} />
         <Modal title="移出团队" visible={this.state.Removeteam} onOk={()=> this.setState({Removeteam: false})} onCancel={()=> this.setState({Removeteam: false})} >
-          <p className="createRol"><div className="mainbox"><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>移出后该成员将无法进入该团队参与的项目，并无法使用团队所对应的项目的资源，
-            确定将成员 {this.state.Removeobjects.teamName} 移出团队{this.state.Removeobjects.teamName}么？</div></p>
+          <p className="createRol"><div className="mainbox"><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
+            确定要从团队{this.state.Removeobjects.teamName}中移出成员{user.userName}么？</div></p>
         </Modal>
       </div>
     )
@@ -119,7 +119,7 @@ export default class Team extends Component{
                 </div>
               </div>
               <div className="teamContent">
-                <TeamList teams={teams}/>
+                <TeamList teams={teams} user={userDetail}/>
               </div>
             </Row>
           </Tabs.TabPane>
