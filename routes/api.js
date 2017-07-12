@@ -94,8 +94,6 @@ module.exports = function (Router) {
   router.get('/projects/:name/roles',projectController.getProjectRelatedRoles)
   router.put('/projects/:name/roles',projectController.updateProjectRelatedRoles)
   router.post('/projects/:name/roles/batch-delete',projectController.deleteProjectRelatedRoles)
-  
-  
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
@@ -443,6 +441,7 @@ module.exports = function (Router) {
 
   // Cluster pod
   router.get('/cluster-nodes/:cluster', clusternodesController.getClusterNodes)
+  router.get('/cluster-nodes/:cluster/metrics', clusternodesController.getClusterNodesMetric)
   router.post('/cluster-nodes/:cluster/node/:node', clusternodesController.changeNodeSchedule)
   router.delete('/cluster-nodes/:cluster/node/:node', clusternodesController.deleteNode)
   router.get('/cluster-nodes/:cluster/add-node-cmd', clusternodesController.getAddNodeCMD)
@@ -540,14 +539,14 @@ module.exports = function (Router) {
   router.put('/oem/info/default', oemController.restoreDefaultInfo)
   router.put('/oem/logo/default', oemController.restoreDefaultLogo)
   router.put('/oem/color/default', oemController.restoreDefaultColor)
-  
+
   //permission
   router.get('/permission',permissionController.list)
   router.get('/permission/:id/retrieve',permissionController.get)
   router.get('/permission/withCount',permissionController.listWithCount)
   router.get('/permission/:id/retrieve/withCount',permissionController.getWithCount)
   router.get('/permission/:id/dependent',permissionController.getAllDependent)
-  
+
   //role
   router.post('/role',roleController.create)
   router.delete('/role/:id',roleController.remove)
@@ -565,6 +564,6 @@ module.exports = function (Router) {
   router.post('/pkg/batch-delete', pkgController.deletePkg)
   router.post('/:filename/:filetag/:filetype', pkgController.localUploadPkg)
   router.post('/:filename/:filetag/:filetype/remote', pkgController.romoteUploadPkg)
-  
+
   return router.routes()
 }
