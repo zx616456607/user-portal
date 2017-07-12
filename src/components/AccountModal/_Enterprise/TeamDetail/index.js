@@ -541,8 +541,15 @@ class TeamDetail extends Component {
     let nofity = new NotificationHandler()
     const { targetKeys, sortUser } = this.state
     if (targetKeys.length !== 0) {
+      const newtargetKeys = targetKeys.map(item=> {
+      return {
+        userID:Number(item.split('/')[0]),
+        userName:item.split('/')[1]
+      }
+      })
+      const targetKeysMap = {"users":newtargetKeys}
       addTeamusers(teamID,
-        targetKeys
+        targetKeysMap
         , {
           success: {
             func: () => {

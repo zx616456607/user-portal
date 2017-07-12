@@ -82,7 +82,7 @@ function mapStateToProp(state,props) {
       users.result.users.map((item,index) => {
         userList.push(
           {
-            key: item.userID,
+            key: item.userID +'/'+ item.userName,
             title: item.userName,
             description: item.email
           }

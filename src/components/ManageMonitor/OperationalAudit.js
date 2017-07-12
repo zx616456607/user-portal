@@ -935,6 +935,16 @@ function formatResourceName(resourceName, resourceId) {
       newName = newName.join(',');
       return newName;
     }
+    if (!!newBody.users) {
+      let newName = newBody.users;
+      if (newName.length == 0) {
+        return '-';
+      }
+      const userNames = newName.map(item=>{
+        return item.userName
+      });
+      return userNames.join(',');
+    }
     if (newBody.name) {
       return newBody.name
     }
