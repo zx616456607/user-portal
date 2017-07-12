@@ -94,10 +94,6 @@ module.exports = function (Router) {
   router.get('/projects/:name/roles',projectController.getProjectRelatedRoles)
   router.put('/projects/:name/roles',projectController.updateProjectRelatedRoles)
   router.post('/projects/:name/roles/batch-delete',projectController.deleteProjectRelatedRoles)
-<<<<<<< HEAD
-=======
-
->>>>>>> upstream/dev-branch
   
 
   // Clusters
