@@ -19,7 +19,7 @@ const notification = new Notification()
 const messages = defineMessages({
   error: {
     id: 'App.error',
-    defaultMessage: '出错啦/(ㄒoㄒ)/~~',
+    defaultMessage: '请求错误',
   },
   error400: {
     id: 'App.error.400',
@@ -70,7 +70,7 @@ export default function handler(error, intl) {
   const defaultError = formatMessage(messages.error)
   let { message, description, duration } = _errorFormat(error)
   if (typeof message !== 'string') {
-    message = '出错啦/(ㄒoㄒ)/~~'
+    message = '请求错误'
   }
   if (typeof description !== 'string') {
     description = ''

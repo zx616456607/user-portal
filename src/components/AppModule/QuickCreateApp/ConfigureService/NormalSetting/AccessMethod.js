@@ -170,7 +170,7 @@ class AccessMethod extends Component {
         defaultGroup = item.id
       }
     })
-    if (optionArray.length === 1) {
+    if (!defaultGroup && optionArray.length > 0) {
       defaultGroup = optionArray[0].id
     }
     if (type == 'PublicNetwork') {

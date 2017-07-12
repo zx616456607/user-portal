@@ -163,7 +163,7 @@ class Notification {
       message = message.message
     }
     if (typeof message !== 'string') {
-      message = '出错啦/(ㄒoㄒ)/~~'
+      message = '请求错误'
     }
     if (this.check(message, description)) {
       return
