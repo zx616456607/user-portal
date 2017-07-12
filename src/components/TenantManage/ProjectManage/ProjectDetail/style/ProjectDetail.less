@@ -12,10 +12,10 @@
     -webkit-align-items: center;
     .goBackBtn{
       width: 60px;
-      height: 30px;
-      line-height: 30px;
+      height: 28px;
+      line-height: 28px;
       text-indent: 20px;
-      color: #ffffff;
+      color: #ecf7fd;
       background: url("../../../../../assets/img/tenantManage/goBackBtn.png") no-repeat;
     }
     i{
@@ -199,17 +199,25 @@
         height: 40px;
         display: inline-flex;
         align-items: center;
-        justify-content: space-around;
+        justify-content: space-between;
         border-left: 2px solid white;
+        padding: 0 5px;
         &:hover{
           background-color: #effdff;
           color: #00a0ea;
           border-left: 2px solid #00a0ea;
         }
       }
+      .active{
+        background-color: #f8f8f8;
+        border-left: 2px solid #f8f8f8;
+      }
       li:not(last-of-type){
         border-bottom: 1px solid #dadada;
       }
+    }
+    .borderHide{
+      border: none !important;
     }
     .connectRight{
       font-size: 14px;

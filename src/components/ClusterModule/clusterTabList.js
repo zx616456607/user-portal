@@ -19,7 +19,6 @@ import ClusterPlugin from './clusterPlugin'
 import NetworkSolutions from './NetworkSolutions'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {
-  getAllClusterNodes,
   changeClusterNodeSchedule,
   deleteClusterNode,
   getKubectlsPods,
@@ -54,8 +53,6 @@ class ClusterTabList extends Component {
     this.handleTabsSwitch = this.handleTabsSwitch.bind(this)
     this.handleCallbackActiveKey = this.handleCallbackActiveKey.bind(this)
     this.state = {
-      nodeList: [],
-      podCount: [],
       currentContainer: [],
       addClusterOrNodeModalVisible: false,
       deleteNode: null,
@@ -66,20 +63,7 @@ class ClusterTabList extends Component {
   }
 
   loadData(props) {
-    const { getAllClusterNodes, clusterID, getKubectlsPods } = props || this.props
-    getAllClusterNodes(clusterID, {
-      success: {
-        func: (result) => {
-          let nodeList = result.data.clusters.nodes.nodes;
-          let podCount = result.data.clusters.podCount;
-          this.setState({
-            nodeList: nodeList,
-            podCount: podCount
-          })
-        },
-        isAsync: true
-      }
-    })
+    const { clusterID, getKubectlsPods } = props || this.props
     getKubectlsPods(clusterID)
   }
 
@@ -188,7 +172,7 @@ class ClusterTabList extends Component {
       cluster, clusterSummary,
     } = this.props
     const { formatMessage } = intl;
-    const { nodeList, podCount, deleteNode, copyAddNodeSuccess, TabsactiveKey } = this.state;
+    const { podCount, deleteNode, copyAddNodeSuccess, TabsactiveKey } = this.state;
     const rootscope = this.props.scope;
     const scope = this;
     let oncache = this.state.currentContainer.map((item) => {
@@ -218,7 +202,6 @@ class ClusterTabList extends Component {
               <HostList
                 cluster={cluster}
                 clusterID={clusterID}
-                containerList={podCount}
                 summary={this.state.summary}
                 callbackActiveKey={this.handleCallbackActiveKey}
               />
@@ -301,7 +284,6 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  getAllClusterNodes,
   changeClusterNodeSchedule,
   deleteClusterNode,
   getKubectlsPods,

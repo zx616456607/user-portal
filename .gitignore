@@ -41,3 +41,4 @@ index.html
 static/blob/*
 !static/blob/
 !static/blob/dump.txt
+./configs

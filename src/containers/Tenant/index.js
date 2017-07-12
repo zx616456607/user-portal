@@ -22,16 +22,18 @@ const menuList = [
     url: '/tenant_manage/membermanagement',
     name: '成员管理'
   },{
+    url: '/tenant_manage/team',
+    name: '团队管理'
+  },{
+    url: '/tenant_manage/project_manage',
+    name: '项目管理'
+  },{
     url: '/tenant_manage/rolemanagement',
     name: '角色管理'
   },{
     url: '/tenant_manage/allpermissions',
     name: '所有权限'
   },
-  {
-    url: '/tenant_manage/project_manage',
-    name: '项目管理'
-  }
 ]
 
 export default class Tenant extends Component {

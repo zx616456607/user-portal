@@ -214,7 +214,7 @@ class Service extends Component {
           </Button>
           <Button size="large" onClick={() => this.setState({delModal: true})} style={{ marginLeft: "12px" }}
             disabled={!this.state.configArray || this.state.configArray.length < 1}>
-            <i className="fa fa-trash-o" /> 删除
+            <i className="fa fa-trash-o" style={{marginRight: '5px'}} />删除
           </Button>
           {/*创建配置组-弹出层-start*/}
 

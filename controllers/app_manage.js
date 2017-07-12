@@ -112,6 +112,7 @@ exports.getApps = function* () {
   }
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps'], queryObj)
+  const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
   const apps = result.data.apps
   apps.map((app) => {
     if (!app.services) {
@@ -122,7 +123,7 @@ exports.getApps = function* () {
     app.instanceCount = 0
     app.services.map((deployment) => {
       app.instanceCount += deployment.spec.replicas
-      portHelper.addPort(deployment, app.k8s_services)
+      portHelper.addPort(deployment, app.k8s_services, lbgroupSettings.data)
     })
     if (app.serviceCount < 1 || app.instanceCount < 1) {
       app.appStatus = 1
@@ -261,6 +262,7 @@ exports.getAppDetail = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps', appName])
+  const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
   const app = result.data[appName]
   if (!app) {
     const err = new Error(`App '${appName}' not exits.`)
@@ -275,7 +277,7 @@ exports.getAppDetail = function* () {
   app.instanceCount = 0
   app.services.map((deployment) => {
     app.instanceCount += deployment.spec.replicas
-    portHelper.addPort(deployment, app.k8s_services)
+    portHelper.addPort(deployment, app.k8s_services, lbgroupSettings.data)
   })
   if (app.serviceCount < 1 || app.instanceCount < 1) {
     app.appStatus = 1
@@ -308,6 +310,8 @@ exports.getAppServices = function* () {
   }
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'services', appName, 'services'], queryObj)
+  const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
+
   const services = result.data.services
 
   let deployments = []
@@ -316,7 +320,7 @@ exports.getAppServices = function* () {
     service.deployment.spec.template.spec.containers.map((container) => {
       service.deployment.images.push(container.image)
     })
-    portHelper.addPort(service.deployment, service.service)
+    portHelper.addPort(service.deployment, service.service, lbgroupSettings.data)
 
     deployments.push(service.deployment)
   })

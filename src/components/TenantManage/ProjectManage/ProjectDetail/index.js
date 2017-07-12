@@ -11,16 +11,17 @@
 import React, { Component } from 'react'
 import classNames from 'classnames';
 import './style/ProjectDetail.less'
-import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree, Switch, Alert, Dropdown, Menu, Form} from 'antd'
+import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree, Switch, Alert, Dropdown, Menu, form } from 'antd'
+import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link} from 'react-router'
 import { connect } from 'react-redux'
-import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjectsCluster } from '../../../../actions/project'
+import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjectsCluster, UpdateProjectsRelatedRoles, DeleteProjectsRelatedRoles } from '../../../../actions/project'
 import { chargeProject } from '../../../../actions/charge'
+import { loadNotifyRule, setNotifyRule } from '../../../../actions/consumption'
 import { ListRole, CreateRole, GetRole, ExistenceRole } from '../../../../actions/role'
 import { PermissionAndCount } from '../../../../actions/permission'
-
+import { parseAmount } from '../../../../common/tools'
 import Notification from '../../../../components/Notification'
-
 const Option = Select.Option;
 let children = [];
 for (let i = 10; i < 36; i++) {
@@ -28,33 +29,7 @@ for (let i = 10; i < 36; i++) {
 }
 
 
-const x = 3;
-const y = 2;
-const z = 1;
-const gData = [];
 
-const generateData = (_level, _preKey, _tns) => {
-  const preKey = _preKey || '0';
-  const tns = _tns || gData;
-  
-  const children = [];
-  for (let i = 0; i < x; i++) {
-    const key = `${preKey}-${i}`;
-    tns.push({ title: key, key });
-    if (i < y) {
-      children.push(key);
-    }
-  }
-  if (_level < 0) {
-    return tns;
-  }
-  const level = _level - 1;
-  children.forEach((key, index) => {
-    tns[index].children = [];
-    return generateData(level, key, tns[index].children);
-  });
-};
-generateData(z);
 
 
 
@@ -119,21 +94,21 @@ let checkedKeysDetail = []
 class ProjectDetail extends Component{
   constructor(props){
     super(props)
-    this.state={
-      editComment:false,
-      paySingle:false,
-      switchState:false,
-      balanceWarning:false,
+    this.state= {
+      editComment: false,
+      paySingle: false,
+      switchState: false,
+      balanceWarning: false,
       expandedKeys: [],
       autoExpandParent: true,
       checkedKeys: [],
       selectedKeys: [],
-      addCharacterModal:false,
+      addCharacterModal: false,
       mockData: [],
       targetKeys: [],
-      characterModal:false,
-      payNumber:10,
-      projectDetail:{},
+      characterModal: false,
+      payNumber: 10,
+      projectDetail: {},
       projectClusters: [],
       dropVisible: false,
       UnRequest: 0,
@@ -151,7 +126,7 @@ class ProjectDetail extends Component{
     this.getMock();
     this.getProjectDetail();
     this.getClustersWithStatus();
-    this.loadRoleList()
+    //this.loadRoleList()
   }
   componentDidMount() {
   }
@@ -175,6 +150,7 @@ class ProjectDetail extends Component{
   }
   loadRoleList() {
     const { ListRole } = this.props;
+    const { projectDetail } = this.state;
     const targetKeys = [];
     const roleList = [];
     ListRole({
@@ -182,12 +158,21 @@ class ProjectDetail extends Component{
         func: (res)=> {
           if (res.data.statusCode === 200) {
             let result = res.data.data.items;
+            let relatedRoles = projectDetail.relatedRoles;
             for (let i = 0 ; i < result.length; i++) {
+              let flag = false;
+              if (relatedRoles && relatedRoles.length > 0) {
+                for (let j = 0 ; j < relatedRoles.length; j++) {
+                  if (result[i].id === relatedRoles[j].roleId) {
+                    flag = true;
+                  }
+                }
+              }
               const data = {
-                key: `${result[i].id},${result[i].comment}`,
-                title: result[i].comment,
-                description: result[i].comment,
-                chosen: false,
+                key: `${result[i].id},${result[i].name}`,
+                title: result[i].name,
+                description: result[i].name,
+                chosen: flag,
               };
               const newData = Object.assign({},result[i],data);
               if (newData.chosen) {
@@ -195,6 +180,7 @@ class ProjectDetail extends Component{
               }
               roleList.push(newData)
             }
+            
               this.setState({
                 choosableList:roleList,
                 targetKeys
@@ -207,7 +193,6 @@ class ProjectDetail extends Component{
   }
   getProjectDetail() {
     const { name } = this.props.location.query;
-    const { projectDetail } = this.state;
     const { GetProjectsDetail } = this.props;
     GetProjectsDetail({
       projectsName: name
@@ -215,8 +200,8 @@ class ProjectDetail extends Component{
       success: {
         func: (res) => {
           if (res.statusCode === 200) {
-            if ((res.roleUserMap)) {
-              this.getCurrentRole(res.roleUserMap[0].role.roleId)
+            if ((res.relatedRoles)) {
+              this.getCurrentRole(res.relatedRoles[0].roleId)
             } else {
               this.setState({
                 currentRolePermission: [],
@@ -226,6 +211,8 @@ class ProjectDetail extends Component{
             this.setState({
               projectDetail:res,
               comment:res.description
+            },()=>{
+              this.loadRoleList()
             })
           }
         },
@@ -265,6 +252,8 @@ class ProjectDetail extends Component{
     const { projectDetail } = this.state;
     let notify = new Notification()
     let comment = getFieldValue('comment');
+    let oldComment = projectDetail.description;
+    if (!comment || (comment === oldComment)) {return this.setState({editComment:false})}
     UpdateProjects({
       projectName: projectDetail.projectName,
       body: {
@@ -276,12 +265,12 @@ class ProjectDetail extends Component{
           if (res.statusCode === 200) {
             notify.success('修改备注成功')
             this.getProjectDetail()
+            this.setState({editComment:false})
           }
         },
         isAsync: true
       }
     })
-    this.setState({editComment:false})
   }
   paySingle() {
     this.setState({paySingle: true})
@@ -335,33 +324,25 @@ class ProjectDetail extends Component{
     this.setState({ selectedKeys });
   }
   addCharacterOk() {
-    const { UpdateProjects } = this.props;
+    const { UpdateProjectsRelatedRoles } = this.props;
     const { projectDetail, targetKeys } = this.state;
-    let roleMap = projectDetail.roleUserMap;
     let notify = new Notification()
-    let updateMap = {}
-    for (let i = 0; i < roleMap.length; i++) {
-      let key = roleMap[i].role.roleId
-      Object.assign(updateMap,{[key]:[]})
-      for (let j = 0; j < roleMap[i].users.length; j++) {
-        updateMap[key].push(roleMap[i].users[j].userId)
-      }
-    }
+    let updateRoles = []
     for (let i = 0; i < targetKeys.length; i++) {
       let key = targetKeys[i].split(',')[0]
-      Object.assign(updateMap,{[key]:[]})
+      updateRoles.push(key)
     }
-    UpdateProjects({
-      projectName: projectDetail.projectName,
+    UpdateProjectsRelatedRoles({
+      projectsName: projectDetail.projectName,
       body: {
-        Role: updateMap
+        roles: updateRoles
       }
     },{
       success: {
         func: (res) => {
           if (res.statusCode === 200) {
             this.getProjectDetail()
-            notify.success('添加角色成功')
+            notify.success('操作成功')
             this.setState({addCharacterModal:false,targetKeys: []})
           }
         },
@@ -370,7 +351,7 @@ class ProjectDetail extends Component{
     })
   }
   addCharacterCancel() {
-    this.setState({addCharacterModal:false,targetKeys: []})
+    this.setState({addCharacterModal:false})
   }
   cancelModal() {
     this.setState({characterModal:false})
@@ -448,7 +429,7 @@ class ProjectDetail extends Component{
       }
     })
   }
-  generateDatas (_tns){
+  generateDatas(_tns){
     const tns = _tns;
     const children = [];
     for (let i = 0; i < tns.length; i++) {
@@ -501,7 +482,7 @@ class ProjectDetail extends Component{
   renderItem(item) {
     return(
       <Row key={item&&item.key}>
-        <Col span={20}>{item&&item.comment}</Col>
+        <Col span={20}>{item&&item.name}</Col>
         <Col span={4}>{item&&item.count}</Col>
       </Row>
     )
@@ -524,10 +505,40 @@ class ProjectDetail extends Component{
       }
     })
   }
+  deleteRole(id){
+    const { DeleteProjectsRelatedRoles } = this.props;
+    const { projectDetail } = this.state;
+    let deleteArr = []
+    deleteArr.push(id)
+    DeleteProjectsRelatedRoles({
+      projectsName: projectDetail.projectName,
+      body: {
+        Roles: deleteArr
+      }
+    },{
+      success: {
+        func: (res) => {
+          this.getProjectDetail()
+        },
+        isAsync: true
+      }
+    })
+  }
   render() {
-    const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, allPermission } = this.state;
+    const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, allPermission, currentRoleInfo } = this.state;
     const TreeNode = Tree.TreeNode;
     const { getFieldProps } = this.props.form;
+    const projectRole = (role) => {
+      if (role === 'admin') {
+        return '系统管理员'
+      }else if (role === 'manager') {
+        return '管理员'
+      } else if (role === 'creator') {
+        return '创建者'
+      } else {
+        return '访客'
+      }
+    }
     const loop = data => data.map((item) => {
       if (item.children) {
         return (
@@ -615,324 +626,330 @@ class ProjectDetail extends Component{
         })
       ]
     )
-    const roleList = projectDetail.roleUserMap && projectDetail.roleUserMap.map((item,index)=>{
+    const roleList = projectDetail.relatedRoles && projectDetail.relatedRoles.map((item,index)=>{
       return (
-        <li key={item.role.roleId} onClick={()=>this.getCurrentRole(item.role.roleId)}>{item.role.roleName}<Icon type="delete" className="pointer"/></li>
+        <li key={item.roleId} className={classNames({'active': currentRoleInfo.role && currentRoleInfo.role.id === item.roleId})} onClick={()=>this.getCurrentRole(item.roleId)}>{item.roleName}
+        <Icon type="delete" className="pointer" onClick={()=>this.deleteRole(item.roleId)}/></li>
       )
     })
     return(
-      <div className="projectDetailBox">
-        <div className="goBackBox">
-          <span className="goBackBtn pointer" onClick={()=> browserHistory.push('/tenant_manage/project_manage')}>返回</span>
-          <i/>
-          创建项目
-        </div>
-        <Modal title="项目充值" visible={this.state.paySingle} width={580}
-           onCancel = {()=> this.paySingleCancel()}
-           onOk = {()=> this.paySingleOk()}
+      <QueueAnim delay={500} type='right'
+                 //ease={['easeOutQuart', 'easeInOutQuart']}
         >
-          <dl className="paySingleList">
-            <dt>项目名</dt><dd>{projectDetail&&projectDetail.projectName}</dd>
-          </dl>
-          <dl className="paySingleList">
-            <dt>余额</dt><dd>{projectDetail&&projectDetail.balance}</dd>
-          </dl>
-          <dl className="paySingleList">
-            <dt>充值金额</dt>
-            <dd className="payBtn">
-              <span className={classNames('btnList',{'active': payNumber === 10})} onClick={()=>{this.changePayNumber(10)}}>10T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-              <span className={classNames('btnList',{'active': payNumber === 20})} onClick={()=>{this.changePayNumber(20)}}>20T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-              <span className={classNames('btnList',{'active': payNumber === 50})} onClick={()=>{this.changePayNumber(50)}}>50T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-              <span className={classNames('btnList',{'active': payNumber === 100})} onClick={()=>{this.changePayNumber(100)}}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-              <InputNumber value={payNumber} onChange={(value)=>this.setState({payNumber:value})} size="large" min={10}/>
-              <b>T</b>
-            </dd>
-          </dl>
-        </Modal>
-        <Modal visible={this.state.balanceWarning}
-               title='设置提醒'
-               wrapClassName='remindModal'
-               onOk={this.warningSubmit.bind(this)}
-               onCancel={this.warningCancel.bind(this)}
-               width='610px' >
-          <div>
-            <Alert message={alertMessage} type="info" />
-            <Row style={{ color: '#333333', height: 35 }}>
-              <Icon type="pay-circle-o" style={{ marginRight: 10 }} />
-              余额不足提醒
-            </Row>
-            <Row style={{ paddingLeft: '22px', height: 35 }}>
-              <Col span={4} style={{ color: '#7a7a7a' }}>提醒规则</Col>
-              <Col span={20} style={{ color: '#666666' }}>我的空间可用余额小于&nbsp;
-                <InputNumber/>
-                <span> T</span>
-                &nbsp;时发送提醒
-              </Col>
-            </Row>
-            <Row style={{ paddingLeft: '22px', height: 28 }}>
-              <Col span={4} style={{ color: '#7a7a7a' }}>提醒方式</Col>
-              <Col span={20}>
-                <Checkbox  style={{ color: '#7a7a7a', fontSize: '14px' }} >邮件(123456@qq.com)</Checkbox>
-              </Col>
-            </Row>
+        <div className="projectDetailBox">
+          <div className="goBackBox">
+            <span className="goBackBtn pointer" onClick={()=> browserHistory.push('/tenant_manage/project_manage')}>返回</span>
+            <i/>
+            创建项目
           </div>
-        </Modal>
-        <Card title="基本信息" bordered={false} style={{ width: '100%' }}>
-          <Row>
-            <Col span={12}>
-              <div className="basicInfoLeft">
-                <Row gutter={16}>
-                  <Col className='gutter-row' span={4}>
-                    <div className="gutter-box">
-                      项目名称
-                    </div>
-                  </Col>
-                  <Col className='gutter-row' span={20}>
-                    <div className="gutter-box">
-                      {projectDetail&&projectDetail.projectName}
-                    </div>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col className='gutter-row' span={4}>
-                    <div className="gutter-box">
-                      余额
-                    </div>
-                  </Col>
-                  <Col className='gutter-row' span={20}>
-                    <div className="gutter-box">
-                      <span style={{marginRight:'30px'}}>{projectDetail&&projectDetail.balance}</span>
-                      <Button type="primary" size="large" onClick={this.paySingle.bind(this)}>充值</Button>
-                    </div>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col className='gutter-row' span={4}>
-                    <div className="gutter-box">
-                      余额预警
-                    </div>
-                  </Col>
-                  <Col className='gutter-row' span={20}>
-                    <div className="gutter-box">
-                      <Switch checkedChildren="开" unCheckedChildren="关" defaultChecked={false}  onChange={(checked)=>this.switchChange(checked)}/>
-                      {
-                        this.state.switchState ?
-                          <span>
-                            <span className="balanceTip">项目余额小于 <span className="themeColor">2T</span> 时预警</span>
-                            <span className="alertBtn themeColor pointer" onClick={()=>this.setState({balanceWarning:true})}>修改</span>
-                          </span>
-                          : ''
-                      }
-                    </div>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col className='gutter-row' span={4}>
-                    <div className="gutter-box">
-                      授权集群
-                    </div>
-                  </Col>
-                  <Col className='gutter-row' span={20}>
-                    <div className="gutter-box">
-                      <div className="dropDownBox">
-                        <span className="pointer" onClick={()=>{this.toggleDrop()}}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
-                        <div className={classNames("dropDownInnerBox",{'hide':!dropVisible})}>
-                          <dl className="dropDownTop">
-                            <dt className="topHeader">已申请集群（0）</dt>
-                            {applying}
-                            {applied}
-                            {reject}
-                          </dl>
-                          <dl className="dropDownBottom">
-                            <dt className="bottomHeader">可申请集群（0）</dt>
-                            {menuBottom}
-                          </dl>
+          <Modal title="项目充值" visible={this.state.paySingle} width={580}
+             onCancel = {()=> this.paySingleCancel()}
+             onOk = {()=> this.paySingleOk()}
+          >
+            <dl className="paySingleList">
+              <dt>项目名</dt><dd>{projectDetail&&projectDetail.projectName}</dd>
+            </dl>
+            <dl className="paySingleList">
+              <dt>余额</dt><dd>{parseAmount(projectDetail&&projectDetail.balance,4).fullAmount}</dd>
+            </dl>
+            <dl className="paySingleList">
+              <dt>充值金额</dt>
+              <dd className="payBtn">
+                <span className={classNames('btnList',{'active': payNumber === 10})} onClick={()=>{this.changePayNumber(10)}}>10T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+                <span className={classNames('btnList',{'active': payNumber === 20})} onClick={()=>{this.changePayNumber(20)}}>20T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+                <span className={classNames('btnList',{'active': payNumber === 50})} onClick={()=>{this.changePayNumber(50)}}>50T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+                <span className={classNames('btnList',{'active': payNumber === 100})} onClick={()=>{this.changePayNumber(100)}}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+                <InputNumber value={payNumber} onChange={(value)=>this.setState({payNumber:value})} size="large" min={10}/>
+                <b>T</b>
+              </dd>
+            </dl>
+          </Modal>
+          <Modal visible={this.state.balanceWarning}
+                 title='设置提醒'
+                 wrapClassName='remindModal'
+                 onOk={this.warningSubmit.bind(this)}
+                 onCancel={this.warningCancel.bind(this)}
+                 width='610px' >
+            <div>
+              <Alert message={alertMessage} type="info" />
+              <Row style={{ color: '#333333', height: 35 }}>
+                <Icon type="pay-circle-o" style={{ marginRight: 10 }} />
+                余额不足提醒
+              </Row>
+              <Row style={{ paddingLeft: '22px', height: 35 }}>
+                <Col span={4} style={{ color: '#7a7a7a' }}>提醒规则</Col>
+                <Col span={20} style={{ color: '#666666' }}>我的空间可用余额小于&nbsp;
+                  <InputNumber/>
+                  <span> T</span>
+                  &nbsp;时发送提醒
+                </Col>
+              </Row>
+              <Row style={{ paddingLeft: '22px', height: 28 }}>
+                <Col span={4} style={{ color: '#7a7a7a' }}>提醒方式</Col>
+                <Col span={20}>
+                  <Checkbox  style={{ color: '#7a7a7a', fontSize: '14px' }} >邮件(123456@qq.com)</Checkbox>
+                </Col>
+              </Row>
+            </div>
+          </Modal>
+          <Card title="基本信息" bordered={false} style={{ width: '100%' }}>
+            <Row>
+              <Col span={12}>
+                <div className="basicInfoLeft">
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        项目名称
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        {projectDetail&&projectDetail.projectName}
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        余额
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        <span style={{marginRight:'30px'}}>{parseAmount(projectDetail&&projectDetail.balance,4).fullAmount}</span>
+                        <Button type="primary" size="large" onClick={this.paySingle.bind(this)}>充值</Button>
+                      </div>
+                    </Col>
+                  </Row>
+                  {/*<Row gutter={16}>*/}
+                    {/*<Col className='gutter-row' span={4}>*/}
+                      {/*<div className="gutter-box">*/}
+                        {/*余额预警*/}
+                      {/*</div>*/}
+                    {/*</Col>*/}
+                    {/*<Col className='gutter-row' span={20}>*/}
+                      {/*<div className="gutter-box">*/}
+                        {/*<Switch checkedChildren="开" unCheckedChildren="关" defaultChecked={false}  onChange={(checked)=>this.switchChange(checked)}/>*/}
+                        {/*{*/}
+                          {/*this.state.switchState ?*/}
+                            {/*<span>*/}
+                              {/*<span className="balanceTip">项目余额小于 <span className="themeColor">2T</span> 时预警</span>*/}
+                              {/*<span className="alertBtn themeColor pointer" onClick={()=>this.setState({balanceWarning:true})}>修改</span>*/}
+                            {/*</span>*/}
+                            {/*: ''*/}
+                        {/*}*/}
+                      {/*</div>*/}
+                    {/*</Col>*/}
+                  {/*</Row>*/}
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        授权集群
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        <div className="dropDownBox">
+                          <span className="pointer" onClick={()=>{this.toggleDrop()}}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
+                          <div className={classNames("dropDownInnerBox",{'hide':!dropVisible})}>
+                            <dl className="dropDownTop">
+                              <dt className="topHeader">已申请集群（0）</dt>
+                              {applying}
+                              {applied}
+                              {reject}
+                            </dl>
+                            <dl className="dropDownBottom">
+                              <dt className="bottomHeader">可申请集群（0）</dt>
+                              {menuBottom}
+                            </dl>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
-            </Col>
-            <Col span={12}>
-              <div className="basicInfoRight">
-                <Row gutter={16}>
-                  <Col className='gutter-row' span={4}>
-                    <div className="gutter-box">
-                      项目角色
-                    </div>
-                  </Col>
-                  <Col className='gutter-row' span={20}>
-                    <div className="gutter-box">
-                      创建者
-                    </div>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col className='gutter-row' span={4}>
-                    <div className="gutter-box">
-                      创建时间
-                    </div>
-                  </Col>
-                  <Col className='gutter-row' span={20}>
-                    <div className="gutter-box">
-                      {projectDetail&&projectDetail.creationTime}
-                    </div>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col className='gutter-row' span={4}>
-                    <div className="gutter-box">
-                      更新时间
-                    </div>
-                  </Col>
-                  <Col className='gutter-row' span={20}>
-                    <div className="gutter-box">
-                      {projectDetail&&projectDetail.updateTime}
-                    </div>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col className='gutter-row' span={4}>
-                    <div className="gutter-box">
-                      备注
-                    </div>
-                  </Col>
-                  <Col className='gutter-row' span={20}>
-                    <div className="gutter-box">
-                      <div className="example-input inlineBlock">
-                        {
-                          editComment ?
-                            <div>
-                              <Input size="large" placeholder="大尺寸" {...getFieldProps('comment',{
-                                initialValue: comment
-                              })}/>
-                              <i className="anticon anticon-save pointer" onClick={()=> this.saveComment()}/>
-                            </div>
-                            :
-                            <div>
-                              <span>{projectDetail&&projectDetail.description}</span>
-                              <i className="anticon anticon-edit pointer" onClick={()=> this.editComment()}/>
-                            </div>
-                        }
+                    </Col>
+                  </Row>
+                </div>
+              </Col>
+              <Col span={12}>
+                <div className="basicInfoRight">
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        项目角色
                       </div>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
-            </Col>
-          </Row>
-        </Card>
-        <div className="projectResource">
-          <Card title="项目资源">
-            <Row gutter={16}>
-              <Col className='gutter-row' span={8}>
-                <div className="gutter-box">
-                  <i className="inlineBlock appNum"/>
-                  <span>应用数：{projectDetail&&projectDetail.appCount}个</span>
-                </div>
-              </Col>
-              <Col className='gutter-row' span={8}>
-                <div className="gutter-box">
-                  <i className="inlineBlock serverNum"/>
-                  <span>服务数：{projectDetail&&projectDetail.serviceCount}个</span>
-                </div>
-              </Col>
-              <Col className='gutter-row' span={8}>
-                <div className="gutter-box">
-                  <i className="inlineBlock containerNum"/>
-                  <span>容器数：{projectDetail&&projectDetail.containerCount}个</span>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        {projectRole(projectDetail.projectRole)}
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        创建时间
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        {projectDetail&&projectDetail.creationTime}
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        更新时间
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        {projectDetail&&projectDetail.updateTime}
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        备注
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        <div className="example-input inlineBlock">
+                          {
+                            editComment ?
+                              <div>
+                                <Input size="large" placeholder="备注" {...getFieldProps('comment',{
+                                  initialValue: comment
+                                })}/>
+                                <i className="anticon anticon-save pointer" onClick={()=> this.saveComment()}/>
+                              </div>
+                              :
+                              <div>
+                                <span>{projectDetail&&projectDetail.description}</span>
+                                <i className="anticon anticon-edit pointer" onClick={()=> this.editComment()}/>
+                              </div>
+                          }
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
                 </div>
               </Col>
             </Row>
           </Card>
-        </div>
-        <Modal
-          visible={this.state.addCharacterModal}
-          title='添加角色'
-          wrapClassName='addCharacterModal'
-          onOk={this.addCharacterOk.bind(this)}
-          onCancel={this.addCharacterCancel.bind(this)}
-          width='760px'
-        >
-          <Transfer
-            dataSource={choosableList}
-            className="projectDetailRoleTrans"
-            showSearch
-            listStyle={{
-              width: 300,
-              height: 255,
-            }}
-            searchPlaceholde="请输入策略名搜索"
-            titles={['包含权限（个）', '包含权限（个）']}
-            operations={[ '添加','移除']}
-            filterOption={this.filterOption.bind(this)}
-            targetKeys={targetKeys}
-            onChange={this.handleChange.bind(this)}
-            rowKey={item => item.key}
-            render={(item)=>this.renderItem(item)}
-          />
-        </Modal>
-        <Modal title="创建角色" wrapClassName="createCharacterModal" visible={this.state.characterModal} width={570}
-               onCancel={()=> this.cancelModal()}
-               onOk={()=> this.createModal()}
-        >
-          <CreateCharacter allPermission={allPermission} scope={this}/>
-        </Modal>
-        <div className="projectMember">
-          <Card title="项目中角色关联的对象" className="clearfix">
-            <div className="connectLeft pull-left">
-              <span className="leftTitle">已添加角色</span>
-              <ul className="characterListBox">
-                {roleList}
-              </ul>
-              <Button type="primary" size="large" icon="plus" onClick={()=>this.setState({addCharacterModal:true})}>添加已有角色</Button><br/>
-              <Button type="ghost" size="large" icon="plus" onClick={()=>this.openCreateModal()}>创建新角色</Button>
-            </div>
-            <div className="connectRight pull-left">
-              <p className="rightTitle">角色关联对象</p>
-              <div className="rightContainer">
-                <div className="authBox inlineBlock">
-                  <p className="authTitle">开发角色共 <span style={{color:'#59c3f5'}}>14</span> 个权限</p>
-                  <div className="treeBox">
-                    {
-                      currentRolePermission.length > 0 &&
-                      <Tree
-                        checkable
-                        onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
-                        autoExpandParent={this.state.autoExpandParent}
-                        onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
-                        onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
-                      >
-                        {loop(currentRolePermission)}
-                      </Tree>
-                    }
+          <div className="projectResource">
+            <Card title="项目资源">
+              <Row gutter={16}>
+                <Col className='gutter-row' span={8}>
+                  <div className="gutter-box">
+                    <i className="inlineBlock appNum"/>
+                    <span>应用数：{projectDetail&&projectDetail.appCount}个</span>
                   </div>
-                </div>
-                <div className="memberBox inlineBlock">
-                  <div className="memberTitle">
-                    <span>开发角色已关联 <span className="themeColor">10</span> 个对象</span>
-                    <Button type="primary" size="large">继续关联对象</Button>
+                </Col>
+                <Col className='gutter-row' span={8}>
+                  <div className="gutter-box">
+                    <i className="inlineBlock serverNum"/>
+                    <span>服务数：{projectDetail&&projectDetail.serviceCount}个</span>
                   </div>
-                  <div className="memberTableBox">
-                    <Table rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false}/>
+                </Col>
+                <Col className='gutter-row' span={8}>
+                  <div className="gutter-box">
+                    <i className="inlineBlock containerNum"/>
+                    <span>容器数：{projectDetail&&projectDetail.containerCount}个</span>
+                  </div>
+                </Col>
+              </Row>
+            </Card>
+          </div>
+          <Modal
+            visible={this.state.addCharacterModal}
+            title='管理角色'
+            wrapClassName='addCharacterModal'
+            onOk={this.addCharacterOk.bind(this)}
+            onCancel={this.addCharacterCancel.bind(this)}
+            width='760px'
+          >
+            <Transfer
+              dataSource={choosableList}
+              className="projectDetailRoleTrans"
+              showSearch
+              listStyle={{
+                width: 300,
+                height: 255,
+              }}
+              searchPlaceholde="请输入策略名搜索"
+              titles={['包含权限（个）', '包含权限（个）']}
+              operations={[ '添加','移除']}
+              filterOption={this.filterOption.bind(this)}
+              targetKeys={targetKeys}
+              onChange={this.handleChange.bind(this)}
+              rowKey={item => item.key}
+              render={(item)=>this.renderItem(item)}
+            />
+          </Modal>
+          <Modal title="创建角色" wrapClassName="createCharacterModal" visible={this.state.characterModal} width={570}
+                 onCancel={()=> this.cancelModal()}
+                 onOk={()=> this.createModal()}
+          >
+            <CreateCharacter allPermission={allPermission} scope={this}/>
+          </Modal>
+          <div className="projectMember">
+            <Card title="项目中角色关联的对象" className="clearfix">
+              <div className="connectLeft pull-left">
+                <span className="leftTitle">已添加角色</span>
+                <ul className={classNames("characterListBox",{'borderHide': projectDetail.relatedRoles === null})}>
+                  {roleList}
+                </ul>
+                <Button type="primary" size="large" icon="plus" onClick={()=>this.setState({addCharacterModal:true})}> 管理角色</Button><br/>
+                <Button type="ghost" size="large" icon="plus" onClick={()=>this.openCreateModal()}>创建新角色</Button>
+              </div>
+              <div className="connectRight pull-left">
+                <p className="rightTitle">角色关联对象</p>
+                <div className="rightContainer">
+                  <div className="authBox inlineBlock">
+                    <p className="authTitle">{currentRoleInfo.role && currentRoleInfo.role.name}共 <span style={{color:'#59c3f5'}}>{currentRoleInfo.role && currentRoleInfo.role.count}</span> 个权限</p>
+                    <div className="treeBox">
+                      {
+                        currentRolePermission.length > 0 &&
+                        <Tree
+                          checkable
+                          onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
+                          autoExpandParent={this.state.autoExpandParent}
+                          onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
+                          onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
+                        >
+                          {loop(currentRolePermission)}
+                        </Tree>
+                      }
+                    </div>
+                  </div>
+                  <div className="memberBox inlineBlock">
+                    <div className="memberTitle">
+                      <span>{currentRoleInfo.role && currentRoleInfo.role.name}已关联 <span className="themeColor">10</span> 个对象</span>
+                      <Button type="primary" size="large">继续关联对象</Button>
+                    </div>
+                    <div className="memberTableBox">
+                      <Table rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false}/>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          </div>
         </div>
-      </div>
+      </QueueAnim>
     )
     
   }
 }
 
-ProjectDetail = Form.create()(ProjectDetail)
+ProjectDetail = form.create()(ProjectDetail)
 function mapStateToThirdProp(state, props) {
-  
+  const { query } = props.location
+  const { name } = query;
   return {
-  
+    name
   }
 }
 
@@ -946,33 +963,11 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   CreateRole,
   GetRole,
   ExistenceRole,
-  PermissionAndCount
+  PermissionAndCount,
+  UpdateProjectsRelatedRoles,
+  DeleteProjectsRelatedRoles
 })(ProjectDetail)
 
-const gDatas = [];
-
-const generateDatas = (_level, _preKey, _tns) => {
-  const preKey = _preKey || '0';
-  const tns = _tns || gDatas;
-  
-  const children = [];
-  for (let i = 0; i < x; i++) {
-    const key = `${preKey}-${i}`;
-    tns.push({ title: key, key });
-    if (i < y) {
-      children.push(key);
-    }
-  }
-  if (_level < 0) {
-    return tns;
-  }
-  const level = _level - 1;
-  children.forEach((key, index) => {
-    tns[index].children = [];
-    return generateDatas(level, key, tns[index].children);
-  });
-};
-generateDatas(z);
 class CreateCharacter extends Component{
   constructor(props) {
     super(props)
@@ -1066,8 +1061,8 @@ class CreateCharacter extends Component{
     });
     return(
       <div>
-        <Form className="createRoleForm" form={this.props.form}>
-          <Form.Item label="名称" {...formItemLayout}>
+        <form className="createRoleForm" form={this.props.form}>
+          <form.Item label="名称" {...formItemLayout}>
             <Input placeholder="请输入名称" {...getFieldProps(`roleNameDetail`, {
               rules: [
                 { validator: (rules,value)=>this.roleNameDetail(rules,value,this.updateRoleName.bind(this))}
@@ -1075,16 +1070,16 @@ class CreateCharacter extends Component{
               initialValue:  '',
             }) }
             />
-          </Form.Item>
-          <Form.Item label="描述" {...formItemLayout}>
+          </form.Item>
+          <form.Item label="描述" {...formItemLayout}>
             <Input type="textarea" {...getFieldProps(`roleDescDetail`, {
               rules: [
                 { validator: (rules,value)=>this.roleDescDetail(rules,value,this.updateRoleDesc.bind(this))}
               ],
               initialValue: '',
             }) }/>
-          </Form.Item>
-        </Form>
+          </form.Item>
+        </form>
         <div className="authChoose">
           <span>权限选择 :</span>
           <div className="authBox inlineBlock">
@@ -1110,4 +1105,4 @@ class CreateCharacter extends Component{
   }
 }
 
-CreateCharacter = Form.create()(CreateCharacter)
+CreateCharacter = form.create()(CreateCharacter)
