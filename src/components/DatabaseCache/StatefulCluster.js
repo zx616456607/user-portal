@@ -165,13 +165,13 @@ class StatefulCluster extends Component {
     loadDbCacheList(cluster, clusterType)
   }
   componentWillMount() {
-    const { loadDbCacheList, cluster, clusterType } = this.props
+    const { loadDbCacheList, cluster, clusterType, getProxy } = this.props
     if (cluster == undefined) {
       let notification = new NotificationHandler()
       notification.error('请选择集群', 'invalid cluster ID')
       return
     }
-
+    getProxy(cluster)
     loadDbCacheList(cluster, clusterType)
   }
   componentDidMount() {

@@ -23,7 +23,8 @@ import {
   deleteClusterNode,
   getKubectlsPods,
   getAddNodeCMD,
-  getClusterLabel
+  getClusterLabel,
+  getAllClusterNodes,
 } from '../../actions/cluster_node'
 import { getClusterSummary } from '../../actions/cluster'
 import { addTerminal } from '../../actions/terminal'
@@ -68,6 +69,8 @@ class ClusterTabList extends Component {
   }
 
   componentWillMount() {
+    const { getAllClusterNodes, clusterID } = this.props
+    getAllClusterNodes(clusterID)
     this.loadData()
   }
 
@@ -290,7 +293,8 @@ export default connect(mapStateToProps, {
   getAddNodeCMD,
   getClusterSummary,
   addTerminal,
-  getClusterLabel
+  getClusterLabel,
+  getAllClusterNodes,
 })(injectIntl(ClusterTabList, {
   withRef: true,
 }))

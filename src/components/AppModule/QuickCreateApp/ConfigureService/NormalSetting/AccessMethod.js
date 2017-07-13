@@ -8,8 +8,8 @@
  * @author ZhangChengZheng
  */
 
-import React,{ Component } from 'react'
-import { Form,Radio,Select,Row,Col } from 'antd'
+import React, { Component } from 'react'
+import { Form, Radio, Select, Row, Col } from 'antd'
 import { connect } from 'react-redux'
 import './style/AccessMethod.less'
 import { getProxy } from '../../../../../actions/cluster'
@@ -24,27 +24,25 @@ class AccessMethod extends Component {
   }
 
   componentWillMount() {
-    const { getProxy,currentCluster, form } = this.props
+    const { getProxy, currentCluster, form } = this.props
     const clusterID = currentCluster.clusterID
     let clusterId = camelize(currentCluster.clusterID)
-    getProxy(clusterID,{
+    getProxy(clusterID, {
       success: {
         func: (res) => {
           let data = res[clusterId].data
           let defaultGroup = undefined
-          console.log('data=',data)
-          for(let i = 0; i < data.length; i++){
-            if(data[i].type == "public" && data[i].isDefault){
+          for (let i = 0; i < data.length; i++) {
+            if (data[i].type == "public" && data[i].isDefault) {
               defaultGroup = data[i].id
               break
             }
           }
-          console.log('defaultGroup=',defaultGroup)
           setTimeout(() => {
             form.setFieldsValue({
               'publicNetwork': defaultGroup
             })
-          },100)
+          }, 100)
         }
       },
       failed: {
@@ -53,17 +51,17 @@ class AccessMethod extends Component {
             form.setFieldsValue({
               'publicNetwork': undefined
             })
-          },100)
+          }, 100)
         }
       }
     })
   }
 
   accessMethodTips = type => {
-    if(type == 'PublicNetwork'){
+    if (type == 'PublicNetwork') {
       return <span>服务可通过公网访问；“确保集群内节点有外网带宽，否则创建服务失败” ；选择一个公网代理出口</span>
     }
-    if(type == 'Internaletwork'){
+    if (type == 'Internaletwork') {
       return <span>服务可通过内网访问；</span>
     }
     return <span>服务仅提供给集群内其他服务访问；</span>
@@ -71,35 +69,35 @@ class AccessMethod extends Component {
 
   selectOption = nodeType => {
     let OptionArray = this.formatGroupArray(nodeType)
-    let OptionList = OptionArray.map((item,index) => {
+    let OptionList = OptionArray.map((item, index) => {
       return <Option value={item.id} key={'node' + index}>{item.name}</Option>
     })
-    if(!OptionList.length){
+    if (!OptionList.length) {
       OptionList = <Option value="none" key="noAddress" disabled={true}><span>暂无此类网络出口</span></Option>
     }
     return OptionList
   }
 
   formatGroupArray = type => {
-    const { clusterProxy,currentCluster } = this.props
+    const { clusterProxy, currentCluster } = this.props
     let clusterID = camelize(currentCluster.clusterID)
     let nodeArray = []
     let OptionArray = []
-    if(Object.keys(clusterProxy).length && clusterProxy[clusterID] && clusterProxy[clusterID].data){
+    if (Object.keys(clusterProxy).length && clusterProxy[clusterID] && clusterProxy[clusterID].data) {
       nodeArray = clusterProxy[clusterID].data
     }
     let accessType = 'public'
-    if(type == 'Cluster'){
+    if (type == 'Cluster') {
       return OptionArray
     }
-    if(type == 'PublicNetwork'){
+    if (type == 'PublicNetwork') {
       accessType = 'public'
     } else {
       accessType = 'private'
     }
-    if(nodeArray.length){
+    if (nodeArray.length) {
       nodeArray.forEach(item => {
-        if(item.type == accessType){
+        if (item.type == accessType) {
           OptionArray.push(item)
         }
       })
@@ -113,7 +111,7 @@ class AccessMethod extends Component {
     let OptionArray = this.formatGroupArray(type)
     let defaultGroup = ''
     OptionArray.forEach(item => {
-      if(item.isDefault){
+      if (item.isDefault) {
         defaultGroup = item.id
       }
     })
@@ -124,10 +122,10 @@ class AccessMethod extends Component {
       labelCol: { span: 4 },
       wrapperCol: { span: 6 }
     }
-    if(type == 'PublicNetwork'){
-      PublicNetworkProps = getFieldProps('publicNetwork',{
+    if (type == 'PublicNetwork') {
+      PublicNetworkProps = getFieldProps('publicNetwork', {
         initialValue: defaultGroup || undefined,
-        rules: [{ required: true,message: '请选择一个网络出口' }]
+        rules: [{ required: true, message: '请选择一个网络出口' }]
       })
       return <Form.Item
         label={<span></span>}
@@ -137,14 +135,14 @@ class AccessMethod extends Component {
           {...PublicNetworkProps}
           placeholder='选择网络出口'
         >
-          { this.selectOption('PublicNetwork') }
+          {this.selectOption('PublicNetwork')}
         </Select>
       </Form.Item>
     }
-    if(type == 'Internaletwork'){
-      internaletworkProps = getFieldProps('internaletwork',{
+    if (type == 'Internaletwork') {
+      internaletworkProps = getFieldProps('internaletwork', {
         initialValue: defaultGroup || undefined,
-        rules: [{ required: true,message: '请选择一个网络出口' }]
+        rules: [{ required: true, message: '请选择一个网络出口' }]
       })
       return <Form.Item
         label={<span></span>}
@@ -154,7 +152,7 @@ class AccessMethod extends Component {
           {...internaletworkProps}
           placeholder='选择网络出口'
         >
-          { this.selectOption('Internaletwork') }
+          {this.selectOption('Internaletwork')}
         </Select>
       </Form.Item>
     } else {
@@ -168,17 +166,20 @@ class AccessMethod extends Component {
     let optionArray = this.formatGroupArray(type)
     let defaultGroup = undefined
     optionArray.forEach(item => {
-      if(item.isDefault){
+      if (item.isDefault) {
         defaultGroup = item.id
       }
     })
-    if(type == 'PublicNetwork'){
+    if (!defaultGroup && optionArray.length > 0) {
+      defaultGroup = optionArray[0].id
+    }
+    if (type == 'PublicNetwork') {
       form.setFieldsValue({
         'publicNetwork': defaultGroup
       })
       return
     }
-    if(type == 'Internaletwork'){
+    if (type == 'Internaletwork') {
       form.setFieldsValue({
         'internaletwork': defaultGroup
       })
@@ -187,9 +188,9 @@ class AccessMethod extends Component {
   }
 
   render() {
-    const { formItemLayout,form } = this.props
-    const { getFieldProps,getFieldValue } = form
-    const accessMethodProps = getFieldProps('accessMethod',{
+    const { formItemLayout, form } = this.props
+    const { getFieldProps, getFieldValue } = form
+    const accessMethodProps = getFieldProps('accessMethod', {
       initialValue: 'PublicNetwork',
       onChange: this.accessTypeChange
     })
@@ -208,16 +209,16 @@ class AccessMethod extends Component {
           </Radio.Group>
         </Form.Item>
         <Row className='tipsRow'>
-          <Col span="4"/>
+          <Col span="4" />
           <Col span="20">{this.accessMethodTips(accessMethodValue)}</Col>
         </Row>
-        { this.accessMethodContent(accessMethodValue) }
+        {this.accessMethodContent(accessMethodValue)}
       </div>
     )
   }
 }
 
-function mapStateToProp(state,props) {
+function mapStateToProp(state, props) {
   let clusterProxy = state.cluster.proxy.result || {}
 
   return {
@@ -225,6 +226,6 @@ function mapStateToProp(state,props) {
   }
 }
 
-export default connect(mapStateToProp,{
+export default connect(mapStateToProp, {
   getProxy,
 })(AccessMethod)

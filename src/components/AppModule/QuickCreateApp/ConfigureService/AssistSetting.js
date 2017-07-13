@@ -46,7 +46,7 @@ const AssistSetting = React.createClass({
   },
   addArgs() {
     const { form } = this.props
-    const { setFieldsValue, getFieldValue, validateFields } = form
+    const { setFieldsValue, getFieldValue, validateFieldsAndScroll } = form
     let argsKeys = getFieldValue('argsKeys') || []
     const validateFieldsKeys = []
     argsKeys.forEach(key => {
@@ -54,7 +54,7 @@ const AssistSetting = React.createClass({
         validateFieldsKeys.push(`args${key.value}`)
       }
     })
-    validateFields(validateFieldsKeys, (errors, values) => {
+    validateFieldsAndScroll(validateFieldsKeys, (errors, values) => {
       if (!!errors) {
         return
       }

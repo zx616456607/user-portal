@@ -151,23 +151,23 @@ class UploadModal extends Component {
   changeTabs = (type)=> {
     this.setState({type})
   }
-  checkNameVersion = (name)=> {
-    const query = {
-      filter: `fileName contains ${name}`,
-    }
+  checkNameVersion = ()=> {
     const { form,func } = this.props
     const wrapName = form.getFieldValue('wrapName')
     const labelVersion = form.getFieldValue('versionLabel')
     if (!wrapName) return
     if (!labelVersion) return
 
+    const query = {
+      filter: `fileName contains ${wrapName}`,
+    }
     let isEq = false
     func.checkWrapName(query,{
       success:{
         func: ret => {
           if (Array.isArray(ret.data.pkgs)) {
             ret.data.pkgs.every(item => {
-              if (item.fileTag == labelVersion && item.fileName == name) {
+              if (item.fileTag == labelVersion && item.fileName == wrapName) {
                 isEq = true
                 return false
               }
@@ -192,7 +192,7 @@ class UploadModal extends Component {
       return callback('以英文字母和数字开头中间可[-_]')
     }
     this.setState({fileName: value})
-    this.checkNameVersion(value)
+    this.checkNameVersion()
     return callback()
   }
   validateVersion = (rule, value, callback)=> {
@@ -206,7 +206,7 @@ class UploadModal extends Component {
       return callback('最多只能为128个字符')
     }
     this.setState({fileTag: value})
-    this.checkNameVersion(value)
+    this.checkNameVersion()
     return callback()
   }
   checkedUrl = (rule, value, callback)=> {
@@ -267,7 +267,7 @@ class UploadModal extends Component {
     const self = this
     // const fileName = form.getFieldValue('wrapName')
     // const fileTag = form.getFieldValue('versionLabel')
-    const actionUrl = `${API_URL_PREFIX}/${fileName}/${fileTag}/${fileType}`
+    const actionUrl = `${API_URL_PREFIX}/pkg/${fileName}/${fileTag}/${fileType}/local`
     const selfProps = {
       name: 'pkg',
       action: actionUrl,
