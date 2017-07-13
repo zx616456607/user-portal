@@ -335,6 +335,7 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
+              {role == ROLE_SYS_ADMIN ?
               <li onClick={()=> this.selectModel('integration')}
                 className={currentKey == 'integration' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='集成中心'
@@ -345,7 +346,8 @@ class Sider extends Component {
                     </svg>
                   </Link>
                 </Tooltip>
-              </li>
+              </li>:''
+              }
               <li onClick={()=> this.selectModel('manange_monitor')}
                 className={currentKey == 'manange_monitor' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='管理与监控'
