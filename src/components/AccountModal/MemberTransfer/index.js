@@ -8,23 +8,40 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Transfer, } from 'antd'
+import { Row, Col, Transfer,Checkbox, Cascader, Form } from 'antd'
 import './style/MemberTransfer.less'
 import { addTeamusers, removeTeamusers} from '../../../actions/team'
 import { loadUserList } from '../../../actions/user'
+import { ListProjects } from '../../../actions/project'
+
 import { connect } from 'react-redux'
+const FormItem = Form.Item;
 
 class MemberTransfer extends Component{
   constructor(props){
     super(props)
     this.filterOption = this.filterOption.bind(this)
     this.renderItem = this.renderItem.bind(this)
+    this.state = {
+      projectList: []
+    }
   }
   filterOption(inputValue, option) {
     return option.title.indexOf(inputValue) > -1;
   }
   componentWillMount(){
-    this.props.loadUserList({size: 0})
+    const { ListProjects,loadUserList } = this.props;
+    loadUserList({size: 0})
+    ListProjects({},{},{
+      success:{
+        func: (result)=>{
+          if (result.statusCode === 200) {
+            this.setState({projectList:result.data})
+          }
+        },
+        isAsync:true
+      }
+    })
   }
   renderItem(item){
     let customLabel = (
@@ -38,9 +55,19 @@ class MemberTransfer extends Component{
       value: item.description,
     }
   }
-
+  selectedChange(value,option) {
+  }
   render(){
     const { onChange,targetKeys,userList,teamUserIDList } = this.props
+    const { getFieldProps } = this.props.form;
+    const areaData = [{
+      value: 'shanghai',
+      label: '上海',
+      children: [{
+        value: 'shanghaishi',
+        label: '上海市'
+      }],
+    }];
     let filterUserList = teamUserIDList.length !== 0 ?
       userList.filter(function (userItem) {
         return !teamUserIDList.includes(userItem.key)
@@ -70,10 +97,36 @@ class MemberTransfer extends Component{
           titles={['筛选用户','已选择用户']}
           render={this.renderItem}
         />
+        <div className="addMemberToProject">
+          <Form className="addMemberForm">
+            <FormItem
+              className="isAdd"
+            >
+              <Checkbox className="ant-checkbox-vertical">选择添加的成员可能参与的项目</Checkbox>
+              <div className="isAddHint">此处可批量添加到项目中并授予在项目中的角色，也可后续添加到其他项</div>
+            </FormItem>
+            <FormItem
+              className="chooseProject"
+              label="选择项目及项目中的角色"
+              labelCol={{ span: 7 }}
+              wrapperCol={{ span: 16 }}
+              hasFeedback
+            >
+              <Cascader
+                style={{ width: 200 }}
+                options={areaData}
+                {...getFieldProps('area')}
+                placeholder="选择项目及角色"
+                onChange={(value,option)=>this.selectedChange(value,option)}
+              />
+            </FormItem>
+          </Form>
+        </div>
       </div>
     )
   }
 }
+
 function mapStateToProp(state,props) {
   let userList = []
   const users = state.user.users
@@ -98,4 +151,5 @@ export default connect(mapStateToProp, {
   addTeamusers,
   loadUserList,
   removeTeamusers,
-})(MemberTransfer)
+  ListProjects
+})(Form.create()(MemberTransfer))

@@ -13,9 +13,7 @@ import './style/ProjectManage.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree, Dropdown, Menu, Spin, Form } from 'antd'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
-import { ListProjects, DeleteProjects, UpdateProjects, GetProjectsMembers } from '../../../actions/project'
-import { ListRole, CreateRole, GetRole, ExistenceRole } from '../../../actions/role'
-import { PermissionAndCount } from '../../../actions/permission'
+import { ListProjects, DeleteProjects, UpdateProjects } from '../../../actions/project'
 import { chargeProject } from '../../../actions/charge'
 import { parseAmount } from '../../../common/tools'
 import Notification from '../../../components/Notification'
@@ -185,19 +183,6 @@ class ProjectManage extends Component{
   }
   changePayNumber(payNumber) {
     this.setState({payNumber})
-  }
-  handClickRow(record,index) {
-    const { selected } = this.state;
-    let newSelected = selected.slice(0);
-    let result = newSelected.findIndex((value,ind)=> value === index)
-    if (result > -1) {
-      newSelected.splice(result,1)
-    }else {
-      newSelected.push(index)
-    }
-    this.setState({
-      selected:newSelected
-    })
   }
   onSelectChange(keys) {
     const { selected } = this.state;
@@ -371,11 +356,7 @@ class ProjectManage extends Component{
           <Button type='ghost' size='large' style={{marginLeft:'10px'}} onClick={(e)=>this.delSingle(e,record)}>删除</Button>
         </span>
       ),
-    }];
-    const rowSelection = {
-      selectedRowKeys: selected,
-      onChange:(selectedRowKeys)=> this.onSelectChange(selectedRowKeys),
-    };
+    }]
     return (
       <div id="account_projectManage">
         <div className='alertRow'>项目之间是项目隔离的，通过创建项目实现按照角色关联对象（成员、团队），并根据授予的权限，使用项目中资源及功能。系统管理员有创建和管理所有项目的权限
@@ -439,11 +420,9 @@ class ProjectManage extends Component{
           <Card>
             <Table
               loading={tableLoading}
-              rowSelection={rowSelection}
               pagination={pagination}
               columns={columns}
               dataSource={projectList}
-              onRowClick={(recode,index)=>this.handClickRow(recode,index)}
             />
           </Card>
         </Row>

@@ -20,12 +20,10 @@ import {
 } from '../../../../actions/team'
 import { connect } from 'react-redux'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
-import CreateSpaceModal from '../../../AccountModal/CreateSpaceModal'
 import NotificationHandler from '../../../../components/Notification'
+import CommonSearchInput from '../../../../components/CommonSearchInput'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../../constants'
-import { parseAmount } from '../../../../common/tools'
-import SpaceRecharge  from '../Recharge/SpaceRecharge'
-import PopContent from '../../../PopSelect/Content'
+import Root from "../../../../containers/Root";
 
 let MemberList = React.createClass({
   getInitialState() {
@@ -36,7 +34,8 @@ let MemberList = React.createClass({
       current: 1,
       userPageSize: 5,
       userPage: 1,
-      filter: ''
+      filter: '',
+      selectedRowKeys: []
     }
   },
   getUserSort(order, column) {
@@ -156,13 +155,33 @@ let MemberList = React.createClass({
     loadTeamUserList(teamID, query)
     this.styleFilter = styleFilterStr
   },
+  rowClick(record) {
+    const { selectedRowKeys } = this.state;
+    let newKeys = selectedRowKeys.slice(0)
+    if (newKeys.indexOf(record.key) > -1) {
+      newKeys.splice(newKeys.indexOf(record.key),1)
+    }else {
+      newKeys.push(record.key)
+    }
+    this.setState({
+      selectedRowKeys:newKeys
+    })
+  },
+  selectAll(selectedRows) {
+    let arr = []
+    for (let i = 0; i < selectedRows.length; i++) {
+      arr.push(selectedRows[i].key)
+    }
+    this.setState({
+      selectedRowKeys: arr
+    })
+  },
   render: function () {
-    let { filteredInfo, current} = this.state
+    let { filteredInfo, current, selectedRowKeys} = this.state
     const { teamUserList, teamUsersTotal } = this.props
     filteredInfo = filteredInfo || {}
     const pagination = {
       total: teamUsersTotal,
-      showSizeChanger: true,
       defaultPageSize: 5,
       defaultCurrent: 1,
       current: current,
@@ -170,6 +189,11 @@ let MemberList = React.createClass({
       onShowSizeChange: this.onShowSizeChange,
       onChange: this.onChange,
     }
+    const rowSelection = {
+      selectedRowKeys,
+      onSelect:(record)=> this.rowClick(record),
+      onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
+    };
     const columns = [
       {
         title: (
@@ -215,8 +239,8 @@ let MemberList = React.createClass({
         key: 'edit',
         render: (text, record, index) => (
           <div className="cardBtns">
-            <Button icon="delete" className="delBtn" onClick={()=> this.setState({userId: record.key, UserModal: true, userName: record.name}) }>
-              移除
+            <Button className="delBtn" onClick={()=> this.setState({userId: record.key, UserModal: true, userName: record.name}) }>
+              移除成员
             </Button>
           </div>
         )
@@ -230,6 +254,8 @@ let MemberList = React.createClass({
           loading={this.state.loading}
           rowKey={record => record.key}
           onChange={this.onTableChange}
+          rowSelection={rowSelection}
+          onRowClick={(record)=>this.rowClick(record)}
           />
         <Modal title="移除成员操作" visible={this.state.UserModal}
           onOk={()=> this.delTeamMember()} onCancel={()=> this.setState({UserModal: false})}
@@ -239,263 +265,6 @@ let MemberList = React.createClass({
 
       </div>
     )
-  }
-})
-let TeamList = React.createClass({
-  getInitialState() {
-    return {
-      sortSpaceOrder: true,
-      visible: false,
-      currentSpace: null,
-    }
-  },
-  getSpaceSort(order, column) {
-    var orderStr = 'a,'
-    if (!order) {
-      orderStr = 'd,'
-    }
-    return orderStr + column
-  },
-  sortSpaceName() {
-    const { loadTeamspaceList, teamID, onChange, spacePageSize, spacePage} = this.props
-    const {sortSpaceOrder} = this.state
-    let sort = this.getSpaceSort(!sortSpaceOrder, 'spaceName')
-    loadTeamspaceList(teamID, {
-      sort,
-      size: spacePageSize,
-      page: spacePage,
-    })
-    onChange({
-      sortSpace: sort,
-    })
-    this.setState({
-      sortSpaceOrder: !sortSpaceOrder,
-    })
-  },
-  sortSpaceApp() {
-    const { sortSpaceOrder, onChange } = this.props
-    this.setState({
-      sortSpaceOrder: !sortSpaceOrder,
-    })
-  },
-  onShowSizeChange(current, pageSize) {
-    const { loadTeamspaceList, teamID, sortSpace, onChange } = this.props
-    loadTeamspaceList(teamID, {
-      page: 1,
-      size: pageSize,
-      sort: sortSpace,
-    })
-    onChange({
-      spacePageSize: pageSize,
-      spacePage: 1,
-      spaceCurrent: 1,
-    })
-  },
-  onChange(current) {
-    const { loadTeamspaceList, teamID, sortSpace, spacePageSize, onChange } = this.props
-    loadTeamspaceList(teamID, {
-      page: current,
-      size: spacePageSize,
-      sort: sortSpace,
-    })
-    onChange({
-      spacePageSize: spacePageSize,
-      spacePage: current,
-      spaceCurrent: current,
-    })
-  },
-  delTeamSpace() {
-    const { deleteTeamspace, teamID, loadTeamspaceList, sortSpace, spacePage, spacePageSize, onChange } = this.props
-    this.setState({TeamModal: false})
-    deleteTeamspace(teamID, this.state.spaceID, {
-      success: {
-        func: () => {
-          loadTeamspaceList(teamID, {
-            sort: sortSpace,
-            page: 1,
-            size: spacePageSize,
-          })
-          onChange({
-            spaceCurrent: 1
-          })
-        },
-        isAsync: true
-      }
-    })
-
-  },
-  handleVisibleChange(teamspace, visible) {
-    if (!visible) {
-      return
-    }
-    const { loadTeamClustersList } = this.props
-    loadTeamClustersList(teamspace.teamID)
-    this.setState({
-      currentSpace: teamspace
-    })
-  },
-  handleClusterChange(cluster) {
-    const { setCurrent } = this.props
-    const { currentSpace } = this.state
-    let notification = new NotificationHandler()
-    setCurrent({
-      team: {
-        teamID: currentSpace.teamID
-      },
-      space: currentSpace,
-      cluster,
-    })
-    let msg = `已进入空间 ${currentSpace.spaceName}（集群：${cluster.clusterName}）`
-    notification.success(msg)
-    browserHistory.push('/')
-  },
-  render: function () {
-    const { teamSpacesList, teamSpacesTotal, current, scope, teamClusters, teamID } = this.props
-    const {sortSpaceOrder} = this.state
-    const pagination = {
-      total: teamSpacesTotal,
-      showSizeChanger: true,
-      defaultPageSize: 5,
-      defaultCurrent: 1,
-      current: current,
-      pageSizeOptions: ['5', '10', '15', '20'],
-      onShowSizeChange: this.onShowSizeChange,
-      onChange: this.onChange,
-    }
-    let Search=false
-    let contentClusterList = []
-    if (teamID === teamSpacesList.teamID) {
-        contentClusterList = teamClusters
-      }
-    const columns = [
-      {
-        title: (
-          <div onClick={this.sortSpaceName}>
-            空间名
-            <div className="ant-table-column-sorter">
-              <span className={sortSpaceOrder ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
-                <i className="anticon anticon-caret-up" />
-              </span>
-              <span className={!sortSpaceOrder ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
-                <i className="anticon anticon-caret-down" />
-              </span>
-            </div>
-          </div>
-        ),
-        dataIndex: 'spaceName',
-        key: 'spaceName',
-        className: 'tablePadding',
-      },
-      {
-        title: '应用',
-        /*(
-          <div onClick={this.sortSpaceApp}>
-            应用
-            <div className="ant-table-column-sorter">
-              <span className={this.state.sortOrder ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
-                <i className="anticon anticon-caret-up" />
-              </span>
-              <span className={!this.state.sortOrder ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
-                <i className="anticon anticon-caret-down" />
-              </span>
-            </div>
-          </div>
-        ),*/
-        dataIndex: 'appCount',
-        key: 'appCount',
-      },
-      {
-        title: '余额',
-        dataIndex: 'balance',
-        key: 'balance',
-        render: (text) => parseAmount(text, 4).fullAmount
-      },
-      {
-        title: '操作',
-        dataIndex: 'opt',
-        key: 'opt',
-        render: (text, record, index) => (
-          <div><Button icon="delete" className="delBtn" onClick={()=> this.setState({TeamModal: true, spaceID: record.spaceID, teamName: record.spaceName})}>
-            删除
-          </Button>
-          {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN) ?
-            <Button className="addBtn" onClick={()=> scope.btnRecharge(index)}>充值
-            </Button>
-          :null
-          }
-          <Popover
-              title="请选择集群"
-              trigger="click"
-              content={
-                <PopContent
-                Search={Search}
-                list={teamClusters}
-                onChange={this.handleClusterChange}
-                />
-              }
-              onVisibleChange={this.handleVisibleChange.bind(this, teamSpacesList[index])}>
-              <Button type="primary">进入空间</Button>
-            </Popover>
-          </div>
-        )
-      },
-    ]
-    return (
-      <div id='TeamList'>
-        <Table columns={columns} dataSource={teamSpacesList} pagination={pagination} />
-         <Modal title="删除团队操作" visible={this.state.TeamModal}
-          onOk={()=> this.delTeamSpace()} onCancel={()=> this.setState({TeamModal: false})}
-        >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除该团队空间 {this.state.teamName ? this.state.teamName : ''} ?</div>
-        </Modal>
-      </div>
-    )
-  }
-})
-let ClusterState = React.createClass({
-  getInitialState() {
-    return {
-
-    }
-  },
-  applyClusterState() {
-    const {requestTeamCluster, clusterID, teamID, loadAllClustersList} = this.props
-    requestTeamCluster(teamID, clusterID, {
-      success: {
-        func: () => {
-          loadAllClustersList(teamID)
-        },
-        isAsync: true
-      }
-    })
-  },
-  // componentWillMount() {
-  //   const {requestTeamCluster, clusterID, teamID, loadAllClustersList} = this.props
-  //   loadAllClustersList(teamID)
-  // },
-  render: function () {
-    const {state} = this.props
-    if (state === 'authorized') {
-      return (
-        <div id='ClusterState'>
-          <span style={{ color: '#5fb55e' }}>已授权</span>
-        </div>
-      )
-    } else if (state === 'notAuthorized') {
-      return (
-        <div id='ClusterState'>
-          <span style={{ color: '#f85050' }}>未授权</span>
-          <Button type="primary" onClick={this.applyClusterState} style={{ backgroundColor: '#00a1e9' }} className="applyBtn">立即申请</Button>
-        </div>
-      )
-    } else if (state === 'pending') {
-      return (
-        <div id='ClusterState'>
-          <span style={{ color: '#82c4f4' }}>授权中...</span>
-          {/*<Button type="primary" onClick={this.applyClusterState} style={{backgroundColor:'#5db75d',borderColor:'#5db75d'}} className="applyBtn">重复申请</Button>*/}
-        </div>
-      )
-    }
   }
 })
 class TeamDetail extends Component {
@@ -648,7 +417,7 @@ class TeamDetail extends Component {
       teamSpacesList, teamName, teamID,
       teamUsersTotal, teamSpacesTotal, removeTeamusers,loadTeamClustersList,
       loadTeamUserList, loadTeamspaceList, deleteTeamspace,
-      requestTeamCluster, loadAllClustersList, checkTeamSpaceName, teamClusters,
+      requestTeamCluster, loadAllClustersList, checkTeamSpaceName, teamClusters,creationTime
     } = this.props
     const { targetKeys, sortSpace, spaceCurrent, spacePageSize, spacePage, sortSpaceOrder } = this.state
     const funcs = {
@@ -656,127 +425,90 @@ class TeamDetail extends Component {
     }
     return (
       <div id='TeamDetail'>
-        <Row style={{ marginBottom: 20,height:50,padding:'20px 0 0 25px' }}>
-          <Link className="back" to="/account/team">
-            <span className="backjia"></span>
+        <Row className="teamDetailHeader">
+          <Link className="back" to="/tenant_manage/team">
+            <span className="backjia"/>
             <span className="btn-back">返回</span>
           </Link>
           <span className="title">{teamName}</span>
         </Row>
-
-        <Row className="content">
-          <Alert message="这里展示了该团队在用的集群列表，集群包含了平台管理员分配到该团队所用的节点计算资源，且对该团队的所有团队空间有效。" />
-          <Row className="clusterList" gutter={30}>
-            {clusterList.map((item, index) => {
-              return (
-                <Col span="8" className="clusterItem">
-                  <Card title={(
-                    <Row>
-                      <Col span={8}>集群名</Col>
-                      <Col span={16}>{item.clusterName}</Col>
-                    </Row>
-                  )}>
-                    <Row className="cardItem" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>
-                      <Col span={8}>集群ID:</Col>
-                      <Col span={16} className='clusterIDCol' title={item.clusterID}>{item.clusterID}</Col>
-                    </Row>
-                    <Row className="cardItem">
-                      <Col span={8}>访问地址</Col>
-                      <Col span={16}>{item.apiHost}</Col>
-                    </Row>
-                    <Row className="cardItem">
-                      <Col span={8}>授权状态</Col>
-                      <Col span={16}>
-                        <ClusterState state={item.clusterStatus} requestTeamCluster={requestTeamCluster} loadAllClustersList={loadAllClustersList} clusterID={item.clusterID} teamID={teamID} />
-                      </Col>
-                    </Row>
-                  </Card>
-                </Col>
-              )
-            })}
-          </Row>
-        </Row>
-        <Row className="content">
-          <Col span={11}>
-            <Row style={{ marginBottom: 20 }}>
-              <Col span={6} style={{ height: 36, lineHeight: '36px' }}>
-                <Icon type="user" />
-                成员数({teamUsersTotal})
-              </Col>
-              <Col span={6}>
-                <Button type="primary" size="large" icon="plus"
-                  onClick={this.addNewMember}>
-                  添加新成员
-                </Button>
-                <Modal title="添加新成员"
-                  visible={this.state.addMember}
-                  onOk={this.handleNewMemberOk}
-                  onCancel={this.handleNewMemberCancel}
-                  width="660px"
-                  wrapClassName="newMemberModal"
-                  >
-                  <MemberTransfer onChange={this.handleChange}
-                    targetKeys={targetKeys}
-                    teamUserIDList={teamUserIDList} />
-                </Modal>
-              </Col>
-            </Row>
-            <Row>
-              <MemberList teamUserList={teamUserList}
-                teamID={teamID}
-                removeTeamusers={removeTeamusers}
-                loadTeamUserList={loadTeamUserList}
-                loadTeamClustersList={loadTeamClustersList}
-                teamUsersTotal={teamUsersTotal} />
-            </Row>
-          </Col>
-          <Col span={3} />
-          <Col span={10}>
-            <Row style={{ marginBottom: 20 }}>
-              <Col span={6} style={{ height: 36, lineHeight: '36px' }}>
-                <Icon type="user" />
-                团队空间 ({teamSpacesTotal})
-              </Col>
-              <Col span={6}>
-                <Button type="primary" size="large" icon="plus"
-                  onClick={this.addNewSpace}>
-                  创建新空间
-                </Button>
-                <CreateSpaceModal
-                  scope={scope}
-                  visible={this.state.createSpaceModalVisible}
-                  onSubmit={this.spaceOnSubmit}
-                  teamID={teamID}
-                  funcs={funcs} />
-              </Col>
-            </Row>
-            <Row>
-              <TeamList teamSpacesList={teamSpacesList}
-                loadTeamspaceList={loadTeamspaceList}
-                loadTeamClustersList={loadTeamClustersList}
-                teamClusters={teamClusters}
-                teamID={teamID}
-                sortSpace={sortSpace}
-                current={spaceCurrent}
-                setCurrent={setCurrent}
-                spacePageSize={spacePageSize}
-                spacePage={spacePage}
-                teamSpacesTotal={teamSpacesTotal}
-                deleteTeamspace={deleteTeamspace}
-                clusterList={clusterList}
-                scope = {this}
-                onChange={this.handleSpaceChange} />
-            </Row>
-          </Col>
-        </Row>
-        {/* 团队空间充值  */}
-        <Modal title="团队空间充值" visible={this.state.spaceVisible}
-          onCancel={()=> this.setState({spaceVisible: false})}
-          width={600}
-          footer={null}
+        <Card
+          title="团队基本信息"
+          bordered={false}
+          className="detailInfo"
         >
-          <SpaceRecharge parentScope={this} selected={this.state.selected} teamID={teamID} teamSpacesList={teamSpacesList}/>
-        </Modal>
+          <Row>
+            <Col span={2}>
+              团队名称
+            </Col>
+            <Col span={22}>
+              {teamName}
+            </Col>
+          </Row>
+          <Row>
+            <Col span={2}>
+              创建时间
+            </Col>
+            <Col span={22}>
+              {teamName}
+            </Col>
+          </Row>
+          <Row>
+            <Col span={2}>
+              我是团队的
+            </Col>
+            <Col span={22}>
+              {teamName}
+            </Col>
+          </Row>
+        </Card>
+        <Card
+          title={
+            <div>
+              成员数（<span className="modalColor">{teamUsersTotal}</span>）
+            </div>
+          }
+          bordered={false}
+        >
+          <Row className="content">
+            <Col span={24}>
+              <Row style={{ marginBottom: 20 }}>
+                <Col span={24}>
+                  <Button type="primary" size="large" icon="plus" className="addMemberBtn"
+                          onClick={this.addNewMember}>
+                    添加成员
+                  </Button>
+                  <Button type="ghost" size="large" icon="delete" className="deleteMemberBtn"
+                          onClick={this.addNewMember}>
+                    移除成员
+                  </Button>
+                  <CommonSearchInput size="large" placeholder="搜索"/>
+                  <div className="userTotalBox">共计 {teamUsersTotal} 条</div>
+                  <Modal title="添加新成员"
+                         visible={this.state.addMember}
+                         onOk={this.handleNewMemberOk}
+                         onCancel={this.handleNewMemberCancel}
+                         width="660px"
+                         wrapClassName="newMemberModal"
+                  >
+                    <MemberTransfer onChange={this.handleChange}
+                                    targetKeys={targetKeys}
+                                    teamUserIDList={teamUserIDList} />
+                  </Modal>
+                </Col>
+              </Row>
+              <Row>
+                <MemberList teamUserList={teamUserList}
+                            teamID={teamID}
+                            removeTeamusers={removeTeamusers}
+                            loadTeamUserList={loadTeamUserList}
+                            loadTeamClustersList={loadTeamClustersList}
+                            teamUsersTotal={teamUsersTotal} />
+              </Row>
+            </Col>
+            <Col span={3} />
+          </Row>
+        </Card>
       </div>
     )
   }

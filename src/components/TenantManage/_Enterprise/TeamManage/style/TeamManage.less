@@ -1,21 +1,5 @@
 #TeamsManage {
   padding: 20px;
-  @media screen and (min-width:1290px){
-    .Deleterechargea {
-      display:block;
-    }
-    .Deleterechargeb {
-      display:none;
-    }
-  }
-  @media screen and (max-width:1290px){
-      .Deleterechargea {
-        display:none;
-      }
-      .Deleterechargeb {
-        display:block;
-      }
-    }
   .ant-alert {
     color: #1a7db6;
     font-size: 13px !important;
@@ -32,6 +16,10 @@
       float: left;
       margin-right: 12px;
       margin-bottom: 20px;
+    }
+    .refreshBtn,.deleteBtn{
+      float: left;
+      margin-right: 12px;
     }
     .viewBtn {
       font-weight: normal;
@@ -57,14 +45,9 @@
       .ant-table {
         .addBtn {
           font-weight: normal;
-          background-color: #fff;
           width: 100px;
           margin-right: 12px;
           border-radius: 3px;
-          &:hover {
-            background-color: #00a1ea;
-            color: #fff;
-          }
         }
         .delBtn {
           font-weight: normal;
@@ -108,4 +91,24 @@
   line-height:10px;
   width:80px;
   text-align:center;
+}
+.deleteSingleModal{
+  .deleteTeamHint{
+    color: #ee3f20;
+    background-color: #fffaf4;
+    border: 1px dashed #fddb9e;
+    padding: 10px 15px;
+    border-radius: 4px;
+  }
+}
+.addMemberForm{
+  .isAdd{
+    padding-left: 20px;
+    .isAddHint{
+      padding-left: 22px;
+    }
+  }
+  .chooseProject{
+    padding-left: 20px;
+  }
 }
