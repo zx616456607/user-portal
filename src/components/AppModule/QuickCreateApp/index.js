@@ -18,6 +18,7 @@ import classNames from 'classnames'
 import yaml from 'js-yaml'
 import SelectImage from './SelectImage'
 import ConfigureService from './ConfigureService'
+import DepolyWrap from '../AppCreate/DeployWrap'
 import ResourceQuotaModal from '../../ResourceQuotaModal'
 import NotificationHandler from '../../../components/Notification'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
@@ -80,6 +81,13 @@ class QuickCreateApp extends Component {
     }
     this.serviceSum = 0
     this.configureServiceKey = this.genConfigureServiceKey()
+    if(fields) {
+      for(let id in fields) {
+        if (fields[id].id) {
+          this.configureServiceKey = id
+        }
+      }
+    }
   }
 
   getAppName(fields) {
@@ -260,6 +268,10 @@ class QuickCreateApp extends Component {
       if (this.configureMode === 'create') {
         this.configureServiceKey = this.genConfigureServiceKey()
       }
+      if (options.addWrap) {
+        browserHistory.push(`/app_manage/app_create/quick_create?appName=${values.appName}&addWrap=true`)
+        return
+      }
       if (!noJumpPage) {
         browserHistory.push('/app_manage/app_create/quick_create')
       }
@@ -277,13 +289,19 @@ class QuickCreateApp extends Component {
     } = this.props
     const { clusterID } = current.cluster
     const template = []
+    let appPkgID = {}
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         const json = buildJson(fields[key], current.cluster, loginUser, this.imageConfigs)
         template.push(yaml.dump(json.deployment))
         template.push(yaml.dump(json.service))
+        if (fields[key].appPkgID) {
+          let serviceName = fields[key].serviceName.value
+          appPkgID[serviceName] = fields[key].appPkgID.value
+        }
       }
     }
+
     const callback = {
       success: {
         func: res => {
@@ -365,13 +383,10 @@ class QuickCreateApp extends Component {
     if (this.action === 'addService') {
       const body = {
         template: template.join('---\n'),
+        appPkgID: appPkgID
       }
       addService(clusterID, this.state.appName, body, callback)
       return
-    }
-    let appPkgID
-    if (location.query && location.query.appPkgID) {
-      appPkgID = location.query.appPkgID
     }
     const appConfig = {
       cluster: clusterID,
@@ -398,7 +413,7 @@ class QuickCreateApp extends Component {
   renderBody() {
     const { location } = this.props
     const { hash, query } = location
-    const { key } = query
+    const { key, addWrap } = query
     const { imageName, registryServer, appName, editServiceLoading } = this.state
     if ((hash === SERVICE_CONFIG_HASH && imageName) || (hash === SERVICE_EDIT_HASH && key)) {
       const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey
@@ -420,6 +435,9 @@ class QuickCreateApp extends Component {
         />
       )
     }
+    if (addWrap) {
+      return <DepolyWrap location={location} quick_create={'quick_create'}/>
+    }
     return <SelectImage location={location} onChange={this.onSelectImage} />
   }
 
@@ -438,9 +456,11 @@ class QuickCreateApp extends Component {
         <div className="footerSteps">
           <div className="configureSteps">
             <div className="left">
-              <Button type="primary" size="large" onClick={this.saveService}>
-                保存此服务并继续添加
-              </Button>
+              继续添加：
+              <Button.Group>
+                <Button size="large" onClick={this.saveService}>容器镜像</Button>
+                <Button size="large" onClick={()=> this.saveService({addWrap: true})} type="primary">应用包</Button>
+              </Button.Group>
             </div>
             <div className="right">
               <Button

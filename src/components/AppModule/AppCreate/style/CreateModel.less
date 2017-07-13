@@ -1,15 +1,32 @@
 #CreateModel {
   padding: 20px;
   .topBox {
-    padding: 20px;
     width: 100%;
     min-height: 300px;
+    .stack{margin-top: 20px;margin-bottom: 20px;clear: both;}
+    .stack.selected{color: #00a1ea;}
+    .otherStack {
+      display: inline-block;
+      padding:4px 15px;
+      clear: both;
+      margin:20px 0;
+      cursor: not-allowed;
+      background-color: #f7f7f7;
+      border:1px solid #d9d9d9;
+      color: #ccc;
+      border-radius: 5px;
+    }
+    .stackIcon {
+      width: 14px;
+      height: 14px;
+      margin-right: 5px;
+      vertical-align: sub;
+    }
     .contentBox {
       margin: auto;
       min-width: 500px;
       max-width: 900px;
-      text-align: center;
-      .commonBox {
+      .commonBox,.disabled {
         transition: all 0.3s;
         position: relative;
         float: left;
@@ -19,7 +36,7 @@
         height: 250px;
         border: 2px solid #E5E5E5;
         border-radius: 5px;
-        cursor: pointer;
+        text-align: center;
         .commonImg{
           width: 150px;
           height: 150px;
@@ -40,7 +57,11 @@
           display: none;
         }
       }
+      .disabled{
+        background: #f7f7f7;
+      }
       .commonBox:hover {
+        cursor: pointer;
         border: 2px solid #00a1ea;
         color:#00a1ea;
         use{
@@ -74,7 +95,6 @@
   .envirBox {
     height: 36px;
     width: 100%;
-    margin-top: 20px;
     line-height: 60px;
     font-size: 14px;
     height: 95px;

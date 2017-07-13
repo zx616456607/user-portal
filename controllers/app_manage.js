@@ -246,8 +246,7 @@ exports.addService = function* () {
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.createBy(
     [cluster, 'apps', appName, 'services'],
-    null,
-    { template: body.template }
+    null, body
   )
   this.body = {
     cluster,

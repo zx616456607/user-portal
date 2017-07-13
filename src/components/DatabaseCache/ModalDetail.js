@@ -573,6 +573,10 @@ class VisitTypes extends Component{
               </Tooltip>
             </div>
             <dl className="addrListBox">
+              <dt className="addrListTitle"><Icon type="link"/>集群内负载均衡地址</dt>
+                <dd className="addrList">
+
+                </dd>
               <dt className="addrListTitle"><Icon type="link"/>集群内实例访问地址</dt>
               <dd className="addrList">
                 {domainList}

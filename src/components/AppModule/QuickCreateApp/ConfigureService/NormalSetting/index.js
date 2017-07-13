@@ -91,7 +91,7 @@ const Normal = React.createClass({
     })
   },
   onResourceChange({ resourceType, DIYMemory, DIYCPU }) {
-    const { setFormFields, form, id } = this.props
+    const { form, id } = this.props
     const { setFieldsValue } = form
     const values = { resourceType }
     if (DIYMemory) {

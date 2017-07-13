@@ -51,12 +51,18 @@ let ConfigureService = React.createClass({
     }
   },
   componentWillMount() {
-    const { callback, imageName, registryServer, form, mode, appName } = this.props
+    const { callback, imageName, registryServer, form, mode, location } = this.props
+    let  { appName } = this.props
     const { setFieldsValue } = form
     callback(form)
     if (mode === 'create') {
       const values = {
         imageUrl: `${registryServer}/${imageName}`,
+      }
+      if (location.query && location.query.appPkgID) {
+        let { registryServer,imageName} = location.query
+        values.imageUrl = `${registryServer}/${imageName}`
+        appName = location.query.appName || appName
       }
       if (appName) {
         values.appName = appName
@@ -98,6 +104,9 @@ let ConfigureService = React.createClass({
       imageName = currentFields.imageUrl.value
       imageName = imageName.substr(imageName.indexOf('/') + 1)
     }
+    if (location.query　&& location.query.imageName) {
+      imageName = location.query.imageName
+    }
     if (other) {
       getOtherImageTag({ id: other, imageName }, {
         success: {
@@ -105,6 +114,19 @@ let ConfigureService = React.createClass({
             let imageTag = result.tags[0]
             if (result.tags.indexOf(LATEST) > -1) {
               imageTag = LATEST
+            }
+            if (location && location.query.tag) {
+              let hasTag
+              result.data.every(tags =>{
+                if (tags == location.query.tag) {
+                  hasTag = true
+                  return false
+                }
+                return true
+              })
+              if (hasTag) {
+                imageTag = location.query.tag
+              }
             }
             setFieldsValue({
               imageTag,
@@ -124,7 +146,7 @@ let ConfigureService = React.createClass({
            if (result.data.indexOf(LATEST) > -1) {
              imageTag = LATEST
            }
-           if (location.query.tag) {
+           if (location.query && location.query.tag) {
               let hasTag
               result.data.every(tags =>{
                 if (tags == location.query.tag) {
@@ -165,14 +187,18 @@ let ConfigureService = React.createClass({
    // })
   },
   loadImageConfig(other, imageTag) {
-    const {
+    let {
       mode,
       loadOtherDetailTagConfig,
       //loadImageDetailTagConfig,
       loadRepositoriesTagConfigInfo,
       imageName,
+      location
     } = this.props
     let loadImageConfigFunc
+    if (location.query　&& location.query.imageName) {
+      imageName = location.query.imageName
+    }
     const callback = {
       success: {
         func: (result) => {
@@ -530,7 +556,13 @@ const createFormOpts = {
     return props.currentFields
   },
   onFieldsChange(props, fields) {
-    const { id, setFormFields } = props
+    const { id, setFormFields, location } = props
+    if (location.query && location.query.appPkgID) {
+      fields.appPkgID = {
+        name:'appPkgID',
+        value: location.query.appPkgID
+      }
+    }
     setFormFields(id, fields)
   }
 }

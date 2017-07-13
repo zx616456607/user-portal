@@ -956,7 +956,8 @@ class AppServiceList extends Component {
 
   goAddService() {
     const { appName } = this.props
-    browserHistory.push(`/app_manage/app_create/quick_create?appName=${appName}&action=addService&fromDetail=true`)
+    // browserHistory.push(`/app_manage/app_create/quick_create?appName=${appName}&action=addService&fromDetail=true`)
+    browserHistory.push(`/app_manage/app_create?appName=${appName}&action=addService&fromDetail=true`)
   }
 
   onShowSizeChange(page, size) {
