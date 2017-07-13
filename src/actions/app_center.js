@@ -863,7 +863,7 @@ function fetchUploadWrap(body,callback) {
   return {
     [FETCH_API]: {
       types: [UPLOAD_WRAP_REQUEST, UPLOAD_WRAP_SUCCESS, UPLOAD_WRAP_FAILURE],
-      endpoint: `${API_URL_PREFIX}/${fileName}/${fileTag}/${fileType}/remote`,
+      endpoint: `${API_URL_PREFIX}/pkg/${fileName}/${fileTag}/${fileType}/remote`,
       schema: Schemas.REGISTRYS,
       options:{
         method:'POST',

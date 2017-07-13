@@ -23,7 +23,7 @@ const FormItem = Form.Item
 const AdvancedSetting = React.createClass({
   addEnvKey() {
     const { form } = this.props
-    const { setFieldsValue, getFieldValue, validateFields } = form
+    const { setFieldsValue, getFieldValue, validateFieldsAndScroll } = form
     let envKeys = getFieldValue('envKeys') || []
     const validateFieldsKeys = []
     envKeys.forEach(key => {
@@ -34,7 +34,7 @@ const AdvancedSetting = React.createClass({
       validateFieldsKeys.push(`envName${keyValue}`)
       validateFieldsKeys.push(`envValue${keyValue}`)
     })
-    validateFields(validateFieldsKeys, (errors, values) => {
+    validateFieldsAndScroll(validateFieldsKeys, (errors, values) => {
       if (!!errors) {
         return
       }

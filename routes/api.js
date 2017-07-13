@@ -562,8 +562,9 @@ module.exports = function (Router) {
   router.get('/pkg', pkgController.getPkgManageList)
   router.get('/pkg/:id', pkgController.downloadPkg)
   router.post('/pkg/batch-delete', pkgController.deletePkg)
-  router.post('/:filename/:filetag/:filetype', pkgController.localUploadPkg)
-  router.post('/:filename/:filetag/:filetype/remote', pkgController.romoteUploadPkg)
+  router.post('/pkg/:filename/:filetag/:filetype/local', pkgController.localUploadPkg)
+  router.post('/pkg/:filename/:filetag/:filetype/remote', pkgController.romoteUploadPkg)
+
 
   return router.routes()
 }

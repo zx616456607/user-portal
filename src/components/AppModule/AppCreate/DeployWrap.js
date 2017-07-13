@@ -26,7 +26,7 @@ import { connect } from 'react-redux'
 import './style/WrapManage.less'
 const notificat = new NotificationHandler()
 import { SHOW_BILLING } from '../../../constants'
-
+const SERVICE_CONFIG_HASH = '#configure-service'
 const Step = Steps.Step
 
 class WrapManage extends Component {
@@ -53,7 +53,7 @@ class WrapManage extends Component {
       ]
     }
   }
-   componentWillMount() {
+  componentWillMount() {
     const { location } = this.props
     if (location && location.query.fileName) {
       const query = {
@@ -146,7 +146,7 @@ class WrapManage extends Component {
   goDeploy = (id)=> {
     // /app_manage/app_create/quick_create#configure-service
     const { version, defaultTemplate, template } = this.state
-    const { wrapList } = this.props
+    const { wrapList, location } = this.props
     let registry = wrapList.registry
     registry = registry && registry.split(/^(http:\/\/|https:\/\/)/)[2]
     // if (!version) {
@@ -165,14 +165,17 @@ class WrapManage extends Component {
       notificat.info('版本有误，请重新选择版本')
       return
     }
-
-    const imageName ='?imageName='+this.state.template[defaultTemplate].name +`&tag=${tag}`+`&registryServer=${registry}&appPkgID=`+ id
-    browserHistory.push('/app_manage/app_create/quick_create'+imageName)
+    const { appName, action} = location.query
+    let imageName ='?imageName='+this.state.template[defaultTemplate].name +`&tag=${tag}`+`&registryServer=${registry}&appPkgID=`+ id
+    if (appName) {
+      imageName += `&appName=${appName}&action=${action}`
+    }
+    browserHistory.push('/app_manage/app_create/quick_create'+ imageName + SERVICE_CONFIG_HASH)
 
   }
   render() {
     const { serviceList, template, defaultTemplate, version } = this.state
-    const { current } = this.props
+    const { current, quick_create} = this.props
     const { resource, priceHour, priceMonth } = this.getAppResources()
     const funcCallback = {
       goDeploy: this.goDeploy
@@ -188,6 +191,36 @@ class WrapManage extends Component {
         <Step title="配置服务" />
       </Steps>
     )
+    if (quick_create) {
+      return (
+        <QueueAnim id="deploy_wrap">
+          <div className="wrap_manage" >
+            <div className="list_row" style={{ height: 'auto' }}>
+              <span className="wrap_key" style={{ float: 'left' }}>选择模板</span>
+              <div className="template_list">
+                {this.templateList()}
+              </div>
+            </div>
+            <div className="list_row">
+              <span className="wrap_key">选择版本</span>
+              <Select style={{width:180}} size="large" value={version || template[defaultTemplate].version[0]} onChange={(e)=> this.setState({version: e})}>
+                { this.templateVersion() }
+              </Select>
+            </div>
+            <div className="list_row">
+              <span className="wrap_key">选择应用包</span>
+              <span className="searchInput">
+                <Input size="large" onPressEnter={(e) => this.getList(e)} placeholder="请输入包名称或标签搜索" />
+                <Button type="primary" onClick={() => browserHistory.push('/app_center/wrap_manage')} size="large">去上传部署包</Button>
+
+              </span>
+            </div>
+            <br />
+            <WrapListTable func={funcCallback}/>
+          </div>
+        </QueueAnim>
+      )
+    }
     return (
       <QueueAnim id="deploy_wrap">
         <Title title="部署应用"/>

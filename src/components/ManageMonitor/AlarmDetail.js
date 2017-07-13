@@ -260,7 +260,7 @@ class AlarmDetail extends Component {
                 <div className="title">基本属性</div>
                 <div className="baseAttr"><span className="keys">策略名称：</span><div className="ant-radio-group">{leftSetting.strategyName}</div></div>
                 <div className="baseAttr"><span className="keys">类型：</span>{leftSetting.targetType == '1' ? '节点' : '服务'}</div>
-                <div className="baseAttr"><span className="keys">告警对象：</span>{leftSetting.targetName}</div>
+                <div className="baseAttr textoverflow"><span className="keys">告警对象：</span>{leftSetting.targetName}</div>
                 <div className="baseAttr"><span className="keys">状态：</span>{this.formatStatus(leftSetting.statusCode)}</div>
                <div className="baseAttr"><span className="keys">监控周期：</span>{this.calcuTime(leftSetting.repeatInterval)}</div>
                 <div className="baseAttr">
