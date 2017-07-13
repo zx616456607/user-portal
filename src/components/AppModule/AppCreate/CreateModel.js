@@ -60,7 +60,6 @@ class CreateModel extends Component {
       'clusterFormCheck': current.cluster.clusterID,
     })
     const { appName, action, fromDetail } = location.query
-    console.log('location',location)
     if (appName) {
       this.setState({moreService: true})
       const id = this.configureServiceKey
@@ -200,7 +199,7 @@ class CreateModel extends Component {
       }
       let url = `/app_manage/app_create/${linkUrl}`
       if (linkUrl === 'deploy_wrap') {
-        url = '/app_manage/deploy_wrap'
+        url = '/app_manage/app_create/quick_create?addWrap=true'
       }
       if (this.state.moreService) {
         const { appName, action, fromDetail } = location.query

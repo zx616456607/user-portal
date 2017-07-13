@@ -81,13 +81,6 @@ class QuickCreateApp extends Component {
     }
     this.serviceSum = 0
     this.configureServiceKey = this.genConfigureServiceKey()
-    if(fields) {
-      for(let id in fields) {
-        if (fields[id].id) {
-          this.configureServiceKey = id
-        }
-      }
-    }
   }
 
   getAppName(fields) {
@@ -138,6 +131,9 @@ class QuickCreateApp extends Component {
     const { hash, query } = location
     if (hash !== this.props.location.hash || query.key !== this.props.location.query.key) {
       this.setConfig(nextProps)
+    }
+    if (query.imageName) {
+      this.setState({imageName:query.imageName})
     }
   }
 

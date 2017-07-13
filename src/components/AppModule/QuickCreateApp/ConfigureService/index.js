@@ -59,7 +59,7 @@ let ConfigureService = React.createClass({
       const values = {
         imageUrl: `${registryServer}/${imageName}`,
       }
-      if (location.query && location.query.appPkgID) {
+      if (location.query.appPkgID) {
         let { registryServer,imageName} = location.query
         values.imageUrl = `${registryServer}/${imageName}`
         appName = location.query.appName || appName
@@ -84,6 +84,11 @@ let ConfigureService = React.createClass({
         this.focusInput('serviceNameInput')
       }
     }, 50)
+    const { location, form } = this.props
+    if (location.query.appPkgID) {
+      form.getFieldProps('appPkgID')
+      form.setFieldsValue({'appPkgID': location.query.appPkgID})
+    }
   },
   componentWillUnmount() {
     clearTimeout(this.appNameCheckTimeout)
@@ -556,13 +561,7 @@ const createFormOpts = {
     return props.currentFields
   },
   onFieldsChange(props, fields) {
-    const { id, setFormFields, location } = props
-    if (location.query && location.query.appPkgID) {
-      fields.appPkgID = {
-        name:'appPkgID',
-        value: location.query.appPkgID
-      }
-    }
+    const { id, setFormFields } = props
     setFormFields(id, fields)
   }
 }
