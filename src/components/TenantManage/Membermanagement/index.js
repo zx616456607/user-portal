@@ -12,6 +12,7 @@ import './style/Membermanagement.less'
 import { Row, Col, Alert, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, } from 'antd'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
+import { camelize } from 'humps'
 import { loadUserList, createUser, deleteUser, checkUserName } from '../../../actions/user'
 import { chargeUser } from '../../../actions/charge'
 import { Link } from 'react-router'
@@ -20,8 +21,11 @@ import CreateUserModal from '../CreateUserModal'
 import NotificationHandler from '../../../components/Notification'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import MemberRecharge from '../../AccountModal/_Enterprise/Recharge'
-import { MAX_CHARGE }  from '../../../constants'
+import { MAX_CHARGE } from '../../../constants'
 import Title from '../../Title'
+import ChargeModal from './ChargeModal'
+import DeleteModal from './DeleteModal'
+import successPic from '../../../assets/img/wancheng.png'
 
 const confirm = Modal.confirm
 
@@ -67,7 +71,7 @@ let MemberTable = React.createClass({
   handleSortTeam() {
     const { loadUserList } = this.props.scope.props
     const { sortTeam } = this.state
-    const {page, pageSize, filter} = this.props.scope.state
+    const { page, pageSize, filter } = this.props.scope.state
     let sort = this.getSort(!sortTeam, 'teamCount')
     loadUserList({
       sort,
@@ -83,7 +87,7 @@ let MemberTable = React.createClass({
   handleSortBalance() {
     const { loadUserList } = this.props.scope.props
     const { sortBalance } = this.state
-    const {page, pageSize, filter} = this.props.scope.state
+    const { page, pageSize, filter } = this.props.scope.state
     let sort = this.getSort(!sortBalance, 'balance')
     loadUserList({
       sort,
@@ -111,9 +115,9 @@ let MemberTable = React.createClass({
       });
       return
     }
-    this.setState({delModal: false})
+    this.setState({ delModal: false })
     let notification = new NotificationHandler()
-    const { page, pageSize,filter,sort } = scope.state
+    const { page, pageSize, filter, sort } = scope.state
     scope.props.deleteUser(record.key, {
       success: {
         func: () => {
@@ -138,19 +142,19 @@ let MemberTable = React.createClass({
   filtertypes(filters) {
     // member select filter type (0=>普通成员，1=>团队管理员，3=> 系统管理员)
     // return number
-    let filter =''
+    let filter = ''
     let isSetFilter = false
-    let protoDate = ['0','1','2']
+    let protoDate = ['0', '1', '2']
     let typeData = ['1', '2']
-    if(filters.style) {
+    if (filters.style) {
       if (filters.style.length === 1) {
         isSetFilter = true
-         filter = `role__eq,${filters.style[0]}`
+        filter = `role__eq,${filters.style[0]}`
       }
       if (filters.style.length == 2) {
-        for (let i=0;i < protoDate.length; i++) {
+        for (let i = 0; i < protoDate.length; i++) {
           let item = protoDate[i]
-          if(filters.style.indexOf(item) < 0){
+          if (filters.style.indexOf(item) < 0) {
             isSetFilter = true
             filter = `role__neq,${item}`
             break
@@ -158,18 +162,18 @@ let MemberTable = React.createClass({
         }
       }
     }
-    if(filters.type) {
-      if(filters.type.length == 1) {
-        if(filter) {
-          filter +=`,type__eq,${filters.type[0]}`
+    if (filters.type) {
+      if (filters.type.length == 1) {
+        if (filter) {
+          filter += `,type__eq,${filters.type[0]}`
         } else {
-          filter =`type__eq,${filters.type[0]}`
+          filter = `type__eq,${filters.type[0]}`
         }
 
         isSetFilter = true
       }
     }
-    if(isSetFilter) {
+    if (isSetFilter) {
       return filter
     }
     return protoDate.concat(typeData)
@@ -180,7 +184,7 @@ let MemberTable = React.createClass({
       return
     }
     let styleFilterStr = filters.style ? filters.style.toString() : ''
-    let typeFilterStr = filters.type ?  filters.type.toString() : ''
+    let typeFilterStr = filters.type ? filters.type.toString() : ''
     if (styleFilterStr === this.styleFilter && typeFilterStr == this.typeFilterStr) {
       return
     }
@@ -205,23 +209,19 @@ let MemberTable = React.createClass({
   onSelectChange(selectedRowKeys) {
     const { scope } = this.props
     this.setState({ selectedRowKeys })
-    if(selectedRowKeys.length > 0){
+    if (selectedRowKeys.length > 0) {
       scope.setState({
-        hasSelected:true
+        hasSelected: true
       })
-    }else{
+    } else {
       scope.setState({
-        hasSelected:false
+        hasSelected: false
       })
     }
   },
   render() {
     let { selectedRowKeys, sortedInfo, filteredInfo, sort } = this.state
     const { searchResult, notFound } = this.props.scope.state
-    const rowSelection = {
-      selectedRowKeys,
-      onChange: this.onSelectChange,
-    };
     const { data, scope } = this.props
 
     filteredInfo = filteredInfo || {}
@@ -265,8 +265,8 @@ let MemberTable = React.createClass({
       },
     }
     const { userDetail } = this.props.scope.props
-    let filterKey = [ { text: '普通成员', value: 0 },{ text: '团队管理员', value: 1 }]
-    if ( userDetail.role === ROLE_SYS_ADMIN ) {
+    let filterKey = [{ text: '普通成员', value: 0 }, { text: '团队管理员', value: 1 }]
+    if (userDetail.role === ROLE_SYS_ADMIN) {
       filterKey = [
         { text: '普通成员', value: 0 },
         { text: '团队管理员', value: 1 },
@@ -274,8 +274,7 @@ let MemberTable = React.createClass({
       ]
     }
 
-    let ldapFileter = [ { text: '是', value: 2 },{ text: '否', value: 1 }]
-
+    let ldapFileter = [{ text: '是', value: 2 }, { text: '否', value: 1 }]
 
     const columns = [
       {
@@ -297,7 +296,7 @@ let MemberTable = React.createClass({
         className: 'memberName',
         width: '15%',
         render: (text, record, index) => {
-          if (userDetail.role === ROLE_SYS_ADMIN) {
+          if (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_TEAM_ADMIN) {
             return (
               <Link to={`/tenant_manage/user/${record.key}`}>
                 {text}
@@ -311,7 +310,7 @@ let MemberTable = React.createClass({
         title: '手机',
         dataIndex: 'tel',
         key: 'tel',
-        width: '15%',
+        width: '10%',
       },
       {
         title: '邮箱',
@@ -329,7 +328,7 @@ let MemberTable = React.createClass({
       {
         title: (
           <div onClick={this.handleSortTeam}>
-            团队
+            所属团队
             <div className="ant-table-column-sorter">
               <span className={this.state.sortTeam ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
                 <i className="anticon anticon-caret-up" />
@@ -342,6 +341,12 @@ let MemberTable = React.createClass({
         ),
         dataIndex: 'team',
         key: 'team',
+        width: '10%',
+      },
+      {
+        title: '参与项目',
+        dataIndex: 'project',
+        key: 'project',
         width: '10%',
       },
       {
@@ -369,7 +374,7 @@ let MemberTable = React.createClass({
         filters: ldapFileter,
         width: '10%',
         render: (text) => {
-          if(text == 2) return '是'
+          if (text == 2) return '是'
           return '否'
         }
       },
@@ -379,18 +384,18 @@ let MemberTable = React.createClass({
         key: 'operation',
         render: (text, record, index) => (
           <div className="action">
-            { record.role == ROLE_SYS_ADMIN ?
-              <Button type="primary" className="setBtn" onClick={()=> scope.memberRecharge(record)}>充值</Button>
-              :null
+            {record.role == ROLE_SYS_ADMIN ?
+              <Button type="primary" className="setBtn" onClick={() => scope.memberRecharge(record)}>充值</Button>
+              : null
             }
-            <Button className="delBtn setBtn" onClick={() => this.setState({delModal: true,userManage: record})}>
+            <Button className="delBtn setBtn" onClick={() => this.setState({ delModal: true, userManage: record })}>
               删除
             </Button>
           </div>
         ),
       },
     ]
-    if(userDetail.role !== ROLE_SYS_ADMIN){
+    if (userDetail.role !== ROLE_SYS_ADMIN) {
       columns.pop()
     }
     if (notFound) {
@@ -400,22 +405,21 @@ let MemberTable = React.createClass({
           <a onClick={this.handleBack}>[返回成员管理列表]</a>
         </div>
       )
-    } else {
-      return (
-        <div>
+    }
+    return (
+      <div>
         <Table columns={columns}
           dataSource={searchResult.length === 0 ? data : searchResult}
           pagination={pagination}
-          rowSelection={rowSelection}
-          onChange={this.onTableChange} />
-          <Modal title="删除成员操作" visible={this.state.delModal}
-            onOk={()=> this.delMember()} onCancel={()=> this.setState({delModal: false})}
-          >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除成员 {this.state.userManage ? this.state.userManage.name : ''} ?</div>
+          onChange={this.onTableChange}
+        />
+        <Modal title="删除成员操作" visible={this.state.delModal}
+          onOk={() => this.delMember()} onCancel={() => this.setState({ delModal: false })}
+        >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>您是否确定要删除成员 {this.state.userManage ? this.state.userManage.name : ''} ?</div>
         </Modal>
-        </div>
-      )
-    }
+      </div>
+    )
   },
 })
 
@@ -436,28 +440,36 @@ class Membermanagement extends Component {
       filter: "",
       current: 1,
       number: 10,
-      hasSelected:false
+      hasSelected: false,
+      chargeModalVisible: false,
+      deleteModalVisible: false,
+      createUserSuccessModalVisible: false,
+      createUserErrorMsg: null,
     }
   }
   showModal() {
     this.setState({
       visible: true,
     })
-    setTimeout(function() {
+    setTimeout(function () {
       document.getElementById('newUser').focus()
     }, 500);
   }
-  componentWillMount() {
-    this.props.loadUserList({
+  loadData = query => {
+    const defaultQuery = {
       page: 1,
       size: 10,
       sort: "a,userName",
       filter: "",
-    })
+    }
+    this.props.loadUserList(Object.assign({}, defaultQuery, query))
+  }
+  componentWillMount() {
+    this.loadData()
   }
   userOnSubmit(user) {
     const { createUser, loadUserList } = this.props
-    const { page, pageSize, sort, filter } = this.state
+    let { page, pageSize, sort, filter, createUserErrorMsg } = this.state
     let notification = new NotificationHandler()
     notification.spin(`创建用户 ${user.userName} 中...`)
     createUser(user, {
@@ -471,10 +483,14 @@ class Membermanagement extends Component {
           })
           notification.close()
           if (response.data && response.data == "SEND_MAIL_ERROR") {
-            notification.error(`创建用户 ${user.userName} 成功，但发送邮件失败`)
+            createUserErrorMsg = '发送邮件失败'
           } else {
-            notification.success(`创建用户 ${user.userName} 成功`)
+            createUserErrorMsg = null
           }
+          this.setState({
+            createUserErrorMsg,
+            createUserSuccessModalVisible: true,
+          })
         },
         isAsync: true
       },
@@ -493,7 +509,7 @@ class Membermanagement extends Component {
     })
   }
   activeMenu(number) {
-    this.setState({number})
+    this.setState({ number })
   }
   btnCharge() {
     // user charge
@@ -509,10 +525,10 @@ class Membermanagement extends Component {
     const _this = this
     const { page, pageSize, sort, filter } = this.state
 
-    const { loadUserList, chargeUser} = this.props
+    const { loadUserList, chargeUser } = this.props
     const oldBalance = parseFloat(this.state.record.balance)
 
-    if (oldBalance + body.amount > MAX_CHARGE ) {
+    if (oldBalance + body.amount > MAX_CHARGE) {
       // balance (T) + charge memory not 200000
       let isnewBalance = Math.floor(MAX_CHARGE - oldBalance)
       let newBalance = isnewBalance > 0 ? isnewBalance : 0
@@ -522,9 +538,9 @@ class Membermanagement extends Component {
 
     chargeUser(body, {
       success: {
-        func: (ret)=> {
+        func: (ret) => {
           notification.success('成员充值成功')
-          _this.setState({visibleMember: false,number:10})
+          _this.setState({ visibleMember: false, number: 10 })
           loadUserList({
             page,
             size: pageSize,
@@ -536,17 +552,48 @@ class Membermanagement extends Component {
       }
     })
   }
+  handleChargeOk = (namespaces, amount) => {
+    const notification = new NotificationHandler()
+    const { loadUserList, chargeUser } = this.props
+    const { page, pageSize, sort, filter } = this.state
+    const body = {
+      namespaces,
+      amount,
+    }
+    chargeUser(body, {
+      success: {
+        func: () => {
+          notification.success('批量充值成功')
+          this.setState({
+            chargeModalVisible: false,
+          })
+          loadUserList({
+            page,
+            size: pageSize,
+            sort,
+            filter,
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+
+  handleDeleteOk = (namespaces, amount) => {
+    //
+  }
+
   render() {
-    const { users, checkUserName } = this.props
+    const { users, checkUserName, loadUserList, userDetail } = this.props
     const scope = this
-    const { visible, memberList, hasSelected } = this.state
+    const { visible, memberList, hasSelected, createUserErrorMsg } = this.state
     const searchIntOption = {
       addBefore: [
         { key: 'name', value: '成员名' },
         { key: 'tel', value: '手机号' },
         { key: 'email', value: '邮箱' },
       ],
-      defaultValue: 'name',
+      defaultSearchValue: 'name',
       placeholder: '请输入关键词搜索',
     }
     const funcs = {
@@ -560,14 +607,14 @@ class Membermanagement extends Component {
           <Button type="primary" size="large" onClick={this.showModal} className="Btn">
             <i className='fa fa-plus' /> 创建新成员
           </Button>
-          <Button type="ghost" size="large" disabled={!hasSelected} className="Btn btn">
-            <Icon type="pay-circle-o" />充值
+          <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ chargeModalVisible: true })}>
+            <Icon type="pay-circle-o" />批量充值
           </Button>
-          <Button type="ghost" size="large" className="Btn btn">
+          <Button type="ghost" size="large" className="Btn btn" onClick={this.loadData}>
             <i className='fa fa-refresh' /> &nbsp;刷 新
           </Button>
-          <Button type="ghost" size="large" disabled={!hasSelected} className="Btn btn">
-            <Icon type="delete" />删除
+          <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ deleteModalVisible: true })}>
+            <Icon type="delete" />批量删除
           </Button>
           <SearchInput scope={scope} searchIntOption={searchIntOption} />
           <CreateUserModal
@@ -576,6 +623,31 @@ class Membermanagement extends Component {
             onSubmit={this.userOnSubmit}
             funcs={funcs}
           />
+          <Modal
+            title="创建成员成功"
+            visible={this.state.createUserSuccessModalVisible}
+            wrapClassName="createUserSuccessModal"
+            okText="继续创建"
+            cancelText="关闭"
+            onOk={() => this.setState({createUserSuccessModalVisible: false, visible: true})}
+            onCancel={() => this.setState({createUserSuccessModalVisible: false})}
+          >
+            <div className="textAlignCenter">
+              <img src={successPic} alt="成功"/>
+            </div>
+            <div className="textAlignCenter successTitle">
+              创建成功
+              {
+                createUserErrorMsg && <span className="createUserErrorMsg">({createUserErrorMsg})</span>
+              }
+            </div>
+            <div className="alertRow">
+              该成员未被添加到任何项目与团队，仅可管理或使用个人项目下的资源。您可将该成员
+              <strong>添加到某团队</strong>，
+              并可选择是否使用该团队所在的项目中的角色和资源；也可将该成员以
+              <strong>个人身份添加到已有的项目中，并授予特定的角色</strong>。
+            </div>
+          </Modal>
           <div className="total">共计 {this.props.total} 条&nbsp; </div>
         </Row>
         <Row className="memberList">
@@ -585,12 +657,27 @@ class Membermanagement extends Component {
         </Row>
         {/* 充值modal */}
         <Modal title="成员充值" visible={this.state.visibleMember}
-         onCancel={()=> this.setState({visibleMember: false, number: 10})}
-         onOk={()=> this.btnCharge()}
-         width={600}
+          onCancel={() => this.setState({ visibleMember: false, number: 10 })}
+          onOk={() => this.btnCharge()}
+          width={600}
         >
           <MemberRecharge parentScope={this} />
         </Modal>
+        <ChargeModal
+          visible={this.state.chargeModalVisible}
+          data={users}
+          onCancel={() => this.setState({ chargeModalVisible: false })}
+          onOk={this.handleChargeOk}
+          loadUserList={loadUserList}
+        />
+        <DeleteModal
+          visible={this.state.deleteModalVisible}
+          data={users}
+          onCancel={() => this.setState({ deleteModalVisible: false })}
+          onOk={this.handleDeleteOk}
+          loadUserList={loadUserList}
+          loginUser={userDetail}
+        />
       </div>
     )
   }
@@ -607,11 +694,11 @@ function mapStateToProp(state) {
       usersData = users.result.users
       usersData.map((item, index) => {
         let role = ""
-        if (item.role === ROLE_TEAM_ADMIN){
+        if (item.role === ROLE_TEAM_ADMIN) {
           role = "团队管理员"
-        }else if (item.role === ROLE_SYS_ADMIN) {
+        } else if (item.role === ROLE_SYS_ADMIN) {
           role = "系统管理员"
-        }else{
+        } else {
           role = "普通成员"
         }
         data.push(
@@ -623,9 +710,10 @@ function mapStateToProp(state) {
             email: item.email,
             style: role,
             role: userDetail.role,// user info into team list
-            team: item.teamCount,
+            team: item.teamCount || '-',
             balance: parseAmount(item.balance).fullAmount,
-            type: item.type
+            type: item.type,
+            project: item[camelize('project_count')] || '-',
           }
         )
       })

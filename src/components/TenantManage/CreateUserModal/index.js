@@ -189,6 +189,9 @@ let CreateUserModal = React.createClass({
         validator: this.checkPass2,
       }],
     })
+    const resetPasswdProps = getFieldProps('resetPasswd', {
+      valuePropName: 'checked',
+    })
     const checkProps = getFieldProps('check', {})
     const roleProps = getFieldProps('role', {
       initialValue:'0'
@@ -263,6 +266,13 @@ let CreateUserModal = React.createClass({
             hasFeedback
             >
             <Input {...rePasswdProps} type="password" autoComplete="off" placeholder="请再次输入密码确认" />
+          </FormItem>
+
+          <FormItem
+            {...formItemLayout}
+            label="需要重置密码"
+            >
+            <Checkbox {...resetPasswdProps}>用户必须在首次登录时创建新密码(@Todo: 缺后端支持)</Checkbox>
           </FormItem>
 
           <FormItem
