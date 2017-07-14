@@ -24,8 +24,8 @@ class Register extends Component{
     super(props)
     this.handlePageChange = this.handlePageChange.bind(this)
     this.renderRegisterPage = this.renderRegisterPage.bind(this)
-    let registerPageShow = true
-    let registerShow = false
+    let registerPageShow = false
+    let registerShow = true
     const { hash } = props
     if (hash === WECHAT_SIGNUP_HASH) {
       registerPageShow = false
@@ -72,7 +72,7 @@ class Register extends Component{
         <Top/>
         <div className='register registerFlex'>
           <Card className="registerForm" bordered={false} style={{width: 440,padding: '0 50px 24px',overflow: 'hidden'}}>
-            <div className='backToPage' onClick={this.handlePageChange}>&lt;&lt;&nbsp;&nbsp;&nbsp;重选注册帐户类型</div>
+            {/*<div className='backToPage' onClick={this.handlePageChange}>&lt;&lt;&nbsp;&nbsp;&nbsp;重选注册帐户类型</div>*/}
             {
               this.state.person ?
               <Person location={this.props.location} />:
