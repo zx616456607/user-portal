@@ -542,7 +542,6 @@ let NetworkConfiguration = React.createClass ({
         currentName: record.name,
         currentGroup: record.isDefault
       })
-      return
     }
     if(!record || record == 'confirm'){
       networkConfigArray.forEach(config => {
