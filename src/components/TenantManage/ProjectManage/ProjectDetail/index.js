@@ -34,62 +34,43 @@ for (let i = 10; i < 36; i++) {
 
 
 const columns = [{
-  title: 'Name',
+  title: '成员名称',
   dataIndex: 'name',
   render: text => <a href="#">{text}</a>,
 }, {
-  title: 'Age',
+  title: '对象类型',
   dataIndex: 'age',
 }];
 const data = [{
   key: 1,
   name: 'John Brown sr.',
-  age: 60,
+  age: '团队',
   children: [{
     key: 11,
     name: 'John Brown',
-    age: 42,
+    age: '成员',
   }, {
     key: 12,
     name: 'John Brown jr.',
-    age: 30,
-    children: [{
-      key: 121,
-      name: 'Jimmy Brown',
-      age: 16,
-    }],
+    age: '成员'
   }, {
     key: 13,
     name: 'Jim Green sr.',
-    age: 72,
-    children: [{
-      key: 131,
-      name: 'Jim Green',
-      age: 42,
-      children: [{
-        key: 1311,
-        name: 'Jim Green jr.',
-        age: 25,
-      }, {
-        key: 1312,
-        name: 'Jimmy Green sr.',
-        age: 18,
-      }],
-    }],
+    age: '成员'
   }],
 }, {
   key: 2,
   name: 'Joe Black',
-  age: 32,
+  age: '成员',
 }];
-const rowSelection = {
-  onChange: (selectedRowKeys, selectedRows) => {
-  },
-  onSelect: (record, selected, selectedRows) => {
-  },
-  onSelectAll: (selected, selectedRows, changeRows) => {
-  },
-};
+// const rowSelection = {
+//   onChange: (selectedRowKeys, selectedRows) => {
+//   },
+//   onSelect: (record, selected, selectedRows) => {
+//   },
+//   onSelectAll: (selected, selectedRows, changeRows) => {
+//   },
+// };
 let checkedKeysDetail = []
 class ProjectDetail extends Component{
   constructor(props){
@@ -633,9 +614,7 @@ class ProjectDetail extends Component{
       )
     })
     return(
-      <QueueAnim delay={500} type='right'
-                 //ease={['easeOutQuart', 'easeInOutQuart']}
-        >
+      <QueueAnim  type="right">
         <div className="projectDetailBox">
           <div className="goBackBox">
             <span className="goBackBtn pointer" onClick={()=> browserHistory.push('/tenant_manage/project_manage')}>返回</span>
@@ -930,7 +909,7 @@ class ProjectDetail extends Component{
                       <Button type="primary" size="large">继续关联对象</Button>
                     </div>
                     <div className="memberTableBox">
-                      <Table rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false}/>
+                      <Table columns={columns} dataSource={data} pagination={false} expandedRowKeys={[1]}/>
                     </div>
                   </div>
                 </div>

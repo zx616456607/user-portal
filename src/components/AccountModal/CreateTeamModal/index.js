@@ -77,9 +77,10 @@ let CreateTeamModal = React.createClass({
       if (!!errors) {
         return
       }
-      const { name } = values
+      const { name, comment } = values
       let newTeam = {
         teamName: name,
+        description: comment
       }
       onSubmit(newTeam)
       form.resetFields()
@@ -104,6 +105,9 @@ let CreateTeamModal = React.createClass({
       rules: [
         { validator: this.teamExists },
       ],
+    })
+    const commentProps = getFieldProps('comment', {
+    
     })
     const formItemLayout = {
       labelCol: { span: 3 },
@@ -143,6 +147,15 @@ let CreateTeamModal = React.createClass({
               key='nameInputForm'
               >
               <Input key='nameInput' {...nameProps} autoComplete='off' placeholder="新团队名称" id="teamInput" type='text'/>
+            </FormItem>
+            <FormItem
+              {...formItemLayout}
+              label="备注"
+              hasFeedback
+              help={isFieldValidating('comment') ? '校验中...' : (getFieldError('comment') || []).join(', ')}
+              key='commentInputForm'
+            >
+              <Input key='nameInput' {...commentProps} id="commentInput" type='textarea'/>
             </FormItem>
           </Form>
         </div>

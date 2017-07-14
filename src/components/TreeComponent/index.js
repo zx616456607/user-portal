@@ -254,6 +254,7 @@ class TreeComponent extends Component {
     })
     let havePermission = this.transformMultiArrayToLinearArray(newPermissonInfo)
     // 将目前的所有选中的权限都放入一个数组中
+    console.log(allBranchPermisson)
     allBranchPermisson.forEach(item => {
       item.forEach( itemson => {
         havePermission.push(itemson)
