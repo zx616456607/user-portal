@@ -137,7 +137,7 @@ let ConfigureService = React.createClass({
               imageTag,
             })
             // load image config by tag
-            this.loadImageConfig(other, imageTag)
+            this.loadImageConfig(other, imageName, imageTag)
           },
           isAsync: true,
         }
@@ -168,7 +168,7 @@ let ConfigureService = React.createClass({
              imageTag,
            })
            // load image config by tag
-           this.loadImageConfig(other, imageTag)
+           this.loadImageConfig(other, imageName,imageTag)
          },
          isAsync: true,
        }
@@ -191,7 +191,7 @@ let ConfigureService = React.createClass({
    //   }
    // })
   },
-  loadImageConfig(other, imageTag) {
+  loadImageConfig(other,images, imageTag) {
     let {
       mode,
       loadOtherDetailTagConfig,
@@ -200,10 +200,13 @@ let ConfigureService = React.createClass({
       imageName,
       location
     } = this.props
-    let loadImageConfigFunc
-    if (location.query　&& location.query.imageName) {
-      imageName = location.query.imageName
+    if (images) {
+      imageName = images
     }
+    let loadImageConfigFunc
+    // if (location.query　&& location.query.imageName) {
+    //   imageName = location.query.imageName
+    // }
     const callback = {
       success: {
         func: (result) => {
@@ -434,7 +437,7 @@ let ConfigureService = React.createClass({
         { required: true }
       ],
       onChange: (tag) => {
-        this.loadImageConfig(location.query.other, tag)
+        this.loadImageConfig(location.query.other,null, tag)
       }
     })
     const formItemLayout = {
