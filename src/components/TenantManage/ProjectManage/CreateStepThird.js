@@ -14,7 +14,7 @@ import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
 import { GetProjectsMembers } from '../../../actions/project'
 import { GetRole } from '../../../actions/role'
-
+import TreeComponent from '../../TreeComponent'
 let checkedKeysThird = []
 class CreateStepThird extends Component{
   constructor(props){
@@ -28,11 +28,11 @@ class CreateStepThird extends Component{
       mockData: [],
       targetKeys: [],
       currentRoleInfo: {},
-      currentRolePermission: []
+      currentRolePermission: [],
+      memberArr: []
     }
   }
   componentDidMount() {
-    this.getMock();
     this.getProjectMember()
   }
   componentWillReceiveProps(nextProps) {
@@ -55,28 +55,27 @@ class CreateStepThird extends Component{
     GetProjectsMembers({},{
       success: {
         func: (res) => {
-        
+          if (res.statusCode === 200) {
+            let newArr = res.data.teamList && res.data.teamList.concat(res.data.userList)
+            this.formatArr(newArr)
+            this.setState({
+              memberArr: newArr
+            })
+          }
         },
         isAsync: true
       }
     })
   }
-  getMock() {
-    const targetKeys = [];
-    const mockData = [];
-    for (let i = 0; i < 20; i++) {
-      const data = {
-        key: i,
-        title: `内容${i + 1}`,
-        description: `内容${i + 1}的描述`,
-        chosen: Math.random() * 2 > 1,
-      };
-      if (data.chosen) {
-        targetKeys.push(data.key);
+  formatArr(arr) {
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].teamId) {
+        Object.assign(arr[i],{id:arr[i].teamId},{teamName:arr[i].teamName},{userCount:arr[i].userCount},{children:arr[i].users})
+        this.formatArr(arr[i].users)
+      } else {
+        Object.assign(arr[i],{id:arr[i].userID},{userName:arr[i].userName},{creationTime:arr[i].creationTime})
       }
-      mockData.push(data);
     }
-    this.setState({ mockData, targetKeys });
   }
   onExpand(expandedKeys) {
     this.setState({
@@ -165,7 +164,7 @@ class CreateStepThird extends Component{
   render() {
     const { scope, form } = this.props;
     const TreeNode = Tree.TreeNode;
-    const { currentRolePermission, currentRoleInfo } = this.state;
+    const { currentRolePermission, currentRoleInfo, memberArr } = this.state;
     const { getFieldProps } = form;
     const projectNameLayout = {
       labelCol: { span: 4 },
@@ -186,6 +185,16 @@ class CreateStepThird extends Component{
         );
       }
       return <TreeNode key={item.key} title={item.title} disableCheckbox={true}/>;
+    });
+    const loopFunc = data => data.length >0 && data.map((item) => {
+      if (item.users) {
+        return (
+          <TreeNode key={item.teamId} title={item.teamName}>
+            {loopFunc(item.users)}
+          </TreeNode>
+        );
+      }
+      return <TreeNode key={item.userID} title={item.userName}/>;
     });
     return (
       <div id="projectCreateStepThird">
@@ -232,21 +241,10 @@ class CreateStepThird extends Component{
                onCancel={()=> this.closeModal()}
                onOk={()=> this.submitModal()}
         >
-          <Transfer
-            dataSource={this.state.mockData}
-            showSearch
-            listStyle={{
-              width: 300,
-              height: 290,
-            }}
-            searchPlaceholde="请输入搜索内容"
-            titles={['可选对象（个）', '已选对象（个）']}
-            operations={['移除', '添加']}
-            filterOption={this.filterOption.bind(this)}
-            targetKeys={this.state.targetKeys}
-            onChange={this.handleChange.bind(this)}
-            rowKey={item => item.key}
-            render={item => item.title}
+          <TreeComponent
+             outPermissionInfo={memberArr}
+             permissonInfo={[]}
+             loopFunc={loopFunc}
           />
         </Modal>
       </div>

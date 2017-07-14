@@ -394,19 +394,28 @@ class DeleteTable extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      selectedRow: []
+      selectedRowKeys: []
     }
   }
-  rowClicks(key,index) {
-    const { selectedRow } = this.state;
-    let newSelected = selectedRow.slice(0)
-    if (newSelected.indexOf(key) < 0) {
-      newSelected.push(key)
+  rowClick(record) {
+    const { selectedRowKeys } = this.state;
+    let newSelected = selectedRowKeys.slice(0)
+    if (newSelected.indexOf(record.key) < 0) {
+      newSelected.push(record.key)
     } else {
-      newSelected.splice(newSelected.indexOf(key),1)
+      newSelected.splice(newSelected.indexOf(record.key),1)
     }
     this.setState({
-      selectedRow:newSelected
+      selectedRowKeys:newSelected
+    })
+  }
+  selectAll(selectedRows) {
+    let arr = []
+    for (let i = 0; i < selectedRows.length; i++) {
+      arr.push(selectedRows[i].key)
+    }
+    this.setState({
+      selectedRowKeys: arr
     })
   }
   render() {
@@ -421,9 +430,11 @@ class DeleteTable extends Component {
         spaceCount: item.spaceCount
       })
     })
-    const { selectedRow } = this.state;
+    const { selectedRowKeys } = this.state;
     const rowSelection = {
-      selectedRowKeys: selectedRow,
+      selectedRowKeys,
+      onSelect:(record)=> this.rowClick(record),
+      onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
     };
     const columns = [
       {
@@ -454,7 +465,7 @@ class DeleteTable extends Component {
           rowSelection={rowSelection}
           columns={columns}
           pagination={false}
-          onRowClick={(record,index)=>this.rowClicks(record.key,index)}
+          onRowClick={(record)=>this.rowClick(record)}
         />
       </div>
       )
@@ -556,7 +567,7 @@ class TeamManage extends Component {
     loadUserTeamList('default', {
       page: 1,
       current: 1,
-      size: total,
+      size: 0,
       sort,
       filter: '',
     },{

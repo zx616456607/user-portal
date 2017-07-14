@@ -16,7 +16,7 @@ import {
   deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
   loadTeamspaceList, loadTeamUserList, loadAllClustersList,
   deleteTeamspace, requestTeamCluster, checkTeamSpaceName,
-  loadTeamClustersList,
+  loadTeamClustersList,getTeamDetail
 } from '../../../../actions/team'
 import { connect } from 'react-redux'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
@@ -282,6 +282,7 @@ class TeamDetail extends Component {
     this.handleSpaceChange = this.handleSpaceChange.bind(this)
     this.state = {
       addMember: false,
+      deleteMember: false,
       createSpaceModalVisible: false,
       targetKeys: [],
       newSpaceName: '',
@@ -292,25 +293,53 @@ class TeamDetail extends Component {
       spacePageSize: 5,
       spacePage: 1,
       spaceVisible:false, // space Recharge modal
+      teamDetail: {},
+      allTeamUser: {},
+      selectedRowKeys: []
     }
+  }
+  componentDidMount() {
+  
   }
   addNewMember() {
     this.setState({
       addMember: true,
     })
   }
+  removeMember() {
+    const { loadTeamUserList, teamID } = this.props;
+    loadTeamUserList(teamID,{
+      size:0
+    },{
+      success: {
+        func: (res) => {
+          this.addKey(res.users)
+          this.setState({
+            allTeamUser: res,
+            deleteMember: true
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+  addKey(arr) {
+    for (let i = 0; i < arr.length; i++) {
+      Object.assign(arr[i],{key:arr[i].userID})
+    }
+  }
   handleNewMemberOk() {
     const { addTeamusers, teamID, loadTeamUserList } = this.props
     let nofity = new NotificationHandler()
     const { targetKeys, sortUser } = this.state
     if (targetKeys.length !== 0) {
-      addTeamusers(teamID,
-        targetKeys
-        , {
+      addTeamusers(teamID,{
+          users:targetKeys,
+        },{
           success: {
             func: () => {
               loadTeamUserList(teamID, {
-                sort: sortUser,
+                // sort: sortUser,
               })
               this.setState({
                 addMember: false,
@@ -401,14 +430,68 @@ class TeamDetail extends Component {
     })
   }
   componentWillMount() {
-    const { loadAllClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
+    const { loadAllClustersList, loadTeamUserList, loadTeamspaceList, getTeamDetail, teamID } = this.props
     loadAllClustersList(teamID)
     loadTeamUserList(teamID, { sort: 'a,userName', size: 5, page: 1 })
     loadTeamspaceList(teamID, { sort: 'a,spaceName', size: 5, page: 1 })
+    getTeamDetail(teamID,{
+      success: {
+        func: (res) => {
+          this.setState({
+            teamDetail: res.result.teams[0]
+          })
+        },
+        isAsync: true
+      }
+    })
   }
   btnRecharge(index) {
     // button rechange
     this.setState({spaceVisible: true,selected: [index] })
+  }
+  removeMemberOk() {
+    const { removeTeamusers,loadTeamUserList, teamID } = this.props;
+    const { selectedRowKeys } = this.state;
+    let notify = new NotificationHandler()
+    removeTeamusers(teamID,selectedRowKeys,{
+      success: {
+        func: (res) => {
+          loadTeamUserList(teamID,{})
+          notify.success('移除成员成功')
+        },
+        isAsync: true
+      }
+    })
+    this.setState({
+      deleteMember: false
+    })
+    
+  }
+  removeMemberCancel() {
+    this.setState({
+      deleteMember: false
+    })
+  }
+  rowClick(record) {
+    const { selectedRowKeys } = this.state;
+    let newKeys = selectedRowKeys.slice(0)
+    if (newKeys.indexOf(record.key) > -1) {
+      newKeys.splice(newKeys.indexOf(record.key),1)
+    }else {
+      newKeys.push(record.key)
+    }
+    this.setState({
+      selectedRowKeys:newKeys
+    })
+  }
+  selectAll(selectedRows) {
+    let arr = []
+    for (let i = 0; i < selectedRows.length; i++) {
+      arr.push(selectedRows[i].key)
+    }
+    this.setState({
+      selectedRowKeys: arr
+    })
   }
   render() {
     const scope = this
@@ -419,10 +502,39 @@ class TeamDetail extends Component {
       loadTeamUserList, loadTeamspaceList, deleteTeamspace,
       requestTeamCluster, loadAllClustersList, checkTeamSpaceName, teamClusters,creationTime
     } = this.props
-    const { targetKeys, sortSpace, spaceCurrent, spacePageSize, spacePage, sortSpaceOrder } = this.state
+    const { targetKeys, sortSpace, spaceCurrent, spacePageSize, spacePage, sortSpaceOrder, teamDetail, allTeamUser, selectedRowKeys} = this.state
     const funcs = {
       checkTeamSpaceName
     }
+    const rowSelection = {
+      selectedRowKeys,
+      onSelect:(record)=> this.rowClick(record),
+      onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
+    };
+    const columns = [{
+      title: '成员名',
+      dataIndex: 'userName',
+      key: 'userName',
+    },{
+      title: '手机/邮箱',
+      dataIndex: 'phone',
+      key: 'phone',
+      render: (text, record) => (
+        <Row>
+          <Col>{record.phone}</Col>
+          <Col>{record.email}</Col>
+        </Row>
+      )
+    },{
+      title: '类型',
+      dataIndex: 'role',
+      key: 'role',
+      render: (text, record) => (
+        <div>
+          {record.role === ROLE_SYS_ADMIN ? '系统管理员' : (record.role === ROLE_TEAM_ADMIN ? '团队管理员' : '普通成员')}
+        </div>
+      )
+    }]
     return (
       <div id='TeamDetail'>
         <Row className="teamDetailHeader">
@@ -450,7 +562,7 @@ class TeamDetail extends Component {
               创建时间
             </Col>
             <Col span={22}>
-              {teamName}
+              {teamDetail && teamDetail.creationTime}
             </Col>
           </Row>
           <Row>
@@ -458,7 +570,7 @@ class TeamDetail extends Component {
               我是团队的
             </Col>
             <Col span={22}>
-              {teamName}
+              {teamDetail && teamDetail.isCreator ? '创建者' : '参与者'}
             </Col>
           </Row>
         </Card>
@@ -479,7 +591,7 @@ class TeamDetail extends Component {
                     添加成员
                   </Button>
                   <Button type="ghost" size="large" icon="delete" className="deleteMemberBtn"
-                          onClick={this.addNewMember}>
+                          onClick={this.removeMember.bind(this)}>
                     移除成员
                   </Button>
                   <CommonSearchInput size="large" placeholder="搜索"/>
@@ -494,6 +606,21 @@ class TeamDetail extends Component {
                     <MemberTransfer onChange={this.handleChange}
                                     targetKeys={targetKeys}
                                     teamUserIDList={teamUserIDList} />
+                  </Modal>
+                  <Modal title="移除成员"
+                         visible={this.state.deleteMember}
+                         onOk={this.removeMemberOk.bind(this)}
+                         onCancel={this.removeMemberCancel.bind(this)}
+                         width="660px"
+                         wrapClassName="removeMemberModal"
+                  >
+                    <Table
+                         dataSource={allTeamUser.users}
+                         columns={columns}
+                         pagination={false}
+                         rowSelection={rowSelection}
+                         onRowClick={(record)=>this.rowClick(record)}
+                    />
                   </Modal>
                 </Col>
               </Row>
@@ -599,4 +726,5 @@ export default connect(mapStateToProp, {
   checkTeamSpaceName,
   loadTeamClustersList,
   setCurrent,
+  getTeamDetail
 })(TeamDetail)

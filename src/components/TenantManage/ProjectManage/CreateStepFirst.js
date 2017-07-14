@@ -12,6 +12,9 @@ import classNames from 'classnames';
 import './style/ProjectManage.less'
 import { Input, Icon, Form } from 'antd'
 import { connect } from 'react-redux'
+import { CheckProjects } from '../../../actions/project'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
+
 class CreateStepFirst extends Component{
   constructor(props) {
     super(props)
@@ -76,16 +79,35 @@ class CreateStepFirst extends Component{
     })
   }
   projectName(rule, value, callback) {
+    const { CheckProjects } = this.props;
     let newValue = value.trim()
     if (!Boolean(newValue)) {
       callback(new Error('请输入名称'))
       return
     }
     if (newValue.length < 3 || newValue.length > 21) {
-      callback(new Error('请输入3~21个字符'))
+      callback(new Error('请输入1~21个字符'))
       return
     }
-    callback()
+    clearTimeout(this.projectNameCheckTimeout)
+    this.projectNameCheckTimeout = setTimeout(()=>{
+      CheckProjects({
+        projectsName: value
+      },{
+        success: {
+          func: (res) => {
+            this.updateProjectName(value)
+            callback()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (res) => {
+            return callback(new Error('该项目名称已经存在'))
+          }
+        }
+      })
+    },ASYNC_VALIDATOR_TIMEOUT)
   }
   updateProjectName() {
     const { updateProjectName } = this.props;
@@ -104,7 +126,7 @@ class CreateStepFirst extends Component{
   }
   render() {
     const { dropVisible, selectedClusters, choosableClusters } = this.state;
-    const { getFieldProps, getFieldValue } = this.props.form;
+    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = this.props.form;
     const formItemLayout = {
       labelCol: { span: 1 },
       wrapperCol: { span: 6 },
@@ -130,10 +152,14 @@ class CreateStepFirst extends Component{
     return (
       <div id="projectCreateStepOne">
         <Form className="alarmAction" form={this.props.form}>
-          <Form.Item label="名称" {...formItemLayout}>
+          <Form.Item label="名称"
+                     {...formItemLayout}
+                     hasFeedback
+                     help={isFieldValidating('projectName') ? '校验中...' : (getFieldError('projectName') || []).join(', ')}
+          >
             <Input placeholder="请输入名称" {...getFieldProps(`projectName`, {
               rules: [
-                { validator: (rules,value)=>this.projectName(rules,value,this.updateProjectName.bind(this))}
+                { validator: this.projectName.bind(this)}
               ],
               initialValue:  ''
             }) }
@@ -178,5 +204,5 @@ function mapStateToFristProp(state, props) {
 }
 
 export default CreateStepFirst = connect(mapStateToFristProp, {
-
+  CheckProjects
 })(CreateStepFirst)
