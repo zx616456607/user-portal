@@ -13,11 +13,11 @@ import { Link } from 'react-router'
 import './style/UserInfo.less'
 import Information from './Information'
 import Space from './Space'
-import Team from './Team'
 import { connect } from 'react-redux'
 import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import { loadUserDetail, loadUserList, updateUser, loadUserAppInfo, loadUserTeamspaceDetailList, loadUserTeamList } from '../../../actions/user'
 import Title from '../../Title'
+import UserProjectsAndTeams from './UserProjectsAndTeams'
 
 class UserInfo extends Component {
   constructor(props) {
@@ -50,7 +50,7 @@ class UserInfo extends Component {
     }
     return (
       <div id="UserInfos">
-        
+
         <Title title={userID ? '成员管理' : '我的帐户'} />
         <Row className="content">
           <Link className="back" to="/tenant_manage/membermanagement">
@@ -61,7 +61,7 @@ class UserInfo extends Component {
             <Col>{ memberFlag ? userDetail.userName+'成员信息' : '我的信息'}</Col>
           </Row>
         </Row>
-        
+
         <Row className="content">
           <Card>
             <Information userID={userID} userDetail={userDetail} editPass={editPass} location={this.props.location}/>
@@ -77,11 +77,11 @@ class UserInfo extends Component {
               teamspaces={teamspaces} />
           </Card>
         </Row>
-        
+
         { (userDetail.role == ROLE_TEAM_ADMIN || userDetail.role == ROLE_SYS_ADMIN) ?
         <Row className="content">
           <Card>
-            <Team userDetail={userDetail}
+            <UserProjectsAndTeams userDetail={userDetail}
               teams={teams} />
           </Card>
         </Row>

@@ -22,8 +22,42 @@ class LogCollection extends Component {
     super(props)
     this.directoryTemplate = this.directoryTemplate.bind(this)
     this.state = {
-
+      //
     }
+  }
+
+  checkPath = (rule, value, callback) => {
+    if (!value) {
+      return callback()
+    }
+    const { form } = this.props
+    const { getFieldValue } = form
+    const storageKeys = getFieldValue('storageKeys') || []
+    let error
+    storageKeys.every(key => {
+      const mountPath = getFieldValue(`mountPath${key}`)
+      if (value === mountPath) {
+        error = '日志收集目录不能与存储挂载目录相同'
+        return false
+      }
+      return true
+    })
+    callback(error)
+  }
+
+  validateRule(rule, value, callback) {
+    if (value === '') {
+      callback(new Error('请填写采集文件规则'))
+      return
+    }
+    // Check if it's valid regex expression
+    try {
+      new RegExp(value, "ig")
+    } catch (e) {
+      callback(new Error('请输入合法的正则表达式规则'))
+      return
+    }
+    callback()
   }
 
   directoryTemplate(sourceType){
@@ -35,13 +69,15 @@ class LogCollection extends Component {
     if(sourceType == 'directory'){
       pathProps = getFieldProps('path',{
         rules: [
-          { required: true, message: '请填写日志目录' }
+          { required: true, message: '请填写日志目录' },
+          { validator: this.checkPath }
         ],
       })
       inregexProps = getFieldProps('inregex',{
         rules: [
-          { required: true, message: '请填写采集文件规则' }
+          { validator: this.validateRule }
         ],
+        initialValue: '.*.log'
       })
       exregexProps = getFieldProps('exregex',{
         rules: [

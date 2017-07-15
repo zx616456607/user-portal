@@ -16,7 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {
   getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLastLogs,
   CreateTenxflowBuild, getTenxflowBuildDetailLogs, changeTenxFlowStatus,
-  changeFlowStatus, getRepoBranchesAndTagsByProjectId,
+  changeFlowStatus, getRepoBranchesAndTagsByProjectId, getStageBuildLogList,
 } from '../../../actions/cicd_flow'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
@@ -699,6 +699,7 @@ export default connect(mapStateToProps, {
   getTenxflowBuildDetailLogs,
   changeFlowStatus,
   getRepoBranchesAndTagsByProjectId,
+  getStageBuildLogList,
 })(injectIntl(TenxFlowList, {
   withRef: true,
 }));
