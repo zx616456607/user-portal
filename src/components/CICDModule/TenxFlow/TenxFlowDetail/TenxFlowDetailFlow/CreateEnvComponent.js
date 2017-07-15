@@ -211,6 +211,17 @@ let CreateEnvComponent = React.createClass({
     }
     setTimeout(() => document.getElementById(`service${index}inputName${keys[keys.length - 1]}`).focus(), 0)
   },
+  validateEnvName(item, values, callback) {
+    if (!values || values == "") {
+      callback([new Error('请输入环境变量名')])
+      return
+    }
+    if (values.trim() != values) {
+      callback([new Error('环境变量名不合法')])
+      return
+    }
+    callback()
+  },
   closeModal () {
     //this function for user close the env input modal
     const { scope } = this.props;
@@ -237,7 +248,7 @@ let CreateEnvComponent = React.createClass({
     const servicesInputItems = getFieldValue('service' + index + 'inputs').map((i) => {
       const servicesInputNameProps = getFieldProps(`service${index}inputName${i}`, {
         rules: [
-          { message: '请输入环境变量名' },
+          { validator: this.validateEnvName },
         ],
         initialValue: checkInitEnvName(config[i]),
       });

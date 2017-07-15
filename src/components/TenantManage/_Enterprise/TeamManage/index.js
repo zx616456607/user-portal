@@ -34,14 +34,15 @@ let TeamTable = React.createClass({
       filteredInfo: null,
       sortedInfo: null,
       sortMember: true,
-      sortSpace: true,
+      creationTime: true,
       sortCluster: true,
       sortTeamName: true,
       addMember: false,
       targetKeys: [],
       sort: "a,teamName",
       filter: "",
-      nowTeamID: ''
+      nowTeamID: '',
+      tableSelected: [],
     }
   },
   handleChange(pagination, filters, sorter) {
@@ -113,11 +114,11 @@ let TeamTable = React.createClass({
       sort,
     })
   },
-  handleSortSpace() {
+  handleSortCreateTime() {
     const { loadUserTeamList } = this.props.scope.props
     const { filter } = this.props.scope.state
-    const { sortSpace } = this.state
-    let sort = this.getSort(!sortSpace, 'spaceCount')
+    const { creationTime } = this.state
+    let sort = this.getSort(!creationTime, 'creationTime')
     loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
@@ -125,7 +126,7 @@ let TeamTable = React.createClass({
       filter,
     })
     this.setState({
-      sortSpace: !sortSpace,
+      creationTime: !creationTime,
       sort,
     })
   },
@@ -256,7 +257,6 @@ let TeamTable = React.createClass({
         })
       },
     }
-
     const columns = [
       {
         title: (
@@ -274,7 +274,6 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'team',
         key: 'team',
-        width: '16%',
         className: 'teamName',
         render: (text, record, index) => (
           <Link to={`/tenant_manage/team/${record.team}/${record.key}`}>{text}</Link>
@@ -296,12 +295,11 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'member',
         key: 'member',
-        width: '18%',
       },
       {
         title: (
           <div onClick={this.handleSortCluster}>
-            在用集群
+            参与项目
             <div className="ant-table-column-sorter">
               <span className={this.state.sortCluster ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
                 <i className="anticon anticon-caret-up" />
@@ -314,25 +312,39 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'cluster',
         key: 'cluster',
-        width: '18%',
       },
       {
         title: (
-          <div onClick={this.handleSortSpace}>
-            团队空间
+          <div onClick={this.handleSortCreateTime}>
+            创建时间
             <div className="ant-table-column-sorter">
-              <span className={this.state.sortSpace ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+              <span className={this.state.creationTime ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
                 <i className="anticon anticon-caret-up" />
               </span>
-              <span className={!this.state.sortSpace ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+              <span className={!this.state.creationTime ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
                 <i className="anticon anticon-caret-down" />
               </span>
             </div>
           </div>
         ),
-        dataIndex: 'space',
-        key: 'space',
-        width: '18%',
+        dataIndex: 'creationTime',
+        key: 'creationTime',
+      },
+      {
+        title: '我是团队的',
+        dataIndex: 'isCreator',
+        key: 'isCreator',
+        filters: [
+          { text: '创建者', value: '创建者' },
+          { text: '参与者', value: '参与者' },
+        ],
+        filteredValue: filteredInfo.isCreator,
+        onFilter: (value, record) => record.isCreator.indexOf(value) === 0,
+        render: (text, record)=>{
+          return(
+            <div>{record.isCreate ? <span style={{color:'#7dc57c'}}>创建者</span> :'参与者'}</div>
+          )
+        }
       },
       {
         title: '操作',
@@ -341,32 +353,8 @@ let TeamTable = React.createClass({
           return (
             <div className="addusers">
               <div className="Deleterechargea">
-                <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
-                <Button icon="delete" className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
-                {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN) ?
-                  <Button icon="pay-circle-o" className="addBtn" style={{marginLeft:'12px'}} onClick={() => this.btnRecharge(record.key)}>充值</Button>
-                :null
-                }
-              </div>
-              <div className="Deleterechargeb">
-                <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
-                {
-                  this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN
-                  ? (
-                    <Dropdown.Button
-                      onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}
-                      overlay={
-                        <Menu className="Recharge" onClick={() => this.btnRecharge(record.key)}>
-                          <Menu.Item key="0"><Icon type="pay-circle-o" /> 充值</Menu.Item>
-                        </Menu>
-                      }
-                      type="ghost"
-                    >
-                      删除
-                    </Dropdown.Button>
-                  )
-                  : <Button icon="delete" className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
-                }
+                <Button type="primary" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加团队成员</Button>
+                <Button className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
               </div>
               <Modal title='添加成员'
                 visible={this.state.nowTeamID === record.key && this.state.addMember}
@@ -387,21 +375,102 @@ let TeamTable = React.createClass({
     ]
     return (
       <div>
-      <Table columns={columns}
-        dataSource={searchResult.length === 0 ? data : searchResult}
-        pagination={pagination}
-        onChange={this.handleChange}
-      />
-      <Modal title="删除团队操作" visible={this.state.delTeamModal}
-        onOk={()=> this.delTeam()} onCancel={()=> this.setState({delTeamModal: false})}
-      >
-      <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除团队 {this.state.teamName} ?</div>
-     </Modal>
+        <Table columns={columns}
+          dataSource={searchResult.length === 0 ? data : searchResult}
+          pagination={pagination}
+          onChange={this.handleChange}
+        />
+        <Modal title="删除团队操作" visible={this.state.delTeamModal} wrapClassName="deleteSingleModal"
+          onOk={()=> this.delTeam()} onCancel={()=> this.setState({delTeamModal: false})}
+        >
+        <div className="deleteTeamHint"><i className="fa fa-exclamation-triangle" aria-hidden="true" style={{marginRight:'8px'}}/>您是否确定要删除团队 {this.state.teamName} ?</div>
+       </Modal>
      </div>
     )
   },
 })
 
+class DeleteTable extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      selectedRowKeys: []
+    }
+  }
+  rowClick(record) {
+    const { selectedRowKeys } = this.state;
+    let newSelected = selectedRowKeys.slice(0)
+    if (newSelected.indexOf(record.key) < 0) {
+      newSelected.push(record.key)
+    } else {
+      newSelected.splice(newSelected.indexOf(record.key),1)
+    }
+    this.setState({
+      selectedRowKeys:newSelected
+    })
+  }
+  selectAll(selectedRows) {
+    let arr = []
+    for (let i = 0; i < selectedRows.length; i++) {
+      arr.push(selectedRows[i].key)
+    }
+    this.setState({
+      selectedRowKeys: arr
+    })
+  }
+  render() {
+    const { dataSource } = this.props;
+    let data = []
+    const _this = this;
+    dataSource.map((item,index)=>{
+      data.push({
+        key: item.teamID,
+        teamName: item.teamName,
+        userCount: item.userCount,
+        spaceCount: item.spaceCount
+      })
+    })
+    const { selectedRowKeys } = this.state;
+    const rowSelection = {
+      selectedRowKeys,
+      onSelect:(record)=> this.rowClick(record),
+      onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
+    };
+    const columns = [
+      {
+        title: '团队名',
+        dataIndex: 'teamName',
+        key: 'teamName',
+      },
+      {
+        title: '成员',
+        dataIndex: 'userCount',
+        key: 'userCount'
+      },
+      {
+        title: '在用集群',
+        dataIndex: 'clusterCount',
+        key: 'clusterCount'
+      },
+      {
+        title: '团队空间',
+        dataIndex: 'spaceCount',
+        key: 'spaceCount'
+      }
+    ]
+    return (
+      <div style={{height:'400px',overflow:'auto'}}>
+        <Table
+          dataSource={data}
+          rowSelection={rowSelection}
+          columns={columns}
+          pagination={false}
+          onRowClick={(record)=>this.rowClick(record)}
+        />
+      </div>
+      )
+  }
+}
 class TeamManage extends Component {
   constructor(props) {
     super(props)
@@ -418,16 +487,17 @@ class TeamManage extends Component {
       page: 1,
       current: 1,
       sort: 'a,teamName',
-      selected: []
+      selected: [],
+      deleteTeamModal: false,
+      allTeamList: []
     }
   }
   showModal() {
     this.setState({
       visible: true,
-    })
-    setTimeout(function() {
+    },()=>{
       document.getElementById('teamInput').focus()
-    }, 100)
+    })
   }
   teamOnSubmit(team) {
     const { createTeam, loadUserTeamList } = this.props
@@ -473,9 +543,51 @@ class TeamManage extends Component {
       filter: "",
     })
   }
+  refreshTeamTable() {
+    const { loadUserTeamList } = this.props;
+    const { pageSize, sort } = this.state
+    loadUserTeamList('default', {
+      page: 1,
+      current: 1,
+      size: pageSize,
+      sort,
+      filter: '',
+    },{
+      success: {
+        func: (res)=> {
+        
+        },
+        isAsync: true
+      }
+    })
+  }
+  deleteTeamModal() {
+    const { loadUserTeamList, total } = this.props;
+    const { sort } = this.state
+    loadUserTeamList('default', {
+      page: 1,
+      current: 1,
+      size: 0,
+      sort,
+      filter: '',
+    },{
+      success: {
+        func: (res)=> {
+          this.setState({
+            deleteTeamModal: true,
+            allTeamList:res.teams
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+  deleteTeamConfirm() {
+  
+  }
   render() {
     const scope = this
-    const { visible } = this.state
+    const { visible, deleteTeamModal, allTeamList } = this.state
     const {
       teams, addTeamusers, loadUserTeamList,
       teamUserIDList, loadTeamUserList, checkTeamName
@@ -497,11 +609,26 @@ class TeamManage extends Component {
           <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
             <i className='fa fa-plus' /> 创建团队
           </Button>
+          <Button type="host" size="large" className="refreshBtn" onClick={this.refreshTeamTable.bind(this)}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
+          <Button type="host" size="large" className="deleteBtn" onClick={()=>this.deleteTeamModal()}><Icon type="delete" />删除</Button>
           <CreateTeamModal
             scope={scope}
             visible={visible}
             onSubmit={this.teamOnSubmit}
             funcs={funcs} />
+          <Modal
+            title="批量删除团队"
+            visible={deleteTeamModal}
+            onCancel={()=>this.setState({deleteTeamModal:false})}
+            onOk={()=>this.deleteTeamConfirm()}
+          >
+            {
+              allTeamList.length > 0 &&
+              <DeleteTable
+                dataSource={allTeamList}
+              />
+            }
+          </Modal>
           <Button className="viewBtn" style={{ display: "none" }}>
             <Icon type="picture" />
             查看成员&团队图例
@@ -551,8 +678,8 @@ function mapStateToProp(state, props) {
               key: item.teamID,
               team: item.teamName,
               member: item.userCount,
-              cluster: item.clusterCount,
-              space: item.spaceCount,
+              creationTime: item.creationTime,
+              isCreator: item.isCreator
             }
           )
         })

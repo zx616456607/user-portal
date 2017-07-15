@@ -1,4 +1,21 @@
 #TeamDetail {
+  padding:0 30px;
+  .teamDetailHeader{
+    margin-bottom: 20px;
+    height: 50px;
+    padding: 20px 0 0;
+  }
+  .detailInfo{
+    margin-bottom: 20px;
+    .ant-row{
+      margin: 15px 0;
+      font-size: 14px;
+    }
+  }
+  .userTotalBox{
+    float: right;
+    margin: 20px 270px 0;
+  }
   .back {
     display: inline-block;
     float: left;
@@ -42,7 +59,9 @@
     color: #666;
     background-color: #fff;
     margin-bottom: 26px;
-    padding: 30px;
+    .addMemberBtn,.deleteMemberBtn{
+      margin-right: 12px;
+    }
     .balance {
       font-size: 14px;
       span {
@@ -134,6 +153,9 @@
       transform: translateY(-50%);
     }
   }
+  .ant-table-pagination{
+    margin: -440px 0 0 0 !important;
+  }
 }
 // .newMemberModal {
 //   .ant-btn {
@@ -181,4 +203,5 @@
   //   background-color: #efefef;
   //   color: #717171;
   // }
+
 }
