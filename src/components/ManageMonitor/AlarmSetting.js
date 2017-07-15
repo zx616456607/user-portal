@@ -435,7 +435,7 @@ let MyComponent = React.createClass({
         return (
             [<tr key={`list${index}`}>
              <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-              <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-down" /><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
+              <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-down" /> <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
               <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
               <td >
                 <span className="targetName" onClick={()=>{this.toProjectDetail(list)}}>{list.targetName}</span>
@@ -458,7 +458,7 @@ let MyComponent = React.createClass({
       return (
         <tr key={`list${index}`}>
             <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-            <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-right" />  <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
+            <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-right" /> <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
             <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
             <td >
               <span className="targetName" onClick={(e)=>{this.toProjectDetail(list,e)}}>{list.targetName}</span>
