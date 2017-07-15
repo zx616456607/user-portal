@@ -107,11 +107,12 @@ let ImageEnvComponent = React.createClass({
     if(env) {
       allEnv = Object.assign(allEnv, env)
     }
-    if (!!config) {
-      config.map((item) => {
-        allEnv[item.name] = item.value
-      })
-    }
+    // fix issue http://jira.tenxcloud.com/browse/CRYSTAL-4437
+    // if (!!config) {
+    //   config.map((item) => {
+    //     allEnv[item.name] = item.value
+    //   })
+    // }
     const allEnvName = Object.getOwnPropertyNames(allEnv)
     setFieldsValue({
       imageEnvInputs: allEnvName.map((env, index) => index)
@@ -139,6 +140,9 @@ let ImageEnvComponent = React.createClass({
     const { form } = nextProps
     let imageName = form.getFieldValue('imageName')
     if(nextProps.visible != this.props.visible && nextProps.visible && this.state.currentImageName != imageName) {
+      form.setFieldsValue({
+        imageEnvInputs: [ 0 ]
+      })
       return this.loadData()
     }
     if (nextProps.visible != this.props.visible && nextProps.visible) {
