@@ -294,20 +294,27 @@ const Storage = React.createClass({
     )
   },
   renderVolumesOption(volume) {
-    const { form } = this.props
+    const { form, allFields } = this.props
     const { getFieldValue } = form
     const storageKeys = getFieldValue('storageKeys') || []
     const { name, fsType, size } = volume
     const value = `${name}/${fsType}`
     let disabled = false
-    storageKeys.every(key => {
-      const volumeValue = getFieldValue(`volume${key}`)
-      if (volumeValue === value) {
-        disabled = true
-        return false
+    for (let fieldsKey in allFields) {
+      if (allFields.hasOwnProperty(fieldsKey)) {
+        const storageKeysField = allFields[fieldsKey].storageKeys || {}
+        const storageKeys = storageKeysField.value || []
+        storageKeys.every(key => {
+          const volumeField = allFields[fieldsKey][`volume${key}`] || {}
+          const volumeValue = volumeField.value
+          if (volumeValue === value) {
+            disabled = true
+            return false
+          }
+          return true
+        })
       }
-      return true
-    })
+    }
     return (
       <Option
         key={value}
@@ -576,7 +583,7 @@ const Storage = React.createClass({
 })
 
 function mapStateToProps(state, props) {
-  const { entities, storage } = state
+  const { entities, storage, quickCreateApp } = state
   const { current } = entities
   const { cluster } = current
   const { avaliableVolume } = storage
@@ -592,6 +599,7 @@ function mapStateToProps(state, props) {
       volumes: (avaliableVolume.data ? avaliableVolume.data.volumes : []),
       isFetching: avaliableVolume.isFetching,
     },
+    allFields: quickCreateApp.fields,
   }
 }
 
