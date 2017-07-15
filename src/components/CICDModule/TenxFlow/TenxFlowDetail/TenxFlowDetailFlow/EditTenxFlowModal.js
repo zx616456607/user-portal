@@ -349,6 +349,7 @@ let EditTenxFlowModal = React.createClass({
                                   : 'textEditing',
               dockerFileTextarea: result.content
             })
+            _this.oldDockerfile = result.content
           },
           isAsync: true
         },
@@ -369,6 +370,7 @@ let EditTenxFlowModal = React.createClass({
               scriptsId: res.data.script.id,
               scriptsTextarea: res.data.script.content
             })
+            this.oldScripts = res.data.script.content
           }
         }
       })
@@ -761,7 +763,8 @@ let EditTenxFlowModal = React.createClass({
   },
   closeDockerFileModal() {
     this.setState({
-      dockerFileModalShow: false
+      dockerFileModalShow: false,
+      dockerFileTextarea: this.oldDockerfile,
     });
     if (this.state.dockerFileTextarea) {
       this.setState({
@@ -2015,7 +2018,7 @@ let EditTenxFlowModal = React.createClass({
               <Button size='large' type='primary' onClick={this.saveShellCode} loading={this.state.saveShellCodeBtnLoading}>
                 <span>保存并使用</span>
               </Button>
-              <Button size='large' onClick={() => this.setState({ shellModalShow: false })}>
+              <Button size='large' onClick={() => this.setState({ shellModalShow: false, scriptsTextarea: this.oldScripts })}>
                 <span>取消</span>
               </Button>
             </div>
