@@ -149,7 +149,7 @@ class CostRecord extends Component{
     let currentNamespace = ''
     let currentSpaceName= '我的空间'
     let currentTeamName = ''
-    if (current.space && current.space.namespace) {
+    if (current.space && current.space.namespace && current.space.namespace !== 'default') {
       currentNamespace = current.space.namespace
       currentSpaceName = current.space.spaceName || current.space.namespace
       currentTeamName = current.space.teamName
@@ -650,7 +650,10 @@ function getSpaceMonthCost(balance, cost, standard) {
             emphasis: {
               show: true,
               formatter: function (param) {
-                return param.percent.toFixed(0) + '%';
+               if (param.data && param.data.value < 0) {
+                 return '0%'
+               }
+               return param.percent.toFixed(0) + '%';
               },
               textStyle: {
                 fontSize: '14',
@@ -664,7 +667,7 @@ function getSpaceMonthCost(balance, cost, standard) {
             }
           },
           data:[
-            {value:balance, name:'余额'},
+            {value:balance < 0 ? 0 : balance, name:'余额'},
             {value:cost, name:'消费'},
           ]
         }

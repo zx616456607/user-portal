@@ -185,8 +185,10 @@ let EnvComponent = React.createClass({
       callback([new Error('请输入环境变量名')])
       return
     }
-    if (values.trim() != values) {
-      callback([new Error('环境变量名不合法')])
+    // Compare after remove all space
+    let str = values.replace(/\s+/g, "");
+    if (str != values) {
+      callback([new Error('环境变量名不允许含有空格')])
       return
     }
     callback()
