@@ -405,7 +405,7 @@ class hostList extends Component {
           getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
             failed: {
               func: err => {
-                notification.error('获取节点监控数据失败')
+                // 获取节点监控数据失败，不在前端展示错误信息
               }
             }
           })
@@ -573,7 +573,7 @@ class hostList extends Component {
                 getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
                   failed: {
                     func: err => {
-                      notification.error('获取节点监控数据失败')
+                      // 获取节点监控数据失败，不在前端展示错误信息
                     }
                   }
                 })
