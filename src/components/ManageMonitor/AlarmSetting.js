@@ -422,8 +422,8 @@ let MyComponent = React.createClass({
   createAlarm() {
     const { scope } = this.props;
     scope.setState({alarmModal: true},()=>{
-        document.getElementById('name').focus()
-      })
+      document.getElementById('name').focus()
+    })
   },
   render() {
     const { data } = this.state
