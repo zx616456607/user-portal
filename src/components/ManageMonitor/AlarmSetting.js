@@ -419,10 +419,16 @@ let MyComponent = React.createClass({
     }
 
   },
+  createAlarm() {
+    const { scope } = this.props;
+    scope.setState({alarmModal: true},()=>{
+        document.getElementById('name').focus()
+      })
+  },
   render() {
     const { data } = this.state
     if(!data || data.length <= 0) return (<div className="text-center"><img src={no_alarm} />
-        <div>您还没有告警设置，创建一个吧！<Button onClick={()=> this.props.scope.setState({alarmModal: true})} type="primary" size="large">创建</Button></div>
+        <div>您还没有告警设置，创建一个吧！<Button onClick={()=> this.createAlarm()} type="primary" size="large">创建</Button></div>
         </div>)
     const lists = data.map((list, index)=> {
       if (list.active) {
