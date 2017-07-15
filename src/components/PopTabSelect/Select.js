@@ -299,7 +299,7 @@ export default class PopTabSelect extends Component {
             <span className="ant-cascader-picker">
               <span className="ant-input-wrapper">
                 <input type="text" className="ant-input ant-cascader-input"
-                  readonly placeholder={placeholder}
+                  readonly
                   style={{marginTop: '0px'}}
                 />
               </span>

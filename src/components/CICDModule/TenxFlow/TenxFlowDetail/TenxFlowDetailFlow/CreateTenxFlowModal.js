@@ -982,6 +982,23 @@ let CreateTenxFlowModal = React.createClass({
             _createTenxFlowState()
           },
           isAsync: true,
+        },
+        failed: {
+          func: (res) => {
+            const notification = new NotificationHandler()
+            if (res && res.statusCode === 400) {
+              notification.error("使用脚本文件，内容不能为空")
+            } else {
+              let message = '保存脚本文件失败'
+              if (res.message) {
+                message = res.message
+              }
+              if(res.message && res.message.message) {
+                message = res.message.message
+              }
+              notification.error(message)
+            }
+          }
         }
       })
     });
