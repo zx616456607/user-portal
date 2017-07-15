@@ -26,6 +26,21 @@ class LogCollection extends Component {
     }
   }
 
+  validateRule(rule, value, callback) {
+    if (value === '') {
+      callback(new Error('请填写采集文件规则'))
+      return
+    }
+    // Check if it's valid regex expression
+    try {
+      new RegExp(value, "ig")
+    } catch (e) {
+      callback(new Error('请输入合法的正则表达式规则'))
+      return
+    }
+    callback()
+  }
+
   directoryTemplate(sourceType){
     const { formItemLayout, form } = this.props
     const { getFieldProps, getFieldValue } = form
@@ -40,8 +55,9 @@ class LogCollection extends Component {
       })
       inregexProps = getFieldProps('inregex',{
         rules: [
-          { required: true, message: '请填写采集文件规则' }
+          { validator: this.validateRule }
         ],
+        initialValue: '.*.log'
       })
       exregexProps = getFieldProps('exregex',{
         rules: [

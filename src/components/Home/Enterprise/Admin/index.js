@@ -88,6 +88,9 @@ function getOption(cost, rest) {
           emphasis: {
             show: true,
             formatter: function (param) {
+              if (param.data && param.data.value < 0) {
+                return '0%'
+              }
               return param.percent.toFixed(0) + '%';
             },
             textStyle: {
@@ -103,8 +106,8 @@ function getOption(cost, rest) {
           }
         },
         data:[
-          {value:cost, name:'余额'},
-          {value:rest, name:'消费'},
+          {value:rest < 0 ? 0: rest, name:'余额'},
+          {value:cost, name:'消费'},
         ]
       }
     ]
