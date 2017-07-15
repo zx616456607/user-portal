@@ -471,6 +471,10 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.clusterTitle',
     defaultMessage: '集群名',
   },
+  baseImage: {
+    id: 'ManageMonitor.operationalAudit.baseImage',
+    defaultMessage: '基础镜像',
+  },
 });
 
 function returnOperationList(scope) {
@@ -778,6 +782,10 @@ function resourceFormat(resourceType, scope) {
       break;
     case '54':
       return formatMessage(menusText.DBCache)
+
+    // For CI related
+    case '1000':
+      return formatMessage(menusText.baseImage)
       break;
     case '0':
       return formatMessage(menusText.Unknown)

@@ -1034,7 +1034,7 @@ exports.updateBaseImage = function* () {
 exports.deleteBaseImage = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.deleteBy(["ci", "images", this.params.id])
+  const result = yield api.deleteBy(["ci", "images", this.params.id], this.query)
   this.body = {
     data: result
   }

@@ -99,7 +99,9 @@ function get(res) {
   if (requestUrls && requestUrls.length > 0) {
     logger.error(`request urls error: ${res.requestUrls.join(', ')}`)
   }
-  logger.error('Error data: ' + JSON.stringify(data))
+  if (statusCode !== 200) {
+    logger.error('Error data: ' + JSON.stringify(data))
+  }
   switch (statusCode) {
     case 400:
       return new InvalidDataError(data)

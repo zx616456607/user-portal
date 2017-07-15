@@ -402,13 +402,22 @@ class hostList extends Component {
             podCount: podCount,
             summary: [],
           })
-          getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
-            failed: {
-              func: err => {
-                // 获取节点监控数据失败，不在前端展示错误信息
-              }
+          let slaveAvailable = false
+          nodeList.map((item) => {
+            if (item.isMaster === false) {
+              slaveAvailable = true
+              return
             }
-          })
+          });
+          if (slaveAvailable) {
+            getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
+              failed: {
+                func: err => {
+                  notification.error('获取节点监控数据失败')
+                }
+              }
+            })
+          }
         },
         isAsync: true
       }
@@ -570,13 +579,22 @@ class hostList extends Component {
                   nodeList: nodeList,
                   deleteNodeModal: false
                 })
-                getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
-                  failed: {
-                    func: err => {
-                      // 获取节点监控数据失败，不在前端展示错误信息
-                    }
+                let slaveAvailable = false
+                nodeList.map((item) => {
+                  if (item.isMaster === false) {
+                    slaveAvailable = true
+                    return
                   }
-                })
+                });
+                if (slaveAvailable) {
+                  getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
+                    failed: {
+                      func: err => {
+                        notification.error('获取节点监控数据失败')
+                      }
+                    }
+                  })
+                }
               },
               isAsync: true
             }
