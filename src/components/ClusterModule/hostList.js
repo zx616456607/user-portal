@@ -358,7 +358,7 @@ const MyComponent = React.createClass({
         <Table
           columns={column}
           dataSource={nodeList}
-          pagination={false}
+          pagination={{simple: true}}
           loading={isFetching}
         />
       </div>
@@ -657,6 +657,12 @@ class hostList extends Component {
               getClusterLabel={this.props.getClusterLabel}
             />
           </span>
+          {
+            this.state.nodeList.length
+            ? <div className='totle_num'>共 <span>{this.state.nodeList.length}</span> 条</div>
+            : null
+          }
+
           {
             this.state.summary.length > 0
             ? <div className='selectedroom'>
