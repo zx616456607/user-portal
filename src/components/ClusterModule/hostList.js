@@ -234,7 +234,8 @@ const MyComponent = React.createClass({
           dataIndex: 'objectMeta',
           render: (objectMeta) => <div>
             <span>{getContainerNum(objectMeta.name, podCount)}</span>
-          </div>
+          </div>,
+          sorter: (a, b) => getContainerNum(a.objectMeta.name, podCount) - getContainerNum(b.objectMeta.name, podCount)
         },{
           title: 'CPU使用',
           render: (text, record, index) => <div>
@@ -358,7 +359,7 @@ const MyComponent = React.createClass({
         <Table
           columns={column}
           dataSource={nodeList}
-          pagination={false}
+          pagination={{simple: true}}
           loading={isFetching}
         />
       </div>
@@ -657,6 +658,12 @@ class hostList extends Component {
               getClusterLabel={this.props.getClusterLabel}
             />
           </span>
+          {
+            this.state.nodeList.length
+            ? <div className='totle_num'>共 <span>{this.state.nodeList.length}</span> 条</div>
+            : null
+          }
+
           {
             this.state.summary.length > 0
             ? <div className='selectedroom'>

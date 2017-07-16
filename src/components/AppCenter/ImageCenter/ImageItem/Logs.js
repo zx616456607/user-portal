@@ -126,15 +126,17 @@ class Logs extends Component {
         title: '成员名',
         dataIndex: 'username',
         key: 'username',
-
+        width: '20%',
       }, {
         title: '镜像名称',
         dataIndex: 'repoName',
         key: 'repoName',
+        width: '30%',
       }, {
         title: '标签',
         dataIndex: 'repoTag',
         key: 'repoTag',
+        width: '10%',
         render(value) {
           if(value === 'N/A') {
             return '-'
@@ -145,11 +147,13 @@ class Logs extends Component {
         title: '操作',
         dataIndex: 'operation',
         filters: filterKey,
-        key: 'operation'
+        key: 'operation',
+        width: '10%',
       }, {
         title: '时间戳',
         dataIndex: 'opTime',
         key: 'opTime',
+        width: '30%',
         render(value, row, index) {
           if(row.opTime) {
             return formatDate(row.opTime)
