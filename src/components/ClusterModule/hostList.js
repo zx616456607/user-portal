@@ -234,7 +234,8 @@ const MyComponent = React.createClass({
           dataIndex: 'objectMeta',
           render: (objectMeta) => <div>
             <span>{getContainerNum(objectMeta.name, podCount)}</span>
-          </div>
+          </div>,
+          sorter: (a, b) => getContainerNum(a.objectMeta.name, podCount) - getContainerNum(b.objectMeta.name, podCount)
         },{
           title: 'CPU使用',
           render: (text, record, index) => <div>
