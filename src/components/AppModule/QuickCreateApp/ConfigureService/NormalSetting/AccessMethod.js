@@ -59,10 +59,10 @@ class AccessMethod extends Component {
 
   accessMethodTips = type => {
     if (type == 'PublicNetwork') {
-      return <span>服务可通过公网访问；“确保集群内节点有外网带宽，否则创建服务失败” ；选择一个公网代理出口</span>
+      return <span>服务可通过公网访问，选择一个网络出口；</span>
     }
     if (type == 'Internaletwork') {
-      return <span>服务可通过内网访问；</span>
+      return <span>服务可通过内网访问，选择一个网络出口；</span>
     }
     return <span>服务仅提供给集群内其他服务访问；</span>
   }
