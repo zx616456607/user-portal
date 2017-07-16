@@ -1895,7 +1895,7 @@ let EditTenxFlowModal = React.createClass({
                       </Select>
                     </FormItem>
                     <div className="customizeBaseImage">
-                      为方便管理，构建后的镜像可发布到镜像仓库（私有仓库）或第三方仓库中
+                      为方便管理，构建后的镜像可发布到镜像仓库（所选仓库组）或第三方镜像仓库中
                     </div>
                     <div style={{ clear: 'both' }} />
                   </div>
