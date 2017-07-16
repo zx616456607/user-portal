@@ -46,6 +46,10 @@ class AppUseful extends Component {
     })
     this.setLivenessProbe(service)
   }
+  componentDidUpdate() {
+    let portInput = document.getElementById('portInput');
+    portInput && portInput.focus()
+  }
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow, service } = nextProps
     if (!service.spec) return
@@ -309,7 +313,7 @@ class AppUseful extends Component {
                 </div>
                 <div className="input">
                   <div className="commonInput">
-                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e) => this.getInputInfo('port', e)} />
+                    <InputNumber id="portInput" type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e) => this.getInputInfo('port', e)} />
                   </div>
                   <div className="commonInput">
                     <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.initialDelaySeconds} onChange={(e) => this.getInputInfo('initialDelaySeconds', e)} />&nbsp;&nbsp;s
@@ -358,7 +362,7 @@ class AppUseful extends Component {
                 </div>
                 <div className="input">
                   <div className="commonInput">
-                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e) => this.getInputInfo('port', e)} />
+                    <InputNumber id="portInput" type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e) => this.getInputInfo('port', e)} />
                   </div>
                   <div className="commonInput">
                     <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.initialDelaySeconds} onChange={(e) => this.getInputInfo('initialDelaySeconds', e)} />&nbsp;&nbsp;s
