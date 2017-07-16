@@ -338,14 +338,14 @@ class AlarmStrategy extends Component {
         title: '名称',
         dataIndex: 'strategyName',
         key: 'strategyName',
-        width:'15%',
+        width:'13%',
         render: (text,row) => <Link to={`/manange_monitor/alarm_setting/${row.strategyID}`}>{text}</Link>,
       },
       {
         title: '状态',
         dataIndex: 'statusCode',
         key: 'statusCode',
-        width:'15%',
+        width:'12%',
         render: text => {
           if (text == 1) {
             return <div style={{ color: '#33b867' }}><i className="fa fa-circle" /> &nbsp;启用</div>
@@ -383,7 +383,7 @@ class AlarmStrategy extends Component {
         title: '操作',
         dataIndex: 'name',
         key: 'action',
-        width:'15%',
+        width:'20%',
         render: (text, record) => {
           return <Dropdown.Button type="ghost" onClick={()=> this.setState({lookModel: true, record})} overlay={this.dropdowns(record)}>忽略</Dropdown.Button>
         }
