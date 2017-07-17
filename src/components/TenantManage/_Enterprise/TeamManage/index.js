@@ -8,7 +8,7 @@
  * @author XuLongcheng
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Menu, Dropdown, Button, Icon, Card, Table, Modal, Input, Tooltip, } from 'antd'
+import { Row, Col, Alert, Menu, Dropdown, Button, Icon, Card, Table, Modal, Input, Tooltip, Transfer } from 'antd'
 import './style/TeamManage.less'
 import { Link } from 'react-router'
 import SearchInput from '../../../SearchInput'
@@ -43,6 +43,7 @@ let TeamTable = React.createClass({
       filter: "",
       nowTeamID: '',
       tableSelected: [],
+      rightModal: false,
     }
   },
   handleChange(pagination, filters, sorter) {
@@ -585,6 +586,27 @@ class TeamManage extends Component {
   deleteTeamConfirm() {
   
   }
+  openRightModal() {
+    this.setState({
+      rightModal: true
+    })
+  }
+  cancelRightModal() {
+    this.setState({
+      rightModal: false
+    })
+  }
+  confirmRightModal() {
+    this.setState({
+      rightModal: false
+    })
+  }
+  filterOption(inputValue, option) {
+    return option.description.indexOf(inputValue) > -1;
+  }
+  handleChange(targetKeys) {
+    this.setState({ targetKeys });
+  }
   render() {
     const scope = this
     const { visible, deleteTeamModal, allTeamList } = this.state
@@ -609,8 +631,9 @@ class TeamManage extends Component {
           <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
             <i className='fa fa-plus' /> 创建团队
           </Button>
+          <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建项目</Button>
           <Button type="host" size="large" className="refreshBtn" onClick={this.refreshTeamTable.bind(this)}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
-          <Button type="host" size="large" className="deleteBtn" onClick={()=>this.deleteTeamModal()}><Icon type="delete" />删除</Button>
+          {/*<Button type="host" size="large" className="deleteBtn" onClick={()=>this.deleteTeamModal()}><Icon type="delete" />删除</Button>*/}
           <CreateTeamModal
             scope={scope}
             visible={visible}
@@ -628,6 +651,27 @@ class TeamManage extends Component {
                 dataSource={allTeamList}
               />
             }
+          </Modal>
+          <Modal title="选择可以创建团队的成员" width={760} visible={this.state.rightModal}
+                 onCancel = {()=> this.cancelRightModal()}
+                 onOk = {()=> this.confirmRightModal()}
+          >
+            <div className="alertRow">可创建团队的成员能创建团队并有管理该团队的权限</div>
+            <Transfer
+              dataSource={this.state.mockData}
+              listStyle={{
+                width: 300,
+                height: 270,
+              }}
+              operations={['添加', '移除']}
+              titles={['可选成员名','可创建项目成员']}
+              searchPlaceholder="按成员名搜索"
+              showSearch
+              filterOption={this.filterOption}
+              targetKeys={this.state.targetKeys}
+              onChange={this.handleChange}
+              render={item => item.title}
+            />
           </Modal>
           <Button className="viewBtn" style={{ display: "none" }}>
             <Icon type="picture" />

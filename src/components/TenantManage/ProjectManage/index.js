@@ -39,14 +39,35 @@ class ProjectManage extends Component{
       deleteSinglePro: [],
       payArr: [],
       paySinglePro: [],
-      projectName: '',
+      projectName: undefined,
       description: '',
       authorizedCluster: [],
-      RoleKeys: []
+      RoleKeys: [],
+      rightModal: false,
+      mockData: [],
+      targetKeys: [],
     }
   }
   componentWillMount() {
     this.refresh('tableLoading')
+    this.getMock();
+  }
+  getMock() {
+    const targetKeys = [];
+    const mockData = [];
+    for (let i = 0; i < 20; i++) {
+      const data = {
+        key: i,
+        title: `内容${i + 1}`,
+        description: `内容${i + 1}的描述`,
+        chosen: Math.random() * 2 > 1,
+      };
+      if (data.chosen) {
+        targetKeys.push(data.key);
+      }
+      mockData.push(data);
+    }
+    this.setState({ mockData, targetKeys });
   }
   componentWillReceiveProps(nextProps) {
     const step = nextProps.location.query.step;
@@ -92,12 +113,22 @@ class ProjectManage extends Component{
     })
   }
   goStep(current) {
+    const { projectName, authorizedCluster, RoleKeys} = this.state;
+    let notify = new Notification()
     let s = '';
     if (current === 0) {
       s = 'first';
     }else if(current === 1) {
+      if (!projectName) {
+        return notify.info('请输入项目名称')
+      } else if (authorizedCluster.length === 0) {
+        return notify.info('请选择授权集群')
+      }
       s = 'second';
     }else{
+      if (RoleKeys.length === 0) {
+        return notify.info('请选择项目角色')
+      }
       s = 'third'
     }
     browserHistory.replace(`/tenant_manage/project_manage?step=${s}`);
@@ -265,6 +296,27 @@ class ProjectManage extends Component{
       }
     })
   }
+  openRightModal() {
+    this.setState({
+      rightModal: true
+    })
+  }
+  cancelRightModal() {
+    this.setState({
+      rightModal: false
+    })
+  }
+  confirmRightModal() {
+    this.setState({
+      rightModal: false
+    })
+  }
+  filterOption(inputValue, option) {
+    return option.description.indexOf(inputValue) > -1;
+  }
+  handleChange(targetKeys) {
+    this.setState({ targetKeys });
+  }
   render() {
     const step = this.props.location.query.step || '';
     const { payNumber, selected, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro,projectName } = this.state;
@@ -309,11 +361,13 @@ class ProjectManage extends Component{
             {data === 'advisor' ? '访客' : ''}
           </div>
         </div>
-    }, {
-      title: '备注',
-      dataIndex: 'description',
-      key: 'description',
-    }, {
+    },
+    //   {
+    //   title: '备注',
+    //   dataIndex: 'description',
+    //   key: 'description',
+    // },
+      {
       title: '授权集群',
       dataIndex: 'clusterCount',
       key: 'clusterCount',
@@ -324,6 +378,10 @@ class ProjectManage extends Component{
       dataIndex: 'userCount',
       key: 'userCount',
       sorter: (a, b) => a.userCount - b.userCount,
+    }, {
+      title: '项目管理员',
+      render: (text,record) =>
+        <span>1</span>
     }, {
       title: '创建时间',
       dataIndex: 'creationTime',
@@ -406,13 +464,35 @@ class ProjectManage extends Component{
             </dd>
           </dl>
         </Modal>
+        <Modal title="选择可以创建项目的成员" width={760} visible={this.state.rightModal}
+          onCancel = {()=> this.cancelRightModal()}
+          onOk = {()=> this.confirmRightModal()}
+        >
+          <div className="alertRow">可创建项目的成员能创建项目并有管理该项目的权限</div>
+          <Transfer
+            dataSource={this.state.mockData}
+            listStyle={{
+              width: 300,
+              height: 270,
+            }}
+            operations={['添加', '移除']}
+            titles={['可选成员名','可创建项目成员']}
+            searchPlaceholder="按成员名搜索"
+            showSearch
+            filterOption={this.filterOption}
+            targetKeys={this.state.targetKeys}
+            onChange={this.handleChange}
+            render={item => item.title}
+          />
+        </Modal>
         <Row className={classNames({'hidden': step !== ''})}>
           <Button type='primary' size='large'  className='addBtn' onClick={()=> browserHistory.replace('/tenant_manage/project_manage?step=first')}>
             <i className='fa fa-plus' /> 创建项目
           </Button>
+          <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建项目</Button>
           <Button type="ghost" icon="pay-circle-o" size="large" className="manageBtn" onClick={()=> this.pay()}>充值</Button>
           <Button type="ghost" icon={ this.state.loading ? 'loading' : "reload"}  size="large" className="manageBtn" onClick={()=> this.refresh('loading')}>刷新</Button>
-          <Button type="ghost" icon="delete" size="large" className="manageBtn" onClick={()=> this.delProject()}>删除</Button>
+          {/*<Button type="ghost" icon="delete" size="large" className="manageBtn" onClick={()=> this.delProject()}>删除</Button>*/}
           <CommonSearchInput placeholder="请输入项目名称进行搜索" size="large" onSearch={this.searchProject.bind(this)}/>
           <div className="total">共{projectList.length}个</div>
         </Row>

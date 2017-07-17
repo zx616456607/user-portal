@@ -268,3 +268,29 @@ export function AllowUpdateRole(body, callback) {
 		return dispatch(fetchAllowUpdateRole(body, callback))
 	}
 }
+
+export const ROLE_GETWITHMEMEBERS_REQUEST = 'ROLE_GETWITHMEMEBERS_REQUEST'
+export const ROLE_GETWITHMEMEBERS_SUCCESS = 'ROLE_GETWITHMEMEBERS_SUCCESS'
+export const ROLE_GETWITHMEMEBERS_FAILURE = 'ROLE_GETWITHMEMEBERS_FAILURE'
+
+// Fetches get role with members from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchGetWithMembers(body,callback) {
+  let endpoint = `${API_URL_PREFIX}/role/${body.id}/withMember`
+  return {
+    [FETCH_API]: {
+      types: [ROLE_GETWITHMEMEBERS_REQUEST, ROLE_GETWITHMEMEBERS_SUCCESS, ROLE_GETWITHMEMEBERS_FAILURE],
+      endpoint,
+      schema: {},
+    },
+    callback
+  }
+}
+
+// Fetches get role with members from API
+// Relies on Redux Thunk middleware.
+export function GetWithMembers(body,callback){
+  return(dispatch) => {
+    return dispatch(fetchGetWithMembers(body,callback))
+  }
+}
