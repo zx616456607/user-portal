@@ -28,7 +28,7 @@ let ImageEnvComponent = React.createClass({
       uuid: 0
     }
   },
-  loadData() {
+  loadData(imageChange) {
     const { form, loadRepositoriesTagConfigInfo, registryServer } = this.props
     let imageName = form.getFieldValue('imageName')
     this.setState({
@@ -81,7 +81,7 @@ let ImageEnvComponent = React.createClass({
               // })
             })
           }
-          self.setCustomEnvAndFocus(allEnv)
+          self.setCustomEnvAndFocus(allEnv, imageChange)
         }
       },
       failed: {
@@ -100,7 +100,7 @@ let ImageEnvComponent = React.createClass({
   componentWillMount() {
    this.loadData()
   },
-  setCustomEnvAndFocus(env) {
+  setCustomEnvAndFocus(env, imageChange) {
     const {form, config } = this.props;
     const { setFieldsValue, getFieldValue } = form
     let allEnv = {}
@@ -108,11 +108,11 @@ let ImageEnvComponent = React.createClass({
       allEnv = Object.assign(allEnv, env)
     }
     // fix issue http://jira.tenxcloud.com/browse/CRYSTAL-4437
-    // if (!!config) {
-    //   config.map((item) => {
-    //     allEnv[item.name] = item.value
-    //   })
-    // }
+    if (!!config && !imageChange) {
+      config.map((item) => {
+        allEnv[item.name] = item.value
+      })
+    }
     const allEnvName = Object.getOwnPropertyNames(allEnv)
     setFieldsValue({
       imageEnvInputs: allEnvName.map((env, index) => index)
@@ -143,7 +143,7 @@ let ImageEnvComponent = React.createClass({
       form.setFieldsValue({
         imageEnvInputs: [ 0 ]
       })
-      return this.loadData()
+      return this.loadData(true)
     }
     if (nextProps.visible != this.props.visible && nextProps.visible) {
       let keys = form.getFieldValue('imageEnvInputs')
