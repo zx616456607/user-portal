@@ -203,7 +203,7 @@ class CreateModel extends Component {
       }
       if (this.state.moreService) {
         const { appName, action, fromDetail } = location.query
-        url+=`?appName=${appName}&action=${action}&fromDetail=${fromDetail}`
+        url+=`?&appName=${appName}&action=${action}&fromDetail=${fromDetail}`
       }
       browserHistory.push(url)
     })
