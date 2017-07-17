@@ -157,11 +157,10 @@ class CreateStepFirst extends Component{
                      hasFeedback
                      help={isFieldValidating('projectName') ? '校验中...' : (getFieldError('projectName') || []).join(', ')}
           >
-            <Input placeholder="请输入名称" {...getFieldProps(`projectName`, {
+            <Input  autoComplete="off" placeholder="请输入名称" {...getFieldProps(`projectName`, {
               rules: [
                 { validator: this.projectName.bind(this)}
-              ],
-              initialValue:  ''
+              ]
             }) }
             />
           </Form.Item>
