@@ -1054,6 +1054,11 @@ let EditTenxFlowModal = React.createClass({
             shellList.push(values['shellCode' + item]);
           }
         });
+      } else {
+        if (!_this.state.scriptsId || _this.state.scriptsId === '') {
+          new NotificationHandler().error('使用脚本文件，内容不能为空，请先编辑脚本文件')
+          return;
+        }
       }
       let cloneCofig = cloneDeep(config)
       if(!cloneCofig.spec.ci) {
