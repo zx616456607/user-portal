@@ -670,7 +670,7 @@ class AlarmSetting extends Component {
     const notify = new NotificationHandler()
     const { clusterID, deleteSetting, getSettingList } = this.props
     notify.spin('删除中')
-    deleteSetting(clusterID, strategyID, {
+    strategyID.length > 0 && deleteSetting(clusterID, strategyID, {
       success: {
         func: () => {
           this.setState({

@@ -382,9 +382,6 @@ export const ALERT_DELETE_SETTING_FAILURE = 'ALERT_DELETE_SETTING_FAILURE'
 
 
 function fetchDeleteSetting(cluster, id, callback) {
-  if (!id || id == "") {
-    return
-  }
   return {
     [FETCH_API]: {
       types: [ALERT_DELETE_SETTING_REQUEST, ALERT_DELETE_SETTING_SUCCESS, ALERT_DELETE_SETTING_FAILURE],
