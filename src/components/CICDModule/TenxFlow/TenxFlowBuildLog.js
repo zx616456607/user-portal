@@ -276,7 +276,11 @@ let MyComponent = React.createClass({
           {items}
         </Collapse>
         <Modal title="确认停止" visible={this.state.showModal}
-          onOk={() => scope.stopStageBuild.call(scope, this.state.currentItem)} onCancel={() => this.setState({ showModal: false })} >
+          onOk={() => {
+            scope.stopStageBuild.call(scope, this.state.currentItem)
+            this.setState({ showModal: false })
+          }}
+          onCancel={() => this.setState({ showModal: false })} >
           是否确认停止此次构建
         </Modal>
       </div>
