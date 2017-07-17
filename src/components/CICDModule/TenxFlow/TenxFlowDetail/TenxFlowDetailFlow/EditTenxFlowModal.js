@@ -292,6 +292,7 @@ let EditTenxFlowModal = React.createClass({
       saveShellCodeBtnLoading: false,
       dockerfileEditMode: '',
       isDockerfile: false,
+      validateStatus: true,
     }
   },
   componentWillMount() {
@@ -590,6 +591,10 @@ let EditTenxFlowModal = React.createClass({
     });
   },
   closeEnvSettingModal() {
+    if (!this.state.validateStatus) {
+      new NotificationHandler().error("请检查环境变量名称")
+      return
+    }
     //this function for user close the modal of setting the service env
     this.setState({
       envModalShow: null
@@ -860,6 +865,10 @@ let EditTenxFlowModal = React.createClass({
     });
   },
   closeImageEnvModal() {
+    if (!this.state.validateStatus) {
+      new NotificationHandler().error("请检查环境变量名称")
+      return
+    }
     this.setState({
       ImageEnvModal: false
     });
@@ -1503,7 +1512,9 @@ let EditTenxFlowModal = React.createClass({
               onOk={this.closeEnvSettingModal}
               onCancel={this.closeEnvSettingModal}
               >
-              <EnvComponent scope={scopeThis} config={envDefault} index={k} form={form} visible={this.state.envModalShow == k ? true : false}/>
+              <EnvComponent
+                validateCallback ={result => this.setState({ validateStatus: result })}
+                scope={scopeThis} config={envDefault} index={k} form={form} visible={this.state.envModalShow == k ? true : false}/>
             </Modal>
           </div>
         </QueueAnim>
@@ -2056,7 +2067,9 @@ let EditTenxFlowModal = React.createClass({
             onOk={this.closeImageEnvModal}
             onCancel={this.closeImageEnvModal}
             >
-            <ImageEnvComponent scope={scopeThis} form={form} config={config.spec.container.env} visible={this.state.ImageEnvModal}/>
+            <ImageEnvComponent
+              validateCallback ={result => this.setState({ validateStatus: result })}
+              scope={scopeThis} form={form} config={config.spec.container.env} visible={this.state.ImageEnvModal}/>
           </Modal>
         </Form>
         <div className='modalBtnBox'>

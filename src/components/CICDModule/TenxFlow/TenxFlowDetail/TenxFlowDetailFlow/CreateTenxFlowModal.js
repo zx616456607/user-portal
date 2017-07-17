@@ -84,26 +84,18 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.CreateTenxFlowModal.flowCode',
     defaultMessage: '子任务代码',
   },
-
-
   buildImageCode: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.buildImageCode',
     defaultMessage: '任务代码',
   },
-
-
   flowName: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.flowName',
     defaultMessage: '子任务名称',
   },
-
-
   buildImageName: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.buildImageName',
     defaultMessage: '任务名称',
   },
-
-
   selectCode: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.selectCode',
     defaultMessage: '选择代码库',
@@ -276,6 +268,7 @@ let CreateTenxFlowModal = React.createClass({
       scriptsTextarea: '',
       saveShellCodeBtnLoading: false,
       dockerfileEditMode: 'textEditing',
+      validateStatus: true,
     }
   },
   getUniformRepo() {
@@ -415,6 +408,10 @@ let CreateTenxFlowModal = React.createClass({
     });
   },
   closeEnvSettingModal() {
+    if (!this.state.validateStatus) {
+      new NotificationHandler().error("请检查环境变量名称")
+      return
+    }
     //this function for user close the modal of setting the service env
     this.setState({
       envModalShow: null
@@ -648,6 +645,10 @@ let CreateTenxFlowModal = React.createClass({
     });
   },
   closeImageEnvModal() {
+    if (!this.state.validateStatus) {
+      new NotificationHandler().error("请检查环境变量名称")
+      return
+    }
     this.setState({
       ImageEnvModal: false
     });
@@ -1271,7 +1272,9 @@ let CreateTenxFlowModal = React.createClass({
               onOk={this.closeEnvSettingModal}
               onCancel={this.closeEnvSettingModal}
               >
-              <EnvComponent scope={scopeThis} index={k} form={form} visible={this.state.envModalShow == k ? true : false}/>
+              <EnvComponent
+                validateCallback ={result => this.setState({ validateStatus: result })}
+                scope={scopeThis} index={k} form={form} visible={this.state.envModalShow == k ? true : false}/>
             </Modal>
           </div>
         </QueueAnim>
@@ -1818,7 +1821,9 @@ let CreateTenxFlowModal = React.createClass({
             onOk={this.closeImageEnvModal}
             onCancel={this.closeImageEnvModal}
             >
-              <CreateImageEnvComponent scope={scopeThis} form={form} imageName={this.props.form.getFieldValue('imageName')}  visible={this.state.ImageEnvModal}/>
+              <CreateImageEnvComponent
+                validateCallback ={result => this.setState({ validateStatus: result })}
+                scope={scopeThis} form={form} imageName={this.props.form.getFieldValue('imageName')}  visible={this.state.ImageEnvModal}/>
           </Modal>
         </Form>
         <div className='modalBtnBox'>
