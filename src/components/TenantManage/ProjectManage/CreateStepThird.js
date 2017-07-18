@@ -72,7 +72,7 @@ class CreateStepThird extends Component{
       if (arr[i].teamId) {
         Object.assign(arr[i],{id:arr[i].teamId},{teamName:arr[i].teamName},{userCount:arr[i].userCount},{children:arr[i].users})
         this.formatArr(arr[i].users)
-      } else {
+      } else if(arr[i].userID) {
         Object.assign(arr[i],{id:arr[i].userID},{userName:arr[i].userName},{creationTime:arr[i].creationTime})
       }
     }

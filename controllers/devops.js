@@ -1015,7 +1015,7 @@ exports.getAvailableImages = function*() {
 exports.addBaseImage = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.createBy(["ci", "images"], null, this.request.body)
+  const result = yield api.createBy(["ci", "images"], this.query, this.request.body)
   this.body = {
     data: result
   }
@@ -1025,7 +1025,7 @@ exports.updateBaseImage = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getDevOpsApi(loginUser)
   const body = this.request.body
-  const result = yield api.updateBy(["ci", "images", this.params.id], null, body)
+  const result = yield api.updateBy(["ci", "images", this.params.id], this.query, body)
   this.body = {
     data: result
   }

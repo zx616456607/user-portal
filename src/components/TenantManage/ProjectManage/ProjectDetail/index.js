@@ -15,62 +15,15 @@ import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, To
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link} from 'react-router'
 import { connect } from 'react-redux'
-import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjectsCluster, UpdateProjectsRelatedRoles, DeleteProjectsRelatedRoles } from '../../../../actions/project'
+import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjectsCluster, UpdateProjectsRelatedRoles, DeleteProjectsRelatedRoles, GetProjectsMembers } from '../../../../actions/project'
 import { chargeProject } from '../../../../actions/charge'
 import { loadNotifyRule, setNotifyRule } from '../../../../actions/consumption'
-import { ListRole, CreateRole, GetRole, ExistenceRole } from '../../../../actions/role'
+import { ListRole, CreateRole, GetWithMembers, ExistenceRole } from '../../../../actions/role'
 import { PermissionAndCount } from '../../../../actions/permission'
 import { parseAmount } from '../../../../common/tools'
 import Notification from '../../../../components/Notification'
-const Option = Select.Option;
-let children = [];
-for (let i = 10; i < 36; i++) {
-  children.push(<Option key={i.toString(36) + i}>{i.toString(36) + i}</Option>);
-}
+import TreeComponent from '../../../TreeComponent'
 
-
-
-
-
-
-const columns = [{
-  title: '成员名称',
-  dataIndex: 'name',
-  render: text => <a href="#">{text}</a>,
-}, {
-  title: '对象类型',
-  dataIndex: 'age',
-}];
-const data = [{
-  key: 1,
-  name: 'John Brown sr.',
-  age: '团队',
-  children: [{
-    key: 11,
-    name: 'John Brown',
-    age: '成员',
-  }, {
-    key: 12,
-    name: 'John Brown jr.',
-    age: '成员'
-  }, {
-    key: 13,
-    name: 'Jim Green sr.',
-    age: '成员'
-  }],
-}, {
-  key: 2,
-  name: 'Joe Black',
-  age: '成员',
-}];
-// const rowSelection = {
-//   onChange: (selectedRowKeys, selectedRows) => {
-//   },
-//   onSelect: (record, selected, selectedRows) => {
-//   },
-//   onSelectAll: (selected, selectedRows, changeRows) => {
-//   },
-// };
 let checkedKeysDetail = []
 class ProjectDetail extends Component{
   constructor(props){
@@ -100,13 +53,18 @@ class ProjectDetail extends Component{
       allPermission: [],
       createRoleName: '',
       createRoleDesc: '',
-      createRolePer: []
+      createRolePer: [],
+      currentMembers: [],
+      memberCount: 0,
+      connectModal: false,
+      memberArr: [],
+      existentMember: []
     }
   }
   componentWillMount() {
-    this.getMock();
     this.getProjectDetail();
     this.getClustersWithStatus();
+    this.getProjectMember();
     //this.loadRoleList()
   }
   componentDidMount() {
@@ -200,23 +158,6 @@ class ProjectDetail extends Component{
         isAsync: true
       }
     })
-  }
-  getMock() {
-    const targetKeys = [];
-    const mockData = [];
-    for (let i = 0; i < 20; i++) {
-      const data = {
-        key: i,
-        title: `内容${i + 1}`,
-        description: `内容${i + 1}的描述`,
-        chosen: Math.random() * 2 > 1,
-      };
-      if (data.chosen) {
-        targetKeys.push(data.key);
-      }
-      mockData.push(data);
-    }
-    this.setState({ mockData, targetKeys });
   }
   filterOption(inputValue, option) {
     return option.description.indexOf(inputValue) > -1;
@@ -426,7 +367,7 @@ class ProjectDetail extends Component{
     });
   };
   getCurrentRole(id) {
-    const { GetRole } = this.props;
+    const { GetWithMembers } = this.props;
     const { currentRoleInfo } = this.state;
     if (currentRoleInfo.role && (id === currentRoleInfo.role.id)) {
       return
@@ -436,9 +377,10 @@ class ProjectDetail extends Component{
       checkedKeys:[],
       expandedKeys: [],
       currentRoleInfo: {},
-      currentRolePermission: []
+      currentRolePermission: [],
+      currentMembers: []
     },()=>{
-      GetRole({
+      GetWithMembers({
         id
       },{
         success: {
@@ -446,9 +388,31 @@ class ProjectDetail extends Component{
             if (res.data.statusCode === 200) {
               let result = res.data.data;
               this.generateDatas(result.permission.permission)
+              let member = []
+              let exist = []
+              if (result.member.length > 0) {
+                if (result.member[0].teams && result.member[0].users) {
+                  member = result.member[0].teams.concat(result.member[0].users)
+                  exist = result.member[0].teams.concat(result.member[0].users)
+                }else if (result.member[0].teams) {
+                  member = result.member[0].teams.slice(0)
+                  exist = result.member[0].teams.slice(0)
+                }else if (result.member[0].users) {
+                  member = result.member[0].users.slice(0)
+                  exist = result.member[0].users.slice(0)
+                }else {
+                  member = []
+                  exist = []
+                }
+                this.formatArr(member)
+                this.formatMember(exist)
+              }
               this.setState({
                 currentRoleInfo: result,
                 currentRolePermission: result.permission.permission,
+                currentMembers: member,
+                existentMember: exist,
+                memberCount:result.member.length > 0 ? result.member[0].count : 0,
                 expandedKeys: checkedKeysDetail,
                 checkedKeys: checkedKeysDetail
               })
@@ -459,7 +423,43 @@ class ProjectDetail extends Component{
       })
     })
   }
-  
+  getProjectMember() {
+    const { GetProjectsMembers } = this.props;
+    GetProjectsMembers({},{
+      success: {
+        func: (res) => {
+          if (res.statusCode === 200) {
+            let newArr = res.data.teamList && res.data.teamList.concat(res.data.userList)
+            this.formatMember(newArr)
+            this.setState({
+              memberArr: newArr
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
+  }
+  formatMember(arr) {
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].teamId) {
+        Object.assign(arr[i],{id:arr[i].teamId},{teamName:arr[i].teamName},{userCount:arr[i].userCount},{children:arr[i].users})
+        this.formatMember(arr[i].users)
+      } else {
+        Object.assign(arr[i],{id:arr[i].userID},{userName:arr[i].userName},{creationTime:arr[i].creationTime})
+      }
+    }
+  }
+  formatArr(arr) {
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].teamId) {
+        Object.assign(arr[i],{key:arr[i].teamId},{name:arr[i].teamName},{type:'团队'},{children:arr[i].users})
+        this.formatArr(arr[i].users)
+      } else {
+        Object.assign(arr[i],{key:arr[i].userID},{name:arr[i].userName},{type:'成员'})
+      }
+    }
+  }
   renderItem(item) {
     return(
       <Row key={item&&item.key}>
@@ -505,10 +505,39 @@ class ProjectDetail extends Component{
       }
     })
   }
+  closeMemberModal() {
+    this.setState({
+      connectModal: false
+    })
+  }
+  submitMemberModal() {
+    this.setState({
+      connectModal: false
+    })
+  }
   render() {
-    const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, allPermission, currentRoleInfo } = this.state;
+    const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, allPermission, currentRoleInfo, currentMembers, memberCount, memberArr, existentMember } = this.state;
     const TreeNode = Tree.TreeNode;
     const { getFieldProps } = this.props.form;
+    const columns = [{
+      title: '成员名称',
+      dataIndex: 'name',
+      width: '60%'
+    }, {
+      title: '对象类型',
+      dataIndex: 'type',
+      width: '40%'
+    }];
+    const loopFunc = data => data.length >0 && data.map((item) => {
+      if (item.users) {
+        return (
+          <TreeNode key={item.teamId} title={item.teamName}>
+            {loopFunc(item.users)}
+          </TreeNode>
+        );
+      }
+      return <TreeNode key={item.userID} title={item.userName}/>;
+    });
     const projectRole = (role) => {
       if (role === 'admin') {
         return '系统管理员'
@@ -873,6 +902,19 @@ class ProjectDetail extends Component{
           >
             <CreateCharacter allPermission={allPermission} scope={this}/>
           </Modal>
+          <Modal title="关联对象" width={765} visible={this.state.connectModal}
+                 onCancel={()=> this.closeMemberModal()}
+                 onOk={()=> this.submitMemberModal()}
+          >
+            {
+              memberArr.length > 0 &&
+              <TreeComponent
+                outPermissionInfo={memberArr}
+                permissonInfo={existentMember}
+                loopFunc={loopFunc}
+              />
+            }
+          </Modal>
           <div className="projectMember">
             <Card title="项目中角色关联的对象" className="clearfix">
               <div className="connectLeft pull-left">
@@ -905,11 +947,18 @@ class ProjectDetail extends Component{
                   </div>
                   <div className="memberBox inlineBlock">
                     <div className="memberTitle">
-                      <span>{currentRoleInfo.role && currentRoleInfo.role.name}已关联 <span className="themeColor">10</span> 个对象</span>
-                      <Button type="primary" size="large">继续关联对象</Button>
+                      <span>{currentRoleInfo.role && currentRoleInfo.role.name}已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
+                      {
+                        currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.setState({connectModal:true})}>继续关联对象</Button>
+                      }
                     </div>
                     <div className="memberTableBox">
-                      <Table columns={columns} dataSource={data} pagination={false} expandedRowKeys={[1]}/>
+                      {
+                        currentMembers.length > 0 ?
+                          <Table columns={columns} dataSource={currentMembers} pagination={false}/>
+                          :
+                          <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.setState({connectModal:true})}>关联对象</Button>
+                      }
                     </div>
                   </div>
                 </div>
@@ -940,11 +989,12 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   chargeProject,
   ListRole,
   CreateRole,
-  GetRole,
+  GetWithMembers,
   ExistenceRole,
   PermissionAndCount,
   UpdateProjectsRelatedRoles,
-  DeleteProjectsRelatedRoles
+  DeleteProjectsRelatedRoles,
+  GetProjectsMembers
 })(ProjectDetail)
 
 class CreateCharacter extends Component{

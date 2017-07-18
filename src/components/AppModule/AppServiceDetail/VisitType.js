@@ -201,6 +201,9 @@ class VisitType extends Component{
       let groupID = 'none'
       if(val !== 3) {
         groupID = values.groupID;
+        if (groupID === undefined) {
+          return notification.info('请选择网络出口')
+        }
       }
       notification.spin('保存中更改中')
       setServiceProxyGroup({

@@ -232,9 +232,6 @@ class CreateCompose extends Component {
       initialValue: parentState.stackItem.name
     });
     const descProps = getFieldProps('desc', {
-      rules: [
-        { required: true, message: '描述信息' },
-      ],
       initialValue: parentState.stackItem.description
     });
     const switchProps = getFieldProps('checked', {

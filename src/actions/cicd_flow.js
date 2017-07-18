@@ -1491,7 +1491,7 @@ function fetchAddBaseImage(body, callback) {
   return {
     [FETCH_API]: {
       types: [ADD_BASE_IMAGE_REQUEST, ADD_BASE_IMAGE_SUCCESS, ADD_BASE_IMAGE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci/images`,
+      endpoint: `${API_URL_PREFIX}/devops/ci/images?name=${body.image_name}`,
       schema: {},
       options: {
         method: 'POST',
@@ -1515,7 +1515,7 @@ function fetchUpdateBaseImage(id, body, callback) {
   return {
     [FETCH_API]: {
       types: [UPDATE_BASE_IMAGE_REQUEST, UPDATE_BASE_IMAGE_SUCCESS, UPDATE_BASE_IMAGE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci/images/${id}`,
+      endpoint: `${API_URL_PREFIX}/devops/ci/images/${id}?name=${body.image_name}`,
       schema: {},
       options: {
         method: 'PUT',

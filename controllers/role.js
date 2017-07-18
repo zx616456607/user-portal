@@ -113,3 +113,13 @@ exports.allowUpdate = function* (){
     data: result
   }
 }
+
+exports.getWithMembers = function* () {
+  const loginUser = this.session.loginUser
+  const id = this.params.id
+  const api = apiFactory.getRoleApi(loginUser)
+  const result = yield api.getBy([id,'withMember'])
+  this.body = {
+    data:result
+  }
+}
