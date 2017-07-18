@@ -64,7 +64,15 @@ const menuList_enterprise = [
   {
     url: '/app_manage/configs',
     name: '服务配置'
-  }
+  },
+  {
+    url: '/app_manage/vm_wrap',
+    name: '传统应用'
+  },
+  {
+    url: '/app_manage/vm_list',
+    name: '传统应用环境'
+  },
 ]
 
 export default class Application extends Component {
