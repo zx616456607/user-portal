@@ -235,7 +235,8 @@ class CreateCompose extends Component {
       initialValue: parentState.stackItem.description
     });
     const switchProps = getFieldProps('checked', {
-      initialValue: parentState.stackItem.isPublic == 1 ? true : false
+      valuePropName: 'checked',
+      initialValue: parentState.stackItem.isPublic === 1 ? true : false
     })
     return (
       <div id='createCompose' key='createCompose'>
