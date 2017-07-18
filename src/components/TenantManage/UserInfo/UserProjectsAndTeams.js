@@ -11,22 +11,71 @@
  */
 
 import React from 'react'
-import { Tabs, Table, Button, Icon, Input, Modal, Row, Col } from 'antd'
+import { connect } from 'react-redux'
+import { Tabs, Table, Button, Icon, Input, Modal, Row, Col, Transfer } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import { formatDate } from '../../../common/tools'
+import { loadUserTeamList } from '../../../actions/user'
+import { removeTeamusers } from '../../../actions/team'
+import { GetProjectsMembers } from '../../../actions/project'
+import NotificationHandler from '../../../components/Notification'
 import './style/UserProjectsAndTeams.less'
 
 const TabPane = Tabs.TabPane
 
-export default class UserProjectsAndTeams extends React.Component {
+class UserProjectsAndTeams extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       projectSortedInfo: null,
       teamSortedInfo: null,
       removeMemberModalVisible: false,
+      removeMemberBtnLoading: false,
       currentTeam: {},
+      allTeams: [
+        {
+          key: 1,
+          teamName: 'asdfasdfasdfasdfasdf',
+        }
+      ],
+      teamTargetKeys: [],
+      teamTransferModalVisible: false,
     }
+  }
+
+  loadData = () => {
+    const { userId, loadUserTeamList, GetProjectsMembers } = this.props
+    loadUserTeamList(userId, null, {
+      success: {
+        func: res => {
+          const teamTargetKeys = []
+          res.teams.map(team => {
+            if (team.userCount > 0) {
+              teamTargetKeys.push(team.teamID)
+            }
+          })
+          this.setState({
+            teamTargetKeys,
+          })
+        }
+      }
+    })
+    GetProjectsMembers(null, {
+      success: {
+        func: res => {
+          res.data.teamList.map(team => {
+            team.key = team.teamId
+          })
+          this.setState({
+            allTeams: res.data.teamList,
+          })
+        }
+      }
+    })
+  }
+
+  componentWillMount() {
+    this.loadData()
   }
 
   handleTeamChange = (pagination, filters, sorter) => {
@@ -36,12 +85,58 @@ export default class UserProjectsAndTeams extends React.Component {
   }
 
   removeMember = () => {
-    //
+    const notification = new NotificationHandler()
+    const { userId, removeTeamusers } = this.props
+    const { currentTeam } = this.state
+    this.setState({
+      removeMemberBtnLoading: true,
+    })
+    const doSuccess = () => {
+      notification.success("移除用户成功")
+      this.loadData()
+      this.setState({
+        removeMemberModalVisible: false,
+      })
+    }
+    removeTeamusers(currentTeam.teamID, userId, {
+      success: {
+        func: () => {
+          doSuccess()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: err => {
+          if (err.statusCode == 401) {
+            notification.error("没有权限从团队中移除创建者")
+          } else if (err.statusCode == 404) {
+            doSuccess()
+          } else {
+            notification.error(err.message.message)
+          }
+        },
+        isAsync: true
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            removeMemberBtnLoading: false,
+          })
+        }
+      }
+    })
+  }
+
+  handleTeamTransferChange = teamTargetKeys => {
+    this.setState({ teamTargetKeys })
   }
 
   render() {
     const { teams, userDetail } = this.props
-    let { teamSortedInfo, removeMemberModalVisible, currentTeam } = this.state
+    let {
+      teamSortedInfo, removeMemberModalVisible, currentTeam,
+      teamTargetKeys, allTeams, teamTransferModalVisible
+    } = this.state
     const projectColumns = [
       {
         title: '项目名',
@@ -78,13 +173,13 @@ export default class UserProjectsAndTeams extends React.Component {
               className="setBtn"
               onClick={() => browserHistory.push(`/tenant_manage/team/${record.teamName}/${record.teamID}`)}
             >
-              查看团队
+              查看项目
             </Button>
             <Button
               onClick={() => this.setState({ currentTeam: record, removeMemberModalVisible: true })}
               className="delBtn setBtn"
             >
-              移出团队
+              移出项目
             </Button>
           </div>
         ),
@@ -158,7 +253,9 @@ export default class UserProjectsAndTeams extends React.Component {
           <TabPane tab="所属团队" key="teams">
             <div className="teams">
               <div className="teamsTitle">
-                <Button type="primary"><i className='fa fa-undo' /> &nbsp;加入其它团队</Button>
+                <Button type="primary" onClick={() => this.setState({teamTransferModalVisible: true})}>
+                  <i className='fa fa-undo' /> &nbsp;加入其它团队
+                </Button>
                 {/**
                  * <Button type="ghost"><Icon type="delete" />移出团队</Button>
                  */}
@@ -179,6 +276,25 @@ export default class UserProjectsAndTeams extends React.Component {
           wrapClassName="removeMemberModal"
           onCancel={() => this.setState({ removeMemberModalVisible: false })}
           onOk={this.removeMember}
+          footer={[
+            <Button
+              key="back"
+              type="ghost"
+              size="large"
+              onClick={() => this.setState({ removeMemberModalVisible: false })}
+            >
+              取 消
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              loading={this.state.removeMemberBtnLoading}
+              onClick={this.removeMember}
+            >
+              确 定
+            </Button>,
+          ]}
         >
           <Row className="alertRow warningRow">
             <Col span={2} className="alertRowIcon">
@@ -190,7 +306,46 @@ export default class UserProjectsAndTeams extends React.Component {
           </Col>
           </Row>
         </Modal>
+        <Modal
+          title="添加到团队"
+          visible={teamTransferModalVisible}
+          wrapClassName="addMemberModal"
+          onCancel={() => this.setState({teamTransferModalVisible: false})}
+        >
+          <Transfer
+            dataSource={allTeams}
+            showSearch
+            listStyle={{
+              width: 250,
+              height: 300,
+            }}
+            titles={['未选择团队', '已选择团队']}
+            operations={['添加', '移除']}
+            targetKeys={teamTargetKeys}
+            onChange={this.handleTeamTransferChange}
+            render={item => item.teamName}
+          />
+        </Modal>
       </div>
     )
   }
 }
+
+function mapStateToProp(state, props) {
+  let teamsData = []
+  const { teams } = state.user
+  if (teams.result) {
+    if (teams.result.teams) {
+      teamsData = teams.result.teams
+    }
+  }
+  return {
+    teams: teamsData,
+  }
+}
+
+export default connect(mapStateToProp, {
+  loadUserTeamList,
+  removeTeamusers,
+  GetProjectsMembers,
+})(UserProjectsAndTeams)

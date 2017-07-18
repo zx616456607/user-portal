@@ -184,6 +184,7 @@ module.exports = function (Router) {
   router.get('/users/:user_id/teamspaces/detail', userController.getUserTeamspacesWithDetail)
   router.post('/users', userController.createUser)
   router.delete('/users/:user_id', userController.deleteUser)
+  router.post('/users/batch-delete', userController.batchDeleteUser)
   router.patch('/users/:user_id', userController.updateUser)
   router.get('/users/:user_name/existence', userController.checkUserName)
 

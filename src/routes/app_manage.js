@@ -65,6 +65,21 @@ const appManageRoutes = [{
   indexRoute: {
     component: require('../components/AppModule/AppSnapshot').default,
   },
+}, {
+  path: 'vm_wrap',
+  indexRoute: {
+    component: require('../components/AppModule/VMWrap/VMServiceList').default,
+  },
+}, {
+  path: 'vm_list',
+  indexRoute: {
+    component: require('../components/AppModule/VMWrap/VMList').default,
+  },
+}, {
+  path: 'app_create/vm_wrap',
+  indexRoute: {
+    component: require('../components/AppModule/VMWrap/CreateService').default,
+  },
 }]
 
 export default appManageRoutes
