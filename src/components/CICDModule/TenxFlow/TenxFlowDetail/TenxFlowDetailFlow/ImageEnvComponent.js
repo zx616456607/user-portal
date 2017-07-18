@@ -195,6 +195,8 @@ let ImageEnvComponent = React.createClass({
     form.setFieldsValue({
       'imageEnvInputs': keys
     });
+    const envNameKeys = keys.map(key => `imageEnvName${key}`)
+    form.validateFields(envNameKeys, { force: true });
     if(keys.length == 0) {
       return this.addImageEnv(scope)
     }
@@ -215,7 +217,7 @@ let ImageEnvComponent = React.createClass({
       if (validateCallback) {
         validateCallback(false)
       }
-      callback([new Error('环境变量名不允许含有空格')])
+      callback([new Error('环境变量名不允许含有空格111')])
       return
     }
     if (validateCallback) {
