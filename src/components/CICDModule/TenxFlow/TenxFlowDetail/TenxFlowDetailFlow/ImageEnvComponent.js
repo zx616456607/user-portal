@@ -217,7 +217,7 @@ let ImageEnvComponent = React.createClass({
       if (validateCallback) {
         validateCallback(false)
       }
-      callback([new Error('环境变量名不允许含有空格111')])
+      callback([new Error('环境变量名不允许含有空格')])
       return
     }
     if (validateCallback) {
