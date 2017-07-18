@@ -301,6 +301,21 @@ exports.deleteUser = function* () {
   }
 }
 
+exports.batchDeleteUser = function* () {
+  const UserInfo = this.request.body
+  if (!UserInfo) {
+    const err = new Error('users are required.')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.users.batchDeleteBy(['batch-delete'], null, { UserInfo })
+  this.body = {
+    data: result
+  }
+}
+
 exports.updateUser = function* () {
   let userID = this.params.user_id
   const loginUser = this.session.loginUser

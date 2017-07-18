@@ -12,10 +12,10 @@ import { Row, Col, Card, Button, } from 'antd'
 import { Link } from 'react-router'
 import './style/UserInfo.less'
 import Information from './Information'
-import Space from './Space'
+import PersonalResource from './PersonalResource'
 import { connect } from 'react-redux'
 import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
-import { loadUserDetail, loadUserList, updateUser, loadUserAppInfo, loadUserTeamspaceDetailList, loadUserTeamList } from '../../../actions/user'
+import { loadUserDetail, loadUserList, updateUser, loadUserAppInfo } from '../../../actions/user'
 import Title from '../../Title'
 import UserProjectsAndTeams from './UserProjectsAndTeams'
 
@@ -26,23 +26,19 @@ class UserInfo extends Component {
     }
   }
   componentWillMount() {
-    const { userID, loadUserDetail, loadUserAppInfo, loadUserTeamspaceDetailList, loadUserTeamList } = this.props
+    const { userID, loadUserDetail, loadUserAppInfo } = this.props
     loadUserDetail(userID ? userID : 'default')
     loadUserAppInfo(userID ? userID : 'default')
-    loadUserTeamspaceDetailList(userID ? userID : 'default', null)
-    loadUserTeamList(userID ? userID : 'default', null)
   }
   componentWillReceiveProps(nextProps) {
-    const { userID, loadUserDetail, loadUserAppInfo, loadUserTeamspaceDetailList, loadUserTeamList } = nextProps
+    const { userID, loadUserDetail, loadUserAppInfo } = nextProps
     if (this.props.userID != userID) {
       loadUserDetail(userID ? userID : 'default')
       loadUserAppInfo(userID ? userID : 'default')
-      loadUserTeamspaceDetailList(userID ? userID : 'default', null)
-      loadUserTeamList(userID ? userID : 'default', null)
     }
   }
   render() {
-    const { userID, userDetail, appCount, serviceCount, containerCount, teamspaces, teams, editPass } = this.props
+    const { userID, userDetail, appCount, serviceCount, containerCount, editPass, loginUser } = this.props
     const href = window.location.href;
     let memberFlag = false;
     if(href.indexOf('tenant_manage/user') > -1) {
@@ -70,22 +66,20 @@ class UserInfo extends Component {
 
         <Row className="content">
           <Card>
-            <Space userDetail={userDetail}
+            <PersonalResource userDetail={userDetail}
               appCount={appCount}
               serviceCount={serviceCount}
               containerCount={containerCount}
-              teamspaces={teamspaces} />
+            />
           </Card>
         </Row>
 
-        { (userDetail.role == ROLE_TEAM_ADMIN || userDetail.role == ROLE_SYS_ADMIN) ?
+        { loginUser.role == ROLE_SYS_ADMIN &&
         <Row className="content">
           <Card>
-            <UserProjectsAndTeams userDetail={userDetail}
-              teams={teams} />
+            <UserProjectsAndTeams userDetail={userDetail} userId={userID} />
           </Card>
         </Row>
-        : null
         }
       </div>
     )
@@ -98,12 +92,8 @@ function mapStateToProp(state, props) {
     editPass = true
     user_id = ''
   }
-  let teamspacesData = []
   let spaceTotal = 0
   let spaceSize = 0
-  let teamsData = 0
-  let teamsTotal = 0
-  let teamsSize = 0
   let appCount = 0
   let serviceCount = 0
   let containerCount = 0
@@ -116,46 +106,21 @@ function mapStateToProp(state, props) {
     userID: '',
     userName: '',
   }
-  const {userDetail, teamspaceDetails, userAppInfo, teams} = state.user
+  const {userDetail, userAppInfo} = state.user
   if (userDetail.result && userDetail.result.data) {
     userDetailData = userDetail.result.data
-  }
-  if (teamspaceDetails.result) {
-    if (teamspaceDetails.result.teamspaces) {
-      teamspacesData = teamspaceDetails.result.teamspaces
-    }
-    if (teamspaceDetails.result.total) {
-      spaceTotal = teamspaceDetails.result.total
-    }
-    if (teamspaceDetails.result.count) {
-      spaceSize = teamspaceDetails.result.size
-    }
   }
   if (userAppInfo.result && userAppInfo.result.data) {
     appCount = userAppInfo.result.data.appCount
     serviceCount = userAppInfo.result.data.serviceCount
     containerCount = userAppInfo.result.data.containerCount
   }
-  if (teams.result) {
-    if (teams.result.teams) {
-      teamsData = teams.result.teams
-    }
-    if (teams.result.total) {
-      teamsTotal = teams.result.total
-    }
-    if (teams.result.count) {
-      teamsSize = teams.result.size
-    }
-  }
   return {
+    loginUser: state.entities.loginUser.info,
     userDetail: userDetailData,
     userID: user_id,
-    teamspaces: teamspacesData,
     spaceTotal,
     spaceSize,
-    teams: teamsData,
-    teamsSize,
-    teamsTotal,
     appCount,
     serviceCount,
     containerCount,
@@ -166,8 +131,6 @@ function mapStateToProp(state, props) {
 export default connect(mapStateToProp, {
   loadUserDetail,
   updateUser,
-  loadUserTeamspaceDetailList,
   loadUserAppInfo,
   loadUserList,
-  loadUserTeamList,
 })(UserInfo)

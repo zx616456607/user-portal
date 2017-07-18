@@ -24,7 +24,7 @@ import MemberRecharge from '../../AccountModal/_Enterprise/Recharge'
 import { MAX_CHARGE } from '../../../constants'
 import Title from '../../Title'
 import ChargeModal from './ChargeModal'
-import DeleteModal from './DeleteModal'
+// import DeleteModal from './DeleteModal'
 import successPic from '../../../assets/img/wancheng.png'
 
 const confirm = Modal.confirm
@@ -296,7 +296,7 @@ let MemberTable = React.createClass({
         className: 'memberName',
         width: '15%',
         render: (text, record, index) => {
-          if (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_TEAM_ADMIN) {
+          if (userDetail.role === ROLE_SYS_ADMIN) {
             return (
               <Link to={`/tenant_manage/user/${record.key}`}>
                 {text}
@@ -442,12 +442,23 @@ class Membermanagement extends Component {
       number: 10,
       hasSelected: false,
       chargeModalVisible: false,
-      deleteModalVisible: false,
+      // deleteModalVisible: false,
       createUserSuccessModalVisible: false,
       createUserErrorMsg: null,
     }
   }
+  showInfo = (title, content) => {
+    Modal.info({
+      title,
+      content,
+      onOk() {},
+    })
+  }
   showModal() {
+    const { userDetail } = this.props
+    if (userDetail.role !== ROLE_SYS_ADMIN) {
+      return this.showInfo('普通成员没有权限创建新成员')
+    }
     this.setState({
       visible: true,
     })
@@ -579,9 +590,9 @@ class Membermanagement extends Component {
     })
   }
 
-  handleDeleteOk = (namespaces, amount) => {
+  /* handleDeleteOk = (namespaces, amount) => {
     //
-  }
+  } */
 
   render() {
     const { users, checkUserName, loadUserList, userDetail } = this.props
@@ -607,15 +618,19 @@ class Membermanagement extends Component {
           <Button type="primary" size="large" onClick={this.showModal} className="Btn">
             <i className='fa fa-plus' /> 创建新成员
           </Button>
-          <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ chargeModalVisible: true })}>
-            <Icon type="pay-circle-o" />批量充值
-          </Button>
+          {
+            userDetail.role === ROLE_SYS_ADMIN && (
+              <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ chargeModalVisible: true })}>
+                <Icon type="pay-circle-o" />批量充值
+              </Button>
+            )
+          }
           <Button type="ghost" size="large" className="Btn btn" onClick={this.loadData}>
             <i className='fa fa-refresh' /> &nbsp;刷 新
           </Button>
-          <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ deleteModalVisible: true })}>
+          {/* <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ deleteModalVisible: true })}>
             <Icon type="delete" />批量删除
-          </Button>
+          </Button> */}
           <SearchInput scope={scope} searchIntOption={searchIntOption} />
           <CreateUserModal
             visible={visible}
@@ -670,14 +685,14 @@ class Membermanagement extends Component {
           onOk={this.handleChargeOk}
           loadUserList={loadUserList}
         />
-        <DeleteModal
+        {/* <DeleteModal
           visible={this.state.deleteModalVisible}
           data={users}
           onCancel={() => this.setState({ deleteModalVisible: false })}
           onOk={this.handleDeleteOk}
           loadUserList={loadUserList}
           loginUser={userDetail}
-        />
+        /> */}
       </div>
     )
   }
