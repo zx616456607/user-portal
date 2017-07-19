@@ -252,7 +252,7 @@ class Ordinary extends Component {
     let CPUNameArr = []
     let CPUResourceName = []
     let CPUUsedArr = []
-    if (clusterNodeSummary.cpu.length !== 0) {
+    if (clusterNodeSummary.cpu && clusterNodeSummary.cpu.length !== 0) {
       clusterNodeSummary.cpu.slice(0, 3).map((item, index) => {
         let name = item.name.replace(/192.168./, '')
         CPUResourceName.push(name)
@@ -267,7 +267,7 @@ class Ordinary extends Component {
     let memoryNameArr = []
     let memoryResourceName = []
     let memoryUsedArr = []
-    if (clusterNodeSummary.memory.length !== 0) {
+    if (clusterNodeSummary.memory && clusterNodeSummary.memory.length !== 0) {
       clusterNodeSummary.memory.slice(0, 3).map((item, index) => {
         let name = item.name.replace(/192.168./, '')
         memoryResourceName.push(name)
@@ -281,7 +281,7 @@ class Ordinary extends Component {
     //磁盘
     let diskNameArr = []
     let diskUsedArr = []
-    if (clusterNodeSummary.storage.length !== 0) {
+    if (clusterNodeSummary.storage && clusterNodeSummary.storage.length !== 0) {
       clusterNodeSummary.storage.slice(0, 3).map((item, index) => {
         let name = item.name.replace(/192.168./, '')
         diskNameArr.push(name)
@@ -853,7 +853,7 @@ class Ordinary extends Component {
         axisPointer: {
           type: 'shadow'
         },
-        formatter: clusterNodeSummary.storage.length === 0 ? '{c}' : '{b} : {c}%'
+        formatter: (!clusterNodeSummary.storage || clusterNodeSummary.storage.length === 0) ? '{c}' : '{b} : {c}%'
       },
       grid: {
         left: '3%',
@@ -1722,7 +1722,7 @@ class Ordinary extends Component {
                           主机总数
                       </td>
                         <td className="hostNum">
-                          {clusterNodeSummary.nodeInfo.total} 个
+                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.total : 0} 个
                       </td>
                       </tr>
                       <tr>
@@ -1731,7 +1731,7 @@ class Ordinary extends Component {
                           健康主机数
                       </td>
                         <td className="hostNum">
-                          {clusterNodeSummary.nodeInfo.health} 个
+                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.health : 0 } 个
                       </td>
                       </tr>
                       <tr>
@@ -1740,7 +1740,7 @@ class Ordinary extends Component {
                           未启用主机数
                       </td>
                         <td className="hostNum">
-                          {clusterNodeSummary.nodeInfo.unused} 个
+                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.unused: 0 } 个
                       </td>
                       </tr>
                     </tbody>

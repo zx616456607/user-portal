@@ -128,8 +128,13 @@ const AssistSetting = React.createClass({
     })
   },
   onArgsTypeChange(e) {
+    const { form } = this.props
+    const { setFieldsValue } = form
     const argsType = e.target.value
     this.setState({ argsType })
+    setFieldsValue({
+      argsType: argsType
+    })
   },
   render() {
     const { formItemLayout, form } = this.props

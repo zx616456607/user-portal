@@ -32,7 +32,7 @@ let AppServiceAssistSetting = React.createClass({
     if (!command || command.length == 0) {
       return (
         <div className="empty">
-          无
+          镜像默认
         </div>
       )
     }
@@ -57,7 +57,7 @@ let AppServiceAssistSetting = React.createClass({
     if (!args || args.length == 0) {
       return (
         <div className="empty">
-          无
+          镜像默认
         </div>
       )
     }
@@ -120,7 +120,7 @@ let AppServiceAssistSetting = React.createClass({
     if (!containers || containers.length == 0) {
       return (
         <div className="loadingBox">
-          无
+          加载中
         </div>
       )
     }
