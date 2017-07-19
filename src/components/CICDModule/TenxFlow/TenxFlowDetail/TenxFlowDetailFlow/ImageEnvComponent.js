@@ -195,6 +195,8 @@ let ImageEnvComponent = React.createClass({
     form.setFieldsValue({
       'imageEnvInputs': keys
     });
+    const envNameKeys = keys.map(key => `imageEnvName${key}`)
+    form.validateFields(envNameKeys, { force: true });
     if(keys.length == 0) {
       return this.addImageEnv(scope)
     }
