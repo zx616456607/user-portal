@@ -21,7 +21,6 @@ exports.getClusterOverview = function* () {
   const k8sapi = apiFactory.getK8sApi(loginUser)
   const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
 
-  // TODO: do this one by one
   const result = yield [api.overview.getBy(["space-operations"], queryObj),
   api.overview.getBy(["clusters", cluster, "system-info"]),
   api.overview.getBy(["clusters", cluster, "storagestatus"]),
