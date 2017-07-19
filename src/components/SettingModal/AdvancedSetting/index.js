@@ -43,6 +43,9 @@ class AdvancedSetting extends Component {
       TagCheckbox: false,
       confirmlodaing: false,
       imageProjectRightIsEdit: false,
+      Traditiondisable: false,
+      traditionVisible: false,
+      traditionChecked: true,
     }
   }
 
@@ -211,6 +214,37 @@ class AdvancedSetting extends Component {
     })
   }
 
+  /**
+   * 传统应用管理
+   */
+  handleTradition = ()=>{
+    return this.setState({
+      Traditiondisable: true,
+      traditionVisible: true,
+    })
+  }
+  /**
+   * 弹框确定
+   */
+  handleConfirmTradition = ()=>{
+    const { traditionChecked } = this.state
+    this.setState({
+      traditionVisible: false
+    })
+    /*if( this.traditionVisible === true){
+      return
+    }
+    if(this.traditionVisible === false){
+      return
+    }*/
+  }
+  /**
+   * 弹框取消
+   */
+  handleCancelTradition = ()=>{
+
+  }
+
   handleConfirmSwitch(){
     const { swicthChecked } = this.state
     this.setState({
@@ -340,7 +374,7 @@ class AdvancedSetting extends Component {
   }
 
   render(){
-    const { swicthChecked, Ipcheckbox, TagCheckbox, switchdisable, Tagdisabled, Ipdisabled, imageProjectRightIsEdit } = this.state
+    const { traditionChecked, Traditiondisable, swicthChecked, Ipcheckbox, TagCheckbox, switchdisable, Tagdisabled, Ipdisabled, imageProjectRightIsEdit } = this.state
     const { cluster, form, configurations, harbor } = this.props
     const { listNodes } = cluster
     const { getFieldProps  } = form
@@ -360,6 +394,9 @@ class AdvancedSetting extends Component {
     const imageProjectRightProps = getFieldProps('imageProjectRightProps',{
       initialValue: projectCreationRestriction.value
     })
+    let style = {
+
+    }
     return (<div id="AdvancedSetting">
       <Title title="高级设置" />
       <div className='title'>高级设置</div>
@@ -373,14 +410,14 @@ class AdvancedSetting extends Component {
             <div>
               <div className='contentbodycontainers'>
                 <span>
-                  {
+                 {/* {
                     swicthChecked
                       ? <span>开启</span>
                       : <span>关闭</span>
-                  }
+                  }*/}
                   绑定节点
                   </span>
-                <Switch checked={swicthChecked} onChange={this.handleSwitch} className='switchstyle' disabled={switchdisable} />
+                <Switch checkedChildren="开" unCheckedChildren="关" checked={swicthChecked} onChange={this.handleSwitch} className='switchstyle' disabled={switchdisable} />
               </div>
               {
                 swicthChecked
@@ -425,8 +462,43 @@ class AdvancedSetting extends Component {
             }
           </div>
         </div> : ''}
+        <div className='Tradition'>
+          <div className='contentheader'>传统应用管理</div>
+          <div className='contentbody'>
+            <div className='contentbodytitle alertRow'>
+              传统应用，这些指非容器化部署（即基于虚拟机物理部署）的应用，平台可以支持开启关闭部署此类应用的能力
+            </div>
+            <div>
+              <div className='contentbodycontainers'>
+                <span>
+                 {/* {
+                    traditionChecked
+                      ? <span>开启</span>
+                      : <span>关闭</span>
+                  }*/}
+                  传统应用管理
+                  </span>
+                <Switch checkedChildren="开" unCheckedChildren="关" checked={this.handleTradition} onChange={this.handleTradition} className='switchstyle' disabled={Traditiondisable} />
+                <span className="describe">传统应用管理、部署环境管理</span>
+              </div>
+              {
+                /*traditionChecked
+                  ? <div className='contentfooter'>
+                  <div className='item'>
+                    <Checkbox onChange={this.handleName}
+                              checked="true" disabled="false">开启传统应用管理</Checkbox>
+                  </div>
+                  <div className='item'>
+                    <Checkbox onChange={this.handleTag}
+                              checked="true" disabled="false">开启传统应用部署环境管理</Checkbox>
+                  </div>
+                </div>
+                  : <div></div>*/
+              }
+            </div>
+          </div>
+        </div>
       </div>
-
       <Modal
         title={swicthChecked ? '关闭绑定节点' : '开启绑定节点'}
         visible={this.state.switchVisible}
@@ -445,6 +517,27 @@ class AdvancedSetting extends Component {
           : <div className='container'>
             <div className='item'>开启绑定节点，平台用户将可以把某个服务的容器实例，绑定到固定主机节点上</div>
             <div className='item color'><Icon type="question-circle-o" style={{marginRight:'8px'}}/>确认开启允许绑定节点功能？</div>
+          </div>
+        }
+      </Modal>
+      <Modal
+        title={traditionChecked ? '传统应用管理' : '传统应用管理'}
+        visible={this.state.traditionVisible}
+        maskClosable={false}
+        wrapClassName="AdvancedSettingSwitch"
+        onOk={this.handleConfirmSwitch}
+        onCancel={this.handleCancelSwitch}
+        confirmLoading={this.state.confirmlodaing}
+      >
+        {
+          swicthChecked
+            ?<div className='container'>
+            <div className='item'>传统应用管理，将关闭基于『非容器环境』的应用包部署管理</div>
+            <div className='item color'><Icon type="question-circle-o" style={{marginRight:'8px'}}/>确认关闭？</div>
+          </div>
+            : <div className='container'>
+            <div className='item'>传统应用管理，将开启基于『非容器环境』的应用包部署管理</div>
+            <div className='item color'><Icon type="question-circle-o" style={{marginRight:'8px'}}/>确认开启？</div>
           </div>
         }
       </Modal>
