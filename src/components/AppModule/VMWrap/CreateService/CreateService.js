@@ -52,7 +52,7 @@ class VMServiceCreate extends React.Component {
                 <Input {...getFieldProps('serviceName')} placeholder="请输入服务名称"/>
               </FormItem>
             </Form>
-            <Collapse defaultActiveKey={['env']} onChange={this.onChange}>
+            <Collapse defaultActiveKey={['env','status','packet']} onChange={this.onChange}>
               <Panel header={this.renderPanelHeader('传统环境')} key="env">
                 <TraditionEnv/>
               </Panel>
@@ -63,6 +63,9 @@ class VMServiceCreate extends React.Component {
                 <SelectPacket/>
               </Panel>
             </Collapse>
+            <div className="btnBox clearfix">
+              <Button type="primary" size="large" className="pull-right">创建</Button>
+            </div>
           </Card>
         </div>
       </QueueAnim>

@@ -82,7 +82,7 @@ class SelectPacket extends Component{
       wrapperCol: { span: 9 },
     };
     const formLabel = {
-      wrapperCol: { span: 20, offset: 2}
+      wrapperCol: { span: 20, offset: 1}
     }
   
     const envList = getFieldValue('envKeys') && getFieldValue('envKeys').map((item,index)=>{
