@@ -9,6 +9,7 @@
  */
 'use strict'
 
+const logger     = require('../utils/logger.js').getLogger('overview_cluster')
 const apiFactory = require('../services/api_factory')
 
 // TODO: should we break down these methods as it's bad proformance for overview
@@ -20,11 +21,11 @@ exports.getClusterOverview = function* () {
   const k8sapi = apiFactory.getK8sApi(loginUser)
   const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
 
+  // TODO: do this one by one
   const result = yield [api.overview.getBy(["space-operations"], queryObj),
   api.overview.getBy(["clusters", cluster, "system-info"]),
   api.overview.getBy(["clusters", cluster, "storagestatus"]),
   api.overview.getBy(["clusters", cluster, "appstatus"]),
-  api.overview.getBy(["clusters", cluster, "nodesummary"]),
   k8sapi.getBy([cluster, "dbservices"]),
   api.overview.getBy(["clusters", cluster, "space-consumption"]),
   k8sapi.getBy([cluster, 'summary', 'static'])]
@@ -51,22 +52,31 @@ exports.getClusterOverview = function* () {
   if (result && result[3] && result[3].data) {
     appstatus = result[3].data
   }
-  let nodesummary = {}
-  if (result && result[4] && result[4].data) {
-    nodesummary = result[4].data
-  }
   let dbservices = {}
-  if (result && result[5] && result[5].data) {
-    dbservices = result[5].data
+  if (result && result[4] && result[4].data) {
+    dbservices = result[4].data
   }
   let spaceconsumption = {}
-  if (result && result[6] && result[6].data) {
-    spaceconsumption = result[6].data
+  if (result && result[5] && result[5].data) {
+    spaceconsumption = result[5].data
   }
   let clusterStaticSummary = {}
-  if (result && result[7] && result[7].data) {
-    clusterStaticSummary = result[7].data
+  if (result && result[6] && result[6].data) {
+    clusterStaticSummary = result[6].data
   }
+
+  // Check node summary separately
+  let nodesummary = {}
+  try {
+    // Set timeout to 20 seconds
+    let summaryResult = yield api.overview.getBy(["clusters", cluster, "nodesummary"], null, {"timeout": 20 * 1000})
+    if (summaryResult && summaryResult.data) {
+      nodesummary = summaryResult.data
+    }
+  } catch (error) {
+    logger.error("Failed to get node summary information: " + JSON.stringify(error))
+  }
+
   this.body = {
     operations,
     sysinfo,
