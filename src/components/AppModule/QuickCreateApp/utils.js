@@ -49,6 +49,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     publicNetwork, //公网出口
     internaletwork, //内网出口
     portsKeys, // 端口的 keys(数组)
+    argsType,
     command, // 进入点
     argsKeys, // 启动命令的 keys(数组)
     imagePullPolicy, // 重新部署时拉取镜像的方式(Always, IfNotPresent)
@@ -158,7 +159,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     deployment.addContainerCommand(serviceName, command)
   }
   // 设置启动命令
-  if (argsKeys) {
+  if (argsType !== 'default' && argsKeys) {
     const args = []
     argsKeys.forEach(key => {
       if (!key.deleted) {
@@ -167,6 +168,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     })
     deployment.addContainerArgs(serviceName, args)
   }
+
   // 设置重新部署
   deployment.setContainerImagePullPolicy(serviceName, imagePullPolicy)
   // 设置时区

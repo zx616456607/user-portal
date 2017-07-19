@@ -19,6 +19,7 @@ import { loadUserTeamList } from '../../../actions/user'
 import { removeTeamusers } from '../../../actions/team'
 import { GetProjectsMembers } from '../../../actions/project'
 import NotificationHandler from '../../../components/Notification'
+import JoinProjectsModal from './JoinProjectsModal'
 import './style/UserProjectsAndTeams.less'
 
 const TabPane = Tabs.TabPane
@@ -40,10 +41,15 @@ class UserProjectsAndTeams extends React.Component {
       ],
       teamTargetKeys: [],
       teamTransferModalVisible: false,
+      joinProjectsModalVisible: false,
     }
+    this.loadData = this.loadData.bind(this)
+    this.handleTeamChange = this.handleTeamChange.bind(this)
+    this.removeMember = this.removeMember.bind(this)
+    this.handleTeamTransferChange = this.handleTeamTransferChange.bind(this)
   }
 
-  loadData = () => {
+  loadData() {
     const { userId, loadUserTeamList, GetProjectsMembers } = this.props
     loadUserTeamList(userId, null, {
       success: {
@@ -78,13 +84,13 @@ class UserProjectsAndTeams extends React.Component {
     this.loadData()
   }
 
-  handleTeamChange = (pagination, filters, sorter) => {
+  handleTeamChange(pagination, filters, sorter) {
     this.setState({
       teamSortedInfo: sorter,
     })
   }
 
-  removeMember = () => {
+  removeMember() {
     const notification = new NotificationHandler()
     const { userId, removeTeamusers } = this.props
     const { currentTeam } = this.state
@@ -127,7 +133,7 @@ class UserProjectsAndTeams extends React.Component {
     })
   }
 
-  handleTeamTransferChange = teamTargetKeys => {
+  handleTeamTransferChange(teamTargetKeys) {
     this.setState({ teamTargetKeys })
   }
 
@@ -135,7 +141,8 @@ class UserProjectsAndTeams extends React.Component {
     const { teams, userDetail } = this.props
     let {
       teamSortedInfo, removeMemberModalVisible, currentTeam,
-      teamTargetKeys, allTeams, teamTransferModalVisible
+      teamTargetKeys, allTeams, teamTransferModalVisible,
+      joinProjectsModalVisible,
     } = this.state
     const projectColumns = [
       {
@@ -242,8 +249,10 @@ class UserProjectsAndTeams extends React.Component {
           <TabPane tab="参与项目" key="projects">
             <div className="projects">
               <div className="projectsTitle">
-                <Button type="primary"><i className='fa fa-undo' /> &nbsp;加入其它项目</Button>
-                <Button type="ghost"><Icon type="delete" />移出项目</Button>
+                <Button type="primary" onClick={() => this.setState({joinProjectsModalVisible: true})}>
+                  <i className='fa fa-undo' /> &nbsp;加入其它项目
+                </Button>
+                {/* <Button type="ghost"><Icon type="delete" />移出项目</Button> */}
               </div>
               <div className="projectsContent">
                 <Table columns={projectColumns} dataSource={teams} onChange={this.handleTeamChange} pagination={false} />
@@ -326,6 +335,10 @@ class UserProjectsAndTeams extends React.Component {
             render={item => item.teamName}
           />
         </Modal>
+        <JoinProjectsModal
+          visible={joinProjectsModalVisible}
+          onCancel={() => this.setState({joinProjectsModalVisible: false})}
+        />
       </div>
     )
   }
