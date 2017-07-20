@@ -191,12 +191,12 @@ class CreateStepThird extends Component{
     const loopFunc = data => data.length >0 && data.map((item) => {
       if (item.users) {
         return (
-          <TreeNode key={item.id} title={item.teamName}>
+          <TreeNode key={item.id} title={item.teamName} disableCheckbox={item.checked}>
             {loopFunc(item.users)}
           </TreeNode>
         );
       }
-      return <TreeNode key={item.id} title={item.userName}/>;
+      return <TreeNode key={item.id} title={item.userName} disableCheckbox={item.checked}/>;
     });
     return (
       <div id="projectCreateStepThird">

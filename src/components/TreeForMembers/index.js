@@ -209,17 +209,21 @@ class TreeComponent extends Component {
         let id = typeof permissList[j].id === 'number' ? `${permissList[j].id}` : permissList[j].id
         if(id === checkedKeys[i]){
           permissList[j].checked = true
+          arr.push(permissList[j].id)
         }
       }
     }
-    for(let i = 0; i < permissList.length; i++){
-      if(permissList[i].checked === false){
-        arr.push(permissList[i])
-      }
-    }
-    let arr2 = this.deleteRepeatPermission(arr)
-    let lastArray = this.addPermissionFormat(arr2)
-    return lastArray
+    this.setState({
+      alreadyCheckedKeys:arr
+    })
+    // for(let i = 0; i < permissList.length; i++){
+    //   if(permissList[i].checked === false){
+    //     arr.push(permissList[i])
+    //   }
+    // }
+    // let arr2 = this.deleteRepeatPermission(arr)
+     permissList = this.addPermissionFormat(permissList)
+    return permissList
   }
   
   addPermissionFormat = data => {
