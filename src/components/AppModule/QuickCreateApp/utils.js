@@ -129,7 +129,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
   let groupID = publicNetwork || internaletwork || "none"
   service.addLBGroupAnnotation(groupID)
 
-  portsKeys.forEach(key => {
+  portsKeys && portsKeys.forEach(key => {
     if (key.deleted) {
       return
     }

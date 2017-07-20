@@ -1428,6 +1428,7 @@ class ServiceList extends Component {
               appName={appName}
               scope={parentScope}
               funcs={funcs}
+              loadServices={()=>this.loadServices(this.props)}
               selectTab={selectTab}
               serviceDetailmodalShow={this.state.modalShow}
               />
