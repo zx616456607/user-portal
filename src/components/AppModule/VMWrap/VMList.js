@@ -12,11 +12,13 @@
 
 import React from 'react'
 import {Button, Table, Row, Card, Modal, Icon, Form, FormItem, Input} from 'antd'
+import { connect } from 'react-redux'
 import './style/VMList.less'
 import CommonSearchInput from '../../../components/CommonSearchInput'
 import Title from '../../Title'
+import { getVMinfosList } from '../../../actions/vm_wrap'
 
-export default class VMServiceList extends React.Component {
+class VMList extends React.Component {
   constructor(){
     super()
     this.state = {
@@ -24,6 +26,11 @@ export default class VMServiceList extends React.Component {
       visible: false,
       modalTitle: true,
     }
+  }
+
+  componentWillMount() {
+    const { getVMinfosList } = this.props
+    getVMinfosList()
   }
 
   /**
@@ -244,3 +251,11 @@ export default class VMServiceList extends React.Component {
     )
   }
 }
+
+function mapStateToProps() {
+  return {}
+}
+
+export default connect(mapStateToProps, {
+  getVMinfosList,
+})(VMList)

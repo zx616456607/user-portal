@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Popover, Tooltip } from 'antd'
+import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Popover, Tooltip, Modal } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import ContainerList from './AppContainerList'
@@ -26,7 +26,7 @@ import ServiceMonitor from './ServiceMonitor'
 import AppAutoScale from './AppAutoScale'
 import VisitType from './VisitType'
 import AlarmStrategy from '../../ManageMonitor/AlarmStrategy'
-import { loadServiceDetail, loadServiceContainerList, loadK8sService } from '../../../actions/services'
+import { loadServiceDetail, loadServiceContainerList, loadK8sService, deleteServices } from '../../../actions/services'
 import { addTerminal } from '../../../actions/terminal'
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
@@ -70,6 +70,7 @@ class AppServiceDetail extends Component {
       activeTabKey: props.selectTab || DEFAULT_TAB,
       currentContainer: [],
       httpIcon: 'http',
+      deleteModal: false
     }
   }
 
@@ -204,13 +205,40 @@ class AppServiceDetail extends Component {
     funcs.batchStopService()
   }
 
-  delteService(service) {
-    const { funcs } = this.props
-    const self = this
-    // funcs.confirmDeleteServices([service])
-    funcs.batchDeleteServices()
+  delteService() {
+    this.setState({
+      deleteModal: true
+    })
   }
-
+  cancelDeleteModal() {
+    this.setState({
+      deleteModal: false
+    })
+  }
+  okDeleteModal() {
+    const { deleteServices, scope, serviceDetail, loadServices } = this.props
+    const service = scope.state.currentShowInstance || serviceDetail
+    deleteServices(service.cluster,[service.metadata.name],{
+      success:{
+        func: (res) => {
+          loadServices()
+          this.setState({
+            deleteModal: false
+          })
+          scope.setState({
+            modalShow: false
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (res) => {
+        
+        },
+        isAsync: true
+      }
+    })
+  }
   handleMenuDisabled(key) {
     const { scope } = this.props
     const service = scope.state.currentShowInstance
@@ -247,7 +275,7 @@ class AppServiceDetail extends Component {
       bindingIPs,
       k8sService,
     } = this.props
-    const { activeTabKey, currentContainer } = this.state
+    const { activeTabKey, currentContainer, deleteModal } = this.state
     const httpsTabKey = '#https'
     const isKubeNode = (SERVICE_KUBE_NODE_PORT == loginUser.info.proxyType)
 
@@ -289,6 +317,12 @@ class AppServiceDetail extends Component {
       })
     return (
       <div id='AppServiceDetail'>
+        <Modal title="删除操作" visible={deleteModal}
+          onCancel={()=>this.cancelDeleteModal()}
+          onOk={()=>this.okDeleteModal()}
+        >
+        确定要删除服务{service.metadata.name}吗？
+        </Modal>
         <div className='titleBox'>
           <Title title={`${appName} 服务详情页`} />
           <Icon className='closeBtn' type='cross' onClick={this.closeModal} />
@@ -555,4 +589,5 @@ export default connect(mapStateToProps, {
   loadServiceContainerList,
   loadK8sService,
   addTerminal,
+  deleteServices
 })(AppServiceDetail)

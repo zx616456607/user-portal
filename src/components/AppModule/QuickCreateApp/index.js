@@ -172,7 +172,7 @@ class QuickCreateApp extends Component {
   goSelectCreateAppMode() {
     const { query } = this.props.location;
     if (serviceNameList.length < 1) {
-      if( query.fromDetail ) {
+      if (query.fromDetail ) {
         browserHistory.push(`/app_manage/detail/${query.appName}`)
         return
       }

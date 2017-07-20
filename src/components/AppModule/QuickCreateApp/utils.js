@@ -129,7 +129,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
   let groupID = publicNetwork || internaletwork || "none"
   service.addLBGroupAnnotation(groupID)
 
-  portsKeys.forEach(key => {
+  portsKeys && portsKeys.forEach(key => {
     if (key.deleted) {
       return
     }
@@ -159,7 +159,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     deployment.addContainerCommand(serviceName, command)
   }
   // 设置启动命令
-  if (argsType !== 'default' && argsKeys) {
+  if ((argsType && argsType !== 'default') && argsKeys) {
     const args = []
     argsKeys.forEach(key => {
       if (!key.deleted) {

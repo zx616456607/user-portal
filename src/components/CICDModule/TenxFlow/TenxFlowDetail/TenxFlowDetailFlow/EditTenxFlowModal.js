@@ -2066,6 +2066,11 @@ let EditTenxFlowModal = React.createClass({
             visible={this.state.ImageEnvModal}
             onOk={this.closeImageEnvModal}
             onCancel={this.closeImageEnvModal}
+            footer={[
+              <Button key="submit" type="primary" size="large" onClick={this.closeImageEnvModal}>
+                确 定
+              </Button>,
+            ]}
             >
             <ImageEnvComponent
               validateCallback ={result => this.setState({ validateStatus: result })}
