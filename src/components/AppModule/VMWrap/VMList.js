@@ -21,7 +21,8 @@ export default class VMServiceList extends React.Component {
     super()
     this.state = {
       projectList: [],
-      visible: false
+      visible: false,
+      modalTitle: true,
     }
   }
 
@@ -52,7 +53,17 @@ export default class VMServiceList extends React.Component {
    */
   handleE =()=> {
     this.setState({
-      visible:true
+      visible: true,
+      modalTitle: false
+    })
+  }
+  /**
+   * 添加信息
+   */
+  handleA =()=> {
+    this.setState({
+      visible: true,
+      modalTitle: true
     })
   }
 
@@ -61,7 +72,7 @@ export default class VMServiceList extends React.Component {
    */
   handleClose =()=>{
     this.setState({
-      visible:false
+      visible: false
     })
   }
 
@@ -80,42 +91,17 @@ export default class VMServiceList extends React.Component {
     }
     const columns = [
       {
-        title: (
-          <div onClick="">
-            虚拟机IP
-            <div className="ant-table-column-sorter">
-             {/* <span className={true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
-                <i className="anticon anticon-caret-up" />
-              </span>
-              <span className={false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
-                <i className="anticon anticon-caret-down" />
-              </span>*/}
-            </div>
-          </div>
-        ),
+        title: '虚拟机IP',
         dataIndex: 'IP',
         key: 'IP',
-        className: 'IP',
       },
       {
-        title: (
-          <div onClick="">
-            登录账号
-            <div className="ant-table-column-sorter">
-            </div>
-          </div>
-        ),
+        title: '登录账号',
         dataIndex: 'userName',
         key: 'userName',
       },
       {
-        title: (
-          <div onClick="">
-            登录密码
-            <div className="ant-table-column-sorter">
-            </div>
-          </div>
-        ),
+        title: '登录密码',
         dataIndex: 'passWord',
         key: 'passWord',
       },
@@ -141,6 +127,12 @@ export default class VMServiceList extends React.Component {
           <div onClick={this.handleSortCreateTime}>
             创建时间
             <div className="ant-table-column-sorter">
+              <span className={true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+               <i className="anticon anticon-caret-up" />
+              </span>
+              <span className={false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+               <i className="anticon anticon-caret-down" />
+              </span>
             </div>
           </div>
         ),
@@ -160,11 +152,11 @@ export default class VMServiceList extends React.Component {
           return (
             <div className="addusers">
               <div className="Deleterechargea">
-                <Button type="primary" className="addBtn" onClick={this.handleE}>编辑信息</Button>
+                <Button type="primary" className="tabBtn" onClick={this.handleE}>编辑信息</Button>
                 <Button size="large" onClick="">删除</Button>
               </div>
               <Modal
-                title="添加传统环境"
+                title= { this.state.modalTitle ? "添加传统环境" : "编辑传统环境"}
                 visible={this.state.visible}
                 onOk={this.handleClose}
                 onCancel={this.handleClose}
@@ -198,7 +190,6 @@ export default class VMServiceList extends React.Component {
         }
       },
     ]
-
     const data = [{
       key: '1',
       IP: 'John Brown',
@@ -226,14 +217,12 @@ export default class VMServiceList extends React.Component {
         disabled: record.name === 'Disabled User',    // Column configuration not to be checked
       }),
     };
-    let style = {
-     }
     return (
       <div id="VMList">
         {/*<Title title="环境" />*/}
         <Row>
-          <Button type='primary' size='large'  className='addBtn' onClick=''>
-            <i className='fa fa-plus' /> 创建项目
+          <Button type='primary' size='large'  className='addBtn' onClick={this.handleA}>
+            <i className='fa fa-plus' /> 添加传统环境
           </Button>
           <Button type="ghost" icon={ this.state.loading ? 'loading' : "reload"}  size="large" className="manageBtn" onClick={()=> this.handRefresh()}>刷新</Button>
           <Button type="ghost" icon="delete" size="large" className="manageBtn" onClick={()=> this.delProject()}>删除</Button>
