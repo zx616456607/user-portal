@@ -15,6 +15,8 @@ import { updateClusterConfig } from '../../../actions/cluster'
 import { loadTeamClustersList } from '../../../actions/team'
 import { setCurrent } from '../../../actions/entities'
 import { updateConfigurations, getConfigurations } from '../../../actions/harbor'
+import { saveGlobalConfig } from '../../../actions/global_config'
+import { loadLoginUserDetail } from '../../../actions/entities'
 import NotificationHandler from '../../../components/Notification'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import Title from '../../Title'
@@ -48,7 +50,8 @@ class AdvancedSetting extends Component {
       imageProjectRightIsEdit: false,
       traditionDisable: false,
       traditionVisible: false,
-      traditionChecked: true,
+      traditionBtnLoading: false,
+      traditionChecked: props.vmWrapConfig.enabled || false,
       isTradition: false,
     }
   }
@@ -125,9 +128,9 @@ class AdvancedSetting extends Component {
     const Notification = new NotificationHandler()
     switch (num){
       case 1:
-        return Notification.success('关闭传统应用管理成功！')
+        return Notification.success('关闭【传统应用管理】成功！')
       case 2:
-        return Notification.success('开启【传统应用管理】绑定成功！')
+        return Notification.success('开启【传统应用管理】成功！')
     }
   }
 
@@ -219,7 +222,7 @@ class AdvancedSetting extends Component {
     })
   }
 
-  TraditionListNodeState(ListNode){
+  TraditionState(ListNode){
     switch (ListNode){
       case 1:
         this.setState({
@@ -261,19 +264,50 @@ class AdvancedSetting extends Component {
   /**
    * 弹框确定
    */
-  handleConfirmTradition (){
+  handleConfirmTradition() {
+    const notification = new NotificationHandler()
+    const { saveGlobalConfig, loadLoginUserDetail, vmWrapConfig, cluster } = this.props
     const { traditionChecked } = this.state
+    const entity = {
+      configID: vmWrapConfig.configID,
+      detail: {
+        enabled: !traditionChecked,
+      }
+    }
     this.setState({
-      traditionVisible: false
+      traditionBtnLoading: true,
     })
-    if(traditionChecked === true){
-      this.TraditionListNodeState(1)
-      return
-    }
-    if(traditionChecked === false){
-      this.TraditionListNodeState(2)
-      return
-    }
+    saveGlobalConfig(cluster.clusterID, 'vm', entity, {
+      success: {
+        func: res => {
+          loadLoginUserDetail()
+          this.setState({
+            traditionVisible: false
+          })
+          if (traditionChecked === true){
+            this.TraditionState(1)
+            return
+          }
+          if (traditionChecked === false){
+            this.TraditionState(2)
+            return
+          }
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          notification.error('保存失败')
+        }
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            traditionBtnLoading: false,
+          })
+        }
+      }
+    })
     /*if( this.traditionVisible === true){
       return
     }
@@ -418,7 +452,7 @@ class AdvancedSetting extends Component {
       })
   }
 
-  render(){
+  render() {
     const { traditionChecked, traditiondisable, swicthChecked, Ipcheckbox, TagCheckbox, switchdisable, Tagdisabled, Ipdisabled, imageProjectRightIsEdit } = this.state
     const { cluster, form, configurations, harbor } = this.props
     const { listNodes } = cluster
@@ -572,6 +606,25 @@ class AdvancedSetting extends Component {
         wrapClassName="AdvancedSettingSwitch"
         onOk={this.handleConfirmTradition}
         onCancel={this.handleCancelTradition}
+        footer={[
+          <Button
+            key="back"
+            type="ghost"
+            size="large"
+            onClick={this.handleCancelTradition}
+          >
+            取 消
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            size="large"
+            loading={this.state.traditionBtnLoading}
+            onClick={this.handleConfirmTradition}
+          >
+            确 定
+          </Button>,
+        ]}
         /*confirmLoading={this.state.confirmlodaing}*/
       >
         {
@@ -594,7 +647,7 @@ AdvancedSetting = Form.create()(AdvancedSetting)
 
 function mapPropsToState(state,props) {
   const { cluster, space } = state.entities.current
-  const { harbor } = state.entities.loginUser.info
+  const { harbor, vmWrapConfig } = state.entities.loginUser.info
   const { result } = state.team.teamClusters || {}
   const { configurations } = state.harbor
   return {
@@ -602,7 +655,8 @@ function mapPropsToState(state,props) {
     space,
     result,
     configurations,
-    harbor
+    harbor,
+    vmWrapConfig,
   }
 }
 
@@ -611,5 +665,7 @@ export default connect(mapPropsToState,{
   loadTeamClustersList,
   setCurrent,
   updateConfigurations,
-  getConfigurations
+  getConfigurations,
+  saveGlobalConfig,
+  loadLoginUserDetail,
 })(AdvancedSetting)

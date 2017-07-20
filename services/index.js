@@ -129,6 +129,8 @@ exports.addConfigsForFrontend = function (user, loginUser) {
   if (loginUser) {
     user.harbor = loginUser.harbor || {}
   }
+  // Add VM wrap info
+  user.vmWrapConfig = global.globalConfig.vmWrapConfig
   return user
 }
 

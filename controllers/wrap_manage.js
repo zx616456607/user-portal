@@ -88,7 +88,6 @@ exports.localUploadPkg = function*() {
 exports.romoteUploadPkg = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  console.log(this.request.body)
   const filename = this.params.filename
   const filetag = this.params.filetag
   const filetype = this.params.filetype
