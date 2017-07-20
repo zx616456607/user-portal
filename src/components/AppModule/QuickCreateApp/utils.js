@@ -159,7 +159,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     deployment.addContainerCommand(serviceName, command)
   }
   // 设置启动命令
-  if (argsType !== 'default' && argsKeys) {
+  if ((argsType && argsType !== 'default') && argsKeys) {
     const args = []
     argsKeys.forEach(key => {
       if (!key.deleted) {
