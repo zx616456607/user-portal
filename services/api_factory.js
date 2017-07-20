@@ -10,8 +10,12 @@
 'use strict'
 const tenxApi = require('../tenx_api/v2')
 const config = require('../configs')
-config.tenx_api = global.globalConfig.tenx_api 
+config.tenx_api = global.globalConfig.tenx_api
 const devopsConfig = global.globalConfig.cicdConfig
+const vmWrapConfig = global.globalConfig.vmWrapConfig || {
+  protocol: 'http',
+  host: '192.168.0.82:8000',
+}
 const imageScanConfig = require('../configs/image_scan')
 const registriyApi = require('../registry')
 
@@ -164,3 +168,15 @@ exports.getRoleApi = function(loginUser){
   return api.role
 }
 
+/*
+API factory to handle VM wrap service
+*/
+exports.getVMWrapApi = function (loginUser) {
+  const apiConfig = {
+    protocol: vmWrapConfig.protocol,
+    host: vmWrapConfig.host,
+    auth: loginUser
+  }
+  const api = new tenxApi(apiConfig)
+  return api
+}
