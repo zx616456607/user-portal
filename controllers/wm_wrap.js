@@ -50,6 +50,15 @@ exports.deleteService = function* () {
   this.body = result
 }
 
+exports.deployService = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getVMWrapApi(loginUser)
+  const serviceId = this.params.service_id
+
+  const result = yield api.services.createBy([ serviceId, 'deployment' ])
+  this.body = result
+}
+
 exports.addVM = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getVMWrapApi(loginUser)

@@ -491,16 +491,22 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 服务配置</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='vm_wrap'>
-                    <Link to='/app_manage/vm_wrap'>
-                      <span><div className='sideCircle'></div> 传统服务</span>
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key='vm_list'>
-                    <Link to='/app_manage/vm_list'>
-                      <span><div className='sideCircle'></div> 传统服务环境</span>
-                    </Link>
-                  </Menu.Item>
+                  {
+                    this.props.loginUser.vmWrapConfig.enabled
+                    ? [
+                      <Menu.Item key='vm_wrap'>
+                        <Link to='/app_manage/vm_wrap'>
+                          <span><div className='sideCircle'></div> 传统服务</span>
+                        </Link>
+                      </Menu.Item>,
+                      <Menu.Item key='vm_list'>
+                        <Link to='/app_manage/vm_list'>
+                          <span><div className='sideCircle'></div> 传统服务环境</span>
+                        </Link>
+                      </Menu.Item>
+                    ]
+                    : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
+                  }
                   <div className='sline'></div>
                 </SubMenu>
                 <SubMenu key='app_center'
@@ -875,6 +881,7 @@ function mapStateToProp(state) {
     storageDetail: state.storage.storageDetail,
     role,
     backColor,
+    loginUser: entities && entities.loginUser && entities.loginUser.info,
     oemInfo: oemInfo || {}
   }
 }

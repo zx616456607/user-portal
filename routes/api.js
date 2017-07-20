@@ -572,6 +572,7 @@ module.exports = function (Router) {
   router.post('/vm-wrap/services', vmWrapController.createService)
   router.get('/vm-wrap/services', vmWrapController.listServices)
   router.put('/vm-wrap/services/:service_id', vmWrapController.updateService)
+  router.post('/vm-wrap/services/:service_id/deployment', vmWrapController.deployService)
   router.del('/vm-wrap/services/:service_id', vmWrapController.deleteService)
   router.post('/vm-wrap/vminfos', vmWrapController.addVM)
   router.get('/vm-wrap/vminfos', vmWrapController.listVMs)
