@@ -27,7 +27,6 @@ import wrapManage from '../../../assets/img/app/wrapManage.png'
 import stackIcon from '../../../assets/img/app/stackIcon.svg'
 import stackIconHover from '../../../assets/img/app/stackIconHover.svg'
 import { genRandomString } from '../../../common/tools'
-import { setFormFields } from '../../../actions/quick_create_app'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -53,7 +52,7 @@ class CreateModel extends Component {
   }
 
   componentWillMount() {
-    const { loadUserTeamspaceList, form, current, location, setFormFields } = this.props
+    const { loadUserTeamspaceList, form, current, location } = this.props
     loadUserTeamspaceList('default', { size: 100 })
     form.setFieldsValue({
       'spaceFormCheck': current.space.namespace,
@@ -62,14 +61,6 @@ class CreateModel extends Component {
     const { appName, action, fromDetail } = location.query
     if (appName) {
       this.setState({moreService: true})
-      const id = this.configureServiceKey
-      const fields = {
-        id,
-        appName,
-        action,
-        fromDetail,
-      }
-      setFormFields(id,fields)
     }
   }
 
@@ -387,5 +378,4 @@ export default connect(mapStateToProps, {
   loadUserTeamspaceList,
   loadTeamClustersList,
   setCurrent,
-  setFormFields
 })(CreateModel)
