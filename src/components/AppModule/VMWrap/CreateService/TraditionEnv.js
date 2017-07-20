@@ -21,6 +21,24 @@ const ButtonGroup = Button.Group;
 
 class TraditionEnv extends Component{
   
+  checkHost(rules,value,callback) {
+    const { scope } = this.props;
+    scope.setState({
+      host:value
+    })
+  }
+  checkName(rules,value,callback) {
+    const { scope } = this.props;
+    scope.setState({
+      account:value
+    })
+  }
+  checkPass(rules,value,callback) {
+    const { scope } = this.props;
+    scope.setState({
+      password:value
+    })
+  }
   render() {
     const { getFieldProps } = this.props.form;
     const formItemLayout = {
@@ -29,30 +47,33 @@ class TraditionEnv extends Component{
     };
     const envIP = getFieldProps('envIP', {
       rules: [
-        { required: true, message: "请输入IP" }
+        { required: true, message: "请输入IP" },
+        { validator: this.checkHost.bind(this)}
       ],
     });
     const userName = getFieldProps('userName', {
       rules: [
-        { required: true, message: "请输入名称" }
+        { required: true, message: "请输入名称" },
+        { validator: this.checkName.bind(this)}
       ],
     });
     const password = getFieldProps('password', {
       rules: [
-        { required: true, message: "请输入密码" }
+        { required: true, message: "请输入密码" },
+        { validator: this.checkPass.bind(this)}
       ],
     });
     return (
       <div className="traditionEnv">
         <Form>
-          <Row>
-            <Col offset={3}>
-              <ButtonGroup size="large">
-                <Button type="ghost">新环境</Button>
-                <Button type="ghost">已导入环境</Button>
-              </ButtonGroup>
-            </Col>
-          </Row>
+          {/*<Row>*/}
+            {/*<Col offset={3}>*/}
+              {/*<ButtonGroup size="large">*/}
+                {/*<Button type="ghost">新环境</Button>*/}
+                {/*<Button type="ghost">已导入环境</Button>*/}
+              {/*</ButtonGroup>*/}
+            {/*</Col>*/}
+          {/*</Row>*/}
           <FormItem
             label="传统环境IP"
             {...formItemLayout}

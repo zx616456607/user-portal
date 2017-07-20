@@ -496,12 +496,12 @@ class Sider extends Component {
                     ? [
                       <Menu.Item key='vm_wrap'>
                         <Link to='/app_manage/vm_wrap'>
-                          <span><div className='sideCircle'></div> 传统服务</span>
+                          <span><div className='sideCircle'></div> 传统应用</span>
                         </Link>
                       </Menu.Item>,
                       <Menu.Item key='vm_list'>
                         <Link to='/app_manage/vm_list'>
-                          <span><div className='sideCircle'></div> 传统服务环境</span>
+                          <span><div className='sideCircle'></div> 传统应用环境</span>
                         </Link>
                       </Menu.Item>
                     ]

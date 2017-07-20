@@ -21,8 +21,25 @@ import ServiceStatus from './ServiceStatus'
 import SelectPacket from './SelectPacket'
 const FormItem = Form.Item;
 const Panel = Collapse.Panel;
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
+import { checkServiceExists } from '../../../../actions/vm_wrap'
 
 class VMServiceCreate extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      vmInfoID:undefined,
+      host:undefined,
+      account:undefined,
+      password:undefined,
+      address:undefined,
+      init:undefined,
+      normal:undefined,
+      interval:undefined,
+      packages:[],
+      env:[]
+    }
+  }
   
   onChange(key) {
   
@@ -34,8 +51,37 @@ class VMServiceCreate extends React.Component {
       </div>
     )
   }
+  serviceNameCheck(rules,value,callback) {
+    const { checkServiceExists } = this.props;
+    let newValue = value.trim()
+    if (!Boolean(newValue)) {
+      callback(new Error('请输入名称'))
+      return
+    }
+    if (newValue.length < 1 || newValue.length > 21) {
+      callback(new Error('请输入1~21个字符'))
+      return
+    }
+    clearTimeout(this.projectNameCheckTimeout)
+    this.projectNameCheckTimeout = setTimeout(()=>{
+      checkServiceExists(value,{},{
+        success: {
+          func: (res) => {
+            callback()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (res) => {
+            return callback(new Error('该应用名称已经存在'))
+          },
+          isAsync:true
+        }
+      })
+    },ASYNC_VALIDATOR_TIMEOUT)
+  }
   render() {
-    const { getFieldProps } = this.props.form;
+    const { getFieldProps, isFieldValidating, getFieldError } = this.props.form;
     return (
       <QueueAnim
         id="vmServiceCreate"
@@ -45,19 +91,25 @@ class VMServiceCreate extends React.Component {
           <Card>
             <Form>
               <FormItem
-                label="服务名称"
+                label="应用名称"
                 labelCol={{ span: 3 }}
                 wrapperCol={{ span: 9 }}
+                hasFeedback
+                help={isFieldValidating('serviceName') ? '校验中...' : (getFieldError('serviceName') || []).join(', ')}
               >
-                <Input {...getFieldProps('serviceName')} placeholder="请输入服务名称"/>
+                <Input {...getFieldProps('serviceName',{
+                  rules: [
+                    { validator: this.serviceNameCheck.bind(this)}
+                  ]
+                })} placeholder="请输入应用名称"/>
               </FormItem>
             </Form>
             <Collapse defaultActiveKey={['env','status','packet']} onChange={this.onChange}>
               <Panel header={this.renderPanelHeader('传统环境')} key="env">
-                <TraditionEnv/>
+                <TraditionEnv scope={this}/>
               </Panel>
               <Panel header={this.renderPanelHeader('服务状态')} key="status">
-                <ServiceStatus/>
+                <ServiceStatus scope={this}/>
               </Panel>
               <Panel header={this.renderPanelHeader('选择部署包')} key="packet">
                 <SelectPacket/>
@@ -80,5 +132,5 @@ function mapStateToProps(state, props) {
   }
 }
 export default connect(mapStateToProps, {
-
+  checkServiceExists
 })(Form.create()(VMServiceCreate))
