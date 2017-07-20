@@ -154,9 +154,9 @@ const Ports = React.createClass({
             <Select size="default" {...portProtocolProps}>
               {
                 accessMethod == 'Cluster'
-                ? <Option value="TCP">TCP</Option>
-                : [<Option value="HTTP" disabled={httpOptionDisabled}>HTTP</Option>,
-                  <Option value="TCP">TCP</Option>]
+                ? <Option key="TCP" value="TCP">TCP</Option>
+                : [<Option key="HTTP" value="HTTP" disabled={httpOptionDisabled}>HTTP</Option>,
+                  <Option key="TCP" value="TCP">TCP</Option>]
               }
             </Select>
           </FormItem>
@@ -252,7 +252,7 @@ const Ports = React.createClass({
         let input = document.getElementById(`port${uid}`);
         input && input.focus()
       },0)
-      
+
     })
   },
   render() {

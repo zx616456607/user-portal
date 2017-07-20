@@ -131,4 +131,9 @@ module.exports = function (config) {
   // ~ pkg
   this.pkg = collections.create('pkg')
 
+  // ~ services
+  this.services = collections.create('services')
+
+  // ~ vminfos
+  this.vminfos = collections.create('vminfos')
 }

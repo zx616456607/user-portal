@@ -254,7 +254,7 @@ const Storage = React.createClass({
   renderCreateVolume() {
     const { volumeName, volumeFormat, volumeSize, tips, createVolumeLoading } = this.state
     return (
-      <div className="createVolume">
+      <div className="createVolume" key="createVolume">
         <Input
           className="volumeInput"
           placeholder="存储卷名称"
@@ -513,7 +513,7 @@ const Storage = React.createClass({
     })
     return [
       createVolumeElement,
-      <div className={bindVolumesClass}>
+      <div className={bindVolumesClass} key="storageKeys">
         {storageKeys.map(this.renderConfigureItem) }
         <span className="addMountPath" onClick={this.addStorageKey}>
           <Icon type="plus-circle-o" />
