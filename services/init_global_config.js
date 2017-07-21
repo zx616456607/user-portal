@@ -74,7 +74,6 @@ exports.initGlobalConfig = function* () {
     }
     if (configType == 'harbor') { // Use harbor from v2.6.0
       globalConfig.registryConfig.url = configDetail.url
-      logger.info('registry config: ', configDetail.url)
       ConfigArray.Registry='NotEmpty'
       return
     }
@@ -150,7 +149,7 @@ exports.initGlobalConfig = function* () {
       globalConfig.storageConfig=[]
   }
   logger.info('api-server config: ', globalConfig.tenx_api.host)
-  logger.info('registry config: ', globalConfig.registryConfig.protocol + '://' + globalConfig.registryConfig.host + ':' + globalConfig.registryConfig.port)
+  logger.info('registry config: ', globalConfig.registryConfig.url)
   logger.info('devops config: ', globalConfig.cicdConfig.protocol + '://' + globalConfig.cicdConfig.host)
   logger.info('vm wrap api config: ', globalConfig.vmWrapConfig.protocol + '://' + globalConfig.vmWrapConfig.host)
   logger.info('mailbox config: ', globalConfig.mail_server.host)
