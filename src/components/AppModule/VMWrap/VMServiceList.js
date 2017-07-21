@@ -17,8 +17,9 @@ import { Card, Row, Col, Form, Input, Button, Checkbox, Collapse, Table, Menu, D
 import QueueAnim from 'rc-queue-anim'
 import CommonSearchInput from '../../CommonSearchInput'
 import './style/VMServiceList.less'
-import { getVMserviceList, vmServiceDelete } from '../../../actions/vm_wrap'
+import { getVMserviceList, vmServiceDelete, serviceDeploy } from '../../../actions/vm_wrap'
 import NotificationHandler from '../../../components/Notification'
+import TenxStatus from '../../TenxStatus/index'
 
 class VMServiceList extends React.Component {
   constructor(props) {
@@ -39,8 +40,25 @@ class VMServiceList extends React.Component {
       Object.assign(arr[i],{key:arr[i].serviceId})
     }
   }
-  handleButtonClick(e) {
-  
+  handleButtonClick(record) {
+    const { serviceDeploy } = this.props;
+    let notify = new NotificationHandler()
+    serviceDeploy(record.serviceId,{
+      success: {
+        func: res => {
+          this.pageAndSerch(null,1)
+          notify.success('重新部署成功')
+        },
+        isAsync: true
+      },
+      failed:{
+        func: res => {
+          this.pageAndSerch(null,1)
+          notify.error('重新部署失败')
+        },
+        isAsync: true
+      }
+    })
   }
   
   handleMenuClick(e,record) {
@@ -110,6 +128,24 @@ class VMServiceList extends React.Component {
       }
     })
   }
+  getServiceStatus(status) {
+    let phase,progress = {status: false};
+    if (status === 0) {
+      phase = 'Deploying'
+      progress = {status: true}
+    } else if (status === 1) {
+      phase = 'UploadPkgAndEnvFailed'
+    } else if (status === 2) {
+      phase = 'UploadPkgAndEnvSuccess'
+    } else if (status === 3) {
+      phase = 'ServiceInitFailed'
+    } else if (status === 4) {
+      phase = 'ServiceNormalFailed'
+    } else {
+      phase = 'Succeeded'
+    }
+    return <TenxStatus phase={phase} progress={progress}/>
+  }
   render() {
     const { selectedRowKeys, service, loading } = this.state;
     
@@ -119,9 +155,12 @@ class VMServiceList extends React.Component {
       render: text => <a href="#">{text}</a>,
     }, {
       title: '状态',
+      width: '15%',
       dataIndex: 'serviceStatus',
+      render:(text,record) => this.getServiceStatus(text)
     }, {
       title: '部署包（版本标签）',
+      width: '15%',
       dataIndex: 'packages',
     },{
       title: '部署环境IP',
@@ -134,11 +173,11 @@ class VMServiceList extends React.Component {
       render: (text,record)=>{
         const menu = (
           <Menu onClick={(e)=>this.handleMenuClick(e,record)}>
-            <Menu.Item key="delete">删除应用</Menu.Item>
+            <Menu.Item key="delete">&nbsp;删除应用&nbsp;&nbsp;</Menu.Item>
           </Menu>
         )
         return (
-          <Dropdown.Button onClick={this.handleButtonClick} overlay={menu} type="ghost">
+          <Dropdown.Button onClick={()=>this.handleButtonClick(record)} overlay={menu} type="ghost">
             重新部署
           </Dropdown.Button>
         )
@@ -181,5 +220,6 @@ function mapStateToProps() {
 
 export default connect(mapStateToProps, {
   getVMserviceList,
-  vmServiceDelete
+  vmServiceDelete,
+  serviceDeploy
 })(VMServiceList)

@@ -159,3 +159,32 @@ export function checkServiceExists(serviceName,query, callback) {
     return dispatch(fetchcheckServiceExists(serviceName,query, callback))
   }
 }
+
+export const VM_WRAP_SERVICES_DEPLOY_REQUEST = 'VM_WRAP_SERVICES_DEPLOY_REQUEST'
+export const VM_WRAP_SERVICES_DEPLOY_SUCCESS = 'VM_WRAP_SERVICES_DEPLOY_SUCCESS'
+export const VM_WRAP_SERVICES_DEPLOY_FAILURE = 'VM_WRAP_SERVICES_DEPLOY_FAILURE'
+
+// Fetches wechat auth qr code from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchServiceDeploy(serviceId, callback) {
+  let endpoint = `${API_URL_PREFIX}/vm-wrap/services/${serviceId}/deployment`
+  return {
+    [FETCH_API]: {
+      types: [VM_WRAP_SERVICES_DEPLOY_REQUEST, VM_WRAP_SERVICES_DEPLOY_SUCCESS, VM_WRAP_SERVICES_DEPLOY_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST'
+      }
+    },
+    callback,
+  }
+}
+
+// Fetches wechat auth qr code from API
+// Relies on Redux Thunk middleware.
+export function serviceDeploy(serviceId, callback) {
+  return (dispatch) => {
+    return dispatch(fetchServiceDeploy(serviceId, callback))
+  }
+}

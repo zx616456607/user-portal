@@ -23,18 +23,27 @@ class TraditionEnv extends Component{
   
   checkHost(rules,value,callback) {
     const { scope } = this.props;
+    if (!value) {
+      callback()
+    }
     scope.setState({
       host:value
     })
   }
   checkName(rules,value,callback) {
     const { scope } = this.props;
+    if (!value) {
+      callback()
+    }
     scope.setState({
       account:value
     })
   }
   checkPass(rules,value,callback) {
     const { scope } = this.props;
+    if (!value) {
+      callback()
+    }
     scope.setState({
       password:value
     })
@@ -44,6 +53,9 @@ class TraditionEnv extends Component{
     const formItemLayout = {
       labelCol: { span: 3 },
       wrapperCol: { span: 9 },
+    };
+    const formTextLayout = {
+      wrapperCol: { span: 9, offset: 3 },
     };
     const envIP = getFieldProps('envIP', {
       rules: [
@@ -79,8 +91,13 @@ class TraditionEnv extends Component{
             {...formItemLayout}
           >
             <Input placeholder="请输入已开通SSH登录的传统环境IP" size="large" {...envIP}/>
+          </FormItem>
+          <FormItem
+            {...formTextLayout}
+          >
             <div><Icon type="question-circle-o" /> 传统环境一般指非容器环境（Linux的虚拟机、物理机等）</div>
           </FormItem>
+          
           <FormItem
             label="环境登录账号"
             {...formItemLayout}
@@ -107,4 +124,4 @@ function mapStateToProps(state, props) {
 }
 export default connect(mapStateToProps, {
 
-})(Form.create()(TraditionEnv))
+})(TraditionEnv)

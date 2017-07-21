@@ -11,7 +11,7 @@
  */
 
 import React from 'react'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import { Card, Row, Col, Form, Input, Button, Checkbox, Collapse  } from 'antd'
 import QueueAnim from 'rc-queue-anim'
@@ -22,7 +22,8 @@ import SelectPacket from './SelectPacket'
 const FormItem = Form.Item;
 const Panel = Collapse.Panel;
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
-import { checkServiceExists } from '../../../../actions/vm_wrap'
+import NotificationHandler from '../../../../components/Notification'
+import { checkServiceExists, createVMservice } from '../../../../actions/vm_wrap'
 
 class VMServiceCreate extends React.Component {
   constructor(props) {
@@ -53,7 +54,7 @@ class VMServiceCreate extends React.Component {
   }
   serviceNameCheck(rules,value,callback) {
     const { checkServiceExists } = this.props;
-    let newValue = value.trim()
+    let newValue = value && value.trim()
     if (!Boolean(newValue)) {
       callback(new Error('请输入名称'))
       return
@@ -80,6 +81,54 @@ class VMServiceCreate extends React.Component {
       })
     },ASYNC_VALIDATOR_TIMEOUT)
   }
+  createService() {
+    const { createVMservice, form } = this.props;
+    const { validateFields } = form;
+    const { host, account, password, address, init, normal, interval, packages, env} = this.state;
+    let notify = new NotificationHandler()
+    let obj = {}
+    for (let i = 0; i < env.length; i++) {
+      obj[Object.keys(env[i])] = Object.values(env[i])[0]
+    }
+    let serviceName = form.getFieldValue('serviceName')
+    // validateFields((errors,values)=>{
+    //   if (!!errors) {
+    //     return
+    //   }
+      createVMservice({
+        serviceName,
+        vmInfo:{
+          host,
+          account,
+          password
+        },
+        healthCheck:{
+          address,
+          init,
+          normal,
+          interval
+        },
+        Packages:packages,
+        ENV:obj
+      },{
+        success: {
+          func: res => {
+            notify.success('创建应用成功')
+            form.resetFields()
+            browserHistory.push('/app_manage/vm_wrap')
+          },
+          isAsync: true
+        },
+        failed: {
+          func: res => {
+            notify.error('创建应用失败')
+          },
+          isAsync: true
+        }
+      })
+    // })
+    
+  }
   render() {
     const { getFieldProps, isFieldValidating, getFieldError } = this.props.form;
     return (
@@ -99,6 +148,7 @@ class VMServiceCreate extends React.Component {
               >
                 <Input {...getFieldProps('serviceName',{
                   rules: [
+                    {required: true,message:'请输入应用名称'},
                     { validator: this.serviceNameCheck.bind(this)}
                   ]
                 })} placeholder="请输入应用名称"/>
@@ -106,17 +156,17 @@ class VMServiceCreate extends React.Component {
             </Form>
             <Collapse defaultActiveKey={['env','status','packet']} onChange={this.onChange}>
               <Panel header={this.renderPanelHeader('传统环境')} key="env">
-                <TraditionEnv scope={this}/>
+                <TraditionEnv scope={this} form={this.props.form}/>
               </Panel>
               <Panel header={this.renderPanelHeader('服务状态')} key="status">
-                <ServiceStatus scope={this}/>
+                <ServiceStatus scope={this} form={this.props.form}/>
               </Panel>
               <Panel header={this.renderPanelHeader('选择部署包')} key="packet">
-                <SelectPacket/>
+                <SelectPacket scope={this} form={this.props.form}/>
               </Panel>
             </Collapse>
             <div className="btnBox clearfix">
-              <Button type="primary" size="large" className="pull-right">创建</Button>
+              <Button type="primary" size="large" className="pull-right" onClick={this.createService.bind(this)}>创建</Button>
             </div>
           </Card>
         </div>
@@ -132,5 +182,6 @@ function mapStateToProps(state, props) {
   }
 }
 export default connect(mapStateToProps, {
-  checkServiceExists
+  checkServiceExists,
+  createVMservice
 })(Form.create()(VMServiceCreate))
