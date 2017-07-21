@@ -24,6 +24,7 @@ const Panel = Collapse.Panel;
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import { checkServiceExists, createVMservice } from '../../../../actions/vm_wrap'
+import { validateK8sResourceForServiceName } from '../../../../common/naming_validation'
 
 class VMServiceCreate extends React.Component {
   constructor(props) {
@@ -54,14 +55,13 @@ class VMServiceCreate extends React.Component {
   }
   serviceNameCheck(rules,value,callback) {
     const { checkServiceExists } = this.props;
-    let newValue = value && value.trim()
+    let newValue = value
     if (!Boolean(newValue)) {
-      callback(new Error('请输入名称'))
+      callback()
       return
     }
-    if (newValue.length < 1 || newValue.length > 21) {
-      callback(new Error('请输入1~21个字符'))
-      return
+    if (!validateK8sResourceForServiceName(newValue)) {
+      return callback('服务名称可由3~24位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
     }
     clearTimeout(this.projectNameCheckTimeout)
     this.projectNameCheckTimeout = setTimeout(()=>{
@@ -74,7 +74,9 @@ class VMServiceCreate extends React.Component {
         },
         failed: {
           func: (res) => {
-            return callback(new Error('该应用名称已经存在'))
+            if (res.statusCode === 405) {
+              return callback(new Error('该应用名称已经存在'))
+            }
           },
           isAsync:true
         }
@@ -91,10 +93,10 @@ class VMServiceCreate extends React.Component {
       obj[Object.keys(env[i])] = Object.values(env[i])[0]
     }
     let serviceName = form.getFieldValue('serviceName')
-    // validateFields((errors,values)=>{
-    //   if (!!errors) {
-    //     return
-    //   }
+    validateFields((errors,values)=>{
+      if (!!errors) {
+        return
+      }
       createVMservice({
         serviceName,
         vmInfo:{
@@ -126,7 +128,7 @@ class VMServiceCreate extends React.Component {
           isAsync: true
         }
       })
-    // })
+    })
     
   }
   render() {
@@ -144,7 +146,7 @@ class VMServiceCreate extends React.Component {
                 labelCol={{ span: 3 }}
                 wrapperCol={{ span: 9 }}
                 hasFeedback
-                help={isFieldValidating('serviceName') ? '校验中...' : (getFieldError('serviceName') || []).join(', ')}
+                // help={isFieldValidating('serviceName') ? '校验中...' : (getFieldError('serviceName') || []).join(', ')}
               >
                 <Input {...getFieldProps('serviceName',{
                   rules: [

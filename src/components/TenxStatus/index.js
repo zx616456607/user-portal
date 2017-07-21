@@ -357,6 +357,10 @@ TenxStatus.propTypes = {
     'Stopped',
     'Running',
     'Abnormal',
+    'UploadPkgAndEnvFailed',
+    'UploadPkgAndEnvSuccess',
+    'ServiceInitFailed',
+    'ServiceNormalFailed'
   ]).isRequired,
   progress: PropTypes.shape({
     status: PropTypes.bool,

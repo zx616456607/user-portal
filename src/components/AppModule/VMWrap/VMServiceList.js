@@ -152,22 +152,27 @@ class VMServiceList extends React.Component {
     const columns = [{
       title: '应用名',
       dataIndex: 'serviceName',
+      key: 'serviceName',
       render: text => <a href="#">{text}</a>,
     }, {
       title: '状态',
       width: '15%',
       dataIndex: 'serviceStatus',
+      key: 'serviceStatus',
       render:(text,record) => this.getServiceStatus(text)
     }, {
       title: '部署包（版本标签）',
       width: '15%',
       dataIndex: 'packages',
+      key: 'packages',
     },{
       title: '部署环境IP',
-      dataIndex: 'host'
+      dataIndex: 'host',
+      key: 'host'
     },{
       title: '最后修改人',
-      dataIndex: 'updateUserName'
+      dataIndex: 'updateUserName',
+      key: 'updateUserName'
     },{
       title: '操作',
       render: (text,record)=>{
