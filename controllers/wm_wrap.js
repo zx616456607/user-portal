@@ -104,3 +104,12 @@ exports.checkVM = function* () {
   const result = yield api.vminfos.createBy([ 'check' ], null, body)
   this.body = result
 }
+
+exports.checkService = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getVMWrapApi(loginUser)
+  const serviceName = this.params.serviceName
+  const query = this.query
+  const result = yield api.services.getBy([ serviceName, 'exists' ],query)
+  this.body = result
+}

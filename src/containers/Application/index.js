@@ -70,11 +70,11 @@ const menuList_enterprise = [
 const vmWrapMenu = [
   {
     url: '/app_manage/vm_wrap',
-    name: '传统服务'
+    name: '传统应用'
   },
   {
     url: '/app_manage/vm_list',
-    name: '传统服务环境'
+    name: '传统应用环境'
   },
 ]
 

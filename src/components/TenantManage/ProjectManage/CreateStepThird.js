@@ -14,7 +14,7 @@ import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
 import { GetProjectsMembers } from '../../../actions/project'
 import { GetRole } from '../../../actions/role'
-import TreeComponent from '../../TreeComponent'
+import TreeComponent from '../../TreeForMembers'
 let checkedKeysThird = []
 class CreateStepThird extends Component{
   constructor(props){
@@ -71,9 +71,11 @@ class CreateStepThird extends Component{
     for (let i = 0; i < arr.length; i++) {
       if (arr[i].teamId) {
         Object.assign(arr[i],{id:arr[i].teamId},{teamName:arr[i].teamName},{userCount:arr[i].userCount},{children:arr[i].users})
-        this.formatArr(arr[i].users)
-      } else if(arr[i].userID) {
-        Object.assign(arr[i],{id:arr[i].userID},{userName:arr[i].userName},{creationTime:arr[i].creationTime})
+        for (let j = 0; j < arr[i].children.length; j++) {
+          Object.assign(arr[i].children[j],{id:arr[i].children[j].userId},{userName:arr[i].children[j].userName},{creationTime:arr[i].children[j].creationTime},{parent:arr[i].teamId})
+        }
+      } else if(arr[i].userId) {
+        Object.assign(arr[i],{id:arr[i].userId},{userName:arr[i].userName},{creationTime:arr[i].creationTime})
       }
     }
   }
@@ -189,12 +191,12 @@ class CreateStepThird extends Component{
     const loopFunc = data => data.length >0 && data.map((item) => {
       if (item.users) {
         return (
-          <TreeNode key={item.teamId} title={item.teamName}>
+          <TreeNode key={item.id} title={item.teamName} disableCheckbox={item.checked}>
             {loopFunc(item.users)}
           </TreeNode>
         );
       }
-      return <TreeNode key={item.userID} title={item.userName}/>;
+      return <TreeNode key={item.id} title={item.userName} disableCheckbox={item.checked}/>;
     });
     return (
       <div id="projectCreateStepThird">
@@ -242,9 +244,10 @@ class CreateStepThird extends Component{
                onOk={()=> this.submitModal()}
         >
           <TreeComponent
-             outPermissionInfo={memberArr}
+             outPermissionInfo={memberArr.slice(0,2)}
              permissonInfo={[]}
              loopFunc={loopFunc}
+             text='成员'
           />
         </Modal>
       </div>

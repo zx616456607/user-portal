@@ -14,6 +14,7 @@ import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, To
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
 import { ListProjects, DeleteProjects, UpdateProjects } from '../../../actions/project'
+import { loadUserList } from '../../../actions/user'
 import { chargeProject } from '../../../actions/charge'
 import { parseAmount } from '../../../common/tools'
 import Notification from '../../../components/Notification'
@@ -44,31 +45,14 @@ class ProjectManage extends Component{
       authorizedCluster: [],
       RoleKeys: [],
       rightModal: false,
-      mockData: [],
+      userList: [],
       targetKeys: [],
     }
   }
   componentWillMount() {
     this.refresh('tableLoading')
-    this.getMock();
   }
-  getMock() {
-    const targetKeys = [];
-    const mockData = [];
-    for (let i = 0; i < 20; i++) {
-      const data = {
-        key: i,
-        title: `内容${i + 1}`,
-        description: `内容${i + 1}的描述`,
-        chosen: Math.random() * 2 > 1,
-      };
-      if (data.chosen) {
-        targetKeys.push(data.key);
-      }
-      mockData.push(data);
-    }
-    this.setState({ mockData, targetKeys });
-  }
+  
   componentWillReceiveProps(nextProps) {
     const step = nextProps.location.query.step;
     if (step) {
@@ -296,9 +280,33 @@ class ProjectManage extends Component{
       }
     })
   }
+  formatUserList(users) {
+    for (let i = 0; i < users.length; i++) {
+      Object.assign(users[i],{key:users[i].userID,title:users[i].namespace,chosen:false})
+    }
+  }
   openRightModal() {
-    this.setState({
-      rightModal: true
+    const { loadUserList } = this.props;
+    loadUserList({
+      size: 0
+    },{
+      success: {
+        func: (res) => {
+          this.formatUserList(res.users)
+          this.setState({
+            userList:res,
+            targetKeys: [],
+            rightModal: true
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (res) => {
+        
+        },
+        isAsync: true
+      }
     })
   }
   cancelRightModal() {
@@ -319,7 +327,7 @@ class ProjectManage extends Component{
   }
   render() {
     const step = this.props.location.query.step || '';
-    const { payNumber, selected, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro,projectName } = this.state;
+    const { payNumber, selected, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro,projectName,userList } = this.state;
     const { clustersFetching, clusters } = this.props;
     const pagination = {
       simple: true,
@@ -470,7 +478,7 @@ class ProjectManage extends Component{
         >
           <div className="alertRow">可创建项目的成员能创建项目并有管理该项目的权限</div>
           <Transfer
-            dataSource={this.state.mockData}
+            dataSource={userList.users}
             listStyle={{
               width: 300,
               height: 270,
@@ -479,10 +487,10 @@ class ProjectManage extends Component{
             titles={['可选成员名','可创建项目成员']}
             searchPlaceholder="按成员名搜索"
             showSearch
-            filterOption={this.filterOption}
+            filterOption={this.filterOption.bind(this)}
             targetKeys={this.state.targetKeys}
-            onChange={this.handleChange}
-            render={item => item.title}
+            onChange={this.handleChange.bind(this)}
+            render={item => item && item.title}
           />
         </Modal>
         <Row className={classNames({'hidden': step !== ''})}>
@@ -570,6 +578,7 @@ export default connect(mapStateToProps,{
   DeleteProjects,
   UpdateProjects,
   chargeProject,
+  loadUserList
 })(ProjectManage);
 
 class DelProjectTable extends Component{

@@ -123,6 +123,22 @@ const messages = defineMessages({
     id: 'TenxStatus.StoppedMsg',
     defaultMessage: '全部停止',
   },
+  UploadPkgAndEnvFailed: {
+    id: 'TenxStatus.UploadPkgAndEnvFailed',
+    defaultMessage: '上传包及环境变量设置失败'
+  },
+  UploadPkgAndEnvSuccess: {
+    id: 'TenxStatus.UploadPkgAndEnvSuccess',
+    defaultMessage: '上传包及环境变量设置成功'
+  },
+  ServiceInitFailed: {
+    id: 'TenxStatus.ServiceInitFailed',
+    defaultMessage: '服务初始化超时'
+  },
+  ServiceNormalFailed: {
+    id: 'TenxStatus.ServiceNormalFailed',
+    defaultMessage: '服务常规超时'
+  }
 })
 
 const exclamationIcon = (
@@ -341,6 +357,10 @@ TenxStatus.propTypes = {
     'Stopped',
     'Running',
     'Abnormal',
+    'UploadPkgAndEnvFailed',
+    'UploadPkgAndEnvSuccess',
+    'ServiceInitFailed',
+    'ServiceNormalFailed'
   ]).isRequired,
   progress: PropTypes.shape({
     status: PropTypes.bool,

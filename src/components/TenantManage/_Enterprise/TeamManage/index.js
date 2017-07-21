@@ -13,7 +13,7 @@ import './style/TeamManage.less'
 import { Link } from 'react-router'
 import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
-import { loadUserTeamList } from '../../../../actions/user'
+import { loadUserTeamList, loadUserList } from '../../../../actions/user'
 import {
   createTeam, deleteTeam, createTeamspace,
   addTeamusers, removeTeamusers, loadTeamUserList,
@@ -490,7 +490,9 @@ class TeamManage extends Component {
       sort: 'a,teamName',
       selected: [],
       deleteTeamModal: false,
-      allTeamList: []
+      allTeamList: [],
+      userList:[],
+      targetKeys: [],
     }
   }
   showModal() {
@@ -586,11 +588,6 @@ class TeamManage extends Component {
   deleteTeamConfirm() {
   
   }
-  openRightModal() {
-    this.setState({
-      rightModal: true
-    })
-  }
   cancelRightModal() {
     this.setState({
       rightModal: false
@@ -607,9 +604,38 @@ class TeamManage extends Component {
   handleChange(targetKeys) {
     this.setState({ targetKeys });
   }
+  formatUserList(users) {
+    for (let i = 0; i < users.length; i++) {
+      Object.assign(users[i],{key:users[i].userID,title:users[i].namespace,chosen:false})
+    }
+  }
+  openRightModal() {
+    const { loadUserList } = this.props;
+    loadUserList({
+      size: 0
+    },{
+      success: {
+        func: (res) => {
+          this.formatUserList(res.users)
+          this.setState({
+            userList:res,
+            targetKeys: [],
+            rightModal: true
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (res) => {
+        
+        },
+        isAsync: true
+      }
+    })
+  }
   render() {
     const scope = this
-    const { visible, deleteTeamModal, allTeamList } = this.state
+    const { visible, deleteTeamModal, allTeamList, userList, targetKeys } = this.state
     const {
       teams, addTeamusers, loadUserTeamList,
       teamUserIDList, loadTeamUserList, checkTeamName
@@ -658,7 +684,7 @@ class TeamManage extends Component {
           >
             <div className="alertRow">可创建团队的成员能创建团队并有管理该团队的权限</div>
             <Transfer
-              dataSource={this.state.mockData}
+              dataSource={userList.users}
               listStyle={{
                 width: 300,
                 height: 270,
@@ -667,9 +693,9 @@ class TeamManage extends Component {
               titles={['可选成员名','可创建项目成员']}
               searchPlaceholder="按成员名搜索"
               showSearch
-              filterOption={this.filterOption}
-              targetKeys={this.state.targetKeys}
-              onChange={this.handleChange}
+              filterOption={this.filterOption.bind(this)}
+              targetKeys={targetKeys}
+              onChange={this.handleChange.bind(this)}
               render={item => item.title}
             />
           </Modal>
@@ -765,5 +791,6 @@ export default connect(mapStateToProp, {
   loadTeamUserList,
   checkTeamName,
   loadTeamspaceList,
-  chargeTeamspace
+  chargeTeamspace,
+  loadUserList
 })(TeamManage)
