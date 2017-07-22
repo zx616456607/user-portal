@@ -35,7 +35,7 @@ const Option = Select.Option;
 const menusText = defineMessages({
   headTitle: {
     id: 'ManageMonitor.QueryLog.headTitle',
-    defaultMessage: '日志查询 | 时速云',
+    defaultMessage: '日志查询',
   },
   title: {
     id: 'ManageMonitor.QueryLog.title',
