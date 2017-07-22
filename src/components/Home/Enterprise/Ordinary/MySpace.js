@@ -579,7 +579,7 @@ export default connect(mapStateToProp, {
 const menusText = defineMessages({
   headTitle: {
     id: 'ManageMonitor.operationalAudit.headTitle',
-    defaultMessage: '操作审计 | 时速云',
+    defaultMessage: '操作审计',
   },
   title: {
     id: 'ManageMonitor.operationalAudit.title',

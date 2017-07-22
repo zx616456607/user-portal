@@ -20,7 +20,7 @@ const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
 
 class ServiceStatus extends Component{
-  
+
   checkAddr(rules,value,callback) {
     const { scope } = this.props;
     if (!value) {
@@ -29,6 +29,7 @@ class ServiceStatus extends Component{
     scope.setState({
       address:value
     })
+    callback()
   }
   checkInit(rules,value,callback) {
     const { scope } = this.props;
@@ -38,6 +39,7 @@ class ServiceStatus extends Component{
     scope.setState({
       init:value
     })
+    callback()
   }
   checkNomal(rules,value,callback) {
     const { scope } = this.props;
@@ -47,6 +49,7 @@ class ServiceStatus extends Component{
     scope.setState({
       normal:value
     })
+    callback()
   }
   checkInterval(rules,value,callback) {
     const { scope } = this.props;
@@ -56,6 +59,7 @@ class ServiceStatus extends Component{
     scope.setState({
       interval:value
     })
+    callback()
   }
   render() {
     const { getFieldProps } = this.props.form;
@@ -121,9 +125,9 @@ class ServiceStatus extends Component{
 }
 
 function mapStateToProps(state, props) {
-  
+
   return {
-  
+
   }
 }
 export default connect(mapStateToProps, {
