@@ -141,7 +141,7 @@ class SelectPacket extends Component{
       },
       failed: {
         func: res => {
-        
+
         },
         isAsync: true
       }
@@ -163,7 +163,7 @@ class SelectPacket extends Component{
         env
       })
     },ASYNC_VALIDATOR_TIMEOUT)
-    
+
   }
   envValueCheck(rules,value,callback) {
     const { scope, form } = this.props;
@@ -183,7 +183,7 @@ class SelectPacket extends Component{
         env
       })
     },ASYNC_VALIDATOR_TIMEOUT)
-    
+
   }
   render() {
     let { sortedInfo, selectedRowKeys, packageInfo, loading } = this.state;
@@ -204,7 +204,7 @@ class SelectPacket extends Component{
     const formLabel = {
       wrapperCol: { span: 20, offset: 1}
     }
-  
+
     const envList = getFieldValue('envKeys') && getFieldValue('envKeys').map((item,index)=>{
       return(
         <Row className="envList" key={item}>
@@ -279,25 +279,28 @@ class SelectPacket extends Component{
       onSelect:(record)=> this.rowClick(record),
       onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
     };
-    const searchValue = getFieldProps('searchValue', {
-      rules: [
-        { validator: (rules,value)=>this.pageAndSerch(value)}
-      ]
-    });
     return(
       <div className="selectPacket">
+      <Row className="searchInputBox">
+        <Col span={3} className="searchLabel">
+          选择应用包 : &nbsp;&nbsp;
+        </Col>
+        <Col span={13}>
+          <Row>
+            <Col span={17} className="inputBox">
+              <input onChange={(e)=>this.pageAndSerch(e.target.value)} placeholder="请输入包名称或标签搜索"/>
+            </Col>
+            <Col span={6} offset={1}>
+              <Link to="/app_center/wrap_manage">
+                <Button type="primary" className="toUploadBtn" size="large">去上传部署包</Button>
+              </Link>
+            </Col>
+          </Row>
+
+        </Col>
+      </Row>
+
         <Form id="selectPacketForm">
-          <FormItem
-            label="选择部署包"
-            {...formItemLayout}
-          >
-            <Input placeholder="请输入包名称或标签搜索" size="large" {...searchValue}/>
-            <Link to="/app_center/wrap_manage">
-              <Button type="primary" className="toUploadBtn" size="large">去上传部署包</Button>
-            </Link>
-            
-          </FormItem>
-          
           <Row>
             <Col offset={3} className="tableBox">
               <Table
@@ -341,9 +344,9 @@ class SelectPacket extends Component{
 
 
 function mapStateToProps(state, props) {
-  
+
   return {
-  
+
   }
 }
 export default connect(mapStateToProps, {

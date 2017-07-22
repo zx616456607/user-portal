@@ -42,9 +42,9 @@ class VMServiceCreate extends React.Component {
       env:[]
     }
   }
-  
+
   onChange(key) {
-  
+
   }
   renderPanelHeader(text) {
     return (
@@ -129,7 +129,7 @@ class VMServiceCreate extends React.Component {
         }
       })
     })
-    
+
   }
   render() {
     const { getFieldProps, isFieldValidating, getFieldError } = this.props.form;
@@ -178,9 +178,9 @@ class VMServiceCreate extends React.Component {
 }
 
 function mapStateToProps(state, props) {
-  
+
   return {
-  
+
   }
 }
 export default connect(mapStateToProps, {
