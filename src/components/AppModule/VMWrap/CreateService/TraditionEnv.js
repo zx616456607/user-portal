@@ -20,7 +20,7 @@ const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
 
 class TraditionEnv extends Component{
-  
+
   checkHost(rules,value,callback) {
     const { scope } = this.props;
     if (!value) {
@@ -29,6 +29,7 @@ class TraditionEnv extends Component{
     scope.setState({
       host:value
     })
+    callback()
   }
   checkName(rules,value,callback) {
     const { scope } = this.props;
@@ -38,6 +39,7 @@ class TraditionEnv extends Component{
     scope.setState({
       account:value
     })
+    callback()
   }
   checkPass(rules,value,callback) {
     const { scope } = this.props;
@@ -47,6 +49,7 @@ class TraditionEnv extends Component{
     scope.setState({
       password:value
     })
+    callback()
   }
   render() {
     const { getFieldProps } = this.props.form;
@@ -97,7 +100,7 @@ class TraditionEnv extends Component{
           >
             <div><Icon type="question-circle-o" /> 传统环境一般指非容器环境（Linux的虚拟机、物理机等）</div>
           </FormItem>
-          
+
           <FormItem
             label="环境登录账号"
             {...formItemLayout}
@@ -117,9 +120,9 @@ class TraditionEnv extends Component{
 }
 
 function mapStateToProps(state, props) {
-  
+
   return {
-  
+
   }
 }
 export default connect(mapStateToProps, {

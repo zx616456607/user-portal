@@ -149,32 +149,30 @@ class SelectPacket extends Component{
   }
   envKeyCheck(rules,value,callback) {
     const { scope, form } = this.props;
-    let newValue = value && value.trim()
-    if (!Boolean(newValue)) {
-      callback(new Error('请输入环境变量'))
-      return
+    if (!value) {
+      callback()
     }
     let env = scope.state.env;
     let envKeys = form.getFieldValue('envKeys')
+    if (!envKeys) { return }
     clearTimeout(this.newKeyTimeout)
     this.newKeyTimeout = setTimeout(()=>{
-      env[env.length - 1][value] = form.getFieldValue(`newValue${envKeys[envKeys.length - 1]}`) || undefined
+      env[env.length - 1][value] = form.getFieldValue(`newValue${envKeys[envKeys && envKeys.length - 1]}`) || undefined
       scope.setState({
         env
       })
+      callback()
     },ASYNC_VALIDATOR_TIMEOUT)
-
   }
   envValueCheck(rules,value,callback) {
     const { scope, form } = this.props;
-    let newValue = value && value.trim()
-    if (!Boolean(newValue)) {
-      callback(new Error('请输入环境变量值'))
-      return
+    if (!value) {
+      callback()
     }
     let env = scope.state.env;
     let envKeys = form.getFieldValue('envKeys')
-    let key = form.getFieldValue(`newKey${envKeys[envKeys.length - 1]}`)
+    if (!envKeys) { return}
+    let key = form.getFieldValue(`newKey${envKeys[envKeys &&envKeys.length - 1]}`)
     clearTimeout(this.newValueTimeout)
     this.newValueTimeout = setTimeout(()=>{
       let obj = {}
@@ -182,6 +180,7 @@ class SelectPacket extends Component{
       scope.setState({
         env
       })
+      callback()
     },ASYNC_VALIDATOR_TIMEOUT)
 
   }
@@ -211,10 +210,10 @@ class SelectPacket extends Component{
           <Col span={10}>
             <FormItem
               {...formLabel}
-              help={isFieldValidating(`newKey${item}`) ? '' : (getFieldError(`newKey${item}`) || []).join(', ')}
             >
               <Input autoComplete="off" size="large" {...getFieldProps(`newKey${item}`,{
                 rules: [
+                  {required: true, message: '请输入环境变量'},
                   { validator: this.envKeyCheck.bind(this)}
                 ]
               })}/>
@@ -223,10 +222,10 @@ class SelectPacket extends Component{
           <Col span={10}>
             <FormItem
               {...formLabel}
-              help={isFieldValidating(`newValue${item}`) ? '' : (getFieldError(`newValue${item}`) || []).join(', ')}
             >
               <Input size="large" autoComplete="off" {...getFieldProps(`newValue${item}`,{
                 rules: [
+                  {required: true, message: '请输入环境变量值'},
                   { validator: this.envValueCheck.bind(this)}
                 ]
               })}/>

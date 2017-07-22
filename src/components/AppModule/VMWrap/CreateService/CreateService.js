@@ -97,6 +97,9 @@ class VMServiceCreate extends React.Component {
       if (!!errors) {
         return
       }
+      if (!packages.length) {
+        return notify.info('请选择部署包')
+      }
       createVMservice({
         serviceName,
         vmInfo:{
