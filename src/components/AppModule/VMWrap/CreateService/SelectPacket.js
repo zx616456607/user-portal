@@ -141,7 +141,7 @@ class SelectPacket extends Component{
       },
       failed: {
         func: res => {
-        
+
         },
         isAsync: true
       }
@@ -149,32 +149,30 @@ class SelectPacket extends Component{
   }
   envKeyCheck(rules,value,callback) {
     const { scope, form } = this.props;
-    let newValue = value && value.trim()
-    if (!Boolean(newValue)) {
-      callback(new Error('请输入环境变量'))
-      return
+    if (!value) {
+      callback()
     }
     let env = scope.state.env;
     let envKeys = form.getFieldValue('envKeys')
+    if (!envKeys) { return }
     clearTimeout(this.newKeyTimeout)
     this.newKeyTimeout = setTimeout(()=>{
-      env[env.length - 1][value] = form.getFieldValue(`newValue${envKeys[envKeys.length - 1]}`) || undefined
+      env[env.length - 1][value] = form.getFieldValue(`newValue${envKeys[envKeys && envKeys.length - 1]}`) || undefined
       scope.setState({
         env
       })
+      callback()
     },ASYNC_VALIDATOR_TIMEOUT)
-    
   }
   envValueCheck(rules,value,callback) {
     const { scope, form } = this.props;
-    let newValue = value && value.trim()
-    if (!Boolean(newValue)) {
-      callback(new Error('请输入环境变量值'))
-      return
+    if (!value) {
+      callback()
     }
     let env = scope.state.env;
     let envKeys = form.getFieldValue('envKeys')
-    let key = form.getFieldValue(`newKey${envKeys[envKeys.length - 1]}`)
+    if (!envKeys) { return}
+    let key = form.getFieldValue(`newKey${envKeys[envKeys &&envKeys.length - 1]}`)
     clearTimeout(this.newValueTimeout)
     this.newValueTimeout = setTimeout(()=>{
       let obj = {}
@@ -182,8 +180,9 @@ class SelectPacket extends Component{
       scope.setState({
         env
       })
+      callback()
     },ASYNC_VALIDATOR_TIMEOUT)
-    
+
   }
   render() {
     let { sortedInfo, selectedRowKeys, packageInfo, loading } = this.state;
@@ -204,17 +203,17 @@ class SelectPacket extends Component{
     const formLabel = {
       wrapperCol: { span: 20, offset: 1}
     }
-  
+
     const envList = getFieldValue('envKeys') && getFieldValue('envKeys').map((item,index)=>{
       return(
         <Row className="envList" key={item}>
           <Col span={10}>
             <FormItem
               {...formLabel}
-              help={isFieldValidating(`newKey${item}`) ? '' : (getFieldError(`newKey${item}`) || []).join(', ')}
             >
               <Input autoComplete="off" size="large" {...getFieldProps(`newKey${item}`,{
                 rules: [
+                  {required: true, message: '请输入环境变量'},
                   { validator: this.envKeyCheck.bind(this)}
                 ]
               })}/>
@@ -223,10 +222,10 @@ class SelectPacket extends Component{
           <Col span={10}>
             <FormItem
               {...formLabel}
-              help={isFieldValidating(`newValue${item}`) ? '' : (getFieldError(`newValue${item}`) || []).join(', ')}
             >
               <Input size="large" autoComplete="off" {...getFieldProps(`newValue${item}`,{
                 rules: [
+                  {required: true, message: '请输入环境变量值'},
                   { validator: this.envValueCheck.bind(this)}
                 ]
               })}/>
@@ -279,25 +278,28 @@ class SelectPacket extends Component{
       onSelect:(record)=> this.rowClick(record),
       onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
     };
-    const searchValue = getFieldProps('searchValue', {
-      rules: [
-        { validator: (rules,value)=>this.pageAndSerch(value)}
-      ]
-    });
     return(
       <div className="selectPacket">
+      <Row className="searchInputBox">
+        <Col span={3} className="searchLabel">
+          选择应用包 : &nbsp;&nbsp;
+        </Col>
+        <Col span={13}>
+          <Row>
+            <Col span={17} className="inputBox">
+              <input onChange={(e)=>this.pageAndSerch(e.target.value)} placeholder="请输入包名称或标签搜索"/>
+            </Col>
+            <Col span={6} offset={1}>
+              <Link to="/app_center/wrap_manage">
+                <Button type="primary" className="toUploadBtn" size="large">去上传部署包</Button>
+              </Link>
+            </Col>
+          </Row>
+
+        </Col>
+      </Row>
+
         <Form id="selectPacketForm">
-          <FormItem
-            label="选择部署包"
-            {...formItemLayout}
-          >
-            <Input placeholder="请输入包名称或标签搜索" size="large" {...searchValue}/>
-            <Link to="/app_center/wrap_manage">
-              <Button type="primary" className="toUploadBtn" size="large">去上传部署包</Button>
-            </Link>
-            
-          </FormItem>
-          
           <Row>
             <Col offset={3} className="tableBox">
               <Table
@@ -341,9 +343,9 @@ class SelectPacket extends Component{
 
 
 function mapStateToProps(state, props) {
-  
+
   return {
-  
+
   }
 }
 export default connect(mapStateToProps, {

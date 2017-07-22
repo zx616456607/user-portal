@@ -42,9 +42,9 @@ class VMServiceCreate extends React.Component {
       env:[]
     }
   }
-  
+
   onChange(key) {
-  
+
   }
   renderPanelHeader(text) {
     return (
@@ -97,6 +97,9 @@ class VMServiceCreate extends React.Component {
       if (!!errors) {
         return
       }
+      if (!packages.length) {
+        return notify.info('请选择部署包')
+      }
       createVMservice({
         serviceName,
         vmInfo:{
@@ -129,7 +132,7 @@ class VMServiceCreate extends React.Component {
         }
       })
     })
-    
+
   }
   render() {
     const { getFieldProps, isFieldValidating, getFieldError } = this.props.form;
@@ -178,9 +181,9 @@ class VMServiceCreate extends React.Component {
 }
 
 function mapStateToProps(state, props) {
-  
+
   return {
-  
+
   }
 }
 export default connect(mapStateToProps, {
