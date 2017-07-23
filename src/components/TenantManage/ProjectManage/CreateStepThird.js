@@ -244,9 +244,8 @@ class CreateStepThird extends Component{
                onOk={()=> this.submitModal()}
         >
           <TreeComponent
-             outPermissionInfo={memberArr.slice(0,2)}
+             outPermissionInfo={memberArr.slice(0,10)}
              permissonInfo={[]}
-             loopFunc={loopFunc}
              text='成员'
           />
         </Modal>

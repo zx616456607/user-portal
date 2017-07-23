@@ -12,7 +12,7 @@ import React, { Component } from 'react'
 import { Tree, Button, Checkbox, Row, Col } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import './style/TreeForMembers.less'
-
+import difference from 'lodash/difference'
 const TreeNode = Tree.TreeNode
 
 class TreeComponent extends Component {
@@ -28,6 +28,7 @@ class TreeComponent extends Component {
       alreadyExpanedKeys: [],
       permissonInfo: [],
       alreadyAutoExpandParent: true,
+      disableCheckArr:[]
     }
   }
   
@@ -51,8 +52,11 @@ class TreeComponent extends Component {
   }
   
   onCheck = checkedKeys => {
+    let arr = new Set(checkedKeys);
+    arr = Array.from(arr)
+    console.log(checkedKeys)
     this.setState({
-      checkedKeys,
+      checkedKeys:arr,
       //expandedKeys: checkedKeys,
       autoExpandParent: false,
     });
@@ -92,7 +96,7 @@ class TreeComponent extends Component {
       if(item.children){
         eachFunc(item.children)
       }
-      return arr.push(item.id)
+      return arr.push(`${item.id}`)
     })
     if(data){
       eachFunc(data)
@@ -201,6 +205,9 @@ class TreeComponent extends Component {
   removeSelectedPermission = (checkedKeys, permission) => {
     let permissList = this.transformMultiArrayToLinearArray(permission)
     let arr = []
+    let disCheckArr = []
+    let per = []
+    let alreadyCheck = []
     for (let i = 0; i < permissList.length; i++) {
       permissList[i].checked = false
     }
@@ -208,22 +215,24 @@ class TreeComponent extends Component {
       for(let j = 0; j < permissList.length; j++){
         let id = typeof permissList[j].id === 'number' ? `${permissList[j].id}` : permissList[j].id
         if(id === checkedKeys[i]){
-          permissList[j].checked = true
-          arr.push(permissList[j].id)
+          if (typeof permissList[j].id === 'number') {
+            per.push(permissList[j])
+            alreadyCheck.push(id)
+          }
+          arr.push(id)
+          disCheckArr.push(id)
         }
       }
     }
+    per = this.deleteRepeatPermission(per)
+    let alreadySet = new Set(alreadyCheck);
+    alreadyCheck = Array.from(alreadySet)
     this.setState({
-      alreadyCheckedKeys:arr
+      checkedKeys:arr,
+      disableCheckArr:disCheckArr,
+      permissonInfo:per,
+      alreadyCheckedKeys:alreadyCheck
     })
-    // for(let i = 0; i < permissList.length; i++){
-    //   if(permissList[i].checked === false){
-    //     arr.push(permissList[i])
-    //   }
-    // }
-    // let arr2 = this.deleteRepeatPermission(arr)
-     permissList = this.addPermissionFormat(permissList)
-    return permissList
   }
   
   addPermissionFormat = data => {
@@ -240,15 +249,13 @@ class TreeComponent extends Component {
     let newPermissonInfo = cloneDeep(permissonInfo)
     let branchPermission = cloneDeep(outPermissionInfo)
     let newOutPermissionInfo = cloneDeep(outPermissionInfo)
+    console.log(checkedKeys)
     if(!checkedKeys.length) return
     let arr = []
     const func = (data, id, array) => data.forEach((item) => {
       if(item.id === id){
         array.push(item)
       }
-      // else if(item.children){
-      //   func(item.children, id, array)
-      // }
     })
     // 获取当前选中权限的信息，放入一个数组
     checkedKeys.forEach(item => {
@@ -258,63 +265,43 @@ class TreeComponent extends Component {
     if(getTreeRightData){
       getTreeRightData(outPermission)
     }
-    this.setState({
-      outPermissionInfo: outPermission
-    })
-    // 获取每个选中权限的所有父权限, 并存入一个数组中
-    return
-    let allBranchPermisson = []
-    arr.forEach(item => {
-      let arrItem = this.getAllBranchPermisson(item, [], branchPermission)
-      allBranchPermisson.push(arrItem)
-    })
-    let havePermission = this.transformMultiArrayToLinearArray(newPermissonInfo)
-    // 将目前的所有选中的权限都放入一个数组中
-    allBranchPermisson.forEach(item => {
-      item.forEach( itemson => {
-        havePermission.push(itemson)
-      })
-    })
-    // 删除重复的权限
-    let standrandArray = this.deleteRepeatPermission(havePermission)
-    let lastArray = this.addPermissionFormat(standrandArray)
-    if(getTreeLeftData){
-      getTreeLeftData(lastArray)
-    }
-    this.setState({
-      permissonInfo: lastArray,
-      checkedKeys: [],
-      alreadyCheckedKeys: [],
-    })
   }
   
   removePerssion = () => {
-    const { alreadyCheckedKeys, permissonInfo, outPermissionInfo } = this.state
+    const { alreadyCheckedKeys, permissonInfo, outPermissionInfo, disableCheckArr, checkedKeys } = this.state
     const { getTreeLeftData, getTreeRightData } = this.props
     let newPermissonInfo = cloneDeep(permissonInfo)
     let branchPerminssion = cloneDeep(permissonInfo)
     let newOutPermissionInfo = cloneDeep(outPermissionInfo)
-    if(!alreadyCheckedKeys.length) return
+    // if(!alreadyCheckedKeys.length) return
     let arr = []
-    const func = (data, id, array) => data.forEach((item) => {
-      if(item.id == id){
-        array.push(item)
-      } else if(item.children){
-        func(item.children, id, array)
+    let backArr = []
+    console.log(newPermissonInfo,alreadyCheckedKeys)
+    for(let i = 0; i < newPermissonInfo.length; i++) {
+      let flag = false;
+      for(let j = 0; j < alreadyCheckedKeys.length; j++) {
+        if(`${newPermissonInfo[i].id}` == alreadyCheckedKeys[j]) {
+          flag = true;
+          backArr.push(`${newPermissonInfo[i].id}`)
+        }
       }
-    })
-    // 获取当前选中权限的信息，放入一个数组
-    alreadyCheckedKeys.forEach(item => {
-      func(newPermissonInfo, item, arr)
-    })
-    let permission = this.removeSelectedPermission(alreadyCheckedKeys, newPermissonInfo)
+      if (!flag) {
+        arr.push(newPermissonInfo[i])
+      }
+    }
+    // let permission = this.removeSelectedPermission(alreadyCheckedKeys, newPermissonInfo)
     if(getTreeRightData){
       getTreeRightData(permission)
     }
+    console.log(checkedKeys,backArr,difference(checkedKeys.slice(0),backArr))
     this.setState({
-      permissonInfo: permission
+      permissonInfo: arr,
+      alreadyCheckedKeys: [],
+      disableCheckArr:difference(disableCheckArr,backArr),
+      checkedKeys:difference(checkedKeys.slice(0),backArr)
     })
     // 获取每个选中权限的所有父权限, 并存入一个数组中
+    return
     let allBranchPermisson = []
     arr.forEach(item => {
       let arrItem = this.getAllBranchPermisson(item, [], branchPerminssion)
@@ -348,19 +335,34 @@ class TreeComponent extends Component {
     }
     return totalNum
   }
-  
+  isReadyCheck = () => {
+    const { permissonInfo, alreadyCheckedKeys} = this.state;
+    if ((permissonInfo.length > 0) && (alreadyCheckedKeys.length > 0) && (permissonInfo.length === alreadyCheckedKeys.length)) {
+      return true
+    } else {
+      return false
+    }
+  }
   render() {
-    const { outPermissionInfo, permissonInfo } = this.state
-    const { loopFunc,text } = this.props
-    const loop = data => data.map((item) => {
-      if (item.children) {
+    const { outPermissionInfo, permissonInfo, disableCheckArr } = this.state
+    const { text } = this.props
+    const loopFunc = data => data.length >0 && data.map((item) => {
+      if (item.users) {
         return (
-          <TreeNode key={item.id} title={item.desc}>
-            {loop(item.children)}
+          <TreeNode key={item.id} title={item.teamName} disableCheckbox={disableCheckArr.indexOf(item.id) > -1}>
+            {loopFunc(item.users)}
           </TreeNode>
         );
       }
-      return <TreeNode key={item.id} title={item.desc} />;
+      return <TreeNode key={item.id} title={item.userName} disableCheckbox={disableCheckArr.indexOf(`${item.id}`) > -1}/>;
+    });
+    const loop = data => data.map((item) => {
+      if (item.children) {
+        return (
+          <TreeNode key={item.id} title={item.userName}/>
+        );
+      }
+      return <TreeNode key={item.id} title={item.userName}/>;
     });
     return(
       <div id='TreeComponent'>
@@ -407,7 +409,7 @@ class TreeComponent extends Component {
           <Col span="10">
             <div className='rightBox'>
               <div className='header'>
-                <Checkbox onClick={this.alreadySelectAll}>已选{text}</Checkbox>
+                <Checkbox onClick={this.alreadySelectAll} checked={this.isReadyCheck()}>已选{text}</Checkbox>
                 <div className='numberBox'>共 <span className='number'>{this.returnTotalNum(permissonInfo)}</span> 条</div>
               </div>
               <div className='body'>
@@ -422,7 +424,7 @@ class TreeComponent extends Component {
                       onCheck={this.onAlreadyCheck}
                       checkedKeys={this.state.alreadyCheckedKeys}
                     >
-                      {loopFunc(permissonInfo)}
+                      {loop(permissonInfo)}
                     </Tree>
                       : <span className='noPermission'>暂无{text}</span>
                   }
