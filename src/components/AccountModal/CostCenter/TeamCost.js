@@ -80,7 +80,7 @@ class TeamCost extends Component{
     } = this.props
     let teamCostTitle = (
       <div className="teamCostTitle">
-        <span>空间{currentSpaceName}对应的团队{currentTeamName}该月消费详情</span>
+        <span>空间 {currentSpaceName} 对应的团队 {currentTeamName} 该月消费详情</span>
         <MonthPicker style={{float: 'right',marginLeft:'40px'}} defaultValue={this.transformDate()} onChange={this.onChange} />
       </div>
     )
