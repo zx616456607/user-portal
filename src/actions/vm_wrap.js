@@ -56,9 +56,9 @@ export const VM_WRAP_VMADD_FAILURE = 'VM_WRAP_VMADD_FAILURE'
 
 function addVMinfosList(body, callback) {
   let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos`
-  if(state){
+ /* if(state){
     endpoint += `?${toQuerystring(query)}`
-  }
+  }*/
   return{
     [FETCH_API]: {
       types: [VM_WRAP_VMADD_REQUEST, VM_WRAP_VMADD_SUCCESS, VM_WRAP_VMADD_FAILURE],
@@ -73,9 +73,9 @@ function addVMinfosList(body, callback) {
   }
 }
 
-export function postVMinfoList(state, callback) {
+export function postVMinfoList(query, callback) {
   return(dispatch) => {
-    return dispatch(addVMinfosList(state, callback))
+    return dispatch(addVMinfosList(query, callback))
   }
 }
 
@@ -88,13 +88,14 @@ export const VM_WRAP_VMDEL_SUCCESS = 'VM_WRAP_VMDEL_SUCCESS'
 export const VM_WRAP_VMDEL_FAILURE = 'VM_WRAP_VMDEL_FAILURE'
 
 function deleteVMInfoList(ID, callback) {
+  debugger
   let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos/${ID.vmID}`
   return{
     [FETCH_API]: {
       types: [VM_WRAP_VMDEL_REQUEST, VM_WRAP_VMDEL_SUCCESS, VM_WRAP_VMDEL_FAILURE],
       endpoint,
       options: {
-        method: 'DELTE'
+        method: 'DELETE'
       },
       schema:{}
     },
@@ -102,7 +103,7 @@ function deleteVMInfoList(ID, callback) {
   }
 }
 
-export function delVMInfoList(state, callback) {
+export function delVMinfoList(state, callback) {
   return(dispatch) => {
     return dispatch(deleteVMInfoList(state, callback))
   }
@@ -116,11 +117,12 @@ export const VM_WRAP_VMPUT_REQUEST = 'VM_WRAP_VMPUT_REQUEST'
 export const VM_WRAP_VMPUT_SUCCESS = 'VM_WRAP_VMPUT_SUCCESS'
 export const VM_WRAP_VMPUT_FAILURE = 'VM_WRAP_VMPUT_FAILURE'
 
-function EditVMInfo(state, callback) {
-  let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos/:vm_id`
-  if(state){
+function editVMInfo(state, callback) {
+  debugger
+  let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos/${state.vmInfoID}`
+  /*if(state){
     endpoint += `?${toQuerystring(state)}`
-  }
+  }*/
   return{
     [FETCH_API]: {
       types: [VM_WRAP_VMPUT_REQUEST, VM_WRAP_VMPUT_SUCCESS, VM_WRAP_VMPUT_FAILURE],
@@ -135,9 +137,35 @@ function EditVMInfo(state, callback) {
   }
 }
 
-export function putVMInfoList(state, callback) {
+export function putVMinfoList(state, callback) {
   return(dispatch) => {
-    return dispatch(EditVMInfo(state, callback))
+    return dispatch(editVMInfo(state, callback))
+  }
+}
+
+export const VM_WRAP_VMCHECK_REQUEST = 'VM_WRAP_VMCHECK_REQUEST'
+export const VM_WRAP_VMCHECK_SUCCESS = 'VM_WRAP_VMCHECK_SUCCESS'
+export const VM_WRAP_VMCHECK_FAILURE = 'VM_WRAP_VMCHECK_FAILURE'
+
+function checkVMUsers(state, callback) {
+  let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos-check/`
+  return{
+    [FETCH_API]: {
+      types: [VM_WRAP_VMPUT_REQUEST, VM_WRAP_VMPUT_SUCCESS, VM_WRAP_VMPUT_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body: state,
+      },
+      schema:{}
+    },
+    callback,
+  }
+}
+
+export function checkVMUser(state, callback){
+  return(dispatch) => {
+    return dispatch(checkVMUsers(state, callback))
   }
 }
 

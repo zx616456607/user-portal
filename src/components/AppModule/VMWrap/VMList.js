@@ -11,12 +11,12 @@
  */
 
 import React from 'react'
-import {Button, Table, Row, Card, Modal, Icon, Input} from 'antd'
+import {Button, Table, Row, Card, Modal, Icon, Input, Pagination } from 'antd'
 import { connect } from 'react-redux'
 import './style/VMList.less'
 import CommonSearchInput from '../../../components/CommonSearchInput'
 import Title from '../../Title'
-import { getVMinfosList, postVMinfoList, delVMInfoList, putVMInfoList} from '../../../actions/vm_wrap'
+import { getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUser} from '../../../actions/vm_wrap'
 import reduce from '../../../reducers/vm_wrap'
 import CreateVMListModal from './CreateVMListModal/createListModal'
 import NotificationHandler from '../../../components/Notification'
@@ -25,16 +25,28 @@ class VMList extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      projectList: [],
       visible: false,
       modalTitle: true,
+      editRows: [],
+      isModal: false,
+      isAdd: false,
+      isPrompt: '',
+      name: '',
     }
   }
 
-  getInfo(){
-    const { getVMinfosList } = this.props
+  getInfo(value){
     debugger
-    getVMinfosList(null, {
+    const { getVMinfosList } = this.props
+    const names = {
+      page: 1,
+      size: 10,
+      name: value,
+    }
+
+    getVMinfosList(
+      value !== null ? names : null
+      , {
       success: {
         func: res => {
           if(res.code === 200){
@@ -47,13 +59,7 @@ class VMList extends React.Component {
           //
         },
         isAsync: true,
-      },
-      finally: {
-        func: res => {
-          //
-        },
-        isAsync: true,
-      },
+      }
     })
   }
 
@@ -62,97 +68,170 @@ class VMList extends React.Component {
   }
 
   vmAddList(state){
-    if(state && state.length>0){
-      let curData = state
-      const { postVMinfoList } = this.props
-      let res = {
-        host: curData.host,
-        account: curData.account,
-        password: curData.password
+    const { postVMinfoList, putVMinfoList } = this.props
+    let notification = new NotificationHandler()
+    let res = {
+        /*vmInfoName: 'root',*/
+        vmInfoID: this.state.editRows.vminfoId !==null ? this.state.editRows.vminfoId : '',
+        host: state.host,
+        account: state.account,
+        password: state.password
        }
-       postVMinfoList(res, {
-         success: {
-           func: res => {
-             if(res.indexOf('code') === -1){
-               if(res.code === 200){
-                 this.getInfo()
-               }
-             }
-           },
-           isAsync:true,
-         },
-         failed: {
-           func: err => {
-           }
-         }
-       })
+    if(this.state.isAdd ){
+      postVMinfoList(res, {
+        success: {
+          func: res => {
+            if(res.code === 200){
+              notification.success(`添加成功`)
+              notification.close()
+              this.getInfo.bind(this)
+            }
+          },
+          isAsync:true,
+        },
+        failed: {
+          func: err => {
+            notification.error(`添加失败`)
+          }
+        }
+      })
+    }else {
+      putVMinfoList(res, {
+        success: {
+          func: res => {
+            debugger
+            if(res.code === 200){
+              notification.success(`修改成功`)
+              notification.close()
+              this.getInfo.bind(this)
+            }
+          },
+          isAsync:true,
+        },
+        failed: {
+          func: err => {
+            notification.error(`修改失败`)
+          }
+        }
+      })
     }
   }
 
   handleA(){
     this.setState({
       visible: true,
-      modalTitle: true
+      modalTitle: true,
+      isModal: true,
+      isAdd: true
     })
   }
 
   /**
    * 编辑信息
    */
-  handleE(){
+  handleE(row){
     this.setState({
+      editRows: row,
       visible: true,
-      modalTitle: false
+      modalTitle: false,
+      isModal: true,
+      isAdd: false
     })
   }
 
   /**
-   * 刷新信息
+   * 分页
    */
-  handleRefresh(){
-    this.getInfo()
+  handlePage(page, name){
+    let par = {
+      page: page || 1,
+      size: 10
+    }
+    this.getInfo(par)
   }
 
   /**
    * 删除信息
    */
   handleDel(ID, Name){
-    const { delVMInfoList } = this.props
+    const { delVMinfoList } = this.props
     let notification = new NotificationHandler()
     notification.spin(`删除 ${Name} 中...`)
-    delVMInfoList({
+    delVMinfoList({
       vmID: ID
     },{
       success:{
         func: res => {
           if(res.code === 200){
+            this.getInfo.bind(this)
             notification.close()
             notification.success(`删除 ${Name} 成功`)
-            this.getInfo()
           }
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notification.error('删除失败！')
         }
       }
     })
   }
 
-  handleData(data){
-    if(data && data.length>0){
-      for(let i = 0; i < data.length; i++){
-
+  /**
+   * 信息验证
+   * @param check
+   */
+  vmCheck(check){
+    const { checkVMUser } = this.props
+    checkVMUser({
+      host: check.host,
+      account: check.account,
+      password: check.password
+    },{
+      success: {
+        func: res => {
+          debugger
+          if(res.code === 200){
+            return res.code
+          }
+        }
+      },
+      failed: {
+        func: err => {
+          return err
+        }
       }
-    }
+    })
+  }
+
+  /**
+   * 查询
+   * @param values
+   */
+  handleSearch(values){
+    debugger
+    this.setState({
+      name: values
+    })
+    this.getInfo(values)
   }
 
   render() {
-    const {data} = this.props
-    const pagination = {
-      simple: true,
-      total:  this.state.projectList && this.state.projectList.length,
-      showSizeChanger: true,
-      defaultPageSize: 10,
+     const {data} = this.props
+     const pagination = {
       defaultCurrent: 1,
-      pageSizeOptions: ['5', '10', '15', '20'],
-    };
+      defaultPageSize: 10,
+      total: data.length,
+      onChange: (n) => this.handlePage(n)
+    }
+    /*const pagination = {
+      total: data.length,
+      defaultCurrent: 1,
+      PageSize: 8,
+      pageSizeOptions: 5,
+      onChange: (current) => this.handlePage(current),
+    };*/
     const columns = [
       {
         title: '虚拟机IP',
@@ -169,44 +248,23 @@ class VMList extends React.Component {
         title: '登录密码',
         dataIndex: 'password',
         key: 'password',
+        type: 'password'
       },
       {
-        title: (
-          <div>
-            服务数量
-            <div className="ant-table-column-sorter">
-              <span className={true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
-               <i className="anticon anticon-caret-up" />
-              </span>
-              <span className={false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
-               <i className="anticon anticon-caret-down" />
-              </span>
-            </div>
-          </div>
-        ),
+        title: '服务数量',
         dataIndex: 'serviceCount',
         key: 'serviceCount',
+        sorter: (a, b) => a.serviceCount - b.serviceCount,
       },
       {
-        title: (
-          <div onClick={this.handleSortCreateTime}>
-            创建时间
-            <div className="ant-table-column-sorter">
-              <span className={true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
-               <i className="anticon anticon-caret-up" />
-              </span>
-              <span className={false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
-               <i className="anticon anticon-caret-down" />
-              </span>
-            </div>
-          </div>
-        ),
+        title: '创建时间',
         dataIndex: 'createTime',
         key: 'createTime',
+        sorter: (a, b) => a.createTime - b.createTime,
       },
       {
         title: '操作',
-        key: 'operation',
+        /*key: 'operation',*/
         ID: 'vminfoId',
         render: (text, record, index) =>{
           let fStyle = {
@@ -214,52 +272,53 @@ class VMList extends React.Component {
           }
           return (
             <div>
-              <Button type="primary" className="tabBtn" onClick={this.handleE.bind(this)}>编辑信息</Button>
-              <Button onClick={this.handleDel}>删除</Button>
+              <Button type="primary" className="tabBtn" onClick={this.handleE.bind(this,record)}>编辑信息</Button>
+              <Button onClick={this.handleDel.bind(this,record.vminfoId,record.user)}>删除</Button>
             </div>
           )
         }
       },
     ]
     const rowSelection = {
-      onChange: (selectedRowKeys, selectedRows) => {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-      },
-      getCheckboxProps: record => ({
-        disabled: record.name === 'Disabled User',    // Column configuration not to be checked
-      }),
+      onSelect:(record)=> this.handleDel(record.vminfoId, record.user),
+      onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
     };
     const scope = this
     return (
       <div id="VMList">
         <Row>
-          <Button type='primary' size='large'  className='addBtn' onClick={this.handleA.bind(this)}>
+          <Button type='primary' size='large'  className='addBtn' onClick={ () => this.handleA() }>
             <i className='fa fa-plus' /> 添加传统环境
           </Button>
-          <Button type="ghost" size="large" className="manageBtn" ><i className='fa fa-refresh'/>刷新</Button>
-          <Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>
-          <CommonSearchInput placeholder="请输入虚拟机IP搜索" size="large" onSearch=''/>
-          <div className="total">共{this.state.projectList.length}个</div>
+          <Button type="ghost" size="large" className="manageBtn" onClick={ () => this.getInfo() } ><i className='fa fa-refresh'/> 刷新</Button>
+          {/*<Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>*/}
+          <CommonSearchInput placeholder="请输入虚拟机IP搜索" size="large" onSearch={this.handleSearch.bind(this)}/>
+          {/*<Pagination {...pagination}/>*/}
+          <div className="total">共{data.length}个</div>
         </Row>
         <Row>
-          <Card>
-            <Table
-              rowSelection={rowSelection}
-              loading={false}
-              pagination={pagination}
-              columns={columns}
-              dataSource={data}
-            />
-          </Card>
+          <Table
+            /*rowSelection={rowSelection}*/
+            loading={false}
+            pagination={pagination}
+            columns={columns}
+            dataSource={data}
+          />
         </Row>
-        <CreateVMListModal
-          scope={scope}
-          modalTitle={this.state.modalTitle}
-          visible={this.state.visible}
-          onSubmit={this.vmAddList}
-        >
+        {
+          this.state.isModal ?
+            <CreateVMListModal
+              scope={scope}
+              modalTitle={this.state.modalTitle}
+              visible={this.state.visible}
+              onSubmit={this.vmAddList.bind(this)}
+              Rows={this.state.editRows}
+              isAdd={this.state.isAdd}
+              Check={this.vmCheck.bind(this)}
+            >
 
-        </CreateVMListModal>
+            </CreateVMListModal> : ''
+        }
       </div>
     )
   }
@@ -273,6 +332,7 @@ function mapStateToProps(state, props) {
     if(curData&&curData.length > 0){
       for(let i=0; i<curData.length; i++){
         let curInfo = curData[i]
+        curInfo.createTime = curInfo.createTime.replace('T',' ')
         data.push(curInfo)
       }
     }
@@ -284,5 +344,8 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   getVMinfosList,
-  delVMInfoList
+  delVMinfoList,
+  postVMinfoList,
+  putVMinfoList,
+  checkVMUser
 })(VMList)
