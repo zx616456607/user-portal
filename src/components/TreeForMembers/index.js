@@ -54,7 +54,6 @@ class TreeComponent extends Component {
   onCheck = checkedKeys => {
     let arr = new Set(checkedKeys);
     arr = Array.from(arr)
-    console.log(checkedKeys)
     this.setState({
       checkedKeys:arr,
       //expandedKeys: checkedKeys,
@@ -249,7 +248,6 @@ class TreeComponent extends Component {
     let newPermissonInfo = cloneDeep(permissonInfo)
     let branchPermission = cloneDeep(outPermissionInfo)
     let newOutPermissionInfo = cloneDeep(outPermissionInfo)
-    console.log(checkedKeys)
     if(!checkedKeys.length) return
     let arr = []
     const func = (data, id, array) => data.forEach((item) => {
@@ -276,7 +274,6 @@ class TreeComponent extends Component {
     // if(!alreadyCheckedKeys.length) return
     let arr = []
     let backArr = []
-    console.log(newPermissonInfo,alreadyCheckedKeys)
     for(let i = 0; i < newPermissonInfo.length; i++) {
       let flag = false;
       for(let j = 0; j < alreadyCheckedKeys.length; j++) {
@@ -293,7 +290,6 @@ class TreeComponent extends Component {
     if(getTreeRightData){
       getTreeRightData(permission)
     }
-    console.log(checkedKeys,backArr,difference(checkedKeys.slice(0),backArr))
     this.setState({
       permissonInfo: arr,
       alreadyCheckedKeys: [],
