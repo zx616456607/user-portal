@@ -23,32 +23,51 @@ let CreateVMListModal = React.createClass({
     };
   },
   handleSub(){
-    const { form, Rows} =this.props
+    debugger
+    const { form, scope } = this.props
     let info = form.getFieldsValue()
     this.setState({
       isShow: true
     })
-    if(Rows.user === info.account && Rows.password === info.password){
-      this.setState({
-        Prompt: true
-      })
-    }else {
-      this.setState({
-        Prompt: false
-      })
+    let infos = {
+      host: info.host,
+      account: info.account,
+      password: info.password
     }
+    scope.props.checkVMUser(infos,{
+      success: {
+        func: res => {
+          if(res.code === 200){
+            this.setState({
+              Prompt: true,
+              isShow: false
+            })
+          }
+        }
+      },
+      failed: {
+        func: err => {
+          this.setState({
+            Prompt: false,
+            isShow: false
+          })
+          return
+        }
+      }
+    })
   },
   handleAdd(){
     const {form, onSubmit, scope} = this.props
     form.validateFields((errors, values) =>{
+      debugger
       if(errors !== null)return
       let List = {
         host: values.host,
         account: values.account,
         password: values.password
       }
-      onSubmit(List)
       this.handleSub()
+      onSubmit(List)
       scope.setState({
         visible: false
       })
@@ -75,10 +94,11 @@ let CreateVMListModal = React.createClass({
       callback([new Error('长度为5~40个字符')])
       return
     }
-    if (!USERNAME_REG_EXP_NEW.test(value)) {
+    /*if (!USERNAME_REG_EXP_NEW.test(value)) {
       callback([new Error('以小写字母开头，允许[0~9]、[-]，且以小写英文和数字结尾')])
       return
-    }
+    }*/
+    callback()
   },
   checkPass(rule, value, callback) {
     if (!value) {
@@ -86,22 +106,22 @@ let CreateVMListModal = React.createClass({
       return
     }
     if (value.length < 2 || value.length > 16) {
-      callback([new Error('长度为6~16个字符')])
+      callback([new Error('长度为2~16个字符')])
       return
     }
-    if (/^[^0-9]+$/.test(value) /*|| /^[^a-zA-Z]+$/.test(value)*/) {
+    if (/^[^0-9]+[^a-zA-Z]+$/.test(value) /*|| /^[^a-zA-Z]+$/.test(value)*/) {
       callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
       return
     }
     callback()
   },
-  checkIP(value, callback){
+  checkIP(rule, value, callback){
     let reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
     if(!value){
       callback([new Error('请填写IP')])
       return
     }
-    if(reg.test(value) === false){
+    if(reg.test(value) !==true ){
       callback([new Error('请输入正确IP地址')])
       return
     }
@@ -184,7 +204,7 @@ let CreateVMListModal = React.createClass({
             key="submit"
             type="primary"
             size="large"
-            onClick={this.handleAdd}>
+            onClick={this.handleAdd.bind(this)}>
             保 存
           </Button>,
         ]}
