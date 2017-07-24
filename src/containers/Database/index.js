@@ -16,7 +16,7 @@ import './style/database.less'
 
 const menuList = [
   {
-    url: '/database_cache',
+    url: '/database_cache/mysql_cluster',
     name: '关系型数据库'
   },
 
