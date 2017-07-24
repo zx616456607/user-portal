@@ -15,6 +15,7 @@ import { connect } from 'react-redux'
 import { GetProjectsMembers } from '../../../actions/project'
 import { GetRole } from '../../../actions/role'
 import TreeComponent from '../../TreeForMembers'
+import cloneDeep from 'lodash/cloneDeep'
 let checkedKeysThird = []
 class CreateStepThird extends Component{
   constructor(props){
@@ -29,7 +30,8 @@ class CreateStepThird extends Component{
       targetKeys: [],
       currentRoleInfo: {},
       currentRolePermission: [],
-      memberArr: []
+      memberArr: [],
+      roleMap: {}
     }
   }
   componentDidMount() {
@@ -70,12 +72,12 @@ class CreateStepThird extends Component{
   formatArr(arr) {
     for (let i = 0; i < arr.length; i++) {
       if (arr[i].teamId) {
-        Object.assign(arr[i],{id:arr[i].teamId},{teamName:arr[i].teamName},{userCount:arr[i].userCount},{children:arr[i].users})
+        Object.assign(arr[i],{id:arr[i].teamId},{uniqueId:arr[i].teamId},{teamName:arr[i].teamName},{userCount:arr[i].userCount},{children:arr[i].users})
         for (let j = 0; j < arr[i].children.length; j++) {
-          Object.assign(arr[i].children[j],{id:arr[i].children[j].userId},{userName:arr[i].children[j].userName},{creationTime:arr[i].children[j].creationTime},{parent:arr[i].teamId})
+          Object.assign(arr[i].children[j],{id:arr[i].children[j].userId},{uniqueId:`${arr[i].teamId}${arr[i].children[j].userId}`},{userName:arr[i].children[j].userName},{creationTime:arr[i].children[j].creationTime},{parent:arr[i].teamId})
         }
-      } else if(arr[i].userId) {
-        Object.assign(arr[i],{id:arr[i].userId},{userName:arr[i].userName},{creationTime:arr[i].creationTime})
+      } else if(arr[i].userID) {
+        Object.assign(arr[i],{id:arr[i].userID},{uniqueId:arr[i].userID},{userName:arr[i].userName},{creationTime:arr[i].creationTime})
       }
     }
   }
@@ -97,7 +99,14 @@ class CreateStepThird extends Component{
     this.setState({connectModal: false})
   }
   submitModal() {
-    this.setState({connectModal: false})
+    const { roleMap } = this.state;
+    const { scope, updateRoleWithMember } = this.props;
+    scope.setState({
+      roleWithMember:roleMap
+    },()=>{
+      this.setState({connectModal: false})
+      console.log(scope.state.roleWithMember)
+    })
   }
   filterOption(inputValue, option) {
     return option.description.indexOf(inputValue) > -1;
@@ -120,6 +129,14 @@ class CreateStepThird extends Component{
       }
     });
   };
+  updateCurrentMember(member) {
+    const { currentRoleInfo, roleMap } = this.state;
+    let map = cloneDeep(roleMap);
+    map[currentRoleInfo.role.id] = member;
+    this.setState({
+      roleMap:map
+    })
+  }
   getCurrentRole(id) {
     const { GetRole } = this.props;
     const { currentRoleInfo } = this.state;
@@ -166,7 +183,7 @@ class CreateStepThird extends Component{
   render() {
     const { scope, form } = this.props;
     const TreeNode = Tree.TreeNode;
-    const { currentRolePermission, currentRoleInfo, memberArr } = this.state;
+    const { currentRolePermission, currentRoleInfo, memberArr, connectModal, roleMap } = this.state;
     const { getFieldProps } = form;
     const projectNameLayout = {
       labelCol: { span: 4 },
@@ -239,14 +256,18 @@ class CreateStepThird extends Component{
             </div>
           </div>
         </div>
-        <Modal title="关联对象" width={765} visible={this.state.connectModal}
+        <Modal title="关联对象" width={765} visible={connectModal}
                onCancel={()=> this.closeModal()}
                onOk={()=> this.submitModal()}
         >
           <TreeComponent
-             outPermissionInfo={memberArr.slice(0,10)}
-             permissonInfo={[]}
+             outPermissionInfo={memberArr}
+             permissionInfo={[]}
+             existMember={roleMap[currentRoleInfo.role && currentRoleInfo.role.id] || []}
              text='成员'
+             updateCurrentMember={this.updateCurrentMember.bind(this)}
+             connectModal={connectModal}
+             getTreeRightData={this.updateCurrentMember.bind(this)}
           />
         </Modal>
       </div>
