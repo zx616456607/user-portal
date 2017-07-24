@@ -239,7 +239,7 @@ class Personalized extends Component{
             <Row className="image-row">
               <Col span="3"style={{width:150}}>产品名称</Col>
               <Col span="20" style={{width:600}}>
-                <div className="row-text">此处文字用于替换平台上的“时速云 | 时速云企业版”字样，如：浏览器标签文字；</div>
+                <div className="row-text">此处文字用于替换平台上的产品标识字样；</div>
                 <Input style={{width:200}} id="productName"  size="large" placeholder="请输入产品名称"  />
                 <Button size="large" onClick={()=> this.clearProductName()} style={{margin:'0 10px'}}>取消</Button>
                 <Button size="large" type="primary" loading={this.state.loading} onClick={()=> this.saveproductName()}>保存</Button>

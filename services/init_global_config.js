@@ -35,7 +35,11 @@ global.globalConfig = {
     external_host: config.tenx_api.external_host,
     external_protocol: config.tenx_api.external_protocol
   },
-  storageConfig: []
+  storageConfig: [],
+  vmWrapConfig: {
+    host: config.vm_api.host,
+    protocol: config.vm_api.protocol,
+  },
 }
 
 const apiFactory = require('./api_factory.js')
@@ -66,11 +70,12 @@ exports.initGlobalConfig = function* () {
       globalConfig.mail_server.auth.pass = configDetail.senderPassword
       globalConfig.mail_server.service_mail = configDetail.senderMail
       ConfigArray.Mail='NotEmpty'
+      return
     }
     if (configType == 'harbor') { // Use harbor from v2.6.0
       globalConfig.registryConfig.url = configDetail.url
-      logger.info('registry config: ', configDetail.url)
       ConfigArray.Registry='NotEmpty'
+      return
     }
     // Use db settings if env is empty
     if (configType == 'cicd' && globalConfig.cicdConfig.host == "") {
@@ -103,11 +108,33 @@ exports.initGlobalConfig = function* () {
       globalConfig.cicdConfig.logPath = devops.logPath //configDetail.logPath
       logger.info('devops config: ', protocol + '://' + host)
       ConfigArray.Cicd='NotEmpty'
+      return
     }
     if (configType === 'rbd') {
       item.ConfigDetail = configDetail
       globalConfig.storageConfig.push(item)
       ConfigArray.Rbd='NotEmpty'
+      return
+    }
+    // Use db settings if env is not set
+    if (configType === 'vm') {
+      globalConfig.vmWrapConfig.enabled = configDetail.enabled
+      globalConfig.vmWrapConfig.configID = item.ConfigID
+      if (!globalConfig.vmWrapConfig.host) {
+        let host
+        let protocol
+        if (configDetail.url) {
+          host = configDetail.url
+          const arr = host.split('://')
+          protocol = arr[0]
+          host = arr[1]
+        } else if (configDetail.host) {
+          host = configDetail.host
+          protocol = configDetail.protocol
+        }
+        globalConfig.vmWrapConfig.protocol = protocol
+        globalConfig.vmWrapConfig.host = host
+      }
     }
   })
   if (ConfigArray.Mail!=='NotEmpty'){
@@ -122,7 +149,8 @@ exports.initGlobalConfig = function* () {
       globalConfig.storageConfig=[]
   }
   logger.info('api-server config: ', globalConfig.tenx_api.host)
-  logger.info('registry config: ', globalConfig.registryConfig.protocol + '://' + globalConfig.registryConfig.host + ':' + globalConfig.registryConfig.port)
+  logger.info('registry config: ', globalConfig.registryConfig.url)
   logger.info('devops config: ', globalConfig.cicdConfig.protocol + '://' + globalConfig.cicdConfig.host)
+  logger.info('vm wrap api config: ', globalConfig.vmWrapConfig.protocol + '://' + globalConfig.vmWrapConfig.host)
   logger.info('mailbox config: ', globalConfig.mail_server.host)
 }

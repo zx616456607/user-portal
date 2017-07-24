@@ -44,6 +44,7 @@ const projectController =require('../controllers/project')
 const permissionController = require('../controllers/permission')
 const roleController = require('../controllers/role')
 const pkgController =require('../controllers/wrap_manage')
+const vmWrapController =require('../controllers/wm_wrap')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -559,7 +560,7 @@ module.exports = function (Router) {
   router.get('/role/:name/existence',roleController.existence)
   router.get('/role/:id/allowUpdate',roleController.allowUpdate)
   router.get('/role/:id/withMember',roleController.getWithMembers)
-  
+
   // package manage
   router.get('/pkg', pkgController.getPkgManageList)
   router.get('/pkg/:id', pkgController.downloadPkg)
@@ -567,6 +568,18 @@ module.exports = function (Router) {
   router.post('/pkg/:filename/:filetag/:filetype/local', pkgController.localUploadPkg)
   router.post('/pkg/:filename/:filetag/:filetype/remote', pkgController.romoteUploadPkg)
 
-
+  // VM wrap
+  router.post('/vm-wrap/services', vmWrapController.createService)
+  router.get('/vm-wrap/services', vmWrapController.listServices)
+  router.put('/vm-wrap/services/:service_id', vmWrapController.updateService)
+  router.post('/vm-wrap/services/:service_id/deployment', vmWrapController.deployService)
+  router.del('/vm-wrap/services/:service_id', vmWrapController.deleteService)
+  router.post('/vm-wrap/vminfos', vmWrapController.addVM)
+  router.get('/vm-wrap/vminfos', vmWrapController.listVMs)
+  router.put('/vm-wrap/vminfos/:vm_id', vmWrapController.updateVM)
+  router.del('/vm-wrap/vminfos/:vm_id', vmWrapController.deleteVM)
+  router.post('/vm-wrap/vminfos-check/', vmWrapController.checkVM)
+  router.get('/vm-wrap/services/:serviceName/exists', vmWrapController.checkService)
+  
   return router.routes()
 }

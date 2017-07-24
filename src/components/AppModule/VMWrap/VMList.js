@@ -11,247 +11,341 @@
  */
 
 import React from 'react'
-import {Button, Table, Row, Card, Modal, Icon, Form, FormItem, Input} from 'antd'
+import {Button, Table, Row, Card, Modal, Icon, Input, Pagination } from 'antd'
+import { connect } from 'react-redux'
 import './style/VMList.less'
 import CommonSearchInput from '../../../components/CommonSearchInput'
 import Title from '../../Title'
+import { getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUser} from '../../../actions/vm_wrap'
+import reduce from '../../../reducers/vm_wrap'
+import CreateVMListModal from './CreateVMListModal/createListModal'
+import NotificationHandler from '../../../components/Notification'
 
-export default class VMServiceList extends React.Component {
-  constructor(){
-    super()
+class VMList extends React.Component {
+  constructor(props){
+    super(props)
     this.state = {
-      projectList: [],
-      visible: false
+      visible: false,
+      modalTitle: true,
+      editRows: [],
+      isModal: false,
+      isAdd: false,
+      isPrompt: '',
+      name: '',
     }
   }
 
-  /**
-   * 添加传统环境
-   * @param res
-   */
-  handleAdd(res){
+  getInfo(value){
+    debugger
+    const { getVMinfosList } = this.props
+    const names = {
+      page: 1,
+      size: 10,
+      name: value,
+    }
 
+    getVMinfosList(
+      value !== null ? names : null
+      , {
+      success: {
+        func: res => {
+          if(res.code === 200){
+          }
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          //
+        },
+        isAsync: true,
+      }
+    })
   }
 
-  /**
-   * 刷新信息
-   */
-  handleRefresh(){
-
+  componentWillMount() {
+    this.getInfo()
   }
 
-  /**
-   * 删除信息
-   */
-  handleDel(){
+  vmAddList(state){
+    const { postVMinfoList, putVMinfoList } = this.props
+    let notification = new NotificationHandler()
+    let res = {
+        /*vmInfoName: 'root',*/
+        vmInfoID: this.state.editRows.vminfoId !==null ? this.state.editRows.vminfoId : '',
+        host: state.host,
+        account: state.account,
+        password: state.password
+       }
+    if(this.state.isAdd ){
+      postVMinfoList(res, {
+        success: {
+          func: res => {
+            if(res.code === 200){
+              notification.success(`添加成功`)
+              notification.close()
+              this.getInfo.bind(this)
+            }
+          },
+          isAsync:true,
+        },
+        failed: {
+          func: err => {
+            notification.error(`添加失败`)
+          }
+        }
+      })
+    }else {
+      putVMinfoList(res, {
+        success: {
+          func: res => {
+            debugger
+            if(res.code === 200){
+              notification.success(`修改成功`)
+              notification.close()
+              this.getInfo.bind(this)
+            }
+          },
+          isAsync:true,
+        },
+        failed: {
+          func: err => {
+            notification.error(`修改失败`)
+          }
+        }
+      })
+    }
+  }
 
+  handleA(){
+    this.setState({
+      visible: true,
+      modalTitle: true,
+      isModal: true,
+      isAdd: true
+    })
   }
 
   /**
    * 编辑信息
    */
-  handleE =()=> {
+  handleE(row){
     this.setState({
-      visible:true
+      editRows: row,
+      visible: true,
+      modalTitle: false,
+      isModal: true,
+      isAdd: false
     })
   }
 
   /**
-   * 关闭
+   * 分页
    */
-  handleClose =()=>{
-    this.setState({
-      visible:false
+  handlePage(page, name){
+    let par = {
+      page: page || 1,
+      size: 10
+    }
+    this.getInfo(par)
+  }
+
+  /**
+   * 删除信息
+   */
+  handleDel(ID, Name){
+    const { delVMinfoList } = this.props
+    let notification = new NotificationHandler()
+    notification.spin(`删除 ${Name} 中...`)
+    delVMinfoList({
+      vmID: ID
+    },{
+      success:{
+        func: res => {
+          if(res.code === 200){
+            this.getInfo.bind(this)
+            notification.close()
+            notification.success(`删除 ${Name} 成功`)
+          }
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notification.error('删除失败！')
+        }
+      }
     })
   }
 
+  /**
+   * 信息验证
+   * @param check
+   */
+  vmCheck(check){
+    const { checkVMUser } = this.props
+    checkVMUser({
+      host: check.host,
+      account: check.account,
+      password: check.password
+    },{
+      success: {
+        func: res => {
+          debugger
+          if(res.code === 200){
+            return res.code
+          }
+        }
+      },
+      failed: {
+        func: err => {
+          return err
+        }
+      }
+    })
+  }
+
+  /**
+   * 查询
+   * @param values
+   */
+  handleSearch(values){
+    debugger
+    this.setState({
+      name: values
+    })
+    this.getInfo(values)
+  }
+
   render() {
-    const pagination = {
-      simple: true,
-      total:  this.state.projectList && this.state.projectList.length,
-      showSizeChanger: true,
-      defaultPageSize: 10,
+     const {data} = this.props
+     const pagination = {
       defaultCurrent: 1,
-      pageSizeOptions: ['5', '10', '15', '20'],
-    };
-    const formItemLayout ={
-      labelCol: { span: 5 },
-      wrapperCol: { span: 17 }
+      defaultPageSize: 10,
+      total: data.length,
+      onChange: (n) => this.handlePage(n)
     }
+    /*const pagination = {
+      total: data.length,
+      defaultCurrent: 1,
+      PageSize: 8,
+      pageSizeOptions: 5,
+      onChange: (current) => this.handlePage(current),
+    };*/
     const columns = [
       {
-        title: (
-          <div onClick="">
-            虚拟机IP
-            <div className="ant-table-column-sorter">
-             {/* <span className={true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
-                <i className="anticon anticon-caret-up" />
-              </span>
-              <span className={false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
-                <i className="anticon anticon-caret-down" />
-              </span>*/}
-            </div>
-          </div>
-        ),
-        dataIndex: 'IP',
-        key: 'IP',
-        className: 'IP',
+        title: '虚拟机IP',
+        dataIndex: 'host',
+        key: 'host',
+        ID: 'vminfoId'
       },
       {
-        title: (
-          <div onClick="">
-            登录账号
-            <div className="ant-table-column-sorter">
-            </div>
-          </div>
-        ),
-        dataIndex: 'userName',
-        key: 'userName',
+        title: '登录账号',
+        dataIndex: 'user',
+        key: 'user',
       },
       {
-        title: (
-          <div onClick="">
-            登录密码
-            <div className="ant-table-column-sorter">
-            </div>
-          </div>
-        ),
-        dataIndex: 'passWord',
-        key: 'passWord',
+        title: '登录密码',
+        dataIndex: 'password',
+        key: 'password',
+        type: 'password'
       },
       {
-        title: (
-          <div onClick="">
-            服务数量
-            <div className="ant-table-column-sorter">
-              <span className={true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
-               <i className="anticon anticon-caret-up" />
-              </span>
-              <span className={false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
-               <i className="anticon anticon-caret-down" />
-              </span>
-            </div>
-          </div>
-        ),
-        dataIndex: 'serverNum',
-        key: 'serverNum',
+        title: '服务数量',
+        dataIndex: 'serviceCount',
+        key: 'serviceCount',
+        sorter: (a, b) => a.serviceCount - b.serviceCount,
       },
       {
-        title: (
-          <div onClick={this.handleSortCreateTime}>
-            创建时间
-            <div className="ant-table-column-sorter">
-            </div>
-          </div>
-        ),
-        dataIndex: 'creationTime',
-        key: 'creationTime',
+        title: '创建时间',
+        dataIndex: 'createTime',
+        key: 'createTime',
+        sorter: (a, b) => a.createTime - b.createTime,
       },
       {
         title: '操作',
-        key: 'operation',
+        /*key: 'operation',*/
+        ID: 'vminfoId',
         render: (text, record, index) =>{
-          let style = {
-            fontSize:2
-          }
           let fStyle = {
             marginRight:6+'%'
           }
           return (
-            <div className="addusers">
-              <div className="Deleterechargea">
-                <Button type="primary" className="addBtn" onClick={this.handleE}>编辑信息</Button>
-                <Button size="large" onClick="">删除</Button>
-              </div>
-              <Modal
-                title="添加传统环境"
-                visible={this.state.visible}
-                onOk={this.handleClose}
-                onCancel={this.handleClose}
-                okText="保存"
-              >
-                <Form>
-                  <Form.Item
-                    label="传统环境 IP"
-                    {...formItemLayout}
-                  >
-                    <Input placeholder="请输入已开通 SSH 登录的传递环境 IP" />
-                    <span style={style}>@传统环境一般指非容器环境（Linux的虚拟机、物理机等）</span>
-                  </Form.Item>
-                  <Form.Item
-
-                    label="环境登录账号"
-                    {...formItemLayout}
-                  >
-                    <Input placeholder="请输入传统环境登录账号" />
-                  </Form.Item>
-                  <Form.Item
-                    label="环境登录密码"
-                    {...formItemLayout}
-                  >
-                    <Input placeholder="请输入传统环境登录密码" />
-                  </Form.Item>
-                </Form>
-              </Modal>
+            <div>
+              <Button type="primary" className="tabBtn" onClick={this.handleE.bind(this,record)}>编辑信息</Button>
+              <Button onClick={this.handleDel.bind(this,record.vminfoId,record.user)}>删除</Button>
             </div>
           )
         }
       },
     ]
-
-    const data = [{
-      key: '1',
-      IP: 'John Brown',
-      userName: 32,
-      passWord: 'New York No. 1 Lake Park',
-      serverNum: 12,
-    }, {
-      key: '2',
-      IP: 'John Brown',
-      userName: 32,
-      passWord: 'New York No. 1 Lake Park',
-      serverNum: 12,
-    }, {
-      key: '3',
-      IP: 'John Brown',
-      userName: 32,
-      passWord: 'New York No. 1 Lake Park',
-      serverNum: 12,
-    }];
     const rowSelection = {
-      onChange: (selectedRowKeys, selectedRows) => {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-      },
-      getCheckboxProps: record => ({
-        disabled: record.name === 'Disabled User',    // Column configuration not to be checked
-      }),
+      onSelect:(record)=> this.handleDel(record.vminfoId, record.user),
+      onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
     };
-    let style = {
-     }
+    const scope = this
     return (
       <div id="VMList">
-        {/*<Title title="环境" />*/}
         <Row>
-          <Button type='primary' size='large'  className='addBtn' onClick=''>
-            <i className='fa fa-plus' /> 创建项目
+          <Button type='primary' size='large'  className='addBtn' onClick={ () => this.handleA() }>
+            <i className='fa fa-plus' /> 添加传统环境
           </Button>
-          <Button type="ghost" icon={ this.state.loading ? 'loading' : "reload"}  size="large" className="manageBtn" onClick={()=> this.handRefresh()}>刷新</Button>
-          <Button type="ghost" icon="delete" size="large" className="manageBtn" onClick={()=> this.delProject()}>删除</Button>
-          <CommonSearchInput placeholder="请输入虚拟机IP搜索" size="large" onSearch=''/>
-          <div className="total">共{this.state.projectList.length}个</div>
+          <Button type="ghost" size="large" className="manageBtn" onClick={ () => this.getInfo() } ><i className='fa fa-refresh'/> 刷新</Button>
+          {/*<Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>*/}
+          <CommonSearchInput placeholder="请输入虚拟机IP搜索" size="large" onSearch={this.handleSearch.bind(this)}/>
+          {/*<Pagination {...pagination}/>*/}
+          <div className="total">共{data.length}个</div>
         </Row>
         <Row>
-          <Card>
-            <Table
-              rowSelection={rowSelection}
-              loading={false}
-              pagination={pagination}
-              columns={columns}
-              dataSource={data}
-            />
-          </Card>
+          <Table
+            /*rowSelection={rowSelection}*/
+            loading={false}
+            pagination={pagination}
+            columns={columns}
+            dataSource={data}
+          />
         </Row>
+        {
+          this.state.isModal ?
+            <CreateVMListModal
+              scope={scope}
+              modalTitle={this.state.modalTitle}
+              visible={this.state.visible}
+              onSubmit={this.vmAddList.bind(this)}
+              Rows={this.state.editRows}
+              isAdd={this.state.isAdd}
+              Check={this.vmCheck.bind(this)}
+            >
+
+            </CreateVMListModal> : ''
+        }
       </div>
     )
   }
 }
+
+function mapStateToProps(state, props) {
+  let data = []
+  const wrap = state.vmWrap
+  if(wrap.vminfosList){
+    let curData = wrap.vminfosList.list
+    if(curData&&curData.length > 0){
+      for(let i=0; i<curData.length; i++){
+        let curInfo = curData[i]
+        curInfo.createTime = curInfo.createTime.replace('T',' ')
+        data.push(curInfo)
+      }
+    }
+  }
+  return {
+    data:data
+  }
+}
+
+export default connect(mapStateToProps, {
+  getVMinfosList,
+  delVMinfoList,
+  postVMinfoList,
+  putVMinfoList,
+  checkVMUser
+})(VMList)

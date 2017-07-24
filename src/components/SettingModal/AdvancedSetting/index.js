@@ -15,6 +15,8 @@ import { updateClusterConfig } from '../../../actions/cluster'
 import { loadTeamClustersList } from '../../../actions/team'
 import { setCurrent } from '../../../actions/entities'
 import { updateConfigurations, getConfigurations } from '../../../actions/harbor'
+import { saveGlobalConfig } from '../../../actions/global_config'
+import { loadLoginUserDetail } from '../../../actions/entities'
 import NotificationHandler from '../../../components/Notification'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import Title from '../../Title'
@@ -23,9 +25,12 @@ class AdvancedSetting extends Component {
   constructor(props){
     super(props)
     this.handleSwitch = this.handleSwitch.bind(this)
+    this.handleTradition = this.handleTradition.bind(this)
     this.handleName = this.handleName.bind(this)
     this.handleTag = this.handleTag.bind(this)
     this.updataClusterListNodes = this.updataClusterListNodes.bind(this)
+    this.handleConfirmTradition = this.handleConfirmTradition.bind(this)
+    this.handleCancelTradition = this.handleCancelTradition.bind(this)
     this.handleConfirmSwitch = this.handleConfirmSwitch.bind(this)
     this.handleCancelSwitch = this.handleCancelSwitch.bind(this)
     this.handleListNodeStatus = this.handleListNodeStatus.bind(this)
@@ -43,9 +48,11 @@ class AdvancedSetting extends Component {
       TagCheckbox: false,
       confirmlodaing: false,
       imageProjectRightIsEdit: false,
-      Traditiondisable: false,
+      traditionDisable: false,
       traditionVisible: false,
-      traditionChecked: true,
+      traditionBtnLoading: false,
+      traditionChecked: props.vmWrapConfig.enabled || false,
+      isTradition: false,
     }
   }
 
@@ -114,6 +121,16 @@ class AdvancedSetting extends Component {
         default:
           return
       }
+    }
+  }
+
+  handleTraditionMessage(num){
+    const Notification = new NotificationHandler()
+    switch (num){
+      case 1:
+        return Notification.success('关闭【传统应用管理】成功！')
+      case 2:
+        return Notification.success('开启【传统应用管理】成功！')
     }
   }
 
@@ -205,6 +222,27 @@ class AdvancedSetting extends Component {
     })
   }
 
+  TraditionState(ListNode){
+    switch (ListNode){
+      case 1:
+        this.setState({
+          traditionChecked: false,
+        })
+        this.handleTraditionMessage(ListNode)
+        return
+      case 2:
+        this.setState({
+          traditionChecked: true,
+        })
+        this.handleTraditionMessage(ListNode)
+        return
+      default:
+        return this.setState({
+          traditionChecked: false,
+        })
+    }
+  }
+
   handleSwitch(){
     return this.setState({
       switchVisible: true,
@@ -217,19 +255,58 @@ class AdvancedSetting extends Component {
   /**
    * 传统应用管理
    */
-  handleTradition = ()=>{
+  handleTradition (checked){
     return this.setState({
-      Traditiondisable: true,
       traditionVisible: true,
+      isTradition: checked,
     })
   }
   /**
    * 弹框确定
    */
-  handleConfirmTradition = ()=>{
+  handleConfirmTradition() {
+    const notification = new NotificationHandler()
+    const { saveGlobalConfig, loadLoginUserDetail, vmWrapConfig, cluster } = this.props
     const { traditionChecked } = this.state
+    const entity = {
+      configID: vmWrapConfig.configID,
+      detail: {
+        enabled: !traditionChecked,
+      }
+    }
     this.setState({
-      traditionVisible: false
+      traditionBtnLoading: true,
+    })
+    saveGlobalConfig(cluster.clusterID, 'vm', entity, {
+      success: {
+        func: res => {
+          loadLoginUserDetail()
+          this.setState({
+            traditionVisible: false
+          })
+          if (traditionChecked === true){
+            this.TraditionState(1)
+            return
+          }
+          if (traditionChecked === false){
+            this.TraditionState(2)
+            return
+          }
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          notification.error('保存失败')
+        }
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            traditionBtnLoading: false,
+          })
+        }
+      }
     })
     /*if( this.traditionVisible === true){
       return
@@ -241,8 +318,10 @@ class AdvancedSetting extends Component {
   /**
    * 弹框取消
    */
-  handleCancelTradition = ()=>{
-
+  handleCancelTradition (){
+    this.setState({
+      traditionVisible: false,
+    })
   }
 
   handleConfirmSwitch(){
@@ -373,8 +452,8 @@ class AdvancedSetting extends Component {
       })
   }
 
-  render(){
-    const { traditionChecked, Traditiondisable, swicthChecked, Ipcheckbox, TagCheckbox, switchdisable, Tagdisabled, Ipdisabled, imageProjectRightIsEdit } = this.state
+  render() {
+    const { traditionChecked, traditiondisable, swicthChecked, Ipcheckbox, TagCheckbox, switchdisable, Tagdisabled, Ipdisabled, imageProjectRightIsEdit } = this.state
     const { cluster, form, configurations, harbor } = this.props
     const { listNodes } = cluster
     const { getFieldProps  } = form
@@ -478,7 +557,7 @@ class AdvancedSetting extends Component {
                   }*/}
                   传统应用管理
                   </span>
-                <Switch checkedChildren="开" unCheckedChildren="关" checked={this.handleTradition} onChange={this.handleTradition} className='switchstyle' disabled={Traditiondisable} />
+                <Switch checkedChildren="开" unCheckedChildren="关" checked={traditionChecked} onChange={this.handleTradition} className='traditionStyle' />
                 <span className="describe">传统应用管理、部署环境管理</span>
               </div>
               {
@@ -521,16 +600,35 @@ class AdvancedSetting extends Component {
         }
       </Modal>
       <Modal
-        title={traditionChecked ? '传统应用管理' : '传统应用管理'}
+        title='传统应用管理'
         visible={this.state.traditionVisible}
         maskClosable={false}
         wrapClassName="AdvancedSettingSwitch"
-        onOk={this.handleConfirmSwitch}
-        onCancel={this.handleCancelSwitch}
-        confirmLoading={this.state.confirmlodaing}
+        onOk={this.handleConfirmTradition}
+        onCancel={this.handleCancelTradition}
+        footer={[
+          <Button
+            key="back"
+            type="ghost"
+            size="large"
+            onClick={this.handleCancelTradition}
+          >
+            取 消
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            size="large"
+            loading={this.state.traditionBtnLoading}
+            onClick={this.handleConfirmTradition}
+          >
+            确 定
+          </Button>,
+        ]}
+        /*confirmLoading={this.state.confirmlodaing}*/
       >
         {
-          swicthChecked
+          traditionChecked
             ?<div className='container'>
             <div className='item'>传统应用管理，将关闭基于『非容器环境』的应用包部署管理</div>
             <div className='item color'><Icon type="question-circle-o" style={{marginRight:'8px'}}/>确认关闭？</div>
@@ -549,7 +647,7 @@ AdvancedSetting = Form.create()(AdvancedSetting)
 
 function mapPropsToState(state,props) {
   const { cluster, space } = state.entities.current
-  const { harbor } = state.entities.loginUser.info
+  const { harbor, vmWrapConfig } = state.entities.loginUser.info
   const { result } = state.team.teamClusters || {}
   const { configurations } = state.harbor
   return {
@@ -557,7 +655,8 @@ function mapPropsToState(state,props) {
     space,
     result,
     configurations,
-    harbor
+    harbor,
+    vmWrapConfig,
   }
 }
 
@@ -566,5 +665,7 @@ export default connect(mapPropsToState,{
   loadTeamClustersList,
   setCurrent,
   updateConfigurations,
-  getConfigurations
+  getConfigurations,
+  saveGlobalConfig,
+  loadLoginUserDetail,
 })(AdvancedSetting)

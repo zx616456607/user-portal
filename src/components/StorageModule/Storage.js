@@ -27,7 +27,7 @@ import noStorageImg from '../../assets/img/no_data/no_storage.png'
 import ResourceQuotaModal from '../ResourceQuotaModal/Storage'
 import CreateVolume from '../StorageModule/CreateVolume'
 import { SHOW_BILLING } from '../../constants'
-
+import Title from '../Title'
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 let isActing = false
@@ -673,7 +673,6 @@ class Storage extends Component {
     }
   }
   componentWillMount() {
-    document.title = '存储 | 时速云'
     this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
     this.props.SnapshotList({clusterID: this.props.cluster})
   }
@@ -921,6 +920,7 @@ class Storage extends Component {
     return (
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
+          <Title title="存储" />
           { mode === standard ? <div className='alertRow'>您的存储创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div> }
           <div className="operationBox">
             <div className="leftBox">

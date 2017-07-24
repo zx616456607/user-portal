@@ -29,6 +29,10 @@ const config = {
     protocol: env.TENX_API_PROTOCOL || 'http',
     host: env.TENX_API_HOST || '192.168.1.103:48000'
   },
+  vm_api: {
+    protocol: env.TENX_VM_API_PROTOCOL,
+    host: env.TENX_VM_API_HOST,
+  },
   // mail_server: {
   //   host: "smtp.qq.com",
   //   port: 465,

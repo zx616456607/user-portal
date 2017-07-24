@@ -85,7 +85,7 @@ class CreateStepFirst extends Component{
       callback(new Error('请输入名称'))
       return
     }
-    if (newValue.length < 3 || newValue.length > 21) {
+    if (newValue.length < 1 || newValue.length > 21) {
       callback(new Error('请输入1~21个字符'))
       return
     }
@@ -133,20 +133,20 @@ class CreateStepFirst extends Component{
     };
     const menuTop = (
       [
-        selectedClusters&&selectedClusters.map((item,index)=>{
+        selectedClusters && selectedClusters.length > 0 ? selectedClusters.map((item,index)=>{
           return(
             <dd className="topList" key={item.clusterID}>{item.clusterName}<Icon onClick={()=>this.addCluster(item,false)} type="cross-circle-o" className="pointer" /></dd>
           )
-        })
+        }): <dd className="topList" key={1}>已申请集群为空</dd>
       ]
     )
     const menuBottom = (
       [
-        choosableClusters&&choosableClusters.map((item,index)=>{
+        choosableClusters && choosableClusters.length > 0 ? choosableClusters.map((item,index)=>{
           return (
             <dd onClick={()=>this.addCluster(item,true)} className="bottomList pointer" key={item.clusterID}>{item.clusterName}</dd>
           )
-        })
+        }): <dd className="bottomList" key={2}>可申请集群为空</dd>
       ]
     )
     return (

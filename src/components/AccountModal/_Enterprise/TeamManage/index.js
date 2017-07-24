@@ -176,8 +176,7 @@ let TeamTable = React.createClass({
     if (targetKeys.length !== 0) {
       const newtargetKeys = targetKeys.map(item=> {
         return {
-          userID:Number(item.split('/')[0]),
-          userName:item.split('/')[1]
+          userID: item
         }
       })
       const targetKeysMap = {"users":newtargetKeys}
@@ -186,6 +185,7 @@ let TeamTable = React.createClass({
         , {
           success: {
             func: () => {
+              new NotificationHandler().success("添加用户成功")
               loadUserTeamList('default', {
                 page: page,
                 size: size,
@@ -194,6 +194,13 @@ let TeamTable = React.createClass({
               })
             },
             isAsync: true
+          },
+          failed: {
+            func: (err) => {
+              if (err.statusCode === 409) {
+                nofity.info('成员已添加')
+              }
+            }
           }
         })
     }

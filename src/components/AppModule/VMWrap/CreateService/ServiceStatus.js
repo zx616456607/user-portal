@@ -20,7 +20,47 @@ const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
 
 class ServiceStatus extends Component{
-  
+
+  checkAddr(rules,value,callback) {
+    const { scope } = this.props;
+    if (!value) {
+      callback()
+    }
+    scope.setState({
+      address:value
+    })
+    callback()
+  }
+  checkInit(rules,value,callback) {
+    const { scope } = this.props;
+    if (!value) {
+      callback()
+    }
+    scope.setState({
+      init:value
+    })
+    callback()
+  }
+  checkNomal(rules,value,callback) {
+    const { scope } = this.props;
+    if (!value) {
+      callback()
+    }
+    scope.setState({
+      normal:value
+    })
+    callback()
+  }
+  checkInterval(rules,value,callback) {
+    const { scope } = this.props;
+    if (!value) {
+      callback()
+    }
+    scope.setState({
+      interval:value
+    })
+    callback()
+  }
   render() {
     const { getFieldProps } = this.props.form;
     const formItemLayout = {
@@ -29,22 +69,26 @@ class ServiceStatus extends Component{
     };
     const checkAddress = getFieldProps('checkAddress', {
       rules: [
-        { required: true, message: "请输入IP" }
+        { required: true, message: "请输入检查地址" },
+        { validator: this.checkAddr.bind(this)}
       ],
     });
     const initTimeout = getFieldProps('initTimeout', {
       rules: [
-        { required: true, message: "请输入名称" }
+        { required: true, message: "请输入初始化超时" },
+        { validator: this.checkInit.bind(this)}
       ],
     });
     const ruleTimeout = getFieldProps('ruleTimeout', {
       rules: [
-        { required: true, message: "请输入密码" }
+        { required: true, message: "请输入常规检查超时" },
+        { validator: this.checkNomal.bind(this)}
       ],
     });
     const intervalTimeout = getFieldProps('intervalTimeout', {
       rules: [
-        { required: true, message: "请输入密码" }
+        { required: true, message: "请输入间隔检查超时" },
+        { validator: this.checkInterval.bind(this)}
       ],
     });
     return(
@@ -81,11 +125,11 @@ class ServiceStatus extends Component{
 }
 
 function mapStateToProps(state, props) {
-  
+
   return {
-  
+
   }
 }
 export default connect(mapStateToProps, {
 
-})(Form.create()(ServiceStatus))
+})(ServiceStatus)
