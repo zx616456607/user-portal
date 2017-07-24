@@ -400,6 +400,7 @@ class QuickCreateApp extends Component {
     const { validateFieldsAndScroll } = this.form
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
+        console.error(errors)
         return
       }
       this.createAppOrAddService()

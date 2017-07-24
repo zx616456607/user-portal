@@ -83,16 +83,19 @@ const ConfigMapSetting = React.createClass({
     callback(error)
   },
   renderConfigMapItem(key) {
-    if (key.deleted) {
-      return
-    }
     const { form, configGroupList } = this.props
     const { getFieldProps, getFieldValue } = form
     const keyValue = key.value
+    const configMapSubPathValuesKey = `configMapSubPathValues${keyValue}`
+    if (key.deleted) {
+      // fix issue http://jira.tenxcloud.com/browse/CRYSTAL-4604
+      // set configMapSubPathValues to unrequired
+      getFieldProps(configMapSubPathValuesKey)
+      return
+    }
     const configMapMountPathKey = `configMapMountPath${keyValue}`
     const configMapIsWholeDirKey = `configMapIsWholeDir${keyValue}`
     const configGroupNameKey = `configGroupName${keyValue}`
-    const configMapSubPathValuesKey = `configMapSubPathValues${keyValue}`
     const configGroupName = getFieldValue(configGroupNameKey)
     const configMapIsWholeDir = getFieldValue(configMapIsWholeDirKey)
     const currentConfigGroup = this.getConfigGroupByName(configGroupList, configGroupName)
