@@ -492,7 +492,7 @@ class Sider extends Component {
                     </Link>
                   </Menu.Item>
                   {
-                    this.props.loginUser.vmWrapConfig.enabled
+                    (this.props.loginUser.vmWrapConfig && this.props.loginUser.vmWrapConfig.enabled)
                     ? [
                       <Menu.Item key='vm_wrap'>
                         <Link to='/app_manage/vm_wrap'>
