@@ -37,7 +37,7 @@ export default class TeamCost extends Component{
     const { currentTeamName, currentSpaceName } = this.props
     let teamCostTitle = (
       <div className="teamCostTitle">
-        <span>空间{currentSpaceName}对应的团队{currentTeamName}该月消费详情</span>
+        <span>空间 {currentSpaceName} 对应的团队 {currentTeamName} 该月消费详情</span>
         <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()}/>
       </div>
     )

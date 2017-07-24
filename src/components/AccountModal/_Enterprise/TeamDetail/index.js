@@ -542,10 +542,9 @@ class TeamDetail extends Component {
     const { targetKeys, sortUser } = this.state
     if (targetKeys.length !== 0) {
       const newtargetKeys = targetKeys.map(item=> {
-      return {
-        userID:Number(item.split('/')[0]),
-        userName:item.split('/')[1]
-      }
+        return {
+          userID: item
+        }
       })
       const targetKeysMap = {"users":newtargetKeys}
       addTeamusers(teamID,
@@ -553,6 +552,7 @@ class TeamDetail extends Component {
         , {
           success: {
             func: () => {
+              new NotificationHandler().success("添加用户成功")
               loadTeamUserList(teamID, {
                 sort: sortUser,
               })
