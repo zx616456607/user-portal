@@ -23,7 +23,6 @@ let CreateVMListModal = React.createClass({
     };
   },
   handleSub(){
-    debugger
     const { form, scope } = this.props
     let info = form.getFieldsValue()
     this.setState({
@@ -59,7 +58,6 @@ let CreateVMListModal = React.createClass({
   handleAdd(){
     const {form, onSubmit, scope} = this.props
     form.validateFields((errors, values) =>{
-      debugger
       if(errors !== null)return
       let List = {
         host: values.host,

@@ -31,19 +31,21 @@ class VMList extends React.Component {
       isModal: false,
       isAdd: false,
       isPrompt: '',
-      name: '',
+      isShowText: false,
+      isDelVisible: false,
+      isDelete: false,
+      ID: '',
+      Name: ''
     }
   }
 
   getInfo(value){
-    debugger
     const { getVMinfosList } = this.props
     const names = {
       page: 1,
       size: 10,
       name: value,
     }
-
     getVMinfosList(
       value !== null ? names : null
       , {
@@ -67,6 +69,10 @@ class VMList extends React.Component {
     this.getInfo()
   }
 
+  /**
+   * 回调添加
+   * @param {*} state
+   */
   vmAddList(state){
     const { postVMinfoList, putVMinfoList } = this.props
     let notification = new NotificationHandler()
@@ -84,7 +90,7 @@ class VMList extends React.Component {
             if(res.code === 200){
               notification.success(`添加成功`)
               notification.close()
-              this.getInfo.bind(this)
+              this.getInfo()
             }
           },
           isAsync:true,
@@ -99,11 +105,10 @@ class VMList extends React.Component {
       putVMinfoList(res, {
         success: {
           func: res => {
-            debugger
             if(res.code === 200){
               notification.success(`修改成功`)
               notification.close()
-              this.getInfo.bind(this)
+              this.getInfo()
             }
           },
           isAsync:true,
@@ -117,6 +122,9 @@ class VMList extends React.Component {
     }
   }
 
+  /**
+   * 添加信息
+   */
   handleA(){
     this.setState({
       visible: true,
@@ -153,19 +161,24 @@ class VMList extends React.Component {
   /**
    * 删除信息
    */
-  handleDel(ID, Name){
+  handleDel(){
     const { delVMinfoList } = this.props
     let notification = new NotificationHandler()
-    notification.spin(`删除 ${Name} 中...`)
+    notification.spin(`删除 ${this.state.Name} 中...`)
+    this.state.isDelete ?
     delVMinfoList({
-      vmID: ID
+      vmID: this.state.ID
     },{
       success:{
         func: res => {
           if(res.code === 200){
-            this.getInfo.bind(this)
             notification.close()
-            notification.success(`删除 ${Name} 成功`)
+            notification.success(`删除 ${this.state.Name} 成功`)
+            this.setState({
+              isDelVisible: false,
+              isDelete: false
+            })
+            this.getInfo()
           }
         },
         isAsync: true
@@ -175,7 +188,7 @@ class VMList extends React.Component {
           notification.error('删除失败！')
         }
       }
-    })
+    }) : ''
   }
 
   /**
@@ -191,7 +204,6 @@ class VMList extends React.Component {
     },{
       success: {
         func: res => {
-          debugger
           if(res.code === 200){
             return res.code
           }
@@ -210,16 +222,56 @@ class VMList extends React.Component {
    * @param values
    */
   handleSearch(values){
-    debugger
     this.setState({
       name: values
     })
     this.getInfo(values)
   }
 
+  /**
+   * 显示密文
+   */
+  handleChange(value, index){
+    let isShow = this.state.isShowText
+    let info = document.getElementsByClassName('info')
+    let reg = /^[*]+$/
+    if(!reg.test(info[index].innerText)){
+      info[index].innerText = '******'
+      this.setState({
+        isShowText: false
+      })
+    }else {
+      info[index].innerText = value
+      this.setState({
+        isShowText: false
+      })
+    }
+  }
+
+  /**
+   * 关闭删除对话框
+   */
+  handleClose(){
+    this.setState({
+      isDelVisible: false
+    })
+  }
+
+  /**
+   * 确定删除
+   */
+  handleOK(ID, Name){
+    this.setState({
+      isDelVisible: true,
+      isDelete: true,
+      ID: ID,
+      Name: Name
+    })
+  }
+
   render() {
-     const {data} = this.props
-     const pagination = {
+    const {data} = this.props
+    const pagination = {
       defaultCurrent: 1,
       defaultPageSize: 10,
       total: data.length,
@@ -248,7 +300,17 @@ class VMList extends React.Component {
         title: '登录密码',
         dataIndex: 'password',
         key: 'password',
-        type: 'password'
+        render:(text, record, index) => (
+          <div>
+            {
+              <span ref="info" className="info">******</span>
+            }
+            <Icon
+              type={this.state.isShowText === 'eye' ? 'eye-o' : 'eye'}
+              style={{ float: 'right',marginRight:30}}
+              onClick={this.handleChange.bind(this,record.password, index)}/>
+          </div>
+        ),
       },
       {
         title: '服务数量',
@@ -273,15 +335,18 @@ class VMList extends React.Component {
           return (
             <div>
               <Button type="primary" className="tabBtn" onClick={this.handleE.bind(this,record)}>编辑信息</Button>
-              <Button onClick={this.handleDel.bind(this,record.vminfoId,record.user)}>删除</Button>
+              <Button onClick={this.handleOK.bind(this,record.vminfoId,record.user)}>删除</Button>
             </div>
           )
         }
       },
     ]
     const rowSelection = {
-      onSelect:(record)=> this.handleDel(record.vminfoId, record.user),
-      onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
+      // onSelect:(record)=> console.log(record),
+      // onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
+      onChange: (selectedRowKeys, selectedRows) => {
+        console.log(selectedRowKeys+ ',' + selectedRows)
+      }
     };
     const scope = this
     return (
@@ -292,13 +357,13 @@ class VMList extends React.Component {
           </Button>
           <Button type="ghost" size="large" className="manageBtn" onClick={ () => this.getInfo() } ><i className='fa fa-refresh'/> 刷新</Button>
           {/*<Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>*/}
-          <CommonSearchInput placeholder="请输入虚拟机IP搜索" size="large" onSearch={this.handleSearch.bind(this)}/>
+          <CommonSearchInput className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={this.handleSearch.bind(this)}/>
           {/*<Pagination {...pagination}/>*/}
           <div className="total">共{data.length}个</div>
         </Row>
         <Row>
           <Table
-            /*rowSelection={rowSelection}*/
+            //rowSelection={rowSelection}
             loading={false}
             pagination={pagination}
             columns={columns}
@@ -319,6 +384,18 @@ class VMList extends React.Component {
 
             </CreateVMListModal> : ''
         }
+        <Row>
+          <Modal
+          title= {"删除传统环境"}
+          visible={this.state.isDelVisible}
+          footer={[
+            <Button key="back" type="ghost" size="large" onClick={this.handleClose.bind(this)}>  取 消 </Button>,
+            <Button key="submit" type="primary" size="large" onClick={this.handleDel.bind(this)}> 确 定 </Button>,
+          ]}
+          >
+          <span style={{fontSize:16,color:'#ff0000'}}><Icon size={15} style={{color:'#ff0000'}} type="question-circle-o" />是否删除当前传统应用环境</span>
+          </Modal>
+        </Row>
       </div>
     )
   }
