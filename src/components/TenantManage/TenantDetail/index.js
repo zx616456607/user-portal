@@ -16,7 +16,7 @@ import { GetRole, RemovePermissionRole } from '../../../actions/role'
 import { Permission } from '../../../actions/permission'
 import QueueAnim from 'rc-queue-anim'
 import { formatDate } from '../../../common/tools'
-import AddOrEditRole from '../RoleManagement/AddOrEditRole'
+// import AddOrEditRole from '../RoleManagement/AddOrEditRole'
 import Notification from '../../Notification/index'
 import TreeComponent from '../../TreeComponent/index'
 
@@ -350,14 +350,14 @@ let TenantDetail = React.createClass({
           onCancel={this.handleCancel}
           wrapClassName='roleDetail_editRole'
         >
-          <AddOrEditRole
+          {/* <AddOrEditRole
             roleInfo={roleInfo}
             permissonInfo={permissonInfo}
             outPermissionInfo={outPermissionInfo}
             scope={scope}
             permissionList={permissionList}
             form={form}
-          />
+          /> */}
         </Modal>
 
         <Modal title="移除权限"
@@ -401,7 +401,7 @@ let TenantDetail = React.createClass({
       </div>
     </QueueAnim>
     )
-  } 
+  }
 })
 
 TenantDetail = Form.create()(TenantDetail)
