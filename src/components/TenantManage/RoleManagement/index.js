@@ -9,25 +9,32 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import { Row, Table, Alert, Col, Transfer, Form, Menu, Input, Icon, Button, Dropdown, Modal, InputNumber, Pagination, Select, Card, Checkbox, Tooltip } from 'antd'
 import './style/RoleManagement.less'
+import { ListRole } from '../../../actions/role'
+import { formatDate } from '../../../common/tools'
+
+const Option = Select.Option
 
 let RoleManagement = React.createClass({
   getInitialState() {
-    return { 
+    return {
       visible: false,
       mockData: [],
       targetKeys: [],
       selectedRowKeys: [],
       editrole: false,
-      Viewpermissions:false, 
+      Viewpermissions:false,
       Deleteroles:false,
       mockData: [],
       targetKeys: [],
       sortedInfo: null,
       filteredInfo: null,
     };
+  },
+  componentWillMount(){
+    this.loadListRole()
   },
   componentDidMount() {
     this.getMock();
@@ -86,7 +93,28 @@ let RoleManagement = React.createClass({
       },
     });
   },
+  loadListRole(){
+    const { ListRole } = this.props
+    ListRole()
+  },
+  handleRole(item, obj){
+    console.log('obj=',obj)
+    console.log('item=',item)
+    switch(obj.key){
+      case 'editRole':
+        this.setState({
+          editrole: true
+        })
+        return
+      case 'deleteRole':
+        this.setState({
+          Deleteroles: true
+        })
+        return
+    }
+  },
   render() {
+    const { roleList } = this.props
     const dropdown = (
         <Menu style={{ width: '115px' }}>
           <Menu.Item key='stopApp'>
@@ -140,29 +168,46 @@ let RoleManagement = React.createClass({
       name: '团队管理员',
       Referencedproject: 3,
     }];
+
+    let roledata = []
+    let dropDown = []
+    if(roleList.data){
+      roledata = roleList.data.items
+      dropDown = roledata.map((item, index) => {
+        return <Menu style={{ width: '115px' }} key={'handleRole' + index } onClick={this.handleRole.bind(this, item)}>
+          <Menu.Item key='editRole'>
+            <Icon type="edit" /> 编辑角色
+          </Menu.Item>
+          <Menu.Item key='deleteRole'>
+            <Icon type="delete" /> 删除
+          </Menu.Item>
+        </Menu>
+      })
+    }
+
     const rolecolumns = [{
       title: '角色名称',
-      dataIndex: 'Rolename',
+      dataIndex: 'name',
       width:'13%',
-      render: text => <Link to="/tenant_manage/rolemanagement/rolename/TID">{text}</Link>,
+      render: (text, record, index) => <div className='roleName' onClick={() => browserHistory.push(`/tenant_manage/rolemanagement/rolename/${record.id}`)}>{text}</div>
     }, {
       title: '创建人',
-      dataIndex: 'Founder',
+      dataIndex: 'user',
       width:'14%',
     }, {
       title: '权限个数',
-      dataIndex: 'Numbers',
+      dataIndex: 'count',
       width:'14%',
       key:'Numbers',
-      sorter: (a, b) => a.Numbers - b.Numbers,
+      sorter: (a, b) => a.count - b.count,
     },{
       title: '被项目引用次数',
-      dataIndex: 'Quotes',
+      dataIndex: 'projectCount',
       width:'16%',
-      sorter: (a, b) => a.Quotes - b.Quotes,
+      sorter: (a, b) => a.projectCount - b.projectCount,
     }, {
       title: '创建时间 / 更新时间',
-      dataIndex: 'Times',
+      dataIndex: 'createdTime',
       width:'20%',
       filters: [{
         text: '2017',
@@ -172,50 +217,34 @@ let RoleManagement = React.createClass({
         value: '2016',
       }],
       onFilter: (value, record) => record.Times.indexOf(value) === 0,
+      render: (text, record, index) => <div>
+        <span className='createdTime'>{formatDate(record.createdTime)}</span><br/>
+        <span className='updatedTime'>{formatDate(record.updatedTime)}</span>
+      </div>
     }, {
       title: '操作',
-      dataIndex: 'Operations', 
+      dataIndex: 'comment',
+      render: (text, record, index) => <div>
+        {
+          text == '研'
+          ? <Button type="primary" onClick={() => browserHistory.push(`/tenant_manage/rolemanagement/rolename/${record.id}`)}><Icon type="eye" />查看权限</Button>
+          : <Dropdown.Button overlay={dropDown[index]} type="ghost" onClick={() => browserHistory.push(`/tenant_manage/rolemanagement/rolename/${record.id}`)}>
+              <Icon type="eye" />
+              查看权限
+          </Dropdown.Button>
+        }
+      </div>
     }];
 
-    const roledata = [{
-      key: '1',
-      Rolename: '项目管理员',
-      Founder: '系统默认',
-      Numbers: 3,
-      Quotes: 2,
-      Times: '2017-03-20 19:00:26',
-      Operations:(
-          <Button onClick={()=> this.setState({Viewpermissions:true})} type='primary'>
-            <span ><Icon type="eye-o" />查看权限</span>
-          </Button>),
-    }, {
-      key: '2',
-      Rolename: '项目访客',
-      Founder: '系统默认',
-      Numbers: 2,
-      Quotes: 8,
-      Times: '2017-03-20 19:00:26',
-      Operations:(
-        <Button onClick={()=> this.setState({Viewpermissions:true})} type='primary'>
-            <span ><Icon type="eye-o" />查看权限</span>
-          </Button>),
-    }, {
-      key: '3',
-      Rolename: '123456',
-      Founder: 'momo',
-      Numbers: 1,
-      Quotes: 12,
-      Times: '2017-03-20 19:00:26',
-      Operations:(
-        <div className='actionBox commonData'>
-          <Dropdown.Button onClick={()=> this.setState({Viewpermissions:true})} overlay={dropdown} type='ghost'>
-            <span><Icon type="eye-o" />查看权限</span>
-          </Dropdown.Button>
-        </div>),
-    }];
+
+
+    let totleNum = 0
+    if(roleList.data){
+      totleNum = roleList.data.total
+    }
 
     const selectBefore = (
-      <Select className="bag" defaultValue="jsmt">
+      <Select className="bag" defaultValue="jsmt" style={{width:'80px'}}>
         <Option value="jsmt">角色名称</Option>
         <Option value="cjr">创建人</Option>
       </Select>
@@ -226,23 +255,10 @@ let RoleManagement = React.createClass({
           type="info" />
         <div className='operationBox'>
           <div className='leftBox'>
-              <Button onClick={()=> this.setState({visible:true})} type='primary' size='large'>
-                <Icon type="plus" />创建角色
-              </Button>
-              <Modal width="650px" title="创建角色" visible={this.state.visible}
-                onOk={this.handleOk} onCancel={this.handleCancel}>
-                <p className="createRolesa">角色名称<Input style={{width:'50%',marginLeft:'50px'}} placeholder="请填写角色名称"/></p>
-                <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
-                <p className="createRoles"><sapn className="PermissionSelection">权限选择</sapn>
-                  <Transfer
-                  operations={['添加', '移除']}
-                  dataSource={this.state.mockData}
-                  targetKeys={this.state.targetKeys}
-                  onChange={this.onhandleChange}
-                  render={item => item.title}/>
-                </p>
-              </Modal>
-            <Button className="bag" type='ghost' size='large'>
+            <Button onClick={()=> this.setState({visible:true})} type='primary' size='large'>
+              <i className="fa fa-plus" aria-hidden="true" style={{marginRight: '8px'}}></i>创建角色
+            </Button>
+            <Button className="bag" type='ghost' size='large' onClick={this.loadListRole}>
               <i className='fa fa-refresh' />刷新
             </Button>
             <Button className="bag" type='ghost' disabled={!hasSelected} size='large'>
@@ -255,49 +271,106 @@ let RoleManagement = React.createClass({
             </div>
             <div className='littleRight'>
               <Input
-                calssName="put bag"
+                className="put bag"
                 addonBefore={selectBefore}
                 size='large'
                 placeholder='请输入关键词搜索'
                 style={{paddingRight: '28px',width:'180px'}}/>
             </div>
           </div>
-          <div className='pageBox'>
-            <span className='totalPage'>共计 1 条</span>
-            <div className='paginationBox'>
-              <Pagination
-                simple
-                className='inlineBlock' />
+          {
+            roleList.data
+            ? <div className='pageBox'>
+              <span className='totalPage'>共计 { totleNum } 条</span>
             </div>
-          </div>
+            : null
+          }
           <div className='clearDiv'></div>
         </div>
         <div className='appBox'>
-          <Table pagination={false} rowSelection={rowSelection} columns={rolecolumns} dataSource={roledata} onChange={this.handleChange} />
+          <Table
+            rowSelection={rowSelection}
+            columns={rolecolumns}
+            dataSource={roledata}
+            onChange={this.handleChange}
+            pagination={{simple: true}}
+            loading={roleList.isFetching}
+          />
         </div>
+
+        <Modal
+          width="650px"
+          title="创建角色"
+          visible={this.state.visible}
+          onOk={this.handleOk}
+          onCancel={this.handleCancel}
+          wrapClassName='createRole'
+        >
+          <Form>
+            <Form.Item
+              label="角色名称"
+              labelCol={{span: 4}}
+              wrapperCol={{span: 12}}
+            >
+              <Input placeholder='请填写角色名称'/>
+            </Form.Item>
+            <Form.Item
+              label="备注"
+              labelCol={{span: 4}}
+              wrapperCol={{span: 12}}
+            >
+              <Input/>
+            </Form.Item>
+          </Form>
+          <div className="createRoles"><sapn className="PermissionSelection">权限选择</sapn>
+            <Transfer
+              operations={['添加', '移除']}
+              dataSource={this.state.mockData}
+              targetKeys={this.state.targetKeys}
+              onChange={this.onhandleChange}
+              render={item => item.title}
+            />
+          </div>
+        </Modal>
+
         <Modal title="查看权限" visible={this.state.Viewpermissions} footer={<Button type="primary" onClick={this.handleOk}>知道了</Button>} onCancel={this.handleCancel} >
           <p className="createRolesa">角色名称<Input style={{width:'50%',marginLeft:'50px'}} placeholder="请填写角色名称"/></p>
           <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
           <p>对话框的内容</p>
         </Modal>
+
         <Modal width="650px" title="编辑角色" visible={this.state.editrole} onOk={this.handleOk} onCancel={this.handleCancel} >
           <p className="createRolesa">角色名称<Input style={{width:'50%',marginLeft:'50px'}} placeholder="请填写角色名称"/></p>
           <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
           <p className="createRoles"><sapn className="PermissionSelection">权限选择</sapn>
-              <Transfer
-              operations={['添加', '移除']}
-              dataSource={this.state.mockData}
-              targetKeys={this.state.targetKeys}
-              onChange={this.onhandleChange}
-              render={item => item.title}/>
+            <Transfer
+            operations={['添加', '移除']}
+            dataSource={this.state.mockData}
+            targetKeys={this.state.targetKeys}
+            onChange={this.onhandleChange}
+            render={item => item.title}/>
           </p>
         </Modal>
+
         <Modal title="删除角色操作" visible={this.state.Deleteroles} onOk={this.handleOk} onCancel={this.handleCancel} >
-          <p className="createRolesa"><div className="mainbox"><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>将永久删除以下角色以及该角色所关联的对象，您确定要删除以下角色么？</div></p>
-          <p className="createRoles"><Table columns={columns} dataSource={data} pagination={false} /></p>
+          <div className="createRolesa"><div className="mainbox"><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>将永久删除以下角色以及该角色所关联的对象，您确定要删除以下角色么？</div></div>
+          <div className="createRoles"><Table columns={columns} dataSource={data} pagination={false} /></div>
         </Modal>
       </div>
     )
-  }  
+  }
 })
-export default RoleManagement
+
+function mapStateToProps(state, props){
+  const { role, entities } = state
+  const { roleList } = role
+  const { loginUser } = entities
+  return {
+    roleList,
+  }
+}
+
+
+export default connect(mapStateToProps, {
+  ListRole
+})(RoleManagement)
