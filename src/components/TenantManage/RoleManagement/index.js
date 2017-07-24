@@ -14,19 +14,18 @@ import { Row, Table, Alert, Col, Transfer, Form, Menu, Input, Icon, Button, Drop
 import './style/RoleManagement.less'
 import { ListRole } from '../../../actions/role'
 import { formatDate } from '../../../common/tools'
-import { AddOrEditRole } from './AddOrEditRole'
 
 const Option = Select.Option
 
 let RoleManagement = React.createClass({
   getInitialState() {
-    return { 
+    return {
       visible: false,
       mockData: [],
       targetKeys: [],
       selectedRowKeys: [],
       editrole: false,
-      Viewpermissions:false, 
+      Viewpermissions:false,
       Deleteroles:false,
       mockData: [],
       targetKeys: [],
@@ -359,7 +358,7 @@ let RoleManagement = React.createClass({
         </Modal>
       </div>
     )
-  }  
+  }
 })
 
 function mapStateToProps(state, props){
