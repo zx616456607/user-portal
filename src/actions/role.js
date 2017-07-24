@@ -81,6 +81,7 @@ function fetchGetRole(body,callback){
       endpoint,
       schema: {},
     },
+    id: body.id,
     callback
 	}
 }
@@ -195,14 +196,13 @@ export const ROLE_REMOVEPERMISSION_FAILURE = 'ROLE_REMOVEPERMISSION_FAILURE'
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchRemovePermissionRole(body,callback){
 	let endpoint = `${API_URL_PREFIX}/role/${body.id}/removePermission`
-  let data = body.body
 	return {
 		[FETCH_API]: {
       types: [ROLE_REMOVEPERMISSION_REQUEST, ROLE_REMOVEPERMISSION_SUCCESS, ROLE_REMOVEPERMISSION_FAILURE],
       endpoint,
       options: {
         method: 'PUT',
-        data
+        body: body.body
       },
       schema: {},
     },
