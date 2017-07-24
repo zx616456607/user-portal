@@ -47,6 +47,7 @@ import ldap from './ldap'
 import harbor from './harbor'
 import notifications from './notifications'
 import projectAuthority from './project'
+import role from './role'
 import vmWrap from './vm_wrap'
 
 import { LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE, } from '../constants'
@@ -157,6 +158,7 @@ const rootReducer = combineReducers({
   harbor,
   notifications,
   projectAuthority,
+  role,
   vmWrap,
 })
 

@@ -36,7 +36,7 @@ const tenantRoutes = [{
     component: require('../components/TenantManage/ProjectManage/ProjectDetail').default
   },
   {
-    path: 'rolemanagement/rolename/TID',
+    path: 'rolemanagement/rolename/:id',
     component: require('../components/TenantManage/TenantDetail').default,
   },
   {
