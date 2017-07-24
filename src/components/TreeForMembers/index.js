@@ -91,43 +91,57 @@ class TreeComponent extends Component {
   
   }
   onCheck = keys => {
-    console.log(keys)
-    const { outPermissionInfo } = this.state
+    
+    const { outPermissionInfo, checkedKeys } = this.state
+    console.log(keys,checkedKeys)
     let outPermission = this.transformMultiArrayToLinearArray(cloneDeep(outPermissionInfo))
     let parentKey = []
     let addKey = []
-    for (let j = 0; j < keys.length; j++) {
-      // if (Number(keys[j]).toString() === 'NaN') {
-      //   break
-      // }
-      for (let i = 0; i < outPermission.length; i++) {
-        if ((keys[j] === `${outPermission[i].id}`) && outPermission[i].parent) {
-          parentKey.push(outPermission[i].parent)
-        }
+    // key 
+    let checkArr = new Set(checkedKeys.slice(0));
+    for (let i = 0; i < keys.length; i++) {
+      if(checkArr.has(keys[i])) {
+        checkArr.delete(keys[i])
+      } else {
+        checkArr.add(keys[i])
       }
     }
-    for (let i = 0; i < parentKey.length; i++) {
-      let flag = false
-      for (let j = 0; j < outPermission.length; j++) {
-        if (outPermission[j].id === parentKey[i]) {
-          let branch = outPermission[j].children
-          flag = branch.every(item => {
-            return keys.indexOf(`${item.id}`) > -1
-          })
-        }
-      }
-      if (flag) {
-        addKey.push(parentKey[i])
-      }
-    }
-    console.log(addKey)
-    let k = Array.from(new Set(keys.concat(addKey)))
-    console.log(k)
+    checkArr = Array.from(checkArr)
+    console.log(checkArr,'removeParent')
     this.setState({
-      checkedKeys:k,
-      //expandedKeys: checkedKeys,
-      autoExpandParent: false,
-    });
+      checkedKeys: []
+    },()=>{
+      for (let j = 0; j < checkArr.length; j++) {
+        for (let i = 0; i < outPermission.length; i++) {
+          if ((checkArr[j] === `${outPermission[i].id}`) && outPermission[i].parent) {
+              parentKey.push(outPermission[i].parent)
+          }
+        }
+      }
+      for (let i = 0; i < parentKey.length; i++) {
+        let flag = false
+        for (let j = 0; j < outPermission.length; j++) {
+          if (outPermission[j].id === parentKey[i]) {
+            let branch = outPermission[j].children
+            flag = branch.every(item => {
+              return checkArr.indexOf(`${item.id}`) > -1
+            })
+          }
+        }
+        if (flag) {
+          addKey.push(parentKey[i])
+        }
+      }
+      console.log(addKey)
+      // checkArr = Array.from(new Set(checkArr.concat(addKey)))
+      console.log(checkArr)
+      this.setState({
+        checkedKeys:checkArr,
+        //expandedKeys: checkedKeys,
+        autoExpandParent: false,
+      });
+    })
+    
   }
   
   onAlreadyExpand  = expandedKeys => {
