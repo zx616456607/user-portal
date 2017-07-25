@@ -105,7 +105,6 @@ class CreateStepThird extends Component{
       roleWithMember:roleMap
     },()=>{
       this.setState({connectModal: false})
-      console.log(scope.state.roleWithMember)
     })
   }
   filterOption(inputValue, option) {
@@ -129,13 +128,17 @@ class CreateStepThird extends Component{
       }
     });
   };
-  updateCurrentMember(member) {
+  updateCurrentMember(member,list) {
     const { currentRoleInfo, roleMap } = this.state;
+    const { updateRoleWithMember } = this.props;
     let map = cloneDeep(roleMap);
-    map[currentRoleInfo.role.id] = member;
+    let currentId = currentRoleInfo.role.id
+    map[currentId] = member;
     this.setState({
-      roleMap:map
+      roleMap:map,
+      [`member${currentId}`]: list
     })
+    updateRoleWithMember(map)
   }
   getCurrentRole(id) {
     const { GetRole } = this.props;
@@ -180,10 +183,18 @@ class CreateStepThird extends Component{
     roleSet.delete(item);
     updateRole(Array.from(roleSet))
   }
+  numberToString(arr) {
+    let a = []
+    for (let i = 0; i < arr.length; i++) {
+      a[i] = `${arr[i]}`
+    }
+    return a
+  }
   render() {
     const { scope, form } = this.props;
     const TreeNode = Tree.TreeNode;
     const { currentRolePermission, currentRoleInfo, memberArr, connectModal, roleMap } = this.state;
+    let currentId = currentRoleInfo.role && currentRoleInfo.role.id
     const { getFieldProps } = form;
     const projectNameLayout = {
       labelCol: { span: 4 },
@@ -191,7 +202,9 @@ class CreateStepThird extends Component{
     };
     const roleList = scope.state.RoleKeys.length > 0 ? scope.state.RoleKeys.map((item)=>{
       return (
-        <li onClick={()=>this.getCurrentRole.call(this,item.split(',')[0])} key={item.split(',')[1]}>{item.split(',')[1]}<Icon type="delete" onClick={(e)=>this.deleteRole(e,item)} className="pointer"/></li>
+        <li onClick={()=>this.getCurrentRole.call(this,item.split(',')[0])} key={item.split(',')[1]}>{item.split(',')[1]}
+          <Icon type="delete" onClick={(e)=>this.deleteRole(e,item)} className="pointer"/>
+        </li>
       )
     }) : <li className="pointer" onClick={()=>browserHistory.replace('/tenant_manage/project_manage?step=second')}>请选择角色</li>
     
@@ -206,15 +219,9 @@ class CreateStepThird extends Component{
       return <TreeNode key={item.key} title={item.title} disableCheckbox={true}/>;
     });
     const loopFunc = data => data.length >0 && data.map((item) => {
-      if (item.users) {
-        return (
-          <TreeNode key={item.id} title={item.teamName} disableCheckbox={item.checked}>
-            {loopFunc(item.users)}
-          </TreeNode>
-        );
-      }
-      return <TreeNode key={item.id} title={item.userName} disableCheckbox={item.checked}/>;
+      return <TreeNode key={item.id} title={item.userName} disableCheckbox={true}/>;
     });
+    
     return (
       <div id="projectCreateStepThird">
         <div className="inputBox">
@@ -250,8 +257,26 @@ class CreateStepThird extends Component{
                   }
                 </div>
               </div>
-              <div className="connectMemberBox inlineBlock">
-                <Button type="primary" size="large" onClick={()=> this.setState({connectModal:true})}>关联对象</Button>
+              <div className="memberBox inlineBlock">
+                <div className="memberTitle">
+                  <span>{currentRoleInfo.role && currentRoleInfo.role.name}已关联 <span className="themeColor">{this.state[`member${currentId}`] && this.state[`member${currentId}`].length || 0}</span> 个对象</span>
+                  {
+                    this.state[`member${currentId}`] && this.state[`member${currentId}`].length > 0 && <Button type="primary" size="large" onClick={()=> this.setState({connectModal:true})}>继续关联对象</Button>
+                  }
+                </div>
+                <div className="memberTableBox">
+                  {
+                    this.state[`member${currentId}`] && this.state[`member${currentId}`].length > 0 ?
+                      <Tree
+                        checkable multiple
+                        checkedKeys={this.numberToString(this.state.roleMap[currentId])}
+                      >
+                        {loopFunc(this.state[`member${currentId}`])}
+                      </Tree>
+                      :
+                      <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.setState({connectModal:true})}>关联对象</Button>
+                  }
+                </div>
               </div>
             </div>
           </div>
@@ -265,7 +290,6 @@ class CreateStepThird extends Component{
              permissionInfo={[]}
              existMember={roleMap[currentRoleInfo.role && currentRoleInfo.role.id] || []}
              text='成员'
-             updateCurrentMember={this.updateCurrentMember.bind(this)}
              connectModal={connectModal}
              getTreeRightData={this.updateCurrentMember.bind(this)}
           />

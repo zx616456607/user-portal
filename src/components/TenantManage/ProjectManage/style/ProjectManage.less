@@ -542,10 +542,24 @@
           border-right: 1px solid #d8d8d8;
         }
       }
-      .connectMemberBox{
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+      .memberBox{
+        width: 360px;
+        height: 320px;
+        .memberTableBox{
+          height: 280px;
+          overflow-y: auto;
+          border-top: 1px solid #d8d8d8;
+          .addMemberBtn{
+            display: block;
+            margin: 125px auto 0;
+          }
+        }
+        .memberTitle{
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: space-around;
+        }
       }
     }
   }
