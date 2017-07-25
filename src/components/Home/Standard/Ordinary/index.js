@@ -24,6 +24,7 @@ import homeMongoCluster from '../../../../assets/img/homeMongoCluster.png'
 import homeRedis from '../../../../assets/img/homeRedis.png'
 import homeZookeeper from '../../../../assets/img/homeZookeeper.png'
 import homeElasticSearch from '../../../../assets/img/homeElasticSearch.png'
+import homeEtcd from '../../../../assets/img/homeEtcdCluster.png'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -143,6 +144,7 @@ class Ordinary extends Component{
       tab3: false,
       tab4: false,
       tab5: false,
+      tab6: false,
       isTeam: false,
       statefulApp: 'mysql',
       oldTestingKonwShow: false,
@@ -345,11 +347,26 @@ class Ordinary extends Component{
       elasticSearchStopped = failedCount + unknownCount
       elasticSearchOthers = pendingCount
     }
+    // Etcd
+    const etcdData = clusterDbServices.get('etcd')
+    let etcdRunning = 0
+    let etcdStopped = 0
+    let etcdOthers = 0
+    if (etcdData.size !== 0) {
+      const failedCount = etcdData.get('failed') ? etcdData.get('failed') : 0
+      const pendingCount = etcdData.get('pending') ? etcdData.get('pending') : 0
+      const runningCount = etcdData.get('running') ? etcdData.get('running') : 0
+      const unknownCount = etcdData.get('unknown') ? etcdData.get('unknown') : 0
+      etcdRunning = runningCount
+      etcdStopped = failedCount + unknownCount
+      etcdOthers = pendingCount
+    }
     const statefulApps = {
       mysql: "MySQL",
       redis: "Redis",
       zookeeper: "ZooKeeper",
       elasticsearch: "ElasticSearch",
+      etcd: "Etcd",
     }
     const statefulAppTabMapping = {
       mysql: 'tab1',
@@ -357,6 +374,7 @@ class Ordinary extends Component{
       redis: 'tab3',
       zookeeper: 'tab4',
       elasticsearch: 'tab5',
+      etcd: 'tab6',
     }
     const defaultState = {
       tab1: false,
@@ -364,6 +382,7 @@ class Ordinary extends Component{
       tab3: false,
       tab4: false,
       tab5: false,
+      tab6: false,
       statefulApp: 'MySQL',
     }
     const onStatefulAppOptionClick = function (app) { 
@@ -988,6 +1007,44 @@ class Ordinary extends Component{
                   </table>
                 </Col>
               </Row>
+              <Row style={{display: this.state.tab6?'block':'none',height:130}}>
+                <Col span={12} className='dbImg'>
+                  <img src={homeEtcd} alt="Etcd"/>
+                </Col>
+                <Col span={12} className='dbInf'>
+                  <table>
+                    <tbody>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{backgroundColor:'#46b2fa'}}></div>
+                        运行中
+                      </td>
+                      <td className="dbNum">
+                        {etcdRunning}&nbsp;个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{backgroundColor:'#f6575e'}}></div>
+                        已停止
+                      </td>
+                      <td className="dbNum">
+                        {etcdStopped}&nbsp;个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{backgroundColor:'#28bd83'}}></div>
+                        操作中
+                      </td>
+                      <td className="dbNum">
+                        {etcdOthers}&nbsp;个
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </Col>
+              </Row>
             </Card>
           </Col>
           <Col span={6} className='clusterRecord'>
@@ -1262,6 +1319,7 @@ function getDbServiceStatus(data) {
   dbServiceMap.set("redis", new Map())
   dbServiceMap.set("zookeeper", new Map())
   dbServiceMap.set("elasticsearch", new Map())
+  dbServiceMap.set("etcd", new Map())
 
   data.petSets.map(petSet => {
     let key = "unknown"
@@ -1338,6 +1396,7 @@ function mapStateToProp(state,props) {
   clusterDbServicesData.set("redis", new Map())
   clusterDbServicesData.set("zookeeper", new Map())
   clusterDbServicesData.set("elasticsearch", new Map())
+  clusterDbServicesData.set("etcd", new Map())
 
   let clusterNodeSpaceConsumption = {
     balance: 0,

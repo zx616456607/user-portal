@@ -28,6 +28,7 @@ import mysqlImg from '../../assets/img/database_cache/mysql.png'
 import redisImg from '../../assets/img/database_cache/redis.jpg'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../assets/img/database_cache/elasticsearch.jpg'
+import etcdImg from '../../assets/img/database_cache/etcd.jpg'
 import { SHOW_BILLING } from '../../constants'
 
 const Option = Select.Option;
@@ -235,7 +236,7 @@ class BaseInfo extends Component {
     return (
       <div className='modalDetailBox' id="dbClusterDetailInfo">
         <div className='configContent'>
-          {this.props.database === 'elasticsearch' ? null :
+          {this.props.database === 'elasticsearch' || this.props.database === 'etcd' ? null :
           <div><div className='configHead'>参数</div>
             <ul className='parse-list'>
               <li><span className='key'>参数名</span> <span className='value'>参数值</span></li>
@@ -791,6 +792,7 @@ class ModalDetail extends Component {
       'redis': redisImg,
       'zookeeper': zkImg,
       'elasticsearch': esImg,
+      'etcd': etcdImg,
     }
     if (!(clusterType in logoMapping)) {
       return redisImg
