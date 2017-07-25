@@ -96,6 +96,11 @@
         &:focus {
           outline: none;
         }
+        .ant-form-explain{
+          position: absolute;
+          top: 33px;
+          left: 63px;
+        }
       }
       .has-error .ant-input,
       .has-error .ant-input:hover,
@@ -107,18 +112,20 @@
         padding-left: 10px;
       }
       input {
-        padding-left: 10px;
-        width: 100%;
-        border-radius: 0 !important;
-        border-top: 0;
-        border-left: 0;
-        border-right: 0;
-        &:focus {
-          box-shadow: -5px 0 5px -2px transparent,
-            0 -5px 5px -2px transparent,
-            0 5px 5px -3px rgba(45, 183, 245, 0.2),
-            5px 0 5px -2px transparent !important;
-        }
+        width: 82%;
+        float: right;
+      //   padding-left: 10px;
+      //   width: 100%;
+      //   border-radius: 0 !important;
+      //   border-top: 0;
+      //   border-left: 0;
+      //   border-right: 0;
+      //   &:focus {
+      //     box-shadow: -5px 0 5px -2px transparent,
+      //       0 -5px 5px -2px transparent,
+      //       0 5px 5px -3px rgba(45, 183, 245, 0.2),
+      //       5px 0 5px -2px transparent !important;
+      //   }
       }
       .has-error .ant-input, .has-error .ant-input:hover, .has-error .ant-input:focus {
         border-color: #ff4f51 !important;
@@ -133,7 +140,7 @@
           font-size: 12px;
           position: absolute;
           top: -25px;
-          left: 0;
+          left: 5px;
           font-weight: normal;
           -webkit-transform: translateY(25px);
           transform: translateY(25px);
@@ -157,10 +164,15 @@
           -ms-flex-pack: center;
           justify-content: center;
         }
+        .captchaImg {
+          position: absolute;
+          left: 60%;
+          top: -11px;
+        }
       }
       .captchaBtn {
         position: absolute;
-        left: 110%;
+        left: 70%;
         bottom: 0;
       }
       .subBtn {
