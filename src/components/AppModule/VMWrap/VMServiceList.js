@@ -152,8 +152,7 @@ class VMServiceList extends React.Component {
     const columns = [{
       title: '应用名',
       dataIndex: 'serviceName',
-      key: 'serviceName',
-      render: text => <a href="#">{text}</a>,
+      key: 'serviceName'
     }, {
       title: '状态',
       width: '15%',
