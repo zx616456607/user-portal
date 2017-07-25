@@ -13,12 +13,10 @@ import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP, WECHAT_SIGNUP_HASH } from '../../c
 import { PHONE_REGEX } from '../../../constants'
 import { connect } from 'react-redux'
 import { registerUser, sendRegisterPhoneCaptcha } from '../../actions/user'
-import { verifyCaptcha } from '../../actions/entities'
 import { login } from '../../actions/entities'
 import { browserHistory } from 'react-router'
 import NotificationHandler from '../../components/Notification'
 import QRCodeContent from '../../components/WechatQRCodeTicket/QRCodeContent'
-import { genRandomString, clearSessionStorage } from '../../common/tools'
 
 const TabPane = Tabs.TabPane
 const createForm = Form.create
@@ -50,11 +48,6 @@ let Person = React.createClass({
       intUserNameFocus: false,//用户名焦点
       captchaLoading: false,//验证码验证中
       countDownTimeText: '发送验证码',//验证码计时文本
-      intNameFocus:false,//真实姓名焦点
-      intEnterpriseNameNameFocus:false,//企业名称焦点
-      intChartFocus:false,
-      random: genRandomString(),
-      isNext:false,
       visible,
       activeTabKey,
     }
@@ -105,7 +98,6 @@ let Person = React.createClass({
             },
             submitProps: {},
           })
-          self.changeChart()
           notification.error(`注册失败`, msg)
         },
         isAsync: true
@@ -174,8 +166,6 @@ let Person = React.createClass({
         email: values.email,
         certType: 1,
         certUserName: values.userName,
-        Name:values.name,
-        enterpriseName:values.enterpriseName
       }
       this.handleRegisterUser(body)
     })
@@ -246,80 +236,14 @@ let Person = React.createClass({
     }
     callback()
   },
-  //真实姓名
-  checkName(rule, value, callback){
-    if (!value) {
-      callback([new Error('请填写真实姓名')])
-      return
-    }
-    if (value.length < 3 || value.length > 20) {
-      callback([new Error('长度为3~20个字符')])
-      return
-    }
-    if (!USERNAME_REG_EXP_NEW.test(value)) {
-      callback([new Error('以[a~z]开头，允许[0~9]、[-]，长度大于4，且以小写英文和数字结尾')])
-      return
-    }
-    callback()
-  },
-  //公司名称
-  checkEnterpriseName(rule, value, callback){
-    if(!value){
-      callback([new Error('请填写公司名称')])
-      return
-    }
-    if(!USERNAME_REG_EXP_NEW.test(value)){
-      callback([new Error('请填写正确公司名称')])
-      return
-    }
-    callback()
-  },
-  //图形验证码
-  checkChart(rule, value, callback) {
-    if (!value) {
-      callback()
-      return
-    }
-    const { verifyCaptcha } = this.props
-    if (!/^[a-zA-Z0-9]{4}$/.test(value)) {
-      callback([new Error('验证码输入错误')])
-      return
-    }
-    verifyCaptcha(value, {
-      success: {
-        func: (result) => {
-          if (!result.correct) {
-            callback([new Error('验证码输入错误')])
-            return
-          }
-          callback()
-          this.setState({
-            isNext:true
-          })
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (err) => {
-          callback([new Error('校验错误')])
-        },
-        isAsync: true
-      },
-    })
-  },
-  //
   /*
     end---验证---end
   */
   //发送验证码
   changeCaptcha() {
     // send captcha
-    if(!this.state.isNext){
-      return
-    }
     let passValidate = false
     const { validateFields } = this.props.form
-  
     validateFields((err, values) => {
       if (err) {
         return
@@ -371,17 +295,6 @@ let Person = React.createClass({
       clearInterval(time)
     },1000)
   },
-  //更换图片内容
-  changeChart() {
-    const { resetFields, getFieldProps } = this.props.form
-    const chart = getFieldProps('chart').value
-    if (chart) {
-      resetFields(['chart'])
-    }
-    this.setState({
-      random: genRandomString(),
-    })
-  },
   //获取输入框焦点
   intOnBlur(current) {
     const { getFieldProps } = this.props.form
@@ -430,32 +343,6 @@ let Person = React.createClass({
         })
       }
     }
-    if(current === 'name'){
-      let name = getFieldProps('name').value
-      if(name === '' || !name){
-        this.setState({
-          intNameFocus:false,
-        })
-      }
-      return
-    }
-    if(current === 'enterpriseName'){
-      let enterprise = getFieldProps('enterpriseName').value
-      if(enterprise === '' || !enterprise){
-        this.setState({
-          intEnterpriseNameNameFocus:false,
-        })
-      }
-    }
-    if(current === 'chart'){
-      let chart = getFieldProps('chart').value
-      if (chart === '' || !chart) {
-        this.setState({
-          intChartFocus: false
-        })
-      }
-      return
-    }
   },
   //失去输入框焦点
   intOnFocus(current) {
@@ -493,25 +380,6 @@ let Person = React.createClass({
       this.setState({
         intTelFocus: true,
       })
-    }
-    if(current === 'name'){
-      this.refs.intName.refs.input.focus()
-      this.setState({
-        intNameFocus:true
-      })
-    }
-    if(current === 'enterpriseName'){
-      this.refs.intEnterprise.refs.input.focus()
-      this.setState({
-        intEnterpriseNameNameFocus:true
-      })
-    }
-    if(current === 'chart'){
-      this.refs.intChart.refs.input.focus()
-      this.setState({
-        intChartFocus:true
-      })
-      return
     }
   },
   /*
@@ -565,32 +433,11 @@ let Person = React.createClass({
     })
     //验证码
     const captchaProps = getFieldProps('captcha', {
-      rules: [
+      /*rules: [
         { required: true, message: '请填写验证码' },
         { validator: this.checkCaptcha },
-      ],
+      ],*/
     })
-    //真实姓名
-    const NameProps = getFieldProps('name', {
-      rules: [
-        { required: false, message: '请填写真实姓名' },
-        { validator: this.checkName },
-      ],
-    })
-    //公司名称
-    const enterpriseNameProps = getFieldProps('enterpriseName', {
-      rules: [
-        { required: false, message: '请填写公司名称' },
-        { validator: this.checkEnterpriseName },
-      ],
-    })
-    //图形校验码
-    const chartProps = getFieldProps('chart', {
-      rules: [
-        { validator: this.checkChart },
-      ],
-    })
-    //
     /*
     ---end---
       验证规则
@@ -664,23 +511,6 @@ let Person = React.createClass({
                   style={{ height: 35 }}
           />
         </FormItem>
-        {/*图形验证码*/}
-        <FormItem
-          {...formItemLayout}
-          hasFeedback
-          className="formItemName"
-          style={{widht:'60%'}}
-          help={isFieldValidating('chart') ? '校验中...' : (getFieldError('chart') || []).join(', ')}
-        >
-          <div className={this.state.intChartFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'chart')}>验证码</div>
-          <Input {...chartProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'chart')}
-                 onFocus={this.intOnFocus.bind(this, 'chart')}
-                 ref="intChart"
-                 style={{ height: 35 }} />
-          <Tooltip placement="top" title="点击更换">
-            <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeChart} style={{cursor:'pointer'}} />
-          </Tooltip>
-        </FormItem>
         {/*验证码*/}
         <FormItem
           {...formItemLayout}
@@ -689,62 +519,23 @@ let Person = React.createClass({
           style={{width:'60%'}}
           help={isFieldValidating('captcha') ? '校验中...' : (getFieldError('captcha') || []).join(', ')}
         >
-          <div className={this.state.intCheckFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'check')}>手机验证码</div>
+          <div className={this.state.intCheckFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'check')}>验证码</div>
           <Input {...captchaProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'check')}
-            onFocus={this.intOnFocus.bind(this, 'check')}
-            ref="intCheck"
-            style={{ height: 35 }} />
+                  onFocus={this.intOnFocus.bind(this, 'check')}
+                  ref="intCheck"
+                  style={{ height: 35 }} />
           {/*验证码按钮*/}
-          {
-            this.state.isNext ? <Tooltip placement="top" title="点击重新发送" >
-              <Button className="captchaBtn"
-                onClick={this.changeCaptcha}
-                type="primary"
-                loading={this.state.captchaLoading}
-              >
-                {this.state.countDownTimeText}
-              </Button>
-            </Tooltip> :
-              <Button className="captchaBtn"
-                onClick={this.changeCaptcha}
-                type="primary"
-                disabled
-                loading={this.state.captchaLoading}
-              >
-                {this.state.countDownTimeText}
-              </Button>
-          }
+          <Tooltip placement="top" title="点击重新发送">
+            <Button className="captchaBtn"
+                    onClick={this.changeCaptcha}
+                    type="primary"
+                    loading={this.state.captchaLoading}
+            >
+              {this.state.countDownTimeText}
+            </Button>
+          </Tooltip>
         </FormItem>
-        {/*真实姓名*/}
-        <FormItem
-          {...formItemLayout}
-          hasFeedback
-          className="formItemName"
-        >
-          <div className={this.state.intNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'name')}>真实姓名</div>
-          <Input {...NameProps} autoComplete="off"
-            onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
-            onBlur={this.intOnBlur.bind(this, 'name')}
-            onFocus={this.intOnFocus.bind(this, 'name')}
-            ref="intName"
-            style={{ height: 32 }}
-          />
-        </FormItem>
-        {/*公司名称*/}
-        <FormItem
-          {...formItemLayout}
-          hasFeedback
-          className="formItemName"
-        >
-          <div className={this.state.intEnterpriseNameNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'enterpriseName')}>公司名称</div>
-          <Input {...enterpriseNameProps} autoComplete="off"
-            onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
-            onBlur={this.intOnBlur.bind(this, 'enterpriseName')}
-            onFocus={this.intOnFocus.bind(this, 'enterpriseName')}
-            ref="intEnterprise"
-            style={{ height: 32 }}
-          />
-        </FormItem>
+
         {/*注册按钮*/}
         <FormItem wrapperCol={{ span: 24, }}>
           <Button
@@ -870,7 +661,6 @@ Person = connect(mapStateToProps,{
   registerUser,
   sendRegisterPhoneCaptcha,
   login,
-  verifyCaptcha,
 })(Person)
 
 export default Person
