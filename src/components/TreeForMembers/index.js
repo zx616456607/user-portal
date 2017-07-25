@@ -87,13 +87,9 @@ class TreeComponent extends Component {
       autoExpandParent: false,
     });
   }
-  findParent() {
-  
-  }
   onCheck = keys => {
     
     const { outPermissionInfo, checkedKeys } = this.state
-    console.log(keys,checkedKeys)
     let outPermission = this.transformMultiArrayToLinearArray(cloneDeep(outPermissionInfo))
     let parentKey = []
     let addKey = []
@@ -107,40 +103,35 @@ class TreeComponent extends Component {
       }
     }
     checkArr = Array.from(checkArr)
-    console.log(checkArr,'removeParent')
+    
+    for (let j = 0; j < checkArr.length; j++) {
+      for (let i = 0; i < outPermission.length; i++) {
+        if ((checkArr[j] === `${outPermission[i].id}`) && outPermission[i].parent) {
+          parentKey.push(outPermission[i].parent)
+        }
+      }
+    }
+    for (let i = 0; i < parentKey.length; i++) {
+      let flag = false
+      for (let j = 0; j < outPermission.length; j++) {
+        if (outPermission[j].id === parentKey[i]) {
+          let branch = outPermission[j].children
+          flag = branch.every(item => {
+            return checkArr.indexOf(`${item.id}`) > -1
+          })
+        }
+      }
+      if (flag) {
+        addKey.push(parentKey[i])
+      }
+    }
+    // checkArr = Array.from(new Set(checkArr.concat(addKey)))
     this.setState({
-      checkedKeys: []
-    },()=>{
-      for (let j = 0; j < checkArr.length; j++) {
-        for (let i = 0; i < outPermission.length; i++) {
-          if ((checkArr[j] === `${outPermission[i].id}`) && outPermission[i].parent) {
-              parentKey.push(outPermission[i].parent)
-          }
-        }
-      }
-      for (let i = 0; i < parentKey.length; i++) {
-        let flag = false
-        for (let j = 0; j < outPermission.length; j++) {
-          if (outPermission[j].id === parentKey[i]) {
-            let branch = outPermission[j].children
-            flag = branch.every(item => {
-              return checkArr.indexOf(`${item.id}`) > -1
-            })
-          }
-        }
-        if (flag) {
-          addKey.push(parentKey[i])
-        }
-      }
-      console.log(addKey)
-      // checkArr = Array.from(new Set(checkArr.concat(addKey)))
-      console.log(checkArr)
-      this.setState({
-        checkedKeys:checkArr,
-        //expandedKeys: checkedKeys,
-        autoExpandParent: false,
-      });
-    })
+      checkedKeys:keys,
+      //expandedKeys: checkedKeys,
+      autoExpandParent: false,
+    });
+   
     
   }
   
@@ -459,7 +450,7 @@ class TreeComponent extends Component {
       return <TreeNode key={item.id} title={item.userName}/>;
     });
     return(
-      <div id='TreeComponent'>
+      <div id='TreeForMember'>
         <div className="alertRow">可为项目中的角色关联对象，则被关联的对象在该项目中拥有此角色的权限。注：可通过添加团队的方式批量添加成员，也可单独添加某个成员参加项目。</div>
         <Row>
           <Col span="10">
