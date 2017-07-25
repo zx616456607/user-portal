@@ -571,14 +571,14 @@ let Person = React.createClass({
       ],
     })
     //真实姓名
-    const NameProps = getFieldProps('realname', {
+    const NameProps = getFieldProps('name', {
       rules: [
         { required: false, message: '请填写真实姓名' },
         { validator: this.checkName },
       ],
     })
     //公司名称
-    const enterpriseNameProps = getFieldProps('company', {
+    const enterpriseNameProps = getFieldProps('enterpriseName', {
       rules: [
         { required: false, message: '请填写公司名称' },
         { validator: this.checkEnterpriseName },
@@ -661,8 +661,8 @@ let Person = React.createClass({
           <div className="intName">真实姓名</div>
           <Input {...NameProps} autoComplete="off"
             onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
-            onBlur={this.intOnBlur.bind(this, 'realname')}
-            onFocus={this.intOnFocus.bind(this, 'realname')}
+            onBlur={this.intOnBlur.bind(this, 'name')}
+            onFocus={this.intOnFocus.bind(this, 'name')}
             ref="intName"
             style={{ height: 32, width: '82%' }}
           />
@@ -676,8 +676,8 @@ let Person = React.createClass({
           <div className="intName">公司名称</div>
           <Input {...enterpriseNameProps} autoComplete="off"
             onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
-            onBlur={this.intOnBlur.bind(this, 'company')}
-            onFocus={this.intOnFocus.bind(this, 'company')}
+            onBlur={this.intOnBlur.bind(this, 'enterpriseName')}
+            onFocus={this.intOnFocus.bind(this, 'enterpriseName')}
             ref="intEnterprise"
             style={{ height: 32, width: '82%' }}
           />
