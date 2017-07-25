@@ -12,6 +12,7 @@ import './style/ProjectManage.less'
 import { Button, Input, Icon, Modal, Transfer, Tree, Form } from 'antd'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
+import classNames from 'classnames'
 import { GetProjectsMembers } from '../../../actions/project'
 import { GetRole } from '../../../actions/role'
 import TreeComponent from '../../TreeForMembers'
@@ -202,7 +203,9 @@ class CreateStepThird extends Component{
     };
     const roleList = scope.state.RoleKeys.length > 0 ? scope.state.RoleKeys.map((item)=>{
       return (
-        <li onClick={()=>this.getCurrentRole.call(this,item.split(',')[0])} key={item.split(',')[1]}>{item.split(',')[1]}
+        <li onClick={()=>this.getCurrentRole.call(this,item.split(',')[0])} key={item.split(',')[1]}
+          className={classNames({'active': currentId === item.split(',')[0]})}>
+          {item.split(',')[1]}
           <Icon type="delete" onClick={(e)=>this.deleteRole(e,item)} className="pointer"/>
         </li>
       )

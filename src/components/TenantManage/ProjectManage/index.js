@@ -437,12 +437,6 @@ class ProjectManage extends Component{
       dataIndex: 'role',
       key: 'role',
       filters: [{
-        text: '系统管理员',
-        value: 'admin',
-      }, {
-        text: '管理员',
-        value: 'manager',
-      }, {
         text: '访客',
         value: 'advisor',
       }, {

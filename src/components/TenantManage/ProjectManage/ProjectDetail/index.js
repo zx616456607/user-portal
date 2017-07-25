@@ -527,7 +527,7 @@ class ProjectDetail extends Component{
     })
   }
   render() {
-    const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, allPermission, currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal } = this.state;
+    const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, allPermission, currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, roleMap } = this.state;
     const TreeNode = Tree.TreeNode;
     const { getFieldProps } = this.props.form;
     const columns = [{
@@ -921,10 +921,11 @@ class ProjectDetail extends Component{
               memberArr.length > 0 &&
               <TreeComponent
                 outPermissionInfo={memberArr}
-                permissonInfo={[]}
+                permissionInfo={[]}
+                existMember={roleMap[currentRoleInfo.role && currentRoleInfo.role.id] || []}
                 text='成员'
-                updateCurrentMember={this.updateCurrentMember.bind(this)}
                 connectModal={connectModal}
+                getTreeRightData={this.updateCurrentMember.bind(this)}
               />
             }
           </Modal>
