@@ -5,7 +5,7 @@
  *  StatefulCluster module
  *
  * v2.0 - 2016-10-18
- * @author Lizheng
+ * @author Lizhen
  * update by Bai Yu
  */
 
@@ -24,8 +24,10 @@ import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../assets/img/database_cache/elasticsearch.jpg'
+import etcdImg from '../../assets/img/database_cache/etcd.jpg'
 import noZookeeper from '../../assets/img/database_cache/no_zookeeper.png'
 import noElasticSearch from '../../assets/img/database_cache/no_elasticsearch.png'
+import noEtcd from '../../assets/img/database_cache/no_etcd.png'
 
 import Title from '../Title'
 
@@ -42,6 +44,11 @@ const clusterTable = {
   },
   mongodb: {
     displayName: 'MongoDB',
+  },
+  etcd: {
+    displayName: 'Etcd',
+    image: etcdImg,
+    noDBImage: noEtcd,
   },
 }
 

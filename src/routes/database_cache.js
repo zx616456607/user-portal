@@ -25,6 +25,10 @@ const databaseCacheRoutes = [{
 {
   path: 'elasticsearch_cluster',
   component: require('../components/DatabaseCache/StatefulCluster').default,
+},
+{
+  path: 'etcd_cluster',
+  component: require('../components/DatabaseCache/StatefulCluster').default,
 }]
 
 export default databaseCacheRoutes

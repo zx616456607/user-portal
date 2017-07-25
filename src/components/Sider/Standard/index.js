@@ -535,6 +535,12 @@ class Sider extends Component {
                     </Link>
                   </Menu.Item>
 
+                  <Menu.Item key='etcd_cluster'>
+                    <Link to='/database_cache/etcd_cluster'>
+                      <span><div className='sideCircle'></div> Etcd</span>
+                    </Link>
+                  </Menu.Item>
+
                   <div className='sline'></div>
                 </SubMenu>
                 <Menu.Item key='integration'>

@@ -33,6 +33,11 @@ const menuList = [
   {
     url: '/database_cache/elasticsearch_cluster',
     name: 'ElasticSearch'
+  },
+
+  {
+    url: '/database_cache/etcd_cluster',
+    name: 'Etcd'
   }
  
 ]

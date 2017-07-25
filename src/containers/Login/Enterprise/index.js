@@ -9,7 +9,7 @@
  * @author Zhangpc
  */
 import React, { PropTypes } from 'react'
-import { Button, Form, Input, Card, message, Alert, Col, Row, Icon, Tooltip } from 'antd'
+import { Button, Form, Input, Card, message, Alert, Col, Row, Icon } from 'antd'
 import './style/Login.less'
 import { verifyCaptcha, login } from '../../../actions/entities'
 import { connect } from 'react-redux'
@@ -170,7 +170,6 @@ let Login = React.createClass({
         isAsync: true
       },
     })
-
   },
 
   changeCaptcha() {
@@ -346,12 +345,12 @@ let Login = React.createClass({
         { validator: this.checkPass },
       ],
     })
-    const captchaProps = getFieldProps('captcha', {
-      rules: [
-        { required: true, message: '请填写验证码' },
-        { validator: this.checkCaptcha },
-      ],
-    })
+    // const captchaProps = getFieldProps('captcha', {
+    //   rules: [
+    //     { required: true, message: '请填写验证码' },
+    //     { validator: this.checkCaptcha },
+    //   ],
+    // })
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
@@ -409,10 +408,10 @@ let Login = React.createClass({
                   />
               </FormItem>
 
-              <FormItem
+              {/*<FormItem
                 {...formItemLayout}
                 hasFeedback
-                className="formItemName"verifyCaptcha
+                className="formItemName"
                 help={isFieldValidating('captcha') ? '校验中...' : (getFieldError('captcha') || []).join(', ')}
                 >
                 <div className={this.state.intCheckFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'check')}>验证码</div>
@@ -423,7 +422,7 @@ let Login = React.createClass({
                 <Tooltip placement="top" title="点击更换">
                   <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
                 </Tooltip>
-              </FormItem>
+              </FormItem>*/}
 
               <FormItem wrapperCol={{ span: 24, }}>
                 {this.state.outdated ?
