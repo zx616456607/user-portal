@@ -22,7 +22,8 @@ import { ListRole, CreateRole, GetWithMembers, ExistenceRole } from '../../../..
 import { PermissionAndCount } from '../../../../actions/permission'
 import { parseAmount } from '../../../../common/tools'
 import Notification from '../../../../components/Notification'
-import TreeComponent from '../../../TreeComponent'
+import TreeComponent from '../../../TreeForMembers'
+import cloneDeep from 'lodash/cloneDeep'
 
 let checkedKeysDetail = []
 class ProjectDetail extends Component{
@@ -58,14 +59,15 @@ class ProjectDetail extends Component{
       memberCount: 0,
       connectModal: false,
       memberArr: [],
-      existentMember: []
+      existentMember: [],
+      roleMap: {}
     }
   }
   componentWillMount() {
     this.getProjectDetail();
     this.getClustersWithStatus();
     this.getProjectMember();
-    //this.loadRoleList()
+    // this.loadRoleList()
   }
   componentDidMount() {
   }
@@ -515,8 +517,17 @@ class ProjectDetail extends Component{
       connectModal: false
     })
   }
+  updateCurrentMember(member) {
+    const { currentRoleInfo, roleMap } = this.state;
+    let map = cloneDeep(roleMap);
+    console.log(currentRoleInfo)
+    map[currentRoleInfo.role.id] = member;
+    this.setState({
+      roleMap:map
+    })
+  }
   render() {
-    const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, allPermission, currentRoleInfo, currentMembers, memberCount, memberArr, existentMember } = this.state;
+    const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, allPermission, currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal } = this.state;
     const TreeNode = Tree.TreeNode;
     const { getFieldProps } = this.props.form;
     const columns = [{
@@ -636,10 +647,10 @@ class ProjectDetail extends Component{
         })
       ]
     )
-    const roleList = projectDetail.relatedRoles && projectDetail.relatedRoles.map((item,index)=>{
+    const roleList = projectDetail.roleUserMap && projectDetail.roleUserMap.map((item,index)=>{
       return (
-        <li key={item.roleId} className={classNames({'active': currentRoleInfo.role && currentRoleInfo.role.id === item.roleId})} onClick={()=>this.getCurrentRole(item.roleId)}>{item.roleName}
-        <Icon type="delete" className="pointer" onClick={()=>this.deleteRole(item.roleId)}/></li>
+        <li key={item.role.roleId} className={classNames({'active': currentRoleInfo.role && currentRoleInfo.role.id === item.role.roleId})} onClick={()=>this.getCurrentRole(item.role.roleId)}>{item.role.roleId}
+        <Icon type="delete" className="pointer" onClick={()=>this.deleteRole(item.role.roleId)}/></li>
       )
     })
     return(
@@ -902,7 +913,7 @@ class ProjectDetail extends Component{
           >
             <CreateCharacter allPermission={allPermission} scope={this}/>
           </Modal>
-          <Modal title="关联对象" width={765} visible={this.state.connectModal}
+          <Modal title="关联对象" width={765} visible={connectModal}
                  onCancel={()=> this.closeMemberModal()}
                  onOk={()=> this.submitMemberModal()}
           >
@@ -910,8 +921,10 @@ class ProjectDetail extends Component{
               memberArr.length > 0 &&
               <TreeComponent
                 outPermissionInfo={memberArr}
-                permissonInfo={existentMember}
-                loopFunc={loopFunc}
+                permissonInfo={[]}
+                text='成员'
+                updateCurrentMember={this.updateCurrentMember.bind(this)}
+                connectModal={connectModal}
               />
             }
           </Modal>

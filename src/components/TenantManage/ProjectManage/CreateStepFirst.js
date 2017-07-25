@@ -137,7 +137,7 @@ class CreateStepFirst extends Component{
           return(
             <dd className="topList" key={item.clusterID}>{item.clusterName}<Icon onClick={()=>this.addCluster(item,false)} type="cross-circle-o" className="pointer" /></dd>
           )
-        }): <dd className="topList" key={1}>已申请集群为空</dd>
+        }): <dd className="topList" style={{color: '#999'}} key={1}>已申请集群为空</dd>
       ]
     )
     const menuBottom = (
@@ -146,7 +146,7 @@ class CreateStepFirst extends Component{
           return (
             <dd onClick={()=>this.addCluster(item,true)} className="bottomList pointer" key={item.clusterID}>{item.clusterName}</dd>
           )
-        }): <dd className="bottomList" key={2}>可申请集群为空</dd>
+        }): <dd className="bottomList" style={{color: '#999'}} key={2}>可申请集群为空</dd>
       ]
     )
     return (

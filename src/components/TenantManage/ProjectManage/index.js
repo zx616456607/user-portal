@@ -13,7 +13,7 @@ import './style/ProjectManage.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree, Dropdown, Menu, Spin, Form } from 'antd'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
-import { ListProjects, DeleteProjects, UpdateProjects } from '../../../actions/project'
+import { ListProjects, DeleteProjects, UpdateProjects, CreateProjects } from '../../../actions/project'
 import { loadUserList } from '../../../actions/user'
 import { chargeProject } from '../../../actions/charge'
 import { parseAmount } from '../../../common/tools'
@@ -47,6 +47,7 @@ class ProjectManage extends Component{
       rightModal: false,
       userList: [],
       targetKeys: [],
+      roleWithMember: {}
     }
   }
   componentWillMount() {
@@ -94,6 +95,11 @@ class ProjectManage extends Component{
   updateRole(Role) {
     this.setState({
       RoleKeys:Role
+    })
+  }
+  updateRoleWithMember(roleWithMember) {
+    this.setState({
+      roleWithMember
     })
   }
   goStep(current) {
@@ -325,6 +331,53 @@ class ProjectManage extends Component{
   handleChange(targetKeys) {
     this.setState({ targetKeys });
   }
+  createProject() {
+    const { CreateProjects } = this.props;
+    const { projectName,description,authorizedCluster,RoleKeys,roleWithMember } = this.state;
+    let notify = new Notification()
+    let roles = []
+    for (let i = 0; i < RoleKeys.length; i++) {
+      let flag = false
+      for (let j in roleWithMember) {
+        if (RoleKeys[i].split(',')[0] === j) {
+          flag = true
+          roles.push({
+            role_id: j,
+            users: roleWithMember[j]
+          })
+        }
+      }
+      if (!flag) {
+        roles.push({
+          role_id: RoleKeys[i],
+          users: []
+        })
+      }
+    }
+    CreateProjects({
+      body: {
+        projectName,
+        description,
+        authorizedCluster,
+        roles
+      }
+    },{
+      success: {
+        func: res => {
+          notify.success('创建项目成功')
+          this.refresh('tableLoading')
+          browserHistory.replace('/tenant_manage/project_manage')
+        },
+        isAsync: true
+      },
+      failed: {
+        func: res => {
+          notify.error('创建项目失败')
+        },
+        isAsync: true
+      }
+    })
+  }
   render() {
     const step = this.props.location.query.step || '';
     const { payNumber, selected, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro,projectName,userList } = this.state;
@@ -543,7 +596,7 @@ class ProjectManage extends Component{
             <CreateStepSecond scope={this} step = {step}  updateRole={this.updateRole.bind(this)}/>
           </div>
           <div className={classNames({'hidden' : step !=='third'})}>
-            <CreateStepThird scope={this} step = {step}  updateRole={this.updateRole.bind(this)}/>
+            <CreateStepThird scope={this} step = {step}  updateRole={this.updateRoleWithMember.bind(this)}/>
           </div>
         </div>
         
@@ -551,7 +604,7 @@ class ProjectManage extends Component{
           <Button size="large" onClick={()=> browserHistory.replace('/tenant_manage/project_manage')}>取消</Button>
           <Button size="large" className={classNames({'hidden': step === '' || step === 'first'})} onClick={()=> this.goBack()}>上一步</Button>
           <Button size="large" className={classNames({'hidden': step === 'third'})} onClick={()=> this.next()}>下一步</Button>
-          <Button type="primary" size="large" onClick={()=> browserHistory.replace('/tenant_manage/project_manage')} style={{display: step === 'third' ? 'inline-block' : 'none'}}>创建</Button>
+          <Button type="primary" size="large"  onClick={this.createProject.bind(this)} style={{display: step === 'third' ? 'inline-block' : 'none'}}>创建</Button>
         </div>
       </div>
     )
@@ -578,7 +631,8 @@ export default connect(mapStateToProps,{
   DeleteProjects,
   UpdateProjects,
   chargeProject,
-  loadUserList
+  loadUserList,
+  CreateProjects
 })(ProjectManage);
 
 class DelProjectTable extends Component{
