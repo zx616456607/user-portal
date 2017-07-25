@@ -212,6 +212,11 @@ let CreateDatabase = React.createClass({
         templateId,
         lbGroupID,
       }
+      if (!templateId) {
+        notification.error(`${_this.state.currentType} 集群创建还在开发中，敬请期待`)
+        _this.setState({loading: false})
+        return
+      }
       CreateDbCluster(body, {
         success: {
           func: ()=> {
@@ -307,7 +312,7 @@ let CreateDatabase = React.createClass({
     const passwdProps = getFieldProps('password', {
       rules: [
         {
-          required: this.state.currentType !== 'elasticsearch',
+          required: this.state.currentType !== 'elasticsearch' && this.state.currentType !== 'etcd',
           whitespace: true,
           message: '请填写密码'
         },
@@ -336,6 +341,7 @@ let CreateDatabase = React.createClass({
       redis: 'Redis',
       zookeeper: 'ZooKeeper',
       elasticsearch: 'ElasticSearch',
+      etcd: 'Etcd',
     }
     const statefulAppOptions = Object.getOwnPropertyNames(statefulApps).map(
       app => <Select.Option value={app} key={app}>{statefulApps[app]}</Select.Option>)
@@ -455,7 +461,7 @@ let CreateDatabase = React.createClass({
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
-            {this.state.currentType == 'elasticsearch' ? null :
+            {this.state.currentType === 'elasticsearch' || this.state.currentType === 'etcd' ? null :
             <div className='commonBox'>
               <div className='title'>
                 <span>密码</span>
