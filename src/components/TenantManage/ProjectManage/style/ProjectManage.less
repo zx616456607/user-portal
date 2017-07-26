@@ -513,11 +513,16 @@
             color: #00a0ea;
             border-left: 2px solid #00a0ea;
           }
-        }
         li:not(last-of-type){
           border-bottom: 1px solid #dadada;
         }
       }
+      .active{
+        background-color: #effdff;
+        color: #00a0ea;
+        border-left: 2px solid #00a0ea;
+      }
+    }
     }
     .rightBox{
       margin-left: 20px;
@@ -542,10 +547,24 @@
           border-right: 1px solid #d8d8d8;
         }
       }
-      .connectMemberBox{
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+      .memberBox{
+        width: 360px;
+        height: 320px;
+        .memberTableBox{
+          height: 280px;
+          overflow-y: auto;
+          border-top: 1px solid #d8d8d8;
+          .addMemberBtn{
+            display: block;
+            margin: 125px auto 0;
+          }
+        }
+        .memberTitle{
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: space-around;
+        }
       }
     }
   }

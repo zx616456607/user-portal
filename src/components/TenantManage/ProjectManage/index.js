@@ -47,7 +47,8 @@ class ProjectManage extends Component{
       rightModal: false,
       userList: [],
       targetKeys: [],
-      roleWithMember: {}
+      roleWithMember: {},
+      closeCreateProject: false
     }
   }
   componentWillMount() {
@@ -336,23 +337,29 @@ class ProjectManage extends Component{
     const { projectName,description,authorizedCluster,RoleKeys,roleWithMember } = this.state;
     let notify = new Notification()
     let roles = []
+    let emptyFlag = false
+    console.log(RoleKeys,roleWithMember)
     for (let i = 0; i < RoleKeys.length; i++) {
-      let flag = false
+      let obj = {
+        role_id: RoleKeys[i].split(',')[0],
+        users: []
+      }
       for (let j in roleWithMember) {
         if (RoleKeys[i].split(',')[0] === j) {
-          flag = true
-          roles.push({
-            role_id: j,
-            users: roleWithMember[j]
-          })
+          obj.role_id = j;
+          obj.users = roleWithMember[j]
         }
       }
-      if (!flag) {
-        roles.push({
-          role_id: RoleKeys[i],
-          users: []
-        })
+      roles.push(obj)
+    }
+    for (let i = 0; i < roles.length; i++) {
+      if (!roles[i].users.length) {
+        emptyFlag = true
       }
+    }
+    if (emptyFlag) {
+      notify.info('请为所选角色关联对象')
+      return
     }
     CreateProjects({
       body: {
@@ -365,6 +372,14 @@ class ProjectManage extends Component{
       success: {
         func: res => {
           notify.success('创建项目成功')
+          this.setState({
+            projectName: undefined,
+            description: undefined,
+            authorizedCluster: [],
+            RoleKeys: [],
+            roleWithMember: {},
+            closeCreateProject:true
+          })
           this.refresh('tableLoading')
           browserHistory.replace('/tenant_manage/project_manage')
         },
@@ -372,11 +387,33 @@ class ProjectManage extends Component{
       },
       failed: {
         func: res => {
+          this.setState({
+            projectName: undefined,
+            description: undefined,
+            authorizedCluster: [],
+            RoleKeys: [],
+            roleWithMember: {}
+          })
           notify.error('创建项目失败')
         },
         isAsync: true
       }
     })
+  }
+  closeProjectCreate() {
+    this.setState({
+      closeCreateProject:true
+    },()=>{
+      browserHistory.push('/tenant_manage/project_manage')
+    })
+  }
+  startCreateProject() {
+    this.setState({
+      closeCreateProject: false
+    },()=>{
+      browserHistory.replace('/tenant_manage/project_manage?step=first')
+    })
+    
   }
   render() {
     const step = this.props.location.query.step || '';
@@ -400,12 +437,6 @@ class ProjectManage extends Component{
       dataIndex: 'role',
       key: 'role',
       filters: [{
-        text: '系统管理员',
-        value: 'admin',
-      }, {
-        text: '管理员',
-        value: 'manager',
-      }, {
         text: '访客',
         value: 'advisor',
       }, {
@@ -547,7 +578,7 @@ class ProjectManage extends Component{
           />
         </Modal>
         <Row className={classNames({'hidden': step !== ''})}>
-          <Button type='primary' size='large'  className='addBtn' onClick={()=> browserHistory.replace('/tenant_manage/project_manage?step=first')}>
+          <Button type='primary' size='large'  className='addBtn' onClick={this.startCreateProject.bind(this)}>
             <i className='fa fa-plus' /> 创建项目
           </Button>
           <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建项目</Button>
@@ -596,12 +627,12 @@ class ProjectManage extends Component{
             <CreateStepSecond scope={this} step = {step}  updateRole={this.updateRole.bind(this)}/>
           </div>
           <div className={classNames({'hidden' : step !=='third'})}>
-            <CreateStepThird scope={this} step = {step}  updateRole={this.updateRoleWithMember.bind(this)}/>
+            <CreateStepThird scope={this} step = {step}  updateRole={this.updateRole.bind(this)}  updateRoleWithMember={this.updateRoleWithMember.bind(this)}/>
           </div>
         </div>
         
         <div className={classNames('createBtnBox',{'hidden': step === ''})}>
-          <Button size="large" onClick={()=> browserHistory.replace('/tenant_manage/project_manage')}>取消</Button>
+          <Button size="large" onClick={this.closeProjectCreate.bind(this)}>取消</Button>
           <Button size="large" className={classNames({'hidden': step === '' || step === 'first'})} onClick={()=> this.goBack()}>上一步</Button>
           <Button size="large" className={classNames({'hidden': step === 'third'})} onClick={()=> this.next()}>下一步</Button>
           <Button type="primary" size="large"  onClick={this.createProject.bind(this)} style={{display: step === 'third' ? 'inline-block' : 'none'}}>创建</Button>

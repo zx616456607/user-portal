@@ -35,7 +35,14 @@ class CreateStepFirst extends Component{
   }
   componentWillReceiveProps(nextProps) {
     const { selectedClusters } = this.state;
-    const { clusters, step, form } = nextProps;
+    const { clusters, step, form, scope } = nextProps;
+    if (scope.state.closeCreateProject) {
+      this.setState({
+        dropVisible:false,
+        choosableClusters:clusters,
+        selectedClusters:[]
+      })
+    }
     if (step !== 'first') {
       this.setState({
         dropVisible:false
