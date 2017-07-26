@@ -98,7 +98,7 @@ class ServiceStatus extends Component{
             label="检查地址"
             {...formItemLayout}
           >
-            <Input placeholder="例如：/var/log" size="large" {...checkAddress}/>
+            <Input placeholder="例如：http://" size="large" {...checkAddress}/>
           </FormItem>
           <FormItem
             label="初始化超时"

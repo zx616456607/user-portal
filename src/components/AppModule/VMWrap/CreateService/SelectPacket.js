@@ -21,7 +21,7 @@ import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
 import NotificationHandler from '../../../../components/Notification'
-
+import CommonSearchInput from '../../../CommonSearchInput'
 class SelectPacket extends Component{
   constructor(props) {
     super(props)
@@ -257,13 +257,13 @@ class SelectPacket extends Component{
       ]
     })
     const columns = [{
-      title: '版本标签',
-      dataIndex: 'fileTag',
-      key: 'fileTag',
-    }, {
       title: '包名称',
       dataIndex: 'fileName',
       key: 'fileName'
+    }, {
+      title: '版本标签',
+      dataIndex: 'fileTag',
+      key: 'fileTag',
     }, {
       title: '包类型',
       dataIndex: 'fileType',
@@ -284,18 +284,11 @@ class SelectPacket extends Component{
         <Col span={3} className="searchLabel">
           选择应用包 : &nbsp;&nbsp;
         </Col>
-        <Col span={13}>
-          <Row>
-            <Col span={17} className="inputBox">
-              <input onChange={(e)=>this.pageAndSerch(e.target.value)} placeholder="请输入包名称或标签搜索"/>
-            </Col>
-            <Col span={6} offset={1}>
-              <Link to="/app_center/wrap_manage">
-                <Button type="primary" className="toUploadBtn" size="large">去上传部署包</Button>
-              </Link>
-            </Col>
-          </Row>
-
+        <Col span={21}>
+          <CommonSearchInput onSearch={this.pageAndSerch.bind(this)} placeholder="请输入包名称搜索" size="large"/>
+          <Link to="/app_center/wrap_manage" className="uploadBox">
+            <Button type="primary" className="toUploadBtn" size="large">去上传部署包</Button>
+          </Link>
         </Col>
       </Row>
 
