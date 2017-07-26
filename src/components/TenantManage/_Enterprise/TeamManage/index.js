@@ -164,7 +164,26 @@ let TeamTable = React.createClass({
     })
   },
   addNewMember(teamID) {
-    this.props.loadTeamUserList(teamID, ({ size: 100 }))
+    this.props.loadTeamUserList(teamID, ({ size: 100 }),{
+      success: {
+        func: res => {
+          let targetKeys = []
+          res.users.map(item => {
+            targetKeys.push(item.userID)
+          })
+          this.setState({
+            targetKeys
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: res => {
+        
+        },
+        isAsync: true
+      }
+    })
     this.setState({
       addMember: true,
       nowTeamID: teamID
@@ -276,6 +295,7 @@ let TeamTable = React.createClass({
         dataIndex: 'team',
         key: 'team',
         className: 'teamName',
+        width:'15%',
         render: (text, record, index) => (
           <Link to={`/tenant_manage/team/${record.team}/${record.key}`}>{text}</Link>
         )
@@ -296,6 +316,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'member',
         key: 'member',
+        width:'10%',
       },
       {
         title: (
@@ -313,6 +334,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'cluster',
         key: 'cluster',
+        width:'10%',
       },
       {
         title: (
@@ -330,11 +352,13 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'creationTime',
         key: 'creationTime',
+        width:'20%',
       },
       {
         title: '我是团队的',
         dataIndex: 'isCreator',
         key: 'isCreator',
+        width:'10%',
         filters: [
           { text: '创建者', value: '创建者' },
           { text: '参与者', value: '参与者' },
@@ -350,6 +374,7 @@ let TeamTable = React.createClass({
       {
         title: '操作',
         key: 'operation',
+        width:'15%',
         render: (text, record, index) =>{
           return (
             <div className="addusers">
@@ -357,18 +382,6 @@ let TeamTable = React.createClass({
                 <Button type="primary" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加团队成员</Button>
                 <Button className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
               </div>
-              <Modal title='添加成员'
-                visible={this.state.nowTeamID === record.key && this.state.addMember}
-                onOk={this.handleNewMemberOk}
-                onCancel={this.handleNewMemberCancel}
-                width="660px"
-                wrapClassName="newMemberModal"
-                >
-                <MemberTransfer onChange={this.handleUserChange}
-                  targetKeys={targetKeys}
-                  teamID={record.key}
-                  teamUserIDList={teamUserIDList} />
-              </Modal>
             </div>
           )
         }
@@ -376,6 +389,18 @@ let TeamTable = React.createClass({
     ]
     return (
       <div>
+        <Modal title='添加成员'
+           visible={this.state.addMember}
+           onOk={this.handleNewMemberOk}
+           onCancel={this.handleNewMemberCancel}
+           width="660px"
+           wrapClassName="newMemberModal"
+        >
+          <MemberTransfer
+            onChange={this.handleUserChange}
+            targetKeys={targetKeys}
+          />
+        </Modal>
         <Table columns={columns}
           dataSource={searchResult.length === 0 ? data : searchResult}
           pagination={pagination}
@@ -599,7 +624,7 @@ class TeamManage extends Component {
     })
   }
   filterOption(inputValue, option) {
-    return option.description.indexOf(inputValue) > -1;
+    return option.title.indexOf(inputValue) > -1;
   }
   handleChange(targetKeys) {
     this.setState({ targetKeys });

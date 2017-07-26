@@ -62,7 +62,7 @@ class CreateStepSecond extends Component{
     const { ListRole, scope } = this.props;
     const targetKeys = [];
     const roleList = [];
-    ListRole({
+    ListRole({},{
       success: {
         func: (res)=> {
           if (res.data.statusCode === 200) {

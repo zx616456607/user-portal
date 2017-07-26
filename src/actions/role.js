@@ -48,7 +48,7 @@ export const ROLE_LIST_FAILURE = 'ROLE_LIST_FAILURE'
 
 // Fetches list role from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchListRole(callback){
+function fetchListRole(body,callback){
 	let endpoint = `${API_URL_PREFIX}/role`
 	return {
 		[FETCH_API]: {

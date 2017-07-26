@@ -44,21 +44,17 @@ class MemberTransfer extends Component{
     })
   }
   renderItem(item){
-    let customLabel = (
-      <Row style={{display:'inline-block',width:'100%'}}>
-        <Col span={9} style={{overflow:'hidden',whiteSpace: "nowrap",textOverflow: 'ellipsis'}}>{item.title}</Col>
-        <Col span={12} style={{overflow:'hidden',whiteSpace: "nowrap",textOverflow: 'ellipsis'}}>{item.description}</Col>
+    return(
+      <Row key={`${item && item.key}`} style={{display:'inline-block',width:'100%'}}>
+        <Col span={9} style={{overflow:'hidden',whiteSpace: "nowrap",textOverflow: 'ellipsis'}}>{item && item.title}</Col>
+        <Col span={12} style={{overflow:'hidden',whiteSpace: "nowrap",textOverflow: 'ellipsis'}}>{item && item.description}</Col>
       </Row>
     )
-    return {
-      label: customLabel,
-      value: item.description,
-    }
   }
   selectedChange(value,option) {
   }
   render(){
-    const { onChange,targetKeys,userList,teamUserIDList } = this.props
+    const { onChange,targetKeys,userList } = this.props
     const { getFieldProps } = this.props.form;
     const areaData = [{
       value: 'shanghai',
@@ -68,11 +64,6 @@ class MemberTransfer extends Component{
         label: '上海市'
       }],
     }];
-    let filterUserList = teamUserIDList.length !== 0 ?
-      userList.filter(function (userItem) {
-        return !teamUserIDList.includes(userItem.key)
-      }):
-      userList
     return (
       <div id='MemberTransfer'>
         <Row className="listTitle">
@@ -83,21 +74,25 @@ class MemberTransfer extends Component{
           <Col span={14}>成员名</Col>
           <Col span={10}>邮箱</Col>
         </Row>
-        <Transfer
-          dataSource={filterUserList}
-          showSearch
-          filterOption={this.filterOption}
-          listStyle={{
-            width: 250,
-            height: 300,
-          }}
-          operations={['添加', '移除']}
-          targetKeys={targetKeys}
-          onChange={onChange}
-          titles={['筛选用户','已选择用户']}
-          render={this.renderItem}
-        />
-        <div className="addMemberToProject">
+        {
+          userList.length > 0 &&
+          <Transfer
+            dataSource={userList}
+            showSearch
+            filterOption={this.filterOption.bind(this)}
+            listStyle={{
+              width: 250,
+              height: 300,
+            }}
+            operations={['添加', '移除']}
+            targetKeys={targetKeys}
+            onChange={onChange}
+            titles={['筛选用户','已选择用户']}
+            rowKey={item => item && item.key}
+            render={this.renderItem.bind(this)}
+          />
+        }
+        <div className="addMemberToProject hidden">
           <Form className="addMemberForm">
             <FormItem
               className="isAdd"
@@ -135,7 +130,7 @@ function mapStateToProp(state,props) {
       users.result.users.map((item,index) => {
         userList.push(
           {
-            key: item.userID +'/'+ item.userName,
+            key: item.userID,
             title: item.userName,
             description: item.email
           }
