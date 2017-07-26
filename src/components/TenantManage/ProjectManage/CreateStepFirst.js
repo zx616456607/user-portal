@@ -14,6 +14,7 @@ import { Input, Icon, Form } from 'antd'
 import { connect } from 'react-redux'
 import { CheckProjects } from '../../../actions/project'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
+import { validateK8sResourceForServiceName } from '../../../common/naming_validation'
 
 class CreateStepFirst extends Component{
   constructor(props) {
@@ -92,9 +93,8 @@ class CreateStepFirst extends Component{
       callback(new Error('请输入名称'))
       return
     }
-    if (newValue.length < 1 || newValue.length > 21) {
-      callback(new Error('请输入1~21个字符'))
-      return
+    if (!validateK8sResourceForServiceName(newValue)) {
+      return callback('服务名称可由3~24位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
     }
     clearTimeout(this.projectNameCheckTimeout)
     this.projectNameCheckTimeout = setTimeout(()=>{
@@ -158,7 +158,7 @@ class CreateStepFirst extends Component{
     )
     return (
       <div id="projectCreateStepOne">
-        <Form className="alarmAction" form={this.props.form}>
+        <Form className="projectCreateFirstForm" form={this.props.form}>
           <Form.Item label="名称"
                      {...formItemLayout}
                      hasFeedback

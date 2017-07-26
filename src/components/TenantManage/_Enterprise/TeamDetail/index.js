@@ -302,8 +302,10 @@ class TeamDetail extends Component {
   
   }
   addNewMember() {
+    const { teamUserIDList } = this.props;
     this.setState({
       addMember: true,
+      targetKeys: teamUserIDList
     })
   }
   removeMember() {
@@ -597,15 +599,16 @@ class TeamDetail extends Component {
                   <CommonSearchInput size="large" placeholder="搜索"/>
                   <div className="userTotalBox">共计 {teamUsersTotal} 条</div>
                   <Modal title="添加新成员"
-                         visible={this.state.addMember}
-                         onOk={this.handleNewMemberOk}
-                         onCancel={this.handleNewMemberCancel}
-                         width="660px"
-                         wrapClassName="newMemberModal"
+                     visible={this.state.addMember}
+                     onOk={this.handleNewMemberOk}
+                     onCancel={this.handleNewMemberCancel}
+                     width="660px"
+                     wrapClassName="newMemberModal"
                   >
-                    <MemberTransfer onChange={this.handleChange}
-                                    targetKeys={targetKeys}
-                                    teamUserIDList={teamUserIDList} />
+                    <MemberTransfer
+                      onChange={this.handleChange}
+                      targetKeys={targetKeys}
+                    />
                   </Modal>
                   <Modal title="移除成员"
                          visible={this.state.deleteMember}

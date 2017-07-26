@@ -318,10 +318,10 @@ class ProjectDetail extends Component{
   changePayNumber(payNumber) {
     this.setState({payNumber})
   }
-  clusterStatus(status) {
+  clusterStatus(status,flag) {
     return (
       <span className={`projectDetailClusterStatus projectDetailClusterStatus${status}`}>
-        {status ===1 ? '申请中...' : ''}
+        {status ===1 ? flag ? '（申请中...）' : '申请中...' : ''}
         {status ===2 ? '已授权' : ''}
         {status ===3 ? '已拒绝' : ''}
       </span>
@@ -577,10 +577,18 @@ class ProjectDetail extends Component{
         <p>2. 当项目余额小于该值时，每天邮件提醒一次。</p>
       </div>
     )
-    const applying = (
-      [
+    const applying = (flag)=> {
+      return [
         projectClusters.length > 0 && projectClusters.map((item,index)=>{
           if (item.status === 1) {
+            if (flag) {
+              return (
+                <div className="clusterStatus applyingStatus" key={`${item.cluster.clusterID}-status`}>
+                  <span>{item.cluster.clusterName}</span>
+                  {this.clusterStatus(item.status,true)}
+                </div>
+              )
+            }
             return(
               <dd className="topList" key={item.cluster.clusterID}>
                 <span>{item.cluster.clusterName}</span>
@@ -593,12 +601,20 @@ class ProjectDetail extends Component{
           }
         })
       ]
-    )
-    const applied = (
-      [
-        projectClusters.length > 0 && projectClusters.map((item,index)=>{
+    }
+    const applied = (flag)=> {
+      return [
+        projectClusters.length > 0 && projectClusters.map((item, index) => {
           if (item.status === 2) {
-            return(
+            if (flag) {
+              return (
+                <div className="clusterStatus appliedStatus" key={`${item.cluster.clusterID}-status`}>
+                  <span>{item.cluster.clusterName}</span>
+                  {this.clusterStatus(item.status,true)}
+                </div>
+              )
+            }
+            return (
               <dd className="topList" key={item.cluster.clusterID}>
                 <span>{item.cluster.clusterName}</span>
                 <div>
@@ -610,11 +626,19 @@ class ProjectDetail extends Component{
           }
         })
       ]
-    )
-    const reject = (
-      [
+    }
+    const reject = (flag)=> {
+      return [
         projectClusters.length > 0 && projectClusters.map((item,index)=>{
           if (item.status === 3) {
+            if (flag) {
+              return (
+                <div className="clusterStatus rejectStatus" key={`${item.cluster.clusterID}-status`}>
+                  <span>{item.cluster.clusterName}</span>
+                  {this.clusterStatus(item.status,true)}
+                </div>
+              )
+            }
             return(
               <dd className="topList" key={item.cluster.clusterID}>
                 <span>{item.cluster.clusterName}</span>
@@ -630,11 +654,13 @@ class ProjectDetail extends Component{
           }
         })
       ]
-    )
+    }
+    let bottomLength = 0
     const menuBottom = (
       [
         projectClusters.length > 0 && projectClusters.map((item,index)=>{
           if (item.status === 0) {
+            bottomLength ++
             return(
               <dd className="topList lastList pointer" key={item.cluster.clusterID} onClick={()=>this.updateProjectClusters(item.cluster.clusterID,1)}>
                 <span>{item.cluster.clusterName}</span>
@@ -647,12 +673,13 @@ class ProjectDetail extends Component{
         })
       ]
     )
-    const roleList = projectDetail.roleUserMap && projectDetail.roleUserMap.map((item,index)=>{
+    const roleList = projectDetail.relatedRoles && projectDetail.relatedRoles.map((item,index)=>{
       return (
-        <li key={item.role.roleId} className={classNames({'active': currentRoleInfo.role && currentRoleInfo.role.id === item.role.roleId})} onClick={()=>this.getCurrentRole(item.role.roleId)}>{item.role.roleId}
-        <Icon type="delete" className="pointer" onClick={()=>this.deleteRole(item.role.roleId)}/></li>
+        <li key={item.roleId} className={classNames({'active': currentRoleInfo.role && currentRoleInfo.role.id === item.roleId})} onClick={()=>this.getCurrentRole(item.roleId)}>{item.roleName}
+        <Icon type="delete" className="pointer" onClick={()=>this.deleteRole(item.roleId)}/></li>
       )
     })
+    const appliedLenght = projectClusters.length - bottomLength
     return(
       <QueueAnim  type="right">
         <div className="projectDetailBox">
@@ -772,18 +799,38 @@ class ProjectDetail extends Component{
                           <span className="pointer" onClick={()=>{this.toggleDrop()}}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
                           <div className={classNames("dropDownInnerBox",{'hide':!dropVisible})}>
                             <dl className="dropDownTop">
-                              <dt className="topHeader">已申请集群（0）</dt>
-                              {applying}
-                              {applied}
-                              {reject}
+                              <dt className="topHeader">{`已申请集群（${appliedLenght}）`}</dt>
+                                {applying(false)}
+                                {applied(false)}
+                                {reject(false)}
+                              {
+                                !appliedLenght &&
+                                  <dd className="topList" style={{color:'#999'}}>已申请集群为空</dd>
+                              }
                             </dl>
                             <dl className="dropDownBottom">
-                              <dt className="bottomHeader">可申请集群（0）</dt>
+                              <dt className="bottomHeader">{`可申请集群（${bottomLength}）`}</dt>
                               {menuBottom}
+                              {
+                                !bottomLength &&
+                                  <dd className="topList lastList" style={{color:'#999'}}>可申请集群为空</dd>
+                              }
                             </dl>
                           </div>
                         </div>
                       </div>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={19} offset={4}>
+                      {
+                        appliedLenght > 0 &&
+                        <div className="clusterWithStatus">
+                          {applying(true)}
+                          {applied(true)}
+                          {reject(true)}
+                        </div>
+                      }
                     </Col>
                   </Row>
                 </div>

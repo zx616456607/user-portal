@@ -723,12 +723,12 @@ class TeamDetail extends Component {
                 </Button>
                 <Modal title="添加新成员"
                   visible={this.state.addMember}
-                  onOk={this.handleNewMemberOk}
-                  onCancel={this.handleNewMemberCancel}
+                  onOk={this.handleNewMemberOk.bind(this)}
+                  onCancel={this.handleNewMemberCancel.bind(this)}
                   width="660px"
                   wrapClassName="newMemberModal"
                   >
-                  <MemberTransfer onChange={this.handleChange}
+                  <MemberTransfer onChange={this.handleChange.bind(this)}
                     targetKeys={targetKeys}
                     teamUserIDList={teamUserIDList} />
                 </Modal>

@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import classNames from 'classnames';
 import './style/ProjectManage.less'
-import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree, Dropdown, Menu, Spin, Form } from 'antd'
+import { Row, Col, Button, Card, Table, Modal, Transfer, InputNumber, Pagination  } from 'antd'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
 import { ListProjects, DeleteProjects, UpdateProjects, CreateProjects } from '../../../actions/project'
@@ -284,6 +284,36 @@ class ProjectManage extends Component{
           }
         },
         isAsync:true
+      },
+      failed:{
+        func: res => {
+        
+        },
+        isAsync: true
+      }
+    })
+  }
+  loadProjectList(value,n) {
+    const { ListProjects } = this.props;
+    this.setState({tableLoading:true})
+    let page = n || 0
+    let filter =  `name,${value}&size,10&page,${page}`
+    ListProjects({},{
+      filter
+    },{
+      success:{
+        func: (result)=>{
+          if (result.statusCode === 200) {
+            this.setState({tableLoading:false})
+          }
+        },
+        isAsync:true
+      },
+      failed:{
+        func: res => {
+        
+        },
+        isAsync: true
       }
     })
   }
@@ -327,7 +357,7 @@ class ProjectManage extends Component{
     })
   }
   filterOption(inputValue, option) {
-    return option.description.indexOf(inputValue) > -1;
+    return option.title.indexOf(inputValue) > -1;
   }
   handleChange(targetKeys) {
     this.setState({ targetKeys });
@@ -338,7 +368,6 @@ class ProjectManage extends Component{
     let notify = new Notification()
     let roles = []
     let emptyFlag = false
-    console.log(RoleKeys,roleWithMember)
     for (let i = 0; i < RoleKeys.length; i++) {
       let obj = {
         role_id: RoleKeys[i].split(',')[0],
@@ -419,13 +448,11 @@ class ProjectManage extends Component{
     const step = this.props.location.query.step || '';
     const { payNumber, selected, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro,projectName,userList } = this.state;
     const { clustersFetching, clusters } = this.props;
-    const pagination = {
-      simple: true,
+    const pageOption = {
       total:  projectList && projectList.length,
-      showSizeChanger: true,
       defaultPageSize: 10,
       defaultCurrent: 1,
-      pageSizeOptions: ['5', '10', '15', '20'],
+      onChange: (n)=>this.loadProjectList(null,n)
     };
     const columns = [{
       title: '项目名',
@@ -586,13 +613,14 @@ class ProjectManage extends Component{
           <Button type="ghost" icon={ this.state.loading ? 'loading' : "reload"}  size="large" className="manageBtn" onClick={()=> this.refresh('loading')}>刷新</Button>
           {/*<Button type="ghost" icon="delete" size="large" className="manageBtn" onClick={()=> this.delProject()}>删除</Button>*/}
           <CommonSearchInput placeholder="请输入项目名称进行搜索" size="large" onSearch={this.searchProject.bind(this)}/>
-          <div className="total">共{projectList.length}个</div>
+          <Pagination {...pageOption}/>
+          <div className="total">共{projectList && projectList.length || 0}个</div>
         </Row>
         <Row className={classNames("projectList",{'hidden': step !== ''})}>
           <Card>
             <Table
               loading={tableLoading}
-              pagination={pagination}
+              pagination={false}
               columns={columns}
               dataSource={projectList}
             />
