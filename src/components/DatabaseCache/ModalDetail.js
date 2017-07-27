@@ -546,7 +546,7 @@ class VisitTypes extends Component{
               </RadioGroup>
               <p className="typeHint">
                 {
-                  radioValue === 1 ? '选择后该数据库与缓存集群仅提供集群内访问；':'数据库与缓存集群可提供集群外访问；“确保集群内节点有外网带宽，否则创建数据库与缓存失败” ；选择一个网络出口'
+                  radioValue === 1 ? '选择后该数据库与缓存集群仅提供集群内访问；': '数据库与缓存可提供集群外访问，选择一个网络出口；'
                 }
               </p>
               <div className={classNames("inlineBlock selectBox",{'hide': hide})}>
