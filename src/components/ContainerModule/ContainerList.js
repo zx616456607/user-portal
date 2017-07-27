@@ -841,6 +841,7 @@ class ContainerList extends Component {
               </Button>
               <Button
                 size='large'
+                className="refresh"
                 onClick={() => this.loadData(this.props)}>
                 <i className='fa fa-refresh'></i>
                 刷新
