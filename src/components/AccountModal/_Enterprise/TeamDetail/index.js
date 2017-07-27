@@ -743,8 +743,7 @@ class TeamDetail extends Component {
                 teamUsersTotal={teamUsersTotal} />
             </Row>
           </Col>
-          <Col span={3} />
-          <Col span={10}>
+          <Col span={12} offset={1}>
             <Row style={{ marginBottom: 20 }}>
               <Col span={6} style={{ height: 36, lineHeight: '36px' }}>
                 <Icon type="user" />
