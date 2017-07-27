@@ -25,7 +25,8 @@ class TraditionEnv extends Component{
     super(props)
     this.state = {
       Prompt: undefined,
-      isShow: false
+      isShow: false,
+      loading: false
     }
   }
   checkHost(rules,value,callback) {
@@ -67,7 +68,8 @@ class TraditionEnv extends Component{
       }
       let info = getFieldsValue()
       this.setState({
-        isShow: true
+        isShow: true,
+        loading: true
       })
       let infos = {
         host: info.envIP,
@@ -79,15 +81,15 @@ class TraditionEnv extends Component{
           func: res => {
             if(res.code === 200){
               this.setState({
-                Prompt: true
+                Prompt: true,
+                loading: false
               },()=>{
-                clearTimeout(this.successTime)
                 this.successTime = setTimeout(()=>{
                   this.setState({
                     isShow: false,
                     Prompt: undefined
                   })
-                },2000)
+                },3000)
               })
             }
           },
@@ -96,15 +98,15 @@ class TraditionEnv extends Component{
         failed: {
           func: err => {
             this.setState({
-              Prompt: false
+              Prompt: false,
+              loading: false
             },()=>{
-              clearTimeout(this.failedTime)
               this.failedTime = setTimeout(()=>{
                 this.setState({
                   isShow: false,
                   Prompt: undefined
                 })
-              },2000)
+              },3000)
             })
           },
           isAsync:true
@@ -191,7 +193,7 @@ class TraditionEnv extends Component{
           <FormItem
             {...formBtnLayout}
           >
-            <Button type="primary" size="large" onClick={this.checkUser.bind(this)}>测试连接</Button>
+            <Button type="primary" size="large" loading={this.state.loading} onClick={this.checkUser.bind(this)}>测试连接</Button>
             {
               this.state.isShow ?
                 <span>

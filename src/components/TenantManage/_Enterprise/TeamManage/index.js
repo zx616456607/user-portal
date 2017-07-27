@@ -9,6 +9,7 @@
  */
 import React, { Component } from 'react'
 import { Row, Col, Alert, Menu, Dropdown, Button, Icon, Card, Table, Modal, Input, Tooltip, Transfer } from 'antd'
+import QueueAnim from 'rc-queue-anim'
 import './style/TeamManage.less'
 import { Link } from 'react-router'
 import SearchInput from '../../../SearchInput'
@@ -390,11 +391,11 @@ let TeamTable = React.createClass({
     return (
       <div>
         <Modal title='添加成员'
-           visible={this.state.addMember}
-           onOk={this.handleNewMemberOk}
-           onCancel={this.handleNewMemberCancel}
-           width="660px"
-           wrapClassName="newMemberModal"
+               visible={this.state.addMember}
+               onOk={this.handleNewMemberOk}
+               onCancel={this.handleNewMemberCancel}
+               width="660px"
+               wrapClassName="newMemberModal"
         >
           <MemberTransfer
             onChange={this.handleUserChange}
@@ -402,16 +403,16 @@ let TeamTable = React.createClass({
           />
         </Modal>
         <Table columns={columns}
-          dataSource={searchResult.length === 0 ? data : searchResult}
-          pagination={pagination}
-          onChange={this.handleChange}
+               dataSource={searchResult.length === 0 ? data : searchResult}
+               pagination={pagination}
+               onChange={this.handleChange}
         />
         <Modal title="删除团队操作" visible={this.state.delTeamModal} wrapClassName="deleteSingleModal"
-          onOk={()=> this.delTeam()} onCancel={()=> this.setState({delTeamModal: false})}
+               onOk={()=> this.delTeam()} onCancel={()=> this.setState({delTeamModal: false})}
         >
-        <div className="deleteTeamHint"><i className="fa fa-exclamation-triangle" aria-hidden="true" style={{marginRight:'8px'}}/>您是否确定要删除团队 {this.state.teamName} ?</div>
-       </Modal>
-     </div>
+          <div className="deleteTeamHint"><i className="fa fa-exclamation-triangle" aria-hidden="true" style={{marginRight:'8px'}}/>您是否确定要删除团队 {this.state.teamName} ?</div>
+        </Modal>
+      </div>
     )
   },
 })
@@ -673,83 +674,85 @@ class TeamManage extends Component {
       checkTeamName
     }
     return (
-      <div id="TeamsManage">
-        <Title title="团队管理" />
-        <Alert message={`团队，由若干个成员组成的一个集体，可等效于公司的部门、项目组、或子公司，
+      <QueueAnim>
+        <div key='TeamsManage' id="TeamsManage">
+          <Title title="团队管理" />
+          <Alert message={`团队，由若干个成员组成的一个集体，可等效于公司的部门、项目组、或子公司，
           包含『团队空间』这一逻辑隔离层，以实现对应您企业内部各个不同项目，或者不同逻辑组在云平台上操作对象的隔离，团队管理员可见对应团队的所有空间的应用等对象。`}
-          type="info" />
-        <Row className="teamOption">
-          <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
-            <i className='fa fa-plus' /> 创建团队
-          </Button>
-          <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建项目</Button>
-          <Button type="host" size="large" className="refreshBtn" onClick={this.refreshTeamTable.bind(this)}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
-          {/*<Button type="host" size="large" className="deleteBtn" onClick={()=>this.deleteTeamModal()}><Icon type="delete" />删除</Button>*/}
-          <CreateTeamModal
-            scope={scope}
-            visible={visible}
-            onSubmit={this.teamOnSubmit}
-            funcs={funcs} />
-          <Modal
-            title="批量删除团队"
-            visible={deleteTeamModal}
-            onCancel={()=>this.setState({deleteTeamModal:false})}
-            onOk={()=>this.deleteTeamConfirm()}
-          >
-            {
-              allTeamList.length > 0 &&
-              <DeleteTable
-                dataSource={allTeamList}
-              />
-            }
-          </Modal>
-          <Modal title="选择可以创建团队的成员" width={760} visible={this.state.rightModal}
-                 onCancel = {()=> this.cancelRightModal()}
-                 onOk = {()=> this.confirmRightModal()}
-          >
-            <div className="alertRow">可创建团队的成员能创建团队并有管理该团队的权限</div>
-            <Transfer
-              dataSource={userList.users}
-              listStyle={{
-                width: 300,
-                height: 270,
-              }}
-              operations={['添加', '移除']}
-              titles={['可选成员名','可创建项目成员']}
-              searchPlaceholder="按成员名搜索"
-              showSearch
-              filterOption={this.filterOption.bind(this)}
-              targetKeys={targetKeys}
-              onChange={this.handleChange.bind(this)}
-              render={item => item.title}
-            />
-          </Modal>
-          <Button className="viewBtn" style={{ display: "none" }}>
-            <Icon type="picture" />
-            查看成员&团队图例
-          </Button>
-          <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams} />
-          <div className="total">共{this.props.total}个</div>
-        </Row>
-        <Row className="teamList">
-          <Card>
-            <TeamTable data={teams}
+                 type="info" />
+          <Row className="teamOption">
+            <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
+              <i className='fa fa-plus' /> 创建团队
+            </Button>
+            <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建项目</Button>
+            <Button type="host" size="large" className="refreshBtn" onClick={this.refreshTeamTable.bind(this)}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
+            {/*<Button type="host" size="large" className="deleteBtn" onClick={()=>this.deleteTeamModal()}><Icon type="delete" />删除</Button>*/}
+            <CreateTeamModal
               scope={scope}
-              addTeamusers={addTeamusers}
-              loadUserTeamList={loadUserTeamList}
-              loadTeamUserList={loadTeamUserList}
-              teamUserIDList={teamUserIDList} />
-          </Card>
-        </Row>
-        {/* 团队空间充值  */}
-        <Modal title="团队空间充值" visible={this.state.spaceVisible}
-          onCancel={()=> this.setState({spaceVisible: false})}
-          width={600}
-          footer={null}
-        >
-          <SpaceRecharge parentScope={this} selected={this.state.selected} teamSpacesList={this.props.teamSpacesList}/>
-        </Modal>
-      </div>
+              visible={visible}
+              onSubmit={this.teamOnSubmit}
+              funcs={funcs} />
+            <Modal
+              title="批量删除团队"
+              visible={deleteTeamModal}
+              onCancel={()=>this.setState({deleteTeamModal:false})}
+              onOk={()=>this.deleteTeamConfirm()}
+            >
+              {
+                allTeamList.length > 0 &&
+                <DeleteTable
+                  dataSource={allTeamList}
+                />
+              }
+            </Modal>
+            <Modal title="选择可以创建团队的成员" width={760} visible={this.state.rightModal}
+                   onCancel = {()=> this.cancelRightModal()}
+                   onOk = {()=> this.confirmRightModal()}
+            >
+              <div className="alertRow">可创建团队的成员能创建团队并有管理该团队的权限</div>
+              <Transfer
+                dataSource={userList.users}
+                listStyle={{
+                  width: 300,
+                  height: 270,
+                }}
+                operations={['添加', '移除']}
+                titles={['可选成员名','可创建项目成员']}
+                searchPlaceholder="按成员名搜索"
+                showSearch
+                filterOption={this.filterOption.bind(this)}
+                targetKeys={targetKeys}
+                onChange={this.handleChange.bind(this)}
+                render={item => item.title}
+              />
+            </Modal>
+            <Button className="viewBtn" style={{ display: "none" }}>
+              <Icon type="picture" />
+              查看成员&团队图例
+            </Button>
+            <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams} />
+            <div className="total">共{this.props.total}个</div>
+          </Row>
+          <Row className="teamList">
+            <Card>
+              <TeamTable data={teams}
+                         scope={scope}
+                         addTeamusers={addTeamusers}
+                         loadUserTeamList={loadUserTeamList}
+                         loadTeamUserList={loadTeamUserList}
+                         teamUserIDList={teamUserIDList} />
+            </Card>
+          </Row>
+          {/* 团队空间充值  */}
+          <Modal title="团队空间充值" visible={this.state.spaceVisible}
+                 onCancel={()=> this.setState({spaceVisible: false})}
+                 width={600}
+                 footer={null}
+          >
+            <SpaceRecharge parentScope={this} selected={this.state.selected} teamSpacesList={this.props.teamSpacesList}/>
+          </Modal>
+        </div>
+      </QueueAnim>
     )
   }
 }

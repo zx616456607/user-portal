@@ -69,8 +69,6 @@ class ProjectDetail extends Component{
     this.getProjectMember();
     // this.loadRoleList()
   }
-  componentDidMount() {
-  }
   getClustersWithStatus() {
     const { name } = this.props.location.query;
     const { GetProjectsAllClusters } = this.props;
@@ -681,8 +679,8 @@ class ProjectDetail extends Component{
     })
     const appliedLenght = projectClusters.length - bottomLength
     return(
-      <QueueAnim  type="right">
-        <div className="projectDetailBox">
+      <QueueAnim>
+        <div key='projectDetailBox' className="projectDetailBox">
           <div className="goBackBox">
             <span className="goBackBtn pointer" onClick={()=> browserHistory.push('/tenant_manage/project_manage')}>返回</span>
             <i/>
@@ -930,7 +928,7 @@ class ProjectDetail extends Component{
           </div>
           <Modal
             visible={this.state.addCharacterModal}
-            title='管理角色'
+            title='添加已有角色'
             wrapClassName='addCharacterModal'
             onOk={this.addCharacterOk.bind(this)}
             onCancel={this.addCharacterCancel.bind(this)}
@@ -945,7 +943,7 @@ class ProjectDetail extends Component{
                 height: 255,
               }}
               searchPlaceholde="请输入策略名搜索"
-              titles={['包含权限（个）', '包含权限（个）']}
+              titles={['可选角色', '已选角色']}
               operations={[ '添加','移除']}
               filterOption={this.filterOption.bind(this)}
               targetKeys={targetKeys}
@@ -983,7 +981,7 @@ class ProjectDetail extends Component{
                 <ul className={classNames("characterListBox",{'borderHide': projectDetail.relatedRoles === null})}>
                   {roleList}
                 </ul>
-                <Button type="primary" size="large" icon="plus" onClick={()=>this.setState({addCharacterModal:true})}> 管理角色</Button><br/>
+                <Button type="primary" size="large" icon="plus" onClick={()=>this.setState({addCharacterModal:true})}> 添加已有角色</Button><br/>
                 <Button type="ghost" size="large" icon="plus" onClick={()=>this.openCreateModal()}>创建新角色</Button>
               </div>
               <div className="connectRight pull-left">
