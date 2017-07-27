@@ -151,7 +151,7 @@ function checkVMUsers(state, callback) {
   let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos-check/`
   return{
     [FETCH_API]: {
-      types: [VM_WRAP_VMPUT_REQUEST, VM_WRAP_VMPUT_SUCCESS, VM_WRAP_VMPUT_FAILURE],
+      types: [VM_WRAP_VMCHECK_REQUEST, VM_WRAP_VMCHECK_SUCCESS, VM_WRAP_VMCHECK_FAILURE],
       endpoint,
       options: {
         method: 'POST',

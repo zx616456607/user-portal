@@ -116,6 +116,9 @@ class App extends Component {
     }
     // 升级版本
     if (statusCode === UPGRADE_EDITION_REQUIRED_CODE) {
+      if (!message.details) {
+        return
+      }
       let { kind, level } = message.details
       level = parseInt(level)
       // 超出专业版限额，发工单联系客服
