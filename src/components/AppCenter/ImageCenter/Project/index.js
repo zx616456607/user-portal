@@ -181,7 +181,10 @@ class Project extends Component {
             return
           }
           if (statusCode === 412) {
-            notification.error(`仓库组包含规则，删除失败`)
+            notification.error(`项目包含镜像仓库或复制规则，无法删除`)
+            this.setState({
+              deleteItem: false,
+            })
             return
           }
           notification.error(`仓库组删除失败`)
@@ -247,7 +250,6 @@ class Project extends Component {
               onCancel={()=> this.setState({deleteItem:false})}
               onOk={()=> this.deleteItemOk()}
             >
-              <div className="confirmText" style={{lineHeight:'30px'}}>删除仓库组后，仓库组内的镜像将全部删除。</div>
               <div className="confirmText">您确认删除 {this.state.selectedRows.map(item=> item.name).join(',')} 仓库组?</div>
             </Modal>
           </div>
