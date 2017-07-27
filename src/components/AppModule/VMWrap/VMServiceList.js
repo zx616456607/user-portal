@@ -18,6 +18,7 @@ import QueueAnim from 'rc-queue-anim'
 import CommonSearchInput from '../../CommonSearchInput'
 import './style/VMServiceList.less'
 import { getVMserviceList, vmServiceDelete, serviceDeploy } from '../../../actions/vm_wrap'
+import { UPDATE_INTERVAL } from '../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import TenxStatus from '../../TenxStatus/index'
 
@@ -33,7 +34,15 @@ class VMServiceList extends React.Component {
     }
   }
   componentWillMount() {
-    this.pageAndSerch(null,1)
+    this.pageAndSerch(null,1,true)
+  }
+  componentDidMount() {
+    this.updateServiceStatus = setInterval(()=>{
+      this.pageAndSerch(null,1,false)
+    },UPDATE_INTERVAL)
+  }
+  componentWillUnmount() {
+    clearInterval(this.updateServiceStatus)
   }
   addKey(arr) {
     for (let i = 0; i < arr.length; i++) {
@@ -46,14 +55,14 @@ class VMServiceList extends React.Component {
     serviceDeploy(record.serviceId,{
       success: {
         func: res => {
-          this.pageAndSerch(null,1)
+          this.pageAndSerch(null,1,true)
           notify.success('重新部署成功')
         },
         isAsync: true
       },
       failed:{
         func: res => {
-          this.pageAndSerch(null,1)
+          this.pageAndSerch(null,1,true)
           notify.error('重新部署失败')
         },
         isAsync: true
@@ -70,7 +79,7 @@ class VMServiceList extends React.Component {
       },{
         success: {
           func: (res) => {
-            this.pageAndSerch()
+            this.pageAndSerch(null,1,true)
             notify.success('删除应用成功')
           },
           isAsync:true
@@ -78,6 +87,7 @@ class VMServiceList extends React.Component {
         failed: {
           func: res => {
             notify.error('删除应用失败')
+            this.pageAndSerch(null,1,true)
           },
           isAsync: true
         }
@@ -105,11 +115,13 @@ class VMServiceList extends React.Component {
       selectedRowKeys: arr
     })
   }
-  pageAndSerch(name,n) {
+  pageAndSerch(name,n,flag) {
     const { getVMserviceList } = this.props;
-    this.setState({
-      loading: true
-    })
+    if (flag) {
+      this.setState({
+        loading: true
+      })
+    }
     getVMserviceList({
       page: n || 1,
       size:10,
@@ -142,12 +154,12 @@ class VMServiceList extends React.Component {
     } else if (status === 4) {
       phase = 'ServiceNormalFailed'
     } else {
-      phase = 'Succeeded'
+      phase = 'Running'
     }
     return <TenxStatus phase={phase} progress={progress}/>
   }
   render() {
-    const { selectedRowKeys, service, loading } = this.state;
+    const { selectedRowKeys, service, loading, searchValue } = this.state;
     
     const columns = [{
       title: '应用名',
@@ -200,20 +212,22 @@ class VMServiceList extends React.Component {
       defaultCurrent: 1,
       defaultPageSize: 10,
       total: service.total,
-      onChange: (n)=>this.pageAndSerch(null,n)
+      onChange: (n)=>this.pageAndSerch(null,n,true)
     }
     return (
-      <div className="vmServiceList">
-        <div className="serviceListBtnBox">
-          <Button type="primary" size="large" onClick={()=>browserHistory.push('/app_manage/app_create/vm_wrap')}><i className="fa fa-plus" /> 创建传统应用</Button>
-          <Button size="large" className="refreshBtn" onClick={()=>this.pageAndSerch(null,1)}><i className='fa fa-refresh'/> 刷新</Button>
-          {/*<Button size="large" icon="delete" className="deleteBtn">删除</Button>*/}
-          <CommonSearchInput onSearch={this.pageAndSerch.bind(this)} size="large" placeholder="请输入服务名搜索"/>
-          <Pagination {...pageOption}/>
-          <span className="pull-right totalNum">共计 {service.total} 条</span>
+      <QueueAnim>
+        <div key='vmServiceList' className="vmServiceList">
+          <div className="serviceListBtnBox">
+            <Button type="primary" size="large" onClick={()=>browserHistory.push('/app_manage/app_create/vm_wrap')}><i className="fa fa-plus" /> 创建传统应用</Button>
+            <Button size="large" className="refreshBtn" onClick={()=>this.pageAndSerch(null,1,true)}><i className='fa fa-refresh'/> 刷新</Button>
+            {/*<Button size="large" icon="delete" className="deleteBtn">删除</Button>*/}
+            <CommonSearchInput onSearch={(value)=>{this.pageAndSerch(value,1,true)}} size="large" placeholder="请输入服务名搜索"/>
+            <Pagination {...pageOption}/>
+            <span className="pull-right totalNum">共计 {service.total} 条</span>
+          </div>
+          <Table loading={loading} pagination={false} columns={columns} dataSource={service.services} onRowClick={(record)=>this.rowClick(record)}/>
         </div>
-        <Table loading={loading} pagination={false} columns={columns} dataSource={service.services} onRowClick={(record)=>this.rowClick(record)}/>
-      </div>
+      </QueueAnim>
     )
   }
 }

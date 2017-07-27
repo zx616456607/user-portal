@@ -15,7 +15,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { Card, Row, Col, Form, Input, Button, Checkbox, Collapse, Icon  } from 'antd'
 import QueueAnim from 'rc-queue-anim'
-import './style/traditionEnv.less'
+import './style/serviceStatus.less'
 const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
 
@@ -104,19 +104,19 @@ class ServiceStatus extends Component{
             label="初始化超时"
             {...formItemLayout}
           >
-            <Input size="large" {...initTimeout}/>
+            <Input size="large" {...initTimeout}/><span className="second">s</span>
           </FormItem>
           <FormItem
             label="常规检查超时"
             {...formItemLayout}
           >
-            <Input size="large" {...ruleTimeout}/>
+            <Input size="large" {...ruleTimeout}/><span className="second">s</span>
           </FormItem>
           <FormItem
             label="间隔检查超时"
             {...formItemLayout}
           >
-            <Input size="large" {...intervalTimeout}/>
+            <Input size="large" {...intervalTimeout}/><span className="second">s</span>
           </FormItem>
         </Form>
       </div>
