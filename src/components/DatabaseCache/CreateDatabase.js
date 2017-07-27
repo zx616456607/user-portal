@@ -409,8 +409,8 @@ let CreateDatabase = React.createClass({
                 </FormItem>
                 {
                   accessType === 'outcluster'
-                  ? <div className='accessTips'>选择后该数据库与缓存集群仅提供集群内访问</div>
-                  : <div className='accessTips'>数据库与缓存集群可提供集群外访问</div>
+                  ? <div className='accessTips'>数据库与缓存集群可提供集群外访问</div>
+                  : <div className='accessTips'>选择后该数据库与缓存集群仅提供集群内访问</div>
                 }
               </div>
               <div style={{ clear: 'both' }}></div>
