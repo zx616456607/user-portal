@@ -477,19 +477,19 @@ let MyComponent = React.createClass({
           <thead className="ant-table-thead">
             <tr>
               <th style={{width:'5%',textAlign:'center'}}><Checkbox onChange={(e)=> this.changeAll(e)} checked={this.state.checkAll}/></th>
-              <th>策略名称</th>
-              <th>类型</th>
-              <th>告警对象</th>
-              <th>状态</th>
-              <th>监控周期</th>
-              <th>创建时间
+              <th style={{width:'15%'}}>策略名称</th>
+              <th style={{width:'5%'}}>类型</th>
+              <th style={{width:'10%'}}>告警对象</th>
+              <th style={{width:'10%'}}>状态</th>
+              <th style={{width:'10%'}}>监控周期</th>
+              <th style={{width:'15%'}}>创建时间
                 <div className="ant-table-column-sorter">
                 <span className={this.state.sorter =='up' ? "ant-table-column-sorter-up on": 'ant-table-column-sorter-up off'} title="↑" onClick={()=> this.sorterData('up')}><i className="anticon anticon-caret-up"></i></span>
                 <span className={this.state.sorter =='down' ? "ant-table-column-sorter-down on" : 'ant-table-column-sorter-down off'} title="↓" onClick={()=> this.sorterData('down')}><i className="anticon anticon-caret-down"></i></span>
                 </div>
               </th>
-              <th>最后修改人</th>
-              <th>操作</th>
+              <th style={{width:'10%'}}>最后修改人</th>
+              <th style={{width:'15%'}}>操作</th>
             </tr>
           </thead>
           <tbody className="ant-table-tbody">
