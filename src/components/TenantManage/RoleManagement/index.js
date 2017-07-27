@@ -158,16 +158,22 @@ let RoleManagement = React.createClass({
     const data = [{
       key: '1',
       name: '开发',
-      Referencedproject: 3,
+      user: '3',
     }, {
       key: '2',
       name: '测试',
-      Referencedproject: 4,
+      user: '4',
     }, {
       key: '3',
       name: '团队管理员',
-      Referencedproject: 3,
+      user: '3',
     }];
+    const menu = (
+      <Menu>
+        <Menu.Item key="1">编辑角色</Menu.Item>
+        <Menu.Item key="2">删除</Menu.Item>
+      </Menu>
+)
 
     let roledata = []
     let dropDown = []
@@ -225,18 +231,17 @@ let RoleManagement = React.createClass({
       title: '操作',
       dataIndex: 'comment',
       render: (text, record, index) => <div>
-        {
+         {
+           //dropDown[index]
           text == '研'
           ? <Button type="primary" onClick={() => browserHistory.push(`/tenant_manage/rolemanagement/rolename/${record.id}`)}><Icon type="eye" />查看权限</Button>
-          : <Dropdown.Button overlay={dropDown[index]} type="ghost" onClick={() => browserHistory.push(`/tenant_manage/rolemanagement/rolename/${record.id}`)}>
+          : <Dropdown.Button overlay={dropDown} type="ghost" onClick={() => browserHistory.push(`/tenant_manage/rolemanagement/rolename/${record.id}`)}>
               <Icon type="eye" />
               查看权限
           </Dropdown.Button>
         }
       </div>
     }];
-
-
 
     let totleNum = 0
     if(roleList.data){
@@ -291,7 +296,7 @@ let RoleManagement = React.createClass({
           <Table
             rowSelection={rowSelection}
             columns={rolecolumns}
-            dataSource={roledata}
+            dataSource={data}
             onChange={this.handleChange}
             pagination={{simple: true}}
             loading={roleList.isFetching}
