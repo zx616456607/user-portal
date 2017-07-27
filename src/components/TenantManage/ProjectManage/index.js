@@ -11,6 +11,7 @@ import React, { Component } from 'react'
 import classNames from 'classnames';
 import './style/ProjectManage.less'
 import { Row, Col, Button, Card, Table, Modal, Transfer, InputNumber, Pagination  } from 'antd'
+import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
 import { ListProjects, DeleteProjects, UpdateProjects, CreateProjects } from '../../../actions/project'
@@ -535,137 +536,139 @@ class ProjectManage extends Component{
       ),
     }]
     return (
-      <div id="account_projectManage">
-        <div className='alertRow'>项目之间是项目隔离的，通过创建项目实现按照角色关联对象（成员、团队），并根据授予的权限，使用项目中资源及功能。系统管理员有创建和管理所有项目的权限
-        （创建、删除、充值、授权集群、编辑备注、添加角色、为角色关联/取消对象、移除角色），团队管理员有管理项目的某些权限（充值、添加角色、删除角色、为角色关联/取消对象）。
-        </div>
-        <Modal title="删除项目" visible={delModal} width={610} height={570}
-          onCancel={()=> this.setState({delModal: false})}
-          onOk={()=> this.deleteProject('delModal')}
-        >
-          <div className="deleteRow">
-            <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
-            <span>将永久删除一下项目，包括项目中的所有资源。您确定要删除一下项目？</span>
+      <QueueAnim>
+        <div key='account_projectManage' id="account_projectManage">
+          <div className='alertRow'>项目之间是项目隔离的，通过创建项目实现按照角色关联对象（成员、团队），并根据授予的权限，使用项目中资源及功能。系统管理员有创建和管理所有项目的权限
+            （创建、删除、充值、授权集群、编辑备注、添加角色、为角色关联/取消对象、移除角色），团队管理员有管理项目的某些权限（充值、添加角色、删除角色、为角色关联/取消对象）。
           </div>
-          <DelProjectTable delData={projectList} updateDeleteArr={this.updateDeleteArr.bind(this)} visible={delModal}/>
-        </Modal>
-        <Modal title="删除项目" visible={delSingle} width={610}
-          onCancel={()=> this.singleCancel()}
-          onOk={()=> this.deleteProject('delSingle')}
-        >
-          <DelProjectTable delData={deleteSinglePro} updateDeleteArr={this.updateDeleteArr.bind(this)} visible={delSingle}/>
-        </Modal>
-        <Modal title="项目充值" visible={payModal} width={610}
-          onCancel={()=> this.payCancel()}
-          onOk={()=> this.updatePayCharge()}
-        >
-          <PayTable data={projectList} updatePayArr={this.updatePayArr.bind(this)} visible={payModal} updatePayCharge={this.updatePayCharge.bind(this)} updatePayNumber={this.updatePayNumber.bind(this)}/>
-        </Modal>
-        <Modal title="项目充值" visible={this.state.paySingle} width={580}
-          onCancel = {()=> this.paySingleCancel()}
-          onOk = {()=> this.paySingleOk()}
-        >
-          <dl className="paySingleList">
-            <dt>项目名</dt><dd>{paySinglePro[0]&&paySinglePro[0].projectName}</dd>
-          </dl>
-          <dl className="paySingleList">
-            <dt>余额</dt><dd>{parseAmount(paySinglePro[0]&&paySinglePro[0].balance,4).fullAmount}</dd>
-          </dl>
-          <dl className="paySingleList">
-            <dt>充值金额</dt>
-            <dd className="payBtn">
-              <span className={classNames('btnList',{'active': payNumber === 10})} onClick={()=>{this.changePayNumber(10)}}>10T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-              <span className={classNames('btnList',{'active': payNumber === 20})} onClick={()=>{this.changePayNumber(20)}}>20T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-              <span className={classNames('btnList',{'active': payNumber === 50})} onClick={()=>{this.changePayNumber(50)}}>50T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-              <span className={classNames('btnList',{'active': payNumber === 100})} onClick={()=>{this.changePayNumber(100)}}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-              <InputNumber value={payNumber} onChange={(value)=>this.setState({payNumber:value})} size="large" min={10}/>
-              <b>T</b>
-            </dd>
-          </dl>
-        </Modal>
-        <Modal title="选择可以创建项目的成员" width={760} visible={this.state.rightModal}
-          onCancel = {()=> this.cancelRightModal()}
-          onOk = {()=> this.confirmRightModal()}
-        >
-          <div className="alertRow">可创建项目的成员能创建项目并有管理该项目的权限</div>
-          <Transfer
-            dataSource={userList.users}
-            listStyle={{
-              width: 300,
-              height: 270,
-            }}
-            operations={['添加', '移除']}
-            titles={['可选成员名','可创建项目成员']}
-            searchPlaceholder="按成员名搜索"
-            showSearch
-            filterOption={this.filterOption.bind(this)}
-            targetKeys={this.state.targetKeys}
-            onChange={this.handleChange.bind(this)}
-            render={item => item && item.title}
-          />
-        </Modal>
-        <Row className={classNames({'hidden': step !== ''})}>
-          <Button type='primary' size='large'  className='addBtn' onClick={this.startCreateProject.bind(this)}>
-            <i className='fa fa-plus' /> 创建项目
-          </Button>
-          <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建项目</Button>
-          <Button type="ghost" icon="pay-circle-o" size="large" className="manageBtn" onClick={()=> this.pay()}>充值</Button>
-          <Button type="ghost" icon={ this.state.loading ? 'loading' : "reload"}  size="large" className="manageBtn" onClick={()=> this.refresh('loading')}>刷新</Button>
-          {/*<Button type="ghost" icon="delete" size="large" className="manageBtn" onClick={()=> this.delProject()}>删除</Button>*/}
-          <CommonSearchInput placeholder="请输入项目名称进行搜索" size="large" onSearch={this.searchProject.bind(this)}/>
-          <Pagination {...pageOption}/>
-          <div className="total">共{projectList && projectList.length || 0}个</div>
-        </Row>
-        <Row className={classNames("projectList",{'hidden': step !== ''})}>
-          <Card>
-            <Table
-              loading={tableLoading}
-              pagination={false}
-              columns={columns}
-              dataSource={projectList}
+          <Modal title="删除项目" visible={delModal} width={610} height={570}
+                 onCancel={()=> this.setState({delModal: false})}
+                 onOk={()=> this.deleteProject('delModal')}
+          >
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+              <span>将永久删除一下项目，包括项目中的所有资源。您确定要删除一下项目？</span>
+            </div>
+            <DelProjectTable delData={projectList} updateDeleteArr={this.updateDeleteArr.bind(this)} visible={delModal}/>
+          </Modal>
+          <Modal title="删除项目" visible={delSingle} width={610}
+                 onCancel={()=> this.singleCancel()}
+                 onOk={()=> this.deleteProject('delSingle')}
+          >
+            <DelProjectTable delData={deleteSinglePro} updateDeleteArr={this.updateDeleteArr.bind(this)} visible={delSingle}/>
+          </Modal>
+          <Modal title="项目充值" visible={payModal} width={610}
+                 onCancel={()=> this.payCancel()}
+                 onOk={()=> this.updatePayCharge()}
+          >
+            <PayTable data={projectList} updatePayArr={this.updatePayArr.bind(this)} visible={payModal} updatePayCharge={this.updatePayCharge.bind(this)} updatePayNumber={this.updatePayNumber.bind(this)}/>
+          </Modal>
+          <Modal title="项目充值" visible={this.state.paySingle} width={580}
+                 onCancel = {()=> this.paySingleCancel()}
+                 onOk = {()=> this.paySingleOk()}
+          >
+            <dl className="paySingleList">
+              <dt>项目名</dt><dd>{paySinglePro[0]&&paySinglePro[0].projectName}</dd>
+            </dl>
+            <dl className="paySingleList">
+              <dt>余额</dt><dd>{parseAmount(paySinglePro[0]&&paySinglePro[0].balance,4).fullAmount}</dd>
+            </dl>
+            <dl className="paySingleList">
+              <dt>充值金额</dt>
+              <dd className="payBtn">
+                <span className={classNames('btnList',{'active': payNumber === 10})} onClick={()=>{this.changePayNumber(10)}}>10T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+                <span className={classNames('btnList',{'active': payNumber === 20})} onClick={()=>{this.changePayNumber(20)}}>20T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+                <span className={classNames('btnList',{'active': payNumber === 50})} onClick={()=>{this.changePayNumber(50)}}>50T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+                <span className={classNames('btnList',{'active': payNumber === 100})} onClick={()=>{this.changePayNumber(100)}}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+                <InputNumber value={payNumber} onChange={(value)=>this.setState({payNumber:value})} size="large" min={10}/>
+                <b>T</b>
+              </dd>
+            </dl>
+          </Modal>
+          <Modal title="选择可以创建项目的成员" width={760} visible={this.state.rightModal}
+                 onCancel = {()=> this.cancelRightModal()}
+                 onOk = {()=> this.confirmRightModal()}
+          >
+            <div className="alertRow">可创建项目的成员能创建项目并有管理该项目的权限</div>
+            <Transfer
+              dataSource={userList.users}
+              listStyle={{
+                width: 300,
+                height: 270,
+              }}
+              operations={['添加', '移除']}
+              titles={['可选成员名','可创建项目成员']}
+              searchPlaceholder="按成员名搜索"
+              showSearch
+              filterOption={this.filterOption.bind(this)}
+              targetKeys={this.state.targetKeys}
+              onChange={this.handleChange.bind(this)}
+              render={item => item && item.title}
             />
-          </Card>
-        </Row>
-        <div className={classNames("goBackBox",{'hidden': step === ''})}>
-          <span className="goBackBtn pointer" onClick={()=> browserHistory.replace('/tenant_manage/project_manage')}>返回</span>
-          <i/>
-          创建项目
-        </div>
-        <div className={classNames('createBox',{'hidden': step === ''})}>
-          <ul className="stepBox">
-            <li className={classNames({'active' : step === 'first'})}><span>1</span>项目基础信息</li>
-            <li className={classNames({'active' : step === 'second'})}><span>2</span>为项目添加角色</li>
-            <li className={classNames({'active' : step === 'third'})}><span>3</span>为角色关联对象</li>
-          </ul>
-          <div className="alertRow createTip">
-            {
-              step === 'first' ? '请填写项目名称、备注、并为该项目授权集群' : ''
-            }
-            {
-              step === 'second' ? '为该项目添加需要的角色，角色是提前创建好的，也可在此创建新角色后继续添加' : ''
-            }
-            {
-              step === 'third' ? '为添加的角色关联对象，即可为关联的对象授予相应角色应有的权限；关联的对象可为（成员/团队/成员&团队组合）。' : ''
-            }
+          </Modal>
+          <Row className={classNames({'hidden': step !== ''})}>
+            <Button type='primary' size='large'  className='addBtn' onClick={this.startCreateProject.bind(this)}>
+              <i className='fa fa-plus' /> 创建项目
+            </Button>
+            <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建项目</Button>
+            <Button type="ghost" icon="pay-circle-o" size="large" className="manageBtn" onClick={()=> this.pay()}>充值</Button>
+            <Button type="ghost" icon={ this.state.loading ? 'loading' : "reload"}  size="large" className="manageBtn" onClick={()=> this.refresh('loading')}>刷新</Button>
+            {/*<Button type="ghost" icon="delete" size="large" className="manageBtn" onClick={()=> this.delProject()}>删除</Button>*/}
+            <CommonSearchInput placeholder="请输入项目名称进行搜索" size="large" onSearch={this.searchProject.bind(this)}/>
+            <Pagination {...pageOption}/>
+            <div className="total">共{projectList && projectList.length || 0}个</div>
+          </Row>
+          <Row className={classNames("projectList",{'hidden': step !== ''})}>
+            <Card>
+              <Table
+                loading={tableLoading}
+                pagination={false}
+                columns={columns}
+                dataSource={projectList}
+              />
+            </Card>
+          </Row>
+          <div className={classNames("goBackBox",{'hidden': step === ''})}>
+            <span className="goBackBtn pointer" onClick={()=> browserHistory.replace('/tenant_manage/project_manage')}>返回</span>
+            <i/>
+            创建项目
           </div>
-          <div className={classNames({'hidden' : step !=='first'})}>
+          <div className={classNames('createBox',{'hidden': step === ''})}>
+            <ul className="stepBox">
+              <li className={classNames({'active' : step === 'first'})}><span>1</span>项目基础信息</li>
+              <li className={classNames({'active' : step === 'second'})}><span>2</span>为项目添加角色</li>
+              <li className={classNames({'active' : step === 'third'})}><span>3</span>为角色关联对象</li>
+            </ul>
+            <div className="alertRow createTip">
+              {
+                step === 'first' ? '请填写项目名称、备注、并为该项目授权集群' : ''
+              }
+              {
+                step === 'second' ? '为该项目添加需要的角色，角色是提前创建好的，也可在此创建新角色后继续添加' : ''
+              }
+              {
+                step === 'third' ? '为添加的角色关联对象，即可为关联的对象授予相应角色应有的权限；关联的对象可为（成员/团队/成员&团队组合）。' : ''
+              }
+            </div>
+            <div className={classNames({'hidden' : step !=='first'})}>
               <CreateStepFirst clusters = { clusters } scope = {this} step = {step} updateProjectName={this.updateProjectName.bind(this)} updateProjectDesc={this.updateProjectDesc.bind(this)} updateCluster={this.updateCluster.bind(this)}/>
+            </div>
+            <div className={classNames({'hidden' : step !=='second'})}>
+              <CreateStepSecond scope={this} step = {step}  updateRole={this.updateRole.bind(this)}/>
+            </div>
+            <div className={classNames({'hidden' : step !=='third'})}>
+              <CreateStepThird scope={this} step = {step}  updateRole={this.updateRole.bind(this)}  updateRoleWithMember={this.updateRoleWithMember.bind(this)}/>
+            </div>
           </div>
-          <div className={classNames({'hidden' : step !=='second'})}>
-            <CreateStepSecond scope={this} step = {step}  updateRole={this.updateRole.bind(this)}/>
-          </div>
-          <div className={classNames({'hidden' : step !=='third'})}>
-            <CreateStepThird scope={this} step = {step}  updateRole={this.updateRole.bind(this)}  updateRoleWithMember={this.updateRoleWithMember.bind(this)}/>
+    
+          <div className={classNames('createBtnBox',{'hidden': step === ''})}>
+            <Button size="large" onClick={this.closeProjectCreate.bind(this)}>取消</Button>
+            <Button size="large" className={classNames({'hidden': step === '' || step === 'first'})} onClick={()=> this.goBack()}>上一步</Button>
+            <Button size="large" className={classNames({'hidden': step === 'third'})} onClick={()=> this.next()}>下一步</Button>
+            <Button type="primary" size="large"  onClick={this.createProject.bind(this)} style={{display: step === 'third' ? 'inline-block' : 'none'}}>创建</Button>
           </div>
         </div>
-        
-        <div className={classNames('createBtnBox',{'hidden': step === ''})}>
-          <Button size="large" onClick={this.closeProjectCreate.bind(this)}>取消</Button>
-          <Button size="large" className={classNames({'hidden': step === '' || step === 'first'})} onClick={()=> this.goBack()}>上一步</Button>
-          <Button size="large" className={classNames({'hidden': step === 'third'})} onClick={()=> this.next()}>下一步</Button>
-          <Button type="primary" size="large"  onClick={this.createProject.bind(this)} style={{display: step === 'third' ? 'inline-block' : 'none'}}>创建</Button>
-        </div>
-      </div>
+      </QueueAnim>
     )
   }
 }
