@@ -141,7 +141,7 @@ class VMServiceCreate extends React.Component {
         id="vmServiceCreate"
         type='right'
       >
-        <div className="vmServiceCreate">
+        <div key='vmServiceCreate' className="vmServiceCreate">
           <Card>
             <Form>
               <FormItem
