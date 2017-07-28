@@ -665,7 +665,7 @@ class TeamDetail extends Component {
       teamSpacesList, teamName, teamID,spaceID,
       teamUsersTotal, teamSpacesTotal, removeTeamusers,loadTeamClustersList,
       loadTeamUserList, loadTeamspaceList, deleteTeamspace,
-      requestTeamCluster, loadAllClustersList, checkTeamSpaceName, teamClusters,
+      requestTeamCluster, loadAllClustersList, checkTeamSpaceName, teamClusters,setCurrent
     } = this.props
     const { targetKeys, sortSpace, spaceCurrent, spacePageSize, spacePage, sortSpaceOrder } = this.state
     const funcs = {
