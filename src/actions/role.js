@@ -48,8 +48,11 @@ export const ROLE_LIST_FAILURE = 'ROLE_LIST_FAILURE'
 
 // Fetches list role from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchListRole(body,callback){
+function fetchListRole(query,callback){
 	let endpoint = `${API_URL_PREFIX}/role`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
 	return {
 		[FETCH_API]: {
       types: [ROLE_LIST_REQUEST, ROLE_LIST_SUCCESS, ROLE_LIST_FAILURE],
@@ -62,9 +65,9 @@ function fetchListRole(body,callback){
 
 // Fetches list role from API
 // Relies on Redux Thunk middleware.
-export function ListRole(body, callback) {
+export function ListRole(query, callback) {
   return (dispatch) => {
-    return dispatch(fetchListRole(body, callback))
+    return dispatch(fetchListRole(query, callback))
   }
 }
 export const ROLE_GET_REQUEST = 'ROLE_GET_REQUEST'

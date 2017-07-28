@@ -12,6 +12,7 @@ import './style/ProjectManage.less'
 import { Row, Col, Button, Input, Modal, Transfer, Tree, Form } from 'antd'
 import { connect } from 'react-redux'
 import { ListRole, CreateRole, ExistenceRole } from '../../../actions/role'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import { PermissionAndCount } from '../../../actions/permission'
 import Notification from '../../../components/Notification'
 class CreateStepSecond extends Component{
@@ -33,10 +34,14 @@ class CreateStepSecond extends Component{
     this.loadRoleList()
     this.getPermission()
   }
+  componentWillUnmount() {
+    clearTimeout(this.roleNameTime)
+  }
   componentWillReceiveProps(nextProps) {
     const { allPermission } = this.state;
     const { step, form, scope } = nextProps;
-    this.loadRoleList()
+    
+    // this.loadRoleList()
     if (!allPermission) {
       this.getPermission()
     }
@@ -59,20 +64,22 @@ class CreateStepSecond extends Component{
     });
   };
   loadRoleList() {
-    const { ListRole, scope } = this.props;
+    const { ListRole, scope, updateRole } = this.props;
     const targetKeys = [];
     const roleList = [];
-    ListRole({},{
+    ListRole({
+      size:0
+    },{
       success: {
         func: (res)=> {
           if (res.data.statusCode === 200) {
             let result = res.data.data.items;
             for (let i = 0 ; i < result.length; i++) {
               const data = {
-                key: `${result[i].id},${result[i].name}`,
+                key: `${result[i].id}},${result[i].name}`,
                 title: result[i].name,
                 description: result[i].comment,
-                chosen: false,
+                chosen: ['RID-LFJKCKtKzCrd', 'RID-ggNW6A2mwgEX'].includes(result[i].id),
               };
               const newData = Object.assign({},result[i],data);
               if (newData.chosen) {
@@ -80,16 +87,13 @@ class CreateStepSecond extends Component{
               }
               roleList.push(newData)
             }
-            if (scope.state.RoleKeys.length > 0) {
-              this.setState({
-                targetKeys: scope.state.RoleKeys.slice(0)
-              })
-            } else {
-              this.setState({
-                choosableList:roleList,
-                targetKeys
-              })
+            if (targetKeys.length > 0) {
+              updateRole(targetKeys)
             }
+            this.setState({
+              choosableList:roleList,
+              targetKeys
+            })
           }
         },
         isAsync: true
@@ -115,7 +119,7 @@ class CreateStepSecond extends Component{
   filterOption(inputValue, option) {
     return option.description.indexOf(inputValue) > -1;
   }
-  handleChange(targetKeys,d,m) {
+  handleChange(targetKeys) {
     const { updateRole } = this.props;
     this.setState({ targetKeys });
     updateRole(targetKeys)
@@ -184,25 +188,38 @@ class CreateStepSecond extends Component{
     })
   }
   roleName(rule, value, callback) {
+    const { ExistenceRole } = this.props;
     let newValue = value.trim()
     if (!Boolean(newValue)) {
       callback(new Error('请输入名称'))
       return
     }
-    if (newValue.length < 3 || newValue.length > 21) {
-      callback(new Error('请输入3~21个字符'))
-      return
-    }
-    callback()
+    this.roleNameTime = setTimeout(()=>{
+      ExistenceRole({
+        name:value
+      },{
+        success: {
+          func: res => {
+            if (res.data.data) {
+              return callback(new Error('该角色名称已经存在'))
+            }
+            callback()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: res => {
+            return callback()
+          },
+          isAsync: true
+        }
+      })
+    },ASYNC_VALIDATOR_TIMEOUT)
   }
   roleDesc(rule, value, callback) {
     let newValue = value.trim()
     if (!Boolean(newValue)) {
       callback(new Error('请输入描述'))
-      return
-    }
-    if (newValue.length < 3 || newValue.length > 21) {
-      callback(new Error('请输入3~21个字符'))
       return
     }
     callback()
@@ -219,7 +236,7 @@ class CreateStepSecond extends Component{
     const TreeNode = Tree.TreeNode;
     const { scope } = this.props;
     const { choosableList, targetKeys, allPermission } = this.state;
-    const { getFieldProps } = this.props.form;
+    const { getFieldProps, isFieldValidating, getFieldError } = this.props.form;
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 15 },
@@ -229,7 +246,7 @@ class CreateStepSecond extends Component{
       wrapperCol: { span: 15, offset: 1 },
     };
     const loop = data => data.map((item) => {
-      if (item.children) {
+      if (item.children.length > 0) {
         return (
           <TreeNode key={item.key} title={item.title}>
             {loop(item.children)}
@@ -245,7 +262,10 @@ class CreateStepSecond extends Component{
                onOk={()=> this.okCreateModal()}
         >
           <Form className="createRoleForm" form={this.props.form}>
-            <Form.Item label="名称" {...formItemLayout}>
+            <Form.Item label="名称" {...formItemLayout}
+                       hasFeedback
+                       help={isFieldValidating('roleName') ? '校验中...' : (getFieldError('roleName') || []).join(', ')}
+            >
               <Input placeholder="请输入名称" {...getFieldProps(`roleName`, {
                 rules: [
                   { validator: (rules,value,callback)=>this.roleName(rules,value,callback)}
@@ -264,7 +284,7 @@ class CreateStepSecond extends Component{
           <div className="authChoose">
             <span>权限选择 :</span>
             <div className="authBox inlineBlock">
-              <div className="authTitle clearfix">可选权限 <div className="pull-right"><span style={{color:'#59c3f5'}}>14</span> 个权限</div></div>
+              <div className="authTitle clearfix">可选权限 <div className="pull-right">共<span style={{color:'#59c3f5'}}>14</span> 个</div></div>
               <div className="treeBox">
                 {
                   allPermission.length > 0 &&

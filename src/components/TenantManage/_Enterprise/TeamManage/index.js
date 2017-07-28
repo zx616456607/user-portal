@@ -684,7 +684,7 @@ class TeamManage extends Component {
             <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
               <i className='fa fa-plus' /> 创建团队
             </Button>
-            <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建项目</Button>
+            <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建团队</Button>
             <Button type="host" size="large" className="refreshBtn" onClick={this.refreshTeamTable.bind(this)}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
             {/*<Button type="host" size="large" className="deleteBtn" onClick={()=>this.deleteTeamModal()}><Icon type="delete" />删除</Button>*/}
             <CreateTeamModal
@@ -717,7 +717,7 @@ class TeamManage extends Component {
                   height: 270,
                 }}
                 operations={['添加', '移除']}
-                titles={['可选成员名','可创建项目成员']}
+                titles={['可选成员名','可创建团队成员']}
                 searchPlaceholder="按成员名搜索"
                 showSearch
                 filterOption={this.filterOption.bind(this)}

@@ -14,7 +14,7 @@ import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
 import { GetProjectsMembers } from '../../../actions/project'
-import { GetRole } from '../../../actions/role'
+import { GetRole, GetWithMembers } from '../../../actions/role'
 import TreeComponent from '../../TreeForMembers'
 import cloneDeep from 'lodash/cloneDeep'
 let checkedKeysThird = []
@@ -42,7 +42,7 @@ class CreateStepThird extends Component{
     const { scope, step, form } = nextProps;
     let RoleKeys = scope.state.RoleKeys;
     if ((RoleKeys.length > 0)) {
-      this.getCurrentRole(RoleKeys[0].split(',')[0])
+      // this.getCurrentRole(RoleKeys[0].split(',')[0])
     } else {
       this.setState({
         currentRolePermission: [],
@@ -142,7 +142,7 @@ class CreateStepThird extends Component{
     updateRoleWithMember(map)
   }
   getCurrentRole(id) {
-    const { GetRole } = this.props;
+    const { GetRole, GetWithMembers } = this.props;
     const { currentRoleInfo } = this.state;
     if (currentRoleInfo.role && (id === currentRoleInfo.role.id)) {
       return
@@ -154,7 +154,7 @@ class CreateStepThird extends Component{
       currentRoleInfo: {},
       currentRolePermission: []
     },()=>{
-      GetRole({
+      GetWithMembers({
         id
       },{
         success: {
@@ -311,5 +311,6 @@ function mapStateToThirdProp(state, props) {
 
 export default CreateStepThird = connect(mapStateToThirdProp, {
   GetRole,
-  GetProjectsMembers
+  GetProjectsMembers,
+  GetWithMembers
 })(Form.create()(CreateStepThird))
