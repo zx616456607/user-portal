@@ -1,4 +1,4 @@
-#TeamDetail {
+#tenantTeamDetail {
   padding:0 30px;
   .teamDetailHeader{
     margin-bottom: 20px;
@@ -14,7 +14,7 @@
   }
   .userTotalBox{
     float: right;
-    margin: 20px 270px 0;
+    margin: 20px 200px 0 0;
   }
   .back {
     display: inline-block;
@@ -153,8 +153,13 @@
       transform: translateY(-50%);
     }
   }
-  .ant-table-pagination{
-    margin: -440px 0 0 0 !important;
+  #MemberList{
+    position: relative;
+    .ant-table-pagination{
+      position: absolute;
+      right: 0;
+      top: -60px;
+    }
   }
 }
 // .newMemberModal {

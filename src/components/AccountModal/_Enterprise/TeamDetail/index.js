@@ -306,8 +306,11 @@ let TeamList = React.createClass({
     })
   },
   delTeamSpace() {
-    const { deleteTeamspace, teamID, loadTeamspaceList, sortSpace, spacePage, spacePageSize, onChange } = this.props
-    this.setState({TeamModal: false})
+    const { deleteTeamspace, teamID, loadTeamspaceList, sortSpace, spacePage, spacePageSize, onChange, spaceID } = this.props
+    let notify = new NotificationHandler()
+    if (spaceID === this.state.spaceID) {
+      return notify.info('禁止删除当前所处的空间')
+    }
     deleteTeamspace(teamID, this.state.spaceID, {
       success: {
         func: () => {
@@ -316,6 +319,7 @@ let TeamList = React.createClass({
             page: 1,
             size: spacePageSize,
           })
+          this.setState({TeamModal: false})
           onChange({
             spaceCurrent: 1
           })
@@ -424,10 +428,10 @@ let TeamList = React.createClass({
           <div><Button icon="delete" className="delBtn" onClick={()=> this.setState({TeamModal: true, spaceID: record.spaceID, teamName: record.spaceName})}>
             删除
           </Button>
-          {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN && SHOW_BILLING) ?
+          {(this.props.scope.props.userDetail.role === ROLE_SYS_ADMIN && SHOW_BILLING) ?
             <Button className="addBtn" onClick={()=> scope.btnRecharge(index)}>充值
             </Button>
-          :<span className="addBtn"></span>
+          :<span className="addBtn"/>
           }
           <Popover
               title="请选择集群"
@@ -452,7 +456,7 @@ let TeamList = React.createClass({
          <Modal title="删除团队操作" visible={this.state.TeamModal}
           onOk={()=> this.delTeamSpace()} onCancel={()=> this.setState({TeamModal: false})}
         >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除该团队空间 {this.state.teamName ? this.state.teamName : ''} ?</div>
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}/>您是否确定要删除该团队空间 {this.state.teamName ? this.state.teamName : ''} ?</div>
         </Modal>
       </div>
     )
@@ -658,7 +662,7 @@ class TeamDetail extends Component {
     const scope = this
     const {
       clusterList, teamUserList, teamUserIDList,
-      teamSpacesList, teamName, teamID,
+      teamSpacesList, teamName, teamID,spaceID,
       teamUsersTotal, teamSpacesTotal, removeTeamusers,loadTeamClustersList,
       loadTeamUserList, loadTeamspaceList, deleteTeamspace,
       requestTeamCluster, loadAllClustersList, checkTeamSpaceName, teamClusters,
@@ -768,6 +772,7 @@ class TeamDetail extends Component {
                 loadTeamClustersList={loadTeamClustersList}
                 teamClusters={teamClusters}
                 teamID={teamID}
+                spaceID={spaceID}
                 sortSpace={sortSpace}
                 current={spaceCurrent}
                 setCurrent={setCurrent}
@@ -804,6 +809,8 @@ function mapStateToProp(state, props) {
   let teamSpacesTotal = 0
   const { team_id, team_name } = props.params
   const team = state.team
+  const space = state.entities.current.space
+  const { spaceID } = space || { spaceID: ''}
   if (team.teamusers) {
     if (team.teamusers.result) {
       const teamusers = team.teamusers.result.users
@@ -863,7 +870,8 @@ function mapStateToProp(state, props) {
     teamUsersTotal: teamUsersTotal,
     teamClusters: (teamClusters.result ? teamClusters.result.data : []),
     teamSpacesTotal: teamSpacesTotal,
-    userDetail
+    userDetail,
+    spaceID
   }
 }
 export default connect(mapStateToProp, {
