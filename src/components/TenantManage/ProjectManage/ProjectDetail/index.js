@@ -11,7 +11,7 @@
 import React, { Component } from 'react'
 import classNames from 'classnames';
 import './style/ProjectDetail.less'
-import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree, Switch, Alert, Dropdown, Menu, form } from 'antd'
+import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree, Switch, Alert, Dropdown, Menu, Form } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link} from 'react-router'
 import { connect } from 'react-redux'
@@ -24,6 +24,7 @@ import { parseAmount } from '../../../../common/tools'
 import Notification from '../../../../components/Notification'
 import TreeComponent from '../../../TreeForMembers'
 import cloneDeep from 'lodash/cloneDeep'
+import CreateRoleModal from  '../CreateRole'
 
 let checkedKeysDetail = []
 class ProjectDetail extends Component{
@@ -34,10 +35,6 @@ class ProjectDetail extends Component{
       paySingle: false,
       switchState: false,
       balanceWarning: false,
-      expandedKeys: [],
-      autoExpandParent: true,
-      checkedKeys: [],
-      selectedKeys: [],
       addCharacterModal: false,
       mockData: [],
       targetKeys: [],
@@ -51,7 +48,6 @@ class ProjectDetail extends Component{
       currentRoleInfo: {},
       currentRolePermission: [],
       choosableList: [],
-      allPermission: [],
       createRoleName: '',
       createRoleDesc: '',
       createRolePer: [],
@@ -93,6 +89,8 @@ class ProjectDetail extends Component{
     const targetKeys = [];
     const roleList = [];
     ListRole({
+      size: 0
+    },{
       success: {
         func: (res)=> {
           if (res.data.statusCode === 200) {
@@ -119,11 +117,10 @@ class ProjectDetail extends Component{
               }
               roleList.push(newData)
             }
-            
-              this.setState({
-                choosableList:roleList,
-                targetKeys
-              })
+            this.setState({
+              choosableList:roleList,
+              targetKeys
+            })
           }
         },
         isAsync: true
@@ -274,44 +271,6 @@ class ProjectDetail extends Component{
   }
   addCharacterCancel() {
     this.setState({addCharacterModal:false})
-  }
-  cancelModal() {
-    this.setState({characterModal:false})
-  }
-  createModal() {
-    const { CreateRole, ExistenceRole } = this.props;
-    const { createRoleName, createRoleDesc, createRolePer } = this.state;
-    let notify = new Notification()
-    ExistenceRole({
-      name: createRoleName
-    },{
-      success:{
-        func: (res) => {
-          if (res.data.statusCode === 200) {
-            if (res.data.data) {
-              return notify.info('该角色名称已经存在')
-            }
-            CreateRole({
-              name: createRoleName,
-              comment: createRoleDesc,
-              permission: createRolePer
-            },{
-              success:{
-                func: (res) => {
-                  if (res.data.statusCode === 200) {
-                    notify.success('创建角色成功')
-                    this.getProjectDetail()
-                    this.setState({characterModal:false})
-                  }
-                },
-                isAsync: true
-              }
-            })
-          }
-        },
-        isAsync: true
-      }
-    })
   }
   changePayNumber(payNumber) {
     this.setState({payNumber})
@@ -524,9 +483,11 @@ class ProjectDetail extends Component{
     })
   }
   render() {
-    const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, allPermission, currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, roleMap } = this.state;
+    const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys,
+      currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, roleMap, characterModal } = this.state;
     const TreeNode = Tree.TreeNode;
-    const { getFieldProps } = this.props.form;
+    const { form } = this.props;
+    const { getFieldProps } = form;
     const columns = [{
       title: '成员名称',
       dataIndex: 'name',
@@ -951,12 +912,12 @@ class ProjectDetail extends Component{
               render={(item)=>this.renderItem(item)}
             />
           </Modal>
-          <Modal title="创建角色" wrapClassName="createCharacterModal" visible={this.state.characterModal} width={570}
-                 onCancel={()=> this.cancelModal()}
-                 onOk={()=> this.createModal()}
-          >
-            <CreateCharacter allPermission={allPermission} scope={this}/>
-          </Modal>
+          <CreateRoleModal
+            form={form}
+            scope={this}
+            characterModal={characterModal}
+            loadData={this.loadRoleList.bind(this)}
+          />
           <Modal title="关联对象" width={765} visible={connectModal}
                  onCancel={()=> this.closeMemberModal()}
                  onOk={()=> this.submitMemberModal()}
@@ -1030,7 +991,7 @@ class ProjectDetail extends Component{
   }
 }
 
-ProjectDetail = form.create()(ProjectDetail)
+ProjectDetail = Form.create()(ProjectDetail)
 function mapStateToThirdProp(state, props) {
   const { query } = props.location
   const { name } = query;
@@ -1054,142 +1015,3 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   DeleteProjectsRelatedRoles,
   GetProjectsMembers
 })(ProjectDetail)
-
-class CreateCharacter extends Component{
-  constructor(props) {
-    super(props)
-    this.state={
-      expandedKeys: [],
-      autoExpandParent: true,
-      checkedKeys: [],
-      selectedKeys: [],
-      allPermission: []
-    }
-  }
-  componentWillMount() {
-  }
-  onExpand(expandedKeys) {
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded chilren keys.
-    this.setState({
-      expandedKeys,
-      autoExpandParent: false,
-    });
-  }
-  onCheckDetail(checkedKeys) {
-    const { scope } = this.props;
-    scope.setState({
-      createRolePer:checkedKeys
-    })
-    this.setState({
-      checkedKeys,
-    });
-  }
-  onSelect(selectedKeys, info) {
-    this.setState({ selectedKeys });
-  }
-  updateRoleName() {
-    const { scope } = this.props;
-    const { getFieldValue } = this.props.form;
-    let createRoleName = getFieldValue('roleNameDetail')
-    scope.setState({
-      createRoleName:createRoleName
-    })
-  }
-  updateRoleDesc() {
-    const { scope } = this.props;
-    const { getFieldValue } = this.props.form;
-    let createRoleDesc = getFieldValue('roleDescDetail')
-    scope.setState({
-      createRoleDesc:createRoleDesc
-    })
-  }
-  roleNameDetail(rule, value, callback) {
-    let newValue = value.trim()
-    if (!Boolean(newValue)) {
-      callback(new Error('请输入名称'))
-      return
-    }
-    if (newValue.length < 3 || newValue.length > 21) {
-      callback(new Error('请输入3~21个字符'))
-      return
-    }
-    callback()
-  }
-  roleDescDetail(rule, value, callback) {
-    let newValue = value.trim()
-    if (!Boolean(newValue)) {
-      callback(new Error('请输入描述'))
-      return
-    }
-    if (newValue.length < 3 || newValue.length > 21) {
-      callback(new Error('请输入3~21个字符'))
-      return
-    }
-    callback()
-  }
-  render() {
-    const TreeNode = Tree.TreeNode;
-    const { getFieldProps } = this.props.form;
-    const { allPermission } = this.props;
-    const formItemLayout = {
-      labelCol: { span: 4 },
-      wrapperCol: { span: 15 },
-    };
-    const loop = data => data.map((item) => {
-      if (item.children) {
-        return (
-          <TreeNode key={item.key} title={item.title}>
-            {loop(item.children)}
-          </TreeNode>
-        );
-      }
-      return <TreeNode key={item.key} title={item.title}/>;
-    });
-    return(
-      <div>
-        <form className="createRoleForm" form={this.props.form}>
-          <form.Item label="名称" {...formItemLayout}>
-            <Input placeholder="请输入名称" {...getFieldProps(`roleNameDetail`, {
-              rules: [
-                { validator: (rules,value)=>this.roleNameDetail(rules,value,this.updateRoleName.bind(this))}
-              ],
-              initialValue:  '',
-            }) }
-            />
-          </form.Item>
-          <form.Item label="描述" {...formItemLayout}>
-            <Input type="textarea" {...getFieldProps(`roleDescDetail`, {
-              rules: [
-                { validator: (rules,value)=>this.roleDescDetail(rules,value,this.updateRoleDesc.bind(this))}
-              ],
-              initialValue: '',
-            }) }/>
-          </form.Item>
-        </form>
-        <div className="authChoose">
-          <span>权限选择 :</span>
-          <div className="authBox inlineBlock">
-            <div className="authTitle clearfix">可选权限 <div className="pull-right"><span style={{color:'#59c3f5'}}>14</span> 个权限</div></div>
-            <div className="treeBox">
-              {
-                allPermission.length > 0 &&
-                <Tree
-                  checkable
-                  onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
-                  autoExpandParent={this.state.autoExpandParent}
-                  onCheck={this.onCheckDetail.bind(this)} checkedKeys={this.state.checkedKeys}
-                  onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
-                >
-                  {loop(allPermission)}
-                </Tree>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-}
-
-CreateCharacter = form.create()(CreateCharacter)
