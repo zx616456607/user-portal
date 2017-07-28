@@ -518,7 +518,6 @@ class ProjectDetail extends Component{
   updateCurrentMember(member) {
     const { currentRoleInfo, roleMap } = this.state;
     let map = cloneDeep(roleMap);
-    console.log(currentRoleInfo)
     map[currentRoleInfo.role.id] = member;
     this.setState({
       roleMap:map

@@ -248,7 +248,8 @@ let MemberList = React.createClass({
     ]
     return (
       <div id='MemberList'>
-        <Table columns={columns}
+        <Table
+          columns={columns}
           dataSource={teamUserList}
           pagination={pagination}
           loading={this.state.loading}
@@ -538,7 +539,7 @@ class TeamDetail extends Component {
       )
     }]
     return (
-      <div id='TeamDetail'>
+      <div id='tenantTeamDetail'>
         <Row className="teamDetailHeader">
           <Link className="back" to="/tenant_manage/team">
             <span className="backjia"/>
