@@ -176,6 +176,10 @@ let MemberList = React.createClass({
       selectedRowKeys: arr
     })
   },
+  removeMember(e,record) {
+    e.stopPropagation()
+    this.setState({userId: record.key, UserModal: true, userName: record.name})
+  },
   render: function () {
     let { filteredInfo, current, selectedRowKeys} = this.state
     const { teamUserList, teamUsersTotal } = this.props
@@ -239,7 +243,7 @@ let MemberList = React.createClass({
         key: 'edit',
         render: (text, record, index) => (
           <div className="cardBtns">
-            <Button className="delBtn" onClick={()=> this.setState({userId: record.key, UserModal: true, userName: record.name}) }>
+            <Button className="delBtn" onClick={(e)=> this.removeMember(e,record) }>
               移除成员
             </Button>
           </div>
@@ -261,7 +265,7 @@ let MemberList = React.createClass({
         <Modal title="移除成员操作" visible={this.state.UserModal}
           onOk={()=> this.delTeamMember()} onCancel={()=> this.setState({UserModal: false})}
         >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要移除成员 {this.state.userName ? this.state.userName : ''} ?</div>
+          <div className="deleteMemberHint"><i className="fa fa-exclamation-triangle" style={{marginRight: '8px'}}/>您是否确定要移除成员 {this.state.userName ? this.state.userName : ''} ?</div>
         </Modal>
 
       </div>
@@ -296,7 +300,8 @@ class TeamDetail extends Component {
       spaceVisible:false, // space Recharge modal
       teamDetail: {},
       allTeamUser: {},
-      selectedRowKeys: []
+      selectedRowKeys: [],
+      transferStatus: false
     }
   }
   componentDidMount() {
@@ -336,13 +341,17 @@ class TeamDetail extends Component {
     let nofity = new NotificationHandler()
     const { targetKeys, sortUser } = this.state
     if (targetKeys.length !== 0) {
-      addTeamusers(teamID,{
-          users:targetKeys,
-        },{
+      const newtargetKeys = targetKeys.map(item=> {
+        return {
+          userID: item
+        }
+      })
+      const targetKeysMap = {"users":newtargetKeys}
+      addTeamusers(teamID,targetKeysMap,{
           success: {
             func: () => {
               loadTeamUserList(teamID, {
-                // sort: sortUser,
+                sort: sortUser,
               })
               this.setState({
                 addMember: false,
@@ -496,6 +505,30 @@ class TeamDetail extends Component {
       selectedRowKeys: arr
     })
   }
+  loadTeamUser(value) {
+    const { loadTeamUserList, teamID } = this.props;
+    loadTeamUserList(teamID,{
+      sort: 'a,userName',
+      page: 1,
+      size: 5,
+      filter: `userName,${value}`
+    })
+  }
+  transferTeamLeader() {
+    this.setState({
+      transferStatus: true
+    })
+  }
+  confirmTransferLeader() {
+    this.setState({
+      transferStatus: false
+    })
+  }
+  cancelTransferLeader() {
+    this.setState({
+      transferStatus: false
+    })
+  }
   render() {
     const scope = this
     const {
@@ -597,8 +630,23 @@ class TeamDetail extends Component {
                           onClick={this.removeMember.bind(this)}>
                     移除成员
                   </Button>
-                  <CommonSearchInput size="large" placeholder="搜索"/>
+                  <Button type="ghost" size="large" className="transferTeamLeader"
+                    onClick={this.transferTeamLeader.bind(this)}
+                  >
+                    转移团队创建者</Button>
+                  <CommonSearchInput onSearch={this.loadTeamUser.bind(this)} size="large" placeholder="按成员名搜索"/>
                   <div className="userTotalBox">共计 {teamUsersTotal} 条</div>
+                  <Modal title="转移团队创建者身份"
+                    visible={this.state.transferStatus}
+                    onOk={this.confirmTransferLeader.bind(this)}
+                    onCancel={this.cancelTransferLeader.bind(this)}
+                    width="610px"
+                    wrapClassName="transferLeaderModal"
+                  >
+                    <div className="alertRow">转让身份后便没有管理该团队的权限，只能作为参与者在本团队</div>
+                    <div>请选择新的团队创建者身份</div>
+                    
+                  </Modal>
                   <Modal title="添加新成员"
                      visible={this.state.addMember}
                      onOk={this.handleNewMemberOk}

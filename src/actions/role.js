@@ -297,3 +297,28 @@ export function GetWithMembers(body,callback){
     return dispatch(fetchGetWithMembers(body,callback))
   }
 }
+
+export const USERS_ADD_ROLES_REQUEST = 'USERS_ADD_ROLES_REQUEST'
+export const USERS_ADD_ROLES_SUCCESS = 'USERS_ADD_ROLES_SUCCESS'
+export const USERS_ADD_ROLES__FAILURE = 'USERS_ADD_ROLES__FAILURE'
+
+function fetchUsersAddRoles(body,callback) {
+  return {
+    [FETCH_API]: {
+      types: [USERS_ADD_ROLES_REQUEST, USERS_ADD_ROLES_SUCCESS, USERS_ADD_ROLES__FAILURE],
+      endpoint: `${API_URL_PREFIX}/role/${body.roleID}/${body.scope}/${body.scopeID}`,
+      options: {
+        method: 'POST',
+        body: body.body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function usersAddRoles(body,callback) {
+  return (dispatch,getState) => {
+    return dispatch(fetchUsersAddRoles(body,callback))
+  }
+}

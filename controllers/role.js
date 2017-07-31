@@ -123,3 +123,27 @@ exports.getWithMembers = function* () {
     data:result
   }
 }
+
+exports.usersAddRoles = function* () {
+  const roleID = this.params.roleID
+  const scope = this.params.scope
+  const scopeID = this.params.scopeID
+  const body = this.request.body;
+  const api = apiFactory.getRoleApi(this.session.loginUser)
+  const result = yield api.createBy([roleID,scope,scopeID],null,body)
+  this.body = {
+    data: result
+  }
+}
+
+exports.usersLoseRoles = function* () {
+  const roleID = this.params.roleID
+  const scope = this.params.scope
+  const scopeID = this.params.scopeID
+  const body = this.request.body;
+  const api = apiFactory.getRoleApi(this.session.loginUser)
+  const result = yield api.createBy([roleID,scope,scopeID],null,body)
+  this.body = {
+    data: result
+  }
+}

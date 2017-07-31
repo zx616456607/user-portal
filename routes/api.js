@@ -561,6 +561,8 @@ module.exports = function (Router) {
   router.get('/role/:name/existence',roleController.existence)
   router.get('/role/:id/allowUpdate',roleController.allowUpdate)
   router.get('/role/:id/withMember',roleController.getWithMembers)
+  router.post('/role/:roleID/:scope/:scopeID',roleController.usersAddRoles)
+  router.delete('/role/:roleID/:scope/:scopeID',roleController.usersLoseRoles)
 
   // package manage
   router.get('/pkg', pkgController.getPkgManageList)

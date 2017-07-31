@@ -20,6 +20,7 @@ import {
   addTeamusers, removeTeamusers, loadTeamUserList,
   checkTeamName,loadTeamspaceList
 } from '../../../../actions/team'
+import { usersAddRoles } from '../../../../actions/role'
 import { chargeTeamspace } from '../../../../actions/charge'
 import { ROLE_SYS_ADMIN } from '../../../../../constants'
 
@@ -173,7 +174,9 @@ let TeamTable = React.createClass({
             targetKeys.push(item.userID)
           })
           this.setState({
-            targetKeys
+            targetKeys,
+            addMember: true,
+            nowTeamID: teamID
           })
         },
         isAsync: true
@@ -185,18 +188,20 @@ let TeamTable = React.createClass({
         isAsync: true
       }
     })
-    this.setState({
-      addMember: true,
-      nowTeamID: teamID
-    })
   },
   handleNewMemberOk() {
     const { addTeamusers, loadUserTeamList, rowKey } = this.props
     const { targetKeys, nowTeamID } = this.state
     const { page, size, sort, filter} = this.props.scope.state
     if (targetKeys.length !== 0) {
+      const newtargetKeys = targetKeys.map(item=> {
+        return {
+          userID: item
+        }
+      })
+      const targetKeysMap = {"users":newtargetKeys}
       addTeamusers(nowTeamID,
-        targetKeys
+        targetKeysMap
         , {
           success: {
             func: () => {
@@ -213,12 +218,8 @@ let TeamTable = React.createClass({
     }
     this.setState({
       addMember: false,
+      targetKeys: []
     })
-    setTimeout(()=> {
-      this.setState({
-        targetKeys: [],
-      })
-    },500)
   },
   handleNewMemberCancel(e) {
     this.setState({
@@ -620,8 +621,35 @@ class TeamManage extends Component {
     })
   }
   confirmRightModal() {
-    this.setState({
-      rightModal: false
+    const { usersAddRoles } = this.props;
+    const { targetKeys } = this.state;
+    let notify = new NotificationHandler()
+    usersAddRoles({
+      roleID:'RID-XwPiLfrBYjqd',
+      scope: 'global',
+      scopeID: 'global',
+      body: {
+        userIDs:targetKeys
+      }
+    },{
+      success: {
+        func: res => {
+          notify.success('操作成功')
+          this.setState({
+            rightModal: false
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: res => {
+          notify.error('操作失败')
+          this.setState({
+            rightModal: false
+          })
+        },
+        isAsync: true
+      }
     })
   }
   filterOption(inputValue, option) {
@@ -820,5 +848,6 @@ export default connect(mapStateToProp, {
   checkTeamName,
   loadTeamspaceList,
   chargeTeamspace,
-  loadUserList
+  loadUserList,
+  usersAddRoles
 })(TeamManage)

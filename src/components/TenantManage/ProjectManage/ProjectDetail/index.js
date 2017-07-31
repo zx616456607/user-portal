@@ -423,7 +423,7 @@ class ProjectDetail extends Component{
     return(
       <Row key={item&&item.key}>
         <Col span={20}>{item&&item.name}</Col>
-        <Col span={4}>{item&&item.count}</Col>
+        {/*<Col span={4}>{item&&item.count}</Col>*/}
       </Row>
     )
   }
@@ -902,7 +902,7 @@ class ProjectDetail extends Component{
                 width: 300,
                 height: 255,
               }}
-              searchPlaceholde="请输入策略名搜索"
+              searchPlaceholder="请输入搜索内容"
               titles={['可选角色', '已选角色']}
               operations={[ '添加','移除']}
               filterOption={this.filterOption.bind(this)}
