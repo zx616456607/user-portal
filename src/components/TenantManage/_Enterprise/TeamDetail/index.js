@@ -18,6 +18,7 @@ import {
   deleteTeamspace, requestTeamCluster, checkTeamSpaceName,
   loadTeamClustersList,getTeamDetail
 } from '../../../../actions/team'
+import { loadUserList } from '../../../../actions/user'
 import { connect } from 'react-redux'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import NotificationHandler from '../../../../components/Notification'
@@ -301,7 +302,8 @@ class TeamDetail extends Component {
       teamDetail: {},
       allTeamUser: {},
       selectedRowKeys: [],
-      transferStatus: false
+      transferStatus: false,
+      leaderList: [],
     }
   }
   componentDidMount() {
@@ -515,8 +517,19 @@ class TeamDetail extends Component {
     })
   }
   transferTeamLeader() {
-    this.setState({
-      transferStatus: true
+    const { loadUserList } = this.props;
+    loadUserList({
+      size:0
+    },{
+      success: {
+        func: res => {
+          this.setState({
+            leaderList: res.users,
+            transferStatus: true
+          })
+        },
+        isAsync: true
+      }
     })
   }
   confirmTransferLeader() {
@@ -547,6 +560,9 @@ class TeamDetail extends Component {
       onSelect:(record)=> this.rowClick(record),
       onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
     };
+    const leaderRowSelction = {
+
+    }
     const columns = [{
       title: '成员名',
       dataIndex: 'userName',
@@ -561,6 +577,20 @@ class TeamDetail extends Component {
           <Col>{record.email}</Col>
         </Row>
       )
+    },{
+      title: '类型',
+      dataIndex: 'role',
+      key: 'role',
+      render: (text, record) => (
+        <div>
+          {record.role === ROLE_SYS_ADMIN ? '系统管理员' : (record.role === ROLE_TEAM_ADMIN ? '团队管理员' : '普通成员')}
+        </div>
+      )
+    }]
+    const leaderColumns = [{
+      title: '成员名',
+      dataIndex: 'userName',
+      key: 'userName'
     },{
       title: '类型',
       dataIndex: 'role',
@@ -645,7 +675,14 @@ class TeamDetail extends Component {
                   >
                     <div className="alertRow">转让身份后便没有管理该团队的权限，只能作为参与者在本团队</div>
                     <div>请选择新的团队创建者身份</div>
-                    
+                    <Table
+                      className='leaderListTable'
+                      dataSource={this.state.leaderList}
+                      columns={leaderColumns}
+                      pagination={false}
+                      rowSelection={leaderRowSelction}
+                      onRowClick={(record)=>this.leaderRowClick(record)}
+                    />
                   </Modal>
                   <Modal title="添加新成员"
                      visible={this.state.addMember}
@@ -778,5 +815,6 @@ export default connect(mapStateToProp, {
   checkTeamSpaceName,
   loadTeamClustersList,
   setCurrent,
-  getTeamDetail
+  getTeamDetail,
+  loadUserList
 })(TeamDetail)
