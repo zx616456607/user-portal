@@ -296,7 +296,7 @@ let TeamTable = React.createClass({
         dataIndex: 'team',
         key: 'team',
         className: 'teamName',
-        width:'15%',
+        width:'10%',
         render: (text, record, index) => (
           <Link to={`/tenant_manage/team/${record.team}/${record.key}`}>{text}</Link>
         )
@@ -319,24 +319,24 @@ let TeamTable = React.createClass({
         key: 'member',
         width:'10%',
       },
-      {
-        title: (
-          <div onClick={this.handleSortCluster}>
-            参与项目
-            <div className="ant-table-column-sorter">
-              <span className={this.state.sortCluster ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
-                <i className="anticon anticon-caret-up" />
-              </span>
-              <span className={!this.state.sortCluster ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
-                <i className="anticon anticon-caret-down" />
-              </span>
-            </div>
-          </div>
-        ),
-        dataIndex: 'cluster',
-        key: 'cluster',
-        width:'10%',
-      },
+      // {
+      //   title: (
+      //     <div onClick={this.handleSortCluster}>
+      //       参与项目
+      //       <div className="ant-table-column-sorter">
+      //         <span className={this.state.sortCluster ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+      //           <i className="anticon anticon-caret-up" />
+      //         </span>
+      //         <span className={!this.state.sortCluster ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+      //           <i className="anticon anticon-caret-down" />
+      //         </span>
+      //       </div>
+      //     </div>
+      //   ),
+      //   dataIndex: 'cluster',
+      //   key: 'cluster',
+      //   width:'10%',
+      // },
       {
         title: (
           <div onClick={this.handleSortCreateTime}>
@@ -361,11 +361,11 @@ let TeamTable = React.createClass({
         key: 'isCreator',
         width:'10%',
         filters: [
-          { text: '创建者', value: '创建者' },
-          { text: '参与者', value: '参与者' },
+          { text: '创建者', value: true },
+          { text: '参与者', value: false },
         ],
         filteredValue: filteredInfo.isCreator,
-        onFilter: (value, record) => record.isCreator.indexOf(value) === 0,
+        onFilter: (value, record) => String(record.isCreator) === value,
         render: (text, record)=>{
           return(
             <div>{record.isCreate ? <span style={{color:'#7dc57c'}}>创建者</span> :'参与者'}</div>
