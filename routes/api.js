@@ -45,6 +45,7 @@ const permissionController = require('../controllers/permission')
 const roleController = require('../controllers/role')
 const pkgController =require('../controllers/wrap_manage')
 const vmWrapController =require('../controllers/wm_wrap')
+const netIsolationController = require('../controllers/network_isolation')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -580,6 +581,11 @@ module.exports = function (Router) {
   router.del('/vm-wrap/vminfos/:vm_id', vmWrapController.deleteVM)
   router.post('/vm-wrap/vminfos-check/', vmWrapController.checkVM)
   router.get('/vm-wrap/services/:serviceName/exists', vmWrapController.checkService)
+
+  // Network Isolation
+  router.get('/cluster/:clusterID/namespace/:namespace/networkisolation', netIsolationController.getCurrentSetting)
+  router.post('/cluster/:clusterID/namespace/:namespace/networkisolation', netIsolationController.setIsolationRule)
+  router.delete('/cluster/:clusterID/namespace/:namespace/networkisolation', netIsolationController.restoreDefault)
   
   return router.routes()
 }
