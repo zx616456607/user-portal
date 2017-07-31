@@ -9,62 +9,30 @@
  */
 import React, { Component } from 'react'
 import './style/ProjectManage.less'
-import { Row, Col, Button, Input, Modal, Transfer, Tree, Form } from 'antd'
+import { Row, Col, Button, Input, Transfer, Form } from 'antd'
 import { connect } from 'react-redux'
 import { ListRole, CreateRole, ExistenceRole } from '../../../actions/role'
-import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import { PermissionAndCount } from '../../../actions/permission'
-import Notification from '../../../components/Notification'
+import CreateRoleModal from  './CreateRole'
+
 class CreateStepSecond extends Component{
   constructor(props){
     super(props)
     this.state={
       targetKeys: [],
       characterModal: false,
-      expandedKeys: [],
-      autoExpandParent: true,
-      checkedKeys: [],
-      selectedKeys: [],
       selectedList: [],
-      choosableList: [],
-      allPermission: []
+      choosableList: []
     }
   }
   componentWillMount() {
     this.loadRoleList()
-    this.getPermission()
   }
   componentWillUnmount() {
     clearTimeout(this.roleNameTime)
   }
-  componentWillReceiveProps(nextProps) {
-    const { allPermission } = this.state;
-    const { step, form, scope } = nextProps;
-    
-    // this.loadRoleList()
-    if (!allPermission) {
-      this.getPermission()
-    }
-    if (!step) {
-      form.resetFields()
-    }
-  }
-  generateDatas(_tns ) {
-    const tns = _tns;
-    const children = [];
-    for (let i = 0; i < tns.length; i++) {
-      const key = `${tns[i].id}`;
-      tns[i] = Object.assign(tns[i],{title: tns[i].desc,key: tns[i].id})
-      children.push(key);
-    }
-    children.forEach((key, index) => {
-      if (tns[index].children.length !== 0) {
-        return this.generateDatas(tns[index].children);
-      }
-    });
-  };
   loadRoleList() {
-    const { ListRole, scope, updateRole } = this.props;
+    const { ListRole, updateRole } = this.props;
     const targetKeys = [];
     const roleList = [];
     ListRole({
@@ -100,130 +68,21 @@ class CreateStepSecond extends Component{
       }
     })
   }
-  onExpand(expandedKeys) {
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded chilren keys.
-    this.setState({
-      expandedKeys,
-      autoExpandParent: false,
-    });
-  }
-  onCheck(checkedKeys) {
-    this.setState({
-      checkedKeys
-    });
-  }
-  onSelect(selectedKeys, info) {
-    this.setState({ selectedKeys });
-  }
+  
   filterOption(inputValue, option) {
-    return option.description.indexOf(inputValue) > -1;
+    return option.title.indexOf(inputValue) > -1;
   }
   handleChange(targetKeys) {
     const { updateRole } = this.props;
     this.setState({ targetKeys });
     updateRole(targetKeys)
   }
-  cancelModal() {
-    this.setState({characterModal:false})
-  }
-  okCreateModal() {
-    const { CreateRole, ExistenceRole } = this.props;
-    const { checkedKeys } = this.state;
-    const { getFieldValue } = this.props.form;
-    let notify = new Notification()
-    let roleDesc = getFieldValue('roleDesc')
-    let roleName = getFieldValue('roleName')
-    ExistenceRole({
-      name: roleName
-    },{
-      success:{
-        func: (res) => {
-          if (res.data.statusCode === 200) {
-            if (res.data.data) {
-              return notify.info('该角色名称已经存在')
-            }
-            CreateRole({
-              name: roleName,
-              comment: roleDesc,
-              permission: checkedKeys
-            },{
-              success:{
-                func: (res) => {
-                  if (res.data.statusCode === 200) {
-                    notify.success('创建角色成功')
-                    this.loadRoleList()
-                    this.setState({characterModal:false})
-                  }
-                },
-                isAsync: true
-              }
-            })
-          }
-        },
-        isAsync: true
-      }
-    })
-  }
   openCreateModal() {
     this.setState({
       characterModal:true
     })
   }
-  getPermission() {
-    const { PermissionAndCount } = this.props;
-    PermissionAndCount({},{
-      success:{
-        func: (res)=>{
-          if (res.data.statusCode === 200) {
-            let result = res.data.data.permission;
-            this.generateDatas(result)
-            this.setState({
-              allPermission:result
-            })
-          }
-        },
-        isAsync: true
-      }
-    })
-  }
-  roleName(rule, value, callback) {
-    const { ExistenceRole } = this.props;
-    let newValue = value.trim()
-    if (!Boolean(newValue)) {
-      callback(new Error('请输入名称'))
-      return
-    }
-    this.roleNameTime = setTimeout(()=>{
-      ExistenceRole({
-        name:value
-      },{
-        success: {
-          func: res => {
-            if (res.data.data) {
-              return callback(new Error('该角色名称已经存在'))
-            }
-            callback()
-          },
-          isAsync: true
-        },
-        failed: {
-          func: res => {
-            return callback()
-          },
-          isAsync: true
-        }
-      })
-    },ASYNC_VALIDATOR_TIMEOUT)
-  }
-  roleDesc(rule, value, callback) {
-    let newValue = value.trim()
-    if (!Boolean(newValue)) {
-      callback(new Error('请输入描述'))
-      return
-    }
-    callback()
-  }
+  
   renderItem(item) {
     return(
       <Row key={item&&item.key}>
@@ -233,75 +92,21 @@ class CreateStepSecond extends Component{
     )
   }
   render() {
-    const TreeNode = Tree.TreeNode;
-    const { scope } = this.props;
-    const { choosableList, targetKeys, allPermission } = this.state;
-    const { getFieldProps, isFieldValidating, getFieldError } = this.props.form;
-    const formItemLayout = {
-      labelCol: { span: 4 },
-      wrapperCol: { span: 15 },
-    };
+    const { scope, step, form, CreateRole } = this.props;
+    const { choosableList, targetKeys, characterModal } = this.state;
+    const { getFieldProps } = form;
     const projectNameLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 15, offset: 1 },
     };
-    const loop = data => data.map((item) => {
-      if (item.children.length > 0) {
-        return (
-          <TreeNode key={item.key} title={item.title}>
-            {loop(item.children)}
-          </TreeNode>
-        );
-      }
-      return <TreeNode key={item.key} title={item.title} />;
-    });
     return (
       <div id="projectCreateStepSecond" className="projectCreateStepSecond">
-        <Modal title="创建角色" wrapClassName="createCharacterModal" visible={this.state.characterModal} width={570}
-               onCancel={()=> this.cancelModal()}
-               onOk={()=> this.okCreateModal()}
-        >
-          <Form className="createRoleForm" form={this.props.form}>
-            <Form.Item label="名称" {...formItemLayout}
-                       hasFeedback
-                       help={isFieldValidating('roleName') ? '校验中...' : (getFieldError('roleName') || []).join(', ')}
-            >
-              <Input placeholder="请输入名称" {...getFieldProps(`roleName`, {
-                rules: [
-                  { validator: (rules,value,callback)=>this.roleName(rules,value,callback)}
-                ],
-              }) }
-              />
-            </Form.Item>
-            <Form.Item label="描述" {...formItemLayout}>
-              <Input type="textarea" {...getFieldProps(`roleDesc`, {
-                rules: [
-                  { validator: (rules,value,callback)=>this.roleDesc(rules,value,callback)}
-                ],
-              }) }/>
-            </Form.Item>
-          </Form>
-          <div className="authChoose">
-            <span>权限选择 :</span>
-            <div className="authBox inlineBlock">
-              <div className="authTitle clearfix">可选权限 <div className="pull-right">共<span style={{color:'#59c3f5'}}>14</span> 个</div></div>
-              <div className="treeBox">
-                {
-                  allPermission.length > 0 &&
-                  <Tree
-                    checkable
-                    onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
-                    autoExpandParent={this.state.autoExpandParent}
-                    onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
-                    onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
-                  >
-                    {loop(allPermission)}
-                  </Tree>
-                }
-              </div>
-            </div>
-          </div>
-        </Modal>
+        <CreateRoleModal
+          form={form}
+          scope={this}
+          characterModal={characterModal}
+          loadData={this.loadRoleList.bind(this)}
+        />
         <div className="inputBox">
           <Form.Item label="项目名称" {...projectNameLayout}>
             <Input disabled {...getFieldProps(`projectName`, {
