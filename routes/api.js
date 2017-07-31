@@ -583,9 +583,9 @@ module.exports = function (Router) {
   router.get('/vm-wrap/services/:serviceName/exists', vmWrapController.checkService)
 
   // Network Isolation
-  router.get('/cluster/:cluster/namespace/:namespace/networkisolation', netIsolationController.getCurrentSetting)
-  router.post('/cluster/:cluster/namespace/:namespace/networkisolation', netIsolationController.setIsolationRule)
-  router.delete('/cluster/:cluster/namespace/:namespace/networkisolation', netIsolationController.restoreDefault)
+  router.get('/cluster/:clusterID/namespace/:namespace/networkisolation', netIsolationController.getCurrentSetting)
+  router.post('/cluster/:clusterID/namespace/:namespace/networkisolation', netIsolationController.setIsolationRule)
+  router.delete('/cluster/:clusterID/namespace/:namespace/networkisolation', netIsolationController.restoreDefault)
   
   return router.routes()
 }
