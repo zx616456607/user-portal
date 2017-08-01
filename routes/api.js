@@ -46,6 +46,7 @@ const roleController = require('../controllers/role')
 const pkgController =require('../controllers/wrap_manage')
 const vmWrapController =require('../controllers/wm_wrap')
 const netIsolationController = require('../controllers/network_isolation')
+const tenantController = require('../controllers/tenant_manage')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -543,6 +544,9 @@ module.exports = function (Router) {
   router.put('/oem/logo/default', oemController.restoreDefaultLogo)
   router.put('/oem/color/default', oemController.restoreDefaultColor)
 
+  // tenant
+  router.get('/tenant/overview', tenantController.getTenantOverview)
+
   //permission
   router.get('/permission',permissionController.list)
   router.get('/permission/:id/retrieve',permissionController.get)
@@ -586,6 +590,6 @@ module.exports = function (Router) {
   router.get('/cluster/:clusterID/namespace/:namespace/networkisolation', netIsolationController.getCurrentSetting)
   router.post('/cluster/:clusterID/namespace/:namespace/networkisolation', netIsolationController.setIsolationRule)
   router.delete('/cluster/:clusterID/namespace/:namespace/networkisolation', netIsolationController.restoreDefault)
-  
+
   return router.routes()
 }
