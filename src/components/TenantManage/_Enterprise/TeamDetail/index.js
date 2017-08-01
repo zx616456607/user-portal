@@ -304,6 +304,7 @@ class TeamDetail extends Component {
       selectedRowKeys: [],
       transferStatus: false,
       leaderList: [],
+      selectLeader: []
     }
   }
   componentDidMount() {
@@ -523,6 +524,9 @@ class TeamDetail extends Component {
     },{
       success: {
         func: res => {
+          res.users.forEach((item) => {
+            Object.assign(item,{key:item.userID})
+          })
           this.setState({
             leaderList: res.users,
             transferStatus: true
@@ -542,26 +546,26 @@ class TeamDetail extends Component {
       transferStatus: false
     })
   }
+  leaderRowClick(record) {
+    this.setState({
+      selectLeader: [record.key]
+    })
+  }
   render() {
-    const scope = this
     const {
-      clusterList, teamUserList, teamUserIDList,
-      teamSpacesList, teamName, teamID,
-      teamUsersTotal, teamSpacesTotal, removeTeamusers,loadTeamClustersList,
-      loadTeamUserList, loadTeamspaceList, deleteTeamspace,
-      requestTeamCluster, loadAllClustersList, checkTeamSpaceName, teamClusters,creationTime
+      teamUserList, teamName, teamID,
+      teamUsersTotal, removeTeamusers,loadTeamClustersList,
+      loadTeamUserList
     } = this.props
-    const { targetKeys, sortSpace, spaceCurrent, spacePageSize, spacePage, sortSpaceOrder, teamDetail, allTeamUser, selectedRowKeys} = this.state
-    const funcs = {
-      checkTeamSpaceName
-    }
+    const { targetKeys, teamDetail, allTeamUser, selectedRowKeys, selectLeader} = this.state
     const rowSelection = {
       selectedRowKeys,
       onSelect:(record)=> this.rowClick(record),
       onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
     };
     const leaderRowSelction = {
-
+      selectedRowKeys: selectLeader,
+      onSelect: (record) => this.leaderRowClick(record)
     }
     const columns = [{
       title: '成员名',
