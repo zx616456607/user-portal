@@ -195,15 +195,6 @@ module.exports = function (request) {
       }, callback)
     }
     
-    deleteByData(paths, data, callback) {
-      let endpoint = this[_getPaths].apply(null, paths)
-      return request({
-        endpoint,
-        data,
-        method: 'DELETE'
-      }, callback)
-    }
-    
     batchDelete() {
       return this.create.apply(this, arguments)
     }

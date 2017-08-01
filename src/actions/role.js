@@ -331,9 +331,9 @@ function fetchUsersLoseRoles(body,callback) {
   return {
     [FETCH_API]: {
       types: [USERS_LOSE_ROLES_REQUEST, USERS_LOSE_ROLES_SUCCESS, USERS_LOSE_ROLES__FAILURE],
-      endpoint: `${API_URL_PREFIX}/role/${body.roleID}/${body.scope}/${body.scopeID}`,
+      endpoint: `${API_URL_PREFIX}/role/${body.roleID}/${body.scope}/${body.scopeID}/batch-delete`,
       options: {
-        method: 'DELETE',
+        method: 'POST',
         body: body.body
       },
       schema: {}
