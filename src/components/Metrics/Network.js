@@ -35,7 +35,10 @@ class Network extends Component {
     networkReceived.data && networkReceived.data.map((item) => {
       let timeData = []
       let values = []
-      item.metrics.map((metric) => {
+      const metrics = Array.isArray(item.metrics)
+                      ? item.metrics
+                      : []
+      metrics.map((metric) => {
         timeData.push(metric.timestamp)
         // metric.value || floatValue  only one
         values.push(Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100)
@@ -46,7 +49,10 @@ class Network extends Component {
     networkTransmitted.data&&networkTransmitted.data.map((item) => {
       let timeData = []
       let values = []
-      item.metrics.map((metric) => {
+      const metrics = Array.isArray(item.metrics)
+                      ? item.metrics
+                      : []
+      metrics.map((metric) => {
         timeData.push(metric.timestamp)
         // metric.value || metric.floatValue  only one
         values.push(Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100)

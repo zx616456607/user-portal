@@ -7,7 +7,7 @@
  * Tenant management
  *
  * v0.1 - 2017-07-17
- * @author Zhaoyb
+ * @author ZhaoYanBei
  */
 
 import React, { PropTypes, Component } from 'react'
