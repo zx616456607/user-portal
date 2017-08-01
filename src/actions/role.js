@@ -133,11 +133,11 @@ export const ROLE_DELETE_FAILURE = 'ROLE_DELETE_FAILURE'
 
 // Fetches get delete from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchDeleteRole(body,query,callback){
+function fetchDeleteRole(body,callback){
 	let endpoint = `${API_URL_PREFIX}/role/${body.id}`
-	if (query) {
-    endpoint += `?${toQuerystring(query)}`
-  }
+	// if (query) {
+  //   endpoint += `?${toQuerystring(query)}`
+  // }
 	return {
 		[FETCH_API]: {
       types: [ROLE_DELETE_REQUEST, ROLE_DELETE_SUCCESS, ROLE_DELETE_FAILURE],
@@ -153,9 +153,9 @@ function fetchDeleteRole(body,query,callback){
 
 // Fetches delete role from API
 // Relies on Redux Thunk middleware.
-export function DeleteRole(body,query, callback) {
+export function DeleteRole(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchDeleteRole(body, query, callback))
+		return dispatch(fetchDeleteRole(body, callback))
 	}
 }
 
