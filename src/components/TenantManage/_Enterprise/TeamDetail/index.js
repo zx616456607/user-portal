@@ -19,6 +19,7 @@ import {
   loadTeamClustersList,getTeamDetail
 } from '../../../../actions/team'
 import { loadUserList } from '../../../../actions/user'
+import { usersAddRoles } from '../../../../actions/role'
 import { connect } from 'react-redux'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import NotificationHandler from '../../../../components/Notification'
@@ -537,13 +538,32 @@ class TeamDetail extends Component {
     })
   }
   confirmTransferLeader() {
+    const { usersAddRoles } = this.props;
+    const { selectLeader } = this.state;
+    usersAddRoles({
+      roleID:'RID-XwPiLfrBYjqd',
+      scope: 'global',
+      scopeID: 'global',
+      body: {
+        userIDs:targetKeys
+      }
+    },{
+      success: {
+        func: res => {
+        
+        },
+        isAsync: true
+      }
+    })
     this.setState({
-      transferStatus: false
+      transferStatus: false,
+      selectLeader: []
     })
   }
   cancelTransferLeader() {
     this.setState({
-      transferStatus: false
+      transferStatus: false,
+      selectLeader: []
     })
   }
   leaderRowClick(record) {
@@ -820,5 +840,6 @@ export default connect(mapStateToProp, {
   loadTeamClustersList,
   setCurrent,
   getTeamDetail,
-  loadUserList
+  loadUserList,
+  usersAddRoles
 })(TeamDetail)

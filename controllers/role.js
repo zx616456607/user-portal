@@ -142,7 +142,7 @@ exports.usersLoseRoles = function* () {
   const scopeID = this.params.scopeID
   const body = this.request.body;
   const api = apiFactory.getRoleApi(this.session.loginUser)
-  const result = yield api.createBy([roleID,scope,scopeID],null,body)
+  const result = yield api.deleteByData([roleID,scope,scopeID] ,body)
   this.body = {
     data: result
   }
