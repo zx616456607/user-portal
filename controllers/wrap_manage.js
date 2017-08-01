@@ -82,6 +82,7 @@ exports.localUploadPkg = function*() {
   let response = yield api.pkg.uploadFile([filename,filetag,filetype], null, stream, stream.headers()).catch(err => {
     return err
   })
+  this.status = response.statusCode
   this.body = response
 }
 
