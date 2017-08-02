@@ -251,6 +251,20 @@ let CreateDatabase = React.createClass({
 
     });
   },
+  getDefaultOutClusterValue(){
+    const { clusterProxy, cluster } = this.props
+    const clusterId = camelize(cluster)
+    let defaultValue = undefined
+    if(!clusterProxy || !clusterProxy[clusterId] || !clusterProxy[clusterId].data || !clusterProxy[clusterId].data.length){
+      return defaultValue
+    }
+    clusterProxy[clusterId].data.forEach( item => {
+      if(item.isDefault){
+        defaultValue = item.id
+      }
+    })
+    return defaultValue
+  },
   renderSelectOption(){
     const { clusterProxy, cluster } = this.props
     const clusterId = camelize(cluster)
@@ -284,8 +298,9 @@ let CreateDatabase = React.createClass({
         { validator: this.databaseExists },
       ],
     });
+    let defaultValue = this.getDefaultOutClusterValue()
     const accessTypeProps = getFieldProps('accessType',{
-      initialValue: 'outcluster',
+      initialValue: defaultValue ? 'outcluster' : 'none',
       rules: [{
         required: true,
         message: '请选择集群访问方式'
@@ -295,6 +310,7 @@ let CreateDatabase = React.createClass({
     let outClusterProps
     if(accessType == 'outcluster'){
       outClusterProps = getFieldProps('outerCluster',{
+        initialValue: defaultValue,
         rules: [
           { required: true, message: '请选择网络出口' },
         ],
