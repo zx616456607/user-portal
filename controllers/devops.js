@@ -417,6 +417,10 @@ function waitResponse(resolve, reject, error, response, body) {
 }
 
 function* validateSVNAccount(repoURL, username, password) {
+  // No validation for svn address
+  if (repoURL.indexOf('http') < 0 && repoURL.indexOf('https') < 0) {
+    return
+  }
   const uri = repoURL.endsWith('/') ? repoURL : `${repoURL}/`
   const actions = [tryWithBasicAuth.bind(null, uri, username, password),
     tryWithDigestAuth.bind(null, uri, username, password)]
