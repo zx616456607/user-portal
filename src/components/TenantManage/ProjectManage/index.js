@@ -15,7 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
 import { ListProjects, DeleteProjects, UpdateProjects, CreateProjects } from '../../../actions/project'
-import { usersAddRoles } from '../../../actions/role'
+import { usersAddRoles, roleWithMembers } from '../../../actions/role'
 import { loadUserList } from '../../../actions/user'
 import { chargeProject } from '../../../actions/charge'
 import { parseAmount } from '../../../common/tools'
@@ -712,7 +712,8 @@ export default connect(mapStateToProps,{
   chargeProject,
   loadUserList,
   CreateProjects,
-  usersAddRoles
+  usersAddRoles,
+  roleWithMembers
 })(ProjectManage);
 
 class DelProjectTable extends Component{

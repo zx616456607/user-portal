@@ -28,8 +28,10 @@ class TreeComponent extends Component {
       permissionInfo: [],
       alreadyAutoExpandParent: true,
       disableCheckArr:[],
-      halfChecked:[],
-      alreadyAllChecked: false
+      alreadyAllChecked: false,
+      originalMembers: [],
+      deleteMembers: [],
+      addMembers: []
     }
   }
   
@@ -58,11 +60,13 @@ class TreeComponent extends Component {
     let leftInfo = outPermissionInfo || []
     let rightInfo = []
     let checkedKeys = []
+    let originalMembers = []
     for (let i = 0; i < existMember.length; i++) {
       for (let j = 0; j < outPermission.length; j++) {
         if (outPermission[j].id === existMember[i]) {
           rightInfo.push(outPermission[j])
           checkedKeys.push(`${existMember[i]}`)
+          originalMembers.push(existMember[i])
         }
       }
     }
@@ -74,6 +78,7 @@ class TreeComponent extends Component {
     let addKey = this.findParentNode(outPermission,existMember)
     this.setState({
       checkedKeys,
+      originalMembers,
       disableCheckArr:Array.from(new Set(checkedKeys.concat(addKey))),
       permissionInfo: rightInfo,
       outPermissionInfo: leftInfo
@@ -277,7 +282,8 @@ class TreeComponent extends Component {
     return addKey
   }
   addPermission = () => {
-    const { checkedKeys, outPermissionInfo } = this.state
+    const { checkedKeys, outPermissionInfo, addMembers } = this.state
+    console.log(checkedKeys,'=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-')
     const { getTreeRightData } = this.props
     let newOutPermissionInfo = cloneDeep(outPermissionInfo)
     if(!checkedKeys.length) return
