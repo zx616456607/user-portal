@@ -44,7 +44,7 @@ class CreateStepSecond extends Component{
             let result = res.data.data.items;
             for (let i = 0 ; i < result.length; i++) {
               const data = {
-                key: `${result[i].id}},${result[i].name}`,
+                key: `${result[i].id},${result[i].name}`,
                 title: result[i].name,
                 description: result[i].comment,
                 chosen: ['RID-LFJKCKtKzCrd', 'RID-ggNW6A2mwgEX'].includes(result[i].id),
@@ -87,7 +87,7 @@ class CreateStepSecond extends Component{
     return(
       <Row key={item&&item.key}>
         <Col span={20}>{item&&item.name}</Col>
-        <Col span={4}>{item&&item.count}</Col>
+        {/*<Col span={4}>{item&&item.count}</Col>*/}
       </Row>
     )
   }
@@ -127,8 +127,8 @@ class CreateStepSecond extends Component{
             width: 300,
             height: 255,
           }}
-          searchPlaceholde="请输入策略名搜索"
-          titles={['包含权限（个）', '包含权限（个）']}
+          searchPlaceholder="请输入搜索内容"
+          titles={['可选角色', '已选角色']}
           operations={[ '添加','移除']}
           filterOption={this.filterOption.bind(this)}
           targetKeys={targetKeys}

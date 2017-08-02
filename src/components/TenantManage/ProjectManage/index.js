@@ -15,6 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
 import { ListProjects, DeleteProjects, UpdateProjects, CreateProjects } from '../../../actions/project'
+import { usersAddRoles } from '../../../actions/role'
 import { loadUserList } from '../../../actions/user'
 import { chargeProject } from '../../../actions/charge'
 import { parseAmount } from '../../../common/tools'
@@ -353,50 +354,62 @@ class ProjectManage extends Component{
     })
   }
   confirmRightModal() {
-    this.setState({
-      rightModal: false
+    const { usersAddRoles } = this.props;
+    const { targetKeys } = this.state;
+    let notify = new Notification()
+    usersAddRoles({
+      roleID:'RID-Ezeg3KPhm3mS',
+      scope: 'global',
+      scopeID: 'global',
+      body: {
+        userIDs:targetKeys
+      }
+    },{
+      success: {
+        func: res => {
+          notify.success('操作成功')
+          this.setState({
+            rightModal: false
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: res => {
+          notify.error('操作失败')
+          this.setState({
+            rightModal: false
+          })
+        },
+        isAsync: true
+      }
     })
   }
   filterOption(inputValue, option) {
     return option.title.indexOf(inputValue) > -1;
   }
-  handleChange(targetKeys) {
+  handleChange(targetKeys,direction, moveKeys) {
     this.setState({ targetKeys });
   }
   createProject() {
     const { CreateProjects } = this.props;
     const { projectName,description,authorizedCluster,RoleKeys,roleWithMember } = this.state;
     let notify = new Notification()
-    let roles = []
-    let emptyFlag = false
+    let roleBinds = {}
     for (let i = 0; i < RoleKeys.length; i++) {
-      let obj = {
-        role_id: RoleKeys[i].split(',')[0],
-        users: []
-      }
+      roleBinds[RoleKeys[i].split(',')[0]] = []
       for (let j in roleWithMember) {
         if (RoleKeys[i].split(',')[0] === j) {
-          obj.role_id = j;
-          obj.users = roleWithMember[j]
+          roleBinds[j] = roleWithMember[j]
         }
       }
-      roles.push(obj)
-    }
-    for (let i = 0; i < roles.length; i++) {
-      if (!roles[i].users.length) {
-        emptyFlag = true
-      }
-    }
-    if (emptyFlag) {
-      notify.info('请为所选角色关联对象')
-      return
     }
     CreateProjects({
       body: {
         projectName,
         description,
         authorizedCluster,
-        roles
+        roleBinds
       }
     },{
       success: {
@@ -425,6 +438,7 @@ class ProjectManage extends Component{
             roleWithMember: {}
           })
           notify.error('创建项目失败')
+          browserHistory.replace('/tenant_manage/project_manage?step=first')
         },
         isAsync: true
       }
@@ -500,8 +514,11 @@ class ProjectManage extends Component{
       sorter: (a, b) => a.userCount - b.userCount,
     }, {
       title: '项目管理员',
+      // dataIndex: 'description',
+      // key: 'description',
       render: (text,record) =>
-        <span>1</span>
+      <span style={{color: text === 0 ? 'red' : 'black'}}>1</span>,
+      // sorter: (a, b) => a.userCount - b.userCount,
     }, {
       title: '创建时间',
       dataIndex: 'creationTime',
@@ -694,7 +711,8 @@ export default connect(mapStateToProps,{
   UpdateProjects,
   chargeProject,
   loadUserList,
-  CreateProjects
+  CreateProjects,
+  usersAddRoles
 })(ProjectManage);
 
 class DelProjectTable extends Component{

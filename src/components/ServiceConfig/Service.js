@@ -111,7 +111,8 @@ class Service extends Component {
     this.loadData = this.loadData.bind(this)
     this.state = {
       createModal: false,
-      configArray: []
+      configArray: [],
+      configList: []
     }
   }
   componentWillMount() {
@@ -127,10 +128,9 @@ class Service extends Component {
       this.setState({
         createModal: visible,
         myTextInput: '',
-      })
-      setTimeout(function(){
+      },()=>{
         document.getElementById('newConfigName').focus()
-      },500)
+      })
     } else {
       this.setState({
         createModal: false,
@@ -203,43 +203,76 @@ class Service extends Component {
       }
     )
   }
+  handleSearchInput() {
+    const searchItem = this.refs.titleInput.refs.input.value
+    const { list } = this.props
+    let last = [];
+    if(searchItem === "" || (searchItem.indexOf(" ") !== -1)){
+      last = list
+    }else {
+      for(let i = 0;i < list.length;i++){
+        if((list[i].name).indexOf(searchItem) !== -1) {
+          last.push(list[i])
+        }
+      }
+    }
+    this.setState({
+      configList:last
+    })
+  }
   render() {
     const {cluster, configGroup, isFetching, configName} = this.props
     return (
       <QueueAnim className="Service" type="right">
         <div id="Service" key="Service">
           <Title title="服务配置" />
-          <Button type="primary" size="large" onClick={(e) => this.configModal(true)}>
-            <i className="fa fa-plus" /> 创建配置组
-          </Button>
-          <Button size="large" onClick={() => this.setState({delModal: true})} style={{ marginLeft: "12px" }}
-            disabled={!this.state.configArray || this.state.configArray.length < 1}>
-            <i className="fa fa-trash-o" style={{marginRight: '5px'}} />删除
-          </Button>
           {/*创建配置组-弹出层-start*/}
-
           <CreateConfigModal scope={this} />
-
           {/*创建配置组-弹出层-end*/}
-
           {/* 删除配置组-弹出层-*/}
           <Modal title="删除配置操作" visible={this.state.delModal}
           onOk={()=> this.btnDeleteGroup()} onCancel={()=> this.setState({delModal: false})}
           >
-            <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除配置组 {this.state.configArray.map(item => item).join('，')} ?</div>
+            <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}/>您是否确定要删除配置组 {this.state.configArray.map(item => item).join('，')} ?</div>
           </Modal>
           {/*折叠面板-start*/}
-          <CollapseList
-            scope={this}
-            cluster={cluster}
-            loadConfigGroup={this.props.loadConfigGroup}
-            groupData={configGroup}
-            configName={configName}
-            btnDeleteGroup={this.btnDeleteGroup}
-            isFetching={isFetching}
-            handChageProp={this.handChageProp()}
-            configArray={this.state.configArray}
-            configGroupName={(obj) => this.props.configGroupName(obj)} />
+          <Row gutter={16}>
+            {/*<Col span={4}>*/}
+              {/*<div className="title">配置分类</div>*/}
+              {/*<div className="searchConfigBox">*/}
+                {/*<Input*/}
+                  {/*placeholder="请输入分类名搜索"*/}
+                  {/*size="large"*/}
+                  {/*ref='titleInput'*/}
+                  {/*id='titleInput'*/}
+                  {/*onChange={this.handleSearchInput.bind(this)}*/}
+                  {/*onPressEnter={this.handleSearchInput}*/}
+                {/*/>*/}
+                {/*<Icon type="search" className='searchIcon' onClick={this.handleSearchInput}/>*/}
+              {/*</div>*/}
+            {/*</Col>*/}
+            <Col span={24}>
+              {/*<div className="title">配置组</div>*/}
+              <Button type="primary" size="large" onClick={(e) => this.configModal(true)}>
+                <i className="fa fa-plus" /> 创建配置组
+              </Button>
+              <Button size="large" onClick={() => this.setState({delModal: true})} style={{ marginLeft: "12px" }}
+                      disabled={!this.state.configArray || this.state.configArray.length < 1}>
+                <i className="fa fa-trash-o" style={{marginRight: '5px'}} />删除
+              </Button>
+              <CollapseList
+                scope={this}
+                cluster={cluster}
+                loadConfigGroup={this.props.loadConfigGroup}
+                groupData={configGroup}
+                configName={configName}
+                btnDeleteGroup={this.btnDeleteGroup}
+                isFetching={isFetching}
+                handChageProp={this.handChageProp()}
+                configArray={this.state.configArray}
+                configGroupName={(obj) => this.props.configGroupName(obj)} />
+            </Col>
+          </Row>
           {/*折叠面板-end*/}
         </div>
       </QueueAnim>
