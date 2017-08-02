@@ -72,7 +72,7 @@ class ContainerLogs extends Component {
   componentWillReceiveProps(nextProps) {
     const { eventLogs,containerLogs } = nextProps
     const { logs } = this.state
-       // Set events to logs when logs empty
+    // Set events to logs when logs empty
     if (logs.length === 0) {
       this.setState({
         logs: eventLogs,
@@ -96,7 +96,6 @@ class ContainerLogs extends Component {
         containerInfo? containerInfo.style.transform = 'none':''
         let h = document.getElementById('TerminalModal').offsetHeight
         bottomBox.style.height = document.body.offsetHeight - h +'px'
-
       } else {
         containerInfo? containerInfo.style.transform = 'translateX(0px)':''
       }
@@ -117,8 +116,8 @@ class ContainerLogs extends Component {
     if (_state.watchStatus === 'pause') {
       return
     }
-    // const logsBottom = document.getElementById('logsBottom')
-    // logsBottom.scrollIntoView({ block: 'end', behavior: 'smooth' })
+    const logsBottom = document.getElementById('logsBottom')
+    logsBottom.scrollIntoView({ block: 'end', behavior: 'smooth' })
   }
 
   onChangeLogSize() {
