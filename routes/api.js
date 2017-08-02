@@ -565,10 +565,10 @@ module.exports = function (Router) {
   router.get('/role',roleController.list)
   router.get('/role/:name/existence',roleController.existence)
   router.get('/role/:id/allowUpdate',roleController.allowUpdate)
-  router.get('/role/:id/withMember',roleController.getWithMembers)
   router.post('/role/:roleID/:scope/:scopeID',roleController.usersAddRoles)
   router.post('/role/:roleID/:scope/:scopeID/batch-delete',roleController.usersLoseRoles)
-
+  router.get('/role/:roleID/:scope/:scopeID/users',roleController.roleWithMembers)
+  
   // package manage
   router.get('/pkg', pkgController.getPkgManageList)
   router.get('/pkg/:id', pkgController.downloadPkg)

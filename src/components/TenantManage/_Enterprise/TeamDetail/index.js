@@ -597,30 +597,36 @@ class TeamDetail extends Component {
     let notify = new NotificationHandler()
     let teamName = getFieldValue('teamName');
     let oldTeamName = teamDetail.teamName;
+    console.log('===========',teamDetail.teamID,teamName)
     if (!teamName || (teamName === oldTeamName)) {return this.setState({editTeamName:false})}
     updateTeamDetail({
       teamID: teamDetail.teamID,
       body: {
-        name: teamName
+        teamName: teamName
       }
     },{
       success: {
         func: (res) =>{
           notify.success('修改团队名称成功')
+          console.log(res)
           this.loadTeamDetail()
+          this.setState({
+            editTeamName: false
+          })
         },
         isAsync: true
       },
       failed: {
         func: () => {
           notify.error('修改团队名称失败')
+          this.setState({
+            editTeamName: false
+          })
         },
         isAsync: true
       }
     })
-    this.setState({
-      editTeamName: false
-    })
+    
   }
   render() {
     const {

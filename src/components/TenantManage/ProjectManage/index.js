@@ -395,36 +395,21 @@ class ProjectManage extends Component{
     const { CreateProjects } = this.props;
     const { projectName,description,authorizedCluster,RoleKeys,roleWithMember } = this.state;
     let notify = new Notification()
-    let roles = []
-    let emptyFlag = false
+    let roleBinds = {}
     for (let i = 0; i < RoleKeys.length; i++) {
-      let obj = {
-        role_id: RoleKeys[i].split(',')[0],
-        users: []
-      }
+      roleBinds[RoleKeys[i].split(',')[0]] = []
       for (let j in roleWithMember) {
         if (RoleKeys[i].split(',')[0] === j) {
-          obj.role_id = j;
-          obj.users = roleWithMember[j]
+          roleBinds[j] = roleWithMember[j]
         }
       }
-      roles.push(obj)
-    }
-    for (let i = 0; i < roles.length; i++) {
-      if (!roles[i].users.length) {
-        emptyFlag = true
-      }
-    }
-    if (emptyFlag) {
-      notify.info('请为所选角色关联对象')
-      return
     }
     CreateProjects({
       body: {
         projectName,
         description,
         authorizedCluster,
-        roles
+        roleBinds
       }
     },{
       success: {
@@ -453,6 +438,7 @@ class ProjectManage extends Component{
             roleWithMember: {}
           })
           notify.error('创建项目失败')
+          browserHistory.replace('/tenant_manage/project_manage?step=first')
         },
         isAsync: true
       }

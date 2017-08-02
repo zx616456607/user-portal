@@ -114,15 +114,6 @@ exports.allowUpdate = function* (){
   }
 }
 
-exports.getWithMembers = function* () {
-  const loginUser = this.session.loginUser
-  const id = this.params.id
-  const api = apiFactory.getRoleApi(loginUser)
-  const result = yield api.getBy([id,'withMember'])
-  this.body = {
-    data:result
-  }
-}
 
 exports.usersAddRoles = function* () {
   const roleID = this.params.roleID
@@ -143,6 +134,17 @@ exports.usersLoseRoles = function* () {
   const body = this.request.body;
   const api = apiFactory.getRoleApi(this.session.loginUser)
   const result = yield api.createBy([roleID,scope,scopeID,'batch-delete'],null,body)
+  this.body = {
+    data: result
+  }
+}
+
+exports.roleWithMembers = function* () {
+  const roleID = this.params.roleID
+  const scope = this.params.scope
+  const scopeID = this.params.scopeID
+  const api = apiFactory.getRoleApi(this.session.loginUser)
+  const result = yield api.getBy([roleID,scope,scopeID,'users'],null)
   this.body = {
     data: result
   }

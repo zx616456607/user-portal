@@ -14,7 +14,7 @@ import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
 import { GetProjectsMembers } from '../../../actions/project'
-import { GetRole, GetWithMembers } from '../../../actions/role'
+import { GetRole, roleWithMembers } from '../../../actions/role'
 import TreeComponent from '../../TreeForMembers'
 import cloneDeep from 'lodash/cloneDeep'
 let checkedKeysThird = []
@@ -32,7 +32,8 @@ class CreateStepThird extends Component{
       currentRoleInfo: {},
       currentRolePermission: [],
       memberArr: [],
-      roleMap: {}
+      roleMap: {},
+      existentMember: []
     }
   }
   componentDidMount() {
@@ -42,7 +43,7 @@ class CreateStepThird extends Component{
     const { scope, step, form } = nextProps;
     let RoleKeys = scope.state.RoleKeys;
     if ((RoleKeys.length > 0)) {
-      // this.getCurrentRole(RoleKeys[0].split(',')[0])
+      this.getCurrentRole(RoleKeys[0].split(',')[0])
     } else {
       this.setState({
         currentRolePermission: [],
@@ -60,7 +61,7 @@ class CreateStepThird extends Component{
         func: (res) => {
           if (res.statusCode === 200) {
             let newArr = res.data.teamList && res.data.teamList.concat(res.data.userList)
-            this.formatArr(newArr)
+            this.formatMember(newArr)
             this.setState({
               memberArr: newArr
             })
@@ -70,17 +71,20 @@ class CreateStepThird extends Component{
       }
     })
   }
-  formatArr(arr) {
-    for (let i = 0; i < arr.length; i++) {
-      if (arr[i].teamId) {
-        Object.assign(arr[i],{id:arr[i].teamId},{uniqueId:arr[i].teamId},{teamName:arr[i].teamName},{userCount:arr[i].userCount},{children:arr[i].users})
-        for (let j = 0; j < arr[i].children.length; j++) {
-          Object.assign(arr[i].children[j],{id:arr[i].children[j].userId},{uniqueId:`${arr[i].teamId}${arr[i].children[j].userId}`},{userName:arr[i].children[j].userName},{creationTime:arr[i].children[j].creationTime},{parent:arr[i].teamId})
-        }
-      } else if(arr[i].userID) {
-        Object.assign(arr[i],{id:arr[i].userID},{uniqueId:arr[i].userID},{userName:arr[i].userName},{creationTime:arr[i].creationTime})
+  formatMember(arr) {
+    arr.forEach(item => {
+      if (item.teamId) {
+        Object.assign(item,{id:item.teamId},{children: item.users.map(record => {return Object.assign(record,{parent:item.teamId})})})
+        this.formatMember(item.users)
+      } else {
+        Object.assign(item,{id:item.userID ? item.userID : item.userId})
       }
-    }
+    })
+  }
+  formatArr(arr) {
+    arr.forEach(item => {
+      Object.assign(item,{key: item.userId},{name: item.userName})
+    })
   }
   onExpand(expandedKeys) {
     this.setState({
@@ -142,7 +146,7 @@ class CreateStepThird extends Component{
     updateRoleWithMember(map)
   }
   getCurrentRole(id) {
-    const { GetRole, GetWithMembers } = this.props;
+    const { GetRole, roleWithMembers } = this.props;
     const { currentRoleInfo } = this.state;
     if (currentRoleInfo.role && (id === currentRoleInfo.role.id)) {
       return
@@ -154,7 +158,7 @@ class CreateStepThird extends Component{
       currentRoleInfo: {},
       currentRolePermission: []
     },()=>{
-      GetWithMembers({
+      GetRole({
         id
       },{
         success: {
@@ -169,6 +173,37 @@ class CreateStepThird extends Component{
                 checkedKeys: checkedKeysThird
               })
             }
+          },
+          isAsync: true
+        }
+      })
+      roleWithMembers({
+        roleID: id,
+        scope: 'global',
+        scopeID: 'global'
+      },{
+        success: {
+          func: res => {
+            let member = []
+            let exist = []
+            if (res.data.data && res.data.data.length > 0) {
+              res.data.data.forEach(item => {
+                exist.push(item.userId)
+              })
+              member = res.data.data.slice(0)
+            }
+            this.formatArr(member)
+            this.setState({
+              currentMembers: member,
+              existentMember: exist,
+              memberCount: member.length > 0 ? member.length : 0
+            })
+          },
+          isAsync: true
+        },
+        failed: {
+          func: res => {
+        
           },
           isAsync: true
         }
@@ -312,5 +347,5 @@ function mapStateToThirdProp(state, props) {
 export default CreateStepThird = connect(mapStateToThirdProp, {
   GetRole,
   GetProjectsMembers,
-  GetWithMembers
+  roleWithMembers
 })(Form.create()(CreateStepThird))

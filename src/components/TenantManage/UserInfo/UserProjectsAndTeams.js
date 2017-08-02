@@ -269,7 +269,7 @@ class UserProjectsAndTeams extends React.Component {
                  * <Button type="ghost"><Icon type="delete" />移出团队</Button>
                  */}
                 <span className="searchInput">
-                  <Input size='large' placeholder='搜索' size="default" />
+                  <Input size='large' placeholder='搜索' />
                   <i className='fa fa-search' />
                 </span>
               </div>

@@ -18,7 +18,7 @@ import { connect } from 'react-redux'
 import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjectsCluster, UpdateProjectsRelatedRoles, DeleteProjectsRelatedRoles, GetProjectsMembers } from '../../../../actions/project'
 import { chargeProject } from '../../../../actions/charge'
 import { loadNotifyRule, setNotifyRule } from '../../../../actions/consumption'
-import { ListRole, CreateRole, GetWithMembers, ExistenceRole } from '../../../../actions/role'
+import { ListRole, CreateRole, ExistenceRole, GetRole, roleWithMembers, usersAddRoles } from '../../../../actions/role'
 import { PermissionAndCount } from '../../../../actions/permission'
 import { parseAmount } from '../../../../common/tools'
 import Notification from '../../../../components/Notification'
@@ -56,7 +56,8 @@ class ProjectDetail extends Component{
       connectModal: false,
       memberArr: [],
       existentMember: [],
-      roleMap: {}
+      selectedMembers: [],
+      selectedKeys: []
     }
   }
   componentWillMount() {
@@ -326,11 +327,11 @@ class ProjectDetail extends Component{
     });
   };
   getCurrentRole(id) {
-    const { GetWithMembers } = this.props;
+    const { GetRole, roleWithMembers } = this.props;
     const { currentRoleInfo } = this.state;
-    if (currentRoleInfo.role && (id === currentRoleInfo.role.id)) {
-      return
-    }
+    // if (currentRoleInfo.role && (id === currentRoleInfo.role.id)) {
+    //   return
+    // }
     checkedKeysDetail.length=0
     this.setState({
       checkedKeys:[],
@@ -339,7 +340,7 @@ class ProjectDetail extends Component{
       currentRolePermission: [],
       currentMembers: []
     },()=>{
-      GetWithMembers({
+      GetRole({
         id
       },{
         success: {
@@ -347,35 +348,44 @@ class ProjectDetail extends Component{
             if (res.data.statusCode === 200) {
               let result = res.data.data;
               this.generateDatas(result.permission.permission)
-              let member = []
-              let exist = []
-              if (result.member.length > 0) {
-                if (result.member[0].teams && result.member[0].users) {
-                  member = result.member[0].teams.concat(result.member[0].users)
-                  exist = result.member[0].teams.concat(result.member[0].users)
-                }else if (result.member[0].teams) {
-                  member = result.member[0].teams.slice(0)
-                  exist = result.member[0].teams.slice(0)
-                }else if (result.member[0].users) {
-                  member = result.member[0].users.slice(0)
-                  exist = result.member[0].users.slice(0)
-                }else {
-                  member = []
-                  exist = []
-                }
-                this.formatArr(member)
-                this.formatMember(exist)
-              }
               this.setState({
                 currentRoleInfo: result,
                 currentRolePermission: result.permission.permission,
-                currentMembers: member,
-                existentMember: exist,
-                memberCount:result.member.length > 0 ? result.member[0].count : 0,
                 expandedKeys: checkedKeysDetail,
                 checkedKeys: checkedKeysDetail
               })
             }
+          },
+          isAsync: true
+        }
+      })
+      roleWithMembers({
+        roleID: id,
+        scope: 'global',
+        scopeID: 'global'
+      },{
+        success: {
+          func: res => {
+            let member = []
+            let exist = []
+            if (res.data.data && res.data.data.length > 0) {
+              res.data.data.forEach(item => {
+                exist.push(item.userId)
+              })
+              member = res.data.data.slice(0)
+            }
+            this.formatArr(member)
+            this.setState({
+              currentMembers: member,
+              existentMember: exist,
+              memberCount: member.length > 0 ? member.length : 0
+            })
+          },
+          isAsync: true
+        },
+        failed: {
+          func: res => {
+          
           },
           isAsync: true
         }
@@ -400,24 +410,19 @@ class ProjectDetail extends Component{
     })
   }
   formatMember(arr) {
-    for (let i = 0; i < arr.length; i++) {
-      if (arr[i].teamId) {
-        Object.assign(arr[i],{id:arr[i].teamId},{teamName:arr[i].teamName},{userCount:arr[i].userCount},{children:arr[i].users})
-        this.formatMember(arr[i].users)
+    arr.forEach(item => {
+      if (item.teamId) {
+        Object.assign(item,{id:item.teamId},{children: item.users.map(record => {return Object.assign(record,{parent:item.teamId})})})
+        this.formatMember(item.users)
       } else {
-        Object.assign(arr[i],{id:arr[i].userID},{userName:arr[i].userName},{creationTime:arr[i].creationTime})
+        Object.assign(item,{id:item.userID ? item.userID : item.userId})
       }
-    }
+    })
   }
   formatArr(arr) {
-    for (let i = 0; i < arr.length; i++) {
-      if (arr[i].teamId) {
-        Object.assign(arr[i],{key:arr[i].teamId},{name:arr[i].teamName},{type:'团队'},{children:arr[i].users})
-        this.formatArr(arr[i].users)
-      } else {
-        Object.assign(arr[i],{key:arr[i].userID},{name:arr[i].userName},{type:'成员'})
-      }
-    }
+    arr.forEach(item => {
+      Object.assign(item,{key: item.userId},{name: item.userName})
+    })
   }
   renderItem(item) {
     return(
@@ -470,16 +475,43 @@ class ProjectDetail extends Component{
     })
   }
   submitMemberModal() {
-    this.setState({
-      connectModal: false
+    const { currentRoleInfo, selectedMembers } = this.state;
+    const { usersAddRoles } = this.props;
+    let notify = new Notification()
+    console.log(currentRoleInfo.role.id,'currentID')
+    usersAddRoles({
+      roleID: currentRoleInfo.role.id,
+      scope: 'global',
+      scopeID: 'global',
+      body: {
+        userIDs:selectedMembers
+      }
+    },{
+      success: {
+        func: () => {
+          this.getCurrentRole(currentRoleInfo.role.id)
+          notify.success('关联对象操作成功')
+          this.setState({
+            connectModal: false
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notify.error('关联对象操作失败')
+          this.setState({
+            connectModal: false
+          })
+        },
+        isAsync: true
+      }
     })
+    
   }
   updateCurrentMember(member) {
-    const { currentRoleInfo, roleMap } = this.state;
-    let map = cloneDeep(roleMap);
-    map[currentRoleInfo.role.id] = member;
     this.setState({
-      roleMap:map
+      selectedMembers: member
     })
   }
   render() {
@@ -491,11 +523,7 @@ class ProjectDetail extends Component{
     const columns = [{
       title: '成员名称',
       dataIndex: 'name',
-      width: '60%'
-    }, {
-      title: '对象类型',
-      dataIndex: 'type',
-      width: '40%'
+      width: '100%'
     }];
     const loopFunc = data => data.length >0 && data.map((item) => {
       if (item.users) {
@@ -927,8 +955,8 @@ class ProjectDetail extends Component{
               <TreeComponent
                 outPermissionInfo={memberArr}
                 permissionInfo={[]}
-                existMember={roleMap[currentRoleInfo.role && currentRoleInfo.role.id] || []}
-                text='成员'
+                existMember={existentMember.length > 0 ? existentMember.slice(0) : []}
+                text='对象'
                 connectModal={connectModal}
                 getTreeRightData={this.updateCurrentMember.bind(this)}
               />
@@ -948,7 +976,7 @@ class ProjectDetail extends Component{
                 <p className="rightTitle">角色关联对象</p>
                 <div className="rightContainer">
                   <div className="authBox inlineBlock">
-                    <p className="authTitle">{currentRoleInfo.role && currentRoleInfo.role.name}共 <span style={{color:'#59c3f5'}}>{currentRoleInfo.role && currentRoleInfo.role.count}</span> 个权限</p>
+                    <p className="authTitle">该角色共 <span style={{color:'#59c3f5'}}>{currentRoleInfo.role && currentRoleInfo.role.count}</span> 个权限</p>
                     <div className="treeBox">
                       {
                         currentRolePermission.length > 0 &&
@@ -966,7 +994,7 @@ class ProjectDetail extends Component{
                   </div>
                   <div className="memberBox inlineBlock">
                     <div className="memberTitle">
-                      <span>{currentRoleInfo.role && currentRoleInfo.role.name}已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
+                      <span>该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
                       {
                         currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.setState({connectModal:true})}>继续关联对象</Button>
                       }
@@ -1008,10 +1036,12 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   chargeProject,
   ListRole,
   CreateRole,
-  GetWithMembers,
   ExistenceRole,
   PermissionAndCount,
   UpdateProjectsRelatedRoles,
   DeleteProjectsRelatedRoles,
-  GetProjectsMembers
+  GetProjectsMembers,
+  GetRole,
+  roleWithMembers,
+  usersAddRoles
 })(ProjectDetail)

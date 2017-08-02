@@ -299,7 +299,7 @@ let TeamTable = React.createClass({
         className: 'teamName',
         width:'10%',
         render: (text, record, index) => (
-          <Link to={`/tenant_manage/team/${record.team}/${record.key}`}>{text}</Link>
+          <Link to={`/tenant_manage/team/${record.key}`}>{text}</Link>
         )
       },
       {

@@ -710,10 +710,11 @@ function fetchUpdateTeamDetail(body, callback) {
     [FETCH_API]: {
       types: [UPDATE_TEAM_DETAIL_REQUEST, UPDATE_TEAM_DETAIL_SUCCESS, UPDATE_TEAM_DETAIL_FAILURE],
       endpoint,
-      schema: {
+      schema: {},
+      options: {
         method: 'PATCH',
         body:body.body
-      },
+      }
     },
     callback
   }

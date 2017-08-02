@@ -44,7 +44,7 @@ class CreateStepSecond extends Component{
             let result = res.data.data.items;
             for (let i = 0 ; i < result.length; i++) {
               const data = {
-                key: `${result[i].id}},${result[i].name}`,
+                key: `${result[i].id},${result[i].name}`,
                 title: result[i].name,
                 description: result[i].comment,
                 chosen: ['RID-LFJKCKtKzCrd', 'RID-ggNW6A2mwgEX'].includes(result[i].id),
