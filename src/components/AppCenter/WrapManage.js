@@ -303,6 +303,12 @@ class UploadModal extends Component {
           func.uploadModal(false)
           func.getList()
         }
+        if (e.file.status == 'error') {
+          self.state.fileCallback()
+          notificat.error('上传失败',e.file.response.message)
+          uploadFile = false
+          func.uploadModal(false)
+        }
       }
     }
     return (
@@ -399,9 +405,12 @@ class WrapManage extends Component {
 
   uploadModal = (modal) => {
     this.setState({ uploadModal: modal })
-    setTimeout(()=> {
-      document.getElementById('wrapName').focus()
-    },200)
+    if (!!modal) {
+      setTimeout(()=> {
+        document.getElementById('wrapName').focus()
+      },200)
+
+    }
   }
   deleteAction(status,id) {
     if (status) {
