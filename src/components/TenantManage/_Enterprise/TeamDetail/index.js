@@ -9,6 +9,7 @@
  */
 import React, { Component } from 'react'
 import { Row, Col, Alert, Card, Popover, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, Form } from 'antd'
+import QueueAnim from 'rc-queue-anim'
 import './style/TeamDetail.less'
 import { Link, browserHistory } from 'react-router'
 import { setCurrent } from '../../../../actions/entities'
@@ -355,6 +356,8 @@ class TeamDetail extends Component {
             func: () => {
               loadTeamUserList(teamID, {
                 sort: sortUser,
+                page: 1,
+                size: 5
               })
               this.setState({
                 addMember: false,
@@ -470,12 +473,12 @@ class TeamDetail extends Component {
   }
   removeMemberOk() {
     const { removeTeamusers,loadTeamUserList, teamID } = this.props;
-    const { selectedRowKeys } = this.state;
+    const { selectedRowKeys,sortUser } = this.state;
     let notify = new NotificationHandler()
     removeTeamusers(teamID,selectedRowKeys,{
       success: {
         func: (res) => {
-          loadTeamUserList(teamID,{})
+          loadTeamUserList(teamID,{sort: sortUser, size: 5, page: 1})
           notify.success('移除成员成功')
         },
         isAsync: true
@@ -597,7 +600,6 @@ class TeamDetail extends Component {
     let notify = new NotificationHandler()
     let teamName = getFieldValue('teamName');
     let oldTeamName = teamDetail.teamName;
-    console.log('===========',teamDetail.teamID,teamName)
     if (!teamName || (teamName === oldTeamName)) {return this.setState({editTeamName:false})}
     updateTeamDetail({
       teamID: teamDetail.teamID,
@@ -606,9 +608,8 @@ class TeamDetail extends Component {
       }
     },{
       success: {
-        func: (res) =>{
+        func: () =>{
           notify.success('修改团队名称成功')
-          console.log(res)
           this.loadTeamDetail()
           this.setState({
             editTeamName: false
@@ -684,143 +685,145 @@ class TeamDetail extends Component {
       )
     }]
     return (
-      <div id='tenantTeamDetail'>
-        <Row className="teamDetailHeader">
-          <Link className="back" to="/tenant_manage/team">
-            <span className="backjia"/>
-            <span className="btn-back">返回</span>
-          </Link>
-          <span className="title">{teamDetail.teamName}</span>
-        </Row>
-        <Card
-          title="团队基本信息"
-          bordered={false}
-          className="detailInfo"
-        >
-          <Row>
-            <Col span={2}>
-              团队名称
-            </Col>
-            <Col span={22} className="teamNameBox">
-              {
-                editTeamName ?
-                  <div>
-                    <Input size="large" placeholder="备注" {...getFieldProps('teamName',{
-                      initialValue: teamDetail.teamName
-                    })}/>
-                    <i className="anticon anticon-save pointer" onClick={()=> this.saveTeamName()}/>
-                  </div>
-                  :
-                  <div>
-                    <span>{teamDetail && teamDetail.teamName}</span>
-                    <i className="anticon anticon-edit pointer" onClick={()=> this.editTeamName()}/>
-                  </div>
-              }
-            </Col>
+      <QueueAnim>
+        <div key="tenantTeamDetail" id='tenantTeamDetail'>
+          <Row className="teamDetailHeader">
+            <Link className="back" to="/tenant_manage/team">
+              <span className="backjia"/>
+              <span className="btn-back">返回</span>
+            </Link>
+            <span className="title">{teamDetail.teamName}</span>
           </Row>
-          <Row>
-            <Col span={2}>
-              创建时间
-            </Col>
-            <Col span={22}>
-              {teamDetail && teamDetail.creationTime}
-            </Col>
-          </Row>
-          <Row>
-            <Col span={2}>
-              我是团队的
-            </Col>
-            <Col span={22}>
-              {teamDetail && teamDetail.isCreator ? '创建者' : '参与者'}
-            </Col>
-          </Row>
-        </Card>
-        <Card
-          title={
-            <div>
-              成员数（<span className="modalColor">{teamUsersTotal}</span>）
-            </div>
-          }
-          bordered={false}
-        >
-          <Row className="content">
-            <Col span={24}>
-              <Row style={{ marginBottom: 20 }}>
-                <Col span={24}>
-                  <Button type="primary" size="large" icon="plus" className="addMemberBtn"
-                          onClick={this.addNewMember}>
-                    添加成员
-                  </Button>
-                  <Button type="ghost" size="large" icon="delete" className="deleteMemberBtn"
-                          onClick={this.removeMember.bind(this)}>
-                    移除成员
-                  </Button>
-                  <Button type="ghost" size="large" className="transferTeamLeader"
-                    onClick={this.transferTeamLeader.bind(this)}
-                  >
-                    转移团队创建者</Button>
-                  <CommonSearchInput onSearch={this.loadTeamUser.bind(this)} size="large" placeholder="按成员名搜索"/>
-                  <div className="userTotalBox">共计 {teamUsersTotal} 条</div>
-                  <Modal title="转移团队创建者身份"
-                    visible={this.state.transferStatus}
-                    onOk={this.confirmTransferLeader.bind(this)}
-                    onCancel={this.cancelTransferLeader.bind(this)}
-                    width="610px"
-                    wrapClassName="transferLeaderModal"
-                  >
-                    <div className="alertRow">转让身份后便没有管理该团队的权限，只能作为参与者在本团队</div>
-                    <div>请选择新的团队创建者身份</div>
-                    <Table
-                      className='leaderListTable'
-                      dataSource={this.state.leaderList}
-                      columns={leaderColumns}
-                      pagination={false}
-                      rowSelection={leaderRowSelction}
-                      onRowClick={(record)=>this.leaderRowClick(record)}
-                    />
-                  </Modal>
-                  <Modal title="添加新成员"
-                     visible={this.state.addMember}
-                     onOk={this.handleNewMemberOk}
-                     onCancel={this.handleNewMemberCancel}
-                     width="660px"
-                     wrapClassName="newMemberModal"
-                  >
-                    <MemberTransfer
-                      onChange={this.handleChange}
-                      targetKeys={targetKeys}
-                    />
-                  </Modal>
-                  <Modal title="移除成员"
-                         visible={this.state.deleteMember}
-                         onOk={this.removeMemberOk.bind(this)}
-                         onCancel={this.removeMemberCancel.bind(this)}
-                         width="660px"
-                         wrapClassName="removeMemberModal"
-                  >
-                    <Table
-                         dataSource={allTeamUser.users}
-                         columns={columns}
-                         pagination={false}
-                         rowSelection={rowSelection}
-                         onRowClick={(record)=>this.rowClick(record)}
-                    />
-                  </Modal>
-                </Col>
-              </Row>
-              <Row>
-                <MemberList teamUserList={teamUserList}
-                            teamID={teamID}
-                            removeTeamusers={removeTeamusers}
-                            loadTeamUserList={loadTeamUserList}
-                            loadTeamClustersList={loadTeamClustersList}
-                            teamUsersTotal={teamUsersTotal} />
-              </Row>
-            </Col>
-            <Col span={3} />
-          </Row>
-        </Card>
+          <Card
+            title="团队基本信息"
+            bordered={false}
+            className="detailInfo"
+          >
+            <Row>
+              <Col span={2}>
+                团队名称
+              </Col>
+              <Col span={22} className="teamNameBox">
+                {
+                  editTeamName ?
+                    <div>
+                      <Input size="large" placeholder="备注" {...getFieldProps('teamName',{
+                        initialValue: teamDetail.teamName
+                      })}/>
+                      <i className="anticon anticon-save pointer" onClick={()=> this.saveTeamName()}/>
+                    </div>
+                    :
+                    <div>
+                      <span>{teamDetail && teamDetail.teamName}</span>
+                      <i className="anticon anticon-edit pointer" onClick={()=> this.editTeamName()}/>
+                    </div>
+                }
+              </Col>
+            </Row>
+            <Row>
+              <Col span={2}>
+                创建时间
+              </Col>
+              <Col span={22}>
+                {teamDetail && teamDetail.creationTime}
+              </Col>
+            </Row>
+            <Row>
+              <Col span={2}>
+                我是团队的
+              </Col>
+              <Col span={22}>
+                {teamDetail && teamDetail.isCreator ? '创建者' : '参与者'}
+              </Col>
+            </Row>
+          </Card>
+          <Card
+            title={
+              <div>
+                成员数（<span className="modalColor">{teamUsersTotal}</span>）
+              </div>
+            }
+            bordered={false}
+          >
+            <Row className="content">
+              <Col span={24}>
+                <Row style={{ marginBottom: 20 }}>
+                  <Col span={24}>
+                    <Button type="primary" size="large" icon="plus" className="addMemberBtn"
+                            onClick={this.addNewMember}>
+                      添加成员
+                    </Button>
+                    <Button type="ghost" size="large" icon="delete" className="deleteMemberBtn"
+                            onClick={this.removeMember.bind(this)}>
+                      移除成员
+                    </Button>
+                    <Button type="ghost" size="large" className="transferTeamLeader"
+                      onClick={this.transferTeamLeader.bind(this)}
+                    >
+                      转移团队创建者</Button>
+                    <CommonSearchInput onSearch={this.loadTeamUser.bind(this)} size="large" placeholder="按成员名搜索"/>
+                    <div className="userTotalBox">共计 {teamUsersTotal} 条</div>
+                    <Modal title="转移团队创建者身份"
+                      visible={this.state.transferStatus}
+                      onOk={this.confirmTransferLeader.bind(this)}
+                      onCancel={this.cancelTransferLeader.bind(this)}
+                      width="610px"
+                      wrapClassName="transferLeaderModal"
+                    >
+                      <div className="alertRow">转让身份后便没有管理该团队的权限，只能作为参与者在本团队</div>
+                      <div>请选择新的团队创建者身份</div>
+                      <Table
+                        className='leaderListTable'
+                        dataSource={this.state.leaderList}
+                        columns={leaderColumns}
+                        pagination={false}
+                        rowSelection={leaderRowSelction}
+                        onRowClick={(record)=>this.leaderRowClick(record)}
+                      />
+                    </Modal>
+                    <Modal title="添加新成员"
+                       visible={this.state.addMember}
+                       onOk={this.handleNewMemberOk}
+                       onCancel={this.handleNewMemberCancel}
+                       width="660px"
+                       wrapClassName="newMemberModal"
+                    >
+                      <MemberTransfer
+                        onChange={this.handleChange}
+                        targetKeys={targetKeys}
+                      />
+                    </Modal>
+                    <Modal title="移除成员"
+                           visible={this.state.deleteMember}
+                           onOk={this.removeMemberOk.bind(this)}
+                           onCancel={this.removeMemberCancel.bind(this)}
+                           width="660px"
+                           wrapClassName="removeMemberModal"
+                    >
+                      <Table
+                           dataSource={allTeamUser.users}
+                           columns={columns}
+                           pagination={false}
+                           rowSelection={rowSelection}
+                           onRowClick={(record)=>this.rowClick(record)}
+                      />
+                    </Modal>
+                  </Col>
+                </Row>
+                <Row>
+                  <MemberList teamUserList={teamUserList}
+                              teamID={teamID}
+                              removeTeamusers={removeTeamusers}
+                              loadTeamUserList={loadTeamUserList}
+                              loadTeamClustersList={loadTeamClustersList}
+                              teamUsersTotal={teamUsersTotal} />
+                </Row>
+              </Col>
+              <Col span={3} />
+            </Row>
+          </Card>
       </div>
+      </QueueAnim>
     )
   }
 }

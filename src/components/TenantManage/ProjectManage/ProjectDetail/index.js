@@ -18,12 +18,14 @@ import { connect } from 'react-redux'
 import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjectsCluster, UpdateProjectsRelatedRoles, DeleteProjectsRelatedRoles, GetProjectsMembers } from '../../../../actions/project'
 import { chargeProject } from '../../../../actions/charge'
 import { loadNotifyRule, setNotifyRule } from '../../../../actions/consumption'
-import { ListRole, CreateRole, ExistenceRole, GetRole, roleWithMembers, usersAddRoles } from '../../../../actions/role'
+import { ListRole, CreateRole, ExistenceRole, GetRole, roleWithMembers, usersAddRoles, usersLoseRoles } from '../../../../actions/role'
 import { PermissionAndCount } from '../../../../actions/permission'
 import { parseAmount } from '../../../../common/tools'
 import Notification from '../../../../components/Notification'
 import TreeComponent from '../../../TreeForMembers'
 import cloneDeep from 'lodash/cloneDeep'
+import intersection from 'lodash/intersection'
+import xor from 'lodash/xor'
 import CreateRoleModal from  '../CreateRole'
 
 let checkedKeysDetail = []
@@ -57,7 +59,9 @@ class ProjectDetail extends Component{
       memberArr: [],
       existentMember: [],
       selectedMembers: [],
-      selectedKeys: []
+      selectedKeys: [],
+      deleteRoleModal: false,
+      currentDeleteRole: {}
     }
   }
   componentWillMount() {
@@ -450,11 +454,26 @@ class ProjectDetail extends Component{
       }
     })
   }
-  deleteRole(id){
+  deleteRole(item){
+    this.setState({
+      currentDeleteRole:item
+    },()=>{
+      this.setState({
+        deleteRoleModal: true
+      })
+    })
+  }
+  cancelDeleteRole() {
+    this.setState({
+      deleteRoleModal: false
+    })
+  }
+  confirmDeleteRole() {
     const { DeleteProjectsRelatedRoles } = this.props;
-    const { projectDetail } = this.state;
+    const { projectDetail, currentDeleteRole } = this.state;
     let deleteArr = []
-    deleteArr.push(id)
+    let notify = new Notification()
+    deleteArr.push(currentDeleteRole.roleId)
     DeleteProjectsRelatedRoles({
       projectsName: projectDetail.projectName,
       body: {
@@ -462,10 +481,22 @@ class ProjectDetail extends Component{
       }
     },{
       success: {
-        func: (res) => {
+        func: () => {
           this.getProjectDetail()
+          notify.success('删除角色成功')
+          this.setState({
+            deleteRoleModal: false
+          })
         },
         isAsync: true
+      },
+      failed: {
+        func: () => {
+          notify.error('删除角色失败')
+          this.setState({
+            deleteRoleModal: false
+          })
+        }
       }
     })
   }
@@ -475,39 +506,96 @@ class ProjectDetail extends Component{
     })
   }
   submitMemberModal() {
-    const { currentRoleInfo, selectedMembers } = this.state;
+    const { selectedMembers, existentMember } = this.state;
+    let diff = xor(existentMember,selectedMembers);
+    let del = intersection(existentMember,diff)
+    let add = intersection(selectedMembers,diff)
+    if (!del.length && !add.length) {
+      this.setState({
+        connectModal: false
+      })
+    } else if (del.length && !add.length) {
+      this.delMember(del,true)
+    } else if (!del.length && add.length) {
+      this.addMember(add,true)
+    } else {
+      this.addMember(add)
+      this.delMember(del,true)
+    }
+  }
+  addMember(add,flag) {
+    const { currentRoleInfo } = this.state;
     const { usersAddRoles } = this.props;
     let notify = new Notification()
-    console.log(currentRoleInfo.role.id,'currentID')
     usersAddRoles({
       roleID: currentRoleInfo.role.id,
       scope: 'global',
       scopeID: 'global',
       body: {
-        userIDs:selectedMembers
+        userIDs:add
       }
     },{
       success: {
         func: () => {
-          this.getCurrentRole(currentRoleInfo.role.id)
-          notify.success('关联对象操作成功')
-          this.setState({
-            connectModal: false
-          })
+          if (flag) {
+            this.getCurrentRole(currentRoleInfo.role.id)
+            notify.success('关联对象操作成功')
+            this.setState({
+              connectModal: false
+            })
+          }
         },
         isAsync: true
       },
       failed: {
         func: () => {
-          notify.error('关联对象操作失败')
-          this.setState({
-            connectModal: false
-          })
+          if (flag) {
+            notify.error('关联对象操作失败')
+            this.setState({
+              connectModal: false
+            })
+          }
         },
         isAsync: true
       }
     })
-    
+  }
+  delMember(del,flag) {
+    const { currentRoleInfo } = this.state;
+    const { usersLoseRoles } = this.props;
+    let notify = new Notification()
+    usersLoseRoles({
+      roleID: currentRoleInfo.role.id,
+      scope: 'global',
+      scopeID: 'global',
+      body: {
+        userIDs:del
+      }
+    },{
+      success: {
+        func: () => {
+          if (flag) {
+            this.getCurrentRole(currentRoleInfo.role.id)
+            notify.success('关联对象操作成功')
+            this.setState({
+              connectModal: false
+            })
+          }
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          if (flag) {
+            notify.success('关联对象操作成功')
+            this.setState({
+              connectModal: false
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
   }
   updateCurrentMember(member) {
     this.setState({
@@ -516,7 +604,7 @@ class ProjectDetail extends Component{
   }
   render() {
     const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys,
-      currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, roleMap, characterModal } = this.state;
+      currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, roleMap, characterModal, currentDeleteRole } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form } = this.props;
     const { getFieldProps } = form;
@@ -662,7 +750,10 @@ class ProjectDetail extends Component{
     const roleList = projectDetail.relatedRoles && projectDetail.relatedRoles.map((item,index)=>{
       return (
         <li key={item.roleId} className={classNames({'active': currentRoleInfo.role && currentRoleInfo.role.id === item.roleId})} onClick={()=>this.getCurrentRole(item.roleId)}>{item.roleName}
-        <Icon type="delete" className="pointer" onClick={()=>this.deleteRole(item.roleId)}/></li>
+          <Tooltip placement="top" title="移除角色">
+            <Icon type="delete" className="pointer" onClick={()=>this.deleteRole(item)}/>
+          </Tooltip>
+        </li>
       )
     })
     const appliedLenght = projectClusters.length - bottomLength
@@ -674,6 +765,15 @@ class ProjectDetail extends Component{
             <i/>
             创建项目
           </div>
+          <Modal title="删除角色" visible={this.state.deleteRoleModal}
+            onCancel = {()=> this.cancelDeleteRole()}
+            onOk = {()=> this.confirmDeleteRole()}
+          >
+            <div className="modalColor">
+              <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
+              是否确定从项目{projectDetail&&projectDetail.projectName}中移除角色{currentDeleteRole.roleName}？
+            </div>
+          </Modal>
           <Modal title="项目充值" visible={this.state.paySingle} width={580}
              onCancel = {()=> this.paySingleCancel()}
              onOk = {()=> this.paySingleOk()}
@@ -1043,5 +1143,6 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   GetProjectsMembers,
   GetRole,
   roleWithMembers,
-  usersAddRoles
+  usersAddRoles,
+  usersLoseRoles
 })(ProjectDetail)

@@ -519,30 +519,26 @@
         border: 1px solid #dadada;
         width: 130px;
         li{
+          font-size: 14px;
           width: 100%;
           height: 40px;
-          -webkit-box-sizing: border-box;
-          -moz-box-sizing: border-box;
-          box-sizing: border-box;
           display: inline-flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 5px 0 7px;
+          border-left: 2px solid white;
+          padding: 0 5px;
           &:hover{
             background-color: #effdff;
             color: #00a0ea;
             border-left: 2px solid #00a0ea;
-            padding: 0 5px;
           }
         &:not(:last-of-type){
           border-bottom: 1px solid #dadada;
         }
       }
       .active{
-        background-color: #effdff;
-        color: #00a0ea;
-        border-left: 2px solid #00a0ea;
-        padding: 0 5px;
+        background-color: #f8f8f8;
+        border-left: 2px solid #f8f8f8;
       }
     }
     }
