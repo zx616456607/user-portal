@@ -15,7 +15,15 @@ import { Radio, } from 'antd'
 import { connect } from 'react-redux'
 import TimeControl from '../../Metrics/TimeControl'
 import Metrics from '../../Metrics'
-import { loadServiceMetricsCPU, loadServiceMetricsMemory, loadServiceMetricsNetworkReceived, loadServiceMetricsNetworkTransmitted, loadServiceAllOfMetrics } from '../../../actions/metrics'
+import {
+  loadServiceMetricsCPU,
+  loadServiceMetricsMemory,
+  loadServiceMetricsNetworkReceived,
+  loadServiceMetricsNetworkTransmitted,
+  loadServiceAllOfMetrics,
+  loadServiceMetricsDiskRead,
+  loadServiceMetricsDiskWrite,
+} from '../../../actions/metrics'
 import './style/ServiceMonitor.less'
 
 const RadioButton = Radio.Button;
@@ -23,11 +31,13 @@ const RadioGroup = Radio.Group;
 let metricsInterval;
 
 function loadData(props, query) {
-  const { cluster, serviceName, loadServiceMetricsCPU, loadServiceMetricsMemory, loadServiceMetricsNetworkReceived, loadServiceMetricsNetworkTransmitted, loadServiceAllOfMetrics } = props
+  const { cluster, serviceName, loadServiceMetricsCPU, loadServiceMetricsMemory, loadServiceMetricsNetworkReceived, loadServiceMetricsNetworkTransmitted, loadServiceAllOfMetrics, loadServiceMetricsDiskRead, loadServiceMetricsDiskWrite } = props
   loadServiceMetricsCPU(cluster, serviceName, query)
   loadServiceMetricsMemory(cluster, serviceName, query)
   loadServiceMetricsNetworkReceived(cluster, serviceName, query)
   loadServiceMetricsNetworkTransmitted(cluster, serviceName, query)
+  loadServiceMetricsDiskRead(cluster, serviceName, query)
+  loadServiceMetricsDiskWrite(cluster, serviceName, query)
 }
 
 class ServiceMonitior extends Component {
@@ -93,7 +103,7 @@ class ServiceMonitior extends Component {
   }
 
   render() {
-    const { cpu, memory, networkReceived, networkTransmitted, allServiceMetrics } = this.props
+    const { cpu, memory, networkReceived, networkTransmitted, diskReadIo, diskWriteIo, allServiceMetrics } = this.props
     const { intervalStatus } = this.state
     let showCpu = {
       data: [],
@@ -111,6 +121,14 @@ class ServiceMonitior extends Component {
       data: [],
       isFetching: false
     };
+    let showDiskReadIo = {
+      data: [],
+      isFetching: false
+    }
+    let showDiskWriteIo = {
+      data: [],
+      isFetching: false
+    }
     if(allServiceMetrics.data.length > 0) {
       showCpu.data = allServiceMetrics.data[0].cpu;
       showCpu.isFetching = false;
@@ -120,11 +138,17 @@ class ServiceMonitior extends Component {
       showNetworkTrans.isFetching = false;
       showNetworkRec.data = allServiceMetrics.data[3].networkRec;
       showNetworkRec.isFetching = false;
+      showDiskReadIo.data = allServiceMetrics.data[4].diskReadIo;
+      showDiskReadIo.isFetching = false;
+      showDiskWriteIo.data = allServiceMetrics.data[5].diskWriteIo;
+      showDiskWriteIo.isFetching = false;
     } else {
       showCpu = cpu;
       showMemory = memory;
       showNetworkTrans = networkTransmitted;
       showNetworkRec = networkReceived;
+      showDiskReadIo = diskReadIo
+      showDiskWriteIo = diskWriteIo
     }
     return (
       <div id="ServiceMonitior">
@@ -135,6 +159,8 @@ class ServiceMonitior extends Component {
           memory={showMemory}
           networkReceived={showNetworkRec}
           networkTransmitted={showNetworkTrans}
+          diskReadIo={showDiskReadIo}
+          diskWriteIo={showDiskWriteIo}
           />
       </div>
     )
@@ -152,7 +178,9 @@ function mapStateToProps(state, props) {
     memory,
     networkReceived,
     networkTransmitted,
-    allservicesmetrics
+    allservicesmetrics,
+    diskReadIo,
+    diskWriteIo,
   } = state.metrics.services
   const cpuData = {
     isFetching: CPU.isFetching,
@@ -182,6 +210,20 @@ function mapStateToProps(state, props) {
   if (networkTransmitted && networkTransmitted.result) {
     networkTransmittedData.data = networkTransmitted.result.data || []
   }
+  const diskReadIoData = {
+    isFetching: diskReadIo.isFetching,
+    data: []
+  }
+  if(diskReadIo && diskReadIo.result){
+    diskReadIoData.data = diskReadIo.result.data || []
+  }
+  const diskWriteIoData = {
+    isFetching: diskWriteIo.isFetching,
+    data: []
+  }
+  if(diskWriteIo && diskWriteIo.result){
+    diskWriteIoData.data = diskWriteIo.result.data || []
+  }
   const allData = {
     isFetching: false,
     data: []
@@ -194,6 +236,8 @@ function mapStateToProps(state, props) {
     memory: memoryData,
     networkReceived: networkReceivedData,
     networkTransmitted: networkTransmittedData,
+    diskReadIo: diskReadIoData,
+    diskWriteIo: diskWriteIoData,
     allServiceMetrics: allData
   }
 }
@@ -203,5 +247,7 @@ export default connect(mapStateToProps, {
   loadServiceMetricsMemory,
   loadServiceMetricsNetworkReceived,
   loadServiceMetricsNetworkTransmitted,
-  loadServiceAllOfMetrics
+  loadServiceAllOfMetrics,
+  loadServiceMetricsDiskRead,
+  loadServiceMetricsDiskWrite,
 })(ServiceMonitior)

@@ -15,6 +15,8 @@ const METRICS_CPU = constants.METRICS_CPU
 const METRICS_MEMORY = constants.METRICS_MEMORY
 const METRICS_NETWORK_RECEIVED = constants.METRICS_NETWORK_RECEIVED
 const METRICSS_NETWORK_TRANSMITTED = constants.METRICSS_NETWORK_TRANSMITTED
+const METRICSS_DISK_READ = constants.METRICSS_DISK_READ
+const METRICSS_DISK_WRITE = constants.METRICSS_DISK_WRITE
 const DEFAULT_CONTAINER_RESOURCES = constants.DEFAULT_CONTAINER_RESOURCES
 const DEFAULT_CONTAINER_RESOURCES_CPU = constants.DEFAULT_CONTAINER_RESOURCES_CPU
 const DEFAULT_CONTAINER_RESOURCES_MEMORY = constants.DEFAULT_CONTAINER_RESOURCES_MEMORY
@@ -67,6 +69,14 @@ exports.getAllContainerMetrics = function* () {
   query.type = METRICS_NETWORK_RECEIVED
   const promiseNetworkRecivceArray = _getContainerMetrics(user, cluster, instance, query)
   promiseArray.push({networkRec: promiseNetworkRecivceArray})
+
+  query.type = METRICSS_DISK_READ
+  const promiseDiskReadIoArray = _getContainerMetrics(user, cluster, instance, query)
+  promiseArray.push({diskReadIo: promiseDiskReadIoArray})
+
+  query.type = METRICSS_DISK_WRITE
+  const promiseDiskWriteIoArray = _getContainerMetrics(user, cluster, instance, query)
+  promiseArray.push({diskWriteIo: promiseDiskWriteIoArray})
 
   const results = yield promiseArray
   this.body = {
@@ -129,6 +139,16 @@ exports.getAllServiceMetrics = function* () {
     return _getContainerMetrics(user, cluster, instance, query)
   })
   promiseArray.push({networkRec: promiseNetworkRecivceArray})
+  const promiseDiskReadIoArray = instances.map((instance) => {
+    query.type = METRICSS_DISK_READ
+    return _getContainerMetrics(user, cluster, instance, query)
+  })
+  promiseArray.push({diskReadIo: promiseDiskReadIoArray})
+  const promiseDiskWriteIoArray = instances.map((instance) => {
+    query.type = METRICSS_DISK_WRITE
+    return _getContainerMetrics(user, cluster, instance, query)
+  })
+  promiseArray.push({diskWriteIo: promiseDiskWriteIoArray})
   const results = yield promiseArray
   this.body = {
     cluster,
@@ -210,6 +230,16 @@ exports.getAllAppMetrics = function* () {
         return _getContainerMetrics(user, cluster, instance, query)
       })
       promiseArray.push({networkRec: promiseNetworkRecivceArray})
+      const promiseDiskReadIoArray = instances.map((instance) => {
+        query.type = METRICSS_DISK_READ
+        return _getContainerMetrics(user, cluster, instance, query)
+      })
+      promiseArray.push({diskReadIo: promiseDiskReadIoArray})
+      const promiseDiskWriteIoArray = instances.map((instance) => {
+        query.type = METRICSS_DISK_WRITE
+        return _getContainerMetrics(user, cluster, instance, query)
+      })
+      promiseArray.push({diskWriteIo: promiseDiskWriteIoArray})
       let results = promiseArray
       instancesPromiseArray.push(results)
     })
