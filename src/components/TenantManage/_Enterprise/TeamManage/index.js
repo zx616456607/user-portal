@@ -14,16 +14,17 @@ import './style/TeamManage.less'
 import { Link } from 'react-router'
 import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
+import intersection from 'lodash/intersection'
+import xor from 'lodash/xor'
 import { loadUserTeamList, loadUserList } from '../../../../actions/user'
 import {
   createTeam, deleteTeam, createTeamspace,
   addTeamusers, removeTeamusers, loadTeamUserList,
   checkTeamName,loadTeamspaceList
 } from '../../../../actions/team'
-import { usersAddRoles } from '../../../../actions/role'
+import { usersAddRoles, roleWithMembers, usersLoseRoles } from '../../../../actions/role'
 import { chargeTeamspace } from '../../../../actions/charge'
 import { ROLE_SYS_ADMIN } from '../../../../../constants'
-
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import CreateTeamModal from '../../../AccountModal/CreateTeamModal'
 import NotificationHandler from '../../../../components/Notification'
@@ -178,12 +179,6 @@ let TeamTable = React.createClass({
             addMember: true,
             nowTeamID: teamID
           })
-        },
-        isAsync: true
-      },
-      failed: {
-        func: res => {
-        
         },
         isAsync: true
       }
@@ -520,6 +515,7 @@ class TeamManage extends Component {
       allTeamList: [],
       userList:[],
       targetKeys: [],
+      originalKeys: []
     }
   }
   showModal() {
@@ -621,32 +617,88 @@ class TeamManage extends Component {
     })
   }
   confirmRightModal() {
+    const { targetKeys, originalKeys } = this.state;
+    let diff = xor(originalKeys,targetKeys)
+    let add = intersection(targetKeys,diff)
+    let del = intersection(originalKeys,diff)
+    if (!del.length && !add.length) {
+      this.setState({
+        rightModal: false
+      })
+    } else if (del.length && !add.length) {
+      this.delMember(del,true)
+    } else if (!del.length && add.length) {
+      this.addMember(add,true)
+    } else {
+      this.addMember(add)
+      this.delMember(del,true)
+    }
+  }
+  addMember(add,flag) {
     const { usersAddRoles } = this.props;
-    const { targetKeys } = this.state;
     let notify = new NotificationHandler()
     usersAddRoles({
       roleID:'RID-XwPiLfrBYjqd',
       scope: 'global',
       scopeID: 'global',
       body: {
-        userIDs:targetKeys
+        userIDs:add
       }
     },{
       success: {
-        func: res => {
-          notify.success('操作成功')
-          this.setState({
-            rightModal: false
-          })
+        func: () => {
+          if (flag) {
+            notify.success('操作成功')
+            this.setState({
+              rightModal: false
+            })
+          }
         },
         isAsync: true
       },
       failed: {
-        func: res => {
-          notify.error('操作失败')
-          this.setState({
-            rightModal: false
-          })
+        func: () => {
+          if (flag) {
+            notify.error('操作失败')
+            this.setState({
+              rightModal: false
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
+  }
+  delMember(del,flag) {
+    const { usersLoseRoles } = this.props;
+    let notify = new NotificationHandler()
+    usersLoseRoles({
+      roleID:'RID-XwPiLfrBYjqd',
+      scope: 'global',
+      scopeID: 'global',
+      body: {
+        userIDs:del
+      }
+    },{
+      success: {
+        func: () => {
+          if (flag) {
+            notify.success('操作成功')
+            this.setState({
+              rightModal: false
+            })
+          }
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          if (flag) {
+            notify.error('操作失败')
+            this.setState({
+              rightModal: false
+            })
+          }
         },
         isAsync: true
       }
@@ -660,11 +712,11 @@ class TeamManage extends Component {
   }
   formatUserList(users) {
     for (let i = 0; i < users.length; i++) {
-      Object.assign(users[i],{key:users[i].userID,title:users[i].namespace,chosen:false})
+      Object.assign(users[i],{key:users[i].userID},{title:users[i].namespace,chosen:false})
     }
   }
   openRightModal() {
-    const { loadUserList } = this.props;
+    const { loadUserList, roleWithMembers } = this.props;
     loadUserList({
       size: 0
     },{
@@ -672,16 +724,28 @@ class TeamManage extends Component {
         func: (res) => {
           this.formatUserList(res.users)
           this.setState({
-            userList:res,
-            targetKeys: [],
-            rightModal: true
+            userList:res.users
           })
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (res) => {
-        
+          roleWithMembers({
+            roleID:'RID-XwPiLfrBYjqd',
+            scope:'global',
+            scopeID:'global'
+          },{
+            success: {
+              func: res => {
+                this.setState({
+                  targetKeys:res.data.data ? res.data.data.map(item => {
+                    return item.userId
+                  }) : [],
+                  originalKeys: res.data.data ? res.data.data.map(item => {
+                    return item.userId
+                  }) : [],
+                  rightModal: true
+                })
+              },
+              isAsync: true
+            }
+          })
         },
         isAsync: true
       }
@@ -738,21 +802,24 @@ class TeamManage extends Component {
                    onOk = {()=> this.confirmRightModal()}
             >
               <div className="alertRow">可创建团队的成员能创建团队并有管理该团队的权限</div>
-              <Transfer
-                dataSource={userList.users}
-                listStyle={{
-                  width: 300,
-                  height: 270,
-                }}
-                operations={['添加', '移除']}
-                titles={['可选成员名','可创建团队成员']}
-                searchPlaceholder="按成员名搜索"
-                showSearch
-                filterOption={this.filterOption.bind(this)}
-                targetKeys={targetKeys}
-                onChange={this.handleChange.bind(this)}
-                render={item => item.title}
-              />
+              {
+                userList && userList.length > 0 &&
+                <Transfer
+                  dataSource={userList}
+                  listStyle={{
+                    width: 300,
+                    height: 270,
+                  }}
+                  operations={['添加', '移除']}
+                  titles={['可选成员名','可创建团队成员']}
+                  searchPlaceholder="按成员名搜索"
+                  showSearch
+                  filterOption={this.filterOption.bind(this)}
+                  targetKeys={targetKeys}
+                  onChange={this.handleChange.bind(this)}
+                  render={item => item && item.title}
+                />
+              }
             </Modal>
             <Button className="viewBtn" style={{ display: "none" }}>
               <Icon type="picture" />
@@ -849,5 +916,7 @@ export default connect(mapStateToProp, {
   loadTeamspaceList,
   chargeTeamspace,
   loadUserList,
-  usersAddRoles
+  usersAddRoles,
+  roleWithMembers,
+  usersLoseRoles
 })(TeamManage)
