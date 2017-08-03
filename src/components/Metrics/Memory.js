@@ -36,7 +36,10 @@ class Memory extends Component {
     data&&data.map((item) => {
       let timeData = []
       let values = []
-      item.metrics.map((metric) => {
+      const metrics = Array.isArray(item.metrics)
+        ? item.metrics
+        : []
+      metrics.map((metric) => {
         timeData.push(metric.timestamp)
         // metric.value || floatValue  only one
         values.push(Math.floor((metric.floatValue || metric.value) / 1024 / 1024 * 10) /10)

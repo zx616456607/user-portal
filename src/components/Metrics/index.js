@@ -14,6 +14,7 @@ import React, { Component, PropTypes } from 'react'
 import CPU from './CPU'
 import Memory from './Memory'
 import Network from './Network'
+import Disk from './Disk'
 
 class Metrics extends Component {
   constructor(props) {
@@ -21,7 +22,7 @@ class Metrics extends Component {
   }
 
   render() {
-    const { cpu, memory, networkReceived, networkTransmitted, events } = this.props
+    const { cpu, memory, networkReceived, networkTransmitted, events, diskReadIo, diskWriteIo } = this.props
     return (
       <div className="metrics" style={{marginTop:12}}>
         <CPU cpu={cpu} events={events}/>
@@ -30,6 +31,7 @@ class Metrics extends Component {
           networkTransmitted={networkTransmitted}
           events={events}
         />
+        <Disk diskReadIo={diskReadIo} events={events} diskWriteIo={diskWriteIo}/>
       </div>
     )
   }

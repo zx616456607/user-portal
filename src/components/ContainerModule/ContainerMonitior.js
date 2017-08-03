@@ -13,18 +13,28 @@ import { connect } from 'react-redux'
 import './style/ContainerMonitior.less'
 import TimeControl from '../Metrics/TimeControl'
 import Metrics from '../Metrics'
-import { loadContainerMetricsCPU, loadContainerMetricsMemory, loadContainerMetricsNetworkReceived, loadContainerMetricsNetworkTransmitted, loadContainerAllOfMetrics } from '../../actions/metrics'
+import {
+  loadContainerMetricsCPU,
+  loadContainerMetricsMemory,
+  loadContainerMetricsNetworkReceived,
+  loadContainerMetricsNetworkTransmitted,
+  loadContainerMetricsDiskRead,
+  loadContainerMetricsDiskWrite,
+  loadContainerAllOfMetrics,
+} from '../../actions/metrics'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 let metricsInterval;
 
 function loadData(props, query) {
-  const { cluster, containerName, loadContainerMetricsCPU, loadContainerMetricsMemory, loadContainerMetricsNetworkReceived, loadContainerMetricsNetworkTransmitted } = props
+  const { cluster, containerName, loadContainerMetricsCPU, loadContainerMetricsMemory, loadContainerMetricsNetworkReceived, loadContainerMetricsNetworkTransmitted, loadContainerMetricsDiskRead, loadContainerMetricsDiskWrite } = props
   loadContainerMetricsCPU(cluster, containerName, query)
   loadContainerMetricsMemory(cluster, containerName, query)
   loadContainerMetricsNetworkReceived(cluster, containerName, query)
   loadContainerMetricsNetworkTransmitted(cluster, containerName, query)
+  loadContainerMetricsDiskRead(cluster, containerName, query)
+  loadContainerMetricsDiskWrite(cluster, containerName, query)
 }
 
 class ContainerMonitior extends Component {
@@ -82,7 +92,7 @@ class ContainerMonitior extends Component {
   }
 
   render() {
-    const { cpu, memory, networkReceived, networkTransmitted, allcontainermetrics } = this.props
+    const { cpu, memory, networkReceived, networkTransmitted, diskReadIo, diskWriteIo, allcontainermetrics } = this.props
     const { intervalStatus } = this.state
     let showCpu = {
       data: [],
@@ -100,6 +110,14 @@ class ContainerMonitior extends Component {
       data: [],
       isFetching: false
     };
+    let showDiskReadIo = {
+      data: [],
+      isFetching: false
+    }
+    let showDiskWriteIo = {
+      data: [],
+      isFetching: false
+    }
     if(allcontainermetrics.data.length > 0) {
       showCpu.data.push(allcontainermetrics.data[0].cpu);
       showCpu.isFetching = false;
@@ -109,11 +127,17 @@ class ContainerMonitior extends Component {
       showNetworkTrans.isFetching = false;
       showNetworkRec.data.push(allcontainermetrics.data[3].networkRec);
       showNetworkRec.isFetching = false;
+      showDiskReadIo.data.push(allcontainermetrics.data[4].diskReadIo)
+      showDiskReadIo.isFetching = false
+      showDiskWriteIo.data.push(allcontainermetrics.data[5].diskWriteIo)
+      showDiskWriteIo.isFetching = false
     } else {
       showCpu = cpu;
       showMemory = memory;
       showNetworkTrans = networkTransmitted;
       showNetworkRec = networkReceived;
+      showDiskReadIo = diskReadIo
+      showDiskWriteIo = diskWriteIo
     }
     return (
       <div id="ContainerMonitior">
@@ -123,6 +147,8 @@ class ContainerMonitior extends Component {
           memory={showMemory}
           networkReceived={showNetworkRec}
           networkTransmitted={showNetworkTrans}
+          diskReadIo={showDiskReadIo}
+          diskWriteIo={showDiskWriteIo}
           />
       </div>
     )
@@ -139,6 +165,8 @@ function mapStateToProps(state, props) {
     memory,
     networkReceived,
     networkTransmitted,
+    diskReadIo,
+    diskWriteIo,
     allcontainersmetrics
   } = state.metrics.containers
   const cpuData = {
@@ -169,6 +197,20 @@ function mapStateToProps(state, props) {
   if (networkTransmitted && networkTransmitted.result) {
     networkTransmittedData.data = networkTransmitted.result.data || []
   }
+  const diskReadIoData = {
+    isFetching: diskReadIo.isFetching,
+    data: []
+  }
+  if(diskReadIo && diskReadIo.result){
+    diskReadIoData.data = diskReadIo.result.data || []
+  }
+  const diskWriteIoData = {
+    isFetching: diskWriteIo.isFetching,
+    data: []
+  }
+  if(diskWriteIo && diskWriteIo.result){
+    diskWriteIoData.data = diskWriteIo.result.data || []
+  }
   const allData = {
     isFetching: false,
     data: []
@@ -181,6 +223,8 @@ function mapStateToProps(state, props) {
     memory: memoryData,
     networkReceived: networkReceivedData,
     networkTransmitted: networkTransmittedData,
+    diskReadIo: diskReadIoData,
+    diskWriteIo: diskWriteIoData,
     allcontainermetrics: allData
   }
 }
@@ -189,5 +233,7 @@ export default connect(mapStateToProps, {
   loadContainerMetricsMemory,
   loadContainerMetricsNetworkReceived,
   loadContainerMetricsNetworkTransmitted,
-  loadContainerAllOfMetrics
+  loadContainerAllOfMetrics,
+  loadContainerMetricsDiskRead,
+  loadContainerMetricsDiskWrite,
 })(ContainerMonitior)
