@@ -604,24 +604,12 @@ class ProjectDetail extends Component{
   }
   render() {
     const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys,
-      currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, roleMap, characterModal, currentDeleteRole } = this.state;
+      currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form } = this.props;
     const { getFieldProps } = form;
-    const columns = [{
-      title: '成员名称',
-      dataIndex: 'name',
-      width: '100%'
-    }];
     const loopFunc = data => data.length >0 && data.map((item) => {
-      if (item.users) {
-        return (
-          <TreeNode key={item.teamId} title={item.teamName}>
-            {loopFunc(item.users)}
-          </TreeNode>
-        );
-      }
-      return <TreeNode key={item.userID} title={item.userName}/>;
+      return <TreeNode key={item.key} title={item.userName} disableCheckbox={true}/>;
     });
     const projectRole = (role) => {
       if (role === 'admin') {
@@ -1102,7 +1090,12 @@ class ProjectDetail extends Component{
                     <div className="memberTableBox">
                       {
                         currentMembers.length > 0 ?
-                          <Table columns={columns} dataSource={currentMembers} pagination={false}/>
+                          <Tree
+                            checkable multiple
+                            checkedKeys={currentMembers.map(item => `${item.key}`)}
+                          >
+                            {loopFunc(currentMembers)}
+                          </Tree>
                           :
                           <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.setState({connectModal:true})}>关联对象</Button>
                       }
