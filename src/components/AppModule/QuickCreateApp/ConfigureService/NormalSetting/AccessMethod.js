@@ -187,11 +187,33 @@ class AccessMethod extends Component {
     }
   }
 
+  getDefaultAccessMethod = () => {
+    const { clusterProxy, currentCluster } = this.props
+    let clusterID = camelize(currentCluster.clusterID)
+    let defaultValue = 'Cluster'
+    if(Object.keys(clusterProxy).length && clusterProxy[clusterID] && clusterProxy[clusterID].data){
+      let arr = clusterProxy[clusterID].data
+      for(let i = 0; i < arr.length; i++){
+        if(arr[i].isDefault){
+          switch(arr[i].type){
+            case "private":
+              return defaultValue = "Internaletwork"
+            case "public":
+              return defaultValue = 'PublicNetwork'
+            default:
+              return defaultValue = 'Cluster'
+          }
+        }
+      }
+    }
+    return defaultValue
+  }
+
   render() {
     const { formItemLayout, form } = this.props
     const { getFieldProps, getFieldValue } = form
     const accessMethodProps = getFieldProps('accessMethod', {
-      initialValue: 'PublicNetwork',
+      initialValue: this.getDefaultAccessMethod(),
       onChange: this.accessTypeChange
     })
     const accessMethodValue = getFieldValue('accessMethod')

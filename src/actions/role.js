@@ -272,28 +272,74 @@ export function AllowUpdateRole(body, callback) {
 	}
 }
 
-export const ROLE_GETWITHMEMEBERS_REQUEST = 'ROLE_GETWITHMEMEBERS_REQUEST'
-export const ROLE_GETWITHMEMEBERS_SUCCESS = 'ROLE_GETWITHMEMEBERS_SUCCESS'
-export const ROLE_GETWITHMEMEBERS_FAILURE = 'ROLE_GETWITHMEMEBERS_FAILURE'
+export const USERS_ADD_ROLES_REQUEST = 'USERS_ADD_ROLES_REQUEST'
+export const USERS_ADD_ROLES_SUCCESS = 'USERS_ADD_ROLES_SUCCESS'
+export const USERS_ADD_ROLES__FAILURE = 'USERS_ADD_ROLES__FAILURE'
 
-// Fetches get role with members from API.
-// Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetWithMembers(body,callback) {
-  let endpoint = `${API_URL_PREFIX}/role/${body.id}/withMember`
+function fetchUsersAddRoles(body,callback) {
   return {
     [FETCH_API]: {
-      types: [ROLE_GETWITHMEMEBERS_REQUEST, ROLE_GETWITHMEMEBERS_SUCCESS, ROLE_GETWITHMEMEBERS_FAILURE],
-      endpoint,
-      schema: {},
+      types: [USERS_ADD_ROLES_REQUEST, USERS_ADD_ROLES_SUCCESS, USERS_ADD_ROLES__FAILURE],
+      endpoint: `${API_URL_PREFIX}/role/${body.roleID}/${body.scope}/${body.scopeID}`,
+      options: {
+        method: 'POST',
+        body: body.body
+      },
+      schema: {}
     },
     callback
   }
 }
 
-// Fetches get role with members from API
-// Relies on Redux Thunk middleware.
-export function GetWithMembers(body,callback){
-  return(dispatch) => {
-    return dispatch(fetchGetWithMembers(body,callback))
+export function usersAddRoles(body,callback) {
+  return (dispatch,getState) => {
+    return dispatch(fetchUsersAddRoles(body,callback))
   }
 }
+
+export const USERS_LOSE_ROLES_REQUEST = 'USERS_LOSE_ROLES_REQUEST'
+export const USERS_LOSE_ROLES_SUCCESS = 'USERS_LOSE_ROLES_SUCCESS'
+export const USERS_LOSE_ROLES__FAILURE = 'USERS_LOSE_ROLES__FAILURE'
+
+function fetchUsersLoseRoles(body,callback) {
+  return {
+    [FETCH_API]: {
+      types: [USERS_LOSE_ROLES_REQUEST, USERS_LOSE_ROLES_SUCCESS, USERS_LOSE_ROLES__FAILURE],
+      endpoint: `${API_URL_PREFIX}/role/${body.roleID}/${body.scope}/${body.scopeID}/batch-delete`,
+      options: {
+        method: 'POST',
+        body: body.body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function usersLoseRoles(body,callback) {
+  return (dispatch,getState) => {
+    return dispatch(fetchUsersLoseRoles(body,callback))
+  }
+}
+
+export const ROLE_WITH_MEMBERS_REQUEST = 'ROLE_WITH_MEMBERS_REQUEST'
+export const ROLE_WITH_MEMBERS_SUCCESS = 'ROLE_WITH_MEMBERS_SUCCESS'
+export const ROLE_WITH_MEMBERS__FAILURE = 'ROLE_WITH_MEMBERS__FAILURE'
+
+function fetchRoleWithMembers(body,callback) {
+  return {
+    [FETCH_API]: {
+      types: [ROLE_WITH_MEMBERS_REQUEST, ROLE_WITH_MEMBERS_SUCCESS, ROLE_WITH_MEMBERS__FAILURE],
+      endpoint: `${API_URL_PREFIX}/role/${body.roleID}/${body.scope}/${body.scopeID}/users`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function roleWithMembers(body,callback) {
+  return (dispatch,getState) => {
+    return dispatch(fetchRoleWithMembers(body,callback))
+  }
+}
+

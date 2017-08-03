@@ -24,7 +24,8 @@ class CreateRoleModal extends Component{
       autoExpandParent: true,
       checkedKeys: [],
       selectedKeys: [],
-      allPermission: []
+      allPermission: [],
+      permissionCount: 0
     }
   }
   componentWillMount() {
@@ -167,7 +168,7 @@ class CreateRoleModal extends Component{
   }
   render() {
     const TreeNode = Tree.TreeNode;
-    const { allPermission } = this.state;
+    const { allPermission, permissionCount } = this.state;
     const { characterModal, form } = this.props;
     const { getFieldProps, isFieldValidating, getFieldError } = form;
     const formItemLayout = {
@@ -212,7 +213,7 @@ class CreateRoleModal extends Component{
         <div className="authChoose">
           <span>权限选择 :</span>
           <div className="authBox inlineBlock">
-            <div className="authTitle clearfix">可选权限 <div className="pull-right">共<span style={{color:'#59c3f5'}}>14</span> 个</div></div>
+            <div className="authTitle clearfix">可选权限 <div className="pull-right">共<span style={{color:'#59c3f5'}}>{permissionCount}</span> 个</div></div>
             <div className="treeBox">
               {
                 allPermission.length > 0 &&

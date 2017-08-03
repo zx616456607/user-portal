@@ -16,6 +16,7 @@ let CreateConfigModal = React.createClass({
         return
       }
       const groupName = values.newConfigName
+      // const groupSort = values.newConfigSort
       if (!validateK8sResource(groupName)) {
         notification.error('由小写字母、数字和连字符（-）组成')
         return
@@ -79,6 +80,29 @@ let CreateConfigModal = React.createClass({
     }
     callback()
   },
+  configSortExists(rules, value, callback) {
+    if (!value) {
+      callback([new Error('请输入配置组分类')])
+      return
+    }
+    if(value.length < 3 || value.length > 63) {
+      callback('分类长度为 3-63 个字符')
+      return
+    }
+    if(!/^[a-z]/.test(value)){
+      callback('分类须以小写字母开头')
+      return
+    }
+    if (!/[a-z0-9]$/.test(value)) {
+      callback('分类须以小写字母或数字结尾')
+      return
+    }
+    if (!validateK8sResource(value)) {
+      callback('由小写字母、数字和连字符（-）组成')
+      return
+    }
+    callback()
+  },
   handCancel(parentScope) {
      parentScope.configModal(false)
      this.props.form.resetFields()
@@ -91,10 +115,14 @@ let CreateConfigModal = React.createClass({
         { validator: this.configNameExists },
       ],
     });
-
+    // const sortProps = getFieldProps('newConfigSort', {
+    //   rules: [
+    //     { validator: this.configSortExists }
+    //   ]
+    // })
     const formItemLayout = {
-      labelCol: { span: 3 },
-      wrapperCol: { span: 21 },
+      labelCol: { span: 5 },
+      wrapperCol: { span: 19 },
     };
     return (
       <Modal
@@ -108,9 +136,15 @@ let CreateConfigModal = React.createClass({
         <Form horizontal>
           <Row style={{ paddingTop: '10px' }}>
             <Col span="18">
+              {/*<FormItem*/}
+                {/*{...formItemLayout}*/}
+                {/*label="配置分类"*/}
+              {/*>*/}
+                {/*<Input {...sortProps} type="text" id="newConfigSort" />*/}
+              {/*</FormItem>*/}
               <FormItem
                 {...formItemLayout}
-                label="名称"
+                label="配置组名称"
                 >
                 <Input {...nameProps} type="text" id="newConfigName" onPressEnter={()=> this.btnCreateConfigGroup()} />
               </FormItem>
