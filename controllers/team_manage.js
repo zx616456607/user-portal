@@ -324,3 +324,11 @@ exports.checkSpaceName = function* () {
   this.status = response.code
   this.body = response
 }
+
+exports.updateTeam = function* () {
+  const teamID = this.params.team_id;
+  const api = apiFactory.getApi(this.session.loginUser)
+  const body = this.request.body
+  const result = yield api.teams.patchBy([teamID],null,body)
+  this.body = result
+}

@@ -190,6 +190,9 @@ module.exports = function (Router) {
   router.post('/users/batch-delete', userController.batchDeleteUser)
   router.patch('/users/:user_id', userController.updateUser)
   router.get('/users/:user_name/existence', userController.checkUserName)
+  router.get('/users/:user_id/projects', userController.getUserProjects)
+  router.get('/users/:user_id/user_teams', userController.getUserTeamsNew)
+  router.put('/users/:user_id/teams', userController.updateTeamsUserBelongTo)
 
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
@@ -207,6 +210,7 @@ module.exports = function (Router) {
   router.put('/teams/:team_id/clusters/:cluster_id/request', teamController.requestTeamCluster)
   router.get('/teams/:team_name/existence', teamController.checkTeamName)
   router.get('/teams/:team_id/spaces/:space_name/existence', teamController.checkSpaceName)
+  router.patch('/teams/:team_id',teamController.updateTeam)
 
   //Overview Team
   router.get('/overview/teaminfo', overviewTeamController.getTeamOverview)
@@ -564,8 +568,10 @@ module.exports = function (Router) {
   router.get('/role',roleController.list)
   router.get('/role/:name/existence',roleController.existence)
   router.get('/role/:id/allowUpdate',roleController.allowUpdate)
-  router.get('/role/:id/withMember',roleController.getWithMembers)
-
+  router.post('/role/:roleID/:scope/:scopeID',roleController.usersAddRoles)
+  router.post('/role/:roleID/:scope/:scopeID/batch-delete',roleController.usersLoseRoles)
+  router.get('/role/:roleID/:scope/:scopeID/users',roleController.roleWithMembers)
+  
   // package manage
   router.get('/pkg', pkgController.getPkgManageList)
   router.get('/pkg/:id', pkgController.downloadPkg)

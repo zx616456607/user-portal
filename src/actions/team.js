@@ -699,3 +699,29 @@ export function getTeamDetail(teamID, callback) {
     return dispatch(fetchGetTeamDetail(teamID, callback))
   }
 }
+
+export const UPDATE_TEAM_DETAIL_REQUEST = 'UPDATE_TEAM_DETAIL_REQUEST'
+export const UPDATE_TEAM_DETAIL_SUCCESS = 'UPDATE_TEAM_DETAIL_SUCCESS'
+export const UPDATE_TEAM_DETAIL_FAILURE = 'UPDATE_TEAM_DETAIL_FAILURE'
+
+function fetchUpdateTeamDetail(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/${body.teamID}`
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_TEAM_DETAIL_REQUEST, UPDATE_TEAM_DETAIL_SUCCESS, UPDATE_TEAM_DETAIL_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PATCH',
+        body:body.body
+      }
+    },
+    callback
+  }
+}
+
+export function updateTeamDetail(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateTeamDetail(body, callback))
+  }
+}

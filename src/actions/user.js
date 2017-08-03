@@ -106,6 +106,7 @@ export const USER_TEAM_LIST_FAILURE = 'USER_TEAM_LIST_FAILURE'
 
 // Fetches team list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
+// [GET] /api/v2/teams
 function fetchUserTeamList(userID, query, callback) {
   let endpoint = `${API_URL_PREFIX}/users/${userID}/teams`
   if (query) {
@@ -126,6 +127,36 @@ function fetchUserTeamList(userID, query, callback) {
 export function loadUserTeamList(userID, query, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchUserTeamList(userID, query, callback))
+  }
+}
+
+export const USER_TEAMS_REQUEST = 'USER_TEAMS_REQUEST'
+export const USER_TEAMS_SUCCESS = 'USER_TEAMS_SUCCESS'
+export const USER_TEAMS_FAILURE = 'USER_TEAMS_FAILURE'
+
+// Fetches teams from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+// [GET] /api/v2/users/:user_id/teams
+function fetchUserTeams(userID, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userID}/user_teams`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [USER_TEAMS_REQUEST, USER_TEAMS_SUCCESS, USER_TEAMS_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Fetches team list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadUserTeams(userID, query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUserTeams(userID, query, callback))
   }
 }
 
@@ -424,7 +455,7 @@ export const STANDARD_USER_INFO_REQUEST = 'STANDARD_USER_INFO_REQUEST'
 export const STANDARD_USER_INFO_SUCCESS = 'STANDARD_USER_INFO_SUCCESS'
 export const STANDARD_USER_INFO_FAILURE = 'STANDARD_USER_INFO_FAILURE'
 
-function fetchStandardUserInfo(callback) { 
+function fetchStandardUserInfo(callback) {
   return {
     [FETCH_API]: {
       types: [STANDARD_USER_INFO_REQUEST, STANDARD_USER_INFO_SUCCESS, STANDARD_USER_INFO_FAILURE],
@@ -526,7 +557,7 @@ export const GET_USER_CERTIFICATE_REQUEST = 'GET_USER_CERTIFICATE_REQUEST'
 export const GET_USER_CERTIFICATE_SUCCESS = 'GET_USER_CERTIFICATE_SUCCESS'
 export const GET_USER_CERTIFICATE_FAILURE = 'GET_USER_CERTIFICATE_FAILURE'
 
-function fetchStandardUserCertificate(callback) { 
+function fetchStandardUserCertificate(callback) {
   return {
     [FETCH_API]: {
       types: [GET_USER_CERTIFICATE_REQUEST, GET_USER_CERTIFICATE_SUCCESS, GET_USER_CERTIFICATE_FAILURE],
@@ -594,5 +625,34 @@ function fetchSendActivationEmail(email, code, callback) {
 export function sendActivationEmail(email, code, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchSendActivationEmail(email, code, callback))
+  }
+}
+
+export const UPDATE_USER_TEAMS_REQUEST = 'UPDATE_USER_TEAMS_REQUEST'
+export const UPDATE_USER_TEAMS_SUCCESS = 'UPDATE_USER_TEAMS_SUCCESS'
+export const UPDATE_USER_TEAMS_FAILURE = 'UPDATE_USER_TEAMS_FAILURE'
+
+// Fetches update user teams by API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateUserTeams(userID, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userID}/teams`
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_USER_TEAMS_REQUEST, UPDATE_USER_TEAMS_SUCCESS, UPDATE_USER_TEAMS_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function updateUserTeams(userID, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateUserTeams(userID, body, callback))
   }
 }

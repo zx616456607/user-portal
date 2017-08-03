@@ -192,6 +192,19 @@ exports.getUserTeams = function* () {
   }
 }
 
+function* getUserTeamsNew() {
+  let userId = this.params.user_id
+  const loginUser = this.session.loginUser
+  userId = userId === 'default'
+           ? loginUser.id
+           : userId
+  const query = this.query || {}
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.users.getBy([ userId, 'teams' ], query)
+  this.body = result
+}
+exports.getUserTeamsNew = getUserTeamsNew
+
 exports.getUserTeamspaces = function* () {
   let userID = this.params.user_id
   const loginUser = this.session.loginUser
@@ -347,3 +360,33 @@ exports.checkUserName = function* () {
   this.body = response
 }
 
+function* getUserProjects() {
+  const userId = this.params.user_id
+  const api = apiFactory.getApi(this.session.loginUser)
+  const response = yield api.users.getBy([userId, 'projects'])
+  this.status = response.code
+  this.body = response
+}
+exports.getUserProjects = getUserProjects
+
+function* updateTeamsUserBelongTo() {
+  let userId = this.params.user_id
+  const loginUser = this.session.loginUser
+  const body = this.request.body
+  const api = apiFactory.getApi(loginUser)
+  userId = userId === 'default'
+           ? loginUser.id
+           : userId
+  let addTeamsReuslt
+  let removeTeamsReuslt
+  const reqArray = []
+  if (body.addTeams) {
+    reqArray.push(api.users.createBy([ userId, 'teams' ], null, body.addTeams))
+  }
+  if (body.removeTeams) {
+    reqArray.push(api.users.batchDeleteBy([ userId, 'teams', 'batch-delete' ], null, body.removeTeams))
+  }
+  const response = yield reqArray
+  this.body = response
+}
+exports.updateTeamsUserBelongTo = updateTeamsUserBelongTo

@@ -28,12 +28,13 @@ class TreeComponent extends Component {
       permissionInfo: [],
       alreadyAutoExpandParent: true,
       disableCheckArr:[],
-      halfChecked:[]
+      halfChecked:[],
+      alreadyAllChecked: false
     }
   }
   
   componentDidMount() {
-    const { permissionInfo, outPermissionInfo, existMember } = this.props
+    const { outPermissionInfo, existMember } = this.props
     this.getExistMember(outPermissionInfo,existMember)
   }
   componentWillReceiveProps(nextProps) {
@@ -65,9 +66,10 @@ class TreeComponent extends Component {
         }
       }
     }
-    
+    rightInfo = this.deleteRepeatPermission(rightInfo)
+    let copyExist = []
     for (let i = 0; i < existMember.length; i++) {
-      existMember[i] = `${existMember[i]}`
+      copyExist.push(`${existMember[i]}`)
     }
     let addKey = this.findParentNode(outPermission,existMember)
     this.setState({
@@ -148,6 +150,8 @@ class TreeComponent extends Component {
     this.setState({
       alreadyCheckedKeys: checkedKeys,
       alreadyAutoExpandParent: false,
+    },()=>{
+      this.isReadyCheck()
     });
   }
   transformMultiArrayToLinearArray = data => {
@@ -194,15 +198,20 @@ class TreeComponent extends Component {
   
   alreadySelectAll = e => {
     const { permissionInfo } = this.state
-    let arr = this.getAllid(permissionInfo)
+    let removeSame = this.deleteRepeatPermission(permissionInfo.slice(0))
+    let arr = this.getAllid(removeSame)
     if(e.target.checked){
       this.setState({
         alreadyCheckedKeys: arr,
+      },()=>{
+        this.isReadyCheck()
       })
     }
     if(!e.target.checked){
       this.setState({
         alreadyCheckedKeys: [],
+      },()=>{
+        this.isReadyCheck()
       })
     }
   }
@@ -246,7 +255,7 @@ class TreeComponent extends Component {
     let addKey = []
     for (let j = 0; j < checkedKeys.length; j++) {
       for (let i = 0; i < permissList.length; i++) {
-        if ((checkedKeys[j] === `${permissList[i].id}`) && permissList[i].parent) {
+        if ((checkedKeys[j] === permissList[i].id) && permissList[i].parent) {
           parentKey.push(permissList[i].parent)
         }
       }
@@ -257,7 +266,7 @@ class TreeComponent extends Component {
         if (permissList[j].id === parentKey[i]) {
           let branch = permissList[j].children
           flag = branch.every(item => {
-            return checkedKeys.indexOf(`${item.id}`) > -1
+            return checkedKeys.indexOf(item.id) > -1
           })
         }
       }
@@ -305,6 +314,8 @@ class TreeComponent extends Component {
       disableCheckArr:arr,
       permissionInfo:per,
       alreadyCheckedKeys:alreadyCheck
+    },()=>{
+      this.isReadyCheck()
     })
     
   }
@@ -349,6 +360,8 @@ class TreeComponent extends Component {
       alreadyCheckedKeys: [],
       disableCheckArr:difference(disableCheckArr.slice(0),backArr),
       checkedKeys:difference(checkedKeys.slice(0),backArr)
+    },()=>{
+      this.isReadyCheck()
     })
   }
   
@@ -363,13 +376,17 @@ class TreeComponent extends Component {
   isReadyCheck = () => {
     const { permissionInfo, alreadyCheckedKeys} = this.state;
     if ((permissionInfo.length > 0) && (alreadyCheckedKeys.length > 0) && (permissionInfo.length === alreadyCheckedKeys.length)) {
-      return true
+      this.setState({
+        alreadyAllChecked: true
+      })
     } else {
-      return false
+      this.setState({
+        alreadyAllChecked: false
+      })
     }
   }
   render() {
-    const { outPermissionInfo, permissionInfo, disableCheckArr } = this.state
+    const { outPermissionInfo, permissionInfo, disableCheckArr, alreadyAllChecked } = this.state
     const { text } = this.props
     const loopFunc = data => data.length >0 && data.map((item) => {
       if (item.users) {
@@ -436,7 +453,7 @@ class TreeComponent extends Component {
           <Col span="10">
             <div className='rightBox'>
               <div className='header'>
-                <Checkbox onClick={this.alreadySelectAll} checked={this.isReadyCheck()}>已选{text}</Checkbox>
+                <Checkbox onClick={this.alreadySelectAll} checked={alreadyAllChecked}>已选{text}</Checkbox>
                 <div className='numberBox'>共 <span className='number'>{this.returnTotalNum(permissionInfo)}</span> 条</div>
               </div>
               <div className='body'>

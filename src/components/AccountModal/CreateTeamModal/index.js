@@ -13,7 +13,6 @@
 import React from 'react'
 import { Input, Modal, Form, Button, } from 'antd'
 import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
-
 const createForm = Form.create
 const FormItem = Form.Item
 
@@ -58,18 +57,20 @@ let CreateTeamModal = React.createClass({
               return
             }
             callback()
-          }
+          },
+          isAsync: true
         },
         failed: {
           func: (err) => {
             _this.setState({
               disabled: true
             })
-            callback(new Error('团队名校验失败'))
-          }
+            return callback(new Error('团队名校验失败'))
+          },
+          isAsync: true
         }
       })
-    }, 0)
+    }, ASYNC_VALIDATOR_TIMEOUT)
   },
   handleOk() {
     const { form, onSubmit, scope } = this.props
@@ -151,8 +152,6 @@ let CreateTeamModal = React.createClass({
             <FormItem
               {...formItemLayout}
               label="备注"
-              hasFeedback
-              help={isFieldValidating('comment') ? '校验中...' : (getFieldError('comment') || []).join(', ')}
               key='commentInputForm'
             >
               <Input key='nameInput' {...commentProps} id="commentInput" type='textarea'/>

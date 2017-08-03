@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { Tabs, Table, Button, Icon, Input, Modal, Row, Col, Transfer } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import { formatDate } from '../../../common/tools'
-import { loadUserTeamList } from '../../../actions/user'
+import { loadUserTeams, updateUserTeams } from '../../../actions/user'
 import { removeTeamusers } from '../../../actions/team'
 import { GetProjectsMembers } from '../../../actions/project'
 import NotificationHandler from '../../../components/Notification'
@@ -32,6 +32,7 @@ class UserProjectsAndTeams extends React.Component {
       teamSortedInfo: null,
       removeMemberModalVisible: false,
       removeMemberBtnLoading: false,
+      addMemberBtnLoading: false,
       currentTeam: {},
       allTeams: [
         {
@@ -47,11 +48,14 @@ class UserProjectsAndTeams extends React.Component {
     this.handleTeamChange = this.handleTeamChange.bind(this)
     this.removeMember = this.removeMember.bind(this)
     this.handleTeamTransferChange = this.handleTeamTransferChange.bind(this)
+    this.handleAddMemberModalOk = this.handleAddMemberModalOk.bind(this)
+    this.handleAddMemberModalCancel = this.handleAddMemberModalCancel.bind(this)
+    this.defaultTeamTargetKeys = []
   }
 
   loadData() {
-    const { userId, loadUserTeamList, GetProjectsMembers } = this.props
-    loadUserTeamList(userId, null, {
+    const { userId, loadUserTeams, GetProjectsMembers } = this.props
+    loadUserTeams(userId, { size: 100 }, {
       success: {
         func: res => {
           const teamTargetKeys = []
@@ -60,6 +64,7 @@ class UserProjectsAndTeams extends React.Component {
               teamTargetKeys.push(team.teamID)
             }
           })
+          this.defaultTeamTargetKeys = teamTargetKeys
           this.setState({
             teamTargetKeys,
           })
@@ -135,6 +140,64 @@ class UserProjectsAndTeams extends React.Component {
 
   handleTeamTransferChange(teamTargetKeys) {
     this.setState({ teamTargetKeys })
+  }
+
+  handleAddMemberModalOk() {
+    const notification = new NotificationHandler()
+    const { updateUserTeams, userId } = this.props
+    const { teamTargetKeys } = this.state
+    const defaultTeamTargetKeys = this.defaultTeamTargetKeys
+    const addTeams = teamTargetKeys.filter(key => defaultTeamTargetKeys.indexOf(key) < 0)
+    const removeTeams = defaultTeamTargetKeys.filter(key => teamTargetKeys.indexOf(key) < 0)
+    const body = {}
+    if (addTeams.length > 0) {
+      body.addTeams = {
+        teams: addTeams
+      }
+    }
+    if (removeTeams.length > 0) {
+      body.removeTeams = {
+        teams: removeTeams
+      }
+    }
+    if (Object.keys(body).length === 0) {
+      notification.warn('未做任何改动')
+      return
+    }
+    this.setState({
+      addMemberBtnLoading: true,
+    })
+    updateUserTeams(userId, body, {
+      success: {
+        func: res => {
+          this.setState({
+            teamTransferModalVisible: false,
+          })
+          notification.success('修改用户团队信息成功')
+          this.loadData()
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          notification.error('修改用户团队信息失败')
+        },
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            addMemberBtnLoading: false,
+          })
+        }
+      }
+    })
+  }
+
+  handleAddMemberModalCancel() {
+    this.setState({
+      teamTransferModalVisible: false,
+      teamTargetKeys: this.defaultTeamTargetKeys,
+    })
   }
 
   render() {
@@ -269,7 +332,7 @@ class UserProjectsAndTeams extends React.Component {
                  * <Button type="ghost"><Icon type="delete" />移出团队</Button>
                  */}
                 <span className="searchInput">
-                  <Input size='large' placeholder='搜索' size="default" />
+                  <Input size='large' placeholder='搜索' />
                   <i className='fa fa-search' />
                 </span>
               </div>
@@ -319,7 +382,27 @@ class UserProjectsAndTeams extends React.Component {
           title="添加到团队"
           visible={teamTransferModalVisible}
           wrapClassName="addMemberModal"
-          onCancel={() => this.setState({teamTransferModalVisible: false})}
+          onCancel={this.handleAddMemberModalCancel}
+          onOk={this.handleAddMemberModalOk}
+          footer={[
+            <Button
+              key="back"
+              type="ghost"
+              size="large"
+              onClick={this.handleAddMemberModalCancel}
+            >
+              取 消
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              loading={this.state.addMemberBtnLoading}
+              onClick={this.handleAddMemberModalOk}
+            >
+              确 定
+            </Button>,
+          ]}
         >
           <Transfer
             dataSource={allTeams}
@@ -346,10 +429,10 @@ class UserProjectsAndTeams extends React.Component {
 
 function mapStateToProp(state, props) {
   let teamsData = []
-  const { teams } = state.user
-  if (teams.result) {
-    if (teams.result.teams) {
-      teamsData = teams.result.teams
+  const { userTeams } = state.user
+  if (userTeams.result) {
+    if (userTeams.result.teams) {
+      teamsData = userTeams.result.teams
     }
   }
   return {
@@ -358,7 +441,8 @@ function mapStateToProp(state, props) {
 }
 
 export default connect(mapStateToProp, {
-  loadUserTeamList,
+  loadUserTeams,
   removeTeamusers,
   GetProjectsMembers,
+  updateUserTeams,
 })(UserProjectsAndTeams)

@@ -44,7 +44,7 @@ const tenantRoutes = [{
     component: require('../components/TenantManage/_Enterprise/TeamManage').default,
   },
   {
-    path: 'team/:team_name/:team_id',
+    path: 'team/:team_id',
     component: require('../components/TenantManage/_Enterprise/TeamDetail').default,
   }
 ]

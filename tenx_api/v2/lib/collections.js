@@ -194,7 +194,7 @@ module.exports = function (request) {
         method: 'DELETE'
       }, callback)
     }
-
+    
     batchDelete() {
       return this.create.apply(this, arguments)
     }

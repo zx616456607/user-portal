@@ -117,10 +117,10 @@ let SvnComponent = React.createClass({
         config.username = values.username
         config.password = values.password
       }
-      if (config.address.indexOf('http') == -1) {
+      if (config.address.indexOf('http') == -1 && config.address.indexOf('svn') == -1) {
         Modal.warning({
           title: '地址输入有误',
-          content: '地址以http:// 或者 https:// 开头'
+          content: '只支持 HTTP, HTTPS, SVN 协议地址'
         });
         return
       }
