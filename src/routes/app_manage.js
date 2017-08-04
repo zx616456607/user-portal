@@ -66,6 +66,11 @@ const appManageRoutes = [{
     component: require('../components/AppModule/AppSnapshot').default,
   },
 }, {
+  path: 'network_isolation',
+  indexRoute: {
+    component: require('../components/AppModule/NetworkIsolation').default,
+  },
+},{
   path: 'vm_wrap',
   indexRoute: {
     component: require('../components/AppModule/VMWrap/VMServiceList').default,
