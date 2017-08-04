@@ -6,11 +6,28 @@
     margin-bottom: 22px;
     border-left: 8px solid #24a7eb;
     font-size: 16px;
-    padding-left: 8px
+    padding-left: 8px;
+    .bGuide{
+      float: right;
+      font-size: 14.8px;
+      border: none;
+      background-color: #ecf0f4;
+      color: #2db7f5;
+      Img{
+        padding-top: 2.5px;
+        margin-right: 10px;
+      }
+    }
+    .bGuide:hover{
+      border: 1px solid #2db7f5;
+    }
   }
   .content {
     color: #666;
     margin-bottom: 20px;
+    .ico{
+      cursor: pointer;
+    }
     .ant-card-body {
       padding: 0;
     }
@@ -29,6 +46,11 @@
           font-size: 16px;
           color: #fff;
         }
+        .checked{
+          display: inline-block;
+          font-size: 16px;
+          color: white
+        }
       }
       ul {
         width: 100%;
@@ -46,6 +68,11 @@
         margin: 2px;
         .Icon{
           display: none
+        }
+        .checked{
+          display: inline-block;
+          font-size: 16px;
+          color: #5cb85c
         }
       }
       li:hover{
@@ -92,13 +119,21 @@
       .active{
         display: block;
       }
-      @media (max-width: 1000px) {
-
-      }
       div{
         width: 100%;
         display: none
       }
+    }
+    .infos{
+      display: block
+    }
+    .itmsInfo{
+      // -webkit-transition: all 1s ease-in-out;
+      // -moz-transition: all 1s ease-in-out;
+      // -o-transition: all 1s ease-in-out;
+      // transition: all 1s ease-in-out;
+      // overflow:hidden;
+      display: none
     }
   }
 }
