@@ -510,7 +510,7 @@ class ProjectManage extends Component{
             roleWithMember: {}
           })
           notify.error('创建项目失败')
-          browserHistory.replace('/tenant_manage/project_manage?step=first')
+          browserHistory.replace('/tenant_manage/project_manage')
         },
         isAsync: true
       }
@@ -534,7 +534,6 @@ class ProjectManage extends Component{
   render() {
     const step = this.props.location.query.step || '';
     const { payNumber, selected, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro,projectName,userList } = this.state;
-    const { clustersFetching, clusters } = this.props;
     const pageOption = {
       total:  projectList && projectList.length,
       defaultPageSize: 10,
@@ -740,7 +739,7 @@ class ProjectManage extends Component{
               }
             </div>
             <div className={classNames({'hidden' : step !=='first'})}>
-              <CreateStepFirst clusters = { clusters } scope = {this} step = {step} updateProjectName={this.updateProjectName.bind(this)} updateProjectDesc={this.updateProjectDesc.bind(this)} updateCluster={this.updateCluster.bind(this)}/>
+              <CreateStepFirst scope = {this} step = {step} updateProjectName={this.updateProjectName.bind(this)} updateProjectDesc={this.updateProjectDesc.bind(this)} updateCluster={this.updateCluster.bind(this)}/>
             </div>
             <div className={classNames({'hidden' : step !=='second'})}>
               <CreateStepSecond scope={this} step = {step}  updateRole={this.updateRole.bind(this)}/>
@@ -763,18 +762,8 @@ class ProjectManage extends Component{
 }
 
 function mapStateToProps(state, props) {
-  const { teamClusters } = state.team || { teamClusters : {}};
-  let defaultTeamClusters = {
-    isFetching: false,
-    result:{
-      data: []
-    }
-  }
-  const { isFetching, result} = teamClusters || defaultTeamClusters;
-  const { data } = result || [];
   return {
-    clusters: data,
-    clustersFetching: isFetching
+  
   }
 }
 export default connect(mapStateToProps,{

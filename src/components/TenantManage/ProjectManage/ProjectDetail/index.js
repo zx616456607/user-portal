@@ -284,8 +284,8 @@ class ProjectDetail extends Component{
     return (
       <span className={`projectDetailClusterStatus projectDetailClusterStatus${status}`}>
         {status ===1 ? flag ? '（申请中...）' : '申请中...' : ''}
-        {status ===2 ? '已授权' : ''}
-        {status ===3 ? '已拒绝' : ''}
+        {status ===2 ? flag ? '（已授权）' : '已授权' : ''}
+        {status ===3 ? flag ? '（已拒绝）' : '已拒绝' : ''}
       </span>
     )
   }

@@ -547,6 +547,7 @@ class TeamDetail extends Component {
     const { usersAddRoles, teamID } = this.props;
     const { selectLeader } = this.state;
     let notify = new NotificationHandler()
+    
     usersAddRoles({
       roleID:'RID-i5rFhJowkzjo',
       scope: 'team',
@@ -556,8 +557,8 @@ class TeamDetail extends Component {
       }
     },{
       success: {
-        func: res => {
-          notify.success('转移团队创建者成功')
+        func: () => {
+          notify.success('移交团队成功')
           this.loadTeamDetail()
           this.setState({
             transferStatus: false,
@@ -567,8 +568,8 @@ class TeamDetail extends Component {
         isAsync: true
       },
       failed: {
-        func: res => {
-          notify.error('转移团队创建者失败')
+        func: () => {
+          notify.error('移交团队失败')
           this.setState({
             transferStatus: false,
             selectLeader: []
@@ -760,10 +761,10 @@ class TeamDetail extends Component {
                     <Button type="ghost" size="large" className="transferTeamLeader"
                       onClick={this.transferTeamLeader.bind(this)}
                     >
-                      转移团队创建者</Button>
+                      移交团队</Button>
                     <CommonSearchInput onSearch={this.loadTeamUser.bind(this)} size="large" placeholder="按成员名搜索"/>
                     <div className="userTotalBox">共计 {teamUsersTotal} 条</div>
-                    <Modal title="转移团队创建者身份"
+                    <Modal title="移交团队"
                       visible={this.state.transferStatus}
                       onOk={this.confirmTransferLeader.bind(this)}
                       onCancel={this.cancelTransferLeader.bind(this)}
