@@ -8,7 +8,7 @@
  * @author ZhangChengZheng
  */
 import React, { Component, PropTypes } from 'react'
-import { Checkbox } from 'antd'
+import { Checkbox, Row, Col, Modal } from 'antd'
 import './style/NetworkSolutions.less'
 import { connect } from 'react-redux'
 import { getNetworkSolutions } from '../../actions/cluster_node'
@@ -19,8 +19,11 @@ class NetworkSolutions extends Component {
     this.handlebodyTemplate = this.handlebodyTemplate.bind(this)
     this.handlefooterTemplate = this.handlefooterTemplate.bind(this)
     this.handleCurrentTemplate = this.handleCurrentTemplate.bind(this)
+    this.confirmSettingPermsission = this.confirmSettingPermsission.bind(this)
+    this.openPermissionModal = this.openPermissionModal.bind(this)
     this.state = {
-
+      permissionVisible: false,
+      confirmLoading: false,
     }
   }
 
@@ -31,9 +34,9 @@ class NetworkSolutions extends Component {
 
   handleCurrentTemplate(item) {
     if(item == 'macvlan'){
-      return <span>已启用基于Macvlan的私有网络</span>
+      return <span><i className="fa fa-check-circle-o check_icon" aria-hidden="true"></i>已启用基于Macvlan的私有网络</span>
     }
-    return <span>已启用基于BGP协议的私有网络</span>
+    return <span><i className="fa fa-check-circle-o check_icon" aria-hidden="true"></i>已启用基于BGP协议的私有网络</span>
   }
 
   handlebodyTemplate(){
@@ -42,23 +45,39 @@ class NetworkSolutions extends Component {
       return
     }
     let arr = networksolutions[clusterID].supported.map((item, index) => {
-      return <div className='standard' key={'body' + item}>
-        <div className='item firstitem'>
-          <span className='title'>{item}</span>
+      return <Row className='standard' key={'body' + item}>
+        <Col span="10">
+          <span className='item_header'>网络方案：</span><span className='title'>{item}</span>
           {
             item == networksolutions[clusterID].current
             ? <span className='tips'>{this.handleCurrentTemplate(item)}</span>
             : <span></span>
           }
-        </div>
-        <div className='item seconditem'>
+        </Col>
+        <Col className='seconditem' span="5">
+
           {
             item == networksolutions[clusterID].current
-            ? <Checkbox checked></Checkbox>
+            ? <span>
+                <span className='item_header'>该集群：</span>
+                <span className='tips' style={{marginLeft: 0}}>
+                  <i className="fa fa-check-circle-o check_icon" aria-hidden="true"></i>
+                  已启用
+                </span>
+              </span>
             : <span></span>
           }
-        </div>
-      </div>
+        </Col>
+        <Col span="9">
+          {
+            item == 'calico' && <span>
+              <span className='item_header'>允许当前集群用户开启 inbound 隔离：</span><span className='open_permission' onClick={this.openPermissionModal}>开启</span>
+            </span>
+          }
+        </Col>
+
+
+      </Row>
     })
     return arr
   }
@@ -86,22 +105,64 @@ class NetworkSolutions extends Component {
     return arr
   }
 
+  openPermissionModal(){
+    this.setState({
+      permissionVisible: true,
+      confirmLoading: false,
+    })
+  }
+
+  confirmSettingPermsission(){
+    this.setState({
+      permissionVisible: false,
+      confirmLoading: false,
+    })
+  }
+
   render(){
+    let allow = false
     return(
       <div id="networksolutions">
         <div className='header'>
           集群网络方案
         </div>
         <div className='body'>
-          <div className='title standard'>
-            <div className='item firstitem'>网络方案</div>
-            <div className='item seconditem'>该集群</div>
-          </div>
+          <Row className='standard' style={{ height: 40}}/>
           {this.handlebodyTemplate()}
         </div>
         <div className="footer">
           {this.handlefooterTemplate()}
         </div>
+
+        <Modal
+        	title={<span>{allow ? '开启' : '关闭'}</span>}
+        	visible={this.state.permissionVisible}
+        	closable={true}
+        	onOk={this.confirmSettingPermsission}
+        	onCancel={() => this.setState({permissionVisible: false})}
+        	maskClosable={false}
+        	confirmLoading={this.state.confirmLoading}
+        	wrapClassName="set_permission_modal"
+          okText={<span>{allow ? '已添加，开启允许' : '确定'}</span>}
+          cancelText={<span>{allow ? '尚未添加' : '取消'}</span>}
+        >
+
+          {
+            allow
+              ? <div className='info_box'>
+                  <i className="fa fa-exclamation-triangle warning_icon" aria-hidden="true"></i>
+                  <div>
+                    将允许当前集群用户开启 inbound 隔离，请提前保证所有代理出口 ip 添加进策略，具体咨询系统实施工程师。
+                  </div>
+              </div>
+              : <div className='info_box_close'>
+                <i className="fa fa-exclamation-triangle warning_icon" aria-hidden="true"></i>
+                <div>
+                  将关闭『允许当前集群用户开启 inbound 隔离』的功能。
+                </div>
+              </div>
+          }
+        </Modal>
       </div>
     )
   }

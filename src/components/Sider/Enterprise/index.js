@@ -491,6 +491,11 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 服务配置</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key='network_isolation'>
+                    <Link to='/app_manage/network_isolation'>
+                      <span><div className='sideCircle'></div> 网络隔离</span>
+                    </Link>
+                  </Menu.Item>
                   {
                     (this.props.loginUser.vmWrapConfig && this.props.loginUser.vmWrapConfig.enabled)
                     ? [
