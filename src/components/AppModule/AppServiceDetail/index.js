@@ -475,7 +475,12 @@ class AppServiceDetail extends Component {
                 </div>
               </TabPane>
               <TabPane tab='告警策略' key='#strategy'>
-                <AlarmStrategy serviceName={service.metadata.name} currentService={service} cluster={service.cluster}/>
+                <AlarmStrategy
+                  serviceName={service.metadata.name}
+                  currentService={service}
+                  cluster={service.cluster}
+                  isCurrentTab={activeTabKey === '#strategy'}
+                />
               </TabPane>
               <TabPane tab='自动伸缩' key='#autoScale'>
                 <AppAutoScale
