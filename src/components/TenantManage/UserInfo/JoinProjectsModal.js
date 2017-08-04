@@ -11,7 +11,10 @@
  */
 
 import React from 'react'
-import { Modal, Transfer, Button, Menu, Row, Col, Checkbox } from 'antd'
+import { Modal, Transfer, Button, Menu, Row, Col, Checkbox, Spin } from 'antd'
+import { connect } from 'react-redux'
+import classNames from 'classnames'
+import { GetProjectsDetail } from '../../../actions/project'
 import './style/JoinProjectsModal.less'
 
 // const TabPane = Tabs.TabPane
@@ -26,27 +29,60 @@ const STEPS = [
   },
 ]
 
-export default class JoinProjectsModal extends React.Component {
+class JoinProjectsModal extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       step: 1,
-      allProjects: [],
-      projectTargetKeys: [],
+      currentProjectKey: null,
+      selectedKeys: [],
     }
-    this.handleProjectTransferChange = this.handleProjectTransferChange.bind(this)
-    this.renderStep = this.renderStep.bind(this)
-  }
 
-  handleProjectTransferChange(projectTargetKeys) {
-    this.setState({ projectTargetKeys })
+    this.renderStep = this.renderStep.bind(this)
+    this.getProjectsByKeys = this.getProjectsByKeys.bind(this)
+    this.onProjectClick = this.onProjectClick.bind(this)
+    this.onRoleCheckChange = this.onRoleCheckChange.bind(this)
+
+    this.projectsDetailInit = {}
   }
 
   renderStep() {
-    const { step, allProjects, projectTargetKeys } = this.state
-    if (step === 1) {
-      return (
+    const { step, currentProjectKey, selectedKeys } = this.state
+    const { allProjects, projectTargetKeys, handleProjectTransferChange, projectsDetail } = this.props
+    const targetProjects = this.getProjectsByKeys(projectTargetKeys)
+    // if (step === 1) {
+    //   return (
+    //     <Transfer
+    //       dataSource={allProjects}
+    //       showSearch
+    //       listStyle={{
+    //         width: 250,
+    //         height: 300,
+    //       }}
+    //       titles={['选择项目', '已选择项目']}
+    //       operations={['添加', '移除']}
+    //       targetKeys={projectTargetKeys}
+    //       onChange={handleProjectTransferChange}
+    //       render={item => item && item.projectName}
+    //     />
+    //   )
+    // }
+    const stepOneClass = classNames({
+      'hide': step !== 1,
+    })
+    const stepTwoClass = classNames({
+      'hide': step !== 2,
+    })
+    const currentRelatedRoles = this.getRelatedRoles(projectsDetail, currentProjectKey).relatedRoles
+    return (
+      <div>
+        {/* <Tabs>
+          {
+            a.map(i => <TabPane tab={`选项卡${i}`} key={i}>选项卡{i}内容</TabPane>)
+          }
+        </Tabs> */}
         <Transfer
+          className={stepOneClass}
           dataSource={allProjects}
           showSearch
           listStyle={{
@@ -56,58 +92,168 @@ export default class JoinProjectsModal extends React.Component {
           titles={['选择项目', '已选择项目']}
           operations={['添加', '移除']}
           targetKeys={projectTargetKeys}
-          onChange={this.handleProjectTransferChange}
-          render={item => item.teamName}
+          onChange={handleProjectTransferChange}
+          render={item => item && item.projectName}
         />
-      )
-    }
-    const a = [0,1,2,3,4,5,6,7,8,9,10]
-    const r = [0,1,2,3,4,]
-    return (
-      <div>
-        {/* <Tabs>
-          {
-            a.map(i => <TabPane tab={`选项卡${i}`} key={i}>选项卡{i}内容</TabPane>)
-          }
-        </Tabs> */}
-        <Row gutter={16}>
-          <Col span={6}>
-            <div className="selectedProjects">
-              <Menu mode="inline">
-                {
-                  a.map(i => (
-                    <Menu.Item>
-                      项目{i}
-                    </Menu.Item>
-                  ))
-                }
-              </Menu>
-            </div>
-          </Col>
-          <Col span={18}>
-            <div className="roles">
+        <div className={stepTwoClass}>
+          <Row gutter={16} className="selectedProjectsHeader">
+            <Col span={6}>
+              已选项目
+            </Col>
+            <Col span={18}>
+              选择在项目中的角色（已选择1个，共{currentRelatedRoles.length}个）
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={6}>
+              <div className="selectedProjects">
+                <Menu
+                  mode="inline"
+                  onClick={this.onProjectClick} selectedKeys={selectedKeys}
+                  onSelect={({ item, key, selectedKeys }) => this.setState({selectedKeys})}
+                >
+                  {
+                    targetProjects.map(project => (
+                      <Menu.Item key={project.projectName}>
+                        {project.projectName}
+                      </Menu.Item>
+                    ))
+                  }
+                </Menu>
+              </div>
+            </Col>
+            <Col span={18}>
               {
-                r.map(i => (
-                  <div className="checkRole">
-                    <Checkbox>
-                      角色-{i}
-                    </Checkbox>
-                  </div>
-                ))
+                targetProjects.map(project => {
+                  const { projectName } = project
+                  const projectRolesClass = classNames({
+                    'roles': true,
+                    'hide': currentProjectKey !== projectName,
+                  })
+                  const { relatedRoles, isFetching } = this.getRelatedRoles(projectsDetail, projectName)
+                  return (
+                    <div className={projectRolesClass}>
+                      {
+                        isFetching && (
+                          <div className="loadingBox">
+                            <Spin />
+                          </div>
+                        )
+                      }
+                      {
+                        (!isFetching && relatedRoles.length === 0) && (
+                          <div className="loadingBox">
+                            {projectName} 项目下还没有角色
+                          </div>
+                        )
+                      }
+                      {
+                        !isFetching && relatedRoles.map(role => (
+                          <div className="checkRole">
+                            <Checkbox onChange={this.onRoleCheckChange.bind(this, role, project)}>
+                              {role.roleName}
+                            </Checkbox>
+                          </div>
+                        ))
+                      }
+                    </div>
+                  )
+                })
               }
-            </div>
-          </Col>
-        </Row>
+            </Col>
+          </Row>
+        </div>
       </div>
     )
   }
 
+  getProjectsByKeys(keys) {
+    const { allProjects } = this.props
+    return allProjects.filter(project => keys.indexOf(project.projectId) > -1)
+  }
+
+
+  onProjectClick({item, key, keyPath}) {
+    this.setState({
+      currentProjectKey: key,
+    })
+    if (this.projectsDetailInit[key]) {
+      return
+    }
+    const { GetProjectsDetail } = this.props
+    GetProjectsDetail({ projectsName: key })
+    this.projectsDetailInit[key] = true
+  }
+
+  getRelatedRoles(projectsDetail, projectName) {
+    const projectDetail = projectsDetail[projectName] && projectsDetail[projectName] || {}
+    const { isFetching } = projectDetail
+    const relatedRoles = projectDetail.data && projectDetail.data.relatedRoles || []
+    return {
+      isFetching,
+      relatedRoles,
+    }
+  }
+
+  onRoleCheckChange(role, project, e) {
+    console.log('role', role)
+    console.log('project', project)
+    console.log('e', e)
+  }
+
   render() {
+    const { onCancel, projectTargetKeys } = this.props
+    const { step } = this.state
     return (
       <Modal
         {...this.props}
         title="加入项目"
         wrapClassName="JoinProjectsModal"
+        footer={[
+          <Button
+            key="back"
+            type="ghost"
+            size="large"
+            onClick={() => {
+              onCancel()
+              this.setState({
+                step: 1,
+              })
+            }}
+          >
+            取 消
+          </Button>,
+          step === 1
+          ? (
+            <Button
+              key="next"
+              type="primary"
+              size="large"
+              disabled={projectTargetKeys.length === 0}
+              onClick={() => this.setState({step: 2})}
+            >
+              下一步
+            </Button>
+          )
+          : [
+          <Button
+            key="prev"
+            type="primary"
+            size="large"
+            disabled={projectTargetKeys.length === 0}
+            onClick={() => this.setState({ step: 1, currentProjectKey: null, selectedKeys: [] })}
+          >
+            上一步
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            size="large"
+          >
+            确 定
+          </Button>
+          ],
+        ]}
       >
       <div className="topStep">
         {
@@ -122,9 +268,17 @@ export default class JoinProjectsModal extends React.Component {
       {
         this.renderStep()
       }
-      <Button onClick={() => this.setState({step: 1})}>上一步</Button>
-      <Button onClick={() => this.setState({step: 2})}>下一步</Button>
       </Modal>
     )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    projectsDetail: state.projectAuthority.projectsDetail,
+  }
+}
+
+export default connect(mapStateToProps, {
+  GetProjectsDetail,
+})(JoinProjectsModal)

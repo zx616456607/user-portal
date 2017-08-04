@@ -19,7 +19,7 @@ const menuList = [
     url: '/tenant_manage',
     name: '概览'
   },{
-    url: '/tenant_manage/membermanagement',
+    url: '/tenant_manage/user',
     name: '成员管理'
   },{
     url: '/tenant_manage/team',

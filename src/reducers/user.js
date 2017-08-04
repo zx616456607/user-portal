@@ -142,6 +142,7 @@ export default function user(state = {
   users: [],
   teams: {},
   userTeams: {},
+  projects: {},
   teamspaces: [],
   teamspaceDetails: [],
   userAppInfo: {}
@@ -185,6 +186,11 @@ export default function user(state = {
       SUCCESS: ActionTypes.USER_TEAMS_SUCCESS,
       FAILURE: ActionTypes.USER_TEAMS_FAILURE
     }, state.userTeams, action, option),
+    projects: reducerFactory({
+      REQUEST: ActionTypes.USER_PROJECTS_REQUEST,
+      SUCCESS: ActionTypes.USER_PROJECTS_SUCCESS,
+      FAILURE: ActionTypes.USER_PROJECTS_FAILURE
+    }, state.projects, action, option),
     teamspaces: reducerFactory({
       REQUEST: ActionTypes.USER_TEAMSPACE_LIST_REQUEST,
       SUCCESS: ActionTypes.USER_TEAMSPACE_LIST_SUCCESS,

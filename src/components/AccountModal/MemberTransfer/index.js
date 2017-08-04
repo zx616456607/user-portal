@@ -32,7 +32,7 @@ class MemberTransfer extends Component{
   componentWillMount(){
     const { ListProjects,loadUserList } = this.props;
     loadUserList({size: 0})
-    ListProjects({},{},{
+    ListProjects({},{
       success:{
         func: (result)=>{
           if (result.statusCode === 200) {

@@ -15,7 +15,8 @@ import { connect } from 'react-redux'
 import { Tabs, Table, Button, Icon, Input, Modal, Row, Col, Transfer } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import { formatDate } from '../../../common/tools'
-import { loadUserTeams, updateUserTeams } from '../../../actions/user'
+import { loadUserTeams, updateUserTeams, loadUserProjects } from '../../../actions/user'
+import { ListProjects } from '../../../actions/project'
 import { removeTeamusers } from '../../../actions/team'
 import { GetProjectsMembers } from '../../../actions/project'
 import NotificationHandler from '../../../components/Notification'
@@ -30,30 +31,70 @@ class UserProjectsAndTeams extends React.Component {
     this.state = {
       projectSortedInfo: null,
       teamSortedInfo: null,
+      projectSortedInfo: null,
       removeMemberModalVisible: false,
       removeMemberBtnLoading: false,
       addMemberBtnLoading: false,
       currentTeam: {},
-      allTeams: [
-        {
-          key: 1,
-          teamName: 'asdfasdfasdfasdfasdf',
-        }
-      ],
+      currentProject: {},
+      allTeams: [],
       teamTargetKeys: [],
+      allProjects: [],
+      projectTargetKeys: [],
       teamTransferModalVisible: false,
       joinProjectsModalVisible: false,
+      removeProjectModalVisible: false,
+      removeProjectBtnLoading: false,
     }
-    this.loadData = this.loadData.bind(this)
+
+    this.loadTeamData = this.loadTeamData.bind(this)
     this.handleTeamChange = this.handleTeamChange.bind(this)
+    this.handleProjectChange = this.handleProjectChange.bind(this)
     this.removeMember = this.removeMember.bind(this)
     this.handleTeamTransferChange = this.handleTeamTransferChange.bind(this)
+    this.handleProjectTransferChange = this.handleProjectTransferChange.bind(this)
     this.handleAddMemberModalOk = this.handleAddMemberModalOk.bind(this)
     this.handleAddMemberModalCancel = this.handleAddMemberModalCancel.bind(this)
+    this.cancleJoinProjectsModal = this.cancleJoinProjectsModal.bind(this)
+
     this.defaultTeamTargetKeys = []
+    this.defaultProjectTargetKeys = []
   }
 
-  loadData() {
+  loadProjectsData() {
+    const { loadUserProjects, ListProjects, userId } = this.props
+    loadUserProjects(userId, { size: 100 }, {
+      success: {
+        func: res => {
+          const projectTargetKeys = []
+          res.data.map(project => {
+            projectTargetKeys.push(project.projectID)
+          })
+          this.defaultProjectTargetKeys = projectTargetKeys
+          this.setState({
+            projectTargetKeys,
+            // projectTargetKeys: []
+          })
+        },
+        isAsync: true,
+      }
+    })
+    ListProjects({ size: 100 }, {
+      success: {
+        func: res => {
+          res.data.map(project => {
+            project.key = project.projectId
+          })
+          this.setState({
+            allProjects: res.data,
+          })
+        },
+        isAsync: true,
+      }
+    })
+  }
+
+  loadTeamData() {
     const { userId, loadUserTeams, GetProjectsMembers } = this.props
     loadUserTeams(userId, { size: 100 }, {
       success: {
@@ -71,6 +112,7 @@ class UserProjectsAndTeams extends React.Component {
         }
       }
     })
+
     GetProjectsMembers(null, {
       success: {
         func: res => {
@@ -86,12 +128,22 @@ class UserProjectsAndTeams extends React.Component {
   }
 
   componentWillMount() {
-    this.loadData()
+    this.loadProjectsData()
+  }
+
+  componentDidMount() {
+    this.loadTeamData()
   }
 
   handleTeamChange(pagination, filters, sorter) {
     this.setState({
       teamSortedInfo: sorter,
+    })
+  }
+
+  handleProjectChange(pagination, filters, sorter) {
+    this.setState({
+      projectSortedInfo: sorter,
     })
   }
 
@@ -104,7 +156,7 @@ class UserProjectsAndTeams extends React.Component {
     })
     const doSuccess = () => {
       notification.success("移除用户成功")
-      this.loadData()
+      this.loadTeamData()
       this.setState({
         removeMemberModalVisible: false,
       })
@@ -142,6 +194,10 @@ class UserProjectsAndTeams extends React.Component {
     this.setState({ teamTargetKeys })
   }
 
+  handleProjectTransferChange(projectTargetKeys) {
+    this.setState({ projectTargetKeys })
+  }
+
   handleAddMemberModalOk() {
     const notification = new NotificationHandler()
     const { updateUserTeams, userId } = this.props
@@ -174,7 +230,7 @@ class UserProjectsAndTeams extends React.Component {
             teamTransferModalVisible: false,
           })
           notification.success('修改用户团队信息成功')
-          this.loadData()
+          this.loadTeamData()
         },
         isAsync: true,
       },
@@ -200,22 +256,30 @@ class UserProjectsAndTeams extends React.Component {
     })
   }
 
+  cancleJoinProjectsModal() {
+    this.setState({
+      joinProjectsModalVisible: false,
+      projectTargetKeys: this.defaultProjectTargetKeys
+    })
+  }
+
   render() {
-    const { teams, userDetail } = this.props
+    const { teams, userDetail, projects } = this.props
     let {
       teamSortedInfo, removeMemberModalVisible, currentTeam,
       teamTargetKeys, allTeams, teamTransferModalVisible,
-      joinProjectsModalVisible,
+      joinProjectsModalVisible, removeProjectModalVisible,
+      currentProject, allProjects, projectTargetKeys,
     } = this.state
     const projectColumns = [
       {
         title: '项目名',
-        dataIndex: 'teamName',
-        key: 'teamName',
+        dataIndex: 'projectName',
+        key: 'projectName',
         width: '25%',
         render: (text, record, index) => (
-          <Link to={`/tenant_manage/team/${record.teamName}/${record.teamID}`}>
-            {record.teamName}
+          <Link to={`/tenant_manage/project_manage/project_detail?name=${text}`}>
+            {text}
           </Link>
         )
       },
@@ -241,12 +305,12 @@ class UserProjectsAndTeams extends React.Component {
             <Button
               type="primary"
               className="setBtn"
-              onClick={() => browserHistory.push(`/tenant_manage/team/${record.teamName}/${record.teamID}`)}
+              onClick={() => browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${record.projectName}`)}
             >
               查看项目
             </Button>
             <Button
-              onClick={() => this.setState({ currentTeam: record, removeMemberModalVisible: true })}
+              onClick={() => this.setState({ currentProject: record, removeProjectModalVisible: true })}
               className="delBtn setBtn"
             >
               移出项目
@@ -318,7 +382,7 @@ class UserProjectsAndTeams extends React.Component {
                 {/* <Button type="ghost"><Icon type="delete" />移出项目</Button> */}
               </div>
               <div className="projectsContent">
-                <Table columns={projectColumns} dataSource={teams} onChange={this.handleTeamChange} pagination={false} />
+                <Table columns={projectColumns} dataSource={projects} onChange={this.handleProjectChange} pagination={false} />
               </div>
             </div>
           </TabPane>
@@ -342,6 +406,42 @@ class UserProjectsAndTeams extends React.Component {
             </div>
           </TabPane>
         </Tabs>
+        <Modal
+          title="移出项目"
+          visible={removeProjectModalVisible}
+          wrapClassName="removeMemberModal"
+          onCancel={() => this.setState({ removeProjectModalVisible: false })}
+          onOk={this.removeProject}
+          footer={[
+            <Button
+              key="back"
+              type="ghost"
+              size="large"
+              onClick={() => this.setState({ removeProjectModalVisible: false })}
+            >
+              取 消
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              loading={this.state.removeProjectBtnLoading}
+              onClick={this.removeProject}
+            >
+              确 定
+            </Button>,
+          ]}
+        >
+          <Row className="alertRow warningRow">
+            <Col span={2} className="alertRowIcon">
+              <i className="fa fa-exclamation-triangle" aria-hidden="true" />
+            </Col>
+            <Col span={22}>
+              将此成员从此项目移出后，取消关联该成员在项目中的所有项目角色，且无法继续使用此项目的资源，
+              确定将成员 {userDetail.userName} 移出项目 {currentProject.projectName} 么？
+            </Col>
+          </Row>
+        </Modal>
         <Modal
           title="移出团队"
           visible={removeMemberModalVisible}
@@ -372,10 +472,9 @@ class UserProjectsAndTeams extends React.Component {
             <Col span={2} className="alertRowIcon">
               <i className="fa fa-exclamation-triangle" aria-hidden="true" />
             </Col>
-            <Col span={22}>
-              移出后该成员将无法进入该团队参与的项目，并无法使用团队所对应的项目的资源，
+            <Col span={22} className="alertRowDesc">
               确定将成员 {userDetail.userName} 移出团队 {currentTeam.teamName} 么？
-          </Col>
+            </Col>
           </Row>
         </Modal>
         <Modal
@@ -420,7 +519,10 @@ class UserProjectsAndTeams extends React.Component {
         </Modal>
         <JoinProjectsModal
           visible={joinProjectsModalVisible}
-          onCancel={() => this.setState({joinProjectsModalVisible: false})}
+          allProjects={allProjects}
+          projectTargetKeys={projectTargetKeys}
+          handleProjectTransferChange={this.handleProjectTransferChange}
+          onCancel={this.cancleJoinProjectsModal}
         />
       </div>
     )
@@ -429,7 +531,7 @@ class UserProjectsAndTeams extends React.Component {
 
 function mapStateToProp(state, props) {
   let teamsData = []
-  const { userTeams } = state.user
+  const { userTeams, projects } = state.user
   if (userTeams.result) {
     if (userTeams.result.teams) {
       teamsData = userTeams.result.teams
@@ -437,6 +539,7 @@ function mapStateToProp(state, props) {
   }
   return {
     teams: teamsData,
+    projects: projects.result && projects.result.data || [],
   }
 }
 
@@ -445,4 +548,6 @@ export default connect(mapStateToProp, {
   removeTeamusers,
   GetProjectsMembers,
   updateUserTeams,
+  loadUserProjects,
+  ListProjects,
 })(UserProjectsAndTeams)

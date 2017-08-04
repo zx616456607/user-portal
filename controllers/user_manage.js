@@ -17,6 +17,8 @@ const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 const NO_CLUSTER_FLAG = constants.NO_CLUSTER_FLAG
+const CREATE_PROJECTS_ROLE_ID = constants.CREATE_PROJECTS_ROLE_ID
+const CREATE_TEAMS_ROLE_ID = constants.CREATE_TEAMS_ROLE_ID
 const ROLE_TEAM_ADMIN = 1
 const ROLE_SYS_ADMIN = 2
 const config = require('../configs')
@@ -275,12 +277,24 @@ exports.createUser = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const user = this.request.body
+  const method = 'createUser'
   if (!user || !user.userName || !user.password || !user.email) {
     const err = new Error('user name, password and email are required.')
     err.status = 400
     throw err
   }
   const result = yield api.users.create(user)
+
+  // add permissions for create project or team
+  const { authority } = user
+  if (authority && authority.length > 0) {
+    const { userID } = result
+    try {
+      result.addPermissons = yield api.users.createBy([ userID, 'global', 'global', 'roles' ], null, { roles: authority })
+    } catch (err) {
+      logger.error(method, 'add permissions failed', err.stack)
+    }
+  }
 
   if (!user.sendEmail) {
     this.body = {
@@ -307,10 +321,16 @@ exports.deleteUser = function* () {
   userID = userID === 'default' ? loginUser.id : userID
   const api = apiFactory.getApi(loginUser)
 
-  const result = yield api.users.delete(userID)
-
-  this.body = {
-    data: result
+  try {
+    const result = yield api.users.delete(userID)
+    this.body = {
+      data: result
+    }
+  } catch (error) {
+    console.log(`error==========`)
+    console.log(error)
+    this.status = error.statusCode
+    this.body = error
   }
 }
 
@@ -390,3 +410,16 @@ function* updateTeamsUserBelongTo() {
   this.body = response
 }
 exports.updateTeamsUserBelongTo = updateTeamsUserBelongTo
+
+function* updateUserActive() {
+  let userId = this.params.user_id
+  const active = this.params.active
+  const loginUser = this.session.loginUser
+  userId = userId === 'default'
+           ? loginUser.id
+           : userId
+  const api = apiFactory.getApi(loginUser)
+  const response = yield api.users.updateBy([ userId, active ])
+  this.body = response
+}
+exports.updateUserActive = updateUserActive

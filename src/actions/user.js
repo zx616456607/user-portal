@@ -527,8 +527,6 @@ export function createCertInfo(body, callback) {
   }
 }
 
-
-
 export const UPDATE_CERT_INFO_REQUEST = 'UPDATE_CERT_INFO_REQUEST'
 export const UPDATE_CERT_INFO_SUCCESS = 'UPDATE_CERT_INFO_SUCCESS'
 export const UPDATE_CERT_INFO_FAILUER = 'UPDATE_CERT_INFO_FAILUER'
@@ -654,5 +652,64 @@ function fetchUpdateUserTeams(userID, body, callback) {
 export function updateUserTeams(userID, body, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchUpdateUserTeams(userID, body, callback))
+  }
+}
+
+export const USER_PROJECTS_REQUEST = 'USER_PROJECTS_REQUEST'
+export const USER_PROJECTS_SUCCESS = 'USER_PROJECTS_SUCCESS'
+export const USER_PROJECTS_FAILURE = 'USER_PROJECTS_FAILURE'
+
+// Fetches projects from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUserProjects(userID, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userID}/projects`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [USER_PROJECTS_REQUEST, USER_PROJECTS_SUCCESS, USER_PROJECTS_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Fetches project list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadUserProjects(userID, query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUserProjects(userID, query, callback))
+  }
+}
+
+export const UPDATE_USER_ACTIVE_REQUEST = 'UPDATE_USER_ACTIVE_REQUEST'
+export const UPDATE_USER_ACTIVE_SUCCESS = 'UPDATE_USER_ACTIVE_SUCCESS'
+export const UPDATE_USER_ACTIVE_FAILURE = 'UPDATE_USER_ACTIVE_FAILURE'
+
+function fetchUpdateUserActive(userID, active, callback) {
+  if (active === 2) {
+    active = 'active'
+  } else {
+    active = 'deactive'
+  }
+  let endpoint = `${API_URL_PREFIX}/users/${userID}/${active}`
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_USER_ACTIVE_REQUEST, UPDATE_USER_ACTIVE_SUCCESS, UPDATE_USER_ACTIVE_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+      }
+    },
+    callback
+  }
+}
+
+export function updateUserActive(userID, active, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateUserActive(userID, active, callback))
   }
 }

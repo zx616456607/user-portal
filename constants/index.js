@@ -72,3 +72,5 @@ exports.DEFAULT_LICENSE = {
   max_nodes: 5,
   max_clusters: 1,
 }
+exports.CREATE_PROJECTS_ROLE_ID = 'RID-Ezeg3KPhm3mS'
+exports.CREATE_TEAMS_ROLE_ID = 'RID-XwPiLfrBYjqd'

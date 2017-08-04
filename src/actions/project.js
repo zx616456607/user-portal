@@ -139,8 +139,10 @@ export const PROJECTS_DETAIL_FAILURE = 'PROJECTS_DETAIL_FAILURE'
 // Relies on the custom API middleware defined in ../middleware/api.js.
 
 function fetchGetProjectsDetail(body, callback) {
-  let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/detail`
+  const projectsName = body.projectsName
+  let endpoint = `${API_URL_PREFIX}/projects/${projectsName}/detail`
 	return {
+    projectsName,
 		[FETCH_API]: {
 			types: [PROJECTS_DETAIL_REQUEST, PROJECTS_DETAIL_SUCCESS, PROJECTS_DETAIL_FAILURE],
 			endpoint,
@@ -165,7 +167,7 @@ export const PROJECTS_LIST_SUCCESS = 'PROJECTS_LIST_SUCCESS'
 export const PROJECTS_LIST_FAILURE = 'PROJECTS_LIST_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchListProjects(body, query, callback) {
+function fetchListProjects(query, callback) {
 	let endpoint = `${API_URL_PREFIX}/projects/list`
 	if (query) {
 		endpoint += `?${toQuerystring(query)}`
@@ -184,9 +186,9 @@ function fetchListProjects(body, query, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function ListProjects(body, query, callback) {
+export function ListProjects(query, callback) {
 	return (dispatch) => {
-		return dispatch(fetchListProjects(body, query, callback))
+		return dispatch(fetchListProjects(query, callback))
 	}
 }
 

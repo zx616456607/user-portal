@@ -28,7 +28,7 @@ const tenantRoutes = [{
     component: require('../components/TenantManage/AllPermissions').default,
   },
   {
-    path: 'membermanagement',
+    path: 'user',
     component: require('../components/TenantManage/Membermanagement').default,
   },
   {

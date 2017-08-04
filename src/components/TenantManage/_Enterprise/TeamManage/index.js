@@ -30,6 +30,7 @@ import CreateTeamModal from '../../../AccountModal/CreateTeamModal'
 import NotificationHandler from '../../../../components/Notification'
 import SpaceRecharge from '../Recharge/SpaceRecharge'
 import Title from '../../../Title'
+import { CREATE_TEAMS_ROLE_ID } from '../../../../../constants'
 
 let TeamTable = React.createClass({
   getInitialState() {
@@ -581,7 +582,7 @@ class TeamManage extends Component {
     },{
       success: {
         func: (res)=> {
-        
+
         },
         isAsync: true
       }
@@ -609,7 +610,7 @@ class TeamManage extends Component {
     })
   }
   deleteTeamConfirm() {
-  
+
   }
   cancelRightModal() {
     this.setState({
@@ -638,7 +639,7 @@ class TeamManage extends Component {
     const { usersAddRoles } = this.props;
     let notify = new NotificationHandler()
     usersAddRoles({
-      roleID:'RID-XwPiLfrBYjqd',
+      roleID:CREATE_TEAMS_ROLE_ID,
       scope: 'global',
       scopeID: 'global',
       body: {
@@ -673,7 +674,7 @@ class TeamManage extends Component {
     const { usersLoseRoles } = this.props;
     let notify = new NotificationHandler()
     usersLoseRoles({
-      roleID:'RID-XwPiLfrBYjqd',
+      roleID:CREATE_TEAMS_ROLE_ID,
       scope: 'global',
       scopeID: 'global',
       body: {
@@ -727,7 +728,7 @@ class TeamManage extends Component {
             userList:res.users
           })
           roleWithMembers({
-            roleID:'RID-XwPiLfrBYjqd',
+            roleID:CREATE_TEAMS_ROLE_ID,
             scope:'global',
             scopeID:'global'
           },{

@@ -193,6 +193,7 @@ module.exports = function (Router) {
   router.get('/users/:user_id/projects', userController.getUserProjects)
   router.get('/users/:user_id/user_teams', userController.getUserTeamsNew)
   router.put('/users/:user_id/teams', userController.updateTeamsUserBelongTo)
+  router.put('/users/:user_id/:active', userController.updateUserActive)
 
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
@@ -571,7 +572,7 @@ module.exports = function (Router) {
   router.post('/role/:roleID/:scope/:scopeID',roleController.usersAddRoles)
   router.post('/role/:roleID/:scope/:scopeID/batch-delete',roleController.usersLoseRoles)
   router.get('/role/:roleID/:scope/:scopeID/users',roleController.roleWithMembers)
-  
+
   // package manage
   router.get('/pkg', pkgController.getPkgManageList)
   router.get('/pkg/:id', pkgController.downloadPkg)
