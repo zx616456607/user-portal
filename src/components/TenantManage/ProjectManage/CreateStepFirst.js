@@ -13,6 +13,7 @@ import './style/ProjectManage.less'
 import { Input, Icon, Form } from 'antd'
 import { connect } from 'react-redux'
 import { CheckProjects } from '../../../actions/project'
+import { loadClusterList } from '../../../actions/cluster'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import { validateK8sResourceForServiceName } from '../../../common/naming_validation'
 
@@ -27,22 +28,18 @@ class CreateStepFirst extends Component{
   }
   componentWillMount() {
     const { selectedClusters } = this.state;
-    const { clusters } = this.props;
     if (selectedClusters.length === 0) {
-      this.setState({
-        choosableClusters:clusters
-      })
+      this.getAllClusters()
     }
   }
   componentWillReceiveProps(nextProps) {
     const { selectedClusters } = this.state;
-    const { clusters, step, form, scope } = nextProps;
+    const { step, form, scope } = nextProps;
     if (scope.state.closeCreateProject) {
       this.setState({
-        dropVisible:false,
-        choosableClusters:clusters,
-        selectedClusters:[]
+        dropVisible:false
       })
+      this.getAllClusters()
     }
     if (step !== 'first') {
       this.setState({
@@ -53,10 +50,22 @@ class CreateStepFirst extends Component{
       form.resetFields()
     }
     if (selectedClusters.length === 0) {
-      this.setState({
-        choosableClusters:clusters
-      })
+      this.getAllClusters()
     }
+  }
+  getAllClusters() {
+    const { loadClusterList } = this.props;
+    loadClusterList({},{
+      success: {
+        func: res => {
+          this.setState({
+            choosableClusters: res.data,
+            selectedClusters: []
+          })
+        },
+        isAsync: true
+      }
+    })
   }
   addCluster(item,flag) {
     const { choosableClusters, selectedClusters } = this.state;
@@ -210,5 +219,6 @@ function mapStateToFristProp(state, props) {
 }
 
 export default CreateStepFirst = connect(mapStateToFristProp, {
-  CheckProjects
+  CheckProjects,
+  loadClusterList
 })(CreateStepFirst)
