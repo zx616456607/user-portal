@@ -111,7 +111,7 @@ class Deployment {
           if (k8sDeployment.spec.template.spec.volumes) {
             let volumes = []
             for (let vol of k8sDeployment.spec.template.spec.volumes) {
-              let volume = { name: vol.name }
+              let volume = vol
               if (vol.rbd && vol.rbd.image) {
                 let strs = vol.rbd.image.split('.')
                 volume.rbd = { image: strs[strs.length - 1] }

@@ -14,8 +14,10 @@ import { Row, Col, Button, Card, Table, Modal, Transfer, InputNumber, Pagination
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
+import intersection from 'lodash/intersection'
+import xor from 'lodash/xor'
 import { ListProjects, DeleteProjects, UpdateProjects, CreateProjects } from '../../../actions/project'
-import { usersAddRoles } from '../../../actions/role'
+import { usersAddRoles, roleWithMembers, usersLoseRoles } from '../../../actions/role'
 import { loadUserList } from '../../../actions/user'
 import { chargeProject } from '../../../actions/charge'
 import { parseAmount } from '../../../common/tools'
@@ -50,7 +52,8 @@ class ProjectManage extends Component{
       userList: [],
       targetKeys: [],
       roleWithMember: {},
-      closeCreateProject: false
+      closeCreateProject: false,
+      originalKeys:[]
     }
   }
   componentWillMount() {
@@ -325,7 +328,7 @@ class ProjectManage extends Component{
     }
   }
   openRightModal() {
-    const { loadUserList } = this.props;
+    const { loadUserList, roleWithMembers } = this.props;
     loadUserList({
       size: 0
     },{
@@ -333,16 +336,29 @@ class ProjectManage extends Component{
         func: (res) => {
           this.formatUserList(res.users)
           this.setState({
-            userList:res,
-            targetKeys: [],
-            rightModal: true
+            userList:res
+          },()=>{
+            roleWithMembers({
+              roleID:'RID-Ezeg3KPhm3mS',
+              scope:'global',
+              scopeID:'global'
+            },{
+              success: {
+                func: res => {
+                  this.setState({
+                    targetKeys:res.data.data ? res.data.data.map(item => {
+                      return item.userId
+                    }) : [],
+                    originalKeys: res.data.data ? res.data.data.map(item => {
+                      return item.userId
+                    }) : [],
+                    rightModal: true
+                  })
+                },
+                isAsync: true
+              }
+            })
           })
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (res) => {
-        
         },
         isAsync: true
       }
@@ -354,32 +370,88 @@ class ProjectManage extends Component{
     })
   }
   confirmRightModal() {
+    const { targetKeys, originalKeys } = this.state;
+    let diff = xor(originalKeys,targetKeys)
+    let add = intersection(targetKeys,diff)
+    let del = intersection(originalKeys,diff)
+    if (!del.length && !add.length) {
+      this.setState({
+        rightModal: false
+      })
+    } else if (del.length && !add.length) {
+      this.removeMember(del,true)
+    } else if (!del.length && add.length) {
+      this.addMember(add,true)
+    } else {
+      this.addMember(add)
+      this.removeMember(del,true)
+    }
+  }
+  addMember(add,flag) {
     const { usersAddRoles } = this.props;
-    const { targetKeys } = this.state;
     let notify = new Notification()
     usersAddRoles({
       roleID:'RID-Ezeg3KPhm3mS',
       scope: 'global',
       scopeID: 'global',
       body: {
-        userIDs:targetKeys
+        userIDs:add
       }
     },{
       success: {
-        func: res => {
-          notify.success('操作成功')
-          this.setState({
-            rightModal: false
-          })
+        func: () => {
+          if (flag) {
+            notify.success('操作成功')
+            this.setState({
+              rightModal: false
+            })
+          }
         },
         isAsync: true
       },
       failed: {
-        func: res => {
-          notify.error('操作失败')
-          this.setState({
-            rightModal: false
-          })
+        func: () => {
+          if (flag) {
+            notify.error('操作失败')
+            this.setState({
+              rightModal: false
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
+  }
+  removeMember(del,flag) {
+    const { usersLoseRoles } = this.props;
+    let notify = new Notification()
+    usersLoseRoles({
+      roleID:'RID-Ezeg3KPhm3mS',
+      scope: 'global',
+      scopeID: 'global',
+      body: {
+        userIDs:del
+      }
+    },{
+      success: {
+        func: () => {
+          if (flag) {
+            notify.success('操作成功')
+            this.setState({
+              rightModal: false
+            })
+          }
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          if (flag) {
+            notify.error('操作失败')
+            this.setState({
+              rightModal: false
+            })
+          }
         },
         isAsync: true
       }
@@ -712,7 +784,9 @@ export default connect(mapStateToProps,{
   chargeProject,
   loadUserList,
   CreateProjects,
-  usersAddRoles
+  usersAddRoles,
+  roleWithMembers,
+  usersLoseRoles
 })(ProjectManage);
 
 class DelProjectTable extends Component{

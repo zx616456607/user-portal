@@ -13,6 +13,8 @@ import { Tree, Button, Checkbox, Row, Col } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import './style/TreeForMembers.less'
 import difference from 'lodash/difference'
+import xor from 'lodash/xor'
+import intersection from 'lodash/intersection'
 const TreeNode = Tree.TreeNode
 
 class TreeComponent extends Component {
@@ -28,8 +30,9 @@ class TreeComponent extends Component {
       permissionInfo: [],
       alreadyAutoExpandParent: true,
       disableCheckArr:[],
-      halfChecked:[],
-      alreadyAllChecked: false
+      alreadyAllChecked: false,
+      originalMembers: [],
+      deleteMembers: []
     }
   }
   
@@ -49,7 +52,8 @@ class TreeComponent extends Component {
         alreadyCheckedKeys: [],
         alreadyExpanedKeys: [],
         permissionInfo: [],
-        disableCheckArr:[]
+        disableCheckArr:[],
+        alreadyAllChecked: false
       })
     }
   }
@@ -58,22 +62,22 @@ class TreeComponent extends Component {
     let leftInfo = outPermissionInfo || []
     let rightInfo = []
     let checkedKeys = []
+    let originalMembers = []
     for (let i = 0; i < existMember.length; i++) {
       for (let j = 0; j < outPermission.length; j++) {
         if (outPermission[j].id === existMember[i]) {
           rightInfo.push(outPermission[j])
           checkedKeys.push(`${existMember[i]}`)
+          originalMembers.push(existMember[i])
         }
       }
     }
     rightInfo = this.deleteRepeatPermission(rightInfo)
-    let copyExist = []
-    for (let i = 0; i < existMember.length; i++) {
-      copyExist.push(`${existMember[i]}`)
-    }
-    let addKey = this.findParentNode(outPermission,existMember)
+    let copyExist = this.numberToString(existMember)
+    let addKey = this.findParentNode(outPermission,copyExist)
     this.setState({
-      checkedKeys,
+      checkedKeys:Array.from(new Set(checkedKeys)),
+      originalMembers: Array.from(new Set(checkedKeys)),
       disableCheckArr:Array.from(new Set(checkedKeys.concat(addKey))),
       permissionInfo: rightInfo,
       outPermissionInfo: leftInfo
@@ -87,50 +91,7 @@ class TreeComponent extends Component {
       autoExpandParent: false,
     });
   }
-  onCheck = (keys,e) => {
-    const { outPermissionInfo, checkedKeys } = this.state
-    let outPermission = this.transformMultiArrayToLinearArray(cloneDeep(outPermissionInfo))
-    let parentKey = []
-    let addKey = []
-    // key 
-    // let checkArr = new Set(checkedKeys.slice(0));
-    // for (let i = 0; i < keys.length; i++) {
-    //   if(checkArr.has(keys[i])) {
-    //     checkArr.delete(keys[i])
-    //   } else {
-    //     checkArr.add(keys[i])
-    //   }
-    // }
-    // checkArr = Array.from(checkArr)
-    //
-    // let checkArr = keys.checked;
-    // let harfKeys = []
-    // for (let j = 0; j < checkArr.length; j++) {
-    //   for (let i = 0; i < outPermission.length; i++) {
-    //     if ((checkArr[j] === `${outPermission[i].id}`) && outPermission[i].parent) {
-    //       parentKey.push(outPermission[i].parent)
-    //     }
-    //   }
-    // }
-    // for (let i = 0; i < parentKey.length; i++) {
-    //   let flag = false
-    //   for (let j = 0; j < outPermission.length; j++) {
-    //     if (outPermission[j].id === parentKey[i]) {
-    //       let branch = outPermission[j].children
-    //       flag = branch.every(item => {
-    //         return checkArr.indexOf(`${item.id}`) > -1
-    //       })
-    //     }
-    //   }
-    //   if (flag && e.checked) {
-    //     console.log('true')
-    //     addKey.push(parentKey[i])
-    //   } else {
-    //     harfKeys.push(parentKey[i])
-    //   }
-    // }
-    // checkArr = Array.from(new Set(checkArr.concat(addKey)))
-    // addKey = Array.from(new Set(addKey.concat(keys.checked)))
+  onCheck = (keys) => {
     this.setState({
       checkedKeys:keys,
       autoExpandParent: false,
@@ -255,7 +216,7 @@ class TreeComponent extends Component {
     let addKey = []
     for (let j = 0; j < checkedKeys.length; j++) {
       for (let i = 0; i < permissList.length; i++) {
-        if ((checkedKeys[j] === permissList[i].id) && permissList[i].parent) {
+        if ((checkedKeys[j] === `${permissList[i].id}`) && permissList[i].parent) {
           parentKey.push(permissList[i].parent)
         }
       }
@@ -266,7 +227,7 @@ class TreeComponent extends Component {
         if (permissList[j].id === parentKey[i]) {
           let branch = permissList[j].children
           flag = branch.every(item => {
-            return checkedKeys.indexOf(item.id) > -1
+            return checkedKeys.indexOf(`${item.id}`) > -1
           })
         }
       }
@@ -276,42 +237,70 @@ class TreeComponent extends Component {
     }
     return addKey
   }
+  numberToString(arr) {
+    let newArr = []
+    arr.forEach(item => {
+      newArr.push(`${item}`)
+    })
+    return newArr
+  }
+  stringToNumber(arr) {
+    let newArr = []
+    arr.forEach(item => {
+      newArr.push(Number(item))
+    })
+    return newArr
+  }
   addPermission = () => {
-    const { checkedKeys, outPermissionInfo } = this.state
+    const { checkedKeys, outPermissionInfo, originalMembers, permissionInfo } = this.state
     const { getTreeRightData } = this.props
     let newOutPermissionInfo = cloneDeep(outPermissionInfo)
+    let uniqCheckedKeys = Array.from(new Set(checkedKeys))
+    let diff = xor(uniqCheckedKeys,originalMembers);
+    let newCheck = intersection(uniqCheckedKeys,diff)
     if(!checkedKeys.length) return
     let permissList = this.transformMultiArrayToLinearArray(newOutPermissionInfo)
     let arr = []
-    let per = []
+    let per = permissionInfo.slice(0)
     let alreadyCheck = []
-    let addKey = this.findParentNode(permissList,checkedKeys)
-    for(let i = 0; i < checkedKeys.length; i++){
+    let rightCheck = []
+    let addKey = this.findParentNode(permissList,uniqCheckedKeys)
+    //左侧穿梭框选中状态
+    for(let i = 0; i < uniqCheckedKeys.length; i++){
       for(let j = 0; j < permissList.length; j++){
         let id = typeof permissList[j].id === 'number' ? `${permissList[j].id}` : permissList[j].id
-        if(id === checkedKeys[i]){
+        if(id === uniqCheckedKeys[i]){
           if (typeof permissList[j].id === 'number') {
             per.unshift(permissList[j])
-            alreadyCheck.push(id)
+            rightCheck.push(id)
           }
           arr.push(id)
         }
       }
     }
-    arr = Array.from(new Set(arr.concat(addKey)))
+    //右侧穿梭框状态
+    for(let i = 0; i < newCheck.length; i++){
+      for(let j = 0; j < permissList.length; j++){
+        let id = typeof permissList[j].id === 'number' ? `${permissList[j].id}` : permissList[j].id
+        if(id === newCheck[i]){
+          if (typeof permissList[j].id === 'number') {
+            // per.unshift(permissList[j])
+            alreadyCheck.push(id)
+          }
+        }
+      }
+    }
+    let withParent = Array.from(new Set(arr.concat(addKey)))
     per = this.deleteRepeatPermission(per)
     let alreadySet = new Set(alreadyCheck);
     alreadyCheck = Array.from(alreadySet)
-    let toNumber = []
-    alreadyCheck.forEach(item => {
-      toNumber.push(Number(item))
-    })
+    let toNumber = this.stringToNumber(Array.from(new Set(rightCheck)))
     if(getTreeRightData){
       getTreeRightData(toNumber,per)
     }
     this.setState({
-      checkedKeys:arr,
-      disableCheckArr:arr,
+      checkedKeys:withParent,
+      disableCheckArr:withParent,
       permissionInfo:per,
       alreadyCheckedKeys:alreadyCheck
     },()=>{
@@ -337,7 +326,6 @@ class TreeComponent extends Component {
             backArr.push(newOutPermissionInfo[i].parent)
           }
         }
-        
       }
     }
     for (let i = 0; i < newPermissonInfo.length; i++) {
@@ -358,8 +346,8 @@ class TreeComponent extends Component {
     this.setState({
       permissionInfo: arr,
       alreadyCheckedKeys: [],
-      disableCheckArr:difference(disableCheckArr.slice(0),backArr),
-      checkedKeys:difference(checkedKeys.slice(0),backArr)
+      disableCheckArr:difference(disableCheckArr,backArr),
+      checkedKeys:difference(checkedKeys,backArr)
     },()=>{
       this.isReadyCheck()
     })

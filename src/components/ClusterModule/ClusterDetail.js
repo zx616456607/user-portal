@@ -264,6 +264,7 @@ class ClusterDetail extends Component {
     super(props)
     this.handleTimeChange = this.handleTimeChange.bind(this)
     this.changeTime = this.changeTime.bind(this)
+    this.formatNodemetrics = this.formatNodemetrics.bind(this)
     this.state = {
       schedulable: false,
       foreverPodNumber: 0,
@@ -401,6 +402,23 @@ class ClusterDetail extends Component {
     formetDate.data.push({ metrics,containerName: nodeName})
     return formetDate
   }
+  formatNodemetrics(memoryData, nodeName){
+    if (!memoryData || !memoryData.data) return {}
+    let formetDate = { data: [] }
+    let metrics = {}
+    memoryData.data.containerName = nodeName
+    if (memoryData.data.metrics) {
+      metrics = memoryData.data.metrics.map((list) => {
+        return {
+          timestamp: formatDate(list.timestamp).substr(list.timestamp.indexOf('-')+1),
+          value: list.floatValue || list.value,
+        }
+      })
+
+    }
+    formetDate.data.push({ metrics,containerName: nodeName})
+    return formetDate
+  }
 
   render() {
     if (this.props.hostInfo.isFetching) {
@@ -416,6 +434,8 @@ class ClusterDetail extends Component {
     const showMemory = this.formetMemorymetrics(this.props.memory)
     const showNetworkRec = this.formetNetworkmetrics(this.props.networkReceived, this.props.clusterName)
     const showNetworkTrans = this.formetNetworkmetrics(this.props.networkTransmitted, this.props.clusterName)
+    const showNodeReadIo = this.formatNodemetrics(this.props.diskReadIo, this.props.clusterName)
+    const showNodeWriteIo = this.formatNodemetrics(this.props.diskWriteIo, this.props.clusterName)
     const fetchApi = {
       getNodeLabels: this.props.getNodeLabels,
       clusterID: this.props.clusterID,
@@ -469,6 +489,8 @@ class ClusterDetail extends Component {
                 memory={showMemory}
                 networkReceived={showNetworkRec}
                 networkTransmitted={showNetworkTrans}
+                diskReadIo={showNodeReadIo}
+                diskWriteIo={showNodeWriteIo}
               />
             </TabPane>
             <TabPane tab="告警策略" key="alarm">
@@ -504,7 +526,12 @@ function mapStateToProps(state, props) {
     isFetching: hostMetrics ? hostMetrics.isFetching : false,
   }
   const networkTransmittedData = {
-
+    isFetching: hostMetrics ? hostMetrics.isFetching : false,
+  }
+  const diskReadIo = {
+    isFetching: hostMetrics ? hostMetrics.isFetching : false,
+  }
+  const diskWriteIo = {
     isFetching: hostMetrics ? hostMetrics.isFetching : false,
   }
   const { nodeLabel } = state.cluster_nodes || {}
@@ -513,6 +540,8 @@ function mapStateToProps(state, props) {
     memoryData.data = hostMetrics.result.memory
     networkReceivedData.data = hostMetrics.result.rxRate
     networkTransmittedData.data = hostMetrics.result.txRate
+    diskReadIo.data = hostMetrics.result.diskReadIo
+    diskWriteIo.data = hostMetrics.result.diskWriteIo
   }
   let instant = {}
   if (hostInstant && hostInstant.result) {
@@ -523,6 +552,8 @@ function mapStateToProps(state, props) {
     memory: memoryData,
     networkReceived: networkReceivedData,
     networkTransmitted: networkTransmittedData,
+    diskReadIo,
+    diskWriteIo,
     nodeLabel: nodeLabel ? nodeLabel.result: {} ,
     clusterID,
     clusterName,

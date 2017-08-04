@@ -17,6 +17,9 @@ import { GetProjectsMembers } from '../../../actions/project'
 import { GetRole, roleWithMembers } from '../../../actions/role'
 import TreeComponent from '../../TreeForMembers'
 import cloneDeep from 'lodash/cloneDeep'
+import intersection from 'lodash/intersection'
+import xor from 'lodash/xor'
+
 let checkedKeysThird = []
 class CreateStepThird extends Component{
   constructor(props){
@@ -278,7 +281,7 @@ class CreateStepThird extends Component{
             </ul>
             <div className="inlineBlock pull-left rightBox">
               <div className="authBox inlineBlock">
-                <p className="authTitle">{currentRoleInfo.role && currentRoleInfo.role.name || '--' }共 <span style={{color:'#59c3f5'}}>{currentRoleInfo.role && currentRoleInfo.role.count}</span> 个权限</p>
+                <p className="authTitle">该角色共 <span style={{color:'#59c3f5'}}>{currentRoleInfo.role && currentRoleInfo.role.count}</span> 个权限</p>
                 <div className="treeBox">
                   {
                     currentRolePermission.length > 0 && (
@@ -297,7 +300,7 @@ class CreateStepThird extends Component{
               </div>
               <div className="memberBox inlineBlock">
                 <div className="memberTitle">
-                  <span>{currentRoleInfo.role && currentRoleInfo.role.name}已关联 <span className="themeColor">{this.state[`member${currentId}`] && this.state[`member${currentId}`].length || 0}</span> 个对象</span>
+                  <span>该角色已关联 <span className="themeColor">{this.state[`member${currentId}`] && this.state[`member${currentId}`].length || 0}</span> 个对象</span>
                   {
                     this.state[`member${currentId}`] && this.state[`member${currentId}`].length > 0 && <Button type="primary" size="large" onClick={()=> this.setState({connectModal:true})}>继续关联对象</Button>
                   }

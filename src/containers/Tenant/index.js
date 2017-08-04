@@ -17,7 +17,7 @@ import './style/index.less'
 const menuList = [
   {
     url: '/tenant_manage',
-    name: '租户'
+    name: '概览'
   },{
     url: '/tenant_manage/membermanagement',
     name: '成员管理'

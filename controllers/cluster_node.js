@@ -163,6 +163,16 @@ exports.getClustersMetrics = function* () {
     type: 'network/tx_rate',
     start: query.start
   }
+  let te_disk_read = {
+    source: 'prometheus',
+    type: 'disk/node_readio',
+    start: query.start
+  }
+  let te_disk_write = {
+    source: 'prometheus',
+    type: 'disk/node_writeio',
+    start: query.start
+  }
   const reqArray = []
   // metrics cpu use
   reqArray.push(api.getBy([cluster,'metric','nodes',node,'metrics'], cpuq))
@@ -172,13 +182,18 @@ exports.getClustersMetrics = function* () {
   reqArray.push(api.getBy([cluster,'metric','nodes',node,'metrics'],re_rateq))
   // metrics network/tx_rate
   reqArray.push(api.getBy([cluster,'metric','nodes',node,'metrics'],te_rateq))
-
+  // metrics te_node_read
+  reqArray.push(api.getBy([cluster,'metric','nodes',node,'metrics'],te_disk_read))
+  // metrics te_node_write
+  reqArray.push(api.getBy([cluster,'metric','nodes',node,'metrics'],te_disk_write))
   const results = yield reqArray
   this.body = {
     cpus: results[0][node],
     memory: results[1][node],
     rxRate: results[2][node],
-    txRate: results[3][node]
+    txRate: results[3][node],
+    diskReadIo: results[4][node],
+    diskWriteIo: results[5][node],
   }
 }
 

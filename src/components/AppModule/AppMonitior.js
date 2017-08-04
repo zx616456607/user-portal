@@ -13,18 +13,28 @@ import { Radio, } from 'antd'
 import { connect } from 'react-redux'
 import TimeControl from '../Metrics/TimeControl'
 import Metrics from '../Metrics'
-import { loadAppMetricsCPU, loadAppMetricsMemory, loadAppMetricsNetworkReceived, loadAppMetricsNetworkTransmitted, loadAppAllOfMetrics } from '../../actions/metrics'
+import {
+  loadAppMetricsCPU,
+  loadAppMetricsMemory,
+  loadAppMetricsNetworkReceived,
+  loadAppMetricsNetworkTransmitted,
+  loadAppAllOfMetrics,
+  loadAppMetricsDiskRead,
+  loadAppMetricsDiskWrite,
+} from '../../actions/metrics'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 let metricsInterval;
 
 function loadData(props, query) {
-  const { cluster, appName, loadAppMetricsCPU, loadAppMetricsMemory, loadAppMetricsNetworkReceived, loadAppMetricsNetworkTransmitted } = props
+  const { cluster, appName, loadAppMetricsCPU, loadAppMetricsMemory, loadAppMetricsNetworkReceived, loadAppMetricsNetworkTransmitted, loadAppMetricsDiskRead, loadAppMetricsDiskWrite } = props
   loadAppMetricsCPU(cluster, appName, query)
   loadAppMetricsMemory(cluster, appName, query)
   loadAppMetricsNetworkReceived(cluster, appName, query)
   loadAppMetricsNetworkTransmitted(cluster, appName, query)
+  loadAppMetricsDiskRead(cluster, appName, query)
+  loadAppMetricsDiskWrite(cluster, appName, query)
 }
 
 class AppMonitior extends Component {
@@ -82,7 +92,7 @@ class AppMonitior extends Component {
   }
 
   render() {
-    const { cpu, memory, networkReceived, networkTransmitted, appAllMetrics } = this.props
+    const { cpu, memory, networkReceived, networkTransmitted, diskReadIo, diskWriteIo, appAllMetrics } = this.props
     const { intervalStatus } = this.state
     let showCpu = {
       data: [],
@@ -100,6 +110,14 @@ class AppMonitior extends Component {
       data: [],
       isFetching: false
     };
+    let showDiskReadIo = {
+      data: [],
+      isFetching: false
+    }
+    let showDiskWriteIo = {
+      data: [],
+      isFetching: false
+    }
     if(appAllMetrics.data.length > 0) {
       appAllMetrics.data.map((metric) => {
         showCpu.data.push(metric[0].cpu[0]);
@@ -110,12 +128,18 @@ class AppMonitior extends Component {
         showNetworkTrans.isFetching = false;
         showNetworkRec.data.push(metric[3].networkRec[0]);
         showNetworkRec.isFetching = false;
+        showDiskReadIo.data.push(metric[4].diskReadIo[0])
+        showDiskReadIo.isFetching = false
+        showDiskWriteIo.data.push(metric[5].diskWriteIo[0])
+        showDiskWriteIo.isFetching = false
       })
     } else {
       showCpu = cpu;
       showMemory = memory;
       showNetworkTrans = networkTransmitted;
       showNetworkRec = networkReceived;
+      showDiskReadIo = diskReadIo
+      showDiskWriteIo = diskWriteIo
     }
     return (
       <div id="AppMonitior">
@@ -126,6 +150,8 @@ class AppMonitior extends Component {
           memory={showMemory}
           networkReceived={showNetworkRec}
           networkTransmitted={showNetworkTrans}
+          diskReadIo={showDiskReadIo}
+          diskWriteIo={showDiskWriteIo}
           />
       </div>
     )
@@ -143,6 +169,8 @@ function mapStateToProps(state, props) {
     memory,
     networkReceived,
     networkTransmitted,
+    diskReadIo,
+    diskWriteIo,
     appAllMetrics
   } = state.metrics.apps
   const cpuData = {
@@ -173,6 +201,20 @@ function mapStateToProps(state, props) {
   if (networkTransmitted && networkTransmitted.result) {
     networkTransmittedData.data = networkTransmitted.result.data || []
   }
+  const diskReadIoData = {
+    isFetching: diskReadIo.isFetching,
+    data: []
+  }
+  if(diskReadIo && diskReadIo.result){
+    diskReadIoData.data = diskReadIo.result.data || []
+  }
+  const diskWriteIoData = {
+    isFetching: diskWriteIo.isFetching,
+    data: []
+  }
+  if(diskWriteIo && diskWriteIo.result){
+    diskWriteIoData.data = diskWriteIo.result.data || []
+  }
   const allData = {
     isFetching: false,
     data: []
@@ -186,6 +228,8 @@ function mapStateToProps(state, props) {
     memory: memoryData,
     networkReceived: networkReceivedData,
     networkTransmitted: networkTransmittedData,
+    diskReadIo: diskReadIoData,
+    diskWriteIo: diskWriteIoData,
   }
 }
 
@@ -194,5 +238,7 @@ export default connect(mapStateToProps, {
   loadAppMetricsMemory,
   loadAppMetricsNetworkReceived,
   loadAppMetricsNetworkTransmitted,
-  loadAppAllOfMetrics
+  loadAppAllOfMetrics,
+  loadAppMetricsDiskRead,
+  loadAppMetricsDiskWrite,
 })(AppMonitior)
