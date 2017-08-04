@@ -10,105 +10,155 @@
  * @author ZhaoYanBei
  */
 
-import React, { PropTypes, Component } from 'react'
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import {Link, browserHistory} from 'react-router'
 import {Row, Card, Col, Alert, Button, Icon} from 'antd'
 import './style/tenantManage.less'
 import Title from '../Title'
+import { fetchinfoList } from '../../actions/tenant_overview'
 import ReactEcharts from 'echarts-for-react'
 
-export default class TenantManage extends Component {
+class TenantManage extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      memberNumber: 0,
-      teamNumber: 0,
-      projectNumber: 0,
-      roleNumber: 0,
-      btnLeft: 0,
-      btnTop: 0,
-      person: [],
-      isIconShow: false
+      member: 0,
+      team: 0,
+      project: 0,
+      role: 0,
+      user_supperUser: 0,
+      user_commonUser: 0,
+      project_createByUser: 0,
+      role_allCreated: 0,
+      role_createdByUser: 0,
+      role_defaultSet: 0,
+      team_createdByUser: 0,
+      dataRow: '',
+      isIconShow: false,
+      iconState: false,
+      isShowico: false,
+      classindex: 0,
     }
   }
 
-  /**
-   * 渲染前
-   */
+  componentWillMount(){
+    this.loadInfosList()
+
+  }
+
   componentDidMount(){
-    // let addBut = document.querySelector('.addBtn')[0];
-    // let left = addBut.offsetLeft, top = addBut.offsetTop;
-    // this.setState({
-    //   btnLeft: left,
-    //   btnTop: top
-    // })
-    this.handleLi()
-  }
-  /**
-   *
-   */
-  handleLi(){
-    let curLi = document.getElementById('tagItems').getElementsByTagName('li')
-    let oDiv = document.getElementsByClassName('Items')[0].getElementsByTagName('div')
 
-    for(let i =0; i< curLi.length; i++){
-      (function(index){
-        curLi[index].onclick = function(){
-          debugger
-          for (var i = 0; i < 4; i++) {
-            curLi[i].className = oDiv[i].className = ''
+  }
+
+  loadInfosList(){
+    const { fetchinfoList } = this.props
+    fetchinfoList(null, {
+      success: {
+        func: res => {
+          if(res.code === 200){
+            this.setState({
+              member: res.data.user.total,
+              team: res.data.team.total,
+              project: res.data.project.total,
+              role: res.data.role.total,
+              user_supperUser: res.data.user.supperUser,
+              user_commonUser: res.data.user.commonUser,
+              project_createByUser: res.data.project.createByUser,
+              role_allCreated: res.data.role.allCreated,
+              role_createdByUser: res.data.role.createdByUser,
+              role_defaultSet: res.data.role.defaultSet,
+              team_createdByUser: res.data.team.createdByUser
+            })
           }
-          curLi[index].className = 'active'
-          oDiv[index].className = 'active'
-        }
-      })(i)
-    }
+        },
+        isAsycn: true
+      }
+    })
   }
 
-  handleNav(name, nav){
-    switch(name){
-      case 'member':
-      this.setState({
-        isIconShow: true
-      })
-      browserHistory.push('./Membermanagement/index.js')
+  handleOnLi(index){
+    let getS = [{key: 'Menber'},{key: 'Team'},{key:'Project'},{key:'Role'}]
+    return localStorage.getItem(getS[index].key)
+  }
+
+  itemNav(index){
+    return index === this.state.classindex ? 'active' : '';
+  }
+
+  itemCon(index){
+    return index === this.state.classindex ? 'active' : '';
+  }
+
+  /**
+   * 引导地址
+   * @param {*} name
+   */
+  handleNav(e){
+    let id = e.currentTarget.getAttribute('data-index')
+    switch(id){
+      case '0':
+      localStorage.setItem('Menber','true')
+      browserHistory.push('/tenant_manage/membermanagement')
       return
-      case 'team':
-      return browserHistory.push('')
-      case 'project':
-      return browserHistory.push('./ProjectManage/index.js')
-      case 'role':
-      return browserHistory.push('./RoleManagement/index.js')
+      case '1':
+      localStorage.setItem('Team','true')
+      browserHistory.push('tenant_manage/team')
+      return
+      case '2':
+      localStorage.setItem('Project','true')
+      browserHistory.push('tenant_manage/project_manage')
+      return
+      case '3':
+      localStorage.setItem('Role','true')
+      browserHistory.push('tenant_manage/rolemanagement')
+      return
     }
   }
 
   /**
-   * @param person
-   * @param type
-   * @param fn
+   * 引导
    */
-  onEvent(person,type,fn){
-    if(!person['self'+type]){
-      person['self'+type] = []
-    }
-    let e = person['self']
-    e.push(fn);
-  }
-  /**
-   * @param person
-   * @param type
-   */
-  onRun(person,type){
-    let e = person['self'+type]
-    for(let i=0; i<e.length; i++){
-      e[i]();
+  handleIco(){
+    if(this.state.iconState){
+       this.setState({
+        iconState: false
+      })
+    } else {
+      this.setState({
+        iconState: true
+      })
     }
   }
 
   render() {
-    let curCard = {
-
-    }
+    const ListLi =  [{
+      id: 1,
+      text:'创建新成员',
+      itemName:'创建新成员',
+      item:'成员是指公司内外共同协作管理和使用平台的人，每个成员创建后都会有一个个的项目，可在项目中创建个人的资源'
+    },{
+      id: 2,
+      text: '创建团队并添加成员',
+      itemName:'创建团队',
+      item: '团队，由若干个成员组成的一个集体，可等效于公司的部门、小组、或子公司，以实现可将一批人统一管理，统一加到某个项目中并授予角色'
+    },{
+      id: 3,
+      text: '创建角色',
+      itemName:'创建角色',
+      item: '角色是指一组权限的集合，您可以创建一个有若干权限的角色，在某项目中添加角色并为该角色关联对象（成员或团队）'
+    },{
+      id: 4,
+      text: '创建项目',
+      itemName:'创建项目',
+      item: '项目之间是项目隔离的，通过创建项目实现按照角色关联对象（成员、团队），并根据授予的权限，使用项目中资源及功能'
+    }]
+    const { user_supperUser, user_commonUser, project_createByUser, role_allCreated, role_createdByUser,
+      role_defaultSet, team_createdByUser} = this.state
+    let u_supperUser = user_supperUser, u_commonUser = user_commonUser
+    let p_createByUser = project_createByUser
+    let r_allCreated = role_allCreated, r_createdByUser = role_createdByUser, r_defaultSet = role_defaultSet
+    let t_createdByUser = team_createdByUser
     let memberOption = {
       tooltip: {
         trigger: 'item',
@@ -121,9 +171,9 @@ export default class TenantManage extends Component {
         data: [{ name: '系统管理员' },  { name: '普通成员' }],
         formatter: function (name) {
           if (name === '系统管理员') {
-            return name + '10 个'
+            return name + u_supperUser +'个'
           } else if (name === '普通成员') {
-            return name + '3 个'
+            return name + u_commonUser +'个'
           }
         },
         textStyle: {
@@ -141,12 +191,12 @@ export default class TenantManage extends Component {
         avoidLabelOverlap: false,
         hoverAnimation: false,
         selectedOffset: 0,
-        radius: ['70', '0'],
-        center: ['27%', '48%'],
+        radius: ['60', '0'],
+        center: ['30%', '48%'],
         data: [
-          { value: 50, name: '系统管理员' },
-          { value: 10, name: '团队管理员' },
-          { value: 10, name: '普通成员', selected: true },
+          { value: u_supperUser, name: '系统管理员' },
+          // { value: 10, name: '团队管理员'},
+          { value: u_commonUser, name: '普通成员', selected: true },
         ],
         label: {
           normal: {
@@ -193,7 +243,7 @@ export default class TenantManage extends Component {
         data: [{ name: '我创建' }],
         formatter: function (name) {
           if (name === '我创建') {
-            return name + '10 个'
+            return name + t_createdByUser +'个'
           }
         },
         textStyle: {
@@ -211,11 +261,11 @@ export default class TenantManage extends Component {
         avoidLabelOverlap: false,
         hoverAnimation: false,
         selectedOffset: 0,
-        radius: ['70', '0'],
-        center: ['27%', '48%'],
+        radius: ['60', '0'],
+        center: ['30%', '48%'],
         data: [
-          { value: 2, name: '我创建'},
-          { value: 90,name: '剩余空间'},
+          { value: t_createdByUser, name: '我创建'},
+          // { value: 100/Number(t_createdByUser),name: '剩余空间'},
         ],
         label: {
           normal: {
@@ -262,7 +312,7 @@ export default class TenantManage extends Component {
         data: [{ name: '我创建' }],
         formatter: function (name) {
           if (name === '我创建') {
-            return name + '10 个'
+            return name + p_createByUser +'个'
           }
         },
         textStyle: {
@@ -280,11 +330,11 @@ export default class TenantManage extends Component {
         avoidLabelOverlap: false,
         hoverAnimation: false,
         selectedOffset: 0,
-        radius: ['70', '0'],
-        center: ['27%', '48%'],
+        radius: ['60', '0'],
+        center: ['30%', '48%'],
         data: [
-          { value: 20, name: '我创建'},
-          { value: 90,name: '剩余空间'},
+          { value: p_createByUser, name: '我创建'},
+          // { value: 100/Number(p_createByUser),name: '剩余空间'},
         ],
         label: {
           normal: {
@@ -330,11 +380,11 @@ export default class TenantManage extends Component {
         data: [{ name: '系统默认' }, { name: '共创建' }, { name: '我创建' }],
         formatter: function (name) {
           if (name === '系统默认') {
-            return name + '10 个'
+            return name + r_defaultSet +'个'
           } else if (name === '共创建') {
-            return name + '5 个'
+            return name + r_allCreated +'个'
           } else if (name === '我创建') {
-            return name + '3 个'
+            return name + r_createdByUser +'个'
           }
         },
         textStyle: {
@@ -352,12 +402,12 @@ export default class TenantManage extends Component {
         avoidLabelOverlap: false,
         hoverAnimation: false,
         selectedOffset: 0,
-        radius: ['70', '0'],
-        center: ['27%', '48%'],
+        radius: ['60', '0'],
+        center: ['30%', '48%'],
         data: [
-          { value: 50, name: '系统默认' },
-          { value: 10, name: '共创建' },
-          { value: 10, name: '我创建', selected: true },
+          { value: r_defaultSet, name: '系统默认' },
+          { value: r_allCreated, name: '共创建' },
+          { value: r_createdByUser, name: '我创建', selected: true },
         ],
         label: {
           normal: {
@@ -401,13 +451,21 @@ export default class TenantManage extends Component {
     let images = [
       {src:require('../../assets/img/tenantManage/tenantGuide.jpg')},
       {src:require('../../assets/img/tenantManage/tenatNav.png')},
-      {src:require('../../assets/img/tenantManage/tenatNavs.jpg')}
+      {src:require('../../assets/img/tenantManage/tenatNavs.jpg')},
+      {src:require('../../assets/img/tenantManage/guide.png')},
     ]
+    const btmStyle = {
+      visibility: this.state.iconState  ? 'inherit' : 'hidden'
+    }
+    const itemStyle = {
+      visibility: this.state.iconState  ? 'hidden' : 'inherit'
+    }
     return (
       <div id="tenantManage">
         <Title title="概览" />
         <Row className="title">
           控制权限概览
+          <Button style={ btmStyle }  className="bGuide" onClick={this.handleIco.bind(this)}><img src={images[3].src}/>操作引导</Button>
         </Row>
         <div className="alertRow">
           <span>此功能满足细粒度的多租户权限控制需求，帮助企业做好权限分配和管理，同时处理好授权方面的一些难题;
@@ -415,7 +473,7 @@ export default class TenantManage extends Component {
         </div>
         <Row className="content" gutter={16} style={{ marginTop: 16 }}>
           <Col span={6}>
-            <Card title="成员" extra={<div><span>共</span><span>{this.state.memberNumber}</span><span>人</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px'}}>
+            <Card title="成员" extra={<div><span>共</span><span>{this.state.member}</span><span>人</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px'}}>
               <ReactEcharts
                 notMerge={true}
                 option={memberOption}
@@ -424,7 +482,7 @@ export default class TenantManage extends Component {
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="团队" extra={<div><span>共</span><span>70</span><span>人</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+            <Card title="团队" extra={<div><span>共</span><span>{this.state.team}</span><span>人</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
               <ReactEcharts
                 notMerge={true}
                 option={teamOption}
@@ -433,7 +491,7 @@ export default class TenantManage extends Component {
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="项目" extra={<div><span>共</span><span>70</span><span>人</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+            <Card title="项目" extra={<div><span>共</span><span>{this.state.project}</span><span>人</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
               <ReactEcharts
                 notMerge={true}
                 option={projectOption}
@@ -442,7 +500,7 @@ export default class TenantManage extends Component {
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="角色" extra={<div><span>共</span><span>70</span><span>人</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+            <Card title="角色" extra={<div><span>共</span><span>{this.state.role}</span><span>人</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
               <ReactEcharts
                 notMerge={true}
                 option={roleOption}
@@ -451,72 +509,49 @@ export default class TenantManage extends Component {
             </Card>
           </Col>
         </Row>
-         <Row className="content" gutter={30}>
+        <Row className="content" gutter={30} visible={this.state.iconState}>
           <Col span={30}>
             <Card
               title="操作引导"
+              style={ itemStyle }
+              extra={<div style={{width:20, height: 20}}><Icon className="ico" style={{fontSize: 23}} type={this.state.iconState ? "circle-o-down" : "circle-o-up"} onClick={this.handleIco.bind(this)}/></div>}
             >
-              <div className="tagItems" id="tagItems">
-                <ul>
-                  <li className="active">
-                    <span style={{fontSize: 16}}>创建新成员</span>
-                    <Icon className="Icon" type="check-circle-o" style={{margin: 10}} />
-                  </li>
-                  <li>
-                    <span style={{fontSize: 16}}>创建团队并添加新成员</span>
-                    <Icon className="Icon" type="check-circle-o" style={{ margin: 10}} />
-                  </li>
-                  <li>
-                    <span style={{fontSize: 16}}>创建角色</span>
-                    <Icon className="Icon" type="check-circle-o" style={{margin: 10}} />
-                  </li>
-                  <li>
-                    <span style={{fontSize: 16}}>创建项目</span>
-                    <Icon className="Icon" type="check-circle-o" style={{margin: 10}} />
-                  </li>
-                </ul>
-              </div>
-              <div className="Items">
-                <div className="active">
-                  <img className="Nav" src={images[1].src}/>
-                  <img className="guide" src={images[2].src}/>
-                  <p className="desc" style={{backgroundColor: '#2abe84',color: '#fff'}}>
-                    <p className="words">成员是指公司内外共同协作管理和使用平台的人，每个成员创建后都会有
-                    一个个的项目，可在项目中创建个人的资源</p>
-                  </p>
-                  <Button type='primary' size='large' className='addBtn'>
-                    <i className='fa fa-plus' /> 创建新成员
-                  </Button>
+              <div className={this.state.iconState ? "itmsInfo" : "infos"}>
+                <div className="tagItems" id="tagItems">
+                  <ul>
+                    {
+                      ListLi.map((value,index)=>(
+                        <li className={this.itemNav(index)} data-index={index} key={index} onClick={() => this.setState({ classindex: index })}>
+                          <span style={{fontSize: 16}}>{value.text}</span>
+                          {
+                            localStorage.getItem('Menber') ?
+                            this.handleOnLi(index) ?
+                            <Icon className="checked" type="check-circle" style={{margin: 10}}/> :
+                              this.handleOnLi(index) ?
+                            <Icon className="Icon" type="check-circle-o" style={{margin: 10}}/> : ''
+                            : ''
+                          }
+                        </li>
+                      ))
+                    }
+                  </ul>
                 </div>
-                <div>
-                  <img className="Nav" src={images[1].src}/>
-                  <img className="guide" src={images[0].src}/>
-                  <p className="desc" style={{backgroundColor: '#2abe84',color: '#fff'}}>
-                    <p className="words">团队，由若干个成员组成的一个集体，可等效于公司的部门、小组、或子公司，以实现可将一批人统一管理，统一加到某个项目中并授予角色</p>
-                  </p>
-                  <Button type='primary' size='large' className='addBtn'>
-                    <i className='fa fa-plus' /> 创建团队
-                  </Button>
-                </div>
-                <div>
-                  <img className="Nav" src={images[1].src}/>
-                  <img className="guide" src={images[0].src}/>
-                   <p className="desc" style={{backgroundColor: '#2abe84',color: '#fff'}}>
-                    <p className="words">角色是指一组权限的集合，您可以创建一个有若干权限的角色，在某项目中添加角色并为该角色关联对象（成员或团队）</p>
-                  </p>
-                  <Button type='primary' size='large' className='addBtn'>
-                    <i className='fa fa-plus' /> 创建角色
-                  </Button>
-                </div>
-                <div>
-                  <img className="Nav" src={images[1].src}/>
-                  <img className="guide" src={images[0].src}/>
-                   <p className="desc" style={{backgroundColor: '#2abe84',color: '#fff'}}>
-                    <p className="words">项目之间是项目隔离的，通过创建项目实现按照角色关联对象（成员、团队），并根据授予的权限，使用项目中资源及功能</p>
-                  </p>
-                  <Button type='primary' size='large' className='addBtn'>
-                    <i className='fa fa-plus' /> 创建项目
-                  </Button>
+                <div className="Items">
+                  {
+                    ListLi.map((value, index) => (
+                      <div className={this.itemCon(index)} key={index}>
+                        <img className="Nav" src={images[1].src}/>
+                        <img className="guide" src={index === 0 ? images[2].src : images[0].src}/>
+                        <p className="desc" style={{backgroundColor: '#2abe84',color: '#fff'}}>
+                            <p className="words">{value.item} </p>
+                        </p>
+                        <Button type='primary' data-index={index} size='large' className='addBtn' onClick={ this.handleNav }>
+                          <i className='fa fa-plus' />
+                           {value.itemName}
+                        </Button>
+                      </div>
+                    ))
+                  }
                 </div>
               </div>
             </Card>
@@ -526,3 +561,11 @@ export default class TenantManage extends Component {
     )
   }
 }
+
+function mapStateToProps(state, props){
+  return{}
+}
+
+export default connect(mapStateToProps, {
+  fetchinfoList
+})(TenantManage)

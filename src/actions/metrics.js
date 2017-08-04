@@ -126,15 +126,15 @@ export const METRICS_CONTAINER_DISK_READ_REQUEST = 'METRICS_CONTAINER_DISK_READ_
 export const METRICS_CONTAINER_DISK_READ_SUCCESS = 'METRICS_CONTAINER_DISK_READ_SUCCESS'
 export const METRICS_CONTAINER_DISK_READ_FAILURE = 'METRICS_CONTAINER_DISK_READ_FAILURE'
 
-function fetchContainerMetricsDiskRead(cluster, appName, query = {}) {
-  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/metrics`
+function fetchContainerMetricsDiskRead(cluster, containerName, query = {}) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/metrics`
   query.type = METRICSS_DISK_READ
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
   return {
     cluster,
-    appName,
+    containerName,
     [FETCH_API]: {
       types: [METRICS_CONTAINER_DISK_READ_REQUEST, METRICS_CONTAINER_DISK_READ_SUCCESS, METRICS_CONTAINER_DISK_READ_FAILURE],
       endpoint,
@@ -142,9 +142,9 @@ function fetchContainerMetricsDiskRead(cluster, appName, query = {}) {
     }
   }
 }
-export function loadContainerMetricsDiskRead(cluster, appName, query) {
+export function loadContainerMetricsDiskRead(cluster, containerName, query) {
   return (dispatch) => {
-    return dispatch(fetchContainerMetricsDiskRead(cluster, appName, query))
+    return dispatch(fetchContainerMetricsDiskRead(cluster, containerName, query))
   }
 }
 
@@ -153,15 +153,15 @@ export const METRICS_CONTAINER_DISK_WRITE_REQUEST = 'METRICS_CONTAINER_DISK_WRIT
 export const METRICS_CONTAINER_DISK_WRITE_SUCCESS = 'METRICS_CONTAINER_DISK_WRITE_SUCCESS'
 export const METRICS_CONTAINER_DISK_WRITE_FAILURE = 'METRICS_CONTAINER_DISK_WRITE_FAILURE'
 
-function fetchContainerMetricsDiskWrite(cluster, appName, query = {}) {
-  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/metrics`
+function fetchContainerMetricsDiskWrite(cluster, containerName, query = {}) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/metrics`
   query.type = METRICSS_DISK_WRITE
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
   return {
     cluster,
-    appName,
+    containerName,
     [FETCH_API]: {
       types: [METRICS_CONTAINER_DISK_WRITE_REQUEST, METRICS_CONTAINER_DISK_WRITE_SUCCESS, METRICS_CONTAINER_DISK_WRITE_FAILURE],
       endpoint,
@@ -169,9 +169,9 @@ function fetchContainerMetricsDiskWrite(cluster, appName, query = {}) {
     }
   }
 }
-export function loadContainerMetricsDiskWrite(cluster, appName, query) {
+export function loadContainerMetricsDiskWrite(cluster, containerName, query) {
   return (dispatch) => {
-    return dispatch(fetchContainerMetricsDiskWrite(cluster, appName, query))
+    return dispatch(fetchContainerMetricsDiskWrite(cluster, containerName, query))
   }
 }
 
@@ -315,15 +315,15 @@ export const METRICS_SERVICE_DISK_READ_REQUEST = 'METRICS_SERVICE_DISK_READ_REQU
 export const METRICS_SERVICE_DISK_READ_SUCCESS = 'METRICS_SERVICE_DISK_READ_SUCCESS'
 export const METRICS_SERVICE_DISK_READ_FAILURE = 'METRICS_SERVICE_DISK_READ_FAILURE'
 
-function fetchServiceMetricsDiskRead(cluster, appName, query = {}) {
-  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/metrics`
+function fetchServiceMetricsDiskRead(cluster, serviceName, query = {}) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICSS_DISK_READ
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
   return {
     cluster,
-    appName,
+    serviceName,
     [FETCH_API]: {
       types: [METRICS_SERVICE_DISK_READ_REQUEST, METRICS_SERVICE_DISK_READ_SUCCESS, METRICS_SERVICE_DISK_READ_FAILURE],
       endpoint,
@@ -331,9 +331,9 @@ function fetchServiceMetricsDiskRead(cluster, appName, query = {}) {
     }
   }
 }
-export function loadServiceMetricsDiskRead(cluster, appName, query) {
+export function loadServiceMetricsDiskRead(cluster, serviceName, query) {
   return (dispatch) => {
-    return dispatch(fetchServiceMetricsDiskRead(cluster, appName, query))
+    return dispatch(fetchServiceMetricsDiskRead(cluster, serviceName, query))
   }
 }
 
@@ -342,15 +342,15 @@ export const METRICS_SERVICE_DISK_WRITE_REQUEST = 'METRICS_SERVICE_DISK_WRITE_RE
 export const METRICS_SERVICE_DISK_WRITE_SUCCESS = 'METRICS_SERVICE_DISK_WRITE_SUCCESS'
 export const METRICS_SERVICE_DISK_WRITE_FAILURE = 'METRICS_SERVICE_DISK_WRITE_FAILURE'
 
-function fetchServiceMetricsDiskWrite(cluster, appName, query = {}) {
-  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/metrics`
+function fetchServiceMetricsDiskWrite(cluster, serviceName, query = {}) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICSS_DISK_WRITE
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
   return {
     cluster,
-    appName,
+    serviceName,
     [FETCH_API]: {
       types: [METRICS_SERVICE_DISK_WRITE_REQUEST, METRICS_SERVICE_DISK_WRITE_SUCCESS, METRICS_SERVICE_DISK_WRITE_FAILURE],
       endpoint,
@@ -358,9 +358,9 @@ function fetchServiceMetricsDiskWrite(cluster, appName, query = {}) {
     }
   }
 }
-export function loadServiceMetricsDiskWrite(cluster, appName, query) {
+export function loadServiceMetricsDiskWrite(cluster, serviceName, query) {
   return (dispatch) => {
-    return dispatch(fetchServiceMetricsDiskWrite(cluster, appName, query))
+    return dispatch(fetchServiceMetricsDiskWrite(cluster, serviceName, query))
   }
 }
 
