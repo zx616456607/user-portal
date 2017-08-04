@@ -410,7 +410,7 @@ let ConfigureService = React.createClass({
     const {
       form, imageTags, currentFields,
       standardFlag, loadFreeVolume, createStorage,
-      current, id, allFields, location
+      current, id, allFields, location, AdvancedSettingKey
     } = this.props
     const allFieldsKeys = Object.keys(allFields) || []
     const { imageConfigs } = this.state
@@ -550,6 +550,7 @@ let ConfigureService = React.createClass({
           key="configMap"
         />
         <AdvancedSetting
+          AdvancedSettingKey={AdvancedSettingKey}
           form={form}
           formItemLayout={formItemLayout}
           key="advanced"
