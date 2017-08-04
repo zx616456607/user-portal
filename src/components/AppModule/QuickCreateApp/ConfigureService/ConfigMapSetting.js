@@ -23,7 +23,7 @@ const FormItem = Form.Item
 const Option = Select.Option
 const RadioGroup = Radio.Group
 const CheckboxGroup = Checkbox.Group
-const PATH_REG = /^\/[a-zA-Z0-9\/].?/
+const PATH_REG = /^\/[a-zA-Z0-9_\-\/]*$/
 
 const ConfigMapSetting = React.createClass({
   componentWillMount() {

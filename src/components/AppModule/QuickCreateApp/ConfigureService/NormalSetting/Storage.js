@@ -31,7 +31,7 @@ const Option = Select.Option
 const MIN = 512
 const STEP = 512
 const MAX = 20480
-const PATH_REG = /^\/[a-zA-Z0-9\/].?/
+const PATH_REG = /^\/[a-zA-Z0-9_\-\/]*$/
 
 const Storage = React.createClass({
   propTypes: {
