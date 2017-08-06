@@ -41,6 +41,13 @@ let FistStop = React.createClass({
       firstForm: this.props.form
     })
   },
+  componentWillReceiveProps(nextProps) {
+    const { isShow, loadAppList, cluster, getAllClusterNodes } = nextProps
+    if (!this.props.isShow && isShow) {
+      loadAppList(cluster.clusterID)
+      getAllClusterNodes(cluster.clusterID)
+    }
+  },
   componentDidMount() {
     const { resetFields } = this.props
     setTimeout(resetFields, 0)
@@ -1159,7 +1166,7 @@ class AlarmModal extends Component {
         </div>
         <div className="alarmContent">
           <div className={funcs.scope.state.step == 1 ? 'steps' : 'hidden'}>
-            <FistStop funcs={funcs} setParentState={this.setParentState()} currentApp={this.props.currentApp} currentService={this.props.currentService} isEdit={isEdit} data={this.props.strategy} resetFields={()=> this.resetFields()}/>
+            <FistStop isShow={this.props.isShow} funcs={funcs} setParentState={this.setParentState()} currentApp={this.props.currentApp} currentService={this.props.currentService} isEdit={isEdit} data={this.props.strategy} resetFields={()=> this.resetFields()}/>
           </div>
           <div className={funcs.scope.state.step == 2 ? 'steps' : 'hidden'}>
             <TwoStop funcs={funcs} setParentState={this.setParentState()} isEdit={isEdit} data={this.props.setting} isShow={this.props.isShow} resetFields={()=> this.resetFields()}/>
