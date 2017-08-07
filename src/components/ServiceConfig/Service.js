@@ -65,7 +65,7 @@ class CollapseList extends Component {
       return (
         <div className="text-center">
           <img src={noConfigGroupImg} />
-          <div>您还没有配置组，创建一个吧！<Button type="primary" size="large" onClick={() => this.props.scope.configModal(true)}>创建</Button></div>
+          <div>您还没有配置组，创建一个吧！<Button type="primary" size="large" onClick={() => this.props.scope.configModal(true,false)}>创建</Button></div>
         </div>
       )
     }
@@ -75,6 +75,7 @@ class CollapseList extends Component {
           header={
             <CollapseHeader
               parentScope={scope}
+              grandScope={this.props.scope}
               btnDeleteGroup={this.props.btnDeleteGroup}
               handChageProp={this.props.handChageProp}
               configArray={this.props.configArray}
@@ -112,33 +113,57 @@ class Service extends Component {
     this.state = {
       createModal: false,
       configArray: [],
-      configList: []
+      configList: [],
+      groupEdit: false,
+      currentGroup: '',
+      labelWithCount: []
     }
   }
   componentWillMount() {
     this.loadData()
+    this.getLabels()
+  }
+  getLabels() {
+    const { configGroup, isFetching } = this.props;
+    let labels = []
+    if (isFetching) {
+      return
+    }
+    configGroup.forEach(item => {
+      labels.concat(JSON.parse(item.annotations.configlabels))
+    })
+    let labelWithCount = []
+    for (let i = 0; i < labels.length; i++) {
+      let count = 0
+      let temp = labels[i]
+      for (let j = 0; j < labels.length; j++) {
+        if (temp === labels[j]) {
+          count++
+          labels[j] = -1
+        }
+      }
+      if (temp !== -1) {
+        labelWithCount.push({
+          labelName: temp,
+          count: count
+        })
+      }
+    }
+    this.setState({
+      labelWithCount
+    })
   }
   loadData() {
     const { loadConfigGroup, cluster} = this.props
     loadConfigGroup(cluster)
     this.setState({configArray:[]})
   }
-  configModal(visible) {
-    if (visible) {
-      this.setState({
-        createModal: visible,
-        myTextInput: '',
-      },()=>{
-        document.getElementById('newConfigName').focus()
-      })
-    } else {
-      this.setState({
-        createModal: false,
-      })
-    }
+  configModal(visible,editFlag) {
+    this.setState({
+      createModal: visible,
+      groupEdit: editFlag,
+    })
   }
-
-
   btnDeleteGroup() {
     let notification = new NotificationHandler()
     let configArray = this.state.configArray
@@ -237,23 +262,33 @@ class Service extends Component {
           </Modal>
           {/*折叠面板-start*/}
           <Row gutter={16}>
-            {/*<Col span={4}>*/}
-              {/*<div className="title">配置分类</div>*/}
-              {/*<div className="searchConfigBox">*/}
-                {/*<Input*/}
-                  {/*placeholder="请输入分类名搜索"*/}
-                  {/*size="large"*/}
-                  {/*ref='titleInput'*/}
-                  {/*id='titleInput'*/}
-                  {/*onChange={this.handleSearchInput.bind(this)}*/}
-                  {/*onPressEnter={this.handleSearchInput}*/}
-                {/*/>*/}
-                {/*<Icon type="search" className='searchIcon' onClick={this.handleSearchInput}/>*/}
-              {/*</div>*/}
-            {/*</Col>*/}
-            <Col span={24}>
-              {/*<div className="title">配置组</div>*/}
-              <Button type="primary" size="large" onClick={(e) => this.configModal(true)}>
+            <Col span={4}>
+              <div className="title">配置分类</div>
+              <div className="configSearchAndListBox">
+                <div className="searchConfigBox">
+                  <Input
+                    placeholder="请输入分类名搜索"
+                    size="large"
+                    ref='titleInput'
+                    id='titleInput'
+                    onChange={this.handleSearchInput.bind(this)}
+                    onPressEnter={this.handleSearchInput}
+                  />
+                  <Icon type="search" className='searchIcon' onClick={this.handleSearchInput}/>
+                </div>
+                <ul className="configSortListBox">
+                  <li className="configSort">
+                    <span className="sortName">默认环境</span>
+                    <i className="fa fa-trash-o fa-lg verticalCenter pointer" aria-hidden="true"/>
+                    <i className="fa fa-pencil-square-o fa-lg verticalCenter pointer" aria-hidden="true"/>
+                    <span className="citeCount verticalCenter">(12)</span>
+                  </li>
+                </ul>
+              </div>
+            </Col>
+            <Col span={20}>
+              <div className="title">配置组</div>
+              <Button type="primary" size="large" onClick={(e) => this.configModal(true,false)}>
                 <i className="fa fa-plus" /> 创建配置组
               </Button>
               <Button size="large" onClick={() => this.setState({delModal: true})} style={{ marginLeft: "12px" }}

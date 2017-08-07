@@ -279,18 +279,27 @@ class CollapseHeader extends Component {
     this.setState({delModal: false})
 
   }
+  menuClick(item) {
+    const { collapseHeader, grandScope } = this.props
+    if (item.key === '1') {
+      this.setState({delModal: true, groupName: collapseHeader.name})
+    } else if (item.key === '2') {
+      grandScope.configModal(true,true)
+    }
+  }
   render() {
     const {collapseHeader } = this.props
     const {sizeNumber} = this.state
     const menu = (
-      <Menu onClick={() => this.setState({delModal: true, groupName: collapseHeader.name})} mode="vertical">
-        <Menu.Item key="1"><Icon type="delete" /> 删除配置组</Menu.Item>
+      <Menu onClick={this.menuClick.bind(this)} mode="vertical">
+        <Menu.Item key="1"><Icon type="delete"/> 删除配置组</Menu.Item>
+        <Menu.Item key="2"><i className="fa fa-pencil-square-o fa-lg" aria-hidden="true"/> 修改配置组</Menu.Item>
       </Menu>
     );
     return (
       <Row>
         <Col className="group-name textoverflow" span="6">
-          <Checkbox checked={(this.props.configArray.indexOf(collapseHeader.name) >-1)} onChange={(e) => this.handChage(e, collapseHeader.name)} onClick={(e) => this.handleDropdown(e)}></Checkbox>
+          <Checkbox checked={(this.props.configArray.indexOf(collapseHeader.name) >-1)} onChange={(e) => this.handChage(e, collapseHeader.name)} onClick={(e) => this.handleDropdown(e)}/>
           <Icon type="folder-open" />
           <Icon type="folder" />
           <span>{collapseHeader.name}</span>

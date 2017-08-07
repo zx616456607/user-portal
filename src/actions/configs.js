@@ -82,15 +82,14 @@ export const CREATE_CONFIG_GROUP_REQUEST = 'CREATE_CONFIG_GROUP_REQUEST'
 export const CREATE_CONFIG_GROUP_SUCCESS = 'CREATE_CONFIG_GROUP_SUCCESS'
 export const CREATE_CONFIG_GROUP_FAILURE = 'CREATE_CONFIG_GROUP_FAILURE'
 
-export function createConfigGroup(obj, callback) {
+export function createConfigGroup(body, callback) {
   return {
-    cluster: obj.cluster,
     [FETCH_API]: {
       types: [CREATE_CONFIG_GROUP_REQUEST, CREATE_CONFIG_GROUP_SUCCESS, CREATE_CONFIG_GROUP_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configs`,
+      endpoint: `${API_URL_PREFIX}/clusters/${body.cluster}/configs`,
       options: {
         method: 'POST',
-        body: { groupName: obj.groupName }
+        body: body
       },
       schema: {}
     },
