@@ -381,7 +381,9 @@ let ClusterInfo = React.createClass ({
             </Form.Item>
             <Form.Item>
               <div className="h4">API Token：</div>
-              <div className="textoverflow">{apiToken}</div>
+              <Tooltip title={apiToken} placement="topLeft">
+                <div className="textoverflow" style={{cursor: 'pointer'}}>{apiToken}</div>
+              </Tooltip>
             </Form.Item>
           </div>
           <div className="formItem">
