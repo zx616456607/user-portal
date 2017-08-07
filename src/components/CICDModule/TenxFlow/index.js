@@ -224,7 +224,7 @@ let MyComponent = React.createClass({
     const targetElement = (
       <Dropdown.Button
         overlay={dropdown}
-        type='ghost'
+        type='primary'
         size='large'
         onClick={() => {
           if (repoType === 'svn') {
@@ -332,7 +332,7 @@ let MyComponent = React.createClass({
             <span><i className="fa fa-circle"></i>{status}</span>
           </div>
           <div className='oprea'>
-            <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
+            <Button className='logBtn' size='large' type='ghost' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
               <i className='fa fa-wpforms' />&nbsp;
               <FormattedMessage {...menusText.deloyLog} />
             </Button>
