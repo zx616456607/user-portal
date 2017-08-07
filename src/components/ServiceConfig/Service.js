@@ -121,6 +121,8 @@ class Service extends Component {
   }
   componentWillMount() {
     this.loadData()
+  }
+  componentDidMount() {
     this.getLabels()
   }
   getLabels() {
@@ -149,9 +151,6 @@ class Service extends Component {
         })
       }
     }
-    this.setState({
-      labelWithCount
-    })
   }
   loadData() {
     const { loadConfigGroup, cluster} = this.props
@@ -246,7 +245,17 @@ class Service extends Component {
     })
   }
   render() {
-    const {cluster, configGroup, isFetching, configName} = this.props
+    const {cluster, configGroup, isFetching, configName, labelWithCount} = this.props
+    const labelList = labelWithCount.map(item => {
+      return (
+        <li className="configSort pointer">
+          <span className="sortName">{item.labelName}</span>
+          <i className="fa fa-trash-o fa-lg verticalCenter pointer" aria-hidden="true"/>
+          <i className="fa fa-pencil-square-o fa-lg verticalCenter pointer" aria-hidden="true"/>
+          <span className="citeCount verticalCenter">({item.count})</span>
+        </li>
+      )
+    })
     return (
       <QueueAnim className="Service" type="right">
         <div id="Service" key="Service">
@@ -277,12 +286,7 @@ class Service extends Component {
                   <Icon type="search" className='searchIcon' onClick={this.handleSearchInput}/>
                 </div>
                 <ul className="configSortListBox">
-                  <li className="configSort">
-                    <span className="sortName">默认环境</span>
-                    <i className="fa fa-trash-o fa-lg verticalCenter pointer" aria-hidden="true"/>
-                    <i className="fa fa-pencil-square-o fa-lg verticalCenter pointer" aria-hidden="true"/>
-                    <span className="citeCount verticalCenter">(12)</span>
-                  </li>
+                  {labelList}
                 </ul>
               </div>
             </Col>
@@ -334,16 +338,38 @@ function mapStateToProps(state, props) {
   const defaultConfigList = {
     isFetching: false,
     cluster: cluster.clusterID,
-    configGroup: {},
+    configGroup: [],
   }
   const {
     configGroupList
   } = state.configReducers
   const {configGroup, isFetching } = configGroupList[cluster.clusterID] || defaultConfigList
+  let labels = []
+  configGroup.length > 0 && configGroup.forEach(item => {
+    labels = labels.concat(JSON.parse(item.annotations.configlabels))
+  })
+  let labelWithCount = []
+  for (let i = 0; i < labels.length; i++) {
+    let count = 0
+    let temp = labels[i]
+    for (let j = 0; j < labels.length; j++) {
+      if (temp === labels[j]) {
+        count++
+        labels[j] = -1
+      }
+    }
+    if (temp !== -1) {
+      labelWithCount.push({
+        labelName: temp,
+        count: count
+      })
+    }
+  }
   return {
     cluster: cluster.clusterID,
     configGroup,
-    isFetching
+    isFetching,
+    labelWithCount
   }
 }
 function mapDispatchToProps(dispatch) {
