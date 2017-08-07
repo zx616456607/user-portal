@@ -33,7 +33,7 @@ class AccessMethod extends Component {
           let data = res[clusterId].data
           for (let i = 0; i < data.length; i++) {
             if (data[i].isDefault) {
-              if(data[i].type == 'publick'){
+              if(data[i].type == 'public'){
                 setTimeout(() => {
                   form.setFieldsValue({
                     accessMethod: 'PublicNetwork',
