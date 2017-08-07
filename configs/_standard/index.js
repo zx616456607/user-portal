@@ -29,6 +29,12 @@ const config = {
     fromname: '时速云团队',
     apiUserBatch: 'tenxcloud_net_batch'
   },
+  // sendcloud 短信配置
+  sendcloud_sms: {
+    apiUrl: 'https://www.sendcloud.net/smsapi/sendx',
+    apiUser: 'SMS_SENDCLOUD_TENX',
+    apiKey: 'ih4ELKO2fKxkJrDj3eEe8S7z2CYzHLPo',
+  },
   // for wechat login
   wechat:{
     AppID: 'wx6717878a07894186',
