@@ -78,6 +78,7 @@ class QuickCreateApp extends Component {
       stepStatus: 'process',
       formErrors: null,
       editServiceLoading: false,
+      AdvancedSettingKey: null,
     }
     this.serviceSum = 0
     this.configureServiceKey = this.genConfigureServiceKey()
@@ -400,7 +401,26 @@ class QuickCreateApp extends Component {
     const { validateFieldsAndScroll } = this.form
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
-        console.error(errors)
+        let keys = Object.getOwnPropertyNames(errors)
+        const envNameErrors = keys.filter( item => {
+          const envName = new RegExp('envName')
+          if(envName.test(item)){
+            return true
+          }
+          return false
+        })
+        const envValueErrors = keys.filter( item => {
+          const envValue = new RegExp('envValue')
+          if(envValue.test(item)){
+            return true
+          }
+          return false
+        })
+        if(envNameErrors || envValueErrors){
+          this.setState({
+            AdvancedSettingKey: 1
+          })
+        }
         return
       }
       this.createAppOrAddService()
@@ -411,7 +431,7 @@ class QuickCreateApp extends Component {
     const { location } = this.props
     const { hash, query } = location
     const { key, addWrap } = query
-    const { imageName, registryServer, appName, editServiceLoading } = this.state
+    const { imageName, registryServer, appName, editServiceLoading, AdvancedSettingKey } = this.state
     if ((hash === SERVICE_CONFIG_HASH && imageName) || (hash === SERVICE_EDIT_HASH && key)) {
       const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey
       if (editServiceLoading) {
@@ -429,6 +449,7 @@ class QuickCreateApp extends Component {
           }
           {...{imageName, registryServer, appName}}
           {...this.props}
+          AdvancedSettingKey={AdvancedSettingKey}
         />
       )
     }

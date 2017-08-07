@@ -167,11 +167,17 @@ class CreateVolume extends Component {
 
   handleComfirmCreateVolume() {
     const { form,SnapshotClone,cluster,currentVolume,createStorage,currentImagePool,loadStorageList, snapshotDataList } = this.props
-    const { volumeSize,fstype } = this.state
+    const { volumeSize,fstype, swicthChecked } = this.state
     this.setState({
       loading: true,
     })
-    form.validateFields((errors,values) => {
+    const validataArray = [
+      'volumeName',
+    ]
+    if(swicthChecked){
+      validataArray.push('selectSnapshotName')
+    }
+    form.validateFields(validataArray, (errors,values) => {
       if(!!errors){
         this.setState({
           loading: false,
@@ -243,13 +249,19 @@ class CreateVolume extends Component {
             notification.close()
             notification.success('创建存储成功')
             this.handleResetState()
-          }
+            loadStorageList(currentImagePool,cluster.clusterID)
+          },
+          isAsync: true,
         },
         failed: {
-          func: () => {
+          func: (res) => {
+            let message = '创建存储卷失败，请重试'
             this.handleResetState()
             notification.close()
-            notification.error('创建存储卷失败')
+            if(res.message){
+              message = res.message
+            }
+            notification.error(message)
           }
         }
       })
@@ -331,22 +343,20 @@ class CreateVolume extends Component {
         validator: this.checkVolumeName
       }]
     })
-    let required = false
-    if(snapshotRequired){
-      required = true
-    }
     let selectdefaultValue = undefined
     if(currentSnapshot){
       selectdefaultValue = currentSnapshot.name
     }
-    const selectSnapshotNameProps = getFieldProps('selectSnapshotName',{
-      rules:[{
-        required,
-        message:'请选择快照名称',
-      }],
-      initialValue: selectdefaultValue
-    })
-
+    let selectSnapshotNameProps
+    if(this.state.swicthChecked){
+      selectSnapshotNameProps = getFieldProps('selectSnapshotName',{
+        rules:[{
+          required: true,
+          message:'请选择快照名称',
+        }],
+        initialValue: selectdefaultValue
+      })
+    }
     const resourcePrice = cluster.resourcePrice
     const storagePrice = resourcePrice.storage /10000
     const hourPrice = parseAmount(this.state.volumeSize /1024 * resourcePrice.storage, 4)

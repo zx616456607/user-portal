@@ -70,9 +70,9 @@ class AlarmStrategy extends Component {
     loadStrategy(this)
   }
   componentWillReceiveProps(nextProps){
-    let { modalOpen }= nextProps
-    if(modalOpen) {
-      this.showAlert()
+    let { isCurrentTab }= nextProps
+    if (!this.props.isCurrentTab && isCurrentTab) {
+      loadStrategy(this)
     }
   }
   onPageChange(page) {

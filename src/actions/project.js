@@ -259,7 +259,7 @@ export const PROJECTS_CLUSTER_VISIBLE_GET_FAILURE = 'PROJECTS_CLUSTER_VISIBLE_GE
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchGetProjectsVisibleClusters(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/visible-cluster`
+	let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/visible-clusters`
 	return {
 		[FETCH_API]: {
 			types: [PROJECTS_CLUSTER_VISIBLE_GET_REQUEST, PROJECTS_CLUSTER_VISIBLE_GET_SUCCESS, PROJECTS_CLUSTER_VISIBLE_GET_FAILURE],

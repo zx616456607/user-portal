@@ -960,7 +960,7 @@ class Storage extends Component {
                    snapshotRequired={false}
                    scope={this}
                    snapshotDataList={snapshotDataList}
-                   storageList={this.props.storageList}
+                   storageList={dataStorage}
                  />
               </Modal>
             </div>

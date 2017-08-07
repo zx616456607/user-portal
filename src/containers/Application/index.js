@@ -66,6 +66,10 @@ const menuList_enterprise = [
     url: '/app_manage/configs',
     name: '服务配置'
   },
+  {
+    url: '/app_manage/network_isolation',
+    name: '网络隔离'
+  },
 ]
 const vmWrapMenu = [
   {
