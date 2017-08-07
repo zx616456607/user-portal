@@ -31,18 +31,28 @@ class AccessMethod extends Component {
       success: {
         func: (res) => {
           let data = res[clusterId].data
-          let defaultGroup = undefined
           for (let i = 0; i < data.length; i++) {
-            if (data[i].type == "public" && data[i].isDefault) {
-              defaultGroup = data[i].id
+            if (data[i].isDefault) {
+              if(data[i].type == 'publick'){
+                setTimeout(() => {
+                  form.setFieldsValue({
+                    accessMethod: 'PublicNetwork',
+                    publicNetwork: data[i].id
+                  }, 200)
+                })
+                return
+              }
+              if(data[i].type == 'private'){
+                setTimeout(() => {
+                  form.setFieldsValue({
+                    accessMethod: 'Internaletwork',
+                    internaletwork: data[i].id
+                  }, 200)
+                })
+              }
               break
             }
           }
-          setTimeout(() => {
-            form.setFieldsValue({
-              'publicNetwork': defaultGroup
-            })
-          }, 100)
         }
       },
       failed: {
