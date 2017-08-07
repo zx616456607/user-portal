@@ -67,8 +67,8 @@ class UserProjectsAndTeams extends React.Component {
       success: {
         func: res => {
           const projectTargetKeys = []
-          res.data.map(project => {
-            projectTargetKeys.push(project.projectID)
+          res.data && res.data.map(project => {
+            projectTargetKeys.push(project.ProjectID || project.projectID)
           })
           this.defaultProjectTargetKeys = projectTargetKeys
           this.setState({
@@ -83,7 +83,7 @@ class UserProjectsAndTeams extends React.Component {
       success: {
         func: res => {
           res.data.map(project => {
-            project.key = project.projectId
+            project.key = project.ProjectID || project.projectID
           })
           this.setState({
             allProjects: res.data,

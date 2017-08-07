@@ -24,6 +24,7 @@ import MemberRecharge from '../../AccountModal/_Enterprise/Recharge'
 import { MAX_CHARGE } from '../../../constants'
 import Title from '../../Title'
 import ChargeModal from './ChargeModal'
+import CommonSearchInput from '../../CommonSearchInput'
 // import DeleteModal from './DeleteModal'
 import successPic from '../../../assets/img/wancheng.png'
 
@@ -42,6 +43,8 @@ let MemberTable = React.createClass({
       filter: "",
       selectedRowKeys: [],
       delBtnLoading: false,
+      delErrorMsg: null,
+      copyStatus: false,
     }
   },
 
@@ -129,12 +132,15 @@ let MemberTable = React.createClass({
             sort: sort,
             filter: filter,
           })
-          this.setState({ delModal: false })
+          this.setState({ delModal: false, delErrorMsg: null })
         },
         isAsync: true
       },
       failed: {
-        func: () => {
+        func: err => {
+          this.setState({
+            delErrorMsg: err.message,
+          })
           notification.error('删除失败！')
         }
       },
@@ -258,10 +264,27 @@ let MemberTable = React.createClass({
       }
     })
   },
+  returnDefaultTooltip() {
+    setTimeout(() => {
+      this.setState({
+        copyStatus: false
+      })
+    }, 500)
+  },
+  copyText() {
+    let target = document.getElementById('delErrorMsg')
+    target.select()
+    document.execCommand('Copy', false)
+    this.setState({
+      copyStatus: true
+    })
+  },
   render() {
-    let { selectedRowKeys, sortedInfo, filteredInfo, sort, delBtnLoading } = this.state
+    let { selectedRowKeys, sortedInfo, filteredInfo, sort, delBtnLoading, delErrorMsg, copyStatus } = this.state
     const { searchResult, notFound } = this.props.scope.state
     const { data, scope } = this.props
+
+    let userManageName = this.state.userManage ? this.state.userManage.name : ''
 
     filteredInfo = filteredInfo || {}
     const pagination = {
@@ -493,14 +516,14 @@ let MemberTable = React.createClass({
         />
         <Modal title="删除成员操作"
           visible={this.state.delModal}
-          onCancel={() => this.setState({ delModal: false })}
+          onCancel={() => this.setState({ delModal: false, delErrorMsg: null })}
           wrapClassName="deleteMemberModal"
           footer={[
             <Button
               key="back"
               type="ghost"
               size="large"
-              onClick={() => this.setState({ delModal: false })}
+              onClick={() => this.setState({ delModal: false, delErrorMsg: null })}
             >
               取 消
             </Button>,
@@ -516,11 +539,12 @@ let MemberTable = React.createClass({
           ]}
         >
         {
-          delBtnLoading
-          ? (
+          (delBtnLoading && !delErrorMsg) && (
             <div className="loadingBox"><Spin size="large" /></div>
           )
-          : (
+        }
+        {
+          (!delBtnLoading && !delErrorMsg) && (
             <div className="modalColor">
               <Row className="alertRow warningRow">
                 <Col span={2} className="alertRowIcon">
@@ -531,7 +555,41 @@ let MemberTable = React.createClass({
                 </Col>
               </Row>
               <i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>
-              您是否确定要删除成员 {this.state.userManage ? this.state.userManage.name : ''} ?
+              您是否确定要删除成员 {userManageName} ?
+            </div>
+          )
+        }
+        {
+          (!delBtnLoading && delErrorMsg) && (
+            <div>
+              <Row className="alertRow warningRow">
+                <Col span={2} className="alertRowIcon">
+                  <i className="fa fa-exclamation-triangle" aria-hidden="true" />
+                </Col>
+                <Col span={22} className="alertRowDesc">
+                  删除该成员任务失败，请查看以下日志
+                </Col>
+              </Row>
+              <div className="delErrorMsg">
+                <div className="delErrorMsgHeader" gutter={16}>
+                  <div className="delErrorMsgText">日志</div>
+                  <div className="delErrorMsgIcon">
+                    <input style={{opacity:0}} id="delErrorMsg" value={delErrorMsg} />
+                    <Tooltip title={copyStatus ? '复制成功' : '点击复制'}>
+                      <Icon
+                        type="copy"
+                        onMouseLeave={this.returnDefaultTooltip}
+                        onClick={this.copyText}
+                      />
+                    </Tooltip>
+                  </div>
+                </div>
+                <div className="delErrorMsgBody">
+                  <pre>
+                    {delErrorMsg}
+                  </pre>
+                </div>
+              </div>
             </div>
           )
         }
@@ -563,6 +621,7 @@ class Membermanagement extends Component {
       // deleteModalVisible: false,
       createUserSuccessModalVisible: false,
       createUserErrorMsg: null,
+      deletedUserModalVisible: false,
     }
   }
   showInfo = (title, content) => {
@@ -746,6 +805,9 @@ class Membermanagement extends Component {
           <Button type="ghost" size="large" className="Btn btn" onClick={this.loadData}>
             <i className='fa fa-refresh' /> &nbsp;刷 新
           </Button>
+          <Button type="dashed" size="large" className="Btn btn" onClick={() => this.setState({ deletedUserModalVisible: true })}>
+            <Icon type="solution" />已删除成员
+          </Button>
           {/* <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ deleteModalVisible: true })}>
             <Icon type="delete" />批量删除
           </Button> */}
@@ -802,6 +864,28 @@ class Membermanagement extends Component {
           onOk={this.handleChargeOk}
           loadUserList={loadUserList}
         />
+        <Modal
+          title="已删除成员"
+          visible={this.state.deletedUserModalVisible}
+          wrapClassName="deletedUserModal"
+          footer={null}
+          onCancel={() => this.setState({deletedUserModalVisible: false})}
+        >
+          <div className="deletedUserModalBody">
+            <div className="deletedUserModalHeader">
+              <div className="deletedUserModalHeaderLeft">
+                {/* <Checkbox>全选</Checkbox> */}
+                <CommonSearchInput placeholder="输入用户名搜索"/>
+              </div>
+              <div className="deletedUserModalHeaderRight">
+              </div>
+            </div>
+            <div className="deletedUserModalContent">
+              body
+            </div>
+          </div>
+        </Modal>
+
         {/* <DeleteModal
           visible={this.state.deleteModalVisible}
           data={users}

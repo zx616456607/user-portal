@@ -42,6 +42,7 @@ class JoinProjectsModal extends React.Component {
     this.getProjectsByKeys = this.getProjectsByKeys.bind(this)
     this.onProjectClick = this.onProjectClick.bind(this)
     this.onRoleCheckChange = this.onRoleCheckChange.bind(this)
+    this.onCancel = this.onCancel.bind(this)
 
     this.projectsDetailInit = {}
   }
@@ -169,9 +170,11 @@ class JoinProjectsModal extends React.Component {
 
   getProjectsByKeys(keys) {
     const { allProjects } = this.props
-    return allProjects.filter(project => keys.indexOf(project.projectId) > -1)
+    console.log('allProjects', allProjects)
+    console.log('keys', keys)
+    console.log('filter', allProjects.filter(project => keys.indexOf(project.projectID || project.ProjectID) > -1))
+    return allProjects.filter(project => keys.indexOf(project.projectID || project.ProjectID) > -1)
   }
-
 
   onProjectClick({item, key, keyPath}) {
     this.setState({
@@ -201,6 +204,13 @@ class JoinProjectsModal extends React.Component {
     console.log('e', e)
   }
 
+  onCancel() {
+    this.props.onCancel()
+    this.setState({
+      step: 1,
+    })
+  }
+
   render() {
     const { onCancel, projectTargetKeys } = this.props
     const { step } = this.state
@@ -209,17 +219,13 @@ class JoinProjectsModal extends React.Component {
         {...this.props}
         title="加入项目"
         wrapClassName="JoinProjectsModal"
+        onCancel={this.onCancel}
         footer={[
           <Button
             key="back"
             type="ghost"
             size="large"
-            onClick={() => {
-              onCancel()
-              this.setState({
-                step: 1,
-              })
-            }}
+            onClick={this.onCancel}
           >
             取 消
           </Button>,
