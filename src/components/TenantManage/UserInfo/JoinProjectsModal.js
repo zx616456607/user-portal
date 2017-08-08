@@ -76,7 +76,7 @@ class JoinProjectsModal extends React.Component {
     })
     const currentRelatedRoles = this.getRelatedRoles(projectsDetail, currentProjectKey).relatedRoles
     return (
-      <div>
+      <div style={{ height: "300px" }}>
         {/* <Tabs>
           {
             a.map(i => <TabPane tab={`选项卡${i}`} key={i}>选项卡{i}内容</TabPane>)

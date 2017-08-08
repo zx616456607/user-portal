@@ -24,8 +24,8 @@ import MemberRecharge from '../../AccountModal/_Enterprise/Recharge'
 import { MAX_CHARGE } from '../../../constants'
 import Title from '../../Title'
 import ChargeModal from './ChargeModal'
-import CommonSearchInput from '../../CommonSearchInput'
 // import DeleteModal from './DeleteModal'
+import DeletedUsersModal from './DeletedUsersModal'
 import successPic from '../../../assets/img/wancheng.png'
 
 const confirm = Modal.confirm
@@ -282,7 +282,7 @@ let MemberTable = React.createClass({
   render() {
     let { selectedRowKeys, sortedInfo, filteredInfo, sort, delBtnLoading, delErrorMsg, copyStatus } = this.state
     const { searchResult, notFound } = this.props.scope.state
-    const { data, scope } = this.props
+    const { data, scope, loginUser } = this.props
 
     let userManageName = this.state.userManage ? this.state.userManage.name : ''
 
@@ -479,10 +479,10 @@ let MemberTable = React.createClass({
                   onClick={this.handleMenuClick.bind(this, record)}
                   style={{ width: '80px' }}
                 >
-                  <Menu.Item key="active">
-                    {
-                      record.active === 2 ? '启用' : '停用'
-                    }
+                  <Menu.Item key="active"
+                    disabled={record.namespace === loginUser.namespace}
+                  >
+                    {record.active === 2 ? '启用' : '停用'}
                   </Menu.Item>
                   <Menu.Item key="delete">删除</Menu.Item>
                 </Menu>
@@ -846,7 +846,7 @@ class Membermanagement extends Component {
         </Row>
         <Row className="memberList">
           <Card className="memberlist">
-            <MemberTable scope={scope} data={users} />
+            <MemberTable scope={scope} data={users} loginUser={userDetail} />
           </Card>
         </Row>
         {/* 充值modal */}
@@ -864,28 +864,13 @@ class Membermanagement extends Component {
           onOk={this.handleChargeOk}
           loadUserList={loadUserList}
         />
-        <Modal
+        <DeletedUsersModal
           title="已删除成员"
           visible={this.state.deletedUserModalVisible}
           wrapClassName="deletedUserModal"
           footer={null}
           onCancel={() => this.setState({deletedUserModalVisible: false})}
-        >
-          <div className="deletedUserModalBody">
-            <div className="deletedUserModalHeader">
-              <div className="deletedUserModalHeaderLeft">
-                {/* <Checkbox>全选</Checkbox> */}
-                <CommonSearchInput placeholder="输入用户名搜索"/>
-              </div>
-              <div className="deletedUserModalHeaderRight">
-              </div>
-            </div>
-            <div className="deletedUserModalContent">
-              body
-            </div>
-          </div>
-        </Modal>
-
+        />
         {/* <DeleteModal
           visible={this.state.deleteModalVisible}
           data={users}

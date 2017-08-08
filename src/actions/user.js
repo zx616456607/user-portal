@@ -713,3 +713,30 @@ export function updateUserActive(userID, active, callback) {
     return dispatch(fetchUpdateUserActive(userID, active, callback))
   }
 }
+
+export const GET_DELETED_USERS_REQUEST = 'GET_DELETED_USERS_REQUEST'
+export const GET_DELETED_USERS_SUCCESS = 'GET_DELETED_USERS_SUCCESS'
+export const GET_DELETED_USERS_FAILURE = 'GET_DELETED_USERS_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDeletedUsers(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/softdeleted`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [GET_DELETED_USERS_REQUEST, GET_DELETED_USERS_SUCCESS, GET_DELETED_USERS_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function getDeletedUsers(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeletedUsers(query, callback))
+  }
+}

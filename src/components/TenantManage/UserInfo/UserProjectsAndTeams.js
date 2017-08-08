@@ -264,7 +264,7 @@ class UserProjectsAndTeams extends React.Component {
   }
 
   render() {
-    const { teams, userDetail, projects } = this.props
+    const { teams, userDetail, projects, isTeamsFetching, isProjectsFetching } = this.props
     let {
       teamSortedInfo, removeMemberModalVisible, currentTeam,
       teamTargetKeys, allTeams, teamTransferModalVisible,
@@ -382,7 +382,13 @@ class UserProjectsAndTeams extends React.Component {
                 {/* <Button type="ghost"><Icon type="delete" />移出项目</Button> */}
               </div>
               <div className="projectsContent">
-                <Table columns={projectColumns} dataSource={projects} onChange={this.handleProjectChange} pagination={false} />
+                <Table
+                  columns={projectColumns}
+                  dataSource={projects}
+                  onChange={this.handleProjectChange}
+                  loading={isProjectsFetching}
+                  pagination={false}
+                />
               </div>
             </div>
           </TabPane>
@@ -401,7 +407,13 @@ class UserProjectsAndTeams extends React.Component {
                 </span>
               </div>
               <div className="teamsContent">
-                <Table columns={teamColumns} dataSource={teams} onChange={this.handleTeamChange} pagination={false} />
+                <Table
+                  columns={teamColumns}
+                  dataSource={teams}
+                  onChange={this.handleTeamChange}
+                  loading={isTeamsFetching}
+                  pagination={false}
+                />
               </div>
             </div>
           </TabPane>
@@ -539,7 +551,9 @@ function mapStateToProp(state, props) {
   }
   return {
     teams: teamsData,
+    isTeamsFetching: userTeams.isFetching,
     projects: projects.result && projects.result.data || [],
+    isProjectsFetching: projects.isFetching,
   }
 }
 

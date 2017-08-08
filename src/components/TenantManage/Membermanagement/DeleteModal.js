@@ -4,7 +4,7 @@
  */
 
 /**
- * Charge for user
+ * Modal for delete user
  *
  * v0.1 - 2017-07-13
  * @author Zhangpc
