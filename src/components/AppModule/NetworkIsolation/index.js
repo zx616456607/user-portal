@@ -16,26 +16,53 @@ import './style/index.less'
 import Title from '../../Title'
 import NetworkAllow from '../../../assets/img/app/networkAllow.png'
 import NetworkForbid from '../../../assets/img/app/networkForbid.png'
+import NotificationHandler from '../../../components/Notification'
+import { getNetworkIsolationStatus, postNetworkIsolation, deleteNetworkIsolation } from '../../../actions/app_manage'
 
 class NetworkIsolation extends Component {
   constructor(props) {
     super(props)
     this.openSetNetwordModal = this.openSetNetwordModal.bind(this)
     this.comfirmSetNetwork = this.comfirmSetNetwork.bind(this)
+    this.getNetworkIsolationStatus = this.getNetworkIsolationStatus.bind(this)
     this.state = {
       setNetworkVisible: false,
       confirmLoading: false,
-      allow: true
+      allow: false
     }
+  }
+  
+  getNetworkIsolationStatus(){
+    const { getNetworkIsolationStatus, clusterID, namespace } = this.props
+    let body = {
+      clusterID,
+      namespace,
+    }
+    getNetworkIsolationStatus(body, {
+      success: {
+        func: (res) => {
+          if(res.rule && res.rule.policy === 'allow' && res.rule.targets[0] === namespace){
+            this.setState({
+              allow: true
+            })
+          }
+        }
+      }
+    })
+  }
+
+  componentWillMount() {
+    this.getNetworkIsolationStatus()
   }
 
   openSetNetwordModal(){
-    if(false){
+    const { networkPolicySupported } = this.props
+    if(!networkPolicySupported){
       Modal.info({
         title: '提示',
         content: (
           <div>
-            <div>系统管理员未允许当前集群项目间网络隔离，请联系系统管理员更改当前集群网络方案</div>
+            <div>系统管理员未允许变更当前集群的网络隔离策略，请联系系统管理员开启『基础设施→网络方案』的允许变更开关。</div>
           </div>
         ),
         onOk() {},
@@ -49,15 +76,80 @@ class NetworkIsolation extends Component {
   }
 
   comfirmSetNetwork(){
-    this.setState({
-      setNetworkVisible: false,
-      confirmLoading: false,
-      allow: !this.state.allow
+    const { postNetworkIsolation, clusterID, namespace, deleteNetworkIsolation } = this.props
+    const { allow } = this.state
+    let Noti = new NotificationHandler()
+    let postBody = {
+      clusterID,
+      namespace,
+      body: {
+        "rule": {
+          "policy": "allow",
+          "targets": [`${namespace}`]
+        }
+      }
+    }
+    if(allow){
+      let deleteBody = {
+        clusterID,
+        namespace,
+      }
+      deleteNetworkIsolation(deleteBody, {
+        success: {
+          func: () => {
+            Noti.success('关闭网络 inbound 隔离成功')
+            this.setState({
+              setNetworkVisible: false,
+              confirmLoading: false,
+              allow: false,
+            })
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: (res) => {
+            let message = `关闭网络 inbound 隔离失败，请重试`
+            if(res.message){
+              message = res.message
+            }
+            this.setState({
+              confirmLoading: false
+            })
+            Noti.error(message)
+          }
+        }
+      })
+      return
+    }
+    postNetworkIsolation(postBody, {
+      success: {
+        func: () => {
+          Noti.success('开启网络 inbound 隔离成功')
+          this.setState({
+            confirmLoading: false,
+            setNetworkVisible: false,
+            allow: true
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: (res) => {
+          let message = `开启网络 inbound 隔离失败，请重试`
+          if(res.message){
+            message = res.message
+          }
+          this.setState({
+            confirmLoading: false
+          })
+          Noti.error(message)
+        }
+      }
     })
   }
   
   render() {
-    const { allow } = this.props
+    const { allow } = this.state
     return(
       <QueueAnim>
         <Title title="网络隔离"/>
@@ -66,22 +158,22 @@ class NetworkIsolation extends Component {
             <div className='content'>
               <div className='sketch_map'>
                 <img
-                  src={ allow ? NetworkAllow : NetworkForbid}
+                  src={ allow ? NetworkForbid : NetworkAllow}
                   alt="网络隔离示意图"
                   className='sketch_map_img'
                 />
                 {
                   allow
-                    ? <span className='allow_arrow'>访问</span>
-                    : <span className='forbid_arrow'>禁止访问</span>
+                  ? <span className='forbid_arrow'>禁止访问</span>
+                  : <span className='allow_arrow'>访问</span>
                 }
               </div>
               <span className='pointer'>·</span>
               当前集群您的服务
               {
                 allow
-                  ? '可'
-                  : '不允许'
+                  ? '不允许'
+                  : '可'
               }
               被同一集群其他用户或项目的服务访问
             </div>
@@ -130,12 +222,26 @@ class NetworkIsolation extends Component {
 }
 
 function mapStateToProp(state, props) {
-
+  const { entities } = state
+  let networkPolicySupported = false
+  let clusterID
+  let namespace
+  if(entities.current && entities.current.cluster){
+    networkPolicySupported = entities.current.cluster.networkPolicySupported
+    clusterID = entities.current.cluster.clusterID
+  }
+  if(entities.current && entities.current.space){
+    namespace = entities.current.space.namespace
+  }
   return {
-
+    networkPolicySupported,
+    clusterID,
+    namespace,
   }
 }
 
 export default connect(mapStateToProp, {
-
+  getNetworkIsolationStatus,
+  postNetworkIsolation,
+  deleteNetworkIsolation,
 })(NetworkIsolation)

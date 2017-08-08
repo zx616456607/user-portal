@@ -302,11 +302,18 @@ export default class TipSvcDomain extends Component {
           )
         }
       } else {
-        let linkURL = 'http://' + appDomain[0].data[0].domain
+        let currentDomain
+        appDomain.every(appDo => {
+          if (appDo.data[0]) {
+            currentDomain = appDo.data[0].domain
+            return false
+          }
+          return true
+        })
         return (
           <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
             <span className='appDomain'>
-              <a target='_blank' href={linkURL}>{this.getIconHtml()}{appDomain[0].data[0].domain}</a>
+              <a target='_blank' href={`http://${currentDomain}`}>{this.getIconHtml()}{currentDomain}</a>
             </span>
             <Popover placement={type ? 'rightBottom' : 'rightTop'}
               content={<AppTip scope={scope} appDomain={appDomain} />}
