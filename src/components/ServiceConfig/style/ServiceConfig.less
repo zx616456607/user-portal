@@ -19,7 +19,7 @@
     padding-bottom: 20px;
     .searchConfigBox {
       position: relative;
-      padding: 20px 15px;
+      padding: 20px 15px 0;
       .searchIcon {
         position:absolute;
         top: 32px;
@@ -27,7 +27,20 @@
         cursor: pointer;
       }
     }
+    .resultCount{
+      padding: 20px 20px 0;
+      .clearSearch{
+        color: #2cb8f5;
+        i{
+          margin-right: 10px;
+        }
+      }
+      .count{
+        float: right;
+      }
+    }
     .configSortListBox{
+      margin-top: 20px;
       .configSort{
         position: relative;
         height: 38px;
@@ -59,6 +72,14 @@
           padding-left: 15px;
           border-left: 2px solid #2db7f6;
         }
+      }
+      .active{
+        .sortName{
+          color: #74c8f4;
+        }
+        background-color: #eceff4;
+        padding-left: 15px;
+        border-left: 2px solid #2db7f6;
       }
     }
   }

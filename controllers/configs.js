@@ -28,7 +28,7 @@ exports.listConfigGroups = function* () {
       name: configgroup.native.metadata.name,
       configs: [],
       creationTimestamp: configgroup.native.metadata.creationTimestamp,
-      annotations: configgroup.native.metadata.annotations
+      annotations: configgroup.native.metadata.annotations.configlabels.split(',')
     }
     if (configgroup.extended && configgroup.extended && configgroup.extended.configs) {
       configgroup.extended.configs.forEach(function(c) {
@@ -173,5 +173,18 @@ exports.deleteConfigFiles = function* () {
   this.status = response.code
   this.body = {
     message: response.data
+  }
+}
+
+exports.updateConfigAnnotations = function* () {
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const data = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  let response = yield api.updateBy([cluster,'configgroups',name],null,data)
+  this.status = response.code
+  this.body = {
+    data: response.data
   }
 }

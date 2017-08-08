@@ -21,10 +21,11 @@ import CreateConfigModal from './CreateConfigModal'
 import NotificationHandler from '../../components/Notification'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
-import { loadConfigGroup, configGroupName, createConfigGroup, deleteConfigGroup } from '../../actions/configs'
+import { loadConfigGroup, configGroupName, createConfigGroup, deleteConfigGroup, updateConfigAnnotations } from '../../actions/configs'
 import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
 import Title from '../Title'
-
+import includes from 'lodash/includes'
+import classNames from 'classnames'
 
 class CollapseList extends Component {
   constructor(props) {
@@ -51,6 +52,8 @@ class CollapseList extends Component {
 
   render() {
     const {groupData, isFetching } = this.props
+    const grandScope = this.props.scope;
+    const { filterName } = grandScope.state
     const scope = this
     // TODO: Fix loadNumber here, not sure why 'groupData.length' will be undefined -> 0 -> actual length
     if (isFetching && this.loadNumber < 2) {
@@ -69,13 +72,20 @@ class CollapseList extends Component {
         </div>
       )
     }
-    let groups = groupData.map((group) => {
+    let filterGroup = groupData.filter(item => {
+      if (filterName) {
+        return includes(item.annotations,filterName)
+      } else {
+        return true
+      }
+    })
+    let groups = filterGroup.map((group) => {
       return (
         <Collapse.Panel
           header={
             <CollapseHeader
               parentScope={scope}
-              grandScope={this.props.scope}
+              grandScope={grandScope}
               btnDeleteGroup={this.props.btnDeleteGroup}
               handChageProp={this.props.handChageProp}
               configArray={this.props.configArray}
@@ -116,40 +126,26 @@ class Service extends Component {
       configList: [],
       groupEdit: false,
       currentGroup: '',
-      labelWithCount: []
+      filterName: '',
+      searchValue: ''
     }
   }
   componentWillMount() {
+    const { labelWithCount } = this.props;
     this.loadData()
-  }
-  componentDidMount() {
-    this.getLabels()
-  }
-  getLabels() {
-    const { configGroup, isFetching } = this.props;
-    let labels = []
-    if (isFetching) {
-      return
-    }
-    configGroup.forEach(item => {
-      labels.concat(JSON.parse(item.annotations.configlabels))
+    this.setState({
+      configList: labelWithCount
     })
-    let labelWithCount = []
-    for (let i = 0; i < labels.length; i++) {
-      let count = 0
-      let temp = labels[i]
-      for (let j = 0; j < labels.length; j++) {
-        if (temp === labels[j]) {
-          count++
-          labels[j] = -1
-        }
-      }
-      if (temp !== -1) {
-        labelWithCount.push({
-          labelName: temp,
-          count: count
-        })
-      }
+  }
+  componentWillReceiveProps(nextProps) {
+    const { cluster, loadConfigGroup, labelWithCount } = nextProps
+    if (cluster !== this.props.cluster) {
+      loadConfigGroup(cluster)
+    }
+    if (labelWithCount.length > 0) {
+      this.setState({
+        configList: labelWithCount
+      })
     }
   }
   loadData() {
@@ -227,28 +223,36 @@ class Service extends Component {
       }
     )
   }
-  handleSearchInput() {
-    const searchItem = this.refs.titleInput.refs.input.value
-    const { list } = this.props
+  handleSearchInput(value) {
+    // const searchItem = this.refs.titleInput.refs.input.value
+    const searchItem = value
+    const { labelWithCount } = this.props
     let last = [];
     if(searchItem === "" || (searchItem.indexOf(" ") !== -1)){
-      last = list
+      last = labelWithCount
     }else {
-      for(let i = 0;i < list.length;i++){
-        if((list[i].name).indexOf(searchItem) !== -1) {
-          last.push(list[i])
+      for(let i = 0;i < labelWithCount.length;i++){
+        if((labelWithCount[i].labelName).indexOf(searchItem) !== -1) {
+          last.push(labelWithCount[i])
         }
       }
     }
     this.setState({
-      configList:last
+      configList:last,
+      searchValue: searchItem
+    })
+  }
+  sortFilter(name) {
+    this.setState({
+      filterName:name
     })
   }
   render() {
-    const {cluster, configGroup, isFetching, configName, labelWithCount} = this.props
-    const labelList = labelWithCount.map(item => {
+    const {cluster, configGroup, isFetching, configName, labelWithCount, updateConfigAnnotations} = this.props
+    const { configList, filterName, searchValue } = this.state;
+    const labelList = configList.map(item => {
       return (
-        <li className="configSort pointer">
+        <li className={classNames("configSort pointer",{'active': item.labelName === filterName})} onClick={()=>this.sortFilter(item.labelName)}>
           <span className="sortName">{item.labelName}</span>
           <i className="fa fa-trash-o fa-lg verticalCenter pointer" aria-hidden="true"/>
           <i className="fa fa-pencil-square-o fa-lg verticalCenter pointer" aria-hidden="true"/>
@@ -261,7 +265,7 @@ class Service extends Component {
         <div id="Service" key="Service">
           <Title title="服务配置" />
           {/*创建配置组-弹出层-start*/}
-          <CreateConfigModal scope={this} />
+          <CreateConfigModal scope={this} configGroup={configGroup} updateConfigAnnotations={updateConfigAnnotations} labelWithCount={labelWithCount}/>
           {/*创建配置组-弹出层-end*/}
           {/* 删除配置组-弹出层-*/}
           <Modal title="删除配置操作" visible={this.state.delModal}
@@ -280,12 +284,27 @@ class Service extends Component {
                     size="large"
                     ref='titleInput'
                     id='titleInput'
-                    onChange={this.handleSearchInput.bind(this)}
-                    onPressEnter={this.handleSearchInput}
+                    value={searchValue}
+                    onChange={(e)=>this.handleSearchInput(e.target.value)}
                   />
-                  <Icon type="search" className='searchIcon' onClick={this.handleSearchInput}/>
+                  <Icon type="search" className='searchIcon'/>
+                </div>
+                <div className={classNames("resultCount clearfix",{'hidden': !Boolean(searchValue)})}>
+                  <span className="clearSearch pointer" onClick={()=>this.handleSearchInput('')}>
+                    <i className="fa fa-arrow-left" aria-hidden="true"/>返回
+                  </span>
+                  <span className="count">共找到 {configList.length} 个分类</span>
                 </div>
                 <ul className="configSortListBox">
+                  {
+                    labelWithCount.length > 0 &&
+                    <li className={classNames("configSort pointer",{active: !filterName})} onClick={()=> this.sortFilter('')}>
+                      <span className="sortName">默认分类</span>
+                      <i className="fa fa-trash-o fa-lg verticalCenter pointer" aria-hidden="true"/>
+                      <i className="fa fa-pencil-square-o fa-lg verticalCenter pointer" aria-hidden="true"/>
+                      <span className="citeCount verticalCenter">({labelWithCount.length})</span>
+                    </li>
+                  }
                   {labelList}
                 </ul>
               </div>
@@ -327,7 +346,8 @@ Service.propTypes = {
   loadConfigGroup: PropTypes.func.isRequired,
   createConfigGroup: PropTypes.func.isRequired,
   deleteConfigGroup: PropTypes.func.isRequired,
-  configGroupName: PropTypes.func.isRequired
+  configGroupName: PropTypes.func.isRequired,
+  updateConfigAnnotations: PropTypes.func.isRequired
 }
 
 /*export default injectIntl(Service,{
@@ -346,7 +366,7 @@ function mapStateToProps(state, props) {
   const {configGroup, isFetching } = configGroupList[cluster.clusterID] || defaultConfigList
   let labels = []
   configGroup.length > 0 && configGroup.forEach(item => {
-    labels = labels.concat(JSON.parse(item.annotations.configlabels))
+    labels = labels.concat(item.annotations)
   })
   let labelWithCount = []
   for (let i = 0; i < labels.length; i++) {
@@ -383,7 +403,8 @@ function mapDispatchToProps(dispatch) {
     deleteConfigGroup: (obj, callback) => {
       dispatch(deleteConfigGroup(obj, callback))
     },
-    configGroupName: (obj) => dispatch(configGroupName(obj))
+    configGroupName: (obj) => dispatch(configGroupName(obj)),
+    updateConfigAnnotations: (body,callback) => dispatch(updateConfigAnnotations(body,callback))
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(Service, {

@@ -251,7 +251,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/configgroups/:group/configs/:name', configController.updateConfigFile)
   router.post('/clusters/:cluster/configs/delete', configController.deleteConfigGroup)
   router.post('/clusters/:cluster/configgroups/:group/configs-batch-delete', configController.deleteConfigFiles)
-
+  router.put('/clusters/:cluster/configgroups/:name', configController.updateConfigAnnotations)
   // Harbor integration
   router.get('/registries/:registry/systeminfo', harborController.getSysteminfo)
   router.get('/registries/:registry/users/current', harborController.getCurrentUserCtl)

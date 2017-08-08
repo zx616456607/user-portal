@@ -177,3 +177,28 @@ export function updateConfigName(obj, callback) {
     callback: callback
   }
 }
+
+export const UPDATE_CONFIG_ANNOTATIONS_REQUEST = 'UPDATE_CONFIG_ANNOTATIONS_REQUEST'
+export const UPDATE_CONFIG_ANNOTATIONS_SUCCESS = 'UPDATE_CONFIG_ANNOTATIONS_SUCCESS'
+export const UPDATE_CONFIG_ANNOTATIONS_FAILURE = 'UPDATE_CONFIG_ANNOTATIONS_FAILURE'
+
+export function updateConfigAnnotations(body,callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_CONFIG_ANNOTATIONS_REQUEST,UPDATE_CONFIG_ANNOTATIONS_SUCCESS,UPDATE_CONFIG_ANNOTATIONS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${body.cluster}/configgroups/${body.groupName}`,
+      options: {
+        method: 'PUT',
+        body: {configlabels: body.configlabels}
+      },
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+// export function updateConfigAnnotations(body,callback) {
+//   return (dispatch,getState) => {
+//     dispatch(fetchUpdateConfigAnnotations(body,callback))
+//   }
+// }

@@ -284,7 +284,11 @@ class CollapseHeader extends Component {
     if (item.key === '1') {
       this.setState({delModal: true, groupName: collapseHeader.name})
     } else if (item.key === '2') {
-      grandScope.configModal(true,true)
+      grandScope.setState({
+        currentGroup:collapseHeader.name
+      },()=>{
+        grandScope.configModal(true,true)
+      })
     }
   }
   render() {
@@ -293,7 +297,7 @@ class CollapseHeader extends Component {
     const menu = (
       <Menu onClick={this.menuClick.bind(this)} mode="vertical">
         <Menu.Item key="1"><Icon type="delete"/> 删除配置组</Menu.Item>
-        <Menu.Item key="2"><i className="fa fa-pencil-square-o fa-lg" aria-hidden="true"/> 修改配置组</Menu.Item>
+        <Menu.Item key="2"><i className="fa fa-pencil-square-o fa-lg" aria-hidden="true"/> 修改分类</Menu.Item>
       </Menu>
     );
     return (

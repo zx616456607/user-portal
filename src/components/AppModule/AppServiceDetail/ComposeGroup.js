@@ -13,37 +13,58 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import filter from 'lodash/filter'
-import { loadConfigName } from '../../../actions/configs.js'
+import { loadConfigName, loadConfigGroup } from '../../../actions/configs.js'
 import "./style/ComposeGroup.less"
 
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
   },
+  getInitialState() {
+    return {
+      config: []
+    }
+  },
   componentWillMount() {
+    const { cluster, loadConfigGroup } = this.props;
     const service = this.props.service
     let volumes = service.spec.template.spec.volumes
     const container = service.spec.template.spec.containers[0]
-    if (!volumes) {
-      this.setState({
-        config: []
-      })
-      return
-    }
-    const config = []
-    let index = 0
-    volumes.forEach((volume) => {
-      if (volume.configMap) {
-        config.push({
-          id: ++index,
-          mountPod: filter(container.volumeMounts, ['name', volume.name])[0].mountPath,
-          group: volume.configMap.name,
-          file: volume.configMap.items
-        })
+    loadConfigGroup(cluster,{
+      success: {
+        func: res => {
+          let groupWithLabels = res.data
+          if (!volumes) {
+            this.setState({
+              config: []
+            })
+            return
+          }
+          const config = []
+          let index = 0
+          volumes.forEach((volume) => {
+            let labels = []
+              groupWithLabels.forEach(item => {
+              if (item.name === volume.configMap.name) {
+                labels.push(item.annotations)
+              }
+            })
+            if (volume.configMap) {
+              config.push({
+                id: ++index,
+                mountPod: filter(container.volumeMounts, ['name', volume.name])[0].mountPath,
+                group: volume.configMap.name,
+                file: volume.configMap.items,
+                labels
+              })
+            }
+          })
+          this.setState({
+            config
+          })
+        },
+        isAsync: true
       }
-    })
-    this.setState({
-      config
     })
   },
 	loadConfigData(group, name) {
@@ -107,6 +128,7 @@ let MyComponent = React.createClass({
   },
   render: function () {
     const configData = this.props.configData[this.props.cluster]
+    const { config } = this.state;
     let loading = ''
     if(configData) {
       const { isFetching } = configData
@@ -115,7 +137,6 @@ let MyComponent = React.createClass({
         loading= <div className="loadingBox" style={{position: 'absolute'}}><Spin size="large" /></div>
       }
     }
-    let config = this.state.config;
     if (config.length == 0) {
       return (
         <Card className="composeList">
@@ -135,6 +156,9 @@ let MyComponent = React.createClass({
         <div className="composeDetail" key={item.id.toString() }>
           <div className="commonData">
             <span>{item.mountPod}</span>
+          </div>
+          <div className="annotations commonData">
+            {item.labels && item.labels.join(',\b')}
           </div>
           <div className="commonData">
             <span>{item.group}</span>
@@ -195,7 +219,8 @@ function mapStateToProps(state, props) {
 }
 
 MyComponent = connect(mapStateToProps, {
-  loadConfigName
+  loadConfigName,
+  loadConfigGroup
 })(MyComponent)
 
 export default class ComposeGroup extends Component {
@@ -210,6 +235,9 @@ export default class ComposeGroup extends Component {
         <div className="titleBox">
           <div className="commonTitle">
             容器挂载点
+          </div>
+          <div className="commonTitle">
+            配置分类
           </div>
           <div className="commonTitle">
             配置组

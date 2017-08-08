@@ -9,9 +9,11 @@ const Option = Select.Option;
 
 let CreateConfigModal = React.createClass({
   btnCreateConfigGroup() {
+    const parentScope = this.props.scope
+    const { currentGroup, groupEdit } = parentScope.state;
+    const { updateConfigAnnotations } = this.props
     let notification = new NotificationHandler()
     let self = this
-    const parentScope = this.props.scope
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         return
@@ -24,37 +26,67 @@ let CreateConfigModal = React.createClass({
       }
       const { cluster } = parentScope.props
       let configs = {
-        groupName,
+        groupName: groupEdit ? currentGroup : groupName,
         cluster,
-        configlabels:JSON.stringify(groupSort)
+        configlabels:groupSort.toString()
       }
-      parentScope.setState({ createModal: false })
-      parentScope.props.createConfigGroup(configs, {
+      if (!groupEdit) {
+        parentScope.props.createConfigGroup(configs, {
+          success: {
+            func: () => {
+              notification.success('创建成功')
+              self.props.form.resetFields()
+              parentScope.loadData()
+              parentScope.setState({ createModal: false })
+            },
+            isAsync: true
+          },
+          failed: {
+            func: (res) => {
+              parentScope.setState({ createModal: false })
+              let errorText
+              switch (res.message.code) {
+                case 403: errorText = '添加的配置过多'; break
+                case 409: errorText = '配置组已存在'; break
+                case 500: errorText = '网络异常'; break
+                default: errorText = '缺少参数或格式错误'
+              }
+              Modal.error({
+                title: '创建配置组',
+                content: (<h3>{errorText}</h3>),
+              });
+            }
+          }
+        })
+      } else {
+       updateConfigAnnotations(configs,{
         success: {
-          func: () => {
-            notification.success('创建成功')
+          func: res => {
+            notification.success('修改分类成功')
             self.props.form.resetFields()
             parentScope.loadData()
+            parentScope.setState({createModal: false})
           },
           isAsync: true
         },
-        failed: {
-          func: (res) => {
-            let errorText
-            switch (res.message.code) {
-              case 403: errorText = '添加的配置过多'; break
-              case 409: errorText = '配置组已存在'; break
-              case 500: errorText = '网络异常'; break
-              default: errorText = '缺少参数或格式错误'
-            }
-            Modal.error({
-              title: '创建配置组',
-              content: (<h3>{errorText}</h3>),
-            });
-          }
-        }
-      })
-
+         failed: {
+           func: (res) => {
+             parentScope.setState({ createModal: false })
+             let errorText
+             switch (res.message.code) {
+               case 403: errorText = '添加的配置过多'; break
+               case 409: errorText = '配置组已存在'; break
+               case 500: errorText = '网络异常'; break
+               default: errorText = '缺少参数或格式错误'
+             }
+             Modal.error({
+               title: '修改分类',
+               content: (<h3>{errorText}</h3>),
+             });
+           }
+         }
+       })
+      }
     })
   },
 
@@ -96,28 +128,38 @@ let CreateConfigModal = React.createClass({
   render() {
     const { getFieldProps } = this.props.form
     const parentScope = this.props.scope
+    const { configGroup, labelWithCount } = this.props
+    const { currentGroup, groupEdit } = parentScope.state;
+    let currentSortArray = []
+    configGroup.length > 0 && configGroup.forEach(item => {
+      if (item.name === currentGroup) {
+        currentSortArray = item.annotations
+      }
+    })
     const nameProps = getFieldProps('newConfigName', {
       rules: [
         { validator: this.configNameExists },
       ],
+      initialValue: groupEdit ? currentGroup : ''
     });
     const sortProps = getFieldProps('newConfigSort', {
       rules: [
         { message: '请选择分类', type: 'array' },
         { validator: this.configSortExists }
-      ]
+      ],
+      initialValue:groupEdit ? currentSortArray : []
     })
     const formItemLayout = {
       labelCol: { span: 5 },
       wrapperCol: { span: 19 },
     };
     let children = [];
-    for (let i = 10; i < 36; i++) {
-      children.push(<Option key={i.toString(36) + i}>{i.toString(36) + i}</Option>);
-    }
+    labelWithCount.length > 0 && labelWithCount.forEach(item => {
+      children.push(<Option key={item.labelName}>{item.labelName}</Option>);
+    })
     return (
       <Modal
-        title={parentScope.state.groupEdit ? "修改配置组" : '创建配置组'}
+        title={groupEdit ? "修改分类" : '创建配置组'}
         wrapClassName="server-create-modal"
         maskClosable={false}
         visible={ parentScope.state.createModal }
@@ -139,7 +181,7 @@ let CreateConfigModal = React.createClass({
                 {...formItemLayout}
                 label="配置组名称"
                 >
-                <Input {...nameProps} type="text" id="newConfigName" onPressEnter={()=> this.btnCreateConfigGroup()} />
+                <Input {...nameProps} disabled={groupEdit} type="text" id="newConfigName" onPressEnter={()=> this.btnCreateConfigGroup()} />
               </FormItem>
             </Col>
 
