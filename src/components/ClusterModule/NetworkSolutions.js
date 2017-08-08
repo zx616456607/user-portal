@@ -12,6 +12,10 @@ import { Checkbox, Row, Col, Modal } from 'antd'
 import './style/NetworkSolutions.less'
 import { connect } from 'react-redux'
 import { getNetworkSolutions } from '../../actions/cluster_node'
+import { updateClusterConfig } from '../../actions/cluster'
+import { loadTeamClustersList } from '../../actions/team'
+import NotificationHandler from '../../components/Notification'
+import { setCurrent } from '../../actions/entities'
 
 class NetworkSolutions extends Component {
 	constructor(props){
@@ -40,7 +44,7 @@ class NetworkSolutions extends Component {
   }
 
   handlebodyTemplate(){
-    const { clusterID, networksolutions } = this.props
+    const { clusterID, networksolutions, networkPolicySupported } = this.props
     if(!networksolutions[clusterID] || !networksolutions[clusterID].supported){
       return
     }
@@ -71,7 +75,21 @@ class NetworkSolutions extends Component {
         <Col span="9">
           {
             item == 'calico' && <span>
-              <span className='item_header'>允许当前集群用户开启 inbound 隔离：</span><span className='open_permission' onClick={this.openPermissionModal}>开启</span>
+              <span className='item_header'>允许当前集群用户开启 inbound 隔离：</span>
+              <span>
+                {
+                  networkPolicySupported
+                    ? '开启'
+                    : '关闭'
+                }
+                </span>
+              <span className='open_permission' onClick={this.openPermissionModal}>
+                {
+                  !networkPolicySupported
+                  ? '[ 开启 ]'
+                  : '[ 关闭 ]'
+                }
+              </span>
             </span>
           }
         </Col>
@@ -113,14 +131,67 @@ class NetworkSolutions extends Component {
   }
 
   confirmSettingPermsission(){
+    const { networkPolicySupported, updateClusterConfig,
+      clusterID, loadTeamClustersList,
+      space, setCurrent } = this.props
+    let Noti = new NotificationHandler()
     this.setState({
-      permissionVisible: false,
-      confirmLoading: false,
+      confirmLoading: true
+    })
+    let body = {
+      networkPolicySupported: !networkPolicySupported
+    }
+    updateClusterConfig(clusterID, body, {
+      success: {
+        func: () => {
+          let message = '关闭权限成功'
+          if(body.networkPolicySupported){
+            message = '开启权限成功'
+          }
+          Noti.success(message)
+          this.setState({
+            permissionVisible: false,
+            confirmLoading: false,
+          })
+          loadTeamClustersList(space.teamID, { size: 100 }, {
+            success: {
+              func: () => {
+                const { result } = this.props
+                for(let i=0; i<result.data.length; i++){
+                  if(result.data[i].clusterID == clusterID){
+                    setCurrent({
+                      cluster: result.data[i],
+                    })
+                    break
+                  }
+                }
+              },
+              isAsync: true,
+            }
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: (res) => {
+          this.setState({
+            confirmLoading: false,
+          })
+          let message = '开启权限失败，请重试'
+          if(body.networkPolicySupported){
+            message = '关闭权限失败，请重试'
+          }
+          if(res.message){
+            message = res.message
+          }
+          Noti.error(message)
+        }
+      }
     })
   }
 
   render(){
-    let allow = false
+    const { networkPolicySupported } = this.props
     return(
       <div id="networksolutions">
         <div className='header'>
@@ -135,7 +206,7 @@ class NetworkSolutions extends Component {
         </div>
 
         <Modal
-        	title={<span>{allow ? '开启' : '关闭'}</span>}
+        	title={<span>{networkPolicySupported ? '关闭' : '开启'}</span>}
         	visible={this.state.permissionVisible}
         	closable={true}
         	onOk={this.confirmSettingPermsission}
@@ -143,22 +214,22 @@ class NetworkSolutions extends Component {
         	maskClosable={false}
         	confirmLoading={this.state.confirmLoading}
         	wrapClassName="set_permission_modal"
-          okText={<span>{allow ? '已添加，开启允许' : '确定'}</span>}
-          cancelText={<span>{allow ? '尚未添加' : '取消'}</span>}
+          okText={<span>{networkPolicySupported ? '确定' : '已添加，开启允许'}</span>}
+          cancelText={<span>{networkPolicySupported ? '取消' : '尚未添加'}</span>}
         >
 
           {
-            allow
-              ? <div className='info_box'>
-                  <i className="fa fa-exclamation-triangle warning_icon" aria-hidden="true"></i>
-                  <div>
-                    将允许当前集群用户开启 inbound 隔离，请提前保证所有代理出口 ip 添加进策略，具体咨询系统实施工程师。
-                  </div>
-              </div>
-              : <div className='info_box_close'>
+            networkPolicySupported
+              ? <div className='info_box_close'>
                 <i className="fa fa-exclamation-triangle warning_icon" aria-hidden="true"></i>
                 <div>
                   将关闭『允许当前集群用户开启 inbound 隔离』的功能。
+                </div>
+              </div>
+              : <div className='info_box'>
+                <i className="fa fa-exclamation-triangle warning_icon" aria-hidden="true"></i>
+                <div>
+                  将允许当前集群用户开启 inbound 隔离，请提前保证所有代理出口 ip 添加进策略，具体咨询系统实施工程师。
                 </div>
               </div>
           }
@@ -169,12 +240,28 @@ class NetworkSolutions extends Component {
 }
 
 function mapStateToProp(state, props) {
+  const { entities } = state
   const { networksolutions } = state.cluster_nodes || {}
+  let networkPolicySupported = false
+  let clusterID
+  let space = entities.current.space
+  const { result } = state.team.teamClusters || {}
+  if(entities.current && entities.current.cluster ){
+    networkPolicySupported = entities.current.cluster.networkPolicySupported
+    clusterID = entities.current.cluster.clusterID
+  }
   return {
     networksolutions,
+    clusterID,
+    space,
+    networkPolicySupported,
+    result,
   }
 }
 
 export default connect(mapStateToProp, {
   getNetworkSolutions,
+  updateClusterConfig,
+  loadTeamClustersList,
+  setCurrent,
 })(NetworkSolutions)
