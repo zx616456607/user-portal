@@ -416,7 +416,7 @@ class QuickCreateApp extends Component {
           }
           return false
         })
-        if(envNameErrors || envValueErrors){
+        if(envNameErrors.length || envValueErrors.length){
           this.setState({
             AdvancedSettingKey: 1
           })
