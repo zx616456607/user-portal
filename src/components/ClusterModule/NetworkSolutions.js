@@ -75,19 +75,19 @@ class NetworkSolutions extends Component {
         <Col span="9">
           {
             item == 'calico' && <span>
-              <span className='item_header'>允许当前集群用户开启 inbound 隔离：</span>
+              <span className='item_header'>允许该集群用户变更 inbound 隔离策略：</span>
               <span>
                 {
                   networkPolicySupported
-                    ? '开启'
-                    : '关闭'
+                    ? '允许变更'
+                    : '禁止变更'
                 }
                 </span>
               <span className='open_permission' onClick={this.openPermissionModal}>
                 {
                   !networkPolicySupported
-                  ? '[ 开启 ]'
-                  : '[ 关闭 ]'
+                  ? '[ 允许变更 ]'
+                  : '[ 禁止变更 ]'
                 }
               </span>
             </span>

@@ -62,7 +62,7 @@ class NetworkIsolation extends Component {
         title: '提示',
         content: (
           <div>
-            <div>系统管理员未允许当前集群项目间网络隔离，请联系系统管理员更改当前集群网络方案。</div>
+            <div>系统管理员未允许变更当前集群的网络隔离策略，请联系系统管理员开启『基础设施→网络方案』的允许变更开关。</div>
           </div>
         ),
         onOk() {},
