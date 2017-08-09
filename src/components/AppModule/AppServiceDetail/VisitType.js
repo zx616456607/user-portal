@@ -45,6 +45,7 @@ class VisitType extends Component{
   componentWillMount() {
     const { service, bindingDomains, bindingIPs, getProxy, cluster } = this.props;
     this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
+
   }
   componentWillReceiveProps(nextProps) {
     let preShow = this.props.serviceDetailmodalShow;
@@ -239,7 +240,7 @@ class VisitType extends Component{
         }
       })
     })
-    
+
   }
   cancelEdit() {
     const { initValue, initSelect, initGroupID } = this.state;

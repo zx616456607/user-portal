@@ -18,7 +18,7 @@ import { connect } from 'react-redux'
 import { camelize } from 'humps'
 import { loadProjectList, createProject, deleteProject, updateProject, loadSysteminfo } from '../../../../actions/harbor'
 import NotificationHandler from '../../../../components/Notification'
-import { DEFAULT_REGISTRY } from '../../../../constants'
+import { DEFAULT_REGISTRY, SEARCH } from '../../../../constants'
 
 const RadioGroup = Radio.Group
 const notification = new NotificationHandler()
@@ -152,7 +152,7 @@ class Project extends Component {
     searchInput && searchInput.focus()
   }
   searchProjects() {
-    this.loadData({ project_name: this.state.searchInput })
+    this.loadData({ project_name: this.state.searchInput.replace(SEARCH,"") })
   }
 
   deleteItemOk() {
@@ -198,6 +198,7 @@ class Project extends Component {
     })
   }
   render() {
+    const { getFieldProps } = this.props.form
     const { harborProjects, harborSysteminfo, createProject, updateProject, loginUser } = this.props
     const func = {
       scope: this,
@@ -259,6 +260,7 @@ class Project extends Component {
   }
 }
 
+Project = Form.create()(Project)
 function mapStateToProps(state, props) {
   const { harbor, entities } = state
   let harborProjects = harbor.projects && harbor.projects[DEFAULT_REGISTRY] || {}
