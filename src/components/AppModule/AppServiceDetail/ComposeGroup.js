@@ -26,8 +26,11 @@ let MyComponent = React.createClass({
     }
   },
   componentWillMount() {
+    const { service } = this.props;
+    this.getConfigList(service)
+  },
+  getConfigList(service) {
     const { cluster, loadConfigGroup } = this.props;
-    const service = this.props.service
     let volumes = service.spec.template.spec.volumes
     const container = service.spec.template.spec.containers[0]
     loadConfigGroup(cluster,{
@@ -44,9 +47,9 @@ let MyComponent = React.createClass({
           let index = 0
           volumes.forEach((volume) => {
             let labels = []
-              groupWithLabels.forEach(item => {
+            groupWithLabels.forEach(item => {
               if (item.name === volume.configMap.name) {
-                labels.push(item.annotations)
+                labels = item.annotations
               }
             })
             if (volume.configMap) {
@@ -87,44 +90,20 @@ let MyComponent = React.createClass({
     })
 	},
   componentWillReceiveProps(nextProps) {
-    const { serviceDetailmodalShow } = nextProps
+    const { serviceDetailmodalShow, service } = nextProps
     if (!serviceDetailmodalShow) {
       this.setState({
         config: []
       })
       return
     }
-    const service = nextProps.service
     if (!service.spec) {
       this.setState({
         config: []
       })
       return
     }
-    const volumes = service.spec.template.spec.volumes
-    const container = service.spec.template.spec.containers[0]
-    if (!volumes) {
-      this.setState({
-        config: []
-      })
-      return
-    }
-    const config = []
-    let index = 0
-    volumes.forEach((volume) => {
-      if (volume.configMap) {
-        config.push({
-          id: ++index,
-          mountPod: filter(container.volumeMounts, ['name', volume.name])[0].mountPath,
-          group: volume.configMap.name,
-          file: volume.configMap.items
-        })
-      }
-    })
-    this.setState({
-      config
-    })
-
+    this.getConfigList(service)
   },
   render: function () {
     const configData = this.props.configData[this.props.cluster]
@@ -158,7 +137,7 @@ let MyComponent = React.createClass({
             <span>{item.mountPod}</span>
           </div>
           <div className="annotations commonData">
-            {item.labels && item.labels.join(',\b')}
+            {item.labels && item.labels.join(', ')}
           </div>
           <div className="commonData">
             <span>{item.group}</span>

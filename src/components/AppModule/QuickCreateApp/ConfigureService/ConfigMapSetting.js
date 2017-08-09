@@ -40,6 +40,7 @@ const ConfigMapSetting = React.createClass({
     this.handleSelectAll(keyValue, currentConfigGroup, e)
   },
   onConfigGroupChange(keyValue, value) {
+    console.log(keyValue,value)
     const { form, configGroupList } = this.props
     const { getFieldValue } = form
     const configMapIsWholeDir = getFieldValue(`configMapIsWholeDir${keyValue}`)
@@ -159,7 +160,7 @@ const ConfigMapSetting = React.createClass({
         </Col>
         <Col span={5}>
           <FormItem>
-            <Cascader options={selectOptions} placeholder="请选择配置组" {...configGroupNameProps}/>
+            <Cascader options={selectOptions} placeholder="配置组，例如：配置分类/配置组" {...configGroupNameProps}/>
             {/*<Select size="default" placeholder="请选择配置组" {...configGroupNameProps}>*/}
               {/*{*/}
                 {/*configGroupList.map(item => {*/}
