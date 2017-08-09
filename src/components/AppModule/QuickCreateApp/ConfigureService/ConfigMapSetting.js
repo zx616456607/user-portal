@@ -31,6 +31,37 @@ const ConfigMapSetting = React.createClass({
     const { currentCluster, loadConfigGroup } = this.props
     loadConfigGroup(currentCluster.clusterID)
   },
+  componentDidUpdate() {
+    this.addClick()
+  },
+  addClick() {
+    const { getFieldValue } = this.props.form
+    let configMapKeys = getFieldValue('configMapKeys') || []
+    let number = configMapKeys.length -1
+    let picker = document.getElementsByClassName('ant-cascader-input')[number]
+    if (picker) {
+      picker.addEventListener('click',()=>{
+        setTimeout(()=>{
+          this.addSelectTitle(number)
+        },0)
+      })
+    }
+  },
+  addSelectTitle(number) {
+    let selectBox = document.getElementsByClassName('ant-cascader-menus')[number]
+    if (!selectBox) return
+    if (!selectBox.getElementsByClassName('titleBox').length) {
+      let titleBox = document.createElement('div')
+      titleBox.setAttribute('class','titleBox')
+      let labelBox = document.createElement('span')
+      labelBox.innerHTML = '配置分类'
+      let groupBox = document.createElement('span')
+      groupBox.innerHTML = '配置组'
+      titleBox.appendChild(labelBox)
+      titleBox.appendChild(groupBox)
+      selectBox.insertBefore(titleBox,selectBox.childNodes[0])
+    }
+  },
   onIsWholeDirChange(keyValue, currentConfigGroup, e) {
     if (!currentConfigGroup) {
       return
@@ -40,7 +71,6 @@ const ConfigMapSetting = React.createClass({
     this.handleSelectAll(keyValue, currentConfigGroup, e)
   },
   onConfigGroupChange(keyValue, value) {
-    console.log(keyValue,value)
     const { form, configGroupList } = this.props
     const { getFieldValue } = form
     const configMapIsWholeDir = getFieldValue(`configMapIsWholeDir${keyValue}`)
@@ -85,7 +115,7 @@ const ConfigMapSetting = React.createClass({
     callback(error)
   },
   renderConfigMapItem(key) {
-    const { form, configGroupList, selectOptions } = this.props
+    const { form, configGroupList, selectOptions, defaultSelectValue } = this.props
     const { getFieldProps, getFieldValue } = form
     const keyValue = key.value
     const configMapSubPathValuesKey = `configMapSubPathValues${keyValue}`
@@ -126,7 +156,8 @@ const ConfigMapSetting = React.createClass({
       rules: [
         { required: true, message: '请选择配置组' }
       ],
-      onChange: this.onConfigGroupChange.bind(this, keyValue)
+      onChange: this.onConfigGroupChange.bind(this, keyValue),
+      initialValue: defaultSelectValue
     })
     const configMapSubPathValuesProps = getFieldProps(configMapSubPathValuesKey, {
       rules: [
@@ -160,24 +191,8 @@ const ConfigMapSetting = React.createClass({
         </Col>
         <Col span={5}>
           <FormItem>
-            <Cascader options={selectOptions} placeholder="配置组，例如：配置分类/配置组" {...configGroupNameProps}/>
-            {/*<Select size="default" placeholder="请选择配置组" {...configGroupNameProps}>*/}
-              {/*{*/}
-                {/*configGroupList.map(item => {*/}
-                  {/*const disabled = !item.configs || item.configs.length < 1*/}
-                  {/*const title = disabled ? '未包含任何配置文件' : item.name*/}
-                  {/*return (*/}
-                    {/*<Option*/}
-                      {/*key={item.name}*/}
-                      {/*title={title}*/}
-                      {/*disabled={disabled}*/}
-                    {/*>*/}
-                      {/*{item.name}*/}
-                    {/*</Option>*/}
-                  {/*)*/}
-                {/*})*/}
-              {/*}*/}
-            {/*</Select>*/}
+            <Cascader displayRender={label=> label.join('：')} options={selectOptions} placeholder="配置分类：配置组" {...configGroupNameProps}
+            />
           </FormItem>
         </Col>
         <Col span={5}>
@@ -390,7 +405,8 @@ function mapStateToProps(state, props) {
       selectOptions.push({
         value: temp,
         label: temp,
-        count: count
+        count: count,
+        title: temp
       })
     }
   }
@@ -401,16 +417,35 @@ function mapStateToProps(state, props) {
         children.push({
           value: record.name,
           label: record.name,
-          disabled: record.size ? false : true
+          disabled: record.size ? false : true,
+          title: record.size ? record.name : '未包含任何配置文件'
         })
       }
     })
     Object.assign(item,{children})
   })
+  let defaultSelectValue = []
+  for (let i = 0; i < selectOptions.length; i++) {
+    let flag = false
+    let child = selectOptions[i].children
+    for (let j = 0; j <child.length; j++) {
+      if (!child.disabled) {
+        defaultSelectValue.push(selectOptions[i].value,child[j].value)
+        flag = true
+      }
+      if (flag) {
+        break
+      }
+    }
+    if (flag) {
+      break
+    }
+  }
   return {
     currentCluster: cluster,
     configGroupList: (configGroupList[cluster.clusterID] ? configGroupList[cluster.clusterID].configGroup : []),
-    selectOptions
+    selectOptions,
+    defaultSelectValue
   }
 }
 
