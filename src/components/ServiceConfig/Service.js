@@ -298,11 +298,11 @@ class Service extends Component {
                 <ul className="configSortListBox">
                   {
                     labelWithCount.length > 0 &&
-                    <li className={classNames("configSort pointer",{active: !filterName})} onClick={()=> this.sortFilter('')}>
-                      <span className="sortName">默认分类</span>
+                    <li className={classNames("configSort pointer",{active: !filterName,hidden:Boolean(searchValue)})} onClick={()=> this.sortFilter('')}>
+                      <span className="sortName">全部配置组</span>
                       <i className="fa fa-trash-o fa-lg verticalCenter pointer" aria-hidden="true"/>
                       <i className="fa fa-pencil-square-o fa-lg verticalCenter pointer" aria-hidden="true"/>
-                      <span className="citeCount verticalCenter">({labelWithCount.length})</span>
+                      <span className="citeCount verticalCenter">({configGroup.length})</span>
                     </li>
                   }
                   {labelList}
