@@ -85,18 +85,21 @@ class ServiceAPI extends Component {
         <div style={{lineHeight:'50px'}}>没有加载到该版本的配置信息</div>
       )
     }
-    let portsShow = null, dataStorageShow = null, cmdShow = null, entrypointShow = null;
+    let portsShow = null, dataStorageShow = [], cmdShow = null, entrypointShow = null;
     let ports = configList.containerPorts || null
     if (!!ports) {
       portsShow = ports.map(item => item).join('，')
     }
     let dataStorage = configList.mountPath;
-    if (!!dataStorage) {
-      dataStorageShow = dataStorage.map((item) => {
-        return (
-          <p>&nbsp;&nbsp;&nbsp;&nbsp; - {item}</p>
-        )
-      });
+    if (dataStorage && Object.keys(dataStorage).length) {
+      for(let key in dataStorage){
+        dataStorageShow.push(<p key={key}>&nbsp;&nbsp;&nbsp;&nbsp; - {key}</p>)
+      }
+      //dataStorageShow = dataStorage.map((item) => {
+      //  return (
+      //    <p>&nbsp;&nbsp;&nbsp;&nbsp; - {item}</p>
+      //  )
+      //});
     }
     let { cmd, entrypoint } = configList;
     if (!!cmd) {
@@ -173,10 +176,15 @@ function mapStateToProps(state, props) {
   const configList =  imageTagConfig[DEFAULT_REGISTRY] || defaultImageDetailTagConfig
   // const { registry, tag, isFetching, server, configList } = otherTagConfig || defaultImageDetailTagConfig
   const tag = props.imageTags
+  const fullname = props.fullname
+  let list = {}
+  if(configList[fullname] && configList[fullname][tag]){
+    list = configList[fullname][tag]
+  }
   return {
     registry: DEFAULT_REGISTRY,
     registryServer: configList.server,
-    configList: configList[tag] || {},
+    configList: list,
     isFetching: configList.isFetching,
     tag
   }
