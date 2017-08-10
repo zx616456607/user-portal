@@ -19,6 +19,7 @@ import CollapseContainer from './ServiceCollapseContainer'
 // import CreateConfigModal from './CreateConfigModal'
 import CreateConfigModal from './CreateConfigModal'
 import NotificationHandler from '../../components/Notification'
+import CommonSearchInput from '../../components/CommonSearchInput'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
 import { loadConfigGroup, configGroupName, createConfigGroup, deleteConfigGroup, updateConfigAnnotations } from '../../actions/configs'
@@ -49,11 +50,46 @@ class CollapseList extends Component {
       this.props.configGroupName(groupName)
     }
   }
-
+  filterConfig() {
+    const { groupData } = this.props
+    const grandScope = this.props.scope;
+    const { filterName, noAnnotations, searchConfigName } = grandScope.state
+    let filterGroup = groupData.slice(0)
+    if (!filterName && !noAnnotations && !searchConfigName) {
+      filterGroup = groupData.slice(0)
+    }
+    if (filterName){
+      let arr = []
+      filterGroup.forEach(item => {
+        if (includes(item.annotations,filterName)) {
+          arr.push(item)
+        }
+      })
+      filterGroup = arr.slice(0)
+    }
+    if (noAnnotations) {
+      let arr = []
+      filterGroup.forEach(item => {
+        if (item.annotations.length === 0) {
+          arr.push(item)
+        }
+      })
+      filterGroup = arr.slice(0)
+    }
+    if (searchConfigName) {
+      let arr = []
+      filterGroup.forEach(item => {
+        if (item.name.indexOf(searchConfigName) > -1) {
+          arr.push(item)
+        }
+      })
+      filterGroup = arr.slice(0)
+    }
+    return filterGroup
+  }
   render() {
     const {groupData, isFetching } = this.props
     const grandScope = this.props.scope;
-    const { filterName } = grandScope.state
     const scope = this
     // TODO: Fix loadNumber here, not sure why 'groupData.length' will be undefined -> 0 -> actual length
     if (isFetching && this.loadNumber < 2) {
@@ -72,13 +108,7 @@ class CollapseList extends Component {
         </div>
       )
     }
-    let filterGroup = groupData.filter(item => {
-      if (filterName) {
-        return includes(item.annotations,filterName)
-      } else {
-        return true
-      }
-    })
+    let filterGroup = this.filterConfig()
     let groups = filterGroup.map((group) => {
       return (
         <Collapse.Panel
@@ -127,7 +157,9 @@ class Service extends Component {
       groupEdit: false,
       currentGroup: '',
       filterName: '',
-      searchValue: ''
+      searchValue: '',
+      noAnnotations: false,
+      searchConfigName: ''
     }
   }
   componentWillMount() {
@@ -138,15 +170,13 @@ class Service extends Component {
     })
   }
   componentWillReceiveProps(nextProps) {
-    const { cluster, loadConfigGroup, labelWithCount } = nextProps
-    if (cluster !== this.props.cluster) {
+    const { cluster, loadConfigGroup, labelWithCount, spaceID } = nextProps
+    if ((cluster !== this.props.cluster) || (spaceID !== this.props.spaceID)) {
       loadConfigGroup(cluster)
     }
-    if (labelWithCount.length > 0) {
-      this.setState({
-        configList: labelWithCount
-      })
-    }
+    this.setState({
+      configList: labelWithCount
+    })
   }
   loadData() {
     const { loadConfigGroup, cluster} = this.props
@@ -242,17 +272,24 @@ class Service extends Component {
       searchValue: searchItem
     })
   }
-  sortFilter(name) {
+  sortFilter(name,flag) {
     this.setState({
-      filterName:name
+      filterName:name,
+      noAnnotations: flag ? true : false
     })
   }
   render() {
     const {cluster, configGroup, isFetching, configName, labelWithCount, updateConfigAnnotations} = this.props
-    const { configList, filterName, searchValue } = this.state;
+    const { configList, filterName, searchValue, noAnnotations } = this.state;
+    let noAnnotationsLength = 0
+    configGroup.length > 0 && configGroup.forEach(item => {
+      if (!item.annotations.length) {
+        noAnnotationsLength++
+      }
+    })
     const labelList = configList.map(item => {
       return (
-        <li className={classNames("configSort pointer",{'active': item.labelName === filterName})} onClick={()=>this.sortFilter(item.labelName)}>
+        <li className={classNames("configSort pointer",{'active': item.labelName === filterName})} onClick={()=>this.sortFilter(item.labelName,false)}>
           <span className="sortName">{item.labelName}</span>
           <i className="fa fa-trash-o fa-lg verticalCenter pointer" aria-hidden="true"/>
           <i className="fa fa-pencil-square-o fa-lg verticalCenter pointer" aria-hidden="true"/>
@@ -298,11 +335,19 @@ class Service extends Component {
                 <ul className="configSortListBox">
                   {
                     labelWithCount.length > 0 &&
-                    <li className={classNames("configSort pointer",{active: !filterName,hidden:Boolean(searchValue)})} onClick={()=> this.sortFilter('')}>
+                    <li className={classNames("configSort pointer",{active: filterName === '',hidden:Boolean(searchValue)})} onClick={()=> this.sortFilter('',false)}>
                       <span className="sortName">全部配置组</span>
                       <i className="fa fa-trash-o fa-lg verticalCenter pointer" aria-hidden="true"/>
                       <i className="fa fa-pencil-square-o fa-lg verticalCenter pointer" aria-hidden="true"/>
                       <span className="citeCount verticalCenter">({configGroup.length})</span>
+                    </li>
+                  }
+                  {
+                    <li className={classNames("configSort pointer",{active: noAnnotations,hidden:Boolean(searchValue)})} onClick={()=> this.sortFilter(null,true)}>
+                      <span className="sortName">未分类配置组</span>
+                      <i className="fa fa-trash-o fa-lg verticalCenter pointer" aria-hidden="true"/>
+                      <i className="fa fa-pencil-square-o fa-lg verticalCenter pointer" aria-hidden="true"/>
+                      <span className="citeCount verticalCenter">({noAnnotationsLength})</span>
                     </li>
                   }
                   {labelList}
@@ -314,10 +359,11 @@ class Service extends Component {
               <Button type="primary" size="large" onClick={(e) => this.configModal(true,false)}>
                 <i className="fa fa-plus" /> 创建配置组
               </Button>
-              <Button size="large" onClick={() => this.setState({delModal: true})} style={{ marginLeft: "12px" }}
+              <Button size="large" onClick={() => this.setState({delModal: true})} style={{ marginLeft: "12px",marginRight:"12px" }}
                       disabled={!this.state.configArray || this.state.configArray.length < 1}>
                 <i className="fa fa-trash-o" style={{marginRight: '5px'}} />删除
               </Button>
+              <CommonSearchInput onSearch={(value)=>{this.setState({searchConfigName:value})}} placeholder="按配置组名称搜索" size="large"/>
               <CollapseList
                 scope={this}
                 cluster={cluster}
@@ -355,6 +401,7 @@ Service.propTypes = {
 })*/
 function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
+  const { space } = state.entities.current
   const defaultConfigList = {
     isFetching: false,
     cluster: cluster.clusterID,
@@ -366,7 +413,9 @@ function mapStateToProps(state, props) {
   const {configGroup, isFetching } = configGroupList[cluster.clusterID] || defaultConfigList
   let labels = []
   configGroup.length > 0 && configGroup.forEach(item => {
-    labels = labels.concat(item.annotations)
+    if (item.annotations.length) {
+      labels = labels.concat(item.annotations)
+    }
   })
   let labelWithCount = []
   for (let i = 0; i < labels.length; i++) {
@@ -387,6 +436,7 @@ function mapStateToProps(state, props) {
   }
   return {
     cluster: cluster.clusterID,
+    spaceID: space.spaceID,
     configGroup,
     isFetching,
     labelWithCount

@@ -115,10 +115,6 @@ let CreateConfigModal = React.createClass({
     callback()
   },
   configSortExists(rules, value, callback) {
-    if (!value) {
-      callback([new Error('请输入配置组分类')])
-      return
-    }
     callback()
   },
   handCancel(parentScope) {
@@ -132,7 +128,7 @@ let CreateConfigModal = React.createClass({
     const { currentGroup, groupEdit } = parentScope.state;
     let currentSortArray = []
     configGroup.length > 0 && configGroup.forEach(item => {
-      if (item.name === currentGroup) {
+      if ((item.name === currentGroup) && item.annotations.length) {
         currentSortArray = item.annotations
       }
     })
