@@ -668,7 +668,7 @@ let CreateTenxFlowModal = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope, createTenxFlowState, flowId, stageInfo, createDockerfile, getTenxFlowDetail } = this.props;
+    const { scope, createTenxFlowState, flowId, stageInfo, createDockerfile, getTenxFlowDetail, stageList } = this.props;
     const { getTenxFlowStateList } = scope.props;
     const _this = this;
     let notification = new NotificationHandler()
@@ -863,6 +863,9 @@ let CreateTenxFlowModal = React.createClass({
           },
           uniformRepo: (values.uniformRepo ? 0 : 1),
         }
+      }
+      if (stageList.length !==0) {
+        body.spec.uniformRepo = this.props.uniformRepo
       }
       //if user select the customer type (6), ths customType must be input
       if (this.state.otherFlowType == 5) {
