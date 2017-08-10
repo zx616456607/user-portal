@@ -49,6 +49,7 @@ class DeletedUsersModal extends React.Component {
     const { visible } = nextProps
     if (visible && !this.props.visible) {
       this.loadData()
+      this.setState({ page: 1 })
     }
   }
 
@@ -86,6 +87,9 @@ class DeletedUsersModal extends React.Component {
                 total={total}
                 onChange={this.onPageChange}
               />
+            </div>
+            <div className="deletedUserModalHeaderRight deletedUserModalHeaderTotal ">
+              <span>共计{total}条</span>
             </div>
           </div>
           {

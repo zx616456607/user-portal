@@ -423,3 +423,13 @@ function* updateUserActive() {
   this.body = response
 }
 exports.updateUserActive = updateUserActive
+
+function* getSoftdeletedUsers() {
+  const query = this.query
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const response = yield api.users.getBy(['softdeleted'], query)
+  this.status = response.code
+  this.body = response
+}
+exports.getSoftdeletedUsers = getSoftdeletedUsers
