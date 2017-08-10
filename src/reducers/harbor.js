@@ -341,11 +341,15 @@ function repositoriesTagConfigInfo(state = {}, action) {
         }
       })
     case ActionTypes.HARBOR_REPOSITORIES_TAG_CONFIGINFO_SUCCESS:
-      return Object.assign({}, state, {
+      return merge({}, state, {
         [registry]: {
           isFetching: false,
           server: action.response.result.server.replace(/(http:\/\/|https:\/\/)/, ''),
-          [tag]: action.response.result.data
+          [tag]: action.response.result.data,
+          [imageName]: {
+            server: action.response.result.server.replace(/(http:\/\/|https:\/\/)/, ''),
+            [tag]: action.response.result.data
+          }
         }
       })
     case ActionTypes.HARBOR_REPOSITORIES_TAG_CONFIGINFO_FAILURE:
