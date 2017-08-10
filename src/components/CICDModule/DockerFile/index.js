@@ -19,6 +19,7 @@ import './style/DockerFile.less'
 import NotificationHandler from '../../../components/Notification'
 import Title from '../../Title'
 import DockerfileModal from '../DockerfileModal'
+import { SEARCH } from '../../../../constants'
 
 const editorOptions = {
   readOnly: false
@@ -283,7 +284,7 @@ class DockerFile extends Component {
     this.setState({names: e.target.value})
   }
   handleSearch() {
-    this.props.searchDockerfile(this.state.names)
+    this.props.searchDockerfile(this.state.names.replace(SEARCH,""))
   }
 
   render() {

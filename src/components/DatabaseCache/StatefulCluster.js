@@ -17,6 +17,7 @@ import { loadDbCacheList, searchDbservice } from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
 import { getProxy } from '../../actions/cluster'
 import { DEFAULT_REGISTRY } from '../../../constants'
+import { SEARCH } from '../../constants'
 import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
 import NotificationHandler from '../../components/Notification'
@@ -227,11 +228,11 @@ class StatefulCluster extends Component {
   handSearch(e) {
     const clusterType = this.props.clusterType
     if (e) {
-      this.props.searchDbservice(clusterType, e.target.value)
+      this.props.searchDbservice(clusterType, e.target.value.replace(SEARCH,""))
       return
     }
     const names = this.refs.searchInput.refs.input.value
-    this.props.searchDbservice(clusterType, names)
+    this.props.searchDbservice(clusterType, names.replace(SEARCH,""))
   }
 
   render() {
