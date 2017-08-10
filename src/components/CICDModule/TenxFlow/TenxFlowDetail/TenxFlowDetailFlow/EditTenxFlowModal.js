@@ -1098,6 +1098,9 @@ let EditTenxFlowModal = React.createClass({
           uniformRepo: (values.uniformRepo ? 0 : 1),
         }
       }
+      if (this.props.index !== 0) {
+        body.spec.uniformRepo = this.props.uniformRepo
+      }
       // 增加 scripts id
       if (_this.state.shellCodeType === 'scripts') {
         body.spec.container.scripts_id = _this.state.scriptsId

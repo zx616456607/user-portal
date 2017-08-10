@@ -41,7 +41,7 @@ class NetworkIsolation extends Component {
     getNetworkIsolationStatus(body, {
       success: {
         func: (res) => {
-          if(res.rule && res.rule.policy === 'allow' && res.rule.targets[0] === namespace){
+          if(res.rule){
             this.setState({
               allow: true
             })
@@ -85,7 +85,7 @@ class NetworkIsolation extends Component {
       body: {
         "rule": {
           "policy": "allow",
-          "targets": [`${namespace}`]
+          "targets": []
         }
       }
     }
@@ -109,6 +109,11 @@ class NetworkIsolation extends Component {
         failed: {
           func: (res) => {
             let message = `关闭网络 inbound 隔离失败，请重试`
+            if(res.statusCode == 401){
+              message = `当前用户为普通成员不可开启或关闭网络隔离`
+              return Noti.error(message)
+            }
+
             if(res.message){
               message = res.message
             }
@@ -136,6 +141,10 @@ class NetworkIsolation extends Component {
       failed: {
         func: (res) => {
           let message = `开启网络 inbound 隔离失败，请重试`
+          if(res.statusCode == 401){
+            message = `当前用户为普通成员不可开启或关闭网络隔离`
+            return  Noti.error(message)
+          }
           if(res.message){
             message = res.message
           }
