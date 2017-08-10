@@ -88,7 +88,7 @@ export default class Team extends Component{
               <use xlinkHref="#settingownteam" />
             </svg>
             <span className="infSvgTxt">
-              {userDetail.userName}的团队
+              {userDetail.userName} 创建的团队
             </span>
           </div>
           <div className="teamContent">
