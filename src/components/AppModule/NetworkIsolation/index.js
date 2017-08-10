@@ -41,7 +41,7 @@ class NetworkIsolation extends Component {
     getNetworkIsolationStatus(body, {
       success: {
         func: (res) => {
-          if(res.rule && res.rule.policy === 'allow' && res.rule.targets[0] === namespace){
+          if(res.rule){
             this.setState({
               allow: true
             })
