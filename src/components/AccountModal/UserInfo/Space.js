@@ -246,7 +246,7 @@ export default class Space extends Component {
               <use xlinkHref="#settingperspace" />
             </svg>
             <span className="infSvgTxt">
-              {userDetail.userName}的个人空间
+              {userDetail.userName} 的个人空间
             </span>
           </div>
           <div className="spaceContent">
@@ -261,7 +261,7 @@ export default class Space extends Component {
               <use xlinkHref="#settingteamspace" />
             </svg>
             <span className="infSvgTxt">
-              {userDetail.userName}的团队空间
+              {userDetail.userName} 的团队空间
             </span>
           </div>
           <div className="spaceContent">
