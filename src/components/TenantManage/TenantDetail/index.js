@@ -24,6 +24,8 @@ const TreeNode = Tree.TreeNode
 let TenantDetail = React.createClass({
   getInitialState() {
     return {
+      roleDetail:[],
+      isShowIco: false,
       filteredInfo: null,
       sortedInfo: null,
       Removerol: false,
@@ -32,36 +34,53 @@ let TenantDetail = React.createClass({
       roleModalVisible:false,
       removePermissionName: '',
       removePermissionTree: [],
-      defaultExpandedKeys: []
+      defaultExpandedKeys: [],
+      permissionDatasource: [],
     };
   },
   componentWillMount(){
     const { params } = this.props
     let roleId = params.id
-    // this.loadGetRole(roleId)
-    // this.props.Permission()
+    this.loadGetRole(roleId)
+    //this.props.Permission()
   },
   loadGetRole(roleId){
     const { GetRole } = this.props
-    let body = {
-      id: roleId
-    }
-    GetRole({ body },{
+    GetRole({ roleId },{
       success: {
         func: res => {
-          if(res.code === 200){
-            debugger
+          if(res.data.code === 200){
+            this.setState({
+              roleDetail: res.data.data,
+              permissionDatasource: res.data.data.permissions
+            })
+            this.RowData(this.state.permissionDatasource)
           }
-        },
-        isAsync: true
-      },
-      failed: {
-        func: res => {
-
         },
         isAsync: true
       }
     })
+  },
+  RowData(data){
+    if(data){
+      const children = []
+      for(let i = 0; i < data.length; i++){
+        let RowData = data[i]
+        RowData = Object.assign(RowData,{title: RowData.desc, key: RowData.id})
+        children.push(RowData)
+      }
+
+      children.forEach((key, index) => {
+        if(data[index]["children"] !== undefined){
+          if (data[index].children.length !== 0) {
+            return this.generateDatas(data[index].children);
+          }
+        }
+      })
+      this.setState({
+        permissionDatasource: children
+      })
+    }
   },
   handleChange(pagination, filters, sorter) {
     this.setState({
@@ -102,37 +121,6 @@ let TenantDetail = React.createClass({
       addpermission:false,
       roleModalVisible:false,
     });
-  },
-  tableDatasourceAddKey(formatData){
-    let LinearArray = []
-    const func = data => data.forEach(item => {
-      LinearArray.push(item)
-      if(item.children){
-        func(item.children)
-      }
-    })
-    func(formatData)
-    for(let i = 0; i < LinearArray.length; i++){
-      LinearArray[i].key = i
-      delete LinearArray[i].children
-    }
-    const formatFunc = (data, id) => {
-      let arrLast = []
-      for(let i = 0 ; i < data.length; i++){
-        if(data[i].parent == id){
-          arrLast.push(data[i])
-        }
-      }
-      for(let i = 0; i < arrLast.length; i++){
-        let arr = formatFunc(data, arrLast[i].id)
-        if(arr.length){
-          arrLast[i].children = arr
-        }
-      }
-      return arrLast
-    }
-    let permissonList = formatFunc(LinearArray, '')
-    return permissonList
   },
   removePermissionButton(record){
     let linearArray = this.transformLinearArray([record])
@@ -198,8 +186,18 @@ let TenantDetail = React.createClass({
     })
 
   },
+  handleIcon(e){
+    this.setState({
+      isShowIco: true
+    })
+  },
+  handleColse(e){
+    this.setState({
+      isShowIco: false
+    })
+  },
   render() {
-    const { roleDetail, params, form, permissionList } = this.props
+    const { params, form, permissionList } = this.props
     const { getFieldProps } = form
     const data = [{
       key: '1',
@@ -222,26 +220,14 @@ let TenantDetail = React.createClass({
       Projectname: '项目1',
       Referencetime: '2017-03-28 14:31:35',
     }];
-    let { sortedInfo, filteredInfo, removePermissionName, removePermissionTree } = this.state;
-    let roleId = params.id
-    //let currentRoleDetail = roleDetail[roleId]
-    // if(currentRoleDetail && currentRoleDetail.isFetching){
-    //   return <div style={{textAlign: 'center', paddingTop: '50px'}}><Spin size='large'/></div>
-    // }
-    let roleInfo = {}
-    // if(currentRoleDetail.data && currentRoleDetail.data.role){
-    //   roleInfo = currentRoleDetail.data.role
-    // }
-    let permission = {}
-    // if(currentRoleDetail.data && currentRoleDetail.data.permission){
-    //   permission = currentRoleDetail.data.permission
-    // }
-    let outPermission = {}
-    // if(currentRoleDetail.data && currentRoleDetail.data.permission){
-    //   outPermission = currentRoleDetail.data.outPermission
-    // }
+    let { roleDetail, sortedInfo, filteredInfo, removePermissionName, removePermissionTree, permissionDatasource } = this.state;
 
-    let permissonInfo = permission.permission
+    let roleInfo = {}
+    if(roleDetail.data){
+      roleInfo = roleDetail
+      this.RowData(permissionDatasource)
+    }
+    let outPermission = {}
     let outPermissionInfo = outPermission.permission
     sortedInfo = sortedInfo || {};
     filteredInfo = filteredInfo || {};
@@ -284,7 +270,6 @@ let TenantDetail = React.createClass({
         </span>
       ),
     }];
-    //const permissionDatasource = this.tableDatasourceAddKey(permissonInfo)
     const scope = this
     // const loop = data => data.map((item) => {
     //   if (item.children) {
@@ -304,7 +289,7 @@ let TenantDetail = React.createClass({
             <span className="backjia"></span>
             <span className="btn-back">返回</span>
           </Link>
-          <span className="Title">角色详情（{roleInfo.name}）</span>
+          <span className="Title">角色详情（{roleDetail.name}）</span>
         </Row>
         <div className='lastDetails'>
           <div className='title'>角色基本信息</div>
@@ -312,25 +297,37 @@ let TenantDetail = React.createClass({
             <div className="lastSyncInfo">
               <Row className='item itemfirst'>
                 <Col span={3} className='item_title'><div>角色名称</div></Col>
-                <Col span={21} className='item_content'>{roleInfo.name}</Col>
+                <Col span={21} className='item_content'>{roleDetail.name}</Col>
               </Row>
               <Row className='item itemfirst'>
                 <Col span={3} className='item_title'>创建时间</Col>
-                <Col span={21} className='item_content'>{formatDate(roleInfo.createdTime)}</Col>
+                <Col span={21} className='item_content'>{formatDate(roleDetail.createdTime)}</Col>
               </Row>
               <Row className='item itemfirst'>
                 <Col span={3} className='item_title'>备注</Col>
-                <Col span={21} className='item_content'>{roleInfo.comment}<Icon type="edit" style={{marginLeft:'4px'}}/></Col>
+                {
+                  this.state.isShowIco ?
+                  <Col span={21} className='item_content'>
+                    <Input style={{ width:145}}/>
+                    <div className="edit_desc" >
+                      <Icon className="ico" type="minus-circle-o" style={{fontSize:20,margin:9}} onClick={() => this.handleColse()}/>
+                      <Icon className="ico" type="save" style={{fontSize:20}}/>
+                    </div>
+                  </Col> :
+                  <Col span={21} className='item_content'>{roleDetail.comment}
+                    <Icon type="edit" style={{marginLeft:'4px'}} onClick={() => this.handleIcon()}/>
+                  </Col>
+                }
               </Row>
             </div>
           </div>
         </div>
         <div className='lastDetails lastDetailtable' style={{width:'49%',float:'left'}} >
-          <div className='title'>权限 （ <span>10个</span> ）<Button className="Editroles" onClick={()=> this.setState({roleModalVisible:true})} type="ghost">编辑角色</Button></div>
+          <div className='title'>权限 （ <span>{permissionDatasource.length}个</span> ）<Button className="Editroles" onClick={()=> this.setState({roleModalVisible:true})} type="ghost">编辑角色</Button></div>
           <div className="addpermission">
             <Button onClick={()=> this.setState({addpermission:true})} type="primary" size="small">
               <i className="fa fa-plus" aria-hidden="true" style={{marginRight: '8px'}}></i>
-              添加权限123
+              编辑权限
             </Button>
           </div>
           <div className='container'>
@@ -339,8 +336,8 @@ let TenantDetail = React.createClass({
                 scroll={{y:300}}
                 columns={permissionColumns}
                 pagination={false}
+                dataSource={permissionDatasource}
               />
-              {/* dataSource={permissionDatasource} */}
             </div>
           </div>
         </div>
@@ -355,7 +352,6 @@ let TenantDetail = React.createClass({
         <Modal title="移除角色" visible={this.state.Removerol} onOk={this.handleOk} onCancel={this.handleCancel} >
           <p className="createRol"><div className="mainbox"><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>从项目xxx中移除该角色后与该角色相关联的所有成员及团队将从项目中移除，确定从项目xxx中移除该角色？</div></p>
         </Modal>
-
         <Modal
           width="765px"
           title="编辑角色"
@@ -373,7 +369,6 @@ let TenantDetail = React.createClass({
             form={form}
           /> */}
         </Modal>
-
         <Modal title="移除权限"
           visible={this.state.Removepermis}
           onOk={this.confirmRemovePermission}
@@ -401,16 +396,14 @@ let TenantDetail = React.createClass({
             }
           </div>
         </Modal>
-
         <Modal
-          title="添加权限"
+          title="编辑权限"
           visible={this.state.addpermission}
           onOk={this.handleOk}
           onCancel={this.handleCancel}
         >
           <TreeComponent />
         </Modal>
-
       </div>
     </QueueAnim>
     )
@@ -420,13 +413,6 @@ let TenantDetail = React.createClass({
 TenantDetail = Form.create()(TenantDetail)
 
 function mapStateToProps(state, props){
-  // const { role } = state
-  // const { roleDetail } = role
-  // const { permissionList } = role
-  // return {
-  //   roleDetail,
-  //   permissionList,
-  // }
   return {}
 
 }

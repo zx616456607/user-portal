@@ -77,7 +77,7 @@ export const ROLE_GET_FAILURE = 'ROLE_GET_FAILURE'
 // Fetches get role from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchGetRole(body,callback){
-	let endpoint = `${API_URL_PREFIX}/role/${body.id}`
+	let endpoint = `${API_URL_PREFIX}/role/${body.roleId}`
 	return {
 		[FETCH_API]: {
       types: [ROLE_GET_REQUEST, ROLE_GET_SUCCESS, ROLE_GET_FAILURE],
@@ -342,4 +342,30 @@ export function roleWithMembers(body,callback) {
     return dispatch(fetchRoleWithMembers(body,callback))
   }
 }
+
+export const ROLE_GET_SEARCH_REQUEST = 'ROLE_GET_SEARCH_REQUEST'
+export const ROLE_GET_SEARCH_SUCCESS = 'ROLE_GET_SEARCH_SUCCESS'
+export const ROLE_GET_SEARCH_FAILURE = 'ROLE_GET_SEARCH_FAILURE'
+
+function fetchGetSearchInfo(body, callback){
+  let endpoint = `${API_URL_PREFIX}/role`
+  if (body) {
+    endpoint += `?filter=${toQuerystring(body.info)}`
+  }
+	return {
+		[FETCH_API]: {
+      types: [ROLE_GET_SEARCH_REQUEST, ROLE_GET_SEARCH_SUCCESS, ROLE_GET_SEARCH_FAILURE],
+      endpoint,
+      schema: {},
+    },
+    callback
+	}
+}
+
+export function GetSearchList(body, callback){
+  return(dispatch, getState) => {
+    return dispatch(fetchGetSearchInfo(body, callback))
+  }
+}
+
 
