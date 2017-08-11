@@ -15,6 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../components/Notification'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
+import { SEARCH } from '../../constants'
 import { getAlertSetting, deleteRecords, getSettingList, deleteSetting, batchEnable, batchDisable, ignoreSetting, getSettingInstant } from '../../actions/alert'
 import { loadServiceDetail } from '../../actions/services'
 import { getHostInfo } from '../../actions/cluster'
@@ -594,9 +595,10 @@ class AlarmSetting extends Component {
       })
     }
   }
-  handSearch() {
+  handSearch(e) {
     // search data
-    const search = document.getElementById('alarmSearch').value
+    //let search = document.getElementById('alarmSearch').value
+    let search = e.target.value.replace(SEARCH, "")
     const { getSettingList, clusterID, teamID } = this.props
     this.setState({
       currentPage: 1

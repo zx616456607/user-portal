@@ -24,6 +24,7 @@ import { Link, browserHistory } from 'react-router'
 import { formatDate } from '../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import Title from '../Title'
+import { SEARCH } from '../../constants'
 
 class AlarmGroup extends Component {
   constructor(props) {
@@ -186,8 +187,9 @@ class AlarmGroup extends Component {
       </div>
     )
   }
-  handSearch() {
-    let search = document.getElementById('AlarmGroupInput').value.trim()
+  handSearch(e) {
+    //let search = document.getElementById('AlarmGroupInput').value.trim()
+    let search = e.target.value.replace(SEARCH,"")
     const { loadNotifyGroups } = this.props
     const clusterID = this.props.cluster.clusterID
     loadNotifyGroups(search, clusterID)

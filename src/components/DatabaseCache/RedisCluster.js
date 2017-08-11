@@ -18,6 +18,7 @@ import { loadDbCacheList ,searchDbservice} from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
 import { getProxy } from '../../actions/cluster'
 import { DEFAULT_REGISTRY } from '../../../constants'
+import { SEARCH } from '../../constants'
 import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
 import NotificationHandler from '../../components/Notification'
@@ -186,11 +187,11 @@ class RedisDatabase extends Component {
   }
   handSearch(e) {
     if (e) {
-      this.props.searchDbservice('redis', e.target.value)
+      this.props.searchDbservice('redis', e.target.value.replace(SEARCH,""))
       return
     }
     const names = this.refs.redisRef.refs.input.value
-    this.props.searchDbservice('redis', names)
+    this.props.searchDbservice('redis', names.replace(SEARCH,""))
   }
 
   render() {

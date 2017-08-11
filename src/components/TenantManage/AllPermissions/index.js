@@ -11,8 +11,9 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Row, Table, Alert, Col, Form, Input, Button, Radio, Modal, InputNumber } from 'antd'
 import './style/AllPermissions.less'
-import {fetchinfoList, getSearchList} from  '../../../actions/tenant_overview'
+import {Permission, RetrievePermission} from  '../../../actions/permission'
 import CommonSearchInput from '../../../components/CommonSearchInput'
+import QueueAnim from 'rc-queue-anim'
 
 class AllPermissions extends React.Component{
   constructor(props){
@@ -21,7 +22,8 @@ class AllPermissions extends React.Component{
       filteredInfo: null,
       sortedInfo: null,
       data: [],
-      values: ''
+      values: '',
+      loading: true
     }
   }
 
@@ -37,27 +39,30 @@ class AllPermissions extends React.Component{
         RowData = Object.assign(RowData,{title: RowData.desc, key: RowData.id})
         children.push(RowData)
       }
+
       children.forEach((key, index) => {
-        if(data[index].children.length !==0){
-          return this.RowData(data[index].children)
+        if(tns[index]["children"] !== undefined){
+          if (tns[index].children.length !== 0) {
+            return this.generateDatas(tns[index].children);
+          }
         }
       })
       this.setState({
-        data: children
+        data: children,
+        loading: false
       })
     }
   }
 
   handleSearch(value){
-    const { getSearchList } = this.props
+    const { RetrievePermission } = this.props
     let ID = value
-    getSearchList ({
+    RetrievePermission ({
       id: ID
     },{
       success: {
         func: res => {
           if(res.data.code === 200){
-            debugger
             let obj = '', result = []
             obj = {'key': res.data.data.id, 'title':res.data.data.desc, 'desc': res.data.data.desc, 'count': res.data.data.count}
             result.push(obj)
@@ -78,12 +83,12 @@ class AllPermissions extends React.Component{
   }
 
   getLists(){
-    const { fetchinfoList } = this.props
-    fetchinfoList (null,{
+    const { Permission } = this.props
+    Permission (null,{
       success: {
         func: res => {
           if(res.data.code === 200){
-            this.RowData(res.data.data.permission)
+            this.RowData(res.data.data)
           }
         },
         isAsync: true,
@@ -105,7 +110,7 @@ class AllPermissions extends React.Component{
   }
 
   render(){
-    const { data } = this.state
+    const { data, loading } = this.state
     let { sortedInfo } = this.state;
     sortedInfo = sortedInfo || {};
     const columns = [{
@@ -126,8 +131,9 @@ class AllPermissions extends React.Component{
     }];
 
     return(
-      <div id="AllPermissions">
-        <Alert message={`所有权限是指平台上每个功能模块的权限细粒度划分，可以将若干个权限组合成一个角色，再在项目中添加相应的角色并关联对象（成员、团队）。系统管理员和团队管理员都有查看『所有权限』的权限。`}
+      <QueueAnim className="AllPermissions">
+        <div id="AllPermissions">
+          <Alert message={`所有权限是指平台上每个功能模块的权限细粒度划分，可以将若干个权限组合成一个角色，再在项目中添加相应的角色并关联对象（成员、团队）。系统管理员和团队管理员都有查看『所有权限』的权限。`}
           type="info" />
         <div className="operationBox">
           <div className='rightBox'>
@@ -144,9 +150,10 @@ class AllPermissions extends React.Component{
                   <CommonSearchInput placeholder="请输入关键词搜索" size="large" onSearch={this.handleSearch.bind(this)}/>
               </div>
             </div>
-          <Table pagination={false} columns={columns} dataSource={data} onChange={this.handleChange} />
+          <Table pagination={false} columns={columns} dataSource={data} onChange={this.handleChange} loading={loading}/>
         </div>
       </div>
+      </QueueAnim>
     )
   }
 }
@@ -156,6 +163,6 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  fetchinfoList,
-  getSearchList
+  Permission,
+  RetrievePermission
 })(AllPermissions)
