@@ -11,15 +11,15 @@ import React, { Component } from 'react'
 import { Menu, Dropdown, Select, Input, Form, Icon, Badge, Modal, Popover } from 'antd'
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
-import querystring from 'querystring'
 import PopSelect from '../PopSelect'
 import { connect } from 'react-redux'
-import { loadUserTeamspaceList } from '../../actions/user'
+import cloneDeep from 'lodash/cloneDeep'
+import { loadUserTeamspaceList, loadUserList } from '../../actions/user'
 import { loadTeamClustersList } from '../../actions/team'
 import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
 import { checkVersion } from '../../actions/version'
 import { getCookie, isEmptyObject, getVersion, getPortalRealMode, toQuerystring } from '../../common/tools'
-import { USER_CURRENT_CONFIG } from '../../../constants'
+import { USER_CURRENT_CONFIG, ROLE_SYS_ADMIN } from '../../../constants'
 import { MY_SPACE, SESSION_STORAGE_TENX_HIDE_DOT_KEY, LITE } from '../../constants'
 import { browserHistory, Link } from 'react-router'
 import NotificationHandler from '../../components/Notification'
@@ -135,7 +135,9 @@ class Header extends Component {
       hideDot: getHideDot(),
       upgradeVersionModalVisible: false,
       visible: false,
+      allUsers: [],
     }
+    this.isSysAdmin = props.loginUser.role == ROLE_SYS_ADMIN
   }
 
   handleDocVisible(){
@@ -168,6 +170,10 @@ class Header extends Component {
     /*if (space.namespace === current.space.namespace) {
       return
     }*/
+    // sys admin select the user list
+    if (space.userName) {
+      space.teamID = 'default'
+    }
     let notification = new NotificationHandler()
     loadTeamClustersList(space.teamID, { size: 100 }, {
       success: {
@@ -295,6 +301,13 @@ class Header extends Component {
 
   componentDidMount() {
     this._checkLiteVersion()
+    this.isSysAdmin && this.props.loadUserList({ size: 0 }, {
+      success: {
+        func: res => {
+          this.setState({ allUsers: cloneDeep(res.users || []) })
+        }
+      }
+    })
   }
 
   showUpgradeVersionModal() {
@@ -368,6 +381,7 @@ class Header extends Component {
       type,
       hideDot,
       visible,
+      allUsers,
     } = this.state
     const msaUrl = loginUser.msaConfig && loginUser.msaConfig.url
     const { isLatest } = checkVersionContent
@@ -384,8 +398,8 @@ class Header extends Component {
     var docUrl = protocol + '//' + host + ":9004"
     var faqUrl = docUrl + '/faq'
     const rotate = visible ? 'rotate180' : 'rotate0'
-    let selectValue = mode === standard ? current.space.teamName : current.space.spaceName
-    let Search=true
+    let selectValue = mode === standard ? current.space.teamName : (current.space.spaceName || current.space.userName)
+    let Search = true
     const content = (
       <div className='container'>
         {
@@ -426,6 +440,8 @@ class Header extends Component {
                 </div>
                 <div className="spaceBtn">
                   <PopSelect
+                    allUsers={allUsers}
+                    isSysAdmin={this.isSysAdmin}
                     Search={Search}
                     title={selectTeam}
                     btnStyle={false}
@@ -572,4 +588,5 @@ export default connect(mapStateToProps, {
   setCurrent,
   loadLoginUserDetail,
   checkVersion,
+  loadUserList,
 })(Header)
