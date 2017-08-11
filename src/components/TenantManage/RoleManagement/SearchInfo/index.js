@@ -58,7 +58,6 @@ class SearchInput extends React.Component{
     return field
   }
   handleSearch(){
-    debugger
     const { searchValue, selecteValue } = this.state
     let { scope,total } = this.props
     const { searchResult, pageSize, sort } = scope.state

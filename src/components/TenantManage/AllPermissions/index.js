@@ -93,12 +93,6 @@ class AllPermissions extends React.Component{
         },
         isAsync: true,
       },
-      failed: {
-        func: err => {
-          //
-        },
-        isAsync: true,
-      }
     })
   }
 
