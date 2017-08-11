@@ -79,14 +79,13 @@ export const ROLE_GET_FAILURE = 'ROLE_GET_FAILURE'
 function fetchGetRole(body,callback){
 	let endpoint = `${API_URL_PREFIX}/role/${body.roleId}`
 	return {
-		[FETCH_API]: {
+    [FETCH_API]: {
       types: [ROLE_GET_REQUEST, ROLE_GET_SUCCESS, ROLE_GET_FAILURE],
       endpoint,
       schema: {},
     },
-    //id: body.id,
     callback
-	}
+  }
 }
 
 // Fetches get role from API
