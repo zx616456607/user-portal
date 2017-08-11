@@ -49,18 +49,6 @@ exports.listWithCount = function* (){
   }
 }
 
-exports.getWithCount = function* (){
-	const id = this.params.id
-	const loginUser = this.session.loginUser
-  const query = this.query || {}
-  var filter = query.filter
-  const api = apiFactory.getPermissionApi(loginUser)
-  const result = yield api.getBy([id,'retrieve','withCount'],query)
-  this.body = {
-  	data: result
-  }
-}
-
 exports.getAllDependent = function* (){
 	const id = this.params.id
 	const loginUser = this.session.loginUser

@@ -13,7 +13,7 @@ import { Row, Col, Button, Input, Modal, Transfer, Tree, Form } from 'antd'
 import { connect } from 'react-redux'
 import { CreateRole, ExistenceRole } from '../../../actions/role'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
-import { PermissionAndCount } from '../../../actions/permission'
+import { Permission } from '../../../actions/permission'
 import Notification from '../../../components/Notification'
 
 class CreateRoleModal extends Component{
@@ -69,18 +69,18 @@ class CreateRoleModal extends Component{
       children.push(key);
     }
     children.forEach((key, index) => {
-      if (tns[index].children.length !== 0) {
+      if (tns[index]['children'] !== undefined) {
         return this.generateDatas(tns[index].children);
       }
     });
   };
   getPermission() {
-    const { PermissionAndCount } = this.props;
-    PermissionAndCount({},{
+    const { Permission } = this.props;
+    Permission({},{
       success:{
         func: (res)=>{
           if (res.data.statusCode === 200) {
-            let result = res.data.data.permission;
+            let result = res.data.data;
             this.generateDatas(result)
             this.setState({
               allPermission:result
@@ -176,7 +176,7 @@ class CreateRoleModal extends Component{
       wrapperCol: { span: 15 },
     };
     const loop = data => data.map((item) => {
-      if (item.children.length > 0) {
+      if (item['children'] !== undefined) {
         return (
           <TreeNode key={item.key} title={item.title}>
             {loop(item.children)}
@@ -213,7 +213,7 @@ class CreateRoleModal extends Component{
         <div className="authChoose">
           <span>权限选择 :</span>
           <div className="authBox inlineBlock">
-            <div className="authTitle clearfix">可选权限 <div className="pull-right">共<span style={{color:'#59c3f5'}}>{permissionCount}</span> 个</div></div>
+            <div className="authTitle clearfix">所有权限 <div className="pull-right">共<span style={{color:'#59c3f5'}}>{permissionCount}</span> 个</div></div>
             <div className="treeBox">
               {
                 allPermission.length > 0 &&
@@ -245,6 +245,6 @@ function mapStateToSecondProp(state, props) {
 
 export default CreateRoleModal = connect(mapStateToSecondProp, {
   CreateRole,
-  PermissionAndCount,
+  Permission,
   ExistenceRole,
 })(CreateRoleModal)

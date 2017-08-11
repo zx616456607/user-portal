@@ -19,7 +19,6 @@ import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjec
 import { chargeProject } from '../../../../actions/charge'
 import { loadNotifyRule, setNotifyRule } from '../../../../actions/consumption'
 import { ListRole, CreateRole, ExistenceRole, GetRole, roleWithMembers, usersAddRoles, usersLoseRoles } from '../../../../actions/role'
-import { PermissionAndCount } from '../../../../actions/permission'
 import { parseAmount } from '../../../../common/tools'
 import Notification from '../../../../components/Notification'
 import TreeComponent from '../../../TreeForMembers'
@@ -325,17 +324,13 @@ class ProjectDetail extends Component{
       checkedKeysDetail.push(key)
     }
     children.forEach((key, index) => {
-      if (tns[index].children&&(tns[index].children.length !== null)) {
+      if (tns[index]['children'] !== undefined) {
         return this.generateDatas(tns[index].children);
       }
     });
   };
   getCurrentRole(id) {
     const { GetRole, roleWithMembers } = this.props;
-    const { currentRoleInfo } = this.state;
-    // if (currentRoleInfo.role && (id === currentRoleInfo.role.id)) {
-    //   return
-    // }
     checkedKeysDetail.length=0
     this.setState({
       checkedKeys:[],
@@ -351,10 +346,10 @@ class ProjectDetail extends Component{
           func: (res) =>{
             if (res.data.statusCode === 200) {
               let result = res.data.data;
-              this.generateDatas(result.permission.permission)
+              this.generateDatas(result.permissions)
               this.setState({
                 currentRoleInfo: result,
-                currentRolePermission: result.permission.permission,
+                currentRolePermission: result.permissions,
                 expandedKeys: checkedKeysDetail,
                 checkedKeys: checkedKeysDetail
               })
@@ -437,21 +432,8 @@ class ProjectDetail extends Component{
     )
   }
   openCreateModal() {
-    const { PermissionAndCount } = this.props;
-    PermissionAndCount({},{
-      success:{
-        func: (res)=>{
-          if (res.data.statusCode === 200) {
-            let result = res.data.data.permission;
-            this.generateDatas(result)
-            this.setState({
-              allPermission:result,
-              characterModal:true
-            })
-          }
-        },
-        isAsync: true
-      }
+    this.setState({
+      characterModal:true
     })
   }
   deleteRole(item){
@@ -528,7 +510,7 @@ class ProjectDetail extends Component{
     const { usersAddRoles } = this.props;
     let notify = new Notification()
     usersAddRoles({
-      roleID: currentRoleInfo.role.id,
+      roleID: currentRoleInfo.id,
       scope: 'global',
       scopeID: 'global',
       body: {
@@ -538,7 +520,7 @@ class ProjectDetail extends Component{
       success: {
         func: () => {
           if (flag) {
-            this.getCurrentRole(currentRoleInfo.role.id)
+            this.getCurrentRole(currentRoleInfo.id)
             notify.success('关联对象操作成功')
             this.setState({
               connectModal: false
@@ -565,7 +547,7 @@ class ProjectDetail extends Component{
     const { usersLoseRoles } = this.props;
     let notify = new Notification()
     usersLoseRoles({
-      roleID: currentRoleInfo.role.id,
+      roleID: currentRoleInfo.id,
       scope: 'global',
       scopeID: 'global',
       body: {
@@ -575,7 +557,7 @@ class ProjectDetail extends Component{
       success: {
         func: () => {
           if (flag) {
-            this.getCurrentRole(currentRoleInfo.role.id)
+            this.getCurrentRole(currentRoleInfo.id)
             notify.success('关联对象操作成功')
             this.setState({
               connectModal: false
@@ -623,7 +605,7 @@ class ProjectDetail extends Component{
       }
     }
     const loop = data => data.map((item) => {
-      if (item.children) {
+      if (item['children'] !== undefined) {
         return (
           <TreeNode key={item.key} title={item.title} disableCheckbox={true}>
             {loop(item.children)}
@@ -737,7 +719,7 @@ class ProjectDetail extends Component{
     )
     const roleList = projectDetail.relatedRoles && projectDetail.relatedRoles.map((item,index)=>{
       return (
-        <li key={item.roleId} className={classNames({'active': currentRoleInfo.role && currentRoleInfo.role.id === item.roleId})} onClick={()=>this.getCurrentRole(item.roleId)}>{item.roleName}
+        <li key={item.roleId} className={classNames({'active': currentRoleInfo && currentRoleInfo.id === item.roleId})} onClick={()=>this.getCurrentRole(item.roleId)}>{item.roleName}
           <Tooltip placement="top" title="移除角色">
             <Icon type="delete" className="pointer" onClick={()=>this.deleteRole(item)}/>
           </Tooltip>
@@ -1130,7 +1112,6 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   ListRole,
   CreateRole,
   ExistenceRole,
-  PermissionAndCount,
   UpdateProjectsRelatedRoles,
   DeleteProjectsRelatedRoles,
   GetProjectsMembers,
