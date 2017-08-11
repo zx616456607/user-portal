@@ -25,11 +25,12 @@ exports.listConfigGroups = function* () {
   let data = [];
   response.data.forEach(function(configgroup){
     let annotations = configgroup.native.metadata.annotations
+    let labelsIsEmpty = annotations && annotations['configlabels'] !== '' && annotations['configlabels'] !== undefined ? annotations['configlabels'].split(',') : []
     let item = {
       name: configgroup.native.metadata.name,
       configs: [],
       creationTimestamp: configgroup.native.metadata.creationTimestamp,
-      annotations: annotations ? annotations.configlabels !== '' ? annotations.configlabels.split(',') : [] : []
+      annotations: annotations ? labelsIsEmpty : []
     }
     if (configgroup.extended && configgroup.extended && configgroup.extended.configs) {
       configgroup.extended.configs.forEach(function(c) {
