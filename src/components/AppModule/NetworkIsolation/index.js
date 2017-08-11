@@ -174,7 +174,7 @@ class NetworkIsolation extends Component {
                 {
                   allow
                   ? <span className='forbid_arrow'>禁止访问</span>
-                  : <span className='allow_arrow'>访问</span>
+                  : <span className='allow_arrow'>允许访问</span>
                 }
               </div>
               <span className='pointer'>·</span>
