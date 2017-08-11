@@ -13,13 +13,14 @@ let CreateConfigModal = React.createClass({
     const { currentGroup, groupEdit } = parentScope.state;
     const { updateConfigAnnotations } = this.props
     let notification = new NotificationHandler()
+    let inputValue = document.getElementsByClassName('ant-select-search__field__mirror')[0].innerText
     let self = this
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         return
       }
       const groupName = values.newConfigName
-      const groupSort = values.newConfigSort
+      const groupSort = values.newConfigSort.concat(inputValue && inputValue.trim())
       if (!validateK8sResource(groupName)) {
         notification.error('由小写字母、数字和连字符（-）组成')
         return
@@ -169,7 +170,7 @@ let CreateConfigModal = React.createClass({
                 {...formItemLayout}
                 label="配置分类"
               >
-                <Select {...sortProps} tags multiple placeholder="请选择分类">
+                <Select {...sortProps} tags multiple placeholder="输入内容查找或创建分类" notFoundContent="">
                   {children}
                 </Select>
               </FormItem>
