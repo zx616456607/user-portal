@@ -12,7 +12,6 @@ import './style/ProjectManage.less'
 import { Row, Col, Button, Input, Transfer, Form } from 'antd'
 import { connect } from 'react-redux'
 import { ListRole, CreateRole, ExistenceRole } from '../../../actions/role'
-import { PermissionAndCount } from '../../../actions/permission'
 import CreateRoleModal from  './CreateRole'
 
 class CreateStepSecond extends Component{
@@ -152,6 +151,5 @@ function mapStateToSecondProp(state, props) {
 export default CreateStepSecond = connect(mapStateToSecondProp, {
   ListRole,
   CreateRole,
-  PermissionAndCount,
   ExistenceRole,
 })(CreateStepSecond)

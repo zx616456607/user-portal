@@ -290,12 +290,6 @@ class QuickCreateApp extends Component {
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         let json = buildJson(fields[key], current.cluster, loginUser, this.imageConfigs)
-        let volumes = json.deployment.spec.template.spec.volumes
-        if (volumes.length > 0) {
-          volumes.forEach(item => {
-            item.configMap.name = item.configMap.name[1]
-          })
-        }
         template.push(yaml.dump(json.deployment))
         template.push(yaml.dump(json.service))
         if (fields[key].appPkgID) {
