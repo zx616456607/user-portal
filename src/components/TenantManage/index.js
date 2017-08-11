@@ -35,20 +35,18 @@ class TenantManage extends React.Component {
       role_defaultSet: 0,
       team_createdByUser: 0,
       dataRow: '',
-      isIconShow: false,
-      iconState: false,
-      isShowico: false,
+      iconState: true,
       classindex: 0,
     }
   }
 
   componentWillMount(){
     this.loadInfosList()
-
-  }
-
-  componentDidMount(){
-
+    if(localStorage.getItem('state')){
+      this.setState({
+        iconState: localStorage.getItem('state') == 'true'? true : false
+      })
+    }
   }
 
   loadInfosList(){
@@ -120,15 +118,18 @@ class TenantManage extends React.Component {
    * 引导
    */
   handleIco(){
-    if(this.state.iconState){
-       this.setState({
-        iconState: false
-      })
-    } else {
-      this.setState({
-        iconState: true
-      })
-    }
+    let is = this.state.iconState
+      if(is){
+        this.setState({
+          iconState: false
+        })
+        localStorage.setItem('state',false)
+      } else {
+        this.setState({
+          iconState: true
+        })
+        localStorage.setItem('state',true)
+      }
   }
 
   render() {
@@ -240,7 +241,7 @@ class TenantManage extends React.Component {
         orient: 'vertical',
         left: '55%',
         top: 'middle',
-        data: [{ name: '我创建' }],
+        data: ['我创建' ],
         formatter: function (name) {
           if (name === '我创建') {
             return name + t_createdByUser +'个'
@@ -265,7 +266,7 @@ class TenantManage extends React.Component {
         center: ['30%', '48%'],
         data: [
           { value: t_createdByUser, name: '我创建'},
-          // { value: 100/Number(t_createdByUser),name: '剩余空间'},
+          { value: 100-Number(t_createdByUser), name: '其他'},
         ],
         label: {
           normal: {
@@ -309,7 +310,7 @@ class TenantManage extends React.Component {
         orient: 'vertical',
         left: '55%',
         top: 'middle',
-        data: [{ name: '我创建' }],
+        data: ['我创建'],
         formatter: function (name) {
           if (name === '我创建') {
             return name + p_createByUser +'个'
@@ -333,8 +334,8 @@ class TenantManage extends React.Component {
         radius: ['60', '0'],
         center: ['30%', '48%'],
         data: [
-          { value: p_createByUser, name: '我创建'},
-          // { value: 100/Number(p_createByUser),name: '剩余空间'},
+          { value: p_createByUser, name: '我创建' },
+          { value: 100-Number(p_createByUser), name: '其他' },
         ],
         label: {
           normal: {
@@ -442,7 +443,6 @@ class TenantManage extends React.Component {
         },
       },
     }
-
     let btnStyle = {
       position: 'absolute',
       top: this.state.btnTop + 'px',
@@ -473,7 +473,7 @@ class TenantManage extends React.Component {
         </div>
         <Row className="content" gutter={16} style={{ marginTop: 16 }}>
           <Col span={6}>
-            <Card title="成员" extra={<div><span>共</span><span>{this.state.member}</span><span>人</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px'}}>
+            <Card title="成员" extra={<div><span>共</span><span>{this.state.member}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px'}}>
               <ReactEcharts
                 notMerge={true}
                 option={memberOption}
@@ -482,7 +482,7 @@ class TenantManage extends React.Component {
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="团队" extra={<div><span>共</span><span>{this.state.team}</span><span>人</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+            <Card title="团队" extra={<div><span>共</span><span>{this.state.team}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
               <ReactEcharts
                 notMerge={true}
                 option={teamOption}
@@ -491,7 +491,7 @@ class TenantManage extends React.Component {
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="项目" extra={<div><span>共</span><span>{this.state.project}</span><span>人</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+            <Card title="项目" extra={<div><span>共</span><span>{this.state.project}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
               <ReactEcharts
                 notMerge={true}
                 option={projectOption}
@@ -500,7 +500,7 @@ class TenantManage extends React.Component {
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="角色" extra={<div><span>共</span><span>{this.state.role}</span><span>人</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+            <Card title="角色" extra={<div><span>共</span><span>{this.state.role}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
               <ReactEcharts
                 notMerge={true}
                 option={roleOption}
@@ -509,7 +509,7 @@ class TenantManage extends React.Component {
             </Card>
           </Col>
         </Row>
-        <Row className="content" gutter={30} visible={this.state.iconState}>
+        <Row className="content" gutter={30}>
           <Col span={30}>
             <Card
               title="操作引导"
@@ -563,7 +563,7 @@ class TenantManage extends React.Component {
 }
 
 function mapStateToProps(state, props){
-  return{}
+  return{ }
 }
 
 export default connect(mapStateToProps, {

@@ -16,7 +16,6 @@ import { GetRole, RemovePermissionRole } from '../../../actions/role'
 import { Permission } from '../../../actions/permission'
 import QueueAnim from 'rc-queue-anim'
 import { formatDate } from '../../../common/tools'
-// import AddOrEditRole from '../RoleManagement/AddOrEditRole'
 import Notification from '../../Notification/index'
 import TreeComponent from '../../TreeComponent/index'
 
@@ -39,15 +38,30 @@ let TenantDetail = React.createClass({
   componentWillMount(){
     const { params } = this.props
     let roleId = params.id
-    this.loadGetRole(roleId)
-    this.props.Permission()
+    // this.loadGetRole(roleId)
+    // this.props.Permission()
   },
   loadGetRole(roleId){
     const { GetRole } = this.props
     let body = {
       id: roleId
     }
-    GetRole(body)
+    GetRole({ body },{
+      success: {
+        func: res => {
+          if(res.code === 200){
+            debugger
+          }
+        },
+        isAsync: true
+      },
+      failed: {
+        func: res => {
+
+        },
+        isAsync: true
+      }
+    })
   },
   handleChange(pagination, filters, sorter) {
     this.setState({
@@ -210,22 +224,22 @@ let TenantDetail = React.createClass({
     }];
     let { sortedInfo, filteredInfo, removePermissionName, removePermissionTree } = this.state;
     let roleId = params.id
-    let currentRoleDetail = roleDetail[roleId]
-    if(currentRoleDetail && currentRoleDetail.isFetching){
-      return <div style={{textAlign: 'center', paddingTop: '50px'}}><Spin size='large'/></div>
-    }
+    //let currentRoleDetail = roleDetail[roleId]
+    // if(currentRoleDetail && currentRoleDetail.isFetching){
+    //   return <div style={{textAlign: 'center', paddingTop: '50px'}}><Spin size='large'/></div>
+    // }
     let roleInfo = {}
-    if(currentRoleDetail.data && currentRoleDetail.data.role){
-      roleInfo = currentRoleDetail.data.role
-    }
+    // if(currentRoleDetail.data && currentRoleDetail.data.role){
+    //   roleInfo = currentRoleDetail.data.role
+    // }
     let permission = {}
-    if(currentRoleDetail.data && currentRoleDetail.data.permission){
-      permission = currentRoleDetail.data.permission
-    }
+    // if(currentRoleDetail.data && currentRoleDetail.data.permission){
+    //   permission = currentRoleDetail.data.permission
+    // }
     let outPermission = {}
-    if(currentRoleDetail.data && currentRoleDetail.data.permission){
-      outPermission = currentRoleDetail.data.outPermission
-    }
+    // if(currentRoleDetail.data && currentRoleDetail.data.permission){
+    //   outPermission = currentRoleDetail.data.outPermission
+    // }
 
     let permissonInfo = permission.permission
     let outPermissionInfo = outPermission.permission
@@ -270,18 +284,18 @@ let TenantDetail = React.createClass({
         </span>
       ),
     }];
-    const permissionDatasource = this.tableDatasourceAddKey(permissonInfo)
+    //const permissionDatasource = this.tableDatasourceAddKey(permissonInfo)
     const scope = this
-    const loop = data => data.map((item) => {
-      if (item.children) {
-        return (
-          <TreeNode key={item.id} title={item.desc}>
-            {loop(item.children)}
-          </TreeNode>
-        );
-      }
-      return <TreeNode key={item.id} title={item.desc} />;
-    });
+    // const loop = data => data.map((item) => {
+    //   if (item.children) {
+    //     return (
+    //       <TreeNode key={item.id} title={item.desc}>
+    //         {loop(item.children)}
+    //       </TreeNode>
+    //     );
+    //   }
+    //   return <TreeNode key={item.id} title={item.desc} />;
+    // });
     return(
     <QueueAnim className='TenantDetail'>
       <div id="TenantDetail">
@@ -325,8 +339,8 @@ let TenantDetail = React.createClass({
                 scroll={{y:300}}
                 columns={permissionColumns}
                 pagination={false}
-                dataSource={permissionDatasource}
               />
+              {/* dataSource={permissionDatasource} */}
             </div>
           </div>
         </div>
@@ -350,7 +364,7 @@ let TenantDetail = React.createClass({
           onCancel={this.handleCancel}
           wrapClassName='roleDetail_editRole'
         >
-          {/* <AddOrEditRole
+           {/* <AddOrEditRole
             roleInfo={roleInfo}
             permissonInfo={permissonInfo}
             outPermissionInfo={outPermissionInfo}
@@ -388,7 +402,6 @@ let TenantDetail = React.createClass({
           </div>
         </Modal>
 
-
         <Modal
           title="添加权限"
           visible={this.state.addpermission}
@@ -407,13 +420,14 @@ let TenantDetail = React.createClass({
 TenantDetail = Form.create()(TenantDetail)
 
 function mapStateToProps(state, props){
-  const { role } = state
-  const { roleDetail } = role
-  const { permissionList } = role
-  return {
-    roleDetail,
-    permissionList,
-  }
+  // const { role } = state
+  // const { roleDetail } = role
+  // const { permissionList } = role
+  // return {
+  //   roleDetail,
+  //   permissionList,
+  // }
+  return {}
 
 }
 export default connect(mapStateToProps, {

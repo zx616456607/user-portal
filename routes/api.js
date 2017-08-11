@@ -256,7 +256,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/configgroups/:group/configs/:name', configController.updateConfigFile)
   router.post('/clusters/:cluster/configs/delete', configController.deleteConfigGroup)
   router.post('/clusters/:cluster/configgroups/:group/configs-batch-delete', configController.deleteConfigFiles)
-
+  router.put('/clusters/:cluster/configgroups/:name', configController.updateConfigAnnotations)
   // Harbor integration
   router.get('/registries/:registry/systeminfo', harborController.getSysteminfo)
   router.get('/registries/:registry/users/current', harborController.getCurrentUserCtl)
@@ -595,9 +595,9 @@ module.exports = function (Router) {
   router.get('/vm-wrap/services/:serviceName/exists', vmWrapController.checkService)
 
   // Network Isolation
-  router.get('/cluster/:clusterID/namespace/:namespace/networkisolation', netIsolationController.getCurrentSetting)
-  router.post('/cluster/:clusterID/namespace/:namespace/networkisolation', netIsolationController.setIsolationRule)
-  router.delete('/cluster/:clusterID/namespace/:namespace/networkisolation', netIsolationController.restoreDefault)
+  router.get('/cluster/:clusterID/networkisolation', netIsolationController.getCurrentSetting)
+  router.post('/cluster/:clusterID/networkisolation', netIsolationController.setIsolationRule)
+  router.delete('/cluster/:clusterID/networkisolation', netIsolationController.restoreDefault)
 
   return router.routes()
 }

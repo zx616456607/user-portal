@@ -16,6 +16,7 @@ import { calcuDate } from '../../common/tools'
 import { KubernetesValidator } from '../../common/naming_validation'
 import cloneDeep from 'lodash/cloneDeep'
 import NotificationHandler from '../../components/Notification'
+import { SEARCH } from '../../constants'
 
 const FormItem = Form.Item
 let uuid = 0
@@ -51,7 +52,7 @@ class ClusterLabelManage extends Component{
   // }
   handleSearchInput(){
     const { clusterID } = this.props
-    const searchItem = this.refs.titleInput.refs.input.value
+    const searchItem = this.refs.titleInput.refs.input.value.replace(SEARCH, "")
     this.props.searchLabels(searchItem,clusterID)
   }
 

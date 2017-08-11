@@ -11,7 +11,7 @@ import { camelize } from 'humps'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getAllClusterNodes, getClusterNodesMetrics, getKubectlsPods, deleteClusterNode, getClusterLabel, changeClusterNodeSchedule } from '../../actions/cluster_node'
 import { addTerminal } from '../../actions/terminal'
-import { NOT_AVAILABLE } from '../../constants'
+import { NOT_AVAILABLE, SEARCH } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
 import TagDropdown from './TagDropdown'
 import ManageLabelModal from './MangeLabelModal'
@@ -448,9 +448,10 @@ class hostList extends Component {
       })
     }
   }
-  searchNodes() {
+  searchNodes(e) {
     //this function for search nodes
-    let search = document.getElementsByClassName('searchInput')[0].value
+    //let search = document.getElementsByClassName('searchInput')[0].value
+    let search = e.target.value.replace(SEARCH, "")
     const { nodes } = this.props;
     if (search.length == 0) {
       this.setState({

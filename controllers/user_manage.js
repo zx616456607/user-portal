@@ -135,18 +135,15 @@ exports.getUserTeams = function* () {
     }
   }
   else {
-    userID = userID === 'default' ? loginUser.id : userID
-    const api = apiFactory.getApi(loginUser)
-    let result = yield api.users.getBy([loginUser.id])
-
-    //Only team admin can get team related information
-    if (!result || !result.data || (result.data.role != ROLE_TEAM_ADMIN
-        && result.data.role != ROLE_SYS_ADMIN)) {
-        this.body = {
-          teams: [],
-          total: 0
-        }
-        return
+    // Show teams that current user can manage
+    let managedTeams = (userID === 'default')
+    //Only team admin / sysadmin can get team related information
+    if (this.session.loginUser.role != ROLE_TEAM_ADMIN && this.session.loginUser.role != ROLE_SYS_ADMIN) {
+      this.body = {
+        teams: [],
+        total: 0
+      }
+      return
     }
 
     const query = this.query || {}
@@ -175,12 +172,24 @@ exports.getUserTeams = function* () {
     if (query && query.sort) {
       queryObj.sort = query.sort
     }
-    if (query.filter) {
-      queryObj.filter = query.filter + ",creatorID__eq," + userID
+    // Only filter by creator id for managed team query
+    if (managedTeams) {
+      if (query.filter) {
+        queryObj.filter = query.filter + ",creatorID__eq," + loginUser.id
+      } else {
+        queryObj.filter = "creatorID__eq," + loginUser.id
+      }
     } else {
-      queryObj.filter = "creatorID__eq," + userID
+      if (query.filter) {
+        queryObj.filter = query.filter + ",creatorID__eq," + userID
+      } else {
+        queryObj.filter = "creatorID__eq," + userID
+      }
+      queryObj.userId = userID
     }
-    result = yield api.teams.get(queryObj)
+    queryObj.managedTeams = managedTeams
+    const api = apiFactory.getApi(loginUser)
+    let result = yield api.teams.get(queryObj)
     const teams = result.teams || []
     let total = 0
     if (result.listMeta && result.listMeta.total) {

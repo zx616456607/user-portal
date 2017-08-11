@@ -520,7 +520,7 @@ function fetchNetworkIsolationStatus(body, callback) {
   return {
     [FETCH_API]: {
       types: [GET_NETWORK_ISOLATION_STATUS_REQUEST, GET_NETWORK_ISOLATION_STATUS_SUCCESS, GET_NETWORK_ISOLATION_STATUS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cluster/${body.clusterID}/namespace/${body.namespace}/networkisolation`,
+      endpoint: `${API_URL_PREFIX}/cluster/${body.clusterID}/networkisolation`,
       schema: {},
     },
     callback
@@ -541,7 +541,7 @@ function fetchPostNetworkIsolation(body, callback) {
   return {
     [FETCH_API]: {
       types: [POST_NETWORK_ISOLATION_REQUEST, POST_NETWORK_ISOLATION_SUCCESS, POST_NETWORK_ISOLATION_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cluster/${body.clusterID}/namespace/${body.namespace}/networkisolation`,
+      endpoint: `${API_URL_PREFIX}/cluster/${body.clusterID}/networkisolation`,
       options: {
         method: 'POST',
         body: body.body
@@ -566,7 +566,7 @@ function fetchDeleteNetworkIsolation(body, callback) {
   return {
     [FETCH_API]: {
       types: [DELETE_NETWORK_ISOLATION_REQUEST, DELETE_NETWORK_ISOLATION_SUCCESS, DELETE_NETWORK_ISOLATION_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cluster/${body.clusterID}/namespace/${body.namespace}/networkisolation`,
+      endpoint: `${API_URL_PREFIX}/cluster/${body.clusterID}/networkisolation`,
       options: {
         method: 'DELETE'
       },
