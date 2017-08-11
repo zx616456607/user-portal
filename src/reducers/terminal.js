@@ -42,6 +42,16 @@ function list(state, action) {
         [cluster]: []
       })
     case ActionTypes.REMOVE_TERMINAL_ITEM:
+      if(typeof(item) === 'string'){
+        return Object.assign({}, state,{
+          [cluster]: oldList.filter(oldItem => {
+            let nameArray = oldItem.metadata.name.split('-')
+            if(nameArray[0] !== item){
+              return oldItem
+            }
+          })
+        })
+      }
       return Object.assign({}, state, {
         [cluster]: oldList.filter(oldItem => {
           if (oldItem.metadata.name !== item.metadata.name) {
@@ -71,7 +81,15 @@ function active(state, action) {
         [cluster]: key,
       })
     case ActionTypes.REMOVE_TERMINAL_ITEM:
-      if (item.metadata.name !== activeState[cluster]) {
+      if(typeof(item) === 'string'){
+        if(activeState && activeState[cluster]){
+          let activeArray = activeState[cluster].split('-')
+          if(item !== activeArray[0]){
+            return activeState
+          }
+        }
+      }
+      if (item.metadata && item.metadata.name !== activeState[cluster]) {
         return activeState
       }
       let _active = null

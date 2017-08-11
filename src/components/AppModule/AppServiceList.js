@@ -25,6 +25,7 @@ import {
   quickRestartServices,
   loadAutoScale
 } from '../../actions/services'
+import { removeTerminal } from '../../actions/terminal'
 import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
 import { LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
@@ -42,6 +43,7 @@ import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../components/Notification'
 import { SERVICE_KUBE_NODE_PORT } from '../../../constants'
 import Title from '../Title'
+import cloneDeep from 'lodash/cloneDeep'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -740,8 +742,14 @@ class AppServiceList extends Component {
   }
   handleRestarServiceOk() {
     const self = this
-    const { cluster, restartServices, serviceList, appName, intl } = this.props
+    const { cluster, restartServices, serviceList, appName, intl, removeTerminal, terminalList } = this.props
     let checkedServiceList = serviceList.filter((service) => service.checked)
+    if(terminalList.length){
+      const deleteList = cloneDeep(checkedServiceList)
+      deleteList.forEach(item => {
+        removeTerminal(cluster, item.metadata.name)
+      })
+    }
     let runningServices = []
 
     if (this.state.currentShowInstance && !this.state.donotUserCurrentShowInstance) {
@@ -798,8 +806,14 @@ class AppServiceList extends Component {
   }
   handleQuickRestarServiceOk() {
     const self = this
-    const { cluster, quickRestartServices, serviceList, appName, intl } = this.props
+    const { cluster, quickRestartServices, serviceList, appName, intl, removeTerminal, terminalList } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
+    if(terminalList.length){
+      const deleteList = cloneDeep(checkedServiceList)
+      deleteList.forEach(item => {
+        removeTerminal(cluster, item.metadata.name)
+      })
+    }
     let runningServices = []
 
     checkedServiceList.map((service, index) => {
@@ -858,8 +872,15 @@ class AppServiceList extends Component {
   }
   handleDeleteServiceOk() {
     const self = this
-    const { cluster, appName, loadServiceList, deleteServices, intl, serviceList } = this.props
+    const { cluster, appName, loadServiceList, deleteServices, intl, serviceList, removeTerminal, terminalList } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
+    if(terminalList.length){
+      const deleteList = cloneDeep(checkedServiceList)
+      deleteList.forEach(item => {
+        removeTerminal(cluster, item.metadata.name)
+      })
+    }
+
 
     const serviceNames = checkedServiceList.map((service) => service.metadata.name)
     const allServices = self.state.serviceList
@@ -1318,6 +1339,8 @@ function mapStateToProps(state, props) {
   const { loginUser } = state.entities
   const { cluster } = state.entities.current
   const { statusWatchWs } = state.entities.sockets
+  const { terminal } = state
+  const terminalList = terminal.list[cluster.clusterID] || []
   const defaultServices = {
     isFetching: false,
     cluster: cluster.clusterID,
@@ -1353,6 +1376,7 @@ function mapStateToProps(state, props) {
     total,
     name,
     serviceList,
+    terminalList,
     isFetching,
     availabilityNumber,
     cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule : defaultCDRule
@@ -1367,7 +1391,8 @@ AppServiceList = connect(mapStateToProps, {
   deleteServices,
   quickRestartServices,
   loadAutoScale,
-  getDeploymentOrAppCDRule
+  getDeploymentOrAppCDRule,
+  removeTerminal,
 })(AppServiceList)
 
 export default injectIntl(AppServiceList, {

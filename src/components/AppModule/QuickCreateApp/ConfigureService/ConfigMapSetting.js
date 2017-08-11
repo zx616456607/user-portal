@@ -13,8 +13,9 @@
 import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
 import {
-  Form, Collapse, Row, Col, Icon, Input, Select, Radio, Tooltip, Button, Checkbox
+  Form, Collapse, Row, Col, Icon, Input, Select, Radio, Tooltip, Button, Checkbox, Cascader
 } from 'antd'
+import includes from 'lodash/includes'
 import { loadConfigGroup, configGroupName } from '../../../../actions/configs'
 import './style/ConfigMapSetting.less'
 
@@ -30,6 +31,37 @@ const ConfigMapSetting = React.createClass({
     const { currentCluster, loadConfigGroup } = this.props
     loadConfigGroup(currentCluster.clusterID)
   },
+  componentDidUpdate() {
+    this.addClick()
+  },
+  addClick() {
+    const { getFieldValue } = this.props.form
+    let configMapKeys = getFieldValue('configMapKeys') || []
+    let number = configMapKeys.length -1
+    let picker = document.getElementsByClassName('ant-cascader-input')[number]
+    if (picker) {
+      picker.addEventListener('click',()=>{
+        setTimeout(()=>{
+          this.addSelectTitle(number)
+        },0)
+      })
+    }
+  },
+  addSelectTitle(number) {
+    let selectBox = document.getElementsByClassName('ant-cascader-menus')[number]
+    if (!selectBox) return
+    if (!selectBox.getElementsByClassName('titleBox').length) {
+      let titleBox = document.createElement('div')
+      titleBox.setAttribute('class','titleBox')
+      let labelBox = document.createElement('span')
+      labelBox.innerHTML = '配置分类'
+      let groupBox = document.createElement('span')
+      groupBox.innerHTML = '配置组'
+      titleBox.appendChild(labelBox)
+      titleBox.appendChild(groupBox)
+      selectBox.insertBefore(titleBox,selectBox.childNodes[0])
+    }
+  },
   onIsWholeDirChange(keyValue, currentConfigGroup, e) {
     if (!currentConfigGroup) {
       return
@@ -43,7 +75,7 @@ const ConfigMapSetting = React.createClass({
     const { getFieldValue } = form
     const configMapIsWholeDir = getFieldValue(`configMapIsWholeDir${keyValue}`)
     if (configMapIsWholeDir) {
-      const currentConfigGroup = this.getConfigGroupByName(configGroupList, value)
+      const currentConfigGroup = this.getConfigGroupByName(configGroupList, value [1])
       this.handleSelectAll(keyValue, currentConfigGroup, { target: { checked: true } })
     }
   },
@@ -83,7 +115,7 @@ const ConfigMapSetting = React.createClass({
     callback(error)
   },
   renderConfigMapItem(key) {
-    const { form, configGroupList } = this.props
+    const { form, configGroupList, selectOptions, defaultSelectValue } = this.props
     const { getFieldProps, getFieldValue } = form
     const keyValue = key.value
     const configMapSubPathValuesKey = `configMapSubPathValues${keyValue}`
@@ -98,7 +130,7 @@ const ConfigMapSetting = React.createClass({
     const configGroupNameKey = `configGroupName${keyValue}`
     const configGroupName = getFieldValue(configGroupNameKey)
     const configMapIsWholeDir = getFieldValue(configMapIsWholeDirKey)
-    const currentConfigGroup = this.getConfigGroupByName(configGroupList, configGroupName)
+    const currentConfigGroup = this.getConfigGroupByName(configGroupList, configGroupName && configGroupName[1])
     let configMapSubPathOptions = []
     if (currentConfigGroup) {
       configMapSubPathOptions = currentConfigGroup.configs.map(config => {
@@ -124,7 +156,8 @@ const ConfigMapSetting = React.createClass({
       rules: [
         { required: true, message: '请选择配置组' }
       ],
-      onChange: this.onConfigGroupChange.bind(this, keyValue)
+      onChange: this.onConfigGroupChange.bind(this, keyValue),
+      initialValue: defaultSelectValue
     })
     const configMapSubPathValuesProps = getFieldProps(configMapSubPathValuesKey, {
       rules: [
@@ -158,23 +191,8 @@ const ConfigMapSetting = React.createClass({
         </Col>
         <Col span={5}>
           <FormItem>
-            <Select size="default" placeholder="请选择配置组" {...configGroupNameProps}>
-              {
-                configGroupList.map(item => {
-                  const disabled = !item.configs || item.configs.length < 1
-                  const title = disabled ? '未包含任何配置文件' : item.name
-                  return (
-                    <Option
-                      key={item.name}
-                      title={title}
-                      disabled={disabled}
-                    >
-                      {item.name}
-                    </Option>
-                  )
-                })
-              }
-            </Select>
+            <Cascader displayRender={label=> label.join('：')} options={selectOptions} placeholder="配置分类：配置组" {...configGroupNameProps}
+            />
           </FormItem>
         </Col>
         <Col span={5}>
@@ -363,9 +381,71 @@ function mapStateToProps(state, props) {
   const { current } = entities
   const { cluster } = current
   const { configGroupList } = configReducers
+  const defaultConfigList = {
+    isFetching: false,
+    cluster: cluster.clusterID,
+    configGroup: [],
+  }
+  const { configGroup } = configGroupList[cluster.clusterID] || defaultConfigList
+  let labels = []
+  configGroup.length > 0 && configGroup.forEach(item => {
+    labels = labels.concat(item.annotations)
+  })
+  let selectOptions = []
+  for (let i = 0; i < labels.length; i++) {
+    let count = 0
+    let temp = labels[i]
+    for (let j = 0; j < labels.length; j++) {
+      if (temp === labels[j]) {
+        count++
+        labels[j] = -1
+      }
+    }
+    if (temp !== -1) {
+      selectOptions.push({
+        value: temp,
+        label: temp,
+        count: count,
+        title: temp
+      })
+    }
+  }
+  selectOptions.forEach(item => {
+    let children = []
+    configGroup.forEach(record => {
+      if (includes(record.annotations,item.value)) {
+        children.push({
+          value: record.name,
+          label: record.name,
+          disabled: record.size ? false : true,
+          title: record.size ? record.name : '未包含任何配置文件'
+        })
+      }
+    })
+    Object.assign(item,{children})
+  })
+  let defaultSelectValue = []
+  for (let i = 0; i < selectOptions.length; i++) {
+    let flag = false
+    let child = selectOptions[i].children
+    for (let j = 0; j <child.length; j++) {
+      if (!child.disabled) {
+        defaultSelectValue.push(selectOptions[i].value,child[j].value)
+        flag = true
+      }
+      if (flag) {
+        break
+      }
+    }
+    if (flag) {
+      break
+    }
+  }
   return {
     currentCluster: cluster,
     configGroupList: (configGroupList[cluster.clusterID] ? configGroupList[cluster.clusterID].configGroup : []),
+    selectOptions,
+    defaultSelectValue
   }
 }
 
