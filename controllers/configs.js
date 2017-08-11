@@ -24,7 +24,13 @@ exports.listConfigGroups = function* () {
   }
   let data = [];
   response.data.forEach(function(configgroup){
-    let item = {name: configgroup.native.metadata.name, configs: [], creationTimestamp: configgroup.native.metadata.creationTimestamp}
+    let annotations = configgroup.native.metadata.annotations
+    let item = {
+      name: configgroup.native.metadata.name,
+      configs: [],
+      creationTimestamp: configgroup.native.metadata.creationTimestamp,
+      annotations: annotations ? annotations.configlabels !== '' ? annotations.configlabels.split(',') : [] : []
+    }
     if (configgroup.extended && configgroup.extended && configgroup.extended.configs) {
       configgroup.extended.configs.forEach(function(c) {
         item.configs.push({name: c.name, rawName: c.rawName})
@@ -54,14 +60,14 @@ exports.getConfigGroupName = function* () {
 
 exports.createConfigGroup = function* () {
   const cluster = this.params.cluster
-  const groupName = this.request.body.groupName
-  if (!cluster || !groupName) {
+  const body = this.request.body
+  if (!cluster || !body.groupName) {
     this.status = 400
     this.body = { message: 'invalid cluster or config group name' }
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  let response = yield api.createBy([cluster, 'configgroups',  groupName], null, null)
+  let response = yield api.createBy([cluster, 'configgroups',  body.groupName], null, body)
   if (response.code >= 400) {
     const err = new Error(`list config groups fails ${response.body}`)
     err.status = response.code
@@ -168,5 +174,18 @@ exports.deleteConfigFiles = function* () {
   this.status = response.code
   this.body = {
     message: response.data
+  }
+}
+
+exports.updateConfigAnnotations = function* () {
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const data = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  let response = yield api.updateBy([cluster,'configgroups',name],null,data)
+  this.status = response.code
+  this.body = {
+    data: response.data
   }
 }
