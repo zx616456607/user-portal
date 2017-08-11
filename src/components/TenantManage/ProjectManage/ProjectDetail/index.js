@@ -60,7 +60,8 @@ class ProjectDetail extends Component{
       selectedMembers: [],
       selectedKeys: [],
       deleteRoleModal: false,
-      currentDeleteRole: {}
+      currentDeleteRole: {},
+      deleteClusterModal: false
     }
   }
   componentWillMount() {
@@ -315,6 +316,7 @@ class ProjectDetail extends Component{
     })
   }
   generateDatas(_tns){
+    if (!_tns) return
     const tns = _tns;
     const children = [];
     for (let i = 0; i < tns.length; i++) {
@@ -655,6 +657,18 @@ class ProjectDetail extends Component{
                 <div className="clusterStatus appliedStatus" key={`${item.cluster.clusterID}-status`}>
                   <span>{item.cluster.clusterName}</span>
                   {this.clusterStatus(item.status,true)}
+                  <Tooltip title="移除集群">
+                    <i className="anticon anticon-cross" onClick={()=>this.setState({deleteClusterModal: true})}/>
+                  </Tooltip>
+                  <Modal title="移除集群" visible={this.state.deleteClusterModal}
+                         onCancel={()=>this.setState({deleteClusterModal:false})}
+                         onOk={()=>this.confirmDeleteCluster(item.cluster.clusterID)}
+                  >
+                    <div className="modalColor">
+                      <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
+                      移除集群后，该集群下的资源也将被移除，此操作不可逆，是否确定移除已授权的集群{item.cluster.clusterName}？
+                    </div>
+                  </Modal>
                 </div>
               )
             }
@@ -937,19 +951,26 @@ class ProjectDetail extends Component{
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        <div className="example-input inlineBlock">
+                        <div className="example-input commonBox">
                           {
                             editComment ?
                               <div>
                                 <Input size="large" placeholder="备注" {...getFieldProps('comment',{
                                   initialValue: comment
                                 })}/>
-                                <i className="anticon anticon-save pointer" onClick={()=> this.saveComment()}/>
+                                <Tooltip title="取消">
+                                  <i className="anticon anticon-minus-circle-o pointer" onClick={()=> this.setState({editComment:false})}/>
+                                </Tooltip>
+                                <Tooltip title="保存">
+                                  <i className="anticon anticon-save pointer" onClick={()=> this.saveComment()}/>
+                                </Tooltip>
                               </div>
                               :
                               <div>
                                 <span>{projectDetail&&projectDetail.description}</span>
-                                <i className="anticon anticon-edit pointer" onClick={()=> this.editComment()}/>
+                                <Tooltip title="编辑">
+                                  <i className="anticon anticon-edit pointer" onClick={()=> this.editComment()}/>
+                                </Tooltip>
                               </div>
                           }
                         </div>
@@ -1033,7 +1054,7 @@ class ProjectDetail extends Component{
             }
           </Modal>
           <div className="projectMember">
-            <Card title="项目中角色关联的对象" className="clearfix">
+            <Card title="项目中角色关联的对象" className="clearfix connectCard">
               <div className="connectLeft pull-left">
                 <span className="leftTitle">已添加角色</span>
                 <ul className={classNames("characterListBox",{'borderHide': projectDetail.relatedRoles === null})}>
@@ -1046,10 +1067,10 @@ class ProjectDetail extends Component{
                 <p className="rightTitle">角色关联对象</p>
                 <div className="rightContainer">
                   <div className="authBox inlineBlock">
-                    <p className="authTitle">该角色共 <span style={{color:'#59c3f5'}}>{currentRoleInfo.role && currentRoleInfo.role.count}</span> 个权限</p>
+                    <p className="authTitle">该角色共 <span style={{color:'#59c3f5'}}>{currentRoleInfo && currentRoleInfo.count || 0}</span> 个权限</p>
                     <div className="treeBox">
                       {
-                        currentRolePermission.length > 0 &&
+                        currentRolePermission &&
                         <Tree
                           checkable
                           onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
