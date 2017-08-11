@@ -41,9 +41,9 @@ class AllPermissions extends React.Component{
       }
 
       children.forEach((key, index) => {
-        if(tns[index]["children"] !== undefined){
-          if (tns[index].children.length !== 0) {
-            return this.generateDatas(tns[index].children);
+        if(data[index]["children"] !== undefined){
+          if (data[index].children.length !== 0) {
+            return this.RowData(data[index].children);
           }
         }
       })
