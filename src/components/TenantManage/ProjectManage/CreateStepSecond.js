@@ -38,17 +38,20 @@ class CreateStepSecond extends Component{
     if (!step || (step && step !== 'second')) {
       return
     }
-    if (step === 'second' && RoleKeys.length && !targetKeys.length) {
-      updateRole(targetKeys)
-    }
+    
     if (this.props.step && step && this.props.step !== 'second' && step === 'second' && !choosableList.length) {
       this.loadRoleList()
+    }
+    if (step === 'second' && RoleKeys.length && !targetKeys.length) {
+      console.log('targetkeys',targetKeys)
+      // updateRole(targetKeys)
     }
   }
   componentWillUnmount() {
     clearTimeout(this.roleNameTime)
   }
   loadRoleList() {
+    console.log('load')
     const { ListRole, updateRole } = this.props;
     const targetKeys = [];
     const roleList = [];

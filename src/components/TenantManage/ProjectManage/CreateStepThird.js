@@ -305,7 +305,7 @@ class CreateStepThird extends Component{
             </ul>
             <div className="inlineBlock pull-left rightBox">
               <div className="authBox inlineBlock">
-                <p className="authTitle">该角色共 <span style={{color:'#59c3f5'}}>{currentRoleInfo.role && currentRoleInfo.role.count}</span> 个权限</p>
+                <p className="authTitle">该角色共 <span style={{color:'#59c3f5'}}>{currentRoleInfo && currentRoleInfo.total}</span> 个权限</p>
                 <div className="treeBox">
                   {
                     currentRolePermission.length > 0 && (

@@ -116,6 +116,7 @@ class ProjectManage extends Component{
   }
   goStep(current) {
     const { projectName, authorizedCluster, RoleKeys} = this.state;
+    console.log(RoleKeys)
     let notify = new Notification()
     let s = '';
     if (current === 0) {

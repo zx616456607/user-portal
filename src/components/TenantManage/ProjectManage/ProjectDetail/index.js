@@ -61,7 +61,9 @@ class ProjectDetail extends Component{
       selectedKeys: [],
       deleteRoleModal: false,
       currentDeleteRole: {},
-      deleteClusterModal: false
+      deleteClusterModal: false,
+      totalMemberCount: 0,
+      roleMember: 0
     }
   }
   componentWillMount() {
@@ -402,7 +404,9 @@ class ProjectDetail extends Component{
             let newArr = res.data.teamList && res.data.teamList.concat(res.data.userList)
             this.formatMember(newArr)
             this.setState({
-              memberArr: newArr
+              memberArr: newArr,
+              totalMemberCount: res.data.listMeta,
+              connectModal:true
             })
           }
         },
@@ -586,9 +590,17 @@ class ProjectDetail extends Component{
       selectedMembers: member
     })
   }
+  relateMember() {
+    const { memberArr } = this.state;
+    if (!memberArr.length) {
+      this.getProjectMember()
+    } else {
+      this.setState({connectModal:true})
+    }
+  }
   render() {
     const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys,
-      currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole } = this.state;
+      currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form } = this.props;
     const { getFieldProps } = form;
@@ -1048,6 +1060,8 @@ class ProjectDetail extends Component{
                 permissionInfo={[]}
                 existMember={existentMember.length > 0 ? existentMember.slice(0) : []}
                 text='对象'
+                memberCount={totalMemberCount}
+                roleMember={memberCount}
                 connectModal={connectModal}
                 getTreeRightData={this.updateCurrentMember.bind(this)}
               />
@@ -1067,7 +1081,7 @@ class ProjectDetail extends Component{
                 <p className="rightTitle">角色关联对象</p>
                 <div className="rightContainer">
                   <div className="authBox inlineBlock">
-                    <p className="authTitle">该角色共 <span style={{color:'#59c3f5'}}>{currentRoleInfo && currentRoleInfo.count || 0}</span> 个权限</p>
+                    <p className="authTitle">该角色共 <span style={{color:'#59c3f5'}}>{currentRoleInfo && currentRoleInfo.total || 0}</span> 个权限</p>
                     <div className="treeBox">
                       {
                         currentRolePermission &&
@@ -1087,7 +1101,7 @@ class ProjectDetail extends Component{
                     <div className="memberTitle">
                       <span>该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
                       {
-                        currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.setState({connectModal:true})}>继续关联对象</Button>
+                        currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.relateMember()}>继续关联对象</Button>
                       }
                     </div>
                     <div className="memberTableBox">
@@ -1100,7 +1114,7 @@ class ProjectDetail extends Component{
                             {loopFunc(currentMembers)}
                           </Tree>
                           :
-                          <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.setState({connectModal:true})}>关联对象</Button>
+                          <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.relateMember()}>关联对象</Button>
                       }
                     </div>
                   </div>
