@@ -59,15 +59,17 @@ class SearchInput extends React.Component{
   }
   handleSearch(){
     const { searchValue, selecteValue } = this.state
-    let { scope,total } = this.props
+    let { scope, total, Search } = this.props
     const { searchResult, pageSize, sort } = scope.state
     let filter = this.getFilterField(selecteValue) + "," + searchValue
     this.props.GetSearchList({
-
+      value: filter
     },{
       success: {
         func: res => {
-
+          if(res.data.code === 200){
+            Search(res.data.data)
+          }
         }
       }
     })
@@ -93,8 +95,8 @@ class SearchInput extends React.Component{
     if(addBefore){
       let selectBefore = (
         <Select className="Searchcategory" defaultValue={addBefore[0].key}
-                style={{ width: 80}}
-                onChange={this.handleSelect}>
+          style={{ width: 80}}
+          onChange={this.handleSelect}>
           {
             addBefore.map((item,index) => {
               return (
