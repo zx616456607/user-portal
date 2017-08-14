@@ -349,7 +349,7 @@ export const ROLE_GET_SEARCH_FAILURE = 'ROLE_GET_SEARCH_FAILURE'
 function fetchGetSearchInfo(body, callback){
   let endpoint = `${API_URL_PREFIX}/role`
   if (body) {
-    endpoint += `?filter=${toQuerystring(body.info)}`
+    endpoint += `?filter=${body.value}`
   }
 	return {
 		[FETCH_API]: {

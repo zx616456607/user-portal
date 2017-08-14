@@ -50,11 +50,10 @@ let TenantDetail = React.createClass({
       success: {
         func: res => {
           if(res.data.code === 200){
+            this.RowData(res.data.data.permissions)
             this.setState({
               roleDetail: res.data.data,
-              permissionDatasource: res.data.data.permissions
             })
-            this.RowData(this.state.permissionDatasource)
           }
         },
         isAsync: true
@@ -73,7 +72,7 @@ let TenantDetail = React.createClass({
       children.forEach((key, index) => {
         if(data[index]["children"] !== undefined){
           if (data[index].children.length !== 0) {
-            return this.generateDatas(data[index].children);
+            return this.RowData(data[index].children);
           }
         }
       })
@@ -306,16 +305,21 @@ let TenantDetail = React.createClass({
               <Row className='item itemfirst'>
                 <Col span={3} className='item_title'>备注</Col>
                 {
-                  this.state.isShowIco ?
                   <Col span={21} className='item_content'>
-                    <Input style={{ width:145}}/>
                     <div className="edit_desc" >
-                      <Icon className="ico" type="minus-circle-o" style={{fontSize:20,margin:9}} onClick={() => this.handleColse()}/>
-                      <Icon className="ico" type="save" style={{fontSize:20}}/>
+                      {
+                        this.state.isShowIco ?
+                        <div>
+                          <Input style={{ width:145}}/>
+                          <Icon className="ico" type="minus-circle-o" style={{fontSize:20,margin:9}} onClick={() => this.handleColse()}/>
+                          <Icon className="ico" type="save" style={{fontSize:20}}/>
+                        </div> :
+                        <div>
+                          {roleDetail.comment}
+                          <Icon type="edit" style={{marginLeft:'4px'}} onClick={() => this.handleIcon()}/>
+                        </div>
+                      }
                     </div>
-                  </Col> :
-                  <Col span={21} className='item_content'>{roleDetail.comment}
-                    <Icon type="edit" style={{marginLeft:'4px'}} onClick={() => this.handleIcon()}/>
                   </Col>
                 }
               </Row>

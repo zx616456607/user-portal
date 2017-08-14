@@ -182,7 +182,7 @@ class CreateRoleModal extends React.Component{
           <TreeNode key={item.key} title={item.title}>
             {loop(item.children)}
           </TreeNode>
-        );
+        )
       }
       return <TreeNode key={item.key} title={item.title} />;
     });
