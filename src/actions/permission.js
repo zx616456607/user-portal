@@ -37,27 +37,6 @@ export function Permission(body, callback) {
 	}
 }
 
-// Fetches list permission and count from API.
-// Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchPermissionAndCount(body,callback) {
-	return {
-    [FETCH_API]: {
-      types: [PERMISSION_LIST_REQUEST, PERMISSION_LIST_SUCCESS, PERMISSION_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/permission/withCount`,
-      schema: {}
-    },
-    callback
-  }
-}
-
-// Fetches list permission from and count API
-// Relies on Redux Thunk middleware.
-export function PermissionAndCount(body, callback) {
-	return (dispatch) => {
-		return dispatch(fetchPermissionAndCount(body, callback))
-	}
-}
-
 export const PERMISSION_RETRIEVE_REQUEST = 'PERMISSION_RETRIEVE_REQUEST'
 export const PERMISSION_RETRIEVE_SUCCESS = 'PERMISSION_RETRIEVE_SUCCESS'
 export const PERMISSION_RETRIEVE_FAILURE = 'PERMISSION_RETRIEVE_FAILURE'
