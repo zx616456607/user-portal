@@ -37,7 +37,6 @@ class RoleManagement extends React.Component{
       targetKeys: [],
       sortedInfo: null,
       filteredInfo: null,
-
       roleData: [],
       visible: false,
       roelItems: [],
@@ -45,13 +44,15 @@ class RoleManagement extends React.Component{
       roleSize: [],
       isAdd: false,
       loading: true,
-
       id: '',
       count: 0,
       isChecked: true,
-
       characterModal: false,
       perData: [],
+      allPermission: [],
+      checkedKeys: [],
+      name:'',
+      comment:'',
     }
   }
 
@@ -79,12 +80,6 @@ class RoleManagement extends React.Component{
               roleSize: res.data.data.size,
             })
           }
-        },
-        isAsync: true,
-      },
-      failed: {
-        func: err => {
-          //
         },
         isAsync: true,
       }
@@ -182,30 +177,43 @@ class RoleManagement extends React.Component{
    * 查看权限信息
    * @param {*} id
    */
-  handleGetRoleJu(info){
+  handleGetRoleJu(record){
     this.setState({
-      Viewpermissions: true
+      Viewpermissions: true,
     })
     const { GetRole } = this.props
-    let res = {
-      ID: info.id
-    }
-    // GetRole({ res },{
-    //   success: {
-    //     func: res => {
-    //       if(res.code === 200){
+    GetRole({ roleId: record.id },{
+      success: {
+        func: res => {
+          if(res.data.code === 200){
+            this.setState({
+              name: res.data.data.name,
+              comment:res.data.data.comment,
+              allPermission: res.data.data.permissions
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
+  }
 
-    //       }
-    //     },
-    //     isAsync: true
-    //   },
-    //   failed: {
-    //     func: res => {
+  /**
+   * 关闭查看权限
+   */
+  handleClose(){
+    this.setState({
+      Viewpermissions: false
+    })
+  }
 
-    //     },
-    //     isAsync: true
-    //   }
-    // })
+  /**
+   *
+   */
+  handleOk(){
+    this.setState({
+      Viewpermissions: false
+    })
   }
 
   /**
@@ -318,10 +326,21 @@ class RoleManagement extends React.Component{
     })
   }
 
+  /**
+   * 模糊搜索
+   * @param {*} data
+   */
+  handleSearch(data){
+    this.setState({
+      roleData: data ? data.items : []
+    })
+  }
+
   render() {
+    const TreeNode = Tree.TreeNode;
     const { form } = this.props
     const { roleData, roleSize, Viewpermissions, visible, roleItemTitle, roelItems, isAdd, mockData
-    , targetKeys, loading } = this.state
+    , targetKeys, loading, allPermission } = this.state
     const { selectedRowKeys } = this.state;
     const rowSelection = {
       selectedRowKeys,
@@ -395,14 +414,12 @@ class RoleManagement extends React.Component{
       title: '创建时间 / 更新时间',
       dataIndex: 'createdTime',
       width:'20%',
-      filters: [{
-        text: '2017',
-        value: '2017',
-      }, {
-        text: '2016',
-        value: '2016',
-      }],
-      onFilter: (value, record) => record.Times.indexOf(value) === 0,
+      // filters: [
+      //   { text: '2017', value: '2017' },
+      //   { text: '2016', value: '2016' }
+      // ],
+      // onFilter: (value, record) => record.Times.indexOf(value) === 0,
+      sorter: (a, b) => a.createdTime - b.createdTime,
       render: (text, record, index) => <div>
         <span className='createdTime'>{formatDate(record.createdTime)}</span><br/>
         <span className='updatedTime'>{formatDate(record.updatedTime)}</span>
@@ -413,11 +430,10 @@ class RoleManagement extends React.Component{
       render: (text, record, index) => <div>
          {
            //dropDown[index]
-          text == '研'
-          ? <Button type="primary" onClick={this.handleGetRoleJu.bind(this, record)}><Icon type="eye"/>查看权限</Button>
-          : <Dropdown.Button overlay={dropDown[index]} type="ghost">
-              <Icon type="eye" />
-              查看权限
+          text == '研'?
+          <Button type="primary" onClick={this.handleGetRoleJu.bind(this, record)}><Icon type="eye"/>查看权限</Button> :
+          <Dropdown.Button overlay={dropDown[index]} type="ghost" onClick={this.handleGetRoleJu.bind(this, record)}>
+            <Icon type="eye" />查看权限
           </Dropdown.Button>
         }
       </div>
@@ -430,13 +446,22 @@ class RoleManagement extends React.Component{
       defaultSearchValue: 'name',
       placeholder: '请输入关键词搜索',
     }
-
     const selectBefore = (
       <Select className="bag" defaultValue="jsmt" style={{width:'80px'}}>
         <Option value="jsmt">角色名称</Option>
         <Option value="cjr">创建人</Option>
       </Select>
     )
+    const loop = data => data.map((item) => {
+      if (item["children"] !== undefined) {
+        return (
+          <TreeNode key={item.key} title={item.name} checkedKeys={item.key}>
+            {loop(item.children)}
+          </TreeNode>
+        )
+      }
+      return <TreeNode key={item.key} title={item.name}/>;
+    });
     const scope = this
 
     return(
@@ -469,7 +494,7 @@ class RoleManagement extends React.Component{
                 style={{paddingRight: '28px',width:'180px'}}/>
             </div>
           </div> */}
-          <SearchInput scope={scope} searchIntOption={searchIntOption} />
+          <SearchInput scope={scope} searchIntOption={searchIntOption} Search ={this.handleSearch.bind(this)} />
           <div className='pageBox'>
             <span className='totalPage'>共计{ roleData.length }条</span>
           </div>
@@ -534,28 +559,34 @@ class RoleManagement extends React.Component{
             loadData = {this.loadData.bind(this)}
         /> : ''
         }
-         <Modal title="查看权限" visible={this.state.Viewpermissions} footer={<Button type="primary" onClick={this.handleOk}>知道了</Button>} onCancel={this.handleCancel} >
-          <p className="createRolesa">角色名称<Input style={{width:'50%',marginLeft:'50px'}} placeholder="请填写角色名称"/></p>
-          <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
-          <div className="authChoose">
-          <span>已有权限</span>
-          <div className="authBox inlineBlock">
-            <div className="authTitle clearfix"><div className="pull-right">共<span style={{color:'#59c3f5'}}>0</span> 个</div></div>
-            <div className="treeBox">
-              {
-                <Tree
-                  checkable
-                  onExpand={() => this.onExpand()} expandedKeys={this.state.expandedKeys}
-                  autoExpandParent={this.state.autoExpandParent}
-                  onCheck={() => this.onCheck()} checkedKeys={this.state.checkedKeys}
-                  onSelect={() => this.onSelect()} selectedKeys={this.state.selectedKeys}
-                >
-                </Tree>
-              }
+        <Row>
+          <Modal title="查看权限" visible={Viewpermissions} onCancel={this.handleClose.bind(this)} footer={<Button type="primary" onClick={this.handleOk.bind(this)} >知道了</Button>}>
+            <p>角色名称
+              <Input className="inp" value={this.state.name} disabled/>
+            </p>
+            <p>备注
+              <Input className="inp" style={{marginLeft:53}} value={this.state.comment} disabled/>
+            </p>
+            <div className="authChoose" style={{marginTop: 10}}>
+              <span>已有权限</span>
+              <div className="authBox">
+                <div className="authTitle clearfix"><div className="pull-left">共<span style={{color:'#59c3f5'}}>{allPermission.length}</span> 个</div></div>
+                <div className="treeBox">
+                  {
+                    allPermission.length > 0 &&
+                    <Tree
+                      checkable
+                      onCancel={this.handleClose.bind(this)}
+                      onOk={this.handleOk.bind(this)}
+                    >
+                      {loop(allPermission)}
+                    </Tree>
+                  }
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
         </Modal>
+        </Row>
       </div>
       </QueueAnim>
     )
