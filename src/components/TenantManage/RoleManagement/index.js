@@ -15,7 +15,7 @@ import './style/RoleManagement.less'
 import { ListRole, CreateRole, GetRole, DeleteRole } from '../../../actions/role'
 import { Permission } from '../../../actions/permission'
 import { formatDate } from '../../../common/tools'
-import SearchInput from '../../SearchInput'
+import SearchInput from './SearchInfo/index'
 import Roleitem from './RoleEditManage/index.js'
 import NotificationHandler from '../../../components/Notification'
 import QueueAnim from 'rc-queue-anim'
@@ -113,11 +113,6 @@ class RoleManagement extends React.Component{
     const { ListRole } = this.props
     ListRole()
   }
-
-  handleSearch(){
-
-  }
-
   /**
    * 编辑与删除
    * @param {*} item

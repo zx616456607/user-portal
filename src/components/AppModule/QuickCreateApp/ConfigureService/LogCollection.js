@@ -77,11 +77,21 @@ class LogCollection extends Component {
         rules: [
           { validator: this.validateRule }
         ],
-        initialValue: '.*.log'
+        //initialValue: '.*.log'
       })
       exregexProps = getFieldProps('exregex',{
         rules: [
-          { required: false, message: '请填写排除文件规则' }
+          {
+            validator: (rule, value, callback) => {
+              if(!value){
+                return callback('请填写排除文件规则')
+              }
+              if(value.charAt(0) !== '/' || value.charAt(value.length - 1) !== '/'){
+                return callback('请输入正确的正则表达式')
+              }
+              callback()
+            }
+          }
         ],
       })
       let directoryRecursive = getFieldValue('directoryRecursive')
@@ -128,11 +138,10 @@ class LogCollection extends Component {
         >
           <Input
             size="large"
-            placeholder="例如:^access\.log\.[0-9\-]{10}$"
+            placeholder="例如:/^access\.log\.[0-9\-]{10}$/"
             autoComplete="off"
             className='standard'
             {...exregexProps}
-            disabled
           />
           <Tooltip title="匹配正则表达式的文件将不会被监控，请排除正在写入的文件">
             <Icon type="question-circle-o" className='questionIcon'/>
@@ -158,6 +167,13 @@ class LogCollection extends Component {
     return <span></span>
   }
 
+  sourceTypeChange = () => {
+    const { form } = this.props
+    form.setFieldsValue({
+      'inregex': '.*.log'
+    })
+  }
+
   render() {
     const { formItemLayout, form } = this.props
     const { getFieldProps, getFieldValue } = form
@@ -165,7 +181,8 @@ class LogCollection extends Component {
       rules: [
         { required: true }
       ],
-      initialValue: 'none'
+      initialValue: 'none',
+      onChange: this.sourceTypeChange
     })
     let sourceType = getFieldValue('sourceType')
 
