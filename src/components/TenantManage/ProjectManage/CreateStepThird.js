@@ -17,8 +17,6 @@ import { GetProjectsMembers } from '../../../actions/project'
 import { GetRole, roleWithMembers } from '../../../actions/role'
 import TreeComponent from '../../TreeForMembers'
 import cloneDeep from 'lodash/cloneDeep'
-import intersection from 'lodash/intersection'
-import xor from 'lodash/xor'
 
 let checkedKeysThird = []
 class CreateStepThird extends Component{
@@ -44,9 +42,14 @@ class CreateStepThird extends Component{
   }
   componentWillReceiveProps(nextProps) {
     const { scope, step, form } = nextProps;
+    const { currentRoleInfo } = this.state
     let RoleKeys = scope.state.RoleKeys;
     if ((RoleKeys.length > 0)) {
-      this.getCurrentRole(RoleKeys[0].split(',')[0])
+      if (!currentRoleInfo) {
+        this.getCurrentRole(RoleKeys[0].split(',')[0])
+      } else {
+        this.getCurrentRole(currentRoleInfo.id)
+      }
     } else {
       this.setState({
         currentRolePermission: [],
@@ -131,7 +134,7 @@ class CreateStepThird extends Component{
       checkedKeysThird.push(key)
     }
     children.forEach((key, index) => {
-      if (tns[index].children&&(tns[index].children.length !== null)) {
+      if (tns[index]['children'] !== undefined) {
         return this.generateDatas(tns[index].children);
       }
     });
@@ -140,7 +143,7 @@ class CreateStepThird extends Component{
     const { currentRoleInfo, roleMap } = this.state;
     const { updateRoleWithMember } = this.props;
     let map = cloneDeep(roleMap);
-    let currentId = currentRoleInfo.role.id
+    let currentId = currentRoleInfo.id
     map[currentId] = member;
     this.setState({
       roleMap:map,
@@ -168,10 +171,10 @@ class CreateStepThird extends Component{
           func: (res) =>{
             if (res.data.statusCode === 200) {
               let result = res.data.data;
-              this.generateDatas(result.permission.permission)
+              this.generateDatas(result.permissions)
               this.setState({
                 currentRoleInfo: result,
-                currentRolePermission: result.permission.permission,
+                currentRolePermission: result.permissions,
                 expandedKeys: checkedKeysThird,
                 checkedKeys: checkedKeysThird
               })
@@ -233,7 +236,7 @@ class CreateStepThird extends Component{
     const { scope, form } = this.props;
     const TreeNode = Tree.TreeNode;
     const { currentRolePermission, currentRoleInfo, memberArr, connectModal, roleMap } = this.state;
-    let currentId = currentRoleInfo.role && currentRoleInfo.role.id
+    let currentId = currentRoleInfo && currentRoleInfo.id
     const { getFieldProps } = form;
     const projectNameLayout = {
       labelCol: { span: 4 },
@@ -250,7 +253,7 @@ class CreateStepThird extends Component{
     }) : <li className="pointer" onClick={()=>browserHistory.replace('/tenant_manage/project_manage?step=second')}>请选择角色</li>
     
     const loop = data => data.length >0 && data.map((item) => {
-      if (item.children) {
+      if (item['children'] !== undefined) {
         return (
           <TreeNode key={item.key} title={item.title} disableCheckbox={true}>
             {loop(item.children)}
@@ -329,7 +332,7 @@ class CreateStepThird extends Component{
           <TreeComponent
              outPermissionInfo={memberArr}
              permissionInfo={[]}
-             existMember={roleMap[currentRoleInfo.role && currentRoleInfo.role.id] || []}
+             existMember={roleMap[currentRoleInfo && currentRoleInfo.id] || []}
              text='成员'
              connectModal={connectModal}
              getTreeRightData={this.updateCurrentMember.bind(this)}

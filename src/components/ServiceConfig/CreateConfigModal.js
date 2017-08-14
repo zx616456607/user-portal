@@ -169,7 +169,7 @@ let CreateConfigModal = React.createClass({
                 {...formItemLayout}
                 label="配置分类"
               >
-                <Select {...sortProps} tags multiple placeholder="请选择分类">
+                <Select {...sortProps} tags multiple placeholder="输入内容查找或创建分类" notFoundContent="">
                   {children}
                 </Select>
               </FormItem>

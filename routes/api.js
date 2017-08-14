@@ -552,7 +552,6 @@ module.exports = function (Router) {
   router.get('/permission',permissionController.list)
   router.get('/permission/:id/retrieve',permissionController.get)
   router.get('/permission/withCount',permissionController.listWithCount)
-  router.get('/permission/:id/retrieve/withCount',permissionController.getWithCount)
   router.get('/permission/:id/dependent',permissionController.getAllDependent)
 
   //role

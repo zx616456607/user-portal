@@ -230,7 +230,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
         const volume = {
           name: `configmap-volume-${keyValue}`,
           configMap: {
-            name: configGroupName,
+            name: configGroupName[1],
             items: configMapSubPathValues.map(value => {
               return {
                 key: value,
