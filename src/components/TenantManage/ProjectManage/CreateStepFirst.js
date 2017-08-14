@@ -26,20 +26,16 @@ class CreateStepFirst extends Component{
       choosableClusters: []
     }
   }
-  componentWillMount() {
-    const { selectedClusters } = this.state;
-    if (selectedClusters.length === 0) {
-      this.getAllClusters()
-    }
-  }
   componentWillReceiveProps(nextProps) {
-    const { selectedClusters } = this.state;
+    const { choosableClusters } = this.state;
     const { step, form, scope } = nextProps;
+    if (!step || (step && step !== 'first')) {
+      return
+    }
     if (scope.state.closeCreateProject) {
       this.setState({
         dropVisible:false
       })
-      this.getAllClusters()
     }
     if (step !== 'first') {
       this.setState({
@@ -49,7 +45,7 @@ class CreateStepFirst extends Component{
     if (!step) {
       form.resetFields()
     }
-    if (selectedClusters.length === 0) {
+    if (choosableClusters.length === 0) {
       this.getAllClusters()
     }
   }
@@ -111,16 +107,17 @@ class CreateStepFirst extends Component{
         projectsName: value
       },{
         success: {
-          func: (res) => {
+          func: () => {
             this.updateProjectName(value)
             callback()
           },
           isAsync: true
         },
         failed: {
-          func: (res) => {
-            return callback(new Error('该项目名称已经存在'))
-          }
+          func: () => {
+            callback(new Error('该项目名称已经存在'))
+          },
+          isAsync: true
         }
       })
     },ASYNC_VALIDATOR_TIMEOUT)

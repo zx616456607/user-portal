@@ -141,8 +141,8 @@ class ProjectDetail extends Component{
       success: {
         func: (res) => {
           if (res.statusCode === 200) {
-            if ((res.relatedRoles)) {
-              this.getCurrentRole(res.relatedRoles[0].roleId)
+            if ((res.data.relatedRoles)) {
+              this.getCurrentRole(res.data.relatedRoles[0].roleId)
             } else {
               this.setState({
                 currentRolePermission: [],
@@ -150,8 +150,8 @@ class ProjectDetail extends Component{
               })
             }
             this.setState({
-              projectDetail:res,
-              comment:res.description
+              projectDetail:res.data,
+              comment:res.data.description
             },()=>{
               this.loadRoleList()
             })
@@ -342,7 +342,7 @@ class ProjectDetail extends Component{
       currentMembers: []
     },()=>{
       GetRole({
-        id
+        roleId: id
       },{
         success: {
           func: (res) =>{
@@ -927,7 +927,7 @@ class ProjectDetail extends Component{
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {projectDetail&&projectDetail.creationTime}
+                        {projectDetail&&projectDetail.createTime}
                       </div>
                     </Col>
                   </Row>

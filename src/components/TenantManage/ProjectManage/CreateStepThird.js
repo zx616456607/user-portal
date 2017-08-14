@@ -17,6 +17,7 @@ import { GetProjectsMembers } from '../../../actions/project'
 import { GetRole, roleWithMembers } from '../../../actions/role'
 import TreeComponent from '../../TreeForMembers'
 import cloneDeep from 'lodash/cloneDeep'
+import isEmpty from 'lodash/isEmpty'
 
 let checkedKeysThird = []
 class CreateStepThird extends Component{
@@ -28,24 +29,32 @@ class CreateStepThird extends Component{
       checkedKeys: [],
       selectedKeys: [],
       connectModal: false,
-      mockData: [],
       targetKeys: [],
       currentRoleInfo: {},
       currentRolePermission: [],
       memberArr: [],
       roleMap: {},
-      existentMember: []
+      existentMember: [],
+      currentMembers: [],
+      memberCount: 0,
+      roleMember: 0
     }
-  }
-  componentDidMount() {
-    this.getProjectMember()
   }
   componentWillReceiveProps(nextProps) {
     const { scope, step, form } = nextProps;
-    const { currentRoleInfo } = this.state
+    const { currentRoleInfo, memberArr } = this.state
     let RoleKeys = scope.state.RoleKeys;
+    if (!step || (step && step !== 'third')) {
+      this.setState({
+        currentRoleInfo: {}
+      })
+      return
+    }
+    if (this.props.step && step && this.props.step !== 'third' && step === 'third' && !memberArr.length) {
+      // this.getProjectMember()
+    }
     if ((RoleKeys.length > 0)) {
-      if (!currentRoleInfo) {
+      if (isEmpty(currentRoleInfo)) {
         this.getCurrentRole(RoleKeys[0].split(',')[0])
       } else {
         this.getCurrentRole(currentRoleInfo.id)
@@ -69,7 +78,9 @@ class CreateStepThird extends Component{
             let newArr = res.data.teamList && res.data.teamList.concat(res.data.userList)
             this.formatMember(newArr)
             this.setState({
-              memberArr: newArr
+              memberArr: newArr,
+              memberCount: res.data.listMeta.total,
+              connectModal:true
             })
           }
         },
@@ -89,7 +100,7 @@ class CreateStepThird extends Component{
   }
   formatArr(arr) {
     arr.forEach(item => {
-      Object.assign(item,{key: item.userId},{name: item.userName})
+      Object.assign(item,{key: `${item.userId}`},{name: item.userName})
     })
   }
   onExpand(expandedKeys) {
@@ -165,7 +176,7 @@ class CreateStepThird extends Component{
       currentRolePermission: []
     },()=>{
       GetRole({
-        id
+        roleId: id
       },{
         success: {
           func: (res) =>{
@@ -202,7 +213,7 @@ class CreateStepThird extends Component{
             this.setState({
               currentMembers: member,
               existentMember: exist,
-              memberCount: member.length > 0 ? member.length : 0
+              roleMember: member.length > 0 ? member.length : 0
             })
           },
           isAsync: true
@@ -232,10 +243,20 @@ class CreateStepThird extends Component{
     }
     return a
   }
+  relateMember() {
+    const { memberArr } = this.state;
+    if (!memberArr.length) {
+      this.getProjectMember()
+    } else {
+      this.setState({
+        connectModal:true
+      })
+    }
+  }
   render() {
     const { scope, form } = this.props;
     const TreeNode = Tree.TreeNode;
-    const { currentRolePermission, currentRoleInfo, memberArr, connectModal, roleMap } = this.state;
+    const { currentRolePermission, currentRoleInfo, memberArr, connectModal, roleMap, memberCount, roleMember, existentMember, currentMembers } = this.state;
     let currentId = currentRoleInfo && currentRoleInfo.id
     const { getFieldProps } = form;
     const projectNameLayout = {
@@ -263,7 +284,7 @@ class CreateStepThird extends Component{
       return <TreeNode key={item.key} title={item.title} disableCheckbox={true}/>;
     });
     const loopFunc = data => data.length >0 && data.map((item) => {
-      return <TreeNode key={item.id} title={item.userName} disableCheckbox={true}/>;
+      return <TreeNode key={item.key} title={item.userName} disableCheckbox={true}/>;
     });
     
     return (
@@ -303,22 +324,22 @@ class CreateStepThird extends Component{
               </div>
               <div className="memberBox inlineBlock">
                 <div className="memberTitle">
-                  <span>该角色已关联 <span className="themeColor">{this.state[`member${currentId}`] && this.state[`member${currentId}`].length || 0}</span> 个对象</span>
+                  <span>该角色已关联 <span className="themeColor">{roleMember || 0}</span> 个对象</span>
                   {
-                    this.state[`member${currentId}`] && this.state[`member${currentId}`].length > 0 && <Button type="primary" size="large" onClick={()=> this.setState({connectModal:true})}>继续关联对象</Button>
+                    currentMembers && currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.relateMember()}>继续关联对象</Button>
                   }
                 </div>
                 <div className="memberTableBox">
                   {
-                    this.state[`member${currentId}`] && this.state[`member${currentId}`].length > 0 ?
+                    currentMembers && currentMembers.length > 0 ?
                       <Tree
                         checkable multiple
-                        checkedKeys={this.numberToString(this.state.roleMap[currentId])}
+                        checkedKeys={this.numberToString(existentMember)}
                       >
-                        {loopFunc(this.state[`member${currentId}`])}
+                        {loopFunc(currentMembers)}
                       </Tree>
                       :
-                      <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.setState({connectModal:true})}>关联对象</Button>
+                      <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.relateMember()}>关联对象</Button>
                   }
                 </div>
               </div>
@@ -332,8 +353,10 @@ class CreateStepThird extends Component{
           <TreeComponent
              outPermissionInfo={memberArr}
              permissionInfo={[]}
-             existMember={roleMap[currentRoleInfo && currentRoleInfo.id] || []}
+             existMember={existentMember}
              text='成员'
+             memberCount={memberCount}
+             roleMember={roleMember}
              connectModal={connectModal}
              getTreeRightData={this.updateCurrentMember.bind(this)}
           />

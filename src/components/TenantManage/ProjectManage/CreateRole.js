@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Row, Col, Button, Input, Modal, Transfer, Tree, Form } from 'antd'
+import { Input, Modal, Tree, Form } from 'antd'
 import { connect } from 'react-redux'
 import { CreateRole, ExistenceRole } from '../../../actions/role'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
