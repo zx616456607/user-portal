@@ -315,8 +315,13 @@ let TenantDetail = React.createClass({
                           <Icon className="ico" type="save" style={{fontSize:20}}/>
                         </div> :
                         <div>
-                          {roleDetail.comment}
-                          <Icon type="edit" style={{marginLeft:'4px'}} onClick={() => this.handleIcon()}/>
+                          {
+                            roleDetail.comment ?
+                            <div>
+                              {roleDetail.comment}
+                              <Icon type="edit" style={{marginLeft:'4px'}} onClick={() => this.handleIcon()}/>
+                            </div> : '--'
+                          }
                         </div>
                       }
                     </div>

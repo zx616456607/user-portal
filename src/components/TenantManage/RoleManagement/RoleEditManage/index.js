@@ -81,7 +81,7 @@ class CreateRoleModal extends React.Component{
       success:{
         func: (res)=>{
           if (res.data.code === 200) {
-            let result = res.data.data
+            let result = res.data.data.permissions
             this.generateDatas(result)
             this.setState({
               allPermission:result
@@ -136,6 +136,9 @@ class CreateRoleModal extends React.Component{
     const { checkedKeys } = this.state;
     const { getFieldValue, validateFields } = form;
     let notify = new Notification()
+    let ary = checkedKeys.map((item, index) => {
+      return Number(item)
+    })
     validateFields((errors,values)=>{
       if (!!errors) {
         return
@@ -145,7 +148,7 @@ class CreateRoleModal extends React.Component{
       CreateRole({
         name: roleName,
         comment: roleDesc,
-        permission: checkedKeys
+        pids: ary
       },{
         success:{
           func: (res) => {
@@ -170,7 +173,7 @@ class CreateRoleModal extends React.Component{
   render() {
     const TreeNode = Tree.TreeNode;
     const { allPermission, permissionCount } = this.state;
-    const { characterModal, form } = this.props;
+    const { characterModal, form, isAdd } = this.props;
     const { getFieldProps, isFieldValidating, getFieldError } = form;
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -201,15 +204,14 @@ class CreateRoleModal extends React.Component{
               rules: [
                 { validator: (rules,value,callback)=>this.roleName(rules,value,callback)}
               ],
+              initialValue: isAdd ? undefined : ''
             }) }
             />
           </Form.Item>
           <Form.Item label="描述" {...formItemLayout}>
             <Input type="textarea" {...getFieldProps(`roleDesc`, {
-              rules: [
-                { validator: (rules,value,callback)=>this.roleDesc(rules,value,callback)}
-              ],
-            }) }/>
+              initialValue: undefined
+            })}/>
           </Form.Item>
         </Form>
         <div className="authChoose">

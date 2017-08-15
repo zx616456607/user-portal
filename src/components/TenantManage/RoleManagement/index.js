@@ -29,14 +29,10 @@ class RoleManagement extends React.Component{
   constructor(props){
     super(props)
     this.state = {
-      //visible: false,
       selectedRowKeys: [],
       Viewpermissions:false,
       Deleteroles:false,
-      mockData: [],
       targetKeys: [],
-      sortedInfo: null,
-      filteredInfo: null,
       roleData: [],
       visible: false,
       roelItems: [],
@@ -53,6 +49,7 @@ class RoleManagement extends React.Component{
       checkedKeys: [],
       name:'',
       comment:'',
+      autoExpandParent: true
     }
   }
 
@@ -91,17 +88,8 @@ class RoleManagement extends React.Component{
   }
   handleChange( filters, sorter) {
     this.setState({
-      sortedInfo: sorter,
-      filteredInfo: filters,
-    });
-  }
-  setAgeSort(e) {
-    e.preventDefault();
-    this.setState({
-      sortedInfo: {
-        order: 'descend',
-        columnKey: 'age',
-      },
+      //sortedInfo: sorter,
+      //filteredInfo: filters,
     });
   }
   loadListRole(){
@@ -116,11 +104,11 @@ class RoleManagement extends React.Component{
     switch(value.key){
       case 'edit':
         this.setState({
-          roelItems: item,
-          visible: true,
+          characterModal: true,
           isAdd: false,
           roleItemTitle: '编辑角色'
         })
+
         return
       case 'del':
         this.setState({
@@ -174,6 +162,14 @@ class RoleManagement extends React.Component{
   }
 
   /**
+   * 编辑角色
+   * @param {*} id
+   */
+  handleUpdate(id){
+    const {} = this.props
+  }
+
+  /**
    * 查看权限信息
    * @param {*} id
    */
@@ -186,10 +182,15 @@ class RoleManagement extends React.Component{
       success: {
         func: res => {
           if(res.data.code === 200){
+            let aryID = []
+            for(let i = 0;i < res.data.data.permissions.length; i++){
+              aryID.push(`${res.data.data.permissions[i].id}`)
+            }
             this.setState({
               name: res.data.data.name,
               comment:res.data.data.comment,
-              allPermission: res.data.data.permissions
+              allPermission: res.data.data.permissions,
+              checkedKeys: aryID
             })
           }
         },
@@ -207,6 +208,12 @@ class RoleManagement extends React.Component{
     })
   }
 
+  onCheck(checkedKeys) {
+    this.setState({
+      checkedKeys
+    });
+  }
+
   /**
    *
    */
@@ -214,6 +221,12 @@ class RoleManagement extends React.Component{
     this.setState({
       Viewpermissions: false
     })
+  }
+  onExpand(expandedKeys) {
+    this.setState({
+      expandedKeys,
+      autoExpandParent: false,
+    });
   }
 
   /**
@@ -339,17 +352,13 @@ class RoleManagement extends React.Component{
   render() {
     const TreeNode = Tree.TreeNode;
     const { form } = this.props
-    const { roleData, roleSize, Viewpermissions, visible, roleItemTitle, roelItems, isAdd, mockData
-    , targetKeys, loading, allPermission } = this.state
+    const { roleData, roleSize, Viewpermissions, visible, roleItemTitle, roelItems, isAdd,
+      targetKeys, loading, allPermission, checkedKeys } = this.state
     const { selectedRowKeys } = this.state;
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
     };
-    const hasSelected = selectedRowKeys.length > 0;
-    let { sortedInfo, filteredInfo } = this.state;
-    sortedInfo = sortedInfo || {};
-    filteredInfo = filteredInfo || {};
     const columns = [{
       title: '角色名称',
       dataIndex: 'name',
@@ -455,12 +464,12 @@ class RoleManagement extends React.Component{
     const loop = data => data.map((item) => {
       if (item["children"] !== undefined) {
         return (
-          <TreeNode key={item.key} title={item.name} checkedKeys={item.key}>
+          <TreeNode key={item.id} title={item.name} disableCheckbox>
             {loop(item.children)}
           </TreeNode>
         )
       }
-      return <TreeNode key={item.key} title={item.name}/>;
+      return <TreeNode key={item.id} title={item.name} disableCheckbox/>;
     });
     const scope = this
 
@@ -481,34 +490,13 @@ class RoleManagement extends React.Component{
               <i className='fa fa-trash-o' />删除
             </Button> */}
           </div>
-          {/* <div className='rightBox'>
-            <div className='littleLeft'>
-              <i className='fa fa-search' onClick={this.handleSearch} />
-            </div>
-            <div className='littleRight'>
-              <Input
-                className="put bag"
-                addonBefore={selectBefore}
-                size='large'
-                placeholder='请输入关键词搜索'
-                style={{paddingRight: '28px',width:'180px'}}/>
-            </div>
-          </div> */}
           <SearchInput scope={scope} searchIntOption={searchIntOption} Search ={this.handleSearch.bind(this)} />
           <div className='pageBox'>
             <span className='totalPage'>共计{ roleData.length }条</span>
           </div>
-           {/* {
-            roleData.data
-            ? <div className='pageBox'>
-              <span className='totalPage'>共计 { roleData.data.size } 条</span>
-            </div>
-            : null
-          } */}
           <div className='clearDiv'></div>
         </div>
         <div className='appBox'>
-          {/* rowSelection={rowSelection} */}
           <Table
             columns={rolecolumns}
             dataSource={roleData}
@@ -517,17 +505,6 @@ class RoleManagement extends React.Component{
             loading={loading}
           />
         </div>
-        {/* <Roleitem
-          scope={this}
-          visible={visible}
-          roleTitle={roleItemTitle}
-          isAdd={isAdd}
-          data={roelItems}
-          mockData={mockData}
-          targetKeys={targetKeys}
-          addRole={this.addRoleInfo.bind(this)}
-        >
-        </Roleitem> */}
         <Row>
           <Modal title="删除角色操作" visible={this.state.Deleteroles} onOk={this.handleOkDel.bind(this)} onCancel={this.handleCancel.bind(this)} >
              <div className="createRolesa">
@@ -555,6 +532,7 @@ class RoleManagement extends React.Component{
             title = {this.state.roleItemTitle}
             form = {form}
             scope = {this}
+            isAdd = {isAdd}
             characterModal = {this.state.characterModal}
             loadData = {this.loadData.bind(this)}
         /> : ''
@@ -576,6 +554,8 @@ class RoleManagement extends React.Component{
                     allPermission.length > 0 &&
                     <Tree
                       checkable
+                      autoExpandParent={this.state.autoExpandParent}
+                      onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
                       onCancel={this.handleClose.bind(this)}
                       onOk={this.handleOk.bind(this)}
                     >
