@@ -58,8 +58,14 @@ class ProjectManage extends Component{
   }
   componentWillMount() {
     this.refresh('tableLoading')
+    const step = this.props.location.query.step;
+    const { projectName, authorizedCluster } = this.state;
+    if (step) {
+      if ((!projectName || authorizedCluster.length === 0) && step !== 'first') {
+        browserHistory.replace('/tenant_manage/project_manage?step=first')
+      }
+    }
   }
-  
   componentWillReceiveProps(nextProps) {
     const step = nextProps.location.query.step;
     if (step) {
