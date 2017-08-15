@@ -25,6 +25,7 @@ import TreeComponent from '../../../TreeForMembers'
 import cloneDeep from 'lodash/cloneDeep'
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
+import isEmpty from 'lodash/isEmpty'
 import CreateRoleModal from  '../CreateRole'
 
 let checkedKeysDetail = []
@@ -69,7 +70,7 @@ class ProjectDetail extends Component{
   componentWillMount() {
     this.getProjectDetail();
     this.getClustersWithStatus();
-    this.getProjectMember();
+    // this.getProjectMember();
     // this.loadRoleList()
   }
   getClustersWithStatus() {
@@ -137,13 +138,16 @@ class ProjectDetail extends Component{
   getProjectDetail() {
     const { name } = this.props.location.query;
     const { GetProjectsDetail } = this.props;
+    const { currentRoleInfo } = this.state;
     GetProjectsDetail({
       projectsName: name
     },{
       success: {
         func: (res) => {
           if (res.statusCode === 200) {
-            if ((res.data.relatedRoles)) {
+            if (!isEmpty(currentRoleInfo)) {
+              this.getCurrentRole(currentRoleInfo.id)
+            } else if ((res.data.relatedRoles)) {
               this.getCurrentRole(res.data.relatedRoles[0].roleId)
             } else {
               this.setState({
@@ -405,7 +409,7 @@ class ProjectDetail extends Component{
             this.formatMember(newArr)
             this.setState({
               memberArr: newArr,
-              totalMemberCount: res.data.listMeta,
+              totalMemberCount: res.data.listMeta.total,
               connectModal:true
             })
           }
@@ -442,7 +446,8 @@ class ProjectDetail extends Component{
       characterModal:true
     })
   }
-  deleteRole(item){
+  deleteRole(e,item){
+    e.stopPropagation()
     this.setState({
       currentDeleteRole:item
     },()=>{
@@ -458,7 +463,7 @@ class ProjectDetail extends Component{
   }
   confirmDeleteRole() {
     const { DeleteProjectsRelatedRoles } = this.props;
-    const { projectDetail, currentDeleteRole } = this.state;
+    const { projectDetail, currentDeleteRole, currentRoleInfo } = this.state;
     let deleteArr = []
     let notify = new Notification()
     deleteArr.push(currentDeleteRole.roleId)
@@ -470,10 +475,12 @@ class ProjectDetail extends Component{
     },{
       success: {
         func: () => {
-          this.getProjectDetail()
-          notify.success('删除角色成功')
           this.setState({
-            deleteRoleModal: false
+            deleteRoleModal: false,
+            currentRoleInfo: currentRoleInfo.id === currentDeleteRole.roleId ? {} : currentRoleInfo
+          },()=>{
+            this.getProjectDetail()
+            notify.success('删除角色成功')
           })
         },
         isAsync: true
@@ -484,7 +491,8 @@ class ProjectDetail extends Component{
           this.setState({
             deleteRoleModal: false
           })
-        }
+        },
+        isAsync: true
       }
     })
   }
@@ -747,7 +755,7 @@ class ProjectDetail extends Component{
       return (
         <li key={item.roleId} className={classNames({'active': currentRoleInfo && currentRoleInfo.id === item.roleId})} onClick={()=>this.getCurrentRole(item.roleId)}>{item.roleName}
           <Tooltip placement="top" title="移除角色">
-            <Icon type="delete" className="pointer" onClick={()=>this.deleteRole(item)}/>
+            <Icon type="delete" className="pointer" onClick={(e)=>this.deleteRole(e,item)}/>
           </Tooltip>
         </li>
       )

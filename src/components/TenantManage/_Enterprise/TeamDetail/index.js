@@ -7,6 +7,7 @@
  * v0.1 - 2017/6/26
  * @author XuLongcheng
  */
+'use strict'
 import React, { Component } from 'react'
 import { Row, Col, Alert, Card, Popover, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, Form } from 'antd'
 import QueueAnim from 'rc-queue-anim'
@@ -20,7 +21,7 @@ import {
   loadTeamClustersList,getTeamDetail, updateTeamDetail
 } from '../../../../actions/team'
 import { loadUserList } from '../../../../actions/user'
-import { usersAddRoles } from '../../../../actions/role'
+import { usersAddRoles, roleWithMembers, usersLoseRoles } from '../../../../actions/role'
 import { connect } from 'react-redux'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import NotificationHandler from '../../../../components/Notification'
@@ -283,7 +284,8 @@ class TeamDetail extends Component {
       leaderList: [],
       selectLeader: [],
       editTeamName: false,
-      teamName: ''
+      teamName: '',
+      originalLeader: []
     }
   }
   addNewMember() {
@@ -322,10 +324,10 @@ class TeamDetail extends Component {
     let add = intersection(targetKeys,diff)
     let del = intersection(originalKeys,diff)
     if (add.length && del.length) {
-      this.addTeamUser(add, false)
       this.delTeamUser(del, true)
+      this.addTeamUser(add, false, true)
     } else if (add.length && !del.length) {
-      this.addTeamUser(add, true)
+      this.addTeamUser(add, true, true)
     } else if (!add.length && del.length) {
       this.delTeamUser(del, true)
     } else {
@@ -334,7 +336,7 @@ class TeamDetail extends Component {
       })
     }
   }
-  addTeamUser(add, flag) {
+  addTeamUser(add, flag, isSet) {
     const { addTeamusers, teamID, loadTeamUserList } = this.props
     let notify = new NotificationHandler()
     const { sortUser } = this.state
@@ -349,12 +351,8 @@ class TeamDetail extends Component {
         func: () => {
           if (flag) {
             notify.success('操作成功')
-            loadTeamUserList(teamID, {
-              sort: sortUser,
-              page: 1,
-              size: 5
-            })
           }
+          loadTeamUserList(teamID,{sort: sortUser, size: 5, page: 1})
         },
         isAsync: true
       },
@@ -367,10 +365,12 @@ class TeamDetail extends Component {
         isAsync: true
       }
     })
-    this.setState({
-      addMember: false,
-      targetKeys: [],
-    })
+    if (isSet) {
+      this.setState({
+        addMember: false,
+        targetKeys: [],
+      })
+    }
   }
   delTeamUser(del,flag) {
     const { teamID, loadTeamUserList, removeTeamusers } = this.props
@@ -380,9 +380,9 @@ class TeamDetail extends Component {
       success: {
         func: () => {
           if (flag) {
-            loadTeamUserList(teamID,{sort: sortUser, size: 5, page: 1})
             notify.success('操作成功')
           }
+          loadTeamUserList(teamID,{sort: sortUser, size: 5, page: 1})
         },
         isAsync: true
       },
@@ -549,11 +549,12 @@ class TeamDetail extends Component {
     })
   }
   transferTeamLeader() {
-    const { leaderList } = this.state;
-    const { loadUserList } = this.props;
+    const { leaderList, originalLeader } = this.state;
+    const { loadUserList, roleWithMembers, teamID } = this.props;
     if (leaderList.length) {
       this.setState({
-        transferStatus: true
+        transferStatus: true,
+        selectLeader: originalLeader
       })
       return
     }
@@ -561,13 +562,27 @@ class TeamDetail extends Component {
       size:0
     },{
       success: {
-        func: res => {
-          res.users.forEach((item) => {
+        func: result => {
+          result.users.forEach((item) => {
             Object.assign(item,{key:item.userID})
           })
-          this.setState({
-            leaderList: res.users,
-            transferStatus: true
+          roleWithMembers({
+            roleID:'RID-i5rFhJowkzjo',
+            scope: 'team',
+            scopeID: teamID
+          },{
+            success: {
+              func: res => {
+                let arr = [res.data.data[0].userId]
+                this.setState({
+                  leaderList: result.users,
+                  selectLeader: arr,
+                  originalLeader: arr,
+                  transferStatus: true
+                })
+              },
+              isAsync: true
+            }
           })
         },
         isAsync: true
@@ -575,10 +590,35 @@ class TeamDetail extends Component {
     })
   }
   confirmTransferLeader() {
+    const { teamUserList } = this.props;
+    const { selectLeader, originalLeader } = this.state;
+    let notify = new NotificationHandler()
+    if (selectLeader[0] === originalLeader[0]) {
+      notify.info('该成员已是当前团队管理者，请选择其他成员')
+      return
+    }
+    let flag = false
+    for (let i = 0; i < teamUserList.length; i++) {
+      if (teamUserList[i].key === selectLeader[0]) {
+        flag = true
+        break
+      }
+    }
+    if (!flag) {
+      this.addTeamUser(selectLeader,false,false)
+      this.delTeamLeader().then(() => {
+        this.transferFunc()
+      })
+    } else {
+      this.delTeamLeader().then(() => {
+        this.transferFunc()
+      })
+    }
+  }
+  transferFunc() {
     const { usersAddRoles, teamID } = this.props;
     const { selectLeader } = this.state;
     let notify = new NotificationHandler()
-    
     usersAddRoles({
       roleID:'RID-i5rFhJowkzjo',
       scope: 'team',
@@ -593,7 +633,7 @@ class TeamDetail extends Component {
           this.loadTeamDetail()
           this.setState({
             transferStatus: false,
-            selectLeader: []
+            originalLeader: selectLeader
           })
         },
         isAsync: true
@@ -602,12 +642,42 @@ class TeamDetail extends Component {
         func: () => {
           notify.error('移交团队失败')
           this.setState({
-            transferStatus: false,
-            selectLeader: []
+            transferStatus: false
           })
         }
       }
     })
+  }
+  delTeamLeader() {
+    const { teamID, usersLoseRoles } = this.props;
+    const { originalLeader } = this.state;
+    let notify = new NotificationHandler()
+    let opt = {
+      roleID:'RID-i5rFhJowkzjo',
+      scope: 'team',
+      scopeID: teamID
+    }
+    return new Promise((resolve,reject) => {
+      usersLoseRoles({
+        ...opt,
+        body: {
+          userIDs: originalLeader
+        }
+      },{
+        success: {
+          func: res => {
+            resolve(res.data.code)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            notify.error('移交团队失败')
+          },
+          isAsync: true
+        }
+      })}
+    )
   }
   cancelTransferLeader() {
     this.setState({
@@ -669,11 +739,11 @@ class TeamDetail extends Component {
     } = this.props
     const { getFieldProps } = form
     const { targetKeys, teamDetail, allTeamUser, selectedRowKeys, selectLeader, editTeamName } = this.state
-    const rowSelection = {
-      selectedRowKeys,
-      onSelect:(record)=> this.rowClick(record),
-      onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
-    };
+    // const rowSelection = {
+    //   selectedRowKeys,
+    //   onSelect:(record)=> this.rowClick(record),
+    //   onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
+    // };
     const leaderRowSelction = {
       selectedRowKeys: selectLeader,
       onSelect: (record) => this.leaderRowClick(record)
@@ -802,8 +872,7 @@ class TeamDetail extends Component {
                       width="610px"
                       wrapClassName="transferLeaderModal"
                     >
-                      <div className="alertRow">转让身份后便没有管理该团队的权限，只能作为参与者在本团队</div>
-                      <div>请选择新的团队创建者身份</div>
+                      <div className="alertRow">移交团队后没有管理该团队的权限，可将团队管理员身份移交给以下成员中的一个</div>
                       <Table
                         className='leaderListTable'
                         dataSource={this.state.leaderList}
@@ -825,21 +894,21 @@ class TeamDetail extends Component {
                         targetKeys={targetKeys}
                       />
                     </Modal>
-                    <Modal title="移除成员"
-                           visible={this.state.deleteMember}
-                           onOk={this.removeMemberOk.bind(this)}
-                           onCancel={this.removeMemberCancel.bind(this)}
-                           width="660px"
-                           wrapClassName="removeMemberModal"
-                    >
-                      <Table
-                           dataSource={allTeamUser.users}
-                           columns={columns}
-                           pagination={false}
-                           rowSelection={rowSelection}
-                           onRowClick={(record)=>this.rowClick(record)}
-                      />
-                    </Modal>
+                    {/*<Modal title="移除成员"*/}
+                           {/*visible={this.state.deleteMember}*/}
+                           {/*onOk={this.removeMemberOk.bind(this)}*/}
+                           {/*onCancel={this.removeMemberCancel.bind(this)}*/}
+                           {/*width="660px"*/}
+                           {/*wrapClassName="removeMemberModal"*/}
+                    {/*>*/}
+                      {/*<Table*/}
+                           {/*dataSource={allTeamUser.users}*/}
+                           {/*columns={columns}*/}
+                           {/*pagination={false}*/}
+                           {/*rowSelection={rowSelection}*/}
+                           {/*onRowClick={(record)=>this.rowClick(record)}*/}
+                      {/*/>*/}
+                    {/*</Modal>*/}
                   </Col>
                 </Row>
                 <Row>
@@ -948,5 +1017,7 @@ export default connect(mapStateToProp, {
   getTeamDetail,
   loadUserList,
   usersAddRoles,
-  updateTeamDetail
+  updateTeamDetail,
+  roleWithMembers,
+  usersLoseRoles
 })(Form.create()(TeamDetail))
