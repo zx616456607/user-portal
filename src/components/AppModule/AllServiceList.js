@@ -1286,8 +1286,8 @@ class ServiceList extends Component {
               </Dropdown>
             </div>
             <div className='rightBox'>
-              <div className='littleLeft' onClick={this.searchApps}>
-                <i className='fa fa-search'></i>
+              <div className='littleLeft'>
+                <i className='fa fa-search' onClick={() => this.searchServices()}></i>
               </div>
               <div className='littleRight'>
                 <Input
@@ -1340,7 +1340,7 @@ class ServiceList extends Component {
               </Dropdown>
             </div>
             <div className='rightBox'>
-              <div className='littleLeft' onClick={this.searchApps}>
+              <div className='littleLeft'>
                 <i className='fa fa-search'></i>
               </div>
               <div className='littleRight'>
