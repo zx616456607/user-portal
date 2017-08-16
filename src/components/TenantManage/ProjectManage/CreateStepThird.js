@@ -319,7 +319,7 @@ class CreateStepThird extends Component{
           <TreeComponent
              outPermissionInfo={memberArr}
              permissionInfo={[]}
-             existMember={roleMap[currentId]}
+             existMember={roleMap[currentId] || []}
              text='成员'
              memberCount={memberCount}
              roleMember={roleMap[currentId] && roleMap[currentId].length}

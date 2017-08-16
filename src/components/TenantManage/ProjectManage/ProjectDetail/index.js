@@ -176,8 +176,16 @@ class ProjectDetail extends Component{
   editComment() {
     this.setState({editComment:true})
   }
+  cancelEdit() {
+    const { setFieldsValue } = this.props.form
+    const { projectDetail } = this.state;
+    let oldComment = projectDetail.description;
+    this.setState({editComment:false},()=>{
+      setFieldsValue({'comment': oldComment})
+    })
+  }
   saveComment() {
-    const { getFieldValue } = this.props.form;
+    const { getFieldValue, setFieldsValue } = this.props.form;
     const { UpdateProjects } = this.props;
     const { projectDetail } = this.state;
     let notify = new Notification()
@@ -339,6 +347,7 @@ class ProjectDetail extends Component{
   };
   getCurrentRole(id) {
     const { GetRole, roleWithMembers } = this.props;
+    const { projectDetail } = this.state;
     checkedKeysDetail.length=0
     this.setState({
       checkedKeys:[],
@@ -368,8 +377,8 @@ class ProjectDetail extends Component{
       })
       roleWithMembers({
         roleID: id,
-        scope: 'global',
-        scopeID: 'global'
+        scope: 'project',
+        scopeID: `${projectDetail.pid}`
       },{
         success: {
           func: res => {
@@ -972,26 +981,22 @@ class ProjectDetail extends Component{
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
                         <div className="example-input commonBox">
+                          <Input size="large" disabled={editComment ? false : true} type="textarea" placeholder="备注" {...getFieldProps('comment',{
+                            initialValue: comment
+                          })}/>
                           {
                             editComment ?
-                              <div>
-                                <Input size="large" placeholder="备注" {...getFieldProps('comment',{
-                                  initialValue: comment
-                                })}/>
+                              [
                                 <Tooltip title="取消">
-                                  <i className="anticon anticon-minus-circle-o pointer" onClick={()=> this.setState({editComment:false})}/>
-                                </Tooltip>
+                                  <i className="anticon anticon-minus-circle-o pointer" onClick={()=> this.cancelEdit()}/>
+                                </Tooltip>,
                                 <Tooltip title="保存">
                                   <i className="anticon anticon-save pointer" onClick={()=> this.saveComment()}/>
                                 </Tooltip>
-                              </div>
-                              :
-                              <div>
-                                <span>{projectDetail&&projectDetail.description}</span>
+                              ] :
                                 <Tooltip title="编辑">
                                   <i className="anticon anticon-edit pointer" onClick={()=> this.editComment()}/>
                                 </Tooltip>
-                              </div>
                           }
                         </div>
                       </div>

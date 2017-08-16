@@ -596,3 +596,29 @@ export function sendActivationEmail(email, code, callback) {
     return dispatch(fetchSendActivationEmail(email, code, callback))
   }
 }
+
+export const USER_EXCLUDE_ONE_TEAM_REQUEST = 'USER_EXCLUDE_ONE_TEAM_REQUEST'
+export const USER_EXCLUDE_ONE_TEAM_SUCCESS = 'USER_EXCLUDE_ONE_TEAM_SUCCESS'
+export const USER_EXCLUDE_ONE_TEAM_FAILURE = 'USER_EXCLUDE_ONE_TEAM_FAILURE'
+
+function fetchUsersExcludeOneTeam(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/search`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return{
+    [FETCH_API]: {
+      types: [USER_EXCLUDE_ONE_TEAM_REQUEST,USER_EXCLUDE_ONE_TEAM_SUCCESS,USER_EXCLUDE_ONE_TEAM_FAILURE],
+      endpoint,
+      options: {},
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function usersExcludeOneTeam(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUsersExcludeOneTeam(query, callback))
+  }
+}

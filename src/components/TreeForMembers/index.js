@@ -63,6 +63,7 @@ class TreeComponent extends Component {
     let rightInfo = []
     let checkedKeys = []
     let originalMembers = []
+    
     for (let i = 0; i < existMember.length; i++) {
       for (let j = 0; j < outPermission.length; j++) {
         if (outPermission[j].id === existMember[i]) {

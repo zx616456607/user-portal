@@ -190,7 +190,8 @@ module.exports = function (Router) {
   router.post('/users/batch-delete', userController.batchDeleteUser)
   router.patch('/users/:user_id', userController.updateUser)
   router.get('/users/:user_name/existence', userController.checkUserName)
-
+  router.get('/users/search', userController.getUsersExclude)
+  
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)

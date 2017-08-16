@@ -9,7 +9,7 @@
  */
 'use strict'
 import React, { Component } from 'react'
-import { Row, Col, Alert, Card, Popover, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, Form } from 'antd'
+import { Row, Col, Alert, Card, Popover, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, Form, Tooltip } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/TeamDetail.less'
 import { Link, browserHistory } from 'react-router'
@@ -20,7 +20,7 @@ import {
   deleteTeamspace, requestTeamCluster, checkTeamSpaceName,
   loadTeamClustersList,getTeamDetail, updateTeamDetail
 } from '../../../../actions/team'
-import { loadUserList } from '../../../../actions/user'
+import { usersExcludeOneTeam } from '../../../../actions/user'
 import { usersAddRoles, roleWithMembers, usersLoseRoles } from '../../../../actions/role'
 import { connect } from 'react-redux'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
@@ -68,9 +68,22 @@ let MemberList = React.createClass({
   },
 
   delTeamMember() {
-    const { removeTeamusers, teamID, loadTeamUserList } = this.props
-    const { sortUser, userPageSize, userPage, filter } = this.state
+    const { removeTeamusers, teamID, loadTeamUserList, scope } = this.props
+    const { sortUser, userPageSize, userPage, filter, transferHint, userId } = this.state
     let self = this
+    if (transferHint) {
+      this.setState({
+        UserModal: false,
+        transferHint: false
+      },()=>{
+        scope.setState({
+          transferStatus: true,
+          selectLeader: [userId],
+          originalLeader: [userId]
+        })
+      })
+      return
+    }
     this.setState({UserModal: false})
     let notification = new NotificationHandler()
     removeTeamusers(teamID, this.state.userId, {
@@ -163,10 +176,22 @@ let MemberList = React.createClass({
   },
   removeMember(e,record) {
     e.stopPropagation()
-    this.setState({userId: record.key, UserModal: true, userName: record.name})
+    if (record.key === 105) {
+      this.setState({
+       transferHint: true
+     },()=>{
+        this.setState({userId: record.key, UserModal: true, userName: record.name})
+     })
+    } else {
+      this.setState({
+        transferHint: false
+      },()=>{
+        this.setState({userId: record.key, UserModal: true, userName: record.name})
+      })
+    }
   },
   render: function () {
-    let { filteredInfo, current, selectedRowKeys} = this.state
+    let { filteredInfo, current, selectedRowKeys, userName, transferHint} = this.state
     const { teamUserList, teamUsersTotal } = this.props
     filteredInfo = filteredInfo || {}
     const pagination = {
@@ -240,12 +265,17 @@ let MemberList = React.createClass({
           rowKey={record => record.key}
           onChange={this.onTableChange}
           />
-        <Modal title="移除成员操作" visible={this.state.UserModal}
+        <Modal title="移除成员操作" visible={this.state.UserModal} okText={transferHint ? '去移交团队' : '确定'}
           onOk={()=> this.delTeamMember()} onCancel={()=> this.setState({UserModal: false})}
         >
-          <div className="deleteMemberHint"><i className="fa fa-exclamation-triangle" style={{marginRight: '8px'}}/>您是否确定要移除成员 {this.state.userName ? this.state.userName : ''} ?</div>
+          <div className="deleteMemberHint">
+            <i className="fa fa-exclamation-triangle" style={{marginRight: '8px'}}/>
+            {
+              transferHint ? '改成员为改团队的管理员，将团队移交给其他成员后方可移除该成员' :
+              `您是否确定要移除成员 ${userName} ?`
+            }
+          </div>
         </Modal>
-
       </div>
     )
   }
@@ -285,7 +315,8 @@ class TeamDetail extends Component {
       selectLeader: [],
       editTeamName: false,
       teamName: '',
-      originalLeader: []
+      originalLeader: [],
+      currentOption: 'team'
     }
   }
   addNewMember() {
@@ -549,8 +580,8 @@ class TeamDetail extends Component {
     })
   }
   transferTeamLeader() {
-    const { leaderList, originalLeader } = this.state;
-    const { loadUserList, roleWithMembers, teamID } = this.props;
+    const { leaderList, originalLeader, currentOption } = this.state;
+    const { usersExcludeOneTeam, roleWithMembers, teamID, loadTeamUserList} = this.props;
     if (leaderList.length) {
       this.setState({
         transferStatus: true,
@@ -558,12 +589,13 @@ class TeamDetail extends Component {
       })
       return
     }
-    loadUserList({
-      size:0
+    usersExcludeOneTeam({
+      // size:0,
+      excludeTID: teamID
     },{
       success: {
         func: result => {
-          result.users.forEach((item) => {
+          result.data.users.forEach((item) => {
             Object.assign(item,{key:item.userID})
           })
           roleWithMembers({
@@ -575,7 +607,7 @@ class TeamDetail extends Component {
               func: res => {
                 let arr = [res.data.data[0].userId]
                 this.setState({
-                  leaderList: result.users,
+                  leaderList: result.data.users,
                   selectLeader: arr,
                   originalLeader: arr,
                   transferStatus: true
@@ -695,6 +727,16 @@ class TeamDetail extends Component {
       editTeamName: true
     })
   }
+  cancelEdit() {
+    const { setFieldsValue } = this.props.form;
+    const { teamDetail } = this.state;
+    let oldTeamName = teamDetail.teamName;
+    this.setState({
+      editTeamName: false
+    },()=>{
+      setFieldsValue({'teamName': oldTeamName})
+    })
+  }
   saveTeamName() {
     const { getFieldValue } = this.props.form;
     const { updateTeamDetail } = this.props;
@@ -729,7 +771,37 @@ class TeamDetail extends Component {
         isAsync: true
       }
     })
-    
+  }
+  filterUsers(value) {
+    const { usersExcludeOneTeam, teamID } = this.props;
+    usersExcludeOneTeam({
+      size: 0,
+      excludeTID: teamID,
+      userName: value
+    },{
+      success:{
+        func: res => {
+          res.data.users.forEach((item) => {
+            Object.assign(item,{key:item.userID})
+          })
+          this.setState({
+            leaderList: res.data.users
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          this.setState({
+            leaderList: []
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+  getOption(value) {
+    console.log(value)
   }
   render() {
     const {
@@ -738,7 +810,7 @@ class TeamDetail extends Component {
       loadTeamUserList, form
     } = this.props
     const { getFieldProps } = form
-    const { targetKeys, teamDetail, allTeamUser, selectedRowKeys, selectLeader, editTeamName } = this.state
+    const { targetKeys, teamDetail, allTeamUser, selectedRowKeys, selectLeader, editTeamName, originalLeader } = this.state
     // const rowSelection = {
     //   selectedRowKeys,
     //   onSelect:(record)=> this.rowClick(record),
@@ -775,17 +847,27 @@ class TeamDetail extends Component {
     const leaderColumns = [{
       title: '成员名',
       dataIndex: 'userName',
-      key: 'userName'
+      key: 'userName',
+      width: '40%'
     },{
       title: '类型',
       dataIndex: 'role',
       key: 'role',
+      width: '50%',
       render: (text, record) => (
         <div>
           {record.role === ROLE_SYS_ADMIN ? '系统管理员' : (record.role === ROLE_TEAM_ADMIN ? '团队管理员' : '普通成员')}
         </div>
       )
     }]
+    const selectProps = {
+      selectOptions: [
+        { key: 'team', value: '该团队成员' },
+        { key: 'excludeTeam', value: '非该团队成员' }
+      ],
+      selectWidth: '110px',
+      defaultValue:'team'
+    }
     return (
       <QueueAnim>
         <div key="tenantTeamDetail" id='tenantTeamDetail'>
@@ -806,20 +888,25 @@ class TeamDetail extends Component {
                 团队名称
               </Col>
               <Col span={22} className="teamNameBox">
-                {
-                  editTeamName ?
-                    <div>
-                      <Input size="large" placeholder="备注" {...getFieldProps('teamName',{
-                        initialValue: teamDetail.teamName
-                      })}/>
-                      <i className="anticon anticon-save pointer" onClick={()=> this.saveTeamName()}/>
-                    </div>
-                    :
-                    <div>
-                      <span>{teamDetail && teamDetail.teamName}</span>
-                      <i className="anticon anticon-edit pointer" onClick={()=> this.editTeamName()}/>
-                    </div>
-                }
+                <div className="teamName">
+                  <Input size="large" disabled={editTeamName ? false : true} type="textarea" placeholder="团队名称" {...getFieldProps('teamName',{
+                    initialValue: teamDetail.teamName
+                  })}/>
+                  {
+                    editTeamName ?
+                      [
+                        <Tooltip title="取消">
+                          <i className="anticon anticon-minus-circle-o pointer" onClick={()=> this.cancelEdit()}/>
+                        </Tooltip>,
+                        <Tooltip title="保存">
+                          <i className="anticon anticon-save pointer" onClick={()=> this.saveTeamName()}/>
+                        </Tooltip>
+                      ] :
+                        <Tooltip title="编辑">
+                          <i className="anticon anticon-edit pointer" onClick={()=> this.editTeamName()}/>
+                        </Tooltip>
+                  }
+                </div>
               </Col>
             </Row>
             <Row>
@@ -873,8 +960,17 @@ class TeamDetail extends Component {
                       wrapClassName="transferLeaderModal"
                     >
                       <div className="alertRow">移交团队后没有管理该团队的权限，可将团队管理员身份移交给以下成员中的一个</div>
+                      <CommonSearchInput
+                        selectProps={selectProps}
+                        wrapperWidth="300px"
+                        onSearch={this.filterUsers.bind(this)}
+                        size="large"
+                        placeholder="按成员名搜索"
+                        getOption={this.getOption.bind(this)}
+                      />
                       <Table
                         className='leaderListTable'
+                        scroll={{ y: 240 }}
                         dataSource={this.state.leaderList}
                         columns={leaderColumns}
                         pagination={false}
@@ -913,6 +1009,7 @@ class TeamDetail extends Component {
                 </Row>
                 <Row>
                   <MemberList teamUserList={teamUserList}
+                              scope={this}
                               teamID={teamID}
                               removeTeamusers={removeTeamusers}
                               loadTeamUserList={loadTeamUserList}
@@ -1015,7 +1112,7 @@ export default connect(mapStateToProp, {
   loadTeamClustersList,
   setCurrent,
   getTeamDetail,
-  loadUserList,
+  usersExcludeOneTeam,
   usersAddRoles,
   updateTeamDetail,
   roleWithMembers,
