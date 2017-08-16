@@ -377,9 +377,11 @@ class TeamDetail extends Component {
       }
     })
     const targetKeysMap = {"users":newtargetKeys}
+    return new Promise((resolve,reject) => {
     addTeamusers(teamID,targetKeysMap,{
       success: {
         func: () => {
+          resolve()
           if (flag) {
             notify.success('操作成功')
           }
@@ -389,6 +391,7 @@ class TeamDetail extends Component {
       },
       failed: {
         func: () => {
+          reject()
           if (flag) {
             notify.error('操作失败')
           }
@@ -396,12 +399,13 @@ class TeamDetail extends Component {
         isAsync: true
       }
     })
-    if (isSet) {
-      this.setState({
-        addMember: false,
-        targetKeys: [],
-      })
-    }
+      if (isSet) {
+        this.setState({
+          addMember: false,
+          targetKeys: [],
+        })
+      }
+    })
   }
   delTeamUser(del,flag) {
     const { teamID, loadTeamUserList, removeTeamusers } = this.props
@@ -580,41 +584,71 @@ class TeamDetail extends Component {
     })
   }
   transferTeamLeader() {
-    const { leaderList, originalLeader, currentOption } = this.state;
+    const { leaderList, originalLeader } = this.state;
+    const { usersExcludeOneTeam, roleWithMembers, teamID, loadTeamUserList, teamUserList } = this.props;
+    this.setState({
+      leaderList: teamUserList.map(item => {
+        return Object.assign(item,{userName:item.name})
+      })
+    },()=>{
+      this.getTeamLeader()
+    })
+  }
+  getTeamLeader() {
     const { usersExcludeOneTeam, roleWithMembers, teamID, loadTeamUserList} = this.props;
-    if (leaderList.length) {
+    const { originalLeader } = this.state;
+    if (originalLeader.length) {
       this.setState({
-        transferStatus: true,
-        selectLeader: originalLeader
+        transferStatus: true
       })
       return
     }
-    usersExcludeOneTeam({
-      // size:0,
-      excludeTID: teamID
+    roleWithMembers({
+      roleID:'RID-i5rFhJowkzjo',
+      scope: 'team',
+      scopeID: teamID
     },{
       success: {
-        func: result => {
-          result.data.users.forEach((item) => {
+        func: res => {
+          let arr = [res.data.data[0].userId]
+          this.setState({
+            selectLeader: arr,
+            originalLeader: arr,
+            transferStatus: true
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+  getTeamUsers(value) {
+    const { loadTeamUserList, teamID } = this.props;
+    let opt = value === null ? {sort: 'a,userName', size: 0} : {sort: 'a,userName', size: 0, filter: `userName,${value}`}
+    loadTeamUserList(teamID, opt,{
+      success: {
+        func: res => {
+          res.users.forEach((item) => {
             Object.assign(item,{key:item.userID})
           })
-          roleWithMembers({
-            roleID:'RID-i5rFhJowkzjo',
-            scope: 'team',
-            scopeID: teamID
-          },{
-            success: {
-              func: res => {
-                let arr = [res.data.data[0].userId]
-                this.setState({
-                  leaderList: result.data.users,
-                  selectLeader: arr,
-                  originalLeader: arr,
-                  transferStatus: true
-                })
-              },
-              isAsync: true
-            }
+          this.setState({
+            leaderList: res.users,
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+  getExcludeTeamUsers(value) {
+    const { usersExcludeOneTeam, teamID } = this.props;
+    let opt = value === null ? {excludeTID: teamID} : {excludeTID: teamID,userName: value}
+    usersExcludeOneTeam(opt,{
+      success: {
+        func: res => {
+          res.data.users.forEach((item) => {
+            Object.assign(item,{key:item.userID})
+          })
+          this.setState({
+            leaderList: res.data.users,
           })
         },
         isAsync: true
@@ -637,7 +671,9 @@ class TeamDetail extends Component {
       }
     }
     if (!flag) {
-      this.addTeamUser(selectLeader,false,false)
+      this.addTeamUser(selectLeader,false,false).then(() => {
+        this.getExcludeTeamUsers(null)
+      })
       this.delTeamLeader().then(() => {
         this.transferFunc()
       })
@@ -665,7 +701,8 @@ class TeamDetail extends Component {
           this.loadTeamDetail()
           this.setState({
             transferStatus: false,
-            originalLeader: selectLeader
+            originalLeader: selectLeader,
+            currentOption: 'team'
           })
         },
         isAsync: true
@@ -674,7 +711,8 @@ class TeamDetail extends Component {
         func: () => {
           notify.error('移交团队失败')
           this.setState({
-            transferStatus: false
+            transferStatus: false,
+            currentOption: 'team'
           })
         }
       }
@@ -712,9 +750,11 @@ class TeamDetail extends Component {
     )
   }
   cancelTransferLeader() {
+    const { originalLeader } = this.state;
     this.setState({
       transferStatus: false,
-      selectLeader: []
+      selectLeader: originalLeader,
+      currentOption: 'team'
     })
   }
   leaderRowClick(record) {
@@ -773,35 +813,29 @@ class TeamDetail extends Component {
     })
   }
   filterUsers(value) {
-    const { usersExcludeOneTeam, teamID } = this.props;
-    usersExcludeOneTeam({
-      size: 0,
-      excludeTID: teamID,
-      userName: value
-    },{
-      success:{
-        func: res => {
-          res.data.users.forEach((item) => {
-            Object.assign(item,{key:item.userID})
-          })
-          this.setState({
-            leaderList: res.data.users
-          })
-        },
-        isAsync: true
-      },
-      failed: {
-        func: () => {
-          this.setState({
-            leaderList: []
-          })
-        },
-        isAsync: true
-      }
-    })
+    const { currentOption } = this.state;
+    if(currentOption === 'team') {
+      this.getTeamUsers(value)
+    } else {
+      this.getExcludeTeamUsers(value)
+    }
   }
   getOption(value) {
-    console.log(value)
+    const { teamUserList } = this.props;
+    this.setState({
+      currentOption: value
+    })
+    if(value === 'team') {
+      this.setState({
+        leaderList: teamUserList.map(item => {
+          return Object.assign(item,{userName:item.name})
+        })
+      },()=>{
+        this.getTeamLeader()
+      })
+      return
+    }
+    this.getExcludeTeamUsers(null)
   }
   render() {
     const {
@@ -967,6 +1001,7 @@ class TeamDetail extends Component {
                         size="large"
                         placeholder="按成员名搜索"
                         getOption={this.getOption.bind(this)}
+                        modalStatus={this.state.transferStatus}
                       />
                       <Table
                         className='leaderListTable'

@@ -37,6 +37,20 @@ export default class CommonSearchInput extends Component{
       })
     }
   }
+  componentWillReceiveProps(nextProps) {
+    const { modalStatus, selectProps } = nextProps;
+    if (!modalStatus && this.props.modalStatus) {
+      if (selectProps.defaultValue) {
+        this.setState({
+          currentOption: selectProps.defaultValue
+        })
+      } else if (selectProps.selectOptions){
+        this.setState({
+          currentOption: selectProps.selectOptions[0].key
+        })
+      }
+    }
+  }
   handleInputChange(e) {
     const { onChange } = this.props;
     this.setState({
@@ -76,7 +90,7 @@ export default class CommonSearchInput extends Component{
       'ant-search-input-focus': this.state.focus,
     });
     const selectBefore = (
-      <Select defaultValue={selectProps && selectProps.defaultValue}
+      <Select defaultValue={selectProps && selectProps.defaultValue} value={this.state.currentOption}
               style={{ width: selectProps && selectProps.selectWidth ? selectProps.selectWidth : '80px' }}
               onChange={this.selectChange.bind(this)}
       >
