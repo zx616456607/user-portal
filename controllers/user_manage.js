@@ -356,3 +356,11 @@ exports.checkUserName = function* () {
   this.body = response
 }
 
+exports.getUsersExclude = function* () {
+  const query = this.query || {}
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const response = yield api.users.getBy(['search'],query)
+  this.status = response.code
+  this.body = response
+}

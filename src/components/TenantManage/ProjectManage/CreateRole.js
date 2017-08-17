@@ -141,7 +141,7 @@ class CreateRoleModal extends Component{
       CreateRole({
         name: roleName,
         comment: roleDesc,
-        permission: checkedKeys
+        pids: checkedKeys.map(item => Number(item))
       },{
         success:{
           func: (res) => {

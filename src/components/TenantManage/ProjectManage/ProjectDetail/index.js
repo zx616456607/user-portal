@@ -25,6 +25,7 @@ import TreeComponent from '../../../TreeForMembers'
 import cloneDeep from 'lodash/cloneDeep'
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
+import isEmpty from 'lodash/isEmpty'
 import CreateRoleModal from  '../CreateRole'
 
 let checkedKeysDetail = []
@@ -69,7 +70,7 @@ class ProjectDetail extends Component{
   componentWillMount() {
     this.getProjectDetail();
     this.getClustersWithStatus();
-    this.getProjectMember();
+    // this.getProjectMember();
     // this.loadRoleList()
   }
   getClustersWithStatus() {
@@ -137,13 +138,16 @@ class ProjectDetail extends Component{
   getProjectDetail() {
     const { name } = this.props.location.query;
     const { GetProjectsDetail } = this.props;
+    const { currentRoleInfo } = this.state;
     GetProjectsDetail({
       projectsName: name
     },{
       success: {
         func: (res) => {
           if (res.statusCode === 200) {
-            if ((res.data.relatedRoles)) {
+            if (!isEmpty(currentRoleInfo)) {
+              this.getCurrentRole(currentRoleInfo.id)
+            } else if ((res.data.relatedRoles)) {
               this.getCurrentRole(res.data.relatedRoles[0].roleId)
             } else {
               this.setState({
@@ -172,8 +176,16 @@ class ProjectDetail extends Component{
   editComment() {
     this.setState({editComment:true})
   }
+  cancelEdit() {
+    const { setFieldsValue } = this.props.form
+    const { projectDetail } = this.state;
+    let oldComment = projectDetail.description;
+    this.setState({editComment:false},()=>{
+      setFieldsValue({'comment': oldComment})
+    })
+  }
   saveComment() {
-    const { getFieldValue } = this.props.form;
+    const { getFieldValue, setFieldsValue } = this.props.form;
     const { UpdateProjects } = this.props;
     const { projectDetail } = this.state;
     let notify = new Notification()
@@ -335,6 +347,7 @@ class ProjectDetail extends Component{
   };
   getCurrentRole(id) {
     const { GetRole, roleWithMembers } = this.props;
+    const { projectDetail } = this.state;
     checkedKeysDetail.length=0
     this.setState({
       checkedKeys:[],
@@ -364,8 +377,8 @@ class ProjectDetail extends Component{
       })
       roleWithMembers({
         roleID: id,
-        scope: 'global',
-        scopeID: 'global'
+        scope: 'project',
+        scopeID: `${projectDetail.pid}`
       },{
         success: {
           func: res => {
@@ -405,7 +418,7 @@ class ProjectDetail extends Component{
             this.formatMember(newArr)
             this.setState({
               memberArr: newArr,
-              totalMemberCount: res.data.listMeta,
+              totalMemberCount: res.data.listMeta.total,
               connectModal:true
             })
           }
@@ -442,7 +455,8 @@ class ProjectDetail extends Component{
       characterModal:true
     })
   }
-  deleteRole(item){
+  deleteRole(e,item){
+    e.stopPropagation()
     this.setState({
       currentDeleteRole:item
     },()=>{
@@ -458,7 +472,7 @@ class ProjectDetail extends Component{
   }
   confirmDeleteRole() {
     const { DeleteProjectsRelatedRoles } = this.props;
-    const { projectDetail, currentDeleteRole } = this.state;
+    const { projectDetail, currentDeleteRole, currentRoleInfo } = this.state;
     let deleteArr = []
     let notify = new Notification()
     deleteArr.push(currentDeleteRole.roleId)
@@ -470,10 +484,12 @@ class ProjectDetail extends Component{
     },{
       success: {
         func: () => {
-          this.getProjectDetail()
-          notify.success('删除角色成功')
           this.setState({
-            deleteRoleModal: false
+            deleteRoleModal: false,
+            currentRoleInfo: currentRoleInfo.id === currentDeleteRole.roleId ? {} : currentRoleInfo
+          },()=>{
+            this.getProjectDetail()
+            notify.success('删除角色成功')
           })
         },
         isAsync: true
@@ -484,7 +500,8 @@ class ProjectDetail extends Component{
           this.setState({
             deleteRoleModal: false
           })
-        }
+        },
+        isAsync: true
       }
     })
   }
@@ -747,7 +764,7 @@ class ProjectDetail extends Component{
       return (
         <li key={item.roleId} className={classNames({'active': currentRoleInfo && currentRoleInfo.id === item.roleId})} onClick={()=>this.getCurrentRole(item.roleId)}>{item.roleName}
           <Tooltip placement="top" title="移除角色">
-            <Icon type="delete" className="pointer" onClick={()=>this.deleteRole(item)}/>
+            <Icon type="delete" className="pointer" onClick={(e)=>this.deleteRole(e,item)}/>
           </Tooltip>
         </li>
       )
@@ -964,26 +981,22 @@ class ProjectDetail extends Component{
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
                         <div className="example-input commonBox">
+                          <Input size="large" disabled={editComment ? false : true} type="textarea" placeholder="备注" {...getFieldProps('comment',{
+                            initialValue: comment
+                          })}/>
                           {
                             editComment ?
-                              <div>
-                                <Input size="large" placeholder="备注" {...getFieldProps('comment',{
-                                  initialValue: comment
-                                })}/>
+                              [
                                 <Tooltip title="取消">
-                                  <i className="anticon anticon-minus-circle-o pointer" onClick={()=> this.setState({editComment:false})}/>
-                                </Tooltip>
+                                  <i className="anticon anticon-minus-circle-o pointer" onClick={()=> this.cancelEdit()}/>
+                                </Tooltip>,
                                 <Tooltip title="保存">
                                   <i className="anticon anticon-save pointer" onClick={()=> this.saveComment()}/>
                                 </Tooltip>
-                              </div>
-                              :
-                              <div>
-                                <span>{projectDetail&&projectDetail.description}</span>
+                              ] :
                                 <Tooltip title="编辑">
                                   <i className="anticon anticon-edit pointer" onClick={()=> this.editComment()}/>
                                 </Tooltip>
-                              </div>
                           }
                         </div>
                       </div>

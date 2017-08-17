@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import classNames from 'classnames';
 import './style/ProjectManage.less'
-import { Row, Col, Button, Card, Table, Modal, Transfer, InputNumber, Pagination  } from 'antd'
+import { Row, Col, Button, Card, Table, Modal, Transfer, InputNumber, Pagination, Checkbox  } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
@@ -53,7 +53,8 @@ class ProjectManage extends Component{
       targetKeys: [],
       roleWithMember: {},
       closeCreateProject: false,
-      originalKeys:[]
+      originalKeys:[],
+      deleteSingleChecked: false
     }
   }
   componentWillMount() {
@@ -223,11 +224,11 @@ class ProjectManage extends Component{
   }
   deleteProject(modal) {
     const { DeleteProjects } = this.props;
-    const { deleteArr } = this.state;
+    const { deleteArr, deleteSinglePro } = this.state;
     let notify = new Notification()
     DeleteProjects({
       body:{
-        projects:deleteArr,
+        projects:[deleteSinglePro[0].projectName],
       }
     },{
       success:{
@@ -535,11 +536,19 @@ class ProjectManage extends Component{
     },()=>{
       browserHistory.replace('/tenant_manage/project_manage?step=first')
     })
-    
+  }
+  deleteProjectFooter() {
+    const { deleteSingleChecked } = this.state;
+    return (
+      <div>
+        <Button type="ghost" size="large" onClick={this.singleCancel.bind(this)}>取消</Button>
+        <Button type="primary" size="large" disabled={!deleteSingleChecked} onClick={()=>this.deleteProject('delSingle')}>确认</Button>
+      </div>
+    )
   }
   render() {
     const step = this.props.location.query.step || '';
-    const { payNumber, selected, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro,projectName,userList } = this.state;
+    const { payNumber, selected, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro,projectName, userList, deleteSingleChecked } = this.state;
     const pageOption = {
       total:  projectList && projectList.length,
       defaultPageSize: 10,
@@ -573,11 +582,6 @@ class ProjectManage extends Component{
           </div>
         </div>
     },
-    //   {
-    //   title: '备注',
-    //   dataIndex: 'description',
-    //   key: 'description',
-    // },
       {
       title: '授权集群',
       dataIndex: 'clusterCount',
@@ -600,19 +604,10 @@ class ProjectManage extends Component{
       title: '创建时间',
       dataIndex: 'creationTime',
       key: 'creationTime',
-      // filters: [{
-      //   text: '2017',
-      //   value: '2017',
-      // }, {
-      //   text: '2016',
-      //   value: '2016',
-      // }],
-      // onFilter: (value, record) => record.creationTime.indexOf(value) === 0,
       render: (data) =>
         <div>
           <div>{data}</div>
         </div>
-
     }, {
       title: '余额',
       dataIndex: 'balance',
@@ -646,10 +641,18 @@ class ProjectManage extends Component{
             <DelProjectTable delData={projectList} updateDeleteArr={this.updateDeleteArr.bind(this)} visible={delModal}/>
           </Modal>
           <Modal title="删除项目" visible={delSingle} width={610}
-                 onCancel={()=> this.singleCancel()}
-                 onOk={()=> this.deleteProject('delSingle')}
+                 onCancel={this.singleCancel.bind(this)}
+                 footer={this.deleteProjectFooter()}
           >
-            <DelProjectTable delData={deleteSinglePro} updateDeleteArr={this.updateDeleteArr.bind(this)} visible={delSingle}/>
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+              <span>删除后该项目的资源也将被清理，此操作不能恢复。</span>
+            </div>
+            <div className="themeColor" style={{marginBottom:'15px'}}>
+              <i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}/>
+              {`您是否确定要删除项目${deleteSinglePro && deleteSinglePro[0] && deleteSinglePro[0].projectName}？`}
+            </div>
+            <Checkbox checked={deleteSingleChecked} onChange={()=>{this.setState({deleteSingleChecked: !deleteSingleChecked})}}>选中此框以确认您要删除此项目。</Checkbox>
           </Modal>
           <Modal title="项目充值" visible={payModal} width={610}
                  onCancel={()=> this.payCancel()}
@@ -706,7 +709,7 @@ class ProjectManage extends Component{
             </Button>
             <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建项目</Button>
             <Button type="ghost" icon="pay-circle-o" size="large" className="manageBtn" onClick={()=> this.pay()}>批量充值</Button>
-            <Button type="ghost" icon={ this.state.loading ? 'loading' : "reload"}  size="large" className="manageBtn" onClick={()=> this.refresh('loading')}>刷新</Button>
+            <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.refresh('loading')}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
             {/*<Button type="ghost" icon="delete" size="large" className="manageBtn" onClick={()=> this.delProject()}>删除</Button>*/}
             <CommonSearchInput placeholder="请输入项目名称进行搜索" size="large" onSearch={this.searchProject.bind(this)}/>
             <Pagination {...pageOption}/>
