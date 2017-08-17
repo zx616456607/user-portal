@@ -27,7 +27,7 @@ class CreateStepFirst extends Component{
     }
   }
   componentWillReceiveProps(nextProps) {
-    const { choosableClusters } = this.state;
+    const { choosableClusters, selectedClusters } = this.state;
     const { step, form, scope } = nextProps;
     if (!step) {
       form.resetFields()
@@ -36,7 +36,7 @@ class CreateStepFirst extends Component{
         choosableClusters: []
       })
     }
-    if (choosableClusters.length === 0) {
+    if (!choosableClusters.length && !selectedClusters.length) {
       this.getAllClusters()
     }
     if (scope.state.closeCreateProject || (step && step !== 'first')) {

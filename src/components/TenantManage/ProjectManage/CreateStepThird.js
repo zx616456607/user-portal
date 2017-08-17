@@ -18,6 +18,7 @@ import { GetRole, roleWithMembers } from '../../../actions/role'
 import TreeComponent from '../../TreeForMembers'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
+import includes from 'lodash/includes'
 
 let checkedKeysThird = []
 class CreateStepThird extends Component{
@@ -47,8 +48,13 @@ class CreateStepThird extends Component{
       })
       return
     }
-    if (this.props.step && step && this.props.step !== 'third' && step === 'third' && !memberArr.length) {
-      // this.getProjectMember()
+    if (this.props.step && step && this.props.step !== 'third' && step === 'third') {
+      let map = {
+        ['RID-LFJKCKtKzCrd']: []
+      }
+      this.setState({
+      
+      })
     }
     if ((RoleKeys.length > 0)) {
       if (isEmpty(currentRoleInfo)) {
@@ -229,12 +235,15 @@ class CreateStepThird extends Component{
       labelCol: { span: 4 },
       wrapperCol: { span: 15, offset: 1 },
     };
+    const disabledArr = ['RID-ggNW6A2mwgEX','RID-LFJKCKtKzCrd']
     const roleList = scope.state.RoleKeys.length > 0 ? scope.state.RoleKeys.map((item)=>{
       return (
         <li onClick={()=>this.getCurrentRole.call(this,item.split(',')[0])} key={item.split(',')[1]}
           className={classNames({'active': currentId === item.split(',')[0]})}>
           {item.split(',')[1]}
-          <Icon type="delete" onClick={(e)=>this.deleteRole(e,item)} className="pointer"/>
+          {
+            !includes(disabledArr,item.split(',')[0]) && <Icon type="delete" onClick={(e)=>this.deleteRole(e,item)} className="pointer"/>
+          }
         </li>
       )
     }) : <li className="pointer" onClick={()=>browserHistory.replace('/tenant_manage/project_manage?step=second')}>请选择角色</li>
@@ -333,7 +342,6 @@ class CreateStepThird extends Component{
 }
 
 function mapStateToThirdProp(state, props) {
-  
   return {
   
   }
