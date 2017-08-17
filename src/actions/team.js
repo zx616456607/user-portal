@@ -69,6 +69,31 @@ export function loadTeamUserList(teamID, query,callback, requiredFields = []) {
   }
 }
 
+export const TEAMALLUSER_LIST_REQUEST = 'TEAMALLUSER_LIST_REQUEST'
+export const TEAMALLUSER_LIST_SUCCESS = 'TEAMALLUSER_LIST_SUCCESS'
+export const TEAMALLUSER_LIST_FAILURE = 'TEAMALLUSER_LIST_FAILURE'
+
+function fertchTeamAllUserList(teamID, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/users`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [TEAMALLUSER_LIST_REQUEST, TEAMALLUSER_LIST_SUCCESS, TEAMALLUSER_LIST_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function loadTeamAllUser(teamID, query, callback) {
+  return (dispatch) => {
+    return dispatch(fertchTeamAllUserList(teamID, query, callback))
+  }
+}
+
 export const TEAMUSER_LIST_STD_REQUEST = 'TEAMUSER_LIST_STD_REQUEST'
 export const TEAMUSER_LIST_STD_SUCCESS = 'TEAMUSER_LIST_STD_SUCCESS'
 export const TEAMUSER_LIST_STD_FAILURE = 'TEAMUSER_LIST_STD_FAILURE'

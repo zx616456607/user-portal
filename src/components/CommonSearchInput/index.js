@@ -10,9 +10,7 @@
 
 
 import React, { Component } from 'react'
-import { Button, Input, Select, } from 'antd'
-import classNames from 'classnames'
-const InputGroup = Input.Group;
+import { Input, Select, } from 'antd'
 const Option = Select.Option;
 import './style/commonSearchInput.less'
 export default class CommonSearchInput extends Component{
@@ -81,14 +79,6 @@ export default class CommonSearchInput extends Component{
   }
   render() {
     const { size, placeholder, selectProps, wrapperWidth } = this.props;
-    const btnCls = classNames({
-      'ant-search-btn': true,
-      'ant-search-btn-noempty': !!this.state.value.trim(),
-    });
-    const searchCls = classNames({
-      'ant-search-input': true,
-      'ant-search-input-focus': this.state.focus,
-    });
     const selectBefore = (
       <Select defaultValue={selectProps && selectProps.defaultValue} value={this.state.currentOption}
               style={{ width: selectProps && selectProps.selectWidth ? selectProps.selectWidth : '80px' }}
@@ -103,16 +93,11 @@ export default class CommonSearchInput extends Component{
     );
     return (
       <div className="ant-search-input-wrapper commonSearchInputWrapper" style={{width: wrapperWidth ? wrapperWidth : '200px'}}>
-        {/*<InputGroup className={searchCls}>*/}
-          <Input placeholder={placeholder} size={size} value={this.state.value} onChange={this.handleInputChange.bind(this)}
-                 onFocus={this.handleFocusBlur.bind(this)} onBlur={this.handleFocusBlur.bind(this)} onPressEnter={this.handleSearch.bind(this)}
-                 addonBefore={selectProps ? selectBefore : null}
-          />
-          <i className='fa fa-search searchIcon verticalCenter pointer' onClick={this.handleSearch.bind(this)}/>
-          {/*<div className="ant-input-group-wrap">*/}
-            {/*<Button icon="search" className={btnCls} size={size} onClick={this.handleSearch.bind(this)} />*/}
-          {/*</div>*/}
-        {/*</InputGroup>*/}
+        <Input placeholder={placeholder} size={size} value={this.state.value} onChange={this.handleInputChange.bind(this)}
+               onFocus={this.handleFocusBlur.bind(this)} onBlur={this.handleFocusBlur.bind(this)} onPressEnter={this.handleSearch.bind(this)}
+               addonBefore={selectProps ? selectBefore : null}
+        />
+        <i className='fa fa-search searchIcon verticalCenter pointer' onClick={this.handleSearch.bind(this)}/>
       </div>
     );
   }
