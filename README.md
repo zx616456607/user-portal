@@ -94,7 +94,7 @@ if (mode === standard) {
 ```
 ### 安装依赖
 ```
-npm run install
+npm run i
 ```
 ### Fork下来之后同步代码
 ```
