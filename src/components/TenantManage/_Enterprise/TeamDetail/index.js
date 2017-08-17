@@ -918,6 +918,7 @@ function mapStateToProp(state, props) {
   let teamAllUserList = []
   let teamUsersTotal = 0
   let teamSpacesTotal = 0
+  let roleNum = 0
   const { team_id, team_name } = props.params
   const team = state.team
   if (team.teamusers) {
@@ -983,6 +984,20 @@ function mapStateToProp(state, props) {
     }
   }
   const userDetail = state.entities.loginUser.info
+  const { roles } = userDetail.info || { roles: [] }
+  if (roles.length) {
+    for (let i = 0; i < roles.length; i++) {
+      if (roles[i] === 'admin') {
+        roleNum = 1;
+        break
+      } else if (roles[i] === 'project-creator') {
+        roleNum = 2;
+        break
+      } else {
+        roleNum = 3
+      }
+    }
+  }
   return {
     teamID: team_id,
     teamName: team_name,
@@ -994,7 +1009,8 @@ function mapStateToProp(state, props) {
     teamSpacesTotal: teamSpacesTotal,
     userDetail,
     teamAllUserIDList,
-    teamAllUserList
+    teamAllUserList,
+    roleNum
   }
 }
 export default connect(mapStateToProp, {

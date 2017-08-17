@@ -342,6 +342,7 @@ class CreateStepThird extends Component{
 }
 
 function mapStateToThirdProp(state, props) {
+  const { info } = state.entities.loginUser
   return {
   
   }
