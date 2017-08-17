@@ -11,26 +11,31 @@
 import React, { Component } from 'react'
 import { Row, Col, Button, Input, Modal, Transfer, Tree, Form } from 'antd'
 import { connect } from 'react-redux'
-import { CreateRole, ExistenceRole } from '../../../../actions/role'
+import { UpdateRole, CreateRole, ExistenceRole, RemovePermissionRole, AddPermissionRole } from '../../../../actions/role'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import { Permission } from '../../../../actions/permission'
-import Notification from '../../../../components/Notification'
+import NotificationHandler from '../../../../components/Notification'
 import './style/index.less'
+import { REG } from '../../../../constants'
 
 class CreateRoleModal extends React.Component{
   constructor(props) {
     super(props)
     this.state = {
+      key: [],
       expandedKeys: [],
       autoExpandParent: true,
       checkedKeys: [],
       selectedKeys: [],
       allPermission: [],
-      permissionCount: 0
+      permissionCount: 0,
+      rowDate: [],
+      rowPermissionID: [],
     }
   }
   componentWillMount() {
     this.getPermission()
+    this.fetchRowDate()
   }
   componentWillUnmount() {
     clearTimeout(this.roleNameTime)
@@ -45,6 +50,31 @@ class CreateRoleModal extends React.Component{
   //     form.resetFields()
   //   }
   // }
+  fetchRowDate(){
+    const { scope, roleId } = this.props
+    scope.props.GetRole({ roleId },{
+      success: {
+        func: res => {
+          if(REG.test(res.data.code)){
+            let result = res.data.data.permissions
+            let aryID = []
+            this.RowData(result)
+            debugger
+            for(let i = 0;i < result.length; i++){
+              aryID.push(`${result[i].id}`)
+            }
+            //this.generateDatas(result)
+            this.setState({
+              rowDate: res.data.data,
+              checkedKeys: aryID,
+              rowPermissionID: aryID,
+            })
+          }
+        }
+      }
+    })
+  }
+
   onExpand(expandedKeys) {
     this.setState({
       expandedKeys,
@@ -64,9 +94,10 @@ class CreateRoleModal extends React.Component{
     const children = [];
     for (let i = 0; i < tns.length; i++) {
       const key = `${tns[i].id}`;
-      tns[i] = Object.assign(tns[i],{title: tns[i].desc,key: tns[i].id})
+      //tns[i] = Object.assign(tns[i],{title: tns[i].desc,key: tns[i].id})
       children.push(key);
     }
+    debugger
     children.forEach((key, index) => {
       if(tns[index]["children"] !== undefined){
         if (tns[index].children.length !== 0) {
@@ -80,11 +111,10 @@ class CreateRoleModal extends React.Component{
     Permission(null,{
       success:{
         func: (res)=>{
-          if (res.data.code === 200) {
+          if (REG.test(res.data.code)) {
             let result = res.data.data.permissions
-            this.generateDatas(result)
             this.setState({
-              allPermission:result
+              allPermission: result
             })
           }
         },
@@ -132,9 +162,13 @@ class CreateRoleModal extends React.Component{
     scope.setState({characterModal:false})
   }
   okCreateModal() {
+    const { isAdd } = this.props
+    isAdd ? this.addInfo() : this.editInfo()
+  }
+  addInfo(){
     const { CreateRole, loadData, scope, form } = this.props;
-    const { checkedKeys } = this.state;
     const { getFieldValue, validateFields } = form;
+    const { checkedKeys } = this.state;
     let notify = new Notification()
     let ary = checkedKeys.map((item, index) => {
       return Number(item)
@@ -152,7 +186,7 @@ class CreateRoleModal extends React.Component{
       },{
         success:{
           func: (res) => {
-            if (res.data.statusCode === 200) {
+            if (REG.test(res.data.statusCode)) {
               notify.success('创建角色成功')
               loadData && loadData()
               scope.setState({characterModal:false})
@@ -168,11 +202,121 @@ class CreateRoleModal extends React.Component{
         }
       })
     })
+  }
+  editInfo(){
+    const { UpdateRole, AddPermissionRole, loadData, scope, form, roleId } = this.props;
+    const { getFieldValue, validateFields } = form;
+    const { rowPermissionID, checkedKeys } = this.state;
+    let notification = new NotificationHandler()
+    let idKey = []
+    this.screenInfo()
+    validateFields((error,values) => {
+      if(!!error) return
+      let body = {
+        name: values.roleName,
+        comment: values.roleDesc
+      }
+      UpdateRole({
+        id: roleId,
+        body
+      },{
+        success:{
+          func: (res) => {
+            if(REG.test(res.data.code)){
+            }
+          }
+        },
+        failed: {
+        func: (err) => {
+          notification.close()
+          notification.error(err)
+        },
+        isAsync: true
+      }
+      })
+      if(rowPermissionID && rowPermissionID.length > 0){
+        checkedKeys.map((item) => {
+          if(rowPermissionID.indexOf(item) === -1){
+            idKey.push(item)
+          }
+        })
+      }
+      let aryKey = idKey.map((item, index) => {
+        return Number(item)
+      })
 
+      if(aryKey && aryKey.length > 0){
+        let bodys = {
+          pids: aryKey
+        }
+        AddPermissionRole({
+          id: roleId,
+          bodys
+        },{
+          success:{
+            func: (res) =>{
+              if(REG.test(res.code)){
+                notification.success(`更新成功`)
+                loadData()
+                scope.setState({
+                  characterModal: false
+                })
+              }
+            }
+          },
+          failed:{
+            func: (err) => {
+              notification.error(`更新失败`)
+            }
+          }
+        })
+      }
+    })
+  }
+  /**
+   *
+   */
+  screenInfo(){
+    let notification = new NotificationHandler()
+    const { RemovePermissionRole } = this.props;
+    const { rowPermissionID, checkedKeys } = this.state
+    let ary = []
+    let arys = []
+    checkedKeys.map((item) => {
+      if(rowPermissionID.indexOf(item) !== -1){
+        ary.push(item)
+      }
+    })
+    rowPermissionID.map((item) => {
+      if(ary.indexOf(item) === -1){
+        arys.push(item)
+      }
+    })
+    if(arys && arys.length > 0){
+      let aryKey = arys.map((item, index) => {
+        return Number(item)
+      })
+      let bodys = {
+        pids: aryKey
+      }
+      RemovePermissionRole({
+        id: this.props.roleId,
+        bodys
+      },{
+        success: {
+          func: (res) => {
+            debugger
+            if(REG.test(res.data.code)){
+              //setTimeout(notification.spin('更新中...'),1000)
+            }
+          }
+        }
+      })
+    }
   }
   render() {
     const TreeNode = Tree.TreeNode;
-    const { allPermission, permissionCount } = this.state;
+    const { allPermission, permissionCount, rowDate, rowPermission } = this.state;
     const { characterModal, form, isAdd } = this.props;
     const { getFieldProps, isFieldValidating, getFieldError } = form;
     const formItemLayout = {
@@ -182,45 +326,54 @@ class CreateRoleModal extends React.Component{
     const loop = data => data.map((item) => {
       if (item["children"] !== undefined) {
         return (
-          <TreeNode key={item.key} title={item.title}>
+          <TreeNode key={item.id} title={item.name}>
             {loop(item.children)}
           </TreeNode>
         )
       }
-      return <TreeNode key={item.key} title={item.title} />;
+      return <TreeNode key={item.id} title={item.name} />;
     });
 
     return (
       <Modal title={this.props.title} wrapClassName="createCharacterModal" visible={characterModal} width={570}
-             onCancel={()=> this.cancelModal()}
-             onOk={()=> this.okCreateModal()}
+        onCancel={()=> this.cancelModal()}
+        onOk={()=> this.okCreateModal()}
       >
         <Form className="createRoleForm" form={this.props.form}>
-          <Form.Item label="名称" {...formItemLayout}
-                     hasFeedback
-                     help={isFieldValidating('roleName') ? '校验中...' : (getFieldError('roleName') || []).join(', ')}
+          <Form.Item label="名称"
+            {...formItemLayout}
+            hasFeedback
+            help={isFieldValidating('roleName') ? '校验中...' : (getFieldError('roleName') || []).join(', ')}
           >
             <Input placeholder="请输入名称" {...getFieldProps(`roleName`, {
               rules: [
                 { validator: (rules,value,callback)=>this.roleName(rules,value,callback)}
               ],
-              initialValue: isAdd ? undefined : ''
-            }) }
+              initialValue: isAdd ? undefined : rowDate.name
+            })}
             />
           </Form.Item>
           <Form.Item label="描述" {...formItemLayout}>
             <Input type="textarea" {...getFieldProps(`roleDesc`, {
-              initialValue: undefined
+              initialValue: isAdd ? undefined : rowDate.comment
             })}/>
           </Form.Item>
         </Form>
         <div className="authChoose">
           <span className="desc">权限选择 :</span>
           <div className="authBox">
-            <div className="authTitle">所有权限 <div className="pull-right">共<span style={{color:'#59c3f5'}}>{allPermission.length}</span> 个</div></div>
+            {
+              this.props.isAdd ?
+              <div className="authTitle">所有权限 <div className="pull-right">共<span style={{color:'#59c3f5'}}>
+                {allPermission.length}</span> 个</div>
+              </div> :
+              <div className="authTitle">共<span style={{color:'#59c3f5'}}>{allPermission.length}</span>个<div className="pull-right">已选<span style={{color:'#59c3f5'}}>
+                {this.state.checkedKeys.length}</span> 个</div>
+              </div>
+            }
             <div className="treeBox">
               {
-                allPermission.length > 0 &&
+                (allPermission.length > 0 ) &&
                 <Tree
                   checkable
                   onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
@@ -244,7 +397,10 @@ function mapStateToSecondProp(state, props) {
   return {}
 }
 export default CreateRoleModal = connect(mapStateToSecondProp, {
+  UpdateRole,
   CreateRole,
   Permission,
   ExistenceRole,
+  AddPermissionRole,
+  RemovePermissionRole,
 })(CreateRoleModal)

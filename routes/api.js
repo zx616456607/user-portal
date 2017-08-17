@@ -558,8 +558,8 @@ module.exports = function (Router) {
   //role
   router.post('/role',roleController.create)
   router.delete('/role/:id',roleController.remove)
-  router.put('/role',roleController.update)
-  router.put('/role/:id/addPermission',roleController.addPermission)
+  router.put('/role/:id',roleController.update)
+  router.post('/role/:id/addPermission',roleController.addPermission)
   router.put('/role/:id/removePermission',roleController.removePermission)
   router.get('/role/:id',roleController.get)
   router.get('/role',roleController.list)
@@ -568,7 +568,7 @@ module.exports = function (Router) {
   router.post('/role/:roleID/:scope/:scopeID',roleController.usersAddRoles)
   router.post('/role/:roleID/:scope/:scopeID/batch-delete',roleController.usersLoseRoles)
   router.get('/role/:roleID/:scope/:scopeID/users',roleController.roleWithMembers)
-  
+
   // package manage
   router.get('/pkg', pkgController.getPkgManageList)
   router.get('/pkg/:id', pkgController.downloadPkg)
