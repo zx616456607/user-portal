@@ -170,9 +170,9 @@ class JoinProjectsModal extends React.Component {
 
   getProjectsByKeys(keys) {
     const { allProjects } = this.props
-    console.log('allProjects', allProjects)
-    console.log('keys', keys)
-    console.log('filter', allProjects.filter(project => keys.indexOf(project.projectID || project.ProjectID) > -1))
+    // console.log('allProjects', allProjects)
+    // console.log('keys', keys)
+    // console.log('filter', allProjects.filter(project => keys.indexOf(project.projectID || project.ProjectID) > -1))
     return allProjects.filter(project => keys.indexOf(project.projectID || project.ProjectID) > -1)
   }
 
@@ -191,7 +191,7 @@ class JoinProjectsModal extends React.Component {
   getRelatedRoles(projectsDetail, projectName) {
     const projectDetail = projectsDetail[projectName] && projectsDetail[projectName] || {}
     const { isFetching } = projectDetail
-    const relatedRoles = projectDetail.data && projectDetail.data.relatedRoles || []
+    const relatedRoles = projectDetail.data && projectDetail.data.data.relatedRoles || []
     return {
       isFetching,
       relatedRoles,
@@ -255,8 +255,9 @@ class JoinProjectsModal extends React.Component {
             key="submit"
             type="primary"
             size="large"
+            disabled={true}
           >
-            确 定
+            确 定(need api)
           </Button>
           ],
         ]}

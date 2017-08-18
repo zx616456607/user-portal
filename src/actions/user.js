@@ -766,3 +766,31 @@ export function usersExcludeOneTeam(query, callback) {
     return dispatch(fetchUsersExcludeOneTeam(query, callback))
   }
 }
+
+export const BIND_ROLES_FOR_USER_REQUEST = 'BIND_ROLES_FOR_USER_REQUEST'
+export const BIND_ROLES_FOR_USER_SUCCESS = 'BIND_ROLES_FOR_USER_SUCCESS'
+export const BIND_ROLES_FOR_USER_FAILURE = 'BIND_ROLES_FOR_USER_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchbindRolesForUser(userId, scope, scopeId, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userId}/${scope}/${scopeId}/roles`
+  return {
+    [FETCH_API]: {
+      types: [BIND_ROLES_FOR_USER_REQUEST, BIND_ROLES_FOR_USER_SUCCESS, BIND_ROLES_FOR_USER_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function bindRolesForUser(userId, scope, scopeId, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchbindRolesForUser(userId, scope, scopeId, body, callback))
+  }
+}

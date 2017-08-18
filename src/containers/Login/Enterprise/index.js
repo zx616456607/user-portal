@@ -94,6 +94,12 @@ let Login = React.createClass({
           func: (err) => {
             let msg = err.message.message || err.message
             let outdated = false
+            if (err.statusCode == 307) {
+              message.warn('由于安全以及管理需要，您需要在首次登录时设置新密码')
+              // @Todo: need api support
+              browserHistory.push('/rpw?email=zhangpc@tenxcloud.com&code=jjqdwd9VWFZS7iqTPgN_&from=login')
+              return
+            }
             if (err.statusCode == 401) {
               msg = "登录名或者密码错误"
             }

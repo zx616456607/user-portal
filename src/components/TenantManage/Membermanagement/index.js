@@ -13,7 +13,7 @@ import { Row, Col, Alert, Button, Input, Select, Menu, Card, Spin, Icon, Table, 
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
-import { loadUserList, createUser, deleteUser, checkUserName, updateUserActive } from '../../../actions/user'
+import { loadUserList, createUser, deleteUser, checkUserName, updateUserActive, loadUserTeams } from '../../../actions/user'
 import { chargeUser } from '../../../actions/charge'
 import { Link } from 'react-router'
 import { parseAmount } from '../../../common/tools'
@@ -24,6 +24,7 @@ import MemberRecharge from '../../AccountModal/_Enterprise/Recharge'
 import { MAX_CHARGE } from '../../../constants'
 import Title from '../../Title'
 import ChargeModal from './ChargeModal'
+import CommonSearchInput from '../../CommonSearchInput'
 // import DeleteModal from './DeleteModal'
 import DeletedUsersModal from './DeletedUsersModal'
 import successPic from '../../../assets/img/wancheng.png'
@@ -45,6 +46,10 @@ let MemberTable = React.createClass({
       delBtnLoading: false,
       delErrorMsg: null,
       copyStatus: false,
+      deactiveUserModal: false,
+      deactiveUserBtnLoading: false,
+      activeRecord: null,
+      userSelectedRowKeys: [],
     }
   },
 
@@ -232,18 +237,20 @@ let MemberTable = React.createClass({
       })
     }
   },
-  handleMenuClick(record, { key }) {
-    if (key === 'delete') {
-      this.setState({ delModal: true, userManage: record })
-      return
-    }
+  changeUserActive() {
     const notification = new NotificationHandler()
+    const record = this.state.activeRecord
     const { active, name } = record
     const userId = record.key
     const { scope } = this.props
     const { updateUserActive, loadUserList } = scope.props
     const { page, pageSize, filter, sort } = scope.state
     const text = active === 2 ? '启用' : '停用'
+    if (active !== 2) {
+      this.setState({
+        deactiveUserBtnLoading: true,
+      })
+    }
     updateUserActive(userId, active, {
       success: {
         func: () => {
@@ -254,15 +261,43 @@ let MemberTable = React.createClass({
             sort: sort,
             filter: filter,
           })
+          active !== 2 && this.setState({
+            deactiveUserModal: false,
+            deactiveUserBtnLoading: false,
+          })
         },
         isAsync: true,
       },
       failed: {
         func: () => {
           notification.error(`${text}用户 ${name} 失败`)
+          active !== 2 && this.setState({
+            deactiveUserBtnLoading: false,
+          })
         }
       }
     })
+  },
+  handleMenuClick(record, { key }) {
+    if (key === 'delete') {
+      this.setState({ delModal: true, userManage: record })
+      const { scope } = this.props
+      const { loadUserTeams } = scope.props
+      loadUserTeams(record.key, { size: 100 })
+      return
+    }
+    const notification = new NotificationHandler()
+    const { active, name } = record
+    this.setState({
+      activeRecord: record,
+    })
+    if (active !== 2) {
+      this.setState({
+        deactiveUserModal: true,
+      })
+      return
+    }
+    this.changeUserActive()
   },
   returnDefaultTooltip() {
     setTimeout(() => {
@@ -279,10 +314,22 @@ let MemberTable = React.createClass({
       copyStatus: true
     })
   },
+  onUserSelectChange(userSelectedRowKeys) {
+    this.setState({ userSelectedRowKeys })
+  },
   render() {
-    let { selectedRowKeys, sortedInfo, filteredInfo, sort, delBtnLoading, delErrorMsg, copyStatus } = this.state
+    let {
+      selectedRowKeys,
+      sortedInfo,
+      filteredInfo,
+      sort,
+      delBtnLoading,
+      delErrorMsg,
+      copyStatus,
+      userSelectedRowKeys
+    } = this.state
     const { searchResult, notFound } = this.props.scope.state
-    const { data, scope, loginUser } = this.props
+    const { data, scope, loginUser, teams } = this.props
 
     let userManageName = this.state.userManage ? this.state.userManage.name : ''
 
@@ -507,6 +554,20 @@ let MemberTable = React.createClass({
         </div>
       )
     }
+    const userRowSelection = {
+      userSelectedRowKeys,
+      onChange: this.onUserSelectChange,
+    }
+    const delteUserTableColumns = [{
+      title: '成员',
+      dataIndex: 'name',
+      key: 'name',
+    }, {
+      title: '类型',
+      dataIndex: 'style',
+      key: 'style',
+      filters: filterKey,
+    }]
     return (
       <div>
         <Table columns={columns}
@@ -554,8 +615,54 @@ let MemberTable = React.createClass({
                   删除后可在已删除成员表单中查看，此操作不可恢复，且平台上不能再次创建同名成员
                 </Col>
               </Row>
-              <i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>
-              您是否确定要删除成员 {userManageName} ?
+              {
+                teams && teams.length > 0 && (
+                  <div>
+                    <Row gutter={16} className="handOverTeam">
+                      <Col span={6}>
+                        <div className="teamList">
+                          <div className="teamListTitle">
+                            团队（{teams.length}）
+                          </div>
+                          <div className="teamListBody">
+                            <Menu
+                              className="teamListBody"
+                              mode="inline"
+                            >
+                              {
+                                teams.map(team => (
+                                  <Menu.Item key={team.teamName}>
+                                    {team.teamName}
+                                  </Menu.Item>
+                                ))
+                              }
+                            </Menu>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col span={18}>
+                      <div className="memberList">
+                        <div className="memberListTitle">
+                          <CommonSearchInput placeholder="请输入搜索内容"/>
+                        </div>
+                        <Table
+                          columns={delteUserTableColumns}
+                          size="middle"
+                          dataSource={data}
+                          pagination={false}
+                          scroll={{ y: 198 }}
+                          rowSelection={userRowSelection}
+                        />
+                      </div>
+                      </Col>
+                    </Row>
+                  </div>
+                )
+              }
+              <div>
+                <i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>
+                您是否确定要删除成员 {userManageName} ?
+              </div>
             </div>
           )
         }
@@ -593,6 +700,33 @@ let MemberTable = React.createClass({
             </div>
           )
         }
+        </Modal>
+
+        <Modal title="停用成员操作"
+          visible={this.state.deactiveUserModal}
+          onCancel={() => this.setState({ deactiveUserModal: false })}
+          wrapClassName="deleteMemberModal"
+          footer={[
+            <Button
+              key="back"
+              type="ghost"
+              size="large"
+              onClick={() => this.setState({ deactiveUserModal: false })}
+            >
+              取 消
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              loading={this.state.deactiveUserBtnLoading}
+              onClick={() => this.changeUserActive()}
+            >
+              确 定
+            </Button>,
+          ]}
+        >
+          停用该成员将不能登录平台，激活后可恢复使用
         </Modal>
       </div>
     )
@@ -772,7 +906,7 @@ class Membermanagement extends Component {
   } */
 
   render() {
-    const { users, checkUserName, loadUserList, userDetail } = this.props
+    const { users, checkUserName, loadUserList, userDetail, teams } = this.props
     const scope = this
     const { visible, memberList, hasSelected, createUserErrorMsg } = this.state
     const searchIntOption = {
@@ -792,9 +926,12 @@ class Membermanagement extends Component {
         <Alert message={`成员是指公司内外共同协作管理和使用平台的人，每个成员创建后都会有一个个人的项目，可在项目中创建个人的资源；系统管理员可在『基础设施』中设置授权给个人项目使用的集群。系统管理员有创建并管理所有系统管理员、团队管理员、普通成员的权限；团队管理员有创建并管理普通成员和对其他团队管理员有查看、充值、加入团队、加入项目的权限`}
           type="info" />
         <Row>
-          <Button type="primary" size="large" onClick={this.showModal} className="Btn">
-            <i className='fa fa-plus' /> 创建新成员
-          </Button>
+          {
+            userDetail.role === ROLE_SYS_ADMIN &&
+            <Button type="primary" size="large" onClick={this.showModal} className="Btn">
+              <i className='fa fa-plus' /> 创建新成员
+            </Button>
+          }
           {
             userDetail.role === ROLE_SYS_ADMIN && (
               <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ chargeModalVisible: true })}>
@@ -805,9 +942,12 @@ class Membermanagement extends Component {
           <Button type="ghost" size="large" className="Btn btn" onClick={this.loadData}>
             <i className='fa fa-refresh' /> &nbsp;刷 新
           </Button>
-          <Button type="dashed" size="large" className="Btn btn" onClick={() => this.setState({ deletedUserModalVisible: true })}>
-            <Icon type="solution" />已删除成员
-          </Button>
+          {
+            userDetail.role === ROLE_SYS_ADMIN &&
+            <Button type="dashed" size="large" className="Btn btn" onClick={() => this.setState({ deletedUserModalVisible: true })}>
+              <Icon type="solution" />已删除成员
+            </Button>
+          }
           {/* <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ deleteModalVisible: true })}>
             <Icon type="delete" />批量删除
           </Button> */}
@@ -846,7 +986,7 @@ class Membermanagement extends Component {
         </Row>
         <Row className="memberList">
           <Card className="memberlist">
-            <MemberTable scope={scope} data={users} loginUser={userDetail} />
+            <MemberTable scope={scope} data={users} loginUser={userDetail} teams={teams} />
           </Card>
         </Row>
         {/* 充值modal */}
@@ -924,10 +1064,20 @@ function mapStateToProp(state) {
       total = users.result.total
     }
   }
+  let teamsData = []
+  const { userTeams } = state.user
+  if (userTeams.result) {
+    if (userTeams.result.teams) {
+      // @Todo need api support
+      // teamsData = userTeams.result.teams.filter(team => team.isAdmin)
+      teamsData = userTeams.result.teams
+    }
+  }
   return {
     users: data,
     total,
-    userDetail
+    userDetail,
+    teams: teamsData,
   }
 }
 
@@ -938,4 +1088,5 @@ export default connect(mapStateToProp, {
   checkUserName,
   chargeUser,
   updateUserActive,
+  loadUserTeams,
 })(Membermanagement)

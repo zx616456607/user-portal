@@ -12,15 +12,15 @@ import { Row, Col, Card, Button, Input, Icon, Form, Modal, Spin, Radio, Checkbox
 import './style/Information.less'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
-import { updateUser } from '../../../actions/user'
+import { updateUser, bindRolesForUser } from '../../../actions/user'
 import { parseAmount } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
-import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN, CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID } from '../../../../constants'
+import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN, CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID, PHONE_REGEX } from '../../../../constants'
 import MemberRecharge from '../_Enterprise/Recharge'
 import { chargeUser } from '../../../actions/charge'
 import { loadLoginUserDetail } from '../../../actions/entities'
 import { loadUserDetail, changeUserRole  } from '../../../actions/user'
-import { MAX_CHARGE }  from '../../../constants'
+import { MAX_CHARGE, EMAIL_REG_EXP }  from '../../../constants'
 
 const RadioGroup = Radio.Group
 const CheckboxGroup = Checkbox.Group
@@ -149,17 +149,24 @@ let ResetPassWord = React.createClass({
   }
 })
 ResetPassWord = createForm()(ResetPassWord);
+
 class Information extends Component {
   constructor(props) {
     super(props)
     this.handleRevise = this.handleRevise.bind(this)
+    this.changeUserRoleModal = this.changeUserRoleModal.bind(this)
     this.resetPsw = this.resetPsw.bind(this)
+    this.handleUpdateUser = this.handleUpdateUser.bind(this)
+    this.resetForm = this.resetForm.bind(this)
+    this.changeUserAuth = this.changeUserAuth.bind(this)
     this.state = {
       revisePass: false,
       number: 10,
       visibleMember: false,// member account
-      selectUserRole: 1
+      selectUserRole: 1,
+      changeUserRoleModal: false,
     }
+    this.userAuth = []
   }
   handleRevise() {
     this.setState({
@@ -257,14 +264,10 @@ class Information extends Component {
       selectUserRole: userDetail ? userDetail.role + 1 : 3
     })
   }
-  Modifycellphone() {
+  changeUserAuthModal() {
+    const { userDetail } = this.props
     this.setState({
-      Modifycellphone: true,
-    })
-  }
-  Modifymailbox() {
-    this.setState({
-      Modifymailbox: true,
+      changeUserAuthModal: true,
     })
   }
   changeUserRoleRequest() {
@@ -300,7 +303,102 @@ class Information extends Component {
         }
       }
     })
-
+  }
+  changeUserAuth() {
+    const { form, userID, bindRolesForUser, loadUserDetail } = this.props
+    const { validateFields } = form
+    const notify = new NotificationHandler()
+    validateFields([ 'roles' ], (errors, values) => {
+      const { roles } = values
+      const bindUserRoles = {
+        roles: roles.filter(role => this.userAuth.indexOf(role) < 0),
+      }
+      const unbindUserRoles = {
+        roles: this.userAuth.filter(role => roles.indexOf(role) < 0),
+      }
+      bindRolesForUser(userID, 'global', 'global', { bindUserRoles, unbindUserRoles }, {
+        success: {
+          func: res => {
+            notify.success('更新用户权限成功')
+            this.setState({
+              changeUserAuthModal: false,
+            })
+            loadUserDetail(userID)
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: () => {
+            notify.error('更新用户权限失败')
+          }
+        }
+      })
+    })
+  }
+  checkTel(rule, value, callback){
+    if(!value){
+      callback()
+      return
+    }
+    if (!PHONE_REGEX.test(value)){
+      callback([new Error('请输入正确的号码')])
+      return
+    }
+    callback()
+  }
+  checkEmail(rule, value, callback) {
+    if (!value) {
+      callback()
+      return
+    }
+    if (!EMAIL_REG_EXP.test(value)) {
+      callback([new Error('邮箱格式错误')])
+      return
+    }
+    callback()
+  }
+  resetForm() {
+    const { form, userDetail } = this.props
+    const { setFieldsValue } = form
+    setFieldsValue({
+      phone: userDetail.phone,
+      email: userDetail.email,
+      comment: userDetail.comment,
+    })
+  }
+  handleUpdateUser(key) {
+    const { form, userID, updateUser, loadUserDetail } = this.props
+    const { validateFields } = form
+    const notify = new NotificationHandler()
+    validateFields([ key ], (errors, values) => {
+      if (!!errors) {
+        console.log(errors)
+        return
+      }
+      console.log(values)
+      updateUser(userID, values, {
+        success: {
+          func: () => {
+            notify.success('更新成功')
+            this.setState({
+              [`${key}ModalVisible`]: false
+            })
+            loadUserDetail(userID)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (res) => {
+            notify.close()
+            if(res.statusCode == 401) {
+              notify.error('权限不足')
+              return
+            }
+            notify.error('更新失败')
+          }
+        }
+      })
+    })
   }
   render() {
     const { revisePass } = this.state
@@ -318,6 +416,46 @@ class Information extends Component {
         roleName = "普通用户"
     }
     let balance = parseAmount(userDetail.balance || 0).amount
+    const { getFieldProps } = form
+    // 手机号
+    const phoneProps = getFieldProps('phone', {
+      rules: [
+        { required: true, message: '请填写手机号' },
+        { validator: this.checkTel },
+      ],
+      initialValue: userDetail.phone,
+    })
+    // 邮箱
+    const emailProps = getFieldProps('email', {
+      rules: [
+        { required: true, message: '请填写邮箱' },
+        { validator: this.checkEmail },
+      ],
+      initialValue: userDetail.email,
+    })
+    // 备注
+    const commentProps = getFieldProps('comment', {
+      initialValue: userDetail.comment,
+    })
+    const { roles, role } = userDetail
+    if (role === ROLE_SYS_ADMIN) {
+      this.userAuth = [ CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID ]
+    } else {
+      this.userAuth = []
+      roles && roles.map(role => {
+        if (role === 'project-creator') {
+          this.userAuth.push(CREATE_PROJECTS_ROLE_ID)
+        } else if (role === 'team-creator') {
+          this.userAuth.push(CREATE_TEAMS_ROLE_ID)
+        }
+      })
+    }
+    console.log(this.userAuth)
+    console.log(this.userAuth)
+    // 权限
+    const rolesProps = getFieldProps('roles', {
+      initialValue: this.userAuth,
+    })
     return (
       <div id='Informations'>
         <div className="Essentialinformation">基本信息</div>
@@ -330,7 +468,7 @@ class Information extends Component {
             <Col span={4}>类型</Col>
             <Col span={8}>{roleName}</Col>
             {
-              userID && userDetail.userName != 'admin' &&
+              userID && userDetail.role != ROLE_SYS_ADMIN &&
               <Col span={10}>
                 <Button style={{width: '80px'}} type="primary" onClick={() => this.changeUserRoleModal()}>
                   修 改
@@ -343,6 +481,7 @@ class Information extends Component {
             <Col span={8}>
               <CheckboxGroup
                 disabled={true}
+                value={ this.userAuth }
                 options={[
                   { label: '可创建项目', value: CREATE_PROJECTS_ROLE_ID },
                   { label: '可创建团队', value: CREATE_TEAMS_ROLE_ID },
@@ -350,9 +489,9 @@ class Information extends Component {
               />
             </Col>
             {
-              userID && userDetail.userName != 'admin' &&
+              userID && userDetail.role != ROLE_SYS_ADMIN &&
               <Col span={10}>
-                <Button style={{width: '80px'}} type="primary" onClick={() => this.changeUserRoleModal()}>
+                <Button style={{width: '80px'}} type="primary" onClick={() => this.changeUserAuthModal()}>
                   修 改
                 </Button>
               </Col>
@@ -361,12 +500,12 @@ class Information extends Component {
           <Row className="Item">
             <Col span={4}>手机</Col>
             <Col span={8}>{userDetail.phone || '-'}</Col>
-            <Col span={10}> <Button type="primary" onClick={() => this.Modifycellphone()}>修改手机</Button></Col>
+            <Col span={10}> <Button type="primary" onClick={() => this.setState({ phoneModalVisible: true })}>修改手机</Button></Col>
           </Row>
           <Row className="Item">
             <Col span={4}>邮箱</Col>
             <Col span={8}>{userDetail.email}</Col>
-            <Col span={10}> <Button type="primary" onClick={() => this.Modifymailbox()}>修改邮箱</Button></Col>
+            <Col span={10}> <Button type="primary" onClick={() => this.setState({ emailModalVisible: true })}>修改邮箱</Button></Col>
           </Row>
           { userDetail && userDetail.type == 1 ? <Row className="Item">
             <Col span={4}>密码</Col>
@@ -395,13 +534,22 @@ class Information extends Component {
             <Col span={8}>{balance}T</Col>
             {/*  system user  */}
             {(ROLE_SYS_ADMIN == this.props.loginUser.role) ?
-              <Col span={4}><Button type="primary" onClick={()=>　this.memberRecharge(userDetail,roleName)}>充值</Button></Col>
+              <Col span={4}>
+                <Button type="primary" onClick={()=>　this.memberRecharge(userDetail,roleName)}>
+                  充值
+                </Button>
+              </Col>
               :null
             }
           </Row>
           <Row className="Item">
             <Col span={4}>备注</Col>
-            <Col span={18}>这是一只小黄鱼 &nbsp;<Icon type="edit" /></Col>
+            <Col span={8}>{userDetail.comment || '-'}</Col>
+            <Col span={4}>
+              <Button type="primary" onClick={()=>　this.setState({ commentModalVisible: true })}>
+                修改
+              </Button>
+            </Col>
           </Row>
         </div>
          {/* 充值modal */}
@@ -423,26 +571,65 @@ class Information extends Component {
             <Radio key="c" value={1}>普通成员</Radio>
           </RadioGroup>
         </Modal>
-        <Modal title="修改用户权限" visible={this.state.changeUserRoleModal} onCancel={() => this.setState({ changeUserRoleModal: false, selectUserRole: userDetail.role + 1 })} onOk={() => this.changeUserRoleRequest()}>
-          <CheckboxGroup
-            disabled={true}
-            options={[
-              { label: '可创建项目', value: CREATE_PROJECTS_ROLE_ID },
-              { label: '可创建团队', value: CREATE_TEAMS_ROLE_ID },
-            ]}
-          />
-        </Modal>
-        <Modal title="修改手机" visible={this.state.Modifycellphone} onCancel={() => this.setState({ Modifycellphone: false})}>
+        <Modal title="修改用户权限"
+          visible={this.state.changeUserAuthModal}
+          onCancel={() => this.setState({ changeUserAuthModal: false })}
+          onOk={this.changeUserAuth}
+        >
           <Form horizontal>
             <FormItem>
-              <Input type="text" placeholder="输入新手机号" />
+              <CheckboxGroup
+                {...rolesProps}
+                options={[
+                  { label: '可创建项目', value: CREATE_PROJECTS_ROLE_ID },
+                  { label: '可创建团队', value: CREATE_TEAMS_ROLE_ID },
+                ]}
+              />
             </FormItem>
           </Form>
         </Modal>
-        <Modal title="修改邮箱" visible={this.state.Modifymailbox} onCancel={() => this.setState({ Modifymailbox: false})}>
+        <Modal
+          title="修改手机"
+          visible={this.state.phoneModalVisible}
+          onCancel={() => {
+            this.setState({ phoneModalVisible: false})
+            this.resetForm()
+          }}
+          onOk={this.handleUpdateUser.bind(this, 'phone')}
+        >
           <Form horizontal>
             <FormItem>
-              <Input type="text" placeholder="输入新邮箱" />
+              <Input type="text" {...phoneProps} placeholder="输入新手机号" />
+            </FormItem>
+          </Form>
+        </Modal>
+        <Modal
+          title="修改邮箱"
+          visible={this.state.emailModalVisible}
+          onCancel={() => {
+            this.setState({ emailModalVisible: false})
+            this.resetForm()
+          }}
+          onOk={this.handleUpdateUser.bind(this, 'email')}
+        >
+          <Form horizontal>
+            <FormItem>
+              <Input type="text" {...emailProps} placeholder="输入新邮箱" />
+            </FormItem>
+          </Form>
+        </Modal>
+        <Modal
+          title="修改备注"
+          visible={this.state.commentModalVisible}
+          onCancel={() => {
+            this.setState({ commentModalVisible: false})
+            this.resetForm()
+          }}
+          onOk={this.handleUpdateUser.bind(this, 'comment')}
+        >
+          <Form horizontal>
+            <FormItem>
+              <Input type="textarea" {...commentProps} placeholder="输入新备注" />
             </FormItem>
           </Form>
         </Modal>
@@ -450,6 +637,8 @@ class Information extends Component {
     )
   }
 }
+
+Information = createForm()(Information)
 
 function mapStateToProp(state, props) {
   const loginUser = state.entities.loginUser.info
@@ -468,5 +657,6 @@ export default connect(mapStateToProp, {
   loadLoginUserDetail, // 登录用户信息
   loadUserDetail,// 用户或者成员信息
   chargeUser,
-  changeUserRole
+  changeUserRole,
+  bindRolesForUser,
 })(Information)

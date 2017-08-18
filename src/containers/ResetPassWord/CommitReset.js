@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Button, Form, Input, message,notification } from 'antd'
+import { Button, Form, Input, message, notification, Alert } from 'antd'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { resetPassword } from '../../actions/user'
@@ -158,14 +158,14 @@ let CommitReset = React.createClass({
     const { resetFields } = this.props.form
     resetFields()
   },
-  
+
   render(){
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
     const { submitting, spendEmail, btnState } = this.state
-    const { email } = this.props
+    const { email, from } = this.props
     const passwdProps = getFieldProps('password', {
       rules: [
         { validator: this.checkPass },
@@ -196,10 +196,18 @@ let CommitReset = React.createClass({
           </div>
         </div> :
         <div>
-          <div className='resetTitle'>
-            重置密码
-          </div>
-          <div className='resetForm' style={{marginTop:20, minWidth: 300}}>
+          {
+            from === 'login'
+            ? (
+              <Alert
+                message="由于安全以及管理需要，您需要在首次登录时设置新密码"
+                type="warning"
+                showIcon
+              />
+            )
+            : <div className='resetTitle'>重置密码</div>
+          }
+          <div className='resetForm' style={{marginTop: 35, minWidth: 300}}>
             <Form>
               <FormItem
                 {...formItemLayout}
