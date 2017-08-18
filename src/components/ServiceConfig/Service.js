@@ -254,8 +254,7 @@ class Service extends Component {
     )
   }
   handleSearchInput(value) {
-    // const searchItem = this.refs.titleInput.refs.input.value
-    const searchItem = value
+    const searchItem = value && value.trim()
     const { labelWithCount } = this.props
     let last = [];
     if(searchItem === "" || (searchItem.indexOf(" ") !== -1)){
@@ -317,17 +316,7 @@ class Service extends Component {
             <Col span={4}>
               <div className="title">配置分类</div>
               <div className="configSearchAndListBox">
-                <div className="searchConfigBox">
-                  <Input
-                    placeholder="请输入分类名搜索"
-                    size="large"
-                    ref='titleInput'
-                    id='titleInput'
-                    value={searchValue}
-                    onChange={(e)=>this.handleSearchInput(e.target.value)}
-                  />
-                  <Icon type="search" className='searchIcon'/>
-                </div>
+                <CommonSearchInput onSearch={(value)=>{this.handleSearchInput(value)}} placeholder="请输入分类名搜索" size="large"/>
                 <div className={classNames("resultCount clearfix",{'hidden': !Boolean(searchValue)})}>
                   <span className="clearSearch pointer" onClick={()=>this.handleSearchInput('')}>
                     <i className="fa fa-arrow-left" aria-hidden="true"/>返回
@@ -365,7 +354,7 @@ class Service extends Component {
                       disabled={!this.state.configArray || this.state.configArray.length < 1}>
                 <i className="fa fa-trash-o" style={{marginRight: '5px'}} />删除
               </Button>
-              <CommonSearchInput onSearch={(value)=>{this.setState({searchConfigName:value})}} placeholder="按配置组名称搜索" size="large"/>
+              <CommonSearchInput onSearch={(value)=>{this.setState({searchConfigName:value && value.trim()})}} placeholder="按配置组名称搜索" size="large"/>
               <CollapseList
                 scope={this}
                 cluster={cluster}
