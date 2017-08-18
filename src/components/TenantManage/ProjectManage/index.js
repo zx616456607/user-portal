@@ -57,7 +57,8 @@ class ProjectManage extends Component{
       userCountSort: true,
       clusterCountSort: true,
       balanceSort: true,
-      manageCountSort: true
+      managerCountSort: true,
+      sort: ''
     }
   }
   componentWillMount() {
@@ -258,32 +259,9 @@ class ProjectManage extends Component{
       }
     })
   }
-  searchProject(value) {
-    const { ListProjects } = this.props;
-    this.setState({tableLoading:true})
-    let filter =  'name,' + value
-    ListProjects({
-     filter
-    },{
-      success:{
-        func: (result)=>{
-          if (result.statusCode === 200) {
-            this.setState({projectList:result.data})
-            this.setState({tableLoading:false})
-          }
-        },
-        isAsync:true
-      },
-      failed:{
-        func: res => {
-
-        },
-        isAsync: true
-      }
-    })
-  }
   loadProjectList(value,n) {
     const { ListProjects } = this.props;
+    const { sort } = this.state;
     this.setState({tableLoading:true})
     let page = n-1 || 0
     let filter =  `name,${value}`
@@ -292,6 +270,7 @@ class ProjectManage extends Component{
       size: 10
     }
     obj = value === null ? obj : Object.assign(obj,{filter})
+    obj = sort === '' ? obj : Object.assign(obj,{sort})
     ListProjects(obj,{
       success:{
         func: (result)=>{
@@ -526,7 +505,6 @@ class ProjectManage extends Component{
     },()=>{
       browserHistory.replace('/tenant_manage/project_manage?step=first')
     })
-
   }
   deleteProjectFooter() {
     const { deleteSingleChecked } = this.state;
@@ -537,7 +515,22 @@ class ProjectManage extends Component{
       </div>
     )
   }
-  handleSort() {
+  handleSort(sortStr) {
+    let currentSort = this.state[sortStr]
+    let sort = this.getSort(currentSort,sortStr)
+    this.setState({
+      [sortStr] : !currentSort,
+      sort
+    },()=>{
+      this.loadProjectList(null)
+    })
+  }
+  getSort(flag,sort) {
+    let str = 'a,'
+    if (flag) {
+      str = 'd,'
+    }
+    return str + sort.slice(0,sort.length - 4)
   }
   render() {
     const step = this.props.location.query.step || '';
@@ -553,11 +546,13 @@ class ProjectManage extends Component{
       title: '项目名',
       dataIndex: 'projectName',
       key: 'projectName',
+      width: '15%',
       render: (text) => <Link to={`/tenant_manage/project_manage/project_detail?name=${text}`}>{text}</Link>,
     }, {
       title: '我是项目的',
       dataIndex: 'role',
       key: 'role',
+      width: '10%',
       filters: [{
         text: '访客',
         value: 'advisor',
@@ -595,6 +590,7 @@ class ProjectManage extends Component{
       ),
       dataIndex: 'clusterCount',
       key: 'clusterCount',
+      width: '10%',
       render: (text) => <span>{text ? text : 0}</span>
     }, {
       title: (
@@ -611,32 +607,30 @@ class ProjectManage extends Component{
         </div>
       ),
       dataIndex: 'userCount',
-      key: 'userCount'
+      key: 'userCount',
+      width: '10%',
     }, {
       title: (
-        <div onClick={()=>this.handleSort('manageCountSort')}>
+        <div onClick={()=>this.handleSort('managerCountSort')}>
           项目管理员
           <div className="ant-table-column-sorter">
-          <span className={this.state.manageCountSort ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+          <span className={this.state.managerCountSort ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
             <i className="anticon anticon-caret-up" />
           </span>
-            <span className={!this.state.manageCountSort ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+            <span className={!this.state.managerCountSort ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
             <i className="anticon anticon-caret-down" />
           </span>
           </div>
         </div>
       ),
-      dataIndex: 'managerCount ',
-      key: 'managerCount ',
-      render: (text) => <span >{text}</span>,
+      dataIndex: 'managerCount',
+      key: 'managerCount',
+      width: '10%',
     }, {
       title: '创建时间',
       dataIndex: 'creationTime',
       key: 'creationTime',
-      render: (data) =>
-        <div>
-          <div>{data}</div>
-        </div>
+      width: '15%',
     }, {
       title: (
         <div onClick={()=>this.handleSort('balanceSort')}>
@@ -653,10 +647,12 @@ class ProjectManage extends Component{
       ),
       dataIndex: 'balance',
       key: 'balance',
+      width: '10%',
       render: (text)=><span className="balanceColor">{parseAmount(text,4).fullAmount}</span>
     }, {
       title: '操作',
       key: 'operation',
+      width: '15%',
       render: (text, record) => (
         <span>
           {
@@ -759,7 +755,7 @@ class ProjectManage extends Component{
               roleNum === 1 && <Button type="ghost" icon="pay-circle-o" size="large" className="manageBtn" onClick={()=> this.pay()}>批量充值</Button>
             }
             <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.loadProjectList(null)}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
-            <CommonSearchInput placeholder="请输入项目名称进行搜索" size="large" onSearch={this.searchProject.bind(this)}/>
+            <CommonSearchInput placeholder="请输入项目名称进行搜索" size="large" onSearch={(value)=>this.loadProjectList(value)}/>
             <Pagination {...pageOption}/>
             <div className="total">共{projectList.listMeta && projectList.listMeta.total || 0}个</div>
           </Row>
