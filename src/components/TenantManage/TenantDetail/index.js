@@ -333,12 +333,12 @@ let TenantDetail = React.createClass({
         </div>
         <div className='lastDetails lastDetailtable' style={{width:'49%',float:'left'}} >
           <div className='title'>权限 （ <span>{permissionDatasource.length}个</span> ）<Button className="Editroles" onClick={()=> this.setState({roleModalVisible:true})} type="ghost">编辑角色</Button></div>
-          <div className="addpermission">
+          {/* <div className="addpermission">
             <Button onClick={()=> this.setState({addpermission:true})} type="primary" size="small">
               <i className="fa fa-plus" aria-hidden="true" style={{marginRight: '8px'}}></i>
               编辑权限
             </Button>
-          </div>
+          </div> */}
           <div className='container'>
             <div className="lastSyncInfo">
               <Table

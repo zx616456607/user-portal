@@ -12,7 +12,7 @@ import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import { Row, Table, Alert, Col, Tree, Form, Menu, Input, Icon, Button, Dropdown, Modal, InputNumber, Pagination, Select, Card, Checkbox, Tooltip } from 'antd'
 import './style/RoleManagement.less'
-import { ListRole, CreateRole, GetRole, DeleteRole } from '../../../actions/role'
+import { ListRole, CreateRole, GetRole, DeleteRole, UpdateRole } from '../../../actions/role'
 import { Permission } from '../../../actions/permission'
 import { formatDate } from '../../../common/tools'
 import SearchInput from './SearchInfo/index'
@@ -21,6 +21,7 @@ import NotificationHandler from '../../../components/Notification'
 import QueueAnim from 'rc-queue-anim'
 import CreateRoleModal from './RoleEditManage/index.js'
 import Roles from './../ProjectManage/CreateRole'
+import { REG } from '../../../constants/index.js'
 
 
 const Option = Select.Option
@@ -37,10 +38,10 @@ class RoleManagement extends React.Component{
       visible: false,
       roelItems: [],
       roleItemTitle: '',
-      roleSize: [],
       isAdd: false,
       loading: true,
       id: '',
+      roleId: '',
       count: 0,
       isChecked: true,
       characterModal: false,
@@ -70,11 +71,11 @@ class RoleManagement extends React.Component{
     ListRole(null,{
       success: {
         func: res => {
-          if(res.data.code === 200){
+          if(REG.test(res.data.code)){
             this.setState({
               loading: false,
               roleData: res.data.data.items,
-              roleSize: res.data.data.size,
+              //roleSizeroleSize: res.data.data.size,
             })
           }
         },
@@ -106,9 +107,9 @@ class RoleManagement extends React.Component{
         this.setState({
           characterModal: true,
           isAdd: false,
-          roleItemTitle: '编辑角色'
+          roleItemTitle: '编辑角色',
+          roleId: item.id,
         })
-
         return
       case 'del':
         this.setState({
@@ -117,36 +118,6 @@ class RoleManagement extends React.Component{
         this.handleDelRole(item.id, item.projectCount)
         return
     }
-  }
-
-  /**
-   * 添加角色
-   * @param {*} state
-   */
-  addRoleInfo(state){
-    const { CreateRole } = this.props
-    let notification = new NotificationHandler()
-    let res = {
-      name: state.name,
-      comment: state.comment,
-      permission: state.ary
-    }
-    CreateRole(null,{
-      success: {
-        func: res => {
-          if(res.data.code === 200){
-            notification.success(`创建角色成功`)
-          }
-        },
-        isAsync: true,
-      },
-      failed: {
-        func: err => {
-          notification.error(`创建角色失败`)
-        },
-        isAsync: true,
-      }
-    })
   }
 
   /**
@@ -162,15 +133,7 @@ class RoleManagement extends React.Component{
   }
 
   /**
-   * 编辑角色
-   * @param {*} id
-   */
-  handleUpdate(id){
-    const {} = this.props
-  }
-
-  /**
-   * 查看权限信息
+   * 查看权限
    * @param {*} id
    */
   handleGetRoleJu(record){
@@ -181,7 +144,7 @@ class RoleManagement extends React.Component{
     GetRole({ roleId: record.id },{
       success: {
         func: res => {
-          if(res.data.code === 200){
+          if(REG.test(res.data.code)){
             let aryID = []
             for(let i = 0;i < res.data.data.permissions.length; i++){
               aryID.push(`${res.data.data.permissions[i].id}`)
@@ -200,7 +163,7 @@ class RoleManagement extends React.Component{
   }
 
   /**
-   * 关闭查看权限
+   * 关闭权限
    */
   handleClose(){
     this.setState({
@@ -230,7 +193,7 @@ class RoleManagement extends React.Component{
   }
 
   /**
-   * SHow角色
+   * 添加角色
    */
   handleRoleitem(){
     this.setState({
@@ -263,7 +226,7 @@ class RoleManagement extends React.Component{
     DeleteRole({ res },{
       success: {
         func: res => {
-          if(res.data.code === 200){
+          if(REG.test(res.data.code)){
             notification.close()
             notification.success(`删除成功`)
             this.setState({
@@ -302,7 +265,7 @@ class RoleManagement extends React.Component{
     permission(null,{
       success: {
         func: res => {
-          if(res.code === 200){
+          if(REG.test(res.code)){
             this.generateDatas(res.code.data)
             this.setState({
               perData: res.data,
@@ -352,7 +315,7 @@ class RoleManagement extends React.Component{
   render() {
     const TreeNode = Tree.TreeNode;
     const { form } = this.props
-    const { roleData, roleSize, Viewpermissions, visible, roleItemTitle, roelItems, isAdd,
+    const { roleData, Viewpermissions, visible, roleItemTitle, roelItems, isAdd, roleId,
       targetKeys, loading, allPermission, checkedKeys } = this.state
     const { selectedRowKeys } = this.state;
     const rowSelection = {
@@ -533,12 +496,13 @@ class RoleManagement extends React.Component{
             form = {form}
             scope = {this}
             isAdd = {isAdd}
+            roleId = {roleId}
             characterModal = {this.state.characterModal}
             loadData = {this.loadData.bind(this)}
         /> : ''
         }
         <Row>
-          <Modal title="查看权限" visible={Viewpermissions} onCancel={this.handleClose.bind(this)} footer={<Button type="primary" onClick={this.handleOk.bind(this)} >知道了</Button>}>
+        <Modal title="查看权限" visible={Viewpermissions} onCancel={this.handleClose.bind(this)} footer={<Button type="primary" onClick={this.handleOk.bind(this)} >知道了</Button>}>
             <p>角色名称
               <Input className="inp" value={this.state.name} disabled/>
             </p>
@@ -585,5 +549,6 @@ export default connect(mapStateToProps, {
   GetRole,
   CreateRole,
   DeleteRole,
+  UpdateRole,
   Permission,
 })(RoleManagement)
