@@ -28,6 +28,7 @@ import xor from 'lodash/xor'
 import isEmpty from 'lodash/isEmpty'
 import includes from 'lodash/includes'
 import CreateRoleModal from  '../CreateRole'
+import { TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID } from '../../../../../constants'
 
 let checkedKeysDetail = []
 class ProjectDetail extends Component{
@@ -148,8 +149,6 @@ class ProjectDetail extends Component{
           if (res.statusCode === 200) {
             if (!isEmpty(currentRoleInfo)) {
               this.getCurrentRole(currentRoleInfo.id)
-            } else if ((res.data.relatedRoles)) {
-              this.getCurrentRole(res.data.relatedRoles[0].roleId)
             } else {
               this.setState({
                 currentRolePermission: [],
@@ -161,6 +160,7 @@ class ProjectDetail extends Component{
               comment:res.data.description
             },()=>{
               this.loadRoleList()
+              this.getCurrentRole(this.state.projectDetail.relatedRoles[0].roleId)
             })
           }
         },
@@ -636,7 +636,7 @@ class ProjectDetail extends Component{
         return '访客'
       }
     }
-    const disabledArr = ['RID-ggNW6A2mwgEX','RID-LFJKCKtKzCrd']
+    const disabledArr = [TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID]
     const loop = data => data.map((item) => {
       if (item['children'] !== undefined) {
         return (

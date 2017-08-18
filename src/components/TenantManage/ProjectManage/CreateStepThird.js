@@ -19,6 +19,7 @@ import TreeComponent from '../../TreeForMembers'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import includes from 'lodash/includes'
+import { TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID } from '../../../../constants'
 
 let checkedKeysThird = []
 class CreateStepThird extends Component{
@@ -38,23 +39,31 @@ class CreateStepThird extends Component{
       memberCount: 0
     }
   }
+  componentWillMount() {
+    const { userInfo, updateRoleWithMember } = this.props;
+    let map = {
+      [TEAM_MANAGE_ROLE_ID]: [userInfo.userID]
+    }
+    let obj = {
+      userID: userInfo.userID,
+      userName: userInfo.userName,
+      id: userInfo.userID
+    }
+    updateRoleWithMember(map)
+    this.setState({
+      roleMap: map,
+      [`member${TEAM_MANAGE_ROLE_ID}`]: [obj]
+    })
+  }
   componentWillReceiveProps(nextProps) {
     const { scope, step, form } = nextProps;
-    const { currentRoleInfo, memberArr } = this.state
+    const { currentRoleInfo } = this.state
     let RoleKeys = scope.state.RoleKeys;
     if (!step || (step && step !== 'third')) {
       this.setState({
         currentRoleInfo: {}
       })
       return
-    }
-    if (this.props.step && step && this.props.step !== 'third' && step === 'third') {
-      let map = {
-        ['RID-LFJKCKtKzCrd']: []
-      }
-      this.setState({
-      
-      })
     }
     if ((RoleKeys.length > 0)) {
       if (isEmpty(currentRoleInfo)) {
@@ -166,7 +175,7 @@ class CreateStepThird extends Component{
     updateRoleWithMember(map)
   }
   getCurrentRole(id) {
-    const { GetRole, roleWithMembers } = this.props;
+    const { GetRole } = this.props;
     const { currentRoleInfo } = this.state;
     if (currentRoleInfo.role && (id === currentRoleInfo.role.id)) {
       return
@@ -235,7 +244,7 @@ class CreateStepThird extends Component{
       labelCol: { span: 4 },
       wrapperCol: { span: 15, offset: 1 },
     };
-    const disabledArr = ['RID-ggNW6A2mwgEX','RID-LFJKCKtKzCrd']
+    const disabledArr = [TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID]
     const roleList = scope.state.RoleKeys.length > 0 ? scope.state.RoleKeys.map((item)=>{
       return (
         <li onClick={()=>this.getCurrentRole.call(this,item.split(',')[0])} key={item.split(',')[1]}
@@ -306,7 +315,7 @@ class CreateStepThird extends Component{
                 </div>
                 <div className="memberTableBox">
                   {
-                    roleMap[currentId] && roleMap[currentId].length > 0 ?
+                    this.state[`member${currentId}`] && this.state[`member${currentId}`].length > 0 ?
                       <Tree
                         checkable multiple
                         checkedKeys={this.numberToString(roleMap[currentId])}
@@ -344,7 +353,7 @@ class CreateStepThird extends Component{
 function mapStateToThirdProp(state, props) {
   const { info } = state.entities.loginUser
   return {
-  
+    userInfo: info
   }
 }
 
