@@ -497,6 +497,7 @@ class RoleManagement extends React.Component{
             scope = {this}
             isAdd = {isAdd}
             roleId = {roleId}
+            isDetail = {false}
             characterModal = {this.state.characterModal}
             loadData = {this.loadData.bind(this)}
         /> : ''
