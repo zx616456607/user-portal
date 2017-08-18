@@ -151,9 +151,6 @@ class ProjectManage extends Component{
     }
     this.goStep(current)
   }
-  delProject() {
-    this.setState({delModal: true})
-  }
   delSingle(e,record) {
     e.stopPropagation()
     this.setState({
@@ -162,7 +159,7 @@ class ProjectManage extends Component{
     })
   }
   singleCancel() {
-    this.setState({delSingle: false})
+    this.setState({delSingle: false, deleteSingleChecked: false})
   }
   pay() {
     this.setState({payModal: true})
@@ -218,10 +215,6 @@ class ProjectManage extends Component{
   changePayNumber(payNumber) {
     this.setState({payNumber})
   }
-  onSelectChange(keys) {
-    const { selected } = this.state;
-    this.setState({selected:keys})
-  }
   deleteProject(modal) {
     const { DeleteProjects } = this.props;
     const { deleteArr, deleteSinglePro } = this.state;
@@ -236,7 +229,7 @@ class ProjectManage extends Component{
           if (res.statusCode === 200) {
             this.refresh('tableLoading')
             notify.success('项目删除成功')
-            this.setState({[modal]:false})
+            this.setState({[modal]:false, deleteSingleChecked: false})
           }
         },
         isAsync:true
@@ -548,7 +541,8 @@ class ProjectManage extends Component{
   }
   render() {
     const step = this.props.location.query.step || '';
-    const { payNumber, selected, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro,projectName, userList, deleteSingleChecked } = this.state;
+    const { roleNum } = this.props;
+    const { payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro,projectName, userList, deleteSingleChecked } = this.state;
     const pageOption = {
       total:  projectList && projectList.length,
       defaultPageSize: 10,
@@ -561,7 +555,7 @@ class ProjectManage extends Component{
       key: 'projectName',
       render: (text) => <Link to={`/tenant_manage/project_manage/project_detail?name=${text}`}>{text}</Link>,
     }, {
-      title: '项目角色',
+      title: '我是项目的',
       dataIndex: 'role',
       key: 'role',
       filters: [{
@@ -570,6 +564,9 @@ class ProjectManage extends Component{
       }, {
         text: '创建者',
         value: 'creator',
+      }, {
+        text: '非项目成员',
+        value: 'admin',
       }],
       onFilter: (value, record) => record.role.indexOf(value) === 0,
       render: (data) =>
@@ -619,8 +616,11 @@ class ProjectManage extends Component{
       key: 'operation',
       render: (text, record) => (
         <span>
-          <Button type='primary' size='large' onClick={(e)=> this.paySingle(e,record)}>充值</Button>
-          <Button type='ghost' size='large' style={{marginLeft:'10px'}} onClick={(e)=>this.delSingle(e,record)}>删除</Button>
+          {
+            roleNum === 1 && <Button type='primary' size='large' onClick={(e)=> this.paySingle(e,record)}>充值</Button>
+          }
+          <Button disabled={roleNum === 3}
+            type='ghost' size='large' style={{marginLeft:'10px'}} onClick={(e)=>this.delSingle(e,record)}>删除</Button>
         </span>
       ),
     }]
@@ -704,13 +704,19 @@ class ProjectManage extends Component{
             />
           </Modal>
           <Row className={classNames({'hidden': step !== ''})}>
-            <Button type='primary' size='large'  className='addBtn' onClick={this.startCreateProject.bind(this)}>
-              <i className='fa fa-plus' /> 创建项目
-            </Button>
-            <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建项目</Button>
-            <Button type="ghost" icon="pay-circle-o" size="large" className="manageBtn" onClick={()=> this.pay()}>批量充值</Button>
+            {
+              (roleNum === 1 || roleNum === 2) &&
+              <Button type='primary' size='large'  className='addBtn' onClick={this.startCreateProject.bind(this)}>
+                <i className='fa fa-plus' /> 创建项目
+              </Button>
+            }
+            {
+              roleNum === 1 && <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建项目</Button>
+            }
+            {
+              roleNum === 1 && <Button type="ghost" icon="pay-circle-o" size="large" className="manageBtn" onClick={()=> this.pay()}>批量充值</Button>
+            }
             <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.refresh('loading')}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
-            {/*<Button type="ghost" icon="delete" size="large" className="manageBtn" onClick={()=> this.delProject()}>删除</Button>*/}
             <CommonSearchInput placeholder="请输入项目名称进行搜索" size="large" onSearch={this.searchProject.bind(this)}/>
             <Pagination {...pageOption}/>
             <div className="total">共{projectList && projectList.length || 0}个</div>
@@ -771,8 +777,24 @@ class ProjectManage extends Component{
 }
 
 function mapStateToProps(state, props) {
+  const { loginUser } = state.entities
+  const { roles } = loginUser.info || { roles: [] }
+  let roleNum = 0
+  if (roles.length) {
+    for (let i = 0; i < roles.length; i++) {
+      if (roles[i] === 'admin') {
+        roleNum = 1;
+        break
+      } else if (roles[i] === 'project-creator') {
+        roleNum = 2;
+        break
+      } else {
+        roleNum = 3
+      }
+    }
+  }
   return {
-  
+    roleNum
   }
 }
 export default connect(mapStateToProps,{

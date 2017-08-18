@@ -207,7 +207,7 @@ exports.verifyUser = function* (next) {
   }
   yield indexService.setUserCurrentConfigCookie.apply(this, [loginUser])
   // Delete sensitive information
-  delete result.userID
+  // delete result.userID
   delete result.statusCode
   delete result.apiToken
   // Get user MD5 encrypted watch token

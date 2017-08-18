@@ -49,7 +49,7 @@ exports.getUserDetail = function* () {
     loginUser.cicdApi = user.cicdApi
     _.merge(loginUser, user)
     // Delete sensitive information
-    delete user.userID
+    // delete user.userID
     delete user.statusCode
     delete user.apiToken
   }

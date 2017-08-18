@@ -194,7 +194,7 @@ let MemberList = React.createClass({
   },
   render: function () {
     let { filteredInfo, current, selectedRowKeys, userName, transferHint} = this.state
-    const { teamUserList, teamUsersTotal } = this.props
+    const { teamUserList, teamUsersTotal, roleNum } = this.props
     filteredInfo = filteredInfo || {}
     const pagination = {
       total: teamUsersTotal,
@@ -250,7 +250,8 @@ let MemberList = React.createClass({
         key: 'edit',
         render: (text, record, index) => (
           <div className="cardBtns">
-            <Button className="delBtn" onClick={(e)=> this.removeMember(e,record) }>
+            <Button disabled={roleNum === 3}
+              className="delBtn" onClick={(e)=> this.removeMember(e,record) }>
               移除成员
             </Button>
           </div>
@@ -726,7 +727,7 @@ class TeamDetail extends Component {
     const {
       teamUserList, teamID,
       teamUsersTotal, removeTeamusers,loadTeamClustersList,
-      loadTeamUserList, form, loadTeamAllUser
+      loadTeamUserList, form, loadTeamAllUser, roleNum
     } = this.props
     const { getFieldProps } = form
     const { targetKeys, teamDetail, selectLeader, editTeamName, delLeaderName } = this.state
@@ -792,6 +793,7 @@ class TeamDetail extends Component {
                           <i className="anticon anticon-save pointer" onClick={()=> this.saveTeamName()}/>
                         </Tooltip>
                       ] :
+                        roleNum !== 3 &&
                         <Tooltip title="编辑">
                           <i className="anticon anticon-edit pointer" onClick={()=> this.editTeamName()}/>
                         </Tooltip>
@@ -828,14 +830,18 @@ class TeamDetail extends Component {
               <Col span={24}>
                 <Row style={{ marginBottom: 20 }}>
                   <Col span={24}>
-                    <Button type="primary" size="large" className="addMemberBtn"
-                            onClick={this.addNewMember}>
-                      <i className='fa fa-plus' /> 编辑团队成员
-                    </Button>
-                    <Button type="ghost" size="large" className="transferTeamLeader"
-                      onClick={this.transferTeamLeader.bind(this)}
-                    >
-                      移交团队</Button>
+                    {
+                      roleNum !== 3 && 
+                      [
+                        <Button type="primary" size="large" className="addMemberBtn"
+                              onClick={this.addNewMember}>
+                          <i className='fa fa-plus' /> 编辑团队成员
+                        </Button>,
+                        <Button type="ghost" size="large" className="transferTeamLeader"
+                              onClick={this.transferTeamLeader.bind(this)}>
+                        移交团队</Button>
+                      ]
+                    }
                     <CommonSearchInput onSearch={this.loadTeamUser.bind(this)} size="large" placeholder="按成员名搜索"/>
                     <div className="userTotalBox">共计 {teamUsersTotal} 条</div>
                     <Modal title="移除成员操作" visible={this.state.delLeaderHint} okText={'去移交团队'}
@@ -893,6 +899,7 @@ class TeamDetail extends Component {
                   <MemberList teamUserList={teamUserList}
                               scope={this}
                               teamID={teamID}
+                              roleNum={roleNum}
                               removeTeamusers={removeTeamusers}
                               loadTeamUserList={loadTeamUserList}
                               loadTeamAllUser={loadTeamAllUser}
@@ -918,6 +925,7 @@ function mapStateToProp(state, props) {
   let teamAllUserList = []
   let teamUsersTotal = 0
   let teamSpacesTotal = 0
+  let roleNum = 0
   const { team_id, team_name } = props.params
   const team = state.team
   if (team.teamusers) {
@@ -983,6 +991,20 @@ function mapStateToProp(state, props) {
     }
   }
   const userDetail = state.entities.loginUser.info
+  const { roles } = userDetail.info || { roles: [] }
+  if (roles.length) {
+    for (let i = 0; i < roles.length; i++) {
+      if (roles[i] === 'admin') {
+        roleNum = 1;
+        break
+      } else if (roles[i] === 'project-creator') {
+        roleNum = 2;
+        break
+      } else {
+        roleNum = 3
+      }
+    }
+  }
   return {
     teamID: team_id,
     teamName: team_name,
@@ -994,7 +1016,8 @@ function mapStateToProp(state, props) {
     teamSpacesTotal: teamSpacesTotal,
     userDetail,
     teamAllUserIDList,
-    teamAllUserList
+    teamAllUserList,
+    roleNum
   }
 }
 export default connect(mapStateToProp, {
