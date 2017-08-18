@@ -292,12 +292,11 @@ let ClusterInfo = React.createClass ({
     const { getFieldProps } = form
     let {
       clusterName, apiHost, apiProtocol,
-      apiVersion, bindingIPs, bindingDomains,
+      apiVersion, bindingIPs,
       description, apiToken, isOk, isBuilder, isDefault
     } = cluster
     const apiUrl = `${apiProtocol}://${apiHost}`
     bindingIPs = parseArray(bindingIPs).join(', ')
-    bindingDomains = parseArray(bindingDomains).join(', ')
     const nameProps = getFieldProps('clusterName',{
       rules: [
         {
