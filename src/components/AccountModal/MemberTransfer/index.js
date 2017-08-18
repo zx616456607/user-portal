@@ -30,6 +30,16 @@ class MemberTransfer extends Component{
   componentWillMount(){
     const { loadUserList } = this.props;
     loadUserList({size: 0})
+    ListProjects({},{
+      success:{
+        func: (result)=>{
+          if (result.statusCode === 200) {
+            this.setState({projectList:result.data})
+          }
+        },
+        isAsync:true
+      }
+    })
   }
   renderItem(item){
     return(

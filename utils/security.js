@@ -98,3 +98,12 @@ exports.decryptContent = function (cryptedContent, privateKey, algorithm) {
     return null
   }
 }
+
+function md5(data) {
+  const Buffer = require('buffer').Buffer
+  const buf = new Buffer(data)
+  let str = buf.toString('binary')
+  return crypto.createHash('md5').update(str).digest('hex')
+}
+
+exports.md5 = md5

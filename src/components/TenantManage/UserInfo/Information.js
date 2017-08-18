@@ -8,22 +8,22 @@
  * @author XuLongcheng
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Button, Input, Icon, Form, Modal, Spin, Radio } from 'antd'
+import { Row, Col, Card, Button, Input, Icon, Form, Modal, Spin, Radio, Checkbox } from 'antd'
 import './style/Information.less'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { updateUser } from '../../../actions/user'
 import { parseAmount } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
-import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
+import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN, CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID } from '../../../../constants'
 import MemberRecharge from '../_Enterprise/Recharge'
 import { chargeUser } from '../../../actions/charge'
 import { loadLoginUserDetail } from '../../../actions/entities'
 import { loadUserDetail, changeUserRole  } from '../../../actions/user'
 import { MAX_CHARGE }  from '../../../constants'
 
-
 const RadioGroup = Radio.Group
+const CheckboxGroup = Checkbox.Group
 const createForm = Form.create;
 const FormItem = Form.Item;
 
@@ -329,7 +329,34 @@ class Information extends Component {
           <Row className="Item">
             <Col span={4}>类型</Col>
             <Col span={8}>{roleName}</Col>
-            {loginUser.role == 2 && userID && userDetail.userName != 'admin' ? <Col span={10}> <Button type="primary" onClick={() => this.changeUserRoleModal()}>修改</Button></Col> : ''}
+            {
+              userID && userDetail.userName != 'admin' &&
+              <Col span={10}>
+                <Button style={{width: '80px'}} type="primary" onClick={() => this.changeUserRoleModal()}>
+                  修 改
+                </Button>
+              </Col>
+            }
+          </Row>
+          <Row className="Item">
+            <Col span={4}>权限</Col>
+            <Col span={8}>
+              <CheckboxGroup
+                disabled={true}
+                options={[
+                  { label: '可创建项目', value: CREATE_PROJECTS_ROLE_ID },
+                  { label: '可创建团队', value: CREATE_TEAMS_ROLE_ID },
+                ]}
+              />
+            </Col>
+            {
+              userID && userDetail.userName != 'admin' &&
+              <Col span={10}>
+                <Button style={{width: '80px'}} type="primary" onClick={() => this.changeUserRoleModal()}>
+                  修 改
+                </Button>
+              </Col>
+            }
           </Row>
           <Row className="Item">
             <Col span={4}>手机</Col>
@@ -385,28 +412,37 @@ class Information extends Component {
         >
           <MemberRecharge parentScope={this} visible={this.state.visibleMember}/>
         </Modal>
-        <Modal title="修改用户角色" visible={this.state.changeUserRoleModal} onCancel={() => this.setState({ changeUserRoleModal: false, selectUserRole: userDetail.role + 1 })} onOk={() => this.changeUserRoleRequest()}>
+        <Modal title="修改用户角色"
+          visible={this.state.changeUserRoleModal}
+          onCancel={() => this.setState({ changeUserRoleModal: false, selectUserRole: userDetail.role + 1 })}
+          onOk={() => this.changeUserRoleRequest()}
+        >
           <RadioGroup onChange={(e) => {this.setState({ selectUserRole: e.target.value })}}  value={this.state.selectUserRole}>
             <Radio key="a" value={3}>系统管理员</Radio>
-            <Radio key="b" value={2}>团队管理员</Radio>
+            {/* <Radio key="b" value={2}>团队管理员</Radio> */}
             <Radio key="c" value={1}>普通成员</Radio>
           </RadioGroup>
         </Modal>
+        <Modal title="修改用户权限" visible={this.state.changeUserRoleModal} onCancel={() => this.setState({ changeUserRoleModal: false, selectUserRole: userDetail.role + 1 })} onOk={() => this.changeUserRoleRequest()}>
+          <CheckboxGroup
+            disabled={true}
+            options={[
+              { label: '可创建项目', value: CREATE_PROJECTS_ROLE_ID },
+              { label: '可创建团队', value: CREATE_TEAMS_ROLE_ID },
+            ]}
+          />
+        </Modal>
         <Modal title="修改手机" visible={this.state.Modifycellphone} onCancel={() => this.setState({ Modifycellphone: false})}>
           <Form horizontal>
-            <FormItem
-              hasFeedback
-              >
-              <Input  type="text" placeholder="输入新手机号" />
+            <FormItem>
+              <Input type="text" placeholder="输入新手机号" />
             </FormItem>
           </Form>
         </Modal>
         <Modal title="修改邮箱" visible={this.state.Modifymailbox} onCancel={() => this.setState({ Modifymailbox: false})}>
           <Form horizontal>
-            <FormItem
-              hasFeedback
-              >
-              <Input  type="text" placeholder="输入新邮箱" />
+            <FormItem>
+              <Input type="text" placeholder="输入新邮箱" />
             </FormItem>
           </Form>
         </Modal>

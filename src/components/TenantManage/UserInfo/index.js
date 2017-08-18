@@ -49,7 +49,7 @@ class UserInfo extends Component {
 
         <Title title={userID ? '成员管理' : '我的帐户'} />
         <Row className="content">
-          <Link className="back" to="/tenant_manage/membermanagement">
+          <Link className="back" to="/tenant_manage/user">
             <span className="backjia"></span>
             <span className="btn-back">返回</span>
           </Link>

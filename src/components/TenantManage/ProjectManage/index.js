@@ -26,6 +26,8 @@ import CommonSearchInput from '../../../components/CommonSearchInput'
 import CreateStepFirst from './CreateStepFirst'
 import CreateStepSecond from './CreateStepSecond'
 import CreateStepThird from './CreateStepThird'
+import { CREATE_PROJECTS_ROLE_ID } from '../../../../constants'
+
 class ProjectManage extends Component{
   constructor(props) {
     super(props)
@@ -67,6 +69,7 @@ class ProjectManage extends Component{
       }
     }
   }
+
   componentWillReceiveProps(nextProps) {
     const step = nextProps.location.query.step;
     if (step) {
@@ -200,7 +203,7 @@ class ProjectManage extends Component{
   refresh(loading) {
     const { ListProjects } = this.props;
     this.setState({[loading]:true})
-    ListProjects({},{},{
+    ListProjects({},{
       success:{
         func: (result)=>{
           if (result.statusCode === 200) {
@@ -278,7 +281,7 @@ class ProjectManage extends Component{
     const { ListProjects } = this.props;
     this.setState({tableLoading:true})
     let filter =  'name,' + value
-    ListProjects({},{
+    ListProjects({
      filter
     },{
       success:{
@@ -292,7 +295,7 @@ class ProjectManage extends Component{
       },
       failed:{
         func: res => {
-        
+
         },
         isAsync: true
       }
@@ -303,7 +306,7 @@ class ProjectManage extends Component{
     this.setState({tableLoading:true})
     let page = n || 0
     let filter =  `name,${value}&size,10&page,${page}`
-    ListProjects({},{
+    ListProjects({
       filter
     },{
       success:{
@@ -316,7 +319,7 @@ class ProjectManage extends Component{
       },
       failed:{
         func: res => {
-        
+
         },
         isAsync: true
       }
@@ -339,7 +342,7 @@ class ProjectManage extends Component{
             userList:res
           },()=>{
             roleWithMembers({
-              roleID:'RID-Ezeg3KPhm3mS',
+              roleID:CREATE_PROJECTS_ROLE_ID,
               scope:'global',
               scopeID:'global'
             },{
@@ -359,6 +362,12 @@ class ProjectManage extends Component{
               }
             })
           })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (res) => {
+
         },
         isAsync: true
       }
@@ -391,7 +400,7 @@ class ProjectManage extends Component{
     const { usersAddRoles } = this.props;
     let notify = new Notification()
     usersAddRoles({
-      roleID:'RID-Ezeg3KPhm3mS',
+      roleID:CREATE_PROJECTS_ROLE_ID,
       scope: 'global',
       scopeID: 'global',
       body: {
@@ -426,7 +435,7 @@ class ProjectManage extends Component{
     const { usersLoseRoles } = this.props;
     let notify = new Notification()
     usersLoseRoles({
-      roleID:'RID-Ezeg3KPhm3mS',
+      roleID:CREATE_PROJECTS_ROLE_ID,
       scope: 'global',
       scopeID: 'global',
       body: {
@@ -529,6 +538,7 @@ class ProjectManage extends Component{
     },()=>{
       browserHistory.replace('/tenant_manage/project_manage?step=first')
     })
+
   }
   deleteProjectFooter() {
     const { deleteSingleChecked } = this.state;
@@ -763,7 +773,7 @@ class ProjectManage extends Component{
               <CreateStepThird scope={this} step = {step}  updateRole={this.updateRole.bind(this)}  updateRoleWithMember={this.updateRoleWithMember.bind(this)}/>
             </div>
           </div>
-    
+
           <div className={classNames('createBtnBox',{'hidden': step === ''})}>
             <Button size="large" onClick={this.closeProjectCreate.bind(this)}>取消</Button>
             <Button size="large" className={classNames({'hidden': step === '' || step === 'first'})} onClick={()=> this.goBack()}>上一步</Button>

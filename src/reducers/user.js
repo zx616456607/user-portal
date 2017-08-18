@@ -141,9 +141,12 @@ export default function user(state = {
   userDetail: {},
   users: [],
   teams: {},
+  userTeams: {},
+  projects: {},
   teamspaces: [],
   teamspaceDetails: [],
-  userAppInfo: {}
+  userAppInfo: {},
+  deletedUsers: {},
  }, action) {
   return {
     userDetail: userDetail(state.userDetail, action),
@@ -179,6 +182,16 @@ export default function user(state = {
       SUCCESS: ActionTypes.USER_TEAM_LIST_SUCCESS,
       FAILURE: ActionTypes.USER_TEAM_LIST_FAILURE
     }, state.teams, action, option),
+    userTeams: reducerFactory({
+      REQUEST: ActionTypes.USER_TEAMS_REQUEST,
+      SUCCESS: ActionTypes.USER_TEAMS_SUCCESS,
+      FAILURE: ActionTypes.USER_TEAMS_FAILURE
+    }, state.userTeams, action, option),
+    projects: reducerFactory({
+      REQUEST: ActionTypes.USER_PROJECTS_REQUEST,
+      SUCCESS: ActionTypes.USER_PROJECTS_SUCCESS,
+      FAILURE: ActionTypes.USER_PROJECTS_FAILURE
+    }, state.projects, action, option),
     teamspaces: reducerFactory({
       REQUEST: ActionTypes.USER_TEAMSPACE_LIST_REQUEST,
       SUCCESS: ActionTypes.USER_TEAMSPACE_LIST_SUCCESS,
@@ -193,6 +206,11 @@ export default function user(state = {
       REQUEST: ActionTypes.UPDATE_USER_ROLE_REQUEST,
       SUCCESS: ActionTypes.UPDATE_USER_ROLE_SUCCESS,
       FAILURE: ActionTypes.UPDATE_USER_ROLE_FAILURE
-    }, state.updateUserRole, action, option)
+    }, state.updateUserRole, action, option),
+    deletedUsers: reducerFactory({
+      REQUEST: ActionTypes.GET_DELETED_USERS_REQUEST,
+      SUCCESS: ActionTypes.GET_DELETED_USERS_SUCCESS,
+      FAILURE: ActionTypes.GET_DELETED_USERS_FAILURE
+    }, state.deletedUsers, action, option),
   }
 }

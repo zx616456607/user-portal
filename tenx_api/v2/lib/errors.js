@@ -94,7 +94,13 @@ class InvalidHttpCodeError extends Error {
 
 function get(res) {
   const statusCode = res.statusCode
-  const data = res.data || {}
+  let data = res.data || {}
+  if (typeof data === 'string') {
+    try {
+      data = JSON.parse(data)
+    } catch (error) {
+    }
+  }
   const requestUrls = res.requestUrls
   if (requestUrls && requestUrls.length > 0) {
     logger.error(`request urls error: ${res.requestUrls.join(', ')}`)

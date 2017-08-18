@@ -751,8 +751,8 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 概览</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key="membermanagement">
-                    <Link to='/tenant_manage/membermanagement'>
+                  <Menu.Item key="user">
+                    <Link to='/tenant_manage/user'>
                       <span><div className='sideCircle'></div> 成员管理</span>
                     </Link>
                   </Menu.Item>
