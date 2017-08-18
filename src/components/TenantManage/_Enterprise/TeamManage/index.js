@@ -234,7 +234,7 @@ let TeamTable = React.createClass({
   render() {
     let { sortedInfo, filteredInfo, targetKeys, sort } = this.state
     const { searchResult, notFound, filter } = this.props.scope.state
-    const { data, scope, teamUserIDList } = this.props
+    const { data, scope, teamUserIDList, roleNum } = this.props
     filteredInfo = filteredInfo || {}
     sortedInfo = sortedInfo || {}
     const pagination = {
@@ -316,24 +316,6 @@ let TeamTable = React.createClass({
         key: 'member',
         width:'10%',
       },
-      // {
-      //   title: (
-      //     <div onClick={this.handleSortCluster}>
-      //       参与项目
-      //       <div className="ant-table-column-sorter">
-      //         <span className={this.state.sortCluster ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
-      //           <i className="anticon anticon-caret-up" />
-      //         </span>
-      //         <span className={!this.state.sortCluster ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
-      //           <i className="anticon anticon-caret-down" />
-      //         </span>
-      //       </div>
-      //     </div>
-      //   ),
-      //   dataIndex: 'cluster',
-      //   key: 'cluster',
-      //   width:'10%',
-      // },
       {
         title: (
           <div onClick={this.handleSortCreateTime}>
@@ -377,8 +359,10 @@ let TeamTable = React.createClass({
           return (
             <div className="addusers">
               <div className="Deleterechargea">
-                <Button type="primary" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加团队成员</Button>
-                <Button className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
+                <Button disabled={roleNum ===3}
+                  type="primary" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加团队成员</Button>
+                <Button disabled={roleNum ===3}
+                  className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
               </div>
             </div>
           )
@@ -756,7 +740,7 @@ class TeamManage extends Component {
     const scope = this
     const { visible, deleteTeamModal, allTeamList, userList, targetKeys } = this.state
     const {
-      teams, addTeamusers, loadUserTeamList,
+      teams, addTeamusers, loadUserTeamList, roleNum,
       teamUserIDList, loadTeamUserList, checkTeamName
     } = this.props
     const searchIntOption = {
@@ -774,12 +758,17 @@ class TeamManage extends Component {
           包含『团队空间』这一逻辑隔离层，以实现对应您企业内部各个不同项目，或者不同逻辑组在云平台上操作对象的隔离，团队管理员可见对应团队的所有空间的应用等对象。`}
                  type="info" />
           <Row className="teamOption">
-            <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
-              <i className='fa fa-plus' /> 创建团队
-            </Button>
-            <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建团队</Button>
+            {
+              roleNum !== 3 &&
+                <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
+                  <i className='fa fa-plus' /> 创建团队
+                </Button>
+            }
+            {
+              roleNum === 1 &&
+                <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建团队</Button>
+            }
             <Button type="host" size="large" className="refreshBtn" onClick={this.refreshTeamTable.bind(this)}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
-            {/*<Button type="host" size="large" className="deleteBtn" onClick={()=>this.deleteTeamModal()}><Icon type="delete" />删除</Button>*/}
             <CreateTeamModal
               scope={scope}
               visible={visible}
@@ -832,6 +821,7 @@ class TeamManage extends Component {
           <Row className="teamList">
             <Card>
               <TeamTable data={teams}
+                         roleNum={roleNum}
                          scope={scope}
                          addTeamusers={addTeamusers}
                          loadUserTeamList={loadUserTeamList}
@@ -857,10 +847,13 @@ function mapStateToProp(state, props) {
   let teamsData = []
   let total = 0
   let data = []
+  let roleNum = 0
   let teamUserIDList = []
   const team = state.team
   const teams = state.user.teams
   const userDetail = state.entities.loginUser.info
+  const { loginUser } = state.entities
+  const { roles } = loginUser.info || { roles: [] }
   let teamSpacesList = []
   if (teams.result) {
     if (teams.result.teams) {
@@ -896,12 +889,26 @@ function mapStateToProp(state, props) {
   if (team.teamspaces.result) {
     teamSpacesList = team.teamspaces.result.data
   }
+  if (roles.length) {
+    for (let i = 0; i < roles.length; i++) {
+      if (roles[i] === 'admin') {
+        roleNum = 1;
+        break
+      } else if (roles[i] === 'team-creator') {
+        roleNum = 2;
+        break
+      } else {
+        roleNum = 3
+      }
+    }
+  }
   return {
     teams: data,
     total,
     teamUserIDList: teamUserIDList,
     teamSpacesList,
-    userDetail
+    userDetail,
+    roleNum
   }
 }
 

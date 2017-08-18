@@ -113,6 +113,19 @@
     .appliedStatus{
       background-color: #dffbed;
       color: #0dd86f;
+      position: relative;
+      .anticon-cross{
+        position: absolute;
+        right: 5px;
+        top: 10px;
+        display: none;
+        cursor: pointer;
+      }
+      &:hover{
+        .anticon-cross{
+          display: inline-block;
+        }
+      }
     }
     .rejectStatus{
       background-color: #fef0ef;
@@ -124,8 +137,11 @@
     .ant-input{
       width: 80%;
     }
-    .anticon{
-      margin-left: 5px;
+    .commonBox{
+      max-width: 300px;
+      .anticon{
+        margin-left: 15px;
+      }
     }
   }
 
@@ -198,6 +214,9 @@
     }
   }
   .projectMember{
+    .connectCard{
+      padding-bottom: 20px;
+    }
     .connectLeft{
       .leftTitle{
         margin-bottom: 20px;
@@ -215,6 +234,8 @@
       border-radius: 4px;
       border: 1px solid #dadada;
       width: 130px;
+      max-height: 328px;
+      overflow-y: auto;
       li{
         font-size: 14px;
         width: 100%;
@@ -345,7 +366,7 @@
 }
 .projectDetailClusterStatus2{
   color: #0dd86f;
-  margin-right: 50px;
+  margin-right: 16px;
 }
 .projectDetailClusterStatus3{
   color: #f1633b;

@@ -20,12 +20,21 @@ class CreateStepSecond extends Component{
     this.state={
       targetKeys: [],
       characterModal: false,
-      selectedList: [],
       choosableList: []
     }
   }
-  componentWillMount() {
-    this.loadRoleList()
+  componentWillReceiveProps(nextProps) {
+    const { step, scope } = nextProps;
+    const { choosableList } = this.state;
+    if (scope.state.closeCreateProject) {
+      this.setState({
+        targetKeys: [],
+        choosableList: []
+      })
+    }
+    if (this.props.step && step && this.props.step !== 'second' && step === 'second' && !choosableList.length) {
+      this.loadRoleList()
+    }
   }
   componentWillUnmount() {
     clearTimeout(this.roleNameTime)

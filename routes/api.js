@@ -195,7 +195,7 @@ module.exports = function (Router) {
   router.put('/users/:user_id/teams', userController.updateTeamsUserBelongTo)
   router.put('/users/:user_id/:active', userController.updateUserActive)
   router.get('/users/softdeleted', userController.getSoftdeletedUsers)
-
+  router.get('/users/search', userController.getUsersExclude)
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
@@ -562,8 +562,8 @@ module.exports = function (Router) {
   //role
   router.post('/role',roleController.create)
   router.delete('/role/:id',roleController.remove)
-  router.put('/role',roleController.update)
-  router.put('/role/:id/addPermission',roleController.addPermission)
+  router.put('/role/:id',roleController.update)
+  router.post('/role/:id/addPermission',roleController.addPermission)
   router.put('/role/:id/removePermission',roleController.removePermission)
   router.get('/role/:id',roleController.get)
   router.get('/role',roleController.list)

@@ -12,7 +12,7 @@ import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import { Row, Table, Alert, Col, Tree, Form, Menu, Input, Icon, Button, Dropdown, Modal, InputNumber, Pagination, Select, Card, Checkbox, Tooltip } from 'antd'
 import './style/RoleManagement.less'
-import { ListRole, CreateRole, GetRole, DeleteRole } from '../../../actions/role'
+import { ListRole, CreateRole, GetRole, DeleteRole, UpdateRole } from '../../../actions/role'
 import { Permission } from '../../../actions/permission'
 import { formatDate } from '../../../common/tools'
 import SearchInput from './SearchInfo/index'
@@ -21,6 +21,7 @@ import NotificationHandler from '../../../components/Notification'
 import QueueAnim from 'rc-queue-anim'
 import CreateRoleModal from './RoleEditManage/index.js'
 import Roles from './../ProjectManage/CreateRole'
+import { REG } from '../../../constants/index.js'
 
 
 const Option = Select.Option
@@ -29,29 +30,27 @@ class RoleManagement extends React.Component{
   constructor(props){
     super(props)
     this.state = {
-      //visible: false,
       selectedRowKeys: [],
       Viewpermissions:false,
       Deleteroles:false,
-      mockData: [],
       targetKeys: [],
-      sortedInfo: null,
-      filteredInfo: null,
-
       roleData: [],
       visible: false,
       roelItems: [],
       roleItemTitle: '',
-      roleSize: [],
       isAdd: false,
       loading: true,
-
       id: '',
+      roleId: '',
       count: 0,
       isChecked: true,
-
       characterModal: false,
       perData: [],
+      allPermission: [],
+      checkedKeys: [],
+      name:'',
+      comment:'',
+      autoExpandParent: true
     }
   }
 
@@ -72,19 +71,13 @@ class RoleManagement extends React.Component{
     ListRole(null,{
       success: {
         func: res => {
-          if(res.data.code === 200){
+          if(REG.test(res.data.code)){
             this.setState({
               loading: false,
               roleData: res.data.data.items,
-              roleSize: res.data.data.size,
+              //roleSizeroleSize: res.data.data.size,
             })
           }
-        },
-        isAsync: true,
-      },
-      failed: {
-        func: err => {
-          //
         },
         isAsync: true,
       }
@@ -96,17 +89,8 @@ class RoleManagement extends React.Component{
   }
   handleChange( filters, sorter) {
     this.setState({
-      sortedInfo: sorter,
-      filteredInfo: filters,
-    });
-  }
-  setAgeSort(e) {
-    e.preventDefault();
-    this.setState({
-      sortedInfo: {
-        order: 'descend',
-        columnKey: 'age',
-      },
+      //sortedInfo: sorter,
+      //filteredInfo: filters,
     });
   }
   loadListRole(){
@@ -121,10 +105,10 @@ class RoleManagement extends React.Component{
     switch(value.key){
       case 'edit':
         this.setState({
-          roelItems: item,
-          visible: true,
+          characterModal: true,
           isAdd: false,
-          roleItemTitle: '编辑角色'
+          roleItemTitle: '编辑角色',
+          roleId: item.id,
         })
         return
       case 'del':
@@ -134,36 +118,6 @@ class RoleManagement extends React.Component{
         this.handleDelRole(item.id, item.projectCount)
         return
     }
-  }
-
-  /**
-   * 添加角色
-   * @param {*} state
-   */
-  addRoleInfo(state){
-    const { CreateRole } = this.props
-    let notification = new NotificationHandler()
-    let res = {
-      name: state.name,
-      comment: state.comment,
-      permission: state.ary
-    }
-    CreateRole(null,{
-      success: {
-        func: res => {
-          if(res.data.code === 200){
-            notification.success(`创建角色成功`)
-          }
-        },
-        isAsync: true,
-      },
-      failed: {
-        func: err => {
-          notification.error(`创建角色失败`)
-        },
-        isAsync: true,
-      }
-    })
   }
 
   /**
@@ -179,37 +133,67 @@ class RoleManagement extends React.Component{
   }
 
   /**
-   * 查看权限信息
+   * 查看权限
    * @param {*} id
    */
-  handleGetRoleJu(info){
+  handleGetRoleJu(record){
     this.setState({
-      Viewpermissions: true
+      Viewpermissions: true,
     })
     const { GetRole } = this.props
-    let res = {
-      ID: info.id
-    }
-    // GetRole({ res },{
-    //   success: {
-    //     func: res => {
-    //       if(res.code === 200){
-
-    //       }
-    //     },
-    //     isAsync: true
-    //   },
-    //   failed: {
-    //     func: res => {
-
-    //     },
-    //     isAsync: true
-    //   }
-    // })
+    GetRole({ roleId: record.id },{
+      success: {
+        func: res => {
+          if(REG.test(res.data.code)){
+            let aryID = []
+            for(let i = 0;i < res.data.data.permissions.length; i++){
+              aryID.push(`${res.data.data.permissions[i].id}`)
+            }
+            this.setState({
+              name: res.data.data.name,
+              comment:res.data.data.comment,
+              allPermission: res.data.data.permissions,
+              checkedKeys: aryID
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
   }
 
   /**
-   * SHow角色
+   * 关闭权限
+   */
+  handleClose(){
+    this.setState({
+      Viewpermissions: false
+    })
+  }
+
+  onCheck(checkedKeys) {
+    this.setState({
+      checkedKeys
+    });
+  }
+
+  /**
+   *
+   */
+  handleOk(){
+    this.setState({
+      Viewpermissions: false
+    })
+  }
+  onExpand(expandedKeys) {
+    this.setState({
+      expandedKeys,
+      autoExpandParent: false,
+    });
+  }
+
+  /**
+   * 添加角色
    */
   handleRoleitem(){
     this.setState({
@@ -242,7 +226,7 @@ class RoleManagement extends React.Component{
     DeleteRole({ res },{
       success: {
         func: res => {
-          if(res.data.code === 200){
+          if(REG.test(res.data.code)){
             notification.close()
             notification.success(`删除成功`)
             this.setState({
@@ -281,7 +265,7 @@ class RoleManagement extends React.Component{
     permission(null,{
       success: {
         func: res => {
-          if(res.code === 200){
+          if(REG.test(res.code)){
             this.generateDatas(res.code.data)
             this.setState({
               perData: res.data,
@@ -318,19 +302,26 @@ class RoleManagement extends React.Component{
     })
   }
 
+  /**
+   * 模糊搜索
+   * @param {*} data
+   */
+  handleSearch(data){
+    this.setState({
+      roleData: data ? data.items : []
+    })
+  }
+
   render() {
+    const TreeNode = Tree.TreeNode;
     const { form } = this.props
-    const { roleData, roleSize, Viewpermissions, visible, roleItemTitle, roelItems, isAdd, mockData
-    , targetKeys, loading } = this.state
+    const { roleData, Viewpermissions, visible, roleItemTitle, roelItems, isAdd, roleId,
+      targetKeys, loading, allPermission, checkedKeys } = this.state
     const { selectedRowKeys } = this.state;
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
     };
-    const hasSelected = selectedRowKeys.length > 0;
-    let { sortedInfo, filteredInfo } = this.state;
-    sortedInfo = sortedInfo || {};
-    filteredInfo = filteredInfo || {};
     const columns = [{
       title: '角色名称',
       dataIndex: 'name',
@@ -395,14 +386,12 @@ class RoleManagement extends React.Component{
       title: '创建时间 / 更新时间',
       dataIndex: 'createdTime',
       width:'20%',
-      filters: [{
-        text: '2017',
-        value: '2017',
-      }, {
-        text: '2016',
-        value: '2016',
-      }],
-      onFilter: (value, record) => record.Times.indexOf(value) === 0,
+      // filters: [
+      //   { text: '2017', value: '2017' },
+      //   { text: '2016', value: '2016' }
+      // ],
+      // onFilter: (value, record) => record.Times.indexOf(value) === 0,
+      sorter: (a, b) => a.createdTime - b.createdTime,
       render: (text, record, index) => <div>
         <span className='createdTime'>{formatDate(record.createdTime)}</span><br/>
         <span className='updatedTime'>{formatDate(record.updatedTime)}</span>
@@ -413,11 +402,10 @@ class RoleManagement extends React.Component{
       render: (text, record, index) => <div>
          {
            //dropDown[index]
-          text == '研'
-          ? <Button type="primary" onClick={this.handleGetRoleJu.bind(this, record)}><Icon type="eye"/>查看权限</Button>
-          : <Dropdown.Button overlay={dropDown[index]} type="ghost">
-              <Icon type="eye" />
-              查看权限
+          text == '研'?
+          <Button type="primary" onClick={this.handleGetRoleJu.bind(this, record)}><Icon type="eye"/>查看权限</Button> :
+          <Dropdown.Button overlay={dropDown[index]} type="ghost" onClick={this.handleGetRoleJu.bind(this, record)}>
+            <Icon type="eye" />查看权限
           </Dropdown.Button>
         }
       </div>
@@ -430,13 +418,22 @@ class RoleManagement extends React.Component{
       defaultSearchValue: 'name',
       placeholder: '请输入关键词搜索',
     }
-
     const selectBefore = (
       <Select className="bag" defaultValue="jsmt" style={{width:'80px'}}>
         <Option value="jsmt">角色名称</Option>
         <Option value="cjr">创建人</Option>
       </Select>
     )
+    const loop = data => data.map((item) => {
+      if (item["children"] !== undefined) {
+        return (
+          <TreeNode key={item.id} title={item.name} disableCheckbox>
+            {loop(item.children)}
+          </TreeNode>
+        )
+      }
+      return <TreeNode key={item.id} title={item.name} disableCheckbox/>;
+    });
     const scope = this
 
     return(
@@ -456,34 +453,13 @@ class RoleManagement extends React.Component{
               <i className='fa fa-trash-o' />删除
             </Button> */}
           </div>
-          {/* <div className='rightBox'>
-            <div className='littleLeft'>
-              <i className='fa fa-search' onClick={this.handleSearch} />
-            </div>
-            <div className='littleRight'>
-              <Input
-                className="put bag"
-                addonBefore={selectBefore}
-                size='large'
-                placeholder='请输入关键词搜索'
-                style={{paddingRight: '28px',width:'180px'}}/>
-            </div>
-          </div> */}
-          <SearchInput scope={scope} searchIntOption={searchIntOption} />
+          <SearchInput scope={scope} searchIntOption={searchIntOption} Search ={this.handleSearch.bind(this)} />
           <div className='pageBox'>
             <span className='totalPage'>共计{ roleData.length }条</span>
           </div>
-           {/* {
-            roleData.data
-            ? <div className='pageBox'>
-              <span className='totalPage'>共计 { roleData.data.size } 条</span>
-            </div>
-            : null
-          } */}
           <div className='clearDiv'></div>
         </div>
         <div className='appBox'>
-          {/* rowSelection={rowSelection} */}
           <Table
             columns={rolecolumns}
             dataSource={roleData}
@@ -492,17 +468,6 @@ class RoleManagement extends React.Component{
             loading={loading}
           />
         </div>
-        {/* <Roleitem
-          scope={this}
-          visible={visible}
-          roleTitle={roleItemTitle}
-          isAdd={isAdd}
-          data={roelItems}
-          mockData={mockData}
-          targetKeys={targetKeys}
-          addRole={this.addRoleInfo.bind(this)}
-        >
-        </Roleitem> */}
         <Row>
           <Modal title="删除角色操作" visible={this.state.Deleteroles} onOk={this.handleOkDel.bind(this)} onCancel={this.handleCancel.bind(this)} >
              <div className="createRolesa">
@@ -530,32 +495,42 @@ class RoleManagement extends React.Component{
             title = {this.state.roleItemTitle}
             form = {form}
             scope = {this}
+            isAdd = {isAdd}
+            roleId = {roleId}
             characterModal = {this.state.characterModal}
             loadData = {this.loadData.bind(this)}
         /> : ''
         }
-         <Modal title="查看权限" visible={this.state.Viewpermissions} footer={<Button type="primary" onClick={this.handleOk}>知道了</Button>} onCancel={this.handleCancel} >
-          <p className="createRolesa">角色名称<Input style={{width:'50%',marginLeft:'50px'}} placeholder="请填写角色名称"/></p>
-          <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
-          <div className="authChoose">
-          <span>已有权限</span>
-          <div className="authBox inlineBlock">
-            <div className="authTitle clearfix"><div className="pull-right">共<span style={{color:'#59c3f5'}}>0</span> 个</div></div>
-            <div className="treeBox">
-              {
-                <Tree
-                  checkable
-                  onExpand={() => this.onExpand()} expandedKeys={this.state.expandedKeys}
-                  autoExpandParent={this.state.autoExpandParent}
-                  onCheck={() => this.onCheck()} checkedKeys={this.state.checkedKeys}
-                  onSelect={() => this.onSelect()} selectedKeys={this.state.selectedKeys}
-                >
-                </Tree>
-              }
+        <Row>
+        <Modal title="查看权限" visible={Viewpermissions} onCancel={this.handleClose.bind(this)} footer={<Button type="primary" onClick={this.handleOk.bind(this)} >知道了</Button>}>
+            <p>角色名称
+              <Input className="inp" value={this.state.name} disabled/>
+            </p>
+            <p>备注
+              <Input className="inp" style={{marginLeft:53}} value={this.state.comment} disabled/>
+            </p>
+            <div className="authChoose" style={{marginTop: 10}}>
+              <span>已有权限</span>
+              <div className="authBox">
+                <div className="authTitle clearfix"><div className="pull-left">共<span style={{color:'#59c3f5'}}>{allPermission.length}</span> 个</div></div>
+                <div className="treeBox">
+                  {
+                    allPermission.length > 0 &&
+                    <Tree
+                      checkable
+                      autoExpandParent={this.state.autoExpandParent}
+                      onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
+                      onCancel={this.handleClose.bind(this)}
+                      onOk={this.handleOk.bind(this)}
+                    >
+                      {loop(allPermission)}
+                    </Tree>
+                  }
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
         </Modal>
+        </Row>
       </div>
       </QueueAnim>
     )
@@ -574,5 +549,6 @@ export default connect(mapStateToProps, {
   GetRole,
   CreateRole,
   DeleteRole,
+  UpdateRole,
   Permission,
 })(RoleManagement)

@@ -10,10 +10,8 @@
 import React, { Component } from 'react'
 import { Row, Col, Transfer,Checkbox, Cascader, Form } from 'antd'
 import './style/MemberTransfer.less'
-import { addTeamusers, removeTeamusers} from '../../../actions/team'
+import { addTeamusers, removeTeamusers } from '../../../actions/team'
 import { loadUserList } from '../../../actions/user'
-import { ListProjects } from '../../../actions/project'
-
 import { connect } from 'react-redux'
 const FormItem = Form.Item;
 
@@ -30,7 +28,7 @@ class MemberTransfer extends Component{
     return option.title.indexOf(inputValue) > -1;
   }
   componentWillMount(){
-    const { ListProjects,loadUserList } = this.props;
+    const { loadUserList } = this.props;
     loadUserList({size: 0})
     ListProjects({},{
       success:{
@@ -54,7 +52,7 @@ class MemberTransfer extends Component{
   selectedChange(value,option) {
   }
   render(){
-    const { onChange,targetKeys,userList } = this.props
+    const { onChange, targetKeys, userList } = this.props
     const { getFieldProps } = this.props.form;
     const areaData = [{
       value: 'shanghai',
@@ -139,12 +137,11 @@ function mapStateToProp(state,props) {
     }
   }
   return {
-    userList: userList,
+    userList: userList
   }
 }
 export default connect(mapStateToProp, {
   addTeamusers,
   loadUserList,
   removeTeamusers,
-  ListProjects
 })(Form.create()(MemberTransfer))

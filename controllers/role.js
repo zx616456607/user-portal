@@ -41,8 +41,9 @@ exports.get = function* () {
 exports.update = function* (){
 	const loginUser = this.session.loginUser
 	const body = this.request.body
+	const id = this.params.id
 	const api = apiFactory.getRoleApi(loginUser)
-  const result = yield api.update('',body)
+  const result = yield api.update(id, body)
   this.body = {
   	data: result
   }
@@ -65,11 +66,10 @@ exports.addPermission = function* (){
   const id = this.params.id
   const body = this.request.body
   const api = apiFactory.getRoleApi(loginUser)
-  const result = yield api.updateBy([id,'addPermission'],null,body)
+  const result = yield api.createBy([id,'addPermission'],null,body)
   this.body = {
     data: result
   }
-
 }
 
 exports.removePermission = function* (){
@@ -77,11 +77,10 @@ exports.removePermission = function* (){
   const id = this.params.id
   const body = this.request.body
   const api = apiFactory.getRoleApi(loginUser)
-  const result = yield api.updateBy([id,'removePermission'],null,body)
+  const result = yield api.createBy([id,'removePermission'],null,body)
   this.body = {
     data: result
   }
-
 }
 
 exports.list = function* (){

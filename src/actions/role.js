@@ -79,14 +79,13 @@ export const ROLE_GET_FAILURE = 'ROLE_GET_FAILURE'
 function fetchGetRole(body,callback){
 	let endpoint = `${API_URL_PREFIX}/role/${body.roleId}`
 	return {
-		[FETCH_API]: {
+    [FETCH_API]: {
       types: [ROLE_GET_REQUEST, ROLE_GET_SUCCESS, ROLE_GET_FAILURE],
       endpoint,
       schema: {},
     },
-    //id: body.id,
     callback
-	}
+  }
 }
 
 // Fetches get role from API
@@ -103,8 +102,9 @@ export const ROLE_UPDATE_FAILURE = 'ROLE_UPDATE_FAILURE'
 
 // Fetches get update from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUpdateRole(body,callback){
-	let endpoint = `${API_URL_PREFIX}/role`
+function fetchUpdateRole(query,callback){
+  let endpoint = `${API_URL_PREFIX}/role/${query.id}`
+  let body = query.body
 	return {
 		[FETCH_API]: {
       types: [ROLE_UPDATE_REQUEST, ROLE_UPDATE_SUCCESS, ROLE_UPDATE_FAILURE],
@@ -167,14 +167,13 @@ export const ROLE_ADDPERMISSION_FAILURE = 'ROLE_ADDPERMISSION_FAILURE'
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchAddPermissionRole(body,callback){
 	let endpoint = `${API_URL_PREFIX}/role/${body.id}/addPermission`
-  let data = body.body
 	return {
 		[FETCH_API]: {
       types: [ROLE_ADDPERMISSION_REQUEST, ROLE_ADDPERMISSION_SUCCESS, ROLE_ADDPERMISSION_FAILURE],
       endpoint,
       options: {
-        method: 'PUT',
-        data
+        method: 'POST',
+        body: body.bodys
       },
       schema: {},
     },
@@ -204,8 +203,8 @@ function fetchRemovePermissionRole(body,callback){
       types: [ROLE_REMOVEPERMISSION_REQUEST, ROLE_REMOVEPERMISSION_SUCCESS, ROLE_REMOVEPERMISSION_FAILURE],
       endpoint,
       options: {
-        method: 'PUT',
-        body: body.body
+        method: 'POST',
+        body: body.bodys
       },
       schema: {},
     },
@@ -350,7 +349,7 @@ export const ROLE_GET_SEARCH_FAILURE = 'ROLE_GET_SEARCH_FAILURE'
 function fetchGetSearchInfo(body, callback){
   let endpoint = `${API_URL_PREFIX}/role`
   if (body) {
-    endpoint += `?filter=${toQuerystring(body.info)}`
+    endpoint += `?filter=${body.value}`
   }
 	return {
 		[FETCH_API]: {

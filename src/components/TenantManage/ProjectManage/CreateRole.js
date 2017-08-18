@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Row, Col, Button, Input, Modal, Transfer, Tree, Form } from 'antd'
+import { Input, Modal, Tree, Form } from 'antd'
 import { connect } from 'react-redux'
 import { CreateRole, ExistenceRole } from '../../../actions/role'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
@@ -80,10 +80,11 @@ class CreateRoleModal extends Component{
       success:{
         func: (res)=>{
           if (res.data.statusCode === 200) {
-            let result = res.data.data;
+            let result = res.data.data.permissions;
             this.generateDatas(result)
             this.setState({
-              allPermission:result
+              allPermission:result,
+              permissionCount:res.data.data.total
             })
           }
         },
@@ -120,10 +121,6 @@ class CreateRoleModal extends Component{
     },ASYNC_VALIDATOR_TIMEOUT)
   }
   roleDesc(rule, value, callback) {
-    if (!value) {
-      callback(new Error('请输入描述'))
-      return
-    }
     callback()
   }
   cancelModal() {
@@ -144,7 +141,7 @@ class CreateRoleModal extends Component{
       CreateRole({
         name: roleName,
         comment: roleDesc,
-        permission: checkedKeys
+        pids: checkedKeys.map(item => Number(item))
       },{
         success:{
           func: (res) => {

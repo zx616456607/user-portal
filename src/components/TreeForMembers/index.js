@@ -63,6 +63,7 @@ class TreeComponent extends Component {
     let rightInfo = []
     let checkedKeys = []
     let originalMembers = []
+    
     for (let i = 0; i < existMember.length; i++) {
       for (let j = 0; j < outPermission.length; j++) {
         if (outPermission[j].id === existMember[i]) {
@@ -352,15 +353,6 @@ class TreeComponent extends Component {
       this.isReadyCheck()
     })
   }
-  
-  returnTotalNum = data => {
-    let totalNum = 0
-    if(data){
-      let totalArray = this.transformMultiArrayToLinearArray(data)
-      totalNum = totalArray.length
-    }
-    return totalNum
-  }
   isReadyCheck = () => {
     const { permissionInfo, alreadyCheckedKeys} = this.state;
     if ((permissionInfo.length > 0) && (alreadyCheckedKeys.length > 0) && (permissionInfo.length === alreadyCheckedKeys.length)) {
@@ -375,7 +367,7 @@ class TreeComponent extends Component {
   }
   render() {
     const { outPermissionInfo, permissionInfo, disableCheckArr, alreadyAllChecked } = this.state
-    const { text } = this.props
+    const { text, memberCount, roleMember } = this.props
     const loopFunc = data => data.length >0 && data.map((item) => {
       if (item.users) {
         return (
@@ -402,7 +394,7 @@ class TreeComponent extends Component {
             <div className='leftBox'>
               <div className='header'>
                 <Checkbox onClick={this.selectAll}>可选{text}</Checkbox>
-                <div className='numberBox'>共 <span className='number'>{this.returnTotalNum(outPermissionInfo)}</span> 条</div>
+                <div className='numberBox'>共 <span className='number'>{memberCount}</span> 条</div>
               </div>
               <div className='body'>
                 <div >
@@ -442,7 +434,7 @@ class TreeComponent extends Component {
             <div className='rightBox'>
               <div className='header'>
                 <Checkbox onClick={this.alreadySelectAll} checked={alreadyAllChecked}>已选{text}</Checkbox>
-                <div className='numberBox'>共 <span className='number'>{this.returnTotalNum(permissionInfo)}</span> 条</div>
+                <div className='numberBox'>共 <span className='number'>{roleMember}</span> 条</div>
               </div>
               <div className='body'>
                 <div>

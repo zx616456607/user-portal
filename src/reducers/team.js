@@ -19,6 +19,7 @@ export default function team(state = {
   teamClusters: [],
   allClusters: [],
   teamusers: [],
+  teamAllusers: [],
   teamusersStd: [],
   invitationInfo: {},
   teamDissoveable: {},
@@ -40,6 +41,11 @@ export default function team(state = {
       SUCCESS: ActionTypes.TEAMUSER_LIST_SUCCESS,
       FAILURE: ActionTypes.TEAMUSER_LIST_FAILURE
     }, state.teamusers, action, options),
+    teamAllusers: reducerFactory({
+      REQUEST: ActionTypes.TEAMALLUSER_LIST_REQUEST,
+      SUCCESS: ActionTypes.TEAMALLUSER_LIST_SUCCESS,
+      FAILURE: ActionTypes.TEAMALLUSER_LIST_FAILURE
+    }, state.teamAllusers, action, options),
     teamusersStd: reducerFactory({
       REQUEST: ActionTypes.TEAMUSER_LIST_STD_REQUEST,
       SUCCESS: ActionTypes.TEAMUSER_LIST_STD_SUCCESS,

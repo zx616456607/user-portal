@@ -51,7 +51,7 @@ exports.getUserDetail = function* () {
     loginUser.cicdApi = user.cicdApi
     _.merge(loginUser, user)
     // Delete sensitive information
-    delete user.userID
+    // delete user.userID
     delete user.statusCode
     delete user.apiToken
   }
@@ -442,3 +442,11 @@ function* getSoftdeletedUsers() {
   this.body = response
 }
 exports.getSoftdeletedUsers = getSoftdeletedUsers
+exports.getUsersExclude = function* () {
+  const query = this.query || {}
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const response = yield api.users.getBy(['search'],query)
+  this.status = response.code
+  this.body = response
+}

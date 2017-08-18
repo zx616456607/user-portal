@@ -24,6 +24,7 @@ export const EMAIL_REG_EXP = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/
 export const VERSION_REG_EXP = /\bv\d\.\d\.\d/
 export const URL_REG_EXP = /^https?:\/\/(([a-zA-Z0-9_-])+(\.)?)*(:\d+)?(\/((\.)?(\?)?=?&?[a-zA-Z0-9_-](\?)?)*)*$/i
 export const SEARCH = /(^\s+)|(\s+$)/g
+export const REG = /^(?:2)\d{2}$/
 export const HOST = 'localhost:8003'
 export const AVATAR_HOST = 'https://dn-tenx-avatars.qbox.me/'
 

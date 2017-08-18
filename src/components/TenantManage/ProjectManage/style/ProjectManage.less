@@ -1,5 +1,5 @@
 #account_projectManage {
-  padding: 30px;
+  padding: 30px 30px 50px;
   .addBtn {
     font-weight: normal;
     background-color: #2db7f5;
@@ -11,7 +11,7 @@
   .manageBtn{
     font-weight: normal;
     float: left;
-    margin-left: 10px;
+    margin-right: 10px;
     background-color: white;
   }
   .manageBtn:last-of-type{
@@ -21,7 +21,10 @@
     display: inline-block;
     line-height: 35px;
     float: right;
-    margin-right: 160px;
+    margin-right: 20px;
+  }
+  .ant-pagination{
+    float: right;
   }
   .ant-card {
     overflow: inherit;
@@ -44,10 +47,10 @@
     -webkit-align-items: center;
     .goBackBtn{
       width: 60px;
-      height: 30px;
-      line-height: 30px;
+      height: 28px;
+      line-height: 28px;
       text-indent: 20px;
-      color: #ffffff;
+      color: #ecf7fd;
       background: url("../../../../assets/img/tenantManage/goBackBtn.png") no-repeat;
     }
     i{
@@ -62,6 +65,84 @@
     background-color: white;
     border-radius: 3px;
     padding: 30px;
+    .stepBox{
+    margin: 0;
+    display: flex;
+    justify-content:space-around;
+    li:not(:last-of-type) {
+      margin-right: 30px;
+    }
+    li{
+      flex: auto;
+      font-size: 14px;
+      text-align: center;
+      padding: 0 20px;
+      line-height: 40px;
+      background: #ebeff2;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      color: #717274;
+      position: relative;
+      span{
+        border: 1px solid #d0d1d3;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        line-height: 16px;
+        margin-right: 10px;
+      }
+      &:after{
+        content: '';
+        display: block;
+        border-top: 20px solid transparent;
+        border-bottom: 20px solid transparent;
+        border-left: 20px solid #ebeff2;
+        position: absolute;
+        right: -20px;
+        top: 0;
+        z-index: 10;
+      }
+      &:before{
+        content: '';
+        display: block;
+        border-top: 20px solid #ebeff2;
+        border-bottom: 20px solid #ebeff2;
+        border-left: 20px solid transparent;
+        position: absolute;
+        left: -20px;
+        top: 0;
+      }
+      &:first-child{
+        border-radius: 4px 0 0 4px;
+        padding-left: 25px;
+      }
+      &:last-child{
+        border-radius: 0px 4px 4px 0px;
+        padding-right: 25px;
+      }
+      &:first-of-type:before{
+        display: none;
+      }
+      &:last-of-type:after{
+        display: none;
+      }
+    }
+    .active{
+      color: #ffffff;
+      background-color: #2db7f5;
+      span{
+        border-color: #ffffff;
+      }
+      &:after{
+        border-left-color: #2db7f5;
+      }
+      &:before{
+        border-top-color: #2db7f5;
+        border-bottom-color: #2db7f5;
+      }
+    }
+  }
     .createTip{
       margin-top: 30px;
     }
@@ -77,6 +158,14 @@
     background-color: white;
     button{
       margin-right: 10px;
+    }
+  }
+  .ant-table-thead{
+    tr{
+      th{
+        background-color: #ffffff;
+        border-bottom: 1px solid #e9e9e9;
+      }
     }
   }
 }
@@ -114,8 +203,31 @@
     display: inline-flex;
     justify-content: space-between;
     .btnList{
-      width: 50px;
+      width: 70px;
       cursor: pointer;
+      position: relative;
+      .triangle {
+        display: none;
+        width: 0;
+        height: 0;
+        border-bottom: 0 solid transparent;
+        border-top: 19px solid transparent;
+        border-right: 23px solid #00a1ec;
+        font-size: 0;
+        line-height: 0;
+        position: absolute;
+        top: 14px;
+        right: 0;
+        i {
+          display: none;
+          font-size: 8px;
+          position: absolute;
+          right: -22px;
+          bottom: -2px;
+          z-index: 2;
+          color: #fff
+        }
+      }
     }
     .btnList,input{
       height: 35px;
@@ -129,17 +241,44 @@
       width: 30px;
       line-height: 35px;
       border:none;
-      margin-left: -20px;
+      margin-left: -10px;
     }
     .active{
       border-color: #2cb6f5;
       color: #2cb6f5;
+      .triangle{
+        display: inline-block;
+        i{
+          display: inline-block;
+        }
+      }
     }
   }
 }
 
 .payModal{
   font-size: 14px;
+  table{
+    thead{
+      tr{
+        th{
+          //text-align: center;
+        }
+      }
+    }
+    tbody{
+      tr{
+        td{
+          //text-align: center;
+        }
+      }
+      .payTableRow{
+        .balanceColor{
+          color: #69bd67;
+        }
+      }
+    }
+  }
   .payBtnBox{
     dt{
       line-height: 30px;
@@ -152,6 +291,29 @@
       .btnList{
         width: 70px;
         cursor: pointer;
+        position: relative;
+        .triangle {
+          display: none;
+          width: 0;
+          height: 0;
+          border-bottom: 0 solid transparent;
+          border-top: 19px solid transparent;
+          border-right: 23px solid #00a1ec;
+          font-size: 0;
+          line-height: 0;
+          position: absolute;
+          top: 14px;
+          right: 0;
+          i {
+            display: none;
+            font-size: 8px;
+            position: absolute;
+            right: -22px;
+            bottom: -2px;
+            z-index: 2;
+            color: #fff
+          }
+        }
       }
       .btnList,input{
         height: 35px;
@@ -170,6 +332,12 @@
       .active{
         border-color: #2cb6f5;
         color: #2cb6f5;
+        .triangle{
+          display: inline-block;
+          i{
+            display: inline-block;
+          }
+        }
       }
     }
   }
@@ -181,6 +349,9 @@
     display: -webkit-flex;
     align-items: center;
     -webkit-align-items: center;
+    .ant-form-item-label{
+      text-align: left;
+    }
     span:first-of-type{
       width: 90px;
     }
@@ -203,7 +374,135 @@
 
   }
 }
-
+.createRoleForm{
+  .ant-form-item-label{
+    text-align: right;
+    margin-right: 5px;
+  }
+}
+#projectCreateStepOne{
+  .inputBox{
+    &>span:first-of-type{
+      width: 66px;
+    }
+  }
+  .dropDownBox{
+    width: 170px;
+    height: 36px;
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    position: relative;
+    padding: 0 10px;
+    &>span{
+      height: 34px;
+      line-height: 34px;
+      color: #999999;
+      &>i{
+        margin-left: 50px;
+      }
+    }
+    .dropDownInnerBox{
+      position: absolute;
+      top: 38px;
+      left: 0;
+      min-width: 200px;
+      border: 1px solid #cccccc;
+      border-radius: 3px;
+      z-index: 1;
+      background-color: #ffffff;
+      dl{
+        dt,dd{
+          height: 30px;
+          line-height: 30px;
+        }
+        dt{
+          padding: 0 10px;
+          background-color: #eeeeee;
+        }
+        dd{
+          padding: 0 20px;
+          &:hover{
+            background-color: #effdfe;
+          }
+        }
+      }
+      dl:first-of-type{
+        dd{
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+      }
+    }
+  }
+  .projectCreateFirstForm{
+    .ant-form-explain{
+      white-space: normal;
+      word-break: break-all;
+      height: auto;
+    }
+  }
+}
+#projectCreateStepSecond{
+  .roleTrans{
+    .ant-transfer-list-header{
+      display: flex;
+      align-items: center;
+      .ant-transfer-list-header-title{
+        float: left;
+        margin-right: 3px;
+      }
+    }
+    .ant-transfer-list-body{
+      ul{
+        li{
+          display: flex;
+          align-items: center;
+          &>span{
+            flex: 0 1 400px;
+          }
+        }
+      }
+    }
+  }
+}
+.createCharacterModal{
+  .inputBox{
+    margin-bottom: 20px;
+    display: flex;
+    display: -webkit-flex;
+    align-items: center;
+    -webkit-align-items: center;
+    span:first-of-type{
+      width: 90px;
+    }
+    .ant-input{
+      width: 320px !important;
+    }
+  }
+  .authChooseProject{
+    &>span{
+      width: 90px;
+      display: inline-block;
+      margin-top: 15px;
+    }
+    .authBox{
+      border: 1px solid #d8d8d8;
+      border-radius: 5px;
+      vertical-align: top;
+      .authTitle{
+        line-height: 40px;
+        padding: 0 15px;
+      }
+      .treeBox{
+        height: 300px;
+        width: 320px;
+        overflow-y: scroll;
+        border-top: 1px solid #d8d8d8;
+      }
+    }
+  }
+}
 
 #projectCreateStepThird{
   padding: 20px;
@@ -215,21 +514,35 @@
         border-radius: 4px;
         border: 1px solid #dadada;
         width: 130px;
+        height: 328px;
+        overflow-y: auto;
         li{
+          font-size: 14px;
           width: 100%;
           height: 40px;
           display: inline-flex;
           align-items: center;
-          justify-content: space-around;
+          justify-content: space-between;
           border-left: 2px solid white;
+          padding: 0 5px;
+          i{
+            display: none;
+          }
           &:hover{
             background-color: #effdff;
             color: #00a0ea;
             border-left: 2px solid #00a0ea;
+            i{
+              display: inline-block;
+            }
           }
         }
-        li:not(last-of-type){
+        &:not(last-of-type){
           border-bottom: 1px solid #dadada;
+        }
+        .active{
+          background-color: #f8f8f8;
+          border-left: 2px solid #f8f8f8;
         }
       }
     }
@@ -248,27 +561,48 @@
         align-items: center;
         justify-content: center;
       }
-    }
-  }
-}
-.createCharacterModal{
-  .authChooseProject{
-    padding: 0 22px;
-    .authBox{
-      vertical-align: top;
-      border: 1px solid #d8d8d8;
-      width: 318px;
-      border-radius: 6px;
-      margin-left: 10px;
-      .authTitle{
-        line-height: 40px;
-        text-indent: 15px;
-        padding: 0 20px;
+      .authBox{
+        .authTitle{
+          line-height: 40px;
+          text-indent: 15px;
+          border-right: 1px solid #d8d8d8;
+        }
+        .treeBox{
+          height: 280px;
+          overflow-y: scroll;
+          border-top: 1px solid #d8d8d8;
+          border-right: 1px solid #d8d8d8;
+          background-color: #ecf1f4;
+        }
       }
-      .treeBox{
-        height: 280px;
-        overflow-y: scroll;
-        border-top: 1px solid #d8d8d8;
+      .memberBox{
+        width: 360px;
+        height: 320px;
+        .memberTableBox{
+          height: 280px;
+          overflow-y: auto;
+          border-top: 1px solid #d8d8d8;
+          .addMemberBtn{
+            display: block;
+            margin: 125px auto 0;
+          }
+          ul{
+            padding:0;
+            li{
+              margin:0;
+              padding: 10px;
+              &:hover{
+                background: #ecf7fd;
+              }
+            }
+          }
+        }
+        .memberTitle{
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: space-around;
+        }
       }
     }
   }
