@@ -132,10 +132,12 @@ let MyComponent = React.createClass({
         return <div title="点击查看配置文件" style={{wordBreak: 'break-all',color:'#2db7f5', cursor:'pointer'}} onClick={() => this.loadConfigData(item.group, list.path) }>{list.path} </div>
       })
       return (
-        <div className="composeDetail" key={item.id.toString() }>
-          <div className="commonData">
-            <span>{item.mountPod}</span>
-          </div>
+        <div className="composeDetail" key={item.id.toString()}>
+          <Tooltip title={item.mountPod}>
+            <div className="commonData textoverflow">
+              <span>{item.mountPod}</span>
+            </div>
+          </Tooltip>
           <Tooltip title={item.labels && item.labels.join(', ')}>
             <div className="annotations commonData textoverflow">
               {item.labels && item.labels.join(', ')}
