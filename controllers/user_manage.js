@@ -336,8 +336,6 @@ exports.deleteUser = function* () {
       data: result
     }
   } catch (error) {
-    console.log(`error==========`)
-    console.log(error)
     this.status = error.statusCode
     this.body = error
   }

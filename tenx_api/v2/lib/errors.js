@@ -58,10 +58,6 @@ class ServerError extends ClientError {
       default:
         this.message = data.message || 'Internal server error'
     }
-    console.log('data========')
-    console.log(typeof data)
-    console.log('this.message========')
-    console.log(this.message)
     this.statusCode = 500
   }
 }
@@ -100,18 +96,11 @@ function get(res) {
   const statusCode = res.statusCode
   let data = res.data || {}
   if (typeof data === 'string') {
-    console.log('is string ==================')
-    console.log(data)
-    console.log('is string ==================')
     try {
       data = JSON.parse(data)
     } catch (error) {
-      console.log('err========origin')
-      console.log(error)
     }
   }
-  console.log('data========origin')
-  console.log(typeof data)
   const requestUrls = res.requestUrls
   if (requestUrls && requestUrls.length > 0) {
     logger.error(`request urls error: ${res.requestUrls.join(', ')}`)
