@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Card, Spin, Modal ,Input , Button, Popover, Icon } from 'antd'
+import { Card, Spin, Modal ,Input , Button, Popover, Icon, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -136,9 +136,11 @@ let MyComponent = React.createClass({
           <div className="commonData">
             <span>{item.mountPod}</span>
           </div>
-          <div className="annotations commonData">
-            {item.labels && item.labels.join(', ')}
-          </div>
+          <Tooltip title={item.labels && item.labels.join(', ')}>
+            <div className="annotations commonData textoverflow">
+              {item.labels && item.labels.join(', ')}
+            </div>
+          </Tooltip>
           <div className="commonData">
             <span>{item.group}</span>
           </div>

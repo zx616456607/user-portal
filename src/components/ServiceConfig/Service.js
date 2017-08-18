@@ -9,7 +9,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row, Col, Modal, Button, Icon, Collapse, Input, Spin } from 'antd'
+import { Row, Col, Modal, Button, Icon, Collapse, Input, Spin, Tooltip } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/ServiceConfig.less'
 import QueueAnim from 'rc-queue-anim'
@@ -290,7 +290,9 @@ class Service extends Component {
     const labelList = configList.map(item => {
       return (
         <li className={classNames("configSort pointer",{'active': item.labelName === filterName})} onClick={()=>this.sortFilter(item.labelName,false)}>
-          <span className="sortName">{item.labelName}</span>
+          <Tooltip title={item.labelName}>
+            <span className="sortName textoverflow">{item.labelName}</span>
+          </Tooltip>
           <i className="fa fa-trash-o fa-lg verticalCenter pointer" aria-hidden="true"/>
           <i className="fa fa-pencil-square-o fa-lg verticalCenter pointer" aria-hidden="true"/>
           <span className="citeCount verticalCenter">({item.count})</span>
