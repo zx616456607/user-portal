@@ -148,3 +148,10 @@ exports.roleWithMembers = function* () {
     data: result
   }
 }
+
+exports.getProjectDetail = function* (){
+  const roleID = this.params.roleID
+  const body = this.request.body
+  const api = apiFactory.getRoleApi(this.session.loginUser)
+  const result = yield api.getBy([id,'projects'],null)
+}

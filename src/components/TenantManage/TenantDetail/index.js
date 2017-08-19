@@ -12,18 +12,22 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { Row, Table, Col, Spin, Form, Menu, Input, Icon, Button, Tree, Modal, InputNumber, Pagination, Select, Card, Checkbox, Tooltip } from 'antd'
 import './style/TenantDetail.less'
-import { GetRole, RemovePermissionRole } from '../../../actions/role'
+import { GetRole, UpdateRole, RemovePermissionRole } from '../../../actions/role'
 import { Permission } from '../../../actions/permission'
 import QueueAnim from 'rc-queue-anim'
 import { formatDate } from '../../../common/tools'
 import Notification from '../../Notification/index'
 import TreeComponent from '../../TreeComponent/index'
+import { REG } from '../../../constants'
+import CreateRoleModal from '../RoleManagement/RoleEditManage/index.js'
+import NotificationHandler from '../../../components/Notification'
 
 const TreeNode = Tree.TreeNode
 
 let TenantDetail = React.createClass({
   getInitialState() {
     return {
+      detailValue: '',
       roleDetail:[],
       isShowIco: false,
       filteredInfo: null,
@@ -31,6 +35,7 @@ let TenantDetail = React.createClass({
       Removerol: false,
       Removepermis: false,
       addpermission:false,
+      characterModal: false,
       roleModalVisible:false,
       removePermissionName: '',
       removePermissionTree: [],
@@ -41,15 +46,14 @@ let TenantDetail = React.createClass({
   componentWillMount(){
     const { params } = this.props
     let roleId = params.id
-    this.loadGetRole(roleId)
-    //this.props.Permission()
+    this.loadData(roleId)
   },
-  loadGetRole(roleId){
+  loadData(roleId){
     const { GetRole } = this.props
     GetRole({ roleId },{
       success: {
         func: res => {
-          if(res.data.code === 200){
+          if(REG.test(res.data.code)){
             this.RowData(res.data.data.permissions)
             this.setState({
               roleDetail: res.data.data,
@@ -134,18 +138,6 @@ let TenantDetail = React.createClass({
       defaultExpandedKeys: idArray
     })
   },
-  renderTree(data){
-    return data.map((item) => {
-      if(item.children){
-        return (
-          <TreeNode key={item.id} title={item.desc}>
-            {this.renderTree(item.children)}
-          </TreeNode>
-        );
-      }
-      return <TreeNode key={item.id} title={item.desc}/>
-    })
-  },
   transformLinearArray(array){
     let LinearArray = []
     const func = data => data.forEach(item => {
@@ -162,20 +154,22 @@ let TenantDetail = React.createClass({
     const { RemovePermissionRole, params, GetRole } = this.props
     let Notifi = new Notification()
     let roleId = params.id
-    let body = {
-      id: roleId,
-      body: defaultExpandedKeys
+    let bodys = {
+      pids: defaultExpandedKeys
     }
-    console.log('this.state.defaultExpandedKeys=',defaultExpandedKeys)
-    console.log('body=',body)
-    RemovePermissionRole(body, {
+    RemovePermissionRole({
+      id: roleId,
+      bodys
+    }, {
       success: {
-        func: () => {
-          Notifi.success('移除权限成功')
-          this.setState({
-            Removepermis: false
-          })
-          GetRole(body)
+        func: (res) => {
+          if(REG.test(res.data.code)){
+            Notifi.success('移除权限成功')
+            this.loadData(roleId)
+            this.setState({
+              Removepermis: false
+            })
+          }
         },
         isAsync: true
       },
@@ -183,7 +177,6 @@ let TenantDetail = React.createClass({
         Notifi.error('移除权限失败，请重试')
       }
     })
-
   },
   handleIcon(e){
     this.setState({
@@ -193,6 +186,45 @@ let TenantDetail = React.createClass({
   handleColse(e){
     this.setState({
       isShowIco: false
+    })
+  },
+  handleBtn(){
+    this.setState({
+      characterModal: true
+    })
+  },
+  handleChanges(e){
+    this.setState({
+      detailValue: e.target.values
+    })
+  },
+  handleItem(){
+    const { UpdateRole, params } = this.props
+    const { detailValue, roleDetail } = this.state
+    let notification = new NotificationHandler()
+    let body = {
+      name: roleDetail.name,
+      comment: detailValue
+    }
+    UpdateRole({
+      id: params.id,
+      body
+      },{
+        success:{
+          func: (res) => {
+            if(REG.test(res.data.code)){
+              notification.success("修改成功")
+              this.loadData(params.id)
+            }
+          }
+        },
+        failed: {
+        func: (err) => {
+          notification.close()
+          notification.error(err)
+        },
+        isAsync: true
+      }
     })
   },
   render() {
@@ -219,13 +251,8 @@ let TenantDetail = React.createClass({
       Projectname: '项目1',
       Referencetime: '2017-03-28 14:31:35',
     }];
-    let { roleDetail, sortedInfo, filteredInfo, removePermissionName, removePermissionTree, permissionDatasource } = this.state;
+    let { roleDetail, sortedInfo, filteredInfo, removePermissionName, removePermissionTree, permissionDatasource, defaultExpandedKeys } = this.state;
 
-    let roleInfo = {}
-    if(roleDetail.data){
-      roleInfo = roleDetail
-      this.RowData(permissionDatasource)
-    }
     let outPermission = {}
     let outPermissionInfo = outPermission.permission
     sortedInfo = sortedInfo || {};
@@ -269,17 +296,13 @@ let TenantDetail = React.createClass({
         </span>
       ),
     }];
+    const Rcolumns = [{
+      title: '权限名称',
+      dataIndex: 'name',
+      key: 'name',
+    }]
     const scope = this
-    // const loop = data => data.map((item) => {
-    //   if (item.children) {
-    //     return (
-    //       <TreeNode key={item.id} title={item.desc}>
-    //         {loop(item.children)}
-    //       </TreeNode>
-    //     );
-    //   }
-    //   return <TreeNode key={item.id} title={item.desc} />;
-    // });
+
     return(
     <QueueAnim className='TenantDetail'>
       <div id="TenantDetail">
@@ -307,23 +330,25 @@ let TenantDetail = React.createClass({
                 {
                   <Col span={21} className='item_content'>
                     <div className="edit_desc" >
-                      {
-                        this.state.isShowIco ?
-                        <div>
-                          <Input style={{ width:145}}/>
-                          <Icon className="ico" type="minus-circle-o" style={{fontSize:20,margin:9}} onClick={() => this.handleColse()}/>
-                          <Icon className="ico" type="save" style={{fontSize:20}}/>
-                        </div> :
-                        <div>
-                          {
-                            roleDetail.comment ?
-                            <div>
-                              {roleDetail.comment}
-                              <Icon type="edit" style={{marginLeft:'4px'}} onClick={() => this.handleIcon()}/>
-                            </div> : '--'
-                          }
-                        </div>
-                      }
+                      <div>
+                        <Input
+                        disabled = {!this.state.isShowIco}
+                        style={{ width:145}}
+                        type="textarea"
+                        onChange={this.handleChanges}
+                        {...getFieldProps(`comment`, {
+                            initialValue: roleDetail.comment
+                        })}
+                        />
+                        {
+                          this.state.isShowIco ?
+                          <div className="comment">
+                            <Icon className="ico" type="minus-circle-o" style={{fontSize:20,margin:9}} onClick={() => this.handleColse()}/>
+                            <Icon className="ico" type="save" style={{fontSize:20}} onClick={() => this.handleItem()}/>
+                          </div> :
+                          <Icon type="edit" style={{marginLeft:'4px'}} onClick={() => this.handleIcon()}/>
+                        }
+                      </div>
                     </div>
                   </Col>
                 }
@@ -332,13 +357,26 @@ let TenantDetail = React.createClass({
           </div>
         </div>
         <div className='lastDetails lastDetailtable' style={{width:'49%',float:'left'}} >
-          <div className='title'>权限 （ <span>{permissionDatasource.length}个</span> ）<Button className="Editroles" onClick={()=> this.setState({roleModalVisible:true})} type="ghost">编辑角色</Button></div>
-          {/* <div className="addpermission">
-            <Button onClick={()=> this.setState({addpermission:true})} type="primary" size="small">
-              <i className="fa fa-plus" aria-hidden="true" style={{marginRight: '8px'}}></i>
-              编辑权限
-            </Button>
-          </div> */}
+          <div className='title'>权限 （ <span>{permissionDatasource.length}个</span> ）
+            <Button
+            className="Editroles"
+            type="ghost"
+            onClick={() => this.handleBtn()}
+            >编辑角色</Button></div>
+            {
+              this.state.characterModal ?
+              <CreateRoleModal
+              visible = {this.state.characterModal}
+              title = "编辑角色"
+              form = {form}
+              scope = {scope}
+              isAdd = {false}
+              roleId = {params.id}
+              characterModal = {this.state.characterModal}
+              detail = {() => this.loadData()}
+              isDetail = {true}
+              /> : ''
+            }
           <div className='container'>
             <div className="lastSyncInfo">
               <Table
@@ -387,22 +425,21 @@ let TenantDetail = React.createClass({
           <div className="createRol">
             <div className="mainbox">
               <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
-              从该角色中移除权限<span style={{color:'red'}}>（{removePermissionName}）</span>后，关联该角色的对象（成员／团队）在引用该角色的项目中无此项权限
+              <p>从该角色中移除权限 <p className="pName" style={{color:'red'}}>（{removePermissionName}）</p>后，关联该角色的对象在引用该角色的项目中无此项权限</p>
             </div>
           </div>
           <div className="tips">
-            确定从<span className="Specialcolor"> 角色{roleInfo.name} </span>移除以下权限？
+            确定从<span className="Specialcolor"> 角色{roleDetail.name} </span>中移除以下权限？
           </div>
           <div className='treeContainer'>
-            {
-              removePermissionTree.length &&
-              <Tree
-                defaultExpandAll = {true}
-                expandedKeys = {this.state.defaultExpandedKeys}
-              >
-                { this.renderTree(removePermissionTree) }
-              </Tree>
-            }
+            <Table
+            rowKey="id"
+            scroll={{y:'150'}}
+            size="small"
+            pagination={false}
+            columns={Rcolumns}
+            defaultExpandedRowKeys= {defaultExpandedKeys}
+            dataSource={removePermissionTree}/>
           </div>
         </Modal>
         <Modal
@@ -427,6 +464,7 @@ function mapStateToProps(state, props){
 }
 export default connect(mapStateToProps, {
   GetRole,
+  UpdateRole,
   Permission,
   RemovePermissionRole,
 })(TenantDetail)
