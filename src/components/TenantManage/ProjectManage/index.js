@@ -675,7 +675,7 @@ class ProjectManage extends Component{
           >
             <div className="deleteRow">
               <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
-              <span>将永久删除一下项目，包括项目中的所有资源。您确定要删除一下项目？</span>
+              <span>将永久删除以下项目，包括项目中的所有资源。您确定要删除以下项目？</span>
             </div>
           </Modal>
           <Modal title="删除项目" visible={delSingle} width={610}
