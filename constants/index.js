@@ -74,3 +74,9 @@ exports.DEFAULT_LICENSE = {
 }
 exports.CREATE_PROJECTS_ROLE_ID = 'RID-Ezeg3KPhm3mS'
 exports.CREATE_TEAMS_ROLE_ID = 'RID-XwPiLfrBYjqd'
+//项目访客
+exports.TEAM_VISISTOR_ROLE_ID = 'RID-ggNW6A2mwgEX'
+//项目管理员
+exports.TEAM_MANAGE_ROLE_ID = 'RID-LFJKCKtKzCrd'
+//admin userID
+exports.ADMIN_USERID = 1232

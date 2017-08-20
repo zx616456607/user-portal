@@ -146,8 +146,8 @@ let CreateConfigModal = React.createClass({
       initialValue:groupEdit ? currentSortArray : []
     })
     const formItemLayout = {
-      labelCol: { span: 5 },
-      wrapperCol: { span: 19 },
+      labelCol: { span: 6 },
+      wrapperCol: { span: 18 },
     };
     let children = [];
     labelWithCount.length > 0 && labelWithCount.forEach(item => {
@@ -164,7 +164,7 @@ let CreateConfigModal = React.createClass({
         >
         <Form horizontal>
           <Row style={{ paddingTop: '10px' }}>
-            <Col span="18">
+            <Col span="19">
               <FormItem
                 {...formItemLayout}
                 label="配置分类"

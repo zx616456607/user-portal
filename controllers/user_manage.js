@@ -50,6 +50,7 @@ exports.getUserDetail = function* () {
     loginUser.tenxApi = user.tenxApi
     loginUser.cicdApi = user.cicdApi
     _.merge(loginUser, user)
+    user.userID = userID
     // Delete sensitive information
     // delete user.userID
     delete user.statusCode
