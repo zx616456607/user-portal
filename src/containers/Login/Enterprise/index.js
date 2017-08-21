@@ -96,8 +96,8 @@ let Login = React.createClass({
             let outdated = false
             if (err.statusCode == 307) {
               message.warn('由于安全以及管理需要，您需要在首次登录时设置新密码')
-              // @Todo: need api support
-              browserHistory.push('/rpw?email=zhangpc@tenxcloud.com&code=jjqdwd9VWFZS7iqTPgN_&from=login')
+              const { email, veryfiyCode } = err.message.data
+              browserHistory.push(`/rpw?email=${email}&code=${veryfiyCode}&from=login`)
               return
             }
             if (err.statusCode == 401) {

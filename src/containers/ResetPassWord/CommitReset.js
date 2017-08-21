@@ -136,7 +136,7 @@ let CommitReset = React.createClass({
             self.setState({
               submitting: false,
               resetSuccess: false,
-              btnState: true,
+              btnState: false,
             })
             message.error('重置失败')
           }

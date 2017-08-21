@@ -450,8 +450,6 @@ class Information extends Component {
         }
       })
     }
-    console.log(this.userAuth)
-    console.log(this.userAuth)
     // 权限
     const rolesProps = getFieldProps('roles', {
       initialValue: this.userAuth,
@@ -552,7 +550,7 @@ class Information extends Component {
             </Col>
           </Row>
         </div>
-         {/* 充值modal */}
+        {/* 充值modal */}
         <Modal title="成员充值" visible={this.state.visibleMember}
          onCancel={()=> this.setState({visibleMember: false,number: 10})}
          onOk={()=> this.changeUser()}

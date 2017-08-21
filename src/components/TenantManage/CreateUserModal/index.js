@@ -282,7 +282,7 @@ let CreateUserModal = React.createClass({
             >
             <Input {...passwdProps} type="password" autoComplete="off"
               placeholder="新成员名称登录密码"
-              />
+            />
           </FormItem>
 
           <FormItem

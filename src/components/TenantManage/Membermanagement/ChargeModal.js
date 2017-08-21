@@ -28,16 +28,19 @@ export default class ChargeModal extends React.Component {
     }
   }
 
-  componentDidMount() {
-    this.props.loadUserList({size: 0}, {
-      success: {
-        func: res => {
-          this.setState({
-            users: res.users,
-          })
+  componentWillReceiveProps(nextProps) {
+    const { visible } = nextProps
+    if (visible && !this.props.visible) {
+      this.props.loadAllUserList({
+        success: {
+          func: res => {
+            this.setState({
+              users: res.users,
+            })
+          }
         }
-      }
-    })
+      })
+    }
   }
 
   onRowClick = record => {

@@ -469,3 +469,21 @@ function* bindRolesForUser() {
   this.body = result
 }
 exports.bindRolesForUser = bindRolesForUser
+
+function* resetPassword() {
+  const method = "resetPassword"
+  // Get email, code, password
+  const user = this.request.body
+  if (!user.email || !user.code || !user.password) {
+    const err = new Error('user email, code and password are required.')
+    err.status = 400
+    throw err
+  }
+
+  // Reset password for the email account
+  const spi = apiFactory.getSpi()
+  const result = yield spi.users.patchBy([user.email, 'resetpw'], { code: user.code }, user)
+
+  this.body = result
+}
+exports.resetPassword = resetPassword
