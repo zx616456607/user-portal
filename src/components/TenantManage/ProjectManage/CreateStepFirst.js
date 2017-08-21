@@ -111,7 +111,7 @@ class CreateStepFirst extends Component{
         },
         failed: {
           func: () => {
-            callback(new Error('该项目名称已经存在'))
+            callback(new Error('该名称已在项目或成员列表中存在'))
           },
           isAsync: true
         }

@@ -376,7 +376,9 @@ class CollapseContainer extends Component {
             return (
               <td key={`key@${index}`}>
                 <div className="li">应用：<Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link>，服务：{list.serviceName}</div>
-                <div className='lis textoverflow'>{list.mountPath}</div>
+                <Tooltip title={list.mountPath}>
+                  <div className='lis textoverflow'>{list.mountPath}</div>
+                </Tooltip>
               </td>
             )
           })

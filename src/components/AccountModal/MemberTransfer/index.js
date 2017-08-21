@@ -20,9 +20,6 @@ class MemberTransfer extends Component{
     super(props)
     this.filterOption = this.filterOption.bind(this)
     this.renderItem = this.renderItem.bind(this)
-    this.state = {
-      projectList: []
-    }
   }
   filterOption(inputValue, option) {
     return option.title.indexOf(inputValue) > -1;
@@ -30,16 +27,6 @@ class MemberTransfer extends Component{
   componentWillMount(){
     const { loadUserList } = this.props;
     loadUserList({size: 0})
-    ListProjects({},{
-      success:{
-        func: (result)=>{
-          if (result.statusCode === 200) {
-            this.setState({projectList:result.data})
-          }
-        },
-        isAsync:true
-      }
-    })
   }
   renderItem(item){
     return(

@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Card, Spin, Modal ,Input , Button, Popover, Icon } from 'antd'
+import { Card, Spin, Modal ,Input , Button, Popover, Icon, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -132,13 +132,17 @@ let MyComponent = React.createClass({
         return <div title="点击查看配置文件" style={{wordBreak: 'break-all',color:'#2db7f5', cursor:'pointer'}} onClick={() => this.loadConfigData(item.group, list.path) }>{list.path} </div>
       })
       return (
-        <div className="composeDetail" key={item.id.toString() }>
-          <div className="commonData">
-            <span>{item.mountPod}</span>
-          </div>
-          <div className="annotations commonData">
-            {item.labels && item.labels.join(', ')}
-          </div>
+        <div className="composeDetail" key={item.id.toString()}>
+          <Tooltip title={item.mountPod}>
+            <div className="commonData textoverflow">
+              <span>{item.mountPod}</span>
+            </div>
+          </Tooltip>
+          <Tooltip title={item.labels && item.labels.join(', ')}>
+            <div className="annotations commonData textoverflow">
+              {item.labels && item.labels.join(', ')}
+            </div>
+          </Tooltip>
           <div className="commonData">
             <span>{item.group}</span>
           </div>

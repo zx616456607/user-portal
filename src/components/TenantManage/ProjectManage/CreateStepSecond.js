@@ -13,6 +13,7 @@ import { Row, Col, Button, Input, Transfer, Form } from 'antd'
 import { connect } from 'react-redux'
 import { ListRole, CreateRole, ExistenceRole } from '../../../actions/role'
 import CreateRoleModal from  './CreateRole'
+import { TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID } from '../../../../constants'
 
 class CreateStepSecond extends Component{
   constructor(props){
@@ -55,7 +56,7 @@ class CreateStepSecond extends Component{
                 key: `${result[i].id},${result[i].name}`,
                 title: result[i].name,
                 description: result[i].comment,
-                chosen: ['RID-LFJKCKtKzCrd', 'RID-ggNW6A2mwgEX'].includes(result[i].id),
+                chosen: [TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID].includes(result[i].id),
               };
               const newData = Object.assign({},result[i],data);
               if (newData.chosen) {
