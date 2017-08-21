@@ -378,12 +378,17 @@ export function isStorageUsed(volumes) {
 
 export function isDomain(bindingDomainStr) {
   let bindingDomain = ''
+  // Whether cluster can support binding domain
+  if (bindingDomainStr === "true") {
+    return true
+  }
   try {
     bindingDomain = JSON.parse(bindingDomainStr)
   }
   catch (e) {
     return false
   }
+
   if (bindingDomain.length === 0 || bindingDomain[0] === '') {
     return false
   }

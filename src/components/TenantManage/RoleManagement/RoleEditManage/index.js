@@ -23,6 +23,7 @@ class CreateRoleModal extends React.Component{
     super(props)
     this.state = {
       key: [],
+      isChecked: false,
       expandedKeys: [],
       autoExpandParent: true,
       checkedKeys: [],
@@ -57,17 +58,15 @@ class CreateRoleModal extends React.Component{
         func: res => {
           if(REG.test(res.data.code)){
             let result = res.data.data.permissions
+            let pids = res.data.data.pids
             let aryID = []
-            this.RowData(result)
-            debugger
             for(let i = 0;i < result.length; i++){
               aryID.push(`${result[i].id}`)
             }
-            //this.generateDatas(result)
             this.setState({
               rowDate: res.data.data,
               checkedKeys: aryID,
-              rowPermissionID: aryID,
+              rowPermissionID: pids,
             })
           }
         }
@@ -83,28 +82,12 @@ class CreateRoleModal extends React.Component{
   }
   onCheck(checkedKeys) {
     this.setState({
+      isChecked: true,
       checkedKeys
     });
   }
   onSelect(selectedKeys) {
     this.setState({ selectedKeys });
-  }
-  generateDatas(_tns ) {
-    const tns = _tns;
-    const children = [];
-    for (let i = 0; i < tns.length; i++) {
-      const key = `${tns[i].id}`;
-      //tns[i] = Object.assign(tns[i],{title: tns[i].desc,key: tns[i].id})
-      children.push(key);
-    }
-    debugger
-    children.forEach((key, index) => {
-      if(tns[index]["children"] !== undefined){
-        if (tns[index].children.length !== 0) {
-          return this.generateDatas(tns[index].children);
-        }
-      }
-    })
   }
   getPermission() {
     const { Permission } = this.props;
@@ -150,13 +133,6 @@ class CreateRoleModal extends React.Component{
       })
     },ASYNC_VALIDATOR_TIMEOUT)
   }
-  roleDesc(rule, value, callback) {
-    if (!value) {
-      callback(new Error('请输入描述'))
-      return
-    }
-    callback()
-  }
   cancelModal() {
     const { scope } = this.props;
     scope.setState({characterModal:false})
@@ -169,7 +145,7 @@ class CreateRoleModal extends React.Component{
     const { CreateRole, loadData, scope, form } = this.props;
     const { getFieldValue, validateFields } = form;
     const { checkedKeys } = this.state;
-    let notify = new Notification()
+    let notify = new NotificationHandler()
     let ary = checkedKeys.map((item, index) => {
       return Number(item)
     })
@@ -204,12 +180,12 @@ class CreateRoleModal extends React.Component{
     })
   }
   editInfo(){
-    const { UpdateRole, AddPermissionRole, loadData, scope, form, roleId } = this.props;
+    const { UpdateRole, AddPermissionRole, loadData, scope, form, roleId, detail } = this.props;
     const { getFieldValue, validateFields } = form;
-    const { rowPermissionID, checkedKeys } = this.state;
+    const { rowPermissionID, checkedKeys, isChecked } = this.state;
     let notification = new NotificationHandler()
     let idKey = []
-    this.screenInfo()
+    let checkedID = []
     validateFields((error,values) => {
       if(!!error) return
       let body = {
@@ -235,40 +211,51 @@ class CreateRoleModal extends React.Component{
       }
       })
       if(rowPermissionID && rowPermissionID.length > 0){
-        checkedKeys.map((item) => {
+        rowPermissionID.sort()
+        if(rowPermissionID[0] === 0){
+          rowPermissionID.splice(0,1)
+        }
+        checkedID = checkedKeys.map((item) => {
+          return Number(item)
+        })
+        checkedID.map((item) => {
           if(rowPermissionID.indexOf(item) === -1){
             idKey.push(item)
           }
         })
       }
-      let aryKey = idKey.map((item, index) => {
-        return Number(item)
-      })
-
-      if(aryKey && aryKey.length > 0){
-        let bodys = {
-          pids: aryKey
-        }
-        AddPermissionRole({
-          id: roleId,
-          bodys
-        },{
-          success:{
-            func: (res) =>{
-              if(REG.test(res.code)){
-                notification.success(`更新成功`)
-                loadData()
-                scope.setState({
-                  characterModal: false
-                })
+      if(isChecked){
+        this.screenInfo()
+        if(idKey && idKey.length > 0){
+          let bodys = {
+            pids: idKey
+          }
+          AddPermissionRole({
+            id: roleId,
+            bodys
+          },{
+            success:{
+              func: (res) =>{
+                if(REG.test(res.data.code)){
+                  notification.success(`更新成功`)
+                  scope.isDetail ? detail(roleId) : loadData()
+                  scope.setState({
+                    characterModal: false
+                  })
+                }
+              }
+            },
+            failed:{
+              func: (err) => {
+                notification.error(`更新失败`)
               }
             }
-          },
-          failed:{
-            func: (err) => {
-              notification.error(`更新失败`)
-            }
-          }
+          })
+        }
+      }else{
+        scope.loadData(roleId)
+        scope.setState({
+          characterModal: false
         })
       }
     })
@@ -279,10 +266,18 @@ class CreateRoleModal extends React.Component{
   screenInfo(){
     let notification = new NotificationHandler()
     const { RemovePermissionRole } = this.props;
-    const { rowPermissionID, checkedKeys } = this.state
+    const { rowPermissionID, checkedKeys, isChecked } = this.state
+    let checkedId = []
     let ary = []
     let arys = []
-    checkedKeys.map((item) => {
+    checkedId = checkedKeys.map((item, index) => {
+        return Number(item)
+      })
+     checkedId.sort()
+     if(checkedId[0] === 0){
+       checkedId.splice(0,1)
+     }
+    checkedId.map((item) => {
       if(rowPermissionID.indexOf(item) !== -1){
         ary.push(item)
       }
@@ -292,26 +287,25 @@ class CreateRoleModal extends React.Component{
         arys.push(item)
       }
     })
-    if(arys && arys.length > 0){
-      let aryKey = arys.map((item, index) => {
-        return Number(item)
-      })
-      let bodys = {
-        pids: aryKey
-      }
-      RemovePermissionRole({
-        id: this.props.roleId,
-        bodys
-      },{
-        success: {
-          func: (res) => {
-            debugger
-            if(REG.test(res.data.code)){
-              //setTimeout(notification.spin('更新中...'),1000)
+    if(isChecked){
+      if(arys.length <= 0) return
+      if(arys && arys.length > 0){
+        let bodys = {
+          pids: arys
+        }
+        RemovePermissionRole({
+          id: this.props.roleId,
+          bodys
+        },{
+          success: {
+            func: (res) => {
+              if(REG.test(res.data.code)){
+                //setTimeout(notification.spin('更新中...'),1000)
+              }
             }
           }
-        }
-      })
+        })
+      }
     }
   }
   render() {
