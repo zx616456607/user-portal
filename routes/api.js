@@ -573,7 +573,7 @@ module.exports = function (Router) {
   router.post('/role/:roleID/:scope/:scopeID',roleController.usersAddRoles)
   router.post('/role/:roleID/:scope/:scopeID/batch-delete',roleController.usersLoseRoles)
   router.get('/role/:roleID/:scope/:scopeID/users',roleController.roleWithMembers)
-  router.get('role/:roleID/projects',roleController.getProjectDetail)
+  router.get('/role/:roleID/projects',roleController.getProjectDetail)
 
   // package manage
   router.get('/pkg', pkgController.getPkgManageList)

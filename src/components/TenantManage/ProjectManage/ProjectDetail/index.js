@@ -159,8 +159,9 @@ class ProjectDetail extends Component{
               projectDetail:res.data,
               comment:res.data.description
             },()=>{
+              const { projectDetail } = this.state;
               this.loadRoleList()
-              this.getCurrentRole(this.state.projectDetail.relatedRoles[0].roleId)
+              this.getCurrentRole(projectDetail.relatedRoles && projectDetail.relatedRoles[0].roleId)
             })
           }
         },
@@ -347,6 +348,7 @@ class ProjectDetail extends Component{
     });
   };
   getCurrentRole(id) {
+    if (!id) return
     const { GetRole, roleWithMembers } = this.props;
     const { projectDetail } = this.state;
     checkedKeysDetail.length=0

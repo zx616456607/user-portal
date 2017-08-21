@@ -36,7 +36,7 @@ export default class CommonSearchInput extends Component{
     }
   }
   componentWillReceiveProps(nextProps) {
-    const { modalStatus, selectProps } = nextProps;
+    const { modalStatus, selectProps, clearInput } = nextProps;
     if (!modalStatus && this.props.modalStatus) {
       if (selectProps.defaultValue) {
         this.setState({
@@ -47,6 +47,11 @@ export default class CommonSearchInput extends Component{
           currentOption: selectProps.selectOptions[0].key
         })
       }
+    }
+    if (clearInput) {
+      this.setState({
+        value: ''
+      })
     }
   }
   handleInputChange(e) {

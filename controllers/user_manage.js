@@ -196,7 +196,6 @@ exports.getUserTeams = function* () {
     if (result.listMeta && result.listMeta.total) {
       total = result.listMeta.total
     }
-
     this.body = {
       teams,
       total

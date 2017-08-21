@@ -43,6 +43,7 @@ let TeamTable = React.createClass({
       sortTeamName: true,
       addMember: false,
       targetKeys: [],
+      originalKeys: [],
       sort: "a,teamName",
       filter: "",
       nowTeamID: '',
@@ -177,6 +178,7 @@ let TeamTable = React.createClass({
           })
           this.setState({
             targetKeys,
+            originalKeys: targetKeys,
             addMember: true,
             nowTeamID: teamID
           })
@@ -186,55 +188,99 @@ let TeamTable = React.createClass({
     })
   },
   handleNewMemberOk() {
-    const { addTeamusers, loadUserTeamList, rowKey } = this.props
-    const { targetKeys, nowTeamID } = this.state
+    const { loadUserTeamList } = this.props
+    const { targetKeys, originalKeys } = this.state
     const { page, size, sort, filter} = this.props.scope.state
-    if (targetKeys.length !== 0) {
-      const newtargetKeys = targetKeys.map(item=> {
-        return {
-          userID: item
-        }
+    let notify = new NotificationHandler()
+    let diff = xor(targetKeys, originalKeys)
+    let add = intersection(targetKeys, diff)
+    let del = intersection(originalKeys, diff)
+    if (add.length && del.length) {
+      Promise.all([this.addTeamUsers(add), this.delTeamUsers(del)]).then(() => {
+        loadUserTeamList('default', {page, size, sort, filter})
+        notify.success('操作成功')
+      }).catch(() => {
+        notify.error('操作失败')
       })
-      const targetKeysMap = {"users":newtargetKeys}
-      addTeamusers(nowTeamID,
-        targetKeysMap
-        , {
-          success: {
-            func: () => {
-              loadUserTeamList('default', {
-                page: page,
-                size: size,
-                sort: sort,
-                filter: filter,
-              })
-            },
-            isAsync: true
-          }
-        })
+    } else if (add.length && !del.length) {
+      this.addTeamUsers(add).then(() => {
+        loadUserTeamList('default', {page, size, sort, filter})
+        notify.success('操作成功')
+      }).catch(() => {
+        notify.error('操作失败')
+      })
+    } else if (!add.length && del.length) {
+      this.delTeamUsers(del).then(() => {
+        loadUserTeamList('default', {page, size, sort, filter})
+        notify.success('操作成功')
+      }).catch(() => {
+        notify.error('操作失败')
+      })
     }
     this.setState({
       addMember: false,
-      targetKeys: []
+      targetKeys: [],
+      originalKeys: []
+    })
+  },
+  addTeamUsers(add) {
+    const { nowTeamID } = this.state
+    const { addTeamusers } = this.props
+    const newtargetKeys = add.map(item=> {
+      return {
+        userID: item
+      }
+    })
+    const targetKeysMap = {"users":newtargetKeys}
+    return new Promise((resolve, reject) => {
+      addTeamusers(nowTeamID,targetKeysMap,{
+        success: {
+          func: () => {
+            resolve()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            reject()
+          }
+        }
+      })
+    })
+  },
+  delTeamUsers(del) {
+    const { nowTeamID } = this.state
+    const { removeTeamusers } = this.props
+    return new Promise((resolve, reject) => {
+      removeTeamusers(nowTeamID, del.toString(), {
+        success: {
+          func: () => {
+            resolve()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            reject(err)
+          }
+        }
+      })
     })
   },
   handleNewMemberCancel(e) {
     this.setState({
       addMember: false,
       targetKeys: [],
+      originalKeys: []
     })
   },
   handleUserChange(targetKeys) {
     this.setState({ targetKeys })
   },
-  btnRecharge(teamID) {
-    const parentScope = this.props.scope
-    parentScope.props.loadTeamspaceList(teamID)
-    parentScope.setState({spaceVisible: true})
-  },
   render() {
     let { sortedInfo, filteredInfo, targetKeys, sort } = this.state
-    const { searchResult, notFound, filter } = this.props.scope.state
-    const { data, scope, teamUserIDList, roleNum } = this.props
+    const { searchResult, filter } = this.props.scope.state
+    const { data, scope, roleNum } = this.props
     filteredInfo = filteredInfo || {}
     sortedInfo = sortedInfo || {}
     const pagination = {
@@ -398,106 +444,21 @@ let TeamTable = React.createClass({
   },
 })
 
-class DeleteTable extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      selectedRowKeys: []
-    }
-  }
-  rowClick(record) {
-    const { selectedRowKeys } = this.state;
-    let newSelected = selectedRowKeys.slice(0)
-    if (newSelected.indexOf(record.key) < 0) {
-      newSelected.push(record.key)
-    } else {
-      newSelected.splice(newSelected.indexOf(record.key),1)
-    }
-    this.setState({
-      selectedRowKeys:newSelected
-    })
-  }
-  selectAll(selectedRows) {
-    let arr = []
-    for (let i = 0; i < selectedRows.length; i++) {
-      arr.push(selectedRows[i].key)
-    }
-    this.setState({
-      selectedRowKeys: arr
-    })
-  }
-  render() {
-    const { dataSource } = this.props;
-    let data = []
-    const _this = this;
-    dataSource.map((item,index)=>{
-      data.push({
-        key: item.teamID,
-        teamName: item.teamName,
-        userCount: item.userCount,
-        spaceCount: item.spaceCount
-      })
-    })
-    const { selectedRowKeys } = this.state;
-    const rowSelection = {
-      selectedRowKeys,
-      onSelect:(record)=> this.rowClick(record),
-      onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
-    };
-    const columns = [
-      {
-        title: '团队名',
-        dataIndex: 'teamName',
-        key: 'teamName',
-      },
-      {
-        title: '成员',
-        dataIndex: 'userCount',
-        key: 'userCount'
-      },
-      {
-        title: '在用集群',
-        dataIndex: 'clusterCount',
-        key: 'clusterCount'
-      },
-      {
-        title: '团队空间',
-        dataIndex: 'spaceCount',
-        key: 'spaceCount'
-      }
-    ]
-    return (
-      <div style={{height:'400px',overflow:'auto'}}>
-        <Table
-          dataSource={data}
-          rowSelection={rowSelection}
-          columns={columns}
-          pagination={false}
-          onRowClick={(record)=>this.rowClick(record)}
-        />
-      </div>
-      )
-  }
-}
 class TeamManage extends Component {
   constructor(props) {
     super(props)
     this.showModal = this.showModal.bind(this)
     this.teamOnSubmit = this.teamOnSubmit.bind(this)
-    this.handleCreateTeamInt = this.handleCreateTeamInt.bind(this)
     this.state = {
       searchResult: [],
       notFound: false,
       visible: false,
-      spaceVisible: false, // space recharge
       teamName: '',
       pageSize: 10,
       page: 1,
       current: 1,
       sort: 'a,teamName',
       selected: [],
-      deleteTeamModal: false,
-      allTeamList: [],
       userList:[],
       targetKeys: [],
       originalKeys: []
@@ -541,11 +502,6 @@ class TeamManage extends Component {
       }
     })
   }
-  handleCreateTeamInt(e) {
-    this.setState({
-      teamName: e.target.value
-    })
-  }
   componentWillMount() {
     this.props.loadUserTeamList('default', {
       page: 1,
@@ -571,30 +527,6 @@ class TeamManage extends Component {
         isAsync: true
       }
     })
-  }
-  deleteTeamModal() {
-    const { loadUserTeamList, total } = this.props;
-    const { sort } = this.state
-    loadUserTeamList('default', {
-      page: 1,
-      current: 1,
-      size: 0,
-      sort,
-      filter: '',
-    },{
-      success: {
-        func: (res)=> {
-          this.setState({
-            deleteTeamModal: true,
-            allTeamList:res.teams
-          })
-        },
-        isAsync: true
-      }
-    })
-  }
-  deleteTeamConfirm() {
-
   }
   cancelRightModal() {
     this.setState({
@@ -738,9 +670,9 @@ class TeamManage extends Component {
   }
   render() {
     const scope = this
-    const { visible, deleteTeamModal, allTeamList, userList, targetKeys } = this.state
+    const { visible, userList, targetKeys } = this.state
     const {
-      teams, addTeamusers, loadUserTeamList, roleNum,
+      teams, addTeamusers, loadUserTeamList, roleNum, removeTeamusers,
       teamUserIDList, loadTeamUserList, checkTeamName
     } = this.props
     const searchIntOption = {
@@ -774,19 +706,6 @@ class TeamManage extends Component {
               visible={visible}
               onSubmit={this.teamOnSubmit}
               funcs={funcs} />
-            <Modal
-              title="批量删除团队"
-              visible={deleteTeamModal}
-              onCancel={()=>this.setState({deleteTeamModal:false})}
-              onOk={()=>this.deleteTeamConfirm()}
-            >
-              {
-                allTeamList.length > 0 &&
-                <DeleteTable
-                  dataSource={allTeamList}
-                />
-              }
-            </Modal>
             <Modal title="选择可以创建团队的成员" width={760} visible={this.state.rightModal}
                    onCancel = {()=> this.cancelRightModal()}
                    onOk = {()=> this.confirmRightModal()}
@@ -824,19 +743,12 @@ class TeamManage extends Component {
                          roleNum={roleNum}
                          scope={scope}
                          addTeamusers={addTeamusers}
+                         removeTeamusers={removeTeamusers}
                          loadUserTeamList={loadUserTeamList}
                          loadTeamUserList={loadTeamUserList}
                          teamUserIDList={teamUserIDList} />
             </Card>
           </Row>
-          {/* 团队空间充值  */}
-          <Modal title="团队空间充值" visible={this.state.spaceVisible}
-                 onCancel={()=> this.setState({spaceVisible: false})}
-                 width={600}
-                 footer={null}
-          >
-            <SpaceRecharge parentScope={this} selected={this.state.selected} teamSpacesList={this.props.teamSpacesList}/>
-          </Modal>
         </div>
       </QueueAnim>
     )
@@ -853,7 +765,7 @@ function mapStateToProp(state, props) {
   const teams = state.user.teams
   const userDetail = state.entities.loginUser.info
   const { loginUser } = state.entities
-  const { roles } = loginUser.info || { roles: [] }
+  const { roles, userID } = loginUser.info || { roles: [], userID: '' }
   let teamSpacesList = []
   if (teams.result) {
     if (teams.result.teams) {
@@ -908,7 +820,8 @@ function mapStateToProp(state, props) {
     teamUserIDList: teamUserIDList,
     teamSpacesList,
     userDetail,
-    roleNum
+    roleNum,
+    userID
   }
 }
 
