@@ -153,5 +153,8 @@ exports.getProjectDetail = function* (){
   const roleID = this.params.roleID
   const body = this.request.body
   const api = apiFactory.getRoleApi(this.session.loginUser)
-  const result = yield api.getBy([id,'projects'],null)
+  const result = yield api.getBy([roleID,'projects'],null)
+  this.body = {
+    data: result
+  }
 }
