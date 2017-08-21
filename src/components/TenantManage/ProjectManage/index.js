@@ -36,13 +36,10 @@ class ProjectManage extends Component{
       delSingle: false,
       paySingle: false,
       payModal: false,
-      loading: false,
       tableLoading: false,
       current: 0,
       payNumber: 10,
-      selected: [],
-      projectList: [],
-      deleteArr: [],
+      projectList: {},
       deleteSinglePro: [],
       payArr: [],
       paySinglePro: [],
@@ -56,11 +53,16 @@ class ProjectManage extends Component{
       roleWithMember: {},
       closeCreateProject: false,
       originalKeys:[],
-      deleteSingleChecked: false
+      deleteSingleChecked: false,
+      userCountSort: true,
+      clusterCountSort: true,
+      balanceSort: true,
+      managerCountSort: true,
+      sort: ''
     }
   }
   componentWillMount() {
-    this.refresh('tableLoading')
+    this.loadProjectList(null)
     const step = this.props.location.query.step;
     const { projectName, authorizedCluster } = this.state;
     if (step) {
@@ -193,25 +195,10 @@ class ProjectManage extends Component{
           if (res.statusCode === 200) {
             notify.success('充值成功')
             this.setState({paySingle:false})
-            this.refresh('tableLoading')
+            this.loadProjectList(null)
           }
         },
         isAsync: true
-      }
-    })
-  }
-  refresh(loading) {
-    const { ListProjects } = this.props;
-    this.setState({[loading]:true})
-    ListProjects({},{
-      success:{
-        func: (result)=>{
-          if (result.statusCode === 200) {
-            this.setState({projectList:result.data})
-            this.setState({[loading]:false})
-          }
-        },
-        isAsync:true
       }
     })
   }
@@ -220,7 +207,7 @@ class ProjectManage extends Component{
   }
   deleteProject(modal) {
     const { DeleteProjects } = this.props;
-    const { deleteArr, deleteSinglePro } = this.state;
+    const { deleteSinglePro } = this.state;
     let notify = new Notification()
     DeleteProjects({
       body:{
@@ -230,18 +217,13 @@ class ProjectManage extends Component{
       success:{
         func: (res) => {
           if (res.statusCode === 200) {
-            this.refresh('tableLoading')
+            this.loadProjectList(null)
             notify.success('项目删除成功')
             this.setState({[modal]:false, deleteSingleChecked: false})
           }
         },
         isAsync:true
       }
-    })
-  }
-  updateDeleteArr(deleteArr) {
-    this.setState({
-      deleteArr
     })
   }
   updatePayNumber(payNumber) {
@@ -270,32 +252,8 @@ class ProjectManage extends Component{
           if (res.statusCode === 200) {
             notify.success('充值成功')
             this.setState({payModal:false})
-            this.refresh('tableLoading')
+            this.loadProjectList(null)
           }
-        },
-        isAsync: true
-      }
-    })
-  }
-  searchProject(value) {
-    const { ListProjects } = this.props;
-    this.setState({tableLoading:true})
-    let filter =  'name,' + value
-    ListProjects({
-     filter
-    },{
-      success:{
-        func: (result)=>{
-          if (result.statusCode === 200) {
-            this.setState({projectList:result.data})
-            this.setState({tableLoading:false})
-          }
-        },
-        isAsync:true
-      },
-      failed:{
-        func: res => {
-
         },
         isAsync: true
       }
@@ -303,23 +261,32 @@ class ProjectManage extends Component{
   }
   loadProjectList(value,n) {
     const { ListProjects } = this.props;
+    const { sort } = this.state;
     this.setState({tableLoading:true})
-    let page = n || 0
-    let filter =  `name,${value}&size,10&page,${page}`
-    ListProjects({
-      filter
-    },{
+    let page = n-1 || 0
+    let filter =  `name,${value}`
+    let obj = {
+      from: page,
+      size: 10
+    }
+    obj = value === null ? obj : Object.assign(obj,{filter})
+    obj = sort === '' ? obj : Object.assign(obj,{sort})
+    ListProjects(obj,{
       success:{
         func: (result)=>{
           if (result.statusCode === 200) {
-            this.setState({tableLoading:false})
+            this.setState({
+              projectList:result.data,
+              tableLoading:false
+            })
           }
         },
         isAsync:true
       },
       failed:{
-        func: res => {
-
+        func: () => {
+          this.setState({projectList:{}})
+          this.setState({tableLoading:false})
         },
         isAsync: true
       }
@@ -504,7 +471,7 @@ class ProjectManage extends Component{
             roleWithMember: {},
             closeCreateProject:true
           })
-          this.refresh('tableLoading')
+          this.loadProjectList(null)
           browserHistory.replace('/tenant_manage/project_manage')
         },
         isAsync: true
@@ -538,7 +505,6 @@ class ProjectManage extends Component{
     },()=>{
       browserHistory.replace('/tenant_manage/project_manage?step=first')
     })
-
   }
   deleteProjectFooter() {
     const { deleteSingleChecked } = this.state;
@@ -549,12 +515,29 @@ class ProjectManage extends Component{
       </div>
     )
   }
+  handleSort(sortStr) {
+    let currentSort = this.state[sortStr]
+    let sort = this.getSort(currentSort,sortStr)
+    this.setState({
+      [sortStr] : !currentSort,
+      sort
+    },()=>{
+      this.loadProjectList(null)
+    })
+  }
+  getSort(flag,sort) {
+    let str = 'a,'
+    if (flag) {
+      str = 'd,'
+    }
+    return str + sort.slice(0,sort.length - 4)
+  }
   render() {
     const step = this.props.location.query.step || '';
     const { roleNum } = this.props;
-    const { payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro,projectName, userList, deleteSingleChecked } = this.state;
+    const { payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro, userList, deleteSingleChecked } = this.state;
     const pageOption = {
-      total:  projectList && projectList.length,
+      total:  projectList.listMeta && projectList.listMeta.total,
       defaultPageSize: 10,
       defaultCurrent: 1,
       onChange: (n)=>this.loadProjectList(null,n)
@@ -563,11 +546,13 @@ class ProjectManage extends Component{
       title: '项目名',
       dataIndex: 'projectName',
       key: 'projectName',
+      width: '15%',
       render: (text) => <Link to={`/tenant_manage/project_manage/project_detail?name=${text}`}>{text}</Link>,
     }, {
       title: '我是项目的',
       dataIndex: 'role',
       key: 'role',
+      width: '10%',
       filters: [{
         text: '访客',
         value: 'advisor',
@@ -590,40 +575,84 @@ class ProjectManage extends Component{
         </div>
     },
       {
-      title: '授权集群',
+      title: (
+        <div onClick={()=>this.handleSort('clusterCountSort')}>
+          授权集群
+          <div className="ant-table-column-sorter">
+            <span className={this.state.clusterCountSort ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+              <i className="anticon anticon-caret-up" />
+            </span>
+            <span className={!this.state.clusterCountSort ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+              <i className="anticon anticon-caret-down" />
+            </span>
+          </div>
+        </div>
+      ),
       dataIndex: 'clusterCount',
       key: 'clusterCount',
-      sorter: (a, b) => a.clusterCount - b.clusterCount,
+      width: '10%',
       render: (text) => <span>{text ? text : 0}</span>
     }, {
-      title: '成员',
+      title: (
+        <div onClick={()=>this.handleSort('userCountSort')}>
+          成员
+          <div className="ant-table-column-sorter">
+          <span className={this.state.userCountSort ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+            <i className="anticon anticon-caret-up" />
+          </span>
+            <span className={!this.state.userCountSort ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+            <i className="anticon anticon-caret-down" />
+          </span>
+          </div>
+        </div>
+      ),
       dataIndex: 'userCount',
       key: 'userCount',
-      sorter: (a, b) => a.userCount - b.userCount,
+      width: '10%',
     }, {
-      title: '项目管理员',
-      // dataIndex: 'description',
-      // key: 'description',
-      render: (text,record) =>
-      <span style={{color: text === 0 ? 'red' : 'black'}}>1</span>,
-      // sorter: (a, b) => a.userCount - b.userCount,
+      title: (
+        <div onClick={()=>this.handleSort('managerCountSort')}>
+          项目管理员
+          <div className="ant-table-column-sorter">
+          <span className={this.state.managerCountSort ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+            <i className="anticon anticon-caret-up" />
+          </span>
+            <span className={!this.state.managerCountSort ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+            <i className="anticon anticon-caret-down" />
+          </span>
+          </div>
+        </div>
+      ),
+      dataIndex: 'managerCount',
+      key: 'managerCount',
+      width: '10%',
     }, {
       title: '创建时间',
       dataIndex: 'creationTime',
       key: 'creationTime',
-      render: (data) =>
-        <div>
-          <div>{data}</div>
-        </div>
+      width: '15%',
     }, {
-      title: '余额',
+      title: (
+        <div onClick={()=>this.handleSort('balanceSort')}>
+          余额
+          <div className="ant-table-column-sorter">
+          <span className={this.state.balanceSort ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+            <i className="anticon anticon-caret-up" />
+          </span>
+            <span className={!this.state.balanceSort ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+            <i className="anticon anticon-caret-down" />
+          </span>
+          </div>
+        </div>
+      ),
       dataIndex: 'balance',
       key: 'balance',
-      sorter: (a, b) => a.balance - b.balance,
+      width: '10%',
       render: (text)=><span className="balanceColor">{parseAmount(text,4).fullAmount}</span>
     }, {
       title: '操作',
       key: 'operation',
+      width: '15%',
       render: (text, record) => (
         <span>
           {
@@ -646,9 +675,8 @@ class ProjectManage extends Component{
           >
             <div className="deleteRow">
               <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
-              <span>将永久删除一下项目，包括项目中的所有资源。您确定要删除一下项目？</span>
+              <span>将永久删除以下项目，包括项目中的所有资源。您确定要删除以下项目？</span>
             </div>
-            <DelProjectTable delData={projectList} updateDeleteArr={this.updateDeleteArr.bind(this)} visible={delModal}/>
           </Modal>
           <Modal title="删除项目" visible={delSingle} width={610}
                  onCancel={this.singleCancel.bind(this)}
@@ -668,7 +696,7 @@ class ProjectManage extends Component{
                  onCancel={()=> this.payCancel()}
                  onOk={()=> this.updatePayCharge()}
           >
-            <PayTable data={projectList} updatePayArr={this.updatePayArr.bind(this)} visible={payModal} updatePayCharge={this.updatePayCharge.bind(this)} updatePayNumber={this.updatePayNumber.bind(this)}/>
+            <PayTable data={projectList.projects} updatePayArr={this.updatePayArr.bind(this)} visible={payModal} updatePayCharge={this.updatePayCharge.bind(this)} updatePayNumber={this.updatePayNumber.bind(this)}/>
           </Modal>
           <Modal title="项目充值" visible={this.state.paySingle} width={580}
                  onCancel = {()=> this.paySingleCancel()}
@@ -726,10 +754,10 @@ class ProjectManage extends Component{
             {
               roleNum === 1 && <Button type="ghost" icon="pay-circle-o" size="large" className="manageBtn" onClick={()=> this.pay()}>批量充值</Button>
             }
-            <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.refresh('loading')}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
-            <CommonSearchInput placeholder="请输入项目名称进行搜索" size="large" onSearch={this.searchProject.bind(this)}/>
+            <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.loadProjectList(null)}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
+            <CommonSearchInput placeholder="请输入项目名称进行搜索" size="large" onSearch={(value)=>this.loadProjectList(value)}/>
             <Pagination {...pageOption}/>
-            <div className="total">共{projectList && projectList.length || 0}个</div>
+            <div className="total">共{projectList.listMeta && projectList.listMeta.total || 0}个</div>
           </Row>
           <Row className={classNames("projectList",{'hidden': step !== ''})}>
             <Card>
@@ -737,7 +765,7 @@ class ProjectManage extends Component{
                 loading={tableLoading}
                 pagination={false}
                 columns={columns}
-                dataSource={projectList}
+                dataSource={projectList.projects}
               />
             </Card>
           </Row>
@@ -819,78 +847,6 @@ export default connect(mapStateToProps,{
   usersLoseRoles
 })(ProjectManage);
 
-class DelProjectTable extends Component{
-  constructor(props){
-    super(props);
-    this.state={
-      selectedRowKeys: [],  // 这里配置默认勾选列
-      loading: false,
-      deleteArr: []
-    }
-  }
-  componentWillReceiveProps(nextProps) {
-    const { visible } = nextProps;
-    if (!visible) {
-      this.setState({
-        deleteArr: [],
-        selectedRowKeys: []
-      })
-    }
-  }
-  start() {
-    this.setState({ loading: true });
-    // 模拟 ajax 请求，完成后清空
-    setTimeout(() => {
-      this.setState({
-        selectedRowKeys: [],
-        loading: false,
-      });
-    }, 1000);
-  }
-  onSelectChange(selectedRowKeys) {
-    this.setState({ selectedRowKeys});//报错
-  }
-  handClickRow(record,index) {
-    const { updateDeleteArr } = this.props;
-    const { selectedRowKeys, deleteArr } = this.state;
-    let newDeleteArr = deleteArr.slice(0);
-    let newSelected = selectedRowKeys.slice(0);
-    let result = newSelected.findIndex((value,ind)=> value === index)
-    if (result > -1) {
-      newDeleteArr.splice(result,1)
-      newSelected.splice(result,1)
-    }else {
-      newDeleteArr.push(record.projectName)
-      newSelected.push(index)
-    }
-    this.setState({
-      selectedRowKeys:newSelected,
-      deleteArr:newDeleteArr
-    })
-    updateDeleteArr(newDeleteArr)
-  }
-  render() {
-    const columns = [{
-      title: '项目名',
-      dataIndex: 'projectName',
-    }, {
-      title: '备注',
-      dataIndex: 'description',
-    }];
-    const { loading, selectedRowKeys } = this.state;
-    const {delData}= this.props;
-    const rowSelection = {
-      selectedRowKeys,
-      onChange: this.onSelectChange.bind(this),
-    };
-    return (
-      <div className="delProjectModal">
-        <Table scroll={{y: 300}} rowSelection={rowSelection} columns={columns} dataSource={delData} pagination={false} onRowClick={(recode,index)=>this.handClickRow(recode,index)}/>
-        <div className="delTipBox"><i className="fa fa-check-square"/>选中此框以确认您要删除这些项目。</div>
-      </div>
-    )
-  }
-}
 class PayTable extends Component{
   constructor(props){
     super(props)

@@ -63,7 +63,7 @@ exports.listProjects = function* () {
     queryObj.filter = filter
   }
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.projects.getBy(['list'], queryObj)
+  const response = yield projectApi.projects.getBy(['list'], query)
   this.status = response.statusCode
   this.body = response
 }

@@ -307,7 +307,7 @@ class TeamDetail extends Component {
     }
   }
   componentWillMount() {
-    const { loadAllClustersList, loadTeamUserList, loadTeamspaceList, teamID, loadTeamAllUser } = this.props
+    const { loadAllClustersList, loadTeamUserList, teamID, loadTeamAllUser } = this.props
     loadAllClustersList(teamID)
     loadTeamUserList(teamID, { sort: 'a,userName', size: 5, page: 1 })
     loadTeamAllUser(teamID, {size: 0, sort: 'a,userName'})
