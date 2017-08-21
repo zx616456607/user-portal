@@ -9,10 +9,10 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import { Row, Table, Col, Spin, Form, Menu, Input, Icon, Button, Tree, Modal, InputNumber, Pagination, Select, Card, Checkbox, Tooltip } from 'antd'
 import './style/TenantDetail.less'
-import { GetRole, UpdateRole, RemovePermissionRole } from '../../../actions/role'
+import { GetRole, UpdateRole, RemovePermissionRole, GetDetailList } from '../../../actions/role'
 import { Permission } from '../../../actions/permission'
 import QueueAnim from 'rc-queue-anim'
 import { formatDate } from '../../../common/tools'
@@ -29,6 +29,7 @@ let TenantDetail = React.createClass({
     return {
       detailValue: '',
       roleDetail:[],
+      roleProjects: [],
       isShowIco: false,
       filteredInfo: null,
       sortedInfo: null,
@@ -49,10 +50,11 @@ let TenantDetail = React.createClass({
     this.loadData(roleId)
   },
   loadData(roleId){
-    const { GetRole } = this.props
+    let notification = new NotificationHandler()
+    const { GetRole, GetDetailList } = this.props
     GetRole({ roleId },{
       success: {
-        func: res => {
+        func: (res) => {
           if(REG.test(res.data.code)){
             this.RowData(res.data.data.permissions)
             this.setState({
@@ -61,6 +63,29 @@ let TenantDetail = React.createClass({
           }
         },
         isAsync: true
+      },
+      failed: {
+        func: (error) => {
+          notification.error(error)
+        }
+      }
+    })
+    GetDetailList({ roleId },{
+      success: {
+        func: (res) => {
+          if(REG.test(res.data.code)){
+            if(res.data.projects && res.data.projects.length > 0){
+              this.setState({
+                roleProjects: data.roleProjects
+              })
+            }
+          }
+        }
+      },
+      failed:{
+        func: (error) => {
+          notification.error(error)
+        }
       }
     })
   },
@@ -193,39 +218,41 @@ let TenantDetail = React.createClass({
       characterModal: true
     })
   },
-  handleChanges(e){
-    this.setState({
-      detailValue: e.target.values
-    })
-  },
   handleItem(){
-    const { UpdateRole, params } = this.props
-    const { detailValue, roleDetail } = this.state
+    const { UpdateRole, params, form } = this.props
+    const { roleDetail } = this.state
     let notification = new NotificationHandler()
-    let body = {
-      name: roleDetail.name,
-      comment: detailValue
-    }
-    UpdateRole({
-      id: params.id,
-      body
+    form.validateFields((error, values) => {
+      let body = {
+        name: roleDetail.name,
+        comment: values.comment
+      }
+      UpdateRole({
+        id: params.id,
+        body
       },{
         success:{
           func: (res) => {
             if(REG.test(res.data.code)){
               notification.success("修改成功")
-              this.loadData(params.id)
+              this.setState({
+                isShowIco: false
+              })
             }
           }
         },
         failed: {
-        func: (err) => {
-          notification.close()
-          notification.error(err)
-        },
-        isAsync: true
-      }
+          func: (err) => {
+            notification.close()
+            notification.error(err)
+          },
+          isAsync: true
+        }
+      })
     })
+  },
+  handleProject(record){
+    browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${record.Projectname}`)
   },
   render() {
     const { params, form, permissionList } = this.props
@@ -233,11 +260,11 @@ let TenantDetail = React.createClass({
     const data = [{
       key: '1',
       Projectname: '项目1',
-      Referencetime: '2017-03-28 14:31:35',
+      Referencetime: '2017-01-28 14:31:35',
     }, {
       key: '2',
       Projectname: '项目1',
-      Referencetime: '2017-03-28 14:31:35',
+      Referencetime: '2017-03-20 14:31:35',
     }, {
       key: '3',
       Projectname: '项目1',
@@ -245,13 +272,18 @@ let TenantDetail = React.createClass({
     }, {
       key: '4',
       Projectname: '项目1',
-      Referencetime: '2017-03-28 14:31:35',
-    },{
+      Referencetime: '2017-02-28 14:31:35',
+    }, {
       key: '5',
       Projectname: '项目1',
       Referencetime: '2017-03-28 14:31:35',
+    }, {
+      key: '6',
+      Projectname: '项目1',
+      Referencetime: '2017-03-28 14:31:35',
     }];
-    let { roleDetail, sortedInfo, filteredInfo, removePermissionName, removePermissionTree, permissionDatasource, defaultExpandedKeys } = this.state;
+    let { roleDetail, sortedInfo, filteredInfo, removePermissionName, removePermissionTree, permissionDatasource, defaultExpandedKeys,
+      roleProjects } = this.state;
 
     let outPermission = {}
     let outPermissionInfo = outPermission.permission
@@ -260,7 +292,7 @@ let TenantDetail = React.createClass({
     const columns = [{
       title: '引用项目名',
       dataIndex: 'Projectname',
-      key: 'Projectname',
+      key: 'ProjectID',
       width:'20%',
     }, {
       title: '引用时间',
@@ -268,19 +300,24 @@ let TenantDetail = React.createClass({
       key: 'Referencetime',
       width:'40%',
       sorter: (a, b) => a.Referencetime - b.Referencetime,
-      sortOrder: sortedInfo.columnKey === 'Referencetime' && sortedInfo.order,
+      //sortOrder: sortedInfo.columnKey === 'Referencetime' && sortedInfo.order,
     }, {
       title: '操作',
       dataIndex: 'address',
-      key: 'address',
       width:'40%',
       render: (text, record) => (
         <span>
-          <Button style={{marginRight:'10px'}} type="primary">进入项目</Button>
+          <Button style={{marginRight:'10px'}} type="primary" onClick={() => this.handleProject(record)}>进入项目</Button>
           <Button onClick={()=> this.setState({Removerol:true})} type="ghost">移除角色</Button>
         </span>
       ),
     }];
+    const pagination = {
+      defaultCurrent: 1,
+      defaultPageSize: 5,
+      total: data.length,
+      //onChange: (n) => this.handlePage(n)
+    }
     const permissionColumns = [{
       title: '权限名称',
       dataIndex: 'desc',
@@ -335,9 +372,8 @@ let TenantDetail = React.createClass({
                         disabled = {!this.state.isShowIco}
                         style={{ width:145}}
                         type="textarea"
-                        onChange={this.handleChanges}
                         {...getFieldProps(`comment`, {
-                            initialValue: roleDetail.comment
+                          initialValue: roleDetail.comment
                         })}
                         />
                         {
@@ -392,29 +428,12 @@ let TenantDetail = React.createClass({
           <div className='title'>项目引用记录</div>
           <div className='container referencerecord'>
             <div className="lastSyncInfo">
-              <Table columns={columns} dataSource={data} onChange={this.handleChange} />
+              <Table columns={columns} dataSource={data} onChange={this.handleChange} pagination={pagination}/>
             </div>
           </div>
         </div>
         <Modal title="移除角色" visible={this.state.Removerol} onOk={this.handleOk} onCancel={this.handleCancel} >
           <p className="createRol"><div className="mainbox"><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>从项目xxx中移除该角色后与该角色相关联的所有成员及团队将从项目中移除，确定从项目xxx中移除该角色？</div></p>
-        </Modal>
-        <Modal
-          width="765px"
-          title="编辑角色"
-          visible={this.state.roleModalVisible}
-          onOk={this.handleOk}
-          onCancel={this.handleCancel}
-          wrapClassName='roleDetail_editRole'
-        >
-           {/* <AddOrEditRole
-            roleInfo={roleInfo}
-            permissonInfo={permissonInfo}
-            outPermissionInfo={outPermissionInfo}
-            scope={scope}
-            permissionList={permissionList}
-            form={form}
-          /> */}
         </Modal>
         <Modal title="移除权限"
           visible={this.state.Removepermis}
@@ -466,5 +485,6 @@ export default connect(mapStateToProps, {
   GetRole,
   UpdateRole,
   Permission,
+  GetDetailList,
   RemovePermissionRole,
 })(TenantDetail)

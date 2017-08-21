@@ -372,7 +372,7 @@ export const ROLE_GET_DETAIL_SUCCESS = 'ROLE_GET_DETAIL_SUCCESS'
 export const ROLE_GET_DETAIL_FAILURE = 'ROLE_GET_DETAIL_FAILURE'
 
 function fetchGetDetailInfo(body, callback){
-  let endpoint = `${API_URL_PREFIX}/role/${body.id}/projects`
+  let endpoint = `${API_URL_PREFIX}/role/${body.roleId}/projects`
   return {
     [FETCH_API]: {
       types: [ ROLE_GET_DETAIL_REQUEST, ROLE_GET_DETAIL_SUCCESS, ROLE_GET_DETAIL_FAILURE ],
