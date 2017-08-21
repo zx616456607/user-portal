@@ -450,8 +450,13 @@ class hostList extends Component {
   }
   searchNodes(e) {
     //this function for search nodes
-    //let search = document.getElementsByClassName('searchInput')[0].value
-    let search = e.target.value.replace(SEARCH, "")
+    let search =''
+    if(e){
+      search = e.target.value.replace(SEARCH,"")
+    } else {
+      search = document.getElementsByClassName('searchInput')[0].value.replace(SEARCH,"")
+    }
+
     const { nodes } = this.props;
     if (search.length == 0) {
       this.setState({
@@ -646,7 +651,7 @@ class hostList extends Component {
             <i className='fa fa-refresh' /> 刷 新
           </Button>
           <span className='searchBox'>
-            <Input className='searchInput' size='large' placeholder='搜索' type='text' onPressEnter={() => this.searchNodes()} />
+            <Input className='searchInput' size='large' placeholder='搜索' type='text' onPressEnter={(e) => this.searchNodes(e)} />
             <Icon type="search" className="fa" onClick={() => this.searchNodes()} />
           </span>
           <span className='selectlabel' id="cluster__hostlist__selectlabel">

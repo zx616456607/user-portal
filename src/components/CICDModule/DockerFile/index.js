@@ -19,7 +19,7 @@ import './style/DockerFile.less'
 import NotificationHandler from '../../../components/Notification'
 import Title from '../../Title'
 import DockerfileModal from '../DockerfileModal'
-import { SEARCH } from '../../../../constants'
+import { SEARCH } from '../../../constants'
 
 const editorOptions = {
   readOnly: false
