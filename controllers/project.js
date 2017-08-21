@@ -57,11 +57,6 @@ exports.getProjectDetail = function* () {
 exports.listProjects = function* () {
   const loginUser = this.session.loginUser
   const query = this.query || {}
-  const filter = query.filter
-  const queryObj = {}
-  if (filter) {
-    queryObj.filter = filter
-  }
   const projectApi = apiFactory.getApi(loginUser)
   const response = yield projectApi.projects.getBy(['list'], query)
   this.status = response.statusCode

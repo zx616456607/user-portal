@@ -54,11 +54,12 @@ class ProjectManage extends Component{
       closeCreateProject: false,
       originalKeys:[],
       deleteSingleChecked: false,
-      userCountSort: true,
-      clusterCountSort: true,
-      balanceSort: true,
-      managerCountSort: true,
-      sort: ''
+      userCountSort: undefined,
+      clusterCountSort: undefined,
+      balanceSort: undefined,
+      managerCountSort: undefined,
+      sort: '',
+      clearInput: false
     }
   }
   componentWillMount() {
@@ -515,6 +516,18 @@ class ProjectManage extends Component{
       </div>
     )
   }
+  refreshTeamList() {
+    this.setState({
+      userCountSort: undefined,
+      clusterCountSort: undefined,
+      balanceSort: undefined,
+      managerCountSort: undefined,
+      sort: '',
+      clearInput: true
+    },()=>{
+      this.loadProjectList(null)
+    })
+  }
   handleSort(sortStr) {
     let currentSort = this.state[sortStr]
     let sort = this.getSort(currentSort,sortStr)
@@ -579,10 +592,10 @@ class ProjectManage extends Component{
         <div onClick={()=>this.handleSort('clusterCountSort')}>
           授权集群
           <div className="ant-table-column-sorter">
-            <span className={this.state.clusterCountSort ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+            <span className={this.state.clusterCountSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
               <i className="anticon anticon-caret-up" />
             </span>
-            <span className={!this.state.clusterCountSort ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+            <span className={this.state.clusterCountSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
               <i className="anticon anticon-caret-down" />
             </span>
           </div>
@@ -597,10 +610,10 @@ class ProjectManage extends Component{
         <div onClick={()=>this.handleSort('userCountSort')}>
           成员
           <div className="ant-table-column-sorter">
-          <span className={this.state.userCountSort ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+          <span className={this.state.userCountSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
             <i className="anticon anticon-caret-up" />
           </span>
-            <span className={!this.state.userCountSort ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+            <span className={this.state.userCountSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
             <i className="anticon anticon-caret-down" />
           </span>
           </div>
@@ -614,10 +627,10 @@ class ProjectManage extends Component{
         <div onClick={()=>this.handleSort('managerCountSort')}>
           项目管理员
           <div className="ant-table-column-sorter">
-          <span className={this.state.managerCountSort ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+          <span className={this.state.managerCountSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
             <i className="anticon anticon-caret-up" />
           </span>
-            <span className={!this.state.managerCountSort ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+            <span className={this.state.managerCountSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
             <i className="anticon anticon-caret-down" />
           </span>
           </div>
@@ -636,10 +649,10 @@ class ProjectManage extends Component{
         <div onClick={()=>this.handleSort('balanceSort')}>
           余额
           <div className="ant-table-column-sorter">
-          <span className={this.state.balanceSort ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+          <span className={this.state.balanceSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
             <i className="anticon anticon-caret-up" />
           </span>
-            <span className={!this.state.balanceSort ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+            <span className={this.state.balanceSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
             <i className="anticon anticon-caret-down" />
           </span>
           </div>
@@ -741,7 +754,7 @@ class ProjectManage extends Component{
               render={item => item && item.title}
             />
           </Modal>
-          <Row className={classNames({'hidden': step !== ''})}>
+          <Row className={classNames('btnBox',{'hidden': step !== ''})}>
             {
               (roleNum === 1 || roleNum === 2) &&
               <Button type='primary' size='large'  className='addBtn' onClick={this.startCreateProject.bind(this)}>
@@ -754,8 +767,8 @@ class ProjectManage extends Component{
             {
               roleNum === 1 && <Button type="ghost" icon="pay-circle-o" size="large" className="manageBtn" onClick={()=> this.pay()}>批量充值</Button>
             }
-            <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.loadProjectList(null)}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
-            <CommonSearchInput placeholder="请输入项目名称进行搜索" size="large" onSearch={(value)=>this.loadProjectList(value)}/>
+            <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.refreshTeamList()}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
+            <CommonSearchInput clearInput={this.state.clearInput} placeholder="请输入项目名称进行搜索" size="large" onSearch={(value)=>this.loadProjectList(value)}/>
             <Pagination {...pageOption}/>
             <div className="total">共{projectList.listMeta && projectList.listMeta.total || 0}个</div>
           </Row>
