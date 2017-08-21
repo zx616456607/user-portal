@@ -80,3 +80,5 @@ exports.TEAM_VISISTOR_ROLE_ID = 'RID-ggNW6A2mwgEX'
 exports.TEAM_MANAGE_ROLE_ID = 'RID-LFJKCKtKzCrd'
 //admin userID
 exports.ADMIN_USERID = 1232
+//team_manager
+exports.TEAM_MANAGE_ROLE_ID = 'RID-i5rFhJowkzjo'

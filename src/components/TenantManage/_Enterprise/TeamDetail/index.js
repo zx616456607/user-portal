@@ -9,10 +9,10 @@
  */
 'use strict'
 import React, { Component } from 'react'
-import { Row, Col, Alert, Card, Popover, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, Form, Tooltip } from 'antd'
+import { Row, Col, Card, Button, Table, Modal, Input, Form, Tooltip } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/TeamDetail.less'
-import { Link, browserHistory } from 'react-router'
+import { Link } from 'react-router'
 import { setCurrent } from '../../../../actions/entities'
 import {
   deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
@@ -26,8 +26,7 @@ import { connect } from 'react-redux'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import NotificationHandler from '../../../../components/Notification'
 import CommonSearchInput from '../../../../components/CommonSearchInput'
-import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../../constants'
-import Root from "../../../../containers/Root";
+import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN, TEAM_MANAGE_ROLE_ID } from '../../../../../constants'
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
 import includes from 'lodash/includes'
@@ -480,17 +479,17 @@ class TeamDetail extends Component {
       return
     }
     roleWithMembers({
-      roleID:'RID-i5rFhJowkzjo',
+      roleID:TEAM_MANAGE_ROLE_ID,
       scope: 'team',
       scopeID: teamID
     },{
       success: {
         func: res => {
-          let arr = [res.data.data[0].userId]
+          let arr = [res.data.data && res.data.data[0].userId]
           this.setState({
             selectLeader: arr,
             originalLeader: arr,
-            delLeaderName: res.data.data[0].userName
+            delLeaderName: res.data.data && res.data.data[0].userName
           })
           if (flag) {
             this.setState({
@@ -569,7 +568,7 @@ class TeamDetail extends Component {
     const { selectLeader } = this.state;
     let notify = new NotificationHandler()
     usersAddRoles({
-      roleID:'RID-i5rFhJowkzjo',
+      roleID:TEAM_MANAGE_ROLE_ID,
       scope: 'team',
       scopeID: teamID,
       body: {
@@ -604,7 +603,7 @@ class TeamDetail extends Component {
     const { originalLeader } = this.state;
     let notify = new NotificationHandler()
     let opt = {
-      roleID:'RID-i5rFhJowkzjo',
+      roleID:TEAM_MANAGE_ROLE_ID,
       scope: 'team',
       scopeID: teamID
     }
@@ -732,6 +731,7 @@ class TeamDetail extends Component {
     const { getFieldProps } = form
     const { targetKeys, teamDetail, selectLeader, editTeamName, delLeaderName } = this.state
     const leaderRowSelction = {
+      type: 'radio',
       selectedRowKeys: selectLeader,
       onSelect: (record) => this.leaderRowClick(record)
     }
