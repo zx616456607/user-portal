@@ -316,7 +316,7 @@ class Service extends Component {
             <Col span={4}>
               <div className="title">配置分类</div>
               <div className="configSearchAndListBox">
-                <CommonSearchInput onSearch={(value)=>{this.handleSearchInput(value)}} placeholder="请输入分类名搜索" size="large"/>
+                <CommonSearchInput onSearch={(value)=>{this.handleSearchInput(value)}} placeholder="请输入分类名搜索" size="large" wrapperWidth="90%"/>
                 <div className={classNames("resultCount clearfix",{'hidden': !Boolean(searchValue)})}>
                   <span className="clearSearch pointer" onClick={()=>this.handleSearchInput('')}>
                     <i className="fa fa-arrow-left" aria-hidden="true"/>返回
