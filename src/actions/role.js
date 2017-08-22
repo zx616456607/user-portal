@@ -271,6 +271,32 @@ export function AllowUpdateRole(body, callback) {
 	}
 }
 
+export const REMOVE_PROJECT_ROLES_REQUEST = 'REMOVE_PROJECT_ROLES_REQUEST'
+export const REMOVE_PROJECT_ROLES_SUCCESS = 'REMOVE_PROJECT_ROLES_SUCCESS'
+export const REMOVE_PROJECT_ROLES_FAILURE = 'REMOVE_PROJECT_ROLES_FAILURE'
+
+function RemoveRoleList(body,callback) {
+  let endpoint = `${API_URL_PREFIX}/projects/${body.projectName}/roles/batch-delete`
+  return {
+    [FETCH_API]: {
+      types: [REMOVE_PROJECT_ROLES_REQUEST, REMOVE_PROJECT_ROLES_SUCCESS, REMOVE_PROJECT_ROLES_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body: body.projectRole
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function RemoveProjectRole(body,callback) {
+  return (dispatch,getState) => {
+    return dispatch(RemoveRoleList(body,callback))
+  }
+}
+
 export const USERS_ADD_ROLES_REQUEST = 'USERS_ADD_ROLES_REQUEST'
 export const USERS_ADD_ROLES_SUCCESS = 'USERS_ADD_ROLES_SUCCESS'
 export const USERS_ADD_ROLES__FAILURE = 'USERS_ADD_ROLES__FAILURE'
@@ -293,31 +319,6 @@ function fetchUsersAddRoles(body,callback) {
 export function usersAddRoles(body,callback) {
   return (dispatch,getState) => {
     return dispatch(fetchUsersAddRoles(body,callback))
-  }
-}
-
-export const USERS_LOSE_ROLES_REQUEST = 'USERS_LOSE_ROLES_REQUEST'
-export const USERS_LOSE_ROLES_SUCCESS = 'USERS_LOSE_ROLES_SUCCESS'
-export const USERS_LOSE_ROLES__FAILURE = 'USERS_LOSE_ROLES__FAILURE'
-
-function fetchUsersLoseRoles(body,callback) {
-  return {
-    [FETCH_API]: {
-      types: [USERS_LOSE_ROLES_REQUEST, USERS_LOSE_ROLES_SUCCESS, USERS_LOSE_ROLES__FAILURE],
-      endpoint: `${API_URL_PREFIX}/role/${body.roleID}/${body.scope}/${body.scopeID}/batch-delete`,
-      options: {
-        method: 'POST',
-        body: body.body
-      },
-      schema: {}
-    },
-    callback
-  }
-}
-
-export function usersLoseRoles(body,callback) {
-  return (dispatch,getState) => {
-    return dispatch(fetchUsersLoseRoles(body,callback))
   }
 }
 
