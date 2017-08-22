@@ -11,6 +11,7 @@ import React, { Component } from 'react'
 import { Button, Input, Select } from 'antd'
 import './style/SearchInput.less'
 import { connect } from 'react-redux'
+import { REG } from '../../../../constants'
 import { GetRole, GetSearchList } from '../../../../actions/role'
 
 const Option = Select.Option
@@ -51,9 +52,9 @@ class SearchInput extends React.Component{
   getFilterField(selecteValue) {
     let field = selecteValue
     if (selecteValue == "jsmt") {
-      field = "userName"
+      field = "name"
     } else if (selecteValue == "cjr") {
-      field = "cjrUser"
+      field = "creator"
     }
     return field
   }
@@ -67,7 +68,7 @@ class SearchInput extends React.Component{
     },{
       success: {
         func: res => {
-          if(res.data.code === 200){
+          if(REG.test(res.data.code)){
             Search(res.data.data)
           }
         }
