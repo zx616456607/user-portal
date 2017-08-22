@@ -28,7 +28,7 @@ import {
 import { removeTerminal } from '../../actions/terminal'
 import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
 import { LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'

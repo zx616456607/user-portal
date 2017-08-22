@@ -157,7 +157,7 @@ class AppSettingsHttps extends Component {
     loadK8sService(cluster, serviceName)
     loadServiceDetail(cluster, serviceName)
     const _this = this
-    httpsOpened && loadCertificates(cluster, serviceName, {
+    loadCertificates(cluster, serviceName, {
       success: {
         func: () => {
           _this.setState({certificateExists: true})

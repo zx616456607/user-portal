@@ -521,9 +521,16 @@ exports.getCertificate = function* () {
   const service = this.params.service_name
 
   const api = apiFactory.getK8sApi(this.session.loginUser)
-  const response = yield api.getBy([cluster, 'services', service, 'certificates'])
-
-  this.status = response.code
+  let response = {}
+  this.status = 200
+  try {
+    response = yield api.getBy([cluster, 'services', service, 'certificates'])
+  } catch (err) {
+    // Skip 404 exception
+    if (err && err.statusCode !== 404) {
+      this.status = response.code
+    }
+  }
   this.body = response
 }
 
