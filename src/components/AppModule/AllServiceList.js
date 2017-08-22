@@ -596,40 +596,31 @@ class ServiceList extends Component {
       })
     }
     query.customizeOpts = options
-    loadAllServices(cluster, query, {
-      success: {
-        func: (result) => {
-          // Add deploment status watch, props must include statusWatchWs!!!
-          let { services } = result.data
-          let deployments = services.map(service => service.deployment)
-          let k8sServiceList = services.map(service => service.service)
-          this.setState({
-            k8sServiceList,
-          })
-          addDeploymentWatch(cluster, self.props, deployments)
-          // For fix issue #CRYSTAL-1604(load list again for update status)
-          clearTimeout(self.loadStatusTimeout)
-          query.customizeOpts = {
-            keepChecked: true,
-          }
-          self.loadStatusTimeout = setTimeout(() => {
-            loadAllServices(cluster, query)
-          }, LOAD_STATUS_TIMEOUT)
-          if (openModal) {
-            const { serName, serviceList } = this.props
-            if (serName && serviceList) {
-              this.setState({
-                currentShowInstance: serviceList.filter((item)=>item.metadata.name === serName)[0],
-                selectTab: null,
-                modalShow: true,
-              },()=>{
-                browserHistory.replace('/app_manage/service')
-              })
+    return new Promise(resolve => {
+      loadAllServices(cluster, query, {
+        success: {
+          func: (result) => {
+            resolve()
+            // Add deploment status watch, props must include statusWatchWs!!!
+            let { services } = result.data
+            let deployments = services.map(service => service.deployment)
+            let k8sServiceList = services.map(service => service.service)
+            this.setState({
+              k8sServiceList,
+            })
+            addDeploymentWatch(cluster, self.props, deployments)
+            // For fix issue #CRYSTAL-1604(load list again for update status)
+            clearTimeout(self.loadStatusTimeout)
+            query.customizeOpts = {
+              keepChecked: true,
             }
-          }
-        },
-        isAsync: true
-      }
+            self.loadStatusTimeout = setTimeout(() => {
+              loadAllServices(cluster, query)
+            }, LOAD_STATUS_TIMEOUT)
+          },
+          isAsync: true
+        }
+      })
     })
   }
 
@@ -658,10 +649,21 @@ class ServiceList extends Component {
   }
 
   componentWillMount() {
-    this.loadServices(null, null, true)
-    return
+    const { serName, serviceList, tab } = this.props
+    this.loadServices(null, null).then(() => {
+      if (serName) {
+        if (serName && serviceList) {
+          this.setState({
+            currentShowInstance: serviceList.filter((item)=>item.metadata.name === serName)[0],
+            selectTab: null,
+            modalShow: true,
+          },()=>{
+            browserHistory.replace('/app_manage/service')
+          })
+        }
+      }
+    })
   }
-
   componentDidMount() {
     this.loadServices()
     // Reload list each UPDATE_INTERVAL
@@ -1176,7 +1178,7 @@ class ServiceList extends Component {
   render() {
     const parentScope = this
     let {
-      modalShow,
+      modalShow, selectTab,
       currentShowInstance,
       serviceList,
       rollingUpdateModalShow,
@@ -1188,9 +1190,7 @@ class ServiceList extends Component {
       pathname, page, size, total, isFetching, cluster,
       loadAllServices, loginUser, SettingListfromserviceorapp
     } = this.props
-    let selectTab = this.state.selectTab
     let appName = ''
-
     if (this.state.currentShowInstance) {
       appName = this.state.currentShowInstance.metadata.labels['tenxcloud.com/appName']
     }

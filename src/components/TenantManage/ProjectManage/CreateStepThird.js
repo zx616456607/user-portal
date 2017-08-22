@@ -148,6 +148,7 @@ class CreateStepThird extends Component{
     this.setState({ targetKeys });
   }
   generateDatas (_tns){
+    if(!_tns) return
     const tns = _tns;
     const children = [];
     for (let i = 0; i < tns.length; i++) {
@@ -292,7 +293,7 @@ class CreateStepThird extends Component{
                 <p className="authTitle">该角色共 <span style={{color:'#59c3f5'}}>{currentRoleInfo && currentRoleInfo.total}</span> 个权限</p>
                 <div className="treeBox">
                   {
-                    currentRolePermission.length > 0 && (
+                    currentRolePermission && currentRolePermission.length > 0 && (
                       <Tree
                         checkable
                         onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
