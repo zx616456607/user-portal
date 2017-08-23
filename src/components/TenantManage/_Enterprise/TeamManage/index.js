@@ -686,8 +686,7 @@ class TeamManage extends Component {
       <QueueAnim>
         <div key='TeamsManage' id="TeamsManage">
           <Title title="团队管理" />
-          <Alert message={`团队，由若干个成员组成的一个集体，可等效于公司的部门、项目组、或子公司，
-          包含『团队空间』这一逻辑隔离层，以实现对应您企业内部各个不同项目，或者不同逻辑组在云平台上操作对象的隔离，团队管理员可见对应团队的所有空间的应用等对象。`}
+          <Alert message={`团队由若干个成员组成的一个集体，等效于公司的部门、小组、或子公司；系统管理员可将普通成员设置为「可以创建团队」的人，团队创建者为团队管理员，团队能移交给团队内或团队外成员作为新的团队管理员。`}
                  type="info" />
           <Row className="teamOption">
             {
