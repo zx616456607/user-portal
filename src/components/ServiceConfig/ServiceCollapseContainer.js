@@ -375,7 +375,7 @@ class CollapseContainer extends Component {
           volume = mounts.slice(0, 1).map((list, index) => {
             return (
               <td key={`key@${index}`}>
-                <div className="li">应用：<Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link>，服务：{list.serviceName}</div>
+                <div className="li">应用：<Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link>，服务：<Link to={`/app_manage/service?serName=${list.serviceName}`}>{list.serviceName}</Link></div>
                 <Tooltip title={list.mountPath}>
                   <div className='lis textoverflow'>{list.mountPath}</div>
                 </Tooltip>

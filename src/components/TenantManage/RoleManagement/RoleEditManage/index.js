@@ -60,9 +60,12 @@ class CreateRoleModal extends React.Component{
             let result = res.data.data.permissions
             let pids = res.data.data.pids
             let aryID = []
-            for(let i = 0;i < result.length; i++){
-              aryID.push(`${result[i].id}`)
+            if(result){
+              for(let i = 0;i < result.length; i++){
+                aryID.push(`${result[i].id}`)
+              }
             }
+
             this.setState({
               rowDate: res.data.data,
               checkedKeys: aryID,
@@ -359,9 +362,9 @@ class CreateRoleModal extends React.Component{
             {
               this.props.isAdd ?
               <div className="authTitle">所有权限 <div className="pull-right">共<span style={{color:'#59c3f5'}}>
-                {allPermission.length}</span> 个</div>
+                {allPermission.length > 0 ? allPermission.length : 0}</span> 个</div>
               </div> :
-              <div className="authTitle">共<span style={{color:'#59c3f5'}}>{allPermission.length}</span>个<div className="pull-right">已选<span style={{color:'#59c3f5'}}>
+              <div className="authTitle">共<span style={{color:'#59c3f5'}}>{allPermission.length > 0 ? allPermission.length : 0}</span>个<div className="pull-right">已选<span style={{color:'#59c3f5'}}>
                 {this.state.checkedKeys.length}</span> 个</div>
               </div>
             }

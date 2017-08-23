@@ -126,13 +126,11 @@ exports.usersAddRoles = function* () {
   }
 }
 
-exports.usersLoseRoles = function* () {
-  const roleID = this.params.roleID
-  const scope = this.params.scope
-  const scopeID = this.params.scopeID
+exports.removeProjectRole = function* () {
+  const projectName = this.params.projectName
   const body = this.request.body;
   const api = apiFactory.getRoleApi(this.session.loginUser)
-  const result = yield api.createBy([roleID,scope,scopeID,'batch-delete'],null,body)
+  const result = yield api.createBy([projectName,'batch-delete'],null,body)
   this.body = {
     data: result
   }

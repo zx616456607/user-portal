@@ -571,7 +571,7 @@ module.exports = function (Router) {
   router.get('/role/:name/existence',roleController.existence)
   router.get('/role/:id/allowUpdate',roleController.allowUpdate)
   router.post('/role/:roleID/:scope/:scopeID',roleController.usersAddRoles)
-  router.post('/role/:roleID/:scope/:scopeID/batch-delete',roleController.usersLoseRoles)
+  router.post('/role/projects/:projectName/roles/batch-delete',roleController.removeProjectRole)
   router.get('/role/:roleID/:scope/:scopeID/users',roleController.roleWithMembers)
   router.get('/role/:roleID/projects',roleController.getProjectDetail)
 

@@ -146,9 +146,12 @@ class RoleManagement extends React.Component{
         func: res => {
           if(REG.test(res.data.code)){
             let aryID = []
-            for(let i = 0;i < res.data.data.permissions.length; i++){
-              aryID.push(`${res.data.data.permissions[i].id}`)
+            if( res.data.data.permissions){
+              for(let i = 0;i < res.data.data.permissions.length; i++){
+                aryID.push(`${res.data.data.permissions[i].id}`)
+              }
             }
+
             this.setState({
               name: res.data.data.name,
               comment:res.data.data.comment,
@@ -202,6 +205,16 @@ class RoleManagement extends React.Component{
       isAdd: true,
       roleItemTitle: '创建角色'
     })
+  }
+
+  /**
+   * 刷新
+   */
+  handleRefresh(){
+    this.setState({
+      loading: true
+    })
+    this.loadData()
   }
 
   /**
@@ -343,7 +356,7 @@ class RoleManagement extends React.Component{
       ),
     }];
     let dropDown = []
-    if(true){
+    if(roleData){
       dropDown = roleData.map((item, index) => {
         return <Menu style={{ width: '115px' }} key={'handleRole' + index } onClick={this.handleRole.bind(this, item)}>
           <Menu.Item key='edit'>
@@ -446,7 +459,7 @@ class RoleManagement extends React.Component{
             <Button onClick={ this.handleRoleitem.bind(this) } type='primary' size='large'>
               <i className="fa fa-plus" aria-hidden="true" style={{marginRight: '8px'}}></i>创建角色
             </Button>
-            <Button className="bag" type='ghost' size='large' onClick={this.loadData.bind(this)}>
+            <Button className="bag" type='ghost' size='large' onClick={() => this.handleRefresh()}>
               <i className='fa fa-refresh' />刷新
             </Button>
             {/* <Button className="bag" type='ghost' disabled={!hasSelected} size='large'>
@@ -455,9 +468,9 @@ class RoleManagement extends React.Component{
           </div>
           <SearchInput scope={scope} searchIntOption={searchIntOption} Search ={this.handleSearch.bind(this)} />
           <div className='pageBox'>
-            <span className='totalPage'>共计{ roleData.length }条</span>
+            <span className='totalPage'>共计{ roleData ? roleData.length : 0}条</span>
           </div>
-          <div className='clearDiv'></div>
+          {/* <div className='clearDiv'></div> */}
         </div>
         <div className='appBox'>
           <Table
@@ -513,10 +526,10 @@ class RoleManagement extends React.Component{
             <div className="authChoose" style={{marginTop: 10}}>
               <span>已有权限</span>
               <div className="authBox">
-                <div className="authTitle clearfix"><div className="pull-left">共<span style={{color:'#59c3f5'}}>{allPermission.length}</span> 个</div></div>
+                <div className="authTitle clearfix"><div className="pull-left">共<span style={{color:'#59c3f5'}}>{allPermission ? allPermission.length : 0}</span> 个</div></div>
                 <div className="treeBox">
                   {
-                    allPermission.length > 0 &&
+                    allPermission &&
                     <Tree
                       checkable
                       autoExpandParent={this.state.autoExpandParent}

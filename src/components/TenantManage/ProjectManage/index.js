@@ -27,6 +27,7 @@ import CreateStepFirst from './CreateStepFirst'
 import CreateStepSecond from './CreateStepSecond'
 import CreateStepThird from './CreateStepThird'
 import { CREATE_PROJECTS_ROLE_ID } from '../../../../constants'
+import isEmpty from 'lodash/isEmpty'
 
 class ProjectManage extends Component{
   constructor(props) {
@@ -59,11 +60,13 @@ class ProjectManage extends Component{
       balanceSort: undefined,
       managerCountSort: undefined,
       sort: '',
-      clearInput: false
+      roleFilter: '',
+      clearInput: false,
+      searchName: ''
     }
   }
   componentWillMount() {
-    this.loadProjectList(null)
+    this.loadProjectList()
     const step = this.props.location.query.step;
     const { projectName, authorizedCluster } = this.state;
     if (step) {
@@ -196,7 +199,7 @@ class ProjectManage extends Component{
           if (res.statusCode === 200) {
             notify.success('充值成功')
             this.setState({paySingle:false})
-            this.loadProjectList(null)
+            this.loadProjectList()
           }
         },
         isAsync: true
@@ -260,17 +263,18 @@ class ProjectManage extends Component{
       }
     })
   }
-  loadProjectList(value,n) {
+  loadProjectList(n) {
     const { ListProjects } = this.props;
-    const { sort } = this.state;
+    const { sort, roleFilter, searchName } = this.state;
     this.setState({tableLoading:true})
     let page = n-1 || 0
-    let filter =  `name,${value}`
+    let filter =  searchName ? `name,${searchName}` : ''
+    filter = roleFilter ? `${filter}&outlineRole,${roleFilter}` : filter
     let obj = {
-      from: page,
+      from: page * 10,
       size: 10
     }
-    obj = value === null ? obj : Object.assign(obj,{filter})
+    obj = !filter ? obj : Object.assign(obj,{filter})
     obj = sort === '' ? obj : Object.assign(obj,{sort})
     ListProjects(obj,{
       success:{
@@ -286,8 +290,10 @@ class ProjectManage extends Component{
       },
       failed:{
         func: () => {
-          this.setState({projectList:{}})
-          this.setState({tableLoading:false})
+          this.setState({
+            projectList:{},
+            tableLoading:false
+          })
         },
         isAsync: true
       }
@@ -472,7 +478,7 @@ class ProjectManage extends Component{
             roleWithMember: {},
             closeCreateProject:true
           })
-          this.loadProjectList(null)
+          this.loadProjectList()
           browserHistory.replace('/tenant_manage/project_manage')
         },
         isAsync: true
@@ -523,9 +529,10 @@ class ProjectManage extends Component{
       balanceSort: undefined,
       managerCountSort: undefined,
       sort: '',
-      clearInput: true
+      clearInput: true,
+      searchName: ''
     },()=>{
-      this.loadProjectList(null)
+      this.loadProjectList()
     })
   }
   handleSort(sortStr) {
@@ -535,7 +542,7 @@ class ProjectManage extends Component{
       [sortStr] : !currentSort,
       sort
     },()=>{
-      this.loadProjectList(null)
+      this.loadProjectList()
     })
   }
   getSort(flag,sort) {
@@ -545,15 +552,30 @@ class ProjectManage extends Component{
     }
     return str + sort.slice(0,sort.length - 4)
   }
+  projectFilter(pagination, filters, sorter) {
+    let role
+    this.setState({
+      roleFilter: (role = filters.outlineRole).length ? role[0] : ''
+    },() => {
+      this.loadProjectList()
+    })
+  }
+  projectNameSearch(value) {
+    this.setState({
+      searchName: value
+    },() => {
+      this.loadProjectList()
+    })
+  }
   render() {
     const step = this.props.location.query.step || '';
     const { roleNum } = this.props;
     const { payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro, userList, deleteSingleChecked } = this.state;
     const pageOption = {
-      total:  projectList.listMeta && projectList.listMeta.total,
+      total: !isEmpty(projectList) && projectList['listMeta'].total || 0,
       defaultPageSize: 10,
       defaultCurrent: 1,
-      onChange: (n)=>this.loadProjectList(null,n)
+      onChange: (n)=>this.loadProjectList(n)
     };
     const columns = [{
       title: '项目名',
@@ -563,28 +585,25 @@ class ProjectManage extends Component{
       render: (text) => <Link to={`/tenant_manage/project_manage/project_detail?name=${text}`}>{text}</Link>,
     }, {
       title: '我是项目的',
-      dataIndex: 'role',
-      key: 'role',
+      dataIndex: 'outlineRole',
+      key: 'outlineRole',
       width: '10%',
       filters: [{
         text: '访客',
-        value: 'advisor',
+        value: 'visitor',
       }, {
-        text: '创建者',
-        value: 'creator',
+        text: '项目管理员',
+        value: 'manager',
       }, {
         text: '非项目成员',
-        value: 'admin',
+        value: 'non-participants',
       }],
-      onFilter: (value, record) => record.role.indexOf(value) === 0,
+      onFilter: (value, record) => record.outlineRole.indexOf(value) === 0,
       render: (data) =>
         <div>
-          <div>
-            {data === 'admin' ? '系统管理员' : ''}
-            {data === 'manager' ? '管理员' : ''}
-            {data === 'creator' ? '创建者' : ''}
-            {data === 'advisor' ? '访客' : ''}
-          </div>
+          {data === 'manager' ? '项目管理员' : ''}
+          {data === 'visitor' ? '访客' : ''}
+          {data === 'non-participants' ? '非项目成员' : ''}
         </div>
     },
       {
@@ -604,7 +623,7 @@ class ProjectManage extends Component{
       dataIndex: 'clusterCount',
       key: 'clusterCount',
       width: '10%',
-      render: (text) => <span>{text ? text : 0}</span>
+      render: text => text ? text : 0
     }, {
       title: (
         <div onClick={()=>this.handleSort('userCountSort')}>
@@ -622,6 +641,7 @@ class ProjectManage extends Component{
       dataIndex: 'userCount',
       key: 'userCount',
       width: '10%',
+      render: text => text ? text : 0
     }, {
       title: (
         <div onClick={()=>this.handleSort('managerCountSort')}>
@@ -639,11 +659,12 @@ class ProjectManage extends Component{
       dataIndex: 'managerCount',
       key: 'managerCount',
       width: '10%',
+      render: text => text ? text : 0
     }, {
       title: '创建时间',
       dataIndex: 'creationTime',
       key: 'creationTime',
-      width: '15%',
+      width: '15%'
     }, {
       title: (
         <div onClick={()=>this.handleSort('balanceSort')}>
@@ -709,7 +730,7 @@ class ProjectManage extends Component{
                  onCancel={()=> this.payCancel()}
                  onOk={()=> this.updatePayCharge()}
           >
-            <PayTable data={projectList.projects} updatePayArr={this.updatePayArr.bind(this)} visible={payModal} updatePayCharge={this.updatePayCharge.bind(this)} updatePayNumber={this.updatePayNumber.bind(this)}/>
+            <PayTable data={projectList && projectList.projects} updatePayArr={this.updatePayArr.bind(this)} visible={payModal} updatePayCharge={this.updatePayCharge.bind(this)} updatePayNumber={this.updatePayNumber.bind(this)}/>
           </Modal>
           <Modal title="项目充值" visible={this.state.paySingle} width={580}
                  onCancel = {()=> this.paySingleCancel()}
@@ -768,9 +789,9 @@ class ProjectManage extends Component{
               roleNum === 1 && <Button type="ghost" icon="pay-circle-o" size="large" className="manageBtn" onClick={()=> this.pay()}>批量充值</Button>
             }
             <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.refreshTeamList()}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
-            <CommonSearchInput clearInput={this.state.clearInput} placeholder="请输入项目名称进行搜索" size="large" onSearch={(value)=>this.loadProjectList(value)}/>
+            <CommonSearchInput clearInput={this.state.clearInput} placeholder="请输入项目名称进行搜索" size="large" onSearch={(value)=>this.projectNameSearch(value)}/>
             <Pagination {...pageOption}/>
-            <div className="total">共{projectList.listMeta && projectList.listMeta.total || 0}个</div>
+            <div className="total">共{!isEmpty(projectList) && projectList.listMeta.total || 0}个</div>
           </Row>
           <Row className={classNames("projectList",{'hidden': step !== ''})}>
             <Card>
@@ -778,7 +799,8 @@ class ProjectManage extends Component{
                 loading={tableLoading}
                 pagination={false}
                 columns={columns}
-                dataSource={projectList.projects}
+                dataSource={!isEmpty(projectList) && projectList.projects}
+                onChange={this.projectFilter.bind(this)}
               />
             </Card>
           </Row>
