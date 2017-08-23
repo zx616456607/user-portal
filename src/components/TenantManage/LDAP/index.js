@@ -337,7 +337,9 @@ class LDAP extends Component {
     })
     return (
       <div id="account_ldap">
-        <div className='alertRow'>通过配置以下信息可将企业用户目录信息同步到该平台。所有接入的成员都默认是普通成员，同步到平台后，可修改成员类型（系统管理员、团队管理员、普通成员）；*为必填字段，其他为选填字段。</div>
+        <div className='alertRow'>
+        通过配置以下信息可将企业用户目录信息同步到该平台。所有接入的成员都默认是普通成员，同步到平台后，可修改成员类型（系统管理员、普通成员）或设置相应的权限；*为必填字段，其他为选填字段。
+        </div>
         {configID && this.renderLastDetail()}
         <div className='basicSetup'>
           <div className='title'>
