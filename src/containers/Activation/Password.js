@@ -20,6 +20,7 @@ import { login } from '../../actions/entities'
 import { browserHistory } from 'react-router'
 import NotificationHandler from '../../components/Notification'
 import { camelize } from 'humps'
+import Title from '../../components/Title'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -145,6 +146,7 @@ let Admin = React.createClass({
     const { result } = this.props
     return (
       <div id="LoginBg">
+        <Title title="设置密码" />
         <Top loginLogo={ result.loginLogo }/>
         <div className="login">
           <div className="loginContent">
