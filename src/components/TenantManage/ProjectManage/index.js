@@ -572,6 +572,7 @@ class ProjectManage extends Component{
     const { roleNum } = this.props;
     const { payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro, userList, deleteSingleChecked } = this.state;
     const pageOption = {
+      simple: true,
       total: !isEmpty(projectList) && projectList['listMeta'].total || 0,
       defaultPageSize: 10,
       defaultCurrent: 1,
@@ -700,8 +701,9 @@ class ProjectManage extends Component{
     return (
       <QueueAnim>
         <div key='account_projectManage' id="account_projectManage">
-          <div className='alertRow'>项目之间是项目隔离的，通过创建项目实现按照角色关联对象（成员、团队），并根据授予的权限，使用项目中资源及功能。系统管理员有创建和管理所有项目的权限
-            （创建、删除、充值、授权集群、编辑备注、添加角色、为角色关联/取消对象、移除角色），团队管理员有管理项目的某些权限（充值、添加角色、删除角色、为角色关联/取消对象）。
+          <div className='alertRow'>
+            项目之间是相互隔离的，通过创建项目实现一些人在项目中有一组权限。创建项目时为项目申请授权集群，系统管理员在『基础设施』中审批通过后为已授权状态即可使用；
+            系统管理员可将普通成员设置为「可以创建项目」的人，项目创建者为项目管理员，项目中也可添加其他的项目管理员。
           </div>
           <Modal title="删除项目" visible={delModal} width={610} height={570}
                  onCancel={()=> this.setState({delModal: false})}
