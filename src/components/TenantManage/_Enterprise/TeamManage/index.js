@@ -388,6 +388,7 @@ let TeamTable = React.createClass({
         filters: [
           { text: '创建者', value: true },
           { text: '参与者', value: false },
+          { text: '非团队成员', value: -1 }
         ],
         filteredValue: filteredInfo.isCreator,
         onFilter: (value, record) => String(record.isCreator) === value,

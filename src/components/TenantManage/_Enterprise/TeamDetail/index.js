@@ -222,11 +222,13 @@ let MemberList = React.createClass({
         dataIndex: 'name',
         key: 'name',
         className: 'tablePadding',
+        width: '25%'
       },
       {
         title: '手机/邮箱',
         dataIndex: 'tel',
         key: 'tel',
+        width: '25%',
         render: (text, record) => (
           <Row>
             <Col>{record.tel}</Col>
@@ -238,15 +240,17 @@ let MemberList = React.createClass({
         title: '类型',
         dataIndex: 'style',
         key: 'style',
+        width: '25%',
         filters: [
           { text: '普通成员', value: 0 },
-          { text: '系统管理员', value: 1 },
+          { text: '系统管理员', value: 2 },
         ],
       },
       {
         title: '操作',
         dataIndex: 'edit',
         key: 'edit',
+        width: '25%',
         render: (text, record, index) => (
           <div className="cardBtns">
             <Button disabled={roleNum === 3}
@@ -520,7 +524,7 @@ class TeamDetail extends Component {
   }
   getExcludeTeamUsers(value) {
     const { usersExcludeOneTeam, teamID } = this.props;
-    let opt = value === null ? {excludeTID: teamID} : {excludeTID: teamID,userName: value}
+    let opt = value === null ? {excludeTID: teamID, size: -1} : {excludeTID: teamID,userName: value, size: -1}
     usersExcludeOneTeam(opt,{
       success: {
         func: res => {
@@ -701,13 +705,13 @@ class TeamDetail extends Component {
     }
   }
   getOption(value) {
-    const { teamUserList } = this.props;
+    const { teamAllUserList } = this.props;
     this.setState({
       currentOption: value
     })
     if(value === 'team') {
       this.setState({
-        leaderList: teamUserList.map(item => {
+        leaderList: teamAllUserList.map(item => {
           return Object.assign(item,{userName:item.name})
         })
       },()=>{
@@ -745,11 +749,7 @@ class TeamDetail extends Component {
       dataIndex: 'role',
       key: 'role',
       width: '50%',
-      render: (text, record) => (
-        <div>
-          {record.role === ROLE_SYS_ADMIN ? '系统管理员' : (record.role === ROLE_TEAM_ADMIN ? '团队管理员' : '普通成员')}
-        </div>
-      )
+      render: text => text === ROLE_SYS_ADMIN ? '系统管理员' : (text === ROLE_TEAM_ADMIN ? '团队管理员' : '普通成员'),
     }]
     const selectProps = {
       selectOptions: [
@@ -954,7 +954,7 @@ function mapStateToProp(state, props) {
           {
             key: item.userID,
             name: item.userName,
-            style: item.role === ROLE_SYS_ADMIN ? '系统管理员' : (item.role === ROLE_TEAM_ADMIN ? '团队管理员' : '普通成员'),
+            role : item.role
           }
         )
       })
