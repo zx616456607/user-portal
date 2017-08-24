@@ -170,9 +170,6 @@ class JoinProjectsModal extends React.Component {
 
   getProjectsByKeys(keys) {
     const { allProjects } = this.props
-    // console.log('allProjects', allProjects)
-    // console.log('keys', keys)
-    // console.log('filter', allProjects.filter(project => keys.indexOf(project.projectID || project.ProjectID) > -1))
     return allProjects.filter(project => keys.indexOf(project.projectID || project.ProjectID) > -1)
   }
 
@@ -199,9 +196,6 @@ class JoinProjectsModal extends React.Component {
   }
 
   onRoleCheckChange(role, project, e) {
-    console.log('role', role)
-    console.log('project', project)
-    console.log('e', e)
   }
 
   onCancel() {

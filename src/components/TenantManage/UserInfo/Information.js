@@ -372,10 +372,8 @@ class Information extends Component {
     const notify = new NotificationHandler()
     validateFields([ key ], (errors, values) => {
       if (!!errors) {
-        console.log(errors)
         return
       }
-      console.log(values)
       updateUser(userID, values, {
         success: {
           func: () => {
