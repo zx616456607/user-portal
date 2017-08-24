@@ -619,3 +619,29 @@ export function GetProjectsMembers(body, callback) {
 	}
 }
 
+export const REMOVE_PROJECT_MEMBER_REQUEST = 'REMOVE_PROJECT_MEMBER_REQUEST'
+export const REMOVE_PROJECT_MEMBER_SUCCESS = 'REMOVE_PROJECT_MEMBER_SUCCESS'
+export const REMOVE_PROJECT_MEMBER_FAILURE = 'REMOVE_PROJECT_MEMBER_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchRemoveProjectMember(projectId, userId, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/${projectId}/users/${userId}`
+	return {
+		[FETCH_API]: {
+			types: [ REMOVE_PROJECT_MEMBER_REQUEST, REMOVE_PROJECT_MEMBER_SUCCESS, REMOVE_PROJECT_MEMBER_FAILURE ],
+			endpoint,
+			schema: {},
+			options: {
+				method: 'DELETE'
+			},
+		},
+		callback
+	}
+}
+
+// Relies on Redux Thunk middleware.
+export function removeProjectMember(projectId, userId, callback) {
+	return (dispatch) => {
+		return dispatch(fetchRemoveProjectMember(projectId, userId, callback))
+	}
+}

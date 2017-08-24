@@ -18,7 +18,7 @@ import { formatDate } from '../../../common/tools'
 import { loadUserTeams, updateUserTeams, loadUserProjects } from '../../../actions/user'
 import { ListProjects } from '../../../actions/project'
 import { removeTeamusers } from '../../../actions/team'
-import { GetProjectsMembers } from '../../../actions/project'
+import { GetProjectsMembers, removeProjectMember } from '../../../actions/project'
 import NotificationHandler from '../../../components/Notification'
 import JoinProjectsModal from './JoinProjectsModal'
 import './style/UserProjectsAndTeams.less'
@@ -268,9 +268,33 @@ class UserProjectsAndTeams extends React.Component {
     this.setState({
       removeProjectBtnLoading: true,
     })
-    const { userDetail } = this.props
+    const { removeProjectMember, loadUserProjects, userId } = this.props
     const { currentProject } = this.state
-    // @Todo: need api
+    const notification = new NotificationHandler()
+    removeProjectMember(currentProject.projectID, userId, {
+      success: {
+        func: () => {
+          this.setState({
+            removeProjectModalVisible: false,
+          })
+          notification.success('移除用户成功')
+          loadUserProjects(userId)
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          notification.error('移除用户失败')
+        }
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            removeProjectBtnLoading: false,
+          })
+        }
+      },
+    })
   }
 
   render() {
@@ -455,9 +479,8 @@ class UserProjectsAndTeams extends React.Component {
               size="large"
               loading={this.state.removeProjectBtnLoading}
               onClick={this.removeProject}
-              disabled={true}
             >
-              确 定(need api)
+              确 定
             </Button>,
           ]}
         >
@@ -581,4 +604,5 @@ export default connect(mapStateToProp, {
   updateUserTeams,
   loadUserProjects,
   ListProjects,
+  removeProjectMember,
 })(UserProjectsAndTeams)
