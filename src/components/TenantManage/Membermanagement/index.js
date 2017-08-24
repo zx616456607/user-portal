@@ -513,6 +513,7 @@ let MemberTable = React.createClass({
           visible={this.state.delModal}
           onCancel={() => this.setState({ delModal: false, delErrorMsg: null })}
           currentUser={this.currentUser}
+          scope={scope}
         />
 
         <Modal title="停用成员操作"

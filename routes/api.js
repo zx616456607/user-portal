@@ -197,6 +197,7 @@ module.exports = function (Router) {
   router.get('/users/softdeleted', userController.getSoftdeletedUsers)
   router.get('/users/search', userController.getUsersExclude)
   router.post('/users/:user_id/:scope/:scopeID/roles', userController.bindRolesForUser)
+  router.post('/users/:user_id/teamtransfer', userController.teamtransfer)
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)

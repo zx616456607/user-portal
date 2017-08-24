@@ -469,6 +469,16 @@ function* bindRolesForUser() {
 }
 exports.bindRolesForUser = bindRolesForUser
 
+function* teamtransfer() {
+  const loginUser = this.session.loginUser
+  const userId = this.params.user_id
+  const body = this.request.body
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.users.createBy([ userId, 'teamtransfer' ], null, body)
+  this.body = result
+}
+exports.teamtransfer = teamtransfer
+
 function* resetPassword() {
   const method = "resetPassword"
   // Get email, code, password

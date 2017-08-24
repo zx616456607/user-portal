@@ -14,9 +14,10 @@ import React from 'react'
 import { Row, Col, Table, Modal, Button, Spin, Menu } from 'antd'
 import { camelize } from 'humps'
 import { connect } from 'react-redux'
-import { loadUserTeams, loadAllUserList } from '../../../actions/user'
+import { loadUserTeams, loadAllUserList, teamtransfer, deleteUser } from '../../../actions/user'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import CommonSearchInput from '../../CommonSearchInput'
+import NotificationHandler from '../../../components/Notification'
 import './style/DeleteUserModal.less'
 
 class DeleteUserModal extends React.Component {
@@ -28,6 +29,8 @@ class DeleteUserModal extends React.Component {
     this.onTeamClick = this.onTeamClick.bind(this)
     this.searchUser = this.searchUser.bind(this)
     this.onCancel = this.onCancel.bind(this)
+    this.renderHandOver = this.renderHandOver.bind(this)
+    this.delMember = this.delMember.bind(this)
     this.state = {
       delErrorMsg: null,
       delBtnLoading: false,
@@ -105,8 +108,9 @@ class DeleteUserModal extends React.Component {
   }
 
   delMember() {
-    const { scope } = this.props
-    const record = this.currentUser
+    const { currentUser, teamtransfer, deleteUser, loadUserList, scope } = this.props
+    const { userSelectedRowKeys } = this.state
+    const record = currentUser
     if (record.style === "系统管理员") {
       confirm({
         title: '不能删除系统管理员',
@@ -116,39 +120,65 @@ class DeleteUserModal extends React.Component {
     this.setState({ delBtnLoading: true })
     let notification = new NotificationHandler()
     const { page, pageSize, filter, sort } = scope.state
-    scope.props.deleteUser(record.key, {
+    const _deleteUser = () => {
+      deleteUser(record.key, {
+        success: {
+          func: () => {
+            notification.success('删除成功！')
+            loadUserList({
+              page: page,
+              size: pageSize,
+              sort: sort,
+              filter: filter,
+            })
+            this.setState({ delModal: false, delErrorMsg: null })
+          },
+          isAsync: true
+        },
+        failed: {
+          func: err => {
+            this.setState({
+              delErrorMsg: err.message,
+            })
+            notification.error('删除失败！')
+          }
+        },
+        finally: {
+          func: () => {
+            this.setState({ delBtnLoading: false })
+          }
+        }
+      })
+    }
+    const keys = Object.keys(userSelectedRowKeys)
+    if (keys.length === 0) {
+      return _deleteUser()
+    }
+    const body = {
+      userTeams: keys.map(key => ({
+        userID: userSelectedRowKeys[key][0],
+        teamID: key,
+      })),
+    }
+    teamtransfer(record.key, body, {
       success: {
         func: () => {
-          notification.success('删除成功！')
-          scope.props.loadUserList({
-            page: page,
-            size: pageSize,
-            sort: sort,
-            filter: filter,
-          })
-          this.setState({ delModal: false, delErrorMsg: null })
+          notification.success('转移团队成功')
+          _deleteUser()
         },
-        isAsync: true
+        isAsync: true,
       },
       failed: {
-        func: err => {
-          this.setState({
-            delErrorMsg: err.message,
-          })
-          notification.error('删除失败！')
-        }
-      },
-      finally: {
         func: () => {
-          this.setState({ delBtnLoading: false })
+          notification.error('转移团队失败')
         }
       }
     })
+    return
   }
 
   onTeamClick({item, key, keyPath}) {
-    console.log('key======')
-    console.log(key)
+    //
   }
 
   onCancel() {
@@ -177,18 +207,28 @@ class DeleteUserModal extends React.Component {
     })
   }
 
-  render() {
-    const { visible, teams, currentUser } = this.props
+  renderHandOver() {
+    const { visible, teams, currentUser, teamsLoading } = this.props
+    if (teamsLoading) {
+      return (
+        <div className="loadingBox">
+          <Spin size="large" />
+        </div>
+      )
+    }
     const { userSelectedRowKeys, delBtnLoading, delErrorMsg, users, selectTeamKeys } = this.state
     let selectedRowKeys = userSelectedRowKeys[selectTeamKeys[0]] || []
     if (selectedRowKeys.length === 0 && currentUser) {
       selectedRowKeys.push(currentUser.key)
     }
-    console.log('selectedRowKeys', selectedRowKeys)
+    const handOveredTeamsNum = Object.keys(userSelectedRowKeys).length
     const userRowSelection = {
       type: 'radio',
       selectedRowKeys,
       onChange: this.onUserSelectChange,
+      getCheckboxProps: record => ({
+        disabled: record.userID === currentUser.key,
+      }),
     }
     const filterKey = [
       { text: '普通成员', value: 0 },
@@ -222,7 +262,82 @@ class DeleteUserModal extends React.Component {
       }
     }]
     return (
-      <Modal title="删除成员操作"
+      <div>
+        <Row className="alertRow warningRow">
+          <Col span={2} className="alertRowIcon">
+            <i className="fa fa-exclamation-triangle" aria-hidden="true" />
+          </Col>
+          <Col span={22}>
+            删除后可在已删除成员表单中查看，此操作不可恢复，且平台上不能再次创建同名成员
+          </Col>
+        </Row>
+        {
+          teams && teams.length > 0 && (
+            <div>
+              <div className="handOverTeamTips">
+                该成员为以下团队管理员，需要转让团队后方可删除，共 {teams.length} 个团队，已转让 { handOveredTeamsNum } 个团队
+              </div>
+              <Row gutter={16} className="handOverTeam">
+                <Col span={6}>
+                  <div className="teamList">
+                    <div className="teamListTitle">
+                      团队（{teams.length}）
+                    </div>
+                    <div className="teamListBody">
+                      <Menu
+                        className="teamListBody"
+                        mode="inline"
+                        onClick={this.onTeamClick}
+                        selectedKeys={this.state.selectTeamKeys}
+                        onSelect={({ selectedKeys }) => this.setState({ selectTeamKeys: selectedKeys })}
+                      >
+                        {
+                          teams.map(team => (
+                            <Menu.Item
+                              key={team.teamID}
+                            >
+                              {team.teamName}
+                            </Menu.Item>
+                          ))
+                        }
+                      </Menu>
+                    </div>
+                  </div>
+                </Col>
+                <Col span={18}>
+                  <div className="memberList">
+                    <div className="memberListTitle">
+                      <CommonSearchInput onChange={this.searchUser} placeholder="请输入搜索内容"/>
+                    </div>
+                    <Table
+                      columns={deleteUserTableColumns}
+                      size="middle"
+                      dataSource={users}
+                      pagination={false}
+                      scroll={{ y: 196 }}
+                      rowSelection={userRowSelection}
+                      rowKey={record => record.userID}
+                    />
+                  </div>
+                </Col>
+              </Row>
+            </div>
+          )
+        }
+        {/* <div className="modalColor">
+          <i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>
+          您是否确定要删除成员 {userManageName} ?
+        </div> */}
+      </div>
+    )
+  }
+
+  render() {
+    const { visible, currentUser, teams, teamsLoading } = this.props
+    const { delBtnLoading, delErrorMsg, userSelectedRowKeys } = this.state
+    const handOveredTeamsNum = Object.keys(userSelectedRowKeys).length
+    return (
+      <Modal title="删除成员操作（@Todo: api 有问题，先别测试）"
         visible={visible}
         onCancel={this.onCancel}
         wrapClassName="deleteUserModal"
@@ -239,8 +354,9 @@ class DeleteUserModal extends React.Component {
             key="submit"
             type="primary"
             size="large"
+            disabled={teamsLoading || (handOveredTeamsNum < teams.length)}
             loading={delBtnLoading}
-            onClick={() => this.delMember()}
+            onClick={this.delMember}
           >
             确 定
           </Button>,
@@ -252,75 +368,7 @@ class DeleteUserModal extends React.Component {
         )
       }
       {
-        (!delBtnLoading && !delErrorMsg) && (
-          <div>
-            <Row className="alertRow warningRow">
-              <Col span={2} className="alertRowIcon">
-                <i className="fa fa-exclamation-triangle" aria-hidden="true" />
-              </Col>
-              <Col span={22}>
-                删除后可在已删除成员表单中查看，此操作不可恢复，且平台上不能再次创建同名成员
-              </Col>
-            </Row>
-            {
-              teams && teams.length > 0 && (
-                <div>
-                  <div className="handOverTeamTips">
-                    该成员为以下团队管理员，需要转让团队后方可删除
-                  </div>
-                  <Row gutter={16} className="handOverTeam">
-                    <Col span={6}>
-                      <div className="teamList">
-                        <div className="teamListTitle">
-                          团队（{teams.length}）
-                        </div>
-                        <div className="teamListBody">
-                          <Menu
-                            className="teamListBody"
-                            mode="inline"
-                            onClick={this.onTeamClick}
-                            selectedKeys={this.state.selectTeamKeys}
-                            onSelect={({ selectedKeys }) => this.setState({ selectTeamKeys: selectedKeys })}
-                          >
-                            {
-                              teams.map(team => (
-                                <Menu.Item
-                                  key={team.teamID}
-                                >
-                                  {team.teamName}
-                                </Menu.Item>
-                              ))
-                            }
-                          </Menu>
-                        </div>
-                      </div>
-                    </Col>
-                    <Col span={18}>
-                      <div className="memberList">
-                        <div className="memberListTitle">
-                          <CommonSearchInput onChange={this.searchUser} placeholder="请输入搜索内容"/>
-                        </div>
-                        <Table
-                          columns={deleteUserTableColumns}
-                          size="middle"
-                          dataSource={users}
-                          pagination={false}
-                          scroll={{ y: 196 }}
-                          rowSelection={userRowSelection}
-                          rowKey={record => record.userID}
-                        />
-                      </div>
-                    </Col>
-                  </Row>
-                </div>
-              )
-            }
-            {/* <div className="modalColor">
-              <i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>
-              您是否确定要删除成员 {userManageName} ?
-            </div> */}
-          </div>
-        )
+        (!delBtnLoading && !delErrorMsg) && this.renderHandOver()
       }
       {
         (!delBtnLoading && delErrorMsg) && (
@@ -373,10 +421,13 @@ function mapStateToProps(state) {
   }
   return {
     teams: teamsData,
+    teamsLoading: userTeams.isFetching,
   }
 }
 
 export default connect(mapStateToProps, {
   loadUserTeams,
   loadAllUserList,
+  teamtransfer,
+  deleteUser,
 })(DeleteUserModal)

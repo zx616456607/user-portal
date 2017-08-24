@@ -823,3 +823,31 @@ export function bindRolesForUser(userId, scope, scopeId, body, callback) {
     return dispatch(fetchbindRolesForUser(userId, scope, scopeId, body, callback))
   }
 }
+
+export const TRANSFER_TEAM_REQUEST = 'TRANSFER_TEAM_REQUEST'
+export const TRANSFER_TEAM_SUCCESS = 'TRANSFER_TEAM_SUCCESS'
+export const TRANSFER_TEAM_FAILURE = 'TRANSFER_TEAM_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchTeamtransfer(userId, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userId}/teamtransfer`
+  return {
+    [FETCH_API]: {
+      types: [ TRANSFER_TEAM_REQUEST, TRANSFER_TEAM_SUCCESS, TRANSFER_TEAM_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function teamtransfer(userId, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTeamtransfer(userId, body, callback))
+  }
+}
