@@ -124,7 +124,8 @@ const rootRoutes = {
       path: 'account',
       component: require('../containers/Account').default,
       indexRoute: {
-        component: require('../components/AccountModal/UserInfo').default,
+        // component: require('../components/AccountModal/UserInfo').default,
+        component: require('../components/TenantManage/UserInfo').default,
       },
       getChildRoutes: (location, cb) => {
         require.ensure([], function (require) {
