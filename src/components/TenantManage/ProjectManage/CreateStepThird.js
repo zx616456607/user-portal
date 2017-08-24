@@ -274,7 +274,7 @@ class CreateStepThird extends Component{
     
     return (
       <div id="projectCreateStepThird">
-        <div className="inputBox">
+        <div className="inputBox" style={{marginBottom:0}}>
           <Form.Item label="项目名称" {...projectNameLayout}>
             <Input disabled {...getFieldProps(`projectName`, {
               initialValue:  scope.state.projectName,
