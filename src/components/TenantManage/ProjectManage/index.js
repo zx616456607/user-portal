@@ -572,6 +572,7 @@ class ProjectManage extends Component{
     const { roleNum } = this.props;
     const { payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro, userList, deleteSingleChecked } = this.state;
     const pageOption = {
+      simple: true,
       total: !isEmpty(projectList) && projectList['listMeta'].total || 0,
       defaultPageSize: 10,
       defaultCurrent: 1,
