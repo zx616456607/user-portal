@@ -75,12 +75,7 @@ const menuList_enterprise_admin = [
   }
 ]
 
-const menuList_enterprise_sys_admin = [
-  {
-    url: '/account/ldap',
-    name: '集成企业目录'
-  },
-]
+const menuList_enterprise_sys_admin = []
 
 const menuList_enterprise_user = [
   {

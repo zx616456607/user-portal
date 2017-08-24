@@ -13,7 +13,7 @@ import { Row, Col, Alert, Button, Input, Select, Menu, Card, Spin, Icon, Table, 
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
-import { loadUserList, createUser, deleteUser, checkUserName, updateUserActive } from '../../../actions/user'
+import { loadUserList, createUser, deleteUser, checkUserName, updateUserActive, loadAllUserList } from '../../../actions/user'
 import { chargeUser } from '../../../actions/charge'
 import { Link } from 'react-router'
 import { parseAmount } from '../../../common/tools'
@@ -24,8 +24,10 @@ import MemberRecharge from '../../AccountModal/_Enterprise/Recharge'
 import { MAX_CHARGE } from '../../../constants'
 import Title from '../../Title'
 import ChargeModal from './ChargeModal'
+import CommonSearchInput from '../../CommonSearchInput'
 // import DeleteModal from './DeleteModal'
 import DeletedUsersModal from './DeletedUsersModal'
+import DeleteUserModal from './DeleteUserModal'
 import successPic from '../../../assets/img/wancheng.png'
 
 const confirm = Modal.confirm
@@ -42,9 +44,8 @@ let MemberTable = React.createClass({
       sort: "a,userName",
       filter: "",
       selectedRowKeys: [],
-      delBtnLoading: false,
-      delErrorMsg: null,
-      copyStatus: false,
+      deactiveUserModal: false,
+      deactiveUserBtnLoading: false,
     }
   },
 
@@ -109,48 +110,6 @@ let MemberTable = React.createClass({
     scope.setState({
       notFound: false,
     })
-  },
-  delMember() {
-    const { scope } = this.props
-    const record = this.state.userManage
-    if (record.style === "系统管理员") {
-      confirm({
-        title: '不能删除系统管理员',
-      });
-      return
-    }
-    this.setState({ delBtnLoading: true })
-    let notification = new NotificationHandler()
-    const { page, pageSize, filter, sort } = scope.state
-    scope.props.deleteUser(record.key, {
-      success: {
-        func: () => {
-          notification.success('删除成功！')
-          scope.props.loadUserList({
-            page: page,
-            size: pageSize,
-            sort: sort,
-            filter: filter,
-          })
-          this.setState({ delModal: false, delErrorMsg: null })
-        },
-        isAsync: true
-      },
-      failed: {
-        func: err => {
-          this.setState({
-            delErrorMsg: err.message,
-          })
-          notification.error('删除失败！')
-        }
-      },
-      finally: {
-        func: () => {
-          this.setState({ delBtnLoading: false })
-        }
-      }
-    })
-
   },
   filtertypes(filters) {
     // member select filter type (0=>普通成员，1=>团队管理员，3=> 系统管理员)
@@ -232,18 +191,20 @@ let MemberTable = React.createClass({
       })
     }
   },
-  handleMenuClick(record, { key }) {
-    if (key === 'delete') {
-      this.setState({ delModal: true, userManage: record })
-      return
-    }
+  changeUserActive() {
     const notification = new NotificationHandler()
+    const record = this.currentUser
     const { active, name } = record
     const userId = record.key
     const { scope } = this.props
     const { updateUserActive, loadUserList } = scope.props
     const { page, pageSize, filter, sort } = scope.state
     const text = active === 2 ? '启用' : '停用'
+    if (active !== 2) {
+      this.setState({
+        deactiveUserBtnLoading: true,
+      })
+    }
     updateUserActive(userId, active, {
       success: {
         func: () => {
@@ -254,15 +215,41 @@ let MemberTable = React.createClass({
             sort: sort,
             filter: filter,
           })
+          active !== 2 && this.setState({
+            deactiveUserModal: false,
+            deactiveUserBtnLoading: false,
+          })
         },
         isAsync: true,
       },
       failed: {
         func: () => {
           notification.error(`${text}用户 ${name} 失败`)
+          active !== 2 && this.setState({
+            deactiveUserBtnLoading: false,
+          })
         }
       }
     })
+  },
+  handleMenuClick(record, { key }) {
+    this.currentUser = record
+    if (key === 'delete') {
+      this.setState({ delModal: true })
+      // const { scope } = this.props
+      // const { loadUserTeams } = scope.props
+      // loadUserTeams(record.key, { size: 100 })
+      return
+    }
+    const notification = new NotificationHandler()
+    const { active, name } = record
+    if (active !== 2) {
+      this.setState({
+        deactiveUserModal: true,
+      })
+      return
+    }
+    this.changeUserActive()
   },
   returnDefaultTooltip() {
     setTimeout(() => {
@@ -280,11 +267,19 @@ let MemberTable = React.createClass({
     })
   },
   render() {
-    let { selectedRowKeys, sortedInfo, filteredInfo, sort, delBtnLoading, delErrorMsg, copyStatus } = this.state
+    let {
+      selectedRowKeys,
+      sortedInfo,
+      filteredInfo,
+      sort,
+      delBtnLoading,
+      delErrorMsg,
+      copyStatus,
+    } = this.state
     const { searchResult, notFound } = this.props.scope.state
-    const { data, scope, loginUser } = this.props
+    const { data, scope, loginUser, teams } = this.props
 
-    let userManageName = this.state.userManage ? this.state.userManage.name : ''
+    let userManageName = this.currentUser ? this.currentUser.name : ''
 
     filteredInfo = filteredInfo || {}
     const pagination = {
@@ -514,16 +509,23 @@ let MemberTable = React.createClass({
           pagination={pagination}
           onChange={this.onTableChange}
         />
-        <Modal title="删除成员操作"
+        <DeleteUserModal
           visible={this.state.delModal}
           onCancel={() => this.setState({ delModal: false, delErrorMsg: null })}
+          currentUser={this.currentUser}
+          scope={scope}
+        />
+
+        <Modal title="停用成员操作"
+          visible={this.state.deactiveUserModal}
+          onCancel={() => this.setState({ deactiveUserModal: false })}
           wrapClassName="deleteMemberModal"
           footer={[
             <Button
               key="back"
               type="ghost"
               size="large"
-              onClick={() => this.setState({ delModal: false, delErrorMsg: null })}
+              onClick={() => this.setState({ deactiveUserModal: false })}
             >
               取 消
             </Button>,
@@ -531,68 +533,14 @@ let MemberTable = React.createClass({
               key="submit"
               type="primary"
               size="large"
-              loading={delBtnLoading}
-              onClick={() => this.delMember()}
+              loading={this.state.deactiveUserBtnLoading}
+              onClick={() => this.changeUserActive()}
             >
               确 定
             </Button>,
           ]}
         >
-        {
-          (delBtnLoading && !delErrorMsg) && (
-            <div className="loadingBox"><Spin size="large" /></div>
-          )
-        }
-        {
-          (!delBtnLoading && !delErrorMsg) && (
-            <div className="modalColor">
-              <Row className="alertRow warningRow">
-                <Col span={2} className="alertRowIcon">
-                  <i className="fa fa-exclamation-triangle" aria-hidden="true" />
-                </Col>
-                <Col span={22}>
-                  删除后可在已删除成员表单中查看，此操作不可恢复，且平台上不能再次创建同名成员
-                </Col>
-              </Row>
-              <i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>
-              您是否确定要删除成员 {userManageName} ?
-            </div>
-          )
-        }
-        {
-          (!delBtnLoading && delErrorMsg) && (
-            <div>
-              <Row className="alertRow warningRow">
-                <Col span={2} className="alertRowIcon">
-                  <i className="fa fa-exclamation-triangle" aria-hidden="true" />
-                </Col>
-                <Col span={22} className="alertRowDesc">
-                  删除该成员任务失败，请查看以下日志
-                </Col>
-              </Row>
-              <div className="delErrorMsg">
-                <div className="delErrorMsgHeader" gutter={16}>
-                  <div className="delErrorMsgText">日志</div>
-                  <div className="delErrorMsgIcon">
-                    <input style={{opacity:0}} id="delErrorMsg" value={delErrorMsg} />
-                    <Tooltip title={copyStatus ? '复制成功' : '点击复制'}>
-                      <Icon
-                        type="copy"
-                        onMouseLeave={this.returnDefaultTooltip}
-                        onClick={this.copyText}
-                      />
-                    </Tooltip>
-                  </div>
-                </div>
-                <div className="delErrorMsgBody">
-                  <pre>
-                    {delErrorMsg}
-                  </pre>
-                </div>
-              </div>
-            </div>
-          )
-        }
+          停用该成员将不能登录平台，激活后可恢复使用
         </Modal>
       </div>
     )
@@ -772,7 +720,7 @@ class Membermanagement extends Component {
   } */
 
   render() {
-    const { users, checkUserName, loadUserList, userDetail } = this.props
+    const { users, checkUserName, loadAllUserList, userDetail, teams } = this.props
     const scope = this
     const { visible, memberList, hasSelected, createUserErrorMsg } = this.state
     const searchIntOption = {
@@ -789,12 +737,15 @@ class Membermanagement extends Component {
     }
     return (
       <div id="Membermanagement">
-        <Alert message={`成员是指公司内外共同协作管理和使用平台的人，每个成员创建后都会有一个个人的项目，可在项目中创建个人的资源；系统管理员可在『基础设施』中设置授权给个人项目使用的集群。系统管理员有创建并管理所有系统管理员、团队管理员、普通成员的权限；团队管理员有创建并管理普通成员和对其他团队管理员有查看、充值、加入团队、加入项目的权限`}
+        <Alert message={`成员是指公司内外共同协作使用平台的人，创建成员成功后该成员将有一个默认的个人的项目，可在项目中创建个人的资源；系统管理员有创建并管理所有成员（系统管理员、普通成员）的权限；`}
           type="info" />
         <Row>
-          <Button type="primary" size="large" onClick={this.showModal} className="Btn">
-            <i className='fa fa-plus' /> 创建新成员
-          </Button>
+          {
+            userDetail.role === ROLE_SYS_ADMIN &&
+            <Button type="primary" size="large" onClick={this.showModal} className="Btn">
+              <i className='fa fa-plus' /> 创建新成员
+            </Button>
+          }
           {
             userDetail.role === ROLE_SYS_ADMIN && (
               <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ chargeModalVisible: true })}>
@@ -805,9 +756,12 @@ class Membermanagement extends Component {
           <Button type="ghost" size="large" className="Btn btn" onClick={this.loadData}>
             <i className='fa fa-refresh' /> &nbsp;刷 新
           </Button>
-          <Button type="dashed" size="large" className="Btn btn" onClick={() => this.setState({ deletedUserModalVisible: true })}>
-            <Icon type="solution" />已删除成员
-          </Button>
+          {
+            userDetail.role === ROLE_SYS_ADMIN &&
+            <Button type="dashed" size="large" className="Btn btn" onClick={() => this.setState({ deletedUserModalVisible: true })}>
+              <Icon type="solution" />已删除成员
+            </Button>
+          }
           {/* <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ deleteModalVisible: true })}>
             <Icon type="delete" />批量删除
           </Button> */}
@@ -846,7 +800,7 @@ class Membermanagement extends Component {
         </Row>
         <Row className="memberList">
           <Card className="memberlist">
-            <MemberTable scope={scope} data={users} loginUser={userDetail} />
+            <MemberTable scope={scope} data={users} loginUser={userDetail} teams={teams} />
           </Card>
         </Row>
         {/* 充值modal */}
@@ -862,7 +816,7 @@ class Membermanagement extends Component {
           data={users}
           onCancel={() => this.setState({ chargeModalVisible: false })}
           onOk={this.handleChargeOk}
-          loadUserList={loadUserList}
+          loadAllUserList={loadAllUserList}
         />
         <DeletedUsersModal
           title="已删除成员"
@@ -927,7 +881,7 @@ function mapStateToProp(state) {
   return {
     users: data,
     total,
-    userDetail
+    userDetail,
   }
 }
 
@@ -938,4 +892,5 @@ export default connect(mapStateToProp, {
   checkUserName,
   chargeUser,
   updateUserActive,
+  loadAllUserList,
 })(Membermanagement)

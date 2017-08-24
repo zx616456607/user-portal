@@ -33,7 +33,10 @@ const menuList = [
   },{
     url: '/tenant_manage/allpermissions',
     name: '所有权限'
-  },
+  },{
+    url: '/tenant_manage/ldap',
+    name: '集成企业目录'
+  }
 ]
 
 export default class Tenant extends Component {

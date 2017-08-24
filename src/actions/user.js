@@ -41,6 +41,35 @@ export function loadUserList(query, callback) {
   }
 }
 
+export const ALL_USER_LIST_REQUEST = 'ALL_USER_LIST_REQUEST'
+export const ALL_USER_LIST_SUCCESS = 'ALL_USER_LIST_SUCCESS'
+export const ALL_USER_LIST_FAILURE = 'ALL_USER_LIST_FAILURE'
+
+// Fetches all user list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchAllUserList(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/users`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [ALL_USER_LIST_REQUEST, ALL_USER_LIST_SUCCESS, ALL_USER_LIST_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Fetches users list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadAllUserList(callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchAllUserList({ size: 0 }, callback))
+  }
+}
+
 export const USER_DETAIL_REQUEST = 'USER_DETAIL_REQUEST'
 export const USER_DETAIL_SUCCESS = 'USER_DETAIL_SUCCESS'
 export const USER_DETAIL_FAILURE = 'USER_DETAIL_FAILURE'
@@ -764,5 +793,61 @@ function fetchUsersExcludeOneTeam(query, callback) {
 export function usersExcludeOneTeam(query, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchUsersExcludeOneTeam(query, callback))
+  }
+}
+
+export const BIND_ROLES_FOR_USER_REQUEST = 'BIND_ROLES_FOR_USER_REQUEST'
+export const BIND_ROLES_FOR_USER_SUCCESS = 'BIND_ROLES_FOR_USER_SUCCESS'
+export const BIND_ROLES_FOR_USER_FAILURE = 'BIND_ROLES_FOR_USER_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchbindRolesForUser(userId, scope, scopeId, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userId}/${scope}/${scopeId}/roles`
+  return {
+    [FETCH_API]: {
+      types: [BIND_ROLES_FOR_USER_REQUEST, BIND_ROLES_FOR_USER_SUCCESS, BIND_ROLES_FOR_USER_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function bindRolesForUser(userId, scope, scopeId, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchbindRolesForUser(userId, scope, scopeId, body, callback))
+  }
+}
+
+export const TRANSFER_TEAM_REQUEST = 'TRANSFER_TEAM_REQUEST'
+export const TRANSFER_TEAM_SUCCESS = 'TRANSFER_TEAM_SUCCESS'
+export const TRANSFER_TEAM_FAILURE = 'TRANSFER_TEAM_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchTeamtransfer(userId, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userId}/teamtransfer`
+  return {
+    [FETCH_API]: {
+      types: [ TRANSFER_TEAM_REQUEST, TRANSFER_TEAM_SUCCESS, TRANSFER_TEAM_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function teamtransfer(userId, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTeamtransfer(userId, body, callback))
   }
 }

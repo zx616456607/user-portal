@@ -233,7 +233,7 @@ class AppServiceDetail extends Component {
       },
       failed: {
         func: (res) => {
-        
+
         },
         isAsync: true
       }
@@ -324,7 +324,7 @@ class AppServiceDetail extends Component {
         确定要删除服务{service.metadata.name}吗？
         </Modal>
         <div className='titleBox'>
-          <Title title={`${appName} 服务详情页`} />
+          <Title title={`${service.metadata.name} 服务详情页`} />
           <Icon className='closeBtn' type='cross' onClick={this.closeModal} />
           {/*<i className='closeBtn fa fa-times' onClick={this.closeModal}></i>*/}
           <div className='imgBox'>

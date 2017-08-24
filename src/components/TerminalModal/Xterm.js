@@ -366,7 +366,7 @@ class TerminalModal extends Component {
     this.setState(state)
   }
   closeModal = () => {
-    this.setState({logModal: false})
+    this.setState({logModal: false,containerName:false})
   }
   render() {
     const { list,clusterID } = this.props

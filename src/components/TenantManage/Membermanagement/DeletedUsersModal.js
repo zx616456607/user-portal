@@ -15,6 +15,7 @@ import { Modal, Pagination, Spin } from 'antd'
 import { connect } from 'react-redux'
 import CommonSearchInput from '../../CommonSearchInput'
 import { getDeletedUsers } from '../../../actions/user'
+
 import './style/DeletedUsersModal.less'
 
 class DeletedUsersModal extends React.Component {

@@ -97,6 +97,7 @@ module.exports = function (Router) {
   router.get('/projects/:name/roles',projectController.getProjectRelatedRoles)
   router.put('/projects/:name/roles',projectController.updateProjectRelatedRoles)
   router.post('/projects/:name/roles/batch-delete',projectController.deleteProjectRelatedRoles)
+  router.del('/projects/:project_id/users/:user_id',projectController.removeUserFromProject)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
@@ -196,6 +197,8 @@ module.exports = function (Router) {
   router.put('/users/:user_id/:active', userController.updateUserActive)
   router.get('/users/softdeleted', userController.getSoftdeletedUsers)
   router.get('/users/search', userController.getUsersExclude)
+  router.post('/users/:user_id/:scope/:scopeID/roles', userController.bindRolesForUser)
+  router.post('/users/:user_id/teamtransfer', userController.teamtransfer)
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)

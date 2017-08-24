@@ -289,7 +289,14 @@ exports.deleteProjectRelatedRoles = function* () {
   this.body = response
 }
 
-
+function* removeUserFromProject() {
+  const projectId = this.params.project_id
+  const userId = this.params.user_id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  this.body = yield api.projects.deleteBy([ projectId, 'users', userId ])
+}
+exports.removeUserFromProject = removeUserFromProject
 
 exports.getProjectRelatedRoles = function* () {
   const projectName = this.params.name

@@ -77,7 +77,7 @@ class UserInfo extends Component {
         { loginUser.role == ROLE_SYS_ADMIN &&
         <Row className="content">
           <Card>
-            <UserProjectsAndTeams userDetail={userDetail} userId={userID} />
+            <UserProjectsAndTeams userDetail={userDetail} userId={userID || loginUser.userID} />
           </Card>
         </Row>
         }

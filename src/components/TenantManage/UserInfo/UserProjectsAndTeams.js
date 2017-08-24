@@ -12,13 +12,13 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Tabs, Table, Button, Icon, Input, Modal, Row, Col, Transfer } from 'antd'
+import { Tabs, Table, Button, Icon, Input, Modal, Row, Col, Transfer, Tooltip } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import { formatDate } from '../../../common/tools'
 import { loadUserTeams, updateUserTeams, loadUserProjects } from '../../../actions/user'
 import { ListProjects } from '../../../actions/project'
 import { removeTeamusers } from '../../../actions/team'
-import { GetProjectsMembers } from '../../../actions/project'
+import { GetProjectsMembers, removeProjectMember } from '../../../actions/project'
 import NotificationHandler from '../../../components/Notification'
 import JoinProjectsModal from './JoinProjectsModal'
 import './style/UserProjectsAndTeams.less'
@@ -56,6 +56,7 @@ class UserProjectsAndTeams extends React.Component {
     this.handleAddMemberModalOk = this.handleAddMemberModalOk.bind(this)
     this.handleAddMemberModalCancel = this.handleAddMemberModalCancel.bind(this)
     this.cancleJoinProjectsModal = this.cancleJoinProjectsModal.bind(this)
+    this.removeProject = this.removeProject.bind(this)
 
     this.defaultTeamTargetKeys = []
     this.defaultProjectTargetKeys = []
@@ -82,11 +83,11 @@ class UserProjectsAndTeams extends React.Component {
     ListProjects({ size: 100 }, {
       success: {
         func: res => {
-          res.data.map(project => {
+          res.data && res.data.projects.map(project => {
             project.key = project.ProjectID || project.projectID
           })
           this.setState({
-            allProjects: res.data,
+            allProjects: res.data.projects,
           })
         },
         isAsync: true,
@@ -263,6 +264,39 @@ class UserProjectsAndTeams extends React.Component {
     })
   }
 
+  removeProject() {
+    this.setState({
+      removeProjectBtnLoading: true,
+    })
+    const { removeProjectMember, loadUserProjects, userId } = this.props
+    const { currentProject } = this.state
+    const notification = new NotificationHandler()
+    removeProjectMember(currentProject.projectID, userId, {
+      success: {
+        func: () => {
+          this.setState({
+            removeProjectModalVisible: false,
+          })
+          notification.success('移除用户成功')
+          loadUserProjects(userId)
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          notification.error('移除用户失败')
+        }
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            removeProjectBtnLoading: false,
+          })
+        }
+      },
+    })
+  }
+
   render() {
     const { teams, userDetail, projects, isTeamsFetching, isProjectsFetching } = this.props
     let {
@@ -285,14 +319,20 @@ class UserProjectsAndTeams extends React.Component {
       },
       {
         title: '项目角色',
-        dataIndex: 'userCount',
-        key: 'userCount',
+        dataIndex: 'roles',
+        key: 'roles',
         width: '25%',
+        render: roles => {
+          const rolesText = roles.map(role => role.name).join(', ') || '-'
+          return (
+            <div title={rolesText}>{rolesText}</div>
+          )
+        }
       },
       {
         title: '参与时间',
-        dataIndex: 'creationTime',
-        key: 'creationTime',
+        dataIndex: 'updateTime',
+        key: 'updateTime',
         width: '25%',
         render: text => formatDate(text)
       },
@@ -564,4 +604,5 @@ export default connect(mapStateToProp, {
   updateUserTeams,
   loadUserProjects,
   ListProjects,
+  removeProjectMember,
 })(UserProjectsAndTeams)

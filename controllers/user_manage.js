@@ -440,6 +440,7 @@ function* getSoftdeletedUsers() {
   this.body = response
 }
 exports.getSoftdeletedUsers = getSoftdeletedUsers
+
 exports.getUsersExclude = function* () {
   const query = this.query || {}
   const loginUser = this.session.loginUser
@@ -448,3 +449,50 @@ exports.getUsersExclude = function* () {
   this.status = response.code
   this.body = response
 }
+
+function* bindRolesForUser() {
+  const loginUser = this.session.loginUser
+  const userId = this.params.user_id
+  const scope = this.params.scope
+  const scopeID = this.params.scopeID
+  const body = this.request.body
+  const api = apiFactory.getApi(loginUser)
+  const reqArray = []
+  if (body.bindUserRoles.roles.length > 0) {
+    reqArray.push(api.users.createBy([ userId, scope, scopeID, 'roles' ], null, body.bindUserRoles))
+  }
+  if (body.unbindUserRoles.roles.length > 0) {
+    reqArray.push(api.users.batchDeleteBy([ userId, scope, scopeID, 'roles', 'batch-delete' ], null, body.unbindUserRoles))
+  }
+  const result = yield reqArray
+  this.body = result
+}
+exports.bindRolesForUser = bindRolesForUser
+
+function* teamtransfer() {
+  const loginUser = this.session.loginUser
+  const userId = this.params.user_id
+  const body = this.request.body
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.users.createBy([ userId, 'teamtransfer' ], null, body)
+  this.body = result
+}
+exports.teamtransfer = teamtransfer
+
+function* resetPassword() {
+  const method = "resetPassword"
+  // Get email, code, password
+  const user = this.request.body
+  if (!user.email || !user.code || !user.password) {
+    const err = new Error('user email, code and password are required.')
+    err.status = 400
+    throw err
+  }
+
+  // Reset password for the email account
+  const spi = apiFactory.getSpi()
+  const result = yield spi.users.patchBy([user.email, 'resetpw'], { code: user.code }, user)
+
+  this.body = result
+}
+exports.resetPassword = resetPassword

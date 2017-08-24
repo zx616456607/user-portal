@@ -46,7 +46,11 @@ const tenantRoutes = [{
   {
     path: 'team/:team_id',
     component: require('../components/TenantManage/_Enterprise/TeamDetail').default,
-  }
+  },
+  {
+    path: 'ldap',
+    component: require('../components/TenantManage/LDAP').default,
+  },
 ]
 
 export default tenantRoutes

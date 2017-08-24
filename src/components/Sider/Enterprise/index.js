@@ -726,13 +726,6 @@ class Sider extends Component {
                     :
                     <Menu.Item key="none-cost" style={{ display: 'none' }}></Menu.Item>
                   }
-                  {role == ROLE_SYS_ADMIN ?
-                    <Menu.Item key='ldap'>
-                      <Link to='/account/ldap'>
-                        <span><div className='sideCircle'></div> 集成企业目录</span>
-                      </Link>
-                    </Menu.Item> : <Menu.Item key="none-ldap" style={{ display: 'none' }}></Menu.Item>
-                  }
                   <div className='sline'></div>
                 </SubMenu>
                 <SubMenu key='tenant_manage'
@@ -776,6 +769,13 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 所有权限</span>
                     </Link>
                   </Menu.Item>
+                  {role == ROLE_SYS_ADMIN ?
+                    <Menu.Item key='ldap'>
+                      <Link to='/tenant_manage/ldap'>
+                        <span><div className='sideCircle'></div> 集成企业目录</span>
+                      </Link>
+                    </Menu.Item> : <Menu.Item key="none-ldap" style={{ display: 'none' }}></Menu.Item>
+                  }
                   <div className='sline'></div>
                 </SubMenu>
                 <SubMenu key='setting'

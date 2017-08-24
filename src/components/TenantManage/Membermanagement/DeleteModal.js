@@ -23,15 +23,26 @@ export default class DeleteModal extends React.Component {
       selectedRowKeys: [],
       users: [],
       reCheck: false,
+      loading: false,
     }
   }
 
   componentDidMount() {
+    this.setState({
+      loading: true,
+    })
     this.props.loadUserList({size: 0}, {
       success: {
         func: res => {
           this.setState({
             users: res.users,
+          })
+        }
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            loading: false,
           })
         }
       }
@@ -55,7 +66,7 @@ export default class DeleteModal extends React.Component {
 
   render() {
     const { onCancel, onOk, loginUser } = this.props
-    const { selectedRowKeys, number, users, reCheck } = this.state
+    const { selectedRowKeys, number, users, reCheck, loading } = this.state
     const loginUserRole = loginUser.role
     const getRecordDisabledCheck = record => {
       if (loginUserRole === ROLE_SYS_ADMIN) {
@@ -178,6 +189,7 @@ export default class DeleteModal extends React.Component {
           onRowClick={this.onRowClick}
           className="marginBottom"
           rowKey={record => record.namespace}
+          loading={loading}
         />
         <Row className="reCheck" checked={reCheck} onChange={e => this.setState({reCheck: e.target.checked})}>
           <Checkbox>选中此框以确认您要删除这些用户</Checkbox>
