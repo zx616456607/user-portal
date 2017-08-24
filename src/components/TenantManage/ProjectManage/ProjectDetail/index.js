@@ -698,7 +698,7 @@ class ProjectDetail extends Component{
                   }
                   <Modal title="移除集群" visible={this.state.deleteClusterModal}
                          onCancel={()=>this.setState({deleteClusterModal:false})}
-                         onOk={()=>this.confirmDeleteCluster(item.cluster.clusterID)}
+                         onOk={()=>{this.updateProjectClusters(item.cluster.clusterID, 0);this.setState({deleteClusterModal: false})}}
                   >
                     <div className="modalColor">
                       <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
