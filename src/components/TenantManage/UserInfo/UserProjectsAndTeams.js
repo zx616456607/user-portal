@@ -416,7 +416,7 @@ class UserProjectsAndTeams extends React.Component {
           <TabPane tab="参与项目" key="projects">
             <div className="projects">
               <div className="projectsTitle">
-                <Button type="primary" onClick={() => this.setState({joinProjectsModalVisible: true})}>
+                <Button size="large" type="primary" onClick={() => this.setState({joinProjectsModalVisible: true})}>
                   <i className='fa fa-undo' /> &nbsp;加入其它项目
                 </Button>
                 {/* <Button type="ghost"><Icon type="delete" />移出项目</Button> */}
@@ -435,7 +435,7 @@ class UserProjectsAndTeams extends React.Component {
           <TabPane tab="所属团队" key="teams">
             <div className="teams">
               <div className="teamsTitle">
-                <Button type="primary" onClick={() => this.setState({teamTransferModalVisible: true})}>
+                <Button size="large" type="primary" onClick={() => this.setState({teamTransferModalVisible: true})}>
                   <i className='fa fa-undo' /> &nbsp;加入其它团队
                 </Button>
                 {/**
