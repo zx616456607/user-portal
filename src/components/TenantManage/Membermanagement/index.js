@@ -324,7 +324,7 @@ let MemberTable = React.createClass({
     const { userDetail } = this.props.scope.props
     let filterKey = [
       { text: '普通成员', value: 0 },
-      { text: '团队管理员', value: 1 }
+      { text: '系统管理员', value: 2 }
     ]
     let userStatusfilterKey = [
       { text: '不可用', value: 2 },

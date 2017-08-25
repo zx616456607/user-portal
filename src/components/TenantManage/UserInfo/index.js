@@ -49,10 +49,14 @@ class UserInfo extends Component {
 
         <Title title={userID ? '成员管理' : '我的帐户'} />
         <Row className="content">
-          <Link className="back" to="/tenant_manage/user">
-            <span className="backjia"></span>
-            <span className="btn-back">返回</span>
-          </Link>
+          {
+            userID && (
+              <Link className="back goback" to="/tenant_manage/user">
+                <span className="backjia"></span>
+                <span className="btn-back">返回</span>
+              </Link>
+            )
+          }
           <Row className="title">
             <Col>{ memberFlag ? userDetail.userName+'成员信息' : '我的信息'}</Col>
           </Row>
@@ -73,14 +77,11 @@ class UserInfo extends Component {
             />
           </Card>
         </Row>
-
-        { loginUser.role == ROLE_SYS_ADMIN &&
         <Row className="content">
           <Card>
-            <UserProjectsAndTeams userDetail={userDetail} userId={userID || loginUser.userID} />
+            <UserProjectsAndTeams loginUser={loginUser} userDetail={userDetail} userId={userID || loginUser.userID} />
           </Card>
         </Row>
-        }
       </div>
     )
   }
