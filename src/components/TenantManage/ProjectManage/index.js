@@ -62,7 +62,8 @@ let ProjectManage = React.createClass({
       sort: '',
       roleFilter: '',
       clearInput: false,
-      searchName: ''
+      searchName: '',
+      filteredInfo: {}
     }
   },
 
@@ -298,7 +299,7 @@ let ProjectManage = React.createClass({
     this.setState({tableLoading: true})
     let page = n - 1 || 0
     let filter = searchName ? `name,${searchName}` : ''
-    filter = roleFilter ? `${filter}&outlineRole,${roleFilter}` : filter
+    // filter = roleFilter ? `${filter}&outlineRole,${roleFilter}` : filter
     let obj = {
       from: page * 10,
       size: 10
@@ -309,6 +310,19 @@ let ProjectManage = React.createClass({
       success: {
         func: (result) => {
           if (result.statusCode === 200) {
+            result.data.projects.forEach(item => {
+              let role = ''
+              if (item.outlineRoles) {
+                if (item.outlineRoles.includes('creator') || item.outlineRoles.includes('manager')) {
+                  role = '创建者'
+                } else if (item.outlineRoles.includes('no-participator')) {
+                  role = '非项目成员'
+                } else {
+                  role = '参与者'
+                }
+              }
+              Object.assign(item,{role})
+            })
             this.setState({
               projectList: result.data,
               tableLoading: false
@@ -601,7 +615,8 @@ let ProjectManage = React.createClass({
   projectFilter(pagination, filters, sorter) {
     let role
     this.setState({
-      roleFilter: (role = filters.outlineRole).length ? role[0] : ''
+      roleFilter: (role = filters.role).length ? role[0] : '',
+      filteredInfo: filters
     }, () => {
       this.loadProjectList()
     })
@@ -618,7 +633,9 @@ let ProjectManage = React.createClass({
   render() {
     const step = this.props.location.query.step || '';
     const {roleNum} = this.props;
-    const {payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro, userList, deleteSingleChecked} = this.state;
+    const {payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, 
+      paySinglePro, userList, deleteSingleChecked, filteredInfo
+    } = this.state;
     const pageOption = {
       simple: true,
       total: !isEmpty(projectList) && projectList['listMeta'].total || 0,
@@ -634,26 +651,21 @@ let ProjectManage = React.createClass({
       render: (text) => <Link to={`/tenant_manage/project_manage/project_detail?name=${text}`}>{text}</Link>,
     }, {
       title: '我是项目的',
-      dataIndex: 'outlineRole',
-      key: 'outlineRole',
+      dataIndex: 'role',
+      key: 'role',
       width: '10%',
       filters: [{
-        text: '访客',
-        value: 'visitor',
+        text: '参与者',
+        value: '参与者',
       }, {
-        text: '项目管理员',
-        value: 'manager',
+        text: '创建者',
+        value: '创建者',
       }, {
         text: '非项目成员',
-        value: 'non-participants',
+        value: '非项目成员',
       }],
-      onFilter: (value, record) => record.outlineRole.indexOf(value) === 0,
-      render: (data) =>
-        <div>
-          {data === 'manager' ? '项目管理员' : ''}
-          {data === 'visitor' ? '访客' : ''}
-          {data === 'non-participants' ? '非项目成员' : ''}
-        </div>
+      filteredValue: filteredInfo.role,
+      onFilter: (value, record) => String(record.role) === value
     },
       {
         title: (

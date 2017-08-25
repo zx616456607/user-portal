@@ -30,6 +30,7 @@ import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN, TEAM_MANAGE_ROLE_ID } from '../../../.
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
 import includes from 'lodash/includes'
+import isEmpty from 'lodash/isEmpty'
 
 let MemberList = React.createClass({
   getInitialState() {
@@ -146,10 +147,10 @@ let MemberList = React.createClass({
   },
   onTableChange(pagination, filters, sorter) {
     // 点击分页、筛选、排序时触发
-    if (!filters.style) {
+    if (!filters.globalStyle) {
       return
     }
-    let styleFilterStr = filters.style.toString()
+    let styleFilterStr = filters.globalStyle.toString()
     if (styleFilterStr === this.styleFilter) {
       return
     }
@@ -160,13 +161,14 @@ let MemberList = React.createClass({
       size: userPageSize,
       sort: sortUser,
     }
-    let filter
-    if (filters.style.length === 1) {
-      filter = `role,${filters.style[0]}`
-      query.filter = filter
-    }
+    // let filter
+    // if (filters.globalStyle.length === 1) {
+    //   filter = `role,${filters.globalStyle[0]}`
+    //   query.filter = filter
+    // }
     this.setState({
-      filter
+      // filter,
+      filteredInfo: filters
     })
     loadTeamUserList(teamID, query)
     this.styleFilter = styleFilterStr
@@ -241,6 +243,8 @@ let MemberList = React.createClass({
           { text: '普通成员', value: '普通成员' },
           { text: '系统管理员', value: '系统管理员' },
         ],
+        filteredValue: filteredInfo.globalStyle,
+        onFilter: (value, record) => String(record.globalStyle) === value,
         render: (text, record) => record.partialStyle === '团队管理员' ? `${text}（团队管理员）` : text
       },
       {
@@ -820,7 +824,10 @@ class TeamDetail extends Component {
                 我是团队的
               </Col>
               <Col span={22}>
-                {teamDetail && teamDetail.isCreator ? '创建者' : '参与者'}
+                {teamDetail && teamDetail.outlineRoles && 
+                  (teamDetail.outlineRoles.includes('creator') || teamDetail.outlineRoles.includes('creator') ? '团队管理员' : '') &&
+                  (teamDetail.outlineRoles.includes('no-participator') ? '非团队成员' : '参与者')
+                }
               </Col>
             </Row>
           </Card>
@@ -947,7 +954,7 @@ function mapStateToProp(state, props) {
             tel: item.phone,
             email: item.email,
             globalStyle: item.globalRoles.includes('admin') ? '系统管理员' : '普通成员',
-            partialStyle: item.partialRole.includes('manager') ? '团队管理员' : ''
+            partialStyle: item.partialRoles.includes('manager') ? '团队管理员' : ''
           }
         )
       })
@@ -964,7 +971,7 @@ function mapStateToProp(state, props) {
             name: item.userName,
             role : item.role,
             globalStyle: item.globalRoles.includes('admin') ? '系统管理员' : '普通成员',
-            partialStyle: item.partialRole.includes('manager') ? '团队管理员' : ''
+            partialStyle: item.partialRoles.includes('manager') ? '团队管理员' : ''
           }
         )
       })

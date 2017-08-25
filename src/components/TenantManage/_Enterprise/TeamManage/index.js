@@ -383,21 +383,16 @@ let TeamTable = React.createClass({
       },
       {
         title: '我是团队的',
-        dataIndex: 'isCreator',
-        key: 'isCreator',
+        dataIndex: 'role',
+        key: 'role',
         width:'10%',
         filters: [
-          { text: '创建者', value: true },
-          { text: '参与者', value: false },
-          { text: '非团队成员', value: -1 }
+          { text: '创建者', value: '创建者' },
+          { text: '参与者', value: '参与者' },
+          { text: '非团队成员', value: '非团队成员' }
         ],
-        filteredValue: filteredInfo.isCreator,
-        onFilter: (value, record) => String(record.isCreator) === value,
-        render: (text, record)=>{
-          return(
-            <div>{record.isCreate ? <span style={{color:'#7dc57c'}}>创建者</span> :'参与者'}</div>
-          )
-        }
+        filteredValue: filteredInfo.role,
+        onFilter: (value, record) => String(record.role) === value
       },
       {
         title: '操作',
@@ -773,13 +768,24 @@ function mapStateToProp(state, props) {
       teamsData = teams.result.teams
       if (teamsData.length !== 0) {
         teamsData.map((item, index) => {
+          let role = ''
+          if (item.outlineRoles) {
+            if (item.outlineRoles.includes('creator') || item.outlineRoles.includes('manager')) {
+              role = '创建者'
+            } else if (item.outlineRoles.includes('no-participator')) {
+              role = '非团队成员'
+            } else {
+              role = '参与者'
+            }
+          }
           data.push(
             {
               key: item.teamID,
               team: item.teamName,
               member: item.userCount,
               creationTime: item.creationTime,
-              isCreator: item.isCreator
+              outlineRoles: item.outlineRoles,
+              role
             }
           )
         })

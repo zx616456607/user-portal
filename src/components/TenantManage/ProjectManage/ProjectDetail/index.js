@@ -628,14 +628,13 @@ class ProjectDetail extends Component{
       return <TreeNode key={item.key} title={item.userName} disableCheckbox={true}/>;
     });
     const projectRole = (role) => {
-      if (role === 'admin') {
-        return '系统管理员'
-      }else if (role === 'manager') {
-        return '管理员'
-      } else if (role === 'creator') {
+      if (!role) return
+      if (role.includes('no-participator')) {
+        return '非项目成员'
+      } else if (role.includes('manager') || role.includes('creator')) {
         return '创建者'
       } else {
-        return '访客'
+        return '参与者'
       }
     }
     const disabledArr = [TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID]
@@ -956,7 +955,7 @@ class ProjectDetail extends Component{
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {projectRole(projectDetail.projectRole)}
+                        {projectRole(projectDetail.outlineRoles)}
                       </div>
                     </Col>
                   </Row>
