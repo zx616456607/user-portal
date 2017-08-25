@@ -11,7 +11,7 @@
 import React, { Component } from 'react'
 import { InputNumber, Form } from 'antd'
 import './style/MemberAccount.less'
-import { MAX_CHARGE }  from '../../../../constants'
+import { MAX_CHARGE, CHARGE_NUMBERS }  from '../../../../constants'
 
 let MemberRecharge = React.createClass({
   componentWillReceiveProps(nextProps) {
@@ -60,20 +60,52 @@ let MemberRecharge = React.createClass({
     })
     return(
       <div className="memberItem">
-        <div className="list"><span className="itemKey">成员名</span>{record.name}</div>
-        <div className="list"><span className="itemKey">成员类型</span>{record.style}</div>
-        <div className="list"><span className="itemKey">余额</span>{record.balance}</div>
-        <Form>
-        <div className="list">
-          <span className="itemKey">充值金额</span>
-          <div className={parentScope.state.number ==10 ? "pushMoney selected" : 'pushMoney'} onClick={()=> parentScope.activeMenu(10)}><span>10T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
-          <div className={parentScope.state.number ==20 ? "pushMoney selected" : 'pushMoney'} onClick={()=> parentScope.activeMenu(20)}><span>20T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
-          <div className={parentScope.state.number ==50 ? "pushMoney selected" : 'pushMoney'} onClick={()=> parentScope.activeMenu(50)}><span>50T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
-          <div className={parentScope.state.number ==100 ? "pushMoney selected" : 'pushMoney'} onClick={()=> parentScope.activeMenu(100)}><span>100T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
-          <Form.Item style={{float:'left', width:'100px'}}>
-            <InputNumber {...autoNumberProps} size="large"  onClick={(e)=> this.otherNumber(e)} min={0} step={50} max={MAX_CHARGE}/> T
+        <Form horizontal>
+          <Form.Item
+            label="成员名"
+            labelCol={{ span: 4 }}
+            wrapperCol={{ span: 18 }}
+          >
+            {record.name}
           </Form.Item>
-        </div>
+          <Form.Item
+            label="成员类型"
+            labelCol={{ span: 4 }}
+            wrapperCol={{ span: 18 }}
+          >
+            {record.style}
+          </Form.Item>
+          <Form.Item
+            label="余额"
+            labelCol={{ span: 4 }}
+            wrapperCol={{ span: 18 }}
+          >
+            {record.balance}
+          </Form.Item>
+          <Form.Item
+            label="充值金额"
+            labelCol={{ span: 4 }}
+            wrapperCol={{ span: 18 }}
+          >
+            <div className="list">
+              {
+                CHARGE_NUMBERS.map(num => (
+                  <div
+                    className={parentScope.state.number == num ? "pushMoney selected" : 'pushMoney'}
+                    onClick={()=> parentScope.activeMenu(num)}
+                    key={`charge-${num}`}
+                  >
+                    <span>{num}T</span>
+                    <div className="triangle"></div>
+                    <i className="anticon anticon-check"></i>
+                  </div>
+                ))
+              }
+              <div style={{float:'left', width:'100px'}}>
+                <InputNumber {...autoNumberProps} size="large" onClick={(e)=> this.otherNumber(e)} min={0} step={50} max={MAX_CHARGE}/> T
+              </div>
+            </div>
+          </Form.Item>
         </Form>
       </div>
     )

@@ -13,10 +13,8 @@
 import React from 'react'
 import { Row, Col, InputNumber, Table, Modal, Button } from 'antd'
 import { parseAmount } from '../../../common/tools'
-import { MAX_CHARGE } from '../../../constants'
+import { MAX_CHARGE, CHARGE_NUMBERS } from '../../../constants'
 import './style/ChargeModal.less'
-
-const CHARGE_NUMBERS = [ 10, 20, 50, 100 ]
 
 export default class ChargeModal extends React.Component {
   constructor(props) {
@@ -108,7 +106,7 @@ export default class ChargeModal extends React.Component {
             onClick={onOk.bind(this, selectedRowKeys, number)}
             disabled={selectedRowKeys.length === 0}
           >
-            确 认
+            确 定
           </Button>
         ]}
       >

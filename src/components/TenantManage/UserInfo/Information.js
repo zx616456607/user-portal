@@ -505,7 +505,9 @@ class Information extends Component {
           </Row>
           { userDetail && userDetail.type == 1 ? <Row className="Item">
             <Col span={4}>密码</Col>
-            <Col span={8}>已设置</Col>
+            {
+              !revisePass && <Col span={8}>已设置</Col>
+            }
             <Col span={8}>
               {
                 revisePass ?
