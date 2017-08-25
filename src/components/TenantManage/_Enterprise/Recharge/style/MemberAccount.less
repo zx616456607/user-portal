@@ -1,6 +1,12 @@
 .memberItem,.spaceItem{
   font-size: 14px;
   margin-top:10px;
+  .ant-form-item-label {
+    text-align: left;
+    & label:after {
+      display: none;
+    }
+  }
   .list {
     height: 40px;
     .itemKey{display: inline-block;width: 90px;float: left;line-height: 30px;}
@@ -8,7 +14,7 @@
         // margin-top: 10px;
         overflow: hidden;
         cursor: pointer;
-        width: 70px;
+        width: 60px;
         float: left;
         height: 32px;
         line-height: 32px;

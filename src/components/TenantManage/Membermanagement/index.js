@@ -21,7 +21,7 @@ import CreateUserModal from '../CreateUserModal'
 import NotificationHandler from '../../../components/Notification'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import MemberRecharge from '../../AccountModal/_Enterprise/Recharge'
-import { MAX_CHARGE } from '../../../constants'
+import { MAX_CHARGE, DEACTIVE } from '../../../constants'
 import Title from '../../Title'
 import ChargeModal from './ChargeModal'
 import CommonSearchInput from '../../CommonSearchInput'
@@ -199,8 +199,8 @@ let MemberTable = React.createClass({
     const { scope } = this.props
     const { updateUserActive, loadUserList } = scope.props
     const { page, pageSize, filter, sort } = scope.state
-    const text = active === 2 ? '启用' : '停用'
-    if (active !== 2) {
+    const text = active === DEACTIVE ? '启用' : '停用'
+    if (active !== DEACTIVE) {
       this.setState({
         deactiveUserBtnLoading: true,
       })
@@ -215,7 +215,7 @@ let MemberTable = React.createClass({
             sort: sort,
             filter: filter,
           })
-          active !== 2 && this.setState({
+          active !== DEACTIVE && this.setState({
             deactiveUserModal: false,
             deactiveUserBtnLoading: false,
           })
@@ -225,7 +225,7 @@ let MemberTable = React.createClass({
       failed: {
         func: () => {
           notification.error(`${text}用户 ${name} 失败`)
-          active !== 2 && this.setState({
+          active !== DEACTIVE && this.setState({
             deactiveUserBtnLoading: false,
           })
         }
@@ -243,7 +243,7 @@ let MemberTable = React.createClass({
     }
     const notification = new NotificationHandler()
     const { active, name } = record
-    if (active !== 2) {
+    if (active !== DEACTIVE) {
       this.setState({
         deactiveUserModal: true,
       })
@@ -324,7 +324,7 @@ let MemberTable = React.createClass({
     const { userDetail } = this.props.scope.props
     let filterKey = [
       { text: '普通成员', value: 0 },
-      { text: '团队管理员', value: 1 }
+      { text: '系统管理员', value: 2 }
     ]
     let userStatusfilterKey = [
       { text: '不可用', value: 2 },
@@ -377,8 +377,8 @@ let MemberTable = React.createClass({
         width: '10%',
         filters: userStatusfilterKey,
         render: active => {
-          const color = active === 2 ? '#f23e3f' : '#33b867'
-          const text = active === 2 ? '不可用' : '可用'
+          const color = active === DEACTIVE ? '#f03e3f' : '#33b867'
+          const text = active === DEACTIVE ? '不可用' : '可用'
           return (
             <div style={{ color }}>
               <i className="fa fa-circle"></i>&nbsp;
@@ -477,7 +477,7 @@ let MemberTable = React.createClass({
                   <Menu.Item key="active"
                     disabled={record.namespace === loginUser.namespace}
                   >
-                    {record.active === 2 ? '启用' : '停用'}
+                    {record.active === DEACTIVE ? '启用' : '停用'}
                   </Menu.Item>
                   <Menu.Item key="delete">删除</Menu.Item>
                 </Menu>
@@ -519,7 +519,7 @@ let MemberTable = React.createClass({
         <Modal title="停用成员操作"
           visible={this.state.deactiveUserModal}
           onCancel={() => this.setState({ deactiveUserModal: false })}
-          wrapClassName="deleteMemberModal"
+          wrapClassName="deactiveMemberModal"
           footer={[
             <Button
               key="back"
@@ -540,7 +540,18 @@ let MemberTable = React.createClass({
             </Button>,
           ]}
         >
-          停用该成员将不能登录平台，激活后可恢复使用
+          <Row className="alertRow warningRow">
+            <Col span={2} className="alertRowIcon">
+              <i className="fa fa-exclamation-triangle" aria-hidden="true" />
+            </Col>
+            <Col span={22} className="alertRowDesc">
+            停用该成员将不能登录平台，激活后可恢复使用
+            </Col>
+          </Row>
+          <div className="modalColor">
+            <i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>
+            您是否确定要停用成员 {this.currentUser && this.currentUser.name} ?
+          </div>
         </Modal>
       </div>
     )

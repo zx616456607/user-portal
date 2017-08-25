@@ -21,6 +21,7 @@ import { removeTeamusers } from '../../../actions/team'
 import { GetProjectsMembers, removeProjectMember } from '../../../actions/project'
 import NotificationHandler from '../../../components/Notification'
 import JoinProjectsModal from './JoinProjectsModal'
+import { ROLE_SYS_ADMIN } from '../../../../constants'
 import './style/UserProjectsAndTeams.less'
 
 const TabPane = Tabs.TabPane
@@ -62,8 +63,12 @@ class UserProjectsAndTeams extends React.Component {
     this.defaultProjectTargetKeys = []
   }
 
+  isSysAdmin(role) {
+    return role === ROLE_SYS_ADMIN
+  }
+
   loadProjectsData() {
-    const { loadUserProjects, ListProjects, userId } = this.props
+    const { loadUserProjects, ListProjects, userId, loginUser } = this.props
     loadUserProjects(userId, { size: 100 }, {
       success: {
         func: res => {
@@ -80,7 +85,7 @@ class UserProjectsAndTeams extends React.Component {
         isAsync: true,
       }
     })
-    ListProjects({ size: 100 }, {
+    this.isSysAdmin(loginUser.role) && ListProjects({ size: 100 }, {
       success: {
         func: res => {
           res.data && res.data.projects.map(project => {
@@ -96,7 +101,7 @@ class UserProjectsAndTeams extends React.Component {
   }
 
   loadTeamData() {
-    const { userId, loadUserTeams, GetProjectsMembers } = this.props
+    const { userId, loadUserTeams, GetProjectsMembers, loginUser } = this.props
     loadUserTeams(userId, { size: 100 }, {
       success: {
         func: res => {
@@ -114,14 +119,15 @@ class UserProjectsAndTeams extends React.Component {
       }
     })
 
-    GetProjectsMembers(null, {
+    this.isSysAdmin(loginUser.role) && GetProjectsMembers(null, {
       success: {
         func: res => {
-          res.data.teamList.map(team => {
+          const teamList = res.data.teamList || []
+          teamList.map(team => {
             team.key = team.teamId
           })
           this.setState({
-            allTeams: res.data.teamList,
+            allTeams: teamList,
           })
         }
       }
@@ -298,7 +304,9 @@ class UserProjectsAndTeams extends React.Component {
   }
 
   render() {
-    const { teams, userDetail, projects, isTeamsFetching, isProjectsFetching } = this.props
+    const { teams, userDetail, projects, isTeamsFetching, isProjectsFetching, loginUser, userId } = this.props
+    const isLoginUser = userId == loginUser.userID
+    const exitText = isLoginUser ? '退出' : '移出'
     let {
       teamSortedInfo, removeMemberModalVisible, currentTeam,
       teamTargetKeys, allTeams, teamTransferModalVisible,
@@ -353,7 +361,7 @@ class UserProjectsAndTeams extends React.Component {
               onClick={() => this.setState({ currentProject: record, removeProjectModalVisible: true })}
               className="delBtn setBtn"
             >
-              移出项目
+              {exitText + '项目'}
             </Button>
           </div>
         ),
@@ -404,7 +412,7 @@ class UserProjectsAndTeams extends React.Component {
               onClick={() => this.setState({ currentTeam: record, removeMemberModalVisible: true })}
               className="delBtn setBtn"
             >
-              移出团队
+              {exitText + '团队'}
             </Button>
           </div>
         ),
@@ -416,10 +424,13 @@ class UserProjectsAndTeams extends React.Component {
           <TabPane tab="参与项目" key="projects">
             <div className="projects">
               <div className="projectsTitle">
-                <Button type="primary" onClick={() => this.setState({joinProjectsModalVisible: true})}>
-                  <i className='fa fa-undo' /> &nbsp;加入其它项目
-                </Button>
-                {/* <Button type="ghost"><Icon type="delete" />移出项目</Button> */}
+                {
+                  this.isSysAdmin(loginUser.role) && (
+                    <Button size="large" type="primary" onClick={() => this.setState({joinProjectsModalVisible: true})}>
+                      <i className='fa fa-undo' /> &nbsp;加入其它项目
+                    </Button>
+                  )
+                }
               </div>
               <div className="projectsContent">
                 <Table
@@ -435,12 +446,13 @@ class UserProjectsAndTeams extends React.Component {
           <TabPane tab="所属团队" key="teams">
             <div className="teams">
               <div className="teamsTitle">
-                <Button type="primary" onClick={() => this.setState({teamTransferModalVisible: true})}>
-                  <i className='fa fa-undo' /> &nbsp;加入其它团队
-                </Button>
-                {/**
-                 * <Button type="ghost"><Icon type="delete" />移出团队</Button>
-                 */}
+                {
+                  this.isSysAdmin(loginUser.role) && (
+                    <Button size="large" type="primary" onClick={() => this.setState({teamTransferModalVisible: true})}>
+                      <i className='fa fa-undo' /> &nbsp;加入其它团队
+                    </Button>
+                  )
+                }
                 <span className="searchInput">
                   <Input size='large' placeholder='搜索' />
                   <i className='fa fa-search' />
@@ -459,7 +471,7 @@ class UserProjectsAndTeams extends React.Component {
           </TabPane>
         </Tabs>
         <Modal
-          title="移出项目"
+          title={`${exitText}项目`}
           visible={removeProjectModalVisible}
           wrapClassName="removeMemberModal"
           onCancel={() => this.setState({ removeProjectModalVisible: false })}
@@ -489,13 +501,17 @@ class UserProjectsAndTeams extends React.Component {
               <i className="fa fa-exclamation-triangle" aria-hidden="true" />
             </Col>
             <Col span={22}>
-              将此成员从此项目移出后，取消关联该成员在项目中的所有项目角色，且无法继续使用此项目的资源，
-              确定将成员 {userDetail.userName} 移出项目 {currentProject.projectName} 么？
+            {
+              isLoginUser
+              ? `退出项目后，取消关联在该项目中的所有项目角色，且无法继续使用此项目的资源。 确定退出项目 ${currentProject.projectName} 么？`
+              : `将此成员从此项目移出后，取消关联该成员在项目中的所有项目角色，且无法继续使用此项目的资源，
+              确定将成员 ${userDetail.userName} 移出项目 ${currentProject.projectName} 么？`
+            }
             </Col>
           </Row>
         </Modal>
         <Modal
-          title="移出团队"
+          title={`${exitText}团队`}
           visible={removeMemberModalVisible}
           wrapClassName="removeMemberModal"
           onCancel={() => this.setState({ removeMemberModalVisible: false })}
@@ -525,7 +541,11 @@ class UserProjectsAndTeams extends React.Component {
               <i className="fa fa-exclamation-triangle" aria-hidden="true" />
             </Col>
             <Col span={22} className="alertRowDesc">
-              确定将成员 {userDetail.userName} 移出团队 {currentTeam.teamName} 么？
+            {
+              isLoginUser
+              ? `确定退出团队 ${currentTeam.teamName} 么？`
+              : `确定将成员 {userDetail.userName} 移出团队 ${currentTeam.teamName} 么？`
+            }
             </Col>
           </Row>
         </Modal>

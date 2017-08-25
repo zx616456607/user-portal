@@ -367,9 +367,10 @@ class Information extends Component {
     })
   }
   handleUpdateUser(key) {
-    const { form, userID, updateUser, loadUserDetail } = this.props
+    const { form, updateUser, loadUserDetail } = this.props
     const { validateFields } = form
     const notify = new NotificationHandler()
+    const userID = this.props.userID || 'default'
     validateFields([ key ], (errors, values) => {
       if (!!errors) {
         return
@@ -505,7 +506,9 @@ class Information extends Component {
           </Row>
           { userDetail && userDetail.type == 1 ? <Row className="Item">
             <Col span={4}>密码</Col>
-            <Col span={8}>已设置</Col>
+            {
+              !revisePass && <Col span={8}>已设置</Col>
+            }
             <Col span={8}>
               {
                 revisePass ?
@@ -531,20 +534,44 @@ class Information extends Component {
             {/*  system user  */}
             {(ROLE_SYS_ADMIN == this.props.loginUser.role) ?
               <Col span={4}>
-                <Button type="primary" onClick={()=>　this.memberRecharge(userDetail,roleName)}>
+                <Button type="primary" icon="pay-circle-o" onClick={()=>　this.memberRecharge(userDetail,roleName)}>
                   充值
                 </Button>
               </Col>
               :null
             }
           </Row>
-          <Row className="Item">
+          <Row className="Item comment">
             <Col span={4}>备注</Col>
-            <Col span={8}>{userDetail.comment || '-'}</Col>
+            <Col span={8}>
+            {/* {userDetail.comment || '-'} */}
+            <Form horizontal>
+              <FormItem>
+                <Input className="comment-input" disabled={!this.state.commentEditVisible} type="textarea" {...commentProps} placeholder="输入新备注" />
+              </FormItem>
+              {
+                this.state.commentEditVisible && (
+                  <div className="comment-btns">
+                    <Button onClick={() => {
+                      this.setState({ commentEditVisible: false})
+                      this.resetForm()
+                    }}>
+                      取 消
+                    </Button>
+                    <Button onClick={this.handleUpdateUser.bind(this, 'comment')} type="primary">确 定</Button>
+                  </div>
+                )
+              }
+            </Form>
+            </Col>
             <Col span={4}>
-              <Button type="primary" onClick={()=>　this.setState({ commentModalVisible: true })}>
-                修改
-              </Button>
+              {
+                !this.state.commentEditVisible && (
+                  <Button className="comment-edit-btn" icon="edit" onClick={() => this.setState({ commentEditVisible: true })}>
+                    修改
+                  </Button>
+                )
+              }
             </Col>
           </Row>
         </div>
@@ -611,21 +638,6 @@ class Information extends Component {
           <Form horizontal>
             <FormItem>
               <Input type="text" {...emailProps} placeholder="输入新邮箱" />
-            </FormItem>
-          </Form>
-        </Modal>
-        <Modal
-          title="修改备注"
-          visible={this.state.commentModalVisible}
-          onCancel={() => {
-            this.setState({ commentModalVisible: false})
-            this.resetForm()
-          }}
-          onOk={this.handleUpdateUser.bind(this, 'comment')}
-        >
-          <Form horizontal>
-            <FormItem>
-              <Input type="textarea" {...commentProps} placeholder="输入新备注" />
             </FormItem>
           </Form>
         </Modal>

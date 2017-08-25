@@ -9,7 +9,7 @@
  */
 
 import { FETCH_API, Schemas } from '../middleware/api'
-import { API_URL_PREFIX } from '../constants'
+import { API_URL_PREFIX, DEACTIVE } from '../constants'
 import { toQuerystring } from '../common/tools'
 
 export const USER_LIST_REQUEST = 'USER_LIST_REQUEST'
@@ -718,7 +718,7 @@ export const UPDATE_USER_ACTIVE_SUCCESS = 'UPDATE_USER_ACTIVE_SUCCESS'
 export const UPDATE_USER_ACTIVE_FAILURE = 'UPDATE_USER_ACTIVE_FAILURE'
 
 function fetchUpdateUserActive(userID, active, callback) {
-  if (active === 2) {
+  if (active === DEACTIVE) {
     active = 'active'
   } else {
     active = 'deactive'
