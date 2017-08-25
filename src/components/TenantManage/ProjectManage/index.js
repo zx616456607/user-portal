@@ -7,32 +7,32 @@
  * v0.1 - 2017-06-02
  * @author zhangxuan
  */
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import classNames from 'classnames';
 import './style/ProjectManage.less'
-import { Row, Col, Button, Card, Table, Modal, Transfer, InputNumber, Pagination, Checkbox  } from 'antd'
+import {Row, Col, Button, Card, Table, Modal, Transfer, InputNumber, Pagination, Checkbox, Form} from 'antd'
 import QueueAnim from 'rc-queue-anim'
-import { browserHistory, Link } from 'react-router'
-import { connect } from 'react-redux'
+import {browserHistory, Link} from 'react-router'
+import {connect} from 'react-redux'
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
-import { ListProjects, DeleteProjects, UpdateProjects, CreateProjects } from '../../../actions/project'
-import { usersAddRoles, roleWithMembers, usersLoseRoles } from '../../../actions/role'
-import { loadUserList } from '../../../actions/user'
-import { chargeProject } from '../../../actions/charge'
-import { parseAmount } from '../../../common/tools'
+import {ListProjects, DeleteProjects, UpdateProjects, CreateProjects} from '../../../actions/project'
+import {usersAddRoles, roleWithMembers, usersLoseRoles} from '../../../actions/role'
+import {loadUserList} from '../../../actions/user'
+import {chargeProject} from '../../../actions/charge'
+import {parseAmount} from '../../../common/tools'
 import Notification from '../../../components/Notification'
 import CommonSearchInput from '../../../components/CommonSearchInput'
 import CreateStepFirst from './CreateStepFirst'
 import CreateStepSecond from './CreateStepSecond'
 import CreateStepThird from './CreateStepThird'
-import { CREATE_PROJECTS_ROLE_ID } from '../../../../constants'
+import {CREATE_PROJECTS_ROLE_ID} from '../../../../constants'
 import isEmpty from 'lodash/isEmpty'
 
-class ProjectManage extends Component{
-  constructor(props) {
-    super(props)
-    this.state= {
+let ProjectManage = React.createClass({
+
+  getInitialState() {
+    return {
       delModal: false,
       delSingle: false,
       paySingle: false,
@@ -53,7 +53,7 @@ class ProjectManage extends Component{
       targetKeys: [],
       roleWithMember: {},
       closeCreateProject: false,
-      originalKeys:[],
+      originalKeys: [],
       deleteSingleChecked: false,
       userCountSort: undefined,
       clusterCountSort: undefined,
@@ -64,17 +64,18 @@ class ProjectManage extends Component{
       clearInput: false,
       searchName: ''
     }
-  }
+  },
+
   componentWillMount() {
     this.loadProjectList()
     const step = this.props.location.query.step;
-    const { projectName, authorizedCluster } = this.state;
+    const {projectName, authorizedCluster} = this.state;
     if (step) {
       if ((!projectName || authorizedCluster.length === 0) && step !== 'first') {
         browserHistory.replace('/tenant_manage/project_manage?step=first')
       }
     }
-  }
+  },
 
   componentWillReceiveProps(nextProps) {
     const step = nextProps.location.query.step;
@@ -98,232 +99,262 @@ class ProjectManage extends Component{
         RoleKeys: []
       })
     }
-  }
+  },
+
   updateProjectName(name) {
     this.setState({
-      projectName:name
+      projectName: name
     })
-  }
+  },
+
   updateProjectDesc(desc) {
     this.setState({
-      description:desc
+      description: desc
     })
-  }
+  },
+
   updateCluster(arr) {
     this.setState({
-      authorizedCluster:arr
+      authorizedCluster: arr
     })
-  }
+  },
+
   updateRole(Role) {
     this.setState({
-      RoleKeys:Role
+      RoleKeys: Role
     })
-  }
+  },
+
   updateRoleWithMember(roleWithMember) {
     this.setState({
       roleWithMember
     })
-  }
+  },
+
   goStep(current) {
-    const { projectName, authorizedCluster, RoleKeys} = this.state;
+    const {projectName, authorizedCluster, RoleKeys} = this.state;
+    const { validateFields } = this.props.form;
     let notify = new Notification()
     let s = '';
-    if (current === 0) {
-      s = 'first';
-    }else if(current === 1) {
-      if (!projectName) {
-        return notify.info('请输入项目名称')
-      } else if (authorizedCluster.length === 0) {
-        return notify.info('请选择授权集群')
+    validateFields(['projectName'],(errors,values)=> {
+      if (!!errors) {
+        return
       }
-      s = 'second';
-    }else{
-      if (RoleKeys.length === 0) {
-        return notify.info('请选择项目角色')
+      if (current === 0) {
+        s = 'first';
+      } else if (current === 1) {
+        if (!projectName) {
+          return notify.info('请输入项目名称')
+        } else if (authorizedCluster.length === 0) {
+          return notify.info('请选择授权集群')
+        }
+        s = 'second';
+      } else {
+        if (RoleKeys.length === 0) {
+          return notify.info('请选择项目角色')
+        }
+        s = 'third'
       }
-      s = 'third'
-    }
-    browserHistory.replace(`/tenant_manage/project_manage?step=${s}`);
-    this.setState({ current });
-  }
+      browserHistory.replace(`/tenant_manage/project_manage?step=${s}`);
+      this.setState({current});
+    })
+
+  },
+
   next() {
     let current = this.state.current + 1;
     if (current === 3) {
       current = 0;
     }
     this.goStep(current)
-  }
+  },
+
   goBack() {
     let current = this.state.current - 1;
     if (current === -1) {
       current = 2;
     }
     this.goStep(current)
-  }
-  delSingle(e,record) {
+  },
+
+  delSingle(e, record) {
     e.stopPropagation()
     this.setState({
       delSingle: true,
       deleteSinglePro: [record]
     })
-  }
+  },
+
   singleCancel() {
     this.setState({delSingle: false, deleteSingleChecked: false})
-  }
+  },
+
   pay() {
     this.setState({payModal: true})
-  }
+  },
+
   payCancel() {
     this.setState({payModal: false})
-  }
-  paySingle(e,record) {
+  },
+
+  paySingle(e, record) {
     e.stopPropagation()
     this.setState({
       paySingle: true,
-      paySinglePro:[record]
+      paySinglePro: [record]
     })
-  }
+  },
+
   paySingleCancel() {
     this.setState({paySingle: false})
-  }
+  },
+
   paySingleOk() {
-    const { chargeProject } = this.props;
-    const { paySinglePro, payNumber } = this.state;
+    const {chargeProject} = this.props;
+    const {paySinglePro, payNumber} = this.state;
     let notify = new Notification()
     chargeProject({
-      namespaces:[paySinglePro[0].projectName],
-      amount:payNumber
-    },{
+      namespaces: [paySinglePro[0].projectName],
+      amount: payNumber
+    }, {
       success: {
         func: (res) => {
           if (res.statusCode === 200) {
             notify.success('充值成功')
-            this.setState({paySingle:false})
+            this.setState({paySingle: false})
             this.loadProjectList()
           }
         },
         isAsync: true
       }
     })
-  }
+  },
+
   changePayNumber(payNumber) {
     this.setState({payNumber})
-  }
+  },
+
   deleteProject(modal) {
-    const { DeleteProjects } = this.props;
-    const { deleteSinglePro } = this.state;
+    const {DeleteProjects} = this.props;
+    const {deleteSinglePro} = this.state;
     let notify = new Notification()
     DeleteProjects({
-      body:{
-        projects:[deleteSinglePro[0].projectName],
+      body: {
+        projects: [deleteSinglePro[0].projectName],
       }
-    },{
-      success:{
+    }, {
+      success: {
         func: (res) => {
           if (res.statusCode === 200) {
             this.loadProjectList(null)
             notify.success('项目删除成功')
-            this.setState({[modal]:false, deleteSingleChecked: false})
+            this.setState({[modal]: false, deleteSingleChecked: false})
           }
         },
-        isAsync:true
+        isAsync: true
       }
     })
-  }
+  },
+
   updatePayNumber(payNumber) {
     this.setState({
       payNumber
     })
-  }
+  },
+
   updatePayArr(payArr) {
     this.setState({
       payArr
     })
-  }
+  },
+
   updatePayCharge() {
-    const { chargeProject } = this.props;
-    const { payArr,payNumber } = this.state;
+    const {chargeProject} = this.props;
+    const {payArr, payNumber} = this.state;
     let notify = new Notification()
     if (payArr.length < 1) {
       return notify.info('请选择您要充值的项目')
     }
     chargeProject({
-      namespaces:payArr,
-      amount:payNumber
-    },{
+      namespaces: payArr,
+      amount: payNumber
+    }, {
       success: {
         func: (res) => {
           if (res.statusCode === 200) {
             notify.success('充值成功')
-            this.setState({payModal:false})
+            this.setState({payModal: false})
             this.loadProjectList(null)
           }
         },
         isAsync: true
       }
     })
-  }
+  },
+
   loadProjectList(n) {
-    const { ListProjects } = this.props;
-    const { sort, roleFilter, searchName } = this.state;
-    this.setState({tableLoading:true})
-    let page = n-1 || 0
-    let filter =  searchName ? `name,${searchName}` : ''
+    const {ListProjects} = this.props;
+    const {sort, roleFilter, searchName} = this.state;
+    this.setState({tableLoading: true})
+    let page = n - 1 || 0
+    let filter = searchName ? `name,${searchName}` : ''
     filter = roleFilter ? `${filter}&outlineRole,${roleFilter}` : filter
     let obj = {
       from: page * 10,
       size: 10
     }
-    obj = !filter ? obj : Object.assign(obj,{filter})
-    obj = sort === '' ? obj : Object.assign(obj,{sort})
-    ListProjects(obj,{
-      success:{
-        func: (result)=>{
+    obj = !filter ? obj : Object.assign(obj, {filter})
+    obj = sort === '' ? obj : Object.assign(obj, {sort})
+    ListProjects(obj, {
+      success: {
+        func: (result) => {
           if (result.statusCode === 200) {
             this.setState({
-              projectList:result.data,
-              tableLoading:false
+              projectList: result.data,
+              tableLoading: false
             })
           }
         },
-        isAsync:true
+        isAsync: true
       },
-      failed:{
+      failed: {
         func: () => {
           this.setState({
-            projectList:{},
-            tableLoading:false
+            projectList: {},
+            tableLoading: false
           })
         },
         isAsync: true
       }
     })
-  }
+  },
+
   formatUserList(users) {
     for (let i = 0; i < users.length; i++) {
-      Object.assign(users[i],{key:users[i].userID,title:users[i].namespace,chosen:false})
+      Object.assign(users[i], {key: users[i].userID, title: users[i].namespace, chosen: false})
     }
-  }
+  },
+
   openRightModal() {
-    const { loadUserList, roleWithMembers } = this.props;
+    const {loadUserList, roleWithMembers} = this.props;
     loadUserList({
       size: 0
-    },{
+    }, {
       success: {
         func: (res) => {
           this.formatUserList(res.users)
           this.setState({
-            userList:res
-          },()=>{
+            userList: res
+          }, () => {
             roleWithMembers({
-              roleID:CREATE_PROJECTS_ROLE_ID,
-              scope:'global',
-              scopeID:'global'
-            },{
+              roleID: CREATE_PROJECTS_ROLE_ID,
+              scope: 'global',
+              scopeID: 'global'
+            }, {
               success: {
                 func: res => {
                   this.setState({
-                    targetKeys:res.data.data ? res.data.data.map(item => {
+                    targetKeys: res.data.data ? res.data.data.map(item => {
                       return item.userId
                     }) : [],
                     originalKeys: res.data.data ? res.data.data.map(item => {
@@ -346,41 +377,44 @@ class ProjectManage extends Component{
         isAsync: true
       }
     })
-  }
+  },
+
   cancelRightModal() {
     this.setState({
       rightModal: false
     })
-  }
+  },
+
   confirmRightModal() {
-    const { targetKeys, originalKeys } = this.state;
-    let diff = xor(originalKeys,targetKeys)
-    let add = intersection(targetKeys,diff)
-    let del = intersection(originalKeys,diff)
+    const {targetKeys, originalKeys} = this.state;
+    let diff = xor(originalKeys, targetKeys)
+    let add = intersection(targetKeys, diff)
+    let del = intersection(originalKeys, diff)
     if (!del.length && !add.length) {
       this.setState({
         rightModal: false
       })
     } else if (del.length && !add.length) {
-      this.removeMember(del,true)
+      this.removeMember(del, true)
     } else if (!del.length && add.length) {
-      this.addMember(add,true)
+      this.addMember(add, true)
     } else {
       this.addMember(add)
-      this.removeMember(del,true)
+      this.removeMember(del, true)
     }
-  }
-  addMember(add,flag) {
-    const { usersAddRoles } = this.props;
+  },
+
+  addMember(add, flag) {
+    const {usersAddRoles} = this.props;
     let notify = new Notification()
     usersAddRoles({
-      roleID:CREATE_PROJECTS_ROLE_ID,
+      roleID: CREATE_PROJECTS_ROLE_ID,
       scope: 'global',
       scopeID: 'global',
       body: {
-        userIDs:add
+        userIDs: add
       }
-    },{
+    }, {
       success: {
         func: () => {
           if (flag) {
@@ -404,18 +438,19 @@ class ProjectManage extends Component{
         isAsync: true
       }
     })
-  }
-  removeMember(del,flag) {
-    const { usersLoseRoles } = this.props;
+  },
+
+  removeMember(del, flag) {
+    const {usersLoseRoles} = this.props;
     let notify = new Notification()
     usersLoseRoles({
-      roleID:CREATE_PROJECTS_ROLE_ID,
+      roleID: CREATE_PROJECTS_ROLE_ID,
       scope: 'global',
       scopeID: 'global',
       body: {
-        userIDs:del
+        userIDs: del
       }
-    },{
+    }, {
       success: {
         func: () => {
           if (flag) {
@@ -439,16 +474,19 @@ class ProjectManage extends Component{
         isAsync: true
       }
     })
-  }
+  },
+
   filterOption(inputValue, option) {
     return option.title.indexOf(inputValue) > -1;
-  }
-  handleChange(targetKeys,direction, moveKeys) {
-    this.setState({ targetKeys });
-  }
+  },
+
+  handleChange(targetKeys, direction, moveKeys) {
+    this.setState({targetKeys});
+  },
+
   createProject() {
-    const { CreateProjects } = this.props;
-    const { projectName,description,authorizedCluster,RoleKeys,roleWithMember } = this.state;
+    const {CreateProjects} = this.props;
+    const {projectName, description, authorizedCluster, RoleKeys, roleWithMember} = this.state;
     let notify = new Notification()
     let roleBinds = {}
     for (let i = 0; i < RoleKeys.length; i++) {
@@ -466,7 +504,7 @@ class ProjectManage extends Component{
         authorizedCluster,
         roleBinds
       }
-    },{
+    }, {
       success: {
         func: res => {
           notify.success('创建项目成功')
@@ -476,7 +514,7 @@ class ProjectManage extends Component{
             authorizedCluster: [],
             RoleKeys: [],
             roleWithMember: {},
-            closeCreateProject:true
+            closeCreateProject: true
           })
           this.loadProjectList()
           browserHistory.replace('/tenant_manage/project_manage')
@@ -498,30 +536,35 @@ class ProjectManage extends Component{
         isAsync: true
       }
     })
-  }
+  },
+
   closeProjectCreate() {
     this.setState({
-      closeCreateProject:true
-    },()=>{
+      closeCreateProject: true
+    }, () => {
       browserHistory.push('/tenant_manage/project_manage')
     })
-  }
+  },
+
   startCreateProject() {
     this.setState({
       closeCreateProject: false
-    },()=>{
+    }, () => {
       browserHistory.replace('/tenant_manage/project_manage?step=first')
     })
-  }
+  },
+
   deleteProjectFooter() {
-    const { deleteSingleChecked } = this.state;
+    const {deleteSingleChecked} = this.state;
     return (
       <div>
-        <Button type="ghost" size="large" onClick={this.singleCancel.bind(this)}>取消</Button>
-        <Button type="primary" size="large" disabled={!deleteSingleChecked} onClick={()=>this.deleteProject('delSingle')}>确认</Button>
+        <Button type="ghost" size="large" onClick={this.singleCancel}>取消</Button>
+        <Button type="primary" size="large" disabled={!deleteSingleChecked}
+                onClick={() => this.deleteProject('delSingle')}>确认</Button>
       </div>
     )
-  }
+  },
+
   refreshTeamList() {
     this.setState({
       userCountSort: undefined,
@@ -531,52 +574,57 @@ class ProjectManage extends Component{
       sort: '',
       clearInput: true,
       searchName: ''
-    },()=>{
+    }, () => {
       this.loadProjectList()
     })
-  }
+  },
+
   handleSort(sortStr) {
     let currentSort = this.state[sortStr]
-    let sort = this.getSort(currentSort,sortStr)
+    let sort = this.getSort(currentSort, sortStr)
     this.setState({
-      [sortStr] : !currentSort,
+      [sortStr]: !currentSort,
       sort
-    },()=>{
+    }, () => {
       this.loadProjectList()
     })
-  }
-  getSort(flag,sort) {
+  },
+
+  getSort(flag, sort) {
     let str = 'a,'
     if (flag) {
       str = 'd,'
     }
-    return str + sort.slice(0,sort.length - 4)
-  }
+    return str + sort.slice(0, sort.length - 4)
+  },
+
   projectFilter(pagination, filters, sorter) {
     let role
     this.setState({
       roleFilter: (role = filters.outlineRole).length ? role[0] : ''
-    },() => {
+    }, () => {
       this.loadProjectList()
     })
-  }
+  },
+
   projectNameSearch(value) {
     this.setState({
       searchName: value
-    },() => {
+    }, () => {
       this.loadProjectList()
     })
-  }
+  },
+
   render() {
     const step = this.props.location.query.step || '';
-    const { roleNum } = this.props;
-    const { payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro, userList, deleteSingleChecked } = this.state;
+    const {roleNum} = this.props;
+    const {payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, paySinglePro, userList, deleteSingleChecked} = this.state;
     const pageOption = {
       simple: true,
       total: !isEmpty(projectList) && projectList['listMeta'].total || 0,
       defaultPageSize: 10,
       defaultCurrent: 1,
-      onChange: (n)=>this.loadProjectList(n)
+      onChange: (n) => this.loadProjectList(n)
     };
     const columns = [{
       title: '项目名',
@@ -608,96 +656,114 @@ class ProjectManage extends Component{
         </div>
     },
       {
-      title: (
-        <div onClick={()=>this.handleSort('clusterCountSort')}>
-          授权集群
-          <div className="ant-table-column-sorter">
-            <span className={this.state.clusterCountSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
-              <i className="anticon anticon-caret-up" />
+        title: (
+          <div onClick={() => this.handleSort('clusterCountSort')}>
+            授权集群
+            <div className="ant-table-column-sorter">
+            <span
+              className={this.state.clusterCountSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
+              title="↑">
+              <i className="anticon anticon-caret-up"/>
             </span>
-            <span className={this.state.clusterCountSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
-              <i className="anticon anticon-caret-down" />
+              <span
+                className={this.state.clusterCountSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+                title="↓">
+              <i className="anticon anticon-caret-down"/>
             </span>
+            </div>
           </div>
-        </div>
-      ),
-      dataIndex: 'clusterCount',
-      key: 'clusterCount',
-      width: '10%',
-      render: text => text ? text : 0
-    }, {
-      title: (
-        <div onClick={()=>this.handleSort('userCountSort')}>
-          成员
-          <div className="ant-table-column-sorter">
-          <span className={this.state.userCountSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
-            <i className="anticon anticon-caret-up" />
+        ),
+        dataIndex: 'clusterCount',
+        key: 'clusterCount',
+        width: '10%',
+        render: text => text ? text : 0
+      }, {
+        title: (
+          <div onClick={() => this.handleSort('userCountSort')}>
+            成员
+            <div className="ant-table-column-sorter">
+          <span
+            className={this.state.userCountSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
+            title="↑">
+            <i className="anticon anticon-caret-up"/>
           </span>
-            <span className={this.state.userCountSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
-            <i className="anticon anticon-caret-down" />
+              <span
+                className={this.state.userCountSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+                title="↓">
+            <i className="anticon anticon-caret-down"/>
           </span>
+            </div>
           </div>
-        </div>
-      ),
-      dataIndex: 'userCount',
-      key: 'userCount',
-      width: '10%',
-      render: text => text ? text : 0
-    }, {
-      title: (
-        <div onClick={()=>this.handleSort('managerCountSort')}>
-          项目管理员
-          <div className="ant-table-column-sorter">
-          <span className={this.state.managerCountSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
-            <i className="anticon anticon-caret-up" />
+        ),
+        dataIndex: 'userCount',
+        key: 'userCount',
+        width: '10%',
+        render: text => text ? text : 0
+      }, {
+        title: (
+          <div onClick={() => this.handleSort('managerCountSort')}>
+            项目管理员
+            <div className="ant-table-column-sorter">
+          <span
+            className={this.state.managerCountSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
+            title="↑">
+            <i className="anticon anticon-caret-up"/>
           </span>
-            <span className={this.state.managerCountSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
-            <i className="anticon anticon-caret-down" />
+              <span
+                className={this.state.managerCountSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+                title="↓">
+            <i className="anticon anticon-caret-down"/>
           </span>
+            </div>
           </div>
-        </div>
-      ),
-      dataIndex: 'managerCount',
-      key: 'managerCount',
-      width: '10%',
-      render: text => text ? text : 0
-    }, {
-      title: '创建时间',
-      dataIndex: 'creationTime',
-      key: 'creationTime',
-      width: '15%'
-    }, {
-      title: (
-        <div onClick={()=>this.handleSort('balanceSort')}>
-          余额
-          <div className="ant-table-column-sorter">
-          <span className={this.state.balanceSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
-            <i className="anticon anticon-caret-up" />
+        ),
+        dataIndex: 'managerCount',
+        key: 'managerCount',
+        width: '10%',
+        render: text => text ? text : 0
+      }, {
+        title: '创建时间',
+        dataIndex: 'creationTime',
+        key: 'creationTime',
+        width: '15%',
+        render: text => text.replace(/T/g, ' ').replace(/Z/g, '')
+      }, {
+        title: (
+          <div onClick={() => this.handleSort('balanceSort')}>
+            余额
+            <div className="ant-table-column-sorter">
+          <span
+            className={this.state.balanceSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
+            title="↑">
+            <i className="anticon anticon-caret-up"/>
           </span>
-            <span className={this.state.balanceSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
-            <i className="anticon anticon-caret-down" />
+              <span
+                className={this.state.balanceSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+                title="↓">
+            <i className="anticon anticon-caret-down"/>
           </span>
+            </div>
           </div>
-        </div>
-      ),
-      dataIndex: 'balance',
-      key: 'balance',
-      width: '10%',
-      render: (text)=><span className="balanceColor">{parseAmount(text,4).fullAmount}</span>
-    }, {
-      title: '操作',
-      key: 'operation',
-      width: '15%',
-      render: (text, record) => (
-        <span>
+        ),
+        dataIndex: 'balance',
+        key: 'balance',
+        width: '10%',
+        render: (text) => <span className="balanceColor">{parseAmount(text, 4).fullAmount}</span>
+      }, {
+        title: '操作',
+        key: 'operation',
+        width: '15%',
+        render: (text, record) => (
+          <span>
           {
-            roleNum === 1 && <Button type='primary' size='large' onClick={(e)=> this.paySingle(e,record)}>充值</Button>
+            roleNum === 1 && <Button type='primary' size='large' onClick={(e) => this.paySingle(e, record)}>充值</Button>
           }
-          <Button disabled={roleNum === 3}
-            type='ghost' size='large' style={{marginLeft:'10px'}} onClick={(e)=>this.delSingle(e,record)}>删除</Button>
+            <Button disabled={roleNum === 3}
+                    type='ghost' size='large' style={{marginLeft: '10px'}}
+                    onClick={(e) => this.delSingle(e, record)}>删除</Button>
         </span>
-      ),
-    }]
+        ),
+      }]
     return (
       <QueueAnim>
         <div key='account_projectManage' id="account_projectManage">
@@ -706,8 +772,8 @@ class ProjectManage extends Component{
             系统管理员可将普通成员设置为「可以创建项目」的人，项目创建者为项目管理员，项目中也可添加其他的项目管理员。
           </div>
           <Modal title="删除项目" visible={delModal} width={610} height={570}
-                 onCancel={()=> this.setState({delModal: false})}
-                 onOk={()=> this.deleteProject('delModal')}
+                 onCancel={() => this.setState({delModal: false})}
+                 onOk={() => this.deleteProject('delModal')}
           >
             <div className="deleteRow">
               <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
@@ -715,50 +781,65 @@ class ProjectManage extends Component{
             </div>
           </Modal>
           <Modal title="删除项目" visible={delSingle} width={610}
-                 onCancel={this.singleCancel.bind(this)}
+                 onCancel={this.singleCancel}
                  footer={this.deleteProjectFooter()}
           >
             <div className="deleteRow">
               <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
               <span>删除后该项目的资源也将被清理，此操作不能恢复。</span>
             </div>
-            <div className="themeColor" style={{marginBottom:'15px'}}>
-              <i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}/>
+            <div className="themeColor" style={{marginBottom: '15px'}}>
+              <i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}/>
               {`您是否确定要删除项目${deleteSinglePro && deleteSinglePro[0] && deleteSinglePro[0].projectName}？`}
             </div>
-            <Checkbox checked={deleteSingleChecked} onChange={()=>{this.setState({deleteSingleChecked: !deleteSingleChecked})}}>选中此框以确认您要删除此项目。</Checkbox>
+            <Checkbox checked={deleteSingleChecked} onChange={() => {
+              this.setState({deleteSingleChecked: !deleteSingleChecked})
+            }}>选中此框以确认您要删除此项目。</Checkbox>
           </Modal>
           <Modal title="项目充值" visible={payModal} width={610}
-                 onCancel={()=> this.payCancel()}
-                 onOk={()=> this.updatePayCharge()}
+                 onCancel={() => this.payCancel()}
+                 onOk={() => this.updatePayCharge()}
           >
-            <PayTable data={projectList && projectList.projects} updatePayArr={this.updatePayArr.bind(this)} visible={payModal} updatePayCharge={this.updatePayCharge.bind(this)} updatePayNumber={this.updatePayNumber.bind(this)}/>
+            <PayTable data={projectList && projectList.projects} updatePayArr={this.updatePayArr}
+                      visible={payModal} updatePayCharge={this.updatePayCharge}
+                      updatePayNumber={this.updatePayNumber}/>
           </Modal>
           <Modal title="项目充值" visible={this.state.paySingle} width={580}
-                 onCancel = {()=> this.paySingleCancel()}
-                 onOk = {()=> this.paySingleOk()}
+                 onCancel={() => this.paySingleCancel()}
+                 onOk={() => this.paySingleOk()}
           >
             <dl className="paySingleList">
-              <dt>项目名</dt><dd>{paySinglePro[0]&&paySinglePro[0].projectName}</dd>
+              <dt>项目名</dt>
+              <dd>{paySinglePro[0] && paySinglePro[0].projectName}</dd>
             </dl>
             <dl className="paySingleList">
-              <dt>余额</dt><dd>{parseAmount(paySinglePro[0]&&paySinglePro[0].balance,4).fullAmount}</dd>
+              <dt>余额</dt>
+              <dd>{parseAmount(paySinglePro[0] && paySinglePro[0].balance, 4).fullAmount}</dd>
             </dl>
             <dl className="paySingleList">
               <dt>充值金额</dt>
               <dd className="payBtn">
-                <span className={classNames('btnList',{'active': payNumber === 10})} onClick={()=>{this.changePayNumber(10)}}>10T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-                <span className={classNames('btnList',{'active': payNumber === 20})} onClick={()=>{this.changePayNumber(20)}}>20T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-                <span className={classNames('btnList',{'active': payNumber === 50})} onClick={()=>{this.changePayNumber(50)}}>50T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-                <span className={classNames('btnList',{'active': payNumber === 100})} onClick={()=>{this.changePayNumber(100)}}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-                <InputNumber value={payNumber} onChange={(value)=>this.setState({payNumber:value})} size="large" min={10}/>
+                <span className={classNames('btnList', {'active': payNumber === 10})} onClick={() => {
+                  this.changePayNumber(10)
+                }}>10T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+                <span className={classNames('btnList', {'active': payNumber === 20})} onClick={() => {
+                  this.changePayNumber(20)
+                }}>20T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+                <span className={classNames('btnList', {'active': payNumber === 50})} onClick={() => {
+                  this.changePayNumber(50)
+                }}>50T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+                <span className={classNames('btnList', {'active': payNumber === 100})} onClick={() => {
+                  this.changePayNumber(100)
+                }}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+                <InputNumber value={payNumber} onChange={(value) => this.setState({payNumber: value})} size="large"
+                             min={10}/>
                 <b>T</b>
               </dd>
             </dl>
           </Modal>
           <Modal title="选择可以创建项目的成员" width={760} visible={this.state.rightModal}
-                 onCancel = {()=> this.cancelRightModal()}
-                 onOk = {()=> this.confirmRightModal()}
+                 onCancel={() => this.cancelRightModal()}
+                 onOk={() => this.confirmRightModal()}
           >
             <div className="alertRow">可创建项目的成员能创建项目并有管理该项目的权限</div>
             <Transfer
@@ -768,54 +849,59 @@ class ProjectManage extends Component{
                 height: 270,
               }}
               operations={['添加', '移除']}
-              titles={['可选成员名','可创建项目成员']}
+              titles={['可选成员名', '可创建项目成员']}
               searchPlaceholder="按成员名搜索"
               showSearch
-              filterOption={this.filterOption.bind(this)}
+              filterOption={this.filterOption}
               targetKeys={this.state.targetKeys}
-              onChange={this.handleChange.bind(this)}
+              onChange={this.handleChange}
               render={item => item && item.title}
             />
           </Modal>
-          <Row className={classNames('btnBox',{'hidden': step !== ''})}>
+          <Row className={classNames('btnBox', {'hidden': step !== ''})}>
             {
               (roleNum === 1 || roleNum === 2) &&
-              <Button type='primary' size='large'  className='addBtn' onClick={this.startCreateProject.bind(this)}>
-                <i className='fa fa-plus' /> 创建项目
+              <Button type='primary' size='large' className='addBtn' onClick={this.startCreateProject}>
+                <i className='fa fa-plus'/> 创建项目
               </Button>
             }
             {
-              roleNum === 1 && <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建项目</Button>
+              roleNum === 1 &&
+              <Button type="ghost" size="large" className="manageBtn" onClick={() => this.openRightModal()}><i
+                className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建项目</Button>
             }
             {
-              roleNum === 1 && <Button type="ghost" icon="pay-circle-o" size="large" className="manageBtn" onClick={()=> this.pay()}>批量充值</Button>
+              roleNum === 1 &&
+              <Button type="ghost" icon="pay-circle-o" size="large" className="manageBtn" onClick={() => this.pay()}>批量充值</Button>
             }
-            <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.refreshTeamList()}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
-            <CommonSearchInput clearInput={this.state.clearInput} placeholder="请输入项目名称进行搜索" size="large" onSearch={(value)=>this.projectNameSearch(value)}/>
+            <Button type="ghost" size="large" className="manageBtn" onClick={() => this.refreshTeamList()}><i
+              className="fa fa-refresh" aria-hidden="true" style={{marginRight: '5px'}}/>刷新</Button>
+            <CommonSearchInput clearInput={this.state.clearInput} placeholder="请输入项目名称进行搜索" size="large"
+                               onSearch={(value) => this.projectNameSearch(value)}/>
             <Pagination {...pageOption}/>
             <div className="total">共{!isEmpty(projectList) && projectList.listMeta.total || 0}个</div>
           </Row>
-          <Row className={classNames("projectList",{'hidden': step !== ''})}>
+          <Row className={classNames("projectList", {'hidden': step !== ''})}>
             <Card>
               <Table
                 loading={tableLoading}
                 pagination={false}
                 columns={columns}
                 dataSource={!isEmpty(projectList) && projectList.projects}
-                onChange={this.projectFilter.bind(this)}
+                onChange={this.projectFilter}
               />
             </Card>
           </Row>
-          <div className={classNames("goBackBox",{'hidden': step === ''})}>
-            <span className="goBackBtn pointer" onClick={()=> browserHistory.replace('/tenant_manage/project_manage')}>返回</span>
+          <div className={classNames("goBackBox", {'hidden': step === ''})}>
+            <span className="goBackBtn pointer" onClick={() => browserHistory.replace('/tenant_manage/project_manage')}>返回</span>
             <i/>
             创建项目
           </div>
-          <div className={classNames('createBox',{'hidden': step === ''})}>
+          <div className={classNames('createBox', {'hidden': step === ''})}>
             <ul className="stepBox">
-              <li className={classNames({'active' : step === 'first'})}><span>1</span>项目基础信息</li>
-              <li className={classNames({'active' : step === 'second'})}><span>2</span>为项目添加角色</li>
-              <li className={classNames({'active' : step === 'third'})}><span>3</span>为角色关联对象</li>
+              <li className={classNames({'active': step === 'first'})}><span>1</span>项目基础信息</li>
+              <li className={classNames({'active': step === 'second'})}><span>2</span>为项目添加角色</li>
+              <li className={classNames({'active': step === 'third'})}><span>3</span>为角色关联对象</li>
             </ul>
             <div className="alertRow createTip">
               {
@@ -828,39 +914,48 @@ class ProjectManage extends Component{
                 step === 'third' ? '为添加的角色关联对象，即可为关联的对象授予相应角色应有的权限；关联的对象可为（成员/团队/成员&团队组合）。' : ''
               }
             </div>
-            <div className={classNames({'hidden' : step !=='first'})}>
-              <CreateStepFirst scope = {this} step = {step} updateProjectName={this.updateProjectName.bind(this)} updateProjectDesc={this.updateProjectDesc.bind(this)} updateCluster={this.updateCluster.bind(this)}/>
-            </div>
-            <div className={classNames({'hidden' : step !=='second'})}>
-              <CreateStepSecond scope={this} step = {step}  updateRole={this.updateRole.bind(this)}/>
-            </div>
-            <div className={classNames({'hidden' : step !=='third'})}>
-              <CreateStepThird scope={this} step = {step}  updateRole={this.updateRole.bind(this)}  updateRoleWithMember={this.updateRoleWithMember.bind(this)}/>
-            </div>
+            <Form>
+              <div className={classNames({'hidden': step !== 'first'})}>
+                <CreateStepFirst scope={this} step={step} updateProjectName={this.updateProjectName}
+                                 updateProjectDesc={this.updateProjectDesc}
+                                 updateCluster={this.updateCluster} form={this.props.form}/>
+              </div>
+              <div className={classNames({'hidden': step !== 'second'})}>
+                <CreateStepSecond scope={this} step={step} updateRole={this.updateRole} form={this.props.form}/>
+              </div>
+              <div className={classNames({'hidden': step !== 'third'})}>
+                <CreateStepThird scope={this} step={step} updateRole={this.updateRole}
+                                 updateRoleWithMember={this.updateRoleWithMember} form={this.props.form}/>
+              </div>
+            </Form>
+
           </div>
 
-          <div className={classNames('createBtnBox',{'hidden': step === ''})}>
-            <Button size="large" onClick={this.closeProjectCreate.bind(this)}>取消</Button>
-            <Button size="large" className={classNames({'hidden': step === '' || step === 'first'})} onClick={()=> this.goBack()}>上一步</Button>
-            <Button size="large" className={classNames({'hidden': step === 'third'})} onClick={()=> this.next()}>下一步</Button>
-            <Button type="primary" size="large"  onClick={this.createProject.bind(this)} style={{display: step === 'third' ? 'inline-block' : 'none'}}>创建</Button>
+          <div className={classNames('createBtnBox', {'hidden': step === ''})}>
+            <Button size="large" onClick={this.closeProjectCreate}>取消</Button>
+            <Button size="large" className={classNames({'hidden': step === '' || step === 'first'})}
+                    onClick={() => this.goBack()}>上一步</Button>
+            <Button size="large" className={classNames({'hidden': step === 'third'})}
+                    onClick={() => this.next()}>下一步</Button>
+            <Button type="primary" size="large" onClick={this.createProject}
+                    style={{display: step === 'third' ? 'inline-block' : 'none'}}>创建</Button>
           </div>
         </div>
       </QueueAnim>
     )
   }
-}
+})
 
 function mapStateToProps(state, props) {
-  const { loginUser } = state.entities
-  const { roles } = loginUser.info || { roles: [] }
+  const {loginUser} = state.entities
+  const {globalRoles} = loginUser.info || {globalRoles: []}
   let roleNum = 0
-  if (roles.length) {
-    for (let i = 0; i < roles.length; i++) {
-      if (roles[i] === 'admin') {
+  if (globalRoles.length) {
+    for (let i = 0; i < globalRoles.length; i++) {
+      if (globalRoles[i] === 'admin') {
         roleNum = 1;
         break
-      } else if (roles[i] === 'project-creator') {
+      } else if (globalRoles[i] === 'project-creator') {
         roleNum = 2;
         break
       } else {
@@ -872,7 +967,8 @@ function mapStateToProps(state, props) {
     roleNum
   }
 }
-export default connect(mapStateToProps,{
+
+export default connect(mapStateToProps, {
   ListProjects,
   DeleteProjects,
   UpdateProjects,
@@ -882,24 +978,26 @@ export default connect(mapStateToProps,{
   usersAddRoles,
   roleWithMembers,
   usersLoseRoles
-})(ProjectManage);
+})(Form.create()(ProjectManage));
 
-class PayTable extends Component{
-  constructor(props){
+class PayTable extends Component {
+  constructor(props) {
     super(props)
-    this.state={
+    this.state = {
       selectedRowKeys: [],  // 这里配置默认勾选列
       payNumber: 10,
       payArr: []
     }
   }
+
   componentWillMount() {
-    const { updatePayNumber } = this.props;
+    const {updatePayNumber} = this.props;
     updatePayNumber(10)
   }
-  componentWillReceiveProps(nextProps){
-    const { visible } = nextProps;
-    const { updatePayNumber } = nextProps;
+
+  componentWillReceiveProps(nextProps) {
+    const {visible} = nextProps;
+    const {updatePayNumber} = nextProps;
     if (!visible) {
       this.setState({
         selectedRowKeys: [],
@@ -909,36 +1007,40 @@ class PayTable extends Component{
       updatePayNumber(10)
     }
   }
+
   onSelectChange(selectedRowKeys) {
-    this.setState({ selectedRowKeys});//报错
+    this.setState({selectedRowKeys});//报错
   }
-  handClickRow(record,index) {
-    const { updatePayArr } = this.props;
-    const { selectedRowKeys, payArr } = this.state;
+
+  handClickRow(record, index) {
+    const {updatePayArr} = this.props;
+    const {selectedRowKeys, payArr} = this.state;
     let newSelected = selectedRowKeys.slice(0);
     let newPayArr = payArr.slice(0)
-    let result = newSelected.findIndex((value,ind)=> value === index)
+    let result = newSelected.findIndex((value, ind) => value === index)
     if (result > -1) {
-      newPayArr.splice(result,1)
-      newSelected.splice(result,1)
-    }else {
+      newPayArr.splice(result, 1)
+      newSelected.splice(result, 1)
+    } else {
       newPayArr.push(record.projectName)
       newSelected.push(index)
     }
     this.setState({
-      selectedRowKeys:newSelected,
+      selectedRowKeys: newSelected,
       payArr: newPayArr
     })
     updatePayArr(newPayArr)
   }
+
   changePayNumber(payNumber) {
-    const { updatePayNumber } = this.props;
+    const {updatePayNumber} = this.props;
     this.setState({payNumber})
     updatePayNumber(payNumber)
   }
+
   render() {
-    const { payNumber, selectedRowKeys } = this.state;
-    const {data}= this.props;
+    const {payNumber, selectedRowKeys} = this.state;
+    const {data} = this.props;
     const columns = [{
       title: '项目名',
       dataIndex: 'projectName',
@@ -947,30 +1049,42 @@ class PayTable extends Component{
       title: '余额',
       dataIndex: 'balance',
       width: '45%',
-      render:(text,record)=>{
+      render: (text, record) => {
         return (
-          <span className="balanceColor">{parseAmount(text,4).fullAmount}</span>
+          <span className="balanceColor">{parseAmount(text, 4).fullAmount}</span>
         )
       }
     }];
     const rowSelection = {
       selectedRowKeys,
-      onChange: this.onSelectChange.bind(this),
+      onChange: this.onSelectChange,
     };
     return (
       <div className="payModal">
         <div className="alertRow">
           注：可为项目充值，全选可为项目充值
         </div>
-        <Table scroll={{y: 300}} rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false} onRowClick={(recode,index)=>this.handClickRow(recode,index)} rowClassName={(recode,index)=>'payTableRow'}/>
+        <Table scroll={{y: 300}} rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false}
+               onRowClick={(recode, index) => this.handClickRow(recode, index)}
+               rowClassName={(recode, index) => 'payTableRow'}/>
         <dl className="payBtnBox">
           <dt>充值金额</dt>
           <dd className="payBtn">
-            <span className={classNames('btnList',{'active': payNumber === 10})} onClick={()=>{this.changePayNumber(10)}}>10T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-            <span className={classNames('btnList',{'active': payNumber === 20})} onClick={()=>{this.changePayNumber(20)}}>20T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-            <span className={classNames('btnList',{'active': payNumber === 50})} onClick={()=>{this.changePayNumber(50)}}>50T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-            <span className={classNames('btnList',{'active': payNumber === 100})} onClick={()=>{this.changePayNumber(100)}}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-            <InputNumber value={payNumber} onChange={(value)=>{this.setState({payNumber:value})}} size="large" min={10}/>
+            <span className={classNames('btnList', {'active': payNumber === 10})} onClick={() => {
+              this.changePayNumber(10)
+            }}>10T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+            <span className={classNames('btnList', {'active': payNumber === 20})} onClick={() => {
+              this.changePayNumber(20)
+            }}>20T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+            <span className={classNames('btnList', {'active': payNumber === 50})} onClick={() => {
+              this.changePayNumber(50)
+            }}>50T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+            <span className={classNames('btnList', {'active': payNumber === 100})} onClick={() => {
+              this.changePayNumber(100)
+            }}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+            <InputNumber value={payNumber} onChange={(value) => {
+              this.setState({payNumber: value})
+            }} size="large" min={10}/>
             <b>T</b>
           </dd>
         </dl>
