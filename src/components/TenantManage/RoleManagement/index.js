@@ -452,7 +452,7 @@ class RoleManagement extends React.Component{
     return(
       <QueueAnim className="RoleManagement">
         <div id="RoleManagement">
-        <Alert message={`角色是指一组权限的集合，您可以创建一个有若干权限的角色，在某项目中添加角色并为该角色关联对象（成员或团队）。系统管理员和团队管理员都有创建和管理所有角色的权限。`}
+        <Alert message={`角色是指一组权限的集合，你可以创建一个有若干权限的角色，在某项目中添加角色并为该角色关联对象（成员或团队成员）。系统管理员有管理所有角色的权限，其他成员可创建角色并管理自己创建的角色。`}
           type="info" />
         <div className='operationBox'>
           <div className='leftBox'>
