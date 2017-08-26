@@ -379,6 +379,7 @@ let TeamTable = React.createClass({
         dataIndex: 'creationTime',
         key: 'creationTime',
         width:'20%',
+        render: text => text.replace(/T/g, ' ').replace(/Z/g, '')
       },
       {
         title: '我是团队的',

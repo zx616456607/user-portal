@@ -15,17 +15,16 @@ import { connect } from 'react-redux'
 import { CheckProjects } from '../../../actions/project'
 import { loadClusterList } from '../../../actions/cluster'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
-import { validateK8sResourceForServiceName } from '../../../common/naming_validation'
+import { validateProjectName } from '../../../common/naming_validation'
 
-class CreateStepFirst extends Component{
-  constructor(props) {
-    super(props)
-    this.state={
+let CreateStepFirst = React.createClass({
+  getInitialState() {
+    return {
       dropVisible:false,
       selectedClusters: [],
       choosableClusters: []
     }
-  }
+  },
   componentWillReceiveProps(nextProps) {
     const { choosableClusters, selectedClusters } = this.state;
     const { step, form, scope } = nextProps;
@@ -44,7 +43,7 @@ class CreateStepFirst extends Component{
         dropVisible:false
       })
     }
-  }
+  },
   getAllClusters() {
     const { loadClusterList } = this.props;
     loadClusterList({},{
@@ -58,7 +57,7 @@ class CreateStepFirst extends Component{
         isAsync: true
       }
     })
-  }
+  },
   addCluster(item,flag) {
     const { choosableClusters, selectedClusters } = this.state;
     const { updateCluster } = this.props;
@@ -81,21 +80,21 @@ class CreateStepFirst extends Component{
       })
       updateCluster(clusterArr)
     })
-  }
+  },
   toggleDrop() {
     this.setState({
       dropVisible:!this.state.dropVisible
     })
-  }
+  },
   projectName(rule, value, callback) {
     const { CheckProjects } = this.props;
-    let newValue = value.trim()
+    let newValue = value && value.trim()
     if (!Boolean(newValue)) {
       callback(new Error('请输入名称'))
       return
     }
-    if (!validateK8sResourceForServiceName(newValue)) {
-      return callback('服务名称可由3~24位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
+    if (!validateProjectName(newValue)) {
+      return callback('项目名称可由3~63位小写字母、数字、中划线组成，以字母开头，字母或者数字结尾')
     }
     clearTimeout(this.projectNameCheckTimeout)
     this.projectNameCheckTimeout = setTimeout(()=>{
@@ -117,22 +116,22 @@ class CreateStepFirst extends Component{
         }
       })
     },ASYNC_VALIDATOR_TIMEOUT)
-  }
+  },
   updateProjectName() {
     const { updateProjectName } = this.props;
     const { getFieldValue } = this.props.form;
     let projectName = getFieldValue('projectName')
     updateProjectName(projectName)
-  }
+  },
   projectDesc(rule, value, callback) {
     callback()
-  }
+  },
   updateProjectDesc() {
     const { updateProjectDesc } = this.props;
     const { getFieldValue } = this.props.form;
     let projectName = getFieldValue('projectDesc')
     updateProjectDesc(projectName)
-  }
+  },
   render() {
     const { dropVisible, selectedClusters, choosableClusters } = this.state;
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = this.props.form;
@@ -160,7 +159,7 @@ class CreateStepFirst extends Component{
     )
     return (
       <div id="projectCreateStepOne">
-        <Form className="projectCreateFirstForm" form={this.props.form}>
+        <div className="projectCreateFirstForm">
           <Form.Item label="名称"
                      {...formItemLayout}
                      hasFeedback
@@ -168,7 +167,7 @@ class CreateStepFirst extends Component{
           >
             <Input  autoComplete="off" placeholder="请输入名称" {...getFieldProps(`projectName`, {
               rules: [
-                { validator: this.projectName.bind(this)}
+                { validator: this.projectName}
               ]
             }) }
             />
@@ -181,7 +180,7 @@ class CreateStepFirst extends Component{
               initialValue: '',
             }) }/>
           </Form.Item>
-        </Form>
+        </div>
         <div className="inputBox" id="clusterDrop" style={{position:'relative'}}>
           <span>授权集群 :</span>
           <div className="dropDownBox">
@@ -201,8 +200,7 @@ class CreateStepFirst extends Component{
       </div>
     )
   }
-}
-CreateStepFirst = Form.create()(CreateStepFirst)
+})
 
 function mapStateToFristProp(state, props) {
 

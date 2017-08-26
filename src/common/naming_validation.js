@@ -362,3 +362,20 @@ export function KubernetesValidator() {
     return errs
   }
 }
+
+/**
+ validate for projectName
+*/
+export function validateProjectName(name) {
+  if (!name) {
+    return false
+  }
+  if (name.length < 3 || name.length > 63) {
+    return false
+  }
+  let regx = /^[a-zA-Z]+[-_a-zA-Z0-9]*[a-zA-Z0-9]+$/
+  if (!regx.test(name)) {
+    return false
+  }
+  return true
+}

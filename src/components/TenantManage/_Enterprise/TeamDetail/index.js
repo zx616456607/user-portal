@@ -69,18 +69,14 @@ let MemberList = React.createClass({
 
   delTeamMember() {
     const { removeTeamusers, teamID, loadTeamUserList, scope, loadTeamAllUser } = this.props
-    const { sortUser, userPageSize, filter, transferHint, userId } = this.state
+    const { sortUser, userPageSize, filter, transferHint } = this.state
     let self = this
     if (transferHint) {
       this.setState({
         UserModal: false,
         transferHint: false
       },()=>{
-        scope.setState({
-          transferStatus: true,
-          selectLeader: [userId],
-          originalLeader: [userId]
-        })
+        scope.transferTeamLeader()
       })
       return
     }
@@ -780,9 +776,15 @@ class TeamDetail extends Component {
               </Col>
               <Col span={22} className="teamNameBox">
                 <div className="teamName">
-                  <Input size="large" disabled={editTeamName ? false : true} type="textarea" placeholder="团队名称" {...getFieldProps('teamName',{
-                    initialValue: teamDetail.teamName
-                  })}/>
+                  {
+                    editTeamName ?
+                      <Input size="large" type="textarea" placeholder="团队名称" {...getFieldProps('teamName',{
+                        initialValue: teamDetail.teamName
+                      })}/>
+                      :
+                      <span>{teamDetail.teamName}</span>
+                  }
+                  
                   {
                     editTeamName ?
                       [
@@ -806,7 +808,7 @@ class TeamDetail extends Component {
                 创建时间
               </Col>
               <Col span={22}>
-                {teamDetail && teamDetail.creationTime}
+                {teamDetail && teamDetail.creationTime && teamDetail.creationTime.replace(/T/g, ' ').replace(/Z/g, '')}
               </Col>
             </Row>
             <Row>
@@ -825,6 +827,7 @@ class TeamDetail extends Component {
               </div>
             }
             bordered={false}
+            className="teamUserListBox"
           >
             <Row className="content">
               <Col span={24}>
@@ -849,7 +852,7 @@ class TeamDetail extends Component {
                     >
                       <div className="deleteMemberHint">
                         <i className="fa fa-exclamation-triangle" style={{marginRight: '8px'}}/>
-                        {`该操作中成员${delLeaderName}为改团队的管理员，请先将团队移交再移除该成员`}
+                        {`该操作中成员${delLeaderName}为该团队的管理员，请先将团队移交再移除该成员`}
                       </div>
                     </Modal>
                     <Modal title="移交团队"
