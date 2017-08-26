@@ -88,7 +88,7 @@ class AllPermissions extends React.Component{
       success: {
         func: res => {
           if(res.data.code === 200){
-            this.RowData(res.data.data)
+            this.RowData(res.data.data.permissions)
           }
         },
         isAsync: true,
@@ -109,8 +109,8 @@ class AllPermissions extends React.Component{
     sortedInfo = sortedInfo || {};
     const columns = [{
       title: '权限名称',
-      dataIndex: 'title',
-      key: 'title',
+      dataIndex: 'name',
+      key: 'name',
       width: '47%',
     }, {
       title: '权限描述',
