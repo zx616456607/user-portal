@@ -173,7 +173,7 @@ let MemberList = React.createClass({
   },
   removeMember(e,record) {
     e.stopPropagation()
-    if (record.key === 105) {
+    if (record.partialStyle === '团队管理员') {
       this.setState({
        transferHint: true
      },()=>{
@@ -234,13 +234,14 @@ let MemberList = React.createClass({
       },
       {
         title: '类型',
-        dataIndex: 'style',
-        key: 'style',
+        dataIndex: 'globalStyle',
+        key: 'globalStyle',
         width: '25%',
         filters: [
-          { text: '普通成员', value: 0 },
-          { text: '系统管理员', value: 2 },
+          { text: '普通成员', value: '普通成员' },
+          { text: '系统管理员', value: '系统管理员' },
         ],
+        render: (text, record) => record.partialStyle === '团队管理员' ? `${text}（团队管理员）` : text
       },
       {
         title: '操作',
@@ -525,7 +526,10 @@ class TeamDetail extends Component {
       success: {
         func: res => {
           res.data.users.forEach((item) => {
-            Object.assign(item,{key:item.userID})
+            Object.assign(item,{
+              key:item.userID,
+              globalStyle: item.globalRoles.includes('admin') ? '系统管理员' : '普通成员'
+            })
           })
           this.setState({
             leaderList: res.data.users,
@@ -742,10 +746,10 @@ class TeamDetail extends Component {
       width: '40%'
     },{
       title: '类型',
-      dataIndex: 'role',
-      key: 'role',
+      dataIndex: 'globalStyle',
+      key: 'globalStyle',
       width: '50%',
-      render: text => text === ROLE_SYS_ADMIN ? '系统管理员' : (text === ROLE_TEAM_ADMIN ? '团队管理员' : '普通成员'),
+      render: (text, record) => record.partialStyle ? ecord.partialStyle === '团队管理员' ? `${text}（团队管理员）` : text : text
     }]
     const selectProps = {
       selectOptions: [
@@ -784,7 +788,7 @@ class TeamDetail extends Component {
                       :
                       <span>{teamDetail.teamName}</span>
                   }
-                  
+
                   {
                     editTeamName ?
                       [
@@ -834,7 +838,7 @@ class TeamDetail extends Component {
                 <Row style={{ marginBottom: 20 }}>
                   <Col span={24}>
                     {
-                      roleNum !== 3 && 
+                      roleNum !== 3 &&
                       [
                         <Button type="primary" size="large" className="addMemberBtn"
                               onClick={this.addNewMember}>
@@ -942,7 +946,8 @@ function mapStateToProp(state, props) {
             name: item.userName,
             tel: item.phone,
             email: item.email,
-            style: item.role === ROLE_SYS_ADMIN ? '系统管理员' : (item.role === ROLE_TEAM_ADMIN ? '团队管理员' : '普通成员'),
+            globalStyle: item.globalRoles.includes('admin') ? '系统管理员' : '普通成员',
+            partialStyle: item.partialRole.includes('manager') ? '团队管理员' : ''
           }
         )
       })
@@ -957,7 +962,9 @@ function mapStateToProp(state, props) {
           {
             key: item.userID,
             name: item.userName,
-            role : item.role
+            role : item.role,
+            globalStyle: item.globalRoles.includes('admin') ? '系统管理员' : '普通成员',
+            partialStyle: item.partialRole.includes('manager') ? '团队管理员' : ''
           }
         )
       })
