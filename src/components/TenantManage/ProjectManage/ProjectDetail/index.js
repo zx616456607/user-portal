@@ -404,7 +404,7 @@ class ProjectDetail extends Component{
         },
         failed: {
           func: res => {
-          
+
           },
           isAsync: true
         }
@@ -1157,7 +1157,7 @@ class ProjectDetail extends Component{
         </div>
       </QueueAnim>
     )
-    
+
   }
 }
 
@@ -1166,14 +1166,14 @@ function mapStateToThirdProp(state, props) {
   const { query } = props.location
   const { name } = query;
   const { loginUser } = state.entities
-  const { roles } = loginUser.info || { roles: [] }
+  const { globalRoles } = loginUser.info || { globalRoles: [] }
   let roleNum = 0
-  if (roles.length) {
-    for (let i = 0; i < roles.length; i++) {
-      if (roles[i] === 'admin') {
+  if (globalRoles.length) {
+    for (let i = 0; i < globalRoles.length; i++) {
+      if (globalRoles[i] === 'admin') {
         roleNum = 1;
         break
-      } else if (roles[i] === 'project-creator') {
+      } else if (globalRoles[i] === 'project-creator') {
         roleNum = 2;
         break
       } else {

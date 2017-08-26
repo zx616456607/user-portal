@@ -30,7 +30,7 @@ import {CREATE_PROJECTS_ROLE_ID} from '../../../../constants'
 import isEmpty from 'lodash/isEmpty'
 
 let ProjectManage = React.createClass({
-  
+
   getInitialState() {
     return {
       delModal: false,
@@ -65,7 +65,7 @@ let ProjectManage = React.createClass({
       searchName: ''
     }
   },
-  
+
   componentWillMount() {
     this.loadProjectList()
     const step = this.props.location.query.step;
@@ -76,7 +76,7 @@ let ProjectManage = React.createClass({
       }
     }
   },
-  
+
   componentWillReceiveProps(nextProps) {
     const step = nextProps.location.query.step;
     if (step) {
@@ -100,37 +100,37 @@ let ProjectManage = React.createClass({
       })
     }
   },
-  
+
   updateProjectName(name) {
     this.setState({
       projectName: name
     })
   },
-  
+
   updateProjectDesc(desc) {
     this.setState({
       description: desc
     })
   },
-  
+
   updateCluster(arr) {
     this.setState({
       authorizedCluster: arr
     })
   },
-  
+
   updateRole(Role) {
     this.setState({
       RoleKeys: Role
     })
   },
-  
+
   updateRoleWithMember(roleWithMember) {
     this.setState({
       roleWithMember
     })
   },
-  
+
   goStep(current) {
     const {projectName, authorizedCluster, RoleKeys} = this.state;
     const { validateFields } = this.props.form;
@@ -158,9 +158,9 @@ let ProjectManage = React.createClass({
       browserHistory.replace(`/tenant_manage/project_manage?step=${s}`);
       this.setState({current});
     })
-    
+
   },
-  
+
   next() {
     let current = this.state.current + 1;
     if (current === 3) {
@@ -168,7 +168,7 @@ let ProjectManage = React.createClass({
     }
     this.goStep(current)
   },
-  
+
   goBack() {
     let current = this.state.current - 1;
     if (current === -1) {
@@ -176,7 +176,7 @@ let ProjectManage = React.createClass({
     }
     this.goStep(current)
   },
-  
+
   delSingle(e, record) {
     e.stopPropagation()
     this.setState({
@@ -184,19 +184,19 @@ let ProjectManage = React.createClass({
       deleteSinglePro: [record]
     })
   },
-  
+
   singleCancel() {
     this.setState({delSingle: false, deleteSingleChecked: false})
   },
-  
+
   pay() {
     this.setState({payModal: true})
   },
-  
+
   payCancel() {
     this.setState({payModal: false})
   },
-  
+
   paySingle(e, record) {
     e.stopPropagation()
     this.setState({
@@ -204,11 +204,11 @@ let ProjectManage = React.createClass({
       paySinglePro: [record]
     })
   },
-  
+
   paySingleCancel() {
     this.setState({paySingle: false})
   },
-  
+
   paySingleOk() {
     const {chargeProject} = this.props;
     const {paySinglePro, payNumber} = this.state;
@@ -229,11 +229,11 @@ let ProjectManage = React.createClass({
       }
     })
   },
-  
+
   changePayNumber(payNumber) {
     this.setState({payNumber})
   },
-  
+
   deleteProject(modal) {
     const {DeleteProjects} = this.props;
     const {deleteSinglePro} = this.state;
@@ -255,19 +255,19 @@ let ProjectManage = React.createClass({
       }
     })
   },
-  
+
   updatePayNumber(payNumber) {
     this.setState({
       payNumber
     })
   },
-  
+
   updatePayArr(payArr) {
     this.setState({
       payArr
     })
   },
-  
+
   updatePayCharge() {
     const {chargeProject} = this.props;
     const {payArr, payNumber} = this.state;
@@ -291,7 +291,7 @@ let ProjectManage = React.createClass({
       }
     })
   },
-  
+
   loadProjectList(n) {
     const {ListProjects} = this.props;
     const {sort, roleFilter, searchName} = this.state;
@@ -328,13 +328,13 @@ let ProjectManage = React.createClass({
       }
     })
   },
-  
+
   formatUserList(users) {
     for (let i = 0; i < users.length; i++) {
       Object.assign(users[i], {key: users[i].userID, title: users[i].namespace, chosen: false})
     }
   },
-  
+
   openRightModal() {
     const {loadUserList, roleWithMembers} = this.props;
     loadUserList({
@@ -372,19 +372,19 @@ let ProjectManage = React.createClass({
       },
       failed: {
         func: (res) => {
-        
+
         },
         isAsync: true
       }
     })
   },
-  
+
   cancelRightModal() {
     this.setState({
       rightModal: false
     })
   },
-  
+
   confirmRightModal() {
     const {targetKeys, originalKeys} = this.state;
     let diff = xor(originalKeys, targetKeys)
@@ -403,7 +403,7 @@ let ProjectManage = React.createClass({
       this.removeMember(del, true)
     }
   },
-  
+
   addMember(add, flag) {
     const {usersAddRoles} = this.props;
     let notify = new Notification()
@@ -439,7 +439,7 @@ let ProjectManage = React.createClass({
       }
     })
   },
-  
+
   removeMember(del, flag) {
     const {usersLoseRoles} = this.props;
     let notify = new Notification()
@@ -475,15 +475,15 @@ let ProjectManage = React.createClass({
       }
     })
   },
-  
+
   filterOption(inputValue, option) {
     return option.title.indexOf(inputValue) > -1;
   },
-  
+
   handleChange(targetKeys, direction, moveKeys) {
     this.setState({targetKeys});
   },
-  
+
   createProject() {
     const {CreateProjects} = this.props;
     const {projectName, description, authorizedCluster, RoleKeys, roleWithMember} = this.state;
@@ -537,7 +537,7 @@ let ProjectManage = React.createClass({
       }
     })
   },
-  
+
   closeProjectCreate() {
     this.setState({
       closeCreateProject: true
@@ -545,7 +545,7 @@ let ProjectManage = React.createClass({
       browserHistory.push('/tenant_manage/project_manage')
     })
   },
-  
+
   startCreateProject() {
     this.setState({
       closeCreateProject: false
@@ -553,7 +553,7 @@ let ProjectManage = React.createClass({
       browserHistory.replace('/tenant_manage/project_manage?step=first')
     })
   },
-  
+
   deleteProjectFooter() {
     const {deleteSingleChecked} = this.state;
     return (
@@ -564,7 +564,7 @@ let ProjectManage = React.createClass({
       </div>
     )
   },
-  
+
   refreshTeamList() {
     this.setState({
       userCountSort: undefined,
@@ -578,7 +578,7 @@ let ProjectManage = React.createClass({
       this.loadProjectList()
     })
   },
-  
+
   handleSort(sortStr) {
     let currentSort = this.state[sortStr]
     let sort = this.getSort(currentSort, sortStr)
@@ -589,7 +589,7 @@ let ProjectManage = React.createClass({
       this.loadProjectList()
     })
   },
-  
+
   getSort(flag, sort) {
     let str = 'a,'
     if (flag) {
@@ -597,7 +597,7 @@ let ProjectManage = React.createClass({
     }
     return str + sort.slice(0, sort.length - 4)
   },
-  
+
   projectFilter(pagination, filters, sorter) {
     let role
     this.setState({
@@ -606,7 +606,7 @@ let ProjectManage = React.createClass({
       this.loadProjectList()
     })
   },
-  
+
   projectNameSearch(value) {
     this.setState({
       searchName: value
@@ -614,7 +614,7 @@ let ProjectManage = React.createClass({
       this.loadProjectList()
     })
   },
-  
+
   render() {
     const step = this.props.location.query.step || '';
     const {roleNum} = this.props;
@@ -928,9 +928,9 @@ let ProjectManage = React.createClass({
                                  updateRoleWithMember={this.updateRoleWithMember} form={this.props.form}/>
               </div>
             </Form>
-            
+
           </div>
-          
+
           <div className={classNames('createBtnBox', {'hidden': step === ''})}>
             <Button size="large" onClick={this.closeProjectCreate}>取消</Button>
             <Button size="large" className={classNames({'hidden': step === '' || step === 'first'})}
@@ -948,14 +948,14 @@ let ProjectManage = React.createClass({
 
 function mapStateToProps(state, props) {
   const {loginUser} = state.entities
-  const {roles} = loginUser.info || {roles: []}
+  const {globalRoles} = loginUser.info || {globalRoles: []}
   let roleNum = 0
-  if (roles.length) {
-    for (let i = 0; i < roles.length; i++) {
-      if (roles[i] === 'admin') {
+  if (globalRoles.length) {
+    for (let i = 0; i < globalRoles.length; i++) {
+      if (globalRoles[i] === 'admin') {
         roleNum = 1;
         break
-      } else if (roles[i] === 'project-creator') {
+      } else if (globalRoles[i] === 'project-creator') {
         roleNum = 2;
         break
       } else {
@@ -989,12 +989,12 @@ class PayTable extends Component {
       payArr: []
     }
   }
-  
+
   componentWillMount() {
     const {updatePayNumber} = this.props;
     updatePayNumber(10)
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const {visible} = nextProps;
     const {updatePayNumber} = nextProps;
@@ -1007,11 +1007,11 @@ class PayTable extends Component {
       updatePayNumber(10)
     }
   }
-  
+
   onSelectChange(selectedRowKeys) {
     this.setState({selectedRowKeys});//报错
   }
-  
+
   handClickRow(record, index) {
     const {updatePayArr} = this.props;
     const {selectedRowKeys, payArr} = this.state;
@@ -1031,13 +1031,13 @@ class PayTable extends Component {
     })
     updatePayArr(newPayArr)
   }
-  
+
   changePayNumber(payNumber) {
     const {updatePayNumber} = this.props;
     this.setState({payNumber})
     updatePayNumber(payNumber)
   }
-  
+
   render() {
     const {payNumber, selectedRowKeys} = this.state;
     const {data} = this.props;

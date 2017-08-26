@@ -766,7 +766,7 @@ function mapStateToProp(state, props) {
   const teams = state.user.teams
   const userDetail = state.entities.loginUser.info
   const { loginUser } = state.entities
-  const { roles, userID } = loginUser.info || { roles: [], userID: '' }
+  const { globalRoles, userID } = loginUser.info || { globalRoles: [], userID: '' }
   let teamSpacesList = []
   if (teams.result) {
     if (teams.result.teams) {
@@ -802,12 +802,12 @@ function mapStateToProp(state, props) {
   if (team.teamspaces.result) {
     teamSpacesList = team.teamspaces.result.data
   }
-  if (roles.length) {
-    for (let i = 0; i < roles.length; i++) {
-      if (roles[i] === 'admin') {
+  if (globalRoles.length) {
+    for (let i = 0; i < globalRoles.length; i++) {
+      if (globalRoles[i] === 'admin') {
         roleNum = 1;
         break
-      } else if (roles[i] === 'team-creator') {
+      } else if (globalRoles[i] === 'team-creator') {
         roleNum = 2;
         break
       } else {
