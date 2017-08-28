@@ -212,7 +212,7 @@ function* getUserTeamsNew() {
   const query = this.query || {}
   const api = apiFactory.getApi(loginUser)
   const result = yield api.users.getBy([ userId, 'teams' ], query)
-  this.body = result
+  this.body = result.data || {}
 }
 exports.getUserTeamsNew = getUserTeamsNew
 
