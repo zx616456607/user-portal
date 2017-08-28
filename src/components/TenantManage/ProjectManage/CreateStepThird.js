@@ -240,7 +240,6 @@ class CreateStepThird extends Component{
     const TreeNode = Tree.TreeNode;
     const { currentRolePermission, currentRoleInfo, memberArr, connectModal, roleMap, memberCount } = this.state;
     let currentId = currentRoleInfo && currentRoleInfo.id
-    const { getFieldProps } = form;
     const projectNameLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 15, offset: 1 },
@@ -276,9 +275,7 @@ class CreateStepThird extends Component{
       <div id="projectCreateStepThird">
         <div className="inputBox" style={{marginBottom:0}}>
           <Form.Item label="项目名称" {...projectNameLayout}>
-            <Input disabled {...getFieldProps(`projectName`, {
-              initialValue:  scope.state.projectName,
-            }) }
+            <Input disabled value={scope.state.projectName}
             />
           </Form.Item>
         </div>
@@ -362,4 +359,4 @@ export default CreateStepThird = connect(mapStateToThirdProp, {
   GetRole,
   GetProjectsMembers,
   roleWithMembers
-})(Form.create()(CreateStepThird))
+})(CreateStepThird)

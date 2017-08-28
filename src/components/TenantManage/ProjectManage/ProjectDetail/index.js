@@ -404,7 +404,7 @@ class ProjectDetail extends Component{
         },
         failed: {
           func: res => {
-          
+
           },
           isAsync: true
         }
@@ -628,14 +628,13 @@ class ProjectDetail extends Component{
       return <TreeNode key={item.key} title={item.userName} disableCheckbox={true}/>;
     });
     const projectRole = (role) => {
-      if (role === 'admin') {
-        return '系统管理员'
-      }else if (role === 'manager') {
-        return '管理员'
-      } else if (role === 'creator') {
+      if (!role) return
+      if (role.includes('no-participator')) {
+        return '非项目成员'
+      } else if (role.includes('manager') || role.includes('creator')) {
         return '创建者'
       } else {
-        return '访客'
+        return '参与者'
       }
     }
     const disabledArr = [TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID]
@@ -956,7 +955,7 @@ class ProjectDetail extends Component{
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {projectRole(projectDetail.projectRole)}
+                        {projectRole(projectDetail.outlineRoles)}
                       </div>
                     </Col>
                   </Row>
@@ -968,7 +967,7 @@ class ProjectDetail extends Component{
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {projectDetail&&projectDetail.createTime}
+                        {projectDetail && projectDetail.createTime && projectDetail.createTime.replace(/T/g,' ').replace(/Z/g, '')}
                       </div>
                     </Col>
                   </Row>
@@ -980,7 +979,7 @@ class ProjectDetail extends Component{
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {projectDetail&&projectDetail.updateTime}
+                        {projectDetail && projectDetail.updateTime && projectDetail.updateTime.replace(/T/g, ' ').replace(/Z/g, '')}
                       </div>
                     </Col>
                   </Row>
@@ -1157,7 +1156,7 @@ class ProjectDetail extends Component{
         </div>
       </QueueAnim>
     )
-    
+
   }
 }
 
@@ -1166,14 +1165,14 @@ function mapStateToThirdProp(state, props) {
   const { query } = props.location
   const { name } = query;
   const { loginUser } = state.entities
-  const { roles } = loginUser.info || { roles: [] }
+  const { globalRoles } = loginUser.info || { globalRoles: [] }
   let roleNum = 0
-  if (roles.length) {
-    for (let i = 0; i < roles.length; i++) {
-      if (roles[i] === 'admin') {
+  if (globalRoles.length) {
+    for (let i = 0; i < globalRoles.length; i++) {
+      if (globalRoles[i] === 'admin') {
         roleNum = 1;
         break
-      } else if (roles[i] === 'project-creator') {
+      } else if (globalRoles[i] === 'project-creator') {
         roleNum = 2;
         break
       } else {
