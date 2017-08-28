@@ -150,6 +150,10 @@ let NetworkConfiguration = React.createClass ({
       }
       if(type == 'IP'){
         item.arr.forEach(arrItem => {
+          // Allow all IP to be 0.0.0.0
+          if (values[`nodeIP-${item.key}-${arrItem}`] === '0.0.0.0') {
+            return true
+          }
           if(values[`nodeIP-${item.key}-${arrItem}`] === IPValue && `${item.key}-${arrItem}` !== `${config.key}-${key}`){
             IPResult = true
           }
