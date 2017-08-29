@@ -802,9 +802,7 @@ class Membermanagement extends Component {
               }
             </div>
             <div className="alertRow">
-              该成员不属于任何项目与团队，且无创建项目与团队权限。
-              <p>1. 可将该成员添加到某团队；或将该成员添加到某项目中，并授予角色。</p>
-              <p>2. 可在团队列表页将该成员授予可创建团队权限，或在项目列表页将该成员授予可创建项目权限。</p>
+              可将该成员添加到某团队；或将该成员添加到某项目中，并授予角色。
             </div>
           </Modal>
           <div className="total">共计 {this.props.total} 条&nbsp; </div>
