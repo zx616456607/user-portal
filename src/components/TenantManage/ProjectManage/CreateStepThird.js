@@ -83,11 +83,11 @@ class CreateStepThird extends Component{
   }
   getProjectMember() {
     const { GetProjectsMembers } = this.props;
-    GetProjectsMembers({},{
+    GetProjectsMembers({type: 'user'},{
       success: {
         func: (res) => {
           if (res.statusCode === 200) {
-            let newArr = res.data.teamList && res.data.teamList.concat(res.data.userList)
+            let newArr = res.data.iteams
             this.formatMember(newArr)
             this.setState({
               memberArr: newArr,

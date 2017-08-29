@@ -119,10 +119,10 @@ class UserProjectsAndTeams extends React.Component {
       }
     })
 
-    this.isSysAdmin(loginUser.role) && GetProjectsMembers(null, {
+    this.isSysAdmin(loginUser.role) && GetProjectsMembers({type: 'team'}, {
       success: {
         func: res => {
-          const teamList = res.data.teamList || []
+          const teamList = res.data.iteams || []
           teamList.map(team => {
             team.key = team.teamId
           })

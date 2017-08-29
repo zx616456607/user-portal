@@ -315,9 +315,10 @@ exports.getProjectRelatedRoles = function* () {
 }
 
 exports.getProjectMembers = function* () {
+  const query = this.query
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.projects.getBy(['members'], null)
+  const response = yield projectApi.projects.getBy(['members'], query)
   this.status = response.statusCode
   this.body = response
 }
