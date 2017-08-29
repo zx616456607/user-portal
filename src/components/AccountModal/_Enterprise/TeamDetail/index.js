@@ -64,15 +64,20 @@ let MemberList = React.createClass({
   },
 
   delTeamMember() {
-    const { removeTeamusers, teamID, loadTeamUserList } = this.props
-    const { sortUser, userPageSize, userPage, filter } = this.state
+    const { removeTeamusers, teamID, teamName, loadTeamUserList, userDetail } = this.props
+    const { sortUser, userPageSize, userPage, filter, userName } = this.state
     let self = this
+    const isOwnOneself = userName === userDetail.userName
     this.setState({UserModal: false})
     let notification = new NotificationHandler()
     removeTeamusers(teamID, this.state.userId, {
       success: {
         func: () => {
           notification.success("移除用户成功")
+          if (isOwnOneself) {
+            browserHistory.push('/account/team')
+            return
+          }
           loadTeamUserList(teamID, {
             sort: sortUser,
             page: 1,
@@ -159,7 +164,7 @@ let MemberList = React.createClass({
   },
   render: function () {
     let { filteredInfo, current} = this.state
-    const { teamUserList, teamUsersTotal } = this.props
+    const { teamUserList, teamUsersTotal, userDetail } = this.props
     filteredInfo = filteredInfo || {}
     const pagination = {
       total: teamUsersTotal,
@@ -189,6 +194,16 @@ let MemberList = React.createClass({
         dataIndex: 'name',
         key: 'name',
         className: 'tablePadding',
+        render: text => {
+          if (text !== userDetail.userName) {
+            return text
+          }
+          return (
+            <div>
+              {text}<span className="themeColor">（自己）</span>
+            </div>
+          )
+        }
       },
       {
         title: '手机/邮箱',
@@ -665,7 +680,8 @@ class TeamDetail extends Component {
       teamSpacesList, teamName, teamID,spaceID,
       teamUsersTotal, teamSpacesTotal, removeTeamusers,loadTeamClustersList,
       loadTeamUserList, loadTeamspaceList, deleteTeamspace,
-      requestTeamCluster, loadAllClustersList, checkTeamSpaceName, teamClusters,setCurrent
+      requestTeamCluster, loadAllClustersList, checkTeamSpaceName, teamClusters,
+      userDetail, setCurrent,
     } = this.props
     const { targetKeys, sortSpace, spaceCurrent, spacePageSize, spacePage, sortSpaceOrder } = this.state
     const funcs = {
@@ -740,6 +756,7 @@ class TeamDetail extends Component {
             </Row>
             <Row>
               <MemberList teamUserList={teamUserList}
+                userDetail={userDetail}
                 teamID={teamID}
                 removeTeamusers={removeTeamusers}
                 loadTeamUserList={loadTeamUserList}
