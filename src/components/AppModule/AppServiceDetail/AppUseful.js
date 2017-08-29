@@ -46,6 +46,10 @@ class AppUseful extends Component {
     })
     this.setLivenessProbe(service)
   }
+  componentDidUpdate() {
+    let portInput = document.getElementById('portInput');
+    portInput && portInput.focus()
+  }
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow, service } = nextProps
     if (!service.spec) return
@@ -264,7 +268,7 @@ class AppUseful extends Component {
           <span>设置高可用</span>
           <span style={{marginLeft:'40px'}}>
             <Switch value={this.state.currentUseful} checkedChildren="开" unCheckedChildren="关" className="switch" defaultChecked={this.state.currentUseful} onChange={this.changeCheckType} disabled={this.state.switchDisable} />
-            <span className="tips">{this.state.haveRBDVolume ? "（因挂载存储卷，不能进行滚动更新，服务可能会有短暂不可用时间！）" : ""}</span>
+            <span className="tips">{false ? "（因挂载存储卷，不能进行滚动更新，服务可能会有短暂不可用时间！）" : ""}</span>
           </span>
         </div>
         <div className="settingBox">
@@ -309,7 +313,7 @@ class AppUseful extends Component {
                 </div>
                 <div className="input">
                   <div className="commonInput">
-                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e) => this.getInputInfo('port', e)} />
+                    <InputNumber id="portInput" type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e) => this.getInputInfo('port', e)} />
                   </div>
                   <div className="commonInput">
                     <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.initialDelaySeconds} onChange={(e) => this.getInputInfo('initialDelaySeconds', e)} />&nbsp;&nbsp;s
@@ -358,7 +362,7 @@ class AppUseful extends Component {
                 </div>
                 <div className="input">
                   <div className="commonInput">
-                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e) => this.getInputInfo('port', e)} />
+                    <InputNumber id="portInput" type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e) => this.getInputInfo('port', e)} />
                   </div>
                   <div className="commonInput">
                     <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.initialDelaySeconds} onChange={(e) => this.getInputInfo('initialDelaySeconds', e)} />&nbsp;&nbsp;s

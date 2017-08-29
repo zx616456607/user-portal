@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Icon, Tooltip } from 'antd'
+import { Icon, Tooltip, Button } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -34,7 +34,8 @@ class ContainerLogs extends Component {
       watchStatus: 'play',
       logs: [],
       logsLoading: false,
-      reconnect: true
+      reconnect: true,
+      logDetail: false
     }
   }
 
@@ -48,6 +49,9 @@ class ContainerLogs extends Component {
         });
       }
     })
+    if (location.pathname.indexOf('/app_manage/container/') > -1) {
+      this.setState({logDetail: true})
+    }
   }
 
   // For issue http://jira.tenxcloud.com/browse/CRYSTAL-1630
@@ -68,31 +72,41 @@ class ContainerLogs extends Component {
   componentWillReceiveProps(nextProps) {
     const { eventLogs,containerLogs } = nextProps
     const { logs } = this.state
-       // Set events to logs when logs empty
+    // Set events to logs when logs empty
     if (logs.length === 0) {
       this.setState({
         logs: eventLogs,
         logsLoading: false
       })
     }
+    if (location.pathname.indexOf('/app_manage/container/') > -1) {
+      this.setState({logDetail: true})
+    } else {
+      this.setState({logDetail: false})
+      if (nextProps.visible) {
+        this.handleLoopWatchStatus()
+      }
+    }
+    let bottomBox = document.getElementsByClassName('bottomBox')[0]
     if (containerLogs.logSize) {
       let logSize = 'normal'
+      const containerInfo = document.getElementById('containerInfo')
       if (containerLogs.logSize == 'big') {
         logSize = 'big'
-        document.getElementById('containerInfo').style.transform = 'none';
+        containerInfo? containerInfo.style.transform = 'none':''
         let h = document.getElementById('TerminalModal').offsetHeight
-        let b = document.getElementsByClassName('bottomBox')[0]
-        b.style.height = document.body.offsetHeight - h +'px'
-
+        bottomBox.style.height = document.body.offsetHeight - h +'px'
       } else {
-        document.getElementById('containerInfo').style.transform = 'translateX(0px)';
+        containerInfo? containerInfo.style.transform = 'translateX(0px)':''
       }
       this.setState({
         logSize
       })
       return
     }
-    document.getElementsByClassName('bottomBox')[0].style.height = null
+    if (bottomBox) {
+      bottomBox.style.height = null
+    }
 
   }
 
@@ -152,6 +166,7 @@ class ContainerLogs extends Component {
     }
     this.setState(initState)
     const { cluster, containerName, loginUser, current, loadContainerDetailEvents } = this.props
+    if (!cluster || !containerName) return
     this.ws = ws
     const { watchToken, namespace } = loginUser
     const watchAuthInfo = {
@@ -262,9 +277,12 @@ class ContainerLogs extends Component {
     }
     return logs.map(this.renderLog)
   }
-
+  closeModal = ()=> {
+    this.props.func.closeModal()
+    this.handleLoopWatchStatus()
+  }
   render() {
-    const { containerName, serviceName } = this.props
+    const { containerName, serviceName,func } = this.props
     const { logSize, watchStatus, logsLoading } = this.state
     const iconType = this.loopWatchStatus()
     return (
@@ -273,9 +291,12 @@ class ContainerLogs extends Component {
           <div className='introBox'>
             <div className='operaBox'>
               <span>
+                {this.state.logDetail?
                 <Link to={`/manange_monitor/query_log?service=${serviceName}&instance=${containerName}`}>
                   历史日志
                 </Link>
+                : <Button icon="cross" onClick={this.closeModal} className="closeBtn"></Button>
+                }
               </span>
               <span>
                 <Tooltip
@@ -298,12 +319,20 @@ class ContainerLogs extends Component {
               <pre id='logsBottom'></pre>
             </div>
             <div style={{ clear: 'both' }}></div>
+            {this.state.logDetail?
             <div className='operaBottomBox'>
-              <i className={logSize != 'big' ? 'fa fa-expand' : 'fa fa-compress'} onClick={this.onChangeLogSize.bind(this)}></i>
+              <i className={logSize != 'big' ? 'fa fa-expand' : 'fa fa-compress'} onClick={this.onChangeLogSize}></i>
               <Tooltip placement='top' title={`click to ${iconType}`}>
                 <i className={`fa fa-${iconType}-circle-o`} onClick={this.handleLoopWatchStatus} />
               </Tooltip>
             </div>
+            :
+            <div className="operaBottomBox" style={{paddingRight: 20}}>
+              <Tooltip placement='top' title={`click to ${iconType}`}>
+                <i className={`fa fa-${iconType}-circle-o`} onClick={this.handleLoopWatchStatus} />
+              </Tooltip>
+            </div>
+            }
           </div>
           <div style={{ clear: 'both' }}></div>
         </div>

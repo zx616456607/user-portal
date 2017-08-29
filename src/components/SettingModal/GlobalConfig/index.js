@@ -888,9 +888,6 @@ let StorageService = React.createClass({
           }
         </div>
         <div className="content">
-          <div className="contentHeader">
-            Ceph 分布式存储
-						</div>
           <div className="contentMain">
             <div className="contentImg">
               <img src={CephImg} alt="镜像服务" />

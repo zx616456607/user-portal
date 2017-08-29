@@ -48,8 +48,11 @@ export const ROLE_LIST_FAILURE = 'ROLE_LIST_FAILURE'
 
 // Fetches list role from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchListRole(callback){
+function fetchListRole(query,callback){
 	let endpoint = `${API_URL_PREFIX}/role`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
 	return {
 		[FETCH_API]: {
       types: [ROLE_LIST_REQUEST, ROLE_LIST_SUCCESS, ROLE_LIST_FAILURE],
@@ -62,9 +65,9 @@ function fetchListRole(callback){
 
 // Fetches list role from API
 // Relies on Redux Thunk middleware.
-export function ListRole(body, callback) {
+export function ListRole(query, callback) {
   return (dispatch) => {
-    return dispatch(fetchListRole(body, callback))
+    return dispatch(fetchListRole(query, callback))
   }
 }
 export const ROLE_GET_REQUEST = 'ROLE_GET_REQUEST'
@@ -74,15 +77,15 @@ export const ROLE_GET_FAILURE = 'ROLE_GET_FAILURE'
 // Fetches get role from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchGetRole(body,callback){
-	let endpoint = `${API_URL_PREFIX}/role/${body.id}`
+	let endpoint = `${API_URL_PREFIX}/role/${body.roleId}`
 	return {
-		[FETCH_API]: {
+    [FETCH_API]: {
       types: [ROLE_GET_REQUEST, ROLE_GET_SUCCESS, ROLE_GET_FAILURE],
       endpoint,
       schema: {},
     },
     callback
-	}
+  }
 }
 
 // Fetches get role from API
@@ -99,8 +102,9 @@ export const ROLE_UPDATE_FAILURE = 'ROLE_UPDATE_FAILURE'
 
 // Fetches get update from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUpdateRole(body,callback){
-	let endpoint = `${API_URL_PREFIX}/role`
+function fetchUpdateRole(query,callback){
+  let endpoint = `${API_URL_PREFIX}/role/${query.id}`
+  let body = query.body
 	return {
 		[FETCH_API]: {
       types: [ROLE_UPDATE_REQUEST, ROLE_UPDATE_SUCCESS, ROLE_UPDATE_FAILURE],
@@ -129,10 +133,10 @@ export const ROLE_DELETE_FAILURE = 'ROLE_DELETE_FAILURE'
 
 // Fetches get delete from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchDeleteRole(body,query,callback){
-	let endpoint = `${API_URL_PREFIX}/role/${body.id}`
-	if (query) {
-    endpoint += `?${toQuerystring(query)}`
+function fetchDeleteRole(body,callback){
+	let endpoint = `${API_URL_PREFIX}/role/${body.res.id}`
+	if (body.res.state) {
+    endpoint += `?retain=${body.res.state}`
   }
 	return {
 		[FETCH_API]: {
@@ -149,9 +153,9 @@ function fetchDeleteRole(body,query,callback){
 
 // Fetches delete role from API
 // Relies on Redux Thunk middleware.
-export function DeleteRole(body,query, callback) {
+export function DeleteRole(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchDeleteRole(body, query, callback))
+		return dispatch(fetchDeleteRole(body, callback))
 	}
 }
 
@@ -163,14 +167,13 @@ export const ROLE_ADDPERMISSION_FAILURE = 'ROLE_ADDPERMISSION_FAILURE'
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchAddPermissionRole(body,callback){
 	let endpoint = `${API_URL_PREFIX}/role/${body.id}/addPermission`
-  let data = body.body
 	return {
 		[FETCH_API]: {
       types: [ROLE_ADDPERMISSION_REQUEST, ROLE_ADDPERMISSION_SUCCESS, ROLE_ADDPERMISSION_FAILURE],
       endpoint,
       options: {
-        method: 'PUT',
-        data
+        method: 'POST',
+        body: body.bodys
       },
       schema: {},
     },
@@ -195,14 +198,13 @@ export const ROLE_REMOVEPERMISSION_FAILURE = 'ROLE_REMOVEPERMISSION_FAILURE'
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchRemovePermissionRole(body,callback){
 	let endpoint = `${API_URL_PREFIX}/role/${body.id}/removePermission`
-  let data = body.body
 	return {
 		[FETCH_API]: {
       types: [ROLE_REMOVEPERMISSION_REQUEST, ROLE_REMOVEPERMISSION_SUCCESS, ROLE_REMOVEPERMISSION_FAILURE],
       endpoint,
       options: {
-        method: 'PUT',
-        data
+        method: 'POST',
+        body: body.bodys
       },
       schema: {},
     },
@@ -268,3 +270,122 @@ export function AllowUpdateRole(body, callback) {
 		return dispatch(fetchAllowUpdateRole(body, callback))
 	}
 }
+
+export const REMOVE_PROJECT_ROLES_REQUEST = 'REMOVE_PROJECT_ROLES_REQUEST'
+export const REMOVE_PROJECT_ROLES_SUCCESS = 'REMOVE_PROJECT_ROLES_SUCCESS'
+export const REMOVE_PROJECT_ROLES_FAILURE = 'REMOVE_PROJECT_ROLES_FAILURE'
+
+function RemoveRoleList(body,callback) {
+  let endpoint = `${API_URL_PREFIX}/projects/${body.projectName}/roles/batch-delete`
+  return {
+    [FETCH_API]: {
+      types: [REMOVE_PROJECT_ROLES_REQUEST, REMOVE_PROJECT_ROLES_SUCCESS, REMOVE_PROJECT_ROLES_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body: body.projectRole
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function RemoveProjectRole(body,callback) {
+  return (dispatch,getState) => {
+    return dispatch(RemoveRoleList(body,callback))
+  }
+}
+
+export const USERS_ADD_ROLES_REQUEST = 'USERS_ADD_ROLES_REQUEST'
+export const USERS_ADD_ROLES_SUCCESS = 'USERS_ADD_ROLES_SUCCESS'
+export const USERS_ADD_ROLES__FAILURE = 'USERS_ADD_ROLES__FAILURE'
+
+function fetchUsersAddRoles(body,callback) {
+  return {
+    [FETCH_API]: {
+      types: [USERS_ADD_ROLES_REQUEST, USERS_ADD_ROLES_SUCCESS, USERS_ADD_ROLES__FAILURE],
+      endpoint: `${API_URL_PREFIX}/role/${body.roleID}/${body.scope}/${body.scopeID}`,
+      options: {
+        method: 'POST',
+        body: body.body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function usersAddRoles(body,callback) {
+  return (dispatch,getState) => {
+    return dispatch(fetchUsersAddRoles(body,callback))
+  }
+}
+
+export const ROLE_WITH_MEMBERS_REQUEST = 'ROLE_WITH_MEMBERS_REQUEST'
+export const ROLE_WITH_MEMBERS_SUCCESS = 'ROLE_WITH_MEMBERS_SUCCESS'
+export const ROLE_WITH_MEMBERS__FAILURE = 'ROLE_WITH_MEMBERS__FAILURE'
+
+function fetchRoleWithMembers(body,callback) {
+  return {
+    [FETCH_API]: {
+      types: [ROLE_WITH_MEMBERS_REQUEST, ROLE_WITH_MEMBERS_SUCCESS, ROLE_WITH_MEMBERS__FAILURE],
+      endpoint: `${API_URL_PREFIX}/role/${body.roleID}/${body.scope}/${body.scopeID}/users`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function roleWithMembers(body,callback) {
+  return (dispatch,getState) => {
+    return dispatch(fetchRoleWithMembers(body,callback))
+  }
+}
+
+export const ROLE_GET_SEARCH_REQUEST = 'ROLE_GET_SEARCH_REQUEST'
+export const ROLE_GET_SEARCH_SUCCESS = 'ROLE_GET_SEARCH_SUCCESS'
+export const ROLE_GET_SEARCH_FAILURE = 'ROLE_GET_SEARCH_FAILURE'
+
+function fetchGetSearchInfo(body, callback){
+  let endpoint = `${API_URL_PREFIX}/role`
+  if (body) {
+    endpoint += `?filter=${body.value}`
+  }
+	return {
+		[FETCH_API]: {
+      types: [ROLE_GET_SEARCH_REQUEST, ROLE_GET_SEARCH_SUCCESS, ROLE_GET_SEARCH_FAILURE],
+      endpoint,
+      schema: {},
+    },
+    callback
+	}
+}
+
+export function GetSearchList(body, callback){
+  return(dispatch, getState) => {
+    return dispatch(fetchGetSearchInfo(body, callback))
+  }
+}
+
+export const ROLE_GET_DETAIL_REQUEST = 'ROLE_GET_DETAIL_REQUEST'
+export const ROLE_GET_DETAIL_SUCCESS = 'ROLE_GET_DETAIL_SUCCESS'
+export const ROLE_GET_DETAIL_FAILURE = 'ROLE_GET_DETAIL_FAILURE'
+
+function fetchGetDetailInfo(body, callback){
+  let endpoint = `${API_URL_PREFIX}/role/${body.roleId}/projects`
+  return {
+    [FETCH_API]: {
+      types: [ ROLE_GET_DETAIL_REQUEST, ROLE_GET_DETAIL_SUCCESS, ROLE_GET_DETAIL_FAILURE ],
+      endpoint,
+      schema: {},
+    },
+    callback
+  }
+}
+export function GetDetailList(body, callback){
+  return (dispatch, getState) => {
+    return dispatch(fetchGetDetailInfo(body, callback))
+  }
+}
+

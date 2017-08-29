@@ -28,7 +28,7 @@ const tenantRoutes = [{
     component: require('../components/TenantManage/AllPermissions').default,
   },
   {
-    path: 'membermanagement',
+    path: 'user',
     component: require('../components/TenantManage/Membermanagement').default,
   },
   {
@@ -36,9 +36,21 @@ const tenantRoutes = [{
     component: require('../components/TenantManage/ProjectManage/ProjectDetail').default
   },
   {
-    path: 'rolemanagement/rolename/TID',
+    path: 'rolemanagement/rolename/:id',
     component: require('../components/TenantManage/TenantDetail').default,
-  }
+  },
+  {
+    path: 'team',
+    component: require('../components/TenantManage/_Enterprise/TeamManage').default,
+  },
+  {
+    path: 'team/:team_id',
+    component: require('../components/TenantManage/_Enterprise/TeamDetail').default,
+  },
+  {
+    path: 'ldap',
+    component: require('../components/TenantManage/LDAP').default,
+  },
 ]
 
 export default tenantRoutes

@@ -1491,7 +1491,7 @@ function fetchAddBaseImage(body, callback) {
   return {
     [FETCH_API]: {
       types: [ADD_BASE_IMAGE_REQUEST, ADD_BASE_IMAGE_SUCCESS, ADD_BASE_IMAGE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci/images`,
+      endpoint: `${API_URL_PREFIX}/devops/ci/images?name=${body.image_name}`,
       schema: {},
       options: {
         method: 'POST',
@@ -1515,7 +1515,7 @@ function fetchUpdateBaseImage(id, body, callback) {
   return {
     [FETCH_API]: {
       types: [UPDATE_BASE_IMAGE_REQUEST, UPDATE_BASE_IMAGE_SUCCESS, UPDATE_BASE_IMAGE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci/images/${id}`,
+      endpoint: `${API_URL_PREFIX}/devops/ci/images/${id}?name=${body.image_name}`,
       schema: {},
       options: {
         method: 'PUT',
@@ -1535,11 +1535,11 @@ export function updateBaseImage(id, body, callback) {
 export const DELETE_BASE_IMAGE_REQUEST = 'DELETE_BASE_IMAGE_REQUEST'
 export const DELETE_BASE_IMAGE_SUCCESS = 'DELETE_BASE_IMAGE_SUCCESS'
 export const DELETE_BASE_IMAGE_FAILURE = 'DELETE_BASE_IMAGE_FAILURE'
-function fetchDeleteBaseImage(id,callback) {
+function fetchDeleteBaseImage(id, name, callback) {
   return {
     [FETCH_API]: {
       types: [DELETE_BASE_IMAGE_REQUEST, DELETE_BASE_IMAGE_SUCCESS, DELETE_BASE_IMAGE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci/images/${id}`,
+      endpoint: `${API_URL_PREFIX}/devops/ci/images/${id}?name=${name}`,
       schema: {},
       options: {
         method: 'DELETE',
@@ -1549,9 +1549,9 @@ function fetchDeleteBaseImage(id,callback) {
   }
 }
 
-export function deleteBaseImage(id, callback) {
+export function deleteBaseImage(id, name, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDeleteBaseImage(id,callback))
+    return dispatch(fetchDeleteBaseImage(id, name, callback))
   }
 }
 

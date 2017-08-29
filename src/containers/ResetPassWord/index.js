@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  
+ *
  *
  * v0.1 - 2016/12/22
  * @author ZhaoXueYu
@@ -23,10 +23,10 @@ class ResetPassWord extends Component {
     }
   }
   renderResetForm () {
-    let { email, code } = this.props
+    let { email, code, from } = this.props
     if (code) {
       return (
-        <CommitReset email={email} code={code}/>
+        <CommitReset email={email} code={code} from={from} />
       )
     }
     return (
@@ -50,10 +50,11 @@ class ResetPassWord extends Component {
 }
 
 function mapStateToProps (state,props) {
-  let { email, code } = props.location.query
+  let { email, code, from } = props.location.query
   return {
     email,
     code,
+    from,
   }
 }
 ResetPassWord = connect(mapStateToProps, {

@@ -256,7 +256,7 @@ export default class PopTabSelect extends Component {
               <Input
                 id={this.searchInputId}
                 onPressEnter={this.handleSearch}
-                placeholder="输入分支或标签"
+                placeholder={placeholder}
                 onChange={this.handleSearch} />
             </Col>
             <Col span={colSpan.btn} className="btns">
@@ -299,7 +299,7 @@ export default class PopTabSelect extends Component {
             <span className="ant-cascader-picker">
               <span className="ant-input-wrapper">
                 <input type="text" className="ant-input ant-cascader-input"
-                  readonly placeholder={placeholder}
+                  readonly
                   style={{marginTop: '0px'}}
                 />
               </span>

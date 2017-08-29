@@ -17,20 +17,25 @@ import './style/index.less'
 const menuList = [
   {
     url: '/tenant_manage',
-    name: '租户'
+    name: '概览'
   },{
-    url: '/tenant_manage/membermanagement',
+    url: '/tenant_manage/user',
     name: '成员管理'
+  },{
+    url: '/tenant_manage/team',
+    name: '团队管理'
+  },{
+    url: '/tenant_manage/project_manage',
+    name: '项目管理'
   },{
     url: '/tenant_manage/rolemanagement',
     name: '角色管理'
   },{
     url: '/tenant_manage/allpermissions',
     name: '所有权限'
-  },
-  {
-    url: '/tenant_manage/project_manage',
-    name: '项目管理'
+  },{
+    url: '/tenant_manage/ldap',
+    name: '集成企业目录'
   }
 ]
 

@@ -417,6 +417,10 @@ function waitResponse(resolve, reject, error, response, body) {
 }
 
 function* validateSVNAccount(repoURL, username, password) {
+  // No validation for svn address
+  if (repoURL.indexOf('http') < 0 && repoURL.indexOf('https') < 0) {
+    return
+  }
   const uri = repoURL.endsWith('/') ? repoURL : `${repoURL}/`
   const actions = [tryWithBasicAuth.bind(null, uri, username, password),
     tryWithDigestAuth.bind(null, uri, username, password)]
@@ -1015,7 +1019,7 @@ exports.getAvailableImages = function*() {
 exports.addBaseImage = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.createBy(["ci", "images"], null, this.request.body)
+  const result = yield api.createBy(["ci", "images"], this.query, this.request.body)
   this.body = {
     data: result
   }
@@ -1025,7 +1029,7 @@ exports.updateBaseImage = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getDevOpsApi(loginUser)
   const body = this.request.body
-  const result = yield api.updateBy(["ci", "images", this.params.id], null, body)
+  const result = yield api.updateBy(["ci", "images", this.params.id], this.query, body)
   this.body = {
     data: result
   }
@@ -1034,7 +1038,7 @@ exports.updateBaseImage = function* () {
 exports.deleteBaseImage = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.deleteBy(["ci", "images", this.params.id])
+  const result = yield api.deleteBy(["ci", "images", this.params.id], this.query)
   this.body = {
     data: result
   }

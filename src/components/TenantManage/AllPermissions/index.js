@@ -4,37 +4,107 @@
  *
  * AppList component
  *
- * v0.1 - 2017-06-12
- * @author XuLongcheng
+ * v0.1 - 2017-07-28
+ * @author ZhaoYanBei
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Row, Table, Alert, Col, Form, Input, Button, Radio, Modal, InputNumber } from 'antd'
 import './style/AllPermissions.less'
+import {Permission, RetrievePermission} from  '../../../actions/permission'
+import CommonSearchInput from '../../../components/CommonSearchInput'
+import QueueAnim from 'rc-queue-anim'
 
-let AllPermissions =  React.createClass ({
-  getInitialState() {
-    return {
+class AllPermissions extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
       filteredInfo: null,
       sortedInfo: null,
-    };
-  },
+      data: [],
+      values: '',
+      loading: true
+    }
+  }
+
+  componentWillMount(){
+    this.getLists()
+  }
+
+  RowData(data){
+    if(data){
+      const children = []
+      for(let i = 0; i < data.length; i++){
+        let RowData = data[i]
+        RowData = Object.assign(RowData,{title: RowData.desc, key: RowData.id})
+        children.push(RowData)
+      }
+
+      children.forEach((key, index) => {
+        if(data[index]["children"] !== undefined){
+          if (data[index].children.length !== 0) {
+            return this.RowData(data[index].children);
+          }
+        }
+      })
+      this.setState({
+        data: children,
+        loading: false
+      })
+    }
+  }
+
+  handleSearch(value){
+    const { RetrievePermission } = this.props
+    let ID = value
+    RetrievePermission ({
+      id: ID
+    },{
+      success: {
+        func: res => {
+          if(res.data.code === 200){
+            let obj = '', result = []
+            obj = {'key': res.data.data.id, 'title':res.data.data.desc, 'desc': res.data.data.desc, 'count': res.data.data.count}
+            result.push(obj)
+            this.setState({
+              data: result
+            })
+          }
+        },
+        isAsync: true
+      },
+      failed: {
+        func: err => {
+          //
+        },
+        isAsync: true,
+      }
+    })
+  }
+
+  getLists(){
+    const { Permission } = this.props
+    Permission (null,{
+      success: {
+        func: res => {
+          if(res.data.code === 200){
+            this.RowData(res.data.data.permissions)
+          }
+        },
+        isAsync: true,
+      },
+    })
+  }
+
   handleChange( filters, sorter) {
     this.setState({
       filteredInfo: filters,
       sortedInfo: sorter,
     });
-  },
-  setAgeSort(e) {
-    e.preventDefault();
-    this.setState({
-      sortedInfo: {
-        order: 'descend',
-        columnKey: 'citationtimes',
-      },
-    });
-  },
-  render() {
+  }
+
+  render(){
+    const { data, loading } = this.state
     let { sortedInfo } = this.state;
     sortedInfo = sortedInfo || {};
     const columns = [{
@@ -44,88 +114,49 @@ let AllPermissions =  React.createClass ({
       width: '47%',
     }, {
       title: '权限描述',
-      dataIndex: 'describe',
-      key: 'describe',
+      dataIndex: 'desc',
+      key: 'desc',
       width: '38%',
     }, {
       title: '被角色引用次数',
-      dataIndex: 'citationtimes',
-      key: 'citationtimes',
+      dataIndex: 'count',
+      key: 'count',
       sorter: (a, b) => a.citationtimes - b.citationtimes,
     }];
 
-    const data = [{
-      key: 1,
-      name: 'a',
-      describe: 32,
-      citationtimes: 1,
-      children: [{
-        key: 11,
-        name: 'aa',
-        describe: 33,
-        citationtimes: 3,
-      }, {
-        key: 12,
-        name: 'ab',
-        describe: 33,
-        citationtimes: 2,
-        children: [{
-          key: 121,
-          name: 'aba',
-          describe: 33,
-          citationtimes: 4,
-        }],
-      }, {
-        key: 13,
-        name: 'ac',
-        describe: 33,
-        citationtimes: 3,
-        children: [{
-          key: 131,
-          name: 'aca',
-          describe: 33,
-          citationtimes: 3,
-          children: [{
-            key: 1311,
-            name: 'acaa',
-            describe: 33,
-            citationtimes: 2,
-          }, {
-            key: 1312,
-            name: 'acab',
-            describe: 33,
-            citationtimes: 1,
-          }],
-        }],
-      }],
-    }, {
-      key: 2,
-      name: 'b',
-      describe: 32,
-      citationtimes: 2,
-    }];
-    return (
-      <div id="AllPermissions">
-        <Alert message={`所有权限是指平台上每个功能模块的权限细粒度划分，可以将若干个权限组合成一个角色，再在项目中添加相应的角色并关联对象（成员、团队）。系统管理员和团队管理员都有查看『所有权限』的权限。`}
+    return(
+      <QueueAnim className="AllPermissions">
+        <div id="AllPermissions">
+          <Alert message={`所有权限是指平台上每个功能模块的权限细粒度划分，可以将若干个权限组合成一个角色，再在项目中添加相应的角色并关联对象（成员、团队）。系统管理员和团队管理员都有查看『所有权限』的权限。`}
           type="info" />
         <div className="operationBox">
           <div className='rightBox'>
-              <div className='littleLeft'>
+              {/* <div className='littleLeft'>
                 <i className='fa fa-search' />
-              </div>
+              </div> */}
               <div className='littleRight'>
-                <Input
+                {/* <Input
                   calssName="put bag"
                   size='large'
                   placeholder='请输入关键词搜索'
-                  style={{paddingRight: '28px',width:'200px'}}/>
+                  style={{paddingRight: '28px',width:'200px'}}
+                  /> */}
+                  <CommonSearchInput placeholder="请输入关键词搜索" size="large" onSearch={this.handleSearch.bind(this)}/>
               </div>
             </div>
-          <Table pagination={false} columns={columns} dataSource={data} onChange={this.handleChange} />
+          <Table pagination={false} columns={columns} dataSource={data} onChange={this.handleChange} loading={loading}/>
         </div>
-        
       </div>
+      </QueueAnim>
     )
   }
-})
-export default AllPermissions
+}
+
+function mapStateToProps(state, props) {
+  return {}
+}
+
+export default connect(mapStateToProps, {
+  Permission,
+  RetrievePermission
+})(AllPermissions)

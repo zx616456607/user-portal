@@ -863,7 +863,7 @@ function fetchUploadWrap(body,callback) {
   return {
     [FETCH_API]: {
       types: [UPLOAD_WRAP_REQUEST, UPLOAD_WRAP_SUCCESS, UPLOAD_WRAP_FAILURE],
-      endpoint: `${API_URL_PREFIX}/${fileName}/${fileTag}/${fileType}/remote`,
+      endpoint: `${API_URL_PREFIX}/pkg/${fileName}/${fileTag}/${fileType}/remote`,
       schema: Schemas.REGISTRYS,
       options:{
         method:'POST',
@@ -878,5 +878,31 @@ function fetchUploadWrap(body,callback) {
 export function uploadWrap(body, callback) {
   return (dispatch) => {
     return dispatch(fetchUploadWrap(body, callback))
+  }
+}
+
+
+export const CHECK_WRAP_MANAGE_REQUEST = 'CHECK_WRAP_MANAGE_REQUEST'
+export const CHECK_WRAP_MANAGE_SUCCESS = 'CHECK_WRAP_MANAGE_SUCCESS'
+export const CHECK_WRAP_MANAGE_FAILURE = 'CHECK_WRAP_MANAGE_FAILURE'
+
+function fetchCheckWrapManage(query,callback) {
+  let endpointUrl = `${API_URL_PREFIX}/pkg`
+  if (query) {
+    endpointUrl += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [CHECK_WRAP_MANAGE_REQUEST, CHECK_WRAP_MANAGE_SUCCESS, CHECK_WRAP_MANAGE_FAILURE],
+      endpoint: endpointUrl,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
+  }
+}
+
+export function checkWrapName(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCheckWrapManage(query, callback))
   }
 }

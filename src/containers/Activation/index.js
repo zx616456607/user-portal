@@ -16,6 +16,7 @@ import Top from '../../components/Top'
 import '../Login/Enterprise/style/Login.less'
 import { addLicense, loadLicensePlatform } from '../../actions/license'
 import NotificationHandler from '../../components/Notification'
+import Title from '../../components/Title'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -97,6 +98,7 @@ let Activation = React.createClass({
     const { result } = this.props
     return (
       <div id="LoginBg">
+        <Title title="激活" />
         <Top loginLogo={result.loginLogo}/>
         <div className="login">
           <div className="loginContent">
@@ -155,11 +157,14 @@ let Activation = React.createClass({
 
 function mapStateToProps(state, props) {
   const defaultState = {data: {'platformid': ''}}
+  const defaultOemInfo = {
+    company:{}
+  }
   const {data} = state.license.platform.result || defaultState
   const { result } = state.personalized.info
   return {
    platform: data,
-   result
+   result: result || defaultOemInfo
   }
 }
 

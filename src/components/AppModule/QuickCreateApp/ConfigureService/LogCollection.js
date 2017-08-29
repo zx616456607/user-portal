@@ -22,8 +22,42 @@ class LogCollection extends Component {
     super(props)
     this.directoryTemplate = this.directoryTemplate.bind(this)
     this.state = {
-
+      //
     }
+  }
+
+  checkPath = (rule, value, callback) => {
+    if (!value) {
+      return callback()
+    }
+    const { form } = this.props
+    const { getFieldValue } = form
+    const storageKeys = getFieldValue('storageKeys') || []
+    let error
+    storageKeys.every(key => {
+      const mountPath = getFieldValue(`mountPath${key}`)
+      if (value === mountPath) {
+        error = '日志收集目录不能与存储挂载目录相同'
+        return false
+      }
+      return true
+    })
+    callback(error)
+  }
+
+  validateRule(rule, value, callback) {
+    if (value === '') {
+      callback(new Error('请填写采集文件规则'))
+      return
+    }
+    // Check if it's valid regex expression
+    try {
+      new RegExp(value, "ig")
+    } catch (e) {
+      callback(new Error('请输入合法的正则表达式规则'))
+      return
+    }
+    callback()
   }
 
   directoryTemplate(sourceType){
@@ -35,17 +69,29 @@ class LogCollection extends Component {
     if(sourceType == 'directory'){
       pathProps = getFieldProps('path',{
         rules: [
-          { required: true, message: '请填写日志目录' }
+          { required: true, message: '请填写日志目录' },
+          { validator: this.checkPath }
         ],
       })
       inregexProps = getFieldProps('inregex',{
         rules: [
-          { required: true, message: '请填写采集文件规则' }
+          { validator: this.validateRule }
         ],
+        //initialValue: '.*.log'
       })
       exregexProps = getFieldProps('exregex',{
         rules: [
-          { required: false, message: '请填写排除文件规则' }
+          {
+            validator: (rule, value, callback) => {
+              if(!value){
+                return callback('请填写排除文件规则')
+              }
+              if(value.charAt(0) !== '/' || value.charAt(value.length - 1) !== '/'){
+                return callback('请输入正确的正则表达式')
+              }
+              callback()
+            }
+          }
         ],
       })
       let directoryRecursive = getFieldValue('directoryRecursive')
@@ -92,11 +138,10 @@ class LogCollection extends Component {
         >
           <Input
             size="large"
-            placeholder="例如:^access\.log\.[0-9\-]{10}$"
+            placeholder="例如:/^access\.log\.[0-9\-]{10}$/"
             autoComplete="off"
             className='standard'
             {...exregexProps}
-            disabled
           />
           <Tooltip title="匹配正则表达式的文件将不会被监控，请排除正在写入的文件">
             <Icon type="question-circle-o" className='questionIcon'/>
@@ -122,6 +167,13 @@ class LogCollection extends Component {
     return <span></span>
   }
 
+  sourceTypeChange = () => {
+    const { form } = this.props
+    form.setFieldsValue({
+      'inregex': '.*.log'
+    })
+  }
+
   render() {
     const { formItemLayout, form } = this.props
     const { getFieldProps, getFieldValue } = form
@@ -129,7 +181,8 @@ class LogCollection extends Component {
       rules: [
         { required: true }
       ],
-      initialValue: 'none'
+      initialValue: 'none',
+      onChange: this.sourceTypeChange
     })
     let sourceType = getFieldValue('sourceType')
 

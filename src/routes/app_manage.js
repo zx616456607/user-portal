@@ -26,7 +26,10 @@ const appManageRoutes = [{
     path: 'compose_file',
     component: require('../components/AppModule/AppCreate/ComposeFile').default,
   }]
-},{
+}, {
+    path: 'deploy_wrap',
+    component: require('../components/AppModule/AppCreate/DeployWrap').default,
+}, {
   path: 'app_create/quick_create',
   component: require('../components/AppModule/QuickCreateApp').default,
 }, {
@@ -61,6 +64,26 @@ const appManageRoutes = [{
   path: 'snapshot',
   indexRoute: {
     component: require('../components/AppModule/AppSnapshot').default,
+  },
+}, {
+  path: 'network_isolation',
+  indexRoute: {
+    component: require('../components/AppModule/NetworkIsolation').default,
+  },
+},{
+  path: 'vm_wrap',
+  indexRoute: {
+    component: require('../components/AppModule/VMWrap/VMServiceList').default,
+  },
+}, {
+  path: 'vm_list',
+  indexRoute: {
+    component: require('../components/AppModule/VMWrap/VMList').default,
+  },
+}, {
+  path: 'app_create/vm_wrap',
+  indexRoute: {
+    component: require('../components/AppModule/VMWrap/CreateService/CreateService').default,
   },
 }]
 

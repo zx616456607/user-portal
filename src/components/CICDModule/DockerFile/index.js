@@ -19,6 +19,7 @@ import './style/DockerFile.less'
 import NotificationHandler from '../../../components/Notification'
 import Title from '../../Title'
 import DockerfileModal from '../DockerfileModal'
+import { SEARCH } from '../../../constants'
 
 const editorOptions = {
   readOnly: false
@@ -89,7 +90,7 @@ const MyComponent = React.createClass({
             editDockerFileModal: true,
             dockerfiles: result.content,
             dockerfileId: item,
-            currentDockerfileType: result.type,
+            currentDockerfileType: result.type || 0,
             currentDockerfileId: item,
           })
         },
@@ -253,7 +254,7 @@ const MyComponent = React.createClass({
               submit && this.editDockerFile()
             })
           }
-          defaultValue={this.state.dockerfiles}
+          defaultValue={this.state.currentDockerfileType === 1 && this.state.dockerfiles}
           id={this.state.currentDockerfileId}
         />
       </div>
@@ -283,7 +284,7 @@ class DockerFile extends Component {
     this.setState({names: e.target.value})
   }
   handleSearch() {
-    this.props.searchDockerfile(this.state.names)
+    this.props.searchDockerfile(this.state.names.replace(SEARCH,""))
   }
 
   render() {

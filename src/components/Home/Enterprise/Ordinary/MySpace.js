@@ -74,9 +74,7 @@ class MySpace extends Component{
          if(index > 5) return
          if(index === 0) {
            return ele.push(
-             <Timeline.Item
-
-             >
+             <Timeline.Item>
                <div className="logItem">
                  <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}</div>
                  <div className="logInf">
@@ -581,7 +579,7 @@ export default connect(mapStateToProp, {
 const menusText = defineMessages({
   headTitle: {
     id: 'ManageMonitor.operationalAudit.headTitle',
-    defaultMessage: '操作审计 | 时速云',
+    defaultMessage: '操作审计',
   },
   title: {
     id: 'ManageMonitor.operationalAudit.title',
@@ -1003,6 +1001,10 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.allResource',
     defaultMessage: '所有对象',
   },
+  baseImage: {
+    id: 'ManageMonitor.operationalAudit.baseImage',
+    defaultMessage: '基础镜像',
+  },
 });
 
 function duringTimeFormat(time, scope) {
@@ -1198,6 +1200,11 @@ function resourceFormat(resourceType, scope) {
       break;
     case '53':
       return formatMessage(menusText.Labels)
+      break;
+
+    // For CI related
+    case '1000':
+      return formatMessage(menusText.baseImage)
       break;
     case '0':
       return formatMessage(menusText.Unknown)

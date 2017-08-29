@@ -14,10 +14,11 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Input, Modal, Form, Radio, Checkbox, Tooltip, Icon, Button, Select } from 'antd'
 import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
-import { ROLE_SYS_ADMIN } from '../../../../constants'
+import { ROLE_SYS_ADMIN, CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID } from '../../../../constants'
 const Option = Select.Option
 const createForm = Form.create
 const FormItem = Form.Item
+const CheckboxGroup = Checkbox.Group
 
 let CreateUserModal = React.createClass({
   getInitialState() {
@@ -53,7 +54,7 @@ let CreateUserModal = React.createClass({
               disabled: false
             })
             if (result.data) {
-              callback([new Error('用户名已经存在')])
+              callback([new Error('该名称已在项目或成员列表中存在')])
               return
             }
             callback()
@@ -119,14 +120,16 @@ let CreateUserModal = React.createClass({
       if (!!errors) {
         return
       }
-      const { name, passwd, email, tel, check, role } = values
+      const { name, passwd, email, tel, check, role, authority, resetPassword } = values
       let newUser = {
         userName: name,
         password: passwd,
         email: email,
         phone: tel,
         sendEmail: check,
-        role: parseInt(role)
+        role: parseInt(role),
+        authority,
+        resetPassword,
       }
       onSubmit(newUser)
       form.resetFields()
@@ -146,7 +149,7 @@ let CreateUserModal = React.createClass({
   render() {
     const { form, visible, loginUser } = this.props
     const { disabled } = this.state
-    const { getFieldProps, getFieldError, isFieldValidating } = form
+    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue, setFieldsValue } = form
     const nameProps = getFieldProps('name', {
       rules: [
         { validator: this.userExists },
@@ -189,10 +192,24 @@ let CreateUserModal = React.createClass({
         validator: this.checkPass2,
       }],
     })
+    const resetPasswdProps = getFieldProps('resetPassword', {
+      valuePropName: 'checked',
+    })
     const checkProps = getFieldProps('check', {})
     const roleProps = getFieldProps('role', {
-      initialValue:'0'
+      initialValue: '0',
+      onChange: e => {
+        const value = e.target.value
+        let authority = []
+        if (value === '2') {
+          authority = [ CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID ]
+        }
+        setFieldsValue({
+          authority,
+        })
+      }
     })
+    const authorityProps = getFieldProps('authority')
     const formItemLayout = {
       labelCol: { span: 7 },
       wrapperCol: { span: 12 },
@@ -237,14 +254,25 @@ let CreateUserModal = React.createClass({
             {...formItemLayout}
             label="类型"
             >
-            { ROLE_SYS_ADMIN == loginUser.role ?
             <Radio.Group  {...roleProps} defaultValue="0">
               <Radio key="a" value="0">普通成员</Radio>
-              <Radio key="b" value="1">团队管理员</Radio>
+              {/* <Radio key="b" value="1">团队管理员</Radio> */}
               <Radio key="c" value="2">系统管理员</Radio>
             </Radio.Group>
-            :<div> 普通成员</div>
-            }
+          </FormItem>
+
+          <FormItem
+            {...formItemLayout}
+            label="权限管理"
+          >
+            <CheckboxGroup
+              {...authorityProps}
+              disabled={getFieldValue('role') === '2'}
+              options={[
+                { label: '可创建项目', value: CREATE_PROJECTS_ROLE_ID },
+                { label: '可创建团队', value: CREATE_TEAMS_ROLE_ID },
+              ]}
+            />
           </FormItem>
 
           <FormItem
@@ -254,7 +282,7 @@ let CreateUserModal = React.createClass({
             >
             <Input {...passwdProps} type="password" autoComplete="off"
               placeholder="新成员名称登录密码"
-              />
+            />
           </FormItem>
 
           <FormItem
@@ -263,6 +291,13 @@ let CreateUserModal = React.createClass({
             hasFeedback
             >
             <Input {...rePasswdProps} type="password" autoComplete="off" placeholder="请再次输入密码确认" />
+          </FormItem>
+
+          <FormItem
+            {...formItemLayout}
+            label="需要重置密码"
+            >
+            <Checkbox {...resetPasswdProps}>用户必须在首次登录时创建新密码</Checkbox>
           </FormItem>
 
           <FormItem

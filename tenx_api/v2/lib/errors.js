@@ -8,6 +8,7 @@
  * @author Zhangpc
  */
 'use strict'
+const logger = require('../../../utils/logger').getLogger(`tenx_api/errors`)
 
 class ClientError extends Error {
   constructor(data, statusCode) {
@@ -55,7 +56,7 @@ class ServerError extends ClientError {
         this.message = `Request ${data.host} ENOTFOUND`
         break
       default:
-        this.message = 'Internal server error'
+        this.message = data.message || 'Internal server error'
     }
     this.statusCode = 500
   }
@@ -69,7 +70,7 @@ class InvalidHttpCodeError extends Error {
       case 'ResponseTimeoutError':
       case 'ConnectionTimeoutError':
         this.statusCode = 504
-        this.message = `Gateway Timeout`
+        this.message = this.message || `Gateway Timeout`
         break
       case 'RequestError':
         this.statusCode = 503
@@ -80,11 +81,11 @@ class InvalidHttpCodeError extends Error {
     // For request error
     switch (err.code) {
       case 'ETIMEDOUT':
-        this.message = `Gateway Timeout`
+        this.message = this.message || `Gateway Timeout`
         this.statusCode = 504
         break
       case 'ECONNREFUSED':
-        this.message = `The connection could not be established`
+        this.message = this.message || `The connection could not be established`
         this.statusCode = 501
         break
     }
@@ -93,7 +94,20 @@ class InvalidHttpCodeError extends Error {
 
 function get(res) {
   const statusCode = res.statusCode
-  const data = res.data || {}
+  let data = res.data || {}
+  if (typeof data === 'string') {
+    try {
+      data = JSON.parse(data)
+    } catch (error) {
+    }
+  }
+  const requestUrls = res.requestUrls
+  if (requestUrls && requestUrls.length > 0) {
+    logger.error(`request urls error: ${res.requestUrls.join(', ')}`)
+  }
+  if (statusCode !== 200) {
+    logger.error('Error data: ' + JSON.stringify(data))
+  }
   switch (statusCode) {
     case 400:
       return new InvalidDataError(data)

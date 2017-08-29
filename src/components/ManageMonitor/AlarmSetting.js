@@ -15,6 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../components/Notification'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
+import { SEARCH } from '../../constants'
 import { getAlertSetting, deleteRecords, getSettingList, deleteSetting, batchEnable, batchDisable, ignoreSetting, getSettingInstant } from '../../actions/alert'
 import { loadServiceDetail } from '../../actions/services'
 import { getHostInfo } from '../../actions/cluster'
@@ -419,17 +420,23 @@ let MyComponent = React.createClass({
     }
 
   },
+  createAlarm() {
+    const { scope } = this.props;
+    scope.setState({alarmModal: true},()=>{
+      document.getElementById('name').focus()
+    })
+  },
   render() {
     const { data } = this.state
     if(!data || data.length <= 0) return (<div className="text-center"><img src={no_alarm} />
-        <div>您还没有告警设置，创建一个吧！<Button onClick={()=> this.props.scope.setState({alarmModal: true})} type="primary" size="large">创建</Button></div>
+        <div>您还没有告警设置，创建一个吧！<Button onClick={()=> this.createAlarm()} type="primary" size="large">创建</Button></div>
         </div>)
     const lists = data.map((list, index)=> {
       if (list.active) {
         return (
             [<tr key={`list${index}`}>
              <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-              <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-down" /><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
+              <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-down" /> <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
               <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
               <td >
                 <span className="targetName" onClick={()=>{this.toProjectDetail(list)}}>{list.targetName}</span>
@@ -452,7 +459,7 @@ let MyComponent = React.createClass({
       return (
         <tr key={`list${index}`}>
             <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-            <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-right" />  <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
+            <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-right" /> <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
             <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
             <td >
               <span className="targetName" onClick={(e)=>{this.toProjectDetail(list,e)}}>{list.targetName}</span>
@@ -471,19 +478,19 @@ let MyComponent = React.createClass({
           <thead className="ant-table-thead">
             <tr>
               <th style={{width:'5%',textAlign:'center'}}><Checkbox onChange={(e)=> this.changeAll(e)} checked={this.state.checkAll}/></th>
-              <th>策略名称</th>
-              <th>类型</th>
-              <th>告警对象</th>
-              <th>状态</th>
-              <th>监控周期</th>
-              <th>创建时间
+              <th style={{width:'15%'}}>策略名称</th>
+              <th style={{width:'5%'}}>类型</th>
+              <th style={{width:'10%'}}>告警对象</th>
+              <th style={{width:'10%'}}>状态</th>
+              <th style={{width:'10%'}}>监控周期</th>
+              <th style={{width:'15%'}}>创建时间
                 <div className="ant-table-column-sorter">
                 <span className={this.state.sorter =='up' ? "ant-table-column-sorter-up on": 'ant-table-column-sorter-up off'} title="↑" onClick={()=> this.sorterData('up')}><i className="anticon anticon-caret-up"></i></span>
                 <span className={this.state.sorter =='down' ? "ant-table-column-sorter-down on" : 'ant-table-column-sorter-down off'} title="↓" onClick={()=> this.sorterData('down')}><i className="anticon anticon-caret-down"></i></span>
                 </div>
               </th>
-              <th>最后修改人</th>
-              <th>操作</th>
+              <th style={{width:'10%'}}>最后修改人</th>
+              <th style={{width:'15%'}}>操作</th>
             </tr>
           </thead>
           <tbody className="ant-table-tbody">
@@ -588,9 +595,10 @@ class AlarmSetting extends Component {
       })
     }
   }
-  handSearch() {
+  handSearch(e) {
     // search data
-    const search = document.getElementById('alarmSearch').value
+    //let search = document.getElementById('alarmSearch').value
+    let search = e.target.value.replace(SEARCH, "")
     const { getSettingList, clusterID, teamID } = this.props
     this.setState({
       currentPage: 1
@@ -664,7 +672,7 @@ class AlarmSetting extends Component {
     const notify = new NotificationHandler()
     const { clusterID, deleteSetting, getSettingList } = this.props
     notify.spin('删除中')
-    deleteSetting(clusterID, strategyID, {
+    strategyID.length > 0 && deleteSetting(clusterID, strategyID, {
       success: {
         func: () => {
           this.setState({

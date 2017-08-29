@@ -8,11 +8,12 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Transfer, } from 'antd'
+import { Row, Col, Transfer,Checkbox, Cascader, Form } from 'antd'
 import './style/MemberTransfer.less'
-import { addTeamusers, removeTeamusers} from '../../../actions/team'
+import { addTeamusers, removeTeamusers } from '../../../actions/team'
 import { loadUserList } from '../../../actions/user'
 import { connect } from 'react-redux'
+const FormItem = Form.Item;
 
 class MemberTransfer extends Component{
   constructor(props){
@@ -24,28 +25,30 @@ class MemberTransfer extends Component{
     return option.title.indexOf(inputValue) > -1;
   }
   componentWillMount(){
-    this.props.loadUserList({size: 0})
+    const { loadUserList } = this.props;
+    loadUserList({size: 0})
   }
   renderItem(item){
-    let customLabel = (
-      <Row style={{display:'inline-block',width:'100%'}}>
-        <Col span={9} style={{overflow:'hidden',whiteSpace: "nowrap",textOverflow: 'ellipsis'}}>{item.title}</Col>
-        <Col span={12} style={{overflow:'hidden',whiteSpace: "nowrap",textOverflow: 'ellipsis'}}>{item.description}</Col>
+    return(
+      <Row key={`${item && item.key}`} style={{display:'inline-block',width:'100%'}}>
+        <Col span={9} style={{overflow:'hidden',whiteSpace: "nowrap",textOverflow: 'ellipsis'}}>{item && item.title}</Col>
+        <Col span={12} style={{overflow:'hidden',whiteSpace: "nowrap",textOverflow: 'ellipsis'}}>{item && item.description}</Col>
       </Row>
     )
-    return {
-      label: customLabel,
-      value: item.description,
-    }
   }
-
+  selectedChange(value,option) {
+  }
   render(){
-    const { onChange,targetKeys,userList,teamUserIDList } = this.props
-    let filterUserList = teamUserIDList.length !== 0 ?
-      userList.filter(function (userItem) {
-        return !teamUserIDList.includes(userItem.key)
-      }):
-      userList
+    const { onChange, targetKeys, userList } = this.props
+    const { getFieldProps } = this.props.form;
+    const areaData = [{
+      value: 'shanghai',
+      label: '上海',
+      children: [{
+        value: 'shanghaishi',
+        label: '上海市'
+      }],
+    }];
     return (
       <div id='MemberTransfer'>
         <Row className="listTitle">
@@ -56,24 +59,54 @@ class MemberTransfer extends Component{
           <Col span={14}>成员名</Col>
           <Col span={10}>邮箱</Col>
         </Row>
-        <Transfer
-          dataSource={filterUserList}
-          showSearch
-          filterOption={this.filterOption}
-          listStyle={{
-            width: 250,
-            height: 300,
-          }}
-          operations={['添加', '移除']}
-          targetKeys={targetKeys}
-          onChange={onChange}
-          titles={['筛选用户','已选择用户']}
-          render={this.renderItem}
-        />
+        {
+          userList.length > 0 &&
+          <Transfer
+            dataSource={userList}
+            showSearch
+            filterOption={this.filterOption.bind(this)}
+            listStyle={{
+              width: 250,
+              height: 300,
+            }}
+            operations={['添加', '移除']}
+            targetKeys={targetKeys}
+            onChange={onChange}
+            titles={['筛选用户','已选择用户']}
+            rowKey={item => item && item.key}
+            render={this.renderItem.bind(this)}
+          />
+        }
+        <div className="addMemberToProject hidden">
+          <Form className="addMemberForm">
+            <FormItem
+              className="isAdd"
+            >
+              <Checkbox className="ant-checkbox-vertical">选择添加的成员可能参与的项目</Checkbox>
+              <div className="isAddHint">此处可批量添加到项目中并授予在项目中的角色，也可后续添加到其他项</div>
+            </FormItem>
+            <FormItem
+              className="chooseProject"
+              label="选择项目及项目中的角色"
+              labelCol={{ span: 7 }}
+              wrapperCol={{ span: 16 }}
+              hasFeedback
+            >
+              <Cascader
+                style={{ width: 200 }}
+                options={areaData}
+                {...getFieldProps('area')}
+                placeholder="选择项目及角色"
+                onChange={(value,option)=>this.selectedChange(value,option)}
+              />
+            </FormItem>
+          </Form>
+        </div>
       </div>
     )
   }
 }
+
 function mapStateToProp(state,props) {
   let userList = []
   const users = state.user.users
@@ -91,11 +124,11 @@ function mapStateToProp(state,props) {
     }
   }
   return {
-    userList: userList,
+    userList: userList
   }
 }
 export default connect(mapStateToProp, {
   addTeamusers,
   loadUserList,
   removeTeamusers,
-})(MemberTransfer)
+})(Form.create()(MemberTransfer))

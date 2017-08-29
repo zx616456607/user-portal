@@ -587,6 +587,7 @@ class TenxFlowDetailFlowCard extends Component {
 
     return (
       <PopTabSelect
+        placeholder="请输入分支或标签"
         onChange={this.buildFlow.bind(this, id, lastBuildStatus, name)}
         targetElement={targetElement}
         loading={loading}

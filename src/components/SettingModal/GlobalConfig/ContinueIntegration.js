@@ -121,6 +121,7 @@ class ContinueIntegration extends Component {
     const { getFieldValue } = form
     const id = getFieldValue(`id${index}`)
     if(!id) return
+    const imageName = getFieldValue(`name${index}`)
     const noti = new NotificationHandler()
     const self = this
     noti.spin('删除基础镜像中')
@@ -148,7 +149,7 @@ class ContinueIntegration extends Component {
         }
       }
     }
-    deleteBaseImage(id, callback)
+    deleteBaseImage(id, imageName, callback)
   }
 
   handleEditcolums(key){

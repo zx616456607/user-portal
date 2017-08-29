@@ -37,6 +37,9 @@ exports.getPkgManageList = function*() {
   // }
 
   const list = yield api.pkg.get(query)
+  if (list.data) {
+    list.data.registry = global.globalConfig.registryConfig.url
+  }
   this.body = list
 }
 
@@ -79,13 +82,13 @@ exports.localUploadPkg = function*() {
   let response = yield api.pkg.uploadFile([filename,filetag,filetype], null, stream, stream.headers()).catch(err => {
     return err
   })
+  this.status = response.statusCode
   this.body = response
 }
 
 exports.romoteUploadPkg = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  console.log(this.request.body)
   const filename = this.params.filename
   const filetag = this.params.filetag
   const filetype = this.params.filetype

@@ -12,6 +12,8 @@ const urllib = require('urllib')
 const md5 = require('md5')
 const constants = require('../constants')
 const redisClient = require('./redis').client
+const security = require('./security')
+const utils = require('./index')
 const internalError = genInternalError()
 
 function sendCaptchaToPhone(mobile, redisConf) {
@@ -35,7 +37,7 @@ function sendCaptchaToPhone(mobile, redisConf) {
 
   // generate captcha
   const captcha = Math.random().toString().substr(2,6)
-  
+
   // set sms sending frequence to 60 second
   const setFrequence = new Promise((resolve, reject) => {
     const sendCaptchaFrequenceKey = `${captchaSendFrequencePrefix}#${mobile}`
@@ -67,62 +69,13 @@ function sendCaptchaToPhone(mobile, redisConf) {
       })
     })
   }).then(() => {
-    // send sms
-    const smsConfig = require('../configs/_standard').sms
-    if (!smsConfig.apiKey || !smsConfig.account) {
-      logger.error(method, 'get sms service account/apiKey failed. please check envionment variables USERPORTAL_IHUYI_ACCOUNT/USERPORTAL_IHUYI_APIKEY')
-      return Promise.reject(internalError)
-    }
-    const content = `您的验证码是：${captcha}。请不要把验证码泄露给其他人。`
-    const timestamp = Date.parse(new Date()) / 1000
-    const rawData = `${smsConfig.account}${smsConfig.apiKey}${mobile}${content}${timestamp}`
-    const md5Pwd = md5(rawData)
-    // 当参数format为json，请求失败时还是有可能返回xml，所以没有设置format参数为json
-    const url = `${smsConfig.host}?method=Submit&account=${smsConfig.account}&password=${md5Pwd}&mobile=${mobile}&content=${encodeURI(content)}&time=${timestamp}`
-    logger.info(method, `sending captcha to ${mobile} url: ${url}`)
-    return new Promise((resolve, reject) => {
-      urllib.request(url, {secureProtocol: 'TLSv1_method'}, function(err, data, res) {
-        if (err) {
-          logger.error(method, 'call sms service failed.', err)
-          return reject(internalError)
-        }
-        if (res.statusCode !== 200) {
-          logger.error(method, 'return status code is', res.statusCode)
-          return reject(internalError)
-        }
-        const parseString = require('xml2js').parseString
-        parseString(data, function(err2, result) {
-          if (err2) {
-            logger.error(method, 'parse response xml failed. return xml:', data, 'err:', err2)
-            return reject(internalError)
-          }
-          if (result && result.SubmitResult && result.SubmitResult.code.length === 1) {
-            const code = result.SubmitResult.code[0]
-            switch (code) {
-            case '2':
-              logger.info(method, `send captcha(${captcha}) to phone(${mobile}) success`)
-              return resolve(captcha)
-            case '4085': {
-              const err3 = new Error('同一手机号验证码短信发送超出5条')
-              err3.status = 400
-              return reject(err3)
-            }
-            case '4030': {
-              const err4 = new Error('手机号码已被列入黑名单')
-              err4.status = 400
-              return reject(err4)
-            }
-            default:
-              logger.error(method, `send captcha(${captcha}) to phone(${mobile}) failed. respond code(${code})`)
-              return reject(internalError)
-            }
-          }
-          else {
-            logger.error(method, 'send sms failed. return xml:', data, 'exception:', e)
-            return reject(internalError)
-          }
-        })
-      })
+    return sendSmsX({
+      tos: [{
+        phone: `${mobile}`,// must be string
+        vars: {
+          '%captcha%': captcha,
+        },
+      }],
     })
   })
 }
@@ -134,3 +87,58 @@ function genInternalError() {
 }
 
 exports.sendCaptchaToPhone = sendCaptchaToPhone
+
+function sendSmsX(params) {
+  const method = 'sendSmsX'
+  const smsConfig = require('../configs/_standard').sendcloud_sms
+  const smsKey = smsConfig.apiKey
+  const DEFAYLT_PARAMS = {
+    msgType: 0,
+    smsUser: smsConfig.apiUser,
+    templateId: 7738, // 验证码
+  }
+  params = Object.assign({}, DEFAYLT_PARAMS, params)
+  params.tos = JSON.stringify(params.tos)
+
+  // generate sign
+  const paramKeys = Object.keys(params).sort()
+  let sign
+  let paramsSignStr = ''
+  paramKeys.forEach(key => {
+    let value = params[key]
+    paramsSignStr += `&${key}=${value}`
+  })
+  paramsSignStr = `${smsKey}${paramsSignStr}&${smsKey}`
+  sign = security.md5(paramsSignStr)
+  params['signature'] = sign.toUpperCase()
+
+  const options = {
+    dataType: 'json',
+    contentType: 'json',
+    timeout: 1000 * 60,
+    method: 'POST',
+  }
+  let url = smsConfig.apiUrl
+  url += `?${utils.toQuerystring(params)}`
+  url = encodeURI(url)
+  return urllib.request(url, options).then(res => {
+    const data = res.data
+    let statusCode = data.statusCode
+    if (data.statusCode > 300) {
+      const message = data.message
+      logger.error(method, JSON.stringify(data))
+      const err = new Error(message)
+      if (statusCode > 500) {
+        statusCode = 500
+      } else if (statusCode > 400) {
+        statusCode = 400
+      }
+      err.status = statusCode
+      throw err
+    }
+    logger.info(method, 'send sms success', params.tos)
+    return data
+  })
+}
+
+exports.sendSmsX = sendSmsX

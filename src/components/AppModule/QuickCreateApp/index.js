@@ -18,6 +18,7 @@ import classNames from 'classnames'
 import yaml from 'js-yaml'
 import SelectImage from './SelectImage'
 import ConfigureService from './ConfigureService'
+import DepolyWrap from '../AppCreate/DeployWrap'
 import ResourceQuotaModal from '../../ResourceQuotaModal'
 import NotificationHandler from '../../../components/Notification'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
@@ -26,6 +27,7 @@ import { createApp } from '../../../actions/app_manage'
 import { addService } from '../../../actions/services'
 import { buildJson, getFieldsValues } from './utils'
 import './style/index.less'
+import { SHOW_BILLING } from '../../../constants'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -76,6 +78,7 @@ class QuickCreateApp extends Component {
       stepStatus: 'process',
       formErrors: null,
       editServiceLoading: false,
+      AdvancedSettingKey: null,
     }
     this.serviceSum = 0
     this.configureServiceKey = this.genConfigureServiceKey()
@@ -130,6 +133,9 @@ class QuickCreateApp extends Component {
     if (hash !== this.props.location.hash || query.key !== this.props.location.query.key) {
       this.setConfig(nextProps)
     }
+    if (query.imageName) {
+      this.setState({imageName:query.imageName})
+    }
   }
 
   setConfig(props) {
@@ -167,7 +173,7 @@ class QuickCreateApp extends Component {
   goSelectCreateAppMode() {
     const { query } = this.props.location;
     if (serviceNameList.length < 1) {
-      if( query.fromDetail ) {
+      if (query.fromDetail ) {
         browserHistory.push(`/app_manage/detail/${query.appName}`)
         return
       }
@@ -213,7 +219,11 @@ class QuickCreateApp extends Component {
     this.setState({
       stepStatus: 'process',
     })
-    const { removeFormFields } = this.props
+    const { removeFormFields, location } = this.props
+    if (location.query.appPkgID) {
+      browserHistory.push('/app_manage/deploy_wrap')
+      return
+    }
     const { validateFieldsAndScroll } = this.form
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
@@ -255,6 +265,10 @@ class QuickCreateApp extends Component {
       if (this.configureMode === 'create') {
         this.configureServiceKey = this.genConfigureServiceKey()
       }
+      if (options.addWrap) {
+        browserHistory.push(`/app_manage/app_create/quick_create?appName=${values.appName}&addWrap=true`)
+        return
+      }
       if (!noJumpPage) {
         browserHistory.push('/app_manage/app_create/quick_create')
       }
@@ -268,15 +282,20 @@ class QuickCreateApp extends Component {
     })
     const {
       fields, current, loginUser,
-      createApp, addService,
+      createApp, addService,location
     } = this.props
     const { clusterID } = current.cluster
     const template = []
+    let appPkgID = {}
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
-        const json = buildJson(fields[key], current.cluster, loginUser, this.imageConfigs)
+        let json = buildJson(fields[key], current.cluster, loginUser, this.imageConfigs)
         template.push(yaml.dump(json.deployment))
         template.push(yaml.dump(json.service))
+        if (fields[key].appPkgID) {
+          let serviceName = fields[key].serviceName.value
+          appPkgID[serviceName] = fields[key].appPkgID.value
+        }
       }
     }
     const callback = {
@@ -360,6 +379,7 @@ class QuickCreateApp extends Component {
     if (this.action === 'addService') {
       const body = {
         template: template.join('---\n'),
+        appPkgID: appPkgID
       }
       addService(clusterID, this.state.appName, body, callback)
       return
@@ -368,6 +388,7 @@ class QuickCreateApp extends Component {
       cluster: clusterID,
       template: template.join('---\n'),
       appName: this.getAppName(fields),
+      appPkgID: appPkgID
     }
     createApp(appConfig, callback)
   }
@@ -379,6 +400,26 @@ class QuickCreateApp extends Component {
     const { validateFieldsAndScroll } = this.form
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
+        let keys = Object.getOwnPropertyNames(errors)
+        const envNameErrors = keys.filter( item => {
+          const envName = new RegExp('envName')
+          if(envName.test(item)){
+            return true
+          }
+          return false
+        })
+        const envValueErrors = keys.filter( item => {
+          const envValue = new RegExp('envValue')
+          if(envValue.test(item)){
+            return true
+          }
+          return false
+        })
+        if(envNameErrors.length || envValueErrors.length){
+          this.setState({
+            AdvancedSettingKey: 1
+          })
+        }
         return
       }
       this.createAppOrAddService()
@@ -388,8 +429,8 @@ class QuickCreateApp extends Component {
   renderBody() {
     const { location } = this.props
     const { hash, query } = location
-    const { key } = query
-    const { imageName, registryServer, appName, editServiceLoading } = this.state
+    const { key, addWrap } = query
+    const { imageName, registryServer, appName, editServiceLoading, AdvancedSettingKey } = this.state
     if ((hash === SERVICE_CONFIG_HASH && imageName) || (hash === SERVICE_EDIT_HASH && key)) {
       const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey
       if (editServiceLoading) {
@@ -407,8 +448,12 @@ class QuickCreateApp extends Component {
           }
           {...{imageName, registryServer, appName}}
           {...this.props}
+          AdvancedSettingKey={AdvancedSettingKey}
         />
       )
+    }
+    if (addWrap) {
+      return <DepolyWrap location={location} quick_create={'quick_create'}/>
     }
     return <SelectImage location={location} onChange={this.onSelectImage} />
   }
@@ -428,9 +473,11 @@ class QuickCreateApp extends Component {
         <div className="footerSteps">
           <div className="configureSteps">
             <div className="left">
-              <Button type="primary" size="large" onClick={this.saveService}>
-                保存此服务并继续添加
-              </Button>
+              继续添加：
+              <Button.Group>
+                <Button size="large" onClick={this.saveService}>容器镜像</Button>
+                <Button size="large" onClick={()=> this.saveService({addWrap: true})} type="primary">应用包</Button>
+              </Button.Group>
             </div>
             <div className="right">
               <Button
@@ -636,6 +683,10 @@ class QuickCreateApp extends Component {
     })
     const serviceList = this.renderServiceList()
     const currentStep = this.getStepsCurrent()
+    let showprice = 18
+    if (!SHOW_BILLING) {
+      showprice = 24
+    }
     return (
       <div id="quickCreateApp" className={quickCreateAppClass}>
         {
@@ -643,12 +694,13 @@ class QuickCreateApp extends Component {
         }
         <div className={quickCreateAppContentClass}>
           <Row gutter={16}>
-            <Col span={18}>
+            <Col span={showprice}>
               <Card className="leftCard" title={steps}>
                 { this.renderBody() }
                 { this.renderFooterSteps() }
               </Card>
             </Col>
+            { SHOW_BILLING ?
             <Col span={6}>
               <Card
                 className="rightCard"
@@ -696,6 +748,8 @@ class QuickCreateApp extends Component {
                 }
               </Card>
             </Col>
+            :null
+            }
           </Row>
           <Modal
             title="返回上一步"

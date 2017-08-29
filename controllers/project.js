@@ -57,13 +57,8 @@ exports.getProjectDetail = function* () {
 exports.listProjects = function* () {
   const loginUser = this.session.loginUser
   const query = this.query || {}
-  const filter = query.filter
-  const queryObj = {}
-  if (filter) {
-    queryObj.filter = filter
-  }
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.projects.getBy(['list'], queryObj)
+  const response = yield projectApi.projects.getBy(['list'], query)
   this.status = response.statusCode
   this.body = response
 }
@@ -277,6 +272,32 @@ exports.updateProjectRelatedRoles = function* () {
   this.body = response
 }
 
+exports.deleteProjectRelatedRoles = function* () {
+  const project = this.request.body
+  const projectName = this.params.name
+  if (!project || !projectName) {
+    this.status = 400
+    this.body = {
+      message: 'request body or projectName was  empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.createBy([projectName, 'roles','batch-delete'], null, this.request.body)
+  this.status = response.statusCode
+  this.body = response
+}
+
+function* removeUserFromProject() {
+  const projectId = this.params.project_id
+  const userId = this.params.user_id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  this.body = yield api.projects.deleteBy([ projectId, 'users', userId ])
+}
+exports.removeUserFromProject = removeUserFromProject
+
 exports.getProjectRelatedRoles = function* () {
   const projectName = this.params.name
   if (!projectName) {
@@ -289,6 +310,31 @@ exports.getProjectRelatedRoles = function* () {
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
   const response = yield projectApi.projects.getBy([projectName, 'roles'], null)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.getProjectMembers = function* () {
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy(['members'], null)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.deleteProjectRelatedRoles = function* () {
+  const project = this.request.body
+  const projectName = this.params.name
+  if (!project || !projectName) {
+    this.status = 400
+    this.body = {
+      message: 'request body or projectName was  empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.createBy([projectName, 'roles','batch-delete'], null, this.request.body)
   this.status = response.statusCode
   this.body = response
 }

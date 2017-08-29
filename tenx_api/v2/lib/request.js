@@ -64,8 +64,8 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
       object.contentType = options.contentType
       object.dataType = options.dataType
     }
-    logger.debug(`<-- [${options.method || 'GET'}] ${url}`)
-    logger.debug(`--> [options]`, options)
+    logger.info(`<-- [${options.method || 'GET'}] ${url}`)
+    logger.info(`--> [options]`, options)
     if (!callback) {
       return urllib.request(url, options).then(
         function done(result) {

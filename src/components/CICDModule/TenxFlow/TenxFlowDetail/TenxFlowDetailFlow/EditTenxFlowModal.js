@@ -292,6 +292,7 @@ let EditTenxFlowModal = React.createClass({
       saveShellCodeBtnLoading: false,
       dockerfileEditMode: '',
       isDockerfile: false,
+      validateStatus: true,
     }
   },
   componentWillMount() {
@@ -344,11 +345,12 @@ let EditTenxFlowModal = React.createClass({
             const result = res.data.message || {}
             _this.setState({
               isDockerfile: true,
-              dockerfileEditMode: result.type === 0
-                                  ? 'textEditing'
-                                  : 'visualEditing',
+              dockerfileEditMode: result.type === 1
+                                  ? 'visualEditing'
+                                  : 'textEditing',
               dockerFileTextarea: result.content
             })
+            _this.oldDockerfile = result.content
           },
           isAsync: true
         },
@@ -369,6 +371,7 @@ let EditTenxFlowModal = React.createClass({
               scriptsId: res.data.script.id,
               scriptsTextarea: res.data.script.content
             })
+            this.oldScripts = res.data.script.content
           }
         }
       })
@@ -588,6 +591,10 @@ let EditTenxFlowModal = React.createClass({
     });
   },
   closeEnvSettingModal() {
+    if (!this.state.validateStatus) {
+      new NotificationHandler().error("请检查环境变量名称")
+      return
+    }
     //this function for user close the modal of setting the service env
     this.setState({
       envModalShow: null
@@ -761,7 +768,8 @@ let EditTenxFlowModal = React.createClass({
   },
   closeDockerFileModal() {
     this.setState({
-      dockerFileModalShow: false
+      dockerFileModalShow: false,
+      dockerFileTextarea: this.oldDockerfile,
     });
     if (this.state.dockerFileTextarea) {
       this.setState({
@@ -825,6 +833,23 @@ let EditTenxFlowModal = React.createClass({
           notification.success(`创建脚本成功`)
         },
       },
+      failed: {
+        func: (res) => {
+          const notification = new NotificationHandler()
+          if (res && res.statusCode === 400) {
+            notification.error("使用脚本文件，内容不能为空")
+          } else {
+            let message = '保存脚本文件失败'
+            if (res.message) {
+              message = res.message
+            }
+            if(res.message && res.message.message) {
+              message = res.message.message
+            }
+            notification.error(message)
+          }
+        }
+      },
       finally: {
         func: () => {
           this.setState({
@@ -840,6 +865,10 @@ let EditTenxFlowModal = React.createClass({
     });
   },
   closeImageEnvModal() {
+    if (!this.state.validateStatus) {
+      new NotificationHandler().error("请检查环境变量名称")
+      return
+    }
     this.setState({
       ImageEnvModal: false
     });
@@ -1034,6 +1063,11 @@ let EditTenxFlowModal = React.createClass({
             shellList.push(values['shellCode' + item]);
           }
         });
+      } else {
+        if (!_this.state.scriptsId || _this.state.scriptsId === '') {
+          new NotificationHandler().error('使用脚本文件，内容不能为空，请先编辑脚本文件')
+          return;
+        }
       }
       let cloneCofig = cloneDeep(config)
       if(!cloneCofig.spec.ci) {
@@ -1063,6 +1097,9 @@ let EditTenxFlowModal = React.createClass({
           ci: cloneCofig.spec.ci,
           uniformRepo: (values.uniformRepo ? 0 : 1),
         }
+      }
+      if (this.props.index !== 0) {
+        body.spec.uniformRepo = this.props.uniformRepo
       }
       // 增加 scripts id
       if (_this.state.shellCodeType === 'scripts') {
@@ -1478,7 +1515,9 @@ let EditTenxFlowModal = React.createClass({
               onOk={this.closeEnvSettingModal}
               onCancel={this.closeEnvSettingModal}
               >
-              <EnvComponent scope={scopeThis} config={envDefault} index={k} form={form} visible={this.state.envModalShow == k ? true : false}/>
+              <EnvComponent
+                validateCallback ={result => this.setState({ validateStatus: result })}
+                scope={scopeThis} config={envDefault} index={k} form={form} visible={this.state.envModalShow == k ? true : false}/>
             </Modal>
           </div>
         </QueueAnim>
@@ -1719,6 +1758,8 @@ let EditTenxFlowModal = React.createClass({
                   {baseImage}
                 </Select>*/}
                 <PopTabSelect
+                  placement="right"
+                  placeholder="输入基础镜像"
                   value={currenImageName || this.state.baseImageUrl}
                   onChange={this.baseImageChange}
                   getTooltipContainer={() => document.getElementById('TenxFlowDetailFlow')}
@@ -1776,8 +1817,13 @@ let EditTenxFlowModal = React.createClass({
                 <Button
                   size="large"
                   disabled={this.state.otherFlowType == 3}
-                  type={(!this.state.scriptsId) ? 'primary' : 'ghost'}
-                  onClick={() => this.setState({ shellModalShow: true })}
+                  type={(this.state.scriptsId) ? 'primary' : 'ghost'}
+                  onClick={() => {
+                    this.setState({
+                      shellModalShow: true,
+                      scriptsTextarea: this.state.scriptsTextarea || '#!/bin/sh\n\n',
+                    })
+                  }}
                 >
                   {
                     !this.state.scriptsId
@@ -1885,7 +1931,7 @@ let EditTenxFlowModal = React.createClass({
                       </Select>
                     </FormItem>
                     <div className="customizeBaseImage">
-                      为方便管理，构建后的镜像可发布到镜像仓库（私有仓库）或第三方仓库中
+                      为方便管理，构建后的镜像可发布到镜像仓库（所选仓库组）或第三方镜像仓库中
                     </div>
                     <div style={{ clear: 'both' }} />
                   </div>
@@ -2013,7 +2059,7 @@ let EditTenxFlowModal = React.createClass({
               <Button size='large' type='primary' onClick={this.saveShellCode} loading={this.state.saveShellCodeBtnLoading}>
                 <span>保存并使用</span>
               </Button>
-              <Button size='large' onClick={() => this.setState({ shellModalShow: false })}>
+              <Button size='large' onClick={() => this.setState({ shellModalShow: false, scriptsTextarea: this.oldScripts })}>
                 <span>取消</span>
               </Button>
             </div>
@@ -2023,8 +2069,15 @@ let EditTenxFlowModal = React.createClass({
             visible={this.state.ImageEnvModal}
             onOk={this.closeImageEnvModal}
             onCancel={this.closeImageEnvModal}
+            footer={[
+              <Button key="submit" type="primary" size="large" onClick={this.closeImageEnvModal}>
+                确 定
+              </Button>,
+            ]}
             >
-            <ImageEnvComponent scope={scopeThis} form={form} config={config.spec.container.env} visible={this.state.ImageEnvModal}/>
+            <ImageEnvComponent
+              validateCallback ={result => this.setState({ validateStatus: result })}
+              scope={scopeThis} form={form} config={config.spec.container.env} visible={this.state.ImageEnvModal}/>
           </Modal>
         </Form>
         <div className='modalBtnBox'>

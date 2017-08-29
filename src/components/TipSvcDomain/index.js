@@ -50,7 +50,7 @@ class SvcTip extends Component {
         <li key={element.domain}>
           <a href="javascript:void(0)" > 容器端口:{element.interPort}</a>
           &nbsp;&nbsp;
-          <a href={linkURL} target='_blank'>{element.isInternal ? '内网' : '外网'}:{element.domain}</a>
+          <a href={linkURL} target='_blank'>{lbgroup2Text(element)}:{element.domain}</a>
           <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
             <svg className='tipCopySvg' onClick={this.servercopyCode.bind(this)} onMouseLeave={ this.returnDefaultTooltip.bind(this) } onMouseEnter={this.startCopyCode.bind(this,element.domain)}><use xlinkHref='#appcentercopy' /></svg>
           </Tooltip>
@@ -127,7 +127,7 @@ class AppTip extends Component {
                 <a href="javascript:void(0)">容器端口:{item.data[0].interPort}</a>&nbsp;&nbsp;
                 <a href={linkURL} target='_blank'>
                   {
-                    item.data[0].isInternal ? '内网' : '外网'
+                    lbgroup2Text(item.data[0])
                   }:{
                     item.data[0].domain
                   }
@@ -162,7 +162,7 @@ class AppTip extends Component {
                     <Timeline.Item dot={<div></div>}>
                       <svg className='branchSvg'><use xlinkHref='#branch' /></svg>
                       <a href="javascript:void(0)">容器端口:{url.interPort}</a>&nbsp;&nbsp;
-                      <a href={linkURL} target='_blank'>{url.isInternal ? '内网' : '外网'}:{url.domain}</a>
+                      <a href={linkURL} target='_blank'>{lbgroup2Text(url)}:{url.domain}</a>
                       <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
                         <svg className='tipCopySvg' onClick={this.copyCode} onMouseLeave={this.returnDefaultTooltip} onMouseEnter={this.startCopyCode.bind(this, url)}><use xlinkHref='#appcentercopy' /></svg>
                       </Tooltip>
@@ -182,6 +182,23 @@ class AppTip extends Component {
       </div>
     )
   }
+}
+
+function lbgroup2Text(item) {
+  const { isInternal, lbgroup } = item
+  let before = '内网'
+  let after = '外网'
+  if (lbgroup) {
+    before = '集群内'
+    const { type, id } = lbgroup
+    if (type === 'public') {
+      after = '公网'
+    }
+    if (type === 'private') {
+      after = '内网'
+    }
+  }
+  return isInternal ? before : after
 }
 
 export default class TipSvcDomain extends Component {
@@ -285,11 +302,18 @@ export default class TipSvcDomain extends Component {
           )
         }
       } else {
-        let linkURL = 'http://' + appDomain[0].data[0].domain
+        let currentDomain
+        appDomain.every(appDo => {
+          if (appDo.data[0]) {
+            currentDomain = appDo.data[0].domain
+            return false
+          }
+          return true
+        })
         return (
           <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
             <span className='appDomain'>
-              <a target='_blank' href={linkURL}>{this.getIconHtml()}{appDomain[0].data[0].domain}</a>
+              <a target='_blank' href={`http://${currentDomain}`}>{this.getIconHtml()}{currentDomain}</a>
             </span>
             <Popover placement={type ? 'rightBottom' : 'rightTop'}
               content={<AppTip scope={scope} appDomain={appDomain} />}

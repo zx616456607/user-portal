@@ -1,0 +1,38 @@
+.vmServiceList{
+  padding: 20px;
+  .serviceListBtnBox{
+    &>button{
+      margin-right: 10px;
+    }
+    .refreshBtn,.deleteBtn{
+      background-color: white;
+    }
+    .totalNum{
+      margin: 8px 20px 0 0;
+    }
+    .ant-pagination{
+      float: right;
+    }
+  }
+  table{
+    background-color: white;
+    margin-top: 20px;
+    padding: 24px;
+    thead{
+      tr{
+        th{
+          background-color: white;
+          border-bottom: 1px solid #e9e9e9;
+        }
+      }
+    }
+  }
+  .ant-spin-container{
+    position: relative;
+    .ant-table-pagination{
+      position: absolute;
+      top: -45px;
+      right: 0;
+    }
+  }
+}

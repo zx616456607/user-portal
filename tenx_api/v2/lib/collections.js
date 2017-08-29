@@ -58,7 +58,10 @@ module.exports = function (request) {
               return ''
           }
         }
-        return `?${querys}`
+        if (querys) {
+          return `?${querys}`
+        }
+        return ``
       }
     }
 

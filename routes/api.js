@@ -44,6 +44,9 @@ const projectController =require('../controllers/project')
 const permissionController = require('../controllers/permission')
 const roleController = require('../controllers/role')
 const pkgController =require('../controllers/wrap_manage')
+const vmWrapController =require('../controllers/wm_wrap')
+const netIsolationController = require('../controllers/network_isolation')
+const tenantController = require('../controllers/tenant_manage')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -86,13 +89,15 @@ module.exports = function (Router) {
   router.get('/projects/approval-clusters',projectController.getProjectApprovalClusters)
   router.put('/projects/:name/clusters',projectController.updateProjectClusters)
   router.put('/projects/clusters',projectController.updateProjectApprovalClusters)
-
+  router.get('/projects/members',projectController.getProjectMembers)
   router.get('/projects/:name/users',projectController.getProjectRelatedUsers)
   router.post('/projects/:name/users',projectController.addProjectRelatedUsers)
   router.post('/projects/:name/users/batch-delete',projectController.deleteProjectRelatedUsers)
   router.put('/projects/:name/users',projectController.updateProjectRelatedUsers)
   router.get('/projects/:name/roles',projectController.getProjectRelatedRoles)
   router.put('/projects/:name/roles',projectController.updateProjectRelatedRoles)
+  router.post('/projects/:name/roles/batch-delete',projectController.deleteProjectRelatedRoles)
+  router.del('/projects/:project_id/users/:user_id',projectController.removeUserFromProject)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
@@ -104,8 +109,10 @@ module.exports = function (Router) {
   // For bind node when create service(lite only)
   router.get('/clusters/:cluster/nodes', clusterController.getNodes)
   router.get('/clusters/add-cluster-cmd', clusterController.getAddClusterCMD)
-  router.get('/clusters/:cluster/proxies', middlewares.isAdminUser, clusterController.getProxy)
-  router.put('/clusters/:cluster/proxies', middlewares.isAdminUser, clusterController.updateProxy)
+  router.get('/clusters/:cluster/proxies', clusterController.getProxy)
+  router.put('/clusters/:cluster/proxies', middlewares.isAdminUser, clusterController.updateProxies)
+  router.put('/clusters/:cluster/proxies/:groupID', middlewares.isAdminUser, clusterController.updateProxy)
+  router.put('/clusters/:cluster/proxies/:groupID/as_default', middlewares.isAdminUser, clusterController.setDefaultProxy)
   router.get('/clusters/:cluster/node_addr', middlewares.isAdminUser, clusterController.getClusterNodeAddr)
   router.get('/clusters/:cluster/plugins', middlewares.isAdminUser, clusterController.getClusterPlugins)
   router.put('/clusters/:cluster/plugins/:name', middlewares.isAdminUser, clusterController.updateClusterPlugins)
@@ -132,6 +139,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:app_name/logs', appController.getAppLogs)
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
   router.get('/clusters/:cluster/services/:service/existence', serviceController.checkServiceName)
+  router.put('/clusters/:cluster/services/:service/lbgroups/:groupID', serviceController.setServiceProxyGroup)
 
   // AppTemplates
   router.get('/templates', appTemplateController.listTemplates)
@@ -180,9 +188,17 @@ module.exports = function (Router) {
   router.get('/users/:user_id/teamspaces/detail', userController.getUserTeamspacesWithDetail)
   router.post('/users', userController.createUser)
   router.delete('/users/:user_id', userController.deleteUser)
+  router.post('/users/batch-delete', userController.batchDeleteUser)
   router.patch('/users/:user_id', userController.updateUser)
   router.get('/users/:user_name/existence', userController.checkUserName)
-
+  router.get('/users/:user_id/projects', userController.getUserProjects)
+  router.get('/users/:user_id/user_teams', userController.getUserTeamsNew)
+  router.put('/users/:user_id/teams', userController.updateTeamsUserBelongTo)
+  router.put('/users/:user_id/:active', userController.updateUserActive)
+  router.get('/users/softdeleted', userController.getSoftdeletedUsers)
+  router.get('/users/search', userController.getUsersExclude)
+  router.post('/users/:user_id/:scope/:scopeID/roles', userController.bindRolesForUser)
+  router.post('/users/:user_id/teamtransfer', userController.teamtransfer)
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
@@ -199,6 +215,7 @@ module.exports = function (Router) {
   router.put('/teams/:team_id/clusters/:cluster_id/request', teamController.requestTeamCluster)
   router.get('/teams/:team_name/existence', teamController.checkTeamName)
   router.get('/teams/:team_id/spaces/:space_name/existence', teamController.checkSpaceName)
+  router.patch('/teams/:team_id',teamController.updateTeam)
 
   //Overview Team
   router.get('/overview/teaminfo', overviewTeamController.getTeamOverview)
@@ -242,7 +259,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/configgroups/:group/configs/:name', configController.updateConfigFile)
   router.post('/clusters/:cluster/configs/delete', configController.deleteConfigGroup)
   router.post('/clusters/:cluster/configgroups/:group/configs-batch-delete', configController.deleteConfigFiles)
-
+  router.put('/clusters/:cluster/configgroups/:name', configController.updateConfigAnnotations)
   // Harbor integration
   router.get('/registries/:registry/systeminfo', harborController.getSysteminfo)
   router.get('/registries/:registry/users/current', harborController.getCurrentUserCtl)
@@ -437,6 +454,7 @@ module.exports = function (Router) {
 
   // Cluster pod
   router.get('/cluster-nodes/:cluster', clusternodesController.getClusterNodes)
+  router.get('/cluster-nodes/:cluster/metrics', clusternodesController.getClusterNodesMetric)
   router.post('/cluster-nodes/:cluster/node/:node', clusternodesController.changeNodeSchedule)
   router.delete('/cluster-nodes/:cluster/node/:node', clusternodesController.deleteNode)
   router.get('/cluster-nodes/:cluster/add-node-cmd', clusternodesController.getAddNodeCMD)
@@ -534,31 +552,55 @@ module.exports = function (Router) {
   router.put('/oem/info/default', oemController.restoreDefaultInfo)
   router.put('/oem/logo/default', oemController.restoreDefaultLogo)
   router.put('/oem/color/default', oemController.restoreDefaultColor)
-  
+
+  // tenant
+  router.get('/tenant/overview', tenantController.getTenantOverview)
+
   //permission
   router.get('/permission',permissionController.list)
   router.get('/permission/:id/retrieve',permissionController.get)
   router.get('/permission/withCount',permissionController.listWithCount)
-  router.get('/permission/:id/retrieve/withCount',permissionController.getWithCount)
   router.get('/permission/:id/dependent',permissionController.getAllDependent)
-  
+
   //role
   router.post('/role',roleController.create)
   router.delete('/role/:id',roleController.remove)
-  router.put('/role',roleController.update)
-  router.put('/role/:id/addPermission',roleController.addPermission)
-  router.put('/role/:id/removePermission',roleController.removePermission)
+  router.put('/role/:id',roleController.update)
+  router.post('/role/:id/addPermission',roleController.addPermission)
+  router.post('/role/:id/removePermission',roleController.removePermission)
   router.get('/role/:id',roleController.get)
   router.get('/role',roleController.list)
   router.get('/role/:name/existence',roleController.existence)
   router.get('/role/:id/allowUpdate',roleController.allowUpdate)
+  router.post('/role/:roleID/:scope/:scopeID',roleController.usersAddRoles)
+  router.post('/role/projects/:projectName/roles/batch-delete',roleController.removeProjectRole)
+  router.get('/role/:roleID/:scope/:scopeID/users',roleController.roleWithMembers)
+  router.get('/role/:roleID/projects',roleController.getProjectDetail)
 
   // package manage
   router.get('/pkg', pkgController.getPkgManageList)
   router.get('/pkg/:id', pkgController.downloadPkg)
   router.post('/pkg/batch-delete', pkgController.deletePkg)
-  router.post('/:filename/:filetag/:filetype', pkgController.localUploadPkg)
-  router.post('/:filename/:filetag/:filetype/remote', pkgController.romoteUploadPkg)
-  
+  router.post('/pkg/:filename/:filetag/:filetype/local', pkgController.localUploadPkg)
+  router.post('/pkg/:filename/:filetag/:filetype/remote', pkgController.romoteUploadPkg)
+
+  // VM wrap
+  router.post('/vm-wrap/services', vmWrapController.createService)
+  router.get('/vm-wrap/services', vmWrapController.listServices)
+  router.put('/vm-wrap/services/:service_id', vmWrapController.updateService)
+  router.post('/vm-wrap/services/:service_id/deployment', vmWrapController.deployService)
+  router.del('/vm-wrap/services/:service_id', vmWrapController.deleteService)
+  router.post('/vm-wrap/vminfos', vmWrapController.addVM)
+  router.get('/vm-wrap/vminfos', vmWrapController.listVMs)
+  router.put('/vm-wrap/vminfos/:vm_id', vmWrapController.updateVM)
+  router.del('/vm-wrap/vminfos/:vm_id', vmWrapController.deleteVM)
+  router.post('/vm-wrap/vminfos-check/', vmWrapController.checkVM)
+  router.get('/vm-wrap/services/:serviceName/exists', vmWrapController.checkService)
+
+  // Network Isolation
+  router.get('/cluster/:clusterID/networkisolation', netIsolationController.getCurrentSetting)
+  router.post('/cluster/:clusterID/networkisolation', netIsolationController.setIsolationRule)
+  router.delete('/cluster/:clusterID/networkisolation', netIsolationController.restoreDefault)
+
   return router.routes()
 }

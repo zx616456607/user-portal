@@ -9,6 +9,88 @@
   button:not(:first-of-type) {
     background-color: white;
   }
+  .title{
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .configSearchAndListBox{
+    background-color: white;
+    border-radius: 4px;
+    padding: 20px 0;
+    .ant-search-input-wrapper{
+      margin: 0 auto;
+      display: block;
+    }
+    .searchConfigBox {
+      position: relative;
+      padding: 20px 15px 0;
+      .searchIcon {
+        position:absolute;
+        top: 32px;
+        right:25px;
+        cursor: pointer;
+      }
+    }
+    .resultCount{
+      padding: 20px 20px 0;
+      .clearSearch{
+        color: #2cb8f5;
+        i{
+          margin-right: 10px;
+        }
+      }
+      .count{
+        float: right;
+      }
+    }
+    .configSortListBox{
+      margin-top: 20px;
+      .configSort{
+        position: relative;
+        height: 38px;
+        line-height: 38px;
+        font-size: 14px;
+        padding-left: 17px;
+        .fa-trash-o{
+          right: 25px;
+          display: none;
+        }
+        .fa-pencil-square-o{
+          right: 50px;
+          display: none;
+        }
+        .citeCount{
+          right: 10%;
+        }
+        .sortName{
+          display: block;
+          width: 80%;
+        }
+        &:hover{
+          // .fa-trash-o,.fa-pencil-square-o{
+          //   display: block;
+          // }
+          // .citeCount{
+          //   display: none;
+          // }
+          .sortName{
+            color: #74c8f4;
+          }
+          background-color: #eceff4;
+          padding-left: 15px;
+          border-left: 2px solid #2db7f6;
+        }
+      }
+      .active{
+        .sortName{
+          color: #74c8f4;
+        }
+        background-color: #eceff4;
+        padding-left: 15px;
+        border-left: 2px solid #2db7f6;
+      }
+    }
+  }
   .ant-collapse {
     border:none;
     padding-top:20px;

@@ -18,7 +18,7 @@ import QueueAnim from 'rc-queue-anim'
 import NotificationHandler from '../../../components/Notification'
 // import { loadUserDetail } from '../../../actions/user'
 import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN,  } from '../../../../constants'
-import { NEED_BUILD_IMAGE } from '../../../constants'
+import { NEED_BUILD_IMAGE, SHOW_BILLING } from '../../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -102,6 +102,10 @@ class Sider extends Component {
         }
       }
       if (pathname.indexOf('app_manage/detail/') > -1) {
+        currentOpenMenu = ['app_manage','app_manage_default']
+        currentSelectedMenu = currentOpenMenu
+      }
+      if (pathname.indexOf('app_manage/deploy_wrap') > -1) {
         currentOpenMenu = ['app_manage','app_manage_default']
         currentSelectedMenu = currentOpenMenu
       }
@@ -324,13 +328,14 @@ class Sider extends Component {
                 className={currentKey == 'database_cache' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='数据库与缓存'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/database_cache'>
+                  <Link to='/database_cache/mysql_cluster'>
                     <svg className='database commonImg'>
                       <use xlinkHref='#database' />
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
+              {role == ROLE_SYS_ADMIN ?
               <li onClick={()=> this.selectModel('integration')}
                 className={currentKey == 'integration' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='集成中心'
@@ -341,7 +346,8 @@ class Sider extends Component {
                     </svg>
                   </Link>
                 </Tooltip>
-              </li>
+              </li>:''
+              }
               <li onClick={()=> this.selectModel('manange_monitor')}
                 className={currentKey == 'manange_monitor' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='管理与监控'
@@ -485,6 +491,27 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 服务配置</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key='network_isolation'>
+                    <Link to='/app_manage/network_isolation'>
+                      <span><div className='sideCircle'></div> 网络隔离</span>
+                    </Link>
+                  </Menu.Item>
+                  {
+                    (this.props.loginUser.vmWrapConfig && this.props.loginUser.vmWrapConfig.enabled)
+                    ? [
+                      <Menu.Item key='vm_wrap'>
+                        <Link to='/app_manage/vm_wrap'>
+                          <span><div className='sideCircle'></div> 传统应用</span>
+                        </Link>
+                      </Menu.Item>,
+                      <Menu.Item key='vm_list'>
+                        <Link to='/app_manage/vm_list'>
+                          <span><div className='sideCircle'></div> 传统应用环境</span>
+                        </Link>
+                      </Menu.Item>
+                    ]
+                    : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
+                  }
                   <div className='sline'></div>
                 </SubMenu>
                 <SubMenu key='app_center'
@@ -567,7 +594,7 @@ class Sider extends Component {
                   }
                 >
                   <Menu.Item key='database_cache_default'>
-                    <Link to='/database_cache'>
+                    <Link to='/database_cache/mysql_cluster'>
                       <span><div className='sideCircle'></div> 关系型数据库</span>
                     </Link>
                   </Menu.Item>
@@ -585,10 +612,16 @@ class Sider extends Component {
                   </Menu.Item>
 
                   <Menu.Item key='elasticsearch_cluster'>
-                    <Link to='/database_cache/elasticsearch_cluster'>
-                      <span><div className='sideCircle'></div> ElasticSearch</span>
-                    </Link>
-                  </Menu.Item>
+                  <Link to='/database_cache/elasticsearch_cluster'>
+                    <span><div className='sideCircle'></div> ElasticSearch</span>
+                  </Link>
+                </Menu.Item>
+
+                <Menu.Item key='etcd_cluster'>
+                  <Link to='/database_cache/etcd_cluster'>
+                    <span><div className='sideCircle'></div> Etcd</span>
+                  </Link>
+                </Menu.Item>
 
                   <div className='sline'></div>
                 </SubMenu>
@@ -679,22 +712,19 @@ class Sider extends Component {
                    <span><div className='sideCircle'></div> 费用中心</span>
                    </Link>
                    </Menu.Item>*/}
-                  <Menu.Item key='costCenter#consumptions'>
-                    <Link to='/account/costCenter#consumptions'>
-                      <span><div className='sideCircle'></div> 消费记录</span>
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key='costCenter#payments'>
-                    <Link to='/account/costCenter#payments'>
-                      <span><div className='sideCircle'></div> 充值记录</span>
-                    </Link>
-                  </Menu.Item>
-                  {role == ROLE_SYS_ADMIN ?
-                    <Menu.Item key='ldap'>
-                      <Link to='/account/ldap'>
-                        <span><div className='sideCircle'></div> 集成企业目录</span>
+                  { SHOW_BILLING ?
+                    [<Menu.Item key='costCenter#consumptions'>
+                      <Link to='/account/costCenter#consumptions'>
+                        <span><div className='sideCircle'></div> 消费记录</span>
                       </Link>
-                    </Menu.Item> : <Menu.Item key="none-ldap" style={{ display: 'none' }}></Menu.Item>
+                    </Menu.Item>,
+                    <Menu.Item key='costCenter#payments'>
+                      <Link to='/account/costCenter#payments'>
+                        <span><div className='sideCircle'></div> 充值记录</span>
+                      </Link>
+                    </Menu.Item>]
+                    :
+                    <Menu.Item key="none-cost" style={{ display: 'none' }}></Menu.Item>
                   }
                   <div className='sline'></div>
                 </SubMenu>
@@ -711,15 +741,20 @@ class Sider extends Component {
                 >
                   <Menu.Item key='tenant_manage_default'>
                     <Link to='/tenant_manage'>
-                      <span><div className='sideCircle'></div> 租户</span>
+                      <span><div className='sideCircle'></div> 概览</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key="membermanagement">
-                    <Link to='/tenant_manage/membermanagement'>
+                  <Menu.Item key="user">
+                    <Link to='/tenant_manage/user'>
                       <span><div className='sideCircle'></div> 成员管理</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='projectManage'>
+                  <Menu.Item key="team">
+                    <Link to='/tenant_manage/team'>
+                      <span><div className='sideCircle'></div> 团队管理</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='project_manage'>
                     <Link to='/tenant_manage/project_manage'>
                       <span><div className='sideCircle'></div> 项目管理</span>
                     </Link>
@@ -734,6 +769,13 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 所有权限</span>
                     </Link>
                   </Menu.Item>
+                  {role == ROLE_SYS_ADMIN ?
+                    <Menu.Item key='ldap'>
+                      <Link to='/tenant_manage/ldap'>
+                        <span><div className='sideCircle'></div> 集成企业目录</span>
+                      </Link>
+                    </Menu.Item> : <Menu.Item key="none-ldap" style={{ display: 'none' }}></Menu.Item>
+                  }
                   <div className='sline'></div>
                 </SubMenu>
                 <SubMenu key='setting'
@@ -850,6 +892,7 @@ function mapStateToProp(state) {
     storageDetail: state.storage.storageDetail,
     role,
     backColor,
+    loginUser: entities && entities.loginUser && entities.loginUser.info,
     oemInfo: oemInfo || {}
   }
 }

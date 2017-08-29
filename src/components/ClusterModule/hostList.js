@@ -9,9 +9,9 @@ import { Card, Button, Tooltip, Icon, Input, Select, Spin, Menu, Dropdown, Switc
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import {  getAllClusterNodes, getKubectlsPods, deleteClusterNode, getClusterLabel, changeClusterNodeSchedule } from '../../actions/cluster_node'
+import { getAllClusterNodes, getClusterNodesMetrics, getKubectlsPods, deleteClusterNode, getClusterLabel, changeClusterNodeSchedule } from '../../actions/cluster_node'
 import { addTerminal } from '../../actions/terminal'
-import { NOT_AVAILABLE } from '../../constants'
+import { NOT_AVAILABLE, SEARCH } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
 import TagDropdown from './TagDropdown'
 import ManageLabelModal from './MangeLabelModal'
@@ -144,7 +144,7 @@ const MyComponent = React.createClass({
     )
   },
   render: function () {
-    const { isFetching, containerList, nodeList, cpuMetric, memoryMetric, clusterID, license } = this.props
+    const { isFetching, nodeList, cpuMetric, memoryMetric, clusterID, license, podCount } = this.props
     const root = this
     let dropdown
     let maxNodes
@@ -233,8 +233,9 @@ const MyComponent = React.createClass({
           title: '容器数',
           dataIndex: 'objectMeta',
           render: (objectMeta) => <div>
-            <span>{getContainerNum(objectMeta.name, containerList)}</span>
-          </div>
+            <span>{getContainerNum(objectMeta.name, podCount)}</span>
+          </div>,
+          sorter: (a, b) => getContainerNum(a.objectMeta.name, podCount) - getContainerNum(b.objectMeta.name, podCount)
         },{
           title: 'CPU使用',
           render: (text, record, index) => <div>
@@ -358,7 +359,7 @@ const MyComponent = React.createClass({
         <Table
           columns={column}
           dataSource={nodeList}
-          pagination={false}
+          pagination={{simple: true}}
           loading={isFetching}
         />
       </div>
@@ -379,7 +380,7 @@ class hostList extends Component {
     this.state = {
       addClusterOrNodeModalVisible:false,
       nodeList: [],
-      podCount: [],
+      podCount: null,
       currentContainer:[],
       manageLabelContainer:[],
       manageLabelModal : false,
@@ -390,8 +391,9 @@ class hostList extends Component {
   }
 
   loadData() {
-    const { clusterID } = this.props
-    this.props.getAllClusterNodes(clusterID, {
+    const { clusterID, getClusterNodesMetrics, getAllClusterNodes, getKubectlsPods } = this.props
+    const notification = new NotificationHandler()
+    getAllClusterNodes(clusterID, {
       success: {
         func: (result) => {
           let nodeList = result.data.clusters.nodes.nodes;
@@ -401,11 +403,27 @@ class hostList extends Component {
             podCount: podCount,
             summary: [],
           })
+          let slaveAvailable = false
+          nodeList.map((item) => {
+            if (item.isMaster === false) {
+              slaveAvailable = true
+              return
+            }
+          });
+          if (slaveAvailable) {
+            getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
+              failed: {
+                func: err => {
+                  notification.error('获取节点监控数据失败')
+                }
+              }
+            })
+          }
         },
         isAsync: true
       }
     })
-    this.props.getKubectlsPods(clusterID)
+    getKubectlsPods(clusterID)
   }
   componentWillMount() {
     this.loadData()
@@ -430,9 +448,15 @@ class hostList extends Component {
       })
     }
   }
-  searchNodes() {
+  searchNodes(e) {
     //this function for search nodes
-    let search = document.getElementsByClassName('searchInput')[0].value
+    let search =''
+    if(e){
+      search = e.target.value.replace(SEARCH,"")
+    } else {
+      search = document.getElementsByClassName('searchInput')[0].value.replace(SEARCH,"")
+    }
+
     const { nodes } = this.props;
     if (search.length == 0) {
       this.setState({
@@ -543,7 +567,7 @@ class hostList extends Component {
   deleteClusterNode(){
     //this function for delete cluster node
     let notification = new NotificationHandler()
-    const {clusterID, deleteClusterNode, getAllClusterNodes} = this.props;
+    const { clusterID, deleteClusterNode, getAllClusterNodes, getClusterNodesMetrics } = this.props;
     const {deleteNode} = this.state;
     const _this = this;
     if(deleteNode.isMaster){
@@ -555,13 +579,29 @@ class hostList extends Component {
         func: () =>{
           getAllClusterNodes(clusterID, {
             success: {
-              func: (result) =>{
+              func: (result) => {
                 let nodeList = result.data.clusters.nodes.nodes;
                 notification.success('主机节点删除成功');
                 _this.setState({
                   nodeList: nodeList,
                   deleteNodeModal: false
                 })
+                let slaveAvailable = false
+                nodeList.map((item) => {
+                  if (item.isMaster === false) {
+                    slaveAvailable = true
+                    return
+                  }
+                });
+                if (slaveAvailable) {
+                  getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
+                    failed: {
+                      func: err => {
+                        notification.error('获取节点监控数据失败')
+                      }
+                    }
+                  })
+                }
               },
               isAsync: true
             }
@@ -587,7 +627,7 @@ class hostList extends Component {
 
   render() {
     const { addNodeCMD, labels } = this.props
-    const { deleteNode } = this.state
+    const { deleteNode, podCount } = this.state
     const scope = this;
     return <div id="cluster__hostlist">
       <Card className='ClusterListCard'>
@@ -611,7 +651,7 @@ class hostList extends Component {
             <i className='fa fa-refresh' /> 刷 新
           </Button>
           <span className='searchBox'>
-            <Input className='searchInput' size='large' placeholder='搜索' type='text' onPressEnter={() => this.searchNodes()} />
+            <Input className='searchInput' size='large' placeholder='搜索' type='text' onPressEnter={(e) => this.searchNodes(e)} />
             <Icon type="search" className="fa" onClick={() => this.searchNodes()} />
           </span>
           <span className='selectlabel' id="cluster__hostlist__selectlabel">
@@ -625,6 +665,12 @@ class hostList extends Component {
             />
           </span>
           {
+            this.state.nodeList.length
+            ? <div className='totle_num'>共 <span>{this.state.nodeList.length}</span> 条</div>
+            : null
+          }
+
+          {
             this.state.summary.length > 0
             ? <div className='selectedroom'>
               {this.formTagContainer()}
@@ -634,7 +680,7 @@ class hostList extends Component {
         </div>
         <div className='dataBox'>
           <div className='datalist'>
-            <MyComponent {...this.props} nodeList={this.state.nodeList} scope={scope}/>
+            <MyComponent {...this.props} nodeList={this.state.nodeList} scope={scope} podCount={podCount} />
           </div>
         </div>
       </Card>
@@ -707,6 +753,7 @@ function mapStateToProps(state, props) {
 }
 export default connect(mapStateToProps, {
   getAllClusterNodes,
+  getClusterNodesMetrics,
   addTerminal,
   getKubectlsPods,
   deleteClusterNode,

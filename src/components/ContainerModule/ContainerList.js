@@ -16,7 +16,7 @@ import { camelize } from 'humps'
 import './style/ContainerList.less'
 import { loadContainerList, deleteContainers, updateContainerList } from '../../actions/app_manage'
 import { loadProjectList, loadAllProject, loadRepositoriesTags } from '../../actions/harbor'
-import { addTerminal } from '../../actions/terminal'
+import { addTerminal, removeTerminal } from '../../actions/terminal'
 import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL, DEFAULT_REGISTRY } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { calcuDate } from '../../common/tools.js'
@@ -26,6 +26,7 @@ import { addPodWatch, removePodWatch } from '../../containers/App/status'
 import { instanceExport } from '../../actions/instance_export'
 import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
+import cloneDeep from 'lodash/cloneDeep'
 
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm
@@ -701,9 +702,15 @@ class ContainerList extends Component {
     this.setState({Relocating: true, checkedContainerList})
   }
   handleOk() {
-    const {cluster, deleteContainers, updateContainerList } = this.props
+    const {cluster, deleteContainers, updateContainerList, removeTerminal, terminalList } = this.props
     const allContainers = this.props.containerList
     const containerNames = this.state.checkedContainerList.map((container) => container.metadata.name)
+    if(terminalList.length){
+      const deleteList = cloneDeep(this.state.checkedContainerList)
+      deleteList.forEach(item => {
+        removeTerminal(cluster, item)
+      })
+    }
     this.setState({Relocating: false})
     return new Promise((resolve) => {
       resolve()
@@ -836,11 +843,12 @@ class ContainerList extends Component {
                 type='primary' size='large'
                 disabled={!isChecked}
                 onClick={this.batchDeleteContainers}>
-                <i className='fa fa-power-off'></i>
+                <i className='fa fa-undo' />
                 重新分配
               </Button>
               <Button
                 size='large'
+                className="refresh"
                 onClick={() => this.loadData(this.props)}>
                 <i className='fa fa-refresh'></i>
                 刷新
@@ -980,6 +988,8 @@ function mapStateToProps(state, props) {
   const {cluster} = state.entities.current
   const {loginUser} = state.entities
   const {statusWatchWs} = state.entities.sockets
+  const { terminal } = state
+  const terminalList = terminal.list[cluster.clusterID] || []
   const defaultContainers = {
     isFetching: false,
     cluster: cluster.clusterID,
@@ -1017,6 +1027,7 @@ function mapStateToProps(state, props) {
     name,
     sortOrder,
     containerList,
+    terminalList,
     isFetching,
     harborProjects,
   }
@@ -1031,4 +1042,5 @@ export default connect(mapStateToProps, {
   loadProjectList,
   loadAllProject,
   loadRepositoriesTags,
+  removeTerminal,
 })(ContainerList)

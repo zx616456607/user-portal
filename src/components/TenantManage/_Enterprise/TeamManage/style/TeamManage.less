@@ -1,20 +1,5 @@
-#TeamManage {
-  @media screen and (min-width:1290px){
-    .Deleterechargea {
-      display:block;
-    }
-    .Deleterechargeb {
-      display:none;
-    }
-  }
-  @media screen and (max-width:1290px){
-      .Deleterechargea {
-        display:none;
-      }
-      .Deleterechargeb {
-        display:block;
-      }
-    }
+#TeamsManage {
+  padding: 20px;
   .ant-alert {
     color: #1a7db6;
     font-size: 13px !important;
@@ -24,13 +9,24 @@
     margin-bottom: 20px;
   }
   .teamOption {
+    padding-bottom: 20px;
+    button{
+      background-color: white;
+    }
+    .manageBtn{
+      margin-right: 12px;
+    }
     .plusBtn {
       font-weight: normal;
       background-color: #2db7f5;
       padding: 5px 10px;
-      float: left;
+      //float: left;
       margin-right: 12px;
-      margin-bottom: 20px;
+      //margin-bottom: 20px;
+    }
+    .refreshBtn,.deleteBtn{
+      //float: left;
+      margin-right: 12px;
     }
     .viewBtn {
       font-weight: normal;
@@ -43,27 +39,29 @@
       display: inline-block;
       line-height: 35px;
       float: right;
-      margin-right: 160px;
+      margin-right: 170px;
     }
   }
   .teamList {
-    margin-bottom: 26px;
     .ant-card {
       overflow: inherit;
     }
     .ant-card-body {
-      padding: 0;
+      padding: 0 24px 24px;
       .ant-table {
+        thead {
+          tr {
+            th {
+              background-color: white;
+              border-bottom: 1px solid #e9e9e9;
+            }
+          }
+        }
         .addBtn {
           font-weight: normal;
-          background-color: #fff;
           width: 100px;
           margin-right: 12px;
           border-radius: 3px;
-          &:hover {
-            background-color: #00a1ea;
-            color: #fff;
-          }
         }
         .delBtn {
           font-weight: normal;
@@ -107,4 +105,30 @@
   line-height:10px;
   width:80px;
   text-align:center;
+}
+.deleteSingleModal{
+  .deleteTeamHint{
+    color: #ee3f20;
+    background-color: #fffaf4;
+    border: 1px dashed #fddb9e;
+    padding: 10px 15px;
+    border-radius: 4px;
+  }
+}
+.addMemberForm{
+  margin-top: 30px;
+  .ant-row{
+    margin-bottom: 20px;
+  }
+  .isAdd{
+    padding-left: 20px;
+    .isAddHint{
+      padding-left: 22px;
+      color: #a1a1a1;
+      font-size: 12px;
+    }
+  }
+  .chooseProject{
+    padding-left: 20px;
+  }
 }

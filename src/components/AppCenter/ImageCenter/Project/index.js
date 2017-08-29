@@ -18,7 +18,7 @@ import { connect } from 'react-redux'
 import { camelize } from 'humps'
 import { loadProjectList, createProject, deleteProject, updateProject, loadSysteminfo } from '../../../../actions/harbor'
 import NotificationHandler from '../../../../components/Notification'
-import { DEFAULT_REGISTRY } from '../../../../constants'
+import { DEFAULT_REGISTRY, SEARCH } from '../../../../constants'
 
 const RadioGroup = Radio.Group
 const notification = new NotificationHandler()
@@ -147,9 +147,12 @@ class Project extends Component {
     this.loadData()
     this.props.loadSysteminfo(DEFAULT_REGISTRY)
   }
-
+  componentDidUpdate() {
+    let searchInput = document.getElementsByClassName('search')[0]
+    searchInput && searchInput.focus()
+  }
   searchProjects() {
-    this.loadData({ project_name: this.state.searchInput })
+    this.loadData({ project_name: this.state.searchInput.replace(SEARCH,"") })
   }
 
   deleteItemOk() {
@@ -178,7 +181,10 @@ class Project extends Component {
             return
           }
           if (statusCode === 412) {
-            notification.error(`仓库组包含规则，删除失败`)
+            notification.error(`项目包含镜像仓库或复制规则，无法删除`)
+            this.setState({
+              deleteItem: false,
+            })
             return
           }
           notification.error(`仓库组删除失败`)
@@ -192,6 +198,7 @@ class Project extends Component {
     })
   }
   render() {
+    const { getFieldProps } = this.props.form
     const { harborProjects, harborSysteminfo, createProject, updateProject, loginUser } = this.props
     const func = {
       scope: this,
@@ -214,9 +221,9 @@ class Project extends Component {
                   <Button
                     type="primary"
                     size="large"
-                    icon="plus"
                     onClick={this.openCreateModal.bind(this)}
                   >
+                    <i className='fa fa-plus'/>&nbsp;
                     新建仓库组
                   </Button>
                 }
@@ -244,7 +251,6 @@ class Project extends Component {
               onCancel={()=> this.setState({deleteItem:false})}
               onOk={()=> this.deleteItemOk()}
             >
-              <div className="confirmText" style={{lineHeight:'30px'}}>删除仓库组后，仓库组内的镜像将全部删除。</div>
               <div className="confirmText">您确认删除 {this.state.selectedRows.map(item=> item.name).join(',')} 仓库组?</div>
             </Modal>
           </div>
@@ -254,6 +260,7 @@ class Project extends Component {
   }
 }
 
+Project = Form.create()(Project)
 function mapStateToProps(state, props) {
   const { harbor, entities } = state
   let harborProjects = harbor.projects && harbor.projects[DEFAULT_REGISTRY] || {}

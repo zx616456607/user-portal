@@ -17,6 +17,8 @@ const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 const NO_CLUSTER_FLAG = constants.NO_CLUSTER_FLAG
+const CREATE_PROJECTS_ROLE_ID = constants.CREATE_PROJECTS_ROLE_ID
+const CREATE_TEAMS_ROLE_ID = constants.CREATE_TEAMS_ROLE_ID
 const ROLE_TEAM_ADMIN = 1
 const ROLE_SYS_ADMIN = 2
 const config = require('../configs')
@@ -48,8 +50,9 @@ exports.getUserDetail = function* () {
     loginUser.tenxApi = user.tenxApi
     loginUser.cicdApi = user.cicdApi
     _.merge(loginUser, user)
+    user.userID = userID
     // Delete sensitive information
-    delete user.userID
+    // delete user.userID
     delete user.statusCode
     delete user.apiToken
   }
@@ -133,18 +136,15 @@ exports.getUserTeams = function* () {
     }
   }
   else {
-    userID = userID === 'default' ? loginUser.id : userID
-    const api = apiFactory.getApi(loginUser)
-    let result = yield api.users.getBy([loginUser.id])
-
-    //Only team admin can get team related information
-    if (!result || !result.data || (result.data.role != ROLE_TEAM_ADMIN
-        && result.data.role != ROLE_SYS_ADMIN)) {
-        this.body = {
-          teams: [],
-          total: 0
-        }
-        return
+    // Show teams that current user can manage
+    let managedTeams = (userID === 'default')
+    //Only team admin / sysadmin can get team related information
+    if (this.session.loginUser.role != ROLE_TEAM_ADMIN && this.session.loginUser.role != ROLE_SYS_ADMIN) {
+      this.body = {
+        teams: [],
+        total: 0
+      }
+      return
     }
 
     const query = this.query || {}
@@ -173,24 +173,48 @@ exports.getUserTeams = function* () {
     if (query && query.sort) {
       queryObj.sort = query.sort
     }
-    if (query.filter) {
-      queryObj.filter = query.filter + ",creatorID__eq," + userID
+    // Only filter by creator id for managed team query
+    if (managedTeams) {
+      if (query.filter) {
+        queryObj.filter = query.filter + ",creatorID__eq," + loginUser.id
+      } else {
+        queryObj.filter = "creatorID__eq," + loginUser.id
+      }
     } else {
-      queryObj.filter = "creatorID__eq," + userID
+      if (query.filter) {
+        queryObj.filter = query.filter + ",creatorID__eq," + userID
+      } else {
+        queryObj.filter = "creatorID__eq," + userID
+      }
+      queryObj.userId = userID
     }
-    result = yield api.teams.get(queryObj)
+    queryObj.managedTeams = managedTeams
+    const api = apiFactory.getApi(loginUser)
+    let result = yield api.teams.get(queryObj)
     const teams = result.teams || []
     let total = 0
     if (result.listMeta && result.listMeta.total) {
       total = result.listMeta.total
     }
-
     this.body = {
       teams,
       total
     }
   }
 }
+
+function* getUserTeamsNew() {
+  let userId = this.params.user_id
+  const loginUser = this.session.loginUser
+  userId = userId === 'default'
+           ? loginUser.id
+           : userId
+  const query = this.query || {}
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.users.getBy([ userId, 'teams' ], query)
+  this.body = result.data || {}
+}
+exports.getUserTeamsNew = getUserTeamsNew
 
 exports.getUserTeamspaces = function* () {
   let userID = this.params.user_id
@@ -262,12 +286,24 @@ exports.createUser = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const user = this.request.body
+  const method = 'createUser'
   if (!user || !user.userName || !user.password || !user.email) {
     const err = new Error('user name, password and email are required.')
     err.status = 400
     throw err
   }
   const result = yield api.users.create(user)
+
+  // add permissions for create project or team
+  const { authority } = user
+  if (authority && authority.length > 0) {
+    const { userID } = result
+    try {
+      result.addPermissons = yield api.users.createBy([ userID, 'global', 'global', 'roles' ], null, { roles: authority })
+    } catch (err) {
+      logger.error(method, 'add permissions failed', err.stack)
+    }
+  }
 
   if (!user.sendEmail) {
     this.body = {
@@ -294,8 +330,27 @@ exports.deleteUser = function* () {
   userID = userID === 'default' ? loginUser.id : userID
   const api = apiFactory.getApi(loginUser)
 
-  const result = yield api.users.delete(userID)
+  try {
+    const result = yield api.users.delete(userID)
+    this.body = {
+      data: result
+    }
+  } catch (error) {
+    this.status = error.statusCode
+    this.body = error
+  }
+}
 
+exports.batchDeleteUser = function* () {
+  const UserInfo = this.request.body
+  if (!UserInfo) {
+    const err = new Error('users are required.')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.users.batchDeleteBy(['batch-delete'], null, { UserInfo })
   this.body = {
     data: result
   }
@@ -332,3 +387,112 @@ exports.checkUserName = function* () {
   this.body = response
 }
 
+function* getUserProjects() {
+  const userId = this.params.user_id
+  const api = apiFactory.getApi(this.session.loginUser)
+  const response = yield api.users.getBy([userId, 'projects'])
+  this.status = response.code
+  this.body = response
+}
+exports.getUserProjects = getUserProjects
+
+function* updateTeamsUserBelongTo() {
+  let userId = this.params.user_id
+  const loginUser = this.session.loginUser
+  const body = this.request.body
+  const api = apiFactory.getApi(loginUser)
+  userId = userId === 'default'
+           ? loginUser.id
+           : userId
+  let addTeamsReuslt
+  let removeTeamsReuslt
+  const reqArray = []
+  if (body.addTeams) {
+    reqArray.push(api.users.createBy([ userId, 'teams' ], null, body.addTeams))
+  }
+  if (body.removeTeams) {
+    reqArray.push(api.users.batchDeleteBy([ userId, 'teams', 'batch-delete' ], null, body.removeTeams))
+  }
+  const response = yield reqArray
+  this.body = response
+}
+exports.updateTeamsUserBelongTo = updateTeamsUserBelongTo
+
+function* updateUserActive() {
+  let userId = this.params.user_id
+  const active = this.params.active
+  const loginUser = this.session.loginUser
+  userId = userId === 'default'
+           ? loginUser.id
+           : userId
+  const api = apiFactory.getApi(loginUser)
+  const response = yield api.users.updateBy([ userId, active ])
+  this.body = response
+}
+exports.updateUserActive = updateUserActive
+
+function* getSoftdeletedUsers() {
+  const query = this.query
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const response = yield api.users.getBy(['softdeleted'], query)
+  this.status = response.code
+  this.body = response
+}
+exports.getSoftdeletedUsers = getSoftdeletedUsers
+
+exports.getUsersExclude = function* () {
+  const query = this.query || {}
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const response = yield api.users.getBy(['search'],query)
+  this.status = response.code
+  this.body = response
+}
+
+function* bindRolesForUser() {
+  const loginUser = this.session.loginUser
+  const userId = this.params.user_id
+  const scope = this.params.scope
+  const scopeID = this.params.scopeID
+  const body = this.request.body
+  const api = apiFactory.getApi(loginUser)
+  const reqArray = []
+  if (body.bindUserRoles.roles.length > 0) {
+    reqArray.push(api.users.createBy([ userId, scope, scopeID, 'roles' ], null, body.bindUserRoles))
+  }
+  if (body.unbindUserRoles.roles.length > 0) {
+    reqArray.push(api.users.batchDeleteBy([ userId, scope, scopeID, 'roles', 'batch-delete' ], null, body.unbindUserRoles))
+  }
+  const result = yield reqArray
+  this.body = result
+}
+exports.bindRolesForUser = bindRolesForUser
+
+function* teamtransfer() {
+  const loginUser = this.session.loginUser
+  const userId = this.params.user_id
+  const body = this.request.body
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.users.createBy([ userId, 'teamtransfer' ], null, body)
+  this.body = result
+}
+exports.teamtransfer = teamtransfer
+
+function* resetPassword() {
+  const method = "resetPassword"
+  // Get email, code, password
+  const user = this.request.body
+  if (!user.email || !user.code || !user.password) {
+    const err = new Error('user email, code and password are required.')
+    err.status = 400
+    throw err
+  }
+
+  // Reset password for the email account
+  const spi = apiFactory.getSpi()
+  const result = yield spi.users.patchBy([user.email, 'resetpw'], { code: user.code }, user)
+
+  this.body = result
+}
+exports.resetPassword = resetPassword

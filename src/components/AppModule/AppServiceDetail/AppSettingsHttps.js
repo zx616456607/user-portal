@@ -145,12 +145,15 @@ class AppSettingsHttps extends Component {
       detailModal: false,
       hasHTTPPort: false,
       certificateExists: false,
-      httpsOpened: false,
+      httpsOpened: this.getHttpsSwitchState(props.k8sService),
       httpsStatusInited: false,
     }
+    this.setHttpsSwitchState = this.setHttpsSwitchState.bind(this)
+    this.getHttpsSwitchState = this.getHttpsSwitchState.bind(this)
   }
   componentWillMount() {
     const { serviceName, cluster, loadK8sService, loadServiceDetail, loadCertificates } = this.props
+    const { httpsOpened } = this.state
     loadK8sService(cluster, serviceName)
     loadServiceDetail(cluster, serviceName)
     const _this = this
@@ -273,13 +276,16 @@ class AppSettingsHttps extends Component {
     this.props.scope.setState({ activeTabKey: key })
   }
   setHttpsSwitchState(k8sService) {
+    this.setState({
+      httpsOpened: this.getHttpsSwitchState(k8sService),
+    })
+  }
+  getHttpsSwitchState(k8sService) {
     let isOpen = false
     if (k8sService && k8sService.metadata && k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
       isOpen = true
     }
-    this.setState({
-      httpsOpened: isOpen,
-    })
+    return isOpen
   }
   deleteCertificates() {
     const {
@@ -342,7 +348,9 @@ class AppSettingsHttps extends Component {
       <div id="settingsHttps">
         <div className="topHead">
           设置HTTPS
-          <Tooltip title={this.state.canOpenHttps ? `HTTPS已${this.state.statusText}` : '请先满足设置条件并添加证书'}><Switch disabled={!this.state.canOpenHttps} checkedChildren="开" unCheckedChildren="关" onChange={(e) => this.toggleHttps(e)} checked={this.state.httpsOpened} style={{ marginLeft: '40px' }} /></Tooltip>
+          <Tooltip title={this.state.canOpenHttps ? `HTTPS已${this.state.statusText}` : '请先满足设置条件并添加证书'}>
+            <Switch disabled={!this.state.canOpenHttps} checkedChildren="开" unCheckedChildren="关" onChange={(e) => this.toggleHttps(e)} checked={this.state.httpsOpened} style={{ marginLeft: '40px' }} />
+          </Tooltip>
         </div>
         <Card className="content">
           <div className="info commonBox">

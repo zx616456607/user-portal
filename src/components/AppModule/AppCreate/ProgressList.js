@@ -27,8 +27,8 @@ export default class ProgressList extends Component {
         >
         <div>
           <div className="blockBox"></div>
-          {createModel == "quick" ? [
-            <QueueAnim className="ProgressList" key="ProgressList" type="left">
+          {createModel == "quick" ?
+            <QueueAnim className="ProgressList" type="left">
               <div key="a">
                 <div className="firstStep step">
                   <svg className="commonCircle">
@@ -56,10 +56,10 @@ export default class ProgressList extends Component {
                 </div>
               </div>
             </QueueAnim>
-          ] : null
+           : null
           }
-          {createModel == "store" ? [
-            <QueueAnim className="ProgressList" key="ProgressList" type="left">
+          {createModel == "store" ?
+            <QueueAnim className="ProgressList" type="left">
               <div key="b">
                 <div className="firstStep step">
                   <svg className="commonCircle">
@@ -87,10 +87,10 @@ export default class ProgressList extends Component {
                 </div>
               </div>
             </QueueAnim>
-          ] : null
+          : null
           }
-          {createModel == "layout" ? [
-            <QueueAnim className="ProgressList" key="ProgressList" type="left">
+          {createModel == "deploy_wrap" ?
+            <QueueAnim className="ProgressList" type="left">
               <div key="c">
                 <div className="firstStep step">
                   <svg className="commonCircle">
@@ -101,6 +101,46 @@ export default class ProgressList extends Component {
                   </svg>
                   <span>部署方式</span>
                 </div>
+                <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
+                  <svg className="commonCircle">
+                    <use xlinkHref="#step" />
+                  </svg>
+                  <svg className="commonLine">
+                    <use xlinkHref="#stepline" />
+                  </svg>
+                  <span>选择镜像</span>
+                </div>
+                <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
+                  <svg className="commonCircle">
+                    <use xlinkHref="#step" />
+                  </svg>
+                  <span>配置服务</span>
+                </div>
+              </div>
+            </QueueAnim>
+          : null
+          }
+          {createModel == "layout" ?
+            <QueueAnim className="ProgressList" type="left">
+              <div key="d">
+                <div className="firstStep step">
+                  <svg className="commonCircle">
+                    <use xlinkHref="#step" />
+                  </svg>
+                  <svg className="commonLine">
+                    <use xlinkHref="#stepline" />
+                  </svg>
+                  <span>部署方式</span>
+                </div>
+                <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
+                  <svg className="commonCircle">
+                    <use xlinkHref="#step" />
+                  </svg>
+                  <svg className="commonLine">
+                    <use xlinkHref="#stepline" />
+                  </svg>
+                  <span>选择应用</span>
+                </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
                   <svg className="commonCircle">
                     <use xlinkHref="#step" />
@@ -109,7 +149,7 @@ export default class ProgressList extends Component {
                 </div>
               </div>
             </QueueAnim>
-          ] : null
+          : null
           }
         </div>
       </QueueAnim>

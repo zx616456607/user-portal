@@ -17,6 +17,7 @@ import './style/AppList.less'
 import { loadAppList, stopApps, deleteApps, restartApps, startApps } from '../../actions/app_manage'
 import { deleteSetting, getSettingListfromserviceorapp } from '../../actions/alert'
 import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
+import { removeTerminal } from '../../actions/terminal'
 import { LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { calcuDate } from '../../common/tools'
@@ -32,6 +33,7 @@ import CreateAlarm from './AlarmModal'
 import CreateGroup from './AlarmModal/CreateGroup'
 import DeployEnvModal from '../DeployEnvModal'
 import Title from '../Title'
+import cloneDeep from 'lodash/cloneDeep'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -789,10 +791,22 @@ class AppList extends Component {
   }
   handleRestarAppsOk() {
     const self = this
-    const { cluster, restartApps, appList, intl } = this.props
+    const { cluster, restartApps, appList, intl, removeTerminal, terminalList } = this.props
     const checkedAppList = appList.filter((app) => app.checked)
     let runningApps = []
 
+    if(terminalList.length){
+      const deleteAppList = cloneDeep(checkedAppList)
+      const deleteServiceList = []
+      deleteAppList.forEach( item => {
+        item.services.forEach( servicesItem => {
+          deleteServiceList.push(servicesItem)
+        })
+      })
+      deleteServiceList.forEach(item => {
+        removeTerminal(cluster, item.metadata.name)
+      })
+    }
     checkedAppList.map((app, index) => {
       if (app.status.phase === 'Running' || app.status.phase === 'Starting' || app.status.phase === 'Pending' || app.status.phase === 'Deploying') {
         runningApps.push(app)
@@ -842,10 +856,22 @@ class AppList extends Component {
   }
   handleDeleteAppsOk() {
     const self = this
-    const { cluster, deleteApps, intl, appList, deleteSetting, SettingListfromserviceorapp } = this.props
+    const { cluster, deleteApps, intl, appList, deleteSetting, SettingListfromserviceorapp, removeTerminal, terminalList } = this.props
     const checkedAppList = appList.filter((app) => app.checked)
 
     const appNames = checkedAppList.map((app) => app.name)
+    if(terminalList.length){
+      const deleteAppList = cloneDeep(checkedAppList)
+      const deleteServiceList = []
+      deleteAppList.forEach( item => {
+        item.services.forEach( servicesItem => {
+          deleteServiceList.push(servicesItem)
+        })
+      })
+      deleteServiceList.forEach(item => {
+        removeTerminal(cluster, item.metadata.name)
+      })
+    }
     const allApps = self.state.appList
     allApps.map((app) => {
       if (appNames.indexOf(app.name) > -1) {
@@ -868,10 +894,11 @@ class AppList extends Component {
           const { alarmStrategy } = self.state
           if(alarmStrategy){
             let strategyID = []
-            SettingListfromserviceorapp.result.forEach((item, index) => {
+            let strategyList = SettingListfromserviceorapp.result || []
+            strategyList.forEach((item, index) => {
               strategyID.push(item.strategyID)
             })
-            deleteSetting(cluster,strategyID)
+            strategyID.length > 0 && deleteSetting(cluster,strategyID)
           }
         },
         isAsync: true
@@ -1307,6 +1334,8 @@ function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
   const { statusWatchWs } = state.entities.sockets
   const { SettingListfromserviceorapp } = state.alert
+  const { terminal } = state
+  const terminalList = terminal.list[cluster.clusterID] || []
   const defaultApps = {
     isFetching: false,
     cluster: cluster.clusterID,
@@ -1337,6 +1366,7 @@ function mapStateToProps(state, props) {
     sortOrder,
     sortBy,
     appList,
+    terminalList,
     isFetching,
     cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule,
     SettingListfromserviceorapp
@@ -1352,6 +1382,7 @@ AppList = connect(mapStateToProps, {
   getDeploymentOrAppCDRule,
   deleteSetting,
   getSettingListfromserviceorapp,
+  removeTerminal,
 })(AppList)
 
 export default injectIntl(AppList, {

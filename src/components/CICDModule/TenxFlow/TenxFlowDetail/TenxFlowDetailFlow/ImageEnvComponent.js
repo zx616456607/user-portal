@@ -28,7 +28,7 @@ let ImageEnvComponent = React.createClass({
       uuid: 0
     }
   },
-  loadData() {
+  loadData(imageChange) {
     const { form, loadRepositoriesTagConfigInfo, registryServer } = this.props
     let imageName = form.getFieldValue('imageName')
     this.setState({
@@ -81,7 +81,7 @@ let ImageEnvComponent = React.createClass({
               // })
             })
           }
-          self.setCustomEnvAndFocus(allEnv)
+          self.setCustomEnvAndFocus(allEnv, imageChange)
         }
       },
       failed: {
@@ -100,14 +100,15 @@ let ImageEnvComponent = React.createClass({
   componentWillMount() {
    this.loadData()
   },
-  setCustomEnvAndFocus(env) {
+  setCustomEnvAndFocus(env, imageChange) {
     const {form, config } = this.props;
     const { setFieldsValue, getFieldValue } = form
     let allEnv = {}
     if(env) {
       allEnv = Object.assign(allEnv, env)
     }
-    if (!!config) {
+    // fix issue http://jira.tenxcloud.com/browse/CRYSTAL-4437
+    if (!!config && !imageChange) {
       config.map((item) => {
         allEnv[item.name] = item.value
       })
@@ -139,7 +140,10 @@ let ImageEnvComponent = React.createClass({
     const { form } = nextProps
     let imageName = form.getFieldValue('imageName')
     if(nextProps.visible != this.props.visible && nextProps.visible && this.state.currentImageName != imageName) {
-      return this.loadData()
+      form.setFieldsValue({
+        imageEnvInputs: [ 0 ]
+      })
+      return this.loadData(true)
     }
     if (nextProps.visible != this.props.visible && nextProps.visible) {
       let keys = form.getFieldValue('imageEnvInputs')
@@ -191,10 +195,35 @@ let ImageEnvComponent = React.createClass({
     form.setFieldsValue({
       'imageEnvInputs': keys
     });
+    const envNameKeys = keys.map(key => `imageEnvName${key}`)
+    form.validateFields(envNameKeys, { force: true });
     if(keys.length == 0) {
       return this.addImageEnv(scope)
     }
     setTimeout(()=> document.getElementById(`imageEnvName${keys[keys.length - 1]}`).focus(),0)
+  },
+  validateEnvName(item, values, callback) {
+    const { validateCallback } = this.props
+    if (!values || values == "") {
+      if (validateCallback) {
+        validateCallback(false)
+      }
+      callback([new Error('请输入环境变量名')])
+      return
+    }
+    // Compare after remove all space
+    let str = values.replace(/\s+/g, "");
+    if (str != values) {
+      if (validateCallback) {
+        validateCallback(false)
+      }
+      callback([new Error('环境变量名不允许含有空格')])
+      return
+    }
+    if (validateCallback) {
+      validateCallback(true)
+    }
+    callback()
   },
   closeModal () {
     //this function for user close the env input modal
@@ -222,7 +251,7 @@ let ImageEnvComponent = React.createClass({
       let itemKey = '';
       const ImageEnvNameInputProps = getFieldProps(`imageEnvName${i}`, {
         rules: [
-          { message: '请输入环境变量名' },
+          { validator: this.validateEnvName },
         ]
       });
       const ImageEnvValueInputProps = getFieldProps(`imageEnvValue${i}`, {

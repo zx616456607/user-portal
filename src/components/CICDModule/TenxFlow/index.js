@@ -16,9 +16,9 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {
   getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLastLogs,
   CreateTenxflowBuild, getTenxflowBuildDetailLogs, changeTenxFlowStatus,
-  changeFlowStatus, getRepoBranchesAndTagsByProjectId,
+  changeFlowStatus, getRepoBranchesAndTagsByProjectId, getStageBuildLogList,
 } from '../../../actions/cicd_flow'
-import { DEFAULT_REGISTRY } from '../../../constants'
+import { DEFAULT_REGISTRY, SEARCH } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
 import TenxFlowBuildLog from './TenxFlowBuildLog'
 import moment from 'moment'
@@ -224,7 +224,7 @@ let MyComponent = React.createClass({
     const targetElement = (
       <Dropdown.Button
         overlay={dropdown}
-        type='ghost'
+        type='primary'
         size='large'
         onClick={() => {
           if (repoType === 'svn') {
@@ -279,6 +279,7 @@ let MyComponent = React.createClass({
     </Dropdown.Button>*/
     return (
       <PopTabSelect
+        placeholder="请输入分支或标签"
         style={{float: 'left'}}
         onChange={this.startBuildStage.bind(this, item, index)}
         targetElement={targetElement}
@@ -331,7 +332,7 @@ let MyComponent = React.createClass({
             <span><i className="fa fa-circle"></i>{status}</span>
           </div>
           <div className='oprea'>
-            <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
+            <Button className='logBtn' size='large' type='ghost' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
               <i className='fa fa-wpforms' />&nbsp;
               <FormattedMessage {...menusText.deloyLog} />
             </Button>
@@ -474,9 +475,10 @@ class TenxFlowList extends Component {
   onSearchFlow() {
     //this function for user search special flow
     let searchingFlag = false;
-    const { searchValue } = this.state
+    let { searchValue } = this.state
     const { flowList } = this.props;
     let newList = [];
+    searchValue = searchValue.replace(SEARCH,"")
     if (searchValue.length > 0) {
       searchingFlag = true;
     }
@@ -698,6 +700,7 @@ export default connect(mapStateToProps, {
   getTenxflowBuildDetailLogs,
   changeFlowStatus,
   getRepoBranchesAndTagsByProjectId,
+  getStageBuildLogList,
 })(injectIntl(TenxFlowList, {
   withRef: true,
 }));

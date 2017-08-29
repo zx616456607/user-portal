@@ -21,9 +21,23 @@ const Panel = Collapse.Panel
 const FormItem = Form.Item
 
 const AdvancedSetting = React.createClass({
+  getInitialState(){
+    return {
+      activeKey: null,
+    }
+  },
+  componentWillReceiveProps(nextProps){
+    let nextKey = nextProps.AdvancedSettingKey
+    let currentKey = this.props.AdvancedSettingKey
+    if((nextKey == '1' || currentKey == '1') && this.state.activeKey !== '1'){
+      this.setState({
+        activeKey: '1'
+      })
+    }
+  },
   addEnvKey() {
     const { form } = this.props
-    const { setFieldsValue, getFieldValue, validateFields } = form
+    const { setFieldsValue, getFieldValue, validateFieldsAndScroll } = form
     let envKeys = getFieldValue('envKeys') || []
     const validateFieldsKeys = []
     envKeys.forEach(key => {
@@ -34,7 +48,7 @@ const AdvancedSetting = React.createClass({
       validateFieldsKeys.push(`envName${keyValue}`)
       validateFieldsKeys.push(`envValue${keyValue}`)
     })
-    validateFields(validateFieldsKeys, (errors, values) => {
+    validateFieldsAndScroll(validateFieldsKeys, (errors, values) => {
       if (!!errors) {
         return
       }
@@ -87,14 +101,14 @@ const AdvancedSetting = React.createClass({
     const envValueKey = `envValue${keyValue}`
     const envNameProps = getFieldProps(envNameKey, {
       rules: [
-        // { required: true, message: '请填写键' },
+        { required: true, message: '请填写键' },
         { validator: this.checkEnv },
       ],
     })
     const envValueProps = getFieldProps(envValueKey, {
-      // rules: [
-      //   { required: true, message: '请填写值' }
-      // ],
+       rules: [
+         { required: true, message: '请填写值' }
+       ],
     })
     return (
       <Row className="configItem" key={`configItem${keyValue}`}>
@@ -123,6 +137,11 @@ const AdvancedSetting = React.createClass({
       </Row>
     )
   },
+  collapseChange(key){
+    this.setState({
+      activeKey: key
+    })
+  },
   render() {
     const { formItemLayout, form } = this.props
     const { getFieldValue } = form
@@ -142,8 +161,8 @@ const AdvancedSetting = React.createClass({
     )
     return (
       <div id="advancedConfigureService">
-        <Collapse>
-          <Panel header={header}>
+        <Collapse onChange={this.collapseChange} activeKey={this.state.activeKey}>
+          <Panel header={header} key="1">
             <Row>
               <Col span={formItemLayout.labelCol.span} className="formItemLabel">
                 环境变量

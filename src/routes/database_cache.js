@@ -11,6 +11,10 @@
 */
 
 const databaseCacheRoutes = [{
+  path: 'mysql_cluster',
+  component: require('../components/DatabaseCache/MysqlCluster').default,
+},
+{
   path: 'redis_cluster',
   component: require('../components/DatabaseCache/RedisCluster').default,
 },
@@ -20,6 +24,10 @@ const databaseCacheRoutes = [{
 },
 {
   path: 'elasticsearch_cluster',
+  component: require('../components/DatabaseCache/StatefulCluster').default,
+},
+{
+  path: 'etcd_cluster',
   component: require('../components/DatabaseCache/StatefulCluster').default,
 }]
 

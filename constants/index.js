@@ -16,6 +16,8 @@ exports.METRICS_CPU = 'cpu/usage_rate'
 exports.METRICS_MEMORY = 'memory/usage'
 exports.METRICS_NETWORK_RECEIVED = 'network/rx_rate'
 exports.METRICSS_NETWORK_TRANSMITTED = 'network/tx_rate'
+exports.METRICSS_DISK_READ = 'disk/readio'
+exports.METRICSS_DISK_WRITE = 'disk/writeio'
 exports.DEFAULT_CONTAINER_RESOURCES_CPU = '60m'
 exports.DEFAULT_CONTAINER_RESOURCES_MEMORY = '256Mi'
 exports.DEFAULT_CONTAINER_RESOURCES = {
@@ -33,6 +35,7 @@ exports.DEFAULT_PAGE_SIZE = 10
 exports.MAX_PAGE_SIZE = 100
 exports.USER_CURRENT_CONFIG = 'tce_user_current_config'
 exports.ANNOTATION_SVC_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname'
+exports.ANNOTATION_LBGROUP_NAME = 'system/lbgroup'
 exports.ANNOTATION_HTTPS = 'tenxcloud.com/https'
 exports.ROLE_USER = 0
 exports.ROLE_TEAM_ADMIN = 1
@@ -69,3 +72,13 @@ exports.DEFAULT_LICENSE = {
   max_nodes: 5,
   max_clusters: 1,
 }
+exports.CREATE_PROJECTS_ROLE_ID = 'RID-Ezeg3KPhm3mS'
+exports.CREATE_TEAMS_ROLE_ID = 'RID-XwPiLfrBYjqd'
+//项目访客
+exports.TEAM_VISISTOR_ROLE_ID = 'RID-ggNW6A2mwgEX'
+//项目管理员
+exports.TEAM_MANAGE_ROLE_ID = 'RID-LFJKCKtKzCrd'
+//admin userID
+exports.ADMIN_USERID = 1232
+//team_manager
+exports.TEAM_MANAGE_ROLE_ID = 'RID-i5rFhJowkzjo'

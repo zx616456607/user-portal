@@ -31,7 +31,7 @@ class CreateCompose extends Component {
     this.onChangeYamlEditor = this.onChangeYamlEditor.bind(this)
     this.state = {
       composeType: 'stack',
-      composeAttr: false,
+      composeAttr: props.parentState.stackItem.isPublic === 1 ? true : false,
       currentYaml: null
     }
   }
@@ -43,6 +43,11 @@ class CreateCompose extends Component {
       currentYaml = parentState.stackItemContent;
       this.setState({
         currentYaml: currentYaml
+      })
+    }
+    if (!this.props.parentState.createModalShow && nextProps.parentState.createModalShow) {
+      this.setState({
+        composeAttr: nextProps.parentState.stackItem.isPublic === 1 ? true : false
       })
     }
   }
@@ -232,13 +237,11 @@ class CreateCompose extends Component {
       initialValue: parentState.stackItem.name
     });
     const descProps = getFieldProps('desc', {
-      rules: [
-        { required: true, message: '描述信息' },
-      ],
       initialValue: parentState.stackItem.description
     });
     const switchProps = getFieldProps('checked', {
-      initialValue: parentState.stackItem.isPublic == 1 ? true : false
+      valuePropName: 'checked',
+      initialValue: parentState.stackItem.isPublic === 1 ? true : false
     })
     return (
       <div id='createCompose' key='createCompose'>
@@ -260,7 +263,7 @@ class CreateCompose extends Component {
             </div>
             <div className='rightBox' style={{ width: '100px', paddingTop: '8px' }}>
               <FormItem hasFeedback>
-                <Switch {...switchProps} disabled={this.props.readOnly} defaultChecked={parentState.stackItem.isPublic == 1 ? true : false} checkedChildren={'公开'} unCheckedChildren={'私有'} onChange={this.onChangeAttr} />
+                <Switch {...switchProps} checked={this.state.composeAttr} disabled={this.props.readOnly}  checkedChildren={'公开'} unCheckedChildren={'私有'} onChange={this.onChangeAttr} />
               </FormItem>
             </div>
             <div style={{ clear: 'both' }}></div>

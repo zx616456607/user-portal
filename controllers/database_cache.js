@@ -14,6 +14,9 @@ const Service = require('../kubernetes/objects/service')
 const apiFactory = require('../services/api_factory')
 const registryConfigLoader = require('../registry/registryConfigLoader')
 const PetsetLabel = 'tenxcloud.com/petsetType'
+const constants = require('../constants')
+const lbGroupAnnotationKey = constants.ANNOTATION_LBGROUP_NAME
+const svcScheamPortnameKey = constants.ANNOTATION_SVC_SCHEMA_PORTNAME
 /*
 basicInfo {
   templateId: "xxxx",
@@ -69,10 +72,36 @@ exports.createNewDBService = function* () {
   }
   yamlContent = yamlContent.replace(/\{\{external-ip\}\}/g, basicInfo.externalIP)
 
+  if (basicInfo.lbGroupID) {
+    yamlContent = addServiceAnnotationOfLBGroup(yamlContent, basicInfo.lbGroupID)
+  }
+
   const result = yield api.createBy([cluster, 'dbservices'], { category: appTemplate.data.category }, yamlContent);
   this.body = {
     result
   }
+}
+
+function addServiceAnnotationOfLBGroup(rawYAMLString, groupID) {
+  const separator = '---'
+  const rawResourceParts = rawYAMLString.split(separator)
+  const rawParts = rawResourceParts.reduce((parts, part) => {
+    if (part.indexOf(svcScheamPortnameKey) !== -1) {
+      parts.care.push(part)
+    } else {
+      parts.notCare.push(part)
+    }
+    return parts
+  }, {
+      care: [],
+      notCare: [],
+    })
+  const needGroupID = rawParts.care.map(resource => yaml.load(resource))
+  needGroupID.forEach(resource => {
+    resource.metadata.annotations[lbGroupAnnotationKey] = groupID
+  })
+  return needGroupID.map(resource => yaml.dump(resource))
+    .concat(rawParts.notCare).join(separator)
 }
 
 /*

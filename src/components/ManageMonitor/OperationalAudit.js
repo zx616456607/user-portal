@@ -29,7 +29,7 @@ let standardFlag = (mode == standard ? true : false);
 const menusText = defineMessages({
   headTitle: {
     id: 'ManageMonitor.operationalAudit.headTitle',
-    defaultMessage: '操作审计 | 时速云',
+    defaultMessage: '操作审计',
   },
   title: {
     id: 'ManageMonitor.operationalAudit.title',
@@ -471,6 +471,10 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.clusterTitle',
     defaultMessage: '集群名',
   },
+  baseImage: {
+    id: 'ManageMonitor.operationalAudit.baseImage',
+    defaultMessage: '基础镜像',
+  },
 });
 
 function returnOperationList(scope) {
@@ -778,6 +782,10 @@ function resourceFormat(resourceType, scope) {
       break;
     case '54':
       return formatMessage(menusText.DBCache)
+
+    // For CI related
+    case '1000':
+      return formatMessage(menusText.baseImage)
       break;
     case '0':
       return formatMessage(menusText.Unknown)
@@ -935,11 +943,24 @@ function formatResourceName(resourceName, resourceId) {
       newName = newName.join(',');
       return newName;
     }
+    if (!!newBody.users) {
+      let newName = newBody.users;
+      if (newName.length == 0) {
+        return '-';
+      }
+      const userNames = newName.map(item=>{
+        return item.userName
+      });
+      return userNames.join(',');
+    }
     if (newBody.name) {
       return newBody.name
     }
     if (newBody.strategyName) {
       return newBody.strategyName
+    }
+    if (newBody.imagename) {
+      return newBody.imagename
     }
     if (newBody.strategyIDs && Array.isArray(newBody.strategyIDs) && newBody.strategyIDs.length > 0) {
       return newBody.strategyIDs.join(",")

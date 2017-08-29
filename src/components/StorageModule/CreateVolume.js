@@ -16,6 +16,7 @@ import { calcuDate, parseAmount, formatDate } from '../../common/tools'
 import { SnapshotClone, createStorage, loadStorageList } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL } from '../../constants'
 import NotificationHandler from '../../components/Notification'
+import { SHOW_BILLING } from '../../constants'
 
 const messages = defineMessages({
   name: {
@@ -166,11 +167,17 @@ class CreateVolume extends Component {
 
   handleComfirmCreateVolume() {
     const { form,SnapshotClone,cluster,currentVolume,createStorage,currentImagePool,loadStorageList, snapshotDataList } = this.props
-    const { volumeSize,fstype } = this.state
+    const { volumeSize,fstype, swicthChecked } = this.state
     this.setState({
       loading: true,
     })
-    form.validateFields((errors,values) => {
+    const validataArray = [
+      'volumeName',
+    ]
+    if(swicthChecked){
+      validataArray.push('selectSnapshotName')
+    }
+    form.validateFields(validataArray, (errors,values) => {
       if(!!errors){
         this.setState({
           loading: false,
@@ -207,11 +214,9 @@ class CreateVolume extends Component {
                 notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
                 return
               }
-              if (err.message) {
-                notification.error(err.message)
-                return
+              if (err.statusCode !== 402) {
+                notification.error('创建存储卷失败',err.message.message || err.message)
               }
-              notification.error('创建存储卷失败')
             }
           }
         })
@@ -244,13 +249,19 @@ class CreateVolume extends Component {
             notification.close()
             notification.success('创建存储成功')
             this.handleResetState()
-          }
+            loadStorageList(currentImagePool,cluster.clusterID)
+          },
+          isAsync: true,
         },
         failed: {
-          func: () => {
+          func: (res) => {
+            let message = '创建存储卷失败，请重试'
             this.handleResetState()
             notification.close()
-            notification.error('创建存储卷失败')
+            if(res.message){
+              message = res.message
+            }
+            notification.error(message)
           }
         }
       })
@@ -332,22 +343,20 @@ class CreateVolume extends Component {
         validator: this.checkVolumeName
       }]
     })
-    let required = false
-    if(snapshotRequired){
-      required = true
-    }
     let selectdefaultValue = undefined
     if(currentSnapshot){
       selectdefaultValue = currentSnapshot.name
     }
-    const selectSnapshotNameProps = getFieldProps('selectSnapshotName',{
-      rules:[{
-        required,
-        message:'请选择快照名称',
-      }],
-      initialValue: selectdefaultValue
-    })
-
+    let selectSnapshotNameProps
+    if(this.state.swicthChecked){
+      selectSnapshotNameProps = getFieldProps('selectSnapshotName',{
+        rules:[{
+          required: true,
+          message:'请选择快照名称',
+        }],
+        initialValue: selectdefaultValue
+      })
+    }
     const resourcePrice = cluster.resourcePrice
     const storagePrice = resourcePrice.storage /10000
     const hourPrice = parseAmount(this.state.volumeSize /1024 * resourcePrice.storage, 4)
@@ -464,6 +473,7 @@ class CreateVolume extends Component {
               </Button>
             </Col>
           </Row>
+          { SHOW_BILLING ?
           <div className="modal-price">
             <div className="price-left">
               存储：{hourPrice.unit == '￥' ? '￥' : ''}{ storagePrice } {hourPrice.unit == '￥' ? '' : ' T'}/(GB*小时)
@@ -473,6 +483,8 @@ class CreateVolume extends Component {
               <p><span className="unit">（约：</span><span className="unit">{ countPrice.fullAmount }/月）</span></p>
             </div>
           </div>
+          :null
+          }
         </Form>
         <div className='createVolumeFooter'>
           <Button size='large' type="primary" className='buttonConfirm' onClick={this.handleComfirmCreateVolume} loading={this.state.loading}>确定</Button>

@@ -1,0 +1,151 @@
+.JoinProjectsModal {
+  .ant-modal-content {
+    width: 630px;
+    .topStep {
+      margin-bottom: 20px;
+      .step {
+        background: #EBEFF2;
+        text-align: center;
+        height: 30px;
+        line-height: 30px;
+        display: inline-block;
+        width: 272px;
+        border-radius: 3px;
+        position: relative;
+        .number{
+          border-radius: 10px;
+          height: 18px;
+          line-height: 16px;
+          width:18px;
+          margin-right: 10px;
+          display: inline-block;
+          border:1px solid #CFCFCF;
+        }
+      }
+
+      .step:nth-of-type(1) {
+        &:after {
+          content: '';
+          position: absolute;
+          right: -20px;top: 0;
+          width:0;
+          height:0;
+          border-top:15px solid transparent;
+          border-bottom: 15px solid transparent;
+          border-left: 23px solid #EBEFF2;
+        }
+
+      }
+      /* .step:nth-of-type(2) {
+        margin: 0 25px;
+        &:before {
+          content: '';
+          position: absolute;
+          left: -22px;top: 0;
+          width:0;
+          height:0;
+          border-top:15px solid #EBEFF2;
+          border-bottom: 15px solid #EBEFF2;
+          border-left: 23px solid transparent;
+        }
+        &:after {
+          content: '';
+          position: absolute;
+          right: -20px;top: 0;
+          width:0;
+          height:0;
+          border-top:15px solid transparent;
+          border-bottom: 15px solid transparent;
+          border-left: 23px solid #EBEFF2;
+        }
+
+      } */
+      .step:nth-of-type(2) {
+        margin-left: 25px;
+        &:before {
+        content: '';
+          position: absolute;
+          left: -22px;top: 0;
+          width:0;
+          height:0;
+          border-top:15px solid #EBEFF2;
+          border-bottom: 15px solid #EBEFF2;
+          border-left: 23px solid transparent;
+        }
+
+      }
+      .step.active:nth-of-type(1) {
+        &:after{
+
+          border-top:15px solid transparent;
+          border-bottom: 15px solid transparent;
+          border-left: 23px solid #2DB7F5;
+        }
+      }
+      /* .step.active:nth-of-type(2) {
+        &:after{
+          border-top:15px solid transparent;
+          border-bottom: 15px solid transparent;
+          border-left: 23px solid #2DB7F5;
+        }
+        &:before {
+          border-top:15px solid #2DB7F5;;
+          border-bottom: 15px solid #2DB7F5;;
+          border-left: 23px solid transparent;
+        }
+      } */
+      .step.active:nth-of-type(2) {
+
+        &:before {
+          border-top:15px solid #2DB7F5;;
+          border-bottom: 15px solid #2DB7F5;;
+          border-left: 23px solid transparent;
+        }
+      }
+      .step.active{
+        background: #2DB7F5;
+        color: white;
+        .number {border-color: white;}
+      }
+    }
+    .selectedProjectsHeader {
+      padding-bottom: 5px;
+    }
+    .selectedProjects {
+      max-height: 280px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      border: 1px solid #efefef;
+      border-radius: 5px;
+      .ant-menu-inline {
+        border: 0;
+        .ant-menu-item {
+          height: 36px;
+          line-height: 36px;
+        }
+        .ant-menu-item-selected {
+          border: 0;
+          color: #fff;
+          background-color: #2DB7F5;
+        }
+      }
+    }
+    .roles {
+      height: 280px;
+      border: 1px solid #efefef;
+      border-radius: 5px;
+      overflow: auto;
+      .checkRole {
+        height: 36px;
+        line-height: 36px;
+        &:hover {
+          background-color: #eaf8fe;
+        }
+        label {
+          padding-left: 16px;
+          width: 100%;
+        }
+      }
+    }
+  }
+}

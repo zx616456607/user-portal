@@ -55,7 +55,10 @@ class CodeRepo extends Component {
       })
     }
   }
-
+  componentDidUpdate() {
+    let searchInput = document.getElementsByClassName('search')[0]
+    searchInput && searchInput.focus()
+  }
   loadRepos(query) {
     const { loadProjectRepos, registry } = this.props
     loadProjectRepos(registry, Object.assign({}, this.DEFAULT_QUERY, query))

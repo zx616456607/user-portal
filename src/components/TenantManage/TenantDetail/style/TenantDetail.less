@@ -95,6 +95,19 @@
             color: #9bd5fb;
             padding:0 3px;
           }
+          .anticon {
+            cursor: pointer
+          }
+          .edit_desc{
+            display: inline-block;
+            .icon{
+              margin: 6px;
+              font-size: 20px;
+            }
+            .comment{
+              display: inline-block
+            }
+          }
         }
       }
       .itemfirst{
@@ -116,18 +129,50 @@
 }
 .createRol {
   .mainbox {
-    clear: both;
     border: 1px dashed #feda9e;
     border-radius: 4px;
     background: #fffbf5;
     line-height:20px;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
     .icon{
-      display:block;
-      float:left;
-      margin-top:6px;
       font-size: 17px;
-      padding:4px 12px 0 16px;
       color: #fa0;
+      margin-right: 10px;
     }
+    .pName{
+      display: inline-block
+    }
+  }
+}
+.roleDetail_editRole{
+  .ant-modal-body{
+    padding:0;
+  }
+  .ant-modal-footer{
+    display: none;
+  }
+  .ant-form-item-required:before{
+    display: none;
+  }
+  .ant-form-item-label label:after{
+    display: none;
+  }
+  .ant-form-item-label{
+    text-align: left;
+  }
+}
+.treeContainer{
+    //height: 150px;
+    overflow-y: scroll;
+    .ant-table-thead {
+      //height: 150px;
+      background:#fff;
+      }
+  }
+.removePermission{
+  .tips{
+    margin-top: 12px;
   }
 }

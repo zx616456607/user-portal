@@ -51,12 +51,18 @@ let ConfigureService = React.createClass({
     }
   },
   componentWillMount() {
-    const { callback, imageName, registryServer, form, mode, appName } = this.props
+    const { callback, imageName, registryServer, form, mode, location } = this.props
+    let  { appName } = this.props
     const { setFieldsValue } = form
     callback(form)
     if (mode === 'create') {
       const values = {
         imageUrl: `${registryServer}/${imageName}`,
+      }
+      if (location.query.appPkgID) {
+        let { registryServer,imageName} = location.query
+        values.imageUrl = `${registryServer}/${imageName}`
+        appName = location.query.appName || appName
       }
       if (appName) {
         values.appName = appName
@@ -78,6 +84,11 @@ let ConfigureService = React.createClass({
         this.focusInput('serviceNameInput')
       }
     }, 50)
+    const { location, form } = this.props
+    if (location.query.appPkgID) {
+      form.getFieldProps('appPkgID')
+      form.setFieldsValue({'appPkgID': location.query.appPkgID})
+    }
   },
   componentWillUnmount() {
     clearTimeout(this.appNameCheckTimeout)
@@ -98,6 +109,9 @@ let ConfigureService = React.createClass({
       imageName = currentFields.imageUrl.value
       imageName = imageName.substr(imageName.indexOf('/') + 1)
     }
+    if (location.query　&& location.query.imageName) {
+      imageName = location.query.imageName
+    }
     if (other) {
       getOtherImageTag({ id: other, imageName }, {
         success: {
@@ -106,11 +120,24 @@ let ConfigureService = React.createClass({
             if (result.tags.indexOf(LATEST) > -1) {
               imageTag = LATEST
             }
+            if (location && location.query.tag) {
+              let hasTag
+              result.data.every(tags =>{
+                if (tags == location.query.tag) {
+                  hasTag = true
+                  return false
+                }
+                return true
+              })
+              if (hasTag) {
+                imageTag = location.query.tag
+              }
+            }
             setFieldsValue({
               imageTag,
             })
             // load image config by tag
-            this.loadImageConfig(other, imageTag)
+            this.loadImageConfig(other, imageName, imageTag)
           },
           isAsync: true,
         }
@@ -124,11 +151,24 @@ let ConfigureService = React.createClass({
            if (result.data.indexOf(LATEST) > -1) {
              imageTag = LATEST
            }
+           if (location.query && location.query.tag) {
+              let hasTag
+              result.data.every(tags =>{
+                if (tags == location.query.tag) {
+                  hasTag = true
+                  return false
+                }
+                return true
+              })
+              if (hasTag) {
+                imageTag = location.query.tag
+              }
+            }
            setFieldsValue({
              imageTag,
            })
            // load image config by tag
-           this.loadImageConfig(other, imageTag)
+           this.loadImageConfig(other, imageName,imageTag)
          },
          isAsync: true,
        }
@@ -151,15 +191,22 @@ let ConfigureService = React.createClass({
    //   }
    // })
   },
-  loadImageConfig(other, imageTag) {
-    const {
+  loadImageConfig(other,images, imageTag) {
+    let {
       mode,
       loadOtherDetailTagConfig,
       //loadImageDetailTagConfig,
       loadRepositoriesTagConfigInfo,
       imageName,
+      location
     } = this.props
+    if (images) {
+      imageName = images
+    }
     let loadImageConfigFunc
+    // if (location.query　&& location.query.imageName) {
+    //   imageName = location.query.imageName
+    // }
     const callback = {
       success: {
         func: (result) => {
@@ -363,7 +410,7 @@ let ConfigureService = React.createClass({
     const {
       form, imageTags, currentFields,
       standardFlag, loadFreeVolume, createStorage,
-      current, id, allFields, location
+      current, id, allFields, location, AdvancedSettingKey
     } = this.props
     const allFieldsKeys = Object.keys(allFields) || []
     const { imageConfigs } = this.state
@@ -382,7 +429,7 @@ let ConfigureService = React.createClass({
     })
     const imageUrlProps = getFieldProps('imageUrl', {
       rules: [
-        { required: true, message: '请选择镜像版本' }
+        { required: true, message: '请输入镜像地址' }
       ],
     })
     const imageTagProps = getFieldProps('imageTag', {
@@ -390,7 +437,7 @@ let ConfigureService = React.createClass({
         { required: true }
       ],
       onChange: (tag) => {
-        this.loadImageConfig(location.query.other, tag)
+        this.loadImageConfig(location.query.other,null, tag)
       }
     })
     const formItemLayout = {
@@ -458,6 +505,7 @@ let ConfigureService = React.createClass({
                 showSearch
                 optionFilterProp="children"
                 {...imageTagProps}
+                disabled={location.query.tag}
               >
                 {
                   imageTags.list.map(tag => (
@@ -502,6 +550,7 @@ let ConfigureService = React.createClass({
           key="configMap"
         />
         <AdvancedSetting
+          AdvancedSettingKey={AdvancedSettingKey}
           form={form}
           formItemLayout={formItemLayout}
           key="advanced"

@@ -164,7 +164,7 @@ class TenxFlowDetail extends Component {
           if (!firstStage) {
             return
           }
-          const { id, branch } = firstStage.spec.project
+          const { id, branch } = firstStage.spec.project || { id: undefined, branch: undefined}
           this.setState({
             projectId: id,
             projectBranch: branch,
@@ -383,16 +383,17 @@ class TenxFlowDetail extends Component {
       <Button
         size='large'
         type='primary'
-        className='buildBtn'
+        //className='buildBtn'
         onClick={() => {
           if (isNoPop) {
             this.startBuildStage()
           }
         }}
       >
-        <svg className='cicdbuildfast'>
+        {/* <svg className='cicdbuildfast'>
           <use xlinkHref='#cicdbuildfast' />
-        </svg>
+        </svg> */}
+        <i className='fa fa-pencil-square-o' />&nbsp;
         <FormattedMessage {...menusText.deloyStart} />
       </Button>
     )
@@ -426,6 +427,7 @@ class TenxFlowDetail extends Component {
 
     return (
       <PopTabSelect
+        placeholder="输入分支或标签"
         onChange={this.startBuildStage}
         targetElement={targetElement}
         loading={loading}

@@ -26,6 +26,7 @@ import {
   loadAllServices,
   loadAutoScale
 } from '../../actions/services'
+import { removeTerminal } from '../../actions/terminal'
 import { deleteSetting, getSettingListfromserviceorapp } from '../../actions/alert'
 import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
@@ -45,6 +46,7 @@ import { SERVICE_KUBE_NODE_PORT } from '../../../constants'
 import CreateAlarm from './AlarmModal'
 import CreateGroup from './AlarmModal/CreateGroup'
 import Title from '../Title'
+import cloneDeep from 'lodash/cloneDeep'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -158,102 +160,8 @@ const MyComponent = React.createClass({
           service.checked = !service.checked
         }
       })
-      const checkedList = serviceList.filter((service) => service.checked)
-      if (checkedList.length === 0) {
-        scope.setState({
-          runBtn: false,
-          stopBtn: false,
-          restartBtn: false,
-          redeploybtn: false,
-        })
-        return
-      }
-      if (checkedList.length === 1) {
-        if(checkedList[0].status.phase === 'Pending'){
-          scope.setState({
-            runBtn: false,
-            stopBtn: true,
-            restartBtn: false,
-            redeploybtn: true,
-          })
-          return
-        }
-        if (checkedList[0].status.phase === 'Running') {
-          scope.setState({
-            runBtn: false,
-            stopBtn: true,
-            restartBtn: true,
-            redeploybtn: true,
-          })
-          return
-        }
-        if (checkedList[0].status.phase === 'Stopped') {
-          scope.setState({
-            runBtn: true,
-            stopBtn: false,
-            restartBtn: false,
-            redeploybtn: false,
-          })
-          return
-        }
-        if (checkedList[0].status.phase === 'Starting' || checkedList[0].status.phase === 'Deploying') {
-          scope.setState({
-            runBtn: false,
-            stopBtn: true,
-            restartBtn: true,
-            redeploybtn: true,
-          })
-        }
-      }
-      if (checkedList.length > 1) {
-        let runCount = 0
-        let stopCount = 0
-        let pending = 0
-        checkedList.map((item, index) => {
-          if (item.status.phase === 'Running') {
-            runCount++
-          }
-          else if (item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
-            pending++
-          } else {
-            stopCount++
-          }
-        })
-
-        if (runCount + pending === checkedList.length) {
-          scope.setState({
-            runBtn: false,
-            stopBtn: true,
-            restartBtn: true,
-            redeploybtn: true,
-          })
-          if (pending) {
-            scope.setState({
-              restartBtn: true
-            })
-          }
-          return
-        }
-        if (stopCount === checkedList.length) {
-          scope.setState({
-            runBtn: true,
-            stopBtn: false,
-            restartBtn: false,
-            redeploybtn: false,
-          })
-          return
-        }
-        scope.setState({
-          runBtn: true,
-          stopBtn: true,
-          restartBtn: true,
-          redeploybtn: true,
-        })
-        return
-      }
-      scope.setState({
-        serviceList
-      })
+      // handle state of serviceList
+      handleStateOfServiceList(scope, serviceList)
     }
   },
   modalShow(item) {
@@ -396,6 +304,29 @@ const MyComponent = React.createClass({
       document.getElementById('name').focus()
     },500)
   },
+  renderGroupIcon(group){
+    if(!group || !group.id || group.type == 'none'){
+      return <span></span>
+    }
+    if(group.id == "mismatch"){
+      return <Tooltip title='网络出口已删除'>
+        <span className='standrand netcolor'>网</span>
+      </Tooltip>
+
+    }
+    switch(group.type){
+      case 'private':
+        return <Tooltip title='该服务可内网访问'>
+          <span className='standrand privateColor'>内</span>
+        </Tooltip>
+      case 'public':
+        return <Tooltip title='该服务可公网访问'>
+          <span className='standrand publicColor'>公</span>
+        </Tooltip>
+      default:
+        return <span></span>
+    }
+  },
   render: function () {
     const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs, loginUser, scope } = this.props
     if (loading) {
@@ -415,7 +346,7 @@ const MyComponent = React.createClass({
     const items = serviceList.map((item) => {
       item.cluster = cluster
       let isHaveVolume = false
-      let redeployDisable = false
+      let redeployDisable = true
       if(item.spec.template.spec.volumes) {
         isHaveVolume = item.spec.template.spec.volumes.some(volume => {
           if(!volume) return false
@@ -423,7 +354,7 @@ const MyComponent = React.createClass({
         })
       }
       if(item.status.phase == 'Running' || item.status.phase == 'Pending'){
-        redeployDisable = true
+        redeployDisable = false
       }
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width: '100px'}} id="allservicelistDropdownMenu">
@@ -518,6 +449,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="name commonData">
             <span className="viewBtn" onClick={() => this.modalShow(item)}>
+              { this.renderGroupIcon(item.lbgroup)}
               {item.metadata.name}
             </span>
           </div>
@@ -664,40 +596,31 @@ class ServiceList extends Component {
       })
     }
     query.customizeOpts = options
-    loadAllServices(cluster, query, {
-      success: {
-        func: (result) => {
-          // Add deploment status watch, props must include statusWatchWs!!!
-          let { services } = result.data
-          let deployments = services.map(service => service.deployment)
-          let k8sServiceList = services.map(service => service.service)
-          this.setState({
-            k8sServiceList,
-          })
-          addDeploymentWatch(cluster, self.props, deployments)
-          // For fix issue #CRYSTAL-1604(load list again for update status)
-          clearTimeout(self.loadStatusTimeout)
-          query.customizeOpts = {
-            keepChecked: true,
-          }
-          self.loadStatusTimeout = setTimeout(() => {
-            loadAllServices(cluster, query)
-          }, LOAD_STATUS_TIMEOUT)
-          if (openModal) {
-            const { serName, serviceList } = this.props
-            if (serName && serviceList) {
-              this.setState({
-                currentShowInstance: serviceList.filter((item)=>item.metadata.name === serName)[0],
-                selectTab: null,
-                modalShow: true,
-              },()=>{
-                browserHistory.replace('/app_manage/service')
-              })
+    return new Promise(resolve => {
+      loadAllServices(cluster, query, {
+        success: {
+          func: (result) => {
+            resolve()
+            // Add deploment status watch, props must include statusWatchWs!!!
+            let { services } = result.data
+            let deployments = services.map(service => service.deployment)
+            let k8sServiceList = services.map(service => service.service)
+            this.setState({
+              k8sServiceList,
+            })
+            addDeploymentWatch(cluster, self.props, deployments)
+            // For fix issue #CRYSTAL-1604(load list again for update status)
+            clearTimeout(self.loadStatusTimeout)
+            query.customizeOpts = {
+              keepChecked: true,
             }
-          }
-        },
-        isAsync: true
-      }
+            self.loadStatusTimeout = setTimeout(() => {
+              loadAllServices(cluster, query)
+            }, LOAD_STATUS_TIMEOUT)
+          },
+          isAsync: true
+        }
+      })
     })
   }
 
@@ -722,13 +645,25 @@ class ServiceList extends Component {
         restartBtn: false,
       })
     }
+    handleStateOfServiceList(this, serviceList)
   }
 
   componentWillMount() {
-    this.loadServices(null, null, true)
-    return
+    const { serName, serviceList, tab } = this.props
+    this.loadServices(null, null).then(() => {
+      if (serName) {
+        if (serName && serviceList) {
+          this.setState({
+            currentShowInstance: serviceList.filter((item)=>item.metadata.name === serName)[0],
+            selectTab: null,
+            modalShow: true,
+          },()=>{
+            browserHistory.replace('/app_manage/service')
+          })
+        }
+      }
+    })
   }
-
   componentDidMount() {
     this.loadServices()
     // Reload list each UPDATE_INTERVAL
@@ -918,10 +853,16 @@ class ServiceList extends Component {
   }
   handleRestarServiceOk() {
     const self = this
-    const { cluster, restartServices, serviceList, intl } = this.props
+    const { cluster, restartServices, serviceList, intl, removeTerminal, terminalList } = this.props
     let servicesList = serviceList
 
     let checkedServiceList = servicesList.filter((service) => service.checked)
+    if(terminalList.length){
+      const deleteList = cloneDeep(checkedServiceList)
+      deleteList.forEach(item => {
+        removeTerminal(cluster, item.metadata.name)
+      })
+    }
     let runningServices = []
     if (this.state.currentShowInstance && !this.state.donotUserCurrentShowInstance) {
       checkedServiceList = [this.state.currentShowInstance]
@@ -982,8 +923,14 @@ class ServiceList extends Component {
   }
   handleQuickRestarServiceOk() {
     const self = this
-    const { cluster, quickRestartServices, serviceList, intl } = this.props
+    const { cluster, quickRestartServices, serviceList, intl, removeTerminal, terminalList } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
+    if(terminalList.length){
+      const deleteList = cloneDeep(checkedServiceList)
+      deleteList.forEach(item => {
+        removeTerminal(cluster, item.metadata.name)
+      })
+    }
     let runningServices = []
 
     checkedServiceList.map((service, index) => {
@@ -1042,8 +989,14 @@ class ServiceList extends Component {
   }
   handleDeleteServiceOk() {
     const self = this
-    const { cluster, appName, loadAllServices, deleteServices, intl, serviceList, deleteSetting, SettingListfromserviceorapp } = this.props
+    const { cluster, appName, loadAllServices, deleteServices, intl, serviceList, deleteSetting, SettingListfromserviceorapp, removeTerminal, terminalList } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
+    if(terminalList.length){
+      const deleteList = cloneDeep(checkedServiceList)
+      deleteList.forEach(item => {
+        removeTerminal(cluster, item.metadata.name)
+      })
+    }
 
     const serviceNames = checkedServiceList.map((service) => service.metadata.name)
     const allServices = self.state.serviceList
@@ -1069,10 +1022,11 @@ class ServiceList extends Component {
           const { alarmStrategy } = self.state
           if(alarmStrategy){
             let strategyID = []
-            SettingListfromserviceorapp.result.forEach((item, index) => {
+            let strategyList = SettingListfromserviceorapp.result || []
+            strategyList.forEach((item, index) => {
               strategyID.push(item.strategyID)
             })
-            deleteSetting(cluster,strategyID)
+            strategyID.length > 0 && deleteSetting(cluster, strategyID)
           }
         },
         isAsync: true
@@ -1224,7 +1178,7 @@ class ServiceList extends Component {
   render() {
     const parentScope = this
     let {
-      modalShow,
+      modalShow, selectTab,
       currentShowInstance,
       serviceList,
       rollingUpdateModalShow,
@@ -1236,9 +1190,7 @@ class ServiceList extends Component {
       pathname, page, size, total, isFetching, cluster,
       loadAllServices, loginUser, SettingListfromserviceorapp
     } = this.props
-    let selectTab = this.state.selectTab
     let appName = ''
-
     if (this.state.currentShowInstance) {
       appName = this.state.currentShowInstance.metadata.labels['tenxcloud.com/appName']
     }
@@ -1334,8 +1286,8 @@ class ServiceList extends Component {
               </Dropdown>
             </div>
             <div className='rightBox'>
-              <div className='littleLeft' onClick={this.searchApps}>
-                <i className='fa fa-search'></i>
+              <div className='littleLeft'>
+                <i className='fa fa-search' onClick={() => this.searchServices()}></i>
               </div>
               <div className='littleRight'>
                 <Input
@@ -1388,7 +1340,7 @@ class ServiceList extends Component {
               </Dropdown>
             </div>
             <div className='rightBox'>
-              <div className='littleLeft' onClick={this.searchApps}>
+              <div className='littleLeft'>
                 <i className='fa fa-search'></i>
               </div>
               <div className='littleRight'>
@@ -1496,6 +1448,7 @@ class ServiceList extends Component {
               appName={appName}
               scope={parentScope}
               funcs={funcs}
+              loadServices={()=>this.loadServices(this.props)}
               selectTab={selectTab}
               serviceDetailmodalShow={this.state.modalShow}
               />
@@ -1528,6 +1481,104 @@ class ServiceList extends Component {
   }
 }
 
+function handleStateOfServiceList (scope, serviceList) {
+  const checkedList = serviceList.filter((service) => service.checked)
+  if (checkedList.length === 0) {
+    scope.setState({
+      runBtn: false,
+      stopBtn: false,
+      restartBtn: false,
+      redeploybtn: false,
+    })
+    return
+  }
+  if (checkedList.length === 1) {
+    if(checkedList[0].status.phase === 'Pending'){
+      scope.setState({
+        runBtn: false,
+        stopBtn: true,
+        restartBtn: false,
+        redeploybtn: true,
+      })
+      return
+    }
+    if (checkedList[0].status.phase === 'Running') {
+      scope.setState({
+        runBtn: false,
+        stopBtn: true,
+        restartBtn: true,
+        redeploybtn: true,
+      })
+      return
+    }
+    if (checkedList[0].status.phase === 'Stopped') {
+      scope.setState({
+        runBtn: true,
+        stopBtn: false,
+        restartBtn: false,
+        redeploybtn: false,
+      })
+      return
+    }
+    if (checkedList[0].status.phase === 'Starting' || checkedList[0].status.phase === 'Deploying') {
+      scope.setState({
+        runBtn: false,
+        stopBtn: true,
+        restartBtn: true,
+        redeploybtn: true,
+      })
+    }
+  }
+  if (checkedList.length > 1) {
+    let runCount = 0
+    let stopCount = 0
+    let pending = 0
+    checkedList.map((item, index) => {
+      if (item.status.phase === 'Running') {
+        runCount++
+      }
+      else if (item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
+        pending++
+      } else {
+        stopCount++
+      }
+    })
+
+    if (runCount + pending === checkedList.length) {
+      scope.setState({
+        runBtn: false,
+        stopBtn: true,
+        restartBtn: true,
+        redeploybtn: true,
+      })
+      if (pending) {
+        scope.setState({
+          restartBtn: true
+        })
+      }
+      return
+    }
+    if (stopCount === checkedList.length) {
+      scope.setState({
+        runBtn: true,
+        stopBtn: false,
+        restartBtn: false,
+        redeploybtn: false,
+      })
+      return
+    }
+    scope.setState({
+      runBtn: true,
+      stopBtn: true,
+      restartBtn: true,
+      redeploybtn: true,
+    })
+    return
+  }
+  scope.setState({
+    serviceList
+  })
+}
 
 function mapStateToProps(state, props) {
   const { query, pathname } = props.location
@@ -1546,6 +1597,8 @@ function mapStateToProps(state, props) {
   const { statusWatchWs } = state.entities.sockets
   const { services, isFetching, total } = state.services.serviceList
   const { getDeploymentOrAppCDRule } = state.cicd_flow
+  const { terminal } = state
+  const terminalList = terminal.list[cluster.clusterID] || []
   const defaultCDRule = {
     isFetching: false,
     result: {
@@ -1566,6 +1619,7 @@ function mapStateToProps(state, props) {
     total,
     serName,
     serviceList: services || [],
+    terminalList,
     isFetching,
     cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule,
     SettingListfromserviceorapp
@@ -1583,6 +1637,7 @@ ServiceList = connect(mapStateToProps, {
   getDeploymentOrAppCDRule,
   deleteSetting,
   getSettingListfromserviceorapp,
+  removeTerminal,
 })(ServiceList)
 
 export default injectIntl(ServiceList, {

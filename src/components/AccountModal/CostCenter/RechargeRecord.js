@@ -97,7 +97,7 @@ class RechargeRecord extends Component {
     let currentNamespace = ''
     let currentSpaceName= '我的空间'
     let currentTeamName = ''
-    if (current.space && current.space.namespace) {
+    if (current.space && current.space.namespace && current.space.namespace !== 'default') {
       currentNamespace = current.space.namespace
       currentSpaceName = current.space.spaceName || current.space.namespace
       currentTeamName = current.space.teamName

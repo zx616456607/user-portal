@@ -84,26 +84,18 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.CreateTenxFlowModal.flowCode',
     defaultMessage: '子任务代码',
   },
-
-
   buildImageCode: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.buildImageCode',
     defaultMessage: '任务代码',
   },
-
-
   flowName: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.flowName',
     defaultMessage: '子任务名称',
   },
-
-
   buildImageName: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.buildImageName',
     defaultMessage: '任务名称',
   },
-
-
   selectCode: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.selectCode',
     defaultMessage: '选择代码库',
@@ -276,6 +268,7 @@ let CreateTenxFlowModal = React.createClass({
       scriptsTextarea: '',
       saveShellCodeBtnLoading: false,
       dockerfileEditMode: 'textEditing',
+      validateStatus: true,
     }
   },
   getUniformRepo() {
@@ -415,6 +408,10 @@ let CreateTenxFlowModal = React.createClass({
     });
   },
   closeEnvSettingModal() {
+    if (!this.state.validateStatus) {
+      new NotificationHandler().error("请检查环境变量名称")
+      return
+    }
     //this function for user close the modal of setting the service env
     this.setState({
       envModalShow: null
@@ -648,6 +645,10 @@ let CreateTenxFlowModal = React.createClass({
     });
   },
   closeImageEnvModal() {
+    if (!this.state.validateStatus) {
+      new NotificationHandler().error("请检查环境变量名称")
+      return
+    }
     this.setState({
       ImageEnvModal: false
     });
@@ -667,7 +668,7 @@ let CreateTenxFlowModal = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope, createTenxFlowState, flowId, stageInfo, createDockerfile, getTenxFlowDetail } = this.props;
+    const { scope, createTenxFlowState, flowId, stageInfo, createDockerfile, getTenxFlowDetail, stageList } = this.props;
     const { getTenxFlowStateList } = scope.props;
     const _this = this;
     let notification = new NotificationHandler()
@@ -863,6 +864,9 @@ let CreateTenxFlowModal = React.createClass({
           uniformRepo: (values.uniformRepo ? 0 : 1),
         }
       }
+      if (stageList.length !==0) {
+        body.spec.uniformRepo = this.props.uniformRepo
+      }
       //if user select the customer type (6), ths customType must be input
       if (this.state.otherFlowType == 5) {
         body.metadata.customType = values.otherFlowType;
@@ -966,7 +970,8 @@ let CreateTenxFlowModal = React.createClass({
           }
         });
       }
-      if (_this.state.shellCodeType === 'cmd') {
+      // 使用命令或构建镜像时直接创建 stage 跳过创建脚本
+      if (_this.state.shellCodeType === 'cmd' || body.metadata.type === 3) {
         return _createTenxFlowState()
       }
       const { createScripts } = _this.props
@@ -977,10 +982,27 @@ let CreateTenxFlowModal = React.createClass({
       createScripts(scripts, {
         success: {
           func: res => {
-            body.spec.container.script_id = res.data.id
+            body.spec.container.scripts_id = res.data.id
             _createTenxFlowState()
           },
           isAsync: true,
+        },
+        failed: {
+          func: (res) => {
+            const notification = new NotificationHandler()
+            if (res && res.statusCode === 400) {
+              notification.error("使用脚本文件，内容不能为空")
+            } else {
+              let message = '保存脚本文件失败'
+              if (res.message) {
+                message = res.message
+              }
+              if(res.message && res.message.message) {
+                message = res.message.message
+              }
+              notification.error(message)
+            }
+          }
         }
       })
     });
@@ -1253,7 +1275,9 @@ let CreateTenxFlowModal = React.createClass({
               onOk={this.closeEnvSettingModal}
               onCancel={this.closeEnvSettingModal}
               >
-              <EnvComponent scope={scopeThis} index={k} form={form} visible={this.state.envModalShow == k ? true : false}/>
+              <EnvComponent
+                validateCallback ={result => this.setState({ validateStatus: result })}
+                scope={scopeThis} index={k} form={form} visible={this.state.envModalShow == k ? true : false}/>
             </Modal>
           </div>
         </QueueAnim>
@@ -1484,6 +1508,8 @@ let CreateTenxFlowModal = React.createClass({
                  {baseImage}
                  </Select>*/}
                 <PopTabSelect
+                  placeholder="请输入镜像名称"
+                  placement="right"
                   value={initialBuildImage || defaultBaseImage || this.state.baseImageUrl}
                   onChange={this.baseImageChange}
                   getTooltipContainer={() => document.getElementById('TenxFlowDetailFlow')}
@@ -1541,8 +1567,13 @@ let CreateTenxFlowModal = React.createClass({
                 <Button
                   size="large"
                   disabled={this.state.otherFlowType == 3}
-                  type={(this.state.isCreateScripts) ? 'primary' : 'ghost'}
-                  onClick={() => this.setState({ shellModalShow: true })}
+                  type={(!this.state.isCreateScripts) ? 'primary' : 'ghost'}
+                  onClick={() => {
+                    this.setState({
+                      shellModalShow: true,
+                      scriptsTextarea: this.state.scriptsTextarea || '#!/bin/sh\n\n',
+                    })
+                  }}
                 >
                   {
                     this.state.isCreateScripts
@@ -1653,7 +1684,7 @@ let CreateTenxFlowModal = React.createClass({
                       </Select>
                     </FormItem>
                     <div className="customizeBaseImage">
-                      为方便管理，构建后的镜像可发布到镜像仓库（私有仓库）或第三方仓库中
+                      为方便管理，构建后的镜像可发布到镜像仓库（所选仓库组）或第三方镜像仓库中
                     </div>
                     {/*
                       this.state.ImageStoreType ? [
@@ -1797,8 +1828,15 @@ let CreateTenxFlowModal = React.createClass({
             visible={this.state.ImageEnvModal}
             onOk={this.closeImageEnvModal}
             onCancel={this.closeImageEnvModal}
+            footer={[
+              <Button key="submit" type="primary" size="large" onClick={this.closeImageEnvModal}>
+                确 定
+              </Button>,
+            ]}
             >
-              <CreateImageEnvComponent scope={scopeThis} form={form} imageName={this.props.form.getFieldValue('imageName')}  visible={this.state.ImageEnvModal}/>
+              <CreateImageEnvComponent
+                validateCallback ={result => this.setState({ validateStatus: result })}
+                scope={scopeThis} form={form} imageName={this.props.form.getFieldValue('imageName')}  visible={this.state.ImageEnvModal}/>
           </Modal>
         </Form>
         <div className='modalBtnBox'>

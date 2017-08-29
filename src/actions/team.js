@@ -46,7 +46,7 @@ export const TEAMUSER_LIST_FAILURE = 'TEAMUSER_LIST_FAILURE'
 
 // Fetches team user list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchTeamUserList(teamID, query) {
+function fetchTeamUserList(teamID, query, callback) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}/users`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -56,15 +56,41 @@ function fetchTeamUserList(teamID, query) {
       types: [TEAMUSER_LIST_REQUEST, TEAMUSER_LIST_SUCCESS, TEAMUSER_LIST_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
 // Fetches team users list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadTeamUserList(teamID, query, requiredFields = []) {
+export function loadTeamUserList(teamID, query,callback, requiredFields = []) {
   return (dispatch, getState) => {
-    return dispatch(fetchTeamUserList(teamID, query))
+    return dispatch(fetchTeamUserList(teamID, query,callback))
+  }
+}
+
+export const TEAMALLUSER_LIST_REQUEST = 'TEAMALLUSER_LIST_REQUEST'
+export const TEAMALLUSER_LIST_SUCCESS = 'TEAMALLUSER_LIST_SUCCESS'
+export const TEAMALLUSER_LIST_FAILURE = 'TEAMALLUSER_LIST_FAILURE'
+
+function fertchTeamAllUserList(teamID, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/users`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [TEAMALLUSER_LIST_REQUEST, TEAMALLUSER_LIST_SUCCESS, TEAMALLUSER_LIST_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function loadTeamAllUser(teamID, query, callback) {
+  return (dispatch) => {
+    return dispatch(fertchTeamAllUserList(teamID, query, callback))
   }
 }
 
@@ -681,7 +707,7 @@ export const GET_TEAM_DETAIL_REQUEST = 'GET_TEAM_DETAIL_REQUEST'
 export const GET_TEAM_DETAIL_SUCCESS = 'GET_TEAM_DETAIL_SUCCESS'
 export const GET_TEAM_DETAIL_FAILURE = 'GET_TEAM_DETAIL_FAILURE'
 
-function fetchGetTeamDetail(teamID) {
+function fetchGetTeamDetail(teamID, callback) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}`
   return {
     [FETCH_API]: {
@@ -689,11 +715,38 @@ function fetchGetTeamDetail(teamID) {
       endpoint,
       schema: {},
     },
+    callback
   }
 }
 
-export function getTeamDetail(teamID) {
+export function getTeamDetail(teamID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchGetTeamDetail(teamID))
+    return dispatch(fetchGetTeamDetail(teamID, callback))
+  }
+}
+
+export const UPDATE_TEAM_DETAIL_REQUEST = 'UPDATE_TEAM_DETAIL_REQUEST'
+export const UPDATE_TEAM_DETAIL_SUCCESS = 'UPDATE_TEAM_DETAIL_SUCCESS'
+export const UPDATE_TEAM_DETAIL_FAILURE = 'UPDATE_TEAM_DETAIL_FAILURE'
+
+function fetchUpdateTeamDetail(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/${body.teamID}`
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_TEAM_DETAIL_REQUEST, UPDATE_TEAM_DETAIL_SUCCESS, UPDATE_TEAM_DETAIL_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PATCH',
+        body:body.body
+      }
+    },
+    callback
+  }
+}
+
+export function updateTeamDetail(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateTeamDetail(body, callback))
   }
 }

@@ -20,8 +20,8 @@ import NotificationHandler from '../../components/Notification'
 import { formatDate } from '../../common/tools'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { API_URL_PREFIX } from '../../constants'
-
-import { wrapManageList, deleteWrapManage, uploadWrap } from '../../actions/app_center'
+import WrapListTable from './AppWrap/WrapListTable'
+import { wrapManageList, deleteWrapManage, uploadWrap, checkWrapName } from '../../actions/app_center'
 const RadioGroup = Radio.Group
 const Dragger = Upload.Dragger
 const TabPane = Tabs.TabPane
@@ -67,31 +67,22 @@ class UploadModal extends Component {
       if (!!errors) {
         return;
       }
-
+      const notificat = new NotificationHandler()
       if(this.state.type === 'local' && this.state.resolve) {
         this.state.resolve(true)
         const fileCallback = notificat.spin('上传中...')
         this.setState({fileCallback:fileCallback})
         return
       }
-      let fileType = 'war'
-      let isType = false
-      wrapType.every((types, index)=> {
-        if (/\.(jar|war|tar|tar.gz|zip)$/.test(values.protocolUrl)) {
-          fileType = wrapTypelist[index]
-          isType = true
-          return false
-        }
-        return true
-      })
+      let isType = values.protocolUrl.match(/\.(jar|war|tar|tar.gz|zip)$/)
       if (!isType) {
-        notificat.error('上传文件地址格式错误', '支持：'+ wrapTypelist.join(', '))
+        notificat.error('上传文件地址格式错误', '支持：'+ wrapTypelist.join('、')+'文件格式')
         return
       }
       const body = {
         fileName:values.wrapName,
         fileTag: values.versionLabel,
-        fileType: fileType,
+        fileType: isType[1],
         body:{
           sourceURL: values.protocolUrl,
           userName: values.username,
@@ -160,7 +151,36 @@ class UploadModal extends Component {
   changeTabs = (type)=> {
     this.setState({type})
   }
+  checkNameVersion = ()=> {
+    const { form,func } = this.props
+    const wrapName = form.getFieldValue('wrapName')
+    const labelVersion = form.getFieldValue('versionLabel')
+    if (!wrapName) return
+    if (!labelVersion) return
 
+    const query = {
+      filter: `fileName contains ${wrapName}`,
+    }
+    let isEq = false
+    func.checkWrapName(query,{
+      success:{
+        func: ret => {
+          if (Array.isArray(ret.data.pkgs)) {
+            ret.data.pkgs.every(item => {
+              if (item.fileTag == labelVersion && item.fileName == wrapName) {
+                isEq = true
+                return false
+              }
+              return true
+            })
+          }
+          if (isEq) {
+            notificat.info('应用包名称和版本重复，继续上传会覆盖原有的')
+          }
+        }
+      }
+    })
+  }
   validateName = (rule, value, callback)=> {
     if (!value) {
       return callback('请输入包名称')
@@ -172,6 +192,7 @@ class UploadModal extends Component {
       return callback('以英文字母和数字开头中间可[-_]')
     }
     this.setState({fileName: value})
+    this.checkNameVersion()
     return callback()
   }
   validateVersion = (rule, value, callback)=> {
@@ -185,6 +206,7 @@ class UploadModal extends Component {
       return callback('最多只能为128个字符')
     }
     this.setState({fileTag: value})
+    this.checkNameVersion()
     return callback()
   }
   checkedUrl = (rule, value, callback)=> {
@@ -205,14 +227,7 @@ class UploadModal extends Component {
         return callback(`请以ftp协议开头，如：${protocol}://www.demo.com/app.jar`)
       }
     }
-    let fileType
-    wrapType.every((types, index)=> {
-      if (/\.(jar|war|tar|tar.gz|zip)$/.test(value)) {
-        fileType = wrapTypelist[index]
-        return false
-      }
-      return true
-    })
+    let fileType = value.match(/\.(jar|war|tar|tar.gz|zip)$/)
     if (!fileType) {
       return callback(`文件格式错误，如：${protocol}://www.demo.com/app.jar`)
     }
@@ -252,7 +267,7 @@ class UploadModal extends Component {
     const self = this
     // const fileName = form.getFieldValue('wrapName')
     // const fileTag = form.getFieldValue('versionLabel')
-    const actionUrl = `${API_URL_PREFIX}/${fileName}/${fileTag}/${fileType}`
+    const actionUrl = `${API_URL_PREFIX}/pkg/${fileName}/${fileTag}/${fileType}/local`
     const selfProps = {
       name: 'pkg',
       action: actionUrl,
@@ -262,22 +277,16 @@ class UploadModal extends Component {
           return false
         }
         // x-tar x-gzip zip java-archive war=''
-        let fileType = 'war'
+        // let fileType = 'war'
         let isType = false
-        wrapType.every((type, index)=> {
-          if (/\.(jar|war|tar|tar.gz|zip)$/.test(file.name)) {
-            isType = true
-            fileType = wrapTypelist[index]
-            return false
-          }
-          return true
-        })
+
+        isType = file.name.match(/\.(jar|war|tar|tar.gz|zip)$/)
 
         if (!isType) {
-          notificat.error('上传文件格式错误', '支持：'+ wrapTypelist.join(', '))
+          notificat.error('上传文件格式错误', '支持：'+ wrapTypelist.join('、')+'文件格式')
           return false
         }
-        self.setState({fileType})
+        self.setState({fileType: isType[1]})
         uploadFile = file.name // show upload file name
         // return true
         return new Promise((resolve, reject) => {
@@ -287,13 +296,18 @@ class UploadModal extends Component {
         })
       },
       onChange(e) {
-        const notificat = new NotificationHandler()
         if (e.file.status == 'done') {
           self.state.fileCallback()
           notificat.success('上传成功')
           uploadFile = false
           func.uploadModal(false)
           func.getList()
+        }
+        if (e.file.status == 'error') {
+          self.state.fileCallback()
+          notificat.error('上传失败',e.file.response.message)
+          uploadFile = false
+          func.uploadModal(false)
         }
       }
     }
@@ -383,17 +397,20 @@ class WrapManage extends Component {
   componentWillMount() {
     this.loadData()
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.space.namespace !== this.props.space.namespace) {
-      this.loadData()
-    }
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   if (nextProps.space.namespace !== this.props.space.namespace) {
+  //     this.loadData()
+  //   }
+  // }
 
   uploadModal = (modal) => {
     this.setState({ uploadModal: modal })
-    setTimeout(()=> {
-      document.getElementById('wrapName').focus()
-    },200)
+    if (!!modal) {
+      setTimeout(()=> {
+        document.getElementById('wrapName').focus()
+      },200)
+
+    }
   }
   deleteAction(status,id) {
     if (status) {
@@ -432,63 +449,20 @@ class WrapManage extends Component {
       }
     })
   }
+   goDeploy(fileName) {
+    // /app_manage/app_create/quick_create#configure-service
+    browserHistory.push('/app_manage/deploy_wrap?fileName='+fileName)
+  }
   render() {
-    // jar war ,tar.gz zip
-    const dataSource = this.props.wrapList
-    const columns = [
-      {
-        title: '包名称',
-        dataIndex: 'fileName',
-        key: 'name',
-        width: '20%',
-        render: (text,row) => <a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}>{text}</a>
-      }, {
-        title: '版本标签',
-        dataIndex: 'fileTag',
-        key: 'tag',
-        width: '20%',
-      }, {
-        title: '包类型',
-        dataIndex: 'fileType',
-        key: 'type',
-      }, {
-        title: '上传时间',
-        dataIndex: 'creationTime',
-        key: 'creationTime',
-        render: text => formatDate(text)
-      }, {
-        title: '操作',
-        dataIndex: 'actions',
-        key: 'actions',
-        width:'150px',
-        render: (e,row) => [
-          <Button type="primary" key="1">部署</Button>,
-          <Button key="2" style={{ marginLeft: 10 }} onClick={()=> this.deleteAction(true,row.id)}>删除</Button>
-         ]
-      }
-    ]
-    const paginationOpts = {
-      size: "small",
-      pageSize: DEFAULT_PAGE_SIZE,
-      current: this.state.page,
-      total: dataSource.total,
-      onChange: current => this.loadData(current),
-      showTotal: total => `共计： ${total} 条 `,
-    }
     const funcCallback = {
       uploadModal: this.uploadModal,
       getList: this.getList,
-      uploadWrap: this.props.uploadWrap
+      uploadWrap: this.props.uploadWrap,
+      checkWrapName: this.props.checkWrapName
     }
-    const _this = this
-    const rowSelection = {
-      selectedRowKeys: this.state.selectedRowKeys, // 控制checkbox是否选中
-      onChange(selectedRowKeys, selectedRows) {
-        const ids = selectedRows.map(row => {
-          return row.id
-        })
-        _this.setState({ selectedRowKeys,id:ids })
-      }
+    const func = {
+      scope: this,
+      goDeploy: this.goDeploy
     }
 
     return (
@@ -503,7 +477,7 @@ class WrapManage extends Component {
             <i className="fa fa-search btn-search" onClick={()=> this.getList(true)}/>
           </div>
           <Card className="wrap_content">
-            <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource.pkgs} columns={columns} pagination={paginationOpts} />
+            <WrapListTable func={func} rowCheckbox={true} selectedRowKeys={this.state.selectedRowKeys} />
           </Card>
         </div>
 
@@ -521,32 +495,19 @@ class WrapManage extends Component {
 
 function mapStateToProps(state,props) {
   const { wrapList } = state.images
-  const { current } = state.entities
-  const { space } = current
   const list = wrapList || {}
   let datalist = {pkgs:[],total:0}
   if (list.result) {
     datalist = list.result.data
   }
-  const { query, pathname } = props.location
-  let { page,size } = query
-  page = parseInt(page || DEFAULT_PAGE)
-  size = parseInt(size || DEFAULT_PAGE_SIZE)
-  if (isNaN(page) || page < DEFAULT_PAGE) {
-    page = DEFAULT_PAGE
-  }
-  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
-    size = DEFAULT_PAGE_SIZE
-  }
   return {
-    space,
     wrapList: datalist,
-    isFetching: list.isFetching
   }
 }
 
 export default connect(mapStateToProps,{
   wrapManageList,
   deleteWrapManage,
-  uploadWrap
+  uploadWrap,
+  checkWrapName
 })(WrapManage)

@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Popover, Tooltip } from 'antd'
+import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Popover, Tooltip, Modal } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import ContainerList from './AppContainerList'
@@ -24,8 +24,9 @@ import AppServiceRental from './AppServiceRental'
 import AppSettingsHttps from './AppSettingsHttps'
 import ServiceMonitor from './ServiceMonitor'
 import AppAutoScale from './AppAutoScale'
+import VisitType from './VisitType'
 import AlarmStrategy from '../../ManageMonitor/AlarmStrategy'
-import { loadServiceDetail, loadServiceContainerList, loadK8sService } from '../../../actions/services'
+import { loadServiceDetail, loadServiceContainerList, loadK8sService, deleteServices } from '../../../actions/services'
 import { addTerminal } from '../../../actions/terminal'
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
@@ -39,6 +40,7 @@ import { ANNOTATION_HTTPS } from '../../../../constants'
 import { camelize } from 'humps'
 import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 import Title from '../../Title'
+import { SHOW_BILLING } from '../../../constants'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -68,6 +70,7 @@ class AppServiceDetail extends Component {
       activeTabKey: props.selectTab || DEFAULT_TAB,
       currentContainer: [],
       httpIcon: 'http',
+      deleteModal: false
     }
   }
 
@@ -202,13 +205,40 @@ class AppServiceDetail extends Component {
     funcs.batchStopService()
   }
 
-  delteService(service) {
-    const { funcs } = this.props
-    const self = this
-    // funcs.confirmDeleteServices([service])
-    funcs.batchDeleteServices()
+  delteService() {
+    this.setState({
+      deleteModal: true
+    })
   }
+  cancelDeleteModal() {
+    this.setState({
+      deleteModal: false
+    })
+  }
+  okDeleteModal() {
+    const { deleteServices, scope, serviceDetail, loadServices } = this.props
+    const service = scope.state.currentShowInstance || serviceDetail
+    deleteServices(service.cluster,[service.metadata.name],{
+      success:{
+        func: (res) => {
+          loadServices()
+          this.setState({
+            deleteModal: false
+          })
+          scope.setState({
+            modalShow: false
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (res) => {
 
+        },
+        isAsync: true
+      }
+    })
+  }
   handleMenuDisabled(key) {
     const { scope } = this.props
     const service = scope.state.currentShowInstance
@@ -245,7 +275,7 @@ class AppServiceDetail extends Component {
       bindingIPs,
       k8sService,
     } = this.props
-    const { activeTabKey, currentContainer } = this.state
+    const { activeTabKey, currentContainer, deleteModal } = this.state
     const httpsTabKey = '#https'
     const isKubeNode = (SERVICE_KUBE_NODE_PORT == loginUser.info.proxyType)
 
@@ -275,10 +305,26 @@ class AppServiceDetail extends Component {
         </div>
       )
     })
+      let onTerminal = containers.map((item, index) => {
+        return (
+          <Button className='loginBtn' type='primary' size='large' key={index}>
+            <svg className='terminal'>
+              <use xlinkHref='#terminal'/>
+            </svg>
+            <span onClick={this.openTerminalModal.bind('', item)}>登录终端</span>
+          </Button>
+          )
+      })
     return (
       <div id='AppServiceDetail'>
+        <Modal title="删除操作" visible={deleteModal}
+          onCancel={()=>this.cancelDeleteModal()}
+          onOk={()=>this.okDeleteModal()}
+        >
+        确定要删除服务{service.metadata.name}吗？
+        </Modal>
         <div className='titleBox'>
-          <Title title={`${appName} 服务详情页`} />
+          <Title title={`${service.metadata.name} 服务详情页`} />
           <Icon className='closeBtn' type='cross' onClick={this.closeModal} />
           {/*<i className='closeBtn fa fa-times' onClick={this.closeModal}></i>*/}
           <div className='imgBox'>
@@ -313,14 +359,19 @@ class AppServiceDetail extends Component {
               </div>
             </div>
             <div className='rightBox'>
-              <Popover content={containerShow} title='选择实例链接' trigger='click' getTooltipContainer={() => document.getElementById('AppServiceDetail')}>
-                <Button className='loginBtn' type='primary' size='large'>
-                  <svg className='terminal'>
-                    <use xlinkHref='#terminal' />
-                  </svg>
-                  <span>登录终端</span>
-                </Button>
-              </Popover>
+              {
+                containerShow.length > 1 ?
+                  <Popover content={containerShow} title='选择实例链接' trigger='click' getTooltipContainer={() => document.getElementById('AppServiceDetail')}>
+                    <Button className='loginBtn' type='primary' size='large'>
+                      <svg className='terminal'>
+                        <use xlinkHref='#terminal'/>
+                      </svg>
+                      <span>登录终端</span>
+                    </Button>
+                  </Popover>
+                  :
+                  onTerminal
+              }
               <Dropdown overlay={operaMenu} trigger={['click']}>
                 <Button type='ghost' size='large' className='ant-dropdown-link' href='#'>
                   服务相关 <i className='fa fa-caret-down'></i>
@@ -374,6 +425,16 @@ class AppServiceDetail extends Component {
                   isCurrentTab={activeTabKey==='#binddomain'}
                   />
               </TabPane>
+              <TabPane tab='访问方式' key='#visitType'>
+                <VisitType
+                  cluster={service.cluster}
+                  serviceName={service.metadata.name}
+                  serviceDetailmodalShow={serviceDetailmodalShow}
+                  service={serviceDetail}
+                  activeKey={activeTabKey}
+                  isCurrentTab={activeTabKey==='#visitType'}
+                />
+              </TabPane>
               <TabPane tab='端口' key='#ports'>
                 <PortDetail
                   serviceName={service.metadata.name}
@@ -414,7 +475,12 @@ class AppServiceDetail extends Component {
                 </div>
               </TabPane>
               <TabPane tab='告警策略' key='#strategy'>
-                <AlarmStrategy serviceName={service.metadata.name} currentService={service} cluster={service.cluster}/>
+                <AlarmStrategy
+                  serviceName={service.metadata.name}
+                  currentService={service}
+                  cluster={service.cluster}
+                  isCurrentTab={activeTabKey === '#strategy'}
+                />
               </TabPane>
               <TabPane tab='自动伸缩' key='#autoScale'>
                 <AppAutoScale
@@ -433,12 +499,18 @@ class AppServiceDetail extends Component {
                   serviceDetail={serviceDetail}
                 relative/>
               </TabPane>
+              {SHOW_BILLING ?
+              [<TabPane tab='事件' key='#events'>
+                <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} type={'replicaset'} serviceDetailmodalShow={serviceDetailmodalShow}/>
+              </TabPane>,
+              <TabPane tab='租赁信息' key='#rentalInfo'>
+                <AppServiceRental serviceName={service.metadata.name} serviceDetail={[serviceDetail]} />
+              </TabPane>]
+              :
               <TabPane tab='事件' key='#events'>
                 <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} type={'replicaset'} serviceDetailmodalShow={serviceDetailmodalShow}/>
               </TabPane>
-              <TabPane tab='租赁信息' key='#rentalInfo'>
-                <AppServiceRental serviceName={service.metadata.name} serviceDetail={[serviceDetail]} />
-              </TabPane>
+              }
             </Tabs>
           </div>
           <div className='contentBox'>
@@ -522,4 +594,5 @@ export default connect(mapStateToProps, {
   loadServiceContainerList,
   loadK8sService,
   addTerminal,
+  deleteServices
 })(AppServiceDetail)

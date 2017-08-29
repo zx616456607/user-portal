@@ -70,9 +70,9 @@ class AlarmStrategy extends Component {
     loadStrategy(this)
   }
   componentWillReceiveProps(nextProps){
-    let { modalOpen }= nextProps
-    if(modalOpen) {
-      this.showAlert()
+    let { isCurrentTab }= nextProps
+    if (!this.props.isCurrentTab && isCurrentTab) {
+      loadStrategy(this)
     }
   }
   onPageChange(page) {
@@ -338,12 +338,14 @@ class AlarmStrategy extends Component {
         title: '名称',
         dataIndex: 'strategyName',
         key: 'strategyName',
+        width:'13%',
         render: (text,row) => <Link to={`/manange_monitor/alarm_setting/${row.strategyID}`}>{text}</Link>,
       },
       {
         title: '状态',
         dataIndex: 'statusCode',
         key: 'statusCode',
+        width:'12%',
         render: text => {
           if (text == 1) {
             return <div style={{ color: '#33b867' }}><i className="fa fa-circle" /> &nbsp;启用</div>
@@ -359,6 +361,7 @@ class AlarmStrategy extends Component {
       },
       {
         title: '监控周期',
+        width:'15%',
         dataIndex: 'repeatInterval',
         render: (text) => calcuTime(text)
       },
@@ -366,6 +369,7 @@ class AlarmStrategy extends Component {
         title: '创建时间',
         dataIndex: 'createTime',
         key: 'createTime',
+        width:'20%',
         sorter: (a, b) => Date.parse(a.createTime) - Date.parse(b.createTime),
         render: (text) => formatDate(text)
       },
@@ -373,11 +377,13 @@ class AlarmStrategy extends Component {
         title: '最后修改人',
         dataIndex: 'updater',
         key: 'updater',
+        width:'15%',
       },
       {
         title: '操作',
         dataIndex: 'name',
         key: 'action',
+        width:'20%',
         render: (text, record) => {
           return <Dropdown.Button type="ghost" onClick={()=> this.setState({lookModel: true, record})} overlay={this.dropdowns(record)}>忽略</Dropdown.Button>
         }

@@ -180,6 +180,29 @@ let EnvComponent = React.createClass({
     }
     setTimeout(() => document.getElementById(`service${index}inputName${keys[keys.length - 1]}`).focus(), 0)
   },
+  validateEnvName(item, values, callback) {
+    const { validateCallback } = this.props;
+    if (!values || values == "") {
+      if (validateCallback) {
+        validateCallback(false)
+      }
+      callback([new Error('请输入环境变量名')])
+      return
+    }
+    // Compare after remove all space
+    let str = values.replace(/\s+/g, "");
+    if (str != values) {
+      if (validateCallback) {
+        validateCallback(false)
+      }
+      callback([new Error('环境变量名不允许含有空格')])
+      return
+    }
+    if (validateCallback) {
+      validateCallback(true)
+    }
+    callback()
+  },
   closeModal () {
     //this function for user close the env input modal
     const { scope } = this.props;
@@ -206,7 +229,7 @@ let EnvComponent = React.createClass({
     const servicesInputItems = getFieldValue('service' + index + 'inputs').map((i) => {
       const servicesInputNameProps = getFieldProps(`service${index}inputName${i}`, {
         rules: [
-          { message: '请输入环境变量名' },
+          { validator: this.validateEnvName },
         ],
         initialValue: '',
       });

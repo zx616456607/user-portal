@@ -9,7 +9,7 @@
  */
 
 import { FETCH_API, Schemas } from '../middleware/api'
-import { API_URL_PREFIX } from '../constants'
+import { API_URL_PREFIX, DEACTIVE } from '../constants'
 import { toQuerystring } from '../common/tools'
 
 export const USER_LIST_REQUEST = 'USER_LIST_REQUEST'
@@ -38,6 +38,35 @@ function fetchUserList(query, callback) {
 export function loadUserList(query, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchUserList(query, callback))
+  }
+}
+
+export const ALL_USER_LIST_REQUEST = 'ALL_USER_LIST_REQUEST'
+export const ALL_USER_LIST_SUCCESS = 'ALL_USER_LIST_SUCCESS'
+export const ALL_USER_LIST_FAILURE = 'ALL_USER_LIST_FAILURE'
+
+// Fetches all user list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchAllUserList(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/users`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [ALL_USER_LIST_REQUEST, ALL_USER_LIST_SUCCESS, ALL_USER_LIST_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Fetches users list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadAllUserList(callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchAllUserList({ size: 0 }, callback))
   }
 }
 
@@ -106,6 +135,7 @@ export const USER_TEAM_LIST_FAILURE = 'USER_TEAM_LIST_FAILURE'
 
 // Fetches team list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
+// [GET] /api/v2/teams
 function fetchUserTeamList(userID, query, callback) {
   let endpoint = `${API_URL_PREFIX}/users/${userID}/teams`
   if (query) {
@@ -126,6 +156,36 @@ function fetchUserTeamList(userID, query, callback) {
 export function loadUserTeamList(userID, query, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchUserTeamList(userID, query, callback))
+  }
+}
+
+export const USER_TEAMS_REQUEST = 'USER_TEAMS_REQUEST'
+export const USER_TEAMS_SUCCESS = 'USER_TEAMS_SUCCESS'
+export const USER_TEAMS_FAILURE = 'USER_TEAMS_FAILURE'
+
+// Fetches teams from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+// [GET] /api/v2/users/:user_id/teams
+function fetchUserTeams(userID, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userID}/user_teams`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [USER_TEAMS_REQUEST, USER_TEAMS_SUCCESS, USER_TEAMS_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Fetches team list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadUserTeams(userID, query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUserTeams(userID, query, callback))
   }
 }
 
@@ -424,7 +484,7 @@ export const STANDARD_USER_INFO_REQUEST = 'STANDARD_USER_INFO_REQUEST'
 export const STANDARD_USER_INFO_SUCCESS = 'STANDARD_USER_INFO_SUCCESS'
 export const STANDARD_USER_INFO_FAILURE = 'STANDARD_USER_INFO_FAILURE'
 
-function fetchStandardUserInfo(callback) { 
+function fetchStandardUserInfo(callback) {
   return {
     [FETCH_API]: {
       types: [STANDARD_USER_INFO_REQUEST, STANDARD_USER_INFO_SUCCESS, STANDARD_USER_INFO_FAILURE],
@@ -496,8 +556,6 @@ export function createCertInfo(body, callback) {
   }
 }
 
-
-
 export const UPDATE_CERT_INFO_REQUEST = 'UPDATE_CERT_INFO_REQUEST'
 export const UPDATE_CERT_INFO_SUCCESS = 'UPDATE_CERT_INFO_SUCCESS'
 export const UPDATE_CERT_INFO_FAILUER = 'UPDATE_CERT_INFO_FAILUER'
@@ -526,7 +584,7 @@ export const GET_USER_CERTIFICATE_REQUEST = 'GET_USER_CERTIFICATE_REQUEST'
 export const GET_USER_CERTIFICATE_SUCCESS = 'GET_USER_CERTIFICATE_SUCCESS'
 export const GET_USER_CERTIFICATE_FAILURE = 'GET_USER_CERTIFICATE_FAILURE'
 
-function fetchStandardUserCertificate(callback) { 
+function fetchStandardUserCertificate(callback) {
   return {
     [FETCH_API]: {
       types: [GET_USER_CERTIFICATE_REQUEST, GET_USER_CERTIFICATE_SUCCESS, GET_USER_CERTIFICATE_FAILURE],
@@ -594,5 +652,202 @@ function fetchSendActivationEmail(email, code, callback) {
 export function sendActivationEmail(email, code, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchSendActivationEmail(email, code, callback))
+  }
+}
+
+export const UPDATE_USER_TEAMS_REQUEST = 'UPDATE_USER_TEAMS_REQUEST'
+export const UPDATE_USER_TEAMS_SUCCESS = 'UPDATE_USER_TEAMS_SUCCESS'
+export const UPDATE_USER_TEAMS_FAILURE = 'UPDATE_USER_TEAMS_FAILURE'
+
+// Fetches update user teams by API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateUserTeams(userID, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userID}/teams`
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_USER_TEAMS_REQUEST, UPDATE_USER_TEAMS_SUCCESS, UPDATE_USER_TEAMS_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function updateUserTeams(userID, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateUserTeams(userID, body, callback))
+  }
+}
+
+export const USER_PROJECTS_REQUEST = 'USER_PROJECTS_REQUEST'
+export const USER_PROJECTS_SUCCESS = 'USER_PROJECTS_SUCCESS'
+export const USER_PROJECTS_FAILURE = 'USER_PROJECTS_FAILURE'
+
+// Fetches projects from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUserProjects(userID, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userID}/projects`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [USER_PROJECTS_REQUEST, USER_PROJECTS_SUCCESS, USER_PROJECTS_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Fetches project list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadUserProjects(userID, query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUserProjects(userID, query, callback))
+  }
+}
+
+export const UPDATE_USER_ACTIVE_REQUEST = 'UPDATE_USER_ACTIVE_REQUEST'
+export const UPDATE_USER_ACTIVE_SUCCESS = 'UPDATE_USER_ACTIVE_SUCCESS'
+export const UPDATE_USER_ACTIVE_FAILURE = 'UPDATE_USER_ACTIVE_FAILURE'
+
+function fetchUpdateUserActive(userID, active, callback) {
+  if (active === DEACTIVE) {
+    active = 'active'
+  } else {
+    active = 'deactive'
+  }
+  let endpoint = `${API_URL_PREFIX}/users/${userID}/${active}`
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_USER_ACTIVE_REQUEST, UPDATE_USER_ACTIVE_SUCCESS, UPDATE_USER_ACTIVE_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+      }
+    },
+    callback
+  }
+}
+
+export function updateUserActive(userID, active, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateUserActive(userID, active, callback))
+  }
+}
+
+export const GET_DELETED_USERS_REQUEST = 'GET_DELETED_USERS_REQUEST'
+export const GET_DELETED_USERS_SUCCESS = 'GET_DELETED_USERS_SUCCESS'
+export const GET_DELETED_USERS_FAILURE = 'GET_DELETED_USERS_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDeletedUsers(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/softdeleted`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [GET_DELETED_USERS_REQUEST, GET_DELETED_USERS_SUCCESS, GET_DELETED_USERS_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function getDeletedUsers(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeletedUsers(query, callback))
+  }
+}
+
+export const USER_EXCLUDE_ONE_TEAM_REQUEST = 'USER_EXCLUDE_ONE_TEAM_REQUEST'
+export const USER_EXCLUDE_ONE_TEAM_SUCCESS = 'USER_EXCLUDE_ONE_TEAM_SUCCESS'
+export const USER_EXCLUDE_ONE_TEAM_FAILURE = 'USER_EXCLUDE_ONE_TEAM_FAILURE'
+
+function fetchUsersExcludeOneTeam(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/search`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return{
+    [FETCH_API]: {
+      types: [USER_EXCLUDE_ONE_TEAM_REQUEST,USER_EXCLUDE_ONE_TEAM_SUCCESS,USER_EXCLUDE_ONE_TEAM_FAILURE],
+      endpoint,
+      options: {},
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function usersExcludeOneTeam(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUsersExcludeOneTeam(query, callback))
+  }
+}
+
+export const BIND_ROLES_FOR_USER_REQUEST = 'BIND_ROLES_FOR_USER_REQUEST'
+export const BIND_ROLES_FOR_USER_SUCCESS = 'BIND_ROLES_FOR_USER_SUCCESS'
+export const BIND_ROLES_FOR_USER_FAILURE = 'BIND_ROLES_FOR_USER_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchbindRolesForUser(userId, scope, scopeId, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userId}/${scope}/${scopeId}/roles`
+  return {
+    [FETCH_API]: {
+      types: [BIND_ROLES_FOR_USER_REQUEST, BIND_ROLES_FOR_USER_SUCCESS, BIND_ROLES_FOR_USER_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function bindRolesForUser(userId, scope, scopeId, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchbindRolesForUser(userId, scope, scopeId, body, callback))
+  }
+}
+
+export const TRANSFER_TEAM_REQUEST = 'TRANSFER_TEAM_REQUEST'
+export const TRANSFER_TEAM_SUCCESS = 'TRANSFER_TEAM_SUCCESS'
+export const TRANSFER_TEAM_FAILURE = 'TRANSFER_TEAM_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchTeamtransfer(userId, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userId}/teamtransfer`
+  return {
+    [FETCH_API]: {
+      types: [ TRANSFER_TEAM_REQUEST, TRANSFER_TEAM_SUCCESS, TRANSFER_TEAM_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function teamtransfer(userId, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTeamtransfer(userId, body, callback))
   }
 }

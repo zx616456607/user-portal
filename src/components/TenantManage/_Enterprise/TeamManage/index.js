@@ -8,25 +8,29 @@
  * @author XuLongcheng
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Menu, Dropdown, Button, Icon, Card, Table, Modal, Input, Tooltip, } from 'antd'
+import { Row, Col, Alert, Menu, Dropdown, Button, Icon, Card, Table, Modal, Input, Tooltip, Transfer } from 'antd'
+import QueueAnim from 'rc-queue-anim'
 import './style/TeamManage.less'
 import { Link } from 'react-router'
 import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
-import { loadUserTeamList } from '../../../../actions/user'
+import intersection from 'lodash/intersection'
+import xor from 'lodash/xor'
+import { loadUserTeamList, loadUserList } from '../../../../actions/user'
 import {
   createTeam, deleteTeam, createTeamspace,
   addTeamusers, removeTeamusers, loadTeamUserList,
   checkTeamName,loadTeamspaceList
 } from '../../../../actions/team'
+import { usersAddRoles, roleWithMembers, usersLoseRoles } from '../../../../actions/role'
 import { chargeTeamspace } from '../../../../actions/charge'
 import { ROLE_SYS_ADMIN } from '../../../../../constants'
-
-import MemberTransfer from '../../MemberTransfer'
-import CreateTeamModal from '../../CreateTeamModal'
+import MemberTransfer from '../../../AccountModal/MemberTransfer'
+import CreateTeamModal from '../../../AccountModal/CreateTeamModal'
 import NotificationHandler from '../../../../components/Notification'
 import SpaceRecharge from '../Recharge/SpaceRecharge'
 import Title from '../../../Title'
+import { CREATE_TEAMS_ROLE_ID } from '../../../../../constants'
 
 let TeamTable = React.createClass({
   getInitialState() {
@@ -34,14 +38,17 @@ let TeamTable = React.createClass({
       filteredInfo: null,
       sortedInfo: null,
       sortMember: true,
-      sortSpace: true,
+      creationTime: true,
       sortCluster: true,
       sortTeamName: true,
       addMember: false,
       targetKeys: [],
+      originalKeys: [],
       sort: "a,teamName",
       filter: "",
-      nowTeamID: ''
+      nowTeamID: '',
+      tableSelected: [],
+      rightModal: false,
     }
   },
   handleChange(pagination, filters, sorter) {
@@ -113,11 +120,11 @@ let TeamTable = React.createClass({
       sort,
     })
   },
-  handleSortSpace() {
+  handleSortCreateTime() {
     const { loadUserTeamList } = this.props.scope.props
     const { filter } = this.props.scope.state
-    const { sortSpace } = this.state
-    let sort = this.getSort(!sortSpace, 'spaceCount')
+    const { creationTime } = this.state
+    let sort = this.getSort(!creationTime, 'creationTime')
     loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
@@ -125,7 +132,7 @@ let TeamTable = React.createClass({
       filter,
     })
     this.setState({
-      sortSpace: !sortSpace,
+      creationTime: !creationTime,
       sort,
     })
   },
@@ -162,60 +169,118 @@ let TeamTable = React.createClass({
     })
   },
   addNewMember(teamID) {
-    this.props.loadTeamUserList(teamID, ({ size: 100 }))
-    this.setState({
-      addMember: true,
-      nowTeamID: teamID
+    this.props.loadTeamUserList(teamID, ({ size: 100 }),{
+      success: {
+        func: res => {
+          let targetKeys = []
+          res.users.map(item => {
+            targetKeys.push(item.userID)
+          })
+          this.setState({
+            targetKeys,
+            originalKeys: targetKeys,
+            addMember: true,
+            nowTeamID: teamID
+          })
+        },
+        isAsync: true
+      }
     })
   },
   handleNewMemberOk() {
-    const { addTeamusers, loadUserTeamList, rowKey } = this.props
-    const { targetKeys, nowTeamID } = this.state
+    const { loadUserTeamList } = this.props
+    const { targetKeys, originalKeys } = this.state
     const { page, size, sort, filter} = this.props.scope.state
-    if (targetKeys.length !== 0) {
-      addTeamusers(nowTeamID,
-        targetKeys
-        , {
-          success: {
-            func: () => {
-              loadUserTeamList('default', {
-                page: page,
-                size: size,
-                sort: sort,
-                filter: filter,
-              })
-            },
-            isAsync: true
-          }
-        })
+    let notify = new NotificationHandler()
+    let diff = xor(targetKeys, originalKeys)
+    let add = intersection(targetKeys, diff)
+    let del = intersection(originalKeys, diff)
+    if (add.length && del.length) {
+      Promise.all([this.addTeamUsers(add), this.delTeamUsers(del)]).then(() => {
+        loadUserTeamList('default', {page, size, sort, filter})
+        notify.success('操作成功')
+      }).catch(() => {
+        notify.error('操作失败')
+      })
+    } else if (add.length && !del.length) {
+      this.addTeamUsers(add).then(() => {
+        loadUserTeamList('default', {page, size, sort, filter})
+        notify.success('操作成功')
+      }).catch(() => {
+        notify.error('操作失败')
+      })
+    } else if (!add.length && del.length) {
+      this.delTeamUsers(del).then(() => {
+        loadUserTeamList('default', {page, size, sort, filter})
+        notify.success('操作成功')
+      }).catch(() => {
+        notify.error('操作失败')
+      })
     }
     this.setState({
       addMember: false,
+      targetKeys: [],
+      originalKeys: []
     })
-    setTimeout(()=> {
-      this.setState({
-        targetKeys: [],
+  },
+  addTeamUsers(add) {
+    const { nowTeamID } = this.state
+    const { addTeamusers } = this.props
+    const newtargetKeys = add.map(item=> {
+      return {
+        userID: item
+      }
+    })
+    const targetKeysMap = {"users":newtargetKeys}
+    return new Promise((resolve, reject) => {
+      addTeamusers(nowTeamID,targetKeysMap,{
+        success: {
+          func: () => {
+            resolve()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            reject()
+          }
+        }
       })
-    },500)
+    })
+  },
+  delTeamUsers(del) {
+    const { nowTeamID } = this.state
+    const { removeTeamusers } = this.props
+    return new Promise((resolve, reject) => {
+      removeTeamusers(nowTeamID, del.toString(), {
+        success: {
+          func: () => {
+            resolve()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            reject(err)
+          }
+        }
+      })
+    })
   },
   handleNewMemberCancel(e) {
     this.setState({
       addMember: false,
       targetKeys: [],
+      originalKeys: []
     })
   },
   handleUserChange(targetKeys) {
     this.setState({ targetKeys })
   },
-  btnRecharge(teamID) {
-    const parentScope = this.props.scope
-    parentScope.props.loadTeamspaceList(teamID)
-    parentScope.setState({spaceVisible: true})
-  },
   render() {
     let { sortedInfo, filteredInfo, targetKeys, sort } = this.state
-    const { searchResult, notFound, filter } = this.props.scope.state
-    const { data, scope, teamUserIDList } = this.props
+    const { searchResult, filter } = this.props.scope.state
+    const { data, scope, roleNum } = this.props
     filteredInfo = filteredInfo || {}
     sortedInfo = sortedInfo || {}
     const pagination = {
@@ -256,7 +321,6 @@ let TeamTable = React.createClass({
         })
       },
     }
-
     const columns = [
       {
         title: (
@@ -274,10 +338,10 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'team',
         key: 'team',
-        width: '16%',
         className: 'teamName',
+        width:'10%',
         render: (text, record, index) => (
-          <Link to={`/account/team/${record.team}/${record.key}`}>{text}</Link>
+          <Link to={`/tenant_manage/team/${record.key}`}>{text}</Link>
         )
       },
       {
@@ -296,90 +360,53 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'member',
         key: 'member',
-        width: '18%',
+        width:'10%',
       },
       {
         title: (
-          <div onClick={this.handleSortCluster}>
-            在用集群
+          <div onClick={this.handleSortCreateTime}>
+            创建时间
             <div className="ant-table-column-sorter">
-              <span className={this.state.sortCluster ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+              <span className={this.state.creationTime ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
                 <i className="anticon anticon-caret-up" />
               </span>
-              <span className={!this.state.sortCluster ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+              <span className={!this.state.creationTime ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
                 <i className="anticon anticon-caret-down" />
               </span>
             </div>
           </div>
         ),
-        dataIndex: 'cluster',
-        key: 'cluster',
-        width: '18%',
+        dataIndex: 'creationTime',
+        key: 'creationTime',
+        width:'20%',
+        render: text => text.replace(/T/g, ' ').replace(/Z/g, '')
       },
       {
-        title: (
-          <div onClick={this.handleSortSpace}>
-            团队空间
-            <div className="ant-table-column-sorter">
-              <span className={this.state.sortSpace ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
-                <i className="anticon anticon-caret-up" />
-              </span>
-              <span className={!this.state.sortSpace ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
-                <i className="anticon anticon-caret-down" />
-              </span>
-            </div>
-          </div>
-        ),
-        dataIndex: 'space',
-        key: 'space',
-        width: '18%',
+        title: '我是团队的',
+        dataIndex: 'role',
+        key: 'role',
+        width:'10%',
+        filters: [
+          { text: '创建者', value: '创建者' },
+          { text: '参与者', value: '参与者' },
+          { text: '非团队成员', value: '非团队成员' }
+        ],
+        filteredValue: filteredInfo.role,
+        onFilter: (value, record) => String(record.role) === value
       },
       {
         title: '操作',
         key: 'operation',
+        width:'15%',
         render: (text, record, index) =>{
           return (
             <div className="addusers">
               <div className="Deleterechargea">
-                <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
-                <Button icon="delete" className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
-                {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN) ?
-                  <Button icon="pay-circle-o" className="addBtn" style={{marginLeft:'12px'}} onClick={() => this.btnRecharge(record.key)}>充值</Button>
-                :null
-                }
+                <Button disabled={roleNum ===3}
+                  type="primary" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加团队成员</Button>
+                <Button disabled={roleNum ===3}
+                  className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
               </div>
-              <div className="Deleterechargeb">
-                <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
-                {
-                  this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN
-                  ? (
-                    <Dropdown.Button
-                      onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}
-                      overlay={
-                        <Menu className="Recharge" onClick={() => this.btnRecharge(record.key)}>
-                          <Menu.Item key="0"><Icon type="pay-circle-o" /> 充值</Menu.Item>
-                        </Menu>
-                      }
-                      type="ghost"
-                    >
-                      删除
-                    </Dropdown.Button>
-                  )
-                  : <Button icon="delete" className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
-                }
-              </div>
-              <Modal title='添加成员'
-                visible={this.state.nowTeamID === record.key && this.state.addMember}
-                onOk={this.handleNewMemberOk}
-                onCancel={this.handleNewMemberCancel}
-                width="660px"
-                wrapClassName="newMemberModal"
-                >
-                <MemberTransfer onChange={this.handleUserChange}
-                  targetKeys={targetKeys}
-                  teamID={record.key}
-                  teamUserIDList={teamUserIDList} />
-              </Modal>
             </div>
           )
         }
@@ -387,17 +414,29 @@ let TeamTable = React.createClass({
     ]
     return (
       <div>
-      <Table columns={columns}
-        dataSource={searchResult.length === 0 ? data : searchResult}
-        pagination={pagination}
-        onChange={this.handleChange}
-      />
-      <Modal title="删除团队操作" visible={this.state.delTeamModal}
-        onOk={()=> this.delTeam()} onCancel={()=> this.setState({delTeamModal: false})}
-      >
-      <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除团队 {this.state.teamName} ?</div>
-     </Modal>
-     </div>
+        <Modal title='添加成员'
+               visible={this.state.addMember}
+               onOk={this.handleNewMemberOk}
+               onCancel={this.handleNewMemberCancel}
+               width="660px"
+               wrapClassName="newMemberModal"
+        >
+          <MemberTransfer
+            onChange={this.handleUserChange}
+            targetKeys={targetKeys}
+          />
+        </Modal>
+        <Table columns={columns}
+               dataSource={searchResult.length === 0 ? data : searchResult}
+               pagination={pagination}
+               onChange={this.handleChange}
+        />
+        <Modal title="删除团队操作" visible={this.state.delTeamModal} wrapClassName="deleteSingleModal"
+               onOk={()=> this.delTeam()} onCancel={()=> this.setState({delTeamModal: false})}
+        >
+          <div className="deleteTeamHint"><i className="fa fa-exclamation-triangle" aria-hidden="true" style={{marginRight:'8px'}}/>您是否确定要删除团队 {this.state.teamName} ?</div>
+        </Modal>
+      </div>
     )
   },
 })
@@ -407,27 +446,27 @@ class TeamManage extends Component {
     super(props)
     this.showModal = this.showModal.bind(this)
     this.teamOnSubmit = this.teamOnSubmit.bind(this)
-    this.handleCreateTeamInt = this.handleCreateTeamInt.bind(this)
     this.state = {
       searchResult: [],
       notFound: false,
       visible: false,
-      spaceVisible: false, // space recharge
       teamName: '',
       pageSize: 10,
       page: 1,
       current: 1,
       sort: 'a,teamName',
-      selected: []
+      selected: [],
+      userList:[],
+      targetKeys: [],
+      originalKeys: []
     }
   }
   showModal() {
     this.setState({
       visible: true,
-    })
-    setTimeout(function() {
+    },()=>{
       document.getElementById('teamInput').focus()
-    }, 100)
+    })
   }
   teamOnSubmit(team) {
     const { createTeam, loadUserTeamList } = this.props
@@ -460,11 +499,6 @@ class TeamManage extends Component {
       }
     })
   }
-  handleCreateTeamInt(e) {
-    this.setState({
-      teamName: e.target.value
-    })
-  }
   componentWillMount() {
     this.props.loadUserTeamList('default', {
       page: 1,
@@ -473,11 +507,169 @@ class TeamManage extends Component {
       filter: "",
     })
   }
+  refreshTeamTable() {
+    const { loadUserTeamList } = this.props;
+    const { pageSize, sort } = this.state
+    loadUserTeamList('default', {
+      page: 1,
+      current: 1,
+      size: pageSize,
+      sort,
+      filter: '',
+    },{
+      success: {
+        func: (res)=> {
+
+        },
+        isAsync: true
+      }
+    })
+  }
+  cancelRightModal() {
+    this.setState({
+      rightModal: false
+    })
+  }
+  confirmRightModal() {
+    const { targetKeys, originalKeys } = this.state;
+    let diff = xor(originalKeys,targetKeys)
+    let add = intersection(targetKeys,diff)
+    let del = intersection(originalKeys,diff)
+    if (!del.length && !add.length) {
+      this.setState({
+        rightModal: false
+      })
+    } else if (del.length && !add.length) {
+      this.delMember(del,true)
+    } else if (!del.length && add.length) {
+      this.addMember(add,true)
+    } else {
+      this.addMember(add)
+      this.delMember(del,true)
+    }
+  }
+  addMember(add,flag) {
+    const { usersAddRoles } = this.props;
+    let notify = new NotificationHandler()
+    usersAddRoles({
+      roleID:CREATE_TEAMS_ROLE_ID,
+      scope: 'global',
+      scopeID: 'global',
+      body: {
+        userIDs:add
+      }
+    },{
+      success: {
+        func: () => {
+          if (flag) {
+            notify.success('操作成功')
+            this.setState({
+              rightModal: false
+            })
+          }
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          if (flag) {
+            notify.error('操作失败')
+            this.setState({
+              rightModal: false
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
+  }
+  delMember(del,flag) {
+    const { usersLoseRoles } = this.props;
+    let notify = new NotificationHandler()
+    usersLoseRoles({
+      roleID:CREATE_TEAMS_ROLE_ID,
+      scope: 'global',
+      scopeID: 'global',
+      body: {
+        userIDs:del
+      }
+    },{
+      success: {
+        func: () => {
+          if (flag) {
+            notify.success('操作成功')
+            this.setState({
+              rightModal: false
+            })
+          }
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          if (flag) {
+            notify.error('操作失败')
+            this.setState({
+              rightModal: false
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
+  }
+  filterOption(inputValue, option) {
+    return option.title.indexOf(inputValue) > -1;
+  }
+  handleChange(targetKeys) {
+    this.setState({ targetKeys });
+  }
+  formatUserList(users) {
+    for (let i = 0; i < users.length; i++) {
+      Object.assign(users[i],{key:users[i].userID},{title:users[i].namespace,chosen:false})
+    }
+  }
+  openRightModal() {
+    const { loadUserList, roleWithMembers } = this.props;
+    loadUserList({
+      size: 0
+    },{
+      success: {
+        func: (res) => {
+          this.formatUserList(res.users)
+          this.setState({
+            userList:res.users
+          })
+          roleWithMembers({
+            roleID:CREATE_TEAMS_ROLE_ID,
+            scope:'global',
+            scopeID:'global'
+          },{
+            success: {
+              func: res => {
+                this.setState({
+                  targetKeys:res.data.data ? res.data.data.map(item => {
+                    return item.userId
+                  }) : [],
+                  originalKeys: res.data.data ? res.data.data.map(item => {
+                    return item.userId
+                  }) : [],
+                  rightModal: true
+                })
+              },
+              isAsync: true
+            }
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
   render() {
     const scope = this
-    const { visible } = this.state
+    const { visible, userList, targetKeys } = this.state
     const {
-      teams, addTeamusers, loadUserTeamList,
+      teams, addTeamusers, loadUserTeamList, roleNum, removeTeamusers,
       teamUserIDList, loadTeamUserList, checkTeamName
     } = this.props
     const searchIntOption = {
@@ -488,46 +680,73 @@ class TeamManage extends Component {
       checkTeamName
     }
     return (
-      <div id="TeamManage">
-        <Title title="团队管理" />
-        <Alert message={`团队，由若干个成员组成的一个集体，可等效于公司的部门、项目组、或子公司，
-          包含『团队空间』这一逻辑隔离层，以实现对应您企业内部各个不同项目，或者不同逻辑组在云平台上操作对象的隔离，团队管理员可见对应团队的所有空间的应用等对象。`}
-          type="info" />
-        <Row className="teamOption">
-          <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
-            <i className='fa fa-plus' /> 创建团队
-          </Button>
-          <CreateTeamModal
-            scope={scope}
-            visible={visible}
-            onSubmit={this.teamOnSubmit}
-            funcs={funcs} />
-          <Button className="viewBtn" style={{ display: "none" }}>
-            <Icon type="picture" />
-            查看成员&团队图例
-          </Button>
-          <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams} />
-          <div className="total">共{this.props.total}个</div>
-        </Row>
-        <Row className="teamList">
-          <Card>
-            <TeamTable data={teams}
+      <QueueAnim>
+        <div key='TeamsManage' id="TeamsManage">
+          <Title title="团队管理" />
+          <Alert message={`团队由若干个成员组成的一个集体，等效于公司的部门、小组、或子公司；系统管理员可将普通成员设置为「可以创建团队」的人，团队创建者为团队管理员，团队能移交给团队内或团队外成员作为新的团队管理员。`}
+                 type="info" />
+          <Row className="teamOption">
+            {
+              roleNum !== 3 &&
+                <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
+                  <i className='fa fa-plus' /> 创建团队
+                </Button>
+            }
+            {
+              roleNum === 1 &&
+                <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建团队</Button>
+            }
+            <Button type="host" size="large" className="refreshBtn" onClick={this.refreshTeamTable.bind(this)}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
+            <CreateTeamModal
               scope={scope}
-              addTeamusers={addTeamusers}
-              loadUserTeamList={loadUserTeamList}
-              loadTeamUserList={loadTeamUserList}
-              teamUserIDList={teamUserIDList} />
-          </Card>
-        </Row>
-        {/* 团队空间充值  */}
-        <Modal title="团队空间充值" visible={this.state.spaceVisible}
-          onCancel={()=> this.setState({spaceVisible: false})}
-          width={600}
-          footer={null}
-        >
-          <SpaceRecharge parentScope={this} selected={this.state.selected} teamSpacesList={this.props.teamSpacesList}/>
-        </Modal>
-      </div>
+              visible={visible}
+              onSubmit={this.teamOnSubmit}
+              funcs={funcs} />
+            <Modal title="选择可以创建团队的成员" width={760} visible={this.state.rightModal}
+                   onCancel = {()=> this.cancelRightModal()}
+                   onOk = {()=> this.confirmRightModal()}
+            >
+              <div className="alertRow">可创建团队的成员能创建团队并有管理该团队的权限</div>
+              {
+                userList && userList.length > 0 &&
+                <Transfer
+                  dataSource={userList}
+                  listStyle={{
+                    width: 300,
+                    height: 270,
+                  }}
+                  operations={['添加', '移除']}
+                  titles={['可选成员名','可创建团队成员']}
+                  searchPlaceholder="按成员名搜索"
+                  showSearch
+                  filterOption={this.filterOption.bind(this)}
+                  targetKeys={targetKeys}
+                  onChange={this.handleChange.bind(this)}
+                  render={item => item && item.title}
+                />
+              }
+            </Modal>
+            <Button className="viewBtn" style={{ display: "none" }}>
+              <Icon type="picture" />
+              查看成员&团队图例
+            </Button>
+            <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams} />
+            <div className="total">共{this.props.total}个</div>
+          </Row>
+          <Row className="teamList">
+            <Card>
+              <TeamTable data={teams}
+                         roleNum={roleNum}
+                         scope={scope}
+                         addTeamusers={addTeamusers}
+                         removeTeamusers={removeTeamusers}
+                         loadUserTeamList={loadUserTeamList}
+                         loadTeamUserList={loadTeamUserList}
+                         teamUserIDList={teamUserIDList} />
+            </Card>
+          </Row>
+        </div>
+      </QueueAnim>
     )
   }
 }
@@ -536,23 +755,37 @@ function mapStateToProp(state, props) {
   let teamsData = []
   let total = 0
   let data = []
+  let roleNum = 0
   let teamUserIDList = []
   const team = state.team
   const teams = state.user.teams
   const userDetail = state.entities.loginUser.info
+  const { loginUser } = state.entities
+  const { globalRoles, userID } = loginUser.info || { globalRoles: [], userID: '' }
   let teamSpacesList = []
   if (teams.result) {
     if (teams.result.teams) {
       teamsData = teams.result.teams
       if (teamsData.length !== 0) {
         teamsData.map((item, index) => {
+          let role = ''
+          if (item.outlineRoles) {
+            if (item.outlineRoles.includes('creator') || item.outlineRoles.includes('manager')) {
+              role = '创建者'
+            } else if (item.outlineRoles.includes('no-participator')) {
+              role = '非团队成员'
+            } else {
+              role = '参与者'
+            }
+          }
           data.push(
             {
               key: item.teamID,
               team: item.teamName,
               member: item.userCount,
-              cluster: item.clusterCount,
-              space: item.spaceCount,
+              creationTime: item.creationTime,
+              outlineRoles: item.outlineRoles,
+              role
             }
           )
         })
@@ -575,12 +808,27 @@ function mapStateToProp(state, props) {
   if (team.teamspaces.result) {
     teamSpacesList = team.teamspaces.result.data
   }
+  if (globalRoles.length) {
+    for (let i = 0; i < globalRoles.length; i++) {
+      if (globalRoles[i] === 'admin') {
+        roleNum = 1;
+        break
+      } else if (globalRoles[i] === 'team-creator') {
+        roleNum = 2;
+        break
+      } else {
+        roleNum = 3
+      }
+    }
+  }
   return {
     teams: data,
     total,
     teamUserIDList: teamUserIDList,
     teamSpacesList,
-    userDetail
+    userDetail,
+    roleNum,
+    userID
   }
 }
 
@@ -594,5 +842,9 @@ export default connect(mapStateToProp, {
   loadTeamUserList,
   checkTeamName,
   loadTeamspaceList,
-  chargeTeamspace
+  chargeTeamspace,
+  loadUserList,
+  usersAddRoles,
+  roleWithMembers,
+  usersLoseRoles
 })(TeamManage)

@@ -35,7 +35,7 @@ const Option = Select.Option;
 const menusText = defineMessages({
   headTitle: {
     id: 'ManageMonitor.QueryLog.headTitle',
-    defaultMessage: '日志查询 | 时速云',
+    defaultMessage: '日志查询',
   },
   title: {
     id: 'ManageMonitor.QueryLog.title',
@@ -691,6 +691,12 @@ class QueryLog extends Component {
   componentDidMount(){
     const { location, cluster, loadServiceContainerList } = this.props
     const query = location.query
+    let end_time = new Date()
+    let current_time = new Date()
+    let startTime = current_time.setDate(current_time.getDate() - 5)
+    let start_time = new Date(startTime)
+    this.onChangeEndTime(end_time)
+    this.onChangeStartTime(start_time)
     if(query.from == 'serviceDetailLogs'){
       loadServiceContainerList(cluster, query.serviceName, null, {
         success: {

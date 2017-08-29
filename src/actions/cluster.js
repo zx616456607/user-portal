@@ -526,3 +526,28 @@ export function createMiddleware(cluster, body, callback) {
     return dispatch(fetchCreatePlugins(cluster, body, callback))
   }
 }
+
+export const SET_DEFAULT_GROUP_REQUERT = 'SET_DEFAULT_GROUP_REQUERT'
+export const SET_DEFAULT_GROUP_SUCCESS = 'SET_DEFAULT_GROUP_SUCCESS'
+export const SET_DEFAULT_GROUP_FAILURE = 'SET_DEFAULT_GROUP_FAILURE'
+
+function fetchSetDefultGruop(clusterID, groupID, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SET_DEFAULT_GROUP_REQUERT, SET_DEFAULT_GROUP_SUCCESS, SET_DEFAULT_GROUP_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/proxies/${groupID}/as_default`,
+      options: {
+        method:'PUT'
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+
+export function setDefaultGroup(clusterID, groupId, callback) {
+  return (dispatch) => {
+    return dispatch(fetchSetDefultGruop(clusterID, groupId, callback))
+  }
+}

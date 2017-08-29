@@ -9,10 +9,11 @@
  */
 import React, { Component } from 'react'
 import './style/Membermanagement.less'
-import { Row, Col, Alert, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, } from 'antd'
+import { Row, Col, Alert, Button, Input, Select, Menu, Card, Spin, Icon, Table, Modal, Checkbox, Tooltip, Dropdown } from 'antd'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
-import { loadUserList, createUser, deleteUser, checkUserName } from '../../../actions/user'
+import { camelize } from 'humps'
+import { loadUserList, createUser, deleteUser, checkUserName, updateUserActive, loadAllUserList } from '../../../actions/user'
 import { chargeUser } from '../../../actions/charge'
 import { Link } from 'react-router'
 import { parseAmount } from '../../../common/tools'
@@ -20,8 +21,14 @@ import CreateUserModal from '../CreateUserModal'
 import NotificationHandler from '../../../components/Notification'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import MemberRecharge from '../../AccountModal/_Enterprise/Recharge'
-import { MAX_CHARGE }  from '../../../constants'
+import { MAX_CHARGE, DEACTIVE } from '../../../constants'
 import Title from '../../Title'
+import ChargeModal from './ChargeModal'
+import CommonSearchInput from '../../CommonSearchInput'
+// import DeleteModal from './DeleteModal'
+import DeletedUsersModal from './DeletedUsersModal'
+import DeleteUserModal from './DeleteUserModal'
+import successPic from '../../../assets/img/wancheng.png'
 
 const confirm = Modal.confirm
 
@@ -37,6 +44,8 @@ let MemberTable = React.createClass({
       sort: "a,userName",
       filter: "",
       selectedRowKeys: [],
+      deactiveUserModal: false,
+      deactiveUserBtnLoading: false,
     }
   },
 
@@ -67,7 +76,7 @@ let MemberTable = React.createClass({
   handleSortTeam() {
     const { loadUserList } = this.props.scope.props
     const { sortTeam } = this.state
-    const {page, pageSize, filter} = this.props.scope.state
+    const { page, pageSize, filter } = this.props.scope.state
     let sort = this.getSort(!sortTeam, 'teamCount')
     loadUserList({
       sort,
@@ -83,7 +92,7 @@ let MemberTable = React.createClass({
   handleSortBalance() {
     const { loadUserList } = this.props.scope.props
     const { sortBalance } = this.state
-    const {page, pageSize, filter} = this.props.scope.state
+    const { page, pageSize, filter } = this.props.scope.state
     let sort = this.getSort(!sortBalance, 'balance')
     loadUserList({
       sort,
@@ -102,55 +111,22 @@ let MemberTable = React.createClass({
       notFound: false,
     })
   },
-  delMember() {
-    const { scope } = this.props
-    const record = this.state.userManage
-    if (record.style === "系统管理员") {
-      confirm({
-        title: '不能删除系统管理员',
-      });
-      return
-    }
-    this.setState({delModal: false})
-    let notification = new NotificationHandler()
-    const { page, pageSize,filter,sort } = scope.state
-    scope.props.deleteUser(record.key, {
-      success: {
-        func: () => {
-          notification.success('删除成功！')
-          scope.props.loadUserList({
-            page: page,
-            size: pageSize,
-            sort: sort,
-            filter: filter,
-          })
-        },
-        isAsync: true
-      },
-      failed: {
-        func: () => {
-          notification.error('删除失败！')
-        }
-      }
-    })
-
-  },
   filtertypes(filters) {
     // member select filter type (0=>普通成员，1=>团队管理员，3=> 系统管理员)
     // return number
-    let filter =''
+    let filter = ''
     let isSetFilter = false
-    let protoDate = ['0','1','2']
+    let protoDate = ['0', '1', '2']
     let typeData = ['1', '2']
-    if(filters.style) {
+    if (filters.style) {
       if (filters.style.length === 1) {
         isSetFilter = true
-         filter = `role__eq,${filters.style[0]}`
+        filter = `role__eq,${filters.style[0]}`
       }
       if (filters.style.length == 2) {
-        for (let i=0;i < protoDate.length; i++) {
+        for (let i = 0; i < protoDate.length; i++) {
           let item = protoDate[i]
-          if(filters.style.indexOf(item) < 0){
+          if (filters.style.indexOf(item) < 0) {
             isSetFilter = true
             filter = `role__neq,${item}`
             break
@@ -158,18 +134,18 @@ let MemberTable = React.createClass({
         }
       }
     }
-    if(filters.type) {
-      if(filters.type.length == 1) {
-        if(filter) {
-          filter +=`,type__eq,${filters.type[0]}`
+    if (filters.type) {
+      if (filters.type.length == 1) {
+        if (filter) {
+          filter += `,type__eq,${filters.type[0]}`
         } else {
-          filter =`type__eq,${filters.type[0]}`
+          filter = `type__eq,${filters.type[0]}`
         }
 
         isSetFilter = true
       }
     }
-    if(isSetFilter) {
+    if (isSetFilter) {
       return filter
     }
     return protoDate.concat(typeData)
@@ -180,7 +156,7 @@ let MemberTable = React.createClass({
       return
     }
     let styleFilterStr = filters.style ? filters.style.toString() : ''
-    let typeFilterStr = filters.type ?  filters.type.toString() : ''
+    let typeFilterStr = filters.type ? filters.type.toString() : ''
     if (styleFilterStr === this.styleFilter && typeFilterStr == this.typeFilterStr) {
       return
     }
@@ -205,24 +181,105 @@ let MemberTable = React.createClass({
   onSelectChange(selectedRowKeys) {
     const { scope } = this.props
     this.setState({ selectedRowKeys })
-    if(selectedRowKeys.length > 0){
+    if (selectedRowKeys.length > 0) {
       scope.setState({
-        hasSelected:true
+        hasSelected: true
       })
-    }else{
+    } else {
       scope.setState({
-        hasSelected:false
+        hasSelected: false
       })
     }
   },
+  changeUserActive() {
+    const notification = new NotificationHandler()
+    const record = this.currentUser
+    const { active, name } = record
+    const userId = record.key
+    const { scope } = this.props
+    const { updateUserActive, loadUserList } = scope.props
+    const { page, pageSize, filter, sort } = scope.state
+    const text = active === DEACTIVE ? '启用' : '停用'
+    if (active !== DEACTIVE) {
+      this.setState({
+        deactiveUserBtnLoading: true,
+      })
+    }
+    updateUserActive(userId, active, {
+      success: {
+        func: () => {
+          notification.success(`${text}用户 ${name} 成功`)
+          loadUserList({
+            page: page,
+            size: pageSize,
+            sort: sort,
+            filter: filter,
+          })
+          active !== DEACTIVE && this.setState({
+            deactiveUserModal: false,
+            deactiveUserBtnLoading: false,
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          notification.error(`${text}用户 ${name} 失败`)
+          active !== DEACTIVE && this.setState({
+            deactiveUserBtnLoading: false,
+          })
+        }
+      }
+    })
+  },
+  handleMenuClick(record, { key }) {
+    this.currentUser = record
+    if (key === 'delete') {
+      this.setState({ delModal: true })
+      // const { scope } = this.props
+      // const { loadUserTeams } = scope.props
+      // loadUserTeams(record.key, { size: 100 })
+      return
+    }
+    const notification = new NotificationHandler()
+    const { active, name } = record
+    if (active !== DEACTIVE) {
+      this.setState({
+        deactiveUserModal: true,
+      })
+      return
+    }
+    this.changeUserActive()
+  },
+  returnDefaultTooltip() {
+    setTimeout(() => {
+      this.setState({
+        copyStatus: false
+      })
+    }, 500)
+  },
+  copyText() {
+    let target = document.getElementById('delErrorMsg')
+    target.select()
+    document.execCommand('Copy', false)
+    this.setState({
+      copyStatus: true
+    })
+  },
   render() {
-    let { selectedRowKeys, sortedInfo, filteredInfo, sort } = this.state
-    const { searchResult, notFound } = this.props.scope.state
-    const rowSelection = {
+    let {
       selectedRowKeys,
-      onChange: this.onSelectChange,
-    };
-    const { data, scope } = this.props
+      sortedInfo,
+      filteredInfo,
+      sort,
+      delBtnLoading,
+      delErrorMsg,
+      copyStatus,
+    } = this.state
+    const { searchResult, notFound } = this.props.scope.state
+    const { data, scope, loginUser, teams } = this.props
+
+    let userManageName = this.currentUser ? this.currentUser.name : ''
 
     filteredInfo = filteredInfo || {}
     const pagination = {
@@ -265,19 +322,25 @@ let MemberTable = React.createClass({
       },
     }
     const { userDetail } = this.props.scope.props
-    let filterKey = [ { text: '普通成员', value: 0 },{ text: '团队管理员', value: 1 }]
-    if ( userDetail.role === ROLE_SYS_ADMIN ) {
-      filterKey = [
-        { text: '普通成员', value: 0 },
-        { text: '团队管理员', value: 1 },
-        { text: '系统管理员', value: 2 }
-      ]
-    }
+    let filterKey = [
+      { text: '普通成员', value: 0 },
+      { text: '系统管理员', value: 2 }
+    ]
+    let userStatusfilterKey = [
+      { text: '不可用', value: 2 },
+      { text: '可用', value: 1 },
+    ]
+    // if (userDetail.role === ROLE_SYS_ADMIN) {
+    //   filterKey = [
+    //     { text: '普通成员', value: 0 },
+    //     { text: '团队管理员', value: 1 },
+    //     { text: '系统管理员', value: 2 }
+    //   ]
+    // }
 
-    let ldapFileter = [ { text: '是', value: 2 },{ text: '否', value: 1 }]
+    let ldapFileter = [{ text: '是', value: 2 }, { text: '否', value: 1 }]
 
-
-    const columns = [
+    let columns = [
       {
         title: (
           <div onClick={this.handleSortName}>
@@ -308,11 +371,28 @@ let MemberTable = React.createClass({
         },
       },
       {
-        title: '手机',
-        dataIndex: 'tel',
-        key: 'tel',
-        width: '15%',
+        title: '状态',
+        dataIndex: 'active',
+        key: 'active',
+        width: '10%',
+        filters: userStatusfilterKey,
+        render: active => {
+          const color = active === DEACTIVE ? '#f03e3f' : '#33b867'
+          const text = active === DEACTIVE ? '不可用' : '可用'
+          return (
+            <div style={{ color }}>
+              <i className="fa fa-circle"></i>&nbsp;
+              <span>{text}</span>
+            </div>
+          )
+        }
       },
+      // {
+      //   title: '手机',
+      //   dataIndex: 'tel',
+      //   key: 'tel',
+      //   width: '10%',
+      // },
       {
         title: '邮箱',
         dataIndex: 'email',
@@ -329,7 +409,7 @@ let MemberTable = React.createClass({
       {
         title: (
           <div onClick={this.handleSortTeam}>
-            团队
+            所属团队
             <div className="ant-table-column-sorter">
               <span className={this.state.sortTeam ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
                 <i className="anticon anticon-caret-up" />
@@ -342,6 +422,12 @@ let MemberTable = React.createClass({
         ),
         dataIndex: 'team',
         key: 'team',
+        width: '10%',
+      },
+      {
+        title: '参与项目',
+        dataIndex: 'project',
+        key: 'project',
         width: '10%',
       },
       {
@@ -369,29 +455,44 @@ let MemberTable = React.createClass({
         filters: ldapFileter,
         width: '10%',
         render: (text) => {
-          if(text == 2) return '是'
+          if (text == 2) return '是'
           return '否'
         }
       },
-      {
+    ]
+    if (userDetail.role === ROLE_SYS_ADMIN) {
+      columns.push({
         title: '操作',
         dataIndex: 'operation',
         key: 'operation',
         render: (text, record, index) => (
           <div className="action">
-            { record.role == ROLE_SYS_ADMIN ?
-              <Button type="primary" className="setBtn" onClick={()=> scope.memberRecharge(record)}>充值</Button>
-              :null
-            }
-            <Button className="delBtn setBtn" onClick={() => this.setState({delModal: true,userManage: record})}>
+            <Dropdown.Button
+              onClick={() => scope.memberRecharge(record)}
+              overlay={
+                <Menu
+                  onClick={this.handleMenuClick.bind(this, record)}
+                  style={{ width: '80px' }}
+                >
+                  <Menu.Item key="active"
+                    disabled={record.namespace === loginUser.namespace}
+                  >
+                    {record.active === DEACTIVE ? '启用' : '停用'}
+                  </Menu.Item>
+                  <Menu.Item key="delete">删除</Menu.Item>
+                </Menu>
+              }
+              type="ghost"
+            >
+              充值
+            </Dropdown.Button>
+            {/* <Button type="primary" className="setBtn" onClick={() => scope.memberRecharge(record)}>充值</Button>
+            <Button className="delBtn setBtn" onClick={() => this.setState({ delModal: true, userManage: record })}>
               删除
-            </Button>
+            </Button> */}
           </div>
         ),
-      },
-    ]
-    if(userDetail.role !== ROLE_SYS_ADMIN){
-      columns.pop()
+      })
     }
     if (notFound) {
       return (
@@ -400,22 +501,60 @@ let MemberTable = React.createClass({
           <a onClick={this.handleBack}>[返回成员管理列表]</a>
         </div>
       )
-    } else {
-      return (
-        <div>
+    }
+    return (
+      <div>
         <Table columns={columns}
           dataSource={searchResult.length === 0 ? data : searchResult}
           pagination={pagination}
-          rowSelection={rowSelection}
-          onChange={this.onTableChange} />
-          <Modal title="删除成员操作" visible={this.state.delModal}
-            onOk={()=> this.delMember()} onCancel={()=> this.setState({delModal: false})}
-          >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除成员 {this.state.userManage ? this.state.userManage.name : ''} ?</div>
+          onChange={this.onTableChange}
+        />
+        <DeleteUserModal
+          visible={this.state.delModal}
+          onCancel={() => this.setState({ delModal: false, delErrorMsg: null })}
+          currentUser={this.currentUser}
+          scope={scope}
+        />
+
+        <Modal title="停用成员操作"
+          visible={this.state.deactiveUserModal}
+          onCancel={() => this.setState({ deactiveUserModal: false })}
+          wrapClassName="deactiveMemberModal"
+          footer={[
+            <Button
+              key="back"
+              type="ghost"
+              size="large"
+              onClick={() => this.setState({ deactiveUserModal: false })}
+            >
+              取 消
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              loading={this.state.deactiveUserBtnLoading}
+              onClick={() => this.changeUserActive()}
+            >
+              确 定
+            </Button>,
+          ]}
+        >
+          <Row className="alertRow warningRow">
+            <Col span={2} className="alertRowIcon">
+              <i className="fa fa-exclamation-triangle" aria-hidden="true" />
+            </Col>
+            <Col span={22} className="alertRowDesc">
+            停用该成员将不能登录平台，激活后可恢复使用
+            </Col>
+          </Row>
+          <div className="modalColor">
+            <i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>
+            您是否确定要停用成员 {this.currentUser && this.currentUser.name} ?
+          </div>
         </Modal>
-        </div>
-      )
-    }
+      </div>
+    )
   },
 })
 
@@ -436,28 +575,48 @@ class Membermanagement extends Component {
       filter: "",
       current: 1,
       number: 10,
-      hasSelected:false
+      hasSelected: false,
+      chargeModalVisible: false,
+      // deleteModalVisible: false,
+      createUserSuccessModalVisible: false,
+      createUserErrorMsg: null,
+      deletedUserModalVisible: false,
     }
   }
+  showInfo = (title, content) => {
+    Modal.info({
+      title,
+      content,
+      onOk() {},
+    })
+  }
   showModal() {
+    const { userDetail } = this.props
+    if (userDetail.role !== ROLE_SYS_ADMIN) {
+      return this.showInfo('普通成员没有权限创建新成员')
+    }
     this.setState({
       visible: true,
     })
-    setTimeout(function() {
+    setTimeout(function () {
       document.getElementById('newUser').focus()
     }, 500);
   }
-  componentWillMount() {
-    this.props.loadUserList({
+  loadData = query => {
+    const defaultQuery = {
       page: 1,
       size: 10,
       sort: "a,userName",
       filter: "",
-    })
+    }
+    this.props.loadUserList(Object.assign({}, defaultQuery, query))
+  }
+  componentWillMount() {
+    this.loadData()
   }
   userOnSubmit(user) {
     const { createUser, loadUserList } = this.props
-    const { page, pageSize, sort, filter } = this.state
+    let { page, pageSize, sort, filter, createUserErrorMsg } = this.state
     let notification = new NotificationHandler()
     notification.spin(`创建用户 ${user.userName} 中...`)
     createUser(user, {
@@ -471,10 +630,14 @@ class Membermanagement extends Component {
           })
           notification.close()
           if (response.data && response.data == "SEND_MAIL_ERROR") {
-            notification.error(`创建用户 ${user.userName} 成功，但发送邮件失败`)
+            createUserErrorMsg = '发送邮件失败'
           } else {
-            notification.success(`创建用户 ${user.userName} 成功`)
+            createUserErrorMsg = null
           }
+          this.setState({
+            createUserErrorMsg,
+            createUserSuccessModalVisible: true,
+          })
         },
         isAsync: true
       },
@@ -493,7 +656,7 @@ class Membermanagement extends Component {
     })
   }
   activeMenu(number) {
-    this.setState({number})
+    this.setState({ number })
   }
   btnCharge() {
     // user charge
@@ -509,10 +672,10 @@ class Membermanagement extends Component {
     const _this = this
     const { page, pageSize, sort, filter } = this.state
 
-    const { loadUserList, chargeUser} = this.props
+    const { loadUserList, chargeUser } = this.props
     const oldBalance = parseFloat(this.state.record.balance)
 
-    if (oldBalance + body.amount > MAX_CHARGE ) {
+    if (oldBalance + body.amount > MAX_CHARGE) {
       // balance (T) + charge memory not 200000
       let isnewBalance = Math.floor(MAX_CHARGE - oldBalance)
       let newBalance = isnewBalance > 0 ? isnewBalance : 0
@@ -522,9 +685,9 @@ class Membermanagement extends Component {
 
     chargeUser(body, {
       success: {
-        func: (ret)=> {
+        func: (ret) => {
           notification.success('成员充值成功')
-          _this.setState({visibleMember: false,number:10})
+          _this.setState({ visibleMember: false, number: 10 })
           loadUserList({
             page,
             size: pageSize,
@@ -536,17 +699,48 @@ class Membermanagement extends Component {
       }
     })
   }
+  handleChargeOk = (namespaces, amount) => {
+    const notification = new NotificationHandler()
+    const { loadUserList, chargeUser } = this.props
+    const { page, pageSize, sort, filter } = this.state
+    const body = {
+      namespaces,
+      amount,
+    }
+    chargeUser(body, {
+      success: {
+        func: () => {
+          notification.success('批量充值成功')
+          this.setState({
+            chargeModalVisible: false,
+          })
+          loadUserList({
+            page,
+            size: pageSize,
+            sort,
+            filter,
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+
+  /* handleDeleteOk = (namespaces, amount) => {
+    //
+  } */
+
   render() {
-    const { users, checkUserName } = this.props
+    const { users, checkUserName, loadAllUserList, userDetail, teams } = this.props
     const scope = this
-    const { visible, memberList, hasSelected } = this.state
+    const { visible, memberList, hasSelected, createUserErrorMsg } = this.state
     const searchIntOption = {
       addBefore: [
         { key: 'name', value: '成员名' },
-        { key: 'tel', value: '手机号' },
+        // { key: 'tel', value: '手机号' },
         { key: 'email', value: '邮箱' },
       ],
-      defaultValue: 'name',
+      defaultSearchValue: 'name',
       placeholder: '请输入关键词搜索',
     }
     const funcs = {
@@ -554,21 +748,34 @@ class Membermanagement extends Component {
     }
     return (
       <div id="Membermanagement">
-        <Alert message={`成员是指公司内外共同协作管理和使用平台的人，每个成员创建后都会有一个个人的项目，可在项目中创建个人的资源；系统管理员可在『基础设施』中设置授权给个人项目使用的集群。系统管理员有创建并管理所有系统管理员、团队管理员、普通成员的权限；团队管理员有创建并管理普通成员和对其他团队管理员有查看、充值、加入团队、加入项目的权限`}
+        <Alert message={`成员是指公司内外共同协作使用平台的人，创建成员成功后该成员将有一个默认的个人的项目，可在项目中创建个人的资源；系统管理员有创建并管理所有成员（系统管理员、普通成员）的权限；`}
           type="info" />
         <Row>
-          <Button type="primary" size="large" onClick={this.showModal} className="Btn">
-            <i className='fa fa-plus' /> 创建新成员
-          </Button>
-          <Button type="ghost" size="large" disabled={!hasSelected} className="Btn btn">
-            <Icon type="pay-circle-o" />充值
-          </Button>
-          <Button type="ghost" size="large" className="Btn btn">
+          {
+            userDetail.role === ROLE_SYS_ADMIN &&
+            <Button type="primary" size="large" onClick={this.showModal} className="Btn">
+              <i className='fa fa-plus' /> 创建新成员
+            </Button>
+          }
+          {
+            userDetail.role === ROLE_SYS_ADMIN && (
+              <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ chargeModalVisible: true })}>
+                <Icon type="pay-circle-o" />批量充值
+              </Button>
+            )
+          }
+          <Button type="ghost" size="large" className="Btn btn" onClick={this.loadData}>
             <i className='fa fa-refresh' /> &nbsp;刷 新
           </Button>
-          <Button type="ghost" size="large" disabled={!hasSelected} className="Btn btn">
-            <Icon type="delete" />删除
-          </Button>
+          {
+            userDetail.role === ROLE_SYS_ADMIN &&
+            <Button type="dashed" size="large" className="Btn btn" onClick={() => this.setState({ deletedUserModalVisible: true })}>
+              <Icon type="solution" />已删除成员
+            </Button>
+          }
+          {/* <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ deleteModalVisible: true })}>
+            <Icon type="delete" />批量删除
+          </Button> */}
           <SearchInput scope={scope} searchIntOption={searchIntOption} />
           <CreateUserModal
             visible={visible}
@@ -576,21 +783,67 @@ class Membermanagement extends Component {
             onSubmit={this.userOnSubmit}
             funcs={funcs}
           />
+          <Modal
+            title="创建成员成功"
+            visible={this.state.createUserSuccessModalVisible}
+            wrapClassName="createUserSuccessModal"
+            okText="继续创建"
+            cancelText="关闭"
+            onOk={() => this.setState({createUserSuccessModalVisible: false, visible: true})}
+            onCancel={() => this.setState({createUserSuccessModalVisible: false})}
+          >
+            <div className="textAlignCenter">
+              <img src={successPic} alt="成功"/>
+            </div>
+            <div className="textAlignCenter successTitle">
+              创建成功
+              {
+                createUserErrorMsg && <span className="createUserErrorMsg">({createUserErrorMsg})</span>
+              }
+            </div>
+            <div className="alertRow">
+              该成员不属于任何项目与团队，且无创建项目与团队权限。
+              <p>1. 可将该成员添加到某团队；或将该成员添加到某项目中，并授予角色。</p>
+              <p>2. 可在团队列表页将该成员授予可创建团队权限，或在项目列表页将该成员授予可创建项目权限。</p>
+            </div>
+          </Modal>
           <div className="total">共计 {this.props.total} 条&nbsp; </div>
         </Row>
         <Row className="memberList">
           <Card className="memberlist">
-            <MemberTable scope={scope} data={users} />
+            <MemberTable scope={scope} data={users} loginUser={userDetail} teams={teams} />
           </Card>
         </Row>
         {/* 充值modal */}
         <Modal title="成员充值" visible={this.state.visibleMember}
-         onCancel={()=> this.setState({visibleMember: false, number: 10})}
-         onOk={()=> this.btnCharge()}
-         width={600}
+          onCancel={() => this.setState({ visibleMember: false, number: 10 })}
+          onOk={() => this.btnCharge()}
+          width={600}
         >
           <MemberRecharge parentScope={this} />
         </Modal>
+        <ChargeModal
+          visible={this.state.chargeModalVisible}
+          data={users}
+          onCancel={() => this.setState({ chargeModalVisible: false })}
+          onOk={this.handleChargeOk}
+          loadAllUserList={loadAllUserList}
+        />
+        <DeletedUsersModal
+          title="已删除成员"
+          visible={this.state.deletedUserModalVisible}
+          wrapClassName="deletedUserModal"
+          footer={null}
+          onCancel={() => this.setState({deletedUserModalVisible: false})}
+        />
+        {/* <DeleteModal
+          visible={this.state.deleteModalVisible}
+          data={users}
+          onCancel={() => this.setState({ deleteModalVisible: false })}
+          onOk={this.handleDeleteOk}
+          loadUserList={loadUserList}
+          loginUser={userDetail}
+        /> */}
       </div>
     )
   }
@@ -607,11 +860,11 @@ function mapStateToProp(state) {
       usersData = users.result.users
       usersData.map((item, index) => {
         let role = ""
-        if (item.role === ROLE_TEAM_ADMIN){
+        if (item.role === ROLE_TEAM_ADMIN) {
           role = "团队管理员"
-        }else if (item.role === ROLE_SYS_ADMIN) {
+        } else if (item.role === ROLE_SYS_ADMIN) {
           role = "系统管理员"
-        }else{
+        } else {
           role = "普通成员"
         }
         data.push(
@@ -620,12 +873,14 @@ function mapStateToProp(state) {
             name: item.displayName,
             namespace: item.namespace,
             tel: item.phone,
+            active: item.active,
             email: item.email,
             style: role,
             role: userDetail.role,// user info into team list
-            team: item.teamCount,
+            team: item.teamCount || '-',
             balance: parseAmount(item.balance).fullAmount,
-            type: item.type
+            type: item.type,
+            project: item[camelize('project_count')] || '-',
           }
         )
       })
@@ -637,7 +892,7 @@ function mapStateToProp(state) {
   return {
     users: data,
     total,
-    userDetail
+    userDetail,
   }
 }
 
@@ -646,5 +901,7 @@ export default connect(mapStateToProp, {
   createUser,
   deleteUser,
   checkUserName,
-  chargeUser
+  chargeUser,
+  updateUserActive,
+  loadAllUserList,
 })(Membermanagement)

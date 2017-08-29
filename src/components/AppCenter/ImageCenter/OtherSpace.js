@@ -66,7 +66,11 @@ class OtherSpace extends Component {
     const { getOtherImageList, imageId } = this.props;
     getOtherImageList(imageId);
   }
-
+  componentDidUpdate() {
+    const { imageId } = this.props
+    let searchInput = document.getElementById(imageId);
+    searchInput && searchInput.focus()
+  }
   closeImageDetailModal() {
     //this function for user close the modal of image detail info
     this.setState({

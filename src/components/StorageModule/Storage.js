@@ -26,7 +26,8 @@ import NotificationHandler from '../../components/Notification'
 import noStorageImg from '../../assets/img/no_data/no_storage.png'
 import ResourceQuotaModal from '../ResourceQuotaModal/Storage'
 import CreateVolume from '../StorageModule/CreateVolume'
-
+import { SHOW_BILLING } from '../../constants'
+import Title from '../Title'
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 let isActing = false
@@ -505,6 +506,7 @@ let MyComponent = React.createClass({
                 <span style={{ paddingLeft: 10 }} >MB</span>
               </Col>
             </Row>
+            { SHOW_BILLING ?
             <div className="modal-price">
               <div className="price-left">
                 存储：{hourPrice.unit == '￥'? '￥': ''}{ resourcePrice.storage /10000 } {hourPrice.unit == '￥'? '': ' T'}/(GB*小时)
@@ -514,6 +516,8 @@ let MyComponent = React.createClass({
                 <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }/月）</span></p>
               </div>
             </div>
+            :null
+            }
 
           </div>
           <div className={this.state.modalType === 'format' ? 'show' : 'hide'}>
@@ -669,7 +673,6 @@ class Storage extends Component {
     }
   }
   componentWillMount() {
-    document.title = '存储 | 时速云'
     this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
     this.props.SnapshotList({clusterID: this.props.cluster})
   }
@@ -917,6 +920,7 @@ class Storage extends Component {
     return (
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
+          <Title title="存储" />
           { mode === standard ? <div className='alertRow'>您的存储创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div> }
           <div className="operationBox">
             <div className="leftBox">
@@ -956,7 +960,7 @@ class Storage extends Component {
                    snapshotRequired={false}
                    scope={this}
                    snapshotDataList={snapshotDataList}
-                   storageList={this.props.storageList}
+                   storageList={dataStorage}
                  />
               </Modal>
             </div>
@@ -970,7 +974,7 @@ class Storage extends Component {
             </div>
             <div className="clearDiv"></div>
           </div>
-          {!Array.isArray(dataStorage) || dataStorage.length >0 ?
+          {Array.isArray(dataStorage) && dataStorage.length >0 ?
 
           <Card className="storageBox appBox">
             <div className="appTitle">

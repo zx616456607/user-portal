@@ -8,6 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
+import { connect } from 'react-redux'
 import SecondSider from '../../components/SecondSider'
 import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
@@ -64,10 +65,24 @@ const menuList_enterprise = [
   {
     url: '/app_manage/configs',
     name: '服务配置'
-  }
+  },
+  {
+    url: '/app_manage/network_isolation',
+    name: '网络隔离'
+  },
+]
+const vmWrapMenu = [
+  {
+    url: '/app_manage/vm_wrap',
+    name: '传统应用'
+  },
+  {
+    url: '/app_manage/vm_list',
+    name: '传统应用环境'
+  },
 ]
 
-export default class Application extends Component {
+class Application extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -75,11 +90,14 @@ export default class Application extends Component {
     }
   }
   render() {
-    const { children } = this.props
+    const { children, loginUser } = this.props
     const scope = this
     let menuList = menuList_standard
     if(mode != standard){
       menuList = menuList_enterprise
+      if (loginUser.vmWrapConfig.enabled) {
+        menuList = menuList.concat(vmWrapMenu)
+      }
     }
     return (
       <div id="Application">
@@ -104,3 +122,13 @@ Application.propTypes = {
   // Injected by React Router
   children: PropTypes.node
 }
+
+function mapStateToProps(state) {
+  return {
+    loginUser: state.entities.loginUser.info,
+  }
+}
+
+export default connect(mapStateToProps, {
+  //
+})(Application)

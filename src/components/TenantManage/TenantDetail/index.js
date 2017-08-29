@@ -9,20 +9,111 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
-import { Row, Table, Alert, Col, Transfer, Form, Menu, Input, Icon, Button, Dropdown, Modal, InputNumber, Pagination, Select, Card, Checkbox, Tooltip } from 'antd'
+import { Link, browserHistory } from 'react-router'
+import { Row, Table, Col, Spin, Form, Menu, Input, Icon, Button, Tree, Modal, InputNumber, Pagination, Select, Card, Checkbox, Tooltip } from 'antd'
 import './style/TenantDetail.less'
+import { GetRole, UpdateRole, RemovePermissionRole, GetDetailList, RemoveProjectRole } from '../../../actions/role'
+import { Permission } from '../../../actions/permission'
+import QueueAnim from 'rc-queue-anim'
+import { formatDate } from '../../../common/tools'
+import Notification from '../../Notification/index'
+import TreeComponent from '../../TreeComponent/index'
+import { REG } from '../../../constants'
+import CreateRoleModal from '../RoleManagement/RoleEditManage/index.js'
+import NotificationHandler from '../../../components/Notification'
+
+const TreeNode = Tree.TreeNode
 
 let TenantDetail = React.createClass({
   getInitialState() {
     return {
+      record: {},
+      detailValue: '',
+      roleDetail:[],
+      roleProjects: [],
+      isShowIco: false,
       filteredInfo: null,
       sortedInfo: null,
       Removerol: false,
       Removepermis: false,
-      addpermission:false,
-      editrole:false,
+      characterModal: false,
+      removePermissionName: '',
+      removePermissionTree: [],
+      defaultExpandedKeys: [],
+      permissionDatasource: [],
     };
+  },
+  componentWillMount(){
+    const { params } = this.props
+    let roleId = params.id
+    this.loadData(roleId)
+  },
+  loadData(roleId){
+    let notification = new NotificationHandler()
+    const { GetRole, GetDetailList } = this.props
+    GetRole({ roleId },{
+      success: {
+        func: res => {
+          if(REG.test(res.data.code)){
+            if(res.data.data.permissions){
+              this.RowData(res.data.data.permissions)
+            }
+            this.setState({
+              roleDetail: res.data.data,
+            })
+          }
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (error) => {
+          notification.error(error)
+        }
+      }
+    })
+    GetDetailList({ roleId },{
+      success: {
+        func: res => {
+          if(REG.test(res.data.code)){
+            if(res.data.data.projects && res.data.data.projects.length > 0){
+              const aryPrj = res.data.data.projects
+              const Project = aryPrj.map((item, index) => {
+                return item.creationTime =  item.creationTime.replace('T', ' ').replace('Z', '')
+              })
+              this.setState({
+                roleProjects: res.data.data.projects
+              })
+            }
+          }
+        }
+      },
+      failed:{
+        func: (error) => {
+          notification.error(error)
+        }
+      }
+    })
+  },
+  RowData(data){
+    if(data){
+      const children = []
+      for(let i = 0; i < data.length; i++){
+        let RowData = data[i]
+        RowData = Object.assign(RowData,{title: RowData.desc, key: RowData.id})
+        children.push(RowData)
+      }
+
+      children.forEach((key, index) => {
+        if(data[index]["children"] !== undefined){
+          if (data[index].children.length !== 0) {
+            return this.RowData(data[index].children);
+          }
+        }
+      })
+      this.setState({
+        permissionDatasource: children
+      })
+    }
   },
   handleChange(pagination, filters, sorter) {
     this.setState({
@@ -40,131 +131,225 @@ let TenantDetail = React.createClass({
     });
   },
   handleOk() {
+    const { form } = this.props
+    const { record } = this.state
+    const { RemoveProjectRole } = this.props
+    let role = []
+    role.push(record.projectID)
+    let projectRole = {
+      roles: role
+    }
+    let notification = new NotificationHandler()
+    RemoveProjectRole({
+      projectName: record.projectName,
+      role: projectRole
+    },{
+      success: {
+        func: res => {
+          if(REG.test(res.code)){
+            notification.success('移除成功')
+            let roleId = record.projectID
+            this.loadData(roleId)
+          }
+        },
+        isAsync: true
+      },
+      failed: {
+        func: error => {
+          notification.error('移除失败')
+        }
+      },
+      isAsync: true
+    })
     this.setState({
       Removerol: false,
-      Removepermis: false,
-      addpermission:false,
-      editrole:false,
     });
+  },
+  handleCloseRole(){
+    this.setState({
+      Removerol: false
+    })
   },
   handleCancel() {
     this.setState({
-      Removerol: false,
+      //Removerol: false,
       Removepermis: false,
-      addpermission:false,
-      editrole:false,
     });
   },
+  removePermissionButton(record){
+    let linearArray = this.transformLinearArray([record])
+    let idArray = []
+    linearArray.forEach(item => {
+      idArray.push(item.id)
+    })
+    this.setState({
+      Removepermis: true,
+      removePermissionName: record.desc,
+      removePermissionTree: [record],
+      defaultExpandedKeys: idArray
+    })
+  },
+  transformLinearArray(array){
+    let LinearArray = []
+    const func = data => data.forEach(item => {
+      LinearArray.push(item)
+      if(item.children){
+        func(item.children)
+      }
+    })
+    func(array)
+    return LinearArray
+  },
+  confirmRemovePermission(){
+    const { defaultExpandedKeys } = this.state
+    const { RemovePermissionRole, params, GetRole } = this.props
+    let Notifi = new Notification()
+    let roleId = params.id
+    let bodys = {
+      pids: defaultExpandedKeys
+    }
+    RemovePermissionRole({
+      id: roleId,
+      bodys
+    }, {
+      success: {
+        func: res => {
+          if(REG.test(res.data.code)){
+            Notifi.success('移除权限成功')
+            this.loadData(roleId)
+            this.setState({
+              Removepermis: false
+            })
+          }
+        },
+        isAsync: true
+      },
+      failed: () => {
+        Notifi.error('移除权限失败，请重试')
+      }
+    })
+  },
+  handleIcon(e){
+    this.setState({
+      isShowIco: true
+    })
+  },
+  handleColse(e){
+    this.setState({
+      isShowIco: false
+    })
+  },
+  handleBtn(){
+    this.setState({
+      characterModal: true
+    })
+  },
+  handleItem(){
+    const { UpdateRole, params, form } = this.props
+    const { roleDetail } = this.state
+    let notification = new NotificationHandler()
+    form.validateFields((error, values) => {
+      let body = {
+        name: roleDetail.name,
+        comment: values.comment
+      }
+      UpdateRole({
+        id: params.id,
+        body
+      },{
+        success:{
+          func: res => {
+            if(REG.test(res.data.code)){
+              notification.success("修改成功")
+              this.setState({
+                isShowIco: false
+              })
+            }
+          }
+        },
+        failed: {
+          func: (err) => {
+            notification.close()
+            notification.error(err)
+          },
+          isAsync: true
+        }
+      })
+    })
+  },
+  handleProject(record){
+    browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${record.projectName}`)
+  },
   render() {
-    const data = [{
-      key: '1',
-      Projectname: '项目1',
-      Referencetime: '2017-03-28 14:31:35',
-    }, {
-      key: '2',
-      Projectname: '项目1',
-      Referencetime: '2017-03-28 14:31:35',
-    }, {
-      key: '3',
-      Projectname: '项目1',
-      Referencetime: '2017-03-28 14:31:35',
-    }, {
-      key: '4',
-      Projectname: '项目1',
-      Referencetime: '2017-03-28 14:31:35',
-    },{
-      key: '5',
-      Projectname: '项目1',
-      Referencetime: '2017-03-28 14:31:35',
-    }];
-    let { sortedInfo, filteredInfo } = this.state;
+    const { params, form, permissionList } = this.props
+    const { getFieldProps } = form
+    let { roleDetail, sortedInfo, filteredInfo, removePermissionName, removePermissionTree, permissionDatasource, defaultExpandedKeys,
+      roleProjects } = this.state;
+
+    let outPermission = {}
+    let outPermissionInfo = outPermission.permission
     sortedInfo = sortedInfo || {};
     filteredInfo = filteredInfo || {};
     const columns = [{
       title: '引用项目名',
-      dataIndex: 'Projectname',
-      key: 'Projectname',
+      dataIndex: 'projectName',
+      key: 'projectName',
+      id: 'projectID',
       width:'20%',
     }, {
       title: '引用时间',
-      dataIndex: 'Referencetime',
-      key: 'Referencetime',
+      dataIndex: 'creationTime',
+      key: 'creationTime',
       width:'40%',
-      sorter: (a, b) => a.Referencetime - b.Referencetime,
-      sortOrder: sortedInfo.columnKey === 'Referencetime' && sortedInfo.order,
+      sorter: (a, b) => a.creationTime - b.creationTime,
+      //sortOrder: sortedInfo.columnKey === 'Referencetime' && sortedInfo.order,
     }, {
       title: '操作',
-      dataIndex: 'address',
-      key: 'address',
       width:'40%',
       render: (text, record) => (
         <span>
-          <Button style={{marginRight:'10px'}} type="primary">进入项目</Button>
-          <Button onClick={()=> this.setState({Removerol:true})} type="ghost">移除角色</Button>
+          <Button style={{marginRight:'10px'}} type="primary" onClick={() => this.handleProject(record)}>进入项目</Button>
+          <Button onClick={()=> this.setState({Removerol:true, record: record})} type="ghost">移除角色</Button>
         </span>
       ),
     }];
-    const jurisdictions = [{
+    const pagination = {
+      defaultCurrent: 1,
+      defaultPageSize: 5,
+      total: roleProjects.length,
+      //onChange: (n) => this.handlePage(n)
+    }
+    const permissionColumns = [{
       title: '权限名称',
-      dataIndex: 'Permissionname',
-      key: 'Permissionname',
+      dataIndex: 'desc',
+      key: 'desc',
       width: '40%',
     }, {
-      title: '权限描述',
-      dataIndex: 'Permissiondescription',
-      key: 'Permissiondescription',
-      width: '30%',
-    }, {
       title: '操作',
-      dataIndex: 'address',
-      key: 'address',
+      key: 'handle',
       width: '30%',
-      render: (text, record) => (
+      render: (text, record, index) => (
         <span>
-          <Button onClick={()=> this.setState({Removepermis:true})} type="ghost">移除权限</Button>
+          <Button onClick={this.removePermissionButton.bind(this, record)} type="ghost">移除权限</Button>
         </span>
       ),
     }];
-    const jurisdictiondata = [{
-      key: 1,
-      Permissionname: '应用管理',
-      Permissiondescription: '应用管理',
-      children: [{
-        key: 12,
-        Permissionname: '应用、服务、容器',
-        Permissiondescription: '应用、服务、容器',
-        children: [{
-          key: 121,
-          Permissionname: '查看',
-          Permissiondescription: '查看',
-        }],
-      }, {
-        key: 13,
-        Permissionname: '存储',
-        Permissiondescription: '存储',
-        children: [{
-          key: 131,
-          Permissionname: '存储创建',
-          Permissiondescription: '存储创建',
-        },{
-          key: 132,
-          Permissionname: '存储删除',
-          Permissiondescription: '存储删除',
-        }],
-      }],
-    },{
-      key: 2,
-      Permissionname: '交付中心',
-      Permissiondescription: '交付中心',
-    }];
+    const Rcolumns = [{
+      title: '权限名称',
+      dataIndex: 'name',
+      key: 'name',
+    }]
+    const scope = this
+
     return(
+    <QueueAnim className='TenantDetail'>
       <div id="TenantDetail">
         <Row>
           <Link className="back" to="/tenant_manage/rolemanagement">
             <span className="backjia"></span>
             <span className="btn-back">返回</span>
           </Link>
-          <span className="Title">系统管理员</span>
+          <span className="Title">角色详情（{roleDetail.name}）</span>
         </Row>
         <div className='lastDetails'>
           <div className='title'>角色基本信息</div>
@@ -172,25 +357,71 @@ let TenantDetail = React.createClass({
             <div className="lastSyncInfo">
               <Row className='item itemfirst'>
                 <Col span={3} className='item_title'><div>角色名称</div></Col>
-                <Col span={21} className='item_content'>研发</Col>
+                <Col span={21} className='item_content'>{roleDetail.name}</Col>
               </Row>
               <Row className='item itemfirst'>
                 <Col span={3} className='item_title'>创建时间</Col>
-                <Col span={21} className='item_content'>2017-03-27 15:14:02</Col>
+                <Col span={21} className='item_content'>{formatDate(roleDetail.createdTime)}</Col>
               </Row>
               <Row className='item itemfirst'>
                 <Col span={3} className='item_title'>备注</Col>
-                <Col span={21} className='item_content'>这是一只小黄鱼 <Icon type="edit" /></Col>
+                {
+                  <Col span={21} className='item_content'>
+                    <div className="edit_desc" >
+                      <div>
+                        <Input
+                        disabled = {!this.state.isShowIco}
+                        style={{ width:145}}
+                        type="textarea"
+                        {...getFieldProps(`comment`, {
+                          initialValue: roleDetail.comment
+                        })}
+                        />
+                        {
+                          this.state.isShowIco ?
+                          <div className="comment">
+                            <Icon className="ico" type="minus-circle-o" style={{fontSize:20,margin:9}} onClick={() => this.handleColse()}/>
+                            <Icon className="ico" type="save" style={{fontSize:20}} onClick={() => this.handleItem()}/>
+                          </div> :
+                          <Icon type="edit" style={{marginLeft:'4px'}} onClick={() => this.handleIcon()}/>
+                        }
+                      </div>
+                    </div>
+                  </Col>
+                }
               </Row>
             </div>
           </div>
         </div>
         <div className='lastDetails lastDetailtable' style={{width:'49%',float:'left'}} >
-          <div className='title'>权限 （ <span>10个</span> ）<Button className="Editroles" onClick={()=> this.setState({editrole:true})} type="ghost">编辑角色</Button></div>
-          <div className="addpermission"><Button onClick={()=> this.setState({addpermission:true})} type="primary"><Icon size="large" type="plus" /> 添加权限</Button></div>
+          <div className='title'>权限 （ <span>{permissionDatasource.length}个</span> ）
+            <Button
+            className="Editroles"
+            type="ghost"
+            onClick={() => this.handleBtn()}
+            >编辑角色</Button></div>
+            {
+              this.state.characterModal ?
+              <CreateRoleModal
+              visible = {this.state.characterModal}
+              title = "编辑角色"
+              form = {form}
+              scope = {scope}
+              isAdd = {false}
+              roleId = {params.id}
+              characterModal = {this.state.characterModal}
+              detail = {() => this.loadData()}
+              isDetail = {true}
+              /> : ''
+            }
           <div className='container'>
             <div className="lastSyncInfo">
-              <Table scroll={{y:300}} columns={jurisdictions} pagination={false} dataSource={jurisdictiondata} />
+              <Table
+                scroll={{y:300}}
+                columns={permissionColumns}
+                pagination={false}
+                dataSource={permissionDatasource}
+              />
             </div>
           </div>
         </div>
@@ -198,27 +429,65 @@ let TenantDetail = React.createClass({
           <div className='title'>项目引用记录</div>
           <div className='container referencerecord'>
             <div className="lastSyncInfo">
-              <Table columns={columns} dataSource={data} onChange={this.handleChange} />
+              <Table columns={columns} dataSource={roleProjects} onChange={this.handleChange} pagination={pagination}/>
             </div>
           </div>
         </div>
-        <Modal title="移除角色" visible={this.state.Removerol} onOk={this.handleOk} onCancel={this.handleCancel} >
-          <p className="createRol"><div className="mainbox"><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>从项目xxx中移除该角色后与该角色相关联的所有成员及团队将从项目中移除，确定从项目xxx中移除该角色？</div></p>
+        <Modal title="移除角色" visible={this.state.Removerol} onOk={() => this.handleOk()} onCancel={() => this.handleCloseRole()} >
+          <p className="createRol"><div className="mainbox"><i className="fa fa-exclamation-triangle icon" aria-hidden="true">
+            </i>从项目{this.state.record.projectName}中移除该角色后与该角色相关联的所有成员及团队将从项目中移除，确定从项目{this.state.record.projectName}中移除该角色？</div></p>
         </Modal>
-        <Modal title="移除权限" visible={this.state.Removepermis} onOk={this.handleOk} onCancel={this.handleCancel} >
-          <p className="createRol"><div className="mainbox"><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>从该角色中移除权限<span style={{color:'red'}}>（创建应用）</span>后，关联该角色的对象（成员／团队）在引用该角色的项目中无此项权限</div></p>
-          <p className="createRoles">确定从<span className="Specialcolor">角色xxx</span>移除改权限？</p>
+        <Modal title="移除权限"
+          visible={this.state.Removepermis}
+          onOk={this.confirmRemovePermission}
+          onCancel={this.handleCancel}
+          wrapClassName='removePermission'
+        >
+          <div className="createRol">
+            <div className="mainbox">
+              <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
+              <p>从该角色中移除权限 <p className="pName" style={{color:'red'}}>（{removePermissionName}）</p>后，关联该角色的对象在引用该角色的项目中无此项权限</p>
+            </div>
+          </div>
+          <div className="tips">
+            确定从<span className="Specialcolor"> 角色{roleDetail.name} </span>中移除以下权限？
+          </div>
+          <div className='treeContainer'>
+            <Table
+            rowKey="id"
+            scroll={{y:'150'}}
+            size="small"
+            pagination={false}
+            columns={Rcolumns}
+            defaultExpandedRowKeys= {defaultExpandedKeys}
+            dataSource={removePermissionTree}/>
+          </div>
         </Modal>
-        <Modal title="添加权限" visible={this.state.addpermission}
-          onOk={this.handleOk} onCancel={this.handleCancel}>
-          <p>角色名称</p>
-        </Modal>
-        <Modal width="650px" title="编辑角色" visible={this.state.editrole} onOk={this.handleOk} onCancel={this.handleCancel} >
-          <p className="createRolesa">角色名称<Input style={{width:'50%',marginLeft:'50px'}} placeholder="请填写角色名称"/></p>
-          <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
-        </Modal>
+        {/* <Modal
+          title="编辑权限"
+          visible={this.state.addpermission}
+          onOk={this.handleOk}
+          onCancel={this.handleCancel}
+        >
+          <TreeComponent />
+        </Modal> */}
       </div>
+    </QueueAnim>
     )
-  } 
+  }
 })
-export default TenantDetail
+
+TenantDetail = Form.create()(TenantDetail)
+
+function mapStateToProps(state, props){
+  return {}
+
+}
+export default connect(mapStateToProps, {
+  GetRole,
+  UpdateRole,
+  Permission,
+  GetDetailList,
+  RemoveProjectRole,
+  RemovePermissionRole,
+})(TenantDetail)

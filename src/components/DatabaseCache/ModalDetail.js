@@ -11,22 +11,30 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Slider, Timeline, Popover, InputNumber, Tabs, Tooltip} from 'antd'
+import { camelize } from 'humps'
+import classNames from 'classnames'
+import { Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Slider, Timeline, Popover, InputNumber, Tabs, Tooltip, Card, Radio, Select, Form} from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbClusterDetail, deleteDatabaseCluster, putDbClusterDetail, loadDbCacheList } from '../../actions/database_cache'
+import { setServiceProxyGroup } from '../../actions/services'
+import { getProxy } from '../../actions/cluster'
 import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import { calcuDate, parseAmount} from '../../common/tools.js'
-import NotificationHandler from '../../components/Notification'
-import { ANNOTATION_SVC_SCHEMA_PORTNAME } from '../../../constants'
+import NotificationHandler from '../../common/notification_handler'
+import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../constants'
 import mysqlImg from '../../assets/img/database_cache/mysql.png'
 import redisImg from '../../assets/img/database_cache/redis.jpg'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../assets/img/database_cache/elasticsearch.jpg'
+import etcdImg from '../../assets/img/database_cache/etcd.jpg'
+import { SHOW_BILLING } from '../../constants'
 
+const Option = Select.Option;
 const Panel = Collapse.Panel;
 const ButtonGroup = Button.Group
 const TabPane = Tabs.TabPane;
+const RadioGroup = Radio.Group;
 
 class VolumeHeader extends Component {
   constructor(props) {
@@ -162,7 +170,7 @@ class BaseInfo extends Component {
     return ""
   }
   render() {
-    const { bindingIPs, domainSuffix, databaseInfo ,dbName } = this.props
+    const { bindingIPs, databaseInfo ,dbName } = this.props
     const parentScope = this.props.scope
     const rootScope = parentScope.props.scope
     const selfScope = this
@@ -178,30 +186,7 @@ class BaseInfo extends Component {
     const showCountPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * this.props.currentData.desired +  this.props.currentData.desired * containerPrc) * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
-    let domain = ''
-    if (domainSuffix) {
-      domain = eval(domainSuffix)[0]
-    }
-    let bindingIP = ''
-    if (bindingIPs) {
-      bindingIP = eval(bindingIPs)[0]
-    }
-    let portAnnotation = databaseInfo.serviceInfo.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
-    let externalPort = ''
-    if (portAnnotation) {
-      externalPort = portAnnotation.split('/')
-      if (externalPort && externalPort.length > 1) {
-        externalPort = externalPort[2]
-      }
-    }
-    let externalUrl = '-'
-    if (externalPort != '') {
-      if (domain) {
-        externalUrl = databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort
-      } else {
-        externalUrl = bindingIP + ':' + externalPort
-      }
-    }
+
     const modalContent = (
       <div className="modal-content">
         <div className="modal-header">更改实例数  <Icon type='cross' onClick={() => parentScope.colseModal()} className='cursor' style={{ float: 'right' }} /></div>
@@ -250,33 +235,7 @@ class BaseInfo extends Component {
     return (
       <div className='modalDetailBox' id="dbClusterDetailInfo">
         <div className='configContent'>
-          <div className='configHead'>配置信息</div>
-          <div className='configList'>
-            <span className='listKey'>
-              <Icon type='link' />&nbsp;内网地址：
-            </span>
-            <span className='listLink'>
-              {databaseInfo.serviceInfo.name + ':' + databaseInfo.serviceInfo.ports[0].port}
-            </span>
-            <Tooltip placement='top' title={this.state.copySuccess ? '复制成功' : '点击复制'}>
-              <Icon type="copy" style={{color:'#2db7f5',cursor:'pointer',marginLeft: '5px'}} onClick={()=> this.copyDownloadCode(0)} onMouseLeave={()=> this.returnDefaultTooltip()}/>
-            </Tooltip>
-            <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {databaseInfo.serviceInfo.name + ':' + databaseInfo.serviceInfo.ports[0].port}/>
-          </div>
-          <div className='configList'>
-            <span className='listKey'>
-              <Icon type='link' />&nbsp;出口地址：
-            </span>
-            <span className='listLink'>
-              {externalUrl}
-            </span>
-            <Tooltip placement='top' title={this.state.copySuccess ? '复制成功' : '点击复制'}>
-              <Icon type="copy" style={{color:'#2db7f5',cursor:'pointer',marginLeft: '5px'}} onClick={()=> this.copyDownloadCode(1)} onMouseLeave={()=> this.returnDefaultTooltip()}/>
-            </Tooltip>
-            <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalUrl}/>
-          </div>
-          <div className='configList'><span className='listKey'>副本数：</span>{this.props.currentData.pending + this.props.currentData.running}/{this.props.currentData.desired}个</div>
-          {this.props.database === 'elasticsearch' ? null :
+          {this.props.database === 'elasticsearch' || this.props.database === 'etcd' ? null :
           <div><div className='configHead'>参数</div>
             <ul className='parse-list'>
               <li><span className='key'>参数名</span> <span className='value'>参数值</span></li>
@@ -324,17 +283,18 @@ class VisitTypes extends Component{
   }
   componentWillMount() {
     const { service, getProxy, clusterID, databaseInfo } = this.props;
-    const lbinfo = databaseInfo.serviceInfo.annotations['system/lbgroup']
+    const lbinfo = databaseInfo.serviceInfo.annotations[ANNOTATION_LBGROUP_NAME]
+
     if(lbinfo == 'none') {
       this.setState({
         initValue: 1,
-        initSelectDis: true
+        initSelectDics: true
       })
     } else {
       this.setState({
         initValue: 2,
         initGroupID: lbinfo,
-        initSelectDis: false,
+        initSelectDics: false,
       })
     }
     getProxy(clusterID,true,{
@@ -347,9 +307,6 @@ class VisitTypes extends Component{
         isAsync: true
       },
     })
-    // this.setState({
-    //    svcDomain:parseServiceDomain('test',bindingDomains,bindingIPs)
-    // })
   }
   componentWillReceiveProps(nextProps) {
     const { detailModal, isCurrentTab } = nextProps;
@@ -417,28 +374,25 @@ class VisitTypes extends Component{
             if (value ===1) {
               this.setState({
                 initValue: 1,
-                initSelectDis: true
-              })
-              this.setState({
+                initSelectDics: true,
+                addrHide: true,
                 isinternal:false,
                 addrhide: false,
                 value: undefined,
-                selectDis: undefined
+                selectDics: undefined
               })
             } else {
               this.setState({
                 initValue: 2,
                 initGroupID: groupID,
-                initSelectDis: false
+                initSelectDics: false,
+                addrHide: false,
+                selectDics: undefined,
+                value: undefined,
+                isinternal:true,
               })
               form.setFieldsValue({
                 groupID
-              })
-              this.setState({
-                isinternal:true,
-                addrhide: false,
-                value: undefined,
-                selectDis: undefined
               })
             }
           },
@@ -494,21 +448,28 @@ class VisitTypes extends Component{
     })
   }
   render() {
-    const { bindingIPs, domainSuffix, databaseInfo ,dbName } = this.props
-    const { value, disabled, forEdit, selectDis, deleteHint, svcDomain, copyStatus,isInternal, addrHide, proxyArr, selectValue, initValue, initGroupID, initSelectDis } = this.state;
-    const { form } = this.props
-    const domainList = svcDomain && svcDomain.map((item,index)=>{
-        if (item.isInternal === isInternal) {
+    const { bindingIPs, domainSuffix, databaseInfo, form } = this.props
+    const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, addrHide, proxyArr, initValue, initGroupID, initSelectDics } = this.state;
+    const lbinfo = databaseInfo.serviceInfo.annotations[ANNOTATION_LBGROUP_NAME]
+    let clusterAdd = [];
+    let port = databaseInfo.serviceInfo.ports[0].port;
+    let serviceName = databaseInfo.serviceInfo.name;
+    let portNum = databaseInfo.podList.listMeta.total;
+    for (let i = 0; i < portNum; i++) {
+      clusterAdd.push({
+        start:`${serviceName}-${i}`,
+        end:`${serviceName}-${i}.${serviceName}:${port}`
+      })
+    }
+    const domainList = clusterAdd && clusterAdd.map((item,index)=>{
           return (
-            <dd key={index} className="addrList">
-              容器端口：{item.interPort}
-              <span className="domain">{item.domain}</span>
+            <dd className="addrList" key={item.start}>
+              <span className="domain">{item.end}</span>
               <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, item.domain)} onClick={this.copyTest.bind(this)}/>
+                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,item.end)} onClick={this.copyTest.bind(this)}/>
               </Tooltip>
             </dd>
           )
-        }
       })
     let validator = (rule, value, callback) => callback()
     if(value == 2) {
@@ -538,6 +499,15 @@ class VisitTypes extends Component{
     if (bindingIPs) {
       bindingIP = eval(bindingIPs)[0]
     }
+    // get domain, ip from lbgroup
+    proxyArr && proxyArr.every(proxy => {
+      if (proxy.id === lbinfo) {
+        domain = proxy.domain
+        bindingIP = proxy.address
+        return false
+      }
+      return true
+    })
     let portAnnotation = databaseInfo.serviceInfo.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
     let externalPort = ''
     if (portAnnotation) {
@@ -555,7 +525,7 @@ class VisitTypes extends Component{
       }
     }
     const radioValue = value || initValue
-    const hide = selectDis == undefined ? initSelectDis : selectDis
+    const hide = selectDis == undefined ? initSelectDics : selectDis
     return (
       <Card id="visitsTypePage">
         <div className="visitTypeTopBox">
@@ -563,31 +533,31 @@ class VisitTypes extends Component{
           <div className="visitTypeInnerBox">
             {
               forEdit ? [
-                <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>,
-                <Button key="cancel" type="primary" size="large" onClick={this.cancelEdit.bind(this)}>取消</Button>
+                <Button key="cancel" size="large" onClick={this.cancelEdit.bind(this)}>取消</Button>,
+                <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>
               ] :
                 <Button type="primary" size="large" onClick={this.toggleDisabled.bind(this)}>编辑</Button>
             }
             <div className="radioBox">
               <RadioGroup onChange={this.onChange.bind(this)} value={radioValue}>
-                <Radio key="a" value={1} disabled={disabled}>仅在集群内访问</Radio>
                 <Radio key="b" value={2} disabled={disabled}>可集群外访问</Radio>
+                <Radio key="a" value={1} disabled={disabled}>仅在集群内访问</Radio>
               </RadioGroup>
               <p className="typeHint">
                 {
-                  radioValue === 1 ? '选择后该数据库与缓存集群仅提供集群内访问；':'数据库与缓存集群可提供集群外访问；“确保集群内节点有外网带宽，否则创建数据库与缓存失败” ；选择一个网络出口'
+                  radioValue === 1 ? '选择后该数据库与缓存集群仅提供集群内访问；': '数据库与缓存可提供集群外访问，选择一个网络出口；'
                 }
               </p>
               <div className={classNames("inlineBlock selectBox",{'hide': hide})}>
                 <Form.Item>
                   <Select size="large" style={{ width: 180 }} {...selectGroup} disabled={disabled}
-                        getPopupContainer={()=>document.getElementsByClassName('selectBox')[0]} 
+                        getPopupContainer={()=>document.getElementsByClassName('selectBox')[0]}
                 >
                   {proxyNode}
                 </Select>
                </Form.Item>
               </div>
-              <div className={classNames("inlineBlock deleteHint",{'hide': deleteHint})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>该网络出口已被管理员删除，请选择其他网络出口或方式</div>
+              <div className={classNames("inlineBlock deleteHint",{'hide': deleteHint})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>未配置该网络出口模式，请选择其他模式</div>
             </div>
           </div>
         </div>
@@ -599,17 +569,13 @@ class VisitTypes extends Component{
               <Icon type="link"/>出口地址：
               <span className="domain">{externalUrl}</span>
               <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this)} onClick={this.copyTest.bind(this)}/>
+                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,externalUrl)} onClick={this.copyTest.bind(this)}/>
               </Tooltip>
             </div>
             <dl className="addrListBox">
               <dt className="addrListTitle"><Icon type="link"/>集群内实例访问地址</dt>
               <dd className="addrList">
-                www-0：
-                <span className="domain">{databaseInfo.serviceInfo.name + ':' + databaseInfo.serviceInfo.ports[0].port}</span>
-                <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                  <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this)} onClick={this.copyTest.bind(this)}/>
-                </Tooltip>
+                {domainList}
               </dd>
             </dl>
           </div>
@@ -825,6 +791,7 @@ class ModalDetail extends Component {
       'redis': redisImg,
       'zookeeper': zkImg,
       'elasticsearch': esImg,
+      'etcd': etcdImg,
     }
     if (!(clusterType in logoMapping)) {
       return redisImg
@@ -907,12 +874,26 @@ class ModalDetail extends Component {
               <TabPane tab='基础信息' key='#BaseInfo'>
                 <BaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
               </TabPane>
-              <TabPane tab='事件' key='#events'>
-                <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
-              </TabPane>
-              <TabPane tab='租赁信息' key='#leading'>
-                <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
-              </TabPane>
+              { SHOW_BILLING ?
+                [<TabPane tab='访问方式' key='#VisitType'>
+                 <VisitTypes isCurrentTab={this.state.activeTabKey==='#VisitType'} domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} detailModal={this.props.detailModal}
+                              databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                 </TabPane>,
+                 <TabPane tab='事件' key='#events'>
+                   <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
+                 </TabPane>,
+                 <TabPane tab='租赁信息' key='#leading'>
+                   <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
+                 </TabPane>]
+                :
+                [<TabPane tab='访问方式' key='#VisitType'>
+                 <VisitTypes isCurrentTab={this.state.activeTabKey==='#VisitType'} domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} detailModal={this.props.detailModal}
+                            databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                 </TabPane>,
+                <TabPane tab='事件' key='#events'>
+                  <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
+                </TabPane>]
+              }
             </Tabs>
           </div>
         </div>

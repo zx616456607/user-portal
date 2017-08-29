@@ -100,6 +100,7 @@ const Ports = React.createClass({
     const { form, currentCluster } = this.props
     const { getFieldProps, getFieldValue } = form
     const { bindingDomains } = currentCluster
+    const accessMethod = getFieldValue('accessMethod')
     const httpOptionDisabled = !isDomain(bindingDomains)
     const portKey = `port${keyValue}`
     const portProtocolKey = `portProtocol${keyValue}`
@@ -119,7 +120,7 @@ const Ports = React.createClass({
     const portProtocolValue = getFieldValue(portProtocolKey)
     let mappingPortTypeProps
     let mappingPortProps
-    if (portProtocolValue === 'TCP') {
+    if (portProtocolValue === 'TCP' && accessMethod !== 'accessMethod') {
       mappingPortTypeProps = getFieldProps(mappingPportTypeKey, {
         rules: [
           { required: true, message: '请选择映射服务端口类型' },
@@ -151,43 +152,51 @@ const Ports = React.createClass({
         <Col span={5}>
           <FormItem>
             <Select size="default" {...portProtocolProps}>
-              <Option value="HTTP" disabled={httpOptionDisabled}>HTTP</Option>
-              <Option value="TCP">TCP</Option>
+              {
+                accessMethod == 'Cluster'
+                ? <Option key="TCP" value="TCP">TCP</Option>
+                : [<Option key="HTTP" value="HTTP" disabled={httpOptionDisabled}>HTTP</Option>,
+                  <Option key="TCP" value="TCP">TCP</Option>]
+              }
             </Select>
           </FormItem>
         </Col>
         <Col span={9}>
-          <Row gutter={16}>
-            <Col span={12}>
-            {
-              mappingPortTypeProps
-              ? (
-                <FormItem>
-                  <Select size="default" {...mappingPortTypeProps}>
-                    <Option value={MAPPING_PORT_AUTO}>动态生成</Option>
-                    <Option value={MAPPING_PORT_SPECIAL}>指定端口</Option>
-                  </Select>
-                </FormItem>
-              )
-              : (
-                <div className="httpMappingPort">80</div>
-              )
-            }
-            </Col>
-            {
-              mappingPortProps && (
-                <Col span={12}>
-                  <FormItem>
-                    <InputNumber
-                      size="default"
-                      {...mappingPortProps}
-                      min={SPECIAL_MIN}
-                      max={MAX} />
-                  </FormItem>
-                </Col>
-              )
-            }
-          </Row>
+          {
+            accessMethod == 'Cluster'
+            ? <div className='clusterPorts'>N/A</div>
+            : <Row gutter={16}>
+              <Col span={12}>
+                {
+                  mappingPortTypeProps
+                    ? (
+                    <FormItem>
+                      <Select size="default" {...mappingPortTypeProps}>
+                        <Option value={MAPPING_PORT_AUTO}>动态生成</Option>
+                        <Option value={MAPPING_PORT_SPECIAL}>指定端口</Option>
+                      </Select>
+                    </FormItem>
+                  )
+                    : (
+                    <div className="httpMappingPort">80</div>
+                  )
+                }
+              </Col>
+              {
+                mappingPortProps && (
+                  <Col span={12}>
+                    <FormItem>
+                      <InputNumber
+                        size="default"
+                        {...mappingPortProps}
+                        min={SPECIAL_MIN}
+                        max={MAX} />
+                    </FormItem>
+                  </Col>
+                )
+              }
+            </Row>
+          }
         </Col>
         <Col span={5}>
           <Tooltip title="删除">
@@ -210,6 +219,7 @@ const Ports = React.createClass({
     const { setFieldsValue, getFieldValue, validateFields } = form
     let mappingPortAutoFlag
     let portsKeys = getFieldValue('portsKeys') || []
+    const accessMethod = getFieldValue('accessMethod')
     const validateFieldsKeys = []
     portsKeys.forEach(key => {
       if (key.deleted) {
@@ -219,7 +229,7 @@ const Ports = React.createClass({
       validateFieldsKeys.push(`port${keyValue}`)
       validateFieldsKeys.push(`portProtocol${keyValue}`)
       const portProtocolValue = getFieldValue(`portProtocol${keyValue}`)
-      if (portProtocolValue === 'TCP') {
+      if (portProtocolValue === 'TCP' && accessMethod !== 'Cluster') {
         validateFieldsKeys.push(`mappingPortType${keyValue}`)
         const mappingPortTypeValue = getFieldValue(`mappingPortType${keyValue}`)
         if (mappingPortTypeValue === MAPPING_PORT_SPECIAL) {
@@ -242,7 +252,7 @@ const Ports = React.createClass({
         let input = document.getElementById(`port${uid}`);
         input && input.focus()
       },0)
-      
+
     })
   },
   render() {

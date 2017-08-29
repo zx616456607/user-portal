@@ -31,7 +31,7 @@ const Option = Select.Option
 const MIN = 512
 const STEP = 512
 const MAX = 20480
-const PATH_REG = /^\/[a-zA-Z0-9\/].?/
+const PATH_REG = /^\/[a-zA-Z0-9_\-\/]*$/
 
 const Storage = React.createClass({
   propTypes: {
@@ -254,7 +254,7 @@ const Storage = React.createClass({
   renderCreateVolume() {
     const { volumeName, volumeFormat, volumeSize, tips, createVolumeLoading } = this.state
     return (
-      <div className="createVolume">
+      <div className="createVolume" key="createVolume">
         <Input
           className="volumeInput"
           placeholder="存储卷名称"
@@ -294,20 +294,27 @@ const Storage = React.createClass({
     )
   },
   renderVolumesOption(volume) {
-    const { form } = this.props
+    const { form, allFields } = this.props
     const { getFieldValue } = form
     const storageKeys = getFieldValue('storageKeys') || []
     const { name, fsType, size } = volume
     const value = `${name}/${fsType}`
     let disabled = false
-    storageKeys.every(key => {
-      const volumeValue = getFieldValue(`volume${key}`)
-      if (volumeValue === value) {
-        disabled = true
-        return false
+    for (let fieldsKey in allFields) {
+      if (allFields.hasOwnProperty(fieldsKey)) {
+        const storageKeysField = allFields[fieldsKey].storageKeys || {}
+        const storageKeys = storageKeysField.value || []
+        storageKeys.every(key => {
+          const volumeField = allFields[fieldsKey][`volume${key}`] || {}
+          const volumeValue = volumeField.value
+          if (volumeValue === value) {
+            disabled = true
+            return false
+          }
+          return true
+        })
       }
-      return true
-    })
+    }
     return (
       <Option
         key={value}
@@ -506,7 +513,7 @@ const Storage = React.createClass({
     })
     return [
       createVolumeElement,
-      <div className={bindVolumesClass}>
+      <div className={bindVolumesClass} key="storageKeys">
         {storageKeys.map(this.renderConfigureItem) }
         <span className="addMountPath" onClick={this.addStorageKey}>
           <Icon type="plus-circle-o" />
@@ -576,7 +583,7 @@ const Storage = React.createClass({
 })
 
 function mapStateToProps(state, props) {
-  const { entities, storage } = state
+  const { entities, storage, quickCreateApp } = state
   const { current } = entities
   const { cluster } = current
   const { avaliableVolume } = storage
@@ -592,6 +599,7 @@ function mapStateToProps(state, props) {
       volumes: (avaliableVolume.data ? avaliableVolume.data.volumes : []),
       isFetching: avaliableVolume.isFetching,
     },
+    allFields: quickCreateApp.fields,
   }
 }
 

@@ -292,12 +292,11 @@ let ClusterInfo = React.createClass ({
     const { getFieldProps } = form
     let {
       clusterName, apiHost, apiProtocol,
-      apiVersion, bindingIPs, bindingDomains,
+      apiVersion, bindingIPs,
       description, apiToken, isOk, isBuilder, isDefault
     } = cluster
     const apiUrl = `${apiProtocol}://${apiHost}`
     bindingIPs = parseArray(bindingIPs).join(', ')
-    bindingDomains = parseArray(bindingDomains).join(', ')
     const nameProps = getFieldProps('clusterName',{
       rules: [
         {
@@ -381,7 +380,9 @@ let ClusterInfo = React.createClass ({
             </Form.Item>
             <Form.Item>
               <div className="h4">API Token：</div>
-              <div className="textoverflow">{apiToken}</div>
+              <Tooltip title={apiToken} placement="topLeft">
+                <div className="textoverflow" style={{cursor: 'pointer'}}>{apiToken}</div>
+              </Tooltip>
             </Form.Item>
           </div>
           <div className="formItem">

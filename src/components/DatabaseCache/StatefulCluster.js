@@ -5,7 +5,7 @@
  *  StatefulCluster module
  *
  * v2.0 - 2016-10-18
- * @author Lizheng
+ * @author Lizhen
  * update by Bai Yu
  */
 
@@ -15,7 +15,9 @@ import { Modal, Button, Icon, Input, Spin, Tooltip } from 'antd'
 import { injectIntl } from 'react-intl'
 import { loadDbCacheList, searchDbservice } from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
+import { getProxy } from '../../actions/cluster'
 import { DEFAULT_REGISTRY } from '../../../constants'
+import { SEARCH } from '../../constants'
 import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
 import NotificationHandler from '../../components/Notification'
@@ -23,8 +25,10 @@ import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../assets/img/database_cache/elasticsearch.jpg'
+import etcdImg from '../../assets/img/database_cache/etcd.jpg'
 import noZookeeper from '../../assets/img/database_cache/no_zookeeper.png'
 import noElasticSearch from '../../assets/img/database_cache/no_elasticsearch.png'
+import noEtcd from '../../assets/img/database_cache/no_etcd.png'
 
 import Title from '../Title'
 
@@ -41,6 +45,11 @@ const clusterTable = {
   },
   mongodb: {
     displayName: 'MongoDB',
+  },
+  etcd: {
+    displayName: 'Etcd',
+    image: etcdImg,
+    noDBImage: noEtcd,
   },
 }
 
@@ -150,7 +159,7 @@ class StatefulCluster extends Component {
   }
   clusterRefresh() {
     const _this = this
-    const { loadDbCacheList, cluster, clusterType } = this.props
+    const { loadDbCacheList, cluster, clusterType, getProxy } = this.props
     this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
       success: {
         func: (res) => {
@@ -160,16 +169,17 @@ class StatefulCluster extends Component {
         }
       }
     })
+    getProxy(cluster)
     loadDbCacheList(cluster, clusterType)
   }
   componentWillMount() {
-    const { loadDbCacheList, cluster, clusterType } = this.props
+    const { loadDbCacheList, cluster, clusterType, getProxy } = this.props
     if (cluster == undefined) {
       let notification = new NotificationHandler()
       notification.error('请选择集群', 'invalid cluster ID')
       return
     }
-
+    getProxy(cluster)
     loadDbCacheList(cluster, clusterType)
   }
   componentDidMount() {
@@ -218,16 +228,16 @@ class StatefulCluster extends Component {
   handSearch(e) {
     const clusterType = this.props.clusterType
     if (e) {
-      this.props.searchDbservice(clusterType, e.target.value)
+      this.props.searchDbservice(clusterType, e.target.value.replace(SEARCH,""))
       return
     }
     const names = this.refs.searchInput.refs.input.value
-    this.props.searchDbservice(clusterType, names)
+    this.props.searchDbservice(clusterType, names.replace(SEARCH,""))
   }
 
   render() {
     const _this = this;
-    const { isFetching, databaseList, clusterType } = this.props;
+    const { isFetching, databaseList, clusterType, clusterProxy } = this.props;
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
@@ -277,7 +287,7 @@ class StatefulCluster extends Component {
             this.setState({ CreateDatabaseModalShow: false })
           }}
         >
-          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} />
+          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy}/>
         </Modal>
       </div>
     )
@@ -296,6 +306,7 @@ function mapStateToProps(state, props) {
   const { databaseAllList } = state.databaseCache
   const { database, databaseList, isFetching } = databaseAllList[clusterType] || defaultList
   const { current } = state.entities
+  let clusterProxy = state.cluster.proxy.result || {}
   return {
     cluster: cluster.clusterID,
     current,
@@ -303,6 +314,7 @@ function mapStateToProps(state, props) {
     databaseList: databaseList,
     isFetching,
     clusterType,
+    clusterProxy,
   }
 }
 
@@ -320,5 +332,6 @@ StatefulCluster = injectIntl(StatefulCluster, {
 export default connect(mapStateToProps, {
   loadDbCacheList,
   loadMyStack,
-  searchDbservice
+  searchDbservice,
+  getProxy,
 })(StatefulCluster)

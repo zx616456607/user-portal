@@ -10,7 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Link,browserHistory } from 'react-router'
 import { connect } from 'react-redux'
-import { Icon, Tabs, Button } from 'antd'
+import { Icon, Tabs, Button,Modal } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../constants'
 import { isSafariBrower } from '../../common/tools'
@@ -21,6 +21,7 @@ import {
 import { setTingLogs } from '../../actions/app_manage'
 import cloneDeep from 'lodash/cloneDeep'
 import Dock from 'react-dock'
+import Logs from '../ContainerModule/ContainerLogs'
 import './style/Xterm.less'
 
 const TabPane = Tabs.TabPane
@@ -37,7 +38,6 @@ class TerminalModal extends Component {
     this.disabledTermTips = this.disabledTermTips.bind(this)
     this.closeTip = this.closeTip.bind(this)
     this.onTabChange = this.onTabChange.bind(this)
-    this.closeTerminalItem = this.closeTerminalItem.bind(this)
     this.closeXterm = this.closeXterm.bind(this)
     this.resizeXterm = this.resizeXterm.bind(this)
     this.onDockSizeChange = this.onDockSizeChange.bind(this)
@@ -192,6 +192,8 @@ class TerminalModal extends Component {
   onTabChange(key) {
     const { clusterID, changeActiveTerminal } = this.props
     changeActiveTerminal(clusterID, key)
+    // 控制日志是否显示
+    this.setState({containerName:false})
   }
 
   closeTerminalItem(item, e) {
@@ -256,16 +258,31 @@ class TerminalModal extends Component {
       </div>
     )
   }
-  openLogs() {
+  openLogs(item) {
+    const { logModal } = this.state
     if (location.href.indexOf('/app_manage/container/') >-1) {
       // @todo start setting show log in container detail
+      if (this.props.containerLogs.logSize === 'big') {
+        this.props.setTingLogs('normal')
+        return
+      }
       browserHistory.push({
-        pathname:location.pathname,
+        pathname:`/app_manage/container/${item.metadata.name}`,
         hash: '#logs'
       })
       this.props.setTingLogs('big')
+      return
     }
-
+    if (logModal && this.state.containerName === item.metadata.name) {
+      this.setState({logModal:!logModal})
+      return
+    }
+    this.setState({logModal: true,containerName: item.metadata.name})
+    this.props.setTingLogs('big')
+    let bottomBox = document.getElementsByClassName('bottomBox')[0]
+    bottomBox && setTimeout(()=> {
+      bottomBox.style.height = document.body.clientHeight - document.getElementById('TerminalModal').clientHeight + 'px'
+    },200)
   }
   renderTabs() {
     const { clusterID, active, list } = this.props
@@ -292,13 +309,12 @@ class TerminalModal extends Component {
             const { terminalStatus, metadata } = item
             const { name, namespace } = metadata
             const titleTab = (
-              <div>
-                <span>{name}</span>
+              <div className="action-header">
+                <span className="service-name">{name}</span>
+                <Button icon="file-text" type="primary" onClick={()=> this.openLogs(item)} >日志</Button>
                 <span>&nbsp;&nbsp;</span>
-                {this.state.showLogs ?
-                  <Icon type="file-text" onClick={()=> this.openLogs()} title="查看日志" />
-                :null}
-                <Icon type='cross' onClick={this.closeTerminalItem.bind(this, item)}/>
+                <Button icon='cross' type="ghost" className="closeBtn" onClick={()=> this.closeTerminalItem(item)}></Button>
+
               </div>
             )
             return (
@@ -341,15 +357,24 @@ class TerminalModal extends Component {
     }
     if (this.props.containerLogs.logSize == 'big') {
       // 设置 分层显示log 和控制台
-      setTimeout(()=>this.props.setTingLogs('big'),200)
+      let bottomBox = document.getElementsByClassName('bottomBox')[0]
+      bottomBox && setTimeout(()=> {
+        this.props.setTingLogs('big')
+        bottomBox.style.height = document.body.clientHeight - document.getElementById('TerminalModal').clientHeight + 'px'
+      },500)
     }
     this.setState(state)
   }
-
+  closeModal = () => {
+    this.setState({logModal: false,containerName:false})
+  }
   render() {
-    const { list } = this.props
-    const { size } = this.state
+    const { list,clusterID } = this.props
+    const { size,containerName } = this.state
     const visible = (list && list.length > 0)
+    const func = {
+      closeModal: this.closeModal
+    }
     return (
       <Dock position='bottom'
         isVisible={visible}
@@ -359,6 +384,13 @@ class TerminalModal extends Component {
         onSizeChange={ this.onDockSizeChange }>
         <div id='TerminalModal'>
           {this.renderTabs()}
+          <Modal className="logModal" maskClosable={false} closable={false} title={null} footer={null} visible={this.state.logModal}
+          >
+            {containerName ?
+            <Logs visible={this.state.logModal} func={func} cluster={clusterID} containerName={containerName}/>
+            :null
+            }
+          </Modal>
         </div>
       </Dock>
     )

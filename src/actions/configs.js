@@ -82,15 +82,14 @@ export const CREATE_CONFIG_GROUP_REQUEST = 'CREATE_CONFIG_GROUP_REQUEST'
 export const CREATE_CONFIG_GROUP_SUCCESS = 'CREATE_CONFIG_GROUP_SUCCESS'
 export const CREATE_CONFIG_GROUP_FAILURE = 'CREATE_CONFIG_GROUP_FAILURE'
 
-export function createConfigGroup(obj, callback) {
+export function createConfigGroup(body, callback) {
   return {
-    cluster: obj.cluster,
     [FETCH_API]: {
       types: [CREATE_CONFIG_GROUP_REQUEST, CREATE_CONFIG_GROUP_SUCCESS, CREATE_CONFIG_GROUP_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configs`,
+      endpoint: `${API_URL_PREFIX}/clusters/${body.cluster}/configs`,
       options: {
         method: 'POST',
-        body: { groupName: obj.groupName }
+        body: body
       },
       schema: {}
     },
@@ -178,3 +177,28 @@ export function updateConfigName(obj, callback) {
     callback: callback
   }
 }
+
+export const UPDATE_CONFIG_ANNOTATIONS_REQUEST = 'UPDATE_CONFIG_ANNOTATIONS_REQUEST'
+export const UPDATE_CONFIG_ANNOTATIONS_SUCCESS = 'UPDATE_CONFIG_ANNOTATIONS_SUCCESS'
+export const UPDATE_CONFIG_ANNOTATIONS_FAILURE = 'UPDATE_CONFIG_ANNOTATIONS_FAILURE'
+
+export function updateConfigAnnotations(body,callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_CONFIG_ANNOTATIONS_REQUEST,UPDATE_CONFIG_ANNOTATIONS_SUCCESS,UPDATE_CONFIG_ANNOTATIONS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${body.cluster}/configgroups/${body.groupName}`,
+      options: {
+        method: 'PUT',
+        body: {configlabels: body.configlabels}
+      },
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+// export function updateConfigAnnotations(body,callback) {
+//   return (dispatch,getState) => {
+//     dispatch(fetchUpdateConfigAnnotations(body,callback))
+//   }
+// }

@@ -1,0 +1,57 @@
+.deletedUserModal {
+  .ant-modal-content {
+    width: 600px;
+    .deletedUserModalBody {
+      border: 1px solid #e9e9e9;
+      border-radius: 5px;
+      .deletedUserModalHeader {
+        padding: 10px;
+        height: 50px;
+        border-bottom: 1px solid #e9e9e9;
+        position: relative;
+        .deletedUserModalHeaderLeft {
+          float: left;
+        }
+        .deletedUserModalHeaderRight {
+          float: right;
+        }
+        .deletedUserModalHeaderTotal {
+          height: 24px;
+          line-height: 24px;
+        }
+      }
+      .deletedUserModalContent {
+        clear: both;
+        display: inline-block;
+        position: relative;
+        margin-left: 5px;
+        margin-right: 5px;
+        ul {
+          display: block;
+          position: relative;
+          line-height: 36px;
+          height: auto;
+          .nameLi {
+            float: left;
+            margin-top: 3px;
+            height: 30px;
+            line-height: 30px;
+            max-width: 120px;
+            padding: 0 8px;
+            .nameDiv {
+              display: inline-block;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              max-width: 100%;
+            }
+            &:hover {
+              background-color: #d9edf6;
+              border-radius: 5px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

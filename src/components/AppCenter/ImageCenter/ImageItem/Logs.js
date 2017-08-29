@@ -25,7 +25,8 @@ class Logs extends Component {
     this.state = {
       currentPage: 1,
       pageSize: 10,
-      searchType: 'username'
+      searchType: 'username',
+      Name:'',
     }
   }
   loadData(query, data) {
@@ -41,6 +42,10 @@ class Logs extends Component {
       <Option key="username">成员名</Option>
       <Option key="repo_name">镜像名称</Option>
     </Select>
+  }
+  componentDidUpdate() {
+    let searchInput = document.getElementById('logSearch')
+    searchInput && searchInput.focus()
   }
   searchType(e) {
     this.setState({
@@ -64,8 +69,8 @@ class Logs extends Component {
       page_size: this.state.pageSize
     }, postBody)
   }
-  searchLogs(e) {
-    const keyword = e.target.value
+  searchLogs(keyword) {
+    //const keyword = e.target.value
     this.setState({
       keyword,
       currentPage: 1
@@ -122,15 +127,17 @@ class Logs extends Component {
         title: '成员名',
         dataIndex: 'username',
         key: 'username',
-
+        width: '20%',
       }, {
         title: '镜像名称',
         dataIndex: 'repoName',
         key: 'repoName',
+        width: '30%',
       }, {
         title: '标签',
         dataIndex: 'repoTag',
         key: 'repoTag',
+        width: '10%',
         render(value) {
           if(value === 'N/A') {
             return '-'
@@ -141,11 +148,13 @@ class Logs extends Component {
         title: '操作',
         dataIndex: 'operation',
         filters: filterKey,
-        key: 'operation'
+        key: 'operation',
+        width: '10%',
       }, {
         title: '时间戳',
         dataIndex: 'opTime',
         key: 'opTime',
+        width: '30%',
         render(value, row, index) {
           if(row.opTime) {
             return formatDate(row.opTime)
@@ -167,10 +176,10 @@ class Logs extends Component {
     return (
       <div id="logs">
         <div className='littleLeft'>
-          <i className='fa fa-search' onClick={this.handleSearch} />
+          <i className='fa fa-search' onClick={this.searchLogs.bind(this, this.state.Name)} />
         </div>
         <div className="topRow">
-          <Input addonBefore={this.select} placeholder="搜索" className="search" size='large' onPressEnter={(e) => this.searchLogs(e)} />
+          <Input addonBefore={this.select} placeholder="搜索" onChange={(e) => {this.setState({Name: e.target.value})}} className="search" id="logSearch" size='large' onPressEnter={(e) => this.searchLogs(e.target.value)} />
           {/*{total >0 ?
             <span className="totalPage">共计：{total} 条</span>
           :null

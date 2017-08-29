@@ -21,6 +21,13 @@ const FormItem = Form.Item
 const RadioGroup = Radio.Group
 
 const LivenessSetting = React.createClass({
+  changeType(e) {
+    if(e.target.value !== 'none') {
+      setTimeout(()=> {
+        document.getElementById('livenessPort').focus()
+      },300)
+    }
+  },
   render() {
     const { formItemLayout, form } = this.props
     const { getFieldProps, getFieldValue } = form
@@ -28,6 +35,7 @@ const LivenessSetting = React.createClass({
       rules: [
         { required: true }
       ],
+      onChange: this.changeType
     })
     const livenessProtocol = getFieldValue('livenessProtocol')
     let livenessPortProps

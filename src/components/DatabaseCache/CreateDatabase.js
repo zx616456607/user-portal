@@ -12,7 +12,7 @@ import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Input, Select, InputNumber, Button, Form, Icon ,message} from 'antd'
+import { Input, Select, InputNumber, Button, Form, Icon ,message, Radio } from 'antd'
 import { CreateDbCluster ,loadDbCacheList} from '../../actions/database_cache'
 import { setCurrent } from '../../actions/entities'
 import { loadTeamClustersList } from '../../actions/team'
@@ -20,6 +20,8 @@ import NotificationHandler from '../../components/Notification'
 import { MY_SPACE } from '../../constants'
 import { parseAmount } from '../../common/tools.js'
 import './style/CreateDatabase.less'
+import { SHOW_BILLING } from '../../constants'
+import { camelize } from 'humps'
 
 const Option = Select.Option;
 const createForm = Form.create;
@@ -194,6 +196,10 @@ let CreateDatabase = React.createClass({
           externalIP = ips[0]
         }
       }
+      let lbGroupID = 'none'
+      if(values.outerCluster){
+        lbGroupID = values.outerCluster
+      }
       const replicas = this.state.currentType == 'zookeeper' ? values.zkReplicas : values.replicas
       const body = {
         cluster: values.clusterSelect,
@@ -203,7 +209,13 @@ let CreateDatabase = React.createClass({
         replicas: replicas,
         volumeSize: values.storageSelect,
         teamspace: newSpace.namespace,
-        templateId
+        templateId,
+        lbGroupID,
+      }
+      if (!templateId) {
+        notification.error(`${_this.state.currentType} 集群创建还在开发中，敬请期待`)
+        _this.setState({loading: false})
+        return
       }
       CreateDbCluster(body, {
         success: {
@@ -239,6 +251,34 @@ let CreateDatabase = React.createClass({
 
     });
   },
+  getDefaultOutClusterValue(){
+    const { clusterProxy, cluster } = this.props
+    const clusterId = camelize(cluster)
+    let defaultValue = undefined
+    if(!clusterProxy || !clusterProxy[clusterId] || !clusterProxy[clusterId].data || !clusterProxy[clusterId].data.length){
+      return defaultValue
+    }
+    clusterProxy[clusterId].data.forEach( item => {
+      if(item.isDefault){
+        defaultValue = item.id
+      }
+    })
+    return defaultValue
+  },
+  renderSelectOption(){
+    const { clusterProxy, cluster } = this.props
+    const clusterId = camelize(cluster)
+    if(!clusterProxy || !clusterProxy[clusterId] || !clusterProxy[clusterId].data || !clusterProxy[clusterId].data.length){
+      return <Option value="none" key="none" disabled>暂无可用网络出口</Option>
+    }
+    return clusterProxy[clusterId].data.map((item, index) => {
+      let name = '公网'
+      if(item.type == 'private'){
+        name = '内网'
+      }
+      return <Option value={item.id} key={item.address + index}>{name}: {item.name}</Option>
+    })
+  },
   render() {
     const { isFetching, teamspaces, teamCluster, space } = this.props;
     const teamspaceList = teamspaces.map((list, index) => {
@@ -258,6 +298,24 @@ let CreateDatabase = React.createClass({
         { validator: this.databaseExists },
       ],
     });
+    let defaultValue = this.getDefaultOutClusterValue()
+    const accessTypeProps = getFieldProps('accessType',{
+      initialValue: defaultValue ? 'outcluster' : 'none',
+      rules: [{
+        required: true,
+        message: '请选择集群访问方式'
+      }]
+    })
+    let accessType = getFieldValue('accessType')
+    let outClusterProps
+    if(accessType == 'outcluster'){
+      outClusterProps = getFieldProps('outerCluster',{
+        initialValue: defaultValue,
+        rules: [
+          { required: true, message: '请选择网络出口' },
+        ],
+      })
+    }
     const replicasProps = getFieldProps('replicas', {
       initialValue: 3
     });
@@ -270,7 +328,7 @@ let CreateDatabase = React.createClass({
     const passwdProps = getFieldProps('password', {
       rules: [
         {
-          required: this.state.currentType !== 'elasticsearch',
+          required: this.state.currentType !== 'elasticsearch' && this.state.currentType !== 'etcd',
           whitespace: true,
           message: '请填写密码'
         },
@@ -299,6 +357,7 @@ let CreateDatabase = React.createClass({
       redis: 'Redis',
       zookeeper: 'ZooKeeper',
       elasticsearch: 'ElasticSearch',
+      etcd: 'Etcd',
     }
     const statefulAppOptions = Object.getOwnPropertyNames(statefulApps).map(
       app => <Select.Option value={app} key={app}>{statefulApps[app]}</Select.Option>)
@@ -353,6 +412,43 @@ let CreateDatabase = React.createClass({
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
+            <div className='commonBox accesstype'>
+              <div className='title'>
+                <span>集群访问方式</span>
+              </div>
+              <div className='radioBox'>
+                <FormItem>
+                  <Radio.Group {...accessTypeProps}>
+                    <Radio value="outcluster" key="2">可集群外访问</Radio>
+                    <Radio value="none" key="1">仅在集群内访问</Radio>
+                  </Radio.Group>
+                </FormItem>
+                {
+                  accessType === 'outcluster'
+                  ? <div className='accessTips'>数据库与缓存集群可提供集群外访问</div>
+                  : <div className='accessTips'>选择后该数据库与缓存集群仅提供集群内访问</div>
+                }
+              </div>
+              <div style={{ clear: 'both' }}></div>
+            </div>
+            {
+              accessType === 'outcluster'
+              ? <div className='commonBox outclusterBox'>
+                <div className='title'></div>
+                <div className='inputBox'>
+                  <FormItem>
+                    <Select
+                      {...outClusterProps}
+                      placeholder='选择网络出口'
+                    >
+                      { this.renderSelectOption() }
+                    </Select>
+                  </FormItem>
+                </div>
+                <div style={{ clear: 'both' }}></div>
+              </div>
+              : null
+            }
             <div className='commonBox'>
               <div className='title'>
                 <span>副本数</span>
@@ -381,7 +477,7 @@ let CreateDatabase = React.createClass({
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
-            {this.state.currentType == 'elasticsearch' ? null :
+            {this.state.currentType === 'elasticsearch' || this.state.currentType === 'etcd' ? null :
             <div className='commonBox'>
               <div className='title'>
                 <span>密码</span>
@@ -396,6 +492,7 @@ let CreateDatabase = React.createClass({
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>}
+            { SHOW_BILLING ?
             <div className="modal-price">
               <div className="price-left">
                 <div className="keys">实例：{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
@@ -406,6 +503,8 @@ let CreateDatabase = React.createClass({
                 <p className="unit">（约：{ countPrice.fullAmount }/月）</p>
               </div>
             </div>
+            :null
+            }
           </div>
           <div className='btnBox'>
             <Button size='large' onClick={this.handleReset}>

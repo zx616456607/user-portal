@@ -10,6 +10,7 @@
 
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
+import { toQuerystring } from '../common/tools'
 
 export const GET_ALL_CLUSTER_NODES_REQUEST = 'GET_ALL_CLUSTER_NODES_REQUEST'
 export const GET_ALL_CLUSTER_NODES_SUCCESS = 'GET_ALL_CLUSTER_NODES_SUCCESS'
@@ -33,6 +34,35 @@ function fetchAllClusterNodes(cluster, callback) {
 export function getAllClusterNodes(cluster, callback) {
   return (dispatch) => {
     return dispatch(fetchAllClusterNodes(cluster, callback))
+  }
+}
+
+export const GET_CLUSTER_NODES_METRICS_REQUEST = 'GET_CLUSTER_NODES_METRICS_REQUEST'
+export const GET_CLUSTER_NODES_METRICS_SUCCESS = 'GET_CLUSTER_NODES_METRICS_SUCCESS'
+export const GET_CLUSTER_NODES_METRICS_FAILURE = 'GET_CLUSTER_NODES_METRICS_FAILURE'
+
+function fetchClusterNodesMetrics(cluster, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${cluster}/metrics`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [GET_CLUSTER_NODES_METRICS_REQUEST, GET_CLUSTER_NODES_METRICS_SUCCESS, GET_CLUSTER_NODES_METRICS_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'GET'
+      },
+    },
+    callback
+  }
+}
+
+export function getClusterNodesMetrics(cluster, query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchClusterNodesMetrics(cluster, query, callback))
   }
 }
 

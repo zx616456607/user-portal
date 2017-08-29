@@ -17,7 +17,8 @@ import { getClusterPlugins, updateClusterPlugins } from '../../actions/cluster'
 import NotificationHandler from '../../components/Notification'
 import { PLUGIN_DEFAULT_CONFIG } from '../../constants/index'
 import { camelize } from 'humps'
-import { getAllClusterNodes, deleteMiddleware, updateMiddleware, createMiddleware } from '../../actions/cluster'
+import { deleteMiddleware, updateMiddleware, createMiddleware } from '../../actions/cluster'
+import { getAllClusterNodes } from '../../actions/cluster_node'
 import openUrl from '../../assets/img/icon/openUrl.svg'
 
 const Option = Select.Option
@@ -42,6 +43,8 @@ class ClusterPlugin extends Component {
 
   }
   componentWillMount() {
+    const { getAllClusterNodes, cluster } = this.props
+    getAllClusterNodes(cluster.clusterID)
     this.loadData()
   }
   onChange(value) {
@@ -770,9 +773,16 @@ class ClusterPlugin extends Component {
 }
 
 function mapStateToProp(state, props) {
-  const defaultNodeList = { isFetching: false, isEmptyObject: true }
+  const { clusterID } = props.cluster
+  const defaultNodeList = {
+    [clusterID]: {
+      isFetching: false,
+      isEmptyObject: true,
+      nodes: {}
+    }
+  }
   let allNode = state.cluster_nodes.getAllClusterNodes
-  if (!allNode) {
+  if (!allNode || !allNode[clusterID]) {
     allNode = defaultNodeList
   }
   const defaultClusterPlugins = {
@@ -798,6 +808,7 @@ export default connect(mapStateToProp, {
   updateMiddleware,
   createMiddleware,
   getClusterPlugins,
-  updateClusterPlugins
+  updateClusterPlugins,
+  getAllClusterNodes,
 })(Form.create()(ClusterPlugin))
 

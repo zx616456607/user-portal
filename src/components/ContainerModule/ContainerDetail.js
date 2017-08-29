@@ -194,7 +194,7 @@ class ContainerDetail extends Component {
                     </Button>
                     <Button
                       onClick={this.deleteContainer} size='large' type="ghost">
-                      <i className="fa fa-power-off"></i>&nbsp;重新分配
+                      <i className='fa fa-undo' />&nbsp;重新分配
                     </Button>
                   </div>
                 </div>

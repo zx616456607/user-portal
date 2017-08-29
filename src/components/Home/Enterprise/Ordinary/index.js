@@ -23,8 +23,9 @@ import homeMongoCluster from '../../../../assets/img/homeMongoCluster.png'
 import homeRedis from '../../../../assets/img/homeRedis.png'
 import homeZookeeper from '../../../../assets/img/homeZookeeper.png'
 import homeElasticSearch from '../../../../assets/img/homeElasticSearch.png'
+import homeEtcd from '../../../../assets/img/homeEtcdCluster.png'
 import { Link } from 'react-router'
-import { AVATAR_HOST } from '../../../../constants'
+import { AVATAR_HOST, SHOW_BILLING } from '../../../../constants'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -146,6 +147,7 @@ class Ordinary extends Component {
       tab3: false,
       tab4: false,
       tab5: false,
+      tab6: false,
       isTeam: false,
       statefulApp: 'mysql',
     }
@@ -192,7 +194,7 @@ class Ordinary extends Component {
       return $1 + ",";
     }));
   }
-  
+
   handleSize(size) {
     if (!size) {
       return 0 + 'MB'
@@ -252,7 +254,7 @@ class Ordinary extends Component {
     let CPUNameArr = []
     let CPUResourceName = []
     let CPUUsedArr = []
-    if (clusterNodeSummary.cpu.length !== 0) {
+    if (clusterNodeSummary.cpu && clusterNodeSummary.cpu.length !== 0) {
       clusterNodeSummary.cpu.slice(0, 3).map((item, index) => {
         let name = item.name.replace(/192.168./, '')
         CPUResourceName.push(name)
@@ -267,7 +269,7 @@ class Ordinary extends Component {
     let memoryNameArr = []
     let memoryResourceName = []
     let memoryUsedArr = []
-    if (clusterNodeSummary.memory.length !== 0) {
+    if (clusterNodeSummary.memory && clusterNodeSummary.memory.length !== 0) {
       clusterNodeSummary.memory.slice(0, 3).map((item, index) => {
         let name = item.name.replace(/192.168./, '')
         memoryResourceName.push(name)
@@ -281,7 +283,7 @@ class Ordinary extends Component {
     //磁盘
     let diskNameArr = []
     let diskUsedArr = []
-    if (clusterNodeSummary.storage.length !== 0) {
+    if (clusterNodeSummary.storage && clusterNodeSummary.storage.length !== 0) {
       clusterNodeSummary.storage.slice(0, 3).map((item, index) => {
         let name = item.name.replace(/192.168./, '')
         diskNameArr.push(name)
@@ -362,11 +364,26 @@ class Ordinary extends Component {
       elasticSearchStopped = failedCount + unknownCount
       elasticSearchOthers = pendingCount
     }
+    // Etcd
+    const etcdData = clusterDbServices.get('etcd')
+    let etcdRunning = 0
+    let etcdStopped = 0
+    let etcdOthers = 0
+    if (etcdData.size !== 0) {
+      const failedCount = etcdData.get('failed') ? etcdData.get('failed') : 0
+      const pendingCount = etcdData.get('pending') ? etcdData.get('pending') : 0
+      const runningCount = etcdData.get('running') ? etcdData.get('running') : 0
+      const unknownCount = etcdData.get('unknown') ? etcdData.get('unknown') : 0
+      etcdRunning = runningCount
+      etcdStopped = failedCount + unknownCount
+      etcdOthers = pendingCount
+    }
     const statefulApps = {
       mysql: "MySQL",
       redis: "Redis",
       zookeeper: "ZooKeeper",
       elasticsearch: "ElasticSearch",
+      etcd: "Etcd",
     }
     const statefulAppTabMapping = {
       mysql: 'tab1',
@@ -374,6 +391,7 @@ class Ordinary extends Component {
       redis: 'tab3',
       zookeeper: 'tab4',
       elasticsearch: 'tab5',
+      etcd: 'tab6',
     }
     const defaultState = {
       tab1: false,
@@ -381,9 +399,10 @@ class Ordinary extends Component {
       tab3: false,
       tab4: false,
       tab5: false,
+      tab6: false,
       statefulApp: 'MySQL',
     }
-    const onStatefulAppOptionClick = function (app) { 
+    const onStatefulAppOptionClick = function (app) {
       const tab = statefulAppTabMapping[app]
       const newState = {
         [tab]: true,
@@ -853,7 +872,7 @@ class Ordinary extends Component {
         axisPointer: {
           type: 'shadow'
         },
-        formatter: clusterNodeSummary.storage.length === 0 ? '{c}' : '{b} : {c}%'
+        formatter: (!clusterNodeSummary.storage || clusterNodeSummary.storage.length === 0) ? '{c}' : '{b} : {c}%'
       },
       grid: {
         left: '3%',
@@ -1121,6 +1140,7 @@ class Ordinary extends Component {
       <div id='Ordinary'>
         <Row className="title">{spaceName} - {clusterName}集群</Row>
         <Row className="content" gutter={16}>
+          { SHOW_BILLING?
           <Col span={6} className='clusterCost'>
             <Card title="帐户余额" bordered={false} bodyStyle={{height: 220, padding: '36px 24px'}}>
               <div className='costInfo'>
@@ -1139,7 +1159,7 @@ class Ordinary extends Component {
                         </p>
                       </Link>
                       <Tooltip title={email}>
-                        <p className="email">{email || '...'}</p>
+                        <p className="email textoverflow">{email || '...'}</p>
                       </Tooltip>
                     </div>
                   </div>
@@ -1177,6 +1197,31 @@ class Ordinary extends Component {
               </div>
             </Card>
           </Col>
+          :
+          <Col span={6} className='clusterCost'>
+            <Card title="帐户信息" bordered={false} bodyStyle={{height: 220, padding: '36px 24px'}}>
+                <div className='loginUser'>
+                  <div className='logAvatar' style={{float:'none',margin:'0 auto'}}>
+                    <Link to='/account'>
+                      <span style={{color: 'white'}}>{img}</span>
+                      {/*<img alt={userName} src={`${AVATAR_HOST}${avatar}`} />*/}
+                    </Link>
+                  </div>
+                </div>
+               <div className="text-center" style={{fontSize:16,marginTop:20}}>
+                <Link to='/account'>
+                  <p className="userName textoverflow">
+                    {userName}
+                  </p>
+                </Link>
+                <Tooltip title={email}>
+                  <p className="textoverflow" style={{marginTop:5}}>{email || '...'}</p>
+                </Tooltip>
+              </div>
+
+            </Card>
+          </Col>
+          }
           <Col span={6} className='clusterStatus'>
             <Card title="本集群资源分配状况" bordered={false} bodyStyle={{ height: 220, padding: '0 24px' }}>
               <div className='clusterStatusTitle'>
@@ -1663,6 +1708,44 @@ class Ordinary extends Component {
                   </table>
                 </Col>
               </Row>
+              <Row style={{ display: this.state.tab6 ? 'block' : 'none', height: 130 }}>
+                <Col span={12} className='dbImg'>
+                  <img src={homeEtcd} alt="Etcd" />
+                </Col>
+                <Col span={12} className='dbInf'>
+                  <table>
+                    <tbody>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
+                        运行中
+                      </td>
+                      <td className="dbNum">
+                        {etcdRunning} 个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
+                        已停止
+                      </td>
+                      <td className="dbNum">
+                        {etcdStopped} 个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
+                        操作中
+                      </td>
+                      <td className="dbNum">
+                        {etcdOthers} 个
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </Col>
+              </Row>
             </Card>
           </Col>
           <Col span={18} className="hostState">
@@ -1696,7 +1779,7 @@ class Ordinary extends Component {
                           主机总数
                       </td>
                         <td className="hostNum">
-                          {clusterNodeSummary.nodeInfo.total} 个
+                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.total : 0} 个
                       </td>
                       </tr>
                       <tr>
@@ -1705,7 +1788,7 @@ class Ordinary extends Component {
                           健康主机数
                       </td>
                         <td className="hostNum">
-                          {clusterNodeSummary.nodeInfo.health} 个
+                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.health : 0 } 个
                       </td>
                       </tr>
                       <tr>
@@ -1714,7 +1797,7 @@ class Ordinary extends Component {
                           未启用主机数
                       </td>
                         <td className="hostNum">
-                          {clusterNodeSummary.nodeInfo.unused} 个
+                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.unused: 0 } 个
                       </td>
                       </tr>
                     </tbody>
@@ -1767,6 +1850,7 @@ function getDbServiceStatus(data) {
   dbServiceMap.set("redis", new Map())
   dbServiceMap.set("zookeeper", new Map())
   dbServiceMap.set("elasticsearch", new Map())
+  dbServiceMap.set("etcd", new Map())
 
   data.petSets.map(petSet => {
     let key = "unknown"
@@ -1843,6 +1927,7 @@ function mapStateToProp(state, props) {
   clusterDbServicesData.set("redis", new Map())
   clusterDbServicesData.set("zookeeper", new Map())
   clusterDbServicesData.set("elasticsearch", new Map())
+  clusterDbServicesData.set("etcd", new Map())
 
   let clusterNodeSummaryData = {
     nodeInfo: {

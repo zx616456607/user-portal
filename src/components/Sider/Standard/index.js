@@ -325,7 +325,7 @@ class Sider extends Component {
               </li>
               <li onClick={this.selectModel.bind(this, 'database_cache', '#database')} className={currentKey == 'database_cache' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='数据库与缓存' getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/database_cache'>
+                  <Link to='/database_cache/mysql_cluster'>
                     <svg className='database commonImg'>
                       {currentKey == 'database_cache' ? [<use xlinkHref='#database-selected' />] : [<use xlinkHref='#database' />]}
                     </svg>
@@ -512,7 +512,7 @@ class Sider extends Component {
                   }
                   >
                   <Menu.Item key='database_cache_default'>
-                    <Link to='/database_cache'>
+                    <Link to='/database_cache/mysql_cluster'>
                       <span><div className='sideCircle'></div> 关系型数据库</span>
                     </Link>
                   </Menu.Item>
@@ -532,6 +532,12 @@ class Sider extends Component {
                   <Menu.Item key='elasticsearch_cluster'>
                     <Link to='/database_cache/elasticsearch_cluster'>
                       <span><div className='sideCircle'></div> ElasticSearch</span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='etcd_cluster'>
+                    <Link to='/database_cache/etcd_cluster'>
+                      <span><div className='sideCircle'></div> Etcd</span>
                     </Link>
                   </Menu.Item>
 

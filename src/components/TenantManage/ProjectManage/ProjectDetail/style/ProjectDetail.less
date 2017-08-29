@@ -1,5 +1,5 @@
 .projectDetailBox{
-  padding: 20px 35px;
+  padding: 20px;
   .ant-card{
     overflow: visible;
   }
@@ -12,10 +12,10 @@
     -webkit-align-items: center;
     .goBackBtn{
       width: 60px;
-      height: 30px;
-      line-height: 30px;
+      height: 28px;
+      line-height: 28px;
       text-indent: 20px;
-      color: #ffffff;
+      color: #ecf7fd;
       background: url("../../../../../assets/img/tenantManage/goBackBtn.png") no-repeat;
     }
     i{
@@ -97,13 +97,51 @@
       font-size: 14px;
     }
   }
+  .clusterWithStatus{
+    border-radius: 4px;
+    border:1px dashed #999;
+    .clusterStatus{
+      padding: 5px;
+      border-radius: 4px;
+      margin: 5px 5px;
+      display: inline-block;
+    }
+    .applyingStatus{
+      background-color: #daf1ff;
+      color: #40bdf5;
+    }
+    .appliedStatus{
+      background-color: #dffbed;
+      color: #0dd86f;
+      position: relative;
+      .anticon-cross{
+        position: absolute;
+        right: 5px;
+        top: 10px;
+        display: none;
+        cursor: pointer;
+      }
+      &:hover{
+        .anticon-cross{
+          display: inline-block;
+        }
+      }
+    }
+    .rejectStatus{
+      background-color: #fef0ef;
+      color: #f1633b;
+    }
+  }
   .basicInfoRight{
     padding-left: 40px;
     .ant-input{
       width: 80%;
     }
-    .anticon{
-      margin-left: 5px;
+    .commonBox{
+      max-width: 300px;
+      .anticon{
+        margin-left: 15px;
+      }
     }
   }
 
@@ -176,6 +214,9 @@
     }
   }
   .projectMember{
+    .connectCard{
+      padding-bottom: 20px;
+    }
     .connectLeft{
       .leftTitle{
         margin-bottom: 20px;
@@ -193,23 +234,39 @@
       border-radius: 4px;
       border: 1px solid #dadada;
       width: 130px;
+      max-height: 328px;
+      overflow-y: auto;
       li{
         font-size: 14px;
         width: 100%;
         height: 40px;
         display: inline-flex;
         align-items: center;
-        justify-content: space-around;
+        justify-content: space-between;
         border-left: 2px solid white;
+        padding: 0 5px;
+        i{
+          display: none;
+        }
         &:hover{
           background-color: #effdff;
           color: #00a0ea;
           border-left: 2px solid #00a0ea;
+          i{
+            display: inline-block;
+          }
         }
       }
-      li:not(last-of-type){
+      .active{
+        background-color: #f8f8f8;
+        border-left: 2px solid #f8f8f8;
+      }
+      li:not(:last-of-type){
         border-bottom: 1px solid #dadada;
       }
+    }
+    .borderHide{
+      border: none !important;
     }
     .connectRight{
       font-size: 14px;
@@ -222,30 +279,44 @@
       .rightContainer{
         border: 1px solid #d8d8d8;
         border-radius: 5px;
-
+        height: 330px;
         .authBox{
           width: 360px;
-          height: 320px;
-          vertical-align: top;
+          height: 328px;
           .authTitle{
             line-height: 40px;
             text-indent: 15px;
             border-right: 1px solid #d8d8d8;
           }
           .treeBox{
-            height: 280px;
+            height: 288px;
             overflow-y: scroll;
             border-top: 1px solid #d8d8d8;
             border-right: 1px solid #d8d8d8;
+            background-color: #ecf1f4;
           }
         }
         .memberBox{
           width: 360px;
-          height: 320px;
+          height: 328px;
           .memberTableBox{
-            height: 280px;
-            overflow-y: scroll;
+            height: 288px;
+            overflow-y: auto;
             border-top: 1px solid #d8d8d8;
+            .addMemberBtn{
+              display: block;
+              margin: 125px auto 0;
+            }
+            ul{
+              padding:0;
+              li{
+                margin:0;
+                padding: 10px;
+                &:hover{
+                  background: #ecf7fd;
+                }
+              }
+            }
           }
           .memberTitle{
             height: 40px;
@@ -260,6 +331,14 @@
 
 }
 .projectDetailRoleTrans{
+  .ant-transfer-list-header{
+    display: flex;
+    align-items: center;
+    .ant-transfer-list-header-title{
+      float: left;
+      margin-right: 3px;
+    }
+  }
   .ant-transfer-list-body{
     ul{
       li{
@@ -287,7 +366,7 @@
 }
 .projectDetailClusterStatus2{
   color: #0dd86f;
-  margin-right: 50px;
+  margin-right: 16px;
 }
 .projectDetailClusterStatus3{
   color: #f1633b;

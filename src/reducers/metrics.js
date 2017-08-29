@@ -18,13 +18,13 @@ const option = {
 export default function metrics(
   state = {
     containers: {
-      CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}, allcontainersmetrics: {}
+      CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}, diskReadIo: {}, diskWriteIo: {}, allcontainersmetrics: {}
     },
     services: {
-      CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}, allservicesmetrics: {}
+      CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}, diskReadIo: {}, diskWriteIo: {}, allservicesmetrics: {}
     },
     apps: {
-      CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}, appAllMetrics: {}
+      CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}, diskReadIo: {}, diskWriteIo: {}, appAllMetrics: {}
     }
   }, action) {
   return {
@@ -49,6 +49,16 @@ export default function metrics(
         SUCCESS: ActionTypes.METRICS_CONTAINER_NETWORK_TRANSMITTED_SUCCESS,
         FAILURE: ActionTypes.METRICS_CONTAINER_NETWORK_TRANSMITTED_FAILURE
       }, state.containers.networkTransmitted, action, option),
+      diskReadIo: reducerFactory({
+        REQUEST: ActionTypes.METRICS_CONTAINER_DISK_READ_REQUEST,
+        SUCCESS: ActionTypes.METRICS_CONTAINER_DISK_READ_SUCCESS,
+        FAILURE: ActionTypes.METRICS_CONTAINER_DISK_READ_FAILURE
+      }, state.containers.diskReadIo, action, option),
+      diskWriteIo: reducerFactory({
+        REQUEST: ActionTypes.METRICS_CONTAINER_DISK_WRITE_REQUEST,
+        SUCCESS: ActionTypes.METRICS_CONTAINER_DISK_WRITE_SUCCESS,
+        FAILURE: ActionTypes.METRICS_CONTAINER_DISK_WRITE_FAILURE
+      }, state.containers.diskWriteIo, action, option),
       allcontainersmetrics: reducerFactory({
         REQUEST: ActionTypes.GET_ALL_METRICS_CONTAINER_REQUEST,
         SUCCESS: ActionTypes.GET_ALL_METRICS_CONTAINER_SUCCESS,
@@ -76,6 +86,16 @@ export default function metrics(
         SUCCESS: ActionTypes.METRICS_SERVICE_NETWORK_TRANSMITTED_SUCCESS,
         FAILURE: ActionTypes.METRICS_SERVICE_NETWORK_TRANSMITTED_FAILURE
       }, state.services.networkTransmitted, action, option),
+      diskReadIo: reducerFactory({
+        REQUEST: ActionTypes.METRICS_SERVICE_DISK_READ_REQUEST,
+        SUCCESS: ActionTypes.METRICS_SERVICE_DISK_READ_SUCCESS,
+        FAILURE: ActionTypes.METRICS_SERVICE_DISK_READ_FAILURE
+      }, state.services.diskReadIo, action, option),
+      diskWriteIo: reducerFactory({
+        REQUEST: ActionTypes.METRICS_SERVICE_DISK_WRITE_REQUEST,
+        SUCCESS: ActionTypes.METRICS_SERVICE_DISK_WRITE_SUCCESS,
+        FAILURE: ActionTypes.METRICS_SERVICE_DISK_WRITE_FAILURE
+      }, state.services.diskWriteIo, action, option),
       allservicesmetrics: reducerFactory({
         REQUEST: ActionTypes.GET_ALL_METRICS_SERVICE_REQUEST,
         SUCCESS: ActionTypes.GET_ALL_METRICS_SERVICE_SUCCESS,
@@ -103,6 +123,16 @@ export default function metrics(
         SUCCESS: ActionTypes.METRICS_APP_NETWORK_TRANSMITTED_SUCCESS,
         FAILURE: ActionTypes.METRICS_APP_NETWORK_TRANSMITTED_FAILURE
       }, state.apps.networkTransmitted, action, option),
+      diskReadIo: reducerFactory({
+        REQUEST: ActionTypes.METRICS_APP_DISK_READ_REQUEST,
+        SUCCESS: ActionTypes.METRICS_APP_DISK_READ_SUCCESS,
+        FAILURE: ActionTypes.METRICS_APP_DISK_READ_FAILURE
+      }, state.apps.diskReadIo, action, option),
+      diskWriteIo: reducerFactory({
+        REQUEST: ActionTypes.METRICS_APP_DISK_WRITE_REQUEST,
+        SUCCESS: ActionTypes.METRICS_APP_DISK_WRITE_SUCCESS,
+        FAILURE: ActionTypes.METRICS_APP_DISK_WRITE_FAILURE
+      }, state.apps.diskWriteIo, action, option),
       appAllMetrics: reducerFactory({
         REQUEST: ActionTypes.GET_ALL_METRICS_APP_REQUEST,
         SUCCESS: ActionTypes.GET_ALL_METRICS_APP_SUCCESS,

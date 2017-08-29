@@ -58,7 +58,6 @@ class IntegrationDetail extends Component {
   }
 
   componentWillMount() {
-    document.title = '集成中心 | 时速云';
     const { getIntegrationDateCenter, integrationId } = this.props;
     const scope = this;
     getIntegrationDateCenter(integrationId, {

@@ -176,6 +176,29 @@ let CreateImageEnvComponent = React.createClass({
     }
     setTimeout(()=> document.getElementById(`imageEnvName${keys[keys.length - 1]}`).focus(),0)
   },
+  validateEnvName(item, values, callback) {
+    const { validateCallback } = this.props;
+    if (!values || values == "") {
+      if (validateCallback) {
+        validateCallback(false)
+      }
+      callback([new Error('请输入环境变量名')])
+      return
+    }
+    // Compare after remove all space
+    let str = values.replace(/\s+/g, "");
+    if (str != values) {
+      if (validateCallback) {
+        validateCallback(false)
+      }
+      callback([new Error('环境变量名不允许含有空格')])
+      return
+    }
+    if (validateCallback) {
+      validateCallback(true)
+    }
+    callback()
+  },
   closeModal () {
     //this function for user close the env input modal
     const { scope } = this.props;
@@ -202,7 +225,7 @@ let CreateImageEnvComponent = React.createClass({
     const ImageEnvInputItems = getFieldValue('imageEnvInputs').map((i) => {
       const ImageEnvNameInputProps = getFieldProps(`imageEnvName${i}`, {
         rules: [
-          { message: '请输入环境变量名' },
+        { validator: this.validateEnvName },
         ]
       });
       const ImageEnvValueInputProps = getFieldProps(`imageEnvValue${i}`, {
