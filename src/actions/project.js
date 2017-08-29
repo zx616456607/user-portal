@@ -597,8 +597,11 @@ export const PROJECTS_MEMBERS_LIST_SUCCESS = 'PROJECTS_MEMBERS_LIST_SUCCESS'
 export const PROJECTS_MEMBERS_LIST_FAILURE = 'PROJECTS_MEMBERS_LIST_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetProjectsMembers(body, callback) {
+function fetchGetProjectsMembers(query, callback) {
 	let endpoint = `${API_URL_PREFIX}/projects/members`
+	if (query) {
+    endpoint += `?${toQuerystring(query)}`
+	}
 	return {
 		[FETCH_API]: {
 			types: [PROJECTS_MEMBERS_LIST_REQUEST, PROJECTS_MEMBERS_LIST_SUCCESS, PROJECTS_MEMBERS_LIST_FAILURE],
@@ -613,9 +616,9 @@ function fetchGetProjectsMembers(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function GetProjectsMembers(body, callback) {
+export function GetProjectsMembers(query, callback) {
 	return (dispatch) => {
-		return dispatch(fetchGetProjectsMembers(body, callback))
+		return dispatch(fetchGetProjectsMembers(query, callback))
 	}
 }
 
