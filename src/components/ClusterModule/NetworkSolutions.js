@@ -307,7 +307,7 @@ class NetworkSolutions extends Component {
               : <div className='info_box'>
                 <i className="fa fa-exclamation-triangle warning_icon" aria-hidden="true"></i>
                 <div>
-                  将允许当前集群用户开启 inbound 隔离，请提前保证所有代理出口 ip 添加进策略，具体查看
+                  将允许当前集群用户开启 inbound 隔离，请提前创建允许所有代理出口 ip/网段 访问集群服务的策略，具体查看
                   <span className='help_button' onClick={() => this.setState({
                     helpVisible: true,
                     modalHelp: true,
@@ -337,7 +337,7 @@ class NetworkSolutions extends Component {
             activeKey={this.state.activeKey}
             onChange={(key) => this.setState({ activeKey: key })}
           >
-            <Tabs.TabPane key="open" tab="开启集群隔离能力" className='height open_area'>
+            <Tabs.TabPane key="open" tab="添加节点允许访问策略" className='height open_area'>
               <pre className='order create_area'>
                 {yamlFile}
                 <Tooltip title={this.state.copyCMDSuccess ? '复制成功': '点击复制'}>
@@ -374,7 +374,7 @@ class NetworkSolutions extends Component {
                 />
               </pre>
             </Tabs.TabPane>
-            <Tabs.TabPane key="close" tab="关闭集群隔离能力" className='height'>
+            <Tabs.TabPane key="close" tab="关闭节点允许访问策略" className='height'>
               <div className='title'>在安装了 calicoctl 命令的 master 控制节点上运行以下命令：</div>
               <pre className='order'>
                 {deleteOrder}
