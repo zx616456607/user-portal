@@ -380,8 +380,8 @@ let TenantDetail = React.createClass({
                         {
                           this.state.isShowIco ?
                           <div className="comment">
-                            <Icon className="ico" type="minus-circle-o" style={{fontSize:20,margin:9}} onClick={() => this.handleColse()}/>
-                            <Icon className="ico" type="save" style={{fontSize:20}} onClick={() => this.handleItem()}/>
+                            <Icon className="ico" type="minus-circle-o" style={{fontSize:14,margin:9}} onClick={() => this.handleColse()}/>
+                            <Icon className="ico" type="save" style={{fontSize:14}} onClick={() => this.handleItem()}/>
                           </div> :
                           <Icon type="edit" style={{marginLeft:'4px'}} onClick={() => this.handleIcon()}/>
                         }

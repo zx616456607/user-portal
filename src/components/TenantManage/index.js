@@ -97,7 +97,7 @@ class TenantManage extends React.Component {
     switch(id){
       case '0':
       localStorage.setItem('Menber','true')
-      browserHistory.push('/tenant_manage/membermanagement')
+      browserHistory.push('/tenant_manage/user')
       return
       case '1':
       localStorage.setItem('Team','true')
@@ -546,7 +546,7 @@ class TenantManage extends React.Component {
                             <p className="words">{value.item} </p>
                         </p>
                         <Button type='primary' data-index={index} size='large' className='addBtn' onClick={ this.handleNav }>
-                          <i className='fa fa-plus' />
+                          <i className='fa fa-plus' />&nbsp;
                            {value.itemName}
                         </Button>
                       </div>
