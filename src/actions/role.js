@@ -51,7 +51,7 @@ export const ROLE_LIST_FAILURE = 'ROLE_LIST_FAILURE'
 function fetchListRole(query,callback){
 	let endpoint = `${API_URL_PREFIX}/role`
   if (query) {
-    endpoint += `?sort=a,create_time`
+    endpoint += `?${toQuerystring(query)}`
   }
 	return {
 		[FETCH_API]: {

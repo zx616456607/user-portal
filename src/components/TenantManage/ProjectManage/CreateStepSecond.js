@@ -13,7 +13,7 @@ import { Row, Col, Button, Input, Transfer, Form } from 'antd'
 import { connect } from 'react-redux'
 import { ListRole, CreateRole, ExistenceRole } from '../../../actions/role'
 import CreateRoleModal from  './CreateRole'
-import { TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID } from '../../../../constants'
+import { PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID } from '../../../../constants'
 
 class CreateStepSecond extends Component{
   constructor(props){
@@ -23,6 +23,9 @@ class CreateStepSecond extends Component{
       characterModal: false,
       choosableList: []
     }
+  }
+  componentWillMount() {
+    this.loadRoleList()
   }
   componentWillReceiveProps(nextProps) {
     const { step, scope } = nextProps;
@@ -45,7 +48,7 @@ class CreateStepSecond extends Component{
     const targetKeys = [];
     const roleList = [];
     ListRole({
-      size:0
+      size: -1
     },{
       success: {
         func: (res)=> {
@@ -56,7 +59,8 @@ class CreateStepSecond extends Component{
                 key: `${result[i].id},${result[i].name}`,
                 title: result[i].name,
                 description: result[i].comment,
-                chosen: [TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID].includes(result[i].id),
+                chosen: [PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID].includes(result[i].id),
+                // chosen: ['RID-LFJKCKtKzCrd', 'RID-ggNW6A2mwgEX'].includes(result[i].id),
               };
               const newData = Object.assign({},result[i],data);
               if (newData.chosen) {
@@ -122,7 +126,7 @@ class CreateStepSecond extends Component{
           </Form.Item>
         </div>
         <div className="inputBox">
-          <span>角色</span>
+          <span style={{textIndent: '24px'}}>角色：</span>
           <Button type="primary" size="large" onClick={()=>this.openCreateModal()}>创建新角色</Button>
         </div>
         <Transfer
