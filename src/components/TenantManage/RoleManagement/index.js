@@ -50,7 +50,8 @@ class RoleManagement extends React.Component{
       checkedKeys: [],
       name:'',
       comment:'',
-      autoExpandParent: true
+      autoExpandParent: true,
+      creationTime: true,
     }
   }
 
@@ -66,9 +67,9 @@ class RoleManagement extends React.Component{
   /**
    * 加载数据
    */
-  loadData(){
+  loadData(sort){
     const { ListRole } = this.props
-    ListRole(null,{
+    ListRole(sort,{
       success: {
         func: res => {
           if(REG.test(res.data.code)){
@@ -324,6 +325,12 @@ class RoleManagement extends React.Component{
       roleData: data ? data.items : []
     })
   }
+  handleSort(){
+    this.loadData(true);
+    this.setState({
+      creationTime: false
+    })
+  }
 
   render() {
     const TreeNode = Tree.TreeNode;
@@ -396,18 +403,24 @@ class RoleManagement extends React.Component{
       width:'16%',
       sorter: (a, b) => a.projectCount - b.projectCount,
     }, {
-      title: '创建时间 / 更新时间',
+      title: (
+        <div onClick={() => this.handleSort()}>
+            创建时间
+            <div className="ant-table-column-sorter">
+              <span className={this.state.creationTime ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up" />
+              </span>
+              <span className={!this.state.creationTime ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down" />
+              </span>
+            </div>
+        </div>
+      ),
       dataIndex: 'createdTime',
       width:'20%',
-      // filters: [
-      //   { text: '2017', value: '2017' },
-      //   { text: '2016', value: '2016' }
-      // ],
-      // onFilter: (value, record) => record.Times.indexOf(value) === 0,
-      sorter: (a, b) => a.createdTime - b.createdTime,
       render: (text, record, index) => <div>
-        <span className='createdTime'>{formatDate(record.createdTime)}</span><br/>
-        <span className='updatedTime'>{formatDate(record.updatedTime)}</span>
+        {formatDate(record.createdTime)}
+        {/* <span className='updatedTime'>{formatDate(record.updatedTime)}</span> */}
       </div>
     }, {
       title: '操作',
@@ -493,7 +506,7 @@ class RoleManagement extends React.Component{
                {/* <Table columns={columns}  pagination={false}/> */}
                {/* dataSource={data} */}
               <Row>
-                  <Checkbox checked={this.state.isChecked} onChange={this.handleChecked}>
+                  <Checkbox checked={this.state.isChecked} onChange={(e) => this.handleChecked(e)}>
                     项目中保留
                     <span>（已引用项目 { this.state.count } 个）</span>
                   </Checkbox>

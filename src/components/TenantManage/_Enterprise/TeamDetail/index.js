@@ -30,6 +30,7 @@ import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN, TEAM_MANAGE_ROLE_ID } from '../../../.
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
 import includes from 'lodash/includes'
+import isEmpty from 'lodash/isEmpty'
 
 let MemberList = React.createClass({
   getInitialState() {
@@ -69,18 +70,14 @@ let MemberList = React.createClass({
 
   delTeamMember() {
     const { removeTeamusers, teamID, loadTeamUserList, scope, loadTeamAllUser } = this.props
-    const { sortUser, userPageSize, filter, transferHint, userId } = this.state
+    const { sortUser, userPageSize, filter, transferHint } = this.state
     let self = this
     if (transferHint) {
       this.setState({
         UserModal: false,
         transferHint: false
       },()=>{
-        scope.setState({
-          transferStatus: true,
-          selectLeader: [userId],
-          originalLeader: [userId]
-        })
+        scope.transferTeamLeader()
       })
       return
     }
@@ -150,10 +147,10 @@ let MemberList = React.createClass({
   },
   onTableChange(pagination, filters, sorter) {
     // 点击分页、筛选、排序时触发
-    if (!filters.style) {
+    if (!filters.globalStyle) {
       return
     }
-    let styleFilterStr = filters.style.toString()
+    let styleFilterStr = filters.globalStyle.toString()
     if (styleFilterStr === this.styleFilter) {
       return
     }
@@ -164,20 +161,21 @@ let MemberList = React.createClass({
       size: userPageSize,
       sort: sortUser,
     }
-    let filter
-    if (filters.style.length === 1) {
-      filter = `role,${filters.style[0]}`
-      query.filter = filter
-    }
+    // let filter
+    // if (filters.globalStyle.length === 1) {
+    //   filter = `role,${filters.globalStyle[0]}`
+    //   query.filter = filter
+    // }
     this.setState({
-      filter
+      // filter,
+      filteredInfo: filters
     })
     loadTeamUserList(teamID, query)
     this.styleFilter = styleFilterStr
   },
   removeMember(e,record) {
     e.stopPropagation()
-    if (record.key === 105) {
+    if (record.partialStyle === '团队管理员') {
       this.setState({
        transferHint: true
      },()=>{
@@ -238,13 +236,16 @@ let MemberList = React.createClass({
       },
       {
         title: '类型',
-        dataIndex: 'style',
-        key: 'style',
+        dataIndex: 'globalStyle',
+        key: 'globalStyle',
         width: '25%',
         filters: [
-          { text: '普通成员', value: 0 },
-          { text: '系统管理员', value: 2 },
+          { text: '普通成员', value: '普通成员' },
+          { text: '系统管理员', value: '系统管理员' },
         ],
+        filteredValue: filteredInfo.globalStyle,
+        onFilter: (value, record) => String(record.globalStyle) === value,
+        render: (text, record) => record.partialStyle === '团队管理员' ? `${text}（团队管理员）` : text
       },
       {
         title: '操作',
@@ -529,7 +530,10 @@ class TeamDetail extends Component {
       success: {
         func: res => {
           res.data.users.forEach((item) => {
-            Object.assign(item,{key:item.userID})
+            Object.assign(item,{
+              key:item.userID,
+              globalStyle: item.globalRoles.includes('admin') ? '系统管理员' : '普通成员'
+            })
           })
           this.setState({
             leaderList: res.data.users,
@@ -746,10 +750,10 @@ class TeamDetail extends Component {
       width: '40%'
     },{
       title: '类型',
-      dataIndex: 'role',
-      key: 'role',
+      dataIndex: 'globalStyle',
+      key: 'globalStyle',
       width: '50%',
-      render: text => text === ROLE_SYS_ADMIN ? '系统管理员' : (text === ROLE_TEAM_ADMIN ? '团队管理员' : '普通成员'),
+      render: (text, record) => record.partialStyle ? ecord.partialStyle === '团队管理员' ? `${text}（团队管理员）` : text : text
     }]
     const selectProps = {
       selectOptions: [
@@ -780,9 +784,15 @@ class TeamDetail extends Component {
               </Col>
               <Col span={22} className="teamNameBox">
                 <div className="teamName">
-                  <Input size="large" disabled={editTeamName ? false : true} type="textarea" placeholder="团队名称" {...getFieldProps('teamName',{
-                    initialValue: teamDetail.teamName
-                  })}/>
+                  {
+                    editTeamName ?
+                      <Input size="large" type="textarea" placeholder="团队名称" {...getFieldProps('teamName',{
+                        initialValue: teamDetail.teamName
+                      })}/>
+                      :
+                      <span>{teamDetail.teamName}</span>
+                  }
+
                   {
                     editTeamName ?
                       [
@@ -806,7 +816,7 @@ class TeamDetail extends Component {
                 创建时间
               </Col>
               <Col span={22}>
-                {teamDetail && teamDetail.creationTime}
+                {teamDetail && teamDetail.creationTime && teamDetail.creationTime.replace(/T/g, ' ').replace(/Z/g, '')}
               </Col>
             </Row>
             <Row>
@@ -814,7 +824,10 @@ class TeamDetail extends Component {
                 我是团队的
               </Col>
               <Col span={22}>
-                {teamDetail && teamDetail.isCreator ? '创建者' : '参与者'}
+                {teamDetail && teamDetail.outlineRoles && 
+                  (teamDetail.outlineRoles.includes('creator') || teamDetail.outlineRoles.includes('creator') ? '团队管理员' : '') &&
+                  (teamDetail.outlineRoles.includes('no-participator') ? '非团队成员' : '参与者')
+                }
               </Col>
             </Row>
           </Card>
@@ -825,13 +838,14 @@ class TeamDetail extends Component {
               </div>
             }
             bordered={false}
+            className="teamUserListBox"
           >
             <Row className="content">
               <Col span={24}>
                 <Row style={{ marginBottom: 20 }}>
                   <Col span={24}>
                     {
-                      roleNum !== 3 && 
+                      roleNum !== 3 &&
                       [
                         <Button type="primary" size="large" className="addMemberBtn"
                               onClick={this.addNewMember}>
@@ -849,7 +863,7 @@ class TeamDetail extends Component {
                     >
                       <div className="deleteMemberHint">
                         <i className="fa fa-exclamation-triangle" style={{marginRight: '8px'}}/>
-                        {`该操作中成员${delLeaderName}为改团队的管理员，请先将团队移交再移除该成员`}
+                        {`该操作中成员${delLeaderName}为该团队的管理员，请先将团队移交再移除该成员`}
                       </div>
                     </Modal>
                     <Modal title="移交团队"
@@ -939,7 +953,8 @@ function mapStateToProp(state, props) {
             name: item.userName,
             tel: item.phone,
             email: item.email,
-            style: item.role === ROLE_SYS_ADMIN ? '系统管理员' : (item.role === ROLE_TEAM_ADMIN ? '团队管理员' : '普通成员'),
+            globalStyle: item.globalRoles.includes('admin') ? '系统管理员' : '普通成员',
+            partialStyle: item.partialRoles.includes('manager') ? '团队管理员' : ''
           }
         )
       })
@@ -954,7 +969,9 @@ function mapStateToProp(state, props) {
           {
             key: item.userID,
             name: item.userName,
-            role : item.role
+            role : item.role,
+            globalStyle: item.globalRoles.includes('admin') ? '系统管理员' : '普通成员',
+            partialStyle: item.partialRoles.includes('manager') ? '团队管理员' : ''
           }
         )
       })

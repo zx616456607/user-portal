@@ -101,9 +101,8 @@ class CreateStepSecond extends Component{
     )
   }
   render() {
-    const { scope, step, form, CreateRole } = this.props;
+    const { scope, form } = this.props;
     const { choosableList, targetKeys, characterModal } = this.state;
-    const { getFieldProps } = form;
     const projectNameLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 15, offset: 1 },
@@ -118,9 +117,7 @@ class CreateStepSecond extends Component{
         />
         <div className="inputBox" style={{marginBottom:0}}>
           <Form.Item label="项目名称" {...projectNameLayout}>
-            <Input disabled {...getFieldProps(`projectName`, {
-              initialValue:  scope.state.projectName,
-            }) }
+            <Input disabled value={scope.state.projectName}
             />
           </Form.Item>
         </div>
@@ -150,7 +147,6 @@ class CreateStepSecond extends Component{
   }
 }
 
-CreateStepSecond = Form.create()(CreateStepSecond)
 function mapStateToSecondProp(state, props) {
   
   return {

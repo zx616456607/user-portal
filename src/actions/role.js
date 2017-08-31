@@ -51,7 +51,7 @@ export const ROLE_LIST_FAILURE = 'ROLE_LIST_FAILURE'
 function fetchListRole(query,callback){
 	let endpoint = `${API_URL_PREFIX}/role`
   if (query) {
-    endpoint += `?${toQuerystring(query)}`
+    endpoint += `?sort=a,create_time`
   }
 	return {
 		[FETCH_API]: {
@@ -319,6 +319,31 @@ function fetchUsersAddRoles(body,callback) {
 export function usersAddRoles(body,callback) {
   return (dispatch,getState) => {
     return dispatch(fetchUsersAddRoles(body,callback))
+  }
+}
+
+export const USERS_LOSE_ROLES_REQUEST = 'USERS_LOSE_ROLES_REQUEST'
+export const USERS_LOSE_ROLES_SUCCESS = 'USERS_LOSE_ROLES_SUCCESS'
+export const USERS_LOSE_ROLES__FAILURE = 'USERS_LOSE_ROLES__FAILURE'
+
+function fetchUsersLoseRoles(body,callback) {
+  return {
+    [FETCH_API]: {
+      types: [USERS_LOSE_ROLES_REQUEST, USERS_LOSE_ROLES_SUCCESS, USERS_LOSE_ROLES__FAILURE],
+      endpoint: `${API_URL_PREFIX}/role/${body.roleID}/${body.scope}/${body.scopeID}/batch-delete`,
+      options: {
+        method: 'POST',
+        body: body.body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function usersLoseRoles(body,callback) {
+  return (dispatch,getState) => {
+    return dispatch(fetchUsersLoseRoles(body,callback))
   }
 }
 

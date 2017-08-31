@@ -32,6 +32,7 @@ class CreateRoleModal extends React.Component{
       permissionCount: 0,
       rowDate: [],
       rowPermissionID: [],
+      isCheck: false,
     }
   }
   componentWillMount() {
@@ -109,10 +110,14 @@ class CreateRoleModal extends React.Component{
     })
   }
   roleName(rule, value, callback) {
-    const { ExistenceRole } = this.props;
+    const { ExistenceRole } = this.props
+    const { rowDate } = this.state
     if (!value) {
       callback(new Error('请输入名称'))
       return
+    }
+    if(value === rowDate.name){
+      callback()
     }
     this.roleNameTime = setTimeout(()=>{
       ExistenceRole({
@@ -202,6 +207,8 @@ class CreateRoleModal extends React.Component{
         success:{
           func: (res) => {
             if(REG.test(res.data.code)){
+              loadData && loadData()
+              scope.setState({characterModal:false})
             }
           }
         },
@@ -311,6 +318,11 @@ class CreateRoleModal extends React.Component{
       }
     }
   }
+  handleChange(){
+    this.setState({
+      isCheck: true,
+    })
+  }
   render() {
     const TreeNode = Tree.TreeNode;
     const { allPermission, permissionCount, rowDate, rowPermission } = this.state;
@@ -348,6 +360,7 @@ class CreateRoleModal extends React.Component{
               ],
               initialValue: isAdd ? undefined : rowDate.name
             })}
+
             />
           </Form.Item>
           <Form.Item label="描述" {...formItemLayout}>
