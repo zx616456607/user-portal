@@ -19,7 +19,7 @@ import TreeComponent from '../../TreeForMembers'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import includes from 'lodash/includes'
-import { TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID } from '../../../../constants'
+import { PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID } from '../../../../constants'
 
 let checkedKeysThird = []
 class CreateStepThird extends Component{
@@ -42,7 +42,7 @@ class CreateStepThird extends Component{
   componentWillMount() {
     const { userInfo, updateRoleWithMember } = this.props;
     let map = {
-      [TEAM_MANAGE_ROLE_ID]: [userInfo.userID]
+      [PROJECT_MANAGE_ROLE_ID]: [userInfo.userID]
     }
     let obj = {
       userID: userInfo.userID,
@@ -52,7 +52,7 @@ class CreateStepThird extends Component{
     updateRoleWithMember(map)
     this.setState({
       roleMap: map,
-      [`member${TEAM_MANAGE_ROLE_ID}`]: [obj]
+      [`member${PROJECT_MANAGE_ROLE_ID}`]: [obj]
     })
   }
   componentWillReceiveProps(nextProps) {
@@ -244,7 +244,7 @@ class CreateStepThird extends Component{
       labelCol: { span: 4 },
       wrapperCol: { span: 15, offset: 1 },
     };
-    const disabledArr = [TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID]
+    const disabledArr = [PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID]
     const roleList = scope.state.RoleKeys.length > 0 ? scope.state.RoleKeys.map((item)=>{
       return (
         <li onClick={()=>this.getCurrentRole.call(this,item.split(',')[0])} key={item.split(',')[1]}
@@ -280,7 +280,7 @@ class CreateStepThird extends Component{
           </Form.Item>
         </div>
         <div className="clearfix characterWrapper">
-          <span className="pull-left">已添加角色</span>
+          <span className="pull-left">已添加角色：</span>
           <div className="pull-left characterBox">
             <ul className="characterListBox pull-left">
               {roleList}

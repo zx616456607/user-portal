@@ -15,14 +15,30 @@
     .teamNameBox{
       .teamName{
         max-width: 300px;
-        .ant-input-wrapper{
-          .ant-input{
-            width: 80%;
+        position: relative;
+        .ant-form-item{
+          width: 80%;
+          display: inline-block;
+          margin: 0;
+          .ant-form-explain{
+            font-size: 12px;
+            white-space: normal;
+            height: auto;
           }
         }
-      }
-      i{
-        margin-left: 10px;
+        .cancel, .confirm{
+          position: absolute;
+          top: 20px;
+        }
+        .cancel{
+          right: 30px;
+        }
+        .confirm{
+          right: 0;
+        }
+        .edit{
+          margin-left: 15px;
+        }
       }
     }
   }
