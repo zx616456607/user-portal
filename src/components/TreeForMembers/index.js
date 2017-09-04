@@ -16,6 +16,7 @@ import difference from 'lodash/difference'
 import xor from 'lodash/xor'
 import intersection from 'lodash/intersection'
 const TreeNode = Tree.TreeNode
+import CommonSearchInput from '../CommonSearchInput'
 
 class TreeComponent extends Component {
   constructor(props) {
@@ -386,6 +387,16 @@ class TreeComponent extends Component {
       }
       return <TreeNode key={item.id} title={item.userName}/>;
     });
+    const selectProps = {
+      defaultValue: '个人',
+      selectOptions : [{
+        key: 'user',
+        value: '个人'
+      }, {
+        key: 'team',
+        value: '团队'
+      }]
+    }
     return(
       <div id='TreeForMember'>
         <div className="alertRow">可为项目中的角色关联对象，则被关联的对象在该项目中拥有此角色的权限。注：可通过添加团队的方式批量添加成员，也可单独添加某个成员参加项目。</div>
@@ -396,6 +407,11 @@ class TreeComponent extends Component {
                 <Checkbox onClick={this.selectAll}>可选{text}</Checkbox>
                 <div className='numberBox'>共 <span className='number'>{memberCount}</span> 条</div>
               </div>
+              <CommonSearchInput placeholder='请输入搜索内容' selectProps={selectProps} style={{width: '90%', margin: '10px auto', display: 'block'}}/>
+              <Row className="treeTitle">
+                <Col span={12}>对象名称</Col>
+                <Col span={12}>类型</Col>
+              </Row>
               <div className='body'>
                 <div >
                   {
