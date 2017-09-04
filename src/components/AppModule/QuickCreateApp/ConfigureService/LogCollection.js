@@ -83,11 +83,12 @@ class LogCollection extends Component {
         rules: [
           {
             validator: (rule, value, callback) => {
-              if(!value){
-                return callback('请填写排除文件规则')
-              }
-              if(value.charAt(0) !== '/' || value.charAt(value.length - 1) !== '/'){
-                return callback('请输入正确的正则表达式')
+              if(value){
+                try {
+                  const reg = new RegExp(value)
+                } catch(e) {
+                  return callback('请输入合法的正则表达式规则')
+                }
               }
               callback()
             }
@@ -138,12 +139,12 @@ class LogCollection extends Component {
         >
           <Input
             size="large"
-            placeholder="例如:/^access\.log\.[0-9\-]{10}$/"
+            placeholder="例如:^access\.temp\.[0-9\-]{10}$"
             autoComplete="off"
             className='standard'
             {...exregexProps}
           />
-          <Tooltip title="匹配正则表达式的文件将不会被监控，请排除正在写入的文件">
+          <Tooltip title="匹配正则表达式的文件将不会被监控，请排除正在写入的文件（如还未保存为 log 的 temp 文件）">
             <Icon type="question-circle-o" className='questionIcon'/>
           </Tooltip>
         </FormItem>
