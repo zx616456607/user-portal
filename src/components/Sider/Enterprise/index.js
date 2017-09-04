@@ -821,6 +821,11 @@ class Sider extends Component {
                       <Link to='/setting/personalized'>
                     <span><div className='sideCircle'></div> 个性外观</span>
                     </Link>
+                    </Menu.Item>,
+                    <Menu.Item key='cleaningTool'>
+                      <Link to='/setting/cleaningTool'>
+                        <span><div className='sideCircle'></div> 清理工具</span>
+                      </Link>
                     </Menu.Item>
                     ]
                     :

@@ -48,6 +48,9 @@ const menuList_sysAdmin = [
   },{
     url:'/setting/personalized',
     name:'个性外观'
+  },{
+    url:'/setting/cleaningTool',
+    name:'清理工具'
   }
 ]
 
