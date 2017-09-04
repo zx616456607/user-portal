@@ -522,19 +522,19 @@ class CleaningTool extends Component {
             </Row>
           </div>
           <Modal
-          	title="确认清理"
-          	visible={this.state.systemLog}
-          	closable={true}
-          	onOk={() => this.confirmCleanSystemLog()}
-          	onCancel={() => this.setState({systemLog: false})}
-          	width="570px"
-          	maskClosable={false}
-          	confirmLoading={this.state.confirmLoading}
-          	wrapClassName="cleanTool_systemLog"
+            title="确认清理"
+            visible={this.state.systemLog}
+            closable={true}
+            onOk={() => this.confirmCleanSystemLog()}
+            onCancel={() => this.setState({ systemLog: false })}
+            width="570px"
+            maskClosable={false}
+            confirmLoading={this.state.confirmLoading}
+            wrapClassName="cleanTool_systemLog"
           >
-          	<div>
+            <div>
               <Icon type="question-circle-o" className='icon_margin'/>数据清除之后无法恢复，是否确认清理？
-          	</div>
+            </div>
           </Modal>
         </div>
       </QueueAnim>
