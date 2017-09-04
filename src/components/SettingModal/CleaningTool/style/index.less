@@ -1,0 +1,191 @@
+#cleaning_tool{
+  .tool_header{
+    font-size: 16px;
+    border-left: 6px solid #2db7f5;
+    padding-left: 10px;
+    margin-bottom: 20px;
+  }
+  .tool_tabs{
+    width: 100%;
+    background: #ffffff;
+    border-radius: 5px;
+    .ant-tabs-nav-container{
+      padding-top: 20px;
+      padding-left: 20px;
+    }
+    .ant-tabs-content{
+      padding: 0 20px;
+    }
+    .img_box{
+      padding: 60px;
+      width: 210px;
+      height:180px;
+      float: left;
+    }
+    .done_box{
+      .tips{
+        padding:25px 0 20px 0;
+        .number{
+          color: #0b9eeb;
+          font-size: 18px;
+        }
+        .log{
+          color: #0b9eeb;
+        }
+      }
+
+    }
+    .handle_box{
+      float: left;
+      width: calc(~"100% - 210px");
+      height: 100%;
+      margin-top: 20px;
+      .tips{
+        margin-bottom: 18px;
+      }
+      .time_select{
+        width: 250px;
+      }
+      .select_box{
+        width: 100%;
+      }
+      .image_time_picker_box{
+        margin-top: 8px;
+        .until_done,
+        .duration,
+        .forbiden_use{
+          float: left;
+          display: inline;
+          height: 40px;
+          line-height: 40px;
+          text-align: center;
+          border: 1px solid #666;
+          cursor: pointer;
+          position: relative;
+          overflow: hidden;
+        }
+        .selected_style{
+          border-color: #0eb4ff;
+        }
+        .until_done:hover,
+        .duration:hover,
+        .forbiden_use:hover{
+          color: #57c5f7;
+          border-color: #57c5f7;
+        }
+        .img_style{
+          position: absolute;
+          top: 11px;
+          left: 12px;
+        }
+        .check_container{
+          height:24px;
+          width: 24px;
+          line-height: 12px;
+          text-align: center;
+          border-top: 12px solid #ffffff;
+          border-left: 12px solid #ffffff;
+          border-right:12px solid #0eb4ff;
+          border-bottom:12px solid #0eb4ff;
+          position: absolute;
+          right:0;
+          bottom: 0;
+          .check_icon{
+            color: #ffffff;
+            font-size: 12px;
+          }
+        }
+        .until_done{
+          width: 120px;
+          border-radius: 8px 0 0 8px;
+        }
+        .duration{
+          width: 175px;
+        }
+        .forbiden_use{
+          width: 120px;
+          border-radius: 0 8px 8px 0;
+        }
+      }
+    }
+    .checkBox{
+      clear: both;
+      margin-bottom: 20px;
+    }
+  }
+  .tool_echarts{
+    height:330px;
+    width:100%;
+    margin-top: 20px;
+    .right_box_col{
+      padding-left: 20px;
+    }
+    .left_box,
+    .right_box{
+      background: #ffffff;
+      overflow: hidden;
+      .header{
+        height:50px;
+        line-height: 50px;
+        padding-left: 17px;
+        font-size: 14px;
+        border-bottom: 1px solid #e7ecf2;
+      }
+    }
+    .right_box{
+      .logs_list{
+        height: 230px;
+        .image_box,
+        .logs{
+          float: left;
+          display: inline-block;
+        }
+        .image_box{
+          width:60px;
+          //background: greenyellow;
+          height: 100%;
+          padding: 27px 0 0 25px;
+        }
+        .logs{
+          width: calc(~"100% - 60px");
+          height: 100%;
+          font-size: 14px;
+          padding-top: 13px;
+          .item,
+          .time_item{
+            height:40px;
+            line-height: 40px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+          .item{
+            cursor: pointer;
+          }
+          .time_item{
+            text-align: right;
+            padding-right: 30px;
+          }
+        }
+      }
+      .log_record{
+        height: 50px;
+        line-height: 50px;
+        padding-left: 30px;
+        border-top: 1px solid #e7ecf2;
+        .go_record{
+          cursor: pointer;
+          color: #00A0EA;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}
+
+.cleanTool_systemLog{
+  .icon_margin{
+    margin-right: 8px;
+    color: #00a0e9;
+  }
+}

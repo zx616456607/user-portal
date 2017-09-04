@@ -36,6 +36,18 @@ const settingRoutes = [
     path: 'advancedSetting',
     component: require('../components/SettingModal/AdvancedSetting').default,
   },
+  {
+    path: 'cleaningTool',
+    component: require('../components/SettingModal/CleaningTool').default,
+  },
+  {
+    path: 'cleaningTool/cleaningRecord',
+    component: require('../components/SettingModal/CleaningTool/CleaningRecord').default,
+  },
+  {
+    path: 'cleaningTool/timingClean',
+    component: require('../components/SettingModal/CleaningTool/TimingClean').default,
+  },
 ]
 
 
