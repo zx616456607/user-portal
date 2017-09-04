@@ -184,7 +184,10 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     let item = {
       path: str,
       inregex,
-      exregex
+    }
+    if(exregex){
+      const reg  = new RegExp(exregex)
+      item.exregex = reg.toString()
     }
     if (name) {
       item.name = name
