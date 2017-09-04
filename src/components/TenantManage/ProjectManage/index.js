@@ -310,6 +310,13 @@ let ProjectManage = React.createClass({
       success: {
         func: (result) => {
           if (result.statusCode === 200) {
+            if (!result['data']) {
+              this.setState({
+                projectList: {},
+                tableLoading: false
+              })
+              return
+            }
             result.data.projects.forEach(item => {
               let role = ''
               if (item.outlineRoles) {
@@ -1069,7 +1076,7 @@ class PayTable extends Component {
     }];
     const rowSelection = {
       selectedRowKeys,
-      onChange: this.onSelectChange,
+      onChange: this.onSelectChange.bind(this),
     };
     return (
       <div className="payModal">

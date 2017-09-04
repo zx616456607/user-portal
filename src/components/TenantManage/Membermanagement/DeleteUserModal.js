@@ -11,10 +11,10 @@
  */
 
 import React from 'react'
-import { Row, Col, Table, Modal, Button, Spin, Menu } from 'antd'
+import { Row, Col, Table, Modal, Button, Spin, Menu, Tooltip, Icon } from 'antd'
 import { camelize } from 'humps'
 import { connect } from 'react-redux'
-import { loadUserTeams, loadAllUserList, teamtransfer, deleteUser } from '../../../actions/user'
+import { loadUserTeams, loadAllUserList, teamtransfer, deleteUser, loadUserList } from '../../../actions/user'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import CommonSearchInput from '../../CommonSearchInput'
 import NotificationHandler from '../../../components/Notification'
@@ -31,6 +31,8 @@ class DeleteUserModal extends React.Component {
     this.onCancel = this.onCancel.bind(this)
     this.renderHandOver = this.renderHandOver.bind(this)
     this.delMember = this.delMember.bind(this)
+    this.returnDefaultTooltip = this.returnDefaultTooltip.bind(this)
+    this.copyText = this.copyText.bind(this)
     this.state = {
       delErrorMsg: null,
       delBtnLoading: false,
@@ -131,7 +133,7 @@ class DeleteUserModal extends React.Component {
               sort: sort,
               filter: filter,
             })
-            this.setState({ delModal: false, delErrorMsg: null })
+            this.onCancel()
           },
           isAsync: true
         },
@@ -337,7 +339,7 @@ class DeleteUserModal extends React.Component {
     const { delBtnLoading, delErrorMsg, userSelectedRowKeys } = this.state
     const handOveredTeamsNum = Object.keys(userSelectedRowKeys).length
     return (
-      <Modal title="删除成员操作（@Todo: api 有问题，先别测试）"
+      <Modal title="删除成员操作"
         visible={visible}
         onCancel={this.onCancel}
         wrapClassName="deleteUserModal"
@@ -382,11 +384,11 @@ class DeleteUserModal extends React.Component {
               </Col>
             </Row>
             <div className="delErrorMsg">
-              <div className="delErrorMsgHeader" gutter={16}>
+              <div className="delErrorMsgHeader">
                 <div className="delErrorMsgText">日志</div>
                 <div className="delErrorMsgIcon">
-                  <input style={{opacity:0}} id="delErrorMsg" value={delErrorMsg} />
-                  <Tooltip title={copyStatus ? '复制成功' : '点击复制'}>
+                  <textarea style={{opacity:0, height: 10}} id="delErrorMsg" value={delErrorMsg} />
+                  <Tooltip title={this.state.copyStatus ? '复制成功' : '点击复制'}>
                     <Icon
                       type="copy"
                       onMouseLeave={this.returnDefaultTooltip}
@@ -414,8 +416,7 @@ function mapStateToProps(state) {
   const { userTeams } = state.user
   if (userTeams.result) {
     if (userTeams.result.teams) {
-      // @Todo need api support
-      // teamsData = userTeams.result.teams.filter(team => team.isAdmin)
+      teamsData = userTeams.result.teams.filter(team => team.outlineRoles && team.outlineRoles.indexOf('manager') > -1)
       teamsData = userTeams.result.teams
     }
   }
@@ -430,4 +431,5 @@ export default connect(mapStateToProps, {
   loadAllUserList,
   teamtransfer,
   deleteUser,
+  loadUserList,
 })(DeleteUserModal)

@@ -28,7 +28,7 @@ import xor from 'lodash/xor'
 import isEmpty from 'lodash/isEmpty'
 import includes from 'lodash/includes'
 import CreateRoleModal from  '../CreateRole'
-import { TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID } from '../../../../../constants'
+import { PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID } from '../../../../../constants'
 
 let checkedKeysDetail = []
 class ProjectDetail extends Component{
@@ -637,7 +637,7 @@ class ProjectDetail extends Component{
         return '参与者'
       }
     }
-    const disabledArr = [TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID]
+    const disabledArr = [PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID]
     const loop = data => data.map((item) => {
       if (item['children'] !== undefined) {
         return (

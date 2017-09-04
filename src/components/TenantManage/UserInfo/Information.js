@@ -383,6 +383,9 @@ class Information extends Component {
               [`${key}ModalVisible`]: false
             })
             loadUserDetail(userID)
+            this.setState({
+              commentEditVisible: false,
+            })
           },
           isAsync: true
         },

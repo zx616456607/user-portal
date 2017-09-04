@@ -18,7 +18,8 @@ import {
   deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
   loadTeamspaceList, loadTeamUserList, loadAllClustersList,
   deleteTeamspace, requestTeamCluster, checkTeamSpaceName,
-  loadTeamClustersList,getTeamDetail, updateTeamDetail, loadTeamAllUser
+  loadTeamClustersList,getTeamDetail, updateTeamDetail, loadTeamAllUser,
+  checkTeamName
 } from '../../../../actions/team'
 import { usersExcludeOneTeam } from '../../../../actions/user'
 import { usersAddRoles, roleWithMembers, usersLoseRoles } from '../../../../actions/role'
@@ -26,11 +27,11 @@ import { connect } from 'react-redux'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import NotificationHandler from '../../../../components/Notification'
 import CommonSearchInput from '../../../../components/CommonSearchInput'
-import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN, TEAM_MANAGE_ROLE_ID } from '../../../../../constants'
+import { TEAM_MANAGE_ROLE_ID } from '../../../../../constants'
+import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
 import includes from 'lodash/includes'
-import isEmpty from 'lodash/isEmpty'
 
 let MemberList = React.createClass({
   getInitialState() {
@@ -278,7 +279,7 @@ let MemberList = React.createClass({
           <div className="deleteMemberHint">
             <i className="fa fa-exclamation-triangle" style={{marginRight: '8px'}}/>
             {
-              transferHint ? `${userName}为改团队的管理员，将团队移交给其他成员后方可移除该成员` :
+              transferHint ? `${userName}为该团队的管理员，将团队移交给其他成员后方可移除该成员` :
               `您是否确定要移除成员 ${userName} ?`
             }
           </div>
@@ -666,39 +667,82 @@ class TeamDetail extends Component {
     })
   }
   saveTeamName() {
-    const { getFieldValue } = this.props.form;
-    const { updateTeamDetail } = this.props;
+    const { form, updateTeamDetail } = this.props
+    const { getFieldValue, validateFields } = form;
     const { teamDetail } = this.state;
     let notify = new NotificationHandler()
     let teamName = getFieldValue('teamName');
     let oldTeamName = teamDetail.teamName;
-    if (!teamName || (teamName === oldTeamName)) {return this.setState({editTeamName:false})}
-    updateTeamDetail({
-      teamID: teamDetail.teamID,
-      body: {
-        teamName: teamName
+    validateFields((errors, values) => {
+      if (!!errors) {
+        return
       }
-    },{
-      success: {
-        func: () =>{
-          notify.success('修改团队名称成功')
-          this.loadTeamDetail()
-          this.setState({
-            editTeamName: false
-          })
+      if (!teamName || (teamName === oldTeamName)) {return this.setState({editTeamName:false})}
+      updateTeamDetail({
+        teamID: teamDetail.teamID,
+        body: {
+          teamName: teamName
+        }
+      },{
+        success: {
+          func: () =>{
+            notify.success('修改团队名称成功')
+            this.loadTeamDetail()
+            this.setState({
+              editTeamName: false
+            })
+          },
+          isAsync: true
         },
-        isAsync: true
-      },
-      failed: {
-        func: () => {
-          notify.error('修改团队名称失败')
-          this.setState({
-            editTeamName: false
-          })
-        },
-        isAsync: true
-      }
+        failed: {
+          func: () => {
+            notify.error('修改团队名称失败')
+            this.setState({
+              editTeamName: false
+            })
+          },
+          isAsync: true
+        }
+      })
     })
+  }
+  teamExists(rule, value, callback) {
+    const _this = this
+    if (!value) {
+      callback([new Error('请输入团队名')])
+      return
+    }
+    if (value.length <5 || value.length > 40) {
+      callback(new Error('请输入5~40位字符'))
+      return
+    }
+    const { checkTeamName } = this.props
+    if (!USERNAME_REG_EXP_NEW.test(value)) {
+      callback(new Error('以[a~z]开头，允许[0~9]、[-]，长度大于4，且以小写英文和数字结尾'))
+      return
+    }
+    
+    clearTimeout(this.teamExistsTimeout)
+    this.teamExistsTimeout = setTimeout(() => {
+      checkTeamName(value, {
+        success: {
+          func: (result) => {
+            if (result.data) {
+              callback(new Error('团队名称已被占用，请修改后重试'))
+              return
+            }
+            callback()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            return callback(new Error('团队名校验失败'))
+          },
+          isAsync: true
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
   }
   filterUsers(value) {
     const { currentOption } = this.state;
@@ -736,7 +780,7 @@ class TeamDetail extends Component {
       teamUsersTotal, removeTeamusers,loadTeamClustersList,
       loadTeamUserList, form, loadTeamAllUser, roleNum
     } = this.props
-    const { getFieldProps } = form
+    const { getFieldProps, getFieldError, isFieldValidating } = form
     const { targetKeys, teamDetail, selectLeader, editTeamName, delLeaderName } = this.state
     const leaderRowSelction = {
       type: 'radio',
@@ -753,7 +797,7 @@ class TeamDetail extends Component {
       dataIndex: 'globalStyle',
       key: 'globalStyle',
       width: '50%',
-      render: (text, record) => record.partialStyle ? ecord.partialStyle === '团队管理员' ? `${text}（团队管理员）` : text : text
+      render: (text, record) => record.partialStyle ? record.partialStyle === '团队管理员' ? `${text}（团队管理员）` : text : text
     }]
     const selectProps = {
       selectOptions: [
@@ -786,9 +830,20 @@ class TeamDetail extends Component {
                 <div className="teamName">
                   {
                     editTeamName ?
-                      <Input size="large" type="textarea" placeholder="团队名称" {...getFieldProps('teamName',{
-                        initialValue: teamDetail.teamName
-                      })}/>
+                      <Form.Item
+                        hasFeedback
+                        help={isFieldValidating('teamName') ? '校验中...' : (getFieldError('teamName') || []).join(', ')}
+                        key='nameInputForm'
+                      >
+                        <Input key='nameInput' autoComplete='off' placeholder="团队名称" id="teamInput" type='textarea'
+                         {...getFieldProps('teamName',{
+                           rules: [
+                             { validator: this.teamExists.bind(this) },
+                           ],
+                           initialValue: teamDetail.teamName
+                         })}
+                        />
+                      </Form.Item>
                       :
                       <span>{teamDetail.teamName}</span>
                   }
@@ -797,15 +852,15 @@ class TeamDetail extends Component {
                     editTeamName ?
                       [
                         <Tooltip title="取消">
-                          <i className="anticon anticon-minus-circle-o pointer" onClick={()=> this.cancelEdit()}/>
+                          <i className="anticon anticon-minus-circle-o pointer cancel" onClick={()=> this.cancelEdit()}/>
                         </Tooltip>,
                         <Tooltip title="保存">
-                          <i className="anticon anticon-save pointer" onClick={()=> this.saveTeamName()}/>
+                          <i className="anticon anticon-save pointer confirm" onClick={()=> this.saveTeamName()}/>
                         </Tooltip>
                       ] :
                         roleNum !== 3 &&
                         <Tooltip title="编辑">
-                          <i className="anticon anticon-edit pointer" onClick={()=> this.editTeamName()}/>
+                          <i className="anticon anticon-edit pointer edit" onClick={()=> this.editTeamName()}/>
                         </Tooltip>
                   }
                 </div>
@@ -1056,5 +1111,6 @@ export default connect(mapStateToProp, {
   updateTeamDetail,
   roleWithMembers,
   usersLoseRoles,
-  loadTeamAllUser
+  loadTeamAllUser,
+  checkTeamName
 })(Form.create()(TeamDetail))

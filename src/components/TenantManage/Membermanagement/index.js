@@ -145,19 +145,30 @@ let MemberTable = React.createClass({
         isSetFilter = true
       }
     }
+    if (filters.active) {
+      if (filters.active.length == 1) {
+        if (filter) {
+          filter += `,active,${filters.active[0]}`
+        } else {
+          filter = `active,${filters.active[0]}`
+        }
+        isSetFilter = true
+      }
+    }
     if (isSetFilter) {
       return filter
     }
-    return protoDate.concat(typeData)
+    return ''
   },
   onTableChange(pagination, filters, sorter) {
     // 点击分页、筛选、排序时触发
-    if (!filters.style && !filters.type) {
+    if (!filters.style && !filters.type && !filters.active) {
       return
     }
     let styleFilterStr = filters.style ? filters.style.toString() : ''
     let typeFilterStr = filters.type ? filters.type.toString() : ''
-    if (styleFilterStr === this.styleFilter && typeFilterStr == this.typeFilterStr) {
+    let activeFilterStr = filters.active ? filters.active.toString() : ''
+    if (styleFilterStr === this.styleFilter && typeFilterStr == this.typeFilterStr && activeFilterStr == this.activeFilterStr) {
       return
     }
     const { scope } = this.props
@@ -177,6 +188,7 @@ let MemberTable = React.createClass({
     loadUserList(query)
     this.styleFilter = styleFilterStr
     this.typeFilterStr = typeFilterStr
+    this.activeFilterStr = activeFilterStr
   },
   onSelectChange(selectedRowKeys) {
     const { scope } = this.props
@@ -327,7 +339,7 @@ let MemberTable = React.createClass({
       { text: '系统管理员', value: 2 }
     ]
     let userStatusfilterKey = [
-      { text: '不可用', value: 2 },
+      { text: '不可用', value: DEACTIVE },
       { text: '可用', value: 1 },
     ]
     // if (userDetail.role === ROLE_SYS_ADMIN) {
@@ -802,9 +814,7 @@ class Membermanagement extends Component {
               }
             </div>
             <div className="alertRow">
-              该成员不属于任何项目与团队，且无创建项目与团队权限。
-              <p>1. 可将该成员添加到某团队；或将该成员添加到某项目中，并授予角色。</p>
-              <p>2. 可在团队列表页将该成员授予可创建团队权限，或在项目列表页将该成员授予可创建项目权限。</p>
+              可将该成员添加到某团队；或将该成员添加到某项目中，并授予角色。
             </div>
           </Modal>
           <div className="total">共计 {this.props.total} 条&nbsp; </div>
