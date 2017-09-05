@@ -42,10 +42,10 @@ class TreeComponent extends Component {
     this.getExistMember(outPermissionInfo,existMember)
   }
   componentWillReceiveProps(nextProps) {
-    const { connectModal, existMember, outPermissionInfo } = nextProps;
-    if (!this.props.connectModal && connectModal) {
+    const { connectModal, existMember, outPermissionInfo, memberType } = nextProps;
+    // if ((!this.props.connectModal && connectModal) || (memberType !== this.props.memberType)) {
       this.getExistMember(outPermissionInfo,existMember)
-    }
+    // }
     if (this.props.connectModal && !connectModal) {
       this.setState({
         expandedKeys: [],
@@ -366,9 +366,15 @@ class TreeComponent extends Component {
       })
     }
   }
+  getSelected = value => {
+    const { changeSelected } = this.props
+    if (changeSelected) {
+      changeSelected(value)
+    }
+  }
   render() {
     const { outPermissionInfo, permissionInfo, disableCheckArr, alreadyAllChecked } = this.state
-    const { text, memberCount, roleMember } = this.props
+    const { text, memberCount, roleMember, modalStatus, clearInput, filterUser } = this.props
     const loopFunc = data => data.length >0 && data.map((item) => {
       if (item.users) {
         return (
@@ -407,7 +413,14 @@ class TreeComponent extends Component {
                 <Checkbox onClick={this.selectAll}>可选{text}</Checkbox>
                 <div className='numberBox'>共 <span className='number'>{memberCount}</span> 条</div>
               </div>
-              <CommonSearchInput placeholder='请输入搜索内容' selectProps={selectProps} style={{width: '90%', margin: '10px auto', display: 'block'}}/>
+              <CommonSearchInput
+                getOption={this.getSelected}
+                onSearch={filterUser}
+                placeholder='请输入搜索内容'
+                selectProps={selectProps}
+                modalStatus={modalStatus}
+                clearInput={clearInput}
+                style={{width: '90%', margin: '10px auto', display: 'block'}}/>
               <Row className="treeTitle">
                 <Col span={12}>对象名称</Col>
                 <Col span={12}>类型</Col>

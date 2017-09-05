@@ -66,7 +66,9 @@ class ProjectDetail extends Component{
       currentDeleteRole: {},
       deleteClusterModal: false,
       totalMemberCount: 0,
-      roleMember: 0
+      roleMember: 0,
+      clearInput: false,
+      memberType: 'user'
     }
   }
   componentWillMount() {
@@ -411,18 +413,25 @@ class ProjectDetail extends Component{
       })
     })
   }
-  getProjectMember() {
+  getProjectMember(type, name) {
     const { GetProjectsMembers } = this.props;
-    GetProjectsMembers({type: 'user'},{
+    let query = {type}
+    if (name) {
+      query = Object.assign(query, {filter: `name,${name}`})
+    }
+    
+    GetProjectsMembers(query, {
       success: {
         func: (res) => {
           if (res.statusCode === 200) {
-            let newArr = res.data.iteams
+            let newArr = res.data.iteams || []
             this.formatMember(newArr)
             this.setState({
               memberArr: newArr,
               totalMemberCount: res.data.listMeta.total,
-              connectModal:true
+              connectModal:true,
+              memberType: type,
+              clearInput: true
             })
           }
         },
@@ -510,7 +519,9 @@ class ProjectDetail extends Component{
   }
   closeMemberModal() {
     this.setState({
-      connectModal: false
+      connectModal: false,
+      clearInput: true,
+      memberType: 'user'
     })
   }
   submitMemberModal() {
@@ -520,7 +531,9 @@ class ProjectDetail extends Component{
     let add = intersection(selectedMembers,diff)
     if (!del.length && !add.length) {
       this.setState({
-        connectModal: false
+        connectModal: false,
+        clearInput: true,
+        memberType: 'user'
       })
     } else if (del.length && !add.length) {
       this.delMember(del,true)
@@ -549,7 +562,9 @@ class ProjectDetail extends Component{
             this.getCurrentRole(currentRoleInfo.id)
             notify.success('关联对象操作成功')
             this.setState({
-              connectModal: false
+              connectModal: false,
+              clearInput: true,
+              memberType: 'user'
             })
           }
         },
@@ -560,7 +575,9 @@ class ProjectDetail extends Component{
           if (flag) {
             notify.error('关联对象操作失败')
             this.setState({
-              connectModal: false
+              connectModal: false,
+              clearInput: true,
+              memberType: 'user'
             })
           }
         },
@@ -586,7 +603,9 @@ class ProjectDetail extends Component{
             this.getCurrentRole(currentRoleInfo.id)
             notify.success('关联对象操作成功')
             this.setState({
-              connectModal: false
+              connectModal: false,
+              clearInput: true,
+              memberType: 'user'
             })
           }
         },
@@ -597,7 +616,9 @@ class ProjectDetail extends Component{
           if (flag) {
             notify.success('关联对象操作成功')
             this.setState({
-              connectModal: false
+              connectModal: false,
+              clearInput: true,
+              memberType: 'user'
             })
           }
         },
@@ -610,17 +631,12 @@ class ProjectDetail extends Component{
       selectedMembers: member
     })
   }
-  relateMember() {
-    const { memberArr } = this.state;
-    if (!memberArr.length) {
-      this.getProjectMember()
-    } else {
-      this.setState({connectModal:true})
-    }
+  changeMemberType = value => {
+    this.getProjectMember(value)
   }
   render() {
-    const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys,
-      currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount } = this.state;
+    const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
+      currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount, clearInput } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum } = this.props;
     const { getFieldProps } = form;
@@ -1089,6 +1105,11 @@ class ProjectDetail extends Component{
                 roleMember={memberCount}
                 connectModal={connectModal}
                 getTreeRightData={this.updateCurrentMember.bind(this)}
+                changeSelected={this.changeMemberType}
+                modalStatus={connectModal}
+                clearInput={clearInput}
+                memberType={memberType}
+                filterUser={(value) => this.getProjectMember(memberType, value)}
               />
             }
           </Modal>
@@ -1132,7 +1153,7 @@ class ProjectDetail extends Component{
                     <div className="memberTitle">
                       <span>该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
                       {
-                        roleNum !== 3 && currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.relateMember()}>继续关联对象</Button>
+                        roleNum !== 3 && currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.getProjectMember('user')}>继续关联对象</Button>
                       }
                     </div>
                     <div className="memberTableBox">
@@ -1145,7 +1166,7 @@ class ProjectDetail extends Component{
                             {loopFunc(currentMembers)}
                           </Tree>
                           :
-                          roleNum !== 3 && <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.relateMember()}>关联对象</Button>
+                          roleNum !== 3 && <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.getProjectMember('user')}>关联对象</Button>
                       }
                     </div>
                   </div>
