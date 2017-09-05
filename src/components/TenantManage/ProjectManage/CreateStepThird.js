@@ -36,7 +36,9 @@ class CreateStepThird extends Component{
       currentRolePermission: [],
       memberArr: [],
       roleMap: {},
-      memberCount: 0
+      memberCount: 0,
+      clearInput: false,
+      memberType: 'user'
     }
   }
   componentWillMount() {
@@ -81,18 +83,25 @@ class CreateStepThird extends Component{
       form.resetFields()
     }
   }
-  getProjectMember() {
+  getProjectMember(type, name) {
     const { GetProjectsMembers } = this.props;
-    GetProjectsMembers({type: 'user'},{
+    let query = {type}
+    if (name) {
+      query = Object.assign(query, {filter: `name,${name}`})
+    }
+    
+    GetProjectsMembers(query, {
       success: {
         func: (res) => {
           if (res.statusCode === 200) {
-            let newArr = res.data.iteams
+            let newArr = res.data.iteams || []
             this.formatMember(newArr)
             this.setState({
               memberArr: newArr,
-              memberCount: res.data.listMeta.total,
-              connectModal:true
+              totalMemberCount: res.data.listMeta.total,
+              connectModal:true,
+              memberType: type,
+              clearInput: true
             })
           }
         },
@@ -130,7 +139,10 @@ class CreateStepThird extends Component{
     this.setState({ selectedKeys });
   }
   closeModal() {
-    this.setState({connectModal: false})
+    this.setState({
+      connectModal: false,
+      clearInput: true
+    })
   }
   submitModal() {
     const { roleMap } = this.state;
@@ -138,7 +150,10 @@ class CreateStepThird extends Component{
     scope.setState({
       roleWithMember:roleMap
     },()=>{
-      this.setState({connectModal: false})
+      this.setState({
+        connectModal: false,
+        clearInput: true
+      })
     })
   }
   filterOption(inputValue, option) {
@@ -225,20 +240,10 @@ class CreateStepThird extends Component{
     }
     return a
   }
-  relateMember() {
-    const { memberArr } = this.state;
-    if (!memberArr.length) {
-      this.getProjectMember()
-    } else {
-      this.setState({
-        connectModal:true
-      })
-    }
-  }
   render() {
     const { scope, form } = this.props;
     const TreeNode = Tree.TreeNode;
-    const { currentRolePermission, currentRoleInfo, memberArr, connectModal, roleMap, memberCount } = this.state;
+    const { currentRolePermission, currentRoleInfo, memberArr, connectModal, roleMap, memberCount, clearInput, memberType } = this.state;
     let currentId = currentRoleInfo && currentRoleInfo.id
     const projectNameLayout = {
       labelCol: { span: 4 },
@@ -308,7 +313,7 @@ class CreateStepThird extends Component{
                 <div className="memberTitle">
                   <span>该角色已关联 <span className="themeColor">{this.state[`member${currentId}`] && this.state[`member${currentId}`].length || 0}</span> 个对象</span>
                   {
-                    this.state[`member${currentId}`] && this.state[`member${currentId}`].length > 0 && <Button type="primary" size="large" onClick={()=> this.relateMember()}>继续关联对象</Button>
+                    this.state[`member${currentId}`] && this.state[`member${currentId}`].length > 0 && <Button type="primary" size="large" onClick={()=> this.getProjectMember('user')}>继续关联对象</Button>
                   }
                 </div>
                 <div className="memberTableBox">
@@ -321,7 +326,7 @@ class CreateStepThird extends Component{
                         {loopFunc(this.state[`member${currentId}`])}
                       </Tree>
                       :
-                      <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.relateMember()}>关联对象</Button>
+                      <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.getProjectMember('user')}>关联对象</Button>
                   }
                 </div>
               </div>
@@ -334,6 +339,11 @@ class CreateStepThird extends Component{
         >
           <TreeComponent
              outPermissionInfo={memberArr}
+             changeSelected={this.getProjectMember.bind(this)}
+             modalStatus={connectModal}
+             clearInput={clearInput}
+             memberType={memberType}
+             filterUser={(value) => this.getProjectMember(memberType, value)}
              permissionInfo={[]}
              existMember={roleMap[currentId] || []}
              text='成员'
