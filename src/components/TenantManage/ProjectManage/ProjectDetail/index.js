@@ -190,7 +190,8 @@ class ProjectDetail extends Component{
   }
   saveComment() {
     const { getFieldValue, setFieldsValue } = this.props.form;
-    const { UpdateProjects } = this.props;
+    const { name } = this.props.location.query;
+    const { UpdateProjects, GetProjectsDetail } = this.props;
     const { projectDetail } = this.state;
     let notify = new Notification()
     let comment = getFieldValue('comment');
@@ -206,8 +207,20 @@ class ProjectDetail extends Component{
         func: (res) =>{
           if (res.statusCode === 200) {
             notify.success('修改备注成功')
-            this.getProjectDetail()
-            this.setState({editComment:false})
+            GetProjectsDetail({
+              projectsName: name
+            }, {
+              success: {
+                func: res => {
+                  this.setState({
+                    projectDetail: res.data,
+                    comment: res.data.description,
+                    editComment:false
+                  })
+                },
+                isAsync: true
+              }
+            })
           }
         },
         isAsync: true
