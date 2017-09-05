@@ -43,9 +43,9 @@ class TreeComponent extends Component {
   }
   componentWillReceiveProps(nextProps) {
     const { connectModal, existMember, outPermissionInfo, memberType } = nextProps;
-    // if ((!this.props.connectModal && connectModal) || (memberType !== this.props.memberType)) {
+    if ((!this.props.connectModal && connectModal) || (memberType !== this.props.memberType)) {
       this.getExistMember(outPermissionInfo,existMember)
-    // }
+    }
     if (this.props.connectModal && !connectModal) {
       this.setState({
         expandedKeys: [],
