@@ -673,11 +673,11 @@ class TeamDetail extends Component {
     let notify = new NotificationHandler()
     let teamName = getFieldValue('teamName');
     let oldTeamName = teamDetail.teamName;
+    if (!teamName || (teamName === oldTeamName)) {return this.setState({editTeamName:false})}
     validateFields((errors, values) => {
       if (!!errors) {
         return
       }
-      if (!teamName || (teamName === oldTeamName)) {return this.setState({editTeamName:false})}
       updateTeamDetail({
         teamID: teamDetail.teamID,
         body: {
@@ -707,7 +707,6 @@ class TeamDetail extends Component {
     })
   }
   teamExists(rule, value, callback) {
-    const _this = this
     if (!value) {
       callback([new Error('请输入团队名')])
       return
