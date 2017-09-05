@@ -116,7 +116,7 @@ const ConfigMapSetting = React.createClass({
   },
   renderConfigMapItem(key) {
     const { form, configGroupList, selectOptions, defaultSelectValue } = this.props
-    const { getFieldProps, getFieldValue } = form
+    const { getFieldProps, getFieldValue, setFieldsValue } = form
     const keyValue = key.value
     const configMapSubPathValuesKey = `configMapSubPathValues${keyValue}`
     if (key.deleted) {
@@ -238,7 +238,7 @@ const ConfigMapSetting = React.createClass({
     )
   },
   addConfigMapKey() {
-    const { form } = this.props
+    const { form, defaultSelectValue } = this.props
     const { setFieldsValue, getFieldValue, validateFields } = form
     let configMapKeys = getFieldValue('configMapKeys') || []
     const validateFieldsKeys = []
@@ -266,6 +266,7 @@ const ConfigMapSetting = React.createClass({
       setFieldsValue({
         configMapKeys,
         [`configMapIsWholeDir${uid}`]: false,
+        [`configGroupName${uid}`]: defaultSelectValue
       })
     })
   },
@@ -389,7 +390,11 @@ function mapStateToProps(state, props) {
   const { configGroup } = configGroupList[cluster.clusterID] || defaultConfigList
   let labels = []
   configGroup.length > 0 && configGroup.forEach(item => {
-    labels = labels.concat(item.annotations)
+    if (item.annotations.length) {
+      labels = labels.concat(item.annotations)
+    } else if (!labels.includes('未配置分类组')) {
+      labels = labels.concat(['未分类配置组'])
+    }
   })
   let selectOptions = []
   for (let i = 0; i < labels.length; i++) {
@@ -413,7 +418,7 @@ function mapStateToProps(state, props) {
   selectOptions.forEach(item => {
     let children = []
     configGroup.forEach(record => {
-      if (includes(record.annotations,item.value)) {
+      if (includes(record.annotations,item.value) || (!record.annotations.length && item.value === '未分类配置组')) {
         children.push({
           value: record.name,
           label: record.name,
