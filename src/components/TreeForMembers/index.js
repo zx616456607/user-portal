@@ -16,6 +16,7 @@ import difference from 'lodash/difference'
 import xor from 'lodash/xor'
 import intersection from 'lodash/intersection'
 const TreeNode = Tree.TreeNode
+import CommonSearchInput from '../CommonSearchInput'
 
 class TreeComponent extends Component {
   constructor(props) {
@@ -41,10 +42,10 @@ class TreeComponent extends Component {
     this.getExistMember(outPermissionInfo,existMember)
   }
   componentWillReceiveProps(nextProps) {
-    const { connectModal, existMember, outPermissionInfo } = nextProps;
-    if (!this.props.connectModal && connectModal) {
+    const { connectModal, existMember, outPermissionInfo, memberType } = nextProps;
+    // if ((!this.props.connectModal && connectModal) || (memberType !== this.props.memberType)) {
       this.getExistMember(outPermissionInfo,existMember)
-    }
+    // }
     if (this.props.connectModal && !connectModal) {
       this.setState({
         expandedKeys: [],
@@ -365,9 +366,15 @@ class TreeComponent extends Component {
       })
     }
   }
+  getSelected = value => {
+    const { changeSelected } = this.props
+    if (changeSelected) {
+      changeSelected(value)
+    }
+  }
   render() {
     const { outPermissionInfo, permissionInfo, disableCheckArr, alreadyAllChecked } = this.state
-    const { text, memberCount, roleMember } = this.props
+    const { text, memberCount, roleMember, modalStatus, clearInput, filterUser } = this.props
     const loopFunc = data => data.length >0 && data.map((item) => {
       if (item.users) {
         return (
@@ -386,6 +393,16 @@ class TreeComponent extends Component {
       }
       return <TreeNode key={item.id} title={item.userName}/>;
     });
+    const selectProps = {
+      defaultValue: '个人',
+      selectOptions : [{
+        key: 'user',
+        value: '个人'
+      }, {
+        key: 'team',
+        value: '团队'
+      }]
+    }
     return(
       <div id='TreeForMember'>
         <div className="alertRow">可为项目中的角色关联对象，则被关联的对象在该项目中拥有此角色的权限。注：可通过添加团队的方式批量添加成员，也可单独添加某个成员参加项目。</div>
@@ -396,6 +413,18 @@ class TreeComponent extends Component {
                 <Checkbox onClick={this.selectAll}>可选{text}</Checkbox>
                 <div className='numberBox'>共 <span className='number'>{memberCount}</span> 条</div>
               </div>
+              <CommonSearchInput
+                getOption={this.getSelected}
+                onSearch={filterUser}
+                placeholder='请输入搜索内容'
+                selectProps={selectProps}
+                modalStatus={modalStatus}
+                clearInput={clearInput}
+                style={{width: '90%', margin: '10px auto', display: 'block'}}/>
+              <Row className="treeTitle">
+                <Col span={12}>对象名称</Col>
+                <Col span={12}>类型</Col>
+              </Row>
               <div className='body'>
                 <div >
                   {
