@@ -835,7 +835,7 @@ class TeamDetail extends Component {
                         help={isFieldValidating('teamName') ? '校验中...' : (getFieldError('teamName') || []).join(', ')}
                         key='nameInputForm'
                       >
-                        <Input key='nameInput' autoComplete='off' placeholder="团队名称" id="teamInput" type='textarea'
+                        <Input key='nameInput' autoComplete='off' placeholder="团队名称" className="teamInput" type='textarea'
                          {...getFieldProps('teamName',{
                            rules: [
                              { validator: this.teamExists.bind(this) },
