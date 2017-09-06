@@ -113,7 +113,17 @@ let FistStop = React.createClass({
   },
   firstForm() {
     const { funcs, form, setParentState } = this.props
-    form.validateFields((error, values) => {
+    const validateArray = [
+      'name',
+      'type',
+      'apply',
+      'interval',
+    ]
+    const typeValue = form.getFieldValue('type')
+    if(typeValue == 'service'){
+      validateArray.push('server')
+    }
+    form.validateFields(validateArray, (error, values) => {
       if (!!error) {
         return
       }
@@ -302,6 +312,7 @@ let FistStop = React.createClass({
       })
     }
 
+    const typevalue = this.props.form.getFieldValue("type")
     return (
       <Form className="paramsSetting">
         <Form.Item label="名称" {...ItemLayout} validateStatus={this.state.checkName} hasFeedback>
@@ -332,7 +343,7 @@ let FistStop = React.createClass({
           </Select>
         </Form.Item>
 
-       {!isNode ?
+       {typevalue == 'service' ?
         <Form.Item label="监控服务" {...ItemLayout}>
           <Select placeholder="请选择服务" {...serverProps} >
             {this.getServiceList()}
