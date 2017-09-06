@@ -27,6 +27,7 @@ const serviceIndex = require('../services')
 const registryConfigLoader = require('../registry/registryConfigLoader')
 const initGlobalConfig = require('../services/init_global_config')
 const securityUtil = require('../utils/security')
+const sessionService = require('../services/session')
 const _ = require('lodash')
 
 /*
@@ -105,9 +106,21 @@ exports.getUsers = function* () {
     total = result.listMeta.total
   }
 
+  // get users is online
+  const sessionUsers = yield sessionService.getAllSessions()
+  users.map(user => {
+    for (let i = 0; i < sessionUsers.length; i++) {
+      if (user.userID === sessionUsers[i].loginUser.id) {
+        user.online = true
+        return
+      }
+    }
+  })
+
   this.body = {
     users,
-    total
+    total,
+    onlineTotal: sessionUsers.length,
   }
 }
 
