@@ -41,7 +41,7 @@ class AddClusterOrNodeModalContent extends Component {
       <div id="AddClusterOrNodeModalContent">
         <div style={{paddingBottom: '15px'}}>
           1. 先根据您的操作系统安装最新版本 Docker
-          （<a target="_blank" href="https://docs.docker.com/engine/installation/linux/">如何在Linux安装Docker</a>）
+          （<a target="_blank" href="https://docs.docker.com/engine/installation/">如何在Linux安装Docker</a>）
         </div>
         <div>
           2. 请在安装好 Docker 的主机上执行以下命令：
