@@ -421,10 +421,10 @@ class TreeComponent extends Component {
                 modalStatus={modalStatus}
                 clearInput={clearInput}
                 style={{width: '90%', margin: '10px auto', display: 'block'}}/>
-              <Row className="treeTitle">
-                <Col span={12}>对象名称</Col>
-                <Col span={12}>类型</Col>
-              </Row>
+              {/*<Row className="treeTitle">*/}
+                {/*<Col span={12}>对象名称</Col>*/}
+                {/*<Col span={12}>类型</Col>*/}
+              {/*</Row>*/}
               <div className='body'>
                 <div >
                   {
