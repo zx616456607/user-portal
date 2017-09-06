@@ -20,8 +20,10 @@ import mappingImg from '../../assets/img/integration/mapping.svg'
 import sketchImg from '../../assets/img/integration/Sketch.png'
 import './style/NetworkConfiguration.less'
 import { IP_REGEX, HOST_REGEX } from '../../../constants'
+import { genRandomString } from '../../common/tools'
 
 const Option = Select.Option
+const FormItem = Form.Item
 
 let formadd=1;
 let validing = false
@@ -43,6 +45,8 @@ let NetworkConfiguration = React.createClass ({
       deleteDefaultGroup: false,
       currentItem: {},
       defaultGroup: undefined,
+      lbgroupInputId: `lbgroup${genRandomString('0123456789',4)}`,
+      copyCMDSuccess: false,
     }
   },
   componentWillMount(){
@@ -411,8 +415,8 @@ let NetworkConfiguration = React.createClass ({
         <Row style={{width: '100%'}}>
           <Col xs={{span: 11}} style={{paddingRight: '10px'}}>
             <Form.Item>
-              { editCluster ?
-                <Select {...getFieldProps(`nodeSelect-${networkKey}-${item}`, {
+              <Select
+                {...getFieldProps(`nodeSelect-${networkKey}-${item}`, {
                   initialValue: nodes && nodes[item] ? nodes[item].host : undefined,
                   rules: [{
                     validator: (rule, value, callback) => {
@@ -427,17 +431,18 @@ let NetworkConfiguration = React.createClass ({
                     }
                   }],
                   onChange:(value) => this.nodeChange(value, networkKey, item)
-                })}  placeholder="选择服务节点">
+                  })}
+                  placeholder="选择服务节点"
+                  disabled={!editCluster}
+                >
                   {this.getSelectItem()}
-                </Select> :
-                <span>{nodes && nodes[item] ? nodes[item].host : ''}</span>
-              }
+                </Select>
             </Form.Item>
           </Col>
           <Col xs={{span: 11}} style={{paddingRight:'10px'}}>
             <Form.Item>
-              { editCluster ?
-                <Input {...getFieldProps(`nodeIP-${config.key}-${item}`,{
+              <Input
+                {...getFieldProps(`nodeIP-${config.key}-${item}`,{
                   initialValue: nodes && nodes[item] ? nodes[item].address : undefined,
                   rules: [
                     {
@@ -456,11 +461,10 @@ let NetworkConfiguration = React.createClass ({
                       }
                     }
                   ]
-                })
-                } placeholder="输入服务出口 IP" />
-                :
-                <span>{nodes && nodes[item] ? nodes[item].address : ''}</span>
-              }
+                })}
+                placeholder="输入服务出口 IP"
+                disabled={!editCluster}
+              />
             </Form.Item>
 
           </Col>
@@ -654,6 +658,15 @@ let NetworkConfiguration = React.createClass ({
     })
     form.resetFields(['defaultSetting'])
   },
+  copyOrder(id) {
+    //this function for user click the copy btn and copy the download code
+    const code = document.getElementById(`${this.state.lbgroupInputId}${id}`)
+    code.select()
+    document.execCommand('Copy',false)
+    this.setState({
+      copyCMDSuccess: true,
+    })
+  },
   render (){
     const { cluster, form, clusterProxy } = this.props
     const { editCluster, saveBtnLoading, sketchshow } = this.state
@@ -693,6 +706,10 @@ let NetworkConfiguration = React.createClass ({
         </div>
       ]
     } else {
+      const formItemLayout = {
+        labelCol: { span: 7 },
+        wrapperCol: { span: 17 }
+      }
       networkConfigList = networkConfigArray.map((item,index) => {
         if(item == 0){
           return <div></div>
@@ -772,83 +789,89 @@ let NetworkConfiguration = React.createClass ({
           </Col>
           <Col xs={{span:10}}>
             <div className="formItem extranet">
-              <Row className='publickItemTitle'>
-                <Col span="11">
-                  类型
+              {
+                data[item.key] && data[item.key].id
+                ? <Row style={{marginBottom: '20px'}}>
+                    <Col span="7">出口ID</Col>
+                    <Col span="17">
+                      {data[item.key].id}
+                      <Tooltip title={this.state.copyCMDSuccess ? '复制成功': '点击复制'}>
+                        <a
+                          className={this.state.copyCMDSuccess ? "actions copyBtn": "copyBtn"}
+                          onClick={() => this.copyOrder(data[item.key].id)}
+                          onMouseLeave={() => setTimeout(() => this.setState({ copyCMDSuccess: false }),500)}
+                        >
+                          <Icon type="copy" style={{ marginLeft: 8 }}/>
+                        </a>
+                      </Tooltip>
+                      <input
+                        id={`${this.state.lbgroupInputId}${data[item.key].id}`}
+                        style={{ position: "absolute",opacity: "0",top: '0' }}
+                        value={data[item.key].id}
+                      />
+                    </Col>
+                  </Row>
+                : null
+              }
+              <FormItem
+                label={<span> 类型
                   <span style={{color: 'red'}}>*</span>
                   <Tooltip title='该类型决定该网络出口在创建服务时出现在哪种服务访问方式中'>
                     <Icon type="question-circle-o" className='qustionIcon'/>
                   </Tooltip>
                   { this.typeIcon(networkType)}
-                </Col>
-                <Col span="11">
-                  名称
-                  {this.titleStar(networkType)}
+                </span>}
+                {...formItemLayout}
+              >
+                <Select
+                  {...getFieldProps(`networkType${item.key}`,{
+                    initialValue: data[item.key] && data[item.key].type ? data[item.key].type : undefined,
+                    rules:[{required: true, message: '网络类型不能为空'}]
+                  })}
+                  disabled={!editCluster}
+                >
+                  <Option value="public" key="public">公网</Option>
+                  <Option value="private" key="private">内网</Option>
+                  {/*<Option value="incluster" key="incluster">不填写</Option>*/}
+                </Select>
+              </FormItem>
+              <FormItem
+                label={<span> 名称
+                  <span style={{color: 'red'}}>*</span>
                   <Tooltip title='建议名称能体现出内网或公网，供创建服务时选择服务访问类型用'>
                     <Icon type="question-circle-o" className='qustionIcon'/>
                   </Tooltip>
-                </Col>
-              </Row>
-
-              <Row>
-                <Col span="11" className='publicItem'>
-                  {
-                    editCluster
-                      ? <Form.Item>
-                      <Select {...getFieldProps(`networkType${item.key}`,{
-                        initialValue: data[item.key] && data[item.key].type ? data[item.key].type : undefined,
-                        rules:[{required: true, message: '网络类型不能为空'}]
-                      })}>
-                        <Option value="public" key="public">公网</Option>
-                        <Option value="private" key="private">内网</Option>
-                        {/*<Option value="incluster" key="incluster">不填写</Option>*/}
-                      </Select>
-                    </Form.Item>
-                      : <div className='value'>{ data[item.key] && data[item.key].type ? this.networkTypeText(data[item.key].type) : ''}</div>
-                  }
-                </Col>
-                <Col span="11" className='publicItem'>
-                  {
-                    editCluster
-                      ? <Form.Item>
-                      <Input placeholder={ networkType == 'incluster' ? '无需填写' : '填写网络代理名称'} {...nameProps} disabled={networkType == 'incluster'}/>
-                    </Form.Item>
-                      : <div className='value'>{data[item.key] && data[item.key].name ? data[item.key].name : ''}</div>
-                  }
-                </Col>
-              </Row>
-
-              <Row className='publickItemTitle'>
-                <Col span="11">
-                  服务出口 IP
-                  {this.titleStar(networkType)}
-                </Col>
-                <Col span="11">
-                  服务域名配置（可选）
-                </Col>
-              </Row>
-
-              <Row>
-                <Col span="11" className='publicItem'>
-                  {
-                    editCluster
-                      ? <Form.Item>
-                      <Input placeholder={ networkType == 'incluster' ? '无需填写' : '可访问服务的内网IP'} {...addressProps} disabled={networkType == 'incluster'}
-                      />
-                    </Form.Item>
-                      : <div className='value'>{data[item.key] && data[item.key].address ? data[item.key].address : ''}</div>
-                  }
-                </Col>
-                <Col span="11" className='publicItem'>
-                  {
-                    editCluster
-                      ? <Form.Item>
-                      <Input placeholder={ networkType == 'incluster' ? '无需填写' : '服务访问地址的域名'} {...domainProps} disabled={networkType == 'incluster'}/>
-                    </Form.Item>
-                      : <div className='value'>{data[item.key] && data[item.key].domain ? data[item.key].domain : ''}</div>
-                  }
-                </Col>
-              </Row>
+                </span>}
+                {...formItemLayout}
+              >
+                <Input
+                  placeholder='填写网络代理名称'
+                  {...nameProps}
+                  disabled={!editCluster || networkType == 'incluster'}
+                />
+              </FormItem>
+              <FormItem
+                label={<span> 服务出口 IP
+                  <span style={{color: 'red'}}>*</span>
+                </span>}
+                {...formItemLayout}
+              >
+                <Input
+                  placeholder={ networkType == 'incluster' ? '无需填写' : '可访问服务的内网IP'}
+                  {...addressProps}
+                  disabled={networkType == 'incluster' || !editCluster}
+                />
+              </FormItem>
+              <FormItem
+                label={<span>服务域名配置</span>}
+                {...formItemLayout}
+              >
+                <Input
+                  placeholder='服务访问地址的域名(可选)'
+                  {...domainProps}
+                  disabled={networkType == 'incluster' || !editCluster}
+                />
+              </FormItem>
             </div>
           </Col>
         </Row>
