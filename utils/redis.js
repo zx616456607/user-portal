@@ -25,7 +25,7 @@ function getRedisClient() {
   const redisClient = redis.createClient(redisOption)
 
   redisClient.on("error", function (err) {
-      logger.error("redis error " + err);
+    logger.error("redis error " + err);
   });
   return redisClient
 }
