@@ -209,12 +209,12 @@ let HostInfo = React.createClass({
               <div className="titles"><svg className="svg-icon"><use xlinkHref="#tag"></use></svg> 版本信息</div>
               <br />
               <Row className="items versioninformation">
-                <Col span={12}>内核版本： {hostInfo.versions ? hostInfo.versions.kernel : ''}</Col>
-                <Col span={12}>kubelet 版本： {hostInfo.versions ? hostInfo.versions.kubelet : ''}</Col>
+                <Col span={12} className='col_style'>111内核版本： {hostInfo.versions ? hostInfo.versions.kernel : ''}</Col>
+                <Col span={12} className='col_style'>kubelet 版本： {hostInfo.versions ? hostInfo.versions.kubelet : ''}</Col>
               </Row>
               <Row className="items versioninformation">
-                <Col span={12}>Docker 版本： {hostInfo.versions ? hostInfo.versions.docker.replace('docker://','') : ''}</Col>
-                <Col span={12}>kube-proxy： {hostInfo.versions ? hostInfo.versions.kubeProxy : ''}</Col>
+                <Col span={12} className='col_style'>Docker 版本： {hostInfo.versions ? hostInfo.versions.docker.replace('docker://','') : ''}</Col>
+                <Col span={12} className='col_style'>kube-proxy： {hostInfo.versions ? hostInfo.versions.kubeProxy : ''}</Col>
               </Row>
             </div>
 
