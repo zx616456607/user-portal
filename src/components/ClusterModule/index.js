@@ -751,11 +751,11 @@ class ClusterList extends Component {
     switch(status){
       case 'check':
         let checkbody = this.formatUpdateProjectsApprovalClusterBody('check', item, 2)
-        this.loadUpdateProjectsApprovalCluster(checkbody, 1, '审批')
+        this.loadUpdateProjectsApprovalCluster(checkbody, 1, '操作')
         return
       case 'cross':
         let crossbody = this.formatUpdateProjectsApprovalClusterBody('check', item, 3)
-        this.loadUpdateProjectsApprovalCluster(crossbody, 1, '审批')
+        this.loadUpdateProjectsApprovalCluster(crossbody, 1, '操作')
         return
       case 'clear':
         let clearbody = this.formatUpdateProjectsApprovalClusterBody('clear', item, 0)
@@ -767,11 +767,11 @@ class ClusterList extends Component {
         return
       case 'allRefuse':
         let allRefusebody = this.formatUpdateProjectsApprovalClusterBody('allRefuse', item, 3)
-        this.loadUpdateProjectsApprovalCluster(allRefusebody, 1, '全部审批')
+        this.loadUpdateProjectsApprovalCluster(allRefusebody, 1, '操作')
         return
       case 'allpass':
         let allpassbody = this.formatUpdateProjectsApprovalClusterBody('allpass', item, 2)
-        this.loadUpdateProjectsApprovalCluster(allpassbody, 1, '全部审批')
+        this.loadUpdateProjectsApprovalCluster(allpassbody, 1, '操作')
         return
       case 'allclear':
         let allclearbody = this.formatUpdateProjectsApprovalClusterBody('allclear', item, 0)
