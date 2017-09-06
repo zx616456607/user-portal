@@ -673,11 +673,11 @@ class TeamDetail extends Component {
     let notify = new NotificationHandler()
     let teamName = getFieldValue('teamName');
     let oldTeamName = teamDetail.teamName;
+    if (!teamName || (teamName === oldTeamName)) {return this.setState({editTeamName:false})}
     validateFields((errors, values) => {
       if (!!errors) {
         return
       }
-      if (!teamName || (teamName === oldTeamName)) {return this.setState({editTeamName:false})}
       updateTeamDetail({
         teamID: teamDetail.teamID,
         body: {
@@ -707,7 +707,6 @@ class TeamDetail extends Component {
     })
   }
   teamExists(rule, value, callback) {
-    const _this = this
     if (!value) {
       callback([new Error('请输入团队名')])
       return
@@ -835,7 +834,7 @@ class TeamDetail extends Component {
                         help={isFieldValidating('teamName') ? '校验中...' : (getFieldError('teamName') || []).join(', ')}
                         key='nameInputForm'
                       >
-                        <Input key='nameInput' autoComplete='off' placeholder="团队名称" id="teamInput" type='textarea'
+                        <Input key='nameInput' autoComplete='off' placeholder="团队名称" className="teamInput" type='textarea'
                          {...getFieldProps('teamName',{
                            rules: [
                              { validator: this.teamExists.bind(this) },
