@@ -82,3 +82,6 @@ exports.PROJECT_MANAGE_ROLE_ID = 'RID-LFJKCKtKzCrd'
 exports.ADMIN_USERID = 1232
 //team_manager
 exports.TEAM_MANAGE_ROLE_ID = 'RID-i5rFhJowkzjo'
+
+exports.TEAM_CREATOR_ROLE = 'team-creator'
+exports.PROJECT_CREATOR_ROLE = 'project-creator'

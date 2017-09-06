@@ -306,6 +306,7 @@ let ProjectManage = React.createClass({
     }
     obj = !filter ? obj : Object.assign(obj, {filter})
     obj = sort === '' ? obj : Object.assign(obj, {sort})
+
     ListProjects(obj, {
       success: {
         func: (result) => {
@@ -339,13 +340,14 @@ let ProjectManage = React.createClass({
         isAsync: true
       },
       failed: {
-        func: () => {
+        func: (res) => {
           this.setState({
             projectList: {},
             tableLoading: false
           })
+          let notify = new Notification()
+          notify.error("读取项目列表失败：" + res.message.message)
         },
-        isAsync: true
       }
     })
   },

@@ -39,7 +39,7 @@ let PersonalSpace = React.createClass({
             <div className="infImg">
               <img style={{width:'100%'}} src={applicationnumberImg}/>
             </div>
-            <span className="infImgTxt">应数： {appCount}个</span>
+            <span className="infImgTxt">应用数： {appCount}个</span>
           </Col>
           <Col span={7}>
             <div className="infImg">

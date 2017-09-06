@@ -136,17 +136,8 @@ exports.getUserTeams = function* () {
     }
   }
   else {
-    // Show teams that current user can manage
+    // Show teams that current user create or belongs to
     let managedTeams = (userID === 'default')
-    //Only team admin / sysadmin can get team related information
-    if (this.session.loginUser.role != ROLE_TEAM_ADMIN && this.session.loginUser.role != ROLE_SYS_ADMIN) {
-      this.body = {
-        teams: [],
-        total: 0
-      }
-      return
-    }
-
     const query = this.query || {}
     let page = parseInt(query.page || DEFAULT_PAGE)
     let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
