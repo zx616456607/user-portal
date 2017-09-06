@@ -12,21 +12,46 @@ import * as ActionTypes from '../actions/project'
 import merge from 'lodash/merge'
 
 function getProjectsApprovalClusters(state = {}, action) {
+  const { status } = action
+  let filter = undefined
+  if(status && status.filter){
+    let str = status.filter
+    filter = str.substring(str.length - 1, str.length)
+    if(str == 'status__neq,1,status__neq,0'){
+      filter = 5
+    }
+  }
   const defaultState = {}
   switch (action.type) {
     case ActionTypes.PROJECTS_CLUSTER_APPROVAL_GET_REQUEST:
       return merge({}, defaultState, state, {
-        isFetching: true
+        isFetching: true,
+        approvalPendingData: [],
+        approvedReadyData: [],
       })
     case ActionTypes.PROJECTS_CLUSTER_APPROVAL_GET_SUCCESS:
+      if(filter == 1){
+        return Object.assign({}, defaultState, state, {
+          isFetching: false,
+          approvalPendingData: action.response.result.data,
+        })
+      }
+      if(filter == 5){
+        return Object.assign({}, defaultState, state, {
+          isFetching: false,
+          approvedReadyData: action.response.result.data,
+        })
+      }
       return Object.assign({}, defaultState, state, {
         isFetching: false,
-        data: action.response.result.data
+        approvalPendingData: [],
+        approvedReadyData: [],
       })
     case ActionTypes.PROJECTS_CLUSTER_APPROVAL_GET_FAILURE:
       return Object.assign({}, defaultState, state, {
         isFetching: false,
-        data: action.response
+        approvalPendingData: [],
+        approvedReadyData: [],
       })
     default:
       return state

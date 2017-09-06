@@ -41,59 +41,11 @@
       height: 100%;
       margin-top: 20px;
       .tips{
-        margin-bottom: 18px;
+        margin-bottom: 10px;
       }
-      .time_select{
-        width: 250px;
-      }
-      .select_box{
-        width: 100%;
-      }
-      .image_time_picker_box{
-        margin-top: 8px;
-        .until_done,
-        .duration,
-        .forbiden_use{
-          float: left;
-          display: inline;
-          height: 40px;
-          line-height: 40px;
-          text-align: center;
-          border: 1px solid #666;
-          cursor: pointer;
-          position: relative;
-          overflow: hidden;
-        }
-        .selected_style{
-          border-color: #0eb4ff;
-        }
-        .until_done:hover,
-        .duration:hover,
-        .forbiden_use:hover{
-          color: #57c5f7;
-          border-color: #57c5f7;
-        }
-        .img_style{
-          position: absolute;
-          top: 11px;
-          left: 12px;
-        }
-        .check_container{
-          height:24px;
-          width: 24px;
-          line-height: 12px;
-          text-align: center;
-          border-top: 12px solid #ffffff;
-          border-left: 12px solid #ffffff;
-          border-right:12px solid #0eb4ff;
-          border-bottom:12px solid #0eb4ff;
-          position: absolute;
-          right:0;
-          bottom: 0;
-          .check_icon{
-            color: #ffffff;
-            font-size: 12px;
-          }
+      .ant-btn-group{
+        >button{
+          height: 38px;
         }
         .until_done{
           width: 120px;
@@ -107,10 +59,19 @@
           border-radius: 0 8px 8px 0;
         }
       }
+      .time_select{
+        width: 250px;
+      }
+      .select_box{
+        width: 100%;
+      }
     }
     .checkBox{
       clear: both;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
+    }
+    .slected_tips{
+      margin-bottom: 15px;
     }
   }
   .tool_echarts{

@@ -583,6 +583,8 @@ class ClusterList extends Component {
       clusterTabPaneKey: this.props.currentClusterID,
       clusterAuthorityModalVisible: false,
       clusterStatus: true,
+      approvalPending: false,
+      approvalReady: false,
     }
   }
 
@@ -595,6 +597,7 @@ class ClusterList extends Component {
   componentWillMount() {
     const { loadClusterList, noCluster, loadGlobalConfig } = this.props
     loadClusterList({size: 100})
+    this.loadProjectsApprovalClusters(1)
     if (noCluster) {
       loadGlobalConfig()
     }
@@ -631,6 +634,9 @@ class ClusterList extends Component {
   loadProjectsApprovalClusters = num => {
     const { GetProjectsApprovalClusters } = this.props
     let filter = 'status,' + num
+    if(num == 5){
+      filter = 'status__neq,1,status__neq,0'
+    }
     GetProjectsApprovalClusters({filter})
   }
 
@@ -639,21 +645,27 @@ class ClusterList extends Component {
       case 'modal':
         this.setState({
           clusterAuthorityModalVisible: true,
-          clusterStatus: true
+          clusterStatus: true,
+          approvalReady: false,
+          approvalPending: true,
         })
         this.loadProjectsApprovalClusters(1)
         return
       case 'waiting':
         this.setState({
-          clusterStatus: true
+          clusterStatus: true,
+          approvalReady: false,
+          approvalPending: true,
         })
         this.loadProjectsApprovalClusters(1)
         return
       case 'ready':
         this.setState({
-          clusterStatus: false
+          clusterStatus: false,
+          approvalReady: true,
+          approvalPending: false,
         })
-        this.loadProjectsApprovalClusters(2)
+        this.loadProjectsApprovalClusters(5)
         return
       default:
         return
@@ -664,7 +676,14 @@ class ClusterList extends Component {
   formatUpdateProjectsApprovalClusterBody = (status, item, num) => {
     if(status == 'allRefuse' || status == 'allpass' || status == 'allclear'){
       const { projectsApprovalClustersList } = this.props
-      let dataArray = projectsApprovalClustersList.data
+      const { approvalPending, approvalReady } = this.state
+      let dataArray = []
+      if(approvalPending){
+        dataArray = projectsApprovalClustersList.approvalPendingData
+      }
+      if(approvalReady){
+        dataArray = projectsApprovalClustersList.approvedReadyData
+      }
       let clusterInfo = []
       let projectObj = {}
       for(let i = 0; i < dataArray.length; i++){
@@ -713,6 +732,9 @@ class ClusterList extends Component {
         func: () => {
           noti.success(text + '成功')
           this.loadProjectsApprovalClusters(num)
+          if(text == '撤销'){
+            this.loadProjectsApprovalClusters(1)
+          }
         },
         isAsync: true
       },
@@ -729,27 +751,31 @@ class ClusterList extends Component {
     switch(status){
       case 'check':
         let checkbody = this.formatUpdateProjectsApprovalClusterBody('check', item, 2)
-        this.loadUpdateProjectsApprovalCluster(checkbody, 1, '审批')
+        this.loadUpdateProjectsApprovalCluster(checkbody, 1, '操作')
         return
       case 'cross':
         let crossbody = this.formatUpdateProjectsApprovalClusterBody('check', item, 3)
-        this.loadUpdateProjectsApprovalCluster(crossbody, 1, '审批')
+        this.loadUpdateProjectsApprovalCluster(crossbody, 1, '操作')
         return
       case 'clear':
         let clearbody = this.formatUpdateProjectsApprovalClusterBody('clear', item, 0)
-        this.loadUpdateProjectsApprovalCluster(clearbody, 2, '清除')
+        this.loadUpdateProjectsApprovalCluster(clearbody, 5, '清除')
+        return
+      case 'recall':
+        let recallbody = this.formatUpdateProjectsApprovalClusterBody('recall', item, 1)
+        this.loadUpdateProjectsApprovalCluster(recallbody, 5, '撤销')
         return
       case 'allRefuse':
         let allRefusebody = this.formatUpdateProjectsApprovalClusterBody('allRefuse', item, 3)
-        this.loadUpdateProjectsApprovalCluster(allRefusebody, 1, '全部审批')
+        this.loadUpdateProjectsApprovalCluster(allRefusebody, 1, '操作')
         return
       case 'allpass':
         let allpassbody = this.formatUpdateProjectsApprovalClusterBody('allpass', item, 2)
-        this.loadUpdateProjectsApprovalCluster(allpassbody, 1, '全部审批')
+        this.loadUpdateProjectsApprovalCluster(allpassbody, 1, '操作')
         return
       case 'allclear':
         let allclearbody = this.formatUpdateProjectsApprovalClusterBody('allclear', item, 0)
-        this.loadUpdateProjectsApprovalCluster(allclearbody, 2, '全部清除')
+        this.loadUpdateProjectsApprovalCluster(allclearbody, 5, '全部清除')
         return
       default:
         return
@@ -757,7 +783,7 @@ class ClusterList extends Component {
   }
 
   approvalClusterList = () => {
-    const { clusterStatus } = this.state
+    const { clusterStatus, approvalPending, approvalReady } = this.state
     const { projectsApprovalClustersList } = this.props
     const column = [
       {
@@ -768,13 +794,6 @@ class ClusterList extends Component {
         title: '集群名称',
         dataIndex: 'clusterName',
         width: '35%',
-      },{
-        title: '申请时间',
-        dataIndex: 'requestTime',
-        width: '15%',
-        render: (text, record, index) => {
-          return <div>{calcuDate(text)}</div>
-        }
       },{
         title: '操作',
         width: '15%',
@@ -797,16 +816,51 @@ class ClusterList extends Component {
               onClick={this.handleClusterApproval.bind(this, 'cross', record)}
               key="cross"
             ></Button>]
-            : <svg
-              className='deleteIcon'
-              onClick={this.handleClusterApproval.bind(this, 'clear', record)}
-            ><use xlinkHref="#delete"></use></svg>
+            : [<Tooltip title='撤销审批' key={`recall${index}`}>
+                <i className="fa fa-reply recall" aria-hidden="true" onClick={this.handleClusterApproval.bind(this, 'recall', record)}></i>
+              </Tooltip>,
+              <Tooltip title="清除审批记录" key={`tooltip${index}`}>
+                <svg
+                  className='deleteIcon'
+                  onClick={this.handleClusterApproval.bind(this, 'clear', record)}
+                  key={`clear${index}`}
+                ><use xlinkHref="#delete"></use></svg>
+              </Tooltip>]
           }
 
         </div>
       }
     ]
-    let datasource = projectsApprovalClustersList.data || []
+    let datasource = []
+    let obj = {}
+    if(approvalPending){
+      datasource = projectsApprovalClustersList.approvalPendingData
+      obj = {
+        title: '申请时间',
+        dataIndex: 'requestTime',
+        width: '15%',
+        render: (text, record, index) => {
+          return <div>{calcuDate(text)}</div>
+        }
+      }
+    }
+    if(approvalReady){
+      datasource = projectsApprovalClustersList.approvedReadyData
+      obj = {
+        title: '状态',
+        dataIndex: 'status',
+        width: '15%',
+        render: (text, record, index) => {
+          if(text == 2){
+          return <div>同意</div>
+          }
+          return <div>拒绝</div>
+        }
+      }
+    }
+    if(Object.keys(obj).length){
+      column.splice(2, 0, obj)
+    }
     return <Table
       columns={column}
       dataSource={datasource}
@@ -821,7 +875,8 @@ class ClusterList extends Component {
       intl, clustersIsFetching, clusters,
       currentClusterID, addClusterCMD, createCluster,
       license, noCluster, loadClusterList,
-      loadLoginUserDetail, loginUser, globalConfig, location
+      loadLoginUserDetail, loginUser, globalConfig, location,
+      projectsApprovalClustersList,
     } = this.props
     if (!this.checkIsAdmin()) {
       return (
@@ -859,6 +914,13 @@ class ClusterList extends Component {
     if (clusterSum < maxClusters) {
       createClusterBtnDisabled = false
     }
+    let waitingRequestNumbers = 0
+    if(projectsApprovalClustersList && projectsApprovalClustersList.approvalPendingData){
+      waitingRequestNumbers = projectsApprovalClustersList.approvalPendingData.length
+    }
+    if(waitingRequestNumbers > 99){
+      waitingRequestNumbers = 99
+    }
     return (
       <QueueAnim className='ClusterBox'
         type='right'
@@ -895,6 +957,11 @@ class ClusterList extends Component {
                   >
                     <img src={OpenModalImage} className='OpenModalImage'/>
                     集群授权审批
+                    {
+                      waitingRequestNumbers
+                      ? <div className='wait_number'>{waitingRequestNumbers}</div>
+                      : <span></span>
+                    }
                   </Button>,
                     <Tooltip
                     title={`当前许可证最多支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`}

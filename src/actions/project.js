@@ -299,6 +299,7 @@ function fetchGetProjectsApprovalClusters(query,callback) {
         method: 'GET'
       },
     },
+    status: query,
     callback
   }
 }

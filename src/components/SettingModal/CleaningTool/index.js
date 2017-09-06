@@ -17,12 +17,8 @@ import './style/index.less'
 import Title from '../../Title'
 import CleaningToolImg from '../../../../static/img/setting/cleaningTool.png'
 import StepsImg from '../../../../static/img/setting/steps.png'
-import Accomplish from '../../../../static/img/setting/accomplish.png'
-import ForbidImg from '../../../../static/img/setting/forbid.png'
-import PendingImg from '../../../../static/img/setting/pending.png'
 import NotificationHandler from '../../../components/Notification'
 import ReactEcharts from 'echarts-for-react'
-import classNames from 'classnames'
 
 const TabPane = Tabs.TabPane
 const Option = Select.Option
@@ -32,6 +28,7 @@ class CleaningTool extends Component {
   constructor(props) {
     super(props)
     this.renderLogsList = this.renderLogsList.bind(this)
+    this.renderTips = this.renderTips.bind(this)
     this.state = {
       systemLog: false,
       confirmLoading: false,
@@ -187,6 +184,19 @@ class CleaningTool extends Component {
     }
   }
 
+  renderTips(){
+    const { accomplish, pending, forbid } = this.state
+    if(accomplish){
+      return <span>后端运行垃圾回收直至移除所有无标签镜像</span>
+    }
+    if(pending){
+      return <span>后端运行垃圾回收持续上方设置时长后结束</span>
+    }
+    if(forbid){
+      return <span>后端运行垃圾回收无效，将不会移除无标签镜像</span>
+    }
+    return <span>后端运行垃圾回收直至移除所有无标签镜像</span>
+  }
   render() {
     const {
       cleanSystemLogDone, editMonitoringData,
@@ -204,9 +214,10 @@ class CleaningTool extends Component {
         }
       },
       grid: {
+        top: '30px',
         left: '3%',
         right: '4%',
-        bottom: '3%',
+        bottom: '30px',
         containLabel: true
       },
       xAxis : [
@@ -232,18 +243,6 @@ class CleaningTool extends Component {
         }
       ]
     };
-    const accomplishProps = classNames({
-      'until_done': true,
-      'selected_style': accomplish
-    })
-    const pendingProps = classNames({
-      'duration': true,
-      'selected_style': pending,
-    })
-    const forbidProps = classNames({
-      'forbiden_use': true,
-      'selected_style': forbid,
-    })
     return(
       <QueueAnim className='cleaningTool' type="right">
         <Title title="清理工具"/>
@@ -369,10 +368,10 @@ class CleaningTool extends Component {
                         rules: [{required: true, message: '请选择要停止的容器'}]
                       })}
                     >
+                      <Option key="3" value="3">全选</Option>
                       <Option key="0" value="0">pending超时</Option>
                       <Option key="1" value="1">已经停止</Option>
                       <Option key="2" value="2">不断重启</Option>
-                      <Option key="3" value="3">全选</Option>
                     </Select>
                   </FormItem>
                   <div>
@@ -415,54 +414,39 @@ class CleaningTool extends Component {
                 </div>
                 <div className='handle_box'>
                   <div className='tips'>您可以在存储后端运行垃圾回收来移除无标签镜像!</div>
-                  <div>删除镜像</div>
-                  <div className='image_time_picker_box'>
-                    <div
-                      className={accomplishProps}
+                  <Button.Group>
+                    <Button
+                      type={accomplish ? 'primary' : 'ghost'}
                       onClick={() => this.cleaningMirrorImage('accomplish')}
+                      className='until_done'
                     >
-                      <img src={Accomplish} alt="" className='img_style'/>
                       直到完成
-                      {
-                        accomplish && <div className='check_container'>
-                        <i className="fa fa-check check_icon" aria-hidden="true"></i>
-                      </div>
-                      }
-                    </div>
-                    <div
-                      className={pendingProps}
+                    </Button>
+                    <Button
+                      type={pending ? 'primary' : 'ghost'}
                       onClick={() => this.cleaningMirrorImage('pending')}
+                      className='duration'
                     >
-                      <img src={PendingImg} alt="" className='img_style'/>
                       持续
                       <InputNumber
                         min={1}
-                        style={{width: '55px', margin: '0 4px'}}
+                        style={{width: '55px', margin: '0 8px'}}
                         {...getFieldProps('pendingTime', {
                           initialValue: 1
                         })}
                       />
                       分钟
-                      {
-                        pending && <div className='check_container'>
-                          <i className="fa fa-check check_icon" aria-hidden="true"></i>
-                        </div>
-                      }
-                    </div>
-                    <div
-                      className={forbidProps}
+                    </Button>
+                    <Button
+                      type={forbid ? 'primary' : 'ghost'}
                       onClick={() => this.cleaningMirrorImage('forbid')}
+                      className='forbiden_use'
                     >
-                      <img src={ForbidImg} alt="" className='img_style'/>
                       禁止使用
-                      {
-                        forbid && <div className='check_container'>
-                          <i className="fa fa-check check_icon" aria-hidden="true"></i>
-                        </div>
-                      }
-                    </div>
-                  </div>
+                    </Button>
+                  </Button.Group>
                   <div className='checkBox'></div>
+                  <div className='slected_tips'>{this.renderTips()}</div>
                   <div>
                     <Button
                       size="large"
