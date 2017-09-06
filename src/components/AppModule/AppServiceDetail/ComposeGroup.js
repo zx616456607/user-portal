@@ -140,7 +140,7 @@ let MyComponent = React.createClass({
           </Tooltip>
           <Tooltip title={item.labels && item.labels.join(', ')}>
             <div className="annotations commonData textoverflow">
-              {item.labels && item.labels.join(', ')}
+              {item.labels.length ? item.labels.join(', ') : '未分类'}
             </div>
           </Tooltip>
           <div className="commonData">
