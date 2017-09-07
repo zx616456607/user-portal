@@ -777,10 +777,10 @@ let ProjectManage = React.createClass({
         render: (text, record) => (
           <span>
           {
-            roleNum === 1 && <Button type='primary' size='large' onClick={(e) => this.paySingle(e, record)}>充值</Button>
+            roleNum === 1 && <Button type='primary' onClick={(e) => this.paySingle(e, record)}>充值</Button>
           }
             <Button disabled={roleNum === 3}
-                    type='ghost' size='large' style={{marginLeft: '10px'}}
+                    type='ghost' style={{marginLeft: '10px'}}
                     onClick={(e) => this.delSingle(e, record)}>删除</Button>
         </span>
         ),
@@ -897,7 +897,7 @@ let ProjectManage = React.createClass({
             }
             <Button type="ghost" size="large" className="manageBtn" onClick={() => this.refreshTeamList()}><i
               className="fa fa-refresh" aria-hidden="true" style={{marginRight: '5px'}}/>刷新</Button>
-            <CommonSearchInput clearInput={this.state.clearInput} placeholder="请输入项目名称进行搜索" size="large"
+            <CommonSearchInput clearInput={this.state.clearInput} placeholder="按项目名称搜索" size="large"
                                onSearch={(value) => this.projectNameSearch(value)}/>
             <Pagination {...pageOption}/>
             <div className="total">共{!isEmpty(projectList) && projectList.listMeta.total || 0}个</div>
