@@ -154,6 +154,7 @@ class TenxFlowDetail extends Component {
     const { getTenxFlowDetail, getCdInimage, getRepoBranchesAndTagsByProjectId } = this.props;
     let { search } = this.props.location;
     search = search.split('?')[1].split('&')[0]
+    const notification = new NotificationHandler()
     const self = this
     getTenxFlowDetail(search, {
       success: {
@@ -171,7 +172,15 @@ class TenxFlowDetail extends Component {
           })
           // data.results.stageInfo[0].spec.project.id
           if (id) {
-            getRepoBranchesAndTagsByProjectId(id)
+            getRepoBranchesAndTagsByProjectId(id, {
+              failed: {
+                func: res => {
+                  if (res.statusCode == 500) {
+                    return notification.error('代码仓库暂时无法访问，请检查相关配置后重试')
+                  }
+                }
+              }
+            })
           }
         },
         isAsync: true

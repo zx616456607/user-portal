@@ -535,11 +535,20 @@ class TenxFlowDetailFlowCard extends Component {
     let targetElement = (
       <Button size='large' type='primary' className='startBtn' disabled={disabled}
         onClick={() => {
+          const notification = new NotificationHandler()
           if (project.repoType === 'svn') {
             this.buildFlow(id, lastBuildStatus, name, null, null)
             return
           }
-          projectId && getRepoBranchesAndTagsByProjectId(projectId)
+          projectId && getRepoBranchesAndTagsByProjectId(projectId, {
+            failed: {
+              func: res => {
+                if (res.statusCode == 500) {
+                  return notification.error('代码仓库暂时无法访问，请检查相关配置后重试')
+                }
+              }
+            }
+          })
         }}>
         {btn}
       </Button>

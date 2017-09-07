@@ -196,12 +196,12 @@ let MyComponent = React.createClass({
   starFlowBuild(item, index) {
     const { flowId, projectId, defaultBranch } = item
     const { getRepoBranchesAndTagsByProjectId } = this.props.scope.props
+    const notification = new NotificationHandler()
     if (this.props.config) {
       for (let i in this.props.config) {
         let stage = this.props.config[i]
         if (stage.flowId === flowId) {
           if (typeof (stage.stagesCount) === 'number' && stage.stagesCount < 1) {
-            let notification = new NotificationHandler()
             notification.error('请先添加构建子任务')
             return
           }
@@ -209,7 +209,15 @@ let MyComponent = React.createClass({
       }
     }
     if (projectId) {
-      getRepoBranchesAndTagsByProjectId(projectId)
+      getRepoBranchesAndTagsByProjectId(projectId, {
+        failed: {
+          func: res => {
+            if (res.statusCode == 500) {
+              return notification.error('代码仓库暂时无法访问，请检查相关配置后重试')
+            }
+          }
+        }
+      })
     }
   },
   startBuildStage(item, index, key, tabKey) {
