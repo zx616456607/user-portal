@@ -294,7 +294,7 @@ let ProjectManage = React.createClass({
   },
 
   loadProjectList(n) {
-    const {ListProjects} = this.props;
+    const {ListProjects, roleNum} = this.props;
     const {sort, roleFilter, searchName} = this.state;
     this.setState({tableLoading: true})
     let page = n - 1 || 0
@@ -321,12 +321,18 @@ let ProjectManage = React.createClass({
             result.data.projects.forEach(item => {
               let role = ''
               if (item.outlineRoles) {
-                if (item.outlineRoles.includes('creator') || item.outlineRoles.includes('manager')) {
-                  role = '创建者'
-                } else if (item.outlineRoles.includes('no-participator')) {
-                  role = '非项目成员'
+                if (roleNum === 1) {
+                  if (item.outlineRoles.includes('no-participator')) {
+                    role = '非项目成员'
+                  } else {
+                    role = '项目成员'
+                  }
                 } else {
-                  role = '参与者'
+                  if (item.outlineRoles.includes('creator')) {
+                    role = '创建者'
+                  } else {
+                    role = '参与者'
+                  }
                 }
               }
               Object.assign(item,{role})
@@ -652,6 +658,21 @@ let ProjectManage = React.createClass({
       defaultCurrent: 1,
       onChange: (n) => this.loadProjectList(n)
     };
+    const adminFilter = [{
+      text: '项目成员',
+      value:'项目成员'
+    }, {
+      text: '非项目成员',
+      value: '非项目成员'
+    }]
+    const consumer = [{
+      text: '创建者',
+      value: '创建者'
+    }, {
+      text: '参与者',
+      value: '参与者'
+    }]
+    const roleFilters = roleNum === 1 ? adminFilter : consumer
     const columns = [{
       title: '项目名',
       dataIndex: 'projectName',
@@ -663,16 +684,7 @@ let ProjectManage = React.createClass({
       dataIndex: 'role',
       key: 'role',
       width: '10%',
-      filters: [{
-        text: '参与者',
-        value: '参与者',
-      }, {
-        text: '创建者',
-        value: '创建者',
-      }, {
-        text: '非项目成员',
-        value: '非项目成员',
-      }],
+      filters: roleFilters,
       filteredValue: filteredInfo.role,
       onFilter: (value, record) => String(record.role) === value
     },
