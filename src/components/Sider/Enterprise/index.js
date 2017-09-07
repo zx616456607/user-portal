@@ -42,6 +42,9 @@ function checkUrlSelectedKey(pathname) {
     if (pathList[1] == 'account' && pathList[2] == 'user') {
       return [pathList[1], 'member']
     }
+    if (pathList[1] == 'database_cache' && pathList[2] == 'mysql_cluster'){
+      return [pathList[1], pathList[1] + '_default']
+    }
     if (pathList[2] == 'coderepo') {
       return [pathList[1], pathList[1] + '_default']
     }
