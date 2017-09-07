@@ -401,12 +401,10 @@ let TeamTable = React.createClass({
         render: (text, record, index) =>{
           return (
             <div className="addusers">
-              <div className="Deleterechargea">
-                <Button disabled={roleNum ===3}
-                  type="primary" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加团队成员</Button>
-                <Button disabled={roleNum ===3}
-                  className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
-              </div>
+              <Button disabled={roleNum ===3}
+                type="primary" onClick={() => this.addNewMember(record.key)}>添加团队成员</Button>
+              <Button disabled={roleNum ===3}
+                onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
             </div>
           )
         }
