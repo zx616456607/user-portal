@@ -46,10 +46,6 @@ class AppUseful extends Component {
     })
     this.setLivenessProbe(service)
   }
-  componentDidUpdate() {
-    let portInput = document.getElementById('portInput');
-    portInput && portInput.focus()
-  }
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow, service } = nextProps
     if (!service.spec) return
@@ -136,6 +132,10 @@ class AppUseful extends Component {
     this.setState({
       checkType: e
     });
+    setTimeout(() => {
+      let portInput = document.getElementById('portInput');
+      portInput && portInput.focus()
+    }, 500)
   }
 
   cancelSet() {
