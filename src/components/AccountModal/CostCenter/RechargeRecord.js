@@ -335,7 +335,7 @@ class RechargeRecord extends Component {
               </div>
           }
         </Card>
-        <Card className="RechargeTable" bodyStyle={{ padding: 0 }}>
+        <Card className="RechargeTable" bodyStyle={{ padding: '14px 24px 24px' }}>
           <Table
             dataSource={convertChargeRecord()}
             columns={getTableColumn(standard)}
