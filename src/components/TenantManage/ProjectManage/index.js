@@ -294,7 +294,7 @@ let ProjectManage = React.createClass({
   },
 
   loadProjectList(n) {
-    const {ListProjects} = this.props;
+    const {ListProjects, roleNum} = this.props;
     const {sort, roleFilter, searchName} = this.state;
     this.setState({tableLoading: true})
     let page = n - 1 || 0
@@ -321,12 +321,18 @@ let ProjectManage = React.createClass({
             result.data.projects.forEach(item => {
               let role = ''
               if (item.outlineRoles) {
-                if (item.outlineRoles.includes('creator') || item.outlineRoles.includes('manager')) {
-                  role = '创建者'
-                } else if (item.outlineRoles.includes('no-participator')) {
-                  role = '非项目成员'
+                if (roleNum === 1) {
+                  if (item.outlineRoles.includes('no-participator')) {
+                    role = '非项目成员'
+                  } else {
+                    role = '项目成员'
+                  }
                 } else {
-                  role = '参与者'
+                  if (item.outlineRoles.includes('creator')) {
+                    role = '创建者'
+                  } else {
+                    role = '参与者'
+                  }
                 }
               }
               Object.assign(item,{role})
@@ -652,6 +658,21 @@ let ProjectManage = React.createClass({
       defaultCurrent: 1,
       onChange: (n) => this.loadProjectList(n)
     };
+    const adminFilter = [{
+      text: '项目成员',
+      value:'项目成员'
+    }, {
+      text: '非项目成员',
+      value: '非项目成员'
+    }]
+    const consumer = [{
+      text: '创建者',
+      value: '创建者'
+    }, {
+      text: '参与者',
+      value: '参与者'
+    }]
+    const roleFilters = roleNum === 1 ? adminFilter : consumer
     const columns = [{
       title: '项目名',
       dataIndex: 'projectName',
@@ -663,16 +684,7 @@ let ProjectManage = React.createClass({
       dataIndex: 'role',
       key: 'role',
       width: '10%',
-      filters: [{
-        text: '参与者',
-        value: '参与者',
-      }, {
-        text: '创建者',
-        value: '创建者',
-      }, {
-        text: '非项目成员',
-        value: '非项目成员',
-      }],
+      filters: roleFilters,
       filteredValue: filteredInfo.role,
       onFilter: (value, record) => String(record.role) === value
     },
@@ -777,10 +789,10 @@ let ProjectManage = React.createClass({
         render: (text, record) => (
           <span>
           {
-            roleNum === 1 && <Button type='primary' size='large' onClick={(e) => this.paySingle(e, record)}>充值</Button>
+            roleNum === 1 && <Button type='primary' onClick={(e) => this.paySingle(e, record)}>充值</Button>
           }
             <Button disabled={roleNum === 3}
-                    type='ghost' size='large' style={{marginLeft: '10px'}}
+                    type='ghost' style={{marginLeft: '10px'}}
                     onClick={(e) => this.delSingle(e, record)}>删除</Button>
         </span>
         ),
@@ -897,7 +909,7 @@ let ProjectManage = React.createClass({
             }
             <Button type="ghost" size="large" className="manageBtn" onClick={() => this.refreshTeamList()}><i
               className="fa fa-refresh" aria-hidden="true" style={{marginRight: '5px'}}/>刷新</Button>
-            <CommonSearchInput clearInput={this.state.clearInput} placeholder="请输入项目名称进行搜索" size="large"
+            <CommonSearchInput clearInput={this.state.clearInput} placeholder="按项目名称搜索" size="large"
                                onSearch={(value) => this.projectNameSearch(value)}/>
             <Pagination {...pageOption}/>
             <div className="total">共{!isEmpty(projectList) && projectList.listMeta.total || 0}个</div>

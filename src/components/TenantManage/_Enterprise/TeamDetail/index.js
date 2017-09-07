@@ -21,8 +21,8 @@ import {
   loadTeamClustersList,getTeamDetail, updateTeamDetail, loadTeamAllUser,
   checkTeamName
 } from '../../../../actions/team'
-import { usersExcludeOneTeam } from '../../../../actions/user'
-import { usersAddRoles, roleWithMembers, usersLoseRoles } from '../../../../actions/role'
+import { usersExcludeOneTeam, teamtransfer } from '../../../../actions/user'
+import { roleWithMembers } from '../../../../actions/role'
 import { connect } from 'react-redux'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import NotificationHandler from '../../../../components/Notification'
@@ -477,13 +477,6 @@ class TeamDetail extends Component {
   }
   getTeamLeader(flag) {
     const { roleWithMembers, teamID } = this.props;
-    const { originalLeader } = this.state;
-    if (originalLeader.length) {
-      this.setState({
-        transferStatus: true
-      })
-      return
-    }
     roleWithMembers({
       roleID:TEAM_MANAGE_ROLE_ID,
       scope: 'team',
@@ -533,7 +526,7 @@ class TeamDetail extends Component {
           res.data.users.forEach((item) => {
             Object.assign(item,{
               key:item.userID,
-              globalStyle: item.globalRoles.includes('admin') ? '系统管理员' : '普通成员'
+              globalStyle: includes(item.globalRoles,'admin') ? '系统管理员' : '普通成员'
             })
           })
           this.setState({
@@ -562,35 +555,31 @@ class TeamDetail extends Component {
     if (!flag) {
       this.addTeamUser(selectLeader,false,false).then(() => {
         this.getExcludeTeamUsers(null)
-      })
-      this.delTeamLeader().then(() => {
         this.transferFunc()
       })
     } else {
-      this.delTeamLeader().then(() => {
         this.transferFunc()
-      })
     }
   }
   transferFunc() {
-    const { usersAddRoles, teamID } = this.props;
-    const { selectLeader } = this.state;
+    const { teamID, teamtransfer, loadTeamUserList, loadTeamAllUser } = this.props;
+    const { selectLeader,  originalLeader } = this.state;
     let notify = new NotificationHandler()
-    usersAddRoles({
-      roleID:TEAM_MANAGE_ROLE_ID,
-      scope: 'team',
-      scopeID: teamID,
-      body: {
-        userIDs:selectLeader
-      }
+    teamtransfer(originalLeader, {
+      userTeams: [{
+        userID: selectLeader[0],
+        teamID
+      }]
     },{
       success: {
         func: () => {
           notify.success('移交团队成功')
           this.loadTeamDetail()
+          this.getTeamLeader(null)
+          loadTeamUserList(teamID, { sort: 'a,userName', size: 5, page: 1 })
+          loadTeamAllUser(teamID, {size: 0, sort: 'a,userName'})
           this.setState({
             transferStatus: false,
-            originalLeader: selectLeader,
             currentOption: 'team'
           })
         },
@@ -606,37 +595,6 @@ class TeamDetail extends Component {
         }
       }
     })
-  }
-  delTeamLeader() {
-    const { teamID, usersLoseRoles } = this.props;
-    const { originalLeader } = this.state;
-    let notify = new NotificationHandler()
-    let opt = {
-      roleID:TEAM_MANAGE_ROLE_ID,
-      scope: 'team',
-      scopeID: teamID
-    }
-    return new Promise((resolve,reject) => {
-      usersLoseRoles({
-        ...opt,
-        body: {
-          userIDs: originalLeader
-        }
-      },{
-        success: {
-          func: res => {
-            resolve(res.data.code)
-          },
-          isAsync: true
-        },
-        failed: {
-          func: () => {
-            notify.error('移交团队失败')
-          },
-          isAsync: true
-        }
-      })}
-    )
   }
   cancelTransferLeader() {
     const { originalLeader } = this.state;
@@ -878,9 +836,9 @@ class TeamDetail extends Component {
                 我是团队的
               </Col>
               <Col span={22}>
-                {teamDetail && teamDetail.outlineRoles && 
-                  (teamDetail.outlineRoles.includes('creator') || teamDetail.outlineRoles.includes('creator') ? '团队管理员' : '') &&
-                  (teamDetail.outlineRoles.includes('no-participator') ? '非团队成员' : '参与者')
+                {teamDetail && teamDetail.outlineRoles && teamDetail.outlineRoles.length &&
+                  (includes(teamDetail.outlineRoles,'manager') || includes(teamDetail.outlineRoles,'creator') ? '团队管理员' : '') ||
+                  (includes(teamDetail.outlineRoles,'no-participator') ? '非团队成员' : '参与者')
                 }
               </Col>
             </Row>
@@ -1007,8 +965,8 @@ function mapStateToProp(state, props) {
             name: item.userName,
             tel: item.phone,
             email: item.email,
-            globalStyle: item.globalRoles.includes('admin') ? '系统管理员' : '普通成员',
-            partialStyle: item.partialRoles.includes('manager') ? '团队管理员' : ''
+            globalStyle: includes(item.globalRoles,'admin') ? '系统管理员' : '普通成员',
+            partialStyle: includes(item.partialRoles,'manager') ? '团队管理员' : ''
           }
         )
       })
@@ -1024,8 +982,8 @@ function mapStateToProp(state, props) {
             key: item.userID,
             name: item.userName,
             role : item.role,
-            globalStyle: item.globalRoles.includes('admin') ? '系统管理员' : '普通成员',
-            partialStyle: item.partialRoles.includes('manager') ? '团队管理员' : ''
+            globalStyle: includes(item.globalRoles,'admin') ? '系统管理员' : '普通成员',
+            partialStyle: includes(item.partialRoles,'manager') ? '团队管理员' : ''
           }
         )
       })
@@ -1106,10 +1064,9 @@ export default connect(mapStateToProp, {
   setCurrent,
   getTeamDetail,
   usersExcludeOneTeam,
-  usersAddRoles,
   updateTeamDetail,
   roleWithMembers,
-  usersLoseRoles,
   loadTeamAllUser,
-  checkTeamName
+  checkTeamName,
+  teamtransfer
 })(Form.create()(TeamDetail))

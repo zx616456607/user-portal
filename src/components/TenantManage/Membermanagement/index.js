@@ -525,6 +525,7 @@ let MemberTable = React.createClass({
           dataSource={searchResult.length === 0 ? data : searchResult}
           pagination={pagination}
           onChange={this.onTableChange}
+          loading={this.props.usersIsFetching}
         />
         <DeleteUserModal
           visible={this.state.delModal}
@@ -748,7 +749,7 @@ class Membermanagement extends Component {
   } */
 
   render() {
-    const { users, checkUserName, loadAllUserList, userDetail, teams, onlineTotal } = this.props
+    const { users, checkUserName, loadAllUserList, userDetail, teams, onlineTotal, usersIsFetching } = this.props
     const scope = this
     const { visible, memberList, hasSelected, createUserErrorMsg } = this.state
     const searchIntOption = {
@@ -832,6 +833,7 @@ class Membermanagement extends Component {
               loginUser={userDetail}
               teams={teams}
               onlineTotal={onlineTotal}
+              usersIsFetching={usersIsFetching}
             />
           </Card>
         </Row>
@@ -915,6 +917,7 @@ function mapStateToProp(state) {
   }
   return {
     users: data,
+    usersIsFetching: users.isFetching,
     total,
     onlineTotal,
     userDetail,
