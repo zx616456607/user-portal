@@ -83,7 +83,7 @@ class MySpace extends Component{
                  <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}</div>
                  <div className="logInf">
                  {calcuDate(item.time)}
-                <div className="logTime"> {`持续${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
+                <div className="logTime"> {`持续 ${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
                  </div>
                </div>
              </Timeline.Item>
@@ -94,7 +94,7 @@ class MySpace extends Component{
              <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}</div>
              <div className="logInf">
                {calcuDate(item.time)}
-               <div className="logTime"> {`持续${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
+               <div className="logTime"> {`持续 ${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
              </div>
            </div>
          </Timeline.Item>)
