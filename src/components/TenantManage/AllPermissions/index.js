@@ -126,7 +126,7 @@ class AllPermissions extends React.Component{
     return(
       <QueueAnim className="AllPermissions">
         <div id="AllPermissions">
-          <Alert message={`所有权限是指平台上每个功能模块的权限细粒度划分，可以将若干个权限组合成一个角色，再在项目中添加相应的角色并关联对象（成员、团队）。系统管理员和团队管理员都有查看『所有权限』的权限。`}
+          <Alert message={`所有权限是指平台上每个功能模块权限的细粒度划分，可以将若干个权限组合成一个角色，再在项目中添加相应的角色并关联对象（成员、团队成员）。`}
           type="info" />
         <div className="operationBox">
           <div className='rightBox'>
