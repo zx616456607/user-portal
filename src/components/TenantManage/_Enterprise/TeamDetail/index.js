@@ -773,7 +773,7 @@ class TeamDetail extends Component {
               <span className="backjia"/>
               <span className="btn-back">返回</span>
             </Link>
-            <span className="title">{teamDetail.teamName}</span>
+            <span className="title">团队详情</span>
           </Row>
           <Card
             title="团队基本信息"
