@@ -680,7 +680,7 @@ let ProjectManage = React.createClass({
       width: '15%',
       render: (text) => <Link to={`/tenant_manage/project_manage/project_detail?name=${text}`}>{text}</Link>,
     }, {
-      title: '我是项目的',
+      title: roleNum === 1 ? '我是' : '我是项目的',
       dataIndex: 'role',
       key: 'role',
       width: '10%',

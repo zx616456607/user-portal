@@ -428,7 +428,8 @@ class ProjectDetail extends Component{
   }
   getProjectMember(type, name) {
     const { GetProjectsMembers } = this.props;
-    let query = {type}
+    const { projectDetail } = this.state
+    let query = {type, pid: projectDetail.pid}
     if (name) {
       query = Object.assign(query, {filter: `name,${name}`})
     }

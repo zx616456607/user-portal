@@ -195,6 +195,7 @@ let MemberList = React.createClass({
     const { teamUserList, teamUsersTotal, roleNum } = this.props
     filteredInfo = filteredInfo || {}
     const pagination = {
+      simple: true,
       total: teamUsersTotal,
       defaultPageSize: 5,
       defaultCurrent: 1,
@@ -792,7 +793,7 @@ class TeamDetail extends Component {
                         help={isFieldValidating('teamName') ? '校验中...' : (getFieldError('teamName') || []).join(', ')}
                         key='nameInputForm'
                       >
-                        <Input key='nameInput' autoComplete='off' placeholder="团队名称" className="teamInput" type='textarea'
+                        <Input key='nameInput' autoComplete='off' placeholder="团队名称" className="teamInput"
                          {...getFieldProps('teamName',{
                            rules: [
                              { validator: this.teamExists.bind(this) },
