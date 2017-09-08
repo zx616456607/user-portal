@@ -9,9 +9,12 @@
  * @author zhangpc
  */
 import React, { Component, PropTypes } from 'react'
+import { connect } from 'react-redux'
 import SecondSider from '../../components/SecondSider'
 import QueueAnim from 'rc-queue-anim'
 import classNames from 'classnames'
+import cloneDeep from 'lodash/cloneDeep'
+import { ROLE_USER, ROLE_SYS_ADMIN } from '../../../constants'
 import './style/index.less'
 
 const menuList = [
@@ -33,13 +36,10 @@ const menuList = [
   },{
     url: '/tenant_manage/allpermissions',
     name: '所有权限'
-  },{
-    url: '/tenant_manage/ldap',
-    name: '集成企业目录'
   }
 ]
 
-export default class Tenant extends Component {
+class Tenant extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -47,7 +47,7 @@ export default class Tenant extends Component {
     }
   }
   render() {
-    const { children } = this.props
+    const { children, role } = this.props
     const scope = this
     const { containerSiderStyle } = this.state
     const tenantMenuClass = classNames({
@@ -60,6 +60,13 @@ export default class Tenant extends Component {
       'CommonSecondContent': true,
       'hiddenContent': !containerSiderStyle === 'normal',
     })
+    let menuListToShow = cloneDeep(menuList)
+    if (role === ROLE_SYS_ADMIN) {
+      menuListToShow.push({
+        url: '/tenant_manage/ldap',
+        name: '集成企业目录'
+      })
+    }
     return (
       <div id="TenantManage">
         <QueueAnim
@@ -68,7 +75,7 @@ export default class Tenant extends Component {
           type="left"
           >
           <div className={ tenantMenuClass } key="TenantSider">
-            <SecondSider menuList={menuList} scope={scope} />
+            <SecondSider menuList={menuListToShow} scope={scope} />
           </div>
         </QueueAnim>
         <div className={ tenantContentClass } >
@@ -78,3 +85,17 @@ export default class Tenant extends Component {
     )
   }
 }
+
+function mapStateToProp(state) {
+  let role = ROLE_USER
+  const {entities} = state
+  if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
+    role = entities.loginUser.info.role
+  }
+  return {
+    role
+  }
+}
+
+export default connect(mapStateToProp, {
+})(Tenant)

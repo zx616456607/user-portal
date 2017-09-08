@@ -175,6 +175,7 @@ exports.verifyUser = function* (next) {
     phone: result.phone,
     token: result.apiToken,
     role: result.role,
+    globalRoles: result.globalRoles,
     balance: result.balance,
     // Encrypt base64 password to make it some secure, and save to session
     registryAuth: securityUtil.encryptContent(registryAuth),

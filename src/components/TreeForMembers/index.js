@@ -33,7 +33,8 @@ class TreeComponent extends Component {
       disableCheckArr:[],
       alreadyAllChecked: false,
       originalMembers: [],
-      deleteMembers: []
+      deleteMembers: [],
+      filterPermissionInfo: []
     }
   }
   
@@ -53,6 +54,7 @@ class TreeComponent extends Component {
         alreadyCheckedKeys: [],
         alreadyExpanedKeys: [],
         permissionInfo: [],
+        filterPermissionInfo: [],
         disableCheckArr:[],
         alreadyAllChecked: false
       })
@@ -82,7 +84,8 @@ class TreeComponent extends Component {
       originalMembers: Array.from(new Set(checkedKeys)),
       disableCheckArr:Array.from(new Set(checkedKeys.concat(addKey))),
       permissionInfo: rightInfo,
-      outPermissionInfo: leftInfo
+      outPermissionInfo: leftInfo,
+      filterPermissionInfo: rightInfo
     })
   }
   onExpand  = expandedKeys => {
@@ -304,6 +307,7 @@ class TreeComponent extends Component {
       checkedKeys:withParent,
       disableCheckArr:withParent,
       permissionInfo:per,
+      filterPermissionInfo: per,
       alreadyCheckedKeys:alreadyCheck
     },()=>{
       this.isReadyCheck()
@@ -347,6 +351,7 @@ class TreeComponent extends Component {
     }
     this.setState({
       permissionInfo: arr,
+      filterPermissionInfo: arr,
       alreadyCheckedKeys: [],
       disableCheckArr:difference(disableCheckArr,backArr),
       checkedKeys:difference(checkedKeys,backArr)
@@ -372,8 +377,14 @@ class TreeComponent extends Component {
       changeSelected(value)
     }
   }
+  filterMember = value => {
+    const { permissionInfo } = this.state
+    this.setState({
+      filterPermissionInfo: permissionInfo.filter(item => item.userName.indexOf(value) > -1)
+    })
+  }
   render() {
-    const { outPermissionInfo, permissionInfo, disableCheckArr, alreadyAllChecked } = this.state
+    const { outPermissionInfo, permissionInfo, disableCheckArr, alreadyAllChecked, filterPermissionInfo } = this.state
     const { text, memberCount, roleMember, modalStatus, clearInput, filterUser } = this.props
     const loopFunc = data => data.length >0 && data.map((item) => {
       if (item.users) {
@@ -394,10 +405,10 @@ class TreeComponent extends Component {
       return <TreeNode key={item.id} title={item.userName}/>;
     });
     const selectProps = {
-      defaultValue: '个人',
+      defaultValue: '成员',
       selectOptions : [{
         key: 'user',
-        value: '个人'
+        value: '成员'
       }, {
         key: 'team',
         value: '团队'
@@ -421,10 +432,11 @@ class TreeComponent extends Component {
                 modalStatus={modalStatus}
                 clearInput={clearInput}
                 style={{width: '90%', margin: '10px auto', display: 'block'}}/>
-              <Row className="treeTitle">
-                <Col span={12}>对象名称</Col>
-                <Col span={12}>类型</Col>
-              </Row>
+              {/*<Row className="treeTitle">*/}
+                {/*<Col span={12}>对象名称</Col>*/}
+                {/*<Col span={12}>类型</Col>*/}
+              {/*</Row>*/}
+              <hr className="underline"/>
               <div className='body'>
                 <div >
                   {
@@ -465,10 +477,16 @@ class TreeComponent extends Component {
                 <Checkbox onClick={this.alreadySelectAll} checked={alreadyAllChecked}>已选{text}</Checkbox>
                 <div className='numberBox'>共 <span className='number'>{roleMember}</span> 条</div>
               </div>
+              <CommonSearchInput
+                placeholder="请输入搜索内容"
+                style={{width: '90%', margin: '10px auto', display: 'block'}}
+                onSearch={this.filterMember}
+              />
+              <hr className="underline"/>
               <div className='body'>
                 <div>
                   {
-                    permissionInfo.length
+                    filterPermissionInfo.length
                       ? <Tree
                       checkable multiple
                       onExpand={this.onAlreadyExpand}
@@ -477,7 +495,7 @@ class TreeComponent extends Component {
                       onCheck={this.onAlreadyCheck}
                       checkedKeys={this.state.alreadyCheckedKeys}
                     >
-                      {loop(permissionInfo)}
+                      {loop(filterPermissionInfo)}
                     </Tree>
                       : <span className='noPermission'>暂无{text}</span>
                   }

@@ -654,9 +654,6 @@ Information = createForm()(Information)
 function mapStateToProp(state, props) {
   const loginUser = state.entities.loginUser.info
   let userDetail = props.userDetail
-  if (props.userDetail.namespace == loginUser.namespace) {
-    userDetail = loginUser
-  }
   return {
     userDetail,
     loginUser
