@@ -580,6 +580,7 @@ module.exports = function (Router) {
 
   // package manage
   router.get('/pkg', pkgController.getPkgManageList)
+  router.get('/pkg/:filename/:filetype/versions', pkgController.getVersions)
   router.get('/pkg/:id', pkgController.downloadPkg)
   router.post('/pkg/batch-delete', pkgController.deletePkg)
   router.post('/pkg/:filename/:filetag/:filetype/local', pkgController.localUploadPkg)

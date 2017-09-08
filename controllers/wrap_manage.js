@@ -95,3 +95,22 @@ exports.romoteUploadPkg = function* () {
   const body = yield api.pkg.createBy([filename,filetag,filetype,'remote'],null,this.request.body)
   this.body = body
 }
+
+
+exports.getVersions = function* (){
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const filename = this.params.filename
+  const filetype = this.params.filetype
+  if (!filename){
+    this.status = 400
+    this.body = {
+      message:"filename is empty"
+    }
+  } 
+  const query = {
+    "filter":`fileName contains ${filename}`
+  }
+  const list = yield api.pkg.getBy([filename,filetype,'versions'],query)
+  this.body = list.data
+}
