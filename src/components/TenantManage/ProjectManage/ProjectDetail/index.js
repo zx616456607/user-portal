@@ -815,7 +815,7 @@ class ProjectDetail extends Component{
           <div className="goBackBox">
             <span className="goBackBtn pointer" onClick={()=> browserHistory.push('/tenant_manage/project_manage')}>返回</span>
             <i/>
-            创建项目
+            项目详情
           </div>
           <Modal title="删除角色" visible={this.state.deleteRoleModal}
             onCancel = {()=> this.cancelDeleteRole()}
