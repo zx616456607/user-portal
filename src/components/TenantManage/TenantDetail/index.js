@@ -349,7 +349,7 @@ let TenantDetail = React.createClass({
             <span className="backjia"></span>
             <span className="btn-back">返回</span>
           </Link>
-          <span className="Title">角色详情（{roleDetail.name}）</span>
+          <span className="Title">角色详情</span>
         </Row>
         <div className='lastDetails'>
           <div className='title'>角色基本信息</div>
@@ -380,10 +380,16 @@ let TenantDetail = React.createClass({
                         {
                           this.state.isShowIco ?
                           <div className="comment">
-                            <Icon className="ico" type="minus-circle-o" style={{fontSize:14,margin:9}} onClick={() => this.handleColse()}/>
-                            <Icon className="ico" type="save" style={{fontSize:14}} onClick={() => this.handleItem()}/>
+                            <Tooltip title="取消">
+                              <Icon className="ico" type="minus-circle-o" style={{fontSize:14,margin:9}} onClick={() => this.handleColse()}/>
+                            </Tooltip>
+                            <Tooltip title="保存">
+                              <Icon className="ico" type="save" style={{fontSize:14}} onClick={() => this.handleItem()}/>
+                            </Tooltip>
                           </div> :
-                          <Icon type="edit" style={{marginLeft:'4px'}} onClick={() => this.handleIcon()}/>
+                          <Tooltip title="编辑">
+                            <Icon type="edit" style={{marginLeft:'4px'}} onClick={() => this.handleIcon()}/>
+                          </Tooltip>
                         }
                       </div>
                     </div>

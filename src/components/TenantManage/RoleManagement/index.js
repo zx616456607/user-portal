@@ -483,33 +483,37 @@ class RoleManagement extends React.Component{
           <div className='pageBox'>
             <span className='totalPage'>共计{ roleData ? roleData.length : 0}条</span>
           </div>
-          {/* <div className='clearDiv'></div> */}
         </div>
         <div className='appBox'>
           <Table
             columns={rolecolumns}
             dataSource={roleData}
             onChange={this.handleChange.bind(this)}
-            pagination={{simple: true}}
+            // pagination={{simple: true}}
             loading={loading}
           />
         </div>
         <Row>
-          <Modal title="删除角色操作" visible={this.state.Deleteroles} onOk={this.handleOkDel.bind(this)} onCancel={this.handleCancel.bind(this)} >
+          <Modal title="删除角色操作" visible={this.state.Deleteroles} onCancel={this.handleCancel.bind(this)}
+          footer={[
+            <Button key="back" type="ghost" size="large" onClick={this.handleCancel.bind(this)}>  取 消 </Button>,
+              this.state.count > 0 ? <Button size="large" disabled> 确定 </Button> :
+              <Button key="submit" type="primary" size="large" onClick={this.handleOkDel.bind(this)}> 确定 </Button>,
+          ]}>
              <div className="createRolesa">
-              <div className="mainbox">
+               {/* <div className="mainbox">
                 <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
-                <span>默认在引用该角色的项目中保留该角色，否则将彻底删除该角色。是否确定删除该角色？</span>
-              </div>
+                <span>是否确定删除该角色？</span>
+              </div> */}
+              <Icon type="question-circle-o" style={{color: '#2db7f5'}}/>
+              <span style={{color: '#2db7f5',marginLeft: 6}}>是否确定删除该角色？</span>
             </div>
             <div className="createRoles" style={{marginTop: 20}}>
-               {/* <Table columns={columns}  pagination={false}/> */}
-               {/* dataSource={data} */}
               <Row>
-                  <Checkbox checked={this.state.isChecked} onChange={(e) => this.handleChecked(e)}>
-                    项目中保留
-                    <span>（已引用项目 { this.state.count } 个）</span>
-                  </Checkbox>
+                <span style={{color: '#f85a5a', marginLeft: 9}}>{ this.state.count }</span>
+                {
+                  this.state.count > 0 ? <span style={{marginLeft: 6}}>个项目引用该角色,不可删除角色</span> : <span style={{marginLeft: 6}}>个项目引用该角色</span>
+                }
               </Row>
             </div>
           </Modal>
