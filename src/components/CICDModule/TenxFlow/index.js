@@ -606,7 +606,7 @@ class TenxFlowList extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
-    const { isFetching, buildFetching, logs, cicdApi, repoBranchesAndTags, detail } = this.props;
+    const { isFetching, buildFetching, logs, cicdApi, repoBranchesAndTags } = this.props;
     const { searchingFlag } = this.state;
     const { flowList } = this.state
     let message = '';
@@ -682,7 +682,7 @@ class TenxFlowList extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
         >
-          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} callback={this.callback(this.state.currentFlowId)} visible={this.state.TenxFlowDeployLogModal} triggerDetail={detail}/>
+          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} callback={this.callback(this.state.currentFlowId)} visible={this.state.TenxFlowDeployLogModal} />
         </Modal>
         {this.state.websocket}
       </QueueAnim>
@@ -702,14 +702,13 @@ function mapStateToProps(state, props) {
   const { getTenxflowList, repoBranchesAndTags } = state.cicd_flow
   const { isFetching, flowList } = getTenxflowList || defaultFlowList
   const { getTenxflowBuildLastLogs } = state.cicd_flow
-  const { logs, detail } = getTenxflowBuildLastLogs || defaultBuildLog
+  const { logs } = getTenxflowBuildLastLogs || defaultBuildLog
   let buildFetching = getTenxflowBuildLastLogs.isFetching || defaultBuildLog.buildFetching
   return {
     isFetching,
     flowList,
     buildFetching,
     logs,
-    detail,
     currentSpace: state.entities.current.space.namespace,
     loginUser: state.entities.loginUser,
     repoBranchesAndTags,

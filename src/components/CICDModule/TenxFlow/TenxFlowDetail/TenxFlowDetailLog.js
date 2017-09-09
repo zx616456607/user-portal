@@ -296,7 +296,7 @@ class TenxFLowDetailLog extends Component {
     }
   }
   render() {
-    const { scope, isFetching, logs, spaceName, flowName, detailFetching, detailLogs, flowId, detailTrigger } = this.props;
+    const { scope, isFetching, logs, spaceName, flowName, detailFetching, detailLogs, flowId } = this.props;
     const thisScope = this;
     return (
       <Card id='TenxFLowDetailLog'>
@@ -320,9 +320,6 @@ function mapStateToProps(state, props) {
   const defaultDetailStageLogs = {
     detailFetching: false,
     logs: []
-  }
-  const defaultTrigger = {
-    detail: []
   }
   const { current } = state.entities
   const { space } = current

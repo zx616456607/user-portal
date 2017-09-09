@@ -452,7 +452,7 @@ class TenxFlowDetail extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
-    const { flowInfo, isFetching, buildFetching, logs, triggerDetail } = this.props;
+    const { flowInfo, isFetching, buildFetching, logs } = this.props;
     if (isFetching || flowInfo == {} || !Boolean(flowInfo)) {
       return (
         <div className='loadingBox'>
@@ -544,7 +544,7 @@ class TenxFlowDetail extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={flowInfo.flowId} callback={this.callback(flowInfo.flowId)} visible={this.state.TenxFlowDeployLogModal} triggerDetail={triggerDetail}/>
+          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={flowInfo.flowId} callback={this.callback(flowInfo.flowId)} visible={this.state.TenxFlowDeployLogModal} />
         </Modal>
       </QueueAnim>
     )
@@ -569,7 +569,6 @@ function mapStateToProps(state, props) {
   const { initType } = getTenxFlowStatus || defaultFlowStatus;
   const buildFetching = getTenxflowBuildLastLogs ? getTenxflowBuildLastLogs.isFetching : deafaultFlowLog.isFetching
   const logs = getTenxflowBuildLastLogs ? getTenxflowBuildLastLogs.logs : deafaultFlowLog.logs;
-  const triggerDetail =  getTenxflowBuildLastLogs ? getTenxflowBuildLastLogs.detail : [];
   let otherImage = state.images.otherImages
   if(otherImage){
     otherImage = otherImage.imageRow
@@ -584,8 +583,7 @@ function mapStateToProps(state, props) {
     logs,
     currentSpace: state.entities.current.space.namespace,
     otherImage,
-    repoBranchesAndTags,
-    triggerDetail
+    repoBranchesAndTags
   }
 }
 
