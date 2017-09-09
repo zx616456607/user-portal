@@ -92,7 +92,7 @@ class UserProjectsAndTeams extends React.Component {
             project.key = project.ProjectID || project.projectID
           })
           this.setState({
-            allProjects: res.data.projects,
+            allProjects: res.data && res.data.projects || [],
           })
         },
         isAsync: true,
@@ -119,10 +119,10 @@ class UserProjectsAndTeams extends React.Component {
       }
     })
 
-    this.isSysAdmin(loginUser.role) && GetProjectsMembers(null, {
+    this.isSysAdmin(loginUser.role) && GetProjectsMembers({type: 'team'}, {
       success: {
         func: res => {
-          const teamList = res.data.teamList || []
+          const teamList = res.data.iteams || []
           teamList.map(team => {
             team.key = team.teamId
           })
@@ -404,7 +404,7 @@ class UserProjectsAndTeams extends React.Component {
             <Button
               type="primary"
               className="setBtn"
-              onClick={() => browserHistory.push(`/tenant_manage/team/${record.teamName}/${record.teamID}`)}
+              onClick={() => browserHistory.push(`/tenant_manage/team/${record.teamID}`)}
             >
               查看团队
             </Button>

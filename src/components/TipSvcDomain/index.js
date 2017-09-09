@@ -10,17 +10,19 @@
 import React, { Component } from 'react'
 import { Tooltip, Badge, Timeline, Icon, Row, Col, Popover } from 'antd'
 import './style/TipSvcDomain.less'
+import { genRandomString } from '../../common/tools'
 
 // server tips port card
 class SvcTip extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      copyStatus: false
+      copyStatus: false,
+      inputID: `serverCodeInput${genRandomString('0123456789',4)}`
     }
   }
   servercopyCode() {
-    let code = document.getElementById('serverCodeInput');
+    let code = document.getElementById(this.state.inputID);
     code.select()
     document.execCommand('Copy', false)
     this.setState({
@@ -38,7 +40,7 @@ class SvcTip extends Component {
   }
   startCopyCode(url) {
     //this function for copy code to input
-    let code = document.getElementById('serverCodeInput');
+    let code = document.getElementById(this.state.inputID);
     code.value = url
   }
   render() {
@@ -62,7 +64,7 @@ class SvcTip extends Component {
         <ul>
           {item}
         </ul>
-        <input id='serverCodeInput' style={{ position: 'absolute', opacity: '0' }} />
+        <input id={this.state.inputID} style={{ position: 'absolute', opacity: '0' }} />
       </div>
     )
   }

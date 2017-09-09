@@ -1387,7 +1387,7 @@ let CreateTenxFlowModal = React.createClass({
     if (stageList.length === 0) {
       uniformRepoProps = getFieldProps('uniformRepo', {
         valuePropName: 'checked',
-        initialValue: true,
+        initialValue: !this.props.isBuildImage,
       })
     }
     const buildCluster = getFieldProps('buildCluster', {

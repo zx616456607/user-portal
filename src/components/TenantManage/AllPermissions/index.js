@@ -121,7 +121,6 @@ class AllPermissions extends React.Component{
       title: '被角色引用次数',
       dataIndex: 'count',
       key: 'count',
-      sorter: (a, b) => a.citationtimes - b.citationtimes,
     }];
 
     return(

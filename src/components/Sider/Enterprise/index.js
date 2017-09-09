@@ -36,8 +36,14 @@ function checkUrlSelectedKey(pathname) {
     if (pathList[1] == 'app_manage' && pathList[2] == 'app_create') {
       return [pathList[1], pathList[1] + '_default']
     }
+    if (pathList[1] == 'app_manage' && pathList[2] == 'detail') {
+      return [pathList[1], pathList[1] + '_default']
+    }
     if (pathList[1] == 'account' && pathList[2] == 'user') {
       return [pathList[1], 'member']
+    }
+    if (pathList[1] == 'database_cache' && pathList[2] == 'mysql_cluster'){
+      return [pathList[1], pathList[1] + '_default']
     }
     if (pathList[2] == 'coderepo') {
       return [pathList[1], pathList[1] + '_default']
@@ -821,6 +827,11 @@ class Sider extends Component {
                       <Link to='/setting/personalized'>
                     <span><div className='sideCircle'></div> 个性外观</span>
                     </Link>
+                    </Menu.Item>,
+                    <Menu.Item key='cleaningTool'>
+                      <Link to='/setting/cleaningTool'>
+                        <span><div className='sideCircle'></div> 清理工具</span>
+                      </Link>
                     </Menu.Item>
                     ]
                     :

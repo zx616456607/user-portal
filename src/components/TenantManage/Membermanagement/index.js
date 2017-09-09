@@ -9,7 +9,7 @@
  */
 import React, { Component } from 'react'
 import './style/Membermanagement.less'
-import { Row, Col, Alert, Button, Input, Select, Menu, Card, Spin, Icon, Table, Modal, Checkbox, Tooltip, Dropdown } from 'antd'
+import { Tag, Row, Col, Alert, Button, Input, Select, Menu, Card, Spin, Icon, Table, Modal, Checkbox, Tooltip, Dropdown } from 'antd'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
@@ -145,19 +145,30 @@ let MemberTable = React.createClass({
         isSetFilter = true
       }
     }
+    if (filters.active) {
+      if (filters.active.length == 1) {
+        if (filter) {
+          filter += `,active,${filters.active[0]}`
+        } else {
+          filter = `active,${filters.active[0]}`
+        }
+        isSetFilter = true
+      }
+    }
     if (isSetFilter) {
       return filter
     }
-    return protoDate.concat(typeData)
+    return ''
   },
   onTableChange(pagination, filters, sorter) {
     // 点击分页、筛选、排序时触发
-    if (!filters.style && !filters.type) {
+    if (!filters.style && !filters.type && !filters.active) {
       return
     }
     let styleFilterStr = filters.style ? filters.style.toString() : ''
     let typeFilterStr = filters.type ? filters.type.toString() : ''
-    if (styleFilterStr === this.styleFilter && typeFilterStr == this.typeFilterStr) {
+    let activeFilterStr = filters.active ? filters.active.toString() : ''
+    if (styleFilterStr === this.styleFilter && typeFilterStr == this.typeFilterStr && activeFilterStr == this.activeFilterStr) {
       return
     }
     const { scope } = this.props
@@ -177,6 +188,7 @@ let MemberTable = React.createClass({
     loadUserList(query)
     this.styleFilter = styleFilterStr
     this.typeFilterStr = typeFilterStr
+    this.activeFilterStr = activeFilterStr
   },
   onSelectChange(selectedRowKeys) {
     const { scope } = this.props
@@ -327,7 +339,7 @@ let MemberTable = React.createClass({
       { text: '系统管理员', value: 2 }
     ]
     let userStatusfilterKey = [
-      { text: '不可用', value: 2 },
+      { text: '不可用', value: DEACTIVE },
       { text: '可用', value: 1 },
     ]
     // if (userDetail.role === ROLE_SYS_ADMIN) {
@@ -344,7 +356,7 @@ let MemberTable = React.createClass({
       {
         title: (
           <div onClick={this.handleSortName}>
-            成员名
+            成员名<a href="javascript:void(0)">（{this.props.onlineTotal} 人在线）</a>
             <div className="ant-table-column-sorter">
               <span className={this.state.sortName ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
                 <i className="anticon anticon-caret-up" />
@@ -363,6 +375,11 @@ let MemberTable = React.createClass({
           if (userDetail.role === ROLE_SYS_ADMIN) {
             return (
               <Link to={`/tenant_manage/user/${record.key}`}>
+                {
+                  record.online
+                  ? <Tag color="blue">在线</Tag>
+                  : <Tag className="offlineTag">离线</Tag>
+                }
                 {text}
               </Link>
             )
@@ -508,6 +525,7 @@ let MemberTable = React.createClass({
           dataSource={searchResult.length === 0 ? data : searchResult}
           pagination={pagination}
           onChange={this.onTableChange}
+          loading={this.props.usersIsFetching}
         />
         <DeleteUserModal
           visible={this.state.delModal}
@@ -731,7 +749,7 @@ class Membermanagement extends Component {
   } */
 
   render() {
-    const { users, checkUserName, loadAllUserList, userDetail, teams } = this.props
+    const { users, checkUserName, loadAllUserList, userDetail, teams, onlineTotal, usersIsFetching } = this.props
     const scope = this
     const { visible, memberList, hasSelected, createUserErrorMsg } = this.state
     const searchIntOption = {
@@ -802,16 +820,21 @@ class Membermanagement extends Component {
               }
             </div>
             <div className="alertRow">
-              该成员不属于任何项目与团队，且无创建项目与团队权限。
-              <p>1. 可将该成员添加到某团队；或将该成员添加到某项目中，并授予角色。</p>
-              <p>2. 可在团队列表页将该成员授予可创建团队权限，或在项目列表页将该成员授予可创建项目权限。</p>
+              可将该成员添加到某团队；或将该成员添加到某项目中，并授予角色。
             </div>
           </Modal>
           <div className="total">共计 {this.props.total} 条&nbsp; </div>
         </Row>
         <Row className="memberList">
           <Card className="memberlist">
-            <MemberTable scope={scope} data={users} loginUser={userDetail} teams={teams} />
+            <MemberTable
+              scope={scope}
+              data={users}
+              loginUser={userDetail}
+              teams={teams}
+              onlineTotal={onlineTotal}
+              usersIsFetching={usersIsFetching}
+            />
           </Card>
         </Row>
         {/* 充值modal */}
@@ -852,6 +875,7 @@ class Membermanagement extends Component {
 function mapStateToProp(state) {
   let usersData = []
   let total = 0
+  let onlineTotal = 0
   let data = []
   const users = state.user.users
   const userDetail = state.entities.loginUser.info
@@ -881,6 +905,7 @@ function mapStateToProp(state) {
             balance: parseAmount(item.balance).fullAmount,
             type: item.type,
             project: item[camelize('project_count')] || '-',
+            online: item.online,
           }
         )
       })
@@ -888,10 +913,13 @@ function mapStateToProp(state) {
     if (users.result.total) {
       total = users.result.total
     }
+    onlineTotal = users.result.onlineTotal
   }
   return {
     users: data,
+    usersIsFetching: users.isFetching,
     total,
+    onlineTotal,
     userDetail,
   }
 }

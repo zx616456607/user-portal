@@ -466,7 +466,7 @@ class hostList extends Component {
     }
     let nodeList = [];
     nodes.nodes.map((node) => {
-      if (node.objectMeta.name.indexOf(search) > -1) {
+      if (node.objectMeta.name.indexOf(search) > -1 || node.address.indexOf(search) > -1) {
         nodeList.push(node);
       }
     });

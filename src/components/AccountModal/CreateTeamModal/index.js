@@ -111,8 +111,8 @@ let CreateTeamModal = React.createClass({
     
     })
     const formItemLayout = {
-      labelCol: { span: 3 },
-      wrapperCol: { span: 21 },
+      labelCol: { span: 2 },
+      wrapperCol: { span: 22 },
     }
     return (
       <Modal title="创建团队" visible={visible}

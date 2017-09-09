@@ -183,8 +183,14 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     }
     let item = {
       path: str,
-      inregex,
-      exregex
+    }
+    if(inregex){
+      const reg = new RegExp(inregex)
+      item.inregex = reg.toString()
+    }
+    if(exregex){
+      const reg  = new RegExp(exregex)
+      item.exregex = reg.toString()
     }
     if (name) {
       item.name = name
@@ -230,7 +236,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
         const volume = {
           name: `configmap-volume-${keyValue}`,
           configMap: {
-            name: configGroupName[1],
+            name: configGroupName && configGroupName[1],
             items: configMapSubPathValues.map(value => {
               return {
                 key: value,

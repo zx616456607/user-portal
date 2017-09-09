@@ -27,6 +27,7 @@ const serviceIndex = require('../services')
 const registryConfigLoader = require('../registry/registryConfigLoader')
 const initGlobalConfig = require('../services/init_global_config')
 const securityUtil = require('../utils/security')
+const sessionService = require('../services/session')
 const _ = require('lodash')
 
 /*
@@ -105,9 +106,21 @@ exports.getUsers = function* () {
     total = result.listMeta.total
   }
 
+  // get users is online
+  const sessionUsers = yield sessionService.getAllSessions()
+  users.map(user => {
+    for (let i = 0; i < sessionUsers.length; i++) {
+      if (user.userID === sessionUsers[i].loginUser.id) {
+        user.online = true
+        return
+      }
+    }
+  })
+
   this.body = {
     users,
-    total
+    total,
+    onlineTotal: sessionUsers.length,
   }
 }
 
@@ -136,17 +149,8 @@ exports.getUserTeams = function* () {
     }
   }
   else {
-    // Show teams that current user can manage
+    // Show teams that current user create or belongs to
     let managedTeams = (userID === 'default')
-    //Only team admin / sysadmin can get team related information
-    if (this.session.loginUser.role != ROLE_TEAM_ADMIN && this.session.loginUser.role != ROLE_SYS_ADMIN) {
-      this.body = {
-        teams: [],
-        total: 0
-      }
-      return
-    }
-
     const query = this.query || {}
     let page = parseInt(query.page || DEFAULT_PAGE)
     let size = parseInt(query.size || DEFAULT_PAGE_SIZE)

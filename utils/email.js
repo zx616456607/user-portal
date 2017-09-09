@@ -201,7 +201,7 @@ exports.sendVerificationEmail = sendVerificationEmail
 exports.sendUserCreationEmail = function (to, creatorName, creatorEmail, userName, userPassword) {
   const method = "sendUserCreationEmail"
   const subject = `已为您创建时速云帐号`
-  const systemEmail = config.mail_server.service_mail
+  const systemEmail = getSystemEmail()
   const date = moment(new Date()).format("YYYY-MM-DD")
   const loginURL = `${config.url}/login`
   const mailOptions = {
@@ -236,7 +236,7 @@ exports.sendUserCreationEmail = function (to, creatorName, creatorEmail, userNam
 exports.sendInviteTeamMemberEmail = function (to, invitorName, invitorEmail, teamName, inviteURL) {
   const method = "sendInviteTeamMemberEmail"
   const subject = `${teamName} 团队动态通知（邀请新成员）`
-  const systemEmail = config.mail_server.service_mail
+  const systemEmail = getSystemEmail()
   const date = moment(new Date()).format("YYYY-MM-DD")
   const mailOptions = {
     to,
@@ -269,7 +269,7 @@ exports.sendCancelInvitationEmail = function (to, invitorName, invitorEmail, tea
   const method = "sendCancelInvitationEmail"
 
   const subject = `${teamName} 团队动态通知（取消邀请）`
-  const systemEmail = config.mail_server.service_mail
+  const systemEmail = getSystemEmail()
   const date = moment(new Date()).format("YYYY-MM-DD")
   var mailOptions = {
     to,
@@ -303,7 +303,7 @@ exports.sendDismissTeamEmail = function (teamAdminName, teamAdminEmail, teamMemb
   const subject = `${teamName} 团队动态通知（解散团队）`
   const emails = [teamAdminEmail, teamMemberEmails]
   const templates = ['dismiss_team_admin', 'dismiss_team_user']
-  const systemEmail = config.mail_server.service_mail
+  const systemEmail = getSystemEmail()
   const date = moment(new Date()).format("YYYY-MM-DD")
   let showRefund = "table-cell"
   let showNoRefund = "none"
@@ -367,7 +367,7 @@ exports.sendExitTeamEmail = function (teamAdminEmail, teamMemberEmail, teamMembe
   const subject = `${teamName} 团队动态通知（${teamMemberName} 退出团队）`
   const emails = [teamAdminEmail, teamMemberEmail]
   const contents = [`${teamMemberName}成员退出团队"${teamName}"`, `您已退出"${teamName}"`]
-  const systemEmail = config.mail_server.service_mail
+  const systemEmail = getSystemEmail()
   const date = moment(new Date()).format("YYYY-MM-DD")
   const promiseArray = []
   for (let i = 0; i < 2; i++) {
@@ -406,7 +406,7 @@ exports.sendRemoveTeamMemberEmail = function (teamAdminName, teamAdminEmail, tea
   const subject = `${teamName} 团队动态通知（移除成员 ${teamMemberName}）`
   const emails = [teamAdminEmail, teamMemberEmail]
   const contents = [`您已将团队“${teamName}”团队成员${teamMemberName}移除`, `${teamAdminName}将您移除团队"${teamName}"`]
-  const systemEmail = config.mail_server.service_mail
+  const systemEmail = getSystemEmail()
   const date = moment(new Date()).format("YYYY-MM-DD")
   const promiseArray = []
   for (let i = 0; i < 2; i++) {
@@ -440,7 +440,7 @@ exports.sendRemoveTeamMemberEmail = function (teamAdminName, teamAdminEmail, tea
 exports.sendResetPasswordEmail = function (to, resetPasswordURL) {
   const method = "sendResetPasswordEmail"
   const subject = `时速云用户重置密码`
-  const systemEmail = config.mail_server.service_mail
+  const systemEmail = getSystemEmail()
   const date = moment(new Date()).format("YYYY-MM-DD")
   let mailOptions = {
     to,
@@ -516,7 +516,7 @@ exports.sendUserActivationEmail = function (to, userActivationURL) {
   const method = "sendUserActivationEmail"
 
   const subject = `时速云用户完成注册`
-  const systemEmail = config.mail_server.service_mail
+  const systemEmail = getSystemEmail()
   const date = moment(new Date()).format("YYYY-MM-DD")
   let mailOptions = {
     to,
@@ -565,7 +565,7 @@ function switchPayTypeToText(type) {
 
 exports.sendNotifyGroupInvitationEmail = function* (to, invitorName, invitorEmail, code, transport) {
   const subject = `[时速云]告警通知组|邮箱验证`
-  const systemEmail = config.mail_server.service_mail
+  const systemEmail = getSystemEmail()
   const date = moment(new Date()).format("YYYY-MM-DD")
   const inviteURL = `${config.url}/email/invitations/join?code=${code}`
   const mailOptions = {
@@ -587,7 +587,7 @@ exports.sendNotifyGroupInvitationEmail = function* (to, invitorName, invitorEmai
 
 exports.sendGlobalConfigVerificationEmail = function* (body, invitorName, invitorEmail) {
   const subject = `[时速云]邮件报警|邮箱验证`
-  const systemEmail = config.mail_server.service_mail
+  const systemEmail = getSystemEmail()
   const date = moment(new Date()).format("YYYY-MM-DD")
   const mailOptions = {
     from: body.email,
@@ -616,4 +616,8 @@ exports.sendGlobalConfigVerificationEmail = function* (body, invitorName, invito
     service_mail: body.email
   }
   return sendVerificationEmail(transport, mailOptions, 'alarm_email.html')
+}
+
+function getSystemEmail() {
+  return config.mail_server.service_mail || 'service@tenxcloud.com'
 }

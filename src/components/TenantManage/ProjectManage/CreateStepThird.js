@@ -19,7 +19,7 @@ import TreeComponent from '../../TreeForMembers'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import includes from 'lodash/includes'
-import { TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID } from '../../../../constants'
+import { PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID } from '../../../../constants'
 
 let checkedKeysThird = []
 class CreateStepThird extends Component{
@@ -36,13 +36,15 @@ class CreateStepThird extends Component{
       currentRolePermission: [],
       memberArr: [],
       roleMap: {},
-      memberCount: 0
+      memberCount: 0,
+      clearInput: false,
+      memberType: 'user'
     }
   }
   componentWillMount() {
     const { userInfo, updateRoleWithMember } = this.props;
     let map = {
-      [TEAM_MANAGE_ROLE_ID]: [userInfo.userID]
+      [PROJECT_MANAGE_ROLE_ID]: [userInfo.userID]
     }
     let obj = {
       userID: userInfo.userID,
@@ -52,7 +54,7 @@ class CreateStepThird extends Component{
     updateRoleWithMember(map)
     this.setState({
       roleMap: map,
-      [`member${TEAM_MANAGE_ROLE_ID}`]: [obj]
+      [`member${PROJECT_MANAGE_ROLE_ID}`]: [obj]
     })
   }
   componentWillReceiveProps(nextProps) {
@@ -81,18 +83,25 @@ class CreateStepThird extends Component{
       form.resetFields()
     }
   }
-  getProjectMember() {
+  getProjectMember(type, name) {
     const { GetProjectsMembers } = this.props;
-    GetProjectsMembers({},{
+    let query = {type}
+    if (name) {
+      query = Object.assign(query, {filter: `name,${name}`})
+    }
+    
+    GetProjectsMembers(query, {
       success: {
         func: (res) => {
           if (res.statusCode === 200) {
-            let newArr = res.data.teamList && res.data.teamList.concat(res.data.userList)
+            let newArr = res.data.iteams || []
             this.formatMember(newArr)
             this.setState({
               memberArr: newArr,
-              memberCount: res.data.listMeta.total,
-              connectModal:true
+              totalMemberCount: res.data.listMeta.total,
+              connectModal:true,
+              memberType: type,
+              clearInput: true
             })
           }
         },
@@ -130,7 +139,10 @@ class CreateStepThird extends Component{
     this.setState({ selectedKeys });
   }
   closeModal() {
-    this.setState({connectModal: false})
+    this.setState({
+      connectModal: false,
+      clearInput: true
+    })
   }
   submitModal() {
     const { roleMap } = this.state;
@@ -138,7 +150,10 @@ class CreateStepThird extends Component{
     scope.setState({
       roleWithMember:roleMap
     },()=>{
-      this.setState({connectModal: false})
+      this.setState({
+        connectModal: false,
+        clearInput: true
+      })
     })
   }
   filterOption(inputValue, option) {
@@ -225,26 +240,16 @@ class CreateStepThird extends Component{
     }
     return a
   }
-  relateMember() {
-    const { memberArr } = this.state;
-    if (!memberArr.length) {
-      this.getProjectMember()
-    } else {
-      this.setState({
-        connectModal:true
-      })
-    }
-  }
   render() {
     const { scope, form } = this.props;
     const TreeNode = Tree.TreeNode;
-    const { currentRolePermission, currentRoleInfo, memberArr, connectModal, roleMap, memberCount } = this.state;
+    const { currentRolePermission, currentRoleInfo, memberArr, connectModal, roleMap, memberCount, clearInput, memberType } = this.state;
     let currentId = currentRoleInfo && currentRoleInfo.id
     const projectNameLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 15, offset: 1 },
     };
-    const disabledArr = [TEAM_VISISTOR_ROLE_ID, TEAM_MANAGE_ROLE_ID]
+    const disabledArr = [PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID]
     const roleList = scope.state.RoleKeys.length > 0 ? scope.state.RoleKeys.map((item)=>{
       return (
         <li onClick={()=>this.getCurrentRole.call(this,item.split(',')[0])} key={item.split(',')[1]}
@@ -280,7 +285,7 @@ class CreateStepThird extends Component{
           </Form.Item>
         </div>
         <div className="clearfix characterWrapper">
-          <span className="pull-left">已添加角色</span>
+          <span className="pull-left">已添加角色：</span>
           <div className="pull-left characterBox">
             <ul className="characterListBox pull-left">
               {roleList}
@@ -308,7 +313,7 @@ class CreateStepThird extends Component{
                 <div className="memberTitle">
                   <span>该角色已关联 <span className="themeColor">{this.state[`member${currentId}`] && this.state[`member${currentId}`].length || 0}</span> 个对象</span>
                   {
-                    this.state[`member${currentId}`] && this.state[`member${currentId}`].length > 0 && <Button type="primary" size="large" onClick={()=> this.relateMember()}>继续关联对象</Button>
+                    this.state[`member${currentId}`] && this.state[`member${currentId}`].length > 0 && <Button type="primary" size="large" onClick={()=> this.getProjectMember('user')}>继续关联对象</Button>
                   }
                 </div>
                 <div className="memberTableBox">
@@ -321,7 +326,7 @@ class CreateStepThird extends Component{
                         {loopFunc(this.state[`member${currentId}`])}
                       </Tree>
                       :
-                      <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.relateMember()}>关联对象</Button>
+                      <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.getProjectMember('user')}>关联对象</Button>
                   }
                 </div>
               </div>
@@ -334,6 +339,11 @@ class CreateStepThird extends Component{
         >
           <TreeComponent
              outPermissionInfo={memberArr}
+             changeSelected={this.getProjectMember.bind(this)}
+             modalStatus={connectModal}
+             clearInput={clearInput}
+             memberType={memberType}
+             filterUser={(value) => this.getProjectMember(memberType, value)}
              permissionInfo={[]}
              existMember={roleMap[currentId] || []}
              text='成员'

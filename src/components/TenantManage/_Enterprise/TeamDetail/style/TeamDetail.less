@@ -15,14 +15,33 @@
     .teamNameBox{
       .teamName{
         max-width: 300px;
-        .ant-input-wrapper{
-          .ant-input{
-            width: 80%;
+        position: relative;
+        .ant-form-item{
+          width: 80%;
+          display: inline-block;
+          margin: 0;
+          .ant-form-explain{
+            font-size: 12px;
+            white-space: normal;
+            height: auto;
           }
         }
-      }
-      i{
-        margin-left: 10px;
+        .cancel, .confirm{
+          position: absolute;
+          top: 15px;
+        }
+        .cancel{
+          right: 30px;
+        }
+        .confirm{
+          right: 0;
+        }
+        .edit{
+          margin-left: 15px;
+        }
+        .teamInput{
+          padding-right: 22px;
+        }
       }
     }
   }
@@ -31,7 +50,7 @@
   }
   .userTotalBox{
     float: right;
-    margin: 20px 200px 0 0;
+    margin: 12px 150px 0 0;
   }
   .back {
     display: inline-block;

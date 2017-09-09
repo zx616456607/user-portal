@@ -311,10 +311,12 @@ class TerminalModal extends Component {
             const titleTab = (
               <div className="action-header">
                 <span className="service-name">{name}</span>
-                <Button icon="file-text" type="primary" onClick={()=> this.openLogs(item)} >日志</Button>
+                {
+                  location.pathname !== '/cluster' &&
+                  <Button icon="file-text" type="primary" onClick={()=> this.openLogs(item)} >日志</Button>
+                }
                 <span>&nbsp;&nbsp;</span>
                 <Button icon='cross' type="ghost" className="closeBtn" onClick={()=> this.closeTerminalItem(item)}></Button>
-
               </div>
             )
             return (

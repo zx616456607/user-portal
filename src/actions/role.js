@@ -322,6 +322,31 @@ export function usersAddRoles(body,callback) {
   }
 }
 
+export const USERS_LOSE_ROLES_REQUEST = 'USERS_LOSE_ROLES_REQUEST'
+export const USERS_LOSE_ROLES_SUCCESS = 'USERS_LOSE_ROLES_SUCCESS'
+export const USERS_LOSE_ROLES__FAILURE = 'USERS_LOSE_ROLES__FAILURE'
+
+function fetchUsersLoseRoles(body,callback) {
+  return {
+    [FETCH_API]: {
+      types: [USERS_LOSE_ROLES_REQUEST, USERS_LOSE_ROLES_SUCCESS, USERS_LOSE_ROLES__FAILURE],
+      endpoint: `${API_URL_PREFIX}/role/${body.roleID}/${body.scope}/${body.scopeID}/batch-delete`,
+      options: {
+        method: 'POST',
+        body: body.body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function usersLoseRoles(body,callback) {
+  return (dispatch,getState) => {
+    return dispatch(fetchUsersLoseRoles(body,callback))
+  }
+}
+
 export const ROLE_WITH_MEMBERS_REQUEST = 'ROLE_WITH_MEMBERS_REQUEST'
 export const ROLE_WITH_MEMBERS_SUCCESS = 'ROLE_WITH_MEMBERS_SUCCESS'
 export const ROLE_WITH_MEMBERS__FAILURE = 'ROLE_WITH_MEMBERS__FAILURE'
