@@ -35,7 +35,7 @@ const defaultMedias = {
 
 const customDefaultInfo = {
   company: {
-    name: "© 2017 北京云思畅想科技有限公司  |  时速云企业版 v2.2.0",
+    name: "© 2017 北京云思畅想科技有限公司  |  时速云企业版 v2.6.0",
     productName: "时速云",
     visible: true
   },
