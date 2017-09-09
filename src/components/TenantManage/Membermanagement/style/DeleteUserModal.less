@@ -62,9 +62,26 @@
           overflow-y: auto;
           .ant-menu-inline {
             border: 0;
+            & > .ant-menu-item {
+              height: 50px;
+            }
+            & > .selectUserMenu {
+              line-height: initial;
+              padding: 10px 0;
+              & > div:first-child {
+                margin-bottom: 5px;
+              }
+            }
+            & > .unselectUserMenu {
+              line-height: 50px;
+            }
             .ant-menu-item-selected {
               border-right: 0;
               border-left: 2px solid #2db7f5;
+              color: #666;
+              .selectUser {
+                color: #2db7f5;
+              }
             }
           }
         }
