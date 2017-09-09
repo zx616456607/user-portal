@@ -467,14 +467,11 @@ class Information extends Component {
           <Row className="Item">
             <Col span={4}>类型</Col>
             <Col span={8}>{roleName}</Col>
-            {
-              userID && userDetail.role != ROLE_SYS_ADMIN &&
-              <Col span={10}>
-                <Button style={{width: '80px'}} type="primary" onClick={() => this.changeUserRoleModal()}>
-                  修 改
-                </Button>
-              </Col>
-            }
+            <Col span={10}>
+              <Button style={{width: '80px'}} type="primary" onClick={() => this.changeUserRoleModal()}>
+                修 改
+              </Button>
+            </Col>
           </Row>
           <Row className="Item">
             <Col span={4}>权限</Col>

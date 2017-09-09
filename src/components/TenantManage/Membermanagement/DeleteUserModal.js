@@ -113,12 +113,6 @@ class DeleteUserModal extends React.Component {
     const { currentUser, teamtransfer, deleteUser, loadUserList, scope } = this.props
     const { userSelectedRowKeys } = this.state
     const record = currentUser
-    if (record.style === "系统管理员") {
-      confirm({
-        title: '不能删除系统管理员',
-      });
-      return
-    }
     this.setState({ delBtnLoading: true })
     let notification = new NotificationHandler()
     const { page, pageSize, filter, sort } = scope.state
