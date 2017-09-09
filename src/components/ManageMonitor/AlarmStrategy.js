@@ -89,7 +89,7 @@ class AlarmStrategy extends Component {
   moreDropdown(e, record) {
     switch(e.key) {
       case 'delete': {
-        this.setState({deleteModal: true, strategyID: [record.strategyID]})
+        this.setState({deleteModal: true, strategyID: [record.strategyID],strategyName: [record.strategyName]})
         return
       }
       case 'stop':{
@@ -155,14 +155,14 @@ class AlarmStrategy extends Component {
     )
   }
   handDelete() {
-    const { strategyID } = this.state
+    const { strategyID , strategyName } = this.state
     const notifcation = new NotificationHandler()
     if (strategyID.length == 0) {
       notifcation.info('请选择要删除的策略')
       return
     }
     const _this = this
-    this.props.deleteSetting(this.props.cluster, strategyID, {
+    this.props.deleteSetting(this.props.cluster, strategyID, strategyName,{
       success: {
         func:()=> {
           notifcation.success('删除策略成功')
@@ -398,10 +398,12 @@ class AlarmStrategy extends Component {
     const rowSelection = {
       selectedRowKeys: this.state.selectedRowKeys, // 控制checkbox是否选中
       onChange(selectedRowKeys, selectedRows) {
+        const strategyName =[]
         const strategyID = selectedRows.map((list)=> {
+          strategyName.push(list.strategyName)
           return list.strategyID
         })
-        _this.setState({strategyID, selectedRowKeys})
+        _this.setState({strategyID, strategyName, selectedRowKeys})
       }
     }
     const { total } = this.props.data || 0
