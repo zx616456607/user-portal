@@ -95,20 +95,24 @@ function dateFormat(dateString) {
   return timeStr.format("YYYY-MM-DD HH:mm:ss")
 }
 
-function getTriggeredInfo(triggeredInfo) {
-  if (!triggeredInfo) return '手动触发'
+function getTriggeredInfo(item) {
+  let triggeredInfo = item.triggeredInfo
+  if(item.status == null) {
+    return ''
+  }
+  if (!triggeredInfo) return '(手动触发)'
   try {
     if (typeof triggeredInfo == 'string') {
       triggeredInfo = JSON.parse(triggeredInfo)
     }
     if (triggeredInfo.type == 'Branch') {
-      return 'commit CI触发'
+      return '(commit CI触发)'
     }
     if (triggeredInfo.type == 'Tag') {
-      return '新建Tag CI触发'
+      return '(新建Tag CI触发)'
     }
     if (triggeredInfo.type == 'merge_request') {
-      return 'pull request CI触发'
+      return '(pull request CI触发)'
     }
   } catch (error) {
   }
@@ -356,7 +360,7 @@ let MyComponent = React.createClass({
             </span>
           </div>
           <div className={`status status-` + `${item.status}`} style={{width: '25%'}}>
-            <span><i className="fa fa-circle"></i>{status} <span style={{color: '#747474'}}>({getTriggeredInfo(item.triggeredInfo)})</span></span>
+            <span><i className="fa fa-circle"></i>{status} <span style={{color: '#747474'}}>{getTriggeredInfo(item)}</span></span>
           </div>
           <div className='oprea'>
             <Button className='logBtn' size='large' type='ghost' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
