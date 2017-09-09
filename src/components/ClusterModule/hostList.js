@@ -5,7 +5,7 @@ import React, { Component, propTypes } from 'react'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../components/Notification'
-import { Card, Button, Tooltip, Icon, Input, Select, Spin, Menu, Dropdown, Switch, Tag, Modal, Form, Table } from 'antd'
+import { Card, Button, Tooltip, Icon, Input, Spin, Menu, Dropdown, Switch, Tag, Modal, Form, Table } from 'antd'
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -174,7 +174,7 @@ const MyComponent = React.createClass({
       }
     ]
     if(nodeList && nodeList.length !== 0){
-      maxNodes = license[camelize('max_nodes')]
+      maxNodes = license && license[camelize('max_nodes')]
       dropdown = nodeList.map((item, index) => {
         return (
           <Menu disabled={item.isMaster ? true : false}
@@ -732,7 +732,7 @@ function mapStateToProps(state, props) {
   const nodes = data.clusters ? data.clusters.nodes : []
 
   const cluster = props.clusterID
-  if (!clusterLabel[cluster]) {
+  if (!clusterLabel || !clusterLabel[cluster]) {
     return props
   }
   let { result } = clusterLabel[cluster]
