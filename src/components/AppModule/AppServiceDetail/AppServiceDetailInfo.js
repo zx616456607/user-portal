@@ -426,14 +426,14 @@ class BindNodes extends Component {
     const policy = {
       type: scheduleBySystem,
     }
-    if (labels && node) {
-      policy.type = unknownSchedulePolicy
-    } else if (labels) {
-      policy.type = scheduleByLabels
-      policy.labels = labels
-    } else if (node) {
+    if (node) {
+      // Check node policy first
       policy.type = scheduleByHostNameOrIP
       policy.node = node
+    } else if (labels) {
+      // Then check label policy
+      policy.type = scheduleByLabels
+      policy.labels = labels
     }
     return policy
   }
@@ -457,6 +457,7 @@ class BindNodes extends Component {
       (labels, expression) => labels.concat(expression.values.map(
         value => ({
           key: expression.key,
+          operator: expression.operator,
           value
         }))), [])
     return labels.length > 0 ? labels : null
@@ -464,11 +465,14 @@ class BindNodes extends Component {
 
   labelsTemplate(labels) {
     let arr = labels.map((item, index) => {
-      return <div key={index} className='label'>
-        <span>{item.key}</span>
-        <span> : </span>
-        <span>{item.value}</span>
-      </div>
+      if (item.operator === "In") {
+        // Only show IN operator for now
+        return <div key={index} className='label'>
+          <span>{item.key}</span>
+          <span> : </span>
+          <span>{item.value}</span>
+        </div>
+      }
     })
     return arr
   }
