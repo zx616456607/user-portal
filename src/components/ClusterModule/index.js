@@ -550,7 +550,7 @@ let CreateClusterModal = React.createClass({
       }
       {
         noCluster &&
-        <Alert message="请您先镜像仓库并添加集群，然后才能进行其他操作" type="warning" showIcon />
+        <Alert message="请先配置镜像仓库并添加集群，然后再进行其他操作" type="warning" showIcon />
       }
       {
         (noCluster && noClusterStep === 1) && (
