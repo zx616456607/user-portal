@@ -643,7 +643,7 @@ class hostList extends Component {
 
   render() {
     const { addNodeCMD, labels } = this.props
-    const { deleteNode, podCount } = this.state
+    const { deleteNode, podCount, summary, nodeList } = this.state
     const scope = this;
     return <div id="cluster__hostlist">
       <Card className='ClusterListCard'>
@@ -681,13 +681,13 @@ class hostList extends Component {
             />
           </span>
           {
-            this.state.nodeList.length
-            ? <div className='totle_num'>共 <span>{this.state.nodeList.length}</span> 条</div>
+            nodeList && nodeList.length
+            ? <div className='totle_num'>共 <span>{nodeList.length}</span> 条</div>
             : null
           }
 
           {
-            this.state.summary.length > 0
+            summary && summary.length > 0
             ? <div className='selectedroom'>
               {this.formTagContainer()}
             </div>
@@ -696,7 +696,7 @@ class hostList extends Component {
         </div>
         <div className='dataBox'>
           <div className='datalist'>
-            <MyComponent {...this.props} nodeList={this.state.nodeList} scope={scope} podCount={podCount} />
+            <MyComponent {...this.props} nodeList={nodeList} scope={scope} podCount={podCount} />
           </div>
         </div>
       </Card>

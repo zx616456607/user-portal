@@ -117,7 +117,7 @@ function userDetail(state, action) {
         isFetching: true
       })
     case ActionTypes.USER_DETAIL_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         isFetching: false,
         result: action.response.result
       })
