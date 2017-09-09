@@ -307,11 +307,11 @@ class AppServiceDetail extends Component {
     })
       let onTerminal = containers.map((item, index) => {
         return (
-          <Button className='loginBtn' type='primary' size='large' key={index}>
+          <Button className='loginBtn' type='primary' size='large' key={index} onClick={this.openTerminalModal.bind('', item)}>
             <svg className='terminal'>
               <use xlinkHref='#terminal'/>
             </svg>
-            <span onClick={this.openTerminalModal.bind('', item)}>登录终端</span>
+            <span>登录终端</span>
           </Button>
           )
       })

@@ -659,20 +659,23 @@ class AlarmSetting extends Component {
   deleteRecords() {
     const data = this.state.data
     const strategyID = []
+    const strategyName =[]
     const selectStrategy = this.state.selectStrategy
     if(selectStrategy) {
       strategyID.push(selectStrategy.strategyID)
+      strategyName.push(selectStrategy.strategyName)
     } else {
       data.forEach(item => {
         if(item.checked) {
           strategyID.push(item.strategyID)
+          strategyName.push(item.strategyName)
         }
       })
     }
     const notify = new NotificationHandler()
     const { clusterID, deleteSetting, getSettingList } = this.props
     notify.spin('删除中')
-    strategyID.length > 0 && deleteSetting(clusterID, strategyID, {
+    strategyID.length > 0 && deleteSetting(clusterID, strategyID,strategyName, {
       success: {
         func: () => {
           this.setState({

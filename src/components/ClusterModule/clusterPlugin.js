@@ -370,7 +370,7 @@ class ClusterPlugin extends Component {
       return <div key="null"></div>
     }
     if (nodeList[clusterID].isFetching) {
-      return <Card id="Network" className="ClusterInfo" key="loading" value="loading">
+      return <Card key="Network" id="Network" className="ClusterInfo">
         <div className="h3">节点</div>
         <div className="loadingBox" style={{ height: '100px' }}><Spin size="large"></Spin></div>
       </Card>

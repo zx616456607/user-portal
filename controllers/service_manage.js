@@ -12,6 +12,7 @@
 const constants = require('../constants')
 const INSTANCE_MAX_NUM = constants.INSTANCE_MAX_NUM
 const INSTANCE_AUTO_SCALE_MAX_CPU = constants.INSTANCE_AUTO_SCALE_MAX_CPU
+const INSTANCE_AUTO_SCALE_MAX_MEMORY = constants.INSTANCE_AUTO_SCALE_MAX_MEMORY
 const apiFactory = require('../services/api_factory')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
@@ -224,7 +225,7 @@ exports.autoScaleService = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
   const body = this.request.body
-  if (!body || !body.min || !body.max || !body.cpu) {
+  if (!body || !body.min || !body.max || !body.cpu || !body.memory) {
     const err = new Error('min, max, cpu are required.')
     err.status = 400
     throw err
@@ -232,6 +233,7 @@ exports.autoScaleService = function* () {
   let min = parseInt(body.min)
   let max = parseInt(body.max)
   let cpu = parseInt(body.cpu)
+  let memory = parseInt(body.memory)
   if (isNaN(min) || min < 1 || min > INSTANCE_MAX_NUM) {
     const err = new Error(`min is between 1 and ${INSTANCE_MAX_NUM}.`)
     err.status = 400
@@ -252,9 +254,14 @@ exports.autoScaleService = function* () {
     err.status = 400
     throw err
   }
+  if (isNaN(memory) || memory < 1 || memory > INSTANCE_AUTO_SCALE_MAX_MEMORY) {
+    const err = new Error(`memory is between 1 and ${INSTANCE_AUTO_SCALE_MAX_MEMORY}.`)
+    err.status = 400
+    throw err
+  }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'services', serviceName, 'autoscale'], null, { min, max, cpu })
+  const result = yield api.updateBy([cluster, 'services', serviceName, 'autoscale'], null, { min, max, cpu ,memory})
   this.body = {
     cluster,
     serviceName,
@@ -481,6 +488,13 @@ exports.getAllService = function*() {
 	this.status = response.code
   response.data.services.map((item) => {
     portHelper.addPort(item.deployment, item.service, lbgroupSettings.data)
+    let annotations = item.deployment.spec.template.metadata.annotations
+    if (annotations && annotations.appPkgName && annotations.appPkgTag){
+      item.deployment["wrapper"] = {
+        "appPkgName":annotations.appPkgName,
+        "appPkgTag":annotations.appPkgTag
+      }
+    }
   })
 	this.body = response
 }

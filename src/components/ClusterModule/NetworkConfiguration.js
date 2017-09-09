@@ -121,7 +121,7 @@ let NetworkConfiguration = React.createClass ({
       return <Option key="none"/>
     }
     if(nodeList[clusterID].isFetching) {
-      return <Card id="Network" className='header'>
+      return <Card key="Network" id="Network" className='header'>
         <div className="h3">网络配置</div>
         <div className="loadingBox" style={{height:'100px'}}><Spin size="large"></Spin></div>
       </Card>

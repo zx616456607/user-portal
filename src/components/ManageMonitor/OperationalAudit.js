@@ -943,6 +943,21 @@ function formatResourceName(resourceName, resourceId) {
       newName = newName.join(',');
       return newName;
     }
+    //check cloneName
+    if (!!newBody.cloneName){
+      return newBody.cloneName
+    }
+    //check snapshotName
+    if (!!newBody.snapshotName && !newBody.cloneName){
+      const snapshotName = newBody.snapshotName
+      let snaps = []
+      for ( let snap in snapshotName){
+        snapshotName[snap].map(item => {
+          snaps.push(item)
+        })
+      }
+      return snaps.join(',')
+    }
     if (!!newBody.users) {
       let newName = newBody.users;
       if (newName.length == 0) {

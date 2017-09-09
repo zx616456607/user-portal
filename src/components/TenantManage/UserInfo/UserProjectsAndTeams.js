@@ -544,7 +544,7 @@ class UserProjectsAndTeams extends React.Component {
             {
               isLoginUser
               ? `确定退出团队 ${currentTeam.teamName} 么？`
-              : `确定将成员 {userDetail.userName} 移出团队 ${currentTeam.teamName} 么？`
+              : `确定将成员 ${userDetail.userName} 移出团队 ${currentTeam.teamName} 么？`
             }
             </Col>
           </Row>

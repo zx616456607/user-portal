@@ -20,7 +20,7 @@ import { parseAmount } from '../../../common/tools'
 import CreateUserModal from '../CreateUserModal'
 import NotificationHandler from '../../../components/Notification'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
-import MemberRecharge from '../../AccountModal/_Enterprise/Recharge'
+import MemberRecharge from '../_Enterprise/Recharge'
 import { MAX_CHARGE, DEACTIVE } from '../../../constants'
 import Title from '../../Title'
 import ChargeModal from './ChargeModal'
@@ -356,7 +356,14 @@ let MemberTable = React.createClass({
       {
         title: (
           <div onClick={this.handleSortName}>
-            成员名<a href="javascript:void(0)">（{this.props.onlineTotal} 人在线）</a>
+            {
+              userDetail.role === ROLE_SYS_ADMIN && (
+                <span>
+                  成员名
+                  <a href="javascript:void(0)">（{this.props.onlineTotal} 人在线）</a>
+                </span>
+              )
+            }
             <div className="ant-table-column-sorter">
               <span className={this.state.sortName ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
                 <i className="anticon anticon-caret-up" />
@@ -370,7 +377,7 @@ let MemberTable = React.createClass({
         dataIndex: 'name',
         key: 'name',
         className: 'memberName',
-        width: '15%',
+        width: '20%',
         render: (text, record, index) => {
           if (userDetail.role === ROLE_SYS_ADMIN) {
             return (
