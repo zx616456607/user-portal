@@ -381,11 +381,11 @@ export const ALERT_DELETE_SETTING_SUCCESS = 'ALERT_DELETE_SETTING_SUCCESS'
 export const ALERT_DELETE_SETTING_FAILURE = 'ALERT_DELETE_SETTING_FAILURE'
 
 
-function fetchDeleteSetting(cluster, id, callback) {
+function fetchDeleteSetting(cluster, id, name, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_DELETE_SETTING_REQUEST, ALERT_DELETE_SETTING_SUCCESS, ALERT_DELETE_SETTING_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting?strategyID=${id.join(',')}`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting?strategyID=${id.join(',')}&strategyName=${name.join(',')}`,
       schema: {},
       options: {
         method: 'DELETE'
@@ -395,9 +395,9 @@ function fetchDeleteSetting(cluster, id, callback) {
   }
 }
 
-export function deleteSetting(cluster, id, callback) {
+export function deleteSetting(cluster, id, name, callback) {
   return (dispath, getState) => {
-    return dispath(fetchDeleteSetting(cluster, id, callback))
+    return dispath(fetchDeleteSetting(cluster, id, name, callback))
   }
 }
 
