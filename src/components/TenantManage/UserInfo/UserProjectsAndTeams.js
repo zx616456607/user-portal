@@ -12,7 +12,7 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Tabs, Table, Button, Icon, Input, Modal, Row, Col, Transfer, Tooltip } from 'antd'
+import { Tabs, Table, Button, Icon, Input, Modal, Row, Col, Transfer, Tooltip, Dropdown, Menu } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import { formatDate } from '../../../common/tools'
 import { loadUserTeams, updateUserTeams, loadUserProjects } from '../../../actions/user'
@@ -331,10 +331,12 @@ class UserProjectsAndTeams extends React.Component {
         key: 'roles',
         width: '25%',
         render: roles => {
-          const rolesText = roles.map(role => role.name).join(', ') || '-'
-          return (
-            <div title={rolesText}>{rolesText}</div>
-          )
+          const rolesText = roles.map(role => role.name).join(', ')
+          const rolesNum = roles.length
+          if (rolesNum === 0) {
+            return rolesNum + ''
+          }
+          return <Tooltip title={rolesText}><span>{rolesNum}</span></Tooltip>
         }
       },
       {
@@ -349,21 +351,22 @@ class UserProjectsAndTeams extends React.Component {
         dataIndex: 'operation',
         key: 'operation',
         render: (e, record) => (
-          <div className="action">
-            <Button
-              type="primary"
-              className="setBtn"
-              onClick={() => browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${record.projectName}`)}
-            >
-              查看项目
-            </Button>
-            <Button
-              onClick={() => this.setState({ currentProject: record, removeProjectModalVisible: true })}
-              className="delBtn setBtn"
-            >
-              {exitText + '项目'}
-            </Button>
-          </div>
+          <Dropdown.Button
+            onClick={() => browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${record.projectName}`)}
+            overlay={
+              <Menu
+                onClick={() => this.setState({ currentProject: record, removeProjectModalVisible: true })}
+                style={{ width: '100px' }}
+              >
+                <Menu.Item key="removeProject">
+                  {exitText + '项目'}
+                </Menu.Item>
+              </Menu>
+            }
+            type="ghost"
+          >
+            查看项目
+          </Dropdown.Button>
         ),
       },
     ]
@@ -400,21 +403,22 @@ class UserProjectsAndTeams extends React.Component {
         dataIndex: 'operation',
         key: 'operation',
         render: (e, record) => (
-          <div className="action">
-            <Button
-              type="primary"
-              className="setBtn"
-              onClick={() => browserHistory.push(`/tenant_manage/team/${record.teamID}`)}
-            >
-              查看团队
-            </Button>
-            <Button
-              onClick={() => this.setState({ currentTeam: record, removeMemberModalVisible: true })}
-              className="delBtn setBtn"
-            >
-              {exitText + '团队'}
-            </Button>
-          </div>
+          <Dropdown.Button
+            onClick={() => browserHistory.push(`/tenant_manage/team/${record.teamID}`)}
+            overlay={
+              <Menu
+                onClick={() => this.setState({ currentTeam: record, removeMemberModalVisible: true })}
+                style={{ width: '100px' }}
+              >
+                <Menu.Item key="removeTeam">
+                  {exitText + '团队'}
+                </Menu.Item>
+              </Menu>
+            }
+            type="ghost"
+          >
+            查看团队
+          </Dropdown.Button>
         ),
       },
     ]
