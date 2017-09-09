@@ -390,18 +390,34 @@ class hostList extends Component {
     }
   }
 
-  loadData() {
-    const { clusterID, getClusterNodesMetrics, getAllClusterNodes, getKubectlsPods } = this.props
+  loadData(e) {
+    const { clusterID, getClusterNodesMetrics, getAllClusterNodes, getKubectlsPods, summary } = this.props
     const notification = new NotificationHandler()
     getAllClusterNodes(clusterID, {
       success: {
         func: (result) => {
           let nodeList = result.data.clusters.nodes.nodes;
           let podCount = result.data.clusters.podCount;
+          if (Array.isArray(summary) &&　e) {
+           nodeList = result.data.clusters.nodes.nodes.filter(item =>{
+             let isEqual = false
+              summary[0].targets.every(el=> {
+                if (el === item.objectMeta.name) {
+                  isEqual = true
+                  return false
+                }
+                return true
+              })
+              if (isEqual) {
+                return true
+              }
+              return false
+            })
+          }
           this.setState({
             nodeList: nodeList,
             podCount: podCount,
-            summary: [],
+            summary: e ? summary:[],
           })
           let slaveAvailable = false
           nodeList.map((item) => {
@@ -426,7 +442,7 @@ class hostList extends Component {
     getKubectlsPods(clusterID)
   }
   componentWillMount() {
-    this.loadData()
+    this.loadData('willMount')
     const { clusterID } = this.props
     this.props.getClusterLabel(clusterID)
   }
