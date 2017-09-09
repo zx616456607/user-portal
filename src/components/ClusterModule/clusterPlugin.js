@@ -227,6 +227,9 @@ class ClusterPlugin extends Component {
 
   getStateusForEvent(row) {
     if (row.status.message == 'abnormal' && row.status.code == '503') {
+      if(row.podBrief && row.podBrief.running > 0) {
+        return ''
+      }
       return (<Button type="primary" onClick={() => this.showResetModal(row)}>重新安装</Button>)
     }
     if (row.status.message == 'uninstalled' && row.status.code == '503') {
@@ -367,7 +370,7 @@ class ClusterPlugin extends Component {
       return <div key="null"></div>
     }
     if (nodeList[clusterID].isFetching) {
-      return <Card id="Network" className="ClusterInfo">
+      return <Card id="Network" className="ClusterInfo" key="loading" value="loading">
         <div className="h3">节点</div>
         <div className="loadingBox" style={{ height: '100px' }}><Spin size="large"></Spin></div>
       </Card>

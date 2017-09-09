@@ -253,16 +253,18 @@ exports.updateClusterPlugins = function* () {
   const memory = parseInt(body.memory) != 0 ? parseInt(body.memory) : undefined
   const hostName = body.hostName != "" ? body.hostName : undefined
   let requestBody = {
-    limit: {
-    },
-    request: {
+    resourceRange: {
+      limit: {
+      },
+      request: {
+      }
     }
   }
   if (cpu) {
-    requestBody.limit.cpu = requestBody.request.cpu = cpu
+    requestBody.resourceRange.limit.cpu = requestBody.resourceRange.request.cpu = cpu
   }
   if (memory) {
-    requestBody.limit.memory = requestBody.request.memory = memory
+    requestBody.resourceRange.limit.memory = requestBody.resourceRange.request.memory = memory
   }
   if (hostName) {
     requestBody.hostName = hostName
