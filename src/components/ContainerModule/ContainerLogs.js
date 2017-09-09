@@ -71,7 +71,19 @@ class ContainerLogs extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { eventLogs,containerLogs } = nextProps
+    console.log('next.........props is:  ',nextProps,this.props)
     const { logs } = this.state
+    if (nextProps.containerName !== this.props.containerName) {
+      console.log('start........get')
+     this.props.loadContainerDetailEvents(nextProps.cluster, nextProps.containerName,{
+       success:{
+         func:(res)=> {
+          console.log('log',res.data)
+          this.setState({logs: res.data.events ? res.data.events : []})
+         }
+       }
+     })
+    }
     // Set events to logs when logs empty
     if (logs.length === 0) {
       this.setState({
@@ -117,7 +129,7 @@ class ContainerLogs extends Component {
       return
     }
     const logsBottom = document.getElementById('logsBottom')
-    logsBottom.scrollIntoView({ block: 'end', behavior: 'smooth' })
+    logsBottom && logsBottom.scrollIntoView({ block: 'end', behavior: 'smooth' })
   }
 
   onChangeLogSize() {
