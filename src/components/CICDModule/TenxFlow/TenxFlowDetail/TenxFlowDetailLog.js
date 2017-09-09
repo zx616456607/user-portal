@@ -223,6 +223,7 @@ let MyComponent = React.createClass({
                 { dateSizeFormat(item.creationTime, item.endTime, scope) }
               </span>
               <span className='costTime' style={{width:'105px'}}>
+                <Icon type="play-circle-o" />
                 {getTriggeredInfo(item.triggeredInfo)}
               </span>
               <div className='btnBox' style={{width: '400px'}}>
