@@ -18,7 +18,7 @@ import NotificationHandler from '../../../../components/Notification'
 import './style/index.less'
 import { REG } from '../../../../constants'
 
-class CreateRoleModal extends React.Component{
+class CreateRoleModal extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -52,17 +52,17 @@ class CreateRoleModal extends React.Component{
   //     form.resetFields()
   //   }
   // }
-  fetchRowDate(){
+  fetchRowDate() {
     const { scope, roleId } = this.props
-    scope.props.GetRole({ roleId },{
+    scope.props.GetRole({ roleId }, {
       success: {
         func: res => {
-          if(REG.test(res.data.code)){
+          if (REG.test(res.data.code)) {
             let result = res.data.data.permissions
             let pids = res.data.data.pids
             let aryID = []
-            if(result){
-              for(let i = 0;i < result.length; i++){
+            if (result) {
+              for (let i = 0; i < result.length; i++) {
                 aryID.push(`${result[i].id}`)
               }
             }
@@ -95,9 +95,9 @@ class CreateRoleModal extends React.Component{
   }
   getPermission() {
     const { Permission } = this.props;
-    Permission(null,{
-      success:{
-        func: (res)=>{
+    Permission(null, {
+      success: {
+        func: (res) => {
           if (REG.test(res.data.code)) {
             let result = res.data.data.permissions
             this.setState({
@@ -116,40 +116,40 @@ class CreateRoleModal extends React.Component{
       callback(new Error('请输入名称'))
       return
     }
-    if(value === rowDate.name){
+    if (value === rowDate.name) {
       callback()
     }
-    this.roleNameTime = setTimeout(()=>{
+    this.roleNameTime = setTimeout(() => {
       ExistenceRole({
-        name:value
-      },{
-        success: {
-          func: res => {
-            if (res.data.data) {
-              return callback(new Error('该角色名称已经存在'))
-            }
-            callback()
+        name: value
+      }, {
+          success: {
+            func: res => {
+              if (res.data.data) {
+                return callback(new Error('该角色名称已经存在'))
+              }
+              callback()
+            },
+            isAsync: true
           },
-          isAsync: true
-        },
-        failed: {
-          func: res => {
-            return callback()
-          },
-          isAsync: true
-        }
-      })
-    },ASYNC_VALIDATOR_TIMEOUT)
+          failed: {
+            func: res => {
+              return callback()
+            },
+            isAsync: true
+          }
+        })
+    }, ASYNC_VALIDATOR_TIMEOUT)
   }
   cancelModal() {
     const { scope } = this.props;
-    scope.setState({characterModal:false})
+    scope.setState({ characterModal: false })
   }
   okCreateModal() {
     const { isAdd } = this.props
     isAdd ? this.addInfo() : this.editInfo()
   }
-  addInfo(){
+  addInfo() {
     const { CreateRole, loadData, scope, form } = this.props;
     const { getFieldValue, validateFields } = form;
     const { checkedKeys } = this.state;
@@ -157,7 +157,7 @@ class CreateRoleModal extends React.Component{
     let ary = checkedKeys.map((item, index) => {
       return Number(item)
     })
-    validateFields((errors,values)=>{
+    validateFields((errors, values) => {
       if (!!errors) {
         return
       }
@@ -167,35 +167,35 @@ class CreateRoleModal extends React.Component{
         name: roleName,
         comment: roleDesc,
         pids: ary
-      },{
-        success:{
-          func: (res) => {
-            if (REG.test(res.data.statusCode)) {
-              notify.success('创建角色成功')
-              loadData && loadData()
-              scope.setState({characterModal:false})
-            }
+      }, {
+          success: {
+            func: (res) => {
+              if (REG.test(res.data.statusCode)) {
+                notify.success('创建角色成功')
+                loadData && loadData()
+                scope.setState({ characterModal: false })
+              }
+            },
+            isAsync: true
           },
-          isAsync: true
-        },
-        failed:{
-          func: (res) => {
-            notify.error('创建角色失败')
-            scope.setState({characterModal:false})
+          failed: {
+            func: (res) => {
+              notify.error('创建角色失败')
+              scope.setState({ characterModal: false })
+            }
           }
-        }
-      })
+        })
     })
   }
-  editInfo(){
+  editInfo() {
     const { UpdateRole, AddPermissionRole, loadData, scope, form, roleId, detail } = this.props;
     const { getFieldValue, validateFields } = form;
     const { rowPermissionID, checkedKeys, isChecked } = this.state;
     let notification = new NotificationHandler()
     let idKey = []
     let checkedID = []
-    validateFields((error,values) => {
-      if(!!error) return
+    validateFields((error, values) => {
+      if (!!error) return
       let body = {
         name: values.roleName,
         comment: values.roleDesc
@@ -203,66 +203,66 @@ class CreateRoleModal extends React.Component{
       UpdateRole({
         id: roleId,
         body
-      },{
-        success:{
-          func: (res) => {
-            if(REG.test(res.data.code)){
-              loadData && loadData()
-              scope.setState({characterModal:false})
+      }, {
+          success: {
+            func: (res) => {
+              if (REG.test(res.data.code)) {
+                loadData && loadData()
+                scope.setState({ characterModal: false })
+              }
             }
+          },
+          failed: {
+            func: (err) => {
+              notification.close()
+              notification.error(err)
+            },
+            isAsync: true
           }
-        },
-        failed: {
-        func: (err) => {
-          notification.close()
-          notification.error(err)
-        },
-        isAsync: true
-      }
-      })
-      if(rowPermissionID && rowPermissionID.length > 0){
+        })
+      if (rowPermissionID && rowPermissionID.length > 0) {
         rowPermissionID.sort()
-        if(rowPermissionID[0] === 0){
-          rowPermissionID.splice(0,1)
+        if (rowPermissionID[0] === 0) {
+          rowPermissionID.splice(0, 1)
         }
         checkedID = checkedKeys.map((item) => {
           return Number(item)
         })
         checkedID.map((item) => {
-          if(rowPermissionID.indexOf(item) === -1){
+          if (rowPermissionID.indexOf(item) === -1) {
             idKey.push(item)
           }
         })
       }
-      if(isChecked){
+      if (isChecked) {
         this.screenInfo()
-        if(idKey && idKey.length > 0){
+        if (idKey && idKey.length > 0) {
           let bodys = {
             pids: idKey
           }
           AddPermissionRole({
             id: roleId,
             bodys
-          },{
-            success:{
-              func: (res) =>{
-                if(REG.test(res.data.code)){
-                  notification.success(`更新成功`)
-                  scope.isDetail ? detail(roleId) : loadData()
-                  scope.setState({
-                    characterModal: false
-                  })
+          }, {
+              success: {
+                func: (res) => {
+                  if (REG.test(res.data.code)) {
+                    notification.success(`更新成功`)
+                    scope.isDetail ? detail(roleId) : loadData()
+                    scope.setState({
+                      characterModal: false
+                    })
+                  }
+                }
+              },
+              failed: {
+                func: (err) => {
+                  notification.error(`更新失败`)
                 }
               }
-            },
-            failed:{
-              func: (err) => {
-                notification.error(`更新失败`)
-              }
-            }
-          })
+            })
         }
-      }else{
+      } else {
         scope.loadData(roleId)
         scope.setState({
           characterModal: false
@@ -273,7 +273,7 @@ class CreateRoleModal extends React.Component{
   /**
    *
    */
-  screenInfo(){
+  screenInfo() {
     let notification = new NotificationHandler()
     const { RemovePermissionRole } = this.props;
     const { rowPermissionID, checkedKeys, isChecked } = this.state
@@ -281,44 +281,44 @@ class CreateRoleModal extends React.Component{
     let ary = []
     let arys = []
     checkedId = checkedKeys.map((item, index) => {
-        return Number(item)
-      })
-     checkedId.sort()
-     if(checkedId[0] === 0){
-       checkedId.splice(0,1)
-     }
+      return Number(item)
+    })
+    checkedId.sort()
+    if (checkedId[0] === 0) {
+      checkedId.splice(0, 1)
+    }
     checkedId.map((item) => {
-      if(rowPermissionID.indexOf(item) !== -1){
+      if (rowPermissionID.indexOf(item) !== -1) {
         ary.push(item)
       }
     })
     rowPermissionID.map((item) => {
-      if(ary.indexOf(item) === -1){
+      if (ary.indexOf(item) === -1) {
         arys.push(item)
       }
     })
-    if(isChecked){
-      if(arys.length <= 0) return
-      if(arys && arys.length > 0){
+    if (isChecked) {
+      if (arys.length <= 0) return
+      if (arys && arys.length > 0) {
         let bodys = {
           pids: arys
         }
         RemovePermissionRole({
           id: this.props.roleId,
           bodys
-        },{
-          success: {
-            func: (res) => {
-              if(REG.test(res.data.code)){
-                //setTimeout(notification.spin('更新中...'),1000)
+        }, {
+            success: {
+              func: (res) => {
+                if (REG.test(res.data.code)) {
+                  //setTimeout(notification.spin('更新中...'),1000)
+                }
               }
             }
-          }
-        })
+          })
       }
     }
   }
-  handleChange(){
+  handleChange() {
     this.setState({
       isCheck: true,
     })
@@ -345,8 +345,8 @@ class CreateRoleModal extends React.Component{
 
     return (
       <Modal title={this.props.title} wrapClassName="createCharacterModal" visible={characterModal} width={570}
-        onCancel={()=> this.cancelModal()}
-        onOk={()=> this.okCreateModal()}
+        onCancel={() => this.cancelModal()}
+        onOk={() => this.okCreateModal()}
       >
         <Form className="createRoleForm" form={this.props.form}>
           <Form.Item label="名称"
@@ -356,34 +356,28 @@ class CreateRoleModal extends React.Component{
           >
             <Input placeholder="请输入名称" {...getFieldProps(`roleName`, {
               rules: [
-                { validator: (rules,value,callback)=>this.roleName(rules,value,callback)}
+                { validator: (rules, value, callback) => this.roleName(rules, value, callback) }
               ],
               initialValue: isAdd ? undefined : rowDate.name
-            })}
+            }) }
 
             />
           </Form.Item>
           <Form.Item label="描述" {...formItemLayout}>
             <Input type="textarea" {...getFieldProps(`roleDesc`, {
               initialValue: isAdd ? undefined : rowDate.comment
-            })}/>
+            }) } />
           </Form.Item>
         </Form>
         <div className="authChoose">
           <span className="desc">权限选择 :</span>
           <div className="authBox">
-            {
-              this.props.isAdd ?
-              <div className="authTitle">所有权限 <div className="pull-right">共<span style={{color:'#59c3f5'}}>
-                {allPermission.length > 0 ? allPermission.length : 0}</span> 个</div>
-              </div> :
-              <div className="authTitle">共<span style={{color:'#59c3f5'}}>{allPermission.length > 0 ? allPermission.length : 0}</span>个<div className="pull-right">已选<span style={{color:'#59c3f5'}}>
-                {this.state.checkedKeys.length}</span> 个</div>
-              </div>
-            }
+            <div className="authTitle">共<span style={{ color: '#59c3f5' }}>{allPermission.length > 0 ? allPermission.length : 0}</span>个<div className="pull-right">已选<span style={{ color: '#59c3f5' }}>
+              {this.state.checkedKeys.length}</span> 个</div>
+            </div>
             <div className="treeBox">
               {
-                (allPermission.length > 0 ) &&
+                (allPermission.length > 0) &&
                 <Tree
                   checkable
                   onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
