@@ -439,12 +439,12 @@ class Information extends Component {
     const commentProps = getFieldProps('comment', {
       initialValue: userDetail.comment,
     })
-    const { roles, role } = userDetail
+    const { globalRoles, role } = userDetail
     if (role === ROLE_SYS_ADMIN) {
       this.userAuth = [ CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID ]
     } else {
       this.userAuth = []
-      roles && roles.map(role => {
+      globalRoles && globalRoles.map(role => {
         if (role === 'project-creator') {
           this.userAuth.push(CREATE_PROJECTS_ROLE_ID)
         } else if (role === 'team-creator') {
