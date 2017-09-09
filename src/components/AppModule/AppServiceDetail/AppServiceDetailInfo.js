@@ -454,18 +454,25 @@ class BindNodes extends Component {
     const affinity = JSON.parse(metadata.annotations[affinityKey])
     const labels = affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms.reduce(
       (expressions, term) => expressions.concat(term.matchExpressions), []).reduce(
-      (labels, expression) => labels.concat(expression.values.map(
-        value => ({
-          key: expression.key,
-          operator: expression.operator,
-          value
-        }))), [])
-    return labels.length > 0 ? labels : null
+      (labels, expression) => {
+        expression.values.map((value, index) => {
+          // Only show IN operator for now
+          if (expression && expression.operator === "In") {
+            labels = labels.concat({
+              key: expression.key,
+              operator: expression.operator,
+              value
+            })
+          }
+        })
+        return labels
+      }, [])
+    return labels && labels.length > 0 ? labels : null
   }
 
   labelsTemplate(labels) {
     let arr = labels.map((item, index) => {
-      if (item.operator === "In") {
+      if (item) {
         // Only show IN operator for now
         return <div key={index} className='label'>
           <span>{item.key}</span>
@@ -630,7 +637,6 @@ export default class AppServiceDetailInfo extends Component {
       cpuFormatResult = '-'
     }
 
-    console.log('serviceDetail=',serviceDetail)
     return (
       <Card id="AppServiceDetailInfo">
         <div className="info commonBox">
