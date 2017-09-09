@@ -196,11 +196,11 @@ class MySpace extends Component{
                 showLoading={isFetching}
               />
               <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>
-                {spaceImageStats.publicRepoCount+spaceImageStats.myRepoCount} 个
+                {spaceImageStats.myRepoCount} 个
               </div>
               <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px',fontSize: '13px', color: '#666'}}>
                 <Col span={12}>公开 {spaceImageStats.publicRepoCount} 个</Col>
-                <Col span={12}>私有 {spaceImageStats.myRepoCount} 个</Col>
+                <Col span={12}>私有 {spaceImageStats.myRepoCount - spaceImageStats.publicRepoCount} 个</Col>
               </Row>
               <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px',fontSize:'12px'}}>
                 仓库组: <strong>{spaceImageStats.publicProjectCount}</strong> 公开 / <strong>{spaceImageStats.myProjectCount}</strong> 私有
