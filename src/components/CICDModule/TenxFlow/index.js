@@ -95,6 +95,25 @@ function dateFormat(dateString) {
   return timeStr.format("YYYY-MM-DD HH:mm:ss")
 }
 
+function getTriggeredInfo(triggeredInfo) {
+  if (!triggeredInfo) return '手动触发'
+  try {
+    if (typeof triggeredInfo == 'string') {
+      triggeredInfo = JSON.parse(triggeredInfo)
+    }
+    if (triggeredInfo.type == 'Branch') {
+      return 'commit CI触发'
+    }
+    if (triggeredInfo.type == 'Tag') {
+      return '新建Tag CI触发'
+    }
+    if (triggeredInfo.type == 'merge_request') {
+      return 'pull request CI触发'
+    }
+  } catch (error) {
+  }
+}
+
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
@@ -329,15 +348,15 @@ let MyComponent = React.createClass({
               <span>{item.name}</span>
             </Link>
           </div>
-          <div className='time'>
-            <span className='timeSpan'>
+          <div className='time' style={{width: '15%'}}>
+            <span className='timeSpan' >
               <Tooltip placement='topLeft' title={item.lastBuildTime ? dateFormat(item.lastBuildTime) : '-'}>
                 <span>{item.lastBuildTime ? dateFormat(item.lastBuildTime) : '-'}</span>
               </Tooltip>
             </span>
           </div>
-          <div className={`status status-` + `${item.status}`}>
-            <span><i className="fa fa-circle"></i>{status}</span>
+          <div className={`status status-` + `${item.status}`} style={{width: '25%'}}>
+            <span><i className="fa fa-circle"></i>{status} <span style={{color: '#747474'}}>({getTriggeredInfo(item.triggeredInfo)})</span></span>
           </div>
           <div className='oprea'>
             <Button className='logBtn' size='large' type='ghost' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
@@ -587,7 +606,7 @@ class TenxFlowList extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
-    const { isFetching, buildFetching, logs, cicdApi, repoBranchesAndTags } = this.props;
+    const { isFetching, buildFetching, logs, cicdApi, repoBranchesAndTags, detail } = this.props;
     const { searchingFlag } = this.state;
     const { flowList } = this.state
     let message = '';
@@ -627,10 +646,10 @@ class TenxFlowList extends Component {
               <div className='name'>
                 <FormattedMessage {...menusText.name} />
               </div>
-              <div className='time'>
+              <div className='time' style={{width: '15%'}}>
                 <FormattedMessage {...menusText.updateTime} />
               </div>
-              <div className='status'>
+              <div className='status' style={{width: '25%'}}>
                 <FormattedMessage {...menusText.status} />
               </div>
               <div className='oprea'>
@@ -663,7 +682,7 @@ class TenxFlowList extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
         >
-          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} callback={this.callback(this.state.currentFlowId)} visible={this.state.TenxFlowDeployLogModal}/>
+          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} callback={this.callback(this.state.currentFlowId)} visible={this.state.TenxFlowDeployLogModal} triggerDetail={detail}/>
         </Modal>
         {this.state.websocket}
       </QueueAnim>
@@ -683,13 +702,14 @@ function mapStateToProps(state, props) {
   const { getTenxflowList, repoBranchesAndTags } = state.cicd_flow
   const { isFetching, flowList } = getTenxflowList || defaultFlowList
   const { getTenxflowBuildLastLogs } = state.cicd_flow
-  const { logs } = getTenxflowBuildLastLogs || defaultBuildLog
+  const { logs, detail } = getTenxflowBuildLastLogs || defaultBuildLog
   let buildFetching = getTenxflowBuildLastLogs.isFetching || defaultBuildLog.buildFetching
   return {
     isFetching,
     flowList,
     buildFetching,
     logs,
+    detail,
     currentSpace: state.entities.current.space.namespace,
     loginUser: state.entities.loginUser,
     repoBranchesAndTags,

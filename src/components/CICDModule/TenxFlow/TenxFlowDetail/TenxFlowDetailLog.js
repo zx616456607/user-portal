@@ -137,6 +137,25 @@ function dateSizeFormat(startTime, endTime, scope) {
   }
 }
 
+function getTriggeredInfo(triggeredInfo) {
+  if (!triggeredInfo) return '手动触发'
+  try {
+    if (typeof triggeredInfo == 'string') {
+      triggeredInfo = JSON.parse(triggeredInfo)
+    }
+    if (triggeredInfo.type == 'Branch') {
+      return 'commit CI触发'
+    }
+    if (triggeredInfo.type == 'Tag') {
+      return '新建Tag CI触发'
+    }
+    if (triggeredInfo.type == 'merge_request') {
+      return 'pull request CI触发'
+    }
+  } catch (error) {
+  }
+}
+
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
@@ -203,7 +222,10 @@ let MyComponent = React.createClass({
                 { item.status != 2 ? [<FormattedMessage {...menusText.cost} />] : null }
                 { dateSizeFormat(item.creationTime, item.endTime, scope) }
               </span>
-              <div className='btnBox'>
+              <span className='costTime' style={{width:'105px'}}>
+                {getTriggeredInfo(item.triggeredInfo)}
+              </span>
+              <div className='btnBox' style={{width: '400px'}}>
                 <Button size='large' type='primary' className='operaBtn'
                   onClick={() => scope.getBuildLogDetailInfo(item.buildId)}>
                   <i className='fa fa-wpforms' />&nbsp;
@@ -274,7 +296,7 @@ class TenxFLowDetailLog extends Component {
     }
   }
   render() {
-    const { scope, isFetching, logs, spaceName, flowName, detailFetching, detailLogs, flowId } = this.props;
+    const { scope, isFetching, logs, spaceName, flowName, detailFetching, detailLogs, flowId, detailTrigger } = this.props;
     const thisScope = this;
     return (
       <Card id='TenxFLowDetailLog'>
@@ -283,7 +305,7 @@ class TenxFLowDetailLog extends Component {
         <Modal visible={this.state.TenxFlowDeployLogModal}
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal} >
-          <TenxFlowBuildLog scope={thisScope} flowId={flowId} isFetching={detailFetching} logs={detailLogs} callback={this.callback(flowId)} visible={this.state.TenxFlowDeployLogModal}/>
+          <TenxFlowBuildLog scope={thisScope} flowId={flowId} isFetching={detailFetching} logs={detailLogs} callback={this.callback(flowId)} visible={this.state.TenxFlowDeployLogModal} />
         </Modal>
       </Card>
     )
@@ -298,6 +320,9 @@ function mapStateToProps(state, props) {
   const defaultDetailStageLogs = {
     detailFetching: false,
     logs: []
+  }
+  const defaultTrigger = {
+    detail: []
   }
   const { current } = state.entities
   const { space } = current

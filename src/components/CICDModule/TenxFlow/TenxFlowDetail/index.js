@@ -387,6 +387,7 @@ class TenxFlowDetail extends Component {
     const { projectId, projectBranch } = this.state
     const { repoBranchesAndTags, flowInfo } = this.props
     const stageInfo = flowInfo.stageInfo || []
+
     const isNoPop = stageInfo.length < 1 || !stageInfo[0].spec.project || stageInfo[0].spec.project.repoType === 'svn'
     const targetElement = (
       <Button
@@ -441,6 +442,7 @@ class TenxFlowDetail extends Component {
         targetElement={targetElement}
         loading={loading}
         isShowBuildBtn={true}
+        canRepeat={true}
         getTooltipContainer={() => document.getElementById('TenxFlowDetail')}>
         {tabs}
       </PopTabSelect>
@@ -450,7 +452,7 @@ class TenxFlowDetail extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
-    const { flowInfo, isFetching, buildFetching, logs } = this.props;
+    const { flowInfo, isFetching, buildFetching, logs, triggerDetail } = this.props;
     if (isFetching || flowInfo == {} || !Boolean(flowInfo)) {
       return (
         <div className='loadingBox'>
@@ -542,7 +544,7 @@ class TenxFlowDetail extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={flowInfo.flowId} callback={this.callback(flowInfo.flowId)} visible={this.state.TenxFlowDeployLogModal}/>
+          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={flowInfo.flowId} callback={this.callback(flowInfo.flowId)} visible={this.state.TenxFlowDeployLogModal} triggerDetail={triggerDetail}/>
         </Modal>
       </QueueAnim>
     )
@@ -567,6 +569,7 @@ function mapStateToProps(state, props) {
   const { initType } = getTenxFlowStatus || defaultFlowStatus;
   const buildFetching = getTenxflowBuildLastLogs ? getTenxflowBuildLastLogs.isFetching : deafaultFlowLog.isFetching
   const logs = getTenxflowBuildLastLogs ? getTenxflowBuildLastLogs.logs : deafaultFlowLog.logs;
+  const triggerDetail =  getTenxflowBuildLastLogs ? getTenxflowBuildLastLogs.detail : [];
   let otherImage = state.images.otherImages
   if(otherImage){
     otherImage = otherImage.imageRow
@@ -582,6 +585,7 @@ function mapStateToProps(state, props) {
     currentSpace: state.entities.current.space.namespace,
     otherImage,
     repoBranchesAndTags,
+    triggerDetail
   }
 }
 
