@@ -262,6 +262,7 @@ exports.getSettingListfromserviceorapp = function* () {
 exports.deleteSetting = function* () {
   const cluster = this.params.cluster
   const strategyID = this.query.strategyID
+  const strategyName = this.query.strategyName
   if (!strategyID) {
     const err = new Error('strategyID is require')
     err.status = 400
@@ -271,6 +272,7 @@ exports.deleteSetting = function* () {
   const api = apiFactory.getK8sApi(user)
   const response = yield api.deleteBy([cluster, 'alerts/strategies'], {
     strategyIDs: strategyID,
+    strategyName: strategyName
   })
   this.body = response
 }
