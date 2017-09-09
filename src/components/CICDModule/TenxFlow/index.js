@@ -348,7 +348,7 @@ let MyComponent = React.createClass({
               <span>{item.name}</span>
             </Link>
           </div>
-          <div className='time' style={{width: '15%'}}>
+          <div className='time' style={{width: '18%'}}>
             <span className='timeSpan' >
               <Tooltip placement='topLeft' title={item.lastBuildTime ? dateFormat(item.lastBuildTime) : '-'}>
                 <span>{item.lastBuildTime ? dateFormat(item.lastBuildTime) : '-'}</span>
@@ -646,7 +646,7 @@ class TenxFlowList extends Component {
               <div className='name'>
                 <FormattedMessage {...menusText.name} />
               </div>
-              <div className='time' style={{width: '15%'}}>
+              <div className='time' style={{width: '18%'}}>
                 <FormattedMessage {...menusText.updateTime} />
               </div>
               <div className='status' style={{width: '25%'}}>
