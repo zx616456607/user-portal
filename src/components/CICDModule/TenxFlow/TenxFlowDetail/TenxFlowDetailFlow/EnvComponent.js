@@ -164,7 +164,8 @@ let EnvComponent = React.createClass({
   },
   removeServicesInput (k, index){
     //this function for user remove the input div
-    const { form } = this.props;
+    const { form, validateCallback } = this.props;
+    validateCallback(true)
     // can use data-binding to get
     let keys = form.getFieldValue('service' + index + 'inputs');
     keys = keys.filter((key) => {
