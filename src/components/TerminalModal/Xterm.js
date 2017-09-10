@@ -192,13 +192,10 @@ class TerminalModal extends Component {
   onTabChange(key) {
     const { clusterID, changeActiveTerminal } = this.props
     changeActiveTerminal(clusterID, key)
-    // console.log('containerName',key)
-    // console.log('containerName',this.props)
     const url =  new RegExp('/app_manage/container/[a-zA-Z0-9-_]+')
     if (url.test(location.pathname) && location.hash == '#logs') {
-      console.log('url is',location.pathname,location.hash)
       browserHistory.push(`/app_manage/container/${key}#logs`)
-      // this.props.loadContainerDetailEvents(clusterID, key)
+      this.props.loadContainerDetailEvents(clusterID, key)
       return
     }
     // 控制日志是否显示
@@ -386,7 +383,6 @@ class TerminalModal extends Component {
     const func = {
       closeModal: this.closeModal
     }
-    console.log('render -containerName',containerName)
     return (
       <Dock position='bottom'
         isVisible={visible}

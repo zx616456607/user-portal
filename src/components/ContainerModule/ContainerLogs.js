@@ -71,18 +71,13 @@ class ContainerLogs extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { eventLogs,containerLogs } = nextProps
-    console.log('next.........props is:  ',nextProps,this.props)
     const { logs } = this.state
     if (nextProps.containerName !== this.props.containerName) {
-      console.log('start........get')
-     this.props.loadContainerDetailEvents(nextProps.cluster, nextProps.containerName,{
-       success:{
-         func:(res)=> {
-          console.log('log',res.data)
-          this.setState({logs: res.data.events ? res.data.events : []})
-         }
-       }
-     })
+      this.setState({
+        logs: eventLogs,
+        logsLoading: false
+      })
+      return
     }
     // Set events to logs when logs empty
     if (logs.length === 0) {
