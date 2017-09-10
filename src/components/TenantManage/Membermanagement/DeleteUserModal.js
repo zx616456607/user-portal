@@ -14,6 +14,7 @@ import React from 'react'
 import { Row, Col, Table, Modal, Button, Spin, Menu, Tooltip, Icon } from 'antd'
 import { camelize } from 'humps'
 import { connect } from 'react-redux'
+import classNames from 'classnames'
 import { loadUserTeams, loadAllUserList, teamtransfer, deleteUser, loadUserList } from '../../../actions/user'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import CommonSearchInput from '../../CommonSearchInput'
@@ -113,12 +114,6 @@ class DeleteUserModal extends React.Component {
     const { currentUser, teamtransfer, deleteUser, loadUserList, scope } = this.props
     const { userSelectedRowKeys } = this.state
     const record = currentUser
-    if (record.style === "系统管理员") {
-      confirm({
-        title: '不能删除系统管理员',
-      });
-      return
-    }
     this.setState({ delBtnLoading: true })
     let notification = new NotificationHandler()
     const { page, pageSize, filter, sort } = scope.state
@@ -294,13 +289,40 @@ class DeleteUserModal extends React.Component {
                         onSelect={({ selectedKeys }) => this.setState({ selectTeamKeys: selectedKeys })}
                       >
                         {
-                          teams.map(team => (
-                            <Menu.Item
-                              key={team.teamID}
-                            >
-                              {team.teamName}
-                            </Menu.Item>
-                          ))
+                          teams.map(team => {
+                          console.log(users)
+                            const selectedUserKey = userSelectedRowKeys[team.teamID] && userSelectedRowKeys[team.teamID][0]
+                            let userName
+                          console.log(selectedUserKey)
+                            if (selectedUserKey) {
+                              users.every(user => {
+                                if (user.userID == selectedUserKey) {
+                                  userName = user.userName
+                                  return false
+                                }
+                                return true
+                              })
+                            }
+                            const classname = classNames({
+                              selectUserMenu: selectedUserKey,
+                              unselectUserMenu: !selectedUserKey,
+                            })
+                            return (
+                              <Menu.Item
+                                key={team.teamID}
+                                className={classname}
+                              >
+                                <div>{team.teamName}</div>
+                                {
+                                  selectedUserKey && (
+                                    <div className="selectUser">
+                                      ({userName})
+                                    </div>
+                                  )
+                                }
+                              </Menu.Item>
+                            )
+                          })
                         }
                       </Menu>
                     </div>
