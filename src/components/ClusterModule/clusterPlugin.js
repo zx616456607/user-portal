@@ -267,6 +267,9 @@ class ClusterPlugin extends Component {
           notify.close()
           notify.success(`插件${row.name}安装成功`)
           self.loadData()
+          this.setState({
+            create: false
+          })
           return
         },
         isAsync: true
@@ -275,6 +278,9 @@ class ClusterPlugin extends Component {
         func: () => {
           notify.close()
           notify.error(`插件${row.name}安装失败`)
+          this.setState({
+            create: false
+          })
           return
         }
       }
@@ -732,7 +738,7 @@ class ClusterPlugin extends Component {
           title="安装操作"
           wrapClassName="vertical-center-modal"
           visible={this.state.create}
-          onOk={() => this.createPlugin()}
+          onOk={() => this.installPlugin()}
           onCancel={() => this.setState({ create: false })}
         >
           <div className="confirmText">确定安装 {this.state.currentPlugin ? this.state.currentPlugin.name : ''} 插件吗?</div>
