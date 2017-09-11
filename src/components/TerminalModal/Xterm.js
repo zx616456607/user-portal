@@ -18,7 +18,7 @@ import {
   updateTerminal, removeAllTerminal, changeActiveTerminal,
   removeTerminal,
 } from '../../actions/terminal'
-import { setTingLogs } from '../../actions/app_manage'
+import { loadContainerDetailEvents, setTingLogs } from '../../actions/app_manage'
 import cloneDeep from 'lodash/cloneDeep'
 import Dock from 'react-dock'
 import Logs from '../ContainerModule/ContainerLogs'
@@ -192,6 +192,12 @@ class TerminalModal extends Component {
   onTabChange(key) {
     const { clusterID, changeActiveTerminal } = this.props
     changeActiveTerminal(clusterID, key)
+    const url =  new RegExp('/app_manage/container/[a-zA-Z0-9-_]+')
+    if (url.test(location.pathname) && location.hash == '#logs') {
+      browserHistory.push(`/app_manage/container/${key}#logs`)
+      this.props.loadContainerDetailEvents(clusterID, key)
+      return
+    }
     // 控制日志是否显示
     this.setState({containerName:false})
   }
@@ -426,6 +432,7 @@ export default connect(mapStateToProps, {
   changeActiveTerminal,
   removeTerminal,
   setTingLogs,
+  loadContainerDetailEvents
 })(injectIntl(TerminalModal, {
   withRef: true,
 }))
