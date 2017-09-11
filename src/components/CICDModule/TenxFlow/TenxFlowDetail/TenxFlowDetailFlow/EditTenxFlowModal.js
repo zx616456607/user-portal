@@ -1029,20 +1029,13 @@ let EditTenxFlowModal = React.createClass({
       let imageEnvFlag = false;
       imageEnvLength.map((item, index) => {
         if (!!values['imageEnvName' + item]) {
-          if (values['imageEnvValue' + item] == '') {
-            _this.setState({
-              emptyImageEnv: true
-            });
-            errorFlag = true;
-          } else {
-            let Names = values['imageEnvName' + item] ? values['imageEnvName' + item].trim(): ''
-            let Value = values['imageEnvValue' + item] ? values['imageEnvValue' + item].trim(): ''
-            let tempBody = {
-              name: Names,
-              value: Value
-            }
-            imageEnvList.push(tempBody)
+          let Names = values['imageEnvName' + item] ? values['imageEnvName' + item].trim(): ''
+          let Value = values['imageEnvValue' + item] ? values['imageEnvValue' + item].trim(): ''
+          let tempBody = {
+            name: Names,
+            value: Value
           }
+          imageEnvList.push(tempBody)
         }
       });
       if (!imageEnvFlag) {

@@ -806,19 +806,11 @@ let CreateTenxFlowModal = React.createClass({
       let imageEnvFlag = false;
       imageEnvLength.map((item, index) => {
         if (values['imageEnvName' + item] != '') {
-          if (values['imageEnvValue' + item] == '') {
-            _this.setState({
-              emptyImageEnv: true
-            });
-            errorFlag = true;
-            imageEnvFlag = true;
-          } else {
-            let tempBody = {
-              name: (values['imageEnvName' + item]).trim(),
-              value: (values['imageEnvValue' + item]).trim()
-            }
-            imageEnvList.push(tempBody)
+          let tempBody = {
+            name: (values['imageEnvName' + item]).trim(),
+            value: (values['imageEnvValue' + item]).trim()
           }
+          imageEnvList.push(tempBody)
         }
       });
       if (!imageEnvFlag) {
