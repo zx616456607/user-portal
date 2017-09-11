@@ -91,7 +91,7 @@ class RoleManagement extends React.Component {
     this.setState({
       //sortedInfo: sorter,
       //filteredInfo: filters,
-    });
+    })
   }
   loadListRole() {
     const { ListRole } = this.props
@@ -188,6 +188,7 @@ class RoleManagement extends React.Component {
       Viewpermissions: false
     })
   }
+
   onExpand(expandedKeys) {
     this.setState({
       expandedKeys,
@@ -304,7 +305,7 @@ class RoleManagement extends React.Component {
         return this.generateDatas(tns[index].children);
       }
     });
-  };
+  }
 
   /**
    * 关闭
@@ -336,11 +337,11 @@ class RoleManagement extends React.Component {
     const { form, userName } = this.props
     const { roleData, Viewpermissions, visible, roleItemTitle, roelItems, isAdd, roleId,
       targetKeys, loading, allPermission, checkedKeys } = this.state
-    const { selectedRowKeys } = this.state;
+    const { selectedRowKeys } = this.state
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
-    };
+    }
     const columns = [{
       title: '角色名称',
       dataIndex: 'name',
@@ -360,7 +361,7 @@ class RoleManagement extends React.Component {
           <Checkbox>彻底删除</Checkbox>
         </span>
       ),
-    }];
+    }]
     let dropDown = []
     if (roleData) {
       dropDown = roleData.map((item, index) => {
@@ -379,7 +380,7 @@ class RoleManagement extends React.Component {
       dataIndex: 'name',
       width: '13%',
       render: (text, record, index) =>
-        <Link to={`/tenant_manage/rolemanagement/rolename/${record.id}?#${record.permissionCount}`}>
+        <Link to={`/tenant_manage/rolemanagement/rolename/${record.id}?#${record.permissionCount}/role=${record.creator}`}>
           <div className='roleName'>
             {/* () => browserHistory.push(`/tenant_manage/rolemanagement/rolename/12`) */}
             <a href='#'>{text}</a>
@@ -389,7 +390,13 @@ class RoleManagement extends React.Component {
       title: '创建人',
       dataIndex: 'creator',
       width: '14%',
-      id: 'id'
+      id: 'id',
+      render: (text, record, index) =>
+      <div>
+        {
+          text === '' ?  '系统默认' : text
+        }
+      </div>
     }, {
       title: '权限个数',
       dataIndex: 'permissionCount',
@@ -463,7 +470,7 @@ class RoleManagement extends React.Component {
         )
       }
       return <TreeNode key={item.id} title={item.name} disableCheckbox />;
-    });
+    })
     const scope = this
 
     return (

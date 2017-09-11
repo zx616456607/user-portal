@@ -29,6 +29,7 @@ let TenantDetail = React.createClass({
     return {
       count: 0,
       record: {},
+      creator: '',
       detailValue: '',
       roleDetail: [],
       roleProjects: [],
@@ -45,12 +46,13 @@ let TenantDetail = React.createClass({
     };
   },
   componentWillMount() {
-    const { params } = this.props
-    this.setState({
-      count: RegExp(/\d+/g).exec(this.props.location.hash)[0]
-    })
+    const { params, AllowUpdateRole } = this.props
     let roleId = params.id
     this.loadData(roleId)
+    this.setState({
+      count: /\d+/g.exec(this.props.location.hash)[0],
+      creator: /([^=\s]+)=([^=\s]+)/g.exec(this.props.location.hash)[2],
+    })
   },
   loadData(roleId) {
     let notification = new NotificationHandler()
@@ -123,7 +125,7 @@ let TenantDetail = React.createClass({
     this.setState({
       filteredInfo: filters,
       sortedInfo: sorter,
-    });
+    })
   },
   setAgeSort(e) {
     e.preventDefault();
@@ -135,25 +137,24 @@ let TenantDetail = React.createClass({
     });
   },
   handleOk() {
-    const { form } = this.props
+    const { form, params } = this.props
     const { record } = this.state
     const { RemoveProjectRole } = this.props
-    let role = []
-    role.push(record.projectID)
-    let projectRole = {
-      roles: role
+    let roles = []
+    roles.push(params.id)
+    let role = {
+      roles: roles
     }
     let notification = new NotificationHandler()
     RemoveProjectRole({
       projectName: record.projectName,
-      role: projectRole
+      roles: role
     }, {
         success: {
           func: res => {
             if (REG.test(res.code)) {
               notification.success('移除成功')
-              let roleId = record.projectID
-              this.loadData(roleId)
+              this.loadData(params.id)
             }
           },
           isAsync: true
@@ -167,7 +168,7 @@ let TenantDetail = React.createClass({
       })
     this.setState({
       Removerol: false,
-    });
+    })
   },
   handleCloseRole() {
     this.setState({
@@ -178,7 +179,7 @@ let TenantDetail = React.createClass({
     this.setState({
       //Removerol: false,
       Removepermis: false,
-    });
+    })
   },
   removePermissionButton(record) {
     let linearArray = this.transformLinearArray([record])
@@ -355,6 +356,12 @@ let TenantDetail = React.createClass({
         </span>
       ),
     }]
+    const permissionColumn = [{
+      title: '权限名称',
+      dataIndex: 'desc',
+      key: 'desc',
+      width: '40%',
+    }]
     const Rcolumns = [{
       title: '权限名称',
       dataIndex: 'name',
@@ -399,7 +406,7 @@ let TenantDetail = React.createClass({
                             }) }
                           />
                           {
-                            this.props.userName === 'admin' ?
+                            this.state.creator === this.props.userName && this.state.creator === 'admin' ?
                               this.state.isShowIco ?
                                 <div className="comment">
                                   <Tooltip title="取消">
@@ -424,9 +431,9 @@ let TenantDetail = React.createClass({
           <div className='lastDetails lastDetailtable' style={{ width: '49%', float: 'left' }} >
             <div className='title'>权限 （ <span>{count}个</span> ）
             <Button
-                className="Editroles"
-                type="ghost"
-                onClick={() => this.handleBtn()}
+              className="Editroles"
+              type="ghost"
+              onClick={() => this.handleBtn()}
               >编辑角色</Button></div>
             {
               this.state.characterModal ?
@@ -446,7 +453,7 @@ let TenantDetail = React.createClass({
               <div className="lastSyncInfo">
                 <Table
                   scroll={{ y: 300 }}
-                  columns={permissionColumns}
+                  columns={ this.state.creator === this.props.userName && this.state.creator === 'admin' ? permissionColumns : permissionColumn }
                   pagination={false}
                   dataSource={permissionDatasource}
                 />
