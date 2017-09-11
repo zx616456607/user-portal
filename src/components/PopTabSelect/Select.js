@@ -101,7 +101,7 @@ export default class PopTabSelect extends Component {
     if (!label) {
       label = key
     }
-    if (this.state.selectValue === label) {
+    if (this.state.selectValue === label && !this.props.canRepeat) {
       this.setState({
         visible: false,
       })

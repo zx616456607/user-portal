@@ -387,6 +387,7 @@ class TenxFlowDetail extends Component {
     const { projectId, projectBranch } = this.state
     const { repoBranchesAndTags, flowInfo } = this.props
     const stageInfo = flowInfo.stageInfo || []
+
     const isNoPop = stageInfo.length < 1 || !stageInfo[0].spec.project || stageInfo[0].spec.project.repoType === 'svn'
     const targetElement = (
       <Button
@@ -441,6 +442,7 @@ class TenxFlowDetail extends Component {
         targetElement={targetElement}
         loading={loading}
         isShowBuildBtn={true}
+        canRepeat={true}
         getTooltipContainer={() => document.getElementById('TenxFlowDetail')}>
         {tabs}
       </PopTabSelect>
@@ -542,7 +544,7 @@ class TenxFlowDetail extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={flowInfo.flowId} callback={this.callback(flowInfo.flowId)} visible={this.state.TenxFlowDeployLogModal}/>
+          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={flowInfo.flowId} callback={this.callback(flowInfo.flowId)} visible={this.state.TenxFlowDeployLogModal} />
         </Modal>
       </QueueAnim>
     )
@@ -581,7 +583,7 @@ function mapStateToProps(state, props) {
     logs,
     currentSpace: state.entities.current.space.namespace,
     otherImage,
-    repoBranchesAndTags,
+    repoBranchesAndTags
   }
 }
 
