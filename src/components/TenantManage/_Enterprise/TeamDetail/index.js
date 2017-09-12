@@ -506,7 +506,10 @@ class TeamDetail extends Component {
       success: {
         func: res => {
           res.users.forEach((item) => {
-            Object.assign(item,{key:item.userID})
+            Object.assign(item,{
+              key:item.userID,
+              globalStyle: includes(item.globalRoles,'admin') ? '系统管理员' : '普通成员'
+            })
           })
           this.setState({
             leaderList: res.users,
