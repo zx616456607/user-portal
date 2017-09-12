@@ -917,7 +917,7 @@ let NetworkConfiguration = React.createClass ({
             {
               editCluster
               ? <Tooltip title='设置默认网络'>
-                <Button icon="setting" className='settingDefalut' onClick={() => this.setState({settingDefalut: true})}/>
+                <Button icon="setting" className='settingDefalut' onClick={() => this.setState({settingDefalut: true, defaultSetting: this.state.defaultGroup})}/>
               </Tooltip>
               : <Button icon="setting" className='settingDefalut' disabled/>
             }
