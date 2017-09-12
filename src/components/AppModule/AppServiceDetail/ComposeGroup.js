@@ -45,16 +45,14 @@ let MyComponent = React.createClass({
           }
           const config = []
           let index = 0
-          console.log('groupWithLabels',groupWithLabels)
-          console.log('volume',volumes)
           volumes.forEach((volume) => {
             let labels = []
-            groupWithLabels.forEach(item => {
-              if (item.name === volume.name) {
-                labels = item.annotations
-              }
-            })
             if (volume.configMap) {
+              groupWithLabels.forEach(item => {
+                if (item.name === volume.configMap.name) {
+                  labels = item.annotations
+                }
+              })
               config.push({
                 id: ++index,
                 mountPod: filter(container.volumeMounts, ['name', volume.name])[0].mountPath,
