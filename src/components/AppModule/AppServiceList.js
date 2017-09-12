@@ -436,6 +436,7 @@ const MyComponent = React.createClass({
           <div className="actionBox commonData">
             <Dropdown.Button
               overlay={dropdown} type="ghost"
+              trigger={['click']}
               onClick={() => this.modalShow(item)}>
               <Icon type="eye-o" />
               <span>查看</span>
@@ -1185,13 +1186,17 @@ class AppServiceList extends Component {
               serviceDetailmodalShow={this.state.modalShow}
             />
           </Modal>
-          <RollingUpdateModal
-            parentScope={parentScope}
-            cluster={cluster}
-            appName={appName}
-            visible={rollingUpdateModalShow}
-            loadServiceList={loadServiceList}
-            service={currentShowInstance} />
+          {
+            rollingUpdateModalShow ?
+            <RollingUpdateModal
+              parentScope={parentScope}
+              cluster={cluster}
+              appName={appName}
+              visible={rollingUpdateModalShow}
+              loadServiceList={loadServiceList}
+              service={currentShowInstance} />
+            :null
+          }
           <ConfigModal
             parentScope={parentScope}
             cluster={cluster}
