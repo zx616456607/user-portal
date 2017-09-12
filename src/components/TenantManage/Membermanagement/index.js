@@ -9,7 +9,7 @@
  */
 import React, { Component } from 'react'
 import './style/Membermanagement.less'
-import { Row, Col, Alert, Button, Input, Select, Menu, Card, Spin, Icon, Table, Modal, Checkbox, Tooltip, Dropdown } from 'antd'
+import { Tag, Row, Col, Alert, Button, Input, Select, Menu, Card, Spin, Icon, Table, Modal, Checkbox, Tooltip, Dropdown } from 'antd'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
@@ -356,7 +356,7 @@ let MemberTable = React.createClass({
       {
         title: (
           <div onClick={this.handleSortName}>
-            成员名
+            成员名<a href="javascript:void(0)">（{this.props.onlineTotal} 人在线）</a>
             <div className="ant-table-column-sorter">
               <span className={this.state.sortName ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
                 <i className="anticon anticon-caret-up" />
@@ -375,6 +375,11 @@ let MemberTable = React.createClass({
           if (userDetail.role === ROLE_SYS_ADMIN) {
             return (
               <Link to={`/tenant_manage/user/${record.key}`}>
+                {
+                  record.online
+                  ? <Tag color="blue">在线</Tag>
+                  : <Tag className="offlineTag">离线</Tag>
+                }
                 {text}
               </Link>
             )
@@ -520,6 +525,7 @@ let MemberTable = React.createClass({
           dataSource={searchResult.length === 0 ? data : searchResult}
           pagination={pagination}
           onChange={this.onTableChange}
+          loading={this.props.usersIsFetching}
         />
         <DeleteUserModal
           visible={this.state.delModal}
@@ -743,7 +749,7 @@ class Membermanagement extends Component {
   } */
 
   render() {
-    const { users, checkUserName, loadAllUserList, userDetail, teams } = this.props
+    const { users, checkUserName, loadAllUserList, userDetail, teams, onlineTotal, usersIsFetching } = this.props
     const scope = this
     const { visible, memberList, hasSelected, createUserErrorMsg } = this.state
     const searchIntOption = {
@@ -821,7 +827,14 @@ class Membermanagement extends Component {
         </Row>
         <Row className="memberList">
           <Card className="memberlist">
-            <MemberTable scope={scope} data={users} loginUser={userDetail} teams={teams} />
+            <MemberTable
+              scope={scope}
+              data={users}
+              loginUser={userDetail}
+              teams={teams}
+              onlineTotal={onlineTotal}
+              usersIsFetching={usersIsFetching}
+            />
           </Card>
         </Row>
         {/* 充值modal */}
@@ -862,6 +875,7 @@ class Membermanagement extends Component {
 function mapStateToProp(state) {
   let usersData = []
   let total = 0
+  let onlineTotal = 0
   let data = []
   const users = state.user.users
   const userDetail = state.entities.loginUser.info
@@ -891,6 +905,7 @@ function mapStateToProp(state) {
             balance: parseAmount(item.balance).fullAmount,
             type: item.type,
             project: item[camelize('project_count')] || '-',
+            online: item.online,
           }
         )
       })
@@ -898,10 +913,13 @@ function mapStateToProp(state) {
     if (users.result.total) {
       total = users.result.total
     }
+    onlineTotal = users.result.onlineTotal
   }
   return {
     users: data,
+    usersIsFetching: users.isFetching,
     total,
+    onlineTotal,
     userDetail,
   }
 }

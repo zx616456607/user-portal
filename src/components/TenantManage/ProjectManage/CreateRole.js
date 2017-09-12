@@ -100,7 +100,7 @@ class CreateRoleModal extends Component{
     }
     this.roleNameTime = setTimeout(()=>{
       ExistenceRole({
-        name:value
+        name:encodeURIComponent(value)
       },{
         success: {
           func: res => {

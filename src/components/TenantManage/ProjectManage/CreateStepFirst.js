@@ -94,7 +94,7 @@ let CreateStepFirst = React.createClass({
       return
     }
     if (!validateProjectName(newValue)) {
-      return callback('项目名称可由3~63位小写字母、数字、中划线组成，以字母开头，字母或者数字结尾')
+      return callback('项目名称可由3~63位字母、数字、中划线组成，以字母开头，字母或者数字结尾')
     }
     clearTimeout(this.projectNameCheckTimeout)
     this.projectNameCheckTimeout = setTimeout(()=>{
