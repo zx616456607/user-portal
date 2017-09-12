@@ -54,7 +54,7 @@ export default class Version extends Component{
                       <span className="infSvgTxt">版本</span>
                     </Col>
                   </Row>
-                <Row className='contentList'>
+                <Row className='contentList firstItem'>
                   <Col span={8}>User Portal</Col>
                   <Col span={8}>用户使用中心</Col>
                   <Col span={8}>v2.6.0</Col>

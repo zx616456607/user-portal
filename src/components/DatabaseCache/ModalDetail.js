@@ -196,7 +196,7 @@ class BaseInfo extends Component {
           <InputNumber onChange={(e) => parentScope.setState({ replicas: e })}
                        value={parentScope.state.replicas}
                        min={ this.props.database == 'zookeeper' ? 3 : 1 }
-                       max={5} /> &nbsp; 个
+                       /> &nbsp; 个
         </div>
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>
