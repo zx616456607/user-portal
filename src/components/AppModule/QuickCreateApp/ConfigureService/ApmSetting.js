@@ -71,13 +71,7 @@ const ApmSetting = React.createClass({
     if (!apms || apms.length === 0) {
       return (
         <span>
-          当前空间未安装 APM Agent，前往安装
-          <a
-            target="_blank"
-            href={`${msaUrl}/setting/apms?${toQuerystring(openApi.result)}`}
-          >
-            微服务平台
-          </a>
+          当前空间未安装 APM Agent，前往安装 <a target="_blank" href={`${msaUrl}/setting/apms?${toQuerystring(openApi.result)}`}>微服务平台</a>
         </span>
       )
     }
@@ -146,7 +140,7 @@ const ApmSetting = React.createClass({
     return (
       <FormItem
         {...formItemLayout}
-        label="性能管理 APM"
+        label="性能管理"
         key="apm"
         className="apmSetting"
       >
