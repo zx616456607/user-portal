@@ -107,10 +107,10 @@ exports.getVersions = function* (){
     this.body = {
       message:"filename is empty"
     }
-  } 
+  }
   const query = {
     "filter":`fileName contains ${filename}`
   }
   const list = yield api.pkg.getBy([filename,filetype,'versions'],query)
-  this.body = list.data
+  this.body = list
 }

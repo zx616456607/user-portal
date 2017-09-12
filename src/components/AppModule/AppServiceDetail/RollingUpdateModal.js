@@ -11,7 +11,7 @@ import React, { Component } from 'react'
 import './style/RollingUpdateModal.less'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { Button, Card, Menu, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Modal, Input } from 'antd'
-import { loadRepositoriesTags } from '../../../actions/harbor'
+import { loadRepositoriesTags, loadWrapTags } from '../../../actions/harbor'
 import { rollingUpdateService } from '../../../actions/services'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../components/Notification'
@@ -29,15 +29,15 @@ class RollingUpdateModal extends Component {
     super(props)
     this.handleOK = this.handleOK.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
-    this.handleTagChange = this.handleTagChange.bind(this)
     this.state = {
       containers: [],
+      wrapTags:[],
       rollingInterval: false
     }
   }
-
-  componentWillReceiveProps(nextProps) {
-    const { service, visible } = nextProps
+  componentWillMount() {
+  // componentWillReceiveProps(nextProps) {
+    const { service, visible } = this.props
     if (!service) {
       return
     }
@@ -63,18 +63,36 @@ class RollingUpdateModal extends Component {
     this.setState({
       containers
     })
-    if (!visible || visible === this.props.visible) {
-      return
-    }
+    // if (!visible || visible === this.props.visible) {
+    //   return
+    // }
     this.setState({
       intervalTime: service.spec.minReadySeconds
     })
+    if (service.wrapper) {
+      this.getWrapTags()
+      return
+    }
     containers.map((container) => {
       let { imageObj } = container
-      loadTags(nextProps, imageObj.fullName)
+      loadTags(this.props, imageObj.fullName)
     })
   }
-
+  getWrapTags() {
+    const { service } = this.props
+    const wrap = service.wrapper.appPkgName.split('.')
+    const body = {
+      filename: wrap[0],
+      filetype: wrap[1],
+    }
+    this.props.loadWrapTags(body,{
+      success:{
+        func:(res)=> {
+          this.setState({wrapTags: res.data})
+        }
+      },
+    })
+  }
   handleCancel() {
     const { parentScope } = this.props
     parentScope.setState({
@@ -129,7 +147,19 @@ class RollingUpdateModal extends Component {
 
 
     notification.spin(`服务 ${serviceName} 灰度升级中...`)
-    rollingUpdateService(cluster, serviceName, { targets, interval: parseInt(intervalTime) }, {
+    const body = {
+      type: 0,
+      targets,
+      interval: parseInt(intervalTime)
+    }
+    if (service.wrapper) {
+      const wrapfile = this.state.wrap.split('||')
+      body.type = 1
+      body.targets = {
+        [wrapfile[0]]: wrapfile[1]
+      }
+    }
+    rollingUpdateService(cluster, serviceName, body, {
       success: {
         func: () => {
           notification.close()
@@ -154,14 +184,15 @@ class RollingUpdateModal extends Component {
     })
   }
 
-  handleTagChange(value, containerName) {
+  handleTagChange(value, item) {
     const { containers } = this.state
     containers.map((container) => {
-      if (container.name === containerName) {
+      if (container.name === item.name) {
         container.targetTag = value
       }
     })
     this.setState({
+      wrap: value,
       containers
     })
   }
@@ -199,6 +230,7 @@ class RollingUpdateModal extends Component {
     return (
       <Modal
         visible={visible}
+        maskClosable={false}
         title="灰度升级" onOk={this.handleOK} onCancel={this.handleCancel}
         footer={[
           <Button
@@ -236,6 +268,10 @@ class RollingUpdateModal extends Component {
             }
             let show = image
             if(image.length > 40) show = image.substring(0, 40) + "..."
+            if (service.wrapper) {
+              show = service.wrapper.appPkgName
+              tag = service.wrapper.appPkgTag
+            }
             return (
               <div key={item.name}>
               <Row style={{marginBottom: "10px"}}>
@@ -250,11 +286,18 @@ class RollingUpdateModal extends Component {
                   <Select
                     placeholder="请选择目标版本"
                     value={item.targetTag}
-                    onChange={(value) => this.handleTagChange(value, item.name)}
+                    onChange={(value) => this.handleTagChange(value, item)}
                     className='rollingUpdateUpdateItemSelect'
                   >
+                  {// app wrap
+                    service.wrapper ?
+                    this.state.wrapTags.map((item,index) => {
+                      return <Select.Option value={item.fileName +'.'+ item.fileType + ':'+item.fileTag+'||'+item.iD} disabled={item.fileTag == tag} key={index}>{item.fileTag}</Select.Option>
+                    })
+                    :
                     <OptGroup label="请选择目标版本">
                       {
+
                         this.props[item.imageObj.fullName] && this.props[item.imageObj.fullName].tag && this.props[item.imageObj.fullName].tag.map((tag) => {
                           let disabled = false
                           if (tag === item.imageObj.tag) {
@@ -268,6 +311,8 @@ class RollingUpdateModal extends Component {
                         })
                       }
                     </OptGroup>
+                  }
+
                   </Select>
                 </Col>
                 <Col span={6}>
@@ -297,5 +342,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   loadRepositoriesTags,
+  loadWrapTags,
   rollingUpdateService
 })(RollingUpdateModal)
