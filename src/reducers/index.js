@@ -49,6 +49,7 @@ import notifications from './notifications'
 import projectAuthority from './project'
 import role from './role'
 import vmWrap from './vm_wrap'
+import * as apm from './apm'
 
 import { LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE, } from '../constants'
 
@@ -160,6 +161,7 @@ const rootReducer = combineReducers({
   projectAuthority,
   role,
   vmWrap,
+  ...apm,
 })
 
 export default rootReducer

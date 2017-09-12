@@ -40,6 +40,7 @@ global.globalConfig = {
     host: config.vm_api.host,
     protocol: config.vm_api.protocol,
   },
+  msaConfig: {},
 }
 
 const apiFactory = require('./api_factory.js')
@@ -135,6 +136,10 @@ exports.initGlobalConfig = function* () {
         globalConfig.vmWrapConfig.protocol = protocol
         globalConfig.vmWrapConfig.host = host
       }
+      return
+    }
+    if (configType === 'msa') {
+      globalConfig.msaConfig.url = configDetail.url
     }
   })
   if (ConfigArray.Mail!=='NotEmpty'){
@@ -153,4 +158,5 @@ exports.initGlobalConfig = function* () {
   logger.info('devops config: ', globalConfig.cicdConfig.protocol + '://' + globalConfig.cicdConfig.host)
   logger.info('vm wrap api config: ', globalConfig.vmWrapConfig.protocol + '://' + globalConfig.vmWrapConfig.host)
   logger.info('mailbox config: ', globalConfig.mail_server.host)
+  logger.info('msa config: ', globalConfig.msaConfig.url)
 }

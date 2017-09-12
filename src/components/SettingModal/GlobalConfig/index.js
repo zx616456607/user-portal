@@ -292,6 +292,170 @@ let Emaill = React.createClass({
     )
   }
 })
+//msa 配置
+let Msa = React.createClass({
+  getInitialState() {
+    return {
+      isEve: false,
+      canClick: true,
+      aleardySave: false
+    }
+  },
+  handleReset(e) {
+    e.preventDefault();
+    const { setFieldsValue } = this.props.form
+    const { msaChange, config } = this.props
+    let msaDetail = {
+      url: ''
+    }
+    if (config) {
+      msaDetail = JSON.parse(config.configDetail)
+    }
+    setFieldsValue({
+      url: msaDetail.url,
+    })
+    // resetFields(['service', 'email', 'password', 'emailID'])
+    msaChange();
+  },
+  handEve() {
+    this.setState({ isEve: !this.state.isEve })
+  },
+  handleMsa() {
+    this.props.msaChange()
+  },
+  saveMsa() {
+    this.props.form.validateFields((errors, values) => {
+      if (errors) {
+        return;
+      }
+      if (!this.state.canClick) {
+        return
+      }
+      const notification = new NotificationHandler()
+      notification.spin('保存中')
+      this.setState({
+        canClick: false,
+        aleardySave: true
+      })
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig } = this.props
+      const { getFieldValue } = form
+      const url = getFieldValue('url')
+      const msaID = getFieldValue('msaID')
+      const self = this
+      const body = {
+        configID: msaID,
+        detail: {
+          url,
+        }
+      }
+      saveGlobalConfig(cluster.clusterID, 'msa', body , {
+          success: {
+            func: (result) => {
+              notification.close()
+              notification.success('微服务配置保存成功')
+              const { form } = self.props
+              const { getFieldProps, getFieldValue, setFieldsValue } = form
+              self.handleMsa()
+              if (result.data.toLowerCase() != 'success') {
+                setFieldsValue({
+                  msaID: result.data
+                })
+                body.configID = result.data
+              }
+              this.setState({
+                canClick: true,
+                aleardySave: true
+              })
+              body.configDetail = JSON.stringify(body.detail)
+              setGlobalConfig('msa', body)
+            }
+          },
+          failed: {
+            func: (err) => {
+              notification.close()
+              let msg
+              if (err.message.message) {
+                msg = err.message.message
+              } else {
+                msg = err.message
+              }
+              notification.error('微服务配置保存失败 => ' + msg)
+              this.setState({
+                canClick: true
+              })
+            }
+          }
+        })
+    })
+  },
+  checkUrl(rule, value, callback) {
+    const { validateFields } = this.props.form
+    if (!value) {
+      callback([new Error('请填写微服务服务地址')])
+      return
+    }
+    if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+      callback([new Error('请填入合法的微服务地址')])
+      return
+    }
+    callback()
+  },
+  render() {
+    const { msaDisable, emailChange, config } = this.props
+    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
+    let msaDetail = {
+      url: '',
+    }
+    if (config) {
+      msaDetail = JSON.parse(config.configDetail)
+    }
+    // 微服务地址
+    const urlProps = getFieldProps('url', {
+      rules: [
+        { validator: this.checkUrl }
+      ],
+      initialValue: msaDetail.url
+    });
+
+    const msaID = getFieldProps('msaID', {
+      initialValue: config ? config.configID : ''
+    });
+
+    return (
+      <div className="GlobalConfigEmail">
+        <div className="title">微服务</div>
+        <div className="content">
+          <div className="contentMain">
+            <div className="contentImg">
+              <img src={EmailImg} alt="微服务" />
+            </div>
+            <div className="contentkeys">
+              <div className="key">微服务地址</div>
+            </div>
+            <div className="contentForm">
+              <Form horizontal className="contentFormMain">
+                <FormItem >
+                  <Input {...urlProps} placeholder="如：https://192.168.1.113:4081" disabled={msaDisable} />
+                </FormItem>
+                <FormItem>
+                  {
+                    msaDisable
+                      ? <Button type='primary' className="itemInputLeft" onClick={this.handleMsa}>编辑</Button>
+                      : ([
+                        <Button onClick={this.handleReset} className="itemInputLeft" disabled={msaDisable}>取消</Button>,
+                        <Button type='primary' className="itemInputLeft" onClick={this.saveMsa}>保存</Button>
+                      ])
+                  }
+                </FormItem>
+                <input type="hidden" {...msaID} />
+              </Form>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+})
 
 //开放API地址
 let ConInter = React.createClass({
@@ -958,6 +1122,7 @@ let Continue = React.createClass({
 });
 
 Emaill = Form.create()(Emaill)
+Msa = Form.create()(Msa)
 ConInter = Form.create()(ConInter)
 MirrorService = Form.create()(MirrorService)
 StorageService = Form.create()(StorageService)
@@ -968,6 +1133,7 @@ class GlobalConfig extends Component {
     super(props)
     this.state = {
       emailDisable: true,
+      msaDisable: true,
       cicdeditDisable: true,
       mirrorDisable: true,
       cephDisable: true,
@@ -997,6 +1163,10 @@ class GlobalConfig extends Component {
     this.setState({ emailDisable: !this.state.emailDisable })
   }
 
+  msaChange() {
+    this.setState({ msaDisable: !this.state.msaDisable })
+  }
+
   cicdeditChange() {
     this.setState({ cicdeditDisable: !this.state.cicdeditDisable })
   }
@@ -1017,7 +1187,7 @@ class GlobalConfig extends Component {
   }
 
   render() {
-    const { emailDisable, emailChange, cicdeditDisable, cicdeditChange, mirrorDisable, mirrorChange, cephDisable, cephChange, globalConfig } = this.state
+    const { emailDisable, msaDisable, emailChange, cicdeditDisable, cicdeditChange, mirrorDisable, mirrorChange, cephDisable, cephChange, globalConfig } = this.state
     const { updateGlobalConfig, saveGlobalConfig } = this.props
     let { cluster } = this.props
     if (!cluster) {
@@ -1045,6 +1215,15 @@ class GlobalConfig extends Component {
           <div className='titltitem'>④『持续集成』对应的是 CI/CD 中 TenxFlow 的相关功能配置；</div>
 					</div>
         <Emaill sendEmailVerification={this.props.sendEmailVerification} setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
+        <Msa
+          setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
+          msaDisable={msaDisable}
+          msaChange={this.msaChange.bind(this)}
+          saveGlobalConfig={saveGlobalConfig}
+          updateGlobalConfig={saveGlobalConfig}
+          cluster={cluster}
+          config={globalConfig.msa}
+        />
         <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.harbor} isValidConfig={this.props.isValidConfig}/>
         <StorageService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />
         <ConInter setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />

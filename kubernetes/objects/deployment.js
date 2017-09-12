@@ -12,6 +12,7 @@
 const constants = require('../../constants')
 const TENX_LOCAL_TIME_VOLUME = constants.TENX_LOCAL_TIME_VOLUME
 const K8S_NODE_SELECTOR_KEY = constants.K8S_NODE_SELECTOR_KEY
+const APM_SERVICE_LABEL_KEY = constants.APM_SERVICE_LABEL_KEY
 const DEFAULT_DISKTYPE = 'rbd'
 const Container = require('./container')
 const TENXCLOUD_PREFIX = 'tenxcloud.com/'
@@ -212,6 +213,10 @@ class Deployment {
   addContainer(name, image) {
     const container = new Container(name, image)
     this.spec.template.spec.containers.push(container)
+  }
+
+  setApmServiceLabel(type) {
+    this.spec.template.metadata.labels[APM_SERVICE_LABEL_KEY] = type
   }
 
   setContainerResources(containerName, memory, cpu) {

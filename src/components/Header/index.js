@@ -18,7 +18,7 @@ import { loadUserTeamspaceList } from '../../actions/user'
 import { loadTeamClustersList } from '../../actions/team'
 import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
 import { checkVersion } from '../../actions/version'
-import { getCookie, isEmptyObject, getVersion, getPortalRealMode } from '../../common/tools'
+import { getCookie, isEmptyObject, getVersion, getPortalRealMode, toQuerystring } from '../../common/tools'
 import { USER_CURRENT_CONFIG } from '../../../constants'
 import { MY_SPACE, SESSION_STORAGE_TENX_HIDE_DOT_KEY, LITE } from '../../constants'
 import { browserHistory, Link } from 'react-router'
@@ -359,6 +359,7 @@ class Header extends Component {
       showSpace,
       showCluster,
       checkVersionContent,
+      openApi,
     } = this.props
     const {
       spacesVisible,
@@ -368,6 +369,7 @@ class Header extends Component {
       hideDot,
       visible,
     } = this.state
+    const msaUrl = loginUser.msaConfig.url
     const { isLatest } = checkVersionContent
     teamspaces.map((space) => {
       mode === standard
@@ -472,6 +474,15 @@ class Header extends Component {
             </div>
           </a>
         */}
+          {
+            openApi.result && msaUrl && (
+              <div className="docBtn quickentry">
+                <a target="_blank" href={`${msaUrl}?${toQuerystring(openApi.result)}`}>
+                微服务入口
+                </a>
+              </div>
+            )
+          }
           <div className="docBtn quickentry">
             <Link to={`/quickentry`}>
               <svg className='rocket'>
@@ -551,6 +562,7 @@ function mapStateToProps(state, props) {
     showCluster,
     checkVersionContent: checkVersion.data,
     isCheckVersion: checkVersion.isFetching,
+    openApi: state.openApi,
   }
 }
 

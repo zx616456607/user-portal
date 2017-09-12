@@ -35,6 +35,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     serviceName, // 服务名称
     imageUrl, // 镜像地址
     imageTag, // 镜像版本
+    apm, //是否开通 APM
     bindNode, // 绑定节点
     bindNodeType,//绑定节点类型
     bindLabel,//主机标签绑定
@@ -80,6 +81,10 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
   const deployment = new Deployment(serviceName)
   // 设置镜像地址
   deployment.addContainer(serviceName, `${imageUrl}:${imageTag}`)
+  // 设置 APM
+  if (apm) {
+    deployment.setApmServiceLabel('pinpoint')
+  }
   // 设置绑定节点
   if (bindNodeType == 'hostname') {
     if (bindNode !== SYSTEM_DEFAULT_SCHEDULE) {
