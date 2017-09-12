@@ -283,7 +283,7 @@ function RemoveRoleList(body,callback) {
       endpoint,
       options: {
         method: 'POST',
-        body: body.projectRole
+        body: body.roles
       },
       schema: {}
     },
