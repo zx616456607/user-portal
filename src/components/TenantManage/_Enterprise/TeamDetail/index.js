@@ -13,11 +13,9 @@ import { Row, Col, Card, Button, Table, Modal, Input, Form, Tooltip } from 'antd
 import QueueAnim from 'rc-queue-anim'
 import './style/TeamDetail.less'
 import { Link } from 'react-router'
-import { setCurrent } from '../../../../actions/entities'
 import {
-  deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
-  loadTeamspaceList, loadTeamUserList, loadAllClustersList,
-  deleteTeamspace, requestTeamCluster, checkTeamSpaceName,
+  deleteTeam, addTeamusers, removeTeamusers,
+  loadTeamUserList, loadAllClustersList,
   loadTeamClustersList,getTeamDetail, updateTeamDetail, loadTeamAllUser,
   checkTeamName
 } from '../../../../actions/team'
@@ -313,8 +311,8 @@ class TeamDetail extends Component {
     }
   }
   componentWillMount() {
-    const { loadAllClustersList, loadTeamUserList, teamID, loadTeamAllUser } = this.props
-    loadAllClustersList(teamID)
+    const { loadAllClustersList, loadTeamUserList, teamID, loadTeamAllUser, roleNum } = this.props
+    roleNum && (roleNum !== 3) && loadAllClustersList(teamID)
     loadTeamUserList(teamID, { sort: 'a,userName', size: 5, page: 1 })
     loadTeamAllUser(teamID, {size: 0, sort: 'a,userName'})
     this.loadTeamDetail()
@@ -930,7 +928,6 @@ class TeamDetail extends Component {
                               removeTeamusers={removeTeamusers}
                               loadTeamUserList={loadTeamUserList}
                               loadTeamAllUser={loadTeamAllUser}
-                              loadTeamClustersList={loadTeamClustersList}
                               teamUsersTotal={teamUsersTotal} />
                 </Row>
               </Col>
@@ -1021,13 +1018,13 @@ function mapStateToProp(state, props) {
     }
   }
   const userDetail = state.entities.loginUser.info
-  const { roles } = userDetail.info || { roles: [] }
-  if (roles.length) {
-    for (let i = 0; i < roles.length; i++) {
-      if (roles[i] === 'admin') {
+  const { globalRoles } = userDetail || { globalRoles: [] }
+  if (globalRoles.length) {
+    for (let i = 0; i < globalRoles.length; i++) {
+      if (globalRoles[i] === 'admin') {
         roleNum = 1;
         break
-      } else if (roles[i] === 'project-creator') {
+      } else if (globalRoles[i] === 'team-creator') {
         roleNum = 2;
         break
       } else {
@@ -1052,17 +1049,10 @@ function mapStateToProp(state, props) {
 }
 export default connect(mapStateToProp, {
   deleteTeam,
-  createTeamspace,
   addTeamusers,
   removeTeamusers,
-  loadTeamspaceList,
   loadTeamUserList,
   loadAllClustersList,
-  deleteTeamspace,
-  requestTeamCluster,
-  checkTeamSpaceName,
-  loadTeamClustersList,
-  setCurrent,
   getTeamDetail,
   usersExcludeOneTeam,
   updateTeamDetail,
