@@ -99,8 +99,10 @@ let ClusterInfo = React.createClass ({
         updateClusterConfig(cluster.clusterID,{IsBuilder:1},{
           success:{
             func : () => {
+              let oldBuilder = false
               for(let i=0;i<clusterList.length;i++){
                 if(clusterList[i].isBuilder == true){
+                  oldBuilder = true
                   updateClusterConfig(clusterList[i].clusterID,{IsBuilder:2},{
                     success:{
                       func:() => {
@@ -110,6 +112,19 @@ let ClusterInfo = React.createClass ({
                     }
                   })
                 }
+              }
+              if (!oldBuilder) {
+                notification.success(`更新集群信息成功`)
+                loadClusterList(null, {
+                  finally: {
+                    func: () => {
+                      this.setState({
+                        saveBtnLoading: false,
+                        editCluster: false,
+                      })
+                    }
+                  }
+                })
               }
             },
             isAsync: true,
@@ -193,9 +208,10 @@ let ClusterInfo = React.createClass ({
         this.selectBuilderEnvironment()
       }
     })
+    /* Don't need to do this in frontend, just show what API returns
     if(this.clusterListLength().length == 1){
       return <span><Checkbox style={{marginRight:'4px' }}  onClick={this.cancleClusterWhenOnlyOneClusterModal} checked={true}></Checkbox>该集群用来作为构建镜像的环境</span>
-    }
+    }*/
     if(isBuilder){
       return <span><Checkbox style={{marginRight:'4px' }}  onClick={this.checkBuilderEnvironment} checked={this.state.checkbox}></Checkbox>该集群用来作为构建镜像的环境</span>
     }

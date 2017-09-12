@@ -95,6 +95,29 @@ function dateFormat(dateString) {
   return timeStr.format("YYYY-MM-DD HH:mm:ss")
 }
 
+function getTriggeredInfo(item) {
+  let triggeredInfo = item.triggeredInfo
+  if(item.status == null) {
+    return ''
+  }
+  if (!triggeredInfo) return '(手动触发)'
+  try {
+    if (typeof triggeredInfo == 'string') {
+      triggeredInfo = JSON.parse(triggeredInfo)
+    }
+    if (triggeredInfo.type == 'Branch') {
+      return '(commit CI触发)'
+    }
+    if (triggeredInfo.type == 'Tag') {
+      return '(新建Tag CI触发)'
+    }
+    if (triggeredInfo.type == 'merge_request') {
+      return '(pull request CI触发)'
+    }
+  } catch (error) {
+  }
+}
+
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
@@ -329,15 +352,15 @@ let MyComponent = React.createClass({
               <span>{item.name}</span>
             </Link>
           </div>
-          <div className='time'>
-            <span className='timeSpan'>
+          <div className='time' style={{width: '18%'}}>
+            <span className='timeSpan' >
               <Tooltip placement='topLeft' title={item.lastBuildTime ? dateFormat(item.lastBuildTime) : '-'}>
                 <span>{item.lastBuildTime ? dateFormat(item.lastBuildTime) : '-'}</span>
               </Tooltip>
             </span>
           </div>
-          <div className={`status status-` + `${item.status}`}>
-            <span><i className="fa fa-circle"></i>{status}</span>
+          <div className={`status status-` + `${item.status}`} style={{width: '25%'}}>
+            <span><i className="fa fa-circle"></i>{status} <span style={{color: '#747474'}}>{getTriggeredInfo(item)}</span></span>
           </div>
           <div className='oprea'>
             <Button className='logBtn' size='large' type='ghost' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
@@ -627,10 +650,10 @@ class TenxFlowList extends Component {
               <div className='name'>
                 <FormattedMessage {...menusText.name} />
               </div>
-              <div className='time'>
+              <div className='time' style={{width: '18%'}}>
                 <FormattedMessage {...menusText.updateTime} />
               </div>
-              <div className='status'>
+              <div className='status' style={{width: '25%'}}>
                 <FormattedMessage {...menusText.status} />
               </div>
               <div className='oprea'>
@@ -663,7 +686,7 @@ class TenxFlowList extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
         >
-          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} callback={this.callback(this.state.currentFlowId)} visible={this.state.TenxFlowDeployLogModal}/>
+          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} callback={this.callback(this.state.currentFlowId)} visible={this.state.TenxFlowDeployLogModal} />
         </Modal>
         {this.state.websocket}
       </QueueAnim>

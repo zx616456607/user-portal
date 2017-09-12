@@ -58,10 +58,10 @@ class ClusterPlugin extends Component {
   convertMemory(memory) {
     if (!memory) return '无限制'
     let size = 'M'
-    memory = memory / 1024
-    if (memory > 1024) {
+    memory = memory / 1000
+    if (memory > 1000) {
       size = 'G'
-      memory = (memory / 1024).toFixed(0)
+      memory = (memory / 1000).toFixed(0)
       return memory + size
     } else {
       return memory.toFixed(0) + size
@@ -267,6 +267,9 @@ class ClusterPlugin extends Component {
           notify.close()
           notify.success(`插件${row.name}安装成功`)
           self.loadData()
+          this.setState({
+            create: false
+          })
           return
         },
         isAsync: true
@@ -275,6 +278,9 @@ class ClusterPlugin extends Component {
         func: () => {
           notify.close()
           notify.error(`插件${row.name}安装失败`)
+          this.setState({
+            create: false
+          })
           return
         }
       }
@@ -506,7 +512,7 @@ class ClusterPlugin extends Component {
               })
               this.setState({
                 maxCPU: minCPU / 1000,
-                maxMem: Math.floor(minMemory / 1024)
+                maxMem: Math.floor(minMemory / 1000)
               })
               return
             }
@@ -519,13 +525,13 @@ class ClusterPlugin extends Component {
             })
             this.setState({
               maxCPU: nodeDetail.cPUAllocatable / 1000,
-              maxMem: Math.floor(nodeDetail.memoryAllocatable / 1024)
+              maxMem: Math.floor(nodeDetail.memoryAllocatable / 1000)
             })
           }
         }
       }
     })
-    let currentMem = this.state.currentPlugin ? (this.state.currentPlugin.resourceRange.request.memory / 1024).toFixed(0) : 0
+    let currentMem = this.state.currentPlugin ? (this.state.currentPlugin.resourceRange.request.memory / 1000).toFixed(0) : 0
 
     if (isNaN(currentMem)) currentMem = 0
     const pluginMem = getFieldProps('pluginMem', {
@@ -636,21 +642,29 @@ class ClusterPlugin extends Component {
         dataIndex: 'action',
         render: (text, row) => {
           let menu
-           if(row.status.message == 'stopped') {
-             menu = (
-               <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
-                 <Menu.Item key="start">启动插件</Menu.Item>
-                 <Menu.Item key="delete">卸载插件</Menu.Item>
-               </Menu>
+          if(row.status.message == 'stopped') {
+            menu = (
+              <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
+                <Menu.Item key="start">启动插件</Menu.Item>
+                <Menu.Item key="delete">卸载插件</Menu.Item>
+              </Menu>
              )
            } else {
-             menu = (
-               <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
-                 <Menu.Item key="stop">停止插件</Menu.Item>
-                 <Menu.Item key="delete">卸载插件</Menu.Item>
-               </Menu>
-             )
-           }
+            if (row.name === 'fluentd-elk') {
+              menu = (
+                <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
+                  <Menu.Item key="delete">卸载插件</Menu.Item>
+                </Menu>
+              )
+            } else {
+              menu = (
+                <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
+                  <Menu.Item key="stop">停止插件</Menu.Item>
+                  <Menu.Item key="delete">卸载插件</Menu.Item>
+                </Menu>
+              )
+            }
+          }
           let menua
           if(row.status.message == 'stopped') {
              menua = (
@@ -732,7 +746,7 @@ class ClusterPlugin extends Component {
           title="安装操作"
           wrapClassName="vertical-center-modal"
           visible={this.state.create}
-          onOk={() => this.createPlugin()}
+          onOk={() => this.installPlugin()}
           onCancel={() => this.setState({ create: false })}
         >
           <div className="confirmText">确定安装 {this.state.currentPlugin ? this.state.currentPlugin.name : ''} 插件吗?</div>
