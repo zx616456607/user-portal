@@ -355,15 +355,12 @@ let MemberTable = React.createClass({
     let columns = [
       {
         title: (
-          <div onClick={this.handleSortName}>
-            {
+          <div onClick={this.handleSortName}><span>成员名
+            {  
               userDetail.role === ROLE_SYS_ADMIN && (
-                <span>
-                  成员名
                   <a href="javascript:void(0)">（{this.props.onlineTotal} 人在线）</a>
-                </span>
               )
-            }
+            }</span>
             <div className="ant-table-column-sorter">
               <span className={this.state.sortName ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
                 <i className="anticon anticon-caret-up" />
@@ -411,12 +408,6 @@ let MemberTable = React.createClass({
           )
         }
       },
-      // {
-      //   title: '手机',
-      //   dataIndex: 'tel',
-      //   key: 'tel',
-      //   width: '10%',
-      // },
       {
         title: '邮箱',
         dataIndex: 'email',
