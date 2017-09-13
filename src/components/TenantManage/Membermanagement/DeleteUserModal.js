@@ -249,9 +249,6 @@ class DeleteUserModal extends React.Component {
       },
       width: '40%',
       render: (text, record, index) => {
-        if (record.role === ROLE_TEAM_ADMIN) {
-          return '团队管理员'
-        }
         if (record.role === ROLE_SYS_ADMIN) {
           return '系统管理员'
         }
@@ -293,7 +290,6 @@ class DeleteUserModal extends React.Component {
                           console.log(users)
                             const selectedUserKey = userSelectedRowKeys[team.teamID] && userSelectedRowKeys[team.teamID][0]
                             let userName
-                          console.log(selectedUserKey)
                             if (selectedUserKey) {
                               users.every(user => {
                                 if (user.userID == selectedUserKey) {
