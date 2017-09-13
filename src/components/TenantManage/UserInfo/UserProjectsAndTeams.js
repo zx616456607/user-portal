@@ -156,7 +156,7 @@ class UserProjectsAndTeams extends React.Component {
 
   removeMember() {
     const notification = new NotificationHandler()
-    const { userId, removeTeamusers } = this.props
+    const { userId, removeTeamusers, userDetail } = this.props
     const { currentTeam } = this.state
     this.setState({
       removeMemberBtnLoading: true,
@@ -178,7 +178,11 @@ class UserProjectsAndTeams extends React.Component {
       failed: {
         func: err => {
           if (err.statusCode == 401) {
-            notification.error("没有权限从团队中移除创建者")
+            if (err.message && err.message.message == 'delete creator from team is not allowed') {
+              notification.error(userDetail.userName + ' 为该团队管理员，将团队移交给其他成员后方可移除该成员')
+            } else {
+              notification.error("没有权限从团队中移除创建者")
+            }
           } else if (err.statusCode == 404) {
             doSuccess()
           } else {
@@ -336,7 +340,7 @@ class UserProjectsAndTeams extends React.Component {
           if (rolesNum === 0) {
             return rolesNum + ''
           }
-          return <Tooltip title={rolesText}><span>{rolesNum}</span></Tooltip>
+          return <span>{rolesText}</span>
         }
       },
       {
