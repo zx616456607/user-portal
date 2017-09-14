@@ -37,7 +37,6 @@ class CreateStepThird extends Component{
       memberArr: [],
       roleMap: {},
       memberCount: 0,
-      clearInput: false,
       memberType: 'user'
     }
   }
@@ -101,7 +100,6 @@ class CreateStepThird extends Component{
               totalMemberCount: res.data.listMeta.total,
               connectModal:true,
               memberType: type,
-              clearInput: true
             })
           }
         },
@@ -141,7 +139,6 @@ class CreateStepThird extends Component{
   closeModal() {
     this.setState({
       connectModal: false,
-      clearInput: true
     })
   }
   submitModal() {
@@ -152,7 +149,6 @@ class CreateStepThird extends Component{
     },()=>{
       this.setState({
         connectModal: false,
-        clearInput: true
       })
     })
   }
@@ -243,7 +239,7 @@ class CreateStepThird extends Component{
   render() {
     const { scope, form } = this.props;
     const TreeNode = Tree.TreeNode;
-    const { currentRolePermission, currentRoleInfo, memberArr, connectModal, roleMap, memberCount, clearInput, memberType } = this.state;
+    const { currentRolePermission, currentRoleInfo, memberArr, connectModal, roleMap, memberCount, memberType } = this.state;
     let currentId = currentRoleInfo && currentRoleInfo.id
     const projectNameLayout = {
       labelCol: { span: 4 },
@@ -341,7 +337,6 @@ class CreateStepThird extends Component{
              outPermissionInfo={memberArr}
              changeSelected={this.getProjectMember.bind(this)}
              modalStatus={connectModal}
-             clearInput={clearInput}
              memberType={memberType}
              filterUser={(value) => this.getProjectMember(memberType, value)}
              permissionInfo={[]}

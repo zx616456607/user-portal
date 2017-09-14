@@ -34,7 +34,8 @@ class TreeComponent extends Component {
       alreadyAllChecked: false,
       originalMembers: [],
       deleteMembers: [],
-      filterPermissionInfo: []
+      filterPermissionInfo: [],
+      value: ''
     }
   }
   
@@ -43,9 +44,15 @@ class TreeComponent extends Component {
     this.getExistMember(outPermissionInfo,existMember)
   }
   componentWillReceiveProps(nextProps) {
-    const { connectModal, existMember, outPermissionInfo, memberType } = nextProps;
+    const { connectModal, existMember, outPermissionInfo, memberType, filterFlag } = nextProps;
     if ((!this.props.connectModal && connectModal) || (memberType !== this.props.memberType)) {
       this.getExistMember(outPermissionInfo,existMember)
+    }
+    if (filterFlag !== this.props.filterFlag) {
+      this.setState({
+        outPermissionInfo,
+        filterPermissionInfo: outPermissionInfo,
+      })
     }
     if (this.props.connectModal && !connectModal) {
       this.setState({
@@ -384,7 +391,7 @@ class TreeComponent extends Component {
     })
   }
   render() {
-    const { outPermissionInfo, permissionInfo, disableCheckArr, alreadyAllChecked, filterPermissionInfo } = this.state
+    const { outPermissionInfo, permissionInfo, disableCheckArr, alreadyAllChecked, filterPermissionInfo, value } = this.state
     const { text, memberCount, roleMember, modalStatus, clearInput, filterUser } = this.props
     const loopFunc = data => data.length >0 && data.map((item) => {
       if (item.users) {
@@ -430,7 +437,8 @@ class TreeComponent extends Component {
                 placeholder='请输入搜索内容'
                 selectProps={selectProps}
                 modalStatus={modalStatus}
-                clearInput={clearInput}
+                value={value}
+                onChange={(value) => this.setState({value})}
                 style={{width: '90%', margin: '10px auto', display: 'block'}}/>
               {/*<Row className="treeTitle">*/}
                 {/*<Col span={12}>对象名称</Col>*/}
