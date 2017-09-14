@@ -475,6 +475,31 @@ export function deleteMiddleware(plugins,callback) {
   }
 }
 
+
+export const INSTALL_PLUGIN_INDEX_TPL_REQUEST = 'INSTALL_PLUGIN_INDEX_TPL_REQUEST'
+export const INSTALL_PLUGIN_INDEX_TPL_SUCCESS = 'INSTALL_PLUGIN_INDEX_TPL_SUCCESS'
+export const INSTALL_PLUGIN_INDEX_TPL_FAILURE = 'INSTALL_PLUGIN_INDEX_TPL_FAILURE'
+
+function fetchInitPlugins(cluster, plugin, callback) {
+  return {
+    [FETCH_API]: {
+      types: [INSTALL_PLUGIN_INDEX_TPL_REQUEST, INSTALL_PLUGIN_INDEX_TPL_SUCCESS, INSTALL_PLUGIN_INDEX_TPL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/plugins/${plugin}/init`,
+      options: {
+        method: 'POST'
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function initPlugins(cluster, plugin, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchInitPlugins(cluster, plugin, callback))
+  }
+}
+
 export const EDIT_PLUGINS_REQUERT = 'EDIT_PLUGINS_REQUERT'
 export const EDIT_PLUGINS_SUCCESS = 'EDIT_PLUGINS_SUCCESS'
 export const EDIT_PLUGINS_FAILURE = 'EDIT_PLUGINS_FAILURE'
