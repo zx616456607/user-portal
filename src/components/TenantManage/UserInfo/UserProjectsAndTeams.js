@@ -46,6 +46,7 @@ class UserProjectsAndTeams extends React.Component {
       joinProjectsModalVisible: false,
       removeProjectModalVisible: false,
       removeProjectBtnLoading: false,
+      teamSearchValue: null,
     }
 
     this.loadTeamData = this.loadTeamData.bind(this)
@@ -58,6 +59,7 @@ class UserProjectsAndTeams extends React.Component {
     this.handleAddMemberModalCancel = this.handleAddMemberModalCancel.bind(this)
     this.cancleJoinProjectsModal = this.cancleJoinProjectsModal.bind(this)
     this.removeProject = this.removeProject.bind(this)
+    this.handleSearchChange = this.handleSearchChange.bind(this)
 
     this.defaultTeamTargetKeys = []
     this.defaultProjectTargetKeys = []
@@ -307,8 +309,14 @@ class UserProjectsAndTeams extends React.Component {
     })
   }
 
+  handleSearchChange(e) {
+    this.setState({
+      teamSearchValue: e.target.value,
+    })
+  }
+
   render() {
-    const { teams, userDetail, projects, isTeamsFetching, isProjectsFetching, loginUser, userId } = this.props
+    const { userDetail, projects, isTeamsFetching, isProjectsFetching, loginUser, userId } = this.props
     const isLoginUser = userId == loginUser.userID
     const exitText = isLoginUser ? '退出' : '移出'
     let {
@@ -316,7 +324,12 @@ class UserProjectsAndTeams extends React.Component {
       teamTargetKeys, allTeams, teamTransferModalVisible,
       joinProjectsModalVisible, removeProjectModalVisible,
       currentProject, allProjects, projectTargetKeys,
+      teamSearchValue,
     } = this.state
+    let teams = this.props.teams
+    if (teamSearchValue && teamSearchValue.trim()) {
+      teams = teams.filter(team => team.teamName.indexOf(teamSearchValue.trim()) > -1)
+    }
     const projectColumns = [
       {
         title: '项目名',
@@ -458,7 +471,7 @@ class UserProjectsAndTeams extends React.Component {
                   )
                 }
                 <span className="searchInput">
-                  <Input size='large' placeholder='搜索' />
+                  <Input size='large' placeholder='搜索' onChange={this.handleSearchChange} />
                   <i className='fa fa-search' />
                 </span>
                 <div className="total">
