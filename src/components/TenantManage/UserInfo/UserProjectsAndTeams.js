@@ -102,7 +102,7 @@ class UserProjectsAndTeams extends React.Component {
 
   loadTeamData() {
     const { userId, loadUserTeams, GetProjectsMembers, loginUser } = this.props
-    loadUserTeams(userId, { size: 100 }, {
+    loadUserTeams(userId, { size: 0 }, {
       success: {
         func: res => {
           const teamTargetKeys = []
@@ -335,11 +335,7 @@ class UserProjectsAndTeams extends React.Component {
         key: 'roles',
         width: '25%',
         render: roles => {
-          const rolesText = roles.map(role => role.name).join(', ')
-          const rolesNum = roles.length
-          if (rolesNum === 0) {
-            return rolesNum + ''
-          }
+          const rolesText = roles.map(role => role.name).join(', ') || '-'
           return <span>{rolesText}</span>
         }
       },
@@ -465,6 +461,9 @@ class UserProjectsAndTeams extends React.Component {
                   <Input size='large' placeholder='搜索' />
                   <i className='fa fa-search' />
                 </span>
+                <div className="total">
+                  共计 {teams.length} 条
+                </div>
               </div>
               <div className="teamsContent">
                 <Table
@@ -472,7 +471,10 @@ class UserProjectsAndTeams extends React.Component {
                   dataSource={teams}
                   onChange={this.handleTeamChange}
                   loading={isTeamsFetching}
-                  pagination={false}
+                  pagination={{
+                    simple: true,
+                    pageSize: 10,
+                  }}
                 />
               </div>
             </div>
