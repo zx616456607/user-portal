@@ -1,0 +1,29 @@
+.apmSetting {
+  .supportSpan {
+    color: #57c5f7;
+    cursor: pointer;
+  }
+}
+.midSupportModal {
+  .ant-modal-content {
+    width: 580px;
+    .ant-modal-body {
+      ul {
+        padding: 10px;
+        margin: 5px 0;
+        background-color: #f6f6f6;
+        border: 1px solid #d9d9d9;
+        border-radius: 5px;
+        & > li {
+          padding-left: 1em;
+          text-indent: -.7em;
+          padding-top: 5px;
+          &::before {
+            content: "• ";
+            color: #57c5f7;
+          }
+        }
+      }
+    }
+  }
+}

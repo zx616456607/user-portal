@@ -350,6 +350,27 @@ export function loadRepositoriesTags(registry, imageName, callback) {
   }
 }
 
+export const HARBOR_APP_WRAP_TAGS_REQUEST = 'HARBOR_APP_WRAP_TAGS_REQUEST'
+export const HARBOR_APP_WRAP_TAGS_SUCCESS = 'HARBOR_APP_WRAP_TAGS_SUCCESS'
+export const HARBOR_APP_WRAP_TAGS_FAILURE = 'HARBOR_APP_WRAP_TAGS_FAILURE'
+
+function fetchLoadWrapTags(body,callback) {
+  return {
+    [FETCH_API]: {
+      types: [HARBOR_APP_WRAP_TAGS_REQUEST,HARBOR_APP_WRAP_TAGS_SUCCESS,HARBOR_APP_WRAP_TAGS_FAILURE],
+      endpoint:`${API_URL_PREFIX}/pkg/${body.filename}/${body.filetype}/versions`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function loadWrapTags(body, callback) {
+  return (dispatch) => {
+    return dispatch(fetchLoadWrapTags(body, callback))
+  }
+}
+
 export const HARBOR_DELETE_REPO_REQUEST = 'HARBOR_DELETE_REPO_REQUEST'
 export const HARBOR_DELETE_REPO_SUCCESS = 'HARBOR_DELETE_REPO_SUCCESS'
 export const HARBOR_DELETE_REPO_FAILURE = 'HARBOR_DELETE_REPO_FAILURE'

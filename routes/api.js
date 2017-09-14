@@ -47,6 +47,7 @@ const pkgController =require('../controllers/wrap_manage')
 const vmWrapController =require('../controllers/wm_wrap')
 const netIsolationController = require('../controllers/network_isolation')
 const tenantController = require('../controllers/tenant_manage')
+const apmController = require('../controllers/apm')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -603,6 +604,9 @@ module.exports = function (Router) {
   router.get('/cluster/:clusterID/networkisolation', netIsolationController.getCurrentSetting)
   router.post('/cluster/:clusterID/networkisolation', netIsolationController.setIsolationRule)
   router.delete('/cluster/:clusterID/networkisolation', netIsolationController.restoreDefault)
+
+  // Apms
+  router.get('/clusters/:clusterID/apms', apmController.getApms)
 
   return router.routes()
 }

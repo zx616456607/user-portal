@@ -131,6 +131,8 @@ exports.addConfigsForFrontend = function (user, loginUser) {
   }
   // Add VM wrap info
   user.vmWrapConfig = global.globalConfig.vmWrapConfig
+  // Add msa config
+  user.msaConfig = globalConfig.msaConfig
   return user
 }
 

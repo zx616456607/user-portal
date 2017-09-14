@@ -28,6 +28,7 @@ import {
   DEFAULT_REGISTRY,
   ASYNC_VALIDATOR_TIMEOUT,
  } from '../../../../constants'
+import ApmSetting from './ApmSetting'
 import NormalSetting from './NormalSetting'
 import AssistSetting from './AssistSetting'
 import LivenessSetting from './LivenessSetting'
@@ -514,6 +515,10 @@ let ConfigureService = React.createClass({
                 }
               </Select>
             </FormItem>
+            <ApmSetting
+              form={form}
+              formItemLayout={formItemLayout}
+            />
           </Form>
         </div>
         <NormalSetting
