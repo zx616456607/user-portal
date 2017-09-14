@@ -765,14 +765,15 @@ function mapStateToProp(state, props) {
     if (teams.result.teams) {
       teamsData = teams.result.teams
       if (teamsData.length !== 0) {
-        teamsData.map((item, index) => {
+        for (let i = 0; i < teamsData.length; i++) {
           let role = ''
+          let item = teamsData[i]
           if (item.outlineRoles) {
-            if (item.outlineRoles.includes('creator')) {
+            if (role === '' && (item.outlineRoles.includes('manager') || item.outlineRoles.includes('creator'))) {
               role = '创建者'
-            } else if (item.outlineRoles.includes('participator')) {
+            } else if (role === '' && item.outlineRoles.includes('participator')) {
               role = '参与者'
-            } else {
+            } else if (role === '' && item.outlineRoles.includes('no-participator')){
               role = '非团队成员'
             }
           }
@@ -786,7 +787,7 @@ function mapStateToProp(state, props) {
               role
             }
           )
-        })
+        }
       }
     }
     if (teams.result.total) {
