@@ -15,6 +15,7 @@ import { connect } from 'react-redux'
 import { Input, Modal, Form, Radio, Checkbox, Tooltip, Icon, Button, Select } from 'antd'
 import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import { ROLE_SYS_ADMIN, CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID } from '../../../../constants'
+import { appNameCheck } from '../../../common/naming_validation'
 const Option = Select.Option
 const createForm = Form.create
 const FormItem = Form.Item
@@ -28,19 +29,11 @@ let CreateUserModal = React.createClass({
   },
   userExists(rule, value, callback) {
     const _this = this
-    if (!value) {
-      callback([new Error('请输入用户名')])
-      return
+    const msg = appNameCheck(value, '用户名')
+    if (msg !== 'success') {
+      return callback(msg)
     }
     const { checkUserName } = this.props.funcs
-    if (value.length < 5 || value.length > 40) {
-      callback([new Error('长度为5~40个字符')])
-      return
-    }
-    if (!USERNAME_REG_EXP_NEW.test(value)) {
-      callback([new Error('以小写字母开头，允许[0~9]、[-]，且以小写英文和数字结尾')])
-      return
-    }
     // Disabled submit button when checkUserName
     this.setState({
       disabled: true

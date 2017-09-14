@@ -46,6 +46,7 @@ class UserProjectsAndTeams extends React.Component {
       joinProjectsModalVisible: false,
       removeProjectModalVisible: false,
       removeProjectBtnLoading: false,
+      teamSearchValue: null,
     }
 
     this.loadTeamData = this.loadTeamData.bind(this)
@@ -58,6 +59,7 @@ class UserProjectsAndTeams extends React.Component {
     this.handleAddMemberModalCancel = this.handleAddMemberModalCancel.bind(this)
     this.cancleJoinProjectsModal = this.cancleJoinProjectsModal.bind(this)
     this.removeProject = this.removeProject.bind(this)
+    this.handleSearchChange = this.handleSearchChange.bind(this)
 
     this.defaultTeamTargetKeys = []
     this.defaultProjectTargetKeys = []
@@ -102,7 +104,7 @@ class UserProjectsAndTeams extends React.Component {
 
   loadTeamData() {
     const { userId, loadUserTeams, GetProjectsMembers, loginUser } = this.props
-    loadUserTeams(userId, { size: 100 }, {
+    loadUserTeams(userId, { size: 0 }, {
       success: {
         func: res => {
           const teamTargetKeys = []
@@ -307,8 +309,14 @@ class UserProjectsAndTeams extends React.Component {
     })
   }
 
+  handleSearchChange(e) {
+    this.setState({
+      teamSearchValue: e.target.value,
+    })
+  }
+
   render() {
-    const { teams, userDetail, projects, isTeamsFetching, isProjectsFetching, loginUser, userId } = this.props
+    const { userDetail, projects, isTeamsFetching, isProjectsFetching, loginUser, userId } = this.props
     const isLoginUser = userId == loginUser.userID
     const exitText = isLoginUser ? '退出' : '移出'
     let {
@@ -316,7 +324,12 @@ class UserProjectsAndTeams extends React.Component {
       teamTargetKeys, allTeams, teamTransferModalVisible,
       joinProjectsModalVisible, removeProjectModalVisible,
       currentProject, allProjects, projectTargetKeys,
+      teamSearchValue,
     } = this.state
+    let teams = this.props.teams
+    if (teamSearchValue && teamSearchValue.trim()) {
+      teams = teams.filter(team => team.teamName.indexOf(teamSearchValue.trim()) > -1)
+    }
     const projectColumns = [
       {
         title: '项目名',
@@ -335,11 +348,7 @@ class UserProjectsAndTeams extends React.Component {
         key: 'roles',
         width: '25%',
         render: roles => {
-          const rolesText = roles.map(role => role.name).join(', ')
-          const rolesNum = roles.length
-          if (rolesNum === 0) {
-            return rolesNum + ''
-          }
+          const rolesText = roles.map(role => role.name).join(', ') || '-'
           return <span>{rolesText}</span>
         }
       },
@@ -462,9 +471,12 @@ class UserProjectsAndTeams extends React.Component {
                   )
                 }
                 <span className="searchInput">
-                  <Input size='large' placeholder='搜索' />
+                  <Input size='large' placeholder='搜索' onChange={this.handleSearchChange} />
                   <i className='fa fa-search' />
                 </span>
+                <div className="total">
+                  共计 {teams.length} 条
+                </div>
               </div>
               <div className="teamsContent">
                 <Table
@@ -472,7 +484,10 @@ class UserProjectsAndTeams extends React.Component {
                   dataSource={teams}
                   onChange={this.handleTeamChange}
                   loading={isTeamsFetching}
-                  pagination={false}
+                  pagination={{
+                    simple: true,
+                    pageSize: 10,
+                  }}
                 />
               </div>
             </div>
