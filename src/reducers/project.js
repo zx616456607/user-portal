@@ -33,13 +33,13 @@ function getProjectsApprovalClusters(state = {}, action) {
       if(filter == 1){
         return Object.assign({}, defaultState, state, {
           isFetching: false,
-          approvalPendingData: action.response.result.data,
+          approvalPendingData: action.response.result.data || [],
         })
       }
       if(filter == 5){
         return Object.assign({}, defaultState, state, {
           isFetching: false,
-          approvedReadyData: action.response.result.data,
+          approvedReadyData: action.response.result.data || [],
         })
       }
       return Object.assign({}, defaultState, state, {
