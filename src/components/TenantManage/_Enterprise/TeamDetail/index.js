@@ -314,13 +314,13 @@ class TeamDetail extends Component {
     const { loadAllClustersList, loadTeamUserList, teamID, loadTeamAllUser, roleNum } = this.props
     roleNum && (roleNum !== 3) && loadAllClustersList(teamID)
     loadTeamUserList(teamID, { sort: 'a,userName', size: 5, page: 1 })
-    loadTeamAllUser(teamID, {size: 0, sort: 'a,userName'})
+    loadTeamAllUser(teamID, {size: 0})
     this.loadTeamDetail()
     this.getTeamLeader(false)
   }
   addNewMember() {
     const { loadTeamAllUser, teamID } = this.props;
-    loadTeamAllUser(teamID,{size: 0, sort: 'a,userName'},{
+    loadTeamAllUser(teamID,{size: 0},{
       success: {
         func: () => {
           const { teamAllUserIDList } = this.props;
