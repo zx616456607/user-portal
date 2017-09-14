@@ -196,7 +196,6 @@ class TenantManage extends React.Component {
         center: ['30%', '48%'],
         data: [
           { value: u_supperUser, name: '系统管理员' },
-          // { value: 10, name: '团队管理员'},
           { value: u_commonUser, name: '普通成员', selected: true },
         ],
         label: {

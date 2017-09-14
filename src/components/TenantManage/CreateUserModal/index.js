@@ -256,7 +256,6 @@ let CreateUserModal = React.createClass({
             >
             <Radio.Group  {...roleProps} defaultValue="0">
               <Radio key="a" value="0">普通成员</Radio>
-              {/* <Radio key="b" value="1">团队管理员</Radio> */}
               <Radio key="c" value="2">系统管理员</Radio>
             </Radio.Group>
           </FormItem>

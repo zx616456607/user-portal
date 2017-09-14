@@ -618,9 +618,7 @@ function mapStateToProp(state) {
       usersData = users.result.users
       usersData.map((item, index) => {
         let role = ""
-        if (item.role === ROLE_TEAM_ADMIN){
-          role = "团队管理员"
-        }else if (item.role === ROLE_SYS_ADMIN) {
+        if (item.role === ROLE_SYS_ADMIN) {
           role = "系统管理员"
         }else{
           role = "普通成员"

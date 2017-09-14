@@ -112,7 +112,7 @@ let MemberTable = React.createClass({
     })
   },
   filtertypes(filters) {
-    // member select filter type (0=>普通成员，1=>团队管理员，3=> 系统管理员)
+    // member select filter type (0=>普通成员，3=> 系统管理员)
     // return number
     let filter = ''
     let isSetFilter = false
@@ -345,7 +345,6 @@ let MemberTable = React.createClass({
     // if (userDetail.role === ROLE_SYS_ADMIN) {
     //   filterKey = [
     //     { text: '普通成员', value: 0 },
-    //     { text: '团队管理员', value: 1 },
     //     { text: '系统管理员', value: 2 }
     //   ]
     // }
@@ -882,9 +881,7 @@ function mapStateToProp(state) {
       usersData = users.result.users
       usersData.map((item, index) => {
         let role = ""
-        if (item.role === ROLE_TEAM_ADMIN) {
-          role = "团队管理员"
-        } else if (item.role === ROLE_SYS_ADMIN) {
+        if (item.role === ROLE_SYS_ADMIN) {
           role = "系统管理员"
         } else {
           role = "普通成员"

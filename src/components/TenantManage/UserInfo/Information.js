@@ -408,9 +408,6 @@ class Information extends Component {
 
     let roleName
     switch (userDetail.role) {
-      case ROLE_TEAM_ADMIN:
-        roleName = "团队管理员"
-        break
       case ROLE_SYS_ADMIN:
         roleName = "系统管理员"
         break
@@ -590,7 +587,6 @@ class Information extends Component {
         >
           <RadioGroup onChange={(e) => {this.setState({ selectUserRole: e.target.value })}}  value={this.state.selectUserRole}>
             <Radio key="a" value={3}>系统管理员</Radio>
-            {/* <Radio key="b" value={2}>团队管理员</Radio> */}
             <Radio key="c" value={1}>普通成员</Radio>
           </RadioGroup>
         </Modal>

@@ -107,7 +107,7 @@ let CreateVMListModal = React.createClass({
       callback([new Error('长度为2~16个字符')])
       return
     }
-    if (/^[^0-9]+[^a-zA-Z]+$/.test(value) /*|| /^[^a-zA-Z]+$/.test(value)*/) {
+    if (/^[^0-9]+&&[^a-zA-Z]+$/.test(value) /*|| /^[^a-zA-Z]+$/.test(value)*/) {
       callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
       return
     }
