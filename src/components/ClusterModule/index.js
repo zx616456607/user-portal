@@ -915,11 +915,15 @@ class ClusterList extends Component {
       createClusterBtnDisabled = false
     }
     let waitingRequestNumbers = 0
+    let approvedReadyNumbers = 99
     if(projectsApprovalClustersList && projectsApprovalClustersList.approvalPendingData){
       waitingRequestNumbers = projectsApprovalClustersList.approvalPendingData.length
     }
     if(waitingRequestNumbers > 99){
       waitingRequestNumbers = 99
+    }
+    if(projectsApprovalClustersList && projectsApprovalClustersList.approvedReadyData){
+      approvedReadyNumbers = projectsApprovalClustersList.approvedReadyData.length
     }
     return (
       <QueueAnim className='ClusterBox'
@@ -1025,6 +1029,7 @@ class ClusterList extends Component {
                 onClick={() => this.handleClusterApproval('allclear')}
                 key="allclear"
                 className='allclearBtn'
+                disabled={!approvedReadyNumbers}
               >
                 <svg
                   className='clearIcon'
