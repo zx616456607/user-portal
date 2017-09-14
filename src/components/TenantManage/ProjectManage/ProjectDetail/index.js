@@ -67,8 +67,8 @@ class ProjectDetail extends Component{
       deleteClusterModal: false,
       totalMemberCount: 0,
       roleMember: 0,
-      clearInput: false,
-      memberType: 'user'
+      memberType: 'user',
+      filterFlag: true,
     }
   }
   componentWillMount() {
@@ -426,7 +426,7 @@ class ProjectDetail extends Component{
       })
     })
   }
-  getProjectMember(type, name) {
+  getProjectMember(type, name, flag) {
     const { GetProjectsMembers } = this.props;
     const { projectDetail } = this.state
     let query = {type, pid: projectDetail.pid}
@@ -442,10 +442,10 @@ class ProjectDetail extends Component{
             this.formatMember(newArr)
             this.setState({
               memberArr: newArr,
+              filterFlag: flag,
               totalMemberCount: res.data.listMeta.total,
               connectModal:true,
               memberType: type,
-              clearInput: true
             })
           }
         },
@@ -534,7 +534,6 @@ class ProjectDetail extends Component{
   closeMemberModal() {
     this.setState({
       connectModal: false,
-      clearInput: true,
       memberType: 'user'
     })
   }
@@ -546,7 +545,6 @@ class ProjectDetail extends Component{
     if (!del.length && !add.length) {
       this.setState({
         connectModal: false,
-        clearInput: true,
         memberType: 'user'
       })
     } else if (del.length && !add.length) {
@@ -577,7 +575,6 @@ class ProjectDetail extends Component{
             notify.success('关联对象操作成功')
             this.setState({
               connectModal: false,
-              clearInput: true,
               memberType: 'user'
             })
           }
@@ -590,7 +587,6 @@ class ProjectDetail extends Component{
             notify.error('关联对象操作失败')
             this.setState({
               connectModal: false,
-              clearInput: true,
               memberType: 'user'
             })
           }
@@ -618,7 +614,6 @@ class ProjectDetail extends Component{
             notify.success('关联对象操作成功')
             this.setState({
               connectModal: false,
-              clearInput: true,
               memberType: 'user'
             })
           }
@@ -631,7 +626,6 @@ class ProjectDetail extends Component{
             notify.success('关联对象操作成功')
             this.setState({
               connectModal: false,
-              clearInput: true,
               memberType: 'user'
             })
           }
@@ -648,9 +642,15 @@ class ProjectDetail extends Component{
   changeMemberType = value => {
     this.getProjectMember(value)
   }
+  filterMember = value => {
+    const { memberType, filterFlag } = this.state
+    this.getProjectMember(memberType, value, !filterFlag)
+  }
   render() {
     const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
-      currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount, clearInput } = this.state;
+      currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
+      filterFlag,
+    } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum } = this.props;
     const { getFieldProps } = form;
@@ -1121,9 +1121,9 @@ class ProjectDetail extends Component{
                 getTreeRightData={this.updateCurrentMember.bind(this)}
                 changeSelected={this.changeMemberType}
                 modalStatus={connectModal}
-                clearInput={clearInput}
                 memberType={memberType}
-                filterUser={(value) => this.getProjectMember(memberType, value)}
+                filterFlag={filterFlag}
+                filterUser={(value) => this.filterMember(value)}
               />
             }
           </Modal>

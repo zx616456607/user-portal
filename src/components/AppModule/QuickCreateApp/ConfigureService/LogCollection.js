@@ -30,6 +30,9 @@ class LogCollection extends Component {
     if (!value) {
       return callback()
     }
+    if(/\/{2,}/.test(value) || !/^\/(.+)*$/.test(value) || value.length !== 1 && /\/$/.test(value)){
+      return callback('请输入正确的日志目录')
+    }
     const { form } = this.props
     const { getFieldValue } = form
     const storageKeys = getFieldValue('storageKeys') || []

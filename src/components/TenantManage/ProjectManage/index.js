@@ -791,7 +791,7 @@ let ProjectManage = React.createClass({
           {
             roleNum === 1 && <Button type='primary' onClick={(e) => this.paySingle(e, record)}>充值</Button>
           }
-            <Button disabled={roleNum === 3}
+            <Button disabled={record.role === '参与者'}
                     type='ghost' style={{marginLeft: '10px'}}
                     onClick={(e) => this.delSingle(e, record)}>删除</Button>
         </span>

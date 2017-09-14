@@ -16,7 +16,7 @@ import { Link } from 'react-router'
 import {
   deleteTeam, addTeamusers, removeTeamusers,
   loadTeamUserList, loadAllClustersList,
-  loadTeamClustersList,getTeamDetail, updateTeamDetail, loadTeamAllUser,
+  getTeamDetail, updateTeamDetail, loadTeamAllUser,
   checkTeamName
 } from '../../../../actions/team'
 import { usersExcludeOneTeam, teamtransfer } from '../../../../actions/user'
@@ -305,22 +305,22 @@ class TeamDetail extends Component {
       selectLeader: [],
       editTeamName: false,
       originalLeader: [],
-      currentOption: 'team',
       delLeaderHint: false,
-      delLeaderName: ''
+      delLeaderName: '',
+      value: ''
     }
   }
   componentWillMount() {
     const { loadAllClustersList, loadTeamUserList, teamID, loadTeamAllUser, roleNum } = this.props
     roleNum && (roleNum !== 3) && loadAllClustersList(teamID)
     loadTeamUserList(teamID, { sort: 'a,userName', size: 5, page: 1 })
-    loadTeamAllUser(teamID, {size: 0, sort: 'a,userName'})
+    loadTeamAllUser(teamID, {size: 0})
     this.loadTeamDetail()
     this.getTeamLeader(false)
   }
   addNewMember() {
     const { loadTeamAllUser, teamID } = this.props;
-    loadTeamAllUser(teamID,{size: 0, sort: 'a,userName'},{
+    loadTeamAllUser(teamID,{size: 0},{
       success: {
         func: () => {
           const { teamAllUserIDList } = this.props;
@@ -465,13 +465,21 @@ class TeamDetail extends Component {
     })
   }
   transferTeamLeader() {
-    const { teamAllUserList } = this.props;
-    this.setState({
-      leaderList: teamAllUserList.map(item => {
-        return Object.assign(item,{userName:item.name})
-      })
-    },()=>{
-      this.getTeamLeader(true)
+    const { loadTeamAllUser, teamID } = this.props;
+    loadTeamAllUser(teamID, {size: 0, sort: 'a,userName'}, {
+      success: {
+        func: () => {
+          const { teamAllUserList } = this.props
+          this.setState({
+            leaderList: teamAllUserList.map(item => {
+              return Object.assign(item,{userName:item.name})
+            })
+          },()=>{
+            this.getTeamLeader(true)
+          })
+        },
+        isAsync: true
+      }
     })
   }
   getTeamLeader(flag) {
@@ -519,26 +527,6 @@ class TeamDetail extends Component {
       }
     })
   }
-  getExcludeTeamUsers(value) {
-    const { usersExcludeOneTeam, teamID } = this.props;
-    let opt = value === null ? {excludeTID: teamID, size: -1} : {excludeTID: teamID,userName: value, size: -1}
-    usersExcludeOneTeam(opt,{
-      success: {
-        func: res => {
-          res.data.users.forEach((item) => {
-            Object.assign(item,{
-              key:item.userID,
-              globalStyle: includes(item.globalRoles,'admin') ? '系统管理员' : '普通成员'
-            })
-          })
-          this.setState({
-            leaderList: res.data.users,
-          })
-        },
-        isAsync: true
-      }
-    })
-  }
   confirmTransferLeader() {
     const { teamUserList } = this.props;
     const { selectLeader, originalLeader } = this.state;
@@ -547,21 +535,7 @@ class TeamDetail extends Component {
       notify.info('该成员已是当前团队管理者，请选择其他成员')
       return
     }
-    let flag = false
-    for (let i = 0; i < teamUserList.length; i++) {
-      if (teamUserList[i].key === selectLeader[0]) {
-        flag = true
-        break
-      }
-    }
-    if (!flag) {
-      this.addTeamUser(selectLeader,false,false).then(() => {
-        this.getExcludeTeamUsers(null)
-        this.transferFunc()
-      })
-    } else {
-        this.transferFunc()
-    }
+    this.transferFunc()
   }
   transferFunc() {
     const { teamID, teamtransfer, loadTeamUserList, loadTeamAllUser } = this.props;
@@ -582,7 +556,7 @@ class TeamDetail extends Component {
           loadTeamAllUser(teamID, {size: 0, sort: 'a,userName'})
           this.setState({
             transferStatus: false,
-            currentOption: 'team'
+            value: ''
           })
         },
         isAsync: true
@@ -592,7 +566,7 @@ class TeamDetail extends Component {
           notify.error('移交团队失败')
           this.setState({
             transferStatus: false,
-            currentOption: 'team'
+            value: ''
           })
         }
       }
@@ -603,7 +577,7 @@ class TeamDetail extends Component {
     this.setState({
       transferStatus: false,
       selectLeader: originalLeader,
-      currentOption: 'team'
+      value: ''
     })
   }
   leaderRowClick(record) {
@@ -703,31 +677,6 @@ class TeamDetail extends Component {
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
-  filterUsers(value) {
-    const { currentOption } = this.state;
-    if(currentOption === 'team') {
-      this.getTeamUsers(value)
-    } else {
-      this.getExcludeTeamUsers(value)
-    }
-  }
-  getOption(value) {
-    const { teamAllUserList } = this.props;
-    this.setState({
-      currentOption: value
-    })
-    if(value === 'team') {
-      this.setState({
-        leaderList: teamAllUserList.map(item => {
-          return Object.assign(item,{userName:item.name})
-        })
-      },()=>{
-        this.getTeamLeader(true)
-      })
-      return
-    }
-    this.getExcludeTeamUsers(null)
-  }
   delBeforeTrans() {
     this.setState({delLeaderHint: false,addMember: false},()=>{
       this.transferTeamLeader(true)
@@ -736,11 +685,11 @@ class TeamDetail extends Component {
   render() {
     const {
       teamUserList, teamID,
-      teamUsersTotal, removeTeamusers,loadTeamClustersList,
+      teamUsersTotal, removeTeamusers,
       loadTeamUserList, form, loadTeamAllUser, roleNum
     } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = form
-    const { targetKeys, teamDetail, selectLeader, editTeamName, delLeaderName } = this.state
+    const { targetKeys, teamDetail, selectLeader, editTeamName, delLeaderName, value } = this.state
     const leaderRowSelction = {
       type: 'radio',
       selectedRowKeys: selectLeader,
@@ -758,14 +707,6 @@ class TeamDetail extends Component {
       width: '50%',
       render: (text, record) => record.partialStyle ? record.partialStyle === '团队管理员' ? `${text}（团队管理员）` : text : text
     }]
-    const selectProps = {
-      selectOptions: [
-        { key: 'team', value: '该团队成员' },
-        { key: 'excludeTeam', value: '非该团队成员' }
-      ],
-      selectWidth: '110px',
-      defaultValue:'team'
-    }
     return (
       <QueueAnim>
         <div key="tenantTeamDetail" id='tenantTeamDetail'>
@@ -889,13 +830,13 @@ class TeamDetail extends Component {
                     >
                       <div className="alertRow">移交团队后没有管理该团队的权限，可将团队管理员身份移交给以下成员中的一个</div>
                       <CommonSearchInput
-                        selectProps={selectProps}
-                        wrapperWidth="300px"
-                        onSearch={this.filterUsers.bind(this)}
+                        style={{width: 300}}
+                        onSearch={this.getTeamUsers.bind(this)}
                         size="large"
                         placeholder="按成员名搜索"
-                        getOption={this.getOption.bind(this)}
                         modalStatus={this.state.transferStatus}
+                        value={value}
+                        onChange={value => this.setState({value})}
                       />
                       <Table
                         className='leaderListTable'

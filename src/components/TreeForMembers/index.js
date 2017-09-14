@@ -34,59 +34,99 @@ class TreeComponent extends Component {
       alreadyAllChecked: false,
       originalMembers: [],
       deleteMembers: [],
-      filterPermissionInfo: []
+      filterPermissionInfo: [],
+      filterOutPermissionInfo: [],
+      leftValue: '',
+      rightValue: ''
     }
   }
   
   componentDidMount() {
     const { outPermissionInfo, existMember } = this.props
-    this.getExistMember(outPermissionInfo,existMember)
+    this.setState({
+      existMember,
+      outPermissionInfo,
+      sourceData: outPermissionInfo
+    }, () => {
+      this.getExistMember(outPermissionInfo,'user',false)
+    })
   }
   componentWillReceiveProps(nextProps) {
-    const { connectModal, existMember, outPermissionInfo, memberType } = nextProps;
-    if ((!this.props.connectModal && connectModal) || (memberType !== this.props.memberType)) {
-      this.getExistMember(outPermissionInfo,existMember)
+    const { connectModal, existMember, outPermissionInfo, memberType, filterFlag } = nextProps;
+    if ((!this.props.connectModal && connectModal) || (connectModal && (memberType !== this.props.memberType))) {
+      this.setState({
+        leftValue: '',
+        rightValue: '',
+        existMember,
+        outPermissionInfo,
+      }, () => {
+        this.getExistMember(outPermissionInfo,memberType,false)
+      })
+    }
+    if (filterFlag !== this.props.filterFlag) {
+      this.setState({
+        existMember,
+        outPermissionInfo,
+      }, () => {
+        this.getExistMember(outPermissionInfo,memberType,true)
+      })
     }
     if (this.props.connectModal && !connectModal) {
       this.setState({
         expandedKeys: [],
         checkedKeys: [],
+        originalMembers: [],
         alreadyCheckedKeys: [],
         alreadyExpanedKeys: [],
         permissionInfo: [],
         filterPermissionInfo: [],
+        outPermissionInfo: [],
+        filterOutPermissionInfo: [],
         disableCheckArr:[],
-        alreadyAllChecked: false
+        alreadyAllChecked: false,
+        deleteMembers: []
       })
     }
   }
-  getExistMember(outPermissionInfo,existMember) {
-    let outPermission = this.transformMultiArrayToLinearArray(cloneDeep(outPermissionInfo))
-    let leftInfo = outPermissionInfo || []
+  getExistMember(data,type,flag) {
+    const { existMember, sourceData } = this.state
+    let teamData = []
+    if (type === 'team') {
+      teamData = this.transformMultiArrayToLinearArray(cloneDeep(data))
+    }
     let rightInfo = []
     let checkedKeys = []
-    let originalMembers = []
     
     for (let i = 0; i < existMember.length; i++) {
-      for (let j = 0; j < outPermission.length; j++) {
-        if (outPermission[j].id === existMember[i]) {
-          rightInfo.push(outPermission[j])
+      for (let j = 0; j < sourceData.length; j++) {
+        if (sourceData[j].id === existMember[i]) {
+          rightInfo.push(sourceData[j])
           checkedKeys.push(`${existMember[i]}`)
-          originalMembers.push(existMember[i])
         }
       }
     }
     rightInfo = this.deleteRepeatPermission(rightInfo)
     let copyExist = this.numberToString(existMember)
-    let addKey = this.findParentNode(outPermission,copyExist)
+    let addKey = []
+    if (type === 'team') {
+      addKey = this.findParentNode(teamData,copyExist)
+    }
     this.setState({
       checkedKeys:Array.from(new Set(checkedKeys)),
       originalMembers: Array.from(new Set(checkedKeys)),
       disableCheckArr:Array.from(new Set(checkedKeys.concat(addKey))),
       permissionInfo: rightInfo,
-      outPermissionInfo: leftInfo,
       filterPermissionInfo: rightInfo
     })
+    if (flag) {
+      this.setState({
+        filterOutPermissionInfo: data,
+      })
+    } else {
+      this.setState({
+        filterOutPermissionInfo: type === 'team' ? data : sourceData
+      })
+    }
   }
   onExpand  = expandedKeys => {
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
@@ -112,7 +152,8 @@ class TreeComponent extends Component {
     });
   }
   
-  onAlreadyCheck = (checkedKeys, e) => {
+  onAlreadyCheck = (checkedKeys) => {
+    console.log(checkedKeys)
     this.setState({
       alreadyCheckedKeys: checkedKeys,
       alreadyAutoExpandParent: false,
@@ -257,16 +298,16 @@ class TreeComponent extends Component {
     return newArr
   }
   addPermission = () => {
-    const { checkedKeys, outPermissionInfo, originalMembers, permissionInfo } = this.state
+    const { checkedKeys, outPermissionInfo,filterOutPermissionInfo, originalMembers, permissionInfo, filterPermissionInfo, sourceData } = this.state
     const { getTreeRightData } = this.props
-    let newOutPermissionInfo = cloneDeep(outPermissionInfo)
+    let newOutPermissionInfo = cloneDeep(filterOutPermissionInfo)
     let uniqCheckedKeys = Array.from(new Set(checkedKeys))
     let diff = xor(uniqCheckedKeys,originalMembers);
     let newCheck = intersection(uniqCheckedKeys,diff)
     if(!checkedKeys.length) return
     let permissList = this.transformMultiArrayToLinearArray(newOutPermissionInfo)
     let arr = []
-    let per = permissionInfo.slice(0)
+    let per = filterPermissionInfo.slice(0)
     let alreadyCheck = []
     let rightCheck = []
     let addKey = this.findParentNode(permissList,uniqCheckedKeys)
@@ -285,10 +326,10 @@ class TreeComponent extends Component {
     }
     //右侧穿梭框状态
     for(let i = 0; i < newCheck.length; i++){
-      for(let j = 0; j < permissList.length; j++){
-        let id = typeof permissList[j].id === 'number' ? `${permissList[j].id}` : permissList[j].id
+      for(let j = 0; j < sourceData.length; j++){
+        let id = typeof sourceData[j].id === 'number' ? `${sourceData[j].id}` : sourceData[j].id
         if(id === newCheck[i]){
-          if (typeof permissList[j].id === 'number') {
+          if (typeof sourceData[j].id === 'number') {
             // per.unshift(permissList[j])
             alreadyCheck.push(id)
           }
@@ -299,7 +340,7 @@ class TreeComponent extends Component {
     per = this.deleteRepeatPermission(per)
     let alreadySet = new Set(alreadyCheck);
     alreadyCheck = Array.from(alreadySet)
-    let toNumber = this.stringToNumber(Array.from(new Set(rightCheck)))
+    let toNumber = this.stringToNumber(Array.from(new Set(rightCheck.concat(originalMembers))))
     if(getTreeRightData){
       getTreeRightData(toNumber,per)
     }
@@ -316,10 +357,10 @@ class TreeComponent extends Component {
   }
   
   removePerssion = () => {
-    const { alreadyCheckedKeys, permissionInfo, outPermissionInfo, disableCheckArr, checkedKeys } = this.state
+    const { alreadyCheckedKeys, permissionInfo, outPermissionInfo,filterOutPermissionInfo,filterPermissionInfo, disableCheckArr, checkedKeys } = this.state
     const { getTreeRightData } = this.props
-    let newPermissonInfo = cloneDeep(permissionInfo)
-    let newOutPermissionInfo = this.transformMultiArrayToLinearArray(cloneDeep(outPermissionInfo))
+    let newPermissonInfo = cloneDeep(filterPermissionInfo)
+    let newOutPermissionInfo = this.transformMultiArrayToLinearArray(cloneDeep(filterOutPermissionInfo))
     if(!alreadyCheckedKeys.length) return
     let arr = []
     let backArr = []
@@ -381,11 +422,13 @@ class TreeComponent extends Component {
     const { permissionInfo } = this.state
     this.setState({
       filterPermissionInfo: permissionInfo.filter(item => item.userName.indexOf(value) > -1)
+    }, () => {
+      console.log(this.state.filterPermissionInfo)
     })
   }
   render() {
-    const { outPermissionInfo, permissionInfo, disableCheckArr, alreadyAllChecked, filterPermissionInfo } = this.state
-    const { text, memberCount, roleMember, modalStatus, clearInput, filterUser } = this.props
+    const { disableCheckArr, alreadyAllChecked, filterPermissionInfo,filterOutPermissionInfo, leftValue, rightValue } = this.state
+    const { text, memberCount, roleMember, modalStatus, filterUser } = this.props
     const loopFunc = data => data.length >0 && data.map((item) => {
       if (item.users) {
         return (
@@ -430,7 +473,8 @@ class TreeComponent extends Component {
                 placeholder='请输入搜索内容'
                 selectProps={selectProps}
                 modalStatus={modalStatus}
-                clearInput={clearInput}
+                value={leftValue}
+                onChange={(leftValue) => this.setState({leftValue})}
                 style={{width: '90%', margin: '10px auto', display: 'block'}}/>
               {/*<Row className="treeTitle">*/}
                 {/*<Col span={12}>对象名称</Col>*/}
@@ -440,7 +484,7 @@ class TreeComponent extends Component {
               <div className='body'>
                 <div >
                   {
-                    outPermissionInfo.length
+                    filterOutPermissionInfo.length
                       ? <Tree
                       checkable
                       // checkStrictly={true}
@@ -451,7 +495,7 @@ class TreeComponent extends Component {
                       autoExpandParent={this.state.autoExpandParent}
                       key="tree"
                     >
-                      {loopFunc(outPermissionInfo)}
+                      {loopFunc(filterOutPermissionInfo)}
                     </Tree>
                       : <span className='noPermission'>暂无{text}</span>
                   }
@@ -481,6 +525,8 @@ class TreeComponent extends Component {
                 placeholder="请输入搜索内容"
                 style={{width: '90%', margin: '10px auto', display: 'block'}}
                 onSearch={this.filterMember}
+                value={rightValue}
+                onChange={(rightValue) => this.setState({rightValue})}
               />
               <hr className="underline"/>
               <div className='body'>

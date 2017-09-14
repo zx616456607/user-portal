@@ -287,7 +287,6 @@ class DeleteUserModal extends React.Component {
                       >
                         {
                           teams.map(team => {
-                          console.log(users)
                             const selectedUserKey = userSelectedRowKeys[team.teamID] && userSelectedRowKeys[team.teamID][0]
                             let userName
                             if (selectedUserKey) {
