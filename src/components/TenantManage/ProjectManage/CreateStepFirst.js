@@ -16,6 +16,7 @@ import { CheckProjects } from '../../../actions/project'
 import { loadClusterList } from '../../../actions/cluster'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import { validateProjectName } from '../../../common/naming_validation'
+import { appNameCheck } from '../../../common/naming_validation'
 
 let CreateStepFirst = React.createClass({
   getInitialState() {
@@ -89,12 +90,9 @@ let CreateStepFirst = React.createClass({
   projectName(rule, value, callback) {
     const { CheckProjects } = this.props;
     let newValue = value && value.trim()
-    if (!Boolean(newValue)) {
-      callback(new Error('请输入名称'))
-      return
-    }
-    if (!validateProjectName(newValue)) {
-      return callback('项目名称可由3~63位字母、数字、中划线组成，以字母开头，字母或者数字结尾')
+    const msg = appNameCheck(newValue, '项目名称')
+    if (msg !== 'success') {
+      return callback(msg)
     }
     clearTimeout(this.projectNameCheckTimeout)
     this.projectNameCheckTimeout = setTimeout(()=>{
