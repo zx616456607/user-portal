@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { Menu, Button, InputNumber, Card, Form, Select, Input, Dropdown, Spin, Modal, Icon, Row, Col, Table, Progress, Tooltip } from 'antd'
 import './style/clusterPlugin.less'
 import './style/clusterLabelManege.less'
-import { getClusterPlugins, updateClusterPlugins } from '../../actions/cluster'
+import { getClusterPlugins, updateClusterPlugins, initPlugins } from '../../actions/cluster'
 import NotificationHandler from '../../components/Notification'
 import { PLUGIN_DEFAULT_CONFIG } from '../../constants/index'
 import { camelize } from 'humps'
@@ -440,12 +440,18 @@ class ClusterPlugin extends Component {
     this.setState({ inputCPU: value })
   }
   handleMenuClick(key, row) {
+    if(row.name == 'elasticsearch-logging') {
+      this.setState({
+        deployIndex: true,
+        pluginName: row.name
+      })
+      return
+    }
     this.setState({
       key,
       plugins: row.name,
       action: true
     })
-
   }
   handPlugins() {
     const cluster = this.props.cluster.clusterID
@@ -474,7 +480,28 @@ class ClusterPlugin extends Component {
         isAsync: true
       }
     })
+  }
 
+  initPlugins() {
+    const { initPlugins, cluster, getClusterPlugins } = this.props
+    if(this.setState.initing) return
+    this.setState({
+      initing: true
+    })
+    const notify = new NotificationHandler()
+    initPlugins(cluster.clusterID, this.state.pluginName, {
+      success: {
+        func: () => {
+          notify.success('安装索引模版成功')
+          getClusterPlugins(cluster.clusterID)
+          this.setState({
+            initing: false,
+            deployIndex: false
+          })
+        },
+        isAsync: true
+      }
+    })
   }
 
   
@@ -649,7 +676,15 @@ class ClusterPlugin extends Component {
                 <Menu.Item key="delete">卸载插件</Menu.Item>
               </Menu>
              )
-           } else {
+           }else if (row.name == 'elasticsearch-logging') {
+             menu = (
+               <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
+                 <Menu.Item key="stop">停止插件</Menu.Item>
+                 <Menu.Item key="delete">卸载插件</Menu.Item>
+                 <Menu.Item key="deployIndextpl">部署索引模版</Menu.Item>
+               </Menu>
+             )
+           }  else {
             if (row.name === 'fluentd-elk') {
               menu = (
                 <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
@@ -733,6 +768,17 @@ class ClusterPlugin extends Component {
         >
           <div className="confirmText">确定要{this.state.key == 'stop' ? '停止插件' : (this.state.key == 'start' ? '启动' : '卸载')} {this.state.plugins} 此插件吗?</div>
         </Modal>
+
+        <Modal
+          title={'安装索引模版'}
+          wrapClassName="vertical-center-modal"
+          visible={this.state.deployIndex}
+          onOk={() => this.initPlugins()}
+          onCancel={() => this.setState({ deployIndex: false })}
+        >
+          <div className="confirmText">确定要安装 elasticsearch-logging 索引模版 吗?</div>
+        </Modal>
+
         <Modal
           title="重新部署操作"
           wrapClassName="vertical-center-modal"
@@ -827,5 +873,6 @@ export default connect(mapStateToProp, {
   getClusterPlugins,
   updateClusterPlugins,
   getAllClusterNodes,
+  initPlugins
 })(Form.create()(ClusterPlugin))
 
