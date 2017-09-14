@@ -124,7 +124,8 @@ class ManualScaleModal extends Component {
       <Modal
         visible={visible}
         title="手动水平扩展"
-        footer={modalFooter} >
+        footer={modalFooter}
+        onCancel={this.handleModalCancel} >
         <div id="ManualScaleModal">
           <Row className="cardItem">
             <Col className="itemTitle" span={4} style={{ textAlign: 'left' }}>服务名称</Col>
