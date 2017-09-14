@@ -182,12 +182,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
   }
   // 设置日志采集
   if (sourceType === 'directory') {
-    let str = path
-    if(path.substring(path.length-1,path.length) == '/'){
-      str = path.substring(0,path.length-1)
-    }
     let item = {
-      path: str,
+      path,
     }
     if(inregex){
       const reg = new RegExp(inregex)
