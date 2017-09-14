@@ -89,6 +89,10 @@ let TenantDetail = React.createClass({
               this.setState({
                 roleProjects: res.data.data.projects
               })
+            } else {
+               this.setState({
+                roleProjects: []
+              })
             }
           }
         }
@@ -220,8 +224,8 @@ let TenantDetail = React.createClass({
         success: {
           func: res => {
             if (REG.test(res.data.code)) {
-              Notifi.success('移除权限成功')
               this.loadData(roleId)
+              Notifi.success('移除权限成功')
               this.setState({
                 Removepermis: false
               })
@@ -290,7 +294,6 @@ let TenantDetail = React.createClass({
     const { getFieldProps } = form
     let { roleDetail, sortedInfo, filteredInfo, removePermissionName, removePermissionTree, permissionDatasource, defaultExpandedKeys,
       roleProjects, count } = this.state;
-
     let outPermission = {}
     let outPermissionInfo = outPermission.permission
     sortedInfo = sortedInfo || {};
@@ -430,11 +433,15 @@ let TenantDetail = React.createClass({
           </div>
           <div className='lastDetails lastDetailtable' style={{ width: '49%', float: 'left' }} >
             <div className='title'>权限 （ <span>{count}个</span> ）
-            <Button
-              className="Editroles"
-              type="ghost"
-              onClick={() => this.handleBtn()}
-              >编辑角色</Button></div>
+            {
+              this.state.creator === this.props.userName && this.state.creator === 'admin' ?
+                <Button
+                  className="Editroles"
+                  type="ghost"
+                  onClick={() => this.handleBtn()}
+                >编辑角色</Button> : ''
+            }
+            </div>
             {
               this.state.characterModal ?
                 <CreateRoleModal
