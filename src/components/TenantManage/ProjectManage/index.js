@@ -298,8 +298,9 @@ let ProjectManage = React.createClass({
     const {sort, roleFilter, searchName} = this.state;
     this.setState({tableLoading: true})
     let page = n - 1 || 0
+    console.log(roleFilter)
     let filter = searchName ? `name,${searchName}` : ''
-    // filter = roleFilter ? `${filter}&outlineRole,${roleFilter}` : filter
+    filter = roleFilter ? `role,${roleFilter}` : filter
     let obj = {
       from: page * 10,
       size: 10
@@ -660,17 +661,17 @@ let ProjectManage = React.createClass({
     };
     const adminFilter = [{
       text: '项目成员',
-      value:'项目成员'
+      value:'participator'
     }, {
       text: '非项目成员',
-      value: '非项目成员'
+      value: 'no-participator'
     }]
     const consumer = [{
       text: '创建者',
-      value: '创建者'
+      value: 'creator'
     }, {
       text: '参与者',
-      value: '参与者'
+      value: 'participator'
     }]
     const roleFilters = roleNum === 1 ? adminFilter : consumer
     const columns = [{
@@ -686,7 +687,6 @@ let ProjectManage = React.createClass({
       width: '10%',
       filters: roleFilters,
       filteredValue: filteredInfo.role,
-      onFilter: (value, record) => String(record.role) === value
     },
       {
         title: (
