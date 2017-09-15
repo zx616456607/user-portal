@@ -80,9 +80,14 @@ let FistStop = React.createClass({
         }
       },
       failed: {
-        func:()=> {
+        func:(err)=> {
+          if (err.statusCode === 400) {
+            this.setState({checkName:'warning'})
+            callback('名称包含非法字符')
+            return
+          }
           this.setState({checkName:'warning'})
-          callback('服务异常，请稍后重试')
+          callback(err.message)
         }
       }
     })
