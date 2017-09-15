@@ -18,7 +18,7 @@ import NotificationHandler from '../../components/Notification'
 import { browserHistory } from 'react-router'
 import { ROLE_SYS_ADMIN, URL_REGEX, CLUSTER_PAGE, NO_CLUSTER_FLAG, DEFAULT_CLUSTER_MARK, IP_REGEX, HOST_REGEX } from '../../../constants'
 import { loadClusterList, getAddClusterCMD, createCluster } from '../../actions/cluster'
-import { GetProjectsApprovalClusters, UpdateProjectsApprovalCluster } from '../../actions/project'
+import { GetProjectsApprovalClusters, UpdateProjectsApprovalCluster, searchProjectsClusterApproval } from '../../actions/project'
 import { loadLoginUserDetail } from '../../actions/entities'
 import { changeActiveCluster } from '../../actions/terminal'
 import { loadTeamClustersList } from '../../actions/team'
@@ -870,6 +870,12 @@ class ClusterList extends Component {
     />
   }
 
+  searchItem(){
+    const { searchProjectsClusterApproval } = this.props
+    let value = document.getElementById('approvedReadySearch').value
+    searchProjectsClusterApproval(value)
+  }
+
   render() {
     const {
       intl, clustersIsFetching, clusters,
@@ -1059,6 +1065,22 @@ class ClusterList extends Component {
                 </Button.Group>
               </div>
               <div className='clusterContainer'>
+                {
+                  !this.state.clusterStatus &&  <div className='search_div'>
+                    <Input 
+                      size="large"
+                      className='search_box'
+                      placeholder='请输入项目名称搜索'
+                      id="approvedReadySearch"
+                      onPressEnter={() => this.searchItem()}
+                    />
+                    <i
+                      className="fa fa-search search_icon"
+                      aria-hidden="true"
+                      onClick={() => this.searchItem()}
+                    ></i>
+                  </div>
+                }
                 {this.approvalClusterList()}
               </div>
             </div>
@@ -1107,6 +1129,7 @@ export default connect(mapStateToProps, {
   saveGlobalConfig,
   GetProjectsApprovalClusters,
   UpdateProjectsApprovalCluster,
+  searchProjectsClusterApproval,
 })(injectIntl(ClusterList, {
   withRef: true,
 }))
