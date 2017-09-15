@@ -630,7 +630,7 @@ let ProjectManage = React.createClass({
   projectFilter(pagination, filters, sorter) {
     let role
     this.setState({
-      roleFilter: (role = filters.role).length ? role[0] : '',
+      roleFilter: (role = filters.role).length && role.length === 1 ? role[0] : '',
       filteredInfo: filters
     }, () => {
       this.loadProjectList()
@@ -1047,7 +1047,6 @@ class PayTable extends Component {
   }
   
   onRowClick = record => {
-    console.log(record)
     const { selectedRowKeys } = this.state
     const projectName = record.namespace
     let newKeys = selectedRowKeys.slice(0)
