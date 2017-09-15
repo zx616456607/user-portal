@@ -12,7 +12,8 @@
 
 import React from 'react'
 import { Input, Modal, Form, Button, } from 'antd'
-import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
+import { appNameCheck } from '../../../common/naming_validation'
 const createForm = Form.create
 const FormItem = Form.Item
 
@@ -27,20 +28,11 @@ let CreateTeamModal = React.createClass({
     this.setState({
       disabled: true
     })
-    if (!value) {
-      callback([new Error('请输入团队名')])
-      return
-    }
-    if (value.length <5 || value.length > 40) {
-       callback(new Error('请输入5~40位字符'))
-       return
+    const msg = appNameCheck(value, '团队名称')
+    if (msg !== 'success') {
+      return callback(msg)
     }
     const { checkTeamName } = this.props.funcs
-    if (!USERNAME_REG_EXP_NEW.test(value)) {
-      callback(new Error('以[a~z]开头，允许[0~9]、[-]，长度大于4，且以小写英文和数字结尾'))
-      return
-    }
-
     clearTimeout(this.teamExistsTimeout)
     this.teamExistsTimeout = setTimeout(() => {
       checkTeamName(value, {

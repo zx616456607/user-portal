@@ -347,6 +347,20 @@ exports.batchDeletePlugins = function* () {
   this.body = result
 }
 
+exports.initPlugins = function* () {
+  const names = ['elasticsearch-logging']
+  const name = this.params.name
+  const cluster = this.params.cluster
+  if(names.indexOf(name) < 0) {
+    const err = new Error('Not support plugin')
+    err.status = 400
+    throw err
+  }
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.createBy([cluster, 'plugins', name, 'init'], null, null)
+  this.body = result
+}
+
 exports.getClusterNetworkMode = function* () {
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(this.session.loginUser)
