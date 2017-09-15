@@ -369,7 +369,7 @@ class Header extends Component {
       hideDot,
       visible,
     } = this.state
-    const msaUrl = loginUser.msaConfig.url
+    const msaUrl = loginUser.msaConfig && loginUser.msaConfig.url
     const { isLatest } = checkVersionContent
     teamspaces.map((space) => {
       mode === standard

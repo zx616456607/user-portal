@@ -61,6 +61,7 @@ class UserProjectsAndTeams extends React.Component {
     this.cancleJoinProjectsModal = this.cancleJoinProjectsModal.bind(this)
     this.removeProject = this.removeProject.bind(this)
     this.handleSearchChange = this.handleSearchChange.bind(this)
+    this.loadProjectsData = this.loadProjectsData.bind(this)
 
     this.defaultTeamTargetKeys = []
     this.defaultProjectTargetKeys = []
@@ -621,6 +622,8 @@ class UserProjectsAndTeams extends React.Component {
           onCancel={this.cancleJoinProjectsModal}
           joinedProjectKeys={this.defaultProjectTargetKeys}
           joinedProjects={projects}
+          userId={userId}
+          loadProjectsData={this.loadProjectsData}
         />
       </div>
     )

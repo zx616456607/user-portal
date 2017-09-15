@@ -99,6 +99,7 @@ module.exports = function (Router) {
   router.put('/projects/:name/roles',projectController.updateProjectRelatedRoles)
   router.post('/projects/:name/roles/batch-delete',projectController.deleteProjectRelatedRoles)
   router.del('/projects/:project_id/users/:user_id',projectController.removeUserFromProject)
+  router.post('/projects/rolebinding', projectController.handleRoleBinding)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
