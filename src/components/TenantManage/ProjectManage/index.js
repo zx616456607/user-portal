@@ -299,7 +299,7 @@ let ProjectManage = React.createClass({
     this.setState({tableLoading: true})
     let page = n - 1 || 0
     let filter = searchName ? `name,${searchName}` : ''
-    // filter = roleFilter ? `${filter}&outlineRole,${roleFilter}` : filter
+    filter = roleFilter ? `role,${roleFilter}` : filter
     let obj = {
       from: page * 10,
       size: 10
@@ -660,17 +660,17 @@ let ProjectManage = React.createClass({
     };
     const adminFilter = [{
       text: '项目成员',
-      value:'项目成员'
+      value:'participator'
     }, {
       text: '非项目成员',
-      value: '非项目成员'
+      value: 'no-participator'
     }]
     const consumer = [{
       text: '创建者',
-      value: '创建者'
+      value: 'creator'
     }, {
       text: '参与者',
-      value: '参与者'
+      value: 'participator'
     }]
     const roleFilters = roleNum === 1 ? adminFilter : consumer
     const columns = [{
@@ -686,7 +686,6 @@ let ProjectManage = React.createClass({
       width: '10%',
       filters: roleFilters,
       filteredValue: filteredInfo.role,
-      onFilter: (value, record) => String(record.role) === value
     },
       {
         title: (
@@ -1042,35 +1041,30 @@ class PayTable extends Component {
   }
 
   onSelectChange(selectedRowKeys) {
-    this.setState({selectedRowKeys});//报错
-  }
-
-  handClickRow(record, index) {
     const {updatePayArr} = this.props;
-    const {selectedRowKeys, payArr} = this.state;
-    let newSelected = selectedRowKeys.slice(0);
-    let newPayArr = payArr.slice(0)
-    let result = newSelected.findIndex((value, ind) => value === index)
-    if (result > -1) {
-      newPayArr.splice(result, 1)
-      newSelected.splice(result, 1)
+    this.setState({selectedRowKeys});//报错
+    updatePayArr(selectedRowKeys)
+  }
+  
+  onRowClick = record => {
+    console.log(record)
+    const { selectedRowKeys } = this.state
+    const projectName = record.namespace
+    let newKeys = selectedRowKeys.slice(0)
+    if (newKeys.includes(projectName)) {
+      newKeys.splice(projectName, 1)
     } else {
-      newPayArr.push(record.projectName)
-      newSelected.push(index)
+      newKeys.push(projectName)
     }
     this.setState({
-      selectedRowKeys: newSelected,
-      payArr: newPayArr
+      selectedRowKeys: newKeys
     })
-    updatePayArr(newPayArr)
   }
-
   changePayNumber(payNumber) {
     const {updatePayNumber} = this.props;
     this.setState({payNumber})
     updatePayNumber(payNumber)
   }
-
   render() {
     const {payNumber, selectedRowKeys} = this.state;
     const {data} = this.props;
@@ -1090,7 +1084,7 @@ class PayTable extends Component {
     }];
     const rowSelection = {
       selectedRowKeys,
-      onChange: this.onSelectChange.bind(this),
+      onChange: (selectedRowKeys)=>this.onSelectChange(selectedRowKeys),
     };
     return (
       <div className="payModal">
@@ -1098,7 +1092,7 @@ class PayTable extends Component {
           注：可为项目充值，全选可为项目充值
         </div>
         <Table scroll={{y: 300}} rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false}
-               onRowClick={(recode, index) => this.handClickRow(recode, index)}
+               onRowClick={(recode) => this.onRowClick(recode)} rowKey={record => record.namespace}
                rowClassName={(recode, index) => 'payTableRow'}/>
         <dl className="payBtnBox">
           <dt>充值金额</dt>

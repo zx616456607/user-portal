@@ -101,7 +101,7 @@ class ProjectDetail extends Component{
     const targetKeys = [];
     const roleList = [];
     ListRole({
-      size: 0
+      size: -1
     },{
       success: {
         func: (res)=> {
