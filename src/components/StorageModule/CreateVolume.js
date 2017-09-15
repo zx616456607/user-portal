@@ -249,7 +249,7 @@ class CreateVolume extends Component {
             notification.close()
             notification.success('创建存储成功')
             this.handleResetState()
-            loadStorageList(currentImagePool,cluster.clusterID)
+            this.props.scope.loadSnapshotList()
           },
           isAsync: true,
         },
