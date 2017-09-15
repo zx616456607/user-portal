@@ -9,18 +9,23 @@
  */
 
 import React, { Component } from 'react'
-import { Form, Radio, Select, Row, Col } from 'antd'
+import { Form, Radio, Select, Row, Col, Icon, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import './style/AccessMethod.less'
 import { getProxy } from '../../../../../actions/cluster'
 import { camelize } from 'humps'
+import { genRandomString } from '../../../../../common/tools'
 
 const Option = Select.Option
 
 class AccessMethod extends Component {
   constructor(props) {
     super(props)
-    this.state = {}
+    this.state = {
+      copyCMDSuccess: false,
+      lbgroup: '暂无',
+      openInputId: `lbgroup${genRandomString('0123456789',4)}`,
+    }
   }
 
   componentWillMount() {
@@ -33,6 +38,9 @@ class AccessMethod extends Component {
           let data = res[clusterId].data
           for (let i = 0; i < data.length; i++) {
             if (data[i].isDefault) {
+              this.setState({
+                lbgroup: data[i].id || '暂无',
+              })
               if(data[i].type == 'public'){
                 setTimeout(() => {
                   form.setFieldsValue({
@@ -115,6 +123,52 @@ class AccessMethod extends Component {
     return OptionArray
   }
 
+  copyOrder = () => {
+    const code = document.getElementById(this.state.openInputId)
+    code.select()
+    document.execCommand('Copy',false)
+    this.setState({
+      copyCMDSuccess: true,
+    })
+  }
+
+  renderID = () => {
+    const { lbgroup } = this.state
+    return <span>
+      出口ID
+      <Tooltip title="出口ID用于编辑编排文件">
+        <Icon type="question-circle-o" className='lbgroup_icon'/>
+      </Tooltip>
+      ：{lbgroup}
+      {
+        lbgroup == '暂无'
+        ? null
+        : <span>
+            <Tooltip title={this.state.copyCMDSuccess ? '复制成功': '点击复制'}>
+            <a
+              className={this.state.copyCMDSuccess ? "actions copyBtn": "copyBtn"}
+              onClick={this.copyOrder}
+              onMouseLeave={() => setTimeout(() => this.setState({ copyCMDSuccess: false }),500)}
+            >
+              <Icon type="copy" style={{ marginLeft: 8 }}/>
+            </a>
+          </Tooltip>
+          <input
+            id={this.state.openInputId}
+            style={{ position: "absolute",opacity: "0",top: '0' }}
+            value={lbgroup}
+          />
+        </span>
+      }
+    </span>
+  }
+
+  lbgroupChange = lbgroup => {
+    this.setState({
+      lbgroup,
+    })
+  }
+
   accessMethodContent = type => {
     const { form } = this.props
     const { getFieldProps } = form
@@ -128,43 +182,51 @@ class AccessMethod extends Component {
     let PublicNetworkProps
     let internaletworkProps
     let clusterProps
-    const formItemLayout = {
-      labelCol: { span: 4 },
-      wrapperCol: { span: 6 }
-    }
     if (type == 'PublicNetwork') {
       PublicNetworkProps = getFieldProps('publicNetwork', {
         initialValue: defaultGroup || undefined,
-        rules: [{ required: true, message: '请选择一个网络出口' }]
+        rules: [{ required: true, message: '请选择一个网络出口' }],
+        onChange: this.lbgroupChange,
       })
-      return <Form.Item
-        label={<span></span>}
-        {...formItemLayout}
-      >
-        <Select
-          {...PublicNetworkProps}
-          placeholder='选择网络出口'
-        >
-          {this.selectOption('PublicNetwork')}
-        </Select>
-      </Form.Item>
+      return <Row>
+        <Col span="4">&nbsp;</Col>
+        <Col span="6">
+          <Form.Item>
+            <Select
+              {...PublicNetworkProps}
+              placeholder='选择网络出口'
+            >
+              {this.selectOption('PublicNetwork')}
+            </Select>
+          </Form.Item>
+        </Col>
+        <Col span="14" className='lbgroup_container'>
+          { this.renderID() }
+        </Col>
+      </Row>
     }
     if (type == 'Internaletwork') {
       internaletworkProps = getFieldProps('internaletwork', {
         initialValue: defaultGroup || undefined,
-        rules: [{ required: true, message: '请选择一个网络出口' }]
+        rules: [{ required: true, message: '请选择一个网络出口' }],
+        onChange: this.lbgroupChange,
       })
-      return <Form.Item
-        label={<span></span>}
-        {...formItemLayout}
-      >
-        <Select
-          {...internaletworkProps}
-          placeholder='选择网络出口'
-        >
-          {this.selectOption('Internaletwork')}
-        </Select>
-      </Form.Item>
+      return <Row>
+        <Col span="4">&nbsp;</Col>
+        <Col span="6">
+          <Form.Item>
+          <Select
+            {...internaletworkProps}
+            placeholder='选择网络出口'
+          >
+            {this.selectOption('Internaletwork')}
+          </Select>
+          </Form.Item>
+        </Col>
+        <Col span="10" className='lbgroup_container'>
+          { this.renderID() }
+        </Col>
+      </Row>
     } else {
       clusterProps = getFieldProps('cluster')
     }
@@ -183,6 +245,9 @@ class AccessMethod extends Component {
     if (!defaultGroup && optionArray.length > 0) {
       defaultGroup = optionArray[0].id
     }
+    this.setState({
+      lbgroup: defaultGroup || '暂无'
+    })
     if (type == 'PublicNetwork') {
       form.setFieldsValue({
         'publicNetwork': defaultGroup

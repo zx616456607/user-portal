@@ -58,8 +58,26 @@ class VisitType extends Component{
   }
   componentWillReceiveProps(nextProps) {
     let preShow = this.props.serviceDetailmodalShow;
-    const { serviceDetailmodalShow, service, bindingDomains, bindingIPs,cluster, getProxy, form} = nextProps;
-    if (service.metadata && this.props.service.metadata && (service.metadata.name === this.props.service.metadata.name)) {
+    let preName = this.props.service.metadata && this.props.service.metadata.name
+    let preTab = this.props.isCurrentTab
+    const { serviceDetailmodalShow, service, bindingDomains, bindingIPs,cluster, getProxy, form, isCurrentTab} = nextProps;
+    if (!serviceDetailmodalShow && preShow ) {
+      this.setState({
+        disabled: true,
+        forEdit:false,
+        value: undefined,
+        initValue: undefined,
+        initGroupID: undefined,
+        initSelect: undefined,
+        initSelectDics: undefined,
+        addrHide:undefined,
+        isLbgroupNull: false
+      });
+      form.setFieldsValue({
+        groupID:undefined
+      })
+    }
+    if ((service.metadata && (service.metadata.name !== preName)) || (preTab !== isCurrentTab) || (!preShow && serviceDetailmodalShow)) {
       if (service.lbgroup && service.lbgroup.id === 'mismatch') {
         this.setState({
           isLbgroupNull: true
@@ -69,35 +87,8 @@ class VisitType extends Component{
           isLbgroupNull: false
         })
       }
-      return
+      this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
     }
-    if (serviceDetailmodalShow && !preShow ) {
-    this.setState({
-      disabled: true,
-      forEdit:false,
-      value: undefined,
-      initValue: undefined,
-      initGroupID: undefined,
-      initSelect: undefined,
-      initSelectDics: undefined,
-      addrHide:undefined,
-      isLbgroupNull: false
-    });
-    form.setFieldsValue({
-      groupID:undefined
-    })
-    } else if (service.metadata && this.props.service.metadata && (service.metadata.name !== this.props.service.metadata.name)) {
-      if (service.lbgroup && service.lbgroup.id === 'mismatch') {
-        this.setState({
-          isLbgroupNull: true
-        })
-      } else {
-        this.setState({
-          isLbgroupNull: false
-        })
-      }
-    }
-    this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
   }
   getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs) {
     this.setState({
@@ -168,14 +159,17 @@ class VisitType extends Component{
         this.setState({
           deleteHint: true
         })
+        form.setFieldsValue({
+          groupID: initGroupID || this.state.currentProxy[0].id
+        })
       } else {
         this.setState({
           deleteHint: false
         })
+        form.setFieldsValue({
+          groupID: undefined
+        })
       }
-    })
-    form.setFieldsValue({
-      groupID: initGroupID
     })
   }
   onChange(e) {
@@ -206,9 +200,6 @@ class VisitType extends Component{
         deleteHint: true
       })
     }
-    form.setFieldsValue({
-      groupID:undefined
-    })
   }
   toggleDisabled() {
     this.setState({
@@ -247,7 +238,8 @@ class VisitType extends Component{
             notification.success('出口方式更改成功')
             this.setState({
               disabled: true,
-              forEdit:false
+              forEdit:false,
+              isLbgroupNull: false
             });
             if (val === 3) {
               this.setState({
