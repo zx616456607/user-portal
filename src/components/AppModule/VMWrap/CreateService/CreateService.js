@@ -132,7 +132,11 @@ class VMServiceCreate extends React.Component {
         }
       })
     })
-
+  }
+  cancelCreate = () => {
+    const { form } = this.props
+    form.resetFields()
+    browserHistory.push('/app_manage/vm_wrap')
   }
   render() {
     const { getFieldProps, isFieldValidating, getFieldError } = this.props.form;
@@ -172,6 +176,7 @@ class VMServiceCreate extends React.Component {
             </Collapse>
             <div className="btnBox clearfix">
               <Button type="primary" size="large" className="pull-right" onClick={this.createService.bind(this)}>创建</Button>
+              <Button size="large" className="pull-right" onClick={this.cancelCreate}>取消</Button>
             </div>
           </Card>
         </div>
