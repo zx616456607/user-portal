@@ -37,10 +37,11 @@ export const SHOW_ERROR_PAGE_ACTION_TYPES = [
 ]
 export const LOGIN_EXPIRED_MESSAGE = 'LOGIN_EXPIRED'
 export const MY_SPACE = {
-  name: "我的空间",
-  spaceName: "我的空间",
+  name: "我的个人项目",
+  spaceName: "我的个人项目",
   teamName: "我的帐户",
   namespace: "default",
+  projectName: 'default',
   teamID: "default",
 }
 export const MAX_LOGS_NUMBER = 500
