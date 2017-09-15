@@ -311,10 +311,6 @@ function* handleRoleBinding() {
   if (roleUnbind.bindings && roleUnbind.bindings.length > 0) {
     reqArray.push(api.projects.createBy([ 'rolebinding', 'batch-delete' ], null, roleUnbind))
   }
-  console.log(typeof body)
-  console.log(body)
-  console.log(rolebinding.bindings)
-  console.log(roleUnbind.bindings)
   this.body = yield reqArray
 }
 exports.handleRoleBinding = handleRoleBinding
