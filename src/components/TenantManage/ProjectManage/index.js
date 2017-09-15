@@ -298,7 +298,6 @@ let ProjectManage = React.createClass({
     const {sort, roleFilter, searchName} = this.state;
     this.setState({tableLoading: true})
     let page = n - 1 || 0
-    console.log(roleFilter)
     let filter = searchName ? `name,${searchName}` : ''
     filter = roleFilter ? `role,${roleFilter}` : filter
     let obj = {
