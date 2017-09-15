@@ -50,7 +50,6 @@ let CreateVMListModal = React.createClass({
             Prompt: false,
             isShow: false
           })
-          return
         }
       }
     })
@@ -65,6 +64,7 @@ let CreateVMListModal = React.createClass({
         password: values.password
       }
       this.handleSub()
+      debugger
       onSubmit(List)
       scope.setState({
         visible: false
@@ -136,19 +136,19 @@ let CreateVMListModal = React.createClass({
       rules: [
         { validator: this.checkIP },
       ],
-      initialValue: this.props.isAdd ? '' : Rows.host
+      initialValue: isAdd ? undefined : Rows.host
     })
     const nameProps = getFieldProps('account', {
       rules: [
-        { validator: this.teamExists },
+        { validator: this.userExists },
       ],
-      initialValue: isAdd ? '' : Rows.user
+      initialValue: isAdd ? undefined : Rows.user
     })
     const passwordProps = getFieldProps('password', {
       rules: [
-        { validator: this.checkPass },
+        { validator: this.checkPas },
       ],
-      initialValue: isAdd ? '' : Rows.password
+      initialValue: isAdd ? undefined : Rows.password
     })
     let style = {
       fontSize:2
@@ -173,7 +173,7 @@ let CreateVMListModal = React.createClass({
       <Modal
         title= { this.props.modalTitle ? "添加传统环境" : "编辑传统环境"}
         visible={this.props.visible}
-        onCancel={this.handleClose}
+        onCancel={()=>this.handleClose()}
         footer={[
           <span style={promptStyle}>
             {
@@ -186,7 +186,7 @@ let CreateVMListModal = React.createClass({
           <Button
             type="primary"
             size="large"
-            onClick={this.handleSub.bind(this)}
+            onClick={()=>this.handleSub()}
             style={btnStyle}
           >
             测试连接
@@ -195,14 +195,14 @@ let CreateVMListModal = React.createClass({
             key="back"
             type="ghost"
             size="large"
-            onClick={this.handleClose}>
+            onClick={()=>this.handleClose()}>
             取 消
           </Button>,
           <Button
             key="submit"
             type="primary"
             size="large"
-            onClick={this.handleAdd.bind(this)}>
+            onClick={()=>this.handleAdd()}>
             保 存
           </Button>,
         ]}
