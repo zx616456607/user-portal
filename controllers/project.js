@@ -298,6 +298,23 @@ function* removeUserFromProject() {
 }
 exports.removeUserFromProject = removeUserFromProject
 
+function* handleRoleBinding() {
+  const body = this.request.body || {}
+  const rolebinding = body.rolebinding || {}
+  const roleUnbind = body.roleUnbind || {}
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const reqArray = []
+  if (rolebinding.bindings && rolebinding.bindings.length > 0) {
+    reqArray.push(api.projects.createBy([ 'rolebinding' ], null, rolebinding))
+  }
+  if (roleUnbind.bindings && roleUnbind.bindings.length > 0) {
+    reqArray.push(api.projects.createBy([ 'rolebinding', 'batch-delete' ], null, roleUnbind))
+  }
+  this.body = yield reqArray
+}
+exports.handleRoleBinding = handleRoleBinding
+
 exports.getProjectRelatedRoles = function* () {
   const projectName = this.params.name
   if (!projectName) {

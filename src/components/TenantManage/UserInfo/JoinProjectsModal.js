@@ -14,10 +14,11 @@ import React from 'react'
 import { Modal, Transfer, Button, Menu, Row, Col, Checkbox, Spin } from 'antd'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
-import { GetProjectsDetail } from '../../../actions/project'
+import { GetProjectsDetail, hadnleProjectRoleBinding } from '../../../actions/project'
+import NotificationHandler from '../../../components/Notification'
 import './style/JoinProjectsModal.less'
 
-// const TabPane = Tabs.TabPane
+const CheckboxGroup = Checkbox.Group
 const STEPS = [
   {
     step: 1,
@@ -36,6 +37,8 @@ class JoinProjectsModal extends React.Component {
       step: 1,
       currentProjectKey: null,
       selectedKeys: [],
+      roleCheckGroupValue: {},
+      submitBtnLoading: false,
     }
 
     this.renderStep = this.renderStep.bind(this)
@@ -43,31 +46,35 @@ class JoinProjectsModal extends React.Component {
     this.onProjectClick = this.onProjectClick.bind(this)
     this.onRoleCheckChange = this.onRoleCheckChange.bind(this)
     this.onCancel = this.onCancel.bind(this)
+    this.renderItem = this.renderItem.bind(this)
+    this.next = this.next.bind(this)
+    this.submitJoinProject = this.submitJoinProject.bind(this)
 
     this.projectsDetailInit = {}
   }
 
+  renderItem(item) {
+    const { joinedProjectKeys } = this.props
+    if (item) {
+      if (joinedProjectKeys.indexOf(item.key) > -1) {
+        return (
+          <span>{item.projectName}（原项目不能移除）</span>
+        )
+      }
+      return item.projectName
+    }
+  }
+
   renderStep() {
-    const { step, currentProjectKey, selectedKeys } = this.state
-    const { allProjects, projectTargetKeys, handleProjectTransferChange, projectsDetail } = this.props
+    const { step, currentProjectKey, selectedKeys, roleCheckGroupValue } = this.state
+    const {
+      allProjects,
+      projectTargetKeys,
+      handleProjectTransferChange,
+      projectsDetail,
+      joinedProjects,
+    } = this.props
     const targetProjects = this.getProjectsByKeys(projectTargetKeys)
-    // if (step === 1) {
-    //   return (
-    //     <Transfer
-    //       dataSource={allProjects}
-    //       showSearch
-    //       listStyle={{
-    //         width: 250,
-    //         height: 300,
-    //       }}
-    //       titles={['选择项目', '已选择项目']}
-    //       operations={['添加', '移除']}
-    //       targetKeys={projectTargetKeys}
-    //       onChange={handleProjectTransferChange}
-    //       render={item => item && item.projectName}
-    //     />
-    //   )
-    // }
     const stepOneClass = classNames({
       'hide': step !== 1,
     })
@@ -77,11 +84,6 @@ class JoinProjectsModal extends React.Component {
     const currentRelatedRoles = this.getRelatedRoles(projectsDetail, currentProjectKey).relatedRoles
     return (
       <div style={{ height: "300px" }}>
-        {/* <Tabs>
-          {
-            a.map(i => <TabPane tab={`选项卡${i}`} key={i}>选项卡{i}内容</TabPane>)
-          }
-        </Tabs> */}
         <Transfer
           className={stepOneClass}
           dataSource={allProjects}
@@ -94,7 +96,7 @@ class JoinProjectsModal extends React.Component {
           operations={['添加', '移除']}
           targetKeys={projectTargetKeys}
           onChange={handleProjectTransferChange}
-          render={item => item && item.projectName}
+          render={this.renderItem}
         />
         <div className={stepTwoClass}>
           <Row gutter={16} className="selectedProjectsHeader">
@@ -110,7 +112,8 @@ class JoinProjectsModal extends React.Component {
               <div className="selectedProjects">
                 <Menu
                   mode="inline"
-                  onClick={this.onProjectClick} selectedKeys={selectedKeys}
+                  onClick={this.onProjectClick}
+                  selectedKeys={selectedKeys}
                   onSelect={({ item, key, selectedKeys }) => this.setState({selectedKeys})}
                 >
                   {
@@ -132,6 +135,10 @@ class JoinProjectsModal extends React.Component {
                     'hide': currentProjectKey !== projectName,
                   })
                   const { relatedRoles, isFetching } = this.getRelatedRoles(projectsDetail, projectName)
+                  const checkboxGroupOpts = (relatedRoles || []).map(role => ({
+                    label: role.roleName,
+                    value: role.roleId,
+                  }))
                   return (
                     <div className={projectRolesClass}>
                       {
@@ -149,13 +156,15 @@ class JoinProjectsModal extends React.Component {
                         )
                       }
                       {
-                        !isFetching && relatedRoles.map(role => (
+                        !isFetching && (
                           <div className="checkRole">
-                            <Checkbox onChange={this.onRoleCheckChange.bind(this, role, project)}>
-                              {role.roleName}
-                            </Checkbox>
+                            <CheckboxGroup
+                              onChange={this.onRoleCheckChange.bind(this, project)}
+                              value={roleCheckGroupValue[project.projectName] || []}
+                              options={checkboxGroupOpts}
+                            />
                           </div>
-                        ))
+                        )
                       }
                     </div>
                   )
@@ -195,7 +204,15 @@ class JoinProjectsModal extends React.Component {
     }
   }
 
-  onRoleCheckChange(role, project, e) {
+  onRoleCheckChange(project, value) {
+    const { roleCheckGroupValue } = this.state
+    this.setState({
+      roleCheckGroupValue: Object.assign(
+        {},
+        roleCheckGroupValue,
+        { [project.projectName]: value },
+      )
+    })
   }
 
   onCancel() {
@@ -205,9 +222,102 @@ class JoinProjectsModal extends React.Component {
     })
   }
 
+  next() {
+    const { projectTargetKeys, joinedProjects } = this.props
+    const targetProjects = this.getProjectsByKeys(projectTargetKeys)
+    const firstTargetKey = targetProjects[0].projectName
+    this.setState({
+      step: 2,
+      selectedKeys: [ firstTargetKey ],
+      roleCheckGroupValue: this.getOldJoinedRoleValue(joinedProjects),
+    })
+    this.onProjectClick({ key: firstTargetKey })
+  }
+
+  getOldJoinedRoleValue(joinedProjects) {
+    const roleCheckGroupValue = {}
+    joinedProjects.forEach(project => {
+      const { projectName, roles } = project
+      roleCheckGroupValue[projectName] = roles && roles.map(role => role.id)
+    })
+    return roleCheckGroupValue
+  }
+
+  submitJoinProject() {
+    const {
+      joinedProjects,
+      allProjects,
+      hadnleProjectRoleBinding,
+      loadProjectsData,
+    } = this.props
+    const userID = parseInt(this.props.userId)
+    const notification = new NotificationHandler()
+    const { roleCheckGroupValue } = this.state
+    const rolebinding = { bindings: [] }
+    const roleUnbind = { bindings: [] }
+    const oldJoinedRoleValue = this.getOldJoinedRoleValue(joinedProjects)
+    const getProjectByName = name => {
+      for (let i = 0; i < allProjects.length; i++) {
+        const project = allProjects[i]
+        if (project.projectName === name) {
+          return project
+        }
+      }
+    }
+    Object.keys(roleCheckGroupValue).map(key => {
+      const projectRoles = roleCheckGroupValue[key] || []
+      const oldProjectRoles = oldJoinedRoleValue[key] || []
+      const project = getProjectByName(key)
+      projectRoles.forEach(role => {
+        if (oldProjectRoles.indexOf(role) < 0) {
+          rolebinding.bindings.push({
+            userID,
+            scopeID: project.projectID,
+            roleID: role,
+          })
+        }
+      })
+      oldProjectRoles.forEach(role => {
+        if (projectRoles.indexOf(role) < 0) {
+          roleUnbind.bindings.push({
+            userID,
+            scopeID: project.projectID,
+            roleID: role,
+          })
+        }
+      })
+    })
+    this.setState({
+      submitBtnLoading: true,
+    })
+    hadnleProjectRoleBinding({ rolebinding, roleUnbind }, {
+      success: {
+        func: () => {
+          notification.success('加入其它项目成功')
+          this.onCancel()
+          loadProjectsData()
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          notification.error('加入其它项目失败')
+        },
+        isAsync: true,
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            submitBtnLoading: false,
+          })
+        },
+      },
+    })
+  }
+
   render() {
     const { onCancel, projectTargetKeys } = this.props
-    const { step } = this.state
+    const { step, submitBtnLoading } = this.state
     return (
       <Modal
         {...this.props}
@@ -230,7 +340,7 @@ class JoinProjectsModal extends React.Component {
               type="primary"
               size="large"
               disabled={projectTargetKeys.length === 0}
-              onClick={() => this.setState({step: 2})}
+              onClick={this.next}
             >
               下一步
             </Button>
@@ -249,9 +359,10 @@ class JoinProjectsModal extends React.Component {
             key="submit"
             type="primary"
             size="large"
-            disabled={true}
+            loading={submitBtnLoading}
+            onClick={this.submitJoinProject}
           >
-            确 定(need api)
+            确 定
           </Button>
           ],
         ]}
@@ -282,4 +393,5 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   GetProjectsDetail,
+  hadnleProjectRoleBinding,
 })(JoinProjectsModal)

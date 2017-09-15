@@ -14,6 +14,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Tabs, Table, Button, Icon, Input, Modal, Row, Col, Transfer, Tooltip, Dropdown, Menu } from 'antd'
 import { Link, browserHistory } from 'react-router'
+import union from 'lodash/union'
 import { formatDate } from '../../../common/tools'
 import { loadUserTeams, updateUserTeams, loadUserProjects } from '../../../actions/user'
 import { ListProjects } from '../../../actions/project'
@@ -60,6 +61,7 @@ class UserProjectsAndTeams extends React.Component {
     this.cancleJoinProjectsModal = this.cancleJoinProjectsModal.bind(this)
     this.removeProject = this.removeProject.bind(this)
     this.handleSearchChange = this.handleSearchChange.bind(this)
+    this.loadProjectsData = this.loadProjectsData.bind(this)
 
     this.defaultTeamTargetKeys = []
     this.defaultProjectTargetKeys = []
@@ -208,7 +210,7 @@ class UserProjectsAndTeams extends React.Component {
   }
 
   handleProjectTransferChange(projectTargetKeys) {
-    this.setState({ projectTargetKeys })
+    this.setState({ projectTargetKeys: union(this.defaultProjectTargetKeys, projectTargetKeys) })
   }
 
   handleAddMemberModalOk() {
@@ -391,7 +393,7 @@ class UserProjectsAndTeams extends React.Component {
         key: 'teamName',
         width: '25%',
         render: (text, record, index) => (
-          <Link to={`/tenant_manage/team/${record.teamName}/${record.teamID}`}>
+          <Link to={`/tenant_manage/team/${record.teamID}`}>
             {record.teamName}
           </Link>
         )
@@ -618,13 +620,17 @@ class UserProjectsAndTeams extends React.Component {
           projectTargetKeys={projectTargetKeys}
           handleProjectTransferChange={this.handleProjectTransferChange}
           onCancel={this.cancleJoinProjectsModal}
+          joinedProjectKeys={this.defaultProjectTargetKeys}
+          joinedProjects={projects}
+          userId={userId}
+          loadProjectsData={this.loadProjectsData}
         />
       </div>
     )
   }
 }
 
-function mapStateToProp(state, props) {
+function mapStateToProps(state, props) {
   let teamsData = []
   const { userTeams, projects } = state.user
   if (userTeams.result) {
@@ -640,7 +646,7 @@ function mapStateToProp(state, props) {
   }
 }
 
-export default connect(mapStateToProp, {
+export default connect(mapStateToProps, {
   loadUserTeams,
   removeTeamusers,
   GetProjectsMembers,
