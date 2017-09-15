@@ -61,7 +61,6 @@ class VisitType extends Component{
     let preName = this.props.service.metadata && this.props.service.metadata.name
     let preTab = this.props.isCurrentTab
     const { serviceDetailmodalShow, service, bindingDomains, bindingIPs,cluster, getProxy, form, isCurrentTab} = nextProps;
-    console.log(preShow, serviceDetailmodalShow,isCurrentTab)
     if (!serviceDetailmodalShow && preShow ) {
       this.setState({
         disabled: true,
