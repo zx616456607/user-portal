@@ -22,6 +22,7 @@ import Title from '../../Title'
 import { Link } from 'react-router'
 import CreateVolume from '../../StorageModule/CreateVolume'
 import { browserHistory } from 'react-router'
+import { UPDATE_INTERVAL } from '../../../constants'
 
 class Snapshot extends Component {
   constructor(props) {
@@ -91,6 +92,16 @@ class Snapshot extends Component {
 
   componentWillMount() {
     this.loadSnapshotList()
+  }
+
+  componentDidMount() {
+    this.updateInterval = setInterval(() => {
+      this.loadSnapshotList()
+    }, UPDATE_INTERVAL)
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.updateInterval)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -220,6 +231,10 @@ class Snapshot extends Component {
   handleDeleteSnapshot(key, e){
     //e.stopPropagation()
     const { snapshotDataList } = this.props
+    //判断当前快照状态
+    if(snapshotDataList[key].status !== 0){
+      return this.statusModalInfo(snapshotDataList[key].status)
+    }
     this.setState({
       DeletaSnapshotModal: true,
       currentSnapshot: snapshotDataList[key],
@@ -229,16 +244,24 @@ class Snapshot extends Component {
     })
   }
 
+  statusModalInfo(status){
+    return Modal.info({
+      title: '提示',
+      content: (
+        <div>
+          <p>当前快照正在{status == 1 ? '回滚' : '克隆'}中，请稍后再试。</p>
+        </div>
+      ),
+      onOk() {},
+    });
+  }
+
   handleRollbackSnapback(key, e){
     e.stopPropagation()
     const { snapshotDataList, storageList } = this.props
     //判断当前快照状态
-    if(snapshotDataList[key].status == '不正常'){
-      this.setState({
-        tipsSwitch: true,
-        tipsModal: true,
-      })
-      return
+    if(snapshotDataList[key].status !== 0){
+      return this.statusModalInfo(snapshotDataList[key].status)
     }
     //判断当前快照所在存储卷的状态
     for(let pool in storageList){
@@ -308,12 +331,14 @@ class Snapshot extends Component {
     SnapshotRollback(body,{
       success: {
         func: () => {
+          this.updateSnapshotList()
           this.setState({
             rollbackModal: false,
             rollbackLoading: false,
             rollbackSuccess: true,
           })
-        }
+        },
+        isAsync: true
       },
       falied: {
         func: () => {
@@ -351,6 +376,10 @@ class Snapshot extends Component {
   handleCloneSnapshot(key){
     const { snapshotDataList, storageList, currentCluster } = this.props
     const storage_type = currentCluster.storageTypes
+    //判断当前快照状态
+    if(snapshotDataList[key].status !== 0){
+      return this.statusModalInfo(snapshotDataList[key].status)
+    }
     if (!storage_type || storage_type.indexOf('rbd') < 0){
       this.setState({
         createFalse: true,
@@ -393,6 +422,27 @@ class Snapshot extends Component {
     browserHistory.push('/manange_monitor')
   }
 
+  formatStatus(status){
+    switch(status){
+      case 1:
+        return <span style={{color: 'red'}}>
+          <i className='fa fa-circle icon' aria-hidden="true"></i>
+          <span>回滚中</span>
+        </span>
+      case 2:
+        return <span style={{color: 'red'}}>
+          <i className='fa fa-circle icon' aria-hidden="true"></i>
+          <span>创建中</span>
+        </span>
+      case 0:
+      default:
+        return <span style={{color: 'green'}}>
+          <i className='fa fa-circle icon' aria-hidden="true"></i>
+          <span>正常</span>
+        </span>
+    }
+  }
+
   render() {
     const { snapshotDataList, currentCluster, storageList, currentImagePool } = this.props
     const { selectedRowKeys, DeleteSnapshotButton, currentSnapshot, delelteSnapshotNum, currentVolume } = this.state
@@ -431,12 +481,11 @@ class Snapshot extends Component {
         width:'14%',
       },{
         title:'状态',
-        //key:'Status',
-        //dataIndex:'Status',
+        key:'status',
+        dataIndex:'status',
         width:'12%',
-        render: () => <div className={iconclassName('正常')}>
-          <i className='fa fa-circle icon' aria-hidden="true"></i>
-          <span>正常</span>
+        render: (text) => <div className={iconclassName('正常')}>
+          { this.formatStatus(text)}
         </div>
       },{
         title:'格式',
