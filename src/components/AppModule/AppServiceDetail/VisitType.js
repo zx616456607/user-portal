@@ -39,18 +39,36 @@ class VisitType extends Component{
       currentProxy: [],
       initValue: undefined,
       initGroupID:undefined,
-      initSelect: undefined
+      initSelect: undefined,
+      isLbgroupNull: false
     }
   }
   componentWillMount() {
     const { service, bindingDomains, bindingIPs, getProxy, cluster } = this.props;
     this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
-
+    if (service.lbgroup && service.lbgroup.id === 'mismatch') {
+      this.setState({
+        isLbgroupNull: true
+      })
+    } else {
+      this.setState({
+        isLbgroupNull: false
+      })
+    }
   }
   componentWillReceiveProps(nextProps) {
     let preShow = this.props.serviceDetailmodalShow;
     const { serviceDetailmodalShow, service, bindingDomains, bindingIPs,cluster, getProxy, form} = nextProps;
     if (service.metadata && this.props.service.metadata && (service.metadata.name === this.props.service.metadata.name)) {
+      if (service.lbgroup && service.lbgroup.id === 'mismatch') {
+        this.setState({
+          isLbgroupNull: true
+        })
+      } else {
+        this.setState({
+          isLbgroupNull: false
+        })
+      }
       return
     }
     if (serviceDetailmodalShow && !preShow ) {
@@ -62,11 +80,22 @@ class VisitType extends Component{
       initGroupID: undefined,
       initSelect: undefined,
       initSelectDics: undefined,
-      addrHide:undefined
+      addrHide:undefined,
+      isLbgroupNull: false
     });
     form.setFieldsValue({
       groupID:undefined
     })
+    } else if (service.metadata && this.props.service.metadata && (service.metadata.name !== this.props.service.metadata.name)) {
+      if (service.lbgroup && service.lbgroup.id === 'mismatch') {
+        this.setState({
+          isLbgroupNull: true
+        })
+      } else {
+        this.setState({
+          isLbgroupNull: false
+        })
+      }
     }
     this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
   }
@@ -298,7 +327,7 @@ class VisitType extends Component{
   render() {
     const { form } = this.props;
     const { getFieldProps } = form;
-    const { value, disabled, forEdit, selectDis, deleteHint,privateNet, addrHide, currentProxy, initGroupID, initValue, initSelectDics } = this.state;
+    const { value, disabled, forEdit, selectDis, deleteHint,privateNet, addrHide, currentProxy, initGroupID, initValue, initSelectDics, isLbgroupNull } = this.state;
     const selectGroup = getFieldProps("groupID", {
       rules:[
         { required: deleteHint && value !== 3 ? true : false, message: "请选择网络出口" }
@@ -348,7 +377,7 @@ class VisitType extends Component{
                   </Select>
                 </Form.Item>
               </div>
-              <div className={classNames("inlineBlock deleteHint",{'hide': deleteHint})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>未配置该网络出口模式，请选择其他模式</div>
+              <div className={classNames("inlineBlock deleteHint",{'hide': !isLbgroupNull})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>已选网络出口已被管理员删除，请选择其他网络出口或访问方式</div>
             </div>
           </div>
         </div>
