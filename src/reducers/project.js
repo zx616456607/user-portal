@@ -10,6 +10,7 @@
 
 import * as ActionTypes from '../actions/project'
 import merge from 'lodash/merge'
+import cloneDeep from 'lodash/cloneDeep'
 
 function getProjectsApprovalClusters(state = {}, action) {
   const { status } = action
@@ -28,30 +29,54 @@ function getProjectsApprovalClusters(state = {}, action) {
         isFetching: true,
         approvalPendingData: [],
         approvedReadyData: [],
+        searchList: [],
       })
     case ActionTypes.PROJECTS_CLUSTER_APPROVAL_GET_SUCCESS:
       if(filter == 1){
         return Object.assign({}, defaultState, state, {
           isFetching: false,
           approvalPendingData: action.response.result.data || [],
+          searchList: []
         })
       }
       if(filter == 5){
         return Object.assign({}, defaultState, state, {
           isFetching: false,
           approvedReadyData: action.response.result.data || [],
+          searchList:  action.response.result.data || [],
         })
       }
       return Object.assign({}, defaultState, state, {
         isFetching: false,
         approvalPendingData: [],
         approvedReadyData: [],
+        searchList: [],
       })
     case ActionTypes.PROJECTS_CLUSTER_APPROVAL_GET_FAILURE:
       return Object.assign({}, defaultState, state, {
         isFetching: false,
         approvalPendingData: [],
         approvedReadyData: [],
+        searchList: []
+      })
+    case ActionTypes.SEARCH_PROJECTS_CLUSTER_APPROVAL_GET:
+      const standardList = cloneDeep(state.searchList)
+      const { keyWord } = action
+      let searchResult = []
+      if(keyWord){
+        standardList.forEach(item => {
+          if(item.projectName.indexOf(keyWord) > -1){
+            searchResult.push(item)
+          }
+        })
+      } else {
+        searchResult = standardList
+      }
+      return Object.assign({}, defaultState, state, {
+        isFetching: false,
+        approvalPendingData: state.approvalPendingData || [],
+        approvedReadyData: searchResult,
+        searchList: state.searchList,
       })
     default:
       return state

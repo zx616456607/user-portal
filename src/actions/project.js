@@ -311,6 +311,15 @@ export function GetProjectsApprovalClusters(query,callback) {
   }
 }
 
+export const SEARCH_PROJECTS_CLUSTER_APPROVAL_GET = 'SEARCH_PROJECTS_CLUSTER_APPROVAL_GET'
+
+export function searchProjectsClusterApproval(keyWord) {
+  return {
+    type: SEARCH_PROJECTS_CLUSTER_APPROVAL_GET,
+    keyWord,
+  }
+}
+
 export const PROJECTS_CLUSTER_ALL_GET_REQUEST = 'PROJECTS_CLUSTER_ALL_GET_REQUEST'
 export const PROJECTS_CLUSTER_ALL_GET_SUCCESS = 'PROJECTS_CLUSTER_ALL_GET_SUCCESS'
 export const PROJECTS_CLUSTER_ALL_GET_FAILURE = 'PROJECTS_CLUSTER_ALL_GET_FAILURE'
