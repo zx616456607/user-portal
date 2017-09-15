@@ -85,9 +85,9 @@ class PopSelect extends Component {
     }
     return (
       <div className="searchInt">
-        <div style={{lineHeight:'30px'}}>
+        {/* <div style={{lineHeight:'30px'}}>
           用户
-        </div>
+        </div> */}
         <ul className="searchList">
           <li
             onClick={() => onChange(MY_SPACE)}
@@ -181,7 +181,7 @@ class PopSelect extends Component {
               Search && (
                 <span className='titlesearch'>
                   <Input
-                    placeholder="请输入空间名"
+                    placeholder="请输入项目名"
                     size="large"
                     ref='titleInput'
                     id='titleInput'
@@ -205,17 +205,17 @@ class PopSelect extends Component {
         <Collapse accordion defaultActiveKey={['team']} >
           {
             isSysAdmin && (
-              <Panel header="个人空间" key="user">
+              <Panel header="个人项目" key="user">
                 {userList}
               </Panel>
             )
           }
-          <Panel header="团队空间" key="team">
+          <Panel header="共享项目" key="team">
             {
               Search && (
                 <span className='titlesearch'>
                   <Input
-                    placeholder="请输入空间名"
+                    placeholder="请输入项目名"
                     size="large"
                     ref='titleInput'
                     id='titleInput'

@@ -14,8 +14,9 @@ import "./style/header.less"
 import PopSelect from '../PopSelect'
 import { connect } from 'react-redux'
 import cloneDeep from 'lodash/cloneDeep'
-import { loadUserTeamspaceList, loadUserList } from '../../actions/user'
+import { loadUserTeamspaceList, loadUserList, loadUserProjects } from '../../actions/user'
 import { loadTeamClustersList } from '../../actions/team'
+import { GetProjectsAllClusters } from '../../actions/project'
 import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
 import { checkVersion } from '../../actions/version'
 import { getCookie, isEmptyObject, getVersion, getPortalRealMode, toQuerystring } from '../../common/tools'
@@ -30,9 +31,9 @@ import Airplane from '../../assets/img/quickentry/quick.png'
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
 const standardFlag = standard === mode
-const team = mode === standard ? '团队' : '空间'
+const team = mode === standard ? '团队' : '项目'
 const zone = mode === standard ? '区域' : '集群'
-const selectTeam = mode === standard ? '选择团队' : '选择空间'
+const selectTeam = mode === standard ? '选择团队' : '选择项目'
 const selectZone = mode === standard ? '选择区域' : '选择集群'
 
 // The following routes RegExp will show select space or select cluster
@@ -99,6 +100,11 @@ function loadSpaces(props, callback) {
   loadUserTeamspaceList('default', { size: 100 }, callback)
 }
 
+function loadProjects(props, callback) {
+  const { loadUserProjects, loginUser } = props
+  loadUserProjects(loginUser.userID, { size: 100 }, callback)
+}
+
 function getHideDot() {
   if (!sessionStorage) {
     return false
@@ -120,7 +126,7 @@ class Header extends Component {
   constructor(props) {
     super(props)
     this._checkLiteVersion = this._checkLiteVersion.bind(this)
-    this.handleSpaceChange = this.handleSpaceChange.bind(this)
+    this.handleProjectChange = this.handleProjectChange.bind(this)
     this.handleClusterChange = this.handleClusterChange.bind(this)
     this.showUpgradeVersionModal = this.showUpgradeVersionModal.bind(this)
     this.renderCheckVersionContent = this.renderCheckVersionContent.bind(this)
@@ -136,6 +142,7 @@ class Header extends Component {
       upgradeVersionModalVisible: false,
       visible: false,
       allUsers: [],
+      projectClusters: [],
     }
     this.isSysAdmin = props.loginUser.role == ROLE_SYS_ADMIN
   }
@@ -164,58 +171,58 @@ class Header extends Component {
     })
   }
 
-  handleSpaceChange(space) {
-    const _this = this
-    const { loadTeamClustersList, setCurrent, current, showCluster, pathname } = this.props
-    /*if (space.namespace === current.space.namespace) {
-      return
-    }*/
-    // sys admin select the user list
-    if (space.userName) {
-      space.teamID = 'default'
-    }
+  handleProjectChange(project) {
+    const { GetProjectsAllClusters, setCurrent, current, showCluster, pathname } = this.props
     let notification = new NotificationHandler()
-    loadTeamClustersList(space.teamID, { size: 100 }, {
+    // sys admin select the user list
+    if (project.userName) {
+      project.projectName = 'default'
+    }
+    GetProjectsAllClusters({ projectsName: project.projectName }, {
       success: {
-        func: (result) => {
-          if (!result.data || result.data.length < 1) {
-            notification.warn(`${team} [${space.spaceName}] 的${zone}列表为空，请重新选择${team}`)
-            _this.setState({
+        func: clustersRes => {
+          let { clusters } = clustersRes.data
+          // clusters = clusters.map(cluster => cluster.cluster || cluster)
+          clusters = clusters.map(cluster => {
+            if (cluster.cluster) {
+              cluster = cluster.cluster
+            }
+            cluster.name = cluster.clusterName
+            return cluster
+          })
+          this.setState({ projectClusters: clusters })
+          if (!clusters || clusters.length < 1) {
+            notification.warn(`${team} [${project.projectName}] 的${zone}列表为空，请重新选择${team}`)
+            this.setState({
               spacesVisible: true,
               clustersVisible: false,
             })
             return
           }
           // select first cluster by default
-          const firstCluster = result.data[0]
-          firstCluster.namespace = space.namespace
+          let firstCluster = clusters[0]
+          if (firstCluster.cluster) {
+            firstCluster = firstCluster.cluster
+          }
+          firstCluster.namespace = project.namespace
           setCurrent({
-            team: { teamID: space.teamID },
-            space,
+            team: { teamID: project.userName },
+            space: project,
             cluster: firstCluster,
           })
           let isShowCluster = !!showCluster
-          if (result.data.length === 1) {
+          if (clusters.length === 1) {
             isShowCluster = false
           }
           if (pathname.match(/\//g).length > 2) {
             browserHistory.push('/')
           }
-          _this.setState({
+          this.setState({
             spacesVisible: false,
             clustersVisible: isShowCluster,
           })
         },
         isAsync: true
-      },
-      failed: {
-        func: (error) => {
-          notification.error(`加载${team} [${space.spaceName}] 的${zone}列表失败，请重新选择${team}`)
-          _this.setState({
-            spacesVisible: true,
-            clustersVisible: false,
-          })
-        }
       }
     })
   }
@@ -251,6 +258,7 @@ class Header extends Component {
       setCurrent,
       loadLoginUserDetail,
       loginUser,
+      GetProjectsAllClusters,
     } = this.props
     const config = getCookie(USER_CURRENT_CONFIG)
     const [teamID, namespace, clusterID] = config.split(',')
@@ -260,30 +268,38 @@ class Header extends Component {
       cluster: { clusterID },
     })
     const self = this
-    loadSpaces(this.props, {
+    loadProjects(this.props, {
       success: {
-        func: (resultT) => {
-          let defaultSpace = resultT.teamspaces[0] || {}
+        func: res => {
+          console.log(res)
+          const projects = res.data
+          let defaultSpace = projects[0] || {}
           if (namespace === 'default') {
             defaultSpace = MY_SPACE
           } else {
-            resultT.teamspaces.map(space => {
-              if (space.namespace === namespace) {
-                defaultSpace = space
+            projects.map(project => {
+              if (project.namespace === namespace) {
+                defaultSpace = project
               }
             })
           }
           setCurrent({
             space: defaultSpace
           })
-          loadTeamClustersList(defaultSpace.teamID, { size: 100 }, {
+          GetProjectsAllClusters({ projectsName: defaultSpace.projectName }, {
             success: {
-              func: (resultC) => {
-                if (!resultC.data) {
-                  resultC.data = []
-                }
-                let defaultCluster = resultC.data[0] || {}
-                resultC.data.map(cluster => {
+              func: clustersRes => {
+                let { clusters } = clustersRes.data
+                clusters = clusters.map(cluster => {
+                  if (cluster.cluster) {
+                    cluster = cluster.cluster
+                  }
+                  cluster.name = cluster.clusterName
+                  return cluster
+                })
+                this.setState({ projectClusters: clusters })
+                let defaultCluster = clusters[0] || {}
+                clusters.map(cluster => {
                   if (cluster.clusterID === clusterID) {
                     defaultCluster = cluster
                   }
@@ -294,8 +310,8 @@ class Header extends Component {
             }
           })
         },
-        isAsync: true
-      }
+        isAsync: true,
+      },
     })
   }
 
@@ -373,6 +389,8 @@ class Header extends Component {
       showCluster,
       checkVersionContent,
       openApi,
+      projects,
+      isProjectsFetching,
     } = this.props
     const {
       spacesVisible,
@@ -382,6 +400,7 @@ class Header extends Component {
       hideDot,
       visible,
       allUsers,
+      projectClusters,
     } = this.state
     const msaUrl = loginUser.msaConfig && loginUser.msaConfig.url
     const { isLatest } = checkVersionContent
@@ -398,7 +417,9 @@ class Header extends Component {
     var docUrl = protocol + '//' + host + ":9004"
     var faqUrl = docUrl + '/faq'
     const rotate = visible ? 'rotate180' : 'rotate0'
-    let selectValue = mode === standard ? current.space.teamName : (current.space.spaceName || current.space.userName)
+    let selectValue = mode === standard
+      ? current.space.name
+      : (current.space.name || current.space.userName)
     let Search = true
     const content = (
       <div className='container'>
@@ -447,9 +468,9 @@ class Header extends Component {
                     btnStyle={false}
                     special={true}
                     visible={spacesVisible}
-                    list={teamspaces}
-                    loading={isTeamspacesFetching}
-                    onChange={this.handleSpaceChange}
+                    list={projects}
+                    loading={isProjectsFetching}
+                    onChange={this.handleProjectChange}
                     selectValue={selectValue}
                     popTeamSelect={mode === standard} />
                 </div>
@@ -470,7 +491,7 @@ class Header extends Component {
                   title={selectZone}
                   btnStyle={false}
                   visible={clustersVisible}
-                  list={teamClusters}
+                  list={projectClusters}
                   loading={isTeamClustersFetching}
                   onChange={this.handleClusterChange}
                   selectValue={current.cluster.clusterName || '...'} />
@@ -547,7 +568,7 @@ class Header extends Component {
 function mapStateToProps(state, props) {
   const { pathname } = props
   const { current, loginUser } = state.entities
-  const { teamspaces } = state.user
+  const { teamspaces, projects } = state.user
   const { teamClusters } = state.team
   const { checkVersion } = state.version
   let showSpace = false
@@ -566,6 +587,8 @@ function mapStateToProps(state, props) {
     }
     return true
   })
+  const currentProjects = projects.result && projects.result.data || []
+  currentProjects.forEach(project => project.name = project.projectName)
   return {
     current,
     loginUser: loginUser.info,
@@ -579,6 +602,8 @@ function mapStateToProps(state, props) {
     checkVersionContent: checkVersion.data,
     isCheckVersion: checkVersion.isFetching,
     openApi: state.openApi,
+    projects: currentProjects,
+    isProjectsFetching: projects.isFetching,
   }
 }
 
@@ -589,4 +614,6 @@ export default connect(mapStateToProps, {
   loadLoginUserDetail,
   checkVersion,
   loadUserList,
+  loadUserProjects,
+  GetProjectsAllClusters,
 })(Header)

@@ -121,6 +121,14 @@ exports.getProjectAllClusters = function* () {
     return
   }
   const loginUser = this.session.loginUser
+  if (projectName === 'default') {
+    const spi = apiFactory.getSpi(loginUser)
+    const result = yield spi.clusters.getBy(['default'])
+    this.body = {
+      data: result
+    }
+    return
+  }
   const projectApi = apiFactory.getApi(loginUser)
   const response = yield projectApi.projects.getBy([projectName, 'clusters'], null)
   this.status = response.statusCode
