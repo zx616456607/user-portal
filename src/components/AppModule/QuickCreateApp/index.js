@@ -400,6 +400,12 @@ class QuickCreateApp extends Component {
     const { validateFieldsAndScroll } = this.form
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
+        if(errors.appName){
+          notification.error('应用名称不正确')
+        }
+        if(errors.serviceName){
+          notification.error('服务名称不正确')
+        }
         let keys = Object.getOwnPropertyNames(errors)
         const envNameErrors = keys.filter( item => {
           const envName = new RegExp('envName')
