@@ -1,5 +1,5 @@
 ! function() {
-  var url = "/img/sider/svg/svg-symbols.svg?ver=7-30";
+  var url = "/img/sider/svg/svg-symbols.svg?ver=9-15";
   var div = document.createElement("div");
   div.style.display = "none";
   document.body.appendChild(div);

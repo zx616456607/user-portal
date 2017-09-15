@@ -255,7 +255,7 @@ let MyComponent = React.createClass({
     const targetElement = (
       <Dropdown.Button
         overlay={dropdown}
-        type='primary'
+        type='ghost'
         size='large'
         onClick={() => {
           if (repoType === 'svn') {
@@ -265,8 +265,8 @@ let MyComponent = React.createClass({
           this.starFlowBuild(item, index)
         }}>
         <span>
-          <i className='fa fa-pencil-square-o' />&nbsp;
-          <FormattedMessage {...menusText.deloyStart} />
+          <i className='fa fa-wpforms' />&nbsp;
+          <FormattedMessage {...menusText.deloyLog} />
         </span>
       </Dropdown.Button>
     )
@@ -363,9 +363,11 @@ let MyComponent = React.createClass({
             <span><i className="fa fa-circle"></i>{status} <span style={{color: '#747474'}}>{getTriggeredInfo(item)}</span></span>
           </div>
           <div className='oprea'>
-            <Button className='logBtn' size='large' type='ghost' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
-              <i className='fa fa-wpforms' />&nbsp;
-              <FormattedMessage {...menusText.deloyLog} />
+            <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
+              <svg className='structure commonImg'>
+                <use xlinkHref="#structure"></use>
+              </svg> &nbsp;
+              <FormattedMessage {...menusText.deloyStart} />
             </Button>
             {
               this.renderBuildBtn(item, index)

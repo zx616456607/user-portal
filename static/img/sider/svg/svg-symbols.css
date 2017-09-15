@@ -165,6 +165,12 @@
 #sidernewlogo .st1{fill:#34c8e6}
 #sidernewlogo .st2{fill:#fff}
 
+.structure {
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+}
+#structure .st0{fill:#5B5B5B;}
 #siderinfrastructureselected .st0{fill:#2db7f5}
 svg.https {
     width: 25px;
