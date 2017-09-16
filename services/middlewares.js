@@ -83,10 +83,12 @@ exports.auth = function* (next) {
     }
   }
   let teamspace = this.headers.teamspace
+  let onbehalfuser = this.headers.onbehalfuser
   if (teamspace === 'default') {
     teamspace = null
   }
   this.session.loginUser.teamspace = teamspace
+  this.session.loginUser.onbehalfuser = onbehalfuser
   yield next
 }
 

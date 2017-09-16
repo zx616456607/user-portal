@@ -264,13 +264,19 @@ class AlarmGroup extends Component {
       dataIndex:'desc',
       render: (text, record, index) => (
         <div className='Overflow'>
-          {record.desc}
+          <Tooltip title={record.desc} placement="topLeft">
+            <span style={{cursor: 'pointer'}}>{record.desc}</span>
+          </Tooltip>
         </div>
       ),
     },{
       title:'邮箱',
       dataIndex:'receivers',
-      render:(receivers) => (<div>{this.getGroupEmails(receivers.email)}</div>)
+      render:(receivers) => (<div>
+        <Tooltip title={this.getGroupEmails(receivers.email)} placement="topLeft">
+          <span>{this.getGroupEmails(receivers.email)}</span>
+        </Tooltip>
+        </div>)
     },{
       title:'创建时间',
       dataIndex:'createTime',

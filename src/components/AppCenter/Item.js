@@ -262,6 +262,9 @@ let MyComponent = React.createClass({
     });
     return (
       <div className='modalBox'>
+        <div className='alertRow'>
+          第三方仓库接入，仅支持标准 Docker Registry 接口（暂不支持 Harbor 等第三方接口）。
+        </div>
         <Form className='addForm' horizontal form={this.props.form}>
           <FormItem hasFeedback >
             <TweenOne
@@ -398,7 +401,11 @@ class ImageCenter extends Component {
             {OtherItem}
             <span style={{display:'inline-block',float:'right'}}>
               <Button type="primary" size="large" onClick={()=> this.setState({createModalShow:true})}><i className='fa fa-plus'/>&nbsp;添加第三方</Button>
-              <Tooltip title='镜像仓库用于存放镜像，您可关联第三方镜像仓库，使用公开云中私有空间镜像；关联后，该仓库也用于存放通过 TenxFlow 构建出来的镜像新建仓库组' placement="bottomRight">
+              <Tooltip title={<div>
+                <div>镜像仓库组：用于存放镜像仓库，每个镜像仓库由若干个镜像版本组成。</div>
+                <div>第三方仓库：关联第三方仓库后可部署仓库中的镜像。</div>
+                <div>TenxFlow 中构建出来的镜像可发布到镜像仓库（所选仓库组）或第三方镜像仓库中。</div>
+              </div>} placement="bottomRight">
                 <Button icon='question-circle-o' style={{margin:'0 10px'}} type='ghost'></Button>
               </Tooltip>
             </span>

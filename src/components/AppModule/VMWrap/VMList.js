@@ -97,6 +97,10 @@ class VMList extends React.Component {
         },
         failed: {
           func: err => {
+            if (err.statusCode === 400) {
+              notification.error(err.message)
+              return
+            }
             notification.error(`添加失败`)
           }
         }

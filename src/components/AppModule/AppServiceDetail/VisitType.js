@@ -39,36 +39,56 @@ class VisitType extends Component{
       currentProxy: [],
       initValue: undefined,
       initGroupID:undefined,
-      initSelect: undefined
+      initSelect: undefined,
+      isLbgroupNull: false
     }
   }
   componentWillMount() {
     const { service, bindingDomains, bindingIPs, getProxy, cluster } = this.props;
     this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
-
+    if (service.lbgroup && service.lbgroup.id === 'mismatch') {
+      this.setState({
+        isLbgroupNull: true
+      })
+    } else {
+      this.setState({
+        isLbgroupNull: false
+      })
+    }
   }
   componentWillReceiveProps(nextProps) {
     let preShow = this.props.serviceDetailmodalShow;
-    const { serviceDetailmodalShow, service, bindingDomains, bindingIPs,cluster, getProxy, form} = nextProps;
-    if (service.metadata && this.props.service.metadata && (service.metadata.name === this.props.service.metadata.name)) {
-      return
+    let preName = this.props.service.metadata && this.props.service.metadata.name
+    let preTab = this.props.isCurrentTab
+    const { serviceDetailmodalShow, service, bindingDomains, bindingIPs,cluster, getProxy, form, isCurrentTab} = nextProps;
+    if (!serviceDetailmodalShow && preShow ) {
+      this.setState({
+        disabled: true,
+        forEdit:false,
+        value: undefined,
+        initValue: undefined,
+        initGroupID: undefined,
+        initSelect: undefined,
+        initSelectDics: undefined,
+        addrHide:undefined,
+        isLbgroupNull: false
+      });
+      form.setFieldsValue({
+        groupID:undefined
+      })
     }
-    if (serviceDetailmodalShow && !preShow ) {
-    this.setState({
-      disabled: true,
-      forEdit:false,
-      value: undefined,
-      initValue: undefined,
-      initGroupID: undefined,
-      initSelect: undefined,
-      initSelectDics: undefined,
-      addrHide:undefined
-    });
-    form.setFieldsValue({
-      groupID:undefined
-    })
+    if ((service.metadata && (service.metadata.name !== preName)) || (preTab !== isCurrentTab) || (!preShow && serviceDetailmodalShow)) {
+      if (service.lbgroup && service.lbgroup.id === 'mismatch') {
+        this.setState({
+          isLbgroupNull: true
+        })
+      } else {
+        this.setState({
+          isLbgroupNull: false
+        })
+      }
+      this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
     }
-    this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
   }
   getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs) {
     this.setState({
@@ -139,14 +159,17 @@ class VisitType extends Component{
         this.setState({
           deleteHint: true
         })
+        form.setFieldsValue({
+          groupID: initGroupID || this.state.currentProxy[0].id
+        })
       } else {
         this.setState({
           deleteHint: false
         })
+        form.setFieldsValue({
+          groupID: undefined
+        })
       }
-    })
-    form.setFieldsValue({
-      groupID: initGroupID
     })
   }
   onChange(e) {
@@ -177,9 +200,6 @@ class VisitType extends Component{
         deleteHint: true
       })
     }
-    form.setFieldsValue({
-      groupID:undefined
-    })
   }
   toggleDisabled() {
     this.setState({
@@ -218,7 +238,8 @@ class VisitType extends Component{
             notification.success('出口方式更改成功')
             this.setState({
               disabled: true,
-              forEdit:false
+              forEdit:false,
+              isLbgroupNull: false
             });
             if (val === 3) {
               this.setState({
@@ -298,7 +319,7 @@ class VisitType extends Component{
   render() {
     const { form } = this.props;
     const { getFieldProps } = form;
-    const { value, disabled, forEdit, selectDis, deleteHint,privateNet, addrHide, currentProxy, initGroupID, initValue, initSelectDics } = this.state;
+    const { value, disabled, forEdit, selectDis, deleteHint,privateNet, addrHide, currentProxy, initGroupID, initValue, initSelectDics, isLbgroupNull } = this.state;
     const selectGroup = getFieldProps("groupID", {
       rules:[
         { required: deleteHint && value !== 3 ? true : false, message: "请选择网络出口" }
@@ -348,7 +369,7 @@ class VisitType extends Component{
                   </Select>
                 </Form.Item>
               </div>
-              <div className={classNames("inlineBlock deleteHint",{'hide': deleteHint})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>未配置该网络出口模式，请选择其他模式</div>
+              <div className={classNames("inlineBlock deleteHint",{'hide': !isLbgroupNull})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>已选网络出口已被管理员删除，请选择其他网络出口或访问方式</div>
             </div>
           </div>
         </div>

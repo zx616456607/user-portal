@@ -9,12 +9,15 @@
  */
 import React, { Component } from 'react'
 import './style/MemberManage.less'
-import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, } from 'antd'
+import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Dropdown, Menu, Spin } from 'antd'
 import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserList, createUser, deleteUser, checkUserName } from '../../../../actions/user'
+import { brow } from 'react-router'
 import { chargeUser } from '../../../../actions/charge'
-import { Link } from 'react-router'
+import { loadTeamClustersList } from '../../../../actions/team'
+import { setCurrent } from '../../../../actions/entities'
+import { browserHistory, Link } from 'react-router'
 import { parseAmount } from '../../../../common/tools'
 import CreateUserModal from '../../CreateUserModal'
 import NotificationHandler from '../../../../components/Notification'
@@ -200,6 +203,47 @@ let MemberTable = React.createClass({
     loadUserList(query)
     this.styleFilter = styleFilterStr
     this.typeFilterStr = typeFilterStr
+  },
+  handleMenuClick(record, { key }) {
+    if (key === 'delete') {
+      this.setState({ delModal: true, userManage: record })
+      return
+    }
+    this.props.scope.memberRecharge(record)
+  },
+  gotoSpace(space) {
+    const { loadTeamClustersList, setCurrent } = this.props.scope.props
+    let notification = new NotificationHandler()
+    this.setState({
+      gotoSpaceModal: true,
+    })
+    loadTeamClustersList('default', { size: 100 }, {
+      success: {
+        func: result => {
+          // select first cluster by default
+          const firstCluster = result.data[0]
+          firstCluster.namespace = space.namespace
+          space.userName = space.name
+          setCurrent({
+            team: { teamID: 'default' },
+            space,
+            cluster: firstCluster,
+          })
+          setTimeout(() => {
+            browserHistory.push('/app_manage')
+          }, 50);
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (error) => {
+          notification.error('加载集群失败，请重试')
+          this.setState({
+            gotoSpaceModal: false,
+          })
+        }
+      }
+    })
   },
   render() {
     let { sortedInfo, filteredInfo, sort } = this.state
@@ -402,13 +446,34 @@ let MemberTable = React.createClass({
         key: 'operation',
         render: (text, record, index) => (
           <div className="action">
-            <Button icon="delete" className="delBtn setBtn" onClick={() => this.setState({delModal: true,userManage: record})}>
+            {/* <Button icon="delete" className="delBtn setBtn" onClick={() => this.setState({delModal: true,userManage: record})}>
               删除
             </Button>
             { record.role == ROLE_SYS_ADMIN && SHOW_BILLING ?
               <Button className="setBtn" onClick={()=> scope.memberRecharge(record)}>充值</Button>
               :null
             }
+            <Button className="setBtn" onClick={() => this.setState({delModal: true,userManage: record})}>
+              进入空间
+            </Button> */}
+            <Dropdown.Button
+              onClick={this.gotoSpace.bind(this, record)}
+              overlay={
+                <Menu
+                  onClick={this.handleMenuClick.bind(this, record)}
+                  style={{ width: '80px' }}
+                >
+                  <Menu.Item key="delete">删除</Menu.Item>
+                  { record.role == ROLE_SYS_ADMIN ?
+                    <Menu.Item>充值</Menu.Item>
+                    : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
+                  }
+                </Menu>
+              }
+              type="ghost"
+            >
+              进入空间
+            </Dropdown.Button>
           </div>
         ),
       },
@@ -429,11 +494,17 @@ let MemberTable = React.createClass({
         <Table columns={columns}
           dataSource={searchResult.length === 0 ? data : searchResult}
           pagination={pagination}
-          onChange={this.onTableChange} />
-          <Modal title="删除成员操作" visible={this.state.delModal}
-            onOk={()=> this.delMember()} onCancel={()=> this.setState({delModal: false})}
-          >
+          onChange={this.onTableChange}
+        />
+        <Modal title="删除成员操作" visible={this.state.delModal}
+          onOk={()=> this.delMember()} onCancel={()=> this.setState({delModal: false})}
+        >
           <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除成员 {this.state.userManage ? this.state.userManage.name : ''} ?</div>
+        </Modal>
+        <Modal title="进入用户空间中" visible={this.state.gotoSpaceModal} footer={null}>
+          <div className="loadingBox">
+            <Spin size="large" />
+          </div>
         </Modal>
         </div>
       )
@@ -655,5 +726,7 @@ export default connect(mapStateToProp, {
   createUser,
   deleteUser,
   checkUserName,
-  chargeUser
+  chargeUser,
+  loadTeamClustersList,
+  setCurrent,
 })(MemberManage)
