@@ -29,39 +29,40 @@ import { SEARCH } from '../../constants'
 class AlarmGroup extends Component {
   constructor(props) {
     super(props)
-     this.state = {
-        createGroup: false,
-        deleteModal: false,
-        deletingGroupIDs: [],
-        createModalTitle: '创建新通知组',
-        selectedRowKeys: [],
-        selectedRows: [],
-        modifyGroup: false,
-        modifyingGroupInfo: {},
-     }
+    this.state = {
+      search: '',
+      createGroup: false,
+      deleteModal: false,
+      deletingGroupIDs: [],
+      createModalTitle: '创建新通知组',
+      selectedRowKeys: [],
+      selectedRows: [],
+      modifyGroup: false,
+      modifyingGroupInfo: {},
+    }
   }
   componentWillMount() {
     const { loadNotifyGroups } = this.props
     const clusterID = this.props.cluster.clusterID
     loadNotifyGroups("", clusterID)
   }
-  dropdowns (record, group){
+  dropdowns(record, group) {
     // Dropdown delete btn
-    return(
-      <Menu onClick={(record)=> this.handleDropdownClick(record, group)}
-        style={{ width: '80px'}}
+    return (
+      <Menu onClick={(record) => this.handleDropdownClick(record, group)}
+        style={{ width: '80px' }}
       >
-      <Menu.Item key="edit">
-        修改
+        <Menu.Item key="edit">
+          修改
       </Menu.Item>
-    </Menu>
+      </Menu>
     )
   }
-  componentWillReceiveProps(nextProps){
+  componentWillReceiveProps(nextProps) {
     let pre = this.props.space.spaceID
     let next = nextProps.space.spaceID;
     const { loadNotifyGroups } = this.props
-    if(pre !== next) {
+    if (pre !== next) {
       loadNotifyGroups()
     }
   }
@@ -93,7 +94,7 @@ class AlarmGroup extends Component {
       failed: {
         func: (err) => {
           this.closeDeleteModal()
-          notification.error('删除失败','请先取消策略对该通知组的引用，方可删除告警通知组')
+          notification.error('删除失败', '请先取消策略对该通知组的引用，方可删除告警通知组')
         },
         isAsync: true
       }
@@ -129,14 +130,14 @@ class AlarmGroup extends Component {
       modifyingGroupInfo: group,
     })
   }
-  getGroupEmails(emails){
+  getGroupEmails(emails) {
     if (!emails) {
       return '-'
     }
     let content = '-'
     if (emails.length > 0) {
-      content = emails.map(function(item) {
-        let status = emails[0].status != 1 ? <span style={{color:'#f23e3f'}}> 【未验证】</span> : null
+      content = emails.map(function (item) {
+        let status = emails[0].status != 1 ? <span style={{ color: '#f23e3f' }}> 【未验证】</span> : null
         return <div className='alarmGroupItem'>
           <span className='alarmGroupspan'>{item.addr}{!!item.desc ? ` (备注:${item.desc})` : ''}</span>
           {status}
@@ -147,24 +148,24 @@ class AlarmGroup extends Component {
 
     return (
       <div>
-        { content }
+        {content}
       </div>
     )
   }
-  toAlarmDetail(item,e) {
+  toAlarmDetail(item, e) {
     const { data, cluster, setCurrent } = this.props;
-    let currentCluster = data.find((record,index)=> record.clusterID === item.clusterID)
+    let currentCluster = data.find((record, index) => record.clusterID === item.clusterID)
     if (cluster.clusterID !== currentCluster.clusterID) {
       setCurrent({
-        cluster:currentCluster
-      },{
-        success:{
-          func: ()=>{
-            browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}`)
-          },
-          isAsync: true
-        }
-      })
+        cluster: currentCluster
+      }, {
+          success: {
+            func: () => {
+              browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}`)
+            },
+            isAsync: true
+          }
+        })
     } else {
       browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}`)
     }
@@ -177,8 +178,8 @@ class AlarmGroup extends Component {
     }
     let popover = '-'
     if (strategies.length > 0) {
-      popover = strategies.map(function(item) {
-        return <div className='alarmGroupItem'><span onClick={(e)=> _this.toAlarmDetail(item,e)}>{item.name}</span></div>
+      popover = strategies.map(function (item) {
+        return <div className='alarmGroupItem'><span onClick={(e) => _this.toAlarmDetail(item, e)}>{item.name}</span></div>
       })
     }
     return (
@@ -187,16 +188,15 @@ class AlarmGroup extends Component {
       </div>
     )
   }
-  handSearch(e) {
-    //let search = document.getElementById('AlarmGroupInput').value.trim()
-    let search = e.target.value.replace(SEARCH,"")
+  handSearch() {
+    const { search } = this.state
     const { loadNotifyGroups } = this.props
     const clusterID = this.props.cluster.clusterID
     loadNotifyGroups(search, clusterID)
   }
   getSelectedGroups() {
     let groupIDs = []
-    this.state.selectedRows.map(function(item) {
+    this.state.selectedRows.map(function (item) {
       groupIDs.push(item.groupID)
     })
     return groupIDs
@@ -214,7 +214,7 @@ class AlarmGroup extends Component {
     const { groups } = this.props
     const { selectedRowKeys, deletingGroupIDs, selectedRows } = this.state
     let keys = cloneDeep(selectedRowKeys)
-    let selectGrops= cloneDeep(deletingGroupIDs)
+    let selectGrops = cloneDeep(deletingGroupIDs)
     groups.map((list, index) => {
       if (list.groupID == e.groupID) {
         if (selectedRowKeys.indexOf(index) > -1) {
@@ -226,16 +226,16 @@ class AlarmGroup extends Component {
         return keys.push(index)
       }
     })
-    this.setState({selectedRowKeys: keys,selectedRows: selectGrops})
+    this.setState({ selectedRowKeys: keys, selectedRows: selectGrops })
   }
   showAlramGroup() {
     this.setState({
       createGroup: true,
       createModalTitle: '创建新通知组'
     })
-    setTimeout(()=> {
+    setTimeout(() => {
       document.getElementById('groupName').focus()
-    },500)
+    }, 500)
   }
   handleCancel() {
     this.setState({
@@ -247,62 +247,62 @@ class AlarmGroup extends Component {
     if (!this.props.groups) {
       return (
         <div className="loadingBox">
-            <Spin size="large" />
+          <Spin size="large" />
         </div>
       )
     }
     const tableData = this.props.groups
-    const modalFunc=  {
-      scope : this,
+    const modalFunc = {
+      scope: this,
     }
     const tableColumns = [{
-      title:'名称',
-      dataIndex:'name',
-      width:'10%',
-    },{
-      title:'描述',
-      dataIndex:'desc',
+      title: '名称',
+      dataIndex: 'name',
+      width: '10%',
+    }, {
+      title: '描述',
+      dataIndex: 'desc',
       render: (text, record, index) => (
         <div className='Overflow'>
           <Tooltip title={record.desc} placement="topLeft">
-            <span style={{cursor: 'pointer'}}>{record.desc}</span>
+            <span style={{ cursor: 'pointer' }}>{record.desc}</span>
           </Tooltip>
         </div>
       ),
-    },{
-      title:'邮箱',
-      dataIndex:'receivers',
-      render:(receivers) => (<div>
+    }, {
+      title: '邮箱',
+      dataIndex: 'receivers',
+      render: (receivers) => (<div>
         <Tooltip title={this.getGroupEmails(receivers.email)} placement="topLeft">
           <span>{this.getGroupEmails(receivers.email)}</span>
         </Tooltip>
-        </div>)
-    },{
-      title:'创建时间',
-      dataIndex:'createTime',
-      width:'19%',
+      </div>)
+    }, {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      width: '19%',
       render: text => formatDate(text),
-    },{
-      title:'关联策略',
-      dataIndex:'strategies',
-      width:'15%',
-      render:strategies => this.getStragegies(strategies)
-    },{
-      title:'操作',
-      dataIndex:'handle',
-      width:'15%',
-      render:(text, group) => {
-        if (group.strategies.length >0) {
+    }, {
+      title: '关联策略',
+      dataIndex: 'strategies',
+      width: '15%',
+      render: strategies => this.getStragegies(strategies)
+    }, {
+      title: '操作',
+      dataIndex: 'handle',
+      width: '15%',
+      render: (text, group) => {
+        if (group.strategies.length > 0) {
           return (
-          <Dropdown.Button type="ghost" overlay={ this.dropdowns(text, group) } onClick={(e)=> this.openDeleteModal(e,false) } className='disableBtn'>
+            <Dropdown.Button type="ghost" overlay={this.dropdowns(text, group)} onClick={(e) => this.openDeleteModal(e, false)} className='disableBtn'>
               删除
             {/*<Tooltip title="请先取消策略对该通知组的引用，方可删除告警通知组">
             </Tooltip>*/}
-          </Dropdown.Button>
+            </Dropdown.Button>
           )
         }
         return (
-          <Dropdown.Button type="ghost" overlay={ this.dropdowns(text, group) } onClick={(e)=> this.openDeleteModal(e,[group.groupID])} className="normalBtn">删除</Dropdown.Button>
+          <Dropdown.Button type="ghost" overlay={this.dropdowns(text, group)} onClick={(e) => this.openDeleteModal(e, [group.groupID])} className="normalBtn">删除</Dropdown.Button>
         )
       }
     }]
@@ -335,16 +335,16 @@ class AlarmGroup extends Component {
         <div id="AlarmGroup" key="demo">
           <Title title="告警通知组" />
           <div className='alarmGroupHeader'>
-            <Button size="large" type="primary" onClick={()=> this.showAlramGroup()}>
-              <i className="fa fa-plus" style={{marginRight:'5px'}}/>
+            <Button size="large" type="primary" onClick={() => this.showAlramGroup()}>
+              <i className="fa fa-plus" style={{ marginRight: '5px' }} />
               创建
             </Button>
             <Button size="large" type="ghost" onClick={() => this.props.loadNotifyGroups("", clusterID)}><i className="fa fa-refresh" />刷新</Button>
-            <Button size="large" disabled={this.state.selectedRowKeys.length === 0} icon="delete" onClick={(e)=> this.openDeleteModal(e,this.getSelectedGroups())} type="ghost">删除</Button>
+            <Button size="large" disabled={this.state.selectedRowKeys.length === 0} icon="delete" onClick={(e) => this.openDeleteModal(e, this.getSelectedGroups())} type="ghost">删除</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length !== 1} icon="edit" onClick={() => this.openModifyModal(this.getModifyingGroup())} type="ghost">修改</Button>
             <div className="Search">
-              <Input size="large" placeholder="搜索" id="AlarmGroupInput" onPressEnter={()=> this.handSearch()} />
-              <i className="fa fa-search" onClick={()=> this.handSearch()} />
+              <Input size="large" placeholder="搜索" id="AlarmGroupInput" onChange={(e) => this.setState({ search: e.target.value.replace(SEARCH, "") })} onPressEnter={() => this.handSearch()} />
+              <i className="fa fa-search" onClick={() => this.handSearch()} />
             </div>
             {/*<div className="rightPage pageBox">
               <span className='totalPage'>共计 {tableData.length} 条</span>
@@ -364,36 +364,36 @@ class AlarmGroup extends Component {
               className="strategyTable"
               columns={tableColumns}
               dataSource={tableData}
-              pagination={{simple: true}}
+              pagination={{ simple: true }}
               rowSelection={rowSelection}
-              onRowClick={(e)=> this.handClickRow(e)}
+              onRowClick={(e) => this.handClickRow(e)}
             >
             </Table>
             <span className="pageCount">共计 {tableData.length} 条</span>
-            { tableData.length ==0 ?
-            <ul className="ant-pagination ant-pagination-simple ant-table-pagination" style={{top:-70,right:-10,width: 152}}><li title="上一页" className="ant-pagination-disabled ant-pagination-prev"><a></a></li><div  title="1/0" className="ant-pagination-simple-pager"><input type="text" value="1" style={{width: 30,textAlign:'center',borderRadius:6,height:24,border: '1px solid #d9d9d9'}}/><span className="ant-pagination-slash">／</span>0</div><li title="下一页" className="ant-pagination-disabled ant-pagination-next"><a></a></li></ul>
-            :null
+            {tableData.length == 0 ?
+              <ul className="ant-pagination ant-pagination-simple ant-table-pagination" style={{ top: -70, right: -10, width: 152 }}><li title="上一页" className="ant-pagination-disabled ant-pagination-prev"><a></a></li><div title="1/0" className="ant-pagination-simple-pager"><input type="text" value="1" style={{ width: 30, textAlign: 'center', borderRadius: 6, height: 24, border: '1px solid #d9d9d9' }} /><span className="ant-pagination-slash">／</span>0</div><li title="下一页" className="ant-pagination-disabled ant-pagination-next"><a></a></li></ul>
+              : null
             }
           </Card>
-          <Modal title={this.state.createModalTitle} onCancel={()=> this.handleCancel()} visible={this.state.createGroup || this.state.modifyGroup}
+          <Modal title={this.state.createModalTitle} onCancel={() => this.handleCancel()} visible={this.state.createGroup || this.state.modifyGroup}
             width={560}
             wrapClassName="AlarmModal"
             className="alarmContent"
             footer={null}
           >
             <CreateAlarm funcs={modalFunc}
-            afterCreateFunc={() => this.props.loadNotifyGroups("", clusterID)}
-            afterModifyFunc={() => this.props.loadNotifyGroups("", clusterID)}
-            isModify={!!this.state.modifyGroup}
-            data={this.state.modifyingGroupInfo}
-            createGroup={this.state.createGroup}
+              afterCreateFunc={() => this.props.loadNotifyGroups("", clusterID)}
+              afterModifyFunc={() => this.props.loadNotifyGroups("", clusterID)}
+              isModify={!!this.state.modifyGroup}
+              data={this.state.modifyingGroupInfo}
+              createGroup={this.state.createGroup}
             />
           </Modal>
           <Modal title="删除通知组" visible={this.state.deleteModal}
-            onCancel={()=> this.closeDeleteModal()}
-            onOk={()=> this.deleteGroup(rowSelection)}
+            onCancel={() => this.closeDeleteModal()}
+            onOk={() => this.deleteGroup(rowSelection)}
           >
-            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>告警通知组删除后，与之关联的策略将无法发送邮件告警，是否确定删除？</div>
+            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>告警通知组删除后，与之关联的策略将无法发送邮件告警，是否确定删除？</div>
           </Modal>
         </div>
       </QueueAnim>
@@ -407,15 +407,15 @@ function mapStateToProps(state, props) {
   const { space } = state.entities.current
   const { teamClusters } = state.team
   if (!groups && !cluster && !teamClusters) {
-   return props
- }
+    return props
+  }
 
   let defaultData = {
-      isFetching: false,
-      result:{data:[]}
+    isFetching: false,
+    result: { data: [] }
   }
   let defaultDatas = {
-    result: {data:[]}
+    result: { data: [] }
   }
   const { isFetching } = groups || defaultData
   const { result } = groups || defaultData
@@ -427,7 +427,7 @@ function mapStateToProps(state, props) {
     isFetching,
     cluster,
     groups: groupsData,
-    data :clusterData
+    data: clusterData
   }
 }
 

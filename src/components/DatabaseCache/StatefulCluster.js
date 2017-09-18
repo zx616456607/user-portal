@@ -151,6 +151,7 @@ class StatefulCluster extends Component {
     this.createDatabaseShow = this.createDatabaseShow.bind(this);
     this.clusterRefresh = this.clusterRefresh.bind(this);
     this.state = {
+      search: '',
       detailModal: false,
       putVisible: false,
       currentDatabase: null,
@@ -225,14 +226,10 @@ class StatefulCluster extends Component {
     }, 100);
   }
 
-  handSearch(e) {
+  handSearch() {
     const clusterType = this.props.clusterType
-    if (e) {
-      this.props.searchDbservice(clusterType, e.target.value.replace(SEARCH,""))
-      return
-    }
-    const names = this.refs.searchInput.refs.input.value
-    this.props.searchDbservice(clusterType, names.replace(SEARCH,""))
+    const { search } = this.state
+    this.props.searchDbservice(clusterType, search)
   }
 
   render() {
@@ -265,7 +262,8 @@ class StatefulCluster extends Component {
             </Button>
             <span className='rightSearch'>
               <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight: '28px' }} ref="searchInput"
-                onPressEnter={(e) => this.handSearch(e)} />
+                onChange={(e) => this.setState({ search: e.target.value.replace(SEARCH, "") })}
+                onPressEnter={() => this.handSearch()} />
               <i className="fa fa-search cursor" onClick={() => this.handSearch()} />
             </span>
           </div>
@@ -287,7 +285,7 @@ class StatefulCluster extends Component {
             this.setState({ CreateDatabaseModalShow: false })
           }}
         >
-          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy}/>
+          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy} />
         </Modal>
       </div>
     )

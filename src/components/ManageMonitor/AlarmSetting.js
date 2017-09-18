@@ -37,7 +37,8 @@ let MyComponent = React.createClass({
       data: this.props.data,
       ignoreTime: 1,
       ignoreSymbol: 'm',
-      clearStraregy: {}
+      clearStraregy: {},
+      search: '',
     }
   },
   componentWillReceiveProps(nextProps) {
@@ -597,8 +598,7 @@ class AlarmSetting extends Component {
   }
   handSearch(e) {
     // search data
-    //let search = document.getElementById('alarmSearch').value
-    let search = e.target.value.replace(SEARCH, "")
+    const { search } = this.state
     const { getSettingList, clusterID, teamID } = this.props
     this.setState({
       currentPage: 1
@@ -1000,7 +1000,7 @@ class AlarmSetting extends Component {
             <Button type="ghost" disabled={this.state.isDelete} onClick={()=> this.setState({deleteModal: true})} size="large"><i className='fa fa-trash-o' />删除</Button>
             {/*<Button icon="edit" type="ghost" disabled={!canEdit} size="large" onClick={() => this.editSetting()} >修改</Button>*/}
             <div className="inputGrop">
-              <Input size="large" id="alarmSearch" placeholder="搜索" onPressEnter={()=> this.handSearch()}/>
+              <Input size="large" id="alarmSearch" placeholder="搜索" onChange={(e)=> this.setState({search:e.target.value.replace(SEARCH, "")})} onPressEnter={()=> this.handSearch()}/>
               <i className="fa fa-search" onClick={()=> this.handSearch()}/>
             </div>
             {this.props.setting.length > 0 ?
