@@ -105,8 +105,13 @@ function* cicdConfigFunc(entity) {
 function* harborConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'harbor'
+  let url = entity.detail.url
+  // remove last '/'
+  if (url) {
+    url = url.replace(/\/$/, '')
+  }
   entity.configDetail = {
-    url: entity.detail.url
+    url,
   }
   let response
   if (entity.configID) {
