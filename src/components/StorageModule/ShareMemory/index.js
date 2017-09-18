@@ -234,36 +234,34 @@ class ShareMemory extends Component {
               />
             </div>
           </div>
-
           <Modal
-          	title="删除操作"
-          	visible={deleteModalVisible}
-          	closable={true}
-          	onOk={() => this.confirmDeleteItem()}
-          	onCancel={() =>  this.setState({deleteModalVisible: false})}
-          	width="570px"
-          	maskClosable={false}
-          	confirmLoading={confirmLoading}
-          	wrapClassName="delete_share_memory_modal"
+            title="删除操作"
+            visible={deleteModalVisible}
+            closable={true}
+            onOk={() => this.confirmDeleteItem()}
+            onCancel={() => this.setState({deleteModalVisible:false})}
+            width="570px"
+            maskClosable={false}
+            confirmLoading={confirmLoading}
+            wrapClassName="delete_share_memory_modal"
           >
-          	<div className='warning_tips'>
-              <Icon type="question-circle-o" className='question_icon'/> 
+            <div className='warning_tips'>
+              <Icon type="question-circle-o" className='question_icon'/>
               确定要删出这 {selectedRowKeys.length} 个存储目录吗？
-          	</div>
+            </div>
           </Modal>
-
           <Modal
-          	title="创建共享存储目录"
-          	visible={createShareMemoryVisible}
-          	closable={true}
-          	onOk={() => this.confirmCreateShareMemory()}
-          	onCancel={() => this.setState({createShareMemoryVisible: false})}
-          	width="570px"
-          	maskClosable={false}
-          	confirmLoading={confirmLoading}
-          	wrapClassName="create_share_memory_path"
+            title="创建共享存储目录"
+            visible={createShareMemoryVisible}
+            closable={true}
+            onOk={() => this.confirmCreateShareMemory()}
+            onCancel={() => this.setState({createShareMemoryVisible:false})}
+            width="570px"
+            maskClosable={false}
+            confirmLoading={confirmLoading}
+            wrapClassName="create_share_memory_path"
           >
-          	<Form>
+            <Form>
               <FormItem
                 label="存储类型"
                 {...formItemLayout}
@@ -272,22 +270,22 @@ class ShareMemory extends Component {
                   placeholder='请选择类型'
                   disabled={true}
                   {...getFieldProps('type', {
-                    initialValue: 'nfs'
+                    initialValue:'nfs',
                   })}
-                  style={{width: 160, marginRight: 20}}
+                  style={{width:160, marginRight:20}}
                 >
                   <Option key="nfs" value="nfs">nfs</Option>
                 </Select>
                 <FormItem
-                  style={{width: 160, float: 'right'}}
+                  style={{width:160, float:'right'}}
                 >
                   <Select
                     placeholder='请选择一个server'
                     {...getFieldProps('server', {
-                      rules: [{
-                        required: true,
-                        message: 'server不能为空'
-                      }]
+                      rules:[{
+                        required:true,
+                        message:'server不能为空',
+                      }],
                     })}
                   >
                     <Option value="1" key="1">192.168.1.1</Option>
@@ -303,18 +301,18 @@ class ShareMemory extends Component {
                 <Input
                   placeholder="请输入存储名称"
                   {...getFieldProps('name', {
-                    rules: [{
-                      validator: (rule, value, callback) => {
-                        if(!value){
+                    rules:[{
+                      validator:(rule, value, callback) => {
+                        if (!value) {
                           return callback('存储名称不能为空')
                         }
                         return callback()
-                      }
-                    }]
+                      },
+                    }],
                   })}
                 />
               </FormItem>
-          	</Form>
+            </Form>
           </Modal>
         </div>
       </QueueAnim>
