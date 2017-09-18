@@ -668,14 +668,14 @@ class ClusterStorage extends Component {
         </div>
 
         <Modal
-        	title="删除存储配置"
-        	visible={deleteModalVisible}
-        	closable={true}
-        	onOk={() => this.confirmDelte()}
-        	onCancel={() => this.setState({deleteModalVisible: false})}
-        	width="570px"
-        	maskClosable={false}
-        	wrapClassName="delete_cluster_storage"
+          title="删除存储配置"
+          visible={deleteModalVisible}
+          closable={true}
+          onOk={() => this.confirmDelte()}
+          onCancel={() => this.setState({deleteModalVisible:false})}
+          width="570px"
+          maskClosable={false}
+          wrapClassName="delete_cluster_storage"
         >
         	<div className='tips'>
             <i className="fa fa-exclamation-triangle tips_icon" aria-hidden="true"></i>
