@@ -121,9 +121,14 @@ let MemberTable = React.createClass({
     if (filters.style) {
       if (filters.style.length === 1) {
         isSetFilter = true
-        filter = `role__eq,${filters.style[0]}`
+        if (filters.style[0] === '0') {
+          // Show normal user only
+          filter = `role__neq,2`
+        } else {
+          filter = `role__eq,${filters.style[0]}`
+        }
       }
-      if (filters.style.length == 2) {
+      /*if (filters.style.length == 2) {
         for (let i = 0; i < protoDate.length; i++) {
           let item = protoDate[i]
           if (filters.style.indexOf(item) < 0) {
@@ -132,7 +137,7 @@ let MemberTable = React.createClass({
             break
           }
         }
-      }
+      }*/
     }
     if (filters.type) {
       if (filters.type.length == 1) {

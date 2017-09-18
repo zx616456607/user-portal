@@ -8,31 +8,40 @@
  * @author Zhangpc
  */
 import React, { Component, PropTypes } from 'react'
-import { Input, Button, Spin, Icon, } from 'antd'
+import { Input, Button, Spin, Icon, Collapse } from 'antd'
 import './style/Content.less'
 import { MY_SPACE } from '../../constants'
 import classNames from 'classnames'
 
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
+const Panel = Collapse.Panel
 
 class PopSelect extends Component {
   constructor(props) {
     super(props)
     this.handleSearchInput = this.handleSearchInput.bind(this)
+    this.handleSearchUserInput = this.handleSearchUserInput.bind(this)
+    const { list, allUsers } = props
+    this.state = {
+      list,
+      userSearchList: allUsers,
+      userSearchInput: '',
+    }
   }
 
-  componentWillMount() {
-    const { list } = this.props
-    this.setState({
-      list,
-    })
-  }
+  // componentWillMount() {
+  //   const { list } = this.props
+  //   this.setState({
+  //     list,
+  //   })
+  // }
 
   componentWillReceiveProps(nextProps) {
-    const { list } = nextProps
+    const { list, allUsers } = nextProps
     this.setState({
       list,
+      userSearchList: allUsers,
     })
   }
 
@@ -54,6 +63,21 @@ class PopSelect extends Component {
     })
   }
 
+  handleSearchUserInput(e) {
+    const { userSearchInput, userSearchList } = this.state
+    const { allUsers } = this.props
+    let value = e.target.value
+    if (typeof value !== undefined) {
+      value = value.trim()
+    } else {
+      value = userSearchInput
+    }
+    this.setState({
+      userSearchInput: value,
+      userSearchList: allUsers.filter(user => user.userName.indexOf(value) > -1),
+    })
+  }
+
   getSpecial() {
     const { onChange, special, popTeamSelect } = this.props
     if (!special && !popTeamSelect) {
@@ -61,9 +85,9 @@ class PopSelect extends Component {
     }
     return (
       <div className="searchInt">
-        <div style={{lineHeight:'30px'}}>
+        {/* <div style={{lineHeight:'30px'}}>
           用户
-        </div>
+        </div> */}
         <ul className="searchList">
           <li
             onClick={() => onChange(MY_SPACE)}
@@ -75,16 +99,13 @@ class PopSelect extends Component {
             }
           </li>
         </ul>
-        <div style={{lineHeight:'25px'}}>
-          团队空间
-        </div>
       </div>
     )
   }
 
   render() {
-    const { onChange, loading, special, popTeamSelect, Search } = this.props
-    const { list } = this.state
+    const { onChange, loading, special, popTeamSelect, Search, isSysAdmin, allUsers } = this.props
+    const { list, userSearchList } = this.state
     let searchList = (
       list.length === 0 ?
         <div className='loadingBox'>结果为空</div>
@@ -117,7 +138,34 @@ class PopSelect extends Component {
           )
         })
     )
-
+    let userList
+    if (isSysAdmin) {
+      userList = (
+        <div>
+          <span className='titlesearch'>
+            <Input
+              placeholder="请输入用户名"
+              size="large"
+              onChange={this.handleSearchUserInput}
+              onPressEnter={this.handleSearchUserInput}
+            />
+            <Icon type="search" className='titleicon' onClick={this.handleSearchUserInput}/>
+          </span>
+          <ul className="searchList">
+            {
+              userSearchList.length === 0
+              ? <div className='loadingBox'>结果为空</div>
+              :
+              userSearchList.map((user, index) => (
+                <li className="searchItem" key={user.namespace + index} onClick={onChange.bind(this, user)}>
+                  {user.userName}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      )
+    }
     if (loading) {
       searchList = (
         <div className='loadingBox'>
@@ -125,37 +173,66 @@ class PopSelect extends Component {
         </div>
       )
     }
-
-    if(Search){
+    if (!special && !popTeamSelect) {
       return (
         <div className="PopSelectContent">
-          {this.getSpecial()}
-          <span className='titlesearch'>
-            <Input
-              placeholder="请输入空间名"
-              size="large"
-              ref='titleInput'
-              id='titleInput'
-              onChange={this.handleSearchInput}
-              onPressEnter={this.handleSearchInput}
-            />
-            <Icon type="search" className='titleicon' onClick={this.handleSearchInput}/>
-          </span>
-          <ul className="searchList">
-            {searchList}
-          </ul>
+          <div style={{lineHeight:'25px'}}>
+            {
+              Search && (
+                <span className='titlesearch'>
+                  <Input
+                    placeholder="请输入项目名"
+                    size="large"
+                    ref='titleInput'
+                    id='titleInput'
+                    onChange={this.handleSearchInput}
+                    onPressEnter={this.handleSearchInput}
+                  />
+                  <Icon type="search" className='titleicon' onClick={this.handleSearchInput}/>
+                </span>
+              )
+            }
+            <ul className="searchList">
+              {searchList}
+            </ul>
+          </div>
         </div>
       )
-    }else{
-      return (
-        <div className="PopSelectContent">
-          {this.getSpecial()}
-          <ul className="searchList">
-            {searchList}
-          </ul>
-        </div>
-      )
-    } 
+    }
+    return (
+      <div className="PopSelectContent">
+        {this.getSpecial()}
+        <Collapse accordion defaultActiveKey={['team']} >
+          {
+            isSysAdmin && (
+              <Panel header="个人项目" key="user">
+                {userList}
+              </Panel>
+            )
+          }
+          <Panel header="共享项目" key="team">
+            {
+              Search && (
+                <span className='titlesearch'>
+                  <Input
+                    placeholder="请输入项目名"
+                    size="large"
+                    ref='titleInput'
+                    id='titleInput'
+                    onChange={this.handleSearchInput}
+                    onPressEnter={this.handleSearchInput}
+                  />
+                  <Icon type="search" className='titleicon' onClick={this.handleSearchInput}/>
+                </span>
+              )
+            }
+            <ul className="searchList">
+              {searchList}
+            </ul>
+          </Panel>
+        </Collapse>
+      </div>
+    )
   }
 }
 

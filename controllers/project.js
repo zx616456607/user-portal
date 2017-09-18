@@ -121,6 +121,14 @@ exports.getProjectAllClusters = function* () {
     return
   }
   const loginUser = this.session.loginUser
+  if (projectName === 'default') {
+    const spi = apiFactory.getSpi(loginUser)
+    const result = yield spi.clusters.getBy(['default'])
+    this.body = {
+      data: result
+    }
+    return
+  }
   const projectApi = apiFactory.getApi(loginUser)
   const response = yield projectApi.projects.getBy([projectName, 'clusters'], null)
   this.status = response.statusCode
@@ -297,6 +305,23 @@ function* removeUserFromProject() {
   this.body = yield api.projects.deleteBy([ projectId, 'users', userId ])
 }
 exports.removeUserFromProject = removeUserFromProject
+
+function* handleRoleBinding() {
+  const body = this.request.body || {}
+  const rolebinding = body.rolebinding || {}
+  const roleUnbind = body.roleUnbind || {}
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const reqArray = []
+  if (rolebinding.bindings && rolebinding.bindings.length > 0) {
+    reqArray.push(api.projects.createBy([ 'rolebinding' ], null, rolebinding))
+  }
+  if (roleUnbind.bindings && roleUnbind.bindings.length > 0) {
+    reqArray.push(api.projects.createBy([ 'rolebinding', 'batch-delete' ], null, roleUnbind))
+  }
+  this.body = yield reqArray
+}
+exports.handleRoleBinding = handleRoleBinding
 
 exports.getProjectRelatedRoles = function* () {
   const projectName = this.params.name

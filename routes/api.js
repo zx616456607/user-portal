@@ -99,6 +99,7 @@ module.exports = function (Router) {
   router.put('/projects/:name/roles',projectController.updateProjectRelatedRoles)
   router.post('/projects/:name/roles/batch-delete',projectController.deleteProjectRelatedRoles)
   router.del('/projects/:project_id/users/:user_id',projectController.removeUserFromProject)
+  router.post('/projects/rolebinding', projectController.handleRoleBinding)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
@@ -120,6 +121,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/network', clusterController.getClusterNetworkMode)
   router.put('/clusters/:cluster/plugins/operation/stop', middlewares.isAdminUser, clusterController.batchStopPlugins)
   router.put('/clusters/:cluster/plugins/operation/start', middlewares.isAdminUser, clusterController.batchStartPlugins)
+  router.post('/clusters/:cluster/plugins/:name/init', middlewares.isAdminUser, clusterController.initPlugins)
   router.delete('/clusters/:cluster/plugins', middlewares.isAdminUser, clusterController.batchDeletePlugins)
   router.post('/clusters/:cluster/plugins', middlewares.isAdminUser, clusterController.createPlugins)
 
