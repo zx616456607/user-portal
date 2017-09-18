@@ -76,7 +76,6 @@ class VMList extends React.Component {
   vmAddList(state){
     const { postVMinfoList, putVMinfoList } = this.props
     let notification = new NotificationHandler()
-    debugger
     let res = {
         /*vmInfoName: 'root',*/
         vmInfoID: this.state.editRows.vminfoId !==null ? this.state.editRows.vminfoId : '',

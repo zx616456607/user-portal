@@ -64,7 +64,6 @@ let CreateVMListModal = React.createClass({
         password: values.password
       }
       this.handleSub()
-      debugger
       onSubmit(List)
       scope.setState({
         visible: false
