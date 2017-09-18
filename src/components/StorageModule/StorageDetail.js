@@ -8,8 +8,8 @@
  * @author ZhaoXueYu
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Card, Menu, Progress, Spin } from 'antd'
-import { Link } from 'react-router'
+import { Tabs, Card, Menu, Progress, Spin, Row, Col } from 'antd'
+import { browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 // import StorageStatus from "./StorageStatus"
@@ -94,6 +94,16 @@ class StorageDetail extends Component {
           >
           <div key="ca" className="AppInfo">
             <Title title="存储详情" />
+            <div className="topRow">
+              <span
+                className="back"
+                onClick={() => browserHistory.push(`/app_manage/storage/exclusiveMemory`)}
+              >
+                <span className="backjia"></span>
+                <span className="btn-back">返回</span>
+              </span>
+              <span className="title">存储详情</span>
+            </div>
             <Card className="topCard">
               <div className="imgBox">
                 <img src={storagePNG} />
@@ -109,16 +119,32 @@ class StorageDetail extends Component {
                     {/*<i className= 'fa fa-circle error' style={ {color: color} }></i>&nbsp;*/}
                       {/*<span className={StorageInfo.isUsed ? 'error' : 'normal'} style={{ color: color }}>{StorageInfo.isUsed ? <FormattedMessage {...messages.using} /> : <FormattedMessage {...messages.stop} />}</span>*/}
                   {/*</span>*/}
-                  <div className="createDate">
-                    <FormattedMessage {...messages.create} />：
-                   { StorageInfo.createTime }
-                  </div>
-                  <div className="use">
-                    <FormattedMessage {...messages.useLevel} />
-                    ：&nbsp;&nbsp;
-                    <Progress strokeWidth={8} showInfo={false} status="active" percent={ StorageInfo.consumption * 100 } />
-                    &nbsp;&nbsp;{ StorageInfo.consumption * StorageInfo.size } / { StorageInfo.size }M
-                  </div>
+                  <Row>
+                    <Col span="9">
+                      存储类型：独享型（RBD）
+                    </Col>
+                    <Col span="15">
+                      <div className="createDate">
+                        <FormattedMessage {...messages.create} />：
+                        { StorageInfo.createTime }
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col span="9">
+                      RBD集群名称：aaaaa
+                    </Col>
+                    <Col span="15">
+                      <div className="use">
+                        <FormattedMessage {...messages.useLevel} />
+                        ：&nbsp;&nbsp;
+                        <Progress strokeWidth={8} showInfo={false} status="active" percent={ StorageInfo.consumption * 100 } />
+                        &nbsp;&nbsp;{ StorageInfo.consumption * StorageInfo.size } / { StorageInfo.size }M
+                      </div>
+                    </Col>
+                  </Row>
+
+
                 </div>
                 <div style={{ clear:"both" }}></div>
               </div>

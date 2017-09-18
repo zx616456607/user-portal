@@ -6,6 +6,35 @@
   width: 100%;
   background-color: #FFFFFF !important;
   margin-bottom: 50px;
+  .storage{
+    .volume_row_style{
+      margin-bottom: 10px;
+      .text_overfow{
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .handle_button{
+        margin-left: 8px;
+      }
+    }
+    .title_button{
+      margin-right:20px;
+    }
+    .info_icon{
+      margin-right: 8px;
+    }
+    .add_volume_button{
+      height: 40px;
+      line-height: 50px;
+      width: 100%;
+      text-align: center;
+      color: #2db7f5;
+      .add_button{
+        cursor: pointer;
+      }
+    }
+  }
   .commonBox{
     padding-top: 20px;
     padding-bottom: 10px;
@@ -191,5 +220,24 @@
     .modali{
       margin-right: 8px;
     }
+  }
+}
+
+.container_catalogue_modal_style{
+  .ant-modal-body{
+    padding:0;
+  }
+  .ant-modal-footer{
+    border-top:none;
+    padding: 0;
+  }
+}
+
+.delete_container_calalogue{
+  .tips{
+    color: #0b9eeb;
+  }
+  .question_icon{
+    margin-right: 12px;
   }
 }

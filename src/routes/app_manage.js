@@ -48,14 +48,27 @@ const appManageRoutes = [{
   }]
 }, {
   path: 'storage',
+  component: require('../components/StorageModule').default,
   indexRoute: {
-    component: require('../components/StorageModule/Storage').default,
+    component: require('../components/StorageModule/ShareMemory').default
   },
   childRoutes: [{
-    path: ':pool/:cluster/:storage_name',
-    component: require('../components/StorageModule/StorageDetail').default,
+    path: 'exclusiveMemory',
+    component: require('../components/StorageModule/Storage').default,
+  },{
+    path: 'hostMemory',
+    component: require('../components/StorageModule/HostMemory').default,
   }]
-}, {
+},{
+  path: 'exclusiveMemory/:pool/:cluster/:storage_name',
+  component: require('../components/StorageModule/StorageDetail').default,
+},{
+  path: 'hostMemory/:host_name',
+  component: require('../components/StorageModule/HostMemory/HostStorageDetail').default,
+},{
+  path: 'shareMemory/:share_name',
+  component: require('../components/StorageModule/ShareMemory/ShareStorageDetail').default,
+},{
   path: 'configs',
   indexRoute: {
     component: require('../components/ServiceConfig/Service').default,
