@@ -271,7 +271,6 @@ class Header extends Component {
     loadProjects(this.props, {
       success: {
         func: res => {
-          console.log(res)
           const projects = res.data
           let defaultSpace = projects[0] || {}
           if (namespace === 'default') {
