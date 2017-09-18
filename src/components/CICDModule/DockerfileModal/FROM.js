@@ -28,13 +28,19 @@ const FROM = React.createClass({
   },
   componentWillMount() {
     const { loadProjectList } = this.props
-    loadProjectList(DEFAULT_REGISTRY, { page_size: 100 })
+    loadProjectList(DEFAULT_REGISTRY, { page_size: 100 }, {
+      success: {
+        func: () => this.loadHarbor(),
+        isAsync: true,
+      }
+    })
   },
   componentWillReceiveProps(nextProps) {
-    const { imageTagConfig, callback, form } = nextProps
+    const { imageTagConfig, callback, form, modalVisible } = nextProps
+    const { getFieldValue } = form
     let imageConfig = {}
     if (imageTagConfig) {
-      const tag = form.getFieldValue('tag')
+      const tag = getFieldValue('tag')
       if (imageTagConfig[tag]) {
         imageConfig = imageTagConfig[tag] || {}
         let mountPath = imageConfig.mountPath || {}
@@ -42,8 +48,21 @@ const FROM = React.createClass({
         callback({ mountPath, server: imageTagConfig.server })
       }
     }
+    if (modalVisible && !this.props.modalVisible) {
+      this.loadHarbor()
+    }
   },
-  onHarborProjectChange(value) {
+  loadHarbor() {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const harborProject = getFieldValue('harborProject')
+    const image = getFieldValue('image')
+    const tag = getFieldValue('tag')
+    console.log(harborProject, image, tag)
+    harborProject && this.onHarborProjectChange(harborProject, true)
+    image && this.onImageChange(image, true)
+  },
+  onHarborProjectChange(value, unreset) {
     if (value === 'imageUrl') {
       return
     }
@@ -60,15 +79,15 @@ const FROM = React.createClass({
       notification.warn('项目未找到')
       return
     }
-    form.resetFields([ 'image', 'tag' ])
+    !unreset && form.resetFields([ 'image', 'tag' ])
     loadProjectRepos(DEFAULT_REGISTRY, { page_size: 100, project_id: targetProject[PROJECT_ID] })
   },
-  onImageChange(image) {
+  onImageChange(image, unreset) {
     const { form, loadRepositoriesTags } = this.props
     const { getFieldProps, getFieldValue, resetFields } = form
     const harborProject = getFieldValue('harborProject')
     const imageName = `${harborProject}/${image}`
-    resetFields([ 'tag' ])
+    !unreset && resetFields([ 'tag' ])
     loadRepositoriesTags(DEFAULT_REGISTRY, imageName)
   },
   onTagChange(tag) {
