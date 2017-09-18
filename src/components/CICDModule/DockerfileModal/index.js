@@ -466,7 +466,7 @@ let DockerfileModal = React.createClass({
     })
   },
 
-   checkHttpAddress(rule, value, callback) {
+  checkHttpAddress(rule, value, callback) {
     if (!value) {
       callback()
       return
@@ -704,6 +704,7 @@ let DockerfileModal = React.createClass({
               form={form}
               formItemLayout={FORM_ITEM_LAYOUT}
               callback={this.getFROMData}
+              modalVisible={this.props.visible}
             />
             {
               grammarModules.map(this.renderGrammarModule)

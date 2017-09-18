@@ -434,7 +434,7 @@ let TenantDetail = React.createClass({
           <div className='lastDetails lastDetailtable' style={{ width: '49%', float: 'left' }} >
             <div className='title'>权限 （ <span>{count}个</span> ）
             {
-              this.state.creator === this.props.userName && this.state.creator === 'admin' ?
+              this.state.creator === this.props.userName || this.props.userName === 'admin' ?
                 <Button
                   className="Editroles"
                   type="ghost"
@@ -460,7 +460,7 @@ let TenantDetail = React.createClass({
               <div className="lastSyncInfo">
                 <Table
                   scroll={{ y: 300 }}
-                  columns={ this.state.creator === this.props.userName && this.state.creator === 'admin' ? permissionColumns : permissionColumn }
+                  columns={ this.state.creator === this.props.userName || this.props.userName === 'admin' ? permissionColumns : permissionColumn }
                   pagination={false}
                   dataSource={permissionDatasource}
                 />
