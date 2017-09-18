@@ -271,10 +271,9 @@ class Header extends Component {
     loadProjects(this.props, {
       success: {
         func: res => {
-          console.log(res)
-          const projects = res.data
+          const projects = res.data || []
           let defaultSpace = projects[0] || {}
-          if (namespace === 'default') {
+          if (namespace === 'default' || projects.length === 0) {
             defaultSpace = MY_SPACE
           } else {
             projects.map(project => {
@@ -471,7 +470,7 @@ class Header extends Component {
                     list={projects}
                     loading={isProjectsFetching}
                     onChange={this.handleProjectChange}
-                    selectValue={selectValue}
+                    selectValue={selectValue || '...'}
                     popTeamSelect={mode === standard} />
                 </div>
             </div>
