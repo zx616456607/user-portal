@@ -638,6 +638,7 @@ let CreateTenxFlowModal = React.createClass({
     this.setState({
       shellModalShow: false,
     })
+    this.oldScripts = scriptsTextarea
   },
   openImageEnvModal() {
     this.setState({
@@ -1810,7 +1811,7 @@ let CreateTenxFlowModal = React.createClass({
               <Button size='large' type='primary' onClick={this.saveShellCode} loading={this.state.saveShellCodeBtnLoading}>
                 <span>保存并使用</span>
               </Button>
-              <Button size='large' onClick={() => this.setState({ shellModalShow: false })}>
+              <Button size='large' onClick={() => this.setState({ shellModalShow: false, scriptsTextarea: this.oldScripts })}>
                 <span>取消</span>
               </Button>
             </div>
