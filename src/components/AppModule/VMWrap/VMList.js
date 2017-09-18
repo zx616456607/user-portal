@@ -281,13 +281,6 @@ class VMList extends React.Component {
       total: data.length,
       onChange: (n) => this.handlePage(n)
     }
-    /*const pagination = {
-      total: data.length,
-      defaultCurrent: 1,
-      PageSize: 8,
-      pageSizeOptions: 5,
-      onChange: (current) => this.handlePage(current),
-    };*/
     const columns = [
       {
         title: '虚拟机IP',
@@ -356,12 +349,12 @@ class VMList extends React.Component {
     return (
       <div id="VMList">
         <Row>
-          <Button type='primary' size='large'  className='addBtn' onClick={ () => this.handleA() }>
+          <Button type='primary' size='large'  className='addBtn' onClick={()=>this.handleA()}>
             <i className='fa fa-plus' /> 添加传统环境
           </Button>
-          <Button type="ghost" size="large" className="manageBtn" onClick={ () => this.getInfo() } ><i className='fa fa-refresh'/> 刷新</Button>
+          <Button type="ghost" size="large" className="manageBtn" onClick={()=>this.getInfo() } ><i className='fa fa-refresh'/> 刷新</Button>
           {/*<Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>*/}
-          <CommonSearchInput className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={this.handleSearch.bind(this)}/>
+          <CommonSearchInput className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={()=>this.handleSearch()}/>
           {/*<Pagination {...pagination}/>*/}
           <div className="total">共{data.length}个</div>
         </Row>
@@ -374,7 +367,7 @@ class VMList extends React.Component {
             dataSource={data}
           />
         </Row>
-        {
+         {
           this.state.isModal ?
             <CreateVMListModal
               scope={scope}
@@ -385,7 +378,6 @@ class VMList extends React.Component {
               isAdd={this.state.isAdd}
               Check={this.vmCheck.bind(this)}
             >
-
             </CreateVMListModal> : ''
         }
         <Row>
@@ -393,8 +385,8 @@ class VMList extends React.Component {
           title= {"删除传统环境"}
           visible={this.state.isDelVisible}
           footer={[
-            <Button key="back" type="ghost" size="large" onClick={this.handleClose.bind(this)}>  取 消 </Button>,
-            <Button key="submit" type="primary" size="large" onClick={this.handleDel.bind(this)}> 确 定 </Button>,
+            <Button key="back" type="ghost" size="large" onClick={()=>this.handleClose()}>  取 消 </Button>,
+            <Button key="submit" type="primary" size="large" onClick={()=>this.handleDel()}> 确 定 </Button>,
           ]}
           >
           <span style={{fontSize:16,color:'#ff0000'}}><Icon size={15} style={{color:'#ff0000'}} type="question-circle-o" />是否删除当前传统应用环境</span>
