@@ -428,7 +428,8 @@ class TenxFlowList extends Component {
             flowListState.push({ status: list.status })
           })
           self.setState({
-            flowListState
+            flowListState,
+            flowList: res.data.results
           })
           if (callback) {
             callback()
@@ -458,11 +459,11 @@ class TenxFlowList extends Component {
       this.loadData()
       return
     }
-    if (!isFetching && !!flowList) {
-      this.setState({
-        flowList: flowList
-      });
-    }
+    // if (!isFetching && !!flowList) {
+    //   this.setState({
+    //     flowList: flowList
+    //   });
+    // }
   }
 
   openCreateTenxFlowModal(flowId,forEdit) {

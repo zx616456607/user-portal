@@ -137,6 +137,14 @@ class VMServiceList extends React.Component {
           })
         },
         isAsync:true
+      },
+      failed: {
+        func: () => {
+          this.setState({
+            service: [],
+            loading: false
+          })
+        }
       }
     })
   }
