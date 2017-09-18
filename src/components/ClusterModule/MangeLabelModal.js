@@ -171,30 +171,25 @@ class ManageLabelModal extends Component {
       cluster:clusterID,
     }
     const notificat = new NotificationHandler()
-    form.validateFields((errors,values)=> {
-      if (!!errors) {
-        return
-      }
-      editNodeLabels(body,{
-        success:{
-          func:(ret)=> {
-            // _this.setState({userCreateLabel:ret})
-            notificat.success('操作成功！')
-            _this.loadNodeLabels(_this.props)
-            callback(false)
-          },
-          isAsync:true
+    editNodeLabels(body,{
+      success:{
+        func:(ret)=> {
+          // _this.setState({userCreateLabel:ret})
+          notificat.success('操作成功！')
+          _this.loadNodeLabels(_this.props)
+          callback(false)
         },
-        failed: {
-          func:(ret)=> {
-            notificat.error('操作失败！',ret.message.message || ret.message)
-          }
+        isAsync:true
+      },
+      failed: {
+        func:(ret)=> {
+          notificat.error('操作失败！',ret.message.message || ret.message)
         }
-      })
-      this.setState({
-        manageLabelModalVisible : false,
-        sameKey: ''
-      })
+      }
+    })
+    this.setState({
+      manageLabelModalVisible : false,
+      sameKey: ''
     })
   }
 
