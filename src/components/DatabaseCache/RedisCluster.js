@@ -116,6 +116,7 @@ class RedisDatabase extends Component {
     this.createDatabaseShow = this.createDatabaseShow.bind(this);
     this.clusterRefresh = this.clusterRefresh.bind(this);
     this.state = {
+      search: '',
       detailModal: false,
       putVisible: false,
       currentDatabase: null,
@@ -185,13 +186,9 @@ class RedisDatabase extends Component {
       document.getElementById('dbName').focus()
     }, 100);
   }
-  handSearch(e) {
-    if (e) {
-      this.props.searchDbservice('redis', e.target.value.replace(SEARCH,""))
-      return
-    }
-    const names = this.refs.redisRef.refs.input.value
-    this.props.searchDbservice('redis', names.replace(SEARCH,""))
+  handSearch() {
+    const { search } = this.state
+    this.props.searchDbservice('redis', search)
   }
 
   render() {
@@ -220,7 +217,7 @@ class RedisDatabase extends Component {
               <i className='fa fa-refresh' />&nbsp;刷 新
             </Button>
             <span className='rightSearch'>
-              <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px' }} ref="redisRef" onPressEnter={(e)=> this.handSearch(e)}/>
+              <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px' }} ref="redisRef" onChange={(e)=>this.setState({search: e.target.value.replace(SEARCH, "")})} onPressEnter={(e)=> this.handSearch(e)}/>
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()} />
             </span>
           </div>

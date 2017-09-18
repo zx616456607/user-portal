@@ -51,7 +51,8 @@ let TenantDetail = React.createClass({
     this.loadData(roleId)
     this.setState({
       count: /\d+/g.exec(this.props.location.hash)[0],
-      creator: /([^=\s]+)=([^=\s]+)/g.exec(this.props.location.hash)[2],
+      creator: /([^=\s]+)=([^=\s]+)/g.exec(this.props.location.hash) === null ?
+        'admin' : /([^=\s]+)=([^=\s]+)/g.exec(this.props.location.hash)[2],
     })
   },
   loadData(roleId) {
@@ -90,7 +91,7 @@ let TenantDetail = React.createClass({
                 roleProjects: res.data.data.projects
               })
             } else {
-               this.setState({
+              this.setState({
                 roleProjects: []
               })
             }
@@ -434,13 +435,13 @@ let TenantDetail = React.createClass({
           <div className='lastDetails lastDetailtable' style={{ width: '49%', float: 'left' }} >
             <div className='title'>权限 （ <span>{count}个</span> ）
             {
-              this.state.creator === this.props.userName || this.props.userName === 'admin' ?
-                <Button
-                  className="Editroles"
-                  type="ghost"
-                  onClick={() => this.handleBtn()}
-                >编辑角色</Button> : ''
-            }
+                this.state.creator === this.props.userName || this.props.userName === 'admin' ?
+                  <Button
+                    className="Editroles"
+                    type="ghost"
+                    onClick={() => this.handleBtn()}
+                  >编辑角色</Button> : ''
+              }
             </div>
             {
               this.state.characterModal ?
@@ -460,7 +461,7 @@ let TenantDetail = React.createClass({
               <div className="lastSyncInfo">
                 <Table
                   scroll={{ y: 300 }}
-                  columns={ this.state.creator === this.props.userName || this.props.userName === 'admin' ? permissionColumns : permissionColumn }
+                  columns={this.state.creator === this.props.userName || this.props.userName === 'admin' ? permissionColumns : permissionColumn}
                   pagination={false}
                   dataSource={permissionDatasource}
                 />

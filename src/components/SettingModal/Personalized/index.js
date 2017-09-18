@@ -251,7 +251,7 @@ class Personalized extends Component{
               <Col span="3"style={{width:150}}>版权声明</Col>
               <Col span="20">
                 <div className="row-text">切换是否显示登录页公司名“ {oemInfo.company ? oemInfo.company.name :''} ”</div>
-                <Switch checked={oemInfo.company?oemInfo.company.visible:true} onChange={(e)=> this.changeSwitch(e)} checkedChildren="ON" unCheckedChildren="OFF" className="inswitch"/>
+                <Switch checked={oemInfo.company?oemInfo.company.visible:true} onChange={(e)=> this.changeSwitch(e)} checkedChildren="开" unCheckedChildren="关" className="inswitch"/>
                   {oemInfo.company?
                   <span className="switchText">{oemInfo.company.visible ? '开启':'关闭'}</span>
                   :null

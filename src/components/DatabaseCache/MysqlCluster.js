@@ -122,7 +122,8 @@ class MysqlCluster extends Component {
       putVisible: false,
       currentDatabase: null,
       CreateDatabaseModalShow: false,
-      dbservice: []
+      dbservice: [],
+      search: '',
     }
   }
   refreshDatabase() {
@@ -205,13 +206,9 @@ class MysqlCluster extends Component {
       document.getElementById('dbName').focus()
     }, 100);
   }
-  handSearch(e) {
-    if (e) {
-      this.props.searchDbservice('mysql', e.target.value.replace(SEARCH, ""))
-      return
-    }
-    const names = this.refs.mysqlRef.refs.input.value
-    this.props.searchDbservice('mysql', names.replace(SEARCH, ""))
+  handSearch() {
+    const { search } = this.state
+    this.props.searchDbservice('mysql', search)
   }
 
   render() {
@@ -241,7 +238,7 @@ class MysqlCluster extends Component {
               <i className='fa fa-refresh' />&nbsp;刷 新
             </Button>
             <span className='rightSearch'>
-              <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px'}} ref="mysqlRef" onPressEnter={(e)=> this.handSearch(e)} />
+              <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px'}} ref="mysqlRef" onChange={(e)=>this.setState({search: e.target.value.replace(SEARCH, "")})} onPressEnter={()=> this.handSearch()} />
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()}/>
             </span>
           </div>
