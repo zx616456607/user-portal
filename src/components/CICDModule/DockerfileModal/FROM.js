@@ -58,7 +58,6 @@ const FROM = React.createClass({
     const harborProject = getFieldValue('harborProject')
     const image = getFieldValue('image')
     const tag = getFieldValue('tag')
-    console.log(harborProject, image, tag)
     harborProject && this.onHarborProjectChange(harborProject, true)
     image && this.onImageChange(image, true)
   },
