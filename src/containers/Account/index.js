@@ -58,14 +58,6 @@ const menuList_enterprise_admin = [
     name: '我的帐户'
   },
   {
-    url: '/account/member',
-    name: '成员管理'
-  },
-  {
-    url: '/account/team',
-    name: '团队管理'
-  },
-  {
     url: '/account/costCenter#consumptions',
     name: '消费记录'
   },
