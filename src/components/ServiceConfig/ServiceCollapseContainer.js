@@ -443,7 +443,11 @@ class CollapseContainer extends Component {
                   return (
                     <div className="check-config">
                       <div className="span4"><Link to={`/app_manage/detail/${list.imageName}`}>{list.serviceName}</Link></div>
-                      <div className="span6">{list.mountPath}</div>
+                      <div className="span6 textoverflow">
+                        <Tooltip title={list.mountPath} placement="topLeft">
+                          <span>{list.mountPath}</span>
+                        </Tooltip>
+                      </div>
                     </div>
                   )
                 })}
