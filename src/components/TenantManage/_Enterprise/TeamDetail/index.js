@@ -780,7 +780,7 @@ class TeamDetail extends Component {
               </Col>
               <Col span={22}>
                 {teamDetail && teamDetail.outlineRoles && teamDetail.outlineRoles.length &&
-                  (includes(teamDetail.outlineRoles,'manager') || includes(teamDetail.outlineRoles,'creator') ? '创建者' : '') ||
+                  (includes(teamDetail.outlineRoles,'manager') || includes(teamDetail.outlineRoles,'creator') ? '团队管理员' : '') ||
                   (includes(teamDetail.outlineRoles,'no-participator') ? '非团队成员' : includes(teamDetail.outlineRoles,'participator') ? '参与者' : '')
                 }
               </Col>
