@@ -83,6 +83,11 @@ const appManageRoutes = [{
   indexRoute: {
     component: require('../components/AppModule/NetworkIsolation').default,
   },
+}, {
+  path: 'auto_scale',
+  indexRoute: {
+    component: require('../components/AppModule/AutoScale').default,
+  },
 },{
   path: 'vm_wrap',
   indexRoute: {

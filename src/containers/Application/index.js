@@ -70,6 +70,10 @@ const menuList_enterprise = [
     url: '/app_manage/network_isolation',
     name: '网络隔离'
   },
+  {
+    url: '/app_manage/auto_scale',
+    name: '自动伸缩策略'
+  },
 ]
 const vmWrapMenu = [
   {
