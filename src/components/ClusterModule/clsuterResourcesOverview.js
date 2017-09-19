@@ -129,7 +129,7 @@ class ClusterResourcesOverview extends Component{
             </div>
             <ul className="listText">
               <li>
-                <span className="itemKey primary">总数</span>
+                <span className="itemKey primary">总&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;数</span>
                 <span>{node ? `${node.nodeSum} 个` : NOT_AVAILABLE}</span>
               </li>
               <li>
@@ -151,7 +151,7 @@ class ClusterResourcesOverview extends Component{
             </div>
             <ul className="listText">
               <li>
-                <span className="itemKey primary">总数</span>
+                <span className="itemKey primary">总&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;数</span>
                 <span>{resource ? `${resource.cupSum} 核` : NOT_AVAILABLE}</span>
               </li>
               <li>
@@ -173,7 +173,7 @@ class ClusterResourcesOverview extends Component{
             </div>
             <ul className="listText">
               <li>
-                <span className="itemKey primary">总量</span>
+                <span className="itemKey primary">总&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;量</span>
                 <span>{resource ? `${Math.ceil(resource.memSumByKB / 1024 / 1024 * 100) / 100} G` : NOT_AVAILABLE}</span>
               </li>
               <li>

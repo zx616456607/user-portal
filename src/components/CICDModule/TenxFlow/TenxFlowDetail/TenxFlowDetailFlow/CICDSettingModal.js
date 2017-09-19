@@ -346,9 +346,12 @@ let CICDSettingModal = React.createClass({
           });
           return;
         }
+        this.setState({
+          noTag: false,
+        });
         tagInput = values;
       });
-      tagInput.matchWay = getFieldValue('isTagReg')
+      tagInput && (tagInput.matchWay = getFieldValue('isTagReg'))
     }
     if(!checkFlag) {
       return;

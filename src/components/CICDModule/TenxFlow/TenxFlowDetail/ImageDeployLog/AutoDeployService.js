@@ -337,7 +337,7 @@ let AutoDeployService = React.createClass({
       return
     }
     if (!config.match_tag) {
-      notification.info('请选择镜像版本')
+      notification.info('请选择匹配规则')
       return
     }
     const {addCdRules, gitCdRules, flowId} = this.props

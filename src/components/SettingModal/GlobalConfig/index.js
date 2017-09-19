@@ -16,6 +16,7 @@ import conInter from '../../../assets/img/setting/globalconfigCICD.png'
 import MirrorImg from '../../../assets/img/setting/globalconfigmirror.png'
 import APIImg from '../../../assets/img/setting/globalconfigapi.png'
 import CephImg from '../../../assets/img/setting/globalconfigceph.png'
+import MsaImg from '../../../assets/img/setting/globalconfigmsa.png'
 import { connect } from 'react-redux'
 import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification } from '../../../actions/global_config'
 import NotificationHandler from '../../../components/Notification'
@@ -422,12 +423,12 @@ let Msa = React.createClass({
     });
 
     return (
-      <div className="GlobalConfigEmail">
+      <div className="GlobalConfigMSA">
         <div className="title">微服务</div>
         <div className="content">
           <div className="contentMain">
             <div className="contentImg">
-              <img src={EmailImg} alt="微服务" />
+              <img src={MsaImg} alt="微服务" />
             </div>
             <div className="contentkeys">
               <div className="key">微服务地址</div>

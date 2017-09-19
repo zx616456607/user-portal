@@ -169,6 +169,11 @@ export default store => next => action => {
   const space = store.getState().entities.current.space || {}
   const options = fetchAPI.options || {}
   options.headers = options.headers || {}
+  // sys admin check user personal space
+  if (space.userName) {
+    options.headers.onbehalfuser = space.userName
+    space.namespace = 'default'
+  }
   options.headers.teamspace = options.headers.teamspace || space.namespace || ''
 
   const [requestType, successType, failureType] = types

@@ -58,8 +58,26 @@ class VisitType extends Component{
   }
   componentWillReceiveProps(nextProps) {
     let preShow = this.props.serviceDetailmodalShow;
-    const { serviceDetailmodalShow, service, bindingDomains, bindingIPs,cluster, getProxy, form} = nextProps;
-    if (service.metadata && this.props.service.metadata && (service.metadata.name === this.props.service.metadata.name)) {
+    let preName = this.props.service.metadata && this.props.service.metadata.name
+    let preTab = this.props.isCurrentTab
+    const { serviceDetailmodalShow, service, bindingDomains, bindingIPs,cluster, getProxy, form, isCurrentTab} = nextProps;
+    if (!serviceDetailmodalShow && preShow ) {
+      this.setState({
+        disabled: true,
+        forEdit:false,
+        value: undefined,
+        initValue: undefined,
+        initGroupID: undefined,
+        initSelect: undefined,
+        initSelectDics: undefined,
+        addrHide:undefined,
+        isLbgroupNull: false
+      });
+      form.setFieldsValue({
+        groupID:undefined
+      })
+    }
+    if ((service.metadata && (service.metadata.name !== preName)) || (preTab !== isCurrentTab) || (!preShow && serviceDetailmodalShow)) {
       if (service.lbgroup && service.lbgroup.id === 'mismatch') {
         this.setState({
           isLbgroupNull: true
@@ -69,35 +87,8 @@ class VisitType extends Component{
           isLbgroupNull: false
         })
       }
-      return
+      this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
     }
-    if (serviceDetailmodalShow && !preShow ) {
-    this.setState({
-      disabled: true,
-      forEdit:false,
-      value: undefined,
-      initValue: undefined,
-      initGroupID: undefined,
-      initSelect: undefined,
-      initSelectDics: undefined,
-      addrHide:undefined,
-      isLbgroupNull: false
-    });
-    form.setFieldsValue({
-      groupID:undefined
-    })
-    } else if (service.metadata && this.props.service.metadata && (service.metadata.name !== this.props.service.metadata.name)) {
-      if (service.lbgroup && service.lbgroup.id === 'mismatch') {
-        this.setState({
-          isLbgroupNull: true
-        })
-      } else {
-        this.setState({
-          isLbgroupNull: false
-        })
-      }
-    }
-    this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
   }
   getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs) {
     this.setState({
@@ -117,17 +108,18 @@ class VisitType extends Component{
                 privateNet: true,
                 addrHide:false
               },()=>{
-                this.selectProxyArr('private')
+                this.selectProxyArr('private', true)
               })
             } else if (service.lbgroup&&service.lbgroup.type === 'public'){
               this.setState({
                 initValue: 1,
                 initSelectDics: false,
                 initGroupID: service.lbgroup&&service.lbgroup.id,
+                groupID: service.lbgroup&&service.lbgroup.id,
                 privateNet: false,
                 addrHide:false
               },()=>{
-                this.selectProxyArr('public')
+                this.selectProxyArr('public', true)
               })
             }
           })
@@ -150,7 +142,7 @@ class VisitType extends Component{
       })
     }
   }
-  selectProxyArr(type) {
+  selectProxyArr(type, flag) {
     const { form } = this.props;
     const { proxyArr,initGroupID } = this.state;
     let data = proxyArr.slice(0)
@@ -168,14 +160,17 @@ class VisitType extends Component{
         this.setState({
           deleteHint: true
         })
+        form.setFieldsValue({
+          groupID: flag ? initGroupID : this.state.currentProxy[0].id
+        })
       } else {
         this.setState({
           deleteHint: false
         })
+        form.setFieldsValue({
+          groupID: undefined
+        })
       }
-    })
-    form.setFieldsValue({
-      groupID: initGroupID
     })
   }
   onChange(e) {
@@ -189,7 +184,7 @@ class VisitType extends Component{
         selectDis: false,
         initSelectDics:false
       });
-      this.selectProxyArr(flag)
+      this.selectProxyArr(flag, false)
     } else if (value === 2) {
       flag = 'private'
       this.setState({
@@ -197,7 +192,7 @@ class VisitType extends Component{
         selectDis: false,
         initSelectDics:false
       });
-      this.selectProxyArr(flag)
+      this.selectProxyArr(flag, false)
     } else {
       this.info()
       this.setState({
@@ -206,9 +201,6 @@ class VisitType extends Component{
         deleteHint: true
       })
     }
-    form.setFieldsValue({
-      groupID:undefined
-    })
   }
   toggleDisabled() {
     this.setState({
@@ -247,7 +239,8 @@ class VisitType extends Component{
             notification.success('出口方式更改成功')
             this.setState({
               disabled: true,
-              forEdit:false
+              forEdit:false,
+              isLbgroupNull: false
             });
             if (val === 3) {
               this.setState({
@@ -273,16 +266,16 @@ class VisitType extends Component{
   }
   cancelEdit() {
     const { initValue, initSelect, initGroupID } = this.state;
-    this.selectProxyArr(initSelect && initSelect[0] && initSelect[0].type)
+    this.selectProxyArr(initSelect && initSelect[0] && initSelect[0].type, true)
     const { form } = this.props;
     this.setState({
       disabled: true,
       forEdit:false,
       value: initValue,
     });
-    form.setFieldsValue({
-      groupID: initGroupID
-    })
+    // form.setFieldsValue({
+    //   groupID: initGroupID
+    // })
   }
   copyTest() {
     let target = document.getElementsByClassName('copyTest')[0];

@@ -256,7 +256,7 @@ class AppAutoScale extends Component {
         {this.state.isAvailable ?
           <div className="alertRow">Tips: 系统将根据设定的CPU阈值来自动的『扩展,或减少』该服务所『缺少,或冗余』的实例数量</div>
           :
-          <div className="alertRow">Tips: 已挂载存储卷的服务为有状态服务，有状态服务不允许设置弹性伸缩</div>
+          <div className="alertRow">Tips: 挂载独享型或host类型存储的服务的有状态服务，不支持设置弹性伸缩</div>
         }
         <Card>
           <Row className="cardItem">

@@ -173,8 +173,9 @@ let CreateDatabase = React.createClass({
         values.clusterSelect = this.props.cluster
       }
       let notification = new NotificationHandler()
-      if (values.replicas > 5) {
-        notification.error('副本数不能大于5')
+      if (values.replicas > 100) {
+        notification.info('副本数不能大于 100')
+        _this.setState({loading: false})
         return
       }
       let newTeamspaces = ([MY_SPACE]).concat(teamspaces)
@@ -213,7 +214,7 @@ let CreateDatabase = React.createClass({
         lbGroupID,
       }
       if (!templateId) {
-        notification.error(`${_this.state.currentType} 集群创建还在开发中，敬请期待`)
+        notification.info(`${_this.state.currentType} 集群创建还在开发中，敬请期待`)
         _this.setState({loading: false})
         return
       }
@@ -457,8 +458,8 @@ let CreateDatabase = React.createClass({
                 <FormItem style={{ width: '80px', float: 'left' }}>
                 {
                   this.state.currentType == 'zookeeper' ?
-                    <InputNumber {...zkReplicasProps} size='large' min={3} max={5} disabled={isFetching} /> :
-                    <InputNumber {...replicasProps} size='large' min={1} max={5} disabled={isFetching} />
+                    <InputNumber {...zkReplicasProps} size='large' min={3} max={100} disabled={isFetching} /> :
+                    <InputNumber {...replicasProps} size='large' min={1} max={100} disabled={isFetching} />
                 }
                 </FormItem>
                 <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>个</span>

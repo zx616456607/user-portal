@@ -630,7 +630,7 @@ let ProjectManage = React.createClass({
   projectFilter(pagination, filters, sorter) {
     let role
     this.setState({
-      roleFilter: (role = filters.role).length ? role[0] : '',
+      roleFilter: (role = filters.role).length && role.length === 1 ? role[0] : '',
       filteredInfo: filters
     }, () => {
       this.loadProjectList()
@@ -1047,7 +1047,6 @@ class PayTable extends Component {
   }
   
   onRowClick = record => {
-    console.log(record)
     const { selectedRowKeys } = this.state
     const projectName = record.namespace
     let newKeys = selectedRowKeys.slice(0)
@@ -1109,9 +1108,7 @@ class PayTable extends Component {
             <span className={classNames('btnList', {'active': payNumber === 100})} onClick={() => {
               this.changePayNumber(100)
             }}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-            <InputNumber value={payNumber} onChange={(value) => {
-              this.setState({payNumber: value})
-            }} size="large" min={10}/>
+            <InputNumber value={payNumber} onChange={(value) => this.changePayNumber(value)} size="large" min={10}/>
             <b>T</b>
           </dd>
         </dl>

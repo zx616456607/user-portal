@@ -26,11 +26,13 @@ class ManageLabelModal extends Component {
     this.handleManageLabelOk = this.handleManageLabelOk.bind(this)
     this.handleManageLabelCancel = this.handleManageLabelCancel.bind(this)
     this.checkKey = this.checkKey.bind(this)
+    this.checkValue = this.checkValue.bind(this)
     this.state = {
       manageLabelModalVisible : this.props.manageLabelModal,
       userCreateLabel: this.props.userCreateLabel || {},
       isLoad: false,// first data in nodes
-      diffLabels:[] // check labels
+      diffLabels:[], // check labels
+      sameKey: ''
     }
   }
 
@@ -160,7 +162,7 @@ class ManageLabelModal extends Component {
   }
 
   handleManageLabelOk(){
-    const { callback, labels, editNodeLabels, clusterID, nodeName } = this.props
+    const { callback, labels, editNodeLabels, clusterID, nodeName, form } = this.props
     const { userCreateLabel } = this.state
     const _this = this
     const body ={
@@ -186,7 +188,8 @@ class ManageLabelModal extends Component {
       }
     })
     this.setState({
-      manageLabelModalVisible : false
+      manageLabelModalVisible : false,
+      sameKey: ''
     })
   }
 
@@ -194,6 +197,7 @@ class ManageLabelModal extends Component {
     const { callback, form } = this.props
     this.setState({
       manageLabelModalVisible : false,
+      sameKey: ''
     })
     const _this = this
     callback(false)
@@ -216,31 +220,36 @@ class ManageLabelModal extends Component {
       callback(new Error('以字母或数字开头和结尾中间可(_-)'))
       return
     }
-    let isExtentd
     for (let item of this.props.labels) {
       if (item.key === value) {
-        isExtentd = true
+        this.setState({
+          sameKey: item.key
+        })
         break
       }
-    }
-    if (isExtentd) {
-      return callback(new Error('标签键已存在'))
     }
     callback()
   }
   checkValue(rule, value, callback) {
+    const { sameKey } = this.state
     if (!Boolean(value)){
       callback(new Error('请输入标签值'))
       return
     }
     const Kubernetes = new KubernetesValidator()
     if (value.length < 3 || value.length > 64) {
-      callback(new Error('标签键长度为3~64位'))
+      callback(new Error('标签值长度为3~64位'))
       return
     }
     if (Kubernetes.IsValidLabelValue(value).length >0) {
       callback(new Error('以字母或数字开头和结尾中间可(_-)'))
       return
+    }
+    for (let item of this.props.labels) {
+      if ((item.value === value) && (item.key === sameKey)) {
+        callback(new Error('标签值已存在'))
+        return
+      }
     }
     callback()
   }
@@ -275,7 +284,6 @@ class ManageLabelModal extends Component {
   }
   render(){
     const { userCreateLabel } = this.state
-
     const { getFieldProps } = this.props.form
     const createLabel = ()=> {
       const label = []

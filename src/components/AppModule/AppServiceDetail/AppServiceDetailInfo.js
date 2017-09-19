@@ -7,7 +7,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Card, Spin, Icon, Form, Input, Select, Button, Dropdown, Menu, Tooltip, Modal } from 'antd'
+import { Card, Spin, Icon, Form, Input, Select, Button, Dropdown, Menu, Tooltip, Modal, Row, Col, Checkbox } from 'antd'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
 import QueueAnim from 'rc-queue-anim'
@@ -19,6 +19,8 @@ import { appEnvCheck } from '../../../common/naming_validation'
 import { editServiceEnv } from '../../../actions/services'
 import NotificationHandler from '../../../components/Notification'
 import { Link } from 'react-router'
+import ContainerCatalogueModal from '../ContainerCatalogueModal'
+import cloneDeep from 'lodash/cloneDeep'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
@@ -534,47 +536,122 @@ class BindNodes extends Component {
 export default class AppServiceDetailInfo extends Component {
   constructor(props) {
     super(props)
+    this.getFieldInfo = this.getFieldInfo.bind(this)
     this.state={
-
+      volumeList: [],
+      isEdit: false,
+      currentItem: {},
+      currentIndex: undefined,
+      containerCatalogueVisible: false,
+      nouseEditing: true
     }
   }
-  getMount(container) {
-     let ele = []
-    const volumes = container.spec.template.spec.volumes
-    if (container.spec.template.spec.containers[0].volumeMounts) {
-      container.spec.template.spec.containers[0].volumeMounts.forEach((volume, index) => {
-        let name = ''
-        let mountPath = ''
-        let volumeType = '分布式存储'
-        if (volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') { return }
-        let isShow = volumes.some(item => {
-          if (item.name === volume.name) {
-            if (item.configMap) {
-              return false
-            }
-            if(item.rbd){
-              name = item.rbd.image.split('.')[2]
-              mountPath = volume.mountPath
-            } else if(item.hostPath) {
-              name = item.name
-              volumeType = '本地存储'
-              mountPath = item.hostPath.path
-            }
-            return true
+
+  getServiceDetail(cluster, serviceName){
+    const { loadServiceDetail } = this.props
+    loadServiceDetail(cluster, serviceName, {
+      success: {
+        func: (res) => {
+          let volumeList = []
+          if(res.data
+            && res.data.spec
+            && res.data.spec.template
+            && res.data.spec.template.spec
+            && res.data.spec.template.spec.containers
+            && res.data.spec.template.spec.containers[0]
+            && res.data.spec.template.spec.containers[0].volumeMounts
+          ){
+            volumeList = res.data.spec.template.spec.containers[0].volumeMounts
           }
-          return false
-        })
-        if (!isShow) return
-        ele.push(
-          <div key={name}>
-            <div className="commonTitle">{name}</div>
-            <div className="commonTitle" >{volumeType}</div>
-            <div className="commonTitle" >{mountPath}</div>
-            <div style={{ clear: "both" }}></div>
-          </div>
-        )
-      })
+          this.setState({
+            volumeList
+          })
+        }
+      },
+      failed: {
+        func: () => {
+          this.setState({
+            volumeList: []
+          })
+        }
+      }
+    })
+  }
+
+  componentWillMount() {
+    const { cluster, serviceName } = this.props
+    this.getServiceDetail(cluster, serviceName)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if(this.props.activeTabKey !== '#basic' && nextProps.activeTabKey == '#basic'){
+      this.getServiceDetail(nextProps.cluster, nextProps.serviceName)
     }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if(nextProps.activeTabKey == '#basic'){
+      return true
+    } else {
+      return false
+    }
+  }
+
+  editContainerCatalogue(item, index){
+    this.setState({
+      isEdit: true,
+      currentItem: item,
+      currentIndex: index,
+      containerCatalogueVisible: true,
+    })
+  }
+
+  openDeleteModal(item, index){
+    this.setState({
+      currentItem: item,
+      currentIndex: index,
+      deleteVisible: true,
+    })
+  }
+
+  deleteContainerCatalogue(){
+    const { volumeList, currentIndex } = this.state
+    const list = cloneDeep(volumeList)
+    list.splice(currentIndex, 1)
+    this.setState({
+      volumeList: list,
+      deleteVisible: false,
+    })
+  }
+
+  getMount(container) {
+    const { volumeList } = this.state
+    let ele = []
+    if(!Object.keys(volumeList).length){
+      return <div style={{ textAlign: 'center'}}>暂无存储卷</div>
+    }
+    ele = volumeList.map((item, index) => {
+      return <Row key={`volume${index}`} className='volume_row_style'>
+        <Col span="6" className='text_overfow'>{item.type}</Col>
+        <Col span="6" className='text_overfow'>{item.volume}</Col>
+        <Col span="5" className='text_overfow'>{item.mountPath}</Col>
+        <Col span="7">
+          <Checkbox checked={item.readOnly} disabled>只读</Checkbox>
+          <Button
+            type="dashed"
+            icon="edit"
+            className='handle_button'
+            onClick={this.editContainerCatalogue.bind(this, item, index)}
+          />
+          <Button
+            type="dashed"
+            icon="delete"
+            className='handle_button'
+            onClick={this.openDeleteModal.bind(this, item, index)}
+          />
+        </Col>
+      </Row>
+    })
     return ele
   }
   getConfigMap(container) {
@@ -622,8 +699,48 @@ export default class AppServiceDetailInfo extends Component {
     }
   }
 
+  saveVolumnsChange(){
+    const { loadServiceDetail, cluster, serviceName } = this.props
+    this.getServiceDetail(cluster, serviceName)
+  }
+
+  getFieldInfo(info){
+    const { volumeList, isEdit, currentIndex } = this.state
+    const list = cloneDeep(volumeList)
+    const type = info.type
+    if(type == 'cancel'){
+      console.log('cacel')
+      this.setState({
+        containerCatalogueVisible: false,
+      })
+      return
+    }
+    if(type === 'confirm'){
+      if(isEdit){
+        Object.Assign(list[currentIndex], info.values)
+      } else {
+        list.push(info.values)
+      }
+      this.setState({
+        containerCatalogueVisible: false,
+        volumeList: list,
+        nouseEditing: false,
+      })
+    }
+  }
+
+  addContainerCatalogue(){
+    this.setState({
+      isEdit: false,
+      currentItem: {},
+      currentIndex: undefined,
+      containerCatalogueVisible: true,
+    })
+  }
+
   render() {
-    const { isFetching, serviceDetail, cluster } = this.props
+    const { isFetching, serviceDetail, cluster, containerList, volumes } = this.props
+    const { isEdit, currentItem, currentIndex, containerCatalogueVisible, nouseEditing } = this.state
     if (isFetching || !serviceDetail.metadata) {
       return ( <div className="loadingBox">
           <Spin size="large" />
@@ -701,20 +818,37 @@ export default class AppServiceDetailInfo extends Component {
         />
         <div className="storage commonBox">
           <span className="titleSpan">存储卷</span>
+          <div className='save_box'>
+            <Button 
+              type="primary" 
+              size="large"
+              onClick={() => this.saveVolumnsChange()}
+              className='title_button'
+              disabled={nouseEditing}
+            >
+              应用修改
+            </Button>
+            <Icon type="info-circle-o" className='info_icon'/>
+            修改尚未更新，请点击"应用修改"使之生效
+          </div>
           <div className="titleBox">
-            <div className="commonTitle">
-              名称
-              </div>
-            <div className="commonTitle">
-              存储类型
-            </div>
-            <div className="commonTitle">
-              挂载点
-            </div>
-            <div style={{ clear: "both" }}></div>
+            <Row className='volume_row_style'>
+              <Col span="6">存储类型</Col>
+              <Col span="6">存储</Col>
+              <Col span="5">容器目录</Col>
+              <Col span="7">操作</Col>
+            </Row>
           </div>
           <div className="dataBox">
             {this.getMount(serviceDetail)}
+          </div>
+          <div className='add_volume_button'>
+            <span
+              className='add_button'
+              onClick={() => this.addContainerCatalogue()}
+            >
+              <Icon type="plus" />添加一个容器目录
+            </span>
           </div>
         </div>
         <div className="storage commonBox">
@@ -735,6 +869,41 @@ export default class AppServiceDetailInfo extends Component {
             {this.getConfigMap(serviceDetail)}
           </div>
         </div>
+        <Modal
+          title={ isEdit ? '编辑容器目录': '添加容器目录' }
+          visible={ containerCatalogueVisible }
+          closable={ true }
+          onCancel={ () => this.setState({containerCatalogueVisible:false}) }
+          width="570px"
+          maskClosable={ false }
+          footer={ [] }
+          wrapClassName="container_catalogue_modal_style"
+        >
+          <ContainerCatalogueModal
+            isEdit={ isEdit }
+            item={ currentItem }
+            getFieldInfo={ this.getFieldInfo }
+            currentIndex={ currentIndex }
+            visible={ containerCatalogueVisible }
+            containerList={ containerList }
+            volumes={ volumes }
+          />
+        </Modal>
+        <Modal
+          title="删除容器目录"
+          visible={ this.state.deleteVisible }
+          closable={ true }
+          onOk={ () => this.deleteContainerCatalogue() }
+          onCancel={ () => this.setState({deleteVisible:false}) }
+          width="570px"
+          maskClosable={ false }
+          wrapClassName="delete_container_calalogue"
+        >
+          <div className='tips'>
+            <Icon type="question-circle-o" className='question_icon'/>
+            确定移除当前的容器目录吗？
+          </div>
+        </Modal>
       </Card>
     )
   }

@@ -400,7 +400,13 @@ class AppServiceDetail extends Component {
                 <AppServiceDetailInfo
                   cluster={service.cluster}
                   serviceDetail={serviceDetail}
-                  loading={isServiceDetailFetching} />
+                  loading={isServiceDetailFetching}
+                  activeTabKey={activeTabKey}
+                  serviceName={this.props.serviceName}
+                  loadServiceDetail={this.props.loadServiceDetail}
+                  containerList={containers}
+                  volumes={service.spec.template.spec.volumes}
+                />
               </TabPane>
               <TabPane tab='辅助设置' key='#setting'>
                 <AppServiceAssistSetting

@@ -17,7 +17,7 @@ exports.getAuthHeader = function (authInfo) {
   }
   if (authInfo.type === 'basic') {
     return {
-      "authorization": 'Basic ' + Buffer(authInfo.user + ':' + authInfo.password).toString('base64')
+      "authorization": `Basic ${Buffer(authInfo.user + ':' + authInfo.password).toString('base64')}`
     }
   }
   const auth = {}
@@ -29,6 +29,9 @@ exports.getAuthHeader = function (authInfo) {
   }
   if (authInfo.teamspace) {
     auth.teamspace = authInfo.teamspace
+  }
+  if (authInfo.onbehalfuser) {
+    auth.onbehalfuser = authInfo.onbehalfuser
   }
   // TenxCloud System Signature for payment etc.
   const tenxSysSign = authInfo[config.tenxSysSign.key]

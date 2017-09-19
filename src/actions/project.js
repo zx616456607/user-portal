@@ -311,6 +311,15 @@ export function GetProjectsApprovalClusters(query,callback) {
   }
 }
 
+export const SEARCH_PROJECTS_CLUSTER_APPROVAL_GET = 'SEARCH_PROJECTS_CLUSTER_APPROVAL_GET'
+
+export function searchProjectsClusterApproval(keyWord) {
+  return {
+    type: SEARCH_PROJECTS_CLUSTER_APPROVAL_GET,
+    keyWord,
+  }
+}
+
 export const PROJECTS_CLUSTER_ALL_GET_REQUEST = 'PROJECTS_CLUSTER_ALL_GET_REQUEST'
 export const PROJECTS_CLUSTER_ALL_GET_SUCCESS = 'PROJECTS_CLUSTER_ALL_GET_SUCCESS'
 export const PROJECTS_CLUSTER_ALL_GET_FAILURE = 'PROJECTS_CLUSTER_ALL_GET_FAILURE'
@@ -647,5 +656,33 @@ function fetchRemoveProjectMember(projectId, userId, callback) {
 export function removeProjectMember(projectId, userId, callback) {
 	return (dispatch) => {
 		return dispatch(fetchRemoveProjectMember(projectId, userId, callback))
+	}
+}
+
+export const PROJECT_ROLE_BINDING_REQUEST = 'PROJECT_ROLE_BINDING_REQUEST'
+export const PROJECT_ROLE_BINDING_SUCCESS = 'PROJECT_ROLE_BINDING_SUCCESS'
+export const PROJECT_ROLE_BINDING_FAILURE = 'PROJECT_ROLE_BINDING_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchProjectRoleBinding(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/rolebinding`
+	return {
+		[FETCH_API]: {
+			types: [ PROJECT_ROLE_BINDING_REQUEST, PROJECT_ROLE_BINDING_SUCCESS, PROJECT_ROLE_BINDING_FAILURE ],
+			endpoint,
+			schema: {},
+			options: {
+        method: 'POST',
+        body,
+			},
+		},
+		callback
+	}
+}
+
+// Relies on Redux Thunk middleware.
+export function hadnleProjectRoleBinding(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchProjectRoleBinding(body, callback))
 	}
 }

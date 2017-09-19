@@ -52,8 +52,42 @@ let TeamTable = React.createClass({
     }
   },
   handleChange(pagination, filters, sorter) {
+    const { scope, roleNum } = this.props
+    const { loadUserTeamList } = scope.props
+    const { sort } = this.state
+    // TODO filter team role
+    let newFilter = ''
+    if (filters.role && filters.role.length) {
+      if (roleNum === 1) {
+        if (filters.role.length === 1) {
+          newFilter = `role,${filters.role[0]}`
+        } else if (filters.role.length === 2) {
+          newFilter = `role,${filters.role[0]}|${filters.role[1]}`
+        } else {
+          newFilter = ''
+        }
+      } else {
+        if (filters.role.length === 1) {
+          newFilter = `role,${filters.role[0]}`
+        } else if (filters.role.length === 2) {
+          newFilter = ''
+        }
+      }
+    }
+    scope.setState({
+      filter: newFilter
+    }, () => {
+      const { filter } = scope.state
+      loadUserTeamList('default', {
+        page: pagination.current,
+        size: 10,
+        sort,
+        filter,
+      })
+    })
     this.setState({
       filteredInfo: filters,
+      page: pagination.current
     })
   },
   handleBack() {
@@ -169,7 +203,7 @@ let TeamTable = React.createClass({
     })
   },
   addNewMember(teamID) {
-    this.props.loadTeamUserList(teamID, ({ size: 100 }),{
+    this.props.loadTeamUserList(teamID, ({ size: 0 }),{
       success: {
         func: res => {
           let targetKeys = []
@@ -286,41 +320,17 @@ let TeamTable = React.createClass({
     const pagination = {
       simple: true,
       total: this.props.scope.props.total,
-      sort,
-      filter,
-      showSizeChanger: true,
       defaultPageSize: 10,
       defaultCurrent: 1,
-      current: this.props.scope.state.current,
-      pageSizeOptions: ['5', '10', '15', '20'],
-      onShowSizeChange(current, pageSize) {
-        scope.props.loadUserTeamList('default', {
-          page: current,
-          size: 10,
-          sort,
-          filter,
-        })
-        scope.setState({
-          page: current,
-          pageSize: 10,
-          current: 1,
-        })
-      },
-      onChange(current) {
-        const {pageSize} = scope.state
-        scope.props.loadUserTeamList('default', {
-          page: current,
-          size: 10,
-          sort,
-          filter,
-        })
-        scope.setState({
-          page: current,
-          pageSize: 10,
-          current: current,
-        })
-      },
     }
+    const filterRole = roleNum === 1 ? [
+      { text: '团队管理员', value: 'manager' },
+      { text: '参与者', value: 'participator' },
+      { text: '非团队成员', value: 'no-participator' }
+    ] : [
+      { text: '团队管理员', value: 'manager' },
+      { text: '参与者', value: 'participator' }
+    ]
     const columns = [
       {
         title: (
@@ -386,13 +396,9 @@ let TeamTable = React.createClass({
         dataIndex: 'role',
         key: 'role',
         width:'10%',
-        filters: [
-          { text: '创建者', value: '创建者' },
-          { text: '参与者', value: '参与者' },
-          { text: '非团队成员', value: '非团队成员' }
-        ],
-        filteredValue: filteredInfo.role,
-        onFilter: (value, record) => String(record.role) === value
+        filters: filterRole,
+        // filteredValue: filteredInfo.role,
+        render: text => <div>{ text === 'manager' ? '团队管理员' : (text === 'participator' ? '参与者' : '非团队成员')}</div>
       },
       {
         title: '操作',
@@ -665,7 +671,7 @@ class TeamManage extends Component {
   }
   render() {
     const scope = this
-    const { visible, userList, targetKeys } = this.state
+    const { visible, userList, targetKeys, filter } = this.state
     const {
       teams, addTeamusers, loadUserTeamList, roleNum, removeTeamusers,
       teamUserIDList, loadTeamUserList, checkTeamName
@@ -769,12 +775,12 @@ function mapStateToProp(state, props) {
           let role = ''
           let item = teamsData[i]
           if (item.outlineRoles) {
-            if (role === '' && (item.outlineRoles.includes('manager') || item.outlineRoles.includes('creator'))) {
-              role = '创建者'
+            if (role === '' && (item.outlineRoles.includes('creator') || item.outlineRoles.includes('manager'))) {
+              role = 'manager'
             } else if (role === '' && item.outlineRoles.includes('participator')) {
-              role = '参与者'
+              role = 'participator'
             } else if (role === '' && item.outlineRoles.includes('no-participator')){
-              role = '非团队成员'
+              role = 'no-participator'
             }
           }
           data.push(

@@ -15,7 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import AppServiceList from './AppServiceList'
 import AppGraph from './AppGraph'
 import AppLog from './AppLog'
-import AppMonitior from './AppMonitior'
+//import AppMonitior from './AppMonitior'
 import './style/AppDetail.less'
 import { formatDate } from '../../common/tools'
 import { updateAppDesc, loadAppDetail } from '../../actions/app_manage'
@@ -273,11 +273,11 @@ class AppDetail extends Component {
                     cluster={this.props.cluster}
                     appName={appName} />
                 </TabPane>
-                <TabPane tab='监控' key='#monitor' >
-                  <AppMonitior
-                    cluster={this.props.cluster}
-                    appName={appName} />
-                </TabPane>
+                {/*<TabPane tab='监控' key='#monitor' >*/}
+                  {/*<AppMonitior*/}
+                    {/*cluster={this.props.cluster}*/}
+                    {/*appName={appName} />*/}
+                {/*</TabPane>*/}
                 { SHOW_BILLING ?
                   [<TabPane tab="租赁信息" key="#rentalInfo">
                     <AppServiceRental serviceName={appName} serviceDetail={app.services} />
