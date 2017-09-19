@@ -8,7 +8,7 @@
  * @author ZhangChengZheng
  */
 import React,{ Component,PropTypes } from 'react'
-import { Modal, Row, Col, InputNumber, Input, Slider, Button, Form, Select, Icon, Switch } from 'antd'
+import { Modal, Row, Col, InputNumber, Input, Slider, Button, Form, Select, Icon, Switch, Radio, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CreateVolume.less'
@@ -17,6 +17,8 @@ import { SnapshotClone, createStorage, loadStorageList } from '../../actions/sto
 import { DEFAULT_IMAGE_POOL } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { SHOW_BILLING } from '../../constants'
+
+const Option = Select.Option
 
 const messages = defineMessages({
   name: {
@@ -173,6 +175,9 @@ class CreateVolume extends Component {
     })
     const validataArray = [
       'volumeName',
+      //'type',
+      //'address',
+      'strategy'
     ]
     if(swicthChecked){
       validataArray.push('selectSnapshotName')
@@ -361,7 +366,10 @@ class CreateVolume extends Component {
     const storagePrice = resourcePrice.storage /10000
     const hourPrice = parseAmount(this.state.volumeSize /1024 * resourcePrice.storage, 4)
     const countPrice = parseAmount(this.state.volumeSize /1024 * resourcePrice.storage * 24 *30, 4)
-
+    const formItemLayout = {
+    	labelCol: {span: 4},
+    	wrapperCol: {span: 19}
+    }
     return(
       <div id="CreateVolume">
         <Form className='formStyle'>
@@ -369,9 +377,43 @@ class CreateVolume extends Component {
             <Col span="4" className="name-text-center name">
               存储卷名称
             </Col>
-            <Col span="12" className='nameValue'>
+            <Col span="19" className='nameValue'>
               <Form.Item>
                 <Input {...VolumeNameProps} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row className='type'>
+            <Col span="4" className="name-text-center name" style={{color: 'red'}}>
+              存储类型
+            </Col>
+            <Col span="19" className='type_value'>
+              <Form.Item className='form_item_style'>
+                <Select
+                  placeholder="请选择类型"
+                  disabled={this.state.selectChecked}
+                  {...getFieldProps('type', {
+                    rules: [{required: true, message: '类型不能为空'}]
+                  })}
+                >
+                  <Option key="RBD" value="RBD">RBD</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item className='form_item_style'>
+                <Select
+                  disabled={this.state.selectChecked}
+                  placeholder="请选择一个RBD集群"
+                  {...getFieldProps('address', {
+                    rules: [{
+                      required: true,
+                      message: "地址不能为空"
+                    }]
+                  })}
+                >
+                  <Option key="ceph" value="ceph">ceph</Option>
+                  <Option key="nfs" value="nfs">nfs</Option>
+                  <Option key="host" value="host">host</Option>
+                </Select>
               </Form.Item>
             </Col>
           </Row>
@@ -473,6 +515,25 @@ class CreateVolume extends Component {
               </Button>
             </Col>
           </Row>
+          <Form.Item
+            label={<span style={{color: 'red'}}>回收策略
+              <Tooltip title={<div>
+                <div>保留：服务删除时删除存储</div>
+                <div>删除：删除服务时删除存储</div>
+              </div>}>
+                <Icon type="question-circle-o" className='question_icon'/>
+              </Tooltip>
+            </span>}
+            {...formItemLayout}
+            className='strategy'
+          >
+            <Radio.Group {...getFieldProps('strategy', {
+              initialValue: 'yes'
+            })}>
+              <Radio key="yes" value="yes" className='item'>保留</Radio>
+              <Radio key="no" value="no">删除</Radio>
+            </Radio.Group>
+          </Form.Item>
           { SHOW_BILLING ?
           <div className="modal-price">
             <div className="price-left">

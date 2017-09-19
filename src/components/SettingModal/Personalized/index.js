@@ -240,16 +240,18 @@ class Personalized extends Component{
               <Col span="3"style={{width:150}}>产品名称</Col>
               <Col span="20" style={{width:600}}>
                 <div className="row-text">此处文字用于替换平台上的产品标识字样；</div>
-                <Input style={{width:200}} id="productName"  size="large" placeholder="请输入产品名称"  />
-                <Button size="large" onClick={()=> this.clearProductName()} style={{margin:'0 10px'}}>取消</Button>
-                <Button size="large" type="primary" loading={this.state.loading} onClick={()=> this.saveproductName()}>保存</Button>
+                <div className="image-flex">
+                  <Input style={{width:200}} id="productName"  size="large" placeholder="请输入产品名称"  />
+                  <Button size="large" onClick={()=> this.clearProductName()} style={{margin:'0 10px'}}>取消</Button>
+                  <Button size="large" type="primary" loading={this.state.loading} onClick={()=> this.saveproductName()}>保存</Button>
+                </div>
               </Col>
             </Row>
             <Row className="image-row">
               <Col span="3"style={{width:150}}>版权声明</Col>
               <Col span="20">
                 <div className="row-text">切换是否显示登录页公司名“ {oemInfo.company ? oemInfo.company.name :''} ”</div>
-                <Switch checked={oemInfo.company?oemInfo.company.visible:true} onChange={(e)=> this.changeSwitch(e)} checkedChildren="ON" unCheckedChildren="OFF" className="inswitch"/>
+                <Switch checked={oemInfo.company?oemInfo.company.visible:true} onChange={(e)=> this.changeSwitch(e)} checkedChildren="开" unCheckedChildren="关" className="inswitch"/>
                   {oemInfo.company?
                   <span className="switchText">{oemInfo.company.visible ? '开启':'关闭'}</span>
                   :null

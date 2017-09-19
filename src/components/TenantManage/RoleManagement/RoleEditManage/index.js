@@ -23,10 +23,12 @@ class CreateRoleModal extends React.Component {
     super(props)
     this.state = {
       key: [],
+      total: 0,
       isChecked: false,
       expandedKeys: [],
       autoExpandParent: true,
       checkedKeys: [],
+      checkedCount: [],
       selectedKeys: [],
       allPermission: [],
       permissionCount: 0,
@@ -42,16 +44,7 @@ class CreateRoleModal extends React.Component {
   componentWillUnmount() {
     clearTimeout(this.roleNameTime)
   }
-  // componentWillReceiveProps(nextProps) {
-  //   const { allPermission } = this.state;
-  //   const { form, characterModal } = nextProps;
-  //   if (!allPermission) {
-  //     //this.getPermission()
-  //   }
-  //   if (!characterModal && this.props.characterModal) {
-  //     form.resetFields()
-  //   }
-  // }
+
   fetchRowDate() {
     const { scope, roleId } = this.props
     scope.props.GetRole({ roleId }, {
@@ -82,32 +75,63 @@ class CreateRoleModal extends React.Component {
     this.setState({
       expandedKeys,
       autoExpandParent: false,
-    });
+    })
   }
-  onCheck(checkedKeys) {
+  onCheck(checkedKeys,e) {
+    let count = []
+    e.checkedNodes.forEach(item => {
+      if(item.props.code !== ''){
+        count.push(item.key)
+      }
+    })
     this.setState({
+      checkedKeys,
       isChecked: true,
-      checkedKeys
-    });
+      checkedCount: count
+    })
   }
   onSelect(selectedKeys) {
-    this.setState({ selectedKeys });
+    this.setState({ selectedKeys })
   }
   getPermission() {
-    const { Permission } = this.props;
+    const { Permission } = this.props
     Permission(null, {
       success: {
         func: (res) => {
           if (REG.test(res.data.code)) {
             let result = res.data.data.permissions
             this.setState({
-              allPermission: result
+              allPermission: result,
+              total: res.data.data.total
             })
           }
         },
         isAsync: true
       }
     })
+  }
+  RowData(data){
+    if(data){
+      const children = []
+      let ary = []
+      for(let i = 0; i < data.length; i++){
+        let RowData = data[i]
+        let datas = {
+          desc: RowData.desc,
+          code: RowData.code
+        }
+        ary.push(datas)
+        children.push(RowData)
+      }
+
+      children.forEach((key, index) => {
+        if(data[index]["children"] !== undefined){
+          if (data[index].children.length !== 0) {
+            return this.RowData(data[index].children);
+          }
+        }
+      })
+    }
   }
   roleName(rule, value, callback) {
     const { ExistenceRole } = this.props
@@ -150,8 +174,8 @@ class CreateRoleModal extends React.Component {
     isAdd ? this.addInfo() : this.editInfo()
   }
   addInfo() {
-    const { CreateRole, loadData, scope, form } = this.props;
-    const { getFieldValue, validateFields } = form;
+    const { CreateRole, loadData, scope, form } = this.props
+    const { getFieldValue, validateFields } = form
     const { checkedKeys } = this.state;
     let notify = new NotificationHandler()
     let ary = checkedKeys.map((item, index) => {
@@ -188,9 +212,9 @@ class CreateRoleModal extends React.Component {
     })
   }
   editInfo() {
-    const { UpdateRole, AddPermissionRole, loadData, scope, form, roleId, detail } = this.props;
-    const { getFieldValue, validateFields } = form;
-    const { rowPermissionID, checkedKeys, isChecked } = this.state;
+    const { UpdateRole, AddPermissionRole, loadData, scope, form, roleId, detail } = this.props
+    const { getFieldValue, validateFields } = form
+    const { rowPermissionID, checkedKeys, isChecked } = this.state
     let notification = new NotificationHandler()
     let idKey = []
     let checkedID = []
@@ -248,7 +272,7 @@ class CreateRoleModal extends React.Component {
                 func: (res) => {
                   if (REG.test(res.data.code)) {
                     notification.success(`更新成功`)
-                    scope.isDetail ? detail(roleId) : loadData()
+                    scope.isDetail ? detail(roleId) : loadData && loadData()
                     scope.setState({
                       characterModal: false
                     })
@@ -270,12 +294,9 @@ class CreateRoleModal extends React.Component {
       }
     })
   }
-  /**
-   *
-   */
   screenInfo() {
     let notification = new NotificationHandler()
-    const { RemovePermissionRole } = this.props;
+    const { RemovePermissionRole } = this.props
     const { rowPermissionID, checkedKeys, isChecked } = this.state
     let checkedId = []
     let ary = []
@@ -325,24 +346,23 @@ class CreateRoleModal extends React.Component {
   }
   render() {
     const TreeNode = Tree.TreeNode;
-    const { allPermission, permissionCount, rowDate, rowPermission } = this.state;
-    const { characterModal, form, isAdd } = this.props;
-    const { getFieldProps, isFieldValidating, getFieldError } = form;
+    const { allPermission, permissionCount, rowDate, rowPermission, total } = this.state
+    const { characterModal, form, isAdd } = this.props
+    const { getFieldProps, isFieldValidating, getFieldError } = form
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 15 },
-    };
+    }
     const loop = data => data.map((item) => {
       if (item["children"] !== undefined) {
         return (
-          <TreeNode key={item.id} title={item.name}>
+          <TreeNode key={item.id} code={item.code} title={item.name}>
             {loop(item.children)}
           </TreeNode>
         )
       }
-      return <TreeNode key={item.id} title={item.name} />;
-    });
-
+      return <TreeNode key={item.id} code={item.code} title={item.name} />;
+    })
     return (
       <Modal title={this.props.title} wrapClassName="createCharacterModal" visible={characterModal} width={570}
         onCancel={() => this.cancelModal()}
@@ -372,8 +392,8 @@ class CreateRoleModal extends React.Component {
         <div className="authChoose">
           <span className="desc">权限选择 :</span>
           <div className="authBox">
-            <div className="authTitle">共<span style={{ color: '#59c3f5' }}>{allPermission.length > 0 ? allPermission.length : 0}</span>个<div className="pull-right">已选<span style={{ color: '#59c3f5' }}>
-              {this.state.checkedKeys.length}</span> 个</div>
+            <div className="authTitle">共<span style={{ color: '#59c3f5' }}>{total}</span>个<div className="pull-right">已选<span style={{ color: '#59c3f5' }}>
+              {this.state.checkedCount.length > 0 ? this.state.checkedCount.length : this.props.scope.state.count}</span> 个</div>
             </div>
             <div className="treeBox">
               {

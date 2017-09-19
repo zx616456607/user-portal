@@ -491,24 +491,29 @@ class Snapshot extends Component {
         title:'格式',
         key:'type',
         dataIndex:'fstype',
-        width:'12%',
+        width:'8%',
         render: (fstype) => <div>{fstype}</div>
       },{
         title:'大小',
         key:'size',
         dataIndex:'size',
-        width:'12%',
+        width:'8%',
         render: (size) => <div>{size} M</div>
       },{
         title:'关联卷',
         key:'volume',
         dataIndex:'volume',
-        width:'12%',
+        width:'10%',
         render: (volume) => <div>
           <Link to={`/app_manage/storage/${DEFAULT_IMAGE_POOL}/${this.props.cluster}/${volume}`} >
             {volume}
           </Link>
         </div>
+      },{
+        title: '卷类型',
+        key: 'volumeType',
+        dataIndex: 'volumeType',
+        render: (text, record, index) => <div style={{color: 'red', wordBreak: 'break-all'}}>RBD(xxxRBD集群名称)</div>
       },{
         title:'创建时间',
         key:'CreateTime',

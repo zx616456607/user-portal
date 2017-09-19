@@ -52,6 +52,7 @@ class RoleManagement extends React.Component {
       comment: '',
       autoExpandParent: true,
       creationTime: true,
+      total: 0,
     }
   }
 
@@ -67,15 +68,25 @@ class RoleManagement extends React.Component {
   /**
    * 加载数据
    */
-  loadData(sort) {
+  loadData(sort, n) {
     const { ListRole } = this.props
-    ListRole(sort, {
+    let page = n - 1 || 0
+    let query = {
+      from: page * 10,
+      size: 10
+    }
+    // let query = {
+    //   sort,
+    //   size: -1
+    // }
+    ListRole(query, {
       success: {
         func: res => {
           if (REG.test(res.data.code)) {
             this.setState({
               loading: false,
               roleData: res.data.data.items,
+              total: res.data.data.total
             })
           }
         },
@@ -336,12 +347,19 @@ class RoleManagement extends React.Component {
     const TreeNode = Tree.TreeNode;
     const { form, userName } = this.props
     const { roleData, Viewpermissions, visible, roleItemTitle, roelItems, isAdd, roleId,
-      targetKeys, loading, allPermission, checkedKeys } = this.state
+      targetKeys, loading, allPermission, checkedKeys, total } = this.state
     const { selectedRowKeys } = this.state
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
     }
+    const pageOption = {
+      simple: true,
+      total: total,
+      defaultPageSize: 10,
+      defaultCurrent: 1,
+      onChange: (n) => this.loadData(null, n)
+    };
     const columns = [{
       title: '角色名称',
       dataIndex: 'name',
@@ -382,7 +400,6 @@ class RoleManagement extends React.Component {
       render: (text, record, index) =>
         <Link to={`/tenant_manage/rolemanagement/rolename/${record.id}?#${record.permissionCount}/role=${record.creator}`}>
           <div className='roleName'>
-            {/* () => browserHistory.push(`/tenant_manage/rolemanagement/rolename/12`) */}
             <a href='#'>{text}</a>
           </div>
         </Link>
@@ -493,7 +510,8 @@ class RoleManagement extends React.Component {
             <SearchInput scope={scope} searchIntOption={searchIntOption} Search={this.handleSearch.bind(this)} />
 
             <div className='pageBox'>
-              <span className='totalPage'>共计{roleData ? roleData.length : 0}条</span>
+              <span className='totalPage'>共计{total ? total : 0}条</span>
+              <Pagination className="pag" {...pageOption}/>
             </div>
           </div>
           <div className='appBox'>
@@ -501,8 +519,8 @@ class RoleManagement extends React.Component {
               columns={rolecolumns}
               dataSource={roleData}
               onChange={this.handleChange.bind(this)}
-              pagination={{ simple: true }}
-            //loading={loading}
+              pagination={false}
+              loading={loading}
             />
           </div>
           <Row>
