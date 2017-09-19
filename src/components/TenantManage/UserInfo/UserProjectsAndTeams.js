@@ -450,6 +450,9 @@ class UserProjectsAndTeams extends React.Component {
                     </Button>
                   )
                 }
+                <div className="total">
+                  共计 {projects.length} 条
+                </div>
               </div>
               <div className="projectsContent">
                 <Table
@@ -457,7 +460,10 @@ class UserProjectsAndTeams extends React.Component {
                   dataSource={projects}
                   onChange={this.handleProjectChange}
                   loading={isProjectsFetching}
-                  pagination={false}
+                  pagination={{
+                    simple: true,
+                    pageSize: 10,
+                  }}
                 />
               </div>
             </div>

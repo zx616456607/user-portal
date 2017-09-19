@@ -168,7 +168,7 @@ const ConfigMapSetting = React.createClass({
       <Row className="configMapItem" key={`configMapItem${keyValue}`}>
         <Col span={5}>
           <FormItem>
-            <Input size="default" placeholder="挂载目录，例如：/App" {...configMapMountPathProps} />
+            <Input type="textarea" size="default" placeholder="挂载目录，例如：/App" {...configMapMountPathProps} />
           </FormItem>
         </Col>
         <Col span={5}>
