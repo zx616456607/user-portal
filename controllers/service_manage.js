@@ -221,6 +221,48 @@ exports.getServiceAutoScale = function* () {
   }
 }
 
+exports.getServiceAutoScaleList = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const loginUser = this.session.loginUser
+  const query = this.query
+  const serviceNameQuery = query.serviceName || ""
+  const strategyNameQuery = query.strategyNameQuery || ""
+  if (serviceNameQuery != "" && strategyNameQuery != ""){
+    this.status = 400
+    this.body = {
+      message:"can only filter by single type"
+    }
+  }
+  let queryStr = ""
+  if (serviceNameQuery != ""){
+    queryStr = serviceNameQuery
+  }
+  if (strategyNameQuery != ""){
+    queryStr = strategyNameQuery
+  }
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'services','autoscale'])
+  const tempList = result.data
+  var autoScaleList = {}
+  if (length(tempList) > 0){
+    for (let key of tempList){
+      if (serviceNameQuery != "") {
+        if (key.match(queryStr).index >= 0){
+          autoScaleList[key] = tempList[key]
+        }
+      }
+    }
+  } 
+  this.body = {
+    cluster,
+    serviceName,
+    data: autoScaleList || {}
+  }
+}
+
+
+
 exports.autoScaleService = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
