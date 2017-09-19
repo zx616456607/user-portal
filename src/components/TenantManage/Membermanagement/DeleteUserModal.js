@@ -166,8 +166,16 @@ class DeleteUserModal extends React.Component {
         isAsync: true,
       },
       failed: {
-        func: () => {
+        func: (err) => {
+          if (err && err.message) {
+            if (err.message.indexOf('not belongs to team') > 0) {
+              notification.error('所转移的目标用户不属于该团队，请选择团队内用户')
+              this.onCancel()
+              return
+            }
+          }
           notification.error('转移团队失败')
+          this.onCancel()
         }
       }
     })
