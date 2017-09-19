@@ -163,6 +163,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/env', serviceController.updateServiceContainers)
   router.put('/clusters/:cluster/services/:service_name/manualscale', serviceController.manualScaleService)
   router.get('/clusters/:cluster/services/:service_name/autoscale', serviceController.getServiceAutoScale)
+  router.get('/clusters/:cluster/services/autoscale', serviceController.getServiceAutoScaleList)
   router.put('/clusters/:cluster/services/:service_name/autoscale', serviceController.autoScaleService)
   router.del('/clusters/:cluster/services/:service_name/autoscale', serviceController.delServiceAutoScale)
   router.put('/clusters/:cluster/services/:service_name/quota', serviceController.changeServiceQuota)
