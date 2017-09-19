@@ -177,20 +177,8 @@ exports.getUserTeams = function* () {
     if (query && query.sort) {
       queryObj.sort = query.sort
     }
-    // Only filter by creator id for managed team query
-    if (managedTeams) {
-      if (query.filter) {
-        queryObj.filter = query.filter + ",creatorID__eq," + loginUser.id
-      } else {
-        queryObj.filter = "creatorID__eq," + loginUser.id
-      }
-    } else {
-      if (query.filter) {
-        queryObj.filter = query.filter + ",creatorID__eq," + userID
-      } else {
-        queryObj.filter = "creatorID__eq," + userID
-      }
-      queryObj.userId = userID
+    if (query.filter) {
+      queryObj.filter = query.filter
     }
     queryObj.managedTeams = managedTeams
     const api = apiFactory.getApi(loginUser)
