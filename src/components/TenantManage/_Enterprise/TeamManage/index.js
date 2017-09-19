@@ -62,7 +62,7 @@ let TeamTable = React.createClass({
         if (filters.role.length === 1) {
           newFilter = `role,${filters.role[0]}`
         } else if (filters.role.length === 2) {
-          newFilter = `role,${filters.role[0]}&filter=role,${filters.role[1]}`
+          newFilter = `role,${filters.role[0]}|${filters.role[1]}`
         } else {
           newFilter = ''
         }
