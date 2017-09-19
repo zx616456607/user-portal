@@ -1,0 +1,168 @@
+#cluster_storage{
+  .check_box{
+    clear: both;
+  }
+  .host,
+  .ceph,
+  .nfs{
+    background: #ffffff;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    .header{
+      height: 51px;
+      line-height: 51px;
+      border-bottom: 1px solid #e5e5e5;
+      font-size: 14px;
+      padding-left: 20px;
+    }
+    .body{
+      padding: 30px;
+      overflow: hidden;
+      .img_box,
+      .container{
+        float: left;
+        display: inline-block;
+      }
+      .img_box{
+        width: 255px;
+        min-height: 90px;
+        > img{
+          display: inline-block;
+        }
+      }
+      .host_img{
+        position: relative;
+        > img{
+          position: absolute;
+          top: -53px;
+          left: 15px;
+        }
+      }
+      .ceph_img{
+        padding-left: 51px;
+        > img{
+          width: 120px;
+        }
+      }
+      .nfs_img{
+        padding-left: 73px;
+        > img {
+
+        }
+      }
+      .container{
+        width: calc(~"100% - 255px");
+      }
+      .no_list{
+        padding-top: 20px;
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+      .formItem_child_style{
+        width: 100%;
+      }
+      .left_button,
+      .right_button{
+        cursor: pointer;
+      }
+      .ant-form-item-label{
+        text-align: left;
+        label:after{
+          display: none;
+        }
+      }
+      .ant-form-item-required:before{
+        display: none;
+      }
+      .add_button{
+        font-size: 14px;
+        line-height: 22px;
+        padding-left: 26px;
+        display: inline-block;
+        cursor: pointer;
+        position: relative;
+        .add_icon{
+          margin-right: 8px;
+          font-size: 18px;
+          position: absolute;
+          top: 2px;
+          left: 0px;
+        }
+      }
+      .add_button:hover{
+        color: #46b2fa;
+      }
+    }
+  }
+  .host{
+    .body{
+      .container{
+        padding-top: 32px;
+      }
+      .switch_style{
+        margin-right: 21px;
+      }
+      .tips{
+        line-height: 25px;
+        display: inline-block;
+      }
+    }
+  }
+  .ceph,
+  .nfs{
+    .list_container{
+      padding-bottom: 20px;
+      .list,
+      .handle_box{
+        float: left;
+        display: inline-block;
+      }
+      .list{
+        width: calc(~"100% - 100px");
+        max-width: 1200px;
+        border:1px dashed #666;
+        border-radius: 5px;
+        padding: 20px;
+      }
+      .handle_box{
+        width: 100px;
+        .right_button{
+          margin-left: 8px;
+        }
+      }
+    }
+  }
+  .ceph{
+    .handle_box{
+      padding:134px 0 0 20px;
+    }
+  }
+  .nfs{
+    .handle_box{
+      padding:76px 0 0 20px;
+    }
+  }
+}
+
+.delete_cluster_storage{
+  .tips{
+    word-break: break-all;
+    position: relative;
+    padding-left: 30px;
+    .tips_icon{
+      position: absolute;
+      font-size: 24px;
+      color: red;
+      top: 5px;
+      left: 0;
+    }
+  }
+  .confirm_tips{
+    color: #0eb4ff;
+    margin-top: 12px;
+    .confirm_icon{
+      margin-right: 8px;
+    }
+  }
+}

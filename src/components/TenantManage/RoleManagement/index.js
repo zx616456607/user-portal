@@ -400,7 +400,6 @@ class RoleManagement extends React.Component {
       render: (text, record, index) =>
         <Link to={`/tenant_manage/rolemanagement/rolename/${record.id}?#${record.permissionCount}/role=${record.creator}`}>
           <div className='roleName'>
-            {/* () => browserHistory.push(`/tenant_manage/rolemanagement/rolename/12`) */}
             <a href='#'>{text}</a>
           </div>
         </Link>

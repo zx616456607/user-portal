@@ -439,7 +439,7 @@ let MyComponent = React.createClass({
             <Checkbox disabled={item.isUsed} onChange={(e) => this.onchange(e, item.name)} checked={this.isChecked(item.name)}></Checkbox>
           </div>
           <div className="name commonData">
-            <Link to={`/app_manage/storage/${this.props.imagePool}/${this.props.cluster}/${item.name}`} >
+            <Link to={`/app_manage/exclusiveMemory/${this.props.imagePool}/${this.props.cluster}/${item.name}`} >
               {item.name}
             </Link>
           </div>
@@ -447,10 +447,14 @@ let MyComponent = React.createClass({
             <i className={item.isUsed == true ? "error fa fa-circle" : "normal fa fa-circle"}></i>
             <span className={item.isUsed == false ? "normal" : "error"} >{item.isUsed == true ? <FormattedMessage {...messages.use} /> : <FormattedMessage {...messages.noUse} />}</span>
           </div>
-          <div className="formet commonData">{item.format}</div>
-          <div className="forin commonData">{item.mountPoint || '无'}</div>
-          <div className="appname commonData">{item.appName || '无'}</div>
+          <div className="type commonData">类型</div>
           <div className="size commonData">{item.totalSize}M</div>
+          <div className="formet commonData">{item.format}</div>
+          <div className="service commonData">服务</div>
+          <div className="strategy commonData">回收策略</div>
+          {/*<div className="forin commonData">{item.mountPoint || '无'}</div>*/}
+          {/*<div className="appname commonData">{item.appName || '无'}</div>*/}
+
           <div className="createTime commonData">
             <span className='spanBlock'>
               <Tooltip placement="topLeft" title={calcuDate(item.createTime)}>
@@ -921,11 +925,14 @@ class Storage extends Component {
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
           <Title title="存储" />
+          <div className='alertRow'>
+            独享存储，仅支持一个容器实例读写操作；RBD 类型的存储卷可创建快照
+          </div>
           { mode === standard ? <div className='alertRow'>您的存储创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div> }
           <div className="operationBox">
             <div className="leftBox">
               <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>
-                <i className="fa fa-plus" /><FormattedMessage {...messages.createTitle} />
+                <i className="fa fa-plus" />创建独享型存储
               </Button></Tooltip>
               <Button className="refreshBtn" size='large' onClick={this.refreshstorage}>
                 <i className='fa fa-refresh' />刷新
@@ -950,7 +957,7 @@ class Storage extends Component {
                 </div>
               </Modal>
               <Modal
-                title={formatMessage(messages.createModalTitle)}
+                title='创建独享型存储卷'
                 visible={this.state.visible} width={550}
                 className='createAppStorageModal'
                 onCancel= {() => this.handleCancel() }
@@ -981,12 +988,24 @@ class Storage extends Component {
               <div className="selectIconTitle commonTitle">
                 <Checkbox onChange={(e) => this.onAllChange(e)} checked={this.isAllChecked()} disabled={!this.disableSelectAll()} />
               </div>
-              <div className="name commonTitle"><FormattedMessage {...messages.storageName} /></div>
+              <div className="name commonTitle" style={{color: 'red'}}>存储</div>
               <div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
-              <div className="formet commonTitle"><FormattedMessage {...messages.formats} /></div>
-              <div className="forin commonTitle"><FormattedMessage {...messages.forin} /></div>
-              <div className="appname commonTitle"><FormattedMessage {...messages.app} /></div>
+              <div className="type commonTitle" style={{color: 'red'}}>类型</div>
               <div className="size commonTitle"><FormattedMessage {...messages.size} /></div>
+              <div className="formet commonTitle"><FormattedMessage {...messages.formats} /></div>
+              <div className="service commonTitle" style={{color: 'red'}}>服务</div>
+              <div className="strategy commonTitle" style={{color: 'red'}}>
+                回收策略
+                <Tooltip title={<div>
+                  <div>保留：服务删除时删除存储</div>
+                  <div>删除：删除服务时删除存储</div>
+                </div>}>
+                  <Icon type="question-circle-o" className='question_icon'/>
+                </Tooltip>
+              </div>
+              {/*<div className="forin commonTitle"><FormattedMessage {...messages.forin} /></div>*/}
+              {/*<div className="appname commonTitle"><FormattedMessage {...messages.app} /></div>*/}
+
               <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
               <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
             </div>

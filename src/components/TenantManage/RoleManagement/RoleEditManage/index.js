@@ -272,7 +272,7 @@ class CreateRoleModal extends React.Component {
                 func: (res) => {
                   if (REG.test(res.data.code)) {
                     notification.success(`更新成功`)
-                    scope.isDetail ? detail(roleId) : loadData()
+                    scope.isDetail ? detail(roleId) : loadData && loadData()
                     scope.setState({
                       characterModal: false
                     })

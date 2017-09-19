@@ -1,10 +1,6 @@
 //  border color
 @borderColor: #e4e4e4;
 #StorageList {
-  padding-top: 20px;
-  padding-left: 20px;
-  padding-right: 20px;
-  margin-bottom: 20px;
   .clearDiv {
     clear: both;
   }
@@ -70,10 +66,13 @@
       text-align: center;
     }
     .name {
-      width: 15%;
+      width: 12%;
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
+    }
+    .type{
+      width: 10%;
     }
     .status {
       width: 10%;
@@ -87,29 +86,39 @@
         color: #f85a5a;
       }
     }
-    .formet {
-      width: 10%;
-    }
-    .forin {
-      width: 15%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .appname {
-      width: 10%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+    //.forin {
+    //  width: 15%;
+    //  overflow: hidden;
+    //  text-overflow: ellipsis;
+    //  white-space: nowrap;
+    //}
+    //.appname {
+    //  width: 10%;
+    //  overflow: hidden;
+    //  text-overflow: ellipsis;
+    //  white-space: nowrap;
+    //}
     .size {
+      width: 9%;
+    }
+    .formet {
+      width: 9%;
+    }
+    .service{
       width: 10%;
+    }
+    .strategy{
+      width: 10%;
+      .question_icon{
+        margin-left: 8px;
+        cursor: pointer;
+      }
     }
     .createTime {
       width: 10%;
     }
     .actionBox {
-      width: 12%;
+      width: 15%;
     }
     .actionBtn {
       float: left;
