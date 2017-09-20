@@ -191,9 +191,9 @@ class ProjectDetail extends Component {
               this.loadRoleList()
               this.getCurrentRole(projectDetail.relatedRoles && projectDetail.relatedRoles[0].roleId)
             })
-          }
-        },
-        isAsync: true
+          },
+          isAsync: true
+        }
     })
   }
   filterOption(inputValue, option) {
