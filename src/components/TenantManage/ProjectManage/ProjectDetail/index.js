@@ -538,7 +538,11 @@ class ProjectDetail extends Component{
     })
   }
   submitMemberModal() {
-    const { selectedMembers, existentMember } = this.state;
+    const { selectedMembers, existentMember, currentRoleInfo } = this.state;
+    let notify = new Notification()
+    if (currentRoleInfo.id === PROJECT_MANAGE_ROLE_ID && (selectedMembers.length < 1)) {
+      return notify.info('至少有一个项目管理员在项目中')
+    }
     let diff = xor(existentMember,selectedMembers);
     let del = intersection(existentMember,diff)
     let add = intersection(selectedMembers,diff)

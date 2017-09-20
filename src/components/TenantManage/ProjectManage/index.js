@@ -665,29 +665,21 @@ let ProjectManage = React.createClass({
       text: '非项目成员',
       value: 'no-participator'
     }]
-    const consumer = [{
-      text: '创建者',
-      value: 'creator'
-    }, {
-      text: '参与者',
-      value: 'participator'
-    }]
-    const roleFilters = roleNum === 1 ? adminFilter : consumer
-    const columns = [{
+    const roleCol = {
+      title: '我是',
+      dataIndex: 'role',
+      key: 'role',
+      width: '10%',
+      filters: adminFilter,
+      filteredValue: filteredInfo.role,
+    }
+    let columns = [{
       title: '项目名',
       dataIndex: 'projectName',
       key: 'projectName',
       width: '15%',
       render: (text) => <Link to={`/tenant_manage/project_manage/project_detail?name=${text}`}>{text}</Link>,
     }, {
-      title: roleNum === 1 ? '我是' : '我是项目的',
-      dataIndex: 'role',
-      key: 'role',
-      width: '10%',
-      filters: roleFilters,
-      filteredValue: filteredInfo.role,
-    },
-      {
         title: (
           <div onClick={() => this.handleSort('clusterCountSort')}>
             授权集群
@@ -729,28 +721,6 @@ let ProjectManage = React.createClass({
         ),
         dataIndex: 'userCount',
         key: 'userCount',
-        width: '10%',
-        render: text => text ? text : 0
-      }, {
-        title: (
-          <div onClick={() => this.handleSort('managerCountSort')}>
-            项目管理员
-            <div className="ant-table-column-sorter">
-          <span
-            className={this.state.managerCountSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
-            title="↑">
-            <i className="anticon anticon-caret-up"/>
-          </span>
-              <span
-                className={this.state.managerCountSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
-                title="↓">
-            <i className="anticon anticon-caret-down"/>
-          </span>
-            </div>
-          </div>
-        ),
-        dataIndex: 'managerCount',
-        key: 'managerCount',
         width: '10%',
         render: text => text ? text : 0
       }, {
@@ -796,12 +766,13 @@ let ProjectManage = React.createClass({
         </span>
         ),
       }]
+    roleNum === 1 ? columns.splice(1, 0, roleCol): ''
     return (
       <QueueAnim>
         <div key='account_projectManage' id="account_projectManage">
           <div className='alertRow'>
             项目之间是相互隔离的，通过创建项目实现一些人在项目中有一组权限。创建项目时为项目申请授权集群，系统管理员在『基础设施』中审批通过后为已授权状态即可使用；
-            系统管理员可将普通成员设置为「可以创建项目」的人，项目创建者为项目管理员，项目中也可添加其他的项目管理员。
+            系统管理员可将普通成员设置为「可以创建项目」的人，项目创建者为项目管理者，项目中也可添加其他的项目管理者。
           </div>
           <Modal title="删除项目" visible={delModal} width={610} height={570}
                  onCancel={() => this.setState({delModal: false})}
