@@ -296,23 +296,15 @@ exports.createUser = function* () {
       logger.error(method, 'add permissions failed', err.stack)
     }
   }
-
-  if (!user.sendEmail) {
+  if (result.mailSent) {
     this.body = {
       data: result
     }
     return
   }
-  try {
-    yield email.sendUserCreationEmail(user.email, loginUser.user, loginUser.email, user.userName, user.password)
-    this.body = {
-      data: result
-    }
-  } catch (error) {
-    logger.error("Send email error: ", error)
-    this.body = {
-      data: "SEND_MAIL_ERROR"
-    }
+  logger.error("Send email error...")
+  this.body = {
+    data: "SEND_MAIL_ERROR"
   }
 }
 
