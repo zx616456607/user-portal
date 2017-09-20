@@ -12,7 +12,7 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Tabs, Table, Button, Icon, Input, Modal, Row, Col, Transfer, Tooltip, Dropdown, Menu } from 'antd'
+import { Tabs, Table, Button, Icon, Input, Modal, Row, Col, Transfer, Tooltip, Dropdown, Menu, Progress, Select } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import union from 'lodash/union'
 import { formatDate } from '../../../common/tools'
@@ -24,6 +24,7 @@ import NotificationHandler from '../../../components/Notification'
 import JoinProjectsModal from './JoinProjectsModal'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
 import './style/UserProjectsAndTeams.less'
+import ResourceQuota from '../../ResourceLimit'
 
 const TabPane = Tabs.TabPane
 
@@ -123,7 +124,7 @@ class UserProjectsAndTeams extends React.Component {
       }
     })
 
-    this.isSysAdmin(loginUser.role) && GetProjectsMembers({type: 'team'}, {
+    this.isSysAdmin(loginUser.role) && GetProjectsMembers({ type: 'team' }, {
       success: {
         func: res => {
           const teamList = res.data.iteams || []
@@ -445,7 +446,7 @@ class UserProjectsAndTeams extends React.Component {
               <div className="projectsTitle">
                 {
                   this.isSysAdmin(loginUser.role) && (
-                    <Button size="large" type="primary" onClick={() => this.setState({joinProjectsModalVisible: true})}>
+                    <Button size="large" type="primary" onClick={() => this.setState({ joinProjectsModalVisible: true })}>
                       <i className='fa fa-undo' /> &nbsp;加入其它项目
                     </Button>
                   )
@@ -473,7 +474,7 @@ class UserProjectsAndTeams extends React.Component {
               <div className="teamsTitle">
                 {
                   this.isSysAdmin(loginUser.role) && (
-                    <Button size="large" type="primary" onClick={() => this.setState({teamTransferModalVisible: true})}>
+                    <Button size="large" type="primary" onClick={() => this.setState({ teamTransferModalVisible: true })}>
                       <i className='fa fa-undo' /> &nbsp;加入其它团队
                     </Button>
                   )
@@ -499,6 +500,9 @@ class UserProjectsAndTeams extends React.Component {
                 />
               </div>
             </div>
+          </TabPane>
+          <TabPane tab="个人资源配额管理" key="quota">
+            <ResourceQuota isProject={false}/>
           </TabPane>
         </Tabs>
         <Modal
@@ -532,12 +536,12 @@ class UserProjectsAndTeams extends React.Component {
               <i className="fa fa-exclamation-triangle" aria-hidden="true" />
             </Col>
             <Col span={22}>
-            {
-              isLoginUser
-              ? `退出项目后，取消关联在该项目中的所有项目角色，且无法继续使用此项目的资源。 确定退出项目 ${currentProject.projectName} 么？`
-              : `将此成员从此项目移出后，取消关联该成员在项目中的所有项目角色，且无法继续使用此项目的资源，
+              {
+                isLoginUser
+                  ? `退出项目后，取消关联在该项目中的所有项目角色，且无法继续使用此项目的资源。 确定退出项目 ${currentProject.projectName} 么？`
+                  : `将此成员从此项目移出后，取消关联该成员在项目中的所有项目角色，且无法继续使用此项目的资源，
               确定将成员 ${userDetail.userName} 移出项目 ${currentProject.projectName} 么？`
-            }
+              }
             </Col>
           </Row>
         </Modal>
@@ -572,11 +576,11 @@ class UserProjectsAndTeams extends React.Component {
               <i className="fa fa-exclamation-triangle" aria-hidden="true" />
             </Col>
             <Col span={22} className="alertRowDesc">
-            {
-              isLoginUser
-              ? `确定退出团队 ${currentTeam.teamName} 么？`
-              : `确定将成员 ${userDetail.userName} 移出团队 ${currentTeam.teamName} 么？`
-            }
+              {
+                isLoginUser
+                  ? `确定退出团队 ${currentTeam.teamName} 么？`
+                  : `确定将成员 ${userDetail.userName} 移出团队 ${currentTeam.teamName} 么？`
+              }
             </Col>
           </Row>
         </Modal>
