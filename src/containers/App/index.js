@@ -56,7 +56,8 @@ class App extends Component {
       loginModalVisible: false,
       loadLoginUserSuccess: true,
       upgradeModalShow: false,
-      upgradeFrom: null
+      upgradeFrom: null,
+      resourcePermissionModal: false,
     }
   }
 
@@ -140,6 +141,12 @@ class App extends Component {
       window.location.href = '/logout'
       return
     }
+    if (statusCode === 403 && (message && message.details && message.details.kind === 'ResourcePermission')) {
+      this.setState({
+        resourcePermissionModal: true,
+      })
+      return
+    }
     if (pathname !== this.props.pathname) {
       resetErrorMessage()
     }
@@ -196,8 +203,8 @@ class App extends Component {
       return
     }
 
-    // license 过期
-    if (statusCode === LICENSE_EXPRIED_CODE) {
+    // 没有权限
+    if (statusCode === 403 && (message && message.details && message.details.kind === 'ResourcePermission')) {
       resetErrorMessage()
       return
     }
@@ -335,6 +342,7 @@ class App extends Component {
       loginErr,
       upgradeModalShow,
       upgradeFrom,
+      resourcePermissionModal,
     } = this.state
     const scope = this
     if (isEmptyObject(loginUser) && loadLoginUserSuccess) {
@@ -395,6 +403,29 @@ class App extends Component {
             visible={upgradeModalShow} />
         }
         <Xterm />
+        <Modal
+          visible={resourcePermissionModal}
+          maskClosable={false}
+          onCancel={() => this.setState({ resourcePermissionModal: false })}
+          wrapClassName="resourcePermissionModal"
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              onClick={() => this.setState({ resourcePermissionModal: false })}
+            >
+              知道了
+            </Button>
+          ]}
+          >
+          <div>
+            <Icon type="cross-circle" />
+            <span>
+            当前操作未被授权，请联系管理员进行授权后，再进行操作
+            </span>
+          </div>
+        </Modal>
       </div>
     )
   }

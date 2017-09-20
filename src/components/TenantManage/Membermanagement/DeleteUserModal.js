@@ -15,7 +15,9 @@ import { Row, Col, Table, Modal, Button, Spin, Menu, Tooltip, Icon } from 'antd'
 import { camelize } from 'humps'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
+import cloneDeep from 'lodash/cloneDeep'
 import { loadUserTeams, loadAllUserList, teamtransfer, deleteUser, loadUserList } from '../../../actions/user'
+import { loadTeamUserList } from '../../../actions/team'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import CommonSearchInput from '../../CommonSearchInput'
 import NotificationHandler from '../../../components/Notification'
@@ -26,8 +28,8 @@ class DeleteUserModal extends React.Component {
     super(props)
     this.onUserSelectChange = this.onUserSelectChange.bind(this)
     this.loadData = this.loadData.bind(this)
-    this.loadTeamsOfUser = this.loadTeamsOfUser.bind(this)
-    this.onTeamClick = this.onTeamClick.bind(this)
+    this.loadTeamUsers = this.loadTeamUsers.bind(this)
+    this.onTeamSelect = this.onTeamSelect.bind(this)
     this.searchUser = this.searchUser.bind(this)
     this.onCancel = this.onCancel.bind(this)
     this.renderHandOver = this.renderHandOver.bind(this)
@@ -42,9 +44,12 @@ class DeleteUserModal extends React.Component {
       userSelectedRowKeys: {},
       selectTeamKeys: [],
       users: [],
+      teamUsers: {},
     }
     // this.teamsOfUsers = {}
     this.users = []
+    this.teamUsers = {}
+    this.teamUsersInit = {}
   }
 
   loadData(nextProps) {
@@ -56,10 +61,13 @@ class DeleteUserModal extends React.Component {
           if (!teams || teams.length === 0) {
             return
           }
+          const firstTeamID = teams[0].teamID
           this.setState({
-            selectTeamKeys: [ teams[0].teamID ]
+            selectTeamKeys: [ firstTeamID ],
           })
-        }
+          this.loadTeamUsers(firstTeamID)
+        },
+        isAsync: true,
       }
     })
   }
@@ -81,8 +89,29 @@ class DeleteUserModal extends React.Component {
     }
   }
 
-  loadTeamsOfUser() {
-    //
+  loadTeamUsers(teamID) {
+    if (this.teamUsersInit[teamID]) {
+      return
+    }
+    const { loadTeamUserList } = this.props
+    loadTeamUserList(teamID, {}, {
+      success: {
+        func: res => {
+          this.teamUsersInit[teamID] = true
+          const teamUsers = Object.assign(
+            {},
+            this.state.teamUsers,
+            {
+              [teamID]: res.users || []
+            }
+          )
+          this.setState({
+            teamUsers,
+          })
+          this.teamUsers = teamUsers
+        }
+      }
+    })
   }
 
   onUserSelectChange(selectedRowKeys) {
@@ -182,10 +211,6 @@ class DeleteUserModal extends React.Component {
     return
   }
 
-  onTeamClick({item, key, keyPath}) {
-    //
-  }
-
   onCancel() {
     this.props.onCancel()
     this.setState({
@@ -194,22 +219,34 @@ class DeleteUserModal extends React.Component {
       userSelectedRowKeys: {},
       selectTeamKeys: [],
     })
+    this.teamUsersInit = {}
   }
 
   searchUser(value) {
-    const { users } = this.state
+    const { teamUsers, selectTeamKeys } = this.state
+    const teamUsersBak = cloneDeep(this.teamUsers)
     if (value) {
       value = value.trim()
     }
     if (!value) {
       this.setState({
-        users: this.users,
+        teamUsers: teamUsersBak,
       })
       return
     }
+    const teamID = selectTeamKeys[0]
+    if (teamUsers[teamID]) {
+      teamUsers[teamID] = teamUsersBak[teamID].filter(user => user.userName.indexOf(value) > -1)
+    }
     this.setState({
-      users: this.users.filter(user => user.userName.indexOf(value) > -1),
+      teamUsers,
     })
+  }
+
+  onTeamSelect({ selectedKeys }) {
+    const { loadTeamUserList } = this.props
+    this.setState({ selectTeamKeys: selectedKeys })
+    this.loadTeamUsers(selectedKeys[0])
   }
 
   renderHandOver() {
@@ -221,8 +258,10 @@ class DeleteUserModal extends React.Component {
         </div>
       )
     }
-    const { userSelectedRowKeys, delBtnLoading, delErrorMsg, users, selectTeamKeys } = this.state
-    let selectedRowKeys = userSelectedRowKeys[selectTeamKeys[0]] || []
+    const { userSelectedRowKeys, delBtnLoading, delErrorMsg, teamUsers, selectTeamKeys } = this.state
+    const teamID = selectTeamKeys[0]
+    let selectedRowKeys = userSelectedRowKeys[teamID] || []
+    const users = teamUsers[teamID] || []
     if (selectedRowKeys.length === 0 && currentUser) {
       selectedRowKeys.push(currentUser.key)
     }
@@ -289,16 +328,16 @@ class DeleteUserModal extends React.Component {
                       <Menu
                         className="teamListBody"
                         mode="inline"
-                        onClick={this.onTeamClick}
                         selectedKeys={this.state.selectTeamKeys}
-                        onSelect={({ selectedKeys }) => this.setState({ selectTeamKeys: selectedKeys })}
+                        onSelect={this.onTeamSelect}
                       >
                         {
                           teams.map(team => {
-                            const selectedUserKey = userSelectedRowKeys[team.teamID] && userSelectedRowKeys[team.teamID][0]
+                            const currentTeamID = team.teamID
+                            const selectedUserKey = userSelectedRowKeys[currentTeamID] && userSelectedRowKeys[currentTeamID][0]
                             let userName
                             if (selectedUserKey) {
-                              users.every(user => {
+                              (teamUsers[currentTeamID] || []).every(user => {
                                 if (user.userID == selectedUserKey) {
                                   userName = user.userName
                                   return false
@@ -456,4 +495,5 @@ export default connect(mapStateToProps, {
   teamtransfer,
   deleteUser,
   loadUserList,
+  loadTeamUserList,
 })(DeleteUserModal)
