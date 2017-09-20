@@ -407,7 +407,8 @@ class CreateRoleModal extends React.Component {
           <span className="desc">权限选择 :</span>
           <div className="authBox">
             <div className="authTitle">共<span style={{ color: '#59c3f5' }}>{total}</span>个<div className="pull-right">已选<span style={{ color: '#59c3f5' }}>
-              {this.state.checkedCount.length <= 0 ? isChecked ? 0 : this.props.scope.state.total : this.state.checkedCount.length}</span> 个</div>
+              {this.state.checkedCount.length <= 0 ? isChecked ? 0 : this.props.scope.state.total : this.state.checkedCount.length}
+              </span> 个</div>
             </div>
             <div className="treeBox">
               {
