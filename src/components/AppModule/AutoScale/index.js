@@ -12,7 +12,9 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { Button, Table, Menu, Dropdown, Icon } from 'antd'
-import { loadAutoScaleList } from '../../../actions/services'
+import { 
+  loadAutoScaleList, deleteAutoScale
+} from '../../../actions/services'
 import './style/index.less'
 import CommonSearchInput from '../../CommonSearchInput'
 import AutoScaleModal from './AutoScaleModal'
@@ -23,7 +25,11 @@ class AutoScale extends React.Component {
     super()
     this.state = {
       scaleModal: false,
-      scaleList: []
+      scaleList: [],
+      currentPage: 1,
+      searchValue: '',
+      tableLoading: false,
+      selectedRowKeys: []
     }
   }
   componentWillMount() {
@@ -38,6 +44,9 @@ class AutoScale extends React.Component {
     if (name) {
       query = Object.assign(query, { serviceName: name })
     }
+    this.setState({
+      tableLoading: true
+    })
     loadAutoScaleList(clusterID, query, {
       success: {
         func: res => {
@@ -45,7 +54,9 @@ class AutoScale extends React.Component {
           scaleList = Object.values(scaleList)
           scaleList.forEach(item => item = Object.assign(item, { key: item.metadata.name }))
           this.setState({
-            scaleList
+            scaleList,
+            totalCount: res.totalCount,
+            tableLoading: false
           })
         },
         isAsync: true
@@ -55,8 +66,31 @@ class AutoScale extends React.Component {
   handleButtonClick = e => {
     
   }
-  handleMenuClick = e => {
-    
+  handleMenuClick = (e, record) => {
+    const { deleteAutoScale, clusterID } = this.props
+    const { serviceName } = record.metadata.labels
+    const notify = new Notification()
+    notify.spin('删除中')
+    if (e.key === 'delete') {
+      deleteAutoScale(clusterID, serviceName, {
+        success: {
+          func: () => {
+            notify.close()
+            notify.success('删除成功')
+            this.loadData(1)
+          },
+          isAsync:true
+        },
+        failed: {
+          success: {
+            func: () => {
+              notify.close()
+              notify.error('删除失败')
+            }
+          }
+        }
+      })
+    }
   }
   emailSendType = type => {
     switch (type) {
@@ -87,19 +121,35 @@ class AutoScale extends React.Component {
   scaleStatus = text => {
     return <div className={classNames('status',{'successStatus': text === 'RUN', 'errorStatus': text === 'STOP'})}><i/>{text === 'RUN' ? '开启' : '关闭'}</div>
   }
+  tableFilter = (pagination, filters, sorter) => {
+    this.setState({
+      currentPage: pagination.current
+    })
+    this.loadData(pagination.current)
+  }
+  onRowClick = record => {
+    const { selectedRowKeys } = this.state
+    const name = record.metadata.name
+    let newKeys = selectedRowKeys.slice(0)
+    let flag = false
+    for(let i = 0, l = newKeys.length; i < l; i++) {
+      if (newKeys[i] === name) {
+        flag = true
+        newKeys.splice(i, 1)
+        break
+      }
+    }
+    if (!flag) {
+      newKeys.push(name)
+    }
+    this.setState({
+      selectedRowKeys: newKeys
+    })
+  }
   render() {
     const { 
-      scaleModal,
-      scaleList
+      scaleModal, scaleList, currentPage, totalCount, searchValue, tableLoading, selectedRowKeys
     } = this.state
-    const menu = (
-      <Menu onClick={this.handleMenuClick}>
-        <Menu.Item key="1"><i className='fa fa-play' /> 启用</Menu.Item>
-        <Menu.Item key="2"><i className='fa fa-stop' /> 停用</Menu.Item>
-        <Menu.Item key="3"><Icon type="file-text" /> 修改</Menu.Item>
-        <Menu.Item key="4"><i className='fa fa-trash-o' /> 删除</Menu.Item>
-      </Menu>
-    );
     const columns = [{
       title: '策略名称',
       dataIndex: 'metadata.name',
@@ -139,7 +189,15 @@ class AutoScale extends React.Component {
     }, {
       title: '操作',
       width: '10%',
-      render: () => {
+      render: record => {
+        const menu = (
+          <Menu onClick={(e) => this.handleMenuClick(e, record)}>
+            <Menu.Item key="start"><i className='fa fa-play' /> 启用</Menu.Item>
+            <Menu.Item key="stop"><i className='fa fa-stop' /> 停用</Menu.Item>
+            <Menu.Item key="edit"><Icon type="file-text" /> 修改</Menu.Item>
+            <Menu.Item key="delete"><i className='fa fa-trash-o' /> 删除</Menu.Item>
+          </Menu>
+        );
         return(
           <Dropdown.Button onClick={this.handleButtonClick} overlay={menu} type="ghost">
             <Icon type="copy" /> 复用
@@ -148,16 +206,16 @@ class AutoScale extends React.Component {
       }
     }];
     const rowSelection = {
-      onChange(selectedRowKeys, selectedRows) {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-      },
-      onSelect(record, selected, selectedRows) {
-        console.log(record, selected, selectedRows);
-      },
-      onSelectAll(selected, selectedRows, changeRows) {
-        console.log(selected, selectedRows, changeRows);
-      },
+      selectedRowKeys,
+      onChange: (selectedRowKeys) => this.setState({selectedRowKeys})
     };
+    const pagination = {
+      simple: true,
+      total: totalCount,
+      defaultPageSize: 10,
+      defaultCurrent: 1,
+      current: currentPage,
+    }
     return(
       <div className="AutoScale">
         <div className="alertRow">
@@ -165,17 +223,27 @@ class AutoScale extends React.Component {
         </div>
         <div className="btnGroup">
           <Button type="primary" size="large" onClick={() => this.setState({scaleModal: true})}><i className="fa fa-plus" /> 创建自动伸缩策略</Button>
-          <Button size="large"><i className='fa fa-refresh' /> 刷新</Button>
+          <Button size="large" onClick={() => this.loadData(1)}><i className='fa fa-refresh' /> 刷新</Button>
           <Button size="large"><i className='fa fa-play' /> 启用</Button>
           <Button size="large"><i className='fa fa-stop' /> 停用</Button>
           <Button size="large"><i className='fa fa-trash-o' /> 删除</Button>
-          <CommonSearchInput placeholder="请输入策略名或服务名搜索" size="large" style={{width: '200px'}}/>
-          <span className="pull-right totalCount">共计 4 条</span>
+          <CommonSearchInput
+            placeholder="请输入策略名或服务名搜索"
+            size="large"
+            style={{width: '200px'}}
+            value={searchValue}
+            onSearch={(value) => this.loadData(1,value)}/>
+          <span className="pull-right totalCount">共计 {totalCount} 条</span>
         </div>
         <Table
           className="autoScaleTable"
+          loading={tableLoading}
+          pagination={pagination}
           rowSelection={rowSelection} 
-          columns={columns} 
+          columns={columns}
+          rowKey={record => record.key}
+          onRowClick={this.onRowClick}
+          onChange={this.tableFilter}
           dataSource={scaleList} />
         <AutoScaleModal
           visible={scaleModal}
@@ -194,6 +262,7 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default AutoScale = connect(mapStateToProps, {
-  loadAutoScaleList
+export default connect(mapStateToProps, {
+  loadAutoScaleList,
+  deleteAutoScale
 })(AutoScale)
