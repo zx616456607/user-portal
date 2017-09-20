@@ -328,8 +328,8 @@ let ProjectManage = React.createClass({
                     role = '项目成员'
                   }
                 } else {
-                  if (item.outlineRoles.includes('creator')) {
-                    role = '创建者'
+                  if (item.outlineRoles.includes('manager')) {
+                    role = '管理者'
                   } else {
                     role = '参与者'
                   }
@@ -552,15 +552,7 @@ let ProjectManage = React.createClass({
       },
       failed: {
         func: res => {
-          this.setState({
-            projectName: undefined,
-            description: undefined,
-            authorizedCluster: [],
-            RoleKeys: [],
-            roleWithMember: {}
-          })
           notify.error('创建项目失败')
-          browserHistory.replace('/tenant_manage/project_manage')
         },
         isAsync: true
       }

@@ -159,7 +159,8 @@ class ProjectDetail extends Component{
             }
             this.setState({
               projectDetail:res.data,
-              comment:res.data.description
+              comment:res.data.description,
+              isManager: res.data.outlineRoles.includes('manager')
             },()=>{
               const { projectDetail } = this.state;
               this.loadRoleList()
@@ -653,7 +654,7 @@ class ProjectDetail extends Component{
   render() {
     const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
-      filterFlag,
+      filterFlag, isManager
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum } = this.props;
@@ -804,7 +805,7 @@ class ProjectDetail extends Component{
       return (
         <li key={item.roleId} className={classNames({'active': currentRoleInfo && currentRoleInfo.id === item.roleId})} onClick={()=>this.getCurrentRole(item.roleId)}>{item.roleName}
           {
-            roleNum !== 3 && !includes(disabledArr,item.roleId) &&
+            roleNum !== 3 && isManager && !includes(disabledArr,item.roleId) &&
               <Tooltip placement="top" title="移除角色">
                 <Icon type="delete" className="pointer" onClick={(e)=>this.deleteRole(e,item)}/>
               </Tooltip>
@@ -940,7 +941,7 @@ class ProjectDetail extends Component{
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
                         <div className="dropDownBox">
-                          <span className="pointer" onClick={()=>{ roleNum === 3 ? null : this.toggleDrop()}}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
+                          <span className="pointer" onClick={()=>{ roleNum === 3 || !isManager ? null : this.toggleDrop()}}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
                           <div className={classNames("dropDownInnerBox",{'hide':!dropVisible})}>
                             <dl className="dropDownTop">
                               <dt className="topHeader">{`已申请集群（${appliedLenght}）`}</dt>
@@ -1039,7 +1040,7 @@ class ProjectDetail extends Component{
                                   <i className="anticon anticon-save pointer" onClick={()=> this.saveComment()}/>
                                 </Tooltip>
                               ] :
-                                roleNum !== 3 &&
+                                roleNum !== 3 && isManager &&
                                 <Tooltip title="编辑">
                                   <i className="anticon anticon-edit pointer" onClick={()=> this.editComment()}/>
                                 </Tooltip>
@@ -1139,7 +1140,7 @@ class ProjectDetail extends Component{
                   {roleList}
                 </ul>
                 {
-                  roleNum !== 3 &&
+                  roleNum !== 3 && isManager &&
                   [
                     <Button type="primary" size="large" icon="plus" onClick={()=>this.setState({addCharacterModal:true})}> 添加已有角色</Button>,
                     <br/>,
@@ -1171,7 +1172,7 @@ class ProjectDetail extends Component{
                     <div className="memberTitle">
                       <span>该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
                       {
-                        roleNum !== 3 && currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.getProjectMember('user')}>继续关联对象</Button>
+                        roleNum !== 3 && isManager && currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.getProjectMember('user')}>继续关联对象</Button>
                       }
                     </div>
                     <div className="memberTableBox">
@@ -1184,7 +1185,7 @@ class ProjectDetail extends Component{
                             {loopFunc(currentMembers)}
                           </Tree>
                           :
-                          roleNum !== 3 && <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.getProjectMember('user')}>关联对象</Button>
+                          roleNum !== 3 && isManager && <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.getProjectMember('user')}>关联对象</Button>
                       }
                     </div>
                   </div>
