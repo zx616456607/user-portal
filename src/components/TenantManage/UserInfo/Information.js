@@ -13,13 +13,13 @@ import './style/Information.less'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { updateUser, bindRolesForUser } from '../../../actions/user'
-import { parseAmount } from '../../../common/tools'
+import { parseAmount, formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN, CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID, PHONE_REGEX } from '../../../../constants'
 import MemberRecharge from '../_Enterprise/Recharge'
 import { chargeUser } from '../../../actions/charge'
 import { loadLoginUserDetail } from '../../../actions/entities'
-import { loadUserDetail, changeUserRole  } from '../../../actions/user'
+import { loadUserDetail, changeUserRole } from '../../../actions/user'
 import { MAX_CHARGE, EMAIL_REG_EXP }  from '../../../constants'
 
 const RadioGroup = Radio.Group
@@ -519,11 +519,17 @@ class Information extends Component {
         <div className="informationleft">
           <Row className="Item">
             <Col span={4}>LDAP用户</Col>
-            <Col span={18}>是</Col>
+            <Col span={18}>
+            {
+              userDetail.type === 2
+                ? '是'
+                : '否'
+            }
+            </Col>
           </Row>
           <Row className="Item">
             <Col span={4}>创建时间</Col>
-            <Col span={18}>2017-03-24</Col>
+            <Col span={18}>{formatDate(userDetail.creationTime)}</Col>
           </Row>
           <Row className="Item">
             <Col span={4}>余额</Col>

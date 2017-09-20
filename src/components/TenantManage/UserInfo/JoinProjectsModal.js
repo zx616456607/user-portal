@@ -287,13 +287,21 @@ class JoinProjectsModal extends React.Component {
         }
       })
     })
+    let msg = '加入其它项目'
+    if (rolebinding.bindings.length === 0) {
+      if (roleUnbind.bindings.length === 0) {
+        notification.warn('您未做任何修改，请选择角色')
+        return
+      }
+      msg = '您未加入新的项目，已有项目修改'
+    }
     this.setState({
       submitBtnLoading: true,
     })
     hadnleProjectRoleBinding({ rolebinding, roleUnbind }, {
       success: {
         func: () => {
-          notification.success('加入其它项目成功')
+          notification.success(`${msg}成功`)
           this.onCancel()
           loadProjectsData()
         },
@@ -301,7 +309,7 @@ class JoinProjectsModal extends React.Component {
       },
       failed: {
         func: () => {
-          notification.error('加入其它项目失败')
+          notification.error(`${msg}失败`)
         },
         isAsync: true,
       },

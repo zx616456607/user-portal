@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Timeline, Popover, Spin, Icon } from 'antd'
+import { Row, Col, Card, Timeline, Popover, Spin, Icon, Button, Radio, Progress } from 'antd'
 import './style/MySpace.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
@@ -20,8 +20,10 @@ import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../..
 import homeCICDImg from '../../../../assets/img/homeCICD.png'
 import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
 
-class MySpace extends Component{
-  constructor(props){
+const RadioButton = Radio.Button
+const RadioGroup = Radio.Group
+class MySpace extends Component {
+  constructor(props) {
     super(props)
     this.state = {
       cicdStates: true,
@@ -51,7 +53,7 @@ class MySpace extends Component{
       }
     })
     loadSpaceInfo()
-    let {} = this.props
+    let { } = this.props
     getOperationLogList({
       from: 0,
       size: 5
@@ -62,44 +64,44 @@ class MySpace extends Component{
     const ele = []
     if (!logs.logs) {
       return (<Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
-          <div className='loadingBox'>
-            <span>暂无数据</span>
-          </div>
-        </Card>)
+        <div className='loadingBox'>
+          <span>暂无数据</span>
+        </div>
+      </Card>)
     }
-    if(logs.logs.records.length <= 0)logs.logs.records = []
+    if (logs.logs.records.length <= 0) logs.logs.records = []
     let index = 0
     logs.logs.records.forEach(item => {
-         if(!item.operationType) return
-         if(index > 5) return
-         if(index === 0) {
-           return ele.push(
-             <Timeline.Item>
-               <div className="logItem">
-                 <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}</div>
-                 <div className="logInf">
-                 {calcuDate(item.time)}
+      if (!item.operationType) return
+      if (index > 5) return
+      if (index === 0) {
+        return ele.push(
+          <Timeline.Item>
+            <div className="logItem">
+              <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}</div>
+              <div className="logInf">
+                {calcuDate(item.time)}
                 <div className="logTime"> {`持续 ${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
-                 </div>
-               </div>
-             </Timeline.Item>
-           )
-         }
-         ele.push(<Timeline.Item >
-           <div className="logItem">
-             <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}</div>
-             <div className="logInf">
-               {calcuDate(item.time)}
-               <div className="logTime"> {`持续 ${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
-             </div>
-           </div>
-         </Timeline.Item>)
-         index++
-      })
-    if(ele.length == 0) ele.push(<div>暂无审计日志</div>)
+              </div>
+            </div>
+          </Timeline.Item>
+        )
+      }
+      ele.push(<Timeline.Item >
+        <div className="logItem">
+          <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}</div>
+          <div className="logInf">
+            {calcuDate(item.time)}
+            <div className="logTime"> {`持续 ${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
+          </div>
+        </div>
+      </Timeline.Item>)
+      index++
+    })
+    if (ele.length == 0) ele.push(<div>暂无审计日志</div>)
     return (
       <Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
-        <Timeline style={{ height: 374, padding: '24px' ,overflowY:'hidden'}}>
+        <Timeline style={{ height: 374, padding: '24px', overflowY: 'hidden' }}>
           {ele}
         </Timeline>
         <Row style={{ height: 30, lineHeight: '30px', borderTop: '1px solid #e2e2e2', padding: '0 24px', fontSize: '12px' }}>
@@ -109,17 +111,17 @@ class MySpace extends Component{
     )
   }
 
-  render(){
-    const {spaceWarnings, spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName,isFetching } = this.props
+  render() {
+    const { spaceWarnings, spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName, isFetching } = this.props
     // spaceImageStats => {"myProjectCount":3,"myRepoCount":6,"publicProjectCount":6,"publicRepoCount":6}
     let isFetchingAuditLog = true
     if (this.props.auditLog) {
-      isFetchingAuditLog  = this.props.auditLog.isFetching
+      isFetchingAuditLog = this.props.auditLog.isFetching
     }
-    let ImagePublicNum = ((spaceImageStats.publicRepoCount)/(spaceImageStats.publicRepoCount+spaceImageStats.myRepoCount)).toFixed(2)
-    let ImageLine = isNaN(ImagePublicNum)?0:ImagePublicNum*1+0.02
-    let TempPublicNum = ((spaceTemplateStats.public)/(spaceTemplateStats.public+spaceTemplateStats.private)).toFixed(2)
-    let TempLine = isNaN(TempPublicNum)?0:TempPublicNum*1+0.02
+    let ImagePublicNum = ((spaceImageStats.publicRepoCount) / (spaceImageStats.publicRepoCount + spaceImageStats.myRepoCount)).toFixed(2)
+    let ImageLine = isNaN(ImagePublicNum) ? 0 : ImagePublicNum * 1 + 0.02
+    let TempPublicNum = ((spaceTemplateStats.public) / (spaceTemplateStats.public + spaceTemplateStats.private)).toFixed(2)
+    let TempLine = isNaN(TempPublicNum) ? 0 : TempPublicNum * 1 + 0.02
     let imageOption = {
       series: [{
         type: 'gauge',
@@ -137,7 +139,7 @@ class MySpace extends Component{
         axisLine: {
           lineStyle: {
             width: 16,
-            color: [[ImagePublicNum, "#13c563"], [ImageLine,'#fff'],[1, "#46b2fa"]]
+            color: [[ImagePublicNum, "#13c563"], [ImageLine, '#fff'], [1, "#46b2fa"]]
           }
         },
         splitLine: {
@@ -168,7 +170,7 @@ class MySpace extends Component{
         axisLine: {
           lineStyle: {
             width: 16,
-            color: [[0, "#13c563"], [0,'#fff'],[1, "#46b2fa"]]
+            color: [[0, "#13c563"], [0, '#fff'], [1, "#46b2fa"]]
           }
         },
         splitLine: {
@@ -177,7 +179,7 @@ class MySpace extends Component{
         axisTick: {
           show: false
         },
-        axisLabel : {
+        axisLabel: {
           show: false,
         }
       }]
@@ -185,258 +187,283 @@ class MySpace extends Component{
 
     return (
       <div id='MySpace'>
-        <Row className="title" style={{marginTop: 20}}>{spaceName}</Row>
+        <Row className="title" style={{ marginTop: 20 }}>{spaceName}</Row>
         <Row className="content" gutter={16}>
           <Col span={6}>
-            <Card title="镜像仓库" bordered={false} bodyStyle={{height:175,padding:'0',position:'relative'}}>
-              <ReactEcharts
-                notMerge={true}
-                option={imageOption}
-                style={{height:'90px'}}
-                showLoading={isFetching}
-              />
-              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>
-                {spaceImageStats.myRepoCount} 个
-              </div>
-              <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px',fontSize: '13px', color: '#666'}}>
-                <Col span={12}>公开 {spaceImageStats.publicRepoCount} 个</Col>
-                <Col span={12}>私有 {spaceImageStats.myRepoCount - spaceImageStats.publicRepoCount} 个</Col>
-              </Row>
-              <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px',fontSize:'12px'}}>
-                仓库组: <strong>{spaceImageStats.publicProjectCount}</strong> 公开 / <strong>{spaceImageStats.myProjectCount}</strong> 私有
-                {
-                  this.state.ImageStates ?
-                    <div style={{float:'right'}}>
-                      <Icon type="check-circle-o" style={{color:'#42c592',marginRight:'10px'}}/>
-                      <span style={{color:'#38c28c'}}>健康</span>
-                    </div>:
-                    <div style={{float:'right'}}>
-                      <Icon type="exclamation-circle" style={{color:'#f85a59',marginRight:'10px'}}/>
-                      <span style={{color:'#f85a59'}}>异常</span>
-                    </div>
-                }
-              </Row>
-            </Card>
-            <Card title="编排概况" bordered={false} bodyStyle={{height:175,padding:'0',position:'relative',fontSize:'14px'}} style={{marginTop: 10}}>
-              <ReactEcharts
-                notMerge={true}
-                option={layoutOption}
-                style={{height:'90px'}}
-                showLoading={isFetching}
-              />
-              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>
-                {spaceTemplateStats.public+spaceTemplateStats.private} 个
-              </div>
-              <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px',fontSize: '13px', color: '#666'}}>
-                <Col span={12}>公有 {spaceTemplateStats.public} 个</Col>
-                <Col span={12}>私有 {spaceTemplateStats.private} 个</Col>
-              </Row>
-            </Card>
-          </Col>
-          <Col span={6} className='cdid'>
-            <Card title="CI/CD" bordered={false} bodyStyle={{height:175,padding:0}}>
-              <Row style={{height:130}}>
-                <Col span={12} style={{height:130,lineHeight:'130px',textAlign:'center'}}>
-                  <img src={homeCICDImg} style={{display:'inline-block',verticalAlign:'middle'}}/>
+            <Card title="项目资源配置" bordered={false} bodyStyle={{ height: 175, padding: '0', position: 'relative' }}
+              extra={<Button type="primary" size="small">设置配额</Button>}>
+              <RadioGroup style={{ margin: '20px 65px' }} className="" onChange={this.onChange} defaultValue="a">
+                <RadioButton value="a">CI/CD</RadioButton>
+                <RadioButton value="b">交付中心</RadioButton>
+              </RadioGroup>
+              <Row className="info">
+                <Col span={7}>
+                  <span>Tenxfilow(个)</span>
                 </Col>
-                <Col className='cicdInf' span={12}>
-                  <table>
-                    <tbody>
-                    <tr>
-                      <td>
-                        {/*<svg className="stateSvg">
-                          <use xlinkHref="#settingname" />
-                        </svg>*/}
-                        <div className='cicdDot' style={{backgroundColor:'#13c563'}}></div>
-                        构建成功
-                      </td>
-                      <td className="cicdNum">
-                        {spaceCICDStats.succeedNumber} 个
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        {/*<svg className="stateSvg">
-                          <use xlinkHref="#settingname" />
-                        </svg>*/}
-                        <div className='cicdDot' style={{backgroundColor:'#f7676d'}}></div>
-                        构建失败
-                      </td>
-                      <td className="cicdNum">
-                        {spaceCICDStats.failedNumber} 个
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        {/*<svg className="stateSvg">
-                          <use xlinkHref="#settingname" />
-                        </svg>*/}
-                        <div className='cicdDot' style={{backgroundColor:'#46b2fa'}}></div>
-                        正在构建
-                      </td>
-                      <td className="cicdNum">
-                        {spaceCICDStats.runningNumber} 个
-                      </td>
-                    </tr>
-                    </tbody>
-                  </table>
+                <Col span={12}>
+                  <Progress className="pro" style={{ width: '90%' }} percent={30} showInfo={false} />
+                </Col>
+                <Col span={4}>
+                  <span className="count">2/5</span>
                 </Col>
               </Row>
-              <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px'}}>
-                服务状态:
-                {
-                  this.state.cicdStates ?
-                    <div style={{float:'right'}}>
-                      <Icon type="check-circle-o" style={{color:'#42c592',marginRight:'10px'}}/>
-                      <span style={{color:'#38c28c'}}>健康</span>
-                    </div>:
-                    <div style={{float:'right'}}>
-                      <Icon type="exclamation-circle" style={{color:'#f85a59',marginRight:'10px'}}/>
-                      <span style={{color:'#f85a59'}}>异常</span>
-                    </div>
-                }
+              <Row className="info">
+                <Col span={7}>
+                  <span>子任务(个)</span>
+                </Col>
+                <Col span={12}>
+                  <Progress className="pro" style={{ width: '90%' }} percent={30} showInfo={false} />
+                </Col>
+                <Col span={4}>
+                  <span className="count">2/5</span>
+                </Col>
+              </Row>
+              <Row className="info">
+                <Col span={7}>
+                  <span>Dockerfile(个)</span>
+                </Col>
+                <Col span={12}>
+                  <Progress className="pro" style={{ width: '90%' }} percent={30} showInfo={false} />
+                </Col>
+                <Col span={4}>
+                  <span className="count">2/5</span>
+                </Col>
               </Row>
             </Card>
-            <Card title="今日该空间记录" bordered={false} bodyStyle={{height:175}} style={{marginTop: 10,fontSize:'13px'}}>
-              <div style={{overflowY:'auto',height:'124px'}}>
+            <Card title="今日该空间记录" bordered={false} bodyStyle={{ height: 175, padding: '20', position: 'relative', fontSize: '14px' }} style={{ marginTop: 10 }}>
+              <div style={{ overflowY: 'auto', height: '124px' }}>
                 <table className="clusterTab">
-                <tbody>
-                <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      创建应用
+                  <tbody>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        创建应用
                     </td>
-                    <td className="trecordNum">
-                      {spaceOperations.appCreate} 个
+                      <td className="trecordNum">
+                        {spaceOperations.appCreate} 个
                     </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homeservicecount" />
-                      </svg>
-                      创建服务
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#homeservicecount" />
+                        </svg>
+                        创建服务
                     </td>
-                    <td className="trecordNum">
-                      {spaceOperations.svcCreate} 个
+                      <td className="trecordNum">
+                        {spaceOperations.svcCreate} 个
                     </td>
-                  </tr>
-                <tr>
-                  <td>
-                    <svg className="stateSvg">
-                      <use xlinkHref="#homesavecount" />
-                    </svg>
-                    创建存储卷
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#homesavecount" />
+                        </svg>
+                        创建存储卷
                   </td>
-                  <td className="trecordNum">
-                    {spaceOperations.volumeCreate} 个
+                      <td className="trecordNum">
+                        {spaceOperations.volumeCreate} 个
                   </td>
-                </tr>
-                <tr>
-                  <td>
-                    <svg className="stateSvg">
-                      <use xlinkHref="#homeappcount" />
-                    </svg>
-                    停止应用
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        停止应用
                   </td>
-                  <td className="trecordNum">
-                    {spaceOperations.appStop} 个
+                      <td className="trecordNum">
+                        {spaceOperations.appStop} 个
                   </td>
-                </tr>
-                <tr>
-                  <td>
-                    <svg className="stateSvg">
-                      <use xlinkHref="#homeservicecount" />
-                    </svg>
-                    删除服务
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#homeservicecount" />
+                        </svg>
+                        删除服务
                   </td>
-                  <td className="trecordNum">
-                    {spaceOperations.svcDelete} 个
+                      <td className="trecordNum">
+                        {spaceOperations.svcDelete} 个
                   </td>
-                </tr>
-                <tr>
-                  <td>
-                    <svg className="stateSvg">
-                      <use xlinkHref="#homesavecount" />
-                    </svg>
-                    删除存储卷
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#homesavecount" />
+                        </svg>
+                        删除存储卷
                   </td>
-                  <td className="trecordNum">
-                     {spaceOperations.volumeDelete} 个
+                      <td className="trecordNum">
+                        {spaceOperations.volumeDelete} 个
                   </td>
-                </tr>
-                <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      修改应用
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        修改应用
                     </td>
-                    <td className="trecordNum">
-                      {spaceOperations.appModify} 个
+                      <td className="trecordNum">
+                        {spaceOperations.appModify} 个
                     </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      启动应用
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        启动应用
                     </td>
-                    <td className="trecordNum">
-                      {spaceOperations.appStart} 个
+                      <td className="trecordNum">
+                        {spaceOperations.appStart} 个
                     </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      重新部署
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        重新部署
                     </td>
-                    <td className="trecordNum">
-                      {spaceOperations.appRedeploy} 个
+                      <td className="trecordNum">
+                        {spaceOperations.appRedeploy} 个
                     </td>
-                  </tr>
-                </tbody>
+                    </tr>
+                  </tbody>
                 </table>
               </div>
             </Card>
           </Col>
-          <Col span={6} className='log'>
-          { isFetchingAuditLog ? [
-            <Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
-              <div className="loadingBox"><Spin size="large"></Spin></div>
+          <Col span={6} className='cdid'>
+            <Card title="CI/CD" bordered={false} bodyStyle={{ height: 175, padding: 0 }}>
+              <Row style={{ height: 130 }}>
+                <Col span={12} style={{ height: 130, lineHeight: '130px', textAlign: 'center' }}>
+                  <img src={homeCICDImg} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+                </Col>
+                <Col className='cicdInf' span={12}>
+                  <table>
+                    <tbody>
+                      <tr>
+                        <td>
+                          {/*<svg className="stateSvg">
+                          <use xlinkHref="#settingname" />
+                        </svg>*/}
+                          <div className='cicdDot' style={{ backgroundColor: '#13c563' }}></div>
+                          构建成功
+                      </td>
+                        <td className="cicdNum">
+                          {spaceCICDStats.succeedNumber} 个
+                      </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          {/*<svg className="stateSvg">
+                          <use xlinkHref="#settingname" />
+                        </svg>*/}
+                          <div className='cicdDot' style={{ backgroundColor: '#f7676d' }}></div>
+                          构建失败
+                      </td>
+                        <td className="cicdNum">
+                          {spaceCICDStats.failedNumber} 个
+                      </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          {/*<svg className="stateSvg">
+                          <use xlinkHref="#settingname" />
+                        </svg>*/}
+                          <div className='cicdDot' style={{ backgroundColor: '#46b2fa' }}></div>
+                          正在构建
+                      </td>
+                        <td className="cicdNum">
+                          {spaceCICDStats.runningNumber} 个
+                      </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </Col>
+              </Row>
+              <Row style={{ height: 40, lineHeight: '40px', borderTop: '1px solid #e2e2e2', padding: '0 24px' }}>
+                服务状态:
+                {
+                  this.state.cicdStates ?
+                    <div style={{ float: 'right' }}>
+                      <Icon type="check-circle-o" style={{ color: '#42c592', marginRight: '10px' }} />
+                      <span style={{ color: '#38c28c' }}>健康</span>
+                    </div> :
+                    <div style={{ float: 'right' }}>
+                      <Icon type="exclamation-circle" style={{ color: '#f85a59', marginRight: '10px' }} />
+                      <span style={{ color: '#f85a59' }}>异常</span>
+                    </div>
+                }
+              </Row>
             </Card>
+            <Card title="镜像仓库" bordered={false} bodyStyle={{ height: 175 }} style={{ marginTop: 10 }} >
+              <ReactEcharts
+                notMerge={true}
+                option={imageOption}
+                style={{ height: '70px' }}
+                showLoading={isFetching}
+              />
+              <div style={{ position: 'absolute', top: '66px', width: '100%', textAlign: 'center' }}>
+                {spaceImageStats.myRepoCount} 个
+              </div>
+              <Row style={{ textAlign: 'center', height: 40, lineHeight: '40px', padding: '0 24px', fontSize: '13px', color: '#666' }}>
+                <Col span={12}>公开 {spaceImageStats.publicRepoCount} 个</Col>
+                <Col span={12}>私有 {spaceImageStats.myRepoCount - spaceImageStats.publicRepoCount} 个</Col>
+              </Row>
+              <Row style={{ height: 40, lineHeight: '40px', borderTop: '1px solid #e2e2e2', padding: '0 24px', fontSize: '12px' }}>
+                仓库组: <strong>{spaceImageStats.publicProjectCount}</strong> 公开 / <strong>{spaceImageStats.myProjectCount}</strong> 私有
+                {
+                  this.state.ImageStates ?
+                    <div style={{ float: 'right' }}>
+                      <Icon type="check-circle-o" style={{ color: '#42c592', marginRight: '10px' }} />
+                      <span style={{ color: '#38c28c' }}>健康</span>
+                    </div> :
+                    <div style={{ float: 'right' }}>
+                      <Icon type="exclamation-circle" style={{ color: '#f85a59', marginRight: '10px' }} />
+                      <span style={{ color: '#f85a59' }}>异常</span>
+                    </div>
+                }
+              </Row>
+            </Card>
+          </Col>
+          <Col span={6} className='log'>
+            {isFetchingAuditLog ? [
+              <Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
+                <div className="loadingBox"><Spin size="large"></Spin></div>
+              </Card>
             ] : this.getOperationLog()}
           </Col>
           <Col span={6} className='warn'>
-            <Card title="告警" bordered={false} bodyStyle={{height:410}}>
+            <Card title="告警" bordered={false} bodyStyle={{ height: 410 }}>
               <div className="warnListWrap">
                 <Timeline className="warnList">
                   {
                     spaceWarnings.length === 0 ?
                       [<div className="noWarnImg">
-                        <img src={homeNoWarn} alt="NoWarn"/>
+                        <img src={homeNoWarn} alt="NoWarn" />
                         <div>暂时无系统告警</div>
                       </div>] :
-                    spaceWarnings.map((item,index) => {
-                      return (
-                        <Timeline.Item dot={
-                          index === 0?
-                            <div className="warnDot" style={{backgroundColor:'#f6575c'}}></div>:
-                            <div className="warnDot"></div>
-                        }>
-                          <div className={index === 0?"warnItem fistWarn":'warnItem'}>
-                            <Row className="itemTitle">{item.reason}</Row>
-                            <Row className="itemTitle">{item.involvedObject.kind}: {item.involvedObject.name}</Row>
-                            <Row className="itemInf">{calcuDate(item.metadata.creationTimestamp)}</Row>
-                          </div>
-                        </Timeline.Item>
-                      )
-                    })
+                      spaceWarnings.map((item, index) => {
+                        return (
+                          <Timeline.Item dot={
+                            index === 0 ?
+                              <div className="warnDot" style={{ backgroundColor: '#f6575c' }}></div> :
+                              <div className="warnDot"></div>
+                          }>
+                            <div className={index === 0 ? "warnItem fistWarn" : 'warnItem'}>
+                              <Row className="itemTitle">{item.reason}</Row>
+                              <Row className="itemTitle">{item.involvedObject.kind}: {item.involvedObject.name}</Row>
+                              <Row className="itemInf">{calcuDate(item.metadata.creationTimestamp)}</Row>
+                            </div>
+                          </Timeline.Item>
+                        )
+                      })
                   }
                 </Timeline>
               </div>
@@ -448,7 +475,7 @@ class MySpace extends Component{
   }
 }
 
-function mapStateToProp(state,props) {
+function mapStateToProp(state, props) {
   let isFetching = true
   let spaceOperationsData = {
     appCreate: 0,
@@ -475,7 +502,7 @@ function mapStateToProp(state,props) {
     private: 0,
   }
   let spaceWarningsData = []
-  const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceWarnings, spaceInfo} = state.overviewSpace
+  const { spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceWarnings, spaceInfo } = state.overviewSpace
   if (spaceInfo.result) {
     isFetching = spaceInfo.isFetching
     if (spaceInfo.result.operations) {
@@ -545,7 +572,7 @@ function mapStateToProp(state,props) {
     }
   }
   if (spaceCICDStats.result && spaceCICDStats.result.data &&
-      spaceCICDStats.result.data.results && spaceCICDStats.result.data.results.flowBuild) {
+    spaceCICDStats.result.data.results && spaceCICDStats.result.data.results.flowBuild) {
     let data = spaceCICDStats.result.data.results.flowBuild
     spaceCICDStatsData.succeedNumber = data.succeedNumber
     spaceCICDStatsData.runningNumber = data.runningNumber
@@ -1012,36 +1039,36 @@ function duringTimeFormat(time, scope) {
   const { formatMessage } = scope.props.intl;
   time = time / 1000;
   time = time.toFixed(0);
-  if(time > 1000) {
+  if (time > 1000) {
     time = time / 1000;
     time = time.toFixed(0);
-    if(time > 1000){
+    if (time > 1000) {
       time = time / 60;
       time = time.toFixed(0);
-      if(time > 60) {
+      if (time > 60) {
         time = time / 60;
         time = time.toFixed(0);
         //hour
-        return (time + ' ' + formatMessage(menusText.hour) )
+        return (time + ' ' + formatMessage(menusText.hour))
       } else {
         //min
-        return (time + ' ' + formatMessage(menusText.minute) )
+        return (time + ' ' + formatMessage(menusText.minute))
       }
     } else {
       //s
-      return (time + ' ' + formatMessage(menusText.second) )
+      return (time + ' ' + formatMessage(menusText.second))
     }
   } else {
     //ms
-    return (time + ' ' + formatMessage(menusText.millisecond) )
+    return (time + ' ' + formatMessage(menusText.millisecond))
   }
 }
 
 function resourceFormat(resourceType, scope) {
   //this function for format resource type to show user
   const { formatMessage } = scope.props.intl;
-  if(!resourceType) return ''
-  switch(resourceType + '') {
+  if (!resourceType) return ''
+  switch (resourceType + '') {
     case '1':
       return formatMessage(menusText.Instance)
       break;
@@ -1215,8 +1242,8 @@ function resourceFormat(resourceType, scope) {
 function operationalFormat(operationalType, scope) {
   //this function for format operational type to show user
   const { formatMessage } = scope.props.intl;
-  if(!operationalType) return ''
-  switch(operationalType + '') {
+  if (!operationalType) return ''
+  switch (operationalType + '') {
     case '1':
       return formatMessage(menusText.Create)
       break;
