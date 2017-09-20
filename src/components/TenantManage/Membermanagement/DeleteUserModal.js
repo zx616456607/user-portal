@@ -49,7 +49,7 @@ class DeleteUserModal extends React.Component {
 
   loadData(nextProps) {
     const { loadUserTeams, currentUser } = nextProps || this.props
-    loadUserTeams(currentUser.key, { size: 0 }, {
+    loadUserTeams(currentUser.key, { size: 0, filter: 'role,manager' }, {
       success: {
         func: res => {
           const { teams } = res
@@ -166,8 +166,16 @@ class DeleteUserModal extends React.Component {
         isAsync: true,
       },
       failed: {
-        func: () => {
+        func: (err) => {
+          if (err && err.message) {
+            if (err.message.indexOf('not belongs to team') > 0) {
+              notification.error('所转移的目标用户不属于该团队，请选择团队内用户')
+              this.onCancel()
+              return
+            }
+          }
           notification.error('转移团队失败')
+          this.onCancel()
         }
       }
     })
@@ -433,7 +441,6 @@ function mapStateToProps(state) {
   const { userTeams } = state.user
   if (userTeams.result) {
     if (userTeams.result.teams) {
-      teamsData = userTeams.result.teams.filter(team => team.outlineRoles && team.outlineRoles.indexOf('manager') > -1)
       teamsData = userTeams.result.teams
     }
   }
