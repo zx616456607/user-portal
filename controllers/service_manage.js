@@ -268,8 +268,6 @@ exports.getServiceAutoScaleList = function* () {
   }
 }
 
-
-
 exports.autoScaleService = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name

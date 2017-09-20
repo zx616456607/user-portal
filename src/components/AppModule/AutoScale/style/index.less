@@ -1,0 +1,46 @@
+.AutoScale{
+  padding: 30px 27px;
+  .btnGroup {
+    &>* {
+      margin-right: 10px;
+    }
+    .totalCount{
+      
+    }
+  }
+  .autoScaleTable{
+    background-color: white;
+    margin-top: 20px;
+    thead{
+      tr {
+        th{
+          background-color: white;
+          border-bottom: 1px solid #e9e9e9;
+        }
+      }
+    }
+    .status {
+      display: flex;
+      align-items: center;
+      i {
+        display: inline-block;
+        margin-right: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+    }
+    .successStatus {
+      color: #28b95c;
+      i{
+        background-color: #28b95c;
+      }
+    }
+    .errorStatus {
+      color: #e44740;
+      i{
+        background-color: #e44740;
+      }
+    }
+  }
+}

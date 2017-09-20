@@ -502,6 +502,11 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 网络隔离</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key='auto_scale'>
+                    <Link to='/app_manage/auto_scale'>
+                      <span><div className='sideCircle'></div> 自动伸缩策略</span>
+                    </Link>
+                  </Menu.Item>
                   {
                     (this.props.loginUser.vmWrapConfig && this.props.loginUser.vmWrapConfig.enabled)
                     ? [

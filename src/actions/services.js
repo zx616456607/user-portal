@@ -494,6 +494,31 @@ export function changeServiceAvailability(cluster, serviceName, options, callbac
   }
 }
 
+export const GET_AUTO_SCALE_REQUEST = 'GET_AUTO_SCALE_REQUEST'
+export const GET_AUTO_SCALE_SUCCESS = 'GET_AUTO_SCALE_SUCCESS'
+export const GET_AUTO_SCALE_FAILURE = 'GET_AUTO_SCALE_FAILURE'
+
+function getAutoScale(cluster, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/autoscale`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [GET_AUTO_SCALE_REQUEST, GET_AUTO_SCALE_SUCCESS, GET_AUTO_SCALE_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function loadAutoScaleList(cluster, query, callback) {
+  return (dispatch) => {
+    return dispatch(getAutoScale(cluster, query, callback))
+  }
+}
+
 export const SERVICE_GET_AUTO_SCALE_REQUEST = 'SERVICE_GET_AUTO_SCALE_REQUEST'
 export const SERVICE_GET_AUTO_SCALE_SUCCESS = 'SERVICE_GET_AUTO_SCALE_SUCCESS'
 export const SERVICE_GET_AUTO_SCALE_FAILURE = 'SERVICE_GET_AUTO_SCALE_FAILURE'
