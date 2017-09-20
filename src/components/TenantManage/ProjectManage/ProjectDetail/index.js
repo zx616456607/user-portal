@@ -157,7 +157,21 @@ class ProjectDetail extends Component{
                 currentRoleInfo: {}
               })
             }
+            let roleIdArr = []
+            let roleNameArr = []
+            res.data.outlineRoles.forEach(item => {
+              if (item.indexOf('RID-') !== -1) {
+                roleIdArr.push(item)
+              }
+            })
+            const { relatedRoles } = res.data
+            roleIdArr.length && relatedRoles && relatedRoles.length && relatedRoles.forEach(item => {
+              if (roleIdArr.includes(item.roleId)){
+                roleNameArr.push(item.roleName)
+              }
+            })
             this.setState({
+              roleNameArr,
               projectDetail:res.data,
               comment:res.data.description,
               isManager: res.data.outlineRoles.includes('manager')
@@ -654,7 +668,7 @@ class ProjectDetail extends Component{
   render() {
     const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
-      filterFlag, isManager
+      filterFlag, isManager, roleNameArr
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum } = this.props;
@@ -662,16 +676,6 @@ class ProjectDetail extends Component{
     const loopFunc = data => data.length >0 && data.map((item) => {
       return <TreeNode key={item.key} title={item.userName} disableCheckbox={true}/>;
     });
-    const projectRole = (role) => {
-      if (!role) return
-      if (role.includes('no-participator')) {
-        return '非项目成员'
-      } else if (role.includes('manager') || role.includes('creator')) {
-        return '创建者'
-      } else {
-        return '参与者'
-      }
-    }
     const disabledArr = [PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID]
     const loop = data => data.map((item) => {
       if (item['children'] !== undefined) {
@@ -941,7 +945,7 @@ class ProjectDetail extends Component{
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
                         <div className="dropDownBox">
-                          <span className="pointer" onClick={()=>{ roleNum === 3 || !isManager ? null : this.toggleDrop()}}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
+                          <span className="pointer" onClick={()=>{ roleNum === 1 || isManager ? this.toggleDrop() : null}}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
                           <div className={classNames("dropDownInnerBox",{'hide':!dropVisible})}>
                             <dl className="dropDownTop">
                               <dt className="topHeader">{`已申请集群（${appliedLenght}）`}</dt>
@@ -990,7 +994,7 @@ class ProjectDetail extends Component{
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {projectRole(projectDetail.outlineRoles)}
+                        {roleNameArr && roleNameArr.join(', ')}
                       </div>
                     </Col>
                   </Row>
@@ -1040,7 +1044,7 @@ class ProjectDetail extends Component{
                                   <i className="anticon anticon-save pointer" onClick={()=> this.saveComment()}/>
                                 </Tooltip>
                               ] :
-                                roleNum !== 3 && isManager &&
+                              (roleNum === 1 || isManager) &&
                                 <Tooltip title="编辑">
                                   <i className="anticon anticon-edit pointer" onClick={()=> this.editComment()}/>
                                 </Tooltip>
@@ -1140,7 +1144,7 @@ class ProjectDetail extends Component{
                   {roleList}
                 </ul>
                 {
-                  roleNum !== 3 && isManager &&
+                  (roleNum === 1 || isManager) &&
                   [
                     <Button type="primary" size="large" icon="plus" onClick={()=>this.setState({addCharacterModal:true})}> 添加已有角色</Button>,
                     <br/>,
@@ -1172,7 +1176,7 @@ class ProjectDetail extends Component{
                     <div className="memberTitle">
                       <span>该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
                       {
-                        roleNum !== 3 && isManager && currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.getProjectMember('user')}>继续关联对象</Button>
+                        (roleNum === 1 || isManager) && currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.getProjectMember('user')}>继续关联对象</Button>
                       }
                     </div>
                     <div className="memberTableBox">
@@ -1185,7 +1189,7 @@ class ProjectDetail extends Component{
                             {loopFunc(currentMembers)}
                           </Tree>
                           :
-                          roleNum !== 3 && isManager && <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.getProjectMember('user')}>关联对象</Button>
+                          (roleNum === 1 || isManager) && <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.getProjectMember('user')}>关联对象</Button>
                       }
                     </div>
                   </div>
