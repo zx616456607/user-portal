@@ -729,7 +729,7 @@ class ProjectDetail extends Component{
                   <span>{item.cluster.clusterName}</span>
                   {this.clusterStatus(item.status,true)}
                   {
-                    roleNum !== 3 &&
+                    (roleNum === 1 || isManager) &&
                       <Tooltip title="移除集群">
                         <i className="anticon anticon-cross" onClick={()=>this.setState({deleteClusterModal: true})}/>
                       </Tooltip>
@@ -994,7 +994,7 @@ class ProjectDetail extends Component{
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {roleNameArr && roleNameArr.join(', ')}
+                        {roleNameArr && roleNameArr.length ? roleNameArr.join(', ') : '-'}
                       </div>
                     </Col>
                   </Row>
