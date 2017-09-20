@@ -325,7 +325,7 @@ class Header extends Component {
 
   componentDidMount() {
     this._checkLiteVersion()
-    this.isSysAdmin && this.props.loadUserList({ size: 0 }, {
+    this.isSysAdmin && this.props.loadUserList({ size: 0, sort: 'a,userName', }, {
       success: {
         func: res => {
           this.setState({ allUsers: cloneDeep(res.users || []) })
