@@ -31,6 +31,8 @@ class StorageClass {
       pool,
       userId: adminId,
       userSecretName: secretName,
+      imageFormat: "2",
+      imageFeatures: "1",
     }
   }
 }
