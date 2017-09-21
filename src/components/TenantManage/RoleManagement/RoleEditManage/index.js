@@ -24,6 +24,7 @@ class CreateRoleModal extends React.Component {
     this.state = {
       key: [],
       total: 0,
+      count: 0,
       isChecked: false,
       expandedKeys: [],
       autoExpandParent: true,
@@ -60,6 +61,7 @@ class CreateRoleModal extends React.Component {
               }
             }
             this.setState({
+              count: res.data.data.total,
               rowDate: res.data.data,
               checkedKeys: aryID,
               rowPermissionID: pids,
@@ -360,8 +362,8 @@ class CreateRoleModal extends React.Component {
   }
   render() {
     const TreeNode = Tree.TreeNode;
-    const { allPermission, permissionCount, rowDate, rowPermission, total, isChecked } = this.state
-    const { characterModal, form, isAdd } = this.props
+    const { allPermission, permissionCount, rowDate, rowPermission, total, isChecked, count } = this.state
+    const { characterModal, form, isAdd, isTotal } = this.props
     const { getFieldProps, isFieldValidating, getFieldError } = form
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -407,7 +409,7 @@ class CreateRoleModal extends React.Component {
           <span className="desc">权限选择 :</span>
           <div className="authBox">
             <div className="authTitle">共<span style={{ color: '#59c3f5' }}>{total}</span>个<div className="pull-right">已选<span style={{ color: '#59c3f5' }}>
-              {this.state.checkedCount.length <= 0 ? isChecked ? 0 : this.props.scope.state.total : this.state.checkedCount.length}
+              {this.state.checkedCount.length <= 0 ? isChecked ? 0 : isTotal ? this.props.scope.state.total : count : this.state.checkedCount.length}
               </span> 个</div>
             </div>
             <div className="treeBox">

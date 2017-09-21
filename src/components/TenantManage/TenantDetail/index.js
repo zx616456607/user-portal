@@ -65,6 +65,10 @@ let TenantDetail = React.createClass({
           if (REG.test(res.data.code)) {
             if (res.data.data.permissions) {
               this.RowData(res.data.data.permissions)
+            } else {
+              this.setState({
+                permissionDatasource: []
+              })
             }
             this.setState({
               roleDetail: res.data.data,
@@ -460,6 +464,7 @@ let TenantDetail = React.createClass({
                   form={form}
                   scope={scope}
                   isAdd={false}
+                  isTotal={true}
                   roleId={params.id}
                   characterModal={this.state.characterModal}
                   isDetail={true}

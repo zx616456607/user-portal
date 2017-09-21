@@ -116,11 +116,14 @@ class AllPermissions extends React.Component{
       title: '权限描述',
       dataIndex: 'desc',
       key: 'desc',
-      width: '38%',
+      width: '30%',
     }, {
       title: '被角色引用次数',
       dataIndex: 'count',
       key: 'count',
+      render: (text) => (
+        <div>{text > 0 ? text : '-'}</div>
+      )
     }];
 
     return(
