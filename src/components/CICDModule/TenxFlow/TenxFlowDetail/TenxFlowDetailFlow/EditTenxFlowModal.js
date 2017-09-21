@@ -2049,6 +2049,7 @@ let EditTenxFlowModal = React.createClass({
               options={defaultOptions}
             />
             <div className='btnBox'>
+              <span style={{marginLeft:30}}>支持输入6万个字符</span>
               <Button size='large' type='primary' onClick={this.saveShellCode} loading={this.state.saveShellCodeBtnLoading}>
                 <span>保存并使用</span>
               </Button>
