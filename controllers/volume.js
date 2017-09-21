@@ -22,16 +22,9 @@ const standardFlag = config.running_mode === constants.STANDARD_MODE
 exports.getVolumeListByPool = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
-  const storageName = this.query.storagename
-  let response
+  const query = this.query
   const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
-  if(storageName == '0') {
-    response = yield volumeApi.getBy([cluster, 'volumes'])
-  } else {
-    response = yield volumeApi.getBy([cluster, 'volumes'], {
-      storageName: storageName
-    })
-  }
+  const response = yield volumeApi.getBy([cluster, 'volumes'], query)
   this.status = response.code
   this.body = response
 }
@@ -57,9 +50,9 @@ exports.deleteVolume = function* () {
 exports.createVolume = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
-  const reqData = this.request.body
+  let reqData = this.request.body
   const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
-  if (!standardFlag) {
+  if (!standardFlag && !reqData.template) {
     const statusRes = yield volumeApi.getBy([cluster, 'volumes', 'pool-status'])
     const poolStatus = statusRes.data
     poolStatus.used = parseInt(poolStatus.used)
@@ -69,7 +62,7 @@ exports.createVolume = function* () {
     if(poolStatus.total.toLowerCase().indexOf('g') > 0){
       poolStatus.total = total * 1024
     } else {
-      poolStatus.total = total 
+      poolStatus.total = total
     }
     poolStatus.unallocated = poolStatus.total - poolStatus.allocated
     let selectSize = reqData.driverConfig.size
@@ -83,6 +76,9 @@ exports.createVolume = function* () {
       }
       return
     }
+  }
+  if (reqData.template) {
+    reqData = reqData.template
   }
   let response = yield volumeApi.createBy([cluster, 'volumes'], null, reqData)
   this.status = response.code
