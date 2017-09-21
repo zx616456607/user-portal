@@ -10,6 +10,7 @@
 
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
+import { toQuerystring } from '../common/tools'
 // import encoding from 'text-encoding'
 
 export const STORAGE_LIST_REQUEST = 'STORAGE_LIST_REQUEST'
@@ -21,7 +22,7 @@ export function fetchStorageList(pool, cluster, query, callback) {
     pool,
     [FETCH_API]: {
       types: [STORAGE_LIST_REQUEST, STORAGE_LIST_SUCCESS, STORAGE_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes?storagename=${query || 0}`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes?${toQuerystring(query)}`,
       schema: {}//Schemas.STORAGE
     },
     callback: callback
