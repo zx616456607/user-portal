@@ -38,9 +38,7 @@ class PersistentVolumeClaim {
     this.kind = 'PersistentVolumeClaim'
     this.apiVersion = 'v1'
     this.metadata = {
-      name: {
-        'task-pv-claim': name
-      },
+      name,
       labels: {
         'tenxcloud.com/fsType': fsType,
         'tenxcloud.com/storageType': storageType,
