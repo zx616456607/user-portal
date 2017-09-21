@@ -188,7 +188,9 @@ let CreateUserModal = React.createClass({
     const resetPasswdProps = getFieldProps('resetPassword', {
       valuePropName: 'checked',
     })
-    const checkProps = getFieldProps('check', {})
+    const checkProps = getFieldProps('check', {
+      valuePropName: 'checked',
+    })
     const roleProps = getFieldProps('role', {
       initialValue: '0',
       onChange: e => {
