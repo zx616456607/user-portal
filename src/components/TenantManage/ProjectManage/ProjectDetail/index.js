@@ -168,10 +168,33 @@ class ProjectDetail extends Component {
                 this.getCurrentRole(projectDetail.relatedRoles && projectDetail.relatedRoles[0].roleId)
               })
             }
+            let roleIdArr = []
+            let roleNameArr = []
+            res.data.outlineRoles.forEach(item => {
+              if (item.indexOf('RID-') !== -1) {
+                roleIdArr.push(item)
+              }
+            })
+            const { relatedRoles } = res.data
+            roleIdArr.length && relatedRoles && relatedRoles.length && relatedRoles.forEach(item => {
+              if (roleIdArr.includes(item.roleId)){
+                roleNameArr.push(item.roleName)
+              }
+            })
+            this.setState({
+              roleNameArr,
+              projectDetail:res.data,
+              comment:res.data.description,
+              isManager: res.data.outlineRoles.includes('manager')
+            },()=>{
+              const { projectDetail } = this.state;
+              this.loadRoleList()
+              this.getCurrentRole(projectDetail.relatedRoles && projectDetail.relatedRoles[0].roleId)
+            })
           },
           isAsync: true
         }
-      })
+    })
   }
   filterOption(inputValue, option) {
     return option.description.indexOf(inputValue) > -1;
@@ -540,10 +563,14 @@ class ProjectDetail extends Component {
     })
   }
   submitMemberModal() {
-    const { selectedMembers, existentMember } = this.state;
-    let diff = xor(existentMember, selectedMembers);
-    let del = intersection(existentMember, diff)
-    let add = intersection(selectedMembers, diff)
+    const { selectedMembers, existentMember, currentRoleInfo } = this.state;
+    let notify = new Notification()
+    if (currentRoleInfo.id === PROJECT_MANAGE_ROLE_ID && (selectedMembers.length < 1)) {
+      return notify.info('至少有一个项目管理员在项目中')
+    }
+    let diff = xor(existentMember,selectedMembers);
+    let del = intersection(existentMember,diff)
+    let add = intersection(selectedMembers,diff)
     if (!del.length && !add.length) {
       this.setState({
         connectModal: false,
@@ -651,7 +678,7 @@ class ProjectDetail extends Component {
   render() {
     const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
-      filterFlag,
+      filterFlag, isManager, roleNameArr
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum } = this.props;
@@ -659,16 +686,6 @@ class ProjectDetail extends Component {
     const loopFunc = data => data.length > 0 && data.map((item) => {
       return <TreeNode key={item.key} title={item.userName} disableCheckbox={true} />;
     });
-    const projectRole = (role) => {
-      if (!role) return
-      if (role.includes('no-participator')) {
-        return '非项目成员'
-      } else if (role.includes('manager') || role.includes('creator')) {
-        return '创建者'
-      } else {
-        return '参与者'
-      }
-    }
     const disabledArr = [PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID]
     const loop = data => data.map((item) => {
       if (item['children'] !== undefined) {
@@ -722,10 +739,10 @@ class ProjectDetail extends Component {
                   <span>{item.cluster.clusterName}</span>
                   {this.clusterStatus(item.status, true)}
                   {
-                    roleNum !== 3 &&
-                    <Tooltip title="移除集群">
-                      <i className="anticon anticon-cross" onClick={() => this.setState({ deleteClusterModal: true })} />
-                    </Tooltip>
+                    (roleNum === 1 || isManager) &&
+                      <Tooltip title="移除集群">
+                        <i className="anticon anticon-cross" onClick={()=>this.setState({deleteClusterModal: true})}/>
+                      </Tooltip>
                   }
                   <Modal title="移除集群" visible={this.state.deleteClusterModal}
                     onCancel={() => this.setState({ deleteClusterModal: false })}
@@ -802,10 +819,10 @@ class ProjectDetail extends Component {
       return (
         <li key={item.roleId} className={classNames({ 'active': currentRoleInfo && currentRoleInfo.id === item.roleId })} onClick={() => this.getCurrentRole(item.roleId)}>{item.roleName}
           {
-            roleNum !== 3 && !includes(disabledArr, item.roleId) &&
-            <Tooltip placement="top" title="移除角色">
-              <Icon type="delete" className="pointer" onClick={(e) => this.deleteRole(e, item)} />
-            </Tooltip>
+            roleNum !== 3 && isManager && !includes(disabledArr,item.roleId) &&
+              <Tooltip placement="top" title="移除角色">
+                <Icon type="delete" className="pointer" onClick={(e)=>this.deleteRole(e,item)}/>
+              </Tooltip>
           }
         </li>
       )
@@ -938,8 +955,8 @@ class ProjectDetail extends Component {
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
                         <div className="dropDownBox">
-                          <span className="pointer" onClick={() => { roleNum === 3 ? null : this.toggleDrop() }}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true" /></span>
-                          <div className={classNames("dropDownInnerBox", { 'hide': !dropVisible })}>
+                          <span className="pointer" onClick={()=>{ roleNum === 1 || isManager ? this.toggleDrop() : null}}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
+                          <div className={classNames("dropDownInnerBox",{'hide':!dropVisible})}>
                             <dl className="dropDownTop">
                               <dt className="topHeader">{`已申请集群（${appliedLenght}）`}</dt>
                               {applying(false)}
@@ -987,7 +1004,7 @@ class ProjectDetail extends Component {
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {projectRole(projectDetail.outlineRoles)}
+                        {roleNameArr && roleNameArr.length ? roleNameArr.join(', ') : '-'}
                       </div>
                     </Col>
                   </Row>
@@ -1037,10 +1054,10 @@ class ProjectDetail extends Component {
                                   <i className="anticon anticon-save pointer" onClick={() => this.saveComment()} />
                                 </Tooltip>
                               ] :
-                              roleNum !== 3 &&
-                              <Tooltip title="编辑">
-                                <i className="anticon anticon-edit pointer" onClick={() => this.editComment()} />
-                              </Tooltip>
+                              (roleNum === 1 || isManager) &&
+                                <Tooltip title="编辑">
+                                  <i className="anticon anticon-edit pointer" onClick={()=> this.editComment()}/>
+                                </Tooltip>
                           }
                         </div>
                       </div>
@@ -1136,15 +1153,15 @@ class ProjectDetail extends Component {
                 <div className="project">
                   <div className="connectLeft pull-left">
                     <span className="leftTitle">已添加角色</span>
-                    <ul className={classNames("characterListBox", { 'borderHide': projectDetail.relatedRoles === null })}>
+                    <ul className={classNames("characterListBox",{'borderHide': projectDetail.relatedRoles === null})}>
                       {roleList}
                     </ul>
                     {
-                      roleNum !== 3 &&
+                      (roleNum === 1 || isManager) &&
                       [
-                        <Button type="primary" size="large" icon="plus" onClick={() => this.setState({ addCharacterModal: true })}> 添加已有角色</Button>,
-                        <br />,
-                        <Button type="ghost" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
+                        <Button type="primary" size="large" icon="plus" onClick={()=>this.setState({addCharacterModal:true})}> 添加已有角色</Button>,
+                        <br/>,
+                        <Button type="ghost" size="large" icon="plus" onClick={()=>this.openCreateModal()}>创建新角色</Button>
                       ]
                     }
                   </div>
@@ -1152,7 +1169,7 @@ class ProjectDetail extends Component {
                     <p className="rightTitle">角色关联对象</p>
                     <div className="rightContainer">
                       <div className="authBox inlineBlock">
-                        <p className="authTitle">该角色共 <span style={{ color: '#59c3f5' }}>{currentRoleInfo && currentRoleInfo.total || 0}</span> 个权限</p>
+                        <p className="authTitle">该角色共 <span style={{color:'#59c3f5'}}>{currentRoleInfo && currentRoleInfo.total || 0}</span> 个权限</p>
                         <div className="treeBox">
                           {
                             currentRolePermission &&
@@ -1172,7 +1189,7 @@ class ProjectDetail extends Component {
                         <div className="memberTitle">
                           <span>该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
                           {
-                            roleNum !== 3 && currentMembers.length > 0 && <Button type="primary" size="large" onClick={() => this.getProjectMember('user')}>继续关联对象</Button>
+                            (roleNum === 1 || isManager) && currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.getProjectMember('user')}>继续关联对象</Button>
                           }
                         </div>
                         <div className="memberTableBox">
@@ -1185,7 +1202,7 @@ class ProjectDetail extends Component {
                                 {loopFunc(currentMembers)}
                               </Tree>
                               :
-                              roleNum !== 3 && <Button type="primary" size="large" className="addMemberBtn" onClick={() => this.getProjectMember('user')}>关联对象</Button>
+                              (roleNum === 1 || isManager) && <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.getProjectMember('user')}>关联对象</Button>
                           }
                         </div>
                       </div>

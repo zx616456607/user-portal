@@ -264,7 +264,8 @@ exports.getServiceAutoScaleList = function* () {
   }
   this.body = {
     cluster,
-    data: autoScaleList || {}
+    data: autoScaleList || {},
+    totalCount: index
   }
 }
 

@@ -153,7 +153,6 @@ class TreeComponent extends Component {
   }
   
   onAlreadyCheck = (checkedKeys) => {
-    console.log(checkedKeys)
     this.setState({
       alreadyCheckedKeys: checkedKeys,
       alreadyAutoExpandParent: false,

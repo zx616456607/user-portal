@@ -92,7 +92,7 @@ let MemberList = React.createClass({
             size: userPageSize,
             filter,
           })
-          loadTeamAllUser(teamID,{size: 0, sort: 'a,userName'})
+          loadTeamAllUser(teamID,{size: -1, sort: 'a,userName'})
           self.setState({
             current: 1,
           })
@@ -174,7 +174,7 @@ let MemberList = React.createClass({
   },
   removeMember(e,record) {
     e.stopPropagation()
-    if (record.partialStyle === '团队管理员') {
+    if (record.partialStyle === '管理者') {
       this.setState({
        transferHint: true
      },()=>{
@@ -220,13 +220,13 @@ let MemberList = React.createClass({
         dataIndex: 'name',
         key: 'name',
         className: 'tablePadding',
-        width: '25%'
+        width: '20%'
       },
       {
         title: '手机/邮箱',
         dataIndex: 'tel',
         key: 'tel',
-        width: '25%',
+        width: '20%',
         render: (text, record) => (
           <Row>
             <Col>{record.tel}</Col>
@@ -235,23 +235,27 @@ let MemberList = React.createClass({
         )
       },
       {
-        title: '类型',
+        title: '账号类型',
         dataIndex: 'globalStyle',
         key: 'globalStyle',
-        width: '25%',
+        width: '20%',
         filters: [
           { text: '普通成员', value: '普通成员' },
           { text: '系统管理员', value: '系统管理员' },
         ],
         filteredValue: filteredInfo.globalStyle,
         onFilter: (value, record) => String(record.globalStyle) === value,
-        render: (text, record) => record.partialStyle === '团队管理员' ? `${text}（团队管理员）` : text
+      },
+      {
+        title: '团队权限',
+        dataIndex: 'partialStyle',
+        width: '20%',
       },
       {
         title: '操作',
         dataIndex: 'edit',
         key: 'edit',
-        width: '25%',
+        width: '20%',
         render: (text, record, index) => (
           <div className="cardBtns">
             <Button disabled={roleNum === 3}
@@ -320,7 +324,7 @@ class TeamDetail extends Component {
   }
   addNewMember() {
     const { loadTeamAllUser, teamID } = this.props;
-    loadTeamAllUser(teamID,{size: 0},{
+    loadTeamAllUser(teamID,{size: -1},{
       success: {
         func: () => {
           const { teamAllUserIDList } = this.props;
@@ -372,7 +376,7 @@ class TeamDetail extends Component {
             notify.success('操作成功')
           }
           loadTeamUserList(teamID,{sort: sortUser, size: 5, page: 1})
-          loadTeamAllUser(teamID,{size: 0, sort: 'a,userName'})
+          loadTeamAllUser(teamID,{size: -1, sort: 'a,userName'})
         },
         isAsync: true
       },
@@ -412,7 +416,7 @@ class TeamDetail extends Component {
               notify.success('操作成功')
             }
             loadTeamUserList(teamID,{sort: sortUser, size: 5, page: 1})
-            loadTeamAllUser(teamID,{size: 0, sort: 'a,userName'})
+            loadTeamAllUser(teamID,{size: -1, sort: 'a,userName'})
             resolve()
           },
           isAsync: true
@@ -466,7 +470,7 @@ class TeamDetail extends Component {
   }
   transferTeamLeader() {
     const { loadTeamAllUser, teamID } = this.props;
-    loadTeamAllUser(teamID, {size: 0, sort: 'a,userName'}, {
+    loadTeamAllUser(teamID, {size: -1, sort: 'a,userName'}, {
       success: {
         func: () => {
           const { teamAllUserList } = this.props
@@ -509,7 +513,7 @@ class TeamDetail extends Component {
   }
   getTeamUsers(value) {
     const { teamID, loadTeamAllUser } = this.props;
-    let opt = value === null ? {sort: 'a,userName', size: 0} : {sort: 'a,userName', size: 0, filter: `userName,${value}`}
+    let opt = value === null ? {sort: 'a,userName', size: -1} : {sort: 'a,userName', size: -1, filter: `userName,${value}`}
     loadTeamAllUser(teamID, opt,{
       success: {
         func: res => {
@@ -553,7 +557,7 @@ class TeamDetail extends Component {
           this.loadTeamDetail()
           this.getTeamLeader(null)
           loadTeamUserList(teamID, { sort: 'a,userName', size: 5, page: 1 })
-          loadTeamAllUser(teamID, {size: 0, sort: 'a,userName'})
+          loadTeamAllUser(teamID, {size: -1, sort: 'a,userName'})
           this.setState({
             transferStatus: false,
             value: ''
@@ -701,11 +705,10 @@ class TeamDetail extends Component {
       key: 'userName',
       width: '40%'
     },{
-      title: '类型',
-      dataIndex: 'globalStyle',
-      key: 'globalStyle',
+      title: '团队权限',
+      dataIndex: 'partialStyle',
+      key: 'partialStyle',
       width: '50%',
-      render: (text, record) => record.partialStyle ? record.partialStyle === '团队管理员' ? `${text}（团队管理员）` : text : text
     }]
     return (
       <QueueAnim>
@@ -776,11 +779,11 @@ class TeamDetail extends Component {
             </Row>
             <Row>
               <Col span={2}>
-                我是团队的
+                我是该团队的
               </Col>
               <Col span={22}>
                 {teamDetail && teamDetail.outlineRoles && teamDetail.outlineRoles.length &&
-                  (includes(teamDetail.outlineRoles,'manager') ? '团队管理员' : '') ||
+                  (includes(teamDetail.outlineRoles,'manager') || includes(teamDetail.outlineRoles,'creator') ? '管理者' : '') ||
                   (includes(teamDetail.outlineRoles,'no-participator') ? '非团队成员' : includes(teamDetail.outlineRoles,'participator') ? '参与者' : '')
                 }
               </Col>
@@ -908,7 +911,7 @@ function mapStateToProp(state, props) {
             tel: item.phone,
             email: item.email,
             globalStyle: includes(item.globalRoles,'admin') ? '系统管理员' : '普通成员',
-            partialStyle: includes(item.partialRoles,'manager') ? '团队管理员' : ''
+            partialStyle: includes(item.partialRoles,'manager') ? '管理者' : '参与者'
           }
         )
       })
@@ -925,7 +928,7 @@ function mapStateToProp(state, props) {
             name: item.userName,
             role : item.role,
             globalStyle: includes(item.globalRoles,'admin') ? '系统管理员' : '普通成员',
-            partialStyle: includes(item.partialRoles,'manager') ? '团队管理员' : ''
+            partialStyle: includes(item.partialRoles,'manager') ? '管理者' : '参与者'
           }
         )
       })
