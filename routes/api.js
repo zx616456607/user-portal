@@ -48,6 +48,7 @@ const vmWrapController =require('../controllers/wm_wrap')
 const netIsolationController = require('../controllers/network_isolation')
 const tenantController = require('../controllers/tenant_manage')
 const apmController = require('../controllers/apm')
+const storageController = require('../controllers/storage_manage')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -610,6 +611,12 @@ module.exports = function (Router) {
 
   // Apms
   router.get('/clusters/:clusterID/apms', apmController.getApms)
+
+  // cluster Storage
+  router.get('/clusters/:cluster/storageclass', storageController.getClusterStorageList)
+  router.post('/clusters/:cluster/storageclass', storageController.postCreateCephStorage)
+  router.put('/clusters/:cluster/storageclass', storageController.putUpdateCephStorage)
+  router.del('/clusters/:cluster/storageclass/:name', storageController.postDeleteCephStorage)
 
   return router.routes()
 }

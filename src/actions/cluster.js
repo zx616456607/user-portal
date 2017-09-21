@@ -441,7 +441,7 @@ function fetchUpdateClusterPlugins(cluster, name, body, callback) {
         body: body
       }
     },
-    callback
+  callback
   }
 }
 
@@ -574,5 +574,115 @@ function fetchSetDefultGruop(clusterID, groupID, callback) {
 export function setDefaultGroup(clusterID, groupId, callback) {
   return (dispatch) => {
     return dispatch(fetchSetDefultGruop(clusterID, groupId, callback))
+  }
+}
+
+
+export const GET_CLUSTER_STORAGE_LIST_REQUEST = 'GET_CLUSTER_STORAGE_LIST_REQUEST'
+export const GET_CLUSTER_STORAGE_LIST_SUCCESS = 'GET_CLUSTER_STORAGE_LIST_SUCCESS'
+export const GET_CLUSTER_STORAGE_LIST_FAILURE = 'GET_CLUSTER_STORAGE_LIST_FAILURE'
+
+function fetchGetClusterStorageList(cluster, callback){
+  return {
+    [FETCH_API]: {
+      types: [GET_CLUSTER_STORAGE_LIST_REQUEST, GET_CLUSTER_STORAGE_LIST_SUCCESS, GET_CLUSTER_STORAGE_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/storageclass`,
+      options: {
+        method: 'GET'
+      },
+      schema: {}
+    },
+    cluster,
+    callback
+  }
+}
+
+export function getClusterStorageList(cluster, callback){
+  return (dispatch, getState) => {
+    return dispatch(fetchGetClusterStorageList(cluster, callback))
+  }
+}
+
+
+export const CREATE_CEPH_STORAGE_REQUEST = 'CREATE_CEPH_STORAGE_REQUEST'
+export const CREATE_CEPH_STORAGE_SUCCESS = 'CREATE_CEPH_STORAGE_SUCCESS'
+export const CREATE_CEPH_STORAGE_FAILURE = 'CREATE_CEPH_STORAGE_FAILURE'
+
+function fetchCreateCephStorage(cluster, query, body, callback){
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/storageclass`
+  if(query){
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [CREATE_CEPH_STORAGE_REQUEST, CREATE_CEPH_STORAGE_SUCCESS, CREATE_CEPH_STORAGE_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function createCephStorage(cluster, query, body, callback){
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateCephStorage(cluster, query, body, callback))
+  }
+}
+
+
+export const UPDATE_STORAGE_CLASS_REQUEST = 'UPDATE_STORAGE_CLASS_REQUEST'
+export const UPDATE_STORAGE_CLASS_SUCCESS = 'UPDATE_STORAGE_CLASS_SUCCESS'
+export const UPDATE_STORAGE_CLASS_FAILURE = 'UPDATE_STORAGE_CLASS_FAILURE'
+
+function fetchUpdateStorageClass(cluster, query, body, callback){
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/storageclass`
+  if(query){
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_STORAGE_CLASS_REQUEST, UPDATE_STORAGE_CLASS_SUCCESS, UPDATE_STORAGE_CLASS_FAILURE],
+      endpoint,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function updateStorageClass(cluster, query, body, callback){
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateStorageClass(cluster, query, body, callback))
+  }
+}
+
+export const DELETE_STORAGE_CLASS_REQUEST = 'DELETE_STORAGE_CLASS_REQUEST'
+export const DELETE_STORAGE_CLASS_SUCCESS = 'DELETE_STORAGE_CLASS_SUCCESS'
+export const DELETE_STORAGE_CLASS_FAILURE = 'DELETE_STORAGE_CLASS_FAILURE'
+
+function fetchDeleteStorageClass(cluster, name, callback){
+  return {
+    [FETCH_API]: {
+      types: [DELETE_STORAGE_CLASS_REQUEST, DELETE_STORAGE_CLASS_SUCCESS, DELETE_STORAGE_CLASS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/storageclass/${name}`,
+      options: {
+        method: 'DELETE'
+      },
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function deleteStorageClass(cluster, name, callback){
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteStorageClass(cluster, name, callback))
   }
 }

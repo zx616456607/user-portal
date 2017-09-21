@@ -775,7 +775,7 @@ function mapStateToProp(state, props) {
           let role = ''
           let item = teamsData[i]
           if (item.outlineRoles) {
-            if (role === '' && (item.outlineRoles.includes('creator') || item.outlineRoles.includes('manager'))) {
+            if (role === '' && (item.outlineRoles.includes('manager'))) {
               role = 'manager'
             } else if (role === '' && item.outlineRoles.includes('participator')) {
               role = 'participator'
