@@ -419,7 +419,7 @@ let MemberTable = React.createClass({
         width: '15%',
       },
       {
-        title: '类型',
+        title: '账号类型',
         dataIndex: 'style',
         key: 'style',
         filters: filterKey,

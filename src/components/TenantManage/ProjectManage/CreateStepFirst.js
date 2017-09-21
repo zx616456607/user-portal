@@ -15,8 +15,7 @@ import { connect } from 'react-redux'
 import { CheckProjects } from '../../../actions/project'
 import { loadClusterList } from '../../../actions/cluster'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
-import { validateProjectName } from '../../../common/naming_validation'
-import { appNameCheck } from '../../../common/naming_validation'
+import { serviceNameCheck } from '../../../common/naming_validation'
 
 let CreateStepFirst = React.createClass({
   getInitialState() {
@@ -90,7 +89,7 @@ let CreateStepFirst = React.createClass({
   projectName(rule, value, callback) {
     const { CheckProjects } = this.props;
     let newValue = value && value.trim()
-    const msg = appNameCheck(newValue, '项目名称')
+    const msg = serviceNameCheck(newValue, '项目名称')
     if (msg !== 'success') {
       return callback(msg)
     }
