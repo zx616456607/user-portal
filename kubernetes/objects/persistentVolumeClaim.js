@@ -13,20 +13,26 @@ class PersistentVolumeClaim {
   constructor(config) {
     let {
       name,
-      fsType,
       storageType,
-      reclaimPolicy,
       storageClassName,
+      fsType,
       srType,
+      reclaimPolicy,
       accessModes,
       storage,
     } = config
+    if (!fsType) {
+      fsType = 'ext4'
+    }
     if (!srType) {
       if (storageType === 'ceph') {
         srType = 'private'
       } else if (storageType === 'nfs') {
         srType = 'share'
       }
+    }
+    if (!reclaimPolicy) {
+      reclaimPolicy = 'delete'
     }
     if (!accessModes) {
       if (storageType === 'ceph') {
