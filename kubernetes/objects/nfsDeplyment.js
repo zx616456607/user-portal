@@ -9,7 +9,7 @@
  */
 'use strict'
 class NfsDeplyment {
-  constructor(name, ip, path){
+  constructor(name, ip, path, image){
     this.kind = 'Deployment'
     this.apiVersion = 'extensions/v1beta1'
     this.metadata = {
@@ -32,7 +32,7 @@ class NfsDeplyment {
           containers: [
             {
               name,
-              image: '192.168.1.55/tenx_containers/nfs-client-provisioner:latest',
+              image,
               volumeMounts: [
                 {
                   "name": "nfs-client-root",

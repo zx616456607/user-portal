@@ -534,7 +534,7 @@ class ClusterStorage extends Component {
   }
 
   saveNfs(item){
-    const { form, createCephStorage, cluster, updateStorageClass } = this.props
+    const { form, createCephStorage, cluster, updateStorageClass, registryConfig } = this.props
     const { nfsArray } = this.state
     const validateArray = [
       `nfs_service_name${item.index}`,
@@ -548,8 +548,11 @@ class ClusterStorage extends Component {
       const name = values[`nfs_service_name${item.index}`]
       const ip = values[`nfs_service_adderss${item.index}`]
       const path = values[`nfs_service_path${item.index}`]
+      const server = registryConfig.server
+      const serverArray = server.split('//')
+      const image = `${serverArray[1]}/tenx_containers/nfs-client-provisioner:latest`
       const nfsStorage = new NfsStorage(name)
-      const nfsDeployment = new NfsDeplyment(name, ip, path)
+      const nfsDeployment = new NfsDeplyment(name, ip, path, image)
       const clusterID = cluster.clusterID
       const template = []
       template.push(yaml.dump(nfsStorage))
@@ -961,8 +964,10 @@ class ClusterStorage extends Component {
 ClusterStorage = Form.create()(ClusterStorage)
 
 function mapStateToProp(state, props) {
+  const { entities } = state
   const { cluster } = props
   const clusterID = cluster.clusterID
+  const registryConfig = entities.loginUser.info.registryConfig
   let clusterStorage = {
     isFetching: false,
     cephList: [],
@@ -973,6 +978,7 @@ function mapStateToProp(state, props) {
   }
   return {
     clusterStorage,
+    registryConfig,
   }
 }
 
