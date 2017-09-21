@@ -22,16 +22,9 @@ const standardFlag = config.running_mode === constants.STANDARD_MODE
 exports.getVolumeListByPool = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
-  const storageName = this.query.storagename
-  let response
+  const query = this.query
   const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
-  if(storageName == '0') {
-    response = yield volumeApi.getBy([cluster, 'volumes'])
-  } else {
-    response = yield volumeApi.getBy([cluster, 'volumes'], {
-      storageName: storageName
-    })
-  }
+  const response = yield volumeApi.getBy([cluster, 'volumes'], query)
   this.status = response.code
   this.body = response
 }

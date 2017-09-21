@@ -18,11 +18,6 @@ export const STORAGE_LIST_SUCCESS = 'STORAGE_LIST_SUCCESS'
 export const STORAGE_LIST_FAILURE = 'STORAGE_LIST_FAILURE'
 
 export function fetchStorageList(pool, cluster, query, callback) {
-  if (!query) {
-    query = {
-      storagename: 0,
-    }
-  }
   return {
     pool,
     [FETCH_API]: {
