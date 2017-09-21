@@ -110,7 +110,8 @@ exports.getUsers = function* () {
   const sessionUsers = yield sessionService.getAllSessions()
   users.map(user => {
     for (let i = 0; i < sessionUsers.length; i++) {
-      if (user.userID === sessionUsers[i].loginUser.id) {
+      const sessionUser = sessionUsers[i].loginUser || {}
+      if (user.userID === sessionUser.id) {
         user.online = true
         return
       }
