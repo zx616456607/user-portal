@@ -148,6 +148,38 @@ function getProxy(state = {}, action) {
   }
 }
 
+function clusterStorage(state = {}, action){
+  const cluster = action.cluster
+  switch(action.type){
+    case ActionTypes.GET_CLUSTER_STORAGE_LIST_REQUEST:
+      return Object.assign({}, state, {
+        [cluster]: {
+          isFetching: state[cluster] && state[cluster] ? false : true,
+          cephList: state[cluster] && state[cluster] ? state[cluster].cephList : [],
+          nfsList: state[cluster] && state[cluster] ? state[cluster].nfsList : [],
+        }
+      })
+    case ActionTypes.GET_CLUSTER_STORAGE_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        [cluster]: {
+          isFetching: false,
+          cephList: action.response.result.data.cephlist || [],
+          nfsList: action.response.result.data.nfslist || [],
+        }
+      })
+    case ActionTypes.GET_CLUSTER_STORAGE_LIST_FAILURE:
+      return Object.assign({}, state, {
+        [cluster]: {
+          isFetching: false,
+          cephlist: [],
+          nfsList: [],
+        }
+      })
+    default:
+      return state
+  }
+}
+
 
 export default function cluster(state = {
   clusters: {},
@@ -233,6 +265,7 @@ export default function cluster(state = {
       REQUEST: ActionTypes.CREATE_CLUSTER_PLUGINS_REQUEST,
       SUCCESS: ActionTypes.CREATE_CLUSTER_PLUGINS_SUCCESS,
       FAILURE: ActionTypes.CREATE_CLUSTER_PLUGINS_FAILURE
-    }, state.createClusterPlugins, action, option)
+    }, state.createClusterPlugins, action, option),
+    clusterStorage: clusterStorage(state.clusterStorage, action),
   }
 }
