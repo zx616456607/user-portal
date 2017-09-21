@@ -15,10 +15,10 @@ class PersistentVolumeClaim {
       name,
       fsType,
       storageType,
-      srType,
       reclaimPolicy,
-      accessModes,
       storageClassName,
+      srType,
+      accessModes,
       storage,
     } = config
     if (!srType) {
@@ -34,6 +34,9 @@ class PersistentVolumeClaim {
       } else if (storageType === 'nfs') {
         accessModes = 'ReadWriteMany'
       }
+    }
+    if (!storage) {
+      storage = '512Mi'
     }
     this.kind = 'PersistentVolumeClaim'
     this.apiVersion = 'v1'
@@ -53,7 +56,7 @@ class PersistentVolumeClaim {
       storageClassName,
       resources: {
         requests: {
-          storage: storage || '512Mi'
+          storage
         }
       }
     }
