@@ -11,9 +11,9 @@
 import React, { Component } from 'react'
 import classNames from 'classnames';
 import './style/ProjectDetail.less'
-import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree, Switch, Alert, Dropdown, Menu, Form } from 'antd'
+import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree, Switch, Alert, Dropdown, Menu, Form, Tabs } from 'antd'
 import QueueAnim from 'rc-queue-anim'
-import { browserHistory, Link} from 'react-router'
+import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
 import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjectsCluster, UpdateProjectsRelatedRoles, DeleteProjectsRelatedRoles, GetProjectsMembers } from '../../../../actions/project'
 import { chargeProject } from '../../../../actions/charge'
@@ -27,14 +27,16 @@ import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
 import isEmpty from 'lodash/isEmpty'
 import includes from 'lodash/includes'
-import CreateRoleModal from  '../CreateRole'
+import CreateRoleModal from '../CreateRole'
 import { PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID } from '../../../../../constants'
+import ResourceQuota from '../../../ResourceLimit'
 
 let checkedKeysDetail = []
-class ProjectDetail extends Component{
-  constructor(props){
+const TabPane = Tabs.TabPane;
+class ProjectDetail extends Component {
+  constructor(props) {
     super(props)
-    this.state= {
+    this.state = {
       editComment: false,
       paySingle: false,
       switchState: false,
@@ -82,18 +84,18 @@ class ProjectDetail extends Component{
     const { GetProjectsAllClusters } = this.props;
     GetProjectsAllClusters({
       projectsName: name
-    },{
-      success: {
-        func: (res) => {
-          if (res.statusCode === 200) {
-            this.setState({
-              projectClusters:res.data.clusters,
-            })
-          }
-        },
-        isAsync:true
-      }
-    })
+    }, {
+        success: {
+          func: (res) => {
+            if (res.statusCode === 200) {
+              this.setState({
+                projectClusters: res.data.clusters,
+              })
+            }
+          },
+          isAsync: true
+        }
+      })
   }
   loadRoleList() {
     const { ListRole } = this.props;
@@ -102,42 +104,42 @@ class ProjectDetail extends Component{
     const roleList = [];
     ListRole({
       size: -1
-    },{
-      success: {
-        func: (res)=> {
-          if (res.data.statusCode === 200) {
-            let result = res.data.data.items;
-            let relatedRoles = projectDetail.relatedRoles;
-            for (let i = 0 ; i < result.length; i++) {
-              let flag = false;
-              if (relatedRoles && relatedRoles.length > 0) {
-                for (let j = 0 ; j < relatedRoles.length; j++) {
-                  if (result[i].id === relatedRoles[j].roleId) {
-                    flag = true;
+    }, {
+        success: {
+          func: (res) => {
+            if (res.data.statusCode === 200) {
+              let result = res.data.data.items;
+              let relatedRoles = projectDetail.relatedRoles;
+              for (let i = 0; i < result.length; i++) {
+                let flag = false;
+                if (relatedRoles && relatedRoles.length > 0) {
+                  for (let j = 0; j < relatedRoles.length; j++) {
+                    if (result[i].id === relatedRoles[j].roleId) {
+                      flag = true;
+                    }
                   }
                 }
+                const data = {
+                  key: `${result[i].id},${result[i].name}`,
+                  title: result[i].name,
+                  description: result[i].name,
+                  chosen: flag,
+                };
+                const newData = Object.assign({}, result[i], data);
+                if (newData.chosen) {
+                  targetKeys.push(data.key);
+                }
+                roleList.push(newData)
               }
-              const data = {
-                key: `${result[i].id},${result[i].name}`,
-                title: result[i].name,
-                description: result[i].name,
-                chosen: flag,
-              };
-              const newData = Object.assign({},result[i],data);
-              if (newData.chosen) {
-                targetKeys.push(data.key);
-              }
-              roleList.push(newData)
+              this.setState({
+                choosableList: roleList,
+                targetKeys
+              })
             }
-            this.setState({
-              choosableList:roleList,
-              targetKeys
-            })
-          }
-        },
-        isAsync: true
-      }
-    })
+          },
+          isAsync: true
+        }
+      })
   }
   getProjectDetail() {
     const { name } = this.props.location.query;
@@ -145,31 +147,31 @@ class ProjectDetail extends Component{
     const { currentRoleInfo } = this.state;
     GetProjectsDetail({
       projectsName: name
-    },{
-      success: {
-        func: (res) => {
-          if (res.statusCode === 200) {
-            if (!isEmpty(currentRoleInfo)) {
-              this.getCurrentRole(currentRoleInfo.id)
-            } else {
+    }, {
+        success: {
+          func: (res) => {
+            if (res.statusCode === 200) {
+              if (!isEmpty(currentRoleInfo)) {
+                this.getCurrentRole(currentRoleInfo.id)
+              } else {
+                this.setState({
+                  currentRolePermission: [],
+                  currentRoleInfo: {}
+                })
+              }
               this.setState({
-                currentRolePermission: [],
-                currentRoleInfo: {}
+                projectDetail: res.data,
+                comment: res.data.description
+              }, () => {
+                const { projectDetail } = this.state;
+                this.loadRoleList()
+                this.getCurrentRole(projectDetail.relatedRoles && projectDetail.relatedRoles[0].roleId)
               })
             }
-            this.setState({
-              projectDetail:res.data,
-              comment:res.data.description
-            },()=>{
-              const { projectDetail } = this.state;
-              this.loadRoleList()
-              this.getCurrentRole(projectDetail.relatedRoles && projectDetail.relatedRoles[0].roleId)
-            })
-          }
-        },
-        isAsync: true
-      }
-    })
+          },
+          isAsync: true
+        }
+      })
   }
   filterOption(inputValue, option) {
     return option.description.indexOf(inputValue) > -1;
@@ -178,14 +180,14 @@ class ProjectDetail extends Component{
     this.setState({ targetKeys });
   }
   editComment() {
-    this.setState({editComment:true})
+    this.setState({ editComment: true })
   }
   cancelEdit() {
     const { setFieldsValue } = this.props.form
     const { projectDetail } = this.state;
     let oldComment = projectDetail.description;
-    this.setState({editComment:false},()=>{
-      setFieldsValue({'comment': oldComment})
+    this.setState({ editComment: false }, () => {
+      setFieldsValue({ 'comment': oldComment })
     })
   }
   saveComment() {
@@ -196,71 +198,71 @@ class ProjectDetail extends Component{
     let notify = new Notification()
     let comment = getFieldValue('comment');
     let oldComment = projectDetail.description;
-    if (!comment || (comment === oldComment)) {return this.setState({editComment:false})}
+    if (!comment || (comment === oldComment)) { return this.setState({ editComment: false }) }
     UpdateProjects({
       projectName: projectDetail.projectName,
       body: {
         description: comment
       }
-    },{
-      success: {
-        func: (res) =>{
-          if (res.statusCode === 200) {
-            notify.success('修改备注成功')
-            GetProjectsDetail({
-              projectsName: name
-            }, {
-              success: {
-                func: res => {
-                  this.setState({
-                    projectDetail: res.data,
-                    comment: res.data.description,
-                    editComment:false
-                  })
-                },
-                isAsync: true
-              }
-            })
-          }
-        },
-        isAsync: true
-      }
-    })
+    }, {
+        success: {
+          func: (res) => {
+            if (res.statusCode === 200) {
+              notify.success('修改备注成功')
+              GetProjectsDetail({
+                projectsName: name
+              }, {
+                  success: {
+                    func: res => {
+                      this.setState({
+                        projectDetail: res.data,
+                        comment: res.data.description,
+                        editComment: false
+                      })
+                    },
+                    isAsync: true
+                  }
+                })
+            }
+          },
+          isAsync: true
+        }
+      })
   }
   paySingle() {
-    this.setState({paySingle: true})
+    this.setState({ paySingle: true })
   }
   paySingleCancel() {
-    this.setState({paySingle: false})
+    this.setState({ paySingle: false })
   }
   paySingleOk() {
     const { chargeProject } = this.props;
     const { projectDetail, payNumber } = this.state;
     let notify = new Notification()
     chargeProject({
-      namespaces:[projectDetail.projectName],
+      namespaces: [projectDetail.projectName],
       amount: payNumber
-    },{
-      success: {
-        func: (res) => {
-          if (res.statusCode === 200) {
-            this.getProjectDetail()
-            this.setState({paySingle: false})
-            notify.success('充值成功')
-          }
-        },
-        isAsync: true
-      }
-    })
+    }, {
+        success: {
+          func: (res) => {
+            if (res.statusCode === 200) {
+              this.getProjectDetail()
+              this.setState({ paySingle: false })
+              notify.success('充值成功')
+            }
+          },
+          isAsync: true
+        }
+      })
   }
   switchChange(checked) {
-    this.setState({switchState:checked})
+    this.setState({ switchState: checked })
   }
   warningCancel() {
-    this.setState({balanceWarning:false})
+    this.setState({ balanceWarning: false })
   }
   warningSubmit() {
-    this.setState({balanceWarning:false})
+    this.setState({ balanceWarning: false })
   }
   onExpand = (expandedKeys) => {
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
@@ -292,67 +294,67 @@ class ProjectDetail extends Component{
       body: {
         roles: updateRoles
       }
-    },{
-      success: {
-        func: (res) => {
-          if (res.statusCode === 200) {
-            this.getProjectDetail()
-            notify.success('操作成功')
-            this.setState({addCharacterModal:false,targetKeys: []})
-          }
-        },
-        isAsync: true
-      }
-    })
+    }, {
+        success: {
+          func: (res) => {
+            if (res.statusCode === 200) {
+              this.getProjectDetail()
+              notify.success('操作成功')
+              this.setState({ addCharacterModal: false, targetKeys: [] })
+            }
+          },
+          isAsync: true
+        }
+      })
   }
   addCharacterCancel() {
-    this.setState({addCharacterModal:false})
+    this.setState({ addCharacterModal: false })
   }
   changePayNumber(payNumber) {
-    this.setState({payNumber})
+    this.setState({ payNumber })
   }
-  clusterStatus(status,flag) {
+  clusterStatus(status, flag) {
     return (
       <span className={`projectDetailClusterStatus projectDetailClusterStatus${status}`}>
-        {status ===1 ? flag ? '（申请中...）' : '申请中...' : ''}
-        {status ===2 ? flag ? '（已授权）' : '已授权' : ''}
-        {status ===3 ? flag ? '（已拒绝）' : '已拒绝' : ''}
+        {status === 1 ? flag ? '（申请中...）' : '申请中...' : ''}
+        {status === 2 ? flag ? '（已授权）' : '已授权' : ''}
+        {status === 3 ? flag ? '（已拒绝）' : '已拒绝' : ''}
       </span>
     )
   }
   toggleDrop() {
     this.setState({
-      dropVisible:!this.state.dropVisible
+      dropVisible: !this.state.dropVisible
     })
   }
-  updateProjectClusters(id,status) {
+  updateProjectClusters(id, status) {
     const { UpdateProjectsCluster } = this.props;
     const { name } = this.props.location.query;
     UpdateProjectsCluster({
-      projectsName:name,
+      projectsName: name,
       body: {
         clusters: {
-          [id]:status
+          [id]: status
         }
       }
-    },{
-      success: {
-        func: (res) => {
-          if (res.statusCode === 200) {
-            this.getClustersWithStatus()
-          }
-        },
-        isAsync: true
-      }
-    })
+    }, {
+        success: {
+          func: (res) => {
+            if (res.statusCode === 200) {
+              this.getClustersWithStatus()
+            }
+          },
+          isAsync: true
+        }
+      })
   }
-  generateDatas(_tns){
+  generateDatas(_tns) {
     if (!_tns) return
     const tns = _tns;
     const children = [];
     for (let i = 0; i < tns.length; i++) {
       const key = `${tns[i].id}`;
-      tns[i] = Object.assign(tns[i],{title: tns[i].desc,key: `${key}`})
+      tns[i] = Object.assign(tns[i], { title: tns[i].desc, key: `${key}` })
       children.push(key);
       checkedKeysDetail.push(key)
     }
@@ -366,74 +368,74 @@ class ProjectDetail extends Component{
     if (!id) return
     const { GetRole, roleWithMembers } = this.props;
     const { projectDetail } = this.state;
-    checkedKeysDetail.length=0
+    checkedKeysDetail.length = 0
     this.setState({
-      checkedKeys:[],
+      checkedKeys: [],
       expandedKeys: [],
       currentRoleInfo: {},
       currentRolePermission: [],
       currentMembers: []
-    },()=>{
+    }, () => {
       GetRole({
         roleId: id
-      },{
-        success: {
-          func: (res) =>{
-            if (res.data.statusCode === 200) {
-              let result = res.data.data;
-              this.generateDatas(result.permissions)
-              this.setState({
-                currentRoleInfo: result,
-                currentRolePermission: result.permissions,
-                expandedKeys: checkedKeysDetail,
-                checkedKeys: checkedKeysDetail
-              })
-            }
-          },
-          isAsync: true
-        }
-      })
+      }, {
+          success: {
+            func: (res) => {
+              if (res.data.statusCode === 200) {
+                let result = res.data.data;
+                this.generateDatas(result.permissions)
+                this.setState({
+                  currentRoleInfo: result,
+                  currentRolePermission: result.permissions,
+                  expandedKeys: checkedKeysDetail,
+                  checkedKeys: checkedKeysDetail
+                })
+              }
+            },
+            isAsync: true
+          }
+        })
       roleWithMembers({
         roleID: id,
         scope: 'project',
         scopeID: `${projectDetail.pid}`
-      },{
-        success: {
-          func: res => {
-            let member = []
-            let exist = []
-            if (res.data.data && res.data.data.length > 0) {
-              res.data.data.forEach(item => {
-                exist.push(item.userId)
+      }, {
+          success: {
+            func: res => {
+              let member = []
+              let exist = []
+              if (res.data.data && res.data.data.length > 0) {
+                res.data.data.forEach(item => {
+                  exist.push(item.userId)
+                })
+                member = res.data.data.slice(0)
+              }
+              this.formatArr(member)
+              this.setState({
+                currentMembers: member,
+                existentMember: exist,
+                memberCount: member.length > 0 ? member.length : 0
               })
-              member = res.data.data.slice(0)
-            }
-            this.formatArr(member)
-            this.setState({
-              currentMembers: member,
-              existentMember: exist,
-              memberCount: member.length > 0 ? member.length : 0
-            })
+            },
+            isAsync: true
           },
-          isAsync: true
-        },
-        failed: {
-          func: res => {
+          failed: {
+            func: res => {
 
-          },
-          isAsync: true
-        }
-      })
+            },
+            isAsync: true
+          }
+        })
     })
   }
   getProjectMember(type, name, flag) {
     const { GetProjectsMembers } = this.props;
     const { projectDetail } = this.state
-    let query = {type, pid: projectDetail.pid}
+    let query = { type, pid: projectDetail.pid }
     if (name) {
-      query = Object.assign(query, {filter: `name,${name}`})
+      query = Object.assign(query, { filter: `name,${name}` })
     }
-    
+
     GetProjectsMembers(query, {
       success: {
         func: (res) => {
@@ -444,7 +446,7 @@ class ProjectDetail extends Component{
               memberArr: newArr,
               filterFlag: flag,
               totalMemberCount: res.data.listMeta.total,
-              connectModal:true,
+              connectModal: true,
               memberType: type,
             })
           }
@@ -456,36 +458,36 @@ class ProjectDetail extends Component{
   formatMember(arr) {
     arr.forEach(item => {
       if (item.teamId) {
-        Object.assign(item,{id:item.teamId},{children: item.users.map(record => {return Object.assign(record,{parent:item.teamId})})})
+        Object.assign(item, { id: item.teamId }, { children: item.users.map(record => { return Object.assign(record, { parent: item.teamId }) }) })
         this.formatMember(item.users)
       } else {
-        Object.assign(item,{id:item.userID ? item.userID : item.userId})
+        Object.assign(item, { id: item.userID ? item.userID : item.userId })
       }
     })
   }
   formatArr(arr) {
     arr.forEach(item => {
-      Object.assign(item,{key: item.userId},{name: item.userName})
+      Object.assign(item, { key: item.userId }, { name: item.userName })
     })
   }
   renderItem(item) {
-    return(
-      <Row key={item&&item.key}>
-        <Col span={20}>{item&&item.name}</Col>
+    return (
+      <Row key={item && item.key}>
+        <Col span={20}>{item && item.name}</Col>
         {/*<Col span={4}>{item&&item.count}</Col>*/}
       </Row>
     )
   }
   openCreateModal() {
     this.setState({
-      characterModal:true
+      characterModal: true
     })
   }
-  deleteRole(e,item){
+  deleteRole(e, item) {
     e.stopPropagation()
     this.setState({
-      currentDeleteRole:item
-    },()=>{
+      currentDeleteRole: item
+    }, () => {
       this.setState({
         deleteRoleModal: true
       })
@@ -507,29 +509,29 @@ class ProjectDetail extends Component{
       body: {
         Roles: deleteArr
       }
-    },{
-      success: {
-        func: () => {
-          this.setState({
-            deleteRoleModal: false,
-            currentRoleInfo: currentRoleInfo.id === currentDeleteRole.roleId ? {} : currentRoleInfo
-          },()=>{
-            this.getProjectDetail()
-            notify.success('删除角色成功')
-          })
+    }, {
+        success: {
+          func: () => {
+            this.setState({
+              deleteRoleModal: false,
+              currentRoleInfo: currentRoleInfo.id === currentDeleteRole.roleId ? {} : currentRoleInfo
+            }, () => {
+              this.getProjectDetail()
+              notify.success('删除角色成功')
+            })
+          },
+          isAsync: true
         },
-        isAsync: true
-      },
-      failed: {
-        func: () => {
-          notify.error('删除角色失败')
-          this.setState({
-            deleteRoleModal: false
-          })
-        },
-        isAsync: true
-      }
-    })
+        failed: {
+          func: () => {
+            notify.error('删除角色失败')
+            this.setState({
+              deleteRoleModal: false
+            })
+          },
+          isAsync: true
+        }
+      })
   }
   closeMemberModal() {
     this.setState({
@@ -539,24 +541,24 @@ class ProjectDetail extends Component{
   }
   submitMemberModal() {
     const { selectedMembers, existentMember } = this.state;
-    let diff = xor(existentMember,selectedMembers);
-    let del = intersection(existentMember,diff)
-    let add = intersection(selectedMembers,diff)
+    let diff = xor(existentMember, selectedMembers);
+    let del = intersection(existentMember, diff)
+    let add = intersection(selectedMembers, diff)
     if (!del.length && !add.length) {
       this.setState({
         connectModal: false,
         memberType: 'user'
       })
     } else if (del.length && !add.length) {
-      this.delMember(del,true)
+      this.delMember(del, true)
     } else if (!del.length && add.length) {
-      this.addMember(add,true)
+      this.addMember(add, true)
     } else {
       this.addMember(add)
-      this.delMember(del,true)
+      this.delMember(del, true)
     }
   }
-  addMember(add,flag) {
+  addMember(add, flag) {
     const { currentRoleInfo, projectDetail } = this.state;
     const { usersAddRoles } = this.props;
     let notify = new Notification()
@@ -565,37 +567,37 @@ class ProjectDetail extends Component{
       scope: 'project',
       scopeID: `${projectDetail.pid}`,
       body: {
-        userIDs:add
+        userIDs: add
       }
-    },{
-      success: {
-        func: () => {
-          if (flag) {
-            this.getCurrentRole(currentRoleInfo.id)
-            notify.success('关联对象操作成功')
-            this.setState({
-              connectModal: false,
-              memberType: 'user'
-            })
-          }
+    }, {
+        success: {
+          func: () => {
+            if (flag) {
+              this.getCurrentRole(currentRoleInfo.id)
+              notify.success('关联对象操作成功')
+              this.setState({
+                connectModal: false,
+                memberType: 'user'
+              })
+            }
+          },
+          isAsync: true
         },
-        isAsync: true
-      },
-      failed: {
-        func: () => {
-          if (flag) {
-            notify.error('关联对象操作失败')
-            this.setState({
-              connectModal: false,
-              memberType: 'user'
-            })
-          }
-        },
-        isAsync: true
-      }
-    })
+        failed: {
+          func: () => {
+            if (flag) {
+              notify.error('关联对象操作失败')
+              this.setState({
+                connectModal: false,
+                memberType: 'user'
+              })
+            }
+          },
+          isAsync: true
+        }
+      })
   }
-  delMember(del,flag) {
+  delMember(del, flag) {
     const { currentRoleInfo, projectDetail } = this.state;
     const { usersLoseRoles } = this.props;
     let notify = new Notification()
@@ -604,35 +606,35 @@ class ProjectDetail extends Component{
       scope: 'project',
       scopeID: `${projectDetail.pid}`,
       body: {
-        userIDs:del
+        userIDs: del
       }
-    },{
-      success: {
-        func: () => {
-          if (flag) {
-            this.getCurrentRole(currentRoleInfo.id)
-            notify.success('关联对象操作成功')
-            this.setState({
-              connectModal: false,
-              memberType: 'user'
-            })
-          }
+    }, {
+        success: {
+          func: () => {
+            if (flag) {
+              this.getCurrentRole(currentRoleInfo.id)
+              notify.success('关联对象操作成功')
+              this.setState({
+                connectModal: false,
+                memberType: 'user'
+              })
+            }
+          },
+          isAsync: true
         },
-        isAsync: true
-      },
-      failed: {
-        func: () => {
-          if (flag) {
-            notify.success('关联对象操作成功')
-            this.setState({
-              connectModal: false,
-              memberType: 'user'
-            })
-          }
-        },
-        isAsync: true
-      }
-    })
+        failed: {
+          func: () => {
+            if (flag) {
+              notify.success('关联对象操作成功')
+              this.setState({
+                connectModal: false,
+                memberType: 'user'
+              })
+            }
+          },
+          isAsync: true
+        }
+      })
   }
   updateCurrentMember(member) {
     this.setState({
@@ -654,8 +656,8 @@ class ProjectDetail extends Component{
     const TreeNode = Tree.TreeNode;
     const { form, roleNum } = this.props;
     const { getFieldProps } = form;
-    const loopFunc = data => data.length >0 && data.map((item) => {
-      return <TreeNode key={item.key} title={item.userName} disableCheckbox={true}/>;
+    const loopFunc = data => data.length > 0 && data.map((item) => {
+      return <TreeNode key={item.key} title={item.userName} disableCheckbox={true} />;
     });
     const projectRole = (role) => {
       if (!role) return
@@ -676,7 +678,7 @@ class ProjectDetail extends Component{
           </TreeNode>
         );
       }
-      return <TreeNode key={item.key} title={item.title} disableCheckbox={true}/>;
+      return <TreeNode key={item.key} title={item.title} disableCheckbox={true} />;
     });
     let alertMessage = (
       <div style={{ color: '#137bb8', lineHeight: '28px', }}>
@@ -685,24 +687,24 @@ class ProjectDetail extends Component{
         <p>2. 当项目余额小于该值时，每天邮件提醒一次。</p>
       </div>
     )
-    const applying = (flag)=> {
+    const applying = (flag) => {
       return [
-        projectClusters.length > 0 && projectClusters.map((item,index)=>{
+        projectClusters.length > 0 && projectClusters.map((item, index) => {
           if (item.status === 1) {
             if (flag) {
               return (
                 <div className="clusterStatus applyingStatus" key={`${item.cluster.clusterID}-status`}>
                   <span>{item.cluster.clusterName}</span>
-                  {this.clusterStatus(item.status,true)}
+                  {this.clusterStatus(item.status, true)}
                 </div>
               )
             }
-            return(
+            return (
               <dd className="topList" key={item.cluster.clusterID}>
                 <span>{item.cluster.clusterName}</span>
                 <div>
                   {this.clusterStatus(item.status)}
-                  <Icon type="cross-circle-o" className="pull-right pointer" style={{marginLeft:'10px'}} onClick={()=>this.updateProjectClusters(item.cluster.clusterID,0)}/>
+                  <Icon type="cross-circle-o" className="pull-right pointer" style={{ marginLeft: '10px' }} onClick={() => this.updateProjectClusters(item.cluster.clusterID, 0)} />
                 </div>
               </dd>
             )
@@ -710,7 +712,7 @@ class ProjectDetail extends Component{
         })
       ]
     }
-    const applied = (flag)=> {
+    const applied = (flag) => {
       return [
         projectClusters.length > 0 && projectClusters.map((item, index) => {
           if (item.status === 2) {
@@ -718,16 +720,16 @@ class ProjectDetail extends Component{
               return (
                 <div className="clusterStatus appliedStatus" key={`${item.cluster.clusterID}-status`}>
                   <span>{item.cluster.clusterName}</span>
-                  {this.clusterStatus(item.status,true)}
+                  {this.clusterStatus(item.status, true)}
                   {
                     roleNum !== 3 &&
-                      <Tooltip title="移除集群">
-                        <i className="anticon anticon-cross" onClick={()=>this.setState({deleteClusterModal: true})}/>
-                      </Tooltip>
+                    <Tooltip title="移除集群">
+                      <i className="anticon anticon-cross" onClick={() => this.setState({ deleteClusterModal: true })} />
+                    </Tooltip>
                   }
                   <Modal title="移除集群" visible={this.state.deleteClusterModal}
-                         onCancel={()=>this.setState({deleteClusterModal:false})}
-                         onOk={()=>{this.updateProjectClusters(item.cluster.clusterID, 0);this.setState({deleteClusterModal: false})}}
+                    onCancel={() => this.setState({ deleteClusterModal: false })}
+                    onOk={() => { this.updateProjectClusters(item.cluster.clusterID, 0); this.setState({ deleteClusterModal: false }) }}
                   >
                     <div className="modalColor">
                       <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
@@ -750,27 +752,27 @@ class ProjectDetail extends Component{
         })
       ]
     }
-    const reject = (flag)=> {
+    const reject = (flag) => {
       return [
-        projectClusters.length > 0 && projectClusters.map((item,index)=>{
+        projectClusters.length > 0 && projectClusters.map((item, index) => {
           if (item.status === 3) {
             if (flag) {
               return (
                 <div className="clusterStatus rejectStatus" key={`${item.cluster.clusterID}-status`}>
                   <span>{item.cluster.clusterName}</span>
-                  {this.clusterStatus(item.status,true)}
+                  {this.clusterStatus(item.status, true)}
                 </div>
               )
             }
-            return(
+            return (
               <dd className="topList" key={item.cluster.clusterID}>
                 <span>{item.cluster.clusterName}</span>
                 <div>
                   {this.clusterStatus(item.status)}
                   <Tooltip placement="top" title='重新申请'>
-                    <i className="fa fa-pencil-square-o pull-right fa-lg pointer" aria-hidden="true" onClick={()=>this.updateProjectClusters(item.cluster.clusterID,1)}/>
+                    <i className="fa fa-pencil-square-o pull-right fa-lg pointer" aria-hidden="true" onClick={() => this.updateProjectClusters(item.cluster.clusterID, 1)} />
                   </Tooltip>
-                  <Icon type="cross-circle-o" className="pull-right pointer" style={{marginLeft:'10px'}} onClick={()=>this.updateProjectClusters(item.cluster.clusterID,0)}/>
+                  <Icon type="cross-circle-o" className="pull-right pointer" style={{ marginLeft: '10px' }} onClick={() => this.updateProjectClusters(item.cluster.clusterID, 0)} />
                 </div>
               </dd>
             )
@@ -781,11 +783,11 @@ class ProjectDetail extends Component{
     let bottomLength = 0
     const menuBottom = (
       [
-        projectClusters.length > 0 && projectClusters.map((item,index)=>{
+        projectClusters.length > 0 && projectClusters.map((item, index) => {
           if (item.status === 0) {
-            bottomLength ++
-            return(
-              <dd className="topList lastList pointer" key={item.cluster.clusterID} onClick={()=>this.updateProjectClusters(item.cluster.clusterID,1)}>
+            bottomLength++
+            return (
+              <dd className="topList lastList pointer" key={item.cluster.clusterID} onClick={() => this.updateProjectClusters(item.cluster.clusterID, 1)}>
                 <span>{item.cluster.clusterName}</span>
                 <div>
                   {this.clusterStatus(item.status)}
@@ -796,64 +798,64 @@ class ProjectDetail extends Component{
         })
       ]
     )
-    const roleList = projectDetail.relatedRoles && projectDetail.relatedRoles.map((item,index)=>{
+    const roleList = projectDetail.relatedRoles && projectDetail.relatedRoles.map((item, index) => {
       return (
-        <li key={item.roleId} className={classNames({'active': currentRoleInfo && currentRoleInfo.id === item.roleId})} onClick={()=>this.getCurrentRole(item.roleId)}>{item.roleName}
+        <li key={item.roleId} className={classNames({ 'active': currentRoleInfo && currentRoleInfo.id === item.roleId })} onClick={() => this.getCurrentRole(item.roleId)}>{item.roleName}
           {
-            roleNum !== 3 && !includes(disabledArr,item.roleId) &&
-              <Tooltip placement="top" title="移除角色">
-                <Icon type="delete" className="pointer" onClick={(e)=>this.deleteRole(e,item)}/>
-              </Tooltip>
+            roleNum !== 3 && !includes(disabledArr, item.roleId) &&
+            <Tooltip placement="top" title="移除角色">
+              <Icon type="delete" className="pointer" onClick={(e) => this.deleteRole(e, item)} />
+            </Tooltip>
           }
         </li>
       )
     })
     const appliedLenght = projectClusters.length - bottomLength
-    return(
+    return (
       <QueueAnim>
         <div key='projectDetailBox' className="projectDetailBox">
           <div className="goBackBox">
-            <span className="goBackBtn pointer" onClick={()=> browserHistory.push('/tenant_manage/project_manage')}>返回</span>
-            <i/>
+            <span className="goBackBtn pointer" onClick={() => browserHistory.push('/tenant_manage/project_manage')}>返回</span>
+            <i />
             项目详情
           </div>
           <Modal title="删除角色" visible={this.state.deleteRoleModal}
-            onCancel = {()=> this.cancelDeleteRole()}
-            onOk = {()=> this.confirmDeleteRole()}
+            onCancel={() => this.cancelDeleteRole()}
+            onOk={() => this.confirmDeleteRole()}
           >
             <div className="modalColor">
               <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-              是否确定从项目{projectDetail&&projectDetail.projectName}中移除角色{currentDeleteRole.roleName}？
+              是否确定从项目{projectDetail && projectDetail.projectName}中移除角色{currentDeleteRole.roleName}？
             </div>
           </Modal>
           <Modal title="项目充值" visible={this.state.paySingle} width={580}
-             onCancel = {()=> this.paySingleCancel()}
-             onOk = {()=> this.paySingleOk()}
+            onCancel={() => this.paySingleCancel()}
+            onOk={() => this.paySingleOk()}
           >
             <dl className="paySingleList">
-              <dt>项目名</dt><dd>{projectDetail&&projectDetail.projectName}</dd>
+              <dt>项目名</dt><dd>{projectDetail && projectDetail.projectName}</dd>
             </dl>
             <dl className="paySingleList">
-              <dt>余额</dt><dd>{parseAmount(projectDetail&&projectDetail.balance,4).fullAmount}</dd>
+              <dt>余额</dt><dd>{parseAmount(projectDetail && projectDetail.balance, 4).fullAmount}</dd>
             </dl>
             <dl className="paySingleList">
               <dt>充值金额</dt>
               <dd className="payBtn">
-                <span className={classNames('btnList',{'active': payNumber === 10})} onClick={()=>{this.changePayNumber(10)}}>10T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-                <span className={classNames('btnList',{'active': payNumber === 20})} onClick={()=>{this.changePayNumber(20)}}>20T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-                <span className={classNames('btnList',{'active': payNumber === 50})} onClick={()=>{this.changePayNumber(50)}}>50T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-                <span className={classNames('btnList',{'active': payNumber === 100})} onClick={()=>{this.changePayNumber(100)}}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-                <InputNumber value={payNumber} onChange={(value)=>this.setState({payNumber:value})} size="large" min={10}/>
+                <span className={classNames('btnList', { 'active': payNumber === 10 })} onClick={() => { this.changePayNumber(10) }}>10T<div className="triangle"><i className="anticon anticon-check" /></div></span>
+                <span className={classNames('btnList', { 'active': payNumber === 20 })} onClick={() => { this.changePayNumber(20) }}>20T<div className="triangle"><i className="anticon anticon-check" /></div></span>
+                <span className={classNames('btnList', { 'active': payNumber === 50 })} onClick={() => { this.changePayNumber(50) }}>50T<div className="triangle"><i className="anticon anticon-check" /></div></span>
+                <span className={classNames('btnList', { 'active': payNumber === 100 })} onClick={() => { this.changePayNumber(100) }}>100T<div className="triangle"><i className="anticon anticon-check" /></div></span>
+                <InputNumber value={payNumber} onChange={(value) => this.setState({ payNumber: value })} size="large" min={10} />
                 <b>T</b>
               </dd>
             </dl>
           </Modal>
           <Modal visible={this.state.balanceWarning}
-                 title='设置提醒'
-                 wrapClassName='remindModal'
-                 onOk={this.warningSubmit.bind(this)}
-                 onCancel={this.warningCancel.bind(this)}
-                 width='610px' >
+            title='设置提醒'
+            wrapClassName='remindModal'
+            onOk={this.warningSubmit.bind(this)}
+            onCancel={this.warningCancel.bind(this)}
+            width='610px' >
             <div>
               <Alert message={alertMessage} type="info" />
               <Row style={{ color: '#333333', height: 35 }}>
@@ -863,7 +865,7 @@ class ProjectDetail extends Component{
               <Row style={{ paddingLeft: '22px', height: 35 }}>
                 <Col span={4} style={{ color: '#7a7a7a' }}>提醒规则</Col>
                 <Col span={20} style={{ color: '#666666' }}>我的空间可用余额小于&nbsp;
-                  <InputNumber/>
+                  <InputNumber />
                   <span> T</span>
                   &nbsp;时发送提醒
                 </Col>
@@ -871,7 +873,7 @@ class ProjectDetail extends Component{
               <Row style={{ paddingLeft: '22px', height: 28 }}>
                 <Col span={4} style={{ color: '#7a7a7a' }}>提醒方式</Col>
                 <Col span={20}>
-                  <Checkbox  style={{ color: '#7a7a7a', fontSize: '14px' }} >邮件(123456@qq.com)</Checkbox>
+                  <Checkbox style={{ color: '#7a7a7a', fontSize: '14px' }} >邮件(123456@qq.com)</Checkbox>
                 </Col>
               </Row>
             </div>
@@ -888,7 +890,7 @@ class ProjectDetail extends Component{
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {projectDetail&&projectDetail.projectName}
+                        {projectDetail && projectDetail.projectName}
                       </div>
                     </Col>
                   </Row>
@@ -900,7 +902,7 @@ class ProjectDetail extends Component{
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        <span style={{marginRight:'30px'}}>{parseAmount(projectDetail&&projectDetail.balance,4).fullAmount}</span>
+                        <span style={{ marginRight: '30px' }}>{parseAmount(projectDetail && projectDetail.balance, 4).fullAmount}</span>
                         {
                           roleNum === 1 && <Button type="primary" size="large" onClick={this.paySingle.bind(this)}>充值</Button>
                         }
@@ -908,24 +910,24 @@ class ProjectDetail extends Component{
                     </Col>
                   </Row>
                   {/*<Row gutter={16}>*/}
-                    {/*<Col className='gutter-row' span={4}>*/}
-                      {/*<div className="gutter-box">*/}
-                        {/*余额预警*/}
-                      {/*</div>*/}
-                    {/*</Col>*/}
-                    {/*<Col className='gutter-row' span={20}>*/}
-                      {/*<div className="gutter-box">*/}
-                        {/*<Switch checkedChildren="开" unCheckedChildren="关" defaultChecked={false}  onChange={(checked)=>this.switchChange(checked)}/>*/}
-                        {/*{*/}
-                          {/*this.state.switchState ?*/}
-                            {/*<span>*/}
-                              {/*<span className="balanceTip">项目余额小于 <span className="themeColor">2T</span> 时预警</span>*/}
-                              {/*<span className="alertBtn themeColor pointer" onClick={()=>this.setState({balanceWarning:true})}>修改</span>*/}
-                            {/*</span>*/}
-                            {/*: ''*/}
-                        {/*}*/}
-                      {/*</div>*/}
-                    {/*</Col>*/}
+                  {/*<Col className='gutter-row' span={4}>*/}
+                  {/*<div className="gutter-box">*/}
+                  {/*余额预警*/}
+                  {/*</div>*/}
+                  {/*</Col>*/}
+                  {/*<Col className='gutter-row' span={20}>*/}
+                  {/*<div className="gutter-box">*/}
+                  {/*<Switch checkedChildren="开" unCheckedChildren="关" defaultChecked={false}  onChange={(checked)=>this.switchChange(checked)}/>*/}
+                  {/*{*/}
+                  {/*this.state.switchState ?*/}
+                  {/*<span>*/}
+                  {/*<span className="balanceTip">项目余额小于 <span className="themeColor">2T</span> 时预警</span>*/}
+                  {/*<span className="alertBtn themeColor pointer" onClick={()=>this.setState({balanceWarning:true})}>修改</span>*/}
+                  {/*</span>*/}
+                  {/*: ''*/}
+                  {/*}*/}
+                  {/*</div>*/}
+                  {/*</Col>*/}
                   {/*</Row>*/}
                   <Row gutter={16}>
                     <Col className='gutter-row' span={4}>
@@ -936,16 +938,16 @@ class ProjectDetail extends Component{
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
                         <div className="dropDownBox">
-                          <span className="pointer" onClick={()=>{ roleNum === 3 ? null : this.toggleDrop()}}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
-                          <div className={classNames("dropDownInnerBox",{'hide':!dropVisible})}>
+                          <span className="pointer" onClick={() => { roleNum === 3 ? null : this.toggleDrop() }}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true" /></span>
+                          <div className={classNames("dropDownInnerBox", { 'hide': !dropVisible })}>
                             <dl className="dropDownTop">
                               <dt className="topHeader">{`已申请集群（${appliedLenght}）`}</dt>
-                                {applying(false)}
-                                {applied(false)}
-                                {reject(false)}
+                              {applying(false)}
+                              {applied(false)}
+                              {reject(false)}
                               {
                                 !appliedLenght &&
-                                  <dd className="topList" style={{color:'#999'}}>已申请集群为空</dd>
+                                <dd className="topList" style={{ color: '#999' }}>已申请集群为空</dd>
                               }
                             </dl>
                             <dl className="dropDownBottom">
@@ -953,7 +955,7 @@ class ProjectDetail extends Component{
                               {menuBottom}
                               {
                                 !bottomLength &&
-                                  <dd className="topList lastList" style={{color:'#999'}}>可申请集群为空</dd>
+                                <dd className="topList lastList" style={{ color: '#999' }}>可申请集群为空</dd>
                               }
                             </dl>
                           </div>
@@ -997,7 +999,7 @@ class ProjectDetail extends Component{
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {projectDetail && projectDetail.createTime && projectDetail.createTime.replace(/T/g,' ').replace(/Z/g, '')}
+                        {projectDetail && projectDetail.createTime && projectDetail.createTime.replace(/T/g, ' ').replace(/Z/g, '')}
                       </div>
                     </Col>
                   </Row>
@@ -1022,23 +1024,23 @@ class ProjectDetail extends Component{
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
                         <div className="example-input commonBox">
-                          <Input size="large" disabled={editComment ? false : true} type="textarea" placeholder="备注" {...getFieldProps('comment',{
+                          <Input size="large" disabled={editComment ? false : true} type="textarea" placeholder="备注" {...getFieldProps('comment', {
                             initialValue: comment
-                          })}/>
+                          }) } />
                           {
                             editComment ?
                               [
                                 <Tooltip title="取消">
-                                  <i className="anticon anticon-minus-circle-o pointer" onClick={()=> this.cancelEdit()}/>
+                                  <i className="anticon anticon-minus-circle-o pointer" onClick={() => this.cancelEdit()} />
                                 </Tooltip>,
                                 <Tooltip title="保存">
-                                  <i className="anticon anticon-save pointer" onClick={()=> this.saveComment()}/>
+                                  <i className="anticon anticon-save pointer" onClick={() => this.saveComment()} />
                                 </Tooltip>
                               ] :
-                                roleNum !== 3 &&
-                                <Tooltip title="编辑">
-                                  <i className="anticon anticon-edit pointer" onClick={()=> this.editComment()}/>
-                                </Tooltip>
+                              roleNum !== 3 &&
+                              <Tooltip title="编辑">
+                                <i className="anticon anticon-edit pointer" onClick={() => this.editComment()} />
+                              </Tooltip>
                           }
                         </div>
                       </div>
@@ -1053,20 +1055,20 @@ class ProjectDetail extends Component{
               <Row gutter={16}>
                 <Col className='gutter-row' span={8}>
                   <div className="gutter-box">
-                    <i className="inlineBlock appNum"/>
-                    <span>应用数：{projectDetail&&projectDetail.appCount}个</span>
+                    <i className="inlineBlock appNum" />
+                    <span>应用数：{projectDetail && projectDetail.appCount}个</span>
                   </div>
                 </Col>
                 <Col className='gutter-row' span={8}>
                   <div className="gutter-box">
-                    <i className="inlineBlock serverNum"/>
-                    <span>服务数：{projectDetail&&projectDetail.serviceCount}个</span>
+                    <i className="inlineBlock serverNum" />
+                    <span>服务数：{projectDetail && projectDetail.serviceCount}个</span>
                   </div>
                 </Col>
                 <Col className='gutter-row' span={8}>
                   <div className="gutter-box">
-                    <i className="inlineBlock containerNum"/>
-                    <span>容器数：{projectDetail&&projectDetail.containerCount}个</span>
+                    <i className="inlineBlock containerNum" />
+                    <span>容器数：{projectDetail && projectDetail.containerCount}个</span>
                   </div>
                 </Col>
               </Row>
@@ -1090,12 +1092,12 @@ class ProjectDetail extends Component{
               }}
               searchPlaceholder="请输入搜索内容"
               titles={['可选角色', '已选角色']}
-              operations={[ '添加','移除']}
+              operations={['添加', '移除']}
               filterOption={this.filterOption.bind(this)}
               targetKeys={targetKeys}
               onChange={this.handleChange.bind(this)}
               rowKey={item => item.key}
-              render={(item)=>this.renderItem(item)}
+              render={(item) => this.renderItem(item)}
             />
           </Modal>
           <CreateRoleModal
@@ -1105,8 +1107,8 @@ class ProjectDetail extends Component{
             loadData={this.loadRoleList.bind(this)}
           />
           <Modal title="关联对象" width={765} visible={connectModal}
-                 onCancel={()=> this.closeMemberModal()}
-                 onOk={()=> this.submitMemberModal()}
+            onCancel={() => this.closeMemberModal()}
+            onOk={() => this.submitMemberModal()}
           >
             {
               memberArr.length > 0 &&
@@ -1128,65 +1130,75 @@ class ProjectDetail extends Component{
             }
           </Modal>
           <div className="projectMember">
-            <Card title="项目中角色关联的对象" className="clearfix connectCard">
-              <div className="connectLeft pull-left">
-                <span className="leftTitle">已添加角色</span>
-                <ul className={classNames("characterListBox",{'borderHide': projectDetail.relatedRoles === null})}>
-                  {roleList}
-                </ul>
-                {
-                  roleNum !== 3 &&
-                  [
-                    <Button type="primary" size="large" icon="plus" onClick={()=>this.setState({addCharacterModal:true})}> 添加已有角色</Button>,
-                    <br/>,
-                    <Button type="ghost" size="large" icon="plus" onClick={()=>this.openCreateModal()}>创建新角色</Button>
-                  ]
-                }
-              </div>
-              <div className="connectRight pull-left">
-                <p className="rightTitle">角色关联对象</p>
-                <div className="rightContainer">
-                  <div className="authBox inlineBlock">
-                    <p className="authTitle">该角色共 <span style={{color:'#59c3f5'}}>{currentRoleInfo && currentRoleInfo.total || 0}</span> 个权限</p>
-                    <div className="treeBox">
-                      {
-                        currentRolePermission &&
-                        <Tree
-                          checkable
-                          onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
-                          autoExpandParent={this.state.autoExpandParent}
-                          onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
-                          onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
-                        >
-                          {loop(currentRolePermission)}
-                        </Tree>
-                      }
-                    </div>
+            <Tabs className="clearfix connectCard">
+              <TabPane tab="项目角色及关联对象" key="project">
+                {/* <Card title="项目中角色关联的对象" className="clearfix connectCard"> */}
+                <div className="project">
+                  <div className="connectLeft pull-left">
+                    <span className="leftTitle">已添加角色</span>
+                    <ul className={classNames("characterListBox", { 'borderHide': projectDetail.relatedRoles === null })}>
+                      {roleList}
+                    </ul>
+                    {
+                      roleNum !== 3 &&
+                      [
+                        <Button type="primary" size="large" icon="plus" onClick={() => this.setState({ addCharacterModal: true })}> 添加已有角色</Button>,
+                        <br />,
+                        <Button type="ghost" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
+                      ]
+                    }
                   </div>
-                  <div className="memberBox inlineBlock">
-                    <div className="memberTitle">
-                      <span>该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
-                      {
-                        roleNum !== 3 && currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.getProjectMember('user')}>继续关联对象</Button>
-                      }
-                    </div>
-                    <div className="memberTableBox">
-                      {
-                        currentMembers.length > 0 ?
-                          <Tree
-                            checkable multiple
-                            checkedKeys={currentMembers.map(item => `${item.key}`)}
-                          >
-                            {loopFunc(currentMembers)}
-                          </Tree>
-                          :
-                          roleNum !== 3 && <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.getProjectMember('user')}>关联对象</Button>
-                      }
+                  <div className="connectRight pull-left">
+                    <p className="rightTitle">角色关联对象</p>
+                    <div className="rightContainer">
+                      <div className="authBox inlineBlock">
+                        <p className="authTitle">该角色共 <span style={{ color: '#59c3f5' }}>{currentRoleInfo && currentRoleInfo.total || 0}</span> 个权限</p>
+                        <div className="treeBox">
+                          {
+                            currentRolePermission &&
+                            <Tree
+                              checkable
+                              onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
+                              autoExpandParent={this.state.autoExpandParent}
+                              onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
+                              onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
+                            >
+                              {loop(currentRolePermission)}
+                            </Tree>
+                          }
+                        </div>
+                      </div>
+                      <div className="memberBox inlineBlock">
+                        <div className="memberTitle">
+                          <span>该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
+                          {
+                            roleNum !== 3 && currentMembers.length > 0 && <Button type="primary" size="large" onClick={() => this.getProjectMember('user')}>继续关联对象</Button>
+                          }
+                        </div>
+                        <div className="memberTableBox">
+                          {
+                            currentMembers.length > 0 ?
+                              <Tree
+                                checkable multiple
+                                checkedKeys={currentMembers.map(item => `${item.key}`)}
+                              >
+                                {loopFunc(currentMembers)}
+                              </Tree>
+                              :
+                              roleNum !== 3 && <Button type="primary" size="large" className="addMemberBtn" onClick={() => this.getProjectMember('user')}>关联对象</Button>
+                          }
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </Card>
+                {/* </Card> */}
+              </TabPane>
+              <TabPane tab="资源配额管理" key="puota">
+                <ResourceQuota isProject={true} />
+              </TabPane>
+            </Tabs>
+
           </div>
         </div>
       </QueueAnim>
