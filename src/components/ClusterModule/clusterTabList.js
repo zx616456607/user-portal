@@ -231,7 +231,9 @@ class ClusterTabList extends Component {
               </span>}
               key="cluster_storage"
             >
-              <ClusterStorage />
+              <ClusterStorage
+                cluster={cluster}
+              />
             </TabPane>
           </Tabs>
 
