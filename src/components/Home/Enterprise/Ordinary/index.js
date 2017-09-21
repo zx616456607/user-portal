@@ -27,6 +27,8 @@ import homeEtcd from '../../../../assets/img/homeEtcdCluster.png'
 import { Link } from 'react-router'
 import { AVATAR_HOST, SHOW_BILLING } from '../../../../constants'
 
+const RadioButton = Radio.Button
+const RadioGroup = Radio.Group
 function getClusterCostOption(costValue, restValue) {
   return {
     tooltip: {
@@ -165,8 +167,8 @@ class Ordinary extends Component {
   }
 
   componentWillMount() {
-    const {loadClusterInfo, current} = this.props
-    const {clusterID} = current.cluster
+    const { loadClusterInfo, current } = this.props
+    const { clusterID } = current.cluster
     loadClusterInfo(clusterID)
     this.loadClusterSummary(clusterID)
   }
@@ -215,6 +217,10 @@ class Ordinary extends Component {
     return result + 'T'
   }
 
+  onChange(e) {
+
+  }
+
   render() {
     const { clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
       clusterNodeSummary, clusterDbServices, spaceName, clusterName, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching, loginUser } = this.props
@@ -258,7 +264,7 @@ class Ordinary extends Component {
       clusterNodeSummary.cpu.slice(0, 3).map((item, index) => {
         let name = item.name.replace(/192.168./, '')
         CPUResourceName.push(name)
-        name = name.length > 9 ? `${name.substring(0,6)}...` : name
+        name = name.length > 9 ? `${name.substring(0, 6)}...` : name
         CPUNameArr.push(name)
         CPUUsedArr.push(item.used)
       })
@@ -273,7 +279,7 @@ class Ordinary extends Component {
       clusterNodeSummary.memory.slice(0, 3).map((item, index) => {
         let name = item.name.replace(/192.168./, '')
         memoryResourceName.push(name)
-        name = name.length > 9 ? `${name.substring(0,6)}...` : name
+        name = name.length > 9 ? `${name.substring(0, 6)}...` : name
         memoryNameArr.push(name)
         memoryUsedArr.push(item.used)
       })
@@ -413,7 +419,7 @@ class Ordinary extends Component {
     const statefulAppOptions = Object.getOwnPropertyNames(statefulApps).map(
       app => <Select.Option value={app} key={app}>{statefulApps[app]}</Select.Option>)
     const statefulAppMenus = (
-      <Select defaultValue={this.state.statefulApp} value={this.state.statefulApp} style={{ width: '80%', margin:'10px 10%' }} onChange={onStatefulAppOptionClick.bind(this)}>
+      <Select defaultValue={this.state.statefulApp} value={this.state.statefulApp} style={{ width: '80%', margin: '10px 10%' }} onChange={onStatefulAppOptionClick.bind(this)}>
         {statefulAppOptions}
       </Select>
     )
@@ -705,15 +711,15 @@ class Ordinary extends Component {
         },
         formatter: function (params) {
           let content = '';
-          for(let i = 0; i < params.length; i++){
-            if(params[i].name){
-              content += "<div>"+CPUResourceName[params[i]['dataIndex']] ;
+          for (let i = 0; i < params.length; i++) {
+            if (params[i].name) {
+              content += "<div>" + CPUResourceName[params[i]['dataIndex']];
               break;
             }
           }
-          for(let i = 0, key = {}; i < params.length; i++){
+          for (let i = 0, key = {}; i < params.length; i++) {
             key = params[i];
-            if( typeof key.value==='undefined' || key.value === '-')
+            if (typeof key.value === 'undefined' || key.value === '-')
               key.value = '暂无';
             content += key.seriesName + " : " + key.value + "%";
           }
@@ -789,15 +795,15 @@ class Ordinary extends Component {
         },
         formatter: function (params) {
           let content = '';
-          for(let i = 0; i < params.length; i++){
-            if(params[i].name){
-              content += "<div>"+memoryResourceName[params[i]['dataIndex']] ;
+          for (let i = 0; i < params.length; i++) {
+            if (params[i].name) {
+              content += "<div>" + memoryResourceName[params[i]['dataIndex']];
               break;
             }
           }
-          for(let i = 0, key = {}; i < params.length; i++){
+          for (let i = 0, key = {}; i < params.length; i++) {
             key = params[i];
-            if( typeof key.value==='undefined' || key.value === '-')
+            if (typeof key.value === 'undefined' || key.value === '-')
               key.value = '暂无';
             content += key.seriesName + " : " + key.value + "%";
           }
@@ -927,28 +933,28 @@ class Ordinary extends Component {
       tooltip: {
         trigger: 'item',
         formatter: '{b} : ({d}%)' //function (obj) {
-          // if(obj.data.cpu)  {
-          //   if (obj.name == '已使用') {
-          //     return　`已使用${usedCPU}核`
-          //   } else {
-          //     return `可使用${((capacityCPU * 100 - usedCPU * 100)/100).toFixed(2)}核`
-          //   }
-          // }
-          // if(obj.data.memory){
-          //   if (obj.name == '已使用') {
-          //     return  `已使用${usedMemory}GB`
-          //   } else {
-          //     return  `可使用${((capacityMemory * 100 - usedMemory * 100) / 100).toFixed(2)}GB`
-          //   }
-          // }
-          // if(obj.data.volume) {
-          //   if (obj.name == '已使用') {
-          //     return `已使用${volumeUsed}GB`
-          //   } else {
-          //     return `可使用${((volumeCapacity * 100 - volumeUsed * 100 ) / 100).toFixed(2)}GB`
-          //   }
-          // }
-       // }
+        // if(obj.data.cpu)  {
+        //   if (obj.name == '已使用') {
+        //     return　`已使用${usedCPU}核`
+        //   } else {
+        //     return `可使用${((capacityCPU * 100 - usedCPU * 100)/100).toFixed(2)}核`
+        //   }
+        // }
+        // if(obj.data.memory){
+        //   if (obj.name == '已使用') {
+        //     return  `已使用${usedMemory}GB`
+        //   } else {
+        //     return  `可使用${((capacityMemory * 100 - usedMemory * 100) / 100).toFixed(2)}GB`
+        //   }
+        // }
+        // if(obj.data.volume) {
+        //   if (obj.name == '已使用') {
+        //     return `已使用${volumeUsed}GB`
+        //   } else {
+        //     return `可使用${((volumeCapacity * 100 - volumeUsed * 100 ) / 100).toFixed(2)}GB`
+        //   }
+        // }
+        // }
       },
       // legend: {
       //   left: '50%',
@@ -967,7 +973,7 @@ class Ordinary extends Component {
         radius: ['19', '28'],
         center: ['17%', '50%'],
         data: [
-          { value: cpuUsedPrecent, name: '已使用', selected: true, cpu:true },
+          { value: cpuUsedPrecent, name: '已使用', selected: true, cpu: true },
           { value: 100 - cpuUsedPrecent, name: '可使用', cpu: true },
         ],
         label: {
@@ -1132,7 +1138,6 @@ class Ordinary extends Component {
         }
       }]
     }
-
     const img = userName.substr(0, 1).toUpperCase()
 
     return (
@@ -1140,91 +1145,91 @@ class Ordinary extends Component {
       <div id='Ordinary'>
         <Row className="title">{spaceName} - {clusterName}集群</Row>
         <Row className="content" gutter={16}>
-          { SHOW_BILLING?
-          <Col span={6} className='clusterCost'>
-            <Card title="帐户余额" bordered={false} bodyStyle={{height: 220, padding: '36px 24px'}}>
-              <div className='costInfo'>
-                <div className='loginUser'>
-                  <div className='logAvatar'>
-                    <Link to='/account'>
-                      <span style={{color: 'white'}}>{img}</span>
-                      {/*<img alt={userName} src={`${AVATAR_HOST}${avatar}`} />*/}
-                    </Link>
-                  </div>
-                  <div className="loginText">
-                    <div className="text">
+          {SHOW_BILLING ?
+            <Col span={6} className='clusterCost'>
+              <Card title="帐户余额" bordered={false} bodyStyle={{ height: 220, padding: '36px 24px' }}>
+                <div className='costInfo'>
+                  <div className='loginUser'>
+                    <div className='logAvatar'>
                       <Link to='/account'>
-                        <p className="userName">
-                          {userName}
-                        </p>
+                        <span style={{ color: 'white' }}>{img}</span>
+                        {/*<img alt={userName} src={`${AVATAR_HOST}${avatar}`} />*/}
                       </Link>
-                      <Tooltip title={email}>
-                        <p className="email textoverflow">{email || '...'}</p>
-                      </Tooltip>
+                    </div>
+                    <div className="loginText">
+                      <div className="text">
+                        <Link to='/account'>
+                          <p className="userName">
+                            {userName}
+                          </p>
+                        </Link>
+                        <Tooltip title={email}>
+                          <p className="email textoverflow">{email || '...'}</p>
+                        </Tooltip>
+                      </div>
+                    </div>
+                    {/*<div className='loginTag'>个人</div>*/}
+                    <div style={{ clear: 'both' }}></div>
+                  </div>
+                  <div>
+                    <div className='userCost'>
+                      <div>
+                        <i style={{ backgroundColor: '#46b2fa' }}></i>
+                        {this.state.isTeam ? '团队余额' : '我的余额'}：
+                    </div>
+                      <span className='costNum'>
+                        <Tooltip title={parseAmount(clusterNodeSpaceConsumption.balance).amount + 'T'}>
+                          <span>{parseAmount(clusterNodeSpaceConsumption.balance).amount} T</span>
+                        </Tooltip>
+                      </span>
+                      {/*<Link to='/account'><Button type='primary'>去充值</Button></Link>*/}
+                    </div>
+                    <div className='userCost'>
+                      <div>
+                        <i style={{ backgroundColor: '#28bd83' }}></i>
+                        今日消费：
+                    </div>
+                      <span className='costNum'>
+                        <Tooltip title={parseAmount(clusterNodeSpaceConsumption.consumption).amount + 'T'}>
+                          <span>{parseAmount(clusterNodeSpaceConsumption.consumption).amount} T</span>
+                        </Tooltip>
+                        &nbsp;
+                      <Tooltip title="全区域"><Icon type="question-circle-o" /></Tooltip>
+                      </span>
+                      <Link to='/account/costCenter#consumptions'><Button type='primary'>去查看</Button></Link>
                     </div>
                   </div>
-                  {/*<div className='loginTag'>个人</div>*/}
-                  <div style={{clear: 'both'}}></div>
                 </div>
-                <div>
-                  <div className='userCost'>
-                    <div>
-                      <i style={{backgroundColor: '#46b2fa'}}></i>
-                      {this.state.isTeam ? '团队余额' : '我的余额'}：
-                    </div>
-                    <span className='costNum'>
-                      <Tooltip title={parseAmount(clusterNodeSpaceConsumption.balance).amount + 'T'}>
-                        <span>{parseAmount(clusterNodeSpaceConsumption.balance).amount} T</span>
-                      </Tooltip>
-                    </span>
-                    {/*<Link to='/account'><Button type='primary'>去充值</Button></Link>*/}
-                  </div>
-                  <div className='userCost'>
-                    <div>
-                      <i style={{backgroundColor: '#28bd83'}}></i>
-                      今日消费：
-                    </div>
-                    <span className='costNum'>
-                      <Tooltip title={parseAmount(clusterNodeSpaceConsumption.consumption).amount + 'T'}>
-                        <span>{parseAmount(clusterNodeSpaceConsumption.consumption).amount} T</span>
-                      </Tooltip>
-                      &nbsp;
-                      <Tooltip title="全区域"><Icon type="question-circle-o"/></Tooltip>
-                    </span>
-                    <Link to='/account/costCenter#consumptions'><Button type='primary'>去查看</Button></Link>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </Col>
-          :
-          <Col span={6} className='clusterCost'>
-            <Card title="帐户信息" bordered={false} bodyStyle={{height: 220, padding: '36px 24px'}}>
+              </Card>
+            </Col>
+            :
+            <Col span={6} className='clusterCost'>
+              <Card title="帐户信息" bordered={false} bodyStyle={{ height: 220, padding: '36px 24px' }}>
                 <div className='loginUser'>
-                  <div className='logAvatar' style={{float:'none',margin:'0 auto'}}>
+                  <div className='logAvatar' style={{ float: 'none', margin: '0 auto' }}>
                     <Link to='/account'>
-                      <span style={{color: 'white'}}>{img}</span>
+                      <span style={{ color: 'white' }}>{img}</span>
                       {/*<img alt={userName} src={`${AVATAR_HOST}${avatar}`} />*/}
                     </Link>
                   </div>
                 </div>
-               <div className="text-center" style={{fontSize:16,marginTop:20}}>
-                <Link to='/account'>
-                  <p className="userName textoverflow">
-                    {userName}
-                  </p>
-                </Link>
-                <Tooltip title={email}>
-                  <p className="textoverflow" style={{marginTop:5}}>{email || '...'}</p>
-                </Tooltip>
-              </div>
+                <div className="text-center" style={{ fontSize: 16, marginTop: 20 }}>
+                  <Link to='/account'>
+                    <p className="userName textoverflow">
+                      {userName}
+                    </p>
+                  </Link>
+                  <Tooltip title={email}>
+                    <p className="textoverflow" style={{ marginTop: 5 }}>{email || '...'}</p>
+                  </Tooltip>
+                </div>
 
-            </Card>
-          </Col>
+              </Card>
+            </Col>
           }
-          <Col span={6} className='clusterStatus'>
-            <Card title="本集群资源分配状况" bordered={false} bodyStyle={{ height: 220, padding: '0 24px' }}>
-              <div className='clusterStatusTitle'>
+          <Col span={6} className='clusterRecord'>
+            <Card title="今日该集群记录" bordered={false} bodyStyle={{ height: 220 }}>
+              {/* <div className='clusterStatusTitle'>
                 计算与存储
               </div>
               <ReactEcharts
@@ -1264,91 +1269,7 @@ class Ordinary extends Component {
                     {`已创建容器 ${ isNaN(allocatedPodNumber) ? '-' :allocatedPodNumber } 个（含系统），还可创建 ${ isNaN(allocatedPodNumber) ? '-' : canCreateContainer } 个`}
                   </div>
                 </Tooltip>
-              </div>
-            </Card>
-          </Col>
-          <Col span={6} className='sysState'>
-            <Spin spinning={isFetching}>
-              <Card title="系统状态" bordered={false} bodyStyle={{ height: 220 }}>
-                <table>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <svg className="stateSvg">
-                          <use xlinkHref="#homekubernetes" />
-                        </svg>
-                        Kubernetes
-                    </td>
-                      <td>
-                        <SvcState currentState={clusterSysinfo.k8s.status} />
-                      </td>
-                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
-                        {clusterSysinfo.k8s.version}
-                      </td>*/}
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="stateSvg">
-                          <use xlinkHref="#homewww" />
-                        </svg>
-                        DNS
-                    </td>
-                      <td>
-                        <SvcState currentState={clusterSysinfo.dns.status} />
-                      </td>
-                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
-                        {clusterSysinfo.dns.version}
-                      </td>*/}
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="stateSvg">
-                          <use xlinkHref="#engine" />
-                        </svg>
-                        API Server
-                    </td>
-                      <td>
-                        <SvcState currentState={clusterSysinfo.apiserver.status} />
-                      </td>
-                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
-                        {clusterSysinfo.apiserver.version}
-                      </td>*/}
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="stateSvg">
-                          <use xlinkHref="#cicd" />
-                        </svg>
-                        Monitor
-                    </td>
-                      <td>
-                        <SvcState currentState={clusterSysinfo.monitor.status} />
-                      </td>
-                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
-                        {clusterSysinfo.monitor.version}
-                      </td>*/}
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="stateSvg">
-                          <use xlinkHref="#homelogging" />
-                        </svg>
-                        Logging
-                    </td>
-                      <td>
-                        <SvcState currentState={clusterSysinfo.logging.status} />
-                      </td>
-                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
-                        {clusterSysinfo.logging.version}
-                      </td>*/}
-                    </tr>
-                  </tbody>
-                </table>
-              </Card>
-            </Spin>
-          </Col>
-          <Col span={6} className='clusterRecord'>
-            <Card title="今日该集群记录" bordered={false} bodyStyle={{ height: 220 }}>
+              </div> */}
               <div style={{ overflowY: 'auto', height: '172px' }}>
                 <table>
                   <tbody>
@@ -1456,67 +1377,195 @@ class Ordinary extends Component {
               </div>
             </Card>
           </Col>
-        </Row>
-        <Row className="content" gutter={16} style={{ marginTop: 16 }}>
-          <Col span={6}>
-            <Card title="应用" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-              <ReactEcharts
-                notMerge={true}
-                option={appOption}
-                style={{ height: '180px' }}
-                showLoading={isFetching}
-              />
-            </Card>
+          <Col span={6} className='sysState'>
+            <Spin spinning={isFetching}>
+              <Card title="系统状态" bordered={false} bodyStyle={{ height: 220 }}>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#homekubernetes" />
+                        </svg>
+                        Kubernetes
+                    </td>
+                      <td>
+                        <SvcState currentState={clusterSysinfo.k8s.status} />
+                      </td>
+                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
+                        {clusterSysinfo.k8s.version}
+                      </td>*/}
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#homewww" />
+                        </svg>
+                        DNS
+                    </td>
+                      <td>
+                        <SvcState currentState={clusterSysinfo.dns.status} />
+                      </td>
+                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
+                        {clusterSysinfo.dns.version}
+                      </td>*/}
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#engine" />
+                        </svg>
+                        API Server
+                    </td>
+                      <td>
+                        <SvcState currentState={clusterSysinfo.apiserver.status} />
+                      </td>
+                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
+                        {clusterSysinfo.apiserver.version}
+                      </td>*/}
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#cicd" />
+                        </svg>
+                        Monitor
+                    </td>
+                      <td>
+                        <SvcState currentState={clusterSysinfo.monitor.status} />
+                      </td>
+                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
+                        {clusterSysinfo.monitor.version}
+                      </td>*/}
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#homelogging" />
+                        </svg>
+                        Logging
+                    </td>
+                      <td>
+                        <SvcState currentState={clusterSysinfo.logging.status} />
+                      </td>
+                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
+                        {clusterSysinfo.logging.version}
+                      </td>*/}
+                    </tr>
+                  </tbody>
+                </table>
+              </Card>
+            </Spin>
           </Col>
-          <Col span={6}>
-            <Card title="服务" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-              <ReactEcharts
-                notMerge={true}
-                option={serviceOption}
-                style={{ height: '180px' }}
-                showLoading={isFetching}
-              />
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card title="容器" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-              <ReactEcharts
-                notMerge={true}
-                option={containerOption}
-                style={{ height: '180px' }}
-                showLoading={isFetching}
-              />
-            </Card>
-          </Col>
-          <Col span={6} className='storage'>
-            <Card title="存储" bordered={false} bodyStyle={{ height: 180, padding: '0px 20px 0px 0px' }}>
-              <ProgressBox boxPos={boxPos} />
-              <Col span={12} className='storageInf'>
-                <div className="storageInfList">
-                  <Row className='storageInfItem'>
-                    <Col span={12}>已用 <Tooltip title="当前已用配额"><Icon type="question-circle-o" /></Tooltip></Col>
-                    <Col span={12} style={{ textAlign: 'right' }}>{this.handleSize(clusterStorage.usedSize)}</Col>
-                  </Row>
-                  <Row className='storageInfItem'>
-                    <Col span={12}>可用 <Tooltip title="当前可用配额"><Icon type="question-circle-o" /></Tooltip></Col>
-                    <Col span={12} style={{ textAlign: 'right' }}>{this.handleSize(clusterStorage.freeSize)}</Col>
-                  </Row>
-                  <Row className='storageInfItem'>
-                    <Col span={12}>存储卷</Col>
-                    <Col span={12} style={{ textAlign: 'right' }}>{clusterStorage.totalCnt} 个</Col>
-                  </Row>
-                  <Row className='storageInfItem'>
-                    <Col span={12}>使用中</Col>
-                    <Col span={12} style={{ textAlign: 'right' }}>{clusterStorage.usedCnt} 个</Col>
-                  </Row>
-                </div>
-              </Col>
-            </Card>
-          </Col>
-        </Row>
-        <Row className="content" gutter={16} style={{ marginTop: 16 }}>
           <Col span={6} className='dataBase'>
-            <Card title="数据库与缓存" bordered={false} bodyStyle={{ height: 200, padding:'15px 24px'}}>
+            {/* <Card title="数据库与缓存" bordered={false} bodyStyle={{ height: 220 }}>
+              <div style={{ overflowY: 'auto', height: '172px' }}>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        创建应用
+                    </td>
+                      <td className="recordNum">
+                        {clusterOperations.appCreate} 个
+                    </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeservicecount" />
+                        </svg>
+                        创建服务
+                    </td>
+                      <td className="recordNum">
+                        {clusterOperations.svcCreate} 个
+                    </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homesavecount" />
+                        </svg>
+                        创建存储卷
+                    </td>
+                      <td className="recordNum">
+                        {clusterOperations.volumeCreate} 个
+                    </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        停止应用
+                    </td>
+                      <td className="recordNum">
+                        {clusterOperations.appStop} 个
+                    </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeservicecount" />
+                        </svg>
+                        删除服务
+                    </td>
+                      <td className="recordNum">
+                        {clusterOperations.svcDelete} 个
+                    </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homesavecount" />
+                        </svg>
+                        删除存储卷
+                    </td>
+                      <td className="recordNum">
+                        {clusterOperations.volumeDelete} 个
+                    </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        修改应用
+                    </td>
+                      <td className="recordNum">
+                        {clusterOperations.appModify} 个
+                    </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        启动应用
+                    </td>
+                      <td className="recordNum">
+                        {clusterOperations.appStart} 个
+                    </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        重新部署
+                    </td>
+                      <td className="recordNum">
+                        {clusterOperations.appRedeploy} 个
+                    </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </Card> */}
+            <Card title="数据库与缓存" bordered={false} bodyStyle={{ height: 220 }}>
               {statefulAppMenus}
               <Row style={{ display: this.state.tab1 ? 'block' : 'none', height: 130 }}>
                 <Col span={12} className='dbImg'>
@@ -1639,33 +1688,33 @@ class Ordinary extends Component {
                 <Col span={12} className='dbInf'>
                   <table>
                     <tbody>
-                    <tr>
-                      <td>
-                        <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
-                        运行中
+                      <tr>
+                        <td>
+                          <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
+                          运行中
                       </td>
-                      <td className="dbNum">
-                        {zookeeperRunning} 个
+                        <td className="dbNum">
+                          {zookeeperRunning} 个
                       </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
-                        已停止
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
+                          已停止
                       </td>
-                      <td className="dbNum">
-                        {zookeeperStopped} 个
+                        <td className="dbNum">
+                          {zookeeperStopped} 个
                       </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                        操作中
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
+                          操作中
                       </td>
-                      <td className="dbNum">
-                        {zookeeperOthers} 个
+                        <td className="dbNum">
+                          {zookeeperOthers} 个
                       </td>
-                    </tr>
+                      </tr>
                     </tbody>
                   </table>
                 </Col>
@@ -1677,33 +1726,33 @@ class Ordinary extends Component {
                 <Col span={12} className='dbInf'>
                   <table>
                     <tbody>
-                    <tr>
-                      <td>
-                        <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
-                        运行中
+                      <tr>
+                        <td>
+                          <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
+                          运行中
                       </td>
-                      <td className="dbNum">
-                        {elasticSearchRunning} 个
+                        <td className="dbNum">
+                          {elasticSearchRunning} 个
                       </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
-                        已停止
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
+                          已停止
                       </td>
-                      <td className="dbNum">
-                        {elasticSearchStopped} 个
+                        <td className="dbNum">
+                          {elasticSearchStopped} 个
                       </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                        操作中
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
+                          操作中
                       </td>
-                      <td className="dbNum">
-                        {elasticSearchOthers} 个
+                        <td className="dbNum">
+                          {elasticSearchOthers} 个
                       </td>
-                    </tr>
+                      </tr>
                     </tbody>
                   </table>
                 </Col>
@@ -1715,37 +1764,176 @@ class Ordinary extends Component {
                 <Col span={12} className='dbInf'>
                   <table>
                     <tbody>
-                    <tr>
-                      <td>
-                        <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
-                        运行中
+                      <tr>
+                        <td>
+                          <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
+                          运行中
                       </td>
-                      <td className="dbNum">
-                        {etcdRunning} 个
+                        <td className="dbNum">
+                          {etcdRunning} 个
                       </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
-                        已停止
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
+                          已停止
                       </td>
-                      <td className="dbNum">
-                        {etcdStopped} 个
+                        <td className="dbNum">
+                          {etcdStopped} 个
                       </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                        操作中
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
+                          操作中
                       </td>
-                      <td className="dbNum">
-                        {etcdOthers} 个
+                        <td className="dbNum">
+                          {etcdOthers} 个
                       </td>
-                    </tr>
+                      </tr>
                     </tbody>
                   </table>
                 </Col>
               </Row>
+            </Card>
+          </Col>
+        </Row>
+        <Row className="content" gutter={16} style={{ marginTop: 16 }}>
+          <Col span={6}>
+            <Card title="应用" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+              <ReactEcharts
+                notMerge={true}
+                option={appOption}
+                style={{ height: '180px' }}
+                showLoading={isFetching}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card title="服务" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+              <ReactEcharts
+                notMerge={true}
+                option={serviceOption}
+                style={{ height: '180px' }}
+                showLoading={isFetching}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card title="容器" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+              <ReactEcharts
+                notMerge={true}
+                option={containerOption}
+                style={{ height: '180px' }}
+                showLoading={isFetching}
+              />
+            </Card>
+          </Col>
+          <Col span={6} className='storage'>
+            <Card title="存储" bordered={false} bodyStyle={{ height: 180, padding: '0px 20px 0px 0px' }}>
+              <ProgressBox boxPos={boxPos} />
+              <Col span={12} className='storageInf'>
+                <div className="storageInfList">
+                  <Row className='storageInfItem'>
+                    <Col span={12}>已用 <Tooltip title="当前已用配额"><Icon type="question-circle-o" /></Tooltip></Col>
+                    <Col span={12} style={{ textAlign: 'right' }}>{this.handleSize(clusterStorage.usedSize)}</Col>
+                  </Row>
+                  <Row className='storageInfItem'>
+                    <Col span={12}>可用 <Tooltip title="当前可用配额"><Icon type="question-circle-o" /></Tooltip></Col>
+                    <Col span={12} style={{ textAlign: 'right' }}>{this.handleSize(clusterStorage.freeSize)}</Col>
+                  </Row>
+                  <Row className='storageInfItem'>
+                    <Col span={12}>存储卷</Col>
+                    <Col span={12} style={{ textAlign: 'right' }}>{clusterStorage.totalCnt} 个</Col>
+                  </Row>
+                  <Row className='storageInfItem'>
+                    <Col span={12}>使用中</Col>
+                    <Col span={12} style={{ textAlign: 'right' }}>{clusterStorage.usedCnt} 个</Col>
+                  </Row>
+                </div>
+              </Col>
+            </Card>
+          </Col>
+        </Row>
+        <Row className="content" gutter={16} style={{ marginTop: 16 }}>
+          <Col span={6} className='quota'>
+            <Card title="改集群在项目中的资源配额" bordered={false} bodyStyle={{ height: 200, padding: '15px 24px' }}>
+              <RadioGroup style={{ margin: '10px 5px 10px 5px' }} className="radio" size="small" onChange={this.onChange} defaultValue="a">
+                <RadioButton value="a">计算资源</RadioButton>
+                <RadioButton value="b">应用管理</RadioButton>
+                <RadioButton value="c">数据库与缓存</RadioButton>
+              </RadioGroup>
+              <div className="calculation">
+                <div className="info">
+                  <span>CPU(核)</span>
+                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
+                  <span className="count">2/5</span>
+                </div>
+                <div className="info">
+                  <span>内存(GB)</span>
+                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
+                  <span>2/5</span>
+                </div>
+                <div className="info">
+                  <span>磁盘(GB)</span>
+                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
+                  <span>2/5</span>
+                </div>
+              </div>
+              <div className="application" style={{ display: 'none' }}>
+                <div className="info">
+                  <span>应用(个)</span>
+                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
+                  <span className="count">2/5</span>
+                </div>
+                <div className="info">
+                  <span>服务(个)</span>
+                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
+                  <span className="count">2/5</span>
+                </div>
+                <div className="info">
+                  <span>容器(个)</span>
+                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
+                  <span className="count">2/5</span>
+                </div>
+                <div className="info">
+                  <span>存储(个)</span>
+                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
+                  <span className="count">2/5</span>
+                </div>
+                <div className="info">
+                  <span>快照(个)</span>
+                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
+                  <span className="count">2/5</span>
+                </div>
+                <div className="info">
+                  <span>服务配置(个)</span>
+                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
+                  <span className="count">2/5</span>
+                </div>
+              </div>
+              <div className="service" style={{display:'none'}}>
+                <div className="info">
+                  <span>关系型数据库(个)</span>
+                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
+                  <span>2/5</span>
+                </div>
+                <div className="info">
+                  <span>缓存(个)</span>
+                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
+                  <span>2/5</span>
+                </div>
+                <div className="info">
+                  <span>Zookeeper(个)</span>
+                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
+                  <span>2/5</span>
+                </div>
+                <div className="info">
+                  <span>ElasticSearch(个)</span>
+                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
+                  <span>2/5</span>
+                </div>
+              </div>
             </Card>
           </Col>
           <Col span={18} className="hostState">
@@ -1788,7 +1976,7 @@ class Ordinary extends Component {
                           健康主机数
                       </td>
                         <td className="hostNum">
-                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.health : 0 } 个
+                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.health : 0} 个
                       </td>
                       </tr>
                       <tr>
@@ -1797,7 +1985,7 @@ class Ordinary extends Component {
                           未启用主机数
                       </td>
                         <td className="hostNum">
-                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.unused: 0 } 个
+                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.unused : 0} 个
                       </td>
                       </tr>
                     </tbody>
@@ -2092,7 +2280,7 @@ function mapStateToProp(state, props) {
 
   return {
     current,
-    loginUser:loginUser.info,
+    loginUser: loginUser.info,
     clusterOperations: clusterOperationsData,
     clusterSysinfo: clusterSysinfoData,
     clusterStorage: clusterStorageData,

@@ -14,9 +14,9 @@ import "./style/header.less"
 import PopSelect from '../PopSelect'
 import { connect } from 'react-redux'
 import cloneDeep from 'lodash/cloneDeep'
-import { loadUserTeamspaceList, loadUserList, loadUserProjects } from '../../actions/user'
+import { loadUserList } from '../../actions/user'
 import { loadTeamClustersList } from '../../actions/team'
-import { GetProjectsAllClusters } from '../../actions/project'
+import { GetProjectsAllClusters, ListProjects } from '../../actions/project'
 import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
 import { checkVersion } from '../../actions/version'
 import { getCookie, isEmptyObject, getVersion, getPortalRealMode, toQuerystring } from '../../common/tools'
@@ -95,14 +95,9 @@ const menusText = defineMessages({
   }
 })
 
-function loadSpaces(props, callback) {
-  const { loadUserTeamspaceList } = props
-  loadUserTeamspaceList('default', { size: 100 }, callback)
-}
-
 function loadProjects(props, callback) {
-  const { loadUserProjects, loginUser } = props
-  loadUserProjects(loginUser.userID, { size: 100 }, callback)
+  const { ListProjects, loginUser } = props
+  ListProjects({ size: 0 }, callback)
 }
 
 function getHideDot() {
@@ -142,7 +137,9 @@ class Header extends Component {
       upgradeVersionModalVisible: false,
       visible: false,
       allUsers: [],
+      projects: [],
       projectClusters: [],
+      isProjectsFetching: false,
     }
     this.isSysAdmin = props.loginUser.role == ROLE_SYS_ADMIN
   }
@@ -268,10 +265,15 @@ class Header extends Component {
       cluster: { clusterID },
     })
     const self = this
+    this.setState({
+      isProjectsFetching: true,
+    })
     loadProjects(this.props, {
       success: {
         func: res => {
-          const projects = res.data || []
+          const projects = res.data && res.data.projects || []
+          projects.forEach(project => project.name = project.projectName)
+          this.setState({ projects })
           let defaultSpace = projects[0] || {}
           if (namespace === 'default' || projects.length === 0) {
             defaultSpace = MY_SPACE
@@ -311,12 +313,19 @@ class Header extends Component {
         },
         isAsync: true,
       },
+      finally: {
+        func: () => {
+          this.setState({
+            isProjectsFetching: false,
+          })
+        }
+      }
     })
   }
 
   componentDidMount() {
     this._checkLiteVersion()
-    this.isSysAdmin && this.props.loadUserList({ size: 0 }, {
+    this.isSysAdmin && this.props.loadUserList({ size: 0, sort: 'a,userName', }, {
       success: {
         func: res => {
           this.setState({ allUsers: cloneDeep(res.users || []) })
@@ -388,8 +397,6 @@ class Header extends Component {
       showCluster,
       checkVersionContent,
       openApi,
-      projects,
-      isProjectsFetching,
     } = this.props
     const {
       spacesVisible,
@@ -400,6 +407,8 @@ class Header extends Component {
       visible,
       allUsers,
       projectClusters,
+      projects,
+      isProjectsFetching,
     } = this.state
     const msaUrl = loginUser.msaConfig && loginUser.msaConfig.url
     const { isLatest } = checkVersionContent
@@ -567,7 +576,7 @@ class Header extends Component {
 function mapStateToProps(state, props) {
   const { pathname } = props
   const { current, loginUser } = state.entities
-  const { teamspaces, projects } = state.user
+  const { teamspaces } = state.user
   const { teamClusters } = state.team
   const { checkVersion } = state.version
   let showSpace = false
@@ -586,8 +595,6 @@ function mapStateToProps(state, props) {
     }
     return true
   })
-  const currentProjects = projects.result && projects.result.data || []
-  currentProjects.forEach(project => project.name = project.projectName)
   return {
     current,
     loginUser: loginUser.info,
@@ -601,18 +608,15 @@ function mapStateToProps(state, props) {
     checkVersionContent: checkVersion.data,
     isCheckVersion: checkVersion.isFetching,
     openApi: state.openApi,
-    projects: currentProjects,
-    isProjectsFetching: projects.isFetching,
   }
 }
 
 export default connect(mapStateToProps, {
-  loadUserTeamspaceList,
   loadTeamClustersList,
   setCurrent,
   loadLoginUserDetail,
   checkVersion,
   loadUserList,
-  loadUserProjects,
+  ListProjects,
   GetProjectsAllClusters,
 })(Header)

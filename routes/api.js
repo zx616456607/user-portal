@@ -164,6 +164,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/env', serviceController.updateServiceContainers)
   router.put('/clusters/:cluster/services/:service_name/manualscale', serviceController.manualScaleService)
   router.get('/clusters/:cluster/services/:service_name/autoscale', serviceController.getServiceAutoScale)
+  router.get('/clusters/:cluster/services/autoscale', serviceController.getServiceAutoScaleList)
   router.put('/clusters/:cluster/services/:service_name/autoscale', serviceController.autoScaleService)
   router.del('/clusters/:cluster/services/:service_name/autoscale', serviceController.delServiceAutoScale)
   router.put('/clusters/:cluster/services/:service_name/quota', serviceController.changeServiceQuota)
@@ -182,7 +183,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/tls', serviceController.toggleHTTPs)
   router.get('/clusters/:cluster/apps/:appName/topology-services', serviceController.serviceTopology)
   router.get('/clusters/:cluster/apps/:appName/topology-pods', serviceController.podTopology)
-
+  
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
   router.get('/users/:user_id/app_info', userController.getUserAppInfo)

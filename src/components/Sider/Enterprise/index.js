@@ -502,6 +502,11 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 网络隔离</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key='auto_scale'>
+                    <Link to='/app_manage/auto_scale'>
+                      <span><div className='sideCircle'></div> 自动伸缩策略</span>
+                    </Link>
+                  </Menu.Item>
                   {
                     (this.props.loginUser.vmWrapConfig && this.props.loginUser.vmWrapConfig.enabled)
                     ? [
@@ -699,20 +704,6 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 我的帐户</span>
                     </Link>
                   </Menu.Item>
-                  {(role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
-                    <Menu.Item key='member'>
-                      <Link to='/account/member'>
-                        <span><div className='sideCircle'></div> 成员管理</span>
-                      </Link>
-                    </Menu.Item> : <Menu.Item key="key-mem" style={{ display: 'none' }}></Menu.Item>
-                  }
-                  {(role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
-                    <Menu.Item key='team'>
-                      <Link to='/account/team'>
-                        <span><div className='sideCircle'></div> 团队管理</span>
-                      </Link>
-                    </Menu.Item> : <Menu.Item key="none-team" style={{ display: 'none' }}></Menu.Item>
-                  }
                   {/*<Menu.Item key='cost'>
                    <Link to='/account/cost'>
                    <span><div className='sideCircle'></div> 费用中心</span>

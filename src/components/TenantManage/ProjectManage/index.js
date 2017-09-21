@@ -1108,9 +1108,7 @@ class PayTable extends Component {
             <span className={classNames('btnList', {'active': payNumber === 100})} onClick={() => {
               this.changePayNumber(100)
             }}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-            <InputNumber value={payNumber} onChange={(value) => {
-              this.setState({payNumber: value})
-            }} size="large" min={10}/>
+            <InputNumber value={payNumber} onChange={(value) => this.changePayNumber(value)} size="large" min={10}/>
             <b>T</b>
           </dd>
         </dl>

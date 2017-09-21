@@ -62,7 +62,7 @@ let TeamTable = React.createClass({
         if (filters.role.length === 1) {
           newFilter = `role,${filters.role[0]}`
         } else if (filters.role.length === 2) {
-          newFilter = `role,${filters.role[0]}&filter=role,${filters.role[1]}`
+          newFilter = `role,${filters.role[0]}|${filters.role[1]}`
         } else {
           newFilter = ''
         }
@@ -324,11 +324,11 @@ let TeamTable = React.createClass({
       defaultCurrent: 1,
     }
     const filterRole = roleNum === 1 ? [
-      { text: '创建者', value: 'creator' },
+      { text: '团队管理员', value: 'manager' },
       { text: '参与者', value: 'participator' },
       { text: '非团队成员', value: 'no-participator' }
     ] : [
-      { text: '创建者', value: 'creator' },
+      { text: '团队管理员', value: 'manager' },
       { text: '参与者', value: 'participator' }
     ]
     const columns = [
@@ -398,7 +398,7 @@ let TeamTable = React.createClass({
         width:'10%',
         filters: filterRole,
         // filteredValue: filteredInfo.role,
-        render: text => <div>{ text === 'creator' ? '创建者' : (text === 'participator' ? '参与者' : '非团队成员')}</div>
+        render: text => <div>{ text === 'manager' ? '团队管理员' : (text === 'participator' ? '参与者' : '非团队成员')}</div>
       },
       {
         title: '操作',
@@ -775,8 +775,8 @@ function mapStateToProp(state, props) {
           let role = ''
           let item = teamsData[i]
           if (item.outlineRoles) {
-            if (role === '' && item.outlineRoles.includes('creator')) {
-              role = 'creator'
+            if (role === '' && (item.outlineRoles.includes('manager'))) {
+              role = 'manager'
             } else if (role === '' && item.outlineRoles.includes('participator')) {
               role = 'participator'
             } else if (role === '' && item.outlineRoles.includes('no-participator')){
