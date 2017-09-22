@@ -356,12 +356,6 @@ exports.updateUser = function* () {
       sessionService.removeKeyByUserID(userID).then(res => {
         logger.info('remove user from session store success', userID)
       })
-      if (registryConfigLoader.GetRegistryConfig()) {
-        logger.info("Update registry auth in cache...")
-        // Update registry auth cache
-        let registryAuth = Buffer(loginUser.user + ':' + user.password).toString('base64')
-        loginUser.registryAuth = securityUtil.encryptContent(registryAuth)
-      }
     }
   }
 
