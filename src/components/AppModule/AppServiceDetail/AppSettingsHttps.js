@@ -246,6 +246,13 @@ class AppSettingsHttps extends Component {
       cluster,
       serviceName,
     } = this.props
+    if(!this.state.canOpenHttps){
+      Modal.info({
+        title:'提示',
+        content:'开启HTTPS，需满足下面的设置条件并上传证书'
+      })
+      return
+    }
     this.props.toggleHTTPs(cluster, serviceName, status, {
       success: {
         func: () => {
@@ -348,8 +355,8 @@ class AppSettingsHttps extends Component {
       <div id="settingsHttps">
         <div className="topHead">
           设置HTTPS
-          <Tooltip title={this.state.canOpenHttps ? `HTTPS已${this.state.statusText}` : '请先满足设置条件并添加证书'}>
-            <Switch disabled={!this.state.canOpenHttps} checkedChildren="开" unCheckedChildren="关" onChange={(e) => this.toggleHttps(e)} checked={this.state.httpsOpened} style={{ marginLeft: '40px' }} />
+          <Tooltip title={this.state.canOpenHttps ? `HTTPS已${this.state.statusText}` : ''}>
+            <Switch checkedChildren="开" unCheckedChildren="关" onChange={(e) => this.toggleHttps(e)} checked={this.state.httpsOpened} style={{ marginLeft: '40px' }} />
           </Tooltip>
         </div>
         <Card className="content">
