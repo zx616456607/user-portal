@@ -871,7 +871,7 @@ class Storage extends Component {
     })
   }
   searchByStorageName(e) {
-    this.props.loadStorageList(this.props.currentImagePool, this.props.cluster, this.state.storageName)
+    this.props.loadStorageList(this.props.currentImagePool, this.props.cluster, { storageName: this.state.storageName })
   }
 
   deleteButton(){

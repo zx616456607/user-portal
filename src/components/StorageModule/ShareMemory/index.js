@@ -11,8 +11,16 @@
 import React, { Component } from 'react'
 import { Button, Input, Table, Modal, Form, Select, Icon } from 'antd'
 import { connect } from 'react-redux'
-import { browserHistory } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
+import yaml from 'js-yaml'
+import { getClusterStorageList } from '../../../actions/cluster'
+import { createStorage, loadStorageList, deleteStorage } from '../../../actions/storage'
+import PersistentVolumeClaim from '../../../../kubernetes/objects/persistentVolumeClaim'
+import { serviceNameCheck } from '../../../common/naming_validation'
+import { formatDate } from '../../../common/tools'
+import { DEFAULT_IMAGE_POOL } from '../../../constants'
+import NotificationHandler from '../../Notification'
 import './style/index.less'
 import cloneDeep from 'lodash/cloneDeep'
 
@@ -24,20 +32,36 @@ class ShareMemory extends Component {
     super(props)
     this.onSelectChange = this.onSelectChange.bind(this)
     this.tableRowClick = this.tableRowClick.bind(this)
+    this.loadData = this.loadData.bind(this)
+    this.searchStorage = this.searchStorage.bind(this)
     this.state = {
       selectedRowKeys: [],
       createShareMemoryVisible: false,
       confirmLoading: false,
       deleteModalVisible: false,
+      searchInput: '',
     }
+  }
+
+  loadData(query) {
+    const { loadStorageList, clusterID } = this.props
+    const defaultQuery = {
+      storagetype: 'nfs',
+      srtype: 'share',
+    }
+    query = Object.assign({}, defaultQuery, query)
+    loadStorageList(DEFAULT_IMAGE_POOL, clusterID, query)
+    this.setState({
+      selectedRowKeys: [],
+    })
+  }
+
+  componentDidMount() {
+    this.loadData()
   }
 
   onSelectChange(selectedRowKeys) {
     this.setState({ selectedRowKeys });
-  }
-
-  reloadDate(){
-
   }
 
   deleteItem(){
@@ -51,61 +75,70 @@ class ShareMemory extends Component {
     })
   }
 
-  confirmDeleteItem(){
+  confirmDeleteItem() {
+    const { deleteStorage, clusterID } = this.props
+    const { selectedRowKeys } = this.state
+    const notification = new NotificationHandler
     this.setState({
-      confirmLoading: false,
-      deleteModalVisible: false,
+      confirmLoading: true,
+    })
+    deleteStorage(DEFAULT_IMAGE_POOL, clusterID, { volumes: selectedRowKeys }, {
+      success: {
+        func: () => {
+          notification.success(`删除存储卷 ${selectedRowKeys.join(', ')} 成功`)
+          this.loadData()
+          this.setState({
+            deleteModalVisible: false,
+          })
+        },
+        isAsync: true,
+      },
+      error: {
+        func: () => {
+          notification.error(`删除存储卷 ${selectedRowKeys.join(', ')} 失败`)
+        },
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            confirmLoading: false,
+          })
+        },
+      },
     })
   }
 
   tableRowClick(record, index) {
     const { selectedRowKeys } = this.state
     const newSelectedRowKeys = cloneDeep(selectedRowKeys)
-    if(newSelectedRowKeys.indexOf(index) > -1){
-      newSelectedRowKeys.splice(newSelectedRowKeys.indexOf(index), 1)
+    if(newSelectedRowKeys.indexOf(record.name) > -1){
+      newSelectedRowKeys.splice(newSelectedRowKeys.indexOf(record.name), 1)
     } else {
-      newSelectedRowKeys.push(index)
+      newSelectedRowKeys.push(record.name)
     }
     this.setState({
       selectedRowKeys: newSelectedRowKeys
     })
   }
 
-  renderTableDataSource(){
-    const arr = []
-    for(let i = 0; i < 15; i++){
-      const item = {
-        key: i,
-        name: `name${i}`,
-        server: `192.168.1.${i}`,
-        type: 'nfs',
-        shareService: i,
-        createTime: `${i}个月前`
-      }
-      arr.push(item)
-    }
-    return arr
-  }
-
   openCreateModal(){
-    const { form } = this.props
+    const { form, getClusterStorageList, clusterID } = this.props
     form.resetFields()
     this.setState({
       createShareMemoryVisible: true,
       confirmLoading: false,
     })
+    getClusterStorageList(clusterID)
   }
 
-  confirmCreateShareMemory(){
-    const { form } = this.props
+  confirmCreateShareMemory() {
+    const { form, createStorage, clusterID } = this.props
+    const notification = new NotificationHandler()
     const viladateArray = [
-      'type',
-      'server',
+      'storageType',
+      'storageClassName',
       'name'
     ]
-    this.setState({
-      confirmLoading: true,
-    })
     form.validateFields(viladateArray, (errors, values) => {
       if(!!errors){
         this.setState({
@@ -114,16 +147,62 @@ class ShareMemory extends Component {
         return
       }
       this.setState({
-        confirmLoading: false,
-        createShareMemoryVisible: false,
+        confirmLoading: true,
+      })
+      const { name, storageType, storageClassName } = values
+      const persistentVolumeClaim = new PersistentVolumeClaim({
+        name,
+        storageType,
+        storageClassName,
+      })
+      const body = {
+        cluster: clusterID,
+        template: yaml.dump(persistentVolumeClaim),
+      }
+      createStorage(body, {
+        success: {
+          func: res => {
+            console.log('res, res', res)
+            notification.success(`创建共享存储 ${name} 成功`)
+            this.setState({
+              createShareMemoryVisible: false,
+            })
+            this.loadData()
+          },
+          isAsync: true,
+        },
+         error: {
+          func: err => {
+            console.log('err, err', err)
+            notification.error(`创建共享存储 ${name} 失败`)
+          }
+        },
+        finally: {
+          func: () => {
+            this.setState({
+              confirmLoading: false,
+            })
+          }
+        }
       })
     })
   }
 
+  searchStorage() {
+    const { searchInput } = this.state
+    this.loadData({
+      storageName: searchInput,
+    })
+  }
+
   render() {
-    const { form } = this.props
-    const { selectedRowKeys, createShareMemoryVisible,
-      confirmLoading, deleteModalVisible,
+    const { form, nfsList, storageList, storageListIsFetching } = this.props
+    const {
+      selectedRowKeys,
+      createShareMemoryVisible,
+      confirmLoading,
+      deleteModalVisible,
+      searchInput,
     } = this.state
     const { getFieldProps } = form
     const columns = [
@@ -132,31 +211,30 @@ class ShareMemory extends Component {
         title: '存储名称',
         dataIndex: 'name',
         width: '20%',
-        render: (text, record, index) => <div
-          className='storage_name'
-          onClick={() => browserHistory.push(`/app_manage/shareMemory/${text}`)}
-        >
-          {text}
-          </div>
+        render: (text, record, index) => (
+          <Link to={`/app_manage/shareMemory/${text}`}>
+            {text}
+          </Link>
+        )
       },
       {
-        key: 'type',
+        key: 'format',
         title: '类型',
-        dataIndex: 'type',
+        dataIndex: 'format',
         width: '20%',
       },
       {
-        key: 'server',
+        key: 'storageServer',
         title: '存储 server',
-        dataIndex: 'server',
+        dataIndex: 'storageServer',
         width: '20%',
       },
       {
-        key: 'shareService',
+        key: 'deployServiceList',
         title: '共享服务',
-        dataIndex: 'shareService',
+        dataIndex: 'deployServiceList',
         width: '20%',
-        sorter: (a, b) => a - b,
+        render: deployServiceList => deployServiceList && deployServiceList.length || '-'
       },
       {
         key: 'createTime',
@@ -164,14 +242,13 @@ class ShareMemory extends Component {
         dataIndex: 'createTime',
         width: '20%',
         sorter: (a, b) => a - b,
+        render: text => formatDate(text)
       }
     ]
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
     }
-    const dataSource = this.renderTableDataSource()
-    let isFetching = false
     const formItemLayout = {
     	labelCol: {span: 5},
     	wrapperCol: {span: 16}
@@ -196,7 +273,7 @@ class ShareMemory extends Component {
               <Button
                 size="large"
                 className='button_margin'
-                onClick={() => this.reloadDate()}
+                onClick={this.loadData}
               >
                 <i className="fa fa-refresh button_icon" aria-hidden="true"></i>
                 刷新
@@ -214,23 +291,27 @@ class ShareMemory extends Component {
                 <Input
                   size="large"
                   placeholder="按存储名称搜索"
+                  value={searchInput}
+                  onChange={e => this.setState({ searchInput: e.target.value })}
+                  onPressEnter={this.searchStorage}
                 />
-                <i className="fa fa-search search_icon" aria-hidden="true"></i>
+                <i className="fa fa-search search_icon" onClick={this.searchStorage}></i>
               </div>
               {
-                dataSource.length
-                ? <div className='totle_num'>共计 {dataSource.length} 条</div>
+                storageList.length
+                ? <div className='totle_num'>共计 {storageList.length} 条</div>
                 : null
               }
             </div>
             <div className="table_container">
               <Table
               	columns={columns}
-              	dataSource={dataSource}
+              	dataSource={storageList}
               	rowSelection={rowSelection}
               	pagination={{ simple: true }}
-              	loading={isFetching}
+              	loading={storageListIsFetching}
                 onRowClick={this.tableRowClick}
+                rowKey={row => row.name}
               />
             </div>
           </div>
@@ -247,7 +328,7 @@ class ShareMemory extends Component {
           >
             <div className='warning_tips'>
               <Icon type="question-circle-o" className='question_icon'/>
-              确定要删出这 {selectedRowKeys.length} 个存储目录吗？
+              确定要删除存储 {selectedRowKeys.join(', ')} 吗？
             </div>
           </Modal>
           <Modal
@@ -269,7 +350,7 @@ class ShareMemory extends Component {
                 <Select
                   placeholder='请选择类型'
                   disabled={true}
-                  {...getFieldProps('type', {
+                  {...getFieldProps('storageType', {
                     initialValue:'nfs',
                   })}
                   style={{width:160, marginRight:20}}
@@ -281,16 +362,20 @@ class ShareMemory extends Component {
                 >
                   <Select
                     placeholder='请选择一个server'
-                    {...getFieldProps('server', {
+                    {...getFieldProps('storageClassName', {
                       rules:[{
                         required:true,
                         message:'server不能为空',
                       }],
                     })}
                   >
-                    <Option value="1" key="1">192.168.1.1</Option>
-                    <Option value="2" key="2">192.168.1.2</Option>
-                    <Option value="3" key="3">192.168.1.3</Option>
+                  {
+                    nfsList.map(nfs =>
+                      <Option key={nfs.metadata.name}>
+                        {nfs.parameters.ip || 'nfs'}
+                      </Option>
+                    )
+                  }
                   </Select>
                 </FormItem>
               </FormItem>
@@ -303,8 +388,9 @@ class ShareMemory extends Component {
                   {...getFieldProps('name', {
                     rules:[{
                       validator:(rule, value, callback) => {
-                        if (!value) {
-                          return callback('存储名称不能为空')
+                        const msg = serviceNameCheck(value, '存储名称')
+                        if (msg !== 'success') {
+                          return callback(msg)
                         }
                         return callback()
                       },
@@ -323,12 +409,22 @@ class ShareMemory extends Component {
 ShareMemory = Form.create()(ShareMemory)
 
 function mapStateToProp(state, props) {
-
+  const { entities, cluster, storage } = state
+  const { current } = entities
+  const clusterID = current.cluster.clusterID
+  const nfsList = cluster.clusterStorage && cluster.clusterStorage[clusterID] && cluster.clusterStorage[clusterID].nfsList || []
+  let storageList = storage.storageList[DEFAULT_IMAGE_POOL] || {}
   return {
-
+    clusterID,
+    nfsList,
+    storageList: storageList && storageList.storageList || [],
+    storageListIsFetching: storageList.isFetching,
   }
 }
 
 export default connect(mapStateToProp, {
-
+  getClusterStorageList,
+  createStorage,
+  loadStorageList,
+  deleteStorage,
 })(ShareMemory)
