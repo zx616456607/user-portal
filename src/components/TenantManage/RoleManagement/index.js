@@ -244,7 +244,6 @@ class RoleManagement extends React.Component {
    * 删除角色权限
    */
   handleCheck(e) {
-    console.log(e.target.checked)
   }
 
   /**
@@ -408,8 +407,7 @@ class RoleManagement extends React.Component {
       title: '角色名称',
       dataIndex: 'name',
       width: '13%',
-      render: (text, record, index) => {
-        console.log(record)
+      render: (text, record, index) =>
         record.creator === '' ?
           <div className='roleName'>
             <a href='#'>{text}</a>
@@ -419,7 +417,6 @@ class RoleManagement extends React.Component {
               <a href='#'>{text}</a>
             </div>
           </Link>
-      }
     }, {
       title: '创建人',
       dataIndex: 'creator',

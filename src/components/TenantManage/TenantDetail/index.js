@@ -540,7 +540,6 @@ function mapStateToProps(state, props) {
   const { loginUser } = entities
   const role = loginUser.info.role
   const userName = loginUser.info.userName
-  console.log(role)
   return {
     role,
     userName
