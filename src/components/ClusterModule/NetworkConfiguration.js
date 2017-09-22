@@ -21,6 +21,7 @@ import sketchImg from '../../assets/img/integration/Sketch.png'
 import './style/NetworkConfiguration.less'
 import { IP_REGEX, HOST_REGEX } from '../../../constants'
 import { genRandomString } from '../../common/tools'
+import cloneDeep from 'lodash/cloneDeep'
 
 const Option = Select.Option
 const FormItem = Form.Item
@@ -210,7 +211,9 @@ let NetworkConfiguration = React.createClass ({
     let networkConfigArray = form.getFieldValue('networkConfigArray')
     let validateFieldsArray = []
     networkConfigArray.forEach(item => {
-      validateFieldsArray.push(`name${item.key}`)
+      if(!item.deleted){
+        validateFieldsArray.push(`name${item.key}`)
+      }
     })
     form.validateFields(validateFieldsArray, {force: true}, (err, callback) => {
       validing = false
@@ -272,24 +275,26 @@ let NetworkConfiguration = React.createClass ({
       })
       const body = []
       networkConfigArray.forEach(item => {
-        let obj = {
-          'id': values[`groupId${item.key}`],
-          "name": values[`name${item.key}`],
-          "type": values[`networkType${item.key}`],
-          "address": values[`address${item.key}`],
-          "domain": values[`domain${item.key}`],
-          'is_default': values[`isDefaultGroupAttr${item.key}`],
-        }
-        let nodes = []
-        item.arr.forEach(arrItem => {
-          let arrObj = {
-            'host': values[`nodeSelect-${item.key}-${arrItem}`],
-            'address': values[`nodeIP-${item.key}-${arrItem}`],
+        if(!item.deleted){
+          let obj = {
+            'id': values[`groupId${item.key}`],
+            "name": values[`name${item.key}`],
+            "type": values[`networkType${item.key}`],
+            "address": values[`address${item.key}`],
+            "domain": values[`domain${item.key}`],
+            'is_default': values[`isDefaultGroupAttr${item.key}`],
           }
-          nodes.push(arrObj)
-        })
-        obj.nodes = nodes
-        body.push(obj)
+          let nodes = []
+          item.arr.forEach(arrItem => {
+            let arrObj = {
+              'host': values[`nodeSelect-${item.key}-${arrItem}`],
+              'address': values[`nodeIP-${item.key}-${arrItem}`],
+            }
+            nodes.push(arrObj)
+          })
+          obj.nodes = nodes
+          body.push(obj)
+        }
       })
       const entity = {
         bindingIPs: getFieldValue('bindingIPs'),
@@ -346,7 +351,6 @@ let NetworkConfiguration = React.createClass ({
           key: index,
           nodesKey: item.nodes.length - 1
         }
-
         item.nodes.forEach((nodeItem, nodeIndex) => {
           nodesArray.push(nodeIndex)
         })
@@ -357,10 +361,27 @@ let NetworkConfiguration = React.createClass ({
         }
         this.uuid.nodes.push(nodesItem)
         networkConfigArray.push(networkConfig)
+        if(item.isDefault){
+          this.setState({
+            defaultGroup: item.id,
+          })
+          form.setFieldsValue({'defaultSetting': item.id })
+        }
       })
       form.setFieldsValue({
         'networkConfigArray': networkConfigArray
       })
+      // 重置表单
+      const values = form.getFieldsValue()
+      const valuesKeys = Object.keys(values)
+      let index = 0
+      for(let j = 0; j < valuesKeys.length; j++){
+        if(valuesKeys[j] == 'networkConfigArray'){
+          index = j
+        }
+      }
+      valuesKeys.splice(index, 1)
+      form.resetFields(valuesKeys)
       return
     }
   },
@@ -542,7 +563,7 @@ let NetworkConfiguration = React.createClass ({
   deletePublic(item, record){
     const { form } = this.props
     let networkConfigArray = form.getFieldValue('networkConfigArray')
-    let newnetworkConfigArray = []
+    let newnetworkConfigArray = cloneDeep(networkConfigArray)
     if(record && record.isDefault){
       return this.setState({
         deleteDefaultGroup: true,
@@ -552,11 +573,24 @@ let NetworkConfiguration = React.createClass ({
       })
     }
     if(!record || record == 'confirm'){
-      networkConfigArray.forEach(config => {
-        if(item.key !== config.key){
-          newnetworkConfigArray.push(config)
+      const { cluster, clusterProxy } = this.props
+      let dataList = []
+      let data = []
+      if(clusterProxy && clusterProxy.result[camelize(cluster.clusterID)] && clusterProxy.result[camelize(cluster.clusterID)].data){
+        dataList = clusterProxy.result[camelize(cluster.clusterID)].data
+      }
+      dataList.forEach((item, index) => {
+        if(item.type !== "incluster"){
+          data.push(item)
         }
       })
+      newnetworkConfigArray[item.key].deleted = true
+      if(data[item.key].isDefault){
+        form.setFieldsValue({ 'defaultSetting': undefined})
+        this.setState({
+          defaultGroup: undefined
+        })
+      }
       form.setFieldsValue({
         'networkConfigArray': newnetworkConfigArray
       })
@@ -596,7 +630,7 @@ let NetworkConfiguration = React.createClass ({
     return null
   },
   selectOption(){
-    const { clusterProxy, cluster } = this.props
+    const { clusterProxy, cluster, form } = this.props
     if(clusterProxy.isEmptyObject || !clusterProxy.result) {
       return <Option value="none" key="none">暂无出口</Option>
     }
@@ -604,7 +638,14 @@ let NetworkConfiguration = React.createClass ({
     if(!proxy || !proxy.data || !proxy.data.length) {
       return <Option value="none" key="none">暂无出口</Option>
     }
-    return proxy.data.map((item, index) => {
+    let networkConfigArray = form.getFieldValue('networkConfigArray')
+    const optionMapArray = []
+    for(let i = 0; i < proxy.data.length; i++){
+      if(!networkConfigArray[i].deleted){
+        optionMapArray.push(proxy.data[networkConfigArray[i].key])
+      }
+    }
+    return optionMapArray.map((item, index) => {
       return <Option value={item.id} key={'option' + index}>{item.name}</Option>
     })
   },
@@ -615,7 +656,7 @@ let NetworkConfiguration = React.createClass ({
   },
   confirmSet(){
     const { defaultSetting } = this.state
-    const { setDefaultGroup, cluster } = this.props
+    const { setDefaultGroup, cluster, form } = this.props
     let Noti = new NotificationHandler()
     this.setState({
       settingDefalutLoading: true
@@ -714,6 +755,9 @@ let NetworkConfiguration = React.createClass ({
         if(item == 0){
           return <div></div>
         }
+        if(item.deleted){
+          return <Row key={`row-${index}`}></Row>
+        }
         let originType = data[item.key] && data[item.key].type ? data[item.key].type : undefined
         let networkType = originType
         if(editCluster){
@@ -744,7 +788,7 @@ let NetworkConfiguration = React.createClass ({
                 if(this.isNameRepeat(item.key)) {
                   return callback('网络代理重复')
                 }
-                callback()
+                return callback()
               }
             }]
           })
@@ -759,8 +803,13 @@ let NetworkConfiguration = React.createClass ({
             rules: [{ required: false }]
           })
         }
-        return  <Row className="clusterTable">
-          <Icon type="cross" className='crossIcon' onClick={() => this.deletePublic(item, data[item.key])} style={{display: editCluster ? 'inline-block' : 'none'}}/>
+        return  <Row className="clusterTable" key={`rows-${index}`}>
+          <Icon
+            type="cross"
+            className='crossIcon'
+            onClick={() => this.deletePublic(item, data[item.key])}
+            style={{display: editCluster ? 'inline-block' : 'none'}}
+          />
           {
             data[item.key] && data[item.key].isDefault
               ? <div className='dafaultGroup'>默认</div>
