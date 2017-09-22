@@ -9,7 +9,10 @@
  */
 
 import React from 'react'
-import { Modal, Form, Input, Select, Button, InputNumber } from 'antd'
+import { 
+  Modal, Form, Input, Select, Button,
+  InputNumber, Row, Col, Icon
+} from 'antd'
 import { connect } from 'react-redux'
 import {
   loadAllServices, updateAutoScale,
@@ -18,6 +21,7 @@ import {
   loadNotifyGroups
 } from '../../../../actions/alert'
 import Notification from '../../../Notification'
+import isEmpty from 'lodash/isEmpty'
 const FormItem = Form.Item
 const Option = Select.Option;
 
@@ -44,7 +48,6 @@ class AutoScaleModal extends React.Component {
   }
   componentDidMount() {
     const { loadAllServices, clusterID, loadNotifyGroups } = this.props
-    console.log(clusterID,'will')
     loadAllServices(clusterID, {
       pageIndex: 1,
       pageSize: -1,
@@ -52,15 +55,14 @@ class AutoScaleModal extends React.Component {
     loadNotifyGroups(null, clusterID)
   }
   componentWillReceiveProps(nextProps) {
-    const { visible: newVisible, scope } = nextProps
-    const { visible: oldVisible } = this.props
-    if (!oldVisible && newVisible) {
+    const { visible: newVisible, scope, scaleDetail: newScaleDetail, create } = nextProps
+    const { visible: oldVisible, } = this.props
+    if (oldVisible && !newVisible) {
       scope.setState({
-        scaleModal: true
-      })
-    } else if (oldVisible && !newVisible) {
-      scope.setState({
-        scaleModal: false
+        scaleModal: false,
+        scaleDetail: null,
+        create: false,
+        reuse: false
       })
     }
   }
@@ -71,7 +73,7 @@ class AutoScaleModal extends React.Component {
     })
   }
   confirmModal = () => {
-    const { scope, form, updateAutoScale, clusterID } = this.props
+    const { scope, form, updateAutoScale, clusterID, create, scaleDetail } = this.props
     const { validateFields, resetFields } = form
     let notify = new Notification()
     validateFields((errors, values) => {
@@ -81,18 +83,23 @@ class AutoScaleModal extends React.Component {
       this.setState({
         btnLoading: true
       })
-      notify.spin('创建中...')
-      const { serviceName, min, max, cpu, memory, alert_strategy, alert_group} = values
-      updateAutoScale(clusterID, serviceName, { min, max, cpu, memory, alert_strategy, alert_group, type: 1 }, {
+      const msgSpin = create ? '创建中...' : '修改中'
+      notify.spin(msgSpin)
+      const { scale_strategy_name, serviceName, min, max, cpu, memory, alert_strategy, alert_group} = values
+      let body = { scale_strategy_name, min, max, cpu, memory, alert_strategy, alert_group, type: create ? 1 : scaleDetail.type }
+      body = Object.assign(body, {operationType: create ? 'create' : 'update'})
+      updateAutoScale(clusterID, serviceName, body, {
         success: {
           func: () => {
             this.setState({
               btnLoading: false,
+            })
+            scope.setState({
               scaleModal: false
             })
-            scope.loadData(1)
+            scope.loadData(clusterID, 1)
             notify.close()
-            notify.success('创建成功')
+            notify.success('操作成功')
             resetFields()
           },
           isAsync: true
@@ -101,10 +108,12 @@ class AutoScaleModal extends React.Component {
           func: () => {
             this.setState({
               btnLoading: false,
+            })
+            scope.setState({
               scaleModal: false
             })
             notify.close()
-            notify.error('创建失败')
+            notify.error('操作失败')
             resetFields()
           }
         }
@@ -125,7 +134,7 @@ class AutoScaleModal extends React.Component {
     ]
   }
   render() {
-    const { visible, form, services, alertList } = this.props
+    const { visible, form, services, alertList, scaleDetail, create, reuse } = this.props
     const { getFieldProps } = form
     const formItemLargeLayout = {
       labelCol: { span: 4},
@@ -135,58 +144,66 @@ class AutoScaleModal extends React.Component {
       labelCol: { span: 4},
       wrapperCol: { span: 10}
     }
-    const scaleName = getFieldProps('scaleName', {
+    const scaleName = getFieldProps('scale_strategy_name', {
       rules: [{
-        // required: true,
+        required: true,
         message: '请输入策略名称'
       }],
-      validator: this.checkScaleName.bind(this)
+      validator: this.checkScaleName.bind(this),
+      initialValue: create || isEmpty(scaleDetail) ? undefined: scaleDetail.scale_strategy_name
     })
     const selectService = getFieldProps('serviceName', {
       rules: [{
         required: true,
         message: '请选择服务'
-      }]
+      }],
+      initialValue: create || isEmpty(scaleDetail) ? undefined: scaleDetail.serviceName
     })
     const minReplicas = getFieldProps('min', {
       rules: [{
         required: true,
         message: '请输入最小实例数'
-      }]
+      }],
+      initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.min
     })
     const maxReplicas = getFieldProps('max', {
       rules: [{
         required: true,
         message: '请输入最大实例数'
-      }]
+      }],
+      initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.max
     })
     const cpuProps = getFieldProps('cpu', {
       rules: [{
         required: true,
         message: '请输入CPU阈值'
-      }]
+      }],
+      initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.cpu
     })
     const memoryProps = getFieldProps('memory', {
       rules: [{
         required: true,
         message: '请输入内存阈值'
-      }]
+      }],
+      initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.memory
     })
     const selectEmailSendType = getFieldProps('alert_strategy', {
       rules: [{
         required: true,
         message: '请选择邮件发送方式'
-      }]
+      }],
+      initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.alert_strategy
     })
     const selectAlertGroup = getFieldProps('alert_group', {
       rules: [{
         required: true,
         message: '请选择告警通知组'
-      }]
+      }],
+      initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.alert_group
     })
     return(
       <Modal
-      title="创建自动伸缩策略"
+      title={reuse ? '复用自动伸缩侧漏' : (isEmpty(scaleDetail) ? "创建自动伸缩策略" : "修改自动伸缩策略")}
       visible={visible}
       footer={this.renderFooter()}
       onCancel={this.cancelModal}
@@ -196,13 +213,18 @@ class AutoScaleModal extends React.Component {
             {...formItemLargeLayout}
             label="策略名称"
           >
-            <Input type="text" {...scaleName} placeholder="请输入策略名称"/>
+            <Input disabled={create ? false: true} type="text" {...scaleName} placeholder="请输入策略名称"/>
           </FormItem>
           <FormItem
             {...formItemLargeLayout}
             label="选择服务"
           >
-            <Select {...selectService} placeholder="请选择服务">
+            <Select
+              showSearch
+              optionFilterProp="children"
+              notFoundContent="无法找到"
+              {...selectService} 
+              placeholder="请选择服务">
               {
                 services && services.length && services.map(item => 
                   <Option key={item.metadata.name} value={item.metadata.name}>{item.metadata.name}</Option>)
@@ -227,17 +249,34 @@ class AutoScaleModal extends React.Component {
           >
             <InputNumber {...cpuProps}/> %
           </FormItem>
+          <Row style={{margin: '-10px 0 10px'}}>
+            <Col span={4}/>
+            <Col span={16}>
+              <Icon type="exclamation-circle-o" />所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
+            </Col>
+          </Row>
           <FormItem
             {...formItemSmallLayout}
             label="内存阈值"
           >
             <InputNumber {...memoryProps}/> %
           </FormItem>
+          <Row style={{margin: '-10px 0 10px'}}>
+            <Col span={4}/>
+            <Col span={16}>
+              <Icon type="exclamation-circle-o" />所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
+            </Col>
+          </Row>
           <FormItem
             {...formItemLargeLayout}
             label="发送邮件"
           >
-            <Select {...selectEmailSendType} placeholder="请选择邮件发送方式">
+            <Select
+              {...selectEmailSendType}
+              placeholder="请选择邮件发送方式"
+              showSearch
+              optionFilterProp="children"
+              notFoundContent="无法找到">
               {
                 sendEmailOpt.map(item => <Option key={item.type} value={item.type}>{item.text}</Option>)
               }
@@ -247,7 +286,12 @@ class AutoScaleModal extends React.Component {
             {...formItemLargeLayout}
             label="告警通知组"
           >
-            <Select {...selectAlertGroup} placeholder="请选择告警通知组">
+            <Select
+              {...selectAlertGroup}
+              placeholder="请选择告警通知组"
+              showSearch
+              optionFilterProp="children"
+              notFoundContent="无法找到">
               {
                 alertList && alertList.length && alertList.map(item => 
                   <Option key={item.name} value={item.groupID}>{item.name}</Option>
@@ -255,6 +299,12 @@ class AutoScaleModal extends React.Component {
               }
             </Select>
           </FormItem>
+          <Row style={{margin: '-10px 0 10px'}}>
+            <Col span={4}/>
+            <Col span={16}>
+              <Icon type="exclamation-circle-o" />发生弹性伸缩时会向该通知组发送邮件通知
+            </Col>
+          </Row>
         </Form>
       </Modal>
     )

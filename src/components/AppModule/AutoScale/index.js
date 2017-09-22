@@ -11,14 +11,16 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { Button, Table, Menu, Dropdown, Icon } from 'antd'
+import { Button, Table, Menu, Dropdown, Icon, Modal } from 'antd'
 import { 
-  loadAutoScaleList, deleteAutoScale
+  loadAutoScaleList, deleteAutoScale, updateAutoScale,
+  updateAutoScaleStatus
 } from '../../../actions/services'
 import './style/index.less'
 import CommonSearchInput from '../../CommonSearchInput'
 import AutoScaleModal from './AutoScaleModal'
 import classNames from 'classnames'
+import Notification from '../../Notification'
 
 class AutoScale extends React.Component {
   constructor() {
@@ -33,10 +35,18 @@ class AutoScale extends React.Component {
     }
   }
   componentWillMount() {
-    this.loadData(1)
+    const { clusterID } = this.props
+    this.loadData(clusterID, 1)
   }
-  loadData = (page, name) => {
-    const { loadAutoScaleList, clusterID } = this.props
+  componentWillReceiveProps(nextProps) {
+    const { clusterID: newClusterID, spaceName: newSpaceName } = nextProps
+    const { clusterID: oldClusterID, spaceName: oldSpaceName } = this.props
+    if (newClusterID !== oldClusterID) {
+      this.loadData(newClusterID, 1)
+    }
+  }
+  loadData = (clusterID, page, name) => {
+    const { loadAutoScaleList } = this.props
     let query = { 
       page: page,
       size: 10
@@ -52,7 +62,7 @@ class AutoScale extends React.Component {
         func: res => {
           let scaleList = res.data
           scaleList = Object.values(scaleList)
-          scaleList.forEach(item => item = Object.assign(item, { key: item.metadata.name }))
+          scaleList.forEach(item => item = Object.assign(item, { key: `${item.metadata.name},${item.metadata.labels.serviceName}` }))
           this.setState({
             scaleList,
             totalCount: res.totalCount,
@@ -60,35 +70,114 @@ class AutoScale extends React.Component {
           })
         },
         isAsync: true
+      },
+      failed: {
+        func: () => {
+          this.setState({
+            scaleList: [],
+            totalCount: 0,
+            tableLoading: false
+          })
+        }
       }
     })
   }
-  handleButtonClick = e => {
-    
+  handleButtonClick = (e, record) => {
+    e.stopPropagation()
+    const { serviceName } = record.metadata.labels
+    const { metadata, spec } = record
+    const scale_strategy_name = metadata.name
+    const alert_strategy = metadata.annotations.alertStrategy
+    const alert_group = metadata.annotations.alertgroupId
+    const { status } = metadata.annotations
+    const { maxReplicas: max, minReplicas: min, metrics } = spec
+    let memory
+    let cpu
+    metrics.forEach(item => {
+      if (item.resource.name === 'memory') {
+        memory = item.resource.targetAverageUtilization
+      } else if (item.resource.name === 'cpu') {
+        cpu = item.resource.targetAverageUtilization
+      }
+    })
+    const scaleDetail = {
+      serviceName,
+      scale_strategy_name,
+      alert_strategy,
+      alert_group,
+      memory,
+      cpu,
+      max,
+      min,
+      type: status === 'RUN' ? 1 : 0
+    }
+    this.setState({
+      scaleModal: true,
+      scaleDetail,
+      create: true,
+      reuse: true
+    })
   }
   handleMenuClick = (e, record) => {
-    const { deleteAutoScale, clusterID } = this.props
+    const { deleteAutoScale, clusterID, updateAutoScale } = this.props
     const { serviceName } = record.metadata.labels
     const notify = new Notification()
-    notify.spin('删除中')
+    const { metadata, spec } = record
+    const scale_strategy_name = metadata.name
+    const alert_strategy = metadata.annotations.alertStrategy
+    const alert_group = metadata.annotations.alertgroupId
+    const { status } = metadata.annotations
+    const { maxReplicas: max, minReplicas: min, metrics } = spec
+    let memory
+    let cpu
+    metrics.forEach(item => {
+      if (item.resource.name === 'memory') {
+        memory = item.resource.targetAverageUtilization
+      } else if (item.resource.name === 'cpu') {
+        cpu = item.resource.targetAverageUtilization
+      }
+    })
+    const body = {
+      scale_strategy_name,
+      alert_strategy,
+      alert_group,
+      memory,
+      cpu,
+      max,
+      min,
+    }
     if (e.key === 'delete') {
-      deleteAutoScale(clusterID, serviceName, {
+      this.setState({
+        selectedRowKeys: [`${scale_strategy_name},${serviceName}`],
+        deleteModal: true
+      })
+    } else if (e.key === 'start' || e.key === 'stop') {
+      let opt = Object.assign(body, {type: e.key === 'start' ? 1 : 0})
+      const mesSpin = e.key === 'start' ? '启用中' : '停用中'
+      notify.spin(mesSpin)
+      updateAutoScale(clusterID, serviceName, opt, {
         success: {
           func: () => {
+            const mesSuc = e.keys === 'start' ? '启用成功' : '停用成功'
             notify.close()
-            notify.success('删除成功')
-            this.loadData(1)
+            notify.success(mesSuc)
+            this.loadData(clusterID, 1)
           },
-          isAsync:true
+          isAsync: true
         },
         failed: {
-          success: {
-            func: () => {
-              notify.close()
-              notify.error('删除失败')
-            }
-          }
+          func: () => {
+            const mesErr = e.keys === 'start' ? '启用失败' : '停用失败'
+            notify.close()
+            notify.error(mesErr)
+          } 
         }
+      })
+    } else if (e.key === 'edit') {
+      let scaleDetail = Object.assign(body, { type: status === 'RUN' ? 1 : 0, }, { serviceName })
+      this.setState({
+        scaleModal: true,
+        scaleDetail,
       })
     }
   }
@@ -122,14 +211,15 @@ class AutoScale extends React.Component {
     return <div className={classNames('status',{'successStatus': text === 'RUN', 'errorStatus': text === 'STOP'})}><i/>{text === 'RUN' ? '开启' : '关闭'}</div>
   }
   tableFilter = (pagination, filters, sorter) => {
+    const { clusterID } = this.props
     this.setState({
       currentPage: pagination.current
     })
-    this.loadData(pagination.current)
+    this.loadData(clusterID, pagination.current)
   }
   onRowClick = record => {
     const { selectedRowKeys } = this.state
-    const name = record.metadata.name
+    const name = `${record.metadata.name},${record.metadata.labels.serviceName}`
     let newKeys = selectedRowKeys.slice(0)
     let flag = false
     for(let i = 0, l = newKeys.length; i < l; i++) {
@@ -146,10 +236,116 @@ class AutoScale extends React.Component {
       selectedRowKeys: newKeys
     })
   }
+  confirmDelete = () => {
+    const { deleteAutoScale, clusterID } = this.props
+    const { selectedRowKeys } = this.state
+    if (!selectedRowKeys.length) {
+      return
+    }
+    this.setState({
+      deleteBtnLoading: true
+    })
+    let scaleArr = selectedRowKeys.map(item => item.split(',')[0])
+    let notify = new Notification()
+    notify.spin('删除中...')
+    deleteAutoScale(clusterID, scaleArr.join(','), {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success('删除成功')
+          this.setState({
+            selectedRowKeys: [],
+            deleteModal: false,
+            deleteBtnLoading: false
+          })
+          this.loadData(clusterID, 1)
+        },
+        isAsync:true
+      },
+      failed: {
+        success: {
+          func: () => {
+            this.setState({
+              selectedRowKeys: [],
+              deleteModal: false,
+              deleteBtnLoading: false
+            })
+            notify.close()
+            notify.error('删除失败')
+          }
+        }
+      }
+    })
+  }
+  cancelDelete = () => {
+    this.setState({
+      deleteModal: false
+    })
+  }
+  batchUpdateStatus = type => {
+    const { selectedRowKeys } = this.state
+    const { updateAutoScaleStatus, clusterID } = this.props
+    if (!selectedRowKeys.length) {
+      return
+    }
+    let notify = new Notification()
+    notify.spin('操作中...')
+    let map = {}
+    selectedRowKeys.forEach(item => {
+      map = Object.assign(map, { [item.split(',')[1]]: item.split(',')[0] })
+    })
+    let body = { services: map, type: type === 'stop' ? 0 : 1 }
+    updateAutoScaleStatus(clusterID, body, {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success('操作成功')
+          this.setState({
+            selectedRowKeys: []
+          })
+          this.loadData(clusterID, 1)
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notify.close()
+          notify.error('操作失败')
+          this.setState({
+            selectedRowKeys: []
+          })
+        }
+      }
+    })
+  }
+  demo = () => {
+    Modal.info({
+      title: 'Demo示例说明',
+      content: (
+        <div>
+          <p>例如，现在有5个实例，内存利用率之和为400%，阈值为80%，此时不扩展不收缩；</p>
+          <p>如果利用率上升1个百分点401%/5=80.2%>80%，触发扩展一个实例，容器变为6个；</p>
+          <p>如果在6个容器的基础上利用率下降2个百分点，399%/（6-1）=79.8%，就会触发收缩一个实例；</p>
+        </div>
+      )
+    })
+  }
+  renderFooter = () => {
+    const { deleteBtnLoading } = this.state
+    return[
+      <Button size="large" key="cancel" onClick={this.cancelDelete}>取消</Button>,
+      <Button loading={deleteBtnLoading} type="primary" size="large" key="confirm" onClick={this.confirmDelete}>确认</Button>
+    ]
+  }
   render() {
     const { 
-      scaleModal, scaleList, currentPage, totalCount, searchValue, tableLoading, selectedRowKeys
+      scaleModal, scaleList, currentPage, totalCount,
+      searchValue, tableLoading, selectedRowKeys, scaleDetail,
+      create, reuse, deleteModal
     } = this.state
+    const {
+      clusterID
+    } = this.props
     const columns = [{
       title: '策略名称',
       dataIndex: 'metadata.name',
@@ -199,7 +395,7 @@ class AutoScale extends React.Component {
           </Menu>
         );
         return(
-          <Dropdown.Button onClick={this.handleButtonClick} overlay={menu} type="ghost">
+          <Dropdown.Button onClick={(e) => this.handleButtonClick(e, record)} overlay={menu} type="ghost">
             <Icon type="copy" /> 复用
           </Dropdown.Button>
         )
@@ -222,19 +418,30 @@ class AutoScale extends React.Component {
           伸缩策略规定了自动伸缩触发条件，任意指标超过阈值都会触发扩展，所有指标都满足n-1个实例平均值低于阈值才会触发收缩，数据与k8s共通，可以在本平台或k8s管理伸缩策略
         </div>
         <div className="btnGroup">
-          <Button type="primary" size="large" onClick={() => this.setState({scaleModal: true})}><i className="fa fa-plus" /> 创建自动伸缩策略</Button>
-          <Button size="large" onClick={() => this.loadData(1)}><i className='fa fa-refresh' /> 刷新</Button>
-          <Button size="large"><i className='fa fa-play' /> 启用</Button>
-          <Button size="large"><i className='fa fa-stop' /> 停用</Button>
-          <Button size="large"><i className='fa fa-trash-o' /> 删除</Button>
+          <Button type="primary" size="large" onClick={() => this.setState({scaleModal: true, create: true})}><i className="fa fa-plus" /> 创建自动伸缩策略</Button>
+          <Button size="large" onClick={() => this.loadData(clusterID, 1)}><i className='fa fa-refresh' /> 刷新</Button>
+          <Button size="large" onClick={() => this.batchUpdateStatus('start')}><i className='fa fa-play' /> 启用</Button>
+          <Button size="large" onClick={() => this.batchUpdateStatus('stop')}><i className='fa fa-stop' /> 停用</Button>
+          <Button size="large" onClick={() => this.setState({deleteModal: true})}><i className='fa fa-trash-o' /> 删除</Button>
           <CommonSearchInput
             placeholder="请输入策略名或服务名搜索"
             size="large"
             style={{width: '200px'}}
             value={searchValue}
-            onSearch={(value) => this.loadData(1,value)}/>
+            onSearch={(value) => this.loadData(clusterID, 1,value)}/>
+          <Button size="large" onClick={this.demo}><Icon type="question-circle-o" />Demo</Button>
           <span className="pull-right totalCount">共计 {totalCount} 条</span>
         </div>
+        <Modal
+          title="删除策略"
+          visible={deleteModal}
+          onCancel={this.cancelDelete}
+          onOk={this.confirmDelete}
+          className="autoScaleDeleteModal"
+          footer={this.renderFooter()}
+        >
+          <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>删除策略后无法被找回，是否确认删除？</div>
+        </Modal>
         <Table
           className="autoScaleTable"
           loading={tableLoading}
@@ -247,6 +454,9 @@ class AutoScale extends React.Component {
           dataSource={scaleList} />
         <AutoScaleModal
           visible={scaleModal}
+          create={create}
+          reuse={reuse}
+          scaleDetail={scaleDetail}
           scope={this}/>
       </div>
     )
@@ -254,15 +464,18 @@ class AutoScale extends React.Component {
 }
 
 function mapStateToProps(state, props) {
-  const { cluster } = state.entities.current
+  const { cluster, space } = state.entities.current
   const { clusterID } = cluster
-  
+  const { spaceName } = space
   return {
-    clusterID
+    clusterID,
+    spaceName
   }
 }
 
 export default connect(mapStateToProps, {
   loadAutoScaleList,
-  deleteAutoScale
+  deleteAutoScale,
+  updateAutoScale,
+  updateAutoScaleStatus
 })(AutoScale)

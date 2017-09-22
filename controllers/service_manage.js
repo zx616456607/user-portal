@@ -282,6 +282,11 @@ exports.autoScaleService = function* () {
   let max = parseInt(body.max)
   let cpu = parseInt(body.cpu)
   let memory = parseInt(body.memory)
+  let scale_strategy_name = body.scale_strategy_name
+  let alert_strategy = body.alert_strategy
+  let alert_group = body.alert_group
+  let type = body.type
+  let operationType = body.operationType
   if (isNaN(min) || min < 1 || min > INSTANCE_MAX_NUM) {
     const err = new Error(`min is between 1 and ${INSTANCE_MAX_NUM}.`)
     err.status = 400
@@ -309,10 +314,33 @@ exports.autoScaleService = function* () {
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'services', serviceName, 'autoscale'], null, { min, max, cpu ,memory})
+  let result 
+  if (operationType === 'create') {
+    result = yield api.createBy([cluster, 'services', serviceName, 'autoscale'], null, { min, max, cpu ,memory, scale_strategy_name, alert_strategy, alert_group, type })
+  } else {
+    result = yield api.updateBy([cluster, 'services', serviceName, 'autoscale', scale_strategy_name], null, { min, max, cpu ,memory, alert_strategy, alert_group, type })
+  }
   this.body = {
     cluster,
     serviceName,
+    data: result
+  }
+}
+
+exports.batchUpdateAutoscaleStatus = function* (){
+  const cluster = this.params.cluster
+  const body = this.request.body
+  const { type, services } = body
+  if (!body || (type !== 0 && type !== 1) || !services) {
+    const err = new Error('type and services are required.')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'services', 'autoscale','status'], null, body)
+  this.body = {
+    cluster,
     data: result
   }
 }

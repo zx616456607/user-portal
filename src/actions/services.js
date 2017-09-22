@@ -589,6 +589,31 @@ export function updateAutoScale(cluster, serviceName, body, callback) {
   }
 }
 
+export const SERVICE_UPDATE_STATUS_AUTO_SCALE_REQUEST = 'SERVICE_UPDATE_STATUS_AUTO_SCALE_REQUEST'
+export const SERVICE_UPDATE_STATUS_AUTO_SCALE_SUCCESS = 'SERVICE_UPDATE_STATUS_AUTO_SCALE_SUCCESS'
+export const SERVICE_UPDATE_STATUS_AUTO_SCALE_FAILURE = 'SERVICE_UPDATE_STATUS_AUTO_SCALE_FAILURE'
+
+function fetchUpdateAutoScaleStatus(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_UPDATE_STATUS_AUTO_SCALE_REQUEST, SERVICE_UPDATE_STATUS_AUTO_SCALE_SUCCESS, SERVICE_UPDATE_STATUS_AUTO_SCALE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/autoscale/status`,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function updateAutoScaleStatus(cluster, body, callback) {
+  return (dispath) => {
+    return dispath(fetchUpdateAutoScaleStatus(cluster, body, callback))
+  }
+}
+
 export const SERVICE_MANUAL_SCALE_REQUEST = 'SERVICE_MANUAL_SCALE_REQUEST'
 export const SERVICE_MANUAL_SCALE_SUCCESS = 'SERVICE_MANUAL_SCALE_SUCCESS'
 export const SERVICE_MANUAL_SCALE_FAILURE = 'SERVICE_MANUAL_SCALE_FAILURE'
