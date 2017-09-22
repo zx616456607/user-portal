@@ -345,6 +345,17 @@ exports.batchUpdateAutoscaleStatus = function* (){
   }
 }
 
+exports.getAutoScaleLogs = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'services', serviceName, 'autoscale', 'logs'], null)
+  this.body = {
+    cluster,
+    data: result
+  }
+}
 exports.delServiceAutoScale = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name

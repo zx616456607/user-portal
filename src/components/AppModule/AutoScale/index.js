@@ -12,7 +12,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { Button, Table, Menu, Dropdown, Icon, Modal } from 'antd'
-import { 
+import {
   loadAutoScaleList, deleteAutoScale, updateAutoScale,
   updateAutoScaleStatus
 } from '../../../actions/services'
@@ -47,7 +47,7 @@ class AutoScale extends React.Component {
   }
   loadData = (clusterID, page, name) => {
     const { loadAutoScaleList } = this.props
-    let query = { 
+    let query = {
       page: page,
       size: 10
     }
@@ -62,7 +62,7 @@ class AutoScale extends React.Component {
         func: res => {
           let scaleList = res.data
           scaleList = Object.values(scaleList)
-          scaleList.forEach(item => item = Object.assign(item, { key: `${item.metadata.name},${item.metadata.labels.serviceName}` }))
+          scaleList.forEach(item => item = Object.assign(item, { key: item.metadata.name }))
           this.setState({
             scaleList,
             totalCount: res.totalCount,
@@ -84,9 +84,9 @@ class AutoScale extends React.Component {
   }
   handleButtonClick = (e, record) => {
     e.stopPropagation()
-    const { serviceName } = record.metadata.labels
+    const { strategyName } = record.metadata.labels
     const { metadata, spec } = record
-    const scale_strategy_name = metadata.name
+    const serviceName = metadata.name
     const alert_strategy = metadata.annotations.alertStrategy
     const alert_group = metadata.annotations.alertgroupId
     const { status } = metadata.annotations
@@ -102,7 +102,7 @@ class AutoScale extends React.Component {
     })
     const scaleDetail = {
       serviceName,
-      scale_strategy_name,
+      strategyName,
       alert_strategy,
       alert_group,
       memory,
@@ -119,11 +119,11 @@ class AutoScale extends React.Component {
     })
   }
   handleMenuClick = (e, record) => {
-    const { deleteAutoScale, clusterID, updateAutoScale } = this.props
-    const { serviceName } = record.metadata.labels
+    const { clusterID, updateAutoScale } = this.props
+    const { strategyName } = record.metadata.labels
     const notify = new Notification()
     const { metadata, spec } = record
-    const scale_strategy_name = metadata.name
+    const serviceName = metadata.name
     const alert_strategy = metadata.annotations.alertStrategy
     const alert_group = metadata.annotations.alertgroupId
     const { status } = metadata.annotations
@@ -138,7 +138,7 @@ class AutoScale extends React.Component {
       }
     })
     const body = {
-      scale_strategy_name,
+      scale_strategy_name: strategyName,
       alert_strategy,
       alert_group,
       memory,
@@ -148,11 +148,11 @@ class AutoScale extends React.Component {
     }
     if (e.key === 'delete') {
       this.setState({
-        selectedRowKeys: [`${scale_strategy_name},${serviceName}`],
+        selectedRowKeys: [serviceName],
         deleteModal: true
       })
     } else if (e.key === 'start' || e.key === 'stop') {
-      let opt = Object.assign(body, {type: e.key === 'start' ? 1 : 0})
+      let opt = Object.assign(body, {type: e.key === 'start' ? 1 : 0, operationType: 'update'})
       const mesSpin = e.key === 'start' ? '启用中' : '停用中'
       notify.spin(mesSpin)
       updateAutoScale(clusterID, serviceName, opt, {
@@ -170,7 +170,7 @@ class AutoScale extends React.Component {
             const mesErr = e.keys === 'start' ? '启用失败' : '停用失败'
             notify.close()
             notify.error(mesErr)
-          } 
+          }
         }
       })
     } else if (e.key === 'edit') {
@@ -219,7 +219,7 @@ class AutoScale extends React.Component {
   }
   onRowClick = record => {
     const { selectedRowKeys } = this.state
-    const name = `${record.metadata.name},${record.metadata.labels.serviceName}`
+    const name = record.metadata.name
     let newKeys = selectedRowKeys.slice(0)
     let flag = false
     for(let i = 0, l = newKeys.length; i < l; i++) {
@@ -245,10 +245,9 @@ class AutoScale extends React.Component {
     this.setState({
       deleteBtnLoading: true
     })
-    let scaleArr = selectedRowKeys.map(item => item.split(',')[0])
     let notify = new Notification()
     notify.spin('删除中...')
-    deleteAutoScale(clusterID, scaleArr.join(','), {
+    deleteAutoScale(clusterID, selectedRowKeys.join(','), {
       success: {
         func: () => {
           notify.close()
@@ -294,7 +293,7 @@ class AutoScale extends React.Component {
     selectedRowKeys.forEach(item => {
       map = Object.assign(map, { [item.split(',')[1]]: item.split(',')[0] })
     })
-    let body = { services: map, type: type === 'stop' ? 0 : 1 }
+    let body = { services: selectedRowKeys, type: type === 'stop' ? 0 : 1 }
     updateAutoScaleStatus(clusterID, body, {
       success: {
         func: () => {
@@ -338,7 +337,7 @@ class AutoScale extends React.Component {
     ]
   }
   render() {
-    const { 
+    const {
       scaleModal, scaleList, currentPage, totalCount,
       searchValue, tableLoading, selectedRowKeys, scaleDetail,
       create, reuse, deleteModal
@@ -348,12 +347,11 @@ class AutoScale extends React.Component {
     } = this.props
     const columns = [{
       title: '策略名称',
-      dataIndex: 'metadata.name',
+      dataIndex: 'metadata.labels.strategyName',
       width: '10%',
-      render: text => <Link>{text}</Link>,
     }, {
       title: '服务名称',
-      dataIndex: 'metadata.labels.serviceName',
+      dataIndex: 'metadata.name',
       width: '10%',
     }, {
       title: '开启状态',
@@ -446,7 +444,7 @@ class AutoScale extends React.Component {
           className="autoScaleTable"
           loading={tableLoading}
           pagination={pagination}
-          rowSelection={rowSelection} 
+          rowSelection={rowSelection}
           columns={columns}
           rowKey={record => record.key}
           onRowClick={this.onRowClick}
