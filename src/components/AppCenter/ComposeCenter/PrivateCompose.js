@@ -133,6 +133,9 @@ class PrivateCompose extends Component {
         stackItem: ''
       }
     }
+    setTimeout(()=> {
+      document.getElementById('name').focus()
+    },300)
 
   }
 

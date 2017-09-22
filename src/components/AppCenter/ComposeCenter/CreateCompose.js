@@ -274,7 +274,7 @@ class CreateCompose extends Component {
             </div>
             <div className='rightBox'>
               <FormItem hasFeedback>
-                <Input type='textarea' {...descProps} disabled={this.props.readOnly} autosize={{ minRows: 2, maxRows: 3 }} />
+                <Input type='textarea' placeholder="选填" {...descProps} disabled={this.props.readOnly} autosize={{ minRows: 2, maxRows: 3 }} />
               </FormItem>
             </div>
             <div style={{ clear: 'both' }}></div>
