@@ -566,8 +566,12 @@ class TeamDetail extends Component {
         isAsync: true
       },
       failed: {
-        func: () => {
-          notify.error('移交团队失败')
+        func: (err) => {
+          if (err.statusCode === 403) {
+            notify.error('当前用户不是团队管理员，没有权限移交该团队')
+          } else {
+            notify.error('移交团队失败')
+          }
           this.setState({
             transferStatus: false,
             value: ''
