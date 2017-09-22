@@ -28,6 +28,7 @@ function getAllSessions() {
     return Promise.all(reqArray)
   })
 }
+exports.getAllSessions = getAllSessions
 
 function getKeys(param) {
   return new Promise((resolve, reject) => {
@@ -48,10 +49,35 @@ function getValueByKey(key, json) {
       }
       if (json) {
         res = JSON.parse(res)
+        res._key = key
       }
       resolve(res)
     })
   })
 }
 
-exports.getAllSessions = getAllSessions
+function delKey(key) {
+  return new Promise((resolve, reject) => {
+    redisClient.del(key, (err, res) => {
+      if (err) {
+        return reject(err)
+      }
+      resolve(res)
+    })
+  })
+}
+
+function removeKeyByUserID(userID) {
+  return getAllSessions().then(sessions => {
+    let delTargetKeys = []
+    sessions.forEach(session => {
+      const sessionUser = session.loginUser || {}
+      if (userID == sessionUser.id) {
+        delTargetKeys.push(delKey(session._key))
+      }
+    })
+    return delTargetKeys
+  })
+}
+
+exports.removeKeyByUserID = removeKeyByUserID
