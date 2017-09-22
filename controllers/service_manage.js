@@ -218,7 +218,7 @@ exports.getServiceAutoScale = function* () {
   this.body = {
     cluster,
     serviceName,
-    data: autoScale[serviceName] || {}
+    data: autoScale || {}
   }
 }
 
