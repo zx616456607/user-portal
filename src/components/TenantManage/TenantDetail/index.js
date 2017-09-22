@@ -423,7 +423,7 @@ let TenantDetail = React.createClass({
                             }) }
                           />
                           {
-                            this.state.creator === this.props.userName && this.state.creator === 'admin' ?
+                            this.state.creator === this.props.userName || this.props.role === 2 ?
                               this.state.isShowIco ?
                                 <div className="comment">
                                   <Tooltip title="取消">
@@ -448,7 +448,7 @@ let TenantDetail = React.createClass({
           <div className='lastDetails lastDetailtable' style={{ width: '49%', float: 'left' }} >
             <div className='title'>权限 （ <span>{ total > 0 ? total : count}个</span> ）
             {
-                this.state.creator === this.props.userName || this.props.userName === 'admin' ?
+                this.state.creator === this.props.userName || this.props.role === 2 ?
                   <Button
                     className="Editroles"
                     type="ghost"
@@ -474,7 +474,7 @@ let TenantDetail = React.createClass({
               <div className="lastSyncInfo">
                 <Table
                   scroll={{ y: 300 }}
-                  columns={this.state.creator === this.props.userName || this.props.userName === 'admin' ? permissionColumns : permissionColumn}
+                  columns={this.state.creator === this.props.userName || this.props.role === 2 ? permissionColumns : permissionColumn}
                   pagination={false}
                   dataSource={permissionDatasource}
                 />
@@ -485,7 +485,7 @@ let TenantDetail = React.createClass({
             <div className='title'>项目引用记录</div>
             <div className='container referencerecord'>
               <div className="lastSyncInfo">
-                <Table columns={this.props.userName === 'admin' ? columns : column} dataSource={roleProjects} onChange={this.handleChange} pagination={pagination} />
+                <Table columns={this.state.creator === this.props.userName || this.props.role === 2 ? columns : column} dataSource={roleProjects} onChange={this.handleChange} pagination={pagination} />
               </div>
             </div>
           </div>
@@ -538,11 +538,13 @@ TenantDetail = Form.create()(TenantDetail)
 function mapStateToProps(state, props) {
   const { entities } = state
   const { loginUser } = entities
+  const role = loginUser.info.role
   const userName = loginUser.info.userName
+  console.log(role)
   return {
+    role,
     userName
   }
-
 }
 export default connect(mapStateToProps, {
   GetRole,

@@ -65,15 +65,26 @@ class RoleManagement extends React.Component {
       loading: true
     })
   }
+  getSort(order, column) {
+    var query = {}
+    var orderStr = 'a,'
+    if (!order) {
+      orderStr = 'd,'
+    }
+    return orderStr + column
+  }
   /**
    * 加载数据
    */
-  loadData(sort, n) {
+  loadData(isSort, n) {
     const { ListRole } = this.props
+    const { creationTime } = this.state
     let page = n - 1 || 0
+    let sort = isSort ? this.getSort(creationTime, 'create_time') : this.getSort(!creationTime, 'update_time')
     let query = {
       from: page * 10,
-      size: 10
+      size: 10,
+      sort
     }
     // let query = {
     //   sort,
@@ -265,7 +276,7 @@ class RoleManagement extends React.Component {
       failed: {
         func: err => {
           notification.close()
-          notification.success(`删除失败`)
+          notification.error(`删除失败`)
         },
         isAsync: true
       }
@@ -337,7 +348,7 @@ class RoleManagement extends React.Component {
     })
   }
   handleSort() {
-    this.loadData(true);
+    this.loadData(true, null);
     this.setState({
       creationTime: false
     })
@@ -397,23 +408,29 @@ class RoleManagement extends React.Component {
       title: '角色名称',
       dataIndex: 'name',
       width: '13%',
-      render: (text, record, index) =>
-        <Link to={`/tenant_manage/rolemanagement/rolename/${record.id}?#${record.permissionCount}/role=${record.creator}`}>
+      render: (text, record, index) => {
+        console.log(record)
+        record.creator === '' ?
           <div className='roleName'>
             <a href='#'>{text}</a>
-          </div>
-        </Link>
+          </div> :
+          <Link to={`/tenant_manage/rolemanagement/rolename/${record.id}?#${record.permissionCount}/role=${record.creator}`}>
+            <div className='roleName'>
+              <a href='#'>{text}</a>
+            </div>
+          </Link>
+      }
     }, {
       title: '创建人',
       dataIndex: 'creator',
       width: '14%',
       id: 'id',
       render: (text, record, index) =>
-      <div>
-        {
-          text === '' ?  '系统默认' : text
-        }
-      </div>
+        <div>
+          {
+            text === '' ? '系统默认' : text
+          }
+        </div>
     }, {
       title: '权限个数',
       dataIndex: 'permissionCount',
@@ -511,7 +528,7 @@ class RoleManagement extends React.Component {
 
             <div className='pageBox'>
               <span className='totalPage'>共计{total ? total : 0}条</span>
-              <Pagination className="pag" {...pageOption}/>
+              <Pagination className="pag" {...pageOption} />
             </div>
           </div>
           <div className='appBox'>
