@@ -360,7 +360,7 @@ let MemberTable = React.createClass({
       {
         title: (
           <div onClick={this.handleSortName}><span>成员名
-            {  
+            {
               userDetail.role === ROLE_SYS_ADMIN && (
                   <a href="javascript:void(0)">（{this.props.onlineTotal} 人在线）</a>
               )
