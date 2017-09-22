@@ -22,7 +22,7 @@ class ResourceQuota extends React.Component {
       isProject: false,
     }
   }
-  componentWillMount(){
+  componentWillMount() {
     const { isProject } = this.props
     this.setState({
       isProject
@@ -30,6 +30,22 @@ class ResourceQuota extends React.Component {
   }
   render() {
     const { isProject } = this.state
+    const menu = (
+      <Menu>
+        <Menu.Item>
+          <span>第一个菜单项</span>
+        </Menu.Item>
+        <Menu.Item>
+          <span>第二个菜单项</span>
+        </Menu.Item>
+        <Menu.Item>
+          <span>第三个菜单项</span>
+        </Menu.Item>
+      </Menu>
+    )
+    const computeList = ['CPU （核）', '内存（GB）', '磁盘（GB）']
+    const platformList = ['应用（个）', '服务（个）', '容器（个）', '存储（个）', '快照（个）', '服务配置（个）']
+    const serviceList = ['关系型数据库（个）', '缓存（个）', 'Zookeeper（个）', 'ElasticSearch（个）']
     return (
       <div className="quota">
         {
@@ -50,7 +66,7 @@ class ResourceQuota extends React.Component {
                 <span>Tencfilow（个）</span>
               </Col>
               <Col span={8}>
-                <Progress percent={30} />
+                <Progress percent={30} showInfo={false} />
               </Col>
               <Col span={4}>
                 <span>2/5（个）</span>
@@ -61,7 +77,7 @@ class ResourceQuota extends React.Component {
                 <span>子任务（个）</span>
               </Col>
               <Col span={8}>
-                <Progress percent={30} />
+                <Progress percent={30} showInfo={false} />
               </Col>
               <Col span={4}>
                 <span>2/5（个）</span>
@@ -72,7 +88,7 @@ class ResourceQuota extends React.Component {
                 <span>Dockerfile（个）</span>
               </Col>
               <Col span={8}>
-                <Progress percent={30} />
+                <Progress percent={30} showInfo={false} />
               </Col>
               <Col span={4}>
                 <span>2/5（个）</span>
@@ -84,7 +100,7 @@ class ResourceQuota extends React.Component {
                 <span>镜像仓库组（个）</span>
               </Col>
               <Col span={8}>
-                <Progress percent={30} />
+                <Progress percent={30} showInfo={false} />
               </Col>
               <Col span={4}>
                 <span>2/5（个）</span>
@@ -95,7 +111,7 @@ class ResourceQuota extends React.Component {
                 <span>镜像仓库（个）</span>
               </Col>
               <Col span={8}>
-                <Progress percent={30} />
+                <Progress percent={30} showInfo={false} />
               </Col>
               <Col span={4}>
                 <span>2/5（个）</span>
@@ -106,7 +122,7 @@ class ResourceQuota extends React.Component {
                 <span>编排文件（个）</span>
               </Col>
               <Col span={8}>
-                <Progress percent={30} />
+                <Progress percent={30} showInfo={false} />
               </Col>
               <Col span={4}>
                 <span>2/5（个）</span>
@@ -117,7 +133,7 @@ class ResourceQuota extends React.Component {
                 <span>应用包（个）</span>
               </Col>
               <Col span={8}>
-                <Progress percent={30} />
+                <Progress percent={30} showInfo={false} />
               </Col>
               <Col span={4}>
                 <span>2/5（个）</span>
@@ -128,244 +144,88 @@ class ResourceQuota extends React.Component {
         <div className="colony">
           <div className="top">
             <div className="titles">项目集群相关资源配额</div>
-            <span className="desc">默认集群</span>
-            <Icon style={{ color: '#2db7f5', marginLeft: 10 }} type="down" />
+            <Dropdown overlay={menu}>
+              <span className="desc">默认集群 <Icon type="down" /></span>
+            </Dropdown>
           </div>
           <div className="header">
             <Button size="large" className="close">取消</Button>
             <Button size="large" className="save" type="primary">保存</Button>
-            <span className="header_desc">修改配额，将修改 1 个资源配额</span>
+            <span className="header_desc">修改配额，将修改 <p className="sum">1</p> 个资源配额</span>
           </div>
           <div className="list">
             <div className="compute">
               <span>计算资源</span>
-              <Row className="connents">
-                <Col span={2}>
-                  <span>CPU （核）</span>
-                </Col>
-                <Col span={6}>
-                  <Input />
-                </Col>
-                <Col span={3}>
-                  <Checkbox>无限制</Checkbox>
-                </Col>
-                <Col span={4}>
-                  <span>配额剩余：3</span>
-                </Col>
-                <Col span={4}>
-                  <span>该集群剩余：2</span>
-                </Col>
-              </Row>
-              <Row className="connents">
-                <Col span={2}>
-                  <span>内存（GB）</span>
-                </Col>
-                <Col span={6}>
-                  <Input />
-                </Col>
-                <Col span={3}>
-                  <Checkbox>无限制</Checkbox>
-                </Col>
-                <Col span={4}>
-                  <span>配额剩余：3</span>
-                </Col>
-                <Col span={4}>
-                  <span>该集群剩余：2</span>
-                </Col>
-              </Row>
-              <Row className="connents">
-                <Col span={2}>
-                  <span>磁盘（GB）</span>
-                </Col>
-                <Col span={6}>
-                  <Input />
-                </Col>
-                <Col span={3}>
-                  <Checkbox>无限制</Checkbox>
-                </Col>
-                <Col span={4}>
-                  <span>配额剩余：3</span>
-                </Col>
-                <Col span={4}>
-                  <span>该集群剩余：2</span>
-                </Col>
-              </Row>
+              {
+                computeList.map((item, index) => (
+                  <Row key={index} className="connents">
+                    <Col span={2}>
+                      <span>{item}</span>
+                    </Col>
+                    <Col span={6}>
+                      <Input />
+                    </Col>
+                    <Col span={3}>
+                      <Checkbox>无限制</Checkbox>
+                    </Col>
+                    <Col span={4}>
+                      <span>配额剩余：3</span>
+                    </Col>
+                    <Col span={4}>
+                      <span>该集群剩余：2</span>
+                    </Col>
+                  </Row>
+                ))
+              }
             </div>
             <div className="platform">
               <span>平台资源</span>
-              <Row className="connents">
-                <Col span={2}>
-                  <span>应用（个）</span>
-                </Col>
-                <Col span={6}>
-                  <Input />
-                </Col>
-                <Col span={3}>
-                  <Checkbox>无限制</Checkbox>
-                </Col>
-                <Col span={4}>
-                  <span>配额剩余：3</span>
-                </Col>
-                <Col span={4}>
-                  <span>该集群剩余：2</span>
-                </Col>
-              </Row>
-              <Row className="connents">
-                <Col span={2}>
-                  <span>服务（个）</span>
-                </Col>
-                <Col span={6}>
-                  <Input />
-                </Col>
-                <Col span={3}>
-                  <Checkbox>无限制</Checkbox>
-                </Col>
-                <Col span={4}>
-                  <span>配额剩余：3</span>
-                </Col>
-                <Col span={4}>
-                  <span>该集群剩余：2</span>
-                </Col>
-              </Row>
-              <Row className="connents">
-                <Col span={2}>
-                  <span>容器（个）</span>
-                </Col>
-                <Col span={6}>
-                  <Input />
-                </Col>
-                <Col span={3}>
-                  <Checkbox>无限制</Checkbox>
-                </Col>
-                <Col span={4}>
-                  <span>配额剩余：3</span>
-                </Col>
-                <Col span={4}>
-                  <span>该集群剩余：2</span>
-                </Col>
-              </Row>
-              <Row className="connents">
-                <Col span={2}>
-                  <span>存储（个）</span>
-                </Col>
-                <Col span={6}>
-                  <Input />
-                </Col>
-                <Col span={3}>
-                  <Checkbox>无限制</Checkbox>
-                </Col>
-                <Col span={4}>
-                  <span>配额剩余：3</span>
-                </Col>
-                <Col span={4}>
-                  <span>该集群剩余：2</span>
-                </Col>
-              </Row>
-              <Row className="connents">
-                <Col span={2}>
-                  <span>快照（个）</span>
-                </Col>
-                <Col span={6}>
-                  <Input />
-                </Col>
-                <Col span={3}>
-                  <Checkbox>无限制</Checkbox>
-                </Col>
-                <Col span={4}>
-                  <span>配额剩余：3</span>
-                </Col>
-                <Col span={4}>
-                  <span>该集群剩余：2</span>
-                </Col>
-              </Row>
-              <Row className="connents">
-                <Col span={2}>
-                  <span>服务配置（个）</span>
-                </Col>
-                <Col span={6}>
-                  <Input />
-                </Col>
-                <Col span={3}>
-                  <Checkbox>无限制</Checkbox>
-                </Col>
-                <Col span={4}>
-                  <span>配额剩余：3</span>
-                </Col>
-                <Col span={4}>
-                  <span>该集群剩余：2</span>
-                </Col>
-              </Row>
+              {
+                platformList.map((item, index) => (
+                  <Row key={index} className="connents">
+                    <Col span={2}>
+                      <span>{item}</span>
+                    </Col>
+                    <Col span={6}>
+                      <Input />
+                    </Col>
+                    <Col span={3}>
+                      <Checkbox>无限制</Checkbox>
+                    </Col>
+                    <Col span={4}>
+                      <span>配额剩余：3</span>
+                    </Col>
+                    <Col span={4}>
+                      <span>该集群剩余：2</span>
+                    </Col>
+                  </Row>
+                ))
+              }
             </div>
+            <p className="line"></p>
             <div className="service">
               <span>数据库与缓存</span>
-              <Row className="connents">
-                <Col span={3}>
-                  <span>关系型数据库（个）</span>
-                </Col>
-                <Col span={6}>
-                  <Input />
-                </Col>
-                <Col span={3}>
-                  <Checkbox>无限制</Checkbox>
-                </Col>
-                <Col span={4}>
-                  <span>配额剩余：3</span>
-                </Col>
-                <Col span={4}>
-                  <span>该集群剩余：2</span>
-                </Col>
-              </Row>
-              <Row className="connents">
-                <Col span={3}>
-                  <span>缓存（个）</span>
-                </Col>
-                <Col span={6}>
-                  <Input />
-                </Col>
-                <Col span={3}>
-                  <Checkbox>无限制</Checkbox>
-                </Col>
-                <Col span={4}>
-                  <span>配额剩余：3</span>
-                </Col>
-                <Col span={4}>
-                  <span>该集群剩余：2</span>
-                </Col>
-              </Row>
-              <Row className="connents">
-                <Col span={3}>
-                  <span>Zookeeper（个）</span>
-                </Col>
-                <Col span={6}>
-                  <Input />
-                </Col>
-                <Col span={3}>
-                  <Checkbox>无限制</Checkbox>
-                </Col>
-                <Col span={4}>
-                  <span>配额剩余：3</span>
-                </Col>
-                <Col span={4}>
-                  <span>该集群剩余：2</span>
-                </Col>
-              </Row>
-              <Row className="connents">
-                <Col span={3}>
-                  <span>ElasticSearch（个）</span>
-                </Col>
-                <Col span={6}>
-                  <Input />
-                </Col>
-                <Col span={3}>
-                  <Checkbox>无限制</Checkbox>
-                </Col>
-                <Col span={4}>
-                  <span>配额剩余：3</span>
-                </Col>
-                <Col span={4}>
-                  <span>该集群剩余：2</span>
-                </Col>
-              </Row>
+              {
+                serviceList.map((item, index) => (
+                  <Row key={index} className="connents">
+                    <Col span={3}>
+                      <span>{item}</span>
+                    </Col>
+                    <Col span={6}>
+                      <Input />
+                    </Col>
+                    <Col span={3}>
+                      <Checkbox>无限制</Checkbox>
+                    </Col>
+                    <Col span={4}>
+                      <span>配额剩余：3</span>
+                    </Col>
+                    <Col span={4}>
+                      <span>该集群剩余：2</span>
+                    </Col>
+                  </Row>
+                ))
+              }
             </div>
           </div>
         </div>
