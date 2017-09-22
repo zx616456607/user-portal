@@ -184,6 +184,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:appName/topology-services', serviceController.serviceTopology)
   router.get('/clusters/:cluster/apps/:appName/topology-pods', serviceController.podTopology)
   router.put('/clusters/:cluster/services/autoscale/status', serviceController.batchUpdateAutoscaleStatus)
+  router.get('/clusters/:cluster/services/:service_name/autoscale/logs', serviceController.getAutoScaleLogs)
   
   // Users
   router.get('/users/:user_id', userController.getUserDetail)

@@ -491,8 +491,10 @@ class AppServiceDetail extends Component {
               <TabPane tab='自动伸缩' key='#autoScale'>
                 <AppAutoScale
                   replicas={service.spec.replicas}
+                  serviceDetailmodalShow={serviceDetailmodalShow}
                   serviceName={service.metadata.name}
                   volumes={service.spec.template.spec.volumes}
+                  isCurrentTab={activeTabKey==='#autoScale'}
                   cluster={service.cluster} />
               </TabPane>
               <TabPane tab='日志' key='#logs'>

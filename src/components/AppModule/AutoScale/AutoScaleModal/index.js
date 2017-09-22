@@ -9,7 +9,7 @@
  */
 
 import React from 'react'
-import { 
+import {
   Modal, Form, Input, Select, Button,
   InputNumber, Row, Col, Icon
 } from 'antd'
@@ -55,8 +55,8 @@ class AutoScaleModal extends React.Component {
     loadNotifyGroups(null, clusterID)
   }
   componentWillReceiveProps(nextProps) {
-    const { visible: newVisible, scope, scaleDetail: newScaleDetail, create } = nextProps
-    const { visible: oldVisible, } = this.props
+    const { visible: newVisible, scope } = nextProps
+    const { visible: oldVisible } = this.props
     if (oldVisible && !newVisible) {
       scope.setState({
         scaleModal: false,
@@ -150,7 +150,7 @@ class AutoScaleModal extends React.Component {
         message: '请输入策略名称'
       }],
       validator: this.checkScaleName.bind(this),
-      initialValue: create || isEmpty(scaleDetail) ? undefined: scaleDetail.scale_strategy_name
+      initialValue: create || isEmpty(scaleDetail) ? undefined: scaleDetail.strategyName
     })
     const selectService = getFieldProps('serviceName', {
       rules: [{
@@ -213,7 +213,7 @@ class AutoScaleModal extends React.Component {
             {...formItemLargeLayout}
             label="策略名称"
           >
-            <Input disabled={create ? false: true} type="text" {...scaleName} placeholder="请输入策略名称"/>
+            <Input type="text" {...scaleName} placeholder="请输入策略名称"/>
           </FormItem>
           <FormItem
             {...formItemLargeLayout}
@@ -221,12 +221,13 @@ class AutoScaleModal extends React.Component {
           >
             <Select
               showSearch
+              disabled={create ? false: true}
               optionFilterProp="children"
               notFoundContent="无法找到"
-              {...selectService} 
+              {...selectService}
               placeholder="请选择服务">
               {
-                services && services.length && services.map(item => 
+                services && services.length && services.map(item =>
                   <Option key={item.metadata.name} value={item.metadata.name}>{item.metadata.name}</Option>)
               }
             </Select>
@@ -252,7 +253,7 @@ class AutoScaleModal extends React.Component {
           <Row style={{margin: '-10px 0 10px'}}>
             <Col span={4}/>
             <Col span={16}>
-              <Icon type="exclamation-circle-o" />所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
+              <Icon type="exclamation-circle-o" /> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
             </Col>
           </Row>
           <FormItem
@@ -264,7 +265,7 @@ class AutoScaleModal extends React.Component {
           <Row style={{margin: '-10px 0 10px'}}>
             <Col span={4}/>
             <Col span={16}>
-              <Icon type="exclamation-circle-o" />所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
+              <Icon type="exclamation-circle-o" /> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
             </Col>
           </Row>
           <FormItem
@@ -293,7 +294,7 @@ class AutoScaleModal extends React.Component {
               optionFilterProp="children"
               notFoundContent="无法找到">
               {
-                alertList && alertList.length && alertList.map(item => 
+                alertList && alertList.length && alertList.map(item =>
                   <Option key={item.name} value={item.groupID}>{item.name}</Option>
                 )
               }
@@ -302,7 +303,7 @@ class AutoScaleModal extends React.Component {
           <Row style={{margin: '-10px 0 10px'}}>
             <Col span={4}/>
             <Col span={16}>
-              <Icon type="exclamation-circle-o" />发生弹性伸缩时会向该通知组发送邮件通知
+              <Icon type="exclamation-circle-o" /> 发生弹性伸缩时会向该通知组发送邮件通知
             </Col>
           </Row>
         </Form>
