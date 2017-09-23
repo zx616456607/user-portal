@@ -190,7 +190,7 @@ let MemberList = React.createClass({
   },
   render: function () {
     let { filteredInfo, current, selectedRowKeys, userName, transferHint} = this.state
-    const { teamUserList, teamUsersTotal, roleNum } = this.props
+    const { teamUserList, teamUsersTotal, roleNum, isNotManager } = this.props
     filteredInfo = filteredInfo || {}
     const pagination = {
       simple: true,
@@ -258,7 +258,7 @@ let MemberList = React.createClass({
         width: '20%',
         render: (text, record, index) => (
           <div className="cardBtns">
-            <Button disabled={roleNum === 3}
+            <Button disabled={roleNum === 3 || isNotManager}
               className="delBtn" onClick={(e)=> this.removeMember(e,record) }>
               移除成员
             </Button>
@@ -444,6 +444,12 @@ class TeamDetail extends Component {
     })
   }
   handleChange(targetKeys) {
+    const { originalKeys } = this.state
+    let notify = new NotificationHandler()
+    if (!targetKeys.includes(originalKeys[0])) {
+      notify.info('移除团队管理者前请先移交团队')
+      return
+    }
     this.setState({ targetKeys })
   }
   loadTeamDetail() {
@@ -451,8 +457,10 @@ class TeamDetail extends Component {
     getTeamDetail(teamID,{
       success: {
         func: (res) => {
+          const teamDetail = res.result.teams[0]
           this.setState({
-            teamDetail: res.result.teams[0]
+            teamDetail,
+            isNotManager: !teamDetail.outlineRoles.includes('manager') && !teamDetail.outlineRoles.includes('no-participator')
           })
         },
         isAsync: true
@@ -615,7 +623,7 @@ class TeamDetail extends Component {
     let notify = new NotificationHandler()
     let teamName = getFieldValue('teamName');
     let oldTeamName = teamDetail.teamName;
-    if (!teamName || (teamName === oldTeamName)) {return this.setState({editTeamName:false})}
+    if (teamName === oldTeamName) {return this.setState({editTeamName:false})}
     validateFields((errors, values) => {
       if (!!errors) {
         return
@@ -697,7 +705,7 @@ class TeamDetail extends Component {
       loadTeamUserList, form, loadTeamAllUser, roleNum
     } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = form
-    const { targetKeys, teamDetail, selectLeader, editTeamName, delLeaderName, value } = this.state
+    const { targetKeys, teamDetail, selectLeader, editTeamName, delLeaderName, value, isNotManager } = this.state
     const leaderRowSelction = {
       type: 'radio',
       selectedRowKeys: selectLeader,
@@ -765,7 +773,7 @@ class TeamDetail extends Component {
                           <i className="anticon anticon-save pointer confirm" onClick={()=> this.saveTeamName()}/>
                         </Tooltip>
                       ] :
-                        roleNum !== 3 &&
+                        (roleNum === 1 || !isNotManager) &&
                         <Tooltip title="编辑">
                           <i className="anticon anticon-edit pointer edit" onClick={()=> this.editTeamName()}/>
                         </Tooltip>
@@ -778,7 +786,7 @@ class TeamDetail extends Component {
                 创建时间
               </Col>
               <Col span={22}>
-                {teamDetail && teamDetail.creationTime && teamDetail.creationTime.replace(/T/g, ' ').replace(/Z/g, '')}
+                {teamDetail && teamDetail.creationTime && new Date(+new Date(teamDetail.creationTime)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'')}
               </Col>
             </Row>
             <Row>
@@ -787,9 +795,17 @@ class TeamDetail extends Component {
               </Col>
               <Col span={22}>
                 {teamDetail && teamDetail.outlineRoles && teamDetail.outlineRoles.length &&
-                  (includes(teamDetail.outlineRoles,'manager') || includes(teamDetail.outlineRoles,'creator') ? '管理者' : '') ||
+                  (includes(teamDetail.outlineRoles,'manager') ? '管理者' : '') ||
                   (includes(teamDetail.outlineRoles,'no-participator') ? '非团队成员' : includes(teamDetail.outlineRoles,'participator') ? '参与者' : '')
                 }
+              </Col>
+            </Row>
+            <Row>
+              <Col span={2}>
+                备注
+              </Col>
+              <Col span={22}>
+                {teamDetail && teamDetail.description || '-'}
               </Col>
             </Row>
           </Card>
@@ -807,7 +823,7 @@ class TeamDetail extends Component {
                 <Row style={{ marginBottom: 20 }}>
                   <Col span={24}>
                     {
-                      roleNum !== 3 &&
+                      (roleNum === 1 || !isNotManager) &&
                       [
                         <Button type="primary" size="large" className="addMemberBtn"
                               onClick={this.addNewMember}>
@@ -874,6 +890,7 @@ class TeamDetail extends Component {
                 <Row>
                   <MemberList teamUserList={teamUserList}
                               scope={this}
+                              isNotManager={isNotManager}
                               teamID={teamID}
                               roleNum={roleNum}
                               removeTeamusers={removeTeamusers}

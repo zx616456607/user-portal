@@ -233,8 +233,12 @@ let TeamTable = React.createClass({
       Promise.all([this.addTeamUsers(add), this.delTeamUsers(del)]).then(() => {
         loadUserTeamList('default', {page, size, sort, filter})
         notify.success('操作成功')
-      }).catch(() => {
-        notify.error('操作失败')
+      }).catch((res) => {
+        if (res.statusCode === 401) {
+          notify.error('移除团队管理者前请先移交团队')
+        } else {
+          notify.error('操作失败')
+        }
       })
     } else if (add.length && !del.length) {
       this.addTeamUsers(add).then(() => {
@@ -247,8 +251,12 @@ let TeamTable = React.createClass({
       this.delTeamUsers(del).then(() => {
         loadUserTeamList('default', {page, size, sort, filter})
         notify.success('操作成功')
-      }).catch(() => {
-        notify.error('操作失败')
+      }).catch((res) => {
+        if (res.statusCode === 401) {
+          notify.error('移除团队管理者前请先移交团队')
+        } else {
+          notify.error('操作失败')
+        }
       })
     }
     this.setState({
@@ -389,7 +397,7 @@ let TeamTable = React.createClass({
         dataIndex: 'creationTime',
         key: 'creationTime',
         width:'20%',
-        render: text => text.replace(/T/g, ' ').replace(/Z/g, '')
+        render: text => new Date(+new Date(text)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'')
       },
       {
         title: '我是该团队的',
@@ -398,7 +406,7 @@ let TeamTable = React.createClass({
         width:'10%',
         filters: filterRole,
         // filteredValue: filteredInfo.role,
-        render: text => <div>{ text === 'manager' ? '团队管理员' : (text === 'participator' ? '参与者' : '非团队成员')}</div>
+        render: text => <div>{ text === 'manager' ? '管理者' : (text === 'participator' ? '参与者' : '非团队成员')}</div>
       },
       {
         title: '操作',
@@ -407,9 +415,9 @@ let TeamTable = React.createClass({
         render: (text, record, index) =>{
           return (
             <div className="addusers">
-              <Button disabled={roleNum ===3}
+              <Button disabled={roleNum ===3 || record.role === 'participator'}
                 type="primary" onClick={() => this.addNewMember(record.key)}>添加团队成员</Button>
-              <Button disabled={roleNum ===3}
+              <Button disabled={roleNum ===3 || record.role === 'participator'}
                 onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
             </div>
           )
@@ -687,7 +695,7 @@ class TeamManage extends Component {
       <QueueAnim>
         <div key='TeamsManage' id="TeamsManage">
           <Title title="团队管理" />
-          <Alert message={`团队由若干个成员组成的一个集体，等效于公司的部门、小组、或子公司；系统管理员可将普通成员设置为「可以创建团队」的人，团队创建者为项目管理者，团队能移交给团队内或团队外成员作为新的项目管理者。`}
+          <Alert message={`团队由若干个成员组成的一个集体，等效于公司的部门、小组、或子公司；系统管理员可将普通成员设置为「可以创建团队」的人，团队创建者为团队管理者，团队能移交给团队内或团队外成员作为新的团队管理者。`}
                  type="info" />
           <Row className="teamOption">
             {
