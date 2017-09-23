@@ -200,6 +200,13 @@ class ProjectDetail extends Component {
     return option.description.indexOf(inputValue) > -1;
   }
   handleChange(targetKeys) {
+    let roleIdArr = []
+    let notify = new Notification()
+    targetKeys.forEach(item => roleIdArr.push(item.split(',')[0]))
+    if (!roleIdArr.includes(PROJECT_MANAGE_ROLE_ID) || !roleIdArr.includes(PROJECT_VISISTOR_ROLE_ID)) {
+      notify.info('项目管理员和项目访客不允许移出')
+      return
+    }
     this.setState({ targetKeys });
   }
   editComment() {
