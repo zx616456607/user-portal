@@ -25,6 +25,8 @@ import JoinProjectsModal from './JoinProjectsModal'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
 import './style/UserProjectsAndTeams.less'
 import ResourceQuota from '../../ResourceLimit'
+import { getQuota, putQuota } from '../../../actions/quota'
+import { REG } from '../../../constants'
 
 const TabPane = Tabs.TabPane
 
@@ -49,6 +51,7 @@ class UserProjectsAndTeams extends React.Component {
       removeProjectModalVisible: false,
       removeProjectBtnLoading: false,
       teamSearchValue: null,
+      quotaData: [],
     }
 
     this.loadTeamData = this.loadTeamData.bind(this)
@@ -140,7 +143,23 @@ class UserProjectsAndTeams extends React.Component {
   }
 
   componentWillMount() {
+    const { getQuota, putQuota } = this.props
     this.loadProjectsData()
+    let id = 'CID-90eb6ec7b55a'
+    let body = {
+      tenxflow: 1213
+    }
+    putQuota({id, body },{
+      success: {
+        func: res => {
+          if(REG.test(res.code)){
+            this.setState({
+              quotaData: res.data
+            })
+          }
+        }
+      }
+    })
   }
 
   componentDidMount() {
@@ -327,7 +346,7 @@ class UserProjectsAndTeams extends React.Component {
       teamTargetKeys, allTeams, teamTransferModalVisible,
       joinProjectsModalVisible, removeProjectModalVisible,
       currentProject, allProjects, projectTargetKeys,
-      teamSearchValue,
+      teamSearchValue, quotaData,
     } = this.state
     let teams = this.props.teams
     if (teamSearchValue && teamSearchValue.trim()) {
@@ -502,7 +521,7 @@ class UserProjectsAndTeams extends React.Component {
             </div>
           </TabPane>
           <TabPane tab="个人资源配额管理" key="quota">
-            <ResourceQuota isProject={false}/>
+            <ResourceQuota isProject={false} data={quotaData}/>
           </TabPane>
         </Tabs>
         <Modal
@@ -657,6 +676,8 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
+  getQuota,
+  putQuota,
   loadUserTeams,
   removeTeamusers,
   GetProjectsMembers,

@@ -182,6 +182,10 @@ class CreateRoleModal extends React.Component {
     let ary = checkedKeys.map((item, index) => {
       return Number(item)
     })
+    if(ary.length === 0){
+      notify.error('权限不能为空')
+      return
+    }
     validateFields((errors, values) => {
       if (!!errors) {
         return
@@ -409,7 +413,7 @@ class CreateRoleModal extends React.Component {
           <span className="desc">权限选择 :</span>
           <div className="authBox">
             <div className="authTitle">共<span style={{ color: '#59c3f5' }}>{total}</span>个<div className="pull-right">已选<span style={{ color: '#59c3f5' }}>
-              {this.state.checkedCount.length <= 0 ? isChecked ? 0 : isTotal ? this.props.scope.state.total : count : this.state.checkedCount.length}
+              {this.state.checkedCount.length <= 0 ? isChecked ? 0 : isTotal ? this.props.scope.state.total : isAdd : this.state.checkedCount.length}
               </span> 个</div>
             </div>
             <div className="treeBox">

@@ -13,6 +13,7 @@ import { Row, Col, Button, Input, Transfer, Form } from 'antd'
 import { connect } from 'react-redux'
 import { ListRole, CreateRole, ExistenceRole } from '../../../actions/role'
 import CreateRoleModal from  './CreateRole'
+import Notification from '../../../components/Notification'
 import { PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID } from '../../../../constants'
 
 class CreateStepSecond extends Component{
@@ -87,6 +88,13 @@ class CreateStepSecond extends Component{
   }
   handleChange(targetKeys) {
     const { updateRole } = this.props;
+    let roleIdArr = []
+    let notify = new Notification()
+    targetKeys.forEach(item => roleIdArr.push(item.split(',')[0]))
+    if (!roleIdArr.includes(PROJECT_MANAGE_ROLE_ID) || !roleIdArr.includes(PROJECT_VISISTOR_ROLE_ID)) {
+      notify.info('项目管理员和项目访客不允许移出')
+      return
+    }
     this.setState({ targetKeys });
     updateRole(targetKeys)
   }

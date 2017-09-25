@@ -126,3 +126,4 @@ export const PLUGIN_DEFAULT_CONFIG = {
 export const SHOW_BILLING = true
 export const DEFAULT_SHARE_DIR = '/tenxcloud-tmp-dir'
 export const DEACTIVE = 0
+export const ROLE = 2

@@ -317,6 +317,10 @@ exports.deleteUser = function* () {
 
   try {
     const result = yield api.users.delete(userID)
+    // Make user logout
+    sessionService.removeKeyByUserID(userID).then(res => {
+      logger.info('remove user from session store success', userID)
+    })
     this.body = {
       data: result
     }

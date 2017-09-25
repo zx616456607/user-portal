@@ -49,6 +49,7 @@ const netIsolationController = require('../controllers/network_isolation')
 const tenantController = require('../controllers/tenant_manage')
 const apmController = require('../controllers/apm')
 const storageController = require('../controllers/storage_manage')
+const quotaController = require('../controllers/quota')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -185,7 +186,9 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:appName/topology-pods', serviceController.podTopology)
   router.put('/clusters/:cluster/services/autoscale/status', serviceController.batchUpdateAutoscaleStatus)
   router.get('/clusters/:cluster/services/:service_name/autoscale/logs', serviceController.getAutoScaleLogs)
-  
+
+  router.post('/clusters/:cluster/services/autoscale/existence', serviceController.checkAutoScaleNameExist)
+
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
   router.get('/users/:user_id/app_info', userController.getUserAppInfo)
@@ -619,6 +622,10 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/storageclass', storageController.postCreateCephStorage)
   router.put('/clusters/:cluster/storageclass', storageController.putUpdateCephStorage)
   router.del('/clusters/:cluster/storageclass/:name', storageController.postDeleteCephStorage)
+
+  //Quota
+  router.get('/clusters/:cluster/resourcequota', quotaController.list)
+  router.put('/clusters/:cluster/resourcequota', quotaController.put)
 
   return router.routes()
 }
