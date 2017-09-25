@@ -420,7 +420,7 @@ class AutoScale extends React.Component {
           <Button size="large" onClick={() => this.loadData(clusterID, 1)}><i className='fa fa-refresh' /> 刷新</Button>
           <Button size="large" onClick={() => this.batchUpdateStatus('start')}><i className='fa fa-play' /> 启用</Button>
           <Button size="large" onClick={() => this.batchUpdateStatus('stop')}><i className='fa fa-stop' /> 停用</Button>
-          <Button size="large" onClick={() => this.setState({deleteModal: true})}><i className='fa fa-trash-o' /> 删除</Button>
+          <Button size="large" onClick={() => selectedRowKeys.length && this.setState({deleteModal: true})}><i className='fa fa-trash-o' /> 删除</Button>
           <CommonSearchInput
             placeholder="请输入策略名或服务名搜索"
             size="large"

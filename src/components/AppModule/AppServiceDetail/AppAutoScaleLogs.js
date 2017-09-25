@@ -9,7 +9,7 @@
  */
 
 import React from 'react'
-import { Timeline, Icon } from 'antd'
+import { Timeline, Icon, Spin } from 'antd'
 import './style/AppAutoScaleLogs.less'
 const TimelineItem = Timeline.Item
 export default class AppAutoScaleLogs extends React.Component {
@@ -50,17 +50,45 @@ export default class AppAutoScaleLogs extends React.Component {
       }
     })
   }
+  emailStatus = status => {
+    switch (status) {
+      case 0 :
+        return '，邮件正在发送。'
+      case 1 :
+        return '，邮件发送失败。'
+      case 2 : 
+        return '，邮件发送成功。'
+    }
+  }
+  renderLineTiem = item => {
+    const diff = item.scaleFrom - item.scaleTo
+    if (diff > 0) {
+      return <TimelineItem dot={<Icon type="check-circle" style={{fontSize: 16, color: '#2cb8f6'}}/>} key={item.message}>
+               <span style={{ color: '#2cb8f6' }}>{`收缩${diff}个实例${this.emailStatus(item.status)}`}</span>
+             </TimelineItem>
+    }
+    return <TimelineItem dot={<Icon type="check-circle" style={{fontSize: 16, color: '#2fba67'}}/>} key={item.message}>
+             <span style={{ color: '#2fba67' }}>{`扩展${Math.abs(diff)}个实例${this.emailStatus(item.status)}`}</span>
+           </TimelineItem>
+  }
   render() {
     const { logList } = this.state
     return(
       <div className="appAutoScaleLogs">
-        <Timeline>
-          {
-            logList.length > 0 ? logList.map(item => {
-              return <TimelineItem dot={<Icon type="check-circle" style={{fontSize: 16, color: '#2fba67'}}/>} key={item.message}>{item.message}</TimelineItem>
-            }) : null
-          }
-        </Timeline>
+        {
+          logList.length > 0 ?
+            <Timeline>
+              {
+                logList.map(item => {
+                  return this.renderLineTiem(item)
+                })
+              }
+            </Timeline>
+             :
+            <div className='loadingBox'>
+              <Spin size='large' />
+            </div>
+        }
       </div>
     )
   }

@@ -139,6 +139,9 @@ export function getServiceStatusByContainers(service, containers) {
  * return one of [Running, Pending, Stopped, Unknown]
  */
 export function getAppStatus(services) {
+  if (!services) {
+    return
+  }
   const appStatus = {
     replicas: services.length,
     availableReplicas: 0,

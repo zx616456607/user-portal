@@ -15,12 +15,13 @@ import {
 } from 'antd'
 import { connect } from 'react-redux'
 import {
-  loadAllServices, updateAutoScale,
+  loadAllServices, updateAutoScale, checkAutoScaleName
 } from '../../../../actions/services'
 import {
   loadNotifyGroups
 } from '../../../../actions/alert'
 import Notification from '../../../Notification'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import isEmpty from 'lodash/isEmpty'
 const FormItem = Form.Item
 const Option = Select.Option;
@@ -55,7 +56,7 @@ class AutoScaleModal extends React.Component {
     loadNotifyGroups(null, clusterID)
   }
   componentWillReceiveProps(nextProps) {
-    const { visible: newVisible, scope } = nextProps
+    const { visible: newVisible, scope, form } = nextProps
     const { visible: oldVisible } = this.props
     if (oldVisible && !newVisible) {
       scope.setState({
@@ -64,6 +65,7 @@ class AutoScaleModal extends React.Component {
         create: false,
         reuse: false
       })
+      form.resetFields()
     }
   }
   cancelModal = () => {
@@ -74,9 +76,25 @@ class AutoScaleModal extends React.Component {
   }
   confirmModal = () => {
     const { scope, form, updateAutoScale, clusterID, create, scaleDetail } = this.props
-    const { validateFields, resetFields } = form
+    const { validateFields, resetFields, setFields } = form
     let notify = new Notification()
     validateFields((errors, values) => {
+      if (values.cpu) {
+        setFields({
+          memory: {
+            errors: null,
+            value: values.memory
+          }
+        })
+      }
+      if (values.memory) {
+        setFields({
+          cpu: {
+            errors: null,
+            value: values.cpu
+          }
+        })
+      }
       if (!!errors) {
         return
       }
@@ -121,8 +139,78 @@ class AutoScaleModal extends React.Component {
     })
   }
   checkScaleName = (rule, value, callback) => {
+    const { checkAutoScaleName, clusterID, form, create } = this.props
+    const { getFieldValue } = form
     if (!value) {
       callback('请输入策略名称')
+    }
+    const service_name = create ? getFieldValue('serviceName') : ''
+    clearTimeout(this.checkScaleNameExist)
+    this.checkScaleNameExist = setTimeout(() => {
+      checkAutoScaleName(clusterID, {
+        service_name,
+        strategy_name: value
+      }, {
+        success: {
+          func: () => {
+            callback()
+          },
+        },
+        failed: {
+          func: res => {
+            if (res.statusCode === 400) {
+              callback('该策略名称已经存在')
+            }
+            callback()
+          }
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
+  }
+  checkServiceName = (rule, value, callback) => {
+    const { checkAutoScaleName, clusterID, form } = this.props
+    const { getFieldValue } = form
+    if (!value) {
+      callback('请选择服务')
+    }
+    const strategy_name = getFieldValue('scale_strategy_name') || ''
+    clearTimeout(this.checkSerivceNameExist)
+    this.checkSerivceNameExist = setTimeout(() => {
+      checkAutoScaleName(clusterID, {
+        service_name: value,
+        strategy_name,
+      }, {
+        success: {
+          func: () => {
+            callback()
+          },
+        },
+        failed: {
+          func: res => {
+            if (res.statusCode === 400) {
+              callback('该服务已经关联弹性伸缩策略')
+            }
+            callback()
+          }
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
+  }
+  checkCpu = (rule, value, callback) => {
+    const { form } = this.props
+    const { getFieldValue } = form
+    let memoryValue = getFieldValue('memory')
+    if (!value && !memoryValue) {
+      callback('请输入CPU阈值')
+    }
+    callback()
+  }
+  checkMemory = (rule, value, callback) => {
+    const { form } = this.props
+    const { getFieldValue } = form
+    let cpuValue = getFieldValue('cpu')
+    if (!value && !cpuValue) {
+      callback('请输入内存阈值')
     }
     callback()
   }
@@ -135,7 +223,7 @@ class AutoScaleModal extends React.Component {
   }
   render() {
     const { visible, form, services, alertList, scaleDetail, create, reuse } = this.props
-    const { getFieldProps } = form
+    const { getFieldProps, isFieldValidating, getFieldError } = form
     const formItemLargeLayout = {
       labelCol: { span: 4},
       wrapperCol: { span: 16}
@@ -146,16 +234,13 @@ class AutoScaleModal extends React.Component {
     }
     const scaleName = getFieldProps('scale_strategy_name', {
       rules: [{
-        required: true,
-        message: '请输入策略名称'
+        validator: this.checkScaleName.bind(this),
       }],
-      validator: this.checkScaleName.bind(this),
-      initialValue: create || isEmpty(scaleDetail) ? undefined: scaleDetail.strategyName
+      initialValue: create || isEmpty(scaleDetail) ? undefined: scaleDetail.scale_strategy_name
     })
     const selectService = getFieldProps('serviceName', {
       rules: [{
-        required: true,
-        message: '请选择服务'
+        validator: create ? this.checkServiceName.bind(this) : null,
       }],
       initialValue: create || isEmpty(scaleDetail) ? undefined: scaleDetail.serviceName
     })
@@ -175,15 +260,13 @@ class AutoScaleModal extends React.Component {
     })
     const cpuProps = getFieldProps('cpu', {
       rules: [{
-        required: true,
-        message: '请输入CPU阈值'
+        validator: this.checkCpu.bind(this),
       }],
       initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.cpu
     })
     const memoryProps = getFieldProps('memory', {
       rules: [{
-        required: true,
-        message: '请输入内存阈值'
+        validator: this.checkMemory.bind(this),
       }],
       initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.memory
     })
@@ -212,6 +295,8 @@ class AutoScaleModal extends React.Component {
           <FormItem
             {...formItemLargeLayout}
             label="策略名称"
+            hasFeedback
+            help={isFieldValidating('scale_strategy_name') ? '校验中...' : (getFieldError('scale_strategy_name') || []).join(', ')}
           >
             <Input type="text" {...scaleName} placeholder="请输入策略名称"/>
           </FormItem>
@@ -332,5 +417,6 @@ AutoScaleModal = Form.create()(AutoScaleModal)
 export default connect(mapStateToProps, {
   loadAllServices,
   updateAutoScale,
-  loadNotifyGroups
+  loadNotifyGroups,
+  checkAutoScaleName
 })(AutoScaleModal)

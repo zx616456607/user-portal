@@ -137,9 +137,7 @@ class Header extends Component {
       upgradeVersionModalVisible: false,
       visible: false,
       allUsers: [],
-      projects: [],
       projectClusters: [],
-      isProjectsFetching: false,
     }
     this.isSysAdmin = props.loginUser.role == ROLE_SYS_ADMIN
   }
@@ -168,6 +166,66 @@ class Header extends Component {
     })
   }
 
+  componentWillMount() {
+    const {
+      loadTeamClustersList,
+      setCurrent,
+      loadLoginUserDetail,
+      loginUser,
+      GetProjectsAllClusters,
+    } = this.props
+    const config = getCookie(USER_CURRENT_CONFIG)
+    const [teamID, namespace, clusterID] = config.split(',')
+    setCurrent({
+      team: { teamID },
+      space: { namespace },
+      cluster: { clusterID },
+    })
+    loadProjects(this.props, {
+      success: {
+        func: res => {
+          const projects = res.data && res.data.projects || []
+          let defaultSpace = projects[0] || {}
+          if (namespace === 'default' || projects.length === 0) {
+            defaultSpace = MY_SPACE
+          } else {
+            projects.map(project => {
+              if (project.namespace === namespace) {
+                defaultSpace = project
+              }
+            })
+          }
+          setCurrent({
+            space: defaultSpace
+          })
+          GetProjectsAllClusters({ projectsName: defaultSpace.projectName }, {
+            success: {
+              func: clustersRes => {
+                let { clusters } = clustersRes.data
+                clusters = clusters.map(cluster => {
+                  if (cluster.cluster) {
+                    cluster = cluster.cluster
+                  }
+                  cluster.name = cluster.clusterName
+                  return cluster
+                })
+                let defaultCluster = clusters[0] || {}
+                clusters.map(cluster => {
+                  if (cluster.clusterID === clusterID) {
+                    defaultCluster = cluster
+                  }
+                })
+                setCurrent({ cluster: defaultCluster })
+              },
+              isAsync: true
+            }
+          })
+        },
+        isAsync: true,
+      },
+    })
+  }
+
   handleProjectChange(project) {
     const { GetProjectsAllClusters, setCurrent, current, showCluster, pathname } = this.props
     let notification = new NotificationHandler()
@@ -187,7 +245,6 @@ class Header extends Component {
             cluster.name = cluster.clusterName
             return cluster
           })
-          this.setState({ projectClusters: clusters })
           if (!clusters || clusters.length < 1) {
             notification.warn(`${team} [${project.projectName}] 的${zone}列表为空，请重新选择${team}`)
             this.setState({
@@ -247,80 +304,6 @@ class Header extends Component {
     if (pathname.match(/\//g).length > 2) {
       browserHistory.push('/')
     }
-  }
-
-  componentWillMount() {
-    const {
-      loadTeamClustersList,
-      setCurrent,
-      loadLoginUserDetail,
-      loginUser,
-      GetProjectsAllClusters,
-    } = this.props
-    const config = getCookie(USER_CURRENT_CONFIG)
-    const [teamID, namespace, clusterID] = config.split(',')
-    setCurrent({
-      team: { teamID },
-      space: { namespace },
-      cluster: { clusterID },
-    })
-    const self = this
-    this.setState({
-      isProjectsFetching: true,
-    })
-    loadProjects(this.props, {
-      success: {
-        func: res => {
-          const projects = res.data && res.data.projects || []
-          projects.forEach(project => project.name = project.projectName)
-          this.setState({ projects })
-          let defaultSpace = projects[0] || {}
-          if (namespace === 'default' || projects.length === 0) {
-            defaultSpace = MY_SPACE
-          } else {
-            projects.map(project => {
-              if (project.namespace === namespace) {
-                defaultSpace = project
-              }
-            })
-          }
-          setCurrent({
-            space: defaultSpace
-          })
-          GetProjectsAllClusters({ projectsName: defaultSpace.projectName }, {
-            success: {
-              func: clustersRes => {
-                let { clusters } = clustersRes.data
-                clusters = clusters.map(cluster => {
-                  if (cluster.cluster) {
-                    cluster = cluster.cluster
-                  }
-                  cluster.name = cluster.clusterName
-                  return cluster
-                })
-                this.setState({ projectClusters: clusters })
-                let defaultCluster = clusters[0] || {}
-                clusters.map(cluster => {
-                  if (cluster.clusterID === clusterID) {
-                    defaultCluster = cluster
-                  }
-                })
-                setCurrent({ cluster: defaultCluster })
-              },
-              isAsync: true
-            }
-          })
-        },
-        isAsync: true,
-      },
-      finally: {
-        func: () => {
-          this.setState({
-            isProjectsFetching: false,
-          })
-        }
-      }
-    })
   }
 
   componentDidMount() {
@@ -388,15 +371,15 @@ class Header extends Component {
     const {
       current,
       loginUser,
-      isTeamspacesFetching,
-      teamspaces,
-      isTeamClustersFetching,
-      teamClusters,
       migrated,
       showSpace,
       showCluster,
       checkVersionContent,
       openApi,
+      projects,
+      isProjectsFetching,
+      projectClusters,
+      isProjectClustersFetching,
     } = this.props
     const {
       spacesVisible,
@@ -406,20 +389,9 @@ class Header extends Component {
       hideDot,
       visible,
       allUsers,
-      projectClusters,
-      projects,
-      isProjectsFetching,
     } = this.state
     const msaUrl = loginUser.msaConfig && loginUser.msaConfig.url
     const { isLatest } = checkVersionContent
-    teamspaces.map((space) => {
-      mode === standard
-      ? space.name = space.teamName
-      : space.name = space.spaceName
-    })
-    teamClusters.map((cluster) => {
-      cluster.name = cluster.clusterName
-    })
     var host = window.location.hostname
     var protocol = window.location.protocol
     var docUrl = protocol + '//' + host + ":9004"
@@ -480,7 +452,8 @@ class Header extends Component {
                     loading={isProjectsFetching}
                     onChange={this.handleProjectChange}
                     selectValue={selectValue || '...'}
-                    popTeamSelect={mode === standard} />
+                    popTeamSelect={mode === standard}
+                  />
                 </div>
             </div>
           )
@@ -500,9 +473,10 @@ class Header extends Component {
                   btnStyle={false}
                   visible={clustersVisible}
                   list={projectClusters}
-                  loading={isTeamClustersFetching}
+                  loading={isProjectClustersFetching}
                   onChange={this.handleClusterChange}
-                  selectValue={current.cluster.clusterName || '...'} />
+                  selectValue={current.cluster.clusterName || '...'}
+                />
               </div>
             </div>
           )
@@ -576,9 +550,8 @@ class Header extends Component {
 function mapStateToProps(state, props) {
   const { pathname } = props
   const { current, loginUser } = state.entities
-  const { teamspaces } = state.user
-  const { teamClusters } = state.team
   const { checkVersion } = state.version
+  const { projectList, projectClusterList } = state.projectAuthority
   let showSpace = false
   let showCluster = false
   SPACE_CLUSTER_PATHNAME_MAP.space.every(path => {
@@ -595,14 +568,19 @@ function mapStateToProps(state, props) {
     }
     return true
   })
+  const projects = projectList.data || []
+  projects.forEach(project => project.name = project.projectName)
+  const currentNamespace = current.space.namespace
+  const currentProjectClusterList = projectClusterList[currentNamespace] || {}
+  const projectClusters = currentProjectClusterList.data || []
   return {
     current,
     loginUser: loginUser.info,
     migrated: loginUser.info.migrated || 0,
-    isTeamspacesFetching: teamspaces.isFetching,
-    teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
-    isTeamClustersFetching: teamClusters.isFetching,
-    teamClusters: (teamClusters.result ? teamClusters.result.data : []),
+    isProjectsFetching: projectList.isFetching,
+    projects,
+    isProjectClustersFetching: currentProjectClusterList.isFetching,
+    projectClusters,
     showSpace,
     showCluster,
     checkVersionContent: checkVersion.data,

@@ -187,6 +187,8 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/autoscale/status', serviceController.batchUpdateAutoscaleStatus)
   router.get('/clusters/:cluster/services/:service_name/autoscale/logs', serviceController.getAutoScaleLogs)
 
+  router.post('/clusters/:cluster/services/autoscale/existence', serviceController.checkAutoScaleNameExist)
+
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
   router.get('/users/:user_id/app_info', userController.getUserAppInfo)
@@ -235,7 +237,7 @@ module.exports = function (Router) {
   router.get('/overview/clusterinfo-std/clusters/:cluster_id', overviewClusterController.getStdClusterOverview)
   router.get('/overview/clusters/:cluster_id/operations', overviewClusterController.getClusterOperations)
   router.get('/overview/clusters/:cluster_id/sysinfo', overviewClusterController.getClusterSysinfo)
-  router.get('/overview/clusters/:cluster_id/storage', overviewClusterController.getClusterStorage)
+  //router.get('/overview/clusters/:cluster_id/storage', overviewClusterController.getClusterStorage)
   router.get('/overview/clusters/:cluster_id/appstatus', overviewClusterController.getClusterAppStatus)
   router.get('/overview/clusters/:cluster_id/dbservices', overviewClusterController.getClusterDbServices)
   router.get('/overview/clusters/:cluster_id/nodesummary', overviewClusterController.getClusterNodeSummary)

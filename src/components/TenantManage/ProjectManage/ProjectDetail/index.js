@@ -200,6 +200,13 @@ class ProjectDetail extends Component {
     return option.description.indexOf(inputValue) > -1;
   }
   handleChange(targetKeys) {
+    let roleIdArr = []
+    let notify = new Notification()
+    targetKeys.forEach(item => roleIdArr.push(item.split(',')[0]))
+    if (!roleIdArr.includes(PROJECT_MANAGE_ROLE_ID) || !roleIdArr.includes(PROJECT_VISISTOR_ROLE_ID)) {
+      notify.info('项目管理员和项目访客不允许移出')
+      return
+    }
     this.setState({ targetKeys });
   }
   editComment() {
@@ -397,7 +404,8 @@ class ProjectDetail extends Component {
       expandedKeys: [],
       currentRoleInfo: {},
       currentRolePermission: [],
-      currentMembers: []
+      currentMembers: [],
+      getRoleLoading: true
     }, () => {
       GetRole({
         roleId: id
@@ -411,7 +419,7 @@ class ProjectDetail extends Component {
                   currentRoleInfo: result,
                   currentRolePermission: result.permissions,
                   expandedKeys: checkedKeysDetail,
-                  checkedKeys: checkedKeysDetail
+                  checkedKeys: checkedKeysDetail,
                 })
               }
             },
@@ -437,14 +445,20 @@ class ProjectDetail extends Component {
               this.setState({
                 currentMembers: member,
                 existentMember: exist,
-                memberCount: member.length > 0 ? member.length : 0
+                memberCount: member.length > 0 ? member.length : 0,
+                getRoleLoading: false
               })
             },
             isAsync: true
           },
           failed: {
             func: res => {
-
+              this.setState({
+                currentMembers: [],
+                existentMember: [],
+                memberCount: 0,
+                getRoleLoading: false
+              })
             },
             isAsync: true
           }
@@ -678,7 +692,7 @@ class ProjectDetail extends Component {
   render() {
     const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
-      filterFlag, isManager, roleNameArr
+      filterFlag, isManager, roleNameArr, getRoleLoading
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum } = this.props;
@@ -1187,14 +1201,14 @@ class ProjectDetail extends Component {
                       </div>
                       <div className="memberBox inlineBlock">
                         <div className="memberTitle">
-                          <span>该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
+                          <span className="connectMemberCount">该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
                           {
-                            (roleNum === 1 || isManager) && currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.getProjectMember('user')}>继续关联对象</Button>
+                            (roleNum === 1 || isManager) && !getRoleLoading && currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.getProjectMember('user')}>继续关联对象</Button>
                           }
                         </div>
                         <div className="memberTableBox">
                           {
-                            currentMembers.length > 0 ?
+                            !getRoleLoading ? currentMembers.length > 0 ?
                               <Tree
                                 checkable multiple
                                 checkedKeys={currentMembers.map(item => `${item.key}`)}
@@ -1203,6 +1217,7 @@ class ProjectDetail extends Component {
                               </Tree>
                               :
                               (roleNum === 1 || isManager) && <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.getProjectMember('user')}>关联对象</Button>
+                              : null
                           }
                         </div>
                       </div>

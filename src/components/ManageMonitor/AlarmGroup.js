@@ -243,6 +243,14 @@ class AlarmGroup extends Component {
       modifyGroup: false,
     });
   }
+  getAutoScale = autoScale => {
+    if (autoScale && (!autoScale.length)) {
+      return '-'
+    }
+    return autoScale.map(item => {
+      return <div>{item.name}</div>
+    })
+  }
   render() {
     if (!this.props.groups) {
       return (
@@ -287,6 +295,11 @@ class AlarmGroup extends Component {
       dataIndex: 'strategies',
       width: '15%',
       render: strategies => this.getStragegies(strategies)
+    }, {
+      title: '弹性伸缩策略',
+      dataIndex: 'autoScaleStrategies',
+      width: '15%',
+      render: autoScale => this.getAutoScale(autoScale)
     }, {
       title: '操作',
       dataIndex: 'handle',
