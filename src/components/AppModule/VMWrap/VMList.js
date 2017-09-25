@@ -38,6 +38,7 @@ class VMList extends React.Component {
       Name: '',
       creationTime: true,
       createTime: true,
+      ciphertext: true,
     }
   }
 
@@ -237,21 +238,24 @@ class VMList extends React.Component {
   /**
    * 显示密文
    */
-  handleChange(value, index) {
-    let isShow = this.state.isShowText
-    let info = document.getElementsByClassName('info')
-    let reg = /^[*]+$/
-    if (!reg.test(info[index].innerText)) {
-      info[index].innerText = '******'
-      this.setState({
-        isShowText: false
-      })
-    } else {
-      info[index].innerText = value
-      this.setState({
-        isShowText: false
-      })
-    }
+  handleChange(value) {
+    this.setState({
+      ciphertext: value
+    })
+    // let isShow = this.state.isShowText
+    // let info = document.getElementsByClassName('info')
+    // let reg = /^[*]+$/
+    // if (!reg.test(info[index].innerText)) {
+    //   info[index].innerText = '******'
+    //   this.setState({
+    //     isShowText: false
+    //   })
+    // } else {
+    //   info[index].innerText = value
+    //   this.setState({
+    //     isShowText: false
+    //   })
+    // }
   }
 
   /**
@@ -291,6 +295,7 @@ class VMList extends React.Component {
 
   render() {
     const { data } = this.props
+    const { ciphertext } = this.state
     const pagination = {
       defaultCurrent: 1,
       defaultPageSize: 10,
@@ -313,17 +318,23 @@ class VMList extends React.Component {
         title: '登录密码',
         dataIndex: 'password',
         key: 'password',
-        render: (text, record, index) => (
+        render: (text, record, index) =>
+          ciphertext ?
           <div>
-            {
-              <span ref="info" className="info">******</span>
-            }
+            <span ref="info" className="info">******</span>
             <Icon
               type={this.state.isShowText === 'eye' ? 'eye-o' : 'eye'}
               style={{ float: 'right', marginRight: 30 }}
-              onClick={this.handleChange.bind(this, record.password, index)} />
+              onClick={this.handleChange.bind(this, false)} />
+          </div> :
+          <div>
+            <span ref="info" className="info">{text}</span>
+            <Icon
+              type={this.state.isShowText === 'eye' ? 'eye-o' : 'eye'}
+              style={{ float: 'right', marginRight: 30 }}
+              onClick={this.handleChange.bind(this, true)} />
           </div>
-        ),
+        ,
       },
       {
         title: '服务数量',
@@ -354,7 +365,7 @@ class VMList extends React.Component {
         ID: 'vminfoId',
         render: (text, record, index) => {
           let fStyle = {
-            marginRight: 6 + '%'
+            marginRight: '6%'
           }
           return (
             <div>

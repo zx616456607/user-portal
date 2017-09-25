@@ -1857,7 +1857,7 @@ class Ordinary extends Component {
         </Row>
         <Row className="content" gutter={16} style={{ marginTop: 16 }}>
           <Col span={6} className='quota'>
-            <Card title="改集群在项目中的资源配额" bordered={false} bodyStyle={{ height: 200, padding: '15px 24px' }}>
+            <Card title="该集群在项目中的资源配额" bordered={false} bodyStyle={{ height: 200, padding: '15px 24px' }}>
               <RadioGroup style={{ margin: '10px 5px 10px 5px' }} className="radio" size="small" onChange={this.onChange} defaultValue="a">
                 <RadioButton value="a">计算资源</RadioButton>
                 <RadioButton value="b">应用管理</RadioButton>

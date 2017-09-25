@@ -1067,7 +1067,7 @@ class ProjectDetail extends Component {
               </Col>
             </Row>
           </Card>
-          <div className="projectResource">
+          {/* <div className="projectResource">
             <Card title="项目资源">
               <Row gutter={16}>
                 <Col className='gutter-row' span={8}>
@@ -1090,7 +1090,7 @@ class ProjectDetail extends Component {
                 </Col>
               </Row>
             </Card>
-          </div>
+          </div> */}
           <Modal
             visible={this.state.addCharacterModal}
             title='添加已有角色'

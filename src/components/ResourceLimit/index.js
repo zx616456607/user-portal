@@ -13,12 +13,14 @@ import React from 'react'
 import { connect } from 'react-redux'
 import './style/index.less'
 import { Tabs, Table, Button, Icon, Input, Modal, Row, Col, Transfer, Tooltip, Dropdown, Menu, Progress, Select, Checkbox } from 'antd'
+import { putQuota } from '../../actions/quota'
 
 class ResourceQuota extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       list: [],
+      visible: false,
       isProject: false,
     }
   }
@@ -28,8 +30,34 @@ class ResourceQuota extends React.Component {
       isProject
     })
   }
+  /**
+   * 编辑
+   */
+  handleEdit(){
+    this.setState({
+      visible: true
+    })
+  }
+  /**
+   * 提示 Ok
+   */
+  handleOk(){
+    this.setState({
+      visible: false
+    })
+  }
+  /**
+   * 提示 Cancel
+   */
+  handleClose(){
+    this.setState({
+      visible: false
+    })
+  }
   render() {
     const { isProject } = this.state
+    const { data } = this.props
+    //默认集群
     const menu = (
       <Menu>
         <Menu.Item>
@@ -51,13 +79,13 @@ class ResourceQuota extends React.Component {
         {
           !isProject ?
             <div className="alertRow">
-              <span>以下为个人项目的资源配额使用情况，了解该成员参与的其他项目资源配额使用情况点击 <span>共享项目资源配额</span>进入项目详情查看</span>
+              <span>以下为个人项目的资源配额使用情况，了解该成员参与的其他项目资源配额使用情况点击 <a className="wichtige" href="#">共享项目资源配额</a> 进入项目详情查看</span>
             </div> : <div></div>
         }
         <div className="topDesc">
           <div className="titles"><span>项目全局资源配额</span></div>
         </div>
-        <Button size="large" className="btn" type="primary">编辑</Button>
+        <Button size="large" className="btn" type="primary" onClick={()=>this.handleEdit()}>编辑</Button>
         <div className="connent">
           <div className="overall">
             <span>CI/CD</span>
@@ -229,13 +257,31 @@ class ResourceQuota extends React.Component {
             </div>
           </div>
         </div>
+        <Modal title="超限" visible={this.state.visible}
+          ok={() => this.handleOk()}
+          onCancel={() => this.handleClose()}
+        >
+          <div>
+            <div className="top">
+              <Icon type="exclamation"/>
+              <span>超过配额，你目前只剩下<p>0个</p>配额</span>
+            </div>
+            <div className="bottom">
+              <span>您可以前往总览或项目详情页面查询当前配额使用情况或联系系统管理员提高配额</span>
+            </div>
+            <Button className="btn" type="primary">知道了</Button>
+          </div>
+        </Modal>
       </div>
     )
   }
 }
 function mapStateToProps(state) {
+  const { entities } = state
+  const { current } = entities
   return {}
 }
 
 export default connect(mapStateToProps, {
+  putQuota,
 })(ResourceQuota)

@@ -68,7 +68,7 @@ class UserInfo extends Component {
           </Card>
         </Row>
 
-        <Row className="content">
+        {/* <Row className="content">
           <Card>
             <PersonalResource userDetail={userDetail}
               appCount={appCount}
@@ -76,7 +76,7 @@ class UserInfo extends Component {
               containerCount={containerCount}
             />
           </Card>
-        </Row>
+        </Row> */}
         <Row className="content">
           <Card>
             <UserProjectsAndTeams loginUser={loginUser} userDetail={userDetail} userId={userID || loginUser.userID} />

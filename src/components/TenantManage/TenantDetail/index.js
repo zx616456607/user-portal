@@ -18,7 +18,7 @@ import QueueAnim from 'rc-queue-anim'
 import { formatDate } from '../../../common/tools'
 import Notification from '../../Notification/index'
 import TreeComponent from '../../TreeComponent/index'
-import { REG } from '../../../constants'
+import { REG, ROLE } from '../../../constants'
 import CreateRoleModal from '../RoleManagement/RoleEditManage/index.js'
 import NotificationHandler from '../../../components/Notification'
 
@@ -423,7 +423,7 @@ let TenantDetail = React.createClass({
                             }) }
                           />
                           {
-                            this.state.creator === this.props.userName || this.props.role === 2 ?
+                            this.state.creator === this.props.userName || this.props.role === ROLE ?
                               this.state.isShowIco ?
                                 <div className="comment">
                                   <Tooltip title="取消">
@@ -448,7 +448,7 @@ let TenantDetail = React.createClass({
           <div className='lastDetails lastDetailtable' style={{ width: '49%', float: 'left' }} >
             <div className='title'>权限 （ <span>{ total > 0 ? total : count}个</span> ）
             {
-                this.state.creator === this.props.userName || this.props.role === 2 ?
+                this.state.creator === this.props.userName || this.props.role === ROLE ?
                   <Button
                     className="Editroles"
                     type="ghost"
@@ -474,7 +474,7 @@ let TenantDetail = React.createClass({
               <div className="lastSyncInfo">
                 <Table
                   scroll={{ y: 300 }}
-                  columns={this.state.creator === this.props.userName || this.props.role === 2 ? permissionColumns : permissionColumn}
+                  columns={this.state.creator === this.props.userName || this.props.role === ROLE ? permissionColumns : permissionColumn}
                   pagination={false}
                   dataSource={permissionDatasource}
                 />
@@ -485,7 +485,7 @@ let TenantDetail = React.createClass({
             <div className='title'>项目引用记录</div>
             <div className='container referencerecord'>
               <div className="lastSyncInfo">
-                <Table columns={this.state.creator === this.props.userName || this.props.role === 2 ? columns : column} dataSource={roleProjects} onChange={this.handleChange} pagination={pagination} />
+                <Table columns={this.state.creator === this.props.userName || this.props.role === ROLE ? columns : column} dataSource={roleProjects} onChange={this.handleChange} pagination={pagination} />
               </div>
             </div>
           </div>
