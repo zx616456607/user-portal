@@ -275,7 +275,11 @@ class RoleManagement extends React.Component {
       failed: {
         func: err => {
           notification.close()
-          notification.error(`删除失败`)
+          if (err.statusCode === 409) {
+            notification.error(`角色正在被项目使用中`)
+            return
+          }
+          notification.success(`删除失败`)
         },
         isAsync: true
       }

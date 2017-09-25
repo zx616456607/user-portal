@@ -351,11 +351,11 @@ exports.updateUser = function* () {
   const result = yield api.users.patch(userID, user)
   // If update admin password, refresh the cache of registry
   if (result && result.statusCode === 200) {
-    if (user.password && registryConfigLoader.GetRegistryConfig()) {
-      logger.info("Update registry auth in cache...")
-      // Update registry auth cache
-      let registryAuth = Buffer(loginUser.user + ':' + user.password).toString('base64')
-      loginUser.registryAuth = securityUtil.encryptContent(registryAuth)
+    if (user.password) {
+      // Make user logout
+      sessionService.removeKeyByUserID(userID).then(res => {
+        logger.info('remove user from session store success', userID)
+      })
     }
   }
 
@@ -412,6 +412,12 @@ function* updateUserActive() {
            : userId
   const api = apiFactory.getApi(loginUser)
   const response = yield api.users.updateBy([ userId, active ])
+  if (active === 'deactive') {
+    // Make user logout
+    sessionService.removeKeyByUserID(userId).then(res => {
+      logger.info('remove user from session store success', userId)
+    })
+  }
   this.body = response
 }
 exports.updateUserActive = updateUserActive
