@@ -23,7 +23,8 @@ exports.getClusterOverview = function* () {
 
   const result = yield [api.overview.getBy(["space-operations"], queryObj),
   api.overview.getBy(["clusters", cluster, "system-info"]),
-  api.overview.getBy(["clusters", cluster, "storagestatus"]),
+  // Removed from v2.6.0
+  // api.overview.getBy(["clusters", cluster, "storagestatus"]),
   api.overview.getBy(["clusters", cluster, "appstatus"]),
   k8sapi.getBy([cluster, "dbservices"]),
   api.overview.getBy(["clusters", cluster, "space-consumption"]),
@@ -98,7 +99,7 @@ exports.getStdClusterOverview = function* () {
   const result =
     yield [api.overview.getBy(["space-operations"], queryObj),
     api.overview.getBy(["clusters", cluster, "system-info"]),
-    api.overview.getBy(["clusters", cluster, "storagestatus"]),
+    //api.overview.getBy(["clusters", cluster, "storagestatus"]),
     api.overview.getBy(["clusters", cluster, "appstatus"]),
     k8sapi.getBy([cluster, "dbservices"]),
     api.overview.getBy(["space-consumption"]),]
@@ -168,6 +169,7 @@ exports.getClusterSysinfo = function* () {
   }
 }
 
+/*
 exports.getClusterStorage = function* () {
   let cluster = this.params.cluster_id
   const loginUser = this.session.loginUser
@@ -180,7 +182,7 @@ exports.getClusterStorage = function* () {
   this.body = {
     data
   }
-}
+}*/
 
 exports.getClusterAppStatus = function* () {
   let cluster = this.params.cluster_id

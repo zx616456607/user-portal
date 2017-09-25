@@ -464,8 +464,9 @@ class Ordinary extends Component {
     let canCreateContainer = Math.floor((clusterSummaryCapacity.memory - clusterSummaryUsed.memory) / 512 / 1024)
     let allocatedPod = clusterStaticSummary.pod
     let allocatedPodNumber = 0
-    allocatedPodNumber += allocatedPod['running']
-    allocatedPodNumber += allocatedPod['pending']
+
+    allocatedPodNumber += allocatedPod ? allocatedPod['running'] :0
+    allocatedPodNumber += allocatedPod ? allocatedPod['pending'] :0
     let capacityCreateContainer = canCreateContainer + allocatedPodNumber
     //Options
     let appOption = {
@@ -2018,15 +2019,17 @@ function getStatus(data) {
     let services = data[appName].deployments
     let pods = data[appName].pods
     let status = getAppStatus(services)
-    setMap(appMap, status.phase)
-    services.map(service => {
-      status = getServiceStatus(service)
-      setMap(svcMap, status.phase)
-    })
-    pods.map(pod => {
-      status = getContainerStatus(pod)
-      setMap(podMap, status.phase)
-    })
+    if (services) {
+      setMap(appMap, status.phase)
+      services.map(service => {
+        status = getServiceStatus(service)
+        setMap(svcMap, status.phase)
+      })
+      pods.map(pod => {
+        status = getContainerStatus(pod)
+        setMap(podMap, status.phase)
+      })
+    }
   }
   return { appMap, svcMap, podMap }
 }
@@ -2040,26 +2043,28 @@ function getDbServiceStatus(data) {
   dbServiceMap.set("elasticsearch", new Map())
   dbServiceMap.set("etcd", new Map())
 
-  data.petSets.map(petSet => {
-    let key = "unknown"
-    if (petSet.objectMeta && petSet.objectMeta.labels
-      && petSet.objectMeta.labels['tenxcloud.com/petsetType']) {
-      key = petSet.objectMeta.labels['tenxcloud.com/petsetType']
-    }
-
-    let map = dbServiceMap.get(key)
-    if (map && petSet.pods) {
-      if (petSet.pods.failed != 0) {
-        setMap(map, "failed")
-      } else if (petSet.pods.pending != 0) {
-        setMap(map, "pending")
-      } else if (petSet.pods.running == petSet.pods.desired) {
-        setMap(map, "running")
-      } else {
-        setMap(map, "unknown")
+  if (data.petSets) {
+    data.petSets.map(petSet => {
+      let key = "unknown"
+      if (petSet.objectMeta && petSet.objectMeta.labels
+        && petSet.objectMeta.labels['tenxcloud.com/petsetType']) {
+        key = petSet.objectMeta.labels['tenxcloud.com/petsetType']
       }
-    }
-  })
+
+      let map = dbServiceMap.get(key)
+      if (map && petSet.pods) {
+        if (petSet.pods.failed != 0) {
+          setMap(map, "failed")
+        } else if (petSet.pods.pending != 0) {
+          setMap(map, "pending")
+        } else if (petSet.pods.running == petSet.pods.desired) {
+          setMap(map, "running")
+        } else {
+          setMap(map, "unknown")
+        }
+      }
+    })
+  }
   return dbServiceMap
 }
 
