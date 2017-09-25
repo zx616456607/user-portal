@@ -10,7 +10,7 @@
 
 
 import React, { Component } from 'react'
-import { Modal, Table, Icon, Form, Radio, Button, Tabs, Card, Input, Select } from 'antd'
+import { Modal, Table, Icon, Form, Radio, Button, Tabs, Card, Input, Select,Tooltip } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
@@ -111,8 +111,8 @@ class WrapListTbale extends Component {
         title: '包名称',
         dataIndex: 'fileName',
         key: 'name',
-        width: '20%',
-        render: (text,row) => <a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}>{text}</a>
+        width: '25%',
+        render: (text,row) => <Tooltip title="点击下载"><a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}><Icon type="download" /> {text}</a></Tooltip>
       }, {
         title: '版本标签',
         dataIndex: 'fileTag',
@@ -122,16 +122,18 @@ class WrapListTbale extends Component {
         title: '包类型',
         dataIndex: 'fileType',
         key: 'type',
+        width:'10%'
       }, {
         title: '上传时间',
         dataIndex: 'creationTime',
         key: 'creationTime',
+        width:'20%',
         render: text => formatDate(text)
       }, {
         title: '操作',
         dataIndex: 'actions',
         key: 'actions',
-        width:'150px',
+        width:'20%',
         render: (e,row) => {
           if (rowCheckbox) {
             return [<Button type="primary" key="1" onClick={()=> func.goDeploy(row.fileName)}>部署</Button>,
@@ -144,12 +146,11 @@ class WrapListTbale extends Component {
       }
     ]
     const paginationOpts = {
-      size: "small",
+      simple: true,
       pageSize: DEFAULT_PAGE_SIZE,
       current: this.state.page,
       total: dataSource.total,
       onChange: current => this.loadData(current),
-      showTotal: total => `共计： ${total} 条 `,
     }
     const _this = this
     let rowSelection = {
@@ -170,6 +171,10 @@ class WrapListTbale extends Component {
     return (
       <div className="wrapListTable">
         <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource.pkgs} columns={columns} pagination={paginationOpts} />
+        { dataSource.total && dataSource.total >0 ?
+          <span className="pageCount" style={{position:'absolute',right:'160px',top:'-40px'}}>共计 {dataSource.total} 条</span>
+          :null
+        }
         <Modal title="删除操作" visible={this.state.delAll}
           onCancel={()=> this.deleteAction(false)}
           onOk={this.deleteVersion}
