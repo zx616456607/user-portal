@@ -15,7 +15,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Input, Select, InputNumber, Button, Form, Icon ,message, Radio } from 'antd'
 import { CreateDbCluster ,loadDbCacheList} from '../../actions/database_cache'
 import { setCurrent } from '../../actions/entities'
-import { loadTeamClustersList } from '../../actions/team'
+import { GetProjectsAllClusters, ListProjects } from '../../actions/project'
 import NotificationHandler from '../../components/Notification'
 import { MY_SPACE } from '../../constants'
 import { parseAmount } from '../../common/tools.js'
@@ -36,6 +36,10 @@ let CreateDatabase = React.createClass({
       onselectCluster: true
     }
   },
+  componentWillMount() {
+    const { ListProjects } = this.props
+    ListProjects({ size: 0 })
+  },
   componentWillReceiveProps(nextProps) {
     // if create box close return default select cluster
     if(!nextProps.scope.state.CreateDatabaseModalShow) {
@@ -55,25 +59,33 @@ let CreateDatabase = React.createClass({
     });
     document.getElementById('dbName').focus()
   },
-  onChangeNamespace(spaceName) {
+  onChangeNamespace(namespace) {
     //this function for user change the namespace
     //when the namespace is changed, the function would be get all clusters of new namespace
-    const { teamspaces, loadTeamClustersList, setCurrent, form, current } = this.props
-    let newTeamspaces = ([MY_SPACE]).concat(teamspaces)
-    newTeamspaces.map(space => {
-       if (space.namespace == spaceName) {
+    const { projects, GetProjectsAllClusters, setCurrent, form, current } = this.props
+    projects.map(space => {
+       if (space.namespace == namespace) {
         // setCurrent({
         //   space,
         //   team: {
         //     teamID: teamID
         //   }
         // })
-        loadTeamClustersList(space.teamID, { size: 100 }, {
+        GetProjectsAllClusters({ projectsName: namespace }, {
+        // GetProjectsAllClusters(space.teamID, { size: 100 }, {
           success: {
             func: (result) => {
-              if(result.data.length > 0) {
+              let { clusters } = result.data
+              clusters = clusters.map(cluster => {
+                if (cluster.cluster) {
+                  cluster = cluster.cluster
+                }
+                cluster.name = cluster.clusterName
+                return cluster
+              })
+              if(clusters.length > 0) {
                 form.setFieldsValue({
-                  'clusterSelect': result.data[0].clusterID
+                  'clusterSelect': clusters[0].clusterID
                 })
               } else {
                 form.setFieldsValue({'clusterSelect':''})
@@ -84,7 +96,6 @@ let CreateDatabase = React.createClass({
         })
        }
     })
-    // this.props.loadTeamClustersList(teamId, { size: 100 })
   },
   databaseExists(rule, value, callback) {
     //this function for check the new database name is exist or not
@@ -155,8 +166,8 @@ let CreateDatabase = React.createClass({
     //this function for user submit the form
     e.preventDefault();
     const _this = this;
-    const { scope,  CreateDbCluster, setCurrent} = this.props;
-    const { teamspaces, teamCluster} = this.props;
+    const { scope, CreateDbCluster, setCurrent, space } = this.props;
+    const { projects, projectClusterList, form } = this.props;
     const { loadDbCacheList } = scope.props;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
@@ -178,14 +189,15 @@ let CreateDatabase = React.createClass({
         _this.setState({loading: false})
         return
       }
-      let newTeamspaces = ([MY_SPACE]).concat(teamspaces)
       let newSpace, newCluster
-      newTeamspaces.map(list => {
+      projects.map(list => {
         if (list.namespace === values.namespaceSelect) {
           return newSpace = list
         }
       })
-      teamCluster.map(list => {
+      const currentNamespace = form.getFieldValue('namespaceSelect') || space.namespace
+      const projectClusters = projectClusterList[currentNamespace] && projectClusterList[currentNamespace].data || []
+      projectClusterList.map(list => {
         if (list.clusterID === values.clusterSelect) {
           return newCluster = list
         }
@@ -281,18 +293,24 @@ let CreateDatabase = React.createClass({
     })
   },
   render() {
-    const { isFetching, teamspaces, teamCluster, space } = this.props;
-    const teamspaceList = teamspaces.map((list, index) => {
-      return (
-        <Option key={list.namespace}>{list.spaceName}</Option>
-      )
-    })
-    const clusterList = teamCluster.map(item => {
-      return (
-        <Option key={item.clusterID}>{item.clusterName}</Option>
-      )
-    })
-    const { getFieldProps, getFieldError, isFieldValidating ,getFieldValue} = this.props.form;
+    const { isFetching, projects, projectClusterList, space } = this.props
+    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue} = this.props.form;
+    const selectNamespaceProps = getFieldProps('namespaceSelect', {
+      rules: [
+        { required: true, message: '请选择空间' },
+      ],
+      initialValue: space.namespace,
+      onChange: this.onChangeNamespace
+    });
+    const selectClusterProps = getFieldProps('clusterSelect', {
+      rules: [
+        { required: true, message: '请选择集群' },
+      ],
+      initialValue: this.props.clusterName,
+      onChange: this.onChangeCluster
+    });
+    const currentNamespace = getFieldValue('namespaceSelect') || space.namespace
+    const projectClusters = projectClusterList[currentNamespace] && projectClusterList[currentNamespace].data || []
     const nameProps = getFieldProps('name', {
       rules: [
         { required: true, whitespace: true ,message:'请输入名称'},
@@ -335,22 +353,18 @@ let CreateDatabase = React.createClass({
         },
       ],
     });
-    const selectNamespaceProps = getFieldProps('namespaceSelect', {
-      rules: [
-        { required: true, message: '请选择空间' },
-      ],
-      initialValue: space.namespace,
-      onChange: this.onChangeNamespace
-    });
-    const selectClusterProps = getFieldProps('clusterSelect', {
-      rules: [
-        { required: true, message: '请选择集群' },
-      ],
-      initialValue: this.props.clusterName,
-      onChange: this.onChangeCluster
-    });
     const storageNumber = getFieldValue('replicas');
     const strongSize = getFieldValue('storageSelect');
+    const teamspaceList = projects.map((list, index) => {
+      return (
+        <Option key={list.namespace}>{list.name}</Option>
+      )
+    })
+    const clusterList = projectClusters.map(item => {
+      return (
+        <Option key={item.clusterID}>{item.clusterName}</Option>
+      )
+    })
     const hourPrice = parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio , 4)
     const countPrice = parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
     const statefulApps = {
@@ -387,7 +401,6 @@ let CreateDatabase = React.createClass({
               <div className='inputBox'>
                 <FormItem style={{ width: '150px', float: 'left', marginRight: '20px' }}>
                   <Select {...selectNamespaceProps} className='envSelect' size='large'>
-                    <Option value="default">我的空间</Option>
                     { teamspaceList }
                   </Select>
                 </FormItem>
@@ -536,9 +549,11 @@ function mapStateToProps(state, props) {
   }
   const { databaseAllNames } = state.databaseCache
   const { databaseNames, isFetching } = databaseAllNames.DbClusters || defaultDbNames
-  const { teamspaces } = state.user.teamspaces.result || []
-  const teamCluster = state.team.teamClusters.result.data || []
   const { current } = state.entities
+  const { projectList, projectClusterList } = state.projectAuthority
+  let projects = projectList.data || []
+  projects.forEach(project => project.name = project.projectName)
+  projects = ([ MY_SPACE ]).concat(projects)
   return {
     cluster: cluster.clusterID,
     clusterName: cluster.clusterName,
@@ -546,8 +561,8 @@ function mapStateToProps(state, props) {
     current,
     databaseNames,
     isFetching,
-    teamspaces,
-    teamCluster,
+    projects,
+    projectClusterList,
     resourcePrice: cluster.resourcePrice //storage
   }
 
@@ -558,7 +573,6 @@ CreateDatabase = createForm()(CreateDatabase);
 CreateDatabase.propTypes = {
   intl: PropTypes.object.isRequired,
   CreateDbCluster: PropTypes.func.isRequired,
-  loadTeamClustersList: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired
 }
 
@@ -568,6 +582,7 @@ CreateDatabase = injectIntl(CreateDatabase, {
 
 export default connect(mapStateToProps, {
   CreateDbCluster,
-  loadTeamClustersList,
-  setCurrent
+  setCurrent,
+  GetProjectsAllClusters,
+  ListProjects,
 })(CreateDatabase)

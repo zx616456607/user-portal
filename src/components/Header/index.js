@@ -572,15 +572,7 @@ function mapStateToProps(state, props) {
   projects.forEach(project => project.name = project.projectName)
   const currentNamespace = current.space.namespace
   const currentProjectClusterList = projectClusterList[currentNamespace] || {}
-  let projectClusters = currentProjectClusterList.data || []
-  projectClusters = projectClusters.map(cluster => {
-    if (cluster.cluster) {
-      cluster = Object.assign({}, cluster, cluster.cluster)
-      delete cluster.cluster
-    }
-    cluster.name = cluster.clusterName
-    return cluster
-  })
+  const projectClusters = currentProjectClusterList.data || []
   return {
     current,
     loginUser: loginUser.info,

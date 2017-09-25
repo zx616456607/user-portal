@@ -144,10 +144,19 @@ function projectClusterList(state = {}, action) {
         }
       })
     case ActionTypes.PROJECTS_CLUSTER_ALL_GET_SUCCESS:
+      let clusters = action.response.result.data.clusters || []
+      clusters = clusters.map(cluster => {
+        if (cluster.cluster) {
+          cluster = Object.assign({}, cluster, cluster.cluster)
+          delete cluster.cluster
+        }
+        cluster.name = cluster.clusterName
+        return cluster
+      })
       return Object.assign({}, state, {
         [projectName]: {
           isFetching: false,
-          data: action.response.result.data.clusters,
+          data: clusters,
           total: action.response.result.data.listMeta.total,
         },
       })
