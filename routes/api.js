@@ -191,8 +191,8 @@ module.exports = function (Router) {
   router.get('/users/:user_id/app_info', userController.getUserAppInfo)
   router.get('/users', userController.getUsers)
   router.get('/users/:user_id/teams', userController.getUserTeams)
-  router.get('/users/:user_id/teamspaces', userController.getUserTeamspaces)
-  router.get('/users/:user_id/teamspaces/detail', userController.getUserTeamspacesWithDetail)
+  //router.get('/users/:user_id/teamspaces', userController.getUserTeamspaces)
+  //router.get('/users/:user_id/teamspaces/detail', userController.getUserTeamspacesWithDetail)
   router.post('/users', userController.createUser)
   router.delete('/users/:user_id', userController.deleteUser)
   router.post('/users/batch-delete', userController.batchDeleteUser)
@@ -207,21 +207,21 @@ module.exports = function (Router) {
   router.post('/users/:user_id/:scope/:scopeID/roles', userController.bindRolesForUser)
   router.post('/users/:user_id/teamtransfer', userController.teamtransfer)
   // Teams
-  router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
+  //router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
   router.get('/teams/:team_id/clusters/all', teamController.getAllClusters)
   router.get('/teams/:team_id/users', teamController.getTeamUsers)
   router.get('/teams/:team_id', teamController.getTeamDetail)
   router.post('/teams', teamController.createTeam)
   router.delete('/teams/:team_id', teamController.deleteTeam)
-  router.post('/teams/:team_id/spaces', teamController.createTeamspace)
+  //router.post('/teams/:team_id/spaces', teamController.createTeamspace)
   router.post('/teams/:team_id/users', teamController.addTeamusers)
   //To remove multiple users, seperate the user ids with ",".
   router.delete('/teams/:team_id/users/:user_ids', teamController.removeTeamusers)
-  router.delete('/teams/:team_id/spaces/:space_id', teamController.deleteTeamspace)
+  //router.delete('/teams/:team_id/spaces/:space_id', teamController.deleteTeamspace)
   router.put('/teams/:team_id/clusters/:cluster_id/request', teamController.requestTeamCluster)
   router.get('/teams/:team_name/existence', teamController.checkTeamName)
-  router.get('/teams/:team_id/spaces/:space_name/existence', teamController.checkSpaceName)
+  //router.get('/teams/:team_id/spaces/:space_name/existence', teamController.checkSpaceName)
   router.patch('/teams/:team_id',teamController.updateTeam)
 
   //Overview Team
@@ -498,7 +498,7 @@ module.exports = function (Router) {
 
   // Charge
   router.post('/charge/user', chargeController.chargeUser)
-  router.post('/charge/teamspace', chargeController.chargeTeamspace)
+  //router.post('/charge/teamspace', chargeController.chargeTeamspace)
   router.post('/charge/project', chargeController.chargeProject)
 
   //setting
