@@ -743,12 +743,12 @@ const Storage = React.createClass({
           </FormItem>
         </Col>
         <Modal
-        	title="添加容器目录"
-        	visible={this.state.addContainerPath}
-        	closable={true}
-        	onCancel={() => this.setState({addContainerPath: false})}
-        	width="570px"
-        	maskClosable={false}
+          title="添加容器目录"
+          visible={this.state.addContainerPath}
+          closable={true}
+          onCancel={() => this.setState({addContainerPath:false})}
+          width="570px"
+          maskClosable={false}
           wrapClassName="add_container_path"
           footer={[]}
         >
