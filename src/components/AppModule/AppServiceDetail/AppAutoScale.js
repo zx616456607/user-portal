@@ -18,11 +18,13 @@ import {
   loadAutoScale,
   updateAutoScale,
   updateAutoScaleStatus,
-  getAutoScaleLogs
+  getAutoScaleLogs,
+  checkAutoScaleName
 } from '../../../actions/services'
 import AppAutoScaleLogs from './AppAutoScaleLogs'
 import './style/AppAutoScale.less'
 import NotificationHandler from '../../../components/Notification'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import isEmpty from 'lodash/isEmpty'
 const FormItem = Form.Item
 const Option = Select.Option;
@@ -79,8 +81,8 @@ class AppAutoScale extends Component {
         func: (res) => {
           if (!isEmpty(res.data)) {
             const { metadata, spec } = res.data
-            const { name: scale_strategy_name } = metadata
-            const { serviceName } = metadata.labels
+            const { name: serviceName } = metadata
+            const { strategyName } = metadata.labels
             const { alertStrategy: alert_strategy, alertgroupId: alert_group, status } = metadata.annotations
             const { maxReplicas: max, minReplicas: min, metrics } = spec
             let cpu, memory
@@ -92,7 +94,7 @@ class AppAutoScale extends Component {
               }
             })
             const scaleDetail = {
-              scale_strategy_name,
+              strategyName,
               serviceName,
               alert_group,
               alert_strategy,
@@ -125,7 +127,7 @@ class AppAutoScale extends Component {
   }
   cancelEdit = () => {
     const { scaleDetail } = this.state
-    const { scale_strategy_name,
+    const { strategyName,
       serviceName,
       alert_group,
       alert_strategy,
@@ -136,7 +138,7 @@ class AppAutoScale extends Component {
       type } = scaleDetail
     const { setFieldsValue } = this.props.form
     setFieldsValue({
-      scale_strategy_name,
+      strategyName,
       serviceName,
       alert_strategy,
       alert_group,
@@ -153,9 +155,25 @@ class AppAutoScale extends Component {
   saveEdit = () => {
     const { form, updateAutoScale, cluster } = this.props
     const { scaleDetail, switchOpen } = this.state
-    const { validateFields, resetFields } = form
+    const { validateFields, resetFields, setFields } = form
     let notify = new NotificationHandler()
     validateFields((errors, values) => {
+      if (values.cpu) {
+        setFields({
+          memory: {
+            errors: null,
+            value: values.memory
+          }
+        })
+      }
+      if (values.memory) {
+        setFields({
+          cpu: {
+            errors: null,
+            value: values.cpu
+          }
+        })
+      }
       if (!!errors) {
         return
       }
@@ -164,8 +182,8 @@ class AppAutoScale extends Component {
       })
       const msgSpin = isEmpty(scaleDetail) ? '创建中...' : '修改中'
       notify.spin(msgSpin)
-      const { scale_strategy_name, serviceName, min, max, cpu, memory, alert_strategy, alert_group} = values
-      let body = { scale_strategy_name, min, max, cpu, memory, alert_strategy, alert_group, type: switchOpen ? 1 : 0 }
+      const { strategyName, serviceName, min, max, cpu, memory, alert_strategy, alert_group} = values
+      let body = { scale_strategy_name: strategyName, min, max, cpu, memory, alert_strategy, alert_group, type: switchOpen ? 1 : 0 }
       body = Object.assign(body, {operationType: isEmpty(scaleDetail) ? 'create' : 'update'})
       updateAutoScale(cluster, serviceName, body, {
         success: {
@@ -205,7 +223,7 @@ class AppAutoScale extends Component {
     }, () => {
       updateAutoScaleStatus(cluster, {
         services: {
-          [serviceName]: scaleDetail.scale_strategy_name
+          [serviceName]: scaleDetail.strategyName
         },
         type: this.state.switchOpen ? 1 : 0
       }, {
@@ -226,10 +244,87 @@ class AppAutoScale extends Component {
       })
     })
   }
+  checkCpu = (rule, value, callback) => {
+    const { form } = this.props
+    const { getFieldValue } = form
+    let memoryValue = getFieldValue('memory')
+    if (!value && !memoryValue) {
+      callback('请输入CPU阈值')
+    }
+    callback()
+  }
+  checkMemory = (rule, value, callback) => {
+    const { form } = this.props
+    const { getFieldValue } = form
+    let cpuValue = getFieldValue('cpu')
+    if (!value && !cpuValue) {
+      callback('请输入内存阈值')
+    }
+    callback()
+  }
+  checkScaleName = (rule, value, callback) => {
+    const { checkAutoScaleName, clusterID, form } = this.props
+    const { isEdit } = this.state
+    const { getFieldValue } = form
+    if (!value) {
+      callback('请输入策略名称')
+    }
+    const service_name = isEdit ? '' : getFieldValue('serviceName')
+    clearTimeout(this.checkScaleNameExist)
+    this.checkScaleNameExist = setTimeout(() => {
+      checkAutoScaleName(clusterID, {
+        service_name,
+        strategy_name: value
+      }, {
+        success: {
+          func: () => {
+            callback()
+          },
+        },
+        failed: {
+          func: res => {
+            if (res.statusCode === 400) {
+              callback('该策略名称已经存在')
+            }
+            callback()
+          }
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
+  }
+  checkServiceName = (rule, value, callback) => {
+    const { checkAutoScaleName, clusterID, form } = this.props
+    const { getFieldValue } = form
+    if (!value) {
+      callback('请选择服务')
+    }
+    const strategy_name = getFieldValue('scale_strategy_name') || ''
+    clearTimeout(this.checkSerivceNameExist)
+    this.checkSerivceNameExist = setTimeout(() => {
+      checkAutoScaleName(clusterID, {
+        service_name: value,
+        strategy_name,
+      }, {
+        success: {
+          func: () => {
+            callback()
+          },
+        },
+        failed: {
+          func: res => {
+            if (res.statusCode === 400) {
+              callback('该服务已经关联弹性伸缩策略')
+            }
+            callback()
+          }
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
+  }
   render() {
     const { isEdit, scaleDetail, switchOpen, btnLoading, activeKey } = this.state
     const { form, services, alertList, getAutoScaleLogs, cluster, serviceName, serviceDetailmodalShow, isCurrentTab } = this.props
-    const { getFieldProps } = form
+    const { getFieldProps, isFieldValidating, getFieldError } = form
     const formItemLargeLayout = {
       labelCol: { span: 2},
       wrapperCol: { span: 10}
@@ -246,18 +341,15 @@ class AppAutoScale extends Component {
       labelCol: { span: 4},
       wrapperCol: { span: 20}
     }
-    const scaleName = getFieldProps('scale_strategy_name', {
+    const scaleName = getFieldProps('strategyName', {
       rules: [{
-        required: true,
-        message: '请输入策略名称'
+        validator: this.checkScaleName.bind(this),
       }],
-      // validator: this.checkScaleName.bind(this),
-      initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.scale_strategy_name
+      initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.strategyName
     })
     const selectService = getFieldProps('serviceName', {
       rules: [{
-        required: true,
-        message: '请选择服务'
+        validator: isEdit ? null : this.checkServiceName.bind(this),
       }],
       initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.serviceName
     })
@@ -277,15 +369,13 @@ class AppAutoScale extends Component {
     })
     const cpuProps = getFieldProps('cpu', {
       rules: [{
-        required: true,
-        message: '请输入CPU阈值'
+        validator: this.checkCpu.bind(this),
       }],
       initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.cpu
     })
     const memoryProps = getFieldProps('memory', {
       rules: [{
-        required: true,
-        message: '请输入内存阈值'
+        validator: this.checkMemory.bind(this),
       }],
       initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.memory
     })
@@ -320,6 +410,8 @@ class AppAutoScale extends Component {
                   <FormItem
                     {...formItemLargeLayout}
                     label="策略名称"
+                    hasFeedback
+                    help={isFieldValidating('strategyName') ? '校验中...' : (getFieldError('strategyName') || []).join(', ')}
                   >
                     <Input disabled={!isEdit} type="text" {...scaleName} placeholder="请输入策略名称"/>
                   </FormItem>
@@ -469,5 +561,6 @@ export default connect(mapStateToProps, {
   loadAutoScale,
   updateAutoScale,
   updateAutoScaleStatus,
-  getAutoScaleLogs
+  getAutoScaleLogs,
+  checkAutoScaleName
 })(Form.create()(AppAutoScale))

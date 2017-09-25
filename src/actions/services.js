@@ -636,6 +636,31 @@ export function getAutoScaleLogs(cluster, serviceName, callback) {
   }
 }
 
+export const CHECK_AUTO_SCALE_NAME_REQUEST = 'CHECK_AUTO_SCALE_NAME_REQUEST'
+export const CHECK_AUTO_SCALE_NAME_SUCCESS = 'CHECK_AUTO_SCALE_NAME_SUCCESS'
+export const CHECK_AUTO_SCALE_NAME_FAILURE = 'CHECK_AUTO_SCALE_NAME_FAILURE'
+
+function fetchAutoScaleNameExistence(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CHECK_AUTO_SCALE_NAME_REQUEST, CHECK_AUTO_SCALE_NAME_SUCCESS, CHECK_AUTO_SCALE_NAME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/autoscale/existence`,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function checkAutoScaleName(cluster, body, callback) {
+  return (dispath) => {
+    return dispath(fetchAutoScaleNameExistence(cluster, body, callback))
+  }
+}
+
 export const SERVICE_MANUAL_SCALE_REQUEST = 'SERVICE_MANUAL_SCALE_REQUEST'
 export const SERVICE_MANUAL_SCALE_SUCCESS = 'SERVICE_MANUAL_SCALE_SUCCESS'
 export const SERVICE_MANUAL_SCALE_FAILURE = 'SERVICE_MANUAL_SCALE_FAILURE'

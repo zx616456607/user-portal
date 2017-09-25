@@ -273,8 +273,8 @@ exports.autoScaleService = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
   const body = this.request.body
-  if (!body || !body.min || !body.max || !body.cpu || !body.memory) {
-    const err = new Error('min, max, cpu are required.')
+  if (!body || !body.min || !body.max || (!body.cpu && !body.memory)) {
+    const err = new Error('min, max, cpu/memory are required.')
     err.status = 400
     throw err
   }
@@ -302,12 +302,13 @@ exports.autoScaleService = function* () {
     err.status = 400
     throw err
   }
-  if (isNaN(cpu) || cpu < 1 || cpu > INSTANCE_AUTO_SCALE_MAX_CPU) {
+  
+  if (cpu && (isNaN(cpu) || cpu < 1 || cpu > INSTANCE_AUTO_SCALE_MAX_CPU)) {
     const err = new Error(`cpu is between 1 and ${INSTANCE_AUTO_SCALE_MAX_CPU}.`)
     err.status = 400
     throw err
   }
-  if (isNaN(memory) || memory < 1 || memory > INSTANCE_AUTO_SCALE_MAX_MEMORY) {
+  if (memory && (isNaN(memory) || memory < 1 || memory > INSTANCE_AUTO_SCALE_MAX_MEMORY)) {
     const err = new Error(`memory is between 1 and ${INSTANCE_AUTO_SCALE_MAX_MEMORY}.`)
     err.status = 400
     throw err
@@ -325,6 +326,15 @@ exports.autoScaleService = function* () {
     serviceName,
     data: result
   }
+}
+
+exports.checkAutoScaleNameExist = function* () {
+  const cluster = this.params.cluster
+  const body = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, 'services', 'autoscale', 'check-exists'], null, body)
+  this.body = result
 }
 
 exports.batchUpdateAutoscaleStatus = function* (){
