@@ -242,20 +242,6 @@ class VMList extends React.Component {
     this.setState({
       ciphertext: value
     })
-    // let isShow = this.state.isShowText
-    // let info = document.getElementsByClassName('info')
-    // let reg = /^[*]+$/
-    // if (!reg.test(info[index].innerText)) {
-    //   info[index].innerText = '******'
-    //   this.setState({
-    //     isShowText: false
-    //   })
-    // } else {
-    //   info[index].innerText = value
-    //   this.setState({
-    //     isShowText: false
-    //   })
-    // }
   }
 
   /**
