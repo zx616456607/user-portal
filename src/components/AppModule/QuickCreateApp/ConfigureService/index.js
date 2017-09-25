@@ -40,6 +40,11 @@ import './style/index.less'
 const LATEST = 'latest'
 const FormItem = Form.Item
 const Option = Select.Option
+// for lazy set form fields
+let fieldsBefore = {}
+let lazySetFormFieldsTimeout = 200
+let setFormFieldsTimeout
+let initForm = false
 
 let ConfigureService = React.createClass({
   propTypes: {
@@ -97,6 +102,10 @@ let ConfigureService = React.createClass({
     // save fields to store when component unmount
     const { id, setFormFields, currentFields, mode } = this.props
     setFormFields(id, currentFields)
+    // reset fields for lazy set form fields
+    fieldsBefore = {}
+    clearTimeout(setFormFieldsTimeout)
+    initForm = false
   },
   loadImageTags(props) {
     const {
@@ -571,7 +580,17 @@ const createFormOpts = {
   },
   onFieldsChange(props, fields) {
     const { id, setFormFields } = props
-    setFormFields(id, fields)
+    if (!initForm) {
+      setFormFields(id, fields)
+      initForm = true
+      return
+    }
+    const newFields = Object.assign({}, fieldsBefore, fields)
+    fieldsBefore = newFields
+    clearTimeout(setFormFieldsTimeout)
+    setFormFieldsTimeout = setTimeout(() => {
+      setFormFields(id, newFields)
+    }, lazySetFormFieldsTimeout)
   }
 }
 
