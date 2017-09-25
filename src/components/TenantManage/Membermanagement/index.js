@@ -498,17 +498,18 @@ let MemberTable = React.createClass({
                   >
                     {record.active === DEACTIVE ? '启用' : '停用'}
                   </Menu.Item>
-                  <Menu.Item key="delete">删除</Menu.Item>
+                  <Menu.Item
+                    key="delete"
+                    disabled={record.namespace === loginUser.namespace}
+                  >
+                    删除
+                  </Menu.Item>
                 </Menu>
               }
               type="ghost"
             >
               充值
             </Dropdown.Button>
-            {/* <Button type="primary" className="setBtn" onClick={() => scope.memberRecharge(record)}>充值</Button>
-            <Button className="delBtn setBtn" onClick={() => this.setState({ delModal: true, userManage: record })}>
-              删除
-            </Button> */}
           </div>
         ),
       })
