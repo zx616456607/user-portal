@@ -328,6 +328,7 @@ export const PROJECTS_CLUSTER_ALL_GET_FAILURE = 'PROJECTS_CLUSTER_ALL_GET_FAILUR
 function fetchGetProjectsAllClusters(body, callback) {
   let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/clusters`
   return {
+    projectName: body.projectsName,
     [FETCH_API]: {
       types: [PROJECTS_CLUSTER_ALL_GET_REQUEST, PROJECTS_CLUSTER_ALL_GET_SUCCESS, PROJECTS_CLUSTER_ALL_GET_FAILURE],
       endpoint,
