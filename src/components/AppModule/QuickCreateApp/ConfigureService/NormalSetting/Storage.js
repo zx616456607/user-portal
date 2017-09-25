@@ -166,7 +166,7 @@ const Storage = React.createClass({
       descContent = '无状态服务'
     } else {
       descContent = [
-        <div className="floatRight">有状态服务</div>,
+        <div className="floatRight" key="service">有状态服务</div>,
         this.renderStorageType()
       ]
     }
@@ -566,7 +566,7 @@ const Storage = React.createClass({
   renderConfigure() {
     const { avaliableVolume, form } = this.props
     const { volumes, isFetching } = avaliableVolume
-    let createVolumeElement
+    let createVolumeElement = <div key="createVolume"></div>
     if (volumes.length < 1 && !isFetching) {
       createVolumeElement = this.renderCreateVolume()
     }

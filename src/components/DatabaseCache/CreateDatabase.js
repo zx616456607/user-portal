@@ -197,7 +197,7 @@ let CreateDatabase = React.createClass({
       })
       const currentNamespace = form.getFieldValue('namespaceSelect') || space.namespace
       const projectClusters = projectClusterList[currentNamespace] && projectClusterList[currentNamespace].data || []
-      projectClusterList.map(list => {
+      projectClusters.map(list => {
         if (list.clusterID === values.clusterSelect) {
           return newCluster = list
         }
