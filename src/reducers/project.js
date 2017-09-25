@@ -113,9 +113,60 @@ function projectsDetail(state = {}, action) {
   }
 }
 
+function projectList(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.PROJECTS_LIST_REQUEST:
+      return merge({}, state, {
+        isFetching: true
+      })
+    case ActionTypes.PROJECTS_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data.projects,
+        total: action.response.result.data.listMeta.total,
+      })
+    case ActionTypes.PROJECTS_LIST_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function projectClusterList(state = {}, action) {
+  const { projectName, type } = action
+  switch (type) {
+    case ActionTypes.PROJECTS_CLUSTER_ALL_GET_REQUEST:
+      return merge({}, state, {
+        [projectName]: {
+          isFetching: true,
+        }
+      })
+    case ActionTypes.PROJECTS_CLUSTER_ALL_GET_SUCCESS:
+      return Object.assign({}, state, {
+        [projectName]: {
+          isFetching: false,
+          data: action.response.result.data.clusters,
+          total: action.response.result.data.listMeta.total,
+        },
+      })
+    case ActionTypes.PROJECTS_CLUSTER_ALL_GET_FAILURE:
+      return merge({}, state, {
+        [projectName]: {
+          isFetching: false,
+        }
+      })
+    default:
+      return state
+  }
+}
+
 export default function projectAuthority(state = {}, action) {
   return {
     projectsApprovalClustersList: getProjectsApprovalClusters(state.projectsApprovalClustersList, action),
     projectsDetail: projectsDetail(state.projectsDetail, action),
+    projectList: projectList(state.projectList, action),
+    projectClusterList: projectClusterList(state.projectClusterList, action),
   }
 }
