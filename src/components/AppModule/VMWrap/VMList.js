@@ -276,7 +276,6 @@ class VMList extends React.Component {
   }
 
   handleSort() {
-    debugger
     const { createTime } = this.state
     this.getInfo(null);
     if(createTime){
@@ -370,7 +369,6 @@ class VMList extends React.Component {
       // onSelect:(record)=> console.log(record),
       // onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
       onChange: (selectedRowKeys, selectedRows) => {
-        console.log(selectedRowKeys + ',' + selectedRows)
       }
     };
     const scope = this
