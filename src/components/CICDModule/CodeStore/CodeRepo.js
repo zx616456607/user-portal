@@ -385,7 +385,7 @@ const MyComponent = React.createClass({
 class CodeRepo extends Component {
   constructor(props) {
     super(props);
-    const type = location.search ? location.search.split('?')[1] : 'github'
+    const type = location.search ? location.search.split('?')[1] : 'gitlab'
     if (type) {
       this.state = {
         repokey: type
@@ -497,10 +497,10 @@ class CodeRepo extends Component {
           <div className="card-container">
             <p style={{ paddingLeft: '36px', lineHeight: '40px' }}>选择代码源</p>
             <Tabs type="card" onChange={(e) => this.setState({ repokey: e }) } activeKey={this.state.repokey}>
-              <TabPane tab={githubBud} key="github"><GithubComponent typeName="github" formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
               <TabPane tab={gitlabBud} key="gitlab"><MyComponent typeName='gitlab' formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
               <TabPane tab={gogsBud} key="gogs"><GogsComponent typeName="gogs" formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope}/></TabPane>
               <TabPane tab={svnBud} key="svn"><SvnComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
+              <TabPane tab={githubBud} key="github"><GithubComponent typeName="github" formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
             </Tabs>
           </div>
           <Modal title={'选择代码源'} visible={this.state.typeVisible}
