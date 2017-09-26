@@ -15,7 +15,8 @@ import { Card, Select, Button, DatePicker, Input, Spin, Popover, Icon, Checkbox,
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getQueryLogList, getServiceQueryLogList } from '../../actions/manage_monitor'
 import { loadServiceContainerList } from '../../actions/services'
-import { loadUserTeamspaceList } from '../../actions/user'
+// zhangpc_fix
+// import { loadUserTeamspaceList } from '../../actions/user'
 import { throwError } from '../../actions'
 import { getClusterOfQueryLog, getServiceOfQueryLog } from '../../actions/manage_monitor'
 import './style/QueryLog.less'
@@ -655,10 +656,10 @@ class QueryLog extends Component {
   }
 
   componentWillMount() {
-    const { loadUserTeamspaceList, current, query, intl } = this.props;
+    const { current, query, intl } = this.props;
     const { formatMessage } = intl;
     const _this = this;
-    loadUserTeamspaceList('default', { size: 100 }, {
+    /*loadUserTeamspaceList('default', { size: 100 }, {
       success: {
         func: (res) => {
           _this.setState({
@@ -668,7 +669,7 @@ class QueryLog extends Component {
         },
         isAsync: true
       }
-    });
+    });*/
     const { space, cluster } = current;
     const { spaceName, teamID, namespace } = space;
     this.onSelectNamespace(spaceName, teamID, namespace);
@@ -1048,13 +1049,13 @@ class QueryLog extends Component {
     const { formatMessage } = intl;
     const scope = this;
     const { gettingNamespace, start_time, end_time, key_word, backward, goBackLogs } = this.state;
-    if (gettingNamespace) {
+    /*if (gettingNamespace) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
       )
-    }
+    }*/
     return (
       <QueueAnim className='QueryLogBox' type='right'>
         <div id='QueryLog' key='QueryLog' className={this.state.bigLog ? 'bigLogContainer' :''} >
@@ -1286,7 +1287,7 @@ export default connect(mapStateToProps, {
   getQueryLogList,
   getServiceQueryLogList,
   loadServiceContainerList,
-  loadUserTeamspaceList,
+  // loadUserTeamspaceList,
   getClusterOfQueryLog,
   getServiceOfQueryLog,
   throwError,
