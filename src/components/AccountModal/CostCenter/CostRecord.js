@@ -711,6 +711,7 @@ function mapStateToProps (state,props) {
   }
 }
 export default connect (mapStateToProps,{
+  // zhangpc_fix
   loadUserTeamspaceList,
   loadTeamClustersList,
   loadLoginUserDetail,
