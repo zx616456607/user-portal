@@ -31,8 +31,15 @@
     margin-top: 20px;
     margin-left: 30px;
   }
+  .globaleEdit {
+    margin-top: 20px;
+    margin-left: 30px;
+    .save {
+      margin-left: 10px;
+    }
+  }
   .connent {
-    margin: 30px;
+    margin:  10px 30px 30px 30px;
     padding: 20px;
     border: 1.5px solid #e9e9e9;
     .overall {
@@ -48,6 +55,22 @@
       .line {
         margin-top: 20px;
         border-bottom: 1px dashed #e9e9e9
+      }
+    }
+    .overallEdit {
+      .connents {
+        text-align: center;
+        line-height: 28px;
+        margin-top: 10px;
+        margin-left: 20px;
+        & > div:first-child {
+          text-align: left;
+          padding-right: 10px;
+        }
+      }
+      .line {
+        margin: 20px;
+        border-bottom: 1px dashed #e9e9e9;
       }
     }
   }
@@ -90,7 +113,7 @@
         }
       }
     }
-    .list {
+    .liste {
       margin: 10px 30px;
       padding: 20px;
       border: 1.5px solid #e9e9e9;
@@ -107,6 +130,21 @@
       .line {
         margin: 20px;
         border-bottom: 1px dashed #e9e9e9;
+      }
+      .lists {
+        .list {
+          margin-top: 20px;
+          margin-left: 20px;
+          & > div:last-of-type {
+            span {
+              margin-left: 20px;
+            }
+          }
+        }
+        .line {
+          margin-top: 20px;
+          border-bottom: 1px dashed #e9e9e9
+        }
       }
     }
   }

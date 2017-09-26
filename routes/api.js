@@ -626,6 +626,8 @@ module.exports = function (Router) {
   //Quota
   router.get('/clusters/:cluster/resourcequota', quotaController.list)
   router.put('/clusters/:cluster/resourcequota', quotaController.put)
+  router.get('/resourcequota', quotaController.get)
+  router.put('/resourcequota', quotaController.update)
 
   return router.routes()
 }
