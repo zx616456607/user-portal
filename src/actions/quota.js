@@ -12,17 +12,17 @@ import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
 import { toQuerystring } from '../common/tools'
 
-export const FETCH_QUOTA_REQUEST = 'FETCH_QUOTA_REQUEST'
-export const FETCH_QUOTA_SUCCESS = 'FETCH_QUOTA_SUCCESS'
-export const FETCH_QUOTA_FAILURE = 'FETCH_QUOTA_FAILURE'
+export const FETCH_GLOBALE_QUOTA_REQUEST = 'FETCH_GLOBALE_QUOTA_REQUEST'
+export const FETCH_GLOBALE_QUOTA_SUCCESS = 'FETCH_GLOBALE_QUOTA_SUCCESS'
+export const FETCH_GLOBALE_QUOTA_FAILURE = 'FETCH_GLOBALE_QUOTA_FAILURE'
 
 // Fetches get quota from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchQuota(query, callback) {
-  let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota`
+function fetchGlobaleQuota(callback) {
+  let endpoint = `${API_URL_PREFIX}/resourcequota`
   return {
     [FETCH_API]: {
-      types: [FETCH_QUOTA_REQUEST, FETCH_QUOTA_SUCCESS, FETCH_QUOTA_FAILURE],
+      types: [FETCH_GLOBALE_QUOTA_REQUEST, FETCH_GLOBALE_QUOTA_SUCCESS, FETCH_GLOBALE_QUOTA_FAILURE],
       endpoint,
       options: {
         method: 'GET',
@@ -35,22 +35,22 @@ function fetchQuota(query, callback) {
 
 // Fetches get quota from API
 // Relies on Redux Thunk middleware.
-export function getQuota(query, callback) {
+export function getGlobaleQuota(callback) {
   return (dispatch) => {
-    return dispatch(fetchQuota(query, callback))
+    return dispatch(fetchGlobaleQuota(callback))
   }
 }
 
-export const UPDATE_QUOTA_REQUEST = 'UPDATE_QUOTA_REQUEST'
-export const UPDATE_QUOTA_SUCCESS = 'UPDATE_QUOTA_SUCCESS'
-export const UPDATE_QUOTA_FAILURE = 'UPDATE_QUOTA_FAILURE'
+export const UPDATE_GLOBALE_QUOTA_REQUEST = 'UPDATE_GLOBALE_QUOTA_REQUEST'
+export const UPDATE_GLOBALE_QUOTA_SUCCESS = 'UPDATE_GLOBALE_QUOTA_SUCCESS'
+export const UPDATE_GLOBALE_QUOTA_FAILURE = 'UPDATE_GLOBALE_QUOTA_FAILURE'
 
-function updateQuota(query, callback) {
-  let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota`
+function updateGlobaleQuota(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/resourcequota`
   let body = query.body
   return {
     [FETCH_API]: {
-      types: [UPDATE_QUOTA_REQUEST, UPDATE_QUOTA_SUCCESS, UPDATE_QUOTA_FAILURE],
+      types: [UPDATE_GLOBALE_QUOTA_REQUEST, UPDATE_GLOBALE_QUOTA_SUCCESS, UPDATE_GLOBALE_QUOTA_FAILURE],
       endpoint,
       options: {
         method: 'PUT',
@@ -62,8 +62,60 @@ function updateQuota(query, callback) {
   }
 }
 
-export function putQuota(query, callback) {
+export function putGlobaleQuota(callback) {
   return (dispatch) => {
-    return dispatch(updateQuota(query, callback))
+    return dispatch(updateGlobaleQuota(callback))
+  }
+}
+
+export const FETCH_CLUSTER_QUOTA_REQUEST = 'FETCH_CLUSTER_QUOTA_REQUEST'
+export const FETCH_CLUSTER_QUOTA_SUCCESS = 'FETCH_CLUSTER_QUOTA_SUCCESS'
+export const FETCH_CLUSTER_QUOTA_FAILURE = 'FETCH_CLUSTER_QUOTA_FAILURE'
+
+function fetchClusterQuota(query, callback){
+  let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota`
+  return {
+    [FETCH_API]: {
+      types: [FETCH_CLUSTER_QUOTA_REQUEST, FETCH_CLUSTER_QUOTA_SUCCESS, FETCH_CLUSTER_QUOTA_FAILURE],
+      endpoint,
+      options: {
+        method: 'GET',
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getClusterQuota(query, callback){
+  return (dispatch) => {
+    return dispatch(fetchClusterQuota(query, callback))
+  }
+}
+
+export const UPDATE_CLUSTER_QUOTA_REQUEST = 'UPDATE_CLUSTER_QUOTA_REQUEST'
+export const UPDATE_CLUSTER_QUOTA_SUCCESS = 'UPDATE_CLUSTER_QUOTA_SUCCESS'
+export const UPDATE_CLUSTER_QUOTA_FAILURE = 'UPDATE_CLUSTER_QUOTA_FAILURE'
+
+function updateClusterQuota(query, callback){
+  let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota`
+  let body = query.body
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_CLUSTER_QUOTA_REQUEST, UPDATE_CLUSTER_QUOTA_SUCCESS, UPDATE_CLUSTER_QUOTA_FAILURE],
+      endpoint,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function putClusterQuota(query, callback){
+  return (dispatch) => {
+    return dispatch(updateClusterQuota(query, callback))
   }
 }

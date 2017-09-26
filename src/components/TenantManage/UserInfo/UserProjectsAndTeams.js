@@ -25,7 +25,7 @@ import JoinProjectsModal from './JoinProjectsModal'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
 import './style/UserProjectsAndTeams.less'
 import ResourceQuota from '../../ResourceLimit'
-import { getQuota, putQuota } from '../../../actions/quota'
+import { getGlobaleQuota, getClusterQuota } from '../../../actions/quota'
 import { REG } from '../../../constants'
 
 const TabPane = Tabs.TabPane
@@ -143,13 +143,19 @@ class UserProjectsAndTeams extends React.Component {
   }
 
   componentWillMount() {
-    const { getQuota, putQuota } = this.props
+    const { getGlobaleQuota, getClusterQuota } = this.props
     this.loadProjectsData()
     let id = 'CID-90eb6ec7b55a'
     let body = {
       tenxflow: 1213
     }
-    putQuota({id, body },{
+    getGlobaleQuota({
+      success: {
+        func: res => {
+        }
+      }
+    })
+    getClusterQuota({id},{
       success: {
         func: res => {
           if(REG.test(res.code)){
@@ -676,8 +682,8 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  getQuota,
-  putQuota,
+  getGlobaleQuota,
+  getClusterQuota,
   loadUserTeams,
   removeTeamusers,
   GetProjectsMembers,
