@@ -342,7 +342,7 @@ let ContainerCatalogueModal = React.createClass({
     const selectedVolumes = list.map(fields => fields.volume)
     volumes.forEach(volume => {
       const { name, fsType, size, isOld } = volume
-      const value = `${name} ${fsType || '-'} ${size || '-'}`
+      const value = `${name} ${fsType || '-'}`
       let disabled = selectedVolumes.indexOf(value) > -1
       options.push(
         <Option
