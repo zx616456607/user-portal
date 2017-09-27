@@ -35,6 +35,11 @@
         float: left;
       }
     }
+    .total_num{
+      float: right;
+      margin-right: 200px;
+      line-height: 32px;
+    }
   }
   .storageBox {
     margin-top: 20px;
@@ -66,38 +71,35 @@
       text-align: center;
     }
     .name {
-      width: 12%;
+      //width: 12%;
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
+      .text{
+        cursor: pointer;
+        color: #0eb4ff;
+      }
     }
     .type{
       width: 10%;
     }
     .status {
-      width: 10%;
-      .fa {
-        margin: 0 5px;
+      .icon-marginRight{
+        margin-right: 8px;
       }
-      .normal {
-        color: #5cb85c;
+      .penging{
+        color: #0eb4ff;
       }
-      .error {
+      .used{
         color: #f85a5a;
       }
+      .no_used{
+        color: #5cb85c
+      }
+      .unknown{
+        color: #666666;
+      }
     }
-    //.forin {
-    //  width: 15%;
-    //  overflow: hidden;
-    //  text-overflow: ellipsis;
-    //  white-space: nowrap;
-    //}
-    //.appname {
-    //  width: 10%;
-    //  overflow: hidden;
-    //  text-overflow: ellipsis;
-    //  white-space: nowrap;
-    //}
     .size {
       width: 9%;
     }
@@ -108,7 +110,7 @@
       width: 10%;
     }
     .strategy{
-      width: 10%;
+      //width: 10%;
       .question_icon{
         margin-left: 8px;
         cursor: pointer;
@@ -130,6 +132,9 @@
       width: 100%;
       .commonData {
         float: left;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
         // padding-left: 10px;
         .ant-disabled{button{cursor: not-allowed;color: #ccc;}}
       }
@@ -148,6 +153,9 @@
   }
   #StorageList .appBox .dataBox .appDetail {
     clear: both;
+  }
+  .appBox{
+    padding: 24px;
   }
   .action-btns {
     button {
@@ -231,6 +239,11 @@
   }
   .hide {
     display: none;
+  }
+  .ant-pagination-simple{
+    position: absolute;
+    top: -87px;
+    right: 0;
   }
 }
 .createAppStorageModal {

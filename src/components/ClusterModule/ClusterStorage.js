@@ -164,7 +164,7 @@ class ClusterStorage extends Component {
       const name = values[`RBD_name${item.index}`]
       const monitors = values[`RBD_monitors${item.index}`]
       const adminId =  values[`RBD_adminId${item.index}`]
-      const pool = 'tenx-rbd'
+      const pool = 'tenx-pool'
       const key = values[`RBD_key${item.index}`]
       const clusterID = cluster.clusterID
       if(item.newAdd){
@@ -389,7 +389,7 @@ class ClusterStorage extends Component {
                     if(!value){
                       return callback('集群配置不能为空')
                     }
-                    if(!/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(,(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))*$/.test(value)){
+                    if(!/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]{1,5}(,(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]{1,5})*$/.test(value)){
                       return callback('请输入合法的集群配置')
                     }
                     return callback()
@@ -437,14 +437,8 @@ class ClusterStorage extends Component {
                     if(!value){
                       return callback('用户认证密钥不能为空')
                     }
-                    if(value.length < 4 || value.length > 63){
-                      return callback('认证密钥的长度为4～63位')
-                    }
-                    if(!/\w/.test(value)){
-                      return callback('可由数字、下划线组成')
-                    }
-                    if(!/^[a-zA-Z0-9]{1}/.test(value) || !/[a-zA-Z0-9]{1}$/.test(value)){
-                      return callback('以字母开头，字母或者数字结尾')
+                    if(!/^[a-zA-Z0-9=]{4,63}$/.test(value)){
+                      return callback('只能由数字、字母、=组成，长度为4～63个字符')
                     }
                     return callback()
                   }
@@ -754,7 +748,7 @@ class ClusterStorage extends Component {
               disabled={item.disabled}
               size="large"
               {...getFieldProps(`nfs_service_adderss${item.index}`, {
-                initialValue: parameters ? parameters.iP : undefined,
+                initialValue: parameters ? parameters.ip : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value){
@@ -770,7 +764,7 @@ class ClusterStorage extends Component {
             />
           </FormItem>
           <FormItem
-            label="服务挂在路径"
+            label="服务挂载路径"
             key="service_path"
             {...formItemLayout}
           >
@@ -779,11 +773,11 @@ class ClusterStorage extends Component {
               disabled={item.disabled}
               size="large"
               {...getFieldProps(`nfs_service_path${item.index}`, {
-                initialValue: parameters ? parameters.pATH : undefined,
+                initialValue: parameters ? parameters.path : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value){
-                      return callback('服务挂在路径不能为空')
+                      return callback('服务挂载路径不能为空')
                     }
                     return callback()
                   }

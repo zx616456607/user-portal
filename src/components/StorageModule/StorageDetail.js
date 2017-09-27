@@ -22,10 +22,11 @@ import { DEFAULT_IMAGE_POOL } from '../../constants'
 import storagePNG from '../../assets/img/storage.png'
 import Title from '../Title'
 import { SHOW_BILLING } from '../../constants'
+import { formatDate } from '../../common/tools'
 
 function loadData(props) {
   const { loadStorageInfo } = props
-  loadStorageInfo(props.params.pool, props.params.cluster, props.params.storage_name)
+  loadStorageInfo(props.params.cluster, props.params.storage_name)
 }
 
 const SubMenu = Menu.SubMenu
@@ -76,7 +77,7 @@ class StorageDetail extends Component {
   render() {
     const { formatMessage } = this.props.intl
     const { currentKey } = this.state
-    const { StorageInfo, isFetching } = this.props
+    const { StorageInfo, isFetching, params } = this.props
     if (isFetching) {
       return (
         <div className="loadingBox">
@@ -84,8 +85,6 @@ class StorageDetail extends Component {
         </div>
        )
     }
-    const color = StorageInfo.isUsed ? '#f85a5a' : '#5cb85c'
-
     return (
       <div id="StorageDetail">
         <QueueAnim className="demo-content"
@@ -113,12 +112,6 @@ class StorageDetail extends Component {
                   {StorageInfo.volumeName}
                 </div>
                 <div className="info">
-                  {/*<FormattedMessage {...messages.useStatus} />*/}
-                  {/*&nbsp;：*/}
-                    {/*<span>*/}
-                    {/*<i className= 'fa fa-circle error' style={ {color: color} }></i>&nbsp;*/}
-                      {/*<span className={StorageInfo.isUsed ? 'error' : 'normal'} style={{ color: color }}>{StorageInfo.isUsed ? <FormattedMessage {...messages.using} /> : <FormattedMessage {...messages.stop} />}</span>*/}
-                  {/*</span>*/}
                   <Row>
                     <Col span="9">
                       存储类型：独享型（RBD）
@@ -126,20 +119,20 @@ class StorageDetail extends Component {
                     <Col span="15">
                       <div className="createDate">
                         <FormattedMessage {...messages.create} />：
-                        { StorageInfo.createTime }
+                        { StorageInfo.createTime ? formatDate(StorageInfo.createTime) : '-' }
                       </div>
                     </Col>
                   </Row>
                   <Row>
                     <Col span="9">
-                      RBD集群名称：aaaaa
+                      RBD集群名称：{ StorageInfo.storageServer}
                     </Col>
                     <Col span="15">
                       <div className="use">
                         <FormattedMessage {...messages.useLevel} />
                         ：&nbsp;&nbsp;
                         <Progress strokeWidth={8} showInfo={false} status="active" percent={ StorageInfo.consumption * 100 } />
-                        &nbsp;&nbsp;{ StorageInfo.consumption * StorageInfo.size } / { StorageInfo.size }M
+                        &nbsp;&nbsp;{ StorageInfo.consumption * parseInt(StorageInfo.size) } / { parseInt(StorageInfo.size) }M
                       </div>
                     </Col>
                   </Row>
@@ -158,7 +151,11 @@ class StorageDetail extends Component {
               >
               {SHOW_BILLING ?
                 [<TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="1" >
-                  <StorageBind pool={StorageInfo.imagePool} cluster={StorageInfo.cluster} volumeName={ StorageInfo.volumeName } />
+                  <StorageBind
+                    pool={StorageInfo.imagePool}
+                    cluster={params.cluster}
+                    volumeName={params.storage_name}
+                  />
                 </TabPane>,
                 <TabPane tab="租赁信息" key="2" >
                   <StorageRental config={this.props.resourcePrice} size={StorageInfo.size}/>
@@ -187,7 +184,10 @@ function mapStateToProps(state, props) {
   const defaultInfo = {
     imagePool: props.params.pool,
     volumeName: props.params.storage_name,
-    cluster: cluster.clusterID
+    cluster: cluster.clusterID,
+    storageServer: '-',
+    consumption: 0,
+    size: 0
   }
   const StorageInfo  = state.storage.storageDetail.StorageInfo || defaultInfo
   return {
