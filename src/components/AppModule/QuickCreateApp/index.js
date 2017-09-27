@@ -276,10 +276,10 @@ class QuickCreateApp extends Component {
   }
 
   createAppOrAddService() {
-    /* this.setState({
+    this.setState({
       isCreatingApp: true,
       stepStatus: 'process',
-    }) */
+    })
     const {
       fields, current, loginUser,
       createApp, addService,location
@@ -301,9 +301,6 @@ class QuickCreateApp extends Component {
         }
       }
     }
-    console.log('fields', fields)
-    console.log('template', template.join('---\n'))
-    // return
     const callback = {
       success: {
         func: res => {
