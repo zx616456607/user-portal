@@ -126,6 +126,7 @@ class Header extends Component {
     this.showUpgradeVersionModal = this.showUpgradeVersionModal.bind(this)
     this.renderCheckVersionContent = this.renderCheckVersionContent.bind(this)
     this.handleDocVisible = this.handleDocVisible.bind(this)
+    this.handleSpaceVisibleChange = this.handleSpaceVisibleChange.bind(this)
     this.state = {
       spacesVisible: false,
       clustersVisible: false,
@@ -360,6 +361,15 @@ class Header extends Component {
     )
   }
 
+  handleSpaceVisibleChange(visible) {
+    this.setState({
+      spacesVisible: visible
+    })
+    if (visible) {
+      loadProjects(this.props)
+    }
+  }
+
   render() {
     const {
       current,
@@ -446,6 +456,7 @@ class Header extends Component {
                     onChange={this.handleProjectChange}
                     selectValue={selectValue || '...'}
                     popTeamSelect={mode === standard}
+                    onVisibleChange={this.handleSpaceVisibleChange}
                   />
                 </div>
             </div>

@@ -13,7 +13,6 @@
 import React, { Component, PropTypes } from 'react'
 import { Modal, Form, Select } from 'antd'
 import { connect } from 'react-redux'
-import { loadUserTeamspaceList } from '../../actions/user'
 import { loadTeamClustersList } from '../../actions/team'
 import { setCurrent } from '../../actions/entities'
 import { MY_SPACE } from '../../constants'
@@ -197,7 +196,6 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  loadUserTeamspaceList,
   loadTeamClustersList,
   setCurrent,
 })(DeployEnvModal)
