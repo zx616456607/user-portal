@@ -12,44 +12,28 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import './style/index.less'
-import { Tabs, Table, Button, Icon, Input, Modal, Row, Col, Transfer, Tooltip, Dropdown, Menu, Progress, Select, Checkbox } from 'antd'
+import { InputNumber, Table, Button, Icon, Input, Modal, Row, Col, Transfer, Tooltip, Dropdown, Menu, Progress, Select, Checkbox, Form } from 'antd'
 import { putGlobaleQuota, putClusterQuota } from '../../actions/quota'
+const FormItem = Form.Item
+const createForm = Form.create
 
 class ResourceQuota extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      list: [],
+      clusterList: [],
+      globaleList: {},
       gIsEdit: false,
       cIsEdit: false,
       isProject: false,
       isDisabled: false,
-      tenxflow: false,
-      subTask: false,
-      dockerfile: false,
-      registryProject: false,
-      registry: false,
-      orchestrationTemplate: false,
-      applicationPackage: false,
-      cpu: false,
-      memory: false,
-      storage: false,
-      application: false,
-      service: false,
-      container: false,
-      volume: false,
-      snapshot: false,
-      configuration: false,
-      mysql: false,
-      redis: false,
-      zookeeper: false,
-      elasticsearch: false,
     }
   }
   componentWillMount() {
-    const { isProject } = this.props
+    const { isProject, data } = this.props
     this.setState({
-      isProject
+      isProject,
+      globaleList: data,
     })
   }
   /**
@@ -116,15 +100,37 @@ class ResourceQuota extends React.Component {
       cIsEdit: true
     })
   }
-  handleCheckd(e){
-    this.setState({
-      isDisabled: e.target.checked
+  /**
+   * 筛选内容
+   * @param {*} value
+   */
+  screenValue(value) {
+    const { globaleList } = this.state
+    let values = ''
+    Object.keys(globaleList).forEach((item, index) => {
+      if (value === item) {
+        values = Object.values(globaleList)[index]
+      }
     })
+    return values
+  }
+  /**
+   * 百分比
+   * @param {*} value
+   */
+  filterPercent(value, count) {
+    let max = 100
+    let result = 0
+    let number = 100 / Number(value)
+    for (let i = 0; i < count; i++) {
+      result+=number
+     }
+     result > max ? 0 : result
   }
 
   render() {
-    const { isProject, gIsEdit, cIsEdit, isDisabled } = this.state
-    const { data } = this.props
+    const { isProject, gIsEdit, cIsEdit, isDisabled, inputsDisabled } = this.state //属性
+    const { globaleList } = this.state //数据
     //默认集群
     const menu = (
       <Menu>
@@ -139,13 +145,41 @@ class ResourceQuota extends React.Component {
         </Menu.Item>
       </Menu>
     )
-    const ciList = ['Tencfilow (个)','子任务 (个)','Dockerfile (个)']
-    const ciName = ['Tencfilow','subTask','dockerfile']
-    const cdList = ['镜像仓库组 (个)','镜像仓库 (个)','编排文件 (个)','应用包 (个)']
-    const cdName = ['registryProject','registry','orchestrationTemplate','applicationPackage']
-    const computeList = [{cpu:'CPU （核）'}, {memory:'内存（GB）'}, {storage:'磁盘（GB）'}]
-    const platformList = [{application:'应用 (个)'}, {service:'服务 (个)'}, {container:'容器 (个)'}, {volume:'存储 (个)'}, {snapshot:'快照 (个)'}, {configuration:'服务配置 (个)'}]
-    const serviceList = [{mysql:'关系型数据库 (个)'}, {redis:'缓存 (个)'}, {zookeeper:'Zookeeper (个)'}, {elasticsearch:'ElasticSearch (个)'}]
+    const ciList = [
+      {
+        key: 'tenxflow',
+        text: 'Tencfilow (个)',
+      },
+      {
+        key: 'subTask',
+        text: '子任务 (个)',
+      },
+      {
+        key: 'dockerfile',
+        text: 'Dockerfile (个)',
+      },
+    ]
+    const cdList = [
+      {
+        key: 'registryProject',
+        text: '镜像仓库组 (个)',
+      },
+      {
+        key: 'registry',
+        text: '镜像仓库 (个)',
+      },
+      {
+        key: 'orchestrationTemplate',
+        text: '编排文件 (个)',
+      },
+      {
+        key: 'applicationPackage',
+        text: '应用包 (个)',
+      }]
+    const computeList = ['CPU （核）', '内存（GB）', '磁盘（GB）']
+    const platformList = ['应用 (个)', '服务 (个)', '容器 (个)', '存储 (个)', '快照 (个)', '服务配置 (个)']
+    const serviceList = ['关系型数据库 (个)', '缓存 (个)', 'Zookeeper (个)', 'ElasticSearch (个)']
+    const { getFieldProps, getFieldValue } = this.props.form
     return (
       <div className="quota">
         {
@@ -171,41 +205,97 @@ class ResourceQuota extends React.Component {
               <div className="overallEdit">
                 <span>CI/CD</span>
                 {
-                  ciList.map((item, index) => (
-                    <Row key={index} className="connents">
-                      <Col span={2}>
-                        <span>{item}</span>
-                      </Col>
-                      <Col span={7}>
-                        <Input disabled={isDisabled} />
-                      </Col>
-                      <Col span={3}>
-                        <Checkbox onChange={(e) => this.handleCheckd(e)}>无限制</Checkbox>
-                      </Col>
-                      <Col span={4}>
-                        <span>配额剩余：0</span>
-                      </Col>
-                    </Row>
-                  ))
+                  ciList.map((item, index) => {
+                    const inputProps = getFieldProps(item.key, {
+                      initialValue: globaleList ? this.screenValue(item.key) : ''
+                    })
+                    const checkKey = `${item.key}-check`
+                    const checkProps = getFieldProps(checkKey, {
+                      validate: [{
+                        valuePropName: 'checked',
+                      }]
+                    })
+                    const checkValue = getFieldValue(checkKey)
+                    return (
+                      <Row key={index} className="connents">
+                        <Col span={2} style={{ height: 30 }}>
+                          <span>{item.text}</span>
+                        </Col>
+                        <Col span={7} style={{ height: 30 }}>
+                          <FormItem>
+                            <InputNumber {...inputProps} disabled={checkValue} style={{ width: '100%' }} id="input" />
+                          </FormItem>
+                        </Col>
+                        <Col span={3} style={{ height: 30 }}>
+                          <FormItem>
+                            <Checkbox {...checkProps}>无限制</Checkbox>
+                          </FormItem>
+                        </Col>
+                        <Col span={4} style={{ height: 30 }}>
+                          <FormItem>
+                            <span>配额剩余：0/
+                              {
+                                Object.keys(globaleList).map((value, index) => (
+                                  <span >
+                                    {
+                                      JSON.stringify(value) === item.key ? Object.values(globaleList)[index] : null
+                                    }
+                                  </span>
+                                ))
+                              }
+                            </span>
+                          </FormItem>
+                        </Col>
+                      </Row>
+                    )
+                  })
                 }
                 <p className="line"></p>
                 {
-                  cdList.map((item, index) => (
-                    <Row key={index} className="connents">
-                      <Col span={2}>
-                        <span>{item}</span>
-                      </Col>
-                      <Col span={7}>
-                        <Input />
-                      </Col>
-                      <Col span={3}>
-                        <Checkbox>无限制</Checkbox>
-                      </Col>
-                      <Col span={4}>
-                        <span>配额剩余：0</span>
-                      </Col>
-                    </Row>
-                  ))
+                  cdList.map((item, index) => {
+                    const inputProps = getFieldProps(item.key, {
+                      initialValue: globaleList ? this.screenValue(item.key) : ''
+                    })
+                    const checkKey = `${item.key}-check`
+                    const checkProps = getFieldProps(checkKey, {
+                      validate: [{
+                        valuePropName: 'checked',
+                      }]
+                    })
+                    const checkValue = getFieldValue(checkKey)
+                    return (
+                      <Row key={index} className="connents">
+                        <Col span={2} style={{ height: 30 }}>
+                          <span>{item.text}</span>
+                        </Col>
+                        <Col span={7} style={{ height: 30 }}>
+                          <FormItem>
+                            <InputNumber {...inputProps} disabled={checkValue} style={{ width: '100%' }} id="input" />
+                          </FormItem>
+                        </Col>
+                        <Col span={3} style={{ height: 30 }}>
+                          <FormItem>
+                            <Checkbox {...checkProps}>无限制</Checkbox>
+                          </FormItem>
+                        </Col>
+                        <Col span={4} style={{ height: 30 }}>
+                          <FormItem>
+                            <span>配额剩余：0
+                              {
+                                Object.keys(globaleList).map((value, index) => (
+                                  <span >
+                                    {
+                                      JSON.stringify(value) === item.key ? Object.values(globaleList)[index] : null
+                                    }
+                                  </span>
+                                ))
+                              }
+                            </span>
+                          </FormItem>
+                        </Col>
+                      </Row>
+                    )
+                  })
                 }
               </div> :
               <div className="overall">
@@ -214,13 +304,19 @@ class ResourceQuota extends React.Component {
                   ciList.map((item, index) => (
                     <Row className="list" key={index}>
                       <Col span={2}>
-                        <span>{item}</span>
+                        <span>{item.text}</span>
                       </Col>
                       <Col span={8}>
                         <Progress percent={30} showInfo={false} />
                       </Col>
                       <Col span={4}>
-                        <span>0/<span>{}</span>（个）</span>
+                        <span>0/
+                          {
+                            globaleList ?
+                              Object.keys(globaleList).map((value, index) => (
+                                value === item.key ? Object.values(globaleList)[index] : ''
+                              )) : ''
+                          }（个）</span>
                       </Col>
                     </Row>
                   ))
@@ -230,13 +326,19 @@ class ResourceQuota extends React.Component {
                   cdList.map((item, index) => (
                     <Row className="list" key={index}>
                       <Col span={2}>
-                        <span>{item}</span>
+                        <span>{item.text}</span>
                       </Col>
                       <Col span={8}>
                         <Progress percent={30} showInfo={false} />
                       </Col>
                       <Col span={4}>
-                        <span>0/<span>{}</span>（个）</span>
+                        <span>0/
+                            {
+                            globaleList ?
+                              Object.keys(globaleList).map((value, index) => (
+                                value === item.key ? Object.values(globaleList)[index] : ''
+                              )) : ''
+                          }（个）</span>
                       </Col>
                     </Row>
                   ))
@@ -419,6 +521,7 @@ class ResourceQuota extends React.Component {
     )
   }
 }
+ResourceQuota = createForm()(ResourceQuota)
 function mapStateToProps(state) {
   const { entities } = state
   const { current } = entities

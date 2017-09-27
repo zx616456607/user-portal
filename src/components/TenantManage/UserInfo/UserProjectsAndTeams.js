@@ -152,12 +152,6 @@ class UserProjectsAndTeams extends React.Component {
     getGlobaleQuota({
       success: {
         func: res => {
-        }
-      }
-    })
-    getClusterQuota({id},{
-      success: {
-        func: res => {
           if(REG.test(res.code)){
             this.setState({
               quotaData: res.data
@@ -166,6 +160,17 @@ class UserProjectsAndTeams extends React.Component {
         }
       }
     })
+    // getClusterQuota({id},{
+    //   success: {
+    //     func: res => {
+    //       if(REG.test(res.code)){
+    //         this.setState({
+    //           quotaData: res.data
+    //         })
+    //       }
+    //     }
+    //   }
+    // })
   }
 
   componentDidMount() {

@@ -121,8 +121,9 @@ class AllPermissions extends React.Component{
       title: '被角色引用次数',
       dataIndex: 'count',
       key: 'count',
-      render: (text) => (
-        <div>{text > 0 ? text : '-'}</div>
+      code: 'code',
+      render: (text, record) => (
+        <div>{record.code !== '' ? text : '-'}</div>
       )
     }];
 
