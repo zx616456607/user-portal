@@ -22,7 +22,7 @@ import { checkVersion } from '../../actions/version'
 import { getCookie, isEmptyObject, getVersion, getPortalRealMode, toQuerystring } from '../../common/tools'
 import { USER_CURRENT_CONFIG, ROLE_SYS_ADMIN } from '../../../constants'
 import { MY_SPACE, SESSION_STORAGE_TENX_HIDE_DOT_KEY, LITE } from '../../constants'
-import { browserHistory, Link } from 'react-router'
+import { Link } from 'react-router'
 import NotificationHandler from '../../components/Notification'
 import UserPanel from './UserPanel'
 import backOldBtn from '../../assets/img/headerBackOldArrow.png'
@@ -227,7 +227,7 @@ class Header extends Component {
   }
 
   handleProjectChange(project) {
-    const { GetProjectsAllClusters, setCurrent, current, showCluster, pathname } = this.props
+    const { GetProjectsAllClusters, setCurrent, current, showCluster } = this.props
     let notification = new NotificationHandler()
     // sys admin select the user list
     if (project.userName) {
@@ -268,9 +268,6 @@ class Header extends Component {
           if (clusters.length === 1) {
             isShowCluster = false
           }
-          if (pathname.match(/\//g).length > 2) {
-            browserHistory.push('/')
-          }
           this.setState({
             spacesVisible: false,
             clustersVisible: isShowCluster,
@@ -294,16 +291,12 @@ class Header extends Component {
     setCurrent({
       cluster
     })
-    const { pathname } = window.location
     let msg = `${zone}已成功切换到 [${cluster.clusterName}]`
     if (current.cluster.namespace !== current.space.namespace) {
       msg = `${team}已成功切换到 [${current.space.spaceName}]，${msg}`
     }
     let notification = new NotificationHandler()
     notification.success(msg)
-    if (pathname.match(/\//g).length > 2) {
-      browserHistory.push('/')
-    }
   }
 
   componentDidMount() {

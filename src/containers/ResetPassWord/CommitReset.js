@@ -200,7 +200,7 @@ let CommitReset = React.createClass({
             from === 'login'
             ? (
               <Alert
-                message="由于安全以及管理需要，您需要在首次登录时设置新密码"
+                message="由于安全管理需要，首次登录需设置新密码"
                 type="warning"
                 showIcon
               />

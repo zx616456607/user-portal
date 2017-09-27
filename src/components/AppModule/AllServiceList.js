@@ -684,14 +684,10 @@ class ServiceList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let { page, size, name, currentCluster, serviceList } = nextProps
+    let { page, size, name, serviceList } = nextProps
     this.setState({
       serviceList: serviceList,
     })
-    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
-      this.loadServices(nextProps)
-      return
-    }
     if (page === this.props.page && size === this.props.size && name === this.props.name) {
       return
     }
