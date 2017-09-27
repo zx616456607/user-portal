@@ -12,6 +12,7 @@ import React, { Component } from 'react'
 import { Button, Input, Table, Modal, Form, Select, Icon } from 'antd'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
+import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import yaml from 'js-yaml'
 import { getClusterStorageList } from '../../../actions/cluster'
@@ -22,7 +23,6 @@ import { formatDate } from '../../../common/tools'
 import { DEFAULT_IMAGE_POOL } from '../../../constants'
 import NotificationHandler from '../../Notification'
 import './style/index.less'
-import cloneDeep from 'lodash/cloneDeep'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -444,7 +444,7 @@ function mapStateToProp(state, props) {
   const { current } = entities
   const clusterID = current.cluster.clusterID
   const nfsList = cluster.clusterStorage && cluster.clusterStorage[clusterID] && cluster.clusterStorage[clusterID].nfsList || []
-  let storageList = storage.storageList[DEFAULT_IMAGE_POOL] || {}
+  const storageList = storage.storageList[DEFAULT_IMAGE_POOL] || {}
   return {
     clusterID,
     nfsList,

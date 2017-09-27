@@ -339,6 +339,7 @@ const Normal = React.createClass({
       formItemLayout, form, standardFlag,
       fields, currentCluster, clusterNodes,
       isCanCreateVolume, imageConfigs,
+      id,
     } = this.props
     const { replicasInputDisabled } = this.state
     const { getFieldProps } = form
@@ -411,6 +412,7 @@ const Normal = React.createClass({
             setReplicasToDefault={this.setReplicasToDefault}
             mountPath={mountPath}
             key="storage"
+            id={id}
           />
           <FormItem
             {...formItemLayout}

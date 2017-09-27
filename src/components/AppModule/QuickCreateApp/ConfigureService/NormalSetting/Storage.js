@@ -12,6 +12,7 @@
 
 import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
+import cloneDeep from 'lodash/cloneDeep'
 import {
   Form, Tooltip, Icon,
   Switch, Radio, Input,
@@ -19,13 +20,12 @@ import {
   Checkbox, Col, Row,
   Spin, Modal
 } from 'antd'
-import { loadFreeVolume, createStorage } from '../../../../../actions/storage'
+import { loadFreeVolume } from '../../../../../actions/storage'
 import { volNameCheck } from '../../../../../common/naming_validation'
 import NotificationHandler from '../../../../../components/Notification'
 import classNames from 'classnames'
 import './style/Storage.less'
 import ContainerCatalogueModal from '../../../ContainerCatalogueModal'
-import cloneDeep from 'lodash/cloneDeep'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
@@ -33,7 +33,6 @@ const Option = Select.Option
 const MIN = 512
 const STEP = 512
 const MAX = 20480
-const PATH_REG = /^\/[a-zA-Z0-9_\-\/]*$/
 
 const Storage = React.createClass({
   propTypes: {
@@ -46,10 +45,8 @@ const Storage = React.createClass({
       volumeFormat: 'ext4',
       tips: '',
       createVolumeLoading: false,
-      addContainerPath: false,
-      isEdit: false,
-      currentIndex: undefined,
-      currentItem: {}
+      addContainerPathModal: false,
+      currentIndex: null,
     }
   },
   getVolumes() {
@@ -114,7 +111,7 @@ const Storage = React.createClass({
     })
   },
   translateStorageType(type) {
-    switch(type) {
+    switch (type) {
       case 'rbd':
         return '分布式存储'
       case 'hostPath':
@@ -182,65 +179,6 @@ const Storage = React.createClass({
     })
     focus && this.volumeNameInput.refs.input.focus()
   },
-  createVolume() {
-    const { volumeName, volumeFormat, volumeSize } = this.state
-    if (!volumeName || !volumeName.trim()) {
-      this.setTips('请填写存储卷名称', true)
-      return
-    }
-    const message = volNameCheck(volumeName, '存储名称')
-    if(message !== 'success'){
-      this.setTips(message, true)
-      return
-    }
-    const { currentCluster, createStorage } = this.props
-    const { clusterID } = currentCluster
-    const notification = new NotificationHandler()
-    this.setState({
-      createVolumeLoading: true,
-      tips: '',
-    })
-    const volumeConfig = {
-      driver: 'rbd',
-      name: volumeName,
-      driverConfig: {
-        size: volumeSize,
-        fsType: volumeFormat,
-      },
-      cluster: clusterID
-    }
-    createStorage(volumeConfig, {
-      success: {
-        func: () => {
-          notification.success('存储卷创建成功')
-          this.setState({
-            volumeName: '',
-            volumeSize: MIN,
-            volumeFormat: 'ext4',
-          })
-          this.getVolumes()
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (result) => {
-          notification.close()
-          if(result.statusCode == 409){
-            this.setTips('存储名称已被占用', true)
-            return
-          }
-          this.setTips('存储卷创建失败')
-        }
-      },
-      finally: {
-        func: () => {
-          this.setState({
-            createVolumeLoading: false
-          })
-        }
-      }
-    })
-  },
   onVolumeNameChange(e) {
     const value = e.target.value
     const newState = {
@@ -255,305 +193,55 @@ const Storage = React.createClass({
     if (!value) {
       value = 512
     }
-    this.setState({volumeSize: value})
+    this.setState({ volumeSize: value })
   },
-  renderCreateVolume() {
-    const { volumeName, volumeFormat, volumeSize, tips, createVolumeLoading } = this.state
-    return (
-      <div className="createVolume" key="createVolume">
-        <Input
-          className="volumeInput"
-          placeholder="存储卷名称"
-          value={volumeName}
-          onChange={this.onVolumeNameChange}
-          ref={ref => this.volumeNameInput = ref}
-          disabled={createVolumeLoading}
-        />
-        <InputNumber
-          className="volumeInput"
-          placeholder="存储卷大小"
-          min={MIN}
-          max={MAX}
-          step={STEP}
-          value={volumeSize}
-          onChange={this.onVolumeSizeChange}
-          disabled={createVolumeLoading}
-        />
-        <Select
-          className="volumeInput"
-          placeholder="请选择格式"
-          value={volumeFormat}
-          onChange={value => this.setState({volumeFormat: value})}
-          disabled={createVolumeLoading}
-        >
-          <Option value='ext4'>ext4</Option>
-          <Option value='xfs'>xfs</Option>
-        </Select>
-        <Button
-          onClick={this.createVolume}
-          loading={createVolumeLoading}
-        >
-          创建存储卷
-        </Button>
-        <span className="tips">{tips}</span>
-      </div>
-    )
-  },
-  renderVolumesOption(volume) {
-    const { form, allFields } = this.props
-    const { getFieldValue } = form
-    const storageKeys = getFieldValue('storageKeys') || []
-    const { name, fsType, size } = volume
-    const value = `${name}/${fsType}`
-    let disabled = false
-    for (let fieldsKey in allFields) {
-      if (allFields.hasOwnProperty(fieldsKey)) {
-        const storageKeysField = allFields[fieldsKey].storageKeys || {}
-        const storageKeys = storageKeysField.value || []
-        storageKeys.every(key => {
-          const volumeField = allFields[fieldsKey][`volume${key}`] || {}
-          const volumeValue = volumeField.value
-          if (volumeValue === value) {
-            disabled = true
-            return false
-          }
-          return true
-        })
-      }
-    }
-    return (
-      <Option
-        key={value}
-        disabled={disabled}
-      >
-        {name} {fsType} {size}
-      </Option>
-    )
-  },
-  checkMountPath(key, rule, value, callback) {
-    if (!value) {
-      return callback()
-    }
-    if (!PATH_REG.test(value)) {
-      return callback('请输入正确的路径')
-    }
-    const { getFieldValue } = this.props.form
-    const storageKeys = getFieldValue('storageKeys') || []
-    let error
-    storageKeys.every(_key => {
-      const mountPath = getFieldValue(`mountPath${_key}`)
-      if (_key !== key && value === mountPath) {
-        error = '已填写过该路径'
-        return false
-      }
-      return true
-    })
-    callback(error)
-  },
-  renderConfigureItem(key, index) {
-    const { avaliableVolume, form } = this.props
-    const { volumes } = avaliableVolume
-    const { getFieldProps, getFieldValue } = form
+  renderStorageList() {
+    const { form } = this.props
+    const { getFieldValue, getFieldProps } = form
+    const storageListProps = getFieldProps('storageList')
     const serviceType = getFieldValue('serviceType')
-    const storageType = getFieldValue('storageType')
     const storageList = getFieldValue('storageList') || []
-    const hostPathFlag = storageType === 'hostPath'
-    const mountPathkey = `mountPath${key}`
-    const hostPathkey = `hostPath${key}`
-    const volumekey = `volume${key}`
-    const readOnlykey = `readOnly${key}`
-    let mountPathProps
-    let hostPathProps
-    let volumeProps
-    let readOnlyProps
-    if(serviceType && Object.keys(storageList).length){
-      return storageList.map(item => {
-        return <Row key={`storagelist${item.index}`} className='storage_row_style'>
-          <Col span="5" className='text'>
-            { this.formatType(item.type) }
+    if (serviceType && storageList.length > 0) {
+      return storageList.map((item, index) => {
+        let {
+          type, mountPath, strategy,
+          readOnly, volume, name,
+          size, fsType
+        } = item
+        if (volume === 'create') {
+          volume = `${name} ${fsType || ''} ${size || ''}`
+        }
+        return <Row key={`storagelist${index}`} className='storage_row_style'>
+          <Col span="3" className='text'>
+            {this.formatType(type)}
           </Col>
-          <Col span="5" className='text'>
-            xxx ext4 512
+          <Col span="4" className='text'>
+            {volume || '-'}
           </Col>
-          <Col span="4" className='text mountPath_style'>
-            <Input value={item.mountPath} disabled/>
-          </Col>
-          <Col span="3">
-            <Checkbox checked disabled>{item.strategy ? '保留' : '删除'}</Checkbox>
+          <Col span="6" className='text mountPath_style'>
+            <Input value={mountPath} disabled />
           </Col>
           <Col span="3">
-            <Checkbox checked={item.readOnly} disabled>只读</Checkbox>
+            <Checkbox checked disabled>{strategy ? '保留' : '删除'}</Checkbox>
+          </Col>
+          <Col span="3">
+            <Checkbox checked={readOnly} disabled>只读</Checkbox>
           </Col>
           <Col span="4">
             <Button
               icon="edit"
-              style={{ marginRight: 8}}
-              onClick={() => this.editStorage(item)}
+              style={{ marginRight: 8 }}
+              onClick={() => this.editStorage(index)}
             />
             <Button
               icon="delete"
-              onClick={() => this.deleteStorage(item.index)}
+              onClick={() => this.deleteStorage(index)}
             />
           </Col>
         </Row>
       })
     }
     return <div></div>
-
-    if (serviceType && Object.keys(storageList).length) {
-      return storageList.map(item => {
-        return <Row>
-          <Col span="5">
-            {item.type}
-            {/*{ this.formatType(item.type) }*/}
-          </Col>
-          <Col span="5">
-            xxx ext4 512
-          </Col>
-          <Col span="4">
-            {item.mountPath}
-          </Col>
-          <Col span="3">
-            <Checkbox checked={item.strategy} disabled>保留</Checkbox>
-          </Col>
-          <Col span="3">
-            <Checkbox checked={item.readOnly} disabled>只读</Checkbox>
-          </Col>
-          <Col span="4">
-            <Button icon="edit" style={{ marginRight: 8}}></Button>
-            <Button icon="delete"></Button>
-          </Col>
-        </Row>
-      })
-
-      mountPathProps = getFieldProps(mountPathkey, {
-        rules: [
-          { required: true, message: '请输入容器目录' },
-          { validator: this.checkMountPath.bind(this, key) }
-        ],
-      })
-      if (hostPathFlag) {
-        hostPathProps = getFieldProps(hostPathkey, {
-          rules: [
-            { required: true, message: '请输入本地目录' },
-          ],
-        })
-      } else {
-        volumeProps = getFieldProps(volumekey, {
-          rules: [
-            { required: true, message: '请选择存储卷' },
-            // { validator: this.checkAppName }
-          ],
-        })
-        readOnlyProps = getFieldProps(readOnlykey)
-      }
-    }
-    return (
-      <Row gutter={16} className="configureItem" key={`configureItem${key}`}>
-        {
-          mountPathProps && (
-            <Col span={6}>
-              <FormItem key={mountPathkey}>
-                <Input
-                  className="formInput"
-                  placeholder="请输入容器目录"
-                  size="default"
-                  {...mountPathProps}
-                />
-              </FormItem>
-            </Col>
-          )
-        }
-        {
-          hostPathProps && (
-            <Col span={6}>
-              <FormItem key={hostPathkey}>
-                <Input
-                  className="formInput"
-                  placeholder="请输入本地目录"
-                  size="default"
-                  {...hostPathProps}
-                />
-              </FormItem>
-            </Col>
-          )
-        }
-        {
-          volumeProps && (
-            <Col span={6}>
-              <FormItem key={volumekey}>
-                <Select
-                  placeholder="请选择存储卷"
-                  size="default"
-                  {...volumeProps}
-                  showSearch
-                  optionFilterProp="children"
-                >
-                  { volumes.map(this.renderVolumesOption) }
-                </Select>
-              </FormItem>
-            </Col>
-          )
-        }
-        {
-          readOnlyProps && (
-            <Col span={3}>
-              <FormItem key={readOnlykey}>
-                <Checkbox {...readOnlyProps}>只读</Checkbox>
-              </FormItem>
-            </Col>
-          )
-        }
-        <Col span={6} className="operating">
-          {
-            !hostPathFlag && (
-              <Tooltip title="刷新">
-                <Button type="dashed" size="small" onClick={this.getVolumes} >
-                  <Icon type="reload"/>
-                </Button>
-              </Tooltip>
-            )
-          }
-          <Tooltip title="删除">
-            <Button
-              type="dashed"
-              size="small"
-              onClick={this.removeStorageKey.bind(this, key)}
-              disabled={index === 0}
-            >
-              <Icon type="delete" />
-            </Button>
-          </Tooltip>
-        </Col>
-      </Row>
-    )
-  },
-  addStorageKey() {
-    const { form } = this.props
-    const { setFieldsValue, getFieldValue, validateFields } = form
-    const storageType = getFieldValue('storageType')
-    const hostPathFlag = storageType === 'hostPath'
-    let storageKeys = getFieldValue('storageKeys') || []
-    const validateFieldsKeys = []
-    storageKeys.forEach(key => {
-      validateFieldsKeys.push(`mountPath${key}`)
-      if (hostPathFlag) {
-        validateFieldsKeys.push(`hostPath${key}`)
-      } else {
-        validateFieldsKeys.push(`volume${key}`)
-      }
-    })
-    validateFields(validateFieldsKeys, (errors, values) => {
-      if (!!errors) {
-        return
-      }
-      let uid = storageKeys[storageKeys.length - 1] || 0
-      uid ++
-      storageKeys = storageKeys.concat(uid)
-      setFieldsValue({
-        storageKeys,
-      })
-    })
   },
   removeStorageKey(key) {
     const { form } = this.props
@@ -565,103 +253,63 @@ const Storage = React.createClass({
   },
   renderConfigure() {
     const { avaliableVolume, form } = this.props
-    const { volumes, isFetching } = avaliableVolume
-    let createVolumeElement = <div key="createVolume"></div>
-    if (volumes.length < 1 && !isFetching) {
-      createVolumeElement = this.renderCreateVolume()
-    }
+    const { isFetching } = avaliableVolume
     const { getFieldValue } = form
-    const storageKeys = getFieldValue('storageKeys') || []
-    const serviceType = getFieldValue('serviceType') || []
+    const storageList = getFieldValue('storageList') || []
     const bindVolumesClass = classNames({
       'bindVolume': true,
       'ant-spin-container': avaliableVolume.isFetching,
     })
-    return <div>
+    return (
       <div>
-        {this.renderConfigureItem()}
+        <div>
+          {this.renderStorageList()}
+        </div>
+        <div className={bindVolumesClass} key="storageKeys">
+          <span className="addMountPath"
+            onClick={() => this.setState({
+              addContainerPathModal: true,
+              currentIndex: storageList.length,
+            })}
+          >
+            <Icon type="plus-circle-o" />
+            <span>添加一个容器目录</span>
+          </span>
+        </div>
       </div>
-      <div className={bindVolumesClass} key="storageKeys">
-        <span className="addMountPath"
-          onClick={() => this.setState({
-            addContainerPath: true,
-            isEdit: false,
-            currentItem: false,
-          })}
-        >
-          <Icon type="plus-circle-o" />
-          <span>添加一个容器目录</span>
-        </span>
-      </div>
-    </div>
-    return [
-      createVolumeElement,
-      <div className={bindVolumesClass} key="storageKeys">
-        {storageKeys.map(this.renderConfigureItem) }
-        <span className="addMountPath"
-          //onClick={this.addStorageKey}
-          onClick={() => this.setState({
-            addContainerPath: true,
-            currentItem: {},
-          })}
-        >
-          <Icon type="plus-circle-o" />
-          <span>添加一个容器目录</span>
-        </span>
-      </div>
-    ]
+    )
   },
-  getFieldInfo(info){
-    const { volumeList, isEdit, currentIndex } = this.state
+  callbackFields(fields) {
+    const { volumeList, currentIndex } = this.state
     const { form } = this.props
     let storageList = form.getFieldValue('storageList') || []
     const list = cloneDeep(storageList)
-    const type = info.type
-    if(type == 'cancel'){
+    const type = fields.type
+    if (type == 'cancel') {
       this.setState({
-        addContainerPath: false,
+        addContainerPathModal: false,
       })
       return
     }
-    if(type === 'confirm'){
+    if (type === 'confirm') {
       this.setState({
-        addContainerPath: false,
+        addContainerPathModal: false,
       })
-      if(isEdit){
-        for(let i = 0; i < list.length; i++){
-          if(list[i].index == currentIndex){
-            list[i].type = info.values.type
-            list[i].mountPath = info.values.mountPath
-            list[i].name = info.values.name
-            list[i].readOnly = info.values.readOnly
-            list[i].strategy = info.values.strategy
-            break
-          }
-        }
+      if (list[currentIndex]) {
+        list[currentIndex] = Object.assign({}, list[currentIndex], fields.values)
       } else {
-        let uid = list.length - 1
-        uid ++
-        const { type, mountPath, name, readOnly, strategy } = info.values
-        const newStorage = {
-          index: uid,
-          type,
-          mountPath,
-          name,
-          readOnly,
-          strategy,
-        }
-        list.push(newStorage)
+        list.push(fields.values)
       }
       form.setFieldsValue({
         storageList: list,
       })
     }
   },
-  formatType(type){
-    switch(type){
+  formatType(type) {
+    switch (type) {
       case 'host':
         return <span>host</span>
-      case 'exclusive':
+      case 'private':
         return <span>独享型（RBD）</span>
       case 'share':
         return <span>共享型（nfs）</span>
@@ -669,15 +317,13 @@ const Storage = React.createClass({
         return <span>未知</span>
     }
   },
-  editStorage(item){
+  editStorage(index) {
     this.setState({
-      currentItem: item,
-      currentIndex: item.index,
-      isEdit: true,
-      addContainerPath: true,
+      currentIndex: index,
+      addContainerPathModal: true,
     })
   },
-  deleteStorage(index){
+  deleteStorage(index) {
     const { form } = this.props
     const storageList = form.getFieldValue('storageList')
     const list = cloneDeep(storageList)
@@ -687,14 +333,18 @@ const Storage = React.createClass({
     })
   },
   render() {
-    const { formItemLayout, form, isCanCreateVolume, fields, avaliableVolume } = this.props
-    const { getFieldProps } = form
+    const {
+      formItemLayout, form, isCanCreateVolume,
+      fields, avaliableVolume, currentFields,
+    } = this.props
+    const { getFieldProps, getFieldValue } = form
     const { serviceType } = fields || {}
     const { isFetching } = avaliableVolume
     const serviceTypeProps = getFieldProps('serviceType', {
       valuePropName: 'checked',
       onChange: this.onServiceTypeChange
     })
+    const storageList = getFieldValue('storageList') || []
     const volumesClass = classNames({
       'volumes': true,
       'ant-spin-nested-loading': isFetching,
@@ -725,7 +375,7 @@ const Storage = React.createClass({
               !isCanCreateVolume && (
                 <span className="noVolumeServiceSpan">
                   <Tooltip title="无存储服务可用, 请配置存储服务">
-                    <Icon type="question-circle-o"/>
+                    <Icon type="question-circle-o" />
                   </Tooltip>
                 </span>
               )
@@ -735,7 +385,7 @@ const Storage = React.createClass({
               (serviceType && serviceType.value) && (
                 <div className={volumesClass}>
                   <div>独享型存储，仅支持一个容器实例读写操作；共享型支持多个容器实例同时对同一个存储卷读写操作；host 型存储支持在宿主机节点上保存数据。</div>
-                  <Spin className={volumeSpinClass}/>
+                  <Spin className={volumeSpinClass} />
                   {this.renderConfigure()}
                 </div>
               )
@@ -744,19 +394,21 @@ const Storage = React.createClass({
         </Col>
         <Modal
           title="添加容器目录"
-          visible={this.state.addContainerPath}
+          visible={this.state.addContainerPathModal}
           closable={true}
-          onCancel={() => this.setState({addContainerPath:false})}
+          onCancel={() => this.setState({ addContainerPathModal: false })}
           width="570px"
           maskClosable={false}
           wrapClassName="add_container_path"
           footer={[]}
         >
           <ContainerCatalogueModal
-            visible={this.state.addContainerPath}
-            getFieldInfo={this.getFieldInfo}
-            item={this.state.currentItem}
-            isEdit={this.state.isEdit}
+            visible={this.state.addContainerPathModal}
+            callbackFields={this.callbackFields}
+            fieldsList={storageList}
+            currentIndex={this.state.currentIndex}
+            replicas={currentFields.replicas && currentFields.replicas.value || 1}
+            isAutoScale={false}
             from={'createApp'}
           />
         </Modal>
@@ -769,24 +421,23 @@ function mapStateToProps(state, props) {
   const { entities, storage, quickCreateApp } = state
   const { current } = entities
   const { cluster } = current
-  const { avaliableVolume } = storage
   const { storageTypes } = cluster
   let isCanCreateVolume = true
-  if(!storageTypes || storageTypes.length <= 0) {
+  if (!storageTypes || storageTypes.length <= 0) {
     isCanCreateVolume = false
   }
+  const avaliableVolume = storage.avaliableVolume || {}
   return {
     currentCluster: cluster,
     isCanCreateVolume,
+    currentFields: quickCreateApp.fields[props.id] || {},
     avaliableVolume: {
       volumes: (avaliableVolume.data ? avaliableVolume.data.volumes : []),
       isFetching: avaliableVolume.isFetching,
     },
-    allFields: quickCreateApp.fields,
   }
 }
 
 export default connect(mapStateToProps, {
   loadFreeVolume,
-  createStorage,
 })(Storage)

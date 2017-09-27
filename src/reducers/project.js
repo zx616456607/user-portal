@@ -120,10 +120,11 @@ function projectList(state = {}, action) {
         isFetching: true
       })
     case ActionTypes.PROJECTS_LIST_SUCCESS:
+      const result = action.response.result.data || {}
       return Object.assign({}, state, {
         isFetching: false,
-        data: action.response.result.data.projects,
-        total: action.response.result.data.listMeta.total,
+        data: result.projects || [],
+        total: result.listMeta && result.listMeta.total || 0,
       })
     case ActionTypes.PROJECTS_LIST_FAILURE:
       return merge({}, state, {
