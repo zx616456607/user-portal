@@ -26,7 +26,7 @@ import CommonSearchInput from '../../../components/CommonSearchInput'
 import CreateStepFirst from './CreateStepFirst'
 import CreateStepSecond from './CreateStepSecond'
 import CreateStepThird from './CreateStepThird'
-import {CREATE_PROJECTS_ROLE_ID} from '../../../../constants'
+import {CREATE_PROJECTS_ROLE_ID, ROLE_SYS_ADMIN} from '../../../../constants'
 import isEmpty from 'lodash/isEmpty'
 
 let ProjectManage = React.createClass({
@@ -943,14 +943,13 @@ let ProjectManage = React.createClass({
 
 function mapStateToProps(state, props) {
   const {loginUser} = state.entities
-  const {globalRoles} = loginUser.info || {globalRoles: []}
+  const {globalRoles, role} = loginUser.info || {globalRoles: [], role: 0}
   let roleNum = 0
-  if (globalRoles.length) {
+  if (role === ROLE_SYS_ADMIN) {
+    roleNum = 1
+  } else if (globalRoles.length) {
     for (let i = 0; i < globalRoles.length; i++) {
-      if (globalRoles[i] === 'admin') {
-        roleNum = 1;
-        break
-      } else if (globalRoles[i] === 'project-creator') {
+      if (globalRoles[i] === 'project-creator') {
         roleNum = 2;
         break
       } else {
