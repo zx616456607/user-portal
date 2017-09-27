@@ -244,12 +244,9 @@ class AlarmGroup extends Component {
     });
   }
   getAutoScale = autoScale => {
-    if (autoScale && (!autoScale.length)) {
-      return '-'
-    }
-    return autoScale.map(item => {
+    return autoScale && autoScale.length ? autoScale.map(item => {
       return <div>{item.name}</div>
-    })
+    }) : '-'
   }
   render() {
     if (!this.props.groups) {
