@@ -36,7 +36,7 @@ const MAX = 20480
 
 const Storage = React.createClass({
   propTypes: {
-    mountPath: PropTypes.array,
+    mountPath: PropTypes.object,
   },
   getInitialState() {
     return {
