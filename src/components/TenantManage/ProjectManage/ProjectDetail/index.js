@@ -22,7 +22,6 @@ import { ListRole, CreateRole, ExistenceRole, GetRole, roleWithMembers, usersAdd
 import { parseAmount } from '../../../../common/tools'
 import Notification from '../../../../components/Notification'
 import TreeComponent from '../../../TreeForMembers'
-import cloneDeep from 'lodash/cloneDeep'
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
 import isEmpty from 'lodash/isEmpty'
@@ -30,6 +29,7 @@ import includes from 'lodash/includes'
 import CreateRoleModal from '../CreateRole'
 import { PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID, ROLE_SYS_ADMIN } from '../../../../../constants'
 import ResourceQuota from '../../../ResourceLimit'
+import { formatDate } from '../../../../common/tools'
 
 let checkedKeysDetail = []
 const TabPane = Tabs.TabPane;
@@ -1030,7 +1030,7 @@ class ProjectDetail extends Component {
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {projectDetail && projectDetail.createTime && projectDetail.createTime.replace(/T/g, ' ').replace(/Z/g, '')}
+                        {projectDetail && projectDetail.createTime && formatDate(projectDetail.createTime)}
                       </div>
                     </Col>
                   </Row>

@@ -288,7 +288,7 @@ class AlarmGroup extends Component {
       width: '19%',
       render: text => formatDate(text),
     }, {
-      title: '关联策略',
+      title: '告警策略',
       dataIndex: 'strategies',
       width: '15%',
       render: strategies => this.getStragegies(strategies)
