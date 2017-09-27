@@ -28,8 +28,8 @@ import { CREATE_TEAMS_ROLE_ID, ROLE_SYS_ADMIN } from '../../../../../constants'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import CreateTeamModal from '../../../AccountModal/CreateTeamModal'
 import NotificationHandler from '../../../../components/Notification'
-import SpaceRecharge from '../Recharge/SpaceRecharge'
 import Title from '../../../Title'
+import { formatDate } from '../../../../common/tools'
 
 let TeamTable = React.createClass({
   getInitialState() {
@@ -43,7 +43,7 @@ let TeamTable = React.createClass({
       addMember: false,
       targetKeys: [],
       originalKeys: [],
-      sort: "a,teamName",
+      sort: "d,teamName",
       filter: "",
       nowTeamID: '',
       tableSelected: [],
@@ -54,7 +54,6 @@ let TeamTable = React.createClass({
     const { scope, roleNum } = this.props
     const { loadUserTeamList } = scope.props
     const { sort } = this.state
-    // TODO filter team role
     let newFilter = ''
     if (filters.role && filters.role.length) {
       if (roleNum === 1) {
@@ -396,7 +395,7 @@ let TeamTable = React.createClass({
         dataIndex: 'creationTime',
         key: 'creationTime',
         width:'20%',
-        render: text => new Date(+new Date(text)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'')
+        render: text => formatDate(text)
       },
       {
         title: '我是该团队的',
@@ -465,7 +464,7 @@ class TeamManage extends Component {
       pageSize: 10,
       page: 1,
       current: 1,
-      sort: 'a,teamName',
+      sort: 'd,teamName',
       selected: [],
       userList:[],
       targetKeys: [],
@@ -514,7 +513,7 @@ class TeamManage extends Component {
     this.props.loadUserTeamList('default', {
       page: 1,
       size: 10,
-      sort: "a,teamName",
+      sort: "d,teamName",
       filter: "",
     })
   }

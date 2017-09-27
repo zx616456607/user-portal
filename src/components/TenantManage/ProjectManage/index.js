@@ -28,6 +28,7 @@ import CreateStepSecond from './CreateStepSecond'
 import CreateStepThird from './CreateStepThird'
 import {CREATE_PROJECTS_ROLE_ID, ROLE_SYS_ADMIN} from '../../../../constants'
 import isEmpty from 'lodash/isEmpty'
+import { formatDate } from '../../../common/tools'
 
 let ProjectManage = React.createClass({
 
@@ -58,8 +59,8 @@ let ProjectManage = React.createClass({
       userCountSort: undefined,
       clusterCountSort: undefined,
       balanceSort: undefined,
-      managerCountSort: undefined,
-      sort: '',
+      creation_timeSort: undefined,
+      sort: 'd,name',
       roleFilter: '',
       clearInput: false,
       searchName: '',
@@ -591,8 +592,8 @@ let ProjectManage = React.createClass({
       userCountSort: undefined,
       clusterCountSort: undefined,
       balanceSort: undefined,
-      managerCountSort: undefined,
-      sort: '',
+      creation_timeSort: undefined,
+      sort: 'd,name',
       clearInput: true,
       searchName: ''
     }, () => {
@@ -716,11 +717,27 @@ let ProjectManage = React.createClass({
         width: '10%',
         render: text => text ? text : 0
       }, {
-        title: '创建时间',
+        title: (
+          <div onClick={() => this.handleSort('creation_timeSort')}>
+            创建时间
+            <div className="ant-table-column-sorter">
+            <span
+              className={this.state.creation_timeSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
+              title="↑">
+              <i className="anticon anticon-caret-up"/>
+            </span>
+              <span
+                className={this.state.creation_timeSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+                title="↓">
+              <i className="anticon anticon-caret-down"/>
+            </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'creationTime',
         key: 'creationTime',
         width: '15%',
-        render: text => text.replace(/T/g, ' ').replace(/Z/g, '')
+        render: text => formatDate(text)
       }, {
         title: (
           <div onClick={() => this.handleSort('balanceSort')}>

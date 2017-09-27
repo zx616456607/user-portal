@@ -30,6 +30,7 @@ import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../../../const
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
 import includes from 'lodash/includes'
+import { formatDate } from '../../../../common/tools'
 
 let MemberList = React.createClass({
   getInitialState() {
@@ -786,7 +787,7 @@ class TeamDetail extends Component {
                 创建时间
               </Col>
               <Col span={22}>
-                {teamDetail && teamDetail.creationTime && new Date(+new Date(teamDetail.creationTime)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'')}
+                {teamDetail && teamDetail.creationTime && formatDate(teamDetail.creationTime)}
               </Col>
             </Row>
             <Row>
