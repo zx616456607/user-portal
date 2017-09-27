@@ -15,7 +15,7 @@ import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import yaml from 'js-yaml'
 import { getClusterStorageList } from '../../../actions/cluster'
-import { createStorage, loadStorageList, deleteStorage } from '../../../actions/storage'
+import { createStorage, loadStorageList, deleteStorage, searchStorage } from '../../../actions/storage'
 import PersistentVolumeClaim from '../../../../kubernetes/objects/persistentVolumeClaim'
 import { serviceNameCheck } from '../../../common/naming_validation'
 import { formatDate } from '../../../common/tools'
@@ -190,13 +190,37 @@ class ShareMemory extends Component {
 
   searchStorage() {
     const { searchInput } = this.state
-    this.loadData({
-      storageName: searchInput,
-    })
+    const { searchStorage } = this.props
+    searchStorage(searchInput)
+  }
+
+  formatStatus(status){
+    switch(status){
+      case 'pending':
+        return <span>
+        <i className="fa fa-circle icon-marginRight penging"></i>
+        创建中
+      </span>
+      case 'used':
+        return <span>
+        <i className="fa fa-circle icon-marginRight used"></i>
+        使用中
+      </span>
+      case 'unused':
+        return <span>
+        <i className="fa fa-circle icon-marginRight no_used"></i>
+        未使用
+      </span>
+      default:
+        return <span>
+        <i className="fa fa-circle icon-marginRight unknown"></i>
+        未知
+      </span>
+    }
   }
 
   render() {
-    const { form, nfsList, storageList, storageListIsFetching } = this.props
+    const { form, nfsList, storageList, storageListIsFetching, clusterID } = this.props
     const {
       selectedRowKeys,
       createShareMemoryVisible,
@@ -210,18 +234,25 @@ class ShareMemory extends Component {
         key: 'name',
         title: '存储名称',
         dataIndex: 'name',
-        width: '20%',
+        width: '15%',
         render: (text, record, index) => (
-          <Link to={`/app_manage/shareMemory/${text}`}>
+          <Link to={`/app_manage/shareMemory/${clusterID}/${text}`}>
             {text}
           </Link>
         )
       },
       {
+        key: 'status',
+        title: '状态',
+        dataIndex: 'status',
+        width: '10%',
+        render: (status, record) => <div>{ this.formatStatus(status, record)}</div>
+      },
+      {
         key: 'format',
         title: '类型',
         dataIndex: 'format',
-        width: '20%',
+        width: '15%',
       },
       {
         key: 'storageServer',
@@ -241,7 +272,7 @@ class ShareMemory extends Component {
         title: '创建时间',
         dataIndex: 'createTime',
         width: '20%',
-        sorter: (a, b) => a - b,
+        sorter: (a, b) => new Date(formatDate(a.createTime)) - new Date(formatDate(b.createTime)),
         render: text => formatDate(text)
       }
     ]
@@ -257,7 +288,7 @@ class ShareMemory extends Component {
       <QueueAnim className='share_memory'>
         <div id='share_memory' key="share_memory">
           <div className='alertRow'>
-            共享型存储支持多个容器实例同时对同一个共享目录经行读写操作
+            共享型存储支持多个容器实例同时对同一个共享目录进行读写操作
           </div>
           <div className='data_container'>
             <div className='handle_box'>
@@ -427,4 +458,5 @@ export default connect(mapStateToProp, {
   createStorage,
   loadStorageList,
   deleteStorage,
+  searchStorage,
 })(ShareMemory)

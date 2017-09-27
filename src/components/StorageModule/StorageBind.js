@@ -39,7 +39,7 @@ class StorageBind extends Component {
     super(props)
   }
   componentWillMount() {
-    this.props.getVolumeBindInfo(this.props.pool, this.props.cluster, this.props.volumeName)
+    this.props.getVolumeBindInfo(this.props.cluster, this.props.volumeName)
   }
   render() {
     const {formatMessage} = this.props.intl

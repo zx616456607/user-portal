@@ -36,6 +36,14 @@ export function loadStorageList(pool, cluster, query, callback) {
   }
 }
 
+export const SEARCH_STORAGE = 'SEARCH_STORAGE'
+export function searchStorage(keyword){
+  return {
+    type: SEARCH_STORAGE,
+    keyword,
+  }
+}
+
 export const STORAGE_CREATE_REQUEST = 'STORAGE_CREATE_REQUEST'
 export const STORAGE_CREATE_SUCCESS = 'STORAGE_CREATE_SUCCESS'
 export const STORAGE_CREATE_FAILURE = 'STORAGE_CREATE_FAILURE'
@@ -61,17 +69,17 @@ export const STORAGE_DETAIL_REQUEST = 'STORAGE_DETAIL_REQUEST'
 export const STORAGE_DETAIL_SUCCESS = 'STORAGE_DETAIL_SUCCESS'
 export const STORAGE_DETAIL_FAILURE = 'STORAGE_DETAIL_FAILURE'
 export const STORAGE_DETAIL_CHANGE = 'STORAGE_DETAIL_CHANGE'
-export function loadStorageInfo(pool, cluster, name) {
+export function loadStorageInfo(cluster, name, callback) {
   return {
-    pool,
     [FETCH_API]: {
       types: [STORAGE_DETAIL_REQUEST, STORAGE_DETAIL_SUCCESS, STORAGE_DETAIL_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/${name}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/volumes/${name}/consumption`,
       options: {
         method: 'GET'
       },
       schema: {}//Schemas.STORAGE
-    }
+    },
+    callback,
   }
 }
 
@@ -247,11 +255,11 @@ export const STORAGE_GETVOLUMEBIND_REQUEST = 'STORAGE_GETVOLUMEBIND_REQUEST'
 export const STORAGE_GETVOLUMEBIND_SUCCESS = 'STORAGE_GETVOLUMEBIND_SUCCESS'
 export const STORAGE_GETVOLUMEBIND_FAILURE = 'STORAGE_GETVOLUMEBIND_FAILURE'
 
-export function getVolumeBindInfo(pool, cluster, volumeName, callback) {
+export function getVolumeBindInfo(cluster, volumeName, callback) {
   return {
     [FETCH_API]: {
       types: [STORAGE_GETVOLUMEBIND_REQUEST, STORAGE_GETVOLUMEBIND_SUCCESS, STORAGE_GETVOLUMEBIND_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/${volumeName}/bindinfo`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/volumes/${volumeName}/bindinfo`,
       schema: {}
     },
     callback
