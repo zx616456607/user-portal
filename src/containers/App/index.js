@@ -15,7 +15,7 @@ import ErrorPage from '../ErrorPage'
 import Header from '../../components/Header'
 import DefaultSider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
-import { Link } from 'react-router'
+import { browserHistory, Link } from 'react-router'
 import { isEmptyObject, getPortalRealMode } from '../../common/tools'
 import { resetErrorMessage } from '../../actions'
 import { setSockets, loadLoginUserDetail } from '../../actions/entities'
@@ -58,6 +58,7 @@ class App extends Component {
       upgradeModalShow: false,
       upgradeFrom: null,
       resourcePermissionModal: false,
+      switchSpaceOrCluster: false,
     }
   }
 
@@ -82,14 +83,40 @@ class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { errorMessage, current, pathname, resetErrorMessage, redirectUrl, siderStyle } = nextProps
-    const { statusWatchWs } = this.props.sockets
-    const { space, cluster } = current
-    let notification = new NotificationHandler()
-    if (space.namespace !== this.props.current.space.namespace || cluster.clusterID !== this.props.current.cluster.clusterID) {
+    const {
+      errorMessage,
+      pathname,
+      resetErrorMessage,
+      redirectUrl,
+      siderStyle,
+      current: newCurrent,
+    } = nextProps
+    this.setState({ siderStyle })
+    const {
+      sockets,
+      current: oldCurrent,
+    } = this.props
+    const { statusWatchWs } = sockets
+    const { space: newSpace, cluster: newCluster } = newCurrent
+    const { space: oldSpace, cluster: oldCluster } = oldCurrent
+    if (oldSpace.namespace && (newSpace.namespace !== oldSpace.namespace
+      || newCluster.clusterID !== oldCluster.clusterID)
+    ) {
       statusWatchWs && statusWatchWs.close()
+      clearTimeout(this.switchSpaceOrClusterTimeout)
+      this.setState({
+        switchSpaceOrCluster: true,
+      }, () => {
+        this.switchSpaceOrClusterTimeout = setTimeout(() => {
+          this.setState({
+            switchSpaceOrCluster: false,
+          })
+        }, 200)
+      })
+      if (pathname.match(/\//g).length > 2) {
+        browserHistory.push('/')
+      }
     }
-    this.setState({siderStyle})
     // Set previous location
     if (redirectUrl !== this.props.redirectUrl) {
       window.previousLocation = this.props.redirectUrl
@@ -97,6 +124,7 @@ class App extends Component {
     if (!errorMessage) {
       return
     }
+    let notification = new NotificationHandler()
     const { statusCode, message } = errorMessage.error
     // 登录失效
     if (message === LOGIN_EXPIRED_MESSAGE) {
@@ -258,13 +286,20 @@ class App extends Component {
 
   getChildren() {
     const { children, errorMessage, loginUser } = this.props
-    const { loadLoginUserSuccess, loginErr } = this.state
+    const { loadLoginUserSuccess, loginErr, switchSpaceOrCluster } = this.state
     if (isEmptyObject(loginUser) && !loadLoginUserSuccess) {
       return (
         <ErrorPage code={loginErr.statusCode} errorMessage={{ error: loginErr }} />
       )
     }
     if (!errorMessage) {
+      if (switchSpaceOrCluster) {
+        return (
+          <div className="loading">
+            <Spin size="large" /> 切换项目/集群中...
+          </div>
+        )
+      }
       return children
     }
     const { statusCode } = errorMessage.error

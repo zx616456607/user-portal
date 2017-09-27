@@ -12,6 +12,7 @@
 
 import Deployment from '../../../../kubernetes/objects/deployment'
 import Service from '../../../../kubernetes/objects/service'
+import PersistentVolumeClaim from '../../../../kubernetes/objects/persistentVolumeClaim'
 import { getResourceByMemory } from '../../../common/tools'
 import {
   RESOURCES_DIY,
@@ -44,7 +45,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     DIYCPU, // 自定义配置-CPU
     serviceType, // 服务类型(有状态, 无状态)
     storageType, // 存储类型(rbd, hostPath)
-    storageKeys, // 存储的 keys(数组)
+    storageList, // 存储的配置列表
+    // storageKeys, // 存储的 keys(数组)
     replicas, // 实例数量
     accessMethod, //访问方式
     publicNetwork, //公网出口
@@ -98,15 +100,59 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
   const { cpu, memory } = getResourceByMemory(resourceType, DIYMemory, DIYCPU)
   deployment.setContainerResources(serviceName, memory, cpu)
   // 服务类型&存储
+  const storage = []
   if (serviceType) {
-    storageKeys.forEach(key => {
+    storageList.forEach((item, index) => {
       // volume
       const volume = {
-        name: `volume-${key}`
+        name: `volume-${index}`
       }
-      if (storageType == 'rbd') {
+      let {
+        type, mountPath, strategy,
+        readOnly, name, volumeIsOld,
+        size, fsType, storageClassName,
+      } = item
+      // @Todo: reclaimPolicy??
+      if (type === 'host') {
+        //
+      } else {
+        let volumeInfo = item.volume
+        let image
+        if (volumeInfo === 'create') {
+          image = name
+          const persistentVolumeClaim = new PersistentVolumeClaim({
+            name,
+            storageType: type === 'private'
+              ? 'ceph'
+              : 'nfs',
+            storageClassName,
+            fsType,
+          })
+          storage.push(persistentVolumeClaim)
+        } else {
+          volumeInfo = volumeInfo.split(' ')
+          image = volumeInfo[0]
+          fsType = volumeInfo[1]
+        }
+        const volumeMounts = [{
+          mountPath,
+          readOnly,
+        }]
+        if (volumeIsOld) {
+          volume.image = image
+          volume.fsType = fsType
+          deployment.addContainerVolume(serviceName, volume, volumeMounts)
+        } else {
+          volume.persistentVolumeClaim = {
+            claimName: image,
+            readOnly,
+          }
+          deployment.addContainerVolumeV2(serviceName, volume, volumeMounts)
+        }
+      }
+      /* if (storageType == 'rbd') {
         let volumeInfo = fieldsValues[`${VOLUME}${key}`]
-        volumeInfo = volumeInfo.split('/')
+        volumeInfo = volumeInfo.split(' ')
         volume.image = volumeInfo[0]
         volume.fsType = volumeInfo[1]
       } else if (storageType == 'hostPath') {
@@ -114,15 +160,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
         volume.hostPath = {
           path: hostPath,
         }
-      }
-      // volumeMounts
-      const mountPath = fieldsValues[`${MOUNT_PATH}${key}`]
-      const readOnly = fieldsValues[`${READ_ONLY}${key}`]
-      const volumeMounts = [{
-        mountPath,
-        readOnly,
-      }]
-      deployment.addContainerVolume(serviceName, volume, volumeMounts)
+      } */
     })
   }
   // 设置实例数量
@@ -265,5 +303,5 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     })
   }
 
-  return { deployment, service }
+  return { deployment, service, storage }
 }

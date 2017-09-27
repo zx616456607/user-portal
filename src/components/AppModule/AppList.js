@@ -495,11 +495,7 @@ class AppList extends Component {
     this.setState({
       appList: nextProps.appList
     })
-    let { page, size, name, currentCluster, sortOrder, sortBy } = nextProps
-    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
-      this.loadData(nextProps)
-      return
-    }
+    let { page, size, name, sortOrder, sortBy } = nextProps
     if (page === this.props.page && size === this.props.size && name === this.props.name
       && sortOrder == this.props.sortOrder && sortBy == this.props.sortBy) {
       return

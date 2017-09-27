@@ -25,11 +25,12 @@ import { connect } from 'react-redux'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import NotificationHandler from '../../../../components/Notification'
 import CommonSearchInput from '../../../../components/CommonSearchInput'
-import { TEAM_MANAGE_ROLE_ID } from '../../../../../constants'
+import { TEAM_MANAGE_ROLE_ID, ROLE_SYS_ADMIN } from '../../../../../constants'
 import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
 import includes from 'lodash/includes'
+import { formatDate } from '../../../../common/tools'
 
 let MemberList = React.createClass({
   getInitialState() {
@@ -258,7 +259,7 @@ let MemberList = React.createClass({
         width: '20%',
         render: (text, record, index) => (
           <div className="cardBtns">
-            <Button disabled={roleNum === 3 || isNotManager}
+            <Button disabled={roleNum !== 1 && isNotManager}
               className="delBtn" onClick={(e)=> this.removeMember(e,record) }>
               移除成员
             </Button>
@@ -444,9 +445,9 @@ class TeamDetail extends Component {
     })
   }
   handleChange(targetKeys) {
-    const { originalKeys } = this.state
+    const { originalLeader } = this.state
     let notify = new NotificationHandler()
-    if (!targetKeys.includes(originalKeys[0])) {
+    if (targetKeys.includes(originalLeader[0])) {
       notify.info('移除团队管理者前请先移交团队')
       return
     }
@@ -786,7 +787,7 @@ class TeamDetail extends Component {
                 创建时间
               </Col>
               <Col span={22}>
-                {teamDetail && teamDetail.creationTime && new Date(+new Date(teamDetail.creationTime)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'')}
+                {teamDetail && teamDetail.creationTime && formatDate(teamDetail.creationTime)}
               </Col>
             </Row>
             <Row>
@@ -825,11 +826,11 @@ class TeamDetail extends Component {
                     {
                       (roleNum === 1 || !isNotManager) &&
                       [
-                        <Button type="primary" size="large" className="addMemberBtn"
+                        <Button key="addMemberBtn" type="primary" size="large" className="addMemberBtn"
                               onClick={this.addNewMember}>
                           <i className='fa fa-plus' /> 编辑团队成员
                         </Button>,
-                        <Button type="ghost" size="large" className="transferTeamLeader"
+                        <Button key="transferTeamLeader" type="ghost" size="large" className="transferTeamLeader"
                               onClick={this.transferTeamLeader.bind(this)}>
                         移交团队</Button>
                       ]
@@ -986,13 +987,12 @@ function mapStateToProp(state, props) {
     }
   }
   const userDetail = state.entities.loginUser.info
-  const { globalRoles } = userDetail || { globalRoles: [] }
-  if (globalRoles.length) {
+  const { globalRoles, role } = userDetail || { globalRoles: [], role: 0 }
+  if (role === ROLE_SYS_ADMIN) {
+    roleNum = 1
+  } else if (globalRoles.length) {
     for (let i = 0; i < globalRoles.length; i++) {
-      if (globalRoles[i] === 'admin') {
-        roleNum = 1;
-        break
-      } else if (globalRoles[i] === 'team-creator') {
+      if (globalRoles[i] === 'team-creator') {
         roleNum = 2;
         break
       } else {

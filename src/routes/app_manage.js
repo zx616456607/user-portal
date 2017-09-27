@@ -66,7 +66,7 @@ const appManageRoutes = [{
   path: 'hostMemory/:host_name',
   component: require('../components/StorageModule/HostMemory/HostStorageDetail').default,
 },{
-  path: 'shareMemory/:share_name',
+  path: 'shareMemory/:cluster/:share_name',
   component: require('../components/StorageModule/ShareMemory/ShareStorageDetail').default,
 },{
   path: 'configs',

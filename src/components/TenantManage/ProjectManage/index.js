@@ -26,8 +26,9 @@ import CommonSearchInput from '../../../components/CommonSearchInput'
 import CreateStepFirst from './CreateStepFirst'
 import CreateStepSecond from './CreateStepSecond'
 import CreateStepThird from './CreateStepThird'
-import {CREATE_PROJECTS_ROLE_ID} from '../../../../constants'
+import {CREATE_PROJECTS_ROLE_ID, ROLE_SYS_ADMIN} from '../../../../constants'
 import isEmpty from 'lodash/isEmpty'
+import { formatDate } from '../../../common/tools'
 
 let ProjectManage = React.createClass({
 
@@ -58,8 +59,8 @@ let ProjectManage = React.createClass({
       userCountSort: undefined,
       clusterCountSort: undefined,
       balanceSort: undefined,
-      managerCountSort: undefined,
-      sort: '',
+      creation_timeSort: undefined,
+      sort: 'd,name',
       roleFilter: '',
       clearInput: false,
       searchName: '',
@@ -363,7 +364,13 @@ let ProjectManage = React.createClass({
       Object.assign(users[i], {key: users[i].userID, title: users[i].namespace, chosen: false})
     }
   },
-
+  getSystemAdmin(users) {
+    let adminIdArr = []
+    users.forEach(item => {
+      item.role === ROLE_SYS_ADMIN && adminIdArr.push(item.userID)
+    })
+    return adminIdArr
+  },
   openRightModal() {
     const {loadUserList, roleWithMembers} = this.props;
     loadUserList({
@@ -372,8 +379,10 @@ let ProjectManage = React.createClass({
       success: {
         func: (res) => {
           this.formatUserList(res.users)
+          const systemRoleID = this.getSystemAdmin(res.users)
           this.setState({
-            userList: res
+            userList: res,
+            systemRoleID
           }, () => {
             roleWithMembers({
               roleID: CREATE_PROJECTS_ROLE_ID,
@@ -509,7 +518,13 @@ let ProjectManage = React.createClass({
     return option.title.indexOf(inputValue) > -1;
   },
 
-  handleChange(targetKeys, direction, moveKeys) {
+  handleChange(targetKeys) {
+    const { systemRoleID } = this.state
+    const result = systemRoleID.every(item => targetKeys.includes(item))
+    let notify = new Notification()
+    if (!result) {
+      return notify.info('禁止移除系统管理员')
+    }
     this.setState({targetKeys});
   },
 
@@ -591,8 +606,8 @@ let ProjectManage = React.createClass({
       userCountSort: undefined,
       clusterCountSort: undefined,
       balanceSort: undefined,
-      managerCountSort: undefined,
-      sort: '',
+      creation_timeSort: undefined,
+      sort: 'd,name',
       clearInput: true,
       searchName: ''
     }, () => {
@@ -641,7 +656,7 @@ let ProjectManage = React.createClass({
     const step = this.props.location.query.step || '';
     const {roleNum} = this.props;
     const {payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, 
-      paySinglePro, userList, deleteSingleChecked, filteredInfo
+      paySinglePro, userList, deleteSingleChecked, filteredInfo, systemRoleID
     } = this.state;
     const pageOption = {
       simple: true,
@@ -716,11 +731,27 @@ let ProjectManage = React.createClass({
         width: '10%',
         render: text => text ? text : 0
       }, {
-        title: '创建时间',
+        title: (
+          <div onClick={() => this.handleSort('creation_timeSort')}>
+            创建时间
+            <div className="ant-table-column-sorter">
+            <span
+              className={this.state.creation_timeSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
+              title="↑">
+              <i className="anticon anticon-caret-up"/>
+            </span>
+              <span
+                className={this.state.creation_timeSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+                title="↓">
+              <i className="anticon anticon-caret-down"/>
+            </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'creationTime',
         key: 'creationTime',
         width: '15%',
-        render: text => text.replace(/T/g, ' ').replace(/Z/g, '')
+        render: text => formatDate(text)
       }, {
         title: (
           <div onClick={() => this.handleSort('balanceSort')}>
@@ -943,14 +974,13 @@ let ProjectManage = React.createClass({
 
 function mapStateToProps(state, props) {
   const {loginUser} = state.entities
-  const {globalRoles} = loginUser.info || {globalRoles: []}
+  const {globalRoles, role} = loginUser.info || {globalRoles: [], role: 0}
   let roleNum = 0
-  if (globalRoles.length) {
+  if (role === ROLE_SYS_ADMIN) {
+    roleNum = 1
+  } else if (globalRoles.length) {
     for (let i = 0; i < globalRoles.length; i++) {
-      if (globalRoles[i] === 'admin') {
-        roleNum = 1;
-        break
-      } else if (globalRoles[i] === 'project-creator') {
+      if (globalRoles[i] === 'project-creator') {
         roleNum = 2;
         break
       } else {

@@ -194,8 +194,9 @@ exports.getBindInfo = function* () {
 
 exports.getAvailableVolume = function*() {
   const cluster = this.params.cluster
+  const query = this.query
   const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
-  const response = yield volumeApi.getBy([cluster, 'volumes', 'available'], null)
+  const response = yield volumeApi.getBy([cluster, 'volumes', 'available'], query)
   this.status = response.code
   this.body = response
 }

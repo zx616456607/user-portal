@@ -169,10 +169,10 @@ export function serviceNameCheck(name, itemName, existNameFlag) {
     errorMsg = '请以小写字母开头';
     return errorMsg;
   }
-  //a-zA-Z0-9_- body check
-  let bodyCheck = new RegExp('^[a-z]{1}[a-z0-9_-]*$');
+  //a-zA-Z0-9- body check
+  let bodyCheck = new RegExp('^[a-z]{1}[a-z0-9\-]*$');
   if (!bodyCheck.test(name)) {
-    errorMsg = '由小写字母、数字、中划线-、下划线_组成';
+    errorMsg = '由小写字母、数字、中划线-组成';
     return errorMsg;
   }
   //min length check
@@ -191,7 +191,7 @@ export function serviceNameCheck(name, itemName, existNameFlag) {
     return errorMsg;
   }
   //a-z0-9 end check
-  let endCheck = new RegExp('^[a-z]{1}[a-z0-9_\-]{1,61}[a-z0-9]$');
+  let endCheck = new RegExp('^[a-z]{1}[a-z0-9\-]{1,61}[a-z0-9]$');
   if (!endCheck.test(name)) {
     errorMsg = '由小写字母或数字结尾';
     return errorMsg;

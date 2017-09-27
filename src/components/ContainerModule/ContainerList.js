@@ -673,14 +673,10 @@ class ContainerList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let { page, size, name, containerList, cluster, sortOrder, currentCluster } = nextProps
+    let { page, size, name, containerList, sortOrder } = nextProps
     this.setState({
       containerList
     })
-    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
-      this.loadData(nextProps)
-      return
-    }
     if (page === this.props.page && size === this.props.size && name === this.props.name
       && sortOrder == this.props.sortOrder) {
       return
