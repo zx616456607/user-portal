@@ -15,7 +15,7 @@ import ErrorPage from '../ErrorPage'
 import Header from '../../components/Header'
 import DefaultSider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
-import { Link } from 'react-router'
+import { browserHistory, Link } from 'react-router'
 import { isEmptyObject, getPortalRealMode } from '../../common/tools'
 import { resetErrorMessage } from '../../actions'
 import { setSockets, loadLoginUserDetail } from '../../actions/entities'
@@ -113,6 +113,9 @@ class App extends Component {
           })
         }, 200)
       })
+      if (pathname.match(/\//g).length > 2) {
+        browserHistory.push('/')
+      }
     }
     // Set previous location
     if (redirectUrl !== this.props.redirectUrl) {
