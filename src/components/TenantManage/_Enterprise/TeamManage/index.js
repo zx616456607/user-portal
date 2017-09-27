@@ -24,13 +24,12 @@ import {
 } from '../../../../actions/team'
 import { usersAddRoles, roleWithMembers, usersLoseRoles } from '../../../../actions/role'
 import { chargeTeamspace } from '../../../../actions/charge'
-import { ROLE_SYS_ADMIN } from '../../../../../constants'
+import { CREATE_TEAMS_ROLE_ID, ROLE_SYS_ADMIN } from '../../../../../constants'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import CreateTeamModal from '../../../AccountModal/CreateTeamModal'
 import NotificationHandler from '../../../../components/Notification'
 import SpaceRecharge from '../Recharge/SpaceRecharge'
 import Title from '../../../Title'
-import { CREATE_TEAMS_ROLE_ID } from '../../../../../constants'
 
 let TeamTable = React.createClass({
   getInitialState() {
@@ -773,7 +772,7 @@ function mapStateToProp(state, props) {
   const teams = state.user.teams
   const userDetail = state.entities.loginUser.info
   const { loginUser } = state.entities
-  const { globalRoles, userID } = loginUser.info || { globalRoles: [], userID: '' }
+  const { globalRoles, userID, role } = loginUser.info || { globalRoles: [], userID: '', role: 0 }
   let teamSpacesList = []
   if (teams.result) {
     if (teams.result.teams) {
@@ -821,12 +820,11 @@ function mapStateToProp(state, props) {
   if (team.teamspaces.result) {
     teamSpacesList = team.teamspaces.result.data
   }
-  if (globalRoles.length) {
+  if (role === ROLE_SYS_ADMIN) {
+    roleNum = 1
+  } else if (globalRoles.length) {
     for (let i = 0; i < globalRoles.length; i++) {
-      if (globalRoles[i] === 'admin') {
-        roleNum = 1;
-        break
-      } else if (globalRoles[i] === 'team-creator') {
+      if (globalRoles[i] === 'team-creator') {
         roleNum = 2;
         break
       } else {

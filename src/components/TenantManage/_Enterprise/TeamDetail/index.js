@@ -25,7 +25,7 @@ import { connect } from 'react-redux'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import NotificationHandler from '../../../../components/Notification'
 import CommonSearchInput from '../../../../components/CommonSearchInput'
-import { TEAM_MANAGE_ROLE_ID } from '../../../../../constants'
+import { TEAM_MANAGE_ROLE_ID, ROLE_SYS_ADMIN } from '../../../../../constants'
 import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
@@ -986,13 +986,12 @@ function mapStateToProp(state, props) {
     }
   }
   const userDetail = state.entities.loginUser.info
-  const { globalRoles } = userDetail || { globalRoles: [] }
-  if (globalRoles.length) {
+  const { globalRoles, role } = userDetail || { globalRoles: [], role: 0 }
+  if (role === ROLE_SYS_ADMIN) {
+    roleNum = 1
+  } else if (globalRoles.length) {
     for (let i = 0; i < globalRoles.length; i++) {
-      if (globalRoles[i] === 'admin') {
-        roleNum = 1;
-        break
-      } else if (globalRoles[i] === 'team-creator') {
+      if (globalRoles[i] === 'team-creator') {
         roleNum = 2;
         break
       } else {
