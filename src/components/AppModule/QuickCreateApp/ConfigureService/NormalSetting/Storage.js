@@ -209,7 +209,7 @@ const Storage = React.createClass({
           size, fsType
         } = item
         if (volume === 'create') {
-          volume = `${name} ${fsType || ''} ${size || ''}`
+          volume = `${name} ${fsType || '-'}`
         }
         return <Row key={`storagelist${index}`} className='storage_row_style'>
           <Col span="3" className='text'>

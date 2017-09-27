@@ -47,7 +47,6 @@ class ProjectDetail extends Component {
       characterModal: false,
       payNumber: 10,
       projectDetail: {},
-      projectClusters: [],
       dropVisible: false,
       UnRequest: 0,
       comment: '',
@@ -84,18 +83,7 @@ class ProjectDetail extends Component {
     const { GetProjectsAllClusters } = this.props;
     GetProjectsAllClusters({
       projectsName: name
-    }, {
-        success: {
-          func: (res) => {
-            if (res.statusCode === 200) {
-              this.setState({
-                projectClusters: res.data.clusters,
-              })
-            }
-          },
-          isAsync: true
-        }
-      })
+    })
   }
   loadRoleList() {
     const { ListRole } = this.props;
@@ -690,12 +678,12 @@ class ProjectDetail extends Component {
     this.getProjectMember(memberType, value, !filterFlag)
   }
   render() {
-    const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
+    const { payNumber, projectDetail, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
       filterFlag, isManager, roleNameArr, getRoleLoading
     } = this.state;
     const TreeNode = Tree.TreeNode;
-    const { form, roleNum } = this.props;
+    const { form, roleNum, projectClusters } = this.props;
     const { getFieldProps } = form;
     const loopFunc = data => data.length > 0 && data.map((item) => {
       return <TreeNode key={item.key} title={item.userName} disableCheckbox={true} />;
@@ -724,18 +712,18 @@ class ProjectDetail extends Component {
           if (item.status === 1) {
             if (flag) {
               return (
-                <div className="clusterStatus applyingStatus" key={`${item.cluster.clusterID}-status`}>
-                  <span>{item.cluster.clusterName}</span>
+                <div className="clusterStatus applyingStatus" key={`${item.clusterID}-status`}>
+                  <span>{item.clusterName}</span>
                   {this.clusterStatus(item.status, true)}
                 </div>
               )
             }
             return (
-              <dd className="topList" key={item.cluster.clusterID}>
-                <span>{item.cluster.clusterName}</span>
+              <dd className="topList" key={item.clusterID}>
+                <span>{item.clusterName}</span>
                 <div>
                   {this.clusterStatus(item.status)}
-                  <Icon type="cross-circle-o" className="pull-right pointer" style={{ marginLeft: '10px' }} onClick={() => this.updateProjectClusters(item.cluster.clusterID, 0)} />
+                  <Icon type="cross-circle-o" className="pull-right pointer" style={{ marginLeft: '10px' }} onClick={() => this.updateProjectClusters(item.clusterID, 0)} />
                 </div>
               </dd>
             )
@@ -749,8 +737,8 @@ class ProjectDetail extends Component {
           if (item.status === 2) {
             if (flag) {
               return (
-                <div className="clusterStatus appliedStatus" key={`${item.cluster.clusterID}-status`}>
-                  <span>{item.cluster.clusterName}</span>
+                <div className="clusterStatus appliedStatus" key={`${item.clusterID}-status`}>
+                  <span>{item.clusterName}</span>
                   {this.clusterStatus(item.status, true)}
                   {
                     (roleNum === 1 || isManager) &&
@@ -760,22 +748,22 @@ class ProjectDetail extends Component {
                   }
                   <Modal title="移除集群" visible={this.state.deleteClusterModal}
                     onCancel={() => this.setState({ deleteClusterModal: false })}
-                    onOk={() => { this.updateProjectClusters(item.cluster.clusterID, 0); this.setState({ deleteClusterModal: false }) }}
+                    onOk={() => { this.updateProjectClusters(item.clusterID, 0); this.setState({ deleteClusterModal: false }) }}
                   >
                     <div className="modalColor">
                       <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-                      移除集群后，该集群下的资源也将被移除，此操作不可逆，是否确定移除已授权的集群{item.cluster.clusterName}？
+                      移除集群后，该集群下的资源也将被移除，此操作不可逆，是否确定移除已授权的集群{item.clusterName}？
                     </div>
                   </Modal>
                 </div>
               )
             }
             return (
-              <dd className="topList" key={item.cluster.clusterID}>
-                <span>{item.cluster.clusterName}</span>
+              <dd className="topList" key={item.clusterID}>
+                <span>{item.clusterName}</span>
                 <div>
                   {this.clusterStatus(item.status)}
-                  {/*<Icon type="cross-circle-o" className="pull-right pointer" style={{marginLeft:'10px'}} onClick={()=>this.updateProjectClusters(item.cluster.clusterID,0)}/>*/}
+                  {/*<Icon type="cross-circle-o" className="pull-right pointer" style={{marginLeft:'10px'}} onClick={()=>this.updateProjectClusters(item.clusterID,0)}/>*/}
                 </div>
               </dd>
             )
@@ -789,21 +777,21 @@ class ProjectDetail extends Component {
           if (item.status === 3) {
             if (flag) {
               return (
-                <div className="clusterStatus rejectStatus" key={`${item.cluster.clusterID}-status`}>
-                  <span>{item.cluster.clusterName}</span>
+                <div className="clusterStatus rejectStatus" key={`${item.clusterID}-status`}>
+                  <span>{item.clusterName}</span>
                   {this.clusterStatus(item.status, true)}
                 </div>
               )
             }
             return (
-              <dd className="topList" key={item.cluster.clusterID}>
-                <span>{item.cluster.clusterName}</span>
+              <dd className="topList" key={item.clusterID}>
+                <span>{item.clusterName}</span>
                 <div>
                   {this.clusterStatus(item.status)}
                   <Tooltip placement="top" title='重新申请'>
-                    <i className="fa fa-pencil-square-o pull-right fa-lg pointer" aria-hidden="true" onClick={() => this.updateProjectClusters(item.cluster.clusterID, 1)} />
+                    <i className="fa fa-pencil-square-o pull-right fa-lg pointer" aria-hidden="true" onClick={() => this.updateProjectClusters(item.clusterID, 1)} />
                   </Tooltip>
-                  <Icon type="cross-circle-o" className="pull-right pointer" style={{ marginLeft: '10px' }} onClick={() => this.updateProjectClusters(item.cluster.clusterID, 0)} />
+                  <Icon type="cross-circle-o" className="pull-right pointer" style={{ marginLeft: '10px' }} onClick={() => this.updateProjectClusters(item.clusterID, 0)} />
                 </div>
               </dd>
             )
@@ -818,8 +806,8 @@ class ProjectDetail extends Component {
           if (item.status === 0) {
             bottomLength++
             return (
-              <dd className="topList lastList pointer" key={item.cluster.clusterID} onClick={() => this.updateProjectClusters(item.cluster.clusterID, 1)}>
-                <span>{item.cluster.clusterName}</span>
+              <dd className="topList lastList pointer" key={item.clusterID} onClick={() => this.updateProjectClusters(item.clusterID, 1)}>
+                <span>{item.clusterName}</span>
                 <div>
                   {this.clusterStatus(item.status)}
                 </div>
@@ -1242,7 +1230,7 @@ class ProjectDetail extends Component {
 ProjectDetail = Form.create()(ProjectDetail)
 function mapStateToThirdProp(state, props) {
   const { query } = props.location
-  const { name } = query;
+  const { name } = query
   const { loginUser } = state.entities
   const { globalRoles, role } = loginUser.info || { globalRoles: [], role: 0 }
   let roleNum = 0
@@ -1258,9 +1246,13 @@ function mapStateToThirdProp(state, props) {
       }
     }
   }
+  const { projectClusterList } = state.projectAuthority
+  const currentProjectClusterList = projectClusterList[name] || {}
+  const projectClusters = currentProjectClusterList.data || []
   return {
     name,
-    roleNum
+    roleNum,
+    projectClusters,
   }
 }
 

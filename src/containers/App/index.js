@@ -99,8 +99,8 @@ class App extends Component {
     const { statusWatchWs } = sockets
     const { space: newSpace, cluster: newCluster } = newCurrent
     const { space: oldSpace, cluster: oldCluster } = oldCurrent
-    if (newSpace.namespace !== oldSpace.namespace
-      || newCluster.clusterID !== oldCluster.clusterID
+    if (oldSpace.namespace && (newSpace.namespace !== oldSpace.namespace
+      || newCluster.clusterID !== oldCluster.clusterID)
     ) {
       statusWatchWs && statusWatchWs.close()
       clearTimeout(this.switchSpaceOrClusterTimeout)
