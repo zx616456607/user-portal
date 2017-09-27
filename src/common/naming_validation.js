@@ -169,7 +169,7 @@ export function serviceNameCheck(name, itemName, existNameFlag) {
     errorMsg = '请以小写字母开头';
     return errorMsg;
   }
-  //a-zA-Z0-9_- body check
+  //a-zA-Z0-9- body check
   let bodyCheck = new RegExp('^[a-z]{1}[a-z0-\-]*$');
   if (!bodyCheck.test(name)) {
     errorMsg = '由小写字母、数字、中划线-组成';

@@ -49,7 +49,6 @@ let ContainerCatalogueModal = React.createClass({
       form.resetFields([
         'type',
         'mountPath',
-        'strategy',
         'readOnly',
       ])
       return
@@ -75,7 +74,6 @@ let ContainerCatalogueModal = React.createClass({
     const { resetFields, setFieldsValue } = form
     resetFields([
       'mountPath',
-      'strategy',
       'readOnly',
     ])
     if (type == 'private') {
@@ -96,11 +94,11 @@ let ContainerCatalogueModal = React.createClass({
         "volume"
       ])
     }
-    if (type == 'host') {
+    /* if (type == 'host') {
       setFieldsValue({
         'strategy': true
       })
-    }
+    } */
   },
 
   renderDifferentType(type, volume) {
@@ -136,7 +134,7 @@ let ContainerCatalogueModal = React.createClass({
     if (volume === 'create') {
       const { form } = this.props
       const { getFieldProps } = form
-      return <div>
+      return (
         <FormItem
           label="存储卷设置"
           labelCol={{ span: 4 }}
@@ -179,8 +177,9 @@ let ContainerCatalogueModal = React.createClass({
             <Select
               {...getFieldProps('fsType', {
                 initialValue: 'ext4',
-                required: true,
-                message: '不能为空'
+                rules: [{
+                  required: true,
+                }],
               }) }
             >
               <Option value="ext4" key="ext4">ext4</Option>
@@ -188,7 +187,7 @@ let ContainerCatalogueModal = React.createClass({
             </Select>
           </FormItem>
         </FormItem>
-      </div>
+      )
     }
     return null
   },
@@ -203,8 +202,9 @@ let ContainerCatalogueModal = React.createClass({
       }
       const fsTypeProps = getFieldProps('fsType', {
         initialValue: 'ext4',
-        required: true,
-        message: '不能为空'
+      })
+      const sizeProps = getFieldProps('size', {
+        initialValue: 512,
       })
       return <FormItem
         label="存储设置"
@@ -212,7 +212,7 @@ let ContainerCatalogueModal = React.createClass({
       >
         <Input
           placeholder="请输入存储名称"
-          {...getFieldProps('setting', {
+          {...getFieldProps('name', {
             rules: [{
               validator: (rule, value, callback) => {
                 if (!value) {
@@ -243,7 +243,6 @@ let ContainerCatalogueModal = React.createClass({
       const validateArray = [
         'type',
         'mountPath',
-        'strategy',
         'readOnly',
       ]
       let array = []
@@ -262,6 +261,7 @@ let ContainerCatalogueModal = React.createClass({
             'name',
             'size',
             'fsType',
+            'strategy',
           ]
         }
       }
@@ -276,7 +276,9 @@ let ContainerCatalogueModal = React.createClass({
             'type_1',
             'storageClassName',
             'volume',
-            'setting'
+            'name',
+            'size',
+            'fsType',
           ]
         }
       }
@@ -303,9 +305,19 @@ let ContainerCatalogueModal = React.createClass({
       getClusterStorageList(clusterID)
       return
     }
-    const { form } = this.props
+    const { form, avaliableVolume } = this.props
+    const { volumes } = avaliableVolume
+    let volumeIsOld = false
+    const volumeName = value.split(' ')[0]
+    volumes.every(volume => {
+      if (volume.name === volumeName) {
+        volumeIsOld = volume.isOld
+        return false
+      }
+      return true
+    })
     form.setFieldsValue({
-      volumeIsOld: value.split(' ')[3] === 'true',
+      volumeIsOld,
     })
   },
 
@@ -330,7 +342,7 @@ let ContainerCatalogueModal = React.createClass({
     const selectedVolumes = list.map(fields => fields.volume)
     volumes.forEach(volume => {
       const { name, fsType, size, isOld } = volume
-      const value = `${name} ${fsType || '-'} ${size || '-'} ${isOld || '-'}`
+      const value = `${name} ${fsType || '-'} ${size || '-'}`
       let disabled = selectedVolumes.indexOf(value) > -1
       options.push(
         <Option
@@ -382,9 +394,9 @@ let ContainerCatalogueModal = React.createClass({
       })
       volume = form.getFieldValue('volume')
       volumeIsOldProps = getFieldProps('volumeIsOld', {
+        initialValue: false,
         rules: [{
           required: true,
-          initialValue: false,
         }],
       })
     }
@@ -487,6 +499,38 @@ let ContainerCatalogueModal = React.createClass({
                 : null
             }
             {this.renderDifferentType(type, volume)}
+            {
+              volume === 'create' && type === 'private' && (
+                <FormItem
+                  label={
+                    <span>回收策略
+                      <Tooltip
+                        title={
+                          <div>
+                            <div>保留：服务删除时删除存储</div>
+                            <div>删除：删除服务时删除存储</div>
+                          </div>
+                        }
+                      >
+                        <Icon type="question-circle-o" className='question_icon' />
+                      </Tooltip>
+                    </span>
+                  }
+                  {...formItemLayout}
+                  className='strategy'
+                >
+                  <Radio.Group
+                    disabled={type == 'host'}
+                    {...getFieldProps('strategy', {
+                      initialValue: true,
+                    }) }
+                  >
+                    <Radio key="yes" value={true}>保留</Radio>
+                    <Radio key="no" value={false} className='delete'>删除</Radio>
+                  </Radio.Group>
+                </FormItem>
+              )
+            }
             <FormItem
               label="容器目录"
               {...formItemLayout}
@@ -515,34 +559,6 @@ let ContainerCatalogueModal = React.createClass({
                   }]
                 }) }
               />
-            </FormItem>
-            <FormItem
-              label={
-                <span>回收策略
-                  <Tooltip
-                    title={
-                      <div>
-                        <div>保留：服务删除时删除存储</div>
-                        <div>删除：删除服务时删除存储</div>
-                      </div>
-                    }
-                  >
-                    <Icon type="question-circle-o" className='question_icon' />
-                  </Tooltip>
-                </span>
-              }
-              {...formItemLayout}
-              className='strategy form_item_bottom'
-            >
-              <Radio.Group
-                disabled={type == 'host'}
-                {...getFieldProps('strategy', {
-                  initialValue: true,
-                }) }
-              >
-                <Radio key="yes" value={true}>保留</Radio>
-                <Radio key="no" value={false} className='delete'>删除</Radio>
-              </Radio.Group>
             </FormItem>
             <FormItem
               label="读写权限"
