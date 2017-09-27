@@ -170,7 +170,7 @@ export function serviceNameCheck(name, itemName, existNameFlag) {
     return errorMsg;
   }
   //a-zA-Z0-9- body check
-  let bodyCheck = new RegExp('^[a-z]{1}[a-z0-\-]*$');
+  let bodyCheck = new RegExp('^[a-z]{1}[a-z0-9\-]*$');
   if (!bodyCheck.test(name)) {
     errorMsg = '由小写字母、数字、中划线-组成';
     return errorMsg;
