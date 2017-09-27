@@ -367,7 +367,7 @@ let ProjectManage = React.createClass({
   getSystemAdmin(users) {
     let adminIdArr = []
     users.forEach(item => {
-      item.role === 2 && adminIdArr.push(item.userID)
+      item.role === ROLE_SYS_ADMIN && adminIdArr.push(item.userID)
     })
     return adminIdArr
   },
