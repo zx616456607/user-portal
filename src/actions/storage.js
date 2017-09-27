@@ -335,21 +335,21 @@ export const STORAGE_GET_FREE_VOLUME_REQUEST = 'IMAGE_GET_FREE_VOLUME_REQUEST'
 export const STORAGE_GET_FREE_VOLUME_SUCCESS = 'IMAGE_GET_FREE_VOLUME_SUCCESS'
 export const STORAGE_GET_FREE_VOLUME_FAIULRE = 'IMAGE_GET_FREE_VOLUME_FAIULRE'
 
-export function fetchFreeVolume(cluster) {
+export function fetchFreeVolume(cluster, query) {
   return {
     cluster,
     [FETCH_API]: {
       types: [STORAGE_GET_FREE_VOLUME_REQUEST, STORAGE_GET_FREE_VOLUME_SUCCESS, STORAGE_GET_FREE_VOLUME_FAIULRE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${cluster}/volumes/available`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${cluster}/volumes/available?${toQuerystring(query)}`,
       schema: {}
     }
   }
 }
 
 
-export function loadFreeVolume(cluster) {
+export function loadFreeVolume(cluster, query) {
   return (dispatch, getState) => {
-    return dispatch(fetchFreeVolume(cluster))
+    return dispatch(fetchFreeVolume(cluster, query))
   }
 }
 

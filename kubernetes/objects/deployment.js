@@ -393,6 +393,29 @@ class Deployment {
     })
   }
 
+  addContainerVolumeV2(containerName, volume, volumeMounts) {
+    this.spec.template.spec.containers.map((container) => {
+      if (container.name !== containerName) {
+        return
+      }
+      if (!container.volumeMounts) {
+        container.volumeMounts = []
+      }
+      if (!this.spec.template.spec.volumes) {
+        this.spec.template.spec.volumes = []
+      }
+      volumeMounts.forEach(item => {
+        const body = {
+          name: volume.name,
+          mountPath: item.mountPath,
+          readOnly: item.readOnly || false
+        }
+        container.volumeMounts.push(body)
+      })
+      this.spec.template.spec.volumes.push(volume)
+    })
+  }
+
   syncTimeZoneWithNode(containerName) {
     const volumeMounts = {
       name: TENX_LOCAL_TIME_VOLUME.name,

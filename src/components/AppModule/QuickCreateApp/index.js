@@ -276,28 +276,34 @@ class QuickCreateApp extends Component {
   }
 
   createAppOrAddService() {
-    this.setState({
+    /* this.setState({
       isCreatingApp: true,
       stepStatus: 'process',
-    })
+    }) */
     const {
       fields, current, loginUser,
       createApp, addService,location
     } = this.props
     const { clusterID } = current.cluster
-    const template = []
+    let template = []
     let appPkgID = {}
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         let json = buildJson(fields[key], current.cluster, loginUser, this.imageConfigs)
         template.push(yaml.dump(json.deployment))
         template.push(yaml.dump(json.service))
+        json.storage.forEach(item => {
+          template.push(yaml.dump(item))
+        })
         if (fields[key].appPkgID) {
           let serviceName = fields[key].serviceName.value
           appPkgID[serviceName] = fields[key].appPkgID.value
         }
       }
     }
+    console.log('fields', fields)
+    console.log('template', template.join('---\n'))
+    // return
     const callback = {
       success: {
         func: res => {
