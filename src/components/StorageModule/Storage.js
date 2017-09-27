@@ -478,7 +478,7 @@ let MyComponent = React.createClass({
         validator: this.checksnapshotName
       }]
     })
-    const { selectedRowKeys } = this.state 
+    const { selectedRowKeys } = this.state
     const rowSelection = {
       getCheckboxProps: record => ({
         disabled: record.status == 'used',
@@ -780,13 +780,6 @@ class Storage extends Component {
   componentWillMount() {
     this.getStorageList()
     this.props.SnapshotList({clusterID: this.props.cluster})
-  }
-  componentWillReceiveProps(nextProps) {
-    let { currentCluster, loadStorageList, currentImagePool, cluster, SnapshotList } = nextProps
-    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
-      this.getStorageList()
-      SnapshotList({clusterID: nextProps.cluster})
-    }
   }
   onChange(value) {
     this.setState({
