@@ -421,12 +421,11 @@ class TreeComponent extends Component {
     const { permissionInfo } = this.state
     this.setState({
       filterPermissionInfo: permissionInfo.filter(item => item.userName.indexOf(value) > -1)
-    }, () => {
-      console.log(this.state.filterPermissionInfo)
     })
   }
   render() {
     const { disableCheckArr, alreadyAllChecked, filterPermissionInfo,filterOutPermissionInfo, leftValue, rightValue } = this.state
+    console.log(filterPermissionInfo)
     const { text, memberCount, roleMember, modalStatus, filterUser } = this.props
     const loopFunc = data => data.length >0 && data.map((item) => {
       if (item.users) {
@@ -439,11 +438,11 @@ class TreeComponent extends Component {
       return <TreeNode key={item.id} title={item.userName} disableCheckbox={disableCheckArr.indexOf(`${item.id}`) > -1}/>;
     });
     const loop = data => data.map((item) => {
-      if (item.children) {
-        return (
-          <TreeNode key={item.id} title={item.userName}/>
-        );
-      }
+      // if (item.children) {
+      //   return (
+      //     <TreeNode key={item.id} title={item.userName}/>
+      //   );
+      // }
       return <TreeNode key={item.id} title={item.userName}/>;
     });
     const selectProps = {

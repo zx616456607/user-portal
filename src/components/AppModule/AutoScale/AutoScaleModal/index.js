@@ -13,7 +13,7 @@ import {
   Modal, Form, Input, Select, Button,
   InputNumber, Row, Col, Icon
 } from 'antd'
-import { connect } from 'react-redux'
+import {connect} from 'react-redux'
 import {
   loadAllServices, updateAutoScale, checkAutoScaleName
 } from '../../../../actions/services'
@@ -21,8 +21,9 @@ import {
   loadNotifyGroups
 } from '../../../../actions/alert'
 import Notification from '../../../Notification'
-import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
+import {ASYNC_VALIDATOR_TIMEOUT} from '../../../../constants'
 import isEmpty from 'lodash/isEmpty'
+
 const FormItem = Form.Item
 const Option = Select.Option;
 
@@ -39,79 +40,123 @@ const sendEmailOpt = [{
   type: 'SendNoEmail',
   text: '不发送邮件'
 }]
+const thresholdKey = ['cpu', 'memory']
 
 class AutoScaleModal extends React.Component {
   constructor() {
     super()
     this.state = {
-      btnLoading: false
+      btnLoading: false,
+      thresholdArr: [0],
+      cpuAndMemory: []
     }
+    this.uuid = 0
   }
+
   componentDidMount() {
-    const { loadAllServices, clusterID, loadNotifyGroups } = this.props
+    const {loadAllServices, clusterID, loadNotifyGroups, scaleDetail} = this.props
     loadAllServices(clusterID, {
       pageIndex: 1,
       pageSize: -1,
     })
     loadNotifyGroups(null, clusterID)
+    this.initThresholdArr(scaleDetail)
   }
+
   componentWillReceiveProps(nextProps) {
-    const { visible: newVisible, scope, form } = nextProps
-    const { visible: oldVisible } = this.props
+    const {visible: newVisible, scope, form, scaleDetail} = nextProps
+    const {visible: oldVisible} = this.props
     if (oldVisible && !newVisible) {
       scope.setState({
         scaleModal: false,
         scaleDetail: null,
         create: false,
-        reuse: false
+        reuse: false,
       })
+      this.setState({
+        thresholdArr: [0],
+        cpuAndMemory: []
+      })
+      this.uuid = 0
       form.resetFields()
     }
+    if (!oldVisible && newVisible) {
+      this.initThresholdArr(scaleDetail)
+    }
   }
-  cancelModal = () => {
-    const { scope } = this.props
-    scope.setState({
-      scaleModal: false
+  initThresholdArr = scaleDetail => {
+    const { setFieldsValue } = this.props.form
+    if (isEmpty(scaleDetail)) {
+      return
+    }
+    setFieldsValue({'alert_group': scaleDetail.alert_group})
+    let arr = []
+    for (let [key, value] of Object.entries(scaleDetail)) {
+      if (thresholdKey.includes(key)) {
+        this.uuid++
+        arr.push({
+          [key]: value
+        })
+      }
+    }
+    this.setState({
+      cpuAndMemory: arr,
+      thresholdArr: this.uuid === 2 ? [0, 1] : [0]
     })
   }
+  cancelModal = () => {
+    const {scope} = this.props
+    scope.setState({
+      scaleModal: false,
+    })
+    this.setState({
+      thresholdArr: [0],
+      cpuAndMemory: []
+    })
+    this.uuid = 0
+  }
   confirmModal = () => {
-    const { scope, form, updateAutoScale, clusterID, create, scaleDetail } = this.props
-    const { validateFields, resetFields, setFields } = form
+    const {scope, form, updateAutoScale, clusterID, create, scaleDetail} = this.props
+    const { thresholdArr } = this.state
+    const {validateFields, resetFields, getFieldValue} = form
     let notify = new Notification()
     validateFields((errors, values) => {
-      if (values.cpu) {
-        setFields({
-          memory: {
-            errors: null,
-            value: values.memory
-          }
-        })
-      }
-      if (values.memory) {
-        setFields({
-          cpu: {
-            errors: null,
-            value: values.cpu
-          }
-        })
-      }
       if (!!errors) {
         return
       }
+      let opt = {}
+      const isGroupHide = values.alert_strategy === 'SendNoEmail'
+      thresholdArr.forEach(item => {
+        let key = getFieldValue(`type${item}`)
+        let value = getFieldValue(`value${item}`)
+        opt = Object.assign(opt, { [key]: value})
+      })
       this.setState({
         btnLoading: true
       })
       const msgSpin = create ? '创建中...' : '修改中'
       notify.spin(msgSpin)
-      const { scale_strategy_name, serviceName, min, max, cpu, memory, alert_strategy, alert_group} = values
-      let body = { scale_strategy_name, min, max, cpu, memory, alert_strategy, alert_group, type: create ? 1 : scaleDetail.type }
+      const {scale_strategy_name, serviceName, min, max, alert_strategy, alert_group} = values
+      let body = {
+        scale_strategy_name,
+        min,
+        max,
+        alert_strategy,
+        alert_group,
+        ...opt,
+        type: create ? 1 : scaleDetail.type
+      }
+      isGroupHide ? body.alert_group = '' : ''
       body = Object.assign(body, {operationType: create ? 'create' : 'update'})
       updateAutoScale(clusterID, serviceName, body, {
         success: {
           func: () => {
             this.setState({
               btnLoading: false,
+              thresholdArr: [0],
+              cpuAndMemory: []
             })
+            this.uuid = 0
             scope.setState({
               scaleModal: false
             })
@@ -126,7 +171,10 @@ class AutoScaleModal extends React.Component {
           func: () => {
             this.setState({
               btnLoading: false,
+              thresholdArr: [0],
+              cpuAndMemory: []
             })
+            this.uuid = 0
             scope.setState({
               scaleModal: false
             })
@@ -139,10 +187,15 @@ class AutoScaleModal extends React.Component {
     })
   }
   checkScaleName = (rule, value, callback) => {
-    const { checkAutoScaleName, clusterID, form, create } = this.props
-    const { getFieldValue } = form
+    const {checkAutoScaleName, clusterID, form, create, scaleDetail} = this.props
+    const {getFieldValue} = form
     if (!value) {
-      callback('请输入策略名称')
+      return callback('请输入策略名称')
+    }
+    if (!isEmpty(scaleDetail)) {
+      if (getFieldValue('serviceName') === scaleDetail.serviceName) {
+        return callback()
+      }
     }
     const service_name = create ? getFieldValue('serviceName') : ''
     clearTimeout(this.checkScaleNameExist)
@@ -155,6 +208,7 @@ class AutoScaleModal extends React.Component {
           func: () => {
             callback()
           },
+          isAsync: true
         },
         failed: {
           func: res => {
@@ -162,16 +216,20 @@ class AutoScaleModal extends React.Component {
               callback('该策略名称已经存在')
             }
             callback()
-          }
+          },
+          isAsync: true
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
   checkServiceName = (rule, value, callback) => {
-    const { checkAutoScaleName, clusterID, form } = this.props
-    const { getFieldValue } = form
+    const {checkAutoScaleName, clusterID, form, create} = this.props
+    const {getFieldValue} = form
+    if (!create) {
+      return callback()
+    }
     if (!value) {
-      callback('请选择服务')
+      return callback('请选择服务')
     }
     const strategy_name = getFieldValue('scale_strategy_name') || ''
     clearTimeout(this.checkSerivceNameExist)
@@ -184,6 +242,7 @@ class AutoScaleModal extends React.Component {
           func: () => {
             callback()
           },
+          isAsync: true
         },
         failed: {
           func: res => {
@@ -191,106 +250,206 @@ class AutoScaleModal extends React.Component {
               callback('该服务已经关联弹性伸缩策略')
             }
             callback()
-          }
+          },
+          isAsync: true
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
-  checkCpu = (rule, value, callback) => {
-    const { form } = this.props
-    const { getFieldValue } = form
-    let memoryValue = getFieldValue('memory')
-    if (!value && !memoryValue) {
-      callback('请输入CPU阈值')
+  checkMin = (rule, value, callback) => {
+    if (!value) {
+      return callback('请输入最小实例数')
     }
     callback()
   }
-  checkMemory = (rule, value, callback) => {
-    const { form } = this.props
-    const { getFieldValue } = form
-    let cpuValue = getFieldValue('cpu')
-    if (!value && !cpuValue) {
-      callback('请输入内存阈值')
+  checkMax = (rule, value, callback) => {
+    if (!value) {
+      return callback('请输入最大实例数')
     }
     callback()
+  }
+  checkEmail = (rule, value, callback) => {
+    if (!value) {
+      return callback('请选择邮件发送方式')
+    }
+    callback()
+  }
+  checkAlert = (rule, value, callback) => {
+    const { getFieldValue } = this.props.form
+    const isGroupHide = getFieldValue('alert_strategy') === 'SendNoEmail'
+    if (!value && !isGroupHide) {
+      return callback('请选择告警通知组')
+    }
+    callback()
+  }
+  checkType = (rule, value, callback, key) => {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const { thresholdArr } = this.state
+    if (!value) {
+      return callback('请选择类型')
+    }
+    let newValue = getFieldValue(`type${key}`)
+    const result = thresholdArr.some(item => {
+      if (item === key) {
+        return false
+      }
+      let existValue = getFieldValue(`type${item}`)
+      if (newValue === existValue) {
+        return true
+      }
+    })
+    if (result) {
+      return callback('阈值类型重复')
+    }
+    callback()
+  }
+  checkValue = (rule, value, callback) => {
+    if (!value) {
+      return callback('请输入阈值')
+    }
+    callback()
+  }
+  addRule = () => {
+    const { form } = this.props
+    const { thresholdArr } = this.state
+    const { validateFields } = form
+    let l = thresholdArr.length
+    let optArr = [`type${thresholdArr[l - 1]}`, `value${thresholdArr[l - 1]}`]
+    validateFields(optArr, (errors, values) => {
+      if (!!errors) {
+        return
+      }
+      
+      let copyThresholdArr = thresholdArr.slice(0)
+      this.uuid++
+      copyThresholdArr = copyThresholdArr.concat(this.uuid)
+      this.setState({
+        thresholdArr: copyThresholdArr
+      })
+    })
+  }
+  delRule = (key) => {
+    const { thresholdArr } = this.state
+    let copyThreshold = thresholdArr.slice(0)
+    let notify = new Notification()
+    if (copyThreshold.length === 1) {
+      notify.info('至少得有一项规则')
+      return
+    }
+    copyThreshold = copyThreshold.filter(item => key !== item)
+    this.setState({
+      thresholdArr: copyThreshold
+    })
   }
   renderFooter = () => {
-    const { btnLoading } = this.state
+    const {btnLoading} = this.state
     return [
       <Button key="cancel" size="large" onClick={this.cancelModal}>取消</Button>,
       <Button key="confirm" type="primary" size="large" loading={btnLoading} onClick={this.confirmModal}>确定</Button>
     ]
   }
+
   render() {
-    const { visible, form, services, alertList, scaleDetail, create, reuse } = this.props
-    const { getFieldProps, isFieldValidating, getFieldError } = form
+    const {visible, form, services, alertList, scaleDetail, create, reuse} = this.props
+    const { thresholdArr, cpuAndMemory } = this.state
+    const {getFieldProps, isFieldValidating, getFieldError, getFieldValue} = form
+    const isGroupHide = getFieldValue('alert_strategy') === 'SendNoEmail'
     const formItemLargeLayout = {
-      labelCol: { span: 4},
-      wrapperCol: { span: 16}
+      labelCol: {span: 4},
+      wrapperCol: {span: 16}
     }
     const formItemSmallLayout = {
-      labelCol: { span: 4},
-      wrapperCol: { span: 10}
+      labelCol: {span: 4},
+      wrapperCol: {span: 10}
     }
     const scaleName = getFieldProps('scale_strategy_name', {
       rules: [{
         validator: this.checkScaleName.bind(this),
       }],
-      initialValue: create || isEmpty(scaleDetail) ? undefined: scaleDetail.scale_strategy_name
+      initialValue: create || isEmpty(scaleDetail) ? undefined : scaleDetail.scale_strategy_name
     })
     const selectService = getFieldProps('serviceName', {
       rules: [{
         validator: create ? this.checkServiceName.bind(this) : null,
       }],
-      initialValue: create || isEmpty(scaleDetail) ? undefined: scaleDetail.serviceName
+      initialValue: create || isEmpty(scaleDetail) ? undefined : scaleDetail.serviceName
     })
     const minReplicas = getFieldProps('min', {
       rules: [{
-        required: true,
-        message: '请输入最小实例数'
+        validator: this.checkMin.bind(this)
       }],
-      initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.min
+      initialValue: isEmpty(scaleDetail) ? 1 : scaleDetail.min
     })
     const maxReplicas = getFieldProps('max', {
       rules: [{
-        required: true,
-        message: '请输入最大实例数'
+        validator: this.checkMax.bind(this)
       }],
-      initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.max
-    })
-    const cpuProps = getFieldProps('cpu', {
-      rules: [{
-        validator: this.checkCpu.bind(this),
-      }],
-      initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.cpu
-    })
-    const memoryProps = getFieldProps('memory', {
-      rules: [{
-        validator: this.checkMemory.bind(this),
-      }],
-      initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.memory
+      initialValue: isEmpty(scaleDetail) ? 10 : scaleDetail.max
     })
     const selectEmailSendType = getFieldProps('alert_strategy', {
       rules: [{
-        required: true,
-        message: '请选择邮件发送方式'
+        validator: this.checkEmail.bind(this)
       }],
-      initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.alert_strategy
+      initialValue: isEmpty(scaleDetail) ? 'SendEmailWhenScale' : scaleDetail.alert_strategy
     })
     const selectAlertGroup = getFieldProps('alert_group', {
       rules: [{
-        required: true,
-        message: '请选择告警通知组'
+        validator: this.checkAlert.bind(this)
       }],
-      initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.alert_group
+      initialValue: isEmpty(scaleDetail) ? undefined : scaleDetail.alert_group
     })
-    return(
+    let thresholdItem
+    thresholdItem = thresholdArr.map((key) => {
+      let optItem = cpuAndMemory[key] || { 'cpu': 80 }
+      return (
+        <Row type="flex" align="middle" key={key}>
+          <Col span={4} style={{ marginBottom: 24, textAlign: 'right' }}>
+            {
+              thresholdArr.indexOf(key) === 0 ? '阈值：' : ''
+            }
+          </Col>
+          <Col span={7}>
+            <FormItem>
+              <Select
+                style={{width: 120}}
+                {...getFieldProps(`type${key}`, {
+                  rules: [{
+                    validator: (rule, value, callback) => this.checkType(rule, value, callback, key)
+                  }],
+                  initialValue: Object.keys(optItem)[0]
+                }) }
+              >
+                <Option value="cpu">CPU阈值</Option>
+                <Option value="memory">内存阈值</Option>
+              </Select>
+            </FormItem>
+          </Col>
+          <Col span={6}>
+            <FormItem>
+              <InputNumber
+                {...getFieldProps(`value${key}`, {
+                  rules: [{
+                    validator: this.checkValue
+                  }],
+                  initialValue: optItem[Object.keys(optItem)[0]]
+                })}/> %
+            </FormItem>
+          </Col>
+          <Col span={7} style={{ marginBottom: 24 }}>
+            <Button type="primary" size="large" icon="plus" onClick={this.addRule}/>&nbsp;
+            <Button type="ghost" size="large" icon="cross" onClick={this.delRule.bind(this, key)}/>
+          </Col>
+        </Row>
+      )
+    })
+    return (
       <Modal
-      title={reuse ? '复用自动伸缩侧漏' : (isEmpty(scaleDetail) ? "创建自动伸缩策略" : "修改自动伸缩策略")}
-      visible={visible}
-      footer={this.renderFooter()}
-      onCancel={this.cancelModal}
-      onOk={this.confirmModal}>
+        title={reuse ? '复用自动伸缩侧漏' : (isEmpty(scaleDetail) ? "创建自动伸缩策略" : "修改自动伸缩策略")}
+        visible={visible}
+        footer={this.renderFooter()}
+        onCancel={this.cancelModal}
+        onOk={this.confirmModal}>
         <Form form={form}>
           <FormItem
             {...formItemLargeLayout}
@@ -306,14 +465,14 @@ class AutoScaleModal extends React.Component {
           >
             <Select
               showSearch
-              disabled={create ? false: true}
+              disabled={create ? false : true}
               optionFilterProp="children"
               notFoundContent="无法找到"
               {...selectService}
               placeholder="请选择服务">
               {
-                services && services.length && services.map(item =>
-                  <Option key={item.metadata.name} value={item.metadata.name}>{item.metadata.name}</Option>)
+                services && services.length ? services.map(item =>
+                  <Option key={item.metadata.name} value={item.metadata.name}>{item.metadata.name}</Option>) : null
               }
             </Select>
           </FormItem>
@@ -329,28 +488,11 @@ class AutoScaleModal extends React.Component {
           >
             <InputNumber {...maxReplicas}/> 个
           </FormItem>
-          <FormItem
-            {...formItemSmallLayout}
-            label="CPU阈值"
-          >
-            <InputNumber {...cpuProps}/> %
-          </FormItem>
-          <Row style={{margin: '-10px 0 10px'}}>
+          {thresholdItem}
+          <Row style={{margin: '10px 0 10px'}}>
             <Col span={4}/>
             <Col span={16}>
-              <Icon type="exclamation-circle-o" /> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
-            </Col>
-          </Row>
-          <FormItem
-            {...formItemSmallLayout}
-            label="内存阈值"
-          >
-            <InputNumber {...memoryProps}/> %
-          </FormItem>
-          <Row style={{margin: '-10px 0 10px'}}>
-            <Col span={4}/>
-            <Col span={16}>
-              <Icon type="exclamation-circle-o" /> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
+              <Icon type="exclamation-circle-o"/> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
             </Col>
           </Row>
           <FormItem
@@ -368,29 +510,35 @@ class AutoScaleModal extends React.Component {
               }
             </Select>
           </FormItem>
-          <FormItem
-            {...formItemLargeLayout}
-            label="告警通知组"
-          >
-            <Select
-              {...selectAlertGroup}
-              placeholder="请选择告警通知组"
-              showSearch
-              optionFilterProp="children"
-              notFoundContent="无法找到">
-              {
-                alertList && alertList.length && alertList.map(item =>
-                  <Option key={item.name} value={item.groupID}>{item.name}</Option>
-                )
-              }
-            </Select>
-          </FormItem>
-          <Row style={{margin: '-10px 0 10px'}}>
-            <Col span={4}/>
-            <Col span={16}>
-              <Icon type="exclamation-circle-o" /> 发生弹性伸缩时会向该通知组发送邮件通知
-            </Col>
-          </Row>
+          {
+            isGroupHide ? null : 
+              [
+                <FormItem
+                  {...formItemLargeLayout}
+                  label="告警通知组"
+                  key="alertGroup"
+                >
+                  <Select
+                    {...selectAlertGroup}
+                    placeholder="请选择告警通知组"
+                    showSearch
+                    optionFilterProp="children"
+                    notFoundContent="无法找到">
+                    {
+                      alertList && alertList.length && alertList.map(item =>
+                        <Option key={item.name} value={item.groupID}>{item.name}</Option>
+                      )
+                    }
+                  </Select>
+                </FormItem>,
+                <Row style={{margin: '-10px 0 10px'}} key="alertGroupHint">
+                  <Col span={4}/>
+                  <Col span={16}>
+                  <Icon type="exclamation-circle-o"/> 发生弹性伸缩时会向该通知组发送邮件通知
+                  </Col>
+                </Row>
+              ]
+          }
         </Form>
       </Modal>
     )
@@ -398,13 +546,17 @@ class AutoScaleModal extends React.Component {
 }
 
 function mapStateToProps(state, props) {
-  const { cluster } = state.entities.current
-  const { clusterID } = cluster || { clusterID: ''}
-  const { serviceList } = state.services || { serviceList: {}}
-  const { groups } = state.alert || { groups: {} }
-  const { result } = groups || { result: {}}
-  const { data: alertList } = result || { data: [] }
-  const { services } = serviceList || { services: []}
+  const { existServices } = props
+  const {cluster} = state.entities.current
+  const {clusterID} = cluster || {clusterID: ''}
+  const {serviceList} = state.services || {serviceList: {}}
+  const {groups} = state.alert || {groups: {}}
+  const {result} = groups || {result: {}}
+  const {data: alertList} = result || {data: []}
+  let {services} = serviceList || {services: []}
+  services = services && services.length && existServices && services.filter(item => {
+    return !existServices.includes(item.metadata.name)
+  })
   return {
     clusterID,
     services,

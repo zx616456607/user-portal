@@ -16,7 +16,8 @@ export default class AppAutoScaleLogs extends React.Component {
   constructor() {
     super()
     this.state = {
-      logList: []
+      logList: [],
+      loading: false
     }
   }
   componentWillMount() {
@@ -31,11 +32,15 @@ export default class AppAutoScaleLogs extends React.Component {
   }
   loadLogs = props => {
     const { getAutoScaleLogs, cluster, serviceName } = props
+    this.setState({
+      loading: true
+    })
     getAutoScaleLogs(cluster, serviceName, {
       success: {
         func: res => {
           this.setState({
-            logList: res.data.data
+            logList: res.data.data,
+            loading: false
           })
         },
         isAsync: true
@@ -43,7 +48,8 @@ export default class AppAutoScaleLogs extends React.Component {
       failed: {
         func: () => {
           this.setState({
-            logList: []
+            logList: [],
+            loading: false
           })
         },
         isAsync: true
@@ -72,22 +78,23 @@ export default class AppAutoScaleLogs extends React.Component {
            </TimelineItem>
   }
   render() {
-    const { logList } = this.state
+    const { logList, loading } = this.state
     return(
       <div className="appAutoScaleLogs">
         {
-          logList.length > 0 ?
-            <Timeline>
-              {
-                logList.map(item => {
-                  return this.renderLineTiem(item)
-                })
-              }
-            </Timeline>
-             :
+          loading ?
             <div className='loadingBox'>
               <Spin size='large' />
-            </div>
+            </div> :
+            logList.length > 0 ?
+              <Timeline>
+                {
+                  logList.map(item => {
+                    return this.renderLineTiem(item)
+                  })
+                }
+              </Timeline>
+              : <div style={{ textAlign: 'center' }}>暂无数据</div>
         }
       </div>
     )
