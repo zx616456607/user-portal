@@ -9,10 +9,12 @@
  */
 import * as ActionTypes from '../actions/storage'
 import merge from 'lodash/merge'
+import cloneDeep from 'lodash/cloneDeep'
 import union from 'lodash/union'
 
 function storageList(state = {}, action) {
   const pool = action.pool
+  const keyword = action.keyword
   const defaultState = {
     [pool]: {
       isFetching: false,
@@ -32,12 +34,33 @@ function storageList(state = {}, action) {
         [pool]: {
           isFetching: false,
           storageList: action.response.result.data,
+          searchList: action.response.result.data,
           pool: pool
         }
       })
     case ActionTypes.STORAGE_LIST_FAILURE:
       return Object.assign({}, state, defaultState, {
         [pool]: { isFetching: false }
+      })
+    case ActionTypes.SEARCH_STORAGE:
+      const mapArray = cloneDeep(state[`k8s-pool`].searchList)
+      let searchResult = []
+      if(!keyword){
+        searchResult = state[`k8s-pool`].searchList
+      } else {
+        mapArray.forEach((item, index) => {
+          if(item.name.indexOf(keyword) > -1){
+            searchResult.push(item)
+          }
+        })
+      }
+      return Object.assign({}, state, defaultState, {
+        [`k8s-pool`]: {
+          isFetching: false,
+          storageList: searchResult,
+          searchList: state[`k8s-pool`].searchList,
+          pool: pool
+        }
       })
     default:
       return state

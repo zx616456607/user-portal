@@ -12,7 +12,6 @@ import { Switch, Checkbox, Spin, Modal, Icon, Form, Radio, Button } from 'antd';
 import './style/AdvancedSetting.less'
 import { connect } from 'react-redux'
 import { updateClusterConfig } from '../../../actions/cluster'
-import { loadTeamClustersList } from '../../../actions/team'
 import { setCurrent } from '../../../actions/entities'
 import { updateConfigurations, getConfigurations } from '../../../actions/harbor'
 import { saveGlobalConfig } from '../../../actions/global_config'
@@ -57,10 +56,9 @@ class AdvancedSetting extends Component {
   }
 
   componentWillMount(){
-    const { cluster, space, loadTeamClustersList, getConfigurations, harbor } = this.props
+    const { cluster, getConfigurations, harbor } = this.props
     const { listNodes } = cluster
     this.handleListNodeStatus(listNodes)
-    loadTeamClustersList(space.teamID, { size: 100 })
     if(!harbor.hasAdminRole) {
       return
     }
@@ -174,7 +172,7 @@ class AdvancedSetting extends Component {
   }
 
   updataClusterListNodes(num){
-    const {updateClusterConfig, cluster, loadTeamClustersList, space, setCurrent} = this.props
+    const {updateClusterConfig, cluster, setCurrent} = this.props
     const {clusterID} = cluster
     this.setState({
       confirmlodaing: true
@@ -182,30 +180,18 @@ class AdvancedSetting extends Component {
     updateClusterConfig(clusterID, {ListNodes: num}, {
       success: {
         func: () =>{
-          loadTeamClustersList(space.teamID, { size: 100 },{
-            success: {
-              func: () => {
-                const { result } = this.props
-                for(let i=0; i<result.data.length; i++){
-                  if(result.data[i].clusterID == clusterID){
-                    setCurrent({
-                      cluster: result.data[i],
-                    })
-                    break
-                  }
-                }
-                this.handleUpdataConfigMessage('success',num)
-                this.setState({
-                  switchdisable: false,
-                  Tagdisabled: false,
-                  Ipdisabled: false,
-                  confirmlodaing: false
-                })
-                this.handleListNodeStatus(num)
-              },
-              isAsync: true
-            }
+          cluster.listNodes = num
+          setCurrent({
+            cluster,
           })
+          this.handleUpdataConfigMessage('success',num)
+          this.setState({
+            switchdisable: false,
+            Tagdisabled: false,
+            Ipdisabled: false,
+            confirmlodaing: false
+          })
+          this.handleListNodeStatus(num)
         },
         isAsync: true
       },
@@ -646,14 +632,11 @@ class AdvancedSetting extends Component {
 AdvancedSetting = Form.create()(AdvancedSetting)
 
 function mapPropsToState(state,props) {
-  const { cluster, space } = state.entities.current
+  const { cluster } = state.entities.current
   const { harbor, vmWrapConfig } = state.entities.loginUser.info
-  const { result } = state.team.teamClusters || {}
   const { configurations } = state.harbor
   return {
     cluster,
-    space,
-    result,
     configurations,
     harbor,
     vmWrapConfig,
@@ -662,7 +645,6 @@ function mapPropsToState(state,props) {
 
 export default connect(mapPropsToState,{
   updateClusterConfig,
-  loadTeamClustersList,
   setCurrent,
   updateConfigurations,
   getConfigurations,

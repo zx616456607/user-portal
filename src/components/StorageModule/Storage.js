@@ -9,21 +9,19 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import ReactDOM from 'react-dom'
-import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, Tooltip, Spin, Form } from 'antd'
+import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, Tooltip, Spin, Form, Table } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
 import findIndex from 'lodash/findIndex'
-import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage, SnapshotCreate, SnapshotList } from '../../actions/storage'
+import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage, SnapshotCreate, SnapshotList, searchStorage } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
 import './style/storage.less'
-import { calcuDate, parseAmount } from '../../common/tools'
+import { calcuDate, parseAmount, formatDate } from '../../common/tools'
 import { volNameCheck } from '../../common/naming_validation'
 import NotificationHandler from '../../components/Notification'
-import noStorageImg from '../../assets/img/no_data/no_storage.png'
 import ResourceQuotaModal from '../ResourceQuotaModal/Storage'
 import CreateVolume from '../StorageModule/CreateVolume'
 import { SHOW_BILLING } from '../../constants'
@@ -143,16 +141,18 @@ let MyComponent = React.createClass({
       snapshotName: '',
       tipsModal: false,
       dilation: false,
+      selectedRowKeys: [],
     };
   },
   propTypes: {
     config: React.PropTypes.object
   },
-  onchange(e, name) {
-    this.props.saveVolumeArray(e, name)
-  },
-  isChecked(name) {
-    return findIndex(this.props.volumeArray, { name }) >= 0
+  componentWillReceiveProps(nextProps){
+    if(nextProps.delModal !== this.props.delModal && !nextProps.delModal){
+      this.setState({
+        selectedRowKeys: [],
+      })
+    }
   },
   changeType(e) {
     this.setState({
@@ -221,18 +221,29 @@ let MyComponent = React.createClass({
           },
           failed: {
             isAsync: true,
-            func: () => {
+            func: (res) => {
               self.setState({
                 visible: false
               })
               isActing = false
               notification.close()
-              notification.error('扩容失败')
+              let message = this.formatMessage(res, '扩容失败')
+              notification.error(message)
               self.props.loadStorageList()
             }
           }
         })
     }
+  },
+  formatMessage(res, defaultMessage){
+    let message = defaultMessage
+    if(res.message && typeof res.message == 'string'){
+      return message = res.message
+    }
+    if(res.message.message && typeof res.message.message == 'string'){
+      return message = res.message.message
+    }
+    return message
   },
   cancelModal() {
     this.setState({
@@ -402,79 +413,61 @@ let MyComponent = React.createClass({
       size: size
     })
   },
-
-  selectByline(e, item) {
-    if(item.isUsed) return
-    this.props.saveVolumeArray({target:{checked:!this.isChecked(item.name)}}, item.name, 'rbd', item.serviceName)
-  },
-
   colseTipsModal(){
     this.setState({
       tipsModal: false
     })
   },
-
-  render() {
-    if(this.props.isFetching) {
-      return (
-        <div className="loadingBox">
-          <Spin size="large"></Spin>
-        </div>
-      )
+  formatStatus(status){
+    switch(status){
+      case 'pending':
+        return <span>
+        <i className="fa fa-circle icon-marginRight penging"></i>
+        创建中
+      </span>
+      case 'used':
+        return <span>
+        <i className="fa fa-circle icon-marginRight used"></i>
+        使用中
+      </span>
+      case 'unused':
+        return <span>
+        <i className="fa fa-circle icon-marginRight no_used"></i>
+        未使用
+      </span>
+      default:
+        return <span>
+        <i className="fa fa-circle icon-marginRight unknown"></i>
+        未知
+      </span>
     }
+  },
+  onSelectChange(selectedRowKeys) {
+    this.setState({ selectedRowKeys })
+    this.props.scope.setState({
+      volumeArray: selectedRowKeys,
+    })
+  },
+  render() {
+    const { isFetching, storage } = this.props
     const { formatMessage } = this.props.intl
     let list = this.props.storage;
-    if (!list.storageList) {
-      return <div className="loadingBox"><Icon type="frown"/>&nbsp;暂无数据</div>
+    let storageList = storage.storageList
+    if(!storageList || !storageList.length){
+      storageList = []
     }
-    let items = list.storageList.map((item) => {
-      const menu = (<Menu onClick={(e) => { this.showAction(e, 'format', item) } } style={{ width: '80px' }}>
-        <Menu.Item key="createSnapshot">创建快照</Menu.Item>
-        <Menu.Item key="format"><FormattedMessage {...messages.formatting} /></Menu.Item>
-      </Menu>
-      )
-      return (
-        <div className="appDetail" key={item.name} onClick={(e) => this.selectByline(e, item)}>
-          <div className="selectIconTitle commonData">
-            <Checkbox disabled={item.isUsed} onChange={(e) => this.onchange(e, item.name)} checked={this.isChecked(item.name)}></Checkbox>
-          </div>
-          <div className="name commonData">
-            <Link to={`/app_manage/exclusiveMemory/${this.props.imagePool}/${this.props.cluster}/${item.name}`} >
-              {item.name}
-            </Link>
-          </div>
-          <div className="status commonData">
-            <i className={item.isUsed == true ? "error fa fa-circle" : "normal fa fa-circle"}></i>
-            <span className={item.isUsed == false ? "normal" : "error"} >{item.isUsed == true ? <FormattedMessage {...messages.use} /> : <FormattedMessage {...messages.noUse} />}</span>
-          </div>
-          <div className="type commonData">类型</div>
-          <div className="size commonData">{item.totalSize}M</div>
-          <div className="formet commonData">{item.format}</div>
-          <div className="service commonData">服务</div>
-          <div className="strategy commonData">回收策略</div>
-          {/*<div className="forin commonData">{item.mountPoint || '无'}</div>*/}
-          {/*<div className="appname commonData">{item.appName || '无'}</div>*/}
-
-          <div className="createTime commonData">
-            <span className='spanBlock'>
-              <Tooltip placement="topLeft" title={calcuDate(item.createTime)}>
-                <span>{calcuDate(item.createTime)}</span>
-              </Tooltip>
-            </span>
-          </div>
-          <div className="actionBtn commonData">
-            <Dropdown.Button
-              overlay={menu}
-              type='ghost'
-              onClick={(e) => { this.showAction(e, 'resize', item) } }
-              key="dilation"
-            >
-              <FormattedMessage {...messages.dilation} />
-            </Dropdown.Button>
-          </div>
-        </div>
-      );
-    });
+    let menus = []
+    if(Array.isArray(storageList) && storageList.length){
+      menus = storageList.map((item, index) => {
+        return <Menu
+          onClick={(e) => { this.showAction(e, 'format', item) } }
+          style={{ width: '80px' }}
+        >
+          <Menu.Item key="createSnapshot">创建快照</Menu.Item>
+          <Menu.Item key="format"><FormattedMessage {...messages.formatting} /></Menu.Item>
+        </Menu>
+      })
+    }
     const { scope, form } = this.props
     const { getFieldProps } = form
     const { resourcePrice } = scope.props.currentCluster
@@ -485,9 +478,100 @@ let MyComponent = React.createClass({
         validator: this.checksnapshotName
       }]
     })
+    const { selectedRowKeys } = this.state 
+    const rowSelection = {
+      getCheckboxProps: record => ({
+        disabled: record.status == 'used',
+      }),
+      selectedRowKeys,
+      onChange: this.onSelectChange,
+    }
+    const columns = [
+      {
+        title: '存储',
+        key: 'name',
+        dataIndex: 'name',
+        width: '12%',
+        className: 'name',
+        render: name => <div><span className='text' onClick={() => browserHistory.push(`/app_manage/exclusiveMemory/${this.props.imagePool}/${this.props.cluster}/${name}`)}>{name}</span></div>
+      },{
+        title: '状态',
+        key: 'status',
+        dataIndex: 'status',
+        width: '10%',
+        render: status => <div className='status'>{this.formatStatus(status)}</div>
+      },{
+        title: '类型',
+        key: 'storageServer',
+        dataIndex: 'storageServer',
+        width: '12%',
+        render: storageServer => <div>RBD ({storageServer})</div>
+      },{
+        title: '大小',
+        key: 'totalSize',
+        dataIndex: 'totalSize',
+        width: '9%',
+        render: totalSize => <div>{totalSize == 0 ? '-' : totalSize} M</div>
+      },{
+        title: '格式',
+        key: 'format',
+        dataIndex: 'format',
+        width: '9%'
+      },{
+        title: '服务',
+        key: 'deployServiceList',
+        dataIndex: 'deployServiceList',
+        width: '10%',
+        render: deployServiceList => <div>{deployServiceList && deployServiceList.length ? deployServiceList[0].serviceName : '未挂载服务'}</div>
+      },{
+        title: <div>
+          回收策略
+          <Tooltip title={<div>
+              <div>保留：服务删除时删除存储</div>
+              <div>删除：删除服务时删除存储</div>
+            </div>}>
+            <Icon type="question-circle-o" className='question_icon'/>
+          </Tooltip>
+        </div>,
+        key: 'reclaimPolicy',
+        dataIndex: 'reclaimPolicy',
+        width: '13%',
+        className: 'strategy',
+        render: reclaimPolicy => <div>{ reclaimPolicy == 'delete' ? '删除' : '保存'}</div>
+      },{
+        title: '创建时间',
+        key: 'createTime',
+        dataIndex: 'createTime',
+        width: '10%',
+        sorter: (a, b) => new Date(formatDate(a.createTime)) - new Date(formatDate(b.createTime)),
+        render: createTime => <div>{formatDate(createTime)}</div>
+      },{
+        title: '操作',
+        key: 'handle',
+        dataIndex: 'handle',
+        width: '15%',
+        render: (text, record, index) => <Dropdown.Button
+          overlay={menus[index]}
+          type='ghost'
+          onClick={(e) => { this.showAction(e, 'resize', record) } }
+          key="dilation"
+        >
+          <FormattedMessage {...messages.dilation} />
+        </Dropdown.Button>
+      }
+    ]
     return (
       <div className="dataBox">
-        {items}
+        <div className='reset_antd_table_header'>
+          <Table
+            columns={columns}
+            dataSource={storageList}
+            rowSelection={rowSelection}
+            pagination={{ simple: true }}
+            loading={isFetching}
+          />
+        </div>
+
         <Modal title={this.state.modalTitle} visible={this.state.visible} okText="确定" cancelText="取消" className="storageModal" width={600} onCancel= {() => this.cancelModal() }
          footer={[
             <Button key="back" type="ghost" size="large" onClick={(e) => { this.cancelModal() } }>取消</Button>,
@@ -504,9 +588,17 @@ let MyComponent = React.createClass({
             <Row style={{ height: '40px' }}>
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(messages.size)}</Col>
               <Col span="12">
-                <Slider min={(this.state.modalSize <20480 )? this.state.modalSize: 512} disabled={this.state.modalSize ==20480} max={20480} step={512} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
+                <Slider
+                  min={ parseInt(this.state.modalSize) < 20480 ? parseInt(this.state.modalSize) : 512}
+                  disabled={this.state.modalSize == 20480}
+                  max={20480}
+                  step={512}
+                  onChange={(e) => { this.changeDilation(e) } }
+                  value={parseInt(this.state.size)}
+                />
+              </Col>
               <Col span="8">
-                <InputNumber min={this.state.modalSize} max={20480} step={512} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
+                <InputNumber min={parseInt(this.state.modalSize)} max={20480} step={512} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
                 <span style={{ paddingLeft: 10 }} >MB</span>
               </Col>
             </Row>
@@ -661,6 +753,7 @@ class Storage extends Component {
     this.refreshstorage = this.refreshstorage.bind(this)
     // this.focus = this.focus.bind(this)
     this.deleteButton = this.deleteButton.bind(this)
+    this.getStorageList = this.getStorageList.bind(this)
     this.state = {
       visible: false,
       volumeArray: [],
@@ -676,14 +769,22 @@ class Storage extends Component {
       ableListArray: [],
     }
   }
+  getStorageList(){
+    const { loadStorageList, cluster, currentImagePool } = this.props
+    const query = {
+      storagetype: 'ceph',
+      srtype: 'private'
+    }
+    loadStorageList(currentImagePool, cluster, query)
+  }
   componentWillMount() {
-    this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
+    this.getStorageList()
     this.props.SnapshotList({clusterID: this.props.cluster})
   }
   componentWillReceiveProps(nextProps) {
     let { currentCluster, loadStorageList, currentImagePool, cluster, SnapshotList } = nextProps
     if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
-      loadStorageList(currentImagePool, cluster)
+      this.getStorageList()
       SnapshotList({clusterID: nextProps.cluster})
     }
   }
@@ -747,7 +848,7 @@ class Storage extends Component {
       success: {
         func: () => {
           notification.close()
-          this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
+          this.getStorageList()
           notification.success('删除存储成功')
           this.setState({
             volumeArray: [],
@@ -765,13 +866,13 @@ class Storage extends Component {
         func: () => {
           notification.close()
           notification.error('删除存储失败')
-          this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
+          this.getStorageList()
         }
       }
     })
   }
   refreshstorage() {
-    this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
+    this.getStorageList()
     this.props.SnapshotList({clusterID: this.props.cluster})
     this.setState({
       volumeArray: [],
@@ -871,18 +972,24 @@ class Storage extends Component {
     })
   }
   searchByStorageName(e) {
-    this.props.loadStorageList(this.props.currentImagePool, this.props.cluster, { storageName: this.state.storageName })
+    const { searchStorage } = this.props
+    const keyword = document.getElementById('searchStorage').value
+    searchStorage(keyword)
   }
 
   deleteButton(){
     const { volumeArray } = this.state
+    const { storageList, currentImagePool } = this.props
+    const array = volumeArray.map((item, index) => {
+    	return storageList[currentImagePool].storageList[item]
+    })
     let ableList = []
     let disableList = []
-    for(let i=0;i<volumeArray.length;i++){
-      if(volumeArray[i].serviceName){
-        disableList.push(volumeArray[i])
+    for(let i=0;i<array.length;i++){
+      if(array[i].status == 'used' || array.status == 'pending'){
+        disableList.push(array[i])
       } else {
-        ableList.push(volumeArray[i])
+        ableList.push(array[i])
       }
     }
     this.setState({
@@ -921,6 +1028,7 @@ class Storage extends Component {
         })
       }
     })
+    const storageList = this.props.storageList[this.props.currentImagePool].storageList || []
     return (
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
@@ -968,6 +1076,7 @@ class Storage extends Component {
                    scope={this}
                    snapshotDataList={snapshotDataList}
                    storageList={dataStorage}
+                   createModal={this.state.visible}
                  />
               </Modal>
             </div>
@@ -976,56 +1085,34 @@ class Storage extends Component {
                 <i className="fa fa-search cursor" onClick={() => this.searchByStorageName()}/>
               </div>
               <div className="littleRight">
-                <Input size="large" style={{paddingRight: '28px'}} placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchStorageName(e)} onPressEnter={() => this.searchByStorageName()} />
+                <Input size="large" style={{paddingRight: '28px'}} placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchStorageName(e)} onPressEnter={() => this.searchByStorageName()} id="searchStorage"/>
               </div>
+            </div>
+            <div className='total_num'>
+              {
+                storageList.length
+                ? <div>共 {storageList.length} 条</div>
+                : null
+              }
             </div>
             <div className="clearDiv"></div>
           </div>
-          {Array.isArray(dataStorage) && dataStorage.length >0 ?
-
-          <Card className="storageBox appBox">
-            <div className="appTitle">
-              <div className="selectIconTitle commonTitle">
-                <Checkbox onChange={(e) => this.onAllChange(e)} checked={this.isAllChecked()} disabled={!this.disableSelectAll()} />
-              </div>
-              <div className="name commonTitle" style={{color: 'red'}}>存储</div>
-              <div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
-              <div className="type commonTitle" style={{color: 'red'}}>类型</div>
-              <div className="size commonTitle"><FormattedMessage {...messages.size} /></div>
-              <div className="formet commonTitle"><FormattedMessage {...messages.formats} /></div>
-              <div className="service commonTitle" style={{color: 'red'}}>服务</div>
-              <div className="strategy commonTitle" style={{color: 'red'}}>
-                回收策略
-                <Tooltip title={<div>
-                  <div>保留：服务删除时删除存储</div>
-                  <div>删除：删除服务时删除存储</div>
-                </div>}>
-                  <Icon type="question-circle-o" className='question_icon'/>
-                </Tooltip>
-              </div>
-              {/*<div className="forin commonTitle"><FormattedMessage {...messages.forin} /></div>*/}
-              {/*<div className="appname commonTitle"><FormattedMessage {...messages.app} /></div>*/}
-
-              <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
-              <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
-            </div>
+          <div className="storageBox appBox">
             <MyComponent
               storage={this.props.storageList[this.props.currentImagePool]}
               volumeArray={this.state.volumeArray}
               saveVolumeArray={this.selectItem()}
               cluster={this.props.cluster}
               imagePool={this.props.currentImagePool}
-              loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.cluster) } }
+              loadStorageList = {() => this.getStorageList()}
               scope ={ this }
               isFetching={this.props.storageList[this.props.currentImagePool].isFetching}
               SnapshotCreate={SnapshotCreate}
               snapshotDataList={snapshotDataList}
               SnapshotList={SnapshotList}
-              />
-          </Card>
-          :
-          <div className='text-center'><img src={noStorageImg} /><div>您还没有存储卷，创建一个吧！ <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>创建</Button></Tooltip></div></div>
-          }
+              delModal={this.state.delModal}
+            />
+          </div>
           <ResourceQuotaModal
             visible={this.state.resourceQuotaModal}
             closeModal={() => this.setState({resourceQuotaModal: false})}
@@ -1064,6 +1151,7 @@ export default connect(mapStateToProps, {
   loadStorageList,
   SnapshotCreate,
   SnapshotList,
+  searchStorage,
 })(injectIntl(Storage, {
   withRef: true,
 }))

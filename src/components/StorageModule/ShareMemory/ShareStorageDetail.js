@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Card, Row, Col, Tabs } from 'antd'
+import { Card, Row, Col, Tabs, Spin } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ShareStorageDetail.less'
@@ -17,6 +17,8 @@ import Title from '../../Title'
 import storagePNG from '../../../assets/img/storage.png'
 import { browserHistory } from 'react-router'
 import StorageBind from '../StorageBind'
+import { loadStorageInfo } from '../../../actions/storage'
+import { formatDate } from '../../../common/tools'
 
 const TabPane = Tabs.TabPane
 
@@ -28,7 +30,20 @@ class ShareStorageDetail extends Component {
     }
   }
 
+  componentWillMount() {
+    const { loadStorageInfo, params } = this.props
+    loadStorageInfo(params.cluster, params.share_name)
+  }
+
   render() {
+    const { StorageInfo, isFetching, params } = this.props
+    if (isFetching) {
+      return (
+        <div className="loadingBox">
+          <Spin size="large"></Spin>
+        </div>
+      )
+    }
     return(
       <QueueAnim type="right">
         <Title title="存储详情"/>
@@ -49,27 +64,27 @@ class ShareStorageDetail extends Component {
             </div>
             <div className="infoBox">
               <div className="appTitle">
-                我是存储卷名称
+                { StorageInfo.volumeName }
               </div>
               <div className="info">
                 <Row>
                   <Col span="9">
-                    存储类型：独享型（RBD）
+                    存储类型：共享型（nfs）
                   </Col>
                   <Col span="15">
                     <div className="createDate">
-                      创建时间：2012-12-12
+                      创建时间：{ formatDate(StorageInfo.createTime) }
                     </div>
                   </Col>
                 </Row>
                 <Row>
                   <Col span="9">
-                    RBD集群名称：aaaaa
+                    RBD集群名称：{ StorageInfo.storageServer }
                   </Col>
                   <Col span="15">
                     <div className="use">
-                      用量
-                      ：100M
+                      总量
+                      ：{ parseInt(StorageInfo.size) }M
                     </div>
                   </Col>
                 </Row>
@@ -79,7 +94,10 @@ class ShareStorageDetail extends Component {
           <Card>
             <Tabs>
               <TabPane tab="绑定服务" key="service">
-                <StorageBind />
+                <StorageBind
+                  cluster={params.cluster}
+                  volumeName={params.share_name}
+                />
               </TabPane>
               {/*<TabPane tab="租赁信息" key="rentInfo">*/}
               {/*租赁信息*/}
@@ -93,12 +111,20 @@ class ShareStorageDetail extends Component {
 }
 
 function mapStateToProp(state, props) {
-
+  const { cluster } = state.entities.current
+  const defaultInfo = {
+    imagePool: props.params.pool,
+    volumeName: props.params.storage_name,
+    cluster: cluster.clusterID
+  }
+  const StorageInfo  = state.storage.storageDetail.StorageInfo || defaultInfo
   return {
-
+    isFetching: state.storage.storageDetail.isFetching,
+    StorageInfo,
+    resourcePrice: cluster.resourcePrice
   }
 }
 
 export default connect(mapStateToProp, {
-
+  loadStorageInfo,
 })(ShareStorageDetail)
