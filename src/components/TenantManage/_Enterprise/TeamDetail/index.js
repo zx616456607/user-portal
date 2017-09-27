@@ -258,7 +258,7 @@ let MemberList = React.createClass({
         width: '20%',
         render: (text, record, index) => (
           <div className="cardBtns">
-            <Button disabled={roleNum === 3 || isNotManager}
+            <Button disabled={roleNum !== 1 && isNotManager}
               className="delBtn" onClick={(e)=> this.removeMember(e,record) }>
               移除成员
             </Button>
@@ -444,9 +444,9 @@ class TeamDetail extends Component {
     })
   }
   handleChange(targetKeys) {
-    const { originalKeys } = this.state
+    const { originalLeader } = this.state
     let notify = new NotificationHandler()
-    if (!targetKeys.includes(originalKeys[0])) {
+    if (targetKeys.includes(originalLeader[0])) {
       notify.info('移除团队管理者前请先移交团队')
       return
     }
@@ -825,11 +825,11 @@ class TeamDetail extends Component {
                     {
                       (roleNum === 1 || !isNotManager) &&
                       [
-                        <Button type="primary" size="large" className="addMemberBtn"
+                        <Button key="addMemberBtn" type="primary" size="large" className="addMemberBtn"
                               onClick={this.addNewMember}>
                           <i className='fa fa-plus' /> 编辑团队成员
                         </Button>,
-                        <Button type="ghost" size="large" className="transferTeamLeader"
+                        <Button key="transferTeamLeader" type="ghost" size="large" className="transferTeamLeader"
                               onClick={this.transferTeamLeader.bind(this)}>
                         移交团队</Button>
                       ]
