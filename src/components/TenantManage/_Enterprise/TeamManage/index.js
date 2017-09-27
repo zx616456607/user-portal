@@ -414,9 +414,9 @@ let TeamTable = React.createClass({
         render: (text, record, index) =>{
           return (
             <div className="addusers">
-              <Button disabled={roleNum ===3 || record.role === 'participator'}
+              <Button disabled={roleNum !== 1 && record.role === 'participator'}
                 type="primary" onClick={() => this.addNewMember(record.key)}>添加团队成员</Button>
-              <Button disabled={roleNum ===3 || record.role === 'participator'}
+              <Button disabled={roleNum !==1 && record.role === 'participator'}
                 onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
             </div>
           )
