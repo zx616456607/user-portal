@@ -77,14 +77,14 @@ class CleaningRecord extends Component {
     switch(fileType){
       case 1:
         return <div>系统日志</div>
-      case 2:
+      /*case 2:
         return <div>监控数据</div>
       case 3:
         return <div>停止容器</div>
-      case 4:
+      case 4:*/
         return <div>CI/CD缓存</div>
-      case 5:
-        return <div>镜像</div>
+      /*case 5:
+        return <div>镜像</div>*/
       default:
         return <div>未知</div>
     }
@@ -200,6 +200,19 @@ class CleaningRecord extends Component {
               <FormItem className='filter_formItem'>
                 <Select
                   className='filter_item'
+                  placeholder='请选择文件类型'
+                  size='large'
+                  {...getFieldProps('file_type')}
+                >
+                  <Option key="1" value="1">系统日志</Option>
+                  {/*<Option key="2" value="2">监控数据</Option>*/}
+                  <Option key="3" value="3">CI/CD缓存</Option>
+                  {/*<Option key="4" value="4">镜像</Option>*/}
+                </Select>
+              </FormItem>
+              <FormItem className='filter_formItem'>
+                <Select
+                  className='filter_item'
                   placeholder='请选择执行状态'
                   size='large'
                   {...getFieldProps('status')}
@@ -207,19 +220,6 @@ class CleaningRecord extends Component {
                   <Option key="1" value="1">执行成功</Option>
                   <Option key="2" value="2">正在执行</Option>
                   <Option key="3" value="3">执行失败</Option>
-                </Select>
-              </FormItem>
-              <FormItem className='filter_formItem'>
-                <Select
-                  className='filter_item'
-                  placeholder='请选择文件类型'
-                  size='large'
-                  {...getFieldProps('file_type')}
-                >
-                  <Option key="1" value="1">系统日志</Option>
-                  <Option key="2" value="2">监控数据</Option>
-                  <Option key="3" value="3">CI/CD缓存</Option>
-                  <Option key="4" value="4">镜像</Option>
                 </Select>
               </FormItem>
               <FormItem className='filter_formItem'>

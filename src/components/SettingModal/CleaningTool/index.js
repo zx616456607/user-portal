@@ -135,7 +135,7 @@ class CleaningTool extends Component {
 
   renderLogsList(){
     const array = []
-    for(let i = 0; i < 5; i++){
+    for(let i = 0; i < 1; i++){
       let item = {
         key: i,
         logs: '上次清理1233MB垃圾',
@@ -223,7 +223,7 @@ class CleaningTool extends Component {
       xAxis : [
         {
           type : 'category',
-          data : ['系统日志', '监控数据', '停止容器', '镜像', 'CI/CD缓存'],
+          data : ['系统日志', /*'监控数据', '停止容器', '镜像',*/ 'CI/CD缓存'],
           axisTick: {
             alignWithLabel: true
           }
@@ -299,6 +299,61 @@ class CleaningTool extends Component {
                   </div>
                 }
               </TabPane>
+              {/*<TabPane tab="停止容器" key="stopContainer">
+                <div className='img_box'>
+                  <img src={CleaningToolImg} alt=""/>
+                </div>
+                <div className='handle_box'>
+                  <div className='tips'>您可以根据选择清理未正常运行的容器!</div>
+                  <FormItem className='time_select'>
+                    <Select
+                      placeholder="请选择要停止的容器"
+                      size="large"
+                      className='select_box'
+                      {...getFieldProps('stopContainer',{
+                        rules: [{required: true, message: '请选择要停止的容器'}]
+                      })}
+                    >
+                      <Option key="3" value="3">全选</Option>
+                      <Option key="0" value="0">pending超时</Option>
+                      <Option key="1" value="1">已经停止</Option>
+                      <Option key="2" value="2">不断重启</Option>
+                    </Select>
+                  </FormItem>
+                  <div>
+                    <Button size="large" type="primary" onClick={() => this.cleaningStopContainer()}>清理</Button>
+                  </div>
+                </div>
+              </TabPane>*/}
+              <TabPane tab="CI/CD缓存" key="cache">
+                <div className='img_box'>
+                  <img src={CleaningToolImg} alt=""/>
+                </div>
+                <div className='handle_box'>
+                  <div className='tips'>您可以根据数据时效选择需要清理的文件范围!</div>
+                  <FormItem className='time_select'>
+                    <Select
+                      placeholder="请选择删除缓存时间"
+                      size="large"
+                      className='select_box'
+                      {...getFieldProps('cache',{
+                        rules: [{required: true, message: '请选择删除缓存时间'}]
+                      })}
+                    >
+                      <Option key="0" value="0">清除所有数据</Option>
+                      <Option key="1" value="1">清除1天前数据</Option>
+                      <Option key="2" value="2">清除3天前数据</Option>
+                      <Option key="3" value="3">清除7天前数据</Option>
+                      <Option key="4" value="4">清除15天数据</Option>
+                      <Option key="5" value="5">清除1月前数据</Option>
+                      <Option key="6" value="6">清除3月前数据</Option>
+                    </Select>
+                  </FormItem>
+                  <div>
+                    <Button size="large" type="primary" onClick={() => this.cleaningCache()}>清理</Button>
+                  </div>
+                </div>
+              </TabPane>
               <TabPane tab="监控数据" key="monitoringData">
                 <div className='img_box'>
                   <img src={CleaningToolImg} alt=""/>
@@ -320,7 +375,7 @@ class CleaningTool extends Component {
                       <Option key="1" value="1">保留15天</Option>
                       <Option key="2" value="2">保留30天</Option>
                       <Option key="3" value="3">保留60天</Option>
-                      <Option key="4" value="4">永久保留</Option>
+                      {/*<Option key="4" value="4">永久保留</Option>*/}
                     </Select>
                   </FormItem>
                   <div>
@@ -353,62 +408,7 @@ class CleaningTool extends Component {
                   </div>
                 </div>
               </TabPane>
-              <TabPane tab="停止容器" key="stopContainer">
-                <div className='img_box'>
-                  <img src={CleaningToolImg} alt=""/>
-                </div>
-                <div className='handle_box'>
-                  <div className='tips'>您可以根据选择清理未正常运行的容器!</div>
-                  <FormItem className='time_select'>
-                    <Select
-                      placeholder="请选择要停止的容器"
-                      size="large"
-                      className='select_box'
-                      {...getFieldProps('stopContainer',{
-                        rules: [{required: true, message: '请选择要停止的容器'}]
-                      })}
-                    >
-                      <Option key="3" value="3">全选</Option>
-                      <Option key="0" value="0">pending超时</Option>
-                      <Option key="1" value="1">已经停止</Option>
-                      <Option key="2" value="2">不断重启</Option>
-                    </Select>
-                  </FormItem>
-                  <div>
-                    <Button size="large" type="primary" onClick={() => this.cleaningStopContainer()}>清理</Button>
-                  </div>
-                </div>
-              </TabPane>
-              <TabPane tab="CI/CD缓存" key="cache">
-                <div className='img_box'>
-                  <img src={CleaningToolImg} alt=""/>
-                </div>
-                <div className='handle_box'>
-                  <div className='tips'>您可以根据数据时效选择需要清理的文件范围!</div>
-                  <FormItem className='time_select'>
-                    <Select
-                      placeholder="请选择删除缓存时间"
-                      size="large"
-                      className='select_box'
-                      {...getFieldProps('cache',{
-                        rules: [{required: true, message: '请选择删除缓存时间'}]
-                      })}
-                    >
-                      <Option key="0" value="0">清除所有数据</Option>
-                      <Option key="1" value="1">清除1天前数据</Option>
-                      <Option key="2" value="2">清除3天前数据</Option>
-                      <Option key="3" value="3">清除7天前数据</Option>
-                      <Option key="4" value="4">清除15天数据</Option>
-                      <Option key="5" value="5">清除1月前数据</Option>
-                      <Option key="6" value="6">清除3月前数据</Option>
-                    </Select>
-                  </FormItem>
-                  <div>
-                    <Button size="large" type="primary" onClick={() => this.cleaningCache()}>清理</Button>
-                  </div>
-                </div>
-              </TabPane>
-              <TabPane tab="镜像" key="mirrorImage">
+              {/*<TabPane tab="镜像" key="mirrorImage">
                 <div className='img_box'>
                   <img src={CleaningToolImg} alt=""/>
                 </div>
@@ -458,7 +458,7 @@ class CleaningTool extends Component {
                     </Button>
                   </div>
                 </div>
-              </TabPane>
+              </TabPane>*/}
             </Tabs>
           </div>
 
