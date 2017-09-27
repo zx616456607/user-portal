@@ -136,4 +136,7 @@ module.exports = function (config) {
 
   // ~ vminfos
   this.vminfos = collections.create('vminfos')
+
+  // ~ quota
+  this.resourcequota = collections.create('resourcequota')
 }
