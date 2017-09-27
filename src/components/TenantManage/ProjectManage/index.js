@@ -364,7 +364,13 @@ let ProjectManage = React.createClass({
       Object.assign(users[i], {key: users[i].userID, title: users[i].namespace, chosen: false})
     }
   },
-
+  getSystemAdmin(users) {
+    let adminIdArr = []
+    users.forEach(item => {
+      item.role === ROLE_SYS_ADMIN && adminIdArr.push(item.userID)
+    })
+    return adminIdArr
+  },
   openRightModal() {
     const {loadUserList, roleWithMembers} = this.props;
     loadUserList({
@@ -373,8 +379,10 @@ let ProjectManage = React.createClass({
       success: {
         func: (res) => {
           this.formatUserList(res.users)
+          const systemRoleID = this.getSystemAdmin(res.users)
           this.setState({
-            userList: res
+            userList: res,
+            systemRoleID
           }, () => {
             roleWithMembers({
               roleID: CREATE_PROJECTS_ROLE_ID,
@@ -510,7 +518,13 @@ let ProjectManage = React.createClass({
     return option.title.indexOf(inputValue) > -1;
   },
 
-  handleChange(targetKeys, direction, moveKeys) {
+  handleChange(targetKeys) {
+    const { systemRoleID } = this.state
+    const result = systemRoleID.every(item => targetKeys.includes(item))
+    let notify = new Notification()
+    if (!result) {
+      return notify.info('禁止移除系统管理员')
+    }
     this.setState({targetKeys});
   },
 
@@ -642,7 +656,7 @@ let ProjectManage = React.createClass({
     const step = this.props.location.query.step || '';
     const {roleNum} = this.props;
     const {payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, 
-      paySinglePro, userList, deleteSingleChecked, filteredInfo
+      paySinglePro, userList, deleteSingleChecked, filteredInfo, systemRoleID
     } = this.state;
     const pageOption = {
       simple: true,

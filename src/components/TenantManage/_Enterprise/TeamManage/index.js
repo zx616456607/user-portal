@@ -632,12 +632,25 @@ class TeamManage extends Component {
     return option.title.indexOf(inputValue) > -1;
   }
   handleChange(targetKeys) {
+    const { systemRoleID } = this.state
+    const result = systemRoleID.every(item => targetKeys.includes(item))
+    let notify = new NotificationHandler()
+    if (!result) {
+      return notify.info('禁止移除系统管理员')
+    }
     this.setState({ targetKeys });
   }
   formatUserList(users) {
     for (let i = 0; i < users.length; i++) {
       Object.assign(users[i],{key:users[i].userID},{title:users[i].namespace,chosen:false})
     }
+  }
+  getSystemAdmin(users) {
+    let adminIdArr = []
+    users.forEach(item => {
+      item.role === ROLE_SYS_ADMIN && adminIdArr.push(item.userID)
+    })
+    return adminIdArr
   }
   openRightModal() {
     const { loadUserList, roleWithMembers } = this.props;
@@ -647,8 +660,10 @@ class TeamManage extends Component {
       success: {
         func: (res) => {
           this.formatUserList(res.users)
+          const systemRoleID = this.getSystemAdmin(res.users)
           this.setState({
-            userList:res.users
+            userList:res.users,
+            systemRoleID
           })
           roleWithMembers({
             roleID:CREATE_TEAMS_ROLE_ID,
