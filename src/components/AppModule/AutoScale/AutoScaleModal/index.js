@@ -92,7 +92,7 @@ class AutoScaleModal extends React.Component {
     setFieldsValue({'alert_group': scaleDetail.alert_group})
     let arr = []
     for (let [key, value] of Object.entries(scaleDetail)) {
-      if (thresholdKey.includes(key)) {
+      if (thresholdKey.includes(key) && value) {
         this.uuid++
         arr.push({
           [key]: value
@@ -101,7 +101,7 @@ class AutoScaleModal extends React.Component {
     }
     this.setState({
       cpuAndMemory: arr,
-      thresholdArr: this.uuid === 2 ? [0, 1] : [0]
+      thresholdArr: arr.map((item, index) => index)
     })
   }
   cancelModal = () => {

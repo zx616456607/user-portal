@@ -151,7 +151,7 @@ class AppAutoScale extends Component {
     setFieldsValue({'alert_group': scaleDetail.alert_group})
     let arr = []
     for (let [key, value] of Object.entries(scaleDetail)) {
-      if (thresholdKey.includes(key)) {
+      if (thresholdKey.includes(key) && value) {
         this.uuid++
         arr.push({
           [key]: value
@@ -160,34 +160,38 @@ class AppAutoScale extends Component {
     }
     this.setState({
       cpuAndMemory: arr,
-      thresholdArr: this.uuid === 2 ? [0, 1] : [0]
+      thresholdArr: arr.map((item, index) => index)
     })
   }
   cancelEdit = () => {
     const { scaleDetail } = this.state
-    const { strategyName,
-      serviceName,
-      alert_group,
-      alert_strategy,
-      max,
-      min,
-      cpu,
-      memory,
-      type } = scaleDetail
-    const { setFieldsValue } = this.props.form
-    setFieldsValue({
-      strategyName,
-      serviceName,
-      alert_strategy,
-      alert_group,
-      max,
-      min,
-      cpu,
-      memory
-    })
+    if (!isEmpty(scaleDetail)) {
+      const { strategyName,
+        serviceName,
+        alert_group,
+        alert_strategy,
+        max,
+        min,
+        cpu,
+        memory,
+        type } = scaleDetail
+      const { setFieldsValue } = this.props.form
+      setFieldsValue({
+        strategyName,
+        serviceName,
+        alert_strategy,
+        alert_group,
+        max,
+        min,
+        cpu,
+        memory
+      })
+      this.setState({
+        switchOpen: type ? true :false
+      })
+    }
     this.setState({
       isEdit: false,
-      switchOpen: type ? true : false,
     })
   }
   saveEdit = () => {
