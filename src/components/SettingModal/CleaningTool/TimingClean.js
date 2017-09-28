@@ -450,7 +450,7 @@ class TimingClean extends Component {
                   </div>
                 </div>
               </Col>
-              <Col span={6} className='gutter-row'>
+              {/*<Col span={6} className='gutter-row'>
                 <div className='gutter-box'>
                   <div className='header'>
                     镜像
@@ -577,7 +577,7 @@ class TimingClean extends Component {
                     </FormItem>
                   </div>
                 </div>
-              </Col>
+              </Col>*/}
             </Row>
           </div>
         </div>

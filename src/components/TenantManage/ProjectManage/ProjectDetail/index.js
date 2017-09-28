@@ -22,14 +22,14 @@ import { ListRole, CreateRole, ExistenceRole, GetRole, roleWithMembers, usersAdd
 import { parseAmount } from '../../../../common/tools'
 import Notification from '../../../../components/Notification'
 import TreeComponent from '../../../TreeForMembers'
-import cloneDeep from 'lodash/cloneDeep'
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
 import isEmpty from 'lodash/isEmpty'
 import includes from 'lodash/includes'
 import CreateRoleModal from '../CreateRole'
-import { PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID } from '../../../../../constants'
+import { PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID, ROLE_SYS_ADMIN } from '../../../../../constants'
 import ResourceQuota from '../../../ResourceLimit'
+import { formatDate } from '../../../../common/tools'
 
 let checkedKeysDetail = []
 const TabPane = Tabs.TabPane;
@@ -1018,7 +1018,7 @@ class ProjectDetail extends Component {
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {projectDetail && projectDetail.createTime && projectDetail.createTime.replace(/T/g, ' ').replace(/Z/g, '')}
+                        {projectDetail && projectDetail.createTime && formatDate(projectDetail.createTime)}
                       </div>
                     </Col>
                   </Row>
@@ -1232,14 +1232,13 @@ function mapStateToThirdProp(state, props) {
   const { query } = props.location
   const { name } = query
   const { loginUser } = state.entities
-  const { globalRoles } = loginUser.info || { globalRoles: [] }
+  const { globalRoles, role } = loginUser.info || { globalRoles: [], role: 0 }
   let roleNum = 0
-  if (globalRoles.length) {
+  if (role === ROLE_SYS_ADMIN) {
+    roleNum = 1
+  } else if (globalRoles.length) {
     for (let i = 0; i < globalRoles.length; i++) {
-      if (globalRoles[i] === 'admin') {
-        roleNum = 1;
-        break
-      } else if (globalRoles[i] === 'project-creator') {
+      if (globalRoles[i] === 'project-creator') {
         roleNum = 2;
         break
       } else {

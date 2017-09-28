@@ -244,12 +244,9 @@ class AlarmGroup extends Component {
     });
   }
   getAutoScale = autoScale => {
-    if (autoScale && (!autoScale.length)) {
-      return '-'
-    }
-    return autoScale.map(item => {
+    return autoScale && autoScale.length ? autoScale.map(item => {
       return <div>{item.name}</div>
-    })
+    }) : '-'
   }
   render() {
     if (!this.props.groups) {
@@ -291,7 +288,7 @@ class AlarmGroup extends Component {
       width: '19%',
       render: text => formatDate(text),
     }, {
-      title: '关联策略',
+      title: '告警策略',
       dataIndex: 'strategies',
       width: '15%',
       render: strategies => this.getStragegies(strategies)
