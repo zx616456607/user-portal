@@ -423,9 +423,7 @@ class TreeComponent extends Component {
     const { permissionInfo } = this.state
     this.setState({
       filterPermissionInfo: permissionInfo.filter(item => item.userName.indexOf(value) > -1),
-      rightTreeLoading: true,
-    }, () => {
-      setTimeout(() => this.setState({ rightTreeLoading: false }), 200)
+      rightTreeKey: Math.random(),
     })
   }
   render() {
@@ -475,7 +473,7 @@ class TreeComponent extends Component {
                 style={{width: '90%', margin: '10px auto', display: 'block'}}/>
               <hr className="underline"/>
               <div className='body'>
-                <div >
+                <div>
                   {
                     filterLoading ? <span className='noPermission'><Spin/></span> :
                     filterOutPermissionInfo.length
@@ -526,12 +524,12 @@ class TreeComponent extends Component {
               <div className='body'>
                 <div>
                   {
-                    this.state.rightTreeLoading ? <span className='noPermission'><Spin/></span> :
                     filterPermissionInfo.length
                       ? <Tree
                       checkable multiple
                       onCheck={this.onAlreadyCheck}
                       checkedKeys={this.state.alreadyCheckedKeys}
+                      key={this.state.rightTreeKey}
                     >
                       {loop(filterPermissionInfo)}
                     </Tree>
