@@ -306,7 +306,7 @@ class App extends Component {
   }
 
   getChildren() {
-    const { children, errorMessage, loginUser } = this.props
+    const { children, errorMessage, loginUser, current } = this.props
     const { loadLoginUserSuccess, loginErr, switchSpaceOrCluster } = this.state
     if (isEmptyObject(loginUser) && !loadLoginUserSuccess) {
       return (
@@ -314,6 +314,13 @@ class App extends Component {
       )
     }
     if (!errorMessage) {
+      if (!current.space.projectName) {
+        return (
+          <div className="loading">
+            <Spin size="large" /> 初始化中...
+          </div>
+        )
+      }
       if (switchSpaceOrCluster) {
         return (
           <div className="loading">
