@@ -51,6 +51,7 @@ class App extends Component {
     this.onStatusWebsocketSetup = this.onStatusWebsocketSetup.bind(this)
     this.getStatusWatchWs = this.getStatusWatchWs.bind(this)
     this.handleUpgradeModalClose = this.handleUpgradeModalClose.bind(this)
+    this.setSwitchSpaceOrCluster = this.setSwitchSpaceOrCluster.bind(this)
     this.state = {
       siderStyle: props.siderStyle,
       loginModalVisible: false,
@@ -82,6 +83,25 @@ class App extends Component {
     loadApiInfo()
   }
 
+  setSwitchSpaceOrCluster() {
+    const {
+      pathname,
+    } = this.props
+    clearTimeout(this.switchSpaceOrClusterTimeout)
+    this.setState({
+      switchSpaceOrCluster: true,
+    }, () => {
+      this.switchSpaceOrClusterTimeout = setTimeout(() => {
+        this.setState({
+          switchSpaceOrCluster: false,
+        })
+      }, 200)
+    })
+    if (pathname.match(/\//g).length > 2) {
+      browserHistory.push('/')
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     const {
       errorMessage,
@@ -103,7 +123,8 @@ class App extends Component {
       || newCluster.clusterID !== oldCluster.clusterID)
     ) {
       statusWatchWs && statusWatchWs.close()
-      clearTimeout(this.switchSpaceOrClusterTimeout)
+      // move to header
+      /* clearTimeout(this.switchSpaceOrClusterTimeout)
       this.setState({
         switchSpaceOrCluster: true,
       }, () => {
@@ -115,7 +136,7 @@ class App extends Component {
       })
       if (pathname.match(/\//g).length > 2) {
         browserHistory.push('/')
-      }
+      } */
     }
     // Set previous location
     if (redirectUrl !== this.props.redirectUrl) {
@@ -393,7 +414,7 @@ class App extends Component {
         { this.props.tipError }
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-header' : 'tenx-layout-header-bigger tenx-layout-header'}>
           <div className='tenx-layout-wrapper'>
-            <Header pathname={pathname} />
+            <Header pathname={pathname} setSwitchSpaceOrCluster={this.setSwitchSpaceOrCluster} />
           </div>
         </div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-sider' : 'tenx-layout-sider-bigger tenx-layout-sider'}>
