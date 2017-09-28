@@ -63,10 +63,11 @@ class Websocket extends Component {
       let time = this.generateInterval(this.state.attempts)
       let attempts = this.state.attempts
       attempts++
-      this.setState([
-        attempts
-      ])
-      setTimeout(() => {
+      this.setState({
+        attempts,
+      })
+      clearTimeout(this.setupWebsocketTimeout)
+      this.setupWebsocketTimeout = setTimeout(() => {
         this.logging('Websocket disconnected')
         this.shouldReconnect = this.props.reconnect
         this.logging(this.shouldReconnect)
