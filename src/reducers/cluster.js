@@ -245,7 +245,7 @@ export default function cluster(state = {
       REQUEST: ActionTypes.GET_CLUSTER_PLUGINS_REQUEST,
       SUCCESS: ActionTypes.GET_CLUSTER_PLUGINS_SUCCESS,
       FAILURE: ActionTypes.GET_CLUSTER_PLUGINS_FAILURE
-    }, state.clusterPlugins, action, { overwrite: false }),
+    }, state.clusterPlugins, action, { overwrite: true }),
     updateClusterPlugins: reducerFactory({
       REQUEST: ActionTypes.UPDATE_CLUSTER_PLUGINS_REQUEST,
       SUCCESS: ActionTypes.UPDATE_CLUSTER_PLUGINS_SUCCESS,
