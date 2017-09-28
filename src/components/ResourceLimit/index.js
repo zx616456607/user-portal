@@ -276,7 +276,7 @@ class ResourceQuota extends React.Component {
                         </Col>
                         <Col span={4} style={{ height: 30 }}>
                           <FormItem>
-                            <span>配额剩余：0/
+                          <span>配额剩余：0/
                               {
                                 Object.keys(globaleList).map((value, index) => (
                                   <span key={index}>
@@ -556,7 +556,8 @@ ResourceQuota = createForm()(ResourceQuota)
 function mapStateToProps(state) {
   const { current } = state.entities
   const { namespace } = current.space
-  const clusterData = state.projectAuthority.projectClusterList[namespace].data
+  const { projectClusterList } = state.projectAuthority
+  const clusterData = projectClusterList[namespace] && projectClusterList[namespace].data || []
   return {
     clusterData,
   }
