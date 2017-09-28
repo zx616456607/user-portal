@@ -602,6 +602,7 @@ class Membermanagement extends Component {
       createUserSuccessModalVisible: false,
       createUserErrorMsg: null,
       deletedUserModalVisible: false,
+      sendEmailSuccess: false,
     }
   }
   showInfo = (title, content) => {
@@ -639,6 +640,7 @@ class Membermanagement extends Component {
     const { createUser, loadUserList } = this.props
     let { page, pageSize, sort, filter, createUserErrorMsg } = this.state
     let notification = new NotificationHandler()
+    let sendEmailSuccess = false
     notification.spin(`创建用户 ${user.userName} 中...`)
     createUser(user, {
       success: {
@@ -654,10 +656,14 @@ class Membermanagement extends Component {
             createUserErrorMsg = '发送邮件失败'
           } else {
             createUserErrorMsg = null
+            if (user.sendEmail) {
+              sendEmailSuccess = true
+            }
           }
           this.setState({
             createUserErrorMsg,
             createUserSuccessModalVisible: true,
+            sendEmailSuccess,
           })
         },
         isAsync: true
@@ -754,7 +760,7 @@ class Membermanagement extends Component {
   render() {
     const { users, checkUserName, loadAllUserList, userDetail, teams, onlineTotal, usersIsFetching } = this.props
     const scope = this
-    const { visible, memberList, hasSelected, createUserErrorMsg } = this.state
+    const { visible, memberList, hasSelected, createUserErrorMsg, sendEmailSuccess } = this.state
     const searchIntOption = {
       addBefore: [
         { key: 'name', value: '成员名' },
@@ -820,6 +826,9 @@ class Membermanagement extends Component {
               创建成功
               {
                 createUserErrorMsg && <span className="createUserErrorMsg">({createUserErrorMsg})</span>
+              }
+              {
+                sendEmailSuccess && <span className="createUserSucessMsg">(发送邮件成功)</span>
               }
             </div>
             <div className="alertRow">
