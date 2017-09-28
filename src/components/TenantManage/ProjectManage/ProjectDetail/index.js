@@ -30,6 +30,8 @@ import CreateRoleModal from '../CreateRole'
 import { PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID, ROLE_SYS_ADMIN } from '../../../../../constants'
 import ResourceQuota from '../../../ResourceLimit'
 import { formatDate } from '../../../../common/tools'
+import { getGlobaleQuota, getClusterQuota } from '../../../../actions/quota'
+import { REG } from '../../../../constants'
 
 let checkedKeysDetail = []
 const TabPane = Tabs.TabPane;
@@ -70,6 +72,7 @@ class ProjectDetail extends Component {
       roleMember: 0,
       memberType: 'user',
       filterFlag: true,
+      quotaData: [],
     }
   }
   componentWillMount() {
@@ -77,6 +80,18 @@ class ProjectDetail extends Component {
     this.getClustersWithStatus();
     // this.getProjectMember();
     // this.loadRoleList()
+    const { getGlobaleQuota, getClusterQuota } = this.props
+    getGlobaleQuota({
+      success: {
+        func: res => {
+          if(REG.test(res.code)){
+            this.setState({
+              quotaData: res.data
+            })
+          }
+        }
+      }
+    })
   }
   getClustersWithStatus() {
     const { name } = this.props.location.query;
@@ -680,7 +695,7 @@ class ProjectDetail extends Component {
   render() {
     const { payNumber, projectDetail, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
-      filterFlag, isManager, roleNameArr, getRoleLoading
+      filterFlag, isManager, roleNameArr, getRoleLoading, quotaData
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters } = this.props;
@@ -1215,7 +1230,7 @@ class ProjectDetail extends Component {
                 {/* </Card> */}
               </TabPane>
               <TabPane tab="资源配额管理" key="puota">
-                <ResourceQuota isProject={true} />
+                <ResourceQuota isProject={true} data={quotaData}/>
               </TabPane>
             </Tabs>
 
@@ -1271,5 +1286,6 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   GetRole,
   roleWithMembers,
   usersAddRoles,
-  usersLoseRoles
+  usersLoseRoles,
+  getGlobaleQuota
 })(ProjectDetail)

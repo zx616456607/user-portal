@@ -28,6 +28,8 @@ class MySpace extends Component {
     this.state = {
       cicdStates: true,
       ImageStates: true,
+      isCi: true,
+      isdeliver: false
     }
   }
 
@@ -110,6 +112,37 @@ class MySpace extends Component {
       </Card>
     )
   }
+  handleChange(e) {
+    const { isCi, isdeliver } = this.state
+    switch (e.target.value) {
+      case 'ci':
+        if (isCi) {
+          this.setState({
+            isCi: false
+          })
+        } else {
+          this.setState({
+            isCi: true,
+            isdeliver: false,
+          })
+        }
+        break
+      case 'deliver':
+        if (isdeliver) {
+          this.setState({
+            isdeliver: false
+          })
+        } else {
+          this.setState({
+            isdeliver: true,
+            isCi: false,
+          })
+        }
+        break
+      default:
+        return
+    }
+  }
 
   render() {
     const { spaceWarnings, spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName, isFetching } = this.props
@@ -184,51 +217,58 @@ class MySpace extends Component {
         }
       }]
     }
-
+    const { isCi, isdeliver } = this.state
+    const ciList = ['tenxflow(个)', '子任务(个)', 'Dockerfile(个)']
+    const deliverList = ['镜像仓库组(个)', '镜像仓库(个)', '编排文件(个)', '应用包(个)']
     return (
       <div id='MySpace'>
         <Row className="title" style={{ marginTop: 20 }}>{spaceName}</Row>
         <Row className="content" gutter={16}>
-          <Col span={6}>
-            <Card title="项目资源配置" bordered={false} bodyStyle={{ height: 175, padding: '0', position: 'relative' }}
+          <Col span={6} className="quota">
+            <Card title="项目资源配置" bordered={false} bodyStyle={{ height: 175, padding: '15px 24px' }}
               extra={<Button type="primary" size="small">设置配额</Button>}>
-              <RadioGroup style={{ margin: '20px 65px' }} className="" onChange={this.onChange} defaultValue="a">
-                <RadioButton value="a">CI/CD</RadioButton>
-                <RadioButton value="b">交付中心</RadioButton>
-              </RadioGroup>
-              <Row className="info">
-                <Col span={7}>
-                  <span>Tenxfilow(个)</span>
-                </Col>
-                <Col span={12}>
-                  <Progress className="pro" style={{ width: '90%' }} percent={30} showInfo={false} />
-                </Col>
-                <Col span={4}>
-                  <span className="count">2/5</span>
+              <Row>
+                <Col span={16} offset={6}>
+                  <RadioGroup size="small" onChange={(e) => this.handleChange(e)} defaultValue="ci">
+                    <RadioButton value="ci">CI/CD</RadioButton>
+                    <RadioButton value="deliver">交付中心</RadioButton>
+                  </RadioGroup>
                 </Col>
               </Row>
-              <Row className="info">
-                <Col span={7}>
-                  <span>子任务(个)</span>
-                </Col>
-                <Col span={12}>
-                  <Progress className="pro" style={{ width: '90%' }} percent={30} showInfo={false} />
-                </Col>
-                <Col span={4}>
-                  <span className="count">2/5</span>
-                </Col>
-              </Row>
-              <Row className="info">
-                <Col span={7}>
-                  <span>Dockerfile(个)</span>
-                </Col>
-                <Col span={12}>
-                  <Progress className="pro" style={{ width: '90%' }} percent={30} showInfo={false} />
-                </Col>
-                <Col span={4}>
-                  <span className="count">2/5</span>
-                </Col>
-              </Row>
+              <div className="ci" style={{ display: isCi ? 'block' : 'none' }}>
+                {
+                  ciList.map((item, index) => (
+                    <Row className="info">
+                      <Col span={7}>
+                        <span>{item}</span>
+                      </Col>
+                      <Col span={12}>
+                        <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
+                      </Col>
+                      <Col span={4}>
+                        <span className="count">0/0</span>
+                      </Col>
+                    </Row>
+                  ))
+                }
+              </div>
+              <div className="deliver" style={{ overflowY: 'auto', display: isdeliver ? 'block' : 'none' }}>
+                {
+                  deliverList.map((item, index) => (
+                    <Row className="info">
+                      <Col span={9}>
+                        <span>{item}</span>
+                      </Col>
+                      <Col span={11}>
+                        <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
+                      </Col>
+                      <Col span={4}>
+                        <span className="count">0/0</span>
+                      </Col>
+                    </Row>
+                  ))
+                }
+              </div>
             </Card>
             <Card title="今日该空间记录" bordered={false} bodyStyle={{ height: 175, padding: '20', position: 'relative', fontSize: '14px' }} style={{ marginTop: 10 }}>
               <div style={{ overflowY: 'auto', height: '124px' }}>
