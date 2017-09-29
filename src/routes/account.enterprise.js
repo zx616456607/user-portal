@@ -13,7 +13,7 @@
 const accountRoutes = [
   {
     path: 'costCenter',
-    component: require('../components/AccountModal/CostCenter').default,
+    component: require('../components/AccountModal/CostCenterEnterprise').default,
   },
 ]
 
