@@ -66,12 +66,11 @@ class RoleManagement extends React.Component {
     })
   }
   getSort(order, column) {
-    var query = {}
     var orderStr = 'a,'
     if (!order) {
       orderStr = 'd,'
     }
-    return orderStr + column
+    return orderStr + column + 'a,name'
   }
   /**
    * 加载数据
@@ -86,17 +85,14 @@ class RoleManagement extends React.Component {
       size: 10,
       sort
     }
-    // let query = {
-    //   sort,
-    //   size: -1
-    // }
     ListRole(query, {
       success: {
         func: res => {
           if (REG.test(res.data.code)) {
+            let data = res.data.data.items
             this.setState({
               loading: false,
-              roleData: res.data.data.items,
+              roleData: data,
               total: res.data.data.total
             })
           }

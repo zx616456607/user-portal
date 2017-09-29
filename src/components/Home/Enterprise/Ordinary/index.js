@@ -152,6 +152,9 @@ class Ordinary extends Component {
       tab6: false,
       isTeam: false,
       statefulApp: 'mysql',
+      isComputing: true,
+      isApplication: false,
+      isService: false,
     }
   }
 
@@ -218,7 +221,50 @@ class Ordinary extends Component {
   }
 
   onChange(e) {
-
+    const { isApplication, isComputing, isService } = this.state
+    switch (e.target.value) {
+      case 'computing':
+        if (isComputing) {
+          this.setState({
+            isComputing: false
+          })
+        } else {
+          this.setState({
+            isComputing: true,
+            isApplication: false,
+            isService: false,
+          })
+        }
+        break
+      case 'application':
+        if (isApplication) {
+          this.setState({
+            isApplication: false
+          })
+        } else {
+          this.setState({
+            isApplication: true,
+            isComputing: false,
+            isService: false,
+          })
+        }
+        break
+      case 'service':
+        if (isService) {
+          this.setState({
+            isService: false
+          })
+        } else {
+          this.setState({
+            isService: true,
+            isApplication: false,
+            isComputing: false,
+          })
+        }
+        break
+      default:
+        return
+    }
   }
 
   render() {
@@ -465,8 +511,8 @@ class Ordinary extends Component {
     let allocatedPod = clusterStaticSummary.pod
     let allocatedPodNumber = 0
 
-    allocatedPodNumber += allocatedPod ? allocatedPod['running'] :0
-    allocatedPodNumber += allocatedPod ? allocatedPod['pending'] :0
+    allocatedPodNumber += allocatedPod ? allocatedPod['running'] : 0
+    allocatedPodNumber += allocatedPod ? allocatedPod['pending'] : 0
     let capacityCreateContainer = canCreateContainer + allocatedPodNumber
     //Options
     let appOption = {
@@ -1140,7 +1186,10 @@ class Ordinary extends Component {
       }]
     }
     const img = userName.substr(0, 1).toUpperCase()
-
+    const { isComputing, isApplication, isService } = this.state
+    const computeList = ['CPU （核）', '内存（GB）', '磁盘（GB）']
+    const platformList = ['应用 (个)', '服务 (个)', '容器 (个)', '存储 (个)', '快照 (个)', '服务配置 (个)']
+    const serviceList = ['关系型数据库 (个)', '缓存 (个)', 'Zookeeper (个)', 'ElasticSearch (个)']
     return (
 
       <div id='Ordinary'>
@@ -1859,81 +1908,69 @@ class Ordinary extends Component {
         <Row className="content" gutter={16} style={{ marginTop: 16 }}>
           <Col span={6} className='quota'>
             <Card title="该集群在项目中的资源配额" bordered={false} bodyStyle={{ height: 200, padding: '15px 24px' }}>
-              <RadioGroup style={{ margin: '10px 5px 10px 5px' }} className="radio" size="small" onChange={this.onChange} defaultValue="a">
-                <RadioButton value="a">计算资源</RadioButton>
-                <RadioButton value="b">应用管理</RadioButton>
-                <RadioButton value="c">数据库与缓存</RadioButton>
-              </RadioGroup>
-              <div className="calculation">
-                <div className="info">
-                  <span>CPU(核)</span>
-                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
-                  <span className="count">2/5</span>
-                </div>
-                <div className="info">
-                  <span>内存(GB)</span>
-                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
-                  <span>2/5</span>
-                </div>
-                <div className="info">
-                  <span>磁盘(GB)</span>
-                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
-                  <span>2/5</span>
-                </div>
+              <Row className="radios">
+                <RadioGroup size="small" onChange={(e) => this.onChange(e)} defaultValue="computing">
+                  <RadioButton value="computing">计算资源</RadioButton>
+                  <RadioButton value="application">应用管理</RadioButton>
+                  <RadioButton value="service">数据库与缓存</RadioButton>
+                </RadioGroup>
+              </Row>
+              <div className="calculation" style={{ display: isComputing ? 'block' : 'none' }}>
+                {
+                  computeList.map((item, index) => (
+                    <div className="info">
+                      <Row>
+                        <Col span={8}>
+                          <span>{item}</span>
+                        </Col>
+                        <Col span={12}>
+                          <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
+                        </Col>
+                        <Col span={4}>
+                          <span className="count">0/0</span>
+                        </Col>
+                      </Row>
+                    </div>
+                  ))
+                }
               </div>
-              <div className="application" style={{ display: 'none' }}>
-                <div className="info">
-                  <span>应用(个)</span>
-                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
-                  <span className="count">2/5</span>
-                </div>
-                <div className="info">
-                  <span>服务(个)</span>
-                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
-                  <span className="count">2/5</span>
-                </div>
-                <div className="info">
-                  <span>容器(个)</span>
-                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
-                  <span className="count">2/5</span>
-                </div>
-                <div className="info">
-                  <span>存储(个)</span>
-                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
-                  <span className="count">2/5</span>
-                </div>
-                <div className="info">
-                  <span>快照(个)</span>
-                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
-                  <span className="count">2/5</span>
-                </div>
-                <div className="info">
-                  <span>服务配置(个)</span>
-                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
-                  <span className="count">2/5</span>
-                </div>
+              <div className="application" style={{ overflowY: 'auto', display: isApplication ? 'block' : 'none' }}>
+                {
+                  platformList.map((item, index) => (
+                    <div className="info">
+                      <Row>
+                        <Col span={8}>
+                          <span>{item}</span>
+                        </Col>
+                        <Col span={12}>
+                          <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
+                        </Col>
+                        <Col span={4}>
+                          <span className="count">0/0</span>
+                        </Col>
+                      </Row>
+                    </div>
+                  ))
+                }
               </div>
-              <div className="service" style={{display:'none'}}>
-                <div className="info">
-                  <span>关系型数据库(个)</span>
-                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
-                  <span>2/5</span>
-                </div>
-                <div className="info">
-                  <span>缓存(个)</span>
-                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
-                  <span>2/5</span>
-                </div>
-                <div className="info">
-                  <span>Zookeeper(个)</span>
-                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
-                  <span>2/5</span>
-                </div>
-                <div className="info">
-                  <span>ElasticSearch(个)</span>
-                  <Progress className="pro" style={{ width: '50%' }} percent={30} showInfo={false} />
-                  <span>2/5</span>
-                </div>
+              <div className="service" style={{ overflowY: 'auto', display: isService ? 'block' : 'none' }}>
+                {
+                  serviceList.map((item, index) => (
+                    <div className="info">
+                      <Row>
+                        <Col span={11}>
+                          <span>{item}</span>
+                        </Col>
+                        <Col span={9}>
+                          <Progress className="pro" style={{ width: '95%' }} percent={0} showInfo={false} />
+                        </Col>
+                        <Col span={4}>
+                          <span>0/0</span>
+                        </Col>
+                      </Row>
+                    </div>
+                  ))
+                }
               </div>
             </Card>
           </Col>

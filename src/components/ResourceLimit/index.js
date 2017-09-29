@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import './style/index.less'
 import { InputNumber, Table, Button, Icon, Input, Modal, Row, Col, Transfer, Tooltip, Dropdown, Menu, Progress, Select, Checkbox, Form } from 'antd'
 import { putGlobaleQuota, putClusterQuota } from '../../actions/quota'
+import NotificationHandler from '../../components/Notification'
 const FormItem = Form.Item
 const createForm = Form.create
 
@@ -27,13 +28,15 @@ class ResourceQuota extends React.Component {
       cIsEdit: false,
       isProject: false,
       isDisabled: false,
+      quotaData: [],
     }
   }
   componentWillMount() {
-    const { isProject, data } = this.props
+    const { isProject, data, clusterData } = this.props
     this.setState({
       isProject,
       globaleList: data,
+      quotaData: clusterData,
     })
   }
   /**
@@ -72,9 +75,37 @@ class ResourceQuota extends React.Component {
    * 全局 Ok
    */
   handleGlobaleSave() {
-    this.setState({
-      gIsEdit: false
+    const { putGlobaleQuota } = this.props
+    const { validateFields } = this.props.form
+    let notify = new NotificationHandler()
+    validateFields((error, value) => {
+      if (!!error) return
+      let body = {
+        subTask: value.subTask,
+        registry: value.registry,
+        tenxflow: value.tenxflow,
+        dockerfile: value.dockerfile,
+        registryProject: value.registryProject,
+        applicationPackage: value.applicationPackage,
+        orchestrationTemplate: value.orchestrationTemplate,
+      }
+      putGlobaleQuota({ body }, {
+        success: {
+          func: res => {
+            if (res.code === 200) {
+              notify.success('设置成功')
+              this.setState({
+                globaleList: res.data
+              })
+            }
+          }
+        }
+      })
+      this.setState({
+        gIsEdit: false
+      })
     })
+
   }
   /**
    * 集群 Cancel
@@ -123,9 +154,21 @@ class ResourceQuota extends React.Component {
     let result = 0
     let number = 100 / Number(value)
     for (let i = 0; i < count; i++) {
-      result+=number
-     }
-     result > max ? 0 : result
+      result += number
+    }
+    result > max ? 0 : result
+  }
+  maxCount(value) {
+    const { globaleList } = this.state
+    let count = ''
+    if (globaleList) {
+      Object.keys(globaleList).forEach((item, index) => {
+        if (item === value) {
+          count = Object.values(globaleList)[index]
+        }
+      })
+    }
+    return count
   }
 
   render() {
@@ -195,7 +238,7 @@ class ResourceQuota extends React.Component {
           gIsEdit ?
             <div className="globaleEdit">
               <Button size="large" className="close" onClick={() => this.handleGlobaleClose()}>取消</Button>
-              <Button size="large" className="save" type="primary" onClick={this.handleGlobaleSave}>保存</Button>
+              <Button size="large" className="save" type="primary" onClick={(e) => this.handleGlobaleSave(e)}>保存</Button>
             </div> :
             <Button size="large" className="btn" type="primary" onClick={() => this.handleGlobaleEdit()}>编辑</Button>
         }
@@ -233,10 +276,10 @@ class ResourceQuota extends React.Component {
                         </Col>
                         <Col span={4} style={{ height: 30 }}>
                           <FormItem>
-                            <span>配额剩余：0/
+                          <span>配额剩余：0/
                               {
                                 Object.keys(globaleList).map((value, index) => (
-                                  <span >
+                                  <span key={index}>
                                     {
                                       JSON.stringify(value) === item.key ? Object.values(globaleList)[index] : null
                                     }
@@ -283,7 +326,7 @@ class ResourceQuota extends React.Component {
                             <span>配额剩余：0
                               {
                                 Object.keys(globaleList).map((value, index) => (
-                                  <span >
+                                  <span key={index}>
                                     {
                                       JSON.stringify(value) === item.key ? Object.values(globaleList)[index] : null
                                     }
@@ -310,13 +353,7 @@ class ResourceQuota extends React.Component {
                         <Progress percent={30} showInfo={false} />
                       </Col>
                       <Col span={4}>
-                        <span>0/
-                          {
-                            globaleList ?
-                              Object.keys(globaleList).map((value, index) => (
-                                value === item.key ? Object.values(globaleList)[index] : ''
-                              )) : ''
-                          }（个）</span>
+                        <span>0/{this.maxCount(item.key)}（个）</span>
                       </Col>
                     </Row>
                   ))
@@ -332,13 +369,7 @@ class ResourceQuota extends React.Component {
                         <Progress percent={30} showInfo={false} />
                       </Col>
                       <Col span={4}>
-                        <span>0/
-                            {
-                            globaleList ?
-                              Object.keys(globaleList).map((value, index) => (
-                                value === item.key ? Object.values(globaleList)[index] : ''
-                              )) : ''
-                          }（个）</span>
+                        <span>0/{this.maxCount(item.key)}（个）</span>
                       </Col>
                     </Row>
                   ))
@@ -359,11 +390,11 @@ class ResourceQuota extends React.Component {
                 <div>
                   <Button size="large" className="close" onClick={() => this.handleClusterClose()}>取消</Button>
                   <Button size="large" className="save" type="primary" onClick={() => this.handleClusterOk()}>保存</Button>
-                  <span className="header_desc">修改配额，将修改 <p className="sum">1</p> 个资源配额</span>
+                  <span className="header_desc">修改配额，将修改 <p className="sum">0</p> 个资源配额</span>
                 </div> :
                 <div>
                   <Button size="large" className="edit" type="primary" onClick={() => this.handleClusterEdit()}>编辑</Button>
-                  <span className="header_desc">修改配额，将修改 <p className="sum">1</p> 个资源配额</span>
+                  <span className="header_desc">修改配额，将修改 <p className="sum">0</p> 个资源配额</span>
                 </div>
             }
           </div>
@@ -386,10 +417,10 @@ class ResourceQuota extends React.Component {
                             <Checkbox>无限制</Checkbox>
                           </Col>
                           <Col span={4}>
-                            <span>配额剩余：3</span>
+                            <span>配额剩余：0</span>
                           </Col>
                           <Col span={4}>
-                            <span>该集群剩余：2</span>
+                            <span>该集群剩余：0</span>
                           </Col>
                         </Row>
                       ))
@@ -410,10 +441,10 @@ class ResourceQuota extends React.Component {
                             <Checkbox>无限制</Checkbox>
                           </Col>
                           <Col span={4}>
-                            <span>配额剩余：3</span>
+                            <span>配额剩余：0</span>
                           </Col>
                           <Col span={4}>
-                            <span>该集群剩余：2</span>
+                            <span>该集群剩余：0</span>
                           </Col>
                         </Row>
                       ))
@@ -435,10 +466,10 @@ class ResourceQuota extends React.Component {
                             <Checkbox>无限制</Checkbox>
                           </Col>
                           <Col span={4}>
-                            <span>配额剩余：3</span>
+                            <span>配额剩余：0</span>
                           </Col>
                           <Col span={4}>
-                            <span>该集群剩余：2</span>
+                            <span>该集群剩余：0</span>
                           </Col>
                         </Row>
                       ))
@@ -457,7 +488,7 @@ class ResourceQuota extends React.Component {
                             <Progress percent={30} showInfo={false} />
                           </Col>
                           <Col span={4}>
-                            <span>2/5（个）</span>
+                            <span>0/0（个）</span>
                           </Col>
                         </Row>
                       ))
@@ -474,7 +505,7 @@ class ResourceQuota extends React.Component {
                             <Progress percent={30} showInfo={false} />
                           </Col>
                           <Col span={4}>
-                            <span>2/5（个）</span>
+                            <span>0/0（个）</span>
                           </Col>
                         </Row>
                       ))
@@ -492,7 +523,7 @@ class ResourceQuota extends React.Component {
                             <Progress percent={30} showInfo={false} />
                           </Col>
                           <Col span={4}>
-                            <span>2/5（个）</span>
+                            <span>0/0（个）</span>
                           </Col>
                         </Row>
                       ))
@@ -523,9 +554,13 @@ class ResourceQuota extends React.Component {
 }
 ResourceQuota = createForm()(ResourceQuota)
 function mapStateToProps(state) {
-  const { entities } = state
-  const { current } = entities
-  return {}
+  const { current } = state.entities
+  const { namespace } = current.space
+  const { projectClusterList } = state.projectAuthority
+  const clusterData = projectClusterList[namespace] && projectClusterList[namespace].data || []
+  return {
+    clusterData,
+  }
 }
 
 export default connect(mapStateToProps, {
