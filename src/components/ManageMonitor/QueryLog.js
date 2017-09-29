@@ -215,7 +215,7 @@ let NamespaceModal = React.createClass({
           <Input className='commonSearchInput namespaceInput' onChange={this.inputSearch} type='text' size='large' />
         </div>
         <div className='dataList'>
-          <div className='namespaceDetail' key='defaultNamespace' onClick={scope.onSelectNamespace.bind(scope, '我的个人项目', 'default', defaultNamespace)}>
+          <div className='namespaceDetail' key='defaultNamespace' onClick={scope.onSelectNamespace.bind(scope, '我的个人项目', 'default', 'default')}>
             <span>我的个人项目</span>
           </div>
           {namespaceList}
