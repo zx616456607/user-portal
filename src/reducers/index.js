@@ -13,6 +13,7 @@ import merge from 'lodash/merge'
 import union from 'lodash/union'
 import { routerReducer as routing } from 'react-router-redux'
 import { combineReducers } from 'redux'
+import { isResourcePermissionError } from '../common/tools'
 import entities from './entities'
 import * as appManageReducers from './app_manage'
 import * as appCenterReducers from './app_center'
@@ -104,6 +105,7 @@ function actionCallback(state = null, action) {
     // Mark error is already handled(except login expired)
     if (action.error.statusCode !== PAYMENT_REQUIRED_CODE // 余额不足
        && action.error.statusCode !== UPGRADE_EDITION_REQUIRED_CODE // 升级版本
+       && !isResourcePermissionError(action.error) // 没有权限
        && action.error.message !== LOGIN_EXPIRED_MESSAGE) {
       action.error.handledByCallback = true
     }

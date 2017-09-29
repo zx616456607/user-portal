@@ -641,3 +641,11 @@ export function isValidateDate(date) {
   }
   return true
 }
+
+export function isResourcePermissionError(err) {
+  if (!err) {
+    return false
+  }
+  const { statusCode, message } = err
+  return statusCode === 403 && (message && message.details && message.details.kind === 'ResourcePermission')
+}
