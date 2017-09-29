@@ -15,8 +15,7 @@ import { Card, Select, Button, DatePicker, Input, Spin, Popover, Icon, Checkbox,
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getQueryLogList, getServiceQueryLogList } from '../../actions/manage_monitor'
 import { loadServiceContainerList } from '../../actions/services'
-// zhangpc_fix
-// import { loadUserTeamspaceList } from '../../actions/user'
+import { ListProjects } from '../../actions/project'
 import { throwError } from '../../actions'
 import { getClusterOfQueryLog, getServiceOfQueryLog } from '../../actions/manage_monitor'
 import './style/QueryLog.less'
@@ -184,7 +183,7 @@ let NamespaceModal = React.createClass({
     let value = e.target.value;
     let tempList = [];
     namespace.map((item) => {
-      if (item.spaceName.indexOf(value) > -1) {
+      if (item.namespace.indexOf(value) > -1) {
         tempList.push(item)
       }
     });
@@ -204,8 +203,8 @@ let NamespaceModal = React.createClass({
     } else {
       namespaceList = this.state.currentList.map((item, index) => {
         return (
-          <div className='namespaceDetail' key={index} onClick={scope.onSelectNamespace.bind(scope, item.spaceName, item.teamID, item.namespace)}>
-            {item.spaceName}
+          <div className='namespaceDetail' key={index} onClick={scope.onSelectNamespace.bind(scope, item.projectName, item.teamID, item.namespace)}>
+            {item.projectName}
           </div>
         )
       });
@@ -216,8 +215,8 @@ let NamespaceModal = React.createClass({
           <Input className='commonSearchInput namespaceInput' onChange={this.inputSearch} type='text' size='large' />
         </div>
         <div className='dataList'>
-          <div className='namespaceDetail' key='defaultNamespace' onClick={scope.onSelectNamespace.bind(scope, '我的空间', 'default', defaultNamespace)}>
-            <span>我的空间</span>
+          <div className='namespaceDetail' key='defaultNamespace' onClick={scope.onSelectNamespace.bind(scope, '我的个人项目', 'default', defaultNamespace)}>
+            <span>我的个人项目</span>
           </div>
           {namespaceList}
         </div>
@@ -281,7 +280,7 @@ let ClusterModal = React.createClass({
         return (
           <div className='clusterDetail' key={index} onClick={scope.onSelectCluster.bind(scope, item.clusterName, item.clusterID)}>
             <span className='leftSpan'>{item.clusterName}</span>
-            <span className='rightSpan'>{item.instanceNum}</span>
+            <span className='rightSpan'>{item.instanceNum || 0}</span>
             <span style={{ clear: 'both' }}></span>
           </div>
         )
@@ -595,6 +594,11 @@ let LogComponent = React.createClass({
   }
 });
 
+function loadProjects(props, callback) {
+  const { ListProjects, loginUser } = props
+  ListProjects({ size: 0 }, callback)
+}
+
 class QueryLog extends Component {
   constructor(props) {
     super(props)
@@ -659,6 +663,17 @@ class QueryLog extends Component {
     const { current, query, intl } = this.props;
     const { formatMessage } = intl;
     const _this = this;
+    loadProjects(this.props, {
+      success: {
+        func: res => {
+          const projects = res.data && res.data.projects || []
+          _this.setState({
+            namespaceList: projects,
+            gettingNamespace: false
+          })
+        }
+      }
+    })
     /*loadUserTeamspaceList('default', { size: 100 }, {
       success: {
         func: (res) => {
@@ -671,14 +686,14 @@ class QueryLog extends Component {
       }
     });*/
     const { space, cluster } = current;
-    const { spaceName, teamID, namespace } = space;
-    this.onSelectNamespace(spaceName, teamID, namespace);
+    const { teamID, namespace, name } = space;
+    this.onSelectNamespace(name, teamID, namespace);
     const { clusterName, clusterID } = cluster;
     this.onSelectCluster(clusterName, clusterID, namespace);
     const { service, instance } = query;
     if (service && instance) {
       this.setState({
-        currentNamespace: spaceName,
+        currentNamespace: name,
         currentCluster: clusterName,
         currentClusterId: clusterID,
         currentService: service,
@@ -736,7 +751,7 @@ class QueryLog extends Component {
         selectedNamespace: false,
         searchNamespace: namespace
       });
-      getClusterOfQueryLog(teamId, namespace, {
+      getClusterOfQueryLog(namespace, namespace, {
         success: {
           func: (res) => {
             _this.setState({
@@ -1089,7 +1104,7 @@ class QueryLog extends Component {
           </div>
           <div className='operaBox'>
             <div className='commonBox'>
-              <span className='titleSpan'>{standardFlag ? [<span>团队：</span>] : [<FormattedMessage {...menusText.user} />]}</span>
+              <span className='titleSpan'>{standardFlag ? <span>团队：</span> : '项目：'}</span>
               <Popover
                 content={<NamespaceModal scope={scope} namespace={this.state.namespaceList} defaultNamespace={defaultNamespace} />}
                 trigger='click'
@@ -1285,10 +1300,10 @@ QueryLog = injectIntl(QueryLog, {
 
 export default connect(mapStateToProps, {
   getQueryLogList,
+  getClusterOfQueryLog,
   getServiceQueryLogList,
   loadServiceContainerList,
-  // loadUserTeamspaceList,
-  getClusterOfQueryLog,
+  ListProjects,
   getServiceOfQueryLog,
   throwError,
 })(QueryLog)

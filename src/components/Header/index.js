@@ -126,6 +126,7 @@ class Header extends Component {
     this.showUpgradeVersionModal = this.showUpgradeVersionModal.bind(this)
     this.renderCheckVersionContent = this.renderCheckVersionContent.bind(this)
     this.handleDocVisible = this.handleDocVisible.bind(this)
+    this.handleSpaceVisibleChange = this.handleSpaceVisibleChange.bind(this)
     this.state = {
       spacesVisible: false,
       clustersVisible: false,
@@ -201,14 +202,7 @@ class Header extends Component {
           GetProjectsAllClusters({ projectsName: defaultSpace.projectName }, {
             success: {
               func: clustersRes => {
-                let { clusters } = clustersRes.data
-                clusters = clusters.map(cluster => {
-                  if (cluster.cluster) {
-                    cluster = cluster.cluster
-                  }
-                  cluster.name = cluster.clusterName
-                  return cluster
-                })
+                const { clusters } = clustersRes.data
                 let defaultCluster = clusters[0] || {}
                 clusters.map(cluster => {
                   if (cluster.clusterID === clusterID) {
@@ -264,6 +258,7 @@ class Header extends Component {
             space: project,
             cluster: firstCluster,
           })
+          this.props.setSwitchSpaceOrCluster()
           let isShowCluster = !!showCluster
           if (clusters.length === 1) {
             isShowCluster = false
@@ -291,6 +286,7 @@ class Header extends Component {
     setCurrent({
       cluster
     })
+    this.props.setSwitchSpaceOrCluster()
     let msg = `${zone}已成功切换到 [${cluster.clusterName}]`
     if (current.cluster.namespace !== current.space.namespace) {
       msg = `${team}已成功切换到 [${current.space.spaceName}]，${msg}`
@@ -358,6 +354,15 @@ class Header extends Component {
         <a onClick={this._checkLiteVersion}>点击重试</a>
       </div>
     )
+  }
+
+  handleSpaceVisibleChange(visible) {
+    this.setState({
+      spacesVisible: visible
+    })
+    if (visible) {
+      loadProjects(this.props)
+    }
   }
 
   render() {
@@ -446,6 +451,7 @@ class Header extends Component {
                     onChange={this.handleProjectChange}
                     selectValue={selectValue || '...'}
                     popTeamSelect={mode === standard}
+                    onVisibleChange={this.handleSpaceVisibleChange}
                   />
                 </div>
             </div>
@@ -566,6 +572,7 @@ function mapStateToProps(state, props) {
   const currentNamespace = current.space.namespace
   const currentProjectClusterList = projectClusterList[currentNamespace] || {}
   const projectClusters = currentProjectClusterList.data || []
+  projectClusters.forEach(cluster => cluster.name = cluster.clusterName)
   return {
     current,
     loginUser: loginUser.info,

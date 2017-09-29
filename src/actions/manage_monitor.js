@@ -120,20 +120,20 @@ export const GET_CLUSTER_OF_TEAM_FOR_LOG_REQUEST = 'GET_CLUSTER_OF_TEAM_FOR_LOG_
 export const GET_CLUSTER_OF_TEAM_FOR_LOG_SUCCESS = 'GET_CLUSTER_OF_TEAM_FOR_LOG_SUCCESS'
 export const GET_CLUSTER_OF_TEAM_FOR_LOG_FAILURE = 'GET_CLUSTER_OF_TEAM_FOR_LOG_FAILURE'
 
-function fetchClusterOfQueryLog(teamId, namespace, callback) {
+function fetchClusterOfQueryLog(projecName, namespace, callback) {
   return {
     [FETCH_API]: {
       types: [GET_CLUSTER_OF_TEAM_FOR_LOG_REQUEST, GET_CLUSTER_OF_TEAM_FOR_LOG_SUCCESS, GET_CLUSTER_OF_TEAM_FOR_LOG_FAILURE],
-      endpoint: `${API_URL_PREFIX}/manage-monitor/${teamId}/${namespace}/getClusterOfQueryLog`,
+      endpoint: `${API_URL_PREFIX}/manage-monitor/${projecName}/${namespace}/getClusterOfQueryLog`,
       schema: {}
     },
     callback
   }
 }
 
-export function getClusterOfQueryLog(teamId, namespace, callback) {
+export function getClusterOfQueryLog(projecName, namespace, callback) {
   return (dispatch) => {
-    return dispatch(fetchClusterOfQueryLog(teamId, namespace, callback))
+    return dispatch(fetchClusterOfQueryLog(projecName, namespace, callback))
   }
 }
 

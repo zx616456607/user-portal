@@ -16,7 +16,6 @@ class IndexPage extends Component {
   }
   componentDidMount(){
     const {
-      loadTeamClustersList,
       setCurrent,
       loadLoginUserDetail,
       loginUser,

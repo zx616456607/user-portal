@@ -49,8 +49,20 @@ let CreateDatabase = React.createClass({
       currentType: nextProps.database,
     })
   },
-  onChangeCluster() {
+  onChangeCluster(clusterID) {
     this.setState({onselectCluster: false})
+    const { projectClusterList, form, space, setCurrent } = this.props
+    const currentNamespace = form.getFieldValue('namespaceSelect') || space.namespace
+    const projectClusters = projectClusterList[currentNamespace] && projectClusterList[currentNamespace].data || []
+    projectClusters.every(cluster => {
+      if (cluster.clusterID == clusterID) {
+        setCurrent({
+          cluster,
+        })
+        return false
+      }
+      return true
+    })
   },
   selectDatabaseType(database) {
     //this funciton for user select different database
@@ -63,26 +75,18 @@ let CreateDatabase = React.createClass({
     //this function for user change the namespace
     //when the namespace is changed, the function would be get all clusters of new namespace
     const { projects, GetProjectsAllClusters, setCurrent, form, current } = this.props
-    projects.map(space => {
-       if (space.namespace == namespace) {
-        // setCurrent({
-        //   space,
-        //   team: {
-        //     teamID: teamID
-        //   }
-        // })
+    projects.every(space => {
+      if (space.namespace == namespace) {
+        setCurrent({
+          space,
+          team: {
+            teamID: space.teamID
+          }
+        })
         GetProjectsAllClusters({ projectsName: namespace }, {
-        // GetProjectsAllClusters(space.teamID, { size: 100 }, {
           success: {
             func: (result) => {
-              let { clusters } = result.data
-              clusters = clusters.map(cluster => {
-                if (cluster.cluster) {
-                  cluster = cluster.cluster
-                }
-                cluster.name = cluster.clusterName
-                return cluster
-              })
+              const { clusters } = result.data
               if(clusters.length > 0) {
                 form.setFieldsValue({
                   'clusterSelect': clusters[0].clusterID
@@ -94,7 +98,9 @@ let CreateDatabase = React.createClass({
             isAsync: true
           }
         })
+        return false
        }
+       return true
     })
   },
   databaseExists(rule, value, callback) {
@@ -297,7 +303,7 @@ let CreateDatabase = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue} = this.props.form;
     const selectNamespaceProps = getFieldProps('namespaceSelect', {
       rules: [
-        { required: true, message: '请选择空间' },
+        { required: true, message: '请选择项目' },
       ],
       initialValue: space.namespace,
       onChange: this.onChangeNamespace
