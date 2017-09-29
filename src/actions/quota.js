@@ -18,13 +18,19 @@ export const FETCH_GLOBALE_QUOTA_FAILURE = 'FETCH_GLOBALE_QUOTA_FAILURE'
 
 // Fetches get quota from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGlobaleQuota(callback) {
+function fetchGlobaleQuota(query, callback) {
   let endpoint = `${API_URL_PREFIX}/resourcequota`
+  let headers
+  let title = query.header
+  if(title){
+    headers = { title }
+  }
   return {
     [FETCH_API]: {
       types: [FETCH_GLOBALE_QUOTA_REQUEST, FETCH_GLOBALE_QUOTA_SUCCESS, FETCH_GLOBALE_QUOTA_FAILURE],
       endpoint,
       options: {
+        headers,
         method: 'GET',
       },
       schema: {},
@@ -35,9 +41,40 @@ function fetchGlobaleQuota(callback) {
 
 // Fetches get quota from API
 // Relies on Redux Thunk middleware.
-export function getGlobaleQuota(callback) {
+export function getGlobaleQuota(query, callback) {
   return (dispatch) => {
-    return dispatch(fetchGlobaleQuota(callback))
+    return dispatch(fetchGlobaleQuota(query, callback))
+  }
+}
+
+export const FETCH_GLOBALE_GET_QUOTA_REQUEST = 'FETCH_GLOBALE_GET_QUOTA_REQUEST'
+export const FETCH_GLOBALE_GET_QUOTA_SUCCESS = 'FETCH_GLOBALE_GET_QUOTA_SUCCESS'
+export const FETCH_GLOBALE_GET_QUOTA_FAILURE = 'FETCH_GLOBALE_GET_QUOTA_FAILURE'
+
+function fetchGlobaleQuotaList(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/resourcequota/inuse`
+  let headers
+  let title = query.header
+  if(title){
+    headers = { title }
+  }
+  return {
+    [FETCH_API]: {
+      types: [FETCH_GLOBALE_GET_QUOTA_REQUEST, FETCH_GLOBALE_GET_QUOTA_SUCCESS, FETCH_GLOBALE_GET_QUOTA_FAILURE],
+      endpoint,
+      options: {
+        headers,
+        method: 'GET',
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getGlobaleQuotaList(query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchGlobaleQuotaList(query, callback))
   }
 }
 
@@ -47,7 +84,12 @@ export const UPDATE_GLOBALE_QUOTA_FAILURE = 'UPDATE_GLOBALE_QUOTA_FAILURE'
 
 function updateGlobaleQuota(query, callback) {
   let endpoint = `${API_URL_PREFIX}/resourcequota`
-  let body = query.body
+  let body = query.query.body
+  let headers
+  let title = query.query.header
+  if(title){
+    headers = { title }
+  }
   return {
     [FETCH_API]: {
       types: [UPDATE_GLOBALE_QUOTA_REQUEST, UPDATE_GLOBALE_QUOTA_SUCCESS, UPDATE_GLOBALE_QUOTA_FAILURE],
@@ -55,6 +97,7 @@ function updateGlobaleQuota(query, callback) {
       options: {
         method: 'PUT',
         body,
+        headers,
       },
       schema: {},
     },
@@ -62,9 +105,9 @@ function updateGlobaleQuota(query, callback) {
   }
 }
 
-export function putGlobaleQuota(callback) {
+export function putGlobaleQuota(query, callback) {
   return (dispatch) => {
-    return dispatch(updateGlobaleQuota(callback))
+    return dispatch(updateGlobaleQuota(query, callback))
   }
 }
 
@@ -72,13 +115,19 @@ export const FETCH_CLUSTER_QUOTA_REQUEST = 'FETCH_CLUSTER_QUOTA_REQUEST'
 export const FETCH_CLUSTER_QUOTA_SUCCESS = 'FETCH_CLUSTER_QUOTA_SUCCESS'
 export const FETCH_CLUSTER_QUOTA_FAILURE = 'FETCH_CLUSTER_QUOTA_FAILURE'
 
-function fetchClusterQuota(query, callback){
-  let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota`
+function fetchClusterQuota(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${query.query.id}/resourcequota`
+  let headers
+  let title = query.query.header
+  if(title){
+    headers = { title }
+  }
   return {
     [FETCH_API]: {
       types: [FETCH_CLUSTER_QUOTA_REQUEST, FETCH_CLUSTER_QUOTA_SUCCESS, FETCH_CLUSTER_QUOTA_FAILURE],
       endpoint,
       options: {
+        headers,
         method: 'GET',
       },
       schema: {},
@@ -87,7 +136,7 @@ function fetchClusterQuota(query, callback){
   }
 }
 
-export function getClusterQuota(query, callback){
+export function getClusterQuota(query, callback) {
   return (dispatch) => {
     return dispatch(fetchClusterQuota(query, callback))
   }
@@ -97,14 +146,20 @@ export const UPDATE_CLUSTER_QUOTA_REQUEST = 'UPDATE_CLUSTER_QUOTA_REQUEST'
 export const UPDATE_CLUSTER_QUOTA_SUCCESS = 'UPDATE_CLUSTER_QUOTA_SUCCESS'
 export const UPDATE_CLUSTER_QUOTA_FAILURE = 'UPDATE_CLUSTER_QUOTA_FAILURE'
 
-function updateClusterQuota(query, callback){
-  let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota`
-  let body = query.body
+function updateClusterQuota(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${query.query.id}/resourcequota`
+  let body = query.query.body
+  let headers
+  let title = query.query.header
+  if(title){
+    headers = { title }
+  }
   return {
     [FETCH_API]: {
       types: [UPDATE_CLUSTER_QUOTA_REQUEST, UPDATE_CLUSTER_QUOTA_SUCCESS, UPDATE_CLUSTER_QUOTA_FAILURE],
       endpoint,
       options: {
+        headers,
         method: 'PUT',
         body
       },
@@ -114,8 +169,39 @@ function updateClusterQuota(query, callback){
   }
 }
 
-export function putClusterQuota(query, callback){
+export function putClusterQuota(query, callback) {
   return (dispatch) => {
     return dispatch(updateClusterQuota(query, callback))
+  }
+}
+
+export const FETCH_CLUSTER_GET_REQUEST = 'FETCH_CLUSTER_GET_REQUEST'
+export const FETCH_CLUSTER_GET_SUCCESS = 'FETCH_CLUSTER_GET_SUCCESS'
+export const FETCH_CLUSTER_GET_FAILURE = 'FETCH_CLUSTER_GET_FAILURE'
+
+function fetchClusterQuotaList(query, callback){
+  let endpoint = `${API_URL_PREFIX}/clusters/${query.query.id}/resourcequota/inuse`
+  let headers
+  let title = query.query.header
+  if(title){
+    headers = { title }
+  }
+  return {
+    [FETCH_API]: {
+      types: [FETCH_CLUSTER_GET_REQUEST, FETCH_CLUSTER_GET_SUCCESS, FETCH_CLUSTER_GET_FAILURE],
+      endpoint,
+      options: {
+        headers,
+        method: 'GET'
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getClusterQuotaList(query, callback){
+  return (dispatch) => {
+    return dispatch(fetchClusterQuotaList(query, callback))
   }
 }

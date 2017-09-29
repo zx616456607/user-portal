@@ -19,6 +19,7 @@ import { Link } from 'react-router'
 import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
 import homeCICDImg from '../../../../assets/img/homeCICD.png'
 import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
+import { getGlobaleQuota, getGlobaleQuotaList } from '../../../../actions/quota'
 
 const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
@@ -29,7 +30,9 @@ class MySpace extends Component {
       cicdStates: true,
       ImageStates: true,
       isCi: true,
-      isdeliver: false
+      isdeliver: false,
+      globaleList: [],
+      globaleUseList: [],
     }
   }
 
@@ -59,6 +62,32 @@ class MySpace extends Component {
     getOperationLogList({
       from: 0,
       size: 5
+    })
+    this.fetchQuotaList()
+  }
+  fetchQuotaList() {
+    const { getGlobaleQuota, getGlobaleQuotaList } = this.props
+    getGlobaleQuota({
+      success: {
+        func: res => {
+          if (res.code === 200) {
+            this.setState({
+              globaleList: res.data
+            })
+          }
+        }
+      }
+    })
+    getGlobaleQuotaList({
+      success: {
+        func: res => {
+          if(res.code === 200){
+            this.setState({
+              globaleUseList: res.data
+            })
+          }
+        }
+      }
     })
   }
   getOperationLog() {
@@ -143,6 +172,30 @@ class MySpace extends Component {
         return
     }
   }
+  maxCount(value) {
+    const { globaleList } = this.state
+    let count = ''
+    if (globaleList) {
+      Object.keys(globaleList).forEach((item, index) => {
+        if (item === value) {
+          count = Object.values(globaleList)[index]
+        }
+      })
+    }
+    return count
+  }
+  useCount(value){
+    const { globaleUseList } = this.state
+    let count = ''
+    if(globaleUseList){
+      Object.keys(globaleUseList).forEach((item, index) => {
+        if(item === value){
+          count = Object.values(globaleUseList)[index]
+        }
+      })
+    }
+    return count
+  }
 
   render() {
     const { spaceWarnings, spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName, isFetching } = this.props
@@ -218,8 +271,37 @@ class MySpace extends Component {
       }]
     }
     const { isCi, isdeliver } = this.state
-    const ciList = ['tenxflow(个)', '子任务(个)', 'Dockerfile(个)']
-    const deliverList = ['镜像仓库组(个)', '镜像仓库(个)', '编排文件(个)', '应用包(个)']
+    const ciList = [
+      {
+        key: 'tenxflow',
+        text: 'Tencfilow(个)',
+      },
+      {
+        key: 'subTask',
+        text: '子任务(个)',
+      },
+      {
+        key: 'dockerfile',
+        text: 'Dockerfile(个)',
+      },
+    ]
+    const deliverList = [
+      {
+        key: 'registryProject',
+        text: '镜像仓库组(个)',
+      },
+      {
+        key: 'registry',
+        text: '镜像仓库(个)',
+      },
+      {
+        key: 'orchestrationTemplate',
+        text: '编排文件(个)',
+      },
+      {
+        key: 'applicationPackage',
+        text: '应用包(个)',
+      }]
     return (
       <div id='MySpace'>
         <Row className="title" style={{ marginTop: 20 }}>{spaceName}</Row>
@@ -240,13 +322,13 @@ class MySpace extends Component {
                   ciList.map((item, index) => (
                     <Row className="info">
                       <Col span={7}>
-                        <span>{item}</span>
+                        <span>{item.text}</span>
                       </Col>
-                      <Col span={12}>
+                      <Col span={10}>
                         <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
                       </Col>
-                      <Col span={4}>
-                        <span className="count">0/0</span>
+                      <Col span={6}>
+                        <span className="count">{this.useCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
                       </Col>
                     </Row>
                   ))
@@ -256,14 +338,14 @@ class MySpace extends Component {
                 {
                   deliverList.map((item, index) => (
                     <Row className="info">
-                      <Col span={9}>
-                        <span>{item}</span>
+                      <Col span={8}>
+                        <span>{item.text}</span>
                       </Col>
-                      <Col span={11}>
+                      <Col span={10}>
                         <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
                       </Col>
-                      <Col span={4}>
-                        <span className="count">0/0</span>
+                      <Col span={6}>
+                        <span className="count">{this.useCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
                       </Col>
                     </Row>
                   ))
@@ -641,6 +723,8 @@ export default connect(mapStateToProp, {
   loadSpaceImageStats,
   getOperationLogList,
   loadSpaceInfo,
+  getGlobaleQuota,
+  getGlobaleQuotaList,
 })(MySpace)
 
 const menusText = defineMessages({

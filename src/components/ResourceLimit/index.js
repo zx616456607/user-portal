@@ -13,8 +13,9 @@ import React from 'react'
 import { connect } from 'react-redux'
 import './style/index.less'
 import { InputNumber, Table, Button, Icon, Input, Modal, Row, Col, Transfer, Tooltip, Dropdown, Menu, Progress, Select, Checkbox, Form } from 'antd'
-import { putGlobaleQuota, putClusterQuota } from '../../actions/quota'
+import { putGlobaleQuota, putClusterQuota, getGlobaleQuota, getGlobaleQuotaList, getClusterQuota, getClusterQuotaList } from '../../actions/quota'
 import NotificationHandler from '../../components/Notification'
+import { REG } from '../../constants'
 const FormItem = Form.Item
 const createForm = Form.create
 
@@ -22,21 +23,83 @@ class ResourceQuota extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      clusterList: [],
+      clusterList: {},
       globaleList: {},
       gIsEdit: false,
       cIsEdit: false,
       isProject: false,
       isDisabled: false,
-      quotaData: [],
+      globaleUseList: [],
+      clusterUseList: [],
     }
   }
   componentWillMount() {
-    const { isProject, data, clusterData } = this.props
+    const { isProject } = this.props
     this.setState({
       isProject,
-      globaleList: data,
-      quotaData: clusterData,
+    })
+    this.fetchQuota()
+  }
+  fetchQuota() {
+    const { getGlobaleQuota, getGlobaleQuotaList, getClusterQuota, getClusterQuotaList, clusterID, userName, projectName } = this.props
+    const { isProject } = this.state
+    let query
+    if (isProject) {
+      query = {
+        id: clusterID,
+        header: projectName
+      }
+    } else {
+      query = {
+        id: clusterID,
+        header: userName
+      }
+    }
+
+    getGlobaleQuota({ query }, {
+      success: {
+        func: res => {
+          if (REG.test(res.code)) {
+            this.setState({
+              globaleList: res.data
+            })
+          }
+        }
+      }
+    })
+    getGlobaleQuotaList({ query }, {
+      success: {
+        func: res => {
+          if (REG.test(res.code)) {
+            this.setState({
+              globaleUseList: res.data
+            })
+          }
+        }
+      }
+    })
+
+    getClusterQuota({ query }, {
+      success: {
+        func: res => {
+          if (REG.test(res.code)) {
+            this.setState({
+              clusterList: res.data
+            })
+          }
+        }
+      }
+    })
+    getClusterQuotaList({ query }, {
+      success: {
+        func: res => {
+          if (REG.test(res.code)) {
+            this.setState({
+              clusterUseList: res.data
+            })
+          }
+        }
+      }
     })
   }
   /**
@@ -95,17 +158,14 @@ class ResourceQuota extends React.Component {
             if (res.code === 200) {
               notify.success('设置成功')
               this.setState({
-                globaleList: res.data
+                globaleList: res.data,
+                gIsEdit: false
               })
             }
           }
         }
       })
-      this.setState({
-        gIsEdit: false
-      })
     })
-
   }
   /**
    * 集群 Cancel
@@ -119,8 +179,42 @@ class ResourceQuota extends React.Component {
    * 集群 Ok
    */
   handleClusterOk() {
-    this.setState({
-      cIsEdit: false
+    let notify = new NotificationHandler()
+    const { putClusterQuota } = this.props
+    const { validateFields } = this.props.form
+    validateFields((error, value) => {
+      if (!!error) return
+      let query = {
+        id: '',
+        body: {
+          cpu: value.cpu,
+          memory: value.memory,
+          storage: value.storage,
+          application: value.application,
+          service: value.service,
+          container: value.container,
+          volume: value.volume,
+          snapshot: value.snapshot,
+          configuration: value.configuration,
+          mysql: value.mysql,
+          redis: value.redis,
+          zookeeper: value.zookeeper,
+          elasticsearch: value.elasticsearch,
+          etcd: value.etcd,
+        }
+      }
+      putClusterQuota({ query }, {
+        success: {
+          func: res => {
+            if (REG.test(res.code)) {
+              this.setState({
+                clusterList: res.data,
+                cIsEdit: false
+              })
+            }
+          }
+        }
+      })
     })
   }
   /**
@@ -130,20 +224,6 @@ class ResourceQuota extends React.Component {
     this.setState({
       cIsEdit: true
     })
-  }
-  /**
-   * 筛选内容
-   * @param {*} value
-   */
-  screenValue(value) {
-    const { globaleList } = this.state
-    let values = ''
-    Object.keys(globaleList).forEach((item, index) => {
-      if (value === item) {
-        values = Object.values(globaleList)[index]
-      }
-    })
-    return values
   }
   /**
    * 百分比
@@ -158,7 +238,11 @@ class ResourceQuota extends React.Component {
     }
     result > max ? 0 : result
   }
-  maxCount(value) {
+  /**
+   * 全局最大值
+   * @param {*} value
+   */
+  maxGlobaleCount(value) {
     const { globaleList } = this.state
     let count = ''
     if (globaleList) {
@@ -170,22 +254,62 @@ class ResourceQuota extends React.Component {
     }
     return count
   }
+  /**
+   * 全局使用值
+   */
+  useGlobaleCount(value) {
+    const { globaleUseList } = this.state
+    let count = ''
+    if (globaleUseList) {
+      Object.keys(globaleUseList).forEach((item, index) => {
+        if (item === value) {
+          count = Object.values(globaleUseList)[index]
+        }
+      })
+    }
+    return count
+  }
+
+  maxClusterCount(value) {
+    const { clusterList } = this.state
+    let count = ''
+    if (clusterList) {
+      Object.keys(clusterList).forEach((item, index) => {
+        if (item === value) {
+          count = Object.values(clusterList)[index]
+        }
+      })
+    }
+    return count
+  }
+  useClusterCount(value) {
+    const { clusterUseList } = this.state
+    let count = ''
+    if (clusterUseList) {
+      Object.keys(clusterUseList).forEach((item, index) => {
+        if (item === value) {
+          count = Object.values(clusterUseList)[index]
+        }
+      })
+    }
+    return count
+  }
 
   render() {
     const { isProject, gIsEdit, cIsEdit, isDisabled, inputsDisabled } = this.state //属性
-    const { globaleList } = this.state //数据
+    const { globaleList, clusterList } = this.state //数据
+    const { clusterData, clusterName } = this.props
     //默认集群
     const menu = (
       <Menu>
-        <Menu.Item>
-          <span>第一个菜单项</span>
-        </Menu.Item>
-        <Menu.Item>
-          <span>第二个菜单项</span>
-        </Menu.Item>
-        <Menu.Item>
-          <span>第三个菜单项</span>
-        </Menu.Item>
+        {
+          clusterData ?
+            clusterData.map((item, index) => (
+              <Menu.Item key={index}>
+                <span>{item.clusterName}</span>
+              </Menu.Item>
+            )) : ''
+        }
       </Menu>
     )
     const ciList = [
@@ -207,10 +331,10 @@ class ResourceQuota extends React.Component {
         key: 'registryProject',
         text: '镜像仓库组 (个)',
       },
-      {
-        key: 'registry',
-        text: '镜像仓库 (个)',
-      },
+      // {
+      //   key: 'registry',
+      //   text: '镜像仓库 (个)',
+      // },
       {
         key: 'orchestrationTemplate',
         text: '编排文件 (个)',
@@ -219,9 +343,56 @@ class ResourceQuota extends React.Component {
         key: 'applicationPackage',
         text: '应用包 (个)',
       }]
-    const computeList = ['CPU （核）', '内存（GB）', '磁盘（GB）']
-    const platformList = ['应用 (个)', '服务 (个)', '容器 (个)', '存储 (个)', '快照 (个)', '服务配置 (个)']
-    const serviceList = ['关系型数据库 (个)', '缓存 (个)', 'Zookeeper (个)', 'ElasticSearch (个)']
+    const computeList = [
+      {
+        key: 'cpu',
+        text: 'CPU （核）'
+      },
+      {
+        key: 'memory',
+        text: '内存（GB）'
+      },
+      {
+        key: 'storage',
+        text: '磁盘（GB）'
+      }]
+    const platformList = [
+      {
+        key: 'application',
+        text: '应用 (个)'
+      }, {
+        key: 'service',
+        text: '服务 (个)'
+      }, {
+        key: 'container',
+        text: '容器 (个)'
+      }, {
+        key: 'volume',
+        text: '存储 (个)'
+      }, {
+        key: 'snapshot',
+        text: '快照 (个)'
+      }, {
+        key: 'configuration',
+        text: '服务配置 (个)'
+      }]
+    const serviceList = [
+      {
+        key: 'mysql',
+        text: '关系型数据库 (个)'
+      }, {
+        key: 'redis',
+        text: '缓存 (个)'
+      }, {
+        key: 'zookeeper',
+        text: 'Zookeeper (个)'
+      }, {
+        key: 'elasticsearch',
+        text: 'ElasticSearch (个)'
+      }, {
+        key: 'etcd',
+        text: 'Etcd(个)'
+      }]
     const { getFieldProps, getFieldValue } = this.props.form
     return (
       <div className="quota">
@@ -250,7 +421,7 @@ class ResourceQuota extends React.Component {
                 {
                   ciList.map((item, index) => {
                     const inputProps = getFieldProps(item.key, {
-                      initialValue: globaleList ? this.screenValue(item.key) : ''
+                      initialValue: globaleList ? this.maxGlobaleCount(item.key) : ''
                     })
                     const checkKey = `${item.key}-check`
                     const checkProps = getFieldProps(checkKey, {
@@ -276,17 +447,7 @@ class ResourceQuota extends React.Component {
                         </Col>
                         <Col span={4} style={{ height: 30 }}>
                           <FormItem>
-                          <span>配额剩余：0/
-                              {
-                                Object.keys(globaleList).map((value, index) => (
-                                  <span key={index}>
-                                    {
-                                      JSON.stringify(value) === item.key ? Object.values(globaleList)[index] : null
-                                    }
-                                  </span>
-                                ))
-                              }
-                            </span>
+                            <span>配额剩余：0</span>
                           </FormItem>
                         </Col>
                       </Row>
@@ -297,7 +458,7 @@ class ResourceQuota extends React.Component {
                 {
                   cdList.map((item, index) => {
                     const inputProps = getFieldProps(item.key, {
-                      initialValue: globaleList ? this.screenValue(item.key) : ''
+                      initialValue: globaleList ? this.maxGlobaleCount(item.key) : ''
                     })
                     const checkKey = `${item.key}-check`
                     const checkProps = getFieldProps(checkKey, {
@@ -323,17 +484,7 @@ class ResourceQuota extends React.Component {
                         </Col>
                         <Col span={4} style={{ height: 30 }}>
                           <FormItem>
-                            <span>配额剩余：0
-                              {
-                                Object.keys(globaleList).map((value, index) => (
-                                  <span key={index}>
-                                    {
-                                      JSON.stringify(value) === item.key ? Object.values(globaleList)[index] : null
-                                    }
-                                  </span>
-                                ))
-                              }
-                            </span>
+                            <span>配额剩余：0</span>
                           </FormItem>
                         </Col>
                       </Row>
@@ -353,7 +504,7 @@ class ResourceQuota extends React.Component {
                         <Progress percent={30} showInfo={false} />
                       </Col>
                       <Col span={4}>
-                        <span>0/{this.maxCount(item.key)}（个）</span>
+                        <span>{this.useGlobaleCount(item.key)}/{this.maxGlobaleCount(item.key)}（个）</span>
                       </Col>
                     </Row>
                   ))
@@ -369,7 +520,7 @@ class ResourceQuota extends React.Component {
                         <Progress percent={30} showInfo={false} />
                       </Col>
                       <Col span={4}>
-                        <span>0/{this.maxCount(item.key)}（个）</span>
+                        <span>{this.useGlobaleCount(item.key)}/{this.maxGlobaleCount(item.key)}（个）</span>
                       </Col>
                     </Row>
                   ))
@@ -381,7 +532,7 @@ class ResourceQuota extends React.Component {
           <div className="top">
             <div className="titles">项目集群相关资源配额</div>
             <Dropdown overlay={menu}>
-              <span className="desc">默认集群 <Icon type="down" /></span>
+              <span className="desc">{clusterName} <Icon type="down" /></span>
             </Dropdown>
           </div>
           <div className="header">
@@ -405,74 +556,122 @@ class ResourceQuota extends React.Component {
                   <div className="compute">
                     <span>计算资源</span>
                     {
-                      computeList.map((item, index) => (
-                        <Row key={index} className="connents">
-                          <Col span={2}>
-                            <span>{item}</span>
-                          </Col>
-                          <Col span={6}>
-                            <Input />
-                          </Col>
-                          <Col span={3}>
-                            <Checkbox>无限制</Checkbox>
-                          </Col>
-                          <Col span={4}>
-                            <span>配额剩余：0</span>
-                          </Col>
-                          <Col span={4}>
-                            <span>该集群剩余：0</span>
-                          </Col>
-                        </Row>
-                      ))
+                      computeList.map((item, index) => {
+                        const inputsProps = getFieldProps(item.key, {
+                          initialValue: clusterList ? this.maxClusterCount(item.key) : ''
+                        })
+                        const checkKey = `${item.key}-check`
+                        const checkProps = getFieldProps(checkKey, {
+                          validate: [{
+                            valuePropName: 'checked',
+                          }]
+                        })
+                        const checkValue = getFieldValue(checkKey)
+                        return (
+                          <Row key={index} className="connents">
+                            <Col span={2}>
+                              <span>{item.text}</span>
+                            </Col>
+                            <Col span={6}>
+                              <FormItem>
+                                <InputNumber {...inputsProps} disabled={checkValue} style={{ width: '100%' }} />
+                              </FormItem>
+                            </Col>
+                            <Col span={3}>
+                              <FormItem>
+                                <Checkbox {...checkProps}>无限制</Checkbox>
+                              </FormItem>
+                            </Col>
+                            <Col span={4}>
+                              <span>配额剩余：0</span>
+                            </Col>
+                            <Col span={4}>
+                              <span>该集群剩余：0</span>
+                            </Col>
+                          </Row>
+                        )
+                      })
                     }
                   </div>
                   <div className="platform">
                     <span>平台资源</span>
                     {
-                      platformList.map((item, index) => (
-                        <Row key={index} className="connents">
-                          <Col span={2}>
-                            <span>{item}</span>
-                          </Col>
-                          <Col span={6}>
-                            <Input />
-                          </Col>
-                          <Col span={3}>
-                            <Checkbox>无限制</Checkbox>
-                          </Col>
-                          <Col span={4}>
-                            <span>配额剩余：0</span>
-                          </Col>
-                          <Col span={4}>
-                            <span>该集群剩余：0</span>
-                          </Col>
-                        </Row>
-                      ))
+                      platformList.map((item, index) => {
+                        const inputsProps = getFieldProps(item.key, {
+                          initialValue: clusterList ? this.maxClusterCount(item.key) : ''
+                        })
+                        const checkKey = `${item.key}-check`
+                        const checkProps = getFieldProps(checkKey, {
+                          validate: [{
+                            valuePropName: 'checked',
+                          }]
+                        })
+                        const checkValue = getFieldValue(checkKey)
+                        return (
+                          <Row key={index} className="connents">
+                            <Col span={2}>
+                              <span>{item.text}</span>
+                            </Col>
+                            <Col span={6}>
+                              <FormItem>
+                                <InputNumber {...inputsProps} disabled={checkValue} style={{ width: '100%' }} />
+                              </FormItem>
+                            </Col>
+                            <Col span={3}>
+                              <FormItem>
+                                <Checkbox {...checkProps}>无限制</Checkbox>
+                              </FormItem>
+                            </Col>
+                            <Col span={4}>
+                              <span>配额剩余：0</span>
+                            </Col>
+                            <Col span={4}>
+                              <span>该集群剩余：0</span>
+                            </Col>
+                          </Row>
+                        )
+                      })
                     }
                   </div>
                   <p className="line"></p>
                   <div className="service">
                     <span>数据库与缓存</span>
                     {
-                      serviceList.map((item, index) => (
-                        <Row key={index} className="connents">
-                          <Col span={3}>
-                            <span>{item}</span>
-                          </Col>
-                          <Col span={6}>
-                            <Input />
-                          </Col>
-                          <Col span={3}>
-                            <Checkbox>无限制</Checkbox>
-                          </Col>
-                          <Col span={4}>
-                            <span>配额剩余：0</span>
-                          </Col>
-                          <Col span={4}>
-                            <span>该集群剩余：0</span>
-                          </Col>
-                        </Row>
-                      ))
+                      serviceList.map((item, index) => {
+                        const inputsProps = getFieldProps(item.key, {
+                          initialValue: clusterList ? this.maxClusterCount(item.key) : ''
+                        })
+                        const checkKey = `${item.key}-check`
+                        const checkProps = getFieldProps(checkKey, {
+                          validate: [{
+                            valuePropName: 'checked',
+                          }]
+                        })
+                        const checkValue = getFieldValue(checkKey)
+                        return (
+                          <Row key={index} className="connents">
+                            <Col span={3}>
+                              <span>{item.text}</span>
+                            </Col>
+                            <Col span={6}>
+                              <FormItem>
+                                <InputNumber {...inputsProps} disabled={checkValue} style={{ width: '100%' }} />
+                              </FormItem>
+                            </Col>
+                            <Col span={3}>
+                              <FormItem>
+                                <Checkbox {...checkProps}>无限制</Checkbox>
+                              </FormItem>
+                            </Col>
+                            <Col span={4}>
+                              <span>配额剩余：0</span>
+                            </Col>
+                            <Col span={4}>
+                              <span>该集群剩余：0</span>
+                            </Col>
+                          </Row>
+                        )
+                      })
                     }
                   </div>
                 </div> :
@@ -482,13 +681,13 @@ class ResourceQuota extends React.Component {
                       computeList.map((item, index) => (
                         <Row className="list" key={index}>
                           <Col span={2}>
-                            <span>{item}</span>
+                            <span>{item.text}</span>
                           </Col>
                           <Col span={8}>
-                            <Progress percent={30} showInfo={false} />
+                            <Progress percent={0} showInfo={false} />
                           </Col>
                           <Col span={4}>
-                            <span>0/0（个）</span>
+                            <span>{this.useClusterCount(item.key)}/{this.maxClusterCount(item.key)}（个）</span>
                           </Col>
                         </Row>
                       ))
@@ -499,13 +698,13 @@ class ResourceQuota extends React.Component {
                       platformList.map((item, index) => (
                         <Row className="list" key={index}>
                           <Col span={2}>
-                            <span>{item}</span>
+                            <span>{item.text}</span>
                           </Col>
                           <Col span={8}>
-                            <Progress percent={30} showInfo={false} />
+                            <Progress percent={0} showInfo={false} />
                           </Col>
                           <Col span={4}>
-                            <span>0/0（个）</span>
+                            <span>{this.useClusterCount(item.key)}/{this.maxClusterCount(item.key)}（个）</span>
                           </Col>
                         </Row>
                       ))
@@ -517,13 +716,13 @@ class ResourceQuota extends React.Component {
                       serviceList.map((item, index) => (
                         <Row className="list" key={index}>
                           <Col span={2}>
-                            <span>{item}</span>
+                            <span>{item.text}</span>
                           </Col>
                           <Col span={8}>
-                            <Progress percent={30} showInfo={false} />
+                            <Progress percent={0} showInfo={false} />
                           </Col>
                           <Col span={4}>
-                            <span>0/0（个）</span>
+                            <span>{this.useClusterCount(item.key)}/{this.maxClusterCount(item.key)}（个）</span>
                           </Col>
                         </Row>
                       ))
@@ -556,14 +755,22 @@ ResourceQuota = createForm()(ResourceQuota)
 function mapStateToProps(state) {
   const { current } = state.entities
   const { namespace } = current.space
+  const { clusterID } = current.cluster
+  const { clusterName } = current.cluster
   const { projectClusterList } = state.projectAuthority
   const clusterData = projectClusterList[namespace] && projectClusterList[namespace].data || []
   return {
+    clusterID,
+    clusterName,
     clusterData,
   }
 }
 
 export default connect(mapStateToProps, {
+  getGlobaleQuota,
+  getClusterQuota,
+  getClusterQuotaList,
+  getGlobaleQuotaList,
   putGlobaleQuota,
   putClusterQuota,
 })(ResourceQuota)
