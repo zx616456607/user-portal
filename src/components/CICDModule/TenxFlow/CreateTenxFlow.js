@@ -14,6 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { createTenxFlowSingle, updateTenxFlow, getTenxFlowDetail } from '../../../actions/cicd_flow'
+import { isResourcePermissionError } from '../../../common/tools'
 import YamlEditor from '../../Editor/Yaml'
 import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../components/Notification'
@@ -423,7 +424,7 @@ let CreateTenxFlow = React.createClass({
               return
             }
             browserHistory.push(`/ci_cd/tenx_flow/tenx_flow_build?${res.data.flowId}`)
-            },
+          },
           isAsync: true
         },
         failed: {
@@ -438,6 +439,9 @@ let CreateTenxFlow = React.createClass({
                 }
                 break
               case 403:
+                if (isResourcePermissionError(res)) {
+                  return
+                }
                 notification.error('非法的参数值')
                 break
               case 409:

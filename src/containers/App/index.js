@@ -16,7 +16,7 @@ import Header from '../../components/Header'
 import DefaultSider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { browserHistory, Link } from 'react-router'
-import { isEmptyObject, getPortalRealMode } from '../../common/tools'
+import { isEmptyObject, getPortalRealMode, isResourcePermissionError } from '../../common/tools'
 import { resetErrorMessage } from '../../actions'
 import { setSockets, loadLoginUserDetail } from '../../actions/entities'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
@@ -190,7 +190,7 @@ class App extends Component {
       window.location.href = '/logout'
       return
     }
-    if (statusCode === 403 && (message && message.details && message.details.kind === 'ResourcePermission')) {
+    if (isResourcePermissionError(errorMessage.error)) {
       this.setState({
         resourcePermissionModal: true,
       })
@@ -253,7 +253,7 @@ class App extends Component {
     }
 
     // 没有权限
-    if (statusCode === 403 && (message && message.details && message.details.kind === 'ResourcePermission')) {
+    if (isResourcePermissionError(error)) {
       resetErrorMessage()
       return
     }

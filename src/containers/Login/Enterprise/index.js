@@ -81,7 +81,7 @@ let Login = React.createClass({
             })
             // If no cluster found, redirect to CLUSTER_PAGE
             if (result.user[camelize(NO_CLUSTER_FLAG)] === true) {
-              message.warning(`请先添加集群`, 10)
+              message.warning(`请先进行初始化配置`, 10)
               browserHistory.push(CLUSTER_PAGE)
               return
             }
