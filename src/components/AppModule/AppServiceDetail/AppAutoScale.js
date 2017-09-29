@@ -271,7 +271,11 @@ class AppAutoScale extends Component {
         failed: {
           func: () => {
             notify.close()
-            notify.error('修改失败')
+            let message = isEmpty(scaleDetail) ? '修改失败，策略为空' : '修改失败'
+            notify.error(message)
+            this.setState({
+              switchOpen
+            })
           }
         }
       })
@@ -440,7 +444,7 @@ class AppAutoScale extends Component {
     const isGroupHide = getFieldValue('alert_strategy') === 'SendNoEmail'
     const formItemLargeLayout = {
       labelCol: { span: 3},
-      wrapperCol: { span: 9}
+      wrapperCol: { span: 13}
     }
     const formItemSmallLayout = {
       labelCol: { span: 3},
@@ -496,7 +500,7 @@ class AppAutoScale extends Component {
               thresholdArr.indexOf(key) === 0 ? '阈值：' : ''
             }
           </Col>
-          <Col span={4}>
+          <Col span={6}>
             <FormItem>
               <Select
                 disabled={!isEdit}
@@ -513,7 +517,7 @@ class AppAutoScale extends Component {
               </Select>
             </FormItem>
           </Col>
-          <Col span={3}>
+          <Col span={5}>
             <FormItem>
               <InputNumber
                 disabled={!isEdit}
@@ -607,32 +611,34 @@ class AppAutoScale extends Component {
                     </Select>
                   </FormItem>
                   {
-                    isGroupHide ? null :
-                      <Row>
-                        <Col span={12}>
-                          <FormItem
-                            {...formItemInnerLargeLayout}
-                            label="告警通知组"
-                          >
-                            <Select
-                              disabled={!isEdit}
-                              {...selectAlertGroup}
-                              placeholder="请选择告警通知组"
-                              showSearch
-                              optionFilterProp="children"
-                              notFoundContent="无法找到">
-                              {
-                                alertList && alertList.length && alertList.map(item =>
-                                  <Option key={item.name} value={item.groupID}>{item.name}</Option>
-                                )
-                              }
-                            </Select>
-                          </FormItem>
-                        </Col>
-                        <Col offset={1} span={11} className="hintBox">
-                          <Icon type="exclamation-circle-o" /> 发生弹性伸缩时会向该通知组发送邮件通知
-                        </Col>
-                      </Row>
+                    isGroupHide ? null : 
+                      [
+                        <FormItem
+                          {...formItemLargeLayout}
+                          label="告警通知组"
+                          key="alertGroup"
+                        >
+                          <Select
+                            disabled={!isEdit}
+                            {...selectAlertGroup}
+                            placeholder="请选择告警通知组"
+                            showSearch
+                            optionFilterProp="children"
+                            notFoundContent="无法找到">
+                            {
+                              alertList && alertList.length && alertList.map(item =>
+                                <Option key={item.name} value={item.groupID}>{item.name}</Option>
+                              )
+                            }
+                          </Select>
+                        </FormItem>,
+                        <Row key="groupHint">
+                          <Col span={3}/>
+                          <Col span={21} className="hintBox">
+                            <Icon type="exclamation-circle-o" /> 发生弹性伸缩时会向该通知组发送邮件通知
+                          </Col>
+                        </Row>
+                      ]
                   }
                 </Form>
                 <Row className="autoScaleBtnGroup">

@@ -73,6 +73,7 @@ class ProjectDetail extends Component {
       memberType: 'user',
       filterFlag: true,
       quotaData: [],
+      filterLoading: false
     }
   }
   componentWillMount() {
@@ -475,24 +476,26 @@ class ProjectDetail extends Component {
     if (name) {
       query = Object.assign(query, { filter: `name,${name}` })
     }
-
-    GetProjectsMembers(query, {
-      success: {
-        func: (res) => {
-          if (res.statusCode === 200) {
-            let newArr = res.data.iteams || []
-            this.formatMember(newArr)
-            this.setState({
-              memberArr: newArr,
-              filterFlag: flag,
-              totalMemberCount: res.data.listMeta.total,
-              connectModal: true,
-              memberType: type,
-            })
-          }
-        },
-        isAsync: true
-      }
+    return new Promise((resolve) => {
+      GetProjectsMembers(query, {
+        success: {
+          func: (res) => {
+            if (res.statusCode === 200) {
+              let newArr = res.data.iteams || []
+              this.formatMember(newArr)
+              this.setState({
+                memberArr: newArr,
+                filterFlag: flag,
+                totalMemberCount: res.data.listMeta.total,
+                connectModal: true,
+                memberType: type,
+              })
+            }
+            resolve()
+          },
+          isAsync: true
+        }
+      })
     })
   }
   formatMember(arr) {
@@ -690,12 +693,20 @@ class ProjectDetail extends Component {
   }
   filterMember = value => {
     const { memberType, filterFlag } = this.state
-    this.getProjectMember(memberType, value, !filterFlag)
+    this.setState({
+      filterLoading: true
+    }, () => {
+      this.getProjectMember(memberType, value, !filterFlag).then(() => {
+        this.setState({
+          filterLoading: false
+        })
+      })
+    })
   }
   render() {
     const { payNumber, projectDetail, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
-      filterFlag, isManager, roleNameArr, getRoleLoading, quotaData
+      filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters } = this.props;
@@ -1148,6 +1159,7 @@ class ProjectDetail extends Component {
               memberArr.length > 0 &&
               <TreeComponent
                 outPermissionInfo={memberArr}
+                filterLoading={filterLoading}
                 permissionInfo={[]}
                 existMember={existentMember.length > 0 ? existentMember.slice(0) : []}
                 text='对象'
@@ -1176,9 +1188,9 @@ class ProjectDetail extends Component {
                     {
                       (roleNum === 1 || isManager) &&
                       [
-                        <Button type="primary" size="large" icon="plus" onClick={()=>this.setState({addCharacterModal:true})}> 添加已有角色</Button>,
+                        <Button key="addRoles" type="primary" size="large" icon="plus" onClick={()=>this.setState({addCharacterModal:true})}> 添加已有角色</Button>,
                         <br/>,
-                        <Button type="ghost" size="large" icon="plus" onClick={()=>this.openCreateModal()}>创建新角色</Button>
+                        <Button key="createRole" type="ghost" size="large" icon="plus" onClick={()=>this.openCreateModal()}>创建新角色</Button>
                       ]
                     }
                   </div>
