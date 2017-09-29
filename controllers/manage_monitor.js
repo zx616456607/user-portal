@@ -76,6 +76,9 @@ exports.getClusterOfQueryLog = function* () {
     });
   } catch (err) {
     logger.error(method, err.stack)
+    if (err.message && err.message.code === 403) {
+      throw err
+    }
   }
   this.body = {
     data: clusters,
@@ -91,7 +94,7 @@ exports.getServiceOfQueryLog = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps', namespace, 'apps'], { size: 100 })
-  const apps = result.data.apps
+  const apps = result.data && result.data.apps || []
   let serviceList = []
   apps.map((app) => {
     if (!app.services) {
