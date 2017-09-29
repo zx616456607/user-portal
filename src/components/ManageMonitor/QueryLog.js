@@ -674,17 +674,6 @@ class QueryLog extends Component {
         }
       }
     })
-    /*loadUserTeamspaceList('default', { size: 100 }, {
-      success: {
-        func: (res) => {
-          _this.setState({
-            namespaceList: res.teamspaces,
-            gettingNamespace: false
-          })
-        },
-        isAsync: true
-      }
-    });*/
     const { space, cluster } = current;
     const { teamID, namespace, name } = space;
     this.onSelectNamespace(name, teamID, namespace);
