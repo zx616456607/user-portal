@@ -25,7 +25,7 @@ import JoinProjectsModal from './JoinProjectsModal'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
 import './style/UserProjectsAndTeams.less'
 import ResourceQuota from '../../ResourceLimit'
-import { getGlobaleQuota, getClusterQuota } from '../../../actions/quota'
+import { getGlobaleQuota, getGlobaleQuotaList, getClusterQuota, getClusterQuotaList } from '../../../actions/quota'
 import { REG } from '../../../constants'
 
 const TabPane = Tabs.TabPane
@@ -143,34 +143,7 @@ class UserProjectsAndTeams extends React.Component {
   }
 
   componentWillMount() {
-    const { getGlobaleQuota, getClusterQuota } = this.props
     this.loadProjectsData()
-    let id = 'CID-90eb6ec7b55a'
-    let body = {
-      tenxflow: 1213
-    }
-    getGlobaleQuota({
-      success: {
-        func: res => {
-          if(REG.test(res.code)){
-            this.setState({
-              quotaData: res.data
-            })
-          }
-        }
-      }
-    })
-    // getClusterQuota({id},{
-    //   success: {
-    //     func: res => {
-    //       if(REG.test(res.code)){
-    //         this.setState({
-    //           quotaData: res.data
-    //         })
-    //       }
-    //     }
-    //   }
-    // })
   }
 
   componentDidMount() {
@@ -532,7 +505,7 @@ class UserProjectsAndTeams extends React.Component {
             </div>
           </TabPane>
           <TabPane tab="个人资源配额管理" key="quota">
-            <ResourceQuota isProject={false} data={quotaData}/>
+            <ResourceQuota isProject={false} userName={userDetail.displayName}/>
           </TabPane>
         </Tabs>
         <Modal
@@ -688,7 +661,9 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   getGlobaleQuota,
+  getGlobaleQuotaList,
   getClusterQuota,
+  getClusterQuotaList,
   loadUserTeams,
   removeTeamusers,
   GetProjectsMembers,

@@ -624,10 +624,12 @@ module.exports = function (Router) {
   router.del('/clusters/:cluster/storageclass/:name', storageController.postDeleteCephStorage)
 
   //Quota
-  router.get('/clusters/:cluster/resourcequota', quotaController.list)
-  router.put('/clusters/:cluster/resourcequota', quotaController.put)
+  router.get('/clusters/:cluster/resourcequota', quotaController.clusterList)
+  router.put('/clusters/:cluster/resourcequota', quotaController.clusterPut)
+  router.get('/clusters/:cluster/resourcequota/inuse',quotaController.clusterGet)
   router.get('/resourcequota', quotaController.get)
   router.put('/resourcequota', quotaController.update)
+  router.get('/resourcequota/inuse', quotaController.list)
 
   return router.routes()
 }
