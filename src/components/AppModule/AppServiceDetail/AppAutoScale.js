@@ -356,14 +356,24 @@ class AppAutoScale extends Component {
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
   checkMin = (rule, value, callback) => {
+    const { getFieldValue } = this.props.form
+    const max = getFieldValue('max')
     if (!value) {
       return callback('请输入最小实例数')
+    }
+    if (value >= max) {
+      return callback('最小实例数不能等于或者超过最大实例数')
     }
     callback()
   }
   checkMax = (rule, value, callback) => {
+    const { getFieldValue } = this.props.form
+    const min = getFieldValue('min')
     if (!value) {
       return callback('请输入最大实例数')
+    }
+    if (value <= min) {
+      return callback('最大实例数不能等于或者少于最小实例数')
     }
     callback()
   }
@@ -452,11 +462,7 @@ class AppAutoScale extends Component {
     }
     const formItemSmallLayout = {
       labelCol: { span: 3},
-      wrapperCol: { span: 6}
-    }
-    const formItemInnerLargeLayout = {
-      labelCol: { span: 6},
-      wrapperCol: { span: 18}
+      wrapperCol: { span: 8}
     }
     const scaleName = getFieldProps('strategyName', {
       rules: [{

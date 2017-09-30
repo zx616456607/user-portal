@@ -261,14 +261,24 @@ class AutoScaleModal extends React.Component {
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
   checkMin = (rule, value, callback) => {
+    const { getFieldValue } = this.props.form
+    const max = getFieldValue('max')
     if (!value) {
       return callback('请输入最小实例数')
+    }
+    if (value >= max) {
+      return callback('最小实例数不能等于或者超过最大实例数')
     }
     callback()
   }
   checkMax = (rule, value, callback) => {
+    const { getFieldValue } = this.props.form
+    const min = getFieldValue('min')
     if (!value) {
       return callback('请输入最大实例数')
+    }
+    if (value <= min) {
+      return callback('最大实例数不能等于或者少于最小实例数')
     }
     callback()
   }
@@ -365,7 +375,7 @@ class AutoScaleModal extends React.Component {
     }
     const formItemSmallLayout = {
       labelCol: {span: 4},
-      wrapperCol: {span: 10}
+      wrapperCol: {span: 13}
     }
     const scaleName = getFieldProps('scale_strategy_name', {
       rules: [{
