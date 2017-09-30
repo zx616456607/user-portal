@@ -367,7 +367,6 @@ function mapStateToProps(state, props) {
   const { current } = state.entities
   const { projectList, projectClusterList } = state.projectAuthority
   const projects = projectList.data || []
-  projects.forEach(project => project.name = project.projectName)
   const currentNamespace = current.space.namespace
   const currentProjectClusterList = projectClusterList[currentNamespace] || {}
   const projectClusters = currentProjectClusterList.data || []
