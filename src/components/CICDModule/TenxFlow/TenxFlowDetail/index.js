@@ -444,7 +444,6 @@ class TenxFlowDetail extends Component {
         targetElement={targetElement}
         loading={loading}
         isShowBuildBtn={true}
-        canRepeat={true}
         getTooltipContainer={() => document.getElementById('TenxFlowDetail')}>
         {tabs}
       </PopTabSelect>
