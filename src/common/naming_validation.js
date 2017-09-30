@@ -98,7 +98,7 @@ export function validateAppName(name) {
 
 /**
  * this function for app, storage, compose file, tenxflow, repository,
- * docker file, image name, image store, users, team,
+ * docker file, image name, image store, users,
  * teamspeace, integration
  */
 export function appNameCheck(name, itemName, existNameFlag) {
@@ -144,6 +144,13 @@ export function appNameCheck(name, itemName, existNameFlag) {
     return errorMsg;
   }
   return 'success';
+}
+
+export function teamNameValidation(name) {
+  if (name && name.length < 2) {
+    return '团队名称长度至少为2'
+  }
+  return 'success'
 }
 
 export function volNameCheck(name, itemName) {

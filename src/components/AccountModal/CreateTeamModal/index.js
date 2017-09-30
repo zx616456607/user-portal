@@ -13,7 +13,7 @@
 import React from 'react'
 import { Input, Modal, Form, Button, } from 'antd'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
-import { appNameCheck } from '../../../common/naming_validation'
+import { teamNameValidation } from '../../../common/naming_validation'
 const createForm = Form.create
 const FormItem = Form.Item
 
@@ -28,7 +28,7 @@ let CreateTeamModal = React.createClass({
     this.setState({
       disabled: true
     })
-    const msg = appNameCheck(value, '团队名称')
+    const msg = teamNameValidation(value)
     if (msg !== 'success') {
       return callback(msg)
     }
