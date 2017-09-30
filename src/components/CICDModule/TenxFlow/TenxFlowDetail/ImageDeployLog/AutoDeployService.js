@@ -659,19 +659,20 @@ function mapStateToProps(state, props) {
     isFetching: false,
     cdRulesList: []
   }
-  const { cluster } = state.entities.current
+  const { cluster, space } = state.entities.current
   const { getCdRules, getCdImage} = state.cicd_flow
   const { cdRulesList, isFetching } = getCdRules || defaultConfig
   const { cdImageList } = getCdImage || []
-  const { teamClusters } = state.team
-  const { result } = teamClusters
-
+  const { projectClusterList } = state.projectAuthority
+  const currentNamespace = space.namespace
+  const currentProjectClusterList = projectClusterList[currentNamespace] || {}
+  const projectClusters = currentProjectClusterList.data || []
   return {
     isFetching,
     cdRulesList,
     cdImageList,
     cluster: cluster.clusterID,
-    clusterList: result.data || [],
+    clusterList: projectClusters || [],
   }
 }
 
