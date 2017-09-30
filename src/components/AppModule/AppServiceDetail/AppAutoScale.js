@@ -64,7 +64,6 @@ class AppAutoScale extends Component {
   }
   componentWillMount() {
     const { loadNotifyGroups, cluster } = this.props
-    console.log(cluster)
     this.loadData(this.props)
     loadNotifyGroups(null, cluster)
   }
@@ -254,6 +253,11 @@ class AppAutoScale extends Component {
     const { switchOpen, scaleDetail } = this.state
     let notify = new NotificationHandler()
     notify.spin('修改中...')
+    if (isEmpty(scaleDetail)) {
+      notify.close()
+      notify.error('修改失败，请编辑伸缩策略')
+      return
+    }
     this.setState({
       switchOpen: !switchOpen
     }, () => {
@@ -272,8 +276,7 @@ class AppAutoScale extends Component {
         failed: {
           func: () => {
             notify.close()
-            let message = isEmpty(scaleDetail) ? '修改失败，策略为空' : '修改失败'
-            notify.error(message)
+            notify.error('修改失败')
             this.setState({
               switchOpen
             })
@@ -283,8 +286,8 @@ class AppAutoScale extends Component {
     })
   }
   checkScaleName = (rule, value, callback) => {
-    const { checkAutoScaleName, cluster, form, scaleDetail } = this.props
-    const { isEdit } = this.state
+    const { checkAutoScaleName, cluster, form } = this.props
+    const { isEdit, scaleDetail } = this.state
     const { getFieldValue } = form
     if (!value) {
       callback('请输入策略名称')
