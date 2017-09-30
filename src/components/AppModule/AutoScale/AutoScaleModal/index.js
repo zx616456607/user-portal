@@ -192,6 +192,9 @@ class AutoScaleModal extends React.Component {
     if (!value) {
       return callback('请输入策略名称')
     }
+    if (value.length < 3 || value.length > 21) {
+      return callback('策略名称长度在3-21位之间')
+    }
     if (!isEmpty(scaleDetail)) {
       if (getFieldValue('serviceName') === scaleDetail.serviceName) {
         return callback()
