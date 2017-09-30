@@ -20,6 +20,7 @@ import AccessMethod from './AccessMethod'
 import { getNodes, getClusterLabel } from '../../../../../actions/cluster_node'
 import {
   SYSTEM_DEFAULT_SCHEDULE,
+  RESOURCES_DIY
  } from '../../../../../constants'
 import './style/index.less'
 import TagDropDown from '../../../../ClusterModule/TagDropdown'
@@ -334,6 +335,11 @@ const Normal = React.createClass({
     })
     return multiMap
   },
+  setResourceTypeToDIY() {
+    this.props.form.setFieldsValue({
+      resourceType: RESOURCES_DIY,
+    })
+  },
   render() {
     const {
       formItemLayout, form, standardFlag,
@@ -356,8 +362,12 @@ const Normal = React.createClass({
         { required: true },
       ],
     })
-    const DIYMemoryProps = getFieldProps('DIYMemory')
-    const DIYCPUProps = getFieldProps('DIYCPU')
+    const DIYMemoryProps = getFieldProps('DIYMemory', {
+      onChange: this.setResourceTypeToDIY,
+    })
+    const DIYCPUProps = getFieldProps('DIYCPU', {
+      onChange: this.setResourceTypeToDIY,
+    })
     return (
       <div id="normalConfigureService">
         <Row className="configBoxHeader" key="header">
