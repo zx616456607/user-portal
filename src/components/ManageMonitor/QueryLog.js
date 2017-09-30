@@ -372,7 +372,7 @@ let ServiceModal = React.createClass({
       } else {
         serviceList = mapCurrentList.map((item, index) => {
           return (
-            <div className='serviceDetail' key={index} onClick={scope.onSelectService.bind(scope, item.serviceName)}>
+            <div className='serviceDetail' key={index} onClick={scope.onSelectService.bind(scope, item.serviceName, item)}>
               <span className='leftSpan'>{item.serviceName}</span>
               <span className='rightSpan'>{item.instanceNum}</span>
               <span style={{ clear: 'both' }}></span>
@@ -628,6 +628,7 @@ class QueryLog extends Component {
       clusterList: [],
       servicePopup: false,
       currentService: null,
+      currentServiceItem: {},
       serviceList: [],
       instancePopup: false,
       currentInstance: [],
@@ -690,6 +691,34 @@ class QueryLog extends Component {
       this.onSelectService(service);
       this.onSelectInstance(instance);
       setTimeout(this.submitSearch);
+    }
+  }
+
+  logTypeChange(e){
+    const logType = e.target.value
+    if(logType == 'stdout'){
+      this.setState({
+        logType,
+      })
+      return
+    }
+    if(logType == 'file'){
+      const { currentServiceItem } = this.state
+      if(currentServiceItem.annotations
+        && currentServiceItem.annotations.annotations
+        && currentServiceItem.annotations.annotations.applogs){
+        this.setState({
+          logType,
+        })
+        return
+      }
+      this.setState({
+        logType,
+        currentService: null,
+        currentInstance: [],
+        instanceList: []
+      })
+      return
     }
   }
 
@@ -787,7 +816,7 @@ class QueryLog extends Component {
     }
   }
 
-  onSelectService(name) {
+  onSelectService(name, item) {
     //this function for user get search 10-20 of service list
     const _this = this;
     if (name != this.state.currentService) {
@@ -798,6 +827,7 @@ class QueryLog extends Component {
         currentInstance: [],
         instanceList: [],
         selectedSerivce: false,
+        currentServiceItem: item,
       });
       const { loadServiceContainerList } = this.props;
       loadServiceContainerList(this.state.currentClusterId, name, null, {
@@ -1071,10 +1101,9 @@ class QueryLog extends Component {
               label="日志类型"
               key="logOfType"
             >
-              <Radio.Group>
+              <Radio.Group onChange={(e) => this.logTypeChange(e)}>
                 <Radio
                   checked={this.state.logType == 'stdout'}
-                  onClick={() => {this.setState({logType: 'stdout', currentService: null, currentInstance: [],instanceList: []})}}
                   value="stdout"
                   key="stdout"
                 >
@@ -1082,7 +1111,6 @@ class QueryLog extends Component {
                 </Radio>
                 <Radio
                   checked={this.state.logType == 'file'}
-                  onClick={() => {this.setState({logType: 'file', currentService: null, currentInstance: [], instanceList: []})}}
                   value="file"
                   key="file"
                 >
