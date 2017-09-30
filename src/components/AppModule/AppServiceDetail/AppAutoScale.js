@@ -164,32 +164,9 @@ class AppAutoScale extends Component {
     })
   }
   cancelEdit = () => {
-    const { scaleDetail } = this.state
-    if (!isEmpty(scaleDetail)) {
-      const { strategyName,
-        serviceName,
-        alert_group,
-        alert_strategy,
-        max,
-        min,
-        cpu,
-        memory,
-        type } = scaleDetail
-      const { setFieldsValue } = this.props.form
-      setFieldsValue({
-        strategyName,
-        serviceName,
-        alert_strategy,
-        alert_group,
-        max,
-        min,
-        cpu,
-        memory
-      })
-      this.setState({
-        switchOpen: type ? true :false
-      })
-    }
+    const { form } = this.props
+    form.resetFields()
+    this.loadData(this.props)
     this.setState({
       isEdit: false,
     })
