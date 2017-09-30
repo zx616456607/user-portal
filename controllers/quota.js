@@ -10,25 +10,41 @@
 'use strict'
 const apiFactory = require('../services/api_factory')
 
-exports.list = function* (){
+exports.clusterList = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
   const query = this.query || {}
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([ cluster, 'resourcequota' ], query)
+  const result = yield api.getBy([cluster, 'resourcequota'], query)
   this.body = result
 }
-
-exports.put = function* (){
+exports.clusterGet = function* () {
   const loginUser = this.session.loginUser
-	const body = this.request.body
-	const cluster = this.params.cluster
-	const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([ cluster, 'resourcequota' ],null, body)
+  const cluster = this.params.cluster
+  const query = this.query || {}
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'resourcequota', 'inuse'], query)
   this.body = result
 }
 
-exports.get = function* (){
+exports.clusterPut = function* () {
+  const loginUser = this.session.loginUser
+  const body = this.request.body
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'resourcequota'], null, body)
+  this.body = result
+}
+
+exports.list = function* () {
+  const loginUser = this.session.loginUser
+  const query = this.query || {}
+  const api = apiFactory.getQuotaApi(loginUser)
+  const result = yield api.getBy(['inuse'], query)
+  this.body = result
+}
+
+exports.get = function* () {
   const loginUser = this.session.loginUser
   const query = this.query || {}
   const api = apiFactory.getQuotaApi(loginUser)
@@ -36,7 +52,7 @@ exports.get = function* (){
   this.body = result
 }
 
-exports.update = function* (){
+exports.update = function* () {
   const loginUser = this.session.loginUser
   const body = this.request.body
   const api = apiFactory.getQuotaApi(loginUser)

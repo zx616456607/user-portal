@@ -25,7 +25,8 @@ import homeZookeeper from '../../../../assets/img/homeZookeeper.png'
 import homeElasticSearch from '../../../../assets/img/homeElasticSearch.png'
 import homeEtcd from '../../../../assets/img/homeEtcdCluster.png'
 import { Link } from 'react-router'
-import { AVATAR_HOST, SHOW_BILLING } from '../../../../constants'
+import { AVATAR_HOST, SHOW_BILLING, REG } from '../../../../constants'
+import { getClusterQuota, getClusterQuotaList } from '../../../../actions/quota'
 
 const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
@@ -155,6 +156,7 @@ class Ordinary extends Component {
       isComputing: true,
       isApplication: false,
       isService: false,
+      clusterList: [],
     }
   }
 
@@ -174,6 +176,24 @@ class Ordinary extends Component {
     const { clusterID } = current.cluster
     loadClusterInfo(clusterID)
     this.loadClusterSummary(clusterID)
+  }
+
+  fetchQuotaList() {
+    const { getClusterQuota } = this.props
+    let query = {
+
+    }
+    getClusterQuota({ query }, {
+      success: {
+        func: res => {
+          if (REG.test(res.code)) {
+            this.setState({
+              globaleList: res.data
+            })
+          }
+        }
+      }
+    })
   }
 
   componentWillReceiveProps(nextProps) {
@@ -265,6 +285,18 @@ class Ordinary extends Component {
       default:
         return
     }
+  }
+  maxCount(value) {
+    const { clusterList } = this.state
+    let count = ''
+    if (clusterList) {
+      Object.keys(clusterList).forEach((item, index) => {
+        if (item === value) {
+          count = Object.values(clusterList)[index]
+        }
+      })
+    }
+    return count
   }
 
   render() {
@@ -1920,14 +1952,14 @@ class Ordinary extends Component {
                   computeList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={8}>
+                        <Col span={6}>
                           <span>{item}</span>
                         </Col>
-                        <Col span={12}>
+                        <Col span={11}>
                           <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
                         </Col>
-                        <Col span={4}>
-                          <span className="count">0/0</span>
+                        <Col span={6}>
+                          <span className="count">0/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
                         </Col>
                       </Row>
                     </div>
@@ -1939,14 +1971,14 @@ class Ordinary extends Component {
                   platformList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={8}>
+                        <Col span={7}>
                           <span>{item}</span>
                         </Col>
-                        <Col span={12}>
+                        <Col span={11}>
                           <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
                         </Col>
-                        <Col span={4}>
-                          <span className="count">0/0</span>
+                        <Col span={6}>
+                          <span className="count">0/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
                         </Col>
                       </Row>
                     </div>
@@ -1958,14 +1990,14 @@ class Ordinary extends Component {
                   serviceList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={11}>
+                        <Col span={9}>
                           <span>{item}</span>
                         </Col>
                         <Col span={9}>
                           <Progress className="pro" style={{ width: '95%' }} percent={0} showInfo={false} />
                         </Col>
-                        <Col span={4}>
-                          <span>0/0</span>
+                        <Col span={6}>
+                          <span>0/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
                         </Col>
                       </Row>
                     </div>
@@ -2338,6 +2370,8 @@ function mapStateToProp(state, props) {
 }
 
 export default connect(mapStateToProp, {
+  getClusterQuota,
+  getClusterQuotaList,
   loadClusterInfo,
   loadClusterSummary
 })(Ordinary)
