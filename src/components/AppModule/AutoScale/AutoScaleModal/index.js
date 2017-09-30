@@ -14,6 +14,7 @@ import {
   InputNumber, Row, Col, Icon
 } from 'antd'
 import {connect} from 'react-redux'
+import { Link } from 'react-router'
 import {
   loadAllServices, updateAutoScale, checkAutoScaleName
 } from '../../../../actions/services'
@@ -260,14 +261,24 @@ class AutoScaleModal extends React.Component {
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
   checkMin = (rule, value, callback) => {
+    const { getFieldValue } = this.props.form
+    const max = getFieldValue('max')
     if (!value) {
       return callback('请输入最小实例数')
+    }
+    if (value >= max) {
+      return callback('最小实例数不能等于或者超过最大实例数')
     }
     callback()
   }
   checkMax = (rule, value, callback) => {
+    const { getFieldValue } = this.props.form
+    const min = getFieldValue('min')
     if (!value) {
       return callback('请输入最大实例数')
+    }
+    if (value <= min) {
+      return callback('最大实例数不能等于或者少于最小实例数')
     }
     callback()
   }
@@ -364,7 +375,7 @@ class AutoScaleModal extends React.Component {
     }
     const formItemSmallLayout = {
       labelCol: {span: 4},
-      wrapperCol: {span: 10}
+      wrapperCol: {span: 13}
     }
     const scaleName = getFieldProps('scale_strategy_name', {
       rules: [{
@@ -538,6 +549,12 @@ class AutoScaleModal extends React.Component {
                   <Col span={4}/>
                   <Col span={16}>
                   <Icon type="exclamation-circle-o"/> 发生弹性伸缩时会向该通知组发送邮件通知
+                  </Col>
+                </Row>,
+                <Row style={{margin: '-10px 0 10px'}} key="createGroup">
+                  <Col span={4}/>
+                  <Col span={16}>
+                    没有告警通知组？<Link to="/manange_monitor/alarm_group">去创建>></Link>
                   </Col>
                 </Row>
               ]
