@@ -196,11 +196,10 @@ class StatefulCluster extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { form, current } = nextProps
-    if (current.space.namespace === this.props.current.space.namespace && current.cluster.clusterID === this.props.current.cluster.clusterID) {
-      return
+    const { clusterType, current } = nextProps
+    if (clusterType !== this.props.clusterType) {
+      this.props.loadDbCacheList(current.cluster.clusterID, clusterType)
     }
-    this.props.loadDbCacheList(current.cluster.clusterID, this.props.clusterType)
   }
 
   shouldComponentUpdate(nextProps, nextState) {
