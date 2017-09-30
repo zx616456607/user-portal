@@ -263,12 +263,15 @@ const MyComponent = React.createClass({
       success:{
         func: (result) => {
           if(result.data) {
-             if(Object.getOwnPropertyNames(result.data).length > 0) {
-               scope.setState({
-                 disableScale: true
-               })
-               return
-             }
+            if(Object.getOwnPropertyNames(result.data).length > 0) {
+              // Check if autoscaling is disabled
+              if (result.data.spec.scaleTargetRef && result.data.spec.scaleTargetRef.name === item.metadata.name) {
+                scope.setState({
+                  disableScale: true
+                })
+              }
+              return
+            }
           }
           scope.setState({
             disableScale: false
