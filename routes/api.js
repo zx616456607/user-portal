@@ -50,6 +50,7 @@ const tenantController = require('../controllers/tenant_manage')
 const apmController = require('../controllers/apm')
 const storageController = require('../controllers/storage_manage')
 const quotaController = require('../controllers/quota')
+const cleanController = require('../controllers/clean')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -630,6 +631,14 @@ module.exports = function (Router) {
   router.get('/resourcequota', quotaController.get)
   router.put('/resourcequota', quotaController.update)
   router.get('/resourcequota/inuse', quotaController.list)
-
+  
+  //clean
+  router.put('/cleaner/:target/:type', cleanController.startCleaner)
+  router.get('/cleaner/settings', cleanController.getCleanerSettings)
+  router.get('/cleaner/logs', cleanController.getCleanerLogs)
+  router.post('/cleaner/logs', cleanController.startCleanSystemLogs)
+  router.put('/cleaner/monitor', cleanController.startCleanMonitor)
+  router.post('/cleaner/records', cleanController.getSystemCleanerLogs)
+  
   return router.routes()
 }
