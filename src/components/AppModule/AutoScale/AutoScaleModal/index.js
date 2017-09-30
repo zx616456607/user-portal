@@ -14,6 +14,7 @@ import {
   InputNumber, Row, Col, Icon
 } from 'antd'
 import {connect} from 'react-redux'
+import { Link } from 'react-router'
 import {
   loadAllServices, updateAutoScale, checkAutoScaleName
 } from '../../../../actions/services'
@@ -538,6 +539,12 @@ class AutoScaleModal extends React.Component {
                   <Col span={4}/>
                   <Col span={16}>
                   <Icon type="exclamation-circle-o"/> 发生弹性伸缩时会向该通知组发送邮件通知
+                  </Col>
+                </Row>,
+                <Row style={{margin: '-10px 0 10px'}} key="createGroup">
+                  <Col span={4}/>
+                  <Col span={16}>
+                    没有告警通知组？<Link to="/manange_monitor/alarm_group">去创建>></Link>
                   </Col>
                 </Row>
               ]

@@ -10,6 +10,7 @@
 
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
+import { Link } from 'react-router'
 import {
   Button, Row, Col, InputNumber, Icon, Switch,
   Modal, Form, Select, Input, Tabs
@@ -639,6 +640,12 @@ class AppAutoScale extends Component {
                           <Col span={3}/>
                           <Col span={21} className="hintBox">
                             <Icon type="exclamation-circle-o" /> 发生弹性伸缩时会向该通知组发送邮件通知
+                          </Col>
+                        </Row>,
+                        <Row style={{margin: '-10px 0 10px'}} key="createGroup">
+                          <Col span={4}/>
+                          <Col span={16}>
+                            没有告警通知组？<Link to="/manange_monitor/alarm_group">去创建>></Link>
                           </Col>
                         </Row>
                       ]
