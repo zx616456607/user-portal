@@ -558,7 +558,6 @@ function mapStateToProps(state, props) {
   const { current } = state.entities
   const { projectList, projectClusterList } = state.projectAuthority
   let projects = projectList.data || []
-  projects.forEach(project => project.name = project.projectName)
   projects = ([ MY_SPACE ]).concat(projects)
   return {
     cluster: cluster.clusterID,

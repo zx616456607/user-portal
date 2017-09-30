@@ -121,9 +121,11 @@ function projectList(state = {}, action) {
       })
     case ActionTypes.PROJECTS_LIST_SUCCESS:
       const result = action.response.result.data || {}
+      const projects = result.projects || []
+      projects.forEach(project => project.name = project.projectName)
       return Object.assign({}, state, {
         isFetching: false,
-        data: result.projects || [],
+        data: projects,
         total: result.listMeta && result.listMeta.total || 0,
       })
     case ActionTypes.PROJECTS_LIST_FAILURE:
@@ -146,6 +148,7 @@ function projectClusterList(state = {}, action) {
       })
     case ActionTypes.PROJECTS_CLUSTER_ALL_GET_SUCCESS:
       const clusters = action.response.result.data.clusters || []
+      clusters.forEach(cluster => cluster.name = cluster.clusterName)
       return Object.assign({}, state, {
         [projectName]: {
           isFetching: false,

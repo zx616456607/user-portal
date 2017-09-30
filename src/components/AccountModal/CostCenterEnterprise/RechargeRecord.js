@@ -416,7 +416,6 @@ function mapStateToProps(state, props) {
   }
   const { projectList } = state.projectAuthority
   let projects = projectList.data || []
-  projects.forEach(project => project.name = project.projectName)
   return {
     current,
     loginUser,
