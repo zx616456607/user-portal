@@ -133,20 +133,20 @@ class AllPermissions extends React.Component{
           <Alert message={`所有权限是指平台上每个功能模块权限的细粒度划分，可以将若干个权限组合成一个角色，再在项目中添加相应的角色并关联对象（成员、团队成员）。`}
           type="info" />
         <div className="operationBox">
-          <div className='rightBox'>
-              {/* <div className='littleLeft'>
+          {/*<div className='rightBox'>
+               <div className='littleLeft'>
                 <i className='fa fa-search' />
-              </div> */}
+              </div>
               <div className='littleRight'>
-                {/* <Input
+                  <Input
                   calssName="put bag"
                   size='large'
                   placeholder='请输入关键词搜索'
                   style={{paddingRight: '28px',width:'200px'}}
-                  /> */}
+                  /> 
                   <CommonSearchInput placeholder="请输入关键词搜索" size="large" onSearch={this.handleSearch.bind(this)}/>
               </div>
-            </div>
+            </div>*/}
           <Table pagination={false} columns={columns} dataSource={data} onChange={this.handleChange} loading={loading}/>
         </div>
       </div>
