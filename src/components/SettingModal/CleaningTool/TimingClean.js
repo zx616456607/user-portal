@@ -9,11 +9,16 @@
  */
 
 import React, { Component } from 'react'
-import { Row, Col, Switch, Icon, Form, Select, Input } from 'antd'
+import { Row, Col, Switch, Form, Select, TimePicker } from 'antd'
 import { browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/TimingClean.less'
+import {
+  startClean, getCleanSettings, cleanSystemLogs
+} from '../../../actions/clean'
+import isEmpty from 'lodash/isEmpty'
+import { formatDate } from "../../../common/tools";
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -34,19 +39,37 @@ class TimingClean extends Component {
       mirrorImageEdit: true,
       stopContainer: true,
       stopContainerEdit: true,
+      cicdSetting: {}
     }
   }
-
+  componentWillMount() {
+    this.getSettings()
+  }
+  getSettings() {
+    const { getCleanSettings } = this.props
+    getCleanSettings({
+      success: {
+        func: res => {
+          if (!isEmpty(res.data.cicdClean)) {
+            this.setState({
+              cicdSetting: res.data.cicdClean
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
+  }
   systemChange(systemCheckedValue){
     const { systemChecked } = this.state
-    if(!systemChecked){
+    if(systemChecked){
       this.setState({
         systemChecked: systemCheckedValue,
         systemEdit: systemCheckedValue,
       })
       return
     }
-    const { form } = this.props
+    const { form, cleanSystemLogs } = this.props
     const { getFieldValue } = form
     const validateArray = [
       'systemCleaningScope',
@@ -61,6 +84,12 @@ class TimingClean extends Component {
       if(!!errors){
         return
       }
+      const { systemCleaningScope, systemCleaningCycle, systemCleaningTime, systemCleaningDate } = values
+      cleanSystemLogs({
+        type: 1,
+        time_range: parseInt(systemCleaningScope),
+        scheduled_time: this.getCronString(systemCleaningCycle, systemCleaningDate, systemCleaningTime)
+      })
       this.setState({
         systemChecked: systemCheckedValue,
         systemEdit: systemCheckedValue,
@@ -69,18 +98,18 @@ class TimingClean extends Component {
   }
 
   renderCleaningDateOption(cleaningCycle){
-    if(cleaningCycle == 'week'){
+    if(cleaningCycle === 'week'){
       let weekArray = ['一', '二', '三', '四', '五', '六', '日']
       return weekArray.map((item, index) => {
-        return <Option key={`week${index}`} value={`${index}`}>{`每周${item}`}</Option>
+        return <Option key={`week${index}`} value={`${index + 1}`}>{`每周${item}`}</Option>
       })
     }
     const monthArray = []
-    for(let i = 0; i <= 27; i++){
+    for(let i = 0; i <= 31; i++){
       monthArray.push(i)
     }
     return monthArray.map(item => {
-      return <Option value={`${item}`} key={`month${item}`}>{`每月${item + 1}号`}</Option>
+      return <Option value={`${item + 1}`} key={`month${item}`}>{`每月${item + 1}号`}</Option>
     })
   }
 
@@ -93,7 +122,7 @@ class TimingClean extends Component {
       })
       return
     }
-    const { form } = this.props
+    const { form, startClean } = this.props
     const validateArray = [
       'CICDcacheScope',
       'CICDcacheCycle',
@@ -107,14 +136,50 @@ class TimingClean extends Component {
       if(!!errors){
         return
       }
-      //console.log('values=',values)
-      this.setState({
-        CICDcache: CICDcacheValue,
-        CICDcacheEdit: CICDcacheValue,
+      const { CICDcacheScope, CICDcacheCycle, CICDcacheTime, CICDcacheDate } = values
+      
+      startClean('cicd_clean', 'auto', {
+        cron: this.getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime),
+        scope: parseInt(CICDcacheScope)
+      }, {
+        success: {
+          func: () => {
+            this.setState({
+              CICDcache: CICDcacheValue,
+              CICDcacheEdit: CICDcacheValue,
+            })
+            this.getSettings()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            this.setState({
+              CICDcache,
+              CICDcacheEdit: CICDcache
+            })
+          }
+        }
       })
     })
   }
-
+  getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime) {
+    let time = String(formatDate(CICDcacheTime, 'HH mm')).split(' ')
+    time = time.map(item => {
+      return item.indexOf(0) === 0 ? item.substring(1) : item
+    })
+    time = time.reverse().join(' ')
+    switch(CICDcacheCycle) {
+      case 'day':
+        return `${time} 1/1 * ?`
+        break;
+      case 'week':
+        return `${time} 0 0 ${CICDcacheDate}/7`
+        break;
+      case 'month':
+        return `${time} 0 ${CICDcacheDate}/1 ?`
+    }
+  }
   mirrorImageChange(mirrorImageValue){
     const { mirrorImage } = this.state 
     if(mirrorImage){
@@ -202,7 +267,7 @@ class TimingClean extends Component {
     	wrapperCol: {span: 18}
     }
     const systemCleaningScopeProps = getFieldProps('systemCleaningScope', {
-      initialValue: '0',
+      initialValue: '1',
       rules: [{required: true, message: '请选择清理范围'}],
     })
     const systemCleaningCycleProps = getFieldProps('systemCleaningCycle', {
@@ -213,16 +278,16 @@ class TimingClean extends Component {
     let systemCleaningDateProps
     if(systemCleaningCycleValue !== 'day'){
       systemCleaningDateProps = getFieldProps('systemCleaningDate', {
-        initialValue: '0',
+        initialValue: '1',
         rules: [{required: true, message: '请选择清理日期'}]
       })
     }
     const systemCleaningTimeProps = getFieldProps('systemCleaningTime', {
-      initialValue: '0',
+      initialValue: '00:00:00',
       rules: [{required: true, message: '请选择清理时间'}]
     })
     const CICDcacheScopeProps = getFieldProps('CICDcacheScope', {
-      initialValue: '0',
+      initialValue: '1',
       rules: [{required: true, message: '请选择清理范围'}],
     })
     const CICDcacheCycleProps = getFieldProps('CICDcacheCycle',{
@@ -233,12 +298,12 @@ class TimingClean extends Component {
     let CICDcacheDateProps
     if(CICDcacheCycleValue !== 'day'){
       CICDcacheDateProps = getFieldProps('CICDcacheDate', {
-        initialValue: '0',
+        initialValue: '1',
         rules: [{required: true, message: '请选择清理日期'}]
       })
     }
     const CICDcacheTimeProps = getFieldProps('CICDcacheTime', {
-      initialValue: '0',
+      initialValue: '00:00:00',
       rules: [{required: true, message: '请选择清理时间'}]
     })
     const mirrorImageCycleProps = getFieldProps('mirrorImageCycle',{
@@ -281,7 +346,7 @@ class TimingClean extends Component {
               className="back"
               onClick={() => {browserHistory.push(`/setting/cleaningTool`)}}
             >
-              <span className="backjia"></span>
+              <span className="backjia"/>
               <span className="btn-back">返回</span>
             </span>
             <span className='title'>定时清理</span>
@@ -312,10 +377,10 @@ class TimingClean extends Component {
                         disabled={systemEdit}
                         {...systemCleaningScopeProps}
                       >
-                        <Option key="0" value="0">一天前数据</Option>
-                        <Option key="1" value="1">一周前数据</Option>
-                        <Option key="2" value="2">一个月前数据</Option>
-                        <Option key="3" value="3">三个月前数据</Option>
+                        <Option key="system_0" value="1">一天前数据</Option>
+                        <Option key="system_3" value="3">一周前数据</Option>
+                        <Option key="system_5" value="5">一个月前数据</Option>
+                        <Option key="system_6" value="6">三个月前数据</Option>
                       </Select>
                     </FormItem>
                     <FormItem
@@ -329,9 +394,9 @@ class TimingClean extends Component {
                         disabled={systemEdit}
                         {...systemCleaningCycleProps}
                       >
-                        <Option key="0" value="day">每天</Option>
-                        <Option key="1" value="week">每周</Option>
-                        <Option key="2" value="month">每月</Option>
+                        <Option key="system_day" value="day">每天</Option>
+                        <Option key="system_week" value="week">每周</Option>
+                        <Option key="system_month" value="month">每月</Option>
                       </Select>
                     </FormItem>
                     {
@@ -357,14 +422,11 @@ class TimingClean extends Component {
                       label="清理时间"
                       className='reset_formItem_style'
                     >
-                      <Select
-                        placeholder='请选择'
-                        className='select_style'
+                      <TimePicker
+                        format="HH:mm"
                         disabled={systemEdit}
                         {...systemCleaningTimeProps}
-                      >
-                        { this.renderCleaningTimeOption() }
-                      </Select>
+                      />
                     </FormItem>
                   </div>
                 </div>
@@ -393,10 +455,10 @@ class TimingClean extends Component {
                         disabled={CICDcacheEdit}
                         {...CICDcacheScopeProps}
                       >
-                        <Option key="0" value="0">一天前数据</Option>
-                        <Option key="1" value="1">一周前数据</Option>
-                        <Option key="2" value="2">一个月前数据</Option>
-                        <Option key="3" value="3">三个月前数据</Option>
+                        <Option key="cicd_scope_1" value="1">一天前数据</Option>
+                        <Option key="cicd_scope_7" value="7">一周前数据</Option>
+                        <Option key="cicd_scope_30" value="30">一个月前数据</Option>
+                        <Option key="cicd_scope_90" value="90">三个月前数据</Option>
                       </Select>
                     </FormItem>
                     <FormItem
@@ -410,13 +472,13 @@ class TimingClean extends Component {
                         disabled={CICDcacheEdit}
                         {...CICDcacheCycleProps}
                       >
-                        <Option key="0" value="day">每天</Option>
-                        <Option key="1" value="week">每周</Option>
-                        <Option key="2" value="month">每月</Option>
+                        <Option key="cicd_cycle_day" value="day">每天</Option>
+                        <Option key="cicd_cycle_week" value="week">每周</Option>
+                        <Option key="cicd_cycle_month" value="month">每月</Option>
                       </Select>
                     </FormItem>
                     {
-                      CICDcacheCycleValue == 'day'
+                      CICDcacheCycleValue === 'day'
                       ? null
                       : <FormItem
                           {...formItemLayout}
@@ -438,19 +500,16 @@ class TimingClean extends Component {
                       label="清理时间"
                       className='reset_formItem_style'
                     >
-                      <Select
-                        placeholder='请选择'
-                        className='select_style'
-                        disabled={CICDcacheEdit}
+                      <TimePicker
+                        format="HH:mm"
                         {...CICDcacheTimeProps}
-                      >
-                        { this.renderCleaningTimeOption() }
-                      </Select>
+                        disabled={CICDcacheEdit}
+                      />
                     </FormItem>
                   </div>
                 </div>
               </Col>
-              <Col span={6} className='gutter-row'>
+              {/*<Col span={6} className='gutter-row'>
                 <div className='gutter-box'>
                   <div className='header'>
                     镜像
@@ -577,7 +636,7 @@ class TimingClean extends Component {
                     </FormItem>
                   </div>
                 </div>
-              </Col>
+              </Col>*/}
             </Row>
           </div>
         </div>
@@ -596,5 +655,7 @@ function mapStateToProp(state, props) {
 }
 
 export default connect(mapStateToProp, {
-
+  startClean,
+  getCleanSettings,
+  cleanSystemLogs
 })(TimingClean)

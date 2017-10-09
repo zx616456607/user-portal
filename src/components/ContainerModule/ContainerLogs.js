@@ -227,6 +227,10 @@ class ContainerLogs extends Component {
       }
       this.setState(state)
     }
+    ws.onclose = err => {
+      ws.onclose && ws.onclose(err)
+      this.setState(initState)
+    }
     setTimeout(() => {
       loadContainerDetailEvents(cluster, containerName)
     }, RETRY_TIMTEOUT);

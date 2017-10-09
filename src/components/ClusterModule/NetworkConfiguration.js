@@ -641,7 +641,7 @@ let NetworkConfiguration = React.createClass ({
     let networkConfigArray = form.getFieldValue('networkConfigArray')
     const optionMapArray = []
     for(let i = 0; i < proxy.data.length; i++){
-      if(!networkConfigArray[i].deleted){
+      if (networkConfigArray[i] && !networkConfigArray[i].deleted){
         optionMapArray.push(proxy.data[networkConfigArray[i].key])
       }
     }
@@ -763,46 +763,35 @@ let NetworkConfiguration = React.createClass ({
         if(editCluster){
           networkType = getFieldValue(`networkType${item.key}`) || originType
         }
-        let nameProps
-        let addressProps
-        let domainProps
-        let groupidProps
-        let isDefaultGroupAttr
-        if(editCluster){
-          groupidProps = getFieldProps(`groupId${item.key}`,{
-            initialValue: data[item.key] && data[item.key].id ? data[item.key].id : '',
-          })
-
-          isDefaultGroupAttr = getFieldProps(`isDefaultGroupAttr${item.key}`,{
-            initialValue: data[item.key] && data[item.key].isDefault ? data[item.key].isDefault : false,
-          })
-
-          nameProps = getFieldProps(`name${item.key}`,{
-            initialValue: data[item.key] && data[item.key].name ? data[item.key].name : undefined,
-            rules:[{
-              validator: (rule, value, callback) => {
-                if(!value) {
-                  return callback('网络代理不能为空')
-                }
-                this.valiadAllGroupNameField()
-                if(this.isNameRepeat(item.key)) {
-                  return callback('网络代理重复')
-                }
-                return callback()
+        let nameProps = getFieldProps(`name${item.key}`,{
+          initialValue: data[item.key] && data[item.key].name ? data[item.key].name : undefined,
+          rules:[{
+            validator: (rule, value, callback) => {
+              if(!value) {
+                return callback('网络代理不能为空')
               }
-            }]
-          })
-
-          addressProps = getFieldProps(`address${item.key}`,{
-            initialValue: data[item.key] && data[item.key].address ? data[item.key].address : '',
-            rules:[{required: true, message: '服务出口不能为空'}]
-          })
-
-          domainProps = getFieldProps(`domain${item.key}`,{
-            initialValue: data[item.key] && data[item.key].domain ? data[item.key].domain: '',
-            rules: [{ required: false }]
-          })
-        }
+              this.valiadAllGroupNameField()
+              if(this.isNameRepeat(item.key)) {
+                return callback('网络代理重复')
+              }
+              return callback()
+            }
+          }]
+        })
+        let addressProps = getFieldProps(`address${item.key}`,{
+          initialValue: data[item.key] && data[item.key].address ? data[item.key].address : '',
+          rules:[{required: true, message: '服务出口不能为空'}]
+        })
+        let domainProps  = getFieldProps(`domain${item.key}`,{
+          initialValue: data[item.key] && data[item.key].domain ? data[item.key].domain: '',
+          rules: [{ required: false }]
+        })
+        let groupidProps = getFieldProps(`groupId${item.key}`,{
+          initialValue: data[item.key] && data[item.key].id ? data[item.key].id : '',
+        })
+        let isDefaultGroupAttr = getFieldProps(`isDefaultGroupAttr${item.key}`,{
+          initialValue: data[item.key] && data[item.key].isDefault ? data[item.key].isDefault : false,
+        })
         return  <Row className="clusterTable" key={`rows-${index}`}>
           <Icon
             type="cross"

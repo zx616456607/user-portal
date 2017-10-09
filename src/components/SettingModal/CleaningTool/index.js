@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Tabs, Select, Form, Button, Modal, Icon, InputNumber, Row, Col, Tooltip } from 'antd'
+import { Tabs, Select, Form, Button, Modal, Icon, Timeline, Row, Col, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
@@ -19,10 +19,16 @@ import CleaningToolImg from '../../../../static/img/setting/cleaningTool.png'
 import StepsImg from '../../../../static/img/setting/steps.png'
 import NotificationHandler from '../../../components/Notification'
 import ReactEcharts from 'echarts-for-react'
+import {
+  startClean, getCleanLogs, cleanSystemLogs, cleanMonitor
+} from '../../../actions/clean'
+import { formatDate } from '../../../common/tools'
+import classNames from 'classnames'
 
 const TabPane = Tabs.TabPane
 const Option = Select.Option
 const FormItem = Form.Item
+const TimelineItem = Timeline.Item
 
 class CleaningTool extends Component {
   constructor(props) {
@@ -30,43 +36,131 @@ class CleaningTool extends Component {
     this.renderLogsList = this.renderLogsList.bind(this)
     this.renderTips = this.renderTips.bind(this)
     this.state = {
-      systemLog: false,
-      confirmLoading: false,
-      cleanSystemLogDone: false,
+      cleanModal: false,
+      cleanSystemLogStatus: undefined,
+      cleanCicdStatus: undefined,
       editMonitoringData: false,
+      monitorBtnLoading: false,
       mirrorImageEdit: true,
       accomplish: true,
       pending: false,
       forbid: false,
+      cleanLogs: []
     }
   }
-
+  componentWillMount() {
+    this.getCleanLogs()
+  }
+  getCleanLogs() {
+    const { getCleanLogs } = this.props
+    getCleanLogs({
+      sort: 'd,create_time',
+      from: 0,
+      size: 5,
+    }, {
+      success: {
+        func: res => {
+          this.setState({
+            cleanLogs: res.data.body
+          })
+        }
+      },
+      failed: {
+        func: () => {
+          this.setState({
+            cleanLogs: []
+          })
+        }
+      }
+    })
+  }
   cleaningSystemLog(){
     const { form } = this.props
-    this.setState({
-      confirmLoading: false,
-    })
     const validateArray = ['systemLogTime']
     form.validateFields(validateArray, (errors, values) => {
       if(!!errors){
         return
       }
       this.setState({
-        systemLog: true,
+        currentType: 'systemLogs',
+        cleanModal: true,
       })
     })
   }
 
   confirmCleanSystemLog(){
-    const { form } = this.props
-    const time = form.getFieldValue("systemLogTime")
+    const { currentType } = this.state
     this.setState({
-      confirmLoading: false,
-      systemLog: false,
-      cleanSystemLogDone: true,
+      cleanModal: false
+    })
+    switch(currentType) {
+      case 'cicd':
+        this.cleanCicd()
+        break;
+      case 'systemLogs':
+        this.cleanSystem()
+    }
+  }
+  
+  cleanCicd() {
+    const { form, startClean } = this.props
+    const time = form.getFieldValue("cache")
+    const cleanRange = parseInt(time)
+    this.setState({
+      cleanCicdStatus: 'cleaning'
+    })
+    startClean('cicd_clean', 'manual', {
+      cron: "",
+      scope: cleanRange
+    }, {
+      success: {
+        func: () => {
+          this.setState({
+            cleanCicdStatus: true,
+          })
+          this.getCleanLogs()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          this.setState({
+            cleanCicdStatus: false,
+          })
+        }
+      }
     })
   }
-
+  
+  cleanSystem() {
+    const { form, cleanSystemLogs } = this.props
+    const time = form.getFieldValue("systemLogTime")
+    const time_range = parseInt(time)
+    this.setState({
+      cleanSystemLogStatus: 'cleaning'
+    })
+    cleanSystemLogs({
+      type: 0,
+      time_range,
+    }, {
+      success: {
+        func: () => {
+          this.setState({
+            cleanSystemLogStatus: true
+          })
+          this.getCleanLogs()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          this.setState({
+            cleanSystemLogStatus: false
+          })
+        }
+      }
+    })
+  }
   cancelEditMonitoringData(){
     this.setState({
       editMonitoringData: false,
@@ -74,8 +168,38 @@ class CleaningTool extends Component {
   }
 
   saveEditMonitoringData(){
-    this.setState({
-      editMonitoringData: false,
+    const { cleanMonitor, form } = this.props
+    const { monitorBtnLoading } = this.state
+    const validateArray = ['monitoringDataTime']
+    form.validateFields(validateArray, (errors, values) => {
+      if(!!errors){
+        return
+      }
+      this.setState({
+        monitorBtnLoading: true
+      })
+      const time = values.monitoringDataTime
+      cleanMonitor({
+        duration: `${time}h`
+      }, {
+        success: {
+          func: () => {
+            this.setState({
+              editMonitoringData: false,
+              monitorBtnLoading: false
+            })
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            this.setState({
+              editMonitoringData: false,
+              monitorBtnLoading: false
+            })
+          }
+        }
+      })
     })
   }
 
@@ -87,20 +211,21 @@ class CleaningTool extends Component {
         return
       }
       this.setState({
-        systemLog: true
+        cleanModal: true
       })
     })
   }
 
-  cleaningCache(){
+  cleaningCicd(){
     const { form } = this.props
     const validateArray = ['cache']
-    form.validateFields(validateArray, errors => {
+    form.validateFields(validateArray, (errors) => {
       if(!!errors){
         return
       }
       this.setState({
-        systemLog: true
+        currentType: 'cicd',
+        cleanModal: true
       })
     })
   }
@@ -134,24 +259,20 @@ class CleaningTool extends Component {
   }
 
   renderLogsList(){
-    const array = []
-    for(let i = 0; i < 5; i++){
-      let item = {
-        key: i,
-        logs: '上次清理1233MB垃圾',
-        time: '8-28'
-      }
-      array.push(item)
+    const { cleanLogs } = this.state
+    if (!cleanLogs.length) {
+      return
     }
-    const logs = array.map((item, index) => {
-      return <Tooltip title={item.logs} placement="topLeft" key={`toolip${index}`}>
-        <div className='item' key={`logs${item.key}`}>{item.logs}</div>
-      </Tooltip>
+    return cleanLogs.map((item, index) => {
+      return (
+        <TimelineItem key={item.id} color={index === 0 ? 'green' : '#e9e9e9'}>
+          <Row className={classNames({'successColor': index === 0})}>
+            <Col span={20}>{index === 0 ? `上次清理${item.target}` : item.target}</Col>
+            <Col className="time_item" span={4}>{formatDate(item.CreateTime, 'MM-DD')}</Col>
+          </Row>
+        </TimelineItem>
+      )
     })
-    const times = array.map(item => {
-      return <div className='time_item'>{item.time}</div>
-    })
-    return { logs, times}
   }
 
   cleaningMirrorImage(type){
@@ -197,9 +318,138 @@ class CleaningTool extends Component {
     }
     return <span>后端运行垃圾回收直至移除所有无标签镜像</span>
   }
+  
+  renderSystemTab() {
+    const { getFieldProps } = this.props.form
+    const { cleanSystemLogStatus } = this.state
+    switch(cleanSystemLogStatus) {
+      case 'cleaning': 
+        return (
+          <div className='done_box'>
+            <div className='tips'>
+              您可以静待清理完成，也可以清理其他垃圾或者离开清理工具
+            </div>
+            <Button size="large" type="primary" loading diabled>清理中</Button>
+          </div>
+        )
+      break;
+      case true:
+        return (
+          <div className='done_box'>
+            <div className='tips'>
+              清理完成，此次清理 <span className='number'>1256</span> MB，查看 <span className='log'>清理记录</span>
+            </div>
+            <Button size="large" type="primary" onClick={() => this.setState({cleanSystemLogStatus: undefined})}>完成</Button>
+          </div>
+        )
+      break;
+      case false:
+        return (
+          <div className='done_box'>
+            <div className='tips'>
+              清理失败
+            </div>
+            <Button size="large" type="primary" onClick={() => this.setState({cleanSystemLogStatus: undefined})}>返回</Button>
+          </div>
+        )
+      break;
+      default:
+        return (
+          <div className='handle_box'>
+            <div className='tips'>您可以根据数据时效选择需要清理的文件范围!</div>
+            <FormItem className='time_select'>
+              <Select
+                placeholder="选择删除系统日志时间"
+                size="large"
+                className='select_box'
+                {...getFieldProps('systemLogTime',{
+                  rules: [{required: true, message: '请选择删除系统日志时间'}]
+                })}
+              >
+                <Option key="system_0" value="0">清除所有数据</Option>
+                <Option key="system_1" value="1">清除1天前数据</Option>
+                <Option key="system_2" value="2">清除3天前数据</Option>
+                <Option key="system_3" value="3">清除7天前数据</Option>
+                <Option key="system_4" value="4">清除15天数据</Option>
+                <Option key="system_5" value="5">清除1月前数据</Option>
+                <Option key="system_6" value="6">清除3月前数据</Option>
+              </Select>
+            </FormItem>
+            <div>
+              <Button size="large" type="primary" onClick={() => this.cleaningSystemLog()}>清理</Button>
+            </div>
+          </div>
+        )
+    }
+  }
+  
+  renderCicdTab() {
+    const { getFieldProps } = this.props.form
+    const { cleanCicdStatus } = this.state
+    switch(cleanCicdStatus) {
+      case 'cleaning':
+        return (
+          <div className='done_box'>
+            <div className='tips'>
+              您可以静待清理完成，也可以清理其他垃圾或者离开清理工具
+            </div>
+            <Button size="large" type="primary" loading diabled>清理中</Button>
+          </div>
+        )
+        break;
+      case true:
+        return (
+          <div className='done_box'>
+            <div className='tips'>
+              清理完成，此次清理 <span className='number'>1256</span> MB，查看 <span className='log'>清理记录</span>
+            </div>
+            <Button size="large" type="primary" onClick={() => this.setState({cleanCicdStatus: undefined})}>完成</Button>
+          </div>
+        )
+      break;
+      case false:
+        return (
+          <div className='done_box'>
+            <div className='tips'>
+              清理失败
+            </div>
+            <Button size="large" type="primary" onClick={() => this.setState({cleanCicdStatus: undefined})}>返回</Button>
+          </div>
+        )
+      break;
+      default:
+        return(
+          <div className='handle_box'>
+            <div className='tips'>您可以根据数据时效选择需要清理的文件范围!</div>
+            <FormItem className='time_select'>
+              <Select
+                placeholder="请选择删除缓存时间"
+                size="large"
+                className='select_box'
+                {...getFieldProps('cache',{
+                  rules: [{required: true, message: '请选择删除缓存时间'}]
+                })}
+              >
+                <Option key="cicd_0" value='0'>清除所有数据</Option>
+                <Option key="cicd_1" value='1'>清除1天前数据</Option>
+                <Option key="cicd_3" value='3'>清除3天前数据</Option>
+                <Option key="cicd_7" value='7'>清除7天前数据</Option>
+                <Option key="cicd_15" value='15'>清除15天数据</Option>
+                <Option key="cicd_30" value='30'>清除1月前数据</Option>
+                <Option key="cicd_90" value='90'>清除3月前数据</Option>
+              </Select>
+            </FormItem>
+            <div>
+              <Button size="large" type="primary" onClick={() => this.cleaningCicd()}>清理</Button>
+            </div>
+          </div>
+        )
+    }
+  }
   render() {
     const {
-      cleanSystemLogDone, editMonitoringData,
+      editMonitoringData,
+      monitorBtnLoading,
       accomplish, pending,
       forbid, mirrorImageEdit,
     } = this.state
@@ -223,7 +473,7 @@ class CleaningTool extends Component {
       xAxis : [
         {
           type : 'category',
-          data : ['系统日志', '监控数据', '停止容器', '镜像', 'CI/CD缓存'],
+          data : ['系统日志', /*'监控数据', '停止容器', '镜像',*/ 'CI/CD缓存'],
           axisTick: {
             alignWithLabel: true
           }
@@ -266,94 +516,10 @@ class CleaningTool extends Component {
                   <img src={CleaningToolImg} alt=""/>
                 </div>
                 {
-                  cleanSystemLogDone
-                  ? <div className='done_box'>
-                      <div className='tips'>
-                        清理完成，此次清理 <span className='number'>1256</span> MB，查看 <span className='log'>清理记录</span>
-                      </div>
-                        <Button size="large" type="primary" onClick={() => this.setState({cleanSystemLogDone: false})}>完成</Button>
-                    </div>
-                  : <div className='handle_box'>
-                    <div className='tips'>您可以根据数据时效选择需要清理的文件范围!</div>
-                    <FormItem className='time_select'>
-                      <Select
-                        placeholder="选择删除系统日志时间"
-                        size="large"
-                        className='select_box'
-                        {...getFieldProps('systemLogTime',{
-                          rules: [{required: true, message: '请选择删除系统日志时间'}]
-                        })}
-                      >
-                        <Option key="0" value="0">清除所有数据</Option>
-                        <Option key="1" value="1">清除1天前数据</Option>
-                        <Option key="2" value="2">清除3天前数据</Option>
-                        <Option key="3" value="3">清除7天前数据</Option>
-                        <Option key="4" value="4">清除15天数据</Option>
-                        <Option key="5" value="5">清除1月前数据</Option>
-                        <Option key="6" value="6">清除3月前数据</Option>
-                      </Select>
-                    </FormItem>
-                    <div>
-                      <Button size="large" type="primary" onClick={() => this.cleaningSystemLog()}>清理</Button>
-                    </div>
-                  </div>
+                  this.renderSystemTab()
                 }
               </TabPane>
-              <TabPane tab="监控数据" key="monitoringData">
-                <div className='img_box'>
-                  <img src={CleaningToolImg} alt=""/>
-                </div>
-                <div className='handle_box'>
-                  <div className='tips'>您可以根据数据时效配置数据保留时间！</div>
-                  <FormItem className='time_select'>
-                    <Select
-                      placeholder="选择数据保留时间"
-                      size="large"
-                      className='select_box'
-                      disabled={!editMonitoringData}
-                      {...getFieldProps('monitoringDataTime',{
-                        initialValue: "0",
-                        rules: [{required: true, message: '请选择数据保留时间'}],
-                      })}
-                    >
-                      <Option key="0" value="0">保留7天</Option>
-                      <Option key="1" value="1">保留15天</Option>
-                      <Option key="2" value="2">保留30天</Option>
-                      <Option key="3" value="3">保留60天</Option>
-                      <Option key="4" value="4">永久保留</Option>
-                    </Select>
-                  </FormItem>
-                  <div>
-                    {
-                      editMonitoringData
-                      ? <div>
-                          <Button
-                            size="large"
-                            onClick={() => this.cancelEditMonitoringData()}
-                            style={{marginRight: 8}}
-                          >
-                            取消
-                          </Button>
-                          <Button
-                            size="large"
-                            type="primary"
-                            onClick={() => this.saveEditMonitoringData()}
-                          >
-                            保存
-                          </Button>
-                        </div>
-                      : <Button
-                          size="large"
-                          type="primary"
-                          onClick={() => this.setState({editMonitoringData: true})}
-                        >
-                          编辑
-                        </Button>
-                    }
-                  </div>
-                </div>
-              </TabPane>
-              <TabPane tab="停止容器" key="stopContainer">
+              {/*<TabPane tab="停止容器" key="stopContainer">
                 <div className='img_box'>
                   <img src={CleaningToolImg} alt=""/>
                 </div>
@@ -378,37 +544,71 @@ class CleaningTool extends Component {
                     <Button size="large" type="primary" onClick={() => this.cleaningStopContainer()}>清理</Button>
                   </div>
                 </div>
-              </TabPane>
+              </TabPane>*/}
               <TabPane tab="CI/CD缓存" key="cache">
                 <div className='img_box'>
                   <img src={CleaningToolImg} alt=""/>
                 </div>
+                {
+                  this.renderCicdTab()
+                }
+              </TabPane>
+              <TabPane tab="监控数据" key="monitoringData">
+                <div className='img_box'>
+                  <img src={CleaningToolImg} alt=""/>
+                </div>
                 <div className='handle_box'>
-                  <div className='tips'>您可以根据数据时效选择需要清理的文件范围!</div>
+                  <div className='tips'>您可以根据数据时效配置数据保留时间！</div>
                   <FormItem className='time_select'>
                     <Select
-                      placeholder="请选择删除缓存时间"
+                      placeholder="选择数据保留时间"
                       size="large"
                       className='select_box'
-                      {...getFieldProps('cache',{
-                        rules: [{required: true, message: '请选择删除缓存时间'}]
+                      disabled={!editMonitoringData}
+                      {...getFieldProps('monitoringDataTime',{
+                        initialValue: "168",
+                        rules: [{required: true, message: '请选择数据保留时间'}],
                       })}
                     >
-                      <Option key="0" value="0">清除所有数据</Option>
-                      <Option key="1" value="1">清除1天前数据</Option>
-                      <Option key="2" value="2">清除3天前数据</Option>
-                      <Option key="3" value="3">清除7天前数据</Option>
-                      <Option key="4" value="4">清除15天数据</Option>
-                      <Option key="5" value="5">清除1月前数据</Option>
-                      <Option key="6" value="6">清除3月前数据</Option>
+                      <Option key="monitor_0" value="168">保留7天</Option>
+                      <Option key="monitor_1" value="360">保留15天</Option>
+                      <Option key="monitor_2" value="720">保留30天</Option>
+                      <Option key="monitor_3" value="1440">保留60天</Option>
+                      {/*<Option key="4" value="4">永久保留</Option>*/}
                     </Select>
                   </FormItem>
                   <div>
-                    <Button size="large" type="primary" onClick={() => this.cleaningCache()}>清理</Button>
+                    {
+                      editMonitoringData
+                      ? <div>
+                          <Button
+                            size="large"
+                            onClick={() => this.cancelEditMonitoringData()}
+                            style={{marginRight: 8}}
+                          >
+                            取消
+                          </Button>
+                          <Button
+                            size="large"
+                            type="primary"
+                            loading={monitorBtnLoading}
+                            onClick={() => this.saveEditMonitoringData()}
+                          >
+                            保存
+                          </Button>
+                        </div>
+                      : <Button
+                          size="large"
+                          type="primary"
+                          onClick={() => this.setState({editMonitoringData: true})}
+                        >
+                          编辑
+                        </Button>
+                    }
                   </div>
                 </div>
               </TabPane>
-              <TabPane tab="镜像" key="mirrorImage">
+              {/*<TabPane tab="镜像" key="mirrorImage">
                 <div className='img_box'>
                   <img src={CleaningToolImg} alt=""/>
                 </div>
@@ -458,7 +658,7 @@ class CleaningTool extends Component {
                     </Button>
                   </div>
                 </div>
-              </TabPane>
+              </TabPane>*/}
             </Tabs>
           </div>
 
@@ -479,19 +679,9 @@ class CleaningTool extends Component {
                 <div className='right_box'>
                   <div className='header'>成就清单</div>
                   <div className='logs_list'>
-                    <div className='image_box'>
-                      <img src={StepsImg} alt=""/>
-                    </div>
-                    <div className='logs'>
-                      <Row>
-                        <Col span="14">
-                          { this.renderLogsList().logs }
-                        </Col>
-                        <Col span="10">
-                          { this.renderLogsList().times}
-                        </Col>
-                      </Row>
-                    </div>
+                    <Timeline>
+                      {this.renderLogsList()}
+                    </Timeline>
                   </div>
                   <div className='log_record'>
                     <span
@@ -507,13 +697,12 @@ class CleaningTool extends Component {
           </div>
           <Modal
             title="确认清理"
-            visible={this.state.systemLog}
+            visible={this.state.cleanModal}
             closable={true}
             onOk={() => this.confirmCleanSystemLog()}
-            onCancel={() => this.setState({ systemLog: false })}
+            onCancel={() => this.setState({ cleanModal: false })}
             width="570px"
             maskClosable={false}
-            confirmLoading={this.state.confirmLoading}
             wrapClassName="cleanTool_systemLog"
           >
             <div>
@@ -536,5 +725,8 @@ function mapStateToProp(state, props) {
 }
 
 export default connect(mapStateToProp, {
-
+  startClean,
+  getCleanLogs,
+  cleanSystemLogs,
+  cleanMonitor
 })(CleaningTool)

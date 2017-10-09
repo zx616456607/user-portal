@@ -263,12 +263,15 @@ const MyComponent = React.createClass({
       success:{
         func: (result) => {
           if(result.data) {
-             if(Object.getOwnPropertyNames(result.data).length > 0) {
-               scope.setState({
-                 disableScale: true
-               })
-               return
-             }
+            if(Object.getOwnPropertyNames(result.data).length > 0) {
+              // Check if autoscaling is disabled
+              if (result.data.spec.scaleTargetRef && result.data.spec.scaleTargetRef.name === item.metadata.name) {
+                scope.setState({
+                  disableScale: true
+                })
+              }
+              return
+            }
           }
           scope.setState({
             disableScale: false
@@ -429,10 +432,13 @@ const MyComponent = React.createClass({
       const images = item.spec.template.spec.containers.map(container => {
         return container.image
       })
-      const appName = item.metadata.labels[LABEL_APPNAME]
+      let appName = ""
+      if(item.metadata){
+        appName = item.metadata.labels[LABEL_APPNAME]
+      }
       let httpIcon = 'http'
       for (let k8sService of this.props.k8sServiceList) {
-        if (item.metadata.name === k8sService.metadata.name) {
+        if (k8sService && k8sService.metadata && item.metadata.name === k8sService.metadata.name) {
           if (k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
             httpIcon = 'https'
           }
@@ -684,14 +690,10 @@ class ServiceList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let { page, size, name, currentCluster, serviceList } = nextProps
+    let { page, size, name, serviceList } = nextProps
     this.setState({
       serviceList: serviceList,
     })
-    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
-      this.loadServices(nextProps)
-      return
-    }
     if (page === this.props.page && size === this.props.size && name === this.props.name) {
       return
     }

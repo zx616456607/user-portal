@@ -12,17 +12,17 @@ import React, { Component } from 'react'
 import { Button, Input, Table, Modal, Form, Select, Icon } from 'antd'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
+import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import yaml from 'js-yaml'
 import { getClusterStorageList } from '../../../actions/cluster'
-import { createStorage, loadStorageList, deleteStorage } from '../../../actions/storage'
+import { createStorage, loadStorageList, deleteStorage, searchStorage } from '../../../actions/storage'
 import PersistentVolumeClaim from '../../../../kubernetes/objects/persistentVolumeClaim'
 import { serviceNameCheck } from '../../../common/naming_validation'
 import { formatDate } from '../../../common/tools'
 import { DEFAULT_IMAGE_POOL } from '../../../constants'
 import NotificationHandler from '../../Notification'
 import './style/index.less'
-import cloneDeep from 'lodash/cloneDeep'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -154,6 +154,7 @@ class ShareMemory extends Component {
         name,
         storageType,
         storageClassName,
+        reclaimPolicy: 'retain',
       })
       const body = {
         cluster: clusterID,
@@ -190,13 +191,37 @@ class ShareMemory extends Component {
 
   searchStorage() {
     const { searchInput } = this.state
-    this.loadData({
-      storageName: searchInput,
-    })
+    const { searchStorage } = this.props
+    searchStorage(searchInput)
+  }
+
+  formatStatus(status){
+    switch(status){
+      case 'pending':
+        return <span>
+        <i className="fa fa-circle icon-marginRight penging"></i>
+        创建中
+      </span>
+      case 'used':
+        return <span>
+        <i className="fa fa-circle icon-marginRight used"></i>
+        使用中
+      </span>
+      case 'unused':
+        return <span>
+        <i className="fa fa-circle icon-marginRight no_used"></i>
+        未使用
+      </span>
+      default:
+        return <span>
+        <i className="fa fa-circle icon-marginRight unknown"></i>
+        未知
+      </span>
+    }
   }
 
   render() {
-    const { form, nfsList, storageList, storageListIsFetching } = this.props
+    const { form, nfsList, storageList, storageListIsFetching, clusterID } = this.props
     const {
       selectedRowKeys,
       createShareMemoryVisible,
@@ -210,18 +235,25 @@ class ShareMemory extends Component {
         key: 'name',
         title: '存储名称',
         dataIndex: 'name',
-        width: '20%',
+        width: '15%',
         render: (text, record, index) => (
-          <Link to={`/app_manage/shareMemory/${text}`}>
+          <Link to={`/app_manage/shareMemory/${clusterID}/${text}`}>
             {text}
           </Link>
         )
       },
       {
+        key: 'status',
+        title: '状态',
+        dataIndex: 'status',
+        width: '10%',
+        render: (status, record) => <div>{ this.formatStatus(status, record)}</div>
+      },
+      {
         key: 'format',
         title: '类型',
-        dataIndex: 'format',
-        width: '20%',
+        dataIndex: 'diskType',
+        width: '15%',
       },
       {
         key: 'storageServer',
@@ -241,11 +273,14 @@ class ShareMemory extends Component {
         title: '创建时间',
         dataIndex: 'createTime',
         width: '20%',
-        sorter: (a, b) => a - b,
+        sorter: (a, b) => new Date(formatDate(a.createTime)) - new Date(formatDate(b.createTime)),
         render: text => formatDate(text)
       }
     ]
     const rowSelection = {
+      getCheckboxProps: record => ({
+        disabled: record.status == 'used',    // 配置无法勾选的列
+      }),
       selectedRowKeys,
       onChange: this.onSelectChange,
     }
@@ -257,7 +292,7 @@ class ShareMemory extends Component {
       <QueueAnim className='share_memory'>
         <div id='share_memory' key="share_memory">
           <div className='alertRow'>
-            共享型存储支持多个容器实例同时对同一个共享目录经行读写操作
+            共享型存储支持多个容器实例同时对同一个共享目录进行读写操作
           </div>
           <div className='data_container'>
             <div className='handle_box'>
@@ -316,7 +351,7 @@ class ShareMemory extends Component {
             </div>
           </div>
           <Modal
-            title="删除操作"
+            title="删除存储卷操作"
             visible={deleteModalVisible}
             closable={true}
             onOk={() => this.confirmDeleteItem()}
@@ -328,7 +363,7 @@ class ShareMemory extends Component {
           >
             <div className='warning_tips'>
               <Icon type="question-circle-o" className='question_icon'/>
-              确定要删除存储 {selectedRowKeys.join(', ')} 吗？
+              确定要删除这 {selectedRowKeys.length} 个存储吗？
             </div>
           </Modal>
           <Modal
@@ -388,7 +423,14 @@ class ShareMemory extends Component {
                   {...getFieldProps('name', {
                     rules:[{
                       validator:(rule, value, callback) => {
-                        const msg = serviceNameCheck(value, '存储名称')
+                        let existNameFlag = false
+                        for(let i = 0; i < storageList.length; i++){
+                        	if(storageList[i].name == value){
+                            existNameFlag = true
+                            break
+                          }
+                        }
+                        const msg = serviceNameCheck(value, '存储名称', existNameFlag)
                         if (msg !== 'success') {
                           return callback(msg)
                         }
@@ -413,7 +455,7 @@ function mapStateToProp(state, props) {
   const { current } = entities
   const clusterID = current.cluster.clusterID
   const nfsList = cluster.clusterStorage && cluster.clusterStorage[clusterID] && cluster.clusterStorage[clusterID].nfsList || []
-  let storageList = storage.storageList[DEFAULT_IMAGE_POOL] || {}
+  const storageList = storage.storageList[DEFAULT_IMAGE_POOL] || {}
   return {
     clusterID,
     nfsList,
@@ -427,4 +469,5 @@ export default connect(mapStateToProp, {
   createStorage,
   loadStorageList,
   deleteStorage,
+  searchStorage,
 })(ShareMemory)

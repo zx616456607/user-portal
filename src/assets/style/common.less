@@ -514,6 +514,9 @@ pre{
   color: #46b2fa;
   // back button
 }
+.successColor {
+  color: #60ba62;
+}
 .back {
   display: inline-block;
   float: left;
@@ -554,6 +557,9 @@ pre{
 }
 
 .resourcePermissionModal {
+  &.ant-modal-wrap {
+    z-index: 9999;
+  }
   .ant-modal-content {
     width: 460px;
     .ant-modal-body > div {
@@ -569,6 +575,17 @@ pre{
         font-size: 14px;
         vertical-align: top;
       }
+    }
+  }
+}
+
+.reset_antd_table_header{
+  position: relative;
+  .ant-table-body{
+    .ant-table-thead > tr > th{
+      background: #ffffff;
+      font-weight: normal;
+      border-bottom: 1px solid #d9d9d9;
     }
   }
 }

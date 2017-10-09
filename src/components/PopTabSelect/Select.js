@@ -101,12 +101,6 @@ export default class PopTabSelect extends Component {
     if (!label) {
       label = key
     }
-    if (this.state.selectValue === label && !this.props.canRepeat) {
-      this.setState({
-        visible: false,
-      })
-      return
-    }
     onChange && onChange.apply(onChange, [key, tabKey, groupKey])
     this.setState({
       selectValue: label,
@@ -215,6 +209,9 @@ export default class PopTabSelect extends Component {
     }
     const { onChange } = this.props
     onChange && onChange.apply(onChange, [inputValue, 'inputBuild'])
+    this.setState({
+      visible: false,
+    })
   }
 
   render() {

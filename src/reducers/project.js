@@ -120,10 +120,13 @@ function projectList(state = {}, action) {
         isFetching: true
       })
     case ActionTypes.PROJECTS_LIST_SUCCESS:
+      const result = action.response.result.data || {}
+      const projects = result.projects || []
+      projects.forEach(project => project.name = project.projectName)
       return Object.assign({}, state, {
         isFetching: false,
-        data: action.response.result.data.projects,
-        total: action.response.result.data.listMeta.total,
+        data: projects,
+        total: result.listMeta && result.listMeta.total || 0,
       })
     case ActionTypes.PROJECTS_LIST_FAILURE:
       return merge({}, state, {
@@ -144,15 +147,8 @@ function projectClusterList(state = {}, action) {
         }
       })
     case ActionTypes.PROJECTS_CLUSTER_ALL_GET_SUCCESS:
-      let clusters = action.response.result.data.clusters || []
-      clusters = clusters.map(cluster => {
-        if (cluster.cluster) {
-          cluster = Object.assign({}, cluster, cluster.cluster)
-          delete cluster.cluster
-        }
-        cluster.name = cluster.clusterName
-        return cluster
-      })
+      const clusters = action.response.result.data.clusters || []
+      clusters.forEach(cluster => cluster.name = cluster.clusterName)
       return Object.assign({}, state, {
         [projectName]: {
           isFetching: false,
@@ -171,11 +167,42 @@ function projectClusterList(state = {}, action) {
   }
 }
 
+function projectVisibleClusters(state = {}, action) {
+  const { projectName, type } = action
+  switch (type) {
+    case ActionTypes.PROJECT_VISIBLE_CLUSTERS_GET_REQUEST:
+      return merge({}, state, {
+        [projectName]: {
+          isFetching: true,
+        }
+      })
+    case ActionTypes.PROJECT_VISIBLE_CLUSTERS_GET_SUCCESS:
+      const clusters = action.response.result.data.clusters || []
+      clusters.forEach(cluster => cluster.name = cluster.clusterName)
+      return Object.assign({}, state, {
+        [projectName]: {
+          isFetching: false,
+          data: clusters,
+          total: action.response.result.data.listMeta.total,
+        },
+      })
+    case ActionTypes.PROJECT_VISIBLE_CLUSTERS_GET_FAILURE:
+      return merge({}, state, {
+        [projectName]: {
+          isFetching: false,
+        }
+      })
+    default:
+      return state
+  }
+}
+
 export default function projectAuthority(state = {}, action) {
   return {
     projectsApprovalClustersList: getProjectsApprovalClusters(state.projectsApprovalClustersList, action),
     projectsDetail: projectsDetail(state.projectsDetail, action),
     projectList: projectList(state.projectList, action),
     projectClusterList: projectClusterList(state.projectClusterList, action),
+    projectVisibleClusters: projectVisibleClusters(state.projectVisibleClusters, action),
   }
 }

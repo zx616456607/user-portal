@@ -75,7 +75,11 @@ class Snapshot extends Component {
     SnapshotList(body,{
       success: {
         func: () => {
-          loadStorageList(currentImagePool, cluster)
+          const query = {
+            storagetype: 'ceph',
+            srtype: 'private'
+          }
+          loadStorageList(currentImagePool, cluster, query)
         },
         isAsync: true
       }
@@ -296,7 +300,7 @@ class Snapshot extends Component {
 
   handelEnterSearch(e){
     const { snapshotDataList } = this.props
-    const keyword = e.target.value
+    const keyword = document.getElementById('searchSnapshot').value
     if(keyword.length == 0){
       this.setState({
         SnapshotList: snapshotDataList
@@ -505,15 +509,15 @@ class Snapshot extends Component {
         dataIndex:'volume',
         width:'10%',
         render: (volume) => <div>
-          <Link to={`/app_manage/storage/${DEFAULT_IMAGE_POOL}/${this.props.cluster}/${volume}`} >
+          <Link to={`/app_manage/exclusiveMemory/${DEFAULT_IMAGE_POOL}/${this.props.cluster}/${volume}`} >
             {volume}
           </Link>
         </div>
       },{
         title: '卷类型',
-        key: 'volumeType',
-        dataIndex: 'volumeType',
-        render: (text, record, index) => <div style={{color: 'red', wordBreak: 'break-all'}}>RBD(xxxRBD集群名称)</div>
+        key: 'storageServer',
+        dataIndex: 'storageServer',
+        render: (text, record, index) => <div style={{wordBreak: 'break-all'}}>RBD ({text})</div>
       },{
         title:'创建时间',
         key:'CreateTime',
@@ -542,7 +546,7 @@ class Snapshot extends Component {
         <div className='appmanage_snapshot_header'>
           <Button icon="delete" size='large' onClick={this.handleDeleteSnapshots} disabled={DeleteSnapshotButton}>删除</Button>
           <span className='searchBox'>
-            <Input className='searchInput' placeholder='按快照名称搜索' size="large" onPressEnter={this.handelEnterSearch}/>
+            <Input className='searchInput' placeholder='按快照名称搜索' size="large" onPressEnter={this.handelEnterSearch} id="searchSnapshot"/>
             <i className="fa fa-search searchIcon" aria-hidden="true" onClick={this.handelEnterSearch}></i>
           </span>
           {

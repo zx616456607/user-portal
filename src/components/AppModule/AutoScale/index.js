@@ -31,7 +31,8 @@ class AutoScale extends React.Component {
       currentPage: 1,
       searchValue: '',
       tableLoading: false,
-      selectedRowKeys: []
+      selectedRowKeys: [],
+      existServices: []
     }
   }
   componentWillMount() {
@@ -62,11 +63,16 @@ class AutoScale extends React.Component {
         func: res => {
           let scaleList = res.data
           scaleList = Object.values(scaleList)
-          scaleList.forEach(item => item = Object.assign(item, { key: item.metadata.name }))
+          let existServices = []
+          scaleList.forEach(item => {
+            item = Object.assign(item, { key: item.metadata.name })
+            existServices.push(item.metadata.name)
+          })
           this.setState({
             scaleList,
             totalCount: res.totalCount,
-            tableLoading: false
+            tableLoading: false,
+            existServices,
           })
         },
         isAsync: true
@@ -76,7 +82,8 @@ class AutoScale extends React.Component {
           this.setState({
             scaleList: [],
             totalCount: 0,
-            tableLoading: false
+            tableLoading: false,
+            existServices: []
           })
         }
       }
@@ -340,7 +347,7 @@ class AutoScale extends React.Component {
     const {
       scaleModal, scaleList, currentPage, totalCount,
       searchValue, tableLoading, selectedRowKeys, scaleDetail,
-      create, reuse, deleteModal
+      create, reuse, deleteModal, existServices
     } = this.state
     const {
       clusterID
@@ -380,6 +387,7 @@ class AutoScale extends React.Component {
       title: '告警通知组',
       dataIndex: 'metadata.annotations.alertgroupName',
       width: '10%',
+      render: text => text ? text : '-'
     }, {
       title: '操作',
       width: '10%',
@@ -394,7 +402,7 @@ class AutoScale extends React.Component {
         );
         return(
           <Dropdown.Button onClick={(e) => this.handleButtonClick(e, record)} overlay={menu} type="ghost">
-            <Icon type="copy" /> 复用
+            <Icon type="copy" /> 克隆
           </Dropdown.Button>
         )
       }
@@ -418,9 +426,9 @@ class AutoScale extends React.Component {
         <div className="btnGroup">
           <Button type="primary" size="large" onClick={() => this.setState({scaleModal: true, create: true})}><i className="fa fa-plus" /> 创建自动伸缩策略</Button>
           <Button size="large" onClick={() => this.loadData(clusterID, 1)}><i className='fa fa-refresh' /> 刷新</Button>
-          <Button size="large" onClick={() => this.batchUpdateStatus('start')}><i className='fa fa-play' /> 启用</Button>
-          <Button size="large" onClick={() => this.batchUpdateStatus('stop')}><i className='fa fa-stop' /> 停用</Button>
-          <Button size="large" onClick={() => this.setState({deleteModal: true})}><i className='fa fa-trash-o' /> 删除</Button>
+          <Button size="large" disabled={selectedRowKeys.length ? false: true} onClick={() => this.batchUpdateStatus('start')}><i className='fa fa-play' /> 启用</Button>
+          <Button size="large" disabled={selectedRowKeys.length ? false: true} onClick={() => this.batchUpdateStatus('stop')}><i className='fa fa-stop' /> 停用</Button>
+          <Button size="large" disabled={selectedRowKeys.length ? false: true} onClick={() => selectedRowKeys.length && this.setState({deleteModal: true})}><i className='fa fa-trash-o' /> 删除</Button>
           <CommonSearchInput
             placeholder="请输入策略名或服务名搜索"
             size="large"
@@ -455,6 +463,7 @@ class AutoScale extends React.Component {
           create={create}
           reuse={reuse}
           scaleDetail={scaleDetail}
+          existServices={existServices}
           scope={this}/>
       </div>
     )

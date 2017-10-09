@@ -65,12 +65,12 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.TenxFlowList.create',
     defaultMessage: '创建TenxFlow',
   },
-  deloyLog: {
-    id: 'CICD.Tenxflow.TenxFlowList.deloyLog',
-    defaultMessage: '构建记录',
-  },
   deloyStart: {
     id: 'CICD.Tenxflow.TenxFlowList.deloyStart',
+    defaultMessage: '构建记录',
+  },
+  deloyLog: {
+    id: 'CICD.Tenxflow.TenxFlowList.deloyLog',
     defaultMessage: '立即构建',
   },
   delete: {
@@ -512,7 +512,7 @@ class TenxFlowList extends Component {
     let { searchValue } = this.state
     const { flowList } = this.props;
     let newList = [];
-    searchValue = searchValue.replace(SEARCH,"")
+    searchValue = searchValue.trim()
     if (searchValue.length > 0) {
       searchingFlag = true;
     }

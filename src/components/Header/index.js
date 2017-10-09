@@ -16,13 +16,13 @@ import { connect } from 'react-redux'
 import cloneDeep from 'lodash/cloneDeep'
 import { loadUserList } from '../../actions/user'
 import { loadTeamClustersList } from '../../actions/team'
-import { GetProjectsAllClusters, ListProjects } from '../../actions/project'
+import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
 import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
 import { checkVersion } from '../../actions/version'
 import { getCookie, isEmptyObject, getVersion, getPortalRealMode, toQuerystring } from '../../common/tools'
 import { USER_CURRENT_CONFIG, ROLE_SYS_ADMIN } from '../../../constants'
 import { MY_SPACE, SESSION_STORAGE_TENX_HIDE_DOT_KEY, LITE } from '../../constants'
-import { browserHistory, Link } from 'react-router'
+import { Link } from 'react-router'
 import NotificationHandler from '../../components/Notification'
 import UserPanel from './UserPanel'
 import backOldBtn from '../../assets/img/headerBackOldArrow.png'
@@ -46,7 +46,7 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/app_center\/stack_center/,
     /\/app_center\/wrap_manage/,
     /\/ci_cd/,
-    /\/manange_monitor/,
+    /\/manange_monitor\/?$/,
     /\/manange_monitor\/alarm_record/,
     /\/manange_monitor\/alarm_setting/,
     /\/manange_monitor\/alarm_group/,
@@ -126,6 +126,7 @@ class Header extends Component {
     this.showUpgradeVersionModal = this.showUpgradeVersionModal.bind(this)
     this.renderCheckVersionContent = this.renderCheckVersionContent.bind(this)
     this.handleDocVisible = this.handleDocVisible.bind(this)
+    this.handleSpaceVisibleChange = this.handleSpaceVisibleChange.bind(this)
     this.state = {
       spacesVisible: false,
       clustersVisible: false,
@@ -137,7 +138,6 @@ class Header extends Component {
       upgradeVersionModalVisible: false,
       visible: false,
       allUsers: [],
-      projectClusters: [],
     }
     this.isSysAdmin = props.loginUser.role == ROLE_SYS_ADMIN
   }
@@ -172,7 +172,7 @@ class Header extends Component {
       setCurrent,
       loadLoginUserDetail,
       loginUser,
-      GetProjectsAllClusters,
+      getProjectVisibleClusters,
     } = this.props
     const config = getCookie(USER_CURRENT_CONFIG)
     const [teamID, namespace, clusterID] = config.split(',')
@@ -198,17 +198,10 @@ class Header extends Component {
           setCurrent({
             space: defaultSpace
           })
-          GetProjectsAllClusters({ projectsName: defaultSpace.projectName }, {
+          getProjectVisibleClusters(defaultSpace.projectName, {
             success: {
               func: clustersRes => {
-                let { clusters } = clustersRes.data
-                clusters = clusters.map(cluster => {
-                  if (cluster.cluster) {
-                    cluster = cluster.cluster
-                  }
-                  cluster.name = cluster.clusterName
-                  return cluster
-                })
+                const { clusters } = clustersRes.data
                 let defaultCluster = clusters[0] || {}
                 clusters.map(cluster => {
                   if (cluster.clusterID === clusterID) {
@@ -227,13 +220,17 @@ class Header extends Component {
   }
 
   handleProjectChange(project) {
-    const { GetProjectsAllClusters, setCurrent, current, showCluster, pathname } = this.props
+    const { getProjectVisibleClusters, setCurrent, current, showCluster } = this.props
     let notification = new NotificationHandler()
     // sys admin select the user list
     if (project.userName) {
       project.projectName = 'default'
     }
-    GetProjectsAllClusters({ projectsName: project.projectName }, {
+    this.setState({
+      spacesVisible: false,
+      clustersVisible: true,
+    })
+    getProjectVisibleClusters(project.projectName, {
       success: {
         func: clustersRes => {
           let { clusters } = clustersRes.data
@@ -264,12 +261,10 @@ class Header extends Component {
             space: project,
             cluster: firstCluster,
           })
+          this.props.setSwitchSpaceOrCluster()
           let isShowCluster = !!showCluster
           if (clusters.length === 1) {
             isShowCluster = false
-          }
-          if (pathname.match(/\//g).length > 2) {
-            browserHistory.push('/')
           }
           this.setState({
             spacesVisible: false,
@@ -294,16 +289,13 @@ class Header extends Component {
     setCurrent({
       cluster
     })
-    const { pathname } = window.location
+    this.props.setSwitchSpaceOrCluster()
     let msg = `${zone}已成功切换到 [${cluster.clusterName}]`
     if (current.cluster.namespace !== current.space.namespace) {
       msg = `${team}已成功切换到 [${current.space.spaceName}]，${msg}`
     }
     let notification = new NotificationHandler()
     notification.success(msg)
-    if (pathname.match(/\//g).length > 2) {
-      browserHistory.push('/')
-    }
   }
 
   componentDidMount() {
@@ -365,6 +357,15 @@ class Header extends Component {
         <a onClick={this._checkLiteVersion}>点击重试</a>
       </div>
     )
+  }
+
+  handleSpaceVisibleChange(visible) {
+    this.setState({
+      spacesVisible: visible
+    })
+    if (visible) {
+      loadProjects(this.props)
+    }
   }
 
   render() {
@@ -453,6 +454,7 @@ class Header extends Component {
                     onChange={this.handleProjectChange}
                     selectValue={selectValue || '...'}
                     popTeamSelect={mode === standard}
+                    onVisibleChange={this.handleSpaceVisibleChange}
                   />
                 </div>
             </div>
@@ -551,7 +553,7 @@ function mapStateToProps(state, props) {
   const { pathname } = props
   const { current, loginUser } = state.entities
   const { checkVersion } = state.version
-  const { projectList, projectClusterList } = state.projectAuthority
+  const { projectList, projectVisibleClusters } = state.projectAuthority
   let showSpace = false
   let showCluster = false
   SPACE_CLUSTER_PATHNAME_MAP.space.every(path => {
@@ -569,9 +571,8 @@ function mapStateToProps(state, props) {
     return true
   })
   const projects = projectList.data || []
-  projects.forEach(project => project.name = project.projectName)
   const currentNamespace = current.space.namespace
-  const currentProjectClusterList = projectClusterList[currentNamespace] || {}
+  const currentProjectClusterList = projectVisibleClusters[currentNamespace] || {}
   const projectClusters = currentProjectClusterList.data || []
   return {
     current,
@@ -596,5 +597,5 @@ export default connect(mapStateToProps, {
   checkVersion,
   loadUserList,
   ListProjects,
-  GetProjectsAllClusters,
+  getProjectVisibleClusters,
 })(Header)

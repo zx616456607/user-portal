@@ -9,14 +9,16 @@
  */
 
 import React from 'react'
-import { Timeline, Icon } from 'antd'
+import { Timeline, Icon, Spin } from 'antd'
 import './style/AppAutoScaleLogs.less'
+import { formatDate } from '../../../common/tools'
 const TimelineItem = Timeline.Item
 export default class AppAutoScaleLogs extends React.Component {
   constructor() {
     super()
     this.state = {
-      logList: []
+      logList: [],
+      loading: false
     }
   }
   componentWillMount() {
@@ -31,11 +33,15 @@ export default class AppAutoScaleLogs extends React.Component {
   }
   loadLogs = props => {
     const { getAutoScaleLogs, cluster, serviceName } = props
+    this.setState({
+      loading: true
+    })
     getAutoScaleLogs(cluster, serviceName, {
       success: {
         func: res => {
           this.setState({
-            logList: res.data.data
+            logList: res.data.data,
+            loading: false
           })
         },
         isAsync: true
@@ -43,24 +49,56 @@ export default class AppAutoScaleLogs extends React.Component {
       failed: {
         func: () => {
           this.setState({
-            logList: []
+            logList: [],
+            loading: false
           })
         },
         isAsync: true
       }
     })
   }
+  emailStatus = status => {
+    switch (status) {
+      case 0 :
+        return '，邮件正在发送。'
+      case 1 :
+        return '，邮件发送成功。'
+      case 2 : 
+        return '，邮件发送失败。'
+    }
+  }
+  renderLineTiem(item) {
+    const diff = item.scaleFrom - item.scaleTo
+    if (diff > 0) {
+      return <TimelineItem dot={<Icon type="check-circle" style={{fontSize: 16, color: '#2cb8f6'}}/>} key={item.message}>
+               <span style={{ color: '#2cb8f6' }}>{`收缩${diff}个实例${this.emailStatus(item.status)}`}</span>
+               <span>{formatDate(item.createTime)}</span>
+             </TimelineItem>
+    }
+    return <TimelineItem dot={<Icon type="check-circle" style={{fontSize: 16, color: '#2fba67'}}/>} key={item.message}>
+             <span style={{ color: '#2fba67' }}>{`扩展${Math.abs(diff)}个实例${this.emailStatus(item.status)}`}</span>
+             <span>{formatDate(item.createTime)}</span>
+    </TimelineItem>
+  }
   render() {
-    const { logList } = this.state
+    const { logList, loading } = this.state
     return(
       <div className="appAutoScaleLogs">
-        <Timeline>
-          {
-            logList.length > 0 ? logList.map(item => {
-              return <TimelineItem dot={<Icon type="check-circle" style={{fontSize: 16, color: '#2fba67'}}/>} key={item.message}>{item.message}</TimelineItem>
-            }) : null
-          }
-        </Timeline>
+        {
+          loading ?
+            <div className='loadingBox'>
+              <Spin size='large' />
+            </div> :
+            logList.length > 0 ?
+              <Timeline>
+                {
+                  logList.map(item => {
+                    return this.renderLineTiem(item)
+                  })
+                }
+              </Timeline>
+              : <div style={{ textAlign: 'center' }}>暂无数据</div>
+        }
       </div>
     )
   }

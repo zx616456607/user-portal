@@ -14,8 +14,7 @@ import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/CreateModel.less'
 import { connect } from 'react-redux'
-import { loadUserTeamspaceList } from '../../../actions/user'
-import { loadTeamClustersList } from '../../../actions/team'
+import { getProjectVisibleClusters, ListProjects } from '../../../actions/project'
 import { setCurrent } from '../../../actions/entities'
 import { MY_SPACE } from '../../../constants'
 import image from '../../../assets/img/app/image.png'
@@ -31,6 +30,11 @@ import { genRandomString } from '../../../common/tools'
 const FormItem = Form.Item;
 const createForm = Form.create;
 const Option = Select.Option;
+
+function loadProjects(props, callback) {
+  const { ListProjects, loginUser } = props
+  ListProjects({ size: 0 }, callback)
+}
 
 class CreateModel extends Component {
   constructor(props) {
@@ -52,8 +56,8 @@ class CreateModel extends Component {
   }
 
   componentWillMount() {
-    const { loadUserTeamspaceList, form, current, location } = this.props
-    loadUserTeamspaceList('default', { size: 100 })
+    const { form, current, location } = this.props
+    loadProjects(this.props)
     form.setFieldsValue({
       'spaceFormCheck': current.space.namespace,
       'clusterFormCheck': current.cluster.clusterID,
@@ -141,25 +145,25 @@ class CreateModel extends Component {
   }
 
   handleSpaceChange(value) {
-    const { teamspaces, loadTeamClustersList, setCurrent, form, current } = this.props
-    let newTeamspaces = ([MY_SPACE]).concat(teamspaces)
-    newTeamspaces.map(space => {
-      if (space.namespace === value) {
+    const { projects, getProjectVisibleClusters, setCurrent, form, current } = this.props
+    let newProjects = ([MY_SPACE]).concat(projects)
+    newProjects.map(project => {
+      if (project.namespace === value) {
         setCurrent({
-          space,
+          space: project,
           team: {
-            teamID: space.teamID
+            teamID: project.teamID
           }
         })
-        loadTeamClustersList(space.teamID, { size: 100 }, {
+        getProjectVisibleClusters(project.projectName, {
           success: {
             func: (result) => {
-              if (!result.data || result.data.length === 0) {
+              if (!result.data || result.data.clusters.length === 0) {
                 form.resetFields(['clusterFormCheck'])
                 return
               }
               form.setFieldsValue({
-                'clusterFormCheck': result.data[0].clusterID,
+                'clusterFormCheck': result.data.clusters[0].clusterID,
               })
             },
             isAsync: true
@@ -170,8 +174,8 @@ class CreateModel extends Component {
   }
 
   handleClusterChange(value) {
-    const { teamClusters, setCurrent } = this.props
-    teamClusters.map((cluster) => {
+    const { projectClusters, setCurrent } = this.props
+    projectClusters.map((cluster) => {
       if (cluster.clusterID === value) {
         setCurrent({
           cluster
@@ -207,10 +211,8 @@ class CreateModel extends Component {
   render() {
     const {
       form,
-      isTeamspacesFetching,
-      teamspaces,
-      isTeamClustersFetching,
-      teamClusters
+      projects,
+      projectClusters
     } = this.props
     const { getFieldProps, getFieldValue, getFieldError, isFieldValidating } = form
     const { createModel, linkUrl, moreService} = this.state
@@ -305,16 +307,16 @@ class CreateModel extends Component {
               <FormItem hasFeedback key="space" style={{ minWidth: '220px' }}>
                 <span>部署环境</span>
                 <Select size="large"
-                  placeholder="请选择空间"
+                  placeholder="请选择项目"
                   style={{ width: 150 }}
                   disabled={moreService}
                   {...spaceFormCheck}>
-                  <Option value="default">我的空间</Option>
+                  <Option value="default">我的个人项目</Option>
                   {
-                    teamspaces.map(space => {
+                    projects.map(project => {
                       return (
-                        <Option key={space.namespace} value={space.namespace}>
-                          {space.spaceName}
+                        <Option key={project.namespace} value={project.namespace}>
+                          {project.projectName}
                         </Option>
                       )
                     })
@@ -328,7 +330,7 @@ class CreateModel extends Component {
                   style={{ width: 150 }}
                   {...clusterFormCheck}>
                   {
-                    teamClusters.map(cluster => {
+                    projectClusters.map(cluster => {
                       return (
                         <Option key={cluster.clusterID} value={cluster.clusterID}>
                           {cluster.clusterName}
@@ -363,19 +365,22 @@ CreateModel = createForm()(CreateModel)
 
 function mapStateToProps(state, props) {
   const { current } = state.entities
-  const { teamspaces } = state.user
-  const { teamClusters } = state.team
+  const { projectList, projectVisibleClusters } = state.projectAuthority
+  const projects = projectList.data || []
+  const currentNamespace = current.space.namespace
+  const currentProjectClusterList = projectVisibleClusters[currentNamespace] || {}
+  const projectClusters = currentProjectClusterList.data || []
   return {
     current,
-    isTeamspacesFetching: teamspaces.isFetching,
-    teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
-    isTeamClustersFetching: teamClusters.isFetching,
-    teamClusters: (teamClusters.result ? teamClusters.result.data : []),
+    isProjectsFetching: projectList.isFetching,
+    projects,
+    isProjectClustersFetching: currentProjectClusterList.isFetching,
+    projectClusters,
   }
 }
 
 export default connect(mapStateToProps, {
-  loadUserTeamspaceList,
-  loadTeamClustersList,
+  getProjectVisibleClusters,
+  ListProjects,
   setCurrent,
 })(CreateModel)

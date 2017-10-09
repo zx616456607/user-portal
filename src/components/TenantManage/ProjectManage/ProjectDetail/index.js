@@ -22,14 +22,16 @@ import { ListRole, CreateRole, ExistenceRole, GetRole, roleWithMembers, usersAdd
 import { parseAmount } from '../../../../common/tools'
 import Notification from '../../../../components/Notification'
 import TreeComponent from '../../../TreeForMembers'
-import cloneDeep from 'lodash/cloneDeep'
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
 import isEmpty from 'lodash/isEmpty'
 import includes from 'lodash/includes'
 import CreateRoleModal from '../CreateRole'
-import { PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID } from '../../../../../constants'
+import { PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID, ROLE_SYS_ADMIN } from '../../../../../constants'
 import ResourceQuota from '../../../ResourceLimit'
+import { formatDate } from '../../../../common/tools'
+import { getGlobaleQuota, getGlobaleQuotaList, getClusterQuota } from '../../../../actions/quota'
+import { REG } from '../../../../constants'
 
 let checkedKeysDetail = []
 const TabPane = Tabs.TabPane;
@@ -47,7 +49,6 @@ class ProjectDetail extends Component {
       characterModal: false,
       payNumber: 10,
       projectDetail: {},
-      projectClusters: [],
       dropVisible: false,
       UnRequest: 0,
       comment: '',
@@ -71,6 +72,9 @@ class ProjectDetail extends Component {
       roleMember: 0,
       memberType: 'user',
       filterFlag: true,
+      quotaData: [],
+      quotauseData: [],
+      filterLoading: false
     }
   }
   componentWillMount() {
@@ -84,18 +88,7 @@ class ProjectDetail extends Component {
     const { GetProjectsAllClusters } = this.props;
     GetProjectsAllClusters({
       projectsName: name
-    }, {
-        success: {
-          func: (res) => {
-            if (res.statusCode === 200) {
-              this.setState({
-                projectClusters: res.data.clusters,
-              })
-            }
-          },
-          isAsync: true
-        }
-      })
+    })
   }
   loadRoleList() {
     const { ListRole } = this.props;
@@ -177,16 +170,16 @@ class ProjectDetail extends Component {
             })
             const { relatedRoles } = res.data
             roleIdArr.length && relatedRoles && relatedRoles.length && relatedRoles.forEach(item => {
-              if (roleIdArr.includes(item.roleId)){
+              if (roleIdArr.includes(item.roleId)) {
                 roleNameArr.push(item.roleName)
               }
             })
             this.setState({
               roleNameArr,
-              projectDetail:res.data,
-              comment:res.data.description,
+              projectDetail: res.data,
+              comment: res.data.description,
               isManager: res.data.outlineRoles.includes('manager')
-            },()=>{
+            }, () => {
               const { projectDetail } = this.state;
               this.loadRoleList()
               this.getCurrentRole(projectDetail.relatedRoles && projectDetail.relatedRoles[0].roleId)
@@ -194,7 +187,7 @@ class ProjectDetail extends Component {
           },
           isAsync: true
         }
-    })
+      })
   }
   filterOption(inputValue, option) {
     return option.description.indexOf(inputValue) > -1;
@@ -472,24 +465,26 @@ class ProjectDetail extends Component {
     if (name) {
       query = Object.assign(query, { filter: `name,${name}` })
     }
-
-    GetProjectsMembers(query, {
-      success: {
-        func: (res) => {
-          if (res.statusCode === 200) {
-            let newArr = res.data.iteams || []
-            this.formatMember(newArr)
-            this.setState({
-              memberArr: newArr,
-              filterFlag: flag,
-              totalMemberCount: res.data.listMeta.total,
-              connectModal: true,
-              memberType: type,
-            })
-          }
-        },
-        isAsync: true
-      }
+    return new Promise((resolve) => {
+      GetProjectsMembers(query, {
+        success: {
+          func: (res) => {
+            if (res.statusCode === 200) {
+              let newArr = res.data.iteams || []
+              this.formatMember(newArr)
+              this.setState({
+                memberArr: newArr,
+                filterFlag: flag,
+                totalMemberCount: res.data.listMeta.total,
+                connectModal: true,
+                memberType: type,
+              })
+            }
+            resolve()
+          },
+          isAsync: true
+        }
+      })
     })
   }
   formatMember(arr) {
@@ -582,9 +577,9 @@ class ProjectDetail extends Component {
     if (currentRoleInfo.id === PROJECT_MANAGE_ROLE_ID && (selectedMembers.length < 1)) {
       return notify.info('至少有一个项目管理员在项目中')
     }
-    let diff = xor(existentMember,selectedMembers);
-    let del = intersection(existentMember,diff)
-    let add = intersection(selectedMembers,diff)
+    let diff = xor(existentMember, selectedMembers);
+    let del = intersection(existentMember, diff)
+    let add = intersection(selectedMembers, diff)
     if (!del.length && !add.length) {
       this.setState({
         connectModal: false,
@@ -687,15 +682,23 @@ class ProjectDetail extends Component {
   }
   filterMember = value => {
     const { memberType, filterFlag } = this.state
-    this.getProjectMember(memberType, value, !filterFlag)
+    this.setState({
+      filterLoading: true
+    }, () => {
+      this.getProjectMember(memberType, value, !filterFlag).then(() => {
+        this.setState({
+          filterLoading: false
+        })
+      })
+    })
   }
   render() {
-    const { payNumber, projectDetail, projectClusters, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
+    const { payNumber, projectDetail, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
-      filterFlag, isManager, roleNameArr, getRoleLoading
+      filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData
     } = this.state;
     const TreeNode = Tree.TreeNode;
-    const { form, roleNum } = this.props;
+    const { form, roleNum, projectClusters } = this.props;
     const { getFieldProps } = form;
     const loopFunc = data => data.length > 0 && data.map((item) => {
       return <TreeNode key={item.key} title={item.userName} disableCheckbox={true} />;
@@ -724,18 +727,18 @@ class ProjectDetail extends Component {
           if (item.status === 1) {
             if (flag) {
               return (
-                <div className="clusterStatus applyingStatus" key={`${item.cluster.clusterID}-status`}>
-                  <span>{item.cluster.clusterName}</span>
+                <div className="clusterStatus applyingStatus" key={`${item.clusterID}-status`}>
+                  <span>{item.clusterName}</span>
                   {this.clusterStatus(item.status, true)}
                 </div>
               )
             }
             return (
-              <dd className="topList" key={item.cluster.clusterID}>
-                <span>{item.cluster.clusterName}</span>
+              <dd className="topList" key={item.clusterID}>
+                <span>{item.clusterName}</span>
                 <div>
                   {this.clusterStatus(item.status)}
-                  <Icon type="cross-circle-o" className="pull-right pointer" style={{ marginLeft: '10px' }} onClick={() => this.updateProjectClusters(item.cluster.clusterID, 0)} />
+                  <Icon type="cross-circle-o" className="pull-right pointer" style={{ marginLeft: '10px' }} onClick={() => this.updateProjectClusters(item.clusterID, 0)} />
                 </div>
               </dd>
             )
@@ -749,33 +752,33 @@ class ProjectDetail extends Component {
           if (item.status === 2) {
             if (flag) {
               return (
-                <div className="clusterStatus appliedStatus" key={`${item.cluster.clusterID}-status`}>
-                  <span>{item.cluster.clusterName}</span>
+                <div className="clusterStatus appliedStatus" key={`${item.clusterID}-status`}>
+                  <span>{item.clusterName}</span>
                   {this.clusterStatus(item.status, true)}
                   {
                     (roleNum === 1 || isManager) &&
-                      <Tooltip title="移除集群">
-                        <i className="anticon anticon-cross" onClick={()=>this.setState({deleteClusterModal: true})}/>
-                      </Tooltip>
+                    <Tooltip title="移除集群">
+                      <i className="anticon anticon-cross" onClick={() => this.setState({ deleteClusterModal: true })} />
+                    </Tooltip>
                   }
                   <Modal title="移除集群" visible={this.state.deleteClusterModal}
                     onCancel={() => this.setState({ deleteClusterModal: false })}
-                    onOk={() => { this.updateProjectClusters(item.cluster.clusterID, 0); this.setState({ deleteClusterModal: false }) }}
+                    onOk={() => { this.updateProjectClusters(item.clusterID, 0); this.setState({ deleteClusterModal: false }) }}
                   >
                     <div className="modalColor">
                       <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-                      移除集群后，该集群下的资源也将被移除，此操作不可逆，是否确定移除已授权的集群{item.cluster.clusterName}？
+                      移除集群后，该集群下的资源也将被移除，此操作不可逆，是否确定移除已授权的集群{item.clusterName}？
                     </div>
                   </Modal>
                 </div>
               )
             }
             return (
-              <dd className="topList" key={item.cluster.clusterID}>
-                <span>{item.cluster.clusterName}</span>
+              <dd className="topList" key={item.clusterID}>
+                <span>{item.clusterName}</span>
                 <div>
                   {this.clusterStatus(item.status)}
-                  {/*<Icon type="cross-circle-o" className="pull-right pointer" style={{marginLeft:'10px'}} onClick={()=>this.updateProjectClusters(item.cluster.clusterID,0)}/>*/}
+                  {/*<Icon type="cross-circle-o" className="pull-right pointer" style={{marginLeft:'10px'}} onClick={()=>this.updateProjectClusters(item.clusterID,0)}/>*/}
                 </div>
               </dd>
             )
@@ -789,21 +792,21 @@ class ProjectDetail extends Component {
           if (item.status === 3) {
             if (flag) {
               return (
-                <div className="clusterStatus rejectStatus" key={`${item.cluster.clusterID}-status`}>
-                  <span>{item.cluster.clusterName}</span>
+                <div className="clusterStatus rejectStatus" key={`${item.clusterID}-status`}>
+                  <span>{item.clusterName}</span>
                   {this.clusterStatus(item.status, true)}
                 </div>
               )
             }
             return (
-              <dd className="topList" key={item.cluster.clusterID}>
-                <span>{item.cluster.clusterName}</span>
+              <dd className="topList" key={item.clusterID}>
+                <span>{item.clusterName}</span>
                 <div>
                   {this.clusterStatus(item.status)}
                   <Tooltip placement="top" title='重新申请'>
-                    <i className="fa fa-pencil-square-o pull-right fa-lg pointer" aria-hidden="true" onClick={() => this.updateProjectClusters(item.cluster.clusterID, 1)} />
+                    <i className="fa fa-pencil-square-o pull-right fa-lg pointer" aria-hidden="true" onClick={() => this.updateProjectClusters(item.clusterID, 1)} />
                   </Tooltip>
-                  <Icon type="cross-circle-o" className="pull-right pointer" style={{ marginLeft: '10px' }} onClick={() => this.updateProjectClusters(item.cluster.clusterID, 0)} />
+                  <Icon type="cross-circle-o" className="pull-right pointer" style={{ marginLeft: '10px' }} onClick={() => this.updateProjectClusters(item.clusterID, 0)} />
                 </div>
               </dd>
             )
@@ -818,8 +821,8 @@ class ProjectDetail extends Component {
           if (item.status === 0) {
             bottomLength++
             return (
-              <dd className="topList lastList pointer" key={item.cluster.clusterID} onClick={() => this.updateProjectClusters(item.cluster.clusterID, 1)}>
-                <span>{item.cluster.clusterName}</span>
+              <dd className="topList lastList pointer" key={item.clusterID} onClick={() => this.updateProjectClusters(item.clusterID, 1)}>
+                <span>{item.clusterName}</span>
                 <div>
                   {this.clusterStatus(item.status)}
                 </div>
@@ -833,10 +836,10 @@ class ProjectDetail extends Component {
       return (
         <li key={item.roleId} className={classNames({ 'active': currentRoleInfo && currentRoleInfo.id === item.roleId })} onClick={() => this.getCurrentRole(item.roleId)}>{item.roleName}
           {
-            roleNum !== 3 && isManager && !includes(disabledArr,item.roleId) &&
-              <Tooltip placement="top" title="移除角色">
-                <Icon type="delete" className="pointer" onClick={(e)=>this.deleteRole(e,item)}/>
-              </Tooltip>
+            roleNum !== 3 && isManager && !includes(disabledArr, item.roleId) &&
+            <Tooltip placement="top" title="移除角色">
+              <Icon type="delete" className="pointer" onClick={(e) => this.deleteRole(e, item)} />
+            </Tooltip>
           }
         </li>
       )
@@ -969,8 +972,8 @@ class ProjectDetail extends Component {
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
                         <div className="dropDownBox">
-                          <span className="pointer" onClick={()=>{ roleNum === 1 || isManager ? this.toggleDrop() : null}}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
-                          <div className={classNames("dropDownInnerBox",{'hide':!dropVisible})}>
+                          <span className="pointer" onClick={() => { roleNum === 1 || isManager ? this.toggleDrop() : null }}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true" /></span>
+                          <div className={classNames("dropDownInnerBox", { 'hide': !dropVisible })}>
                             <dl className="dropDownTop">
                               <dt className="topHeader">{`已申请集群（${appliedLenght}）`}</dt>
                               {applying(false)}
@@ -1030,7 +1033,7 @@ class ProjectDetail extends Component {
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {projectDetail && projectDetail.createTime && projectDetail.createTime.replace(/T/g, ' ').replace(/Z/g, '')}
+                        {projectDetail && projectDetail.createTime && formatDate(projectDetail.createTime)}
                       </div>
                     </Col>
                   </Row>
@@ -1069,9 +1072,9 @@ class ProjectDetail extends Component {
                                 </Tooltip>
                               ] :
                               (roleNum === 1 || isManager) &&
-                                <Tooltip title="编辑">
-                                  <i className="anticon anticon-edit pointer" onClick={()=> this.editComment()}/>
-                                </Tooltip>
+                              <Tooltip title="编辑">
+                                <i className="anticon anticon-edit pointer" onClick={() => this.editComment()} />
+                              </Tooltip>
                           }
                         </div>
                       </div>
@@ -1081,7 +1084,7 @@ class ProjectDetail extends Component {
               </Col>
             </Row>
           </Card>
-          <div className="projectResource">
+          {/* <div className="projectResource">
             <Card title="项目资源">
               <Row gutter={16}>
                 <Col className='gutter-row' span={8}>
@@ -1104,7 +1107,7 @@ class ProjectDetail extends Component {
                 </Col>
               </Row>
             </Card>
-          </div>
+          </div> */}
           <Modal
             visible={this.state.addCharacterModal}
             title='添加已有角色'
@@ -1145,6 +1148,7 @@ class ProjectDetail extends Component {
               memberArr.length > 0 &&
               <TreeComponent
                 outPermissionInfo={memberArr}
+                filterLoading={filterLoading}
                 permissionInfo={[]}
                 existMember={existentMember.length > 0 ? existentMember.slice(0) : []}
                 text='对象'
@@ -1167,15 +1171,15 @@ class ProjectDetail extends Component {
                 <div className="project">
                   <div className="connectLeft pull-left">
                     <span className="leftTitle">已添加角色</span>
-                    <ul className={classNames("characterListBox",{'borderHide': projectDetail.relatedRoles === null})}>
+                    <ul className={classNames("characterListBox", { 'borderHide': projectDetail.relatedRoles === null })}>
                       {roleList}
                     </ul>
                     {
                       (roleNum === 1 || isManager) &&
                       [
-                        <Button type="primary" size="large" icon="plus" onClick={()=>this.setState({addCharacterModal:true})}> 添加已有角色</Button>,
-                        <br/>,
-                        <Button type="ghost" size="large" icon="plus" onClick={()=>this.openCreateModal()}>创建新角色</Button>
+                        <Button key="addRoles" type="primary" size="large" icon="plus" onClick={() => this.setState({ addCharacterModal: true })}> 添加已有角色</Button>,
+                        <br />,
+                        <Button key="createRole" type="ghost" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
                       ]
                     }
                   </div>
@@ -1183,7 +1187,7 @@ class ProjectDetail extends Component {
                     <p className="rightTitle">角色关联对象</p>
                     <div className="rightContainer">
                       <div className="authBox inlineBlock">
-                        <p className="authTitle">该角色共 <span style={{color:'#59c3f5'}}>{currentRoleInfo && currentRoleInfo.total || 0}</span> 个权限</p>
+                        <p className="authTitle">该角色共 <span style={{ color: '#59c3f5' }}>{currentRoleInfo && currentRoleInfo.total || 0}</span> 个权限</p>
                         <div className="treeBox">
                           {
                             currentRolePermission &&
@@ -1203,7 +1207,7 @@ class ProjectDetail extends Component {
                         <div className="memberTitle">
                           <span className="connectMemberCount">该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
                           {
-                            (roleNum === 1 || isManager) && !getRoleLoading && currentMembers.length > 0 && <Button type="primary" size="large" onClick={()=> this.getProjectMember('user')}>继续关联对象</Button>
+                            (roleNum === 1 || isManager) && !getRoleLoading && currentMembers.length > 0 && <Button type="primary" size="large" onClick={() => this.getProjectMember('user')}>继续关联对象</Button>
                           }
                         </div>
                         <div className="memberTableBox">
@@ -1216,7 +1220,7 @@ class ProjectDetail extends Component {
                                 {loopFunc(currentMembers)}
                               </Tree>
                               :
-                              (roleNum === 1 || isManager) && <Button type="primary" size="large" className="addMemberBtn" onClick={()=> this.getProjectMember('user')}>关联对象</Button>
+                              (roleNum === 1 || isManager) && <Button type="primary" size="large" className="addMemberBtn" onClick={() => this.getProjectMember('user')}>关联对象</Button>
                               : null
                           }
                         </div>
@@ -1227,7 +1231,7 @@ class ProjectDetail extends Component {
                 {/* </Card> */}
               </TabPane>
               <TabPane tab="资源配额管理" key="puota">
-                <ResourceQuota isProject={true} />
+                <ResourceQuota isProject={true} projectName={projectDetail.projectName}/>
               </TabPane>
             </Tabs>
 
@@ -1242,16 +1246,15 @@ class ProjectDetail extends Component {
 ProjectDetail = Form.create()(ProjectDetail)
 function mapStateToThirdProp(state, props) {
   const { query } = props.location
-  const { name } = query;
+  const { name } = query
   const { loginUser } = state.entities
-  const { globalRoles } = loginUser.info || { globalRoles: [] }
+  const { globalRoles, role } = loginUser.info || { globalRoles: [], role: 0 }
   let roleNum = 0
-  if (globalRoles.length) {
+  if (role === ROLE_SYS_ADMIN) {
+    roleNum = 1
+  } else if (globalRoles.length) {
     for (let i = 0; i < globalRoles.length; i++) {
-      if (globalRoles[i] === 'admin') {
-        roleNum = 1;
-        break
-      } else if (globalRoles[i] === 'project-creator') {
+      if (globalRoles[i] === 'project-creator') {
         roleNum = 2;
         break
       } else {
@@ -1259,9 +1262,13 @@ function mapStateToThirdProp(state, props) {
       }
     }
   }
+  const { projectClusterList } = state.projectAuthority
+  const currentProjectClusterList = projectClusterList[name] || {}
+  const projectClusters = currentProjectClusterList.data || []
   return {
     name,
-    roleNum
+    roleNum,
+    projectClusters,
   }
 }
 
@@ -1280,5 +1287,7 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   GetRole,
   roleWithMembers,
   usersAddRoles,
-  usersLoseRoles
+  usersLoseRoles,
+  getGlobaleQuota,
+  getGlobaleQuotaList,
 })(ProjectDetail)

@@ -102,6 +102,25 @@ function fetchServiceDetail(cluster, serviceName, callback) {
   }
 }
 
+export const PUT_EDIT_SERVICE_VOLUME_REQUEST = 'PUT_EDIT_SERVICE_VOLUME_REQUEST'
+export const PUT_EDIT_SERVICE_VOLUME_SUCCESS = 'PUT_EDIT_SERVICE_VOLUME_SUCCESS'
+export const PUT_EDIT_SERVICE_VOLUME_FAILURE = 'PUT_EDIT_SERVICE_VOLUME_FAILURE'
+
+export function editServiceVolume(cluster, serviveName, body, callback){
+  return {
+    [FETCH_API]: {
+      types: [PUT_EDIT_SERVICE_VOLUME_REQUEST, PUT_EDIT_SERVICE_VOLUME_SUCCESS, PUT_EDIT_SERVICE_VOLUME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviveName}/volume`,
+      options: {
+        method: 'PUT',
+        body,
+      },
+      schema: {}//Schemas.STORAGE
+    },
+    callback,
+  }
+}
+
 // Fetches services list from API unless it is cached.
 // Relies on Redux Thunk middleware.
 export function loadServiceDetail(cluster, serviceName, callback, requiredFields = []) {
@@ -633,6 +652,31 @@ function fetchAutoScaleLogs(cluster, serviceName, callback) {
 export function getAutoScaleLogs(cluster, serviceName, callback) {
   return (dispath) => {
     return dispath(fetchAutoScaleLogs(cluster, serviceName, callback))
+  }
+}
+
+export const CHECK_AUTO_SCALE_NAME_REQUEST = 'CHECK_AUTO_SCALE_NAME_REQUEST'
+export const CHECK_AUTO_SCALE_NAME_SUCCESS = 'CHECK_AUTO_SCALE_NAME_SUCCESS'
+export const CHECK_AUTO_SCALE_NAME_FAILURE = 'CHECK_AUTO_SCALE_NAME_FAILURE'
+
+function fetchAutoScaleNameExistence(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CHECK_AUTO_SCALE_NAME_REQUEST, CHECK_AUTO_SCALE_NAME_SUCCESS, CHECK_AUTO_SCALE_NAME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/autoscale/existence`,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function checkAutoScaleName(cluster, body, callback) {
+  return (dispath) => {
+    return dispath(fetchAutoScaleNameExistence(cluster, body, callback))
   }
 }
 

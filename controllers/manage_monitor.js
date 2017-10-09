@@ -48,7 +48,7 @@ exports.getServiceSearchLog = function* () {
 }
 exports.getClusterOfQueryLog = function* () {
   const method = 'getClusterOfQueryLog'
-  const teamID = this.params.team_id
+  const projectName = this.params.project_name
   let namespace = this.params.namespace
   if(namespace === 'default') {
     namespace = this.session.loginUser.namespace
@@ -56,13 +56,14 @@ exports.getClusterOfQueryLog = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   let clusters
-  if (teamID === 'default') {
+  if (projectName === 'default') {
     const spi = apiFactory.getSpi(loginUser)
     const result = yield spi.clusters.getBy(['default'])
     clusters = result.clusters || []
   } else {
-    const result = yield api.teams.getBy([teamID, 'clusters'], { size: 20 })
-    clusters = result.clusters || []
+    const projectApi = apiFactory.getApi(loginUser)
+    const result = yield projectApi.projects.getBy([projectName, 'clusters'], null)
+    clusters = result.data.clusters || []
   }
   let tempResult = [];
   try {
@@ -71,10 +72,13 @@ exports.getClusterOfQueryLog = function* () {
     });
     let temp = yield tempResult;
     clusters.map((item, index) => {
-      clusters[index].instanceNum = temp[index].data.total;
+      clusters[index].instanceNum = temp[index].data && temp[index].data.total || 0;
     });
   } catch (err) {
     logger.error(method, err.stack)
+    if (err.message && err.message.code === 403) {
+      throw err
+    }
   }
   this.body = {
     data: clusters,
@@ -90,7 +94,7 @@ exports.getServiceOfQueryLog = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps', namespace, 'apps'], { size: 100 })
-  const apps = result.data.apps
+  const apps = result.data && result.data.apps || []
   let serviceList = []
   apps.map((app) => {
     if (!app.services) {

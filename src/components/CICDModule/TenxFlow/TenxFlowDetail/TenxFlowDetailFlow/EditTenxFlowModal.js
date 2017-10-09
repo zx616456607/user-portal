@@ -894,6 +894,8 @@ let EditTenxFlowModal = React.createClass({
     const _this = this;
     let notification = new NotificationHandler()
     this.props.form.validateFields((errors, values) => {
+      let dockerfileError = false
+      let envError = false
       if (!!errors) {
         e.preventDefault();
         if (this.state.otherFlowType == 3 && !_this.state.currentCodeStore && !_this.state.dockerFileTextarea) {
@@ -912,7 +914,7 @@ let EditTenxFlowModal = React.createClass({
           noDockerfileInput: invalidDockerfile
         });
         if (invalidDockerfile) {
-          errorFlag = true;
+          dockerfileError = true;
         }
         //check image env list
         let imageEnvLength = values.imageEnvInputs || [];
@@ -966,13 +968,12 @@ let EditTenxFlowModal = React.createClass({
         return
       }
       //this flag for all form error flag
-      let errorFlag = false;
       let invalidDockerfile = Boolean(!_this.state.dockerFileTextarea && !_this.state.useDockerfile && this.state.otherFlowType == 3);
       _this.setState({
         noDockerfileInput: invalidDockerfile
       });
       if (invalidDockerfile) {
-        errorFlag = true;
+        dockerfileError = true;
       }
       //get service code
       let serviceLength = values.services;
@@ -998,7 +999,7 @@ let EditTenxFlowModal = React.createClass({
                 if (emptyServiceEnv.indexOf(item) == -1) {
                   emptyServiceEnv.push(item);
                 }
-                errorFlag = true;
+                envError = true;
                 emptyFlag = true;
               } else {
                 let Names = values['service' + item + 'inputName' + littleItem] ? values['service' + item + 'inputName' + littleItem].trim() : '';
@@ -1043,8 +1044,12 @@ let EditTenxFlowModal = React.createClass({
           emptyImageEnv: false
         });
       }
-      if (errorFlag) {
-        new NotificationHandler().error('环境变量值输入有误')
+      if (dockerfileError) {
+        new NotificationHandler().error('Dockerfile 为空或不合法')
+        return;
+      }
+      if (envError) {
+        new NotificationHandler().error('环境变量输入有误')
         return;
       }
       //get shell code

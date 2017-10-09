@@ -271,16 +271,20 @@ class Information extends Component {
     })
   }
   changeUserRoleRequest() {
-    const { updateUser, loginUser, userID, userDetail, changeUserRole } = this.props
+    const {
+      updateUser, loginUser, userID,
+      userDetail, changeUserRole, loadLoginUserDetail,
+    } = this.props
+    const { selectUserRole } = this.state
     const notify = new NotificationHandler()
     if(loginUser.role != 2) { return notify.error('只有系统管理员用户有此权限')}
-    if(userDetail.role + 1 == this.state.selectUserRole ) {
+    if(userDetail.role + 1 == selectUserRole ) {
       notify.error('用户角色没有发生变化')
       return
     }
     notify.spin('更新用户角色中')
     const self = this
-    updateUser(userID, { role: this.state.selectUserRole }, {
+    updateUser(userID, { role: selectUserRole }, {
       success: {
         func: () => {
           notify.close()
@@ -288,7 +292,13 @@ class Information extends Component {
           self.setState({
             changeUserRoleModal: false
           })
-          changeUserRole(userID, this.state.selectUserRole - 1)
+          changeUserRole(userID, selectUserRole - 1)
+          if (loginUser.userID == userID) {
+            loadLoginUserDetail()
+            if (selectUserRole !== ROLE_SYS_ADMIN) {
+              browserHistory.push('/tenant_manage/user')
+            }
+          }
         },
         isAsync: true
       },
@@ -367,7 +377,10 @@ class Information extends Component {
     })
   }
   handleUpdateUser(key) {
-    const { form, updateUser, loadUserDetail } = this.props
+    const {
+      form, updateUser, loadUserDetail,
+      loginUser, loadLoginUserDetail,
+    } = this.props
     const { validateFields } = form
     const notify = new NotificationHandler()
     const userID = this.props.userID || 'default'
@@ -383,6 +396,7 @@ class Information extends Component {
               [`${key}ModalVisible`]: false
             })
             loadUserDetail(userID)
+            loginUser.userID == userID && loadLoginUserDetail()
             this.setState({
               commentEditVisible: false,
             })

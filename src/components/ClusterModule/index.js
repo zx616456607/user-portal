@@ -22,6 +22,7 @@ import { GetProjectsApprovalClusters, UpdateProjectsApprovalCluster, searchProje
 import { loadLoginUserDetail } from '../../actions/entities'
 import { changeActiveCluster } from '../../actions/terminal'
 import { loadTeamClustersList } from '../../actions/team'
+import { getProjectVisibleClusters } from '../../actions/project'
 import { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, isValidConfig } from '../../actions/global_config'
 import AddClusterOrNodeModalContent from './AddClusterOrNodeModal/Content'
 import { camelize } from 'humps'
@@ -271,8 +272,13 @@ let CreateClusterModal = React.createClass({
   },
   handleSubmit(e) {
     e && e.preventDefault()
-    const { funcs, parentScope, form } = this.props
-    const { createCluster, loadClusterList, loadLoginUserDetail } = funcs
+    const { funcs, parentScope, form, current } = this.props
+    const {
+      createCluster,
+      loadClusterList,
+      loadLoginUserDetail,
+      getProjectVisibleClusters,
+    } = funcs
     const { resetFields } = form
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
@@ -305,6 +311,7 @@ let CreateClusterModal = React.createClass({
                 }
               }
             })
+            getProjectVisibleClusters(current.space.namespace)
           },
           isAsync: true
         },
@@ -617,12 +624,6 @@ class ClusterList extends Component {
     getAddClusterCMD()
   }
 
-  componentWillUnmount() {
-    const { current, loadTeamClustersList } = this.props
-    const { space } = current
-    loadTeamClustersList(space.teamID, { size: 100 })
-  }
-
   onTabChange(key) {
     const { changeActiveCluster } = this.props
     changeActiveCluster(key)
@@ -882,7 +883,8 @@ class ClusterList extends Component {
       currentClusterID, addClusterCMD, createCluster,
       license, noCluster, loadClusterList,
       loadLoginUserDetail, loginUser, globalConfig, location,
-      projectsApprovalClustersList,
+      projectsApprovalClustersList, getProjectVisibleClusters,
+      current,
     } = this.props
     if (!this.checkIsAdmin()) {
       return (
@@ -942,8 +944,9 @@ class ClusterList extends Component {
             {...this.props}
             parentScope={scope}
             addClusterCMD={addClusterCMD}
-            funcs={{createCluster, loadClusterList, loadLoginUserDetail}}
+            funcs={{createCluster, loadClusterList, loadLoginUserDetail, getProjectVisibleClusters}}
             globalConfig={globalConfig}
+            current={current}
           />
           {
             clustersIsFetching
@@ -1067,7 +1070,7 @@ class ClusterList extends Component {
               <div className='clusterContainer'>
                 {
                   !this.state.clusterStatus &&  <div className='search_div'>
-                    <Input 
+                    <Input
                       size="large"
                       className='search_box'
                       placeholder='请输入项目名称搜索'
@@ -1122,7 +1125,7 @@ export default connect(mapStateToProps, {
   createCluster,
   loadLoginUserDetail,
   changeActiveCluster,
-  loadTeamClustersList,
+  getProjectVisibleClusters,
   updateGlobalConfig,
   loadGlobalConfig,
   isValidConfig,

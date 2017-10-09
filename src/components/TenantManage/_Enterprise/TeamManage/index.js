@@ -24,13 +24,12 @@ import {
 } from '../../../../actions/team'
 import { usersAddRoles, roleWithMembers, usersLoseRoles } from '../../../../actions/role'
 import { chargeTeamspace } from '../../../../actions/charge'
-import { ROLE_SYS_ADMIN } from '../../../../../constants'
+import { CREATE_TEAMS_ROLE_ID, ROLE_SYS_ADMIN } from '../../../../../constants'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import CreateTeamModal from '../../../AccountModal/CreateTeamModal'
 import NotificationHandler from '../../../../components/Notification'
-import SpaceRecharge from '../Recharge/SpaceRecharge'
 import Title from '../../../Title'
-import { CREATE_TEAMS_ROLE_ID } from '../../../../../constants'
+import { formatDate } from '../../../../common/tools'
 
 let TeamTable = React.createClass({
   getInitialState() {
@@ -44,7 +43,7 @@ let TeamTable = React.createClass({
       addMember: false,
       targetKeys: [],
       originalKeys: [],
-      sort: "a,teamName",
+      sort: "d,teamName",
       filter: "",
       nowTeamID: '',
       tableSelected: [],
@@ -55,7 +54,6 @@ let TeamTable = React.createClass({
     const { scope, roleNum } = this.props
     const { loadUserTeamList } = scope.props
     const { sort } = this.state
-    // TODO filter team role
     let newFilter = ''
     if (filters.role && filters.role.length) {
       if (roleNum === 1) {
@@ -397,7 +395,7 @@ let TeamTable = React.createClass({
         dataIndex: 'creationTime',
         key: 'creationTime',
         width:'20%',
-        render: text => new Date(+new Date(text)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'')
+        render: text => formatDate(text)
       },
       {
         title: '我是该团队的',
@@ -415,9 +413,9 @@ let TeamTable = React.createClass({
         render: (text, record, index) =>{
           return (
             <div className="addusers">
-              <Button disabled={roleNum ===3 || record.role === 'participator'}
+              <Button disabled={roleNum !== 1 && record.role === 'participator'}
                 type="primary" onClick={() => this.addNewMember(record.key)}>添加团队成员</Button>
-              <Button disabled={roleNum ===3 || record.role === 'participator'}
+              <Button disabled={roleNum !==1 && record.role === 'participator'}
                 onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
             </div>
           )
@@ -466,7 +464,7 @@ class TeamManage extends Component {
       pageSize: 10,
       page: 1,
       current: 1,
-      sort: 'a,teamName',
+      sort: 'd,teamName',
       selected: [],
       userList:[],
       targetKeys: [],
@@ -515,7 +513,7 @@ class TeamManage extends Component {
     this.props.loadUserTeamList('default', {
       page: 1,
       size: 10,
-      sort: "a,teamName",
+      sort: "d,teamName",
       filter: "",
     })
   }
@@ -634,12 +632,27 @@ class TeamManage extends Component {
     return option.title.indexOf(inputValue) > -1;
   }
   handleChange(targetKeys) {
+    const { systemRoleID, originalKeys } = this.state
+    let diff = xor(originalKeys,targetKeys)
+    let del = intersection(originalKeys,diff)
+    const result = systemRoleID.some(item => del.includes(item))
+    let notify = new NotificationHandler()
+    if (result) {
+      return notify.info('禁止移除系统管理员')
+    }
     this.setState({ targetKeys });
   }
   formatUserList(users) {
     for (let i = 0; i < users.length; i++) {
       Object.assign(users[i],{key:users[i].userID},{title:users[i].namespace,chosen:false})
     }
+  }
+  getSystemAdmin(users) {
+    let adminIdArr = []
+    users.forEach(item => {
+      item.role === ROLE_SYS_ADMIN && adminIdArr.push(item.userID)
+    })
+    return adminIdArr
   }
   openRightModal() {
     const { loadUserList, roleWithMembers } = this.props;
@@ -649,8 +662,10 @@ class TeamManage extends Component {
       success: {
         func: (res) => {
           this.formatUserList(res.users)
+          const systemRoleID = this.getSystemAdmin(res.users)
           this.setState({
-            userList:res.users
+            userList:res.users,
+            systemRoleID
           })
           roleWithMembers({
             roleID:CREATE_TEAMS_ROLE_ID,
@@ -695,7 +710,7 @@ class TeamManage extends Component {
       <QueueAnim>
         <div key='TeamsManage' id="TeamsManage">
           <Title title="团队管理" />
-          <Alert message={`团队由若干个成员组成的一个集体，等效于公司的部门、小组、或子公司；系统管理员可将普通成员设置为「可以创建团队」的人，团队创建者为团队管理者，团队能移交给团队内或团队外成员作为新的团队管理者。`}
+          <Alert message={`团队由若干个成员组成的一个集体，等效于公司的部门、小组、或子公司；系统管理员可将普通成员设置为「可以创建团队」的人，团队创建者为团队管理者，团队能移交给团队成员作为新的团队管理者。`}
                  type="info" />
           <Row className="teamOption">
             {
@@ -773,7 +788,7 @@ function mapStateToProp(state, props) {
   const teams = state.user.teams
   const userDetail = state.entities.loginUser.info
   const { loginUser } = state.entities
-  const { globalRoles, userID } = loginUser.info || { globalRoles: [], userID: '' }
+  const { globalRoles, userID, role } = loginUser.info || { globalRoles: [], userID: '', role: 0 }
   let teamSpacesList = []
   if (teams.result) {
     if (teams.result.teams) {
@@ -821,12 +836,11 @@ function mapStateToProp(state, props) {
   if (team.teamspaces.result) {
     teamSpacesList = team.teamspaces.result.data
   }
-  if (globalRoles.length) {
+  if (role === ROLE_SYS_ADMIN) {
+    roleNum = 1
+  } else if (globalRoles.length) {
     for (let i = 0; i < globalRoles.length; i++) {
-      if (globalRoles[i] === 'admin') {
-        roleNum = 1;
-        break
-      } else if (globalRoles[i] === 'team-creator') {
+      if (globalRoles[i] === 'team-creator') {
         roleNum = 2;
         break
       } else {

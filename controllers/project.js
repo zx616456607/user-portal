@@ -135,6 +135,30 @@ exports.getProjectAllClusters = function* () {
   this.body = response
 }
 
+exports.getProjectVsibleClusters = function* () {
+  const projectName = this.params.name
+  if (!projectName) {
+    this.status = 400
+    this.body = {
+      message: 'project name is empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  if (projectName === 'default') {
+    const spi = apiFactory.getSpi(loginUser)
+    const result = yield spi.clusters.getBy(['default'])
+    this.body = {
+      data: result
+    }
+    return
+  }
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy([projectName, 'visible-clusters'], null)
+  this.status = response.statusCode
+  this.body = response
+}
+
 exports.getProjectVisibleClusters = function* () {
   const projectName = this.params.name
   if (!projectName) {

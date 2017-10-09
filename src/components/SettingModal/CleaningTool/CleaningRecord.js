@@ -15,6 +15,10 @@ import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import Title from '../../Title'
 import './style/CleaningRecord.less'
+import {
+  getCleanLogs, getSystemCleanLogs
+} from '../../../actions/clean'
+import { formatDate } from '../../../common/tools'
 
 const Option = Select.Option
 const FormItem = Form.Item
@@ -28,48 +32,122 @@ class CleaningRecord extends Component {
     this.disabledEndDate = this.disabledEndDate.bind(this)
     this.onEndChange = this.onEndChange.bind(this)
     this.handleEndToggle = this.handleEndToggle.bind(this)
+    this.selectFilter = this.selectFilter.bind(this)
     this.state = {
       startValue: null,
       endValue: null,
       endOpen: false,
+      cleanLogs: [],
+      totalCount: 0,
+      tableLoading: false,
+      currentPage: 1,
+      sort: '',
+      filter: '',
+      createTimeSort: undefined
     }
   }
-
-  renderLogs(){
-    const Array = []
-    for(let i = 0; i  < 11; i++){
-      const item = {
-        key: i,
-        time: '2017-2-2',
-        status: i,
-        type: i,
-        fileType: i,
-        people: 'dududu'
+  componentWillMount() {
+    this.getSystemLogs()
+  }
+  getCleanLogs() {
+    const { currentPage, sort, filter } = this.state
+    const { getCleanLogs } = this.props
+    this.setState({
+      tableLoading: true
+    })
+    getCleanLogs({
+      sort,
+      filter,
+      from: currentPage,
+      size: 10,
+    }, {
+      success: {
+        func: res => {
+          this.setState({
+            cleanLogs: res.data.body,
+            totalCount: res.data.meta.total,
+            tableLoading: false
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          this.setState({
+            cleanLogs: [],
+            totalCount: 0,
+            tableLoading: false
+          })
+        },
+        isAsync: true
       }
-      Array.push(item)
-    }
-    return Array
+    })
   }
-
+  getSystemLogs() {
+    const { currentPage, startValue, endValue, sort } = this.state
+    const { getSystemCleanLogs, form } = this.props
+    const { getFieldsValue } = form
+    const { status, type } = getFieldsValue(['status', 'type'])
+    this.setState({
+      tableLoading: true
+    })
+    let query = {form: currentPage, size: 10}
+    query = sort ? Object.assign(query, {sort}) : ''
+    let body = {status, operation_type: type}
+    body = startValue ? Object.assign(body, {start: formatDate(startValue)}): ''
+    body = endValue ? Object.assign(body, {end: formatDate(endValue)}) : ''
+    getSystemCleanLogs(query, body, {
+      success: {
+        func: res => {
+          this.setState({
+            cleanLogs: res.data.body,
+            totalCount: res.data.meta.total,
+            tableLoading: false
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          this.setState({
+            cleanLogs: [],
+            totalCount: 0,
+            tableLoading: false
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
   formatStatus(status){
-    switch(status){
-      case 1:
-        return <span className='success_icon'><i className="fa fa-circle icon_circle" aria-hidden="true"></i>执行成功</span>
-      default:
-      case 2:
-        return <span className='failed_icon'><i className="fa fa-circle icon_circle" aria-hidden="true"></i>执行失败</span>
-      case 3:
-        return <span className='pending_icon'><i className="fa fa-circle icon_circle" aria-hidden="true"></i>正在执行</span>
+    function getText(status) {
+      switch(status) {
+        case 'success': 
+          return '执行成功'
+        case 'failed':
+          return '执行失败'
+        case 'timeout':
+          return '执行超时'
+        case 'running':
+          return '正在执行'
+      }
     }
+    return (
+      <span className={`${status}_icon`}>
+        <i className="fa fa-circle icon_circle" aria-hidden="true"/>
+        {getText(status)}
+      </span>
+    )
   }
 
   formatType(type){
     switch(type){
-      case 1:
-        return <span>手动清理</span>
-      default:
-      case 2:
-        return <span>定时清理</span>
+      case 'manual':
+        return '手动清理'
+      case 'auto':
+        return '定时清理'
+      // case 'stop':
+      //   return '停止清理'
     }
   }
 
@@ -77,14 +155,14 @@ class CleaningRecord extends Component {
     switch(fileType){
       case 1:
         return <div>系统日志</div>
-      case 2:
+      /*case 2:
         return <div>监控数据</div>
       case 3:
-        return <div>停止容器</div>
-      case 4:
+        return <div>停止容器</div>*/
+      case 'cicd_clean':
         return <div>CI/CD缓存</div>
-      case 5:
-        return <div>镜像</div>
+      /*case 5:
+        return <div>镜像</div>*/
       default:
         return <div>未知</div>
     }
@@ -104,21 +182,16 @@ class CleaningRecord extends Component {
     return endValue.getTime() <= this.state.startValue.getTime();
   }
 
-  onChange(field, value) {
-    this.setState({
-      [field]: value,
-    });
-  }
 
-  onStartChange(value) {
-    this.onChange('startValue', value);
+  onStartChange(value, dateString) {
+    this.selectFilter('start', String(dateString))
     this.setState({
       startValue: value,
     })
   }
 
-  onEndChange(value) {
-    this.onChange('endValue', value);
+  onEndChange(value, dateString) {
+    this.selectFilter('end', dateString)
     this.setState({
       endValue: value,
     })
@@ -134,51 +207,131 @@ class CleaningRecord extends Component {
     this.setState({ endOpen: open });
   }
 
-  searchLog(){
-
-  }
-
   refreshLogList(){
-
+    const { form } = this.props
+    const { resetFields, setFieldsValue } = form
+    resetFields()
+    setFieldsValue({'target': 'system_clean'})
+    this.setState({
+      sort: '',
+      filter: '',
+      startValue: null,
+      endValue: null,
+      createTimeSort: undefined
+    }, () => {
+      this.getSystemLogs()
+    })
   }
-
+  onTableChange(pagination, filters, sorter) {
+    const { getFieldValue } = this.props.form
+    const logType = getFieldValue('target')
+    this.setState({
+      currentPage: pagination.current
+    }, () => {
+      logType === 'cicd_clean' && this.getCleanLogs()
+      logType === 'system_clean' && this.getSystemLogs()
+    })
+  }
+  getSort(flag, sort) {
+    let str = 'a,'
+    if (flag) {
+      str = 'd,'
+    }
+    return str + sort
+  }
+  handleSort(sortStr){
+    const { createTimeSort } = this.state
+    const { getFieldValue } = this.props.form
+    const logType = getFieldValue('target')
+    const sort = this.getSort(createTimeSort, sortStr)
+    this.setState({
+      createTimeSort: !createTimeSort,
+      sort
+    }, () => {
+      logType === 'cicd_clean' && this.getCleanLogs()
+      logType === 'system_clean' && this.getSystemLogs()
+    })
+  }
+  selectFilter(opt, target) {
+    const { filter } = this.state
+    let newFilter
+    newFilter = filter ? `${filter},${opt},${target}` : `${opt},${target}`
+    this.setState({
+      filter: newFilter
+    })
+  }
+  selectLogType(value) {
+    value === 'cicd_clean' && this.selectFilter('target', value)
+  }
+  searchLogs() {
+    const { getFieldValue } = this.props.form
+    const logType = getFieldValue('target')
+    if (logType === 'cicd_clean') {
+      this.getCleanLogs()
+      return
+    }
+    this.getSystemLogs()
+  }
   render() {
     const { form } = this.props
+    const { cleanLogs, totalCount, tableLoading, createTimeSort } = this.state
     const { getFieldProps } = form
+    const pagination = {
+      simple: true,
+      total: totalCount,
+      defaultPageSize: 10,
+      defaultCurrent: 1,
+    }
     const columns = [
       {
-        key: 'time',
-        dataIndex: 'time',
-        title: '清理时间',
-        width: '20%',
-        sorter: (a, b) => a - b,
+        title: (
+          <div onClick={() => this.handleSort('create_time')}>
+            清理时间
+            <div className="ant-table-column-sorter">
+            <span
+              className={createTimeSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
+              title="↑">
+              <i className="anticon anticon-caret-up"/>
+            </span>
+              <span
+                className={createTimeSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+                title="↓">
+              <i className="anticon anticon-caret-down"/>
+            </span>
+            </div>
+          </div>
+        ),
+        key: 'createTime',
+        dataIndex: 'createTime',
+        width: '25%',
+        render: text => formatDate(text)
       },
       {
         key: 'status',
         dataIndex: 'status',
         title: '状态',
-        width: '20%',
-        render: text => <div>{ this.formatStatus(text) }</div>
+        width: '25%',
+        render: text => this.formatStatus(text)
       },
       {
-        key: 'type',
-        dataIndex: 'type',
+        key: 'operationType',
+        dataIndex: 'operationType',
         title: '清理类型',
-        width: '20%',
-        render: type => <div>{ this.formatType(type) }</div>
+        width: '25%',
+        render: type => this.formatType(type)
       },
+      // {
+      //   key: 'target',
+      //   dataIndex: 'target',
+      //   title: '文件类型',
+      //   width: '20%',
+      //   render: fileType => this.formatFileType(fileType)
+      // },
       {
-        key: 'fileType',
-        dataIndex: 'fileType',
-        title: '文件类型',
-        width: '20%',
-        render: fileType => <div>{ this.formatFileType(fileType) }</div>
-      },
-      {
-        key: 'people',
-        dataIndex: 'people',
+        key: 'cleanerName',
+        dataIndex: 'cleanerName',
         title: '清理人',
-        width: '20%',
+        width: '25%',
       },
     ]
     return(
@@ -190,7 +343,7 @@ class CleaningRecord extends Component {
               className="back"
               onClick={() => {browserHistory.push(`/setting/cleaningTool`)}}
             >
-              <span className="backjia"></span>
+              <span className="backjia"/>
               <span className="btn-back">返回</span>
             </span>
             <span className='title'>清理记录</span>
@@ -200,26 +353,32 @@ class CleaningRecord extends Component {
               <FormItem className='filter_formItem'>
                 <Select
                   className='filter_item'
-                  placeholder='请选择执行状态'
+                  placeholder='请选择文件类型'
                   size='large'
-                  {...getFieldProps('status')}
+                  {...getFieldProps('target', {
+                    initialValue: 'system_clean',
+                    onChange: value => this.selectLogType(value)
+                  })}
                 >
-                  <Option key="1" value="1">执行成功</Option>
-                  <Option key="2" value="2">正在执行</Option>
-                  <Option key="3" value="3">执行失败</Option>
+                  <Option key="system_clean" value="system_clean">系统日志</Option>
+                  {/*<Option key="2" value="2">监控数据</Option>*/}
+                  <Option key="cicd_clean" value="cicd_clean">CI/CD缓存</Option>
+                  {/*<Option key="4" value="4">镜像</Option>*/}
                 </Select>
               </FormItem>
               <FormItem className='filter_formItem'>
                 <Select
                   className='filter_item'
-                  placeholder='请选择文件类型'
+                  placeholder='请选择执行状态'
                   size='large'
-                  {...getFieldProps('file_type')}
+                  {...getFieldProps('status', {
+                    onChange: value => this.selectFilter('status', value)
+                  })}
                 >
-                  <Option key="1" value="1">系统日志</Option>
-                  <Option key="2" value="2">监控数据</Option>
-                  <Option key="3" value="3">CI/CD缓存</Option>
-                  <Option key="4" value="4">镜像</Option>
+                  <Option key="success" value="success">执行成功</Option>
+                  <Option key="running" value="running">正在执行</Option>
+                  <Option key="timeout" value="timeout">执行超时</Option>
+                  <Option key="failed" value="failed">执行失败</Option>
                 </Select>
               </FormItem>
               <FormItem className='filter_formItem'>
@@ -227,13 +386,17 @@ class CleaningRecord extends Component {
                   className='filter_item'
                   placeholder='请选择清理类型'
                   size='large'
-                  {...getFieldProps('clean_type')}
+                  {...getFieldProps('type', {
+                    onChange: value => this.selectFilter('operation_type', value)
+                  })}
                 >
-                  <Option key="1" value="1">手动清理</Option>
-                  <Option key="2" value="2">定时清理</Option>
+                  <Option key="manual" value="manual">手动清理</Option>
+                  <Option key="auto" value="auto">定时清理</Option>
                 </Select>
               </FormItem>
               <DatePicker
+                showTime
+                format="yyyy-MM-dd HH:mm:ss"
                 disabledDate={this.disabledStartDate}
                 value={this.state.startValue}
                 placeholder="开始日期"
@@ -243,6 +406,8 @@ class CleaningRecord extends Component {
                 style={{marginRight: 12, float: 'left', width: 148, marginBottom: 25}}
               />
               <DatePicker
+                showTime
+                format="yyyy-MM-dd HH:mm:ss"
                 disabledDate={this.disabledEndDate}
                 value={this.state.endValue}
                 placeholder="结束日期"
@@ -256,7 +421,7 @@ class CleaningRecord extends Component {
                 icon="exception"
                 type="primary"
                 size="large"
-                onClick={() => this.searchLog()}
+                onClick={this.searchLogs.bind(this)}
                 className='button_style'
               >
                 立即查询
@@ -264,24 +429,21 @@ class CleaningRecord extends Component {
               <Button
                 type="primary"
                 size='large'
-                onClick={() => this.refreshLogList()}
+                onClick={this.refreshLogList.bind(this)}
                 className='button_style'
               >
                 刷新
               </Button>
-              {
-                true
-                ? <div className='totle_num'>共计 <span>11</span> 条</div>
-                : null
-              }
+              <div className='totle_num'>共计 <span>{totalCount}</span> 条</div>
             </div>
-            <div style={{clear: 'both'}}></div>
+            <div style={{clear: 'both'}}/>
             <div className='table_box'>
               <Table
-                dataSource={this.renderLogs()}
+                dataSource={cleanLogs}
                 columns={columns}
-                loading={false}
-                pagination={{ simple: true }}
+                loading={tableLoading}
+                onChange={this.onTableChange.bind(this)}
+                pagination={pagination}
               />
             </div>
           </div>
@@ -301,5 +463,6 @@ function mapStateToProp(state, props) {
 }
 
 export default connect(mapStateToProp, {
-
+  getCleanLogs,
+  getSystemCleanLogs
 })(CleaningRecord)

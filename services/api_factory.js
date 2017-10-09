@@ -177,3 +177,13 @@ exports.getVMWrapApi = function (loginUser) {
   const api = new tenxApi(apiConfig)
   return api
 }
+exports.getQuotaApi = function (loginUser) {
+  const apiConfig = {
+    protocol: config.tenx_api.protocol,
+    host: config.tenx_api.host,
+    auth: loginUser
+  }
+  const api = new tenxApi(apiConfig)
+  return api.resourcequota
+}
+

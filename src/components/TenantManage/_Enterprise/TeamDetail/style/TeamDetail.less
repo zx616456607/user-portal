@@ -1,16 +1,18 @@
 #tenantTeamDetail {
   padding:0 20px;
   .teamDetailHeader{
-    margin-bottom: 20px;
-    height: 50px;
-    padding: 20px 0 0;
+    margin: 10px 0;
+    height: 56px;
+  }
+  .ant-card-head-title {
+    font-weight: normal;
+    font-size: 12px;
   }
   .detailInfo{
     margin-bottom: 20px;
     .ant-row{
       min-height: 32px;
       margin: 15px 0;
-      font-size: 14px;
     }
     .teamNameBox{
       .teamName{
@@ -52,33 +54,27 @@
     float: right;
     margin: 12px 150px 0 0;
   }
-  .back {
-    display: inline-block;
-    float: left;
-    height: 30px;
-    .backjia {
-      display: inline-block;
-      width: 0;
-      height: 0;
-      border-bottom: 15px solid transparent;
-      border-top: 15px solid transparent;
-      border-right: 15px solid #00A0E9;
-      font-size: 0;
-      line-height: 0;
+  .goBackBox{
+    font-size: 14px;
+    height: 56px;
+    display: flex;
+    display: -webkit-flex;
+    align-items: center;
+    -webkit-align-items: center;
+    .goBackBtn{
+      width: 60px;
+      height: 28px;
+      line-height: 28px;
+      text-indent: 20px;
+      color: #ecf7fd;
+      background: url("../../../../../assets/img/tenantManage/goBackBtn.png") no-repeat;
     }
-    .btn-back {
-      display: inline-block;
-      background: #00A0E9;
-      color: white;
-      height: 30px;
-      line-height: 30px;
-      vertical-align: top;
-      width: 43px;
-      padding-left: 5px;
-      border-top-right-radius: 5px;
-      border-bottom-right-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
+    i{
+      width: 6px;
+      height: 16px;
+      background-color: #2db7f5;
+      margin-left: 20px;
+      margin-right: 10px;
     }
   }
   .title {
@@ -195,6 +191,15 @@
       position: absolute;
       right: 0;
       top: -60px;
+    }
+    table{
+      thead{
+        tr{
+          th{
+            font-weight: normal;
+          }
+        }
+      }
     }
   }
 }

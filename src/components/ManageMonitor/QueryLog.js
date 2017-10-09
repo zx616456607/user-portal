@@ -15,7 +15,7 @@ import { Card, Select, Button, DatePicker, Input, Spin, Popover, Icon, Checkbox,
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getQueryLogList, getServiceQueryLogList } from '../../actions/manage_monitor'
 import { loadServiceContainerList } from '../../actions/services'
-import { loadUserTeamspaceList } from '../../actions/user'
+import { ListProjects } from '../../actions/project'
 import { throwError } from '../../actions'
 import { getClusterOfQueryLog, getServiceOfQueryLog } from '../../actions/manage_monitor'
 import './style/QueryLog.less'
@@ -183,7 +183,7 @@ let NamespaceModal = React.createClass({
     let value = e.target.value;
     let tempList = [];
     namespace.map((item) => {
-      if (item.spaceName.indexOf(value) > -1) {
+      if (item.namespace.indexOf(value) > -1) {
         tempList.push(item)
       }
     });
@@ -203,8 +203,8 @@ let NamespaceModal = React.createClass({
     } else {
       namespaceList = this.state.currentList.map((item, index) => {
         return (
-          <div className='namespaceDetail' key={index} onClick={scope.onSelectNamespace.bind(scope, item.spaceName, item.teamID, item.namespace)}>
-            {item.spaceName}
+          <div className='namespaceDetail' key={index} onClick={scope.onSelectNamespace.bind(scope, item.projectName, item.teamID, item.namespace)}>
+            {item.projectName}
           </div>
         )
       });
@@ -215,8 +215,8 @@ let NamespaceModal = React.createClass({
           <Input className='commonSearchInput namespaceInput' onChange={this.inputSearch} type='text' size='large' />
         </div>
         <div className='dataList'>
-          <div className='namespaceDetail' key='defaultNamespace' onClick={scope.onSelectNamespace.bind(scope, '我的空间', 'default', defaultNamespace)}>
-            <span>我的空间</span>
+          <div className='namespaceDetail' key='defaultNamespace' onClick={scope.onSelectNamespace.bind(scope, '我的个人项目', 'default', 'default')}>
+            <span>我的个人项目</span>
           </div>
           {namespaceList}
         </div>
@@ -280,7 +280,7 @@ let ClusterModal = React.createClass({
         return (
           <div className='clusterDetail' key={index} onClick={scope.onSelectCluster.bind(scope, item.clusterName, item.clusterID)}>
             <span className='leftSpan'>{item.clusterName}</span>
-            <span className='rightSpan'>{item.instanceNum}</span>
+            <span className='rightSpan'>{item.instanceNum || 0}</span>
             <span style={{ clear: 'both' }}></span>
           </div>
         )
@@ -372,7 +372,7 @@ let ServiceModal = React.createClass({
       } else {
         serviceList = mapCurrentList.map((item, index) => {
           return (
-            <div className='serviceDetail' key={index} onClick={scope.onSelectService.bind(scope, item.serviceName)}>
+            <div className='serviceDetail' key={index} onClick={scope.onSelectService.bind(scope, item.serviceName, item)}>
               <span className='leftSpan'>{item.serviceName}</span>
               <span className='rightSpan'>{item.instanceNum}</span>
               <span style={{ clear: 'both' }}></span>
@@ -594,6 +594,11 @@ let LogComponent = React.createClass({
   }
 });
 
+function loadProjects(props, callback) {
+  const { ListProjects, loginUser } = props
+  ListProjects({ size: 0 }, callback)
+}
+
 class QueryLog extends Component {
   constructor(props) {
     super(props)
@@ -623,6 +628,7 @@ class QueryLog extends Component {
       clusterList: [],
       servicePopup: false,
       currentService: null,
+      currentServiceItem: {},
       serviceList: [],
       instancePopup: false,
       currentInstance: [],
@@ -655,29 +661,29 @@ class QueryLog extends Component {
   }
 
   componentWillMount() {
-    const { loadUserTeamspaceList, current, query, intl } = this.props;
+    const { current, query, intl } = this.props;
     const { formatMessage } = intl;
     const _this = this;
-    loadUserTeamspaceList('default', { size: 100 }, {
+    loadProjects(this.props, {
       success: {
-        func: (res) => {
+        func: res => {
+          const projects = res.data && res.data.projects || []
           _this.setState({
-            namespaceList: res.teamspaces,
+            namespaceList: projects,
             gettingNamespace: false
           })
-        },
-        isAsync: true
+        }
       }
-    });
+    })
     const { space, cluster } = current;
-    const { spaceName, teamID, namespace } = space;
-    this.onSelectNamespace(spaceName, teamID, namespace);
+    const { teamID, namespace, name } = space;
+    this.onSelectNamespace(name, teamID, namespace);
     const { clusterName, clusterID } = cluster;
     this.onSelectCluster(clusterName, clusterID, namespace);
     const { service, instance } = query;
     if (service && instance) {
       this.setState({
-        currentNamespace: spaceName,
+        currentNamespace: name,
         currentCluster: clusterName,
         currentClusterId: clusterID,
         currentService: service,
@@ -685,6 +691,34 @@ class QueryLog extends Component {
       this.onSelectService(service);
       this.onSelectInstance(instance);
       setTimeout(this.submitSearch);
+    }
+  }
+
+  logTypeChange(e){
+    const logType = e.target.value
+    if(logType == 'stdout'){
+      this.setState({
+        logType,
+      })
+      return
+    }
+    if(logType == 'file'){
+      const { currentServiceItem } = this.state
+      if(currentServiceItem.annotations
+        && currentServiceItem.annotations.annotations
+        && currentServiceItem.annotations.annotations.applogs){
+        this.setState({
+          logType,
+        })
+        return
+      }
+      this.setState({
+        logType,
+        currentService: null,
+        currentInstance: [],
+        instanceList: []
+      })
+      return
     }
   }
 
@@ -735,7 +769,7 @@ class QueryLog extends Component {
         selectedNamespace: false,
         searchNamespace: namespace
       });
-      getClusterOfQueryLog(teamId, namespace, {
+      getClusterOfQueryLog(namespace, namespace, {
         success: {
           func: (res) => {
             _this.setState({
@@ -782,7 +816,7 @@ class QueryLog extends Component {
     }
   }
 
-  onSelectService(name) {
+  onSelectService(name, item) {
     //this function for user get search 10-20 of service list
     const _this = this;
     if (name != this.state.currentService) {
@@ -793,6 +827,7 @@ class QueryLog extends Component {
         currentInstance: [],
         instanceList: [],
         selectedSerivce: false,
+        currentServiceItem: item,
       });
       const { loadServiceContainerList } = this.props;
       loadServiceContainerList(this.state.currentClusterId, name, null, {
@@ -1048,13 +1083,13 @@ class QueryLog extends Component {
     const { formatMessage } = intl;
     const scope = this;
     const { gettingNamespace, start_time, end_time, key_word, backward, goBackLogs } = this.state;
-    if (gettingNamespace) {
+    /*if (gettingNamespace) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
       )
-    }
+    }*/
     return (
       <QueueAnim className='QueryLogBox' type='right'>
         <div id='QueryLog' key='QueryLog' className={this.state.bigLog ? 'bigLogContainer' :''} >
@@ -1066,10 +1101,9 @@ class QueryLog extends Component {
               label="日志类型"
               key="logOfType"
             >
-              <Radio.Group>
+              <Radio.Group onChange={(e) => this.logTypeChange(e)}>
                 <Radio
                   checked={this.state.logType == 'stdout'}
-                  onClick={() => {this.setState({logType: 'stdout', currentService: null, currentInstance: [],instanceList: []})}}
                   value="stdout"
                   key="stdout"
                 >
@@ -1077,7 +1111,6 @@ class QueryLog extends Component {
                 </Radio>
                 <Radio
                   checked={this.state.logType == 'file'}
-                  onClick={() => {this.setState({logType: 'file', currentService: null, currentInstance: [], instanceList: []})}}
                   value="file"
                   key="file"
                 >
@@ -1088,7 +1121,7 @@ class QueryLog extends Component {
           </div>
           <div className='operaBox'>
             <div className='commonBox'>
-              <span className='titleSpan'>{standardFlag ? [<span>团队：</span>] : [<FormattedMessage {...menusText.user} />]}</span>
+              <span className='titleSpan'>{standardFlag ? <span>团队：</span> : '项目：'}</span>
               <Popover
                 content={<NamespaceModal scope={scope} namespace={this.state.namespaceList} defaultNamespace={defaultNamespace} />}
                 trigger='click'
@@ -1284,10 +1317,10 @@ QueryLog = injectIntl(QueryLog, {
 
 export default connect(mapStateToProps, {
   getQueryLogList,
+  getClusterOfQueryLog,
   getServiceQueryLogList,
   loadServiceContainerList,
-  loadUserTeamspaceList,
-  getClusterOfQueryLog,
+  ListProjects,
   getServiceOfQueryLog,
   throwError,
 })(QueryLog)

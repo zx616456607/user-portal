@@ -39,6 +39,8 @@ export default class PopSelect extends Component {
 
   handleVisibleChange(visible) {
     this.setState({ visible })
+    const { onVisibleChange } = this.props
+    onVisibleChange && onVisibleChange(visible)
   }
 
   render() {

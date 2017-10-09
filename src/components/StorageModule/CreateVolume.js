@@ -14,6 +14,9 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CreateVolume.less'
 import { calcuDate, parseAmount, formatDate } from '../../common/tools'
 import { SnapshotClone, createStorage, loadStorageList } from '../../actions/storage'
+import { getClusterStorageList } from '../../actions/cluster'
+import PersistentVolumeClaim from '../../../kubernetes/objects/persistentVolumeClaim'
+import yaml from 'js-yaml'
 import { DEFAULT_IMAGE_POOL } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { SHOW_BILLING } from '../../constants'
@@ -59,6 +62,7 @@ class CreateVolume extends Component {
     this.handleResetState = this.handleResetState.bind(this)
     this.handleSelectSnapshot = this.handleSelectSnapshot.bind(this)
     this.SnapshotSwitch = this.SnapshotSwitch.bind(this)
+    this.renderCephSeverOption = this.renderCephSeverOption.bind(this)
     this.state = {
       volumeSizemin: this.props.volumeSize || 512,
       volumeSize:this.props.volumeSize || 512,
@@ -86,8 +90,14 @@ class CreateVolume extends Component {
     }
   }
 
+  componentWillMount() {
+    const { getClusterStorageList, cluster } = this.props
+    const clusterID = cluster.clusterID
+    getClusterStorageList(clusterID)
+  }
+
   componentDidMount() {
-    const { currentSnapshot } = this.props
+    const { currentSnapshot, form } = this.props
     if(currentSnapshot){
       this.setState({
         volumeSize: currentSnapshot.size,
@@ -98,6 +108,9 @@ class CreateVolume extends Component {
         swicthChecked: true,
         switchDisabled: true,
         selectChecked: true,
+      })
+      form.setFieldsValue({
+      	'address': currentSnapshot.storageServer
       })
       return
     }
@@ -111,11 +124,25 @@ class CreateVolume extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    // 直接创建独享型存储是需要进行的重置操作
+    if(this.props.createModal !== nextProps.createModal && nextProps.createModal){
+      this.setState({
+        fstype: 'ext4',
+        volumeSizemin: 512,
+        volumeSize: 512,
+        ext4Disabled: false,
+        xfsDisabled: false,
+        swicthChecked: false,
+        switchDisabled: false,
+        selectChecked: false,
+      })
+    }
+    // 由快照创建存储卷时需要进行的重置操作
     if(this.props.currentSnapshot !== nextProps.currentSnapshot){
       this.setState({
         currentSnapshot: nextProps.currentSnapshot,
         currentVolume: nextProps.currentVolume,
-        volumeSize: nextProps.currentSnapshot.size,
+        volumeSize: nextProps.currentSnapshot.size || 512,
         fstype: nextProps.currentSnapshot.fstype,
         volumeSizemin: nextProps.currentSnapshot.size,
         ext4Disabled: nextProps.currentSnapshot.fstype == 'xfs',
@@ -123,6 +150,9 @@ class CreateVolume extends Component {
         swicthChecked: true,
         switchDisabled: true,
         selectChecked: true,
+      })
+      this.props.form.setFieldsValue({
+        'address': nextProps.currentSnapshot.storageServer
       })
     }
   }
@@ -175,8 +205,8 @@ class CreateVolume extends Component {
     })
     const validataArray = [
       'volumeName',
-      //'type',
-      //'address',
+      'type',
+      'address',
       'strategy'
     ]
     if(swicthChecked){
@@ -192,22 +222,31 @@ class CreateVolume extends Component {
       let notification = new NotificationHandler()
       notification.spin('创建存储卷中')
       if(!values.selectSnapshotName){
-        let storageConfig = {
-          driver: 'rbd',
+        // 创建存储卷
+        const config = {
           name: values.volumeName,
-          driverConfig: {
-            size: volumeSize,
-            fsType: fstype,
-          },
-          cluster: cluster.clusterID
+          fsType: fstype,
+          storageType: values.type,
+          reclaimPolicy: values.strategy,
+          storageClassName: values.address,
+          storage: `${volumeSize}Mi`,
         }
-        createStorage(storageConfig,{
+        const persistentVolumeClaim = new PersistentVolumeClaim(config)
+        const obj = {
+          cluster: cluster.clusterID,
+          template: yaml.dump(persistentVolumeClaim)
+        }
+        createStorage(obj, {
           success: {
             func: () => {
               this.handleResetState()
               notification.close()
               notification.success('创建存储成功')
-              loadStorageList(currentImagePool,cluster.clusterID)
+              const query = {
+                storagetype: 'ceph',
+                srtype: 'private'
+              }
+              loadStorageList(currentImagePool, cluster.clusterID, query)
             },
             isAsync: true
           },
@@ -339,6 +378,13 @@ class CreateVolume extends Component {
     })
   }
 
+  renderCephSeverOption(){
+    const { cephList } = this.props
+    return cephList.map((item, index) => {
+      return <Option key={`ceph${index}`} value={item.metadata.name}>{item.metadata.name}</Option>
+    })
+  }
+
   render(){
     const { form, cluster, snapshotRequired } = this.props
     const { currentSnapshot } = this.state
@@ -384,7 +430,7 @@ class CreateVolume extends Component {
             </Col>
           </Row>
           <Row className='type'>
-            <Col span="4" className="name-text-center name" style={{color: 'red'}}>
+            <Col span="4" className="name-text-center name">
               存储类型
             </Col>
             <Col span="19" className='type_value'>
@@ -393,10 +439,11 @@ class CreateVolume extends Component {
                   placeholder="请选择类型"
                   disabled={this.state.selectChecked}
                   {...getFieldProps('type', {
+                    initialValue: "ceph",
                     rules: [{required: true, message: '类型不能为空'}]
                   })}
                 >
-                  <Option key="RBD" value="RBD">RBD</Option>
+                  <Option key="ceph" value="ceph">RBD</Option>
                 </Select>
               </Form.Item>
               <Form.Item className='form_item_style'>
@@ -410,9 +457,7 @@ class CreateVolume extends Component {
                     }]
                   })}
                 >
-                  <Option key="ceph" value="ceph">ceph</Option>
-                  <Option key="nfs" value="nfs">nfs</Option>
-                  <Option key="host" value="host">host</Option>
+                  { this.renderCephSeverOption() }
                 </Select>
               </Form.Item>
             </Col>
@@ -516,10 +561,10 @@ class CreateVolume extends Component {
             </Col>
           </Row>
           <Form.Item
-            label={<span style={{color: 'red'}}>回收策略
+            label={<span>回收策略
               <Tooltip title={<div>
-                <div>保留：服务删除时删除存储</div>
-                <div>删除：删除服务时删除存储</div>
+                <div>保留：服务删除时，保留存储</div>
+                <div>删除：删除服务时，删除存储</div>
               </div>}>
                 <Icon type="question-circle-o" className='question_icon'/>
               </Tooltip>
@@ -528,10 +573,10 @@ class CreateVolume extends Component {
             className='strategy'
           >
             <Radio.Group {...getFieldProps('strategy', {
-              initialValue: 'yes'
+              initialValue: 'retain'
             })}>
-              <Radio key="yes" value="yes" className='item'>保留</Radio>
-              <Radio key="no" value="no">删除</Radio>
+              <Radio key="retain" value="retain" className='item'>保留</Radio>
+              <Radio key="delete" value="delete">删除</Radio>
             </Radio.Group>
           </Form.Item>
           { SHOW_BILLING ?
@@ -560,9 +605,16 @@ CreateVolume = Form.create()(CreateVolume)
 
 function mapStateToProp(state, props) {
   const { cluster } = state.entities.current
+  const clusterID = cluster.clusterID
+  const stateCluster = state.cluster
+  let cephList = []
+  if(stateCluster.clusterStorage && stateCluster.clusterStorage[clusterID] && stateCluster.clusterStorage[clusterID].cephList){
+    cephList = stateCluster.clusterStorage[clusterID].cephList
+  }
   return {
     cluster,
     currentImagePool: DEFAULT_IMAGE_POOL,
+    cephList,
   }
 }
 
@@ -570,6 +622,7 @@ export default connect(mapStateToProp, {
   SnapshotClone,
   createStorage,
   loadStorageList,
+  getClusterStorageList,
 })(injectIntl(CreateVolume, {
   withRef: true,
 }))

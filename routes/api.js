@@ -49,6 +49,8 @@ const netIsolationController = require('../controllers/network_isolation')
 const tenantController = require('../controllers/tenant_manage')
 const apmController = require('../controllers/apm')
 const storageController = require('../controllers/storage_manage')
+const quotaController = require('../controllers/quota')
+const cleanController = require('../controllers/clean')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -62,11 +64,11 @@ module.exports = function (Router) {
   router.post('/storage-pools/:cluster/volumes', volumeController.createVolume)
   router.put('/storage-pools/:pool/:cluster/volumes/format', volumeController.formateVolume)
   router.put('/storage-pools/:pool/:cluster/volumes/size', volumeController.resizeVolume)
-  router.get('/storage-pools/:pool/:cluster/volumes/:name', volumeController.getVolumeDetail)
+  router.get('/clusters/:cluster/volumes/:name/consumption', volumeController.getVolumeDetail)
   //router.post('/storage-pools/:pool/:cluster/volumes/:name/beforeimport', volumeController.beforeUploadFile)
   //router.post('/storage-pools/:pool/:cluster/volumes/:name/import', volumeController.uploadFile)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/filehistory', volumeController.getFileHistory)
-  router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
+  router.get('/clusters/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
   // router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
   router.get('/storage-pools/:cluster/volumes/available', volumeController.getAvailableVolume)
   router.get('/storage-pools/:cluster/volumes/pool-status', volumeController.getPoolStatus)
@@ -87,7 +89,7 @@ module.exports = function (Router) {
   router.get('/projects/:name/check-exists',projectController.checkProjectNameExists)
   router.get('/projects/check-manager',projectController.checkProjectManager)
   router.get('/projects/:name/clusters',projectController.getProjectAllClusters)
-  router.get('/projects/:name/visible-clusters',projectController.getProjectAllClusters)
+  router.get('/projects/:name/visible-clusters',projectController.getProjectVsibleClusters)
   router.get('/projects/approval-clusters',projectController.getProjectApprovalClusters)
   router.put('/projects/:name/clusters',projectController.updateProjectClusters)
   router.put('/projects/clusters',projectController.updateProjectApprovalClusters)
@@ -160,6 +162,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/services/batch-delete', serviceController.deleteServices)
   router.get('/clusters/:cluster/services/batch-status', serviceController.getServicesStatus)
   router.get('/clusters/:cluster/services/:service_name/detail', serviceController.getServiceDetail)
+  router.put('/clusters/:cluster/services/:service_name/volume', serviceController.putEditServiceVolume)
   router.get('/clusters/:cluster/services/:service_name/containers', serviceController.getServiceContainers)
   router.put('/clusters/:cluster/services/:service_name/env', serviceController.updateServiceContainers)
   router.put('/clusters/:cluster/services/:service_name/manualscale', serviceController.manualScaleService)
@@ -185,14 +188,16 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:appName/topology-pods', serviceController.podTopology)
   router.put('/clusters/:cluster/services/autoscale/status', serviceController.batchUpdateAutoscaleStatus)
   router.get('/clusters/:cluster/services/:service_name/autoscale/logs', serviceController.getAutoScaleLogs)
-  
+
+  router.post('/clusters/:cluster/services/autoscale/existence', serviceController.checkAutoScaleNameExist)
+
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
   router.get('/users/:user_id/app_info', userController.getUserAppInfo)
   router.get('/users', userController.getUsers)
   router.get('/users/:user_id/teams', userController.getUserTeams)
-  router.get('/users/:user_id/teamspaces', userController.getUserTeamspaces)
-  router.get('/users/:user_id/teamspaces/detail', userController.getUserTeamspacesWithDetail)
+  //router.get('/users/:user_id/teamspaces', userController.getUserTeamspaces)
+  //router.get('/users/:user_id/teamspaces/detail', userController.getUserTeamspacesWithDetail)
   router.post('/users', userController.createUser)
   router.delete('/users/:user_id', userController.deleteUser)
   router.post('/users/batch-delete', userController.batchDeleteUser)
@@ -207,21 +212,21 @@ module.exports = function (Router) {
   router.post('/users/:user_id/:scope/:scopeID/roles', userController.bindRolesForUser)
   router.post('/users/:user_id/teamtransfer', userController.teamtransfer)
   // Teams
-  router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
+  //router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
   router.get('/teams/:team_id/clusters/all', teamController.getAllClusters)
   router.get('/teams/:team_id/users', teamController.getTeamUsers)
   router.get('/teams/:team_id', teamController.getTeamDetail)
   router.post('/teams', teamController.createTeam)
   router.delete('/teams/:team_id', teamController.deleteTeam)
-  router.post('/teams/:team_id/spaces', teamController.createTeamspace)
+  //router.post('/teams/:team_id/spaces', teamController.createTeamspace)
   router.post('/teams/:team_id/users', teamController.addTeamusers)
   //To remove multiple users, seperate the user ids with ",".
   router.delete('/teams/:team_id/users/:user_ids', teamController.removeTeamusers)
-  router.delete('/teams/:team_id/spaces/:space_id', teamController.deleteTeamspace)
+  //router.delete('/teams/:team_id/spaces/:space_id', teamController.deleteTeamspace)
   router.put('/teams/:team_id/clusters/:cluster_id/request', teamController.requestTeamCluster)
   router.get('/teams/:team_name/existence', teamController.checkTeamName)
-  router.get('/teams/:team_id/spaces/:space_name/existence', teamController.checkSpaceName)
+  //router.get('/teams/:team_id/spaces/:space_name/existence', teamController.checkSpaceName)
   router.patch('/teams/:team_id',teamController.updateTeam)
 
   //Overview Team
@@ -355,7 +360,7 @@ module.exports = function (Router) {
 
   // Manage Monitor
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
-  router.get('/manage-monitor/:team_id/:namespace/getClusterOfQueryLog', manageMonitorController.getClusterOfQueryLog)
+  router.get('/manage-monitor/:project_name/:namespace/getClusterOfQueryLog', manageMonitorController.getClusterOfQueryLog)
   router.get('/manage-monitor/:cluster_id/:namespace/getServiceOfQueryLog', manageMonitorController.getServiceOfQueryLog)
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
   router.post('/clusters/:cluster/services/:services/getSearchLog', manageMonitorController.getServiceSearchLog)
@@ -498,7 +503,7 @@ module.exports = function (Router) {
 
   // Charge
   router.post('/charge/user', chargeController.chargeUser)
-  router.post('/charge/teamspace', chargeController.chargeTeamspace)
+  //router.post('/charge/teamspace', chargeController.chargeTeamspace)
   router.post('/charge/project', chargeController.chargeProject)
 
   //setting
@@ -619,6 +624,22 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/storageclass', storageController.postCreateCephStorage)
   router.put('/clusters/:cluster/storageclass', storageController.putUpdateCephStorage)
   router.del('/clusters/:cluster/storageclass/:name', storageController.postDeleteCephStorage)
+
+  //Quota
+  router.get('/clusters/:cluster/resourcequota', quotaController.clusterList)
+  router.put('/clusters/:cluster/resourcequota', quotaController.clusterPut)
+  router.get('/clusters/:cluster/resourcequota/inuse',quotaController.clusterGet)
+  router.get('/resourcequota', quotaController.get)
+  router.put('/resourcequota', quotaController.update)
+  router.get('/resourcequota/inuse', quotaController.list)
+
+  //clean
+  router.put('/cleaner/:target/:type', cleanController.startCleaner)
+  router.get('/cleaner/settings', cleanController.getCleanerSettings)
+  router.get('/cleaner/logs', cleanController.getCleanerLogs)
+  router.post('/cleaner/logs', cleanController.startCleanSystemLogs)
+  router.put('/cleaner/monitor', cleanController.startCleanMonitor)
+  router.post('/cleaner/records', cleanController.getSystemCleanerLogs)
 
   return router.routes()
 }

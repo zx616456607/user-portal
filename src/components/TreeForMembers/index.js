@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Tree, Button, Checkbox, Row, Col } from 'antd'
+import { Tree, Button, Checkbox, Row, Col, Spin } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import './style/TreeForMembers.less'
 import difference from 'lodash/difference'
@@ -27,9 +27,7 @@ class TreeComponent extends Component {
       autoExpandParent: true,
       outPermissionInfo: [],
       alreadyCheckedKeys: [],
-      alreadyExpanedKeys: [],
       permissionInfo: [],
-      alreadyAutoExpandParent: true,
       disableCheckArr:[],
       alreadyAllChecked: false,
       originalMembers: [],
@@ -77,7 +75,6 @@ class TreeComponent extends Component {
         checkedKeys: [],
         originalMembers: [],
         alreadyCheckedKeys: [],
-        alreadyExpanedKeys: [],
         permissionInfo: [],
         filterPermissionInfo: [],
         outPermissionInfo: [],
@@ -143,19 +140,9 @@ class TreeComponent extends Component {
     });
   }
   
-  onAlreadyExpand  = expandedKeys => {
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded chilren keys.
-    this.setState({
-      alreadyExpanedKeys: expandedKeys,
-      alreadyAutoExpandParent: false,
-    });
-  }
-  
   onAlreadyCheck = (checkedKeys) => {
     this.setState({
       alreadyCheckedKeys: checkedKeys,
-      alreadyAutoExpandParent: false,
     },()=>{
       this.isReadyCheck()
     });
@@ -358,12 +345,15 @@ class TreeComponent extends Component {
   removePerssion = () => {
     const { alreadyCheckedKeys, permissionInfo, outPermissionInfo,filterOutPermissionInfo,filterPermissionInfo, disableCheckArr, checkedKeys } = this.state
     const { getTreeRightData } = this.props
+    let oldPermissonInfo = cloneDeep(permissionInfo)
     let newPermissonInfo = cloneDeep(filterPermissionInfo)
     let newOutPermissionInfo = this.transformMultiArrayToLinearArray(cloneDeep(filterOutPermissionInfo))
     if(!alreadyCheckedKeys.length) return
-    let arr = []
+    let oldArr = []
     let backArr = []
-    let stayKey = []
+    let oldStayKey = []
+    let newArr = []
+    let newStayKey = []
     for(let i = 0; i < newOutPermissionInfo.length; i++) {
       for(let j = 0; j < alreadyCheckedKeys.length; j++) {
         if(`${newOutPermissionInfo[i].id}` === alreadyCheckedKeys[j]) {
@@ -374,6 +364,18 @@ class TreeComponent extends Component {
         }
       }
     }
+    for (let i = 0; i < oldPermissonInfo.length; i++) {
+      let flag = false;
+      for (let j = 0; j < alreadyCheckedKeys.length; j++) {
+        if (`${oldPermissonInfo[i].id}` === alreadyCheckedKeys[j]) {
+          flag = true
+        }
+      }
+      if (!flag) {
+        oldArr.push(oldPermissonInfo[i])
+        oldStayKey.push(oldPermissonInfo[i].id)
+      }
+    }
     for (let i = 0; i < newPermissonInfo.length; i++) {
       let flag = false;
       for (let j = 0; j < alreadyCheckedKeys.length; j++) {
@@ -382,16 +384,16 @@ class TreeComponent extends Component {
         }
       }
       if (!flag) {
-        arr.push(newPermissonInfo[i])
-        stayKey.push(newPermissonInfo[i].id)
+        newArr.push(newPermissonInfo[i])
+        newStayKey.push(newPermissonInfo[i].id)
       }
     }
     if(getTreeRightData){
-      getTreeRightData(stayKey,arr)
+      getTreeRightData(oldStayKey,oldArr)
     }
     this.setState({
-      permissionInfo: arr,
-      filterPermissionInfo: arr,
+      permissionInfo: oldArr,
+      filterPermissionInfo: newArr,
       alreadyCheckedKeys: [],
       disableCheckArr:difference(disableCheckArr,backArr),
       checkedKeys:difference(checkedKeys,backArr)
@@ -420,14 +422,13 @@ class TreeComponent extends Component {
   filterMember = value => {
     const { permissionInfo } = this.state
     this.setState({
-      filterPermissionInfo: permissionInfo.filter(item => item.userName.indexOf(value) > -1)
-    }, () => {
-      console.log(this.state.filterPermissionInfo)
+      filterPermissionInfo: permissionInfo.filter(item => item.userName.indexOf(value) > -1),
+      rightTreeKey: Math.random(),
     })
   }
   render() {
     const { disableCheckArr, alreadyAllChecked, filterPermissionInfo,filterOutPermissionInfo, leftValue, rightValue } = this.state
-    const { text, memberCount, roleMember, modalStatus, filterUser } = this.props
+    const { text, memberCount, roleMember, modalStatus, filterUser, filterLoading } = this.props
     const loopFunc = data => data.length >0 && data.map((item) => {
       if (item.users) {
         return (
@@ -439,11 +440,6 @@ class TreeComponent extends Component {
       return <TreeNode key={item.id} title={item.userName} disableCheckbox={disableCheckArr.indexOf(`${item.id}`) > -1}/>;
     });
     const loop = data => data.map((item) => {
-      if (item.children) {
-        return (
-          <TreeNode key={item.id} title={item.userName}/>
-        );
-      }
       return <TreeNode key={item.id} title={item.userName}/>;
     });
     const selectProps = {
@@ -475,14 +471,11 @@ class TreeComponent extends Component {
                 value={leftValue}
                 onChange={(leftValue) => this.setState({leftValue})}
                 style={{width: '90%', margin: '10px auto', display: 'block'}}/>
-              {/*<Row className="treeTitle">*/}
-                {/*<Col span={12}>对象名称</Col>*/}
-                {/*<Col span={12}>类型</Col>*/}
-              {/*</Row>*/}
               <hr className="underline"/>
               <div className='body'>
-                <div >
+                <div>
                   {
+                    filterLoading ? <span className='noPermission'><Spin/></span> :
                     filterOutPermissionInfo.length
                       ? <Tree
                       checkable
@@ -534,11 +527,9 @@ class TreeComponent extends Component {
                     filterPermissionInfo.length
                       ? <Tree
                       checkable multiple
-                      onExpand={this.onAlreadyExpand}
-                      expandedKeys={this.state.alreadyExpanedKeys}
-                      autoExpandParent={this.state.alreadyAutoExpandParent}
                       onCheck={this.onAlreadyCheck}
                       checkedKeys={this.state.alreadyCheckedKeys}
+                      key={this.state.rightTreeKey}
                     >
                       {loop(filterPermissionInfo)}
                     </Tree>
