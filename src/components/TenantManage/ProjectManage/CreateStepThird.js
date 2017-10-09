@@ -37,7 +37,9 @@ class CreateStepThird extends Component{
       memberArr: [],
       roleMap: {},
       memberCount: 0,
-      memberType: 'user'
+      memberType: 'user',
+      filterLoading: false,
+      filterFlag: true
     }
   }
   componentWillMount() {
@@ -82,29 +84,50 @@ class CreateStepThird extends Component{
       form.resetFields()
     }
   }
-  getProjectMember(type, name) {
+  getProjectMember(type, name, flag) {
     const { GetProjectsMembers } = this.props;
     let query = {type}
     if (name) {
       query = Object.assign(query, {filter: `name,${name}`})
     }
-    
-    GetProjectsMembers(query, {
-      success: {
-        func: (res) => {
-          if (res.statusCode === 200) {
-            let newArr = res.data.iteams || []
-            this.formatMember(newArr)
-            this.setState({
-              memberArr: newArr,
-              totalMemberCount: res.data.listMeta.total,
-              connectModal:true,
-              memberType: type,
-            })
-          }
-        },
-        isAsync: true
-      }
+    // GetProjectsMembers(query, {
+    //   success: {
+    //     func: (res) => {
+    //       if (res.statusCode === 200) {
+    //         let newArr = res.data.iteams || []
+    //         this.formatMember(newArr)
+    //         this.setState({
+    //           memberArr: newArr,
+    //           totalMemberCount: res.data.listMeta.total,
+    //           connectModal:true,
+    //           memberType: type,
+    //           filterFlag: flag
+    //         })
+    //       }
+    //     },
+    //     isAsync: true
+    //   }
+    // })
+    return new Promise((resolve) => {
+      GetProjectsMembers(query, {
+        success: {
+          func: (res) => {
+            if (res.statusCode === 200) {
+              let newArr = res.data.iteams || []
+              this.formatMember(newArr)
+              this.setState({
+                memberArr: newArr,
+                filterFlag: flag,
+                totalMemberCount: res.data.listMeta.total,
+                connectModal: true,
+                memberType: type,
+              })
+            }
+            resolve()
+          },
+          isAsync: true
+        }
+      })
     })
   }
   formatMember(arr) {
@@ -115,11 +138,6 @@ class CreateStepThird extends Component{
       } else {
         Object.assign(item,{id:item.userID ? item.userID : item.userId})
       }
-    })
-  }
-  formatArr(arr) {
-    arr.forEach(item => {
-      Object.assign(item,{key: `${item.userId}`},{name: item.userName})
     })
   }
   onExpand(expandedKeys) {
@@ -236,10 +254,22 @@ class CreateStepThird extends Component{
     }
     return a
   }
+  filterMember = value => {
+    const { memberType, filterFlag } = this.state
+    this.setState({
+      filterLoading: true
+    }, () => {
+      this.getProjectMember(memberType, value, !filterFlag).then(() => {
+        this.setState({
+          filterLoading: false
+        })
+      })
+    })
+  }
   render() {
-    const { scope, form } = this.props;
+    const { scope } = this.props;
     const TreeNode = Tree.TreeNode;
-    const { currentRolePermission, currentRoleInfo, memberArr, connectModal, roleMap, memberCount, memberType } = this.state;
+    const { currentRolePermission, currentRoleInfo, memberArr, connectModal, roleMap, memberCount, memberType, filterLoading, filterFlag } = this.state;
     let currentId = currentRoleInfo && currentRoleInfo.id
     const projectNameLayout = {
       labelCol: { span: 4 },
@@ -335,10 +365,12 @@ class CreateStepThird extends Component{
         >
           <TreeComponent
              outPermissionInfo={memberArr}
+             filterLoading={filterLoading}
+             filterFlag={filterFlag}
              changeSelected={this.getProjectMember.bind(this)}
              modalStatus={connectModal}
              memberType={memberType}
-             filterUser={(value) => this.getProjectMember(memberType, value)}
+             filterUser={this.filterMember.bind(this)}
              permissionInfo={[]}
              existMember={roleMap[currentId] || []}
              text='成员'

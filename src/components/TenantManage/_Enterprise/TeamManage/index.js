@@ -721,7 +721,11 @@ class TeamManage extends Component {
             }
             {
               roleNum === 1 &&
-                <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建团队</Button>
+                <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}>
+                  <svg id="chosenCreator">
+                    <use xlinkHref='#chosencreator' />
+                  </svg> 哪些人可以创建团队
+                </Button>
             }
             <Button type="host" size="large" className="refreshBtn" onClick={this.refreshTeamTable.bind(this)}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
             <CreateTeamModal
