@@ -227,8 +227,7 @@ exports.getServiceAutoScaleList = function* () {
   const serviceName = this.params.service_name
   const loginUser = this.session.loginUser
   const query = this.query
-  const serviceNameQuery = query.serviceName || ""
-  const strategyNameQuery = query.strategyNameQuery || ""
+  const filter = query.filter || ""
   let page = parseInt(query.page || DEFAULT_PAGE)
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
   if (isNaN(page) || page < 1) {
@@ -238,26 +237,13 @@ exports.getServiceAutoScaleList = function* () {
     size = DEFAULT_PAGE_SIZE
   }
   const from = size * (page - 1)
-  if (serviceNameQuery != "" && strategyNameQuery != ""){
-    this.status = 400
-    this.body = {
-      message:"can only filter by single type"
-    }
-  }
-  let queryStr = ""
-  if (serviceNameQuery != ""){
-    queryStr = serviceNameQuery
-  }
-  if (strategyNameQuery != ""){
-    queryStr = strategyNameQuery
-  }
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'services','autoscale'])
   const tempList = result.data
   var autoScaleList = {}
   let index = 0
   for (let key in tempList){ 
-    if (key.match(queryStr) != null && index >= from && index < from + size){
+    if ((filter === "" || key.match(filter) != null || tempList[key].spec.scaleTargetRef.name == filter) && index >= from && index < from + size){
       autoScaleList[key] = tempList[key]
     }
     index++
