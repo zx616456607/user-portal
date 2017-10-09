@@ -1225,7 +1225,7 @@ class Ordinary extends Component {
     return (
 
       <div id='Ordinary'>
-        <Row className="title">{spaceName} - {clusterName}集群</Row>
+        <Row className="title">{spaceName} - {clusterName} 集群</Row>
         <Row className="content" gutter={16}>
           {SHOW_BILLING ?
             <Col span={6} className='clusterCost'>

@@ -641,7 +641,7 @@ let NetworkConfiguration = React.createClass ({
     let networkConfigArray = form.getFieldValue('networkConfigArray')
     const optionMapArray = []
     for(let i = 0; i < proxy.data.length; i++){
-      if(!networkConfigArray[i] || !networkConfigArray[i].deleted){
+      if (networkConfigArray[i] && !networkConfigArray[i].deleted){
         optionMapArray.push(proxy.data[networkConfigArray[i].key])
       }
     }

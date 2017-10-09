@@ -12,7 +12,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import { Icon, Button, Card, Tabs, Table, Input, Spin, Row, Col, Dropdown, Menu, Modal, Progress, Switch, Tag, Tooltip } from 'antd'
-import { getNodesPodeList, loadHostMetrics, searchPodeList , loadHostInstant} from '../../actions/cluster'
+import { getNodesPodeList, loadHostMetrics, searchPodeList} from '../../actions/cluster'
 import './style/ClusterDetail.less'
 import hostImg from '../../assets/img/integration/host.png'
 import { formatDate, calcuDate } from '../../common/tools'
@@ -175,32 +175,65 @@ let HostInfo = React.createClass({
       }
     ];
 
-    const { hostInfo, instant, podeList, foreverPodNumber,func } = this.props
-    const memTotal = isNaN(hostInfo[camelize('memory_total_kb')] /1024) ? '' : Math.floor(hostInfo[camelize('memory_total_kb')] / 1024 / 1024 *100) /100
-    const useMem = (instant.memory /1024  / hostInfo[camelize('memory_total_kb')] *100).toFixed(2)
+    const { hostInfo, podeList, foreverPodNumber,func } = this.props
+    // Get requested CPU/memory from pod list
+    var totalRequestedMemory = 0, totalRequestedCPU = 0
+    if (podeList && podeList.length > 0) {
+      podeList.forEach(function(pod) {
+        pod.podSpec.containers.forEach(function(container) {
+          if (container.resources) {
+            if (container.resources.requests) {
+              if (container.resources.requests.memory) {// Convert to Ki
+                if (container.resources.requests.memory.endsWith("Mi") > 0) {
+                  totalRequestedMemory += parseInt(container.resources.requests.memory.replace("Mi", "")) * 1024
+                }
+                if (container.resources.requests.memory.endsWith("Gi") > 0) {// Convert to Ki
+                  totalRequestedMemory += parseInt(container.resources.requests.memory.replace("Gi", "")) * 1024 * 1024
+                }
+                if (container.resources.requests.memory.endsWith("M") > 0) {
+                  totalRequestedMemory += parseInt(container.resources.requests.memory.replace("M", "")) * 1000
+                }
+                if (container.resources.requests.memory.endsWith("G") > 0) {// Convert to Ki
+                  totalRequestedMemory += parseInt(container.resources.requests.memory.replace("G", "")) * 1000 * 1000
+                }
+              }
+              if (container.resources.requests.cpu) {
+                if (container.resources.requests.cpu.endsWith("m") > 0) {
+                  totalRequestedCPU += parseInt(container.resources.requests.cpu.replace("m", ""))
+                } else {
+                  totalRequestedCPU += parseInt(container.resources.requests.cpu) * 1000
+                }
+              }
+            }
+          }
+        })
+      })
+    }
+    const memTotal = isNaN(hostInfo[camelize('MemoryAllocatable')] /1000) ? '' : Math.floor(hostInfo[camelize('MemoryAllocatable')] / 1000 / 1000 *100) /100
+    const useMem = (totalRequestedMemory / hostInfo[camelize('MemoryAllocatable')] *100).toFixed(2)
     return (
       <QueueAnim className="ClusterDetail">
         <div className="hostInfo" key="ClusterDetail">
           <div className="topTitle" style={{marginTop:'20px',marginBottom: 10}}>主机信息</div>
           <div className="wrapRow">
             <div className="host-list">
-              <div className="titles"><div className="quotaimg"><img style={{width:'100%'}} src={Resourcequota}/></div> 资源配额</div>
+              <div className="titles"><div className="quotaimg"><img style={{width:'100%'}} src={Resourcequota}/></div> 资源配额（可分配）</div>
               <br />
               <Row className="items">
-                <Col span={8}><span className="keys resources">CPU：</span><span className="valus">{isNaN(hostInfo.cpuTotal / 1000)? '': hostInfo.cpuTotal / 1000} 核</span></Col>
-                <Col span={10}><Progress percent={ Math.min(instant.cpus, 100) } showInfo={false} strokeWidth={8} status="active" /></Col>
-                <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { (instant.cpus || 0).toFixed(2) } %</Col>
+                <Col span={8}><span className="keys resources">CPU：</span><span className="valus">{ hostInfo.cPUAllocatable }m（{ hostInfo.cPUAllocatable / 1000}核）</span></Col>
+                <Col span={10}><Progress percent={ Math.min(totalRequestedCPU * 100 /hostInfo.cPUAllocatable, 100) } showInfo={false} strokeWidth={8} status="active" /></Col>
+                <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已分配 { (totalRequestedCPU * 100 /hostInfo.cPUAllocatable|| 0).toFixed(2) } %</Col>
               </Row>
               <Row className="items">
                 <Col span={8}><span className="keys resources">内存：</span><span className="valus">{ memTotal } GB</span></Col>
                 <Col span={10}><Progress percent={ Math.min(useMem, 100) } strokeWidth={8} showInfo={false} status="active" /></Col>
-                <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { useMem } %</Col>
+                <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已分配 { useMem } %</Col>
 
               </Row>
               <Row className="items">
-                <Col span={8}><span className="keys resources">容器配额：</span><span className="valus">{hostInfo.podCap} 个</span></Col>
+                <Col span={8}><span className="keys resources">容器：</span><span className="valus">{hostInfo.podCap} 个</span></Col>
                 <Col span={10}><Progress percent={ Math.round(foreverPodNumber / hostInfo.podCap *100) } strokeWidth={8} showInfo={false} status="active" /></Col>
-                <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { foreverPodNumber} 个</Col>
+                <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已分配 { foreverPodNumber} 个</Col>
 
               </Row>
             </div>
@@ -244,7 +277,7 @@ let HostInfo = React.createClass({
               <Input placeholder="搜索" size="large" onChange={(e)=> this.setSearchState(e.target.value)} onPressEnter={()=> this.handSearch()}/>
               <Icon type="search" onClick={()=> this.handSearch()} />
             </span>
-            <Table className="dataTable" pagination={{ pageSize: 10, showSizeChanger: true, total: podeList.lenght }} loading={this.props.hostInfo.isFetching} columns={columns} dataSource={podeList} />
+            <Table className="dataTable" pagination={{ pageSize: 10, showSizeChanger: true, total: podeList.length }} loading={this.props.hostInfo.isFetching} columns={columns} dataSource={podeList} />
           </div>
         </div>
       </QueueAnim>
@@ -273,7 +306,7 @@ class ClusterDetail extends Component {
     }
   }
   componentWillMount() {
-    const { clusterID, clusterName, loadHostInstant, loadHostMetrics,location } = this.props
+    const { clusterID, clusterName, loadHostMetrics,location } = this.props
     //this.setState({activeTabKey:tab || 'info'})
     const body = {
       clusterID,
@@ -287,7 +320,7 @@ class ClusterDetail extends Component {
       }
     })
 
-    loadHostInstant(body)
+    //loadHostInstant(body)
 
     this.props.getNodesPodeList({ clusterID, clusterName }, {
       success: {
@@ -480,7 +513,7 @@ class ClusterDetail extends Component {
           <div className="h3"></div>
           <Tabs defaultActiveKey={this.state.activeTabKey}>
             <TabPane tab="详情" key="info">
-              <HostInfo foreverPodNumber={this.state.foreverPodNumber} podeList={this.props.results} instant={ this.props.instant } hostInfo={hostInfo} func={fetchApi} scope={this} />
+              <HostInfo foreverPodNumber={this.state.foreverPodNumber} podeList={this.props.results} hostInfo={hostInfo} func={fetchApi} scope={this} />
             </TabPane>
             <TabPane tab="监控" key="monitoring">
               <TimeControl onChange={this.handleTimeChange} />
@@ -509,7 +542,7 @@ class ClusterDetail extends Component {
 function mapStateToProps(state, props) {
   const clusterName = props.params.cluster_name
   const { clusterID }  = props.params
-  const { podeList, hostInfo, hostMetrics, hostInstant } = state.cluster || {}
+  const { podeList, hostInfo, hostMetrics } = state.cluster || {}
   const defaultState = {
     isFetching: false,
     result: { pods: [] }
@@ -543,10 +576,10 @@ function mapStateToProps(state, props) {
     diskReadIo.data = hostMetrics.result.diskReadIo
     diskWriteIo.data = hostMetrics.result.diskWriteIo
   }
-  let instant = {}
+  /*let instant = {}
   if (hostInstant && hostInstant.result) {
     instant = hostInstant.result
-  }
+  }*/
   return {
     hostcpu: cpuData,
     memory: memoryData,
@@ -559,7 +592,7 @@ function mapStateToProps(state, props) {
     clusterName,
     isFetching,
     results,
-    instant,
+    // instant,
     hostInfo
   }
 }
@@ -568,7 +601,7 @@ export default connect(mapStateToProps, {
   getNodesPodeList,
   getHostInfo,
   loadHostMetrics,
-  loadHostInstant,
+  // loadHostInstant,
   searchPodeList,
   changeClusterNodeSchedule,
   getNodeLabels

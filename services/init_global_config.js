@@ -153,7 +153,7 @@ exports.initGlobalConfig = function* () {
   if (ConfigArray.Rbd!=='NotEmpty'){
       globalConfig.storageConfig=[]
   }
-  logger.info('api-server config: ', globalConfig.tenx_api.host)
+  logger.info('api-server config: ', globalConfig.tenx_api.protocol + '://' + globalConfig.tenx_api.host)
   logger.info('registry config: ', globalConfig.registryConfig.url)
   logger.info('devops config: ', globalConfig.cicdConfig.protocol + '://' + globalConfig.cicdConfig.host)
   logger.info('vm wrap api config: ', globalConfig.vmWrapConfig.protocol + '://' + globalConfig.vmWrapConfig.host)
