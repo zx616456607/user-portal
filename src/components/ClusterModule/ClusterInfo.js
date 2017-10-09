@@ -14,7 +14,7 @@ import { Icon, Button, Card, Form, Input, Tooltip, Spin, Modal, Dropdown, Menu, 
 import { updateCluster, loadClusterList, deleteCluster, updateClusterConfig } from '../../actions/cluster'
 import NotificationHandler from '../../components/Notification'
 import { connect } from 'react-redux'
-import { GetProjectsAllClusters } from '../../actions/project'
+import { getProjectVisibleClusters } from '../../actions/project'
 import clusterImg from '../../assets/img/integration/cluster.png'
 import { IP_REGEX, HOST_REGEX, EMAIL_REG_EXP } from '../../../constants'
 
@@ -163,7 +163,7 @@ let ClusterInfo = React.createClass ({
       deleteCluster,
       cluster,
       loadClusterList,
-      GetProjectsAllClusters,
+      getProjectVisibleClusters,
       current,
     } = this.props
     const notification = new NotificationHandler()
@@ -184,7 +184,7 @@ let ClusterInfo = React.createClass ({
                 }
               }
             })
-            GetProjectsAllClusters({ projectsName: current.space.namespace })
+            getProjectVisibleClusters(current.space.namespace)
           },
           isAsync: true
         },
@@ -520,5 +520,5 @@ export default connect(mapStateToProps, {
   loadClusterList,
   deleteCluster,
   updateClusterConfig,
-  GetProjectsAllClusters,
+  getProjectVisibleClusters,
 })(ClusterInfo)

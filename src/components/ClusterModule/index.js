@@ -22,7 +22,7 @@ import { GetProjectsApprovalClusters, UpdateProjectsApprovalCluster, searchProje
 import { loadLoginUserDetail } from '../../actions/entities'
 import { changeActiveCluster } from '../../actions/terminal'
 import { loadTeamClustersList } from '../../actions/team'
-import { GetProjectsAllClusters } from '../../actions/project'
+import { getProjectVisibleClusters } from '../../actions/project'
 import { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, isValidConfig } from '../../actions/global_config'
 import AddClusterOrNodeModalContent from './AddClusterOrNodeModal/Content'
 import { camelize } from 'humps'
@@ -277,7 +277,7 @@ let CreateClusterModal = React.createClass({
       createCluster,
       loadClusterList,
       loadLoginUserDetail,
-      GetProjectsAllClusters,
+      getProjectVisibleClusters,
     } = funcs
     const { resetFields } = form
     this.props.form.validateFields((errors, values) => {
@@ -311,7 +311,7 @@ let CreateClusterModal = React.createClass({
                 }
               }
             })
-            GetProjectsAllClusters({ projectsName: current.space.namespace })
+            getProjectVisibleClusters(current.space.namespace)
           },
           isAsync: true
         },
@@ -883,7 +883,7 @@ class ClusterList extends Component {
       currentClusterID, addClusterCMD, createCluster,
       license, noCluster, loadClusterList,
       loadLoginUserDetail, loginUser, globalConfig, location,
-      projectsApprovalClustersList, GetProjectsAllClusters,
+      projectsApprovalClustersList, getProjectVisibleClusters,
       current,
     } = this.props
     if (!this.checkIsAdmin()) {
@@ -944,7 +944,7 @@ class ClusterList extends Component {
             {...this.props}
             parentScope={scope}
             addClusterCMD={addClusterCMD}
-            funcs={{createCluster, loadClusterList, loadLoginUserDetail, GetProjectsAllClusters}}
+            funcs={{createCluster, loadClusterList, loadLoginUserDetail, getProjectVisibleClusters}}
             globalConfig={globalConfig}
             current={current}
           />
@@ -1125,7 +1125,7 @@ export default connect(mapStateToProps, {
   createCluster,
   loadLoginUserDetail,
   changeActiveCluster,
-  GetProjectsAllClusters,
+  getProjectVisibleClusters,
   updateGlobalConfig,
   loadGlobalConfig,
   isValidConfig,

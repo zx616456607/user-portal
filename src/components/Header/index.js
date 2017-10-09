@@ -16,7 +16,7 @@ import { connect } from 'react-redux'
 import cloneDeep from 'lodash/cloneDeep'
 import { loadUserList } from '../../actions/user'
 import { loadTeamClustersList } from '../../actions/team'
-import { GetProjectsAllClusters, ListProjects } from '../../actions/project'
+import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
 import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
 import { checkVersion } from '../../actions/version'
 import { getCookie, isEmptyObject, getVersion, getPortalRealMode, toQuerystring } from '../../common/tools'
@@ -138,7 +138,6 @@ class Header extends Component {
       upgradeVersionModalVisible: false,
       visible: false,
       allUsers: [],
-      projectClusters: [],
     }
     this.isSysAdmin = props.loginUser.role == ROLE_SYS_ADMIN
   }
@@ -173,7 +172,7 @@ class Header extends Component {
       setCurrent,
       loadLoginUserDetail,
       loginUser,
-      GetProjectsAllClusters,
+      getProjectVisibleClusters,
     } = this.props
     const config = getCookie(USER_CURRENT_CONFIG)
     const [teamID, namespace, clusterID] = config.split(',')
@@ -199,7 +198,7 @@ class Header extends Component {
           setCurrent({
             space: defaultSpace
           })
-          GetProjectsAllClusters({ projectsName: defaultSpace.projectName }, {
+          getProjectVisibleClusters(defaultSpace.projectName, {
             success: {
               func: clustersRes => {
                 const { clusters } = clustersRes.data
@@ -221,13 +220,17 @@ class Header extends Component {
   }
 
   handleProjectChange(project) {
-    const { GetProjectsAllClusters, setCurrent, current, showCluster } = this.props
+    const { getProjectVisibleClusters, setCurrent, current, showCluster } = this.props
     let notification = new NotificationHandler()
     // sys admin select the user list
     if (project.userName) {
       project.projectName = 'default'
     }
-    GetProjectsAllClusters({ projectsName: project.projectName }, {
+    this.setState({
+      spacesVisible: false,
+      clustersVisible: true,
+    })
+    getProjectVisibleClusters(project.projectName, {
       success: {
         func: clustersRes => {
           let { clusters } = clustersRes.data
@@ -550,7 +553,7 @@ function mapStateToProps(state, props) {
   const { pathname } = props
   const { current, loginUser } = state.entities
   const { checkVersion } = state.version
-  const { projectList, projectClusterList } = state.projectAuthority
+  const { projectList, projectVisibleClusters } = state.projectAuthority
   let showSpace = false
   let showCluster = false
   SPACE_CLUSTER_PATHNAME_MAP.space.every(path => {
@@ -569,7 +572,7 @@ function mapStateToProps(state, props) {
   })
   const projects = projectList.data || []
   const currentNamespace = current.space.namespace
-  const currentProjectClusterList = projectClusterList[currentNamespace] || {}
+  const currentProjectClusterList = projectVisibleClusters[currentNamespace] || {}
   const projectClusters = currentProjectClusterList.data || []
   return {
     current,
@@ -594,5 +597,5 @@ export default connect(mapStateToProps, {
   checkVersion,
   loadUserList,
   ListProjects,
-  GetProjectsAllClusters,
+  getProjectVisibleClusters,
 })(Header)

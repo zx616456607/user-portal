@@ -89,7 +89,7 @@ module.exports = function (Router) {
   router.get('/projects/:name/check-exists',projectController.checkProjectNameExists)
   router.get('/projects/check-manager',projectController.checkProjectManager)
   router.get('/projects/:name/clusters',projectController.getProjectAllClusters)
-  router.get('/projects/:name/visible-clusters',projectController.getProjectAllClusters)
+  router.get('/projects/:name/visible-clusters',projectController.getProjectVsibleClusters)
   router.get('/projects/approval-clusters',projectController.getProjectApprovalClusters)
   router.put('/projects/:name/clusters',projectController.updateProjectClusters)
   router.put('/projects/clusters',projectController.updateProjectApprovalClusters)
@@ -631,7 +631,7 @@ module.exports = function (Router) {
   router.get('/resourcequota', quotaController.get)
   router.put('/resourcequota', quotaController.update)
   router.get('/resourcequota/inuse', quotaController.list)
-  
+
   //clean
   router.put('/cleaner/:target/:type', cleanController.startCleaner)
   router.get('/cleaner/settings', cleanController.getCleanerSettings)
@@ -639,6 +639,6 @@ module.exports = function (Router) {
   router.post('/cleaner/logs', cleanController.startCleanSystemLogs)
   router.put('/cleaner/monitor', cleanController.startCleanMonitor)
   router.post('/cleaner/records', cleanController.getSystemCleanerLogs)
-  
+
   return router.routes()
 }
