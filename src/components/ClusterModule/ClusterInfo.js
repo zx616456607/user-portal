@@ -14,6 +14,7 @@ import { Icon, Button, Card, Form, Input, Tooltip, Spin, Modal, Dropdown, Menu, 
 import { updateCluster, loadClusterList, deleteCluster, updateClusterConfig } from '../../actions/cluster'
 import NotificationHandler from '../../components/Notification'
 import { connect } from 'react-redux'
+import { GetProjectsAllClusters } from '../../actions/project'
 import clusterImg from '../../assets/img/integration/cluster.png'
 import { IP_REGEX, HOST_REGEX, EMAIL_REG_EXP } from '../../../constants'
 
@@ -158,7 +159,13 @@ let ClusterInfo = React.createClass ({
     })
   },
   confirmDeleteCluster() {
-    const { deleteCluster, cluster, loadClusterList } = this.props
+    const {
+      deleteCluster,
+      cluster,
+      loadClusterList,
+      GetProjectsAllClusters,
+      current,
+    } = this.props
     const notification = new NotificationHandler()
     this.setState({
       deleteClusterBtnLoading: true,
@@ -177,6 +184,7 @@ let ClusterInfo = React.createClass ({
                 }
               }
             })
+            GetProjectsAllClusters({ projectsName: current.space.namespace })
           },
           isAsync: true
         },
@@ -498,10 +506,12 @@ ClusterInfo = Form.create({
 })(ClusterInfo)
 
 function mapStateToProps(state, props) {
-  const { cluster } = state
+  const { cluster, entities } = state
+  const { current } = entities
   let clusterList = cluster.clusters.clusterList || []
   return {
-    clusterList
+    clusterList,
+    current,
   }
 }
 
@@ -509,5 +519,6 @@ export default connect(mapStateToProps, {
   updateCluster,
   loadClusterList,
   deleteCluster,
-  updateClusterConfig
+  updateClusterConfig,
+  GetProjectsAllClusters,
 })(ClusterInfo)

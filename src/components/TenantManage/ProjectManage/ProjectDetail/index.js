@@ -82,7 +82,6 @@ class ProjectDetail extends Component {
     this.getClustersWithStatus();
     // this.getProjectMember();
     // this.loadRoleList()
-    this.fetchQuota()
   }
   getClustersWithStatus() {
     const { name } = this.props.location.query;

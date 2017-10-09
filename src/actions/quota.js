@@ -21,9 +21,14 @@ export const FETCH_GLOBALE_QUOTA_FAILURE = 'FETCH_GLOBALE_QUOTA_FAILURE'
 function fetchGlobaleQuota(query, callback) {
   let endpoint = `${API_URL_PREFIX}/resourcequota`
   let headers
-  let title = query.header
-  if(title){
-    headers = { title }
+  if (query.header) {
+    if (query.header.project) {
+      let project = query.header.project
+      headers = { project }
+    } else {
+      let onbehalfuser = query.header.onbehalfuser
+      headers = { onbehalfuser }
+    }
   }
   return {
     [FETCH_API]: {
@@ -54,9 +59,14 @@ export const FETCH_GLOBALE_GET_QUOTA_FAILURE = 'FETCH_GLOBALE_GET_QUOTA_FAILURE'
 function fetchGlobaleQuotaList(query, callback) {
   let endpoint = `${API_URL_PREFIX}/resourcequota/inuse`
   let headers
-  let title = query.header
-  if(title){
-    headers = { title }
+  if (query.header) {
+    if (query.header.project) {
+      let project = query.header.project
+      headers = { project }
+    } else {
+      let onbehalfuser = query.header.onbehalfuser
+      headers = { onbehalfuser }
+    }
   }
   return {
     [FETCH_API]: {
@@ -84,11 +94,16 @@ export const UPDATE_GLOBALE_QUOTA_FAILURE = 'UPDATE_GLOBALE_QUOTA_FAILURE'
 
 function updateGlobaleQuota(query, callback) {
   let endpoint = `${API_URL_PREFIX}/resourcequota`
-  let body = query.query.body
+  let body = query.body
   let headers
-  let title = query.query.header
-  if(title){
-    headers = { title }
+  if (query.header) {
+    if (query.header.project) {
+      let project = query.header.project
+      headers = { project }
+    } else {
+      let onbehalfuser = query.header.onbehalfuser
+      headers = { onbehalfuser }
+    }
   }
   return {
     [FETCH_API]: {
@@ -116,11 +131,16 @@ export const FETCH_CLUSTER_QUOTA_SUCCESS = 'FETCH_CLUSTER_QUOTA_SUCCESS'
 export const FETCH_CLUSTER_QUOTA_FAILURE = 'FETCH_CLUSTER_QUOTA_FAILURE'
 
 function fetchClusterQuota(query, callback) {
-  let endpoint = `${API_URL_PREFIX}/clusters/${query.query.id}/resourcequota`
+  let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota`
   let headers
-  let title = query.query.header
-  if(title){
-    headers = { title }
+  if (query.header) {
+    if (query.header.project) {
+      let project = query.header.project
+      headers = { project }
+    } else {
+      let onbehalfuser = query.header.onbehalfuser
+      headers = { onbehalfuser }
+    }
   }
   return {
     [FETCH_API]: {
@@ -147,12 +167,17 @@ export const UPDATE_CLUSTER_QUOTA_SUCCESS = 'UPDATE_CLUSTER_QUOTA_SUCCESS'
 export const UPDATE_CLUSTER_QUOTA_FAILURE = 'UPDATE_CLUSTER_QUOTA_FAILURE'
 
 function updateClusterQuota(query, callback) {
-  let endpoint = `${API_URL_PREFIX}/clusters/${query.query.id}/resourcequota`
-  let body = query.query.body
+  let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota`
+  let body = query.body
   let headers
-  let title = query.query.header
-  if(title){
-    headers = { title }
+  if (query.header) {
+    if (query.header.project) {
+      let project = query.header.project
+      headers = { project }
+    } else {
+      let onbehalfuser = query.header.onbehalfuser
+      headers = { onbehalfuser }
+    }
   }
   return {
     [FETCH_API]: {
@@ -179,12 +204,17 @@ export const FETCH_CLUSTER_GET_REQUEST = 'FETCH_CLUSTER_GET_REQUEST'
 export const FETCH_CLUSTER_GET_SUCCESS = 'FETCH_CLUSTER_GET_SUCCESS'
 export const FETCH_CLUSTER_GET_FAILURE = 'FETCH_CLUSTER_GET_FAILURE'
 
-function fetchClusterQuotaList(query, callback){
-  let endpoint = `${API_URL_PREFIX}/clusters/${query.query.id}/resourcequota/inuse`
+function fetchClusterQuotaList(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota/inuse`
   let headers
-  let title = query.query.header
-  if(title){
-    headers = { title }
+  if (query.header) {
+    if (query.header.project) {
+      let project = query.header.project
+      headers = { project }
+    } else {
+      let onbehalfuser = query.header.onbehalfuser
+      headers = { onbehalfuser }
+    }
   }
   return {
     [FETCH_API]: {
@@ -200,7 +230,7 @@ function fetchClusterQuotaList(query, callback){
   }
 }
 
-export function getClusterQuotaList(query, callback){
+export function getClusterQuotaList(query, callback) {
   return (dispatch) => {
     return dispatch(fetchClusterQuotaList(query, callback))
   }

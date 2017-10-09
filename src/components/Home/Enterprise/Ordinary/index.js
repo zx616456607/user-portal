@@ -1952,7 +1952,7 @@ class Ordinary extends Component {
                   computeList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={6}>
+                        <Col span={7}>
                           <span>{item}</span>
                         </Col>
                         <Col span={11}>
@@ -1971,10 +1971,10 @@ class Ordinary extends Component {
                   platformList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={7}>
+                        <Col span={8}>
                           <span>{item}</span>
                         </Col>
-                        <Col span={11}>
+                        <Col span={10}>
                           <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
                         </Col>
                         <Col span={6}>
@@ -1990,10 +1990,10 @@ class Ordinary extends Component {
                   serviceList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={9}>
+                        <Col span={12}>
                           <span>{item}</span>
                         </Col>
-                        <Col span={9}>
+                        <Col span={6}>
                           <Progress className="pro" style={{ width: '95%' }} percent={0} showInfo={false} />
                         </Col>
                         <Col span={6}>
