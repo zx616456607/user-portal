@@ -338,10 +338,10 @@ class MySpace extends Component {
                 {
                   deliverList.map((item, index) => (
                     <Row className="info">
-                      <Col span={8}>
+                      <Col span={9}>
                         <span>{item.text}</span>
                       </Col>
-                      <Col span={10}>
+                      <Col span={9}>
                         <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
                       </Col>
                       <Col span={6}>
