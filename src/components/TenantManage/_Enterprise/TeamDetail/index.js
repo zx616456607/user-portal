@@ -9,10 +9,10 @@
  */
 'use strict'
 import React, { Component } from 'react'
-import { Row, Col, Card, Button, Table, Modal, Input, Form, Tooltip } from 'antd'
+import { Row, Col, Card, Button, Table, Modal, Input, Form, Tooltip, Icon } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/TeamDetail.less'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import {
   deleteTeam, addTeamusers, removeTeamusers,
   loadTeamUserList, loadAllClustersList,
@@ -727,11 +727,11 @@ class TeamDetail extends Component {
       <QueueAnim>
         <div key="tenantTeamDetail" id='tenantTeamDetail'>
           <Row className="teamDetailHeader">
-            <Link className="back" to="/tenant_manage/team">
-              <span className="backjia"/>
-              <span className="btn-back">返回</span>
-            </Link>
-            <span className="title">团队详情</span>
+            <div className="goBackBox">
+              <span className="goBackBtn pointer" onClick={() => browserHistory.push('/tenant_manage/team')}>返回</span>
+              <i />
+              团队详情
+            </div>
           </Row>
           <Card
             title="团队基本信息"
@@ -828,7 +828,7 @@ class TeamDetail extends Component {
                       [
                         <Button key="addMemberBtn" type="primary" size="large" className="addMemberBtn"
                               onClick={this.addNewMember}>
-                          <i className='fa fa-plus' /> 编辑团队成员
+                          <Icon type="edit" /> 编辑团队成员
                         </Button>,
                         <Button key="transferTeamLeader" type="ghost" size="large" className="transferTeamLeader"
                               onClick={this.transferTeamLeader.bind(this)}>

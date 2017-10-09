@@ -40,6 +40,7 @@ class CleaningTool extends Component {
       cleanSystemLogStatus: undefined,
       cleanCicdStatus: undefined,
       editMonitoringData: false,
+      monitorBtnLoading: false,
       mirrorImageEdit: true,
       accomplish: true,
       pending: false,
@@ -168,11 +169,15 @@ class CleaningTool extends Component {
 
   saveEditMonitoringData(){
     const { cleanMonitor, form } = this.props
+    const { monitorBtnLoading } = this.state
     const validateArray = ['monitoringDataTime']
     form.validateFields(validateArray, (errors, values) => {
       if(!!errors){
         return
       }
+      this.setState({
+        monitorBtnLoading: true
+      })
       const time = values.monitoringDataTime
       cleanMonitor({
         duration: `${time}h`
@@ -181,13 +186,17 @@ class CleaningTool extends Component {
           func: () => {
             this.setState({
               editMonitoringData: false,
+              monitorBtnLoading: false
             })
           },
           isAsync: true
         },
         failed: {
           func: () => {
-            
+            this.setState({
+              editMonitoringData: false,
+              monitorBtnLoading: false
+            })
           }
         }
       })
@@ -440,6 +449,7 @@ class CleaningTool extends Component {
   render() {
     const {
       editMonitoringData,
+      monitorBtnLoading,
       accomplish, pending,
       forbid, mirrorImageEdit,
     } = this.state
@@ -581,6 +591,7 @@ class CleaningTool extends Component {
                           <Button
                             size="large"
                             type="primary"
+                            loading={monitorBtnLoading}
                             onClick={() => this.saveEditMonitoringData()}
                           >
                             保存
