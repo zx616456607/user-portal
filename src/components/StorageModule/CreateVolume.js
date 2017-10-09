@@ -430,7 +430,7 @@ class CreateVolume extends Component {
             </Col>
           </Row>
           <Row className='type'>
-            <Col span="4" className="name-text-center name" style={{color: 'red'}}>
+            <Col span="4" className="name-text-center name">
               存储类型
             </Col>
             <Col span="19" className='type_value'>
@@ -561,10 +561,10 @@ class CreateVolume extends Component {
             </Col>
           </Row>
           <Form.Item
-            label={<span style={{color: 'red'}}>回收策略
+            label={<span>回收策略
               <Tooltip title={<div>
-                <div>保留：服务删除时删除存储</div>
-                <div>删除：删除服务时删除存储</div>
+                <div>保留：服务删除时，保留存储</div>
+                <div>删除：删除服务时，删除存储</div>
               </div>}>
                 <Icon type="question-circle-o" className='question_icon'/>
               </Tooltip>

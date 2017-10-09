@@ -16,11 +16,15 @@ import { formatDate, cpuFormat, memoryFormat } from '../../../common/tools'
 import { ENTERPRISE_MODE } from '../../../../configs/constants'
 import { mode } from '../../../../configs/model'
 import { appEnvCheck } from '../../../common/naming_validation'
-import { editServiceEnv } from '../../../actions/services'
+import { editServiceEnv, loadAutoScale, editServiceVolume } from '../../../actions/services'
 import NotificationHandler from '../../../components/Notification'
+import PersistentVolumeClaim from '../../../../kubernetes/objects/persistentVolumeClaim'
+import { createStorage } from '../../../actions/storage'
 import { Link } from 'react-router'
 import ContainerCatalogueModal from '../ContainerCatalogueModal'
 import cloneDeep from 'lodash/cloneDeep'
+import isEmpty from 'lodash/isEmpty'
+import yaml from 'js-yaml'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
@@ -533,18 +537,39 @@ class BindNodes extends Component {
   }
 }
 
-export default class AppServiceDetailInfo extends Component {
+class AppServiceDetailInfo extends Component {
   constructor(props) {
     super(props)
-    this.getFieldInfo = this.getFieldInfo.bind(this)
+    this.callbackFields = this.callbackFields.bind(this)
+    this.getAutoScaleStatus = this.getAutoScaleStatus.bind(this)
     this.state={
       volumeList: [],
       isEdit: false,
       currentItem: {},
       currentIndex: undefined,
       containerCatalogueVisible: false,
-      nouseEditing: true
+      nouseEditing: true,
+      loading: false,
+      isAutoScale: false,
+      replicas: 1,
     }
+  }
+
+  getAutoScaleStatus(cluster, serviceName){
+    const { loadAutoScale } = this.props
+    loadAutoScale(cluster, serviceName, {
+      success: {
+        func: res => {
+          if (!isEmpty(res.data)) {
+            const { metadata } = res.data
+            const { status } = metadata.annotations
+            this.setState({
+              isAutoScale: status == 'RUN',
+            })
+          }
+        }
+      }
+    })
   }
 
   getServiceDetail(cluster, serviceName){
@@ -553,6 +578,14 @@ export default class AppServiceDetailInfo extends Component {
       success: {
         func: (res) => {
           let volumeList = []
+          let volumeMounts = []
+          let newService = false
+          const volume = res.data.volume
+          if(res.data && res.data.spec){
+            this.setState({
+              replicas: res.data.spec.replicas
+            })
+          }
           if(res.data
             && res.data.spec
             && res.data.spec.template
@@ -561,10 +594,85 @@ export default class AppServiceDetailInfo extends Component {
             && res.data.spec.template.spec.containers[0]
             && res.data.spec.template.spec.containers[0].volumeMounts
           ){
-            volumeList = res.data.spec.template.spec.containers[0].volumeMounts
+            volumeMounts = res.data.spec.template.spec.containers[0].volumeMounts
+            volumeList = res.data.spec.template.spec.volumes
           }
+          // 为兼容旧服务，需要在 spec 不同的位置取当前服务的 container 列表
+          // 新服务
+          if(volumeList.length && volumeList[0].persistentVolumeClaim){
+            newService = true
+          }
+          const list = []
+          volumeList.forEach((item, index) => {
+            let mountPath = ''
+            let readOnly = false
+            let size = 512
+            let fsType = 'ext4'
+            // 当前存储卷的挂载路径、读写情况
+            for(let i = 0; i < volumeMounts.length; i++){
+              if(item.name == volumeMounts[i].name){
+                mountPath = volumeMounts[i].mountPath
+                readOnly = volumeMounts[i].readOnly || false
+              }
+            }
+            if(newService){
+              const { strategy, claimName } = item.persistentVolumeClaim
+              let type = ''
+              for(let i = 0; i < volume.length; i++){
+                if(volume[i].volumeName == claimName){
+                  type = volume[i].srType
+                  size = volume[i].size
+                  fsType = volume[i].fsType
+                }
+              }
+              let type_1 = ''
+              if(type == 'private'){
+                type_1 = 'rbd'
+              } else {
+                type_1 = 'nfs'
+              }
+              const container = {
+                mountPath,
+                readOnly,
+                strategy,
+                type,
+                type_1,
+                //volume: `${claimName} ${fsType} ${size}`,
+                volume: `${claimName} ${fsType}`,
+                oldVolume: true,
+                isOld: false,
+                volumesName: item.name,
+                size,
+                fsType,
+                claimName,
+                storageType: type,
+                hostPath: mountPath,
+              }
+              list.push(container)
+            } else {
+              const { strategy, image, fsType } = item.rbd
+              const imageArray = image.split('.')
+              const volume = imageArray[imageArray.length - 1]
+              // @todo 缺少旧服务存储卷的大小
+              const container = {
+                mountPath,
+                readOnly,
+                strategy,
+                type: 'private',
+                type_1: 'rbd',
+                volume,
+                oldVolume: true,
+                isOld: true,
+                volumesName: item.name,
+                storageType: 'private',
+                hostPath: mountPath,
+                fsType,
+              }
+              list.push(container)
+            }
+          })
           this.setState({
-            volumeList
+            volumeList: list
           })
         }
       },
@@ -581,11 +689,17 @@ export default class AppServiceDetailInfo extends Component {
   componentWillMount() {
     const { cluster, serviceName } = this.props
     this.getServiceDetail(cluster, serviceName)
+    this.getAutoScaleStatus(cluster, serviceName)
   }
 
   componentWillReceiveProps(nextProps) {
     if(this.props.activeTabKey !== '#basic' && nextProps.activeTabKey == '#basic'){
       this.getServiceDetail(nextProps.cluster, nextProps.serviceName)
+      this.getAutoScaleStatus(nextProps.cluster, nextProps.serviceName)
+      this.setState({
+        nouseEditing: true,
+        loading: false,
+      })
     }
   }
 
@@ -621,10 +735,24 @@ export default class AppServiceDetailInfo extends Component {
     this.setState({
       volumeList: list,
       deleteVisible: false,
+      nouseEditing: false,
     })
   }
 
-  getMount(container) {
+  formatVolumeType(type){
+    switch(type){
+      case 'private':
+        return <span>独享型(RBD)</span>
+      case 'share':
+        return <span>共享型(nfs)</span>
+      case 'host':
+        return <span>host</span>
+      default:
+        return <span>未知</span>
+    }
+  }
+
+  getMount() {
     const { volumeList } = this.state
     let ele = []
     if(!Object.keys(volumeList).length){
@@ -632,8 +760,8 @@ export default class AppServiceDetailInfo extends Component {
     }
     ele = volumeList.map((item, index) => {
       return <Row key={`volume${index}`} className='volume_row_style'>
-        <Col span="6" className='text_overfow'>{item.type}</Col>
-        <Col span="6" className='text_overfow'>{item.volume}</Col>
+        <Col span="6" className='text_overfow'>{ this.formatVolumeType(item.type) }</Col>
+        <Col span="6" className='text_overfow'>{ item.volume == 'create' ? item.name : item.volume.split(' ')[0] }</Col>
         <Col span="5" className='text_overfow'>{item.mountPath}</Col>
         <Col span="7">
           <Checkbox checked={item.readOnly} disabled>只读</Checkbox>
@@ -700,26 +828,130 @@ export default class AppServiceDetailInfo extends Component {
   }
 
   saveVolumnsChange(){
-    const { loadServiceDetail, cluster, serviceName } = this.props
-    this.getServiceDetail(cluster, serviceName)
+    const { cluster, serviceName, createStorage, editServiceVolume } = this.props
+    const { volumeList } = this.state
+    const promiseArray = []
+    const notification = new NotificationHandler()
+    this.setState({
+      loading: true,
+    })
+    volumeList.forEach((item, index) => {
+      if(item.volume == 'create' && item.type){
+        let body = {}
+        if(item.type == 'private'){
+          const { name, fsType, strategy, storageClassName, size} = item
+          body = {
+            name,
+            fsType,
+            storageType: 'ceph',
+            reclaimPolicy: strategy ? 'delete' : 'retain',
+            storageClassName,
+            storage: `${size}Mi`,
+            accessModes: '',
+          }
+        }
+        if(item.type == 'share'){
+          const { name, storageClassName } = item
+          body = {
+            name,
+            storageType: 'nfs',
+            storageClassName,
+          }
+        }
+        const persistentVolumeClaim = new PersistentVolumeClaim(body)
+        const obj = {
+          cluster,
+          template: yaml.dump(persistentVolumeClaim),
+        }
+        promiseArray.push(new Promise(( resolve ) => {
+          createStorage(obj, {
+            success: {
+              func: () => {
+                return resolve({
+                  result: 'success'
+                })
+              }
+            },
+            failed: {
+              func: res => {
+                return resolve({
+                  result: 'failed',
+                  message: res.message
+                })
+              }
+            }
+          })
+        }))
+      }
+    })
+    Promise.all(promiseArray).then(res => {
+      let createVolume = 'success'
+      for(let i = 0; i < res.length; i++){
+        if(res[i].result == 'failed'){
+          this.setState({
+            loading: false,
+            //nouseEditing: false,
+          })
+          notification.error(res[i].message)
+          createVolume = 'failed'
+        }
+      }
+      if(createVolume == 'failed'){
+        return notification.error('修改服务存储卷失败，请重试')
+      }
+      return editServiceVolume(cluster, serviceName, volumeList, {
+        success: {
+          func: () => {
+            this.setState({
+              nouseEditing: true,
+              loading: false,
+            })
+            this.getServiceDetail(cluster, serviceName)
+            notification.success('修改服务存储卷成功')
+          },
+          isAsync: true
+        },
+        failed: {
+          func: res => {
+            this.setState({
+              loading: false,
+            })
+            let message = '修改服务存储卷失败，请重试'
+            if(res.message){
+              message = res.message
+            }
+            notification.error(message)
+          }
+        }
+      })
+    })
   }
 
-  getFieldInfo(info){
+  callbackFields(info){
     const { volumeList, isEdit, currentIndex } = this.state
     const list = cloneDeep(volumeList)
     const type = info.type
     if(type == 'cancel'){
-      console.log('cacel')
       this.setState({
         containerCatalogueVisible: false,
       })
       return
     }
     if(type === 'confirm'){
+      const values = info.values
+      const { volume, type } = info.values
+      values.hostPath = values.mountPath
+      values.storageType = values.type
+      values.claimName = volume.split(' ')[0]
+      if(volume == 'create' && type){
+        values.claimName = values.name
+      }
       if(isEdit){
-        Object.Assign(list[currentIndex], info.values)
+        Object.assign(list[currentIndex], values)
       } else {
-        list.push(info.values)
+        values.volumesName = `volume-${list.length}`
+        values.isOld = false
+        list.push(values)
       }
       this.setState({
         containerCatalogueVisible: false,
@@ -730,17 +962,18 @@ export default class AppServiceDetailInfo extends Component {
   }
 
   addContainerCatalogue(){
+    const { volumeList } = this.state
     this.setState({
       isEdit: false,
       currentItem: {},
-      currentIndex: undefined,
+      currentIndex: volumeList.length,
       containerCatalogueVisible: true,
     })
   }
 
   render() {
-    const { isFetching, serviceDetail, cluster, containerList, volumes } = this.props
-    const { isEdit, currentItem, currentIndex, containerCatalogueVisible, nouseEditing } = this.state
+    const { isFetching, serviceDetail, cluster, volumes } = this.props
+    const { isEdit, currentItem, currentIndex, containerCatalogueVisible, nouseEditing, volumeList, isAutoScale, replicas, loading } = this.state
     if (isFetching || !serviceDetail.metadata) {
       return ( <div className="loadingBox">
           <Spin size="large" />
@@ -753,7 +986,6 @@ export default class AppServiceDetailInfo extends Component {
     } else {
       cpuFormatResult = '-'
     }
-
     return (
       <Card id="AppServiceDetailInfo">
         <div className="info commonBox">
@@ -825,6 +1057,7 @@ export default class AppServiceDetailInfo extends Component {
               onClick={() => this.saveVolumnsChange()}
               className='title_button'
               disabled={nouseEditing}
+              loading={loading}
             >
               应用修改
             </Button>
@@ -840,7 +1073,7 @@ export default class AppServiceDetailInfo extends Component {
             </Row>
           </div>
           <div className="dataBox">
-            {this.getMount(serviceDetail)}
+            {this.getMount()}
           </div>
           <div className='add_volume_button'>
             <span
@@ -880,13 +1113,13 @@ export default class AppServiceDetailInfo extends Component {
           wrapClassName="container_catalogue_modal_style"
         >
           <ContainerCatalogueModal
-            isEdit={ isEdit }
-            item={ currentItem }
-            getFieldInfo={ this.getFieldInfo }
+            visible={containerCatalogueVisible}
+            callbackFields={ this.callbackFields }
+            fieldsList={volumeList}
+            replicas={replicas}
+            isAutoScale={isAutoScale}
+            from={'editService'}
             currentIndex={ currentIndex }
-            visible={ containerCatalogueVisible }
-            containerList={ containerList }
-            volumes={ volumes }
           />
         </Modal>
         <Modal
@@ -912,3 +1145,16 @@ export default class AppServiceDetailInfo extends Component {
 AppServiceDetailInfo.propTypes = {
   //
 }
+
+function mapStateToPropsInfo(state, props){
+
+  return {
+
+  }
+}
+
+export default connect(mapStateToPropsInfo, {
+  loadAutoScale,
+  createStorage,
+  editServiceVolume,
+})(AppServiceDetailInfo)
