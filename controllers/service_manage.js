@@ -239,7 +239,7 @@ exports.getServiceAutoScaleList = function* () {
   const serviceName = this.params.service_name
   const loginUser = this.session.loginUser
   const query = this.query
-  const filter = query.filter || ""
+  const filter = query.serviceName || ""
   let page = parseInt(query.page || DEFAULT_PAGE)
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
   if (isNaN(page) || page < 1) {
@@ -255,7 +255,7 @@ exports.getServiceAutoScaleList = function* () {
   var autoScaleList = {}
   let index = 0
   for (let key in tempList){ 
-    if ((filter === "" || key.match(filter) != null || tempList[key].spec.scaleTargetRef.name == filter) && index >= from && index < from + size){
+    if ((filter === "" || key.match(filter) != null || tempList[key].metadata.labels.strategyName.match(filter) != null) && index >= from && index < from + size){
       autoScaleList[key] = tempList[key]
     }
     index++
