@@ -125,6 +125,7 @@ exports.getServiceDetail = function* () {
   const result = yield api.getBy([cluster, 'services', serviceName])
   const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
   const deployment = (result.data[serviceName] && result.data[serviceName].deployment) || {}
+  const volume = (result.data[serviceName] && result.data[serviceName].volume) || {}
   deployment.images = []
   if (deployment.spec) {
     deployment.spec.template.spec.containers.map((container) => {
@@ -134,11 +135,22 @@ exports.getServiceDetail = function* () {
   if (result.data[serviceName] && result.data[serviceName].service) {
     portHelper.addPort(deployment, result.data[serviceName].service, lbgroupSettings.data)
   }
+  deployment.volume = volume
   this.body = {
     cluster,
     serviceName,
     data: deployment
   }
+}
+
+exports.putEditServiceVolume = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const body = this.request .body
+  const result = yield api.updateBy([cluster, 'services', serviceName, 'volume'], null, body)
+  this.body = result
 }
 
 exports.getServiceContainers = function* () {

@@ -15,7 +15,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Input, Select, InputNumber, Button, Form, Icon ,message, Radio } from 'antd'
 import { CreateDbCluster ,loadDbCacheList} from '../../actions/database_cache'
 import { setCurrent } from '../../actions/entities'
-import { GetProjectsAllClusters, ListProjects } from '../../actions/project'
+import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
 import NotificationHandler from '../../components/Notification'
 import { MY_SPACE } from '../../constants'
 import { parseAmount } from '../../common/tools.js'
@@ -51,9 +51,9 @@ let CreateDatabase = React.createClass({
   },
   onChangeCluster(clusterID) {
     this.setState({onselectCluster: false})
-    const { projectClusterList, form, space, setCurrent } = this.props
+    const { projectVisibleClusters, form, space, setCurrent } = this.props
     const currentNamespace = form.getFieldValue('namespaceSelect') || space.namespace
-    const projectClusters = projectClusterList[currentNamespace] && projectClusterList[currentNamespace].data || []
+    const projectClusters = projectVisibleClusters[currentNamespace] && projectVisibleClusters[currentNamespace].data || []
     projectClusters.every(cluster => {
       if (cluster.clusterID == clusterID) {
         setCurrent({
@@ -74,7 +74,7 @@ let CreateDatabase = React.createClass({
   onChangeNamespace(namespace) {
     //this function for user change the namespace
     //when the namespace is changed, the function would be get all clusters of new namespace
-    const { projects, GetProjectsAllClusters, setCurrent, form, current } = this.props
+    const { projects, getProjectVisibleClusters, setCurrent, form, current } = this.props
     projects.every(space => {
       if (space.namespace == namespace) {
         setCurrent({
@@ -83,7 +83,7 @@ let CreateDatabase = React.createClass({
             teamID: space.teamID
           }
         })
-        GetProjectsAllClusters({ projectsName: namespace }, {
+        getProjectVisibleClusters(namespace, {
           success: {
             func: (result) => {
               const { clusters } = result.data
@@ -173,7 +173,7 @@ let CreateDatabase = React.createClass({
     e.preventDefault();
     const _this = this;
     const { scope, CreateDbCluster, setCurrent, space } = this.props;
-    const { projects, projectClusterList, form } = this.props;
+    const { projects, projectVisibleClusters, form } = this.props;
     const { loadDbCacheList } = scope.props;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
@@ -202,7 +202,7 @@ let CreateDatabase = React.createClass({
         }
       })
       const currentNamespace = form.getFieldValue('namespaceSelect') || space.namespace
-      const projectClusters = projectClusterList[currentNamespace] && projectClusterList[currentNamespace].data || []
+      const projectClusters = projectVisibleClusters[currentNamespace] && projectVisibleClusters[currentNamespace].data || []
       projectClusters.map(list => {
         if (list.clusterID === values.clusterSelect) {
           return newCluster = list
@@ -299,7 +299,7 @@ let CreateDatabase = React.createClass({
     })
   },
   render() {
-    const { isFetching, projects, projectClusterList, space } = this.props
+    const { isFetching, projects, projectVisibleClusters, space } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue} = this.props.form;
     const selectNamespaceProps = getFieldProps('namespaceSelect', {
       rules: [
@@ -316,7 +316,7 @@ let CreateDatabase = React.createClass({
       onChange: this.onChangeCluster
     });
     const currentNamespace = getFieldValue('namespaceSelect') || space.namespace
-    const projectClusters = projectClusterList[currentNamespace] && projectClusterList[currentNamespace].data || []
+    const projectClusters = projectVisibleClusters[currentNamespace] && projectVisibleClusters[currentNamespace].data || []
     const nameProps = getFieldProps('name', {
       rules: [
         { required: true, whitespace: true ,message:'请输入名称'},
@@ -556,7 +556,7 @@ function mapStateToProps(state, props) {
   const { databaseAllNames } = state.databaseCache
   const { databaseNames, isFetching } = databaseAllNames.DbClusters || defaultDbNames
   const { current } = state.entities
-  const { projectList, projectClusterList } = state.projectAuthority
+  const { projectList, projectVisibleClusters } = state.projectAuthority
   let projects = projectList.data || []
   projects = ([ MY_SPACE ]).concat(projects)
   return {
@@ -567,7 +567,7 @@ function mapStateToProps(state, props) {
     databaseNames,
     isFetching,
     projects,
-    projectClusterList,
+    projectVisibleClusters,
     resourcePrice: cluster.resourcePrice //storage
   }
 
@@ -588,6 +588,6 @@ CreateDatabase = injectIntl(CreateDatabase, {
 export default connect(mapStateToProps, {
   CreateDbCluster,
   setCurrent,
-  GetProjectsAllClusters,
+  getProjectVisibleClusters,
   ListProjects,
 })(CreateDatabase)

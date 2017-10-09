@@ -348,6 +348,33 @@ export function GetProjectsAllClusters(body,callback) {
   }
 }
 
+export const PROJECT_VISIBLE_CLUSTERS_GET_REQUEST = 'PROJECT_VISIBLE_CLUSTERS_GET_REQUEST'
+export const PROJECT_VISIBLE_CLUSTERS_GET_SUCCESS = 'PROJECT_VISIBLE_CLUSTERS_GET_SUCCESS'
+export const PROJECT_VISIBLE_CLUSTERS_GET_FAILURE = 'PROJECT_VISIBLE_CLUSTERS_GET_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchGetProjectVisibleClusters(projectName, callback) {
+  let endpoint = `${API_URL_PREFIX}/projects/${projectName}/visible-clusters`
+  return {
+    projectName,
+    [FETCH_API]: {
+      types: [PROJECT_VISIBLE_CLUSTERS_GET_REQUEST, PROJECT_VISIBLE_CLUSTERS_GET_SUCCESS, PROJECT_VISIBLE_CLUSTERS_GET_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'GET'
+      },
+    },
+    callback
+  }
+}
+// Relies on Redux Thunk middleware.
+export function getProjectVisibleClusters(projectName, callback) {
+  return (dispatch) => {
+    return dispatch(fetchGetProjectVisibleClusters(projectName, callback))
+  }
+}
+
 export const PROJECTS_CLUSTER_UPDATE_REQUEST = 'PROJECTS_CLUSTER_UPDATE_REQUEST'
 export const PROJECTS_CLUSTER_UPDATE_SUCCESS = 'PROJECTS_CLUSTER_UPDATE_SUCCESS'
 export const PROJECTS_CLUSTER_UPDATE_FAILURE = 'PROJECTS_CLUSTER_UPDATE_FAILURE'

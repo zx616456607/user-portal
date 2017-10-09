@@ -254,6 +254,11 @@ class TenxFlowDetail extends Component {
       }
     }
     this.setState(newState)
+    let self = this
+    // Refresh flow status after 2 seconds
+    setTimeout(function() {
+      self.refreshStageList()
+    }, 2000)
   }
   handleChange(e) {
     const {flowInfo, getTenxFlowYAML, deploymentLog, getTenxflowBuildLogs} = this.props

@@ -519,10 +519,12 @@ let ProjectManage = React.createClass({
   },
 
   handleChange(targetKeys) {
-    const { systemRoleID } = this.state
-    const result = systemRoleID.every(item => targetKeys.includes(item))
+    const { systemRoleID, originalKeys } = this.state
+    let diff = xor(originalKeys,targetKeys)
+    let del = intersection(originalKeys,diff)
+    const result = systemRoleID.some(item => del.includes(item))
     let notify = new Notification()
-    if (!result) {
+    if (result) {
       return notify.info('禁止移除系统管理员')
     }
     this.setState({targetKeys});
@@ -893,8 +895,10 @@ let ProjectManage = React.createClass({
             }
             {
               roleNum === 1 &&
-              <Button type="ghost" size="large" className="manageBtn" onClick={() => this.openRightModal()}><i
-                className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建项目</Button>
+              <Button type="ghost" size="large" className="manageBtn" onClick={() => this.openRightModal()}>
+                <svg className="chosenCreator">
+                  <use xlinkHref='#chosencreator' />
+                </svg> 哪些人可以创建项目</Button>
             }
             {
               roleNum === 1 &&

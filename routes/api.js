@@ -89,7 +89,7 @@ module.exports = function (Router) {
   router.get('/projects/:name/check-exists',projectController.checkProjectNameExists)
   router.get('/projects/check-manager',projectController.checkProjectManager)
   router.get('/projects/:name/clusters',projectController.getProjectAllClusters)
-  router.get('/projects/:name/visible-clusters',projectController.getProjectAllClusters)
+  router.get('/projects/:name/visible-clusters',projectController.getProjectVsibleClusters)
   router.get('/projects/approval-clusters',projectController.getProjectApprovalClusters)
   router.put('/projects/:name/clusters',projectController.updateProjectClusters)
   router.put('/projects/clusters',projectController.updateProjectApprovalClusters)
@@ -162,6 +162,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/services/batch-delete', serviceController.deleteServices)
   router.get('/clusters/:cluster/services/batch-status', serviceController.getServicesStatus)
   router.get('/clusters/:cluster/services/:service_name/detail', serviceController.getServiceDetail)
+  router.put('/clusters/:cluster/services/:service_name/volume', serviceController.putEditServiceVolume)
   router.get('/clusters/:cluster/services/:service_name/containers', serviceController.getServiceContainers)
   router.put('/clusters/:cluster/services/:service_name/env', serviceController.updateServiceContainers)
   router.put('/clusters/:cluster/services/:service_name/manualscale', serviceController.manualScaleService)
@@ -631,7 +632,7 @@ module.exports = function (Router) {
   router.get('/resourcequota', quotaController.get)
   router.put('/resourcequota', quotaController.update)
   router.get('/resourcequota/inuse', quotaController.list)
-  
+
   //clean
   router.put('/cleaner/:target/:type', cleanController.startCleaner)
   router.get('/cleaner/settings', cleanController.getCleanerSettings)
@@ -639,6 +640,6 @@ module.exports = function (Router) {
   router.post('/cleaner/logs', cleanController.startCleanSystemLogs)
   router.put('/cleaner/monitor', cleanController.startCleanMonitor)
   router.post('/cleaner/records', cleanController.getSystemCleanerLogs)
-  
+
   return router.routes()
 }

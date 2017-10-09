@@ -632,10 +632,12 @@ class TeamManage extends Component {
     return option.title.indexOf(inputValue) > -1;
   }
   handleChange(targetKeys) {
-    const { systemRoleID } = this.state
-    const result = systemRoleID.every(item => targetKeys.includes(item))
+    const { systemRoleID, originalKeys } = this.state
+    let diff = xor(originalKeys,targetKeys)
+    let del = intersection(originalKeys,diff)
+    const result = systemRoleID.some(item => del.includes(item))
     let notify = new NotificationHandler()
-    if (!result) {
+    if (result) {
       return notify.info('禁止移除系统管理员')
     }
     this.setState({ targetKeys });
@@ -719,7 +721,11 @@ class TeamManage extends Component {
             }
             {
               roleNum === 1 &&
-                <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建团队</Button>
+                <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}>
+                  <svg id="chosenCreator">
+                    <use xlinkHref='#chosencreator' />
+                  </svg> 哪些人可以创建团队
+                </Button>
             }
             <Button type="host" size="large" className="refreshBtn" onClick={this.refreshTeamTable.bind(this)}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
             <CreateTeamModal
