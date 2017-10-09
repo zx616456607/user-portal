@@ -102,6 +102,25 @@ function fetchServiceDetail(cluster, serviceName, callback) {
   }
 }
 
+export const PUT_EDIT_SERVICE_VOLUME_REQUEST = 'PUT_EDIT_SERVICE_VOLUME_REQUEST'
+export const PUT_EDIT_SERVICE_VOLUME_SUCCESS = 'PUT_EDIT_SERVICE_VOLUME_SUCCESS'
+export const PUT_EDIT_SERVICE_VOLUME_FAILURE = 'PUT_EDIT_SERVICE_VOLUME_FAILURE'
+
+export function editServiceVolume(cluster, serviveName, body, callback){
+  return {
+    [FETCH_API]: {
+      types: [PUT_EDIT_SERVICE_VOLUME_REQUEST, PUT_EDIT_SERVICE_VOLUME_SUCCESS, PUT_EDIT_SERVICE_VOLUME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviveName}/volume`,
+      options: {
+        method: 'PUT',
+        body,
+      },
+      schema: {}//Schemas.STORAGE
+    },
+    callback,
+  }
+}
+
 // Fetches services list from API unless it is cached.
 // Relies on Redux Thunk middleware.
 export function loadServiceDetail(cluster, serviceName, callback, requiredFields = []) {

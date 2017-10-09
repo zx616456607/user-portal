@@ -432,10 +432,13 @@ const MyComponent = React.createClass({
       const images = item.spec.template.spec.containers.map(container => {
         return container.image
       })
-      const appName = item.metadata.labels[LABEL_APPNAME]
+      let appName = ""
+      if(item.metadata){
+        appName = item.metadata.labels[LABEL_APPNAME]
+      }
       let httpIcon = 'http'
       for (let k8sService of this.props.k8sServiceList) {
-        if (item.metadata.name === k8sService.metadata.name) {
+        if (k8sService && k8sService.metadata && item.metadata.name === k8sService.metadata.name) {
           if (k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
             httpIcon = 'https'
           }

@@ -162,6 +162,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/services/batch-delete', serviceController.deleteServices)
   router.get('/clusters/:cluster/services/batch-status', serviceController.getServicesStatus)
   router.get('/clusters/:cluster/services/:service_name/detail', serviceController.getServiceDetail)
+  router.put('/clusters/:cluster/services/:service_name/volume', serviceController.putEditServiceVolume)
   router.get('/clusters/:cluster/services/:service_name/containers', serviceController.getServiceContainers)
   router.put('/clusters/:cluster/services/:service_name/env', serviceController.updateServiceContainers)
   router.put('/clusters/:cluster/services/:service_name/manualscale', serviceController.manualScaleService)

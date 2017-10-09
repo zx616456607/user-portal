@@ -154,6 +154,7 @@ class ShareMemory extends Component {
         name,
         storageType,
         storageClassName,
+        reclaimPolicy: 'retain',
       })
       const body = {
         cluster: clusterID,
@@ -251,7 +252,7 @@ class ShareMemory extends Component {
       {
         key: 'format',
         title: '类型',
-        dataIndex: 'format',
+        dataIndex: 'diskType',
         width: '15%',
       },
       {
@@ -277,6 +278,9 @@ class ShareMemory extends Component {
       }
     ]
     const rowSelection = {
+      getCheckboxProps: record => ({
+        disabled: record.status == 'used',    // 配置无法勾选的列
+      }),
       selectedRowKeys,
       onChange: this.onSelectChange,
     }
@@ -347,7 +351,7 @@ class ShareMemory extends Component {
             </div>
           </div>
           <Modal
-            title="删除操作"
+            title="删除存储卷操作"
             visible={deleteModalVisible}
             closable={true}
             onOk={() => this.confirmDeleteItem()}
@@ -359,7 +363,7 @@ class ShareMemory extends Component {
           >
             <div className='warning_tips'>
               <Icon type="question-circle-o" className='question_icon'/>
-              确定要删除存储 {selectedRowKeys.join(', ')} 吗？
+              确定要删除这 {selectedRowKeys.length} 个存储吗？
             </div>
           </Modal>
           <Modal
@@ -419,7 +423,14 @@ class ShareMemory extends Component {
                   {...getFieldProps('name', {
                     rules:[{
                       validator:(rule, value, callback) => {
-                        const msg = serviceNameCheck(value, '存储名称')
+                        let existNameFlag = false
+                        for(let i = 0; i < storageList.length; i++){
+                        	if(storageList[i].name == value){
+                            existNameFlag = true
+                            break
+                          }
+                        }
+                        const msg = serviceNameCheck(value, '存储名称', existNameFlag)
                         if (msg !== 'success') {
                           return callback(msg)
                         }

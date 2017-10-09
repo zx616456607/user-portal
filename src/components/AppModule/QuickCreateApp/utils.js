@@ -127,6 +127,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
               : 'nfs',
             storageClassName,
             fsType,
+            storage: `${size}Mi`,
           })
           storage.push(persistentVolumeClaim)
         } else {

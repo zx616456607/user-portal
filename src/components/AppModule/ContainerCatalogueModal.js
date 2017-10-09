@@ -55,6 +55,11 @@ let ContainerCatalogueModal = React.createClass({
     }
     const { type, mountPath, readOnly } = item
     form.setFieldsValue(item)
+    if(item.volume == 'create'){
+      setTimeout(() => {
+        form.setFieldsValue({name: item.name})
+      }, 100)
+    }
   },
 
   componentWillMount() {
@@ -63,9 +68,15 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   componentWillReceiveProps(nextProps) {
-    const { visible } = this.props
+    const { visible, clusterID, loadFreeVolume } = this.props
     if (!visible && nextProps.visible) {
       this.restFormValues(nextProps.fieldsList[nextProps.currentIndex])
+      if(nextProps.fieldsList.length !== nextProps.currentIndex){
+        const srtype = nextProps.fieldsList[nextProps.currentIndex].type
+        if(srtype !== 'host'){
+          loadFreeVolume(clusterID, { srtype })
+        }
+      }
     }
   },
 
@@ -101,17 +112,119 @@ let ContainerCatalogueModal = React.createClass({
     } */
   },
 
-  renderDifferentType(type, volume) {
-    switch (type) {
-      case 'host':
-        return this.renderHostType()
-      case 'private':
-        return this.renderExclusiveType(volume)
-      case 'share':
-        return this.renderShareType(volume)
-      default:
-        return null
+  checkVolumeName(rule, value, callback) {
+    if (!value) {
+      return callback('存储名称不能为空')
     }
+    if(!value){
+      return callback('请输入存储名称')
+    }
+    if(value.length > 32){
+      return callback('存储名称不能超过32个字符')
+    }
+    if(!/^[A-Za-z]{1}/.test(value)){
+      return callback('存储名称必须以字母开头')
+    }
+    if(!/^[A-Za-z]{1}[A-Za-z0-9_-]*$/.test(value)){
+      return callback('存储名称由字母、数字、中划线-、下划线_组成')
+    }
+    if(value.length < 3){
+      return callback('存储名称不能少于3个字符')
+    }
+    if(!/^[A-Za-z]{1}[A-Za-z0-9_\-]{1,61}[A-Za-z0-9]$/.test(value)){
+      return callback('存储名称必须由字母或数字结尾')
+    }
+    const { avaliableVolume, fieldsList, form } = this.props
+    const type = form.getFieldValue('type')
+    const volumeNameArray = []
+    avaliableVolume.volumes.forEach((item, index) => {
+      volumeNameArray.push(item.name)
+    })
+    fieldsList.forEach((item, index) => {
+      if (item.type == type) {
+        if (item.volume !== 'create') {
+          volumeNameArray.push(item.volume.split(' ')[0])
+        } else {
+          volumeNameArray.push(item.name)
+        }
+      }
+    })
+    for(let i = 0; i < volumeNameArray.length; i++){
+      if(value == volumeNameArray[i]){
+        return callback('存储名称已存在！')
+      }
+    }
+    return callback()
+  },
+
+  renderDifferentType(type, volume) {
+    if(type == 'host' ) {
+      return this.renderHostType()
+    }
+    if(type !== 'host' && volume == 'create'){
+      const { form } = this.props
+      const { getFieldProps } = form
+      let width = '361px'
+      if(type == 'private'){
+        width = '160px'
+      }
+      return (
+        <FormItem
+          label="存储卷设置"
+          labelCol={{ span: 4 }}
+          wrapperCol={{ span: 20 }}
+          className='volume_setting'
+        >
+          <FormItem className='name' style={{width}}>
+            <Input
+              placeholder="请输入存储名称"
+              {...getFieldProps('name', {
+                rules: [{
+                  validator: this.checkVolumeName
+                }]
+              }) }
+            />
+          </FormItem>
+          {
+            type == 'private'
+              ? <div>
+                <FormItem className='size'>
+                  <InputNumber
+                    min={512}
+                    max={20480}
+                    {...getFieldProps('size', {
+                      initialValue: 512,
+                      rules: [{
+                        validator: (rule, value, callback) => {
+                          if (!value) {
+                            return callback('不能为空')
+                          }
+                          return callback()
+                        }
+                      }]
+                    }) }
+                  />
+                </FormItem>
+                <FormItem className='type'>
+                  <Select
+                    {...getFieldProps('fsType', {
+                      initialValue: 'ext4',
+                      rules: [{
+                        required: true,
+                      }],
+                    }) }
+                  >
+                    <Option value="ext4" key="ext4">ext4</Option>
+                    <Option value="xfs" key="xfs">xfs</Option>
+                  </Select>
+                </FormItem>
+              </div>
+              : null
+          }
+        </FormItem>
+      )
+    }
+    return null
   },
 
   renderHostType() {
@@ -128,104 +241,6 @@ let ContainerCatalogueModal = React.createClass({
         </Col>
       </Row>
     </div>
-  },
-
-  renderExclusiveType(volume) {
-    if (volume === 'create') {
-      const { form } = this.props
-      const { getFieldProps } = form
-      return (
-        <FormItem
-          label="存储卷设置"
-          labelCol={{ span: 4 }}
-          wrapperCol={{ span: 20 }}
-          className='volume_setting'
-        >
-          <FormItem className='name'>
-            <Input
-              placeholder="请输入存储名称"
-              {...getFieldProps('name', {
-                rules: [{
-                  validator: (rule, value, callback) => {
-                    if (!value) {
-                      return callback('存储名称不能为空')
-                    }
-                    return callback()
-                  }
-                }]
-              }) }
-            />
-          </FormItem>
-          <FormItem className='size'>
-            <InputNumber
-              min={512}
-              max={20480}
-              {...getFieldProps('size', {
-                initialValue: 512,
-                rules: [{
-                  validator: (rule, value, callback) => {
-                    if (!value) {
-                      return callback('不能为空')
-                    }
-                    return callback()
-                  }
-                }]
-              }) }
-            />
-          </FormItem>
-          <FormItem className='type'>
-            <Select
-              {...getFieldProps('fsType', {
-                initialValue: 'ext4',
-                rules: [{
-                  required: true,
-                }],
-              }) }
-            >
-              <Option value="ext4" key="ext4">ext4</Option>
-              <Option value="xfs" key="xfs">xfs</Option>
-            </Select>
-          </FormItem>
-        </FormItem>
-      )
-    }
-    return null
-  },
-
-  renderShareType(volume) {
-    if (volume === 'create') {
-      const { form } = this.props
-      const { getFieldProps } = form
-      const formItemLayout = {
-        labelCol: { span: 4 },
-        wrapperCol: { span: 17 }
-      }
-      const fsTypeProps = getFieldProps('fsType', {
-        initialValue: 'ext4',
-      })
-      const sizeProps = getFieldProps('size', {
-        initialValue: 512,
-      })
-      return <FormItem
-        label="存储设置"
-        {...formItemLayout}
-      >
-        <Input
-          placeholder="请输入存储名称"
-          {...getFieldProps('name', {
-            rules: [{
-              validator: (rule, value, callback) => {
-                if (!value) {
-                  return callback('存储设置不能为空')
-                }
-                return callback()
-              }
-            }]
-          }) }
-        />
-      </FormItem>
-    }
-    return null
   },
 
   addOrEditFields(type) {
@@ -277,8 +292,8 @@ let ContainerCatalogueModal = React.createClass({
             'storageClassName',
             'volume',
             'name',
-            'size',
-            'fsType',
+            //'size',
+            //'fsType',
           ]
         }
       }
@@ -340,18 +355,29 @@ let ContainerCatalogueModal = React.createClass({
     const list = cloneDeep(fieldsList)
     list.splice(currentIndex, 1)
     const selectedVolumes = list.map(fields => fields.volume)
+    const type = this.props.form.getFieldValue('type')
     volumes.forEach(volume => {
-      const { name, fsType, size, isOld } = volume
+      const { name, fsType, size, isOld, isUsed } = volume
       const value = `${name} ${fsType || '-'}`
-      let disabled = selectedVolumes.indexOf(value) > -1
-      options.push(
-        <Option
-          key={value}
-          disabled={disabled}
-        >
-          {name} {fsType} {size}
-        </Option>
-      )
+      if (type == 'private') {
+        let disabled = selectedVolumes.indexOf(value) > -1 || isUsed
+        options.push(
+          <Option
+            key={value}
+            disabled={disabled}
+          >
+            {name} {fsType} {size}
+          </Option>
+        )
+      } else {
+        options.push(
+          <Option
+            key={value}
+          >
+            {name}
+          </Option>
+        )
+      }
     })
     return options
   },
@@ -367,6 +393,10 @@ let ContainerCatalogueModal = React.createClass({
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 17 }
+    }
+    let isEdit = false
+    if(from == 'editService' && fieldsList.length !== currentIndex){
+      isEdit = true
     }
     const typeProps = getFieldProps('type', {
       rules: [{
@@ -428,6 +458,7 @@ let ContainerCatalogueModal = React.createClass({
                 <Select
                   placeholder="请选择存储类型"
                   {...typeProps}
+                  disabled={isEdit && fieldsList[currentIndex].oldVolume}
                 >
                   <Option key="host" value="host" disabled={unableToChangeType}>host</Option>
                   <Option key="private" value="private" disabled={unableToChangeType}>独享型</Option>
@@ -439,6 +470,7 @@ let ContainerCatalogueModal = React.createClass({
                   ? <FormItem className='not_host_type'>
                     <Select
                       placeholder="请选择"
+                      disabled={isEdit && fieldsList[currentIndex].oldVolume}
                       {...getFieldProps('type_1', {
                         rules: [{
                           required: true,
@@ -466,6 +498,7 @@ let ContainerCatalogueModal = React.createClass({
                     <Select
                       placeholder="请选择存储卷"
                       {...volumeProps}
+                      disabled={isEdit && fieldsList[currentIndex].oldVolume}
                     >
                       {this.renderVolumesOptions()}
                     </Select>
@@ -474,6 +507,7 @@ let ContainerCatalogueModal = React.createClass({
                     volume === 'create' && <FormItem className='not_host_type'>
                       <Select
                         placeholder="请选择一个 server"
+                        disabled={isEdit && fieldsList[currentIndex].oldVolume}
                         {...getFieldProps('storageClassName', {
                           rules: [{
                             validator: (rule, value, callback) => {
@@ -507,8 +541,8 @@ let ContainerCatalogueModal = React.createClass({
                       <Tooltip
                         title={
                           <div>
-                            <div>保留：服务删除时删除存储</div>
-                            <div>删除：删除服务时删除存储</div>
+                            <div>保留：服务删除时，保留存储</div>
+                            <div>删除：删除服务时，删除存储</div>
                           </div>
                         }
                       >

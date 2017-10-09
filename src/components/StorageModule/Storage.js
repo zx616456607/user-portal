@@ -479,13 +479,6 @@ let MyComponent = React.createClass({
       }]
     })
     const { selectedRowKeys } = this.state
-    const rowSelection = {
-      getCheckboxProps: record => ({
-        disabled: record.status == 'used',
-      }),
-      selectedRowKeys,
-      onChange: this.onSelectChange,
-    }
     const columns = [
       {
         title: '存储',
@@ -527,8 +520,8 @@ let MyComponent = React.createClass({
         title: <div>
           回收策略
           <Tooltip title={<div>
-              <div>保留：服务删除时删除存储</div>
-              <div>删除：删除服务时删除存储</div>
+              <div>保留：服务删除时，保留存储</div>
+              <div>删除：删除服务时，删除存储</div>
             </div>}>
             <Icon type="question-circle-o" className='question_icon'/>
           </Tooltip>
@@ -560,6 +553,13 @@ let MyComponent = React.createClass({
         </Dropdown.Button>
       }
     ]
+    const rowSelection = {
+      getCheckboxProps: record => ({
+        disabled: record.status === "used",
+      }),
+      selectedRowKeys,
+      onChange: this.onSelectChange,
+    }
     return (
       <div className="dataBox">
         <div className='reset_antd_table_header'>
@@ -569,6 +569,7 @@ let MyComponent = React.createClass({
             rowSelection={rowSelection}
             pagination={{ simple: true }}
             loading={isFetching}
+            rowKey={record => record.name}
           />
         </div>
 
@@ -859,7 +860,7 @@ class Storage extends Component {
         func: () => {
           notification.close()
           notification.error('删除存储失败')
-          this.getStorageList()
+          //this.getStorageList()
         }
       }
     })
@@ -1050,7 +1051,7 @@ class Storage extends Component {
                   <Button size='large' type="primary" onClick={()=> this.deleteStorage()} key="ok" disabled={this.state.comfirmRisk ? false : true}>确定</Button>
                 ]}
               >
-                <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除{this.state.volumeArray.map(item => item.name).join(',')} 存储卷吗?</div>
+                <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>确定要删除这 {this.state.volumeArray.length} 个存储吗?</div>
                 <div>
                   <Form>
                     <Form.Item><Checkbox {...confirmRisk} checked={this.state.comfirmRisk}>了解删除快照风险，确认将存储卷关联快照一并删除。</Checkbox></Form.Item>
