@@ -11,6 +11,7 @@
 import React from 'react'
 import { Timeline, Icon, Spin } from 'antd'
 import './style/AppAutoScaleLogs.less'
+import { formatDate } from '../../../common/tools'
 const TimelineItem = Timeline.Item
 export default class AppAutoScaleLogs extends React.Component {
   constructor() {
@@ -66,16 +67,18 @@ export default class AppAutoScaleLogs extends React.Component {
         return '，邮件发送失败。'
     }
   }
-  renderLineTiem = item => {
+  renderLineTiem(item) {
     const diff = item.scaleFrom - item.scaleTo
     if (diff > 0) {
       return <TimelineItem dot={<Icon type="check-circle" style={{fontSize: 16, color: '#2cb8f6'}}/>} key={item.message}>
                <span style={{ color: '#2cb8f6' }}>{`收缩${diff}个实例${this.emailStatus(item.status)}`}</span>
+               <span>{formatDate(item.createTime)}</span>
              </TimelineItem>
     }
     return <TimelineItem dot={<Icon type="check-circle" style={{fontSize: 16, color: '#2fba67'}}/>} key={item.message}>
              <span style={{ color: '#2fba67' }}>{`扩展${Math.abs(diff)}个实例${this.emailStatus(item.status)}`}</span>
-           </TimelineItem>
+             <span>{formatDate(item.createTime)}</span>
+    </TimelineItem>
   }
   render() {
     const { logList, loading } = this.state
