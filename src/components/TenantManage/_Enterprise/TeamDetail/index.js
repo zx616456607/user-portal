@@ -447,7 +447,7 @@ class TeamDetail extends Component {
   handleChange(targetKeys) {
     const { originalLeader } = this.state
     let notify = new NotificationHandler()
-    if (targetKeys.includes(originalLeader[0])) {
+    if (!targetKeys.includes(originalLeader[0])) {
       notify.info('移除团队管理者前请先移交团队')
       return
     }
