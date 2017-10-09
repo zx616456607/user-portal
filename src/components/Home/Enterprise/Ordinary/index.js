@@ -1219,9 +1219,9 @@ class Ordinary extends Component {
     }
     const img = userName.substr(0, 1).toUpperCase()
     const { isComputing, isApplication, isService } = this.state
-    const computeList = ['CPU （核）', '内存（GB）', '磁盘（GB）']
-    const platformList = ['应用 (个)', '服务 (个)', '容器 (个)', '存储 (个)', '快照 (个)', '服务配置 (个)']
-    const serviceList = ['关系型数据库 (个)', '缓存 (个)', 'Zookeeper (个)', 'ElasticSearch (个)']
+    const computeList = ['CPU(核)', '内存(GB)', '磁盘(GB)']
+    const platformList = ['应用(个)', '服务(个)', '容器(个)', '存储(个)', '快照(个)', '服务配置(个)']
+    const serviceList = ['关系型数据库(个)', '缓存(个)', 'Zookeeper(个)', 'ElasticSearch(个)']
     return (
 
       <div id='Ordinary'>
@@ -1939,12 +1939,12 @@ class Ordinary extends Component {
         </Row>
         <Row className="content" gutter={16} style={{ marginTop: 16 }}>
           <Col span={6} className='quota'>
-            <Card title="该集群在项目中的资源配额" bordered={false} bodyStyle={{ height: 200, padding: '15px 24px' }}>
+            <Card title="该集群在项目中的资源配额" bordered={false} bodyStyle={{ height: 200, padding: '1px' }}>
               <Row className="radios">
                 <RadioGroup size="small" onChange={(e) => this.onChange(e)} defaultValue="computing">
                   <RadioButton value="computing">计算资源</RadioButton>
                   <RadioButton value="application">应用管理</RadioButton>
-                  <RadioButton value="service">数据库与缓存</RadioButton>
+                  <RadioButton value="service">数据库&缓存</RadioButton>
                 </RadioGroup>
               </Row>
               <div className="calculation" style={{ display: isComputing ? 'block' : 'none' }}>
@@ -1955,10 +1955,10 @@ class Ordinary extends Component {
                         <Col span={7}>
                           <span>{item}</span>
                         </Col>
-                        <Col span={11}>
-                          <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
+                        <Col span={9}>
+                          <Progress className="pro" style={{ width: '95%' }} percent={0} showInfo={false} />
                         </Col>
-                        <Col span={6}>
+                        <Col span={8}>
                           <span className="count">0/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
                         </Col>
                       </Row>
@@ -1971,13 +1971,13 @@ class Ordinary extends Component {
                   platformList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={8}>
+                        <Col span={9}>
                           <span>{item}</span>
                         </Col>
-                        <Col span={10}>
+                        <Col span={8}>
                           <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
                         </Col>
-                        <Col span={6}>
+                        <Col span={7}>
                           <span className="count">0/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
                         </Col>
                       </Row>
@@ -1990,13 +1990,13 @@ class Ordinary extends Component {
                   serviceList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={12}>
+                        <Col span={11}>
                           <span>{item}</span>
                         </Col>
                         <Col span={6}>
                           <Progress className="pro" style={{ width: '95%' }} percent={0} showInfo={false} />
                         </Col>
-                        <Col span={6}>
+                        <Col span={7}>
                           <span>0/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
                         </Col>
                       </Row>

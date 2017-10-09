@@ -24,7 +24,8 @@ class ResourceQuota extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      sum: 0,
+      plus: '',
+      sum: 10,
       quotaName: '',
       clusterList: {},
       globaleList: {},
@@ -349,8 +350,13 @@ class ResourceQuota extends React.Component {
     return count
   }
 
+  handleInputNumber(value){
+    if(value)return
+
+  }
+
   render() {
-    const { isProject, gIsEdit, cIsEdit, isDisabled, inputsDisabled, quotaName } = this.state //属性
+    const { isProject, gIsEdit, cIsEdit, isDisabled, inputsDisabled, quotaName, sum } = this.state //属性
     const { globaleList, clusterList } = this.state //数据
     const { clusterData, clusterName } = this.props
     //默认集群
@@ -455,7 +461,7 @@ class ResourceQuota extends React.Component {
             <div className="alertRow">
               <span>以下为个人项目的资源配额使用情况，了解该成员参与的其他项目资源配额使用情况点击
                 <Link to="tenant_manage/project_manage">
-                  <a className="wichtige" href="#">共享项目资源配额</a>
+                  <span>共享项目资源配额</span>
                 </Link>
                 进入项目详情查看</span>
             </div> : <div></div>
@@ -468,7 +474,7 @@ class ResourceQuota extends React.Component {
             <div className="globaleEdit">
               <Button size="large" className="close" onClick={() => this.handleGlobaleClose()}>取消</Button>
               <Button size="large" className="save" type="primary" onClick={(e) => this.handleGlobaleSave(e)}>保存</Button>
-              <span className="header_desc">修改配额，将修改 <p className="sum">0</p> 个资源配额</span>
+              <span className="header_desc">修改配额，将修改 <p className="sum">{this.state.sum}</p> 个资源配额</span>
             </div> :
             <Button size="large" className="btn" type="primary" onClick={() => this.handleGlobaleEdit()}>编辑</Button>
         }
@@ -496,7 +502,7 @@ class ResourceQuota extends React.Component {
                         </Col>
                         <Col span={7}>
                           <FormItem>
-                            <InputNumber {...inputProps} disabled={checkValue} style={{ width: '100%' }} id="input" />
+                            <InputNumber {...inputProps} disabled={checkValue} style={{ width: '100%' }} id="input" onChange={this.handleInputNumber}/>
                           </FormItem>
                         </Col>
                         <Col span={3}>

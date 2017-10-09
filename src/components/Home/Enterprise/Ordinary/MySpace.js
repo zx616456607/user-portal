@@ -307,9 +307,9 @@ class MySpace extends Component {
         <Row className="title" style={{ marginTop: 20 }}>{spaceName}</Row>
         <Row className="content" gutter={16}>
           <Col span={6} className="quota">
-            <Card title="项目资源配置" bordered={false} bodyStyle={{ height: 175, padding: '15px 24px' }}
+            <Card title="项目资源配置" bordered={false} bodyStyle={{ height: 175, padding: '7px' }}
               extra={<Button type="primary" size="small">设置配额</Button>}>
-              <Row>
+              <Row className="radios">
                 <Col span={16} offset={6}>
                   <RadioGroup size="small" onChange={(e) => this.handleChange(e)} defaultValue="ci">
                     <RadioButton value="ci">CI/CD</RadioButton>
@@ -321,10 +321,10 @@ class MySpace extends Component {
                 {
                   ciList.map((item, index) => (
                     <Row className="info">
-                      <Col span={7}>
+                      <Col span={8}>
                         <span>{item.text}</span>
                       </Col>
-                      <Col span={10}>
+                      <Col span={8}>
                         <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
                       </Col>
                       <Col span={6}>
@@ -338,13 +338,13 @@ class MySpace extends Component {
                 {
                   deliverList.map((item, index) => (
                     <Row className="info">
-                      <Col span={9}>
+                      <Col span={10}>
                         <span>{item.text}</span>
                       </Col>
-                      <Col span={9}>
+                      <Col span={7}>
                         <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
                       </Col>
-                      <Col span={6}>
+                      <Col span={7}>
                         <span className="count">{this.useCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
                       </Col>
                     </Row>
