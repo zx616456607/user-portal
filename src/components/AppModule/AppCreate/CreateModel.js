@@ -14,7 +14,7 @@ import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/CreateModel.less'
 import { connect } from 'react-redux'
-import { GetProjectsAllClusters, ListProjects } from '../../../actions/project'
+import { getProjectVisibleClusters, ListProjects } from '../../../actions/project'
 import { setCurrent } from '../../../actions/entities'
 import { MY_SPACE } from '../../../constants'
 import image from '../../../assets/img/app/image.png'
@@ -145,7 +145,7 @@ class CreateModel extends Component {
   }
 
   handleSpaceChange(value) {
-    const { projects, GetProjectsAllClusters, setCurrent, form, current } = this.props
+    const { projects, getProjectVisibleClusters, setCurrent, form, current } = this.props
     let newProjects = ([MY_SPACE]).concat(projects)
     newProjects.map(project => {
       if (project.namespace === value) {
@@ -155,7 +155,7 @@ class CreateModel extends Component {
             teamID: project.teamID
           }
         })
-        GetProjectsAllClusters({ projectsName: project.projectName }, {
+        getProjectVisibleClusters(project.projectName, {
           success: {
             func: (result) => {
               if (!result.data || result.data.clusters.length === 0) {
@@ -365,10 +365,10 @@ CreateModel = createForm()(CreateModel)
 
 function mapStateToProps(state, props) {
   const { current } = state.entities
-  const { projectList, projectClusterList } = state.projectAuthority
+  const { projectList, projectVisibleClusters } = state.projectAuthority
   const projects = projectList.data || []
   const currentNamespace = current.space.namespace
-  const currentProjectClusterList = projectClusterList[currentNamespace] || {}
+  const currentProjectClusterList = projectVisibleClusters[currentNamespace] || {}
   const projectClusters = currentProjectClusterList.data || []
   return {
     current,
@@ -380,7 +380,7 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  GetProjectsAllClusters,
+  getProjectVisibleClusters,
   ListProjects,
   setCurrent,
 })(CreateModel)
