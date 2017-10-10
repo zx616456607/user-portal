@@ -15,8 +15,7 @@ import classNames from 'classnames'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
 import "./style/VisitType.less"
-import { setServiceProxyGroup } from '../../../actions/services'
-import { loadAllServices } from '../../../actions/services'
+import { setServiceProxyGroup, loadAllServices } from '../../../actions/services'
 import { getProxy } from '../../../actions/cluster'
 import NotificationHandler from '../../../common/notification_handler'
 import { parseServiceDomain } from '../../parseDomain'
@@ -210,7 +209,7 @@ class VisitType extends Component{
   }
   saveEdit() {
     const { value } = this.state;
-    const { service, setServiceProxyGroup, cluster, form } = this.props;
+    const { service, setServiceProxyGroup, cluster, form, loadAllServices } = this.props;
     const notification = new NotificationHandler()
     let val = value
     form.validateFields((errors,values)=>{
@@ -235,6 +234,10 @@ class VisitType extends Component{
       },{
         success: {
           func: (res) => {
+            loadAllServices(cluster, {
+              pageIndex: 1,
+              pageSize: 10,
+            })
             notification.close()
             notification.success('出口方式更改成功')
             this.setState({
