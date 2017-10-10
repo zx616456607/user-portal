@@ -253,33 +253,6 @@ export function UpdateProjects(body, callback) {
 	}
 }
 
-export const PROJECTS_CLUSTER_VISIBLE_GET_REQUEST = 'PROJECTS_CLUSTER_VISIBLE_GET_REQUEST'
-export const PROJECTS_CLUSTER_VISIBLE_GET_SUCCESS = 'PROJECTS_CLUSTER_VISIBLE_GET_SUCCESS'
-export const PROJECTS_CLUSTER_VISIBLE_GET_FAILURE = 'PROJECTS_CLUSTER_VISIBLE_GET_FAILURE'
-// Fetches upgrade or renewals from API.
-// Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetProjectsVisibleClusters(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/visible-clusters`
-	return {
-		[FETCH_API]: {
-			types: [PROJECTS_CLUSTER_VISIBLE_GET_REQUEST, PROJECTS_CLUSTER_VISIBLE_GET_SUCCESS, PROJECTS_CLUSTER_VISIBLE_GET_FAILURE],
-			endpoint,
-			schema: {},
-			options: {
-				method: 'GET'
-			},
-		},
-		callback
-	}
-}
-// Fetches upgrade or renewals from API
-// Relies on Redux Thunk middleware.
-export function GetProjectsVisibleClusters(body, callback) {
-	return (dispatch) => {
-		return dispatch(fetchGetProjectsVisibleClusters(body, callback))
-	}
-}
-
 export const PROJECTS_CLUSTER_APPROVAL_GET_REQUEST = 'PROJECTS_CLUSTER_APPROVAL_GET_REQUEST'
 export const PROJECTS_CLUSTER_APPROVAL_GET_SUCCESS = 'PROJECTS_CLUSTER_APPROVAL_GET_SUCCESS'
 export const PROJECTS_CLUSTER_APPROVAL_GET_FAILURE = 'PROJECTS_CLUSTER_APPROVAL_GET_FAILURE'
