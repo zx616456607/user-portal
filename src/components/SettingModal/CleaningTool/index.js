@@ -9,9 +9,9 @@
  */
 
 import React, { Component } from 'react'
-import { Tabs, Select, Form, Button, Modal, Icon, Timeline, Row, Col, Tooltip } from 'antd'
+import { Tabs, Select, Form, Button, Modal, Icon, Timeline, Row, Col, Spin } from 'antd'
 import { connect } from 'react-redux'
-import { browserHistory } from 'react-router'
+import { browserHistory, Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/index.less'
 import Title from '../../Title'
@@ -20,7 +20,8 @@ import StepsImg from '../../../../static/img/setting/steps.png'
 import NotificationHandler from '../../../components/Notification'
 import ReactEcharts from 'echarts-for-react'
 import {
-  startClean, getCleanLogs, cleanSystemLogs, cleanMonitor
+  startClean, getCleanLogs, cleanSystemLogs, cleanMonitor,
+  getSystemCleanLogs
 } from '../../../actions/clean'
 import { formatDate } from '../../../common/tools'
 import classNames from 'classnames'
@@ -45,14 +46,21 @@ class CleaningTool extends Component {
       accomplish: true,
       pending: false,
       forbid: false,
-      cleanLogs: []
+      systemLogs: [],
+      cicdLogs: [],
+      logsLoading: false,
+      activeKey: 'systemLog'
     }
   }
   componentWillMount() {
-    this.getCleanLogs()
+    this.getSystemLogs()
+    this.getCicdLogs()
   }
-  getCleanLogs() {
+  getCicdLogs() {
     const { getCleanLogs } = this.props
+    this.setState({
+      logsLoading: true
+    })
     getCleanLogs({
       sort: 'd,create_time',
       from: 0,
@@ -61,14 +69,62 @@ class CleaningTool extends Component {
       success: {
         func: res => {
           this.setState({
-            cleanLogs: res.data.body
+            cicdLogs: res.data.body,
+            logsLoading: false
           })
-        }
+        },
+        isAsync: true
       },
       failed: {
         func: () => {
           this.setState({
-            cleanLogs: []
+            cicdLogs: [],
+            logsLoading: false
+          })
+        },
+        isAsync: true
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            logsLoading: false
+          })
+        }
+      }
+    })
+  }
+  getSystemLogs() {
+    const { getSystemCleanLogs } = this.props
+    this.setState({
+      logsLoading: true
+    })
+    getSystemCleanLogs({
+      from: 1,
+      size: 5,
+      sort: 'd,create_time'
+    }, {
+      success: {
+        func: res => {
+          this.setState({
+            systemLogs: res.data.body,
+            logsLoading: false
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          this.setState({
+            systemLogs: [],
+            logsLoading: false
+          })
+        },
+        isAsync: true
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            logsLoading: false
           })
         }
       }
@@ -118,7 +174,7 @@ class CleaningTool extends Component {
           this.setState({
             cleanCicdStatus: true,
           })
-          this.getCleanLogs()
+          this.getCicdLogs()
         },
         isAsync: true
       },
@@ -148,7 +204,7 @@ class CleaningTool extends Component {
           this.setState({
             cleanSystemLogStatus: true
           })
-          this.getCleanLogs()
+          this.getSystemLogs()
         },
         isAsync: true
       },
@@ -259,20 +315,34 @@ class CleaningTool extends Component {
   }
 
   renderLogsList(){
-    const { cleanLogs } = this.state
-    if (!cleanLogs.length) {
-      return
-    }
-    return cleanLogs.map((item, index) => {
-      return (
-        <TimelineItem key={item.id} color={index === 0 ? 'green' : '#e9e9e9'}>
-          <Row className={classNames({'successColor': index === 0})}>
-            <Col span={20}>{index === 0 ? `上次清理${item.target}` : item.target}</Col>
-            <Col className="time_item" span={4}>{formatDate(item.CreateTime, 'MM-DD')}</Col>
-          </Row>
-        </TimelineItem>
+    const { cicdLogs, systemLogs, activeKey, logsLoading } = this.state
+    let cleanLogs = activeKey === 'systemLog' ? systemLogs : cicdLogs
+    if (logsLoading) {
+      return(
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
-    })
+    }
+    if (!cleanLogs.length) {
+      return <div style={{ textAlign: 'center' }}>暂无数据</div>
+    }
+    return(
+      <Timeline> 
+        {
+          cleanLogs.map((item, index) => {
+            return (
+              <TimelineItem key={item.id} color={index === 0 ? 'green' : '#e9e9e9'}>
+                <Row className={classNames({'successColor': index === 0})}>
+                  <Col span={20}>{index === 0 ? `上次清理 ${item.total}MB 垃圾` : `清理 ${item.total}MB 垃圾`}</Col>
+                  <Col className="time_item" span={4}>{formatDate(item.CreateTime, 'MM-DD')}</Col>
+                </Row>
+              </TimelineItem>
+              )
+            })
+        }
+      </Timeline> 
+    )
   }
 
   cleaningMirrorImage(type){
@@ -321,7 +391,7 @@ class CleaningTool extends Component {
   
   renderSystemTab() {
     const { getFieldProps } = this.props.form
-    const { cleanSystemLogStatus } = this.state
+    const { cleanSystemLogStatus, systemLogs } = this.state
     switch(cleanSystemLogStatus) {
       case 'cleaning': 
         return (
@@ -329,7 +399,7 @@ class CleaningTool extends Component {
             <div className='tips'>
               您可以静待清理完成，也可以清理其他垃圾或者离开清理工具
             </div>
-            <Button size="large" type="primary" loading diabled>清理中</Button>
+            <Button size="large" type="primary" loading>清理中</Button>
           </div>
         )
       break;
@@ -337,7 +407,7 @@ class CleaningTool extends Component {
         return (
           <div className='done_box'>
             <div className='tips'>
-              清理完成，此次清理 <span className='number'>1256</span> MB，查看 <span className='log'>清理记录</span>
+              清理完成，此次清理 <span className='number'>{systemLogs[0].total}</span> MB，查看 <Link to="/setting/cleaningTool/cleaningRecord">清理记录</Link>
             </div>
             <Button size="large" type="primary" onClick={() => this.setState({cleanSystemLogStatus: undefined})}>完成</Button>
           </div>
@@ -385,7 +455,7 @@ class CleaningTool extends Component {
   
   renderCicdTab() {
     const { getFieldProps } = this.props.form
-    const { cleanCicdStatus } = this.state
+    const { cleanCicdStatus, cicdLogs } = this.state
     switch(cleanCicdStatus) {
       case 'cleaning':
         return (
@@ -393,7 +463,7 @@ class CleaningTool extends Component {
             <div className='tips'>
               您可以静待清理完成，也可以清理其他垃圾或者离开清理工具
             </div>
-            <Button size="large" type="primary" loading diabled>清理中</Button>
+            <Button size="large" type="primary" loading>清理中</Button>
           </div>
         )
         break;
@@ -401,7 +471,7 @@ class CleaningTool extends Component {
         return (
           <div className='done_box'>
             <div className='tips'>
-              清理完成，此次清理 <span className='number'>1256</span> MB，查看 <span className='log'>清理记录</span>
+              清理完成，此次清理 <span className='number'>{cicdLogs[0].total}</span> MB，查看 <Link to="/setting/cleaningTool/cleaningRecord">清理记录</Link>
             </div>
             <Button size="large" type="primary" onClick={() => this.setState({cleanCicdStatus: undefined})}>完成</Button>
           </div>
@@ -446,12 +516,23 @@ class CleaningTool extends Component {
         )
     }
   }
+  tabChange(tab){
+    this.setState({
+      activeKey: tab
+    })
+    if (tab === 'systemLog') {
+      this.getSystemLogs()
+    } else if (tab === 'cache') {
+      this.getCicdLogs()
+    }
+  }
   render() {
     const {
       editMonitoringData,
       monitorBtnLoading,
       accomplish, pending,
       forbid, mirrorImageEdit,
+      cicdLogs, systemLogs, activeKey
     } = this.state
     const { form } = this.props
     const { getFieldProps } = form
@@ -489,7 +570,7 @@ class CleaningTool extends Component {
           name:'最近清除',
           type:'bar',
           barWidth: '40px',
-          data:[10, 52, 200, 334, 5000]
+          data:[0, cicdLogs.length && cicdLogs[0].total]
         }
       ]
     };
@@ -502,6 +583,8 @@ class CleaningTool extends Component {
           </div>
           <div className='tool_tabs'>
             <Tabs
+              onChange={this.tabChange.bind(this)}
+              activeKey={activeKey}
               tabBarExtraContent={<Button
                 type="ghost"
                 size="large"
@@ -679,9 +762,7 @@ class CleaningTool extends Component {
                 <div className='right_box'>
                   <div className='header'>成就清单</div>
                   <div className='logs_list'>
-                    <Timeline>
-                      {this.renderLogsList()}
-                    </Timeline>
+                    {this.renderLogsList()}
                   </div>
                   <div className='log_record'>
                     <span
@@ -728,5 +809,6 @@ export default connect(mapStateToProp, {
   startClean,
   getCleanLogs,
   cleanSystemLogs,
-  cleanMonitor
+  cleanMonitor,
+  getSystemCleanLogs
 })(CleaningTool)

@@ -92,10 +92,10 @@ class CleaningRecord extends Component {
       tableLoading: true
     })
     let query = {form: currentPage, size: 10}
-    query = sort ? Object.assign(query, {sort}) : ''
+    sort ? query = Object.assign(query, {sort}) : ''
     let body = {status, operation_type: type}
-    body = startValue ? Object.assign(body, {start: formatDate(startValue)}): ''
-    body = endValue ? Object.assign(body, {end: formatDate(endValue)}) : ''
+    startValue ? body = Object.assign(body, {start: formatDate(startValue)}): ''
+    endValue ? body = Object.assign(body, {end: formatDate(endValue)}) : ''
     getSystemCleanLogs(query, body, {
       success: {
         func: res => {
