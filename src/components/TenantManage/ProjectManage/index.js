@@ -896,7 +896,7 @@ let ProjectManage = React.createClass({
             {
               roleNum === 1 &&
               <Button type="ghost" size="large" className="manageBtn" onClick={() => this.openRightModal()}>
-                <svg className="chosenCreator">
+                <svg id="chosenCreator">
                   <use xlinkHref='#chosencreator' />
                 </svg> 哪些人可以创建项目</Button>
             }

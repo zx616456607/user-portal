@@ -417,7 +417,7 @@ class hostList extends Component {
           this.setState({
             nodeList: nodeList,
             podCount: podCount,
-            summary: e ? summary:[],
+            summary: [],
           })
           let slaveAvailable = false
           nodeList.map((item) => {

@@ -80,12 +80,12 @@ class DataTable extends Component {
         title: '访问级别',
         dataIndex: 'public',
         key: 'public',
-        filters: [
-          { text: '私有', value: 0 },
-          { text: '公开', value: 1 },
-        ],
-        filteredValue: filteredInfo.public,
-        onFilter: (value, record) => record.public == value,
+        //filters: [
+        //  { text: '私有', value: 0 },
+        //  { text: '公开', value: 1 },
+        //],
+        //filteredValue: filteredInfo.public,
+        //onFilter: (value, record) => record.public == value,
         render: text => {
           if (text === 0) {
             return '私有'
@@ -97,13 +97,13 @@ class DataTable extends Component {
         title: '我的角色',
         dataIndex: camelize('current_user_role_id'),
         key: camelize('current_user_role_id'),
-        filters: [
-          { text: '管理员', value: 1 },
-          { text: '开发人员', value: 2 },
-          { text: '访客', value: 3 },
-        ],
-        filteredValue: filteredInfo[camelize('current_user_role_id')],
-        onFilter: (value, record) => record[camelize('current_user_role_id')] == value,
+        //filters: [
+        //  { text: '管理员', value: 1 },
+        //  { text: '开发人员', value: 2 },
+        //  { text: '访客', value: 3 },
+        //],
+        //filteredValue: filteredInfo[camelize('current_user_role_id')],
+        //onFilter: (value, record) => record[camelize('current_user_role_id')] == value,
         render: text => {
           if (text == 1) {
             return '管理员'
