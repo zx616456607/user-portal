@@ -677,6 +677,7 @@ let TwoStop = React.createClass({
       case 'CPU利用率':
         return 'cpu/usage_rate'
       case '内存使用率':
+      case '内存使用':
         return 'memory/usage'
       case '上传流量':
         return 'network/tx_rate'
@@ -692,6 +693,7 @@ let TwoStop = React.createClass({
       case 'CPU利用率':
         return '%'
       case '内存使用率':
+      case '内存使用':
         return 'MB'
       case '上传流量':
         return 'kb/s'
@@ -708,6 +710,7 @@ let TwoStop = React.createClass({
       case 'CPU利用率':
         return parseInt(threshold)
       case '内存使用率':
+      case '内存使用':
         if (threshold.indexOf('gb') > 0) {
           return (parseFloat(threshold) * 1024).toFixed(0)
         }
