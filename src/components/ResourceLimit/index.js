@@ -355,7 +355,6 @@ class ResourceQuota extends React.Component {
     const { validateFields } = this.props.form
     validateFields((error, value) => {
       if (!!error) return
-      debugger
     })
   }
 
