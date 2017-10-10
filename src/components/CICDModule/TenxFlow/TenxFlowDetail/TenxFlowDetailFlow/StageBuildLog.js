@@ -163,6 +163,10 @@ function dateFormat(dateString) {
 }
 
 let MyComponent = React.createClass({
+  componentDidMount() {
+    const { config, scope, flowId } = this.props;
+    this.collapseAction(config, [ 'LogDetail0' ])
+  },
   propTypes: {
     config: React.PropTypes.array,
     scope: React.PropTypes.object
@@ -291,7 +295,7 @@ let MyComponent = React.createClass({
     });
     return (
       <div className='rightBox'>
-        <Collapse className='logBox' onChange={this.collapseAction.bind(this, config)}>
+        <Collapse className='logBox' onChange={this.collapseAction.bind(this, config)} defaultActiveKey="LogDetail0">
           {items}
         </Collapse>
         <Modal title="确认停止" visible={this.state.showModal}
