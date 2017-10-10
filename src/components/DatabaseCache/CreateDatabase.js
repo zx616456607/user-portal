@@ -391,33 +391,33 @@ let CreateDatabase = React.createClass({
       <div id='CreateDatabase' type='right'>
         <Form horizontal>
           <div className='infoBox'>
-            <div className='commonBox'>
-              <div className='title'>
-                <span>类型</span>
-              </div>
-              <div className='inputBox'>
-                {statefulAppMenus}
-              </div>
-              <div style={{ clear: 'both' }}></div>
-            </div>
-            <div className='commonBox'>
-              <div className='title'>
-                <span>部署环境</span>
-              </div>
-              <div className='inputBox'>
-                <FormItem style={{ width: '150px', float: 'left', marginRight: '20px' }}>
-                  <Select {...selectNamespaceProps} className='envSelect' size='large'>
-                    { teamspaceList }
-                  </Select>
-                </FormItem>
-                <FormItem style={{ width: '150px', float: 'left' }}>
-                  <Select {...selectClusterProps} className='envSelect' size='large'>
-                    { clusterList }
-                  </Select>
-                </FormItem>
-              </div>
-              <div style={{ clear: 'both' }}></div>
-            </div>
+            {/*<div className='commonBox'>*/}
+              {/*<div className='title'>*/}
+                {/*<span>类型</span>*/}
+              {/*</div>*/}
+              {/*<div className='inputBox'>*/}
+                {/*{statefulAppMenus}*/}
+              {/*</div>*/}
+              {/*<div style={{ clear: 'both' }}></div>*/}
+            {/*</div>*/}
+            {/*<div className='commonBox'>*/}
+              {/*<div className='title'>*/}
+                {/*<span>部署环境</span>*/}
+              {/*</div>*/}
+              {/*<div className='inputBox'>*/}
+                {/*<FormItem style={{ width: '150px', float: 'left', marginRight: '20px' }}>*/}
+                  {/*<Select {...selectNamespaceProps} className='envSelect' size='large'>*/}
+                    {/*{ teamspaceList }*/}
+                  {/*</Select>*/}
+                {/*</FormItem>*/}
+                {/*<FormItem style={{ width: '150px', float: 'left' }}>*/}
+                  {/*<Select {...selectClusterProps} className='envSelect' size='large'>*/}
+                    {/*{ clusterList }*/}
+                  {/*</Select>*/}
+                {/*</FormItem>*/}
+              {/*</div>*/}
+              {/*<div style={{ clear: 'both' }}></div>*/}
+            {/*</div>*/}
             <div className='commonBox'>
               <div className='title'>
                 <span>名称</span>
@@ -578,7 +578,8 @@ CreateDatabase = createForm()(CreateDatabase);
 CreateDatabase.propTypes = {
   intl: PropTypes.object.isRequired,
   CreateDbCluster: PropTypes.func.isRequired,
-  setCurrent: PropTypes.func.isRequired
+  setCurrent: PropTypes.func.isRequired,
+  database: PropTypes.string.isRequired
 }
 
 CreateDatabase = injectIntl(CreateDatabase, {

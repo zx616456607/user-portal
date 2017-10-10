@@ -334,7 +334,7 @@ class TenxFlowBuildLog extends Component {
     if (e) {
       e.stopPropagation();
     }
-    const { StopTenxflowBuild, flowId, scope } = this.props;
+    const { StopTenxflowBuild, flowId, scope, callback } = this.props;
     const { getStageBuildLogList } = scope.props;
     let notification = new NotificationHandler()
     StopTenxflowBuild(flowId, item.stageId, item.buildId, {
@@ -342,6 +342,7 @@ class TenxFlowBuildLog extends Component {
         func: () => {
           notification.success('停止构建', '停止构建成功');
           getStageBuildLogList(flowId, item.stageId)
+          callback()
         },
         isAsync: true
       }

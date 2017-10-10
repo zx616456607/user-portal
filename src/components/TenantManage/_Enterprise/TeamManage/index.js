@@ -8,7 +8,7 @@
  * @author XuLongcheng
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Menu, Dropdown, Button, Icon, Card, Table, Modal, Input, Tooltip, Transfer } from 'antd'
+import { Row, Alert, Menu, Dropdown, Button, Icon, Card, Table, Modal, Transfer } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/TeamManage.less'
 import { Link } from 'react-router'
@@ -317,6 +317,10 @@ let TeamTable = React.createClass({
   handleUserChange(targetKeys) {
     this.setState({ targetKeys })
   },
+  handleMenuClick(e, record) {
+    console.log(e, record)
+    this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})
+  },
   render() {
     let { sortedInfo, filteredInfo, targetKeys, sort } = this.state
     const { searchResult, filter } = this.props.scope.state
@@ -411,13 +415,25 @@ let TeamTable = React.createClass({
         key: 'operation',
         width:'15%',
         render: (text, record, index) =>{
+          const menu = (
+            <Menu onClick={(e) => this.handleMenuClick(e, record)}>
+              <Menu.Item disabled={roleNum !==1 && record.role === 'participator'} key="delete">
+                删除
+              </Menu.Item>
+            </Menu>
+          );
           return (
-            <div className="addusers">
-              <Button disabled={roleNum !== 1 && record.role === 'participator'}
-                type="primary" onClick={() => this.addNewMember(record.key)}>添加团队成员</Button>
-              <Button disabled={roleNum !==1 && record.role === 'participator'}
-                onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
-            </div>
+            <Dropdown.Button
+              disabled={roleNum !== 1 && record.role === 'participator'}
+              onClick={() => this.addNewMember(record.key)} overlay={menu} type="ghost">
+              添加团队成员
+            </Dropdown.Button>
+            // <div className="addusers">
+            //   <Button disabled={roleNum !== 1 && record.role === 'participator'}
+            //     type="primary" onClick={() => this.addNewMember(record.key)}>添加团队成员</Button>
+            //   <Button disabled={roleNum !==1 && record.role === 'participator'}
+            //     onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
+            // </div>
           )
         }
       },

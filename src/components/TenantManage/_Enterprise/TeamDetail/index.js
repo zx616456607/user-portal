@@ -309,6 +309,7 @@ class TeamDetail extends Component {
       leaderList: [],
       selectLeader: [],
       editTeamName: false,
+      editTeamDes: false,
       originalLeader: [],
       delLeaderHint: false,
       delLeaderName: '',
@@ -607,6 +608,11 @@ class TeamDetail extends Component {
       editTeamName: true
     })
   }
+  editTeamDes() {
+    this.setState({
+      editTeamDes: true
+    })
+  }
   cancelEdit() {
     const { setFieldsValue } = this.props.form;
     const { teamDetail } = this.state;
@@ -615,6 +621,51 @@ class TeamDetail extends Component {
       editTeamName: false
     },()=>{
       setFieldsValue({'teamName': oldTeamName})
+    })
+  }
+  cancelDesEdit() {
+    const { setFieldsValue } = this.props.form
+    const { teamDetail } = this.state
+    let oldDes = teamDetail.description
+    this.setState({
+      editTeamDes: false
+    }, () => {
+      setFieldsValue({'teamDes': oldDes})
+    })
+  }
+  saveTeamDes() {
+    const { form, updateTeamDetail } = this.props
+    const { getFieldValue } = form;
+    const { teamDetail } = this.state;
+    let notify = new NotificationHandler()
+    let teamDes = getFieldValue('teamDes');
+    let oldTeamDes = teamDetail.description;
+    if (teamDes === oldTeamDes) {return this.setState({editTeamDes:false})}
+    updateTeamDetail({
+      teamID: teamDetail.teamID,
+      body: {
+        description: teamDes
+      }
+    },{
+      success: {
+        func: () =>{
+          notify.success('修改团队备注成功')
+          this.loadTeamDetail()
+          this.setState({
+            editTeamDes: false
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notify.error('修改团队备注失败')
+          this.setState({
+            editTeamDes: false
+          })
+        },
+        isAsync: true
+      }
     })
   }
   saveTeamName() {
@@ -706,7 +757,7 @@ class TeamDetail extends Component {
       loadTeamUserList, form, loadTeamAllUser, roleNum
     } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = form
-    const { targetKeys, teamDetail, selectLeader, editTeamName, delLeaderName, value, isNotManager } = this.state
+    const { targetKeys, teamDetail, selectLeader, editTeamName, delLeaderName, value, isNotManager, editTeamDes } = this.state
     const leaderRowSelction = {
       type: 'radio',
       selectedRowKeys: selectLeader,
@@ -805,8 +856,40 @@ class TeamDetail extends Component {
               <Col span={2}>
                 备注
               </Col>
-              <Col span={22}>
-                {teamDetail && teamDetail.description || '-'}
+              <Col span={22} className="teamNameBox">
+                <div className="teamName">
+                  {
+                    editTeamDes ?
+                      <Form.Item
+                        hasFeedback
+                        help={isFieldValidating('teamName') ? '校验中...' : (getFieldError('teamName') || []).join(', ')}
+                        key='nameInputForm'
+                      >
+                        <Input key='nameInput' autoComplete='off' placeholder="团队名称" className="teamInput"
+                               {...getFieldProps('teamDes',{
+                                 initialValue: teamDetail && teamDetail.description
+                               })}
+                        />
+                      </Form.Item>
+                      :
+                      <span>{teamDetail && teamDetail.description || '-'}</span>
+                  }
+                  {
+                    editTeamDes ?
+                      [
+                        <Tooltip title="取消">
+                          <i className="anticon anticon-minus-circle-o pointer cancel" onClick={()=> this.cancelDesEdit()}/>
+                        </Tooltip>,
+                        <Tooltip title="保存">
+                          <i className="anticon anticon-save pointer confirm" onClick={()=> this.saveTeamDes()}/>
+                        </Tooltip>
+                      ] :
+                      (roleNum === 1 || !isNotManager) &&
+                      <Tooltip title="编辑">
+                        <i className="anticon anticon-edit pointer edit" onClick={()=> this.editTeamDes()}/>
+                      </Tooltip>
+                  }
+                </div>
               </Col>
             </Row>
           </Card>

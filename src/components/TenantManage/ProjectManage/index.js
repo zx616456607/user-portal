@@ -10,7 +10,7 @@
 import React, {Component} from 'react'
 import classNames from 'classnames';
 import './style/ProjectManage.less'
-import {Row, Col, Button, Card, Table, Modal, Transfer, InputNumber, Pagination, Checkbox, Form} from 'antd'
+import {Row, Col, Button, Card, Table, Modal, Transfer, InputNumber, Pagination, Checkbox, Form, Menu, Dropdown,} from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import {browserHistory, Link} from 'react-router'
 import {connect} from 'react-redux'
@@ -180,7 +180,7 @@ let ProjectManage = React.createClass({
   },
 
   delSingle(e, record) {
-    e.stopPropagation()
+    // e.stopPropagation()
     this.setState({
       delSingle: true,
       deleteSinglePro: [record]
@@ -780,16 +780,29 @@ let ProjectManage = React.createClass({
         title: '操作',
         key: 'operation',
         width: '15%',
-        render: (text, record) => (
-          <span>
-          {
-            roleNum === 1 && <Button type='primary' onClick={(e) => this.paySingle(e, record)}>充值</Button>
-          }
-            <Button disabled={record.role === '参与者'}
-                    type='ghost' style={{marginLeft: '10px'}}
-                    onClick={(e) => this.delSingle(e, record)}>删除</Button>
-        </span>
-        ),
+        render: (text, record) => {
+          const menu = (
+            <Menu onClick={(e) => this.delSingle(e, record)}>
+              <Menu.Item disabled={roleNum !==1 && record.role === 'participator'} key="delete">
+                删除
+              </Menu.Item>
+            </Menu>
+          );
+          return(
+            <span>
+              {
+                roleNum === 1 ?
+                <Dropdown.Button
+                  onClick={(e) => this.paySingle(e, record)} overlay={menu} type="ghost">
+                  充值
+                </Dropdown.Button> :
+                  <Button disabled={record.role === '参与者'}
+                          type='ghost' style={{marginLeft: '10px'}}
+                          onClick={(e) => this.delSingle(e, record)}>删除</Button>
+              }
+          </span>
+          )
+        }
       }]
     roleNum === 1 ? columns.splice(1, 0, roleCol): ''
     return (
@@ -896,7 +909,7 @@ let ProjectManage = React.createClass({
             {
               roleNum === 1 &&
               <Button type="ghost" size="large" className="manageBtn" onClick={() => this.openRightModal()}>
-                <svg className="chosenCreator">
+                <svg id="chosenCreator">
                   <use xlinkHref='#chosencreator' />
                 </svg> 哪些人可以创建项目</Button>
             }
@@ -917,7 +930,7 @@ let ProjectManage = React.createClass({
                 loading={tableLoading}
                 pagination={false}
                 columns={columns}
-                dataSource={!isEmpty(projectList) && projectList.projects}
+                dataSource={!isEmpty(projectList) ? projectList.projects : []}
                 onChange={this.projectFilter}
               />
             </Card>
