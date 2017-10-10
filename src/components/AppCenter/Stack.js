@@ -16,6 +16,7 @@ import PrivateCompose from './ComposeCenter/PrivateCompose.js'
 import PublicCompose from './ComposeCenter/PublicCompose.js'
 import "./style/ComposeCenter.less"
 import Title from '../Title'
+import classNames from 'classnames'
 
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
@@ -37,27 +38,35 @@ class ComposeCenter extends Component {
     const { current } = this.state;
     const { formatMessage } = this.props.intl;
     const scope = this;
+    const privateComposeStyle = classNames({
+      'tabs_item_style': true,
+      'tabs_item_selected_style': current == "privateCompose"
+    })
+    const publicComposeStyle = classNames({
+      'tabs_item_style': true,
+      'tabs_item_selected_style': current == "publicCompose"
+    })
     return (
       <QueueAnim className="ComposeCenterBox"
         type="right"
         >
         <div id="ComposeCenter" key="ComposeCenterBox">
           <Title title="编排文件" />
-          <Card className="titleList">
-            <ul>
-              <li className={current == "privateCompose" ? "titleSelected" : "titleDetail"}
+          <div className="titleList">
+            <ul className='tabs_header_style'>
+              <li className={privateComposeStyle}
                 onClick={this.selectCurrentTab.bind(this, "privateCompose")}
                 >
-                <span>我的编排</span>
+                我的编排
               </li>
-              <li className={current == "publicCompose" ? "titleSelected" : "titleDetail"}
+              <li className={publicComposeStyle}
                 onClick={this.selectCurrentTab.bind(this, "publicCompose")}
                 >
-                <span>公共编排</span>
+                公共编排
               </li>
-              <div style={{ clear: "both" }}></div>
             </ul>
-          </Card>
+          </div>
+          <div className='check_box'></div>
           {current == "privateCompose" ? [<PrivateCompose scope={scope} />] : null}
           {current == "publicCompose" ? [<PublicCompose scope={scope} />] : null}
         </div>
