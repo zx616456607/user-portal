@@ -66,8 +66,11 @@ class MySpace extends Component {
     this.fetchQuotaList()
   }
   fetchQuotaList() {
-    const { getGlobaleQuota, getGlobaleQuotaList } = this.props
-    getGlobaleQuota({
+    const { getGlobaleQuota, getGlobaleQuotaList, clusterID } = this.props
+    let query = {
+      id: clusterID,
+    }
+    getGlobaleQuota(query, {
       success: {
         func: res => {
           if (res.code === 200) {
@@ -78,7 +81,7 @@ class MySpace extends Component {
         }
       }
     })
-    getGlobaleQuotaList({
+    getGlobaleQuotaList(query, {
       success: {
         func: res => {
           if(res.code === 200){
@@ -195,6 +198,18 @@ class MySpace extends Component {
       })
     }
     return count
+  }
+
+  filterPercent(value, count) {
+    let max = 100
+    let result = 0
+    if (value === 0) return 0
+    let number = 100 / Number(value)
+    for (let i = 0; i < count; i++) {
+      result += number
+    }
+    result > max ? result = max : result
+    return result
   }
 
   render() {
@@ -325,7 +340,7 @@ class MySpace extends Component {
                         <span>{item.text}</span>
                       </Col>
                       <Col span={8}>
-                        <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
+                        <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                       </Col>
                       <Col span={6}>
                         <span className="count">{this.useCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
@@ -342,7 +357,7 @@ class MySpace extends Component {
                         <span>{item.text}</span>
                       </Col>
                       <Col span={7}>
-                        <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
+                        <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                       </Col>
                       <Col span={7}>
                         <span className="count">{this.useCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
@@ -598,6 +613,8 @@ class MySpace extends Component {
 }
 
 function mapStateToProp(state, props) {
+  const { current } = state.entities
+  const { clusterID } = current.cluster
   let isFetching = true
   let spaceOperationsData = {
     appCreate: 0,
@@ -704,6 +721,7 @@ function mapStateToProp(state, props) {
     spaceImageStatsData = spaceImageStats.result.data
   }
   return {
+    clusterID,
     spaceOperations: spaceOperationsData,
     spaceCICDStats: spaceCICDStatsData,
     spaceImageStats: spaceImageStatsData,
