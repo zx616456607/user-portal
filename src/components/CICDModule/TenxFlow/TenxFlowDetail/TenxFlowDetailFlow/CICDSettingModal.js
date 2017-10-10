@@ -432,6 +432,18 @@ let CICDSettingModal = React.createClass({
         { required: true, message: '请输入Tag名称' },
       ],
       initialValue: checkTagInit(ciRules.results).name,
+      onChange: e => {
+        const value = e.target.value
+        if (value && value.trim()) {
+          this.setState({
+            noTag: false,
+          })
+        } else {
+          this.setState({
+            noTag: true,
+          })
+        }
+      }
     });
     const isTagRegProps = getFieldProps('isTagReg', {
       valuePropName: 'checked',
