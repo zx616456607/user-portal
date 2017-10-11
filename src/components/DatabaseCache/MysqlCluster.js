@@ -17,7 +17,6 @@ import { loadDbCacheList , searchDbservice } from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
 import { getProxy } from '../../actions/cluster'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { SEARCH } from '../../constants'
 import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
 import NotificationHandler from '../../components/Notification'
@@ -238,7 +237,7 @@ class MysqlCluster extends Component {
               <i className='fa fa-refresh' />&nbsp;刷 新
             </Button>
             <span className='rightSearch'>
-              <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px'}} ref="mysqlRef" onChange={(e)=>this.setState({search: e.target.value.replace(SEARCH, "")})} onPressEnter={()=> this.handSearch()} />
+              <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px'}} ref="mysqlRef" onChange={(e)=>this.setState({search: e.target.value.trim()})} onPressEnter={()=> this.handSearch()} />
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()}/>
             </span>
           </div>

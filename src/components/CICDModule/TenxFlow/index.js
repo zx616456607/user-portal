@@ -18,7 +18,7 @@ import {
   CreateTenxflowBuild, getTenxflowBuildDetailLogs, changeTenxFlowStatus,
   changeFlowStatus, getRepoBranchesAndTagsByProjectId, getStageBuildLogList,
 } from '../../../actions/cicd_flow'
-import { DEFAULT_REGISTRY, SEARCH } from '../../../constants'
+import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
 import TenxFlowBuildLog from './TenxFlowBuildLog'
 import moment from 'moment'

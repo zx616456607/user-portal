@@ -16,7 +16,7 @@ import { getNodesPodeList, loadHostMetrics, searchPodeList} from '../../actions/
 import './style/ClusterDetail.less'
 import hostImg from '../../assets/img/integration/host.png'
 import { formatDate, calcuDate } from '../../common/tools'
-import { LABEL_APPNAME, SEARCH } from '../../constants'
+import { LABEL_APPNAME } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { getHostInfo } from '../../actions/cluster'
 import { changeClusterNodeSchedule, getNodeLabels} from '../../actions/cluster_node'
@@ -88,7 +88,7 @@ let HostInfo = React.createClass({
     }
   },
   handSearch() {
-    let podname = this.state.podname.replace(SEARCH,"")
+    let podname = this.state.podname.trim()
     const { scope } = this.props
     scope.props.searchPodeList(podname)
   },
