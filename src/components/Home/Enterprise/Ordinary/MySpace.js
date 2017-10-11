@@ -301,14 +301,14 @@ class MySpace extends Component {
       },
     ]
     const deliverList = [
-      {
-        key: 'registryProject',
-        text: '镜像仓库组(个)',
-      },
-      {
-        key: 'registry',
-        text: '镜像仓库(个)',
-      },
+      // {
+      //   key: 'registryProject',
+      //   text: '镜像仓库组(个)',
+      // },
+      // {
+      //   key: 'registry',
+      //   text: '镜像仓库(个)',
+      // },
       {
         key: 'orchestrationTemplate',
         text: '编排文件(个)',
@@ -325,7 +325,7 @@ class MySpace extends Component {
             <Card title="项目资源配置" bordered={false} bodyStyle={{ height: 175, padding: '7px' }}
               extra={<Button type="primary" size="small">设置配额</Button>}>
               <Row className="radios">
-                <Col span={16} offset={6}>
+                <Col span={16} offset={5}>
                   <RadioGroup size="small" onChange={(e) => this.handleChange(e)} defaultValue="ci">
                     <RadioButton value="ci">CI/CD</RadioButton>
                     <RadioButton value="deliver">交付中心</RadioButton>
@@ -336,7 +336,7 @@ class MySpace extends Component {
                 {
                   ciList.map((item, index) => (
                     <Row className="info">
-                      <Col span={8}>
+                      <Col span={9}>
                         <span>{item.text}</span>
                       </Col>
                       <Col span={8}>
@@ -353,13 +353,13 @@ class MySpace extends Component {
                 {
                   deliverList.map((item, index) => (
                     <Row className="info">
-                      <Col span={10}>
+                      <Col span={9}>
                         <span>{item.text}</span>
                       </Col>
-                      <Col span={7}>
+                      <Col span={9}>
                         <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                       </Col>
-                      <Col span={7}>
+                      <Col span={6}>
                         <span className="count">{this.useCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
                       </Col>
                     </Row>

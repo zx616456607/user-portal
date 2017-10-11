@@ -359,9 +359,9 @@ class ResourceQuota extends React.Component {
   }
 
   render() {
-    const { isProject, gIsEdit, cIsEdit, isDisabled, inputsDisabled, quotaName, sum } = this.state //属性
+    const { gIsEdit, cIsEdit, isDisabled, inputsDisabled, quotaName, sum } = this.state //属性
     const { globaleList, clusterList } = this.state //数据
-    const { clusterData, clusterName } = this.props
+    const { clusterData, clusterName, isProject } = this.props
     //默认集群
     const menu = (
       <Menu onClick={(e) => this.handleOnMenu(e)}>
@@ -378,7 +378,7 @@ class ResourceQuota extends React.Component {
     const ciList = [
       {
         key: 'tenxflow',
-        text: 'Tencfilow (个)',
+        text: 'TencFlow (个)',
       },
       {
         key: 'subTask',
@@ -409,15 +409,15 @@ class ResourceQuota extends React.Component {
     const computeList = [
       {
         key: 'cpu',
-        text: 'CPU （核）'
+        text: 'CPU (核)'
       },
       {
         key: 'memory',
-        text: '内存（GB）'
+        text: '内存 (GB)'
       },
       {
         key: 'storage',
-        text: '磁盘（GB）'
+        text: '磁盘 (GB)'
       }]
     const platformList = [
       {
@@ -454,17 +454,18 @@ class ResourceQuota extends React.Component {
         text: 'ElasticSearch (个)'
       }, {
         key: 'etcd',
-        text: 'Etcd(个)'
+        text: 'Etcd (个)'
       }]
     const { getFieldProps, getFieldValue } = this.props.form
+    let plusValue = 0
     return (
       <div className="quota">
         {
           !isProject ?
             <div className="alertRow">
-              <span>以下为个人项目的资源配额使用情况，了解该成员参与的其他项目资源配额使用情况点击
+              <span>以下为个人项目的资源配额使用情况，了解该成员参与的其他项目资源配额，使用情况点击
                 <Link to="tenant_manage/project_manage">
-                  <span>共享项目资源配额</span>
+                  <span> 共享项目资源配额 </span>
                 </Link>
                 进入项目详情查看</span>
             </div> : <div></div>
@@ -477,7 +478,7 @@ class ResourceQuota extends React.Component {
             <div className="globaleEdit">
               <Button size="large" className="close" onClick={() => this.handleGlobaleClose()}>取消</Button>
               <Button size="large" className="save" type="primary" onClick={(e) => this.handleGlobaleSave(e)}>保存</Button>
-              <span className="header_desc">修改配额，将修改 <p className="sum">0</p> 个资源配额</span>
+              <span className="header_desc">修改配额，将修改 <p className="sum">{plusValue}</p> 个资源配额</span>
             </div> :
             <Button size="large" className="btn" type="primary" onClick={() => this.handleGlobaleEdit()}>编辑</Button>
         }
@@ -493,7 +494,7 @@ class ResourceQuota extends React.Component {
                     })
                     const inputValue = getFieldValue(item.key)
                     const beforeValue = this.maxGlobaleCount(item.key)
-                    const plusValue = inputValue - beforeValue
+                    plusValue = inputValue - beforeValue
                     const isPlus = inputValue > beforeValue ? true : false
                     const checkKey = `${item.key}-check`
                     const checkProps = getFieldProps(checkKey, {
@@ -519,7 +520,7 @@ class ResourceQuota extends React.Component {
                         </Col>
                         <Col span={4}>
                           <FormItem>
-                            <span>配额剩余：0</span>
+                            <span>配额剩余：{inputValue - this.useGlobaleCount(item.key)}</span>
                             {
                               isPlus ?
                                 <div className="plus">
@@ -572,7 +573,7 @@ class ResourceQuota extends React.Component {
                         </Col>
                         <Col span={4}>
                           <FormItem>
-                            <span>配额剩余：0</span>
+                            <span>配额剩余：{inputValue - this.useGlobaleCount(item.key)}</span>
                             {
                               isPlus ?
                                 <div className="plus">
@@ -604,7 +605,7 @@ class ResourceQuota extends React.Component {
                           <Progress percent={this.filterPercent(this.maxGlobaleCount(item.key), this.useGlobaleCount(item.key))} showInfo={false} />
                         </Col>
                         <Col span={4}>
-                          <span>{this.useGlobaleCount(item.key)}/{this.maxGlobaleCount(item.key) ? this.maxGlobaleCount(item.key) : '无限制'}（个）</span>
+                          <span>{this.useGlobaleCount(item.key)}/{this.maxGlobaleCount(item.key) ? this.maxGlobaleCount(item.key) : '无限制'}</span>
                         </Col>
                       </Row>
                     )
@@ -622,7 +623,7 @@ class ResourceQuota extends React.Component {
                         <Progress percent={this.filterPercent(this.maxGlobaleCount(item.key), this.useGlobaleCount(item.key))} showInfo={false} showInfo={false} />
                       </Col>
                       <Col span={4}>
-                        <span>{this.useGlobaleCount(item.key)}/{this.maxGlobaleCount(item.key) ? this.maxGlobaleCount(item.key) : '无限制'}（个）</span>
+                        <span>{this.useGlobaleCount(item.key)}/{this.maxGlobaleCount(item.key) ? this.maxGlobaleCount(item.key) : '无限制'}</span>
                       </Col>
                     </Row>
                   ))
@@ -689,7 +690,7 @@ class ResourceQuota extends React.Component {
                               </FormItem>
                             </Col>
                             <Col span={3}>
-                              <span>配额剩余：0</span>
+                              <span>配额剩余：{inputValue - this.useClusterCount(item.key)}</span>
                               {
                                 isNaN ?
                                   isPlus ?
@@ -703,7 +704,7 @@ class ResourceQuota extends React.Component {
                                     </div> : ''
                               }
                             </Col>
-                            <Col span={3}>
+                            {/* <Col span={3}>
                               <span>该集群剩余：0</span>
                               {
                                 isNaN ?
@@ -717,7 +718,7 @@ class ResourceQuota extends React.Component {
                                       <span>{plusValue}</span>
                                     </div> : ''
                               }
-                            </Col>
+                            </Col> */}
                           </Row>
                         )
                       })
@@ -759,7 +760,7 @@ class ResourceQuota extends React.Component {
                               </FormItem>
                             </Col>
                             <Col span={3}>
-                              <span>配额剩余：0</span>
+                              <span>配额剩余：{inputValue - this.useClusterCount(item.key)}</span>
                               {
                                 isNaN ?
                                   isPlus ?
@@ -773,13 +774,13 @@ class ResourceQuota extends React.Component {
                                     </div> : ''
                               }
                             </Col>
-                            <Col span={3}>
+                            {/* <Col span={3}>
                               <span>该集群剩余：0</span>
                               <div className="minus" style={{ visibility: 'hidden' }}>
                                 <Icon type="minus" />
                                 <span>{this.state.sum}</span>
                               </div>
-                            </Col>
+                            </Col> */}
                           </Row>
                         )
                       })
@@ -793,6 +794,11 @@ class ResourceQuota extends React.Component {
                         const inputsProps = getFieldProps(item.key, {
                           initialValue: clusterList ? this.maxClusterCount(item.key) : ''
                         })
+                        const inputValue = getFieldValue(item.key)
+                        const beforeValue = this.maxGlobaleCount(item.key)
+                        const plusValue = inputValue - beforeValue
+                        const isPlus = inputValue > beforeValue ? true : false
+                        const isNan = inputValue >= 0 ? true : false
                         const checkKey = `${item.key}-check`
                         const checkProps = getFieldProps(checkKey, {
                           validate: [{
@@ -816,19 +822,27 @@ class ResourceQuota extends React.Component {
                               </FormItem>
                             </Col>
                             <Col span={3}>
-                              <span>配额剩余：0</span>
-                              <div className="plus" style={{ visibility: 'hidden' }}>
-                                <Icon type="plus" />
-                                <span>{this.state.sum}</span>
-                              </div>
+                              <span>配额剩余：{inputValue - this.useClusterCount(item.key)}</span>
+                              {
+                                isNaN ?
+                                  isPlus ?
+                                    <div className="plus">
+                                      <Icon type="plus" />
+                                      <span>{plusValue}</span>
+                                    </div> :
+                                    <div className="minus">
+                                      <Icon type="minus" />
+                                      <span>{plusValue}</span>
+                                    </div> : ''
+                              }
                             </Col>
-                            <Col span={3}>
+                            {/* <Col span={3}>
                               <span>该集群剩余：0</span>
                               <div className="minus" style={{ visibility: 'hidden' }}>
                                 <Icon type="minus" />
                                 <span>{this.state.sum}</span>
                               </div>
-                            </Col>
+                            </Col> */}
                           </Row>
                         )
                       })
@@ -848,7 +862,7 @@ class ResourceQuota extends React.Component {
                             <Progress percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                           </Col>
                           <Col span={4}>
-                            <span>{this.useClusterCount(item.key)}/{this.maxClusterCount(item.key) ? this.maxClusterCount(item.key) : '无限制'}（个）</span>
+                            <span>{this.useClusterCount(item.key)}/{this.maxClusterCount(item.key) ? this.maxClusterCount(item.key) : '无限制'}</span>
                           </Col>
                         </Row>
                       ))
@@ -867,7 +881,7 @@ class ResourceQuota extends React.Component {
                             <Progress percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                           </Col>
                           <Col span={4}>
-                            <span>{this.useClusterCount(item.key)}/{this.maxClusterCount(item.key) ? this.maxClusterCount(item.key) : '无限制'}（个）</span>
+                            <span>{this.useClusterCount(item.key)}/{this.maxClusterCount(item.key) ? this.maxClusterCount(item.key) : '无限制'}</span>
                           </Col>
                         </Row>
                       ))
@@ -886,7 +900,7 @@ class ResourceQuota extends React.Component {
                             <Progress percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                           </Col>
                           <Col span={4}>
-                            <span>{this.useClusterCount(item.key)}/{this.maxClusterCount(item.key) ? this.maxClusterCount(item.key) : '无限制'}（个）</span>
+                            <span>{this.useClusterCount(item.key)}/{this.maxClusterCount(item.key) ? this.maxClusterCount(item.key) : '无限制'}</span>
                           </Col>
                         </Row>
                       ))
