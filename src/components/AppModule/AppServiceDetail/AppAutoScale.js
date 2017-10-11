@@ -229,10 +229,11 @@ class AppAutoScale extends Component {
     const { updateAutoScaleStatus, cluster, serviceName } = this.props
     const { switchOpen, scaleDetail } = this.state
     let notify = new NotificationHandler()
-    notify.spin('修改中...')
+    let msg = switchOpen ? '关闭' : '开启'
+    notify.spin(`${msg}中...`)
     if (isEmpty(scaleDetail)) {
       notify.close()
-      notify.error('修改失败，请编辑伸缩策略')
+      notify.error(`${msg}失败，请编辑伸缩策略`)
       return
     }
     this.setState({
@@ -246,14 +247,14 @@ class AppAutoScale extends Component {
           func: () => {
             this.loadData(this.props)
             notify.close()
-            notify.success('修改成功')
+            notify.success(`${msg}成功`)
           },
           isAsync: true
         },
         failed: {
           func: () => {
             notify.close()
-            notify.error('修改失败')
+            notify.error(`${msg}失败`)
             this.setState({
               switchOpen
             })
