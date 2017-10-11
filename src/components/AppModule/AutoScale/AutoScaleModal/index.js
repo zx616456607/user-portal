@@ -318,9 +318,12 @@ class AutoScaleModal extends React.Component {
     }
     callback()
   }
-  checkValue = (rule, value, callback) => {
-    if (!value) {
+  checkValue(rule, value, callback) {
+    if (!value && value !== 0) {
       return callback('请输入阈值')
+    }
+    if (value < 1 || value > 99) {
+      return callback('阈值范围为1至99')
     }
     callback()
   }
