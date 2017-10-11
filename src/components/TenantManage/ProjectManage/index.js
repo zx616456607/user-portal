@@ -60,7 +60,7 @@ let ProjectManage = React.createClass({
       clusterCountSort: undefined,
       balanceSort: undefined,
       creation_timeSort: undefined,
-      sort: 'd,name',
+      sort: 'a,name',
       roleFilter: '',
       clearInput: false,
       searchName: '',
@@ -657,7 +657,7 @@ let ProjectManage = React.createClass({
   render() {
     const step = this.props.location.query.step || '';
     const {roleNum} = this.props;
-    const {payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal, 
+    const {payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal,
       paySinglePro, userList, deleteSingleChecked, filteredInfo, systemRoleID
     } = this.state;
     const pageOption = {
@@ -1055,7 +1055,7 @@ class PayTable extends Component {
     this.setState({selectedRowKeys});//报错
     updatePayArr(selectedRowKeys)
   }
-  
+
   onRowClick = record => {
     const { selectedRowKeys } = this.state
     const projectName = record.namespace

@@ -50,11 +50,11 @@ const appManageRoutes = [{
   path: 'storage',
   component: require('../components/StorageModule').default,
   indexRoute: {
-    component: require('../components/StorageModule/ShareMemory').default
+    component: require('../components/StorageModule/Storage').default
   },
   childRoutes: [{
-    path: 'exclusiveMemory',
-    component: require('../components/StorageModule/Storage').default,
+    path: 'shareMemory',
+    component: require('../components/StorageModule/ShareMemory').default,
   },{
     path: 'hostMemory',
     component: require('../components/StorageModule/HostMemory').default,

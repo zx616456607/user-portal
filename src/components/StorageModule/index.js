@@ -22,8 +22,8 @@ class StorageHome extends Component {
     super(props)
     this.loadSelectedClass = this.loadSelectedClass.bind(this)
     this.state = {
-      sharedMemorySelected: true,
-      exclusiveMemorySelected: false,
+      sharedMemorySelected: false,
+      exclusiveMemorySelected: true,
       hostMemorySelected: false,
     }
   }
@@ -31,16 +31,16 @@ class StorageHome extends Component {
   loadSelectedClass(pathname){
     if(pathname === "/app_manage/storage"){
       this.setState({
-        sharedMemorySelected: true,
-        exclusiveMemorySelected: false,
+        sharedMemorySelected: false,
+        exclusiveMemorySelected: true,
         hostMemorySelected: false,
       })
       return
     }
-    if(pathname === "/app_manage/storage/exclusiveMemory"){
+    if(pathname === "/app_manage/storage/shareMemory"){
       this.setState({
-        sharedMemorySelected: false,
-        exclusiveMemorySelected: true,
+        sharedMemorySelected: true,
+        exclusiveMemorySelected: false,
         hostMemorySelected: false,
       })
       return
@@ -54,8 +54,8 @@ class StorageHome extends Component {
       return
     }
     this.setState({
-      sharedMemorySelected: true,
-      exclusiveMemorySelected: false,
+      sharedMemorySelected: false,
+      exclusiveMemorySelected: true,
       hostMemorySelected: false,
     })
   }
@@ -94,16 +94,16 @@ class StorageHome extends Component {
         <div id='storage_home' key="storage_home">
           <div className='tabs_header_style'>
             <div
-              className={sharedMemory}
+              className={exclusiveMemory}
               onClick={() => browserHistory.push(`/app_manage/storage`)}
             >
-              共享型存储
+              独享型存储
             </div>
             <div
-              className={exclusiveMemory}
-              onClick={() => browserHistory.push(`/app_manage/storage/exclusiveMemory`)}
+              className={sharedMemory}
+              onClick={() => browserHistory.push(`/app_manage/storage/shareMemory`)}
             >
-              独享型存储
+              共享型存储
             </div>
             <div
               className={hostMemory}

@@ -157,6 +157,7 @@ class Ordinary extends Component {
       isApplication: false,
       isService: false,
       clusterList: [],
+      clusterUseList: [],
     }
   }
 
@@ -176,22 +177,36 @@ class Ordinary extends Component {
     const { clusterID } = current.cluster
     loadClusterInfo(clusterID)
     this.loadClusterSummary(clusterID)
+    this.fetchQuotaList()
   }
 
   fetchQuotaList() {
-    const { getClusterQuota } = this.props
+    const { getClusterQuota, getClusterQuotaList, clusterID } = this.props
     let query = {
-
+      id: clusterID,
     }
-    getClusterQuota({ query }, {
+    getClusterQuota(query, {
       success: {
         func: res => {
           if (REG.test(res.code)) {
             this.setState({
-              globaleList: res.data
+              clusterList: res.data
             })
           }
-        }
+        },
+        isAsync: true
+      }
+    })
+    getClusterQuotaList(query, {
+      success: {
+        func: res => {
+          if (REG.test(res.code)) {
+            this.setState({
+              clusterUseList: res.data
+            })
+          }
+        },
+        isAsync: true
       }
     })
   }
@@ -298,10 +313,33 @@ class Ordinary extends Component {
     }
     return count
   }
+  minCount(value) {
+    const { clusterUseList } = this.props
+    let count = ''
+    if(clusterUseList) {
+      Object.keys(clusterUseList).forEach((item, index) => {
+        if(item === value){
+          count = Object.values(clusterUseList)[index]
+        }
+      })
+      return count
+    }
+  }
+  filterPercent(value, count) {
+    let max = 100
+    let result = 0
+    if (value === 0) return 0
+    let number = 100 / Number(value)
+    for (let i = 0; i < count; i++) {
+      result += number
+    }
+    result > max ? result = max : result
+    return result
+  }
 
   render() {
     const { clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
-      clusterNodeSummary, clusterDbServices, spaceName, clusterName, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching, loginUser } = this.props
+      clusterNodeSummary, clusterDbServices, spaceName, clusterName, clusterUseList, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching, loginUser } = this.props
     const { userName, email, avatar, certInfos } = loginUser
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
@@ -1219,11 +1257,10 @@ class Ordinary extends Component {
     }
     const img = userName.substr(0, 1).toUpperCase()
     const { isComputing, isApplication, isService } = this.state
-    const computeList = ['CPU （核）', '内存（GB）', '磁盘（GB）']
-    const platformList = ['应用 (个)', '服务 (个)', '容器 (个)', '存储 (个)', '快照 (个)', '服务配置 (个)']
-    const serviceList = ['关系型数据库 (个)', '缓存 (个)', 'Zookeeper (个)', 'ElasticSearch (个)']
+    const computeList = ['CPU(核)', '内存(GB)', '磁盘(GB)']
+    const platformList = ['应用(个)', '服务(个)', '容器(个)', '存储(个)', '快照(个)', '服务配置(个)']
+    const serviceList = ['关系型数据库(个)', '缓存(个)', 'Zookeeper(个)', 'ElasticSearch(个)', 'Etcd(个)']
     return (
-
       <div id='Ordinary'>
         <Row className="title">{spaceName} - {clusterName} 集群</Row>
         <Row className="content" gutter={16}>
@@ -1309,49 +1346,76 @@ class Ordinary extends Component {
               </Card>
             </Col>
           }
+          <Col span={6} className='quota'>
+            <Card title="该集群在项目中的资源配额" bordered={false} bodyStyle={{ height: 220, padding: '1px' }}>
+              <Row className="radios">
+                <RadioGroup size="small" onChange={(e) => this.onChange(e)} defaultValue="computing">
+                  <RadioButton value="computing">计算资源</RadioButton>
+                  <RadioButton value="application">应用管理</RadioButton>
+                  <RadioButton value="service">数据库&缓存</RadioButton>
+                </RadioGroup>
+              </Row>
+              <div className="calculation" style={{ display: isComputing ? 'block' : 'none' }}>
+                {
+                  computeList.map((item, index) => (
+                    <div className="info">
+                      <Row>
+                        <Col span={7}>
+                          <span>{item}</span>
+                        </Col>
+                        <Col span={9}>
+                          <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxCount(item.key), this.minCount(item.key))} showInfo={false} />
+                        </Col>
+                        <Col span={8}>
+                          <span className="count">{this.minCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
+                        </Col>
+                      </Row>
+                    </div>
+                  ))
+                }
+              </div>
+              <div className="application" style={{ overflowY: 'auto', display: isApplication ? 'block' : 'none' }}>
+                {
+                  platformList.map((item, index) => (
+                    <div className="info">
+                      <Row>
+                        <Col span={9}>
+                          <span>{item}</span>
+                        </Col>
+                        <Col span={8}>
+                          <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.minCount(item.key))} showInfo={false} />
+                        </Col>
+                        <Col span={7}>
+                          <span className="count">{this.minCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
+                        </Col>
+                      </Row>
+                    </div>
+                  ))
+                }
+              </div>
+              <div className="service" style={{ overflowY: 'auto', display: isService ? 'block' : 'none' }}>
+                {
+                  serviceList.map((item, index) => (
+                    <div className="info">
+                      <Row>
+                        <Col span={12}>
+                          <span>{item}</span>
+                        </Col>
+                        <Col span={5}>
+                          <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxCount(item.key), this.minCount(item.key))} showInfo={false} />
+                        </Col>
+                        <Col span={7}>
+                          <span>{this.minCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
+                        </Col>
+                      </Row>
+                    </div>
+                  ))
+                }
+              </div>
+            </Card>
+          </Col>
           <Col span={6} className='clusterRecord'>
             <Card title="今日该集群记录" bordered={false} bodyStyle={{ height: 220 }}>
-              {/* <div className='clusterStatusTitle'>
-                计算与存储
-              </div>
-              <ReactEcharts
-                notMerge={true}
-                option={statusOption}
-                style={{ height: '80px' }}
-                showLoading={isFetching}
-              />
-              <div className='clusterStatusDetail'>
-                <table cellPadding={0} cellSpacing={0} style={{ width: '100%', textAlign: 'center', fontSize: '14px', marginBottom: '5px' }} >
-                  <tbody>
-                    <tr>
-                      <Tooltip title={`${usedCPU}核/${capacityCPU}核`}><td>({cpuUsedPrecent}%)</td></Tooltip>
-                      <Tooltip title={`${usedMemory}GB/${capacityMemory}GB`}><td>({memoryUsedPrecent}%)</td></Tooltip>
-                      <Tooltip title={`${volumeUsed}GB/${volumeCapacity}GB`}><td>({volumeUsedPrecent}%)</td></Tooltip>
-                    </tr>
-                    <tr>
-                      <td>CPU</td>
-                      <td>内存</td>
-                      <td>存储</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div className='statusBottomcontent'>
-                <div className='statusBottomleft'>
-                  <span className='statusBottomItem'>容器</span>
-                  <Tooltip title={<div><div>容器可用配额是按照最小容器配置（512M内存）计算；</div><div>本集群容器可用配额（个）=本集群可用内存（M）/512M；</div></div>}>
-                    <Icon type="question-circle-o" style={{ margin: '0 7px',cursor:'pointer' }} />
-                  </Tooltip>
-                </div>
-                <div className='statusBottomright'>
-                  <Progress percent={memoryUsedPrecent} strokeWidth={11} className='statusBottomrightitem' showInfo={false}/>
-                </div>
-                <Tooltip title={<div>{`已创建容器 ${ isNaN(allocatedPodNumber) ? '-' :allocatedPodNumber } 个（含系统），还可创建 ${ isNaN(allocatedPodNumber) ? '-' : canCreateContainer } 个`}</div>}>
-                  <div className='statusBottomthird' >
-                    {`已创建容器 ${ isNaN(allocatedPodNumber) ? '-' :allocatedPodNumber } 个（含系统），还可创建 ${ isNaN(allocatedPodNumber) ? '-' : canCreateContainer } 个`}
-                  </div>
-                </Tooltip>
-              </div> */}
               <div style={{ overflowY: 'auto', height: '172px' }}>
                 <table>
                   <tbody>
@@ -1539,115 +1603,67 @@ class Ordinary extends Component {
               </Card>
             </Spin>
           </Col>
+        </Row>
+        <Row className="content" gutter={16} style={{ marginTop: 16 }}>
+          <Col span={6}>
+            <Card title="应用" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+              <ReactEcharts
+                notMerge={true}
+                option={appOption}
+                style={{ height: '180px' }}
+                showLoading={isFetching}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card title="服务" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+              <ReactEcharts
+                notMerge={true}
+                option={serviceOption}
+                style={{ height: '180px' }}
+                showLoading={isFetching}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card title="容器" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+              <ReactEcharts
+                notMerge={true}
+                option={containerOption}
+                style={{ height: '180px' }}
+                showLoading={isFetching}
+              />
+            </Card>
+          </Col>
+          <Col span={6} className='storage'>
+            <Card title="存储" bordered={false} bodyStyle={{ height: 180, padding: '0px 20px 0px 0px' }}>
+              <ProgressBox boxPos={boxPos} />
+              <Col span={12} className='storageInf'>
+                <div className="storageInfList">
+                  <Row className='storageInfItem'>
+                    <Col span={12}>已用 <Tooltip title="当前已用配额"><Icon type="question-circle-o" /></Tooltip></Col>
+                    <Col span={12} style={{ textAlign: 'right' }}>{this.handleSize(clusterStorage.usedSize)}</Col>
+                  </Row>
+                  <Row className='storageInfItem'>
+                    <Col span={12}>可用 <Tooltip title="当前可用配额"><Icon type="question-circle-o" /></Tooltip></Col>
+                    <Col span={12} style={{ textAlign: 'right' }}>{this.handleSize(clusterStorage.freeSize)}</Col>
+                  </Row>
+                  <Row className='storageInfItem'>
+                    <Col span={12}>存储卷</Col>
+                    <Col span={12} style={{ textAlign: 'right' }}>{clusterStorage.totalCnt} 个</Col>
+                  </Row>
+                  <Row className='storageInfItem'>
+                    <Col span={12}>使用中</Col>
+                    <Col span={12} style={{ textAlign: 'right' }}>{clusterStorage.usedCnt} 个</Col>
+                  </Row>
+                </div>
+              </Col>
+            </Card>
+          </Col>
+        </Row>
+        <Row className="content" gutter={16} style={{ marginTop: 16 }}>
           <Col span={6} className='dataBase'>
-            {/* <Card title="数据库与缓存" bordered={false} bodyStyle={{ height: 220 }}>
-              <div style={{ overflowY: 'auto', height: '172px' }}>
-                <table>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
-                        创建应用
-                    </td>
-                      <td className="recordNum">
-                        {clusterOperations.appCreate} 个
-                    </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeservicecount" />
-                        </svg>
-                        创建服务
-                    </td>
-                      <td className="recordNum">
-                        {clusterOperations.svcCreate} 个
-                    </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homesavecount" />
-                        </svg>
-                        创建存储卷
-                    </td>
-                      <td className="recordNum">
-                        {clusterOperations.volumeCreate} 个
-                    </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
-                        停止应用
-                    </td>
-                      <td className="recordNum">
-                        {clusterOperations.appStop} 个
-                    </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeservicecount" />
-                        </svg>
-                        删除服务
-                    </td>
-                      <td className="recordNum">
-                        {clusterOperations.svcDelete} 个
-                    </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homesavecount" />
-                        </svg>
-                        删除存储卷
-                    </td>
-                      <td className="recordNum">
-                        {clusterOperations.volumeDelete} 个
-                    </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
-                        修改应用
-                    </td>
-                      <td className="recordNum">
-                        {clusterOperations.appModify} 个
-                    </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
-                        启动应用
-                    </td>
-                      <td className="recordNum">
-                        {clusterOperations.appStart} 个
-                    </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
-                        重新部署
-                    </td>
-                      <td className="recordNum">
-                        {clusterOperations.appRedeploy} 个
-                    </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </Card> */}
-            <Card title="数据库与缓存" bordered={false} bodyStyle={{ height: 220 }}>
+            <Card title="数据库与缓存" bordered={false} bodyStyle={{ height: 200 }}>
               {statefulAppMenus}
               <Row style={{ display: this.state.tab1 ? 'block' : 'none', height: 130 }}>
                 <Col span={12} className='dbImg'>
@@ -1879,133 +1895,6 @@ class Ordinary extends Component {
               </Row>
             </Card>
           </Col>
-        </Row>
-        <Row className="content" gutter={16} style={{ marginTop: 16 }}>
-          <Col span={6}>
-            <Card title="应用" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-              <ReactEcharts
-                notMerge={true}
-                option={appOption}
-                style={{ height: '180px' }}
-                showLoading={isFetching}
-              />
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card title="服务" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-              <ReactEcharts
-                notMerge={true}
-                option={serviceOption}
-                style={{ height: '180px' }}
-                showLoading={isFetching}
-              />
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card title="容器" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-              <ReactEcharts
-                notMerge={true}
-                option={containerOption}
-                style={{ height: '180px' }}
-                showLoading={isFetching}
-              />
-            </Card>
-          </Col>
-          <Col span={6} className='storage'>
-            <Card title="存储" bordered={false} bodyStyle={{ height: 180, padding: '0px 20px 0px 0px' }}>
-              <ProgressBox boxPos={boxPos} />
-              <Col span={12} className='storageInf'>
-                <div className="storageInfList">
-                  <Row className='storageInfItem'>
-                    <Col span={12}>已用 <Tooltip title="当前已用配额"><Icon type="question-circle-o" /></Tooltip></Col>
-                    <Col span={12} style={{ textAlign: 'right' }}>{this.handleSize(clusterStorage.usedSize)}</Col>
-                  </Row>
-                  <Row className='storageInfItem'>
-                    <Col span={12}>可用 <Tooltip title="当前可用配额"><Icon type="question-circle-o" /></Tooltip></Col>
-                    <Col span={12} style={{ textAlign: 'right' }}>{this.handleSize(clusterStorage.freeSize)}</Col>
-                  </Row>
-                  <Row className='storageInfItem'>
-                    <Col span={12}>存储卷</Col>
-                    <Col span={12} style={{ textAlign: 'right' }}>{clusterStorage.totalCnt} 个</Col>
-                  </Row>
-                  <Row className='storageInfItem'>
-                    <Col span={12}>使用中</Col>
-                    <Col span={12} style={{ textAlign: 'right' }}>{clusterStorage.usedCnt} 个</Col>
-                  </Row>
-                </div>
-              </Col>
-            </Card>
-          </Col>
-        </Row>
-        <Row className="content" gutter={16} style={{ marginTop: 16 }}>
-          <Col span={6} className='quota'>
-            <Card title="该集群在项目中的资源配额" bordered={false} bodyStyle={{ height: 200, padding: '15px 24px' }}>
-              <Row className="radios">
-                <RadioGroup size="small" onChange={(e) => this.onChange(e)} defaultValue="computing">
-                  <RadioButton value="computing">计算资源</RadioButton>
-                  <RadioButton value="application">应用管理</RadioButton>
-                  <RadioButton value="service">数据库与缓存</RadioButton>
-                </RadioGroup>
-              </Row>
-              <div className="calculation" style={{ display: isComputing ? 'block' : 'none' }}>
-                {
-                  computeList.map((item, index) => (
-                    <div className="info">
-                      <Row>
-                        <Col span={7}>
-                          <span>{item}</span>
-                        </Col>
-                        <Col span={11}>
-                          <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
-                        </Col>
-                        <Col span={6}>
-                          <span className="count">0/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
-                        </Col>
-                      </Row>
-                    </div>
-                  ))
-                }
-              </div>
-              <div className="application" style={{ overflowY: 'auto', display: isApplication ? 'block' : 'none' }}>
-                {
-                  platformList.map((item, index) => (
-                    <div className="info">
-                      <Row>
-                        <Col span={8}>
-                          <span>{item}</span>
-                        </Col>
-                        <Col span={10}>
-                          <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
-                        </Col>
-                        <Col span={6}>
-                          <span className="count">0/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
-                        </Col>
-                      </Row>
-                    </div>
-                  ))
-                }
-              </div>
-              <div className="service" style={{ overflowY: 'auto', display: isService ? 'block' : 'none' }}>
-                {
-                  serviceList.map((item, index) => (
-                    <div className="info">
-                      <Row>
-                        <Col span={12}>
-                          <span>{item}</span>
-                        </Col>
-                        <Col span={6}>
-                          <Progress className="pro" style={{ width: '95%' }} percent={0} showInfo={false} />
-                        </Col>
-                        <Col span={6}>
-                          <span>0/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
-                        </Col>
-                      </Row>
-                    </div>
-                  ))
-                }
-              </div>
-            </Card>
-          </Col>
           <Col span={18} className="hostState">
             <Card title={
               <span>计算资源使用率<div style={{ width: 30, display: 'inline-block' }}></div><span style={{ fontSize: '12px', color: '#666' }}>Tips: 显示使用率前三的节点</span></span>
@@ -2139,6 +2028,7 @@ function getDbServiceStatus(data) {
 
 function mapStateToProp(state, props) {
   const { current, loginUser } = state.entities
+  const { clusterID } = current.cluster
   let clusterOperationsData = {
     appCreate: 0,
     appModify: 0,
@@ -2353,6 +2243,7 @@ function mapStateToProp(state, props) {
   }
 
   return {
+    clusterID,
     current,
     loginUser: loginUser.info,
     clusterOperations: clusterOperationsData,

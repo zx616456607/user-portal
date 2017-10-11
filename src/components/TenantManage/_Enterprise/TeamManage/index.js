@@ -43,7 +43,7 @@ let TeamTable = React.createClass({
       addMember: false,
       targetKeys: [],
       originalKeys: [],
-      sort: "d,teamName",
+      sort: "a,teamName",
       filter: "",
       nowTeamID: '',
       tableSelected: [],
@@ -188,7 +188,7 @@ let TeamTable = React.createClass({
     const { loadUserTeamList } = this.props.scope.props
     const { filter } = this.props.scope.state
     const { sortTeamName } = this.state
-    let sort = this.getSort(!sortTeamName, 'teamName')
+    let sort = this.getSort(true, 'teamName')
     loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
@@ -196,7 +196,7 @@ let TeamTable = React.createClass({
       filter,
     })
     this.setState({
-      sortTeamName: !sortTeamName,
+      sortTeamName: sortTeamName,
       sort,
     })
   },
@@ -480,7 +480,7 @@ class TeamManage extends Component {
       pageSize: 10,
       page: 1,
       current: 1,
-      sort: 'd,teamName',
+      sort: 'a,teamName',
       selected: [],
       userList:[],
       targetKeys: [],
@@ -529,7 +529,7 @@ class TeamManage extends Component {
     this.props.loadUserTeamList('default', {
       page: 1,
       size: 10,
-      sort: "d,teamName",
+      sort: "a,teamName",
       filter: "",
     })
   }

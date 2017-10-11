@@ -22,7 +22,7 @@ import QueueAnim from 'rc-queue-anim'
 import CreateRoleModal from './RoleEditManage/index.js'
 import Roles from './../ProjectManage/CreateRole'
 import { REG } from '../../../constants/index.js'
-
+import { ROLE_SYS_ADMIN } from '../../../../constants'
 
 const Option = Select.Option
 
@@ -464,18 +464,17 @@ class RoleManagement extends React.Component {
       dataIndex: 'comment',
       render: (text, record, index) => <div>
         {
-          this.props.userName === 'admin' ?
-            record.creator !== '' ?
-              <Dropdown.Button overlay={dropDown[index]} type="ghost" onClick={this.handleGetRoleJu.bind(this, record)}>
-                <Icon type="eye" />查看权限
+          this.props.userName === record.creator || this.props.role === ROLE_SYS_ADMIN ?
+            <Dropdown.Button overlay={dropDown[index]} type="ghost" onClick={this.handleGetRoleJu.bind(this, record)}>
+              <Icon type="eye" />查看权限
               </Dropdown.Button> :
-              <Button type="primary" onClick={this.handleGetRoleJu.bind(this, record)}><Icon type="eye" />查看权限</Button> :
-            record.creator === this.props.userName ?
-              <Dropdown.Button overlay={dropDown[index]} type="ghost" onClick={this.handleGetRoleJu.bind(this, record)}>
-                <Icon type="eye" />查看权限
-              </Dropdown.Button> :
-              <Button type="primary" onClick={this.handleGetRoleJu.bind(this, record)}><Icon type="eye" />查看权限</Button>
+            <Button type="primary" onClick={this.handleGetRoleJu.bind(this, record)}><Icon type="eye" />查看权限</Button>
         }
+        {/* record.creator === this.props.userName ?
+              <Dropdown.Button overlay={dropDown[index]} type="ghost" onClick={this.handleGetRoleJu.bind(this, record)}>
+                <Icon type="eye" />查看权限
+              </Dropdown.Button> :
+              <Button type="primary" onClick={this.handleGetRoleJu.bind(this, record)}><Icon type="eye" />查看权限</Button> */}
       </div>
     }]
     const searchIntOption = {
@@ -614,11 +613,13 @@ class RoleManagement extends React.Component {
 }
 RoleManagement = Form.create()(RoleManagement)
 function mapStateToProps(state, props) {
-  const { role, entities } = state
+  const { entities } = state
   const { loginUser } = entities
+  const role = loginUser.info.role
   const userName = loginUser.info.userName
   let roleList = []
   return {
+    role,
     userName
   }
 }

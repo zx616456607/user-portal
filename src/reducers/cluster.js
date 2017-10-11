@@ -155,8 +155,8 @@ function clusterStorage(state = {}, action){
       return Object.assign({}, state, {
         [cluster]: {
           isFetching: state[cluster] && state[cluster] ? false : true,
-          cephList: state[cluster] && state[cluster] ? state[cluster].cephList : [],
-          nfsList: state[cluster] && state[cluster] ? state[cluster].nfsList : [],
+          cephList: state[cluster] && state[cluster].cephList ? state[cluster].cephList : [],
+          nfsList: state[cluster] && state[cluster].nfsList ? state[cluster].nfsList : [],
         }
       })
     case ActionTypes.GET_CLUSTER_STORAGE_LIST_SUCCESS:
@@ -171,7 +171,7 @@ function clusterStorage(state = {}, action){
       return Object.assign({}, state, {
         [cluster]: {
           isFetching: false,
-          cephlist: [],
+          cephList: [],
           nfsList: [],
         }
       })
