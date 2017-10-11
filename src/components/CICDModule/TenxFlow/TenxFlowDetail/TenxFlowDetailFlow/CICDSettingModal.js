@@ -509,7 +509,7 @@ let CICDSettingModal = React.createClass({
                     disabled={ !this.state.editTag}
                     placeholder="tag名称，支持正则表达式，如：^feature.*"
                   />
-                  { this.state.noTag ? [<span className='noValueSpan'>请输入Tag名称</span>] : null}
+                  { this.state.noTag ? <span className='noValueSpan'>请输入Tag名称</span> : null}
                 </FormItem>
                 <FormItem style={{ width:'80px', float:'left' }}>
                   <Checkbox {...isTagRegProps} disabled={!this.state.editTag}>正则</Checkbox>
