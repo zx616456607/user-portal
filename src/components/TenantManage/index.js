@@ -12,8 +12,8 @@
 
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import {Link, browserHistory} from 'react-router'
-import {Row, Card, Col, Alert, Button, Icon} from 'antd'
+import { Link, browserHistory } from 'react-router'
+import { Row, Card, Col, Alert, Button, Icon } from 'antd'
 import './style/tenantManage.less'
 import Title from '../Title'
 import { fetchinfoList } from '../../actions/tenant_overview'
@@ -40,21 +40,21 @@ class TenantManage extends React.Component {
     }
   }
 
-  componentWillMount(){
+  componentWillMount() {
     this.loadInfosList()
-    if(localStorage.getItem('state')){
+    if (localStorage.getItem('state')) {
       this.setState({
-        iconState: localStorage.getItem('state') == 'true'? true : false
+        iconState: localStorage.getItem('state') == 'true' ? true : false
       })
     }
   }
 
-  loadInfosList(){
+  loadInfosList() {
     const { fetchinfoList } = this.props
     fetchinfoList(null, {
       success: {
         func: res => {
-          if(res.code === 200){
+          if (res.code === 200) {
             this.setState({
               member: res.data.user.total,
               team: res.data.team.total,
@@ -75,16 +75,16 @@ class TenantManage extends React.Component {
     })
   }
 
-  handleOnLi(index){
-    let getS = [{key: 'Menber'},{key: 'Team'},{key:'Project'},{key:'Role'}]
+  handleOnLi(index) {
+    let getS = [{ key: 'Menber' }, { key: 'Team' }, { key: 'Project' }, { key: 'Role' }]
     return localStorage.getItem(getS[index].key)
   }
 
-  itemNav(index){
+  itemNav(index) {
     return index === this.state.classindex ? 'active' : '';
   }
 
-  itemCon(index){
+  itemCon(index) {
     return index === this.state.classindex ? 'active' : '';
   }
 
@@ -92,70 +92,70 @@ class TenantManage extends React.Component {
    * 引导地址
    * @param {*} name
    */
-  handleNav(e){
+  handleNav(e) {
     let id = e.currentTarget.getAttribute('data-index')
-    switch(id){
+    switch (id) {
       case '0':
-      localStorage.setItem('Menber','true')
-      browserHistory.push('/tenant_manage/user')
-      return
+        localStorage.setItem('Menber', 'true')
+        browserHistory.push('/tenant_manage/user')
+        return
       case '1':
-      localStorage.setItem('Team','true')
-      browserHistory.push('tenant_manage/team')
-      return
+        localStorage.setItem('Team', 'true')
+        browserHistory.push('tenant_manage/team')
+        return
       case '2':
-      localStorage.setItem('Project','true')
-      browserHistory.push('tenant_manage/project_manage')
-      return
+        localStorage.setItem('Project', 'true')
+        browserHistory.push('tenant_manage/project_manage')
+        return
       case '3':
-      localStorage.setItem('Role','true')
-      browserHistory.push('tenant_manage/rolemanagement')
-      return
+        localStorage.setItem('Role', 'true')
+        browserHistory.push('tenant_manage/rolemanagement')
+        return
     }
   }
 
   /**
    * 引导
    */
-  handleIco(){
+  handleIco() {
     let is = this.state.iconState
-      if(is){
-        this.setState({
-          iconState: false
-        })
-        localStorage.setItem('state',false)
-      } else {
-        this.setState({
-          iconState: true
-        })
-        localStorage.setItem('state',true)
-      }
+    if (is) {
+      this.setState({
+        iconState: false
+      })
+      localStorage.setItem('state', false)
+    } else {
+      this.setState({
+        iconState: true
+      })
+      localStorage.setItem('state', true)
+    }
   }
 
   render() {
-    const ListLi =  [{
+    const ListLi = [{
       id: 1,
-      text:'创建新成员',
-      itemName:'创建新成员',
-      item:'成员是指公司内外共同协作管理和使用平台的人，每个成员创建后都会有一个个的项目，可在项目中创建个人的资源'
-    },{
+      text: '创建新成员',
+      itemName: '创建新成员',
+      item: '成员是指公司内外共同协作管理和使用平台的人，每个成员创建后都会有一个个的项目，可在项目中创建个人的资源'
+    }, {
       id: 2,
       text: '创建团队并添加成员',
-      itemName:'创建团队',
+      itemName: '创建团队',
       item: '团队，由若干个成员组成的一个集体，可等效于公司的部门、小组、或子公司，以实现可将一批人统一管理，统一加到某个项目中并授予角色'
-    },{
+    }, {
       id: 3,
       text: '创建角色',
-      itemName:'创建角色',
+      itemName: '创建角色',
       item: '角色是指一组权限的集合，您可以创建一个有若干权限的角色，在某项目中添加角色并为该角色关联对象（成员或团队）'
-    },{
+    }, {
       id: 4,
       text: '创建项目',
-      itemName:'创建项目',
+      itemName: '创建项目',
       item: '项目之间是项目隔离的，通过创建项目实现按照角色关联对象（成员、团队），并根据授予的权限，使用项目中资源及功能'
     }]
     const { user_supperUser, user_commonUser, project_createByUser, role_allCreated, role_createdByUser,
-      role_defaultSet, team_createdByUser} = this.state
+      role_defaultSet, team_createdByUser } = this.state
     let u_supperUser = user_supperUser, u_commonUser = user_commonUser
     let p_createByUser = project_createByUser
     let r_allCreated = role_allCreated, r_createdByUser = role_createdByUser, r_defaultSet = role_defaultSet
@@ -169,21 +169,21 @@ class TenantManage extends React.Component {
         orient: 'vertical',
         left: '55%',
         top: 'middle',
-        data: [{ name: '系统管理员' },  { name: '普通成员' }],
+        data: [{ name: '系统管理员' }, { name: '普通成员' }],
         formatter: function (name) {
           if (name === '系统管理员') {
-            return name + u_supperUser +'个'
+            return name + u_supperUser + '个'
           } else if (name === '普通成员') {
-            return name + u_commonUser +'个'
+            return name + u_commonUser + '个'
           }
         },
         textStyle: {
           fontSize: 13,
           color: '#666'
         },
-        itemGap: 9,
-        itemWidth: 6,
-        itemHeight: 6,
+        itemGap: 15,
+        itemWidth: 10,
+        itemHeight: 10,
       },
       color: ['#2db7f5', '#2abe84', '#B0E2FF'],
       series: {
@@ -240,21 +240,21 @@ class TenantManage extends React.Component {
         orient: 'vertical',
         left: '55%',
         top: 'middle',
-        data: ['我创建' ],
+        data: ['我创建'],
         formatter: function (name) {
           if (name === '我创建') {
-            return name + t_createdByUser +'个'
+            return name + t_createdByUser + '个'
           }
         },
         textStyle: {
           fontSize: 13,
           color: '#666'
         },
-        itemGap: 9,
-        itemWidth: 6,
-        itemHeight: 6,
+        itemGap: 15,
+        itemWidth: 10,
+        itemHeight: 10,
       },
-      color: ['#2db7f5','#B0E2FF'],
+      color: ['#2db7f5', '#B0E2FF'],
       series: {
         type: 'pie',
         selectedMode: 'single',
@@ -264,8 +264,8 @@ class TenantManage extends React.Component {
         radius: ['60', '0'],
         center: ['30%', '48%'],
         data: [
-          { value: t_createdByUser, name: '我创建'},
-          { value: 100-Number(t_createdByUser), name: '其他'},
+          { value: t_createdByUser, name: '我创建' },
+          { value: 100 - Number(t_createdByUser), name: '其他' },
         ],
         label: {
           normal: {
@@ -312,18 +312,18 @@ class TenantManage extends React.Component {
         data: ['我创建'],
         formatter: function (name) {
           if (name === '我创建') {
-            return name + p_createByUser +'个'
+            return name + p_createByUser + '个'
           }
         },
         textStyle: {
           fontSize: 13,
           color: '#666'
         },
-        itemGap: 9,
-        itemWidth: 6,
-        itemHeight: 6,
+        itemGap: 15,
+        itemWidth: 10,
+        itemHeight: 10,
       },
-      color: ['#2db7f5','#B0E2FF'],
+      color: ['#2db7f5', '#B0E2FF'],
       series: {
         type: 'pie',
         selectedMode: 'single',
@@ -334,7 +334,7 @@ class TenantManage extends React.Component {
         center: ['30%', '48%'],
         data: [
           { value: p_createByUser, name: '我创建' },
-          { value: 100-Number(p_createByUser), name: '其他' },
+          { value: 100 - Number(p_createByUser), name: '其他' },
         ],
         label: {
           normal: {
@@ -380,20 +380,20 @@ class TenantManage extends React.Component {
         data: [{ name: '系统默认' }, { name: '共创建' }, { name: '我创建' }],
         formatter: function (name) {
           if (name === '系统默认') {
-            return name + r_defaultSet +'个'
+            return name + r_defaultSet + '个'
           } else if (name === '共创建') {
-            return name + r_allCreated +'个'
+            return name + r_allCreated + '个'
           } else if (name === '我创建') {
-            return name + r_createdByUser +'个'
+            return name + r_createdByUser + '个'
           }
         },
         textStyle: {
           fontSize: 13,
           color: '#666'
         },
-        itemGap: 9,
-        itemWidth: 6,
-        itemHeight: 6,
+        itemGap: 15,
+        itemWidth: 10,
+        itemHeight: 10,
       },
       color: ['#2db7f5', '#2abe84', '#B0E2FF'],
       series: {
@@ -448,23 +448,21 @@ class TenantManage extends React.Component {
       left: this.state.btnLeft + 'px'
     }
     let images = [
-      {src:require('../../assets/img/tenantManage/tenantGuide.jpg')},
-      {src:require('../../assets/img/tenantManage/tenatNav.png')},
-      {src:require('../../assets/img/tenantManage/tenatNavs.jpg')},
-      {src:require('../../assets/img/tenantManage/guide.png')},
+      { src: require('../../assets/img/tenantManage/tenatDetail.png') },
+      { src: require('../../assets/img/tenantManage/guide.png') },
     ]
     const btmStyle = {
-      visibility: this.state.iconState  ? 'inherit' : 'hidden'
+      visibility: this.state.iconState ? 'inherit' : 'hidden'
     }
     const itemStyle = {
-      visibility: this.state.iconState  ? 'hidden' : 'inherit'
+      visibility: this.state.iconState ? 'hidden' : 'inherit'
     }
     return (
       <div id="tenantManage">
         <Title title="概览" />
         <Row className="title">
           控制权限概览
-          <Button style={ btmStyle }  className="bGuide" onClick={this.handleIco.bind(this)}><img src={images[3].src}/>操作引导</Button>
+          <Button style={btmStyle} className="bGuide" onClick={this.handleIco.bind(this)}><img src={images[1].src} />操作引导</Button>
         </Row>
         <div className="alertRow">
           <span>此功能满足细粒度的多租户权限控制需求，帮助企业做好权限分配和管理，同时处理好授权方面的一些难题;
@@ -472,7 +470,7 @@ class TenantManage extends React.Component {
         </div>
         <Row className="content" gutter={16} style={{ marginTop: 16 }}>
           <Col span={6}>
-            <Card title="成员" extra={<div><span>共</span><span>{this.state.member}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px'}}>
+            <Card title="成员" extra={<div><span>共</span><span>{this.state.member}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
               <ReactEcharts
                 notMerge={true}
                 option={memberOption}
@@ -512,45 +510,48 @@ class TenantManage extends React.Component {
           <Col span={30}>
             <Card
               title="操作引导"
-              style={ itemStyle }
-              extra={<div style={{width:20, height: 20}}><Icon className="ico" style={{fontSize: 23}} type={this.state.iconState ? "circle-o-down" : "circle-o-up"} onClick={this.handleIco.bind(this)}/></div>}
+              style={itemStyle}
+              extra={<div style={{ width: 20, height: 20 }}><Icon className="ico" style={{ fontSize: 23 }} type={this.state.iconState ? "circle-o-down" : "circle-o-up"} onClick={this.handleIco.bind(this)} /></div>}
             >
               <div className={this.state.iconState ? "itmsInfo" : "infos"}>
                 <div className="tagItems" id="tagItems">
-                  <ul>
-                    {
-                      ListLi.map((value,index)=>(
-                        <li className={this.itemNav(index)} data-index={index} key={index} onClick={() => this.setState({ classindex: index })}>
-                          <span style={{fontSize: 16}}>{value.text}</span>
-                          {
-                            localStorage.getItem('Menber') ?
-                            this.handleOnLi(index) ?
-                            <Icon className="checked" type="check-circle" style={{margin: 10}}/> :
-                              this.handleOnLi(index) ?
-                            <Icon className="Icon" type="check-circle-o" style={{margin: 10}}/> : ''
-                            : ''
-                          }
-                        </li>
-                      ))
-                    }
-                  </ul>
-                </div>
-                <div className="Items">
-                  {
-                    ListLi.map((value, index) => (
-                      <div className={this.itemCon(index)} key={index}>
-                        <img className="Nav" src={images[1].src}/>
-                        <img className="guide" src={index === 0 ? images[2].src : images[0].src}/>
-                        <p className="desc" style={{backgroundColor: '#2abe84',color: '#fff'}}>
-                            <p className="words">{value.item} </p>
-                        </p>
-                        <Button type='primary' data-index={index} size='large' className='addBtn' onClick={ this.handleNav }>
-                          <i className='fa fa-plus' />&nbsp;
-                           {value.itemName}
-                        </Button>
+                  <Row>
+                    <Col span={12}>
+                      <div className="tagImg">
+                        <img src={images[0].src} />
                       </div>
-                    ))
-                  }
+                    </Col>
+                    <Col span={12}>
+                      <div className="tagDesc">
+                        <div className="tagInfo">
+                          <svg className='member commonImg'>
+                            <use xlinkHref="#member"></use>
+                          </svg> &nbsp;
+                          <span>成员：平台上的成员</span>
+                        </div>
+                        <div className="tagInfo">
+                          <svg className='team commonImg'>
+                            <use xlinkHref="#team"></use>
+                          </svg> &nbsp;
+                          <span>团队：由n个成员组成</span>
+                        </div>
+                        <div className="tagInfo">
+                          <svg className='authority commonImg'>
+                            <use xlinkHref="#authority"></use>
+                          </svg> &nbsp;
+                          <span>权限：平台上每个功能模块权限的细粒度划分</span>
+                        </div>
+                        <div className="tagInfo">
+                          <div className="role"></div>
+                          <span>角色：在项目中添加，由n个权限组成</span>
+                        </div>
+                        <div className="tagInfo">
+                          <div className="project"></div>
+                          <span>项目：实现哪些人在项目中可以使用哪些资源的权限</span>
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
                 </div>
               </div>
             </Card>
@@ -561,8 +562,8 @@ class TenantManage extends React.Component {
   }
 }
 
-function mapStateToProps(state, props){
-  return{ }
+function mapStateToProps(state, props) {
+  return {}
 }
 
 export default connect(mapStateToProps, {

@@ -196,3 +196,21 @@ svg.http {
   vertical-align: middle;
   margin-right: 5px;
 }
+.member {
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+}
+#member .st0 {fill:#5B5B5B}
+.authority {
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+}
+#authority .st0 {fill: #5B5B5B}
+.team {
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+}
+#team .st0 {fill: #5B5B5B}

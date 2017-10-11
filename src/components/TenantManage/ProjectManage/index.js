@@ -609,7 +609,7 @@ let ProjectManage = React.createClass({
       clusterCountSort: undefined,
       balanceSort: undefined,
       creation_timeSort: undefined,
-      sort: 'd,name',
+      sort: 'a,name',
       clearInput: true,
       searchName: ''
     }, () => {
