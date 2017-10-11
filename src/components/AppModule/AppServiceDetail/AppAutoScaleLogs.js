@@ -12,36 +12,40 @@ import React from 'react'
 import { Timeline, Icon, Spin } from 'antd'
 import './style/AppAutoScaleLogs.less'
 import { formatDate } from '../../../common/tools'
+import { UPDATE_INTERVAL } from '../../../constants'
+
 const TimelineItem = Timeline.Item
+
 export default class AppAutoScaleLogs extends React.Component {
   constructor() {
     super()
     this.state = {
-      logList: [],
-      loading: false
+      logList: []
     }
   }
   componentWillMount() {
     this.loadLogs(this.props)
+    this.intervalLoadLogs = setInterval(() => {
+      this.loadLogs(this.props)
+    }, UPDATE_INTERVAL)
+  }
+  componentWillUnmount() {
+    clearInterval(this.intervalLoadLogs)
   }
   componentWillReceiveProps(nextProps) {
-    const { serviceName: newServiceName, isCurrentTab: newCurrentTab, serviceDetailmodalShow: newScopeModal } = nextProps
-    const { serviceName: oldServiceName, isCurrentTab: oldCurrentTab, serviceDetailmodalShow: oldScopeModal } = this.props
+    const { serviceName: newServiceName, isCurrentTab: newCurrentTab } = nextProps
+    const { serviceName: oldServiceName, isCurrentTab: oldCurrentTab } = this.props
     if (newServiceName !== oldServiceName || (newCurrentTab && !oldCurrentTab)) {
       this.loadLogs(nextProps)
     }
   }
   loadLogs = props => {
     const { getAutoScaleLogs, cluster, serviceName } = props
-    this.setState({
-      loading: true
-    })
     getAutoScaleLogs(cluster, serviceName, {
       success: {
         func: res => {
           this.setState({
-            logList: res.data.data,
-            loading: false
+            logList: res.data.data
           })
         },
         isAsync: true
@@ -49,8 +53,7 @@ export default class AppAutoScaleLogs extends React.Component {
       failed: {
         func: () => {
           this.setState({
-            logList: [],
-            loading: false
+            logList: []
           })
         },
         isAsync: true
@@ -81,23 +84,19 @@ export default class AppAutoScaleLogs extends React.Component {
     </TimelineItem>
   }
   render() {
-    const { logList, loading } = this.state
+    const { logList } = this.state
     return(
       <div className="appAutoScaleLogs">
         {
-          loading ?
-            <div className='loadingBox'>
-              <Spin size='large' />
-            </div> :
-            logList.length > 0 ?
-              <Timeline>
-                {
-                  logList.map(item => {
-                    return this.renderLineTiem(item)
-                  })
-                }
-              </Timeline>
-              : <div style={{ textAlign: 'center' }}>暂无数据</div>
+          logList.length > 0 ?
+            <Timeline>
+              {
+                logList.map(item => {
+                  return this.renderLineTiem(item)
+                })
+              }
+            </Timeline>
+            : <div style={{ textAlign: 'center' }}>暂无数据</div>
         }
       </div>
     )
