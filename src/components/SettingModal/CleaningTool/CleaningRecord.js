@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Select, Form, DatePicker, Button, Table } from 'antd'
+import { Select, Form, DatePicker, Button, Table, Timeline, Row, Col } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
@@ -19,6 +19,7 @@ import {
   getCleanLogs, getSystemCleanLogs
 } from '../../../actions/clean'
 import { formatDate } from '../../../common/tools'
+import flattenDeep from 'lodash/flattenDeep'
 
 const Option = Select.Option
 const FormItem = Form.Item
@@ -39,7 +40,6 @@ class CleaningRecord extends Component {
       endOpen: false,
       cleanLogs: [],
       totalCount: 0,
-      tableLoading: false,
       currentPage: 1,
       sort: '',
       filter: '',
@@ -52,9 +52,6 @@ class CleaningRecord extends Component {
   getCleanLogs() {
     const { currentPage, sort, filter } = this.state
     const { getCleanLogs } = this.props
-    this.setState({
-      tableLoading: true
-    })
     getCleanLogs({
       sort,
       filter,
@@ -66,7 +63,6 @@ class CleaningRecord extends Component {
           this.setState({
             cleanLogs: res.data.body,
             totalCount: res.data.meta.total,
-            tableLoading: false
           })
         },
         isAsync: true
@@ -76,7 +72,6 @@ class CleaningRecord extends Component {
           this.setState({
             cleanLogs: [],
             totalCount: 0,
-            tableLoading: false
           })
         },
         isAsync: true
@@ -88,9 +83,6 @@ class CleaningRecord extends Component {
     const { getSystemCleanLogs, form } = this.props
     const { getFieldsValue } = form
     const { status, type } = getFieldsValue(['status', 'type'])
-    this.setState({
-      tableLoading: true
-    })
     let query = {form: currentPage, size: 10}
     sort ? query = Object.assign(query, {sort}) : ''
     let body = {status, operation_type: type}
@@ -102,7 +94,6 @@ class CleaningRecord extends Component {
           this.setState({
             cleanLogs: res.data.body,
             totalCount: res.data.meta.total,
-            tableLoading: false
           })
         },
         isAsync: true
@@ -112,30 +103,29 @@ class CleaningRecord extends Component {
           this.setState({
             cleanLogs: [],
             totalCount: 0,
-            tableLoading: false
           })
         },
         isAsync: true
       }
     })
   }
-  formatStatus(status){
-    function getText(status) {
-      switch(status) {
-        case 'success': 
-          return '执行成功'
-        case 'failed':
-          return '执行失败'
-        case 'timeout':
-          return '执行超时'
-        case 'running':
-          return '正在执行'
-      }
+  getText(status) {
+    switch(status) {
+      case 'success':
+        return '执行成功'
+      case 'failed':
+        return '执行失败'
+      case 'timeout':
+        return '执行超时'
+      case 'running':
+        return '正在执行'
     }
+  }
+  formatStatus(status, flag){
     return (
       <span className={`${status}_icon`}>
-        <i className="fa fa-circle icon_circle" aria-hidden="true"/>
-        {getText(status)}
+        {flag && <i className="fa fa-circle icon_circle" aria-hidden="true"/>}
+        {this.getText(status)}
       </span>
     )
   }
@@ -272,9 +262,39 @@ class CleaningRecord extends Component {
     }
     this.getSystemLogs()
   }
+  renderExpand(record) {
+    const colorOpt = {
+      success: 'green',
+      failed: 'red',
+      running: '#0b9eeb',
+      timeout: '#fab163'
+    }
+    const detail = JSON.parse(record.detail)
+    const { clusters } = detail
+    let nodeArr = []
+    clusters.forEach(item => {
+      nodeArr.push(Object.values(item.nodes))
+    })
+    nodeArr = flattenDeep(nodeArr)
+    return(
+      <Timeline>
+        {
+          nodeArr.map(item => 
+            <Timeline.Item key={item.name} color={colorOpt[item.status]}>
+              <Row className="nodeItem">
+                <Col span={8}>{item.name}</Col>
+                <Col span={8}>{this.formatStatus(item.status)}</Col>
+                <Col span={8}>{`已清理：${item.total}MB`}</Col>
+              </Row>
+            </Timeline.Item>
+          ) 
+        }
+      </Timeline>
+    )
+  }
   render() {
     const { form } = this.props
-    const { cleanLogs, totalCount, tableLoading, createTimeSort } = this.state
+    const { cleanLogs, totalCount, createTimeSort } = this.state
     const { getFieldProps } = form
     const pagination = {
       simple: true,
@@ -311,7 +331,7 @@ class CleaningRecord extends Component {
         dataIndex: 'status',
         title: '状态',
         width: '25%',
-        render: text => this.formatStatus(text)
+        render: text => this.formatStatus(text, true)
       },
       {
         key: 'operationType',
@@ -441,9 +461,10 @@ class CleaningRecord extends Component {
               <Table
                 dataSource={cleanLogs}
                 columns={columns}
-                loading={tableLoading}
+                expandedRowRender={record => this.renderExpand(record)}
                 onChange={this.onTableChange.bind(this)}
                 pagination={pagination}
+                rowKey={record => record.id}
               />
             </div>
           </div>
