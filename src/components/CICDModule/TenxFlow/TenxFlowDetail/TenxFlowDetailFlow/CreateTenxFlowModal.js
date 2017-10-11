@@ -269,6 +269,7 @@ let CreateTenxFlowModal = React.createClass({
       saveShellCodeBtnLoading: false,
       dockerfileEditMode: 'textEditing',
       validateStatus: true,
+      noShell: false,
     }
   },
   getUniformRepo() {
@@ -437,6 +438,9 @@ let CreateTenxFlowModal = React.createClass({
     //this function for user add an new box of shell code
     //there are no button for user click
     //when user input words, after user key up would triger the function
+    this.setState({
+      noShell: false,
+    })
     const { form } = this.props;
     let inputValue = form.getFieldValue('shellCode' + index);
     let changed = false
@@ -635,8 +639,13 @@ let CreateTenxFlowModal = React.createClass({
       notification.error('格式错误', '请在首行填写 Shebang（声明解释器，例如 bash 环境填写 #!/bin/bash）')
       return
     }
+    if (scriptsTextarea.replace(/\s/g, '') === '#!/bin/sh') {
+      notification.warn('请填写脚本内容')
+      return
+    }
     this.setState({
       shellModalShow: false,
+      noShell: false,
     })
     this.oldScripts = scriptsTextarea
   },
@@ -837,6 +846,21 @@ let CreateTenxFlowModal = React.createClass({
             shellList.push(values['shellCode' + item]);
           }
         });
+        if (shellList.length === 0) {
+          this.setState({
+            noShell: true,
+          })
+          notification.error('使用脚本命令，内容不能为空，请先填写脚本命令')
+          return
+        }
+      } else {
+        if (!this.state.scriptsTextarea || this.state.scriptsTextarea.replace(/\s/g, '') === '#!/bin/sh') {
+          this.setState({
+            noShell: true,
+          })
+          notification.error('使用脚本文件，内容不能为空，请先编辑脚本文件')
+          return
+        }
       }
       let body = {
         'metadata': {
@@ -1584,6 +1608,13 @@ let CreateTenxFlowModal = React.createClass({
               }
             </div>
             <div style={{ clear: 'both' }} />
+            {
+              this.state.noShell && (
+                <div className="noValueDiv">
+                  <span className='noValueSpan'>请输入脚本命令</span>
+                </div>
+              )
+            }
           </div>}
           {
             this.state.otherFlowType == 3 ? [
@@ -1717,13 +1748,13 @@ let CreateTenxFlowModal = React.createClass({
                       <div style={{ clear: 'both' }} />
                     </FormItem>
                     {
-                      this.state.otherTag ? [
+                      this.state.otherTag ? (
                         <div key='otherTagAnimate'>
                           <FormItem style={{ width: '200px', float: 'left' }}>
                             <Input {...otherImageTagProps} type='text' size='large' />
                           </FormItem>
                         </div>
-                      ] : null
+                       ) : null
                     }
                     <div style={{ clear: 'both' }} />
                   </div>

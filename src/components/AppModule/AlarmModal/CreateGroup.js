@@ -139,16 +139,20 @@ let CreateAlarmGroup = React.createClass({
       })
     }
     if (email) {
+      this.setState({
+        ['transitionTime'+[k]]:'验证中...',
+        ['transitionEnble'+[k]]: true,
+      })
       // check if email already accept invitation
       getAlertNotifyInvitationStatus(email, {
         success: {
           func: (result) => {
             if (email in result.data && result.data[email] === 1) {
-               this.setState({
-                  [`emailStatus${k}`]: EMAIL_STATUS_ACCEPTED,
-                  ['transitionTime'+[k]]:'已接收邀请',
-                  ['transitionEnble'+[k]]:true
-                })
+              this.setState({
+                [`emailStatus${k}`]: EMAIL_STATUS_ACCEPTED,
+                ['transitionTime'+[k]]:'已接收邀请',
+                ['transitionEnble'+[k]]:true
+              })
             } else {
               sendNotify(email)
             }
@@ -354,7 +358,19 @@ let CreateAlarmGroup = React.createClass({
         <Form.Item style={{float:'left'}}>
           <Input placeholder="备注"size="large" style={{ width: 80,  marginRight: 8 }} {...getFieldProps(`remark${k}`,{initialValue: initDescValue})}/>
         </Form.Item>
-        <Button type="primary" style={{padding:5}} disabled={this.state[`transitionEnble${k}`]} size="large" onClick={()=> this.ruleEmail(k)}>{this.state[`transitionEnble${k}`] ? this.state[`transitionTime${k}`]:'验证邮件'}</Button>
+        <Button
+          type="primary"
+          style={{padding:5}}
+          disabled={this.state[`transitionEnble${k}`]}
+          size="large"
+          onClick={()=> this.ruleEmail(k)}
+        >
+          {
+            this.state[`transitionEnble${k}`]
+            ? this.state[`transitionTime${k}`]
+            :'验证邮件'
+          }
+        </Button>
         <Button size="large" style={{ marginLeft: 8}} disabled={this.state[`transitionEnble${k}`]} onClick={()=> this.removeEmail(k)}>取消</Button>
       </div>
       );

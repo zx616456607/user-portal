@@ -6,10 +6,6 @@ import { FETCH_API } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
 import { toQuerystring } from '../common/tools'
 import { Schemas } from '../middleware/api'
-
-
-
-
 export const PROJECTS_CREATE_REQUEST = 'PROJECTS_CREATE_REQUEST'
 export const PROJECTS_CREATE_SUCCESS = 'PROJECTS_CREATE_SUCCESS'
 export const PROJECTS_CREATE_FAILURE = 'PROJECTS_CREATE_FAILURE'

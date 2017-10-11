@@ -293,6 +293,7 @@ let EditTenxFlowModal = React.createClass({
       dockerfileEditMode: '',
       isDockerfile: false,
       validateStatus: true,
+      noShell: false,
     }
   },
   componentWillMount() {
@@ -619,7 +620,10 @@ let EditTenxFlowModal = React.createClass({
   addShellCode(index) {
     //this function for user add an new box of shell code
     //there are no button for user click
-    //when user input words, after user key up would triger the function
+    //when user input words, after user key up would triger the
+    this.setState({
+      noShell: false,
+    })
     const { form } = this.props;
     let inputValue = form.getFieldValue('shellCode' + index);
     let changed = false
@@ -794,6 +798,10 @@ let EditTenxFlowModal = React.createClass({
       notification.error('格式错误', '请在首行填写 Shebang（声明解释器，例如 bash 环境填写 #!/bin/bash）')
       return
     }
+    if (scriptsTextarea.replace(/\s/g, '') === '#!/bin/sh') {
+      notification.warn('请填写脚本内容')
+      return
+    }
     const { createScripts, updateScriptsById } = this.props
     this.setState({
       saveShellCodeBtnLoading: true,
@@ -810,6 +818,9 @@ let EditTenxFlowModal = React.createClass({
               shellModalShow: false,
             })
             notification.success(`保存脚本成功`)
+            this.setState({
+              noShell: false,
+            })
           },
         },
         finally: {
@@ -831,6 +842,9 @@ let EditTenxFlowModal = React.createClass({
             scriptsId: res.data.id,
           })
           notification.success(`创建脚本成功`)
+          this.setState({
+            noShell: false,
+          })
         },
       },
       failed: {
@@ -1045,11 +1059,11 @@ let EditTenxFlowModal = React.createClass({
         });
       }
       if (dockerfileError) {
-        new NotificationHandler().error('Dockerfile 为空或不合法')
+        notification.error('Dockerfile 为空或不合法')
         return;
       }
       if (envError) {
-        new NotificationHandler().error('环境变量输入有误')
+        notification.error('环境变量输入有误')
         return;
       }
       //get shell code
@@ -1061,12 +1075,25 @@ let EditTenxFlowModal = React.createClass({
             shellList.push(values['shellCode' + item]);
           }
         });
+        if (shellList.length === 0) {
+          this.setState({
+            noShell: true,
+          })
+          notification.error('使用脚本命令，内容不能为空，请先填写脚本命令')
+          return
+        }
       } else {
         if (!_this.state.scriptsId || _this.state.scriptsId === '') {
-          new NotificationHandler().error('使用脚本文件，内容不能为空，请先编辑脚本文件')
+          this.setState({
+            noShell: true,
+          })
+          notification.error('使用脚本文件，内容不能为空，请先编辑脚本文件')
           return;
         }
       }
+      this.setState({
+        noShell: false,
+      })
       let cloneCofig = cloneDeep(config)
       if(!cloneCofig.spec.ci) {
         cloneCofig.spec.ci = {}
@@ -1834,6 +1861,13 @@ let EditTenxFlowModal = React.createClass({
             }
             </div>
             <div style={{ clear: 'both' }} />
+            {
+              this.state.noShell && (
+                <div className="noValueDiv">
+                  <span className='noValueSpan'>请输入脚本命令</span>
+                </div>
+              )
+            }
           </div>}
           {
             this.state.otherFlowType == 3 ? [
