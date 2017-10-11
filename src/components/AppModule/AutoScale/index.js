@@ -10,7 +10,7 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
+import QueueAnim from 'rc-queue-anim'
 import { Button, Table, Menu, Dropdown, Icon, Modal } from 'antd'
 import {
   loadAutoScaleList, deleteAutoScale, updateAutoScale,
@@ -419,53 +419,55 @@ class AutoScale extends React.Component {
       current: currentPage,
     }
     return(
-      <div className="AutoScale">
-        <div className="alertRow">
-          伸缩策略规定了自动伸缩触发条件，任意指标超过阈值都会触发扩展，所有指标都满足n-1个实例平均值低于阈值才会触发收缩，数据与k8s共通，可以在本平台或k8s管理伸缩策略
+      <QueueAnim>
+        <div className="AutoScale" key="AutoScale">
+          <div className="alertRow">
+            伸缩策略规定了自动伸缩触发条件，任意指标超过阈值都会触发扩展，所有指标都满足n-1个实例平均值低于阈值才会触发收缩，数据与k8s共通，可以在本平台或k8s管理伸缩策略
+          </div>
+          <div className="btnGroup">
+            <Button type="primary" size="large" onClick={() => this.setState({scaleModal: true, create: true})}><i className="fa fa-plus" /> 创建自动伸缩策略</Button>
+            <Button size="large" onClick={() => this.loadData(clusterID, 1)}><i className='fa fa-refresh' /> 刷新</Button>
+            <Button size="large" disabled={selectedRowKeys.length ? false: true} onClick={() => this.batchUpdateStatus('start')}><i className='fa fa-play' /> 启用</Button>
+            <Button size="large" disabled={selectedRowKeys.length ? false: true} onClick={() => this.batchUpdateStatus('stop')}><i className='fa fa-stop' /> 停用</Button>
+            <Button size="large" disabled={selectedRowKeys.length ? false: true} onClick={() => selectedRowKeys.length && this.setState({deleteModal: true})}><i className='fa fa-trash-o' /> 删除</Button>
+            <CommonSearchInput
+              placeholder="请输入策略名或服务名搜索"
+              size="large"
+              style={{width: '200px'}}
+              value={searchValue}
+              onSearch={(value) => this.loadData(clusterID, 1,value)}/>
+            <Button size="large" onClick={this.demo}><Icon type="question-circle-o" />Demo</Button>
+            <span className="pull-right totalCount">共计 {totalCount} 条</span>
+          </div>
+          <Modal
+            title="删除策略"
+            visible={deleteModal}
+            onCancel={this.cancelDelete}
+            onOk={this.confirmDelete}
+            className="autoScaleDeleteModal"
+            footer={this.renderFooter()}
+          >
+            <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>删除策略后无法被找回，是否确认删除？</div>
+          </Modal>
+          <Table
+            className="autoScaleTable"
+            loading={tableLoading}
+            pagination={pagination}
+            rowSelection={rowSelection}
+            columns={columns}
+            rowKey={record => record.key}
+            onRowClick={this.onRowClick}
+            onChange={this.tableFilter}
+            dataSource={scaleList} />
+          <AutoScaleModal
+            visible={scaleModal}
+            create={create}
+            reuse={reuse}
+            scaleDetail={scaleDetail}
+            existServices={existServices}
+            scope={this}/>
         </div>
-        <div className="btnGroup">
-          <Button type="primary" size="large" onClick={() => this.setState({scaleModal: true, create: true})}><i className="fa fa-plus" /> 创建自动伸缩策略</Button>
-          <Button size="large" onClick={() => this.loadData(clusterID, 1)}><i className='fa fa-refresh' /> 刷新</Button>
-          <Button size="large" disabled={selectedRowKeys.length ? false: true} onClick={() => this.batchUpdateStatus('start')}><i className='fa fa-play' /> 启用</Button>
-          <Button size="large" disabled={selectedRowKeys.length ? false: true} onClick={() => this.batchUpdateStatus('stop')}><i className='fa fa-stop' /> 停用</Button>
-          <Button size="large" disabled={selectedRowKeys.length ? false: true} onClick={() => selectedRowKeys.length && this.setState({deleteModal: true})}><i className='fa fa-trash-o' /> 删除</Button>
-          <CommonSearchInput
-            placeholder="请输入策略名或服务名搜索"
-            size="large"
-            style={{width: '200px'}}
-            value={searchValue}
-            onSearch={(value) => this.loadData(clusterID, 1,value)}/>
-          <Button size="large" onClick={this.demo}><Icon type="question-circle-o" />Demo</Button>
-          <span className="pull-right totalCount">共计 {totalCount} 条</span>
-        </div>
-        <Modal
-          title="删除策略"
-          visible={deleteModal}
-          onCancel={this.cancelDelete}
-          onOk={this.confirmDelete}
-          className="autoScaleDeleteModal"
-          footer={this.renderFooter()}
-        >
-          <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>删除策略后无法被找回，是否确认删除？</div>
-        </Modal>
-        <Table
-          className="autoScaleTable"
-          loading={tableLoading}
-          pagination={pagination}
-          rowSelection={rowSelection}
-          columns={columns}
-          rowKey={record => record.key}
-          onRowClick={this.onRowClick}
-          onChange={this.tableFilter}
-          dataSource={scaleList} />
-        <AutoScaleModal
-          visible={scaleModal}
-          create={create}
-          reuse={reuse}
-          scaleDetail={scaleDetail}
-          existServices={existServices}
-          scope={this}/>
-      </div>
+      </QueueAnim>
     )
   }
 }
