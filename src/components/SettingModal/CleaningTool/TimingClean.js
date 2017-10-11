@@ -19,6 +19,7 @@ import {
 } from '../../../actions/clean'
 import isEmpty from 'lodash/isEmpty'
 import { formatDate } from "../../../common/tools";
+import Notification from '../../Notification'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -39,7 +40,10 @@ class TimingClean extends Component {
       mirrorImageEdit: true,
       stopContainer: true,
       stopContainerEdit: true,
-      cicdSetting: {}
+      cicdScope: '1',
+      cicdCycle: 'day', 
+      cicdDate: '1',
+      cicdTime: '00:00:00'
     }
   }
   componentWillMount() {
@@ -51,13 +55,41 @@ class TimingClean extends Component {
       success: {
         func: res => {
           if (!isEmpty(res.data.cicdClean)) {
-            this.setState({
-              cicdSetting: res.data.cicdClean
-            })
+            this.parseCron(res.data.cicdClean)
           }
         },
         isAsync: true
       }
+    })
+  }
+  parseCron(str) {
+    const cronArr = str.spec.cron.split(' ').splice(1)
+    if (cronArr[4] !== '?') {
+      this.setState({
+        cicdCycle: 'week',
+        cicdDate: cronArr[4]
+      })
+    } else if (cronArr[3] === '1/1') {
+      this.setState({
+        cicdCycle: 'day',
+      })
+    } else {
+      this.setState({
+        cicdCycle: 'month',
+        cicdDate: cronArr[2]
+      })
+    }
+    this.getTime(cronArr[0], cronArr[1])
+    this.setState({
+      cicdScope: `${str.spec.scope}`
+    })
+  }
+  getTime(m, h) {
+    let minute = m.length === 1 ? `0${m}`: m
+    let hour = h.length === 1 ? `0${h}` : h
+    let time = `${hour}:${minute}:00`
+    this.setState({
+      cicdTime: time
     })
   }
   systemChange(systemCheckedValue){
@@ -115,6 +147,7 @@ class TimingClean extends Component {
 
   CICDcacheChange(CICDcacheValue){
     const { CICDcache } = this.state
+    let notify = new Notification()
     if(CICDcache){
       this.setState({
         CICDcache: CICDcacheValue,
@@ -137,13 +170,15 @@ class TimingClean extends Component {
         return
       }
       const { CICDcacheScope, CICDcacheCycle, CICDcacheTime, CICDcacheDate } = values
-      
+      notify.spin('cicd定时清理设置中')
       startClean('cicd_clean', 'auto', {
         cron: this.getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime),
         scope: parseInt(CICDcacheScope)
       }, {
         success: {
           func: () => {
+            notify.close()
+            notify.success('cicd定时清理设置成功')
             this.setState({
               CICDcache: CICDcacheValue,
               CICDcacheEdit: CICDcacheValue,
@@ -154,6 +189,8 @@ class TimingClean extends Component {
         },
         failed: {
           func: () => {
+            notify.close()
+            notify.success('cicd定时清理设置失败')
             this.setState({
               CICDcache,
               CICDcacheEdit: CICDcache
@@ -174,10 +211,10 @@ class TimingClean extends Component {
         return `${time} 1/1 * ?`
         break;
       case 'week':
-        return `${time} 0 0 ${CICDcacheDate}/7`
+        return `${time} 0 0 ${CICDcacheDate}`
         break;
       case 'month':
-        return `${time} 0 ${CICDcacheDate}/1 ?`
+        return `${time} ${CICDcacheDate} * ?`
     }
   }
   mirrorImageChange(mirrorImageValue){
@@ -202,7 +239,6 @@ class TimingClean extends Component {
       if(!!errors){
         return
       }
-      //console.log('values=',values)
       this.setState({
         mirrorImage: mirrorImageValue,
         mirrorImageEdit: mirrorImageValue,
@@ -232,7 +268,6 @@ class TimingClean extends Component {
       if(!!errors){
         return
       }
-      //console.log('values=',values)
       this.setState({
         stopContainer: stopContainerValue,
         stopContainerEdit: stopContainerValue,
@@ -259,7 +294,8 @@ class TimingClean extends Component {
       systemChecked, systemEdit,
       CICDcache, CICDcacheEdit,
       mirrorImage, mirrorImageEdit,
-      stopContainer, stopContainerEdit
+      stopContainer, stopContainerEdit,
+      cicdScope, cicdCycle, cicdDate, cicdTime
     } = this.state
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
@@ -287,23 +323,23 @@ class TimingClean extends Component {
       rules: [{required: true, message: '请选择清理时间'}]
     })
     const CICDcacheScopeProps = getFieldProps('CICDcacheScope', {
-      initialValue: '1',
+      initialValue: cicdScope,
       rules: [{required: true, message: '请选择清理范围'}],
     })
     const CICDcacheCycleProps = getFieldProps('CICDcacheCycle',{
-      initialValue: 'day',
+      initialValue: cicdCycle,
       rules: [{required: true, message: '请选择清理周期'}],
     })
     const CICDcacheCycleValue = getFieldValue('CICDcacheCycle')
     let CICDcacheDateProps
     if(CICDcacheCycleValue !== 'day'){
       CICDcacheDateProps = getFieldProps('CICDcacheDate', {
-        initialValue: '1',
+        initialValue: cicdDate,
         rules: [{required: true, message: '请选择清理日期'}]
       })
     }
     const CICDcacheTimeProps = getFieldProps('CICDcacheTime', {
-      initialValue: '00:00:00',
+      initialValue: cicdTime,
       rules: [{required: true, message: '请选择清理时间'}]
     })
     const mirrorImageCycleProps = getFieldProps('mirrorImageCycle',{
