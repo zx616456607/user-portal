@@ -1054,7 +1054,7 @@ class AppServiceList extends Component {
     const operaMenu = (
       <Menu>
         <Menu.Item key="0" disabled={!redeploybtn}>
-          <span onClick={this.batchRestartService}>重新部署</span>
+          <span onClick={this.batchRestartService}><i className='fa fa-undo' /> 重新部署</span>
         </Menu.Item>
       </Menu>
     );
