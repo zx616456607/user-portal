@@ -11,7 +11,7 @@
 import React, { Component } from 'react'
 import classNames from 'classnames';
 import './style/ProjectDetail.less'
-import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree, Switch, Alert, Dropdown, Menu, Form, Tabs } from 'antd'
+import { Row, Col, Button, Input, Card, Icon, Modal, Checkbox, Tooltip, Transfer, InputNumber, Tree, Alert, Form, Tabs, Popover } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
@@ -49,7 +49,6 @@ class ProjectDetail extends Component {
       characterModal: false,
       payNumber: 10,
       projectDetail: {},
-      dropVisible: false,
       UnRequest: 0,
       comment: '',
       currentRoleInfo: {},
@@ -74,7 +73,8 @@ class ProjectDetail extends Component {
       filterFlag: true,
       quotaData: [],
       quotauseData: [],
-      filterLoading: false
+      filterLoading: false,
+      popoverVisible: false
     }
   }
   componentWillMount() {
@@ -344,11 +344,6 @@ class ProjectDetail extends Component {
         {status === 3 ? flag ? '（已拒绝）' : '已拒绝' : ''}
       </span>
     )
-  }
-  toggleDrop() {
-    this.setState({
-      dropVisible: !this.state.dropVisible
-    })
   }
   updateProjectClusters(id, status) {
     const { UpdateProjectsCluster } = this.props;
@@ -692,10 +687,23 @@ class ProjectDetail extends Component {
       })
     })
   }
+  popoverChange(visible) {
+    const { roleNum } = this.props
+    const { isManager } = this.state
+    if ((roleNum !== 1) && (!isManager)) {
+      this.setState({
+        popoverVisible: false
+      })
+      return
+    }
+    this.setState({
+      popoverVisible: visible
+    })
+  }
   render() {
-    const { payNumber, projectDetail, dropVisible, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
+    const { payNumber, projectDetail, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
-      filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData
+      filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters } = this.props;
@@ -845,6 +853,28 @@ class ProjectDetail extends Component {
       )
     })
     const appliedLenght = projectClusters.length - bottomLength
+    const content = (
+      <div className={classNames("dropDownInnerBox")}>
+        <dl className="dropDownTop">
+          <dt className="topHeader">{`已申请集群（${appliedLenght}）`}</dt>
+          {applying(false)}
+          {applied(false)}
+          {reject(false)}
+          {
+            !appliedLenght &&
+            <dd className="topList" style={{ color: '#999' }}>已申请集群为空</dd>
+          }
+        </dl>
+        <dl className="dropDownBottom">
+          <dt className="bottomHeader">{`可申请集群（${bottomLength}）`}</dt>
+          {menuBottom}
+          {
+            !bottomLength &&
+            <dd className="topList lastList" style={{ color: '#999' }}>可申请集群为空</dd>
+          }
+        </dl>
+      </div>
+    )
     return (
       <QueueAnim>
         <div key='projectDetailBox' className="projectDetailBox">
@@ -970,30 +1000,42 @@ class ProjectDetail extends Component {
                       </div>
                     </Col>
                     <Col className='gutter-row' span={20}>
-                      <div className="gutter-box">
-                        <div className="dropDownBox">
-                          <span className="pointer" onClick={() => { roleNum === 1 || isManager ? this.toggleDrop() : null }}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true" /></span>
-                          <div className={classNames("dropDownInnerBox", { 'hide': !dropVisible })}>
-                            <dl className="dropDownTop">
-                              <dt className="topHeader">{`已申请集群（${appliedLenght}）`}</dt>
-                              {applying(false)}
-                              {applied(false)}
-                              {reject(false)}
-                              {
-                                !appliedLenght &&
-                                <dd className="topList" style={{ color: '#999' }}>已申请集群为空</dd>
-                              }
-                            </dl>
-                            <dl className="dropDownBottom">
-                              <dt className="bottomHeader">{`可申请集群（${bottomLength}）`}</dt>
-                              {menuBottom}
-                              {
-                                !bottomLength &&
-                                <dd className="topList lastList" style={{ color: '#999' }}>可申请集群为空</dd>
-                              }
-                            </dl>
+                      <div className="gutter-box" id="popBox">
+                        <Popover
+                          content={content}
+                          visible={popoverVisible}
+                          trigger="click"
+                          overlayClassName="projectDetailPop"
+                          getTooltipContainer={() => document.getElementById('popBox')}
+                          onVisibleChange={this.popoverChange.bind(this)}
+                        >
+                          <div className="dropDownBox">
+                            <span className="pointer" /*onClick={() => { roleNum === 1 || isManager ? this.toggleDrop() : null }}*/>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true" /></span>
                           </div>
-                        </div>
+                        </Popover>
+                        {/*<div className="dropDownBox">*/}
+                          {/*<span className="pointer" onClick={() => { roleNum === 1 || isManager ? this.toggleDrop() : null }}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true" /></span>*/}
+                          {/*<div className={classNames("dropDownInnerBox", { 'hide': !dropVisible })}>*/}
+                            {/*<dl className="dropDownTop">*/}
+                              {/*<dt className="topHeader">{`已申请集群（${appliedLenght}）`}</dt>*/}
+                              {/*{applying(false)}*/}
+                              {/*{applied(false)}*/}
+                              {/*{reject(false)}*/}
+                              {/*{*/}
+                                {/*!appliedLenght &&*/}
+                                {/*<dd className="topList" style={{ color: '#999' }}>已申请集群为空</dd>*/}
+                              {/*}*/}
+                            {/*</dl>*/}
+                            {/*<dl className="dropDownBottom">*/}
+                              {/*<dt className="bottomHeader">{`可申请集群（${bottomLength}）`}</dt>*/}
+                              {/*{menuBottom}*/}
+                              {/*{*/}
+                                {/*!bottomLength &&*/}
+                                {/*<dd className="topList lastList" style={{ color: '#999' }}>可申请集群为空</dd>*/}
+                              {/*}*/}
+                            {/*</dl>*/}
+                          {/*</div>*/}
+                        {/*</div>*/}
                       </div>
                     </Col>
                   </Row>
