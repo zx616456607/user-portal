@@ -412,6 +412,9 @@ class AppAutoScale extends Component {
     if (!value) {
       return callback('请输入阈值')
     }
+    if (value < 1 || value > 99) {
+      return callback('阈值范围为1至99')
+    }
     callback()
   }
   addRule = () => {
