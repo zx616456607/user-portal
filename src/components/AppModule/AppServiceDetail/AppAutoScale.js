@@ -92,45 +92,59 @@ class AppAutoScale extends Component {
     const { serviceName, cluster, loadAutoScale } = props
     loadAutoScale(cluster, serviceName, {
       success: {
-        func: (res) => {
-          if (!isEmpty(res.data)) {
-            const { metadata, spec } = res.data
-            const { name: serviceName } = metadata
-            const { strategyName } = metadata.labels
-            const { alertStrategy: alert_strategy, alertgroupId: alert_group, status } = metadata.annotations
-            const { maxReplicas: max, minReplicas: min, metrics } = spec
-            let cpu, memory
-            metrics.forEach(item => {
-              if (item.resource.name === 'memory') {
-                memory = item.resource.targetAverageUtilization
-              } else if (item.resource.name === 'cpu') {
-                cpu = item.resource.targetAverageUtilization
+        func: () => {
+          loadAutoScale(cluster, serviceName, {
+            success: {
+              func: res=> {
+                if (!isEmpty(res.data)) {
+                  const { metadata, spec } = res.data
+                  const { name: serviceName } = metadata
+                  const { strategyName } = metadata.labels
+                  const { alertStrategy: alert_strategy, alertgroupId: alert_group, status } = metadata.annotations
+                  const { maxReplicas: max, minReplicas: min, metrics } = spec
+                  let cpu, memory
+                  metrics.forEach(item => {
+                    if (item.resource.name === 'memory') {
+                      memory = item.resource.targetAverageUtilization
+                    } else if (item.resource.name === 'cpu') {
+                      cpu = item.resource.targetAverageUtilization
+                    }
+                  })
+                  const scaleDetail = {
+                    strategyName,
+                    serviceName,
+                    alert_group,
+                    alert_strategy,
+                    max,
+                    min,
+                    cpu,
+                    memory,
+                    type: status === 'RUN' ? 1 : 0
+                  }
+                  this.setState({
+                    scaleDetail,
+                    switchOpen: scaleDetail.type ? true : false
+                  }, () => {
+                    this.initThresholdArr(this.state.scaleDetail)
+                  })
+                } else {
+                  this.setState({
+                    scaleDetail: null
+                  }, () => {
+                    this.initThresholdArr(this.state.scaleDetail)
+                  })
+                }
+              },
+              isAsync: true
+            },
+            failed: {
+              func: () => {
+                this.setState({
+                  scaleDetail: null
+                })
               }
-            })
-            const scaleDetail = {
-              strategyName,
-              serviceName,
-              alert_group,
-              alert_strategy,
-              max,
-              min,
-              cpu,
-              memory,
-              type: status === 'RUN' ? 1 : 0
             }
-            this.setState({
-              scaleDetail,
-              switchOpen: scaleDetail.type ? true : false
-            }, () => {
-              this.initThresholdArr(this.state.scaleDetail)
-            })
-          } else {
-            this.setState({
-              scaleDetail: null
-            }, () => {
-              this.initThresholdArr(this.state.scaleDetail)
-            })
-          }
+          })
         },
         isAsync: true
       },
@@ -557,7 +571,7 @@ class AppAutoScale extends Component {
                       showSearch
                       disabled={true}
                       optionFilterProp="children"
-                      notFoundContent="无法找到"
+                      notFoundContent="没有未关联的服务"
                       {...selectService}
                       placeholder="请选择服务">
                       {

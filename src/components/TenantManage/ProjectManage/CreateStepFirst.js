@@ -91,15 +91,19 @@ let CreateStepFirst = React.createClass({
         projectsName: value
       },{
         success: {
-          func: () => {
-            this.updateProjectName(value)
-            callback()
+          func: res => {
+            if (res.data === false) {
+              this.updateProjectName(value)
+              callback()
+            } else if (res.data === true) {
+              callback(new Error('该名称已在项目或成员列表中存在'))
+            }
           },
           isAsync: true
         },
         failed: {
           func: () => {
-            callback(new Error('该名称已在项目或成员列表中存在'))
+            callback()
           },
           isAsync: true
         }
