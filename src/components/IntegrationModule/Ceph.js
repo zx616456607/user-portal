@@ -107,12 +107,23 @@ class Ceph extends Component {
   render() {
     const height = !this.state.overall ? document.body.offsetHeight - 170:'auto'
     return (
-      <Card id={this.state.overall ? 'overall':''} className="ceph" style={{height:height}} extra={<span className="cursor" onClick={()=> this.showAll(this.state.overall)}><Icon type={this.state.overall ? 'shrink':'arrow-salt'} /></span>}  title={<Button size='large' type='ghost' className='backBtn' onClick={()=> this.returnToList()}>
-            返回应用列表
-          </Button>}>
+      <Card id={this.state.overall ? 'overall':''} className="ceph" style={{height:height}} 
+            extra={
+              <div>
+                <Button size="large" icon="edit" type="ghost" onClick={() => this.setState({setting: true})}>修改访问配置</Button>
+                <span className="cursor" onClick={()=> this.showAll(this.state.overall)}>
+                  <Icon type={this.state.overall ? 'shrink':'arrow-salt'} />
+                </span>
+              </div>
+            }  
+            title={
+              <Button size='large' type='ghost' className='backBtn' onClick={()=> this.returnToList()}>
+                返回应用列表
+              </Button>
+            }>
         {this.state.setting ?
           <div className="pushUrl">
-            <Input id="url" size="large" placeholder='请输入访问地址（即 Calamari Server 的节点 IP:Port）' onPressEnter={()=> this.getUrl()}/>
+            <Input id="url" size="large" placeholder='请输入访问地址（即 Calamari Server 的节点 IP:Port）' onPressEnter={()=> this.setUrl()}/>
             <Button size="large" type="primary" onClick={()=> this.setUrl()}>立即进入</Button>
           </div>
         :<iframe id="iframe" style={{width:'100%',border:0}} src={this.state.calamariUrl}></iframe>
