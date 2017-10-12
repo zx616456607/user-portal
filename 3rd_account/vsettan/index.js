@@ -95,7 +95,8 @@ exports.vsettanLogin = function* (next) {
     }
     this.request.body = {
       accountType: user.accountType,
-      accountID: user.id
+      accountID: user.id,
+      userName: user.userName
     }
     //verify is create or login
     const userInfo = yield spi.users.getBy([user.username, 'existence'])
@@ -109,7 +110,7 @@ exports.vsettanLogin = function* (next) {
     const createUser = yield spi.users.createBy(["vsettan"], null, user)
     //use userinfo login
     let api = apiFactory.getApi()
-    api = yield api.users.createBy(['login'], null, { accountType: user.accountType, accountID: user.accountID }).then(result => {
+    api = yield api.users.createBy(['login'], null, { userName: user.userName, accountType: user.accountType, accountID: user.accountID }).then(result => {
       if (!userHaveProject) return
       api = apiFactory.getApi({
         user: result.userName,
