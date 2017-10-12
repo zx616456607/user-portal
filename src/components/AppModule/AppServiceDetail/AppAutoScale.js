@@ -71,7 +71,7 @@ class AppAutoScale extends Component {
   componentWillReceiveProps(nextProps) {
     const { serviceName: newServiceName, isCurrentTab: newCurrentTab, form, serviceDetailmodalShow: newScopeModal } = nextProps
     const { serviceName: oldServiceName, isCurrentTab: oldCurrentTab, serviceDetailmodalShow: oldScopeModal } = this.props
-    if (newServiceName !== oldServiceName || (newCurrentTab && !oldCurrentTab)) {
+    if ( !oldScopeModal && newScopeModal || (newCurrentTab && !oldCurrentTab)) {
       this.loadData(nextProps)
       this.setState({
         activeKey: 'autoScaleForm'
