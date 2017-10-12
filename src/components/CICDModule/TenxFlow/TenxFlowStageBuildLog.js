@@ -24,8 +24,9 @@ function formatLog(log) {
   let newLog = log.split('\n')
   let showLogs = newLog.map((item, index) => {
     return (
-      <div className='stageBuildLogDetail' key={ 'stageBuildLogDetail' + index }>
-        <span><span dangerouslySetInnerHTML={{__html:item}}></span></span>
+      <div className='stageBuildLogDetail' key={ 'stageBuildLogDetail' + index }
+           dangerouslySetInnerHTML={{__html:item}}>
+        {/*<span dangerouslySetInnerHTML={{__html:item}}></span>*/}
       </div>
     )
   });
@@ -58,17 +59,22 @@ class TenxFlowStageBuildLog extends Component {
       status: status
     })
   }
+  componentDidUpdate() {
+    const { tenxFlowLog, TenxFlowStageBuildLog } = this.state
+    let id = tenxFlowLog
+    if (document.getElementById(id)) {
+      document.getElementById(TenxFlowStageBuildLog).scrollTop = $(`#${id}`).height()
+    }
+  }
   componentWillReceiveProps(nextProps){
     let { isFetching } = this.props;
     if (!nextProps.isFetching && isFetching != nextProps.isFetching ) {
       if (nextProps.logs) {
-        const { TenxFlowStageBuildLog } = this.state
-        let id = TenxFlowStageBuildLog.toString()
-        setTimeout(() => {
-          if (document.getElementById(id)) {
-            $(`#${id}`).scrollTop($(`#${id}`).height())
-          }
-        }, 300)
+        const { tenxFlowLog, TenxFlowStageBuildLog } = this.state
+        let id = tenxFlowLog.toString()
+        if (document.getElementById(id)) {
+          document.getElementById(TenxFlowStageBuildLog).scrollTop = $(`#${id}`).height()
+        }
       }
     }
     if (!nextProps.visible && nextProps.visible != this.props.visible) {
@@ -110,10 +116,10 @@ class TenxFlowStageBuildLog extends Component {
       let newLog = data.split('\n')
       newLog.forEach((item) => {
         $(`#${tenxFlowLog}`).append("<div class='stageBuildLogDetail'>\
-        <span><span>"+item+"</span></span>\
+        "+item+"\
         </div>")
       })
-      let height = $(`#${tenxFlowStageBuildLog} .infoBox`).css('height')
+      let height = $(`#${tenxFlowLog} .infoBox`).css('height')
       $(`#${tenxFlowStageBuildLog}`).animate({
         scrollTop: height + 'px'
       }, 0)
