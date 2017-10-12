@@ -41,6 +41,7 @@ global.globalConfig = {
     protocol: config.vm_api.protocol,
   },
   msaConfig: {},
+  ftpConfig: {},
 }
 
 const apiFactory = require('./api_factory.js')
@@ -140,6 +141,12 @@ exports.initGlobalConfig = function* () {
     }
     if (configType === 'msa') {
       globalConfig.msaConfig.url = configDetail.url
+      return
+    }
+    if (configType === 'ftp') {
+      globalConfig.ftpConfig.addr = configDetail.addr
+      globalConfig.ftpConfig.username = configDetail.username
+      globalConfig.ftpConfig.password = configDetail.password
     }
   })
   if (ConfigArray.Mail!=='NotEmpty'){
@@ -159,4 +166,5 @@ exports.initGlobalConfig = function* () {
   logger.info('vm wrap api config: ', globalConfig.vmWrapConfig.protocol + '://' + globalConfig.vmWrapConfig.host)
   logger.info('mailbox config: ', globalConfig.mail_server.host)
   logger.info('msa config: ', globalConfig.msaConfig.url)
+  logger.info('ftp config: ', globalConfig.ftpConfig.url)
 }

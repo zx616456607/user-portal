@@ -133,6 +133,8 @@ exports.addConfigsForFrontend = function (user, loginUser) {
   user.vmWrapConfig = global.globalConfig.vmWrapConfig
   // Add msa config
   user.msaConfig = globalConfig.msaConfig
+  // Add ftp config
+  user.ftpConfig = globalConfig.ftpConfig
   return user
 }
 
