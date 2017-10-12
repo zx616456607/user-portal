@@ -73,7 +73,6 @@ class TenxFlowStageBuildLog extends Component {
         const { tenxFlowLog, TenxFlowStageBuildLog } = this.state
         let id = tenxFlowLog.toString()
         if (document.getElementById(id)) {
-          console.log($(`#${id}`).height())
           document.getElementById(TenxFlowStageBuildLog).scrollTop = $(`#${id}`).height()
         }
       }
