@@ -301,9 +301,9 @@ class Ordinary extends Component {
         return
     }
   }
-  maxCount(value) {
+  maxClusterCount(value) {
     const { clusterList } = this.state
-    let count = ''
+    let count = 0
     if (clusterList) {
       Object.keys(clusterList).forEach((item, index) => {
         if (item === value) {
@@ -313,17 +313,17 @@ class Ordinary extends Component {
     }
     return count
   }
-  minCount(value) {
-    const { clusterUseList } = this.props
+  useClusterCount(value) {
+    const { clusterUseList } = this.state
     let count = ''
-    if(clusterUseList) {
+    if (clusterUseList) {
       Object.keys(clusterUseList).forEach((item, index) => {
-        if(item === value){
+        if (item === value) {
           count = Object.values(clusterUseList)[index]
         }
       })
-      return count
     }
+    return count
   }
   filterPercent(value, count) {
     let max = 100
@@ -1257,9 +1257,54 @@ class Ordinary extends Component {
     }
     const img = userName.substr(0, 1).toUpperCase()
     const { isComputing, isApplication, isService } = this.state
-    const computeList = ['CPU(核)', '内存(GB)', '磁盘(GB)']
-    const platformList = ['应用(个)', '服务(个)', '容器(个)', '存储(个)', '快照(个)', '服务配置(个)']
-    const serviceList = ['关系型数据库(个)', '缓存(个)', 'Zookeeper(个)', 'ElasticSearch(个)', 'Etcd(个)']
+    const computeList = [
+      {
+        key: 'cpu',
+        text: 'CPU(C)',
+      },{
+        key: 'memory',
+        text: '内存(GB)',
+      },{
+        key: 'storage',
+        text: '磁盘(GB)',
+      }]
+      const platformList = [
+        {
+          key: 'application',
+          text: '应用 (个)'
+        }, {
+          key: 'service',
+          text: '服务 (个)'
+        }, {
+          key: 'container',
+          text: '容器 (个)'
+        }, {
+          key: 'volume',
+          text: '存储 (个)'
+        }, {
+          key: 'snapshot',
+          text: '快照 (个)'
+        }, {
+          key: 'configuration',
+          text: '服务配置 (个)'
+        }]
+      const serviceList = [
+        {
+          key: 'mysql',
+          text: '关系型数据库 (个)'
+        }, {
+          key: 'redis',
+          text: '缓存 (个)'
+        }, {
+          key: 'zookeeper',
+          text: 'Zookeeper (个)'
+        }, {
+          key: 'elasticsearch',
+          text: 'ElasticSearch (个)'
+        }, {
+          key: 'etcd',
+          text: 'Etcd (个)'
+        }]
     return (
       <div id='Ordinary'>
         <Row className="title">{spaceName} - {clusterName} 集群</Row>
@@ -1361,13 +1406,13 @@ class Ordinary extends Component {
                     <div className="info">
                       <Row>
                         <Col span={7}>
-                          <span>{item}</span>
+                          <span>{item.text}</span>
                         </Col>
                         <Col span={9}>
-                          <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxCount(item.key), this.minCount(item.key))} showInfo={false} />
+                          <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
                         <Col span={8}>
-                          <span className="count">{this.minCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
+                          <span className="count">{this.useClusterCount(item.key)}/{this.maxClusterCount(item.key) ? this.maxClusterCount(item.key) : '无限制'}</span>
                         </Col>
                       </Row>
                     </div>
@@ -1380,13 +1425,13 @@ class Ordinary extends Component {
                     <div className="info">
                       <Row>
                         <Col span={9}>
-                          <span>{item}</span>
+                          <span>{item.text}</span>
                         </Col>
                         <Col span={8}>
-                          <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.minCount(item.key))} showInfo={false} />
+                          <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
                         <Col span={7}>
-                          <span className="count">{this.minCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
+                          <span className="count">{this.useClusterCount(item.key)}/{this.maxClusterCount(item.key) ? this.maxClusterCount(item.key) : '无限制'}</span>
                         </Col>
                       </Row>
                     </div>
@@ -1399,13 +1444,13 @@ class Ordinary extends Component {
                     <div className="info">
                       <Row>
                         <Col span={12}>
-                          <span>{item}</span>
+                          <span>{item.text}</span>
                         </Col>
                         <Col span={5}>
-                          <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxCount(item.key), this.minCount(item.key))} showInfo={false} />
+                          <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
                         <Col span={7}>
-                          <span>{this.minCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
+                          <span>{this.useClusterCount(item.key)}/{this.maxClusterCount(item.key) ? this.maxClusterCount(item.key) : '无限制'}</span>
                         </Col>
                       </Row>
                     </div>
