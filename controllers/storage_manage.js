@@ -46,3 +46,11 @@ exports.putUpdateCephStorage = function* () {
   const result = yield api.updateBy([ cluster, 'storageclass'], query, body.template)
   this.body = result
 }
+
+exports.getStorageClassType = function* (){
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([ cluster, 'storageclass', 'type' ])
+  this.body = result
+}

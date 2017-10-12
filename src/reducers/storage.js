@@ -238,11 +238,31 @@ function volumeBindInfo(state = {}, action) {
   }
   switch (action.type) {
     case ActionTypes.STORAGE_GETVOLUMEBIND_REQUEST:
-      return merge({}, defaultState, { isFetching: true })
+      return merge({}, defaultState, { isFetching: true, searchList: [] })
     case ActionTypes.STORAGE_GETVOLUMEBIND_SUCCESS:
-      return merge({}, defaultState, { volumeBindInfo: action.response.result.data }, { isFetching: false })
+      return merge({}, defaultState, {
+        volumeBindInfo: action.response.result.data,
+        searchList: action.response.result.data,
+      }, { isFetching: false })
+    case ActionTypes.SEARCH_STORAGE_BIND_INFO:
+      const list = cloneDeep(state.searchList)
+      let result = []
+      const searchValue = action.searchValue
+      if(searchValue){
+        list.forEach((item, index) => {
+          if(item.serviceName.indexOf(searchValue) > -1){
+            result.push(item)
+          }
+        })
+      } else {
+        result = list
+      }
+      return  merge({}, defaultState, {
+        volumeBindInfo:result,
+        searchList:list,
+      })
     case ActionTypes.STORAGE_GETVOLUMEBIND_FAILURE:
-      return merge({}, defaultState, { isFetching: false })
+      return merge({}, defaultState, { isFetching: false, searchList: [] })
     default:
       return state
   }

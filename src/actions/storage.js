@@ -255,14 +255,26 @@ export const STORAGE_GETVOLUMEBIND_REQUEST = 'STORAGE_GETVOLUMEBIND_REQUEST'
 export const STORAGE_GETVOLUMEBIND_SUCCESS = 'STORAGE_GETVOLUMEBIND_SUCCESS'
 export const STORAGE_GETVOLUMEBIND_FAILURE = 'STORAGE_GETVOLUMEBIND_FAILURE'
 
-export function getVolumeBindInfo(cluster, volumeName, callback) {
+export function getVolumeBindInfo(cluster, volumeName, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/volumes/${volumeName}/bindinfo`
+  if(query){
+    endpoint += `?${toQuerystring(query)}`
+  }
   return {
     [FETCH_API]: {
       types: [STORAGE_GETVOLUMEBIND_REQUEST, STORAGE_GETVOLUMEBIND_SUCCESS, STORAGE_GETVOLUMEBIND_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/volumes/${volumeName}/bindinfo`,
+      endpoint,
       schema: {}
     },
     callback
+  }
+}
+
+export const SEARCH_STORAGE_BIND_INFO = 'SEARCH_STORAGE_BIND_INFO'
+export function searchStoreageBindInfo(searchValue) {
+  return {
+    type: SEARCH_STORAGE_BIND_INFO,
+    searchValue,
   }
 }
 
@@ -558,4 +570,28 @@ export function SnapshotClone(body, callback) {
 	return (dispatch) => {
 		return dispatch(fetchSnapshotClone(body, callback))
 	}
+}
+
+export const GET_STORAGE_CLASS_TYPE_REQUEST = 'GET_STORAGE_CLASS_TYPE_REQUEST'
+export const GET_STORAGE_CLASS_TYPE_SUCCESS = 'GET_STORAGE_CLASS_TYPE_SUCCESS'
+export const GET_STORAGE_CLASS_TYPE_FAILURE = 'GET_STORAGE_CLASS_TYPE_FAILURE'
+
+function fetchGetClusterStorageClassType(cluster, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_STORAGE_CLASS_TYPE_REQUEST, GET_STORAGE_CLASS_TYPE_SUCCESS, GET_STORAGE_CLASS_TYPE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/storageclass/type`,
+      schema: {},
+      options: {
+        method: 'GET',
+      },
+    },
+    callback
+  }
+}
+
+export function getStorageClassType(cluster, callback){
+  return (dispatch) => {
+    return dispatch(fetchGetClusterStorageClassType(cluster, callback))
+  }
 }

@@ -16,9 +16,9 @@ import './style/ShareStorageDetail.less'
 import Title from '../../Title'
 import storagePNG from '../../../assets/img/storage.png'
 import { browserHistory } from 'react-router'
-import StorageBind from '../StorageBind'
 import { loadStorageInfo } from '../../../actions/storage'
 import { formatDate } from '../../../common/tools'
+import MountServiceList from '../MountServiceList'
 
 const TabPane = Tabs.TabPane
 
@@ -36,7 +36,7 @@ class ShareStorageDetail extends Component {
   }
 
   render() {
-    const { StorageInfo, isFetching, params } = this.props
+    const { StorageInfo, isFetching, params, cluster } = this.props
     if (isFetching) {
       return (
         <div className="loadingBox">
@@ -44,6 +44,8 @@ class ShareStorageDetail extends Component {
         </div>
       )
     }
+    const clusterID = cluster.clusterID
+    const volumeName = params.share_name
     return(
       <QueueAnim type="right">
         <Title title="存储详情"/>
@@ -51,7 +53,7 @@ class ShareStorageDetail extends Component {
           <div className="topRow">
               <span
                 className="back"
-                onClick={() => browserHistory.push(`/app_manage/storage`)}
+                onClick={() => browserHistory.push(`/app_manage/storage/shareMemory`)}
               >
                 <span className="backjia"></span>
                 <span className="btn-back">返回</span>
@@ -94,9 +96,10 @@ class ShareStorageDetail extends Component {
           <Card>
             <Tabs>
               <TabPane tab="绑定服务" key="service">
-                <StorageBind
-                  cluster={params.cluster}
-                  volumeName={params.share_name}
+                <MountServiceList
+                  clusterID={clusterID}
+                  volumeName={volumeName}
+                  query={null}
                 />
               </TabPane>
               {/*<TabPane tab="租赁信息" key="rentInfo">*/}
@@ -111,6 +114,7 @@ class ShareStorageDetail extends Component {
 }
 
 function mapStateToProp(state, props) {
+  const { entities, storage } = state
   const { cluster } = state.entities.current
   const defaultInfo = {
     imagePool: props.params.pool,
@@ -118,7 +122,9 @@ function mapStateToProp(state, props) {
     cluster: cluster.clusterID
   }
   const StorageInfo  = state.storage.storageDetail.StorageInfo || defaultInfo
+
   return {
+    cluster,
     isFetching: state.storage.storageDetail.isFetching,
     StorageInfo,
     resourcePrice: cluster.resourcePrice
