@@ -699,6 +699,12 @@ class TeamManage extends Component {
                   }) : [],
                   rightModal: true
                 })
+                this.setState((prevState) => {
+                  return {
+                    targetKeys: Array.from(new Set(prevState.targetKeys.concat(systemRoleID))),
+                    originalKeys: Array.from(new Set(prevState.targetKeys.concat(systemRoleID))),
+                  }
+                })
               },
               isAsync: true
             }
