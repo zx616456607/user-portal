@@ -12,7 +12,7 @@ import React, { PropTypes } from 'react'
 import { Form, Select, Row, Col, Radio, Input, Tooltip, Icon, InputNumber, Button } from 'antd'
 import { connect } from 'react-redux'
 import cloneDeep from 'lodash/cloneDeep'
-import { loadFreeVolume } from '../../actions/storage'
+import { loadFreeVolume, getStorageClassType } from '../../actions/storage'
 import { getClusterStorageList } from '../../actions/cluster'
 import { isStorageUsed } from '../../common/tools'
 import { DEFAULT_IMAGE_POOL } from '../../constants'
@@ -35,6 +35,7 @@ let ContainerCatalogueModal = React.createClass({
   getInitialState() {
     return {
       isResetComponent: false,
+      storageClassType: {},
     }
   },
 
@@ -62,9 +63,23 @@ let ContainerCatalogueModal = React.createClass({
     }
   },
 
+  loadStorageClassType(){
+    const { clusterID, getStorageClassType } = this.props
+    getStorageClassType(clusterID, {
+      success: {
+        func: res => {
+          this.setState({
+            storageClassType: res.data
+          })
+        }
+      }
+    })
+  },
+
   componentWillMount() {
     const { currentIndex, fieldsList } = this.props
     this.restFormValues(fieldsList[currentIndex])
+    this.loadStorageClassType(fieldsList[currentIndex])
   },
 
   componentWillReceiveProps(nextProps) {
@@ -77,6 +92,9 @@ let ContainerCatalogueModal = React.createClass({
           loadFreeVolume(clusterID, { srtype })
         }
       }
+    }
+    if(nextProps.from == 'editService' && this.props.currentService !== nextProps.currentService){
+      this.loadStorageClassType(nextProps.fieldsList[nextProps.currentIndex])
     }
   },
 
@@ -134,13 +152,15 @@ let ContainerCatalogueModal = React.createClass({
     if(!/^[A-Za-z]{1}[A-Za-z0-9_\-]{1,61}[A-Za-z0-9]$/.test(value)){
       return callback('存储名称必须由字母或数字结尾')
     }
-    const { avaliableVolume, fieldsList, form } = this.props
+    const { avaliableVolume, fieldsList, form, currentIndex } = this.props
     const type = form.getFieldValue('type')
     const volumeNameArray = []
     avaliableVolume.volumes.forEach((item, index) => {
       volumeNameArray.push(item.name)
     })
-    fieldsList.forEach((item, index) => {
+    const list = cloneDeep(fieldsList)
+    list.splice(currentIndex, 1)
+    list.forEach((item, index) => {
       if (item.type == type) {
         if (item.volume !== 'create') {
           volumeNameArray.push(item.volume.split(' ')[0])
@@ -228,6 +248,8 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   renderHostType() {
+    const { form, fieldsList, currentIndex } = this.props
+    const { getFieldProps } = form
     const bind = false
     return <div>
       <Row className='host_node_row'>
@@ -240,6 +262,37 @@ let ContainerCatalogueModal = React.createClass({
           }
         </Col>
       </Row>
+      <FormItem
+        label="宿主机目录"
+        key="host_path"
+        labelCol={{ span: 4 }}
+        wrapperCol={{ span: 17 }}
+      >
+        <Input
+          placeholder='请输入宿主机目录'
+          {...getFieldProps('hostPath', {
+            initialValue: undefined,
+            rules: [{
+              validator: (rule, value, callback) => {
+                if(!value){
+                  return callback('宿主机目录不能为空')
+                }
+                if (!PATH_REG.test(value)) {
+                  return callback('请输入正确的路径')
+                }
+                //const list = cloneDeep(fieldsList)
+                //list.splice(currentIndex, 1)
+                //for (let i = 0; i < list.length; i++) {
+                //  if (value === list[i].hostPath) {
+                //    return callback('已填写过该路径')
+                //  }
+                //}
+                return callback()
+              }
+            }]
+          })}
+        />
+      </FormItem>
     </div>
   },
 
@@ -262,6 +315,11 @@ let ContainerCatalogueModal = React.createClass({
       ]
       let array = []
       const volumeType = form.getFieldValue("type")
+      if(volumeType === 'host'){
+        array = [
+          'hostPath',
+        ]
+      }
       if (volumeType === 'private') {
         array = [
           'type_1',
@@ -383,6 +441,7 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   render() {
+    const { storageClassType } = this.state
     const {
       form, replicas, isAutoScale,
       volumes, from, storageList,
@@ -460,9 +519,9 @@ let ContainerCatalogueModal = React.createClass({
                   {...typeProps}
                   disabled={isEdit && fieldsList[currentIndex].oldVolume}
                 >
-                  <Option key="host" value="host" disabled={unableToChangeType}>host</Option>
-                  <Option key="private" value="private" disabled={unableToChangeType}>独享型</Option>
-                  <Option key="share" value="share">共享型</Option>
+                  <Option key="private" value="private" disabled={unableToChangeType || !storageClassType.private}>独享型</Option>
+                  <Option key="share" value="share" disabled={!storageClassType.share}>共享型</Option>
+                  <Option key="host" value="host" disabled={unableToChangeType || !storageClassType.host}>host</Option>
                 </Select>
               </FormItem>
               {
@@ -655,4 +714,5 @@ ContainerCatalogueModal = Form.create()(ContainerCatalogueModal)
 export default connect(mapStateToProp, {
   getClusterStorageList,
   loadFreeVolume,
+  getStorageClassType,
 })(ContainerCatalogueModal)

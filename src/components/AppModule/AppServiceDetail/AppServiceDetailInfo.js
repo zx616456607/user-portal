@@ -552,6 +552,7 @@ class AppServiceDetailInfo extends Component {
       loading: false,
       isAutoScale: false,
       replicas: 1,
+      currentService: ''
     }
   }
 
@@ -599,7 +600,7 @@ class AppServiceDetailInfo extends Component {
           }
           // 为兼容旧服务，需要在 spec 不同的位置取当前服务的 container 列表
           // 新服务
-          if(volumeList.length && volumeList[0].persistentVolumeClaim){
+          if(volumeList.length && (volumeList[0].persistentVolumeClaim || volumeList[0].hostPath)){
             newService = true
           }
           const list = []
@@ -616,13 +617,18 @@ class AppServiceDetailInfo extends Component {
               }
             }
             if(newService){
-              const { strategy, claimName } = item.persistentVolumeClaim
-              let type = ''
-              for(let i = 0; i < volume.length; i++){
-                if(volume[i].volumeName == claimName){
-                  type = volume[i].srType
-                  size = volume[i].size
-                  fsType = volume[i].fsType
+              let strategy = false
+              let claimName = '-'
+              let type = 'host'
+              if(item.persistentVolumeClaim){
+                strategy = item.persistentVolumeClaim.strategy
+                claimName = item.persistentVolumeClaim.claimName
+                for(let i = 0; i < volume.length; i++){
+                  if(volume[i].volumeName == claimName){
+                    type = volume[i].srType
+                    size = volume[i].size
+                    fsType = volume[i].fsType
+                  }
                 }
               }
               let type_1 = ''
@@ -690,9 +696,17 @@ class AppServiceDetailInfo extends Component {
     const { cluster, serviceName } = this.props
     this.getServiceDetail(cluster, serviceName)
     this.getAutoScaleStatus(cluster, serviceName)
+    this.setState({
+      currentService: serviceName
+    })
   }
 
   componentWillReceiveProps(nextProps) {
+    if(this.props.serviceName !== nextProps.serviceName){
+      this.setState({
+        currentService: nextProps.serviceName
+      })
+    }
     if(this.props.activeTabKey !== '#basic' && nextProps.activeTabKey == '#basic'){
       this.getServiceDetail(nextProps.cluster, nextProps.serviceName)
       this.getAutoScaleStatus(nextProps.cluster, nextProps.serviceName)
@@ -752,6 +766,16 @@ class AppServiceDetailInfo extends Component {
     }
   }
 
+  renderVolumeName(item){
+    if(item.type == 'host'){
+      return '-'
+    }
+    if(item.volume == 'create'){
+      return item.name
+    }
+    return item.volume.split(' ')[0]
+  }
+
   getMount() {
     const { volumeList } = this.state
     let ele = []
@@ -761,7 +785,7 @@ class AppServiceDetailInfo extends Component {
     ele = volumeList.map((item, index) => {
       return <Row key={`volume${index}`} className='volume_row_style'>
         <Col span="6" className='text_overfow'>{ this.formatVolumeType(item.type) }</Col>
-        <Col span="6" className='text_overfow'>{ item.volume == 'create' ? item.name : item.volume.split(' ')[0] }</Col>
+        <Col span="6" className='text_overfow'>{ this.renderVolumeName(item) }</Col>
         <Col span="5" className='text_overfow'>{item.mountPath}</Col>
         <Col span="7">
           <Checkbox checked={item.readOnly} disabled>只读</Checkbox>
@@ -940,16 +964,19 @@ class AppServiceDetailInfo extends Component {
     if(type === 'confirm'){
       const values = info.values
       const { volume, type } = info.values
-      values.hostPath = values.mountPath
       values.storageType = values.type
-      values.claimName = volume.split(' ')[0]
-      if(volume == 'create' && type){
-        values.claimName = values.name
+      values.claimName = ''
+      if(type !== 'host'){
+        values.hostPath = values.mountPath
+        values.claimName = volume.split(' ')[0]
+        if(volume == 'create' && type){
+          values.claimName = values.name
+        }
       }
       if(isEdit){
         Object.assign(list[currentIndex], values)
       } else {
-        values.volumesName = `volume-${list.length}`
+        values.volumesName = `volume-${list.length + 1}`
         values.isOld = false
         list.push(values)
       }
@@ -973,7 +1000,7 @@ class AppServiceDetailInfo extends Component {
 
   render() {
     const { isFetching, serviceDetail, cluster, volumes } = this.props
-    const { isEdit, currentItem, currentIndex, containerCatalogueVisible, nouseEditing, volumeList, isAutoScale, replicas, loading } = this.state
+    const { isEdit, currentItem, currentIndex, containerCatalogueVisible, nouseEditing, volumeList, isAutoScale, replicas, loading, currentService } = this.state
     if (isFetching || !serviceDetail.metadata) {
       return ( <div className="loadingBox">
           <Spin size="large" />
@@ -1120,6 +1147,7 @@ class AppServiceDetailInfo extends Component {
             isAutoScale={isAutoScale}
             from={'editService'}
             currentIndex={ currentIndex }
+            currentService={currentService}
           />
         </Modal>
         <Modal

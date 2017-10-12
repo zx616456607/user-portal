@@ -16,55 +16,32 @@ import QueueAnim from 'rc-queue-anim'
 import Title from '../../Title'
 import './style/HostStorageDetail.less'
 import storagePNG from '../../../assets/img/storage.png'
+import MountServiceList from '../MountServiceList'
 
 const TabPane = Tabs.TabPane
 
 class HostStorageDetail extends Component {
   constructor(props) {
     super(props)
-    this.renderServiceList = this.renderServiceList.bind(this)
     this.state = {
 
     }
   }
 
-  renderServiceList(){
-    const arr = []
-    for(let i = 0; i < 6; i++){
-      let item = {
-        service: 'adads',
-        app: 'qwe',
-        point: '/var/log',
-        readOnly: true,
-      }
-      if(i%2 == 0){
-        item.readOnly = false
-      }
-      arr.push(item)
-    }
-    return arr.map((item, index) => {
-      return <Row key={`service${index}`} className='list_style'>
-        <Col key={`${item.service}`} span="6">
-          <div className='img_box'>
-            picture
-            {/*<img src="" alt="" className='img_style'/>*/}
-          </div>
-          服务：{item.service}
-        </Col>
-        <Col key={`${item.app}`} span="6">
-          所属应用：{item.app}
-        </Col>
-        <Col key={`${item.point}`} span="6" className='point_style'>
-          挂在点：{item.point}
-        </Col>
-        <Col key={`${item.readOnly}`} span="6">
-          { item.readOnly ? <span>服务对存储只读</span> : <span>服务对存储可读可写</span> }
-        </Col>
-      </Row>
-    })
+  componentWillMount() {
+
   }
 
   render() {
+    const { cluster, params, location } = this.props
+    const clusterID = cluster.clusterID
+    const hostName = params.host_name
+    const { path, ip } = location.query
+    const query ={
+      storagetype: 'host',
+      path,
+      ip,
+    }
     return(
       <QueueAnim type="right">
         <div id='host_storage_detail' key="host_storage_detail">
@@ -90,7 +67,7 @@ class HostStorageDetail extends Component {
               <div className="info">
                 <Row>
                   <Col span="9">
-                    存储类型：独享型（RBD）
+                    存储类型：host
                   </Col>
                   <Col span="15">
                     <div className="createDate">
@@ -100,13 +77,10 @@ class HostStorageDetail extends Component {
                 </Row>
                 <Row>
                   <Col span="9">
-                    RBD集群名称：aaaaa
+                    宿主机目录：aaaaa
                   </Col>
                   <Col span="15">
-                    <div className="use">
-                      用量
-                      ：100M
-                    </div>
+                    存储节点：192.1.1.1
                   </Col>
                 </Row>
               </div>
@@ -115,16 +89,11 @@ class HostStorageDetail extends Component {
           <Card>
             <Tabs>
               <TabPane tab="绑定服务" key="service">
-                <div className='search_box'>
-                  <Input
-                    size="large"
-                    placeholder="按服务名称搜索"
-                  />
-                  <i className="fa fa-search search_icon" aria-hidden="true"></i>
-                </div>
-                <div className='service_list'>
-                  { this.renderServiceList() }
-                </div>
+                <MountServiceList
+                  clusterID={clusterID}
+                  volumeName={'host'}
+                  query={query}
+                />
               </TabPane>
               {/*<TabPane tab="租赁信息" key="rentInfo">*/}
                 {/*租赁信息*/}
@@ -138,9 +107,11 @@ class HostStorageDetail extends Component {
 }
 
 function mapStateToProp(state, props) {
-
+  const { entities } = state
+  const { current } = entities
+  const { cluster } = current
   return {
-
+    cluster,
   }
 }
 

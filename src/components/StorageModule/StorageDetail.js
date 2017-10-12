@@ -96,7 +96,7 @@ class StorageDetail extends Component {
             <div className="topRow">
               <span
                 className="back"
-                onClick={() => browserHistory.push(`/app_manage/storage/exclusiveMemory`)}
+                onClick={() => browserHistory.push(`/app_manage/storage`)}
               >
                 <span className="backjia"></span>
                 <span className="btn-back">返回</span>
