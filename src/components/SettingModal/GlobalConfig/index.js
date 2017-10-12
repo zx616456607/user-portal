@@ -17,6 +17,7 @@ import MirrorImg from '../../../assets/img/setting/globalconfigmirror.png'
 import APIImg from '../../../assets/img/setting/globalconfigapi.png'
 import CephImg from '../../../assets/img/setting/globalconfigceph.png'
 import MsaImg from '../../../assets/img/setting/globalconfigmsa.png'
+import FTPImg from '../../../assets/img/setting/globalconfigftp.png'
 import { connect } from 'react-redux'
 import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification } from '../../../actions/global_config'
 import NotificationHandler from '../../../components/Notification'
@@ -297,7 +298,6 @@ let Emaill = React.createClass({
 let Msa = React.createClass({
   getInitialState() {
     return {
-      isEve: false,
       canClick: true,
       aleardySave: false
     }
@@ -317,9 +317,6 @@ let Msa = React.createClass({
     })
     // resetFields(['service', 'email', 'password', 'emailID'])
     msaChange();
-  },
-  handEve() {
-    this.setState({ isEve: !this.state.isEve })
   },
   handleMsa() {
     this.props.msaChange()
@@ -350,43 +347,43 @@ let Msa = React.createClass({
         }
       }
       saveGlobalConfig(cluster.clusterID, 'msa', body , {
-          success: {
-            func: (result) => {
-              notification.close()
-              notification.success('微服务配置保存成功')
-              const { form } = self.props
-              const { getFieldProps, getFieldValue, setFieldsValue } = form
-              self.handleMsa()
-              if (result.data.toLowerCase() != 'success') {
-                setFieldsValue({
-                  msaID: result.data
-                })
-                body.configID = result.data
-              }
-              this.setState({
-                canClick: true,
-                aleardySave: true
+        success: {
+          func: (result) => {
+            notification.close()
+            notification.success('微服务配置保存成功')
+            const { form } = self.props
+            const { getFieldProps, getFieldValue, setFieldsValue } = form
+            self.handleMsa()
+            if (result.data.toLowerCase() != 'success') {
+              setFieldsValue({
+                msaID: result.data
               })
-              body.configDetail = JSON.stringify(body.detail)
-              setGlobalConfig('msa', body)
+              body.configID = result.data
             }
-          },
-          failed: {
-            func: (err) => {
-              notification.close()
-              let msg
-              if (err.message.message) {
-                msg = err.message.message
-              } else {
-                msg = err.message
-              }
-              notification.error('微服务配置保存失败 => ' + msg)
-              this.setState({
-                canClick: true
-              })
-            }
+            this.setState({
+              canClick: true,
+              aleardySave: true
+            })
+            body.configDetail = JSON.stringify(body.detail)
+            setGlobalConfig('msa', body)
           }
-        })
+        },
+        failed: {
+          func: (err) => {
+            notification.close()
+            let msg
+            if (err.message.message) {
+              msg = err.message.message
+            } else {
+              msg = err.message
+            }
+            notification.error('微服务配置保存失败 => ' + msg)
+            this.setState({
+              canClick: true
+            })
+          }
+        }
+      })
     })
   },
   checkUrl(rule, value, callback) {
@@ -457,7 +454,195 @@ let Msa = React.createClass({
     )
   }
 })
+//ftp 配置
+let Ftp = React.createClass({
+  getInitialState() {
+    return {
+      isEve: false,
+      canClick: true,
+      aleardySave: false
+    }
+  },
+  handleReset(e) {
+    e.preventDefault();
+    const { setFieldsValue } = this.props.form
+    const { ftpChange, config } = this.props
+    let ftpDetail = {
+      addr: '',
+      username: '',
+      password: '',
+    }
+    if (config) {
+      ftpDetail = JSON.parse(config.configDetail)
+    }
+    setFieldsValue({
+      addr: ftpDetail.addr,
+      username: ftpDetail.username,
+      password: ftpDetail.password,
+    })
+    // resetFields(['service', 'email', 'password', 'emailID'])
+    ftpChange();
+  },
+  handEve() {
+    this.setState({ isEve: !this.state.isEve })
+  },
+  handleMsa() {
+    this.props.ftpChange()
+  },
+  saveFtp() {
+    this.props.form.validateFields((errors, values) => {
+      if (errors) {
+        return;
+      }
+      if (!this.state.canClick) {
+        return
+      }
+      const notification = new NotificationHandler()
+      notification.spin('保存中')
+      this.setState({
+        canClick: false,
+        aleardySave: true
+      })
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig } = this.props
+      const { getFieldValue } = form
+      const ftpID = getFieldValue('ftpID')
+      const self = this
+      const body = {
+        configID: ftpID,
+        detail: values,
+      }
+      saveGlobalConfig(cluster.clusterID, 'msa', body , {
+        success: {
+          func: (result) => {
+            notification.close()
+            notification.success('ftp 配置保存成功')
+            const { form } = self.props
+            const { getFieldProps, getFieldValue, setFieldsValue } = form
+            self.handleMsa()
+            if (result.data.toLowerCase() != 'success') {
+              setFieldsValue({
+                ftpID: result.data
+              })
+              body.configID = result.data
+            }
+            this.setState({
+              canClick: true,
+              aleardySave: true
+            })
+            body.configDetail = JSON.stringify(body.detail)
+            setGlobalConfig('ftp', body)
+          }
+        },
+        failed: {
+          func: (err) => {
+            notification.close()
+            let msg
+            if (err.message.message) {
+              msg = err.message.message
+            } else {
+              msg = err.message
+            }
+            notification.error('ftp 配置保存失败 => ' + msg)
+            this.setState({
+              canClick: true
+            })
+          }
+        }
+      })
+    })
+  },
+  checkUrl(rule, value, callback) {
+    const { validateFields } = this.props.form
+    if (!value) {
+      callback([new Error('请填写 ftp 服务地址')])
+      return
+    }
+    if (!/^([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+      callback([new Error('请填入合法的 ftp 地址')])
+      return
+    }
+    callback()
+  },
+  render() {
+    const { ftpDisable, config } = this.props
+    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
+    let ftpDetail = {
+      addr: '',
+      username: '',
+      password: '',
+    }
+    if (config) {
+      ftpDetail = JSON.parse(config.configDetail)
+    }
+    const addrProps = getFieldProps('addr', {
+      rules: [
+        { validator: this.checkUrl }
+      ],
+      initialValue: ftpDetail.addr,
+    });
+    const usernameProps = getFieldProps('username', {
+      rules: [
+        { required: true, message: '请填写用户名' },
+      ],
+      initialValue: ftpDetail.username,
+    });
+    const passwordProps = getFieldProps('password', {
+      rules: [
+        { required: true, whitespace: true, message: '请填写密码' },
+      ],
+      initialValue: ftpDetail.password,
+    });
 
+    const ftpID = getFieldProps('ftpID', {
+      initialValue: config ? config.configID : ''
+    });
+
+    return (
+      <div className="GlobalConfigEmail">
+        <div className="title">FTP 服务器配置</div>
+        <div className="content">
+          <div className="contentMain">
+            <div className="contentImg">
+              <img src={FTPImg} alt="FTP 服务器配置" />
+            </div>
+            <div className="contentkeys">
+              <div className="key">FTP 服务地址</div>
+              <div className="key">用户名</div>
+              <div className="key">密码</div>
+            </div>
+            <div className="contentForm">
+              <Form horizontal className="contentFormMain">
+                <FormItem >
+                  <Input {...addrProps} placeholder="如：192.168.1.113" disabled={ftpDisable} />
+                </FormItem>
+                <FormItem >
+                  <Input {...usernameProps} placeholder="请输入用户名" disabled={ftpDisable} />
+                </FormItem>
+                <FormItem >
+                  <i className={this.state.isEve ? 'fa fa-eye activeEve' : 'fa fa-eye-slash activeEve'}
+                    onClick={() => this.handEve()}></i>
+                  <Input {...passwordProps} type={this.state.isEve ? "text" : "password"} placeholder="请输入密码" disabled={ftpDisable} />
+                </FormItem>
+                <FormItem>
+                  {
+                    ftpDisable
+                      ? <Button type='primary' className="itemInputLeft" onClick={this.handleMsa}>编辑</Button>
+                      : ([
+                        <Button onClick={this.handleReset} className="itemInputLeft" disabled={ftpDisable}>取消</Button>,
+                        <Button type='primary' className="itemInputLeft" onClick={this.saveFtp}>保存</Button>
+                      ])
+                  }
+                </FormItem>
+                <input type="hidden" {...ftpID} />
+              </Form>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+
+  }
+})
 //开放API地址
 let ConInter = React.createClass({
   getInitialState() {
@@ -1124,6 +1309,7 @@ let Continue = React.createClass({
 
 Emaill = Form.create()(Emaill)
 Msa = Form.create()(Msa)
+Ftp = Form.create()(Ftp)
 ConInter = Form.create()(ConInter)
 MirrorService = Form.create()(MirrorService)
 StorageService = Form.create()(StorageService)
@@ -1135,6 +1321,7 @@ class GlobalConfig extends Component {
     this.state = {
       emailDisable: true,
       msaDisable: true,
+      ftpDisable: true,
       cicdeditDisable: true,
       mirrorDisable: true,
       cephDisable: true,
@@ -1168,6 +1355,10 @@ class GlobalConfig extends Component {
     this.setState({ msaDisable: !this.state.msaDisable })
   }
 
+  ftpChange() {
+    this.setState({ ftpDisable: !this.state.ftpDisable })
+  }
+
   cicdeditChange() {
     this.setState({ cicdeditDisable: !this.state.cicdeditDisable })
   }
@@ -1188,7 +1379,7 @@ class GlobalConfig extends Component {
   }
 
   render() {
-    const { emailDisable, msaDisable, emailChange, cicdeditDisable, cicdeditChange, mirrorDisable, mirrorChange, cephDisable, cephChange, globalConfig } = this.state
+    const { emailDisable, msaDisable, ftpDisable, emailChange, cicdeditDisable, cicdeditChange, mirrorDisable, mirrorChange, cephDisable, cephChange, globalConfig } = this.state
     const { updateGlobalConfig, saveGlobalConfig } = this.props
     let { cluster } = this.props
     if (!cluster) {
@@ -1223,6 +1414,15 @@ class GlobalConfig extends Component {
           updateGlobalConfig={saveGlobalConfig}
           cluster={cluster}
           config={globalConfig.msa}
+        />
+        <Ftp
+          setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
+          ftpDisable={ftpDisable}
+          ftpChange={this.ftpChange.bind(this)}
+          saveGlobalConfig={saveGlobalConfig}
+          updateGlobalConfig={saveGlobalConfig}
+          cluster={cluster}
+          config={globalConfig.ftp}
         />
         <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.harbor} isValidConfig={this.props.isValidConfig}/>
         <StorageService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />
