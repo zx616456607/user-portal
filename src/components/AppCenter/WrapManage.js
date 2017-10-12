@@ -311,7 +311,7 @@ class UploadModal extends Component {
         }
       }
     }
-    const ftpConfiged = !!!loginUser.ftpConfig.addr
+    const ftpConfiged = !!loginUser.ftpConfig.addr
     const defaultActiveKey = ftpConfiged ? 'local' : 'remote'
     return (
       <Modal title="上传包文件" visible={this.props.visible}
