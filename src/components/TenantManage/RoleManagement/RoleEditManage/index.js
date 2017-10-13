@@ -36,6 +36,8 @@ class CreateRoleModal extends React.Component {
       rowDate: [],
       rowPermissionID: [],
       isCheck: false,
+      childrenKey: [],
+      codeKey: [],
     }
   }
   componentWillMount() {
@@ -55,15 +57,12 @@ class CreateRoleModal extends React.Component {
             let result = res.data.data.permissions
             let pids = res.data.data.pids
             let aryID = []
-            if (result) {
-              for (let i = 0; i < result.length; i++) {
-                aryID.push(`${result[i].id}`)
-              }
-            }
+            let childrenKeys = []
+            let codeKey = []
+            this.RowData(result, childrenKeys, codeKey)
             this.setState({
               count: res.data.data.total,
               rowDate: res.data.data,
-              checkedKeys: aryID,
               rowPermissionID: pids,
             })
           }
@@ -111,26 +110,29 @@ class CreateRoleModal extends React.Component {
       }
     })
   }
-  RowData(data) {
+  RowData(data, childrenKey, codeKey) {
     if (data) {
       const children = []
-      let ary = []
       for (let i = 0; i < data.length; i++) {
         let RowData = data[i]
-        let datas = {
-          desc: RowData.desc,
-          code: RowData.code
+        if (RowData.code !== '') {
+          childrenKey.push(RowData.id)
+        } else {
+          codeKey.push(RowData.id)
         }
-        ary.push(datas)
-        children.push(RowData)
+        children.push(RowData.id)
       }
 
       children.forEach((key, index) => {
         if (data[index]["children"] !== undefined) {
           if (data[index].children.length !== 0) {
-            return this.RowData(data[index].children);
+            return this.RowData(data[index].children, childrenKey, codeKey);
           }
         }
+      })
+      this.setState({
+        checkedKeys: childrenKey,
+        codeKey,
       })
     }
   }
@@ -182,7 +184,7 @@ class CreateRoleModal extends React.Component {
     let ary = checkedKeys.map((item, index) => {
       return Number(item)
     })
-    if(ary.length === 0){
+    if (ary.length === 0) {
       notify.error('权限不能为空')
       return
     }
@@ -300,13 +302,13 @@ class CreateRoleModal extends React.Component {
               }
             })
         } else {
-          scope.loadData(roleId)
+          scope.loadData(roleId) && loadData()
           scope.setState({
             characterModal: false
           })
         }
       } else {
-        scope.loadData(roleId)
+        scope.loadData(roleId) && loadData()
         scope.setState({
           characterModal: false
         })
@@ -316,7 +318,7 @@ class CreateRoleModal extends React.Component {
   screenInfo() {
     let notification = new NotificationHandler()
     const { RemovePermissionRole } = this.props
-    const { rowPermissionID, checkedKeys, isChecked } = this.state
+    const { rowPermissionID, checkedKeys, isChecked, codeKey } = this.state
     let checkedId = []
     let ary = []
     let arys = []
@@ -337,6 +339,14 @@ class CreateRoleModal extends React.Component {
         arys.push(item)
       }
     })
+    codeKey.forEach((value, index) => {
+      arys.forEach(item => {
+        if (item === value) {
+          arys.splice(arys.indexOf(item), 1)
+        }
+      })
+    })
+    if (arys.length <= 0) return
     if (isChecked) {
       if (arys.length <= 0) return
       if (arys && arys.length > 0) {
@@ -350,7 +360,7 @@ class CreateRoleModal extends React.Component {
             success: {
               func: (res) => {
                 if (REG.test(res.data.code)) {
-                  //setTimeout(notification.spin('更新中...'),1000)
+                  notification.success('移除权限成功')
                 }
               },
               isAsync: true
@@ -366,12 +376,18 @@ class CreateRoleModal extends React.Component {
   }
   render() {
     const TreeNode = Tree.TreeNode;
-    const { allPermission, permissionCount, rowDate, rowPermission, total, isChecked, count } = this.state
+    const { allPermission, permissionCount, rowDate, rowPermission, total, isChecked, checkedKeys } = this.state
     const { characterModal, form, isAdd, isTotal } = this.props
     const { getFieldProps, isFieldValidating, getFieldError } = form
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 15 },
+    }
+    let checkedKey = []
+    if (checkedKeys) {
+      checkedKeys.forEach(item => {
+        checkedKey.push(`${item}`)
+      })
     }
     const loop = data => data.map((item) => {
       if (item["children"] !== undefined) {
@@ -414,7 +430,7 @@ class CreateRoleModal extends React.Component {
           <div className="authBox">
             <div className="authTitle">共<span style={{ color: '#59c3f5' }}>{total}</span>个<div className="pull-right">已选<span style={{ color: '#59c3f5' }}>
               {this.state.checkedCount.length <= 0 ? isChecked ? 0 : isTotal ? this.props.scope.state.total : isAdd : this.state.checkedCount.length}
-              </span> 个</div>
+            </span> 个</div>
             </div>
             <div className="treeBox">
               {
@@ -423,7 +439,7 @@ class CreateRoleModal extends React.Component {
                   checkable
                   onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
                   autoExpandParent={this.state.autoExpandParent}
-                  onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
+                  onCheck={this.onCheck.bind(this)} checkedKeys={checkedKey}
                   onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
                 >
                   {loop(allPermission)}

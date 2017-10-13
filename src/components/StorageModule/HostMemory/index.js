@@ -15,6 +15,9 @@ import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/index.less'
 import cloneDeep from 'lodash/cloneDeep'
+import { loadStorageList } from '../../../actions/storage'
+import { DEFAULT_IMAGE_POOL } from '../../../constants'
+import { formatDate } from '../../../common/tools'
 
 class HostMemory extends Component {
   constructor(props) {
@@ -28,12 +31,18 @@ class HostMemory extends Component {
     }
   }
 
-  reloadDate(){
-
+  reloadData(){
+    const { loadStorageList, cluster } = this.props
+    const clusterID = cluster.clusterID
+    const query = {
+      storagetype: 'host',
+      srtype: 'host'
+    }
+    loadStorageList(DEFAULT_IMAGE_POOL, clusterID, query)
   }
 
-  reloadDate(){
-
+  componentWillMount() {
+    this.reloadData()
   }
 
   deleteItem(){
@@ -71,45 +80,26 @@ class HostMemory extends Component {
     this.setState({ selectedRowKeys });
   }
 
-  renderDataSource(){
-    const arr = []
-    for(let i = 0; i < 15; i++){
-      const item = {
-        key: i,
-        id: `${i}afsfs`,
-        path: `var/log${i}`,
-        service: `servoce${i}`,
-        type: 'host',
-        node: `192.168.1.${i}`,
-        createTime: `${i}个月前`
-      }
-      if(i%2 == 0){
-        item.service = '-'
-      }
-      arr.push(item)
-    }
-    return arr
-  }
-
   render() {
     const {
       selectedRowKeys, deleteModalVisible,
       confirmLoading,
     } = this.state
+    const { storageList } = this.props
     const columns = [
       {
         key: 'id',
         title: 'ID',
-        dataIndex: 'id',
+        dataIndex: 'name',
         width: '20%',
         render: (text, record, index) => <div
           className='storage_name'
-          onClick={() => browserHistory.push(`/app_manage/hostMemory/${text}`)}
+          onClick={() => browserHistory.push(`/app_manage/storage/hostMemory/${text}?path=${record.mountPath}&ip=${record.storageIP}`)}
         >{text}</div>
       }, {
-        key: 'path',
+        key: 'mountPath',
         title: '宿主机目录',
-        dataIndex: 'path',
+        dataIndex: 'mountPath',
         width: '20%',
       }, {
         key: 'service',
@@ -119,18 +109,19 @@ class HostMemory extends Component {
       }, {
         key: 'type',
         title: '类型',
-        dataIndex: 'type',
+        dataIndex: 'storageType',
         width: '15%',
       }, {
         key: 'node',
         title: '存储节点',
-        dataIndex: 'node',
+        dataIndex: 'storageIP',
         width: '15%',
       }, {
         key: 'createTime',
         title: '创建时间',
         dataIndex: 'createTime',
         width: '15%',
+        render: (text) => <div>{ formatDate(text) }</div>,
         sorter: (a, b) => a - b,
       }
     ]
@@ -141,8 +132,8 @@ class HostMemory extends Component {
       selectedRowKeys,
       onChange: this.onSelectChange,
     }
-    const dataSource = this.renderDataSource()
-    const isFetching = false
+    const dataSource = storageList.storageList
+    const isFetching = storageList.isFetching
     return(
       <QueueAnim className='host_memory'>
         <div id='host_memory' key="host_memory">
@@ -154,20 +145,20 @@ class HostMemory extends Component {
               <Button
                 size="large"
                 className='button_margin'
-                onClick={() => this.reloadDate()}
+                onClick={() => this.reloadData()}
               >
                 <i className="fa fa-refresh button_icon" aria-hidden="true"></i>
                 刷新
               </Button>
-              <Button
-                size="large"
-                icon="delete"
-                className='button_margin'
-                onClick={() => this.deleteItem()}
-                disabled={!selectedRowKeys.length}
-              >
-                删除
-              </Button>
+              {/*<Button*/}
+                {/*size="large"*/}
+                {/*icon="delete"*/}
+                {/*className='button_margin'*/}
+                {/*onClick={() => this.deleteItem()}*/}
+                {/*disabled={!selectedRowKeys.length}*/}
+              {/*>*/}
+                {/*删除*/}
+              {/*</Button>*/}
               <div className='search_box'>
                 <Input
                   size="large"
@@ -185,14 +176,13 @@ class HostMemory extends Component {
               <Table
                 columns={columns}
                 dataSource={dataSource}
-                rowSelection={rowSelection}
+                //rowSelection={rowSelection}
                 pagination={{ simple: true }}
                 loading={isFetching}
-                onRowClick={this.tableRowClick}
+                //onRowClick={this.tableRowClick}
               />
             </div>
           </div>
-
 
           <Modal
             title="删除操作"
@@ -217,12 +207,18 @@ class HostMemory extends Component {
 }
 
 function mapStateToProp(state, props) {
-
+  const { entities, storage } = state
+  const { current } = entities
+  const defaultStorageList = {
+    isFetching: false,
+    storageList: []
+  }
   return {
-
+    cluster: current.cluster,
+    storageList: storage.storageList[DEFAULT_IMAGE_POOL] || defaultStorageList
   }
 }
 
 export default connect(mapStateToProp, {
-
+  loadStorageList,
 })(HostMemory)

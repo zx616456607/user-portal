@@ -126,6 +126,10 @@ class VMServiceCreate extends React.Component {
         },
         failed: {
           func: res => {
+            if (res && res.statusCode === 409) {
+              notify.error('相关资源已经存在，请修改后重试')
+              return
+            }
             notify.error('创建应用失败')
           },
           isAsync: true

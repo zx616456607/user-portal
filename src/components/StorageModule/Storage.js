@@ -148,7 +148,10 @@ let MyComponent = React.createClass({
     config: React.PropTypes.object
   },
   componentWillReceiveProps(nextProps){
-    if(nextProps.delModal !== this.props.delModal && !nextProps.delModal){
+    if(
+      (nextProps.delModal !== this.props.delModal && !nextProps.delModal)
+      || (nextProps.storage.isFetching !== this.props.storage.isFetching && nextProps.storage.isFetching)
+    ){
       this.setState({
         selectedRowKeys: [],
       })
@@ -486,7 +489,7 @@ let MyComponent = React.createClass({
         dataIndex: 'name',
         width: '12%',
         className: 'name',
-        render: name => <div><span className='text' onClick={() => browserHistory.push(`/app_manage/exclusiveMemory/${this.props.imagePool}/${this.props.cluster}/${name}`)}>{name}</span></div>
+        render: name => <div><span className='text' onClick={() => browserHistory.push(`/app_manage/storage/exclusiveMemory/${this.props.imagePool}/${this.props.cluster}/${name}`)}>{name}</span></div>
       },{
         title: '状态',
         key: 'status',
@@ -974,8 +977,13 @@ class Storage extends Component {
   deleteButton(){
     const { volumeArray } = this.state
     const { storageList, currentImagePool } = this.props
-    const array = volumeArray.map((item, index) => {
-    	return storageList[currentImagePool].storageList[item]
+    const array = []
+    volumeArray.forEach((item, index) => {
+      storageList[currentImagePool].storageList.forEach((volumeItem, index) => {
+        if(volumeItem.name == item){
+          array.push(volumeItem)
+        }
+      })
     })
     let ableList = []
     let disableList = []

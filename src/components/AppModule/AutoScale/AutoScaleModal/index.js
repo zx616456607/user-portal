@@ -318,9 +318,12 @@ class AutoScaleModal extends React.Component {
     }
     callback()
   }
-  checkValue = (rule, value, callback) => {
-    if (!value) {
+  checkValue(rule, value, callback) {
+    if (!value && value !== 0) {
       return callback('请输入阈值')
+    }
+    if (value < 1 || value > 99) {
+      return callback('阈值范围为1至99')
     }
     callback()
   }
@@ -481,7 +484,7 @@ class AutoScaleModal extends React.Component {
               showSearch
               disabled={create ? false : true}
               optionFilterProp="children"
-              notFoundContent="无法找到"
+              notFoundContent="没有未关联的服务"
               {...selectService}
               placeholder="请选择服务">
               {

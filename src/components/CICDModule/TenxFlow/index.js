@@ -18,7 +18,7 @@ import {
   CreateTenxflowBuild, getTenxflowBuildDetailLogs, changeTenxFlowStatus,
   changeFlowStatus, getRepoBranchesAndTagsByProjectId, getStageBuildLogList,
 } from '../../../actions/cicd_flow'
-import { DEFAULT_REGISTRY, SEARCH } from '../../../constants'
+import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
 import TenxFlowBuildLog from './TenxFlowBuildLog'
 import moment from 'moment'
@@ -205,7 +205,7 @@ let MyComponent = React.createClass({
   startBuildStage(item, index, key, tabKey) {
     const { flowId } = item
     const parentScope = this.props.scope
-    const { CreateTenxflowBuild, getTenxflowBuildDetailLogs } = this.props.scope.props
+    const { CreateTenxflowBuild, getTenxflowBuildDetailLogs } = parentScope.props
     const options = {}
     if (key && tabKey) {
       options.branch = key
@@ -216,11 +216,11 @@ let MyComponent = React.createClass({
           getTenxflowBuildDetailLogs(flowId, res.data.results.flowBuildId, {
             success: {
               func: (result) => {
-                // const flowListState = cloneDeep(parentScope.state.flowListState)
-                // flowListState[index].status = result.data.results.results[0].status
-                // parentScope.setState({
-                //   flowListState
-                // })
+                const flowList = cloneDeep(this.props.config)
+                flowList[index].status = result.data.results.results[0].status
+                parentScope.setState({
+                  flowList
+                })
               }
             }
           })
@@ -237,9 +237,8 @@ let MyComponent = React.createClass({
       }
     })
   },
-  renderBuildBtn(item, index) {
-    const { projectId, defaultBranch, stagesCount, repoType } = item
-    const { repoBranchesAndTags } = this.props
+  renderDropdownBtn(item, index) {
+    const { scope } = this.props
     const dropdown = (
       <Menu onClick={(Item)=>{this.operaMenuClick.call(this, item, Item)}}>
         <Menu.Item key='deleteFlow'>
@@ -252,23 +251,41 @@ let MyComponent = React.createClass({
         </Menu.Item>
       </Menu>
     );
-    const targetElement = (
+    return (
       <Dropdown.Button
         overlay={dropdown}
         type='ghost'
         size='large'
+        onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}
+      >
+        <span>
+          <i className='fa fa-wpforms' />&nbsp;
+          <FormattedMessage {...menusText.deloyLog} />
+        </span>
+      </Dropdown.Button>
+    )
+  },
+  renderBuildBtn(item, index) {
+    const { projectId, defaultBranch, stagesCount, repoType } = item
+    const { repoBranchesAndTags, scope } = this.props
+    let targetElement = (
+      <Button
+        className='logBtn'
+        size='large'
+        type='primary'
         onClick={() => {
           if (repoType === 'svn') {
             this.startBuildStage(item, index)
             return
           }
           this.starFlowBuild(item, index)
-        }}>
-        <span>
-          <i className='fa fa-wpforms' />&nbsp;
-          <FormattedMessage {...menusText.deloyLog} />
-        </span>
-      </Dropdown.Button>
+        }}
+      >
+        <svg className='structure commonImg'>
+          <use xlinkHref="#structure"></use>
+        </svg> &nbsp;
+        <FormattedMessage {...menusText.deloyStart} />
+      </Button>
     )
     if (repoType === 'svn') {
       return targetElement
@@ -299,15 +316,6 @@ let MyComponent = React.createClass({
         }
       }
     }
-
-    /*<Dropdown.Button overlay={dropdown} type='ghost' size='large' onClick={() => this.starFlowBuild(item, index)}>
-      <PopTabSelect
-        onChange={this.startBuildStage.bind(this, item, index)}
-        targetElement={targetElement}
-        loading={loading}>
-        {tabs}
-      </PopTabSelect>
-    </Dropdown.Button>*/
     return (
       <PopTabSelect
         placeholder="请输入分支或标签"
@@ -363,14 +371,11 @@ let MyComponent = React.createClass({
             <span><i className="fa fa-circle"></i>{status} <span style={{color: '#747474'}}>{getTriggeredInfo(item)}</span></span>
           </div>
           <div className='oprea'>
-            <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
-              <svg className='structure commonImg'>
-                <use xlinkHref="#structure"></use>
-              </svg> &nbsp;
-              <FormattedMessage {...menusText.deloyStart} />
-            </Button>
             {
               this.renderBuildBtn(item, index)
+            }
+            {
+              this.renderDropdownBtn(item, index)
             }
           </div>
         </div>
@@ -423,12 +428,7 @@ class TenxFlowList extends Component {
     getTenxFlowList({
       success: {
         func: (res) => {
-          const flowListState = []
-          res.data.results.forEach((list, index) => {
-            flowListState.push({ status: list.status })
-          })
           self.setState({
-            flowListState,
             flowList: res.data.results
           })
           if (callback) {
@@ -560,11 +560,6 @@ class TenxFlowList extends Component {
       const stateIndex = findIndex(self.props.flowList, flow => {
         return flow.flowId == result.flowId
       })
-      let flowListState = cloneDeep(self.state.flowListState)
-      flowListState[stateIndex] = {status: result.buildStatus}
-      self.setState({
-        flowListState
-      })
       changeFlowStatus(result.flowId, result.buildStatus)
     })
     socket.emit('flowBuildStatus', { flows: flowId })
@@ -572,36 +567,33 @@ class TenxFlowList extends Component {
   callback(flowId) {
     const count = this.props.config ? this.props.config.length : 0
     const self = this
-    const flowList = self.props.flowList
+    const index = findIndex(this.state.flowList, flow => {
+      return flow.flowId == flowId
+    })
     return (data) => {
       const { getTenxflowBuildLastLogs, getTenxFlowDetail, changeFlowStatus } = this.props;
       getTenxflowBuildLastLogs(flowId, {
         success: {
           func: (result) => {
-            const flowListState = cloneDeep(this.state.flowListState)
-            const index = findIndex(flowList, flow => {
-              return flow.flowId == flowId
-            })
             if (index < 0) return
             const status = result.data.results.results.status
-            flowListState[index].status = status
-            self.setState({
-              flowListState
-            })
             changeFlowStatus(flowId, status)
+            const flowList = cloneDeep(this.state.flowList)
+            if (index < 0) return
+            flowList[index].status = status
+            self.setState({
+              flowList
+            })
           },
           isAsync: true
         },
         failed: {
           func: () => {
-            const flowListState = cloneDeep(this.state.flowListState)
-            const index = findIndex(flowListState, flow => {
-              return flow.flowId == flowId
-            })
+            const flowList = cloneDeep(this.state.flowList)
             if (index < 0) return
-            flowListState[index].status == 1
+            flowList[index].status == 1
             self.setState({
-              flowListState
+              flowList
             })
             changeFlowStatus(flowId, 1)
           }

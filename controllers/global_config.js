@@ -46,6 +46,9 @@ exports.changeGlobalConfig = function* () {
   if (type == 'msa') {
     this.body = yield msaConfigFunc.apply(this, [entity])
   }
+  if (type == 'ftp') {
+    this.body = yield ftpConfigFunc.apply(this, [entity])
+  }
   yield initGlobalConfig.initGlobalConfig()
 }
 
@@ -127,6 +130,7 @@ function* harborConfigFunc(entity) {
 function* vmConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'vm'
+  delete entity.detail.configID
   entity.detail = Object.assign({}, global.globalConfig.vmWrapConfig, entity.detail)
   let response
   entity.configDetail = JSON.stringify(entity.detail)
@@ -141,7 +145,21 @@ function* vmConfigFunc(entity) {
 function* msaConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'msa'
-  entity.detail = Object.assign({}, global.globalConfig.msaWrapConfig, entity.detail)
+  entity.detail = Object.assign({}, global.globalConfig.msaConfig, entity.detail)
+  let response
+  entity.configDetail = JSON.stringify(entity.detail)
+  if (entity.configID) {
+    response = yield api.configs.updateBy([type], null, entity)
+  } else {
+    response = yield api.configs.createBy([type], null, entity)
+  }
+  return response
+}
+
+function* ftpConfigFunc(entity) {
+  const api = apiFactory.getApi(this.session.loginUser)
+  const type = 'ftp'
+  entity.detail = Object.assign({}, global.globalConfig.ftpConfig, entity.detail)
   let response
   entity.configDetail = JSON.stringify(entity.detail)
   if (entity.configID) {

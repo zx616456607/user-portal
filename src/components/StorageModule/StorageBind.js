@@ -42,15 +42,19 @@ class StorageBind extends Component {
     this.props.getVolumeBindInfo(this.props.cluster, this.props.volumeName)
   }
   render() {
+    const { volumeBindInfo } = this.props
     const {formatMessage} = this.props.intl
-    let mountInfo = this.props.volumeBindInfo.volumeBindInfo
-    let isFetching = this.props.volumeBindInfo.isFetching
+    let mountInfo = {}
+    if(volumeBindInfo.volumeBindInfo && volumeBindInfo.volumeBindInfo[0]){
+      mountInfo = volumeBindInfo.volumeBindInfo[0]
+    }
+    let isFetching = volumeBindInfo.isFetching
     if (isFetching) {
     return (<div className="loadingBox">
        <Spin size="large"></Spin> 
        </div>) 
     }
-    if(!mountInfo || mountInfo.appName =='') {
+    if(!Object.keys(mountInfo).length || mountInfo.appName =='') {
       return (
         <div id="StorageBind" style={{paddingLeft:'15px'}}>
             无绑定服务

@@ -22,7 +22,9 @@ import StorageClass from '../../../kubernetes/objects/storageClass'
 import Secret from '../../../kubernetes/objects/secret'
 import NfsStorage from '../../../kubernetes/objects/nfsStorage'
 import NfsDeplyment from '../../../kubernetes/objects/nfsDeplyment'
+import HostTemplate from '../../../kubernetes/objects/hostTemplate'
 import { createCephStorage, getClusterStorageList, deleteStorageClass, updateStorageClass } from '../../actions/cluster'
+import { getStorageClassType } from '../../actions/storage'
 import NotificationHandler from '../../components/Notification'
 
 const FormItem = Form.Item
@@ -33,15 +35,19 @@ let validating = false
 class ClusterStorage extends Component {
   constructor(props) {
     super(props)
-    this.hostChange = this.hostChange.bind(this)
     this.renderCephList = this.renderCephList.bind(this)
     this.renderNfsList = this.renderNfsList.bind(this)
     this.deleteNfs = this.deleteNfs.bind(this)
     this.loadClusterStorageList = this.loadClusterStorageList.bind(this)
     this.isExitName = this.isExitName.bind(this)
     this.validateAllName = this.validateAllName.bind(this)
+    this.loadStorageClassType = this.loadStorageClassType.bind(this)
+    this.renderHostTips = this.renderHostTips.bind(this)
     this.state = {
       hostChecked: true,
+      hostIsFetching: true,
+      hostVisible: false,
+      loading: false,
       deleteModalVisible: false,
       cephArray: {
         key: 0,
@@ -53,6 +59,28 @@ class ClusterStorage extends Component {
       },
       currentItem: {},
     }
+  }
+
+  loadStorageClassType(){
+    const { getStorageClassType, cluster } = this.props
+    const clusterID = cluster.clusterID
+    getStorageClassType(clusterID, {
+      success: {
+        func: res => {
+          const hostChecked = res.data.host
+          this.setState({
+            hostChecked,
+          })
+        }
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            hostIsFetching: false,
+          })
+        }
+      }
+    })
   }
 
   loadClusterStorageList(){
@@ -112,11 +140,73 @@ class ClusterStorage extends Component {
 
   componentWillMount() {
     this.loadClusterStorageList()
+    this.loadStorageClassType()
   }
 
-  hostChange(checked){
-    this.setState({
-      hostChecked: checked,
+  confirmSetHost(){
+    const { createCephStorage, cluster, deleteStorageClass } = this.props
+    const { hostChecked } = this.state
+    const clusterID = cluster.clusterID
+    if(hostChecked){
+      deleteStorageClass(clusterID, 'host-storage' , {
+        success: {
+          func: () => {
+            this.setState({
+              hostChecked: false,
+              hostVisible: false,
+            })
+            Notification.success('关闭 host 存储成功')
+          }
+        },
+        failed: {
+          func: res => {
+            let message = '关闭 host 存储失败，请重试'
+            if(res.message){
+              message = res.message
+            }
+            Notification.error(message)
+          }
+        },
+        finally: {
+          func: () => {
+            this.setState({
+              loading: false,
+            })
+          }
+        }
+      })
+      return
+    }
+    const hostTemplate = new HostTemplate()
+    const body = {
+      template: yaml.dump(hostTemplate)
+    }
+    createCephStorage(clusterID, {type: 'host'}, body, {
+      success: {
+        func: res => {
+          this.setState({
+            hostVisible: false,
+            hostChecked: true,
+          })
+          Notification.success('开启 host 存储成功')
+        }
+      },
+      failed: {
+        func: res => {
+          let message = '开启 host 存储失败，请重试'
+          if(res.message){
+            message = res.message
+          }
+          Notification.error(message)
+        }
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            loading: false,
+          })
+        }
+      }
     })
   }
 
@@ -437,8 +527,8 @@ class ClusterStorage extends Component {
                     if(!value){
                       return callback('用户认证密钥不能为空')
                     }
-                    if(!/^[a-zA-Z0-9=]{4,63}$/.test(value)){
-                      return callback('只能由数字、字母、=组成，长度为4～63个字符')
+                    if(value.length < 4 || value.length > 63){
+                      return callback('长度为4～63个字符')
                     }
                     return callback()
                   }
@@ -864,8 +954,31 @@ class ClusterStorage extends Component {
     })
   }
 
+  renderHostTips() {
+    const { hostChecked, hostIsFetching } = this.state
+    if (hostIsFetching) {
+      return <Spin/>
+    }
+    return <div>
+      <Switch
+        checkedChildren="开"
+        unCheckedChildren="关"
+        className='switch_style'
+        checked={hostChecked}
+        onChange={() => this.setState({loading: false, hostVisible: true})}
+      />
+      <div className='tips'>
+        {
+          hostChecked
+            ? <span>使用 host 存储模式，建议在高级设置中开启绑定节点来保持服务数据一致性</span>
+            : <span>未使用 host 存储模式</span>
+        }
+      </div>
+    </div>
+  }
+
   render() {
-    const { hostChecked, deleteModalVisible } = this.state
+    const { hostChecked, deleteModalVisible, hostVisible, loading } = this.state
     return(
       <div id='cluster_storage'>
         <div className='host'>
@@ -877,20 +990,7 @@ class ClusterStorage extends Component {
               <img src={HostImg} alt=""/>
             </div>
             <div className="container">
-              <Switch
-                checkedChildren="开"
-                unCheckedChildren="关"
-                className='switch_style'
-                checked={hostChecked}
-                onChange={this.hostChange}
-              />
-              <div className='tips'>
-                {
-                  hostChecked
-                  ? <span>使用 host 存储模式，建议在高级设置中开启绑定节点来保持服务数据一致性</span>
-                  : <span>未使用 host 存储模式</span>
-                }
-              </div>
+              { this.renderHostTips() }
             </div>
           </div>
           <div className="check_box"></div>
@@ -929,6 +1029,21 @@ class ClusterStorage extends Component {
             <div className="check_box"></div>
           </div>
         </div>
+
+        <Modal
+          title={hostChecked ? '关闭 host 存储' : '打开 host 存储'}
+          visible={hostVisible}
+          closable={true}
+          onOk={() => this.confirmSetHost()}
+          onCancel={() => this.setState({hostVisible: false})}
+          width="570px"
+          maskClosable={false}
+          confirmLoading={loading}
+          wrapClassName="set_host_memory"
+        >
+          <Icon type="question-circle-o" className='question_icon'/>
+          你确定{ hostChecked ? '关闭 host 存储' : '打开 host 存储' }吗？
+        </Modal>
 
         <Modal
           title="删除存储配置"
@@ -981,4 +1096,5 @@ export default connect(mapStateToProp, {
   getClusterStorageList,
   deleteStorageClass,
   updateStorageClass,
+  getStorageClassType,
 })(ClusterStorage)

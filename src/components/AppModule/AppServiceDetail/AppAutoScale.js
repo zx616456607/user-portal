@@ -71,7 +71,7 @@ class AppAutoScale extends Component {
   componentWillReceiveProps(nextProps) {
     const { serviceName: newServiceName, isCurrentTab: newCurrentTab, form, serviceDetailmodalShow: newScopeModal } = nextProps
     const { serviceName: oldServiceName, isCurrentTab: oldCurrentTab, serviceDetailmodalShow: oldScopeModal } = this.props
-    if (newServiceName !== oldServiceName || (newCurrentTab && !oldCurrentTab)) {
+    if ( !oldScopeModal && newScopeModal || (newCurrentTab && !oldCurrentTab)) {
       this.loadData(nextProps)
       this.setState({
         activeKey: 'autoScaleForm'
@@ -92,45 +92,59 @@ class AppAutoScale extends Component {
     const { serviceName, cluster, loadAutoScale } = props
     loadAutoScale(cluster, serviceName, {
       success: {
-        func: (res) => {
-          if (!isEmpty(res.data)) {
-            const { metadata, spec } = res.data
-            const { name: serviceName } = metadata
-            const { strategyName } = metadata.labels
-            const { alertStrategy: alert_strategy, alertgroupId: alert_group, status } = metadata.annotations
-            const { maxReplicas: max, minReplicas: min, metrics } = spec
-            let cpu, memory
-            metrics.forEach(item => {
-              if (item.resource.name === 'memory') {
-                memory = item.resource.targetAverageUtilization
-              } else if (item.resource.name === 'cpu') {
-                cpu = item.resource.targetAverageUtilization
+        func: () => {
+          loadAutoScale(cluster, serviceName, {
+            success: {
+              func: res=> {
+                if (!isEmpty(res.data)) {
+                  const { metadata, spec } = res.data
+                  const { name: serviceName } = metadata
+                  const { strategyName } = metadata.labels
+                  const { alertStrategy: alert_strategy, alertgroupId: alert_group, status } = metadata.annotations
+                  const { maxReplicas: max, minReplicas: min, metrics } = spec
+                  let cpu, memory
+                  metrics.forEach(item => {
+                    if (item.resource.name === 'memory') {
+                      memory = item.resource.targetAverageUtilization
+                    } else if (item.resource.name === 'cpu') {
+                      cpu = item.resource.targetAverageUtilization
+                    }
+                  })
+                  const scaleDetail = {
+                    strategyName,
+                    serviceName,
+                    alert_group,
+                    alert_strategy,
+                    max,
+                    min,
+                    cpu,
+                    memory,
+                    type: status === 'RUN' ? 1 : 0
+                  }
+                  this.setState({
+                    scaleDetail,
+                    switchOpen: scaleDetail.type ? true : false
+                  }, () => {
+                    this.initThresholdArr(this.state.scaleDetail)
+                  })
+                } else {
+                  this.setState({
+                    scaleDetail: null
+                  }, () => {
+                    this.initThresholdArr(this.state.scaleDetail)
+                  })
+                }
+              },
+              isAsync: true
+            },
+            failed: {
+              func: () => {
+                this.setState({
+                  scaleDetail: null
+                })
               }
-            })
-            const scaleDetail = {
-              strategyName,
-              serviceName,
-              alert_group,
-              alert_strategy,
-              max,
-              min,
-              cpu,
-              memory,
-              type: status === 'RUN' ? 1 : 0
             }
-            this.setState({
-              scaleDetail,
-              switchOpen: scaleDetail.type ? true : false
-            }, () => {
-              this.initThresholdArr(this.state.scaleDetail)
-            })
-          } else {
-            this.setState({
-              scaleDetail: null
-            }, () => {
-              this.initThresholdArr(this.state.scaleDetail)
-            })
-          }
+          })
         },
         isAsync: true
       },
@@ -229,10 +243,11 @@ class AppAutoScale extends Component {
     const { updateAutoScaleStatus, cluster, serviceName } = this.props
     const { switchOpen, scaleDetail } = this.state
     let notify = new NotificationHandler()
-    notify.spin('修改中...')
+    let msg = switchOpen ? '关闭' : '开启'
+    notify.spin(`${msg}中...`)
     if (isEmpty(scaleDetail)) {
       notify.close()
-      notify.error('修改失败，请编辑伸缩策略')
+      notify.error(`${msg}失败，请编辑伸缩策略`)
       return
     }
     this.setState({
@@ -246,14 +261,14 @@ class AppAutoScale extends Component {
           func: () => {
             this.loadData(this.props)
             notify.close()
-            notify.success('修改成功')
+            notify.success(`${msg}成功`)
           },
           isAsync: true
         },
         failed: {
           func: () => {
             notify.close()
-            notify.error('修改失败')
+            notify.error(`${msg}失败`)
             this.setState({
               switchOpen
             })
@@ -267,7 +282,7 @@ class AppAutoScale extends Component {
     const { isEdit, scaleDetail } = this.state
     const { getFieldValue } = form
     if (!value) {
-      callback('请输入策略名称')
+      return callback('请输入策略名称')
     }
     if (value.length < 3 || value.length > 21) {
       return callback('策略名称长度在3-21位之间')
@@ -396,6 +411,9 @@ class AppAutoScale extends Component {
   checkValue = (rule, value, callback) => {
     if (!value) {
       return callback('请输入阈值')
+    }
+    if (value < 1 || value > 99) {
+      return callback('阈值范围为1至99')
     }
     callback()
   }
@@ -556,7 +574,7 @@ class AppAutoScale extends Component {
                       showSearch
                       disabled={true}
                       optionFilterProp="children"
-                      notFoundContent="无法找到"
+                      notFoundContent="没有未关联的服务"
                       {...selectService}
                       placeholder="请选择服务">
                       {

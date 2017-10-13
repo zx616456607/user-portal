@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import classNames from 'classnames';
 import './style/ProjectManage.less'
-import { Input, Icon, Form } from 'antd'
+import { Input, Icon, Form, Popover } from 'antd'
 import { connect } from 'react-redux'
 import { CheckProjects } from '../../../actions/project'
 import { loadClusterList } from '../../../actions/cluster'
@@ -20,10 +20,12 @@ import { serviceNameCheck } from '../../../common/naming_validation'
 let CreateStepFirst = React.createClass({
   getInitialState() {
     return {
-      dropVisible:false,
       selectedClusters: [],
       choosableClusters: []
     }
+  },
+  componentWillMount() {
+    this.getAllClusters()
   },
   componentWillReceiveProps(nextProps) {
     const { choosableClusters, selectedClusters } = this.state;
@@ -37,11 +39,6 @@ let CreateStepFirst = React.createClass({
     }
     if (!choosableClusters.length && !selectedClusters.length) {
       this.getAllClusters()
-    }
-    if (scope.state.closeCreateProject || (step && step !== 'first')) {
-      this.setState({
-        dropVisible:false
-      })
     }
   },
   getAllClusters() {
@@ -81,11 +78,6 @@ let CreateStepFirst = React.createClass({
       updateCluster(clusterArr)
     })
   },
-  toggleDrop() {
-    this.setState({
-      dropVisible:!this.state.dropVisible
-    })
-  },
   projectName(rule, value, callback) {
     const { CheckProjects } = this.props;
     let newValue = value && value.trim()
@@ -99,15 +91,19 @@ let CreateStepFirst = React.createClass({
         projectsName: value
       },{
         success: {
-          func: () => {
-            this.updateProjectName(value)
-            callback()
+          func: res => {
+            if (res.data === false) {
+              this.updateProjectName(value)
+              callback()
+            } else if (res.data === true) {
+              callback(new Error('该名称已在项目或成员列表中存在'))
+            }
           },
           isAsync: true
         },
         failed: {
           func: () => {
-            callback(new Error('该名称已在项目或成员列表中存在'))
+            callback()
           },
           isAsync: true
         }
@@ -130,7 +126,7 @@ let CreateStepFirst = React.createClass({
     updateProjectDesc(projectName)
   },
   render() {
-    const { dropVisible, selectedClusters, choosableClusters } = this.state;
+    const { selectedClusters, choosableClusters } = this.state;
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = this.props.form;
     const formItemLayout = {
       labelCol: { span: 1 },
@@ -153,6 +149,18 @@ let CreateStepFirst = React.createClass({
           )
         }): <dd className="bottomList" style={{color: '#999'}} key={2}>可申请集群为空</dd>
       ]
+    )
+    const content = (
+      <div className={classNames("dropDownInnerBox")}>
+        <dl className="dropDownTop">
+          <dt className="topHeader">已申请集群（{selectedClusters&&selectedClusters.length}）</dt>
+          {menuTop}
+        </dl>
+        <dl className="dropDownBottom">
+          <dt className="bottomHeader">可申请集群（{choosableClusters&&choosableClusters.length}）</dt>
+          {menuBottom}
+        </dl>
+      </div>
     )
     return (
       <div id="projectCreateStepOne">
@@ -180,19 +188,16 @@ let CreateStepFirst = React.createClass({
         </div>
         <div className="inputBox" id="clusterDrop" style={{position:'relative'}}>
           <span>授权集群 :</span>
-          <div className="dropDownBox">
-            <span className="pointer" onClick={()=>{this.toggleDrop()}}>请选择授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
-            <div className={classNames("dropDownInnerBox",{'hide':!dropVisible})}>
-              <dl className="dropDownTop">
-                <dt className="topHeader">已申请集群（{selectedClusters&&selectedClusters.length}）</dt>
-                {menuTop}
-              </dl>
-              <dl className="dropDownBottom">
-                <dt className="bottomHeader">可申请集群（{choosableClusters&&choosableClusters.length}）</dt>
-                {menuBottom}
-              </dl>
+          <Popover
+            trigger="click"
+            overlayClassName="createClusterPop"
+            content={content}
+            getTooltipContainer={() => document.getElementById('clusterDrop')}
+          >
+            <div className="dropDownBox">
+              <span className="pointer">请选择授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
             </div>
-          </div>
+          </Popover>
         </div>
       </div>
     )

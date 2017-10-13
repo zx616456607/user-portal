@@ -53,12 +53,12 @@ class Tenant extends Component {
     const tenantMenuClass = classNames({
       'tenantMenu': true,
       'CommonSecondMenu': true,
-      'hiddenMenu': !containerSiderStyle === 'normal',
+      'hiddenMenu': !(containerSiderStyle === 'normal'),
     })
     const tenantContentClass = classNames({
       'tenantContent': true,
       'CommonSecondContent': true,
-      'hiddenContent': !containerSiderStyle === 'normal',
+      'hiddenContent': !(containerSiderStyle === 'normal'),
     })
     let menuListToShow = cloneDeep(menuList)
     if (role === ROLE_SYS_ADMIN) {

@@ -24,7 +24,6 @@ import { Link, browserHistory } from 'react-router'
 import { formatDate } from '../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import Title from '../Title'
-import { SEARCH } from '../../constants'
 
 class AlarmGroup extends Component {
   constructor(props) {
@@ -353,7 +352,7 @@ class AlarmGroup extends Component {
             <Button size="large" disabled={this.state.selectedRowKeys.length === 0} icon="delete" onClick={(e) => this.openDeleteModal(e, this.getSelectedGroups())} type="ghost">删除</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length !== 1} icon="edit" onClick={() => this.openModifyModal(this.getModifyingGroup())} type="ghost">修改</Button>
             <div className="Search">
-              <Input size="large" placeholder="搜索" id="AlarmGroupInput" onChange={(e) => this.setState({ search: e.target.value.replace(SEARCH, "") })} onPressEnter={() => this.handSearch()} />
+              <Input size="large" placeholder="搜索" id="AlarmGroupInput" onChange={(e) => this.setState({ search: e.target.value.trim()})} onPressEnter={() => this.handSearch()} />
               <i className="fa fa-search" onClick={() => this.handSearch()} />
             </div>
             {/*<div className="rightPage pageBox">

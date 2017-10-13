@@ -88,7 +88,8 @@ class ContinueIntegration extends Component {
     // })
     // return tempelteselect
     return BASE_IMAGE_TYPE.map((item, index) => {
-      return <Option value={index + 1} key={index}>{item}</Option>
+      let value = index + 1
+      return <Option value={value} key={index}>{item}</Option>
     })
   }
 

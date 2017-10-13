@@ -111,10 +111,18 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
         type, mountPath, strategy,
         readOnly, name, volumeIsOld,
         size, fsType, storageClassName,
+        hostPath,
       } = item
       // @Todo: reclaimPolicy??
       if (type === 'host') {
-        //
+        const volumeMounts = [{
+          mountPath,
+          readOnly,
+        }]
+        volume.hostPath = {
+          path: hostPath
+        }
+        deployment.addContainerVolumeV2(serviceName, volume, volumeMounts)
       } else {
         let volumeInfo = item.volume
         let image

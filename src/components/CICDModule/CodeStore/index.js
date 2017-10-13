@@ -16,7 +16,6 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getProjectList, removeProject, searchProject, filterProject } from '../../../actions/cicd_flow'
 import NotificationHandler from '../../../components/Notification'
 import Title from '../../Title'
-import { SEARCH } from '../../../constants/index.js'
 import './style/CodeStore.less'
 
 
@@ -383,11 +382,11 @@ class CodeStore extends Component {
   handleSearch(e) {
     let names =''
     if (e) {
-      names = e.target.value.replace(SEARCH,"")
+      names = e.target.value.trim()
       this.props.searchProject(names)
       return
     }
-    names = document.getElementById('searchBox').value.replace(SEARCH,"")
+    names = document.getElementById('searchBox').value.trim()
     this.props.searchProject(names)
   }
   handleFilter(type) {

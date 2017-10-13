@@ -8,7 +8,7 @@
  * @author XuLongcheng
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Menu, Dropdown, Button, Icon, Card, Table, Modal, Input, Tooltip, Transfer } from 'antd'
+import { Row, Alert, Menu, Dropdown, Button, Icon, Card, Table, Modal, Transfer } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/TeamManage.less'
 import { Link } from 'react-router'
@@ -43,7 +43,7 @@ let TeamTable = React.createClass({
       addMember: false,
       targetKeys: [],
       originalKeys: [],
-      sort: "d,teamName",
+      sort: "a,teamName",
       filter: "",
       nowTeamID: '',
       tableSelected: [],
@@ -188,7 +188,7 @@ let TeamTable = React.createClass({
     const { loadUserTeamList } = this.props.scope.props
     const { filter } = this.props.scope.state
     const { sortTeamName } = this.state
-    let sort = this.getSort(!sortTeamName, 'teamName')
+    let sort = this.getSort(true, 'teamName')
     loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
@@ -196,7 +196,7 @@ let TeamTable = React.createClass({
       filter,
     })
     this.setState({
-      sortTeamName: !sortTeamName,
+      sortTeamName: sortTeamName,
       sort,
     })
   },
@@ -317,6 +317,10 @@ let TeamTable = React.createClass({
   handleUserChange(targetKeys) {
     this.setState({ targetKeys })
   },
+  handleMenuClick(e, record) {
+    console.log(e, record)
+    this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})
+  },
   render() {
     let { sortedInfo, filteredInfo, targetKeys, sort } = this.state
     const { searchResult, filter } = this.props.scope.state
@@ -411,13 +415,25 @@ let TeamTable = React.createClass({
         key: 'operation',
         width:'15%',
         render: (text, record, index) =>{
+          const menu = (
+            <Menu onClick={(e) => this.handleMenuClick(e, record)}>
+              <Menu.Item disabled={roleNum !==1 && record.role === 'participator'} key="delete">
+                删除
+              </Menu.Item>
+            </Menu>
+          );
           return (
-            <div className="addusers">
-              <Button disabled={roleNum !== 1 && record.role === 'participator'}
-                type="primary" onClick={() => this.addNewMember(record.key)}>添加团队成员</Button>
-              <Button disabled={roleNum !==1 && record.role === 'participator'}
-                onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
-            </div>
+            <Dropdown.Button
+              disabled={roleNum !== 1 && record.role === 'participator'}
+              onClick={() => this.addNewMember(record.key)} overlay={menu} type="ghost">
+              添加团队成员
+            </Dropdown.Button>
+            // <div className="addusers">
+            //   <Button disabled={roleNum !== 1 && record.role === 'participator'}
+            //     type="primary" onClick={() => this.addNewMember(record.key)}>添加团队成员</Button>
+            //   <Button disabled={roleNum !==1 && record.role === 'participator'}
+            //     onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
+            // </div>
           )
         }
       },
@@ -464,7 +480,7 @@ class TeamManage extends Component {
       pageSize: 10,
       page: 1,
       current: 1,
-      sort: 'd,teamName',
+      sort: 'a,teamName',
       selected: [],
       userList:[],
       targetKeys: [],
@@ -513,7 +529,7 @@ class TeamManage extends Component {
     this.props.loadUserTeamList('default', {
       page: 1,
       size: 10,
-      sort: "d,teamName",
+      sort: "a,teamName",
       filter: "",
     })
   }
@@ -683,6 +699,12 @@ class TeamManage extends Component {
                   }) : [],
                   rightModal: true
                 })
+                this.setState((prevState) => {
+                  return {
+                    targetKeys: Array.from(new Set(prevState.targetKeys.concat(systemRoleID))),
+                    originalKeys: Array.from(new Set(prevState.targetKeys.concat(systemRoleID))),
+                  }
+                })
               },
               isAsync: true
             }
@@ -721,7 +743,11 @@ class TeamManage extends Component {
             }
             {
               roleNum === 1 &&
-                <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}><i className="fa fa-mouse-pointer" aria-hidden="true"/> 哪些人可以创建团队</Button>
+                <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}>
+                  <svg id="chosenCreator">
+                    <use xlinkHref='#chosencreator' />
+                  </svg> 哪些人可以创建团队
+                </Button>
             }
             <Button type="host" size="large" className="refreshBtn" onClick={this.refreshTeamTable.bind(this)}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
             <CreateTeamModal

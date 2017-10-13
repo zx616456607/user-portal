@@ -388,160 +388,167 @@ let CreateDatabase = React.createClass({
       </Select>
     )
     return (
-      <div id='CreateDatabase' type='right'>
-        <Form horizontal>
-          <div className='infoBox'>
-            <div className='commonBox'>
-              <div className='title'>
-                <span>类型</span>
-              </div>
-              <div className='inputBox'>
-                {statefulAppMenus}
-              </div>
-              <div style={{ clear: 'both' }}></div>
-            </div>
-            <div className='commonBox'>
-              <div className='title'>
-                <span>部署环境</span>
-              </div>
-              <div className='inputBox'>
-                <FormItem style={{ width: '150px', float: 'left', marginRight: '20px' }}>
-                  <Select {...selectNamespaceProps} className='envSelect' size='large'>
-                    { teamspaceList }
-                  </Select>
-                </FormItem>
-                <FormItem style={{ width: '150px', float: 'left' }}>
-                  <Select {...selectClusterProps} className='envSelect' size='large'>
-                    { clusterList }
-                  </Select>
-                </FormItem>
-              </div>
-              <div style={{ clear: 'both' }}></div>
-            </div>
-            <div className='commonBox'>
-              <div className='title'>
-                <span>名称</span>
-              </div>
-              <div className='inputBox'>
-                <FormItem
-                  hasFeedback
-                   help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
-                  >
-                  <Input {...nameProps} size='large' id="dbName" placeholder="请输入名称" disabled={isFetching} maxLength={20} />
-                </FormItem>
-              </div>
-              <div style={{ clear: 'both' }}></div>
-            </div>
-            <div className='commonBox accesstype'>
-              <div className='title'>
-                <span>集群访问方式</span>
-              </div>
-              <div className='radioBox'>
-                <FormItem>
-                  <Radio.Group {...accessTypeProps}>
-                    <Radio value="outcluster" key="2">可集群外访问</Radio>
-                    <Radio value="none" key="1">仅在集群内访问</Radio>
-                  </Radio.Group>
-                </FormItem>
-                {
-                  accessType === 'outcluster'
-                  ? <div className='accessTips'>数据库与缓存集群可提供集群外访问</div>
-                  : <div className='accessTips'>选择后该数据库与缓存集群仅提供集群内访问</div>
-                }
-              </div>
-              <div style={{ clear: 'both' }}></div>
-            </div>
-            {
-              accessType === 'outcluster'
-              ? <div className='commonBox outclusterBox'>
-                <div className='title'></div>
+      <QueueAnim>
+        <div id='CreateDatabase' key="createDatabase">
+          <Form horizontal>
+            <div className='infoBox'>
+              {/*<div className='commonBox'>*/}
+              {/*<div className='title'>*/}
+              {/*<span>类型</span>*/}
+              {/*</div>*/}
+              {/*<div className='inputBox'>*/}
+              {/*{statefulAppMenus}*/}
+              {/*</div>*/}
+              {/*<div style={{ clear: 'both' }}></div>*/}
+              {/*</div>*/}
+              {/*<div className='commonBox'>*/}
+              {/*<div className='title'>*/}
+              {/*<span>部署环境</span>*/}
+              {/*</div>*/}
+              {/*<div className='inputBox'>*/}
+              {/*<FormItem style={{ width: '150px', float: 'left', marginRight: '20px' }}>*/}
+              {/*<Select {...selectNamespaceProps} className='envSelect' size='large'>*/}
+              {/*{ teamspaceList }*/}
+              {/*</Select>*/}
+              {/*</FormItem>*/}
+              {/*<FormItem style={{ width: '150px', float: 'left' }}>*/}
+              {/*<Select {...selectClusterProps} className='envSelect' size='large'>*/}
+              {/*{ clusterList }*/}
+              {/*</Select>*/}
+              {/*</FormItem>*/}
+              {/*</div>*/}
+              {/*<div style={{ clear: 'both' }}></div>*/}
+              {/*</div>*/}
+              <div className='commonBox'>
+                <div className='title'>
+                  <span>名称</span>
+                </div>
                 <div className='inputBox'>
-                  <FormItem>
-                    <Select
-                      {...outClusterProps}
-                      placeholder='选择网络出口'
-                    >
-                      { this.renderSelectOption() }
-                    </Select>
+                  <FormItem
+                    hasFeedback
+                    help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+                  >
+                    <Input {...nameProps} size='large' id="dbName" placeholder="请输入名称" disabled={isFetching} maxLength={20} />
                   </FormItem>
                 </div>
                 <div style={{ clear: 'both' }}></div>
               </div>
-              : null
-            }
-            <div className='commonBox'>
-              <div className='title'>
-                <span>副本数</span>
+              <div className='commonBox accesstype'>
+                <div className='title'>
+                  <span>集群访问方式</span>
+                </div>
+                <div className='radioBox'>
+                  <FormItem>
+                    <Radio.Group {...accessTypeProps}>
+                      <Radio value="outcluster" key="2">可集群外访问</Radio>
+                      <Radio value="none" key="1">仅在集群内访问</Radio>
+                    </Radio.Group>
+                  </FormItem>
+                  {
+                    accessType === 'outcluster'
+                      ? <div className='accessTips'>数据库与缓存集群可提供集群外访问</div>
+                      : <div className='accessTips'>选择后该数据库与缓存集群仅提供集群内访问</div>
+                  }
+                </div>
+                <div style={{ clear: 'both' }}></div>
               </div>
-              <div className='inputBox replicas'>
-                <FormItem style={{ width: '80px', float: 'left' }}>
-                {
-                  this.state.currentType == 'zookeeper' ?
-                    <InputNumber {...zkReplicasProps} size='large' min={3} max={100} disabled={isFetching} /> :
-                    <InputNumber {...replicasProps} size='large' min={1} max={100} disabled={isFetching} />
-                }
-                </FormItem>
-                <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>个</span>
+              {
+                accessType === 'outcluster'
+                  ? <div className='commonBox outclusterBox'>
+                    <div className='title'></div>
+                    <div className='inputBox'>
+                      <FormItem>
+                        <Select
+                          {...outClusterProps}
+                          placeholder='选择网络出口'
+                        >
+                          { this.renderSelectOption() }
+                        </Select>
+                      </FormItem>
+                    </div>
+                    <div style={{ clear: 'both' }}></div>
+                  </div>
+                  : null
+              }
+              <div className='commonBox'>
+                <div className='title'>
+                  <span>副本数</span>
+                </div>
+                <div className='inputBox replicas'>
+                  <FormItem style={{ width: '80px', float: 'left' }}>
+                    {
+                      this.state.currentType == 'zookeeper' ?
+                        <InputNumber {...zkReplicasProps} size='large' min={3} max={100} disabled={isFetching} /> :
+                        <InputNumber {...replicasProps} size='large' min={1} max={100} disabled={isFetching} />
+                    }
+                  </FormItem>
+                  <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>个</span>
+                  {
+                    this.props.database == 'mysql' && <span className='mysql_tips'>
+                      <Icon type="exclamation-circle-o" className='tips_icon'/> 多实例仅支持 InnoDB 引擎
+                    </span>
+                  }
+                </div>
+                <div style={{ clear: 'both' }}></div>
               </div>
-              <div style={{ clear: 'both' }}></div>
+              <div className='commonBox'>
+                <div className='title'>
+                  <span>存储大小</span>
+                </div>
+                <div className='inputBox'>
+                  <FormItem  style={{ width: '80px', float: 'left' }}>
+                    <InputNumber {...selectStorageProps}  defaultValue={512} min={512} step={512} max={20480} size='large' disabled={isFetching}/>
+                  </FormItem>
+                  <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>MB</span>
+                </div>
+                <div style={{ clear: 'both' }}></div>
+              </div>
+              {this.state.currentType === 'elasticsearch' || this.state.currentType === 'etcd' ? null :
+                <div className='commonBox'>
+                  <div className='title'>
+                    <span>密码</span>
+                  </div>
+                  <div className='inputBox'>
+                    <FormItem
+                      hasFeedback
+                    >
+                      <Input {...passwdProps} onFocus={()=> this.setPsswordType()} type={this.state.showPwd} size='large' placeholder="请输入密码" disabled={isFetching} />
+                      <i className={this.state.showPwd == 'password' ? 'fa fa-eye' : 'fa fa-eye-slash'} onClick={this.checkPwd}></i>
+                    </FormItem>
+                  </div>
+                  <div style={{ clear: 'both' }}></div>
+                </div>}
+              { SHOW_BILLING ?
+                <div className="modal-price">
+                  <div className="price-left">
+                    <div className="keys">实例：{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
+                    <div className="keys">存储：{ parseAmount(this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).fullAmount}/（GB*小时）* {storageNumber} 个</div>
+                  </div>
+                  <div className="price-unit">
+                    <p>合计：<span className="unit">{countPrice.unit=='￥' ? ' ￥' : ''}</span><span className="unit blod">{ hourPrice.amount }{countPrice.unit=='￥'? '' : ' T'}/小时</span></p>
+                    <p className="unit">（约：{ countPrice.fullAmount }/月）</p>
+                  </div>
+                </div>
+                :null
+              }
             </div>
-            <div className='commonBox'>
-              <div className='title'>
-                <span>存储大小</span>
-              </div>
-              <div className='inputBox'>
-                <FormItem  style={{ width: '80px', float: 'left' }}>
-                  <InputNumber {...selectStorageProps}  defaultValue={512} min={512} step={512} max={20480} size='large' disabled={isFetching}/>
-                </FormItem>
-                <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>MB</span>
-              </div>
-              <div style={{ clear: 'both' }}></div>
+            <div className='btnBox'>
+              <Button size='large' onClick={this.handleReset}>
+                取消
+              </Button>
+              {this.state.loading ?
+                <Button size='large' type='primary' loading={this.state.loading}>
+                  确定
+                </Button>
+                :
+                <Button size='large' type='primary' onClick={this.handleSubmit}>
+                  确定
+                </Button>
+              }
             </div>
-            {this.state.currentType === 'elasticsearch' || this.state.currentType === 'etcd' ? null :
-            <div className='commonBox'>
-              <div className='title'>
-                <span>密码</span>
-              </div>
-              <div className='inputBox'>
-                <FormItem
-                  hasFeedback
-                  >
-                  <Input {...passwdProps} onFocus={()=> this.setPsswordType()} type={this.state.showPwd} size='large' placeholder="请输入密码" disabled={isFetching} />
-                  <i className={this.state.showPwd == 'password' ? 'fa fa-eye' : 'fa fa-eye-slash'} onClick={this.checkPwd}></i>
-                </FormItem>
-              </div>
-              <div style={{ clear: 'both' }}></div>
-            </div>}
-            { SHOW_BILLING ?
-            <div className="modal-price">
-              <div className="price-left">
-                <div className="keys">实例：{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
-                <div className="keys">存储：{ parseAmount(this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).fullAmount}/（GB*小时）* {storageNumber} 个</div>
-              </div>
-              <div className="price-unit">
-                <p>合计：<span className="unit">{countPrice.unit=='￥' ? ' ￥' : ''}</span><span className="unit blod">{ hourPrice.amount }{countPrice.unit=='￥'? '' : ' T'}/小时</span></p>
-                <p className="unit">（约：{ countPrice.fullAmount }/月）</p>
-              </div>
-            </div>
-            :null
-            }
-          </div>
-          <div className='btnBox'>
-            <Button size='large' onClick={this.handleReset}>
-              取消
-            </Button>
-            {this.state.loading ?
-            <Button size='large' type='primary' loading={this.state.loading}>
-              确定
-            </Button>
-            :
-            <Button size='large' type='primary' onClick={this.handleSubmit}>
-              确定
-            </Button>
-            }
-          </div>
-        </Form>
-      </div>
+          </Form>
+        </div>
+      </QueueAnim>
     )
   }
 });
@@ -578,7 +585,8 @@ CreateDatabase = createForm()(CreateDatabase);
 CreateDatabase.propTypes = {
   intl: PropTypes.object.isRequired,
   CreateDbCluster: PropTypes.func.isRequired,
-  setCurrent: PropTypes.func.isRequired
+  setCurrent: PropTypes.func.isRequired,
+  database: PropTypes.string.isRequired
 }
 
 CreateDatabase = injectIntl(CreateDatabase, {

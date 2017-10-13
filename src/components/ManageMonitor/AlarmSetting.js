@@ -15,7 +15,6 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../components/Notification'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { SEARCH } from '../../constants'
 import { getAlertSetting, deleteRecords, getSettingList, deleteSetting, batchEnable, batchDisable, ignoreSetting, getSettingInstant } from '../../actions/alert'
 import { loadServiceDetail } from '../../actions/services'
 import { getHostInfo } from '../../actions/cluster'
@@ -1000,7 +999,7 @@ class AlarmSetting extends Component {
             <Button type="ghost" disabled={this.state.isDelete} onClick={()=> this.setState({deleteModal: true})} size="large"><i className='fa fa-trash-o' />删除</Button>
             {/*<Button icon="edit" type="ghost" disabled={!canEdit} size="large" onClick={() => this.editSetting()} >修改</Button>*/}
             <div className="inputGrop">
-              <Input size="large" id="alarmSearch" placeholder="搜索" onChange={(e)=> this.setState({search:e.target.value.replace(SEARCH, "")})} onPressEnter={()=> this.handSearch()}/>
+              <Input size="large" id="alarmSearch" placeholder="搜索" onChange={(e)=> this.setState({search:e.target.value.trim()})} onPressEnter={()=> this.handSearch()}/>
               <i className="fa fa-search" onClick={()=> this.handSearch()}/>
             </div>
             {this.props.setting.length > 0 ?

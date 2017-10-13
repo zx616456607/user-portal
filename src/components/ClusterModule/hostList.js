@@ -11,7 +11,7 @@ import { camelize } from 'humps'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getAllClusterNodes, getClusterNodesMetrics, getKubectlsPods, deleteClusterNode, getClusterLabel, changeClusterNodeSchedule } from '../../actions/cluster_node'
 import { addTerminal } from '../../actions/terminal'
-import { NOT_AVAILABLE, SEARCH } from '../../constants'
+import { NOT_AVAILABLE } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
 import TagDropdown from './TagDropdown'
 import ManageLabelModal from './MangeLabelModal'
@@ -417,7 +417,7 @@ class hostList extends Component {
           this.setState({
             nodeList: nodeList,
             podCount: podCount,
-            summary: e ? summary:[],
+            summary: [],
           })
           let slaveAvailable = false
           nodeList.map((item) => {
@@ -468,9 +468,9 @@ class hostList extends Component {
     //this function for search nodes
     let search =''
     if(e){
-      search = e.target.value.replace(SEARCH,"")
+      search = e.target.value.trim()
     } else {
-      search = document.getElementsByClassName('searchInput')[0].value.replace(SEARCH,"")
+      search = document.getElementsByClassName('searchInput')[0].value.trim()
     }
 
     const { nodes } = this.props;

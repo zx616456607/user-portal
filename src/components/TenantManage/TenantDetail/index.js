@@ -300,7 +300,7 @@ let TenantDetail = React.createClass({
   handleProject(record) {
     browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${record.projectName}`)
   },
-  reload(){
+  reload() {
     const { params } = this.props
     let roleId = params.id
     this.loadData(roleId)
@@ -309,7 +309,7 @@ let TenantDetail = React.createClass({
     const { params, form, permissionList } = this.props
     const { getFieldProps } = form
     let { roleDetail, sortedInfo, filteredInfo, removePermissionName, removePermissionTree, permissionDatasource, defaultExpandedKeys,
-      roleProjects, count, total, ROLE_SYS_ADMIN } = this.state;
+      roleProjects, count, total } = this.state;
     let outPermission = {}
     let outPermissionInfo = outPermission.permission
     sortedInfo = sortedInfo || {};
@@ -447,7 +447,7 @@ let TenantDetail = React.createClass({
             </div>
           </div>
           <div className='lastDetails lastDetailtable' style={{ width: '49%', float: 'left' }} >
-            <div className='title'>权限 （ <span>{ total > 0 ? total : count}个</span> ）
+            <div className='title'>权限 （ <span>{total > 0 ? total : count}个</span> ）
             {
                 this.state.creator === this.props.userName || this.props.role === ROLE_SYS_ADMIN ?
                   <Button

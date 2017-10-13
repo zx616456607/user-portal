@@ -66,8 +66,11 @@ class MySpace extends Component {
     this.fetchQuotaList()
   }
   fetchQuotaList() {
-    const { getGlobaleQuota, getGlobaleQuotaList } = this.props
-    getGlobaleQuota({
+    const { getGlobaleQuota, getGlobaleQuotaList, clusterID } = this.props
+    let query = {
+      id: clusterID,
+    }
+    getGlobaleQuota(query, {
       success: {
         func: res => {
           if (res.code === 200) {
@@ -78,10 +81,10 @@ class MySpace extends Component {
         }
       }
     })
-    getGlobaleQuotaList({
+    getGlobaleQuotaList(query, {
       success: {
         func: res => {
-          if(res.code === 200){
+          if (res.code === 200) {
             this.setState({
               globaleUseList: res.data
             })
@@ -184,17 +187,29 @@ class MySpace extends Component {
     }
     return count
   }
-  useCount(value){
+  useCount(value) {
     const { globaleUseList } = this.state
     let count = ''
-    if(globaleUseList){
+    if (globaleUseList) {
       Object.keys(globaleUseList).forEach((item, index) => {
-        if(item === value){
+        if (item === value) {
           count = Object.values(globaleUseList)[index]
         }
       })
     }
     return count
+  }
+
+  filterPercent(value, count) {
+    let max = 100
+    let result = 0
+    if (value === 0) return 0
+    let number = 100 / Number(value)
+    for (let i = 0; i < count; i++) {
+      result += number
+    }
+    result > max ? result = max : result
+    return result
   }
 
   render() {
@@ -274,7 +289,7 @@ class MySpace extends Component {
     const ciList = [
       {
         key: 'tenxflow',
-        text: 'Tencfilow(个)',
+        text: 'TenxFlow(个)',
       },
       {
         key: 'subTask',
@@ -286,14 +301,14 @@ class MySpace extends Component {
       },
     ]
     const deliverList = [
-      {
-        key: 'registryProject',
-        text: '镜像仓库组(个)',
-      },
-      {
-        key: 'registry',
-        text: '镜像仓库(个)',
-      },
+      // {
+      //   key: 'registryProject',
+      //   text: '镜像仓库组(个)',
+      // },
+      // {
+      //   key: 'registry',
+      //   text: '镜像仓库(个)',
+      // },
       {
         key: 'orchestrationTemplate',
         text: '编排文件(个)',
@@ -302,15 +317,17 @@ class MySpace extends Component {
         key: 'applicationPackage',
         text: '应用包(个)',
       }]
+
     return (
       <div id='MySpace'>
         <Row className="title" style={{ marginTop: 20 }}>{spaceName}</Row>
         <Row className="content" gutter={16}>
           <Col span={6} className="quota">
-            <Card title="项目资源配置" bordered={false} bodyStyle={{ height: 175, padding: '15px 24px' }}
-              extra={<Button type="primary" size="small">设置配额</Button>}>
-              <Row>
-                <Col span={16} offset={6}>
+            <Card title="项目资源配置" bordered={false} bodyStyle={{ height: 175, padding: '7px' }}
+              extra={<Link to={spaceName ==='我的个人项目' ?`/tenant_manage/user/${this.props.loginUser.info.userID}` : this.props.userID === undefined ? `tenant_manage/project_manage/project_detail?name=${this.props.projectName}` : `/tenant_manage/user/${this.props.userID}`}>
+                <Button type="primary" size="small">设置配额</Button></Link>}>
+              <Row className="radios">
+                <Col span={16} offset={5}>
                   <RadioGroup size="small" onChange={(e) => this.handleChange(e)} defaultValue="ci">
                     <RadioButton value="ci">CI/CD</RadioButton>
                     <RadioButton value="deliver">交付中心</RadioButton>
@@ -321,11 +338,11 @@ class MySpace extends Component {
                 {
                   ciList.map((item, index) => (
                     <Row className="info">
-                      <Col span={7}>
+                      <Col span={9}>
                         <span>{item.text}</span>
                       </Col>
-                      <Col span={10}>
-                        <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
+                      <Col span={8}>
+                        <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                       </Col>
                       <Col span={6}>
                         <span className="count">{this.useCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
@@ -342,7 +359,7 @@ class MySpace extends Component {
                         <span>{item.text}</span>
                       </Col>
                       <Col span={9}>
-                        <Progress className="pro" style={{ width: '90%' }} percent={0} showInfo={false} />
+                        <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                       </Col>
                       <Col span={6}>
                         <span className="count">{this.useCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
@@ -598,6 +615,10 @@ class MySpace extends Component {
 }
 
 function mapStateToProp(state, props) {
+  const { current, loginUser } = state.entities
+  const { clusterID } = current.cluster
+  const { projectName } = current.space
+  const { userID } = current.space
   let isFetching = true
   let spaceOperationsData = {
     appCreate: 0,
@@ -704,6 +725,10 @@ function mapStateToProp(state, props) {
     spaceImageStatsData = spaceImageStats.result.data
   }
   return {
+    userID,
+    clusterID,
+    loginUser,
+    projectName,
     spaceOperations: spaceOperationsData,
     spaceCICDStats: spaceCICDStatsData,
     spaceImageStats: spaceImageStatsData,

@@ -110,38 +110,16 @@ const Storage = React.createClass({
       replicasInputDisabled: !!value
     })
   },
-  translateStorageType(type) {
-    switch (type) {
-      case 'rbd':
-        return '分布式存储'
-      case 'hostPath':
-        return '本地存储'
-    }
-  },
   renderStorageType() {
     const { currentCluster, form, isCanCreateVolume } = this.props
     if (!isCanCreateVolume) {
       return
     }
-    const storageTypeProps = form.getFieldProps('storageType', {
-      rules: [
-        { required: true },
-      ],
-    })
     const { storageTypes } = currentCluster
     // for test
     // const storageTypes= [ 'rbd', 'hostPath' ]
     return (
       <FormItem key="storageType" className="floatRight storageType">
-        <RadioGroup {...storageTypeProps}>
-          {
-            storageTypes.map(type => (
-              <Radio value={type} key={type}>
-                {this.translateStorageType(type)}
-              </Radio>
-            ))
-          }
-        </RadioGroup>
         {
           storageTypes.indexOf('hostPath') > -1 && (
             <span>
@@ -222,7 +200,11 @@ const Storage = React.createClass({
             <Input value={mountPath} disabled />
           </Col>
           <Col span="3">
-            <Checkbox checked disabled>{strategy ? '保留' : '删除'}</Checkbox>
+            {
+              type == 'private'
+                ? <Checkbox checked disabled>{strategy ? '保留' : '删除'}</Checkbox>
+                : <span>&nbsp;</span>
+            }
           </Col>
           <Col span="3">
             <Checkbox checked={readOnly} disabled>只读</Checkbox>

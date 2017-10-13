@@ -11,13 +11,13 @@
 
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
+import QueueAnim from 'rc-queue-anim'
 import { Modal, Button, Icon, Input, Spin, Tooltip } from 'antd'
 import { injectIntl } from 'react-intl'
 import { loadDbCacheList, searchDbservice } from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
 import { getProxy } from '../../actions/cluster'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { SEARCH } from '../../constants'
 import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
 import NotificationHandler from '../../components/Notification'
@@ -246,47 +246,49 @@ class StatefulCluster extends Component {
       title = '尚未部署分布式存储，暂不能创建'
     }
     return (
-      <div id='mysqlDatabase'>
-        <div className='databaseCol' key={literal.displayName}>
-          <Title title={literal.displayName} />
-          <div className='databaseHead'>
-            {mode === standard ?
-              <div className='alertRow'>您的 {literal.displayName} 集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> :
-              <div></div>}
-            <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
-              <span><i className='fa fa-plus' />&nbsp;{literal.displayName}集群</span>
-            </Button></Tooltip>
-            <Button style={{ marginLeft: '20px', padding: '5px 15px' }} size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
-              <i className='fa fa-refresh' />&nbsp;刷 新
-            </Button>
-            <span className='rightSearch'>
+      <QueueAnim>
+        <div id='mysqlDatabase' key={`${clusterType}DataBase`}>
+          <div className='databaseCol' key={literal.displayName}>
+            <Title title={literal.displayName} />
+            <div className='databaseHead'>
+              {mode === standard ?
+                <div className='alertRow'>您的 {literal.displayName} 集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> :
+                <div></div>}
+              <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
+                <span><i className='fa fa-plus' />&nbsp;{literal.displayName}集群</span>
+              </Button></Tooltip>
+              <Button style={{ marginLeft: '20px', padding: '5px 15px' }} size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
+                <i className='fa fa-refresh' />&nbsp;刷 新
+              </Button>
+              <span className='rightSearch'>
               <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight: '28px' }} ref="searchInput"
-                onChange={(e) => this.setState({ search: e.target.value.replace(SEARCH, "") })}
-                onPressEnter={() => this.handSearch()} />
+                     onChange={(e) => this.setState({ search: e.target.value.trim()})}
+                     onPressEnter={() => this.handSearch()} />
               <i className="fa fa-search cursor" onClick={() => this.handSearch()} />
             </span>
+            </div>
+            <MyComponent scope={_this} isFetching={isFetching} config={databaseList} clusterType={clusterType} canCreate={canCreate} />
           </div>
-          <MyComponent scope={_this} isFetching={isFetching} config={databaseList} clusterType={clusterType} canCreate={canCreate} />
+          <Modal visible={this.state.detailModal}
+                 className='AppServiceDetail' transitionName='move-right'
+                 onCancel={() => {
+                   this.setState({ detailModal: false })
+                 }}
+          >
+            <ModalDetail scope={_this} putVisible={_this.state.putVisible} database={this.props.database}
+                         currentData={this.state.currentData} dbName={this.state.currentDatabase} />
+          </Modal>
+          <Modal visible={this.state.CreateDatabaseModalShow}
+                 className='CreateDatabaseModal' maskClosable={false}
+                 title='创建数据库集群' width={600}
+                 onCancel={() => {
+                   this.setState({ CreateDatabaseModalShow: false })
+                 }}
+          >
+            <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy} />
+          </Modal>
         </div>
-        <Modal visible={this.state.detailModal}
-          className='AppServiceDetail' transitionName='move-right'
-          onCancel={() => {
-            this.setState({ detailModal: false })
-          }}
-        >
-          <ModalDetail scope={_this} putVisible={_this.state.putVisible} database={this.props.database}
-            currentData={this.state.currentData} dbName={this.state.currentDatabase} />
-        </Modal>
-        <Modal visible={this.state.CreateDatabaseModalShow}
-          className='CreateDatabaseModal' maskClosable={false}
-          title='创建数据库集群' width={600}
-          onCancel={() => {
-            this.setState({ CreateDatabaseModalShow: false })
-          }}
-        >
-          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy} />
-        </Modal>
-      </div>
+      </QueueAnim>
     )
   }
 }

@@ -10,7 +10,7 @@
 
 
 import React, { Component } from 'react'
-import { Modal, Table, Icon, Form, Radio, Button, Tabs, Card, Input, Upload, Select } from 'antd'
+import { Alert, Modal, Table, Icon, Form, Radio, Button, Tabs, Card, Input, Upload, Select, Tooltip } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
@@ -234,7 +234,7 @@ class UploadModal extends Component {
     return callback()
   }
   render() {
-    const { form, func } = this.props
+    const { form, func, loginUser } = this.props
     const { fileType,fileName,fileTag } = this.state
     // const isReq = type =='local' ? false : true
     const wrapName = form.getFieldProps('wrapName',{
@@ -311,6 +311,8 @@ class UploadModal extends Component {
         }
       }
     }
+    const ftpConfiged = !!loginUser.ftpConfig.addr
+    const defaultActiveKey = ftpConfiged ? 'local' : 'remote'
     return (
       <Modal title="上传包文件" visible={this.props.visible}
         onCancel={() => func.uploadModal(false)}
@@ -328,8 +330,16 @@ class UploadModal extends Component {
           <Form.Item {...formItemLayout} label="版本标签">
             <Input {...versionLabel} placeholder="请输入版本标签来标记此次上传文件" />
           </Form.Item>
-          <Tabs defaultActiveKey="local" onChange={this.changeTabs} size="small">
-            <TabPane tab="本地上传" key="local">
+          {
+            !ftpConfiged &&
+            <Alert message="系统尚未配置 FTP 服务，不能使用本地上传，请联系系统管理员" type="info" showIcon closable />
+          }
+          <Tabs defaultActiveKey={defaultActiveKey} onChange={this.changeTabs} size="small">
+            <TabPane
+              tab="本地上传"
+              key="local"
+              disabled={!ftpConfiged}
+            >
               <div className="dragger">
                 <Dragger {...selfProps}>
                   拖动文件到这里以上传，或点击 <a>选择文件</a>
@@ -481,7 +491,11 @@ class WrapManage extends Component {
           </Card>
         </div>
 
-        <UploadForm func={funcCallback} visible={this.state.uploadModal}/>
+        <UploadForm
+          func={funcCallback}
+          visible={this.state.uploadModal}
+          loginUser={this.props.loginUser}
+        />
         <Modal title="删除操作" visible={this.state.delAll}
           onCancel={()=> this.deleteAction(false)}
           onOk={this.deleteVersion}
@@ -494,6 +508,7 @@ class WrapManage extends Component {
 }
 
 function mapStateToProps(state,props) {
+  const { loginUser } = state.entities
   const { wrapList } = state.images
   const list = wrapList || {}
   let datalist = {pkgs:[],total:0}
@@ -502,6 +517,7 @@ function mapStateToProps(state,props) {
   }
   return {
     wrapList: datalist,
+    loginUser: loginUser.info,
   }
 }
 
