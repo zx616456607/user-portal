@@ -1306,7 +1306,6 @@ class Ordinary extends Component {
         key: 'etcd',
         text: 'Etcd (个)'
       }]
-    console.log('space= ',space)
     const spaceName = space.spaceName || space.namespace
     return (
       <div id='Ordinary'>
