@@ -132,7 +132,7 @@ class HostMemory extends Component {
       selectedRowKeys,
       onChange: this.onSelectChange,
     }
-    const dataSource = storageList.storageList
+    const dataSource = storageList.storageList || []
     const isFetching = storageList.isFetching
     return(
       <QueueAnim className='host_memory'>

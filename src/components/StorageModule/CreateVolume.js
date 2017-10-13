@@ -576,8 +576,9 @@ class CreateVolume extends Component {
               initialValue: 'retain'
             })}>
               <Radio key="retain" value="retain" className='item'>保留</Radio>
-              <Radio key="delete" value="delete">删除</Radio>
+              <Radio key="delete" value="delete" disabled>删除</Radio>
             </Radio.Group>
+            <span className='strategy_tips'><Icon type="question-circle-o" className='tips_icon'/>暂不支持删除策略</span>
           </Form.Item>
           { SHOW_BILLING ?
           <div className="modal-price">

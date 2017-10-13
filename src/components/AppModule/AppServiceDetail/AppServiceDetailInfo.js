@@ -656,7 +656,14 @@ class AppServiceDetailInfo extends Component {
               }
               list.push(container)
             } else {
-              const { strategy, image, fsType } = item.rbd
+              let strategy = 'retain'
+              let image = ''
+              let fsType = 'ext4'
+              if(item.rbd){
+                strategy = item.rbd.strategy
+                image = item.rbd.image
+                fsType = item.rbd.fsType
+              }
               const imageArray = image.split('.')
               const volume = imageArray[imageArray.length - 1]
               // @todo 缺少旧服务存储卷的大小
