@@ -165,7 +165,7 @@ class AutoScale extends React.Component {
       updateAutoScale(clusterID, serviceName, opt, {
         success: {
           func: () => {
-            const mesSuc = e.keys === 'start' ? '启用成功' : '停用成功'
+            const mesSuc = e.key === 'start' ? '启用成功' : '停用成功'
             notify.close()
             notify.success(mesSuc)
             this.loadData(clusterID, 1)
@@ -174,7 +174,7 @@ class AutoScale extends React.Component {
         },
         failed: {
           func: () => {
-            const mesErr = e.keys === 'start' ? '启用失败' : '停用失败'
+            const mesErr = e.key === 'start' ? '启用失败' : '停用失败'
             notify.close()
             notify.error(mesErr)
           }
