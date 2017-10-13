@@ -60,6 +60,8 @@ class App extends Component {
       upgradeFrom: null,
       resourcePermissionModal: false,
       switchSpaceOrCluster: false,
+      resourcequotaModal: false,
+      resourcequotaMessage: {},
     }
   }
 
@@ -171,18 +173,24 @@ class App extends Component {
       if (!message.details) {
         return
       }
-      let { kind, level } = message.details
-      level = parseInt(level)
-      // 超出专业版限额，发工单联系客服
-      if (level > 1) {
-        notification.warn(`您需要的资源超出专业版限额，请通过右下角联系客服`, '', null)
+      if (standardFlag) {
+        let { kind, level } = message.details
+        level = parseInt(level)
+        // 超出专业版限额，发工单联系客服
+        if (level > 1) {
+          notification.warn(`您需要的资源超出专业版限额，请通过右下角联系客服`, '', null)
+          return
+        }
+        this.setState({
+          upgradeModalShow: true,
+          upgradeFrom: kind
+        })
         return
       }
       this.setState({
-        upgradeModalShow: true,
-        upgradeFrom: kind
+        resourcequotaModal: true,
+        resourcequotaMessage: JSON.parse(message.message),
       })
-      return
     }
     // license 过期
     if (statusCode === LICENSE_EXPRIED_CODE) {
@@ -406,6 +414,8 @@ class App extends Component {
       upgradeModalShow,
       upgradeFrom,
       resourcePermissionModal,
+      resourcequotaModal,
+      resourcequotaMessage,
     } = this.state
     const scope = this
     if (isEmptyObject(loginUser) && loadLoginUserSuccess) {
@@ -487,6 +497,34 @@ class App extends Component {
             <span>
             当前操作未被授权，请联系管理员进行授权后，再进行操作
             </span>
+          </div>
+        </Modal>
+        <Modal
+          visible={resourcequotaModal}
+          maskClosable={false}
+          onCancel={() => this.setState({ resourcequotaModal: false })}
+          wrapClassName="resourcequotaModal"
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              onClick={() => this.setState({ resourcequotaModal: false })}
+            >
+              知道了
+            </Button>
+          ]}
+          >
+          <div>
+            <i className="fa fa-exclamation-triangle" aria-hidden="true"></i>
+            <span>
+            超过配额，你目前只剩下
+            <a> {resourcequotaMessage.available} 个 {resourcequotaMessage.type} </a>
+            配额
+            </span>
+            <div>
+              您可以前往总览或项目详情页面查询当前配额使用情况或联系系统管理员提高配额。
+            </div>
           </div>
         </Modal>
       </div>

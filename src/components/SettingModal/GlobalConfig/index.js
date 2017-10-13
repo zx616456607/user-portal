@@ -505,13 +505,14 @@ let Ftp = React.createClass({
       })
       const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig } = this.props
       const { getFieldValue } = form
-      const ftpID = getFieldValue('ftpID')
+      const ftpID = values.ftpID
       const self = this
+      delete values.ftpID
       const body = {
         configID: ftpID,
         detail: values,
       }
-      saveGlobalConfig(cluster.clusterID, 'msa', body , {
+      saveGlobalConfig(cluster.clusterID, 'ftp', body , {
         success: {
           func: (result) => {
             notification.close()
