@@ -339,7 +339,8 @@ class Ordinary extends Component {
 
   render() {
     const { clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
-      clusterNodeSummary, clusterDbServices, spaceName, clusterName, clusterUseList, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching, loginUser } = this.props
+      clusterNodeSummary, clusterDbServices, clusterName, clusterUseList, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching, loginUser, current } = this.props
+    const { space } = current
     const { userName, email, avatar, certInfos } = loginUser
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
@@ -1260,6 +1261,7 @@ class Ordinary extends Component {
     const computeList = ['CPU(核)', '内存(GB)', '磁盘(GB)']
     const platformList = ['应用(个)', '服务(个)', '容器(个)', '存储(个)', '快照(个)', '服务配置(个)']
     const serviceList = ['关系型数据库(个)', '缓存(个)', 'Zookeeper(个)', 'ElasticSearch(个)', 'Etcd(个)']
+    const spaceName = space.spaceName || space.namespace
     return (
       <div id='Ordinary'>
         <Row className="title">{spaceName} - {clusterName} 集群</Row>
