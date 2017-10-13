@@ -533,7 +533,7 @@ let MyComponent = React.createClass({
         dataIndex: 'reclaimPolicy',
         width: '13%',
         className: 'strategy',
-        render: reclaimPolicy => <div>{ reclaimPolicy == 'delete' ? '删除' : '保存'}</div>
+        render: reclaimPolicy => <div>{ reclaimPolicy == 'delete' ? '删除' : '保留'}</div>
       },{
         title: '创建时间',
         key: 'createTime',
@@ -863,7 +863,7 @@ class Storage extends Component {
         func: () => {
           notification.close()
           notification.error('删除存储失败')
-          //this.getStorageList()
+          this.getStorageList()
         }
       }
     })

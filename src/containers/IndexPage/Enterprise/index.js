@@ -32,7 +32,7 @@ class IndexPage extends Component {
           <div id="IndexPage">
             <Title title="总览" />
             <Admin spaceName={current.space.spaceName}/>
-            <Ordinary spaceName={current.space.spaceName} clusterName={current.cluster.clusterName}/>
+            <Ordinary clusterName={current.cluster.clusterName}/>
             <Footer />
           </div>
         )
@@ -41,7 +41,7 @@ class IndexPage extends Component {
     return (
       <div id="IndexPage">
         <Title title="总览" />
-        <Ordinary spaceName={current.space.spaceName} clusterName={current.cluster.clusterName}/>
+        <Ordinary clusterName={current.cluster.clusterName}/>
         <Footer />
       </div>
     )

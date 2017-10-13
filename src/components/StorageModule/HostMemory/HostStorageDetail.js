@@ -62,7 +62,7 @@ class HostStorageDetail extends Component {
             </div>
             <div className="infoBox">
               <div className="appTitle">
-                我是存储卷名称
+                { hostName }
               </div>
               <div className="info">
                 <Row>
@@ -70,17 +70,17 @@ class HostStorageDetail extends Component {
                     存储类型：host
                   </Col>
                   <Col span="15">
-                    <div className="createDate">
+                    {/*<div className="createDate">
                       创建时间：2012-12-12
-                    </div>
+                    </div>*/}
                   </Col>
                 </Row>
                 <Row>
                   <Col span="9">
-                    宿主机目录：aaaaa
+                    宿主机目录：{ path }
                   </Col>
                   <Col span="15">
-                    存储节点：192.1.1.1
+                    存储节点：{ ip }
                   </Col>
                 </Row>
               </div>
@@ -95,9 +95,9 @@ class HostStorageDetail extends Component {
                   query={query}
                 />
               </TabPane>
-              {/*<TabPane tab="租赁信息" key="rentInfo">*/}
-                {/*租赁信息*/}
-              {/*</TabPane>*/}
+              {/*<TabPane tab="租赁信息" key="rentInfo">
+                租赁信息
+              </TabPane>*/}
             </Tabs>
           </Card>
         </div>

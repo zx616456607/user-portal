@@ -339,7 +339,8 @@ class Ordinary extends Component {
 
   render() {
     const { clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
-      clusterNodeSummary, clusterDbServices, spaceName, clusterName, clusterUseList, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching, loginUser } = this.props
+      clusterNodeSummary, clusterDbServices, clusterName, clusterUseList, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching, loginUser, current } = this.props
+    const { space } = current
     const { userName, email, avatar, certInfos } = loginUser
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
@@ -353,14 +354,14 @@ class Ordinary extends Component {
     let svcRunning = clusterAppStatus.svcMap.get('Running')
     let svcStopped = clusterAppStatus.svcMap.get('Stopped')
     let svcOthers = clusterAppStatus.svcMap.get('Deploying') ? clusterAppStatus.svcMap.get('Deploying') : 0 +
-      clusterAppStatus.svcMap.get('Pending') ? clusterAppStatus.svcMap.get('Pending') : 0
+    clusterAppStatus.svcMap.get('Pending') ? clusterAppStatus.svcMap.get('Pending') : 0
     //容器
     let conRunning = clusterAppStatus.podMap.get('Running')
     let conFailed = clusterAppStatus.podMap.get('Failed') || 0 +
-      clusterAppStatus.podMap.get('Abnormal') ? clusterAppStatus.podMap.get('Abnormal') : 0
+    clusterAppStatus.podMap.get('Abnormal') ? clusterAppStatus.podMap.get('Abnormal') : 0
     let conOthers = clusterAppStatus.podMap.get('Pending') ? clusterAppStatus.podMap.get('Pending') : 0 +
-      clusterAppStatus.podMap.get('Terminating') ? clusterAppStatus.podMap.get('Terminating') : 0 +
-        clusterAppStatus.podMap.get('Unknown') ? clusterAppStatus.podMap.get('Unknown') : 0
+    clusterAppStatus.podMap.get('Terminating') ? clusterAppStatus.podMap.get('Terminating') : 0 +
+    clusterAppStatus.podMap.get('Unknown') ? clusterAppStatus.podMap.get('Unknown') : 0
 
     appRunning = appRunning ? appRunning : 0
     appStopped = appStopped ? appStopped : 0
@@ -1268,43 +1269,44 @@ class Ordinary extends Component {
         key: 'storage',
         text: '磁盘(GB)',
       }]
-      const platformList = [
-        {
-          key: 'application',
-          text: '应用 (个)'
-        }, {
-          key: 'service',
-          text: '服务 (个)'
-        }, {
-          key: 'container',
-          text: '容器 (个)'
-        }, {
-          key: 'volume',
-          text: '存储 (个)'
-        }, {
-          key: 'snapshot',
-          text: '快照 (个)'
-        }, {
-          key: 'configuration',
-          text: '服务配置 (个)'
-        }]
-      const serviceList = [
-        {
-          key: 'mysql',
-          text: '关系型数据库 (个)'
-        }, {
-          key: 'redis',
-          text: '缓存 (个)'
-        }, {
-          key: 'zookeeper',
-          text: 'Zookeeper (个)'
-        }, {
-          key: 'elasticsearch',
-          text: 'ElasticSearch (个)'
-        }, {
-          key: 'etcd',
-          text: 'Etcd (个)'
-        }]
+    const platformList = [
+      {
+        key: 'application',
+        text: '应用 (个)'
+      }, {
+        key: 'service',
+        text: '服务 (个)'
+      }, {
+        key: 'container',
+        text: '容器 (个)'
+      }, {
+        key: 'volume',
+        text: '存储 (个)'
+      }, {
+        key: 'snapshot',
+        text: '快照 (个)'
+      }, {
+        key: 'configuration',
+        text: '服务配置 (个)'
+      }]
+    const serviceList = [
+      {
+        key: 'mysql',
+        text: '关系型数据库 (个)'
+      }, {
+        key: 'redis',
+        text: '缓存 (个)'
+      }, {
+        key: 'zookeeper',
+        text: 'Zookeeper (个)'
+      }, {
+        key: 'elasticsearch',
+        text: 'ElasticSearch (个)'
+      }, {
+        key: 'etcd',
+        text: 'Etcd (个)'
+      }]
+    const spaceName = space.spaceName || space.namespace
     return (
       <div id='Ordinary'>
         <Row className="title">{spaceName} - {clusterName} 集群</Row>
@@ -1340,7 +1342,7 @@ class Ordinary extends Component {
                       <div>
                         <i style={{ backgroundColor: '#46b2fa' }}></i>
                         {this.state.isTeam ? '团队余额' : '我的余额'}：
-                    </div>
+                      </div>
                       <span className='costNum'>
                         <Tooltip title={parseAmount(clusterNodeSpaceConsumption.balance).amount + 'T'}>
                           <span>{parseAmount(clusterNodeSpaceConsumption.balance).amount} T</span>
@@ -1352,13 +1354,13 @@ class Ordinary extends Component {
                       <div>
                         <i style={{ backgroundColor: '#28bd83' }}></i>
                         今日消费：
-                    </div>
+                      </div>
                       <span className='costNum'>
                         <Tooltip title={parseAmount(clusterNodeSpaceConsumption.consumption).amount + 'T'}>
                           <span>{parseAmount(clusterNodeSpaceConsumption.consumption).amount} T</span>
                         </Tooltip>
                         &nbsp;
-                      <Tooltip title="全区域"><Icon type="question-circle-o" /></Tooltip>
+                        <Tooltip title="全区域"><Icon type="question-circle-o" /></Tooltip>
                       </span>
                       <Link to='/account/costCenter#consumptions'><Button type='primary'>去查看</Button></Link>
                     </div>
@@ -1464,105 +1466,105 @@ class Ordinary extends Component {
               <div style={{ overflowY: 'auto', height: '172px' }}>
                 <table>
                   <tbody>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
-                        创建应用
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homeappcount" />
+                      </svg>
+                      创建应用
                     </td>
-                      <td className="recordNum">
-                        {clusterOperations.appCreate} 个
+                    <td className="recordNum">
+                      {clusterOperations.appCreate} 个
                     </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeservicecount" />
-                        </svg>
-                        创建服务
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homeservicecount" />
+                      </svg>
+                      创建服务
                     </td>
-                      <td className="recordNum">
-                        {clusterOperations.svcCreate} 个
+                    <td className="recordNum">
+                      {clusterOperations.svcCreate} 个
                     </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homesavecount" />
-                        </svg>
-                        创建存储卷
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homesavecount" />
+                      </svg>
+                      创建存储卷
                     </td>
-                      <td className="recordNum">
-                        {clusterOperations.volumeCreate} 个
+                    <td className="recordNum">
+                      {clusterOperations.volumeCreate} 个
                     </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
-                        停止应用
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homeappcount" />
+                      </svg>
+                      停止应用
                     </td>
-                      <td className="recordNum">
-                        {clusterOperations.appStop} 个
+                    <td className="recordNum">
+                      {clusterOperations.appStop} 个
                     </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeservicecount" />
-                        </svg>
-                        删除服务
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homeservicecount" />
+                      </svg>
+                      删除服务
                     </td>
-                      <td className="recordNum">
-                        {clusterOperations.svcDelete} 个
+                    <td className="recordNum">
+                      {clusterOperations.svcDelete} 个
                     </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homesavecount" />
-                        </svg>
-                        删除存储卷
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homesavecount" />
+                      </svg>
+                      删除存储卷
                     </td>
-                      <td className="recordNum">
-                        {clusterOperations.volumeDelete} 个
+                    <td className="recordNum">
+                      {clusterOperations.volumeDelete} 个
                     </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
-                        修改应用
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homeappcount" />
+                      </svg>
+                      修改应用
                     </td>
-                      <td className="recordNum">
-                        {clusterOperations.appModify} 个
+                    <td className="recordNum">
+                      {clusterOperations.appModify} 个
                     </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
-                        启动应用
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homeappcount" />
+                      </svg>
+                      启动应用
                     </td>
-                      <td className="recordNum">
-                        {clusterOperations.appStart} 个
+                    <td className="recordNum">
+                      {clusterOperations.appStart} 个
                     </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
-                        重新部署
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homeappcount" />
+                      </svg>
+                      重新部署
                     </td>
-                      <td className="recordNum">
-                        {clusterOperations.appRedeploy} 个
+                    <td className="recordNum">
+                      {clusterOperations.appRedeploy} 个
                     </td>
-                    </tr>
+                  </tr>
                   </tbody>
                 </table>
               </div>
@@ -1573,76 +1575,76 @@ class Ordinary extends Component {
               <Card title="系统状态" bordered={false} bodyStyle={{ height: 220 }}>
                 <table>
                   <tbody>
-                    <tr>
-                      <td>
-                        <svg className="stateSvg">
-                          <use xlinkHref="#homekubernetes" />
-                        </svg>
-                        Kubernetes
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#homekubernetes" />
+                      </svg>
+                      Kubernetes
                     </td>
-                      <td>
-                        <SvcState currentState={clusterSysinfo.k8s.status} />
-                      </td>
-                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
-                        {clusterSysinfo.k8s.version}
-                      </td>*/}
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="stateSvg">
-                          <use xlinkHref="#homewww" />
-                        </svg>
-                        DNS
+                    <td>
+                      <SvcState currentState={clusterSysinfo.k8s.status} />
                     </td>
-                      <td>
-                        <SvcState currentState={clusterSysinfo.dns.status} />
-                      </td>
-                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
-                        {clusterSysinfo.dns.version}
-                      </td>*/}
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="stateSvg">
-                          <use xlinkHref="#engine" />
-                        </svg>
-                        API Server
+                    {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
+                     {clusterSysinfo.k8s.version}
+                     </td>*/}
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#homewww" />
+                      </svg>
+                      DNS
                     </td>
-                      <td>
-                        <SvcState currentState={clusterSysinfo.apiserver.status} />
-                      </td>
-                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
-                        {clusterSysinfo.apiserver.version}
-                      </td>*/}
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="stateSvg">
-                          <use xlinkHref="#cicd" />
-                        </svg>
-                        Monitor
+                    <td>
+                      <SvcState currentState={clusterSysinfo.dns.status} />
                     </td>
-                      <td>
-                        <SvcState currentState={clusterSysinfo.monitor.status} />
-                      </td>
-                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
-                        {clusterSysinfo.monitor.version}
-                      </td>*/}
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="stateSvg">
-                          <use xlinkHref="#homelogging" />
-                        </svg>
-                        Logging
+                    {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
+                     {clusterSysinfo.dns.version}
+                     </td>*/}
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#engine" />
+                      </svg>
+                      API Server
                     </td>
-                      <td>
-                        <SvcState currentState={clusterSysinfo.logging.status} />
-                      </td>
-                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
-                        {clusterSysinfo.logging.version}
-                      </td>*/}
-                    </tr>
+                    <td>
+                      <SvcState currentState={clusterSysinfo.apiserver.status} />
+                    </td>
+                    {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
+                     {clusterSysinfo.apiserver.version}
+                     </td>*/}
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#cicd" />
+                      </svg>
+                      Monitor
+                    </td>
+                    <td>
+                      <SvcState currentState={clusterSysinfo.monitor.status} />
+                    </td>
+                    {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
+                     {clusterSysinfo.monitor.version}
+                     </td>*/}
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#homelogging" />
+                      </svg>
+                      Logging
+                    </td>
+                    <td>
+                      <SvcState currentState={clusterSysinfo.logging.status} />
+                    </td>
+                    {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
+                     {clusterSysinfo.logging.version}
+                     </td>*/}
+                  </tr>
                   </tbody>
                 </table>
               </Card>
@@ -1717,33 +1719,33 @@ class Ordinary extends Component {
                 <Col span={12} className='dbInf'>
                   <table>
                     <tbody>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
-                          运行中
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
+                        运行中
                       </td>
-                        <td className="dbNum">
-                          {mySQLRunning} 个
+                      <td className="dbNum">
+                        {mySQLRunning} 个
                       </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
-                          已停止
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
+                        已停止
                       </td>
-                        <td className="dbNum">
-                          {mySQLStopped} 个
+                      <td className="dbNum">
+                        {mySQLStopped} 个
                       </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                          操作中
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
+                        操作中
                       </td>
-                        <td className="dbNum">
-                          {mySQLOthers} 个
+                      <td className="dbNum">
+                        {mySQLOthers} 个
                       </td>
-                      </tr>
+                    </tr>
                     </tbody>
                   </table>
                 </Col>
@@ -1755,33 +1757,33 @@ class Ordinary extends Component {
                 <Col span={12} className='dbInf'>
                   <table>
                     <tbody>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
-                          运行中
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
+                        运行中
                       </td>
-                        <td className="dbNum">
-                          {mongoRunning} 个
+                      <td className="dbNum">
+                        {mongoRunning} 个
                       </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
-                          已停止
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
+                        已停止
                       </td>
-                        <td className="dbNum">
-                          {mongoStopped} 个
+                      <td className="dbNum">
+                        {mongoStopped} 个
                       </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                          操作中
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
+                        操作中
                       </td>
-                        <td className="dbNum">
-                          {mongoOthers} 个
+                      <td className="dbNum">
+                        {mongoOthers} 个
                       </td>
-                      </tr>
+                    </tr>
                     </tbody>
                   </table>
                 </Col>
@@ -1793,33 +1795,33 @@ class Ordinary extends Component {
                 <Col span={12} className='dbInf'>
                   <table>
                     <tbody>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
-                          运行中
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
+                        运行中
                       </td>
-                        <td className="dbNum">
-                          {redisRunning} 个
+                      <td className="dbNum">
+                        {redisRunning} 个
                       </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
-                          已停止
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
+                        已停止
                       </td>
-                        <td className="dbNum">
-                          {redisStopped} 个
+                      <td className="dbNum">
+                        {redisStopped} 个
                       </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                          操作中
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
+                        操作中
                       </td>
-                        <td className="dbNum">
-                          {redisOthers} 个
+                      <td className="dbNum">
+                        {redisOthers} 个
                       </td>
-                      </tr>
+                    </tr>
                     </tbody>
                   </table>
                 </Col>
@@ -1831,33 +1833,33 @@ class Ordinary extends Component {
                 <Col span={12} className='dbInf'>
                   <table>
                     <tbody>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
-                          运行中
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
+                        运行中
                       </td>
-                        <td className="dbNum">
-                          {zookeeperRunning} 个
+                      <td className="dbNum">
+                        {zookeeperRunning} 个
                       </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
-                          已停止
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
+                        已停止
                       </td>
-                        <td className="dbNum">
-                          {zookeeperStopped} 个
+                      <td className="dbNum">
+                        {zookeeperStopped} 个
                       </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                          操作中
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
+                        操作中
                       </td>
-                        <td className="dbNum">
-                          {zookeeperOthers} 个
+                      <td className="dbNum">
+                        {zookeeperOthers} 个
                       </td>
-                      </tr>
+                    </tr>
                     </tbody>
                   </table>
                 </Col>
@@ -1869,33 +1871,33 @@ class Ordinary extends Component {
                 <Col span={12} className='dbInf'>
                   <table>
                     <tbody>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
-                          运行中
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
+                        运行中
                       </td>
-                        <td className="dbNum">
-                          {elasticSearchRunning} 个
+                      <td className="dbNum">
+                        {elasticSearchRunning} 个
                       </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
-                          已停止
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
+                        已停止
                       </td>
-                        <td className="dbNum">
-                          {elasticSearchStopped} 个
+                      <td className="dbNum">
+                        {elasticSearchStopped} 个
                       </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                          操作中
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
+                        操作中
                       </td>
-                        <td className="dbNum">
-                          {elasticSearchOthers} 个
+                      <td className="dbNum">
+                        {elasticSearchOthers} 个
                       </td>
-                      </tr>
+                    </tr>
                     </tbody>
                   </table>
                 </Col>
@@ -1907,33 +1909,33 @@ class Ordinary extends Component {
                 <Col span={12} className='dbInf'>
                   <table>
                     <tbody>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
-                          运行中
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
+                        运行中
                       </td>
-                        <td className="dbNum">
-                          {etcdRunning} 个
+                      <td className="dbNum">
+                        {etcdRunning} 个
                       </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
-                          已停止
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
+                        已停止
                       </td>
-                        <td className="dbNum">
-                          {etcdStopped} 个
+                      <td className="dbNum">
+                        {etcdStopped} 个
                       </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                          操作中
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
+                        操作中
                       </td>
-                        <td className="dbNum">
-                          {etcdOthers} 个
+                      <td className="dbNum">
+                        {etcdOthers} 个
                       </td>
-                      </tr>
+                    </tr>
                     </tbody>
                   </table>
                 </Col>
@@ -1965,33 +1967,33 @@ class Ordinary extends Component {
                   <Row style={{ fontSize: '14px', textAlign: 'center', height: 60, lineHeight: '60px' }}>主机状态</Row>
                   <table>
                     <tbody>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#43b4f6' }}></div>
-                          主机总数
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#43b4f6' }}></div>
+                        主机总数
                       </td>
-                        <td className="hostNum">
-                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.total : 0} 个
+                      <td className="hostNum">
+                        {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.total : 0} 个
                       </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#2abe84' }}></div>
-                          健康主机数
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#2abe84' }}></div>
+                        健康主机数
                       </td>
-                        <td className="hostNum">
-                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.health : 0} 个
+                      <td className="hostNum">
+                        {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.health : 0} 个
                       </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#a2d8fa' }}></div>
-                          未启用主机数
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#a2d8fa' }}></div>
+                        未启用主机数
                       </td>
-                        <td className="hostNum">
-                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.unused : 0} 个
+                      <td className="hostNum">
+                        {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.unused : 0} 个
                       </td>
-                      </tr>
+                    </tr>
                     </tbody>
                   </table>
                 </Col>

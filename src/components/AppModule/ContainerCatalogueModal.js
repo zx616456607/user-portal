@@ -619,8 +619,9 @@ let ContainerCatalogueModal = React.createClass({
                     }) }
                   >
                     <Radio key="yes" value={true}>保留</Radio>
-                    <Radio key="no" value={false} className='delete'>删除</Radio>
+                    <Radio key="no" value={false} className='delete' disabled>删除</Radio>
                   </Radio.Group>
+                  <span className='strategy_tips'><Icon type="question-circle-o" className='tips_icon'/>暂不支持删除策略</span>
                 </FormItem>
               )
             }
