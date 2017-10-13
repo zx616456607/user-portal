@@ -166,5 +166,5 @@ exports.initGlobalConfig = function* () {
   logger.info('vm wrap api config: ', globalConfig.vmWrapConfig.protocol + '://' + globalConfig.vmWrapConfig.host)
   logger.info('mailbox config: ', globalConfig.mail_server.host)
   logger.info('msa config: ', globalConfig.msaConfig.url)
-  logger.info('ftp config: ', globalConfig.ftpConfig.url)
+  logger.info('ftp config: ', globalConfig.ftpConfig.addr)
 }
