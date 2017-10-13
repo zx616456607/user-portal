@@ -483,6 +483,11 @@ let CreateDatabase = React.createClass({
                     }
                   </FormItem>
                   <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>个</span>
+                  {
+                    this.props.database == 'mysql' && <span className='mysql_tips'>
+                      <Icon type="exclamation-circle-o" className='tips_icon'/> 多实例仅支持 InnoDB 引擎
+                    </span>
+                  }
                 </div>
                 <div style={{ clear: 'both' }}></div>
               </div>
