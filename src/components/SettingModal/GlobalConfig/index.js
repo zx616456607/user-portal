@@ -555,7 +555,7 @@ let Ftp = React.createClass({
   checkUrl(rule, value, callback) {
     const { validateFields } = this.props.form
     if (!value) {
-      callback([new Error('请填写 ftp 服务地址')])
+      callback()
       return
     }
     if (!/^([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
@@ -583,13 +583,13 @@ let Ftp = React.createClass({
     });
     const usernameProps = getFieldProps('username', {
       rules: [
-        { required: true, message: '请填写用户名' },
+        { required: false, message: '请填写用户名' },
       ],
       initialValue: ftpDetail.username,
     });
     const passwordProps = getFieldProps('password', {
       rules: [
-        { required: true, whitespace: true, message: '请填写密码' },
+        { required: false, whitespace: true, message: '请填写密码' },
       ],
       initialValue: ftpDetail.password,
     });
@@ -614,7 +614,7 @@ let Ftp = React.createClass({
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem >
-                  <Input {...addrProps} placeholder="如：192.168.1.113" disabled={ftpDisable} />
+                  <Input {...addrProps} placeholder="如：192.168.1.113:21" disabled={ftpDisable} />
                 </FormItem>
                 <FormItem >
                   <Input {...usernameProps} placeholder="请输入用户名" disabled={ftpDisable} />
@@ -1313,7 +1313,7 @@ Msa = Form.create()(Msa)
 Ftp = Form.create()(Ftp)
 ConInter = Form.create()(ConInter)
 MirrorService = Form.create()(MirrorService)
-StorageService = Form.create()(StorageService)
+// StorageService = Form.create()(StorageService)
 
 
 class GlobalConfig extends Component {
@@ -1426,7 +1426,7 @@ class GlobalConfig extends Component {
           config={globalConfig.ftp}
         />
         <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.harbor} isValidConfig={this.props.isValidConfig}/>
-        <StorageService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />
+        {/*<StorageService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />*/}
         <ConInter setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
         <Continue />
       </div>
