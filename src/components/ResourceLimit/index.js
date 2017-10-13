@@ -37,7 +37,6 @@ class ResourceQuota extends React.Component {
       globaleSurplus: 0,
       globaleUseList: [],
       clusterUseList: [],
-
     }
   }
   componentWillMount() {
@@ -349,13 +348,24 @@ class ResourceQuota extends React.Component {
         }
       })
     }
-    return Math.floor(count)
+    return count
   }
   updateCountSum() {
     const { validateFields } = this.props.form
     validateFields((error, value) => {
       if (!!error) return
     })
+  }
+  handlePlus() {
+    let plus = 0
+    const { getFieldValue, validateFields } = this.props.form
+    validateFields((error, value) => {
+      if (!!error) {
+        return
+      }
+      plus = value.dockerfile + value.subTask + value.tenxflow
+    })
+    return Number(plus)
   }
 
   render() {
@@ -378,7 +388,7 @@ class ResourceQuota extends React.Component {
     const ciList = [
       {
         key: 'tenxflow',
-        text: 'TencFlow (个)',
+        text: 'TenxFlow (个)',
       },
       {
         key: 'subTask',
@@ -409,7 +419,7 @@ class ResourceQuota extends React.Component {
     const computeList = [
       {
         key: 'cpu',
-        text: 'CPU (核)'
+        text: 'CPU (C)'
       },
       {
         key: 'memory',
@@ -456,8 +466,8 @@ class ResourceQuota extends React.Component {
         key: 'etcd',
         text: 'Etcd (个)'
       }]
-    const { getFieldProps, getFieldValue } = this.props.form
-    let plusValue = 0
+    const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form
+
     return (
       <div className="quota">
         {
@@ -478,7 +488,7 @@ class ResourceQuota extends React.Component {
             <div className="globaleEdit">
               <Button size="large" className="close" onClick={() => this.handleGlobaleClose()}>取消</Button>
               <Button size="large" className="save" type="primary" onClick={(e) => this.handleGlobaleSave(e)}>保存</Button>
-              <span className="header_desc">修改配额，将修改 <p className="sum">{plusValue}</p> 个资源配额</span>
+              <span className="header_desc">修改配额，将修改 <p className="sum">{this.handlePlus()}</p> 个资源配额</span>
             </div> :
             <Button size="large" className="btn" type="primary" onClick={() => this.handleGlobaleEdit()}>编辑</Button>
         }
@@ -494,10 +504,11 @@ class ResourceQuota extends React.Component {
                     })
                     const inputValue = getFieldValue(item.key)
                     const beforeValue = this.maxGlobaleCount(item.key)
-                    plusValue = inputValue - beforeValue
+                    const plusValue = inputValue - beforeValue
                     const isPlus = inputValue > beforeValue ? true : false
                     const checkKey = `${item.key}-check`
                     const checkProps = getFieldProps(checkKey, {
+                      initialValue: beforeValue === 0 ? true : false,
                       validate: [{
                         valuePropName: 'checked',
                       }]
@@ -510,12 +521,12 @@ class ResourceQuota extends React.Component {
                         </Col>
                         <Col span={7}>
                           <FormItem>
-                            <InputNumber {...inputProps} disabled={checkValue} style={{ width: '100%' }} id="input" />
+                            <InputNumber {...inputProps} disabled={checkValue} style={{ width: '100%' }} id="input" min={0} />
                           </FormItem>
                         </Col>
                         <Col span={3}>
                           <FormItem>
-                            <Checkbox {...checkProps}>无限制</Checkbox>
+                            <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
                           </FormItem>
                         </Col>
                         <Col span={4}>
@@ -551,6 +562,7 @@ class ResourceQuota extends React.Component {
                     const isPlus = inputValue > beforeValue ? true : false
                     const checkKey = `${item.key}-check`
                     const checkProps = getFieldProps(checkKey, {
+                      initialValue: beforeValue === 0 ? true : false,
                       validate: [{
                         valuePropName: 'checked',
                       }]
@@ -563,12 +575,12 @@ class ResourceQuota extends React.Component {
                         </Col>
                         <Col span={7}>
                           <FormItem>
-                            <InputNumber {...inputProps} disabled={checkValue} style={{ width: '100%' }} id="input" />
+                            <InputNumber {...inputProps} disabled={checkValue} style={{ width: '100%' }} id="input" min={0} />
                           </FormItem>
                         </Col>
                         <Col span={3}>
                           <FormItem>
-                            <Checkbox {...checkProps}>无限制</Checkbox>
+                            <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
                           </FormItem>
                         </Col>
                         <Col span={4}>
@@ -620,7 +632,7 @@ class ResourceQuota extends React.Component {
                         <span>{item.text}</span>
                       </Col>
                       <Col span={8}>
-                        <Progress percent={this.filterPercent(this.maxGlobaleCount(item.key), this.useGlobaleCount(item.key))} showInfo={false} showInfo={false} />
+                        <Progress percent={this.filterPercent(this.maxGlobaleCount(item.key), this.useGlobaleCount(item.key))} showInfo={false} />
                       </Col>
                       <Col span={4}>
                         <span>{this.useGlobaleCount(item.key)}/{this.maxGlobaleCount(item.key) ? this.maxGlobaleCount(item.key) : '无限制'}</span>
@@ -669,6 +681,7 @@ class ResourceQuota extends React.Component {
                         const isNan = inputValue >= 0 ? true : false
                         const checkKey = `${item.key}-check`
                         const checkProps = getFieldProps(checkKey, {
+                          initialValue: beforeValue === 0 ? true : false,
                           validate: [{
                             valuePropName: 'checked',
                           }]
@@ -681,12 +694,12 @@ class ResourceQuota extends React.Component {
                             </Col>
                             <Col span={6}>
                               <FormItem>
-                                <InputNumber {...inputsProps} disabled={checkValue} style={{ width: '100%' }} />
+                                <InputNumber {...inputsProps} disabled={checkValue} style={{ width: '100%' }} min={0} />
                               </FormItem>
                             </Col>
                             <Col span={3}>
                               <FormItem>
-                                <Checkbox {...checkProps}>无限制</Checkbox>
+                                <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
                               </FormItem>
                             </Col>
                             <Col span={3}>
@@ -739,6 +752,7 @@ class ResourceQuota extends React.Component {
                         const isNan = inputValue >= 0 ? true : false
                         const checkKey = `${item.key}-check`
                         const checkProps = getFieldProps(checkKey, {
+                          initialValue: beforeValue === 0 ? true : false,
                           validate: [{
                             valuePropName: 'checked',
                           }]
@@ -751,12 +765,12 @@ class ResourceQuota extends React.Component {
                             </Col>
                             <Col span={6}>
                               <FormItem>
-                                <InputNumber {...inputsProps} disabled={checkValue} style={{ width: '100%' }} />
+                                <InputNumber {...inputsProps} disabled={checkValue} style={{ width: '100%' }} min={0} />
                               </FormItem>
                             </Col>
                             <Col span={3}>
                               <FormItem>
-                                <Checkbox {...checkProps}>无限制</Checkbox>
+                                <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
                               </FormItem>
                             </Col>
                             <Col span={3}>
@@ -801,6 +815,7 @@ class ResourceQuota extends React.Component {
                         const isNan = inputValue >= 0 ? true : false
                         const checkKey = `${item.key}-check`
                         const checkProps = getFieldProps(checkKey, {
+                          initialValue: beforeValue === 0 ? true : false,
                           validate: [{
                             valuePropName: 'checked',
                           }]
@@ -813,12 +828,12 @@ class ResourceQuota extends React.Component {
                             </Col>
                             <Col span={6}>
                               <FormItem>
-                                <InputNumber {...inputsProps} disabled={checkValue} style={{ width: '100%' }} />
+                                <InputNumber {...inputsProps} disabled={checkValue} style={{ width: '100%' }} min={0} />
                               </FormItem>
                             </Col>
                             <Col span={3}>
                               <FormItem>
-                                <Checkbox {...checkProps}>无限制</Checkbox>
+                                <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
                               </FormItem>
                             </Col>
                             <Col span={3}>

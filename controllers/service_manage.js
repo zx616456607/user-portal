@@ -205,11 +205,6 @@ exports.manualScaleService = function* () {
     throw err
   }
   let num = parseInt(body.num)
-  if (isNaN(num) || num < 1 || num > INSTANCE_MAX_NUM) {
-    const err = new Error(`Num is between 1 and ${INSTANCE_MAX_NUM}.`)
-    err.status = 400
-    throw err
-  }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.updateBy([cluster, 'services', serviceName, 'manualscale'], null, { number: num })
@@ -285,16 +280,6 @@ exports.autoScaleService = function* () {
   let alert_group = body.alert_group
   let type = body.type
   let operationType = body.operationType
-  if (isNaN(min) || min < 1 || min > INSTANCE_MAX_NUM) {
-    const err = new Error(`min is between 1 and ${INSTANCE_MAX_NUM}.`)
-    err.status = 400
-    throw err
-  }
-  if (isNaN(max) || max < 1 || max > INSTANCE_MAX_NUM) {
-    const err = new Error(`max is between 2 and ${INSTANCE_MAX_NUM}.`)
-    err.status = 400
-    throw err
-  }
   if (min >= max) {
     const err = new Error('max must be bigger then min.')
     err.status = 400

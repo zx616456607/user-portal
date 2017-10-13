@@ -84,7 +84,7 @@ class MySpace extends Component {
     getGlobaleQuotaList(query, {
       success: {
         func: res => {
-          if(res.code === 200){
+          if (res.code === 200) {
             this.setState({
               globaleUseList: res.data
             })
@@ -187,12 +187,12 @@ class MySpace extends Component {
     }
     return count
   }
-  useCount(value){
+  useCount(value) {
     const { globaleUseList } = this.state
     let count = ''
-    if(globaleUseList){
+    if (globaleUseList) {
       Object.keys(globaleUseList).forEach((item, index) => {
-        if(item === value){
+        if (item === value) {
           count = Object.values(globaleUseList)[index]
         }
       })
@@ -289,7 +289,7 @@ class MySpace extends Component {
     const ciList = [
       {
         key: 'tenxflow',
-        text: 'Tencfilow(个)',
+        text: 'TenxFlow(个)',
       },
       {
         key: 'subTask',
@@ -317,13 +317,15 @@ class MySpace extends Component {
         key: 'applicationPackage',
         text: '应用包(个)',
       }]
+
     return (
       <div id='MySpace'>
         <Row className="title" style={{ marginTop: 20 }}>{spaceName}</Row>
         <Row className="content" gutter={16}>
           <Col span={6} className="quota">
             <Card title="项目资源配置" bordered={false} bodyStyle={{ height: 175, padding: '7px' }}
-              extra={<Button type="primary" size="small">设置配额</Button>}>
+              extra={<Link to={spaceName === '我的个人项目' ? `tenant_manage/user/${this.props.loginUser.info.userID}?#quota` : this.props.userID === undefined ? `tenant_manage/project_manage/project_detail?name=${this.props.projectName}#quota` : `tenant_manage/user/${this.props.userID}?#quota`}>
+                <Button type="primary" size="small">设置配额</Button></Link>}>
               <Row className="radios">
                 <Col span={16} offset={5}>
                   <RadioGroup size="small" onChange={(e) => this.handleChange(e)} defaultValue="ci">
@@ -613,8 +615,10 @@ class MySpace extends Component {
 }
 
 function mapStateToProp(state, props) {
-  const { current } = state.entities
+  const { current, loginUser } = state.entities
   const { clusterID } = current.cluster
+  const { projectName } = current.space
+  const { userID } = current.space
   let isFetching = true
   let spaceOperationsData = {
     appCreate: 0,
@@ -721,7 +725,10 @@ function mapStateToProp(state, props) {
     spaceImageStatsData = spaceImageStats.result.data
   }
   return {
+    userID,
     clusterID,
+    loginUser,
+    projectName,
     spaceOperations: spaceOperationsData,
     spaceCICDStats: spaceCICDStatsData,
     spaceImageStats: spaceImageStatsData,

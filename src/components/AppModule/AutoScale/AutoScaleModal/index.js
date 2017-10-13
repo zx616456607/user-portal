@@ -263,8 +263,11 @@ class AutoScaleModal extends React.Component {
   checkMin = (rule, value, callback) => {
     const { getFieldValue } = this.props.form
     const max = getFieldValue('max')
-    if (!value) {
+    if (!value && value !== 0) {
       return callback('请输入最小实例数')
+    }
+    if (value < 1) {
+      return callback('最小实例不能少于1个')
     }
     if (value >= max) {
       return callback('最小实例数不能等于或者超过最大实例数')
@@ -276,6 +279,9 @@ class AutoScaleModal extends React.Component {
     const min = getFieldValue('min')
     if (!value) {
       return callback('请输入最大实例数')
+    }
+    if (value > 10) {
+      return callback('最大实例不能超过10个')
     }
     if (value <= min) {
       return callback('最大实例数不能等于或者少于最小实例数')

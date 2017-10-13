@@ -37,6 +37,7 @@ class CreateRoleModal extends React.Component {
       rowPermissionID: [],
       isCheck: false,
       childrenKey: [],
+      codeKey: [],
     }
   }
   componentWillMount() {
@@ -57,7 +58,8 @@ class CreateRoleModal extends React.Component {
             let pids = res.data.data.pids
             let aryID = []
             let childrenKeys = []
-            this.RowData(result, childrenKeys)
+            let codeKey = []
+            this.RowData(result, childrenKeys, codeKey)
             this.setState({
               count: res.data.data.total,
               rowDate: res.data.data,
@@ -108,13 +110,15 @@ class CreateRoleModal extends React.Component {
       }
     })
   }
-  RowData(data, childrenKey) {
+  RowData(data, childrenKey, codeKey) {
     if (data) {
       const children = []
       for (let i = 0; i < data.length; i++) {
         let RowData = data[i]
-        if(RowData.code !== ''){
+        if (RowData.code !== '') {
           childrenKey.push(RowData.id)
+        } else {
+          codeKey.push(RowData.id)
         }
         children.push(RowData.id)
       }
@@ -122,12 +126,13 @@ class CreateRoleModal extends React.Component {
       children.forEach((key, index) => {
         if (data[index]["children"] !== undefined) {
           if (data[index].children.length !== 0) {
-            return this.RowData(data[index].children, childrenKey);
+            return this.RowData(data[index].children, childrenKey, codeKey);
           }
         }
       })
       this.setState({
-        checkedKeys: childrenKey
+        checkedKeys: childrenKey,
+        codeKey,
       })
     }
   }
@@ -297,13 +302,13 @@ class CreateRoleModal extends React.Component {
               }
             })
         } else {
-          scope.loadData(roleId)
+          scope.loadData(roleId) && loadData()
           scope.setState({
             characterModal: false
           })
         }
       } else {
-        scope.loadData(roleId)
+        scope.loadData(roleId) && loadData()
         scope.setState({
           characterModal: false
         })
@@ -313,7 +318,7 @@ class CreateRoleModal extends React.Component {
   screenInfo() {
     let notification = new NotificationHandler()
     const { RemovePermissionRole } = this.props
-    const { rowPermissionID, checkedKeys, isChecked } = this.state
+    const { rowPermissionID, checkedKeys, isChecked, codeKey } = this.state
     let checkedId = []
     let ary = []
     let arys = []
@@ -334,6 +339,14 @@ class CreateRoleModal extends React.Component {
         arys.push(item)
       }
     })
+    codeKey.forEach((value, index) => {
+      arys.forEach(item => {
+        if (item === value) {
+          arys.splice(arys.indexOf(item), 1)
+        }
+      })
+    })
+    if (arys.length <= 0) return
     if (isChecked) {
       if (arys.length <= 0) return
       if (arys && arys.length > 0) {
@@ -347,7 +360,7 @@ class CreateRoleModal extends React.Component {
             success: {
               func: (res) => {
                 if (REG.test(res.data.code)) {
-                  //setTimeout(notification.spin('更新中...'),1000)
+                  notification.success('移除权限成功')
                 }
               },
               isAsync: true

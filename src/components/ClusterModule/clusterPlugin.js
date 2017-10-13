@@ -440,7 +440,7 @@ class ClusterPlugin extends Component {
     this.setState({ inputCPU: value })
   }
   handleMenuClick(key, row) {
-    if(row.name == 'elasticsearch-logging') {
+    if(row.name == 'elasticsearch-logging' && key === 'deployIndextpl') {
       this.setState({
         deployIndex: true,
         pluginName: row.name
@@ -776,7 +776,7 @@ class ClusterPlugin extends Component {
           onOk={() => this.initPlugins()}
           onCancel={() => this.setState({ deployIndex: false })}
         >
-          <div className="confirmText">确定要安装 elasticsearch-logging 索引模版 吗?</div>
+          <div className="confirmText">确定要安装 elasticsearch-logging 索引模版吗?</div>
         </Modal>
 
         <Modal
