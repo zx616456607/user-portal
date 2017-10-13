@@ -18,6 +18,7 @@ import { getAllClusterNodes } from '../../../actions/cluster_node'
 import { loadNotifyGroups, addAlertSetting, updateAlertSetting, getAlertSetting, getAlertSettingExistence } from '../../../actions/alert'
 import { ADMIN_ROLE } from '../../../../constants'
 import NotificationHandler from '../../../components/Notification'
+import startsWith from 'lodash/startsWith'
 
 const Option = Select.Option
 const RadioGroup = Radio.Group
@@ -955,7 +956,7 @@ class AlarmModal extends Component {
     }
   }
   submitRule() {
-    const { form, getSettingList } = this.props;
+    const { form, getSettingList, pathname, activeCluster } = this.props;
     form.validateFields((error, values) => {
       if (!!error) {
         return
@@ -1053,7 +1054,11 @@ class AlarmModal extends Component {
       } else {
          // create
         notification.spin('告警策略创建中')
-        this.props.addAlertSetting(cluster.clusterID, requestBody, {
+        let clusterID = cluster.clusterID
+        if (startsWith(pathname, '/cluster') && activeCluster) {
+          clusterID = activeCluster
+        }
+        this.props.addAlertSetting(clusterID, requestBody, {
           success: {
             func: () => {
               notification.close()
@@ -1221,8 +1226,13 @@ class AlarmModal extends Component {
 
 function alarmModalMapStateToProp(state, porp) {
   const defaultGroup = {}
-  let { groups } = state.alert
-  const { cluster, space } = state.entities.current
+  const { alert, entities, terminal, routing } = state
+  let { groups } = alert
+  const { cluster, space } = entities.current
+  const { active } = terminal
+  const { cluster: activeCluster } = active || { cluster: undefined }
+  const { locationBeforeTransitions } = routing
+  const { pathname } = locationBeforeTransitions
   if (!groups) {
     groups = defaultGroup
   }
@@ -1234,7 +1244,7 @@ function alarmModalMapStateToProp(state, porp) {
     }
   }
   let isFetching = false
-  let { getSetting, settingList } = state.alert
+  let { getSetting, settingList } = alert
   if (!getSetting || !getSetting.result) {
     getSetting = defaultSettingDetail
   }
@@ -1244,6 +1254,8 @@ function alarmModalMapStateToProp(state, porp) {
   return {
     notifyGroup: groups,
     cluster,
+    activeCluster,
+    pathname,
     setting,
     isFetching,
     space
