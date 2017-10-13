@@ -37,7 +37,6 @@ class ResourceQuota extends React.Component {
       globaleSurplus: 0,
       globaleUseList: [],
       clusterUseList: [],
-
     }
   }
   componentWillMount() {
@@ -357,6 +356,17 @@ class ResourceQuota extends React.Component {
       if (!!error) return
     })
   }
+  handlePlus() {
+    let plus = 0
+    const { getFieldValue, validateFields } = this.props.form
+    validateFields((error, value) => {
+      if (!!error) {
+        return
+      }
+      plus = value.dockerfile + value.subTask + value.tenxflow
+    })
+    return Number(plus)
+  }
 
   render() {
     const { gIsEdit, cIsEdit, isDisabled, inputsDisabled, quotaName, sum } = this.state //属性
@@ -457,7 +467,7 @@ class ResourceQuota extends React.Component {
         text: 'Etcd (个)'
       }]
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form
-    let plusValue = 0
+
     return (
       <div className="quota">
         {
@@ -478,7 +488,7 @@ class ResourceQuota extends React.Component {
             <div className="globaleEdit">
               <Button size="large" className="close" onClick={() => this.handleGlobaleClose()}>取消</Button>
               <Button size="large" className="save" type="primary" onClick={(e) => this.handleGlobaleSave(e)}>保存</Button>
-              <span className="header_desc">修改配额，将修改 <p className="sum">{plusValue}</p> 个资源配额</span>
+              <span className="header_desc">修改配额，将修改 <p className="sum">{this.handlePlus()}</p> 个资源配额</span>
             </div> :
             <Button size="large" className="btn" type="primary" onClick={() => this.handleGlobaleEdit()}>编辑</Button>
         }
@@ -494,7 +504,7 @@ class ResourceQuota extends React.Component {
                     })
                     const inputValue = getFieldValue(item.key)
                     const beforeValue = this.maxGlobaleCount(item.key)
-                    plusValue = inputValue - beforeValue
+                    const plusValue = inputValue - beforeValue
                     const isPlus = inputValue > beforeValue ? true : false
                     const checkKey = `${item.key}-check`
                     const checkProps = getFieldProps(checkKey, {

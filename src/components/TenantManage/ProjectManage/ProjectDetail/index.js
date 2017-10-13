@@ -74,7 +74,8 @@ class ProjectDetail extends Component {
       quotaData: [],
       quotauseData: [],
       filterLoading: false,
-      popoverVisible: false
+      popoverVisible: false,
+      tabsKey: '',
     }
   }
   componentWillMount() {
@@ -82,6 +83,9 @@ class ProjectDetail extends Component {
     this.getClustersWithStatus();
     // this.getProjectMember();
     // this.loadRoleList()
+    this.setState({
+      tabsKey: this.props.location.hash ? /[a-z]+/g.exec(this.props.location.hash)[0] : ''
+    })
   }
   getClustersWithStatus() {
     const { name } = this.props.location.query;
@@ -1014,27 +1018,27 @@ class ProjectDetail extends Component {
                           </div>
                         </Popover>
                         {/*<div className="dropDownBox">*/}
-                          {/*<span className="pointer" onClick={() => { roleNum === 1 || isManager ? this.toggleDrop() : null }}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true" /></span>*/}
-                          {/*<div className={classNames("dropDownInnerBox", { 'hide': !dropVisible })}>*/}
-                            {/*<dl className="dropDownTop">*/}
-                              {/*<dt className="topHeader">{`已申请集群（${appliedLenght}）`}</dt>*/}
-                              {/*{applying(false)}*/}
-                              {/*{applied(false)}*/}
-                              {/*{reject(false)}*/}
-                              {/*{*/}
-                                {/*!appliedLenght &&*/}
-                                {/*<dd className="topList" style={{ color: '#999' }}>已申请集群为空</dd>*/}
-                              {/*}*/}
-                            {/*</dl>*/}
-                            {/*<dl className="dropDownBottom">*/}
-                              {/*<dt className="bottomHeader">{`可申请集群（${bottomLength}）`}</dt>*/}
-                              {/*{menuBottom}*/}
-                              {/*{*/}
-                                {/*!bottomLength &&*/}
-                                {/*<dd className="topList lastList" style={{ color: '#999' }}>可申请集群为空</dd>*/}
-                              {/*}*/}
-                            {/*</dl>*/}
-                          {/*</div>*/}
+                        {/*<span className="pointer" onClick={() => { roleNum === 1 || isManager ? this.toggleDrop() : null }}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true" /></span>*/}
+                        {/*<div className={classNames("dropDownInnerBox", { 'hide': !dropVisible })}>*/}
+                        {/*<dl className="dropDownTop">*/}
+                        {/*<dt className="topHeader">{`已申请集群（${appliedLenght}）`}</dt>*/}
+                        {/*{applying(false)}*/}
+                        {/*{applied(false)}*/}
+                        {/*{reject(false)}*/}
+                        {/*{*/}
+                        {/*!appliedLenght &&*/}
+                        {/*<dd className="topList" style={{ color: '#999' }}>已申请集群为空</dd>*/}
+                        {/*}*/}
+                        {/*</dl>*/}
+                        {/*<dl className="dropDownBottom">*/}
+                        {/*<dt className="bottomHeader">{`可申请集群（${bottomLength}）`}</dt>*/}
+                        {/*{menuBottom}*/}
+                        {/*{*/}
+                        {/*!bottomLength &&*/}
+                        {/*<dd className="topList lastList" style={{ color: '#999' }}>可申请集群为空</dd>*/}
+                        {/*}*/}
+                        {/*</dl>*/}
+                        {/*</div>*/}
                         {/*</div>*/}
                       </div>
                     </Col>
@@ -1207,7 +1211,7 @@ class ProjectDetail extends Component {
             }
           </Modal>
           <div className="projectMember">
-            <Tabs className="clearfix connectCard">
+            <Tabs className="clearfix connectCard" defaultActiveKey={this.state.tabsKey !== '' ? this.state.tabsKey : 'project'}>
               <TabPane tab="项目角色及关联对象" key="project">
                 {/* <Card title="项目中角色关联的对象" className="clearfix connectCard"> */}
                 <div className="project">
@@ -1272,8 +1276,8 @@ class ProjectDetail extends Component {
                 </div>
                 {/* </Card> */}
               </TabPane>
-              <TabPane tab="资源配额管理" key="puota">
-                <ResourceQuota isProject={true} projectName={projectDetail.projectName}/>
+              <TabPane tab="资源配额管理" key="quota">
+                <ResourceQuota isProject={true} projectName={projectDetail.projectName} />
               </TabPane>
             </Tabs>
 
@@ -1281,7 +1285,6 @@ class ProjectDetail extends Component {
         </div>
       </QueueAnim>
     )
-
   }
 }
 
