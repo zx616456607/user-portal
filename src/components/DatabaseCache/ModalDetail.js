@@ -524,6 +524,7 @@ class VisitTypes extends Component{
         externalUrl = bindingIP + ':' + externalPort
       }
     }
+    const inClusterLB = `${serviceName}:${port}`
     const radioValue = value || initValue
     const hide = selectDis == undefined ? initSelectDics : selectDis
     return (
@@ -578,6 +579,13 @@ class VisitTypes extends Component{
                 {domainList}
               </dd>
             </dl>
+            <div className={classNames("outPutBox",{'hide':addrHide})}>
+              <Icon type="link"/>集群内负载均衡地址：
+              <span className="domain">{inClusterLB}</span>
+              <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,inClusterLB)} onClick={this.copyTest.bind(this)}/>
+              </Tooltip>
+            </div>
           </div>
         </div>
       </Card>
