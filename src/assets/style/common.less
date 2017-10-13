@@ -556,24 +556,32 @@ pre{
   transform: translateY(-50%);
 }
 
-.resourcePermissionModal {
+.resourcePermissionModal, .resourcequotaModal {
   &.ant-modal-wrap {
     z-index: 9999;
   }
   .ant-modal-content {
     width: 460px;
     .ant-modal-body > div {
-      padding: 40px 0;
+      padding: 20px 0;
       i {
         color: #fa0;
         font-size: 24px;
-        margin-right: 8px;
+        margin-right: 16px;
       }
       span {
         color: #666;
         font-weight: 700;
         font-size: 14px;
         vertical-align: top;
+      }
+      a {
+        margin: 0 5px;
+        vertical-align: top;
+      }
+      div {
+        color: #999;
+        margin: 10px 0 0 40px;
       }
     }
   }
