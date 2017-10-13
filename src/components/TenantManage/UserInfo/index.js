@@ -38,7 +38,7 @@ class UserInfo extends Component {
     }
   }
   render() {
-    const { userID, userDetail, appCount, serviceCount, containerCount, editPass, loginUser } = this.props
+    const { userID, userDetail, appCount, serviceCount, containerCount, editPass, loginUser, location } = this.props
     const href = window.location.href;
     let memberFlag = false;
     if(href.indexOf('tenant_manage/user') > -1) {
@@ -79,7 +79,7 @@ class UserInfo extends Component {
         </Row> */}
         <Row className="content">
           <Card>
-            <UserProjectsAndTeams loginUser={loginUser} userDetail={userDetail} userId={userID || loginUser.userID} />
+            <UserProjectsAndTeams location={location} loginUser={loginUser} userDetail={userDetail} userId={userID || loginUser.userID} />
           </Card>
         </Row>
       </div>

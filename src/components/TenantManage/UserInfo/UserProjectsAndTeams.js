@@ -52,6 +52,7 @@ class UserProjectsAndTeams extends React.Component {
       removeProjectBtnLoading: false,
       teamSearchValue: null,
       quotaData: [],
+      tabsKey: '',
     }
 
     this.loadTeamData = this.loadTeamData.bind(this)
@@ -144,6 +145,9 @@ class UserProjectsAndTeams extends React.Component {
 
   componentWillMount() {
     this.loadProjectsData()
+    this.setState({
+      tabsKey: this.props.location.hash ? /[a-z]+/g.exec(this.props.location.hash)[0] : ''
+    })
   }
 
   componentDidMount() {
@@ -443,7 +447,7 @@ class UserProjectsAndTeams extends React.Component {
     ]
     return (
       <div className="UserProjectsAndTeams">
-        <Tabs type="line">
+        <Tabs type="line" defaultActiveKey={this.state.tabsKey !== ''? this.state.tabsKey : 'projects'}>
           <TabPane tab="参与项目" key="projects">
             <div className="projects">
               <div className="projectsTitle">

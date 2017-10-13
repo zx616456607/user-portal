@@ -324,7 +324,7 @@ class MySpace extends Component {
         <Row className="content" gutter={16}>
           <Col span={6} className="quota">
             <Card title="项目资源配置" bordered={false} bodyStyle={{ height: 175, padding: '7px' }}
-              extra={<Link to={spaceName ==='我的个人项目' ?`/tenant_manage/user/${this.props.loginUser.info.userID}` : this.props.userID === undefined ? `tenant_manage/project_manage/project_detail?name=${this.props.projectName}` : `/tenant_manage/user/${this.props.userID}`}>
+              extra={<Link to={spaceName === '我的个人项目' ? `tenant_manage/user/${this.props.loginUser.info.userID}?#quota` : this.props.userID === undefined ? `tenant_manage/project_manage/project_detail?name=${this.props.projectName}#quota` : `tenant_manage/user/${this.props.userID}?#quota`}>
                 <Button type="primary" size="small">设置配额</Button></Link>}>
               <Row className="radios">
                 <Col span={16} offset={5}>
