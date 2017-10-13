@@ -99,14 +99,15 @@ class CleaningTool extends Component {
       logsLoading: true
     })
     getSystemCleanLogs({
-      from: 1,
+      sort: 'a,create_time'
+    }, {
+      from: 0,
       size: 5,
-      sort: 'd,create_time'
     }, {
       success: {
         func: res => {
           this.setState({
-            systemLogs: res.data.body,
+            systemLogs: res.data.data,
             logsLoading: false
           })
         },
@@ -335,7 +336,7 @@ class CleaningTool extends Component {
               <TimelineItem key={item.id} color={index === 0 ? 'green' : '#e9e9e9'}>
                 <Row className={classNames({'successColor': index === 0})}>
                   <Col span={20}>{index === 0 ? `上次清理 ${item.total}MB 垃圾` : `清理 ${item.total}MB 垃圾`}</Col>
-                  <Col className="time_item" span={4}>{formatDate(item.CreateTime, 'MM-DD')}</Col>
+                  <Col className="time_item" span={4}>{formatDate(item.createTime, 'MM-DD')}</Col>
                 </Row>
               </TimelineItem>
               )
