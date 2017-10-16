@@ -385,7 +385,8 @@ let MyComponent = React.createClass({
       loadServiceDetail(cluster.clusterID,list.targetName,{
         success: {
           func: ()=> {
-            browserHistory.push(`/app_manage/service?serName=${list.targetName}`)
+            let targetName = `/app_manage/service?serName=${list.targetName}`
+            browserHistory.push(targetName)
           },
           isAsync: true
         },
@@ -816,7 +817,7 @@ class AlarmSetting extends Component {
       })
     }
     if(strategy.length == 0 ) {
-      notifi.error('请选择要停止的策略')
+      notifi.error('请选择要停用的策略')
       return
     }
     this.setState({
@@ -893,10 +894,10 @@ class AlarmSetting extends Component {
     }
 
     if(strategy.length == 0 ) {
-      notifi.error('请选择要停止的策略')
+      notifi.error('请选择要停用的策略')
       return
     }
-    notifi.spin('停止中')
+    notifi.spin('停用中')
     this.setState({
       showStop: false,
     })
@@ -907,7 +908,7 @@ class AlarmSetting extends Component {
       success: {
         func: () => {
           notifi.close()
-          notifi.success('策略停止成功')
+          notifi.success('策略停用成功')
           getSettingList(clusterID)
           this.disableButton()
         },
@@ -917,7 +918,7 @@ class AlarmSetting extends Component {
       failed: {
         func: () => {
           notifi.close()
-          notifi.error('策略停止失败，请重试')
+          notifi.error('策略停用失败，请重试')
         }
       }
     })
@@ -937,7 +938,7 @@ class AlarmSetting extends Component {
       isEdit: true
     })
   }
-  createStrategy(){
+  createStrategy() {
     this.setState({alarmModal: true, isEdit: false})
     setTimeout(() => {
       document.getElementById('name').focus()
@@ -1040,13 +1041,13 @@ class AlarmSetting extends Component {
             onCancel={() => this.setState({ deleteModal: false, selectStrategy: null })}
             onOk={() => this.deleteRecords()}
           >
-            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>策略删除后将不再发送邮件告警，确认删除 {this.getCheckecSettingName()} 策略？</div>
+            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>策略删除后将不再发送邮件告警，确认删除策略 {this.getCheckecSettingName()} ？</div>
           </Modal>
-          <Modal title={this.state.showStop ? '停止策略':'启用策略'} visible={this.state.showStop || this.state.showStart}
+          <Modal title={this.state.showStop ? '停用策略':'启用策略'} visible={this.state.showStop || this.state.showStart}
             onCancel={()=> this.handCelcan()}
             onOk={() => this.handAction()}
           >
-            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>确定{this.state.showStop ? '停止':'启用'} {this.getCheckecSettingName()} 策略？</div>
+            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>确定要{this.state.showStop ? '停用':'启用'}策略 {this.getCheckecSettingName()} ？</div>
           </Modal>
 
 
