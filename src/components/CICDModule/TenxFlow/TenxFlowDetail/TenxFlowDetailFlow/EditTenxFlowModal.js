@@ -1075,7 +1075,7 @@ let EditTenxFlowModal = React.createClass({
             shellList.push(values['shellCode' + item]);
           }
         });
-        if (shellList.length === 0) {
+        if (this.state.otherFlowType != 3 && shellList.length === 0) {
           this.setState({
             noShell: true,
           })
@@ -1083,7 +1083,7 @@ let EditTenxFlowModal = React.createClass({
           return
         }
       } else {
-        if (!_this.state.scriptsId || _this.state.scriptsId === '') {
+        if (this.state.otherFlowType != 3 && (!_this.state.scriptsId || _this.state.scriptsId === '')) {
           this.setState({
             noShell: true,
           })
