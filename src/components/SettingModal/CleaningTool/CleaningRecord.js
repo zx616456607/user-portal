@@ -40,7 +40,7 @@ class CleaningRecord extends Component {
       endOpen: false,
       cleanLogs: [],
       totalCount: 0,
-      currentPage: 1,
+      currentPage: 0,
       sort: '',
       filter: '',
       createTimeSort: undefined
@@ -83,17 +83,17 @@ class CleaningRecord extends Component {
     const { getSystemCleanLogs, form } = this.props
     const { getFieldsValue } = form
     const { status, type } = getFieldsValue(['status', 'type'])
-    let query = {form: currentPage, size: 10}
+    let query = {}
     sort ? query = Object.assign(query, {sort}) : ''
-    let body = {status, operation_type: type}
+    let body = {status, operation_type: type, from: currentPage, size: 10}
     startValue ? body = Object.assign(body, {start: formatDate(startValue)}): ''
     endValue ? body = Object.assign(body, {end: formatDate(endValue)}) : ''
     getSystemCleanLogs(query, body, {
       success: {
         func: res => {
           this.setState({
-            cleanLogs: res.data.body,
-            totalCount: res.data.meta.total,
+            cleanLogs: res.data.data,
+            totalCount: res.data.total,
           })
         },
         isAsync: true
@@ -295,7 +295,7 @@ class CleaningRecord extends Component {
   render() {
     const { form } = this.props
     const { cleanLogs, totalCount, createTimeSort } = this.state
-    const { getFieldProps } = form
+    const { getFieldProps, getFieldValue } = form
     const pagination = {
       simple: true,
       total: totalCount,
@@ -340,13 +340,6 @@ class CleaningRecord extends Component {
         width: '25%',
         render: type => this.formatType(type)
       },
-      // {
-      //   key: 'target',
-      //   dataIndex: 'target',
-      //   title: '文件类型',
-      //   width: '20%',
-      //   render: fileType => this.formatFileType(fileType)
-      // },
       {
         key: 'cleanerName',
         dataIndex: 'cleanerName',
@@ -354,6 +347,7 @@ class CleaningRecord extends Component {
         width: '25%',
       },
     ]
+    const target = getFieldValue('target')
     return(
       <QueueAnim className='cleaningRecord' type="right">
         <Title title="清理记录"/>
@@ -461,7 +455,7 @@ class CleaningRecord extends Component {
               <Table
                 dataSource={cleanLogs}
                 columns={columns}
-                expandedRowRender={record => this.renderExpand(record)}
+                expandedRowRender={(target === 'cicd_clean') && (record => this.renderExpand(record))}
                 onChange={this.onTableChange.bind(this)}
                 pagination={pagination}
                 rowKey={record => record.id}

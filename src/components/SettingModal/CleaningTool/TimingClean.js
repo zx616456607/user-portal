@@ -43,7 +43,11 @@ class TimingClean extends Component {
       cicdScope: '1',
       cicdCycle: 'day', 
       cicdDate: '1',
-      cicdTime: '00:00:00'
+      cicdTime: new Date(new Date().setHours(0,0,0,0)),
+      systemScope: '1',
+      systemCycle: 'day',
+      systemDate: '1',
+      systemTime: new Date(new Date().setHours(0,0,0,0))
     }
   }
   componentWillMount() {
@@ -55,45 +59,47 @@ class TimingClean extends Component {
       success: {
         func: res => {
           if (!isEmpty(res.data.cicdClean)) {
-            this.parseCron(res.data.cicdClean)
+            this.parseCron(res.data.cicdClean, 'cicd')
+            this.parseCron(res.data.systemClean, 'cicd')
           }
         },
         isAsync: true
       }
     })
   }
-  parseCron(str) {
+  parseCron(str, type) {
     const cronArr = str.spec.cron.split(' ').splice(1)
     if (cronArr[4] !== '?') {
       this.setState({
-        cicdCycle: 'week',
-        cicdDate: cronArr[4]
+        [`${type}Cycle`]: 'week',
+        [`${type}Date`]: cronArr[4]
       })
     } else if (cronArr[3] === '1/1') {
       this.setState({
-        cicdCycle: 'day',
+        [`${type}Cycle`]: 'day',
       })
     } else {
       this.setState({
-        cicdCycle: 'month',
-        cicdDate: cronArr[2]
+        [`${type}Cycle`]: 'month',
+        [`${type}Date`]: cronArr[2]
       })
     }
-    this.getTime(cronArr[0], cronArr[1])
+    this.getTime(cronArr[0], cronArr[1], type)
     this.setState({
-      cicdScope: `${str.spec.scope}`
+      [`${type}Scope`]: `${str.spec.scope}`
     })
   }
-  getTime(m, h) {
+  getTime(m, h, type) {
     let minute = m.length === 1 ? `0${m}`: m
     let hour = h.length === 1 ? `0${h}` : h
     let time = `${hour}:${minute}:00`
     this.setState({
-      cicdTime: time
+      [`${type}Time`]: time
     })
   }
   systemChange(systemCheckedValue){
     const { systemChecked } = this.state
+    let notify = new Notification()
     if(systemChecked){
       this.setState({
         systemChecked: systemCheckedValue,
@@ -117,14 +123,34 @@ class TimingClean extends Component {
         return
       }
       const { systemCleaningScope, systemCleaningCycle, systemCleaningTime, systemCleaningDate } = values
+      notify.spin('系统日志定时清理设置中')
       cleanSystemLogs({
         type: 1,
         time_range: parseInt(systemCleaningScope),
         scheduled_time: this.getCronString(systemCleaningCycle, systemCleaningDate, systemCleaningTime)
-      })
-      this.setState({
-        systemChecked: systemCheckedValue,
-        systemEdit: systemCheckedValue,
+      }, {
+        success: {
+          func: () => {
+            notify.close()
+            notify.success('系统日志定时清理设置成功')
+            this.setState({
+              systemChecked: systemCheckedValue,
+              systemEdit: systemCheckedValue,
+            })
+            this.getSettings()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            notify.close()
+            notify.success('系统日志定时清理设置失败')
+            this.setState({
+              systemChecked,
+              systemEdit: systemChecked,
+            })
+          }
+        }
       })
     })
   }
@@ -295,7 +321,8 @@ class TimingClean extends Component {
       CICDcache, CICDcacheEdit,
       mirrorImage, mirrorImageEdit,
       stopContainer, stopContainerEdit,
-      cicdScope, cicdCycle, cicdDate, cicdTime
+      cicdScope, cicdCycle, cicdDate, cicdTime,
+      systemScope, systemCycle, systemDate, systemTime
     } = this.state
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
@@ -303,23 +330,23 @@ class TimingClean extends Component {
     	wrapperCol: {span: 18}
     }
     const systemCleaningScopeProps = getFieldProps('systemCleaningScope', {
-      initialValue: '1',
+      initialValue: systemScope,
       rules: [{required: true, message: '请选择清理范围'}],
     })
     const systemCleaningCycleProps = getFieldProps('systemCleaningCycle', {
-      initialValue: 'day',
+      initialValue: systemCycle,
       rules: [{required: true, message: '请选择清理周期'}],
     })
     const systemCleaningCycleValue = getFieldValue('systemCleaningCycle')
     let systemCleaningDateProps
     if(systemCleaningCycleValue !== 'day'){
       systemCleaningDateProps = getFieldProps('systemCleaningDate', {
-        initialValue: '1',
+        initialValue: systemDate,
         rules: [{required: true, message: '请选择清理日期'}]
       })
     }
     const systemCleaningTimeProps = getFieldProps('systemCleaningTime', {
-      initialValue: '00:00:00',
+      initialValue: systemTime,
       rules: [{required: true, message: '请选择清理时间'}]
     })
     const CICDcacheScopeProps = getFieldProps('CICDcacheScope', {
@@ -413,10 +440,10 @@ class TimingClean extends Component {
                         disabled={systemEdit}
                         {...systemCleaningScopeProps}
                       >
-                        <Option key="system_0" value="1">一天前数据</Option>
-                        <Option key="system_3" value="3">一周前数据</Option>
-                        <Option key="system_5" value="5">一个月前数据</Option>
-                        <Option key="system_6" value="6">三个月前数据</Option>
+                        <Option key="system_1" value="1">一天前数据</Option>
+                        <Option key="system_7" value="7">一周前数据</Option>
+                        <Option key="system_30" value="30">一个月前数据</Option>
+                        <Option key="system_90" value="90">三个月前数据</Option>
                       </Select>
                     </FormItem>
                     <FormItem
