@@ -14,7 +14,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/TenxFlowStageBuildLog.less'
 import WebSocket from '../../Websocket/socketIo'
 import { genRandomString } from '../../../common/tools'
-import { changeCiFlowStatus } from '../../../actions/cicd_flow'
+import { changeCiFlowStatus, getStageBuildLogList } from '../../../actions/cicd_flow'
 import $ from 'jquery'
 const ciLogs = []
 
@@ -125,11 +125,20 @@ class TenxFlowStageBuildLog extends Component {
       }, 0)
     })
     socket.on("ciLogs-ended", function(data) {
-      if(self.props.index != 0 && !self.props.index) return
+      if(self.props.index == undefined) return
+      if(self.props.index != 0) {
+        //构建完成后，如果有等待的构建，则刷新列表
+        const { flowId, stageId, getStageBuildLogList } = self.props
+        if(flowId && stageId){
+          getStageBuildLogList(flowId,stageId)
+        }
+        return
+      }
       self.props.changeCiFlowStatus(self.props.index, data.state, self.state.logs)
       if(callback) {
         callback(data)
       }
+      
     })
     socket.on('pod-init', function(data) {
       self.setState({
@@ -155,7 +164,7 @@ class TenxFlowStageBuildLog extends Component {
   } 
   render() {
     const scope = this;
-    let { logs, isFetching } = this.props;
+    let { logs, isFetching, parent } = this.props;
     if(this.props.visible === false) {
       return <div></div>
     }
@@ -203,7 +212,8 @@ TenxFlowStageBuildLog.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  changeCiFlowStatus
+  changeCiFlowStatus,
+  getStageBuildLogList
 })(injectIntl(TenxFlowStageBuildLog, {
   withRef: true,
 }));
