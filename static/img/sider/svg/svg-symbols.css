@@ -214,3 +214,16 @@ svg.http {
   margin-top: 3px;
 }
 #team .st0 {fill: #5B5B5B}
+.cicd {
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+}
+.database {
+  width: 14px;
+  height: 14px;
+}
+.app {
+  width: 14px;
+  height: 14px;
+}
