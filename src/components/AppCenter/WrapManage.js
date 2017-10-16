@@ -343,6 +343,7 @@ class UploadModal extends Component {
               <div className="dragger">
                 <Dragger {...selfProps}>
                   拖动文件到这里以上传，或点击 <a>选择文件</a>
+                  <div style={{color:'#999'}}>支持上传 jar/war/tar/tar.gz/zip 格式包文件，建议包文件小于300M</div>
                   {uploadFile ? <div>文件名称：{uploadFile}</div>: null}
                 </Dragger>
               </div>
@@ -480,7 +481,7 @@ class WrapManage extends Component {
         <Title title="应用包管理" />
         <div key="wrap_list" id="app_wrap_manage">
           <div className="btnRow">
-            <Button size="large" type="primary" icon="plus" onClick={() => this.uploadModal(true)}>上传包文件</Button>
+            <Button size="large" type="primary" icon="upload" onClick={() => this.uploadModal(true)}>上传包文件</Button>
             <Button size="large" style={{ margin: '0 10px' }} onClick={()=> this.getList()}><i className='fa fa-refresh' />&nbsp;刷 新</Button>
             <Button size="large" onClick={()=> this.setState({delAll: true})} icon="delete" style={{ marginRight: '10px' }} disabled={this.state.selectedRowKeys.length == 0}>删 除</Button>
             <Input size="large" onPressEnter={()=> this.getList(true)} style={{ width: 180 }} placeholder="请输入包名称或标签搜索" ref="wrapSearch" />
