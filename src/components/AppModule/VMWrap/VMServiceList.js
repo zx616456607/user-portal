@@ -69,7 +69,7 @@ class VMServiceList extends React.Component {
       }
     })
   }
-  
+
   handleMenuClick(e,record) {
     const { vmServiceDelete } = this.props;
     let notify = new NotificationHandler()
@@ -168,7 +168,7 @@ class VMServiceList extends React.Component {
   }
   render() {
     const { selectedRowKeys, service, loading, searchValue } = this.state;
-    
+
     const columns = [{
       title: '应用名',
       dataIndex: 'serviceName',
@@ -206,8 +206,8 @@ class VMServiceList extends React.Component {
           </Dropdown.Button>
         )
       }
-      
-      
+
+
     }];
 
 // 通过 rowSelection 对象表明需要行选择
@@ -217,6 +217,7 @@ class VMServiceList extends React.Component {
 //       onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
 //     };
     const pageOption = {
+      simple: true,
       defaultCurrent: 1,
       defaultPageSize: 10,
       total: service.total,
@@ -229,9 +230,13 @@ class VMServiceList extends React.Component {
             <Button type="primary" size="large" onClick={()=>browserHistory.push('/app_manage/app_create/vm_wrap')}><i className="fa fa-plus" /> 创建传统应用</Button>
             <Button size="large" className="refreshBtn" onClick={()=>this.pageAndSerch(null,1,true)}><i className='fa fa-refresh'/> 刷新</Button>
             {/*<Button size="large" icon="delete" className="deleteBtn">删除</Button>*/}
-            <CommonSearchInput onSearch={(value)=>{this.pageAndSerch(value,1,true)}} size="large" placeholder="请输入服务名搜索"/>
-            <Pagination {...pageOption}/>
-            <span className="pull-right totalNum">共计 {service.total} 条</span>
+            <CommonSearchInput onSearch={(value)=>{this.pageAndSerch(value,1,true)}} size="large" placeholder="请输入应用名搜索"/>
+            { service.total >0 &&
+              <div style={{position:'absolute',right:'20px',top:'30px'}}>
+              <Pagination {...pageOption}/>
+              <span className="pull-right totalNum">共计 {service.total} 条</span>
+              </div>
+            }
           </div>
           <Table loading={loading} pagination={false} columns={columns} dataSource={service.services} onRowClick={(record)=>this.rowClick(record)}/>
         </div>

@@ -283,6 +283,7 @@ class VMList extends React.Component {
     const { data } = this.props
     const { ciphertext } = this.state
     const pagination = {
+      simple: true,
       defaultCurrent: 1,
       defaultPageSize: 10,
       total: data.length,
@@ -379,7 +380,6 @@ class VMList extends React.Component {
           {/*<Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>*/}
           <CommonSearchInput className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={() => this.handleSearch()} />
           {/*<Pagination {...pagination}/>*/}
-          <div className="total">共{data.length}个</div>
         </Row>
         <Row>
           <Table
@@ -389,6 +389,7 @@ class VMList extends React.Component {
             columns={columns}
             dataSource={data}
           />
+          {data.length >0 &&　<div className="total">共 {data.length} 个</div>}
         </Row>
         {
           this.state.isModal ?
