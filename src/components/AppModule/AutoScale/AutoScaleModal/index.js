@@ -512,7 +512,7 @@ class AutoScaleModal extends React.Component {
             <InputNumber {...maxReplicas}/> 个
           </FormItem>
           {thresholdItem}
-          <Row style={{margin: '10px 0 10px'}}>
+          <Row style={{margin: '-10px 0 10px'}}>
             <Col span={4}/>
             <Col span={16}>
               <Icon type="exclamation-circle-o"/> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
