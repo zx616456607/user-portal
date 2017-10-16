@@ -451,7 +451,6 @@ let CreateTenxFlow = React.createClass({
                 notification.error('创建 TenxFlow 失败')
                 break
               case 412:
-                notification.error('资源数量达到上限')
                 break
               default:
                 notification.error(res.message.message)

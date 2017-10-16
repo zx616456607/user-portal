@@ -94,7 +94,7 @@ class HostMemory extends Component {
         width: '20%',
         render: (text, record, index) => <div
           className='storage_name'
-          onClick={() => browserHistory.push(`/app_manage/storage/hostMemory/${text}?path=${record.mountPath}&ip=${record.storageIP}`)}
+          onClick={() => browserHistory.push(`/app_manage/storage/hostMemory/${text}?path=${record.mountPath}&ip=${record.deployServiceList[0].storageIP}`)}
         >{text}</div>
       }, {
         key: 'mountPath',
@@ -102,27 +102,28 @@ class HostMemory extends Component {
         dataIndex: 'mountPath',
         width: '20%',
       }, {
-        key: 'service',
-        title: '服务',
-        dataIndex: 'service',
-        width: '15%',
+        key:'deployServiceList',
+        title:'服务',
+        dataIndex:'deployServiceList',
+        width:'20%',
+        render:(text, record) => <div>{text.length}</div>
       }, {
         key: 'type',
         title: '类型',
         dataIndex: 'storageType',
-        width: '15%',
+        width: '20%',
       }, {
         key: 'node',
         title: '存储节点',
         dataIndex: 'storageIP',
-        width: '15%',
-      }, {
-        key: 'createTime',
-        title: '创建时间',
-        dataIndex: 'createTime',
-        width: '15%',
-        render: (text) => <div>{ formatDate(text) }</div>,
-        sorter: (a, b) => a - b,
+        width: '20%',
+      //}, {
+      //  key: 'createTime',
+      //  title: '创建时间',
+      //  dataIndex: 'createTime',
+      //  width: '15%',
+      //  render: (text) => <div>{ formatDate(text) }</div>,
+      //  sorter: (a, b) => a - b,
       }
     ]
     const rowSelection = {
@@ -132,7 +133,7 @@ class HostMemory extends Component {
       selectedRowKeys,
       onChange: this.onSelectChange,
     }
-    const dataSource = storageList.storageList
+    const dataSource = storageList.storageList || []
     const isFetching = storageList.isFetching
     return(
       <QueueAnim className='host_memory'>
@@ -150,15 +151,15 @@ class HostMemory extends Component {
                 <i className="fa fa-refresh button_icon" aria-hidden="true"></i>
                 刷新
               </Button>
-              {/*<Button*/}
-                {/*size="large"*/}
-                {/*icon="delete"*/}
-                {/*className='button_margin'*/}
-                {/*onClick={() => this.deleteItem()}*/}
-                {/*disabled={!selectedRowKeys.length}*/}
-              {/*>*/}
-                {/*删除*/}
-              {/*</Button>*/}
+              {/*<Button
+                size="large"
+                icon="delete"
+                className='button_margin'
+                onClick={() => this.deleteItem()}
+                disabled={!selectedRowKeys.length}
+              >
+                删除
+              </Button>*/}
               <div className='search_box'>
                 <Input
                   size="large"
