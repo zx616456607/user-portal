@@ -164,7 +164,7 @@ class TenxFlowStageBuildLog extends Component {
   } 
   render() {
     const scope = this;
-    let { logs, isFetching, parent } = this.props;
+    let { logs, isFetching } = this.props;
     if(this.props.visible === false) {
       return <div></div>
     }
