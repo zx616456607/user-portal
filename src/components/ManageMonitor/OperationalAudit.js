@@ -1756,7 +1756,7 @@ class OperationalAudit extends Component {
               placeholder={formatMessage(menusText.selectStatus)}
             >
               <Option value=''><FormattedMessage {...menusText.allstatus} /></Option>
-              <Option value='running'><FormattedMessage {...menusText.running} /></Option>
+              <Option value='running'>未完成</Option>
               <Option value='success'><FormattedMessage {...menusText.success} /></Option>
               <Option value='failed'><FormattedMessage {...menusText.failed} /></Option>
             </Select>
