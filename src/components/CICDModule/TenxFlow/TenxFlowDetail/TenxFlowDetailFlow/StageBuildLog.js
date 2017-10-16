@@ -246,7 +246,6 @@ let MyComponent = React.createClass({
     const { config, scope, flowId } = this.props;
     let defaultIndex = 0
     config.some((item,index) => {
-      console.log(item)
       if(item.status == 2) {
         defaultIndex = index
         return true
