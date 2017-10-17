@@ -21,10 +21,10 @@ export const FETCH_GLOBALE_QUOTA_FAILURE = 'FETCH_GLOBALE_QUOTA_FAILURE'
 function fetchGlobaleQuota(query, callback) {
   let endpoint = `${API_URL_PREFIX}/resourcequota`
   let headers
-  if (query.header) {
-    if (query.header.project) {
-      let project = query.header.project
-      headers = { project }
+  if (query.header !== undefined) {
+    if (query.header.teamspace) {
+      let teamspace = query.header.teamspace
+      headers = { teamspace }
     } else {
       let onbehalfuser = query.header.onbehalfuser
       headers = { onbehalfuser }
@@ -59,10 +59,10 @@ export const FETCH_GLOBALE_GET_QUOTA_FAILURE = 'FETCH_GLOBALE_GET_QUOTA_FAILURE'
 function fetchGlobaleQuotaList(query, callback) {
   let endpoint = `${API_URL_PREFIX}/resourcequota/inuse`
   let headers
-  if (query.header) {
-    if (query.header.project) {
-      let project = query.header.project
-      headers = { project }
+  if (query.header !== undefined) {
+    if (query.header.teamspace) {
+      let teamspace = query.header.teamspace
+      headers = { teamspace }
     } else {
       let onbehalfuser = query.header.onbehalfuser
       headers = { onbehalfuser }
@@ -96,10 +96,10 @@ function updateGlobaleQuota(query, callback) {
   let endpoint = `${API_URL_PREFIX}/resourcequota`
   let body = query.body
   let headers
-  if (query.header) {
-    if (query.header.project) {
-      let project = query.header.project
-      headers = { project }
+  if (query.header !== undefined) {
+    if (query.header.teamspace) {
+      let teamspace = query.header.teamspace
+      headers = { teamspace }
     } else {
       let onbehalfuser = query.header.onbehalfuser
       headers = { onbehalfuser }
@@ -133,10 +133,10 @@ export const FETCH_CLUSTER_QUOTA_FAILURE = 'FETCH_CLUSTER_QUOTA_FAILURE'
 function fetchClusterQuota(query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota`
   let headers
-  if (query.header) {
-    if (query.header.project) {
-      let project = query.header.project
-      headers = { project }
+  if (query.header !== undefined) {
+    if (query.header.teamspace) {
+      let teamspace = query.header.teamspace
+      headers = { teamspace }
     } else {
       let onbehalfuser = query.header.onbehalfuser
       headers = { onbehalfuser }
@@ -170,10 +170,10 @@ function updateClusterQuota(query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota`
   let body = query.body
   let headers
-  if (query.header) {
-    if (query.header.project) {
-      let project = query.header.project
-      headers = { project }
+  if (query.header !== undefined) {
+    if (query.header.teamspace) {
+      let teamspace = query.header.teamspace
+      headers = { teamspace }
     } else {
       let onbehalfuser = query.header.onbehalfuser
       headers = { onbehalfuser }
@@ -207,10 +207,10 @@ export const FETCH_CLUSTER_GET_FAILURE = 'FETCH_CLUSTER_GET_FAILURE'
 function fetchClusterQuotaList(query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota/inuse`
   let headers
-  if (query.header) {
-    if (query.header.project) {
-      let project = query.header.project
-      headers = { project }
+  if (query.header !== undefined) {
+    if (query.header.teamspace) {
+      let teamspace = query.header.teamspace
+      headers = { teamspace }
     } else {
       let onbehalfuser = query.header.onbehalfuser
       headers = { onbehalfuser }
