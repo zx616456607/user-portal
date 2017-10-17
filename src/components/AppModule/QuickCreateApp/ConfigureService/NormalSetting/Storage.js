@@ -292,7 +292,7 @@ const Storage = React.createClass({
       case 'host':
         return <span>host</span>
       case 'private':
-        return <span>独享型（RBD）</span>
+        return <span>独享型（可靠块存储）</span>
       case 'share':
         return <span>共享型（nfs）</span>
       default:
