@@ -17,10 +17,47 @@
       padding: 0 20px;
     }
     .img_box{
-      padding: 60px;
       width: 210px;
       height:180px;
       float: left;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      img{
+        width: 80px;
+        height: 80px;
+      }
+      .cleaning{
+        -webkit-animation: cleaner .5s infinite alternate;
+        -o-animation: cleaner .5s infinite alternate;
+        animation: cleaner .5s infinite alternate;
+      }
+      @keyframes cleaner{
+        from{
+          -webkit-transform: rotate(-25deg);
+          -moz-transform: rotate(-25deg);
+          -ms-transform: rotate(-25deg);
+          -o-transform: rotate(-25deg);
+          transform: rotate(-25deg);
+          -webkit-transform-origin: 80% 10% 0;
+          -moz-transform-origin: 80% 10% 0;
+          -ms-transform-origin: 80% 10% 0;
+          -o-transform-origin: 80% 10% 0;
+          transform-origin: 80% 10% 0;
+        }
+        to{
+          -webkit-transform: rotate(10deg);
+          -moz-transform: rotate(10deg);
+          -ms-transform: rotate(10deg);
+          -o-transform: rotate(10deg);
+          transform: rotate(10deg);
+          -webkit-transform-origin: 80% 10% 0;
+          -moz-transform-origin: 80% 10% 0;
+          -ms-transform-origin: 80% 10% 0;
+          -o-transform-origin: 80% 10% 0;
+          transform-origin: 80% 10% 0;
+        }
+      }
     }
     .done_box{
       .tips{

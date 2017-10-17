@@ -16,11 +16,12 @@ const vmWrapConfig = global.globalConfig.vmWrapConfig
 const imageScanConfig = require('../configs/image_scan')
 const registriyApi = require('../registry')
 
-exports.getApi = function (loginUser) {
+exports.getApi = function (loginUser, timeout) {
   const apiConfig = {
     protocol: config.tenx_api.protocol,
     host: config.tenx_api.host,
-    auth: loginUser
+    auth: loginUser,
+    timeout
   }
   const api = new tenxApi(apiConfig)
   return api
