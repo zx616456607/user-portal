@@ -20,6 +20,9 @@
       right: 0;
       top: -60px;
     }
+    .ant-table{
+      width: 100%;
+    }
     .ant-table-body{
       padding: 24px;
       table{
@@ -58,6 +61,22 @@
       }
     }
   }
+  @media screen and (max-width: 1300px) {
+    .autoScaleDrop{
+      display: inline-block;
+    }
+    .startBtn, .stopBtn, .deleteBtn{
+      display: none;
+    }
+  }
+  @media screen and (min-width: 1300px) {
+    .autoScaleDrop{
+      display: none;
+    }
+    .startBtn, .stopBtn, .deleteBtn{
+      display: inline-block;
+    }
+  }
 }
 .autoScaleDeleteModal{
   .deleteHint{
@@ -73,5 +92,10 @@
       font-size: 20px;
       margin-right: 10px;
     }
+  }
+}
+.autoScaleBtnMenu{
+  li{
+    font-size: 14px;
   }
 }
