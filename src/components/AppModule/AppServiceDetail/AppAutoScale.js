@@ -638,11 +638,11 @@ class AppAutoScale extends Component {
                             placeholder="请选择告警通知组"
                             showSearch
                             optionFilterProp="children"
-                            notFoundContent="无法找到">
+                            notFoundContent="没有告警通知组">
                             {
-                              alertList && alertList.length && alertList.map(item =>
+                              alertList && alertList.length ? alertList.map(item =>
                                 <Option key={item.name} value={item.groupID}>{item.name}</Option>
-                              )
+                              ) : null
                             }
                           </Select>
                         </FormItem>,
