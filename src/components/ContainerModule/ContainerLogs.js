@@ -121,12 +121,15 @@ class ContainerLogs extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { logs } = prevState
+    const { logsLoading } = this.state
     const _state = this.state
     if (_state.watchStatus === 'pause') {
       return
     }
-    const logsBottom = document.getElementById('logsBottom')
-    logsBottom && logsBottom.scrollIntoView({ block: 'end', behavior: 'smooth' })
+    if(!logsLoading && this.state.logs.length){
+      const logsBottom = document.getElementById('logsBottom')
+      logsBottom && logsBottom.scrollIntoView({ block: 'end', behavior: 'smooth' })
+    }
   }
 
   onChangeLogSize() {
