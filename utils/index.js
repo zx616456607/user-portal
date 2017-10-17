@@ -183,3 +183,11 @@ exports.toQuerystring = function(obj, sep, eq) {
     }
   }
 }
+
+function getType(param) {
+  let type = Object.prototype.toString.call(param)
+  type = type.replace(/\[object /, '')
+  type = type.replace(/\]/, '')
+  return type.toLowerCase()
+}
+exports.getType = getType
