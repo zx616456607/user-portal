@@ -160,15 +160,25 @@ class CleaningTool extends Component {
   }
   
   cleanCicd() {
-    const { form, startClean } = this.props
+    const { form, startClean, userName } = this.props
     const time = form.getFieldValue("cache")
     const cleanRange = parseInt(time)
     this.setState({
       cleanCicdStatus: 'cleaning'
     })
-    startClean('cicd_clean', 'manual', {
-      cron: "",
-      scope: cleanRange
+    startClean({
+      cicd_clean: {
+        meta: {
+          automatic: false,
+          cleaner: userName,
+          target: "cicd_clean",
+          type: "manual"
+        },
+        spec: {
+          cron: '',
+          scope: cleanRange
+        }
+      }
     }, {
       success: {
         func: () => {
@@ -325,13 +335,13 @@ class CleaningTool extends Component {
         </div>
       )
     }
-    if (!cleanLogs.length) {
+    if (!cleanLogs || !cleanLogs.length) {
       return <div style={{ textAlign: 'center' }}>暂无数据</div>
     }
     return(
       <Timeline> 
         {
-          cleanLogs.map((item, index) => {
+          cleanLogs && cleanLogs.length && cleanLogs.map((item, index) => {
             return (
               <TimelineItem key={item.id} color={index === 0 ? 'green' : '#e9e9e9'}>
                 <Row className={classNames({'successColor': index === 0})}>
@@ -439,11 +449,11 @@ class CleaningTool extends Component {
               >
                 <Option key="system_0" value="0">清除所有数据</Option>
                 <Option key="system_1" value="1">清除1天前数据</Option>
-                <Option key="system_2" value="2">清除3天前数据</Option>
-                <Option key="system_3" value="3">清除7天前数据</Option>
-                <Option key="system_4" value="4">清除15天数据</Option>
-                <Option key="system_5" value="5">清除1月前数据</Option>
-                <Option key="system_6" value="6">清除3月前数据</Option>
+                <Option key="system_3" value="3">清除3天前数据</Option>
+                <Option key="system_7" value="7">清除7天前数据</Option>
+                <Option key="system_15" value="15">清除15天数据</Option>
+                <Option key="system_30" value="30">清除1月前数据</Option>
+                <Option key="system_90" value="90">清除3月前数据</Option>
               </Select>
             </FormItem>
             <div>
@@ -533,7 +543,8 @@ class CleaningTool extends Component {
       monitorBtnLoading,
       accomplish, pending,
       forbid, mirrorImageEdit,
-      cicdLogs, systemLogs, activeKey
+      cicdLogs, systemLogs, activeKey,
+      cleanSystemLogStatus, cleanCicdStatus
     } = this.state
     const { form } = this.props
     const { getFieldProps } = form
@@ -571,7 +582,7 @@ class CleaningTool extends Component {
           name:'最近清除',
           type:'bar',
           barWidth: '40px',
-          data:[0, cicdLogs.length && cicdLogs[0].total]
+          data:[0, cicdLogs && cicdLogs.length && cicdLogs[0].total]
         }
       ]
     };
@@ -597,7 +608,7 @@ class CleaningTool extends Component {
             >
               <TabPane tab="系统日志" key="systemLog">
                 <div className='img_box'>
-                  <img src={CleaningToolImg} alt=""/>
+                  <img className={classNames({'cleaning': cleanSystemLogStatus === 'cleaning'})} src={CleaningToolImg}/>
                 </div>
                 {
                   this.renderSystemTab()
@@ -631,7 +642,7 @@ class CleaningTool extends Component {
               </TabPane>*/}
               <TabPane tab="CI/CD缓存" key="cache">
                 <div className='img_box'>
-                  <img src={CleaningToolImg} alt=""/>
+                  <img className={classNames({'cleaning': cleanCicdStatus === 'cleaning'})} src={CleaningToolImg}/>
                 </div>
                 {
                   this.renderCicdTab()
@@ -639,7 +650,7 @@ class CleaningTool extends Component {
               </TabPane>
               <TabPane tab="监控数据" key="monitoringData">
                 <div className='img_box'>
-                  <img src={CleaningToolImg} alt=""/>
+                  <img className={classNames({'cleaning': monitorBtnLoading})} src={CleaningToolImg}/>
                 </div>
                 <div className='handle_box'>
                   <div className='tips'>您可以根据数据时效配置数据保留时间！</div>
@@ -800,9 +811,11 @@ class CleaningTool extends Component {
 CleaningTool = Form.create({})(CleaningTool)
 
 function mapStateToProp(state, props) {
-
+  const { loginUser } = state.entities
+  const { info } = loginUser
+  const { userName } = info
   return {
-
+    userName
   }
 }
 

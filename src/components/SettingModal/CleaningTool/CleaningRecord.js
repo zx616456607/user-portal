@@ -50,11 +50,16 @@ class CleaningRecord extends Component {
     this.getSystemLogs()
   }
   getCleanLogs() {
-    const { currentPage, sort, filter } = this.state
-    const { getCleanLogs } = this.props
+    const { currentPage, sort, startValue: start, endValue: end } = this.state
+    const { getCleanLogs, form } = this.props
+    const { getFieldsValue } = form
+    const { status, type } = getFieldsValue(['status', 'type'])
     getCleanLogs({
       sort,
-      filter,
+      type,
+      status,
+      start,
+      end,
       from: currentPage,
       size: 10,
     }, {
@@ -247,7 +252,8 @@ class CleaningRecord extends Component {
     let newFilter
     newFilter = filter ? `${filter},${opt},${target}` : `${opt},${target}`
     this.setState({
-      filter: newFilter
+      filter: newFilter,
+      [opt]: target
     })
   }
   selectLogType(value) {
@@ -269,11 +275,9 @@ class CleaningRecord extends Component {
       running: '#0b9eeb',
       timeout: '#fab163'
     }
-    const detail = JSON.parse(record.detail)
-    const { clusters } = detail
     let nodeArr = []
-    clusters.forEach(item => {
-      nodeArr.push(Object.values(item.nodes))
+    record.detail.forEach(item => {
+      item.nodes && nodeArr.push(Object.values(item.nodes))
     })
     nodeArr = flattenDeep(nodeArr)
     return(
@@ -334,15 +338,15 @@ class CleaningRecord extends Component {
         render: text => this.formatStatus(text, true)
       },
       {
-        key: 'operationType',
-        dataIndex: 'operationType',
+        key: 'type',
+        dataIndex: 'type',
         title: '清理类型',
         width: '25%',
         render: type => this.formatType(type)
       },
       {
-        key: 'cleanerName',
-        dataIndex: 'cleanerName',
+        key: 'cleaner',
+        dataIndex: 'cleaner',
         title: '清理人',
         width: '25%',
       },

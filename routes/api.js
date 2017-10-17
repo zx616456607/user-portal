@@ -637,12 +637,14 @@ module.exports = function (Router) {
   router.get('/resourcequota/inuse', quotaController.list)
 
   //clean
-  router.put('/cleaner/:target/:type', cleanController.startCleaner)
+  router.put('/cleaner/settings', cleanController.startCleaner)
   router.get('/cleaner/settings', cleanController.getCleanerSettings)
+  router.get('/cleaner/settings/logs', cleanController.getSystemSettings)
   router.get('/cleaner/logs', cleanController.getCleanerLogs)
   router.post('/cleaner/logs', cleanController.startCleanSystemLogs)
   router.put('/cleaner/monitor', cleanController.startCleanMonitor)
   router.post('/cleaner/records', cleanController.getSystemCleanerLogs)
-
+  router.post('/cleaner/closer', cleanController.closeLogsAutoClean)
+  
   return router.routes()
 }

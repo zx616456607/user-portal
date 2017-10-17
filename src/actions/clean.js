@@ -16,11 +16,11 @@ export const FETCH_CLEAN_REQUEST = 'FETCH_CLEAN_REQUEST'
 export const FETCH_CLEAN_SUCCESS = 'FETCH_CLEAN_SUCCESS'
 export const FETCH_CLEAN_FAILURE = 'FETCH_CLEAN_FAILURE'
 
-function fetchClean(target, type, body, callback) {
+function fetchClean(body, callback) {
   return {
     [FETCH_API]: {
       types: [FETCH_CLEAN_REQUEST,FETCH_CLEAN_SUCCESS,FETCH_CLEAN_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cleaner/${target}/${type}`,
+      endpoint: `${API_URL_PREFIX}/cleaner/settings`,
       schema: {},
       options: {
         method: 'PUT',
@@ -31,9 +31,9 @@ function fetchClean(target, type, body, callback) {
   }
 }
 
-export function startClean(target, type, body, callback) {
+export function startClean(body, callback) {
   return dispatch => {
-    return dispatch(fetchClean(target, type, body, callback))
+    return dispatch(fetchClean(body, callback))
   }
 }
 
@@ -55,6 +55,27 @@ function fetchCleanSettings(callback) {
 export function getCleanSettings(callback) {
   return dispatch => {
     return dispatch(fetchCleanSettings(callback))
+  }
+}
+
+export const FETCH_SYSTEM_SETTINGS_REQUEST = 'FETCH_SYSTEM_SETTINGS_REQUEST'
+export const FETCH_SYSTEM_SETTINGS_SUCCESS = 'FETCH_CLEAN_SETTINGS_SUCCESS'
+export const FETCH_SYSTEM_SETTINGS_FAILURE = 'FETCH_SYSTEM_SETTINGS_FAILURE'
+
+function fetchSystemSettings(callback) {
+  return {
+    [FETCH_API]: {
+      types: [FETCH_SYSTEM_SETTINGS_REQUEST,FETCH_SYSTEM_SETTINGS_SUCCESS,FETCH_SYSTEM_SETTINGS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cleaner/settings/logs`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getSystemSettings(callback) {
+  return dispatch => {
+    return dispatch(fetchSystemSettings(callback))
   }
 }
 
@@ -162,5 +183,30 @@ function fetchSystemCleanLogs(query, body, callback) {
 export function getSystemCleanLogs(query, body, callback) {
   return dispatch => {
     return dispatch(fetchSystemCleanLogs(query, body, callback))
+  }
+}
+
+export const CLOSE_LOG_AUTO_CLEAN_REQUEST = 'CLOSE_LOG_AUTO_CLEAN_REQUEST'
+export const CLOSE_LOG_AUTO_CLEAN_SUCCESS = 'CLOSE_LOG_AUTO_CLEAN_SUCCESS'
+export const CLOSE_LOG_AUTO_CLEAN_FAILURE = 'CLOSE_LOG_AUTO_CLEAN_FAILURE'
+
+function fetchCloseLogAutoClean(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CLOSE_LOG_AUTO_CLEAN_REQUEST,CLOSE_LOG_AUTO_CLEAN_SUCCESS,CLOSE_LOG_AUTO_CLEAN_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cleaner/closer`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function closeLogAutoClean(body, callback) {
+  return dispatch => {
+    return dispatch(fetchCloseLogAutoClean(body, callback))
   }
 }
