@@ -28,7 +28,7 @@ const Dragger = Upload.Dragger
 const TabPane = Tabs.TabPane
 let uploadFile = false // in upload file name
 const notificat = new NotificationHandler()
-
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 // file type
 const wrapType = ['.jar','.war','.tar','.tar.gz','.zip']
 const wrapTypelist = ['jar','war','tar','tar.gz','zip']
@@ -163,7 +163,8 @@ class UploadModal extends Component {
       filter: `fileName contains ${wrapName}`,
     }
     let isEq = false
-    func.checkWrapName(query,{
+    clearTimeout(this.wrapNameCheckTimeout)
+    this.wrapNameCheckTimeout = setTimeout(()=> func.checkWrapName(query,{
       success:{
         func: ret => {
           if (Array.isArray(ret.data.pkgs)) {
@@ -180,7 +181,7 @@ class UploadModal extends Component {
           }
         }
       }
-    })
+    }), ASYNC_VALIDATOR_TIMEOUT)
   }
   validateName = (rule, value, callback)=> {
     if (!value) {
