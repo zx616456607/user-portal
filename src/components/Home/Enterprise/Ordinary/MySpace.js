@@ -19,6 +19,7 @@ import { Link } from 'react-router'
 import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
 import homeCICDImg from '../../../../assets/img/homeCICD.png'
 import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
+import homeHarbor from '../../../../assets/img/homeHarbor.png'
 import { getGlobaleQuota, getGlobaleQuotaList } from '../../../../actions/quota'
 
 const RadioButton = Radio.Button
@@ -317,7 +318,7 @@ class MySpace extends Component {
         key: 'applicationPackage',
         text: '应用包(个)',
       }]
-
+    console.log(spaceImageStats)
     return (
       <div id='MySpace'>
         <Row className="title" style={{ marginTop: 20 }}>{spaceName}</Row>
@@ -541,22 +542,56 @@ class MySpace extends Component {
                 }
               </Row>
             </Card>
-            <Card title="镜像仓库" bordered={false} bodyStyle={{ height: 175 }} style={{ marginTop: 10 }} >
-              <ReactEcharts
-                notMerge={true}
-                option={imageOption}
-                style={{ height: '70px' }}
-                showLoading={isFetching}
-              />
-              <div style={{ position: 'absolute', top: '66px', width: '100%', textAlign: 'center' }}>
-                {spaceImageStats.myRepoCount} 个
-              </div>
-              <Row style={{ textAlign: 'center', height: 40, lineHeight: '40px', padding: '0 24px', fontSize: '13px', color: '#666' }}>
-                <Col span={12}>公开 {spaceImageStats.publicRepoCount} 个</Col>
-                <Col span={12}>私有 {spaceImageStats.myRepoCount - spaceImageStats.publicRepoCount} 个</Col>
+            <Card title="镜像仓库" bordered={false} bodyStyle={{ height: 175, padding: 0 }} style={{ marginTop: 10 }} >
+              <Row style={{ height: 130 }}>
+                <Col span={12} style={{ height: 130, lineHeight: '130px', textAlign: 'center' }}>
+                  <img src={homeHarbor} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+                </Col>
+                <Col className='cicdInf' span={12}>
+                  <table>
+                    <tbody>
+                    <tr>
+                      <td>
+                        <div className='cicdDot' style={{ backgroundColor: '#13c563' }}/>
+                        我的仓库组
+                      </td>
+                      <td className="cicdNum">
+                        {spaceImageStats.myProjectCount} 个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className='cicdDot' style={{ backgroundColor: '#13c563' }}/>
+                        我的镜像仓库
+                      </td>
+                      <td className="cicdNum">
+                        {spaceImageStats.myRepoCount} 个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className='cicdDot' style={{ backgroundColor: '#46b2fa' }}/>
+                        公开仓库组
+                      </td>
+                      <td className="cicdNum">
+                        {spaceImageStats.publicProjectCount} 个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className='cicdDot' style={{ backgroundColor: '#46b2fa' }}/>
+                        公开镜像仓库
+                      </td>
+                      <td className="cicdNum">
+                        {spaceImageStats.publicRepoCount} 个
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </Col>
               </Row>
-              <Row style={{ height: 40, lineHeight: '40px', borderTop: '1px solid #e2e2e2', padding: '0 24px', fontSize: '12px' }}>
-                仓库组: <strong>{spaceImageStats.publicProjectCount}</strong> 公开 / <strong>{spaceImageStats.myProjectCount}</strong> 私有
+              <Row style={{ height: 40, lineHeight: '40px', borderTop: '1px solid #e2e2e2', padding: '0 24px' }}>
+                服务状态：
                 {
                   this.state.ImageStates ?
                     <div style={{ float: 'right' }}>
