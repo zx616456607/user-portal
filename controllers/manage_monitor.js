@@ -10,6 +10,7 @@
 'use strict'
 const Service = require('../kubernetes/objects/service')
 const apiFactory = require('../services/api_factory')
+const elasticdump = require('../services/elasticdump')
 const logger = require('../utils/logger').getLogger('manage_monitor')
 
 exports.getOperationAuditLog = function* () {
@@ -46,6 +47,66 @@ exports.getServiceSearchLog = function* () {
     logs: result.data
   }
 }
+
+exports.dumpServiceSearchLog = function* () {
+  const clusterID = this.params.cluster
+  const services = this.params.services
+  const query = this.query
+  const loginUser = this.session.loginUser
+  yield dumpLog.apply(this, [ clusterID, loginUser, query, services ])
+}
+
+exports.dumpInstancesSearchLog = function* () {
+  const clusterID = this.params.cluster
+  const instances = this.params.instances
+  const query = this.query
+  const loginUser = this.session.loginUser
+  yield dumpLog.apply(this, [ clusterID, loginUser, query, null, instances.split(',') ])
+}
+
+function* dumpLog(clusterID, loginUser, query, containerName, podNames) {
+  const method = 'dumpLog'
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([clusterID])
+  const cluster = result.data
+  const timestamp = elasticdump.getTimestamp(query)
+  const gte = timestamp.gte
+  const lte = timestamp.lte
+  const isFile = query.logType === 'file'
+  const searchBody = {
+    namespace:loginUser.namespace,
+    options:{
+      containerName,
+      podNames,
+      gte,
+      lte,
+      isFile,
+    }
+  }
+  let logName = containerName || podNames.join('|')
+  logName = `${logName}|${(new Date()).toISOString()}`
+
+  const scope = this
+  this.status = 200
+  this.set('content-disposition', `attachment; filename="${logName}.log"`)
+  this.set('content-type', 'application/force-download')
+  try {
+    yield elasticdump.dump(cluster, searchBody, scope)
+  } catch (error){
+    logger.error(method, error.stack)
+  }
+}
+
+exports.getServiceLogfiles = function* (){
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const instances = this.params.instances
+  const reqBody = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, 'logs', 'instances', instances, 'logfiles'], null, reqBody);
+  this.body = result
+}
+
 exports.getClusterOfQueryLog = function* () {
   const method = 'getClusterOfQueryLog'
   const projectName = this.params.project_name

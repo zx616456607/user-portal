@@ -17,20 +17,22 @@ import { getQueryLogList, getServiceQueryLogList } from '../../actions/manage_mo
 import { loadServiceContainerList } from '../../actions/services'
 import { ListProjects } from '../../actions/project'
 import { throwError } from '../../actions'
-import { getClusterOfQueryLog, getServiceOfQueryLog } from '../../actions/manage_monitor'
+import { getClusterOfQueryLog, getServiceOfQueryLog, getQueryLogFileList, searchFileLogOfQueryLog } from '../../actions/manage_monitor'
 import './style/QueryLog.less'
-import { formatDate } from '../../common/tools'
+import { formatDate, toQuerystring } from '../../common/tools'
 import { mode } from '../../../configs/model'
 import { STANDARD_MODE } from '../../../configs/constants'
-import { UPGRADE_EDITION_REQUIRED_CODE, DATE_PIRCKER_FORMAT } from '../../constants'
+import { UPGRADE_EDITION_REQUIRED_CODE, DATE_PIRCKER_FORMAT, API_URL_PREFIX } from '../../constants'
 import moment from 'moment'
 import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
 import classNames from 'classnames'
+import NotificationHandler from '../../components/Notification'
 
 const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format(DATE_PIRCKER_FORMAT))
 const standardFlag = (mode == STANDARD_MODE ? true : false);
 const Option = Select.Option;
+const notificationHandler = new NotificationHandler()
 
 const menusText = defineMessages({
   headTitle: {
@@ -594,6 +596,78 @@ let LogComponent = React.createClass({
   }
 });
 
+class FileModal extends Component {
+  constructor(props){
+    super(props)
+    this.state = {
+
+    }
+  }
+
+  searchLogFile(){
+    const { scope } = this.props
+    const { searchFileLogOfQueryLog } = scope.props
+    const searchValue = document.getElementById('search_log_file').value
+    searchFileLogOfQueryLog(searchValue)
+  }
+
+  selectFile(item){
+    const { scope } = this.props
+    const { currentFile } = scope.state
+    if(item == currentFile){
+      return
+    }
+    scope.setState({
+      currentFile: item,
+      filePopup: false,
+    }, () => {
+      document.getElementById('search_log_file').value = ""
+    })
+  }
+
+  render() {
+    const { getLogFileOfQueryLog, scope } = this.props
+    const { currentService } = scope.state
+    const isFetching = getLogFileOfQueryLog.isFetching
+    const fileList = getLogFileOfQueryLog.fileList || []
+    let option = [<div key='nodata' value='nodata' className='no_data'><Spin /></div>]
+    if(!currentService){
+      option = [<div key='nodata' value='nodata' className='no_data'>请选择服务</div>]
+    }
+    if(!isFetching && !fileList.length){
+      option =  [<div key='nodata' className='no_data'>暂无文件</div>]
+    }
+    if(!isFetching && fileList.length){
+      option = [<div key={`listall`} onClick={() => this.selectFile('所有文件')} className='file_item_style'><div>所有文件</div></div>]
+      fileList.forEach((item, index) => {
+        option.push(<div key={`list${index}`} onClick={() => this.selectFile(item)} className='file_item_style'><span>{ item }</span></div>)
+      })
+    }
+
+    return <div>
+      <div className='search_box'>
+        <Input
+          placeholder='请输入文件名搜索'
+          onPressEnter={() => this.searchLogFile()}
+          id='search_log_file'
+        />
+        <Icon
+          type="search"
+          className='search_icon'
+          onClick={() => this.searchLogFile()}
+        />
+      </div>
+      <div className='file_list'>
+        <div className='list_container'>
+          { option }
+        </div>
+
+      </div>
+    </div>
+  }
+}
+
+
 function loadProjects(props, callback) {
   const { ListProjects, loginUser } = props
   ListProjects({ size: 0 }, callback)
@@ -618,6 +692,8 @@ class QueryLog extends Component {
     this.submitSearch = this.submitSearch.bind(this);
     this.throwUpgradeError = this.throwUpgradeError.bind(this);
     this.renderKeywordSpan = this.renderKeywordSpan.bind(this);
+    this.downLoadLog = this.downLoadLog.bind(this);
+    this.checkInput = this.checkInput.bind(this);
     this.state = {
       namespacePopup: false,
       currentNamespace: null,
@@ -651,6 +727,9 @@ class QueryLog extends Component {
       path: '',
       backward: false,
       goBackLogs: false,
+      filePopup: false,
+      currentFile: '所有文件',
+      selectedFile: false,
     }
   }
 
@@ -696,6 +775,9 @@ class QueryLog extends Component {
 
   logTypeChange(e){
     const logType = e.target.value
+    this.setState({
+      currentFile: '所有文件'
+    })
     if(logType == 'stdout'){
       this.setState({
         logType,
@@ -828,6 +910,7 @@ class QueryLog extends Component {
         instanceList: [],
         selectedSerivce: false,
         currentServiceItem: item,
+        currentFile: '所有文件',
       });
       const { loadServiceContainerList } = this.props;
       loadServiceContainerList(this.state.currentClusterId, name, null, {
@@ -975,9 +1058,7 @@ class QueryLog extends Component {
     })
   }
 
-  submitSearch(time_nano, direction, callback) {
-    //this function for search the log
-    //check user had selected all item
+  checkInput() {
     let checkFlag = true;
     if (!Boolean(this.state.currentNamespace)) {
       this.setState({
@@ -1003,6 +1084,13 @@ class QueryLog extends Component {
     //   });
     //   checkFlag = false;
     // }
+    return checkFlag
+  }
+
+  submitSearch(time_nano, direction, callback) {
+    //this function for search the log
+    //check user had selected all item
+    let checkFlag = this.checkInput();
     if (!checkFlag) {
       return;
     }
@@ -1023,6 +1111,11 @@ class QueryLog extends Component {
       size: null,
       keyword: key_word,
       log_type: this.state.logType,
+      filename: '',
+    }
+    const { currentFile } = this.state
+    if(currentFile !== '所有文件'){
+      body.filename = currentFile
     }
     if (time_nano) {
       body.time_nano = time_nano
@@ -1076,6 +1169,56 @@ class QueryLog extends Component {
       <span className="anticonRight context"><Icon type="right" /></span>,
       <span className="context">结果行上下文</span>,
     ]
+  }
+
+  downLoadLog() {
+    let checkFlag = this.checkInput();
+    if (!checkFlag) {
+      return;
+    }
+    const {
+      currentClusterId,
+      currentInstance,
+      currentService,
+      start_time:gte,
+      end_time:lte,
+      logType,
+    } = this.state
+    let instances = currentInstance.join(',')
+    let url = `${location.origin}${API_URL_PREFIX}/clusters/${currentClusterId}`
+    const query = {
+      gte:`${gte} 00:00`,
+      lte:`${lte} 23:59:59`,
+      logType,
+    }
+    if (instances) {
+      url = `${url}/instances/${instances}`
+    } else {
+      url = `${url}/services/${currentService}`
+    }
+    url = `${url}/dumpSearchLog?${toQuerystring(query)}`
+    window.open(url)
+  }
+
+  loadQueryLogFileList(){
+    const { getQueryLogFileList, cluster } = this.props
+    const { currentService, currentInstance } = this.state
+    if(!currentService){
+      return notificationHandler.info('请选择一个服务或者实例')
+    }
+    let instance = currentService
+    let body = {
+      kind: 'service',
+      log_type: 'file'
+    }
+    if(currentInstance.length){
+      instance = currentInstance.join(',')
+      body = {
+        kind: 'pod',
+        log_type: 'file'
+      }
+    }
+    getQueryLogFileList(cluster, instance, body)
   }
 
   render() {
@@ -1216,6 +1359,50 @@ class QueryLog extends Component {
                 size='large' />
               <div style={{ clear: 'both' }}></div>
             </div>
+            {
+              this.state.logType == 'file' && [<div className='commonBox'>
+                <span className='titleSpan'><span>采集目录：</span></span>
+                <Input
+                  className='log_path'
+                  value={this.state.path ? this.state.path : '请选择服务'}
+                  disabled
+                  size='large'
+                />
+                <div style={{ clear: 'both' }}></div>
+              </div>,
+              <div className='commonBox'>
+                <span className='titleSpan'><span>文件：</span></span>
+                <Popover
+                  content={<FileModal
+                    scope={scope}
+                    logType={this.state.logType}
+                    getLogFileOfQueryLog={this.props.getLogFileOfQueryLog}
+                  />}
+                  trigger='click'
+                  placement='bottom'
+                  getTooltipContainer={() => document.getElementById('QueryLog')}
+                  onVisibleChange={e => this.setState({filePopup: e})}
+                  visible={this.state.filePopup}
+                  arrowPointAtCenter={true}
+                  overlayClassName='filePop'
+                >
+                  <div className={checkClass(this.state.filePopup, this.state.selectedFile)} >
+                    <span 
+                      className='selectedSpan'
+                      onClick={() => this.loadQueryLogFileList()}
+                    >
+                      {
+                        this.state.currentFile
+                          ? this.state.currentFile
+                          : [<span className='placeholderSpan'>请选择文件</span>]
+                      }</span>
+                    <Icon type='down' />
+                    <span className='wrongSpan'><FormattedMessage {...menusText.noService} /></span>
+                  </div>
+                </Popover>
+                <div style={{ clear: 'both' }}></div>
+              </div>]
+            }
             <div className='commonBox'>
               <span className='titleSpan'><FormattedMessage {...menusText.keyword} /></span>
               <Input className='keywordInput' onChange={this.onChangeKeyword} style={{ float: 'left' }} size='large' />
@@ -1243,7 +1430,10 @@ class QueryLog extends Component {
                 </span>
                 : null
               }
-              <i className={this.state.bigLog ? 'fa fa-compress' : 'fa fa-expand'} onClick={this.onChangeBigLog} />
+              <i className={this.state.bigLog ? 'fa-right fa fa-compress' : 'fa-right fa fa-expand'} onClick={this.onChangeBigLog} />
+              <span className="fa-right" onClick={this.downLoadLog}>
+                <i className="fa fa-download"></i> 下载
+              </span>
             </div>
             <div className='msgBox'>
               <LogComponent
@@ -1280,7 +1470,7 @@ function mapStateToProps(state, props) {
   const defaultContainers = {
     containersList: {}
   }
-  const { getQueryLog } = state.manageMonitor
+  const { getQueryLog, getLogFileOfQueryLog } = state.manageMonitor
   const { serviceContainers } = state.services
   const { logs, isFetching } = getQueryLog.logs || defaultLogs
   const containersList = serviceContainers[cluster.clusterID] || defaultContainers
@@ -1302,7 +1492,8 @@ function mapStateToProps(state, props) {
     current,
     query,
     loggingEnabled,
-    defaultNamespace
+    defaultNamespace,
+    getLogFileOfQueryLog,
   }
 }
 
@@ -1323,4 +1514,6 @@ export default connect(mapStateToProps, {
   ListProjects,
   getServiceOfQueryLog,
   throwError,
+  getQueryLogFileList,
+  searchFileLogOfQueryLog,
 })(QueryLog)

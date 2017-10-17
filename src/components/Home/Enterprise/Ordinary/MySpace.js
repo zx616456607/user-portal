@@ -178,11 +178,11 @@ class MySpace extends Component {
   }
   maxCount(value) {
     const { globaleList } = this.state
-    let count = ''
+    let count = 0
     if (globaleList) {
       Object.keys(globaleList).forEach((item, index) => {
         if (item === value) {
-          count = Object.values(globaleList)[index]
+          count = Object.values(globaleList)[index] !== null ? Object.values(globaleList)[index] : -1
         }
       })
     }
@@ -346,7 +346,12 @@ class MySpace extends Component {
                         <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                       </Col>
                       <Col span={6}>
-                        <span className="count">{this.useCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
+                        {
+                          this.useCount(item.key) > this.maxCount(item.key) ?
+                            this.maxCount(item.key) === -1 ?
+                              <span>{this.useCount(item.key)}</span> :
+                              <span style={{ color: 'red' }}>{this.useCount(item.key)}</span> : <span>{this.useCount(item.key)}</span>
+                        }/<p>{this.maxCount(item.key) === -1 ? '无限制' : this.maxCount(item.key)}</p>
                       </Col>
                     </Row>
                   ))
@@ -363,7 +368,12 @@ class MySpace extends Component {
                         <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                       </Col>
                       <Col span={6}>
-                        <span className="count">{this.useCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
+                        {
+                          this.useCount(item.key) > this.maxCount(item.key) ?
+                            this.maxCount(item.key) === -1 ?
+                              <span>{this.useCount(item.key)}</span> :
+                              <span style={{ color: 'red' }}>{this.useCount(item.key)}</span> : <span>{this.useCount(item.key)}</span>
+                        }/<p>{this.maxCount(item.key) === -1 ? '无限制' : this.maxCount(item.key)}</p>
                       </Col>
                     </Row>
                   ))

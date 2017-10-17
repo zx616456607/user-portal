@@ -330,6 +330,19 @@ const MyComponent = React.createClass({
         return <span></span>
     }
   },
+  renderVolumeIcon(item){
+    if(
+      item.spec
+      && item.spec.template
+      && item.spec.template.spec
+      && item.spec.template.spec.volumes
+    ){
+      return <Tooltip title="该服务已添加存储" placement="top">
+        <span className='standrand volumeColor'>存</span>
+      </Tooltip>
+    }
+    return <span></span>
+  },
   render: function () {
     const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs, loginUser, scope } = this.props
     if (loading) {
@@ -454,10 +467,13 @@ const MyComponent = React.createClass({
             <Checkbox value={item.metadata.name} checked={item.checked} />
           </div>
           <div className="name commonData">
-            <span className="viewBtn" onClick={() => this.modalShow(item)}>
-              { this.renderGroupIcon(item.lbgroup)}
+            <div className="viewBtn" onClick={() => this.modalShow(item)} style={{height: '30px', lineHeight: '40px'}}>
               {item.metadata.name}
-            </span>
+            </div>
+            <div className='icon_container'>
+              { this.renderVolumeIcon(item) }
+              { this.renderGroupIcon(item.lbgroup)}
+            </div>
           </div>
           <div className="status commonData">
             <ServiceStatus service={item} />

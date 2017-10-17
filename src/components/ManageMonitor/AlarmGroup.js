@@ -232,9 +232,6 @@ class AlarmGroup extends Component {
       createGroup: true,
       createModalTitle: '创建新通知组'
     })
-    setTimeout(() => {
-      document.getElementById('groupName').focus()
-    }, 500)
   }
   handleCancel() {
     this.setState({
@@ -384,7 +381,7 @@ class AlarmGroup extends Component {
               : null
             }
           </Card>
-          {this.state.createGroup || this.state.modifyGroup &&
+          {(this.state.createGroup || this.state.modifyGroup) ?
           <Modal title={this.state.createModalTitle} onCancel={() => this.handleCancel()} visible={this.state.createGroup || this.state.modifyGroup}
             width={560}
             wrapClassName="AlarmModal"
@@ -399,6 +396,7 @@ class AlarmGroup extends Component {
               createGroup={this.state.createGroup}
             />
           </Modal>
+          :null
           }
           <Modal title="删除通知组" visible={this.state.deleteModal}
             onCancel={() => this.closeDeleteModal()}
