@@ -67,15 +67,15 @@ exports.dumpInstancesSearchLog = function* () {
 function* dumpLog(clusterID, loginUser, query, containerName, podNames) {
   const method = 'dumpLog'
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([ clusterID ])
+  const result = yield api.getBy([clusterID])
   const cluster = result.data
   const timestamp = elasticdump.getTimestamp(query)
   const gte = timestamp.gte
   const lte = timestamp.lte
   const isFile = query.logType === 'file'
   const searchBody = {
-    namespace: loginUser.namespace,
-    options: {
+    namespace:loginUser.namespace,
+    options:{
       containerName,
       podNames,
       gte,
@@ -92,9 +92,19 @@ function* dumpLog(clusterID, loginUser, query, containerName, podNames) {
   this.set('content-type', 'application/force-download')
   try {
     yield elasticdump.dump(cluster, searchBody, scope)
-  } catch (error) {
+  } catch (error){
     logger.error(method, error.stack)
   }
+}
+
+exports.getServiceLogfiles = function* (){
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const instances = this.params.instances
+  const reqBody = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, 'logs', 'instances', instances, 'logfiles'], null, reqBody);
+  this.body = result
 }
 
 exports.getClusterOfQueryLog = function* () {

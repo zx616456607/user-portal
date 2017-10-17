@@ -67,6 +67,7 @@ function fetchQueryLogList(cluster, instances, body, callback) {
           log_type: body.log_type,
           time_nano: body.time_nano,
           direction: body.direction,
+          filename: body.filename,
         }
       },
       schema: {}
@@ -102,6 +103,7 @@ function fetchServiceQueryLogList(cluster, service, body, callback) {
           log_type: body.log_type,
           time_nano: body.time_nano,
           direction: body.direction,
+          filename: body.filename,
         }
       },
       schema: {}
@@ -155,5 +157,40 @@ function fetchServiceOfQueryLog(clusterId, namespace, callback) {
 export function getServiceOfQueryLog(clusterId, namespace, callback) {
   return (dispatch) => {
     return dispatch(fetchServiceOfQueryLog(clusterId, namespace, callback))
+  }
+}
+
+export const GET_QUERYLOG_LOG_FILE_LIST_REQUEST = 'GET_QUERYLOG_LOG_FILE_LIST_REQUEST'
+export const GET_QUERYLOG_LOG_FILE_LIST_SUCCESS = 'GET_QUERYLOG_LOG_FILE_LIST_SUCCESS'
+export const GET_QUERYLOG_LOG_FILE_LIST_FAILURE = 'GET_QUERYLOG_LOG_FILE_LIST_FAILURE'
+
+function fetchGetQueryLogFileList(clusterId, instances, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_QUERYLOG_LOG_FILE_LIST_REQUEST, GET_QUERYLOG_LOG_FILE_LIST_SUCCESS, GET_QUERYLOG_LOG_FILE_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/logs/instances/${instances}/logfiles`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+export function getQueryLogFileList(clusterId, instances, body, callback) {
+  return (dispatch) => {
+    return dispatch(fetchGetQueryLogFileList(clusterId, instances, body, callback))
+  }
+}
+
+export const SEARCH_QUERYLOG_LOG_FILE_LIST = 'SEARCH_QUERYLOG_LOG_FILE_LIST'
+
+export function searchFileLogOfQueryLog(searchValue, callback){
+  return {
+    type: SEARCH_QUERYLOG_LOG_FILE_LIST,
+    searchValue,
+    callback,
   }
 }
