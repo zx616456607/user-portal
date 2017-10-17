@@ -19,10 +19,10 @@ import { ListProjects } from '../../actions/project'
 import { throwError } from '../../actions'
 import { getClusterOfQueryLog, getServiceOfQueryLog } from '../../actions/manage_monitor'
 import './style/QueryLog.less'
-import { formatDate } from '../../common/tools'
+import { formatDate, toQuerystring } from '../../common/tools'
 import { mode } from '../../../configs/model'
 import { STANDARD_MODE } from '../../../configs/constants'
-import { UPGRADE_EDITION_REQUIRED_CODE, DATE_PIRCKER_FORMAT } from '../../constants'
+import { UPGRADE_EDITION_REQUIRED_CODE, DATE_PIRCKER_FORMAT, API_URL_PREFIX } from '../../constants'
 import moment from 'moment'
 import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
@@ -618,6 +618,8 @@ class QueryLog extends Component {
     this.submitSearch = this.submitSearch.bind(this);
     this.throwUpgradeError = this.throwUpgradeError.bind(this);
     this.renderKeywordSpan = this.renderKeywordSpan.bind(this);
+    this.downLoadLog = this.downLoadLog.bind(this);
+    this.checkInput = this.checkInput.bind(this);
     this.state = {
       namespacePopup: false,
       currentNamespace: null,
@@ -975,9 +977,7 @@ class QueryLog extends Component {
     })
   }
 
-  submitSearch(time_nano, direction, callback) {
-    //this function for search the log
-    //check user had selected all item
+  checkInput() {
     let checkFlag = true;
     if (!Boolean(this.state.currentNamespace)) {
       this.setState({
@@ -1003,6 +1003,13 @@ class QueryLog extends Component {
     //   });
     //   checkFlag = false;
     // }
+    return checkFlag
+  }
+
+  submitSearch(time_nano, direction, callback) {
+    //this function for search the log
+    //check user had selected all item
+    let checkFlag = this.checkInput();
     if (!checkFlag) {
       return;
     }
@@ -1076,6 +1083,35 @@ class QueryLog extends Component {
       <span className="anticonRight context"><Icon type="right" /></span>,
       <span className="context">结果行上下文</span>,
     ]
+  }
+
+  downLoadLog() {
+    let checkFlag = this.checkInput();
+    if (!checkFlag) {
+      return;
+    }
+    const {
+      currentClusterId,
+      currentInstance,
+      currentService,
+      start_time: gte,
+      end_time: lte,
+      logType,
+    } = this.state
+    let instances = currentInstance.join(',')
+    let url = `${location.origin}${API_URL_PREFIX}/clusters/${currentClusterId}`
+    const query = {
+      gte: `${gte} 00:00`,
+      lte: `${lte} 23:59:59`,
+      logType,
+    }
+    if (instances) {
+      url = `${url}/instances/${instances}`
+    } else {
+      url = `${url}/services/${currentService}`
+    }
+    url = `${url}/dumpSearchLog?${toQuerystring(query)}`
+    window.open(url)
   }
 
   render() {
@@ -1243,7 +1279,10 @@ class QueryLog extends Component {
                 </span>
                 : null
               }
-              <i className={this.state.bigLog ? 'fa fa-compress' : 'fa fa-expand'} onClick={this.onChangeBigLog} />
+              <i className={this.state.bigLog ? 'fa-right fa fa-compress' : 'fa-right fa fa-expand'} onClick={this.onChangeBigLog} />
+              <span className="fa-right" onClick={this.downLoadLog}>
+                <i className="fa fa-download"></i> 下载
+              </span>
             </div>
             <div className='msgBox'>
               <LogComponent
