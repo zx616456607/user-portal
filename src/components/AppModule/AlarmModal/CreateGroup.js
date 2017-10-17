@@ -30,6 +30,11 @@ let CreateAlarmGroup = React.createClass({
   componentWillMount() {
     this.fillEmails(this.props)
   },
+  componentDidMount() {
+    setTimeout(()=> {
+      document.getElementById('groupName').focus()
+    },300)
+  },
   componentWillReceiveProps(nextProps) {
     this.fillEmails(nextProps, this.props)
   },
