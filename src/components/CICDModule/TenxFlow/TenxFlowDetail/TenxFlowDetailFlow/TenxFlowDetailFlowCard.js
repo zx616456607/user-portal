@@ -493,7 +493,8 @@ class TenxFlowDetailFlowCard extends Component {
     //this function for user open the modal of tenxflow deploy log
     const { flowId, getStageBuildLogList } = this.props;
     this.setState({
-      TenxFlowDeployLogModal: true
+      TenxFlowDeployLogModal: true,
+      currentStageID: stageId
     });
     getStageBuildLogList(flowId, stageId)
   }
@@ -775,7 +776,7 @@ class TenxFlowDetailFlowCard extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          <StageBuildLog scope={scopeThis} isFetching={buildFetching} logs={logs} flowId={flowId} visible={this.state.TenxFlowDeployLogModal}/>
+          <StageBuildLog parent={scopeThis} isFetching={buildFetching} logs={logs} flowId={flowId} visible={this.state.TenxFlowDeployLogModal} stageId={this.state.currentStageID}/>
         </Modal>
         <Modal
           visible={this.state.setStageFileModal}

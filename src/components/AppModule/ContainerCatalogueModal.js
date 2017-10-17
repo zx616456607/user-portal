@@ -539,7 +539,7 @@ let ContainerCatalogueModal = React.createClass({
                     >
                       {
                         type === 'private'
-                          ? <Option type="rbd" value="rbd">RBD</Option>
+                          ? <Option type="rbd" value="rbd">可靠块存储</Option>
                           : <Option type="nfs" value="nfs">NFS</Option>
                       }
                     </Select>

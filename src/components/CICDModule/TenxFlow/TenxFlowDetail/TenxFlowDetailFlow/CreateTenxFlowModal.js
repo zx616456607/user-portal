@@ -846,7 +846,7 @@ let CreateTenxFlowModal = React.createClass({
             shellList.push(values['shellCode' + item]);
           }
         });
-        if (shellList.length === 0) {
+        if (this.state.otherFlowType != 3 && shellList.length === 0) {
           this.setState({
             noShell: true,
           })
@@ -854,7 +854,7 @@ let CreateTenxFlowModal = React.createClass({
           return
         }
       } else {
-        if (!this.state.scriptsTextarea || this.state.scriptsTextarea.replace(/\s/g, '') === '#!/bin/sh') {
+        if (this.state.otherFlowType != 3 && (!this.state.scriptsTextarea || this.state.scriptsTextarea.replace(/\s/g, '') === '#!/bin/sh')) {
           this.setState({
             noShell: true,
           })

@@ -287,9 +287,21 @@ class ResourceQuota extends React.Component {
     let max = 100
     let result = 0
     if (value === 0) return 0
-    let number = 100 / Number(value)
-    for (let i = 0; i < count; i++) {
-      result += number
+    if (value === 1) {
+      if (count > value) {
+        result = max
+      } else {
+        if (count === value) {
+          result = max
+        } else {
+          result = value / count
+        }
+      }
+    } else {
+      let number = 100 / Number(value)
+      for (let i = 0; i < count; i++) {
+        result += number
+      }
     }
     result > max ? result = max : result
     return result
@@ -304,7 +316,7 @@ class ResourceQuota extends React.Component {
     if (globaleList) {
       Object.keys(globaleList).forEach((item, index) => {
         if (item === value) {
-          count = Object.values(globaleList)[index]
+          count = Object.values(globaleList)[index] !== null ? Object.values(globaleList)[index] : -1
         }
       })
     }
@@ -315,7 +327,7 @@ class ResourceQuota extends React.Component {
    */
   useGlobaleCount(value) {
     const { globaleUseList } = this.state
-    let count = ''
+    let count = 0
     if (globaleUseList) {
       Object.keys(globaleUseList).forEach((item, index) => {
         if (item === value) {
@@ -332,7 +344,7 @@ class ResourceQuota extends React.Component {
     if (clusterList) {
       Object.keys(clusterList).forEach((item, index) => {
         if (item === value) {
-          count = Object.values(clusterList)[index]
+          count = Object.values(clusterList)[index] !== null ? Object.values(clusterList)[index] : -1
         }
       })
     }
@@ -340,7 +352,7 @@ class ResourceQuota extends React.Component {
   }
   useClusterCount(value) {
     const { clusterUseList } = this.state
-    let count = ''
+    let count = 0
     if (clusterUseList) {
       Object.keys(clusterUseList).forEach((item, index) => {
         if (item === value) {
@@ -356,16 +368,50 @@ class ResourceQuota extends React.Component {
       if (!!error) return
     })
   }
-  handlePlus() {
+  handleGlobalePlus() {
     let plus = 0
     const { getFieldValue, validateFields } = this.props.form
     validateFields((error, value) => {
       if (!!error) {
         return
       }
-      plus = value.dockerfile + value.subTask + value.tenxflow
+
+      let dockerfile = value.dockerfile === undefined ? 0 : value.dockerfile
+      let subTask = value.subTask === undefined ? 0 : value.subTask
+      let tenxflow = value.tenxflow === undefined ? 0 : value.tenxflow
+      plus = dockerfile + subTask + tenxflow
     })
-    return Number(plus)
+    return plus
+  }
+  handaleClusterPlus() {
+    let plus = 0
+    const { getFieldValue, validateFields } = this.props.form
+    validateFields((error, value) => {
+      if (!!error) {
+        return
+      }
+      let cpu = value.cpu === undefined ? 0 : value.cpu
+      let memory = value.memory === undefined ? 0 : value.memory
+      let storage = value.storage === undefined ? 0 : value.storage
+      let application = value.application === undefined ? 0 : value.application
+      let service = value.service === undefined ? 0 : value.service
+      let container = value.container === undefined ? 0 : value.container
+      let volume = value.volume === undefined ? 0 : value.volume
+      let snapshot = value.snapshot === undefined ? 0 : value.snapshot
+      let configuration = value.configuration === undefined ? 0 : value.configuration
+      let mysql = value.mysql === undefined ? 0 : value.mysql
+      let redis = value.redis === undefined ? 0 : value.redis
+      let zookeeper = value.zookeeper === undefined ? 0 : value.zookeeper
+      let elasticsearch = value.elasticsearch === undefined ? 0 : value.elasticsearch
+      let etcd = value.etcd === undefined ? 0 : value.etcd
+      plus = cpu + memory + storage + application + service + container + volume + snapshot + configuration + mysql + redis + zookeeper + elasticsearch + etcd
+    })
+    return plus
+  }
+  notice(use, max) {
+    let result
+
+    return result
   }
 
   render() {
@@ -467,7 +513,6 @@ class ResourceQuota extends React.Component {
         text: 'Etcd (个)'
       }]
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form
-
     return (
       <div className="quota">
         {
@@ -488,32 +533,37 @@ class ResourceQuota extends React.Component {
             <div className="globaleEdit">
               <Button size="large" className="close" onClick={() => this.handleGlobaleClose()}>取消</Button>
               <Button size="large" className="save" type="primary" onClick={(e) => this.handleGlobaleSave(e)}>保存</Button>
-              <span className="header_desc">修改配额，将修改 <p className="sum">{this.handlePlus()}</p> 个资源配额</span>
+              <span className="header_desc">修改配额，将修改 <p className="sum">{this.handleGlobalePlus()}</p> 个资源配额</span>
             </div> :
-            <Button size="large" className="btn" type="primary" onClick={() => this.handleGlobaleEdit()}>编辑</Button>
+            this.props.role === 2 ?
+              <Button size="large" className="btn" type="primary" onClick={() => this.handleGlobaleEdit()}>编辑</Button> : ''
         }
         <div className="connent">
           {
             gIsEdit ?
               <div className="overallEdit">
+                <svg className='cicd commonImg'>
+                  <use xlinkHref="#cicd"></use>
+                </svg> &nbsp;
                 <span>CI/CD</span>
                 {
                   ciList.map((item, index) => {
-                    const inputProps = getFieldProps(item.key, {
-                      initialValue: globaleList ? this.maxGlobaleCount(item.key) : '',
-                    })
                     const inputValue = getFieldValue(item.key)
                     const beforeValue = this.maxGlobaleCount(item.key)
                     const plusValue = inputValue - beforeValue
                     const isPlus = inputValue > beforeValue ? true : false
                     const checkKey = `${item.key}-check`
                     const checkProps = getFieldProps(checkKey, {
-                      initialValue: beforeValue === 0 ? true : false,
+                      initialValue: beforeValue === -1 ? true : false,
                       validate: [{
                         valuePropName: 'checked',
                       }]
                     })
                     const checkValue = getFieldValue(checkKey)
+                    const inputProps = getFieldProps(item.key, {
+                      initialValue: globaleList ? checkValue === true ? undefined : this.maxGlobaleCount(item.key) === -1 ? undefined : this.maxGlobaleCount(item.key) : 0//this.maxGlobaleCount(item.key) === -1 ? undefined : this.maxGlobaleCount(item.key) : undefined,
+                    })
+
                     return (
                       <Row key={index} className="connents">
                         <Col span={3}>
@@ -531,7 +581,7 @@ class ResourceQuota extends React.Component {
                         </Col>
                         <Col span={4}>
                           <FormItem>
-                            <span>配额剩余：{inputValue - this.useGlobaleCount(item.key)}</span>
+                            <span>配额剩余：{checkValue === false ? beforeValue === null ? 0 : isNaN(inputValue - beforeValue) ? beforeValue : inputValue : 0}</span>
                             {
                               isPlus ?
                                 <div className="plus">
@@ -540,7 +590,7 @@ class ResourceQuota extends React.Component {
                                 </div> :
                                 <div className="minu">
                                   <Icon type="minus" />
-                                  <span>{plusValue}</span>
+                                  <span>{isNaN(plusValue) ? 0 : plusValue}</span>
                                 </div>
                             }
                           </FormItem>
@@ -550,24 +600,27 @@ class ResourceQuota extends React.Component {
                   })
                 }
                 <p className="line"></p>
+                <svg className='database commonImg'>
+                  <use xlinkHref="#database"></use>
+                </svg> &nbsp;
                 <span>交付中心</span>
                 {
                   cdList.map((item, index) => {
-                    const inputProps = getFieldProps(item.key, {
-                      initialValue: globaleList ? this.maxGlobaleCount(item.key) : ''
-                    })
                     const inputValue = getFieldValue(item.key)
                     const beforeValue = this.maxGlobaleCount(item.key)
                     const plusValue = inputValue - beforeValue
                     const isPlus = inputValue > beforeValue ? true : false
                     const checkKey = `${item.key}-check`
                     const checkProps = getFieldProps(checkKey, {
-                      initialValue: beforeValue === 0 ? true : false,
+                      initialValue: beforeValue === -1 ? true : false,
                       validate: [{
                         valuePropName: 'checked',
                       }]
                     })
                     const checkValue = getFieldValue(checkKey)
+                    const inputProps = getFieldProps(item.key, {
+                      initialValue: globaleList ? checkValue === true ? undefined : this.maxGlobaleCount(item.key) === -1 ? undefined : this.maxGlobaleCount(item.key) : 0
+                    })
                     return (
                       <Row key={index} className="connents">
                         <Col span={3}>
@@ -585,7 +638,7 @@ class ResourceQuota extends React.Component {
                         </Col>
                         <Col span={4}>
                           <FormItem>
-                            <span>配额剩余：{inputValue - this.useGlobaleCount(item.key)}</span>
+                            <span>配额剩余：{checkValue === false ? beforeValue === null ? 0 : isNaN(inputValue - beforeValue) ? beforeValue : inputValue : 0}</span>
                             {
                               isPlus ?
                                 <div className="plus">
@@ -594,7 +647,7 @@ class ResourceQuota extends React.Component {
                                 </div> :
                                 <div className="minu">
                                   <Icon type="minus" />
-                                  <span>{plusValue}</span>
+                                  <span>{isNaN(plusValue) ? 0 : plusValue}</span>
                                 </div>
                             }
                           </FormItem>
@@ -605,6 +658,9 @@ class ResourceQuota extends React.Component {
                 }
               </div> :
               <div className="overall">
+                <svg className='cicd commonImg'>
+                  <use xlinkHref="#cicd"></use>
+                </svg> &nbsp;
                 <span>CI/CD</span>
                 {
                   ciList.map((item, index) => {
@@ -617,13 +673,21 @@ class ResourceQuota extends React.Component {
                           <Progress percent={this.filterPercent(this.maxGlobaleCount(item.key), this.useGlobaleCount(item.key))} showInfo={false} />
                         </Col>
                         <Col span={4}>
-                          <span>{this.useGlobaleCount(item.key)}/{this.maxGlobaleCount(item.key) ? this.maxGlobaleCount(item.key) : '无限制'}</span>
+                          {
+                            this.useGlobaleCount(item.key) > this.maxGlobaleCount(item.key) ?
+                              this.maxGlobaleCount(item.key) === -1 ?
+                                <span>{this.useGlobaleCount(item.key)}</span> :
+                                <span style={{ color: 'red' }}>{this.useGlobaleCount(item.key)}</span> : <span>{this.useGlobaleCount(item.key)}</span>
+                          }/<p>{this.maxGlobaleCount(item.key) === -1 ? '无限制' : this.maxGlobaleCount(item.key)}</p>
                         </Col>
                       </Row>
                     )
                   })
                 }
                 <p className="line"></p>
+                <svg className='database commonImg'>
+                  <use xlinkHref="#database"></use>
+                </svg> &nbsp;
                 <span>交付中心</span>
                 {
                   cdList.map((item, index) => (
@@ -635,7 +699,13 @@ class ResourceQuota extends React.Component {
                         <Progress percent={this.filterPercent(this.maxGlobaleCount(item.key), this.useGlobaleCount(item.key))} showInfo={false} />
                       </Col>
                       <Col span={4}>
-                        <span>{this.useGlobaleCount(item.key)}/{this.maxGlobaleCount(item.key) ? this.maxGlobaleCount(item.key) : '无限制'}</span>
+                        {
+                          this.useGlobaleCount(item.key) > this.maxGlobaleCount(item.key) ?
+                            this.maxGlobaleCount(item.key) === -1 ?
+                              <span>{this.useGlobaleCount(item.key)}</span> :
+                              <span style={{ color: 'red' }}>{this.useGlobaleCount(item.key)}</span> :
+                            <span>{this.useGlobaleCount(item.key)}</span>
+                        }/<p>{this.maxGlobaleCount(item.key) === -1 ? '无限制' : this.maxGlobaleCount(item.key)}</p>
                       </Col>
                     </Row>
                   ))
@@ -655,12 +725,11 @@ class ResourceQuota extends React.Component {
               cIsEdit ?
                 <div>
                   <Button size="large" className="close" onClick={() => this.handleClusterClose()}>取消</Button>
-                  <Button size="large" className="save" type="primary" onClick={() => this.handleClusterOk()}>保存</Button>
-                  <span className="header_desc">修改配额，将修改 <p className="sum">0</p> 个资源配额</span>
+                  <Button size="large" className="save" type="primary" onClick={(e) => this.handleClusterOk(e)}>保存</Button>
+                  <span className="header_desc">修改配额，将修改 <p className="sum">{this.handaleClusterPlus()}</p> 个资源配额</span>
                 </div> :
-                <div>
-                  <Button size="large" className="edit" type="primary" onClick={() => this.handleClusterEdit()}>编辑</Button>
-                </div>
+                this.props.role === 2 ?
+                  <Button size="large" className="edit" type="primary" onClick={() => this.handleClusterEdit()}>编辑</Button> : ''
             }
           </div>
           <div className="liste">
@@ -671,30 +740,29 @@ class ResourceQuota extends React.Component {
                     <span>计算资源</span>
                     {
                       computeList.map((item, index) => {
-                        const inputsProps = getFieldProps(item.key, {
-                          initialValue: clusterList ? this.maxClusterCount(item.key) : ''
-                        })
                         const inputValue = getFieldValue(item.key)
-                        const beforeValue = this.maxGlobaleCount(item.key)
+                        const beforeValue = this.maxClusterCount(item.key)
                         const plusValue = inputValue - beforeValue
                         const isPlus = inputValue > beforeValue ? true : false
-                        const isNan = inputValue >= 0 ? true : false
                         const checkKey = `${item.key}-check`
                         const checkProps = getFieldProps(checkKey, {
-                          initialValue: beforeValue === 0 ? true : false,
+                          initialValue: beforeValue === -1 ? true : false,
                           validate: [{
                             valuePropName: 'checked',
                           }]
                         })
                         const checkValue = getFieldValue(checkKey)
+                        const inputProps = getFieldProps(item.key, {
+                          initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key) : 0
+                        })
                         return (
                           <Row key={index} className="connents">
                             <Col span={3}>
                               <span>{item.text}</span>
                             </Col>
-                            <Col span={6}>
+                            <Col span={7}>
                               <FormItem>
-                                <InputNumber {...inputsProps} disabled={checkValue} style={{ width: '100%' }} min={0} />
+                                <InputNumber {...inputProps} disabled={checkValue} style={{ width: '100%' }} min={0} />
                               </FormItem>
                             </Col>
                             <Col span={3}>
@@ -702,36 +770,20 @@ class ResourceQuota extends React.Component {
                                 <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
                               </FormItem>
                             </Col>
-                            <Col span={3}>
-                              <span>配额剩余：{inputValue - this.useClusterCount(item.key)}</span>
+                            <Col span={4}>
+                              <span>配额剩余：{checkValue === false ? beforeValue === null ? 0 : isNaN(inputValue - beforeValue) ? beforeValue : inputValue : 0}</span>
                               {
-                                isNaN ?
-                                  isPlus ?
-                                    <div className="plus">
-                                      <Icon type="plus" />
-                                      <span>{plusValue}</span>
-                                    </div> :
-                                    <div className="minus">
-                                      <Icon type="minus" />
-                                      <span>{plusValue}</span>
-                                    </div> : ''
+                                isPlus ?
+                                  <div className="plus">
+                                    <Icon type="plus" />
+                                    <span>{plusValue}</span>
+                                  </div> :
+                                  <div className="minus">
+                                    <Icon type="minus" />
+                                    <span>{isNaN(plusValue) ? 0 : plusValue}</span>
+                                  </div>
                               }
                             </Col>
-                            {/* <Col span={3}>
-                              <span>该集群剩余：0</span>
-                              {
-                                isNaN ?
-                                  isPlus ?
-                                    <div className="plus">
-                                      <Icon type="plus" />
-                                      <span>{plusValue}</span>
-                                    </div> :
-                                    <div className="minus">
-                                      <Icon type="minus" />
-                                      <span>{plusValue}</span>
-                                    </div> : ''
-                              }
-                            </Col> */}
                           </Row>
                         )
                       })
@@ -739,33 +791,35 @@ class ResourceQuota extends React.Component {
                   </div>
                   <span className="ptzy">平台资源</span>
                   <div className="platform">
-                    <span className="app">应用管理</span>
+                    <svg className='app commonImg'>
+                      <use xlinkHref="#app"></use>
+                    </svg> &nbsp;
+                    <span>应用管理</span>
                     {
                       platformList.map((item, index) => {
-                        const inputsProps = getFieldProps(item.key, {
-                          initialValue: clusterList ? this.maxClusterCount(item.key) : ''
-                        })
                         const inputValue = getFieldValue(item.key)
-                        const beforeValue = this.maxGlobaleCount(item.key)
+                        const beforeValue = this.maxClusterCount(item.key)
                         const plusValue = inputValue - beforeValue
                         const isPlus = inputValue > beforeValue ? true : false
-                        const isNan = inputValue >= 0 ? true : false
                         const checkKey = `${item.key}-check`
                         const checkProps = getFieldProps(checkKey, {
-                          initialValue: beforeValue === 0 ? true : false,
+                          initialValue: beforeValue === -1 ? true : false,
                           validate: [{
                             valuePropName: 'checked',
                           }]
                         })
                         const checkValue = getFieldValue(checkKey)
+                        const inputProps = getFieldProps(item.key, {
+                          initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key) : 0
+                        })
                         return (
                           <Row key={index} className="connents">
                             <Col span={3}>
                               <span>{item.text}</span>
                             </Col>
-                            <Col span={6}>
+                            <Col span={7}>
                               <FormItem>
-                                <InputNumber {...inputsProps} disabled={checkValue} style={{ width: '100%' }} min={0} />
+                                <InputNumber {...inputProps} disabled={checkValue} style={{ width: '100%' }} min={0} />
                               </FormItem>
                             </Col>
                             <Col span={3}>
@@ -773,28 +827,20 @@ class ResourceQuota extends React.Component {
                                 <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
                               </FormItem>
                             </Col>
-                            <Col span={3}>
-                              <span>配额剩余：{inputValue - this.useClusterCount(item.key)}</span>
+                            <Col span={4}>
+                              <span>配额剩余：{checkValue === false ? beforeValue === null ? 0 : isNaN(inputValue - beforeValue) ? beforeValue : inputValue : 0}</span>
                               {
-                                isNaN ?
-                                  isPlus ?
-                                    <div className="plus">
-                                      <Icon type="plus" />
-                                      <span>{plusValue}</span>
-                                    </div> :
-                                    <div className="minus">
-                                      <Icon type="minus" />
-                                      <span>{plusValue}</span>
-                                    </div> : ''
+                                isPlus ?
+                                  <div className="plus">
+                                    <Icon type="plus" />
+                                    <span>{plusValue}</span>
+                                  </div> :
+                                  <div className="minus">
+                                    <Icon type="minus" />
+                                    <span>{isNaN(plusValue) ? 0 : plusValue}</span>
+                                  </div>
                               }
                             </Col>
-                            {/* <Col span={3}>
-                              <span>该集群剩余：0</span>
-                              <div className="minus" style={{ visibility: 'hidden' }}>
-                                <Icon type="minus" />
-                                <span>{this.state.sum}</span>
-                              </div>
-                            </Col> */}
                           </Row>
                         )
                       })
@@ -802,33 +848,35 @@ class ResourceQuota extends React.Component {
                   </div>
                   <p className="line"></p>
                   <div className="service">
-                    <span className="server">数据库与缓存</span>
+                    <svg className='database commonImg'>
+                      <use xlinkHref="#database"></use>
+                    </svg> &nbsp;
+                    <span>数据库与缓存</span>
                     {
                       serviceList.map((item, index) => {
-                        const inputsProps = getFieldProps(item.key, {
-                          initialValue: clusterList ? this.maxClusterCount(item.key) : ''
-                        })
                         const inputValue = getFieldValue(item.key)
-                        const beforeValue = this.maxGlobaleCount(item.key)
+                        const beforeValue = this.maxClusterCount(item.key)
                         const plusValue = inputValue - beforeValue
                         const isPlus = inputValue > beforeValue ? true : false
-                        const isNan = inputValue >= 0 ? true : false
                         const checkKey = `${item.key}-check`
                         const checkProps = getFieldProps(checkKey, {
-                          initialValue: beforeValue === 0 ? true : false,
+                          initialValue: beforeValue === -1 ? true : false,
                           validate: [{
                             valuePropName: 'checked',
                           }]
                         })
                         const checkValue = getFieldValue(checkKey)
+                        const inputProps = getFieldProps(item.key, {
+                          initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key) : 0
+                        })
                         return (
                           <Row key={index} className="connents">
                             <Col span={3}>
                               <span>{item.text}</span>
                             </Col>
-                            <Col span={6}>
+                            <Col span={7}>
                               <FormItem>
-                                <InputNumber {...inputsProps} disabled={checkValue} style={{ width: '100%' }} min={0} />
+                                <InputNumber {...inputProps} disabled={checkValue} style={{ width: '100%' }} min={0} />
                               </FormItem>
                             </Col>
                             <Col span={3}>
@@ -836,28 +884,20 @@ class ResourceQuota extends React.Component {
                                 <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
                               </FormItem>
                             </Col>
-                            <Col span={3}>
-                              <span>配额剩余：{inputValue - this.useClusterCount(item.key)}</span>
+                            <Col span={4}>
+                              <span>配额剩余：{checkValue === false ? beforeValue === null ? 0 : isNaN(inputValue - beforeValue) ? beforeValue : inputValue : 0}</span>
                               {
-                                isNaN ?
-                                  isPlus ?
-                                    <div className="plus">
-                                      <Icon type="plus" />
-                                      <span>{plusValue}</span>
-                                    </div> :
-                                    <div className="minus">
-                                      <Icon type="minus" />
-                                      <span>{plusValue}</span>
-                                    </div> : ''
+                                isPlus ?
+                                  <div className="plus">
+                                    <Icon type="plus" />
+                                    <span>{plusValue}</span>
+                                  </div> :
+                                  <div className="minus">
+                                    <Icon type="minus" />
+                                    <span>{isNaN(plusValue) ? 0 : plusValue}</span>
+                                  </div>
                               }
                             </Col>
-                            {/* <Col span={3}>
-                              <span>该集群剩余：0</span>
-                              <div className="minus" style={{ visibility: 'hidden' }}>
-                                <Icon type="minus" />
-                                <span>{this.state.sum}</span>
-                              </div>
-                            </Col> */}
                           </Row>
                         )
                       })
@@ -877,7 +917,13 @@ class ResourceQuota extends React.Component {
                             <Progress percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                           </Col>
                           <Col span={4}>
-                            <span>{this.useClusterCount(item.key)}/{this.maxClusterCount(item.key) ? this.maxClusterCount(item.key) : '无限制'}</span>
+                            {
+                              this.useClusterCount(item.key) > this.maxClusterCount(item.key) ?
+                                this.maxClusterCount(item.key) === -1 ?
+                                  <span>{this.useClusterCount(item.key)}</span> :
+                                  <span style={{ color: 'red' }}>{this.useClusterCount(item.key)}</span> :
+                                <span>{this.useClusterCount(item.key)}</span>
+                            }/<p>{this.maxClusterCount(item.key) === -1 ? '无限制' : this.maxClusterCount(item.key)}</p>
                           </Col>
                         </Row>
                       ))
@@ -885,7 +931,10 @@ class ResourceQuota extends React.Component {
                   </div>
                   <span>平台资源</span>
                   <div className="platform">
-                    <span className="app">应用管理</span>
+                    <svg className='app commonImg'>
+                      <use xlinkHref="#app"></use>
+                    </svg> &nbsp;
+                    <span>应用管理</span>
                     {
                       platformList.map((item, index) => (
                         <Row className="list" key={index}>
@@ -896,7 +945,13 @@ class ResourceQuota extends React.Component {
                             <Progress percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                           </Col>
                           <Col span={4}>
-                            <span>{this.useClusterCount(item.key)}/{this.maxClusterCount(item.key) ? this.maxClusterCount(item.key) : '无限制'}</span>
+                            {
+                              this.useClusterCount(item.key) > this.maxClusterCount(item.key) ?
+                                this.maxClusterCount(item.key) === -1 ?
+                                  <span>{this.useClusterCount(item.key)}</span> :
+                                  <span style={{ color: 'red' }}>{this.useClusterCount(item.key)}</span> :
+                                <span>{this.useClusterCount(item.key)}</span>
+                            }/<p>{this.maxClusterCount(item.key) === -1 ? '无限制' : this.maxClusterCount(item.key)}</p>
                           </Col>
                         </Row>
                       ))
@@ -904,18 +959,27 @@ class ResourceQuota extends React.Component {
                   </div>
                   <p className="line"></p>
                   <div className="service">
-                    <span className="servier">数据库与缓存</span>
+                    <svg className='database commonImg'>
+                      <use xlinkHref="#database"></use>
+                    </svg> &nbsp;
+                    <span >数据库与缓存</span>
                     {
                       serviceList.map((item, index) => (
                         <Row className="list" key={index}>
                           <Col span={3}>
                             <span>{item.text}</span>
                           </Col>
-                          <Col span={8}>
+                          <Col span={7}>
                             <Progress percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                           </Col>
                           <Col span={4}>
-                            <span>{this.useClusterCount(item.key)}/{this.maxClusterCount(item.key) ? this.maxClusterCount(item.key) : '无限制'}</span>
+                            {
+                              this.useClusterCount(item.key) > this.maxClusterCount(item.key) ?
+                                this.maxClusterCount(item.key) === -1 ?
+                                  <span>{this.useClusterCount(item.key)}</span> :
+                                  <span style={{ color: 'red' }}>{this.useClusterCount(item.key)}</span> :
+                                <span>{this.useClusterCount(item.key)}</span>
+                            }/<p>{this.maxClusterCount(item.key) === -1 ? '无限制' : this.maxClusterCount(item.key)}</p>
                           </Col>
                         </Row>
                       ))
@@ -946,13 +1010,15 @@ class ResourceQuota extends React.Component {
 }
 ResourceQuota = createForm()(ResourceQuota)
 function mapStateToProps(state) {
-  const { current } = state.entities
+  const { current, loginUser } = state.entities
   const { namespace } = current.space
   const { clusterID } = current.cluster
   const { clusterName } = current.cluster
+  const { role } = loginUser.info
   const { projectVisibleClusters } = state.projectAuthority
   const clusterData = projectVisibleClusters[namespace] && projectVisibleClusters[namespace].data || []
   return {
+    role,
     clusterID,
     clusterName,
     clusterData,

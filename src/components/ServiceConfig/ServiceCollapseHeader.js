@@ -327,7 +327,7 @@ class CollapseHeader extends Component {
 
           {/*删除配置文件-弹出层 */}
 
-          <Modal title="删除配置操作" visible={this.state.delModal}
+          <Modal title="删除配置组操作" visible={this.state.delModal}
           onOk={()=> this.btnDeleteGroup()} onCancel={()=> this.setState({delModal: false})}
           >
             <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除配置组 {collapseHeader.name} ?</div>

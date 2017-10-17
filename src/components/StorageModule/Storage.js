@@ -501,7 +501,7 @@ let MyComponent = React.createClass({
         key: 'storageServer',
         dataIndex: 'storageServer',
         width: '12%',
-        render: storageServer => <div>RBD ({storageServer})</div>
+        render: storageServer => <div>可靠块存储 ({storageServer})</div>
       },{
         title: '大小',
         key: 'totalSize',
@@ -1036,7 +1036,7 @@ class Storage extends Component {
         <div id="StorageList" key="StorageList">
           <Title title="存储" />
           <div className='alertRow'>
-            独享存储，仅支持一个容器实例读写操作；RBD 类型的存储卷可创建快照
+            独享存储，仅支持一个容器实例读写操作；可靠块存储类型的存储卷可创建快照
           </div>
           { mode === standard ? <div className='alertRow'>您的存储创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div> }
           <div className="operationBox">

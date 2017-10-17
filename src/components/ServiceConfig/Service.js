@@ -306,7 +306,7 @@ class Service extends Component {
           <CreateConfigModal scope={this} configGroup={configGroup} updateConfigAnnotations={updateConfigAnnotations} labelWithCount={labelWithCount}/>
           {/*创建配置组-弹出层-end*/}
           {/* 删除配置组-弹出层-*/}
-          <Modal title="删除配置操作" visible={this.state.delModal}
+          <Modal title="删除配置组操作" visible={this.state.delModal}
           onOk={()=> this.btnDeleteGroup()} onCancel={()=> this.setState({delModal: false})}
           >
             <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}/>您是否确定要删除配置组 {this.state.configArray.map(item => item).join('，')} ?</div>

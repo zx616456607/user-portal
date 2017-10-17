@@ -21,13 +21,14 @@ import { formatDate } from '../../common/tools'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { API_URL_PREFIX } from '../../constants'
 import WrapListTable from './AppWrap/WrapListTable'
+import { throwError } from '../../actions'
 import { wrapManageList, deleteWrapManage, uploadWrap, checkWrapName } from '../../actions/app_center'
 const RadioGroup = Radio.Group
 const Dragger = Upload.Dragger
 const TabPane = Tabs.TabPane
 let uploadFile = false // in upload file name
 const notificat = new NotificationHandler()
-
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 // file type
 const wrapType = ['.jar','.war','.tar','.tar.gz','.zip']
 const wrapTypelist = ['jar','war','tar','tar.gz','zip']
@@ -162,7 +163,8 @@ class UploadModal extends Component {
       filter: `fileName contains ${wrapName}`,
     }
     let isEq = false
-    func.checkWrapName(query,{
+    clearTimeout(this.wrapNameCheckTimeout)
+    this.wrapNameCheckTimeout = setTimeout(()=> func.checkWrapName(query,{
       success:{
         func: ret => {
           if (Array.isArray(ret.data.pkgs)) {
@@ -179,7 +181,7 @@ class UploadModal extends Component {
           }
         }
       }
-    })
+    }), ASYNC_VALIDATOR_TIMEOUT)
   }
   validateName = (rule, value, callback)=> {
     if (!value) {
@@ -305,7 +307,14 @@ class UploadModal extends Component {
         }
         if (e.file.status == 'error') {
           self.state.fileCallback()
-          notificat.error('上传失败',e.file.response.message)
+          let message = e.file.response.message
+          if (typeof e.file.response.message =='object') {
+            message = JSON.stringify(e.file.response.message)
+            if ( e.file.response.statusCode == 412) {
+              func.throwError(e.file.response)
+            }
+          }
+          notificat.error('上传失败',message)
           uploadFile = false
           func.uploadModal(false)
         }
@@ -343,6 +352,7 @@ class UploadModal extends Component {
               <div className="dragger">
                 <Dragger {...selfProps}>
                   拖动文件到这里以上传，或点击 <a>选择文件</a>
+                  <div style={{color:'#999'}}>支持上传 jar/war/tar/tar.gz/zip 格式包文件，建议包文件小于300M</div>
                   {uploadFile ? <div>文件名称：{uploadFile}</div>: null}
                 </Dragger>
               </div>
@@ -468,7 +478,8 @@ class WrapManage extends Component {
       uploadModal: this.uploadModal,
       getList: this.getList,
       uploadWrap: this.props.uploadWrap,
-      checkWrapName: this.props.checkWrapName
+      checkWrapName: this.props.checkWrapName,
+      throwError: this.props.throwError
     }
     const func = {
       scope: this,
@@ -480,7 +491,7 @@ class WrapManage extends Component {
         <Title title="应用包管理" />
         <div key="wrap_list" id="app_wrap_manage">
           <div className="btnRow">
-            <Button size="large" type="primary" icon="plus" onClick={() => this.uploadModal(true)}>上传包文件</Button>
+            <Button size="large" type="primary" icon="upload" onClick={() => this.uploadModal(true)}>上传包文件</Button>
             <Button size="large" style={{ margin: '0 10px' }} onClick={()=> this.getList()}><i className='fa fa-refresh' />&nbsp;刷 新</Button>
             <Button size="large" onClick={()=> this.setState({delAll: true})} icon="delete" style={{ marginRight: '10px' }} disabled={this.state.selectedRowKeys.length == 0}>删 除</Button>
             <Input size="large" onPressEnter={()=> this.getList(true)} style={{ width: 180 }} placeholder="请输入包名称或标签搜索" ref="wrapSearch" />
@@ -525,5 +536,6 @@ export default connect(mapStateToProps,{
   wrapManageList,
   deleteWrapManage,
   uploadWrap,
-  checkWrapName
+  checkWrapName,
+  throwError
 })(WrapManage)
