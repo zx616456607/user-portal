@@ -14,6 +14,7 @@ const path = require('path')
 const Elasticdump = require('elasticdump-tenx')
 const moment = require('moment')
 const utils = require('../../utils')
+const logger = require('../../utils/logger').getLogger('elasticdump')
 
 function getTimestamp(options) {
   const defaultDay = 4
@@ -208,13 +209,13 @@ function getDumper(cluster, output, options) {
   }
   options.headers = headers
 
-  console.log('options', JSON.stringify(options, null, 2))
   const dumpOptions = Object.assign({}, defaults, options)
   return new Elasticdump(input, output, dumpOptions)
 }
 exports.getDumper = getDumper
 
 function dump(cluster, searchBody, scope) {
+  const method = 'dump'
   const options = {
     searchBody,
     limit: 100,
@@ -222,11 +223,13 @@ function dump(cluster, searchBody, scope) {
     outputTransport: path.join(__dirname, './transports/outputStream'),
     ignoreUnavailable: true,
   }
-  const dumper = getDumper(cluster, './test.log', options)
+  const dumper = getDumper(cluster, 'outputStream', options)
   return new Promise((resolve, reject) => {
-    dumper.on('log', function (message) { console.log('log', message) })
+    dumper.on('log', function (message) {
+      logger.debug(method, message)
+    })
     dumper.on('error', function (error) {
-      console.error('error', 'Error Emitted => ' + (error.message || JSON.stringify(error)))
+      logger.error(method, 'Error Emitted => ' + (error.message || JSON.stringify(error)))
     })
     dumper.dump((error, result) => {
       if (error) {

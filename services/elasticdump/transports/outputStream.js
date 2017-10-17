@@ -1,4 +1,16 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2017 TenxCloud. All Rights Reserved.
+ */
+
+/**
+ * outputStream
+ * v0.1 - 2017-11-07
+ * @author Zhangpc
+ */
+
 var endOfLine = require('os').EOL
+var logger = require('../../../utils/logger').getLogger('elasticdump-outputStream')
 
 var outputStream = function (parent, file, options) {
   this.options = options
@@ -18,6 +30,7 @@ outputStream.prototype.set = function (data, limit, offset, scope, callback) {
 
   if (data.length === 0) {
     scope && scope.res.end()
+    logger.info(`dump got ${offset} objects from source elasticsearch`)
   } else {
     data.forEach(function (elem) {
       // Select _source if sourceOnly
