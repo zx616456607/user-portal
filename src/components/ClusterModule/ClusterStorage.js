@@ -409,12 +409,12 @@ class ClusterStorage extends Component {
       return <div className='list_container' key={`list_container${item.index}`}>
         <div className='list' key={ `ceph_list_${item.index}` }>
           <FormItem
-            label="RBD 集群名称"
+            label="集群名称"
             key="cluster_name"
             { ...formItemLayout }
           >
             <Input
-              placeholder='请输入 RBD 集群名称'
+              placeholder='请输入可靠块存储集群名称'
               disabled={ item.disabled || !item.newAdd }
               size="large"
               className='formItem_child_style'
@@ -439,7 +439,7 @@ class ClusterStorage extends Component {
             />
           </FormItem>
           <FormItem
-            label="RBD agent 地址"
+            label="agent 地址"
             key="agent_address"
             {...formItemLayout}
           >
@@ -464,7 +464,7 @@ class ClusterStorage extends Component {
             />
           </FormItem>
           <FormItem
-            label="RBD 集群配置"
+            label="集群配置"
             key="cluster_config"
             {...formItemLayout}
           >
@@ -489,7 +489,7 @@ class ClusterStorage extends Component {
             />
           </FormItem>
           <FormItem
-            label="RBD 认证用户"
+            label="认证用户"
             key="username"
             {...formItemLayout}
           >
@@ -511,7 +511,7 @@ class ClusterStorage extends Component {
             />
           </FormItem>
           <FormItem
-            label="RBD 用户认证密钥"
+            label="用户认证密钥"
             key="password"
             {...formItemLayout}
           >
@@ -997,7 +997,7 @@ class ClusterStorage extends Component {
         </div>
         <div className='ceph'>
           <div className="header">
-            Ceph&nbsp;分布式存储（单节点独享型）
+            可靠块存储&nbsp;(单节点独享型)
           </div>
           <div className="body">
             <div className="img_box ceph_img">

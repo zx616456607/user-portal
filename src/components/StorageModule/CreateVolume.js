@@ -443,13 +443,13 @@ class CreateVolume extends Component {
                     rules: [{required: true, message: '类型不能为空'}]
                   })}
                 >
-                  <Option key="ceph" value="ceph">RBD</Option>
+                  <Option key="ceph" value="ceph">可靠块存储</Option>
                 </Select>
               </Form.Item>
               <Form.Item className='form_item_style'>
                 <Select
                   disabled={this.state.selectChecked}
-                  placeholder="请选择一个RBD集群"
+                  placeholder="请选择一个可靠块存储集群"
                   {...getFieldProps('address', {
                     rules: [{
                       required: true,
