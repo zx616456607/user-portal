@@ -21,6 +21,7 @@ import { formatDate } from '../../common/tools'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { API_URL_PREFIX } from '../../constants'
 import WrapListTable from './AppWrap/WrapListTable'
+import { throwError } from '../../actions'
 import { wrapManageList, deleteWrapManage, uploadWrap, checkWrapName } from '../../actions/app_center'
 const RadioGroup = Radio.Group
 const Dragger = Upload.Dragger
@@ -305,7 +306,14 @@ class UploadModal extends Component {
         }
         if (e.file.status == 'error') {
           self.state.fileCallback()
-          notificat.error('上传失败',e.file.response.message)
+          let message = e.file.response.message
+          if (typeof e.file.response.message =='object') {
+            message = JSON.stringify(e.file.response.message)
+            if ( e.file.response.statusCode == 412) {
+              func.throwError(e.file.response)
+            }
+          }
+          notificat.error('上传失败',message)
           uploadFile = false
           func.uploadModal(false)
         }
@@ -469,7 +477,8 @@ class WrapManage extends Component {
       uploadModal: this.uploadModal,
       getList: this.getList,
       uploadWrap: this.props.uploadWrap,
-      checkWrapName: this.props.checkWrapName
+      checkWrapName: this.props.checkWrapName,
+      throwError: this.props.throwError
     }
     const func = {
       scope: this,
@@ -526,5 +535,6 @@ export default connect(mapStateToProps,{
   wrapManageList,
   deleteWrapManage,
   uploadWrap,
-  checkWrapName
+  checkWrapName,
+  throwError
 })(WrapManage)
