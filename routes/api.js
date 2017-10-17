@@ -366,6 +366,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/services/:services/getSearchLog', manageMonitorController.getServiceSearchLog)
   router.get('/clusters/:cluster/services/:services/dumpSearchLog', manageMonitorController.dumpServiceSearchLog)
   router.get('/clusters/:cluster/instances/:instances/dumpSearchLog', manageMonitorController.dumpInstancesSearchLog)
+  router.post('/clusters/:cluster/logs/instances/:instances/logfiles', manageMonitorController.getServiceLogfiles)
 
   // DevOps service: CI/CD
   router.get('/devops/stats', devopsController.getStats)
