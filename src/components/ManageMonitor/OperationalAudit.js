@@ -984,6 +984,10 @@ function formatResourceName(resourceName, resourceId) {
       let ids = new Array()
       for (let i = 0; i < newBody.strategies.length; i++) {
         let item = newBody.strategies[i]
+        if (item && item.strategyName) {
+          ids.push(item.strategyName)
+          break
+        }
         if (item && item.strategyID) {
           ids.push(item.strategyID)
         }
