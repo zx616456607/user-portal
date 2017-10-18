@@ -1394,7 +1394,10 @@ class Ordinary extends Component {
             </Col>
           }
           <Col span={6} className='quota'>
-            <Card title="该集群在项目中的资源配额" bordered={false} bodyStyle={{ height: 220, padding: '1px' }}>
+            <Card title="项目&集群相关资源配额" bordered={false} bodyStyle={{ height: 220, padding: '1px' }}
+              extra={<Link to={this.props.projectName === 'default' ? `tenant_manage/user/${this.props.loginUser.userID}?#quota` :
+                this.props.userID === undefined ? `tenant_manage/project_manage/project_detail?name=${this.props.projectName}#quota` :
+                  `tenant_manage/user/${this.props.userID}?#quota`}><Button type="primary" size="small">{this.props.loginUser.role === 2 ? '设置配额' : '查看详情'}</Button></Link>}>
               <Row className="radios">
                 <RadioGroup size="small" onChange={(e) => this.onChange(e)} defaultValue="computing">
                   <RadioButton value="computing">计算资源</RadioButton>
@@ -2094,6 +2097,8 @@ function getDbServiceStatus(data) {
 function mapStateToProp(state, props) {
   const { current, loginUser } = state.entities
   const { clusterID } = current.cluster
+  const { userID } = current.space
+  const { projectName, name } = current.space
   let clusterOperationsData = {
     appCreate: 0,
     appModify: 0,
@@ -2308,8 +2313,10 @@ function mapStateToProp(state, props) {
   }
 
   return {
+    userID,
     clusterID,
     current,
+    projectName,
     loginUser: loginUser.info,
     clusterOperations: clusterOperationsData,
     clusterSysinfo: clusterSysinfoData,

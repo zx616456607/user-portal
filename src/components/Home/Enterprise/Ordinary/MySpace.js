@@ -323,9 +323,9 @@ class MySpace extends Component {
         <Row className="title" style={{ marginTop: 20 }}>{spaceName}</Row>
         <Row className="content" gutter={16}>
           <Col span={6} className="quota">
-            <Card title="项目资源配置" bordered={false} bodyStyle={{ height: 175, padding: '7px' }}
+            <Card title="项目资源配额" bordered={false} bodyStyle={{ height: 175, padding: '7px' }}
               extra={<Link to={spaceName === '我的个人项目' ? `tenant_manage/user/${this.props.loginUser.info.userID}?#quota` : this.props.userID === undefined ? `tenant_manage/project_manage/project_detail?name=${this.props.projectName}#quota` : `tenant_manage/user/${this.props.userID}?#quota`}>
-                <Button type="primary" size="small">设置配额</Button></Link>}>
+                <Button type="primary" size="small">{this.props.loginUser.info.role === 2 ? '设置配额' : '查看详情'}</Button></Link>}>
               <Row className="radios">
                 <Col span={16} offset={5}>
                   <RadioGroup size="small" onChange={(e) => this.handleChange(e)} defaultValue="ci">
@@ -559,43 +559,42 @@ class MySpace extends Component {
                 <Col className='cicdInf' span={12}>
                   <table>
                     <tbody>
-                    <tr>
-                      <td>
-                        <div className='cicdDot' style={{ backgroundColor: '#13c563' }}/>
-                        我的仓库组
+                      <tr>
+                        <td>
+                          <div className='cicdDot' style={{ backgroundColor: '#13c563' }} />
+                          我的仓库组
                       </td>
-                      <td className="cicdNum">
-                        {spaceImageStats.myProjectCount} 个
+                        <td className="cicdNum">
+                          {spaceImageStats.myProjectCount} 个
                       </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className='cicdDot' style={{ backgroundColor: '#13c563' }}/>
-                        我的镜像仓库
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className='cicdDot' style={{ backgroundColor: '#13c563' }} />
+                          我的镜像仓库
                       </td>
-                      <td className="cicdNum">
-                        {spaceImageStats.myRepoCount} 个
+                        <td className="cicdNum">
+                          {spaceImageStats.myRepoCount} 个
                       </td>
-                    </tr>
-                    <div style={{ height: 10 }}/>
-                    <tr>
-                      <td>
-                        <div className='cicdDot' style={{ backgroundColor: '#46b2fa' }}/>
-                        公开仓库组
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className='cicdDot' style={{ backgroundColor: '#46b2fa' }} />
+                          公开仓库组
                       </td>
-                      <td className="cicdNum">
-                        {spaceImageStats.publicProjectCount} 个
+                        <td className="cicdNum">
+                          {spaceImageStats.publicProjectCount} 个
                       </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className='cicdDot' style={{ backgroundColor: '#46b2fa' }}/>
-                        公开镜像仓库
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className='cicdDot' style={{ backgroundColor: '#46b2fa' }} />
+                          公开镜像仓库
                       </td>
-                      <td className="cicdNum">
-                        {spaceImageStats.publicRepoCount} 个
+                        <td className="cicdNum">
+                          {spaceImageStats.publicRepoCount} 个
                       </td>
-                    </tr>
+                      </tr>
                     </tbody>
                   </table>
                 </Col>
