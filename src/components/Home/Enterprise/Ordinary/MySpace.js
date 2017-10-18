@@ -578,6 +578,7 @@ class MySpace extends Component {
                         {spaceImageStats.myRepoCount} 个
                       </td>
                     </tr>
+                    <div style={{ height: 10 }}/>
                     <tr>
                       <td>
                         <div className='cicdDot' style={{ backgroundColor: '#46b2fa' }}/>
