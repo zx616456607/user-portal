@@ -346,6 +346,12 @@ class CleaningTool extends Component {
     const { cicdLogs, systemLogs, activeKey, logsLoading } = this.state
     let cleanLogs = activeKey === 'systemLog' ? systemLogs : cicdLogs
     let tailText = activeKey === 'systemLog' ? ' 个文件' : 'MB 垃圾'
+    function formatTotal(total) {
+      if (activeKey === 'cache') {
+        return (total / (1024 * 1024)).toFixed(2)
+      }
+      return total
+    }
     if (logsLoading) {
       return(
         <div className='loadingBox'>
@@ -363,7 +369,7 @@ class CleaningTool extends Component {
             return (
               <TimelineItem key={item.id} color={index === 0 ? 'green' : '#e9e9e9'}>
                 <Row className={classNames({'successColor': index === 0})}>
-                  <Col span={20}>{index === 0 ? `上次清理 ${item.total}${tailText}` : `清理 ${item.total}${tailText}`}</Col>
+                  <Col span={20}>{index === 0 ? `上次清理 ${formatTotal(item.total)}${tailText}` : `清理 ${formatTotal(item.total)}${tailText}`}</Col>
                   <Col className="time_item" span={4}>{formatDate(item.createTime, 'MM-DD')}</Col>
                 </Row>
               </TimelineItem>
@@ -500,7 +506,7 @@ class CleaningTool extends Component {
         return (
           <div className='done_box'>
             <div className='tips'>
-              清理完成，此次清理 <span className='number'>{cicdLogs[0].total}</span> MB，查看 <Link to="/setting/cleaningTool/cleaningRecord">清理记录</Link>
+              清理完成，此次清理 <span className='number'>{(cicdLogs[0].total / (1024 * 1024)).toFixed(2)}</span> MB，查看 <Link to="/setting/cleaningTool/cleaningRecord">清理记录</Link>
             </div>
             <Button size="large" type="primary" onClick={() => this.setState({cleanCicdStatus: undefined})}>完成</Button>
           </div>

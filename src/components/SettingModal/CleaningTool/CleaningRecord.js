@@ -40,10 +40,10 @@ class CleaningRecord extends Component {
       endOpen: false,
       cleanLogs: [],
       totalCount: 0,
-      currentPage: 0,
-      sort: '',
+      currentPage: 1,
+      sort: 'd,create_time',
       filter: '',
-      createTimeSort: undefined
+      createTimeSort: false
     }
   }
   componentWillMount() {
@@ -60,7 +60,7 @@ class CleaningRecord extends Component {
       status,
       start,
       end,
-      from: currentPage,
+      from: (currentPage - 1) * 10,
       size: 10,
     }, {
       success: {
@@ -90,7 +90,7 @@ class CleaningRecord extends Component {
     const { status, type } = getFieldsValue(['status', 'type'])
     let query = {}
     sort ? query = Object.assign(query, {sort}) : ''
-    let body = {status, operation_type: type, from: currentPage, size: 10}
+    let body = {status, type: type, from: (currentPage - 1) * 10, size: 10}
     startValue ? body = Object.assign(body, {start: formatDate(startValue)}): ''
     endValue ? body = Object.assign(body, {end: formatDate(endValue)}) : ''
     getSystemCleanLogs(query, body, {
@@ -208,7 +208,7 @@ class CleaningRecord extends Component {
     resetFields()
     setFieldsValue({'target': 'system_clean'})
     this.setState({
-      sort: '',
+      sort: 'd,create_time',
       filter: '',
       startValue: null,
       endValue: null,
@@ -254,10 +254,20 @@ class CleaningRecord extends Component {
     this.setState({
       filter: newFilter,
       [opt]: target
+    }, () => {
+      if (opt === 'target') {
+        if (target === 'cicd_clean') {
+          this.getCleanLogs()
+        } else {
+          this.getSystemLogs()
+        }
+      }
     })
   }
   selectLogType(value) {
-    value === 'cicd_clean' && this.selectFilter('target', value)
+    if (value === 'cicd_clean') {
+      this.selectFilter('target', value)
+    }
   }
   searchLogs() {
     const { getFieldValue } = this.props.form
@@ -288,7 +298,7 @@ class CleaningRecord extends Component {
               <Row className="nodeItem">
                 <Col span={8}>{item.name}</Col>
                 <Col span={8}>{this.formatStatus(item.status)}</Col>
-                <Col span={8}>{`已清理：${item.total}MB`}</Col>
+                <Col span={8}>{`已清理：${((item.total - item.remain) / (1024 * 1024)).toFixed(2)}MB`}</Col>
               </Row>
             </Timeline.Item>
           ) 
@@ -405,7 +415,7 @@ class CleaningRecord extends Component {
                   placeholder='请选择清理类型'
                   size='large'
                   {...getFieldProps('type', {
-                    onChange: value => this.selectFilter('operation_type', value)
+                    onChange: value => this.selectFilter('type', value)
                   })}
                 >
                   <Option key="manual" value="manual">手动清理</Option>
@@ -459,7 +469,7 @@ class CleaningRecord extends Component {
               <Table
                 dataSource={cleanLogs}
                 columns={columns}
-                expandedRowRender={(target === 'cicd_clean') && (record => this.renderExpand(record))}
+                expandedRowRender={(target === 'cicd_clean') && (record => record.detail && record.detail.length && this.renderExpand(record))}
                 onChange={this.onTableChange.bind(this)}
                 pagination={pagination}
                 rowKey={record => record.id}
