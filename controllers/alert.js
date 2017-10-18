@@ -280,8 +280,8 @@ exports.deleteSetting = function* () {
 exports.batchEnable = function* () {
   const cluster = this.params.cluster
   const body = this.request.body
-  if (!body.strategyIDs) {
-    const err = new Error('strategyIDs is require')
+  if (!body.strategies) {
+    const err = new Error('strategies is require')
     err.status = 400
     throw err
   }
@@ -294,8 +294,8 @@ exports.batchEnable = function* () {
 exports.batchDisable = function* () {
   const cluster = this.params.cluster
   const body = this.request.body
-  if (!body.strategyIDs) {
-    const err = new Error('strategyIDs is require')
+  if (!body.strategies) {
+    const err = new Error('strategies is require')
     err.status = 400
     throw err
   }
