@@ -318,7 +318,6 @@ class MySpace extends Component {
         key: 'applicationPackage',
         text: '应用包(个)',
       }]
-    console.log(spaceImageStats)
     return (
       <div id='MySpace'>
         <Row className="title" style={{ marginTop: 20 }}>{spaceName}</Row>
@@ -578,6 +577,7 @@ class MySpace extends Component {
                         {spaceImageStats.myRepoCount} 个
                       </td>
                     </tr>
+                    <div style={{ height: 10 }}/>
                     <tr>
                       <td>
                         <div className='cicdDot' style={{ backgroundColor: '#46b2fa' }}/>

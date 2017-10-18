@@ -48,12 +48,11 @@ const vendors = [
   'socket.io-client',
   'text-encoding',
   'whatwg-fetch',
-  'xterm',
   // ...其它库
 ];
 
 module.exports = {
-  devtool: 'cheap-source-map',
+  devtool: '#cheap-source-map',
   output: {
     path: 'static/webpack_dll',
     filename: '[name].js',
