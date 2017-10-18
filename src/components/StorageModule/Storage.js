@@ -500,7 +500,7 @@ let MyComponent = React.createClass({
         title: '类型',
         key: 'storageServer',
         dataIndex: 'storageServer',
-        width: '12%',
+        width: '18%',
         render: storageServer => <div>可靠块存储 ({storageServer})</div>
       },{
         title: '大小',
@@ -519,26 +519,26 @@ let MyComponent = React.createClass({
         dataIndex: 'deployServiceList',
         width: '10%',
         render: deployServiceList => <div>{deployServiceList && deployServiceList.length ? deployServiceList[0].serviceName : '未挂载服务'}</div>
-      },{
-        title: <div>
-          回收策略
-          <Tooltip title={<div>
-              <div>保留：服务删除时，保留存储</div>
-              <div>删除：删除服务时，删除存储</div>
-            </div>}>
-            <Icon type="question-circle-o" className='question_icon'/>
-          </Tooltip>
-        </div>,
-        key: 'reclaimPolicy',
-        dataIndex: 'reclaimPolicy',
-        width: '13%',
-        className: 'strategy',
-        render: reclaimPolicy => <div>{ reclaimPolicy == 'delete' ? '删除' : '保留'}</div>
+      //},{
+      //  title: <div>
+      //    回收策略
+      //    <Tooltip title={<div>
+      //        <div>保留：服务删除时，保留存储</div>
+      //        <div>删除：删除服务时，删除存储</div>
+      //      </div>}>
+      //      <Icon type="question-circle-o" className='question_icon'/>
+      //    </Tooltip>
+      //  </div>,
+      //  key: 'reclaimPolicy',
+      //  dataIndex: 'reclaimPolicy',
+      //  width: '13%',
+      //  className: 'strategy',
+      //  render: reclaimPolicy => <div>{ reclaimPolicy == 'delete' ? '删除' : '保留'}</div>
       },{
         title: '创建时间',
         key: 'createTime',
         dataIndex: 'createTime',
-        width: '10%',
+        width: '17%',
         sorter: (a, b) => new Date(formatDate(a.createTime)) - new Date(formatDate(b.createTime)),
         render: createTime => <div>{formatDate(createTime)}</div>
       },{

@@ -169,7 +169,9 @@ class CreateVolume extends Component {
           xfsDisabled: snapshotDataList[i].fstype == 'ext4',
         })
         form.setFieldsValue({
-          selectSnapshotName: value
+          selectSnapshotName: value,
+          address: snapshotDataList[i].storageServer,
+          type: 'ceph',
         })
         return
       }
@@ -207,7 +209,7 @@ class CreateVolume extends Component {
       'volumeName',
       'type',
       'address',
-      'strategy'
+      //'strategy'
     ]
     if(swicthChecked){
       validataArray.push('selectSnapshotName')
@@ -227,7 +229,7 @@ class CreateVolume extends Component {
           name: values.volumeName,
           fsType: fstype,
           storageType: values.type,
-          reclaimPolicy: values.strategy,
+          //reclaimPolicy: values.strategy,
           storageClassName: values.address,
           storage: `${volumeSize}Mi`,
         }
@@ -293,7 +295,10 @@ class CreateVolume extends Component {
             notification.close()
             notification.success('创建存储成功')
             this.handleResetState()
-            this.props.scope.loadSnapshotList()
+            const { snapshotRequired } = this.props
+            if(!snapshotRequired){
+              this.props.scope.getStorageList()
+            }
           },
           isAsync: true,
         },
@@ -437,7 +442,7 @@ class CreateVolume extends Component {
               <Form.Item className='form_item_style'>
                 <Select
                   placeholder="请选择类型"
-                  disabled={this.state.selectChecked}
+                  disabled={this.state.selectChecked || this.state.swicthChecked}
                   {...getFieldProps('type', {
                     initialValue: "ceph",
                     rules: [{required: true, message: '类型不能为空'}]
@@ -448,7 +453,7 @@ class CreateVolume extends Component {
               </Form.Item>
               <Form.Item className='form_item_style'>
                 <Select
-                  disabled={this.state.selectChecked}
+                  disabled={this.state.selectChecked || this.state.swicthChecked}
                   placeholder="请选择一个可靠块存储集群"
                   {...getFieldProps('address', {
                     rules: [{
@@ -560,7 +565,7 @@ class CreateVolume extends Component {
               </Button>
             </Col>
           </Row>
-          <Form.Item
+          {/*<Form.Item
             label={<span>回收策略
               <Tooltip title={<div>
                 <div>保留：服务删除时，保留存储</div>
@@ -579,7 +584,7 @@ class CreateVolume extends Component {
               <Radio key="delete" value="delete" disabled>删除</Radio>
             </Radio.Group>
             <span className='strategy_tips'><Icon type="question-circle-o" className='tips_icon'/>暂不支持删除策略</span>
-          </Form.Item>
+          </Form.Item>*/}
           { SHOW_BILLING ?
           <div className="modal-price">
             <div className="price-left">
