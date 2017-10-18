@@ -63,6 +63,7 @@ class CreateVolume extends Component {
     this.handleSelectSnapshot = this.handleSelectSnapshot.bind(this)
     this.SnapshotSwitch = this.SnapshotSwitch.bind(this)
     this.renderCephSeverOption = this.renderCephSeverOption.bind(this)
+    this.selectStorageServer = this.selectStorageServer.bind(this)
     this.state = {
       volumeSizemin: this.props.volumeSize || 512,
       volumeSize:this.props.volumeSize || 512,
@@ -75,6 +76,7 @@ class CreateVolume extends Component {
       swicthChecked: false,
       switchDisabled: false,
       selectChecked: false,
+      renderSnapshotOptionlist: this.props.snapshotDataList
     }
   }
 
@@ -135,6 +137,7 @@ class CreateVolume extends Component {
         swicthChecked: false,
         switchDisabled: false,
         selectChecked: false,
+        renderSnapshotOptionlist: nextProps.snapshotDataList,
       })
     }
     // 由快照创建存储卷时需要进行的重置操作
@@ -350,8 +353,18 @@ class CreateVolume extends Component {
   }
 
   handleFormatSelectOption(){
-    const { snapshotDataList } = this.props
-    let Options = snapshotDataList.map((item, index) => {
+    const { renderSnapshotOptionlist } = this.state
+    if(!renderSnapshotOptionlist.length){
+      return <Select.Option
+        key='nodata'
+        value='nodata'
+        disabled
+        style={{textAlign: 'center'}}
+      >
+        暂无可用快照
+      </Select.Option>
+    }
+    let Options = renderSnapshotOptionlist.map((item, index) => {
       return <Select.Option key={item.name} value={item.name}>
         <Row>
           <Col span={8} className='snapshotName'>{item.name}</Col>
@@ -387,6 +400,19 @@ class CreateVolume extends Component {
     const { cephList } = this.props
     return cephList.map((item, index) => {
       return <Option key={`ceph${index}`} value={item.metadata.name}>{item.metadata.name}</Option>
+    })
+  }
+
+  selectStorageServer(value) {
+    const {snapshotDataList} = this.props
+    let list = []
+    snapshotDataList.forEach((item, index) => {
+      if(item.storageServer.indexOf(value) > -1){
+        list.push(item)
+      }
+    })
+    this.setState({
+      renderSnapshotOptionlist: list
     })
   }
 
@@ -459,7 +485,8 @@ class CreateVolume extends Component {
                     rules: [{
                       required: true,
                       message: "地址不能为空"
-                    }]
+                    }],
+                    onChange: this.selectStorageServer,
                   })}
                 >
                   { this.renderCephSeverOption() }
