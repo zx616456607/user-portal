@@ -1113,7 +1113,8 @@ let EditTenxFlowModal = React.createClass({
             'image': values.imageName,
             'args': shellList,
             'env': imageEnvList,
-            'dependencies': serviceList
+            'dependencies': serviceList,
+            'errorContinue': values.errorContinue ? 1 : 0,
           },
           'project': {
             'id': _this.state.currentCodeStore,
@@ -1695,6 +1696,9 @@ let EditTenxFlowModal = React.createClass({
         }
       </Button>
     )
+    const errorContinueChecked = !!config.spec.container
+      ? (config.spec.container.errorContinue == 1)
+      : false
     return (
       <div id='EditTenxFlowModal' key='EditTenxFlowModal'>
         <div className='titleBox'>
@@ -2003,7 +2007,12 @@ let EditTenxFlowModal = React.createClass({
                   </div>
                   <div className='input imageType'>
                     <FormItem>
-                      <Switch {...getFieldProps('buildCache' , { initialValue: !!config.spec.build ? !config.spec.build.noCache : true}) } defaultChecked={!!config.spec.build ? !config.spec.build.noCache : true} />
+                      <Switch
+                        checkedChildren="开"
+                        unCheckedChildren="关"
+                        {...getFieldProps('buildCache' , { initialValue: !!config.spec.build ? !config.spec.build.noCache : true}) }
+                        defaultChecked={!!config.spec.build ? !config.spec.build.noCache : true}
+                      />
                     </FormItem>
                   </div>
                   <div style={{ clear: 'both' }} />
@@ -2037,7 +2046,27 @@ let EditTenxFlowModal = React.createClass({
                 </FormItem>
               </div>
               <div style={{ clear: 'both' }} />
-            </div>)}
+            </div>)
+          }
+          <div className='commonBox'>
+            <div className='title'>
+              <span>容许失败</span>
+            </div>
+            <div className='input imageType'>
+              <FormItem>
+                <Switch
+                  checkedChildren="开"
+                  unCheckedChildren="关"
+                  {...getFieldProps('errorContinue' , { initialValue: errorContinueChecked })}
+                  defaultChecked={errorContinueChecked}
+                />
+                <div className="customizeBaseImage">
+                  此任务执行失败时不会影响流水线的执行。
+                </div>
+              </FormItem>
+            </div>
+            <div style={{ clear: 'both' }} />
+          </div>
           <Modal className='dockerFileEditModal'
             title={<FormattedMessage {...menusText.dockerFileTitle} />}
             visible={

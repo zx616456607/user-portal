@@ -872,7 +872,8 @@ let CreateTenxFlowModal = React.createClass({
             'image': values.imageName,
             'args': shellList,
             'env': imageEnvList,
-            'dependencies': serviceList
+            'dependencies': serviceList,
+            'errorContinue': values.errorContinue ? 1 : 0,
           },
           'project': {
             'id': this.state.currentCodeStore,
@@ -1766,7 +1767,12 @@ let CreateTenxFlowModal = React.createClass({
                   </div>
                   <div className='input imageType'>
                     <FormItem>
-                      <Switch {...getFieldProps('buildCache', { initialValue: true }) } defaultChecked={true} />
+                      <Switch
+                        checkedChildren="开"
+                        unCheckedChildren="关"
+                        {...getFieldProps('buildCache', { initialValue: true }) }
+                        defaultChecked={true}
+                      />
                     </FormItem>
                   </div>
                   <div style={{ clear: 'both' }} />
@@ -1801,6 +1807,25 @@ let CreateTenxFlowModal = React.createClass({
               </QueueAnim>
             ] : null
           }
+          <div className='commonBox'>
+            <div className='title'>
+              <span>容许失败</span>
+            </div>
+            <div className='input imageType'>
+              <FormItem>
+                <Switch
+                  checkedChildren="开"
+                  unCheckedChildren="关"
+                  {...getFieldProps('errorContinue' , { initialValue: false })}
+                  defaultChecked={false}
+                />
+                <div className="customizeBaseImage">
+                  此任务执行失败时不会影响流水线的执行。
+                </div>
+              </FormItem>
+            </div>
+            <div style={{ clear: 'both' }} />
+          </div>
           <Modal className='dockerFileEditModal'
             title={<FormattedMessage {...menusText.dockerFileTitle} />}
             visible={
