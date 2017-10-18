@@ -12,10 +12,11 @@ import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Input, Select, InputNumber, Button, Form, Icon ,message, Radio } from 'antd'
+import { Input, Select, InputNumber, Button, Form, Icon ,message, Radio, Spin } from 'antd'
 import { CreateDbCluster ,loadDbCacheList} from '../../actions/database_cache'
 import { setCurrent } from '../../actions/entities'
 import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
+import { getClusterStorageList } from '../../actions/cluster'
 import NotificationHandler from '../../components/Notification'
 import { MY_SPACE } from '../../constants'
 import { parseAmount } from '../../common/tools.js'
@@ -39,6 +40,7 @@ let CreateDatabase = React.createClass({
   componentWillMount() {
     const { ListProjects } = this.props
     ListProjects({ size: 0 })
+    this.loadStorageClassList()
   },
   componentWillReceiveProps(nextProps) {
     // if create box close return default select cluster
@@ -48,6 +50,9 @@ let CreateDatabase = React.createClass({
     this.setState({
       currentType: nextProps.database,
     })
+    if(this.props.visible !== nextProps.visible && nextProps.visible){
+      this.loadStorageClassList()
+    }
   },
   onChangeCluster(clusterID) {
     this.setState({onselectCluster: false})
@@ -230,6 +235,7 @@ let CreateDatabase = React.createClass({
         teamspace: newSpace.namespace,
         templateId,
         lbGroupID,
+        storageClassName: values.storageClass,
       }
       if (!templateId) {
         notification.info(`${_this.state.currentType} 集群创建还在开发中，敬请期待`)
@@ -298,6 +304,28 @@ let CreateDatabase = React.createClass({
       return <Option value={item.id} key={item.address + index}>{name}: {item.name}</Option>
     })
   },
+  loadStorageClassList(){
+    const { getClusterStorageList, cluster } = this.props
+    getClusterStorageList(cluster)
+  },
+  renderStorageClassListOption(){
+    const { storageClassList } = this.props
+    const { isFetching, cephList } = storageClassList
+    let option = [<Option
+      value='loading'
+      key='loading'
+      style={{textAlign: 'center'}}
+      disabled
+    >
+      <Spin />
+    </Option>]
+    if(!isFetching){
+      option = cephList.map((item, index) => {
+        return <Option key={`list${index}`} value={item.metadata.name}>{item.metadata.name}</Option>
+      })
+    }
+    return option
+  },
   render() {
     const { isFetching, projects, projectVisibleClusters, space } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue} = this.props.form;
@@ -344,6 +372,9 @@ let CreateDatabase = React.createClass({
     const replicasProps = getFieldProps('replicas', {
       initialValue: 3
     });
+    const storageClassProps = getFieldProps('storageClass', {
+      rules: [{required: true, message: '可靠性块存储不能为空'}]
+    })
     const zkReplicasProps = getFieldProps('zkReplicas', {
       initialValue: 3
     });
@@ -491,15 +522,32 @@ let CreateDatabase = React.createClass({
                 </div>
                 <div style={{ clear: 'both' }}></div>
               </div>
-              <div className='commonBox'>
+              <div className='commonBox' style={{marginBottom: '4px'}}>
                 <div className='title'>
-                  <span>存储大小</span>
+                  <span>存储</span>
                 </div>
-                <div className='inputBox'>
-                  <FormItem  style={{ width: '80px', float: 'left' }}>
-                    <InputNumber {...selectStorageProps}  defaultValue={512} min={512} step={512} max={20480} size='large' disabled={isFetching}/>
+                <div className='inputBox replicas'>
+                  <FormItem style={{ width: '200px', float: 'left', marginRight: '12px'}}>
+                    <Select
+                      placeholder='请选择一个可靠块存储集群'
+                      size='large'
+                      {...storageClassProps}
+                    >
+                      { this.renderStorageClassListOption() }
+                    </Select>
                   </FormItem>
-                  <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>MB</span>
+                  <FormItem style={{ width: '80px', float: 'left', marginRight: '8px' }}>
+                    <InputNumber
+                      {...selectStorageProps}
+                      size='large'
+                      min={512}
+                      max={20480}
+                      defaultValue={512}
+                      step={512}
+                      disabled={isFetching}
+                    />
+                  </FormItem>
+                  MB
                 </div>
                 <div style={{ clear: 'both' }}></div>
               </div>
@@ -555,6 +603,7 @@ let CreateDatabase = React.createClass({
 
 function mapStateToProps(state, props) {
   const { cluster, space } = state.entities.current
+  const { clusterStorage } = state.cluster
   const defaultDbNames = {
     isFetching: false,
     cluster: cluster.clusterID,
@@ -566,6 +615,13 @@ function mapStateToProps(state, props) {
   const { projectList, projectVisibleClusters } = state.projectAuthority
   let projects = projectList.data || []
   projects = ([ MY_SPACE ]).concat(projects)
+  let defaultStorageClassList = {
+    isFetching: false,
+    cephList: []
+  }
+  if(clusterStorage[cluster.clusterID]){
+    defaultStorageClassList = clusterStorage[cluster.clusterID]
+  }
   return {
     cluster: cluster.clusterID,
     clusterName: cluster.clusterName,
@@ -575,7 +631,8 @@ function mapStateToProps(state, props) {
     isFetching,
     projects,
     projectVisibleClusters,
-    resourcePrice: cluster.resourcePrice //storage
+    resourcePrice: cluster.resourcePrice, //storage
+    storageClassList: defaultStorageClassList,
   }
 
 }
@@ -586,7 +643,8 @@ CreateDatabase.propTypes = {
   intl: PropTypes.object.isRequired,
   CreateDbCluster: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
-  database: PropTypes.string.isRequired
+  database: PropTypes.string.isRequired,
+  visible: PropTypes.bool.isRequired,
 }
 
 CreateDatabase = injectIntl(CreateDatabase, {
@@ -598,4 +656,5 @@ export default connect(mapStateToProps, {
   setCurrent,
   getProjectVisibleClusters,
   ListProjects,
+  getClusterStorageList,
 })(CreateDatabase)
