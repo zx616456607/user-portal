@@ -581,6 +581,7 @@ class AppServiceDetailInfo extends Component {
           let volumeList = []
           let volumeMounts = []
           let newService = false
+          let oldService = false
           const volume = res.data.volume
           if(res.data && res.data.spec){
             this.setState({
@@ -602,6 +603,9 @@ class AppServiceDetailInfo extends Component {
           // 新服务
           if(volumeList.length && (volumeList[0].persistentVolumeClaim || volumeList[0].hostPath)){
             newService = true
+          }
+          if(volumeList.length && volumeList[0].rbd){
+            oldService = true
           }
           const list = []
           volumeList.forEach((item, index) => {
@@ -655,7 +659,8 @@ class AppServiceDetailInfo extends Component {
                 hostPath: mountPath,
               }
               list.push(container)
-            } else {
+            }
+            if(oldService){
               let strategy = 'retain'
               let image = ''
               let fsType = 'ext4'
