@@ -318,7 +318,6 @@ class MySpace extends Component {
         key: 'applicationPackage',
         text: '应用包(个)',
       }]
-    console.log(spaceImageStats)
     return (
       <div id='MySpace'>
         <Row className="title" style={{ marginTop: 20 }}>{spaceName}</Row>
