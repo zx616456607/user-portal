@@ -421,7 +421,6 @@ class CleaningTool extends Component {
   renderSystemTab() {
     const { getFieldProps } = this.props.form
     const { cleanSystemLogStatus, systemLogs } = this.state
-    console.log(systemLogs)
     switch(cleanSystemLogStatus) {
       case 'cleaning': 
         return (
