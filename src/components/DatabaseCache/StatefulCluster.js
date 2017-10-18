@@ -285,7 +285,7 @@ class StatefulCluster extends Component {
                    this.setState({ CreateDatabaseModalShow: false })
                  }}
           >
-            <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy} />
+            <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
           </Modal>
         </div>
       </QueueAnim>
