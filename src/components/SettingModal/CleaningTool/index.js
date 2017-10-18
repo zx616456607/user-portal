@@ -99,7 +99,7 @@ class CleaningTool extends Component {
       logsLoading: true
     })
     getSystemCleanLogs({
-      sort: 'a,create_time'
+      sort: 'd,create_time'
     }, {
       from: 0,
       size: 5,
