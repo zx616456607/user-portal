@@ -528,9 +528,9 @@ class VisitTypes extends Component{
     const radioValue = value || initValue
     const hide = selectDis == undefined ? initSelectDics : selectDis
     return (
-      <Card id="visitsTypePage">
-        <div className="visitTypeTopBox">
-          <div className="visitTypeTitle">集群访问方式</div>
+      <div id="visitsTypePage" className="modalDetailBox">
+        <div className="visitTypeTopBox configContent">
+          <div className="visitTypeTitle configHead">集群访问方式</div>
           <div className="visitTypeInnerBox">
             {
               forEdit ? [
@@ -562,8 +562,8 @@ class VisitTypes extends Component{
             </div>
           </div>
         </div>
-        <div className="visitTypeBottomBox">
-          <div className="visitTypeTitle">访问地址</div>
+        <div className="visitTypeBottomBox configContent">
+          <div className="visitTypeTitle configHead">访问地址</div>
           <div className="visitAddrInnerBox">
             <input type="text" className="copyTest" style={{opacity:0}}/>
             <div className={classNames("outPutBox",{'hide':addrHide})}>
@@ -588,7 +588,7 @@ class VisitTypes extends Component{
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     )
   }
 }
