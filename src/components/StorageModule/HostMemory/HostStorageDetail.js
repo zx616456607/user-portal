@@ -16,7 +16,7 @@ import QueueAnim from 'rc-queue-anim'
 import Title from '../../Title'
 import './style/HostStorageDetail.less'
 import storagePNG from '../../../assets/img/storage.png'
-import MountServiceList from '../MountServiceList'
+import StorageBind from '../StorageBind'
 
 const TabPane = Tabs.TabPane
 
@@ -33,7 +33,7 @@ class HostStorageDetail extends Component {
   }
 
   render() {
-    const { cluster, params, location } = this.props
+    const { cluster, params, location, StorageInfo } = this.props
     const clusterID = cluster.clusterID
     const hostName = params.host_name
     const { path, ip } = location.query
@@ -80,7 +80,7 @@ class HostStorageDetail extends Component {
                     宿主机目录：{ path }
                   </Col>
                   <Col span="15">
-                    存储节点：{ ip }
+                    存储节点：{ ip ? ip : '-' }
                   </Col>
                 </Row>
               </div>
@@ -89,8 +89,9 @@ class HostStorageDetail extends Component {
           <Card>
             <Tabs>
               <TabPane tab="绑定服务" key="service">
-                <MountServiceList
-                  clusterID={clusterID}
+                <StorageBind
+                  pool={StorageInfo.imagePool}
+                  cluster={clusterID}
                   volumeName={'host'}
                   query={query}
                 />
@@ -107,11 +108,21 @@ class HostStorageDetail extends Component {
 }
 
 function mapStateToProp(state, props) {
-  const { entities } = state
+  const { entities, storage } = state
   const { current } = entities
   const { cluster } = current
+  const defaultInfo = {
+    imagePool: props.params.pool,
+    volumeName: props.params.storage_name,
+    cluster: cluster.clusterID,
+    storageServer: '-',
+    consumption: 0,
+    size: 0
+  }
+  const StorageInfo  = storage.storageDetail.StorageInfo || defaultInfo
   return {
     cluster,
+    StorageInfo,
   }
 }
 

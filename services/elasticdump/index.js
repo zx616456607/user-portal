@@ -220,7 +220,7 @@ function dump(cluster, searchBody, scope) {
     searchBody,
     limit: 100,
     sourceOnly: true,
-    outputTransport: path.join(__dirname, './transports/outputStream'),
+    outputTransport: require('./transports/outputStream'),
     ignoreUnavailable: true,
   }
   const dumper = getDumper(cluster, 'outputStream', options)

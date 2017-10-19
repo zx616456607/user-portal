@@ -16,7 +16,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
 import findIndex from 'lodash/findIndex'
-import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage, SnapshotCreate, SnapshotList, searchStorage } from '../../actions/storage'
+import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage, SnapshotCreate, SnapshotList, searchStorage ,getStorageClassType } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
 import './style/storage.less'
 import { calcuDate, parseAmount, formatDate } from '../../common/tools'
@@ -500,7 +500,7 @@ let MyComponent = React.createClass({
         title: '类型',
         key: 'storageServer',
         dataIndex: 'storageServer',
-        width: '12%',
+        width: '18%',
         render: storageServer => <div>可靠块存储 ({storageServer})</div>
       },{
         title: '大小',
@@ -519,26 +519,26 @@ let MyComponent = React.createClass({
         dataIndex: 'deployServiceList',
         width: '10%',
         render: deployServiceList => <div>{deployServiceList && deployServiceList.length ? deployServiceList[0].serviceName : '未挂载服务'}</div>
-      },{
-        title: <div>
-          回收策略
-          <Tooltip title={<div>
-              <div>保留：服务删除时，保留存储</div>
-              <div>删除：删除服务时，删除存储</div>
-            </div>}>
-            <Icon type="question-circle-o" className='question_icon'/>
-          </Tooltip>
-        </div>,
-        key: 'reclaimPolicy',
-        dataIndex: 'reclaimPolicy',
-        width: '13%',
-        className: 'strategy',
-        render: reclaimPolicy => <div>{ reclaimPolicy == 'delete' ? '删除' : '保留'}</div>
+      //},{
+      //  title: <div>
+      //    回收策略
+      //    <Tooltip title={<div>
+      //        <div>保留：服务删除时，保留存储</div>
+      //        <div>删除：删除服务时，删除存储</div>
+      //      </div>}>
+      //      <Icon type="question-circle-o" className='question_icon'/>
+      //    </Tooltip>
+      //  </div>,
+      //  key: 'reclaimPolicy',
+      //  dataIndex: 'reclaimPolicy',
+      //  width: '13%',
+      //  className: 'strategy',
+      //  render: reclaimPolicy => <div>{ reclaimPolicy == 'delete' ? '删除' : '保留'}</div>
       },{
         title: '创建时间',
         key: 'createTime',
         dataIndex: 'createTime',
-        width: '10%',
+        width: '17%',
         sorter: (a, b) => new Date(formatDate(a.createTime)) - new Date(formatDate(b.createTime)),
         render: createTime => <div>{formatDate(createTime)}</div>
       },{
@@ -758,6 +758,7 @@ class Storage extends Component {
     // this.focus = this.focus.bind(this)
     this.deleteButton = this.deleteButton.bind(this)
     this.getStorageList = this.getStorageList.bind(this)
+    this.loadStorageClassType = this.loadStorageClassType.bind(this)
     this.state = {
       visible: false,
       volumeArray: [],
@@ -771,6 +772,7 @@ class Storage extends Component {
       comfirmRisk: false,
       disableListArray: [],
       ableListArray: [],
+      canCreate: false
     }
   }
   getStorageList(){
@@ -781,9 +783,28 @@ class Storage extends Component {
     }
     loadStorageList(currentImagePool, cluster, query)
   }
+  loadStorageClassType(){
+    const { getStorageClassType, cluster } = this.props
+    getStorageClassType(cluster, {
+      success: {
+        func: res => {
+          this.setState({
+            canCreate: res.data.private
+          })
+        }
+      },
+      failed: {
+        func: () => {
+          const notificationHandler = new NotificationHandler()
+          return notificationHandler.info('获取部署分布式存储状态失败，请刷新页面重试')
+        }
+      }
+    })
+  }
   componentWillMount() {
     this.getStorageList()
     this.props.SnapshotList({clusterID: this.props.cluster})
+    this.loadStorageClassType()
   }
   onChange(value) {
     this.setState({
@@ -1005,13 +1026,11 @@ class Storage extends Component {
     const { formatMessage } = this.props.intl
     const { getFieldProps } = this.props.form
     const { SnapshotCreate, snapshotDataList } = this.props
+    const { canCreate } = this.state
     const currentCluster = this.props.currentCluster
-    const storage_type = currentCluster.storageTypes
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
-    let canCreate = true
     let title = ''
-    if (!storage_type || storage_type.indexOf('rbd') < 0) canCreate = false
     if (!canCreate) {
       title = '尚未部署分布式存储，暂不能创建'
     }
@@ -1154,6 +1173,7 @@ export default connect(mapStateToProps, {
   SnapshotCreate,
   SnapshotList,
   searchStorage,
+  getStorageClassType,
 })(injectIntl(Storage, {
   withRef: true,
 }))
