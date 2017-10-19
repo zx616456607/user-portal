@@ -9,11 +9,11 @@
  */
 'use strict'
 class NfsDeplyment {
-  constructor(name, ip, path, image){
+  constructor(nfsname, ip, path, image){
     this.kind = 'Deployment'
     this.apiVersion = 'extensions/v1beta1'
     this.metadata = {
-      name,
+      name: nfsname,
       namespace: 'kube-system'
     }
     this.spec = {
@@ -24,14 +24,14 @@ class NfsDeplyment {
       template:{
         metadata: {
           labels: {
-            app: name,
+            app: nfsname,
           }
         },
         spec: {
           serviceAccount: 'nfs-provisioner',
           containers: [
             {
-              name,
+              name: nfsname,
               image,
               volumeMounts: [
                 {
@@ -42,7 +42,7 @@ class NfsDeplyment {
               env: [
                 {
                   "name": "PROVISIONER_NAME",
-                  "value": name,
+                  "value": nfsname,
                 },
                 {
                   "name": "NFS_SERVER",

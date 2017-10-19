@@ -38,6 +38,7 @@ class CreateRoleModal extends React.Component {
       isCheck: false,
       childrenKey: [],
       codeKey: [],
+      categoryKey: [],
     }
   }
   componentWillMount() {
@@ -79,11 +80,18 @@ class CreateRoleModal extends React.Component {
   }
   onCheck(checkedKeys, e) {
     let count = []
+    const categoryKey = this.fetchNode(e.node.props.category)
     e.checkedNodes.forEach(item => {
       if (item.props.code !== '') {
         count.push(item.key)
       }
     })
+    categoryKey.forEach((item, index) => {
+      if(checkedKeys.indexOf(item) === -1){
+        checkedKeys.push(item)
+      }
+    })
+
     this.setState({
       checkedKeys,
       isChecked: true,
@@ -374,6 +382,37 @@ class CreateRoleModal extends React.Component {
       isCheck: true,
     })
   }
+  fetchNode(category){
+    const { allPermission } = this.state
+    let childrenKey = []
+    this.fetchCategory(allPermission, childrenKey, category)
+    return childrenKey
+  }
+  fetchCategory(data, childrenKey, category){
+    const children = []
+    for (let i = 0; i < data.length; i++) {
+      let RowData = data[i]
+      if (RowData.id === category) {
+        if(RowData.children){
+          RowData.children.forEach((item, index) => {
+            if(item.name.indexOf('查看') !== -1){
+              childrenKey.push(item.id)
+            }
+          })
+        }
+      }
+      children.push(RowData.id)
+    }
+
+    children.forEach((key, index) => {
+      if (data[index]["children"] !== undefined) {
+        if (data[index].children.length !== 0) {
+          return this.fetchCategory(data[index].children, childrenKey, category);
+        }
+      }
+    })
+  }
+
   render() {
     const TreeNode = Tree.TreeNode;
     const { allPermission, permissionCount, rowDate, rowPermission, total, isChecked, checkedKeys } = this.state
@@ -392,12 +431,12 @@ class CreateRoleModal extends React.Component {
     const loop = data => data.map((item) => {
       if (item["children"] !== undefined) {
         return (
-          <TreeNode key={item.id} code={item.code} title={item.name}>
+          <TreeNode key={item.id} code={item.code} title={item.name} category={item.category} >
             {loop(item.children)}
           </TreeNode>
         )
       }
-      return <TreeNode key={item.id} code={item.code} title={item.name} />;
+      return <TreeNode key={item.id} code={item.code} title={item.name} category={item.category} />;
     })
     return (
       <Modal title={this.props.title} wrapClassName="createCharacterModal" visible={characterModal} width={570}
@@ -447,6 +486,7 @@ class CreateRoleModal extends React.Component {
               }
             </div>
           </div>
+          <span className="notes">注：查看作为基本操作权限，无查看权限时其他相关操作权限不生效</span>
         </div>
       </Modal>
     )
