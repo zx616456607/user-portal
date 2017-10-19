@@ -265,9 +265,12 @@ class CleaningRecord extends Component {
     })
   }
   selectLogType(value) {
-    if (value === 'cicd_clean') {
+    this.setState({
+      currentPage: 1
+    })
+    // if (value === 'cicd_clean') {
       this.selectFilter('target', value)
-    }
+    // }
   }
   searchLogs() {
     const { getFieldValue } = this.props.form
@@ -308,11 +311,12 @@ class CleaningRecord extends Component {
   }
   render() {
     const { form } = this.props
-    const { cleanLogs, totalCount, createTimeSort } = this.state
+    const { cleanLogs, totalCount, createTimeSort, currentPage } = this.state
     const { getFieldProps, getFieldValue } = form
     const pagination = {
       simple: true,
       total: totalCount,
+      current: currentPage,
       defaultPageSize: 10,
       defaultCurrent: 1,
     }
