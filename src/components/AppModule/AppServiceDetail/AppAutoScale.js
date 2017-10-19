@@ -30,6 +30,8 @@ import './style/AppAutoScale.less'
 import NotificationHandler from '../../../components/Notification'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import isEmpty from 'lodash/isEmpty'
+import classNames from 'classnames'
+
 const FormItem = Form.Item
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
@@ -509,9 +511,9 @@ class AppAutoScale extends Component {
       let optItem = cpuAndMemory[key] || { 'cpu': 80 }
       return (
         <Row type="flex" align="middle" key={key}>
-          <Col span={3} style={{ marginBottom: 24, textAlign: 'right' }}>
+          <Col className={classNames({"strategyLabel": key === 0})} span={3} style={{ marginBottom: 24, textAlign: 'right'}}>
             {
-              thresholdArr.indexOf(key) === 0 ? '阈值：' : ''
+              thresholdArr.indexOf(key) === 0 ? '阈值' : ''
             }
           </Col>
           <Col span={6}>
