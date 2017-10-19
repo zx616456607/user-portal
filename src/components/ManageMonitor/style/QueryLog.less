@@ -45,6 +45,9 @@
           line-height: 32px;
           text-align: right;
         }
+        .log_path{
+          width: calc(~"100% - 85px");
+        }
         .cloneSelectInput {
           position: relative;
           padding-left: 8px;
@@ -125,6 +128,11 @@
         .keywordInput {
           width: calc(~"100% - 85px");
           min-width: 155px;
+        }
+        .select_path{
+          display: inline-block;
+          height:32px;
+          line-height: 32px;
         }
       }
     }
@@ -356,13 +364,23 @@
             color: #D3D4D3
           }
         }
-        .filePath{
-          padding: 0 15px;
-          display: inline-block;
-          width: auto;
+        .file_log{
+          font-size: 14px;
           height: 40px;
           line-height: 40px;
-          font-size: 14px;
+          .filePath{
+            padding: 0 15px;
+            display: inline-block;
+            width: auto;
+
+
+          }
+          .separator{
+            padding-right: 15px;
+          }
+          .all_file{
+            cursor: pointer;
+          }
         }
         .fa-right {
           float: right;
@@ -425,5 +443,45 @@
   }
   .bigLogContainer {
     transform: none !important;
+  }
+}
+
+.filePop{
+  width: 310px;
+  .ant-popover-arrow{
+    display: none;
+  }
+  .search_box{
+    padding: 8px 16px;
+    position: relative;
+    border-bottom: 1px solid #EFEFEF;
+    .search_icon{
+      position: absolute;
+      font-size: 14px;
+      top: 16px;
+      right: 25px;
+      cursor: pointer;
+    }
+  }
+  .file_list{
+    padding: 8px 16px;
+    max-height: 200px;
+    overflow-y: scroll;
+    .list_container{
+      overflow-x: scroll;
+    }
+    .no_data{
+      text-align: center;
+      padding-top: 6px;
+    }
+    .file_item_style{
+      cursor: pointer;
+      height: 30px;
+      line-height: 30px;
+      white-space: nowrap;
+    }
+    //.file_item_style:hover{
+    //  background: #eaf8fe;
+    //}
   }
 }

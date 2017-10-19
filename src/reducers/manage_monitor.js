@@ -138,11 +138,54 @@ function getServiceOfQueryLog(state = {}, action) {
   }
 }
 
+function getLogFileOfQueryLog(state = {}, action){
+  switch(action.type){
+    case ActionTypes.GET_QUERYLOG_LOG_FILE_LIST_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+        fileList: [],
+        searchList: [],
+      })
+    case ActionTypes.GET_QUERYLOG_LOG_FILE_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        fileList: action.response.result.data,
+        searchList: action.response.result.data,
+      })
+    default:
+    case ActionTypes.GET_QUERYLOG_LOG_FILE_LIST_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+        fileList: [],
+        searchList: [],
+      })
+    case ActionTypes.SEARCH_QUERYLOG_LOG_FILE_LIST:
+      const list = cloneDeep(state.searchList)
+      const searchValue = action.searchValue
+      let result = []
+      if(searchValue){
+        list.forEach((item, index) => {
+          if(item.indexOf(searchValue) > -1){
+            result.push(item)
+          }
+        })
+      } else {
+        result = list
+      }
+      return Object.assign({}, state, {
+        isFetching: false,
+        fileList: result,
+        searchList: list,
+      })
+  }
+}
+
 export function manageMonitor(state = { manageMonitor: {} }, action) {
   return {
     operationAuditLog: operationAuditLog(state.operationAuditLog, action),
     getQueryLog: getQueryLog(state.getQueryLog, action),
     getClusterOfQueryLog: getClusterOfQueryLog(state.getClusterOfQueryLog, action),
     getServiceOfQueryLog: getServiceOfQueryLog(state.getServiceOfQueryLog, action),
+    getLogFileOfQueryLog: getLogFileOfQueryLog(state.getLogFileOfQueryLog, action),
   }
 }

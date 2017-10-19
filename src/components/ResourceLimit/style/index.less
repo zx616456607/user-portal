@@ -85,25 +85,30 @@
         & > div {
           height: 30px;
         }
+        .surplus {
+          float: left;
+        }
         .plus {
+          float: right;
           font-size: 14px;
           color: #2db7f5;
           margin-left: 20px;
           display: inline-block;
-          span {
-            margin-left: 10px;
-          }
           p {
+            margin-left: 5px;
             display: inline-block
           }
         }
         .minu {
+          float: right;
+          text-align: center;
           font-size: 14px;
           color: #f85a5a;
-          margin-left: 20px;
+          margin-left: 30px;
           display: inline-block;
-          span {
-            margin-left: 10px;
+          p {
+            margin-left: 5px;
+            display: inline-block;
           }
         }
       }
@@ -157,53 +162,67 @@
       margin: 10px 30px 30px;
       padding: 20px;
       border: 1.5px solid #e9e9e9;
-      .connents {
-        text-align: center;
-        line-height: 28px;
-        margin-top: 10px;
-        margin-left: 20px;
-        & > div:first-child {
-          text-align: left;
-          padding-right: 10px;
-        }
-        & > div{
-          height: 30px;
-        }
-      }
-      .line {
-        margin: 20px;
-        border-bottom: 1px dashed #e9e9e9;
-      }
       .edit {
+        .line {
+          margin: 20px;
+          border-bottom: 1px dashed #e9e9e9;
+        }
+        .connents {
+          text-align: center;
+          line-height: 28px;
+          margin-top: 10px;
+          margin-left: 20px;
+          & > div:first-child {
+            text-align: left;
+            padding-right: 10px;
+          }
+          & > div{
+            height: 30px;
+          }
+          .plus {
+            float: right;
+            font-size: 14px;
+            color: #2db7f5;
+            margin-left: 20px;
+            display: inline-block;
+            p {
+              margin-left: 5px;
+              display: inline-block
+            }
+          }
+          .minu {
+            float: right;
+            font-size: 14px;
+            color: #f85a5a;
+            margin-left: 20px;
+            display: inline-block;
+            p {
+              margin-left: 5px;
+              display: inline-block
+            }
+          }
+          .surplus {
+            float: left;
+          }
+        }
         .app {
           margin-left: 16px;
         }
         .platform {
           margin-top: 10px;
         }
+        .service {
+          margin-top: 30px;
+        }
         .database {
           margin-left: 16px;
         }
-        .connents {
-          margin-left: 30px;
-        }
-        .plus {
-          font-size: 14px;
-          color: #2db7f5;
+        .blank {
+          border: 1px solid #24a7eb;
+          width: 40px;
+          height: 32px;
           margin-left: 20px;
           display: inline-block;
-          span {
-            margin-left: 10px;
-          }
-        }
-        .minus {
-          font-size: 14px;
-          color: #f85a5a;
-          margin-left: 20px;
-          display: inline-block;
-          span {
-            margin-left: 10px;
-          }
         }
       }
       .lists {
@@ -218,6 +237,9 @@
         }
         .database {
           margin-left: 16px;
+        }
+        .service {
+          margin-top: 20px;
         }
         .list {
           margin-top: 10px;

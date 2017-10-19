@@ -19,6 +19,7 @@ import { Link } from 'react-router'
 import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
 import homeCICDImg from '../../../../assets/img/homeCICD.png'
 import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
+import homeHarbor from '../../../../assets/img/homeHarbor.png'
 import { getGlobaleQuota, getGlobaleQuotaList } from '../../../../actions/quota'
 
 const RadioButton = Radio.Button
@@ -177,11 +178,11 @@ class MySpace extends Component {
   }
   maxCount(value) {
     const { globaleList } = this.state
-    let count = ''
+    let count = 0
     if (globaleList) {
       Object.keys(globaleList).forEach((item, index) => {
         if (item === value) {
-          count = Object.values(globaleList)[index]
+          count = Object.values(globaleList)[index] !== null ? Object.values(globaleList)[index] : -1
         }
       })
     }
@@ -317,15 +318,14 @@ class MySpace extends Component {
         key: 'applicationPackage',
         text: '应用包(个)',
       }]
-
     return (
       <div id='MySpace'>
         <Row className="title" style={{ marginTop: 20 }}>{spaceName}</Row>
         <Row className="content" gutter={16}>
           <Col span={6} className="quota">
-            <Card title="项目资源配置" bordered={false} bodyStyle={{ height: 175, padding: '7px' }}
+            <Card title="项目资源配额" bordered={false} bodyStyle={{ height: 175, padding: '7px' }}
               extra={<Link to={spaceName === '我的个人项目' ? `tenant_manage/user/${this.props.loginUser.info.userID}?#quota` : this.props.userID === undefined ? `tenant_manage/project_manage/project_detail?name=${this.props.projectName}#quota` : `tenant_manage/user/${this.props.userID}?#quota`}>
-                <Button type="primary" size="small">设置配额</Button></Link>}>
+                <Button type="primary" size="small">{this.props.loginUser.info.role === 2 ? '设置配额' : '查看详情'}</Button></Link>}>
               <Row className="radios">
                 <Col span={16} offset={5}>
                   <RadioGroup size="small" onChange={(e) => this.handleChange(e)} defaultValue="ci">
@@ -345,7 +345,12 @@ class MySpace extends Component {
                         <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                       </Col>
                       <Col span={6}>
-                        <span className="count">{this.useCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
+                        {
+                          this.useCount(item.key) > this.maxCount(item.key) ?
+                            this.maxCount(item.key) === -1 ?
+                              <span>{this.useCount(item.key)}</span> :
+                              <span style={{ color: 'red' }}>{this.useCount(item.key)}</span> : <span>{this.useCount(item.key)}</span>
+                        }/<p>{this.maxCount(item.key) === -1 ? '无限制' : this.maxCount(item.key)}</p>
                       </Col>
                     </Row>
                   ))
@@ -362,7 +367,12 @@ class MySpace extends Component {
                         <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                       </Col>
                       <Col span={6}>
-                        <span className="count">{this.useCount(item.key)}/{this.maxCount(item.key) ? this.maxCount(item.key) : '无限制'}</span>
+                        {
+                          this.useCount(item.key) > this.maxCount(item.key) ?
+                            this.maxCount(item.key) === -1 ?
+                              <span>{this.useCount(item.key)}</span> :
+                              <span style={{ color: 'red' }}>{this.useCount(item.key)}</span> : <span>{this.useCount(item.key)}</span>
+                        }/<p>{this.maxCount(item.key) === -1 ? '无限制' : this.maxCount(item.key)}</p>
                       </Col>
                     </Row>
                   ))
@@ -541,22 +551,56 @@ class MySpace extends Component {
                 }
               </Row>
             </Card>
-            <Card title="镜像仓库" bordered={false} bodyStyle={{ height: 175 }} style={{ marginTop: 10 }} >
-              <ReactEcharts
-                notMerge={true}
-                option={imageOption}
-                style={{ height: '70px' }}
-                showLoading={isFetching}
-              />
-              <div style={{ position: 'absolute', top: '66px', width: '100%', textAlign: 'center' }}>
-                {spaceImageStats.myRepoCount} 个
-              </div>
-              <Row style={{ textAlign: 'center', height: 40, lineHeight: '40px', padding: '0 24px', fontSize: '13px', color: '#666' }}>
-                <Col span={12}>公开 {spaceImageStats.publicRepoCount} 个</Col>
-                <Col span={12}>私有 {spaceImageStats.myRepoCount - spaceImageStats.publicRepoCount} 个</Col>
+            <Card title="镜像仓库" bordered={false} bodyStyle={{ height: 175, padding: 0 }} style={{ marginTop: 10 }} >
+              <Row style={{ height: 130 }}>
+                <Col span={12} style={{ height: 130, lineHeight: '130px', textAlign: 'center' }}>
+                  <img src={homeHarbor} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+                </Col>
+                <Col className='cicdInf' span={12}>
+                  <table>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <div className='cicdDot' style={{ backgroundColor: '#13c563' }} />
+                          我的仓库组
+                      </td>
+                        <td className="cicdNum">
+                          {spaceImageStats.myProjectCount} 个
+                      </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className='cicdDot' style={{ backgroundColor: '#13c563' }} />
+                          我的镜像仓库
+                      </td>
+                        <td className="cicdNum">
+                          {spaceImageStats.myRepoCount} 个
+                      </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className='cicdDot' style={{ backgroundColor: '#46b2fa' }} />
+                          公开仓库组
+                      </td>
+                        <td className="cicdNum">
+                          {spaceImageStats.publicProjectCount} 个
+                      </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className='cicdDot' style={{ backgroundColor: '#46b2fa' }} />
+                          公开镜像仓库
+                      </td>
+                        <td className="cicdNum">
+                          {spaceImageStats.publicRepoCount} 个
+                      </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </Col>
               </Row>
-              <Row style={{ height: 40, lineHeight: '40px', borderTop: '1px solid #e2e2e2', padding: '0 24px', fontSize: '12px' }}>
-                仓库组: <strong>{spaceImageStats.publicProjectCount}</strong> 公开 / <strong>{spaceImageStats.myProjectCount}</strong> 私有
+              <Row style={{ height: 40, lineHeight: '40px', borderTop: '1px solid #e2e2e2', padding: '0 24px' }}>
+                服务状态：
                 {
                   this.state.ImageStates ?
                     <div style={{ float: 'right' }}>

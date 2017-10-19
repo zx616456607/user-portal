@@ -217,13 +217,19 @@ svg.http {
 .cicd {
   width: 14px;
   height: 14px;
-  margin-top: 2px;
+  vertical-align: middle;
 }
 .database {
   width: 14px;
   height: 14px;
+  vertical-align: text-bottom;
 }
 .app {
   width: 14px;
   height: 14px;
+}
+.center {
+  width: 14px;
+  height: 14px;
+  vertical-align: text-bottom;
 }

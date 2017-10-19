@@ -173,8 +173,8 @@ let CreateConfigFileModal = React.createClass({
     const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
     const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
     const notify = new NotificationHandler()
-    if(!/xml|json|conf|config|data|ini|txt/.test(fileType)) {
-      notify.error('目前仅支持 xml/json/conf/config/data/ini/txt 格式')
+    if(!/xml|json|conf|config|data|ini|txt|properties|yaml/.test(fileType)) {
+      notify.error('目前仅支持 xml/json/conf/config/data/ini/txt/properties/yaml 格式')
       return false
     }
     const self = this
