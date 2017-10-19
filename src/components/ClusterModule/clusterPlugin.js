@@ -441,6 +441,14 @@ class ClusterPlugin extends Component {
       })
       return
     }
+    if (key === "reinstall") {
+      this.setState({
+        currentPlugin: row,
+        reset: true,
+        row: row
+      })
+      return
+    }
     this.setState({
       key,
       plugins: row.name,
