@@ -372,6 +372,7 @@ class AlarmGroup extends Component {
               dataSource={tableData}
               pagination={{ simple: true }}
               rowSelection={rowSelection}
+              loading={this.props.isFetching}
               onRowClick={(e) => this.handClickRow(e)}
             >
             </Table>

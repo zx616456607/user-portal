@@ -10,11 +10,13 @@
 'use strict'
 
 class StorageClass {
-  constructor(agent, name, monitors, adminId, pool, secretName){
+  constructor(config){
+    const { agent, name, monitors, adminId, pool, secretName, scName } = config
     this.apiVersion = 'storage.k8s.io/v1'
     this.kind = 'StorageClass'
     this.metadata = {
       annotations: {
+        [`tenxcloud.com/scName`]: scName,
         [`tenxcloud.com/storageagent`]: agent,
       },
       name,
