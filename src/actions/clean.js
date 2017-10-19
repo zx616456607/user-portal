@@ -194,7 +194,7 @@ function fetchCloseLogAutoClean(body, callback) {
   return {
     [FETCH_API]: {
       types: [CLOSE_LOG_AUTO_CLEAN_REQUEST,CLOSE_LOG_AUTO_CLEAN_SUCCESS,CLOSE_LOG_AUTO_CLEAN_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cleaner/closer`,
+      endpoint: `${API_URL_PREFIX}/cleaner/close`,
       schema: {},
       options: {
         method: 'POST',
