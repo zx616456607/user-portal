@@ -13,8 +13,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import union from 'lodash/union'
 
 function storageList(state = {}, action) {
-  const pool = action.pool
-  const keyword = action.keyword
+  const { pool, keyword, storageType } = action
   const defaultState = {
     [pool]: {
       isFetching: false,
@@ -48,11 +47,19 @@ function storageList(state = {}, action) {
       if(!keyword){
         searchResult = state[`k8s-pool`].searchList
       } else {
-        mapArray.forEach((item, index) => {
-          if(item.name.indexOf(keyword) > -1){
-            searchResult.push(item)
-          }
-        })
+        if(storageType == 'host'){
+          mapArray.forEach((item, index) => {
+            if(item.serviceName.indexOf(keyword) > -1){
+              searchResult.push(item)
+            }
+          })
+        } else {
+          mapArray.forEach((item, index) => {
+            if(item.name.indexOf(keyword) > -1){
+              searchResult.push(item)
+            }
+          })
+        }
       }
       return Object.assign({}, state, defaultState, {
         [`k8s-pool`]: {

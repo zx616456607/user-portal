@@ -984,6 +984,10 @@ function formatResourceName(resourceName, resourceId) {
       let ids = new Array()
       for (let i = 0; i < newBody.strategies.length; i++) {
         let item = newBody.strategies[i]
+        if (item && item.strategyName) {
+          ids.push(item.strategyName)
+          break
+        }
         if (item && item.strategyID) {
           ids.push(item.strategyID)
         }
@@ -1756,7 +1760,7 @@ class OperationalAudit extends Component {
               placeholder={formatMessage(menusText.selectStatus)}
             >
               <Option value=''><FormattedMessage {...menusText.allstatus} /></Option>
-              <Option value='running'><FormattedMessage {...menusText.running} /></Option>
+              <Option value='running'>未完成</Option>
               <Option value='success'><FormattedMessage {...menusText.success} /></Option>
               <Option value='failed'><FormattedMessage {...menusText.failed} /></Option>
             </Select>

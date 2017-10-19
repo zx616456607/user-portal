@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/PortDetail.less"
-import { loadK8sService, clearK8sService, updateServicePort } from '../../../actions/services'
+import { loadK8sService, clearK8sService, updateServicePort, loadServiceDetail } from '../../../actions/services'
 import { isDomain } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import findIndex from 'lodash/findIndex'
@@ -288,7 +288,7 @@ let MyComponent = React.createClass({
     })
   },
   save(index) {
-    const { form, k8sService } = this.props
+    const { form, k8sService, loadServiceDetail } = this.props
     const keys = form.getFieldValue('keys')
     const body = []
     const self = this
@@ -311,7 +311,7 @@ let MyComponent = React.createClass({
         if(errors) {
           return
         }
-        const { updateServicePort, loadK8sService } = self.props
+        const { updateServicePort, loadK8sService, loadServiceDetail } = self.props
         keys.forEach(key => {
           let protocol = form.getFieldValue(`selectssl${key}`) ?  form.getFieldValue(`selectssl${key}`) :  form.getFieldValue(`ssl${key}`)
           let port = form.getFieldValue(`changeinputPort${key}`) ? form.getFieldValue(`changeinputPort${key}`) : form.getFieldValue(`inputPort${key}`)
@@ -342,6 +342,7 @@ let MyComponent = React.createClass({
         updateServicePort(cluster, serviceName, body, {
           success: {
             func: (res) => {
+              loadServiceDetail(cluster, serviceName)
               loadK8sService(cluster, serviceName, {
                 success: {
                   func: (res) => {self.setState({
@@ -703,7 +704,8 @@ MyComponent = Form.create()(MyComponent);
 MyComponent = connect(mapSateToProp, {
   loadK8sService,
   clearK8sService,
-  updateServicePort
+  updateServicePort,
+  loadServiceDetail,
 })(MyComponent)
 
 class PortDetail extends Component {

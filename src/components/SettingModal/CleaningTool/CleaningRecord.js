@@ -41,21 +41,26 @@ class CleaningRecord extends Component {
       cleanLogs: [],
       totalCount: 0,
       currentPage: 1,
-      sort: '',
+      sort: 'd,create_time',
       filter: '',
-      createTimeSort: undefined
+      createTimeSort: false
     }
   }
   componentWillMount() {
     this.getSystemLogs()
   }
   getCleanLogs() {
-    const { currentPage, sort, filter } = this.state
-    const { getCleanLogs } = this.props
+    const { currentPage, sort, startValue: start, endValue: end } = this.state
+    const { getCleanLogs, form } = this.props
+    const { getFieldsValue } = form
+    const { status, type } = getFieldsValue(['status', 'type'])
     getCleanLogs({
       sort,
-      filter,
-      from: currentPage,
+      type,
+      status,
+      start,
+      end,
+      from: (currentPage - 1) * 10,
       size: 10,
     }, {
       success: {
@@ -83,17 +88,17 @@ class CleaningRecord extends Component {
     const { getSystemCleanLogs, form } = this.props
     const { getFieldsValue } = form
     const { status, type } = getFieldsValue(['status', 'type'])
-    let query = {form: currentPage, size: 10}
+    let query = {}
     sort ? query = Object.assign(query, {sort}) : ''
-    let body = {status, operation_type: type}
+    let body = {status, type: type, from: (currentPage - 1) * 10, size: 10}
     startValue ? body = Object.assign(body, {start: formatDate(startValue)}): ''
     endValue ? body = Object.assign(body, {end: formatDate(endValue)}) : ''
     getSystemCleanLogs(query, body, {
       success: {
         func: res => {
           this.setState({
-            cleanLogs: res.data.body,
-            totalCount: res.data.meta.total,
+            cleanLogs: res.data.data,
+            totalCount: res.data.total,
           })
         },
         isAsync: true
@@ -199,20 +204,25 @@ class CleaningRecord extends Component {
 
   refreshLogList(){
     const { form } = this.props
-    const { resetFields, setFieldsValue } = form
-    resetFields()
-    setFieldsValue({'target': 'system_clean'})
+    const { resetFields, getFieldValue } = form
+    const target = getFieldValue('target')
+    resetFields(['status', 'type'])
     this.setState({
-      sort: '',
+      sort: 'd,create_time',
       filter: '',
       startValue: null,
       endValue: null,
-      createTimeSort: undefined
+      createTimeSort: undefined,
+      currentPage: 1
     }, () => {
-      this.getSystemLogs()
+      if (target === 'system_clean') {
+        this.getSystemLogs()
+      } else {
+        this.getCleanLogs()
+      }
     })
   }
-  onTableChange(pagination, filters, sorter) {
+  onTableChange(pagination) {
     const { getFieldValue } = this.props.form
     const logType = getFieldValue('target')
     this.setState({
@@ -247,11 +257,25 @@ class CleaningRecord extends Component {
     let newFilter
     newFilter = filter ? `${filter},${opt},${target}` : `${opt},${target}`
     this.setState({
-      filter: newFilter
+      filter: newFilter,
+      [opt]: target
+    }, () => {
+      if (opt === 'target') {
+        if (target === 'cicd_clean') {
+          this.getCleanLogs()
+        } else {
+          this.getSystemLogs()
+        }
+      }
     })
   }
   selectLogType(value) {
-    value === 'cicd_clean' && this.selectFilter('target', value)
+    this.setState({
+      currentPage: 1
+    })
+    // if (value === 'cicd_clean') {
+      this.selectFilter('target', value)
+    // }
   }
   searchLogs() {
     const { getFieldValue } = this.props.form
@@ -269,11 +293,9 @@ class CleaningRecord extends Component {
       running: '#0b9eeb',
       timeout: '#fab163'
     }
-    const detail = JSON.parse(record.detail)
-    const { clusters } = detail
     let nodeArr = []
-    clusters.forEach(item => {
-      nodeArr.push(Object.values(item.nodes))
+    record.detail.forEach(item => {
+      item.nodes && nodeArr.push(Object.values(item.nodes))
     })
     nodeArr = flattenDeep(nodeArr)
     return(
@@ -284,7 +306,7 @@ class CleaningRecord extends Component {
               <Row className="nodeItem">
                 <Col span={8}>{item.name}</Col>
                 <Col span={8}>{this.formatStatus(item.status)}</Col>
-                <Col span={8}>{`已清理：${item.total}MB`}</Col>
+                <Col span={8}>{`已清理：${((item.total - item.remain) / (1024 * 1024)).toFixed(2)}MB`}</Col>
               </Row>
             </Timeline.Item>
           ) 
@@ -294,11 +316,12 @@ class CleaningRecord extends Component {
   }
   render() {
     const { form } = this.props
-    const { cleanLogs, totalCount, createTimeSort } = this.state
-    const { getFieldProps } = form
+    const { cleanLogs, totalCount, createTimeSort, currentPage } = this.state
+    const { getFieldProps, getFieldValue } = form
     const pagination = {
       simple: true,
       total: totalCount,
+      current: currentPage,
       defaultPageSize: 10,
       defaultCurrent: 1,
     }
@@ -334,26 +357,20 @@ class CleaningRecord extends Component {
         render: text => this.formatStatus(text, true)
       },
       {
-        key: 'operationType',
-        dataIndex: 'operationType',
+        key: 'type',
+        dataIndex: 'type',
         title: '清理类型',
         width: '25%',
         render: type => this.formatType(type)
       },
-      // {
-      //   key: 'target',
-      //   dataIndex: 'target',
-      //   title: '文件类型',
-      //   width: '20%',
-      //   render: fileType => this.formatFileType(fileType)
-      // },
       {
-        key: 'cleanerName',
-        dataIndex: 'cleanerName',
+        key: 'cleaner',
+        dataIndex: 'cleaner',
         title: '清理人',
         width: '25%',
       },
     ]
+    const target = getFieldValue('target')
     return(
       <QueueAnim className='cleaningRecord' type="right">
         <Title title="清理记录"/>
@@ -407,7 +424,7 @@ class CleaningRecord extends Component {
                   placeholder='请选择清理类型'
                   size='large'
                   {...getFieldProps('type', {
-                    onChange: value => this.selectFilter('operation_type', value)
+                    onChange: value => this.selectFilter('type', value)
                   })}
                 >
                   <Option key="manual" value="manual">手动清理</Option>
@@ -461,7 +478,7 @@ class CleaningRecord extends Component {
               <Table
                 dataSource={cleanLogs}
                 columns={columns}
-                expandedRowRender={record => this.renderExpand(record)}
+                expandedRowRender={(target === 'cicd_clean') && (record => record.detail && record.detail.length && this.renderExpand(record))}
                 onChange={this.onTableChange.bind(this)}
                 pagination={pagination}
                 rowKey={record => record.id}

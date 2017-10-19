@@ -114,8 +114,8 @@ let CreateConfigFileModal = React.createClass({
     const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
     const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
     const notify = new NotificationHandler()
-    if(!/xml|json|conf|config|data|ini|txt/.test(fileType)) {
-      notify.error('目前仅支持 xml/json/conf/config/data/ini/txt 格式')
+    if(!/xml|json|conf|config|data|ini|txt|properties|yaml/.test(fileType)) {
+      notify.error('目前仅支持 xml/json/conf/config/data/ini/txt/properties/yaml 格式')
       return false
     }
     const self = this
@@ -327,7 +327,7 @@ class CollapseHeader extends Component {
 
           {/*删除配置文件-弹出层 */}
 
-          <Modal title="删除配置操作" visible={this.state.delModal}
+          <Modal title="删除配置组操作" visible={this.state.delModal}
           onOk={()=> this.btnDeleteGroup()} onCancel={()=> this.setState({delModal: false})}
           >
             <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除配置组 {collapseHeader.name} ?</div>

@@ -30,6 +30,11 @@ let CreateAlarmGroup = React.createClass({
   componentWillMount() {
     this.fillEmails(this.props)
   },
+  componentDidMount() {
+    setTimeout(()=> {
+      document.getElementById('groupName').focus()
+    },300)
+  },
   componentWillReceiveProps(nextProps) {
     this.fillEmails(nextProps, this.props)
   },
@@ -179,6 +184,9 @@ let CreateAlarmGroup = React.createClass({
     if (newValue.length < 3 || newValue.length > 21) {
       callback(new Error('请输入3~21个字符'))
       return
+    }
+    if (!/^[a-zA-Z0-9\u4e00-\u9fa5]{1}[a-zA-Z0-9\u4e00-\u9fa5\-_]+$/.test(newValue)){
+      return callback('请输入中文、英文字母或数字开头，中间可下划线、连接符')
     }
     callback()
   },

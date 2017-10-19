@@ -48,6 +48,7 @@ class CleaningTool extends Component {
       forbid: false,
       systemLogs: [],
       cicdLogs: [],
+      cleanLogs: [],
       logsLoading: false,
       activeKey: 'systemLog'
     }
@@ -70,6 +71,7 @@ class CleaningTool extends Component {
         func: res => {
           this.setState({
             cicdLogs: res.data.body,
+            cleanLogs: res.data.body,
             logsLoading: false
           })
         },
@@ -79,6 +81,7 @@ class CleaningTool extends Component {
         func: () => {
           this.setState({
             cicdLogs: [],
+            cleanLogs: [],
             logsLoading: false
           })
         },
@@ -99,14 +102,16 @@ class CleaningTool extends Component {
       logsLoading: true
     })
     getSystemCleanLogs({
-      from: 1,
-      size: 5,
       sort: 'd,create_time'
+    }, {
+      from: 0,
+      size: 5,
     }, {
       success: {
         func: res => {
           this.setState({
-            systemLogs: res.data.body,
+            systemLogs: res.data.data,
+            cleanLogs: res.data.data,
             logsLoading: false
           })
         },
@@ -116,6 +121,7 @@ class CleaningTool extends Component {
         func: () => {
           this.setState({
             systemLogs: [],
+            cleanLogs: [],
             logsLoading: false
           })
         },
@@ -159,18 +165,32 @@ class CleaningTool extends Component {
   }
   
   cleanCicd() {
-    const { form, startClean } = this.props
+    const { form, startClean, userName } = this.props
     const time = form.getFieldValue("cache")
     const cleanRange = parseInt(time)
+    let notify = new NotificationHandler()
     this.setState({
       cleanCicdStatus: 'cleaning'
     })
-    startClean('cicd_clean', 'manual', {
-      cron: "",
-      scope: cleanRange
+    notify.spin('cicd手动清理中')
+    startClean({
+      cicd_clean: {
+        meta: {
+          automatic: false,
+          cleaner: userName,
+          target: "cicd_clean",
+          type: "manual"
+        },
+        spec: {
+          cron: '',
+          scope: cleanRange
+        }
+      }
     }, {
       success: {
         func: () => {
+          notify.close()
+          notify.success('cicd手动清理成功')
           this.setState({
             cleanCicdStatus: true,
           })
@@ -179,7 +199,14 @@ class CleaningTool extends Component {
         isAsync: true
       },
       failed: {
-        func: () => {
+        func: res => {
+          if (res.message === 'RUNNING') {
+            notify.close()
+            notify.info('有用户正在操作，请稍后重试')
+          } else {
+            notify.close()
+            notify.error('cicd手动清理失败')
+          }
           this.setState({
             cleanCicdStatus: false,
           })
@@ -192,15 +219,19 @@ class CleaningTool extends Component {
     const { form, cleanSystemLogs } = this.props
     const time = form.getFieldValue("systemLogTime")
     const time_range = parseInt(time)
+    let notify = new NotificationHandler()
     this.setState({
       cleanSystemLogStatus: 'cleaning'
     })
+    notify.spin('系统日志手动清理中')
     cleanSystemLogs({
       type: 0,
       time_range,
     }, {
       success: {
         func: () => {
+          notify.close()
+          notify.success('系统日志手动清理成功')
           this.setState({
             cleanSystemLogStatus: true
           })
@@ -210,6 +241,8 @@ class CleaningTool extends Component {
       },
       failed: {
         func: () => {
+          notify.close()
+          notify.error('系统日志手动清理失败')
           this.setState({
             cleanSystemLogStatus: false
           })
@@ -315,8 +348,14 @@ class CleaningTool extends Component {
   }
 
   renderLogsList(){
-    const { cicdLogs, systemLogs, activeKey, logsLoading } = this.state
-    let cleanLogs = activeKey === 'systemLog' ? systemLogs : cicdLogs
+    const { activeKey, logsLoading, cleanLogs } = this.state
+    let tailText = activeKey === 'systemLog' ? ' 个文件' : 'MB 垃圾'
+    function formatTotal(total) {
+      if (activeKey === 'cache') {
+        return (total / (1024 * 1024)).toFixed(2)
+      }
+      return total
+    }
     if (logsLoading) {
       return(
         <div className='loadingBox'>
@@ -324,24 +363,24 @@ class CleaningTool extends Component {
         </div>
       )
     }
-    if (!cleanLogs.length) {
-      return <div style={{ textAlign: 'center' }}>暂无数据</div>
+    if (!cleanLogs || !cleanLogs.length) {
+      return <div style={{ textAlign: 'center' }}>{ activeKey !== 'monitoringData' ? '暂无数据' : ''}</div>
     }
     return(
-      <Timeline> 
+      <Timeline>
         {
-          cleanLogs.map((item, index) => {
+          cleanLogs && cleanLogs.length && cleanLogs.map((item, index) => {
             return (
               <TimelineItem key={item.id} color={index === 0 ? 'green' : '#e9e9e9'}>
                 <Row className={classNames({'successColor': index === 0})}>
-                  <Col span={20}>{index === 0 ? `上次清理 ${item.total}MB 垃圾` : `清理 ${item.total}MB 垃圾`}</Col>
-                  <Col className="time_item" span={4}>{formatDate(item.CreateTime, 'MM-DD')}</Col>
+                  <Col span={20}>{index === 0 ? `上次清理 ${formatTotal(item.total)}${tailText}` : `清理 ${formatTotal(item.total)}${tailText}`}</Col>
+                  <Col className="time_item" span={4}>{formatDate(item.createTime, 'MM-DD')}</Col>
                 </Row>
               </TimelineItem>
-              )
-            })
+            )
+          })
         }
-      </Timeline> 
+      </Timeline>
     )
   }
 
@@ -407,7 +446,7 @@ class CleaningTool extends Component {
         return (
           <div className='done_box'>
             <div className='tips'>
-              清理完成，此次清理 <span className='number'>{systemLogs[0].total}</span> MB，查看 <Link to="/setting/cleaningTool/cleaningRecord">清理记录</Link>
+              清理完成，此次清理 <span className='number'>{systemLogs && systemLogs[0] && systemLogs[0].total}</span> 个文件，查看 <Link to="/setting/cleaningTool/cleaningRecord">清理记录</Link>
             </div>
             <Button size="large" type="primary" onClick={() => this.setState({cleanSystemLogStatus: undefined})}>完成</Button>
           </div>
@@ -438,11 +477,11 @@ class CleaningTool extends Component {
               >
                 <Option key="system_0" value="0">清除所有数据</Option>
                 <Option key="system_1" value="1">清除1天前数据</Option>
-                <Option key="system_2" value="2">清除3天前数据</Option>
-                <Option key="system_3" value="3">清除7天前数据</Option>
-                <Option key="system_4" value="4">清除15天数据</Option>
-                <Option key="system_5" value="5">清除1月前数据</Option>
-                <Option key="system_6" value="6">清除3月前数据</Option>
+                <Option key="system_3" value="3">清除3天前数据</Option>
+                <Option key="system_7" value="7">清除7天前数据</Option>
+                <Option key="system_15" value="15">清除15天数据</Option>
+                <Option key="system_30" value="30">清除1月前数据</Option>
+                <Option key="system_90" value="90">清除3月前数据</Option>
               </Select>
             </FormItem>
             <div>
@@ -471,7 +510,7 @@ class CleaningTool extends Component {
         return (
           <div className='done_box'>
             <div className='tips'>
-              清理完成，此次清理 <span className='number'>{cicdLogs[0].total}</span> MB，查看 <Link to="/setting/cleaningTool/cleaningRecord">清理记录</Link>
+              清理完成，此次清理 <span className='number'>{(cicdLogs[0].total / (1024 * 1024)).toFixed(2)}</span> MB，查看 <Link to="/setting/cleaningTool/cleaningRecord">清理记录</Link>
             </div>
             <Button size="large" type="primary" onClick={() => this.setState({cleanCicdStatus: undefined})}>完成</Button>
           </div>
@@ -524,6 +563,10 @@ class CleaningTool extends Component {
       this.getSystemLogs()
     } else if (tab === 'cache') {
       this.getCicdLogs()
+    } else {
+      this.setState({
+        cleanLogs: []
+      })
     }
   }
   render() {
@@ -532,7 +575,8 @@ class CleaningTool extends Component {
       monitorBtnLoading,
       accomplish, pending,
       forbid, mirrorImageEdit,
-      cicdLogs, systemLogs, activeKey
+      cicdLogs, systemLogs, activeKey,
+      cleanSystemLogStatus, cleanCicdStatus
     } = this.state
     const { form } = this.props
     const { getFieldProps } = form
@@ -570,7 +614,7 @@ class CleaningTool extends Component {
           name:'最近清除',
           type:'bar',
           barWidth: '40px',
-          data:[0, cicdLogs.length && cicdLogs[0].total]
+          data:[systemLogs && systemLogs.length && systemLogs[0].total, cicdLogs && cicdLogs.length && (cicdLogs[0].total / (1024 * 1024)).toFixed(2)]
         }
       ]
     };
@@ -596,7 +640,7 @@ class CleaningTool extends Component {
             >
               <TabPane tab="系统日志" key="systemLog">
                 <div className='img_box'>
-                  <img src={CleaningToolImg} alt=""/>
+                  <img className={classNames({'cleaning': cleanSystemLogStatus === 'cleaning'})} src={CleaningToolImg}/>
                 </div>
                 {
                   this.renderSystemTab()
@@ -630,7 +674,7 @@ class CleaningTool extends Component {
               </TabPane>*/}
               <TabPane tab="CI/CD缓存" key="cache">
                 <div className='img_box'>
-                  <img src={CleaningToolImg} alt=""/>
+                  <img className={classNames({'cleaning': cleanCicdStatus === 'cleaning'})} src={CleaningToolImg}/>
                 </div>
                 {
                   this.renderCicdTab()
@@ -638,7 +682,7 @@ class CleaningTool extends Component {
               </TabPane>
               <TabPane tab="监控数据" key="monitoringData">
                 <div className='img_box'>
-                  <img src={CleaningToolImg} alt=""/>
+                  <img className={classNames({'cleaning': monitorBtnLoading})} src={CleaningToolImg}/>
                 </div>
                 <div className='handle_box'>
                   <div className='tips'>您可以根据数据时效配置数据保留时间！</div>
@@ -799,9 +843,11 @@ class CleaningTool extends Component {
 CleaningTool = Form.create({})(CleaningTool)
 
 function mapStateToProp(state, props) {
-
+  const { loginUser } = state.entities
+  const { info } = loginUser
+  const { userName } = info
   return {
-
+    userName
   }
 }
 

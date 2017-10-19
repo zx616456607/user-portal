@@ -226,12 +226,6 @@ class ClusterPlugin extends Component {
   }
 
   getStateusForEvent(row) {
-    if (row.status.message == 'abnormal' && row.status.code == '503') {
-      if(row.podBrief && row.podBrief.running > 0) {
-        return ''
-      }
-      return (<Button type="primary" onClick={() => this.showResetModal(row)}>重新安装</Button>)
-    }
     if (row.status.message == 'uninstalled' && row.status.code == '503') {
       return (<Button type="primary" onClick={() => this.showCreateModal(row)}>安装插件</Button>)
     }
@@ -450,7 +444,8 @@ class ClusterPlugin extends Component {
     this.setState({
       key,
       plugins: row.name,
-      action: true
+      action: true,
+      row: row
     })
   }
   handPlugins() {
@@ -471,10 +466,14 @@ class ClusterPlugin extends Component {
       this.startPlugin(body, 'start')
       return
     }
+    if(this.state.key == 'reinstall') {
+      this.showResetModal(this.state.row)
+      return
+    }
     this.props.deleteMiddleware(body, {
       success: {
         func: () => {
-          notify.success('删除成功！')
+          notify.success('卸载成功')
           this.props.getClusterPlugins(cluster)
         },
         isAsync: true
@@ -669,11 +668,15 @@ class ClusterPlugin extends Component {
         dataIndex: 'action',
         render: (text, row) => {
           let menu
+          if(row.status.message != 'uninstalled') {
+            
+          }
           if(row.status.message == 'stopped') {
             menu = (
               <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
                 <Menu.Item key="start">启动插件</Menu.Item>
                 <Menu.Item key="delete">卸载插件</Menu.Item>
+                <Menu.Item key="reinstall">重新部署</Menu.Item>
               </Menu>
              )
            }else if (row.name == 'elasticsearch-logging') {
@@ -682,6 +685,7 @@ class ClusterPlugin extends Component {
                  <Menu.Item key="stop">停止插件</Menu.Item>
                  <Menu.Item key="delete">卸载插件</Menu.Item>
                  <Menu.Item key="deployIndextpl">部署索引模版</Menu.Item>
+                 <Menu.Item key="reinstall">重新部署</Menu.Item>
                </Menu>
              )
            }  else {
@@ -689,6 +693,7 @@ class ClusterPlugin extends Component {
               menu = (
                 <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
                   <Menu.Item key="delete">卸载插件</Menu.Item>
+                  <Menu.Item key="reinstall">重新部署</Menu.Item>
                 </Menu>
               )
             } else {
@@ -696,6 +701,7 @@ class ClusterPlugin extends Component {
                 <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
                   <Menu.Item key="stop">停止插件</Menu.Item>
                   <Menu.Item key="delete">卸载插件</Menu.Item>
+                  <Menu.Item key="reinstall">重新部署</Menu.Item>
                 </Menu>
               )
             }
@@ -706,6 +712,7 @@ class ClusterPlugin extends Component {
                <Menu className="Settingplugin">
                  <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="start">启动插件</Menu.Item>
                  <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
+                 <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)}>重新部署</Menu.Item>
                  {this.getStateusForEvent(row)}
                </Menu>
              )
@@ -714,6 +721,7 @@ class ClusterPlugin extends Component {
                <Menu className="Settingplugin">
                  <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="stop">停止插件</Menu.Item>
                  <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
+                 <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)}>重新部署</Menu.Item>
                  {this.getStateusForEvent(row)}
                </Menu>
              )
@@ -726,14 +734,14 @@ class ClusterPlugin extends Component {
                <span className="button">
                 {this.getStateusForEvent(row)}
                </span>
-               <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
+               {row.status.message == 'uninstalled' ? '' : <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
                  设置插件
-               </Dropdown.Button>
+               </Dropdown.Button>}
              </div>
              <div className="Settingpluginb">
-               <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menua} type="ghost">
+               {row.status.message == 'uninstalled' ? '' : <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
                  设置插件
-               </Dropdown.Button>
+               </Dropdown.Button>}
              </div>
              {/*<Button type="primary" onClick={() => this.showResetModal(row.name)}>重新部署</Button>
               <Button className="setup" type="ghost" onClick={()=> this.showSetModal(row.name)}>设置</Button>*/}

@@ -244,7 +244,13 @@ let MyComponent = React.createClass({
   },
   render: function () {
     const { config, scope, flowId } = this.props;
-
+    let defaultIndex = 0
+    config.some((item,index) => {
+      if(item.status == 2) {
+        defaultIndex = index
+        return true
+      }
+    })
     let items = config.map((item, index) => {
       const header = (
         <div className='header'>
@@ -288,14 +294,14 @@ let MyComponent = React.createClass({
             <div className='line'></div>
           </div>
           <div className='rightInfo'>
-            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId} index={index} callback={this.callback(flowId)} visible={this.props.visible} setUpdateWebSocket={this.setUpdateWebSocket()} updateWebSocket={this.state.updateWebSocket}/>
+            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId} index={index} callback={this.callback(flowId)} visible={this.props.visible} setUpdateWebSocket={this.setUpdateWebSocket()} updateWebSocket={this.state.updateWebSocket} flowId={this.props.flowId} stageId={this.props.stageId}/>
           </div>
         </Panel>
       );
     });
     return (
       <div className='rightBox'>
-        <Collapse className='logBox' onChange={this.collapseAction.bind(this, config)} defaultActiveKey="LogDetail0">
+        <Collapse className='logBox' onChange={this.collapseAction.bind(this, config)} defaultActiveKey={`LogDetail${defaultIndex}`}>
           {items}
         </Collapse>
         <Modal title="确认停止" visible={this.state.showModal}
@@ -371,6 +377,7 @@ class StageBuildLog extends Component {
   render() {
     const scope = this;
     const { logs, isFetching, flowId } = this.props;
+
     if (isFetching) {
       return (
         <div id='StageBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
@@ -411,7 +418,7 @@ class StageBuildLog extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='paddingBox'>
-        <MyComponent config={logs} scope={scope} flowId={flowId} getTenxflowBuildLastLogs={(flowId)=>this.props.getTenxflowBuildLastLogs(flowId)} visible={this.props.visible}/>
+        <MyComponent config={logs} scope={scope} flowId={flowId} stageId={this.props.stageId} getTenxflowBuildLastLogs={(flowId)=>this.props.getTenxflowBuildLastLogs(flowId)} visible={this.props.visible}/>
           <div style={{ clear: 'both' }}></div>
         </div>
       </div>

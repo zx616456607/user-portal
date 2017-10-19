@@ -11,6 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Popover, Tooltip, Modal } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
+import find from 'lodash/find'
 import ContainerList from './AppContainerList'
 import AppServiceDetailInfo from './AppServiceDetailInfo'
 import AppServiceAssistSetting from './AppServiceAssistSetting'
@@ -261,7 +262,7 @@ class AppServiceDetail extends Component {
   }
   render() {
     const parentScope = this
-    const { loginUser } = this.props
+    const { loginUser, serviceList } = this.props
     const {
       scope,
       serviceDetailmodalShow,
@@ -278,12 +279,18 @@ class AppServiceDetail extends Component {
     const { activeTabKey, currentContainer, deleteModal } = this.state
     const httpsTabKey = '#https'
     const isKubeNode = (SERVICE_KUBE_NODE_PORT == loginUser.info.proxyType)
-
     let nocache = currentContainer.map((item) => {
       return item.metadata.name;
     })
     const service = scope.state.currentShowInstance || serviceDetail
+    let statusService = service
     service.status = getServiceStatusByContainers(service, containers)
+    if(serviceList) {
+      let tmp = find(serviceList, item => item.metadata.name === service.metadata.name)
+      if(tmp) {
+        statusService = tmp
+      }
+    }
     const operaMenu = (<Menu>
       <Menu.Item key='restart' disabled={this.handleMenuDisabled('restart')}>
         <span onClick={() => this.restartService(service)}>重新部署</span>
@@ -342,7 +349,7 @@ class AppServiceDetail extends Component {
                 <span style={{ position: 'relative', top: '-5px' }}>
                   <ServiceStatus
                     smart={true}
-                    service={service} />
+                    service={statusService} />
                 </span>
               </div>
               <div className='address'>
@@ -580,7 +587,7 @@ function mapStateToProps(state, props) {
   if (k8sService && k8sService.isFetching === false && k8sService.data && k8sService.data[camelizedSvcName]) {
     k8sServiceData = k8sService.data[camelizedSvcName]
   }
-
+  const { services } = state.services.serviceList
   return {
     loginUser: loginUser,
     cluster,
@@ -594,6 +601,7 @@ function mapStateToProps(state, props) {
     containers: targetContainers.containerList,
     isContainersFetching: targetContainers.isFetching,
     k8sService: k8sServiceData,
+    serviceList: services || [],
   }
 }
 
