@@ -37,10 +37,11 @@ export function loadStorageList(pool, cluster, query, callback) {
 }
 
 export const SEARCH_STORAGE = 'SEARCH_STORAGE'
-export function searchStorage(keyword){
+export function searchStorage(keyword, storageType){
   return {
     type: SEARCH_STORAGE,
     keyword,
+    storageType,
   }
 }
 

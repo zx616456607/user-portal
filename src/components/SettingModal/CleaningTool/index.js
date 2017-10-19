@@ -99,7 +99,7 @@ class CleaningTool extends Component {
       logsLoading: true
     })
     getSystemCleanLogs({
-      sort: 'a,create_time'
+      sort: 'd,create_time'
     }, {
       from: 0,
       size: 5,
@@ -163,9 +163,11 @@ class CleaningTool extends Component {
     const { form, startClean, userName } = this.props
     const time = form.getFieldValue("cache")
     const cleanRange = parseInt(time)
+    let notify = new NotificationHandler()
     this.setState({
       cleanCicdStatus: 'cleaning'
     })
+    notify.spin('cicd手动清理中')
     startClean({
       cicd_clean: {
         meta: {
@@ -182,6 +184,8 @@ class CleaningTool extends Component {
     }, {
       success: {
         func: () => {
+          notify.close()
+          notify.success('cicd手动清理成功')
           this.setState({
             cleanCicdStatus: true,
           })
@@ -190,7 +194,14 @@ class CleaningTool extends Component {
         isAsync: true
       },
       failed: {
-        func: () => {
+        func: res => {
+          if (res.message === 'RUNNING') {
+            notify.close()
+            notify.info('有用户正在操作，请稍后重试')
+          } else {
+            notify.close()
+            notify.error('cicd手动清理失败')
+          }
           this.setState({
             cleanCicdStatus: false,
           })
@@ -203,15 +214,19 @@ class CleaningTool extends Component {
     const { form, cleanSystemLogs } = this.props
     const time = form.getFieldValue("systemLogTime")
     const time_range = parseInt(time)
+    let notify = new NotificationHandler()
     this.setState({
       cleanSystemLogStatus: 'cleaning'
     })
+    notify.spin('系统日志手动清理中')
     cleanSystemLogs({
       type: 0,
       time_range,
     }, {
       success: {
         func: () => {
+          notify.close()
+          notify.success('系统日志手动清理成功')
           this.setState({
             cleanSystemLogStatus: true
           })
@@ -221,6 +236,8 @@ class CleaningTool extends Component {
       },
       failed: {
         func: () => {
+          notify.close()
+          notify.error('系统日志手动清理失败')
           this.setState({
             cleanSystemLogStatus: false
           })
@@ -328,6 +345,7 @@ class CleaningTool extends Component {
   renderLogsList(){
     const { cicdLogs, systemLogs, activeKey, logsLoading } = this.state
     let cleanLogs = activeKey === 'systemLog' ? systemLogs : cicdLogs
+    let tailText = activeKey === 'systemLog' ? ' 个文件' : 'MB 垃圾'
     if (logsLoading) {
       return(
         <div className='loadingBox'>
@@ -345,7 +363,7 @@ class CleaningTool extends Component {
             return (
               <TimelineItem key={item.id} color={index === 0 ? 'green' : '#e9e9e9'}>
                 <Row className={classNames({'successColor': index === 0})}>
-                  <Col span={20}>{index === 0 ? `上次清理 ${item.total}MB 垃圾` : `清理 ${item.total}MB 垃圾`}</Col>
+                  <Col span={20}>{index === 0 ? `上次清理 ${item.total}${tailText}` : `清理 ${item.total}${tailText}`}</Col>
                   <Col className="time_item" span={4}>{formatDate(item.createTime, 'MM-DD')}</Col>
                 </Row>
               </TimelineItem>
@@ -418,7 +436,7 @@ class CleaningTool extends Component {
         return (
           <div className='done_box'>
             <div className='tips'>
-              清理完成，此次清理 <span className='number'>{systemLogs[0].total}</span> MB，查看 <Link to="/setting/cleaningTool/cleaningRecord">清理记录</Link>
+              清理完成，此次清理 <span className='number'>{systemLogs && systemLogs[0] && systemLogs[0].total}</span> 个文件，查看 <Link to="/setting/cleaningTool/cleaningRecord">清理记录</Link>
             </div>
             <Button size="large" type="primary" onClick={() => this.setState({cleanSystemLogStatus: undefined})}>完成</Button>
           </div>

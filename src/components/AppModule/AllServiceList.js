@@ -337,9 +337,14 @@ const MyComponent = React.createClass({
       && item.spec.template.spec
       && item.spec.template.spec.volumes
     ){
-      return <Tooltip title="该服务已添加存储" placement="top">
-        <span className='standrand volumeColor'>存</span>
-      </Tooltip>
+      let volumes = item.spec.template.spec.volumes
+      for(let i = 0; i < volumes.length; i++){
+        if(volumes[i].persistentVolumeClaim || volumes[i].hostPath || volumes[i].rbd){
+          return <Tooltip title="该服务已添加存储" placement="top">
+            <span className='standrand volumeColor'>存</span>
+          </Tooltip>
+        }
+      }
     }
     return <span></span>
   },
