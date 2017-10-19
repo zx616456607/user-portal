@@ -317,12 +317,17 @@ class TeamDetail extends Component {
     }
   }
   componentWillMount() {
-    const { loadAllClustersList, loadTeamUserList, teamID, loadTeamAllUser, roleNum } = this.props
+    const { loadAllClustersList, loadTeamUserList, teamID, loadTeamAllUser, roleNum, teamPage } = this.props
     roleNum && (roleNum !== 3) && loadAllClustersList(teamID)
     loadTeamUserList(teamID, { sort: 'a,userName', size: 5, page: 1 })
     loadTeamAllUser(teamID, {size: 0})
     this.loadTeamDetail()
     this.getTeamLeader(false)
+    this.setState({
+      teamPage
+    }, () => {
+      browserHistory.replace(`/tenant_manage/team/${teamID}`)
+    })
   }
   addNewMember() {
     const { loadTeamAllUser, teamID } = this.props;
@@ -757,7 +762,7 @@ class TeamDetail extends Component {
       loadTeamUserList, form, loadTeamAllUser, roleNum
     } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = form
-    const { targetKeys, teamDetail, selectLeader, editTeamName, delLeaderName, value, isNotManager, editTeamDes } = this.state
+    const { targetKeys, teamDetail, selectLeader, editTeamName, delLeaderName, value, isNotManager, editTeamDes, teamPage } = this.state
     const leaderRowSelction = {
       type: 'radio',
       selectedRowKeys: selectLeader,
@@ -779,7 +784,7 @@ class TeamDetail extends Component {
         <div key="tenantTeamDetail" id='tenantTeamDetail'>
           <Row className="teamDetailHeader">
             <div className="goBackBox">
-              <span className="goBackBtn pointer" onClick={() => browserHistory.push('/tenant_manage/team')}>返回</span>
+              <span className="goBackBtn pointer" onClick={() => browserHistory.push(`/tenant_manage/team?teamPage=${teamPage}`)}>返回</span>
               <i />
               团队详情
             </div>
@@ -818,10 +823,10 @@ class TeamDetail extends Component {
                   {
                     editTeamName ?
                       [
-                        <Tooltip title="取消">
+                        <Tooltip title="取消" key="teamNameCancel">
                           <i className="anticon anticon-minus-circle-o pointer cancel" onClick={()=> this.cancelEdit()}/>
                         </Tooltip>,
-                        <Tooltip title="保存">
+                        <Tooltip title="保存" key="teamNameSave">
                           <i className="anticon anticon-save pointer confirm" onClick={()=> this.saveTeamName()}/>
                         </Tooltip>
                       ] :
@@ -877,10 +882,10 @@ class TeamDetail extends Component {
                   {
                     editTeamDes ?
                       [
-                        <Tooltip title="取消">
+                        <Tooltip title="取消" key="desCancel">
                           <i className="anticon anticon-minus-circle-o pointer cancel" onClick={()=> this.cancelDesEdit()}/>
                         </Tooltip>,
-                        <Tooltip title="保存">
+                        <Tooltip title="保存" key="desSave">
                           <i className="anticon anticon-save pointer confirm" onClick={()=> this.saveTeamDes()}/>
                         </Tooltip>
                       ] :
@@ -996,6 +1001,9 @@ class TeamDetail extends Component {
 }
 function mapStateToProp(state, props) {
   const { teamClusters } = state.team
+  const { locationBeforeTransitions } = state.routing
+  const { query } = locationBeforeTransitions
+  const { teamPage } = query
   let clusterData = []
   let clusterList = []
   let teamUserList = []
@@ -1098,7 +1106,8 @@ function mapStateToProp(state, props) {
     userDetail,
     teamAllUserIDList,
     teamAllUserList,
-    roleNum
+    roleNum,
+    teamPage
   }
 }
 export default connect(mapStateToProp, {
