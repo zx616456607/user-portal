@@ -100,7 +100,7 @@ class HostMemory extends Component {
         width: '20%',
         render: (text, record, index) => <div
           className='storage_name'
-          onClick={() => browserHistory.push(`/app_manage/storage/hostMemory/${text}?path=${record.mountPath}&ip=${record.storageIP}`)}
+          onClick={() => browserHistory.push(`/app_manage/storage/hostMemory${text}?path=${record.mountPath}&ip=${record.storageIP}`)}
         >{text}</div>
       }, {
         key: 'mountPath',
