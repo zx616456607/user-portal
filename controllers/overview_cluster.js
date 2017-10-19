@@ -12,31 +12,42 @@
 const logger     = require('../utils/logger.js').getLogger('overview_cluster')
 const apiFactory = require('../services/api_factory')
 
+function* getOverview(cluster, loginUser, queryObj) {
+  const api = apiFactory.getApi(loginUser)
+  const k8sapi = apiFactory.getK8sApi(loginUser)
+  const mapping = {
+    operations: api.overview.getBy(["space-operations"], queryObj),
+    sysinfo: api.overview.getBy(["clusters", cluster, "system-info"]),
+    appstatus: api.overview.getBy(["clusters", cluster, "appstatus"]),
+    dbservices: k8sapi.getBy([cluster, "dbservices"]),
+    spaceconsumption: api.overview.getBy(["clusters", cluster, "space-consumption"]),
+    clusterStaticSummary: k8sapi.getBy([cluster, 'summary', 'static']),
+  }
+  const keys = Object.getOwnPropertyNames(mapping)
+  const result = yield keys.reduce((apis, key, index) => {
+    apis[index] = mapping[key]
+    mapping[key] = index
+    return apis
+  }, [])
+  keys.forEach(key => {
+    mapping[key] = result[mapping[key]]
+  })
+  return mapping
+}
+
 // TODO: should we break down these methods as it's bad proformance for overview
 exports.getClusterOverview = function* () {
   let cluster = this.params.cluster_id
   const loginUser = this.session.loginUser
   let queryObj = { cluster }
-  const api = apiFactory.getApi(loginUser)
-  const k8sapi = apiFactory.getK8sApi(loginUser)
-  const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
-
-  const result = yield [api.overview.getBy(["space-operations"], queryObj),
-  api.overview.getBy(["clusters", cluster, "system-info"]),
-  // Removed from v2.6.0
-  // api.overview.getBy(["clusters", cluster, "storagestatus"]),
-  api.overview.getBy(["clusters", cluster, "appstatus"]),
-  k8sapi.getBy([cluster, "dbservices"]),
-  api.overview.getBy(["clusters", cluster, "space-consumption"]),
-  k8sapi.getBy([cluster, 'summary', 'static'])]
-
+  const result = yield getOverview(cluster, loginUser, queryObj)
   let operations = {}
-  if (result && result[0] && result[0].data) {
-    operations = result[0].data
+  if (result && result.operations && result.operations.data) {
+    operations = result.operations.data
   }
   let sysinfo = {}
-  if (result && result[1] && result[1].data) {
-    sysinfo = result[1].data
+  if (result && result.sysinfo && result.sysinfo.data) {
+    sysinfo = result.sysinfo.data
   }
   // TODO: Setup ES cluster to replace this
   // Handle yellow status specially for now
@@ -45,24 +56,24 @@ exports.getClusterOverview = function* () {
     sysinfo.logging.status = "normal"
   }
   let storage = {}
-  if (result && result[2] && result[2].data) {
-    storage = result[2].data
-  }
+  // if (result && result[2] && result[2].data) {
+  //   storage = result[2].data
+  // }
   let appstatus = {}
-  if (result && result[3] && result[3].data) {
-    appstatus = result[3].data
+  if (result && result.appstatus && result.appstatus.data) {
+    appstatus = result.appstatus.data
   }
   let dbservices = {}
-  if (result && result[4] && result[4].data) {
-    dbservices = result[4].data
+  if (result && result.dbservices && result.dbservices.data) {
+    dbservices = result.dbservices.data
   }
   let spaceconsumption = {}
-  if (result && result[5] && result[5].data) {
-    spaceconsumption = result[5].data
+  if (result && result.spaceconsumption && result.spaceconsumption.data) {
+    spaceconsumption = result.spaceconsumption.data
   }
   let clusterStaticSummary = {}
-  if (result && result[6] && result[6].data) {
-    clusterStaticSummary = result[6].data
+  if (result && result.clusterStaticSummary && result.clusterStaticSummary.data) {
+    clusterStaticSummary = result.clusterStaticSummary.data
   }
 
   // Check node summary separately
