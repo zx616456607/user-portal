@@ -204,20 +204,25 @@ class CleaningRecord extends Component {
 
   refreshLogList(){
     const { form } = this.props
-    const { resetFields, setFieldsValue } = form
-    resetFields()
-    setFieldsValue({'target': 'system_clean'})
+    const { resetFields, getFieldValue } = form
+    const target = getFieldValue('target')
+    resetFields(['status', 'type'])
     this.setState({
       sort: 'd,create_time',
       filter: '',
       startValue: null,
       endValue: null,
-      createTimeSort: undefined
+      createTimeSort: undefined,
+      currentPage: 1
     }, () => {
-      this.getSystemLogs()
+      if (target === 'system_clean') {
+        this.getSystemLogs()
+      } else {
+        this.getCleanLogs()
+      }
     })
   }
-  onTableChange(pagination, filters, sorter) {
+  onTableChange(pagination) {
     const { getFieldValue } = this.props.form
     const logType = getFieldValue('target')
     this.setState({
