@@ -192,7 +192,7 @@ class ShareMemory extends Component {
   searchStorage() {
     const { searchInput } = this.state
     const { searchStorage } = this.props
-    searchStorage(searchInput)
+    searchStorage(searchInput.trim())
   }
 
   formatStatus(status){
