@@ -24,7 +24,7 @@ import NotificationHandler from '../../../components/Notification'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
 import { removeFormFields, removeAllFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
-import { addService } from '../../../actions/services'
+import { addService, loadServiceList } from '../../../actions/services'
 import { buildJson, getFieldsValues } from './utils'
 import './style/index.less'
 import { SHOW_BILLING } from '../../../constants'
@@ -79,6 +79,9 @@ class QuickCreateApp extends Component {
       formErrors: null,
       editServiceLoading: false,
       AdvancedSettingKey: null,
+      cpuTotal: 0,
+      memoryTotal: 0,
+      priceHour: 0
     }
     this.serviceSum = 0
     this.configureServiceKey = this.genConfigureServiceKey()
@@ -110,6 +113,7 @@ class QuickCreateApp extends Component {
     const { location, fields } = this.props
     const { hash, query } = location
     const { imageName, registryServer, key } = query
+    this.getExistentServices()
     if ((hash === SERVICE_CONFIG_HASH && !imageName) || hash === SERVICE_EDIT_HASH) {
       browserHistory.replace('/app_manage/app_create/quick_create')
     } else if (hash !== SERVICE_CONFIG_HASH && imageName && registryServer) {
@@ -120,7 +124,69 @@ class QuickCreateApp extends Component {
   componentWillUnmount() {
     this.removeAllFormFieldsAsync(this.props)
   }
-
+  getExistentServices() {
+    const { loadServiceList, current, location } = this.props
+    let serviceList = []
+    let newCpuTotal = 0
+    let newMemoryTotal = 0
+    let newPriceHour = 0
+    loadServiceList(current.cluster.clusterID, location.query.appName, null, {
+      success: {
+        func: res => {
+          if (res.data.length) {
+            res.data.forEach(item => {
+              // _serviceNameList.push(item.metadata.name)
+              const { replicas, template } = item.spec
+              const { cpu, memory } = template.spec.containers[0].resources.limits
+              let resourceType
+              const unit = memory.charAt(memory.length - 2)
+              if (unit === 'M') {
+                resourceType = Number(memory.substring(0, memory.length - 2))
+              } else if (unit === 'G') {
+                resourceType = Number(memory.substring(0, memory.length - 2)) * 1024
+              }
+              const { memoryShow, cpuShow, config } = getResourceByMemory(resourceType)
+              newCpuTotal += cpuShow * replicas
+              newMemoryTotal += memoryShow * replicas
+              newPriceHour += current.cluster.resourcePrice[config]
+              serviceList.push(
+                <Row className="serviceItem" key={item.metadata.name}>
+                  <Col span={12} className="textoverflow">
+                    {item.metadata.name}
+                  </Col>
+                  <Col span={12} className="btns">
+                    <div>
+                      <Button
+                        type="dashed"
+                        size="small"
+                        disabled
+                      >
+                        <Icon type="edit" />
+                      </Button>
+                      <Button
+                        type="dashed"
+                        size="small"
+                        disabled
+                      >
+                        <Icon type="delete" />
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
+              )
+              this.setState({
+                serviceList,
+                cpuTotal: Math.ceil(newCpuTotal * 100) / 100,
+                memoryTotal: Math.ceil(newMemoryTotal * 100) / 100,
+                priceHour: newPriceHour
+              })
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
+  }
   removeAllFormFieldsAsync(props) {
     // 异步清除 fields，即等 QuickCreateApp 组件卸载后再清除，否者会出错
     const { removeAllFormFields } = props
@@ -572,7 +638,8 @@ class QuickCreateApp extends Component {
 
   renderServiceList() {
     const { fields, location } = this.props
-    const serviceList = []
+    const { serviceList } = this.state
+    let newServiceList = []
     const currentStep = this.getStepsCurrent()
     const _serviceNameList = []
     for (let key in fields) {
@@ -594,78 +661,83 @@ class QuickCreateApp extends Component {
             'active': isRowActive,
           })
           _serviceNameList.push(serviceName.value)
-          serviceList.push(
+          newServiceList.push(
             <Row className={rowClass} key={serviceName.value}>
               <Col span={12} className="textoverflow">
-              {serviceName.value}
+                {serviceName.value}
               </Col>
               <Col span={12} className="btns">
-              {
-                (currentStep === 1 || !isRowActive) && (
-                  <div>
-                    <Tooltip title="修改">
-                      <Button
-                        type="dashed"
-                        size="small"
-                        onClick={this.editService.bind(this, key)}
-                      >
-                        <Icon type="edit" />
-                      </Button>
-                    </Tooltip>
-                    <Tooltip title="删除">
-                      <Button
-                        type="dashed"
-                        size="small"
-                        onClick={this.deleteService.bind(this, key)}
-                      >
-                        <Icon type="delete" />
-                      </Button>
-                    </Tooltip>
-                  </div>
-                )
-              }
+                {
+                  (currentStep === 1 || !isRowActive) && (
+                    <div>
+                      <Tooltip title="修改">
+                        <Button
+                          type="dashed"
+                          size="small"
+                          onClick={this.editService.bind(this, key)}
+                        >
+                          <Icon type="edit" />
+                        </Button>
+                      </Tooltip>
+                      <Tooltip title="删除">
+                        <Button
+                          type="dashed"
+                          size="small"
+                          onClick={this.deleteService.bind(this, key)}
+                        >
+                          <Icon type="delete" />
+                        </Button>
+                      </Tooltip>
+                    </div>
+                  )
+                }
               </Col>
             </Row>
           )
         }
       }
     }
+    newServiceList = newServiceList.concat(serviceList)
     serviceNameList = _serviceNameList
-    if (serviceList.length < 1) {
+    if (newServiceList.length < 1) {
       return (
         <div className="noService">本应用中暂无任何服务</div>
       )
     }
-    return serviceList
+    return newServiceList
   }
 
   getAppResources() {
     const { current } = this.props
+    const { cpuTotal, memoryTotal, priceHour } = this.state
     const fields = this.props.fields || {}
-    let cpuTotal = 0 // unit: C
-    let memoryTotal = 0 // unit: G
-    let priceHour = 0 // unit: T/￥
+    let newCpuTotal = 0 // unit: C
+    let newMemoryTotal = 0 // unit: G
+    let newPriceHour = 0 // unit: T/￥
     for (let key in fields) {
       if (fields.hasOwnProperty(key) && fields[key].serviceName) {
         const { resourceType, DIYMemory, DIYCPU, replicas } = getFieldsValues(fields[key])
         const { memoryShow, cpuShow, config } = getResourceByMemory(resourceType, DIYMemory, DIYCPU)
-        cpuTotal += cpuShow * replicas
-        memoryTotal += memoryShow * replicas
+        newCpuTotal += cpuShow * replicas
+        newMemoryTotal += memoryShow * replicas
         let price = current.cluster.resourcePrice[config]
         if (price) {
-          priceHour += price * replicas
+          newPriceHour += price * replicas
         } else {
           // @Todo: need diy resource price
         }
       }
     }
-    cpuTotal = Math.ceil(cpuTotal * 100) / 100
-    memoryTotal = Math.ceil(memoryTotal * 100) / 100
-    const priceMonth = parseAmount(priceHour * 24 * 30, 4).amount
-    priceHour = parseAmount(priceHour, 4).amount
+    newCpuTotal += cpuTotal
+    newMemoryTotal += memoryTotal
+    newPriceHour += priceHour
+    newCpuTotal = Math.ceil(newCpuTotal * 100) / 100
+    newMemoryTotal = Math.ceil(newMemoryTotal * 100) / 100
+    const priceMonth = parseAmount(newPriceHour * 24 * 30, 4).amount
+    newPriceHour = parseAmount(newPriceHour, 4).amount
     return {
-      resource: `${cpuTotal}C ${memoryTotal}G`,
-      priceHour,
+      resource: `${newCpuTotal}C ${newMemoryTotal}G`,
+      priceHour: newPriceHour,
       priceMonth,
     }
   }
@@ -747,7 +819,7 @@ class QuickCreateApp extends Component {
                   }
                 </div>
                 {
-                  (serviceList.length > 0 && currentStep === 1) && (
+                  (serviceList && serviceList.length > 0 && currentStep === 1) && (
                     <div className="createApp">
                       <Button type="primary" size="large" onClick={this.onCreateAppOrAddServiceClick.bind(this, false)}>
                         {this.renderCreateBtnText()}
@@ -810,4 +882,5 @@ export default connect(mapStateToProps, {
   removeAllFormFields,
   createApp,
   addService,
+  loadServiceList
 })(QuickCreateApp)
