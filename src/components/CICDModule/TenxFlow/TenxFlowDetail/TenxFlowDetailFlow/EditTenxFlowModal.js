@@ -32,6 +32,7 @@ import { loadClusterList } from '../../../../../actions/cluster'
 import { getAllClusterNodes } from '../../../../../actions/cluster_node'
 import { isStandardMode } from '../../../../../common/tools'
 import DockerfileModal from '../../../DockerfileModal'
+import AddCachedVolumeModal from '../../CachedVolumes/AddModal'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -265,6 +266,12 @@ let EditTenxFlowModal = React.createClass({
   getInitialState: function () {
     const { config } = this.props
     const scriptsId = config.spec.container.scriptsId
+    const cachedVolume = config.spec.container.cachedVolume
+    const cachedVolumes = []
+    if (cachedVolume) {
+      cachedVolume.cachedVolume = cachedVolume.volumeName
+      cachedVolumes.push(cachedVolume)
+    }
     return {
       otherFlowType: 3,
       useDockerfile: false,
@@ -294,6 +301,8 @@ let EditTenxFlowModal = React.createClass({
       isDockerfile: false,
       validateStatus: true,
       noShell: false,
+      cachedVolumes,
+      addCachedVolumeModal: false,
     }
   },
   componentWillMount() {
@@ -1113,7 +1122,8 @@ let EditTenxFlowModal = React.createClass({
             'image': values.imageName,
             'args': shellList,
             'env': imageEnvList,
-            'dependencies': serviceList
+            'dependencies': serviceList,
+            'errorContinue': values.errorContinue ? 1 : 0,
           },
           'project': {
             'id': _this.state.currentCodeStore,
@@ -1122,6 +1132,20 @@ let EditTenxFlowModal = React.createClass({
           ci: cloneCofig.spec.ci,
           uniformRepo: (values.uniformRepo ? 0 : 1),
         }
+      }
+      // cachedVolume
+      const cachedVolumeValues = this.state.cachedVolumes[0]
+      if (cachedVolumeValues) {
+        const cachedVolumeObj = {
+          status: values.cachedVolume ? 1 : 0,
+          containerPath: cachedVolumeValues.containerPath,
+          pvcName: cachedVolumeValues.pvcName,
+        }
+        if (!cachedVolumeValues.pvcName) {
+          cachedVolumeObj.volumeName = cachedVolumeValues.volumeName
+          cachedVolumeObj.volumeSize = cachedVolumeValues.volumeSize
+        }
+        body.spec.container.cachedVolume = cachedVolumeObj
       }
       if (this.props.index !== 0) {
         body.spec.uniformRepo = this.props.uniformRepo
@@ -1695,6 +1719,12 @@ let EditTenxFlowModal = React.createClass({
         }
       </Button>
     )
+    const errorContinueChecked = !!config.spec.container
+      ? (config.spec.container.errorContinue == 1)
+      : false
+    const cachedVolumeChecked = (!!config.spec.container && config.spec.container.cachedVolume)
+      ? (config.spec.container.cachedVolume.status == 1)
+      : false
     return (
       <div id='EditTenxFlowModal' key='EditTenxFlowModal'>
         <div className='titleBox'>
@@ -2003,7 +2033,12 @@ let EditTenxFlowModal = React.createClass({
                   </div>
                   <div className='input imageType'>
                     <FormItem>
-                      <Switch {...getFieldProps('buildCache' , { initialValue: !!config.spec.build ? !config.spec.build.noCache : true}) } defaultChecked={!!config.spec.build ? !config.spec.build.noCache : true} />
+                      <Switch
+                        checkedChildren="开"
+                        unCheckedChildren="关"
+                        {...getFieldProps('buildCache' , { initialValue: !!config.spec.build ? !config.spec.build.noCache : true}) }
+                        defaultChecked={!!config.spec.build ? !config.spec.build.noCache : true}
+                      />
                     </FormItem>
                   </div>
                   <div style={{ clear: 'both' }} />
@@ -2037,7 +2072,109 @@ let EditTenxFlowModal = React.createClass({
                 </FormItem>
               </div>
               <div style={{ clear: 'both' }} />
-            </div>)}
+            </div>)
+          }
+          <div className='commonBox'>
+            <div className='title'>
+              <span>缓存卷</span>
+            </div>
+            <div className='input imageType'>
+              <FormItem>
+                <Switch
+                  checkedChildren="开"
+                  unCheckedChildren="关"
+                  {
+                    ...getFieldProps('cachedVolume' , {
+                      valuePropName: 'checked',
+                      initialValue: cachedVolumeChecked,
+                      onChange: checked => this.setState({ addCachedVolumeModal: checked }),
+                    })
+                  }
+                  defaultChecked={false}
+                />
+                <div className="customizeBaseImage cachedVolumes">
+                  {
+                    this.state.cachedVolumes[0]
+                      ? [
+                          <span key="text">独享型(RBD)</span>,
+                          <span key="name">
+                            {
+                              this.state.cachedVolumes[0].cachedVolume === 'create'
+                                ? this.state.cachedVolumes[0].volumeName
+                                : this.state.cachedVolumes[0].cachedVolume
+                            }
+                          </span>,
+                          <span key="path">
+                            {this.state.cachedVolumes[0].containerPath}
+                          </span>,
+                          <Button
+                            key="edit"
+                            icon="edit"
+                            size="small"
+                            onClick={() => this.setState({ addCachedVolumeModal: true })}
+                          />,
+                        ]
+                      : '未挂载缓存卷'
+                  }
+                  {/* <span className="link">添加缓存卷</span> */}
+                </div>
+              </FormItem>
+            </div>
+            <div style={{ clear: 'both' }} />
+          </div>
+          <div className='commonBox'>
+            <div className='title'>
+              <span>允许失败</span>
+            </div>
+            <div className='input imageType'>
+              <FormItem>
+                <Switch
+                  checkedChildren="开"
+                  unCheckedChildren="关"
+                  {
+                    ...getFieldProps('errorContinue' , {
+                      valuePropName: 'checked',
+                      initialValue: errorContinueChecked,
+                    })
+                  }
+                />
+                <div className="customizeBaseImage">
+                  此任务执行失败时不会影响流水线的执行。
+                </div>
+              </FormItem>
+            </div>
+            <div style={{ clear: 'both' }} />
+          </div>
+          {
+            this.state.addCachedVolumeModal && (
+              <AddCachedVolumeModal
+                flowId={this.props.flowId}
+                visible={this.state.addCachedVolumeModal}
+                list={this.state.cachedVolumes}
+                index={0}
+                onCancel={
+                  () => {
+                    this.setState({ addCachedVolumeModal: false })
+                    if (!this.state.cachedVolumes[0]) {
+                      form.setFieldsValue({
+                        cachedVolume: false,
+                      })
+                    }
+                  }
+                }
+                onOk={
+                  (index, values) => {
+                    this.setState({ addCachedVolumeModal: false })
+                    const cachedVolumes = this.state.cachedVolumes
+                    cachedVolumes[index] = values
+                    this.setState({
+                      cachedVolumes,
+                    })
+                  }
+                }
+              />
+            )
+          }
           <Modal className='dockerFileEditModal'
             title={<FormattedMessage {...menusText.dockerFileTitle} />}
             visible={
