@@ -96,6 +96,7 @@ let CreateConfigFileModal = React.createClass({
               case 403: errorText = '添加配置文件过多'; break
               case 409: errorText = '配置已存在'; break
               case 500: errorText = '网络异常'; break
+              case 412: return
               default: errorText = '缺少参数或格式错误'
             }
             self.setState({

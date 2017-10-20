@@ -147,7 +147,7 @@ export const VM_WRAP_VMCHECK_REQUEST = 'VM_WRAP_VMCHECK_REQUEST'
 export const VM_WRAP_VMCHECK_SUCCESS = 'VM_WRAP_VMCHECK_SUCCESS'
 export const VM_WRAP_VMCHECK_FAILURE = 'VM_WRAP_VMCHECK_FAILURE'
 
-function checkVMUsers(state, callback) {
+function checkVMUsers(query, callback) {
   let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos-check/`
   return{
     [FETCH_API]: {
@@ -155,7 +155,7 @@ function checkVMUsers(state, callback) {
       endpoint,
       options: {
         method: 'POST',
-        body: state,
+        body: query,
       },
       schema:{}
     },
@@ -163,9 +163,9 @@ function checkVMUsers(state, callback) {
   }
 }
 
-export function checkVMUser(state, callback){
+export function checkVMUser(query, callback){
   return(dispatch) => {
-    return dispatch(checkVMUsers(state, callback))
+    return dispatch(checkVMUsers(query, callback))
   }
 }
 
