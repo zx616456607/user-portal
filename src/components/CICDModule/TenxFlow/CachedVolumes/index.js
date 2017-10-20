@@ -132,7 +132,11 @@ class CachedVolumes extends React.Component {
       dataIndex: 'aciton',
       key: 'aciton',
       render: (text, record) => (
-        <Button icon="delete" onClick={this.openDelModal.bind(this, record)}>
+        <Button
+          icon="delete"
+          onClick={this.openDelModal.bind(this, record)}
+          disabled={!!record.ownerFlowName}
+        >
           删除
         </Button>
       )
