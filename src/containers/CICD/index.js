@@ -34,6 +34,10 @@ menuList = menuList.concat({
 }, {
     url: '/ci_cd/docker_file',
     name: 'Dockerfile'
+  },
+  {
+    url: '/ci_cd/cached_volumes',
+    name: '缓存卷'
   }
 )
 
