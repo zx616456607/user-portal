@@ -17,7 +17,7 @@ import { SnapshotClone, createStorage, loadStorageList } from '../../actions/sto
 import { getClusterStorageList } from '../../actions/cluster'
 import PersistentVolumeClaim from '../../../kubernetes/objects/persistentVolumeClaim'
 import yaml from 'js-yaml'
-import { DEFAULT_IMAGE_POOL } from '../../constants'
+import { DEFAULT_IMAGE_POOL, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { SHOW_BILLING } from '../../constants'
 
@@ -126,22 +126,8 @@ class CreateVolume extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    // 直接创建独享型存储是需要进行的重置操作
-    if(this.props.createModal !== nextProps.createModal && nextProps.createModal){
-      this.setState({
-        fstype: 'ext4',
-        volumeSizemin: 512,
-        volumeSize: 512,
-        ext4Disabled: false,
-        xfsDisabled: false,
-        swicthChecked: false,
-        switchDisabled: false,
-        selectChecked: false,
-        renderSnapshotOptionlist: nextProps.snapshotDataList,
-      })
-    }
     // 由快照创建存储卷时需要进行的重置操作
-    if(this.props.currentSnapshot !== nextProps.currentSnapshot){
+    if(nextProps.currentSnapshot && !this.props.createModal && nextProps.createModal){
       this.setState({
         currentSnapshot: nextProps.currentSnapshot,
         currentVolume: nextProps.currentVolume,
@@ -156,6 +142,21 @@ class CreateVolume extends Component {
       })
       this.props.form.setFieldsValue({
         'address': nextProps.currentSnapshot.storageServer
+      })
+      return
+    }
+    // 直接创建独享型存储是需要进行的重置操作
+    if(this.props.createModal !== nextProps.createModal && nextProps.createModal){
+      this.setState({
+        fstype: 'ext4',
+        volumeSizemin: 512,
+        volumeSize: 512,
+        ext4Disabled: false,
+        xfsDisabled: false,
+        swicthChecked: false,
+        switchDisabled: false,
+        selectChecked: false,
+        renderSnapshotOptionlist: nextProps.snapshotDataList,
       })
     }
   }
@@ -263,7 +264,7 @@ class CreateVolume extends Component {
                 notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
                 return
               }
-              if (err.statusCode !== 402) {
+              if (err.statusCode !== 402 && err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE) {
                 notification.error('创建存储卷失败',err.message.message || err.message)
               }
             }

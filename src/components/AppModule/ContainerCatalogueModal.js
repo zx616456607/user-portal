@@ -334,7 +334,7 @@ let ContainerCatalogueModal = React.createClass({
             'name',
             'size',
             'fsType',
-            'strategy',
+            //'strategy',
           ]
         }
       }
@@ -592,7 +592,7 @@ let ContainerCatalogueModal = React.createClass({
                 : null
             }
             {this.renderDifferentType(type, volume)}
-            {
+            {/*
               volume === 'create' && type === 'private' && (
                 <FormItem
                   label={
@@ -624,7 +624,7 @@ let ContainerCatalogueModal = React.createClass({
                   <span className='strategy_tips'><Icon type="question-circle-o" className='tips_icon'/>暂不支持删除策略</span>
                 </FormItem>
               )
-            }
+            */}
             <FormItem
               label="容器目录"
               {...formItemLayout}

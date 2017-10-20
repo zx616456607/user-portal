@@ -484,7 +484,7 @@ let MyComponent = React.createClass({
     const { selectedRowKeys } = this.state
     const columns = [
       {
-        title: '存储',
+        title: '存储名称',
         key: 'name',
         dataIndex: 'name',
         width: '12%',
@@ -991,7 +991,7 @@ class Storage extends Component {
   }
   searchByStorageName(e) {
     const { searchStorage } = this.props
-    const keyword = document.getElementById('searchStorage').value
+    const keyword = document.getElementById('searchStorage').value.trim()
     searchStorage(keyword)
   }
 

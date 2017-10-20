@@ -81,7 +81,7 @@ class HostMemory extends Component {
   }
 
   searchHostVolume(){
-    const searchValue = document.getElementById('search_host_volume').value
+    const searchValue = document.getElementById('search_host_volume').value.trim()
     const { searchStorage } = this.props
     searchStorage(searchValue, 'host')
   }

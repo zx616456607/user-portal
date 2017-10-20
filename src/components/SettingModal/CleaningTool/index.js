@@ -363,6 +363,9 @@ class CleaningTool extends Component {
         </div>
       )
     }
+    if (activeKey === 'monitoringData') {
+      return <div style={{ textAlign: 'center' }}>监控数据无清理记录</div>
+    }
     if (!cleanLogs || !cleanLogs.length) {
       return <div style={{ textAlign: 'center' }}>{ activeKey !== 'monitoringData' ? '暂无数据' : ''}</div>
     }

@@ -1098,10 +1098,11 @@ function mapStateToProps(state) {
   const { current, loginUser } = state.entities
   const { clusterID } = current.cluster
   const { clusterName } = current.cluster
+  const user = current.space.namespace
   const { role } = loginUser.info
   const { namespace } = loginUser.info
   const { projectVisibleClusters } = state.projectAuthority
-  const clusterData = projectVisibleClusters[namespace] && projectVisibleClusters[namespace].data || []
+  const clusterData = projectVisibleClusters[user] && projectVisibleClusters[user].data || []
   return {
     role,
     namespace,

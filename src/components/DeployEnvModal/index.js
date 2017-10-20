@@ -122,7 +122,7 @@ let DeployEnvModal = React.createClass({
         { validator: this.clusterNameCheck }
       ],
       onChange: this.handleClusterChange,
-      initialValue: current.cluster.clusterID,
+      initialValue: current.cluster.clusterName,
     })
     return (
       <Modal
@@ -146,7 +146,7 @@ let DeployEnvModal = React.createClass({
               placeholder="请选择空间"
               style={{ width: 180 }}
               {...spaceFormCheck}>
-              <Option value="default">我的空间</Option>
+              <Option value="default">我的个人项目</Option>
               {
                 teamspaces.map(space => {
                   return (
@@ -166,7 +166,7 @@ let DeployEnvModal = React.createClass({
               {
                 teamClusters.map(cluster => {
                   return (
-                    <Option key={cluster.clusterID} value={cluster.clusterID}>
+                    <Option key={cluster.clusterName} value={cluster.clusterName}>
                       {cluster.clusterName}
                     </Option>
                   )

@@ -466,7 +466,7 @@ class RoleManagement extends React.Component {
         {
           this.props.userName === record.creator || this.props.role === ROLE_SYS_ADMIN ?
             <Dropdown.Button overlay={dropDown[index]} type="ghost" onClick={this.handleGetRoleJu.bind(this, record)}>
-              <Icon type="eye" />查看权限
+              <Icon type="eye-o" />查看权限
               </Dropdown.Button> :
             <Button type="primary" onClick={this.handleGetRoleJu.bind(this, record)}><Icon type="eye" />查看权限</Button>
         }
