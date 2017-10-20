@@ -991,7 +991,7 @@ class Storage extends Component {
   }
   searchByStorageName(e) {
     const { searchStorage } = this.props
-    const keyword = document.getElementById('searchStorage').value
+    const keyword = document.getElementById('searchStorage').value.trim()
     searchStorage(keyword)
   }
 

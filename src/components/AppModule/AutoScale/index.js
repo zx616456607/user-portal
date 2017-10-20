@@ -439,16 +439,16 @@ class AutoScale extends React.Component {
           </div>
           <div className="btnGroup">
             <Button type="primary" size="large" onClick={() => this.setState({scaleModal: true, create: true})}><i className="fa fa-plus" /> 创建自动伸缩策略</Button>
-            <Button size="large" onClick={() => this.loadData(clusterID, 1)}><i className='fa fa-refresh' /> 刷新</Button>
+            <Button size="large" onClick={() => this.loadData(clusterID, 1)}><i className='fa fa-refresh' /> 刷 新</Button>
             <Dropdown
               overlay={btns} trigger={['click']}>
               <Button className="autoScaleDrop" size="large" >
                 更多操作 <i className="fa fa-caret-down Arrow"/>
               </Button>
             </Dropdown>
-            <Button size="large" className="startBtn" disabled={selectedRowKeys.length ? false: true} onClick={() => this.batchUpdateStatus('start')}><i className='fa fa-play' /> 启用</Button>
-            <Button size="large" className="stopBtn" disabled={selectedRowKeys.length ? false: true} onClick={() => this.batchUpdateStatus('stop')}><i className='fa fa-stop' /> 停用</Button>
-            <Button size="large" className="deleteBtn" disabled={selectedRowKeys.length ? false: true} onClick={() => selectedRowKeys.length && this.setState({deleteModal: true})}><i className='fa fa-trash-o' /> 删除</Button>
+            <Button size="large" className="startBtn" disabled={selectedRowKeys.length ? false: true} onClick={() => this.batchUpdateStatus('start')}><i className='fa fa-play' /> 启 用</Button>
+            <Button size="large" className="stopBtn" disabled={selectedRowKeys.length ? false: true} onClick={() => this.batchUpdateStatus('stop')}><i className='fa fa-stop' /> 停 用</Button>
+            <Button size="large" className="deleteBtn" disabled={selectedRowKeys.length ? false: true} onClick={() => selectedRowKeys.length && this.setState({deleteModal: true})}><i className='fa fa-trash-o' /> 删 除</Button>
             <CommonSearchInput
               placeholder="请输入策略名或服务名搜索"
               size="large"

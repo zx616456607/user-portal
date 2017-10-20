@@ -15,7 +15,7 @@ import classNames from 'classnames'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
 import "./style/VisitType.less"
-import { setServiceProxyGroup, loadAllServices } from '../../../actions/services'
+import { setServiceProxyGroup, loadAllServices, loadServiceDetail } from '../../../actions/services'
 import { getProxy } from '../../../actions/cluster'
 import NotificationHandler from '../../../common/notification_handler'
 import { parseServiceDomain } from '../../parseDomain'
@@ -76,7 +76,7 @@ class VisitType extends Component{
         groupID:undefined
       })
     }
-    if ((service.metadata && (service.metadata.name !== preName)) || (preTab !== isCurrentTab) || (!preShow && serviceDetailmodalShow)) {
+    if (((preTab !== isCurrentTab) || (!preShow && serviceDetailmodalShow))) {
       if (service.lbgroup && service.lbgroup.id === 'mismatch') {
         this.setState({
           isLbgroupNull: true
@@ -209,7 +209,7 @@ class VisitType extends Component{
   }
   saveEdit() {
     const { value } = this.state;
-    const { service, setServiceProxyGroup, cluster, form, loadAllServices } = this.props;
+    const { service, setServiceProxyGroup, cluster, form, loadAllServices, loadServiceDetail } = this.props;
     const notification = new NotificationHandler()
     let val = value
     form.validateFields((errors,values)=>{
@@ -238,6 +238,7 @@ class VisitType extends Component{
               pageIndex: 1,
               pageSize: 10,
             })
+            loadServiceDetail(cluster, service.metadata.name)
             notification.close()
             notification.success('出口方式更改成功')
             this.setState({
@@ -268,7 +269,7 @@ class VisitType extends Component{
 
   }
   cancelEdit() {
-    const { initValue, initSelect, initGroupID } = this.state;
+    const { initValue, initSelect } = this.state;
     this.selectProxyArr(initSelect && initSelect[0] && initSelect[0].type, true)
     const { form } = this.props;
     this.setState({
@@ -276,9 +277,6 @@ class VisitType extends Component{
       forEdit:false,
       value: initValue,
     });
-    // form.setFieldsValue({
-    //   groupID: initGroupID
-    // })
   }
   copyTest() {
     let target = document.getElementsByClassName('copyTest')[0];
@@ -406,6 +404,7 @@ function mapSateToProp(state) {
 VisitType = connect(mapSateToProp, {
   setServiceProxyGroup,
   getProxy,
-  loadAllServices
+  loadAllServices,
+  loadServiceDetail
 })(Form.create()(VisitType))
 export default VisitType;

@@ -74,7 +74,8 @@ class TimingClean extends Component {
       success: {
         func: res => {
           this.parseCron(res.data, 'system')
-        }
+        },
+        isAsync: true
       }
     })
   }
@@ -154,7 +155,7 @@ class TimingClean extends Component {
               })
               this.getSystemSetting()
             },
-            async: true
+            isAsync: true
           },
           failed: {
             func: () => {
@@ -236,7 +237,7 @@ class TimingClean extends Component {
       }
       const { CICDcacheScope, CICDcacheCycle, CICDcacheTime, CICDcacheDate } = values
       if(cicdChecked){
-        notify.spin('cicd定时清理开启中')
+        notify.spin('cicd定时清理关闭中')
         startClean({
           cicd_clean: {
             meta: {
@@ -253,15 +254,19 @@ class TimingClean extends Component {
         }, {
           success: {
             func: () => {
+              notify.close()
               notify.success('cicd定时清理已关闭')
               this.setState({
                 cicdChecked: CICDcacheValue,
                 cicdEdit: CICDcacheValue,
               })
-            }
+              this.getSettings()
+            },
+            isAsync: true
           },
           failed: {
             func: () => {
+              notify.close()
               notify.error('cicd定时清理关闭失败')
               this.setState({
                 cicdChecked: true,
@@ -309,7 +314,7 @@ class TimingClean extends Component {
     })
   }
   getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime) {
-    let time = String(formatDate(CICDcacheTime, 'HH mm')).split(' ')
+    let time = typeof CICDcacheTime === 'string' ? CICDcacheTime.split(':') : String(formatDate(CICDcacheTime, 'HH mm')).split(' ')
     time = time.map(item => {
       return item.indexOf(0) === 0 ? item.substring(1) : item
     })
@@ -406,7 +411,6 @@ class TimingClean extends Component {
       cicdScope, cicdCycle, cicdDate, cicdTime,
       systemScope, systemCycle, systemDate, systemTime
     } = this.state
-    console.log(typeof systemTime)
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
     	labelCol: {span: 6},

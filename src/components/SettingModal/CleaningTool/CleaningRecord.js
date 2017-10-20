@@ -204,20 +204,25 @@ class CleaningRecord extends Component {
 
   refreshLogList(){
     const { form } = this.props
-    const { resetFields, setFieldsValue } = form
-    resetFields()
-    setFieldsValue({'target': 'system_clean'})
+    const { resetFields, getFieldValue } = form
+    const target = getFieldValue('target')
+    resetFields(['status', 'type'])
     this.setState({
       sort: 'd,create_time',
       filter: '',
       startValue: null,
       endValue: null,
-      createTimeSort: undefined
+      createTimeSort: undefined,
+      currentPage: 1
     }, () => {
-      this.getSystemLogs()
+      if (target === 'system_clean') {
+        this.getSystemLogs()
+      } else {
+        this.getCleanLogs()
+      }
     })
   }
-  onTableChange(pagination, filters, sorter) {
+  onTableChange(pagination) {
     const { getFieldValue } = this.props.form
     const logType = getFieldValue('target')
     this.setState({
@@ -265,9 +270,12 @@ class CleaningRecord extends Component {
     })
   }
   selectLogType(value) {
-    if (value === 'cicd_clean') {
+    this.setState({
+      currentPage: 1
+    })
+    // if (value === 'cicd_clean') {
       this.selectFilter('target', value)
-    }
+    // }
   }
   searchLogs() {
     const { getFieldValue } = this.props.form
@@ -308,11 +316,12 @@ class CleaningRecord extends Component {
   }
   render() {
     const { form } = this.props
-    const { cleanLogs, totalCount, createTimeSort } = this.state
+    const { cleanLogs, totalCount, createTimeSort, currentPage } = this.state
     const { getFieldProps, getFieldValue } = form
     const pagination = {
       simple: true,
       total: totalCount,
+      current: currentPage,
       defaultPageSize: 10,
       defaultCurrent: 1,
     }

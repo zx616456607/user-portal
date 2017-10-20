@@ -11,7 +11,7 @@ import React, { Component } from 'react'
 import { Row, Alert, Menu, Dropdown, Button, Icon, Card, Table, Modal, Transfer } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/TeamManage.less'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
 import intersection from 'lodash/intersection'
@@ -73,7 +73,8 @@ let TeamTable = React.createClass({
       }
     }
     scope.setState({
-      filter: newFilter
+      filter: newFilter,
+      page: pagination.current
     }, () => {
       const { filter } = scope.state
       loadUserTeamList('default', {
@@ -85,7 +86,6 @@ let TeamTable = React.createClass({
     })
     this.setState({
       filteredInfo: filters,
-      page: pagination.current
     })
   },
   handleBack() {
@@ -138,11 +138,11 @@ let TeamTable = React.createClass({
   },
   handleSortMember() {
     const { loadUserTeamList } = this.props.scope.props
-    const { filter } = this.props.scope.state
+    const { filter, page } = this.props.scope.state
     const { sortMember } = this.state
     let sort = this.getSort(!sortMember, 'userCount')
     loadUserTeamList('default', {
-      page: this.state.page,
+      page: page,
       size: this.state.pageSize,
       sort,
       filter,
@@ -154,11 +154,11 @@ let TeamTable = React.createClass({
   },
   handleSortCreateTime() {
     const { loadUserTeamList } = this.props.scope.props
-    const { filter } = this.props.scope.state
+    const { filter, page } = this.props.scope.state
     const { creationTime } = this.state
     let sort = this.getSort(!creationTime, 'creationTime')
     loadUserTeamList('default', {
-      page: this.state.page,
+      page: page,
       size: this.state.pageSize,
       sort,
       filter,
@@ -170,11 +170,11 @@ let TeamTable = React.createClass({
   },
   handleSortCluster() {
     const { loadUserTeamList } = this.props.scope.props
-    const { filter } = this.props.scope.state
+    const { filter, page } = this.props.scope.state
     const { sortCluster } = this.state
     let sort = this.getSort(!sortCluster, 'clusterCount')
     loadUserTeamList('default', {
-      page: this.state.page,
+      page: page,
       size: this.state.pageSize,
       sort,
       filter,
@@ -186,17 +186,17 @@ let TeamTable = React.createClass({
   },
   handleSortTeamName() {
     const { loadUserTeamList } = this.props.scope.props
-    const { filter } = this.props.scope.state
+    const { filter, page } = this.props.scope.state
     const { sortTeamName } = this.state
-    let sort = this.getSort(true, 'teamName')
+    let sort = this.getSort(!sortTeamName, 'teamName')
     loadUserTeamList('default', {
-      page: this.state.page,
+      page: page,
       size: this.state.pageSize,
       sort,
       filter,
     })
     this.setState({
-      sortTeamName: sortTeamName,
+      sortTeamName: !sortTeamName,
       sort,
     })
   },
@@ -318,7 +318,6 @@ let TeamTable = React.createClass({
     this.setState({ targetKeys })
   },
   handleMenuClick(e, record) {
-    console.log(e, record)
     this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})
   },
   render() {
@@ -330,8 +329,9 @@ let TeamTable = React.createClass({
     const pagination = {
       simple: true,
       total: this.props.scope.props.total,
+      current: scope.state.page,
       defaultPageSize: 10,
-      defaultCurrent: 1,
+      defaultCurrent: scope.state.page,
     }
     const filterRole = roleNum === 1 ? [
       { text: '管理者', value: 'manager' },
@@ -361,7 +361,7 @@ let TeamTable = React.createClass({
         className: 'teamName',
         width:'10%',
         render: (text, record, index) => (
-          <Link to={`/tenant_manage/team/${record.key}`}>{text}</Link>
+          <Link to={`/tenant_manage/team/${record.key}?teamPage=${scope.state.page}`}>{text}</Link>
         )
       },
       {
@@ -407,14 +407,13 @@ let TeamTable = React.createClass({
         key: 'role',
         width:'10%',
         filters: filterRole,
-        // filteredValue: filteredInfo.role,
         render: text => <div>{ text === 'manager' ? '管理者' : (text === 'participator' ? '参与者' : '非团队成员')}</div>
       },
       {
         title: '操作',
         key: 'operation',
         width:'15%',
-        render: (text, record, index) =>{
+        render: (text, record) =>{
           const menu = (
             <Menu onClick={(e) => this.handleMenuClick(e, record)}>
               <Menu.Item disabled={roleNum !==1 && record.role === 'participator'} key="delete">
@@ -428,12 +427,6 @@ let TeamTable = React.createClass({
               onClick={() => this.addNewMember(record.key)} overlay={menu} type="ghost">
               添加团队成员
             </Dropdown.Button>
-            // <div className="addusers">
-            //   <Button disabled={roleNum !== 1 && record.role === 'participator'}
-            //     type="primary" onClick={() => this.addNewMember(record.key)}>添加团队成员</Button>
-            //   <Button disabled={roleNum !==1 && record.role === 'participator'}
-            //     onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
-            // </div>
           )
         }
       },
@@ -526,6 +519,20 @@ class TeamManage extends Component {
     })
   }
   componentWillMount() {
+    const { teamPage, loadUserTeamList } = this.props
+    if (teamPage) {
+      loadUserTeamList('default', {
+        page: teamPage,
+        size: 10,
+        sort: "a,teamName",
+        filter: "",
+      })
+      this.setState({
+        page: Number(teamPage)
+      })
+      browserHistory.replace('/tenant_manage/team')
+      return
+    }
     this.props.loadUserTeamList('default', {
       page: 1,
       size: 10,
@@ -814,6 +821,9 @@ function mapStateToProp(state, props) {
   const teams = state.user.teams
   const userDetail = state.entities.loginUser.info
   const { loginUser } = state.entities
+  const { locationBeforeTransitions } = state.routing
+  const { query } = locationBeforeTransitions
+  const { teamPage } = query
   const { globalRoles, userID, role } = loginUser.info || { globalRoles: [], userID: '', role: 0 }
   let teamSpacesList = []
   if (teams.result) {
@@ -881,7 +891,8 @@ function mapStateToProp(state, props) {
     teamSpacesList,
     userDetail,
     roleNum,
-    userID
+    userID,
+    teamPage
   }
 }
 

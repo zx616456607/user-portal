@@ -48,6 +48,7 @@ class CleaningTool extends Component {
       forbid: false,
       systemLogs: [],
       cicdLogs: [],
+      cleanLogs: [],
       logsLoading: false,
       activeKey: 'systemLog'
     }
@@ -70,6 +71,7 @@ class CleaningTool extends Component {
         func: res => {
           this.setState({
             cicdLogs: res.data.body,
+            cleanLogs: res.data.body,
             logsLoading: false
           })
         },
@@ -79,6 +81,7 @@ class CleaningTool extends Component {
         func: () => {
           this.setState({
             cicdLogs: [],
+            cleanLogs: [],
             logsLoading: false
           })
         },
@@ -108,6 +111,7 @@ class CleaningTool extends Component {
         func: res => {
           this.setState({
             systemLogs: res.data.data,
+            cleanLogs: res.data.data,
             logsLoading: false
           })
         },
@@ -117,6 +121,7 @@ class CleaningTool extends Component {
         func: () => {
           this.setState({
             systemLogs: [],
+            cleanLogs: [],
             logsLoading: false
           })
         },
@@ -343,8 +348,7 @@ class CleaningTool extends Component {
   }
 
   renderLogsList(){
-    const { cicdLogs, systemLogs, activeKey, logsLoading } = this.state
-    let cleanLogs = activeKey === 'systemLog' ? systemLogs : cicdLogs
+    const { activeKey, logsLoading, cleanLogs } = this.state
     let tailText = activeKey === 'systemLog' ? ' 个文件' : 'MB 垃圾'
     function formatTotal(total) {
       if (activeKey === 'cache') {
@@ -360,10 +364,10 @@ class CleaningTool extends Component {
       )
     }
     if (!cleanLogs || !cleanLogs.length) {
-      return <div style={{ textAlign: 'center' }}>暂无数据</div>
+      return <div style={{ textAlign: 'center' }}>{ activeKey !== 'monitoringData' ? '暂无数据' : ''}</div>
     }
     return(
-      <Timeline> 
+      <Timeline>
         {
           cleanLogs && cleanLogs.length && cleanLogs.map((item, index) => {
             return (
@@ -373,10 +377,10 @@ class CleaningTool extends Component {
                   <Col className="time_item" span={4}>{formatDate(item.createTime, 'MM-DD')}</Col>
                 </Row>
               </TimelineItem>
-              )
-            })
+            )
+          })
         }
-      </Timeline> 
+      </Timeline>
     )
   }
 
@@ -559,6 +563,10 @@ class CleaningTool extends Component {
       this.getSystemLogs()
     } else if (tab === 'cache') {
       this.getCicdLogs()
+    } else {
+      this.setState({
+        cleanLogs: []
+      })
     }
   }
   render() {
@@ -606,7 +614,7 @@ class CleaningTool extends Component {
           name:'最近清除',
           type:'bar',
           barWidth: '40px',
-          data:[0, cicdLogs && cicdLogs.length && cicdLogs[0].total]
+          data:[systemLogs && systemLogs.length && systemLogs[0].total, cicdLogs && cicdLogs.length && (cicdLogs[0].total / (1024 * 1024)).toFixed(2)]
         }
       ]
     };
