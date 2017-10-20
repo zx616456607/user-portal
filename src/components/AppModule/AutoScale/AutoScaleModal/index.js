@@ -386,7 +386,6 @@ class AutoScaleModal extends React.Component {
         }
       }
       if (!flag) {
-        console.log(flag)
         setFields(typeOpt)
       }
     })
