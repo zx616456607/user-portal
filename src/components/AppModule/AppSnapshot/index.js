@@ -685,7 +685,7 @@ class Snapshot extends Component {
            wrapClassName="createVloumeModal"
          >
            <div>
-             <CreateVolume scope={this} snapshotRequired={true} snapshotDataList={snapshotDataList} currentVolume={currentVolume} currentSnapshot={currentSnapshot} storageList={currentStorageList}/>
+             <CreateVolume createModal={this.state.visible} scope={this} snapshotRequired={true} snapshotDataList={snapshotDataList} currentVolume={currentVolume} currentSnapshot={currentSnapshot} storageList={currentStorageList}/>
            </div>
          </Modal>
 
