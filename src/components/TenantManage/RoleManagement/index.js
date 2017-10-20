@@ -464,17 +464,12 @@ class RoleManagement extends React.Component {
       dataIndex: 'comment',
       render: (text, record, index) => <div>
         {
-          this.props.userName === record.creator || this.props.role === ROLE_SYS_ADMIN ?
+          this.props.userName === record.creator || this.props.role === ROLE_SYS_ADMIN && record.creator !== '' ?
             <Dropdown.Button overlay={dropDown[index]} type="ghost" onClick={this.handleGetRoleJu.bind(this, record)}>
               <Icon type="eye-o" />查看权限
               </Dropdown.Button> :
             <Button type="primary" onClick={this.handleGetRoleJu.bind(this, record)}><Icon type="eye" />查看权限</Button>
         }
-        {/* record.creator === this.props.userName ?
-              <Dropdown.Button overlay={dropDown[index]} type="ghost" onClick={this.handleGetRoleJu.bind(this, record)}>
-                <Icon type="eye" />查看权限
-              </Dropdown.Button> :
-              <Button type="primary" onClick={this.handleGetRoleJu.bind(this, record)}><Icon type="eye" />查看权限</Button> */}
       </div>
     }]
     const searchIntOption = {

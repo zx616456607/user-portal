@@ -40,6 +40,7 @@ class VMList extends React.Component {
       createTime: true,
       ciphertext: true,
       list: [],
+      total: 0,
     }
   }
 
@@ -57,6 +58,7 @@ class VMList extends React.Component {
         func: res => {
           if (res.code === 200) {
             this.setState({
+              total: res.body.total,
               list: res.body.vminfos[0]
             })
           }
@@ -271,12 +273,12 @@ class VMList extends React.Component {
 
   render() {
     const { data } = this.props
-    const { ciphertext, list } = this.state
+    const { ciphertext, list, total } = this.state
     const pagination = {
       simple: true,
       defaultCurrent: 1,
       defaultPageSize: 10,
-      total: list.length,
+      total: total,
       onChange: (n) => this.getInfo(n, null)
     }
     const columns = [
@@ -371,7 +373,7 @@ class VMList extends React.Component {
           {/* <Input className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={(e) => this.handleSearch(e)} /> */}
           <CommonSearchInput onSearch={(value) => { this.getInfo(1, value) }} size="large" placeholder="请输入虚拟机IP搜索" />
           <Pagination className="pag" {...pagination} />
-          {data.length > 0 && <span className="total">共 {list.length} 个</span>}
+          {data.length > 0 && <span className="total">共 {total} 个</span>}
         </Row>
         <Row>
           <Table
