@@ -150,7 +150,7 @@ class HostMemory extends Component {
             <div className='handle_box'>
               <Button
                 size="large"
-                className='button_margin'
+                className='button_refresh'
                 onClick={() => this.reloadData()}
               >
                 <i className="fa fa-refresh button_icon" aria-hidden="true"></i>

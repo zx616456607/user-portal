@@ -233,7 +233,7 @@ class MysqlCluster extends Component {
               <i className='fa fa-plus' />&nbsp;MySQL集群
           </Button>
           </Tooltip>
-            <Button style={{marginLeft:'20px',padding:'5px 15px'}} size='large' onClick={this.refreshDatabase} disabled={!canCreate}>
+            <Button className="button_refresh" size='large' onClick={this.refreshDatabase} disabled={!canCreate}>
               <i className='fa fa-refresh' />&nbsp;刷 新
             </Button>
             <span className='rightSearch'>

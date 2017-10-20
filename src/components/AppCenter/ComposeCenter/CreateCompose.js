@@ -16,6 +16,7 @@ import './style/CreateCompose.less'
 import YamlEditor from '../../Editor/Yaml'
 import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../components/Notification'
+import { UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -91,7 +92,7 @@ class CreateCompose extends Component {
         'name': values.name,
         'description': values.desc
       }
-      if(/[\u4e00-\u9fa5]+$/i.test(values.name)){
+      if (/[\u4e00-\u9fa5]+$/i.test(values.name)) {
         notification.info('不支持中文名称')
         return
       }
@@ -119,7 +120,9 @@ class CreateCompose extends Component {
         failed: {
           func: (err) => {
             notification.close()
-            notification.error(`创建编排 ${values.name} 失败`, err.message.message)
+            if (err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE) {
+              notification.error(`创建编排 ${values.name} 失败`, err.message.message)
+            }
             scope.props.form.resetFields();
             scope.setState({
               currentYaml: ""
@@ -201,7 +204,7 @@ class CreateCompose extends Component {
 
   composeFileNameCheck(rule, value, callback) {
     let errorMsg = appNameCheck(value, '编排名称');
-    if(errorMsg == 'success') {
+    if (errorMsg == 'success') {
       callback()
     } else {
       callback([new Error(errorMsg)])
@@ -212,7 +215,7 @@ class CreateCompose extends Component {
     if (this.props.readOnly) {
       return
     }
-    if (parentState.stackItem.name){
+    if (parentState.stackItem.name) {
       return (
         <Button size='large' type='primary' onClick={this.updateSubmit}> 保存</Button>
       )
@@ -263,7 +266,7 @@ class CreateCompose extends Component {
             </div>
             <div className='rightBox' style={{ width: '100px', paddingTop: '8px' }}>
               <FormItem hasFeedback>
-                <Switch {...switchProps} checked={this.state.composeAttr} disabled={this.props.readOnly}  checkedChildren={'公开'} unCheckedChildren={'私有'} onChange={this.onChangeAttr} />
+                <Switch {...switchProps} checked={this.state.composeAttr} disabled={this.props.readOnly} checkedChildren={'公开'} unCheckedChildren={'私有'} onChange={this.onChangeAttr} />
               </FormItem>
             </div>
             <div style={{ clear: 'both' }}></div>
@@ -294,7 +297,7 @@ class CreateCompose extends Component {
             取消
         </Button>
           {
-           this.bottomBtnAction()
+            this.bottomBtnAction()
           }
         </div>
       </div>

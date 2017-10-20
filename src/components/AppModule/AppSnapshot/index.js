@@ -509,7 +509,7 @@ class Snapshot extends Component {
         dataIndex:'volume',
         width:'10%',
         render: (volume) => <div>
-          <Link to={`/app_manage/exclusiveMemory/${DEFAULT_IMAGE_POOL}/${this.props.cluster}/${volume}`} >
+          <Link to={`/app_manage/storage/exclusiveMemory/${DEFAULT_IMAGE_POOL}/${this.props.cluster}/${volume}`} >
             {volume}
           </Link>
         </div>

@@ -96,6 +96,7 @@ let CreateConfigFileModal = React.createClass({
               case 403: errorText = '添加配置文件过多'; break
               case 409: errorText = '配置已存在'; break
               case 500: errorText = '网络异常'; break
+              case 412: return
               default: errorText = '缺少参数或格式错误'
             }
             self.setState({
@@ -114,8 +115,8 @@ let CreateConfigFileModal = React.createClass({
     const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
     const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
     const notify = new NotificationHandler()
-    if(!/xml|json|conf|config|data|ini|txt|properties|yaml/.test(fileType)) {
-      notify.error('目前仅支持 xml/json/conf/config/data/ini/txt/properties/yaml 格式')
+    if(!/xml|json|conf|config|data|ini|txt|properties|yaml|yml/.test(fileType)) {
+      notify.error('目前仅支持 xml/json/conf/config/data/ini/txt/properties/yaml/yml 格式')
       return false
     }
     const self = this

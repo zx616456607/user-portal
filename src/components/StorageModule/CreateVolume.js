@@ -17,7 +17,7 @@ import { SnapshotClone, createStorage, loadStorageList } from '../../actions/sto
 import { getClusterStorageList } from '../../actions/cluster'
 import PersistentVolumeClaim from '../../../kubernetes/objects/persistentVolumeClaim'
 import yaml from 'js-yaml'
-import { DEFAULT_IMAGE_POOL } from '../../constants'
+import { DEFAULT_IMAGE_POOL, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { SHOW_BILLING } from '../../constants'
 
@@ -264,7 +264,7 @@ class CreateVolume extends Component {
                 notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
                 return
               }
-              if (err.statusCode !== 402) {
+              if (err.statusCode !== 402 && err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE) {
                 notification.error('创建存储卷失败',err.message.message || err.message)
               }
             }
@@ -405,7 +405,13 @@ class CreateVolume extends Component {
   }
 
   selectStorageServer(value) {
-    const {snapshotDataList} = this.props
+    const {snapshotDataList, form} = this.props
+    const { swicthChecked } = this.state 
+    if(swicthChecked){
+      form.setFieldsValue({
+        selectSnapshotName: undefined
+      })
+    }
     let list = []
     snapshotDataList.forEach((item, index) => {
       if(item.storageServer.indexOf(value) > -1){
@@ -469,7 +475,7 @@ class CreateVolume extends Component {
               <Form.Item className='form_item_style'>
                 <Select
                   placeholder="请选择类型"
-                  disabled={this.state.selectChecked || this.state.swicthChecked}
+                  disabled={this.state.selectChecked}
                   {...getFieldProps('type', {
                     initialValue: "ceph",
                     rules: [{required: true, message: '类型不能为空'}]
@@ -480,7 +486,7 @@ class CreateVolume extends Component {
               </Form.Item>
               <Form.Item className='form_item_style'>
                 <Select
-                  disabled={this.state.selectChecked || this.state.swicthChecked}
+                  disabled={this.state.selectChecked}
                   placeholder="请选择一个可靠块存储集群"
                   {...getFieldProps('address', {
                     rules: [{
