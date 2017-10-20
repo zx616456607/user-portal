@@ -654,6 +654,8 @@ class QuickCreateApp extends Component {
         let price = current.cluster.resourcePrice[config]
         if (price) {
           priceHour += price * replicas
+          cpuTotal = cpuTotal * replicas
+          memoryTotal = memoryTotal * replicas
         } else {
           // @Todo: need diy resource price
         }
