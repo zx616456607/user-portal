@@ -1719,7 +1719,6 @@ let EditTenxFlowModal = React.createClass({
         }
       </Button>
     )
-    console.log('config.spec.container', config.spec.container)
     const errorContinueChecked = !!config.spec.container
       ? (config.spec.container.errorContinue == 1)
       : false

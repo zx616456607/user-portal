@@ -59,7 +59,7 @@ let AddModal = React.createClass({
   render() {
     const { form, volumes, flowId } = this.props
     const { getFieldProps, getFieldValue, resetFields } = form
-    const targetVolumes = volumes.filter(v => v.ownerFlowId === flowId)
+    const targetVolumes = volumes.filter(v => !v.ownerFlowId || v.ownerFlowId === flowId)
     const cachedVolumeProps = getFieldProps('cachedVolume', {
       rules: [
         { required: true, message: '请选择缓存卷' },
