@@ -772,7 +772,7 @@ class AppServiceDetailInfo extends Component {
       case 'share':
         return <span>共享型(nfs)</span>
       case 'host':
-        return <span>host</span>
+        return <span>host类型</span>
       default:
         return <span>未知</span>
     }
