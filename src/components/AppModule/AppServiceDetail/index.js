@@ -286,7 +286,7 @@ class AppServiceDetail extends Component {
     let statusService = service
     service.status = getServiceStatusByContainers(service, containers)
     if(serviceList) {
-      let tmp = find(serviceList, item => item.metadata.name = service.metadata.name)
+      let tmp = find(serviceList, item => item.metadata.name === service.metadata.name)
       if(tmp) {
         statusService = tmp
       }

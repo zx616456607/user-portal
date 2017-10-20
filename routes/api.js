@@ -364,6 +364,9 @@ module.exports = function (Router) {
   router.get('/manage-monitor/:cluster_id/:namespace/getServiceOfQueryLog', manageMonitorController.getServiceOfQueryLog)
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
   router.post('/clusters/:cluster/services/:services/getSearchLog', manageMonitorController.getServiceSearchLog)
+  router.get('/clusters/:cluster/services/:services/dumpSearchLog', manageMonitorController.dumpServiceSearchLog)
+  router.get('/clusters/:cluster/instances/:instances/dumpSearchLog', manageMonitorController.dumpInstancesSearchLog)
+  router.post('/clusters/:cluster/logs/instances/:instances/logfiles', manageMonitorController.getServiceLogfiles)
 
   // DevOps service: CI/CD
   router.get('/devops/stats', devopsController.getStats)
@@ -635,12 +638,14 @@ module.exports = function (Router) {
   router.get('/resourcequota/inuse', quotaController.list)
 
   //clean
-  router.put('/cleaner/:target/:type', cleanController.startCleaner)
+  router.put('/cleaner/settings', cleanController.startCleaner)
   router.get('/cleaner/settings', cleanController.getCleanerSettings)
+  router.get('/cleaner/settings/logs', cleanController.getSystemSettings)
   router.get('/cleaner/logs', cleanController.getCleanerLogs)
   router.post('/cleaner/logs', cleanController.startCleanSystemLogs)
   router.put('/cleaner/monitor', cleanController.startCleanMonitor)
   router.post('/cleaner/records', cleanController.getSystemCleanerLogs)
-
+  router.post('/cleaner/close', cleanController.closeLogsAutoClean)
+  
   return router.routes()
 }

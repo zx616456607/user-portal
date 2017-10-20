@@ -190,22 +190,22 @@ const Storage = React.createClass({
           volume = `${name} ${fsType || '-'}`
         }
         return <Row key={`storagelist${index}`} className='storage_row_style'>
-          <Col span="3" className='text'>
+          <Col span="4" className='text'>
             {this.formatType(type)}
           </Col>
           <Col span="4" className='text'>
             {volume || '-'}
           </Col>
-          <Col span="6" className='text mountPath_style'>
+          <Col span="8" className='text mountPath_style'>
             <Input value={mountPath} disabled />
           </Col>
-          <Col span="3">
+          {/*<Col span="3">
             {
               type == 'private'
                 ? <Checkbox checked disabled>{strategy ? '保留' : '删除'}</Checkbox>
                 : <span>&nbsp;</span>
             }
-          </Col>
+          </Col>*/}
           <Col span="3">
             <Checkbox checked={readOnly} disabled>只读</Checkbox>
           </Col>
@@ -292,7 +292,7 @@ const Storage = React.createClass({
       case 'host':
         return <span>host</span>
       case 'private':
-        return <span>独享型（RBD）</span>
+        return <span>独享型（可靠块存储）</span>
       case 'share':
         return <span>共享型（nfs）</span>
       default:

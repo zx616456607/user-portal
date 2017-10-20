@@ -719,7 +719,8 @@ class AlarmSetting extends Component {
     const notifi = new NotificationHandler()
     strategy.push({
       strategyID: special.strategyID,
-      interval: time
+      interval: time,
+      strategyName:special.strategyName
     })
     if(strategy.length == 0 ) {
       notifi.error('请选择要设置忽略时间的策略')
@@ -804,6 +805,7 @@ class AlarmSetting extends Component {
     if(selectStrategy) {
       strategy.push({
         strategyID: selectStrategy.strategyID,
+        strategyName:selectStrategy.strategyName,
         enable: 0
       })
     } else {
@@ -835,11 +837,11 @@ class AlarmSetting extends Component {
         notifi.error('该策略已启用')
         return
       }
-      strategy.push(selectStrategy.strategyID)
+      strategy.push({strategyID:selectStrategy.strategyID,strategyName:selectStrategy.strategyName})
     } else {
       data.forEach(item => {
         if(item.checked) {
-          strategy.push(item.strategyID)
+          strategy.push({strategyID:item.strategyID,strategyName:item.strategyName})
         }
       })
     }
@@ -853,7 +855,7 @@ class AlarmSetting extends Component {
     })
     const { clusterID, batchEnable, getSettingList } = this.props
     batchEnable(clusterID, {
-      strategyIDs: strategy
+      strategies: strategy
     }, {
       success: {
         func: () => {
@@ -884,11 +886,11 @@ class AlarmSetting extends Component {
         notifi.error('该策略已停用')
         return
       }
-      strategy.push(selectStrategy.strategyID)
+      strategy.push({strategyID:selectStrategy.strategyID,strategyName:selectStrategy.strategyName})
     } else {
       data.forEach(item => {
         if(item.checked) {
-          strategy.push(item.strategyID)
+          strategy.push({strategyID:item.strategyID,strategyName:item.strategyName})
         }
       })
     }
@@ -903,7 +905,7 @@ class AlarmSetting extends Component {
     })
     const { clusterID, batchDisable, getSettingList } = this.props
     batchDisable(clusterID, {
-      strategyIDs: strategy
+      strategies: strategy
     }, {
       success: {
         func: () => {

@@ -543,7 +543,7 @@ class TenxFlowList extends Component {
 
   onSearchFlow(e) {
     //this function for user search special flow
-    let keyword = e.target.value;
+    let keyword = e.target.value.trim();
     let searchingFlag = false;
     if (keyword.length > 0) {
       searchingFlag = true;

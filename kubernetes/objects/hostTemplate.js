@@ -21,7 +21,7 @@ class HostTemplate {
     }
     this.provisioner = "host-storage"
     this.parameters = {
-      baseDir: "/tenxcloud"
+      baseDir: "/usr/share/tenxcloud/hostpath"
     }
   }
 }

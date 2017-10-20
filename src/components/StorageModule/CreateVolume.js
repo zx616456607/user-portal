@@ -17,7 +17,7 @@ import { SnapshotClone, createStorage, loadStorageList } from '../../actions/sto
 import { getClusterStorageList } from '../../actions/cluster'
 import PersistentVolumeClaim from '../../../kubernetes/objects/persistentVolumeClaim'
 import yaml from 'js-yaml'
-import { DEFAULT_IMAGE_POOL } from '../../constants'
+import { DEFAULT_IMAGE_POOL, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { SHOW_BILLING } from '../../constants'
 
@@ -63,6 +63,7 @@ class CreateVolume extends Component {
     this.handleSelectSnapshot = this.handleSelectSnapshot.bind(this)
     this.SnapshotSwitch = this.SnapshotSwitch.bind(this)
     this.renderCephSeverOption = this.renderCephSeverOption.bind(this)
+    this.selectStorageServer = this.selectStorageServer.bind(this)
     this.state = {
       volumeSizemin: this.props.volumeSize || 512,
       volumeSize:this.props.volumeSize || 512,
@@ -75,6 +76,7 @@ class CreateVolume extends Component {
       swicthChecked: false,
       switchDisabled: false,
       selectChecked: false,
+      renderSnapshotOptionlist: this.props.snapshotDataList
     }
   }
 
@@ -124,21 +126,8 @@ class CreateVolume extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    // 直接创建独享型存储是需要进行的重置操作
-    if(this.props.createModal !== nextProps.createModal && nextProps.createModal){
-      this.setState({
-        fstype: 'ext4',
-        volumeSizemin: 512,
-        volumeSize: 512,
-        ext4Disabled: false,
-        xfsDisabled: false,
-        swicthChecked: false,
-        switchDisabled: false,
-        selectChecked: false,
-      })
-    }
     // 由快照创建存储卷时需要进行的重置操作
-    if(this.props.currentSnapshot !== nextProps.currentSnapshot){
+    if(nextProps.currentSnapshot && !this.props.createModal && nextProps.createModal){
       this.setState({
         currentSnapshot: nextProps.currentSnapshot,
         currentVolume: nextProps.currentVolume,
@@ -153,6 +142,21 @@ class CreateVolume extends Component {
       })
       this.props.form.setFieldsValue({
         'address': nextProps.currentSnapshot.storageServer
+      })
+      return
+    }
+    // 直接创建独享型存储是需要进行的重置操作
+    if(this.props.createModal !== nextProps.createModal && nextProps.createModal){
+      this.setState({
+        fstype: 'ext4',
+        volumeSizemin: 512,
+        volumeSize: 512,
+        ext4Disabled: false,
+        xfsDisabled: false,
+        swicthChecked: false,
+        switchDisabled: false,
+        selectChecked: false,
+        renderSnapshotOptionlist: nextProps.snapshotDataList,
       })
     }
   }
@@ -169,7 +173,9 @@ class CreateVolume extends Component {
           xfsDisabled: snapshotDataList[i].fstype == 'ext4',
         })
         form.setFieldsValue({
-          selectSnapshotName: value
+          selectSnapshotName: value,
+          address: snapshotDataList[i].storageServer,
+          type: 'ceph',
         })
         return
       }
@@ -207,7 +213,7 @@ class CreateVolume extends Component {
       'volumeName',
       'type',
       'address',
-      'strategy'
+      //'strategy'
     ]
     if(swicthChecked){
       validataArray.push('selectSnapshotName')
@@ -227,7 +233,7 @@ class CreateVolume extends Component {
           name: values.volumeName,
           fsType: fstype,
           storageType: values.type,
-          reclaimPolicy: values.strategy,
+          //reclaimPolicy: values.strategy,
           storageClassName: values.address,
           storage: `${volumeSize}Mi`,
         }
@@ -258,7 +264,7 @@ class CreateVolume extends Component {
                 notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
                 return
               }
-              if (err.statusCode !== 402) {
+              if (err.statusCode !== 402 && err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE) {
                 notification.error('创建存储卷失败',err.message.message || err.message)
               }
             }
@@ -293,7 +299,10 @@ class CreateVolume extends Component {
             notification.close()
             notification.success('创建存储成功')
             this.handleResetState()
-            this.props.scope.loadSnapshotList()
+            const { snapshotRequired } = this.props
+            if(!snapshotRequired){
+              this.props.scope.getStorageList()
+            }
           },
           isAsync: true,
         },
@@ -345,8 +354,18 @@ class CreateVolume extends Component {
   }
 
   handleFormatSelectOption(){
-    const { snapshotDataList } = this.props
-    let Options = snapshotDataList.map((item, index) => {
+    const { renderSnapshotOptionlist } = this.state
+    if(!renderSnapshotOptionlist.length){
+      return <Select.Option
+        key='nodata'
+        value='nodata'
+        disabled
+        style={{textAlign: 'center'}}
+      >
+        暂无可用快照
+      </Select.Option>
+    }
+    let Options = renderSnapshotOptionlist.map((item, index) => {
       return <Select.Option key={item.name} value={item.name}>
         <Row>
           <Col span={8} className='snapshotName'>{item.name}</Col>
@@ -381,7 +400,20 @@ class CreateVolume extends Component {
   renderCephSeverOption(){
     const { cephList } = this.props
     return cephList.map((item, index) => {
-      return <Option key={`ceph${index}`} value={item.metadata.name}>{item.metadata.name}</Option>
+      return <Option key={`ceph${index}`} value={item.metadata.name}>{item.metadata.annotations[`tenxcloud.com/scName`]}</Option>
+    })
+  }
+
+  selectStorageServer(value) {
+    const {snapshotDataList} = this.props
+    let list = []
+    snapshotDataList.forEach((item, index) => {
+      if(item.storageServer.indexOf(value) > -1){
+        list.push(item)
+      }
+    })
+    this.setState({
+      renderSnapshotOptionlist: list
     })
   }
 
@@ -437,24 +469,25 @@ class CreateVolume extends Component {
               <Form.Item className='form_item_style'>
                 <Select
                   placeholder="请选择类型"
-                  disabled={this.state.selectChecked}
+                  disabled={this.state.selectChecked || this.state.swicthChecked}
                   {...getFieldProps('type', {
                     initialValue: "ceph",
                     rules: [{required: true, message: '类型不能为空'}]
                   })}
                 >
-                  <Option key="ceph" value="ceph">RBD</Option>
+                  <Option key="ceph" value="ceph">可靠块存储</Option>
                 </Select>
               </Form.Item>
               <Form.Item className='form_item_style'>
                 <Select
-                  disabled={this.state.selectChecked}
-                  placeholder="请选择一个RBD集群"
+                  disabled={this.state.selectChecked || this.state.swicthChecked}
+                  placeholder="请选择一个可靠块存储集群"
                   {...getFieldProps('address', {
                     rules: [{
                       required: true,
                       message: "地址不能为空"
-                    }]
+                    }],
+                    onChange: this.selectStorageServer,
                   })}
                 >
                   { this.renderCephSeverOption() }
@@ -560,7 +593,7 @@ class CreateVolume extends Component {
               </Button>
             </Col>
           </Row>
-          <Form.Item
+          {/*<Form.Item
             label={<span>回收策略
               <Tooltip title={<div>
                 <div>保留：服务删除时，保留存储</div>
@@ -579,7 +612,7 @@ class CreateVolume extends Component {
               <Radio key="delete" value="delete" disabled>删除</Radio>
             </Radio.Group>
             <span className='strategy_tips'><Icon type="question-circle-o" className='tips_icon'/>暂不支持删除策略</span>
-          </Form.Item>
+          </Form.Item>*/}
           { SHOW_BILLING ?
           <div className="modal-price">
             <div className="price-left">

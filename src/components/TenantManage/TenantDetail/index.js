@@ -402,7 +402,7 @@ let TenantDetail = React.createClass({
             <div className='container'>
               <div className="lastSyncInfo">
                 <Row className='item itemfirst'>
-                  <Col span={3} className='item_title'><div>角色名称</div></Col>
+                  <Col span={3} className='item_title'>角色名称</Col>
                   <Col span={21} className='item_content'>{roleDetail.name}</Col>
                 </Row>
                 <Row className='item itemfirst'>

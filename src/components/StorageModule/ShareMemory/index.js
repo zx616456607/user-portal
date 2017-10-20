@@ -192,7 +192,7 @@ class ShareMemory extends Component {
   searchStorage() {
     const { searchInput } = this.state
     const { searchStorage } = this.props
-    searchStorage(searchInput)
+    searchStorage(searchInput.trim())
   }
 
   formatStatus(status){
@@ -307,7 +307,7 @@ class ShareMemory extends Component {
               </Button>
               <Button
                 size="large"
-                className='button_margin'
+                className='button_refresh'
                 onClick={this.loadData}
               >
                 <i className="fa fa-refresh button_icon" aria-hidden="true"></i>
@@ -316,7 +316,7 @@ class ShareMemory extends Component {
               <Button
                 size="large"
                 icon="delete"
-                className='button_margin'
+                className='button_refresh'
                 onClick={() => this.deleteItem()}
                 disabled={!selectedRowKeys.length}
               >

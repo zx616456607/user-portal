@@ -246,7 +246,7 @@ class BaseInfo extends Component {
               <li><span className='key'>密码：</span> <span className='value'>******</span><span className="pasBtn" onClick={() => this.setState({ passShow: true })}><i className="fa fa-eye"></i> 显示</span></li>}
             </ul>
           </div>}
-          <div className='configHead'>实例副本 <span>{this.props.currentData.desired}个 &nbsp;</span>
+          <div className="themeHeader"><i className="themeBorder"/>实例副本 <span>{this.props.currentData.desired}个 &nbsp;</span>
             <Popover content={modalContent} title={null} trigger="click" overlayClassName="putmodalPopover"
               visible={rootScope.state.putVisible} getTooltipContainer={()=> document.getElementById('AppServiceDetail')}
               >
@@ -528,9 +528,9 @@ class VisitTypes extends Component{
     const radioValue = value || initValue
     const hide = selectDis == undefined ? initSelectDics : selectDis
     return (
-      <Card id="visitsTypePage">
-        <div className="visitTypeTopBox">
-          <div className="visitTypeTitle">集群访问方式</div>
+      <div id="visitsTypePage" className="modalDetailBox">
+        <div className="visitTypeTopBox configContent">
+          <div className="visitTypeTitle configHead">集群访问方式</div>
           <div className="visitTypeInnerBox">
             {
               forEdit ? [
@@ -562,8 +562,8 @@ class VisitTypes extends Component{
             </div>
           </div>
         </div>
-        <div className="visitTypeBottomBox">
-          <div className="visitTypeTitle">访问地址</div>
+        <div className="visitTypeBottomBox configContent">
+          <div className="visitTypeTitle configHead">访问地址</div>
           <div className="visitAddrInnerBox">
             <input type="text" className="copyTest" style={{opacity:0}}/>
             <div className={classNames("outPutBox",{'hide':addrHide})}>
@@ -588,7 +588,7 @@ class VisitTypes extends Component{
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     )
   }
 }

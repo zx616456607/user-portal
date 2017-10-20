@@ -24,6 +24,8 @@ import {
 import Notification from '../../../Notification'
 import {ASYNC_VALIDATOR_TIMEOUT} from '../../../../constants'
 import isEmpty from 'lodash/isEmpty'
+import classNames from 'classnames'
+import './style/index.less'
 
 const FormItem = Form.Item
 const Option = Select.Option;
@@ -427,9 +429,9 @@ class AutoScaleModal extends React.Component {
       let optItem = cpuAndMemory[key] || { 'cpu': 80 }
       return (
         <Row type="flex" align="middle" key={key}>
-          <Col span={4} style={{ marginBottom: 24, textAlign: 'right' }}>
+          <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginBottom: 24, textAlign: 'right' }}>
             {
-              thresholdArr.indexOf(key) === 0 ? '阈值：' : ''
+              thresholdArr.indexOf(key) === 0 ? '阈值' : ''
             }
           </Col>
           <Col span={7}>
@@ -469,6 +471,7 @@ class AutoScaleModal extends React.Component {
     return (
       <Modal
         title={reuse ? '复用自动伸缩侧漏' : (isEmpty(scaleDetail) ? "创建自动伸缩策略" : "修改自动伸缩策略")}
+        className="autoScaleModal"
         visible={visible}
         footer={this.renderFooter()}
         onCancel={this.cancelModal}
@@ -546,11 +549,11 @@ class AutoScaleModal extends React.Component {
                     placeholder="请选择告警通知组"
                     showSearch
                     optionFilterProp="children"
-                    notFoundContent="无法找到">
+                    notFoundContent="没有告警通知组">
                     {
-                      alertList && alertList.length && alertList.map(item =>
+                      alertList && alertList.length ? alertList.map(item =>
                         <Option key={item.name} value={item.groupID}>{item.name}</Option>
-                      )
+                      ) : null
                     }
                   </Select>
                 </FormItem>,

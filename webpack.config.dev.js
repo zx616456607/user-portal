@@ -17,7 +17,7 @@ var hotMiddleWareConfig = 'webpack-hot-middleware/client?path=/__webpack_hmr&tim
 console.log('Use development webpack config ...')
 
 module.exports = {
-  devtool: 'cheap-source-map',
+  devtool: '#cheap-module-eval-source-map',
 
   entry: {
     main: [

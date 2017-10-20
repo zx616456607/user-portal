@@ -257,7 +257,7 @@ class StatefulCluster extends Component {
               <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
                 <span><i className='fa fa-plus' />&nbsp;{literal.displayName}集群</span>
               </Button></Tooltip>
-              <Button style={{ marginLeft: '20px', padding: '5px 15px' }} size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
+              <Button className="button_refresh" size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
                 <i className='fa fa-refresh' />&nbsp;刷 新
               </Button>
               <span className='rightSearch'>
@@ -285,7 +285,7 @@ class StatefulCluster extends Component {
                    this.setState({ CreateDatabaseModalShow: false })
                  }}
           >
-            <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy} />
+            <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
           </Modal>
         </div>
       </QueueAnim>

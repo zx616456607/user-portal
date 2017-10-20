@@ -515,13 +515,13 @@ class App extends Component {
             </Button>
           ]}
           >
-          <div>
+          <div className="alert_content">
             <i className="fa fa-exclamation-triangle" aria-hidden="true"></i>
-            <span>
+            <div className="alert_text">
             超过配额，你目前只剩下
             <a> {resourcequotaMessage.available} 个 {resourcequotaMessage.type} </a>
             配额
-            </span>
+            </div>
             <div>
               您可以前往总览或项目详情页面查询当前配额使用情况或联系系统管理员提高配额。
             </div>

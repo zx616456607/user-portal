@@ -23,7 +23,7 @@ import openUrl from '../../assets/img/icon/openUrl.svg'
 
 const Option = Select.Option
 const exclamationIcon = (
-    <Icon type="exclamation-circle-o" style={{  color: 'orange' }} />
+  <Icon type="exclamation-circle-o" style={{ color: 'orange' }} />
 )
 
 
@@ -32,13 +32,25 @@ class ClusterPlugin extends Component {
     super(prop)
     this.state = {
       maxCPU: 4,
-      maxMem: 2048
+      maxMem: 2048,
+      data: [],
     }
   }
   loadData() {
     const { getClusterPlugins, cluster } = this.props
     if (cluster) {
-      getClusterPlugins(cluster.clusterID)
+      getClusterPlugins(cluster.clusterID, {
+        success: {
+          func: res => {
+            debugger
+            if (Object.keys(res).length > 0) {
+              this.setState({
+                data: res[camelize(cluster.clusterID)].data
+              })
+            }
+          }
+        }
+      })
     }
 
   }
@@ -81,7 +93,7 @@ class ClusterPlugin extends Component {
         }
         return '#F3575A'
       }
-      case 'stopped':{
+      case 'stopped': {
         return 'red'
       }
       case 'failed': {
@@ -141,43 +153,43 @@ class ClusterPlugin extends Component {
       replicas += parseInt(podBrief[key])
       let num = parseInt(podBrief[key])
       switch (key) {
-      case 'running':{
-        running = num
-        break
-      }
-      case 'pending':{
-        pending = num
-        break
-      }
-      case 'failed': {
-        failed = num
-        break
-      }
-      case 'abnormal': {
-        abnormal = num
-        break
-      }
+        case 'running': {
+          running = num
+          break
+        }
+        case 'pending': {
+          pending = num
+          break
+        }
+        case 'failed': {
+          failed = num
+          break
+        }
+        case 'abnormal': {
+          abnormal = num
+          break
+        }
       }
     })
-    if(running > 0) {
-        return <div className="text">
-          <div style={{ color: this.getStatusColor('running', name) }}><i className='fa fa-circle' />&nbsp;&nbsp; 正常</div>
-          <div>{ running == replicas ? "" : <Tooltip title={this.getTooltip(podBrief)}>{exclamationIcon}</Tooltip>}{running}/{replicas} 运行中</div>
-        </div>
+    if (running > 0) {
+      return <div className="text">
+        <div style={{ color: this.getStatusColor('running', name) }}><i className='fa fa-circle' />&nbsp;&nbsp; 正常</div>
+        <div>{running == replicas ? "" : <Tooltip title={this.getTooltip(podBrief)}>{exclamationIcon}</Tooltip>}{running}/{replicas} 运行中</div>
+      </div>
     }
-    if(running == 0 && pending == 0 && abnormal != 0) {
+    if (running == 0 && pending == 0 && abnormal != 0) {
       return <div className="text">
         <div style={{ color: this.getStatusColor('abnormal', name) }}><i className='fa fa-circle' />&nbsp;&nbsp; 异常</div>
         <div><Tooltip title={this.getTooltip(podBrief)}>{exclamationIcon}</Tooltip>&nbsp;{abnormal}/{replicas} 异常</div>
-        </div>
+      </div>
     }
-    if(running == 0 && pending != 0) {
+    if (running == 0 && pending != 0) {
       return <div className="text">
-        <div><Progress percent={100} status="active" showInfo={false} style={{width: '100px'}}/>&nbsp;&nbsp;启动中</div>
+        <div><Progress percent={100} status="active" showInfo={false} style={{ width: '100px' }} />&nbsp;&nbsp;启动中</div>
         <div><Tooltip title={this.getTooltip(podBrief)}>{exclamationIcon}</Tooltip>&nbsp;{running}/{replicas} 启动中</div>
-        </div>
+      </div>
     }
-    if(failed == replicas || (running == 0 && pending == 0 && abnormal == 0)) {
+    if (failed == replicas || (running == 0 && pending == 0 && abnormal == 0)) {
       return <div className="text">
         <div style={{ color: this.getStatusColor('failed', name) }}><i className='fa fa-circle' />&nbsp;&nbsp; 启动失败</div>
         <div><Tooltip title={this.getTooltip(podBrief)}>{exclamationIcon}</Tooltip>&nbsp;{failed}/{replicas} 启动失败</div>
@@ -186,14 +198,14 @@ class ClusterPlugin extends Component {
   }
 
   getStatusStyle(status, row) {
-    if(status == '启动中') {
-      return(<div className="text">
+    if (status == '启动中') {
+      return (<div className="text">
         <div style={{ color: this.getStatusColor(status.message, row.name) }}><i className='fa fa-circle' />&nbsp;&nbsp;{this.getStatusMessage(status.message, row.name)}</div>
-        <Progress percent={100} status="active"/>
-      </div>) 
+        <Progress percent={100} status="active" />
+      </div>)
     }
   }
-  startPlugin(row,type) {
+  startPlugin(row, type) {
     const cluster = this.props.cluster.clusterID
     const operation = type == 'stop' ? '停止' : '启动'
     const notify = new NotificationHandler()
@@ -211,13 +223,13 @@ class ClusterPlugin extends Component {
       failed: {
         func: () => {
           notify.close()
-          notify.error( `${operation}插件 ${pluginNames} 失败`)
+          notify.error(`${operation}插件 ${pluginNames} 失败`)
         }
       }
     })
 
   }
-  
+
   showCreateModal(row) {
     this.setState({
       currentPlugin: row,
@@ -245,7 +257,7 @@ class ClusterPlugin extends Component {
   installPlugin() {
     const row = this.state.currentPlugin
     const notify = new NotificationHandler()
-    if(row.status.code != 503 && row.status.message != 'uninstalled') {
+    if (row.status.code != 503 && row.status.message != 'uninstalled') {
       notify.error('该插件已安装')
       return
     }
@@ -256,29 +268,29 @@ class ClusterPlugin extends Component {
       pluginName: row.name,
       template: row.templateID,
     }, {
-      success: {
-        func: () => {
-          notify.close()
-          notify.success(`插件${row.name}安装成功`)
-          self.loadData()
-          this.setState({
-            create: false
-          })
-          return
+        success: {
+          func: () => {
+            notify.close()
+            notify.success(`插件${row.name}安装成功`)
+            self.loadData()
+            this.setState({
+              create: false
+            })
+            return
+          },
+          isAsync: true
         },
-        isAsync: true
-      },
-      failed: {
-        func: () => {
-          notify.close()
-          notify.error(`插件${row.name}安装失败`)
-          this.setState({
-            create: false
-          })
-          return
+        failed: {
+          func: () => {
+            notify.close()
+            notify.error(`插件${row.name}安装失败`)
+            this.setState({
+              create: false
+            })
+            return
+          }
         }
-      }
-    })
+      })
   }
 
   resetPlugin(isReset) {
@@ -339,7 +351,7 @@ class ClusterPlugin extends Component {
                 notify.close()
                 form.resetFields()
                 notify.success('插件配置更新成功')
-                self.loadData()
+                this.loadData()
               },
               isAsync: true
             },
@@ -383,32 +395,32 @@ class ClusterPlugin extends Component {
     const items = []
     items.push(<Option key={'random'} value={'random'}>随机调度</Option>)
     Array.isArray(nodes) && nodes.forEach(node => {
-      if(!node.schedulable || node.isMaster) return
+      if (!node.schedulable || node.isMaster) return
       return items.push(<Option key={node.objectMeta.name} value={node.objectMeta.name}>{node.objectMeta.name}</Option>)
     })
     return items
   }
   getTableItem() {
-    const { clusterPlugins } = this.props
+    const { data } = this.state
     const first = []
     const second = []
     const other = []
-    if (clusterPlugins && clusterPlugins.data) {
-      const plugins = clusterPlugins.data
+    if (data && data) {
+      const plugins = data
       let pluginsNames = []
       for (let key in plugins) {
         pluginsNames.push(plugins[key])
       }
       pluginsNames.forEach(item => {
-        if(!item.serviceInfo) {
+        if (!item.serviceInfo) {
           other.push(item)
           return
         }
-        if(item.serviceInfo.isSystem && item.status.message != 'uninstalled') {
+        if (item.serviceInfo.isSystem && item.status.message != 'uninstalled') {
           first.push(item)
           return
         }
-        if(item.serviceInfo.isSystem) {
+        if (item.serviceInfo.isSystem) {
           second.push(item)
           return
         }
@@ -434,10 +446,18 @@ class ClusterPlugin extends Component {
     this.setState({ inputCPU: value })
   }
   handleMenuClick(key, row) {
-    if(row.name == 'elasticsearch-logging' && key === 'deployIndextpl') {
+    if (row.name == 'elasticsearch-logging' && key === 'deployIndextpl') {
       this.setState({
         deployIndex: true,
         pluginName: row.name
+      })
+      return
+    }
+    if (key === "reinstall") {
+      this.setState({
+        currentPlugin: row,
+        reset: true,
+        row: row
       })
       return
     }
@@ -459,14 +479,14 @@ class ClusterPlugin extends Component {
     }, 300)
     const notify = new NotificationHandler()
     if (this.state.key == 'stop') {
-      this.startPlugin(body,'stop')
+      this.startPlugin(body, 'stop')
       return
     }
-    if(this.state.key == 'start') {
+    if (this.state.key == 'start') {
       this.startPlugin(body, 'start')
       return
     }
-    if(this.state.key == 'reinstall') {
+    if (this.state.key == 'reinstall') {
       this.showResetModal(this.state.row)
       return
     }
@@ -483,7 +503,7 @@ class ClusterPlugin extends Component {
 
   initPlugins() {
     const { initPlugins, cluster, getClusterPlugins } = this.props
-    if(this.setState.initing) return
+    if (this.setState.initing) return
     this.setState({
       initing: true
     })
@@ -503,7 +523,7 @@ class ClusterPlugin extends Component {
     })
   }
 
-  
+
   render() {
     const { clusterPlugins, form, cluster, isFetching } = this.props
     const { getFieldProps } = form
@@ -602,16 +622,16 @@ class ClusterPlugin extends Component {
         title: '插件名称',
         key: 'keys',
         dataIndex: 'name',
-        width:'18%',
+        width: '18%',
         render: text => text
       },
       {
         title: '插件状态',
         key: 'status',
         dataIndex: 'status',
-        width:'16%',
+        width: '16%',
         render: (status, row) => {
-          if(row.podBrief && (status.message != 'uninstalled' && status.message != 'stopped')) {
+          if (row.podBrief && (status.message != 'uninstalled' && status.message != 'stopped')) {
             return this.getPluginStatus(row.podBrief, row.name)
           }
           return <div style={{ color: this.getStatusColor(status.message, row.name) }}><i className='fa fa-circle' />&nbsp;&nbsp;{this.getStatusMessage(status.message, row.name)}</div>
@@ -621,9 +641,9 @@ class ClusterPlugin extends Component {
         title: '资源限制',
         key: 'resourceRange',
         dataIndex: 'resourceRange',
-        width:'17%',
+        width: '17%',
         render: (plugin, row) => {
-        return (
+          return (
             <div><div>CPU：{this.convertCPU(plugin.request.cpu)}</div>
               <div>内存：{this.convertMemory(plugin.request.memory)}</div>
             </div>
@@ -634,7 +654,7 @@ class ClusterPlugin extends Component {
         title: '所在节点',
         key: 'templateID',
         dataIndex: 'templateID',
-        width:'13%',
+        width: '13%',
         render: (text, row) => {
           return (
             <span>{row.hostName || '随机调度'}</span>
@@ -645,15 +665,15 @@ class ClusterPlugin extends Component {
         title: '管理界面',
         key: 'web',
         dataIndex: 'web',
-        width:'15%',
+        width: '15%',
         render: (text, row) => {
-          if (row.serviceInfo && row.serviceInfo.entryPoints && ['stopped', 'uninstalled'].indexOf(row.status.message) < 0 ) {
+          if (row.serviceInfo && row.serviceInfo.entryPoints && ['stopped', 'uninstalled'].indexOf(row.status.message) < 0) {
             let path = row.serviceInfo.entryPoints[0].path
             const port = row.serviceInfo.entryPoints[0].port
-            if(path.indexOf('/') == 0) {
+            if (path.indexOf('/') == 0) {
               path = path.substr(1)
             }
-            if(path) {
+            if (path) {
               return (<a href={`/proxy/clusters/${cluster.clusterID}/plugins/${row.name + (port ? ':' + port : '')}/${path}`} target="_blank"><img src={openUrl} className="openUrl" />打开界面</a>)
             }
             return (<a href={`/proxy/clusters/${cluster.clusterID}/plugins/${row.name + (port ? ':' + port : '')}/`} target="_blank"><img src={openUrl} className="openUrl" />打开界面</a>)
@@ -668,27 +688,27 @@ class ClusterPlugin extends Component {
         dataIndex: 'action',
         render: (text, row) => {
           let menu
-          if(row.status.message != 'uninstalled') {
-            
+          if (row.status.message != 'uninstalled') {
+
           }
-          if(row.status.message == 'stopped') {
+          if (row.status.message == 'stopped') {
             menu = (
               <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
                 <Menu.Item key="start">启动插件</Menu.Item>
                 <Menu.Item key="delete">卸载插件</Menu.Item>
                 <Menu.Item key="reinstall">重新部署</Menu.Item>
               </Menu>
-             )
-           }else if (row.name == 'elasticsearch-logging') {
-             menu = (
-               <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
-                 <Menu.Item key="stop">停止插件</Menu.Item>
-                 <Menu.Item key="delete">卸载插件</Menu.Item>
-                 <Menu.Item key="deployIndextpl">部署索引模版</Menu.Item>
-                 <Menu.Item key="reinstall">重新部署</Menu.Item>
-               </Menu>
-             )
-           }  else {
+            )
+          } else if (row.name == 'elasticsearch-logging') {
+            menu = (
+              <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
+                <Menu.Item key="stop">停止插件</Menu.Item>
+                <Menu.Item key="delete">卸载插件</Menu.Item>
+                <Menu.Item key="deployIndextpl">部署索引模版</Menu.Item>
+                <Menu.Item key="reinstall">重新部署</Menu.Item>
+              </Menu>
+            )
+          } else {
             if (row.name === 'fluentd-elk') {
               menu = (
                 <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
@@ -707,46 +727,46 @@ class ClusterPlugin extends Component {
             }
           }
           let menua
-          if(row.status.message == 'stopped') {
-             menua = (
-               <Menu className="Settingplugin">
-                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="start">启动插件</Menu.Item>
-                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
-                 <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)}>重新部署</Menu.Item>
-                 {this.getStateusForEvent(row)}
-               </Menu>
-             )
-           } else {
-             menua = (
-               <Menu className="Settingplugin">
-                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="stop">停止插件</Menu.Item>
-                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
-                 <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)}>重新部署</Menu.Item>
-                 {this.getStateusForEvent(row)}
-               </Menu>
-             )
-           }
-          const result = (row.serviceInfo && row.serviceInfo.isSystem) ? <div className="pluginAction"> <span className="button">
-              {this.getStateusForEvent(row)}
-            </span>
-              <Button style={{backgroundColor:'#fff'}} onClick={() => this.showSetModal(row)} overlay={{}}>设置插件</Button></div> : <div className="pluginAction">
-             <div className="Settingplugina">
-               <span className="button">
+          if (row.status.message == 'stopped') {
+            menua = (
+              <Menu className="Settingplugin">
+                <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="start">启动插件</Menu.Item>
+                <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
+                <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)}>重新部署</Menu.Item>
                 {this.getStateusForEvent(row)}
-               </span>
-               {row.status.message == 'uninstalled' ? '' : <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
-                 设置插件
+              </Menu>
+            )
+          } else {
+            menua = (
+              <Menu className="Settingplugin">
+                <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="stop">停止插件</Menu.Item>
+                <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
+                <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)}>重新部署</Menu.Item>
+                {this.getStateusForEvent(row)}
+              </Menu>
+            )
+          }
+          const result = (row.serviceInfo && row.serviceInfo.isSystem) ? <div className="pluginAction"> <span className="button">
+            {this.getStateusForEvent(row)}
+          </span>
+            <Button style={{ backgroundColor: '#fff' }} onClick={() => this.showSetModal(row)} overlay={{}}>设置插件</Button></div> : <div className="pluginAction">
+              <div className="Settingplugina">
+                <span className="button">
+                  {this.getStateusForEvent(row)}
+                </span>
+                {row.status.message == 'uninstalled' ? '' : <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
+                  设置插件
                </Dropdown.Button>}
-             </div>
-             <div className="Settingpluginb">
-               {row.status.message == 'uninstalled' ? '' : <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
-                 设置插件
+              </div>
+              <div className="Settingpluginb">
+                {row.status.message == 'uninstalled' ? '' : <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
+                  设置插件
                </Dropdown.Button>}
-             </div>
-             {/*<Button type="primary" onClick={() => this.showResetModal(row.name)}>重新部署</Button>
+              </div>
+              {/*<Button type="primary" onClick={() => this.showResetModal(row.name)}>重新部署</Button>
               <Button className="setup" type="ghost" onClick={()=> this.showSetModal(row.name)}>设置</Button>*/}
-           </div>
-           return result
+            </div>
+          return result
         }
       }
     ]
@@ -864,7 +884,7 @@ function mapStateToProp(state, props) {
   if (!clusterPlugins) {
     clusterPlugins = defaultClusterPlugins
   }
-  if(state.cluster.clusterPlugins) {
+  if (state.cluster.clusterPlugins) {
     isFetching = state.cluster.clusterPlugins.isFetching
   }
   return {

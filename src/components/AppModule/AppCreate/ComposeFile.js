@@ -21,7 +21,7 @@ import { browserHistory } from 'react-router'
 import AppAddStackModal from './AppAddStackModal'
 import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../components/Notification'
-import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
+import { ASYNC_VALIDATOR_TIMEOUT, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
 import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 import ResourceQuotaModal from '../../ResourceQuotaModal'
 
@@ -203,7 +203,9 @@ class ComposeFile extends Component {
               return
             }
             const { message } = err
-            notification.error('创建应用失败', message.message)
+            if(err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
+              notification.error('创建应用失败', message.message)
+            }
           },
           isAsync: true
         },

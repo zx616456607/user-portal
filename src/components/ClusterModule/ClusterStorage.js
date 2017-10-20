@@ -257,16 +257,35 @@ class ClusterStorage extends Component {
       const pool = 'tenx-pool'
       const key = values[`RBD_key${item.index}`]
       const clusterID = cluster.clusterID
+      const cephList = clusterStorage.cephList || []
+      let secretName = ''
+      let cephName = ''
       if(item.newAdd){
-        const secretName = 'ceph-secret'
-        const storageClass = new StorageClass(agent, name, monitors, adminId, pool, secretName)
-        const secret = new Secret(key, secretName)
-        const template = []
-        template.push(yaml.dump(storageClass))
-        template.push(yaml.dump(secret))
-        const body = {
-          template: template.join('---\n')
-        }
+        let index = cephList.length
+        secretName = 'ceph-secret'
+        cephName = `tenx-rbd${index}`
+      } else {
+        secretName = cephList[item.index].parameters.adminSecretName
+        cephName = cephList[item.index].metadata.name
+      }
+      const config = {
+        agent,
+        name: cephName,
+        scName: name,
+        monitors,
+        adminId,
+        pool,
+        secretName,
+      }
+      const storageClass = new StorageClass(config)
+      const secret = new Secret(key, secretName)
+      const template = []
+      template.push(yaml.dump(storageClass))
+      template.push(yaml.dump(secret))
+      const body = {
+        template: template.join('---\n')
+      }
+      if(item.newAdd){
         createCephStorage(clusterID, {type: 'ceph'}, body, {
           success: {
             func: (res) => {
@@ -284,16 +303,6 @@ class ClusterStorage extends Component {
           }
         })
         return
-      }
-      const cephListData = clusterStorage.cephList
-      const secretName = cephListData[item.index].parameters.adminSecretName
-      const storageClass = new StorageClass(agent, name, monitors, adminId, pool, secretName)
-      const secret = new Secret(key, secretName)
-      const template = []
-      template.push(yaml.dump(storageClass))
-      template.push(yaml.dump(secret))
-      const body = {
-        template: template.join('---\n')
       }
       return updateStorageClass(clusterID, {type: 'ceph'}, body, {
         success: {
@@ -405,46 +414,45 @@ class ClusterStorage extends Component {
     let cephList = listArray.map(item => {
       const metadata = cephListData[item.index] ? cephListData[item.index].metadata : {}
       const parameters = cephListData[item.index] ? cephListData[item.index].parameters : {}
-      const agentProps = 'tenxcloud.com/storageagent'
       return <div className='list_container' key={`list_container${item.index}`}>
         <div className='list' key={ `ceph_list_${item.index}` }>
           <FormItem
-            label="RBD 集群名称"
+            label="集群名称"
             key="cluster_name"
             { ...formItemLayout }
           >
             <Input
-              placeholder='请输入 RBD 集群名称'
+              placeholder='请输入可靠块存储集群名称'
               disabled={ item.disabled || !item.newAdd }
               size="large"
               className='formItem_child_style'
               {...getFieldProps(`RBD_name${item.index}`, {
-                initialValue: metadata ? metadata.name : undefined,
+                initialValue: metadata && metadata.annotations ? metadata.annotations[`tenxcloud.com/scName`] : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value){
                       return callback('集群名称不能为空')
                     }
-                    if(!/^[a-zA-Z0-9]([a-zA-Z_\-0-9]{1,34})[a-zA-Z0-9]$/.test(value)){
-                      return callback('集群名称必须由数字、字母开头，长度为3到36位')
+                    if(!/^[\u4e00-\u9fa5|a-zA-Z_\-0-9]{3,36}$/.test(value)){
+                      return callback('集群名称由数字、字母、下划线、汉字组成，长度为3到36位')
                     }
                     {/* this.validateAllName('ceph') */}
                     if(this.isExitName('ceph', item).cephIsExit){
                       return callback('集群名称已存在！')
                     }
-                    this.checkValue(value,callback)
+                    return callback()
                   }
                 }]
               })}
             />
           </FormItem>
           <FormItem
-            label="RBD agent 地址"
+            label="agent 地址"
             key="agent_address"
             {...formItemLayout}
           >
             <Input
-              placeholder='如：http://192.168.1.1:8011'
+              placeholder='如：http://192.168.1.123:8001'
               disabled={item.disabled}
               size="large"
               {...getFieldProps(`RBD_agent${item.index}`, {
@@ -464,7 +472,7 @@ class ClusterStorage extends Component {
             />
           </FormItem>
           <FormItem
-            label="RBD 集群配置"
+            label="集群配置"
             key="cluster_config"
             {...formItemLayout}
           >
@@ -489,7 +497,7 @@ class ClusterStorage extends Component {
             />
           </FormItem>
           <FormItem
-            label="RBD 认证用户"
+            label="认证用户"
             key="username"
             {...formItemLayout}
           >
@@ -511,7 +519,7 @@ class ClusterStorage extends Component {
             />
           </FormItem>
           <FormItem
-            label="RBD 用户认证密钥"
+            label="用户认证密钥"
             key="password"
             {...formItemLayout}
           >
@@ -618,7 +626,7 @@ class ClusterStorage extends Component {
   }
 
   saveNfs(item){
-    const { form, createCephStorage, cluster, updateStorageClass, registryConfig } = this.props
+    const { form, createCephStorage, cluster, updateStorageClass, registryConfig, clusterStorage } = this.props
     const { nfsArray } = this.state
     const validateArray = [
       `nfs_service_name${item.index}`,
@@ -635,8 +643,17 @@ class ClusterStorage extends Component {
       const server = registryConfig.server
       const serverArray = server.split('//')
       const image = `${serverArray[1]}/tenx_containers/nfs-client-provisioner:latest`
-      const nfsStorage = new NfsStorage(name)
-      const nfsDeployment = new NfsDeplyment(name, ip, path, image)
+      const nfsList = clusterStorage.nfsList || []
+      let index = nfsList.length
+      let nfsName = ''
+      if(item.newAdd){
+        nfsName = `tenx-nfs${index}`
+      } else {
+        const config = nfsList[item.index]
+        nfsName = config.metadata.name
+      }
+      const nfsStorage = new NfsStorage(name, nfsName)
+      const nfsDeployment = new NfsDeplyment(nfsName, ip, path, image)
       const clusterID = cluster.clusterID
       const template = []
       template.push(yaml.dump(nfsStorage))
@@ -644,7 +661,6 @@ class ClusterStorage extends Component {
       const body = {
         template: template.join('---\n')
       }
-      // return
       if(item.newAdd){
         return createCephStorage(clusterID, {type: 'nfs'}, body, {
           success: {
@@ -734,7 +750,6 @@ class ClusterStorage extends Component {
         nfsNameArray.push(`nfs_service_name${item.index}`)
       })
       const nfsNameValues = getFieldsValue(nfsNameArray)
-      console.log('nfsNameValues=',nfsNameValues)
       const currentValue = getFieldValue(`nfs_service_name${config.index}`)
       console.log('currentValue=',currentValue)
       nfsArray.listArray.forEach(item => {
@@ -809,14 +824,14 @@ class ClusterStorage extends Component {
               size="large"
               className='formItem_child_style'
               {...getFieldProps(`nfs_service_name${item.index}`, {
-                initialValue: metadata ? metadata.name : undefined,
+                initialValue: metadata && metadata.annotations ? metadata.annotations[`tenxcloud.com/scName`] : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value){
                       return callback('服务名称不能为空')
                     }
-                    if(!/^[a-zA-Z0-9]([a-zA-Z_\-0-9]{1,34})[a-zA-Z0-9]$/.test(value)){
-                      return callback('服务名称必须由数字、字母开头，长度为3到36位')
+                    if(!/^[\u4e00-\u9fa5|a-zA-Z_\-0-9]{3,36}$/.test(value)){
+                      return callback('集群名称由数字、字母、下划线、汉字组成，长度为3到36位')
                     }
                     {/* this.validateAllName('nfs') */}
                     if(this.isExitName('nfs', item).nfsIsExit){
@@ -997,7 +1012,7 @@ class ClusterStorage extends Component {
         </div>
         <div className='ceph'>
           <div className="header">
-            Ceph&nbsp;分布式存储（单节点独享型）
+            可靠块存储&nbsp;(单节点独享型)
           </div>
           <div className="body">
             <div className="img_box ceph_img">

@@ -15,7 +15,7 @@ import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/index.less'
 import cloneDeep from 'lodash/cloneDeep'
-import { loadStorageList } from '../../../actions/storage'
+import { loadStorageList, searchStorage} from '../../../actions/storage'
 import { DEFAULT_IMAGE_POOL } from '../../../constants'
 import { formatDate } from '../../../common/tools'
 
@@ -80,6 +80,12 @@ class HostMemory extends Component {
     this.setState({ selectedRowKeys });
   }
 
+  searchHostVolume(){
+    const searchValue = document.getElementById('search_host_volume').value.trim()
+    const { searchStorage } = this.props
+    searchStorage(searchValue, 'host')
+  }
+
   render() {
     const {
       selectedRowKeys, deleteModalVisible,
@@ -94,7 +100,7 @@ class HostMemory extends Component {
         width: '20%',
         render: (text, record, index) => <div
           className='storage_name'
-          onClick={() => browserHistory.push(`/app_manage/storage/hostMemory/${text}?path=${record.mountPath}&ip=${record.deployServiceList[0].storageIP}`)}
+          onClick={() => browserHistory.push(`/app_manage/storage/hostMemory/${text}?path=${record.mountPath}&ip=${record.storageIP}`)}
         >{text}</div>
       }, {
         key: 'mountPath',
@@ -102,11 +108,10 @@ class HostMemory extends Component {
         dataIndex: 'mountPath',
         width: '20%',
       }, {
-        key:'deployServiceList',
+        key:'serviceName',
         title:'服务',
-        dataIndex:'deployServiceList',
+        dataIndex:'serviceName',
         width:'20%',
-        render:(text, record) => <div>{text.length}</div>
       }, {
         key: 'type',
         title: '类型',
@@ -145,7 +150,7 @@ class HostMemory extends Component {
             <div className='handle_box'>
               <Button
                 size="large"
-                className='button_margin'
+                className='button_refresh'
                 onClick={() => this.reloadData()}
               >
                 <i className="fa fa-refresh button_icon" aria-hidden="true"></i>
@@ -164,8 +169,10 @@ class HostMemory extends Component {
                 <Input
                   size="large"
                   placeholder="按服务名称搜索"
+                  id='search_host_volume'
+                  onPressEnter={() => this.searchHostVolume()}
                 />
-                <i className="fa fa-search search_icon" aria-hidden="true"></i>
+                <i className="fa fa-search search_icon" aria-hidden="true" onClick={() => this.searchHostVolume()}></i>
               </div>
               {
                 dataSource.length
@@ -222,4 +229,5 @@ function mapStateToProp(state, props) {
 
 export default connect(mapStateToProp, {
   loadStorageList,
+  searchStorage,
 })(HostMemory)

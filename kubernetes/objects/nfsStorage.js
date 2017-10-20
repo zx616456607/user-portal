@@ -10,13 +10,16 @@
 'use strict'
 
 class NfsStorage {
-  constructor(name){
+  constructor(name, nfsname){
     this.apiVersion = 'storage.k8s.io/v1beta1'
     this.kind =  'StorageClass'
     this.metadata = {
-      name,
+      annotations:{
+        [`tenxcloud.com/scName`]: name,
+      },
+      name: nfsname,
     }
-    this.provisioner = name
+    this.provisioner = nfsname
   }
 }
 

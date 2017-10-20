@@ -15,7 +15,8 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/TimingClean.less'
 import {
-  startClean, getCleanSettings, cleanSystemLogs
+  startClean, getCleanSettings, cleanSystemLogs,
+  getSystemSettings, closeLogAutoClean
 } from '../../../actions/clean'
 import isEmpty from 'lodash/isEmpty'
 import { formatDate } from "../../../common/tools";
@@ -32,26 +33,27 @@ class TimingClean extends Component {
     this.mirrorImageChange = this.mirrorImageChange.bind(this)
     this.stopContainerChange = this.stopContainerChange.bind(this)
     this.state = {
-      systemChecked: true,
-      systemEdit: true,
-      CICDcache: true,
-      CICDcacheEdit: true,
-      mirrorImage: true,
-      mirrorImageEdit: true,
-      stopContainer: true,
-      stopContainerEdit: true,
+      systemChecked: false,
+      systemEdit: false,
+      cicdChecked: false,
+      cicdEdit: false,
+      mirrorImage: false,
+      mirrorImageEdit: false,
+      stopContainer: false,
+      stopContainerEdit: false,
       cicdScope: '1',
       cicdCycle: 'day', 
       cicdDate: '1',
-      cicdTime: new Date(new Date().setHours(0,0,0,0)),
+      cicdTime: formatDate(new Date(new Date().setHours(0,0,0,0)), 'HH:mm'),
       systemScope: '1',
       systemCycle: 'day',
       systemDate: '1',
-      systemTime: new Date(new Date().setHours(0,0,0,0))
+      systemTime: formatDate(new Date(new Date().setHours(0,0,0,0)), 'HH:mm')
     }
   }
   componentWillMount() {
     this.getSettings()
+    this.getSystemSetting()
   }
   getSettings() {
     const { getCleanSettings } = this.props
@@ -60,21 +62,43 @@ class TimingClean extends Component {
         func: res => {
           if (!isEmpty(res.data.cicdClean)) {
             this.parseCron(res.data.cicdClean, 'cicd')
-            this.parseCron(res.data.systemClean, 'cicd')
           }
         },
         isAsync: true
       }
     })
   }
+  getSystemSetting() {
+    const { getSystemSettings } = this.props
+    getSystemSettings({
+      success: {
+        func: res => {
+          this.parseCron(res.data, 'system')
+        },
+        isAsync: true
+      }
+    })
+  }
   parseCron(str, type) {
-    const cronArr = str.spec.cron.split(' ').splice(1)
+    const cronArr = str.spec.cron.split(' ')
+    if (str.meta.automatic) {
+      this.setState({
+        [`${type}Checked`]: true,
+        [`${type}Edit`]: true
+      })
+    } else {
+      this.setState({
+        [`${type}Checked`]: false,
+        [`${type}Edit`]: false
+      })
+      return
+    }
     if (cronArr[4] !== '?') {
       this.setState({
         [`${type}Cycle`]: 'week',
         [`${type}Date`]: cronArr[4]
       })
-    } else if (cronArr[3] === '1/1') {
+    } else if (cronArr[2] === '1/1') {
       this.setState({
         [`${type}Cycle`]: 'day',
       })
@@ -100,14 +124,7 @@ class TimingClean extends Component {
   systemChange(systemCheckedValue){
     const { systemChecked } = this.state
     let notify = new Notification()
-    if(systemChecked){
-      this.setState({
-        systemChecked: systemCheckedValue,
-        systemEdit: systemCheckedValue,
-      })
-      return
-    }
-    const { form, cleanSystemLogs } = this.props
+    const { form, cleanSystemLogs, closeLogAutoClean } = this.props
     const { getFieldValue } = form
     const validateArray = [
       'systemCleaningScope',
@@ -123,7 +140,37 @@ class TimingClean extends Component {
         return
       }
       const { systemCleaningScope, systemCleaningCycle, systemCleaningTime, systemCleaningDate } = values
-      notify.spin('系统日志定时清理设置中')
+      if(systemChecked){
+        notify.spin('系统日志定时清理关闭中')
+        closeLogAutoClean({
+          confirm: 0
+        }, {
+          success: {
+            func: () => {
+              notify.close()
+              notify.success('系统日志定时清理已关闭')
+              this.setState({
+                systemChecked: false,
+                systemEdit: false,
+              })
+              this.getSystemSetting()
+            },
+            isAsync: true
+          },
+          failed: {
+            func: () => {
+              notify.close()
+              notify.error('系统日志定时清理关闭失败')
+              this.setState({
+                systemChecked: true,
+                systemEdit: true,
+              })
+            }
+          }
+        })
+        return
+      }
+      notify.spin('系统日志定时清理开启中')
       cleanSystemLogs({
         type: 1,
         time_range: parseInt(systemCleaningScope),
@@ -132,22 +179,22 @@ class TimingClean extends Component {
         success: {
           func: () => {
             notify.close()
-            notify.success('系统日志定时清理设置成功')
+            notify.success('系统日志定时清理开启成功')
             this.setState({
-              systemChecked: systemCheckedValue,
-              systemEdit: systemCheckedValue,
+              systemChecked: true,
+              systemEdit: true,
             })
-            this.getSettings()
+            this.getSystemSetting()
           },
           isAsync: true
         },
         failed: {
           func: () => {
             notify.close()
-            notify.success('系统日志定时清理设置失败')
+            notify.error('系统日志定时清理开启失败')
             this.setState({
-              systemChecked,
-              systemEdit: systemChecked,
+              systemChecked: false,
+              systemEdit: false,
             })
           }
         }
@@ -172,16 +219,9 @@ class TimingClean extends Component {
   }
 
   CICDcacheChange(CICDcacheValue){
-    const { CICDcache } = this.state
+    const { cicdChecked } = this.state
+    const { form, startClean, userName } = this.props
     let notify = new Notification()
-    if(CICDcache){
-      this.setState({
-        CICDcache: CICDcacheValue,
-        CICDcacheEdit: CICDcacheValue,
-      })
-      return
-    }
-    const { form, startClean } = this.props
     const validateArray = [
       'CICDcacheScope',
       'CICDcacheCycle',
@@ -196,19 +236,66 @@ class TimingClean extends Component {
         return
       }
       const { CICDcacheScope, CICDcacheCycle, CICDcacheTime, CICDcacheDate } = values
-      notify.spin('cicd定时清理设置中')
-      startClean('cicd_clean', 'auto', {
-        cron: this.getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime),
-        scope: parseInt(CICDcacheScope)
+      if(cicdChecked){
+        notify.spin('cicd定时清理关闭中')
+        startClean({
+          cicd_clean: {
+            meta: {
+              automatic: false,
+              cleaner: userName,
+              target: 'cicd_clean',
+              type: 'stop',
+            },
+            spec: {
+              cron: this.getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime),
+              scope: parseInt(CICDcacheScope)
+            }
+          }
+        }, {
+          success: {
+            func: () => {
+              notify.close()
+              notify.success('cicd定时清理已关闭')
+              this.setState({
+                cicdChecked: CICDcacheValue,
+                cicdEdit: CICDcacheValue,
+              })
+              this.getSettings()
+            },
+            isAsync: true
+          },
+          failed: {
+            func: () => {
+              notify.close()
+              notify.error('cicd定时清理关闭失败')
+              this.setState({
+                cicdChecked: true,
+                cicdEdit: true,
+              })
+            }
+          }
+        })
+        return
+      }
+      notify.spin('cicd定时清理开启中')
+      startClean({
+        cicd_clean: {
+          meta: {
+            automatic: true,
+            cleaner: userName,
+            target: "cicd_clean",
+            type: "auto"
+          },
+          spec: {
+            cron: this.getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime),
+            scope: parseInt(CICDcacheScope)
+          }
+        }
       }, {
         success: {
           func: () => {
             notify.close()
-            notify.success('cicd定时清理设置成功')
-            this.setState({
-              CICDcache: CICDcacheValue,
-              CICDcacheEdit: CICDcacheValue,
-            })
+            notify.success('cicd定时清理开启成功')
             this.getSettings()
           },
           isAsync: true
@@ -216,10 +303,10 @@ class TimingClean extends Component {
         failed: {
           func: () => {
             notify.close()
-            notify.success('cicd定时清理设置失败')
+            notify.error('cicd定时清理开启失败')
             this.setState({
-              CICDcache,
-              CICDcacheEdit: CICDcache
+              cicdChecked,
+              cicdEdit: cicdChecked
             })
           }
         }
@@ -227,7 +314,7 @@ class TimingClean extends Component {
     })
   }
   getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime) {
-    let time = String(formatDate(CICDcacheTime, 'HH mm')).split(' ')
+    let time = typeof CICDcacheTime === 'string' ? CICDcacheTime.split(':') : String(formatDate(CICDcacheTime, 'HH mm')).split(' ')
     time = time.map(item => {
       return item.indexOf(0) === 0 ? item.substring(1) : item
     })
@@ -237,7 +324,7 @@ class TimingClean extends Component {
         return `${time} 1/1 * ?`
         break;
       case 'week':
-        return `${time} 0 0 ${CICDcacheDate}`
+        return `${time} 0 * ${CICDcacheDate}`
         break;
       case 'month':
         return `${time} ${CICDcacheDate} * ?`
@@ -318,7 +405,7 @@ class TimingClean extends Component {
     const { form } = this.props
     const {
       systemChecked, systemEdit,
-      CICDcache, CICDcacheEdit,
+      cicdChecked, cicdEdit,
       mirrorImage, mirrorImageEdit,
       stopContainer, stopContainerEdit,
       cicdScope, cicdCycle, cicdDate, cicdTime,
@@ -502,7 +589,7 @@ class TimingClean extends Component {
                       checkedChildren="开"
                       unCheckedChildren="关"
                       className='switch_style'
-                      checked={CICDcache}
+                      checked={cicdChecked}
                       onChange={this.CICDcacheChange}
                     />
                   </div>
@@ -515,7 +602,7 @@ class TimingClean extends Component {
                       <Select
                         placeholder='请选择'
                         className='select_style'
-                        disabled={CICDcacheEdit}
+                        disabled={cicdEdit}
                         {...CICDcacheScopeProps}
                       >
                         <Option key="cicd_scope_1" value="1">一天前数据</Option>
@@ -532,7 +619,7 @@ class TimingClean extends Component {
                       <Select
                         placeholder='请选择'
                         className='select_style'
-                        disabled={CICDcacheEdit}
+                        disabled={cicdEdit}
                         {...CICDcacheCycleProps}
                       >
                         <Option key="cicd_cycle_day" value="day">每天</Option>
@@ -551,7 +638,7 @@ class TimingClean extends Component {
                           <Select
                             placeholder='请选择'
                             className='select_style'
-                            disabled={CICDcacheEdit}
+                            disabled={cicdEdit}
                             {...CICDcacheDateProps}
                           >
                             {this.renderCleaningDateOption(CICDcacheCycleValue)}
@@ -566,7 +653,7 @@ class TimingClean extends Component {
                       <TimePicker
                         format="HH:mm"
                         {...CICDcacheTimeProps}
-                        disabled={CICDcacheEdit}
+                        disabled={cicdEdit}
                       />
                     </FormItem>
                   </div>
@@ -711,14 +798,18 @@ class TimingClean extends Component {
 TimingClean = Form.create()(TimingClean)
 
 function mapStateToProp(state, props) {
-
+  const { loginUser } = state.entities
+  const { info } = loginUser
+  const { userName } = info
   return {
-
+    userName
   }
 }
 
 export default connect(mapStateToProp, {
   startClean,
   getCleanSettings,
-  cleanSystemLogs
+  cleanSystemLogs,
+  getSystemSettings,
+  closeLogAutoClean
 })(TimingClean)

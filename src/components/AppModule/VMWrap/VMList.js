@@ -39,29 +39,29 @@ class VMList extends React.Component {
       creationTime: true,
       createTime: true,
       ciphertext: true,
+      list: [],
+      total: 0,
     }
   }
 
-  getInfo(value) {
+  getInfo(n, value) {
     const { getVMinfosList } = this.props
-    const { createTime } =  this.state
-    const names = {
-      page: 1,
+    const { createTime } = this.state
+    const query = {
+      page: n || 1,
       size: 10,
       name: value,
       sort: createTime ? "create_time" : "-create_time"
     }
-    getVMinfosList(names, {
+    getVMinfosList(query, {
       success: {
         func: res => {
           if (res.code === 200) {
+            this.setState({
+              total: res.body.total,
+              list: res.body.vminfos[0]
+            })
           }
-        },
-        isAsync: true,
-      },
-      failed: {
-        func: err => {
-          //
         },
         isAsync: true,
       }
@@ -69,7 +69,7 @@ class VMList extends React.Component {
   }
 
   componentWillMount() {
-    this.getInfo()
+    this.getInfo(1, null)
   }
 
   /**
@@ -155,23 +155,12 @@ class VMList extends React.Component {
   }
 
   /**
-   * 分页
-   */
-  handlePage(page, name) {
-    let par = {
-      page: page || 1,
-      size: 10
-    }
-    this.getInfo(par)
-  }
-
-  /**
    * 删除信息
    */
   handleDel() {
     const { delVMinfoList } = this.props
     let notification = new NotificationHandler()
-    notification.spin(`删除 ${this.state.Name} 中...`)
+    notification.spin(`删除 ${this.state.ID} 中...`)
     this.state.isDelete ?
       delVMinfoList({
         vmID: this.state.ID
@@ -180,7 +169,7 @@ class VMList extends React.Component {
             func: res => {
               if (res.code === 200) {
                 notification.close()
-                notification.success(`删除 ${this.state.Name} 成功`)
+                notification.success(`删除 ${this.state.ID} 成功`)
                 this.setState({
                   isDelVisible: false,
                   isDelete: false
@@ -204,24 +193,27 @@ class VMList extends React.Component {
    */
   vmCheck(check) {
     const { checkVMUser } = this.props
-    checkVMUser({
+    let query = {
       host: check.host,
       account: check.account,
       password: check.password
-    }, {
-        success: {
-          func: res => {
-            if (res.code === 200) {
-              return res.code
-            }
-          }
-        },
-        failed: {
-          func: err => {
-            return err
+    }
+    checkVMUser(query, {
+      success: {
+        func: res => {
+          if (res.code === 200) {
+            return res.code
           }
         }
-      })
+      }, failed: {
+        func: err => {
+          this.setState({
+            Prompt: false,
+            isShow: false
+          })
+        }
+      }
+    })
   }
 
   /**
@@ -232,7 +224,7 @@ class VMList extends React.Component {
     this.setState({
       name: values
     })
-    this.getInfo(values)
+    this.getInfo(1, values)
   }
 
   /**
@@ -268,7 +260,7 @@ class VMList extends React.Component {
   handleSort() {
     const { createTime } = this.state
     this.getInfo(null);
-    if(createTime){
+    if (createTime) {
       this.setState({
         createTime: false
       })
@@ -281,13 +273,13 @@ class VMList extends React.Component {
 
   render() {
     const { data } = this.props
-    const { ciphertext } = this.state
+    const { ciphertext, list, total } = this.state
     const pagination = {
       simple: true,
       defaultCurrent: 1,
       defaultPageSize: 10,
-      total: data.length,
-      onChange: (n) => this.handlePage(n)
+      total: total,
+      onChange: (n) => this.getInfo(n, null)
     }
     const columns = [
       {
@@ -307,20 +299,20 @@ class VMList extends React.Component {
         key: 'password',
         render: (text, record, index) =>
           ciphertext ?
-          <div>
-            <span ref="info" className="info">******</span>
-            <Icon
-              type={this.state.isShowText === 'eye' ? 'eye-o' : 'eye'}
-              style={{ float: 'right', marginRight: 30 }}
-              onClick={this.handleChange.bind(this, false)} />
-          </div> :
-          <div>
-            <span ref="info" className="info">{text}</span>
-            <Icon
-              type={this.state.isShowText === 'eye' ? 'eye-o' : 'eye'}
-              style={{ float: 'right', marginRight: 30 }}
-              onClick={this.handleChange.bind(this, true)} />
-          </div>
+            <div>
+              <span ref="info" className="info">******</span>
+              <Icon
+                type={this.state.isShowText === 'eye' ? 'eye-o' : 'eye'}
+                style={{ float: 'right', marginRight: 30 }}
+                onClick={this.handleChange.bind(this, false)} />
+            </div> :
+            <div>
+              <span ref="info" className="info">{text}</span>
+              <Icon
+                type={this.state.isShowText === 'eye' ? 'eye-o' : 'eye'}
+                style={{ float: 'right', marginRight: 30 }}
+                onClick={this.handleChange.bind(this, true)} />
+            </div>
         ,
       },
       {
@@ -331,7 +323,7 @@ class VMList extends React.Component {
       },
       {
         title: (
-          <div onClick={()=>this.handleSort()}>
+          <div onClick={() => this.handleSort()}>
             创建时间
             <div className="ant-table-column-sorter">
               <span className={this.state.createTime ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
@@ -376,20 +368,20 @@ class VMList extends React.Component {
           <Button type='primary' size='large' className='addBtn' onClick={() => this.handleA()}>
             <i className='fa fa-plus' /> 添加传统环境
           </Button>
-          <Button type="ghost" size="large" className="manageBtn" onClick={() => this.getInfo()} ><i className='fa fa-refresh' /> 刷新</Button>
+          <Button type="ghost" size="large" className="manageBtn" onClick={() => this.getInfo(1, null)} ><i className='fa fa-refresh' /> 刷新</Button>
           {/*<Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>*/}
-          <CommonSearchInput className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={() => this.handleSearch()} />
-          {/*<Pagination {...pagination}/>*/}
+          {/* <Input className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={(e) => this.handleSearch(e)} /> */}
+          <CommonSearchInput onSearch={(value) => { this.getInfo(1, value) }} size="large" placeholder="请输入虚拟机IP搜索" />
+          <Pagination className="pag" {...pagination} />
+          {data.length > 0 && <span className="total">共 {total} 个</span>}
         </Row>
         <Row>
           <Table
-            //rowSelection={rowSelection}
+            pagination={false}
             loading={false}
-            pagination={pagination}
             columns={columns}
-            dataSource={data}
+            dataSource={list}
           />
-          {data.length >0 &&　<div className="total">共 {data.length} 个</div>}
         </Row>
         {
           this.state.isModal ?

@@ -373,15 +373,15 @@ class AutoScale extends React.Component {
     }, {
       title: '最小实例数',
       dataIndex: 'spec.minReplicas',
-      width: '10%',
+      width: '8%',
     }, {
       title: '最大实例数',
       dataIndex: 'spec.maxReplicas',
-      width: '10%',
+      width: '8%',
     }, {
       title: '发送邮件',
       dataIndex: 'metadata.annotations.alertStrategy',
-      width: '10%',
+      width: '14%',
       render: text => <div>{this.emailSendType(text)}</div>
     }, {
       title: '告警通知组',
@@ -390,7 +390,7 @@ class AutoScale extends React.Component {
       render: text => text ? text : '-'
     }, {
       title: '操作',
-      width: '10%',
+      width: '15%',
       render: record => {
         const menu = (
           <Menu onClick={(e) => this.handleMenuClick(e, record)}>
@@ -418,6 +418,19 @@ class AutoScale extends React.Component {
       defaultCurrent: 1,
       current: currentPage,
     }
+    const btns = (
+      <Menu className="autoScaleBtnMenu">
+        <Menu.Item key="start" disabled={selectedRowKeys.length ? false: true}>
+          <span onClick={() => this.batchUpdateStatus('start')}><i className='fa fa-play' /> 启用</span>
+        </Menu.Item>
+        <Menu.Item key="stop" disabled={selectedRowKeys.length ? false: true}>
+          <span onClick={() => this.batchUpdateStatus('stop')}><i className='fa fa-stop' /> 停用</span>
+        </Menu.Item>
+        <Menu.Item key="delete" disabled={selectedRowKeys.length ? false: true}>
+          <span onClick={() => selectedRowKeys.length && this.setState({deleteModal: true})}><i className='fa fa-trash-o' /> 删除</span>
+        </Menu.Item>
+      </Menu>
+    )
     return(
       <QueueAnim>
         <div className="AutoScale" key="AutoScale">
@@ -426,10 +439,16 @@ class AutoScale extends React.Component {
           </div>
           <div className="btnGroup">
             <Button type="primary" size="large" onClick={() => this.setState({scaleModal: true, create: true})}><i className="fa fa-plus" /> 创建自动伸缩策略</Button>
-            <Button size="large" onClick={() => this.loadData(clusterID, 1)}><i className='fa fa-refresh' /> 刷新</Button>
-            <Button size="large" disabled={selectedRowKeys.length ? false: true} onClick={() => this.batchUpdateStatus('start')}><i className='fa fa-play' /> 启用</Button>
-            <Button size="large" disabled={selectedRowKeys.length ? false: true} onClick={() => this.batchUpdateStatus('stop')}><i className='fa fa-stop' /> 停用</Button>
-            <Button size="large" disabled={selectedRowKeys.length ? false: true} onClick={() => selectedRowKeys.length && this.setState({deleteModal: true})}><i className='fa fa-trash-o' /> 删除</Button>
+            <Button size="large" onClick={() => this.loadData(clusterID, 1)}><i className='fa fa-refresh' /> 刷 新</Button>
+            <Dropdown
+              overlay={btns} trigger={['click']}>
+              <Button className="autoScaleDrop" size="large" >
+                更多操作 <i className="fa fa-caret-down Arrow"/>
+              </Button>
+            </Dropdown>
+            <Button size="large" className="startBtn" disabled={selectedRowKeys.length ? false: true} onClick={() => this.batchUpdateStatus('start')}><i className='fa fa-play' /> 启 用</Button>
+            <Button size="large" className="stopBtn" disabled={selectedRowKeys.length ? false: true} onClick={() => this.batchUpdateStatus('stop')}><i className='fa fa-stop' /> 停 用</Button>
+            <Button size="large" className="deleteBtn" disabled={selectedRowKeys.length ? false: true} onClick={() => selectedRowKeys.length && this.setState({deleteModal: true})}><i className='fa fa-trash-o' /> 删 除</Button>
             <CommonSearchInput
               placeholder="请输入策略名或服务名搜索"
               size="large"

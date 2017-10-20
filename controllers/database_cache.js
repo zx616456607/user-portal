@@ -71,6 +71,7 @@ exports.createNewDBService = function* () {
     basicInfo.externalIP = ''
   }
   yamlContent = yamlContent.replace(/\{\{external-ip\}\}/g, basicInfo.externalIP)
+  yamlContent = yamlContent.replace(/\{\{tenx-rbd\}\}/g, basicInfo.storageClassName)
 
   if (basicInfo.lbGroupID) {
     yamlContent = addServiceAnnotationOfLBGroup(yamlContent, basicInfo.lbGroupID)

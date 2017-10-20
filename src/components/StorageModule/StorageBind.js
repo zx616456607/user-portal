@@ -39,7 +39,11 @@ class StorageBind extends Component {
     super(props)
   }
   componentWillMount() {
-    this.props.getVolumeBindInfo(this.props.cluster, this.props.volumeName)
+    let query = {}
+    if(this.props.query){
+      query = this.props.query
+    }
+    this.props.getVolumeBindInfo(this.props.cluster, this.props.volumeName, query)
   }
   render() {
     const { volumeBindInfo } = this.props
