@@ -27,6 +27,9 @@ const CICDRoutes = [{
   path: 'docker_file',
   component: require('../components/CICDModule/DockerFile').default,
 },{
+  path: 'cached_volumes',
+  component: require('../components/CICDModule/TenxFlow/CachedVolumes').default,
+},{
   path: 'build_image',
   indexRoute: {
     component: require('../components/CICDModule/BuildImage').default,
