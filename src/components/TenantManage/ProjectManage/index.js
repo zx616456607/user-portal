@@ -954,7 +954,7 @@ let ProjectManage = React.createClass({
             </ul>
             <div className="alertRow createTip">
               {
-                step === 'first' ? '请填写项目名称、备注、并为该项目授权集群' : ''
+                step === 'first' ? '请填写项目名称，描述，并为该项目授权集群' : ''
               }
               {
                 step === 'second' ? '为该项目添加需要的角色，角色是提前创建好的，也可在此创建新角色后继续添加' : ''
