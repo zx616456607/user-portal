@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, Form, Input, InputNumber, Select } from 'antd'
+import { Modal, Form, Input, InputNumber, Select, Alert } from 'antd'
 import { connect } from 'react-redux'
 import find from 'lodash/find'
 import { getCachedVolumes } from '../../../../actions/cicd_flow'
@@ -104,9 +104,10 @@ let AddModal = React.createClass({
         onOk={this.onOk}
         wrapClassName="add-cached-volume-modal"
       >
+        <Alert message="在流程启动时，缓存卷才会根据配置动态创建" type="info" />
         <Form>
           <FormItem label="选择存储" {...formItemLayout}>
-            <Select {...cachedVolumeProps}>
+            <Select {...cachedVolumeProps} placeholder="请选择缓存卷">
               <Option key="create">动态生成一个缓存卷</Option>
               {
                 targetVolumes.map(volume => (

@@ -144,35 +144,35 @@ class CachedVolumes extends React.Component {
         <Title title="缓存卷" />
         <div id='cached-volumes' key='cached-volumes'>
           <Alert message="缓存卷：为 TenxFlow 的任务提供缓存功能，用户可以将执行任务常用的依赖保存在缓存内，避免每次执行都要拉取的等待" type='info' />
+          <div className='operaBox'>
+            <Button
+              className='createBtn'
+              size='large'
+              type='primary'
+              onClick={this.loadData}
+            >
+              <i className='fa fa-refresh' />&nbsp;
+              刷新
+            </Button>
+            <Input
+              className='searchBox'
+              placeholder="按缓存卷名称搜索"
+              value={this.state.searchValue}
+              onChange={e => this.setState({ searchValue: e.target.value })}
+            />
+            <i className='fa fa-search' />
+            <div style={{ clear: 'both' }}/>
+          </div>
+          <Card>
+            <Table
+              loading={isFetching}
+              dataSource={data}
+              columns={columns}
+              rowKey={row => row.pvcName}
+              pagination={false}
+            />
+          </Card>
         </div>
-        <div className='operaBox'>
-          <Button
-            className='createBtn'
-            size='large'
-            type='primary'
-            onClick={this.loadData}
-          >
-            <i className='fa fa-refresh' />&nbsp;
-            刷新
-          </Button>
-          <Input
-            className='searchBox'
-            placeholder="按缓存卷名称搜索"
-            value={this.state.searchValue}
-            onChange={e => this.setState({ searchValue: e.target.value })}
-          />
-          <i className='fa fa-search' />
-          <div style={{ clear: 'both' }}/>
-        </div>
-        <Card>
-          <Table
-            loading={isFetching}
-            dataSource={data}
-            columns={columns}
-            rowKey={row => row.pvcName}
-            pagination={false}
-          />
-        </Card>
         <Modal title="删除缓存卷操作"
           visible={this.state.delModal}
           onOk={this.deleteVolume}
