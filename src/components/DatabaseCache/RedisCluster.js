@@ -212,7 +212,7 @@ class RedisDatabase extends Component {
             <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
               <i className='fa fa-plus' />&nbsp;Redis集群
           </Button></Tooltip>
-            <Button style={{marginLeft:'20px',padding:'5px 15px'}} size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
+            <Button className="button_refresh" size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
               <i className='fa fa-refresh' />&nbsp;刷 新
             </Button>
             <span className='rightSearch'>
