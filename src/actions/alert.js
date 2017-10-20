@@ -385,7 +385,7 @@ function fetchDeleteSetting(cluster, id, name, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_DELETE_SETTING_REQUEST, ALERT_DELETE_SETTING_SUCCESS, ALERT_DELETE_SETTING_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting?strategyID=${id.join(',')}&strategyName=${name.join(',')}`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting?strategyID=${id.join(',')}` + (name ? `&strategyName=${name.join(',')}` : ''),
       schema: {},
       options: {
         method: 'DELETE'
