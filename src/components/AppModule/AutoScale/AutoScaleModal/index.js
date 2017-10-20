@@ -451,10 +451,10 @@ class AutoScaleModal extends React.Component {
     thresholdItem = thresholdArr.map((key) => {
       let optItem = cpuAndMemory[key] || { 'cpu': 80 }
       return (
-        <Row type="flex" align="middle" key={key}>
+        <Row type="flex" align="middle" key={key} className="strategyBox">
           <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginBottom: 24, textAlign: 'right' }}>
             {
-              thresholdArr.indexOf(key) === 0 ? '阈值' : ''
+              thresholdArr.indexOf(key) === 0 ? '阈值：' : ''
             }
           </Col>
           <Col span={7}>
