@@ -407,7 +407,7 @@ class ShareMemory extends Component {
                   {
                     nfsList.map(nfs =>
                       <Option key={nfs.metadata.name}>
-                        {nfs.parameters.ip || 'nfs'}
+                        {nfs.metadata.annotations['tenxcloud.com/scName'] || nfs.metadata.name}
                       </Option>
                     )
                   }

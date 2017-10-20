@@ -581,7 +581,7 @@ let ContainerCatalogueModal = React.createClass({
                         {
                           serverList.map(server =>
                             <Option key={server.metadata.name}>
-                              {server.parameters.ip || server.metadata.name}
+                              {server.metadata.annotations['tenxcloud.com/scName'] || server.metadata.name}
                             </Option>
                           )
                         }
