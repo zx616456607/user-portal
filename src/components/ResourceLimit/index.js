@@ -299,7 +299,7 @@ class ResourceQuota extends React.Component {
   filterPercent(value, count) {
     let max = 100
     let result = 0
-    if (value === 0) return 0
+    if (value === 0 && count === 0) return 0
     if (value === 1) {
       if (count > value) {
         result = max
@@ -307,16 +307,16 @@ class ResourceQuota extends React.Component {
         if (count === value) {
           result = max
         } else {
-          result = value / count
+          result = 0
         }
       }
     } else {
-      let number = 100 / Number(value)
+      let number = Number(value) / 100
       for (let i = 0; i < count; i++) {
         result += number
       }
     }
-    result > max ? result = max : result
+    result >= max ? result = max : result
     return result
   }
   /**
