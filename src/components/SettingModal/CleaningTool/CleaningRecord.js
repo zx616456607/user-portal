@@ -49,7 +49,7 @@ class CleaningRecord extends Component {
   componentWillMount() {
     this.getSystemLogs()
   }
-  getCleanLogs() {
+  getCleanLogs(loading) {
     const { currentPage, sort, startValue: start, endValue: end } = this.state
     const { getCleanLogs, form } = this.props
     const { getFieldsValue } = form
@@ -68,6 +68,7 @@ class CleaningRecord extends Component {
           this.setState({
             cleanLogs: res.data.body,
             totalCount: res.data.meta.total,
+            [loading]: false
           })
         },
         isAsync: true
@@ -77,13 +78,14 @@ class CleaningRecord extends Component {
           this.setState({
             cleanLogs: [],
             totalCount: 0,
+            [loading]: false
           })
         },
         isAsync: true
       }
     })
   }
-  getSystemLogs() {
+  getSystemLogs(loading) {
     const { currentPage, startValue, endValue, sort } = this.state
     const { getSystemCleanLogs, form } = this.props
     const { getFieldsValue } = form
@@ -99,6 +101,7 @@ class CleaningRecord extends Component {
           this.setState({
             cleanLogs: res.data.data,
             totalCount: res.data.total,
+            [loading]: false
           })
         },
         isAsync: true
@@ -108,6 +111,7 @@ class CleaningRecord extends Component {
           this.setState({
             cleanLogs: [],
             totalCount: 0,
+            [loading]: false
           })
         },
         isAsync: true
@@ -213,12 +217,13 @@ class CleaningRecord extends Component {
       startValue: null,
       endValue: null,
       createTimeSort: undefined,
-      currentPage: 1
+      currentPage: 1,
+      freshBtnLoading: true
     }, () => {
       if (target === 'system_clean') {
-        this.getSystemLogs()
+        this.getSystemLogs('freshBtnLoading')
       } else {
-        this.getCleanLogs()
+        this.getCleanLogs('freshBtnLoading')
       }
     })
   }
@@ -280,11 +285,14 @@ class CleaningRecord extends Component {
   searchLogs() {
     const { getFieldValue } = this.props.form
     const logType = getFieldValue('target')
+    this.setState({
+      searchBtnLoading: true
+    })
     if (logType === 'cicd_clean') {
-      this.getCleanLogs()
+      this.getCleanLogs('searchBtnLoading')
       return
     }
-    this.getSystemLogs()
+    this.getSystemLogs('searchBtnLoading')
   }
   renderExpand(record) {
     const colorOpt = {
@@ -316,7 +324,7 @@ class CleaningRecord extends Component {
   }
   render() {
     const { form } = this.props
-    const { cleanLogs, totalCount, createTimeSort, currentPage } = this.state
+    const { cleanLogs, totalCount, createTimeSort, currentPage, freshBtnLoading, searchBtnLoading } = this.state
     const { getFieldProps, getFieldValue } = form
     const pagination = {
       simple: true,
@@ -460,6 +468,7 @@ class CleaningRecord extends Component {
                 size="large"
                 onClick={this.searchLogs.bind(this)}
                 className='button_style'
+                loading={searchBtnLoading}
               >
                 立即查询
               </Button>
@@ -468,6 +477,7 @@ class CleaningRecord extends Component {
                 size='large'
                 onClick={this.refreshLogList.bind(this)}
                 className='button_style'
+                loading={freshBtnLoading}
               >
                 刷新
               </Button>
