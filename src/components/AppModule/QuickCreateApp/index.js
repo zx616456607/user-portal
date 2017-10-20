@@ -649,13 +649,11 @@ class QuickCreateApp extends Component {
       if (fields.hasOwnProperty(key) && fields[key].serviceName) {
         const { resourceType, DIYMemory, DIYCPU, replicas } = getFieldsValues(fields[key])
         const { memoryShow, cpuShow, config } = getResourceByMemory(resourceType, DIYMemory, DIYCPU)
-        cpuTotal += cpuShow
-        memoryTotal += memoryShow
+        cpuTotal += cpuShow * replicas
+        memoryTotal += memoryShow * replicas
         let price = current.cluster.resourcePrice[config]
         if (price) {
           priceHour += price * replicas
-          cpuTotal = cpuTotal * replicas
-          memoryTotal = memoryTotal * replicas
         } else {
           // @Todo: need diy resource price
         }
