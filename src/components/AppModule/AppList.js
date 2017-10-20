@@ -1232,7 +1232,7 @@ class AppList extends Component {
                 </div>
               </div>
               <div className="alarm commonTitle">
-                监控告警
+                告警
               </div>
               <div className='visitIp commonTitle'>
                 访问地址
