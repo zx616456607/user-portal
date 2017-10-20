@@ -452,7 +452,7 @@ class ClusterStorage extends Component {
             {...formItemLayout}
           >
             <Input
-              placeholder='如：http://192.168.1.1:8011'
+              placeholder='如：http://192.168.1.123:8001'
               disabled={item.disabled}
               size="large"
               {...getFieldProps(`RBD_agent${item.index}`, {
