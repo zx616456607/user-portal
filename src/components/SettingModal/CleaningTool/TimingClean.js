@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Row, Col, Switch, Form, Select, TimePicker } from 'antd'
+import { Row, Col, Switch, Form, Select, TimePicker, Modal } from 'antd'
 import { browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -24,6 +24,7 @@ import Notification from '../../Notification'
 
 const FormItem = Form.Item
 const Option = Select.Option
+const confirm = Modal.confirm;
 
 class TimingClean extends Component {
   constructor(props) {
@@ -121,26 +122,12 @@ class TimingClean extends Component {
       [`${type}Time`]: time
     })
   }
-  systemChange(systemCheckedValue){
-    const { systemChecked } = this.state
+  showConfirm() {
+    const { closeLogAutoClean } = this.props
     let notify = new Notification()
-    const { form, cleanSystemLogs, closeLogAutoClean } = this.props
-    const { getFieldValue } = form
-    const validateArray = [
-      'systemCleaningScope',
-      'systemCleaningCycle',
-      'systemCleaningTime',
-    ]
-    const systemCleaningCycleValue = getFieldValue('systemCleaningCycle')
-    if(systemCleaningCycleValue !== 'day'){
-      validateArray.push('systemCleaningDate')
-    }
-    form.validateFields(validateArray, (errors, values) => {
-      if(!!errors){
-        return
-      }
-      const { systemCleaningScope, systemCleaningCycle, systemCleaningTime, systemCleaningDate } = values
-      if(systemChecked){
+    confirm({
+      title: '是否删除清理日志？',
+      onOk: () => {
         notify.spin('系统日志定时清理关闭中')
         closeLogAutoClean({
           confirm: 0
@@ -168,6 +155,59 @@ class TimingClean extends Component {
             }
           }
         })
+      },
+      onCancel: () => {
+        notify.spin('系统日志定时清理关闭中')
+        closeLogAutoClean({
+          confirm: 1
+        }, {
+          success: {
+            func: () => {
+              notify.close()
+              notify.success('系统日志定时清理已关闭')
+              this.setState({
+                systemChecked: false,
+                systemEdit: false,
+              })
+              this.getSystemSetting()
+            },
+            isAsync: true
+          },
+          failed: {
+            func: () => {
+              notify.close()
+              notify.error('系统日志定时清理关闭失败')
+              this.setState({
+                systemChecked: true,
+                systemEdit: true,
+              })
+            }
+          }
+        })
+      },
+    });
+  }
+  systemChange(){
+    const { systemChecked } = this.state
+    let notify = new Notification()
+    const { form, cleanSystemLogs } = this.props
+    const { getFieldValue } = form
+    const validateArray = [
+      'systemCleaningScope',
+      'systemCleaningCycle',
+      'systemCleaningTime',
+    ]
+    const systemCleaningCycleValue = getFieldValue('systemCleaningCycle')
+    if(systemCleaningCycleValue !== 'day'){
+      validateArray.push('systemCleaningDate')
+    }
+    form.validateFields(validateArray, (errors, values) => {
+      if(!!errors){
+        return
+      }
+      const { systemCleaningScope, systemCleaningCycle, systemCleaningTime, systemCleaningDate } = values
+      if(systemChecked){
+        this.showConfirm()
         return
       }
       notify.spin('系统日志定时清理开启中')
