@@ -319,7 +319,8 @@ class Ordinary extends Component {
     if (clusterUseList) {
       Object.keys(clusterUseList).forEach((item, index) => {
         if (item === value) {
-          count = Object.values(clusterUseList)[index]
+          count = Object.values(clusterUseList)[index].toString().indexOf('.') === -1 ?
+            Object.values(clusterUseList)[index] : Object.values(clusterUseList)[index].toFixed(2)
         }
       })
     }

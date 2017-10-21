@@ -552,11 +552,11 @@ class MySpace extends Component {
               </Row>
             </Card>
             <Card title="镜像仓库" bordered={false} bodyStyle={{ height: 175, padding: 0 }} style={{ marginTop: 10 }} >
-              <Row style={{ height: 130 }}>
-                <Col span={12} style={{ height: 130, lineHeight: '130px', textAlign: 'center' }}>
+              <Row className="warehouse">
+                <Col span={10}>
                   <img src={homeHarbor} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
                 </Col>
-                <Col className='cicdInf' span={12}>
+                <Col span={14}>
                   <table>
                     <tbody>
                       <tr>
