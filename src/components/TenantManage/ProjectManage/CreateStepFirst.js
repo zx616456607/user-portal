@@ -7,10 +7,10 @@
  * v0.1 - 2017-07-12
  * @author zhangxuan
  */
-import React, { Component } from 'react'
+import React from 'react'
 import classNames from 'classnames';
 import './style/ProjectManage.less'
-import { Input, Icon, Form, Popover } from 'antd'
+import { Input, Icon, Form, Popover, Row, Col } from 'antd'
 import { connect } from 'react-redux'
 import { CheckProjects } from '../../../actions/project'
 import { loadClusterList } from '../../../actions/cluster'
@@ -129,7 +129,7 @@ let CreateStepFirst = React.createClass({
     const { selectedClusters, choosableClusters } = this.state;
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = this.props.form;
     const formItemLayout = {
-      labelCol: { span: 1 },
+      labelCol: { span: 2 },
       wrapperCol: { span: 6 },
     };
     const menuTop = (
@@ -187,17 +187,23 @@ let CreateStepFirst = React.createClass({
           </Form.Item>
         </div>
         <div className="inputBox" id="clusterDrop" style={{position:'relative'}}>
-          <span>授权集群 :</span>
-          <Popover
-            trigger="click"
-            overlayClassName="createClusterPop"
-            content={content}
-            getTooltipContainer={() => document.getElementById('clusterDrop')}
-          >
-            <div className="dropDownBox">
-              <span className="pointer">请选择授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
-            </div>
-          </Popover>
+          <Row className="dropBox">
+            <Col span={2}>
+              <span className="dropText">授权集群 :</span>
+            </Col>
+            <Col span={6}>
+              <Popover
+                trigger="click"
+                overlayClassName="createClusterPop"
+                content={content}
+                getTooltipContainer={() => document.getElementById('clusterDrop')}
+              >
+                <div className="dropDownBox">
+                  <span className="pointer">请选择授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
+                </div>
+              </Popover>
+            </Col>
+          </Row>
         </div>
       </div>
     )

@@ -12,6 +12,7 @@
 
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
+import { toQuerystring } from '../common/tools'
 
 export const GET_REPO_TYPE_REQUEST = 'GET_REPO_TYPE_REQUEST'
 export const GET_REPO_TYPE_SUCCESS = 'GET_REPO_TYPE_SUCCESS'
@@ -1598,3 +1599,45 @@ export function deleteDeploymentOrAppCDRule(cluster, type, name, callback) {
   }
 }
 
+export const GET_CACHED_VOLUMES_REQUEST = 'GET_CACHED_VOLUMES_REQUEST'
+export const GET_CACHED_VOLUMES_SUCCESS = 'GET_CACHED_VOLUMES_SUCCESS'
+export const GET_CACHED_VOLUMES_FAILURE = 'GET_CACHED_VOLUMES_FAILURE'
+function fetchCachedVolumes(query, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_CACHED_VOLUMES_REQUEST, GET_CACHED_VOLUMES_SUCCESS, GET_CACHED_VOLUMES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/cached-volumes?${toQuerystring(query)}`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getCachedVolumes(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCachedVolumes(query, callback))
+  }
+}
+
+export const DELETE_CACHED_VOLUME_REQUEST = 'DELETE_CACHED_VOLUME_REQUEST'
+export const DELETE_CACHED_VOLUME_SUCCESS = 'DELETE_CACHED_VOLUME_SUCCESS'
+export const DELETE_CACHED_VOLUME_FAILURE = 'DELETE_CACHED_VOLUME_FAILURE'
+function fetchDeleteCachedVolume(pvcName, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_CACHED_VOLUME_REQUEST, DELETE_CACHED_VOLUME_SUCCESS, DELETE_CACHED_VOLUME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/cached-volumes/${pvcName}`,
+      options: {
+        method: 'DELETE'
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function deleteCachedVolume(pvcName, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteCachedVolume(pvcName, callback))
+  }
+}

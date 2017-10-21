@@ -152,10 +152,11 @@ let MemberTable = React.createClass({
     }
     if (filters.active) {
       if (filters.active.length == 1) {
+        const constraint = filters.active[0] === '1' ? '__eq,1' : '__neq,1'
         if (filter) {
-          filter += `,active,${filters.active[0]}`
+          filter += `,active${constraint}`
         } else {
-          filter = `active,${filters.active[0]}`
+          filter = `active${constraint}`
         }
         isSetFilter = true
       }

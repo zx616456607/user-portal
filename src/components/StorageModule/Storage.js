@@ -484,7 +484,7 @@ let MyComponent = React.createClass({
     const { selectedRowKeys } = this.state
     const columns = [
       {
-        title: '存储',
+        title: '存储名称',
         key: 'name',
         dataIndex: 'name',
         width: '12%',

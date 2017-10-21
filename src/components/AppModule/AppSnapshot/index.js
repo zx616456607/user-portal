@@ -509,7 +509,7 @@ class Snapshot extends Component {
         dataIndex:'volume',
         width:'10%',
         render: (volume) => <div>
-          <Link to={`/app_manage/exclusiveMemory/${DEFAULT_IMAGE_POOL}/${this.props.cluster}/${volume}`} >
+          <Link to={`/app_manage/storage/exclusiveMemory/${DEFAULT_IMAGE_POOL}/${this.props.cluster}/${volume}`} >
             {volume}
           </Link>
         </div>
@@ -685,7 +685,7 @@ class Snapshot extends Component {
            wrapClassName="createVloumeModal"
          >
            <div>
-             <CreateVolume scope={this} snapshotRequired={true} snapshotDataList={snapshotDataList} currentVolume={currentVolume} currentSnapshot={currentSnapshot} storageList={currentStorageList}/>
+             <CreateVolume createModal={this.state.visible} scope={this} snapshotRequired={true} snapshotDataList={snapshotDataList} currentVolume={currentVolume} currentSnapshot={currentSnapshot} storageList={currentStorageList}/>
            </div>
          </Modal>
 

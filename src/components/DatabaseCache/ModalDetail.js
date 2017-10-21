@@ -246,7 +246,7 @@ class BaseInfo extends Component {
               <li><span className='key'>密码：</span> <span className='value'>******</span><span className="pasBtn" onClick={() => this.setState({ passShow: true })}><i className="fa fa-eye"></i> 显示</span></li>}
             </ul>
           </div>}
-          <div className='configHead'>实例副本 <span>{this.props.currentData.desired}个 &nbsp;</span>
+          <div className="themeHeader"><i className="themeBorder"/>实例副本 <span>{this.props.currentData.desired}个 &nbsp;</span>
             <Popover content={modalContent} title={null} trigger="click" overlayClassName="putmodalPopover"
               visible={rootScope.state.putVisible} getTooltipContainer={()=> document.getElementById('AppServiceDetail')}
               >

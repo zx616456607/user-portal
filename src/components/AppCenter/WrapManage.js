@@ -274,10 +274,6 @@ class UploadModal extends Component {
       name: 'pkg',
       action: actionUrl,
       beforeUpload(file) {
-        if (!fileName || !fileTag) {
-          notificat.info('请先输入包名称和版本标签')
-          return false
-        }
         // x-tar x-gzip zip java-archive war=''
         // let fileType = 'war'
         let isType = false
@@ -333,7 +329,7 @@ class UploadModal extends Component {
         >
         <Form>
           <Form.Item {...formItemLayout} label="应用包名称">
-            <Input {...wrapName} placeholder="请输入名称" />
+            <Input {...wrapName} placeholder="请输入应用包名称" />
           </Form.Item>
 
           <Form.Item {...formItemLayout} label="版本标签">
@@ -494,7 +490,7 @@ class WrapManage extends Component {
             <Button size="large" type="primary" icon="upload" onClick={() => this.uploadModal(true)}>上传包文件</Button>
             <Button size="large" style={{ margin: '0 10px' }} onClick={()=> this.getList()}><i className='fa fa-refresh' />&nbsp;刷 新</Button>
             <Button size="large" onClick={()=> this.setState({delAll: true})} icon="delete" style={{ marginRight: '10px' }} disabled={this.state.selectedRowKeys.length == 0}>删 除</Button>
-            <Input size="large" onPressEnter={()=> this.getList(true)} style={{ width: 180 }} placeholder="请输入包名称或标签搜索" ref="wrapSearch" />
+            <Input size="large" onPressEnter={()=> this.getList(true)} style={{ width: 180 }} placeholder="请输入包名称搜索" ref="wrapSearch" />
             <i className="fa fa-search btn-search" onClick={()=> this.getList(true)}/>
           </div>
           <Card className="wrap_content">
