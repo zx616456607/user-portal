@@ -1400,12 +1400,6 @@ class GlobalConfig extends Component {
     return (
       <div id="GlobalConfig">
         <Title title="全局配置" />
-        <div className="alertRow" style={{ margin: 0 }}>
-          <div>全局配置---这里可以对平台的邮件报警、镜像服务、存储服务、持续集成等进行配置；</div>
-          <div className='titltitem'>①『邮件报警』对应的是系统中涉及到邮件提醒的相关配置；</div>
-          <div className='titltitem'>②『镜像服务』对应的是【交付中心-镜像仓库】的相关配置；</div>
-          <div className='titltitem'>③『持续集成』对应的是 CI/CD 中 TenxFlow 的相关功能配置；</div>
-					</div>
         <Emaill sendEmailVerification={this.props.sendEmailVerification} setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
         <Msa
           setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
