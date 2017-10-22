@@ -307,6 +307,10 @@ class CreateVolume extends Component {
         },
         failed: {
           func: (res) => {
+            if(res.statusCode === 409){
+              notification.error('存储卷 ' + volumeName + ' 已经存在')
+              return
+            }
             let message = '创建存储卷失败，请重试'
             this.handleResetState()
             notification.close()
