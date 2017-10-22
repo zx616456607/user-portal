@@ -222,6 +222,7 @@ let MemberTable = React.createClass({
         deactiveUserBtnLoading: true,
       })
     }
+    console.log('page, pageSize, filter, sort', page, pageSize, filter, sort)
     updateUserActive(userId, active, {
       success: {
         func: () => {

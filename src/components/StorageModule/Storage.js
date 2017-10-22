@@ -517,7 +517,7 @@ let MyComponent = React.createClass({
         key: 'storageServer',
         dataIndex: 'storageServer',
         width: '18%',
-        render: storageServer => <div>可靠块存储 ({storageServer})</div>
+        render: storageServer => <div>可靠块存储 ({storageServer || '-'})</div>
       },{
         title: '大小',
         key: 'totalSize',
