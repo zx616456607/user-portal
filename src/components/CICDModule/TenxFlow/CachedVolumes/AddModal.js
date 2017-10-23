@@ -133,7 +133,7 @@ let AddModal = React.createClass({
                   {...volumeSizeProps}
                   min={1024}
                   max={20480}
-                />
+                />  MB
               </FormItem>
             )
           }

@@ -168,7 +168,7 @@ let ContainerCatalogueModal = React.createClass({
       const { getFieldProps } = form
       let width = '361px'
       if(type == 'private'){
-        width = '160px'
+        width = '138px'
       }
       return (
         <FormItem
@@ -205,7 +205,7 @@ let ContainerCatalogueModal = React.createClass({
                         }
                       }]
                     }) }
-                  />
+                  /> MB
                 </FormItem>
                 <FormItem className='type'>
                   <Select
