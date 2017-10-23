@@ -34,7 +34,11 @@ let DeployEnvModal = React.createClass({
     title: '选择部署环境',
     visible: false,
   },
-
+  componentWillMount() {
+    const { loadTeamClustersList, current } = this.props
+    const { teamID } = current.team
+    loadTeamClustersList(teamID)
+  },
   spaceNameCheck(rule, value, callback) {
     if (!value) {
       this.setState({
