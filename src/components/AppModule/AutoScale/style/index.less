@@ -61,16 +61,36 @@
       }
     }
   }
-  @media screen and (max-width: 1300px) {
-    .autoScaleDrop{
+  .autoScaleDropMin{
+    display: none;
+  }
+  @media screen and (max-width: 1160px) {
+    .autoScaleDropMin{
       display: inline-block;
+    }
+    .autoScaleDropMid{
+      display: none;
+    }
+    .startBtn, .stopBtn, .deleteBtn, .demoBtn, .refreshBtn{
+      display: none;
+    }
+  }
+  @media screen and (min-width: 1160px) and (max-width: 1300px) {
+    .autoScaleDropMid{
+      display: inline-block;
+    }
+    .autoScaleDropMin{
+       display: none;
     }
     .startBtn, .stopBtn, .deleteBtn{
       display: none;
     }
+    .demoBtn, .refreshBtn{
+      display: inline-block;
+    }
   }
   @media screen and (min-width: 1300px) {
-    .autoScaleDrop{
+    .autoScaleDropMid, .autoScaleDropMin{
       display: none;
     }
     .startBtn, .stopBtn, .deleteBtn{

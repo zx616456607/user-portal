@@ -17,6 +17,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { loadUserList } from '../../actions/user'
 import { loadTeamClustersList } from '../../actions/team'
 import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
+import { getStorageClassType } from '../../actions/storage'
 import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
 import { checkVersion } from '../../actions/version'
 import { getCookie, isEmptyObject, getVersion, getPortalRealMode, toQuerystring } from '../../common/tools'
@@ -127,6 +128,7 @@ class Header extends Component {
     this.renderCheckVersionContent = this.renderCheckVersionContent.bind(this)
     this.handleDocVisible = this.handleDocVisible.bind(this)
     this.handleSpaceVisibleChange = this.handleSpaceVisibleChange.bind(this)
+    this.loadStorageClassType = this.loadStorageClassType.bind(this)
     this.state = {
       spacesVisible: false,
       clustersVisible: false,
@@ -162,6 +164,39 @@ class Header extends Component {
             checkVersionErr: err,
           })
         }
+      }
+    })
+  }
+
+  loadStorageClassType(cluster){
+    if(!cluster){
+      return
+    }
+    const { getStorageClassType, setCurrent } = this.props
+    const defalutStorageCLassType = {
+      private: false,
+      share: false,
+      host: false,
+    }
+    Object.assign(cluster, { storageClassType: defalutStorageCLassType })
+    const { clusterID } = cluster
+    getStorageClassType(clusterID, {
+      success: {
+        func: res => {
+          Object.assign(cluster,{ storageClassType: res.data})
+          setCurrent({
+            cluster,
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          setCurrent({
+            cluster,
+          })
+        },
+        isAsync: true,
       }
     })
   }
@@ -208,7 +243,7 @@ class Header extends Component {
                     defaultCluster = cluster
                   }
                 })
-                setCurrent({ cluster: defaultCluster })
+                this.loadStorageClassType(defaultCluster)
               },
               isAsync: true
             }
@@ -259,8 +294,9 @@ class Header extends Component {
           setCurrent({
             team: { teamID: project.userName },
             space: project,
-            cluster: firstCluster,
           })
+          // get storageClassType
+          this.loadStorageClassType(firstCluster)
           this.props.setSwitchSpaceOrCluster()
           let isShowCluster = !!showCluster
           if (clusters.length === 1) {
@@ -286,9 +322,8 @@ class Header extends Component {
       return
     }
     cluster.namespace = current.space.namespace
-    setCurrent({
-      cluster
-    })
+    // get  storageType
+    this.loadStorageClassType(cluster)
     this.props.setSwitchSpaceOrCluster()
     let msg = `${zone}已成功切换到 [${cluster.clusterName}]`
     if (current.cluster.namespace !== current.space.namespace) {
@@ -598,4 +633,5 @@ export default connect(mapStateToProps, {
   loadUserList,
   ListProjects,
   getProjectVisibleClusters,
+  getStorageClassType,
 })(Header)

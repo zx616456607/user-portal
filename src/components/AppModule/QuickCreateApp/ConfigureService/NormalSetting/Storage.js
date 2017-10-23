@@ -99,12 +99,19 @@ const Storage = React.createClass({
     })
   },
   onServiceTypeChange(value) {
-    const { setReplicasToDefault } = this.props
+    const { setReplicasToDefault, form } = this.props
     setReplicasToDefault(value)
     if (value) {
       this.setStorageTypeToDefault()
       this.setBindVolumesToDefault()
       this.getVolumes()
+      let storageList = form.getFieldValue('storageList') || []
+      if(!storageList.length){
+        this.setState({
+          addContainerPathModal: true,
+          currentIndex: storageList.length,
+        })
+      }
     }
     this.setState({
       replicasInputDisabled: !!value
@@ -268,6 +275,13 @@ const Storage = React.createClass({
     const list = cloneDeep(storageList)
     const type = fields.type
     if (type == 'cancel') {
+      if(!storageList.length){
+        const { setReplicasToDefault } = this.props
+        setReplicasToDefault(false)
+        form.setFieldsValue({
+          serviceType: false,
+        })
+      }
       this.setState({
         addContainerPathModal: false,
       })
@@ -366,7 +380,11 @@ const Storage = React.createClass({
             {
               (serviceType && serviceType.value) && (
                 <div className={volumesClass}>
-                  <div>独享型存储，仅支持一个容器实例读写操作；共享型支持多个容器实例同时对同一个存储卷读写操作；host 型存储支持在宿主机节点上保存数据。</div>
+                  <div>
+                    独享型存储，仅支持一个容器实例读写操作；<br/>
+                    共享型支持多个容器实例同时对同一个存储卷读写操作；<br/>
+                    host 型存储支持在宿主机节点上保存数据。
+                  </div>
                   <Spin className={volumeSpinClass} />
                   {this.renderConfigure()}
                 </div>

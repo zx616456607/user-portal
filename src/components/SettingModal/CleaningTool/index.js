@@ -478,13 +478,13 @@ class CleaningTool extends Component {
                   rules: [{required: true, message: '请选择删除系统日志时间'}]
                 })}
               >
-                <Option key="system_0" value="0">清除所有数据</Option>
-                <Option key="system_1" value="1">清除1天前数据</Option>
-                <Option key="system_3" value="3">清除3天前数据</Option>
-                <Option key="system_7" value="7">清除7天前数据</Option>
-                <Option key="system_15" value="15">清除15天数据</Option>
-                <Option key="system_30" value="30">清除1月前数据</Option>
+                <Option key="system_15" value="15">清除15天前数据（推荐）</Option>
                 <Option key="system_90" value="90">清除3月前数据</Option>
+                <Option key="system_30" value="30">清除1月前数据</Option>
+                <Option key="system_7" value="7">清除7天前数据</Option>
+                <Option key="system_3" value="3">清除3天前数据</Option>
+                <Option key="system_1" value="1">清除1天前数据</Option>
+                <Option key="system_0" value="0">清除所有数据</Option>
               </Select>
             </FormItem>
             <div>
@@ -542,13 +542,13 @@ class CleaningTool extends Component {
                   rules: [{required: true, message: '请选择删除缓存时间'}]
                 })}
               >
-                <Option key="cicd_0" value='0'>清除所有数据</Option>
-                <Option key="cicd_1" value='1'>清除1天前数据</Option>
-                <Option key="cicd_3" value='3'>清除3天前数据</Option>
-                <Option key="cicd_7" value='7'>清除7天前数据</Option>
-                <Option key="cicd_15" value='15'>清除15天数据</Option>
-                <Option key="cicd_30" value='30'>清除1月前数据</Option>
+                <Option key="cicd_15" value='15'>清除15天前数据（推荐）</Option>
                 <Option key="cicd_90" value='90'>清除3月前数据</Option>
+                <Option key="cicd_30" value='30'>清除1月前数据</Option>
+                <Option key="cicd_7" value='7'>清除7天前数据</Option>
+                <Option key="cicd_3" value='3'>清除3天前数据</Option>
+                <Option key="cicd_1" value='1'>清除1天前数据</Option>
+                <Option key="cicd_0" value='0'>清除所有数据</Option>
               </Select>
             </FormItem>
             <div>

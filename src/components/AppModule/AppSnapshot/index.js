@@ -440,7 +440,7 @@ class Snapshot extends Component {
         </span>
       case 0:
       default:
-        return <span style={{color: 'green'}}>
+        return <span style={{color: '#5cb85c'}}>
           <i className='fa fa-circle icon' aria-hidden="true"></i>
           <span>正常</span>
         </span>

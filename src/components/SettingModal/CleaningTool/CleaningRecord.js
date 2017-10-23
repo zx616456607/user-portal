@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Select, Form, DatePicker, Button, Table, Timeline, Row, Col } from 'antd'
+import { Select, Form, DatePicker, Button, Table, Timeline, Row, Col, Pagination } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
@@ -43,7 +43,8 @@ class CleaningRecord extends Component {
       currentPage: 1,
       sort: 'd,create_time',
       filter: '',
-      createTimeSort: false
+      createTimeSort: false,
+      tableLoading: false
     }
   }
   componentWillMount() {
@@ -54,6 +55,9 @@ class CleaningRecord extends Component {
     const { getCleanLogs, form } = this.props
     const { getFieldsValue } = form
     const { status, type } = getFieldsValue(['status', 'type'])
+    this.setState({
+      tableLoading: true
+    })
     getCleanLogs({
       sort,
       type,
@@ -68,7 +72,8 @@ class CleaningRecord extends Component {
           this.setState({
             cleanLogs: res.data.body,
             totalCount: res.data.meta.total,
-            [loading]: false
+            [loading]: false,
+            tableLoading: false
           })
         },
         isAsync: true
@@ -78,7 +83,8 @@ class CleaningRecord extends Component {
           this.setState({
             cleanLogs: [],
             totalCount: 0,
-            [loading]: false
+            [loading]: false,
+            tableLoading: false
           })
         },
         isAsync: true
@@ -95,13 +101,17 @@ class CleaningRecord extends Component {
     let body = {status, type: type, from: (currentPage - 1) * 10, size: 10}
     startValue ? body = Object.assign(body, {start: formatDate(startValue)}): ''
     endValue ? body = Object.assign(body, {end: formatDate(endValue)}) : ''
+    this.setState({
+      tableLoading: true
+    })
     getSystemCleanLogs(query, body, {
       success: {
         func: res => {
           this.setState({
             cleanLogs: res.data.data,
             totalCount: res.data.total,
-            [loading]: false
+            [loading]: false,
+            tableLoading: false
           })
         },
         isAsync: true
@@ -111,7 +121,8 @@ class CleaningRecord extends Component {
           this.setState({
             cleanLogs: [],
             totalCount: 0,
-            [loading]: false
+            [loading]: false,
+            tableLoading: false
           })
         },
         isAsync: true
@@ -228,10 +239,11 @@ class CleaningRecord extends Component {
     })
   }
   onTableChange(pagination) {
+    console.log(pagination)
     const { getFieldValue } = this.props.form
     const logType = getFieldValue('target')
     this.setState({
-      currentPage: pagination.current
+      currentPage: pagination
     }, () => {
       logType === 'cicd_clean' && this.getCleanLogs()
       logType === 'system_clean' && this.getSystemLogs()
@@ -278,9 +290,7 @@ class CleaningRecord extends Component {
     this.setState({
       currentPage: 1
     })
-    // if (value === 'cicd_clean') {
-      this.selectFilter('target', value)
-    // }
+    this.selectFilter('target', value)
   }
   searchLogs() {
     const { getFieldValue } = this.props.form
@@ -324,7 +334,7 @@ class CleaningRecord extends Component {
   }
   render() {
     const { form } = this.props
-    const { cleanLogs, totalCount, createTimeSort, currentPage, freshBtnLoading, searchBtnLoading } = this.state
+    const { cleanLogs, totalCount, createTimeSort, currentPage, freshBtnLoading, searchBtnLoading, tableLoading } = this.state
     const { getFieldProps, getFieldValue } = form
     const pagination = {
       simple: true,
@@ -332,6 +342,7 @@ class CleaningRecord extends Component {
       current: currentPage,
       defaultPageSize: 10,
       defaultCurrent: 1,
+      onChange: this.onTableChange.bind(this)
     }
     const columns = [
       {
@@ -481,16 +492,17 @@ class CleaningRecord extends Component {
               >
                 刷新
               </Button>
+              <Pagination {...pagination}/>
               <div className='totle_num'>共计 <span>{totalCount}</span> 条</div>
             </div>
             <div style={{clear: 'both'}}/>
             <div className='table_box'>
               <Table
+                loading={tableLoading}
                 dataSource={cleanLogs}
                 columns={columns}
                 expandedRowRender={(target === 'cicd_clean') && (record => record.detail && record.detail.length && this.renderExpand(record))}
-                onChange={this.onTableChange.bind(this)}
-                pagination={pagination}
+                pagination={false}
                 rowKey={record => record.id}
               />
             </div>
