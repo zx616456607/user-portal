@@ -550,7 +550,7 @@ let MemberTable = React.createClass({
           footer={[
             <Button
               key="back"
-              type="ghost"
+              type="primary"
               size="large"
               onClick={() => this.setState({ resetPasswordModal: false })}
             >
