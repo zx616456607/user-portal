@@ -145,6 +145,7 @@ function serviceList(state = {}, action) {
     case ActionTypes.SERVICE_GET_ALL_LIST_SUCCESS: {
       let services = action.response.result.data.services.map(service => {
         service.deployment.cluster = service.cluster
+        service.deployment.volumes = service.volumes //存储类型
         service.deployment.status = getServiceStatus(service.deployment)
         return service.deployment
       })
