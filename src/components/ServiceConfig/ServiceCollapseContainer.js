@@ -174,7 +174,7 @@ let CreateConfigFileModal = React.createClass({
     const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
     const notify = new NotificationHandler()
     if(!/xml|json|conf|config|data|ini|txt|properties|yaml|yml/.test(fileType)) {
-      notify.error('目前仅支持 xml/json/conf/config/data/ini/txt/properties/yaml/yml 格式')
+      notify.info('目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式', true)
       return false
     }
     const self = this

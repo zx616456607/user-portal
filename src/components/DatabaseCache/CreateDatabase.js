@@ -390,7 +390,7 @@ let CreateDatabase = React.createClass({
         },
       ],
     });
-    const storageNumber = getFieldValue('replicas');
+    const storageNumber = this.state.currentType === 'zookeeper' ? getFieldValue('zkReplicas') : getFieldValue('replicas');
     const strongSize = getFieldValue('storageSelect');
     const teamspaceList = projects.map((list, index) => {
       return (
