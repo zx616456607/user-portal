@@ -109,6 +109,9 @@ class ShareMemory extends Component {
   }
 
   tableRowClick(record, index) {
+    if (record.status == 'used') {
+      return
+    }
     const { selectedRowKeys } = this.state
     const newSelectedRowKeys = cloneDeep(selectedRowKeys)
     if(newSelectedRowKeys.indexOf(record.name) > -1){

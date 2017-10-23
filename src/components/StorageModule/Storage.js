@@ -12,6 +12,7 @@ import React, { Component, PropTypes } from 'react'
 import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, Tooltip, Spin, Form, Table } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
@@ -451,6 +452,21 @@ let MyComponent = React.createClass({
       volumeArray: selectedRowKeys,
     })
   },
+  tableRowClick(record, index) {
+    if (record.status == 'used') {
+      return
+    }
+    const { selectedRowKeys } = this.state
+    const newSelectedRowKeys = cloneDeep(selectedRowKeys)
+    if(newSelectedRowKeys.indexOf(record.name) > -1){
+      newSelectedRowKeys.splice(newSelectedRowKeys.indexOf(record.name), 1)
+    } else {
+      newSelectedRowKeys.push(record.name)
+    }
+    this.setState({
+      selectedRowKeys: newSelectedRowKeys
+    })
+  },
   render() {
     const { isFetching, storage } = this.props
     const { formatMessage } = this.props.intl
@@ -501,7 +517,7 @@ let MyComponent = React.createClass({
         key: 'storageServer',
         dataIndex: 'storageServer',
         width: '18%',
-        render: storageServer => <div>可靠块存储 ({storageServer})</div>
+        render: storageServer => <div>可靠块存储 ({storageServer || '-'})</div>
       },{
         title: '大小',
         key: 'totalSize',
@@ -570,6 +586,7 @@ let MyComponent = React.createClass({
             columns={columns}
             dataSource={storageList}
             rowSelection={rowSelection}
+            onRowClick={this.tableRowClick}
             pagination={{ simple: true }}
             loading={isFetching}
             rowKey={record => record.name}
