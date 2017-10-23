@@ -377,14 +377,12 @@ class VMList extends React.Component {
           <Pagination className="pag" {...pagination} />
           {data.length > 0 && <span className="total">共 {total} 个</span>}
         </Row>
-        <Row>
-          <Table
-            pagination={false}
-            loading={false}
-            columns={columns}
-            dataSource={list}
-          />
-        </Row>
+        <Table
+          pagination={false}
+          loading={false}
+          columns={columns}
+          dataSource={list}
+        />
         {
           this.state.isModal ?
             <CreateVMListModal

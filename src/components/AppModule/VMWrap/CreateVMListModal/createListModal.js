@@ -11,53 +11,58 @@
  */
 
 import React from 'react'
-import {Button, Modal, Form, Input, Icon} from 'antd'
+import { Button, Modal, Form, Input, Icon } from 'antd'
+import NotificationHandler from '../../../../components/Notification'
 const FormItem = Form.Item
 const createForm = Form.create
 let CreateVMListModal = React.createClass({
-
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       Prompt: false,
-      isShow: false
+      isShow: false,
+      verification: false,
     };
   },
-  handleSub(){
+  handleSub() {
+    let notification = new NotificationHandler()
     const { form, scope } = this.props
     let info = form.getFieldsValue()
-    this.setState({
-      isShow: true
-    })
-    let infos = {
+    let query = {
       host: info.host,
       account: info.account,
       password: info.password
     }
-    scope.props.checkVMUser(infos,{
+    this.setState({
+      verification: true
+    })
+    scope.props.checkVMUser(query, {
       success: {
         func: res => {
-          if(res.code === 200){
+          if (res.code === 200) {
             this.setState({
               Prompt: true,
-              isShow: false
+              isShow: true,
+              verification: false
             })
           }
         }
       },
       failed: {
         func: err => {
+          notification.error('验证信息异常')
           this.setState({
             Prompt: false,
-            isShow: false
+            isShow: false,
+            verification: false
           })
         }
       }
     })
   },
-  handleAdd(){
-    const {form, onSubmit, scope} = this.props
-    form.validateFields((errors, values) =>{
-      if(errors !== null)return
+  handleAdd() {
+    const { form, onSubmit, scope } = this.props
+    form.validateFields((errors, values) => {
+      if (errors !== null) return
       let List = {
         host: values.host,
         account: values.account,
@@ -71,8 +76,8 @@ let CreateVMListModal = React.createClass({
       form.resetFields()
     })
   },
-  handleClose(){
-    const { scope, form} = this.props
+  handleClose() {
+    const { scope, form } = this.props
     scope.setState({
       visible: false
     })
@@ -112,24 +117,24 @@ let CreateVMListModal = React.createClass({
     }
     callback()
   },
-  checkIP(rule, value, callback){
+  checkIP(rule, value, callback) {
     let reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
-    if(!value){
+    if (!value) {
       callback([new Error('请填写IP')])
       return
     }
-    if(reg.test(value) !==true ){
+    if (reg.test(value) !== true) {
       callback([new Error('请输入正确IP地址')])
       return
     }
     callback()
   },
-  render(){
-    const formItemLayout ={
+  render() {
+    const formItemLayout = {
       labelCol: { span: 5 },
       wrapperCol: { span: 17 }
     }
-    const {form, Rows, isAdd} = this.props
+    const { form, Rows, isAdd } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = form
     const hostProps = getFieldProps('host', {
       rules: [
@@ -150,7 +155,7 @@ let CreateVMListModal = React.createClass({
       initialValue: isAdd ? undefined : Rows.password
     })
     let style = {
-      fontSize:2
+      fontSize: 2
     }
     let btnStyle = {
       position: 'absolute',
@@ -168,25 +173,26 @@ let CreateVMListModal = React.createClass({
     let promptStyle = {
       marginRight: 120
     }
-    return(
+    return (
       <Modal
-        title= { this.props.modalTitle ? "添加传统环境" : "编辑传统环境"}
+        title={this.props.modalTitle ? "添加传统环境" : "编辑传统环境"}
         visible={this.props.visible}
-        onCancel={()=>this.handleClose()}
+        onCancel={() => this.handleClose()}
         footer={[
           <span style={promptStyle}>
             {
               this.state.isShow ?
                 this.state.Prompt ?
-                <span style={testStyle}><Icon type="check-circle-o" /> 测试连接成功</span> : <span style={fallStyle}><Icon type="cross-circle-o" /> 测试连接失败</span>
+                  <span style={testStyle}><Icon type="check-circle-o" /> 测试连接成功</span> : <span style={fallStyle}><Icon type="cross-circle-o" /> 测试连接失败</span>
                 : ''
             }
           </span>,
           <Button
             type="primary"
             size="large"
-            onClick={()=>this.handleSub()}
+            onClick={() => this.handleSub()}
             style={btnStyle}
+            disabled={this.state.verification}
           >
             测试连接
           </Button>,
@@ -194,14 +200,14 @@ let CreateVMListModal = React.createClass({
             key="back"
             type="ghost"
             size="large"
-            onClick={()=>this.handleClose()}>
+            onClick={() => this.handleClose()}>
             取 消
           </Button>,
           <Button
             key="submit"
             type="primary"
             size="large"
-            onClick={()=>this.handleAdd()}>
+            onClick={() => this.handleAdd()}>
             保 存
           </Button>,
         ]}
@@ -212,7 +218,7 @@ let CreateVMListModal = React.createClass({
             hasFeedback
             {...formItemLayout}
           >
-            <Input key="IP"{...hostProps} placeholder="请输入已开通 SSH 登录的传递环境 IP" id="host"/>
+            <Input key="IP"{...hostProps} placeholder="请输入已开通 SSH 登录的传递环境 IP" id="host" />
             <span style={style}><Icon size={15} type="question-circle-o" />传统环境一般指非容器环境（Linux的虚拟机、物理机等）</span>
           </FormItem>
           <FormItem
@@ -220,14 +226,14 @@ let CreateVMListModal = React.createClass({
             label="环境登录账号"
             {...formItemLayout}
           >
-            <Input key="userName"{...nameProps} placeholder="请输入传统环境登录账号" id="account"/>
+            <Input key="userName"{...nameProps} placeholder="请输入传统环境登录账号" id="account" />
           </FormItem>
           <FormItem
             hasFeedback
             label="环境登录密码"
             {...formItemLayout}
           >
-            <Input key="passWord"{...passwordProps} placeholder="请输入传统环境登录密码" id="password"/>
+            <Input key="passWord"{...passwordProps} placeholder="请输入传统环境登录密码" id="password" />
           </FormItem>
         </Form>
       </Modal>
