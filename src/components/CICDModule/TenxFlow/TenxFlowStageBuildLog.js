@@ -119,7 +119,7 @@ class TenxFlowStageBuildLog extends Component {
         "+item+"\
         </div>")
       })
-      let height = $(`#${tenxFlowLog} .infoBox`).css('height')
+      let height = $(`#${tenxFlowLog}`).css('height')
       $(`#${tenxFlowStageBuildLog}`).animate({
         scrollTop: height + 'px'
       }, 0)
