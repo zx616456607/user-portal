@@ -77,12 +77,22 @@ svg path {
   padding-top: 55px;
   margin-left: 60px;
   display: block;
-  width: calc(~"100% - 60px");
   overflow-x: auto;
+  // width: calc(~"100% - 60px");
+}
+@media screen and (max-width:1280px) {
+  .tenx-layout-content {
+    width: calc(~"100% - 60px")
+  }
 }
 .tenx-layout-content-bigger {
   margin-left: 200px;
-  width: calc(~"100% - 200px");
+  // width: calc(~"100% - 200px");
+  @media screen and (width:1920px) {
+    .tenx-layout-content-bigger {
+      width: calc(~"100% - 200px")
+    }
+  }
   .CommonSecondMenu {
     -webkit-transform: translateX(-140px) !important;
     transform: translateX(-140px) !important;
