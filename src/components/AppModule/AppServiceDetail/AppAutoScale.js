@@ -95,7 +95,7 @@ class AppAutoScale extends Component {
   }
   isPrivateType(props) {
     const { volumes } = props
-    volumes.forEach(item => {
+    volumes && volumes.length && volumes.forEach(item => {
       if (item.type === 'share') {
         this.setState({
           isPrivate: true
@@ -473,6 +473,8 @@ class AppAutoScale extends Component {
     })
   }
   delRule = (key) => {
+    const { form } = this.props
+    const { setFields, getFieldValue } = form
     const { thresholdArr } = this.state
     let copyThreshold = thresholdArr.slice(0)
     let notify = new NotificationHandler()
@@ -483,6 +485,27 @@ class AppAutoScale extends Component {
     copyThreshold = copyThreshold.filter(item => key !== item)
     this.setState({
       thresholdArr: copyThreshold
+    }, () => {
+      const { thresholdArr } = this.state
+      let typeArr = []
+      let typeOpt = {}
+      thresholdArr.forEach(item => {
+        typeArr.push(getFieldValue(`type${item}`))
+        typeOpt = Object.assign(typeOpt, {[`type${item}`] : {
+          errors: null,
+          value: getFieldValue(`type${item}`)
+        }})
+      })
+      let sortArr = typeArr.sort()
+      let flag = false
+      for (let i = 0; i < sortArr.length; i++) {
+        if (sortArr[i] === sortArr[i + 1]) {
+          flag = true
+        }
+      }
+      if (!flag) {
+        setFields(typeOpt)
+      }
     })
   }
   render() {
@@ -538,10 +561,10 @@ class AppAutoScale extends Component {
     thresholdItem = thresholdArr.map((key) => {
       let optItem = cpuAndMemory[key] || { 'cpu': 80 }
       return (
-        <Row type="flex" align="middle" key={key}>
+        <Row type="flex" align="middle" key={key} className="strategyBox">
           <Col className={classNames({"strategyLabel": key === 0})} span={3} style={{ marginBottom: 24, textAlign: 'right'}}>
             {
-              thresholdArr.indexOf(key) === 0 ? '阈值' : ''
+              thresholdArr.indexOf(key) === 0 ? '阈值：' : ''
             }
           </Col>
           <Col span={6}>

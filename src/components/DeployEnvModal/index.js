@@ -13,7 +13,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Modal, Form, Select } from 'antd'
 import { connect } from 'react-redux'
-import { loadTeamClustersList } from '../../actions/team'
+import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
 import { setCurrent } from '../../actions/entities'
 import { MY_SPACE } from '../../constants'
 import './style/index.less'
@@ -22,6 +22,10 @@ const FormItem = Form.Item
 const createForm = Form.create
 const Option = Select.Option
 
+function loadProjects(props, callback) {
+  const { ListProjects } = props
+  ListProjects({ size: 0 }, callback)
+}
 let DeployEnvModal = React.createClass({
   propTypes: {
     title: PropTypes.string.isRequired,
@@ -34,7 +38,19 @@ let DeployEnvModal = React.createClass({
     title: '选择部署环境',
     visible: false,
   },
-
+  componentWillMount() {
+    loadProjects(this.props)
+  },
+  componentWillReceiveProps(nextProps) {
+    const { form, current } = nextProps
+    if (current.space.namespace === this.props.current.space.namespace && current.cluster.clusterID === this.props.current.cluster.clusterID) {
+      return
+    }
+    form.setFieldsValue({
+      'spaceFormCheck': current.space.namespace,
+      'clusterFormCheck': current.cluster.clusterID,
+    })
+  },
   spaceNameCheck(rule, value, callback) {
     if (!value) {
       this.setState({
@@ -64,25 +80,25 @@ let DeployEnvModal = React.createClass({
   },
 
   handleSpaceChange(value) {
-    const { teamspaces, loadTeamClustersList, setCurrent, form, current } = this.props
-    let newTeamspaces = ([MY_SPACE]).concat(teamspaces)
-    newTeamspaces.map(space => {
-      if (space.namespace === value) {
+    const { projects, getProjectVisibleClusters, setCurrent, form, current } = this.props
+    let newTeamspaces = ([MY_SPACE]).concat(projects)
+    newTeamspaces.map(project => {
+      if (project.namespace === value) {
         setCurrent({
-          space,
+          space: project,
           team: {
-            teamID: space.teamID
+            teamID: project.teamID
           }
         })
-        loadTeamClustersList(space.teamID, { size: 100 }, {
+        getProjectVisibleClusters(project.projectName, {
           success: {
             func: (result) => {
-              if (!result.data || result.data.length === 0) {
+              if (!result.data || result.data.clusters.length === 0) {
                 form.resetFields(['clusterFormCheck'])
                 return
               }
               form.setFieldsValue({
-                'clusterFormCheck': result.data[0].clusterID,
+                'clusterFormCheck': result.data.clusters[0].clusterName,
               })
             },
             isAsync: true
@@ -91,10 +107,10 @@ let DeployEnvModal = React.createClass({
       }
     })
   },
-
+  
   handleClusterChange(value) {
-    const { teamClusters, setCurrent } = this.props
-    teamClusters.map((cluster) => {
+    const { projectClusters, setCurrent } = this.props
+    projectClusters.map((cluster) => {
       if (cluster.clusterID === value) {
         setCurrent({
           cluster
@@ -106,8 +122,8 @@ let DeployEnvModal = React.createClass({
   render() {
     const {
       title, visible, onCancel,
-      onOk, form, teamspaces,
-      teamClusters, current,
+      onOk, form, projects,
+      projectClusters, current,
     } = this.props
     const { getFieldProps } = form
     const spaceFormCheck = getFieldProps('spaceFormCheck', {
@@ -148,10 +164,10 @@ let DeployEnvModal = React.createClass({
               {...spaceFormCheck}>
               <Option value="default">我的个人项目</Option>
               {
-                teamspaces.map(space => {
+                projects.map(project => {
                   return (
-                    <Option key={space.namespace} value={space.namespace}>
-                      {space.spaceName}
+                    <Option key={project.namespace} value={project.namespace}>
+                      {project.projectName}
                     </Option>
                   )
                 })
@@ -164,7 +180,7 @@ let DeployEnvModal = React.createClass({
               style={{ width: 180 }}
               {...clusterFormCheck}>
               {
-                teamClusters.map(cluster => {
+                projectClusters.map(cluster => {
                   return (
                     <Option key={cluster.clusterName} value={cluster.clusterName}>
                       {cluster.clusterName}
@@ -184,18 +200,22 @@ DeployEnvModal = createForm()(DeployEnvModal)
 
 function mapStateToProps(state, props) {
   const { current } = state.entities
-  const { teamspaces } = state.user
-  const { teamClusters } = state.team
+  const { projectList, projectVisibleClusters } = state.projectAuthority
+  const projects = projectList.data || []
+  const currentNamespace = current.space.namespace
+  const currentProjectClusterList = projectVisibleClusters[currentNamespace] || {}
+  const projectClusters = currentProjectClusterList.data || []
   return {
     current,
-    isTeamspacesFetching: teamspaces.isFetching,
-    teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
-    isTeamClustersFetching: teamClusters.isFetching,
-    teamClusters: (teamClusters.result ? teamClusters.result.data : []),
+    isProjectsFetching: projectList.isFetching,
+    projects,
+    isProjectClustersFetching: currentProjectClusterList.isFetching,
+    projectClusters,
   }
 }
 
 export default connect(mapStateToProps, {
-  loadTeamClustersList,
+  getProjectVisibleClusters, 
+  ListProjects,
   setCurrent,
 })(DeployEnvModal)

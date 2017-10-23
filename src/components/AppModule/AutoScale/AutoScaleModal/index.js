@@ -403,7 +403,7 @@ class AutoScaleModal extends React.Component {
   isPrivate(volumes) {
     let flag = false
     volumes && volumes.length && volumes.forEach(item => {
-      if (item.type === 'private') {
+      if (item === 'private') {
         flag = true
       }
     })
@@ -532,14 +532,14 @@ class AutoScaleModal extends React.Component {
               placeholder="请选择服务">
               {
                 services && services.length ? services.map(item =>
-                  <Option key={item.metadata.name} value={item.metadata.name} disabled={this.isPrivate.apply(this, [item.volumes])}>{item.metadata.name}</Option>) : null
+                  <Option key={item.metadata.name} value={item.metadata.name} disabled={this.isPrivate.apply(this, [item.volumeTypeList])}>{item.metadata.name}</Option>) : null
               }
             </Select>
           </FormItem>
           <Row style={{margin: '-3px 0 10px'}}>
             <Col span={4} style={{ height: 18 }}/>
             <Col span={16}>
-              <Icon type="exclamation-circle-o"/> 挂载独享性存储的服务不支持自动伸缩
+              <Icon type="info-circle-o" /> 挂载独享性存储的服务不支持自动伸缩
             </Col>
           </Row>
           <FormItem
@@ -558,7 +558,7 @@ class AutoScaleModal extends React.Component {
           <Row style={{margin: '-3px 0 10px'}}>
             <Col span={4}/>
             <Col span={16}>
-              <Icon type="exclamation-circle-o"/> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
+              <Icon type="info-circle-o" /> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
             </Col>
           </Row>
           <FormItem
@@ -600,7 +600,7 @@ class AutoScaleModal extends React.Component {
                 <Row style={{margin: '-3px 0 10px'}} key="alertGroupHint">
                   <Col span={4} style={{ height: 18 }}/>
                   <Col span={16}>
-                  <Icon type="exclamation-circle-o"/> 发生弹性伸缩时会向该通知组发送邮件通知
+                    <Icon type="info-circle-o" /> 发生弹性伸缩时会向该通知组发送邮件通知
                   </Col>
                 </Row>,
                 <Row style={{margin: '-10px 0 10px'}} key="createGroup">

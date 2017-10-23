@@ -46,9 +46,9 @@ class QuickEntry extends Component {
             <div className='item'>快速入口通过提供平台上主要功能的入口，帮助用户快速了解并使用平台</div>
           </div>
           <div className='main'>
-            <Row>
+            <Row type="flex" justify="space-between" gutter={16}>
               <Col span={8} className='CreateApp'>
-                <div className="item app" onClick={() => this.setState({ deployEnvModalVisible: true })}>
+                <div className="item" onClick={() => this.setState({ deployEnvModalVisible: true })}>
                   <img src={AppImg} alt="" className='img'/>
                   <div className='middle'>创建一个应用</div>
                   <div>通过镜像仓库快速创建一个应用</div>
@@ -75,7 +75,7 @@ class QuickEntry extends Component {
                 </Col>
               }
               <Col span={8}>
-                <div className="item database" onClick={this.handleDatabase}>
+                <div className="item" onClick={this.handleDatabase}>
                   <img src={DatabaseImg} alt="" className='img'/>
                   <div className='middle'>创建一个数据库与缓存</div>
                   <div>快速创建一个原生数据库集群环境</div>
