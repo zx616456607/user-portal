@@ -466,6 +466,9 @@ let MyComponent = React.createClass({
     this.setState({
       selectedRowKeys: newSelectedRowKeys
     })
+    this.props.scope.setState({
+      volumeArray: newSelectedRowKeys,
+    })
   },
   render() {
     const { isFetching, storage } = this.props
