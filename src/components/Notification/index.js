@@ -97,7 +97,18 @@ class Notification {
   }
 
   // Show info notification
-  info(message) {
+  info(message, diy) {
+    if(diy) {
+      notification.info({
+        message: (
+          <div style={{ fontSize: '13px', paddingRight: '20px', color: '#666', wordBreak:"normal", wordWrap:"break-word"}}>
+            {message}
+          </div>
+        ),
+        duration: 5,
+      })
+      return
+    }
     notification.info({
       message: (
         <div style={{ fontSize: '13px', paddingRight: '20px', color: '#666'}}>
