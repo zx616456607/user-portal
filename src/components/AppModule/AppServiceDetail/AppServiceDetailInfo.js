@@ -582,7 +582,7 @@ class AppServiceDetailInfo extends Component {
           let volumeMounts = []
           let newService = false
           let oldService = false
-          const volume = res.data.volume
+          const volume = res.data.volume || []
           if(res.data && res.data.spec){
             this.setState({
               replicas: res.data.spec.replicas
@@ -597,18 +597,10 @@ class AppServiceDetailInfo extends Component {
             && res.data.spec.template.spec.containers[0].volumeMounts
           ){
             volumeMounts = res.data.spec.template.spec.containers[0].volumeMounts
-            volumeList = res.data.spec.template.spec.volumes
+            volumeList = res.data.spec.template.spec.volumes || []
           }
-          // 为兼容旧服务，需要在 spec 不同的位置取当前服务的 container 列表
-          // 新服务
-          if(volumeList.length && (volumeList[0].persistentVolumeClaim || volumeList[0].hostPath)){
-            newService = true
-          }
-          if(volumeList.length && volumeList[0].rbd){
-            oldService = true
-          }
-          const list = []
-          volumeList.forEach((item, index) => {
+          // 为兼容旧服务，需要在 spec 不同的位置取当前服务的 container
+          const list = volumeList.map(item => {
             let mountPath = ''
             let readOnly = false
             let size = 512
@@ -620,7 +612,9 @@ class AppServiceDetailInfo extends Component {
                 readOnly = volumeMounts[i].readOnly || false
               }
             }
-            if(newService){
+            const isNewVolume = item.persistentVolumeClaim || item.hostPath
+            // 新存储
+            if (isNewVolume) {
               let strategy = false
               let claimName = '-'
               let type = 'host'
@@ -658,36 +652,35 @@ class AppServiceDetailInfo extends Component {
                 storageType: type,
                 hostPath: mountPath,
               }
-              list.push(container)
+              return container
             }
-            if(oldService){
-              let strategy = 'retain'
-              let image = ''
-              let fsType = 'ext4'
-              if(item.rbd){
-                strategy = item.rbd.strategy
-                image = item.rbd.image
-                fsType = item.rbd.fsType
-              }
-              const imageArray = image.split('.')
-              const volume = imageArray[imageArray.length - 1]
-              // @todo 缺少旧服务存储卷的大小
-              const container = {
-                mountPath,
-                readOnly,
-                strategy,
-                type: 'private',
-                type_1: 'rbd',
-                volume,
-                oldVolume: true,
-                isOld: true,
-                volumesName: item.name,
-                storageType: 'private',
-                hostPath: mountPath,
-                fsType,
-              }
-              list.push(container)
+            // 旧存储
+            let strategy = 'retain'
+            let image = ''
+            fsType = 'ext4'
+            if(item.rbd){
+              strategy = item.rbd.strategy
+              image = item.rbd.image
+              fsType = item.rbd.fsType
             }
+            const imageArray = image.split('.')
+            const currentVolume = imageArray[imageArray.length - 1]
+            // @todo 缺少旧服务存储卷的大小
+            const container = {
+              mountPath,
+              readOnly,
+              strategy,
+              type: 'private',
+              type_1: 'rbd',
+              volume: currentVolume,
+              oldVolume: true,
+              isOld: true,
+              volumesName: item.name,
+              storageType: 'private',
+              hostPath: mountPath,
+              fsType,
+            }
+            return container
           })
           this.setState({
             volumeList: list
@@ -1090,8 +1083,8 @@ class AppServiceDetailInfo extends Component {
         <div className="storage commonBox">
           <span className="titleSpan">存储卷</span>
           <div className='save_box'>
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               size="large"
               onClick={() => this.saveVolumnsChange()}
               className='title_button'

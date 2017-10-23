@@ -294,6 +294,7 @@ let ContainerCatalogueModal = React.createClass({
         'type',
         'mountPath',
         'readOnly',
+        'volumeIsOld',
       ]
       let array = []
       const volumeType = form.getFieldValue("type")
