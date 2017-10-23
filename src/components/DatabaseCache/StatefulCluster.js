@@ -233,15 +233,14 @@ class StatefulCluster extends Component {
 
   render() {
     const _this = this;
-    const { isFetching, databaseList, clusterType, clusterProxy } = this.props;
+    const { isFetching, databaseList, clusterType, clusterProxy, storageClassType } = this.props;
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
     const currentCluster = this.props.current.cluster
-    const storage_type = currentCluster.storageTypes
     const literal = clusterTable[clusterType]
     let canCreate = true
-    if (!storage_type || storage_type.indexOf('rbd') < 0) canCreate = false
+    if (!storageClassType.private) canCreate = false
     if (!canCreate) {
       title = '尚未部署分布式存储，暂不能创建'
     }
@@ -306,6 +305,14 @@ function mapStateToProps(state, props) {
   const { database, databaseList, isFetching } = databaseAllList[clusterType] || defaultList
   const { current } = state.entities
   let clusterProxy = state.cluster.proxy.result || {}
+  let defaultStorageClassType = {
+    private: false,
+    share: false,
+    host: false
+  }
+  if(cluster.storageClassType){
+    defaultStorageClassType = cluster.storageClassType
+  }
   return {
     cluster: cluster.clusterID,
     current,
@@ -314,6 +321,7 @@ function mapStateToProps(state, props) {
     isFetching,
     clusterType,
     clusterProxy,
+    storageClassType: defaultStorageClassType
   }
 }
 

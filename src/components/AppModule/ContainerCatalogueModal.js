@@ -12,7 +12,7 @@ import React, { PropTypes } from 'react'
 import { Form, Select, Row, Col, Radio, Input, Tooltip, Icon, InputNumber, Button } from 'antd'
 import { connect } from 'react-redux'
 import cloneDeep from 'lodash/cloneDeep'
-import { loadFreeVolume, getStorageClassType } from '../../actions/storage'
+import { loadFreeVolume } from '../../actions/storage'
 import { getClusterStorageList } from '../../actions/cluster'
 import { isStorageUsed } from '../../common/tools'
 import { DEFAULT_IMAGE_POOL } from '../../constants'
@@ -35,7 +35,6 @@ let ContainerCatalogueModal = React.createClass({
   getInitialState() {
     return {
       isResetComponent: false,
-      storageClassType: {},
     }
   },
 
@@ -63,23 +62,9 @@ let ContainerCatalogueModal = React.createClass({
     }
   },
 
-  loadStorageClassType(){
-    const { clusterID, getStorageClassType } = this.props
-    getStorageClassType(clusterID, {
-      success: {
-        func: res => {
-          this.setState({
-            storageClassType: res.data
-          })
-        }
-      }
-    })
-  },
-
   componentWillMount() {
     const { currentIndex, fieldsList } = this.props
     this.restFormValues(fieldsList[currentIndex])
-    this.loadStorageClassType(fieldsList[currentIndex])
   },
 
   componentWillReceiveProps(nextProps) {
@@ -92,9 +77,6 @@ let ContainerCatalogueModal = React.createClass({
           loadFreeVolume(clusterID, { srtype })
         }
       }
-    }
-    if(nextProps.from == 'editService' && this.props.currentService !== nextProps.currentService){
-      this.loadStorageClassType(nextProps.fieldsList[nextProps.currentIndex])
     }
   },
 
@@ -441,7 +423,7 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   render() {
-    const { storageClassType } = this.state
+    const { storageClassType } = this.props
     const {
       form, replicas, isAutoScale,
       volumes, from, storageList,
@@ -699,8 +681,17 @@ function mapStateToProp(state, props) {
   const nfsList = clusterStorage.nfsList || []
   const cephList = clusterStorage.cephList || []
   const avaliableVolume = storage.avaliableVolume || {}
+  let defaultStorageClassType = {
+    private: false,
+    share: false,
+    host: false,
+  }
+  if(current.cluster && current.cluster.storageClassType){
+    defaultStorageClassType = current.cluster.storageClassType
+  }
   return {
     clusterID,
+    storageClassType: defaultStorageClassType,
     avaliableVolume: {
       volumes: (avaliableVolume.data ? avaliableVolume.data.volumes : []),
       isFetching: avaliableVolume.isFetching,
@@ -715,5 +706,4 @@ ContainerCatalogueModal = Form.create()(ContainerCatalogueModal)
 export default connect(mapStateToProp, {
   getClusterStorageList,
   loadFreeVolume,
-  getStorageClassType,
 })(ContainerCatalogueModal)
