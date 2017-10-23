@@ -113,6 +113,7 @@ class CachedVolumes extends React.Component {
       title: '大小',
       dataIndex: 'volumeSize',
       key: 'volumeSize',
+      render: text => text.replace(/i$/, ''),
     }, {
       title: 'TenxFlow',
       dataIndex: 'ownerFlowName',

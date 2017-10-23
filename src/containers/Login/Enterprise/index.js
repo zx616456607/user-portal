@@ -103,6 +103,12 @@ let Login = React.createClass({
             if (err.statusCode == 401) {
               msg = "登录名或者密码错误"
             }
+            if (err.statusCode == 403
+              && err.message
+              && err.message.message === 'user was not activated'
+            ) {
+              msg = "该账号已被停用"
+            }
             if (err.statusCode == 451) {
               msg = null,
               outdated = true //show error and not allow login

@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Icon, } from 'antd'
+import { Row, Col, Icon, Card } from 'antd'
 import './style/API.less'
 import { connect } from 'react-redux'
 import { loadApiInfo } from '../../../actions/open_api'
@@ -43,32 +43,34 @@ class API extends Component{
     return (
       <div id='API'>
         <Title title="开放 API" />
-        <Row className="APITitle">开放 API</Row>
-        <Row className="APIInfo">以下是用于访问 开放 API 的 token 信息及相关文档</Row>
-        <table className="APITable">
-          <tbody>
-            <tr>
-              <td className="tableTitle">用户名</td>
-              <td>{username}</td>
-            </tr>
-            <tr>
-              <td className="tableTitle">
-                <span style={{marginRight: 10}}>Token</span>
-              </td>
-              <td>
-                <input type={hidToken} value={token} className="tokenInt" disabled/>
-                <Icon type="eye" onClick={this.handleHidToken}
-                      className={hidToken === 'text'? 'hidToken' : ''}/>
-              </td>
-            </tr>
-            <tr>
-              <td className="tableTitle">API 文档</td>
-              <td>
-                <a href="http://docs.tenxcloud.com/api" target="_blank">打开帮助文档</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div className="title">开放 API</div>
+        <Card className="API-body">
+          <Row className="APIInfo">以下是用于访问 开放 API 的 token 信息及相关文档</Row>
+          <table className="APITable">
+            <tbody>
+              <tr>
+                <td className="tableTitle">用户名</td>
+                <td>{username}</td>
+              </tr>
+              <tr>
+                <td className="tableTitle">
+                  <span style={{marginRight: 10}}>Token</span>
+                </td>
+                <td>
+                  <input type={hidToken} value={token} className="tokenInt" disabled/>
+                  <Icon type="eye" onClick={this.handleHidToken}
+                        className={hidToken === 'text'? 'hidToken' : ''}/>
+                </td>
+              </tr>
+              <tr>
+                <td className="tableTitle">API 文档</td>
+                <td>
+                  <a href="http://docs.tenxcloud.com/api" target="_blank">打开帮助文档</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </Card>
       </div>
     )
   }
