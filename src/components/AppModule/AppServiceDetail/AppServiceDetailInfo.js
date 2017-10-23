@@ -643,7 +643,6 @@ class AppServiceDetailInfo extends Component {
                 type_1,
                 //volume: `${claimName} ${fsType} ${size}`,
                 volume: `${claimName} ${fsType}`,
-                oldVolume: true,
                 isOld: false,
                 volumesName: item.name,
                 size,
@@ -673,7 +672,6 @@ class AppServiceDetailInfo extends Component {
               type: 'private',
               type_1: 'rbd',
               volume: currentVolume,
-              oldVolume: true,
               isOld: true,
               volumesName: item.name,
               storageType: 'private',
@@ -968,6 +966,7 @@ class AppServiceDetailInfo extends Component {
     }
     if(type === 'confirm'){
       const values = info.values
+      values.isOld = values.volumeIsOld || false
       const { volume, type } = info.values
       values.storageType = values.type
       values.claimName = ''
@@ -982,7 +981,6 @@ class AppServiceDetailInfo extends Component {
         Object.assign(list[currentIndex], values)
       } else {
         values.volumesName = `volume-${list.length + 1}`
-        values.isOld = false
         list.push(values)
       }
       this.setState({
