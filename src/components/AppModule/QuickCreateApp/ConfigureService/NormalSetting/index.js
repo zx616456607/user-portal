@@ -421,6 +421,7 @@ const Normal = React.createClass({
             form={form}
             fields={fields}
             setReplicasToDefault={this.setReplicasToDefault}
+            replicasInputDisabled={replicasInputDisabled}
             mountPath={mountPath}
             key="storage"
             id={id}

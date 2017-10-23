@@ -100,12 +100,15 @@ const Storage = React.createClass({
   },
   onServiceTypeChange(value) {
     const { setReplicasToDefault, form } = this.props
-    setReplicasToDefault(value)
+    if(!value){
+      setReplicasToDefault(value)
+    }
     if (value) {
       this.setStorageTypeToDefault()
       this.setBindVolumesToDefault()
       this.getVolumes()
       let storageList = form.getFieldValue('storageList') || []
+      this.setReplicasStatus(storageList)
       if(!storageList.length){
         this.setState({
           addContainerPathModal: true,
@@ -296,6 +299,7 @@ const Storage = React.createClass({
       } else {
         list.push(fields.values)
       }
+      this.setReplicasStatus(list)
       form.setFieldsValue({
         storageList: list,
       })
@@ -319,11 +323,29 @@ const Storage = React.createClass({
       addContainerPathModal: true,
     })
   },
+  setReplicasStatus(list){
+    const { setReplicasToDefault, replicasInputDisabled } = this.props
+    let incloudPrivate = false
+    for(let i = 0; i < list.length; i++){
+    	if(list[i].type == 'private'){
+        incloudPrivate = true
+        break
+      }
+    }
+    if(replicasInputDisabled && !incloudPrivate){
+      setReplicasToDefault(incloudPrivate)
+      return
+    }
+    if(!replicasInputDisabled && incloudPrivate){
+      setReplicasToDefault(incloudPrivate)
+    }
+  },
   deleteStorage(index) {
     const { form } = this.props
     const storageList = form.getFieldValue('storageList')
     const list = cloneDeep(storageList)
     list.splice(index, 1)
+    this.setReplicasStatus(list)
     form.setFieldsValue({
       storageList: list,
     })
