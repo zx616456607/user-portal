@@ -591,6 +591,11 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> Dockerfile</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key='cached_volumes'>
+                    <Link to='/ci_cd/cached_volumes'>
+                      <span><div className='sideCircle'></div> 缓存卷</span>
+                    </Link>
+                  </Menu.Item>
                   <div className='sline'></div>
                 </SubMenu>
                 <SubMenu key='database_cache'

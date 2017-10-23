@@ -84,6 +84,9 @@ class AutoScaleModal extends React.Component {
       form.resetFields()
     }
     if (!oldVisible && newVisible) {
+      setTimeout(() => {
+        document.getElementById('scale_strategy_name') && document.getElementById('scale_strategy_name').focus()
+      }, 0)
       this.initThresholdArr(scaleDetail)
     }
   }
@@ -355,6 +358,8 @@ class AutoScaleModal extends React.Component {
     })
   }
   delRule = (key) => {
+    const { form } = this.props
+    const { setFields, getFieldValue } = form
     const { thresholdArr } = this.state
     let copyThreshold = thresholdArr.slice(0)
     let notify = new Notification()
@@ -365,6 +370,27 @@ class AutoScaleModal extends React.Component {
     copyThreshold = copyThreshold.filter(item => key !== item)
     this.setState({
       thresholdArr: copyThreshold
+    }, () => {
+      const { thresholdArr } = this.state
+      let typeArr = []
+      let typeOpt = {}
+      thresholdArr.forEach(item => {
+        typeArr.push(getFieldValue(`type${item}`))
+        typeOpt = Object.assign(typeOpt, {[`type${item}`] : {
+          errors: null,
+          value: getFieldValue(`type${item}`)
+        }})
+      })
+      let sortArr = typeArr.sort()
+      let flag = false
+      for (let i = 0; i < sortArr.length; i++) {
+        if (sortArr[i] === sortArr[i + 1]) {
+          flag = true
+        }
+      }
+      if (!flag) {
+        setFields(typeOpt)
+      }
     })
   }
   renderFooter = () => {
@@ -428,10 +454,10 @@ class AutoScaleModal extends React.Component {
     thresholdItem = thresholdArr.map((key) => {
       let optItem = cpuAndMemory[key] || { 'cpu': 80 }
       return (
-        <Row type="flex" align="middle" key={key}>
+        <Row type="flex" align="middle" key={key} className="strategyBox">
           <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginBottom: 24, textAlign: 'right' }}>
             {
-              thresholdArr.indexOf(key) === 0 ? '阈值' : ''
+              thresholdArr.indexOf(key) === 0 ? '阈值：' : ''
             }
           </Col>
           <Col span={7}>

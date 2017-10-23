@@ -1129,3 +1129,20 @@ exports.deleteDeploymentOrAppCDRule = function* () {
   })
   this.body = result
 }
+
+function* listCachedVolumes() {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy([ 'ci-flows', 'cached-volumes' ], this.query)
+  this.body = result
+}
+exports.listCachedVolumes = listCachedVolumes
+
+function* delCachedVolume() {
+  const loginUser = this.session.loginUser
+  const pvcName = this.params.pvcName
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.deleteBy([ 'ci-flows', 'cached-volumes', pvcName ])
+  this.body = result
+}
+exports.delCachedVolume = delCachedVolume

@@ -89,6 +89,7 @@ const Normal = React.createClass({
   setBindNodeToDefault() {
     this.props.form.setFieldsValue({
       bindNode: SYSTEM_DEFAULT_SCHEDULE,
+      bindNodeType: 'hostname',
     })
   },
   onResourceChange({ resourceType, DIYMemory, DIYCPU }) {
@@ -205,7 +206,7 @@ const Normal = React.createClass({
           <Select.Option value={SYSTEM_DEFAULT_SCHEDULE}>使用系统默认调度</Select.Option>
           {
             clusterNodes.map(node => {
-              const { name,ip,podCount,schedulable,isMaster } = node
+              const { name, ip, podCount, schedulable, isMaster } = node
               return (
                 <Select.Option key={name} disabled={isMaster || !schedulable}>
                   {name} | {ip} (容器：{podCount}个)

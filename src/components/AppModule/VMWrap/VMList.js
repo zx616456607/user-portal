@@ -41,6 +41,7 @@ class VMList extends React.Component {
       ciphertext: true,
       list: [],
       total: 0,
+      host: '',
     }
   }
 
@@ -160,7 +161,7 @@ class VMList extends React.Component {
   handleDel() {
     const { delVMinfoList } = this.props
     let notification = new NotificationHandler()
-    notification.spin(`删除 ${this.state.ID} 中...`)
+    notification.spin(`删除 ${this.state.host} 中...`)
     this.state.isDelete ?
       delVMinfoList({
         vmID: this.state.ID
@@ -169,7 +170,7 @@ class VMList extends React.Component {
             func: res => {
               if (res.code === 200) {
                 notification.close()
-                notification.success(`删除 ${this.state.ID} 成功`)
+                notification.success(`删除 ${this.state.host} 成功`)
                 this.setState({
                   isDelVisible: false,
                   isDelete: false
@@ -248,12 +249,13 @@ class VMList extends React.Component {
   /**
    * 确定删除
    */
-  handleOK(ID, Name) {
+  handleOK(ID, Name, host) {
     this.setState({
       isDelVisible: true,
       isDelete: true,
       ID: ID,
-      Name: Name
+      Name: Name,
+      host: host,
     })
   }
 
@@ -349,7 +351,7 @@ class VMList extends React.Component {
           return (
             <div>
               <Button type="primary" className="tabBtn" onClick={this.handleE.bind(this, record)}>编辑信息</Button>
-              <Button onClick={this.handleOK.bind(this, record.vminfoId, record.user)}>删除</Button>
+              <Button onClick={this.handleOK.bind(this, record.vminfoId, record.user, record.host)}>删除</Button>
             </div>
           )
         }

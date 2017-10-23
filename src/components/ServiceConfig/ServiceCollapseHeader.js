@@ -115,8 +115,8 @@ let CreateConfigFileModal = React.createClass({
     const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
     const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
     const notify = new NotificationHandler()
-    if(!/xml|json|conf|config|data|ini|txt|properties|yaml/.test(fileType)) {
-      notify.error('目前仅支持 xml/json/conf/config/data/ini/txt/properties/yaml 格式')
+    if(!/xml|json|conf|config|data|ini|txt|properties|yaml|yml/.test(fileType)) {
+      notify.error('目前仅支持 xml/json/conf/config/data/ini/txt/properties/yaml/yml 格式')
       return false
     }
     const self = this
@@ -141,7 +141,8 @@ let CreateConfigFileModal = React.createClass({
       notify.close()
       notify.success('文件内容读取完成')
       self.props.form.setFieldsValue({
-        configDesc: fileReader.result.replace(/\r\n/g, '\n')
+        configDesc: fileReader.result.replace(/\r\n/g, '\n'),
+        configName: fileName.split('.')[0]
       })
     }
     fileReader.readAsText(file)
@@ -184,16 +185,16 @@ let CreateConfigFileModal = React.createClass({
             即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
           </div>
           <Form horizontal>
-            <FormItem  {...formItemLayout} label="名称">
-              <Input type="text" {...nameProps} className="nameInput" />
-            </FormItem>
             <FormItem>
               <Upload beforeUpload={(file) => this.beforeUpload(file)} showUploadList={false} style={{marginLeft: '38px'}} ref={(instance) => this.uploadInput = instance}>
-                <span style={{width: '325px', display:'inline-block'}}>{this.state.filePath}</span>
-                <Button type="ghost" style={{marginLeft: '10px'}} disable={this.state.disableUpload}>
+                <Button type="ghost" style={{marginLeft: '5px'}} disable={this.state.disableUpload}>
                   <Icon type="upload" /> 读取文件内容
                 </Button>
+                <span style={{width: '325px', display:'inline-block', textAlign: 'right'}}>{this.state.filePath}</span>
               </Upload>
+            </FormItem>
+            <FormItem  {...formItemLayout} label="名称">
+              <Input type="text" {...nameProps} className="nameInput" />
             </FormItem>
             <FormItem {...formItemLayout} label="内容">
               <Input type="textarea" style={{ minHeight: '300px' }} {...descProps}/>

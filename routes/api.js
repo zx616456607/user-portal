@@ -441,6 +441,14 @@ module.exports = function (Router) {
   // Available CI images
   router.get('/devops/ci/images', devopsController.getAvailableImages)
 
+  // BaseImage
+  router.post('/devops/ci/images', devopsController.addBaseImage)
+  router.put('/devops/ci/images/:id', devopsController.updateBaseImage)
+  router.delete('/devops/ci/images/:id', devopsController.deleteBaseImage)
+  // Cached volumes
+  router.get('/devops/cached-volumes', devopsController.listCachedVolumes)
+  router.del('/devops/cached-volumes/:pvcName', devopsController.delCachedVolume)
+
   // Petsets - DB service APIs
   router.post('/clusters/:cluster/dbservices', databaseCacheController.createNewDBService)
   router.delete('/clusters/:cluster/dbservices/:name', databaseCacheController.deleteDBService)
@@ -448,11 +456,6 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/dbservices', databaseCacheController.listDBService)
   router.get('/clusters/:cluster/dbservices/:name', databaseCacheController.getDBService)
   router.patch('/clusters/:cluster/dbservices/:name', databaseCacheController.scaleDBService)
-
-  // BaseImage
-  router.post('/devops/ci/images', devopsController.addBaseImage)
-  router.put('/devops/ci/images/:id', devopsController.updateBaseImage)
-  router.delete('/devops/ci/images/:id', devopsController.deleteBaseImage)
 
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
@@ -646,6 +649,6 @@ module.exports = function (Router) {
   router.put('/cleaner/monitor', cleanController.startCleanMonitor)
   router.post('/cleaner/records', cleanController.getSystemCleanerLogs)
   router.post('/cleaner/close', cleanController.closeLogsAutoClean)
-  
+
   return router.routes()
 }

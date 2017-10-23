@@ -13,7 +13,12 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getFlowBuildStageLogs, StopTenxflowBuild, getTenxflowBuildLastLogs } from '../../../../../actions/cicd_flow'
+import {
+  getFlowBuildStageLogs,
+  StopTenxflowBuild,
+  getTenxflowBuildLastLogs,
+  getStageBuildLogList,
+} from '../../../../../actions/cicd_flow'
 import moment from 'moment'
 import './style/StageBuildLog.less'
 import TenxFlowStageBuildLog from '../../TenxFlowStageBuildLog'
@@ -305,7 +310,9 @@ let MyComponent = React.createClass({
           {items}
         </Collapse>
         <Modal title="确认停止" visible={this.state.showModal}
-          onOk={() => scope.stopStageBuild.call(scope, this.state.currentItem)} onCancel={() => this.setState({ showModal: false })} >
+          onOk={scope.stopStageBuild.bind(scope, this.state.currentItem)}
+          onCancel={() => this.setState({ showModal: false })}
+        >
           是否确认停止此次构建
         </Modal>
       </div>
@@ -360,8 +367,7 @@ class StageBuildLog extends Component {
     if(e){
       e.stopPropagation();
     }
-    const { StopTenxflowBuild, flowId, scope } = this.props;
-    const { getStageBuildLogList } = scope.props;
+    const { StopTenxflowBuild, flowId, getStageBuildLogList } = this.props;
     let notification = new NotificationHandler()
     StopTenxflowBuild(flowId, item.stageId, item.buildId, {
       success: {
@@ -444,7 +450,8 @@ StageBuildLog.propTypes = {
 export default connect(mapStateToProps, {
   getFlowBuildStageLogs,
   StopTenxflowBuild,
-  getTenxflowBuildLastLogs
+  getTenxflowBuildLastLogs,
+  getStageBuildLogList,
 })(injectIntl(StageBuildLog, {
   withRef: true,
 }));

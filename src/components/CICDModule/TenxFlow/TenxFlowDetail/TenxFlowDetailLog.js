@@ -198,10 +198,6 @@ let MyComponent = React.createClass({
             <p className={ checkStatusClass(item.status) + ' title' }>
               { checkStatusSpan(item.status, scope) }
             </p>
-            <span className='space'>
-              <i className='fa fa-github' />&nbsp;
-              {spaceName}
-            </span>
             <i className={ checkStatusClass(item.status) + ' fa fa-dot-circle-o dot' } />
           </div>
           <div className='rightBox'>

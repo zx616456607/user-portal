@@ -12,11 +12,12 @@ import React, { Component, PropTypes } from 'react'
 import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, Tooltip, Spin, Form, Table } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
 import findIndex from 'lodash/findIndex'
-import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage, SnapshotCreate, SnapshotList, searchStorage ,getStorageClassType } from '../../actions/storage'
+import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage, SnapshotCreate, SnapshotList, searchStorage } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
 import './style/storage.less'
 import { calcuDate, parseAmount, formatDate } from '../../common/tools'
@@ -424,22 +425,22 @@ let MyComponent = React.createClass({
   formatStatus(status){
     switch(status){
       case 'pending':
-        return <span>
+        return <span style={{color: '#0eb4ff'}}>
         <i className="fa fa-circle icon-marginRight penging"></i>
         创建中
       </span>
       case 'used':
-        return <span>
+        return <span style={{color: '#f85a5a'}}>
         <i className="fa fa-circle icon-marginRight used"></i>
         使用中
       </span>
       case 'unused':
-        return <span>
+        return <span style={{color: '#5cb85c'}}>
         <i className="fa fa-circle icon-marginRight no_used"></i>
         未使用
       </span>
       default:
-        return <span>
+        return <span style={{color: '#666666'}}>
         <i className="fa fa-circle icon-marginRight unknown"></i>
         未知
       </span>
@@ -449,6 +450,24 @@ let MyComponent = React.createClass({
     this.setState({ selectedRowKeys })
     this.props.scope.setState({
       volumeArray: selectedRowKeys,
+    })
+  },
+  tableRowClick(record, index) {
+    if (record.status == 'used') {
+      return
+    }
+    const { selectedRowKeys } = this.state
+    const newSelectedRowKeys = cloneDeep(selectedRowKeys)
+    if(newSelectedRowKeys.indexOf(record.name) > -1){
+      newSelectedRowKeys.splice(newSelectedRowKeys.indexOf(record.name), 1)
+    } else {
+      newSelectedRowKeys.push(record.name)
+    }
+    this.setState({
+      selectedRowKeys: newSelectedRowKeys
+    })
+    this.props.scope.setState({
+      volumeArray: newSelectedRowKeys,
     })
   },
   render() {
@@ -501,7 +520,7 @@ let MyComponent = React.createClass({
         key: 'storageServer',
         dataIndex: 'storageServer',
         width: '18%',
-        render: storageServer => <div>可靠块存储 ({storageServer})</div>
+        render: storageServer => <div>可靠块存储 ({storageServer || '-'})</div>
       },{
         title: '大小',
         key: 'totalSize',
@@ -570,6 +589,7 @@ let MyComponent = React.createClass({
             columns={columns}
             dataSource={storageList}
             rowSelection={rowSelection}
+            onRowClick={this.tableRowClick}
             pagination={{ simple: true }}
             loading={isFetching}
             rowKey={record => record.name}
@@ -758,7 +778,6 @@ class Storage extends Component {
     // this.focus = this.focus.bind(this)
     this.deleteButton = this.deleteButton.bind(this)
     this.getStorageList = this.getStorageList.bind(this)
-    this.loadStorageClassType = this.loadStorageClassType.bind(this)
     this.state = {
       visible: false,
       volumeArray: [],
@@ -772,7 +791,6 @@ class Storage extends Component {
       comfirmRisk: false,
       disableListArray: [],
       ableListArray: [],
-      canCreate: false
     }
   }
   getStorageList(){
@@ -783,28 +801,9 @@ class Storage extends Component {
     }
     loadStorageList(currentImagePool, cluster, query)
   }
-  loadStorageClassType(){
-    const { getStorageClassType, cluster } = this.props
-    getStorageClassType(cluster, {
-      success: {
-        func: res => {
-          this.setState({
-            canCreate: res.data.private
-          })
-        }
-      },
-      failed: {
-        func: () => {
-          const notificationHandler = new NotificationHandler()
-          return notificationHandler.info('获取部署分布式存储状态失败，请刷新页面重试')
-        }
-      }
-    })
-  }
   componentWillMount() {
     this.getStorageList()
     this.props.SnapshotList({clusterID: this.props.cluster})
-    this.loadStorageClassType()
   }
   onChange(value) {
     this.setState({
@@ -1026,8 +1025,12 @@ class Storage extends Component {
     const { formatMessage } = this.props.intl
     const { getFieldProps } = this.props.form
     const { SnapshotCreate, snapshotDataList } = this.props
-    const { canCreate } = this.state
     const currentCluster = this.props.currentCluster
+    const { storageClassType } = this.props
+    let canCreate = false
+    if(storageClassType.private){
+      canCreate = storageClassType.private
+    }
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
@@ -1155,6 +1158,14 @@ function mapStateToProps(state) {
   const { cluster } = state.entities.current
   const { snapshotList } = state.storage
   const snapshotDataList = snapshotList.result || []
+  let defaultStorageClassType = {
+    private: false,
+    share: false,
+    host: false,
+  }
+  if(cluster.storageClassType){
+    defaultStorageClassType = cluster.storageClassType
+  }
   return {
     storageList: state.storage.storageList || [],
     createStorage: state.storage.createStorage,
@@ -1162,7 +1173,8 @@ function mapStateToProps(state) {
     currentImagePool: DEFAULT_IMAGE_POOL,
     cluster: cluster.clusterID,
     currentCluster: cluster,
-    snapshotDataList
+    snapshotDataList,
+    storageClassType: defaultStorageClassType
   }
 }
 
@@ -1173,7 +1185,6 @@ export default connect(mapStateToProps, {
   SnapshotCreate,
   SnapshotList,
   searchStorage,
-  getStorageClassType,
 })(injectIntl(Storage, {
   withRef: true,
 }))

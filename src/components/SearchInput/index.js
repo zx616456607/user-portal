@@ -30,7 +30,7 @@ class SearchInput extends Component{
     }
   }
   handleInt(e){
-    let { searchIntOption } = this.props
+    let { searchIntOption, scope } = this.props
     const { selecteValue } = this.state
     const { addBefore, defaultValue, defaultSearchValue } = searchIntOption
     let value = ''
@@ -46,6 +46,10 @@ class SearchInput extends Component{
     }
     this.setState({
       searchValue: e.target.value
+    })
+    let filter = this.getFilterField(selecteValue) + "," + e.target.value
+    scope && scope.setState({
+      filter,
     })
   }
   getFilterField(selecteValue) {
@@ -213,7 +217,7 @@ function mapStateToProp(state) {
       total = users.result.total
     }
   }
-  
+
   return {
     total
   }
