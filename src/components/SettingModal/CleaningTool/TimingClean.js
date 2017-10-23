@@ -123,69 +123,46 @@ class TimingClean extends Component {
     })
   }
   showConfirm() {
-    const { closeLogAutoClean } = this.props
-    let notify = new Notification()
     confirm({
       title: '是否删除清理日志？',
       onOk: () => {
-        notify.spin('系统日志定时清理关闭中')
-        closeLogAutoClean({
-          confirm: 0
-        }, {
-          success: {
-            func: () => {
-              notify.close()
-              notify.success('系统日志定时清理已关闭')
-              this.setState({
-                systemChecked: false,
-                systemEdit: false,
-              })
-              this.getSystemSetting()
-            },
-            isAsync: true
-          },
-          failed: {
-            func: () => {
-              notify.close()
-              notify.error('系统日志定时清理关闭失败')
-              this.setState({
-                systemChecked: true,
-                systemEdit: true,
-              })
-            }
-          }
-        })
+        this.systemConfirmFun(0)
       },
       onCancel: () => {
-        notify.spin('系统日志定时清理关闭中')
-        closeLogAutoClean({
-          confirm: 1
-        }, {
-          success: {
-            func: () => {
-              notify.close()
-              notify.success('系统日志定时清理已关闭')
-              this.setState({
-                systemChecked: false,
-                systemEdit: false,
-              })
-              this.getSystemSetting()
-            },
-            isAsync: true
-          },
-          failed: {
-            func: () => {
-              notify.close()
-              notify.error('系统日志定时清理关闭失败')
-              this.setState({
-                systemChecked: true,
-                systemEdit: true,
-              })
-            }
-          }
-        })
+        this.systemConfirmFun(1)
       },
     });
+  }
+  systemConfirmFun(type) {
+    const { closeLogAutoClean } = this.props
+    let notify = new Notification()
+    notify.spin('系统日志定时清理关闭中')
+    closeLogAutoClean({
+      confirm: type
+    }, {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success('系统日志定时清理已关闭')
+          this.setState({
+            systemChecked: false,
+            systemEdit: false,
+          })
+          this.getSystemSetting()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notify.close()
+          notify.error('系统日志定时清理关闭失败')
+          this.setState({
+            systemChecked: true,
+            systemEdit: true,
+          })
+        }
+      }
+    })
   }
   systemChange(){
     const { systemChecked } = this.state
@@ -257,8 +234,68 @@ class TimingClean extends Component {
       return <Option value={`${item + 1}`} key={`month${item}`}>{`每月${item + 1}号`}</Option>
     })
   }
-
-  CICDcacheChange(CICDcacheValue){
+  
+  showCicdConfirm() {
+    confirm({
+      title: '是否删除清理日志？',
+      onOk: () => {
+        this.cicdConfimFun('stop-and-clean-records')
+      },
+      onCancel: () => {
+        this.cicdConfimFun('stop')
+      },
+    });
+  }
+  cicdConfimFun(type) {
+    const { startClean, userName, form } = this.props
+    const { getFieldsValue } = form
+    let notify = new Notification()
+    const {
+      CICDcacheScope,
+      CICDcacheCycle,
+      CICDcacheDate,
+      CICDcacheTime
+    } = getFieldsValue(['CICDcacheScope', 'CICDcacheCycle', 'CICDcacheDate', 'CICDcacheTime'])
+    notify.spin('cicd定时清理关闭中')
+    startClean({
+      cicd_clean: {
+        meta: {
+          automatic: false,
+          cleaner: userName,
+          target: 'cicd_clean',
+          type,
+        },
+        spec: {
+          cron: this.getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime),
+          scope: parseInt(CICDcacheScope)
+        }
+      }
+    }, {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success('cicd定时清理已关闭')
+          this.setState({
+            cicdChecked: false,
+            cicdEdit: false,
+          })
+          this.getSettings()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notify.close()
+          notify.error('cicd定时清理关闭失败')
+          this.setState({
+            cicdChecked: true,
+            cicdEdit: true,
+          })
+        }
+      }
+    })
+  }
+  CICDcacheChange(){
     const { cicdChecked } = this.state
     const { form, startClean, userName } = this.props
     let notify = new Notification()
@@ -277,44 +314,7 @@ class TimingClean extends Component {
       }
       const { CICDcacheScope, CICDcacheCycle, CICDcacheTime, CICDcacheDate } = values
       if(cicdChecked){
-        notify.spin('cicd定时清理关闭中')
-        startClean({
-          cicd_clean: {
-            meta: {
-              automatic: false,
-              cleaner: userName,
-              target: 'cicd_clean',
-              type: 'stop',
-            },
-            spec: {
-              cron: this.getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime),
-              scope: parseInt(CICDcacheScope)
-            }
-          }
-        }, {
-          success: {
-            func: () => {
-              notify.close()
-              notify.success('cicd定时清理已关闭')
-              this.setState({
-                cicdChecked: CICDcacheValue,
-                cicdEdit: CICDcacheValue,
-              })
-              this.getSettings()
-            },
-            isAsync: true
-          },
-          failed: {
-            func: () => {
-              notify.close()
-              notify.error('cicd定时清理关闭失败')
-              this.setState({
-                cicdChecked: true,
-                cicdEdit: true,
-              })
-            }
-          }
-        })
+        this.showCicdConfirm()
         return
       }
       notify.spin('cicd定时清理开启中')
