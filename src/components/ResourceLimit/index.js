@@ -307,11 +307,11 @@ class ResourceQuota extends React.Component {
         if (count === value) {
           result = max
         } else {
-          result = 0
+          result = count * 100
         }
       }
-    } else {
-      let number = Number(value) / 100
+    } else if(value > 0) {
+      let number = 100 / value
       for (let i = 0; i < count; i++) {
         result += number
       }

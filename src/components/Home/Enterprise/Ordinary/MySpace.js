@@ -204,10 +204,22 @@ class MySpace extends Component {
   filterPercent(value, count) {
     let max = 100
     let result = 0
-    if (value === 0) return 0
-    let number = 100 / Number(value)
-    for (let i = 0; i < count; i++) {
-      result += number
+    if (value === 0 && count === 0) return 0
+    if (value === 1) {
+      if (count > value) {
+        result = max
+      } else {
+        if (count === value) {
+          result = max
+        } else {
+          result = count * 100
+        }
+      }
+    } else if(value !== -1) {
+      let number = 100 / value
+      for (let i = 0; i < count; i++) {
+        result += number
+      }
     }
     result > max ? result = max : result
     return result
