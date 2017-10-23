@@ -330,24 +330,6 @@ const MyComponent = React.createClass({
         return <span></span>
     }
   },
-  renderVolumeIcon(item){
-    if(
-      item.spec
-      && item.spec.template
-      && item.spec.template.spec
-      && item.spec.template.spec.volumes
-    ){
-      let volumes = item.spec.template.spec.volumes
-      for(let i = 0; i < volumes.length; i++){
-        if(volumes[i].persistentVolumeClaim || volumes[i].hostPath || volumes[i].rbd){
-          return <Tooltip title="该服务已添加存储" placement="top">
-            <span className='standrand volumeColor'>存</span>
-          </Tooltip>
-        }
-      }
-    }
-    return <span></span>
-  },
   render: function () {
     const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs, loginUser, scope } = this.props
     if (loading) {
@@ -463,6 +445,33 @@ const MyComponent = React.createClass({
           break
         }
       }
+      let volume = false
+      if(
+        item.spec
+        && item.spec.template
+        && item.spec.template.spec
+        && item.spec.template.spec.volumes
+      ){
+        const volumes = item.spec.template.spec.volumes
+        for(let i = 0; i < volumes.length; i++){
+          if(volumes[i].persistentVolumeClaim || volumes[i].hostPath || volumes[i].rbd){
+            volume = true
+            break
+          }
+        }
+      }
+      let group = false
+      if(item.lbgroup){
+        if(item.lbgroup.id || (item.lbgroup.type && item.lbgroup.type !== 'none')){
+          group = true
+        }
+      }
+      let heightSize = '60px'
+      let lineHeightSize = '60px'
+      if(volume || group){
+        heightSize = '30px'
+        lineHeightSize = '40px'
+      }
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -472,13 +481,21 @@ const MyComponent = React.createClass({
             <Checkbox value={item.metadata.name} checked={item.checked} />
           </div>
           <div className="name commonData">
-            <div className="viewBtn" onClick={() => this.modalShow(item)} style={{height: '30px', lineHeight: '40px'}}>
+            <div className="viewBtn" onClick={() => this.modalShow(item)} style={{height: heightSize, lineHeight: lineHeightSize}}>
               {item.metadata.name}
             </div>
-            <div className='icon_container'>
-              { this.renderVolumeIcon(item) }
-              { this.renderGroupIcon(item.lbgroup)}
-            </div>
+            {
+              (volume || group) && <div className='icon_container'>
+                {
+                  volume && <Tooltip title="该服务已添加存储" placement="top">
+                    <span className='standrand volumeColor'>存</span>
+                  </Tooltip>
+                }
+                {
+                  group && this.renderGroupIcon(item.lbgroup)
+                }
+              </div>
+            }
           </div>
           <div className="status commonData">
             <ServiceStatus service={item} />
