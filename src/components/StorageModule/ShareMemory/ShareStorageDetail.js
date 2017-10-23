@@ -81,7 +81,7 @@ class ShareStorageDetail extends Component {
                 </Row>
                 <Row>
                   <Col span="9">
-                    RBD集群名称：{ StorageInfo.storageServer }
+                    存储server：{ StorageInfo.storageServer }
                   </Col>
                   <Col span="15">
                     <div className="use">

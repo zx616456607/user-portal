@@ -410,6 +410,15 @@ class Information extends Component {
               notify.error('权限不足')
               return
             }
+            if(res.statusCode == 500) {
+              const { message } = res
+              if (typeof message === 'string') {
+                if (message.indexOf('email_UNIQUE') > -1) {
+                  notify.error('修改失败', '该邮箱已在平台上注册')
+                  return
+                }
+              }
+            }
             notify.error('更新失败')
           }
         }

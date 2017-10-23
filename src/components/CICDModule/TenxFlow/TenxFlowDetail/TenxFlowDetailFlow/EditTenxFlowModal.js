@@ -2139,7 +2139,7 @@ let EditTenxFlowModal = React.createClass({
                   }
                 />
                 <div className="customizeBaseImage">
-                  此任务执行失败时不会影响流水线的执行。
+                  此任务执行失败时不会影响流水线的执行
                 </div>
               </FormItem>
             </div>

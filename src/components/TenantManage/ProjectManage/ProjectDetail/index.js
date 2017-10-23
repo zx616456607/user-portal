@@ -1191,7 +1191,6 @@ class ProjectDetail extends Component {
             onOk={() => this.submitMemberModal()}
           >
             {
-              memberArr.length > 0 &&
               <TreeComponent
                 outPermissionInfo={memberArr}
                 filterLoading={filterLoading}

@@ -60,7 +60,8 @@ class AppAutoScale extends Component {
       isEdit: false,
       activeKey: 'autoScaleForm',
       thresholdArr: [0],
-      cpuAndMemory: []
+      cpuAndMemory: [],
+      isPrivate: false
     }
     this.uuid = 0
   }
@@ -68,13 +69,15 @@ class AppAutoScale extends Component {
     const { loadNotifyGroups, cluster } = this.props
     this.loadData(this.props)
     loadNotifyGroups(null, cluster)
+    this.isPrivateType(this.props)
   }
 
   componentWillReceiveProps(nextProps) {
-    const { serviceName: newServiceName, isCurrentTab: newCurrentTab, form, serviceDetailmodalShow: newScopeModal } = nextProps
-    const { serviceName: oldServiceName, isCurrentTab: oldCurrentTab, serviceDetailmodalShow: oldScopeModal } = this.props
+    const { isCurrentTab: newCurrentTab, form, serviceDetailmodalShow: newScopeModal } = nextProps
+    const { isCurrentTab: oldCurrentTab, serviceDetailmodalShow: oldScopeModal } = this.props
     if ( !oldScopeModal && newScopeModal || (newCurrentTab && !oldCurrentTab)) {
       this.loadData(nextProps)
+      this.isPrivateType(nextProps)
       this.setState({
         activeKey: 'autoScaleForm'
       })
@@ -89,6 +92,16 @@ class AppAutoScale extends Component {
       })
       this.uuid = 0
     }
+  }
+  isPrivateType(props) {
+    const { volumes } = props
+    volumes.forEach(item => {
+      if (item.type === 'share') {
+        this.setState({
+          isPrivate: true
+        })
+      }
+    })
   }
   loadData = props => {
     const { serviceName, cluster, loadAutoScale } = props
@@ -179,6 +192,17 @@ class AppAutoScale extends Component {
       thresholdArr: arr.map((item, index) => index)
     })
   }
+  startEdit() {
+    const { isPrivate } = this.state
+    if (isPrivate) {
+      let notify = new NotificationHandler()
+      notify.info('挂载独享性存储的服务不支持自动伸缩')
+      return
+    }
+    this.setState({
+      isEdit: true
+    })
+  }
   cancelEdit = () => {
     const { form } = this.props
     form.resetFields()
@@ -243,8 +267,12 @@ class AppAutoScale extends Component {
   }
   updateScaleStatus = () => {
     const { updateAutoScaleStatus, cluster, serviceName } = this.props
-    const { switchOpen, scaleDetail } = this.state
+    const { switchOpen, scaleDetail, isPrivate } = this.state
     let notify = new NotificationHandler()
+    if (isPrivate) {
+      notify.info('挂载独享性存储的服务不支持自动伸缩')
+      return
+    }
     let msg = switchOpen ? '关闭' : '开启'
     notify.spin(`${msg}中...`)
     if (isEmpty(scaleDetail)) {
@@ -668,7 +696,7 @@ class AppAutoScale extends Component {
                     {
                       !isEdit
                         ?
-                        <Button key="edit" size="large" type="primary" onClick={() => this.setState({isEdit: true})}>编辑</Button>
+                        <Button key="edit" size="large" type="primary" onClick={this.startEdit.bind(this)}>编辑</Button>
                         :
                         [
                           <Button key="cancel" size="large" onClick={this.cancelEdit}>取消</Button>,

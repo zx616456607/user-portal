@@ -329,10 +329,22 @@ class Ordinary extends Component {
   filterPercent(value, count) {
     let max = 100
     let result = 0
-    if (value === 0) return 0
-    let number = 100 / Number(value)
-    for (let i = 0; i < count; i++) {
-      result += number
+    if (value === 0 && count === 0) return 0
+    if (value === 1) {
+      if (count > value) {
+        result = max
+      } else {
+        if (count === value) {
+          result = max
+        } else {
+          result = count * 100
+        }
+      }
+    } else if(value !== -1) {
+      let number = 100 / value
+      for (let i = 0; i < count; i++) {
+        result += number
+      }
     }
     result > max ? result = max : result
     return result
@@ -1342,7 +1354,7 @@ class Ordinary extends Component {
                     <div className='userCost'>
                       <div>
                         <i style={{ backgroundColor: '#46b2fa' }}></i>
-                        {this.state.isTeam ? '团队余额' : '我的余额'}：
+                        {this.state.isTeam ? '项目余额' : '我的余额'}：
                       </div>
                       <span className='costNum'>
                         <Tooltip title={parseAmount(clusterNodeSpaceConsumption.balance).amount + 'T'}>
@@ -1396,7 +1408,7 @@ class Ordinary extends Component {
           }
           <Col span={6} className='quota'>
             <Card title="项目&集群相关资源配额" bordered={false} bodyStyle={{ height: 220, padding: '1px' }}
-              extra={<Link to={this.props.projectName === 'default' ? `tenant_manage/user/${this.props.loginUser.userID}?#quota` :
+              extra={<Link to={spaceName === '我的个人项目' ? `tenant_manage/user/${this.props.loginUser.userID}?#quota` :
                 this.props.userID === undefined ? `tenant_manage/project_manage/project_detail?name=${this.props.projectName}#quota` :
                   `tenant_manage/user/${this.props.userID}?#quota`}><Button type="primary" size="small">{this.props.loginUser.role === 2 ? '设置配额' : '查看详情'}</Button></Link>}>
               <Row className="radios">

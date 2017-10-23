@@ -496,23 +496,22 @@
     .visitTypeTopBox, .visitTypeBottomBox{
       border: none;
     }
+    .anticon-copy{
+      cursor: pointer;
+      font-size: 16px !important;
+      color: @themeColor;
+      margin-left: 10px;
+    }
+    .addrList:not(:last-child) {
+      padding-bottom: 10px;
+    }
     .visitAddrInnerBox{
       padding: 0 15px;
       margin-top: 30px;
       .outPutBox{
         margin-bottom: 20px;
-        &>i{
-          font-size: 16px;
-          margin-right: 10px;
-        }
         .domain{
           margin-left: 35px;
-        }
-        .anticon-copy{
-          cursor: pointer;
-          font-size: 16px !important;
-          color: @themeColor;
-          margin-left: 10px;
         }
       }
       .addrListBox{
@@ -522,19 +521,6 @@
           i{
             font-size: 16px;
             margin-right: 10px;
-          }
-        }
-        .addrList{
-          margin: 10px 0;
-          padding-left: 15px;
-          .domain{
-            //margin-left: 35px;
-          }
-          i{
-            cursor: pointer;
-            font-size: 16px !important;
-            color: @themeColor;
-            margin-left: 10px;
           }
         }
       }
