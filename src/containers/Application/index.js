@@ -60,7 +60,7 @@ const menuList_enterprise = [
   },
   {
     url: '/app_manage/snapshot',
-    name: '快照'
+    name: '独享存储快照'
   },
   {
     url: '/app_manage/configs',

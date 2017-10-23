@@ -100,12 +100,15 @@ const Storage = React.createClass({
   },
   onServiceTypeChange(value) {
     const { setReplicasToDefault, form } = this.props
-    setReplicasToDefault(value)
+    if(!value){
+      setReplicasToDefault(value)
+    }
     if (value) {
       this.setStorageTypeToDefault()
       this.setBindVolumesToDefault()
       this.getVolumes()
       let storageList = form.getFieldValue('storageList') || []
+      this.setReplicasStatus(storageList)
       if(!storageList.length){
         this.setState({
           addContainerPathModal: true,
@@ -193,15 +196,35 @@ const Storage = React.createClass({
           readOnly, volume, name,
           size, fsType
         } = item
+        let volumeName = volume
         if (volume === 'create') {
-          volume = `${name} ${fsType || '-'}`
+          if(type == 'private'){
+            volumeName = `${name} ${fsType || '-'}`
+          }
+          if(type == 'share'){
+            volumeName = `${name} -`
+          }
+          if(type == 'host'){
+            volumeName = '-'
+          }
+        } else {
+          if(type == 'private'){
+            volumeName = volume
+          }
+          if(type == 'share'){
+            const name = volume.split(' ')[0]
+            volumeName = `${name} -`
+          }
+          if(type == 'host'){
+            volumeName = '-'
+          }
         }
         return <Row key={`storagelist${index}`} className='storage_row_style'>
           <Col span="4" className='text'>
             {this.formatType(type)}
           </Col>
           <Col span="4" className='text'>
-            {volume || '-'}
+            {volumeName || '-'}
           </Col>
           <Col span="8" className='text mountPath_style'>
             <Input value={mountPath} disabled />
@@ -296,6 +319,7 @@ const Storage = React.createClass({
       } else {
         list.push(fields.values)
       }
+      this.setReplicasStatus(list)
       form.setFieldsValue({
         storageList: list,
       })
@@ -319,11 +343,29 @@ const Storage = React.createClass({
       addContainerPathModal: true,
     })
   },
+  setReplicasStatus(list){
+    const { setReplicasToDefault, replicasInputDisabled } = this.props
+    let incloudPrivate = false
+    for(let i = 0; i < list.length; i++){
+    	if(list[i].type == 'private'){
+        incloudPrivate = true
+        break
+      }
+    }
+    if(replicasInputDisabled && !incloudPrivate){
+      setReplicasToDefault(incloudPrivate)
+      return
+    }
+    if(!replicasInputDisabled && incloudPrivate){
+      setReplicasToDefault(incloudPrivate)
+    }
+  },
   deleteStorage(index) {
     const { form } = this.props
     const storageList = form.getFieldValue('storageList')
     const list = cloneDeep(storageList)
     list.splice(index, 1)
+    this.setReplicasStatus(list)
     form.setFieldsValue({
       storageList: list,
     })
