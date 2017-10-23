@@ -489,7 +489,7 @@ class Sider extends Component {
                   </Menu.Item>
                   <Menu.Item key='snapshot'>
                     <Link to='/app_manage/snapshot'>
-                      <span><div className='sideCircle'></div> 快照</span>
+                      <span><div className='sideCircle'></div> 独享存储快照</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='configs'>
