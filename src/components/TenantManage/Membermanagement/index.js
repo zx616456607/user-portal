@@ -21,7 +21,7 @@ import CreateUserModal from '../CreateUserModal'
 import NotificationHandler from '../../../components/Notification'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import MemberRecharge from '../_Enterprise/Recharge'
-import { MAX_CHARGE, DEACTIVE } from '../../../constants'
+import { MAX_CHARGE, ACTIVE } from '../../../constants'
 import Title from '../../Title'
 import ChargeModal from './ChargeModal'
 import CommonSearchInput from '../../CommonSearchInput'
@@ -46,6 +46,7 @@ let MemberTable = React.createClass({
       selectedRowKeys: [],
       deactiveUserModal: false,
       deactiveUserBtnLoading: false,
+      deactiveUserModal: false,
     }
   },
 
@@ -217,8 +218,8 @@ let MemberTable = React.createClass({
     const { scope } = this.props
     const { updateUserActive, loadUserList } = scope.props
     const { page, pageSize, filter, sort } = scope.state
-    const text = active === DEACTIVE ? '启用' : '停用'
-    if (active !== DEACTIVE) {
+    const text = active === ACTIVE ? '停用' : '启用'
+    if (active === ACTIVE) {
       this.setState({
         deactiveUserBtnLoading: true,
       })
@@ -233,7 +234,7 @@ let MemberTable = React.createClass({
             sort: sort,
             filter: filter,
           })
-          active !== DEACTIVE && this.setState({
+          active === ACTIVE && this.setState({
             deactiveUserModal: false,
             deactiveUserBtnLoading: false,
           })
@@ -243,7 +244,7 @@ let MemberTable = React.createClass({
       failed: {
         func: () => {
           notification.error(`${text}用户 ${name} 失败`)
-          active !== DEACTIVE && this.setState({
+          active === ACTIVE && this.setState({
             deactiveUserBtnLoading: false,
           })
         }
@@ -252,6 +253,10 @@ let MemberTable = React.createClass({
   },
   handleMenuClick(record, { key }) {
     this.currentUser = record
+    if (record.active === 2) {
+      this.setState({resetPasswordModal: true})
+      return
+    }
     if (key === 'delete') {
       this.setState({ delModal: true })
       // const { scope } = this.props
@@ -261,7 +266,7 @@ let MemberTable = React.createClass({
     }
     const notification = new NotificationHandler()
     const { active, name } = record
-    if (active !== DEACTIVE) {
+    if (active === ACTIVE) {
       this.setState({
         deactiveUserModal: true,
       })
@@ -345,7 +350,7 @@ let MemberTable = React.createClass({
       { text: '系统管理员', value: 2 }
     ]
     let userStatusfilterKey = [
-      { text: '不可用', value: DEACTIVE },
+      { text: '不可用', value: 0 },
       { text: '可用', value: 1 },
     ]
     // if (userDetail.role === ROLE_SYS_ADMIN) {
@@ -403,8 +408,8 @@ let MemberTable = React.createClass({
         width: '10%',
         filters: userStatusfilterKey,
         render: active => {
-          const color = active === DEACTIVE ? '#f03e3f' : '#33b867'
-          const text = active === DEACTIVE ? '不可用' : '可用'
+          const color = active === ACTIVE ? '#33b867' : '#f03e3f'
+          const text = active === ACTIVE ? '可用' : '不可用'
           return (
             <div style={{ color }}>
               <i className="fa fa-circle"></i>&nbsp;
@@ -497,7 +502,7 @@ let MemberTable = React.createClass({
                   <Menu.Item key="active"
                     disabled={record.namespace === loginUser.namespace}
                   >
-                    {record.active === DEACTIVE ? '启用' : '停用'}
+                    {record.active === ACTIVE ? '停用' : '启用'}
                   </Menu.Item>
                   <Menu.Item
                     key="delete"
@@ -537,6 +542,31 @@ let MemberTable = React.createClass({
           currentUser={this.currentUser}
           scope={scope}
         />
+
+        <Modal title="该用户需重置密码"
+          visible={this.state.resetPasswordModal}
+          onCancel={() => this.setState({ resetPasswordModal: false })}
+          wrapClassName="resetPasswordModal"
+          footer={[
+            <Button
+              key="back"
+              type="ghost"
+              size="large"
+              onClick={() => this.setState({ resetPasswordModal: false })}
+            >
+              知道了
+            </Button>
+          ]}
+        >
+          <Row className="alertRow warningRow">
+            <Col span={2} className="alertRowIcon">
+              <i className="fa fa-exclamation-triangle" aria-hidden="true" />
+            </Col>
+            <Col span={22} className="alertRowDesc">
+            该用户还未登录过平台，登录并重置密码后账号即为可用状态
+            </Col>
+          </Row>
+        </Modal>
 
         <Modal title="停用成员操作"
           visible={this.state.deactiveUserModal}
