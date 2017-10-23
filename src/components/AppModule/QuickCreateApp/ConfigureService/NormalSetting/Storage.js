@@ -196,15 +196,35 @@ const Storage = React.createClass({
           readOnly, volume, name,
           size, fsType
         } = item
+        let volumeName = volume
         if (volume === 'create') {
-          volume = `${name} ${fsType || '-'}`
+          if(type == 'private'){
+            volumeName = `${name} ${fsType || '-'}`
+          }
+          if(type == 'share'){
+            volumeName = `${name} -`
+          }
+          if(type == 'host'){
+            volumeName = '-'
+          }
+        } else {
+          if(type == 'private'){
+            volumeName = volume
+          }
+          if(type == 'share'){
+            const name = volume.split(' ')[0]
+            volumeName = `${name} -`
+          }
+          if(type == 'host'){
+            volumeName = '-'
+          }
         }
         return <Row key={`storagelist${index}`} className='storage_row_style'>
           <Col span="4" className='text'>
             {this.formatType(type)}
           </Col>
           <Col span="4" className='text'>
-            {volume || '-'}
+            {volumeName || '-'}
           </Col>
           <Col span="8" className='text mountPath_style'>
             <Input value={mountPath} disabled />
