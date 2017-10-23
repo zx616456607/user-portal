@@ -212,6 +212,12 @@ class AutoScale extends React.Component {
         str += `CPU ${item.resource.targetAverageUtilization}%`
       }
     })
+    if (str.split(';')[1] !== '') {
+      return [
+        <div key="metricsOne">{str.split(';')[0]}</div>,
+        <div key="metricsTwo">{str.split(';')[1]}</div>
+      ]
+    }
     return str
   }
   scaleStatus = text => {
@@ -368,7 +374,7 @@ class AutoScale extends React.Component {
     }, {
       title: '阈值',
       dataIndex: 'spec.metrics',
-      width: '15%',
+      width: '10%',
       render: (text) => <div>{this.formatMetrics(text)}</div>
     }, {
       title: '最小实例数',
@@ -390,7 +396,7 @@ class AutoScale extends React.Component {
       render: text => text ? text : '-'
     }, {
       title: '操作',
-      width: '15%',
+      width: '20%',
       render: record => {
         const menu = (
           <Menu onClick={(e) => this.handleMenuClick(e, record)}>
@@ -418,7 +424,26 @@ class AutoScale extends React.Component {
       defaultCurrent: 1,
       current: currentPage,
     }
-    const btns = (
+    const btnsMin = (
+      <Menu className="autoScaleBtnMenu">
+        <Menu.Item key="refresh">
+          <span onClick={() => this.loadData(clusterID, 1)}><i className='fa fa-refresh' /> 刷新</span>
+        </Menu.Item>
+        <Menu.Item key="start" disabled={selectedRowKeys.length ? false: true}>
+          <span onClick={() => this.batchUpdateStatus('start')}><i className='fa fa-play' /> 启用</span>
+        </Menu.Item>
+        <Menu.Item key="stop" disabled={selectedRowKeys.length ? false: true}>
+          <span onClick={() => this.batchUpdateStatus('stop')}><i className='fa fa-stop' /> 停用</span>
+        </Menu.Item>
+        <Menu.Item key="delete" disabled={selectedRowKeys.length ? false: true}>
+          <span onClick={() => selectedRowKeys.length && this.setState({deleteModal: true})}><i className='fa fa-trash-o' /> 删除</span>
+        </Menu.Item>
+        <Menu.Item key="demo">
+          <span className="demoBtn" onClick={this.demo}><Icon type="question-circle-o" />Demo</span>
+        </Menu.Item>
+      </Menu>
+    )
+    const btnsMid = (
       <Menu className="autoScaleBtnMenu">
         <Menu.Item key="start" disabled={selectedRowKeys.length ? false: true}>
           <span onClick={() => this.batchUpdateStatus('start')}><i className='fa fa-play' /> 启用</span>
@@ -439,10 +464,16 @@ class AutoScale extends React.Component {
           </div>
           <div className="btnGroup">
             <Button type="primary" size="large" onClick={() => this.setState({scaleModal: true, create: true})}><i className="fa fa-plus" /> 创建自动伸缩策略</Button>
-            <Button size="large" onClick={() => this.loadData(clusterID, 1)}><i className='fa fa-refresh' /> 刷 新</Button>
+            <Button size="large" className="refreshBtn" onClick={() => this.loadData(clusterID, 1)}><i className='fa fa-refresh' /> 刷 新</Button>
             <Dropdown
-              overlay={btns} trigger={['click']}>
-              <Button className="autoScaleDrop" size="large" >
+              overlay={btnsMin} trigger={['click']}>
+              <Button className="autoScaleDropMin" size="large" >
+                更多操作 <i className="fa fa-caret-down Arrow"/>
+              </Button>
+            </Dropdown>
+            <Dropdown
+              overlay={btnsMid} trigger={['click']}>
+              <Button className="autoScaleDropMid" size="large" >
                 更多操作 <i className="fa fa-caret-down Arrow"/>
               </Button>
             </Dropdown>
@@ -455,7 +486,7 @@ class AutoScale extends React.Component {
               style={{width: '200px'}}
               value={searchValue}
               onSearch={(value) => this.loadData(clusterID, 1,value)}/>
-            <Button size="large" onClick={this.demo}><Icon type="question-circle-o" />Demo</Button>
+            <Button size="large" className="demoBtn" onClick={this.demo}><Icon type="question-circle-o" />Demo</Button>
             <span className="pull-right totalCount">共计 {totalCount} 条</span>
           </div>
           <Modal

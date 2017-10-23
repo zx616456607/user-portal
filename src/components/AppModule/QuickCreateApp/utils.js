@@ -177,8 +177,15 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
   // 设置端口
   const service = new Service(serviceName, cluster)
   const { proxyType } = loginUser
-
-  let groupID = publicNetwork || internaletwork || "none"
+  // 设置访问方式
+  let groupID = "none"
+  switch(accessMethod){
+    case 'PublicNetwork': groupID = publicNetwork; break;
+    case 'Internaletwork': groupID = internaletwork; break;
+    case 'Cluster':
+    default:
+      groupID = 'none'; break
+  }
   service.addLBGroupAnnotation(groupID)
 
   portsKeys && portsKeys.forEach(key => {

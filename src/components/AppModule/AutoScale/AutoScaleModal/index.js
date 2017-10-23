@@ -84,6 +84,9 @@ class AutoScaleModal extends React.Component {
       form.resetFields()
     }
     if (!oldVisible && newVisible) {
+      setTimeout(() => {
+        document.getElementById('scale_strategy_name') && document.getElementById('scale_strategy_name').focus()
+      }, 0)
       this.initThresholdArr(scaleDetail)
     }
   }
@@ -397,7 +400,15 @@ class AutoScaleModal extends React.Component {
       <Button key="confirm" type="primary" size="large" loading={btnLoading} onClick={this.confirmModal}>确定</Button>
     ]
   }
-
+  isPrivate(volumes) {
+    let flag = false
+    volumes && volumes.length && volumes.forEach(item => {
+      if (item.type === 'private') {
+        flag = true
+      }
+    })
+    return flag
+  }
   render() {
     const {visible, form, services, alertList, scaleDetail, create, reuse} = this.props
     const { thresholdArr, cpuAndMemory } = this.state
@@ -521,10 +532,16 @@ class AutoScaleModal extends React.Component {
               placeholder="请选择服务">
               {
                 services && services.length ? services.map(item =>
-                  <Option key={item.metadata.name} value={item.metadata.name}>{item.metadata.name}</Option>) : null
+                  <Option key={item.metadata.name} value={item.metadata.name} disabled={this.isPrivate.apply(this, [item.volumes])}>{item.metadata.name}</Option>) : null
               }
             </Select>
           </FormItem>
+          <Row style={{margin: '-3px 0 10px'}}>
+            <Col span={4} style={{ height: 18 }}/>
+            <Col span={16}>
+              <Icon type="exclamation-circle-o"/> 挂载独享性存储的服务不支持自动伸缩
+            </Col>
+          </Row>
           <FormItem
             {...formItemSmallLayout}
             label="最小实例数"
@@ -538,7 +555,7 @@ class AutoScaleModal extends React.Component {
             <InputNumber {...maxReplicas}/> 个
           </FormItem>
           {thresholdItem}
-          <Row style={{margin: '-10px 0 10px'}}>
+          <Row style={{margin: '-3px 0 10px'}}>
             <Col span={4}/>
             <Col span={16}>
               <Icon type="exclamation-circle-o"/> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
@@ -580,8 +597,8 @@ class AutoScaleModal extends React.Component {
                     }
                   </Select>
                 </FormItem>,
-                <Row style={{margin: '-10px 0 10px'}} key="alertGroupHint">
-                  <Col span={4}/>
+                <Row style={{margin: '-3px 0 10px'}} key="alertGroupHint">
+                  <Col span={4} style={{ height: 18 }}/>
                   <Col span={16}>
                   <Icon type="exclamation-circle-o"/> 发生弹性伸缩时会向该通知组发送邮件通知
                   </Col>
