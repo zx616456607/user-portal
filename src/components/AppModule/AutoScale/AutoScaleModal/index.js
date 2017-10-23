@@ -84,6 +84,9 @@ class AutoScaleModal extends React.Component {
       form.resetFields()
     }
     if (!oldVisible && newVisible) {
+      setTimeout(() => {
+        document.getElementById('scale_strategy_name') && document.getElementById('scale_strategy_name').focus()
+      }, 0)
       this.initThresholdArr(scaleDetail)
     }
   }

@@ -425,22 +425,22 @@ let MyComponent = React.createClass({
   formatStatus(status){
     switch(status){
       case 'pending':
-        return <span>
+        return <span style={{color: '#0eb4ff'}}>
         <i className="fa fa-circle icon-marginRight penging"></i>
         创建中
       </span>
       case 'used':
-        return <span>
+        return <span style={{color: '#f85a5a'}}>
         <i className="fa fa-circle icon-marginRight used"></i>
         使用中
       </span>
       case 'unused':
-        return <span>
+        return <span style={{color: '#5cb85c'}}>
         <i className="fa fa-circle icon-marginRight no_used"></i>
         未使用
       </span>
       default:
-        return <span>
+        return <span style={{color: '#666666'}}>
         <i className="fa fa-circle icon-marginRight unknown"></i>
         未知
       </span>
