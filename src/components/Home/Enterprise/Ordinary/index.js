@@ -1320,7 +1320,6 @@ class Ordinary extends Component {
         text: 'Etcd (个)'
       }]
     const spaceName = space.spaceName || space.namespace
-    console.log(this.props.projectName)
     return (
       <div id='Ordinary'>
         <Row className="title">{spaceName} - {clusterName} 集群</Row>
