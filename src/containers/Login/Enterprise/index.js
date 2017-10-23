@@ -94,10 +94,10 @@ let Login = React.createClass({
           func: (err) => {
             let msg = err.message.message || err.message
             let outdated = false
-            if (err.statusCode == 307) {
+            if (err.statusCode == 406) {
               message.warn('由于安全管理需要，首次登录需设置新密码')
-              const { email, veryfiyCode } = err.message.data
-              browserHistory.push(`/rpw?email=${email}&code=${veryfiyCode}&from=login`)
+              const { email, verifyCode } = err.message.data
+              browserHistory.push(`/rpw?email=${email}&code=${verifyCode}&from=login`)
               return
             }
             if (err.statusCode == 401) {

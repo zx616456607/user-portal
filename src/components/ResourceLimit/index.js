@@ -552,7 +552,7 @@ class ResourceQuota extends React.Component {
           !isProject ?
             <div className="alertRow">
               <span>以下为个人项目的资源配额使用情况，了解该成员参与的其他项目资源配额，使用情况点击
-                <Link to="tenant_manage/project_manage">
+                <Link to="/tenant_manage/project_manage">
                   <span> 共享项目资源配额 </span>
                 </Link>
                 进入项目详情查看</span>
