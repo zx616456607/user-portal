@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { camelize } from 'humps'
 import classNames from 'classnames'
-import { Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Slider, Timeline, Popover, InputNumber, Tabs, Tooltip, Card, Radio, Select, Form} from 'antd'
+import { Table, Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Slider, Timeline, Popover, InputNumber, Tabs, Tooltip, Card, Radio, Select, Form} from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbClusterDetail, deleteDatabaseCluster, putDbClusterDetail, loadDbCacheList } from '../../actions/database_cache'
 import { setServiceProxyGroup } from '../../actions/services'
@@ -462,15 +462,15 @@ class VisitTypes extends Component{
       })
     }
     const domainList = clusterAdd && clusterAdd.map((item,index)=>{
-          return (
-            <dd className="addrList" key={item.start}>
-              <span className="domain">{item.end}</span>
-              <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,item.end)} onClick={this.copyTest.bind(this)}/>
-              </Tooltip>
-            </dd>
-          )
-      })
+      return (
+        <dd className="addrList" key={item.start}>
+          <span className="domain">{item.end}</span>
+          <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+            <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,item.end)} onClick={this.copyTest.bind(this)}/>
+          </Tooltip>
+        </dd>
+      )
+    })
     let validator = (rule, value, callback) => callback()
     if(value == 2) {
       validator = (rule, value, callback) => {
@@ -527,6 +527,57 @@ class VisitTypes extends Component{
     const inClusterLB = `${serviceName}:${port}`
     const radioValue = value || initValue
     const hide = selectDis == undefined ? initSelectDics : selectDis
+    const dataSource = [
+      {
+        key: 'externalUrl',
+        text: '出口地址',
+      },
+      {
+        key: 'inClusterUrls',
+        text: '集群内实例访问地址',
+      },
+      {
+        key: 'inClusterLB',
+        text: '集群内负载均衡地址',
+      },
+    ]
+    const columes = [
+      {
+        title: '类型',
+        dataIndex: 'text',
+        key: 'text',
+        width: '30%',
+      },
+      {
+        title: '地址',
+        dataIndex: 'key',
+        key: 'key',
+        width: '70%',
+        render: key => {
+          if (key === 'externalUrl') {
+            return (
+              <div>
+                <span className="domain">{externalUrl}</span>
+                <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                  <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,externalUrl)} onClick={this.copyTest.bind(this)}/>
+                </Tooltip>
+              </div>
+            )
+          }
+          if (key === 'inClusterUrls') {
+            return domainList
+          }
+          return (
+            <div>
+              <span className="domain">{inClusterLB}</span>
+              <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,inClusterLB)} onClick={this.copyTest.bind(this)}/>
+              </Tooltip>
+            </div>
+          )
+        }
+      },
+    ]
     return (
       <div id="visitsTypePage" className="modalDetailBox">
         <div className="visitTypeTopBox configContent">
@@ -565,27 +616,13 @@ class VisitTypes extends Component{
         <div className="visitTypeBottomBox configContent">
           <div className="visitTypeTitle configHead">访问地址</div>
           <div className="visitAddrInnerBox">
-            <input type="text" className="copyTest" style={{opacity:0}}/>
-            <div className={classNames("outPutBox",{'hide':addrHide})}>
-              <Icon type="link"/>出口地址：
-              <span className="domain">{externalUrl}</span>
-              <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,externalUrl)} onClick={this.copyTest.bind(this)}/>
-              </Tooltip>
-            </div>
-            <dl className="addrListBox">
-              <dt className="addrListTitle"><Icon type="link"/>集群内实例访问地址</dt>
-              <dd className="addrList">
-                {domainList}
-              </dd>
-            </dl>
-            <div className={classNames("outPutBox",{'hide':addrHide})}>
-              <Icon type="link"/>集群内负载均衡地址：
-              <span className="domain">{inClusterLB}</span>
-              <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,inClusterLB)} onClick={this.copyTest.bind(this)}/>
-              </Tooltip>
-            </div>
+            <Table
+              dataSource={dataSource}
+              columns={columes}
+              showHeader={false}
+              pagination={false}
+              bordered
+            />
           </div>
         </div>
       </div>
