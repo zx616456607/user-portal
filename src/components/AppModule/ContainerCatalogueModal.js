@@ -485,7 +485,7 @@ let ContainerCatalogueModal = React.createClass({
         <div className="body">
           {
             from !== 'createApp' && <div className='alertRow'>
-              服务中含有以下设置不能添加 <span style={{ fontWeight: 'bold' }}>独享型或host存储：</span><br />
+              服务中含有以下设置不能添加 <span style={{ fontWeight: 'bold' }}>独享型：</span><br />
               1.服务中的容器数量大于1个（不含1）；<br />
               2.开启自动伸缩的服务；
             </div>
@@ -503,7 +503,7 @@ let ContainerCatalogueModal = React.createClass({
                 >
                   <Option key="private" value="private" disabled={unableToChangeType || !storageClassType.private}>独享型</Option>
                   <Option key="share" value="share" disabled={!storageClassType.share}>共享型</Option>
-                  <Option key="host" value="host" disabled={unableToChangeType || !storageClassType.host}>host</Option>
+                  <Option key="host" value="host" disabled={!storageClassType.host}>host</Option>
                 </Select>
               </FormItem>
               {
