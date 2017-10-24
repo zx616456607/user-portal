@@ -413,6 +413,7 @@ class AppServiceDetail extends Component {
                   loadServiceDetail={this.props.loadServiceDetail}
                   containerList={containers}
                   volumes={service.spec.template.spec.volumes}
+                  modalShow={this.props.serviceDetailmodalShow}
                 />
               </TabPane>
               <TabPane tab='辅助设置' key='#setting'>
