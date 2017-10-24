@@ -279,7 +279,7 @@ class StatefulCluster extends Component {
           </Modal>
           <Modal visible={this.state.CreateDatabaseModalShow}
                  className='CreateDatabaseModal' maskClosable={false}
-                 title='创建数据库集群' width={600}
+                 title={`创建${literal.displayName}集群`} width={600}
                  onCancel={() => {
                    this.setState({ CreateDatabaseModalShow: false })
                  }}
