@@ -611,31 +611,31 @@ class Sider extends Component {
                 >
                   <Menu.Item key='database_cache_default'>
                     <Link to='/database_cache/mysql_cluster'>
-                      <span><div className='sideCircle'></div> 关系型数据库</span>
+                      <span><div className='sideCircle'></div> MySQL集群</span>
                     </Link>
                   </Menu.Item>
 
                   <Menu.Item key='redis_cluster'>
                     <Link to='/database_cache/redis_cluster'>
-                      <span><div className='sideCircle'></div> 缓存</span>
+                      <span><div className='sideCircle'></div> Redis集群</span>
                     </Link>
                   </Menu.Item>
 
                   <Menu.Item key='zookeeper_cluster'>
                     <Link to='/database_cache/zookeeper_cluster'>
-                      <span><div className='sideCircle'></div> ZooKeeper</span>
+                      <span><div className='sideCircle'></div> ZooKeeper集群</span>
                     </Link>
                   </Menu.Item>
 
                   <Menu.Item key='elasticsearch_cluster'>
                   <Link to='/database_cache/elasticsearch_cluster'>
-                    <span><div className='sideCircle'></div> ElasticSearch</span>
+                    <span><div className='sideCircle'></div> ElasticSearch集群</span>
                   </Link>
                 </Menu.Item>
 
                 <Menu.Item key='etcd_cluster'>
                   <Link to='/database_cache/etcd_cluster'>
-                    <span><div className='sideCircle'></div> Etcd</span>
+                    <span><div className='sideCircle'></div> Etcd集群</span>
                   </Link>
                 </Menu.Item>
 
