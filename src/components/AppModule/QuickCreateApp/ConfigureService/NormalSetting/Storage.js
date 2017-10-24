@@ -199,13 +199,13 @@ const Storage = React.createClass({
         let volumeName = volume
         if (volume === 'create') {
           if(type == 'private'){
-            volumeName = `${name} ${fsType || '-'}`
+            volumeName = `${name} ${fsType || '-'} ${size}`
           }
           if(type == 'share'){
-            volumeName = `${name} -`
+            volumeName = `${name}`
           }
           if(type == 'host'){
-            volumeName = '-'
+            volumeName = '未绑定'
           }
         } else {
           if(type == 'private'){
@@ -213,10 +213,10 @@ const Storage = React.createClass({
           }
           if(type == 'share'){
             const name = volume.split(' ')[0]
-            volumeName = `${name} -`
+            volumeName = `${name}`
           }
           if(type == 'host'){
-            volumeName = '-'
+            volumeName = '未绑定'
           }
         }
         return <Row key={`storagelist${index}`} className='storage_row_style'>

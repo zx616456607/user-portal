@@ -29,6 +29,7 @@ class RollingUpdateModal extends Component {
     super(props)
     this.handleOK = this.handleOK.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
+    this.getVolumeTypeInfo = this.getVolumeTypeInfo.bind(this)
     this.state = {
       containers: [],
       wrapTags:[],
@@ -210,11 +211,26 @@ class RollingUpdateModal extends Component {
       }
     })
   }
- switchType(c) {
-   this.setState({
-     rollingInterval: c
-   })
- }
+
+  switchType(c) {
+    this.setState({
+      rollingInterval:c,
+    })
+  }
+
+  getVolumeTypeInfo(){
+    const { service } = this.props
+    let incloudPrivate = false
+    const { volumeTypeList } = service
+    for(let i = 0; i < volumeTypeList.length; i++){
+      if(volumeTypeList[i] == 'private'){
+        incloudPrivate = true
+        break
+      }
+    }
+    return incloudPrivate
+  }
+
   render() {
     const { service, visible } = this.props
     if (!visible) {
@@ -226,6 +242,7 @@ class RollingUpdateModal extends Component {
     }
     const minReadySeconds = service.spec.minReadySeconds
     const isOnly = containers.length > 1 ? false : true
+    const incloudPrivate = this.getVolumeTypeInfo()
     // const containers = service.spec.template.spec.containers
     return (
       <Modal
@@ -239,7 +256,9 @@ class RollingUpdateModal extends Component {
           </Button>,
           <Button
             key="submit" type="primary" size="large" loading={this.state.loading}
-            onClick={this.handleOK}>
+            onClick={this.handleOK}
+            disabled={incloudPrivate}
+          >
             保 存
           </Button>
         ]}>
@@ -248,6 +267,9 @@ class RollingUpdateModal extends Component {
             containers.length > 1 && (
               <Alert message="提示: 检测到您的服务实例为k8s多容器 (Pod内多个容器) 实例,选择灰度升级时请确认下列服务实例中要升级的容器" type="info" />
             )
+          }
+          {
+            incloudPrivate && <div className='alertRow'>Tips: 挂载独享型存储的服务不支持灰度升级</div>
           }
           <Row className="serviceName">
             <Col className="itemTitle" span={4} style={{ textAlign: "right" }}>服务名称：</Col>

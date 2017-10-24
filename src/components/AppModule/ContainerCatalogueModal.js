@@ -20,7 +20,7 @@ import './style/ContainerCatalogueModal.less'
 
 const FormItem = Form.Item
 const Option = Select.Option
-const PATH_REG = /^\/[a-zA-Z0-9_\-\/]*$/
+const PATH_REG = /^\//
 
 let ContainerCatalogueModal = React.createClass({
   propTypes: {
@@ -294,7 +294,6 @@ let ContainerCatalogueModal = React.createClass({
         'type',
         'mountPath',
         'readOnly',
-        'volumeIsOld',
       ]
       let array = []
       const volumeType = form.getFieldValue("type")
@@ -306,7 +305,8 @@ let ContainerCatalogueModal = React.createClass({
       if (volumeType === 'private') {
         array = [
           'type_1',
-          'volume'
+          'volume',
+          'volumeIsOld',
         ]
         const volume = form.getFieldValue('volume')
         if (volume === "create") {
@@ -314,6 +314,7 @@ let ContainerCatalogueModal = React.createClass({
             'type_1',
             'storageClassName',
             'volume',
+            'volumeIsOld',
             'name',
             'size',
             'fsType',
@@ -399,7 +400,7 @@ let ContainerCatalogueModal = React.createClass({
     const type = this.props.form.getFieldValue('type')
     volumes.forEach(volume => {
       const { name, fsType, size, isOld, isUsed } = volume
-      const value = `${name} ${fsType || '-'}`
+      const value = `${name} ${fsType || '-'} ${size}`
       if (type == 'private') {
         let disabled = selectedVolumes.indexOf(value) > -1 || isUsed
         options.push(
@@ -465,6 +466,8 @@ let ContainerCatalogueModal = React.createClass({
         onChange: this.onVolumeChange,
       })
       volume = form.getFieldValue('volume')
+    }
+    if (type == 'private'){
       volumeIsOldProps = getFieldProps('volumeIsOld', {
         initialValue: false,
         rules: [{

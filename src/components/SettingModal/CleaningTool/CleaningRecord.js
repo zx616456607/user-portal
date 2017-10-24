@@ -164,7 +164,7 @@ class CleaningRecord extends Component {
   formatFileType(fileType){
     switch(fileType){
       case 1:
-        return <div>系统日志</div>
+        return <div>服务日志</div>
       /*case 2:
         return <div>监控数据</div>
       case 3:
@@ -416,7 +416,7 @@ class CleaningRecord extends Component {
                     onChange: value => this.selectLogType(value)
                   })}
                 >
-                  <Option key="system_clean" value="system_clean">系统日志</Option>
+                  <Option key="system_clean" value="system_clean">服务日志</Option>
                   {/*<Option key="2" value="2">监控数据</Option>*/}
                   <Option key="cicd_clean" value="cicd_clean">CI/CD缓存</Option>
                   {/*<Option key="4" value="4">镜像</Option>*/}

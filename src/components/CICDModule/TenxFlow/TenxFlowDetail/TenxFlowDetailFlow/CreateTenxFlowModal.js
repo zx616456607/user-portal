@@ -1863,6 +1863,15 @@ let CreateTenxFlowModal = React.createClass({
                             size="small"
                             onClick={() => this.setState({ addCachedVolumeModal: true })}
                           />,
+                          <Button
+                            key="delete"
+                            icon="delete"
+                            size="small"
+                            onClick={() => {
+                              form.setFieldsValue({ cachedVolume: false })
+                              this.setState({ cachedVolumes: [] })
+                            }}
+                          />,
                         ]
                       : '未挂载缓存卷'
                   }

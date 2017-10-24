@@ -343,7 +343,11 @@ class Ordinary extends Component {
     } else if(value !== -1) {
       let number = 100 / value
       for (let i = 0; i < count; i++) {
-        result += number
+        if (String(count).indexOf('.') === -1) {
+          result += number
+        } else {
+          result += count * number
+        }
       }
     }
     result > max ? result = max : result
@@ -1354,7 +1358,7 @@ class Ordinary extends Component {
                     <div className='userCost'>
                       <div>
                         <i style={{ backgroundColor: '#46b2fa' }}></i>
-                        {this.state.isTeam ? '项目余额' : '我的余额'}：
+                        {this.state.isTeam ? '账户余额' : '我的余额'}：
                       </div>
                       <span className='costNum'>
                         <Tooltip title={parseAmount(clusterNodeSpaceConsumption.balance).amount + 'T'}>
@@ -1717,16 +1721,16 @@ class Ordinary extends Component {
             </Card>
           </Col>
           <Col span={6} className='storage'>
-            <Card title="存储" bordered={false} bodyStyle={{ height: 180, padding: '0px 20px 0px 0px' }}>
+            <Card title="存储与快照" bordered={false} bodyStyle={{ height: 180, padding: '0px 20px 0px 0px' }}>
               <ProgressBox boxPos={boxPos} />
               <Col span={12} className='storageInf'>
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
-                    <Col span={12}>已用 <Tooltip title="当前已用配额"><Icon type="question-circle-o" /></Tooltip></Col>
+                    <Col span={12}>已用<Tooltip title="当前已用配额"><Icon type="question-circle-o" /></Tooltip></Col>
                     <Col span={12} style={{ textAlign: 'right' }}>{this.handleSize(clusterStorage.usedSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={12}>可用 <Tooltip title="当前可用配额"><Icon type="question-circle-o" /></Tooltip></Col>
+                    <Col span={12}>可用<Tooltip title="当前可用配额"><Icon type="question-circle-o" /></Tooltip></Col>
                     <Col span={12} style={{ textAlign: 'right' }}>{this.handleSize(clusterStorage.freeSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>

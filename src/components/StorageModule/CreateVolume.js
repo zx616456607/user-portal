@@ -495,7 +495,7 @@ class CreateVolume extends Component {
                   {...getFieldProps('address', {
                     rules: [{
                       required: true,
-                      message: "地址不能为空"
+                      message: "请选择块存储集群"
                     }],
                     onChange: this.selectStorageServer,
                   })}

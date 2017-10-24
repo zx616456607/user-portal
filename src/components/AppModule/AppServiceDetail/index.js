@@ -413,6 +413,7 @@ class AppServiceDetail extends Component {
                   loadServiceDetail={this.props.loadServiceDetail}
                   containerList={containers}
                   volumes={service.spec.template.spec.volumes}
+                  modalShow={this.props.serviceDetailmodalShow}
                 />
               </TabPane>
               <TabPane tab='辅助设置' key='#setting'>
@@ -500,7 +501,7 @@ class AppServiceDetail extends Component {
                   replicas={service.spec.replicas}
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   serviceName={service.metadata.name}
-                  volumes={service.volumes}
+                  volumes={service.volumeTypeList}
                   isCurrentTab={activeTabKey==='#autoScale'}
                   cluster={service.cluster} />
               </TabPane>

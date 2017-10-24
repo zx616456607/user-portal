@@ -33,7 +33,8 @@ class SelectPacket extends Component{
     }
   }
   componentWillMount() {
-    this.pageAndSerch(null)
+    const { fileName } = this.props.scope.props.location.query
+    this.pageAndSerch(fileName)
   }
   handleChange(pagination, filters, sorter) {
     console.log('各类参数是', pagination, filters, sorter);
