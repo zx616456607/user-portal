@@ -248,7 +248,7 @@ let MemberList = React.createClass({
         onFilter: (value, record) => String(record.globalStyle) === value,
       },
       {
-        title: '团队权限',
+        title: '我是团队的',
         dataIndex: 'partialStyle',
         width: '20%',
       },
