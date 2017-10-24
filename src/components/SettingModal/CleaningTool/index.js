@@ -600,7 +600,7 @@ class CleaningTool extends Component {
       xAxis : [
         {
           type : 'category',
-          data : ['系统日志'],
+          data : ['服务日志'],
           axisTick: {
             alignWithLabel: true
           }
@@ -680,7 +680,7 @@ class CleaningTool extends Component {
                 定时清理
               </Button>}
             >
-              <TabPane tab="系统日志" key="systemLog">
+              <TabPane tab="服务日志" key="systemLog">
                 <div className='img_box'>
                   <img className={classNames({'cleaning': cleanSystemLogStatus === 'cleaning'})} src={CleaningToolImg}/>
                 </div>

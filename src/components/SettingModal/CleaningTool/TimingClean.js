@@ -545,7 +545,7 @@ class TimingClean extends Component {
               <Col span={6} className='gutter-row'>
                 <div className='gutter-box'>
                   <div className='header'>
-                    系统日志
+                    服务日志
                     <Switch
                       checkedChildren="开"
                       unCheckedChildren="关"
