@@ -1,3 +1,29 @@
+.user-panel-trigger {
+  &.userBtn {
+    line-height: initial;
+    .userBtnText {
+      float: left;
+      padding: 8px 0;
+      & > div + div {
+        margin-top: 1px;
+        .ant-tag {
+          background-color: #ecf0f4;
+          display: inline-block;
+          transform: scale(0.833);
+          transform-origin: 0% 50%;
+          -webkit-transform: scale(0.833);
+          -webkit-transform-origin: 0% 50%;
+        }
+      }
+    }
+    .userBtnIcon {
+      float: right;
+      height: 55px;
+      line-height: 55px;
+    }
+  }
+}
+
 .UserPanel {
   .ant-popover-title {
     height: 70px;
