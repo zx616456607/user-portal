@@ -63,7 +63,7 @@ class CostCenter extends Component {
   render() {
     const { activeTabKey } = this.state
     return (
-      <div id='CostCenter'>
+      <div id='CostCenter' style={{padding: '20px'}}>
         <Title title="费用中心" />
         <Tabs
           defaultActiveKey={DEFAULT_TAB}
