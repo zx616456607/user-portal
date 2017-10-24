@@ -500,7 +500,7 @@ class AppServiceDetail extends Component {
                   replicas={service.spec.replicas}
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   serviceName={service.metadata.name}
-                  volumes={service.volumes}
+                  volumes={service.volumeTypeList}
                   isCurrentTab={activeTabKey==='#autoScale'}
                   cluster={service.cluster} />
               </TabPane>
