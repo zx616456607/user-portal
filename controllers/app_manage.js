@@ -320,7 +320,7 @@ exports.getAppServices = function* () {
       service.deployment.images.push(container.image)
     })
     portHelper.addPort(service.deployment, service.service, lbgroupSettings.data)
-
+    service.deployment.volumeTypeList = service.volumeTypeList
     deployments.push(service.deployment)
   })
 

@@ -710,7 +710,10 @@ class AppServiceDetailInfo extends Component {
         currentService: nextProps.serviceName
       })
     }
-    if(this.props.activeTabKey !== '#basic' && nextProps.activeTabKey == '#basic'){
+    if(
+      (this.props.activeTabKey !== '#basic' && nextProps.activeTabKey == '#basic')
+      || (this.props.modalShow !== nextProps.modalShow && nextProps.modalShow)
+    ){
       this.getServiceDetail(nextProps.cluster, nextProps.serviceName)
       this.getAutoScaleStatus(nextProps.cluster, nextProps.serviceName)
       this.setState({
