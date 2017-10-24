@@ -109,7 +109,7 @@ class StorageHome extends Component {
               className={hostMemory}
               onClick={() => browserHistory.push(`/app_manage/storage/hostMemory`)}
             >
-              host 类型存储
+              本地存储
             </div>
           </div>
           <div className="children_box">

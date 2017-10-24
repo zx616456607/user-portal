@@ -393,7 +393,7 @@ class ShareMemory extends Component {
                   })}
                   style={{width:160, marginRight:20}}
                 >
-                  <Option key="nfs" value="nfs">nfs</Option>
+                  <Option key="nfs" value="nfs">NFS</Option>
                 </Select>
                 <FormItem
                   style={{width:160, float:'right'}}

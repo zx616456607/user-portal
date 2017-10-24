@@ -108,7 +108,7 @@ class CachedVolumes extends React.Component {
       title: '类型',
       dataIndex: 'type',
       key: 'type',
-      render: () => '可靠块存储'
+      render: () => '块存储（rbd）'
     }, {
       title: '大小',
       dataIndex: 'volumeSize',

@@ -114,7 +114,7 @@ class StorageDetail extends Component {
                 <div className="info">
                   <Row>
                     <Col span="9">
-                      存储类型：独享型（可靠块存储）
+                      存储类型：独享型（块存储）
                     </Col>
                     <Col span="15">
                       <div className="createDate">
@@ -125,7 +125,7 @@ class StorageDetail extends Component {
                   </Row>
                   <Row>
                     <Col span="9">
-                      可靠块存储集群名称：{ StorageInfo.storageServer}
+                      块存储集群名称：{ StorageInfo.storageServer}
                     </Col>
                     <Col span="15">
                       <div className="use">

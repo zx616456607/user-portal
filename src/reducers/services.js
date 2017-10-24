@@ -13,6 +13,7 @@ import merge from 'lodash/merge'
 import union from 'lodash/union'
 import reducerFactory from './factory'
 import cloneDeep from 'lodash/cloneDeep'
+import uniq from 'lodash/uniq'
 import { getServiceStatus, getContainerStatus } from '../common/status_identify'
 import { mergeStateByOpts } from './utils'
 
@@ -145,7 +146,7 @@ function serviceList(state = {}, action) {
     case ActionTypes.SERVICE_GET_ALL_LIST_SUCCESS: {
       let services = action.response.result.data.services.map(service => {
         service.deployment.cluster = service.cluster
-        service.deployment.volumeTypeList = service.volumeTypeList //存储类型
+        service.deployment.volumeTypeList = uniq(service.volumeTypeList) //存储类型
         service.deployment.status = getServiceStatus(service.deployment)
         return service.deployment
       })
