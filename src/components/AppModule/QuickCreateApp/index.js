@@ -27,7 +27,7 @@ import { createApp } from '../../../actions/app_manage'
 import { addService, loadServiceList } from '../../../actions/services'
 import { buildJson, getFieldsValues } from './utils'
 import './style/index.less'
-import { SHOW_BILLING } from '../../../constants'
+import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -433,7 +433,7 @@ class QuickCreateApp extends Component {
           if (err.statusCode == 402) {
             return
           }
-          if(err.statusCode !== 412){
+          if(err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
             const { message } = err
             notification.error(`${msgObj}失败`, message.message)
           }
