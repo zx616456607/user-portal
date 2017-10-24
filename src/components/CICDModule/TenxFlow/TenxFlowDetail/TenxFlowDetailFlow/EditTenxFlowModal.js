@@ -2096,7 +2096,7 @@ let EditTenxFlowModal = React.createClass({
                   {
                     this.state.cachedVolumes[0]
                       ? [
-                          <span key="text">独享型(RBD)</span>,
+                          <span key="text">独享型（rbd）</span>,
                           <span key="name">
                             {
                               this.state.cachedVolumes[0].cachedVolume === 'create'

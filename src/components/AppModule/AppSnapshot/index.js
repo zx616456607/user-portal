@@ -517,7 +517,7 @@ class Snapshot extends Component {
         title: '卷类型',
         key: 'storageServer',
         dataIndex: 'storageServer',
-        render: (text, record, index) => <div style={{wordBreak: 'break-all'}}>RBD ({text})</div>
+        render: (text, record, index) => <div style={{wordBreak: 'break-all'}}>块存储 ({text})</div>
       },{
         title:'创建时间',
         key:'CreateTime',
