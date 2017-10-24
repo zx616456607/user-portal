@@ -294,7 +294,6 @@ let ContainerCatalogueModal = React.createClass({
         'type',
         'mountPath',
         'readOnly',
-        'volumeIsOld',
       ]
       let array = []
       const volumeType = form.getFieldValue("type")
@@ -306,7 +305,8 @@ let ContainerCatalogueModal = React.createClass({
       if (volumeType === 'private') {
         array = [
           'type_1',
-          'volume'
+          'volume',
+          'volumeIsOld',
         ]
         const volume = form.getFieldValue('volume')
         if (volume === "create") {
@@ -314,6 +314,7 @@ let ContainerCatalogueModal = React.createClass({
             'type_1',
             'storageClassName',
             'volume',
+            'volumeIsOld',
             'name',
             'size',
             'fsType',
@@ -465,6 +466,8 @@ let ContainerCatalogueModal = React.createClass({
         onChange: this.onVolumeChange,
       })
       volume = form.getFieldValue('volume')
+    }
+    if (type == 'private'){
       volumeIsOldProps = getFieldProps('volumeIsOld', {
         initialValue: false,
         rules: [{
