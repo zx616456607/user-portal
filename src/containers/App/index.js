@@ -376,7 +376,7 @@ class App extends Component {
     if (realMode === LITE && platformid) {
       delete user.email
       user.platformid = platformid
-      user.name = `${LITE}-${platformid.substring(0,6)}-${user.name}`
+      user.name = `${LITE}-${platformid.substring(0, 6)}-${user.name}`
       user.user_id = `${LITE}-${platformid}-${user.name}`
       return (
         <Intercom appID='okj9h5pl' { ...user } />
@@ -390,7 +390,67 @@ class App extends Component {
       loadLicensePlatform()
     }
   }
-
+  quotaSuffix(type) {
+    let suffix = ''
+    switch (type) {
+      case 'cpu':
+        return suffix = 'GB'
+      case 'memory':
+        return suffix = 'GB'
+      case 'storage':
+        return suffix = 'GB'
+      default:
+        return suffix = '个'
+    }
+  }
+  quotaEn(type) {
+    switch (type) {
+      case 'cpu':
+        return 'CPU'
+      case 'memory':
+        return '内存'
+      case 'storage':
+        return '磁盘'
+      case 'application':
+        return '应用'
+      case 'service':
+        return '服务'
+      case 'container':
+        return '容器'
+      case 'volume':
+        return '存储'
+      case 'snapshot':
+        return '快照'
+      case 'configuration':
+        return '服务配置'
+      case 'mysql':
+        return 'MySQL'
+      case 'redis':
+        return 'Redis'
+      case 'zookeeper':
+        return 'ZooKeeper'
+      case 'elasticsearch':
+        return 'ElasticSearch'
+      case 'etcd':
+        return 'Etcd'
+      case 'tenxflow':
+        return 'TenxFlow'
+      case 'subTask':
+        return '子任务'
+      case 'dockerfile':
+        return 'Dockerfile'
+      case 'registryProject':
+        return '镜像仓库组'
+      case 'registry':
+        return '镜像仓库'
+      case 'orchestrationTemplate':
+        return '编排文件'
+      case 'applicationPackage':
+        return '应用包'
+      default:
+        return type
+    }
+  }
 
   render() {
     let {
@@ -426,9 +486,9 @@ class App extends Component {
       )
     }
     return (
-      <div className={ this.props.License ? 'tenx-layout toptips': 'tenx-layout'} id='siderTooltip'>
+      <div className={this.props.License ? 'tenx-layout toptips' : 'tenx-layout'} id='siderTooltip'>
         {this.renderErrorMessage()}
-        { this.props.tipError }
+        {this.props.tipError}
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-header' : 'tenx-layout-header-bigger tenx-layout-header'}>
           <div className='tenx-layout-wrapper'>
             <Header pathname={pathname} setSwitchSpaceOrCluster={this.setSwitchSpaceOrCluster} />
@@ -456,7 +516,7 @@ class App extends Component {
               </Button>
             </Link>,
           ]}
-          >
+        >
           <div style={{ textAlign: 'center' }}>
             <p>
               <svg>
@@ -491,11 +551,11 @@ class App extends Component {
               知道了
             </Button>
           ]}
-          >
+        >
           <div>
             <Icon type="cross-circle" />
             <span>
-            当前操作未被授权，请联系管理员进行授权后，再进行操作
+              当前操作未被授权，请联系管理员进行授权后，再进行操作
             </span>
           </div>
         </Modal>
@@ -514,13 +574,13 @@ class App extends Component {
               知道了
             </Button>
           ]}
-          >
+        >
           <div className="alert_content">
             <i className="fa fa-exclamation-triangle" aria-hidden="true"></i>
             <div className="alert_text">
-            超过配额，你目前只剩下
-            <a> {resourcequotaMessage.available >= 0 ? resourcequotaMessage.available: 0} 个 {resourcequotaMessage.type} </a>
-            配额
+              超过配额，你目前只剩下
+            <a> {resourcequotaMessage.available >= 0 ? resourcequotaMessage.available : 0} {this.quotaSuffix(resourcequotaMessage.type)} {this.quotaEn(resourcequotaMessage.type)} </a>
+              配额
             </div>
             <div>
               您可以前往总览或项目详情页面查询当前配额使用情况或联系系统管理员提高配额。
