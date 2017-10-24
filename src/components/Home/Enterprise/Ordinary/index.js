@@ -404,7 +404,11 @@ class Ordinary extends Component {
         if (String(count).indexOf('.') === -1) {
           result += number
         } else {
-          result += count * number
+          if (Number(String(count).split('.')[0]) > 0) {
+            result += number
+          } else {
+            result += count * number
+          }
         }
       }
     }
