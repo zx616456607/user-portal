@@ -609,7 +609,7 @@ class CleaningTool extends Component {
       yAxis : [
         {
           type : 'value',
-          name: '文件数量',
+          name: '个',
         }
       ],
       series : [

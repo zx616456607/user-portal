@@ -61,9 +61,7 @@ class TimingClean extends Component {
     getCleanSettings({
       success: {
         func: res => {
-          if (!isEmpty(res.data.cicdClean)) {
-            this.parseCron(res.data.cicdClean, 'cicd')
-          }
+          this.parseCron(res.data.cicdClean, 'cicd')
         },
         isAsync: true
       }
@@ -81,7 +79,8 @@ class TimingClean extends Component {
     })
   }
   parseCron(str, type) {
-    const cronArr = str.spec.cron.split(' ')
+    let cronArr = str.spec.cron.split(' ')
+    cronArr.length === 6 && cronArr.splice(0, 1)
     if (str.meta.automatic) {
       this.setState({
         [`${type}Checked`]: true,
