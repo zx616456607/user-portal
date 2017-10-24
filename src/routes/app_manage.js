@@ -99,7 +99,7 @@ const appManageRoutes = [{
     component: require('../components/AppModule/VMWrap/VMList').default,
   },
 }, {
-  path: 'app_create/vm_wrap',
+  path: 'vm_wrap/create',
   indexRoute: {
     component: require('../components/AppModule/VMWrap/CreateService/CreateService').default,
   },
