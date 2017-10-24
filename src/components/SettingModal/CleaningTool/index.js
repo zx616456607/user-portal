@@ -16,7 +16,6 @@ import QueueAnim from 'rc-queue-anim'
 import './style/index.less'
 import Title from '../../Title'
 import CleaningToolImg from '../../../../static/img/setting/cleaningTool.png'
-import StepsImg from '../../../../static/img/setting/steps.png'
 import NotificationHandler from '../../../components/Notification'
 import ReactEcharts from 'echarts-for-react'
 import {
@@ -583,7 +582,7 @@ class CleaningTool extends Component {
     } = this.state
     const { form } = this.props
     const { getFieldProps } = form
-    const option = {
+    const systemOption = {
       color: ['#3398DB'],
       tooltip : {
         trigger: 'axis',
@@ -601,7 +600,7 @@ class CleaningTool extends Component {
       xAxis : [
         {
           type : 'category',
-          data : ['系统日志', /*'监控数据', '停止容器', '镜像',*/ 'CI/CD缓存'],
+          data : ['系统日志'],
           axisTick: {
             alignWithLabel: true
           }
@@ -609,7 +608,8 @@ class CleaningTool extends Component {
       ],
       yAxis : [
         {
-          type : 'value'
+          type : 'value',
+          name: '文件数量',
         }
       ],
       series : [
@@ -617,7 +617,46 @@ class CleaningTool extends Component {
           name:'最近清除',
           type:'bar',
           barWidth: '40px',
-          data:[systemLogs && systemLogs.length && systemLogs[0].total, cicdLogs && cicdLogs.length && (cicdLogs[0].total / (1024 * 1024)).toFixed(2)]
+          data:[systemLogs && systemLogs.length && systemLogs[0].total]
+        }
+      ]
+    };
+    const cicdOption = {
+      color: ['#3398DB'],
+      tooltip : {
+        trigger: 'axis',
+        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+          type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+        }
+      },
+      grid: {
+        top: '30px',
+        left: '3%',
+        right: '4%',
+        bottom: '30px',
+        containLabel: true
+      },
+      xAxis : [
+        {
+          type : 'category',
+          data : ['CI/CD缓存'],
+          axisTick: {
+            alignWithLabel: true
+          }
+        }
+      ],
+      yAxis : [
+        {
+          type : 'value',
+          name: 'MB',
+        }
+      ],
+      series : [
+        {
+          name:'最近清除',
+          type:'bar',
+          barWidth: '40px',
+          data:[cicdLogs && cicdLogs.length && (cicdLogs[0].total / (1024 * 1024)).toFixed(2)]
         }
       ]
     };
@@ -797,12 +836,20 @@ class CleaningTool extends Component {
               <Col span="16">
                 <div className='left_box'>
                   <div className='header'>最近一次清理详情</div>
-                  <div style={{width: '100%', height: '280px'}}>
-                    <ReactEcharts
-                      option={option}
-                      style={{ height: '280px'}}
-                    />
-                  </div>
+                  <Row>
+                    <Col span={12}>
+                      <ReactEcharts
+                        option={systemOption}
+                        style={{ height: '280px'}}
+                      />
+                    </Col>
+                    <Col span={12}>
+                      <ReactEcharts
+                        option={cicdOption}
+                        style={{ height: '280px'}}
+                      />
+                    </Col>
+                  </Row>
                 </div>
               </Col>
               <Col span="8" className='right_box_col'>

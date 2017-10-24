@@ -17,27 +17,27 @@ import './style/database.less'
 const menuList = [
   {
     url: '/database_cache/mysql_cluster',
-    name: '关系型数据库'
+    name: 'MySQL集群'
   },
 
   {
     url: '/database_cache/redis_cluster',
-    name: '缓存'
+    name: 'Redis集群'
   },
 
   {
     url: '/database_cache/zookeeper_cluster',
-    name: 'ZooKeeper'
+    name: 'ZooKeeper集群'
   },
 
   {
     url: '/database_cache/elasticsearch_cluster',
-    name: 'ElasticSearch'
+    name: 'ElasticSearch集群'
   },
 
   {
     url: '/database_cache/etcd_cluster',
-    name: 'Etcd'
+    name: 'Etcd集群'
   }
  
 ]

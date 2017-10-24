@@ -229,7 +229,7 @@ class RedisDatabase extends Component {
         </Modal>
         <Modal visible={this.state.CreateDatabaseModalShow}
           className='CreateDatabaseModal' maskClosable={false}
-          title='创建数据库集群' width={600}
+          title='创建Redis集群' width={600}
           onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } }
           >
           <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={'redis'} clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
