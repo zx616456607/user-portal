@@ -403,51 +403,52 @@ class App extends Component {
         return suffix = '个'
     }
   }
-  quotaEn(type){
-    let result = ''
-    switch(type){
+  quotaEn(type) {
+    switch (type) {
       case 'cpu':
-      return result = 'CPU'
+        return 'CPU'
       case 'memory':
-      return result = '内存'
+        return '内存'
       case 'storage':
-      return result = '磁盘'
+        return '磁盘'
       case 'application':
-      return result = '应用'
+        return '应用'
       case 'service':
-      return result = '服务'
+        return '服务'
       case 'container':
-      return result = '容器'
+        return '容器'
       case 'volume':
-      return result = '存储'
+        return '存储'
       case 'snapshot':
-      return result = '快照'
+        return '快照'
       case 'configuration':
-      return result = '服务配置'
+        return '服务配置'
       case 'mysql':
-      return result = 'MySQL'
+        return 'MySQL'
       case 'redis':
-      return result = 'Redis'
+        return 'Redis'
       case 'zookeeper':
-      return result = 'ZooKeeper'
+        return 'ZooKeeper'
       case 'elasticsearch':
-      return result = 'ElasticSearch'
+        return 'ElasticSearch'
       case 'etcd':
-      return result = 'Etcd'
+        return 'Etcd'
       case 'tenxflow':
-      return result = 'TenxFlow'
+        return 'TenxFlow'
       case 'subTask':
-      return result = '子任务'
+        return '子任务'
       case 'dockerfile':
-      return result = 'Dockerfile'
+        return 'Dockerfile'
       case 'registryProject':
-      return result = '镜像仓库组'
+        return '镜像仓库组'
       case 'registry':
-      return result = '镜像仓库'
+        return '镜像仓库'
       case 'orchestrationTemplate':
-      return result = '编排文件'
+        return '编排文件'
       case 'applicationPackage':
-      return result = '应用包'
+        return '应用包'
+      default:
+        return type
     }
   }
 
