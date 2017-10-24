@@ -504,7 +504,7 @@ let ContainerCatalogueModal = React.createClass({
                 >
                   <Option key="private" value="private" disabled={unableToChangeType || !storageClassType.private}>独享型</Option>
                   <Option key="share" value="share" disabled={!storageClassType.share}>共享型</Option>
-                  <Option key="host" value="host" disabled={!storageClassType.host}>host</Option>
+                  <Option key="host" value="host" disabled={!storageClassType.host}>本地存储</Option>
                 </Select>
               </FormItem>
               {
@@ -522,7 +522,7 @@ let ContainerCatalogueModal = React.createClass({
                     >
                       {
                         type === 'private'
-                          ? <Option type="rbd" value="rbd">可靠块存储</Option>
+                          ? <Option type="rbd" value="rbd">块存储（rbd）</Option>
                           : <Option type="nfs" value="nfs">NFS</Option>
                       }
                     </Select>

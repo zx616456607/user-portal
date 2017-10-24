@@ -31,7 +31,7 @@ export default class ContainerDetailInfo extends Component {
       container.spec.containers[0].volumeMounts.forEach((volume, index) => {
         let name = ''
         let mountPath = ''
-        let volumeType = '分布式存储'
+        let volumeType = '块存储'
         if (volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') { return }
         let isShow = volumes.some(item => {
           if (item.name === volume.name) {

@@ -289,14 +289,14 @@ class ClusterStorage extends Component {
         createCephStorage(clusterID, {type: 'ceph'}, body, {
           success: {
             func: (res) => {
-              Notification.success('添加 Ceph 分布式存储成功')
+              Notification.success('添加 Ceph 存储配置成功')
               this.loadClusterStorageList()
             },
             isAsync: true,
           },
           failed: {
             func: (res) => {
-              let message = '添加 Ceph 分布式存储失败，请重试'
+              let message = '添加 Ceph 存储配置失败，请重试'
               message = this.formatMessage(message, res)
               Notification.error(message)
             }
@@ -307,14 +307,14 @@ class ClusterStorage extends Component {
       return updateStorageClass(clusterID, {type: 'ceph'}, body, {
         success: {
           func: () => {
-            Notification.success('修改 Ceph 分布式存储成功')
+            Notification.success('修改 Ceph 存储配置成功')
             this.loadClusterStorageList()
           },
           isAsync: true,
         },
         failed: {
           func: (res) =>  {
-            let message = '修改 Ceph 分布式存储失败，请重试'
+            let message = '修改 Ceph 存储配置失败，请重试'
             message = this.formatMessage(message, res)
             Notification.error(message)
           }
@@ -422,7 +422,7 @@ class ClusterStorage extends Component {
             { ...formItemLayout }
           >
             <Input
-              placeholder='请输入可靠块存储集群名称'
+              placeholder='请输入 Ceph 集群名称'
               disabled={ item.disabled || !item.newAdd }
               size="large"
               className='formItem_child_style'
@@ -665,14 +665,14 @@ class ClusterStorage extends Component {
         return createCephStorage(clusterID, {type: 'nfs'}, body, {
           success: {
             func: () => {
-              Notification.success('添加 nfs 分布式存储成功')
+              Notification.success('添加 NFS 存储配置成功')
               this.loadClusterStorageList()
             },
             isAsync: true,
           },
           failed: {
             func: (res) => {
-              let message = '添加 nfs 分布式存储失败，请重试'
+              let message = '添加 NFS 存储配置失败，请重试'
               message = this.formatMessage(message, res)
               Notification.error(message)
             }
@@ -682,14 +682,14 @@ class ClusterStorage extends Component {
       return updateStorageClass(clusterID, {type: 'nfs'}, body, {
         success: {
           func: () => {
-            Notification.success('修改 nfs 分布式存储成功')
+            Notification.success('修改 NFS 存储配置成功')
             this.loadClusterStorageList()
           },
           isAsync: true,
         },
         failed: {
           func: (res) => {
-            let message = '修改 nfs 分布式存储失败，请重试'
+            let message = '修改 NFS 存储配置失败，请重试'
             message = this.formatMessage(message, res)
             Notification.error(message)
           }
@@ -998,7 +998,7 @@ class ClusterStorage extends Component {
       <div id='cluster_storage'>
         <div className='host'>
           <div className='header'>
-            host&nbsp;(单节点独享型)
+            本地存储（hostPath）
           </div>
           <div className="body">
             <div className="img_box host_img">
@@ -1012,7 +1012,7 @@ class ClusterStorage extends Component {
         </div>
         <div className='ceph'>
           <div className="header">
-            可靠块存储&nbsp;(单节点独享型)
+            块存储集群（rbd）
           </div>
           <div className="body">
             <div className="img_box ceph_img">
@@ -1029,7 +1029,7 @@ class ClusterStorage extends Component {
         </div>
         <div className='nfs'>
           <div className="header">
-            nfs&nbsp;(多节点共享型)
+            网络文件系统（NFS）
           </div>
           <div className="body">
             <div className="img_box nfs_img">

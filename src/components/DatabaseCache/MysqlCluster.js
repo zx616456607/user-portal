@@ -43,7 +43,7 @@ let MyComponent = React.createClass({
     const { config, isFetching } = this.props;
     let title = ''
     if (!canCreate) {
-      title = '尚未部署分布式存储，暂不能创建'
+      title = '尚未配置块存储集群，暂不能创建'
     }
     if (isFetching) {
       return (
@@ -220,7 +220,7 @@ class MysqlCluster extends Component {
     let canCreate = true
     if (!storageClassType.private) canCreate = false
     if(!canCreate) {
-      title = '尚未部署分布式存储，暂不能创建'
+      title = '尚未配置块存储集群，暂不能创建'
     }
     return (
       <QueueAnim id='mysqlDatabase' type='right'>

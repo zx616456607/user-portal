@@ -765,7 +765,7 @@ let NormalDeployBox = React.createClass({
   translationName(type) {
     switch(type) {
       case 'rbd':
-        return '分布式存储'
+        return '块存储'
       case 'hostPath':
         return '本地存储'
     }

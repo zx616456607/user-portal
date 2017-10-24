@@ -373,7 +373,7 @@ let CreateDatabase = React.createClass({
       initialValue: 3
     });
     const storageClassProps = getFieldProps('storageClass', {
-      rules: [{required: true, message: '可靠性块存储不能为空'}]
+      rules: [{required: true, message: '块存储名字不能为空'}]
     })
     const zkReplicasProps = getFieldProps('zkReplicas', {
       initialValue: 3
@@ -529,7 +529,7 @@ let CreateDatabase = React.createClass({
                 <div className='inputBox replicas'>
                   <FormItem style={{ width: '200px', float: 'left', marginRight: '12px'}}>
                     <Select
-                      placeholder='请选择一个可靠块存储集群'
+                      placeholder='请选择一个块存储集群'
                       size='large'
                       {...storageClassProps}
                     >

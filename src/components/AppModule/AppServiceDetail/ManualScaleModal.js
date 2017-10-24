@@ -161,7 +161,7 @@ class ManualScaleModal extends Component {
           <Row>
             <Col style={{ color: '#a0a0a0', textAlign: 'left', marginTop: '20px' }}>
               Tips: {this.state.scalable ? '实例数量调整 , 保存后系统将调整实例数量至设置预期. (若自动伸缩开启, 则无法手动扩展)' :
-                     '挂载独享型或host类型存储的服务不支持水平扩展'}
+                     '挂载独享型存储的服务不支持水平扩展'}
             </Col>
           </Row>
         </div>

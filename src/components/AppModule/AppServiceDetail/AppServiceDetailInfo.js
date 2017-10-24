@@ -759,11 +759,11 @@ class AppServiceDetailInfo extends Component {
   formatVolumeType(type){
     switch(type){
       case 'private':
-        return <span>独享型(RBD)</span>
+        return <span>独享型（rbd）</span>
       case 'share':
-        return <span>共享型(nfs)</span>
+        return <span>共享型（NFS）</span>
       case 'host':
-        return <span>host类型</span>
+        return <span>本地存储</span>
       default:
         return <span>未知</span>
     }
