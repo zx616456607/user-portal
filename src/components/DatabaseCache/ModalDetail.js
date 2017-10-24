@@ -516,7 +516,7 @@ class VisitTypes extends Component{
         externalPort = externalPort[2]
       }
     }
-    let externalUrl = '-'
+    let externalUrl
     if (externalPort != '') {
       if (domain) {
         externalUrl = databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort
@@ -557,10 +557,18 @@ class VisitTypes extends Component{
           if (key === 'externalUrl') {
             return (
               <div>
-                <span className="domain">{externalUrl}</span>
-                <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                  <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,externalUrl)} onClick={this.copyTest.bind(this)}/>
-                </Tooltip>
+                {
+                  externalUrl
+                  ? (
+                    <div>
+                      <span className="domain">{externalUrl}</span>
+                      <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                        <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,externalUrl)} onClick={this.copyTest.bind(this)}/>
+                      </Tooltip>
+                    </div>
+                  )
+                  : '-'
+                }
               </div>
             )
           }
@@ -616,6 +624,7 @@ class VisitTypes extends Component{
         <div className="visitTypeBottomBox configContent">
           <div className="visitTypeTitle configHead">访问地址</div>
           <div className="visitAddrInnerBox">
+          <input type="text" className="copyTest" style={{opacity:0}}/>
             <Table
               dataSource={dataSource}
               columns={columes}

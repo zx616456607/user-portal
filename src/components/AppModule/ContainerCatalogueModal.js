@@ -20,7 +20,7 @@ import './style/ContainerCatalogueModal.less'
 
 const FormItem = Form.Item
 const Option = Select.Option
-const PATH_REG = /^\/[a-zA-Z0-9_\-\/]*$/
+const PATH_REG = /^\//
 
 let ContainerCatalogueModal = React.createClass({
   propTypes: {

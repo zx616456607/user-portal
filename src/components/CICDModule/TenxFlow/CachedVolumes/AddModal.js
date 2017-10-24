@@ -33,7 +33,7 @@ let AddModal = React.createClass({
     if (!value) {
       return callback()
     }
-    if (!/^\/[a-zA-Z0-9_\-\/]*$/.test(value)) {
+    if (!/^\//.test(value)) {
       return callback('请输入正确的路径')
     }
     const list = this.props.list || []

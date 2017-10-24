@@ -524,7 +524,7 @@ const MyComponent = React.createClass({
           <div className="actionBox commonData">
             <Dropdown.Button
               overlay={dropdown} type='ghost'
-              trigger={['click']}
+              trigger={['hover']}
               onClick={() => this.modalShow(item)}>
               <Icon type="eye-o" />
               <span>查看</span>
