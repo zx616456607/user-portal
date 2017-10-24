@@ -13,6 +13,7 @@
 import React from 'react'
 import { Button, Table, Row, Card, Modal, Icon, Input, Pagination } from 'antd'
 import { connect } from 'react-redux'
+import QueueAnim from 'rc-queue-anim'
 import './style/VMList.less'
 import CommonSearchInput from '../../../components/CommonSearchInput'
 import Title from '../../Title'
@@ -42,6 +43,7 @@ class VMList extends React.Component {
       list: [],
       total: 0,
       host: '',
+      isLoading: true,
     }
   }
 
@@ -60,7 +62,8 @@ class VMList extends React.Component {
           if (res.code === 200) {
             this.setState({
               total: res.body.total,
-              list: res.body.vminfos[0]
+              list: res.body.vminfos[0],
+              isLoading: false,
             })
           }
         },
@@ -365,50 +368,53 @@ class VMList extends React.Component {
     };
     const scope = this
     return (
-      <div id="VMList">
-        <Row>
-          <Button type='primary' size='large' className='addBtn' onClick={() => this.handleA()}>
-            <i className='fa fa-plus' /> 添加传统环境
+      <QueueAnim>
+        <div id="VMList">
+          <Row>
+            <Button type='primary' size='large' className='addBtn' onClick={() => this.handleA()}>
+              <i className='fa fa-plus' /> 添加传统环境
           </Button>
-          <Button type="ghost" size="large" className="manageBtn" onClick={() => this.getInfo(1, null)} ><i className='fa fa-refresh' /> 刷新</Button>
-          {/*<Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>*/}
-          {/* <Input className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={(e) => this.handleSearch(e)} /> */}
-          <CommonSearchInput onSearch={(value) => { this.getInfo(1, value) }} size="large" placeholder="请输入虚拟机IP搜索" />
-          <Pagination className="pag" {...pagination} />
-          {data.length > 0 && <span className="total">共 {total} 个</span>}
-        </Row>
-        <Table
-          pagination={false}
-          loading={false}
-          columns={columns}
-          dataSource={list}
-        />
-        {
-          this.state.isModal ?
-            <CreateVMListModal
-              scope={scope}
-              modalTitle={this.state.modalTitle}
-              visible={this.state.visible}
-              onSubmit={this.vmAddList.bind(this)}
-              Rows={this.state.editRows}
-              isAdd={this.state.isAdd}
-              Check={this.vmCheck.bind(this)}
+            <Button type="ghost" size="large" className="manageBtn" onClick={() => this.getInfo(1, null)} ><i className='fa fa-refresh' /> 刷新</Button>
+            {/*<Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>*/}
+            {/* <Input className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={(e) => this.handleSearch(e)} /> */}
+            <CommonSearchInput onSearch={(value) => { this.getInfo(1, value) }} size="large" placeholder="请输入虚拟机IP搜索" />
+            <Pagination className="pag" {...pagination} />
+            {data.length > 0 && <span className="total">共 {total} 个</span>}
+          </Row>
+          <Table
+            pagination={false}
+            loading={this.state.isLoading}
+            columns={columns}
+            dataSource={list}
+          />
+          {
+            this.state.isModal ?
+              <CreateVMListModal
+                scope={scope}
+                modalTitle={this.state.modalTitle}
+                visible={this.state.visible}
+                onSubmit={this.vmAddList.bind(this)}
+                Rows={this.state.editRows}
+                isAdd={this.state.isAdd}
+                Check={this.vmCheck.bind(this)}
+              >
+              </CreateVMListModal> : ''
+          }
+          <Row>
+            <Modal
+              title={"删除传统环境"}
+              visible={this.state.isDelVisible}
+              footer={[
+                <Button key="back" type="ghost" size="large" onClick={() => this.handleClose()}>  取 消 </Button>,
+                <Button key="submit" type="primary" size="large" onClick={() => this.handleDel()}> 确 定 </Button>,
+              ]}
             >
-            </CreateVMListModal> : ''
-        }
-        <Row>
-          <Modal
-            title={"删除传统环境"}
-            visible={this.state.isDelVisible}
-            footer={[
-              <Button key="back" type="ghost" size="large" onClick={() => this.handleClose()}>  取 消 </Button>,
-              <Button key="submit" type="primary" size="large" onClick={() => this.handleDel()}> 确 定 </Button>,
-            ]}
-          >
-            <span style={{ fontSize: 16, color: '#ff0000' }}><Icon size={15} style={{ color: '#ff0000' }} type="question-circle-o" />是否删除当前传统应用环境</span>
-          </Modal>
-        </Row>
-      </div>
+              <span style={{ fontSize: 16, color: '#ff0000' }}><Icon size={15} style={{ color: '#ff0000' }} type="question-circle-o" />是否删除当前传统应用环境</span>
+            </Modal>
+          </Row>
+        </div>
+      </QueueAnim>
+
     )
   }
 }

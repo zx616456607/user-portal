@@ -24,8 +24,10 @@ import homeRedis from '../../../../assets/img/homeRedis.png'
 import homeZookeeper from '../../../../assets/img/homeZookeeper.png'
 import homeElasticSearch from '../../../../assets/img/homeElasticSearch.png'
 import homeEtcd from '../../../../assets/img/homeEtcdCluster.png'
+import snapshot from '../../../../assets/img/snapshot.png'
 import { Link } from 'react-router'
-import { AVATAR_HOST, SHOW_BILLING, REG } from '../../../../constants'
+import { AVATAR_HOST, SHOW_BILLING, REG, DEFAULT_IMAGE_POOL } from '../../../../constants'
+import { loadStorageList } from '../../../../actions/storage'
 import { getClusterQuota, getClusterQuotaList } from '../../../../actions/quota'
 
 const RadioButton = Radio.Button
@@ -158,6 +160,9 @@ class Ordinary extends Component {
       isService: false,
       clusterList: [],
       clusterUseList: [],
+      storageCount: 0,
+      memoryCount: 0,
+      hostCount: 0,
     }
   }
 
@@ -178,6 +183,59 @@ class Ordinary extends Component {
     loadClusterInfo(clusterID)
     this.loadClusterSummary(clusterID)
     this.fetchQuotaList()
+    this.storageList()
+  }
+
+  storageList(){
+    const { loadStorageList, clusterID } = this.props
+    let storageQuery = {
+      storagetype: 'ceph',
+      srtype: 'private'
+    }
+    let memoryQuery = {
+      storagetype: 'nfs',
+      srtype: 'share'
+    }
+    let hostQuery = {
+      storagetype: 'host',
+      srtype: 'host'
+    }
+    loadStorageList(DEFAULT_IMAGE_POOL, clusterID, storageQuery, {
+      success: {
+        func: res => {
+          if(res.code === 200){
+            this.setState({
+              storageCount: res.data === null ? 0 : res.data.length
+            })
+          }
+        }
+      },
+      isAsync: true
+    })
+    loadStorageList(DEFAULT_IMAGE_POOL, clusterID, memoryQuery, {
+      success: {
+        func: res => {
+          if(res.code === 200){
+            this.setState({
+              memoryCount: res.data === null ? 0 : res.data.length
+            })
+          }
+        }
+      },
+      isAsync: true
+    })
+    loadStorageList(DEFAULT_IMAGE_POOL, clusterID, hostQuery, {
+      success: {
+        func: res => {
+          if(res.code === 200){
+            this.setState({
+              hostCount: res.data === null ? 0 : res.data.length
+            })
+          }
+        }
+      },
+      isAsync: true
+    })
   }
 
   fetchQuotaList() {
@@ -340,13 +398,17 @@ class Ordinary extends Component {
           result = count * 100
         }
       }
-    } else if(value !== -1) {
+    } else if (value !== -1) {
       let number = 100 / value
       for (let i = 0; i < count; i++) {
         if (String(count).indexOf('.') === -1) {
           result += number
         } else {
-          result += count * number
+          if (Number(String(count).split('.')[0]) > 0) {
+            result += number
+          } else {
+            result += count * number
+          }
         }
       }
     }
@@ -1722,24 +1784,27 @@ class Ordinary extends Component {
           </Col>
           <Col span={6} className='storage'>
             <Card title="存储与快照" bordered={false} bodyStyle={{ height: 180, padding: '0px 20px 0px 0px' }}>
-              <ProgressBox boxPos={boxPos} />
-              <Col span={12} className='storageInf'>
+              {/* <ProgressBox boxPos={boxPos} /> */}
+              <Col span={10} className="storageImg">
+                <img src={snapshot} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+              </Col>
+              <Col span={14} className='storageInf'>
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
-                    <Col span={12}>已用<Tooltip title="当前已用配额"><Icon type="question-circle-o" /></Tooltip></Col>
-                    <Col span={12} style={{ textAlign: 'right' }}>{this.handleSize(clusterStorage.usedSize)}</Col>
+                    <Col span={14}>共享型存储卷</Col>
+                    <Col span={8} style={{ textAlign: 'right' }}>{this.state.storageCount} 个</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={12}>可用<Tooltip title="当前可用配额"><Icon type="question-circle-o" /></Tooltip></Col>
-                    <Col span={12} style={{ textAlign: 'right' }}>{this.handleSize(clusterStorage.freeSize)}</Col>
+                    <Col span={14}>独享型存储卷</Col>
+                    <Col span={8} style={{ textAlign: 'right' }}>{this.state.memoryCount} 个</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={12}>存储卷</Col>
-                    <Col span={12} style={{ textAlign: 'right' }}>{clusterStorage.totalCnt} 个</Col>
+                    <Col span={14}>host型存储卷</Col>
+                    <Col span={8} style={{ textAlign: 'right' }}>{this.state.hostCount} 个</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={12}>使用中</Col>
-                    <Col span={12} style={{ textAlign: 'right' }}>{clusterStorage.usedCnt} 个</Col>
+                    <Col span={14}>RBD型快照</Col>
+                    <Col span={8} style={{ textAlign: 'right' }}>{this.state.storageCount} 个</Col>
                   </Row>
                 </div>
               </Col>
@@ -2115,6 +2180,7 @@ function mapStateToProp(state, props) {
   const { current, loginUser } = state.entities
   const { clusterID } = current.cluster
   const { userID } = current.space
+  const { storage } = state
   const { projectName, name } = current.space
   let clusterOperationsData = {
     appCreate: 0,
@@ -2328,6 +2394,7 @@ function mapStateToProp(state, props) {
       clusterStaticSummary = clusterInfo.result.clusterStaticSummary
     }
   }
+  const sharchList = storage.storageList[DEFAULT_IMAGE_POOL] || {}
 
   return {
     userID,
@@ -2346,10 +2413,12 @@ function mapStateToProp(state, props) {
     clusterSummary: clusterSummaryInit,
     clusterStaticSummary,
     isFetching,
+    storageList: state.storage.storageList || [],
   }
 }
 
 export default connect(mapStateToProp, {
+  loadStorageList,
   getClusterQuota,
   getClusterQuotaList,
   loadClusterInfo,
