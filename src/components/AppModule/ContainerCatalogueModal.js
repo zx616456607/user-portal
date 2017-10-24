@@ -400,7 +400,7 @@ let ContainerCatalogueModal = React.createClass({
     const type = this.props.form.getFieldValue('type')
     volumes.forEach(volume => {
       const { name, fsType, size, isOld, isUsed } = volume
-      const value = `${name} ${fsType || '-'}`
+      const value = `${name} ${fsType || '-'} ${size}`
       if (type == 'private') {
         let disabled = selectedVolumes.indexOf(value) > -1 || isUsed
         options.push(
