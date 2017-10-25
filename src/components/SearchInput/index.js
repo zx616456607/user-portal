@@ -50,6 +50,7 @@ class SearchInput extends Component{
     let filter = this.getFilterField(selecteValue) + "," + e.target.value
     scope && scope.setState({
       filter,
+      searchFilter: filter,
     })
   }
   getFilterField(selecteValue) {
@@ -67,8 +68,9 @@ class SearchInput extends Component{
   handleSearch(){
     const { searchValue, selecteValue } = this.state
     let { scope,total } = this.props
-    const { searchResult, pageSize, sort } = scope.state
-    let filter = this.getFilterField(selecteValue) + "," + searchValue
+    let { searchResult, pageSize, sort, tableFilter } = scope.state
+    let currentFilter = this.getFilterField(selecteValue) + "," + searchValue
+    const filter = tableFilter ? `${tableFilter},${currentFilter}` : currentFilter
     if (selecteValue === "team") {
       this.props.loadUserTeamList('default', {
         size: pageSize,
@@ -83,6 +85,7 @@ class SearchInput extends Component{
               current: 1,
               filter,
               total,
+              searchFilter: filter,
             })
             this.setState({
               searchValue: searchValue
@@ -93,7 +96,7 @@ class SearchInput extends Component{
       })
     } else {
       this.props.loadUserList({
-        pageSize,
+        size: pageSize,
         page: 1,
         sort,
         filter,
@@ -105,6 +108,7 @@ class SearchInput extends Component{
               current: 1,
               filter,
               total,
+              searchFilter: filter,
             })
             this.setState({
               searchValue: searchValue
