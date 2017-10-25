@@ -113,3 +113,21 @@ exports.checkService = function* () {
   const result = yield api.services.getBy([ serviceName, 'exists' ],query)
   this.body = result
 }
+
+exports.checkVminfo = function* (){
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getVMWrapApi(loginUser)
+  this.query.name = this.params.vminfo
+  const result = yield api.vminfos.getBy([ 'list' ], this.query)
+  if (result.body.total > 0){
+    this.status = 400
+    this.body = {
+      message:"vm info exists"
+    }
+    return
+  }
+  this.status = 200
+  this.body = {
+    message:"vm info does not exist"
+  }
+}
