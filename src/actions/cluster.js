@@ -191,6 +191,102 @@ export function loadHostInstant(body) {
   }
 }
 
+export const LOAD_HOST_CPU_REQUEST = 'LOAD_HOST_CPU_REQUEST'
+export const LOAD_HOST_CPU_SUCCESS = 'LOAD_HOST_CPU_SUCCESS'
+export const LOAD_HOST_CPU_FAILURE = 'LOAD_HOST_CPU_FAILURE'
+
+function fetchHostCpu(body, query) {
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/cpu`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [LOAD_HOST_CPU_REQUEST,LOAD_HOST_CPU_SUCCESS,LOAD_HOST_CPU_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+export function loadHostCpu(body, query) {
+  return dispatch => {
+    return dispatch(fetchHostCpu(body, query))
+  }
+}
+
+export const LOAD_HOST_MEMORY_REQUEST = 'LOAD_HOST_MEMORY_REQUEST'
+export const LOAD_HOST_MEMORY_SUCCESS = 'LOAD_HOST_MEMORY_SUCCESS'
+export const LOAD_HOST_MEMORY_FAILURE = 'LOAD_HOST_MEMORY_FAILURE'
+
+function fetchHostMemory(body, query) {
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/memory`
+  if (query){
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [LOAD_HOST_MEMORY_REQUEST,LOAD_HOST_MEMORY_SUCCESS,LOAD_HOST_MEMORY_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+export function loadHostMemory(body, query) {
+  return dispatch => {
+    return dispatch(fetchHostMemory(body, query))
+  }
+}
+
+export const LOAD_HOST_NETWORK_REQUEST = 'LOAD_HOST_NETWORK_REQUEST'
+export const LOAD_HOST_NETWORK_SUCCESS = 'LOAD_HOST_NETWORK_SUCCESS'
+export const LOAD_HOST_NETWORK_FAILURE = 'LOAD_HOST_NETWORK_FAILURE'
+
+function fetchHostNewwork(body, query) {
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/network`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [LOAD_HOST_NETWORK_REQUEST,LOAD_HOST_NETWORK_SUCCESS,LOAD_HOST_NETWORK_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+export function loadHostNetwork(body, query){
+  return dispatch => {
+    return dispatch(fetchHostNewwork(body, query))
+  }
+}
+
+export const LOAD_HOST_DISK_REQUEST = 'LOAD_HOST_DISK_REQUEST'
+export const LOAD_HOST_DISK_SUCCESS = 'LOAD_HOST_DISK_SUCCESS'
+export const LOAD_HOST_DISK_FAILURE = 'LOAD_HOST_DISK_FAILURE'
+
+function fetchHostDisk(body, query) {
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/disk`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [LOAD_HOST_DISK_REQUEST,LOAD_HOST_DISK_SUCCESS,LOAD_HOST_DISK_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+export function loadHostDisk(body, query) {
+  return dispatch => {
+    return dispatch(fetchHostDisk(body, query))
+  }
+}
+
 export const UPDATE_CLUSTER_REQUEST = 'UPDATE_CLUSTER_REQUEST'
 export const UPDATE_CLUSTER_SUCCESS = 'UPDATE_CLUSTER_SUCCESS'
 export const UPDATE_CLUSTER_FAILURE = 'UPDATE_CLUSTER_FAILURE'

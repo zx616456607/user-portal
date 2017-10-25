@@ -13,6 +13,7 @@
 import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
+import { Row, Col, Switch } from 'antd'
 
 function formatGrid(count) {
   //this fucntion for format grid css
@@ -28,7 +29,8 @@ class Network extends Component {
 
   render() {
     const option = new EchartsOption('网络')
-    const { networkReceived, networkTransmitted ,events} = this.props
+    const { networkReceived, networkTransmitted ,events, scope } = this.props
+    let timeText = scope.state.switchNetwork ? '5秒钟' : scope.state.freshTime
     option.addYAxis('value', {
       formatter: '{value} KB/s'
     })
@@ -62,12 +64,18 @@ class Network extends Component {
     })
     option.setGirdForDataNetWork(networkTransmitted.data && networkTransmitted.data.length + networkReceived.data.length, events)
     return (
-      <ReactEcharts
-        style={{ height: formatGrid(networkTransmitted.data && networkTransmitted.data.length + networkReceived.data.length) }}
-        notMerge={true}
-        option={option}
-        showLoading={networkReceived.isFetching || networkTransmitted.isFetching}
+      <div className="chartBox">
+        <span className="freshTime">
+          {`时间间隔：${timeText}`}
+        </span>
+        <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Network')} checkedChildren="开" unCheckedChildren="关"/>
+        <ReactEcharts
+          style={{ height: formatGrid(networkTransmitted.data && networkTransmitted.data.length + networkReceived.data.length) }}
+          notMerge={true}
+          option={option}
+          showLoading={networkReceived.isFetching || networkTransmitted.isFetching}
         />
+      </div>
     )
   }
 }

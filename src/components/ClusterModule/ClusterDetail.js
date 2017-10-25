@@ -12,7 +12,10 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import { Icon, Button, Card, Tabs, Table, Input, Spin, Row, Col, Dropdown, Menu, Modal, Progress, Switch, Tag, Tooltip } from 'antd'
-import { getNodesPodeList, loadHostMetrics, searchPodeList} from '../../actions/cluster'
+import { 
+  getNodesPodeList, loadHostMetrics, searchPodeList, 
+  loadHostCpu, loadHostMemory, loadHostNetwork, loadHostDisk
+} from '../../actions/cluster'
 import './style/ClusterDetail.less'
 import hostImg from '../../assets/img/integration/host.png'
 import { formatDate, calcuDate } from '../../common/tools'
@@ -28,6 +31,7 @@ import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
 import ManageLabelModal from './MangeLabelModal'
 import Title from '../Title'
 import Resourcequota from '../../../static/img/Resourcequota.svg'
+import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../constants'
 
 const TabPane = Tabs.TabPane
 const MASTER = '主控节点/Master'
@@ -285,11 +289,27 @@ let HostInfo = React.createClass({
   }
 })
 
-function loadData(props, query) {
-  const { clusterID, clusterName, loadHostMetrics } = props
-  const body = { clusterID, clusterName }
-  loadHostMetrics(body, query)
-
+const timeFrequency = {
+  '1': {
+    'second': 1000 * 60,
+    'timeDes': '1分钟'
+  },
+  '6': {
+    'second': 1000 * 60 * 5,
+    'timeDes': '5分钟'
+  },
+  '24': {
+    'second': 1000 * 60 * 20,
+    'timeDes': '20分钟'
+  },
+  '168': {
+    'second': 1000 * 60 * 60 * 2,
+    'timeDes': '2小时'
+  },
+  '672': {
+    'second': 1000 * 60 * 60 * 6,
+    'timeDes': '6小时'
+  }
 }
 
 class ClusterDetail extends Component {
@@ -302,11 +322,16 @@ class ClusterDetail extends Component {
       schedulable: false,
       foreverPodNumber: 0,
       activeTabKey: 'info',
-      alarmOpen: false
+      alarmOpen: false,
+      freshTime: '1分钟',
+      switchCpu: false,
+      switchMemory: false,
+      switchNetwork: false,
+      switchDisk: false
     }
   }
   componentWillMount() {
-    const { clusterID, clusterName, loadHostMetrics,location } = this.props
+    const { clusterID, clusterName,location } = this.props
     //this.setState({activeTabKey:tab || 'info'})
     const body = {
       clusterID,
@@ -330,7 +355,10 @@ class ClusterDetail extends Component {
       }
     })
 
-    loadHostMetrics(body, { start: this.changeTime(1) })
+    this.loadData(this.props, { start: this.changeTime(1) })
+    this.changeTimeInterval = setInterval(() => {
+      this.loadData(this.props, { start: this.changeTime(1) })
+    }, UPDATE_INTERVAL)
 
     let { tab , open } = location.query
     if (tab) {
@@ -342,7 +370,19 @@ class ClusterDetail extends Component {
       })
     }
   }
-
+  componentWillUnmount() {
+    clearInterval(this.changeTimeInterval)
+    clearInterval(this.cpuInterval)
+    clearInterval(this.memoryInterval)
+    clearInterval(this.networkInterval)
+    clearInterval(this.diskInterval)
+  }
+  loadData(props, query) {
+    const { clusterID, clusterName, loadHostMetrics } = props
+    const body = { clusterID, clusterName }
+    loadHostMetrics(body, query)
+  }
+  
   changeSchedulable(node, e) {
     //this function for change node schedulable
     const { clusterID, changeClusterNodeSchedule } = this.props;
@@ -371,6 +411,56 @@ class ClusterDetail extends Component {
       }
     })
   }
+  getHostCpu() {
+    const { loadHostCpu, clusterID, clusterName } = this.props
+    loadHostCpu({clusterID, clusterName}, {start: this.changeTime(0.5)})
+  }
+  getHostMemory() {
+    const { loadHostMemory, clusterID, clusterName } = this.props
+    loadHostMemory({clusterID, clusterName}, {start: this.changeTime(0.5)})
+  }
+  getHostNetwork() {
+    const { loadHostNetwork, clusterID, clusterName } = this.props
+    loadHostNetwork({clusterID, clusterName}, {start: this.changeTime(0.5)})
+  }
+  getHostDisk() {
+    const { loadHostDisk, clusterID, clusterName } = this.props
+    loadHostDisk({clusterID, clusterName}, {start: this.changeTime(0.5)})
+  }
+  switchChange(flag, type) {
+    this.setState({
+      [`switch${type}`]: flag
+    })
+    switch(type) {
+      case 'Cpu':
+        clearInterval(this.cpuInterval)
+        if (flag) {
+          this.getHostCpu()
+          this.cpuInterval = setInterval(() => this.getHostCpu(), LOAD_INSTANT_INTERVAL)
+        }
+        break
+      case 'Memory':
+        clearInterval(this.memoryInterval)
+        if (flag) {
+          this.getHostMemory()
+          this.memoryInterval = setInterval(() => this.getHostMemory(), LOAD_INSTANT_INTERVAL)
+        }
+        break
+      case 'Network':
+        clearInterval(this.networkInterval)
+        if (flag) {
+          this.getHostNetwork()
+          this.networkInterval = setInterval(() => this.getHostNetwork(), LOAD_INSTANT_INTERVAL)
+        }
+        break
+      case 'Disk':
+        clearInterval(this.diskInterval)
+        if (flag) {
+          this.getHostDisk()
+          this.diskInterval = setInterval(() => this.getHostDisk(), LOAD_INSTANT_INTERVAL)
+        }
+    }
+  }
   changeTime(hours) {
     let d = new Date()
     d.setHours(d.getHours() - hours)
@@ -378,17 +468,24 @@ class ClusterDetail extends Component {
   }
   handleTimeChange(e) {
     const { value } = e.target
+    const intervalTime = timeFrequency[value]['second']
+    const timeDes = timeFrequency[value]['timeDes']
     const start = this.changeTime(value)
     this.setState({
-      currentStart: start
+      currentStart: start,
+      freshTime: timeDes
     })
-    loadData(this.props, { start })
+    clearInterval(this.changeTimeInterval)
+    this.loadData(this.props, { start })
+    this.changeTimeInterval = setInterval(() => {
+      this.loadData(this.props, { start })  
+    }, intervalTime)
   }
 
   formetCpumetrics(cpuData) {
     if (!cpuData.data) return {}
     let formetDate = { data: [] }
-    let metrics = {}
+    let metrics = []
     if (cpuData.data.metrics) {
       metrics = cpuData.data.metrics.map((list) => {
         let floatValue = list.floatValue || list.value
@@ -461,14 +558,20 @@ class ClusterDetail extends Component {
         </div>
       )
     }
+    const { freshTime, switchCpu, switchMemory, switchNetwork, switchDisk } = this.state
+    const { 
+      clusterName, cpu, hostCpu, memory, hostMemory,  
+      networkReceived, hostNetworkRx, networkTransmitted, hostNetworkTx, 
+      diskReadIo, diskWriteIo, hostDiskReadIo, hostDiskWriteIo
+    } = this.props
     const hostInfo = this.props.hostInfo.result ? this.props.hostInfo.result : {objectMeta:{creationTimestamp:''}, address:' '}
     hostInfo.isFetching = this.props.isFetching
-    const showCpu = this.formetCpumetrics(this.props.hostcpu)
-    const showMemory = this.formetMemorymetrics(this.props.memory)
-    const showNetworkRec = this.formetNetworkmetrics(this.props.networkReceived, this.props.clusterName)
-    const showNetworkTrans = this.formetNetworkmetrics(this.props.networkTransmitted, this.props.clusterName)
-    const showNodeReadIo = this.formatNodemetrics(this.props.diskReadIo, this.props.clusterName)
-    const showNodeWriteIo = this.formatNodemetrics(this.props.diskWriteIo, this.props.clusterName)
+    const showCpu = switchCpu ? this.formetCpumetrics(hostCpu) : this.formetCpumetrics(cpu)
+    const showMemory = switchMemory ? this.formetMemorymetrics(hostMemory): this.formetMemorymetrics(memory)
+    const showNetworkRec = switchNetwork ? this.formetNetworkmetrics(hostNetworkRx, clusterName) : this.formetNetworkmetrics(networkReceived, clusterName)
+    const showNetworkTrans = switchNetwork ? this.formetNetworkmetrics(hostNetworkTx, clusterName) : this.formetNetworkmetrics(networkTransmitted, clusterName)
+    const showNodeReadIo = switchDisk ? this.formatNodemetrics(hostDiskReadIo, clusterName) : this.formatNodemetrics(diskReadIo, clusterName)
+    const showNodeWriteIo = switchDisk ? this.formatNodemetrics(hostDiskWriteIo, clusterName) : this.formatNodemetrics(diskWriteIo, clusterName)
     const fetchApi = {
       getNodeLabels: this.props.getNodeLabels,
       clusterID: this.props.clusterID,
@@ -518,6 +621,7 @@ class ClusterDetail extends Component {
             <TabPane tab="监控" key="monitoring">
               <TimeControl onChange={this.handleTimeChange} />
               <Metrics
+                scope={this}
                 cpu={showCpu}
                 memory={showMemory}
                 networkReceived={showNetworkRec}
@@ -542,7 +646,7 @@ class ClusterDetail extends Component {
 function mapStateToProps(state, props) {
   const clusterName = props.params.cluster_name
   const { clusterID }  = props.params
-  const { podeList, hostInfo, hostMetrics } = state.cluster || {}
+  const { podeList, hostInfo, hostMetrics, hostCpu, hostMemory, hostNetwork, hostDisk } = state.cluster || {}
   const defaultState = {
     isFetching: false,
     result: { pods: [] }
@@ -576,12 +680,32 @@ function mapStateToProps(state, props) {
     diskReadIo.data = hostMetrics.result.diskReadIo
     diskWriteIo.data = hostMetrics.result.diskWriteIo
   }
+  let instantCpu = {}
+  let instantMemory = {}
+  let instantNetworkRx = {}
+  let instantNetworkTx = {}
+  let instantDiskReadIo = {}
+  let instantDiskWriteIo = {}
+  if (hostCpu && hostCpu.result) {
+    instantCpu.data = hostCpu.result.cpus
+  }
+  if (hostMemory && hostMemory.result) {
+    instantMemory.data = hostMemory.result.memory
+  }
+  if (hostNetwork && hostNetwork.result) {
+    instantNetworkRx.data = hostNetwork.result.rxRate
+    instantNetworkTx.data = hostNetwork.result.txRate
+  }
+  if (hostDisk && hostDisk.result) {
+    instantDiskReadIo.data = hostDisk.result.diskReadIo
+    instantDiskWriteIo.data = hostDisk.result.diskWriteIo
+  }
   /*let instant = {}
   if (hostInstant && hostInstant.result) {
     instant = hostInstant.result
   }*/
   return {
-    hostcpu: cpuData,
+    cpu: cpuData,
     memory: memoryData,
     networkReceived: networkReceivedData,
     networkTransmitted: networkTransmittedData,
@@ -593,7 +717,13 @@ function mapStateToProps(state, props) {
     isFetching,
     results,
     // instant,
-    hostInfo
+    hostInfo,
+    hostCpu: instantCpu, //实时刷新
+    hostMemory: instantMemory,
+    hostNetworkRx: instantNetworkRx,
+    hostNetworkTx: instantNetworkTx,
+    hostDiskReadIo: instantDiskReadIo,
+    hostDiskWriteIo: instantDiskWriteIo
   }
 }
 
@@ -604,5 +734,9 @@ export default connect(mapStateToProps, {
   // loadHostInstant,
   searchPodeList,
   changeClusterNodeSchedule,
-  getNodeLabels
+  getNodeLabels,
+  loadHostCpu,
+  loadHostMemory,
+  loadHostNetwork,
+  loadHostDisk
 })(ClusterDetail)

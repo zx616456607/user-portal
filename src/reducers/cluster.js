@@ -231,6 +231,26 @@ export default function cluster(state = {
       SUCCESS: ActionTypes.LOAD_HOST_INSTANT_SUCCESS,
       FAILURE: ActionTypes.LOAD_HOST_INSTANT_FAILURE,
     }, state.hostInstant, action, option),
+    hostCpu: reducerFactory({
+      REQUEST: ActionTypes.LOAD_HOST_CPU_REQUEST,
+      SUCCESS: ActionTypes.LOAD_HOST_CPU_SUCCESS,
+      FAILURE: ActionTypes.LOAD_HOST_CPU_FAILURE
+    }, state.hostCpu, action, option),
+    hostMemory: reducerFactory({
+      REQUEST: ActionTypes.LOAD_HOST_MEMORY_REQUEST,
+      SUCCESS: ActionTypes.LOAD_HOST_MEMORY_SUCCESS,
+      FAILURE: ActionTypes.LOAD_HOST_MEMORY_FAILURE,
+    }, state.hostMemory, action, option),
+    hostNetwork: reducerFactory({
+      REQUEST: ActionTypes.LOAD_HOST_NETWORK_REQUEST,
+      SUCCESS: ActionTypes.LOAD_HOST_NETWORK_SUCCESS,
+      FAILURE: ActionTypes.LOAD_HOST_NETWORK_FAILURE
+    }, state.hostNetwork, action, option),
+    hostDisk: reducerFactory({
+      REQUEST: ActionTypes.LOAD_HOST_DISK_REQUEST,
+      SUCCESS: ActionTypes.LOAD_HOST_DISK_SUCCESS,
+      FAILURE: ActionTypes.LOAD_HOST_DISK_FAILURE
+    }, state.hostDisk, action, option),
     updateProxy: reducerFactory({
       REQUEST: ActionTypes.PROXY_UPDATE_REQUEST,
       SUCCESS: ActionTypes.PROXY_UPDATE_SUCCESS,

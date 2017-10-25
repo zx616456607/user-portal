@@ -484,7 +484,11 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster/:node/metrics', clusternodesController.getClustersMetrics)
   router.get('/cluster-nodes/:cluster/:node/instant', clusternodesController.getClustersInstant)
   router.get('/cluster-nodes/:cluster/label-summary', clusternodesController.getLabelSummary)
-
+  router.get('/cluster-nodes/:cluster/:node/cpu', clusternodesController.getClustersCpu)
+  router.get('/cluster-nodes/:cluster/:node/memory', clusternodesController.getClustersMemory)
+  router.get('/cluster-nodes/:cluster/:node/network', clusternodesController.getClustersNetwork)
+  router.get('/cluster-nodes/:cluster/:node/disk', clusternodesController.getClustersDisk)
+  
   // manipulate node's labels
   router.get('/cluster-nodes/:cluster/:node/labels', clusternodesController.getNodeLabels)
   router.put('/cluster-nodes/:cluster/:node/labels', clusternodesController.updateNodeLabels)
