@@ -38,12 +38,16 @@ let MemberList = React.createClass({
       loading: false,
       sortUserOrder: true,
       sortUser: "a,userName",
-      current: 1,
       userPageSize: 5,
       userPage: 1,
       filter: '',
       selectedRowKeys: []
     }
+  },
+  componentWillReceiveProps(newProps) {
+    this.setState({
+      filter: newProps.searchFilter,
+    })
   },
   getUserSort(order, column) {
     var orderStr = 'a,'
@@ -67,7 +71,6 @@ let MemberList = React.createClass({
       sortUser: sort,
     })
   },
-
   delTeamMember() {
     const { removeTeamusers, teamID, loadTeamUserList, scope, loadTeamAllUser } = this.props
     const { sortUser, userPageSize, filter, transferHint } = this.state
@@ -94,7 +97,7 @@ let MemberList = React.createClass({
             filter,
           })
           loadTeamAllUser(teamID,{size: -1, sort: 'a,userName'})
-          self.setState({
+          scope.setState({
             current: 1,
           })
         },
@@ -114,7 +117,7 @@ let MemberList = React.createClass({
   },
   onShowSizeChange(current, pageSize) {
     let { sortUser, filter } = this.state
-    const { loadTeamUserList, teamID } = this.props
+    const { loadTeamUserList, teamID, scope } = this.props
     loadTeamUserList(teamID, {
       page: 1,
       size: pageSize,
@@ -124,6 +127,8 @@ let MemberList = React.createClass({
     this.setState({
       userPageSize: pageSize,
       userPage: 1,
+    })
+    scope.setState({
       current: 1,
     })
   },
@@ -132,7 +137,7 @@ let MemberList = React.createClass({
       return
     }
     let { sortUser, userPageSize, filter} = this.state
-    const { loadTeamUserList, teamID } = this.props
+    const { loadTeamUserList, teamID, scope } = this.props
     loadTeamUserList(teamID, {
       page: current,
       size: userPageSize,
@@ -142,8 +147,8 @@ let MemberList = React.createClass({
     this.setState({
       userPageSize: userPageSize,
       userPage: current,
-      current: current,
     })
+    scope.setState({ current })
   },
   onTableChange(pagination, filters, sorter) {
     // 点击分页、筛选、排序时触发
@@ -190,15 +195,15 @@ let MemberList = React.createClass({
     }
   },
   render: function () {
-    let { filteredInfo, current, selectedRowKeys, userName, transferHint} = this.state
-    const { teamUserList, teamUsersTotal, roleNum, isNotManager } = this.props
+    let { filteredInfo, selectedRowKeys, userName, transferHint} = this.state
+    const { teamUserList, teamUsersTotal, roleNum, isNotManager, scope } = this.props
     filteredInfo = filteredInfo || {}
     const pagination = {
       simple: true,
       total: teamUsersTotal,
       defaultPageSize: 5,
       defaultCurrent: 1,
-      current: current,
+      current: scope.state.current,
       pageSizeOptions: ['5', '10', '15', '20'],
       onShowSizeChange: this.onShowSizeChange,
       onChange: this.onChange,
@@ -313,7 +318,9 @@ class TeamDetail extends Component {
       originalLeader: [],
       delLeaderHint: false,
       delLeaderName: '',
-      value: ''
+      value: '',
+      current: 1,
+      searchFilter: '',
     }
   }
   componentWillMount() {
@@ -476,11 +483,16 @@ class TeamDetail extends Component {
   }
   loadTeamUser(value) {
     const { loadTeamUserList, teamID } = this.props;
+    const filter = `userName,${value}`
     loadTeamUserList(teamID,{
       sort: 'a,userName',
       page: 1,
       size: 5,
       filter: `userName,${value}`
+    })
+    this.setState({
+      current: 1,
+      filter,
     })
   }
   transferTeamLeader() {
@@ -727,7 +739,7 @@ class TeamDetail extends Component {
       callback(new Error('以[a~z]开头，允许[0~9]、[-]，长度大于4，且以小写英文和数字结尾'))
       return
     }
-    
+
     clearTimeout(this.teamExistsTimeout)
     this.teamExistsTimeout = setTimeout(() => {
       checkTeamName(value, {
@@ -762,7 +774,12 @@ class TeamDetail extends Component {
       loadTeamUserList, form, loadTeamAllUser, roleNum
     } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = form
-    const { targetKeys, teamDetail, selectLeader, editTeamName, delLeaderName, value, isNotManager, editTeamDes, teamPage } = this.state
+    const {
+      targetKeys, teamDetail, selectLeader,
+      editTeamName, delLeaderName, value,
+      isNotManager, editTeamDes, teamPage,
+      filter,
+    } = this.state
     const leaderRowSelction = {
       type: 'radio',
       selectedRowKeys: selectLeader,
@@ -980,15 +997,16 @@ class TeamDetail extends Component {
                   </Col>
                 </Row>
                 <Row>
-                  <MemberList teamUserList={teamUserList}
-                              scope={this}
-                              isNotManager={isNotManager}
-                              teamID={teamID}
-                              roleNum={roleNum}
-                              removeTeamusers={removeTeamusers}
-                              loadTeamUserList={loadTeamUserList}
-                              loadTeamAllUser={loadTeamAllUser}
-                              teamUsersTotal={teamUsersTotal} />
+                <MemberList teamUserList={teamUserList}
+                            scope={this}
+                            isNotManager={isNotManager}
+                            teamID={teamID}
+                            roleNum={roleNum}
+                            removeTeamusers={removeTeamusers}
+                            loadTeamUserList={loadTeamUserList}
+                            loadTeamAllUser={loadTeamAllUser}
+                            teamUsersTotal={teamUsersTotal}
+                            searchFilter={filter} />
                 </Row>
               </Col>
               <Col span={3} />
