@@ -199,13 +199,13 @@ const Storage = React.createClass({
         let volumeName = volume
         if (volume === 'create') {
           if(type == 'private'){
-            volumeName = `${name} ${fsType || '-'}`
+            volumeName = `${name} ${fsType || '-'} ${size}`
           }
           if(type == 'share'){
-            volumeName = `${name} -`
+            volumeName = `${name}`
           }
           if(type == 'host'){
-            volumeName = '-'
+            volumeName = '未绑定'
           }
         } else {
           if(type == 'private'){
@@ -213,10 +213,10 @@ const Storage = React.createClass({
           }
           if(type == 'share'){
             const name = volume.split(' ')[0]
-            volumeName = `${name} -`
+            volumeName = `${name}`
           }
           if(type == 'host'){
-            volumeName = '-'
+            volumeName = '未绑定'
           }
         }
         return <Row key={`storagelist${index}`} className='storage_row_style'>
@@ -328,11 +328,11 @@ const Storage = React.createClass({
   formatType(type) {
     switch (type) {
       case 'host':
-        return <span>host</span>
+        return <span>本地存储</span>
       case 'private':
-        return <span>独享型（可靠块存储）</span>
+        return <span>独享型（rbd）</span>
       case 'share':
-        return <span>共享型（nfs）</span>
+        return <span>共享型（NFS）</span>
       default:
         return <span>未知</span>
     }
@@ -425,7 +425,7 @@ const Storage = React.createClass({
                   <div>
                     独享型存储，仅支持一个容器实例读写操作；<br/>
                     共享型支持多个容器实例同时对同一个存储卷读写操作；<br/>
-                    host 型存储支持在宿主机节点上保存数据。
+                    本地存储支持在宿主机节点上保存数据。
                   </div>
                   <Spin className={volumeSpinClass} />
                   {this.renderConfigure()}

@@ -12,6 +12,7 @@ import { connect } from 'react-redux'
 import './style/ManualScaleModal.less'
 import { Row, Col, Slider, InputNumber, Modal, Icon, Button, Spin, message } from 'antd'
 import { INSTANCE_MAX_NUM } from '../../../../constants'
+import { UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
 import { manualScaleService } from '../../../actions/services'
 import NotificationHandler from '../../../components/Notification'
 import { isStorageUsed } from '../../../common/tools'
@@ -22,9 +23,9 @@ class ManualScaleModal extends Component {
     this.handleRealNum = this.handleRealNum.bind(this)
     this.handleModalOK = this.handleModalOK.bind(this)
     this.handleModalCancel = this.handleModalCancel.bind(this)
+    this.getVolumeTypeInfo = this.getVolumeTypeInfo.bind(this)
     this.state = {
       realNum: 1,
-      scalable: false,
     }
   }
 
@@ -43,7 +44,6 @@ class ManualScaleModal extends Component {
     }
     this.setState({
       realNum: service.spec.replicas,
-      scalable: !isStorageUsed(service.spec.template.spec.volumes)
     })
   }
 
@@ -80,9 +80,11 @@ class ManualScaleModal extends Component {
         isAsync: true
       },
       failed: {
-        func: () => {
+        func: err => {
           notification.close()
-          notification.error(`服务 ${serviceName} 伸缩失败`)
+          if(err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
+            notification.error(`服务 ${serviceName} 伸缩失败`)
+          }
         }
       }
     })
@@ -93,6 +95,19 @@ class ManualScaleModal extends Component {
     parentScope.setState({
       manualScaleModalShow: false
     })
+  }
+
+  getVolumeTypeInfo(){
+    const { service } = this.props
+    const { volumeTypeList } = service
+    let incloudPrivate = false
+    for(let i = 0; i < volumeTypeList.length; i++){
+      if(volumeTypeList[i] == 'private'){
+        incloudPrivate = true
+        break
+      }
+    }
+    return incloudPrivate
   }
 
   render() {
@@ -106,6 +121,7 @@ class ManualScaleModal extends Component {
         </div>
     }*/
     const { realNum } = this.state
+    const incloudPrivate = this.getVolumeTypeInfo()
     const modalFooter = [
       <Button
         key="back" type="ghost" size="large"
@@ -115,7 +131,7 @@ class ManualScaleModal extends Component {
       <Button
         key="submit" type="primary"
         size="large" loading={this.state.loading}
-        disabled={!this.state.scalable || this.props.disableScale}
+        disabled={incloudPrivate || this.props.disableScale}
         onClick={this.handleModalOK} >
         保 存
       </Button>
@@ -127,6 +143,12 @@ class ManualScaleModal extends Component {
         footer={modalFooter}
         onCancel={this.handleModalCancel} >
         <div id="ManualScaleModal">
+          <Row>
+            <Col className='alertRow'>
+              Tips: {!incloudPrivate ? '实例数量调整 , 保存后系统将调整实例数量至设置预期. (若自动伸缩开启, 则无法手动扩展)' :
+              '挂载独享型存储的服务不支持水平扩展'}
+            </Col>
+          </Row>
           <Row className="cardItem">
             <Col className="itemTitle" span={4} style={{ textAlign: 'left' }}>服务名称</Col>
             <Col className="itemBody" span={20}>{service.metadata.name}</Col>
@@ -156,12 +178,6 @@ class ManualScaleModal extends Component {
                     /> 个
                 </Col>
               </Row>
-            </Col>
-          </Row>
-          <Row>
-            <Col style={{ color: '#a0a0a0', textAlign: 'left', marginTop: '20px' }}>
-              Tips: {this.state.scalable ? '实例数量调整 , 保存后系统将调整实例数量至设置预期. (若自动伸缩开启, 则无法手动扩展)' :
-                     '挂载独享型或host类型存储的服务不支持水平扩展'}
             </Col>
           </Row>
         </div>

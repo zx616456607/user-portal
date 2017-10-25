@@ -348,14 +348,7 @@ const MyComponent = React.createClass({
     }
     const items = serviceList.map((item) => {
       item.cluster = cluster
-      let isHaveVolume = false
       let redeployDisable = true
-      if(item.spec.template.spec.volumes) {
-        isHaveVolume = item.spec.template.spec.volumes.some(volume => {
-          if(!volume) return false
-          return volume.rbd
-        })
-      }
       if(item.status.phase == 'Running' || item.status.phase == 'Pending'){
         redeployDisable = false
       }
@@ -393,7 +386,7 @@ const MyComponent = React.createClass({
             删除
           </Menu.Item>
           <Menu.Divider key="baseline1" />
-          <Menu.Item key="rollingUpdate" disabled={isHaveVolume}>
+          <Menu.Item key="rollingUpdate" >
             灰度升级
           </Menu.Item>
           <SubMenu title="扩展">
@@ -531,7 +524,7 @@ const MyComponent = React.createClass({
           <div className="actionBox commonData">
             <Dropdown.Button
               overlay={dropdown} type='ghost'
-              trigger={['click']}
+              trigger={['hover']}
               onClick={() => this.modalShow(item)}>
               <Icon type="eye-o" />
               <span>查看</span>

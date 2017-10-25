@@ -215,10 +215,18 @@ class MySpace extends Component {
           result = count * 100
         }
       }
-    } else if(value !== -1) {
+    } else if (value !== -1) {
       let number = 100 / value
       for (let i = 0; i < count; i++) {
-        result += number
+        if (String(count).indexOf('.') === -1) {
+          result += number
+        } else {
+          if (Number(String(count).split('.')[0]) > 0) {
+            result += number
+          } else {
+            result += count * number
+          }
+        }
       }
     }
     result > max ? result = max : result

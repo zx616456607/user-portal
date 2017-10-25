@@ -412,8 +412,8 @@ class AlarmStrategy extends Component {
       <div className="alarmStrategy">
         <div className="topRow">
            <Button size="large" type="primary" onClick={()=> this.showAlert()}><i className="fa fa-plus" /> 创建告警</Button>
-          <Button size="large" type="primary" onClick={()=>　loadStrategy(this)}><i className="fa fa-refresh" /> 刷新</Button>
-          <Button icon="delete" size="large" type="ghost" onClick={() => this.setState({ deleteModal: true })} disabled={(this.state.selectedRowKeys.length == 0)}>删除</Button>
+          <Button  className="refresh" size="large" onClick={()=>　loadStrategy(this)}><i className="fa fa-refresh" /> 刷新</Button>
+          <Button className="refresh" icon="delete" size="large" type="ghost" onClick={() => this.setState({ deleteModal: true })} disabled={(this.state.selectedRowKeys.length == 0)}>删除</Button>
         </div>
         <div className='pageBox'>
           <span className='totalPage'>共计 {total} 条</span>

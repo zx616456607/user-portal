@@ -310,10 +310,18 @@ class ResourceQuota extends React.Component {
           result = count * 100
         }
       }
-    } else if(value > 0) {
+    } else if (value > 0) {
       let number = 100 / value
       for (let i = 0; i < count; i++) {
-        result += number
+        if (String(count).indexOf('.') === -1) {
+          result += number
+        } else {
+          if (Number(String(count).split('.')[0]) > 0) {
+            result += number
+          } else {
+            result += count * number
+          }
+        }
       }
     }
     result >= max ? result = max : result
@@ -344,7 +352,8 @@ class ResourceQuota extends React.Component {
     if (globaleUseList) {
       Object.keys(globaleUseList).forEach((item, index) => {
         if (item === value) {
-          count = Object.values(globaleUseList)[index]
+          count = Object.values(globaleUseList)[index].toString().indexOf('.') === -1 ?
+            Object.values(globaleUseList)[index] : Object.values(globaleUseList)[index].toFixed(2)
         }
       })
     }
@@ -369,7 +378,8 @@ class ResourceQuota extends React.Component {
     if (clusterUseList) {
       Object.keys(clusterUseList).forEach((item, index) => {
         if (item === value) {
-          count = Object.values(clusterUseList)[index]
+          count = Object.values(clusterUseList)[index].toString().indexOf('.') === -1 ?
+            Object.values(clusterUseList)[index] : Object.values(clusterUseList)[index].toFixed(2)
         }
       })
     }

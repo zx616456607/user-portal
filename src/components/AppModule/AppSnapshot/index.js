@@ -695,7 +695,7 @@ class Snapshot extends Component {
             onOk={() => this.setState({createFalse: false})}
             onCancel={() => this.setState({createFalse: false})}
           >
-            尚未部署分布式存储，暂不能创建
+            尚未配置块存储集群，暂不能创建
           </Modal>
 
           <Modal

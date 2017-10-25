@@ -108,7 +108,7 @@ class CachedVolumes extends React.Component {
       title: '类型',
       dataIndex: 'type',
       key: 'type',
-      render: () => '可靠块存储'
+      render: () => '块存储（rbd）'
     }, {
       title: '大小',
       dataIndex: 'volumeSize',
@@ -118,11 +118,16 @@ class CachedVolumes extends React.Component {
       title: 'TenxFlow',
       dataIndex: 'ownerFlowName',
       key: 'ownerFlowName',
-      render: (text, record) => (
-        <Link to={`/ci_cd/tenx_flow/tenx_flow_build?${record.ownerFlowId}`}>
-          {text}
-        </Link>
-      )
+      render: (text, record) => {
+        if (!text) {
+          return '-'
+        }
+        return (
+          <Link to={`/ci_cd/tenx_flow/tenx_flow_build?${record.ownerFlowId}`}>
+            {text}
+          </Link>
+        )
+      }
     }, {
       title: '创建时间',
       dataIndex: 'creationTimestamp',

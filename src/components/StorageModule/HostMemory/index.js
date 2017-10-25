@@ -144,7 +144,7 @@ class HostMemory extends Component {
       <QueueAnim className='host_memory'>
         <div id='host_memory' key="host_memory">
           <div className='alertRow'>
-            host类型存储仅支持一个容器实例对一个宿主机目录读写操作
+            本地存储可以使部署的服务访问当前运行节点上的文件系统，一般用于读取节点配置或者进行本地存储等场景
           </div>
           <div className='data_container'>
             <div className='handle_box'>

@@ -18,6 +18,9 @@
     font-size: 12px;
     border-bottom: 0px;
     padding-left: 24px;
+    .input_container{
+      padding-right: 8px;
+    }
     #UserInfReset {
       margin-top: 12px;
       .ant-form {
@@ -45,7 +48,10 @@
     .comment {
       &-input {
         margin-top: 20px;
-        width: 240px;
+        width: 100%;
+        >textarea {
+          width: 100%;
+        }
       }
       &-btns {
         width: 240px;

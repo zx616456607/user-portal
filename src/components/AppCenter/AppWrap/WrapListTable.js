@@ -10,7 +10,7 @@
 
 
 import React, { Component } from 'react'
-import { Modal, Table, Icon, Form, Radio, Button, Tabs, Card, Input, Select,Tooltip } from 'antd'
+import { Modal, Table, Icon, Form, Radio, Button, Tabs, Card, Input, Select, Tooltip, Menu, Popover } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
@@ -102,10 +102,42 @@ class WrapListTbale extends Component {
     })
   }
 
+  renderDeployBtn(row, func) {
+    const deployMethod = (
+      <Menu
+        className="deployModeList"
+        onClick={({ key }) => {
+          if (key === 'container') {
+            return func.goDeploy(row.fileName)
+          }
+          browserHistory.push(`/app_manage/vm_wrap/create?fileName=${row.fileName}`)
+        }}
+      >
+        <Menu.Item key="container">容器应用</Menu.Item>
+        <Menu.Item key="vm">传统应用</Menu.Item>
+      </Menu>
+    )
+    return (
+      <Popover
+        content={deployMethod}
+        title="请选择部署方式"
+        trigger="click"
+        getTooltipContainer={() => document.getElementById('wrapListTable')}
+      >
+        <Button
+          type="primary"
+          key="1"
+        >
+          部署
+        </Button>
+      </Popover>
+    )
+  }
+
   render() {
     // jar war ,tar.gz zip
     const dataSource = this.props.wrapList
-    const { func,rowCheckbox } = this.props
+    const { func, rowCheckbox } = this.props
     const columns = [
       {
         title: '包名称',
@@ -134,13 +166,14 @@ class WrapListTbale extends Component {
         dataIndex: 'actions',
         key: 'actions',
         width:'20%',
-        render: (e,row) => {
+        render: (e, row) => {
           if (rowCheckbox) {
-            return [<Button type="primary" key="1" onClick={()=> func.goDeploy(row.fileName)}>部署</Button>,
-                <Button key="2" style={{ marginLeft: 10 }} onClick={()=> this.deleteAction(true,row.id)}>删除</Button>
+            return [
+              this.renderDeployBtn(row, func),
+              <Button key="2" style={{ marginLeft: 10 }} onClick={()=> this.deleteAction(true,row.id)}>删除</Button>
             ]
           }
-          return <Button type="primary" onClick={()=> func.goDeploy(row.id)} key="1">部署</Button>
+          return this.renderDeployBtn(row, func)
         }
 
       }
@@ -169,7 +202,7 @@ class WrapListTbale extends Component {
     }
 
     return (
-      <div className="wrapListTable">
+      <div className="wrapListTable" id="wrapListTable">
         <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource.pkgs} columns={columns} pagination={paginationOpts} />
         { dataSource.total && dataSource.total >0 ?
           <span className="pageCount" style={{position:'absolute',right:'160px',top:'-40px'}}>共计 {dataSource.total} 条</span>

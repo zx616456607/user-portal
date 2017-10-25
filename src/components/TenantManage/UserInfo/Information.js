@@ -8,7 +8,7 @@
  * @author XuLongcheng
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Button, Input, Icon, Form, Modal, Spin, Radio, Checkbox } from 'antd'
+import { Row, Col, Card, Button, Input, Icon, Form, Modal, Spin, Radio, Checkbox, Tooltip } from 'antd'
 import './style/Information.less'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
@@ -435,7 +435,7 @@ class Information extends Component {
         roleName = "系统管理员"
         break
       default:
-        roleName = "普通用户"
+        roleName = "普通成员"
     }
     let balance = parseAmount(userDetail.balance || 0).amount
     const { getFieldProps } = form
@@ -486,8 +486,8 @@ class Information extends Component {
           </Row>
           <Row className="Item">
             <Col span={4}>类型</Col>
-            <Col span={8}>{roleName}</Col>
-            <Col span={10}>
+            <Col span={13}>{roleName}</Col>
+            <Col span={7}>
               <Button style={{width: '80px'}} type="primary" onClick={() => this.changeUserRoleModal()}>
                 修 改
               </Button>
@@ -495,7 +495,7 @@ class Information extends Component {
           </Row>
           <Row className="Item">
             <Col span={4}>权限</Col>
-            <Col span={8}>
+            <Col span={13}>
               <CheckboxGroup
                 disabled={true}
                 value={ this.userAuth }
@@ -516,20 +516,20 @@ class Information extends Component {
           </Row>
           <Row className="Item">
             <Col span={4}>手机</Col>
-            <Col span={8}>{userDetail.phone || '-'}</Col>
-            <Col span={10}> <Button type="primary" onClick={() => this.setState({ phoneModalVisible: true })}>修改手机</Button></Col>
+            <Col span={13}>{userDetail.phone || '-'}</Col>
+            <Col span={7}> <Button type="primary" onClick={() => this.setState({ phoneModalVisible: true })}>修改手机</Button></Col>
           </Row>
           <Row className="Item">
             <Col span={4}>邮箱</Col>
-            <Col span={8}>{userDetail.email}</Col>
-            <Col span={10}> <Button type="primary" onClick={() => this.setState({ emailModalVisible: true })}>修改邮箱</Button></Col>
+            <Col span={13}>{userDetail.email}</Col>
+            <Col span={7}> <Button type="primary" onClick={() => this.setState({ emailModalVisible: true })}>修改邮箱</Button></Col>
           </Row>
           { userDetail && userDetail.type == 1 ? <Row className="Item">
             <Col span={4}>密码</Col>
             {
-              !revisePass && <Col span={8}>已设置</Col>
+              !revisePass && <Col span={13}>已设置</Col>
             }
-            <Col span={8}>
+            <Col span={7}>
               {
                 revisePass ?
                   <ResetPassWord updateUser={updateUser} userID={userID} userDetail={userDetail} onChange={this.resetPsw} />
@@ -556,10 +556,10 @@ class Information extends Component {
           </Row>
           <Row className="Item">
             <Col span={4}>余额</Col>
-            <Col span={8}>{balance}T</Col>
+            <Col span={13}>{balance}T</Col>
             {/*  system user  */}
             {(ROLE_SYS_ADMIN == this.props.loginUser.role) ?
-              <Col span={4}>
+              <Col span={7}>
                 <Button type="primary" icon="pay-circle-o" onClick={()=>　this.memberRecharge(userDetail,roleName)}>
                   充值
                 </Button>
@@ -569,10 +569,10 @@ class Information extends Component {
           </Row>
           <Row className="Item comment">
             <Col span={4}>备注</Col>
-            <Col span={8}>
+            <Col span={13}>
             {/* {userDetail.comment || '-'} */}
             <Form horizontal>
-              <FormItem>
+              <FormItem className='input_container'>
                 <Input className="comment-input" disabled={!this.state.commentEditVisible} type="textarea" {...commentProps} placeholder="输入新备注" />
               </FormItem>
               {
@@ -590,7 +590,7 @@ class Information extends Component {
               }
             </Form>
             </Col>
-            <Col span={4}>
+            <Col span={7}>
               {
                 !this.state.commentEditVisible && (
                   <Button className="comment-edit-btn" icon="edit" onClick={() => this.setState({ commentEditVisible: true })}>

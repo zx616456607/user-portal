@@ -71,7 +71,7 @@ class ShareStorageDetail extends Component {
               <div className="info">
                 <Row>
                   <Col span="9">
-                    存储类型：共享型（nfs）
+                    存储类型：共享型（NFS）
                   </Col>
                   <Col span="15">
                     <div className="createDate">

@@ -96,7 +96,7 @@ class AppAutoScale extends Component {
   isPrivateType(props) {
     const { volumes } = props
     volumes && volumes.length && volumes.forEach(item => {
-      if (item.type === 'share') {
+      if (item === 'share') {
         this.setState({
           isPrivate: true
         })

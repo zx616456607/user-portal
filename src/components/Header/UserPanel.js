@@ -11,7 +11,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Icon, Popover, Button } from 'antd'
+import { Icon, Popover, Button, Tag } from 'antd'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import "./style/UserPanel.less"
@@ -22,7 +22,7 @@ import proIconGray from '../../assets/img/version/proIcon-gray.png'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
-import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../constants'
+import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN, ADMIN_ROLE } from '../../../constants'
 import { SHOW_BILLING }  from '../../constants'
 
 /**
@@ -253,7 +253,7 @@ class UserPanel extends Component {
   }
 
   render() {
-    const { loginUser } = this.props
+    const { loginUser, role } = this.props
     const { visible } = this.state
     const rotate = visible ? 'rotate180' : 'rotate0'
     return (
@@ -267,9 +267,18 @@ class UserPanel extends Component {
         visible={this.state.visible}
         onVisibleChange={this.handleVisibleChange}
         >
-        <div className='userBtn'>
-          {loginUser.userName}
-          <Icon type="down" className={rotate} />
+        <div className="user-panel-trigger userBtn">
+          <div className="userBtnText">
+            <div>{loginUser.userName}</div>
+            <div>
+              <Tag>
+                {role === ROLE_SYS_ADMIN ? '系统管理员' : '普通成员'}
+              </Tag>
+            </div>
+          </div>
+          <div className="userBtnIcon">
+            <Icon type="down" className={rotate} />
+          </div>
         </div>
       </Popover>
     )
