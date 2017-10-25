@@ -37,7 +37,7 @@ HarborAPIs.prototype.searchProjects = function (query, callback) {
   logger.debug(method, "Search harbor projects and repositories");
 
   // If no callback, then will use the 1st parameter as callback, so we can do search all by default
-  var requestUrl = this.getAPIPrefix() + "/repositories";
+  var requestUrl = this.getAPIPrefix() + "/repositories/search";
   if (!callback) {
     callback = query
   } else {
