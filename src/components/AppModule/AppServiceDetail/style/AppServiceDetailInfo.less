@@ -6,7 +6,32 @@
   width: 100%;
   background-color: #FFFFFF !important;
   margin-bottom: 50px;
+  .editTip{
+    position: absolute;
+    top: 5px;
+    left: 0;
+    padding: 10px 20px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    background-color: rgb(255, 247, 230);
+    &:after{
+      content:'';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-top: 10px solid rgb(255, 247, 230);
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      bottom: -6px;
+      left: 50px;
+    }
+  }
+  .title_button{
+    margin-left: 18px;
+  }
   .storage{
+    position: relative;
     .volume_row_style{
       margin-bottom: 10px;
       .text_overfow{
@@ -17,9 +42,6 @@
       .handle_button{
         margin-left: 8px;
       }
-    }
-    .title_button{
-      margin-right:20px;
     }
     .info_icon{
       margin-right: 8px;
@@ -127,34 +149,13 @@
 
   .DetailInfo__MyComponent{
     //padding-left: 20px;
+    position: relative;
     .environment{
       border-bottom: 0px;
       position: relative;
       &>button{
         margin-left: 18px;
       }
-      .editTip{
-        position: absolute;
-        top: 5px;
-        left: 0;
-        padding: 10px 20px;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        border-radius: 5px;
-        background-color: rgb(255, 247, 230);
-        &:after{
-          content:'';
-          position: absolute;
-          width: 0;
-          height: 0;
-          border-top: 10px solid rgb(255, 247, 230);
-          border-left: 10px solid transparent;
-          border-right: 10px solid transparent;
-          bottom: -6px;
-          left: 50px;
-        }
-      }
-
     }
     .noData{
       text-align: center;

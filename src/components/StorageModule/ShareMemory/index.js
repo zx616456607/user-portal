@@ -16,11 +16,11 @@ import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import yaml from 'js-yaml'
 import { getClusterStorageList } from '../../../actions/cluster'
-import { createStorage, loadStorageList, deleteStorage, searchStorage } from '../../../actions/storage'
+import { createStorage, loadStorageList, deleteStorage, searchStorage, getCheckVolumeNameExist } from '../../../actions/storage'
 import PersistentVolumeClaim from '../../../../kubernetes/objects/persistentVolumeClaim'
 import { serviceNameCheck } from '../../../common/naming_validation'
 import { formatDate } from '../../../common/tools'
-import { DEFAULT_IMAGE_POOL } from '../../../constants'
+import { DEFAULT_IMAGE_POOL, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import NotificationHandler from '../../Notification'
 import './style/index.less'
 
@@ -34,6 +34,7 @@ class ShareMemory extends Component {
     this.tableRowClick = this.tableRowClick.bind(this)
     this.loadData = this.loadData.bind(this)
     this.searchStorage = this.searchStorage.bind(this)
+    this.checkVolumeNameExist = this.checkVolumeNameExist.bind(this)
     this.state = {
       selectedRowKeys: [],
       createShareMemoryVisible: false,
@@ -223,6 +224,34 @@ class ShareMemory extends Component {
     }
   }
 
+  checkVolumeNameExist(rule, value, callback) {
+    const { getCheckVolumeNameExist, clusterID } = this.props
+    let msg = serviceNameCheck(value, '存储名称')
+    if (msg !== 'success') {
+      return callback(msg)
+    }
+    clearTimeout(this.volumeNameChechTimeout)
+    this.volumeNameChechTimeout = setTimeout(() => {
+      getCheckVolumeNameExist(clusterID, value, {
+        success: {
+          func: () => {
+            return callback()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (res) => {
+            if(res.statusCode == 409){
+              msg = serviceNameCheck(value, '存储名称', true)
+              return callback(msg)
+            }
+          },
+          isAsync: true
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
+  }
+  
   render() {
     const { form, nfsList, storageList, storageListIsFetching, clusterID } = this.props
     const {
@@ -425,20 +454,7 @@ class ShareMemory extends Component {
                   placeholder="请输入存储名称"
                   {...getFieldProps('name', {
                     rules:[{
-                      validator:(rule, value, callback) => {
-                        let existNameFlag = false
-                        for(let i = 0; i < storageList.length; i++){
-                        	if(storageList[i].name == value){
-                            existNameFlag = true
-                            break
-                          }
-                        }
-                        const msg = serviceNameCheck(value, '存储名称', existNameFlag)
-                        if (msg !== 'success') {
-                          return callback(msg)
-                        }
-                        return callback()
-                      },
+                      validator: this.checkVolumeNameExist
                     }],
                   })}
                 />
@@ -473,4 +489,5 @@ export default connect(mapStateToProp, {
   loadStorageList,
   deleteStorage,
   searchStorage,
+  getCheckVolumeNameExist,
 })(ShareMemory)

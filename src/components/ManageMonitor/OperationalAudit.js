@@ -57,7 +57,7 @@ const menusText = defineMessages({
   },
   env: {
     id: 'ManageMonitor.operationalAudit.env',
-    defaultMessage: '环境',
+    defaultMessage: '项目',
   },
   cluster: {
     id: 'ManageMonitor.operationalAudit.cluster',
