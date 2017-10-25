@@ -507,7 +507,7 @@ class Information extends Component {
             </Col>
             {
               userID && userDetail.role != ROLE_SYS_ADMIN &&
-              <Col span={10}>
+              <Col span={7}>
                 <Button style={{width: '80px'}} type="primary" onClick={() => this.changeUserAuthModal()}>
                   修 改
                 </Button>
