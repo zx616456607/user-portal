@@ -149,10 +149,7 @@ let MyComponent = React.createClass({
     config: React.PropTypes.object
   },
   componentWillReceiveProps(nextProps){
-    if(
-      (nextProps.delModal !== this.props.delModal && !nextProps.delModal)
-      || (nextProps.storage.isFetching !== this.props.storage.isFetching && nextProps.storage.isFetching)
-    ){
+    if(nextProps.storage.isFetching !== this.props.storage.isFetching && nextProps.storage.isFetching){
       this.setState({
         selectedRowKeys: [],
       })
