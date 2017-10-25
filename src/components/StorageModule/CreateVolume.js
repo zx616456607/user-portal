@@ -13,13 +13,14 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CreateVolume.less'
 import { calcuDate, parseAmount, formatDate } from '../../common/tools'
-import { SnapshotClone, createStorage, loadStorageList } from '../../actions/storage'
+import { serviceNameCheck } from '../../common/naming_validation'
+import { SnapshotClone, createStorage, loadStorageList, getCheckVolumeNameExist } from '../../actions/storage'
 import { getClusterStorageList } from '../../actions/cluster'
 import PersistentVolumeClaim from '../../../kubernetes/objects/persistentVolumeClaim'
 import yaml from 'js-yaml'
 import { DEFAULT_IMAGE_POOL, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
 import NotificationHandler from '../../components/Notification'
-import { SHOW_BILLING } from '../../constants'
+import { SHOW_BILLING, ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 
 const Option = Select.Option
 
@@ -330,31 +331,31 @@ class CreateVolume extends Component {
   }
 
   checkVolumeName(rule, value, callback){
-    const { storageList } = this.props
-    if(!value){
-      return callback('请输入存储名称')
+    const { getCheckVolumeNameExist, clusterID } = this.props
+    let msg = serviceNameCheck(value, '存储名称')
+    if (msg !== 'success') {
+      return callback(msg)
     }
-    if(value.length > 32){
-      return callback('存储名称不能超过32个字符')
-    }
-    if(!/^[A-Za-z]{1}/.test(value)){
-      return callback('存储名称必须以字母开头')
-    }
-    if(!/^[A-Za-z]{1}[A-Za-z0-9_-]*$/.test(value)){
-      return callback('存储名称由字母、数字、中划线-、下划线_组成')
-    }
-    if(value.length < 3){
-      return callback('存储名称不能少于3个字符')
-    }
-    if(!/^[A-Za-z]{1}[A-Za-z0-9_\-]{1,61}[A-Za-z0-9]$/.test(value)){
-      return callback('存储名称必须由字母或数字结尾')
-    }
-    for(let i = 0; i < storageList.length; i++){
-      if(value == storageList[i].name){
-        return callback('存储名称已存在！')
-      }
-    }
-    return callback()
+    clearTimeout(this.volumeNameChechTimeout)
+    this.volumeNameChechTimeout = setTimeout(() => {
+      getCheckVolumeNameExist(clusterID, value, {
+        success: {
+          func: () => {
+            return callback()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (res) => {
+            if(res.statusCode == 409){
+              msg = serviceNameCheck(value, '存储名称', true)
+              return callback(msg)
+            }
+          },
+          isAsync: true
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
   }
 
   handleFormatSelectOption(){
@@ -657,6 +658,7 @@ function mapStateToProp(state, props) {
   }
   return {
     cluster,
+    clusterID,
     currentImagePool: DEFAULT_IMAGE_POOL,
     cephList,
   }
@@ -667,6 +669,7 @@ export default connect(mapStateToProp, {
   createStorage,
   loadStorageList,
   getClusterStorageList,
+  getCheckVolumeNameExist,
 })(injectIntl(CreateVolume, {
   withRef: true,
 }))
