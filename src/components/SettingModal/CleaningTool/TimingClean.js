@@ -45,11 +45,11 @@ class TimingClean extends Component {
       cicdScope: '1',
       cicdCycle: 'day', 
       cicdDate: '1',
-      cicdTime: formatDate(new Date(new Date().setHours(0,0,0,0)), 'HH:mm'),
+      cicdTime: formatDate(new Date(new Date().setHours(0,0,0,0)), 'HH:mm:ss'),
       systemScope: '1',
       systemCycle: 'day',
       systemDate: '1',
-      systemTime: formatDate(new Date(new Date().setHours(0,0,0,0)), 'HH:mm')
+      systemTime: formatDate(new Date(new Date().setHours(0,0,0,0)), 'HH:mm:ss')
     }
   }
   componentWillMount() {
@@ -354,6 +354,7 @@ class TimingClean extends Component {
   }
   getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime) {
     let time = typeof CICDcacheTime === 'string' ? CICDcacheTime.split(':') : String(formatDate(CICDcacheTime, 'HH mm')).split(' ')
+    time.length === 3 && time.splice(0, 1)
     time = time.map(item => {
       return item.indexOf(0) === 0 ? item.substring(1) : item
     })
@@ -612,7 +613,7 @@ class TimingClean extends Component {
                       className='reset_formItem_style'
                     >
                       <TimePicker
-                        format="HH:mm"
+                        // format="HH:mm"
                         disabled={systemEdit}
                         {...systemCleaningTimeProps}
                       />
@@ -690,7 +691,7 @@ class TimingClean extends Component {
                       className='reset_formItem_style'
                     >
                       <TimePicker
-                        format="HH:mm"
+                        // format="HH:mm"
                         {...CICDcacheTimeProps}
                         disabled={cicdEdit}
                       />
