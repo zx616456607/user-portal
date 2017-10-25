@@ -36,9 +36,13 @@ const wrapTypelist = ['jar','war','tar','tar.gz','zip']
 class UploadModal extends Component {
   constructor(props) {
     super()
+    let type = 'remote'
+    if (!!props.loginUser.ftpConfig.addr) {
+      type = 'local'
+    }
     this.state = {
       protocol: 'ftp',
-      type: 'local',
+      type,
       fileType: 'jar'
     }
   }
@@ -317,7 +321,7 @@ class UploadModal extends Component {
       }
     }
     const ftpConfiged = !!loginUser.ftpConfig.addr
-    const defaultActiveKey = ftpConfiged ? 'local' : 'remote'
+    // const defaultActiveKey = ftpConfiged ? 'local' : 'remote'
     return (
       <Modal title="上传包文件" visible={this.props.visible}
         onCancel={() => func.uploadModal(false)}
@@ -339,7 +343,7 @@ class UploadModal extends Component {
             !ftpConfiged &&
             <Alert message="系统尚未配置 FTP 服务，不能使用本地上传，请联系系统管理员" type="info" showIcon closable />
           }
-          <Tabs defaultActiveKey={defaultActiveKey} onChange={this.changeTabs} size="small">
+          <Tabs defaultActiveKey={this.state.type} onChange={this.changeTabs} size="small">
             <TabPane
               tab="本地上传"
               key="local"
