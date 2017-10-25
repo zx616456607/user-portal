@@ -24,6 +24,7 @@ class DeletedUsersModal extends React.Component {
 
     this.state = {
       page: 1,
+      filter: '',
     }
 
     this.loadData = this.loadData.bind(this)
@@ -50,19 +51,29 @@ class DeletedUsersModal extends React.Component {
     const { visible } = nextProps
     if (visible && !this.props.visible) {
       this.loadData()
-      this.setState({ page: 1 })
+      this.setState({
+        page: 1,
+        filter: '',
+      })
     }
   }
 
   onPageChange(page) {
     this.setState({ page })
     const from = this.DEFAULT_QUERY.size * (page - 1)
-    this.loadData({ from })
+    const { filter } = this.state
+    this.loadData({
+      from,
+      filter,
+    })
   }
 
   onSearch(value) {
     value = value.trim()
     const filter = `userName,${value}`
+    this.setState({
+      filter,
+    })
     this.loadData({ filter })
   }
 
