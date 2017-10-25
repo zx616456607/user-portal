@@ -35,7 +35,7 @@ export default class ContainerDetailInfo extends Component {
       if (item.hostPath || item.persistentVolumeClaim || item.rbd) {
         // 确定存储类型和存储名称
         if (item.hostPath) {
-          type = 'host类型'
+          type = '本地存储'
           name = '-'
         } else if (item.persistentVolumeClaim) {
           name = item.persistentVolumeClaim.claimName

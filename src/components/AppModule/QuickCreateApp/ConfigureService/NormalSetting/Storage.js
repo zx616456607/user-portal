@@ -463,9 +463,17 @@ function mapStateToProps(state, props) {
   const { entities, storage, quickCreateApp } = state
   const { current } = entities
   const { cluster } = current
-  const { storageTypes } = cluster
+  let defalutStorageClassType = {
+    host: false,
+    private: false,
+    share: false,
+  }
+  if(cluster.storageClassType){
+    defalutStorageClassType = cluster.storageClassType
+  }
+  const { private: isPrivate, host: isHost, share: isShare } = defalutStorageClassType
   let isCanCreateVolume = true
-  if (!storageTypes || storageTypes.length <= 0) {
+  if(!isPrivate && !isHost && !isShare){
     isCanCreateVolume = false
   }
   const avaliableVolume = storage.avaliableVolume || {}

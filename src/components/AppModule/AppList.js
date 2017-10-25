@@ -624,7 +624,7 @@ class AppList extends Component {
     })
     const query = {}
     if (searchInputValue) {
-      query.name = searchInputValue
+      query.name = searchInputValue.trim()
     }
     query.sortOrder = sortOrder
     query.sortBy = sortBy

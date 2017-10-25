@@ -173,6 +173,11 @@ let CreateVMListModal = React.createClass({
     let promptStyle = {
       marginRight: 120
     }
+    if(this.props.visible){
+      setTimeout(() => {
+        this.host && this.host.refs.input.focus()
+      }, 300)
+    }
     return (
       <Modal
         title={this.props.modalTitle ? "添加传统环境" : "编辑传统环境"}
@@ -218,7 +223,7 @@ let CreateVMListModal = React.createClass({
             hasFeedback
             {...formItemLayout}
           >
-            <Input key="IP"{...hostProps} placeholder="请输入已开通 SSH 登录的传递环境 IP" id="host" />
+            <Input key="IP"{...hostProps} placeholder="请输入已开通 SSH 登录的传递环境 IP" id="host" ref={host => this.host = host} />
             <span style={style}><Icon size={15} type="question-circle-o" />传统环境一般指非容器环境（Linux的虚拟机、物理机等）</span>
           </FormItem>
           <FormItem

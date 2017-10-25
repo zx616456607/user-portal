@@ -388,6 +388,7 @@ class WrapManage extends Component {
     this.state = {
       selectedRowKeys: [],
       page: 1,
+      id: [],
     }
   }
   getList = (e)=> {

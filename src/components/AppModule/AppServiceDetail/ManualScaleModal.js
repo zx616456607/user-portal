@@ -12,6 +12,7 @@ import { connect } from 'react-redux'
 import './style/ManualScaleModal.less'
 import { Row, Col, Slider, InputNumber, Modal, Icon, Button, Spin, message } from 'antd'
 import { INSTANCE_MAX_NUM } from '../../../../constants'
+import { UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
 import { manualScaleService } from '../../../actions/services'
 import NotificationHandler from '../../../components/Notification'
 import { isStorageUsed } from '../../../common/tools'
@@ -79,9 +80,11 @@ class ManualScaleModal extends Component {
         isAsync: true
       },
       failed: {
-        func: () => {
+        func: err => {
           notification.close()
-          notification.error(`服务 ${serviceName} 伸缩失败`)
+          if(err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
+            notification.error(`服务 ${serviceName} 伸缩失败`)
+          }
         }
       }
     })

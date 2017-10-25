@@ -707,7 +707,7 @@ class ProjectDetail extends Component {
   render() {
     const { payNumber, projectDetail, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
-      filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible
+      filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters } = this.props;
@@ -770,16 +770,16 @@ class ProjectDetail extends Component {
                   {
                     (roleNum === 1 || isManager) &&
                     <Tooltip title="移除集群">
-                      <i className="anticon anticon-cross" onClick={() => this.setState({ deleteClusterModal: true })} />
+                      <i className="anticon anticon-cross" onClick={() => this.setState({ deleteClusterModal: true, currentCluster: item })} />
                     </Tooltip>
                   }
                   <Modal title="移除集群" visible={this.state.deleteClusterModal}
                     onCancel={() => this.setState({ deleteClusterModal: false })}
-                    onOk={() => { this.updateProjectClusters(item.clusterID, 0); this.setState({ deleteClusterModal: false }) }}
+                    onOk={() => { this.updateProjectClusters(currentCluster.clusterID, 0); this.setState({ deleteClusterModal: false }) }}
                   >
                     <div className="modalColor">
                       <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-                      移除集群后，该集群下的资源也将被移除，此操作不可逆，是否确定移除已授权的集群{item.clusterName}？
+                      移除集群后，该集群下的资源也将被移除，此操作不可逆，是否确定移除已授权的集群{currentCluster && currentCluster.clusterName}？
                     </div>
                   </Modal>
                 </div>
