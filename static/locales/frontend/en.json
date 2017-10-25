@@ -450,7 +450,7 @@
   "ManageMonitor.operationalAudit.during": "During",
   "ManageMonitor.operationalAudit.event": "Event",
   "ManageMonitor.operationalAudit.obj": "Object & Type",
-  "ManageMonitor.operationalAudit.env": "Env",
+  "ManageMonitor.operationalAudit.env": "Project",
   "ManageMonitor.operationalAudit.cluster": "Cluster",
   "ManageMonitor.operationalAudit.user": "User",
   "ManageMonitor.operationalAudit.Create": "Create",

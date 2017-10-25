@@ -326,8 +326,38 @@ let EditTenxFlowModal = React.createClass({
         initialValue: imageEnvInputs
       })
     }
+    let currentBuildCluster
+    if (config.spec.ci.config) {
+      if (config.spec.ci.config.buildCluster) {
+        currentBuildCluster = config.spec.ci.config.buildCluster
+      }
+    }
     const { loadClusterList, loadProjectList } = this.props
-    loadClusterList()
+    loadClusterList(null, {
+      success: {
+        func: res => {
+          if (!currentBuildCluster) {
+            return
+          }
+          const clusters = res.data
+          let isBuildClusterExist = false
+          clusters.every(cluster => {
+            if (cluster.isBuilder) {
+              if (currentBuildCluster === cluster.clusterID) {
+                isBuildClusterExist = true
+                return false
+              }
+            }
+            return true
+          })
+          if (!isBuildClusterExist) {
+            setFieldsValue({
+              buildCluster: null,
+            })
+          }
+        }
+      }
+    })
     loadProjectList(DEFAULT_REGISTRY, { page_size: 100 })
   },
   componentDidMount() {
@@ -2096,7 +2126,7 @@ let EditTenxFlowModal = React.createClass({
                   {
                     this.state.cachedVolumes[0]
                       ? [
-                          <span key="text">独享型(RBD)</span>,
+                          <span key="text">独享型（rbd）</span>,
                           <span key="name">
                             {
                               this.state.cachedVolumes[0].cachedVolume === 'create'

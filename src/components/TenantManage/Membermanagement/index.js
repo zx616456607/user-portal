@@ -180,17 +180,24 @@ let MemberTable = React.createClass({
     }
     const { scope } = this.props
     const { loadUserList } = scope.props
-    let { page, pageSize, sort } = scope.state
+    let { page, pageSize, sort, searchFilter } = scope.state
     const query = {
       page,
       size: pageSize,
       sort,
     }
-
     let filter = this.filtertypes(filters)
+    if (searchFilter) {
+      if (filter) {
+        filter = `${searchFilter},${filter}`
+      } else {
+        filter = searchFilter
+      }
+    }
     query.filter = filter
     scope.setState({
-      filter
+      filter,
+      tableFilter: this.filtertypes(filters),
     })
     loadUserList(query)
     this.styleFilter = styleFilterStr
@@ -634,6 +641,8 @@ class Membermanagement extends Component {
       createUserErrorMsg: null,
       deletedUserModalVisible: false,
       sendEmailSuccess: false,
+      searchFilter: '',
+      tableFilter: '',
     }
   }
   showInfo = (title, content) => {
@@ -656,11 +665,12 @@ class Membermanagement extends Component {
     }, 500);
   }
   loadData = query => {
+    const { sort, page, pageSize, filter } = this.state
     const defaultQuery = {
-      page: 1,
-      size: 10,
-      sort: "a,userName",
-      filter: "",
+      page,
+      size: pageSize,
+      sort,
+      filter,
     }
     this.props.loadUserList(Object.assign({}, defaultQuery, query))
   }
@@ -806,7 +816,7 @@ class Membermanagement extends Component {
     }
     return (
       <div id="Membermanagement">
-        <Alert message={`成员是指公司内外共同协作使用平台的人，创建成员成功后该成员将有一个默认的个人的项目，可在项目中创建个人的资源；系统管理员有创建并管理所有成员（系统管理员、普通成员）的权限；`}
+        <Alert message={`成员是指公司内外共同协作使用平台的人，创建成员成功后该成员将有一个默认的个人的项目，可在项目中创建个人的资源；系统管理员有创建并管理所有成员（系统管理员、普通成员）的权限。`}
           type="info" />
         <Row>
           {

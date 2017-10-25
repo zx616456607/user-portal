@@ -13,9 +13,11 @@ import './style/CostRecord.less'
 import PopSelect from '../../PopSelect'
 import PopContent from '../../PopSelect/Content'
 import { connect } from 'react-redux'
+import cloneDeep from 'lodash/cloneDeep'
 import { ListProjects } from '../../../actions/project'
 import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
 import { loadConsumptionDetail, loadConsumptionTrend, loadSpaceSummaryInDay, loadSpaceSummary } from '../../../actions/consumption'
+import { loadUserList } from '../../../actions/user'
 import TeamCost from './TeamCost'
 import ReactEcharts from 'echarts-for-react'
 import { formatDate, parseAmount } from '../../../common/tools'
@@ -59,12 +61,14 @@ class CostRecord extends Component{
       consumptionSpaceSummaryDate: '',
       consumptionSpaceSummaryInDayDate: '',
       teamListVisible: false,
+      allUsers: [],
     }
+    this.isSysAdmin = props.loginUser.info.role == ROLE_SYS_ADMIN
   }
   handleSpaceChange(space) {
     this.setState({
       spacesVisible: false,
-      currentSpaceName: space.projectName,
+      currentSpaceName: space.namespace,
       currentTeamName: space.teamName,
       currentNamespace: space.namespace,
       consumptionDetailCurrentPage: 1,
@@ -159,6 +163,17 @@ class CostRecord extends Component{
     loadSpaceSummaryInDay(currentNamespace)
     loadSpaceSummary(currentNamespace)
   }
+
+  componentDidMount() {
+    this.isSysAdmin && this.props.loadUserList({ size: 0, sort: 'a,userName', }, {
+      success: {
+        func: res => {
+          this.setState({ allUsers: cloneDeep(res.users || []) })
+        }
+      }
+    })
+  }
+
   render(){
     const _this = this
     const {
@@ -182,6 +197,7 @@ class CostRecord extends Component{
       currentNamespace,
       sortedInfo,
       teamListVisible,
+      allUsers,
     } = this.state
     sortedInfo = sortedInfo || {};
     let getSpaceCostSixMonths = function() {
@@ -480,6 +496,9 @@ class CostRecord extends Component{
               <div className='popSelect'>
                 <PopSelect
                   title="选择项目"
+                  allUsers={allUsers}
+                  isSysAdmin={this.isSysAdmin}
+                  Search={true}
                   btnStyle={false}
                   special={true}
                   visible={spacesVisible}
@@ -493,11 +512,6 @@ class CostRecord extends Component{
             </div>
           }
         </Card>
-        {
-          standard ? <div></div> : (((loginUser.info.role === ROLE_TEAM_ADMIN || loginUser.info.role === ROLE_SYS_ADMIN) && currentNamespace !== '' && currentNamespace !== 'default')?
-          <TeamCost currentSpaceName = {currentSpaceName} currentTeamName={currentTeamName} currentNamespace={currentNamespace} standard={standard}/>:
-          <div></div>)
-        }
         <Row gutter={16} className='currentMonth'>
           <Col span={12} className='teamCost'>
             <Card title={spaceCostTitle} bordered={false} bodyStyle={{height:170}}>
@@ -714,4 +728,5 @@ export default connect (mapStateToProps,{
   loadConsumptionTrend,
   loadSpaceSummaryInDay,
   loadSpaceSummary,
+  loadUserList,
 })(CostRecord)

@@ -340,11 +340,12 @@ class MyComponent extends Component {
   render(){
     const { DeletingEnvName } = this.state
     return (
-      <div className='DetailInfo__MyComponent'>
-        <div className="environment commonBox">
+      <div className='DetailInfo__MyComponent commonBox'>
           <span className="titleSpan">环境变量</span>
           <div className={classNames("editTip",{'hide' : !this.state.appEditBtn})}>修改尚未更新，请点击"应用修改"使之生效</div>
-          <Button size="large" type="primary" disabled={this.state.appEditBtn ? false : true} loading={this.state.appEditLoading} onClick={this.editServiceConfirm}>应用修改</Button>
+        <div className='save_box'>
+          <Button size="large" type="primary" disabled={this.state.appEditBtn ? false : true} loading={this.state.appEditLoading} onClick={this.editServiceConfirm} className='title_button'>应用修改</Button>
+        </div>
           <div className="titleBox">
             <div className="commonTitle">
               变量名
@@ -357,8 +358,6 @@ class MyComponent extends Component {
             </div>
             <div style={{ clear: 'both' }}></div>
           </div>
-
-        </div>
         <div>
           <Form>
             {this.templateTable(this.state.dataArray,this.state.rowDisableArray)}
@@ -1083,6 +1082,11 @@ class AppServiceDetailInfo extends Component {
         />
         <div className="storage commonBox">
           <span className="titleSpan">存储卷</span>
+          {
+            !nouseEditing &&  <span className='editTip'>
+              修改尚未更新，请点击"应用修改"使之生效
+            </span>
+          }
           <div className='save_box'>
             <Button
               type="primary"
@@ -1094,8 +1098,6 @@ class AppServiceDetailInfo extends Component {
             >
               应用修改
             </Button>
-            <Icon type="info-circle-o" className='info_icon'/>
-            修改尚未更新，请点击"应用修改"使之生效
           </div>
           <div className="titleBox">
             <Row className='volume_row_style'>
