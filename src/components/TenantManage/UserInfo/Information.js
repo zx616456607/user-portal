@@ -435,7 +435,7 @@ class Information extends Component {
         roleName = "系统管理员"
         break
       default:
-        roleName = "普通用户"
+        roleName = "普通成员"
     }
     let balance = parseAmount(userDetail.balance || 0).amount
     const { getFieldProps } = form
