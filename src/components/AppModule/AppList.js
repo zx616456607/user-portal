@@ -624,8 +624,9 @@ class AppList extends Component {
     })
     const query = {}
     if (searchInputValue) {
-      query.name = searchInputValue
+      query.name = searchInputValue.trim()
     }
+    debugger
     query.sortOrder = sortOrder
     query.sortBy = sortBy
     browserHistory.push({
