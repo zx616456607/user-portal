@@ -759,7 +759,7 @@ class ClusterList extends Component {
         this.loadUpdateProjectsApprovalCluster(crossbody, 1, '操作')
         return
       case 'clear':
-        let clearbody = this.formatUpdateProjectsApprovalClusterBody('clear', item, 0)
+        let clearbody = this.formatUpdateProjectsApprovalClusterBody('clear', item, 4)
         this.loadUpdateProjectsApprovalCluster(clearbody, 5, '清除')
         return
       case 'recall':
@@ -775,7 +775,7 @@ class ClusterList extends Component {
         this.loadUpdateProjectsApprovalCluster(allpassbody, 1, '操作')
         return
       case 'allclear':
-        let allclearbody = this.formatUpdateProjectsApprovalClusterBody('allclear', item, 0)
+        let allclearbody = this.formatUpdateProjectsApprovalClusterBody('allclear', item, 4)
         this.loadUpdateProjectsApprovalCluster(allclearbody, 5, '全部清除')
         return
       default:
