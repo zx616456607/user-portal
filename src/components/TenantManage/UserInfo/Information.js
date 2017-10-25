@@ -609,7 +609,7 @@ class Information extends Component {
         >
           <MemberRecharge parentScope={this} visible={this.state.visibleMember}/>
         </Modal>
-        <Modal title="修改用户角色"
+        <Modal title="修改账号类型"
           visible={this.state.changeUserRoleModal}
           onCancel={() => this.setState({ changeUserRoleModal: false, selectUserRole: userDetail.role + 1 })}
           onOk={() => this.changeUserRoleRequest()}
