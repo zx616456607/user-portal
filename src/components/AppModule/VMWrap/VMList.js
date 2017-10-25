@@ -354,7 +354,7 @@ class VMList extends React.Component {
           return (
             <div>
               <Button type="primary" className="tabBtn" onClick={this.handleE.bind(this, record)}>编辑信息</Button>
-              <Button onClick={this.handleOK.bind(this, record.vminfoId, record.user, record.host)}>删除</Button>
+              <Button className="tabDel" onClick={this.handleOK.bind(this, record.vminfoId, record.user, record.host)}>删除</Button>
             </div>
           )
         }
@@ -374,7 +374,7 @@ class VMList extends React.Component {
             <Button type='primary' size='large' className='addBtn' onClick={() => this.handleA()}>
               <i className='fa fa-plus' /> 添加传统环境
           </Button>
-            <Button type="ghost" size="large" className="manageBtn" onClick={() => this.getInfo(1, null)} ><i className='fa fa-refresh' /> 刷新</Button>
+            <Button type="ghost" size="large" className="manageBtn" onClick={() => this.getInfo(1, null)} ><i className='fa fa-refresh' /> 刷 新</Button>
             {/*<Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>*/}
             {/* <Input className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={(e) => this.handleSearch(e)} /> */}
             <CommonSearchInput onSearch={(value) => { this.getInfo(1, value) }} size="large" placeholder="请输入虚拟机IP搜索" />
