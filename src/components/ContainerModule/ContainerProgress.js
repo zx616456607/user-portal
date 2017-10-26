@@ -128,8 +128,10 @@ class ContainerProgress extends Component{
     )
   }
   componentWillMount() {
-    const { cluster, containerName, getPodProcess } = this.props
-    getPodProcess(cluster, containerName)
+    const { cluster, containerName, getPodProcess, container } = this.props
+    const podContainers = container && container.spec && container.spec.containers || []
+    const fistPodContainerName = podContainers[0] && podContainers[0].name
+    getPodProcess(cluster, containerName, { container: fistPodContainerName })
   }
 
   render(){

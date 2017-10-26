@@ -228,7 +228,7 @@ class ContainerDetail extends Component {
                   <ContainerEvents key="#events" containerName={containerName} cluster={cluster} />
                 </TabPane>
                 <TabPane tab="进程" key="#progress" >
-                  <ContainerProgress key="#progress" containerName={containerName} cluster={cluster} />
+                  <ContainerProgress key="#progress" containerName={containerName} container={container} cluster={cluster} />
                 </TabPane>
               </Tabs>
             </Card>
