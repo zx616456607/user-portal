@@ -425,7 +425,7 @@ let TeamTable = React.createClass({
             <Dropdown.Button
               disabled={roleNum !== 1 && record.role === 'participator'}
               onClick={() => this.addNewMember(record.key)} overlay={menu} type="ghost">
-              添加团队成员
+              管理团队成员
             </Dropdown.Button>
           )
         }
@@ -433,7 +433,7 @@ let TeamTable = React.createClass({
     ]
     return (
       <div>
-        <Modal title='添加成员'
+        <Modal title='管理团队成员'
                visible={this.state.addMember}
                onOk={this.handleNewMemberOk}
                onCancel={this.handleNewMemberCancel}
