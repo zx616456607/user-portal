@@ -16,7 +16,7 @@ import { formatDate, cpuFormat, memoryFormat } from '../../../common/tools'
 import { ENTERPRISE_MODE } from '../../../../configs/constants'
 import { mode } from '../../../../configs/model'
 import { appEnvCheck } from '../../../common/naming_validation'
-import { editServiceEnv, loadAutoScale, editServiceVolume } from '../../../actions/services'
+import { editServiceEnv, loadAutoScale, editServiceVolume, loadServiceDetail } from '../../../actions/services'
 import NotificationHandler from '../../../components/Notification'
 import PersistentVolumeClaim from '../../../../kubernetes/objects/persistentVolumeClaim'
 import { createStorage } from '../../../actions/storage'
@@ -857,7 +857,7 @@ class AppServiceDetailInfo extends Component {
   }
 
   saveVolumnsChange(){
-    const { cluster, serviceName, createStorage, editServiceVolume } = this.props
+    const { cluster, serviceName, createStorage, editServiceVolume, loadServiceDetail } = this.props
     const { volumeList } = this.state
     const promiseArray = []
     const notification = new NotificationHandler()
@@ -1193,4 +1193,5 @@ export default connect(mapStateToPropsInfo, {
   loadAutoScale,
   createStorage,
   editServiceVolume,
+  loadServiceDetail
 })(AppServiceDetailInfo)
