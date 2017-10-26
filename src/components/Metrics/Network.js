@@ -30,7 +30,8 @@ class Network extends Component {
   render() {
     const option = new EchartsOption('网络')
     const { networkReceived, networkTransmitted ,events, scope } = this.props
-    let timeText = scope.state.switchNetwork ? '5秒钟' : scope.state.freshTime
+    const { switchNetwork, freshTime, NetworkLoading } = scope.state
+    let timeText = switchNetwork ? '5秒钟' : freshTime
     option.addYAxis('value', {
       formatter: '{value} KB/s'
     })
@@ -73,7 +74,7 @@ class Network extends Component {
           style={{ height: formatGrid(networkTransmitted.data && networkTransmitted.data.length + networkReceived.data.length) }}
           notMerge={true}
           option={option}
-          // showLoading={networkReceived.isFetching || networkTransmitted.isFetching}
+          showLoading={NetworkLoading}
         />
       </div>
     )

@@ -31,7 +31,8 @@ class Memory extends Component {
     const option = new EchartsOption('内存')
     const { memory, scope } = this.props
     const { isFetching, data } = memory
-    let timeText = scope.state.switchMemory ? '5秒钟' : scope.state.freshTime
+    const { switchMemory, freshTime, MemoryLoading } = scope.state
+    let timeText = switchMemory ? '5秒钟' : freshTime
     option.addYAxis('value', {
       formatter: '{value} M'
     })
@@ -60,7 +61,7 @@ class Memory extends Component {
           style={{ height: formatGrid(data&&data.length) }}
           notMerge={true}
           option={option}
-          // showLoading={isFetching}
+          showLoading={MemoryLoading}
         />
       </div>
     )

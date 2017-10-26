@@ -18,7 +18,7 @@ export const METRICS_CONTAINER_CPU_REQUEST = 'METRICS_CONTAINER_CPU_REQUEST'
 export const METRICS_CONTAINER_CPU_SUCCESS = 'METRICS_CONTAINER_CPU_SUCCESS'
 export const METRICS_CONTAINER_CPU_FAILURE = 'METRICS_CONTAINER_CPU_FAILURE'
 
-function fetchContainerMetricsCPU(cluster, serviceName, query = {}) {
+function fetchContainerMetricsCPU(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${serviceName}/metrics`
   query.type = METRICS_CPU
   if (query) {
@@ -31,12 +31,13 @@ function fetchContainerMetricsCPU(cluster, serviceName, query = {}) {
       types: [METRICS_CONTAINER_CPU_REQUEST, METRICS_CONTAINER_CPU_SUCCESS, METRICS_CONTAINER_CPU_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
-export function loadContainerMetricsCPU(cluster, serviceName, query) {
+export function loadContainerMetricsCPU(cluster, serviceName, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchContainerMetricsCPU(cluster, serviceName, query))
+    return dispatch(fetchContainerMetricsCPU(cluster, serviceName, query, callback))
   }
 }
 
@@ -45,7 +46,7 @@ export const METRICS_CONTAINER_MEMORY_REQUEST = 'METRICS_CONTAINER_MEMORY_REQUES
 export const METRICS_CONTAINER_MEMORY_SUCCESS = 'METRICS_CONTAINER_MEMORY_SUCCESS'
 export const METRICS_CONTAINER_MEMORY_FAILURE = 'METRICS_CONTAINER_MEMORY_FAILURE'
 
-function fetchContainerMetricsMemory(cluster, containerName, query = {}) {
+function fetchContainerMetricsMemory(cluster, containerName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/metrics`
   query.type = METRICS_MEMORY
   if (query) {
@@ -58,12 +59,13 @@ function fetchContainerMetricsMemory(cluster, containerName, query = {}) {
       types: [METRICS_CONTAINER_MEMORY_REQUEST, METRICS_CONTAINER_MEMORY_SUCCESS, METRICS_CONTAINER_MEMORY_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
-export function loadContainerMetricsMemory(cluster, containerName, query) {
+export function loadContainerMetricsMemory(cluster, containerName, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchContainerMetricsMemory(cluster, containerName, query))
+    return dispatch(fetchContainerMetricsMemory(cluster, containerName, query, callback))
   }
 }
 
@@ -72,7 +74,7 @@ export const METRICS_CONTAINER_NETWORK_RECEIVED_REQUEST = 'METRICS_CONTAINER_NET
 export const METRICS_CONTAINER_NETWORK_RECEIVED_SUCCESS = 'METRICS_CONTAINER_NETWORK_RECEIVED_SUCCESS'
 export const METRICS_CONTAINER_NETWORK_RECEIVED_FAILURE = 'METRICS_CONTAINER_NETWORK_RECEIVED_FAILURE'
 
-function fetchContainerMetricsNetworkReceived(cluster, containerName, query = {}) {
+function fetchContainerMetricsNetworkReceived(cluster, containerName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/metrics`
   query.type = METRICS_NETWORK_RECEIVED
   if (query) {
@@ -85,12 +87,13 @@ function fetchContainerMetricsNetworkReceived(cluster, containerName, query = {}
       types: [METRICS_CONTAINER_NETWORK_RECEIVED_REQUEST, METRICS_CONTAINER_NETWORK_RECEIVED_SUCCESS, METRICS_CONTAINER_NETWORK_RECEIVED_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
-export function loadContainerMetricsNetworkReceived(cluster, containerName, query) {
+export function loadContainerMetricsNetworkReceived(cluster, containerName, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchContainerMetricsNetworkReceived(cluster, containerName, query))
+    return dispatch(fetchContainerMetricsNetworkReceived(cluster, containerName, query, callback))
   }
 }
 
@@ -99,7 +102,7 @@ export const METRICS_CONTAINER_NETWORK_TRANSMITTED_REQUEST = 'METRICS_CONTAINER_
 export const METRICS_CONTAINER_NETWORK_TRANSMITTED_SUCCESS = 'METRICS_CONTAINER_NETWORK_TRANSMITTED_SUCCESS'
 export const METRICS_CONTAINER_NETWORK_TRANSMITTED_FAILURE = 'METRICS_CONTAINER_NETWORK_TRANSMITTED_FAILURE'
 
-function fetchContainerMetricsNetworkTransmitted(cluster, containerName, query = {}) {
+function fetchContainerMetricsNetworkTransmitted(cluster, containerName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/metrics`
   query.type = METRICSS_NETWORK_TRANSMITTED
   if (query) {
@@ -112,12 +115,13 @@ function fetchContainerMetricsNetworkTransmitted(cluster, containerName, query =
       types: [METRICS_CONTAINER_NETWORK_TRANSMITTED_REQUEST, METRICS_CONTAINER_NETWORK_TRANSMITTED_SUCCESS, METRICS_CONTAINER_NETWORK_TRANSMITTED_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
-export function loadContainerMetricsNetworkTransmitted(cluster, containerName, query) {
+export function loadContainerMetricsNetworkTransmitted(cluster, containerName, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchContainerMetricsNetworkTransmitted(cluster, containerName, query))
+    return dispatch(fetchContainerMetricsNetworkTransmitted(cluster, containerName, query, callback))
   }
 }
 
@@ -126,7 +130,7 @@ export const METRICS_CONTAINER_DISK_READ_REQUEST = 'METRICS_CONTAINER_DISK_READ_
 export const METRICS_CONTAINER_DISK_READ_SUCCESS = 'METRICS_CONTAINER_DISK_READ_SUCCESS'
 export const METRICS_CONTAINER_DISK_READ_FAILURE = 'METRICS_CONTAINER_DISK_READ_FAILURE'
 
-function fetchContainerMetricsDiskRead(cluster, containerName, query = {}) {
+function fetchContainerMetricsDiskRead(cluster, containerName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/metrics`
   query.type = METRICSS_DISK_READ
   if (query) {
@@ -139,12 +143,13 @@ function fetchContainerMetricsDiskRead(cluster, containerName, query = {}) {
       types: [METRICS_CONTAINER_DISK_READ_REQUEST, METRICS_CONTAINER_DISK_READ_SUCCESS, METRICS_CONTAINER_DISK_READ_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
-export function loadContainerMetricsDiskRead(cluster, containerName, query) {
+export function loadContainerMetricsDiskRead(cluster, containerName, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchContainerMetricsDiskRead(cluster, containerName, query))
+    return dispatch(fetchContainerMetricsDiskRead(cluster, containerName, query, callback))
   }
 }
 
@@ -153,7 +158,7 @@ export const METRICS_CONTAINER_DISK_WRITE_REQUEST = 'METRICS_CONTAINER_DISK_WRIT
 export const METRICS_CONTAINER_DISK_WRITE_SUCCESS = 'METRICS_CONTAINER_DISK_WRITE_SUCCESS'
 export const METRICS_CONTAINER_DISK_WRITE_FAILURE = 'METRICS_CONTAINER_DISK_WRITE_FAILURE'
 
-function fetchContainerMetricsDiskWrite(cluster, containerName, query = {}) {
+function fetchContainerMetricsDiskWrite(cluster, containerName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/metrics`
   query.type = METRICSS_DISK_WRITE
   if (query) {
@@ -166,12 +171,13 @@ function fetchContainerMetricsDiskWrite(cluster, containerName, query = {}) {
       types: [METRICS_CONTAINER_DISK_WRITE_REQUEST, METRICS_CONTAINER_DISK_WRITE_SUCCESS, METRICS_CONTAINER_DISK_WRITE_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
-export function loadContainerMetricsDiskWrite(cluster, containerName, query) {
+export function loadContainerMetricsDiskWrite(cluster, containerName, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchContainerMetricsDiskWrite(cluster, containerName, query))
+    return dispatch(fetchContainerMetricsDiskWrite(cluster, containerName, query, callback))
   }
 }
 
@@ -207,7 +213,7 @@ export const METRICS_SERVICE_CPU_REQUEST = 'METRICS_SERVICE_CPU_REQUEST'
 export const METRICS_SERVICE_CPU_SUCCESS = 'METRICS_SERVICE_CPU_SUCCESS'
 export const METRICS_SERVICE_CPU_FAILURE = 'METRICS_SERVICE_CPU_FAILURE'
 
-function fetchServiceMetricsCPU(cluster, serviceName, query = {}) {
+function fetchServiceMetricsCPU(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICS_CPU
   if (query) {
@@ -220,12 +226,13 @@ function fetchServiceMetricsCPU(cluster, serviceName, query = {}) {
       types: [METRICS_SERVICE_CPU_REQUEST, METRICS_SERVICE_CPU_SUCCESS, METRICS_SERVICE_CPU_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
-export function loadServiceMetricsCPU(cluster, serviceName, query) {
+export function loadServiceMetricsCPU(cluster, serviceName, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchServiceMetricsCPU(cluster, serviceName, query))
+    return dispatch(fetchServiceMetricsCPU(cluster, serviceName, query, callback))
   }
 }
 
@@ -234,7 +241,7 @@ export const METRICS_SERVICE_MEMORY_REQUEST = 'METRICS_SERVICE_MEMORY_REQUEST'
 export const METRICS_SERVICE_MEMORY_SUCCESS = 'METRICS_SERVICE_MEMORY_SUCCESS'
 export const METRICS_SERVICE_MEMORY_FAILURE = 'METRICS_SERVICE_MEMORY_FAILURE'
 
-function fetchServiceMetricsMemory(cluster, serviceName, query = {}) {
+function fetchServiceMetricsMemory(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICS_MEMORY
   if (query) {
@@ -247,12 +254,13 @@ function fetchServiceMetricsMemory(cluster, serviceName, query = {}) {
       types: [METRICS_SERVICE_MEMORY_REQUEST, METRICS_SERVICE_MEMORY_SUCCESS, METRICS_SERVICE_MEMORY_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
-export function loadServiceMetricsMemory(cluster, serviceName, query) {
+export function loadServiceMetricsMemory(cluster, serviceName, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchServiceMetricsMemory(cluster, serviceName, query))
+    return dispatch(fetchServiceMetricsMemory(cluster, serviceName, query, callback))
   }
 }
 
@@ -261,7 +269,7 @@ export const METRICS_SERVICE_NETWORK_RECEIVED_REQUEST = 'METRICS_SERVICE_NETWORK
 export const METRICS_SERVICE_NETWORK_RECEIVED_SUCCESS = 'METRICS_SERVICE_NETWORK_RECEIVED_SUCCESS'
 export const METRICS_SERVICE_NETWORK_RECEIVED_FAILURE = 'METRICS_SERVICE_NETWORK_RECEIVED_FAILURE'
 
-function fetchServiceMetricsNetworkReceived(cluster, serviceName, query = {}) {
+function fetchServiceMetricsNetworkReceived(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICS_NETWORK_RECEIVED
   if (query) {
@@ -274,12 +282,13 @@ function fetchServiceMetricsNetworkReceived(cluster, serviceName, query = {}) {
       types: [METRICS_SERVICE_NETWORK_RECEIVED_REQUEST, METRICS_SERVICE_NETWORK_RECEIVED_SUCCESS, METRICS_SERVICE_NETWORK_RECEIVED_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
-export function loadServiceMetricsNetworkReceived(cluster, serviceName, query) {
+export function loadServiceMetricsNetworkReceived(cluster, serviceName, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchServiceMetricsNetworkReceived(cluster, serviceName, query))
+    return dispatch(fetchServiceMetricsNetworkReceived(cluster, serviceName, query, callback))
   }
 }
 
@@ -288,7 +297,7 @@ export const METRICS_SERVICE_NETWORK_TRANSMITTED_REQUEST = 'METRICS_SERVICE_NETW
 export const METRICS_SERVICE_NETWORK_TRANSMITTED_SUCCESS = 'METRICS_SERVICE_NETWORK_TRANSMITTED_SUCCESS'
 export const METRICS_SERVICE_NETWORK_TRANSMITTED_FAILURE = 'METRICS_SERVICE_NETWORK_TRANSMITTED_FAILURE'
 
-function fetchServiceMetricsNetworkTransmitted(cluster, serviceName, query = {}) {
+function fetchServiceMetricsNetworkTransmitted(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICSS_NETWORK_TRANSMITTED
   if (query) {
@@ -301,12 +310,13 @@ function fetchServiceMetricsNetworkTransmitted(cluster, serviceName, query = {})
       types: [METRICS_SERVICE_NETWORK_TRANSMITTED_REQUEST, METRICS_SERVICE_NETWORK_TRANSMITTED_SUCCESS, METRICS_SERVICE_NETWORK_TRANSMITTED_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
-export function loadServiceMetricsNetworkTransmitted(cluster, serviceName, query) {
+export function loadServiceMetricsNetworkTransmitted(cluster, serviceName, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchServiceMetricsNetworkTransmitted(cluster, serviceName, query))
+    return dispatch(fetchServiceMetricsNetworkTransmitted(cluster, serviceName, query, callback))
   }
 }
 
@@ -315,7 +325,7 @@ export const METRICS_SERVICE_DISK_READ_REQUEST = 'METRICS_SERVICE_DISK_READ_REQU
 export const METRICS_SERVICE_DISK_READ_SUCCESS = 'METRICS_SERVICE_DISK_READ_SUCCESS'
 export const METRICS_SERVICE_DISK_READ_FAILURE = 'METRICS_SERVICE_DISK_READ_FAILURE'
 
-function fetchServiceMetricsDiskRead(cluster, serviceName, query = {}) {
+function fetchServiceMetricsDiskRead(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICSS_DISK_READ
   if (query) {
@@ -328,12 +338,13 @@ function fetchServiceMetricsDiskRead(cluster, serviceName, query = {}) {
       types: [METRICS_SERVICE_DISK_READ_REQUEST, METRICS_SERVICE_DISK_READ_SUCCESS, METRICS_SERVICE_DISK_READ_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
-export function loadServiceMetricsDiskRead(cluster, serviceName, query) {
+export function loadServiceMetricsDiskRead(cluster, serviceName, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchServiceMetricsDiskRead(cluster, serviceName, query))
+    return dispatch(fetchServiceMetricsDiskRead(cluster, serviceName, query, callback))
   }
 }
 
@@ -342,7 +353,7 @@ export const METRICS_SERVICE_DISK_WRITE_REQUEST = 'METRICS_SERVICE_DISK_WRITE_RE
 export const METRICS_SERVICE_DISK_WRITE_SUCCESS = 'METRICS_SERVICE_DISK_WRITE_SUCCESS'
 export const METRICS_SERVICE_DISK_WRITE_FAILURE = 'METRICS_SERVICE_DISK_WRITE_FAILURE'
 
-function fetchServiceMetricsDiskWrite(cluster, serviceName, query = {}) {
+function fetchServiceMetricsDiskWrite(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICSS_DISK_WRITE
   if (query) {
@@ -355,12 +366,13 @@ function fetchServiceMetricsDiskWrite(cluster, serviceName, query = {}) {
       types: [METRICS_SERVICE_DISK_WRITE_REQUEST, METRICS_SERVICE_DISK_WRITE_SUCCESS, METRICS_SERVICE_DISK_WRITE_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
-export function loadServiceMetricsDiskWrite(cluster, serviceName, query) {
+export function loadServiceMetricsDiskWrite(cluster, serviceName, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchServiceMetricsDiskWrite(cluster, serviceName, query))
+    return dispatch(fetchServiceMetricsDiskWrite(cluster, serviceName, query, callback))
   }
 }
 

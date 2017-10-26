@@ -30,7 +30,8 @@ class Disk extends Component {
   render() {
     const option = new EchartsOption('磁盘')
     const { diskReadIo, diskWriteIo, events, scope } = this.props
-    let timeText = scope.state.switchDisk ? '5秒钟' : scope.state.freshTime
+    const { switchDisk, freshTime, DiskLoading } = scope.state
+    let timeText = switchDisk ? '5秒钟' : freshTime
     option.addYAxis('value', {
       formatter: '{value} KB/s'
     })
@@ -73,7 +74,7 @@ class Disk extends Component {
           style={{ height: formatGrid(diskReadIo.data && diskReadIo.data.length + diskWriteIo.data.length) }}
           notMerge={true}
           option={option}
-          // showLoading={diskReadIo.isFetching || diskWriteIo.isFetching}
+          showLoading={DiskLoading}
         />
       </div>
     )

@@ -170,7 +170,7 @@ class CleaningRecord extends Component {
 
   formatFileType(fileType){
     switch(fileType){
-      case 1:
+      case 'systemlog_clean':
         return <div>服务日志</div>
       /*case 2:
         return <div>监控数据</div>
@@ -411,28 +411,35 @@ class CleaningRecord extends Component {
         ),
         key: 'createTime',
         dataIndex: 'createTime',
-        width: '25%',
+        width: '20%',
         render: text => formatDate(text)
       },
       {
         key: 'status',
         dataIndex: 'status',
         title: '状态',
-        width: '25%',
+        width: '20%',
         render: text => this.formatStatus(text, true)
       },
       {
         key: 'type',
         dataIndex: 'type',
         title: '清理类型',
-        width: '25%',
+        width: '20%',
         render: type => this.formatType(type)
+      },
+      {
+        key: 'target',
+        dataIndex: 'target',
+        title: '文件类型',
+        width: '20%',
+        render: target => this.formatFileType(target)
       },
       {
         key: 'cleaner',
         dataIndex: 'cleaner',
         title: '清理人',
-        width: '25%',
+        width: '20%',
       },
     ]
     const target = getFieldValue('target')

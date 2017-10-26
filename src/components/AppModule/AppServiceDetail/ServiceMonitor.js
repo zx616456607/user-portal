@@ -30,6 +30,29 @@ import './style/ServiceMonitor.less'
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
+const timeFrequency = {
+  '1': {
+    'second': 1000 * 60,
+    'timeDes': '1分钟'
+  },
+  '6': {
+    'second': 1000 * 60 * 5,
+    'timeDes': '5分钟'
+  },
+  '24': {
+    'second': 1000 * 60 * 20,
+    'timeDes': '20分钟'
+  },
+  '168': {
+    'second': 1000 * 60 * 60 * 2,
+    'timeDes': '2小时'
+  },
+  '672': {
+    'second': 1000 * 60 * 60 * 6,
+    'timeDes': '6小时'
+  }
+}
+
 function loadData(props, query) {
   const { cluster, serviceName, loadServiceMetricsCPU, loadServiceMetricsMemory, loadServiceMetricsNetworkReceived, loadServiceMetricsNetworkTransmitted, loadServiceAllOfMetrics, loadServiceMetricsDiskRead, loadServiceMetricsDiskWrite } = props
   loadServiceMetricsCPU(cluster, serviceName, query)
@@ -56,67 +79,126 @@ class ServiceMonitior extends Component {
     }
   }
   
-  getHostCpu() {
+  getServiceCpu() {
     const { loadServiceMetricsCPU, cluster, serviceName } = this.props
-    loadServiceMetricsCPU(cluster, serviceName, {start: this.changeTime('0.5')})
+    loadServiceMetricsCPU(cluster, serviceName, {start: this.changeTime('0.5')}, {
+      finally: {
+        func: () => {
+          this.setState({
+            CpuLoading: false
+          })
+        }
+      }
+    })
   }
-  getHostMemory() {
+  getServiceMemory() {
     const { loadServiceMetricsMemory, cluster, serviceName } = this.props
-    loadServiceMetricsMemory(cluster, serviceName, {start: this.changeTime('0.5')})
+    loadServiceMetricsMemory(cluster, serviceName, {start: this.changeTime('0.5')}, {
+      finally: {
+        func: () => {
+          this.setState({
+            MemoryLoading: false
+          })
+        }
+      }
+    })
   }
-  getHostNetworkRx() {
+  getServiceNetworkRx() {
     const { loadServiceMetricsNetworkReceived, cluster, serviceName } = this.props
-    loadServiceMetricsNetworkReceived(cluster, serviceName, {start: this.changeTime('0.5')})
+    return new Promise(resolve => {
+      loadServiceMetricsNetworkReceived(cluster, serviceName, {start: this.changeTime('0.5')}, {
+        finally: {
+          func: () => {
+            resolve()
+          }
+        }
+      })
+    })
   }
-  getHostNetworkTx() {
+  getServiceNetworkTx() {
     const { loadServiceMetricsNetworkTransmitted, cluster, serviceName } = this.props
-    loadServiceMetricsNetworkTransmitted(cluster, serviceName, {start: this.changeTime('0.5')})
+    return new Promise(resolve => {
+      loadServiceMetricsNetworkTransmitted(cluster, serviceName, {start: this.changeTime('0.5')}, {
+        finally: {
+          func: () => {
+            resolve()
+          }
+        }
+      })
+    })
   }
-  getHostDiskRead() {
+  getServiceDiskRead() {
     const { loadServiceMetricsDiskRead, cluster, serviceName } = this.props
-    loadServiceMetricsDiskRead(cluster, serviceName, {start: this.changeTime('0.5')})
+    return new Promise(resolve => {
+      loadServiceMetricsDiskRead(cluster, serviceName, {start: this.changeTime('0.5')}, {
+        finally: {
+          func: () => {
+            resolve()
+          }
+        }
+      })
+    })
   }
-  getHostDiskWrite() {
+  getServiceDiskWrite() {
     const { loadServiceMetricsDiskWrite, cluster, serviceName } = this.props
-    loadServiceMetricsDiskWrite(cluster, serviceName, {start: this.changeTime('0.5')})
+    return new Promise(resolve => {
+      loadServiceMetricsDiskWrite(cluster, serviceName, {start: this.changeTime('0.5')}, {
+        finally: {
+          func: () => {
+            resolve()
+          }
+        }
+      })
+    })
   }
   switchChange(flag, type) {
     this.setState({
-      [`switch${type}`]: flag
+      [`switch${type}`]: flag,
+      [`${type}Loading`]: flag
     })
     switch(type) {
       case 'Cpu':
         clearInterval(this.cpuInterval)
         if (flag) {
-          this.getHostCpu()
-          this.cpuInterval = setInterval(() => this.getHostCpu(), LOAD_INSTANT_INTERVAL)
+          this.getServiceCpu()
+          this.cpuInterval = setInterval(() => this.getServiceCpu(), LOAD_INSTANT_INTERVAL)
         }
         break
       case 'Memory':
         clearInterval(this.memoryInterval)
         if (flag) {
-          this.getHostMemory()
-          this.memoryInterval = setInterval(() => this.getHostMemory(), LOAD_INSTANT_INTERVAL)
+          this.getServiceMemory()
+          this.memoryInterval = setInterval(() => this.getServiceMemory(), LOAD_INSTANT_INTERVAL)
         }
         break
       case 'Network':
         clearInterval(this.networkRxInterval)
         clearInterval(this.networkTxInterval)
         if (flag) {
-          this.getHostNetworkRx()
-          this.getHostNetworkTx()
-          this.networkRxInterval = setInterval(() => this.getHostNetworkRx(), LOAD_INSTANT_INTERVAL)
-          this.networkTxInterval = setInterval(() => this.getHostNetworkTx(), LOAD_INSTANT_INTERVAL)
+          this.getServiceNetworkRx()
+          this.getServiceNetworkTx()
+          Promise.all([this.getServiceNetworkRx(), this.getServiceNetworkTx()]).then(() => {
+            this.setState({
+              NetworkLoading: false
+            })
+          })
+          this.networkRxInterval = setInterval(() => this.getServiceNetworkRx(), LOAD_INSTANT_INTERVAL)
+          this.networkTxInterval = setInterval(() => this.getServiceNetworkTx(), LOAD_INSTANT_INTERVAL)
         }
         break
       case 'Disk':
         clearInterval(this.diskReadInterval)
         clearInterval(this.diskWriteInterval)
         if (flag) {
-          this.getHostDiskRead()
-          this.getHostDiskWrite()
-          this.diskReadInterval = setInterval(() => this.getHostDiskRead(), LOAD_INSTANT_INTERVAL)
-          this.diskWriteInterval = setInterval(() => this.getHostDiskWrite(), LOAD_INSTANT_INTERVAL)
+          this.getServiceDiskRead()
+          this.getServiceDiskWrite()
+          Promise.all([this.getServiceDiskRead(), this.getServiceDiskWrite()]).then(() => {
+            this.setState({
+              DiskLoading: false
+            })
+          })
+          this.diskReadInterval = setInterval(() => this.getServiceDiskRead(), LOAD_INSTANT_INTERVAL)
+          this.diskWriteInterval = setInterval(() => this.getServiceDiskWrite(), LOAD_INSTANT_INTERVAL)
         }
     }
   }
@@ -127,12 +209,17 @@ class ServiceMonitior extends Component {
   }
 
   handleTimeChange(e) {
+    const { loadServiceAllOfMetrics, cluster, serviceName } = this.props
     const {value} = e.target
     const start = this.changeTime(value)
+    const timeDes = timeFrequency[value]['timeDes']
     this.setState({
-      currentStart: start
+      currentStart: start,
+      freshTime: timeDes
+    }, () => {
+      loadServiceAllOfMetrics(cluster, serviceName, { start })
+      this.setIntervalFunc()
     })
-    loadData(this.props, { start })
   }
 
   componentWillMount() {
@@ -142,11 +229,13 @@ class ServiceMonitior extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { cluster, serviceName } = nextProps
+    const { cluster, serviceName, loadServiceAllOfMetrics } = nextProps
     if (serviceName === this.props.serviceName) {
       return
     }
     // loadData(nextProps, { start: this.changeTime(1) })
+    loadServiceAllOfMetrics(cluster, serviceName, { start: this.changeTime(1)})
+    this.setIntervalFunc()
   }
 
   componentWillUnmount() {
@@ -206,27 +295,6 @@ class ServiceMonitior extends Component {
       data: [],
       isFetching: false
     }
-    // if(allServiceMetrics.data.length > 0) {
-    //   showCpu.data = allServiceMetrics.data[0].cpu;
-    //   showCpu.isFetching = false;
-    //   showMemory.data = allServiceMetrics.data[1].memory;
-    //   showMemory.isFetching = false;
-    //   showNetworkTrans.data = allServiceMetrics.data[2].networkTrans;
-    //   showNetworkTrans.isFetching = false;
-    //   showNetworkRec.data = allServiceMetrics.data[3].networkRec;
-    //   showNetworkRec.isFetching = false;
-    //   showDiskReadIo.data = allServiceMetrics.data[4].diskReadIo;
-    //   showDiskReadIo.isFetching = false;
-    //   showDiskWriteIo.data = allServiceMetrics.data[5].diskWriteIo;
-    //   showDiskWriteIo.isFetching = false;
-    // } else {
-    //   showCpu = cpu;
-    //   showMemory = memory;
-    //   showNetworkTrans = networkTransmitted;
-    //   showNetworkRec = networkReceived;
-    //   showDiskReadIo = diskReadIo
-    //   showDiskWriteIo = diskWriteIo
-    // }
     if (allServiceMetrics.data.length) {
       switchCpu ? showCpu = cpu : showCpu.data = allServiceMetrics.data[0].cpu
       switchMemory ? showMemory = memory: showMemory.data = allServiceMetrics.data[1].memory

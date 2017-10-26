@@ -31,7 +31,8 @@ class CPU extends Component {
     const option = new EchartsOption('CPU')
     const { cpu, scope } = this.props
     const { isFetching, data } = cpu
-    let timeText = scope.state.switchCpu ? '5秒钟' : scope.state.freshTime
+    const { switchCpu, freshTime, CpuLoading } = scope.state
+    let timeText = switchCpu ? '5秒钟' : freshTime
     option.addYAxis('value', {
       formatter: '{value} %'
     })
@@ -57,6 +58,7 @@ class CPU extends Component {
           style={{ height: formatGrid(data&&data.length) }}
           notMerge={true}
           option={option}
+          showLoading={CpuLoading}
         />
       </div>
     )

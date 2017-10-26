@@ -27,6 +27,29 @@ import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../constants'
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
+const timeFrequency = {
+  '1': {
+    'second': 1000 * 60,
+    'timeDes': '1分钟'
+  },
+  '6': {
+    'second': 1000 * 60 * 5,
+    'timeDes': '5分钟'
+  },
+  '24': {
+    'second': 1000 * 60 * 20,
+    'timeDes': '20分钟'
+  },
+  '168': {
+    'second': 1000 * 60 * 60 * 2,
+    'timeDes': '2小时'
+  },
+  '672': {
+    'second': 1000 * 60 * 60 * 6,
+    'timeDes': '6小时'
+  }
+}
+
 function loadData(props, query) {
   const { cluster, containerName, loadContainerMetricsCPU, loadContainerMetricsMemory, loadContainerMetricsNetworkReceived, loadContainerMetricsNetworkTransmitted, loadContainerMetricsDiskRead, loadContainerMetricsDiskWrite } = props
   loadContainerMetricsCPU(cluster, containerName, query)
@@ -54,31 +77,80 @@ class ContainerMonitior extends Component {
   }
   getHostCpu() {
     const { loadContainerMetricsCPU, cluster, containerName } = this.props
-    loadContainerMetricsCPU(cluster, containerName, {start: this.changeTime('0.5'), source: 'influxdb'})
+    loadContainerMetricsCPU(cluster, containerName, {start: this.changeTime('0.5'), source: 'influxdb'}, {
+      finally: {
+        func: () => {
+          this.setState({
+            CpuLoading: false
+          })
+        }
+      }
+    })
   }
   getHostMemory() {
     const { loadContainerMetricsMemory, cluster, containerName } = this.props
-    loadContainerMetricsMemory(cluster, containerName, {start: this.changeTime('0.5'), source: 'influxdb'})
+    loadContainerMetricsMemory(cluster, containerName, {start: this.changeTime('0.5'), source: 'influxdb'}, {
+      finally: {
+        func: () => {
+          this.setState({
+            MemoryLoading: false
+          })
+        }
+      }
+    })
   }
   getHostNetworkRx() {
     const { loadContainerMetricsNetworkReceived, cluster, containerName } = this.props
-    loadContainerMetricsNetworkReceived(cluster, containerName, {start: this.changeTime('0.5'), source: 'influxdb'})
+    return new Promise(resolve => {
+      loadContainerMetricsNetworkReceived(cluster, containerName, {start: this.changeTime('0.5'), source: 'influxdb'}, {
+        finally: {
+          func: () => {
+            resolve()
+          }
+        }
+      })
+    })
   }
   getHostNetworkTx() {
     const { loadContainerMetricsNetworkTransmitted, cluster, containerName } = this.props
-    loadContainerMetricsNetworkTransmitted(cluster, containerName, {start: this.changeTime('0.5'), source: 'influxdb'})
+    return new Promise(resolve => {
+      loadContainerMetricsNetworkTransmitted(cluster, containerName, {start: this.changeTime('0.5'), source: 'influxdb'}, {
+        finally: {
+          func: () => {
+            resolve()
+          }
+        }
+      })
+    })
   }
   getHostDiskRead() {
     const { loadContainerMetricsDiskRead, cluster, containerName } = this.props
-    loadContainerMetricsDiskRead(cluster, containerName, {start: this.changeTime('0.5')})
+    return new Promise(resolve => {
+      loadContainerMetricsDiskRead(cluster, containerName, {start: this.changeTime('0.5')}, {
+        finally: {
+          func: () => {
+            resolve()
+          }
+        }
+      })
+    })
   }
   getHostDiskWrite() {
     const { loadContainerMetricsDiskWrite, cluster, containerName } = this.props
-    loadContainerMetricsDiskWrite(cluster, containerName, {start: this.changeTime('0.5')})
+    return new Promise(resolve => {
+      loadContainerMetricsDiskWrite(cluster, containerName, {start: this.changeTime('0.5')}, {
+        finally: {
+          func: () => {
+            resolve()
+          }
+        }
+      })
+    })
   }
   switchChange(flag, type) {
     this.setState({
-      [`switch${type}`]: flag
+      [`switch${type}`]: flag,
+      [`${type}Loading`]: flag
     })
     switch(type) {
       case 'Cpu':
@@ -99,8 +171,11 @@ class ContainerMonitior extends Component {
         clearInterval(this.networkRxInterval)
         clearInterval(this.networkTxInterval)
         if (flag) {
-          this.getHostNetworkRx()
-          this.getHostNetworkTx()
+          Promise.all([this.getHostNetworkRx(), this.getHostNetworkTx()]).then(() => {
+            this.setState({
+              NetworkLoading: false
+            })
+          })
           this.networkRxInterval = setInterval(() => this.getHostNetworkRx(), LOAD_INSTANT_INTERVAL)
           this.networkTxInterval = setInterval(() => this.getHostNetworkTx(), LOAD_INSTANT_INTERVAL)
         }
@@ -109,8 +184,11 @@ class ContainerMonitior extends Component {
         clearInterval(this.diskReadInterval)
         clearInterval(this.diskWriteInterval)
         if (flag) {
-          this.getHostDiskRead()
-          this.getHostDiskWrite()
+          Promise.all([this.getHostDiskRead(), this.getHostDiskWrite()]).then(() => {
+            this.setState({
+              DiskLoading: false
+            })
+          })
           this.diskReadInterval = setInterval(() => this.getHostDiskRead(), LOAD_INSTANT_INTERVAL)
           this.diskWriteInterval = setInterval(() => this.getHostDiskWrite(), LOAD_INSTANT_INTERVAL)
         }
@@ -125,8 +203,10 @@ class ContainerMonitior extends Component {
   handleTimeChange(e) {
     const {value} = e.target
     const start = this.changeTime(value)
+    const timeDes = timeFrequency[value]['timeDes']
     this.setState({
-      currentStart: start
+      currentStart: start,
+      freshTime: timeDes
     })
     loadData(this.props, { start })
   }
