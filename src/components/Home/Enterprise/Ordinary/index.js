@@ -405,7 +405,7 @@ class Ordinary extends Component {
           result += number
         } else {
           if (Number(String(count).split('.')[0]) > 0) {
-            result += number
+            result += Math.floor(number)
           } else {
             result += count * number
           }
