@@ -21,7 +21,7 @@ import NotificationHandler from '../../components/Notification'
 import { MY_SPACE } from '../../constants'
 import { parseAmount } from '../../common/tools.js'
 import './style/CreateDatabase.less'
-import { SHOW_BILLING } from '../../constants'
+import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
 import { camelize } from 'humps'
 
 const Option = Select.Option;
@@ -263,7 +263,10 @@ let CreateDatabase = React.createClass({
             if (res.statusCode == 409) {
               notification.error('数据库服务 ' + values.name + ' 同已有资源冲突，请修改名称后重试')
             } else {
-              notification.error('创建数据库服务失败')
+              if(res.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
+                notification.error('创建数据库服务失败')
+              }
+
             }
           }
         },
