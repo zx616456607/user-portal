@@ -13,6 +13,7 @@
 import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
+import { Row, Col, Switch } from 'antd'
 
 function formatGrid(count) {
   //this fucntion for format grid css
@@ -28,7 +29,8 @@ class Disk extends Component {
 
   render() {
     const option = new EchartsOption('磁盘')
-    const { diskReadIo, diskWriteIo, events} = this.props
+    const { diskReadIo, diskWriteIo, events, scope } = this.props
+    let timeText = scope.state.switchDisk ? '5秒钟' : scope.state.freshTime
     option.addYAxis('value', {
       formatter: '{value} KB/s'
     })
@@ -62,12 +64,18 @@ class Disk extends Component {
     })
     option.setGirdForDataNetWork(diskReadIo.data && diskReadIo.data.length + diskWriteIo.data.length, events)
     return (
-      <ReactEcharts
-        style={{ height: formatGrid(diskReadIo.data && diskReadIo.data.length + diskWriteIo.data.length) }}
-        notMerge={true}
-        option={option}
-        showLoading={diskReadIo.isFetching || diskWriteIo.isFetching}
-      />
+      <div className="chartBox">
+        <span className="freshTime">
+          {`时间间隔：${timeText}`}
+        </span>
+        {/*<Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Disk')} checkedChildren="开" unCheckedChildren="关"/>*/}
+        <ReactEcharts
+          style={{ height: formatGrid(diskReadIo.data && diskReadIo.data.length + diskWriteIo.data.length) }}
+          notMerge={true}
+          option={option}
+          // showLoading={diskReadIo.isFetching || diskWriteIo.isFetching}
+        />
+      </div>
     )
   }
 }

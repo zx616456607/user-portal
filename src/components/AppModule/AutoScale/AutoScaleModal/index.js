@@ -539,7 +539,7 @@ class AutoScaleModal extends React.Component {
           <Row style={{margin: '-3px 0 10px'}}>
             <Col span={4} style={{ height: 18 }}/>
             <Col span={16}>
-              <Icon type="info-circle-o" /> 挂载独享性存储的服务不支持自动伸缩
+              <Icon type="exclamation-circle-o"/> 挂载独享型存储的服务不支持自动伸缩
             </Col>
           </Row>
           <FormItem
@@ -558,7 +558,7 @@ class AutoScaleModal extends React.Component {
           <Row style={{margin: '-3px 0 10px'}}>
             <Col span={4}/>
             <Col span={16}>
-              <Icon type="info-circle-o" /> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
+              <Icon type="exclamation-circle-o"/> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
             </Col>
           </Row>
           <FormItem
@@ -600,7 +600,7 @@ class AutoScaleModal extends React.Component {
                 <Row style={{margin: '-3px 0 10px'}} key="alertGroupHint">
                   <Col span={4} style={{ height: 18 }}/>
                   <Col span={16}>
-                    <Icon type="info-circle-o" /> 发生弹性伸缩时会向该通知组发送邮件通知
+                    <Icon type="exclamation-circle-o"/> 发生弹性伸缩时会向该通知组发送邮件通知
                   </Col>
                 </Row>,
                 <Row style={{margin: '-10px 0 10px'}} key="createGroup">
