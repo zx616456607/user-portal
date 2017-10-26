@@ -11,6 +11,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
+import './style/Index.less'
 import CPU from './CPU'
 import Memory from './Memory'
 import Network from './Network'
@@ -22,16 +23,23 @@ class Metrics extends Component {
   }
 
   render() {
-    const { cpu, memory, networkReceived, networkTransmitted, events, diskReadIo, diskWriteIo } = this.props
+    const { cpu, memory, networkReceived, networkTransmitted, events, diskReadIo, diskWriteIo, scope } = this.props
     return (
       <div className="metrics" style={{marginTop:12}}>
-        <CPU cpu={cpu} events={events}/>
-        <Memory memory={memory} events={events}/>
-        <Network networkReceived={networkReceived}
+        <CPU cpu={cpu} events={events} scope={scope}/>
+        <Memory memory={memory} events={events} scope={scope}/>
+        <Network 
+          networkReceived={networkReceived}
           networkTransmitted={networkTransmitted}
           events={events}
+          scope={scope}
         />
-        <Disk diskReadIo={diskReadIo} events={events} diskWriteIo={diskWriteIo}/>
+        <Disk 
+          diskReadIo={diskReadIo} 
+          events={events} 
+          diskWriteIo={diskWriteIo}
+          scope={scope}
+        />
       </div>
     )
   }

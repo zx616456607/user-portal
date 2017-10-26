@@ -191,6 +191,150 @@ export function loadHostInstant(body) {
   }
 }
 
+export const LOAD_HOST_CPU_REQUEST = 'LOAD_HOST_CPU_REQUEST'
+export const LOAD_HOST_CPU_SUCCESS = 'LOAD_HOST_CPU_SUCCESS'
+export const LOAD_HOST_CPU_FAILURE = 'LOAD_HOST_CPU_FAILURE'
+
+function fetchHostCpu(body, query) {
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/cpu`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [LOAD_HOST_CPU_REQUEST,LOAD_HOST_CPU_SUCCESS,LOAD_HOST_CPU_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+export function loadHostCpu(body, query) {
+  return dispatch => {
+    return dispatch(fetchHostCpu(body, query))
+  }
+}
+
+export const LOAD_HOST_MEMORY_REQUEST = 'LOAD_HOST_MEMORY_REQUEST'
+export const LOAD_HOST_MEMORY_SUCCESS = 'LOAD_HOST_MEMORY_SUCCESS'
+export const LOAD_HOST_MEMORY_FAILURE = 'LOAD_HOST_MEMORY_FAILURE'
+
+function fetchHostMemory(body, query) {
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/memory`
+  if (query){
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [LOAD_HOST_MEMORY_REQUEST,LOAD_HOST_MEMORY_SUCCESS,LOAD_HOST_MEMORY_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+export function loadHostMemory(body, query) {
+  return dispatch => {
+    return dispatch(fetchHostMemory(body, query))
+  }
+}
+
+export const LOAD_HOST_RXRATE_REQUEST = 'LOAD_HOST_RXRATE_REQUEST'
+export const LOAD_HOST_RXRATE_SUCCESS = 'LOAD_HOST_RXRATE_SUCCESS'
+export const LOAD_HOST_RXRATE_FAILURE = 'LOAD_HOST_RXRATE_FAILURE'
+
+function fetchHostRxrate(body, query) {
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/rxRate`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [LOAD_HOST_RXRATE_REQUEST,LOAD_HOST_RXRATE_SUCCESS,LOAD_HOST_RXRATE_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+export function loadHostRxrate(body, query){
+  return dispatch => {
+    return dispatch(fetchHostRxrate(body, query))
+  }
+}
+
+export const LOAD_HOST_TXRATE_REQUEST = 'LOAD_HOST_TXRATE_REQUEST'
+export const LOAD_HOST_TXRATE_SUCCESS = 'LOAD_HOST_TXRATE_SUCCESS'
+export const LOAD_HOST_TXRATE_FAILURE = 'LOAD_HOST_TXRATE_FAILURE'
+
+function fetchHostTxrate(body, query) {
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/txRate`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [LOAD_HOST_TXRATE_REQUEST,LOAD_HOST_TXRATE_SUCCESS,LOAD_HOST_TXRATE_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+export function loadHostTxrate(body, query){
+  return dispatch => {
+    return dispatch(fetchHostTxrate(body, query))
+  }
+}
+
+export const LOAD_HOST_READIO_REQUEST = 'LOAD_HOST_READIO_REQUEST'
+export const LOAD_HOST_READIO_SUCCESS = 'LOAD_HOST_READIO_SUCCESS'
+export const LOAD_HOST_READIO_FAILURE = 'LOAD_HOST_READIO_FAILURE'
+
+function fetchHostDiskReadIo(body, query) {
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/diskReadIo`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [LOAD_HOST_READIO_REQUEST,LOAD_HOST_READIO_SUCCESS,LOAD_HOST_READIO_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+export function loadHostDiskReadIo(body, query) {
+  return dispatch => {
+    return dispatch(fetchHostDiskReadIo(body, query))
+  }
+}
+
+export const LOAD_HOST_WRITEIO_REQUEST = 'LOAD_HOST_WRITEIO_REQUEST'
+export const LOAD_HOST_WRITEIO_SUCCESS = 'LOAD_HOST_WRITEIO_SUCCESS'
+export const LOAD_HOST_WRITEIO_FAILURE = 'LOAD_HOST_WRITEIO_FAILURE'
+
+function fetchHostDiskWriteIo(body, query) {
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/diskWriteIo`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [LOAD_HOST_WRITEIO_REQUEST,LOAD_HOST_WRITEIO_SUCCESS,LOAD_HOST_WRITEIO_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+export function loadHostDiskWriteIo(body, query) {
+  return dispatch => {
+    return dispatch(fetchHostDiskWriteIo(body, query))
+  }
+}
+
 export const UPDATE_CLUSTER_REQUEST = 'UPDATE_CLUSTER_REQUEST'
 export const UPDATE_CLUSTER_SUCCESS = 'UPDATE_CLUSTER_SUCCESS'
 export const UPDATE_CLUSTER_FAILURE = 'UPDATE_CLUSTER_FAILURE'

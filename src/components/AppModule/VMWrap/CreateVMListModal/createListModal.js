@@ -173,11 +173,7 @@ let CreateVMListModal = React.createClass({
     let promptStyle = {
       marginRight: 120
     }
-    if(this.props.visible){
-      setTimeout(() => {
-        this.host && this.host.refs.input.focus()
-      }, 300)
-    }
+
     return (
       <Modal
         title={this.props.modalTitle ? "添加传统环境" : "编辑传统环境"}

@@ -64,7 +64,7 @@ class CostRecord extends Component{
   handleSpaceChange(space) {
     this.setState({
       spacesVisible: false,
-      currentSpaceName: space.projectName,
+      currentSpaceName: space.namespace,
       currentTeamName: space.teamName,
       currentNamespace: space.namespace,
       consumptionDetailCurrentPage: 1,
@@ -159,6 +159,7 @@ class CostRecord extends Component{
     loadSpaceSummaryInDay(currentNamespace)
     loadSpaceSummary(currentNamespace)
   }
+
   render(){
     const _this = this
     const {
@@ -174,6 +175,8 @@ class CostRecord extends Component{
       spaceSummaryInDay,
       spaceSummary,
       standard,
+      allUsers,
+      isSysAdmin,
     } = this.props
     let {
       spacesVisible,
@@ -480,6 +483,9 @@ class CostRecord extends Component{
               <div className='popSelect'>
                 <PopSelect
                   title="选择项目"
+                  allUsers={allUsers}
+                  isSysAdmin={isSysAdmin}
+                  Search={true}
                   btnStyle={false}
                   special={true}
                   visible={spacesVisible}
@@ -493,11 +499,6 @@ class CostRecord extends Component{
             </div>
           }
         </Card>
-        {
-          standard ? <div></div> : (((loginUser.info.role === ROLE_TEAM_ADMIN || loginUser.info.role === ROLE_SYS_ADMIN) && currentNamespace !== '' && currentNamespace !== 'default')?
-          <TeamCost currentSpaceName = {currentSpaceName} currentTeamName={currentTeamName} currentNamespace={currentNamespace} standard={standard}/>:
-          <div></div>)
-        }
         <Row gutter={16} className='currentMonth'>
           <Col span={12} className='teamCost'>
             <Card title={spaceCostTitle} bordered={false} bodyStyle={{height:170}}>

@@ -25,7 +25,7 @@ import { volNameCheck } from '../../common/naming_validation'
 import NotificationHandler from '../../components/Notification'
 import ResourceQuotaModal from '../ResourceQuotaModal/Storage'
 import CreateVolume from '../StorageModule/CreateVolume'
-import { SHOW_BILLING } from '../../constants'
+import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
 import Title from '../Title'
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -149,10 +149,7 @@ let MyComponent = React.createClass({
     config: React.PropTypes.object
   },
   componentWillReceiveProps(nextProps){
-    if(
-      (nextProps.delModal !== this.props.delModal && !nextProps.delModal)
-      || (nextProps.storage.isFetching !== this.props.storage.isFetching && nextProps.storage.isFetching)
-    ){
+    if(nextProps.storage.isFetching !== this.props.storage.isFetching && nextProps.storage.isFetching){
       this.setState({
         selectedRowKeys: [],
       })
@@ -349,8 +346,10 @@ let MyComponent = React.createClass({
           isAsync: true
         },
         failed: {
-          func: () => {
-            Noti.error('创建快照失败！')
+          func: err => {
+            if(err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
+              Noti.error('创建快照失败！')
+            }
             this.setState({
               createSnapModal: false,
               confirmCreateSnapshotLoading: false

@@ -19,6 +19,7 @@ import NotificationHandler from '../../../components/Notification'
 import { formatDate } from '../../../common/tools'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../constants'
 import { API_URL_PREFIX } from '../../../constants'
+import cloneDeep from 'lodash/cloneDeep'
 
 import { wrapManageList, deleteWrapManage } from '../../../actions/app_center'
 const RadioGroup = Radio.Group
@@ -33,6 +34,7 @@ const wrapTypelist = ['jar','war','tar','tar.gz','zip']
 class WrapListTbale extends Component {
   constructor(props) {
     super()
+    this.rowClick = this.rowClick.bind(this)
     this.state = {
       page: 1,
     }
@@ -134,6 +136,39 @@ class WrapListTbale extends Component {
     )
   }
 
+  rowClick(record, index){
+    const { func, selectedRowKeys } = this.props
+    const { id } = func.scope.state
+    const newId = cloneDeep(id)
+    const newSelectedRowKeys = cloneDeep(selectedRowKeys)
+    let idIsExist = false
+    let keysIsExist = false
+    for(let i = 0; i < newId.length; i++){
+    	if(newId[i] == record.id){
+        newId.splice(i, 1)
+        idIsExist = true
+        break
+      }
+    }
+    for(let i = 0; i < newSelectedRowKeys.length; i++){
+    	if(newSelectedRowKeys[i] == index){
+        newSelectedRowKeys.splice(i, 1)
+        keysIsExist = true
+        break
+      }
+    }
+    if(!keysIsExist){
+      newSelectedRowKeys.push(index)
+    }
+    if(!idIsExist){
+      newId.push(record.id)
+    }
+    func.scope.setState({
+      selectedRowKeys: newSelectedRowKeys,
+      id: newId,
+    })
+  }
+
   render() {
     // jar war ,tar.gz zip
     const dataSource = this.props.wrapList
@@ -203,9 +238,9 @@ class WrapListTbale extends Component {
 
     return (
       <div className="wrapListTable" id="wrapListTable">
-        <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource.pkgs} columns={columns} pagination={paginationOpts} />
+        <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource.pkgs} columns={columns} pagination={paginationOpts} onRowClick={this.rowClick}/>
         { dataSource.total && dataSource.total >0 ?
-          <span className="pageCount" style={{position:'absolute',right:'160px',top:'-40px'}}>共计 {dataSource.total} 条</span>
+          <span className="pageCount" style={{position:'absolute',right:'160px',top:'-55px'}}>共计 {dataSource.total} 条</span>
           :null
         }
         <Modal title="删除操作" visible={this.state.delAll}

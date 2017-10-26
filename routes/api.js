@@ -62,6 +62,7 @@ module.exports = function (Router) {
   router.get('/storage-pools/:pool/:cluster/volumes', volumeController.getVolumeListByPool)
   router.post('/storage-pools/:pool/:cluster/volumes/batch-delete', volumeController.deleteVolume)
   router.post('/storage-pools/:cluster/volumes', volumeController.createVolume)
+  router.get('/clusters/:cluster/volumes/:volumeName/check-exist', volumeController.getCheckVolumeNameExist)
   router.put('/storage-pools/:pool/:cluster/volumes/format', volumeController.formateVolume)
   router.put('/storage-pools/:pool/:cluster/volumes/size', volumeController.resizeVolume)
   router.get('/clusters/:cluster/volumes/:name/consumption', volumeController.getVolumeDetail)
@@ -484,7 +485,8 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster/:node/metrics', clusternodesController.getClustersMetrics)
   router.get('/cluster-nodes/:cluster/:node/instant', clusternodesController.getClustersInstant)
   router.get('/cluster-nodes/:cluster/label-summary', clusternodesController.getLabelSummary)
-
+  router.get('/cluster-nodes/:cluster/:node/:type', clusternodesController.getClustersTypeMetrics)
+  
   // manipulate node's labels
   router.get('/cluster-nodes/:cluster/:node/labels', clusternodesController.getNodeLabels)
   router.put('/cluster-nodes/:cluster/:node/labels', clusternodesController.updateNodeLabels)
@@ -650,7 +652,7 @@ module.exports = function (Router) {
   router.put('/cleaner/monitor', cleanController.startCleanMonitor)
   router.post('/cleaner/records', cleanController.getSystemCleanerLogs)
   router.post('/cleaner/close', cleanController.closeLogsAutoClean)
-  router.post('/cleanlogs/flush', cleanController.deleteCleanLogs)
+  // router.post('/cleanlogs/flush', cleanController.deleteCleanLogs)
 
   return router.routes()
 }

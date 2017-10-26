@@ -144,33 +144,33 @@ exports.getClustersMetrics = function* () {
   const query = this.query
   const api = apiFactory.getK8sApi(loginUser)
   let cpuq = {
-    source: 'prometheus',
     type: 'cpu/usage_rate',
+    source: 'prometheus',
     start: query.start
   }
   let memoryq = {
-    source: 'prometheus',
     type: 'memory/usage',
+    source: 'prometheus',
     start: query.start
   }
   let re_rateq = {
-    source: 'prometheus',
     type: 'network/rx_rate',
+    source: 'prometheus',
     start:query.start
   }
   let te_rateq = {
-    source: 'prometheus',
     type: 'network/tx_rate',
+    source: 'prometheus',
     start: query.start
   }
   let te_disk_read = {
-    source: 'prometheus',
     type: 'disk/node_readio',
+    source: 'prometheus',
     start: query.start
   }
   let te_disk_write = {
-    source: 'prometheus',
     type: 'disk/node_writeio',
+    source: 'prometheus',
     start: query.start
   }
   const reqArray = []
@@ -194,6 +194,33 @@ exports.getClustersMetrics = function* () {
     txRate: results[3][node],
     diskReadIo: results[4][node],
     diskWriteIo: results[5][node],
+  }
+}
+
+const clusterTypeOpt = {
+  'cpu': 'cpu/usage_rate',
+  'memory': 'memory/usage',
+  'rxRate': 'network/rx_rate',
+  'txRate': 'network/tx_rate',
+  'diskReadIo': 'disk/node_readio',
+  'diskWriteIo': 'disk/node_writeio'
+}
+// host cpu || memory || rxrate || txrate || readio || writeio
+exports.getClustersTypeMetrics = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const node = this.params.node
+  const type = this.params.type
+  const query = this.query
+  const api = apiFactory.getK8sApi(loginUser)
+  let cpuq = {
+    source: 'influxdb',
+    type: clusterTypeOpt[type],
+    start: query.start
+  }
+  const result = yield api.getBy([cluster, 'metric', 'nodes', node, 'metrics'], cpuq)
+  this.body = {
+    [type]: result[node]
   }
 }
 

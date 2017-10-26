@@ -1056,11 +1056,13 @@ class ServiceList extends Component {
           const { alarmStrategy } = self.state
           if(alarmStrategy){
             let strategyID = []
+            let strategyName = []
             let strategyList = SettingListfromserviceorapp.result || []
             strategyList.forEach((item, index) => {
               strategyID.push(item.strategyID)
+              strategyName.push(item.strategyName)
             })
-            strategyID.length > 0 && deleteSetting(cluster, strategyID)
+            strategyID.length > 0 && deleteSetting(cluster, strategyID, strategyName)
           }
         },
         isAsync: true
@@ -1485,6 +1487,9 @@ class ServiceList extends Component {
               loadServices={()=>this.loadServices(this.props)}
               selectTab={selectTab}
               serviceDetailmodalShow={this.state.modalShow}
+              page={page}
+              size={size}
+              name={this.props.name}
               />
           </Modal>
           {
