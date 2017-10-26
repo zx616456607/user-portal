@@ -763,12 +763,12 @@ class Sider extends Component {
                   </Menu.Item>
                   <Menu.Item key='rolemanagement'>
                     <Link to='/tenant_manage/rolemanagement'>
-                      <span><div className='sideCircle'></div> 角色管理</span>
+                      <span><div className='sideCircle'></div> 项目角色</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='allpermissions'>
                     <Link to='/tenant_manage/allpermissions'>
-                      <span><div className='sideCircle'></div> 所有权限</span>
+                      <span><div className='sideCircle'></div> 项目权限</span>
                     </Link>
                   </Menu.Item>
                   {role == ROLE_SYS_ADMIN ?

@@ -1062,6 +1062,7 @@ class PayTable extends Component {
   }
 
   onRowClick = record => {
+    const { updatePayArr } = this.props
     const { selectedRowKeys } = this.state
     const projectName = record.namespace
     let newKeys = selectedRowKeys.slice(0)
@@ -1070,6 +1071,7 @@ class PayTable extends Component {
     } else {
       newKeys.push(projectName)
     }
+    updatePayArr(newKeys)
     this.setState({
       selectedRowKeys: newKeys
     })
@@ -1123,7 +1125,7 @@ class PayTable extends Component {
             <span className={classNames('btnList', {'active': payNumber === 100})} onClick={() => {
               this.changePayNumber(100)
             }}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-            <InputNumber value={payNumber} onChange={(value) => this.changePayNumber(value)} size="large" min={10}/>
+            <InputNumber value={payNumber} onChange={(value) => this.changePayNumber(value)} size="large" min={1}/>
             <b>T</b>
           </dd>
         </dl>
