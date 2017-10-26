@@ -61,7 +61,7 @@ class VMServiceCreate extends React.Component {
       return
     }
     if (!validateK8sResourceForServiceName(newValue)) {
-      return callback('服务名称可由3~24位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
+      return callback('应用名称可由3~24位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
     }
     clearTimeout(this.projectNameCheckTimeout)
     this.projectNameCheckTimeout = setTimeout(()=>{
@@ -157,6 +157,7 @@ class VMServiceCreate extends React.Component {
                 labelCol={{ span: 3 }}
                 wrapperCol={{ span: 9 }}
                 hasFeedback
+                className='app_name_style'
                 // help={isFieldValidating('serviceName') ? '校验中...' : (getFieldError('serviceName') || []).join(', ')}
               >
                 <Input {...getFieldProps('serviceName',{
