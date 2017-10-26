@@ -1791,19 +1791,19 @@ class Ordinary extends Component {
               <Col span={14} className='storageInf'>
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
-                    <Col span={14}>共享型存储卷</Col>
+                    <Col span={14}>共享型存储</Col>
                     <Col span={8} style={{ textAlign: 'right' }}>{this.state.storageCount} 个</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={14}>独享型存储卷</Col>
+                    <Col span={14}>独享型存储</Col>
                     <Col span={8} style={{ textAlign: 'right' }}>{this.state.memoryCount} 个</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={14}>host型存储卷</Col>
+                    <Col span={14}>本地存储</Col>
                     <Col span={8} style={{ textAlign: 'right' }}>{this.state.hostCount} 个</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={14}>RBD型快照</Col>
+                    <Col span={14}>独享存储快照</Col>
                     <Col span={8} style={{ textAlign: 'right' }}>{this.state.storageCount} 个</Col>
                   </Row>
                 </div>
