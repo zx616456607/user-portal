@@ -210,3 +210,31 @@ export function closeLogAutoClean(body, callback) {
     return dispatch(fetchCloseLogAutoClean(body, callback))
   }
 }
+
+
+
+
+export const FLUSH_CLEAN_LOGS_REQUEST = 'FLUSH_CLEAN_LOGS_REQUEST'
+export const FLUSH_CLEAN_LOGS_SUCCESS = 'FLUSH_CLEAN_LOGS_SUCCESS'
+export const FLUSH_CLEAN_LOGS_FAILURE = 'FLUSH_CLEAN_LOGS_FAILURE'
+
+function fetchCleanLogsFlush(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [FLUSH_CLEAN_LOGS_REQUEST,FLUSH_CLEAN_LOGS_SUCCESS,FLUSH_CLEAN_LOGS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cleanlogs/flush`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function cleanLogsFlush(body, callback) {
+  return dispatch => {
+    return dispatch(fetchCleanLogsFlush(body, callback))
+  }
+}
