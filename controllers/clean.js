@@ -74,3 +74,17 @@ exports.getSystemCleanerLogs = function* () {
   const result = yield api.cleaner.createBy(['systemlog', 'records'], query, body)
   this.body = result
 }
+
+
+exports.deleteCleanLogs = function*(){
+  const body = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser, 120000)
+  const cicdCleanResult = yield api.cleaner.updateBy(['cicd', 'settings'], null, body)
+  if (cicdCleanResult.statusCode != 200){
+    this.body = cicdCleanResult
+    return
+  }
+  const systemResult = yield api.cleaner.deleteBy(['systemlog','records'])
+  this.body = systemResult
+}
