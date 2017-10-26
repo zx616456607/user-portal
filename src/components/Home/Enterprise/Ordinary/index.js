@@ -405,7 +405,7 @@ class Ordinary extends Component {
           result += number
         } else {
           if (Number(String(count).split('.')[0]) > 0) {
-            result += number
+            result += Math.floor(number)
           } else {
             result += count * number
           }
@@ -1385,10 +1385,10 @@ class Ordinary extends Component {
         key: 'etcd',
         text: 'Etcd (个)'
       }]
-    const spaceName = space.spaceName || space.namespace
+    const spaceName = space.name || space.userName
     return (
       <div id='Ordinary'>
-        <Row className="title">{spaceName} - {clusterName} 集群</Row>
+        <Row className="title">{this.props.userID === undefined ? spaceName === '我的个人项目' ? '':'共享项目 - ':'个人项目 - '}{spaceName} - {clusterName}</Row>
         <Row className="content" gutter={16}>
           {SHOW_BILLING ?
             <Col span={6} className='clusterCost'>

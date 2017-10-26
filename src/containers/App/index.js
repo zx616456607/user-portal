@@ -394,7 +394,7 @@ class App extends Component {
     let suffix = ''
     switch (type) {
       case 'cpu':
-        return suffix = 'GB'
+        return suffix = 'C'
       case 'memory':
         return suffix = 'GB'
       case 'storage':

@@ -158,7 +158,7 @@ class UserPanel extends Component {
     ]
     if (role === ROLE_TEAM_ADMIN || role === ROLE_SYS_ADMIN) {
       menuItems.push({
-        to: '/account/team',
+        to: '/tenant_manage/team',
         svgHref: '#logteam',
         text: '我的团队',
       })
@@ -203,7 +203,7 @@ class UserPanel extends Component {
           text: '修改密码',
         },
         {
-          to: '/account/teams',
+          to: '/tenant_manage/team',
           svgHref: '#logteam',
           text: '我的团队',
         },
