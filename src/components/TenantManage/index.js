@@ -465,8 +465,7 @@ class TenantManage extends React.Component {
           <Button style={btmStyle} className="bGuide" onClick={this.handleIco.bind(this)}><img src={images[1].src} />操作引导</Button>
         </Row>
         <div className="alertRow">
-          <span>此功能满足细粒度的多租户权限控制需求，帮助企业做好权限分配和管理，同时处理好授权方面的一些难题;
-          按需为用户分配最小权限，从而降低企业的信息安全风险。</span>
+          <span>租户管理满足细粒度的权限控制需求，帮助企业做好权限分配和管理，同时处理好授权方面的一些难题。按需为用户分配最小权限，从而降低企业的信息安全风险。</span>
         </div>
         <Row className="content" gutter={16} style={{ marginTop: 16 }}>
           <Col span={6}>

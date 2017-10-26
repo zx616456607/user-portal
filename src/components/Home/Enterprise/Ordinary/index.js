@@ -1489,7 +1489,7 @@ class Ordinary extends Component {
                   computeList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={7}>
+                        <Col span={6}>
                           <span>{item.text}</span>
                         </Col>
                         <Col span={9}>
