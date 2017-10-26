@@ -168,7 +168,7 @@ class ShareMemory extends Component {
         success: {
           func: res => {
             console.log('res, res', res)
-            notification.success(`创建共享存储 ${name} 操作成功`)
+            notification.success(`创建共享型存储 ${name} 操作成功`)
             this.setState({
               createShareMemoryVisible: false,
             })
@@ -179,7 +179,7 @@ class ShareMemory extends Component {
          error: {
           func: err => {
             console.log('err, err', err)
-            notification.error(`创建共享存储 ${name} 操作失败`)
+            notification.error(`创建共享型存储 ${name} 操作失败`)
           }
         },
         finally: {
