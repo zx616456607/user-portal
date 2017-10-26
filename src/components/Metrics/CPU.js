@@ -13,6 +13,7 @@
 import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
+import { Row, Col, Switch } from 'antd'
 
 function formatGrid(count) {
   //this fucntion for format grid css
@@ -28,8 +29,9 @@ class CPU extends Component {
 
   render() {
     const option = new EchartsOption('CPU')
-    const { cpu } = this.props
+    const { cpu, scope } = this.props
     const { isFetching, data } = cpu
+    let timeText = scope.state.switchCpu ? '5秒钟' : scope.state.freshTime
     option.addYAxis('value', {
       formatter: '{value} %'
     })
@@ -46,12 +48,17 @@ class CPU extends Component {
     })
     option.setGirdForDataCommon(data&&data.length)
     return (
-      <ReactEcharts
-        style={{ height: formatGrid(data&&data.length) }}
-        notMerge={true}
-        option={option}
-        showLoading={isFetching}
+      <div className="chartBox">
+        <span className="freshTime">
+          {`时间间隔：${timeText}`}
+        </span>
+        <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Cpu')} checkedChildren="开" unCheckedChildren="关"/>  
+        <ReactEcharts
+          style={{ height: formatGrid(data&&data.length) }}
+          notMerge={true}
+          option={option}
         />
+      </div>
     )
   }
 }

@@ -11,12 +11,15 @@ import React, { Component } from 'react'
 import { browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import { Tabs, } from 'antd'
+import cloneDeep from 'lodash/cloneDeep'
 import CostRecord from './CostRecord'
 import RechargeRecord from './RechargeRecord'
+import Title from '../../Title'
+import { loadUserList } from '../../../actions/user'
+import { ROLE_SYS_ADMIN } from '../../../../constants'
+
 const mode = require('../../../../configs/model').mode
 const standard = require('../../../../configs/constants').STANDARD_MODE
-import Title from '../../Title'
-
 const TabPane = Tabs.TabPane
 const DEFAULT_TAB = '#consumptions'
 
@@ -26,7 +29,19 @@ class CostCenter extends Component {
     this.onTabClick = this.onTabClick.bind(this)
     this.state = {
       activeTabKey: props.hash || DEFAULT_TAB,
+      allUsers: [],
     }
+    this.isSysAdmin = props.loginUser.role == ROLE_SYS_ADMIN
+  }
+
+  componentDidMount() {
+    this.isSysAdmin && this.props.loadUserList({ size: 0, sort: 'a,userName', }, {
+      success: {
+        func: res => {
+          this.setState({ allUsers: cloneDeep(res.users || []) })
+        }
+      }
+    })
   }
 
   onTabClick(activeTabKey) {
@@ -61,7 +76,7 @@ class CostCenter extends Component {
   }
 
   render() {
-    const { activeTabKey } = this.state
+    const { activeTabKey, allUsers } = this.state
     return (
       <div id='CostCenter' style={{padding: '20px'}}>
         <Title title="费用中心" />
@@ -71,10 +86,10 @@ class CostCenter extends Component {
           activeKey={activeTabKey}
           >
           <TabPane tab="消费记录" key="#consumptions">
-            <CostRecord standard={mode === standard} />
+            <CostRecord standard={mode === standard} allUsers={allUsers} isSysAdmin={this.isSysAdmin} />
           </TabPane>
           <TabPane tab="充值记录" key="#payments">
-            <RechargeRecord standard={mode === standard} />
+            <RechargeRecord standard={mode === standard} allUsers={allUsers} isSysAdmin={this.isSysAdmin} />
           </TabPane>
         </Tabs>
       </div>
@@ -84,12 +99,14 @@ class CostCenter extends Component {
 
 function mapStateToProps(state, props) {
   const { hash, pathname } = props.location
+  const { loginUser } = state.entities
   return {
     hash,
     pathname,
+    loginUser: loginUser.info,
   }
 }
 
 export default connect(mapStateToProps, {
-  //
+  loadUserList,
 })(CostCenter)

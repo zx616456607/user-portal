@@ -44,7 +44,7 @@ class RechargeRecord extends Component {
     const { setCurrent, current, loginUser } = this.props
     this.setState({
       spacesVisible: false,
-      currentSpaceName: space.projectName,
+      currentSpaceName: space.namespace,
       currentTeamName: space.teamName,
       currentNamespace: space.namespace,
       teamListVisible: false,
@@ -139,6 +139,8 @@ class RechargeRecord extends Component {
       chargeRecord,
       notifyRule,
       standard,
+      allUsers,
+      isSysAdmin,
     } = this.props
     let {
       spacesVisible,
@@ -315,6 +317,9 @@ class RechargeRecord extends Component {
                 <div className='popSelect'>
                   <PopSelect
                     title="选择项目"
+                    allUsers={allUsers}
+                    isSysAdmin={isSysAdmin}
+                    Search={true}
                     btnStyle={false}
                     special={true}
                     visible={spacesVisible}

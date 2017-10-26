@@ -73,6 +73,7 @@ class DeletedUsersModal extends React.Component {
     const filter = `userName,${value}`
     this.setState({
       filter,
+      page: 1,
     })
     this.loadData({ filter })
   }

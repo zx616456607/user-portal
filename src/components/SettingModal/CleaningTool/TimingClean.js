@@ -45,11 +45,11 @@ class TimingClean extends Component {
       cicdScope: '1',
       cicdCycle: 'day', 
       cicdDate: '1',
-      cicdTime: formatDate(new Date(new Date().setHours(0,0,0,0)), 'HH:mm'),
+      cicdTime: formatDate(new Date(new Date().setHours(0,0,0,0)), 'HH:mm:ss'),
       systemScope: '1',
       systemCycle: 'day',
       systemDate: '1',
-      systemTime: formatDate(new Date(new Date().setHours(0,0,0,0)), 'HH:mm')
+      systemTime: formatDate(new Date(new Date().setHours(0,0,0,0)), 'HH:mm:ss')
     }
   }
   componentWillMount() {
@@ -135,14 +135,14 @@ class TimingClean extends Component {
   systemConfirmFun(type) {
     const { closeLogAutoClean } = this.props
     let notify = new Notification()
-    notify.spin('系统日志定时清理关闭中')
+    notify.spin('服务日志定时清理关闭中')
     closeLogAutoClean({
       confirm: type
     }, {
       success: {
         func: () => {
           notify.close()
-          notify.success('系统日志定时清理已关闭')
+          notify.success('服务日志定时清理已关闭')
           this.setState({
             systemChecked: false,
             systemEdit: false,
@@ -154,7 +154,7 @@ class TimingClean extends Component {
       failed: {
         func: () => {
           notify.close()
-          notify.error('系统日志定时清理关闭失败')
+          notify.error('服务日志定时清理关闭失败')
           this.setState({
             systemChecked: true,
             systemEdit: true,
@@ -186,7 +186,7 @@ class TimingClean extends Component {
         this.showConfirm()
         return
       }
-      notify.spin('系统日志定时清理开启中')
+      notify.spin('服务日志定时清理开启中')
       cleanSystemLogs({
         type: 1,
         time_range: parseInt(systemCleaningScope),
@@ -195,7 +195,7 @@ class TimingClean extends Component {
         success: {
           func: () => {
             notify.close()
-            notify.success('系统日志定时清理开启成功')
+            notify.success('服务日志定时清理开启成功')
             this.setState({
               systemChecked: true,
               systemEdit: true,
@@ -207,7 +207,7 @@ class TimingClean extends Component {
         failed: {
           func: () => {
             notify.close()
-            notify.error('系统日志定时清理开启失败')
+            notify.error('服务日志定时清理开启失败')
             this.setState({
               systemChecked: false,
               systemEdit: false,
@@ -354,6 +354,7 @@ class TimingClean extends Component {
   }
   getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime) {
     let time = typeof CICDcacheTime === 'string' ? CICDcacheTime.split(':') : String(formatDate(CICDcacheTime, 'HH mm')).split(' ')
+    time.length === 3 && time.splice(0, 1)
     time = time.map(item => {
       return item.indexOf(0) === 0 ? item.substring(1) : item
     })
@@ -612,7 +613,7 @@ class TimingClean extends Component {
                       className='reset_formItem_style'
                     >
                       <TimePicker
-                        format="HH:mm"
+                        // format="HH:mm"
                         disabled={systemEdit}
                         {...systemCleaningTimeProps}
                       />
@@ -690,7 +691,7 @@ class TimingClean extends Component {
                       className='reset_formItem_style'
                     >
                       <TimePicker
-                        format="HH:mm"
+                        // format="HH:mm"
                         {...CICDcacheTimeProps}
                         disabled={cicdEdit}
                       />
