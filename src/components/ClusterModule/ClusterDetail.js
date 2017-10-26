@@ -416,31 +416,94 @@ class ClusterDetail extends Component {
   }
   getHostCpu() {
     const { loadHostCpu, clusterID, clusterName } = this.props
-    loadHostCpu({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'})
+    loadHostCpu({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'}, {
+      success: {
+        func: () => {
+          this.setState({
+            CpuLoading: false
+          })
+        }
+      },
+      failed: {
+        func: () => {
+          this.setState({
+            CpuLoading: false
+          })
+        }
+      }
+    })
   }
   getHostMemory() {
     const { loadHostMemory, clusterID, clusterName } = this.props
-    loadHostMemory({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'})
+    loadHostMemory({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'}, {
+      success: {
+        func: () => {
+          this.setState({
+            MemoryLoading: false
+          })
+        }
+      },
+      failed: {
+        func: () => {
+          this.setState({
+            MemoryLoading: false
+          })
+        }
+      }
+    })
   }
   getHostRxrate() {
     const { loadHostRxrate, clusterID, clusterName } = this.props
-    loadHostRxrate({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'})
+    return new Promise((resolve, reject) => {
+      loadHostRxrate({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'}, {
+        finally: {
+          func: () => {
+            resolve()
+          }
+        }
+      })
+    })
   }
   getHostTxrate() {
     const { loadHostTxrate, clusterID, clusterName } = this.props
-    loadHostTxrate({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'})
+    return new Promise((resolve, reject) => {
+      loadHostTxrate({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'}, {
+        finally: {
+          func: () => {
+            resolve()
+          }
+        }
+      })
+    })
   }
   getHostReadIo() {
     const { loadHostDiskReadIo, clusterID, clusterName } = this.props
-    loadHostDiskReadIo({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'})
+    return new Promise((resolve, reject) => {
+      loadHostDiskReadIo({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'}, {
+        finally: {
+          func: () => {
+            resolve()
+          }
+        }
+      })
+    })
   }
   getHostWriteIo() {
     const { loadHostDiskWriteIo, clusterID, clusterName } = this.props
-    loadHostDiskWriteIo({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'})
+    return new Promise((resolve, reject) => {
+      loadHostDiskWriteIo({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'}, {
+        finally: {
+          func: () => {
+            resolve()
+          }
+        }
+      })
+    })
   }
   switchChange(flag, type) {
     this.setState({
-      [`switch${type}`]: flag
+      [`switch${type}`]: flag,
+      [`${type}Loading`]: flag
     })
     switch(type) {
       case 'Cpu':
@@ -463,6 +526,11 @@ class ClusterDetail extends Component {
         if (flag) {
           this.getHostRxrate()
           this.getHostTxrate()
+          Promise.all([this.getHostRxrate(), this.getHostTxrate()]).then(() => {
+            this.setState({
+              NetworkLoading: false
+            })
+          })
           this.rxRateInterval = setInterval(() => this.getHostRxrate(), LOAD_INSTANT_INTERVAL)
           this.txRateInterval = setInterval(() => this.getHostTxrate(), LOAD_INSTANT_INTERVAL)
         }
@@ -473,6 +541,11 @@ class ClusterDetail extends Component {
         if (flag) {
           this.getHostReadIo()
           this.getHostWriteIo()
+          Promise.all([this.getHostReadIo(), this.getHostWriteIo()]).then(() => {
+            this.setState({
+              DiskLoading: false
+            })
+          })
           this.readIoInterval = setInterval(() => this.getHostReadIo(), LOAD_INSTANT_INTERVAL)
           this.writeIoInterval = setInterval(() => this.getHostWriteIo(), LOAD_INSTANT_INTERVAL)
         }
@@ -704,7 +777,7 @@ function mapStateToProps(state, props) {
   let instantDiskReadIo = {}
   let instantDiskWriteIo = {}
   if (hostCpu && hostCpu.result) {
-    instantCpu.data = hostCpu.result.cpus
+    instantCpu.data = hostCpu.result.cpu
   }
   if (hostMemory && hostMemory.result) {
     instantMemory.data = hostMemory.result.memory

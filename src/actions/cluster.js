@@ -195,7 +195,7 @@ export const LOAD_HOST_CPU_REQUEST = 'LOAD_HOST_CPU_REQUEST'
 export const LOAD_HOST_CPU_SUCCESS = 'LOAD_HOST_CPU_SUCCESS'
 export const LOAD_HOST_CPU_FAILURE = 'LOAD_HOST_CPU_FAILURE'
 
-function fetchHostCpu(body, query) {
+function fetchHostCpu(body, query, callback) {
   let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/cpu`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -205,13 +205,14 @@ function fetchHostCpu(body, query) {
       types: [LOAD_HOST_CPU_REQUEST,LOAD_HOST_CPU_SUCCESS,LOAD_HOST_CPU_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
-export function loadHostCpu(body, query) {
+export function loadHostCpu(body, query, callback) {
   return dispatch => {
-    return dispatch(fetchHostCpu(body, query))
+    return dispatch(fetchHostCpu(body, query, callback))
   }
 }
 
@@ -219,7 +220,7 @@ export const LOAD_HOST_MEMORY_REQUEST = 'LOAD_HOST_MEMORY_REQUEST'
 export const LOAD_HOST_MEMORY_SUCCESS = 'LOAD_HOST_MEMORY_SUCCESS'
 export const LOAD_HOST_MEMORY_FAILURE = 'LOAD_HOST_MEMORY_FAILURE'
 
-function fetchHostMemory(body, query) {
+function fetchHostMemory(body, query, callback) {
   let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/memory`
   if (query){
     endpoint += `?${toQuerystring(query)}`
@@ -229,13 +230,14 @@ function fetchHostMemory(body, query) {
       types: [LOAD_HOST_MEMORY_REQUEST,LOAD_HOST_MEMORY_SUCCESS,LOAD_HOST_MEMORY_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
-export function loadHostMemory(body, query) {
+export function loadHostMemory(body, query, callback) {
   return dispatch => {
-    return dispatch(fetchHostMemory(body, query))
+    return dispatch(fetchHostMemory(body, query, callback))
   }
 }
 
@@ -243,7 +245,7 @@ export const LOAD_HOST_RXRATE_REQUEST = 'LOAD_HOST_RXRATE_REQUEST'
 export const LOAD_HOST_RXRATE_SUCCESS = 'LOAD_HOST_RXRATE_SUCCESS'
 export const LOAD_HOST_RXRATE_FAILURE = 'LOAD_HOST_RXRATE_FAILURE'
 
-function fetchHostRxrate(body, query) {
+function fetchHostRxrate(body, query, callback) {
   let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/rxRate`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -253,13 +255,14 @@ function fetchHostRxrate(body, query) {
       types: [LOAD_HOST_RXRATE_REQUEST,LOAD_HOST_RXRATE_SUCCESS,LOAD_HOST_RXRATE_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
-export function loadHostRxrate(body, query){
+export function loadHostRxrate(body, query, callback){
   return dispatch => {
-    return dispatch(fetchHostRxrate(body, query))
+    return dispatch(fetchHostRxrate(body, query, callback))
   }
 }
 
@@ -267,7 +270,7 @@ export const LOAD_HOST_TXRATE_REQUEST = 'LOAD_HOST_TXRATE_REQUEST'
 export const LOAD_HOST_TXRATE_SUCCESS = 'LOAD_HOST_TXRATE_SUCCESS'
 export const LOAD_HOST_TXRATE_FAILURE = 'LOAD_HOST_TXRATE_FAILURE'
 
-function fetchHostTxrate(body, query) {
+function fetchHostTxrate(body, query, callback) {
   let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/txRate`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -277,13 +280,14 @@ function fetchHostTxrate(body, query) {
       types: [LOAD_HOST_TXRATE_REQUEST,LOAD_HOST_TXRATE_SUCCESS,LOAD_HOST_TXRATE_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
-export function loadHostTxrate(body, query){
+export function loadHostTxrate(body, query, callback){
   return dispatch => {
-    return dispatch(fetchHostTxrate(body, query))
+    return dispatch(fetchHostTxrate(body, query, callback))
   }
 }
 
@@ -291,7 +295,7 @@ export const LOAD_HOST_READIO_REQUEST = 'LOAD_HOST_READIO_REQUEST'
 export const LOAD_HOST_READIO_SUCCESS = 'LOAD_HOST_READIO_SUCCESS'
 export const LOAD_HOST_READIO_FAILURE = 'LOAD_HOST_READIO_FAILURE'
 
-function fetchHostDiskReadIo(body, query) {
+function fetchHostDiskReadIo(body, query, callback) {
   let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/diskReadIo`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -301,13 +305,14 @@ function fetchHostDiskReadIo(body, query) {
       types: [LOAD_HOST_READIO_REQUEST,LOAD_HOST_READIO_SUCCESS,LOAD_HOST_READIO_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
-export function loadHostDiskReadIo(body, query) {
+export function loadHostDiskReadIo(body, query, callback) {
   return dispatch => {
-    return dispatch(fetchHostDiskReadIo(body, query))
+    return dispatch(fetchHostDiskReadIo(body, query, callback))
   }
 }
 
@@ -315,7 +320,7 @@ export const LOAD_HOST_WRITEIO_REQUEST = 'LOAD_HOST_WRITEIO_REQUEST'
 export const LOAD_HOST_WRITEIO_SUCCESS = 'LOAD_HOST_WRITEIO_SUCCESS'
 export const LOAD_HOST_WRITEIO_FAILURE = 'LOAD_HOST_WRITEIO_FAILURE'
 
-function fetchHostDiskWriteIo(body, query) {
+function fetchHostDiskWriteIo(body, query, callback) {
   let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/diskWriteIo`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -325,13 +330,14 @@ function fetchHostDiskWriteIo(body, query) {
       types: [LOAD_HOST_WRITEIO_REQUEST,LOAD_HOST_WRITEIO_SUCCESS,LOAD_HOST_WRITEIO_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
-export function loadHostDiskWriteIo(body, query) {
+export function loadHostDiskWriteIo(body, query, callback) {
   return dispatch => {
-    return dispatch(fetchHostDiskWriteIo(body, query))
+    return dispatch(fetchHostDiskWriteIo(body, query, callback))
   }
 }
 
