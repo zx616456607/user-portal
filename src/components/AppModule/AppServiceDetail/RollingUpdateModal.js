@@ -289,15 +289,17 @@ class RollingUpdateModal extends Component {
               tag = "latest"
             }
             let show = image
+            let showText = '镜像版本：'
             if(image.length > 40) show = image.substring(0, 40) + "..."
             if (service.wrapper) {
               show = service.wrapper.appPkgName
               tag = service.wrapper.appPkgTag
+              showText = '应用包：'
             }
             return (
               <div key={item.name}>
               <Row style={{marginBottom: "10px"}}>
-                <Col span={4} style={{ textAlign: "right" }}>镜像版本：</Col>
+                <Col span={4} style={{ textAlign: "right" }}>{showText}</Col>
                 <Tooltip title={item.image}>
                   <Col className="rollingUpdateUpdateItem" span={15}>{`${show}：${tag}`}</Col>
                 </Tooltip>

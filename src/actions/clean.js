@@ -190,11 +190,35 @@ export const CLOSE_LOG_AUTO_CLEAN_REQUEST = 'CLOSE_LOG_AUTO_CLEAN_REQUEST'
 export const CLOSE_LOG_AUTO_CLEAN_SUCCESS = 'CLOSE_LOG_AUTO_CLEAN_SUCCESS'
 export const CLOSE_LOG_AUTO_CLEAN_FAILURE = 'CLOSE_LOG_AUTO_CLEAN_FAILURE'
 
-function fetchCloseLogAutoClean(body, callback) {
+function deleteLogAutoClean(callback) {
   return {
     [FETCH_API]: {
       types: [CLOSE_LOG_AUTO_CLEAN_REQUEST,CLOSE_LOG_AUTO_CLEAN_SUCCESS,CLOSE_LOG_AUTO_CLEAN_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cleaner/close`,
+      endpoint: `${API_URL_PREFIX}/cleaner/cron`,
+      schema: {},
+      options: {
+        method: 'POST',
+      }
+    },
+    callback
+  }
+}
+
+export function deleteLogAutoClean(callback) {
+  return dispatch => {
+    return dispatch(deleteLogAutoClean(callback))
+  }
+}
+
+export const FLUSH_CLEAN_LOGS_REQUEST = 'FLUSH_CLEAN_LOGS_REQUEST'
+export const FLUSH_CLEAN_LOGS_SUCCESS = 'FLUSH_CLEAN_LOGS_SUCCESS'
+export const FLUSH_CLEAN_LOGS_FAILURE = 'FLUSH_CLEAN_LOGS_FAILURE'
+
+function fetchCleanLogsFlush(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [FLUSH_CLEAN_LOGS_REQUEST,FLUSH_CLEAN_LOGS_SUCCESS,FLUSH_CLEAN_LOGS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cleanlogs/flush`,
       schema: {},
       options: {
         method: 'POST',
@@ -205,9 +229,9 @@ function fetchCloseLogAutoClean(body, callback) {
   }
 }
 
-export function closeLogAutoClean(body, callback) {
+export function cleanLogsFlush(body, callback) {
   return dispatch => {
-    return dispatch(fetchCloseLogAutoClean(body, callback))
+    return dispatch(fetchCleanLogsFlush(body, callback))
   }
 }
 

@@ -512,7 +512,7 @@ class CleaningTool extends Component {
         return (
           <div className='done_box'>
             <div className='tips'>
-              清理完成，此次清理 <span className='number'>{(cicdLogs[0].total / (1024 * 1024)).toFixed(2)}</span> MB，查看 <Link to="/setting/cleaningTool/cleaningRecord">清理记录</Link>
+              清理完成，此次清理 <span className='number'>{((cicdLogs && cicdLogs[0] && cicdLogs[0].total) / (1024 * 1024)).toFixed(2)}</span> MB，查看 <Link to="/setting/cleaningTool/cleaningRecord">清理记录</Link>
             </div>
             <Button size="large" type="primary" onClick={() => this.setState({cleanCicdStatus: undefined})}>完成</Button>
           </div>

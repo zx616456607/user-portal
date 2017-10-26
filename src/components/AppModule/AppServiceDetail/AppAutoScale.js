@@ -20,7 +20,8 @@ import {
   updateAutoScale,
   updateAutoScaleStatus,
   getAutoScaleLogs,
-  checkAutoScaleName
+  checkAutoScaleName,
+  loadServiceDetail
 } from '../../../actions/services'
 import {
   loadNotifyGroups
@@ -75,31 +76,38 @@ class AppAutoScale extends Component {
   componentWillReceiveProps(nextProps) {
     const { isCurrentTab: newCurrentTab, form, serviceDetailmodalShow: newScopeModal } = nextProps
     const { isCurrentTab: oldCurrentTab, serviceDetailmodalShow: oldScopeModal } = this.props
-    if ( !oldScopeModal && newScopeModal || (newCurrentTab && !oldCurrentTab)) {
+    if ((!oldScopeModal && newScopeModal) || (newCurrentTab && !oldCurrentTab)) {
       this.loadData(nextProps)
       this.isPrivateType(nextProps)
       this.setState({
         activeKey: 'autoScaleForm'
       })
     }
-    if (oldScopeModal && !newScopeModal) {
+    if ((oldScopeModal && !newScopeModal) || (!newCurrentTab && oldCurrentTab)) {
       form.resetFields()
       this.setState({
         activeKey: 'autoScaleForm',
         switchOpen: false,
         thresholdArr: [0],
-        cpuAndMemory: []
+        cpuAndMemory: [],
+        isPrivate: false
       })
       this.uuid = 0
     }
   }
   isPrivateType(props) {
-    const { volumes } = props
-    volumes && volumes.length && volumes.forEach(item => {
-      if (item === 'private') {
-        this.setState({
-          isPrivate: true
-        })
+    const { loadServiceDetail, cluster, serviceName } = props
+    loadServiceDetail(cluster, serviceName, {
+      success: {
+        func: res => {
+          res.data.volume.length && res.data.volume.forEach(item => {
+            if (item.srType === 'private') {
+              this.setState({
+                isPrivate: true
+              })
+            }
+          })
+        }
       }
     })
   }
@@ -769,5 +777,6 @@ export default connect(mapStateToProps, {
   updateAutoScaleStatus,
   getAutoScaleLogs,
   checkAutoScaleName,
-  loadNotifyGroups
+  loadNotifyGroups,
+  loadServiceDetail
 })(Form.create()(AppAutoScale))

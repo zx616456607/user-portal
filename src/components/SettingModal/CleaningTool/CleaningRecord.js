@@ -9,20 +9,22 @@
  */
 
 import React, { Component } from 'react'
-import { Select, Form, DatePicker, Button, Table, Timeline, Row, Col, Pagination } from 'antd'
+import { Select, Form, DatePicker, Button, Table, Timeline, Row, Col, Pagination, Modal } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import Title from '../../Title'
 import './style/CleaningRecord.less'
 import {
-  getCleanLogs, getSystemCleanLogs
+  getCleanLogs, getSystemCleanLogs, cleanLogsFlush
 } from '../../../actions/clean'
 import { formatDate } from '../../../common/tools'
 import flattenDeep from 'lodash/flattenDeep'
+import Notification from '../../Notification'
 
 const Option = Select.Option
 const FormItem = Form.Item
+const confirm = Modal.confirm;
 
 class CleaningRecord extends Component {
   constructor(props) {
@@ -34,6 +36,7 @@ class CleaningRecord extends Component {
     this.onEndChange = this.onEndChange.bind(this)
     this.handleEndToggle = this.handleEndToggle.bind(this)
     this.selectFilter = this.selectFilter.bind(this)
+    this.searchLogs = this.searchLogs.bind(this)
     this.state = {
       startValue: null,
       endValue: null,
@@ -55,13 +58,15 @@ class CleaningRecord extends Component {
     const { getCleanLogs, form } = this.props
     const { getFieldsValue } = form
     const { status, type } = getFieldsValue(['status', 'type'])
+    let newStatus = status === 'allStatus' ? '' : status
+    let newType = type === 'allTypes' ? '' : type
     this.setState({
       tableLoading: true
     })
     getCleanLogs({
       sort,
-      type,
-      status,
+      type: newType,
+      status: newStatus,
       start,
       end,
       from: (currentPage - 1) * 10,
@@ -96,9 +101,11 @@ class CleaningRecord extends Component {
     const { getSystemCleanLogs, form } = this.props
     const { getFieldsValue } = form
     const { status, type } = getFieldsValue(['status', 'type'])
+    let newStatus = status === 'allStatus' ? '' : status
+    let newType = type === 'allTypes' ? '' : type
     let query = {}
     sort ? query = Object.assign(query, {sort}) : ''
-    let body = {status, type: type, from: (currentPage - 1) * 10, size: 10}
+    let body = {status: newStatus, type: newType, from: (currentPage - 1) * 10, size: 10}
     startValue ? body = Object.assign(body, {start: formatDate(startValue)}): ''
     endValue ? body = Object.assign(body, {end: formatDate(endValue)}) : ''
     this.setState({
@@ -239,7 +246,6 @@ class CleaningRecord extends Component {
     })
   }
   onTableChange(pagination) {
-    console.log(pagination)
     const { getFieldValue } = this.props.form
     const logType = getFieldValue('target')
     this.setState({
@@ -332,6 +338,46 @@ class CleaningRecord extends Component {
       </Timeline>
     )
   }
+  showDeleteModal() {
+    const { cleanLogsFlush, userName } = this.props
+    let notify = new Notification()
+    confirm({
+      title: '删除清理记录后无法恢复，确定删除？',
+      onOk: () => {
+        notify.spin('删除清理记录中')
+        cleanLogsFlush({
+          cicd_clean:{
+            meta: {
+              automatic: true,
+              cleaner: userName,
+              target: "cicd_clean",
+              type: 'clean-records'
+            },
+            spec: {
+              cron: "0 0 0 0 ?",
+              scope: 0
+            }
+          }
+        }, {
+          success: {
+            func: () => {
+              notify.close()
+              notify.success('删除清理记录成功')
+              this.searchLogs()
+            },
+            isAsync: true
+          },
+          failed: {
+            func: () => {
+              notify.close()
+              notify.error('删除清理记录失败')
+            }
+          }
+        })
+      },
+      onCancel() {},
+    });
+  }
   render() {
     const { form } = this.props
     const { cleanLogs, totalCount, createTimeSort, currentPage, freshBtnLoading, searchBtnLoading, tableLoading } = this.state
@@ -389,7 +435,6 @@ class CleaningRecord extends Component {
         width: '25%',
       },
     ]
-    console.log(cleanLogs)
     const target = getFieldValue('target')
     return(
       <QueueAnim className='cleaningRecord' type="right">
@@ -432,6 +477,7 @@ class CleaningRecord extends Component {
                     onChange: value => this.selectFilter('status', value)
                   })}
                 >
+                  <Option key="allStatus" value="allStatus">所有状态</Option>
                   <Option key="success" value="success">执行成功</Option>
                   <Option key="running" value="running">正在执行</Option>
                   <Option key="timeout" value="timeout">执行超时</Option>
@@ -447,6 +493,7 @@ class CleaningRecord extends Component {
                     onChange: value => this.selectFilter('type', value)
                   })}
                 >
+                  <Option key="allTypes" value="allTypes">所有类型</Option>
                   <Option key="manual" value="manual">手动清理</Option>
                   <Option key="auto" value="auto">定时清理</Option>
                 </Select>
@@ -478,20 +525,26 @@ class CleaningRecord extends Component {
                 icon="exception"
                 type="primary"
                 size="large"
-                onClick={this.searchLogs.bind(this)}
+                onClick={this.searchLogs}
                 className='button_style'
                 loading={searchBtnLoading}
               >
                 立即查询
               </Button>
               <Button
-                type="primary"
                 size='large'
                 onClick={this.refreshLogList.bind(this)}
-                className='button_style'
+                className='button_style refreshBtn'
                 loading={freshBtnLoading}
               >
-                刷新
+                <i className='fa fa-refresh'/> 刷 新
+              </Button>
+              <Button 
+                size="large"
+                className="deleteBtn"
+                onClick={this.showDeleteModal.bind(this)}
+              >
+                <i className="fa fa-trash-o"/> 删 除
               </Button>
               <Pagination {...pagination}/>
               <div className='totle_num'>共计 <span>{totalCount}</span> 条</div>
@@ -517,13 +570,16 @@ class CleaningRecord extends Component {
 CleaningRecord = Form.create()(CleaningRecord)
 
 function mapStateToProp(state, props) {
-
+  const { loginUser } = state.entities
+  const { info } = loginUser
+  const { userName } = info
   return {
-
+    userName
   }
 }
 
 export default connect(mapStateToProp, {
   getCleanLogs,
-  getSystemCleanLogs
+  getSystemCleanLogs,
+  cleanLogsFlush
 })(CleaningRecord)
