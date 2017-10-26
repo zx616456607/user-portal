@@ -241,16 +241,26 @@ export default function cluster(state = {
       SUCCESS: ActionTypes.LOAD_HOST_MEMORY_SUCCESS,
       FAILURE: ActionTypes.LOAD_HOST_MEMORY_FAILURE,
     }, state.hostMemory, action, option),
-    hostNetwork: reducerFactory({
-      REQUEST: ActionTypes.LOAD_HOST_NETWORK_REQUEST,
-      SUCCESS: ActionTypes.LOAD_HOST_NETWORK_SUCCESS,
-      FAILURE: ActionTypes.LOAD_HOST_NETWORK_FAILURE
-    }, state.hostNetwork, action, option),
-    hostDisk: reducerFactory({
-      REQUEST: ActionTypes.LOAD_HOST_DISK_REQUEST,
-      SUCCESS: ActionTypes.LOAD_HOST_DISK_SUCCESS,
-      FAILURE: ActionTypes.LOAD_HOST_DISK_FAILURE
-    }, state.hostDisk, action, option),
+    hostRxRate: reducerFactory({
+      REQUEST: ActionTypes.LOAD_HOST_RXRATE_REQUEST,
+      SUCCESS: ActionTypes.LOAD_HOST_RXRATE_SUCCESS,
+      FAILURE: ActionTypes.LOAD_HOST_RXRATE_FAILURE
+    }, state.hostRxRate, action, option),
+    hostTxRate: reducerFactory({
+      REQUEST: ActionTypes.LOAD_HOST_TXRATE_REQUEST,
+      SUCCESS: ActionTypes.LOAD_HOST_TXRATE_SUCCESS,
+      FAILURE: ActionTypes.LOAD_HOST_TXRATE_FAILURE
+    }, state.hostTxRate, action, option),
+    hostReadIo: reducerFactory({
+      REQUEST: ActionTypes.LOAD_HOST_READIO_REQUEST,
+      SUCCESS: ActionTypes.LOAD_HOST_READIO_SUCCESS,
+      FAILURE: ActionTypes.LOAD_HOST_READIO_FAILURE
+    }, state.hostReadIo, action, option),
+    hostWriteIo: reducerFactory({
+      REQUEST: ActionTypes.LOAD_HOST_WRITEIO_REQUEST,
+      SUCCESS: ActionTypes.LOAD_HOST_WRITEIO_SUCCESS,
+      FAILURE: ActionTypes.LOAD_HOST_WRITEIO_FAILURE
+    }, state.hostWriteIo, action, option),
     updateProxy: reducerFactory({
       REQUEST: ActionTypes.PROXY_UPDATE_REQUEST,
       SUCCESS: ActionTypes.PROXY_UPDATE_SUCCESS,

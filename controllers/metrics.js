@@ -121,37 +121,31 @@ exports.getAllServiceMetrics = function* () {
   let promiseArray = [];
   const promiseCpuArray = instances.map((instance) => {
     query.type = METRICS_CPU
-    query.source = 'influxdb'
     return _getContainerMetrics(user, cluster, instance, query)
   })
   promiseArray.push({cpu: promiseCpuArray})
   const promiseMemoryArray = instances.map((instance) => {
     query.type = METRICS_MEMORY
-    query.source = 'influxdb'
     return _getContainerMetrics(user, cluster, instance, query)
   })
   promiseArray.push({memory: promiseMemoryArray})
   const promiseNetworkTransmitArray = instances.map((instance) => {
     query.type = METRICSS_NETWORK_TRANSMITTED
-    query.source = 'influxdb'
     return _getContainerMetrics(user, cluster, instance, query)
   })
   promiseArray.push({networkTrans: promiseNetworkTransmitArray})
   const promiseNetworkRecivceArray = instances.map((instance) => {
     query.type = METRICS_NETWORK_RECEIVED
-    query.source = 'influxdb'
     return _getContainerMetrics(user, cluster, instance, query)
   })
   promiseArray.push({networkRec: promiseNetworkRecivceArray})
   const promiseDiskReadIoArray = instances.map((instance) => {
     query.type = METRICSS_DISK_READ
-    query.source = 'prometheus'
     return _getContainerMetrics(user, cluster, instance, query)
   })
   promiseArray.push({diskReadIo: promiseDiskReadIoArray})
   const promiseDiskWriteIoArray = instances.map((instance) => {
     query.type = METRICSS_DISK_WRITE
-    query.source = 'prometheus'
     return _getContainerMetrics(user, cluster, instance, query)
   })
   promiseArray.push({diskWriteIo: promiseDiskWriteIoArray})

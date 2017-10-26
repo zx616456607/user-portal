@@ -60,7 +60,7 @@ class Memory extends Component {
           style={{ height: formatGrid(data&&data.length) }}
           notMerge={true}
           option={option}
-          showLoading={isFetching}
+          // showLoading={isFetching}
         />
       </div>
     )

@@ -146,12 +146,11 @@ class ServiceMonitior extends Component {
     if (serviceName === this.props.serviceName) {
       return
     }
-    loadData(nextProps, { start: this.changeTime(1) })
+    // loadData(nextProps, { start: this.changeTime(1) })
   }
 
   componentWillUnmount() {
     clearInterval(this.metricsInterval)
-    clearInterval(this.changeTimeInterval)
     clearInterval(this.cpuInterval)
     clearInterval(this.memoryInterval)
     clearInterval(this.networkRxInterval)

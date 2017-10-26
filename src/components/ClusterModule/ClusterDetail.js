@@ -14,7 +14,8 @@ import { Link, browserHistory } from 'react-router'
 import { Icon, Button, Card, Tabs, Table, Input, Spin, Row, Col, Dropdown, Menu, Modal, Progress, Switch, Tag, Tooltip } from 'antd'
 import { 
   getNodesPodeList, loadHostMetrics, searchPodeList, 
-  loadHostCpu, loadHostMemory, loadHostNetwork, loadHostDisk
+  loadHostCpu, loadHostMemory, loadHostRxrate, loadHostTxrate,
+  loadHostDiskReadIo, loadHostDiskWriteIo
 } from '../../actions/cluster'
 import './style/ClusterDetail.less'
 import hostImg from '../../assets/img/integration/host.png'
@@ -374,8 +375,10 @@ class ClusterDetail extends Component {
     clearInterval(this.changeTimeInterval)
     clearInterval(this.cpuInterval)
     clearInterval(this.memoryInterval)
-    clearInterval(this.networkInterval)
-    clearInterval(this.diskInterval)
+    clearInterval(this.rxRateInterval)
+    clearInterval(this.txRateInterval)
+    clearInterval(this.readIoInterval)
+    clearInterval(this.writeIoInterval)
   }
   loadData(props, query) {
     const { clusterID, clusterName, loadHostMetrics } = props
@@ -413,19 +416,27 @@ class ClusterDetail extends Component {
   }
   getHostCpu() {
     const { loadHostCpu, clusterID, clusterName } = this.props
-    loadHostCpu({clusterID, clusterName}, {start: this.changeTime(0.5)})
+    loadHostCpu({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'})
   }
   getHostMemory() {
     const { loadHostMemory, clusterID, clusterName } = this.props
-    loadHostMemory({clusterID, clusterName}, {start: this.changeTime(0.5)})
+    loadHostMemory({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'})
   }
-  getHostNetwork() {
-    const { loadHostNetwork, clusterID, clusterName } = this.props
-    loadHostNetwork({clusterID, clusterName}, {start: this.changeTime(0.5)})
+  getHostRxrate() {
+    const { loadHostRxrate, clusterID, clusterName } = this.props
+    loadHostRxrate({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'})
   }
-  getHostDisk() {
-    const { loadHostDisk, clusterID, clusterName } = this.props
-    loadHostDisk({clusterID, clusterName}, {start: this.changeTime(0.5)})
+  getHostTxrate() {
+    const { loadHostTxrate, clusterID, clusterName } = this.props
+    loadHostTxrate({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'})
+  }
+  getHostReadIo() {
+    const { loadHostDiskReadIo, clusterID, clusterName } = this.props
+    loadHostDiskReadIo({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'})
+  }
+  getHostWriteIo() {
+    const { loadHostDiskWriteIo, clusterID, clusterName } = this.props
+    loadHostDiskWriteIo({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'})
   }
   switchChange(flag, type) {
     this.setState({
@@ -447,17 +458,23 @@ class ClusterDetail extends Component {
         }
         break
       case 'Network':
-        clearInterval(this.networkInterval)
+        clearInterval(this.rxRateInterval)
+        clearInterval(this.txRateInterval)
         if (flag) {
-          this.getHostNetwork()
-          this.networkInterval = setInterval(() => this.getHostNetwork(), LOAD_INSTANT_INTERVAL)
+          this.getHostRxrate()
+          this.getHostTxrate()
+          this.rxRateInterval = setInterval(() => this.getHostRxrate(), LOAD_INSTANT_INTERVAL)
+          this.txRateInterval = setInterval(() => this.getHostTxrate(), LOAD_INSTANT_INTERVAL)
         }
         break
       case 'Disk':
-        clearInterval(this.diskInterval)
+        clearInterval(this.readIoInterval)
+        clearInterval(this.writeIoInterval)
         if (flag) {
-          this.getHostDisk()
-          this.diskInterval = setInterval(() => this.getHostDisk(), LOAD_INSTANT_INTERVAL)
+          this.getHostReadIo()
+          this.getHostWriteIo()
+          this.readIoInterval = setInterval(() => this.getHostReadIo(), LOAD_INSTANT_INTERVAL)
+          this.writeIoInterval = setInterval(() => this.getHostWriteIo(), LOAD_INSTANT_INTERVAL)
         }
     }
   }
@@ -646,7 +663,7 @@ class ClusterDetail extends Component {
 function mapStateToProps(state, props) {
   const clusterName = props.params.cluster_name
   const { clusterID }  = props.params
-  const { podeList, hostInfo, hostMetrics, hostCpu, hostMemory, hostNetwork, hostDisk } = state.cluster || {}
+  const { podeList, hostInfo, hostMetrics, hostCpu, hostMemory, hostRxRate, hostTxRate, hostReadIo, hostWriteIo } = state.cluster || {}
   const defaultState = {
     isFetching: false,
     result: { pods: [] }
@@ -692,14 +709,19 @@ function mapStateToProps(state, props) {
   if (hostMemory && hostMemory.result) {
     instantMemory.data = hostMemory.result.memory
   }
-  if (hostNetwork && hostNetwork.result) {
-    instantNetworkRx.data = hostNetwork.result.rxRate
-    instantNetworkTx.data = hostNetwork.result.txRate
+  if (hostRxRate && hostRxRate.result) {
+    instantNetworkRx.data = hostRxRate.result.rxRate
   }
-  if (hostDisk && hostDisk.result) {
-    instantDiskReadIo.data = hostDisk.result.diskReadIo
-    instantDiskWriteIo.data = hostDisk.result.diskWriteIo
+  if (hostTxRate && hostTxRate.result) {
+    instantNetworkTx.data = hostTxRate.result.txRate
   }
+  if (hostReadIo && hostReadIo.result) {
+    instantDiskReadIo.data = hostReadIo.result.diskReadIo
+  }
+  if (hostWriteIo && hostWriteIo.result) {
+    instantDiskWriteIo.data = hostWriteIo.result.diskWriteIo
+  }
+  
   /*let instant = {}
   if (hostInstant && hostInstant.result) {
     instant = hostInstant.result
@@ -737,6 +759,8 @@ export default connect(mapStateToProps, {
   getNodeLabels,
   loadHostCpu,
   loadHostMemory,
-  loadHostNetwork,
-  loadHostDisk
+  loadHostRxrate, 
+  loadHostTxrate,
+  loadHostDiskReadIo, 
+  loadHostDiskWriteIo
 })(ClusterDetail)

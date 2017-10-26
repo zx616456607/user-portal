@@ -68,12 +68,12 @@ class Disk extends Component {
         <span className="freshTime">
           {`时间间隔：${timeText}`}
         </span>
-        <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Network')} checkedChildren="开" unCheckedChildren="关"/>
+        {/*<Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Disk')} checkedChildren="开" unCheckedChildren="关"/>*/}
         <ReactEcharts
           style={{ height: formatGrid(diskReadIo.data && diskReadIo.data.length + diskWriteIo.data.length) }}
           notMerge={true}
           option={option}
-          showLoading={diskReadIo.isFetching || diskWriteIo.isFetching}
+          // showLoading={diskReadIo.isFetching || diskWriteIo.isFetching}
         />
       </div>
     )

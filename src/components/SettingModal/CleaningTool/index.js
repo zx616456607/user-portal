@@ -222,7 +222,7 @@ class CleaningTool extends Component {
     this.setState({
       cleanSystemLogStatus: 'cleaning'
     })
-    notify.spin('系统日志手动清理中')
+    notify.spin('服务日志手动清理中')
     cleanSystemLogs({
       type: 0,
       time_range,
@@ -230,7 +230,7 @@ class CleaningTool extends Component {
       success: {
         func: () => {
           notify.close()
-          notify.success('系统日志手动清理成功')
+          notify.success('服务日志手动清理成功')
           this.setState({
             cleanSystemLogStatus: true
           })
@@ -241,7 +241,7 @@ class CleaningTool extends Component {
       failed: {
         func: () => {
           notify.close()
-          notify.error('系统日志手动清理失败')
+          notify.error('服务日志手动清理失败')
           this.setState({
             cleanSystemLogStatus: false
           })
@@ -470,11 +470,11 @@ class CleaningTool extends Component {
             <div className='tips'>您可以根据数据时效选择需要清理的文件范围!</div>
             <FormItem className='time_select'>
               <Select
-                placeholder="选择删除系统日志时间"
+                placeholder="选择删除服务日志时间"
                 size="large"
                 className='select_box'
                 {...getFieldProps('systemLogTime',{
-                  rules: [{required: true, message: '请选择删除系统日志时间'}]
+                  rules: [{required: true, message: '请选择删除服务日志时间'}]
                 })}
               >
                 <Option key="system_15" value="15">清除15天前数据（推荐）</Option>

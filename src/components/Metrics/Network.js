@@ -73,7 +73,7 @@ class Network extends Component {
           style={{ height: formatGrid(networkTransmitted.data && networkTransmitted.data.length + networkReceived.data.length) }}
           notMerge={true}
           option={option}
-          showLoading={networkReceived.isFetching || networkTransmitted.isFetching}
+          // showLoading={networkReceived.isFetching || networkTransmitted.isFetching}
         />
       </div>
     )
