@@ -40,13 +40,13 @@ class WrapManage extends Component {
       template: [
         {
           registry: DEFAULT_REGISTRY,
-          name: 'appdeploy/java',
+          name: 'tenx_containers/java',
           imageUrl: javaImage,
           version: ['8','7']
         },
         {
           registry: DEFAULT_REGISTRY,
-          name: 'appdeploy/tomcat',
+          name: 'tenx_containers/tomcat',
           imageUrl: tomcatImage,
           version: ['9','8','7']
         }
