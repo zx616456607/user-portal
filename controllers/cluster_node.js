@@ -145,26 +145,32 @@ exports.getClustersMetrics = function* () {
   const api = apiFactory.getK8sApi(loginUser)
   let cpuq = {
     type: 'cpu/usage_rate',
+    source: 'prometheus',
     start: query.start
   }
   let memoryq = {
     type: 'memory/usage',
+    source: 'prometheus',
     start: query.start
   }
   let re_rateq = {
     type: 'network/rx_rate',
+    source: 'prometheus',
     start:query.start
   }
   let te_rateq = {
     type: 'network/tx_rate',
+    source: 'prometheus',
     start: query.start
   }
   let te_disk_read = {
     type: 'disk/node_readio',
+    source: 'prometheus',
     start: query.start
   }
   let te_disk_write = {
     type: 'disk/node_writeio',
+    source: 'prometheus',
     start: query.start
   }
   const reqArray = []
