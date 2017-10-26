@@ -587,7 +587,8 @@ class TeamDetail extends Component {
           loadTeamAllUser(teamID, {size: -1, sort: 'a,userName'})
           this.setState({
             transferStatus: false,
-            value: ''
+            value: '',
+            current: 1
           })
         },
         isAsync: true

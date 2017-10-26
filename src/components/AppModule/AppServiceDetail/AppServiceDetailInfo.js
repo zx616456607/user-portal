@@ -16,7 +16,7 @@ import { formatDate, cpuFormat, memoryFormat } from '../../../common/tools'
 import { ENTERPRISE_MODE } from '../../../../configs/constants'
 import { mode } from '../../../../configs/model'
 import { appEnvCheck } from '../../../common/naming_validation'
-import { editServiceEnv, loadAutoScale, editServiceVolume, loadServiceDetail } from '../../../actions/services'
+import { editServiceEnv, loadAutoScale, editServiceVolume, loadServiceDetail, loadAllServices } from '../../../actions/services'
 import NotificationHandler from '../../../components/Notification'
 import PersistentVolumeClaim from '../../../../kubernetes/objects/persistentVolumeClaim'
 import { createStorage } from '../../../actions/storage'
@@ -541,6 +541,7 @@ class AppServiceDetailInfo extends Component {
     super(props)
     this.callbackFields = this.callbackFields.bind(this)
     this.getAutoScaleStatus = this.getAutoScaleStatus.bind(this)
+    this.loadServiceList = this.loadServiceList.bind(this)
     this.state={
       volumeList: [],
       isEdit: false,
@@ -856,6 +857,16 @@ class AppServiceDetailInfo extends Component {
     }
   }
 
+  loadServiceList(){
+    const { loadAllServices, page, size, name, cluster } = this.props
+    const query = {
+      pageIndex: page,
+      pageSize: size,
+      name
+    }
+    loadAllServices(cluster, query)
+  }
+
   saveVolumnsChange(){
     const { cluster, serviceName, createStorage, editServiceVolume, loadServiceDetail } = this.props
     const { volumeList } = this.state
@@ -936,6 +947,7 @@ class AppServiceDetailInfo extends Component {
               loading: false,
             })
             this.getServiceDetail(cluster, serviceName)
+            this.loadServiceList()
             notification.success('修改服务存储卷成功')
           },
           isAsync: true
@@ -1193,5 +1205,6 @@ export default connect(mapStateToPropsInfo, {
   loadAutoScale,
   createStorage,
   editServiceVolume,
+  loadAllServices,
   loadServiceDetail
 })(AppServiceDetailInfo)

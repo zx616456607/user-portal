@@ -13,11 +13,9 @@ import './style/CostRecord.less'
 import PopSelect from '../../PopSelect'
 import PopContent from '../../PopSelect/Content'
 import { connect } from 'react-redux'
-import cloneDeep from 'lodash/cloneDeep'
 import { ListProjects } from '../../../actions/project'
 import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
 import { loadConsumptionDetail, loadConsumptionTrend, loadSpaceSummaryInDay, loadSpaceSummary } from '../../../actions/consumption'
-import { loadUserList } from '../../../actions/user'
 import TeamCost from './TeamCost'
 import ReactEcharts from 'echarts-for-react'
 import { formatDate, parseAmount } from '../../../common/tools'
@@ -61,9 +59,7 @@ class CostRecord extends Component{
       consumptionSpaceSummaryDate: '',
       consumptionSpaceSummaryInDayDate: '',
       teamListVisible: false,
-      allUsers: [],
     }
-    this.isSysAdmin = props.loginUser.info.role == ROLE_SYS_ADMIN
   }
   handleSpaceChange(space) {
     this.setState({
@@ -164,16 +160,6 @@ class CostRecord extends Component{
     loadSpaceSummary(currentNamespace)
   }
 
-  componentDidMount() {
-    this.isSysAdmin && this.props.loadUserList({ size: 0, sort: 'a,userName', }, {
-      success: {
-        func: res => {
-          this.setState({ allUsers: cloneDeep(res.users || []) })
-        }
-      }
-    })
-  }
-
   render(){
     const _this = this
     const {
@@ -189,6 +175,8 @@ class CostRecord extends Component{
       spaceSummaryInDay,
       spaceSummary,
       standard,
+      allUsers,
+      isSysAdmin,
     } = this.props
     let {
       spacesVisible,
@@ -197,7 +185,6 @@ class CostRecord extends Component{
       currentNamespace,
       sortedInfo,
       teamListVisible,
-      allUsers,
     } = this.state
     sortedInfo = sortedInfo || {};
     let getSpaceCostSixMonths = function() {
@@ -497,7 +484,7 @@ class CostRecord extends Component{
                 <PopSelect
                   title="选择项目"
                   allUsers={allUsers}
-                  isSysAdmin={this.isSysAdmin}
+                  isSysAdmin={isSysAdmin}
                   Search={true}
                   btnStyle={false}
                   special={true}
@@ -728,5 +715,4 @@ export default connect (mapStateToProps,{
   loadConsumptionTrend,
   loadSpaceSummaryInDay,
   loadSpaceSummary,
-  loadUserList,
 })(CostRecord)

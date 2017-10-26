@@ -188,6 +188,15 @@ class Service extends Component {
       createModal: visible,
       groupEdit: editFlag,
     })
+    const self = this
+    setTimeout(() => {
+      document.getElementById('newConfigName').focus()
+    },100)
+    setTimeout(function () {
+      if (self.focusInput) {
+        self.focusInput.refs.input.focus()
+      }
+    }, 0)
   }
   btnDeleteGroup() {
     let notification = new NotificationHandler()
