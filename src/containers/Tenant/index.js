@@ -32,10 +32,10 @@ const menuList = [
     name: '项目管理'
   },{
     url: '/tenant_manage/rolemanagement',
-    name: '角色管理'
+    name: '项目角色'
   },{
     url: '/tenant_manage/allpermissions',
-    name: '所有权限'
+    name: '项目权限'
   }
 ]
 
