@@ -12,12 +12,14 @@
 
 import React from 'react'
 import { Button, Modal, Form, Input, Icon } from 'antd'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 const FormItem = Form.Item
 const createForm = Form.create
 let CreateVMListModal = React.createClass({
   getInitialState: function () {
     return {
+      checkIP: false,
       Prompt: false,
       isShow: false,
       verification: false,
@@ -118,6 +120,7 @@ let CreateVMListModal = React.createClass({
     callback()
   },
   checkIP(rule, value, callback) {
+    const { scope } = this.props
     let reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
     if (!value) {
       callback([new Error('请填写IP')])
@@ -127,7 +130,27 @@ let CreateVMListModal = React.createClass({
       callback([new Error('请输入正确IP地址')])
       return
     }
-    callback()
+    if (value && reg.test(value)) {
+      let query = {
+        name: value,
+      }
+      clearTimeout(this.timeout)
+       this.timeout = setTimeout(()=>{
+        scope.props.getVMinfosList(query, {
+          success: {
+            func: res => {
+              if (res.body.total > 0) {
+                callback([new Error('当前IP已存在')])
+                return
+              } else {
+                callback()
+              }
+            }
+          },
+          isAsync: true,
+        })
+      },ASYNC_VALIDATOR_TIMEOUT)
+    }
   },
   render() {
     const formItemLayout = {
@@ -140,7 +163,7 @@ let CreateVMListModal = React.createClass({
       rules: [
         { validator: this.checkIP },
       ],
-      initialValue: isAdd ? undefined : Rows.host
+      initialValue: isAdd ? undefined : Rows.host,
     })
     const nameProps = getFieldProps('account', {
       rules: [
