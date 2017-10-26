@@ -109,7 +109,6 @@ class UploadModal extends Component {
         },
         failed:{
           func:(err)=> {
-            debugger
             if (err.message.code == 409) {
               notificat.error('上传失败','远程上传的文件和本地的包名称已存在')
               return
