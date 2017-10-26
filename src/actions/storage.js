@@ -596,3 +596,27 @@ export function getStorageClassType(cluster, callback){
     return dispatch(fetchGetClusterStorageClassType(cluster, callback))
   }
 }
+
+export const GET_CHECK_VOLUME_NAME_EXIST_REQUEST = 'GET_CHECK_VOLUME_NAME_EXIST_REQUEST'
+export const GET_CHECK_VOLUME_NAME_EXIST_SUCCESS = 'GET_CHECK_VOLUME_NAME_EXIST_SUCCESS'
+export const GET_CHECK_VOLUME_NAME_EXIST_FAILURE = 'GET_CHECK_VOLUME_NAME_EXIST_FAILURE'
+
+function fetchGetCheckVolumeNameExist(clusterID, volumeName, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_CHECK_VOLUME_NAME_EXIST_REQUEST, GET_CHECK_VOLUME_NAME_EXIST_SUCCESS, GET_CHECK_VOLUME_NAME_EXIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/volumes/${volumeName}/check-exist`,
+      schema: {},
+      options: {
+        method: 'GET',
+      },
+    },
+    callback
+  }
+}
+
+export function getCheckVolumeNameExist(clusterID, volumeName, callback) {
+  return dispatch => {
+    return dispatch(fetchGetCheckVolumeNameExist(clusterID, volumeName, callback))
+  }
+}

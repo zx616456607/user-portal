@@ -12,10 +12,11 @@ import React, { PropTypes } from 'react'
 import { Form, Select, Row, Col, Radio, Input, Tooltip, Icon, InputNumber, Button } from 'antd'
 import { connect } from 'react-redux'
 import cloneDeep from 'lodash/cloneDeep'
-import { loadFreeVolume } from '../../actions/storage'
+import { loadFreeVolume, getCheckVolumeNameExist } from '../../actions/storage'
 import { getClusterStorageList } from '../../actions/cluster'
 import { isStorageUsed } from '../../common/tools'
-import { DEFAULT_IMAGE_POOL } from '../../constants'
+import { serviceNameCheck } from '../../common/naming_validation'
+import { DEFAULT_IMAGE_POOL, ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import './style/ContainerCatalogueModal.less'
 
 const FormItem = Form.Item
@@ -113,26 +114,10 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   checkVolumeName(rule, value, callback) {
-    if (!value) {
-      return callback('存储名称不能为空')
-    }
-    if(!value){
-      return callback('请输入存储名称')
-    }
-    if(value.length > 32){
-      return callback('存储名称不能超过32个字符')
-    }
-    if(!/^[A-Za-z]{1}/.test(value)){
-      return callback('存储名称必须以字母开头')
-    }
-    if(!/^[A-Za-z]{1}[A-Za-z0-9_-]*$/.test(value)){
-      return callback('存储名称由字母、数字、中划线-、下划线_组成')
-    }
-    if(value.length < 3){
-      return callback('存储名称不能少于3个字符')
-    }
-    if(!/^[A-Za-z]{1}[A-Za-z0-9_\-]{1,61}[A-Za-z0-9]$/.test(value)){
-      return callback('存储名称必须由字母或数字结尾')
+    const { getCheckVolumeNameExist, clusterID } = this.props
+    let msg = serviceNameCheck(value, '存储名称')
+    if (msg !== 'success') {
+      return callback(msg)
     }
     const { avaliableVolume, fieldsList, form, currentIndex } = this.props
     const type = form.getFieldValue('type')
@@ -156,7 +141,26 @@ let ContainerCatalogueModal = React.createClass({
         return callback('存储名称已存在！')
       }
     }
-    return callback()
+    clearTimeout(this.volumeNameChechTimeout)
+    this.volumeNameChechTimeout = setTimeout(() => {
+      getCheckVolumeNameExist(clusterID, value, {
+        success: {
+          func: () => {
+            return callback()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (res) => {
+            if(res.statusCode == 409){
+              msg = serviceNameCheck(value, '存储名称', true)
+              return callback(msg)
+            }
+          },
+          isAsync: true
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
   },
 
   renderDifferentType(type, volume) {
@@ -710,4 +714,5 @@ ContainerCatalogueModal = Form.create()(ContainerCatalogueModal)
 export default connect(mapStateToProp, {
   getClusterStorageList,
   loadFreeVolume,
+  getCheckVolumeNameExist,
 })(ContainerCatalogueModal)

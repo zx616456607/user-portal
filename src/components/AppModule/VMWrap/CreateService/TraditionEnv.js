@@ -31,33 +31,39 @@ class TraditionEnv extends Component{
   }
   checkHost(rules,value,callback) {
     const { scope } = this.props;
+    let reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
     if (!value) {
-      callback()
+      callback([new Error('请填写IP')])
+      return
+    }
+    if (reg.test(value) !== true) {
+      callback([new Error('请输入正确IP地址')])
+      return
     }
     scope.setState({
       host:value
     })
-    callback()
+    return callback()
   }
   checkName(rules,value,callback) {
     const { scope } = this.props;
     if (!value) {
-      callback()
+      return callback('请填写账号')
     }
     scope.setState({
       account:value
     })
-    callback()
+    return callback()
   }
   checkPass(rules,value,callback) {
     const { scope } = this.props;
     if (!value) {
-      callback()
+      return callback('请填写密码')
     }
     scope.setState({
       password:value
     })
-    callback()
+    return callback()
   }
   checkUser(){
     const { form,checkVMUser } = this.props

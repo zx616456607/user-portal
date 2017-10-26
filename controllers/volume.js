@@ -85,6 +85,14 @@ exports.createVolume = function* () {
   this.body = response
 }
 
+exports.getCheckVolumeNameExist = function* () {
+  const cluster = this.params.cluster
+  const volumeName = this.params.volumeName
+  const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
+  let response = yield volumeApi.getBy([cluster, 'volumes', volumeName, 'check-exist'])
+  this.body = response
+}
+
 exports.formateVolume = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster

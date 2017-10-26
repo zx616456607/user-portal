@@ -278,6 +278,26 @@ function fetchcheckServiceExists(serviceName,query, callback) {
   }
 }
 
+
+
+export const VM_WRAP_VMINFO_CHECK_REQUEST = 'VM_WRAP_VMINFO_CHECK_REQUEST'
+export const VM_WRAP_VMINFO_CHECK_SUCCESS = 'VM_WRAP_VMINFO_CHECK_SUCCESS'
+export const VM_WRAP_VMINFO_CHECK_FAILURE = 'VM_WRAP_VMINFO_CHECK_FAILURE'
+
+// Fetches wechat auth qr code from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchcheckVminfoExists(vminfoName, callback) {
+  let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos/${vminfoName}/exists`
+  return {
+    [FETCH_API]: {
+      types: [VM_WRAP_VMINFO_CHECK_REQUEST, VM_WRAP_VMINFO_CHECK_SUCCESS, VM_WRAP_VMINFO_CHECK_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback,
+  }
+}
+
 // Fetches wechat auth qr code from API
 // Relies on Redux Thunk middleware.
 export function checkServiceExists(serviceName,query, callback) {

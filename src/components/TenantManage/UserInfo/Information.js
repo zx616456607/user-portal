@@ -507,7 +507,7 @@ class Information extends Component {
             </Col>
             {
               userID && userDetail.role != ROLE_SYS_ADMIN &&
-              <Col span={10}>
+              <Col span={7}>
                 <Button style={{width: '80px'}} type="primary" onClick={() => this.changeUserAuthModal()}>
                   修 改
                 </Button>
@@ -609,7 +609,7 @@ class Information extends Component {
         >
           <MemberRecharge parentScope={this} visible={this.state.visibleMember}/>
         </Modal>
-        <Modal title="修改用户角色"
+        <Modal title="修改账号类型"
           visible={this.state.changeUserRoleModal}
           onCancel={() => this.setState({ changeUserRoleModal: false, selectUserRole: userDetail.role + 1 })}
           onOk={() => this.changeUserRoleRequest()}
