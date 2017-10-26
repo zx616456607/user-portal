@@ -9,14 +9,14 @@
  */
 
 import React, { Component } from 'react'
-import { Row, Col, Switch, Form, Select, TimePicker, Modal } from 'antd'
+import { Row, Col, Switch, Form, Select, TimePicker } from 'antd'
 import { browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/TimingClean.less'
 import {
   startClean, getCleanSettings, cleanSystemLogs,
-  getSystemSettings, closeLogAutoClean
+  getSystemSettings, deleteLogAutoClean
 } from '../../../actions/clean'
 import isEmpty from 'lodash/isEmpty'
 import { formatDate } from "../../../common/tools";
@@ -24,7 +24,6 @@ import Notification from '../../Notification'
 
 const FormItem = Form.Item
 const Option = Select.Option
-const confirm = Modal.confirm;
 
 class TimingClean extends Component {
   constructor(props) {
@@ -121,24 +120,11 @@ class TimingClean extends Component {
       [`${type}Time`]: time
     })
   }
-  showConfirm() {
-    confirm({
-      title: '是否删除清理日志？',
-      onOk: () => {
-        this.systemConfirmFun(0)
-      },
-      onCancel: () => {
-        this.systemConfirmFun(1)
-      },
-    });
-  }
-  systemConfirmFun(type) {
-    const { closeLogAutoClean } = this.props
+  systemConfirmFun() {
+    const { deleteLogAutoClean } = this.props
     let notify = new Notification()
     notify.spin('服务日志定时清理关闭中')
-    closeLogAutoClean({
-      confirm: type
-    }, {
+    deleteLogAutoClean({
       success: {
         func: () => {
           notify.close()
@@ -183,7 +169,7 @@ class TimingClean extends Component {
       }
       const { systemCleaningScope, systemCleaningCycle, systemCleaningTime, systemCleaningDate } = values
       if(systemChecked){
-        this.showConfirm()
+        this.systemConfirmFun()
         return
       }
       notify.spin('服务日志定时清理开启中')
@@ -234,18 +220,7 @@ class TimingClean extends Component {
     })
   }
   
-  showCicdConfirm() {
-    confirm({
-      title: '是否删除清理日志？',
-      onOk: () => {
-        this.cicdConfimFun('stop-and-clean-records')
-      },
-      onCancel: () => {
-        this.cicdConfimFun('stop')
-      },
-    });
-  }
-  cicdConfimFun(type) {
+  cicdConfimFun() {
     const { startClean, userName, form } = this.props
     const { getFieldsValue } = form
     let notify = new Notification()
@@ -262,7 +237,7 @@ class TimingClean extends Component {
           automatic: false,
           cleaner: userName,
           target: 'cicd_clean',
-          type,
+          type: 'stop',
         },
         spec: {
           cron: this.getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime),
@@ -313,7 +288,7 @@ class TimingClean extends Component {
       }
       const { CICDcacheScope, CICDcacheCycle, CICDcacheTime, CICDcacheDate } = values
       if(cicdChecked){
-        this.showCicdConfirm()
+        this.cicdConfimFun()
         return
       }
       notify.spin('cicd定时清理开启中')
@@ -851,5 +826,5 @@ export default connect(mapStateToProp, {
   getCleanSettings,
   cleanSystemLogs,
   getSystemSettings,
-  closeLogAutoClean
+  deleteLogAutoClean
 })(TimingClean)

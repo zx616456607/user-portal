@@ -34,11 +34,10 @@ exports.getSystemSettings = function* () {
   this.body = result
 }
 
-exports.closeLogsAutoClean = function* () {
-  const body = this.request.body
+exports.deleteLogsAutoClean = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser, 120000)
-  const result = yield api.cleaner.createBy(['systemlog', 'close'], null, body)
+  const result = yield api.cleaner.deleteBy(['systemlog', 'cron'], null)
   this.body = result
 }
 
@@ -73,4 +72,17 @@ exports.getSystemCleanerLogs = function* () {
   const api = apiFactory.getApi(loginUser, 120000)
   const result = yield api.cleaner.createBy(['systemlog', 'records'], query, body)
   this.body = result
+}
+
+exports.deleteCleanLogs = function*(){
+  const body = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser, 120000)
+  const cicdCleanResult = yield api.cleaner.updateBy(['cicd', 'settings'], null, body)
+  if (cicdCleanResult.statusCode != 200){
+    this.body = cicdCleanResult
+    return
+  }
+  const systemResult = yield api.cleaner.deleteBy(['systemlog','records'])
+  this.body = systemResult
 }
