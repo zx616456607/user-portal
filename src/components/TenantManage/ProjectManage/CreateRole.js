@@ -130,9 +130,9 @@ class CreateRoleModal extends Component{
   okCreateModal() {
     const { CreateRole, loadData, scope, form } = this.props;
     const { checkedKeys } = this.state;
-    const { getFieldValue, validateFields } = form;
+    const { validateFields } = form;
     let notify = new Notification()
-    validateFields((errors,values)=>{
+    validateFields([ 'roleName', 'roleDesc' ], (errors,values)=>{
       if (!!errors) {
         return
       }

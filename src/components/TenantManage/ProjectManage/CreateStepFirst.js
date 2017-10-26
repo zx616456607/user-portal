@@ -180,7 +180,7 @@ let CreateStepFirst = React.createClass({
           <Form.Item label="描述" {...formItemLayout}>
             <Input type="textarea" {...getFieldProps(`projectDesc`, {
               rules: [
-                { validator: (rules,value)=>this.projectDesc(rules,value,this.updateProjectDesc.bind(this))}
+                { validator: (rules,value)=>this.projectDesc(rules,value,this.updateProjectDesc)}
               ],
               initialValue: '',
             }) }/>
