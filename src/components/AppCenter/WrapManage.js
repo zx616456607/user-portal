@@ -19,7 +19,7 @@ import './style/AppWrapManage.less'
 import NotificationHandler from '../../components/Notification'
 import { formatDate } from '../../common/tools'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { API_URL_PREFIX } from '../../constants'
+import { API_URL_PREFIX, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
 import WrapListTable from './AppWrap/WrapListTable'
 import { throwError } from '../../actions'
 import { wrapManageList, deleteWrapManage, uploadWrap, checkWrapName } from '../../actions/app_center'
@@ -109,6 +109,7 @@ class UploadModal extends Component {
         },
         failed:{
           func:(err)=> {
+            debugger
             if (err.message.code == 409) {
               notificat.error('上传失败','远程上传的文件和本地的包名称已存在')
               return
@@ -127,7 +128,9 @@ class UploadModal extends Component {
                 return
               }
             }
-            notificat.error('上传失败',err.message.message || err.message)
+            if(err.message.code !== UPGRADE_EDITION_REQUIRED_CODE){
+              notificat.error('上传失败',err.message.message || err.message)
+            }
           }
         },
         finally: {
@@ -310,7 +313,9 @@ class UploadModal extends Component {
               func.throwError(e.file.response)
             }
           }
-          notificat.error('上传失败',message)
+          if(e.file.response.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
+            notificat.error('上传失败',message)
+          }
           uploadFile = false
           func.uploadModal(false)
         }
