@@ -516,7 +516,6 @@ class RoleManagement extends React.Component {
             </Button> */}
             </div>
             <SearchInput scope={scope} searchIntOption={searchIntOption} Search={this.handleSearch.bind(this)} />
-
             <div className='pageBox'>
               <span className='totalPage'>共计{total ? total : 0}条</span>
               <Pagination className="pag" {...pageOption} />
