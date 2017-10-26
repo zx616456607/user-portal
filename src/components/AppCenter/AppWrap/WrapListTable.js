@@ -104,7 +104,18 @@ class WrapListTbale extends Component {
     })
   }
 
-  renderDeployBtn(row, func) {
+  renderDeployBtn(row, func, rowCheckbox) {
+    if (!rowCheckbox) {
+      return (
+        <Button
+          type="primary"
+          key="1"
+          onClick={() => {func.goDeploy(row.id)}}
+        >
+          部署
+        </Button>
+      )
+    }
     const deployMethod = (
       <Menu
         className="deployModeList"
@@ -204,7 +215,7 @@ class WrapListTbale extends Component {
         render: (e, row) => {
           if (rowCheckbox) {
             return [
-              this.renderDeployBtn(row, func),
+              this.renderDeployBtn(row, func, rowCheckbox),
               <Button key="2" style={{ marginLeft: 10 }} onClick={()=> this.deleteAction(true,row.id)}>删除</Button>
             ]
           }

@@ -487,19 +487,20 @@ export const CONTAINER_GET_PROCESS_REQUEST = 'CONTAINER_GET_PROCESS_REQUEST'
 export const CONTAINER_GET_PROCESS_SUCCESS = 'CONTAINER_GET_PROCESS_SUCCESS'
 export const CONTAINER_GET_PROCESS_FAILURE = 'CONTAINER_GET_PROCESS_FAILURE'
 
-function fetchPodProcess(cluster, name) {
+function fetchPodProcess(cluster, name, query) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${name}/process?${toQuerystring(query)}`
   return {
     [FETCH_API]: {
       types: [CONTAINER_GET_PROCESS_REQUEST, CONTAINER_GET_PROCESS_SUCCESS, CONTAINER_GET_PROCESS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/containers/${name}/process`,
+      endpoint,
       schema: {},
     },
   }
 }
 
-export function getPodProcess(cluster, name) {
+export function getPodProcess(cluster, name, query) {
   return (dispatch) => {
-    return dispatch(fetchPodProcess(cluster, name))
+    return dispatch(fetchPodProcess(cluster, name, query))
   }
 }
 

@@ -32,6 +32,7 @@ class Websocket extends Component {
   setupWebsocket() {
     let websocket = this.state.ws
     const { url, protocol, onSetup, pingInterval, heartBeat } = this.props
+
     websocket.onopen = () => {
       this.logging('Websocket connected')
       this.logging(new Date())
@@ -59,6 +60,11 @@ class Websocket extends Component {
 
 
     websocket.onclose = (err) => {
+      // extend for onclose event
+      const onCloseExtend = websocket.onCloseExtend
+      if (onCloseExtend) {
+        onCloseExtend(err)
+      }
       this.pingInterval && clearInterval(this.pingInterval)
       let time = this.generateInterval(this.state.attempts)
       let attempts = this.state.attempts
