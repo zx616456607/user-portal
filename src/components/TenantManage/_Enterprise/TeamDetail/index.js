@@ -138,6 +138,7 @@ let MemberList = React.createClass({
     }
     let { sortUser, userPageSize, filter} = this.state
     const { loadTeamUserList, teamID, scope } = this.props
+
     loadTeamUserList(teamID, {
       page: current,
       size: userPageSize,
@@ -547,7 +548,7 @@ class TeamDetail extends Component {
           res.users.forEach((item) => {
             Object.assign(item,{
               key:item.userID,
-              globalStyle: includes(item.globalRoles,'admin') ? '系统管理员' : '普通成员'
+              globalStyle: item.role === 2 ? '系统管理员' : '普通成员'
             })
           })
           this.setState({
@@ -1045,7 +1046,7 @@ function mapStateToProp(state, props) {
             name: item.userName,
             tel: item.phone,
             email: item.email,
-            globalStyle: includes(item.globalRoles,'admin') ? '系统管理员' : '普通成员',
+            globalStyle: item.role === 2? '系统管理员' : '普通成员',
             partialStyle: includes(item.partialRoles,'manager') ? '管理者' : '参与者'
           }
         )
@@ -1062,7 +1063,7 @@ function mapStateToProp(state, props) {
             key: item.userID,
             name: item.userName,
             role : item.role,
-            globalStyle: includes(item.globalRoles,'admin') ? '系统管理员' : '普通成员',
+            globalStyle: item.role === 2 ? '系统管理员' : '普通成员',
             partialStyle: includes(item.partialRoles,'manager') ? '管理者' : '参与者'
           }
         )

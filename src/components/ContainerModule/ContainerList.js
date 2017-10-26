@@ -528,7 +528,7 @@ let MyComponent = React.createClass({
               <span>
                 {
                   exportimageUrl
-                  ? <span>{exportimageUrl.registryConfig.server}/{getFieldValue('harborProjectName').split('/detail/')[0] || '仓库组名称'}/</span>
+                  ? <span>{exportimageUrl.registryConfig.server.substring(exportimageUrl.registryConfig.server.indexOf('://') + 3)}/{getFieldValue('harborProjectName').split('/detail/')[0] || '仓库组名称'}/</span>
                   : <Spin></Spin>
                 }
               </span>
