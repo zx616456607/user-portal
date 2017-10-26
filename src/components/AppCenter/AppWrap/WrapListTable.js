@@ -240,7 +240,7 @@ class WrapListTbale extends Component {
       <div className="wrapListTable" id="wrapListTable">
         <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource.pkgs} columns={columns} pagination={paginationOpts} onRowClick={this.rowClick}/>
         { dataSource.total && dataSource.total >0 ?
-          <span className="pageCount" style={{position:'absolute',right:'160px',top:'-40px'}}>共计 {dataSource.total} 条</span>
+          <span className="pageCount" style={{position:'absolute',right:'160px',top:'-55px'}}>共计 {dataSource.total} 条</span>
           :null
         }
         <Modal title="删除操作" visible={this.state.delAll}
