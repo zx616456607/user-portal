@@ -18,6 +18,7 @@ import QueueAnim from 'rc-queue-anim'
 import './style/selectPacket.less'
 import { wrapManageList } from '../../../../actions/app_center'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
+import { formatDate } from '../../../../common/tools'
 const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
 import NotificationHandler from '../../../../components/Notification'
@@ -260,19 +261,24 @@ class SelectPacket extends Component{
     const columns = [{
       title: '包名称',
       dataIndex: 'fileName',
-      key: 'fileName'
+      key: 'fileName',
+      width: '25%',
     }, {
       title: '版本标签',
       dataIndex: 'fileTag',
       key: 'fileTag',
+      width: '25%',
     }, {
       title: '包类型',
       dataIndex: 'fileType',
       key: 'fileType',
+      width: '25%',
     },{
       title: '上传时间',
       dataIndex: 'creationTime',
-      key: 'creationTime'
+      key: 'creationTime',
+      width: '25%',
+      render: text => <span>{ formatDate(text) }</span>
     }];
     const rowSelection = {
       selectedRowKeys,
