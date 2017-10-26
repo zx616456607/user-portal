@@ -935,7 +935,7 @@ class TeamDetail extends Component {
                       [
                         <Button key="addMemberBtn" type="primary" size="large" className="addMemberBtn"
                               onClick={this.addNewMember}>
-                          <Icon type="edit" /> 编辑团队成员
+                          <Icon type="edit" /> 管理团队成员
                         </Button>,
                         <Button key="transferTeamLeader" type="ghost" size="large" className="transferTeamLeader"
                               onClick={this.transferTeamLeader.bind(this)}>

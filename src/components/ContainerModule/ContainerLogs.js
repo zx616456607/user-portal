@@ -230,7 +230,7 @@ class ContainerLogs extends Component {
       }
       this.setState(state)
     }
-    ws.onclose = err => {
+    ws.onCloseExtend = err => {
       ws.onclose && ws.onclose(err)
       this.setState(initState)
     }

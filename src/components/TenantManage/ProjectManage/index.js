@@ -815,8 +815,7 @@ let ProjectManage = React.createClass({
       <QueueAnim>
         <div key='account_projectManage' id="account_projectManage">
           <div className='alertRow'>
-            项目之间是相互隔离的，通过创建项目实现一些人在项目中有一组权限。创建项目时为项目申请授权集群，系统管理员在『基础设施』中审批通过后为已授权状态即可使用；
-            系统管理员可将普通成员设置为「可以创建项目」的人，项目创建者为项目管理者，项目中也可添加其他的项目管理者。
+          项目之间是相互隔离的，通过创建项目实现一些人在项目中有一些权限。创建项目时应为项目申请授权集群，系统管理员在『基础设施』中审批通过后为已授权状态即可使用。系统管理员可将普通成员设置为『可以创建项目』的人，项目创建者为项目管理者，项目中也可添加其他的项目管理者。
           </div>
           <Modal title="删除项目" visible={delModal} width={610} height={570}
                  onCancel={() => this.setState({delModal: false})}
@@ -1063,6 +1062,7 @@ class PayTable extends Component {
   }
 
   onRowClick = record => {
+    const { updatePayArr } = this.props
     const { selectedRowKeys } = this.state
     const projectName = record.namespace
     let newKeys = selectedRowKeys.slice(0)
@@ -1071,6 +1071,7 @@ class PayTable extends Component {
     } else {
       newKeys.push(projectName)
     }
+    updatePayArr(newKeys)
     this.setState({
       selectedRowKeys: newKeys
     })
@@ -1124,7 +1125,7 @@ class PayTable extends Component {
             <span className={classNames('btnList', {'active': payNumber === 100})} onClick={() => {
               this.changePayNumber(100)
             }}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-            <InputNumber value={payNumber} onChange={(value) => this.changePayNumber(value)} size="large" min={10}/>
+            <InputNumber value={payNumber} onChange={(value) => this.changePayNumber(value)} size="large" min={1}/>
             <b>T</b>
           </dd>
         </dl>

@@ -600,7 +600,8 @@ class AppServiceDetailInfo extends Component {
             volumeList = res.data.spec.template.spec.volumes || []
           }
           // 为兼容旧服务，需要在 spec 不同的位置取当前服务的 container
-          const list = volumeList.map(item => {
+          const list = []
+          volumeList.forEach((item, index) => {
             let mountPath = ''
             let readOnly = false
             let size = 512
@@ -612,9 +613,8 @@ class AppServiceDetailInfo extends Component {
                 readOnly = volumeMounts[i].readOnly || false
               }
             }
-            const isNewVolume = item.persistentVolumeClaim || item.hostPath
             // 新存储
-            if (isNewVolume) {
+            if(item.persistentVolumeClaim || item.hostPath){
               let strategy = false
               let claimName = '-'
               let type = 'host'
@@ -651,34 +651,29 @@ class AppServiceDetailInfo extends Component {
                 storageType: type,
                 hostPath: mountPath,
               }
-              return container
+              list.push(container)
             }
-            // 旧存储
-            let strategy = 'retain'
-            let image = ''
-            fsType = 'ext4'
+            // 老存储
             if(item.rbd){
-              strategy = item.rbd.strategy
-              image = item.rbd.image
-              fsType = item.rbd.fsType
+              const { strategy, image, fsType } = item.rbd
+              const imageArray = image.split('.')
+              const currentVolume = imageArray[imageArray.length - 1]
+              // @todo 缺少旧服务存储卷的大小
+              const container = {
+                mountPath,
+                readOnly,
+                strategy,
+                type: 'private',
+                type_1: 'rbd',
+                volume: currentVolume,
+                isOld: true,
+                volumesName: item.name,
+                storageType: 'private',
+                hostPath: mountPath,
+                fsType,
+              }
+              list.push(container)
             }
-            const imageArray = image.split('.')
-            const currentVolume = imageArray[imageArray.length - 1]
-            // @todo 缺少旧服务存储卷的大小
-            const container = {
-              mountPath,
-              readOnly,
-              strategy,
-              type: 'private',
-              type_1: 'rbd',
-              volume: currentVolume,
-              isOld: true,
-              volumesName: item.name,
-              storageType: 'private',
-              hostPath: mountPath,
-              fsType,
-            }
-            return container
           })
           this.setState({
             volumeList: list

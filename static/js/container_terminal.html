@@ -55,7 +55,9 @@
 
       var host = window.location.host
       var protocol = window.location.protocol == 'http:' ? 'ws:' : 'wss:'
-      var wsUrl = protocol + '//' + host + '/api/v1/cluster/' + data['cluster'] + '/namespaces/' + data['namespace'] + '/pods/' + data['pod'] + '/exec'
+      var wsUrl = protocol + '//' + host + '/api/v1/cluster/' + data['cluster']
+        + '/namespaces/' + data['namespace'] + '/pods/' + data['pod'] + '/exec'
+        + '?container=' + data['container']
 
       termCallback(data['pod'], 'connect')
       setTimeout(function () {

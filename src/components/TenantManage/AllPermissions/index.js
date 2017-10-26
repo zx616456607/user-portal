@@ -143,7 +143,7 @@ class AllPermissions extends React.Component{
                   size='large'
                   placeholder='请输入关键词搜索'
                   style={{paddingRight: '28px',width:'200px'}}
-                  /> 
+                  />
                   <CommonSearchInput placeholder="请输入关键词搜索" size="large" onSearch={this.handleSearch.bind(this)}/>
               </div>
             </div>*/}

@@ -1474,9 +1474,9 @@ class Ordinary extends Component {
           }
           <Col span={6} className='quota'>
             <Card title="项目&集群相关资源配额" bordered={false} bodyStyle={{ height: 220, padding: '1px' }}
-              extra={<Link to={spaceName === '我的个人项目' ? `tenant_manage/user/${this.props.loginUser.userID}?#quota` :
-                this.props.userID === undefined ? `tenant_manage/project_manage/project_detail?name=${this.props.projectName}#quota` :
-                  `tenant_manage/user/${this.props.userID}?#quota`}><Button type="primary" size="small">{this.props.loginUser.role === 2 ? '设置配额' : '查看详情'}</Button></Link>}>
+              extra={<Link to={spaceName === '我的个人项目' ? `/tenant_manage/user/${this.props.loginUser.userID}?#quota` :
+                this.props.userID === undefined ? `/tenant_manage/project_manage/project_detail?name=${this.props.projectName}#quota` :
+                  `/tenant_manage/user/${this.props.userID}?#quota`}><Button type="primary" size="small">{this.props.loginUser.role === 2 ? '设置配额' : '查看详情'}</Button></Link>}>
               <Row className="radios">
                 <RadioGroup size="small" onChange={(e) => this.onChange(e)} defaultValue="computing">
                   <RadioButton value="computing">计算资源</RadioButton>
@@ -1489,7 +1489,7 @@ class Ordinary extends Component {
                   computeList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={7}>
+                        <Col span={6}>
                           <span>{item.text}</span>
                         </Col>
                         <Col span={9}>

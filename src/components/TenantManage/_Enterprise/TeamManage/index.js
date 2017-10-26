@@ -425,7 +425,7 @@ let TeamTable = React.createClass({
             <Dropdown.Button
               disabled={roleNum !== 1 && record.role === 'participator'}
               onClick={() => this.addNewMember(record.key)} overlay={menu} type="ghost">
-              添加团队成员
+              管理团队成员
             </Dropdown.Button>
           )
         }
@@ -433,7 +433,7 @@ let TeamTable = React.createClass({
     ]
     return (
       <div>
-        <Modal title='添加成员'
+        <Modal title='管理团队成员'
                visible={this.state.addMember}
                onOk={this.handleNewMemberOk}
                onCancel={this.handleNewMemberCancel}
@@ -739,8 +739,8 @@ class TeamManage extends Component {
       <QueueAnim>
         <div key='TeamsManage' id="TeamsManage">
           <Title title="团队管理" />
-          <Alert message={`团队由若干个成员组成的一个集体，等效于公司的部门、小组、或子公司；系统管理员可将普通成员设置为「可以创建团队」的人，团队创建者为团队管理者，团队能移交给团队成员作为新的团队管理者。`}
-                 type="info" />
+          <Alert message={`团队由若干个成员组成的一个集体。系统管理员可将普通成员设置为『可以创建团队』的人，团队创建者为该团队的管理者，团队能移交给团队内成员作为新的团队管理者。`}
+            type="info" />
           <Row className="teamOption">
             {
               roleNum !== 3 &&

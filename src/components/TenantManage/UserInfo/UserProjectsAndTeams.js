@@ -454,7 +454,7 @@ class UserProjectsAndTeams extends React.Component {
                 {
                   this.isSysAdmin(loginUser.role) && (
                     <Button size="large" type="primary" onClick={() => this.setState({ joinProjectsModalVisible: true })}>
-                      <i className='fa fa-undo' /> &nbsp;加入其它项目
+                      <i className='fa fa-plus' /> &nbsp;加入其它项目
                     </Button>
                   )
                 }
@@ -482,7 +482,7 @@ class UserProjectsAndTeams extends React.Component {
                 {
                   this.isSysAdmin(loginUser.role) && (
                     <Button size="large" type="primary" onClick={() => this.setState({ teamTransferModalVisible: true })}>
-                      <i className='fa fa-undo' /> &nbsp;加入其它团队
+                      <i className='fa fa-plus' /> &nbsp;加入其它团队
                     </Button>
                   )
                 }

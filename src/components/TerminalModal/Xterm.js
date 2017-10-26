@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { Icon, Tabs, Button,Modal } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../constants'
-import { isSafariBrower } from '../../common/tools'
+import { isSafariBrower, toQuerystring } from '../../common/tools'
 import {
   updateTerminal, removeAllTerminal, changeActiveTerminal,
   removeTerminal,
@@ -312,8 +312,10 @@ class TerminalModal extends Component {
         size='small'>
         {
           list.map((item, index) => {
-            const { terminalStatus, metadata } = item
+            const { terminalStatus, metadata, spec } = item
             const { name, namespace } = metadata
+            const { containers } = spec
+            const container = containers && containers[0] && containers[0].name
             const titleTab = (
               <div className="action-header">
                 <span className="service-name">{name}</span>
@@ -325,13 +327,20 @@ class TerminalModal extends Component {
                 <Button icon='cross' type="ghost" className="closeBtn" onClick={()=> this.closeTerminalItem(item)}></Button>
               </div>
             )
+            const query = {
+              namespace,
+              pod: name,
+              cluster: clusterID,
+              container,
+              '_': '20171026', // for clear cache
+            }
             return (
               <TabPane tab={titleTab} key={name}>
                 <div>
                   {this.renderTermStatus(terminalStatus, item)}
                   <iframe
                     id={name}
-                    src={`/js/container_terminal.html?namespace=${namespace}&pod=${name}&cluster=${clusterID}&_=20170602`} />
+                    src={`/js/container_terminal.html?${toQuerystring(query)}`} />
                 </div>
               </TabPane>
             )
