@@ -2,20 +2,25 @@
 
 const https = require('https')
 const os = require('os')
+const url = require('url')
 const urllib = require('urllib')
 const config = require('../configs')
 config.tenx_api = global.globalConfig.tenx_api
 const queryString = require('querystring')
+const logger = require('../utils/logger').getLogger('web_terminal')
 
 //var wsUrl = "wss://kubelet:kubelet@" + data['host'] + ":" + data['port'] + "/api/v1/namespaces/" + data['namespace'] + "/pods/" + data['pod'] + "/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-i";
-module.exports = function (server, redis) {
+module.exports = function webTerminal(server, redis) {
   server.on('upgrade', (req, client, head) => {
     if (!/\/api\/v1\/cluster\/.+\/namespaces\/.+\/pods\/.+\/exec/.test(req.url)) return
     //const redisClient = redis.client
-    const path = req.url.split('/')
+    const urlObj = url.parse(req.url)
+    const path = urlObj.pathname.split('/')
+    const query = queryString.parse(urlObj.query) || {}
     const cluster = path[4]
     const namespace = path[6]
     const podName = path[8]
+    const container = query.container
     const headers = _getProxyHeader(req.headers)
     headers.rejectUnauthorized = false
     const apiPath = `/spi/v2/clusters/${cluster}/access`
@@ -38,13 +43,16 @@ module.exports = function (server, redis) {
       headers.port = port
       const apiVersion = clusterInfo.apiVersion
       headers.path = `/api/${apiVersion}/namespaces/${namespace}/pods/${podName}/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-c&command=${queryString.escape('if [ -x "/bin/bash" ]; then /bin/bash;else /bin/sh;fi')}`
+      if (container) {
+        headers.path = headers.path + `&container=${container}`
+      }
       const proxy = https.request(headers, res => {
         let data = ''
         res.on('data', d=> {
           data += d.toString()
         })
         res.on('end', ()=> {
-          console.error(data)
+          logger.error(data)
         })
       })
       proxy.on('upgrade', (res, socket, head) => {
@@ -53,13 +61,13 @@ module.exports = function (server, redis) {
         socket.pipe(client)
       })
       proxy.on('error', (error) => {
-        console.error('webterminal error', error)
+        logger.error('webterminal error', error)
         client.write("Sorry, cant't connect to this container ")
         return
       })
       proxy.end()
     }).catch(err => {
-      console.error('webterminal error', err)
+      logger.error('webterminal error', err)
       client.write('conect error')
     })
     function _getProxyHeader(headers) {
