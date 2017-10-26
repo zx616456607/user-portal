@@ -83,23 +83,23 @@ class CachedVolumes extends React.Component {
       render: (text, record) => {
         if (text === 'abnormal') {
           return (
-            <span>
-              <i className="fa fa-circle icon-marginRight error"></i>
+            <span className="error">
+              <i className="fa fa-circle icon-marginRight"></i>
               异常
             </span>
           )
         }
         if (record.ownerFlowName) {
           return (
-            <span>
-              <i className="fa fa-circle icon-marginRight used"></i>
+            <span className="used">
+              <i className="fa fa-circle icon-marginRight"></i>
               使用中
             </span>
           )
         }
         return (
-          <span>
-            <i className="fa fa-circle icon-marginRight no_used"></i>
+          <span className="no_used">
+            <i className="fa fa-circle icon-marginRight"></i>
             未使用
           </span>
         )
@@ -140,6 +140,7 @@ class CachedVolumes extends React.Component {
       render: (text, record) => (
         <Button
           icon="delete"
+          className="delete-btn"
           onClick={this.openDelModal.bind(this, record)}
           disabled={!!record.ownerFlowName}
         >
