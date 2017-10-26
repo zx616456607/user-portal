@@ -890,11 +890,13 @@ class AppList extends Component {
           const { alarmStrategy } = self.state
           if(alarmStrategy){
             let strategyID = []
+            let strategyName = []
             let strategyList = SettingListfromserviceorapp.result || []
             strategyList.forEach((item, index) => {
               strategyID.push(item.strategyID)
+              strategyName.push(item.strategyName)
             })
-            strategyID.length > 0 && deleteSetting(cluster,strategyID)
+            strategyID.length > 0 && deleteSetting(cluster, strategyID, strategyName)
           }
         },
         isAsync: true

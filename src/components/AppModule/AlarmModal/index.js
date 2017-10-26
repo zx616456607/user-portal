@@ -286,7 +286,7 @@ let FistStop = React.createClass({
       });
       let initAppName
       let initService
-      if (currentApp) {
+      if (currentApp && currentApp.services[0]) {
         initService = currentApp.services[0].metadata.name
         initAppName = currentApp.name
       }
