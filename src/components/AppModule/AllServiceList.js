@@ -1485,6 +1485,9 @@ class ServiceList extends Component {
               loadServices={()=>this.loadServices(this.props)}
               selectTab={selectTab}
               serviceDetailmodalShow={this.state.modalShow}
+              page={page}
+              size={size}
+              name={this.props.name}
               />
           </Modal>
           {
