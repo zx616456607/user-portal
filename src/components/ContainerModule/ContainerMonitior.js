@@ -22,10 +22,10 @@ import {
   loadContainerMetricsDiskWrite,
   loadContainerAllOfMetrics,
 } from '../../actions/metrics'
+import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../constants'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
-let metricsInterval;
 
 function loadData(props, query) {
   const { cluster, containerName, loadContainerMetricsCPU, loadContainerMetricsMemory, loadContainerMetricsNetworkReceived, loadContainerMetricsNetworkTransmitted, loadContainerMetricsDiskRead, loadContainerMetricsDiskWrite } = props
@@ -44,10 +44,78 @@ class ContainerMonitior extends Component {
     this.changeTime = this.changeTime.bind(this)
     this.setIntervalFunc = this.setIntervalFunc.bind(this)
     this.state = {
-      intervalStatus: false
+      intervalStatus: false,
+      freshTime: '1分钟',
+      switchCpu: false,
+      switchMemory: false,
+      switchNetwork: false,
+      switchDisk: false
     }
   }
-
+  getHostCpu() {
+    const { loadContainerMetricsCPU, cluster, containerName } = this.props
+    loadContainerMetricsCPU(cluster, containerName, {start: this.changeTime('0.5'), source: 'influxdb'})
+  }
+  getHostMemory() {
+    const { loadContainerMetricsMemory, cluster, containerName } = this.props
+    loadContainerMetricsMemory(cluster, containerName, {start: this.changeTime('0.5'), source: 'influxdb'})
+  }
+  getHostNetworkRx() {
+    const { loadContainerMetricsNetworkReceived, cluster, containerName } = this.props
+    loadContainerMetricsNetworkReceived(cluster, containerName, {start: this.changeTime('0.5'), source: 'influxdb'})
+  }
+  getHostNetworkTx() {
+    const { loadContainerMetricsNetworkTransmitted, cluster, containerName } = this.props
+    loadContainerMetricsNetworkTransmitted(cluster, containerName, {start: this.changeTime('0.5'), source: 'influxdb'})
+  }
+  getHostDiskRead() {
+    const { loadContainerMetricsDiskRead, cluster, containerName } = this.props
+    loadContainerMetricsDiskRead(cluster, containerName, {start: this.changeTime('0.5')})
+  }
+  getHostDiskWrite() {
+    const { loadContainerMetricsDiskWrite, cluster, containerName } = this.props
+    loadContainerMetricsDiskWrite(cluster, containerName, {start: this.changeTime('0.5')})
+  }
+  switchChange(flag, type) {
+    this.setState({
+      [`switch${type}`]: flag
+    })
+    switch(type) {
+      case 'Cpu':
+        clearInterval(this.cpuInterval)
+        if (flag) {
+          this.getHostCpu()
+          this.cpuInterval = setInterval(() => this.getHostCpu(), LOAD_INSTANT_INTERVAL)
+        }
+        break
+      case 'Memory':
+        clearInterval(this.memoryInterval)
+        if (flag) {
+          this.getHostMemory()
+          this.memoryInterval = setInterval(() => this.getHostMemory(), LOAD_INSTANT_INTERVAL)
+        }
+        break
+      case 'Network':
+        clearInterval(this.networkRxInterval)
+        clearInterval(this.networkTxInterval)
+        if (flag) {
+          this.getHostNetworkRx()
+          this.getHostNetworkTx()
+          this.networkRxInterval = setInterval(() => this.getHostNetworkRx(), LOAD_INSTANT_INTERVAL)
+          this.networkTxInterval = setInterval(() => this.getHostNetworkTx(), LOAD_INSTANT_INTERVAL)
+        }
+        break
+      case 'Disk':
+        clearInterval(this.diskReadInterval)
+        clearInterval(this.diskWriteInterval)
+        if (flag) {
+          this.getHostDiskRead()
+          this.getHostDiskWrite()
+          this.diskReadInterval = setInterval(() => this.getHostDiskRead(), LOAD_INSTANT_INTERVAL)
+          this.diskWriteInterval = setInterval(() => this.getHostDiskWrite(), LOAD_INSTANT_INTERVAL)
+        }
+    }
+  }
   changeTime(hours) {
     let d = new Date()
     d.setHours(d.getHours() - hours)
@@ -64,11 +132,19 @@ class ContainerMonitior extends Component {
   }
 
   componentDidMount() {
-    loadData(this.props, { start: this.changeTime(1) })
+    const { loadContainerAllOfMetrics, cluster, containerName } = this.props
+    loadContainerAllOfMetrics(cluster, containerName, { start: this.changeTime(1) })
+    this.setIntervalFunc()
   }
 
   componentWillUnmount() {
-    clearInterval(metricsInterval)
+    clearInterval(this.metricsInterval)
+    clearInterval(this.cpuInterval)
+    clearInterval(this.memoryInterval)
+    clearInterval(this.networkRxInterval)
+    clearInterval(this.networkTxInterval)
+    clearInterval(this.diskReadInterval)
+    clearInterval(this.diskWriteInterval)
   }
 
   setIntervalFunc() {
@@ -76,7 +152,7 @@ class ContainerMonitior extends Component {
     let query = this.state.currentStart;
     const { intervalStatus } = this.state;
     if(intervalStatus) {
-      clearInterval(metricsInterval)
+      clearInterval(this.metricsInterval)
       this.setState({
         intervalStatus: false
       })
@@ -85,15 +161,15 @@ class ContainerMonitior extends Component {
       this.setState({
         intervalStatus: true
       })
-      metricsInterval = setInterval(() => {
+      this.metricsInterval = setInterval(() => {
         loadContainerAllOfMetrics(cluster, containerName, query)
-      }, 60000);
+      }, UPDATE_INTERVAL);
     }
   }
 
   render() {
     const { cpu, memory, networkReceived, networkTransmitted, diskReadIo, diskWriteIo, allcontainermetrics } = this.props
-    const { intervalStatus } = this.state
+    const { intervalStatus, switchCpu, switchMemory, switchNetwork, switchDisk } = this.state
     let showCpu = {
       data: [],
       isFetching: false
@@ -118,31 +194,29 @@ class ContainerMonitior extends Component {
       data: [],
       isFetching: false
     }
-    if(allcontainermetrics.data.length > 0) {
-      showCpu.data.push(allcontainermetrics.data[0].cpu);
-      showCpu.isFetching = false;
-      showMemory.data.push(allcontainermetrics.data[1].memory);
-      showMemory.isFetching = false;
-      showNetworkTrans.data.push(allcontainermetrics.data[2].networkTrans);
-      showNetworkTrans.isFetching = false;
-      showNetworkRec.data.push(allcontainermetrics.data[3].networkRec);
-      showNetworkRec.isFetching = false;
-      showDiskReadIo.data.push(allcontainermetrics.data[4].diskReadIo)
-      showDiskReadIo.isFetching = false
-      showDiskWriteIo.data.push(allcontainermetrics.data[5].diskWriteIo)
-      showDiskWriteIo.isFetching = false
-    } else {
-      showCpu = cpu;
-      showMemory = memory;
-      showNetworkTrans = networkTransmitted;
-      showNetworkRec = networkReceived;
-      showDiskReadIo = diskReadIo
-      showDiskWriteIo = diskWriteIo
+    if (allcontainermetrics.data.length) {
+      switchCpu ? showCpu = cpu : showCpu.data.push(allcontainermetrics.data[0].cpu)
+      switchMemory ? showMemory = memory : showMemory.data.push(allcontainermetrics.data[1].memory)
+      if (switchNetwork) {
+        showNetworkRec = networkReceived
+        showNetworkTrans = networkTransmitted
+      } else {
+        showNetworkTrans.data.push(allcontainermetrics.data[2].networkTrans)
+        showNetworkRec.data.push(allcontainermetrics.data[3].networkRec)
+      }
+      if (switchDisk) {
+        showDiskReadIo = diskReadIo
+        showDiskWriteIo = diskWriteIo
+      } else {
+        showDiskReadIo.data.push(allcontainermetrics.data[4].diskReadIo)
+        showDiskWriteIo.data.push(allcontainermetrics.data[5].diskWriteIo)
+      }
     }
     return (
       <div id="ContainerMonitior">
         <TimeControl onChange={this.handleTimeChange} setInterval={this.setIntervalFunc} intervalStatus={this.state.intervalStatus} />
         <Metrics
+          scope={this}
           cpu={showCpu}
           memory={showMemory}
           networkReceived={showNetworkRec}

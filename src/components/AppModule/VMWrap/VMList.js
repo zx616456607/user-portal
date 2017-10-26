@@ -143,6 +143,15 @@ class VMList extends React.Component {
       isModal: true,
       isAdd: true
     })
+    const self = this
+    setTimeout(() => {
+      document.getElementById('host').focus()
+    },100)
+    setTimeout(function () {
+      if (self.focusInput) {
+        self.focusInput.refs.input.focus()
+      }
+    }, 0)
   }
 
   /**

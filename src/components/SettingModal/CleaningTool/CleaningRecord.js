@@ -389,6 +389,7 @@ class CleaningRecord extends Component {
         width: '25%',
       },
     ]
+    console.log(cleanLogs)
     const target = getFieldValue('target')
     return(
       <QueueAnim className='cleaningRecord' type="right">

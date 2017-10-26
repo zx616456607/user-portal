@@ -340,7 +340,7 @@ class MySpace extends Component {
       }]
     return (
       <div id='MySpace'>
-        <Row className="title" style={{ marginTop: 20 }}>{spaceName}</Row>
+        <Row className="title" style={{ marginTop: 20 }}>{this.props.userID === undefined ? spaceName === '我的个人项目' ? '':'共享项目 - ':'个人项目 - '}{spaceName}</Row>
         <Row className="content" gutter={16}>
           <Col span={6} className="quota">
             <Card title="项目资源配额" bordered={false} bodyStyle={{ height: 175, padding: '7px' }}
