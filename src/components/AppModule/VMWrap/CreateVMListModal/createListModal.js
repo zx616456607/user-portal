@@ -130,27 +130,25 @@ let CreateVMListModal = React.createClass({
       callback([new Error('请输入正确IP地址')])
       return
     }
-    if (value && reg.test(value)) {
-      let query = {
-        name: value,
-      }
-      clearTimeout(this.timeout)
-       this.timeout = setTimeout(()=>{
-        scope.props.getVMinfosList(query, {
-          success: {
-            func: res => {
-              if (res.body.total > 0) {
-                callback([new Error('当前IP已存在')])
-                return
-              } else {
-                callback()
-              }
-            }
-          },
-          isAsync: true,
-        })
-      },ASYNC_VALIDATOR_TIMEOUT)
+    let query = {
+      name: value,
     }
+    clearTimeout(this.timeout)
+    this.timeout = setTimeout(() => {
+      scope.props.getVMinfosList(query, {
+        success: {
+          func: res => {
+            if (res.body.total > 0) {
+              callback([new Error('当前IP已存在')])
+              return
+            } else {
+              callback()
+            }
+          }
+        },
+        isAsync: true,
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
   },
   render() {
     const formItemLayout = {
