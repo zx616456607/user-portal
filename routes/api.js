@@ -653,6 +653,7 @@ module.exports = function (Router) {
   router.post('/cleaner/records', cleanController.getSystemCleanerLogs)
   router.post('/cleaner/cron', cleanController.deleteLogsAutoClean)
   router.post('/cleanlogs/flush', cleanController.deleteCleanLogs)
+  router.get('/cleaner/monitor', cleanController.getMonitorSetting)
   
   return router.routes()
 }
