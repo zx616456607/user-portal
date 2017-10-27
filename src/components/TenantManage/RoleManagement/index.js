@@ -409,8 +409,8 @@ class RoleManagement extends React.Component {
       width: '13%',
       render: (text, record, index) =>
         record.creator === '' ?
-          <div className='roleName'>
-            <a href='#'>{text}</a>
+          <div className=''>
+            <span>{text}</span>
           </div> :
           <Link to={`/tenant_manage/rolemanagement/rolename/${record.id}?#${record.permissionCount}/role=${record.creator}`}>
             <div className='roleName'>
