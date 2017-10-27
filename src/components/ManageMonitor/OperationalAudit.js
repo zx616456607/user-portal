@@ -435,6 +435,10 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.AlertRule',
     defaultMessage: '告警规则',
   },
+  Member: {
+    id: 'ManageMonitor.operationalAudit.Member',
+    defaultMessage: '成员',
+  },
   User: {
     id: 'ManageMonitor.operationalAudit.User',
     defaultMessage: '用户',
@@ -447,6 +451,10 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.UserSpaces',
     defaultMessage: '用户空间',
   },
+  Tenant: {
+    id: 'ManageMonitor.operationalAudit.Tenant',
+    defaultMessage: '租户',
+  },
   Team: {
     id: 'ManageMonitor.operationalAudit.Team',
     defaultMessage: '团队',
@@ -454,6 +462,14 @@ const menusText = defineMessages({
   TeamUsers: {
     id: 'ManageMonitor.operationalAudit.TeamUsers',
     defaultMessage: '团队用户',
+  },
+  TeamMembers: {
+    id: 'ManageMonitor.operationalAudit.TeamMembers',
+    defaultMessage: '团队成员',
+  },
+  ProjectRoles: {
+    id: 'ManageMonitor.operationalAudit.ProjectRoles',
+    defaultMessage: '项目角色',
   },
   TeamSpaces: {
     id: 'ManageMonitor.operationalAudit.TeamSpaces',
@@ -475,6 +491,26 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.baseImage',
     defaultMessage: '基础镜像',
   },
+  AddMember: {
+    id: 'ManageMonitor.operationalAudit.AddMember',
+    defaultMessage: '添加成员'
+  },
+  TransferTeam: {
+    id: 'ManageMonitor.operationalAudit.TransferTeam',
+    defaultMessage: '移交团队'
+  },
+  DeleteMember: {
+    id: 'ManageMonitor.operationalAudit.DeleteMember',
+    defaultMessage: '移除成员'
+  },
+  Enable: {
+    id: 'ManageMonitor.operationalAudit.Enable',
+    defaultMessage: '启用'
+  },
+  Disable: {
+    id: 'ManageMonitor.operationalAudit.Disable',
+    defaultMessage: '停用'
+  }
 });
 
 function returnOperationList(scope) {
@@ -581,7 +617,23 @@ function returnOperationList(scope) {
     },
     { // 24
       value: '27',
-      label: (<FormattedMessage {...menusText.Update}/>)
+      label: (<FormattedMessage {...menusText.TransferTeam}/>)
+    },
+    { // 25
+      value: '28',
+      label: (<FormattedMessage {...menusText.Enable}/>)
+    },
+    { // 26
+      value: '29',
+      label: (<FormattedMessage {...menusText.Disable}/>)
+    },
+    { // 27
+      value: '30',
+      label: (<FormattedMessage {...menusText.AddMember}/>)
+    },
+    { // 28
+      value: '31',
+      label: (<FormattedMessage {...menusText.DeleteMember}/>)
     }
   ];
   return operationalList;
@@ -706,7 +758,7 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.VolumeConsumption)
       break;
     case '29':
-      return formatMessage(menusText.User)
+      return formatMessage(menusText.Member)
       break;
     case '30':
       return formatMessage(menusText.UserTeams)
@@ -718,7 +770,7 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.Team)
       break;
     case '33':
-      return formatMessage(menusText.TeamUsers)
+      return formatMessage(menusText.TeamMembers)
       break;
     case '34':
       return formatMessage(menusText.TeamSpaces)
@@ -782,6 +834,12 @@ function resourceFormat(resourceType, scope) {
       break;
     case '54':
       return formatMessage(menusText.DBCache)
+    case '55':
+      return formatMessage(menusText.env)
+      break;
+    case '59':
+      return formatMessage(menusText.ProjectRoles)
+      break;
 
     // For CI related
     case '1000':
@@ -872,6 +930,16 @@ function operationalFormat(operationalType, scope) {
     case '26':
       return formatMessage(menusText.Clone)
       break;
+    case '27':
+      return formatMessage(menusText.TransferTeam)
+    case '28':
+      return formatMessage(menusText.Enable)
+    case '29':
+      return formatMessage(menusText.Disable)
+    case '30':
+      return formatMessage(menusText.AddMember)
+    case '31':
+      return formatMessage(menusText.DeleteMember)
   }
 }
 
@@ -1310,10 +1378,12 @@ class OperationalAudit extends Component {
         showOperationalList = [];
         break;
       case '29':
-        //User
+        //Member
         showOperationalList.push(operationalList[0]);
         showOperationalList.push(operationalList[1]);
         showOperationalList.push(operationalList[2]);
+        showOperationalList.push(operationalList[25]);
+        showOperationalList.push(operationalList[26]);
         break;
       case '30':
         //UserTeams
@@ -1325,14 +1395,15 @@ class OperationalAudit extends Component {
         break;
       case '32':
         //Team
-        showOperationalList.push(operationalList[8]);
         showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[1]);
         showOperationalList.push(operationalList[2]);
         break;
       case '33':
-        //TeamUsers
-        showOperationalList.push(operationalList[8]);
-        showOperationalList.push(operationalList[0]);
+        //TeamMembers
+        showOperationalList.push(operationalList[24]);
+        showOperationalList.push(operationalList[27]);
+        showOperationalList.push(operationalList[28]);
         break;
       case '34':
         //TeamSpaces
@@ -1445,6 +1516,18 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[2]);
         showOperationalList.push(operationalList[24]);
         break;
+      case '55':
+        // 项目
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[1]);
+        showOperationalList.push(operationalList[8]);
+        break;
+      case '59':
+        // 项目角色
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[1]);
+        showOperationalList.push(operationalList[2]);
+        break
       case '0':
         //Unknown
         showOperationalList = operationalList;
@@ -1635,23 +1718,26 @@ class OperationalAudit extends Component {
         }],
       }, {
         value: '29',
-        label: formatMessage(menusText.User),
+        label: formatMessage(menusText.Member),
         children: [{
           value: '29',
-          label: formatMessage(menusText.User),
+          label: formatMessage(menusText.Member),
         }],
       }, {
         value: '32',
-        label: formatMessage(menusText.Team),
+        label: formatMessage(menusText.Tenant),
         children: [{
           value: '32',
           label: formatMessage(menusText.Team),
         }, {
           value: '33',
-          label: formatMessage(menusText.TeamUsers),
+          label: formatMessage(menusText.TeamMembers),
         }, {
-          value: '34',
-          label: formatMessage(menusText.TeamSpaces),
+          value: '55',
+          label: formatMessage(menusText.env),
+        }, {
+          value: '59',
+          label: formatMessage(menusText.ProjectRoles),
         }],
       }, {
         value: '36',
