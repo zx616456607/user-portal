@@ -508,6 +508,10 @@ let Ftp = React.createClass({
       const ftpID = values.ftpID
       const self = this
       delete values.ftpID
+      // not port push default(21)
+      if (!/:\d+$/.test(values.addr)){
+        values.addr +=':21'
+      }
       const body = {
         configID: ftpID,
         detail: values,
@@ -558,7 +562,7 @@ let Ftp = React.createClass({
       callback()
       return
     }
-    if (!/^([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+    if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
       callback([new Error('请填入合法的 ftp 地址')])
       return
     }
