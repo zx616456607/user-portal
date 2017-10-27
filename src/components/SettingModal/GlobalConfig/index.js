@@ -18,6 +18,7 @@ import APIImg from '../../../assets/img/setting/globalconfigapi.png'
 import CephImg from '../../../assets/img/setting/globalconfigceph.png'
 import MsaImg from '../../../assets/img/setting/globalconfigmsa.png'
 import FTPImg from '../../../assets/img/setting/globalconfigftp.png'
+import VmImg from '../../../assets/img/setting/globalconfigvm.png'
 import { connect } from 'react-redux'
 import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification } from '../../../actions/global_config'
 import NotificationHandler from '../../../components/Notification'
@@ -648,6 +649,170 @@ let Ftp = React.createClass({
 
   }
 })
+let Vm = React.createClass({
+  getInitialState() {
+    return {
+      isEve: false,
+      canClick: true,
+      aleardySave: false
+    }
+  },
+  handleReset(e) {
+    e.preventDefault();
+    const { setFieldsValue } = this.props.form
+    const { vmChange, config } = this.props
+    let vmDetail = {
+      url: ''
+    }
+    if (config) {
+      vmDetail = JSON.parse(config.configDetail)
+    }
+    setFieldsValue({
+      url: `${vmDetail.protocol}://${vmDetail.host}`,
+    })
+    // resetFields(['service', 'email', 'password', 'emailID'])
+    vmChange();
+  },
+  handEve() {
+    this.setState({ isEve: !this.state.isEve })
+  },
+  handleMsa() {
+    this.props.vmChange()
+  },
+  saveVM() {
+    this.props.form.validateFields((errors, values) => {
+      if (errors) {
+        return;
+      }
+      if (!this.state.canClick) {
+        return
+      }
+      const notification = new NotificationHandler()
+      notification.spin('保存中')
+      this.setState({
+        canClick: false,
+        aleardySave: true
+      })
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig } = this.props
+      const { getFieldValue } = form
+      const [ protocol, host ] = getFieldValue('url').split('://')
+      const vmID = getFieldValue('vmID')
+      const self = this
+      const body = {
+        configID: vmID,
+        detail: {
+          protocol,
+          host,
+        }
+      }
+      saveGlobalConfig(cluster.clusterID, 'vm', body , {
+        success: {
+          func: (result) => {
+            notification.close()
+            notification.success('微服务配置保存成功')
+            const { form } = self.props
+            const { getFieldProps, getFieldValue, setFieldsValue } = form
+            self.handleMsa()
+            if (result.data.toLowerCase() != 'success') {
+              setFieldsValue({
+                msaID: result.data
+              })
+              body.configID = result.data
+            }
+            this.setState({
+              canClick: true,
+              aleardySave: true
+            })
+            body.configDetail = JSON.stringify(body.detail)
+            setGlobalConfig('msa', body)
+          }
+        },
+        failed: {
+          func: (err) => {
+            notification.close()
+            let msg
+            if (err.message.message) {
+              msg = err.message.message
+            } else {
+              msg = err.message
+            }
+            notification.error('微服务配置保存失败 => ' + msg)
+            this.setState({
+              canClick: true
+            })
+          }
+        }
+      })
+    })
+  },
+  checkUrl(rule, value, callback) {
+    const { validateFields } = this.props.form
+    if (!value) {
+      callback([new Error('请填写传统应用服务地址')])
+      return
+    }
+    if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+      callback([new Error('请填入合法的传统应用地址')])
+      return
+    }
+    callback()
+  },
+  render() {
+    const { vmDisable, emailChange, config } = this.props
+    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
+    let vmDetail = {
+      url: '',
+    }
+    if (config) {
+      vmDetail = JSON.parse(config.configDetail)
+    }
+    // 微服务地址
+    const urlProps = getFieldProps('url', {
+      rules: [
+        { validator: this.checkUrl }
+      ],
+      initialValue: `${vmDetail.protocol}://${vmDetail.host}`
+    });
+
+    const vmID = getFieldProps('vmID', {
+      initialValue: config ? config.configID : ''
+    });
+
+    return (
+      <div className="GlobalConfigMSA">
+        <div className="title">传统应用</div>
+        <div className="content">
+          <div className="contentMain">
+            <div className="contentImg">
+              <img src={VmImg} alt="传统应用" />
+            </div>
+            <div className="contentkeys">
+              <div className="key">传统应用地址</div>
+            </div>
+            <div className="contentForm">
+              <Form horizontal className="contentFormMain">
+                <FormItem >
+                  <Input {...urlProps} placeholder="如：https://192.168.1.113:4081" disabled={vmDisable} />
+                </FormItem>
+                <FormItem>
+                  {
+                    vmDisable
+                      ? <Button type='primary' className="itemInputLeft" onClick={this.handleMsa}>编辑</Button>
+                      : ([
+                        <Button onClick={this.handleReset} className="itemInputLeft" disabled={vmDisable}>取消</Button>,
+                        <Button type='primary' className="itemInputLeft" onClick={this.saveVM}>保存</Button>
+                      ])
+                  }
+                </FormItem>
+                <input type="hidden" {...vmID} />
+              </Form>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+})
 //开放API地址
 let ConInter = React.createClass({
   getInitialState() {
@@ -718,49 +883,49 @@ let ConInter = React.createClass({
         }
       }
       saveGlobalConfig(cluster.clusterID, 'cicd', body, {
-          success: {
-            func: (result) => {
-              notification.close()
-              notification.success('持续集成配置保存成功')
-              const { form } = self.props
-              const { setFieldsValue } = form
-              self.handleCicd()
-              if (result.cicd.data.toLowerCase() != 'success') {
-                setFieldsValue({
-                  cicdID: result.cicd.data
-                })
-                body.cicdID = result.apiServer.data
-              }
-              if (result.apiServer.data.toLowerCase() != 'success') {
-                setFieldsValue({
-                  apiServerID: result.apiServer.data
-                })
-                body.apiServerID = result.apiServer.data
-              }
-              this.setState({
-                canClick: true,
-                aleardySave: true
+        success: {
+          func: (result) => {
+            notification.close()
+            notification.success('持续集成配置保存成功')
+            const { form } = self.props
+            const { setFieldsValue } = form
+            self.handleCicd()
+            if (result.cicd.data.toLowerCase() != 'success') {
+              setFieldsValue({
+                cicdID: result.cicd.data
               })
-              body.configDetail = JSON.stringify(body.detail)
-              setGlobalConfig('cicd', body)
+              body.cicdID = result.apiServer.data
             }
-          },
-          failed: {
-            func: (err) => {
-              notification.close()
-              let msg
-              if (err.message.message) {
-                msg = err.message.message
-              } else {
-                msg = err.message
-              }
-              notification.error('持续集成配置保存失败 => ' + msg)
-              this.setState({
-                canClick: true
+            if (result.apiServer.data.toLowerCase() != 'success') {
+              setFieldsValue({
+                apiServerID: result.apiServer.data
               })
+              body.apiServerID = result.apiServer.data
             }
+            this.setState({
+              canClick: true,
+              aleardySave: true
+            })
+            body.configDetail = JSON.stringify(body.detail)
+            setGlobalConfig('cicd', body)
           }
-        })
+        },
+        failed: {
+          func: (err) => {
+            notification.close()
+            let msg
+            if (err.message.message) {
+              msg = err.message.message
+            } else {
+              msg = err.message
+            }
+            notification.error('持续集成配置保存失败 => ' + msg)
+            this.setState({
+              canClick: true
+            })
+          }
+        }
+      })
     })
   },
   checkCicd(rule, value, callback) {
@@ -1315,6 +1480,7 @@ let Continue = React.createClass({
 Emaill = Form.create()(Emaill)
 Msa = Form.create()(Msa)
 Ftp = Form.create()(Ftp)
+Vm = Form.create()(Vm)
 ConInter = Form.create()(ConInter)
 MirrorService = Form.create()(MirrorService)
 // StorageService = Form.create()(StorageService)
@@ -1327,6 +1493,7 @@ class GlobalConfig extends Component {
       emailDisable: true,
       msaDisable: true,
       ftpDisable: true,
+      vmDisable: true,
       cicdeditDisable: true,
       mirrorDisable: true,
       cephDisable: true,
@@ -1364,6 +1531,10 @@ class GlobalConfig extends Component {
     this.setState({ ftpDisable: !this.state.ftpDisable })
   }
 
+  vmChange() {
+    this.setState({ vmDisable: !this.state.vmDisable })
+  }
+
   cicdeditChange() {
     this.setState({ cicdeditDisable: !this.state.cicdeditDisable })
   }
@@ -1384,7 +1555,7 @@ class GlobalConfig extends Component {
   }
 
   render() {
-    const { emailDisable, msaDisable, ftpDisable, emailChange, cicdeditDisable, cicdeditChange, mirrorDisable, mirrorChange, cephDisable, cephChange, globalConfig } = this.state
+    const { emailDisable, msaDisable, ftpDisable, vmDisable, emailChange, cicdeditDisable, cicdeditChange, mirrorDisable, mirrorChange, cephDisable, cephChange, globalConfig } = this.state
     const { updateGlobalConfig, saveGlobalConfig } = this.props
     let { cluster } = this.props
     if (!cluster) {
@@ -1422,6 +1593,15 @@ class GlobalConfig extends Component {
           updateGlobalConfig={saveGlobalConfig}
           cluster={cluster}
           config={globalConfig.ftp}
+        />
+        <Vm
+          setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
+          vmDisable={vmDisable}
+          vmChange={this.vmChange.bind(this)}
+          saveGlobalConfig={saveGlobalConfig}
+          updateGlobalConfig={saveGlobalConfig}
+          cluster={cluster}
+          config={globalConfig.vm}
         />
         <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.harbor} isValidConfig={this.props.isValidConfig}/>
         {/*<StorageService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />*/}
