@@ -208,7 +208,7 @@ class CreateRoleModal extends Component{
           </Form.Item>
         </Form>
         <div className="authChooseProject">
-          <span>权限选择 :</span>
+          <span className="authChooseText">权限选择 :</span>
           <div className="authBox inlineBlock">
             <div className="authTitle clearfix">所有权限 <div className="pull-right">共<span style={{color:'#59c3f5'}}>{permissionCount}</span> 个</div></div>
             <div className="treeBox">

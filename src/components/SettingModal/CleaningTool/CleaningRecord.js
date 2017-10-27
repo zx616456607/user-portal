@@ -551,7 +551,7 @@ class CleaningRecord extends Component {
                 className="deleteBtn"
                 onClick={this.showDeleteModal.bind(this)}
               >
-                <i className="fa fa-trash-o"/> 删 除
+                <i className="fa fa-trash-o"/> 清 空
               </Button>
               <Pagination {...pagination}/>
               <div className='totle_num'>共计 <span>{totalCount}</span> 条</div>
