@@ -1073,7 +1073,7 @@ class Storage extends Component {
                 onOk={()=> this.deleteStorage()} onCancel={()=> this.setState({delModal: false})}
                 wrapClassName="deleteVolumeModal"
                 footer={[
-                  <Button size='large' onClick={()=> this.setState({delModal: false})} key="cancel">取消</Button>,
+                  <Button size='large' onClick={()=> this.setState({delModal: false})} key="cancel" type='ghost'>取消</Button>,
                   <Button size='large' type="primary" onClick={()=> this.deleteStorage()} key="ok" disabled={this.state.comfirmRisk ? false : true}>确定</Button>
                 ]}
               >
