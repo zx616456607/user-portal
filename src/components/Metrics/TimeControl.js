@@ -38,11 +38,11 @@ class TimeControl extends Component {
           ]*/
         }
         <RadioGroup defaultValue="1" size="large" onChange={onChange}>
-          <RadioButton value="1">1小时</RadioButton>
-          <RadioButton value="6">6小时</RadioButton>
-          <RadioButton value="24">1天</RadioButton>
-          <RadioButton value="168">1周</RadioButton>
-          <RadioButton value="672">1月</RadioButton>
+          <RadioButton value="1">最近1小时</RadioButton>
+          <RadioButton value="6">最近6小时</RadioButton>
+          <RadioButton value="24">最近24小时</RadioButton>
+          <RadioButton value="168">最近7天</RadioButton>
+          <RadioButton value="672">最近30天</RadioButton>
         </RadioGroup>
       </div>
     )

@@ -196,7 +196,7 @@ export const LOAD_HOST_CPU_SUCCESS = 'LOAD_HOST_CPU_SUCCESS'
 export const LOAD_HOST_CPU_FAILURE = 'LOAD_HOST_CPU_FAILURE'
 
 function fetchHostCpu(body, query, callback) {
-  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/cpu`
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/metrics/cpu`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
@@ -221,7 +221,7 @@ export const LOAD_HOST_MEMORY_SUCCESS = 'LOAD_HOST_MEMORY_SUCCESS'
 export const LOAD_HOST_MEMORY_FAILURE = 'LOAD_HOST_MEMORY_FAILURE'
 
 function fetchHostMemory(body, query, callback) {
-  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/memory`
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/metrics/memory`
   if (query){
     endpoint += `?${toQuerystring(query)}`
   }
@@ -246,7 +246,7 @@ export const LOAD_HOST_RXRATE_SUCCESS = 'LOAD_HOST_RXRATE_SUCCESS'
 export const LOAD_HOST_RXRATE_FAILURE = 'LOAD_HOST_RXRATE_FAILURE'
 
 function fetchHostRxrate(body, query, callback) {
-  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/rxRate`
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/metrics/rxRate`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
@@ -271,7 +271,7 @@ export const LOAD_HOST_TXRATE_SUCCESS = 'LOAD_HOST_TXRATE_SUCCESS'
 export const LOAD_HOST_TXRATE_FAILURE = 'LOAD_HOST_TXRATE_FAILURE'
 
 function fetchHostTxrate(body, query, callback) {
-  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/txRate`
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/metrics/txRate`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
@@ -296,7 +296,7 @@ export const LOAD_HOST_READIO_SUCCESS = 'LOAD_HOST_READIO_SUCCESS'
 export const LOAD_HOST_READIO_FAILURE = 'LOAD_HOST_READIO_FAILURE'
 
 function fetchHostDiskReadIo(body, query, callback) {
-  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/diskReadIo`
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/metrics/diskReadIo`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
@@ -321,7 +321,7 @@ export const LOAD_HOST_WRITEIO_SUCCESS = 'LOAD_HOST_WRITEIO_SUCCESS'
 export const LOAD_HOST_WRITEIO_FAILURE = 'LOAD_HOST_WRITEIO_FAILURE'
 
 function fetchHostDiskWriteIo(body, query, callback) {
-  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/diskWriteIo`
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/metrics/diskWriteIo`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
