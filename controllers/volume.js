@@ -29,6 +29,13 @@ exports.getVolumeListByPool = function* () {
   this.body = response
 }
 
+exports.getVolumeStats = function* () {
+  const cluster = this.params.cluster
+  const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield volumeApi.getBy([cluster, 'overview', 'volumestats'])
+  this.body = result
+}
+
 exports.deleteVolume = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster

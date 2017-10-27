@@ -80,6 +80,7 @@ module.exports = function (Router) {
   router.post('/storage-pools/:cluster/volumes/:name/snapshots/clone', volumeController.cloneSnapshot)
   router.get('/storage-pools/:cluster/volumes/calamari-url', volumeController.getCalamariUrl)
   router.post('/storage-pools/:cluster/volumes/calamari-url', volumeController.setCalamariUrl)
+  router.get('/overview/clusters/:cluster/volumestats', volumeController.getVolumeStats)
   // project
   router.post('/projects',projectController.createProject)
   router.post('/projects/batch-delete',projectController.deleteProjects)

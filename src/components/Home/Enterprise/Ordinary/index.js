@@ -27,7 +27,7 @@ import homeEtcd from '../../../../assets/img/homeEtcdCluster.png'
 import snapshot from '../../../../assets/img/snapshot.png'
 import { Link } from 'react-router'
 import { AVATAR_HOST, SHOW_BILLING, REG, DEFAULT_IMAGE_POOL } from '../../../../constants'
-import { loadStorageList } from '../../../../actions/storage'
+import { fetchStorage } from '../../../../actions/storage'
 import { getClusterQuota, getClusterQuotaList } from '../../../../actions/quota'
 
 const RadioButton = Radio.Button
@@ -187,54 +187,31 @@ class Ordinary extends Component {
   }
 
   storageList(){
-    const { loadStorageList, clusterID } = this.props
-    let storageQuery = {
-      storagetype: 'ceph',
-      srtype: 'private'
+    const { fetchStorage, clusterID } = this.props
+    let query = {
+      cluster: clusterID
     }
-    let memoryQuery = {
-      storagetype: 'nfs',
-      srtype: 'share'
-    }
-    let hostQuery = {
-      storagetype: 'host',
-      srtype: 'host'
-    }
-    loadStorageList(DEFAULT_IMAGE_POOL, clusterID, storageQuery, {
+
+    fetchStorage(query, {
       success: {
         func: res => {
+          debugger
           if(res.code === 200){
             this.setState({
-              storageCount: res.data === null ? 0 : res.data.length
+              hostCount: res.data.host,
+              storageCount: res.data.snapshot,
+              memoryCount: res.data.share,
+              storageCount: res.data.private
             })
           }
-        }
+        },
+        isAsync: true
       },
-      isAsync: true
-    })
-    loadStorageList(DEFAULT_IMAGE_POOL, clusterID, memoryQuery, {
-      success: {
-        func: res => {
-          if(res.code === 200){
-            this.setState({
-              memoryCount: res.data === null ? 0 : res.data.length
-            })
-          }
-        }
-      },
-      isAsync: true
-    })
-    loadStorageList(DEFAULT_IMAGE_POOL, clusterID, hostQuery, {
-      success: {
-        func: res => {
-          if(res.code === 200){
-            this.setState({
-              hostCount: res.data === null ? 0 : res.data.length
-            })
-          }
-        }
-      },
-      isAsync: true
+      failed: {
+        func: err => {
+        },
+        isAsync: true,
+      }
     })
   }
 
@@ -2418,7 +2395,7 @@ function mapStateToProp(state, props) {
 }
 
 export default connect(mapStateToProp, {
-  loadStorageList,
+  fetchStorage,
   getClusterQuota,
   getClusterQuotaList,
   loadClusterInfo,
