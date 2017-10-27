@@ -208,7 +208,10 @@ let ProjectManage = React.createClass({
   },
 
   paySingleCancel() {
-    this.setState({paySingle: false})
+    this.setState({
+      paySingle: false,
+      payNumber: 10
+    })
   },
 
   paySingleOk() {
@@ -223,7 +226,10 @@ let ProjectManage = React.createClass({
         func: (res) => {
           if (res.statusCode === 200) {
             notify.success('充值成功')
-            this.setState({paySingle: false})
+            this.setState({
+              paySingle: false,
+              payNumber: 10
+            })
             this.loadProjectList()
           }
         },
@@ -878,7 +884,7 @@ let ProjectManage = React.createClass({
                   this.changePayNumber(100)
                 }}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
                 <InputNumber value={payNumber} onChange={(value) => this.setState({payNumber: value})} size="large"
-                             min={10}/>
+                             min={1}/>
                 <b>T</b>
               </dd>
             </dl>

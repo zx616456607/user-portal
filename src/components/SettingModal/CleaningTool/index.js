@@ -397,7 +397,7 @@ class CleaningTool extends Component {
             return (
               <TimelineItem key={item.id} color={index === 0 ? 'green' : '#e9e9e9'}>
                 <Row className={classNames({'successColor': index === 0})}>
-                  <Col span={20}>{index === 0 ? `上次清理 ${formatTotal(item.total)}${tailText}` : `清理 ${formatTotal(item.total)}${tailText}`}</Col>
+                  <Col span={20}>{index === 0 ? `上次清理 ${formatTotal(item.total)}${tailText}` : `清理 ${formatTotal(item.total || 0)}${tailText}`}</Col>
                   <Col className="time_item" span={4}>{formatDate(item.createTime, 'MM-DD')}</Col>
                 </Row>
               </TimelineItem>
