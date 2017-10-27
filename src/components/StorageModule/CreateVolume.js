@@ -14,7 +14,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CreateVolume.less'
 import { calcuDate, parseAmount, formatDate } from '../../common/tools'
 import { serviceNameCheck } from '../../common/naming_validation'
-import { SnapshotClone, createStorage, loadStorageList, getCheckVolumeNameExist } from '../../actions/storage'
+import { SnapshotClone, createStorage, loadStorageList, getCheckVolumeNameExist, SnapshotList } from '../../actions/storage'
 import { getClusterStorageList } from '../../actions/cluster'
 import PersistentVolumeClaim from '../../../kubernetes/objects/persistentVolumeClaim'
 import yaml from 'js-yaml'
@@ -23,6 +23,7 @@ import NotificationHandler from '../../components/Notification'
 import { SHOW_BILLING, ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 
 const Option = Select.Option
+const notificationHandler = new NotificationHandler()
 
 const messages = defineMessages({
   name: {
@@ -77,11 +78,42 @@ class CreateVolume extends Component {
       swicthChecked: false,
       switchDisabled: false,
       selectChecked: false,
-      renderSnapshotOptionlist: this.props.snapshotDataList
+      renderSnapshotOptionlist: this.props.snapshotDataList,
+      hasAlreadyGetSnapshotList: false,
     }
   }
 
   SnapshotSwitch(){
+    const { swicthChecked, hasAlreadyGetSnapshotList } = this.state
+    if(!swicthChecked && !hasAlreadyGetSnapshotList){
+      const { SnapshotList, clusterID } = this.props
+      notificationHandler.spin('获取独享存储快照列表中')
+      SnapshotList({clusterID}, {
+        success: {
+          func: () => {
+            notificationHandler.close()
+            this.setState({
+              swicthChecked: !this.state.swicthChecked,
+              hasAlreadyGetSnapshotList: true
+            })
+            if(this.state.swicthChecked){
+              this.setState({
+                ext4Disabled: false,
+                xfsDisabled: false,
+              })
+            }
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: () => {
+            notificationHandler.close()
+            notificationHandler.error('获取独享型快照列表失败，不能使用快照创建独享型存储，请重试')
+          }
+        }
+      })
+      return
+    }
     this.setState({
       swicthChecked: !this.state.swicthChecked
     })
@@ -227,7 +259,7 @@ class CreateVolume extends Component {
         return
       }
       let notification = new NotificationHandler()
-      notification.spin('创建存储卷中')
+      notification.spin('创建独享型存储中')
       if(!values.selectSnapshotName){
         // 创建存储卷
         const config = {
@@ -248,7 +280,7 @@ class CreateVolume extends Component {
             func: () => {
               this.handleResetState()
               notification.close()
-              notification.success('创建存储成功')
+              notification.success(`创建独享型存储 ${config.name} 操作成功`)
               const query = {
                 storagetype: 'ceph',
                 srtype: 'private'
@@ -262,11 +294,11 @@ class CreateVolume extends Component {
               this.handleResetState()
               notification.close()
               if(err.statusCode === 409){
-                notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
+                notification.error('独享型存储 ' + config.name + ' 已经存在')
                 return
               }
               if (err.statusCode !== 402 && err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE) {
-                notification.error('创建存储卷失败',err.message.message || err.message)
+                notification.error(`创建独享型存储 ${config.name} 操作失败`,err.message.message || err.message)
               }
             }
           }
@@ -429,7 +461,7 @@ class CreateVolume extends Component {
   }
 
   render(){
-    const { form, cluster, snapshotRequired } = this.props
+    const { form, cluster, snapshotRequired, isFetching } = this.props
     const { currentSnapshot } = this.state
     const { getFieldProps } = form
     const VolumeNameProps = getFieldProps('volumeName',{
@@ -516,7 +548,7 @@ class CreateVolume extends Component {
                 unCheckedChildren={<Icon type="cross" />}
                 onChange={this.SnapshotSwitch}
                 checked={this.state.swicthChecked}
-                disabled={this.state.switchDisabled}
+                disabled={this.state.switchDisabled || isFetching}
               />
             </Col>
             <Col span="15">通过快照创建存储卷，1-2分钟即可创建成功</Col>
@@ -652,15 +684,24 @@ function mapStateToProp(state, props) {
   const { cluster } = state.entities.current
   const clusterID = cluster.clusterID
   const stateCluster = state.cluster
+  const { snapshotList } = state.storage
   let cephList = []
   if(stateCluster.clusterStorage && stateCluster.clusterStorage[clusterID] && stateCluster.clusterStorage[clusterID].cephList){
     cephList = stateCluster.clusterStorage[clusterID].cephList
   }
+  let isFetching = false
+  const snapshotListKeys = Object.keys(snapshotList)
+  snapshotListKeys.forEach(item => {
+    if(item == 'isFetching'){
+      isFetching = snapshotList[item]
+    }
+  })
   return {
     cluster,
     clusterID,
     currentImagePool: DEFAULT_IMAGE_POOL,
     cephList,
+    isFetching,
   }
 }
 
@@ -670,6 +711,7 @@ export default connect(mapStateToProp, {
   loadStorageList,
   getClusterStorageList,
   getCheckVolumeNameExist,
+  SnapshotList,
 })(injectIntl(CreateVolume, {
   withRef: true,
 }))

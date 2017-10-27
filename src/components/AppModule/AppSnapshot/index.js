@@ -24,6 +24,8 @@ import CreateVolume from '../../StorageModule/CreateVolume'
 import { browserHistory } from 'react-router'
 import { UPDATE_INTERVAL } from '../../../constants'
 
+const notificationHandler = new NotificationHandler()
+
 class Snapshot extends Component {
   constructor(props) {
     super(props)
@@ -43,6 +45,9 @@ class Snapshot extends Component {
     this.handleDropdown = this.handleDropdown.bind(this)
     this.handleCloneSnapshot = this.handleCloneSnapshot.bind(this)
     this.rollbackSuccessConfirm = this.rollbackSuccessConfirm.bind(this)
+    this.getStorageList = this.getStorageList.bind(this)
+    this.rollbackOperate = this.rollbackOperate.bind(this)
+    this.cloneSnapshotOperate = this.cloneSnapshotOperate.bind(this)
     this.state = {
       selectedRowKeys: [],
       DeleteSnapshotButton: true,
@@ -64,24 +69,42 @@ class Snapshot extends Component {
       visible: false,
       createFalse: false,
       rollbackSuccess: false,
+      hasAlreadyGetStorageList: false,
     }
   }
 
   loadSnapshotList(){
-    const { loadStorageList, cluster, currentImagePool, SnapshotList } = this.props
+    const { cluster, SnapshotList } = this.props
     const body = {
       clusterID: cluster,
     }
-    SnapshotList(body,{
+    SnapshotList(body)
+  }
+
+  getStorageList(type, operate){
+    const { loadStorageList, cluster, currentImagePool } = this.props
+    const query = {
+      storagetype: 'ceph',
+      srtype: 'private'
+    }
+    loadStorageList(currentImagePool, cluster, query, {
       success: {
         func: () => {
-          const query = {
-            storagetype: 'ceph',
-            srtype: 'private'
-          }
-          loadStorageList(currentImagePool, cluster, query)
+          this.setState({
+            hasAlreadyGetStorageList: true,
+          })
+          operate
         },
-        isAsync: true
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          let message = '回滚'
+          if(type == 'clone'){
+            message = '创建'
+          }
+          notificationHandler.info(`获取独享型存储列表失败，不能进行${message}操作，请重试。`)
+        }
       }
     })
   }
@@ -260,8 +283,7 @@ class Snapshot extends Component {
     });
   }
 
-  handleRollbackSnapback(key, e){
-    e.stopPropagation()
+  rollbackOperate(key){
     const { snapshotDataList, storageList } = this.props
     //判断当前快照状态
     if(snapshotDataList[key].status !== 0){
@@ -289,6 +311,16 @@ class Snapshot extends Component {
       rollbackModal: true,
       currentKey: key,
     })
+  }
+
+  handleRollbackSnapback(key, e){
+    e.stopPropagation()
+    const { hasAlreadyGetStorageList } = this.state
+    if(hasAlreadyGetStorageList){
+      this.rollbackOperate(key)
+      return
+    }
+    this.getStorageList('rollback', this.rollbackOperate(key))
   }
 
   handlecolsetips(){
@@ -377,19 +409,8 @@ class Snapshot extends Component {
     this.onSelectChange(arr)
   }
 
-  handleCloneSnapshot(key){
+  cloneSnapshotOperate(key){
     const { snapshotDataList, storageList, currentCluster } = this.props
-    const storage_type = currentCluster.storageTypes
-    //判断当前快照状态
-    if(snapshotDataList[key].status !== 0){
-      return this.statusModalInfo(snapshotDataList[key].status)
-    }
-    if (!storage_type || storage_type.indexOf('rbd') < 0){
-      this.setState({
-        createFalse: true,
-      })
-      return
-    }
     setTimeout(() => {
       document.getElementById('volumeName').focus()
     },100)
@@ -406,6 +427,27 @@ class Snapshot extends Component {
     this.setState({
       visible: true
     })
+  }
+
+  handleCloneSnapshot(key){
+    const { snapshotDataList, currentCluster } = this.props
+    const storage_type = currentCluster.storageTypes
+    //判断当前快照状态
+    if(snapshotDataList[key].status !== 0){
+      return this.statusModalInfo(snapshotDataList[key].status)
+    }
+    if (!storage_type || storage_type.indexOf('rbd') < 0){
+      this.setState({
+        createFalse: true,
+      })
+      return
+    }
+    const { hasAlreadyGetStorageList } = this.state
+    if(hasAlreadyGetStorageList){
+      this.cloneSnapshotOperate(key)
+      return
+    }
+    this.getStorageList('clone', this.cloneSnapshotOperate(key))
   }
 
   handleDropdown(key, item){
@@ -708,8 +750,8 @@ class Snapshot extends Component {
             maskClosable={false}
             wrapClassName="rollbackSuccess"
             footer={[
-              <Button onClick={() => this.setState({rollbackSuccess: false})} size="large">关闭</Button>,
-              <Button onClick={this.rollbackSuccessConfirm} size='large' type="primary">查看审计日志</Button>]}
+              <Button key='close' onClick={() => this.setState({rollbackSuccess: false})} size="large">关闭</Button>,
+              <Button key='check' onClick={this.rollbackSuccessConfirm} size='large' type="primary">查看审计日志</Button>]}
           >
             <div className='container'>
               <div className='header'>
