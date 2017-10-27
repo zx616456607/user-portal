@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Row, Col, Button, Input, Modal, Transfer, Tree, Form } from 'antd'
+import { Row, Col, Button, Input, Modal, Transfer, Tree, Form, Icon } from 'antd'
 import { connect } from 'react-redux'
 import { UpdateRole, CreateRole, ExistenceRole, RemovePermissionRole, AddPermissionRole } from '../../../../actions/role'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
@@ -491,7 +491,7 @@ class CreateRoleModal extends React.Component {
               }
             </div>
           </div>
-          <span className="notes">注：查看作为基本操作权限，无查看权限时其他相关操作权限不生效</span>
+          <span className="notes"><Icon type="exclamation-circle-o" className='tips_icon'/>  注：查看作为基本操作权限，无查看权限时其他相关操作权限不生效</span>
         </div>
       </Modal>
     )
