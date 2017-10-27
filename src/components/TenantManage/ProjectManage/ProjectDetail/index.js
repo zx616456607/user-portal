@@ -844,11 +844,12 @@ class ProjectDetail extends Component {
         })
       ]
     )
+    
     const roleList = projectDetail.relatedRoles && projectDetail.relatedRoles.map((item, index) => {
       return (
         <li key={item.roleId} className={classNames({ 'active': currentRoleInfo && currentRoleInfo.id === item.roleId })} onClick={() => this.getCurrentRole(item.roleId)}>{item.roleName}
           {
-            roleNum !== 3 && isManager && !includes(disabledArr, item.roleId) &&
+            (roleNum !== 3 || isManager) && !includes(disabledArr, item.roleId) &&
             <Tooltip placement="top" title="移除角色">
               <Icon type="delete" className="pointer" onClick={(e) => this.deleteRole(e, item)} />
             </Tooltip>
