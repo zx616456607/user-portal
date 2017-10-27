@@ -131,22 +131,29 @@ let CreateVMListModal = React.createClass({
       return
     }
     let query = {
-      name: value,
+      ip: value,
     }
     clearTimeout(this.timeout)
     this.timeout = setTimeout(() => {
-      scope.props.getVMinfosList(query, {
+      scope.props.checkVminfoExists(query, {
         success: {
           func: res => {
-            if (res.body.total > 0) {
+            if (res.code === 200) {
+              callback()
+              return
+            }
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: err => {
+            if (err.statusCode === 405) {
               callback([new Error('当前IP已存在')])
               return
-            } else {
-              callback()
             }
-          }
-        },
-        isAsync: true,
+          },
+          isAsync: true,
+        }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   },

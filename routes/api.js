@@ -486,7 +486,7 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster/:node/instant', clusternodesController.getClustersInstant)
   router.get('/cluster-nodes/:cluster/label-summary', clusternodesController.getLabelSummary)
   router.get('/cluster-nodes/:cluster/:node/:type', clusternodesController.getClustersTypeMetrics)
-  
+
   // manipulate node's labels
   router.get('/cluster-nodes/:cluster/:node/labels', clusternodesController.getNodeLabels)
   router.put('/cluster-nodes/:cluster/:node/labels', clusternodesController.updateNodeLabels)
@@ -653,6 +653,6 @@ module.exports = function (Router) {
   router.post('/cleaner/records', cleanController.getSystemCleanerLogs)
   router.post('/cleaner/cron', cleanController.deleteLogsAutoClean)
   router.post('/cleanlogs/flush', cleanController.deleteCleanLogs)
-  
+
   return router.routes()
 }

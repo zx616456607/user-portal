@@ -43,7 +43,7 @@ function fetchVMinfosList(query, callback) {
 // Relies on Redux Thunk middleware.
 export function getVMinfosList(query, callback) {
   return (dispatch) => {
-      return dispatch(fetchVMinfosList(query, callback))
+    return dispatch(fetchVMinfosList(query, callback))
   }
 }
 /**
@@ -56,10 +56,10 @@ export const VM_WRAP_VMADD_FAILURE = 'VM_WRAP_VMADD_FAILURE'
 
 function addVMinfosList(body, callback) {
   let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos`
- /* if(state){
-    endpoint += `?${toQuerystring(query)}`
-  }*/
-  return{
+  /* if(state){
+     endpoint += `?${toQuerystring(query)}`
+   }*/
+  return {
     [FETCH_API]: {
       types: [VM_WRAP_VMADD_REQUEST, VM_WRAP_VMADD_SUCCESS, VM_WRAP_VMADD_FAILURE],
       endpoint,
@@ -67,14 +67,14 @@ function addVMinfosList(body, callback) {
         method: 'POST',
         body: body,
       },
-      schema:{}
+      schema: {}
     },
     callback,
   }
 }
 
 export function postVMinfoList(query, callback) {
-  return(dispatch) => {
+  return (dispatch) => {
     return dispatch(addVMinfosList(query, callback))
   }
 }
@@ -90,21 +90,21 @@ export const VM_WRAP_VMDEL_FAILURE = 'VM_WRAP_VMDEL_FAILURE'
 function deleteVMInfoList(ID, callback) {
   debugger
   let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos/${ID.vmID}`
-  return{
+  return {
     [FETCH_API]: {
       types: [VM_WRAP_VMDEL_REQUEST, VM_WRAP_VMDEL_SUCCESS, VM_WRAP_VMDEL_FAILURE],
       endpoint,
       options: {
         method: 'DELETE'
       },
-      schema:{}
+      schema: {}
     },
     callback,
   }
 }
 
 export function delVMinfoList(state, callback) {
-  return(dispatch) => {
+  return (dispatch) => {
     return dispatch(deleteVMInfoList(state, callback))
   }
 }
@@ -123,7 +123,7 @@ function editVMInfo(state, callback) {
   /*if(state){
     endpoint += `?${toQuerystring(state)}`
   }*/
-  return{
+  return {
     [FETCH_API]: {
       types: [VM_WRAP_VMPUT_REQUEST, VM_WRAP_VMPUT_SUCCESS, VM_WRAP_VMPUT_FAILURE],
       endpoint,
@@ -131,14 +131,14 @@ function editVMInfo(state, callback) {
         method: 'PUT',
         body: state,
       },
-      schema:{}
+      schema: {}
     },
     callback,
   }
 }
 
 export function putVMinfoList(state, callback) {
-  return(dispatch) => {
+  return (dispatch) => {
     return dispatch(editVMInfo(state, callback))
   }
 }
@@ -149,7 +149,7 @@ export const VM_WRAP_VMCHECK_FAILURE = 'VM_WRAP_VMCHECK_FAILURE'
 
 function checkVMUsers(query, callback) {
   let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos-check/`
-  return{
+  return {
     [FETCH_API]: {
       types: [VM_WRAP_VMCHECK_REQUEST, VM_WRAP_VMCHECK_SUCCESS, VM_WRAP_VMCHECK_FAILURE],
       endpoint,
@@ -157,17 +157,18 @@ function checkVMUsers(query, callback) {
         method: 'POST',
         body: query,
       },
-      schema:{}
+      schema: {}
     },
     callback,
   }
 }
 
-export function checkVMUser(query, callback){
-  return(dispatch) => {
+export function checkVMUser(query, callback) {
+  return (dispatch) => {
     return dispatch(checkVMUsers(query, callback))
   }
 }
+
 
 export const VM_WRAP_CREATE_SERVICE_REQUEST = 'VM_WRAP_CREATE_SERVICE_REQUEST'
 export const VM_WRAP_CREATE_SERVICE_SUCCESS = 'VM_WRAP_CREATE_SERVICE_SUCCESS'
@@ -263,7 +264,7 @@ export const VM_WRAP_SERVICES_CHECK_FAILURE = 'VM_WRAP_SERVICES_CHECK_FAILURE'
 
 // Fetches wechat auth qr code from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchcheckServiceExists(serviceName,query, callback) {
+function fetchcheckServiceExists(serviceName, query, callback) {
   let endpoint = `${API_URL_PREFIX}/vm-wrap/services/${serviceName}/exists`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -279,6 +280,15 @@ function fetchcheckServiceExists(serviceName,query, callback) {
 }
 
 
+// Fetches wechat auth qr code from API
+// Relies on Redux Thunk middleware.
+export function checkServiceExists(serviceName, query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchcheckServiceExists(serviceName, query, callback))
+  }
+}
+
+
 
 export const VM_WRAP_VMINFO_CHECK_REQUEST = 'VM_WRAP_VMINFO_CHECK_REQUEST'
 export const VM_WRAP_VMINFO_CHECK_SUCCESS = 'VM_WRAP_VMINFO_CHECK_SUCCESS'
@@ -286,8 +296,8 @@ export const VM_WRAP_VMINFO_CHECK_FAILURE = 'VM_WRAP_VMINFO_CHECK_FAILURE'
 
 // Fetches wechat auth qr code from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchcheckVminfoExists(vminfoName, callback) {
-  let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos/${vminfoName}/exists`
+function fetchcheckVminfoExists(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos/${query.ip}/exists`
   return {
     [FETCH_API]: {
       types: [VM_WRAP_VMINFO_CHECK_REQUEST, VM_WRAP_VMINFO_CHECK_SUCCESS, VM_WRAP_VMINFO_CHECK_FAILURE],
@@ -300,9 +310,9 @@ function fetchcheckVminfoExists(vminfoName, callback) {
 
 // Fetches wechat auth qr code from API
 // Relies on Redux Thunk middleware.
-export function checkServiceExists(serviceName,query, callback) {
+export function checkVminfoExists(query, callback) {
   return (dispatch) => {
-    return dispatch(fetchcheckServiceExists(serviceName,query, callback))
+    return dispatch(fetchcheckVminfoExists(query, callback))
   }
 }
 
