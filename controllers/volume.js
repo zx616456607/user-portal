@@ -230,7 +230,7 @@ exports.createSnapshot=function*() {
   }
   const cluster = this.params.cluster
   const snapApi=apiFactory.getK8sApi(this.session.loginUser)
-  const response=yield snapApi.createBy([cluster,'volumes',volumeName,'snapshot'],null,this.request.body)
+  const response=yield snapApi.createBy([cluster,'volumes',volumeName,'snapshots'],null,this.request.body)
   this.status = response.code
   this.body = response
 }
@@ -246,14 +246,14 @@ exports.deleteSnapshot=function* () {
   }
   const cluster = this.params.cluster
   const snapApi=apiFactory.getK8sApi(this.session.loginUser)
-  const response=yield snapApi.batchDeleteBy([cluster,'volumes','snapshot','delete'],null,this.request.body)
+  const response=yield snapApi.batchDeleteBy([cluster,'volumes','snapshots','batch-delete'],null,this.request.body)
   this.status = response.code
   this.body = response
 }
 exports.listSnapshots=function* () {
   const cluster = this.params.cluster
   const snapApi=apiFactory.getK8sApi(this.session.loginUser)
-  const response=yield snapApi.getBy([cluster,'volumes','snapshot','list'],null)
+  const response=yield snapApi.getBy([cluster,'volumes','snapshots'],null)
   this.status = response.code
   this.body = response
 }
@@ -294,7 +294,7 @@ exports.rollbackSnapshot=function* () {
   }
   const cluster = this.params.cluster
   const snapApi=apiFactory.getK8sApi(this.session.loginUser)
-  const response=yield snapApi.createBy([cluster,'volumes',volumeName,'snapshot','rollback'],null,this.request.body)
+  const response=yield snapApi.createBy([cluster,'volumes',volumeName,'snapshots','rollback'],null,this.request.body)
   this.status = response.code
   this.body = response
 }
@@ -312,7 +312,7 @@ exports.cloneSnapshot=function* () {
 	}
 	const cluster = this.params.cluster
 	const snapApi=apiFactory.getK8sApi(this.session.loginUser)
-	const response=yield snapApi.createBy([cluster,'volumes',volumeName,'snapshot','clone'],null,this.request.body)
+	const response=yield snapApi.createBy([cluster,'volumes',volumeName,'snapshots','clone'],null,this.request.body)
 	this.status = response.code
 	this.body = response
 }
