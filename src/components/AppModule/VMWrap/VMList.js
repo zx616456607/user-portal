@@ -17,7 +17,7 @@ import QueueAnim from 'rc-queue-anim'
 import './style/VMList.less'
 import CommonSearchInput from '../../../components/CommonSearchInput'
 import Title from '../../Title'
-import { getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUser } from '../../../actions/vm_wrap'
+import { getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUser, checkVminfoExists } from '../../../actions/vm_wrap'
 import reduce from '../../../reducers/vm_wrap'
 import CreateVMListModal from './CreateVMListModal/createListModal'
 import NotificationHandler from '../../../components/Notification'
@@ -451,5 +451,6 @@ export default connect(mapStateToProps, {
   delVMinfoList,
   postVMinfoList,
   putVMinfoList,
-  checkVMUser
+  checkVMUser,
+  checkVminfoExists,
 })(VMList)
