@@ -259,7 +259,7 @@ class CreateVolume extends Component {
         return
       }
       let notification = new NotificationHandler()
-      notification.spin('创建存储卷中')
+      notification.spin('创建独享型存储中')
       if(!values.selectSnapshotName){
         // 创建存储卷
         const config = {
@@ -280,7 +280,7 @@ class CreateVolume extends Component {
             func: () => {
               this.handleResetState()
               notification.close()
-              notification.success('创建存储成功')
+              notification.success(`创建独享型存储 ${config.name} 操作成功`)
               const query = {
                 storagetype: 'ceph',
                 srtype: 'private'
@@ -294,11 +294,11 @@ class CreateVolume extends Component {
               this.handleResetState()
               notification.close()
               if(err.statusCode === 409){
-                notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
+                notification.error('独享型存储 ' + config.name + ' 已经存在')
                 return
               }
               if (err.statusCode !== 402 && err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE) {
-                notification.error('创建存储卷失败',err.message.message || err.message)
+                notification.error(`创建独享型存储 ${config.name} 操作失败`,err.message.message || err.message)
               }
             }
           }
