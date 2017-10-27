@@ -617,7 +617,7 @@ class CleaningTool extends Component {
           name:'最近清除',
           type:'bar',
           barWidth: '40px',
-          data:[systemLogs && systemLogs.length && systemLogs[0].total]
+          data:[systemLogs && systemLogs.length && systemLogs[0].total || 0]
         }
       ]
     };

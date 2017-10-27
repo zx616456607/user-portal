@@ -342,7 +342,7 @@ class CleaningRecord extends Component {
     const { cleanLogsFlush, userName } = this.props
     let notify = new Notification()
     confirm({
-      title: '删除清理记录后无法恢复，确定删除？',
+      title: '清空清理记录后无法恢复，确定删除？',
       onOk: () => {
         notify.spin('删除清理记录中')
         cleanLogsFlush({
