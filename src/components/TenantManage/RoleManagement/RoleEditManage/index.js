@@ -36,7 +36,6 @@ class CreateRoleModal extends React.Component {
       rowDate: [],
       rowPermissionID: [],
       isCheck: false,
-      childrenKey: [],
       codeKey: [],
       categoryKey: [],
     }
@@ -78,22 +77,28 @@ class CreateRoleModal extends React.Component {
       autoExpandParent: false,
     })
   }
-  onCheck(checkedKeys, e) {
+  onCheck(key, e) {
     let count = []
+    const { checkedKeys } = this.state
     const categoryKey = this.fetchNode(e.node.props.category)
     e.checkedNodes.forEach(item => {
       if (item.props.code !== '') {
         count.push(item.key)
       }
     })
+
     categoryKey.forEach((item, index) => {
-      if(checkedKeys.indexOf(item) === -1){
-        checkedKeys.push(item)
+      if (checkedKeys.length === 0) {
+        key.push(item)
+      } else {
+        if (checkedKeys.indexOf(item) === -1) {
+          key.push(item)
+        }
       }
     })
 
     this.setState({
-      checkedKeys,
+      checkedKeys: key,
       isChecked: true,
       checkedCount: count
     })
