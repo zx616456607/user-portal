@@ -13,7 +13,7 @@ const logger     = require('../utils/logger.js').getLogger('overview_cluster')
 const apiFactory = require('../services/api_factory')
 
 function* getOverview(cluster, loginUser, queryObj) {
-  const api = apiFactory.getApi(loginUser)
+  const api = apiFactory.getApi(loginUser, 15000) // 15 seconds timeout
   const k8sapi = apiFactory.getK8sApi(loginUser)
   const mapping = {
     operations: api.overview.getBy(["space-operations"], queryObj),
