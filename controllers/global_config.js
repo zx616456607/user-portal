@@ -130,8 +130,8 @@ function* harborConfigFunc(entity) {
 function* vmConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'vm'
-  delete entity.detail.configID
   entity.detail = Object.assign({}, global.globalConfig.vmWrapConfig, entity.detail)
+  delete entity.detail.configID
   let response
   entity.configDetail = JSON.stringify(entity.detail)
   if (entity.configID) {
