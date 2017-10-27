@@ -154,7 +154,7 @@ class CachedVolumes extends React.Component {
       >
         <Title title="缓存卷" />
         <div id='cached-volumes' key='cached-volumes'>
-          <Alert message="缓存卷：为 TenxFlow 的任务提供缓存功能，用户可以将执行任务常用的依赖保存在缓存内，避免每次执行都要拉取的等待" type='info' />
+          <Alert message="缓存卷：为 TenxFlow 的任务提供缓存功能，用户可以将执行任务常用的依赖保存在缓存卷内，避免浪费网络资源，并显著缩短构建时间" type='info' />
           <div className='operaBox'>
             <Button
               className='createBtn'

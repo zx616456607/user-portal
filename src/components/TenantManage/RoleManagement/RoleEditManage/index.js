@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Row, Col, Button, Input, Modal, Transfer, Tree, Form } from 'antd'
+import { Row, Col, Button, Input, Modal, Transfer, Tree, Form, Icon } from 'antd'
 import { connect } from 'react-redux'
 import { UpdateRole, CreateRole, ExistenceRole, RemovePermissionRole, AddPermissionRole } from '../../../../actions/role'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
@@ -36,7 +36,6 @@ class CreateRoleModal extends React.Component {
       rowDate: [],
       rowPermissionID: [],
       isCheck: false,
-      childrenKey: [],
       codeKey: [],
       categoryKey: [],
     }
@@ -78,22 +77,28 @@ class CreateRoleModal extends React.Component {
       autoExpandParent: false,
     })
   }
-  onCheck(checkedKeys, e) {
+  onCheck(key, e) {
     let count = []
+    const { checkedKeys } = this.state
     const categoryKey = this.fetchNode(e.node.props.category)
     e.checkedNodes.forEach(item => {
       if (item.props.code !== '') {
         count.push(item.key)
       }
     })
+
     categoryKey.forEach((item, index) => {
-      if(checkedKeys.indexOf(item) === -1){
-        checkedKeys.push(item)
+      if (checkedKeys.length === 0) {
+        key.push(item)
+      } else {
+        if (checkedKeys.indexOf(item) === -1) {
+          key.push(item)
+        }
       }
     })
 
     this.setState({
-      checkedKeys,
+      checkedKeys: key,
       isChecked: true,
       checkedCount: count
     })
@@ -486,7 +491,7 @@ class CreateRoleModal extends React.Component {
               }
             </div>
           </div>
-          <span className="notes">注：查看作为基本操作权限，无查看权限时其他相关操作权限不生效</span>
+          <span className="notes"><Icon type="exclamation-circle-o" className='tips_icon'/>  注：查看作为基本操作权限，无查看权限时其他相关操作权限不生效</span>
         </div>
       </Modal>
     )
