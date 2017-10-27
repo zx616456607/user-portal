@@ -234,3 +234,24 @@ export function cleanLogsFlush(body, callback) {
     return dispatch(fetchCleanLogsFlush(body, callback))
   }
 }
+
+export const FETCH_CLEAN_MONITOR_SETTING = 'FETCH_CLEAN_MONITOR_SETTING'
+export const FETCH_CLEAN_MONITOR_SUCCESS = 'FETCH_CLEAN_MONITOR_SUCCESS'
+export const FETCH_CLEAN_MONITOR_FAILURE = 'FETCH_CLEAN_MONITOR_FAILURE'
+
+function fetchCleanMonitorSetting(callback) {
+  return {
+    [FETCH_API]: {
+      types: [FETCH_CLEAN_MONITOR_SETTING,FETCH_CLEAN_MONITOR_SUCCESS,FETCH_CLEAN_MONITOR_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cleaner/monitor`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getMonitorSetting(callback) {
+  return dispatch => {
+    return dispatch(fetchCleanMonitorSetting(callback))
+  }
+}

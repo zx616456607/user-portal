@@ -32,7 +32,7 @@ const menuList = [
 
   {
     url: '/database_cache/elasticsearch_cluster',
-    name: 'ElasticSearch集群'
+    name: 'ES集群'
   },
 
   {

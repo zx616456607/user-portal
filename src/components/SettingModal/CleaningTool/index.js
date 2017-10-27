@@ -20,7 +20,7 @@ import NotificationHandler from '../../../components/Notification'
 import ReactEcharts from 'echarts-for-react'
 import {
   startClean, getCleanLogs, cleanSystemLogs, cleanMonitor,
-  getSystemCleanLogs
+  getSystemCleanLogs, getMonitorSetting
 } from '../../../actions/clean'
 import { formatDate } from '../../../common/tools'
 import classNames from 'classnames'
@@ -55,6 +55,21 @@ class CleaningTool extends Component {
   componentWillMount() {
     this.getSystemLogs()
     this.getCicdLogs()
+    this.getMonitorSetting()
+  }
+  getMonitorSetting() {
+    const { getMonitorSetting, form } = this.props
+    const { setFieldsValue } = form
+    getMonitorSetting({
+      success: {
+        func: res => {
+          this.setState({
+            monitorTime: res.data.substring(0, res.data.length - 1)
+          })
+          setFieldsValue({'monitoringDataTime': res.data.substring(0, res.data.length - 1)})
+        }
+      }
+    })
   }
   getCicdLogs() {
     const { getCleanLogs } = this.props
@@ -250,14 +265,19 @@ class CleaningTool extends Component {
     })
   }
   cancelEditMonitoringData(){
+    const { form } = this.props
+    const { setFieldsValue } = form
+    const { monitorTime } = this.state
     this.setState({
       editMonitoringData: false,
     })
+    setFieldsValue({'monitoringDataTime': monitorTime})
   }
 
   saveEditMonitoringData(){
     const { cleanMonitor, form } = this.props
-    const { monitorBtnLoading } = this.state
+    const { setFieldsValue } = form
+    const { monitorBtnLoading, monitorTime } = this.state
     const validateArray = ['monitoringDataTime']
     form.validateFields(validateArray, (errors, values) => {
       if(!!errors){
@@ -276,6 +296,7 @@ class CleaningTool extends Component {
               editMonitoringData: false,
               monitorBtnLoading: false
             })
+            this.getMonitorSetting()
           },
           isAsync: true
         },
@@ -285,6 +306,7 @@ class CleaningTool extends Component {
               editMonitoringData: false,
               monitorBtnLoading: false
             })
+            setFieldsValue({'monitoringDataTime': monitorTime})
           }
         }
       })
@@ -617,7 +639,7 @@ class CleaningTool extends Component {
           name:'最近清除',
           type:'bar',
           barWidth: '40px',
-          data:[systemLogs && systemLogs.length && systemLogs[0].total]
+          data:[systemLogs && systemLogs.length && systemLogs[0].total || 0]
         }
       ]
     };
@@ -906,5 +928,6 @@ export default connect(mapStateToProp, {
   getCleanLogs,
   cleanSystemLogs,
   cleanMonitor,
-  getSystemCleanLogs
+  getSystemCleanLogs,
+  getMonitorSetting
 })(CleaningTool)

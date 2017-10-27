@@ -342,7 +342,7 @@ class CleaningRecord extends Component {
     const { cleanLogsFlush, userName } = this.props
     let notify = new Notification()
     confirm({
-      title: '删除清理记录后无法恢复，确定删除？',
+      title: '清空清理记录后无法恢复，确定删除？',
       onOk: () => {
         notify.spin('删除清理记录中')
         cleanLogsFlush({
@@ -551,7 +551,7 @@ class CleaningRecord extends Component {
                 className="deleteBtn"
                 onClick={this.showDeleteModal.bind(this)}
               >
-                <i className="fa fa-trash-o"/> 删 除
+                <i className="fa fa-trash-o"/> 清 空
               </Button>
               <Pagination {...pagination}/>
               <div className='totle_num'>共计 <span>{totalCount}</span> 条</div>

@@ -86,3 +86,10 @@ exports.deleteCleanLogs = function*(){
   const systemResult = yield api.cleaner.deleteBy(['systemlog','records'])
   this.body = systemResult
 }
+
+exports.getMonitorSetting = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.cleaner.getBy(['monitor'], null)
+  this.body = result
+}

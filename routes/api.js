@@ -73,11 +73,11 @@ module.exports = function (Router) {
   // router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
   router.get('/storage-pools/:cluster/volumes/available', volumeController.getAvailableVolume)
   router.get('/storage-pools/:cluster/volumes/pool-status', volumeController.getPoolStatus)
-  router.get('/storage-pools/:cluster/volumes/snapshot/list', volumeController.listSnapshots)
-  router.post('/storage-pools/:cluster/volumes/snapshot/delete', volumeController.deleteSnapshot)
-  router.post('/storage-pools/:cluster/volumes/:name/snapshot', volumeController.createSnapshot)
-  router.post('/storage-pools/:cluster/volumes/:name/snapshot/rollback', volumeController.rollbackSnapshot)
-  router.post('/storage-pools/:cluster/volumes/:name/snapshot/clone', volumeController.cloneSnapshot)
+  router.get('/storage-pools/:cluster/volumes/snapshots', volumeController.listSnapshots)
+  router.post('/storage-pools/:cluster/volumes/snapshots/batch-delete', volumeController.deleteSnapshot)
+  router.post('/storage-pools/:cluster/volumes/:name/snapshots', volumeController.createSnapshot)
+  router.post('/storage-pools/:cluster/volumes/:name/snapshots/rollback', volumeController.rollbackSnapshot)
+  router.post('/storage-pools/:cluster/volumes/:name/snapshots/clone', volumeController.cloneSnapshot)
   router.get('/storage-pools/:cluster/volumes/calamari-url', volumeController.getCalamariUrl)
   router.post('/storage-pools/:cluster/volumes/calamari-url', volumeController.setCalamariUrl)
   // project
@@ -485,8 +485,13 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster/:node/metrics', clusternodesController.getClustersMetrics)
   router.get('/cluster-nodes/:cluster/:node/instant', clusternodesController.getClustersInstant)
   router.get('/cluster-nodes/:cluster/label-summary', clusternodesController.getLabelSummary)
+<<<<<<< HEAD
   router.get('/cluster-nodes/:cluster/:node/:type', clusternodesController.getClustersTypeMetrics)
 
+=======
+  router.get('/cluster-nodes/:cluster/:node/metrics/:type', clusternodesController.getClustersTypeMetrics)
+
+>>>>>>> upstream/dev-branch
   // manipulate node's labels
   router.get('/cluster-nodes/:cluster/:node/labels', clusternodesController.getNodeLabels)
   router.put('/cluster-nodes/:cluster/:node/labels', clusternodesController.updateNodeLabels)
@@ -653,6 +658,7 @@ module.exports = function (Router) {
   router.post('/cleaner/records', cleanController.getSystemCleanerLogs)
   router.post('/cleaner/cron', cleanController.deleteLogsAutoClean)
   router.post('/cleanlogs/flush', cleanController.deleteCleanLogs)
+  router.get('/cleaner/monitor', cleanController.getMonitorSetting)
 
   return router.routes()
 }

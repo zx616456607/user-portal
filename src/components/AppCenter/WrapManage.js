@@ -31,7 +31,7 @@ const notificat = new NotificationHandler()
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 // file type
 const wrapType = ['.jar','.war','.tar','.tar.gz','.zip']
-const wrapTypelist = ['jar','war','tar','tar.gz','zip']
+const wrapTypelist = ['jar','war']
 
 class UploadModal extends Component {
   constructor(props) {
@@ -79,7 +79,7 @@ class UploadModal extends Component {
         this.setState({fileCallback:fileCallback})
         return
       }
-      let isType = values.protocolUrl.match(/\.(jar|war|tar|tar.gz|zip)$/)
+      let isType = values.protocolUrl.match(/\.(jar|war)$/)
       if (!isType) {
         notificat.error('上传文件地址格式错误', '支持：'+ wrapTypelist.join('、')+'文件格式')
         return
@@ -235,7 +235,7 @@ class UploadModal extends Component {
         return callback(`请以ftp协议开头，如：${protocol}://www.demo.com/app.jar`)
       }
     }
-    let fileType = value.match(/\.(jar|war|tar|tar.gz|zip)$/)
+    let fileType = value.match(/\.(jar|war)$/)
     if (!fileType) {
       return callback(`文件格式错误，如：${protocol}://www.demo.com/app.jar`)
     }
@@ -284,7 +284,7 @@ class UploadModal extends Component {
         // let fileType = 'war'
         let isType = false
 
-        isType = file.name.match(/\.(jar|war|tar|tar.gz|zip)$/)
+        isType = file.name.match(/\.(jar|war)$/)
 
         if (!isType) {
           notificat.error('上传文件格式错误', '支持：'+ wrapTypelist.join('、')+'文件格式')
@@ -356,7 +356,7 @@ class UploadModal extends Component {
               <div className="dragger">
                 <Dragger {...selfProps}>
                   拖动文件到这里以上传，或点击 <a>选择文件</a>
-                  <div style={{color:'#999'}}>支持上传 jar/war/tar/tar.gz/zip 格式包文件，建议包文件小于300M</div>
+                  <div style={{color:'#999'}}>支持上传 jar、war 格式包文件，建议包文件小于300M</div>
                   {uploadFile ? <div>文件名称：{uploadFile}</div>: null}
                 </Dragger>
               </div>
