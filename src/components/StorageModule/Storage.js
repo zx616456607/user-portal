@@ -17,7 +17,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
 import findIndex from 'lodash/findIndex'
-import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage, SnapshotCreate, SnapshotList, searchStorage } from '../../actions/storage'
+import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage, SnapshotCreate, searchStorage } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
 import './style/storage.less'
 import { calcuDate, parseAmount, formatDate } from '../../common/tools'
@@ -314,7 +314,7 @@ let MyComponent = React.createClass({
     }
   },
   handleConfirmCreateSnapshot(){
-    const { form, SnapshotCreate, cluster, SnapshotList } = this.props
+    const { form, SnapshotCreate, cluster } = this.props
     const { volumeName } = this.state
     let Noti = new NotificationHandler()
     form.validateFields( (errors, values) => {
@@ -335,7 +335,6 @@ let MyComponent = React.createClass({
         success: {
           func: () => {
             Noti.success('创建快照成功！')
-            SnapshotList({clusterID: cluster})
             this.setState({
               createSnapModal: false,
               confirmCreateSnapshotLoading: false,
@@ -802,7 +801,6 @@ class Storage extends Component {
   }
   componentWillMount() {
     this.getStorageList()
-    this.props.SnapshotList({clusterID: this.props.cluster})
   }
   onChange(value) {
     this.setState({
@@ -889,7 +887,6 @@ class Storage extends Component {
   }
   refreshstorage() {
     this.getStorageList()
-    this.props.SnapshotList({clusterID: this.props.cluster})
     this.setState({
       volumeArray: [],
       disableListArray: [],
@@ -1132,7 +1129,6 @@ class Storage extends Component {
               isFetching={this.props.storageList[this.props.currentImagePool].isFetching}
               SnapshotCreate={SnapshotCreate}
               snapshotDataList={snapshotDataList}
-              SnapshotList={SnapshotList}
               delModal={this.state.delModal}
             />
           </div>
@@ -1182,7 +1178,6 @@ export default connect(mapStateToProps, {
   createStorage,
   loadStorageList,
   SnapshotCreate,
-  SnapshotList,
   searchStorage,
 })(injectIntl(Storage, {
   withRef: true,
