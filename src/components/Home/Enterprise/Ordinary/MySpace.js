@@ -1109,6 +1109,10 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.TeamUsers',
     defaultMessage: '团队用户',
   },
+  TeamMembers: {
+    id: 'ManageMonitor.operationalAudit.TeamMembers',
+    defaultMessage: '团队成员',
+  },
   TeamSpaces: {
     id: 'ManageMonitor.operationalAudit.TeamSpaces',
     defaultMessage: '团队空间',
@@ -1245,6 +1249,38 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.baseImage',
     defaultMessage: '基础镜像',
   },
+  TransferTeam: {
+    id: 'ManageMonitor.operationalAudit.TransferTeam',
+    defaultMessage: '移交团队'
+  },
+  env: {
+    id: 'ManageMonitor.operationalAudit.env',
+    defaultMessage: '项目'
+  },
+  ProjectRoles: {
+    id: 'ManageMonitor.operationalAudit.ProjectRoles',
+    defaultMessage: '项目角色'
+  },
+  Member: {
+    id: 'ManageMonitor.operationalAudit.Member',
+    defaultMessage: '成员'
+  },
+  AddMember: {
+    id: 'ManageMonitor.operationalAudit.AddMember',
+    defaultMessage: '添加成员'
+  },
+  DeleteMember: {
+    id: 'ManageMonitor.operationalAudit.DeleteMember',
+    defaultMessage: '移除成员'
+  },
+  Enable: {
+    id: 'ManageMonitor.operationalAudit.Enable',
+    defaultMessage: '启用'
+  },
+  Disable: {
+    id: 'ManageMonitor.operationalAudit.Disable',
+    defaultMessage: '停用'
+  }
 });
 
 function duringTimeFormat(time, scope) {
@@ -1367,7 +1403,7 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.VolumeConsumption)
       break;
     case '29':
-      return formatMessage(menusText.User)
+      return formatMessage(menusText.Member)
       break;
     case '30':
       return formatMessage(menusText.UserTeams)
@@ -1379,7 +1415,7 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.Team)
       break;
     case '33':
-      return formatMessage(menusText.TeamUsers)
+      return formatMessage(menusText.TeamMembers)
       break;
     case '34':
       return formatMessage(menusText.TeamSpaces)
@@ -1440,6 +1476,12 @@ function resourceFormat(resourceType, scope) {
       break;
     case '53':
       return formatMessage(menusText.Labels)
+      break;
+    case '55':
+      return formatMessage(menusText.env)
+      break;
+    case '59':
+      return formatMessage(menusText.ProjectRoles)
       break;
 
     // For CI related
@@ -1535,6 +1577,16 @@ function operationalFormat(operationalType, scope) {
     case '26':
       return formatMessage(menusText.Clone)
       break;
+    case '27':
+      return formatMessage(menusText.TransferTeam)
+    case '28':
+      return formatMessage(menusText.Enable)
+    case '29':
+      return formatMessage(menusText.Disable)
+    case '30':
+      return formatMessage(menusText.AddMember)
+    case '31':
+      return formatMessage(menusText.DeleteMember)
     case '0':
       return formatMessage(menusText.Unknown)
       break;

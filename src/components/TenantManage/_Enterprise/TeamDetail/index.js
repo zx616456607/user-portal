@@ -245,9 +245,7 @@ let MemberList = React.createClass({
         filters: [
           { text: '普通成员', value: 'role__neq,2' },
           { text: '系统管理员', value: 'role__eq,2' },
-        ],
-        filteredValue: filteredInfo.globalStyle,
-        onFilter: (value, record) => String(record.globalStyle) === value,
+        ]
       },
       {
         title: '我是团队的',
