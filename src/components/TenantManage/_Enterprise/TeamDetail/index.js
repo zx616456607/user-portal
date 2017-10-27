@@ -152,32 +152,30 @@ let MemberList = React.createClass({
     scope.setState({ current })
   },
   onTableChange(pagination, filters, sorter) {
+    const { loadTeamUserList, teamID, scope } = this.props
+    let { sortUser, userPageSize } = this.state
     // 点击分页、筛选、排序时触发
-    if (!filters.globalStyle) {
-      return
-    }
-    let styleFilterStr = filters.globalStyle.toString()
-    if (styleFilterStr === this.styleFilter) {
-      return
-    }
-    const { loadTeamUserList, teamID } = this.props
-    let { sortUser, userPageSize, userPage } = this.state
     const query = {
-      page: userPage,
+      page: pagination.current,
       size: userPageSize,
       sort: sortUser,
     }
-    // let filter
-    // if (filters.globalStyle.length === 1) {
-    //   filter = `role,${filters.globalStyle[0]}`
-    //   query.filter = filter
-    // }
+    let filter
+    if (filters.globalStyle) {
+      if (filters.globalStyle.length === 1) {
+        filter = `${filters.globalStyle[0]}`
+        query.filter = filter
+      }
+    }
     this.setState({
-      // filter,
-      filteredInfo: filters
+      filter,
+      filteredInfo: filters,
+      userPage: pagination.current
+    })
+    scope.setState({ 
+      current: pagination.current 
     })
     loadTeamUserList(teamID, query)
-    this.styleFilter = styleFilterStr
   },
   removeMember(e,record) {
     e.stopPropagation()
@@ -206,8 +204,6 @@ let MemberList = React.createClass({
       defaultCurrent: 1,
       current: scope.state.current,
       pageSizeOptions: ['5', '10', '15', '20'],
-      onShowSizeChange: this.onShowSizeChange,
-      onChange: this.onChange,
     }
     const columns = [
       {
@@ -247,8 +243,8 @@ let MemberList = React.createClass({
         key: 'globalStyle',
         width: '20%',
         filters: [
-          { text: '普通成员', value: '普通成员' },
-          { text: '系统管理员', value: '系统管理员' },
+          { text: '普通成员', value: 'role__neq,2' },
+          { text: '系统管理员', value: 'role__eq,2' },
         ],
         filteredValue: filteredInfo.globalStyle,
         onFilter: (value, record) => String(record.globalStyle) === value,
