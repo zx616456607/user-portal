@@ -312,9 +312,9 @@ class TerminalModal extends Component {
         size='small'>
         {
           list.map((item, index) => {
-            const { terminalStatus, metadata, spec } = item
+            const { terminalStatus, metadata } = item
             const { name, namespace } = metadata
-            const { containers } = spec
+            const { containers } = item.spec || {}
             const container = containers && containers[0] && containers[0].name
             const titleTab = (
               <div className="action-header">
