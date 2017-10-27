@@ -200,6 +200,7 @@ class WrapManage extends Component {
               <div className="template_list">
                 {this.templateList()}
               </div>
+              <div className="wrap_hint"><Icon type="exclamation-circle-o"/> 设置 JAVA_OPTS：在下一步『配置服务』页面，配置环境变量中修改 JAVA_OPTS 键对应的值</div>
             </div>
             <div className="list_row">
               <span className="wrap_key">选择版本</span>
@@ -232,6 +233,7 @@ class WrapManage extends Component {
                 <div className="template_list">
                   {this.templateList()}
                 </div>
+                <div className="wrap_hint"><Icon type="exclamation-circle-o"/> 设置 JAVA_OPTS：在下一步『配置服务』页面，配置环境变量中修改 JAVA_OPTS 键对应的值</div>
               </div>
               <div className="list_row">
                 <span className="wrap_key">选择版本</span>

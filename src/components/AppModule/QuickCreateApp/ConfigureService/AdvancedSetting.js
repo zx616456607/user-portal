@@ -151,10 +151,10 @@ const AdvancedSetting = React.createClass({
         <Row className="configBoxHeader" key="header">
           <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
-            <span className="title">高级设置</span>
+            <span className="title">环境变量</span>
           </Col>
           <Col span={formItemLayout.wrapperCol.span} key="right">
-            <div className="desc">在高级设置里，您可以修改环境变量配置</div>
+            <div className="desc">您可以在这里修改环境变量配置</div>
           </Col>
         </Row>
       </div>
