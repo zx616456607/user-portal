@@ -416,9 +416,16 @@ let ContainerCatalogueModal = React.createClass({
           </Option>
         )
       } else {
+        let disabled = false
+        selectedVolumes.forEach(item => {
+          if(item.indexOf(name) > -1){
+            disabled = true
+          }
+        })
         options.push(
           <Option
             key={value}
+            disabled={disabled}
           >
             {name}
           </Option>
