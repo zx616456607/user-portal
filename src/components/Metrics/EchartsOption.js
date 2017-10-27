@@ -46,7 +46,7 @@ class EchartsOption {
       name: '',
       type: 'category',
       boundaryGap: false,
-      axisLine: { onZero: false },
+      axisLine: { onZero: true },
       splitLine: {
         show: true,
         lineStyle: {
