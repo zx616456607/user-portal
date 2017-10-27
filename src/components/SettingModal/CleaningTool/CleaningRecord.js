@@ -311,6 +311,9 @@ class CleaningRecord extends Component {
     this.getSystemLogs('searchBtnLoading')
   }
   renderExpand(record) {
+    const { getFieldValue } = this.props.form
+    const logType = getFieldValue('target')
+    const isCicd = logType === 'cicd_clean'
     const colorOpt = {
       success: 'green',
       failed: 'red',
@@ -318,10 +321,14 @@ class CleaningRecord extends Component {
       timeout: '#fab163'
     }
     let nodeArr = []
-    record.detail.forEach(item => {
-      item.nodes && nodeArr.push(Object.values(item.nodes))
-    })
-    nodeArr = flattenDeep(nodeArr)
+    if (isCicd) {
+      record.detail.forEach(item => {
+        item.nodes && nodeArr.push(Object.values(item.nodes))
+      })
+      nodeArr = flattenDeep(nodeArr)
+    } else {
+      nodeArr = record.detail
+    }
     return(
       <Timeline>
         {
@@ -330,7 +337,13 @@ class CleaningRecord extends Component {
               <Row className="nodeItem">
                 <Col span={8}>{item.name}</Col>
                 <Col span={8}>{this.formatStatus(item.status)}</Col>
-                <Col span={8}>{`已清理：${((item.total - item.remain) / (1024 * 1024)).toFixed(2)}MB`}</Col>
+                {
+                  isCicd ? 
+                    <Col span={8}>{`已清理：${((item.total - item.remain) / (1024 * 1024)).toFixed(2)}MB`}</Col>
+                    :
+                    <Col span={8}>{`已清理：${item.total}个文件`}</Col>
+                }
+                
               </Row>
             </Timeline.Item>
           ) 
@@ -562,7 +575,7 @@ class CleaningRecord extends Component {
                 loading={tableLoading}
                 dataSource={cleanLogs}
                 columns={columns}
-                expandedRowRender={(target === 'cicd_clean') && (record => record.detail && record.detail.length && this.renderExpand(record))}
+                expandedRowRender={(record => record.detail && record.detail.length && this.renderExpand(record))}
                 pagination={false}
                 rowKey={record => record.id}
               />
