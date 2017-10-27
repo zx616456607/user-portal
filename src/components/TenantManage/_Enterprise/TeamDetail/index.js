@@ -976,7 +976,7 @@ class TeamDetail extends Component {
                         onRowClick={(record)=>this.leaderRowClick(record)}
                       />
                     </Modal>
-                    <Modal title="编辑团队成员"
+                    <Modal title="管理团队成员"
                        visible={this.state.addMember}
                        onOk={this.handleNewMemberOk}
                        onCancel={this.handleNewMemberCancel}
