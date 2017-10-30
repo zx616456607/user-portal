@@ -400,7 +400,8 @@ class WrapManage extends Component {
     }
   }
   getList = (e)=> {
-    const inputValue = this.refs.wrapSearch.refs.input.value
+    const value = this.refs.wrapSearch.refs.input.value
+    const inputValue = value.trim()
     if (!e || inputValue == '') {
       this.loadData()
       return
