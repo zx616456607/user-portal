@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, Tooltip, Spin, Popover, Menu } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, Tooltip, Spin, Popover, Menu, Alert } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { camelize } from 'humps'
@@ -20,7 +20,7 @@ import { appNameCheck } from '../../../../../common/naming_validation'
 import DockerFileEditor from '../../../../Editor/DockerFile'
 import ShellEditor from '../../../../Editor/Shell'
 import { updateTenxFlowState, getDockerfiles, setDockerfile, getAvailableImage, updateTenxFlow, getTenxFlowDetail, createScripts, updateScriptsById, getScriptsById } from '../../../../../actions/cicd_flow'
-import { loadProjectList } from '../../../../../actions/harbor'
+import { loadProjectList, loadRepositoriesTagConfigInfo } from '../../../../../actions/harbor'
 import './style/EditTenxFlowModal.less'
 import findIndex from 'lodash/findIndex'
 import EnvComponent from './CreateEnvComponent.js'
@@ -266,6 +266,13 @@ let EditTenxFlowModal = React.createClass({
   getInitialState: function () {
     const { config } = this.props
     const scriptsId = config.spec.container.scriptsId
+    const args = config.spec.container.args
+    let shellCodeType = 'default'
+    if (scriptsId) {
+      shellCodeType = 'scripts'
+    } else if (args && args.length > 0) {
+      shellCodeType = 'cmd'
+    }
     const cachedVolume = config.spec.container.cachedVolume
     const cachedVolumes = []
     if (cachedVolume) {
@@ -292,7 +299,7 @@ let EditTenxFlowModal = React.createClass({
       disabledBranchTag: false,
       isFirstChangeTag: true,
       isFirstChangeDockerfileType: true,
-      shellCodeType: (scriptsId ? 'scripts' : 'cmd'),
+      shellCodeType,
       shellModalShow: false,
       scriptsId,
       scriptsTextarea: '',
@@ -303,6 +310,7 @@ let EditTenxFlowModal = React.createClass({
       noShell: false,
       cachedVolumes,
       addCachedVolumeModal: false,
+      shellDefaultCmd: [],
     }
   },
   componentWillMount() {
@@ -359,6 +367,30 @@ let EditTenxFlowModal = React.createClass({
       }
     })
     loadProjectList(DEFAULT_REGISTRY, { page_size: 100 })
+    this.loadBaseImageConfig(config.spec.container.image)
+  },
+  loadBaseImageConfig(imageNameAndTag) {
+    let [ imageName, tag ] = imageNameAndTag.split(':')
+    tag = tag || 'latest'
+    const { loadRepositoriesTagConfigInfo } = this.props
+    loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY, imageName, tag, {
+      success: {
+        func: res => {
+          console.log('res', res)
+          this.setState({
+            shellDefaultCmd: res.data.cmd || [],
+          })
+        }
+      },
+      failed: {
+        func: res => {
+          console.log('res', res)
+          this.setState({
+            shellDefaultCmd: [],
+          })
+        }
+      },
+    })
   },
   componentDidMount() {
     uuid = 0;
@@ -1121,7 +1153,7 @@ let EditTenxFlowModal = React.createClass({
           notification.error('使用脚本命令，内容不能为空，请先填写脚本命令')
           return
         }
-      } else {
+      } else if (_this.state.shellCodeType == 'scripts') {
         if (this.state.otherFlowType != 3 && (!_this.state.scriptsId || _this.state.scriptsId === '')) {
           this.setState({
             noShell: true,
@@ -1370,6 +1402,10 @@ let EditTenxFlowModal = React.createClass({
     setFieldsValue({
       imageName: key
     })
+    // if is not build image
+    if (groupKey != 3) {
+      this.loadBaseImageConfig(key)
+    }
     if(!oldImageName) {
       this.flowTypeChange(groupKey, false)
       return
@@ -1871,7 +1907,7 @@ let EditTenxFlowModal = React.createClass({
             </div>
             <div style={{ clear: 'both' }} />
           </div>}
-          {this.props.isBuildImage ? '' : <div className='commonBox'>
+          {(this.props.isBuildImage || this.state.otherFlowType == 3) ? '' : <div className='commonBox'>
             <div className='title'>
               <span><FormattedMessage {...menusText.servicesTitle} /></span>
             </div>
@@ -1887,7 +1923,7 @@ let EditTenxFlowModal = React.createClass({
             </div>
             <div style={{ clear: 'both' }} />
           </div>}
-          {this.props.isBuildImage ? '' :<div className='commonBox'>
+          {(this.props.isBuildImage || this.state.otherFlowType == 3) ? '' :<div className='commonBox'>
             <div className='title'>
               <span><FormattedMessage {...menusText.shellCode} /></span>
             </div>
@@ -1897,37 +1933,47 @@ let EditTenxFlowModal = React.createClass({
                 disabled={this.state.otherFlowType == 3}
                 onChange={e => this.setState({ shellCodeType: e.target.value })}
               >
+                <Radio value="default" key="default">镜像命令</Radio>
                 <Radio value="scripts" key="scripts">使用脚本文件</Radio>
-                <Radio value="cmd" key="cmd">使用命令</Radio>
+                <Radio value="cmd" key="cmd">定制命令</Radio>
               </RadioGroup>
             </div>
             <div style={{ clear: 'both' }} />
             <div className='title'>
             </div>
             <div className='input shellCode'>
-            {
-              this.state.shellCodeType === 'scripts'
-              ? (
-                <Button
-                  size="large"
-                  disabled={this.state.otherFlowType == 3}
-                  type={(this.state.scriptsId) ? 'primary' : 'ghost'}
-                  onClick={() => {
-                    this.setState({
-                      shellModalShow: true,
-                      scriptsTextarea: this.state.scriptsTextarea || '#!/bin/sh\n\n',
-                    })
-                  }}
-                >
-                  {
-                    !this.state.scriptsId
-                    ? '使用脚本文件'
-                    : '编辑脚本文件'
-                  }
-                </Button>
-              )
-              : <div>{shellCodeItems}</div>
-            }
+              {
+                this.state.shellCodeType === 'default' && (
+                  <div className="shellDefaultCmd">
+                    <Alert message={this.state.shellDefaultCmd.join(' ') || '无'} type="success" />
+                  </div>
+                )
+              }
+              {
+                this.state.shellCodeType === 'scripts'
+                && (
+                  <Button
+                    size="large"
+                    disabled={this.state.otherFlowType == 3}
+                    type={(this.state.scriptsId) ? 'primary' : 'ghost'}
+                    onClick={() => {
+                      this.setState({
+                        shellModalShow: true,
+                        scriptsTextarea: this.state.scriptsTextarea || '#!/bin/sh\n\n',
+                      })
+                    }}
+                  >
+                    {
+                      !this.state.scriptsId
+                      ? '使用脚本文件'
+                      : '编辑脚本文件'
+                    }
+                  </Button>
+                )
+              }
+              <div className={this.state.shellCodeType === 'cmd' ? '' : 'hide'}>
+                {shellCodeItems}
+              </div>
             </div>
             <div style={{ clear: 'both' }} />
             {
@@ -2383,6 +2429,7 @@ export default connect(mapStateToProps, {
   createScripts,
   updateScriptsById,
   getScriptsById,
+  loadRepositoriesTagConfigInfo,
 })(injectIntl(EditTenxFlowModal, {
   withRef: true,
 }));
