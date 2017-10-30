@@ -808,7 +808,7 @@ class ServiceList extends Component {
       },
       failed: {
         func: (err) => {
-          errorHandler(err, intl)
+          //errorHandler(err, intl)
           self.loadServices(self.props)
         },
         isAsync: true
