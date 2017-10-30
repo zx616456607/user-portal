@@ -18,6 +18,7 @@ import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constant
 import { loadUserDetail, loadUserList, updateUser, loadUserAppInfo } from '../../../actions/user'
 import Title from '../../Title'
 import UserProjectsAndTeams from './UserProjectsAndTeams'
+import QueueAnim from 'rc-queue-anim'
 
 class UserInfo extends Component {
   constructor(props) {
@@ -45,7 +46,8 @@ class UserInfo extends Component {
       memberFlag = true;
     }
     return (
-      <div id="UserInfos">
+      <QueueAnim>
+      <div id="UserInfos" key='UserInfos'>
 
         <Title title={userID ? '成员管理' : '我的帐户'} />
         <Row className="content">
@@ -83,6 +85,7 @@ class UserInfo extends Component {
           </Card>
         </Row>
       </div>
+      </QueueAnim>
     )
   }
 }

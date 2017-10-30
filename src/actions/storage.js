@@ -36,8 +36,24 @@ export function loadStorageList(pool, cluster, query, callback) {
   }
 }
 
+export const STORAGE_INFO_REQUEST = 'STORAGE_INFO_REQUEST'
+export const STORAGE_INFO_SUCCESS = 'STORAGE_INFO_SUCCESS'
+export const STORAGE_INFO_FAILURE = 'STORAGE_INFO_FAILURE'
+
+export function fetchStorage(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/overview/clusters/${query.cluster}/volumestats`
+  return {
+    [FETCH_API]: {
+      types: [STORAGE_INFO_REQUEST, STORAGE_INFO_SUCCESS, STORAGE_INFO_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback,
+  }
+}
+
 export const SEARCH_STORAGE = 'SEARCH_STORAGE'
-export function searchStorage(keyword, storageType){
+export function searchStorage(keyword, storageType) {
   return {
     type: SEARCH_STORAGE,
     keyword,
@@ -258,7 +274,7 @@ export const STORAGE_GETVOLUMEBIND_FAILURE = 'STORAGE_GETVOLUMEBIND_FAILURE'
 
 export function getVolumeBindInfo(cluster, volumeName, query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/volumes/${volumeName}/bindinfo`
-  if(query){
+  if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
   return {
@@ -381,26 +397,26 @@ export const SNAPSHOT_CREATE_FAILURE = 'SNAPSHOT_CREATE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchSnapshotCreate(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/${body.volumeName}/snapshots`
-	return {
-		[FETCH_API]: {
-			types: [SNAPSHOT_CREATE_REQUEST,SNAPSHOT_CREATE_SUCCESS, SNAPSHOT_CREATE_FAILURE],
-			endpoint,
-			schema: {},
-			options: {
-				method: 'POST',
-				body: body.body
-			},
-		},
-		callback
-	}
+  let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/${body.volumeName}/snapshots`
+  return {
+    [FETCH_API]: {
+      types: [SNAPSHOT_CREATE_REQUEST, SNAPSHOT_CREATE_SUCCESS, SNAPSHOT_CREATE_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: body.body
+      },
+    },
+    callback
+  }
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
 export function SnapshotCreate(body, callback) {
-	return (dispatch) => {
-		return dispatch(fetchSnapshotCreate(body, callback))
-	}
+  return (dispatch) => {
+    return dispatch(fetchSnapshotCreate(body, callback))
+  }
 }
 
 export const SNAPSHOT_DELETE_REQUEST = 'SNAPSHOT_DELETE_REQUEST'
@@ -410,26 +426,26 @@ export const SNAPSHOT_DELETE_FAILURE = 'SNAPSHOT_DELETE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchSnapshotDelete(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/snapshots/batch-delete`
-	return {
-		[FETCH_API]: {
-			types: [SNAPSHOT_DELETE_REQUEST,SNAPSHOT_DELETE_SUCCESS, SNAPSHOT_DELETE_FAILURE],
-			endpoint,
-			schema: {},
-			options: {
-				method: 'POST',
-				body: body.body
-			},
-		},
-		callback
-	}
+  let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/snapshots/batch-delete`
+  return {
+    [FETCH_API]: {
+      types: [SNAPSHOT_DELETE_REQUEST, SNAPSHOT_DELETE_SUCCESS, SNAPSHOT_DELETE_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: body.body
+      },
+    },
+    callback
+  }
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
 export function SnapshotDelete(body, callback) {
-	return (dispatch) => {
-		return dispatch(fetchSnapshotDelete(body, callback))
-	}
+  return (dispatch) => {
+    return dispatch(fetchSnapshotDelete(body, callback))
+  }
 }
 
 
@@ -440,26 +456,26 @@ export const SNAPSHOT_ROLLBACK_FAILURE = 'SNAPSHOT_ROLLBACK_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchSnapshotRollback(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/${body.volumeName}/snapshots/rollback`
-	return {
-		[FETCH_API]: {
-			types: [SNAPSHOT_ROLLBACK_REQUEST,SNAPSHOT_ROLLBACK_SUCCESS, SNAPSHOT_ROLLBACK_FAILURE],
-			endpoint,
-			schema: {},
-			options: {
-				method: 'POST',
-				body: body.body
-			},
-		},
-		callback
-	}
+  let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/${body.volumeName}/snapshots/rollback`
+  return {
+    [FETCH_API]: {
+      types: [SNAPSHOT_ROLLBACK_REQUEST, SNAPSHOT_ROLLBACK_SUCCESS, SNAPSHOT_ROLLBACK_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: body.body
+      },
+    },
+    callback
+  }
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
 export function SnapshotRollback(body, callback) {
-	return (dispatch) => {
-		return dispatch(fetchSnapshotRollback(body, callback))
-	}
+  return (dispatch) => {
+    return dispatch(fetchSnapshotRollback(body, callback))
+  }
 }
 
 export const SNAPSHOT_LIST_REQUEST = 'SNAPSHOT_LIST_REQUEST'
@@ -468,25 +484,25 @@ export const SNAPSHOT_LIST_FAILURE = 'SNAPSHOT_LIST_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchSnapshotList(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/snapshots`
-	return {
-		[FETCH_API]: {
-			types: [SNAPSHOT_LIST_REQUEST,SNAPSHOT_LIST_SUCCESS, SNAPSHOT_LIST_FAILURE],
-			endpoint,
-			schema: {},
-			options: {
-				method: 'GET'
-			},
-		},
-		callback
-	}
+  let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/snapshots`
+  return {
+    [FETCH_API]: {
+      types: [SNAPSHOT_LIST_REQUEST, SNAPSHOT_LIST_SUCCESS, SNAPSHOT_LIST_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'GET'
+      },
+    },
+    callback
+  }
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
 export function SnapshotList(body, callback) {
-	return (dispatch) => {
-		return dispatch(fetchSnapshotList(body, callback))
-	}
+  return (dispatch) => {
+    return dispatch(fetchSnapshotList(body, callback))
+  }
 }
 
 
@@ -496,25 +512,25 @@ export const CALAMARI_URL_FAILURE = 'CALAMARI_URL_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchCalamariUrl(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/calamari-url`
-	return {
-		[FETCH_API]: {
-			types: [CALAMARI_URL_REQUEST,CALAMARI_URL_SUCCESS, CALAMARI_URL_FAILURE],
-			endpoint,
-			schema: {},
-			options: {
-				method: 'GET'
-			},
-		},
-		callback
-	}
+  let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/calamari-url`
+  return {
+    [FETCH_API]: {
+      types: [CALAMARI_URL_REQUEST, CALAMARI_URL_SUCCESS, CALAMARI_URL_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'GET'
+      },
+    },
+    callback
+  }
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
 export function GetCalamariUrl(body, callback) {
-	return (dispatch) => {
-		return dispatch(fetchCalamariUrl(body, callback))
-	}
+  return (dispatch) => {
+    return dispatch(fetchCalamariUrl(body, callback))
+  }
 }
 
 export const CALAMARI_SET_REQUEST = 'CALAMARI_SET_REQUEST'
@@ -523,26 +539,26 @@ export const CALAMARI_SET_FAILURE = 'CALAMARI_SET_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchCalamariSet(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/calamari-url`
-	return {
-		[FETCH_API]: {
-			types: [CALAMARI_SET_REQUEST,CALAMARI_SET_SUCCESS, CALAMARI_SET_FAILURE],
-			endpoint,
-			schema: {},
-			options: {
-				body: body,
-				method: 'POST'
-			},
-		},
-		callback
-	}
+  let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/calamari-url`
+  return {
+    [FETCH_API]: {
+      types: [CALAMARI_SET_REQUEST, CALAMARI_SET_SUCCESS, CALAMARI_SET_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        body: body,
+        method: 'POST'
+      },
+    },
+    callback
+  }
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
 export function SetCalamariUrl(body, callback) {
-	return (dispatch) => {
-		return dispatch(fetchCalamariSet(body, callback))
-	}
+  return (dispatch) => {
+    return dispatch(fetchCalamariSet(body, callback))
+  }
 }
 
 export const SNAPSHOT_CLONE_REQUEST = 'SNAPSHOT_CLONE_REQUEST'
@@ -551,26 +567,26 @@ export const SNAPSHOT_CLONE_FAILURE = 'SNAPSHOT_CLONE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchSnapshotClone(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/${body.volumeName}/snapshots/clone`
-	return {
-		[FETCH_API]: {
-			types: [SNAPSHOT_CLONE_REQUEST,SNAPSHOT_CLONE_SUCCESS, SNAPSHOT_CLONE_FAILURE],
-			endpoint,
-			schema: {},
-			options: {
-				method: 'POST',
-				body: body.body
-			},
-		},
-		callback
-	}
+  let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/${body.volumeName}/snapshots/clone`
+  return {
+    [FETCH_API]: {
+      types: [SNAPSHOT_CLONE_REQUEST, SNAPSHOT_CLONE_SUCCESS, SNAPSHOT_CLONE_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: body.body
+      },
+    },
+    callback
+  }
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
 export function SnapshotClone(body, callback) {
-	return (dispatch) => {
-		return dispatch(fetchSnapshotClone(body, callback))
-	}
+  return (dispatch) => {
+    return dispatch(fetchSnapshotClone(body, callback))
+  }
 }
 
 export const GET_STORAGE_CLASS_TYPE_REQUEST = 'GET_STORAGE_CLASS_TYPE_REQUEST'
@@ -591,7 +607,7 @@ function fetchGetClusterStorageClassType(cluster, callback) {
   }
 }
 
-export function getStorageClassType(cluster, callback){
+export function getStorageClassType(cluster, callback) {
   return (dispatch) => {
     return dispatch(fetchGetClusterStorageClassType(cluster, callback))
   }

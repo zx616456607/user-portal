@@ -71,7 +71,7 @@ class CachedVolumes extends React.Component {
     const { volumes, isFetching } = this.props
     let { searchValue } = this.state
     searchValue = searchValue && searchValue.trim() || ''
-    const data = volumes.filter(v => v.volumeName.indexOf(searchValue) > -1)
+    const data = volumes.filter(v => !v.volumeName || v.volumeName.indexOf(searchValue) > -1)
     const columns = [{
       title: '缓存卷',
       dataIndex: 'volumeName',

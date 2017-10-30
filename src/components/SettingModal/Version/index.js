@@ -11,6 +11,7 @@ import React, { Component } from 'react'
 import { Row, Col, Card, Icon, } from 'antd'
 import './style/Version.less'
 import Title from '../../Title'
+import QueueAnim from 'rc-queue-anim'
 
 export default class Version extends Component{
   constructor(props){
@@ -21,7 +22,8 @@ export default class Version extends Component{
   }
   render(){
     return (
-      <div id='Version'>
+      <QueueAnim>
+      <div id='Version' key='Version'>
         <Title title="平台版本" />
         <Row className="title">
           <Col>平台版本</Col>
@@ -133,6 +135,7 @@ export default class Version extends Component{
           </Card>
         </Row>
       </div>
+      </QueueAnim>
     )
   }
 }

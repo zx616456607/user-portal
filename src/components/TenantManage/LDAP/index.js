@@ -18,6 +18,7 @@ import ArrowImg from '../../../assets/img/account/arrow.png'
 import LDAPImg from '../../../assets/img/account/ldap.png'
 import './style/LDAP.less'
 import Title from '../../Title'
+import QueueAnim from 'rc-queue-anim'
 
 const FormItem = Form.Item
 const notification = new Notification()
@@ -336,7 +337,8 @@ class LDAP extends Component {
       initialValue: 'cn',
     })
     return (
-      <div id="account_ldap">
+      <QueueAnim>
+      <div id="account_ldap" key='account_ldap'>
         <div className='alertRow'>
         通过配置以下信息可将企业用户目录信息同步到该平台。所有接入的成员都默认是普通成员，同步到平台后，可修改成员类型（系统管理员、普通成员）或设置相应的权限；*为必填字段，其他为选填字段。
         </div>
@@ -510,6 +512,7 @@ class LDAP extends Component {
            </div>
          </Modal>
       </div>
+      </QueueAnim>
     )
   }
 }

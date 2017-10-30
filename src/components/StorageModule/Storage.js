@@ -18,7 +18,7 @@ import { connect } from 'react-redux'
 import remove from 'lodash/remove'
 import findIndex from 'lodash/findIndex'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage, SnapshotCreate, searchStorage } from '../../actions/storage'
-import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
+import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP, UPDATE_INTERVAL } from '../../constants'
 import './style/storage.less'
 import { calcuDate, parseAmount, formatDate } from '../../common/tools'
 import { volNameCheck } from '../../common/naming_validation'
@@ -276,7 +276,25 @@ let MyComponent = React.createClass({
       },100)
       return
     }
-    if (type === 'format') {
+    if(e.key && e.key == 'resize'){
+      if(item.isUsed){
+        this.setState({
+          tipsModal: true,
+          dilation: false,
+        })
+        return
+      }
+      this.setState({
+        visible: true,
+        modalType: 'resize',
+        modalName: item.name,
+        modalSize: item.totalSize,
+        size: item.totalSize,
+        modalTitle: '扩容'
+      });
+      return
+    }
+    if (e.key && e.key == 'format') {
       if(item.isUsed){
         this.setState({
           tipsModal: true,
@@ -295,22 +313,6 @@ let MyComponent = React.createClass({
       this.setState({
         modalTitle: '格式化'
       })
-    } else {
-      if(item.isUsed){
-        this.setState({
-          tipsModal: true,
-          dilation: false,
-        })
-        return
-      }
-      this.setState({
-        visible: true,
-        modalType: type,
-        modalName: item.name,
-        modalSize: item.totalSize,
-        size: item.totalSize,
-        modalTitle: '扩容'
-      });
     }
   },
   handleConfirmCreateSnapshot(){
@@ -483,8 +485,9 @@ let MyComponent = React.createClass({
           onClick={(e) => { this.showAction(e, 'format', item) } }
           style={{ width: '80px' }}
         >
-          <Menu.Item key="createSnapshot">创建快照</Menu.Item>
-          <Menu.Item key="format"><FormattedMessage {...messages.formatting} /></Menu.Item>
+          <Menu.Item key='resize' disabled={item.status == 'pending'}><FormattedMessage {...messages.dilation} /></Menu.Item>
+          <Menu.Item key="createSnapshot" disabled={item.status == 'pending'}>创建快照</Menu.Item>
+          <Menu.Item key="format" disabled={item.status == 'pending'}><FormattedMessage {...messages.formatting} /></Menu.Item>
         </Menu>
       })
     }
@@ -566,16 +569,16 @@ let MyComponent = React.createClass({
         render: (text, record, index) => <Dropdown.Button
           overlay={menus[index]}
           type='ghost'
-          onClick={(e) => { this.showAction(e, 'resize', record) } }
+          onClick={() => browserHistory.push(`/app_manage/storage/exclusiveMemory/${this.props.imagePool}/${this.props.cluster}/${record.name}`)}
           key="dilation"
         >
-          <FormattedMessage {...messages.dilation} />
+          查看
         </Dropdown.Button>
       }
     ]
     const rowSelection = {
       getCheckboxProps: record => ({
-        disabled: record.status === "used",
+        disabled: record.status === "used" || record.status === 'pending',
       }),
       selectedRowKeys,
       onChange: this.onSelectChange,
@@ -801,6 +804,16 @@ class Storage extends Component {
   }
   componentWillMount() {
     this.getStorageList()
+  }
+
+  componentDidMount() {
+    this.loadInterval = setInterval(() => {
+      this.getStorageList()
+    }, UPDATE_INTERVAL)
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.loadInterval)
   }
   onChange(value) {
     this.setState({

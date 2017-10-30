@@ -324,7 +324,8 @@ let CreateDatabase = React.createClass({
     </Option>]
     if(!isFetching){
       option = cephList.map((item, index) => {
-        return <Option key={`list${index}`} value={item.metadata.name}>{item.metadata.name}</Option>
+        let name = item.metadata.annotations[`tenxcloud.com/scName`] || item.metadata.name
+        return <Option key={`list${index}`} value={item.metadata.name}>{name}</Option>
       })
     }
     return option

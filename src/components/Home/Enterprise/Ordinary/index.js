@@ -27,7 +27,7 @@ import homeEtcd from '../../../../assets/img/homeEtcdCluster.png'
 import snapshot from '../../../../assets/img/snapshot.png'
 import { Link } from 'react-router'
 import { AVATAR_HOST, SHOW_BILLING, REG, DEFAULT_IMAGE_POOL } from '../../../../constants'
-import { loadStorageList } from '../../../../actions/storage'
+import { fetchStorage } from '../../../../actions/storage'
 import { getClusterQuota, getClusterQuotaList } from '../../../../actions/quota'
 
 const RadioButton = Radio.Button
@@ -163,6 +163,7 @@ class Ordinary extends Component {
       storageCount: 0,
       memoryCount: 0,
       hostCount: 0,
+      publicCount: 0,
     }
   }
 
@@ -187,54 +188,30 @@ class Ordinary extends Component {
   }
 
   storageList(){
-    const { loadStorageList, clusterID } = this.props
-    let storageQuery = {
-      storagetype: 'ceph',
-      srtype: 'private'
+    const { fetchStorage, clusterID } = this.props
+    let query = {
+      cluster: clusterID
     }
-    let memoryQuery = {
-      storagetype: 'nfs',
-      srtype: 'share'
-    }
-    let hostQuery = {
-      storagetype: 'host',
-      srtype: 'host'
-    }
-    loadStorageList(DEFAULT_IMAGE_POOL, clusterID, storageQuery, {
+
+    fetchStorage(query, {
       success: {
         func: res => {
           if(res.code === 200){
             this.setState({
-              storageCount: res.data === null ? 0 : res.data.length
+              hostCount: res.data.host,
+              publicCount: res.data.share,
+              memoryCount: res.data.private,
+              storageCount: res.data.snapshot
             })
           }
-        }
+        },
+        isAsync: true
       },
-      isAsync: true
-    })
-    loadStorageList(DEFAULT_IMAGE_POOL, clusterID, memoryQuery, {
-      success: {
-        func: res => {
-          if(res.code === 200){
-            this.setState({
-              memoryCount: res.data === null ? 0 : res.data.length
-            })
-          }
-        }
-      },
-      isAsync: true
-    })
-    loadStorageList(DEFAULT_IMAGE_POOL, clusterID, hostQuery, {
-      success: {
-        func: res => {
-          if(res.code === 200){
-            this.setState({
-              hostCount: res.data === null ? 0 : res.data.length
-            })
-          }
-        }
-      },
-      isAsync: true
+      failed: {
+        func: err => {
+        },
+        isAsync: true,
+      }
     })
   }
 
@@ -1514,13 +1491,13 @@ class Ordinary extends Component {
                   platformList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={8}>
+                        <Col span={9}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={8}>
+                        <Col span={7}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
-                        <Col span={6}>
+                        <Col span={7}>
                           {
                             this.useClusterCount(item.key) > this.maxClusterCount(item.key) ?
                               this.maxClusterCount(item.key) === -1 ?
@@ -1792,7 +1769,7 @@ class Ordinary extends Component {
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
                     <Col span={14}>共享型存储</Col>
-                    <Col span={8} style={{ textAlign: 'right' }}>{this.state.storageCount} 个</Col>
+                    <Col span={8} style={{ textAlign: 'right' }}>{this.state.publicCount} 个</Col>
                   </Row>
                   <Row className='storageInfItem'>
                     <Col span={14}>独享型存储</Col>
@@ -2418,7 +2395,7 @@ function mapStateToProp(state, props) {
 }
 
 export default connect(mapStateToProp, {
-  loadStorageList,
+  fetchStorage,
   getClusterQuota,
   getClusterQuotaList,
   loadClusterInfo,
