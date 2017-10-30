@@ -129,7 +129,7 @@ class AllPermissions extends React.Component{
 
     return(
       <QueueAnim className="AllPermissions">
-        <div id="AllPermissions">
+        <div id="AllPermissions" key='AllPermissions'>
           <Alert message={`项目权限是指平台上每个功能模块权限的细粒度划分，可以将若干个权限组合成一个角色，再在项目中添加相应的角色并关联对象（成员、团队成员）。`}
           type="info" />
         <div className="operationBox">

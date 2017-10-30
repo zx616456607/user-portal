@@ -17,6 +17,7 @@ import RechargeRecord from './RechargeRecord'
 import Title from '../../Title'
 import { loadUserList } from '../../../actions/user'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
+import QueueAnim from 'rc-queue-anim'
 
 const mode = require('../../../../configs/model').mode
 const standard = require('../../../../configs/constants').STANDARD_MODE
@@ -78,7 +79,8 @@ class CostCenter extends Component {
   render() {
     const { activeTabKey, allUsers } = this.state
     return (
-      <div id='CostCenter' style={{padding: '20px'}}>
+      <QueueAnim>
+      <div id='CostCenter' key='CostCenter_cost' style={{padding: '20px'}}>
         <Title title="费用中心" />
         <Tabs
           defaultActiveKey={DEFAULT_TAB}
@@ -93,6 +95,7 @@ class CostCenter extends Component {
           </TabPane>
         </Tabs>
       </div>
+      </QueueAnim>
     )
   }
 }
