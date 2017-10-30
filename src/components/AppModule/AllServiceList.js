@@ -808,7 +808,9 @@ class ServiceList extends Component {
       },
       failed: {
         func: (err) => {
-          //errorHandler(err, intl)
+          if(statusCode !== PAYMENT_REQUIRED_CODE){
+            errorHandler(err, intl)
+          }
           self.loadServices(self.props)
         },
         isAsync: true

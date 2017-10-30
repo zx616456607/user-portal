@@ -1387,7 +1387,7 @@ class QueryLog extends Component {
                   overlayClassName='filePop'
                 >
                   <div className={checkClass(this.state.filePopup, this.state.selectedFile)} >
-                    <span 
+                    <span
                       className='selectedSpan'
                       onClick={() => this.loadQueryLogFileList()}
                     >
@@ -1412,7 +1412,7 @@ class QueryLog extends Component {
               <Checkbox onChange={this.onChangeQueryType} checked={this.state.queryType} style={{ marginLeft: '29px', display: 'none' }}>
                 <FormattedMessage {...menusText.searchType} /></Checkbox>
               <Button className='searchBtn' size='large' type='primary' onClick={() => this.submitSearch()} style={{ marginLeft: '29px' }} disabled={!this.props.loggingEnabled}>
-                <i className='fa fa-wpforms'></i>
+                <i className='fa fa-wpforms'></i>&nbsp;&nbsp;
                 <FormattedMessage {...menusText.search} />
               </Button>
             </div>
