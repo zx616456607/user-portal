@@ -80,7 +80,6 @@ module.exports = function (Router) {
   router.post('/storage-pools/:cluster/volumes/:name/snapshots/clone', volumeController.cloneSnapshot)
   router.get('/storage-pools/:cluster/volumes/calamari-url', volumeController.getCalamariUrl)
   router.post('/storage-pools/:cluster/volumes/calamari-url', volumeController.setCalamariUrl)
-  router.get('/overview/clusters/:cluster/volumestats', volumeController.getVolumeStats)
   // project
   router.post('/projects',projectController.createProject)
   router.post('/projects/batch-delete',projectController.deleteProjects)
@@ -246,6 +245,7 @@ module.exports = function (Router) {
   router.get('/overview/clusters/:cluster_id/dbservices', overviewClusterController.getClusterDbServices)
   router.get('/overview/clusters/:cluster_id/nodesummary', overviewClusterController.getClusterNodeSummary)
   router.get('/overview/clusters/:cluster_id/summary', overviewClusterController.getClusterSummary)
+  router.get('/overview/clusters/:cluster_id/volumestats', overviewClusterController.getClusterStats)
 
   //Overview Space
   router.get('/overview/spaceinfo', overviewSpaceController.getSpaceOverview)

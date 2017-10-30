@@ -163,6 +163,7 @@ class Ordinary extends Component {
       storageCount: 0,
       memoryCount: 0,
       hostCount: 0,
+      publicCount: 0,
     }
   }
 
@@ -195,13 +196,12 @@ class Ordinary extends Component {
     fetchStorage(query, {
       success: {
         func: res => {
-          debugger
           if(res.code === 200){
             this.setState({
               hostCount: res.data.host,
-              storageCount: res.data.snapshot,
-              memoryCount: res.data.share,
-              storageCount: res.data.private
+              publicCount: res.data.share,
+              memoryCount: res.data.private,
+              storageCount: res.data.snapshot
             })
           }
         },
@@ -1769,7 +1769,7 @@ class Ordinary extends Component {
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
                     <Col span={14}>共享型存储</Col>
-                    <Col span={8} style={{ textAlign: 'right' }}>{this.state.storageCount} 个</Col>
+                    <Col span={8} style={{ textAlign: 'right' }}>{this.state.publicCount} 个</Col>
                   </Row>
                   <Row className='storageInfItem'>
                     <Col span={14}>独享型存储</Col>
