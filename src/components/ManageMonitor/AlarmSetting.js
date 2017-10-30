@@ -996,11 +996,11 @@ class AlarmSetting extends Component {
               创建
             </Button>
 
-            <Button size="large" type="ghost" disabled={!this.state.canStart} onClick={() => this.showStart()}><i className='fa fa-play' />启用</Button>
-            <Button size="large" type="ghost" disabled={!this.state.canStop} onClick={() => this.showStop()}><i className="fa fa-stop" />停用</Button>
-            <Button size="large" type="ghost" onClick={() => this.refreshPage()}><i className="fa fa-refresh" />刷新</Button>
-            <Button type="ghost" disabled={this.state.isDelete} onClick={()=> this.setState({deleteModal: true})} size="large"><i className='fa fa-trash-o' />删除</Button>
-            {/*<Button icon="edit" type="ghost" disabled={!canEdit} size="large" onClick={() => this.editSetting()} >修改</Button>*/}
+            <Button size="large" type="ghost" disabled={!this.state.canStart} onClick={() => this.showStart()}><i className='fa fa-play' />  启用</Button>
+            <Button size="large" type="ghost" disabled={!this.state.canStop} onClick={() => this.showStop()}><i className="fa fa-stop" />  停用</Button>
+            <Button size="large" type="ghost" onClick={() => this.refreshPage()}><i className="fa fa-refresh" />  刷新</Button>
+            <Button type="ghost" disabled={this.state.isDelete} onClick={()=> this.setState({deleteModal: true})} size="large"><i className='fa fa-trash-o' /> 删除</Button>
+            {/*<Button icon="edit" type="ghost" disabled={!canEdit} size="large" onClick={() => this.editSetting()} > 修改</Button>*/}
             <div className="inputGrop">
               <Input size="large" id="alarmSearch" placeholder="搜索" onChange={(e)=> this.setState({search:e.target.value.trim()})} onPressEnter={()=> this.handSearch()}/>
               <i className="fa fa-search" onClick={()=> this.handSearch()}/>

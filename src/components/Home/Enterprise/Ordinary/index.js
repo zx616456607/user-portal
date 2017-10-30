@@ -1491,13 +1491,13 @@ class Ordinary extends Component {
                   platformList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={8}>
+                        <Col span={9}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={8}>
+                        <Col span={7}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
-                        <Col span={6}>
+                        <Col span={7}>
                           {
                             this.useClusterCount(item.key) > this.maxClusterCount(item.key) ?
                               this.maxClusterCount(item.key) === -1 ?
