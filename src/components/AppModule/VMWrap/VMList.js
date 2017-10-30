@@ -379,6 +379,7 @@ class VMList extends React.Component {
     return (
       <QueueAnim>
         <div key="VMList" id="VMList">
+          <Title title="传统应用环境"/>
           <Row>
             <Button type='primary' size='large' className='addBtn' onClick={() => this.handleA()}>
               <i className='fa fa-plus' /> 添加传统环境

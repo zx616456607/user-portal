@@ -21,6 +21,7 @@ import CommonSearchInput from '../../CommonSearchInput'
 import AutoScaleModal from './AutoScaleModal'
 import classNames from 'classnames'
 import Notification from '../../Notification'
+import Title from '../../Title'
 
 class AutoScale extends React.Component {
   constructor() {
@@ -458,6 +459,7 @@ class AutoScale extends React.Component {
     )
     return(
       <QueueAnim>
+        <Title title="自动伸缩"/>
         <div className="AutoScale" key="AutoScale">
           <div className="alertRow">
             伸缩策略规定了自动伸缩触发条件，任意指标超过阈值都会触发扩展，所有指标都满足n-1个实例平均值低于阈值才会触发收缩，数据与k8s共通，可以在本平台或k8s管理伸缩策略
