@@ -1273,6 +1273,17 @@ let EditTenxFlowModal = React.createClass({
             notification.success('持续集成', '编辑成功');
           },
           isAsync: true
+        },
+        failed: {
+          func: err => {
+            if (err.statusCode === 409) {
+              if (err.message.message === 'The container path of cached volume should not be conflict with shared directory.') {
+                notification.error('保存失败', '缓存卷容器目录与共享文件目录冲突，请修改')
+                return
+              }
+            }
+            notification.error('保存失败', err.message.message)
+          }
         }
       })
     });
