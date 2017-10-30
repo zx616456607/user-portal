@@ -16,6 +16,7 @@ import RechargeRecord from './RechargeRecord'
 const mode = require('../../../../configs/model').mode
 const standard = require('../../../../configs/constants').STANDARD_MODE
 import Title from '../../Title'
+import QueueAnim from 'rc-queue-anim'
 
 const TabPane = Tabs.TabPane
 const DEFAULT_TAB = '#consumptions'
@@ -63,7 +64,8 @@ class CostCenter extends Component {
   render() {
     const { activeTabKey } = this.state
     return (
-      <div id='CostCenter'>
+      <QueueAnim>
+      <div id='CostCenter' key='CostCenter'>
         <Title title="费用中心" />
         <Tabs
           defaultActiveKey={DEFAULT_TAB}
@@ -78,6 +80,7 @@ class CostCenter extends Component {
           </TabPane>
         </Tabs>
       </div>
+      </QueueAnim>
     )
   }
 }

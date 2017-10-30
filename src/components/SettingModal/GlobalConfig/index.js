@@ -26,6 +26,7 @@ import { getPortalRealMode } from '../../../common/tools'
 import { LITE } from '../../../constants'
 import ConIntergration from './ContinueIntegration'
 import Title from '../../Title'
+import QueueAnim from 'rc-queue-anim'
 
 const FormItem = Form.Item
 const mode = getPortalRealMode
@@ -1573,7 +1574,8 @@ class GlobalConfig extends Component {
       )
     }
     return (
-      <div id="GlobalConfig">
+      <QueueAnim>
+      <div id="GlobalConfig" key='GlobalConfig'>
         <Title title="全局配置" />
         <Emaill sendEmailVerification={this.props.sendEmailVerification} setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
         <Msa
@@ -1608,6 +1610,7 @@ class GlobalConfig extends Component {
         <ConInter setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
         <Continue />
       </div>
+      </QueueAnim>
     )
   }
 }

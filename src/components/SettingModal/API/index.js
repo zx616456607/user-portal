@@ -13,6 +13,7 @@ import './style/API.less'
 import { connect } from 'react-redux'
 import { loadApiInfo } from '../../../actions/open_api'
 import Title from '../../Title'
+import QueueAnim from 'rc-queue-anim'
 
 class API extends Component{
   constructor(props){
@@ -41,7 +42,8 @@ class API extends Component{
     const {username, token} = this.props
     const { hidToken } = this.state
     return (
-      <div id='API'>
+      <QueueAnim>
+      <div id='API' key='API'>
         <Title title="开放 API" />
         <div className="title">开放 API</div>
         <Card className="API-body">
@@ -72,6 +74,7 @@ class API extends Component{
           </table>
         </Card>
       </div>
+      </QueueAnim>
     )
   }
 }

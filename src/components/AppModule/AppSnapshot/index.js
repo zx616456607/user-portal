@@ -23,6 +23,7 @@ import { Link } from 'react-router'
 import CreateVolume from '../../StorageModule/CreateVolume'
 import { browserHistory } from 'react-router'
 import { UPDATE_INTERVAL } from '../../../constants'
+import QueueAnim from 'rc-queue-anim'
 
 const notificationHandler = new NotificationHandler()
 
@@ -583,7 +584,8 @@ class Snapshot extends Component {
       onChange: this.onSelectChange,
     };
     return (
-      <div id="appmanage_snapshot">
+      <QueueAnim className='appmanage_snapshot' type='right'>
+      <div id="appmanage_snapshot" key='appmanage_snapshot'>
         <Title title="快照" />
         <div className='appmanage_snapshot_header'>
           <Button icon="delete" size='large' onClick={this.handleDeleteSnapshots} disabled={DeleteSnapshotButton}>删除</Button>
@@ -770,6 +772,7 @@ class Snapshot extends Component {
             </div>
           </Modal>
       </div>
+      </QueueAnim>
     )
   }
 }
