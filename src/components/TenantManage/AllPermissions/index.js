@@ -12,7 +12,7 @@ import { connect } from 'react-redux'
 import { Row, Table, Alert, Col, Form, Input, Button, Radio, Modal, InputNumber } from 'antd'
 import './style/AllPermissions.less'
 import {Permission, RetrievePermission} from  '../../../actions/permission'
-import CommonSearchInput from '../../../components/CommonSearchInput'
+import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
 
 class AllPermissions extends React.Component{
@@ -132,6 +132,7 @@ class AllPermissions extends React.Component{
         <div id="AllPermissions">
           <Alert message={`项目权限是指平台上每个功能模块权限的细粒度划分，可以将若干个权限组合成一个角色，再在项目中添加相应的角色并关联对象（成员、团队成员）。`}
           type="info" />
+          <Title title="项目权限"/>
         <div className="operationBox">
           {/*<div className='rightBox'>
                <div className='littleLeft'>

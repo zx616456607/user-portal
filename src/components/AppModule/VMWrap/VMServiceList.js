@@ -21,6 +21,7 @@ import { getVMserviceList, vmServiceDelete, serviceDeploy } from '../../../actio
 import { UPDATE_INTERVAL } from '../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import TenxStatus from '../../TenxStatus/index'
+import Title from '../../Title'
 
 class VMServiceList extends React.Component {
   constructor(props) {
@@ -226,6 +227,7 @@ class VMServiceList extends React.Component {
     return (
       <QueueAnim>
         <div key='vmServiceList' className="vmServiceList">
+          <Title title="传统应用"/>
           <div className="serviceListBtnBox">
             <Button type="primary" size="large" onClick={()=>browserHistory.push('/app_manage/vm_wrap/create')}><i className="fa fa-plus" /> 创建传统应用</Button>
             <Button size="large" className="refreshBtn" onClick={()=>this.pageAndSerch(null,1,true)}><i className='fa fa-refresh'/> 刷新</Button>
