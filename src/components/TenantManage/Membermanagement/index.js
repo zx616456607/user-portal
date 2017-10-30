@@ -820,6 +820,7 @@ class Membermanagement extends Component {
       <div id="Membermanagement" key='Membermanagement'>
         <Alert message={`成员是指公司内外共同协作使用平台的人，创建成员成功后该成员将有一个默认的个人的项目，可在项目中创建个人的资源。系统管理员有创建并管理所有成员（其他系统管理员、普通成员）的权限。`}
           type="info" />
+        <Title title="成员管理"/>
         <Row>
           {
             userDetail.role === ROLE_SYS_ADMIN &&
