@@ -26,7 +26,11 @@ function storageList(state = {}, action) {
   switch (action.type) {
     case ActionTypes.STORAGE_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [pool]: { isFetching: true }
+        [pool]: {
+          isFetching: state[`k8s-pool`] && state[`k8s-pool`].searchList ? false : true,
+          storageList: state[`k8s-pool`] && state[`k8s-pool`].storageList ? state[`k8s-pool`].storageList : [],
+          searchList: state[`k8s-pool`] && state[`k8s-pool`].searchList ? state[`k8s-pool`].searchList : [],
+        }
       })
     case ActionTypes.STORAGE_LIST_SUCCESS:
       return Object.assign({}, defaultState, {
