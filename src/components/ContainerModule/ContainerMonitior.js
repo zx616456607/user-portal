@@ -275,21 +275,21 @@ class ContainerMonitior extends Component {
       isFetching: false
     }
     if (allcontainermetrics.data.length) {
-      switchCpu ? showCpu = cpu : showCpu.data.push(allcontainermetrics.data[0].cpu)
-      switchMemory ? showMemory = memory : showMemory.data.push(allcontainermetrics.data[1].memory)
+      switchCpu ? showCpu = cpu : showCpu.data = allcontainermetrics.data[0].cpu
+      switchMemory ? showMemory = memory : showMemory.data = allcontainermetrics.data[1].memory
       if (switchNetwork) {
         showNetworkRec = networkReceived
         showNetworkTrans = networkTransmitted
       } else {
-        showNetworkTrans.data.push(allcontainermetrics.data[2].networkTrans)
-        showNetworkRec.data.push(allcontainermetrics.data[3].networkRec)
+        showNetworkTrans.data = allcontainermetrics.data[2].networkTrans
+        showNetworkRec.data = allcontainermetrics.data[3].networkRec
       }
       if (switchDisk) {
         showDiskReadIo = diskReadIo
         showDiskWriteIo = diskWriteIo
       } else {
-        showDiskReadIo.data.push(allcontainermetrics.data[4].diskReadIo)
-        showDiskWriteIo.data.push(allcontainermetrics.data[5].diskWriteIo)
+        showDiskReadIo.data = allcontainermetrics.data[4].diskReadIo
+        showDiskWriteIo.data = allcontainermetrics.data[5].diskWriteIo
       }
     }
     return (
