@@ -431,13 +431,13 @@ class Snapshot extends Component {
   }
 
   handleCloneSnapshot(key){
-    const { snapshotDataList, currentCluster } = this.props
-    const storage_type = currentCluster.storageTypes
+    const { snapshotDataList, currentCluster, storageClassType } = this.props
     //判断当前快照状态
     if(snapshotDataList[key].status !== 0){
       return this.statusModalInfo(snapshotDataList[key].status)
     }
-    if (!storage_type || storage_type.indexOf('rbd') < 0){
+    const { private: privateValue } = storageClassType
+    if(!privateValue){
       this.setState({
         createFalse: true,
       })
@@ -784,12 +784,21 @@ function mapStateToProps(state, props){
   for(let i = 0; i < snapshotDataList.length; i++){
     snapshotDataList[i].key = i
   }
+  let defaultStorageClassType = {
+    private: false,
+    share: false,
+    host: false,
+  }
+  if(cluster.storageClassType){
+    defaultStorageClassType = cluster.storageClassType
+  }
   return {
     storageList: state.storage.storageList || [],
     currentImagePool: DEFAULT_IMAGE_POOL,
     cluster: cluster.clusterID,
     snapshotDataList,
-    currentCluster: cluster
+    currentCluster: cluster,
+    storageClassType: defaultStorageClassType,
   }
 }
 
