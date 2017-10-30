@@ -147,9 +147,11 @@ export function getAppStatus(services) {
     availableReplicas: 0,
     unavailableReplicas: 0,
   }
+  let serviceTotalReplicas = 0
   services.map(service => {
     let serviceStatus = getServiceStatus(service)
-    let { availableReplicas, unavailableReplicas } = serviceStatus
+    let { availableReplicas, unavailableReplicas, replicas } = serviceStatus
+    serviceTotalReplicas += replicas
     if (availableReplicas > 0) {
       appStatus.availableReplicas++
     }
@@ -164,6 +166,9 @@ export function getAppStatus(services) {
     appStatus.phase = 'Stopped'
   } else if (availableReplicas > 0) {
     appStatus.phase = 'Running'
+    if (serviceTotalReplicas === 0) {
+      appStatus.phase = 'Stopping'
+    }
   } else {
     appStatus.phase = 'Unknown'
   }
