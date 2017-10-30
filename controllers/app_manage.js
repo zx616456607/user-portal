@@ -319,6 +319,13 @@ exports.getAppServices = function* () {
     service.deployment.spec.template.spec.containers.map((container) => {
       service.deployment.images.push(container.image)
     })
+    let annotations = service.deployment.spec.template.metadata.annotations
+    if (annotations && annotations.appPkgName && annotations.appPkgTag){
+       service.deployment["wrapper"] = {
+         "appPkgName":annotations.appPkgName,
+         "appPkgTag":annotations.appPkgTag
+       }
+    }
     portHelper.addPort(service.deployment, service.service, lbgroupSettings.data)
     service.deployment.volumeTypeList = service.volumeTypeList
     deployments.push(service.deployment)
