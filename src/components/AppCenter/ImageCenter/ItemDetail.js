@@ -100,7 +100,6 @@ class ItemDetail extends Component {
       this.currentUser = currentMember
     }
     const currentUserRole = currentMember[camelize('role_id')]
-    console.log('currentUserRole', currentUserRole)
     const tabPanels = [
       <TabPane tab="镜像仓库" key="repo">
         <CodeRepo registry={DEFAULT_REGISTRY} {...this.props} />
