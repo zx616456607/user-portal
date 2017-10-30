@@ -897,10 +897,8 @@ let CreateTenxFlowModal = React.createClass({
           status: values.cachedVolume ? 1 : 0,
           containerPath: cachedVolumeValues.containerPath,
           pvcName: cachedVolumeValues.pvcName,
-        }
-        if (!cachedVolumeValues.pvcName) {
-          cachedVolumeObj.volumeName = cachedVolumeValues.volumeName
-          cachedVolumeObj.volumeSize = cachedVolumeValues.volumeSize
+          volumeName: cachedVolumeValues.volumeName,
+          volumeSize: cachedVolumeValues.volumeSize,
         }
         body.spec.container.cachedVolume = cachedVolumeObj
       }
