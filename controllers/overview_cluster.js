@@ -260,3 +260,10 @@ exports.getClusterSummary = function* () {
   }
 }
 
+exports.getClusterStats = function* () {
+  const cluster_id = this.params.cluster_id
+  const api = apiFactory.getApi(this.session.loginUser)
+  const result = yield api.overview.getBy(["clusters", cluster_id, "volumestats"])
+  this.body = result
+}
+

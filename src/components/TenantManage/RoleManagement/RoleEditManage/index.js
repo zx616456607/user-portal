@@ -401,7 +401,13 @@ class CreateRoleModal extends React.Component {
         if(RowData.children){
           RowData.children.forEach((item, index) => {
             if(item.name.indexOf('查看') !== -1){
-              childrenKey.push(item.id)
+              if(item.children){
+                item.children.forEach((item, index) => {
+                  childrenKey.push(item.id)
+                })
+              } else {
+                childrenKey.push(item.id)
+              }
             }
           })
         }
