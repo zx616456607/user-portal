@@ -86,18 +86,20 @@ class ItemDetail extends Component {
     const { name } = projectDetail
     const members = projectMembers.list || []
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] == 1
+    let currentMember = {}
+    members.every(member => {
+      if (member.username === loginUser.userName) {
+        currentMember = member
+        return false
+      }
+      return true
+    })
     if (isAdmin) {
       this.currentUser = loginUser.harbor
     } else {
-      members.every(member => {
-        if (member.username === loginUser.userName) {
-          this.currentUser = member
-          return false
-        }
-        return true
-      })
+      this.currentUser = currentMember
     }
-    const currentUserRole = this.currentUser[camelize('role_id')]
+    const currentUserRole = currentMember[camelize('role_id')]
     const tabPanels = [
       <TabPane tab="镜像仓库" key="repo">
         <CodeRepo registry={DEFAULT_REGISTRY} {...this.props} />
@@ -133,7 +135,7 @@ class ItemDetail extends Component {
                 <span className="itemName">{name || ''}</span>
                 <span>{this.renderPublic(projectDetail.public)} </span>
                 {
-                  currentUserRole > 0 && [
+                  (currentUserRole > 0) && (
                     <span className="margin">|</span>,
                     <span className="role">
                       <span className="role-key">
@@ -141,7 +143,7 @@ class ItemDetail extends Component {
                       </span>
                       {this.renderRole(currentUserRole)}
                     </span>
-                  ]
+                  )
                 }
               </div>
               <br />
