@@ -312,7 +312,7 @@ exports.getAppServices = function* () {
   const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
 
   const services = result.data.services
-  console.log(services)
+
   let deployments = []
   services.map((service) => {
     service.deployment.images = []
