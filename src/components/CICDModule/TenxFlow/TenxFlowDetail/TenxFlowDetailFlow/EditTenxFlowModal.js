@@ -376,7 +376,6 @@ let EditTenxFlowModal = React.createClass({
     loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY, imageName, tag, {
       success: {
         func: res => {
-          console.log('res', res)
           this.setState({
             shellDefaultCmd: res.data.cmd || [],
           })
@@ -384,7 +383,6 @@ let EditTenxFlowModal = React.createClass({
       },
       failed: {
         func: res => {
-          console.log('res', res)
           this.setState({
             shellDefaultCmd: [],
           })
