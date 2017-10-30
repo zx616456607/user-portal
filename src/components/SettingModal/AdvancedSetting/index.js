@@ -19,6 +19,7 @@ import { loadLoginUserDetail } from '../../../actions/entities'
 import NotificationHandler from '../../../components/Notification'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import Title from '../../Title'
+import QueueAnim from 'rc-queue-anim'
 
 class AdvancedSetting extends Component {
   constructor(props){
@@ -462,7 +463,9 @@ class AdvancedSetting extends Component {
     let style = {
 
     }
-    return (<div id="AdvancedSetting">
+    return (
+      <QueueAnim>
+      <div id="AdvancedSetting" key='AdvancedSetting'>
       <Title title="高级设置" />
       <div className='title'>高级设置</div>
       <div className='content'>
@@ -625,7 +628,9 @@ class AdvancedSetting extends Component {
           </div>
         }
       </Modal>
-    </div>)
+    </div>
+      </QueueAnim>
+    )
   }
 }
 

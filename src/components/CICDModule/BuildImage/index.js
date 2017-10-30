@@ -760,7 +760,7 @@ class TenxFlowList extends Component {
     return (
       <QueueAnim className='BuildImageList' type='right'>
         <div id='TenxFlowList' key='TenxFlowList'>
-          <Title title="BuildImage" />
+          <Title title="构建镜像" />
           <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
           <div className='operaBox'>
             <Button className='createBtn' size='large' type='primary' onClick={this.openCreateTenxFlowModal}>

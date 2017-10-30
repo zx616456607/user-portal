@@ -57,17 +57,12 @@ class AutoScaleModal extends React.Component {
   }
 
   componentDidMount() {
-    const {loadAllServices, clusterID, loadNotifyGroups, scaleDetail} = this.props
-    loadAllServices(clusterID, {
-      pageIndex: 1,
-      pageSize: -1,
-    })
-    loadNotifyGroups(null, clusterID)
+    const {scaleDetail} = this.props
     this.initThresholdArr(scaleDetail)
   }
 
   componentWillReceiveProps(nextProps) {
-    const {visible: newVisible, scope, form, scaleDetail} = nextProps
+    const {visible: newVisible, scope, form, scaleDetail, loadAllServices, clusterID, loadNotifyGroups } = nextProps
     const {visible: oldVisible} = this.props
     if (oldVisible && !newVisible) {
       scope.setState({
@@ -88,6 +83,11 @@ class AutoScaleModal extends React.Component {
         document.getElementById('scale_strategy_name') && document.getElementById('scale_strategy_name').focus()
       }, 0)
       this.initThresholdArr(scaleDetail)
+      loadAllServices(clusterID, {
+        pageIndex: 1,
+        pageSize: -1,
+      })
+      loadNotifyGroups(null, clusterID)
     }
   }
   initThresholdArr = scaleDetail => {

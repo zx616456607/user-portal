@@ -372,6 +372,9 @@ class CleaningTool extends Component {
     const { activeKey, logsLoading, cleanLogs } = this.state
     let tailText = activeKey === 'systemLog' ? ' 个文件' : 'MB 垃圾'
     function formatTotal(total) {
+      if (!total) {
+        return 0
+      }
       if (activeKey === 'cache') {
         return (total / (1024 * 1024)).toFixed(2)
       }
@@ -397,7 +400,7 @@ class CleaningTool extends Component {
             return (
               <TimelineItem key={item.id} color={index === 0 ? 'green' : '#e9e9e9'}>
                 <Row className={classNames({'successColor': index === 0})}>
-                  <Col span={20}>{index === 0 ? `上次清理 ${formatTotal(item.total)}${tailText}` : `清理 ${formatTotal(item.total || 0)}${tailText}`}</Col>
+                  <Col span={20}>{index === 0 ? `上次清理 ${formatTotal(item.total)}${tailText}` : `清理 ${formatTotal(item.total)}${tailText}`}</Col>
                   <Col className="time_item" span={4}>{formatDate(item.createTime, 'MM-DD')}</Col>
                 </Row>
               </TimelineItem>
