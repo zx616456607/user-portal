@@ -268,18 +268,6 @@ class ServiceMonitior extends Component {
       }, UPDATE_INTERVAL);
     }
   }
-  formatMetrics(result) {
-    let opt = {}
-    if (result.data) {
-      opt = result.data
-    } else {
-      opt = result
-    }
-    // opt[0].metrics.forEach(item => {
-    //   item.timestamp = formatDate(item.timestamp)
-    // })
-    return opt
-  }
   render() {
     const { cpu, memory, networkReceived, networkTransmitted, diskReadIo, diskWriteIo, allServiceMetrics } = this.props
     const { intervalStatus, switchCpu, switchMemory, switchNetwork, switchDisk } = this.state
