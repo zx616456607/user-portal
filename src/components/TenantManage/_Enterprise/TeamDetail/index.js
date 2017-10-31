@@ -172,8 +172,8 @@ let MemberList = React.createClass({
       filteredInfo: filters,
       userPage: pagination.current
     })
-    scope.setState({ 
-      current: pagination.current 
+    scope.setState({
+      current: pagination.current
     })
     loadTeamUserList(teamID, query)
   },
@@ -455,7 +455,7 @@ class TeamDetail extends Component {
   handleChange(targetKeys) {
     const { originalLeader } = this.state
     let notify = new NotificationHandler()
-    if (!targetKeys.includes(originalLeader[0])) {
+    if (originalLeader[0] && !targetKeys.includes(originalLeader[0])) {
       notify.info('移除团队管理者前请先移交团队')
       return
     }
@@ -564,10 +564,10 @@ class TeamDetail extends Component {
     this.transferFunc()
   }
   transferFunc() {
-    const { teamID, teamtransfer, loadTeamUserList, loadTeamAllUser } = this.props;
+    const { teamID, teamtransfer, loadTeamUserList, loadTeamAllUser, loginUser } = this.props;
     const { selectLeader,  originalLeader } = this.state;
     let notify = new NotificationHandler()
-    teamtransfer(originalLeader, {
+    teamtransfer(originalLeader[0] || loginUser.userID, {
       userTeams: [{
         userID: selectLeader[0],
         teamID
@@ -1108,6 +1108,7 @@ function mapStateToProp(state, props) {
       }
     }
   }
+  const { loginUser } = state.entities
   return {
     teamID: team_id,
     teamName: team_name,
@@ -1121,7 +1122,8 @@ function mapStateToProp(state, props) {
     teamAllUserIDList,
     teamAllUserList,
     roleNum,
-    teamPage
+    teamPage,
+    loginUser: loginUser.info,
   }
 }
 export default connect(mapStateToProp, {
