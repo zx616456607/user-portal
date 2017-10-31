@@ -49,7 +49,6 @@ function formatAllMetrics(type ,state = {}, action) {
 }
 
 function forMatMetricsDate(data) {
-  console.log(data)
   return {
     data: [Object.assign({}, data, {
       metrics: data.metrics.map(item => {
