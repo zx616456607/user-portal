@@ -93,3 +93,10 @@ exports.getMonitorSetting = function* () {
   const result = yield api.cleaner.getBy(['monitor'], null)
   this.body = result
 }
+
+exports.getSystemLogStatus = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.cleaner.getBy(['systemlog', 'status'], null)
+  this.body = result
+}

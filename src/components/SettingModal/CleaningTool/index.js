@@ -20,7 +20,7 @@ import NotificationHandler from '../../../components/Notification'
 import ReactEcharts from 'echarts-for-react'
 import {
   startClean, getCleanLogs, cleanSystemLogs, cleanMonitor,
-  getSystemCleanLogs, getMonitorSetting
+  getSystemCleanLogs, getMonitorSetting, getSystemCleanStatus
 } from '../../../actions/clean'
 import { formatDate } from '../../../common/tools'
 import classNames from 'classnames'
@@ -932,5 +932,6 @@ export default connect(mapStateToProp, {
   cleanSystemLogs,
   cleanMonitor,
   getSystemCleanLogs,
-  getMonitorSetting
+  getMonitorSetting,
+  getSystemCleanStatus
 })(CleaningTool)
