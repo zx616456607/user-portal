@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Card, Spin, Dropdown, Icon, Menu, Button, Select, Input, Form, Modal } from 'antd'
+import { Card, Spin, Dropdown, Icon, Menu, Button, Select, Input, Form, Modal, Alert } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -717,6 +717,7 @@ class PortDetail extends Component {
     const { containerList, loading, currentCluster } = this.props
     return (
       <div id="PortDetail">
+        <Alert message='Tips:若该服务在访问方式中使用的网络出口没有在『基础设施』-『网络配置』中配置网络出口域名,则该服务的 http 协议无法正常使用' type="info" />
         <div className="titleBox">
           <div className="commonTitle">
             容器端口
