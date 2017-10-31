@@ -76,7 +76,8 @@ class ServiceMonitior extends Component {
       switchCpu: false,
       switchMemory: false,
       switchNetwork: false,
-      switchDisk: false
+      switchDisk: false,
+      currentStart: this.changeTime('1')
     }
   }
   
