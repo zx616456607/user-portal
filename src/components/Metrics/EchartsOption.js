@@ -11,6 +11,7 @@
 
 import ColorHash from 'color-hash'
 const colorHash = new ColorHash()
+import { formatDate } from "../../common/tools";
 
 class EchartsOption {
   constructor(text) {
@@ -52,6 +53,9 @@ class EchartsOption {
         lineStyle: {
           type: 'dashed'
         }
+      },
+      axisLabel: {
+        formatter: value => formatDate(value, 'MM-DD HH:mm:ss')
       },
       data: []
     }

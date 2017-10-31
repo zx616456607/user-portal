@@ -32,7 +32,7 @@ class CPU extends Component {
     const { cpu, scope } = this.props
     const { isFetching, data } = cpu
     const { switchCpu, freshTime, CpuLoading } = scope.state
-    let timeText = switchCpu ? '5秒钟' : freshTime
+    let timeText = switchCpu ? '10秒钟' : freshTime
     option.addYAxis('value', {
       formatter: '{value} %'
     })

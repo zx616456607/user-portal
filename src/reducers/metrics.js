@@ -10,7 +10,6 @@
 
 import * as ActionTypes from '../actions/metrics'
 import reducerFactory from './factory'
-import { formatDate } from '../common/tools'
 
 const option = {
   overwrite: true
@@ -28,11 +27,9 @@ function formatAllMetrics(type ,state = {}, action) {
         result: Object.assign({}, action.response.result, {
           data: action.response.result.data.map(item => {
             let key = Object.keys(item)[0]
-            return {[key]: [Object.assign({}, item[key][0], {
-              metrics: item[key] instanceof Array ? item[key][0] : item[key].metrics.map(res => {
-                return Object.assign({}, res, {
-                  timestamp: formatDate(res.timestamp, 'MM-DD HH:mm:ss')
-                })
+            return {[key]: [Object.assign({}, item[key], {
+              metrics: item[key].metrics.map(res => {
+                return res
               })
             })]}
           })
@@ -49,13 +46,10 @@ function formatAllMetrics(type ,state = {}, action) {
 }
 
 function forMatMetricsDate(data) {
-  console.log(data)
   return {
     data: [Object.assign({}, data, {
       metrics: data.metrics.map(item => {
-        return Object.assign({}, item, {
-          timestamp: formatDate(item.timestamp, 'MM-DD HH:mm:ss')
-        })
+        return item
       })
     })]
   }
@@ -105,13 +99,41 @@ export default function metrics(
       allcontainersmetrics: formatAllMetrics('GET_ALL_METRICS_CONTAINER' ,state.containers.allcontainersmetrics, action),
     },
     services: {
-      CPU: formatMetricsType('METRICS_SERVICE_CPU', state.services.CPU, action),
-      memory: formatMetricsType('METRICS_SERVICE_MEMORY', state.services.memory, action),
-      networkReceived: formatMetricsType('METRICS_SERVICE_NETWORK_RECEIVED', state.services.networkReceived, action),
-      networkTransmitted: formatMetricsType('METRICS_SERVICE_NETWORK_TRANSMITTED', state.services.networkTransmitted, action),
-      diskReadIo: formatMetricsType('METRICS_SERVICE_DISK_READ', state.services.diskReadIo, action),
-      diskWriteIo: formatMetricsType('METRICS_SERVICE_DISK_WRITE', state.services.diskWriteIo, action),
-      allservicesmetrics: formatAllMetrics('GET_ALL_METRICS_SERVICE' ,state.services.allservicesmetrics, action),
+      CPU: reducerFactory({
+        REQUEST: ActionTypes.METRICS_SERVICE_CPU_REQUEST,
+        SUCCESS: ActionTypes.METRICS_SERVICE_CPU_SUCCESS,
+        FAILURE: ActionTypes.METRICS_SERVICE_CPU_FAILURE
+      }, state.services.CPU, action, option),
+      memory: reducerFactory({
+        REQUEST: ActionTypes.METRICS_SERVICE_MEMORY_REQUEST,
+        SUCCESS: ActionTypes.METRICS_SERVICE_MEMORY_SUCCESS,
+        FAILURE: ActionTypes.METRICS_SERVICE_MEMORY_FAILURE
+      }, state.services.memory, action, option),
+      networkReceived: reducerFactory({
+        REQUEST: ActionTypes.METRICS_SERVICE_NETWORK_RECEIVED_REQUEST,
+        SUCCESS: ActionTypes.METRICS_SERVICE_NETWORK_RECEIVED_SUCCESS,
+        FAILURE: ActionTypes.METRICS_SERVICE_NETWORK_RECEIVED_FAILURE
+      }, state.services.networkReceived, action, option),
+      networkTransmitted: reducerFactory({
+        REQUEST: ActionTypes.METRICS_SERVICE_NETWORK_TRANSMITTED_REQUEST,
+        SUCCESS: ActionTypes.METRICS_SERVICE_NETWORK_TRANSMITTED_SUCCESS,
+        FAILURE: ActionTypes.METRICS_SERVICE_NETWORK_TRANSMITTED_FAILURE
+      }, state.services.networkTransmitted, action, option),
+      diskReadIo: reducerFactory({
+        REQUEST: ActionTypes.METRICS_SERVICE_DISK_READ_REQUEST,
+        SUCCESS: ActionTypes.METRICS_SERVICE_DISK_READ_SUCCESS,
+        FAILURE: ActionTypes.METRICS_SERVICE_DISK_READ_FAILURE
+      }, state.services.diskReadIo, action, option),
+      diskWriteIo: reducerFactory({
+        REQUEST: ActionTypes.METRICS_SERVICE_DISK_WRITE_REQUEST,
+        SUCCESS: ActionTypes.METRICS_SERVICE_DISK_WRITE_SUCCESS,
+        FAILURE: ActionTypes.METRICS_SERVICE_DISK_WRITE_FAILURE
+      }, state.services.diskWriteIo, action, option),
+      allservicesmetrics: reducerFactory({
+        REQUEST: ActionTypes.GET_ALL_METRICS_SERVICE_REQUEST,
+        SUCCESS: ActionTypes.GET_ALL_METRICS_SERVICE_SUCCESS,
+        FAILURE: ActionTypes.GET_ALL_METRICS_SERVICE_FAILURE
+      }, state.services.allservicesmetrics, action, option),
     },
     apps: {
       CPU: reducerFactory({
