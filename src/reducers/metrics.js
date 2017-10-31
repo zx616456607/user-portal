@@ -28,8 +28,8 @@ function formatAllMetrics(type ,state = {}, action) {
         result: Object.assign({}, action.response.result, {
           data: action.response.result.data.map(item => {
             let key = Object.keys(item)[0]
-            return {[key]: [Object.assign({}, item[key][0], {
-              metrics: item[key] instanceof Array ? item[key][0] : item[key].metrics.map(res => {
+            return {[key]: [Object.assign({}, item[key], {
+              metrics: item[key].metrics.map(res => {
                 return Object.assign({}, res, {
                   timestamp: formatDate(res.timestamp, 'MM-DD HH:mm:ss')
                 })
