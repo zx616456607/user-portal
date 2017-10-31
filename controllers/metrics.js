@@ -117,38 +117,32 @@ exports.getAllServiceMetrics = function* () {
   const user = this.session.loginUser
   const api = apiFactory.getK8sApi(user)
   const result = yield api.getBy([cluster, 'instances', 'services', serviceName, 'instances'])
-  const instances = result.data.instances || []
+  const instance = result.data.instances[0] || {}
   let promiseArray = [];
-  const promiseCpuArray = instances.map((instance) => {
-    query.type = METRICS_CPU
-    return _getContainerMetrics(user, cluster, instance, query)
-  })
+  query.type = METRICS_CPU
+  const promiseCpuArray = _getContainerMetrics(user, cluster, instance, query)
   promiseArray.push({cpu: promiseCpuArray})
-  const promiseMemoryArray = instances.map((instance) => {
-    query.type = METRICS_MEMORY
-    return _getContainerMetrics(user, cluster, instance, query)
-  })
+  
+  query.type = METRICS_MEMORY
+  const promiseMemoryArray = _getContainerMetrics(user, cluster, instance, query)
   promiseArray.push({memory: promiseMemoryArray})
-  const promiseNetworkTransmitArray = instances.map((instance) => {
-    query.type = METRICSS_NETWORK_TRANSMITTED
-    return _getContainerMetrics(user, cluster, instance, query)
-  })
+  
+  query.type = METRICSS_NETWORK_TRANSMITTED
+  const promiseNetworkTransmitArray = _getContainerMetrics(user, cluster, instance, query)
   promiseArray.push({networkTrans: promiseNetworkTransmitArray})
-  const promiseNetworkRecivceArray = instances.map((instance) => {
-    query.type = METRICS_NETWORK_RECEIVED
-    return _getContainerMetrics(user, cluster, instance, query)
-  })
+  
+  query.type = METRICS_NETWORK_RECEIVED
+  const promiseNetworkRecivceArray = _getContainerMetrics(user, cluster, instance, query)
   promiseArray.push({networkRec: promiseNetworkRecivceArray})
-  const promiseDiskReadIoArray = instances.map((instance) => {
-    query.type = METRICSS_DISK_READ
-    return _getContainerMetrics(user, cluster, instance, query)
-  })
+  
+  query.type = METRICSS_DISK_READ
+  const promiseDiskReadIoArray = _getContainerMetrics(user, cluster, instance, query)
   promiseArray.push({diskReadIo: promiseDiskReadIoArray})
-  const promiseDiskWriteIoArray = instances.map((instance) => {
-    query.type = METRICSS_DISK_WRITE
-    return _getContainerMetrics(user, cluster, instance, query)
-  })
+  
+  query.type = METRICSS_DISK_WRITE
+  const promiseDiskWriteIoArray = _getContainerMetrics(user, cluster, instance, query)
   promiseArray.push({diskWriteIo: promiseDiskWriteIoArray})
+  
   const results = yield promiseArray
   this.body = {
     cluster,
