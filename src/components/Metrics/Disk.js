@@ -31,7 +31,7 @@ class Disk extends Component {
     const option = new EchartsOption('磁盘')
     const { diskReadIo, diskWriteIo, events, scope } = this.props
     const { switchDisk, freshTime, DiskLoading } = scope.state
-    let timeText = switchDisk ? '5秒钟' : freshTime
+    let timeText = switchDisk ? '10秒钟' : freshTime
     option.addYAxis('value', {
       formatter: '{value} KB/s'
     })

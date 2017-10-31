@@ -149,6 +149,7 @@ exports.getAllServiceMetrics = function* () {
     return _getContainerMetrics(user, cluster, instance, query)
   })
   promiseArray.push({diskWriteIo: promiseDiskWriteIoArray})
+  
   const results = yield promiseArray
   this.body = {
     cluster,

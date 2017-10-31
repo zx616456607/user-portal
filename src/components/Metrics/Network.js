@@ -31,7 +31,7 @@ class Network extends Component {
     const option = new EchartsOption('网络')
     const { networkReceived, networkTransmitted ,events, scope } = this.props
     const { switchNetwork, freshTime, NetworkLoading } = scope.state
-    let timeText = switchNetwork ? '5秒钟' : freshTime
+    let timeText = switchNetwork ? '10秒钟' : freshTime
     option.addYAxis('value', {
       formatter: '{value} KB/s'
     })
@@ -63,7 +63,7 @@ class Network extends Component {
       option.setXAxisData(timeData)
       option.addSeries(values, `${item.containerName} 上传`)
     })
-    option.setGirdForDataNetWork(networkTransmitted.data && networkTransmitted.data.length + networkReceived.data.length, events)
+    option.setGirdForDataNetWork(networkTransmitted.data && networkTransmitted.data.length + networkReceived.data && networkReceived.data.length, events)
     return (
       <div className="chartBox">
         <span className="freshTime">

@@ -54,7 +54,7 @@ let FistStop = React.createClass({
     setTimeout(resetFields, 0)
   },
   fistStopName(rule, value, callback) {
-    let newValue = value.trim()
+    let newValue = value && value.trim()
     if (!Boolean(newValue)) {
       callback(new Error('请输入名称'));
       return
