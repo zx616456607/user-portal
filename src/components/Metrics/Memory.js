@@ -61,7 +61,7 @@ class Memory extends Component {
       }
       option.addSeries(dataArr, item.containerName)
     })
-    option.setXAxisMin(minValue)
+    option.setXAxisMinAndMax(minValue)
     option.setGirdForDataCommon(data&&data.length)
     return (
       <div className="chartBox">

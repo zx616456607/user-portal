@@ -83,8 +83,9 @@ class EchartsOption {
     this.xAxis = xAxis
   }
   
-  setXAxisMin(min) {
-    this.xAxis.min = min
+  setXAxisMinAndMax(min, max) {
+    min && (this.xAxis.min = min)
+    max && (this.xAxis.max = max)
   }
   
   setToolTipUnit(unit) {
@@ -95,12 +96,14 @@ class EchartsOption {
     this.xAxis.data = data
   }
 
-  addYAxis(type, axisLabel) {
+  addYAxis(type, axisLabel, min, max) {
     const yAxisItem = {
       type: 'value',
       axisLabel: {
         formatter: '{value} %'
       },
+      min,
+      max,
       splitLine: {
         lineStyle: {
           type: 'dashed'
@@ -112,6 +115,12 @@ class EchartsOption {
     }
     if (axisLabel) {
       yAxisItem.axisLabel = axisLabel
+    }
+    if (min) {
+      yAxisItem.min = min
+    }
+    if (max) {
+      yAxisItem.max = max
     }
     this.yAxis.push(yAxisItem)
   }

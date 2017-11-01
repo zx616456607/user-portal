@@ -32,16 +32,15 @@ class Disk extends Component {
     const { diskReadIo, diskWriteIo, events, scope } = this.props
     const { switchDisk, freshTime, DiskLoading, currentStart } = scope.state
     let timeText = switchDisk ? '10秒钟' : freshTime
-    option.addYAxis('value', {
-      formatter: '{value} KB/s'
-    })
     option.setToolTipUnit(' KB/s')
     let minValue = 'dataMin'
+    let isDataEmpty = false
     diskReadIo.data && diskReadIo.data.map((item) => {
       let dataArr = []
       const metrics = item && Array.isArray(item.metrics)
         ? item.metrics
         : []
+      isDataEmpty = metrics.length ? false : true
       metrics.map((metric) => {
         // metric.value || floatValue  only one
         dataArr.push([
@@ -66,7 +65,8 @@ class Disk extends Component {
       })
       option.addSeries(dataArr, `${item.containerName} 写入`)
     })
-    option.setXAxisMin(minValue)
+    isDataEmpty ? option.addYAxis('value', {formatter: '{value} KB/s'}, 0, 1000) : option.addYAxis('value', {formatter: '{value} KB/s'})
+    option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date().toLocaleString()))
     option.setGirdForDataNetWork(diskReadIo.data && diskReadIo.data.length + diskWriteIo.data.length, events)
     return (
       <div className="chartBox">
