@@ -25,6 +25,7 @@ class EchartsOption {
     this.toolbox = {
       show: false
     }
+    this.tooltipUnit = ''
     this.tooltip = {
       trigger: 'axis',
       formatter: (params) => {
@@ -34,7 +35,7 @@ class EchartsOption {
           name = name.split('-')
           name.splice(1, 1)
           name = name.join('-')
-          res += `${name} : ${item.data[1]}<br/>`
+          res += `${name} : ${item.data[1]}${this.tooltipUnit}<br/>`
         })
         return res
       },
@@ -84,6 +85,10 @@ class EchartsOption {
   
   setXAxisMin(min) {
     this.xAxis.min = min
+  }
+  
+  setToolTipUnit(unit) {
+    this.tooltipUnit = unit
   }
   
   setXAxisData(data) {

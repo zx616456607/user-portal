@@ -13,7 +13,7 @@
 import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
-import { Row, Col, Switch } from 'antd'
+import { Tooltip, Switch } from 'antd'
 
 function formatGrid(count) {
   //this fucntion for format grid css
@@ -35,6 +35,7 @@ class Disk extends Component {
     option.addYAxis('value', {
       formatter: '{value} KB/s'
     })
+    option.setToolTipUnit(' KB/s')
     let minValue = 'dataMin'
     diskReadIo.data && diskReadIo.data.map((item) => {
       let dataArr = []
@@ -72,7 +73,9 @@ class Disk extends Component {
         <span className="freshTime">
           {`时间间隔：${timeText}`}
         </span>
-        {/*<Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Disk')} checkedChildren="开" unCheckedChildren="关"/>*/}
+        {/*<Tooltip title="实时开关">*/}
+          {/*<Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Disk')} checkedChildren="开" unCheckedChildren="关"/>*/}
+        {/*</Tooltip>*/}
         <ReactEcharts
           style={{ height: formatGrid(diskReadIo.data && diskReadIo.data.length + diskWriteIo.data.length) }}
           notMerge={true}
