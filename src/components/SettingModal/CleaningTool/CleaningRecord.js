@@ -54,7 +54,7 @@ class CleaningRecord extends Component {
     this.getSystemLogs()
   }
   getCleanLogs(loading) {
-    const { currentPage, sort, startValue: start, endValue: end } = this.state
+    const { currentPage, sort, startValue, endValue } = this.state
     const { getCleanLogs, form } = this.props
     const { getFieldsValue } = form
     const { status, type } = getFieldsValue(['status', 'type'])
@@ -67,8 +67,8 @@ class CleaningRecord extends Component {
       sort,
       type: newType,
       status: newStatus,
-      start,
-      end,
+      start: formatDate(startValue),
+      end: formatDate(endValue),
       from: (currentPage - 1) * 10,
       size: 10,
     }, {
