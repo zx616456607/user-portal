@@ -1619,7 +1619,7 @@ class OperationalAudit extends Component {
     getOperationLogList(body, {
       success: {
         func: (res) => {
-          let totalNum = res.logs.count == 0 ? 1 : res.logs.count;
+          let totalNum = res.logs.count;
           _this.setState({
             from: 1,
             totalNum: totalNum
