@@ -595,7 +595,7 @@ class Snapshot extends Component {
           </span>
           {
             this.state.SnapshotList && this.state.SnapshotList.length !== 0
-              ? <span className='totalNum'>共计<span className='item'>{snapshotDataList.length}</span>条</span>
+              ? <span className='totalNum'>共计<span className='item'>{this.state.SnapshotList.length}</span>条</span>
               : <span></span>
           }
         </div>
