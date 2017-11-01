@@ -594,8 +594,8 @@ class Snapshot extends Component {
             <i className="fa fa-search searchIcon" aria-hidden="true" onClick={this.handelEnterSearch}></i>
           </span>
           {
-            snapshotDataList && snapshotDataList.length !== 0
-              ? <span className='totalNum'>共计<span className='item'>{snapshotDataList.length}</span>条</span>
+            this.state.SnapshotList && this.state.SnapshotList.length !== 0
+              ? <span className='totalNum'>共计<span className='item'>{this.state.SnapshotList.length}</span>条</span>
               : <span></span>
           }
         </div>

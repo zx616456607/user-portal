@@ -54,6 +54,7 @@ class RoleManagement extends React.Component {
       autoExpandParent: true,
       creationTime: true,
       total: 0,
+      current: 0,
     }
   }
 
@@ -84,7 +85,7 @@ class RoleManagement extends React.Component {
     let query = {
       from: page * 10,
       size: 10,
-      sort
+      sort,
     }
     ListRole(query, {
       success: {
@@ -94,7 +95,8 @@ class RoleManagement extends React.Component {
             this.setState({
               loading: false,
               roleData: data,
-              total: res.data.data.total
+              current: n === undefined ? 1 : n,
+              total: res.data.data.total,
             })
           }
         },
@@ -344,7 +346,9 @@ class RoleManagement extends React.Component {
    */
   handleSearch(data) {
     this.setState({
-      roleData: data ? data.items : []
+      roleData: data ? data.items : [],
+      total: data.total,
+      current: 1,
     })
   }
   handleSort() {
@@ -369,6 +373,7 @@ class RoleManagement extends React.Component {
       total: total,
       defaultPageSize: 10,
       defaultCurrent: 1,
+      current: this.state.current,
       onChange: (n) => this.loadData(null, n)
     };
     const columns = [{
@@ -498,7 +503,6 @@ class RoleManagement extends React.Component {
       return <TreeNode key={item.id} title={item.name} disableCheckbox />;
     })
     const scope = this
-
     return (
       <QueueAnim className="RoleManagement">
         <div id="RoleManagement" key='RoleManagement'>
@@ -518,10 +522,10 @@ class RoleManagement extends React.Component {
             </Button> */}
             </div>
             <SearchInput scope={scope} searchIntOption={searchIntOption} Search={this.handleSearch.bind(this)} />
-            <div className='pageBox'>
+            { roleData && roleData.length !== 0 && <div className='pageBox'>
               <span className='totalPage'>共计{total ? total : 0}条</span>
               <Pagination className="pag" {...pageOption} />
-            </div>
+            </div>}
           </div>
           <div className='appBox'>
             <Table

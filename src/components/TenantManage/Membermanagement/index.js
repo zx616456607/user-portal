@@ -879,7 +879,7 @@ class Membermanagement extends Component {
               可将该成员添加到某团队；或将该成员添加到某项目中，并授予角色。
             </div>
           </Modal>
-          <div className="total">共计 {this.props.total} 条&nbsp; </div>
+          { this.props.total !== 0 && <div className="total">共计 {this.props.total} 条&nbsp; </div>}
         </Row>
         <Row className="memberList">
           <Card className="memberlist">

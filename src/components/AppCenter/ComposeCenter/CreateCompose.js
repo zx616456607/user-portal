@@ -33,7 +33,7 @@ class CreateCompose extends Component {
     this.state = {
       composeType: 'stack',
       composeAttr: props.parentState.stackItem.isPublic === 1 ? true : false,
-      currentYaml: null
+      currentYaml: ''
     }
   }
 

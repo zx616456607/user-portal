@@ -803,7 +803,7 @@ class TeamManage extends Component {
               查看成员&团队图例
             </Button>
             <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams} />
-            <div className="total">共{this.props.total}个</div>
+            { this.props.total !== 0 && <div className="total">共{this.props.total}个</div>}
           </Row>
           <Row className="teamList">
             <Card>

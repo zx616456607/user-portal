@@ -566,8 +566,8 @@ class CleaningRecord extends Component {
               >
                 <i className="fa fa-trash-o"/> 清空所有记录
               </Button>
-              <Pagination {...pagination}/>
-              <div className='totle_num'>共计 <span>{totalCount}</span> 条</div>
+              { totalCount !== 0 && <Pagination {...pagination}/>}
+              { totalCount !== 0 && <div className='totle_num'>共计 <span>{totalCount}</span> 条</div>}
             </div>
             <div style={{clear: 'both'}}/>
             <div className='table_box'>
