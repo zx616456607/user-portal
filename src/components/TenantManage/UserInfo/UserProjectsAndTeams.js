@@ -458,9 +458,9 @@ class UserProjectsAndTeams extends React.Component {
                     </Button>
                   )
                 }
-                <div className="total">
+                { projects && projects.length !== 0 &&<div className="total">
                   共计 {projects.length} 条
-                </div>
+                </div>}
               </div>
               <div className="projectsContent">
                 <Table
@@ -490,9 +490,9 @@ class UserProjectsAndTeams extends React.Component {
                   <Input size='large' placeholder='搜索' onChange={this.handleSearchChange} />
                   <i className='fa fa-search' />
                 </span>
-                <div className="total">
+                { teams && teams.length !== 0 && <div className="total">
                   共计 {teams.length} 条
-                </div>
+                </div>}
               </div>
               <div className="teamsContent">
                 <Table

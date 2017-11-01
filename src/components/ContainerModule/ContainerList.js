@@ -869,7 +869,7 @@ class ContainerList extends Component {
                   onPressEnter={this.searchContainers} />
               </div>
             </div>
-            <div className='pageBox'>
+            { total !== 0 && <div className='pageBox'>
               <span className='totalPage'>共 {total}条</span>
               <div className='paginationBox'>
                 <Pagination
@@ -881,7 +881,7 @@ class ContainerList extends Component {
                   pageSize={size}
                   total={total} />
               </div>
-            </div>
+            </div>}
             <div className='clearDiv'></div>
           </div>
           <Modal title="重新分配操作" visible={this.state.Relocating}

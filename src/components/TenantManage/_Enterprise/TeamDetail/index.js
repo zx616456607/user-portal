@@ -940,7 +940,7 @@ class TeamDetail extends Component {
                       ]
                     }
                     <CommonSearchInput onSearch={this.loadTeamUser.bind(this)} size="large" placeholder="按成员名搜索"/>
-                    <div className="userTotalBox">共计 {teamUsersTotal} 条</div>
+                    { teamUsersTotal !== 0 && <div className="userTotalBox">共计 {teamUsersTotal} 条</div>}
                     <Modal title="移除成员操作" visible={this.state.delLeaderHint} okText={'去移交团队'}
                            onOk={()=> this.delBeforeTrans()} onCancel={()=> this.setState({delLeaderHint: false})}
                     >

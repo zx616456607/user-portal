@@ -1341,7 +1341,7 @@ class ServiceList extends Component {
                   onPressEnter={() => this.searchServices()} />
               </div>
             </div>
-            <div className='pageBox'>
+            { total !== 0 && <div className='pageBox'>
               <span className='totalPage'>共 {total}条</span>
               <div className='paginationBox'>
                 <Pagination
@@ -1353,7 +1353,7 @@ class ServiceList extends Component {
                   pageSize={size}
                   total={total} />
               </div>
-            </div>
+            </div>}
             <div style={{ clear: 'both' }}></div>
           </div>
 
@@ -1395,7 +1395,7 @@ class ServiceList extends Component {
                   onPressEnter={() => this.searchServices()} />
               </div>
             </div>
-            <div className='pageBox'>
+            { total !== 0 && <div className='pageBox'>
               <span className='totalPage'>共 {total}条</span>
               <div className='paginationBox'>
                 <Pagination
@@ -1407,7 +1407,7 @@ class ServiceList extends Component {
                   pageSize={size}
                   total={total} />
               </div>
-            </div>
+            </div>}
             <div style={{ clear: 'both' }}></div>
           </div>
 

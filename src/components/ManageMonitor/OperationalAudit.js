@@ -1509,7 +1509,6 @@ class OperationalAudit extends Component {
       case '53':
         showOperationalList.push(operationalList[0]);
         showOperationalList.push(operationalList[2]);
-        showOperationalList.push(operationalList[24]);
         break;
       case '54':
         showOperationalList.push(operationalList[0]);
@@ -1858,7 +1857,7 @@ class OperationalAudit extends Component {
             <Button type="primary" size="large" className='refresh' onClick={this.refreshLogs}>
               刷新
             </Button>
-            <div className='bottomBox'>
+            { this.state.totalNum !== 0 && <div className='bottomBox'>
               <div className='pageBox'>
                 <Pagination
                   simple
@@ -1869,7 +1868,7 @@ class OperationalAudit extends Component {
                 />
               </div>
               <span style={{ float: 'right', lineHeight: '24px' }}>共计 {this.state.totalNum}条</span>
-            </div>
+            </div>}
             <div style={{ clear: 'both' }}></div>
           </div>
           <Card className='dataCard'>
