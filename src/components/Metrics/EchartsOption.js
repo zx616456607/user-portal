@@ -25,6 +25,7 @@ class EchartsOption {
     this.toolbox = {
       show: false
     }
+    this.tooltipUnit = ''
     this.tooltip = {
       trigger: 'axis',
       formatter: (params) => {
@@ -34,7 +35,7 @@ class EchartsOption {
           name = name.split('-')
           name.splice(1, 1)
           name = name.join('-')
-          res += `${name} : ${item.data[1]}<br/>`
+          res += `${name} : ${item.data[1]}${this.tooltipUnit}<br/>`
         })
         return res
       },
@@ -82,20 +83,27 @@ class EchartsOption {
     this.xAxis = xAxis
   }
   
-  setXAxisMin(min) {
-    this.xAxis.min = min
+  setXAxisMinAndMax(min, max) {
+    min && (this.xAxis.min = min)
+    max && (this.xAxis.max = max)
+  }
+  
+  setToolTipUnit(unit) {
+    this.tooltipUnit = unit
   }
   
   setXAxisData(data) {
     this.xAxis.data = data
   }
 
-  addYAxis(type, axisLabel) {
+  addYAxis(type, axisLabel, min, max) {
     const yAxisItem = {
       type: 'value',
       axisLabel: {
         formatter: '{value} %'
       },
+      min,
+      max,
       splitLine: {
         lineStyle: {
           type: 'dashed'
@@ -107,6 +115,12 @@ class EchartsOption {
     }
     if (axisLabel) {
       yAxisItem.axisLabel = axisLabel
+    }
+    if (min) {
+      yAxisItem.min = min
+    }
+    if (max) {
+      yAxisItem.max = max
     }
     this.yAxis.push(yAxisItem)
   }

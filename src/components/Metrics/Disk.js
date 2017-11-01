@@ -13,7 +13,7 @@
 import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
-import { Row, Col, Switch } from 'antd'
+import { Tooltip, Switch } from 'antd'
 
 function formatGrid(count) {
   //this fucntion for format grid css
@@ -32,15 +32,15 @@ class Disk extends Component {
     const { diskReadIo, diskWriteIo, events, scope } = this.props
     const { switchDisk, freshTime, DiskLoading, currentStart } = scope.state
     let timeText = switchDisk ? '10秒钟' : freshTime
-    option.addYAxis('value', {
-      formatter: '{value} KB/s'
-    })
+    option.setToolTipUnit(' KB/s')
     let minValue = 'dataMin'
+    let isDataEmpty = false
     diskReadIo.data && diskReadIo.data.map((item) => {
       let dataArr = []
       const metrics = item && Array.isArray(item.metrics)
         ? item.metrics
         : []
+      isDataEmpty = metrics.length ? false : true
       metrics.map((metric) => {
         // metric.value || floatValue  only one
         dataArr.push([
@@ -65,14 +65,19 @@ class Disk extends Component {
       })
       option.addSeries(dataArr, `${item.containerName} 写入`)
     })
-    option.setXAxisMin(minValue)
+    isDataEmpty ? option.addYAxis('value', {formatter: '{value} KB/s'}, 0, 1000) : option.addYAxis('value', {formatter: '{value} KB/s'})
+    isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
+      option.setXAxisMinAndMax(minValue)
+    
     option.setGirdForDataNetWork(diskReadIo.data && diskReadIo.data.length + diskWriteIo.data.length, events)
     return (
       <div className="chartBox">
         <span className="freshTime">
           {`时间间隔：${timeText}`}
         </span>
-        {/*<Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Disk')} checkedChildren="开" unCheckedChildren="关"/>*/}
+        {/*<Tooltip title="实时开关">*/}
+          {/*<Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Disk')} checkedChildren="开" unCheckedChildren="关"/>*/}
+        {/*</Tooltip>*/}
         <ReactEcharts
           style={{ height: formatGrid(diskReadIo.data && diskReadIo.data.length + diskWriteIo.data.length) }}
           notMerge={true}

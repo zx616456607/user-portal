@@ -67,8 +67,8 @@ class CleaningRecord extends Component {
       sort,
       type: newType,
       status: newStatus,
-      start: formatDate(startValue),
-      end: formatDate(endValue),
+      start: startValue && formatDate(startValue),
+      end: endValue && formatDate(endValue),
       from: (currentPage - 1) * 10,
       size: 10,
     }, {
