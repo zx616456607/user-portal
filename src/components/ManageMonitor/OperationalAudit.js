@@ -1509,7 +1509,6 @@ class OperationalAudit extends Component {
       case '53':
         showOperationalList.push(operationalList[0]);
         showOperationalList.push(operationalList[2]);
-        showOperationalList.push(operationalList[24]);
         break;
       case '54':
         showOperationalList.push(operationalList[0]);
