@@ -66,7 +66,7 @@ class Disk extends Component {
       option.addSeries(dataArr, `${item.containerName} 写入`)
     })
     isDataEmpty ? option.addYAxis('value', {formatter: '{value} KB/s'}, 0, 1000) : option.addYAxis('value', {formatter: '{value} KB/s'})
-    option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date().toLocaleString()))
+    option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date()))
     option.setGirdForDataNetWork(diskReadIo.data && diskReadIo.data.length + diskWriteIo.data.length, events)
     return (
       <div className="chartBox">
