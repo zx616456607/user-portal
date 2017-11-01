@@ -22,8 +22,22 @@ class EchartsOption {
         fontWeight: 'normal',
       }
     }
+    this.toolbox = {
+      show: false
+    }
     this.tooltip = {
       trigger: 'axis',
+      formatter: (params) => {
+        let res = `${formatDate(params[0]['data'][0], 'MM-DD HH:mm:ss')}<br/>`
+        params.forEach(item => {
+          let name = item.seriesName
+          name = name.split('-')
+          name.splice(1, 1)
+          name = name.join('-')
+          res += `${name} : ${item.data[1]}<br/>`
+        })
+        return res
+      },
       axisPointer: {
         animation: false
       }
@@ -45,7 +59,8 @@ class EchartsOption {
     }]
     this.xAxis = {
       name: '',
-      type: 'category',
+      type: 'value',
+      max: 'dataMax',
       boundaryGap: false,
       axisLine: { onZero: true },
       splitLine: {
@@ -66,7 +81,11 @@ class EchartsOption {
   setXAxis(xAxis) {
     this.xAxis = xAxis
   }
-
+  
+  setXAxisMin(min) {
+    this.xAxis.min = min
+  }
+  
   setXAxisData(data) {
     this.xAxis.data = data
   }
@@ -98,6 +117,7 @@ class EchartsOption {
       type: 'line',
       hoverAnimation: false,
       // symbol: 'none',
+      showSymbol: false,
       symbolSize: '5',
       itemStyle: {
         normal: {

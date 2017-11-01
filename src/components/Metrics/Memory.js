@@ -31,25 +31,36 @@ class Memory extends Component {
     const option = new EchartsOption('内存')
     const { memory, scope } = this.props
     const { isFetching, data } = memory
-    const { switchMemory, freshTime, MemoryLoading } = scope.state
+    const { switchMemory, freshTime, MemoryLoading, currentStart, currentMemoryStart } = scope.state
     let timeText = switchMemory ? '10秒钟' : freshTime
     option.addYAxis('value', {
       formatter: '{value} M'
     })
+    let minValue = 'dataMin'
     data&&data.map((item) => {
-      let timeData = []
-      let values = []
+      let dataArr = []
       const metrics = Array.isArray(item.metrics)
         ? item.metrics
         : []
       metrics.map((metric) => {
-        timeData.push(metric.timestamp)
         // metric.value || floatValue  only one
-        values.push(Math.floor((metric.floatValue || metric.value) / 1024 / 1024 * 10) /10)
+        dataArr.push([
+          Date.parse(metric.timestamp),
+          Math.floor((metric.floatValue || metric.value) / 1024 / 1024 * 10) /10
+        ])
       })
-      option.setXAxisData(timeData)
-      option.addSeries(values, item.containerName)
+      if (switchMemory) {
+        if (Date.parse(item.metrics && item.metrics.length && item.metrics[0].timestamp) > Date.parse(currentMemoryStart)) {
+          minValue = Date.parse(currentMemoryStart)
+        }
+      } else {
+        if (Date.parse(item.metrics && item.metrics.length && item.metrics[0].timestamp) > Date.parse(currentStart)) {
+          minValue = Date.parse(currentStart)
+        }
+      }
+      option.addSeries(dataArr, item.containerName)
     })
+    option.setXAxisMin(minValue)
     option.setGirdForDataCommon(data&&data.length)
     return (
       <div className="chartBox">
