@@ -355,17 +355,19 @@ class ServiceMonitior extends Component {
     }
     return (
       <div id="ServiceMonitior">
-        <TimeControl onChange={this.handleTimeChange} setInterval={this.setIntervalFunc} intervalStatus={this.state.intervalStatus} />
-        <Metrics
-          scope={this}
-          events='AppServiceDetail'
-          cpu={showCpu}
-          memory={showMemory}
-          networkReceived={showNetworkRec}
-          networkTransmitted={showNetworkTrans}
-          diskReadIo={showDiskReadIo}
-          diskWriteIo={showDiskWriteIo}
+        <div className="serviceInnerMonitor">
+          <TimeControl onChange={this.handleTimeChange} setInterval={this.setIntervalFunc} intervalStatus={this.state.intervalStatus} />
+          <Metrics
+            scope={this}
+            events='AppServiceDetail'
+            cpu={showCpu}
+            memory={showMemory}
+            networkReceived={showNetworkRec}
+            networkTransmitted={showNetworkTrans}
+            diskReadIo={showDiskReadIo}
+            diskWriteIo={showDiskWriteIo}
           />
+        </div>
       </div>
     )
   }
