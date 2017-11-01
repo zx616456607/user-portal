@@ -49,13 +49,27 @@ class CleaningTool extends Component {
       cicdLogs: [],
       cleanLogs: [],
       logsLoading: false,
-      activeKey: 'systemLog'
+      activeKey: 'systemLog',
+      systemCleaning: false
     }
   }
   componentWillMount() {
     this.getSystemLogs()
     this.getCicdLogs()
     this.getMonitorSetting()
+    this.systemCleanStatus()
+  }
+  systemCleanStatus() {
+    const { getSystemCleanStatus } = this.props
+    getSystemCleanStatus({
+      success: {
+        func: res => {
+          this.setState({
+            systemCleaning: !res.data
+          })
+        }
+      }
+    })
   }
   getMonitorSetting() {
     const { getMonitorSetting, form } = this.props
@@ -457,7 +471,7 @@ class CleaningTool extends Component {
   
   renderSystemTab() {
     const { getFieldProps } = this.props.form
-    const { cleanSystemLogStatus, systemLogs } = this.state
+    const { cleanSystemLogStatus, systemLogs, systemCleaning } = this.state
     switch(cleanSystemLogStatus) {
       case 'cleaning': 
         return (
@@ -497,6 +511,7 @@ class CleaningTool extends Component {
               <Select
                 placeholder="选择删除服务日志时间"
                 size="large"
+                disabled={systemCleaning}
                 className='select_box'
                 {...getFieldProps('systemLogTime',{
                   rules: [{required: true, message: '请选择删除服务日志时间'}]
@@ -512,7 +527,7 @@ class CleaningTool extends Component {
               </Select>
             </FormItem>
             <div>
-              <Button size="large" type="primary" onClick={() => this.cleaningSystemLog()}>清理</Button>
+              <Button size="large" type="primary" loading={systemCleaning} onClick={() => this.cleaningSystemLog()}>{systemCleaning ? `清理中` : '清理'}</Button>
             </div>
           </div>
         )
@@ -588,6 +603,7 @@ class CleaningTool extends Component {
     })
     if (tab === 'systemLog') {
       this.getSystemLogs()
+      this.systemCleanStatus()
     } else if (tab === 'cache') {
       this.getCicdLogs()
     } else {
@@ -603,7 +619,8 @@ class CleaningTool extends Component {
       accomplish, pending,
       forbid, mirrorImageEdit,
       cicdLogs, systemLogs, activeKey,
-      cleanSystemLogStatus, cleanCicdStatus
+      cleanSystemLogStatus, cleanCicdStatus,
+      systemCleaning
     } = this.state
     const { form } = this.props
     const { getFieldProps } = form
@@ -707,7 +724,7 @@ class CleaningTool extends Component {
             >
               <TabPane tab="服务日志" key="systemLog">
                 <div className='img_box'>
-                  <img className={classNames({'cleaning': cleanSystemLogStatus === 'cleaning'})} src={CleaningToolImg}/>
+                  <img className={classNames({'cleaning': cleanSystemLogStatus === 'cleaning' || systemCleaning})} src={CleaningToolImg}/>
                 </div>
                 {
                   this.renderSystemTab()
