@@ -295,23 +295,6 @@ class ServiceMonitior extends Component {
   }
 
   setIntervalFunc() {
-    //this function for setInterval
-    // let query = this.state.currentStart;
-    // const { intervalStatus } = this.state;
-    // if(intervalStatus) {
-    //   clearInterval(this.metricsInterval)
-    //   this.setState({
-    //     intervalStatus: false
-    //   })
-    // } else {
-    //   const { cluster, serviceName, loadServiceAllOfMetrics } = this.props
-    //   this.setState({
-    //     intervalStatus: true
-    //   })
-    //   this.metricsInterval = setInterval(() => {
-    //     loadServiceAllOfMetrics(cluster, serviceName, query)
-    //   }, UPDATE_INTERVAL);
-    // }
     const { cluster, serviceName, loadServiceAllOfMetrics } = this.props
     const { currentValue } = this.state
     clearInterval(this.metricsInterval)
