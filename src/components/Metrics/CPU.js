@@ -31,22 +31,37 @@ class CPU extends Component {
     const option = new EchartsOption('CPU')
     const { cpu, scope } = this.props
     const { isFetching, data } = cpu
-    const { switchCpu, freshTime, CpuLoading } = scope.state
+    const { switchCpu, freshTime, CpuLoading, currentStart, currentCpuStart } = scope.state
     let timeText = switchCpu ? '10秒钟' : freshTime
     option.addYAxis('value', {
       formatter: '{value} %'
     })
+    let minValue = 'dataMin'
     data&&data.map((item) => {
       let timeData = []
       let values = []
+      let dataArr = []
       item.metrics.map((metric) => {
         timeData.push(metric.timestamp)
         // metric.value || floatValue  only one
         values.push(Math.floor((metric.floatValue || metric.value) * 10) /10)
+        dataArr.push([
+          Date.parse(metric.timestamp),
+          Math.floor((metric.floatValue || metric.value) * 10) /10
+        ])
       })
-      option.setXAxisData(timeData)
-      option.addSeries(values, item.containerName)
+      if (switchCpu) {
+        if (Date.parse(item.metrics && item.metrics.length && item.metrics[0].timestamp) > Date.parse(currentCpuStart)) {
+          minValue = Date.parse(currentCpuStart)
+        }
+      } else {
+        if (Date.parse(item.metrics && item.metrics.length && item.metrics[0].timestamp) > Date.parse(currentStart)) {
+          minValue = Date.parse(currentStart)
+        }
+      }
+      option.addSeries(dataArr, item.containerName)
     })
+    option.setXAxisMin(minValue)
     option.setGirdForDataCommon(data&&data.length)
     return (
       <div className="chartBox">

@@ -328,11 +328,15 @@ class ClusterDetail extends Component {
       switchCpu: false,
       switchMemory: false,
       switchNetwork: false,
-      switchDisk: false
+      switchDisk: false,
+      currentValue: '1',
+      currentStart: this.changeTime('1'),
+      instantValue: 30
     }
   }
   componentWillMount() {
     const { clusterID, clusterName,location } = this.props
+    const { currentValue } = this.state
     //this.setState({activeTabKey:tab || 'info'})
     const body = {
       clusterID,
@@ -356,9 +360,14 @@ class ClusterDetail extends Component {
       }
     })
 
-    this.loadData(this.props, { start: this.changeTime(1) })
+    this.loadData(this.props, { start: this.changeTime(currentValue) })
     this.changeTimeInterval = setInterval(() => {
-      this.loadData(this.props, { start: this.changeTime(1) })
+      this.setState({
+        currentStart: this.changeTime(currentValue)
+      }, () => {
+        const { currentStart} = this.state
+        this.loadData(this.props, { start: currentStart })
+      })
     }, UPDATE_INTERVAL)
 
     let { tab , open } = location.query
@@ -416,7 +425,8 @@ class ClusterDetail extends Component {
   }
   getHostCpu() {
     const { loadHostCpu, clusterID, clusterName } = this.props
-    loadHostCpu({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'}, {
+    const { currentCpuStart } = this.state
+    loadHostCpu({clusterID, clusterName}, {start: currentCpuStart, source: 'influxdb'}, {
       success: {
         func: () => {
           this.setState({
@@ -435,7 +445,8 @@ class ClusterDetail extends Component {
   }
   getHostMemory() {
     const { loadHostMemory, clusterID, clusterName } = this.props
-    loadHostMemory({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'}, {
+    const { currentMemoryStart } = this.state
+    loadHostMemory({clusterID, clusterName}, {start: currentMemoryStart, source: 'influxdb'}, {
       success: {
         func: () => {
           this.setState({
@@ -454,8 +465,9 @@ class ClusterDetail extends Component {
   }
   getHostRxrate() {
     const { loadHostRxrate, clusterID, clusterName } = this.props
+    const { currentNetworkStart } = this.state
     return new Promise((resolve, reject) => {
-      loadHostRxrate({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'}, {
+      loadHostRxrate({clusterID, clusterName}, {start: currentNetworkStart, source: 'influxdb'}, {
         finally: {
           func: () => {
             resolve()
@@ -466,8 +478,9 @@ class ClusterDetail extends Component {
   }
   getHostTxrate() {
     const { loadHostTxrate, clusterID, clusterName } = this.props
+    const { currentNetworkStart } = this.state
     return new Promise((resolve, reject) => {
-      loadHostTxrate({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'}, {
+      loadHostTxrate({clusterID, clusterName}, {start: currentNetworkStart, source: 'influxdb'}, {
         finally: {
           func: () => {
             resolve()
@@ -478,8 +491,9 @@ class ClusterDetail extends Component {
   }
   getHostReadIo() {
     const { loadHostDiskReadIo, clusterID, clusterName } = this.props
+    const { currentDiskStart } = this.state
     return new Promise((resolve, reject) => {
-      loadHostDiskReadIo({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'}, {
+      loadHostDiskReadIo({clusterID, clusterName}, {start: currentDiskStart, source: 'influxdb'}, {
         finally: {
           func: () => {
             resolve()
@@ -490,8 +504,9 @@ class ClusterDetail extends Component {
   }
   getHostWriteIo() {
     const { loadHostDiskWriteIo, clusterID, clusterName } = this.props
+    const { currentDiskStart } = this.state
     return new Promise((resolve, reject) => {
-      loadHostDiskWriteIo({clusterID, clusterName}, {start: this.changeTime(0.5), source: 'influxdb'}, {
+      loadHostDiskWriteIo({clusterID, clusterName}, {start: currentDiskStart, source: 'influxdb'}, {
         finally: {
           func: () => {
             resolve()
@@ -501,6 +516,7 @@ class ClusterDetail extends Component {
     })
   }
   switchChange(flag, type) {
+    const { instantValue } = this.state
     this.setState({
       [`switch${type}`]: flag,
       [`${type}Loading`]: flag
@@ -509,29 +525,57 @@ class ClusterDetail extends Component {
       case 'Cpu':
         clearInterval(this.cpuInterval)
         if (flag) {
-          this.getHostCpu()
-          this.cpuInterval = setInterval(() => this.getHostCpu(), LOAD_INSTANT_INTERVAL)
+          this.setState({
+            [`current${type}Start`]: this.changeMinutes(instantValue)
+          }, () => {
+            this.getHostCpu()
+          })
+          this.cpuInterval = setInterval(() => {
+            this.setState({
+              [`current${type}Start`]: this.changeMinutes(instantValue)
+            }, () => {
+              this.getHostCpu()
+            })
+          }, LOAD_INSTANT_INTERVAL)
         }
         break
       case 'Memory':
         clearInterval(this.memoryInterval)
         if (flag) {
-          this.getHostMemory()
-          this.memoryInterval = setInterval(() => this.getHostMemory(), LOAD_INSTANT_INTERVAL)
+          this.setState({
+            [`current${type}Start`]: this.changeMinutes(instantValue)
+          }, () => {
+            this.getHostMemory()
+          })
+          this.memoryInterval = setInterval(() => {
+            this.setState({
+              [`current${type}Start`]: this.changeMinutes(instantValue)
+            }, () => {
+              this.getHostMemory()
+            })
+          }, LOAD_INSTANT_INTERVAL)
         }
         break
       case 'Network':
         clearInterval(this.rxRateInterval)
         clearInterval(this.txRateInterval)
         if (flag) {
-          this.getHostRxrate()
-          this.getHostTxrate()
-          Promise.all([this.getHostRxrate(), this.getHostTxrate()]).then(() => {
-            this.setState({
-              NetworkLoading: false
+          this.setState({
+            [`current${type}Start`]: this.changeMinutes(instantValue)
+          }, () => {
+            Promise.all([this.getHostRxrate(), this.getHostTxrate()]).then(() => {
+              this.setState({
+                NetworkLoading: false
+              })
             })
           })
-          this.rxRateInterval = setInterval(() => this.getHostRxrate(), LOAD_INSTANT_INTERVAL)
+          this.rxRateInterval = setInterval(() => {
+            this.setState({
+              [`current${type}Start`]: this.changeMinutes(instantValue)
+            }, () => {
+              this.getHostRxrate()
+            })
+          }, LOAD_INSTANT_INTERVAL)
           this.txRateInterval = setInterval(() => this.getHostTxrate(), LOAD_INSTANT_INTERVAL)
         }
         break
@@ -539,14 +583,22 @@ class ClusterDetail extends Component {
         clearInterval(this.readIoInterval)
         clearInterval(this.writeIoInterval)
         if (flag) {
-          this.getHostReadIo()
-          this.getHostWriteIo()
-          Promise.all([this.getHostReadIo(), this.getHostWriteIo()]).then(() => {
-            this.setState({
-              DiskLoading: false
+          this.setState({
+            [`current${type}Start`]: this.changeMinutes(instantValue)
+          }, () => {
+            Promise.all([this.getHostReadIo(), this.getHostWriteIo()]).then(() => {
+              this.setState({
+                DiskLoading: false
+              })
             })
           })
-          this.readIoInterval = setInterval(() => this.getHostReadIo(), LOAD_INSTANT_INTERVAL)
+          this.readIoInterval = setInterval(() => {
+            this.setState({
+              [`current${type}Start`]: this.changeMinutes(instantValue)
+            }, () => {
+              this.getHostReadIo()
+            })
+          }, LOAD_INSTANT_INTERVAL)
           this.writeIoInterval = setInterval(() => this.getHostWriteIo(), LOAD_INSTANT_INTERVAL)
         }
     }
@@ -556,6 +608,11 @@ class ClusterDetail extends Component {
     d.setHours(d.getHours() - hours)
     return d.toISOString()
   }
+  changeMinutes(min) {
+    let d = new Date()
+    d.setMinutes(d.getMinutes() - min)
+    return d.toISOString()
+  }
   handleTimeChange(e) {
     const { value } = e.target
     const intervalTime = timeFrequency[value]['second']
@@ -563,16 +620,24 @@ class ClusterDetail extends Component {
     const start = this.changeTime(value)
     this.setState({
       currentStart: start,
-      freshTime: timeDes
+      freshTime: timeDes,
+      currentValue: value
+    }, () => {
+      const { currentValue, currentStart } = this.state
+      clearInterval(this.changeTimeInterval)
+      this.loadData(this.props, { start: currentStart })
+      this.changeTimeInterval = setInterval(() => {
+        this.setState({
+          currentStart: this.changeTime(currentValue)
+        }, () => {
+          const { currentStart} = this.state
+          this.loadData(this.props, { start: currentStart })
+        })
+      }, UPDATE_INTERVAL)
     })
-    clearInterval(this.changeTimeInterval)
-    this.loadData(this.props, { start })
-    this.changeTimeInterval = setInterval(() => {
-      this.loadData(this.props, { start })  
-    }, intervalTime)
   }
 
-  formetCpumetrics(cpuData) {
+  formetCpumetrics(cpuData, nodeName) {
     if (!cpuData.data) return {}
     let formetDate = { data: [] }
     let metrics = []
@@ -586,7 +651,7 @@ class ClusterDetail extends Component {
       })
 
     }
-    formetDate.data.push({ metrics })
+    formetDate.data.push({ metrics, containerName: nodeName })
     return formetDate
   }
   formetMemorymetrics(memoryData, nodeName) {
@@ -656,8 +721,8 @@ class ClusterDetail extends Component {
     } = this.props
     const hostInfo = this.props.hostInfo.result ? this.props.hostInfo.result : {objectMeta:{creationTimestamp:''}, address:' '}
     hostInfo.isFetching = this.props.isFetching
-    const showCpu = switchCpu ? this.formetCpumetrics(hostCpu) : this.formetCpumetrics(cpu)
-    const showMemory = switchMemory ? this.formetMemorymetrics(hostMemory): this.formetMemorymetrics(memory)
+    const showCpu = switchCpu ? this.formetCpumetrics(hostCpu, clusterName) : this.formetCpumetrics(cpu, clusterName)
+    const showMemory = switchMemory ? this.formetMemorymetrics(hostMemory, clusterName): this.formetMemorymetrics(memory, clusterName)
     const showNetworkRec = switchNetwork ? this.formetNetworkmetrics(hostNetworkRx, clusterName) : this.formetNetworkmetrics(networkReceived, clusterName)
     const showNetworkTrans = switchNetwork ? this.formetNetworkmetrics(hostNetworkTx, clusterName) : this.formetNetworkmetrics(networkTransmitted, clusterName)
     const showNodeReadIo = switchDisk ? this.formatNodemetrics(hostDiskReadIo, clusterName) : this.formatNodemetrics(diskReadIo, clusterName)
