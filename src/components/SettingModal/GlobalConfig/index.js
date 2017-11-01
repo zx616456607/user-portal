@@ -32,6 +32,15 @@ const FormItem = Form.Item
 const mode = getPortalRealMode
 const liteFlag = mode === LITE
 
+function inputFocusMethod(node){
+  node.focus();
+  const value = node.value
+  if(value){
+    node.selectionStart = value.length
+    node.selectionEnd = value.length
+  }
+}
+
 //邮件报警
 let Emaill = React.createClass({
   getInitialState() {
@@ -68,6 +77,10 @@ let Emaill = React.createClass({
     this.setState({ isEve: !this.state.isEve })
   },
   handleEmail() {
+    setTimeout(() => {
+      const node = document.getElementById('emailServer')
+      inputFocusMethod(node)
+    }, 100)
     this.props.emailChange()
   },
   saveEmail() {
@@ -255,7 +268,7 @@ let Emaill = React.createClass({
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem >
-                  <Input {...serviceProps} placeholder="如：smtp.exmail.qq.com:25" disabled={emailDisable} />
+                  <Input {...serviceProps} placeholder="如：smtp.exmail.qq.com:25" disabled={emailDisable} id='emailServer'/>
                 </FormItem>
                 <FormItem >
                   <Input className="temInput1" {...emailProps} type="email" placeholder="邮箱地址" disabled={emailDisable} />
@@ -321,6 +334,10 @@ let Msa = React.createClass({
     msaChange();
   },
   handleMsa() {
+    setTimeout(() => {
+      const node = document.getElementById('microServiceAgent')
+      inputFocusMethod(node)
+    },100)
     this.props.msaChange()
   },
   saveMsa() {
@@ -435,7 +452,7 @@ let Msa = React.createClass({
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem >
-                  <Input {...urlProps} placeholder="如：https://192.168.1.113:4081" disabled={msaDisable} />
+                  <Input {...urlProps} placeholder="如：https://192.168.1.113:4081" disabled={msaDisable} id='microServiceAgent'/>
                 </FormItem>
                 <FormItem>
                   {
@@ -489,6 +506,10 @@ let Ftp = React.createClass({
     this.setState({ isEve: !this.state.isEve })
   },
   handleMsa() {
+    setTimeout(() => {
+      const node = document.getElementById('ftpServerAgent')
+      inputFocusMethod(node)
+    }, 100)
     this.props.ftpChange()
   },
   saveFtp() {
@@ -620,7 +641,7 @@ let Ftp = React.createClass({
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem >
-                  <Input {...addrProps} placeholder="如：192.168.1.113:21" disabled={ftpDisable} />
+                  <Input {...addrProps} placeholder="如：192.168.1.113:21" disabled={ftpDisable} id='ftpServerAgent'/>
                 </FormItem>
                 <FormItem >
                   <Input {...usernameProps} placeholder="请输入用户名" disabled={ftpDisable} />
@@ -678,6 +699,10 @@ let Vm = React.createClass({
     this.setState({ isEve: !this.state.isEve })
   },
   handleMsa() {
+    setTimeout(() => {
+      const node = document.getElementById('vmAppAgent')
+      inputFocusMethod(node)
+    },100)
     this.props.vmChange()
   },
   saveVM() {
@@ -793,7 +818,7 @@ let Vm = React.createClass({
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem >
-                  <Input {...urlProps} placeholder="如：https://192.168.1.113:4081" disabled={vmDisable} />
+                  <Input {...urlProps} placeholder="如：https://192.168.1.113:4081" disabled={vmDisable} id='vmAppAgent'/>
                 </FormItem>
                 <FormItem>
                   {
@@ -1040,6 +1065,10 @@ let MirrorService = React.createClass({
     }
   },
   handleMirror() {
+    setTimeout(() => {
+      const node = document.getElementById('mirrorServerAgent')
+      inputFocusMethod(node)
+    },100)
     this.props.mirrorChange()
   },
   handleReset() {
@@ -1187,7 +1216,7 @@ let MirrorService = React.createClass({
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem >
-                  <Input {...mirrorProps} placeholder="如：https://192.168.1.113:4081" disabled={mirrorDisable} />
+                  <Input {...mirrorProps} placeholder="如：https://192.168.1.113:4081" disabled={mirrorDisable} id='mirrorServerAgent'/>
                 </FormItem>
                 <FormItem>
                   {
