@@ -122,7 +122,7 @@ let CreateTenxFlow = React.createClass({
       currentType: '1',
       emailAlert: false,
       otherEmail: false,
-      currentYaml: null,
+      currentYaml: "",
       currentFlow: null,
       //forEdit: false,
       checkFirst: false,

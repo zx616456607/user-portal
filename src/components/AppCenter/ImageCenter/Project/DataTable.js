@@ -191,6 +191,7 @@ class DataTable extends Component {
       total: dataSource.total,
       onChange: current => func.loadData({ page: current }),
       showTotal: total => `共计： ${total} 条`,
+      simple: true,
     }
     const setPublicValue = Math.abs(this.state.currentProject.public - 1)
     const publicModalTitle = `设为${setPublicValue == 1 ? '公开' : '私有'}`
@@ -203,6 +204,7 @@ class DataTable extends Component {
           pagination={paginationOpts}
           onChange={this.handleChange}
         />
+        { dataSource && dataSource.total !== 0 && <span className='total_num_style'>共 {dataSource.total} 条</span>}
         {/* 设置仓库组 公共/私有 属性 */}
         <Modal
           title={publicModalTitle}

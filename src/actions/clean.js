@@ -264,7 +264,7 @@ function fetchSystemCleanStatus(callback) {
   return {
     [FETCH_API]: {
       types: [FETCH_SYSTEM_LOGS_CLEAN_STATUS_REQUEST,FETCH_SYSTEM_LOGS_CLEAN_STATUS_SUCCESS,FETCH_SYSTEM_LOGS_CLEAN_STATUS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/systemlog/status`,
+      endpoint: `${API_URL_PREFIX}/cleaner/systemlog/status`,
       schema: {}
     },
     callback

@@ -30,39 +30,42 @@ class Disk extends Component {
   render() {
     const option = new EchartsOption('磁盘')
     const { diskReadIo, diskWriteIo, events, scope } = this.props
-    const { switchDisk, freshTime, DiskLoading } = scope.state
+    const { switchDisk, freshTime, DiskLoading, currentStart } = scope.state
     let timeText = switchDisk ? '10秒钟' : freshTime
     option.addYAxis('value', {
       formatter: '{value} KB/s'
     })
+    let minValue = 'dataMin'
     diskReadIo.data && diskReadIo.data.map((item) => {
-      let timeData = []
-      let values = []
+      let dataArr = []
       const metrics = item && Array.isArray(item.metrics)
         ? item.metrics
         : []
       metrics.map((metric) => {
-        timeData.push(metric.timestamp)
         // metric.value || floatValue  only one
-        values.push(Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100)
+        dataArr.push([
+          Date.parse(metric.timestamp),
+          Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100
+        ])
       })
-      option.setXAxisData(timeData)
-      option.addSeries(values, `${item.containerName} 读取`)
+      // TODO set disk chart xAxis min
+      option.addSeries(dataArr, `${item.containerName} 读取`)
     })
     diskWriteIo.data && diskWriteIo.data.map((item) => {
-      let timeData = []
-      let values = []
+      let dataArr = []
       const metrics = item && Array.isArray(item.metrics)
         ? item.metrics
         : []
       metrics.map((metric) => {
-        timeData.push(metric.timestamp)
         // metric.value || metric.floatValue  only one
-        values.push(Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100)
+        dataArr.push([
+          Date.parse(metric.timestamp),
+          Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100
+        ])
       })
-      option.setXAxisData(timeData)
-      option.addSeries(values, `${item.containerName} 写入`)
+      option.addSeries(dataArr, `${item.containerName} 写入`)
     })
+    option.setXAxisMin(minValue)
     option.setGirdForDataNetWork(diskReadIo.data && diskReadIo.data.length + diskWriteIo.data.length, events)
     return (
       <div className="chartBox">
