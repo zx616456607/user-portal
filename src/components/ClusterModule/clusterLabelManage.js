@@ -426,7 +426,7 @@ class ClusterLabelManage extends Component{
           />
           <Icon type="search" className='titleicon' onClick={this.handleSearchInput}/>
         </span>
-        <span className='titlenum'>共计 <span>{result ? result.length:0}</span> 条</span>
+        { result && result.length !== 0 && <span className='titlenum'>共计 <span>{result ? result.length:0}</span> 条</span>}
       </div>
       <Table
         rowKey={record => 'row-'+ record.key + record.value}

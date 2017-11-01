@@ -388,8 +388,8 @@ class VMList extends React.Component {
             {/*<Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>*/}
             {/* <Input className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={(e) => this.handleSearch(e)} /> */}
             <CommonSearchInput onSearch={(value) => { this.getInfo(1, value) }} size="large" placeholder="请输入虚拟机IP搜索" />
-            <Pagination className="pag" {...pagination} />
-            {data.length > 0 && <span className="total">共 {total} 个</span>}
+            { total !== 0 && <Pagination className="pag" {...pagination} />}
+            { total !== 0 && <span className="total">共 {total} 个</span>}
           </Row>
           <Table
             pagination={false}

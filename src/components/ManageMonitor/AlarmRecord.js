@@ -353,7 +353,7 @@ class AlarmRecord extends Component {
             <DatePicker placeholder="选择结束日期" size="large" onChange={(value) => this.onEndTimeFilterChange(value)} />
             <Button icon="exception" size="large" type="primary" onClick={() => this.getRecords()}>立即查询</Button>
             <Button className="empty" icon="delete" size="large" onClick={() => this.setState({ deleteModal: true })}>清空所有记录</Button>
-            <div className='pageBox'>
+            { total !== 0 && <div className='pageBox'>
               <span className='totalPage'>共计 {total} 条</span>
               <Pagination
                 simple
@@ -362,7 +362,7 @@ class AlarmRecord extends Component {
                 current={page}
                 pageSize={size}
                 total={total} />
-            </div>
+            </div>}
             <div style={{ clear: 'both' }}></div>
           </div>
           <Card style={{ marginTop: 20 }}>
