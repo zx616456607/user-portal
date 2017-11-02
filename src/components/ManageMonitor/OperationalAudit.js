@@ -1509,7 +1509,6 @@ class OperationalAudit extends Component {
       case '53':
         showOperationalList.push(operationalList[0]);
         showOperationalList.push(operationalList[2]);
-        showOperationalList.push(operationalList[24]);
         break;
       case '54':
         showOperationalList.push(operationalList[0]);
@@ -1619,7 +1618,7 @@ class OperationalAudit extends Component {
     getOperationLogList(body, {
       success: {
         func: (res) => {
-          let totalNum = res.logs.count == 0 ? 1 : res.logs.count;
+          let totalNum = res.logs.count;
           _this.setState({
             from: 1,
             totalNum: totalNum
@@ -1852,13 +1851,13 @@ class OperationalAudit extends Component {
             </Select>
             <DatePicker onChange={this.onChangeStartTime} style={{ marginRight: 20, marginTop: 10, float: 'left' }} showTime format='yyyy-MM-dd HH:mm:ss' size='large' />
             <DatePicker onChange={this.onChangeEndTime} style={{ marginRight: 20, marginTop: 10, float: 'left' }} showTime format='yyyy-MM-dd HH:mm:ss' size='large' />
-            <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch}>
+            <Button className='searchBtn' size='large' onClick={this.submitSearch} type='primary'>
               <i className='fa fa-wpforms'></i> <FormattedMessage {...menusText.search} />
             </Button>
-            <Button type="primary" size="large" className='refresh' onClick={this.refreshLogs}>
-              刷新
+            <Button type="default" size="large" className='refresh' onClick={this.refreshLogs}>
+              刷 新
             </Button>
-            <div className='bottomBox'>
+            { this.state.totalNum !== 0 && <div className='bottomBox'>
               <div className='pageBox'>
                 <Pagination
                   simple
@@ -1869,7 +1868,7 @@ class OperationalAudit extends Component {
                 />
               </div>
               <span style={{ float: 'right', lineHeight: '24px' }}>共计 {this.state.totalNum}条</span>
-            </div>
+            </div>}
             <div style={{ clear: 'both' }}></div>
           </div>
           <Card className='dataCard'>

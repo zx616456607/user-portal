@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Checkbox, Alert, Icon, Spin, notification } from 'antd'
+import { Button, Input, Form, Checkbox, Alert, Icon, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -16,7 +16,8 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY, DEFAULT_SHARE_DIR } from '../../../../../constants'
 import { setStageLink } from '../../../../../actions/cicd_flow'
 import './style/SetStageFileLink.less'
-import { browserHistory } from 'react-router';
+import { browserHistory } from 'react-router'
+import NotificationHandler from '../../../../../components/Notification'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -82,6 +83,7 @@ let SetStageFileLink = React.createClass({
       sourceDir: '',
       targetDir: ''
     }
+    const notification = new NotificationHandler()
     form.validateFields(['useFile'],(errors, values) => {
       if (!!errors) {
         return;
@@ -92,7 +94,7 @@ let SetStageFileLink = React.createClass({
       setStageLink(flowId, config.metadata.id, config.link.target, body, {
         success: {
           func: () => {
-            notification.success({messgae:'设置共享目录',description:'设置共享目录成功'});
+            notification.success('设置共享目录', '设置共享目录成功');
             const { scope } = this.props;
             scope.setState({
               setStageFileModal: false
@@ -104,8 +106,14 @@ let SetStageFileLink = React.createClass({
           isAsync: true
         },
         failed: {
-          func: () => {
-            notification.error({messgae:'设置共享目录',description:'设置共享目录失败'});
+          func: err => {
+            if (err.statusCode === 409) {
+              if (err.message.message === 'Shared directory should not be conflict with the container path of cached volume.') {
+                notification.error('保存失败', '共享目录与上一子任务缓存卷容器目录冲突，请修改')
+                return
+              }
+            }
+            notification.error('设置共享目录', '设置共享目录失败');
           },
           isAsync: true
         }

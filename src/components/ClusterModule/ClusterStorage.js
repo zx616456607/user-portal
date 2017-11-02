@@ -32,6 +32,15 @@ const Option = Select.Option
 const Notification = new NotificationHandler()
 let validating = false
 
+function inputFocusMethod(node){
+  node.focus();
+  const value = node.value
+  if(value){
+    node.selectionStart = value.length
+    node.selectionEnd = value.length
+  }
+}
+
 class ClusterStorage extends Component {
   constructor(props) {
     super(props)
@@ -220,6 +229,11 @@ class ClusterStorage extends Component {
         break
       }
     }
+    setTimeout(() => {
+      const id = `RBD_agent${item.index}`
+      const node = document.getElementById(id)
+      inputFocusMethod(node)
+    }, 100)
     this.setState({
       cephArray: newCephArray
     })
@@ -361,6 +375,11 @@ class ClusterStorage extends Component {
       disabled: false,
       newAdd: true,
     })
+    setTimeout(() => {
+      const id = `RBD_name${index + 1}`
+      const node = document.getElementById(id)
+      inputFocusMethod(node)
+    }, 100)
     this.setState({
       cephArray: newCephArray,
     })
@@ -387,6 +406,11 @@ class ClusterStorage extends Component {
       disabled: false,
       newAdd: true,
     })
+    setTimeout(() => {
+      const id = `nfs_service_name${index + 1}`
+      const node = document.getElementById(id)
+      inputFocusMethod(node)
+    }, 100)
     this.setState({
       nfsArray: newNfsArray,
     })
@@ -604,6 +628,11 @@ class ClusterStorage extends Component {
         break
       }
     }
+    setTimeout(() => {
+      const id = `nfs_service_adderss${item.index}`
+      const node = document.getElementById(id)
+      inputFocusMethod(node)
+    }, 100)
     this.setState({
       nfsArray: newNfsArray
     })
@@ -1057,7 +1086,7 @@ class ClusterStorage extends Component {
           wrapClassName="set_host_memory"
         >
           <Icon type="question-circle-o" className='question_icon'/>
-          你确定{ hostChecked ? '关闭 host 存储' : '打开 host 存储' }吗？
+          您确定{ hostChecked ? '关闭 host 存储' : '打开 host 存储' }吗？
         </Modal>
 
         <Modal

@@ -489,7 +489,7 @@ class AutoScale extends React.Component {
               value={searchValue}
               onSearch={(value) => this.loadData(clusterID, 1,value)}/>
             <Button size="large" className="demoBtn" onClick={this.demo}><Icon type="question-circle-o" />Demo</Button>
-            <span className="pull-right totalCount">共计 {totalCount} 条</span>
+            { totalCount !== 0 && <span className="pull-right totalCount">共计 {totalCount} 条</span>}
           </div>
           <Modal
             title="删除策略"

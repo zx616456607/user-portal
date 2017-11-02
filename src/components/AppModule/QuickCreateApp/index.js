@@ -493,6 +493,7 @@ class QuickCreateApp extends Component {
           return false
         })
         if(envNameErrors.length || envValueErrors.length){
+          notification.error('环境变量不正确')
           this.setState({
             AdvancedSettingKey: 1
           })

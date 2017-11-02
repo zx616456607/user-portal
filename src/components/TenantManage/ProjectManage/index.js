@@ -934,8 +934,8 @@ let ProjectManage = React.createClass({
               className="fa fa-refresh" aria-hidden="true" style={{marginRight: '5px'}}/>刷新</Button>
             <CommonSearchInput clearInput={this.state.clearInput} placeholder="按项目名称搜索" size="large"
                                onSearch={(value) => this.projectNameSearch(value)}/>
-            <Pagination {...pageOption}/>
-            <div className="total">共{!isEmpty(projectList) && projectList.listMeta.total || 0}个</div>
+            { !isEmpty(projectList) && projectList.listMeta.total !== 0 && <Pagination {...pageOption}/>}
+            { !isEmpty(projectList) && projectList.listMeta.total !== 0 && <div className="total">共{!isEmpty(projectList) && projectList.listMeta.total || 0}个</div>}
           </Row>
           <Row className={classNames("projectList", {'hidden': step !== ''})}>
             <Card>

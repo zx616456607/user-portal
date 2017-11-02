@@ -38,7 +38,7 @@ import ServiceStatus from '../TenxStatus/ServiceStatus'
 import TipSvcDomain from '../TipSvcDomain'
 import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
-import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
+import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL, PAYMENT_REQUIRED_CODE } from '../../constants'
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../components/Notification'
@@ -808,7 +808,9 @@ class ServiceList extends Component {
       },
       failed: {
         func: (err) => {
-          errorHandler(err, intl)
+          if(statusCode !== PAYMENT_REQUIRED_CODE){
+            errorHandler(err, intl)
+          }
           self.loadServices(self.props)
         },
         isAsync: true
@@ -1339,7 +1341,7 @@ class ServiceList extends Component {
                   onPressEnter={() => this.searchServices()} />
               </div>
             </div>
-            <div className='pageBox'>
+            { total !== 0 && <div className='pageBox'>
               <span className='totalPage'>共 {total}条</span>
               <div className='paginationBox'>
                 <Pagination
@@ -1351,7 +1353,7 @@ class ServiceList extends Component {
                   pageSize={size}
                   total={total} />
               </div>
-            </div>
+            </div>}
             <div style={{ clear: 'both' }}></div>
           </div>
 
@@ -1393,7 +1395,7 @@ class ServiceList extends Component {
                   onPressEnter={() => this.searchServices()} />
               </div>
             </div>
-            <div className='pageBox'>
+            { total !== 0 && <div className='pageBox'>
               <span className='totalPage'>共 {total}条</span>
               <div className='paginationBox'>
                 <Pagination
@@ -1405,7 +1407,7 @@ class ServiceList extends Component {
                   pageSize={size}
                   total={total} />
               </div>
-            </div>
+            </div>}
             <div style={{ clear: 'both' }}></div>
           </div>
 

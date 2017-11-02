@@ -149,6 +149,7 @@ exports.getAllServiceMetrics = function* () {
     return _getContainerMetrics(user, cluster, instance, query)
   })
   promiseArray.push({diskWriteIo: promiseDiskWriteIoArray})
+  
   const results = yield promiseArray
   this.body = {
     cluster,
@@ -289,7 +290,6 @@ function _getContainerMetrics(user, cluster, instance, query) {
       }*/
       metric.value && (metric.value = Math.ceil(metric.value * 100) / 100)
       metric.floatValue && (metric.floatValue = Math.ceil(metric.floatValue * 100) / 100)
-      metric.timestamp = moment(metric.timestamp).format('MM-DD HH:mm')
     })
     return {
       containerName,

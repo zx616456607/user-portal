@@ -294,7 +294,7 @@ class DockerFile extends Component {
       <QueueAnim className='TenxFlowList'
         type='right'
         >
-        <Title title="DockerFile" />
+        <Title title="Dockerfile" />
         <div id='dockerFile' key='dockerFile'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>
