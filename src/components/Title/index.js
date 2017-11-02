@@ -16,20 +16,20 @@ class Title extends Component {
     super(props)
   }
   componentWillReceiveProps(nextProps) {
-    const { productName,title } = this.props
+    const { productName, title } = nextProps
     let topTitle = title
-    if (productName != ''){
-      topTitle = title + ' | '+productName
+    if (productName) {
+      topTitle = title + ' | '+ productName
     }
-    if (title !== nextProps.title) {
+    if (title !== this.props.title || productName !== this.props.productName) {
       document.title = topTitle
     }
   }
   componentDidMount() {
-    const { productName,title } = this.props
+    const { productName, title } = this.props
     let topTitle = title
-    if (productName != ''){
-      topTitle = title + ' | '+productName
+    if (productName) {
+      topTitle = title + ' | ' + productName
     }
     document.title = topTitle
   }
