@@ -1086,7 +1086,7 @@ class ClusterStorage extends Component {
           wrapClassName="set_host_memory"
         >
           <Icon type="question-circle-o" className='question_icon'/>
-          你确定{ hostChecked ? '关闭 host 存储' : '打开 host 存储' }吗？
+          您确定{ hostChecked ? '关闭 host 存储' : '打开 host 存储' }吗？
         </Modal>
 
         <Modal
