@@ -717,6 +717,7 @@ class ClusterDetail extends Component {
               <TimeControl onChange={this.handleTimeChange} />
               <Metrics
                 scope={this}
+                diskHide={false}
                 cpu={showCpu}
                 memory={showMemory}
                 networkReceived={showNetworkRec}
