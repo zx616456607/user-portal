@@ -59,10 +59,14 @@ class VMList extends React.Component {
     getVMinfosList(query, {
       success: {
         func: res => {
-          if (res.code === 200) {
+          res.results.map(item =>{
+            item.createTime = item.createTime.replace('T',' ')
+            item.createTime = item.createTime.split('.')[0]
+          })
+          if (res.statusCode === 200){
             this.setState({
-              total: res.body.total,
-              list: res.body.vminfos[0],
+              total: res.count,
+              list: res.results,
               isLoading: false,
             })
           }
@@ -94,7 +98,7 @@ class VMList extends React.Component {
       postVMinfoList(res, {
         success: {
           func: res => {
-            if (res.code === 200) {
+            if (res.statusCode === 201) {
               notification.success(`添加成功`)
               notification.close()
               this.getInfo()
@@ -116,7 +120,7 @@ class VMList extends React.Component {
       putVMinfoList(res, {
         success: {
           func: res => {
-            if (res.code === 200) {
+            if (res.statusCode === 200) {
               notification.success(`修改成功`)
               notification.close()
               this.getInfo()
@@ -180,7 +184,7 @@ class VMList extends React.Component {
       }, {
           success: {
             func: res => {
-              if (res.code === 200) {
+              if (res.statusCode === 204) {
                 notification.close()
                 notification.success(`删除 ${this.state.host} 成功`)
                 this.setState({
@@ -214,8 +218,8 @@ class VMList extends React.Component {
     checkVMUser(query, {
       success: {
         func: res => {
-          if (res.code === 200) {
-            return res.code
+          if (res.statusCode === 200) {
+            return res.statusCode
           }
         }
       }, failed: {
@@ -430,21 +434,7 @@ class VMList extends React.Component {
 }
 
 function mapStateToProps(state, props) {
-  let data = []
-  const wrap = state.vmWrap
-  if (wrap.vminfosList) {
-    let curData = wrap.vminfosList.list != undefined ? wrap.vminfosList.list[0] : []
-    if (curData && curData.length > 0) {
-      for (let i = 0; i < curData.length; i++) {
-        let curInfo = curData[i]
-        curInfo.createTime = curInfo.createTime.replace('T', ' ')
-        data.push(curInfo)
-      }
-    }
-  }
-  return {
-    data: data
-  }
+  return {}
 }
 
 export default connect(mapStateToProps, {
