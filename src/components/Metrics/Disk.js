@@ -30,7 +30,7 @@ class Disk extends Component {
   render() {
     const option = new EchartsOption('磁盘')
     const { diskReadIo, diskWriteIo, events, scope } = this.props
-    const { switchDisk, freshTime, DiskLoading, currentStart } = scope.state
+    const { switchDisk, freshTime, DiskLoading, currentStart, currentDiskStart } = scope.state
     let timeText = switchDisk ? '10秒钟' : freshTime
     option.setToolTipUnit(' KB/s')
     let minValue = 'dataMin'
@@ -48,7 +48,15 @@ class Disk extends Component {
           Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100
         ])
       })
-      // TODO set disk chart xAxis min
+      if (switchDisk) {
+        if (Date.parse(item.metrics && item.metrics.length && item.metrics[0].timestamp) > Date.parse(currentDiskStart)) {
+          minValue = Date.parse(currentDiskStart)
+        }
+      } else {
+        if (Date.parse(item.metrics && item.metrics.length && item.metrics[0].timestamp) > Date.parse(currentStart)) {
+          minValue = Date.parse(currentStart)
+        }
+      }
       option.addSeries(dataArr, `${item.containerName} 读取`)
     })
     diskWriteIo.data && diskWriteIo.data.map((item) => {
