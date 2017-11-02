@@ -230,7 +230,7 @@ class VMServiceList extends React.Component {
           <Title title="传统应用"/>
           <div className="serviceListBtnBox">
             <Button type="primary" size="large" onClick={()=>browserHistory.push('/app_manage/vm_wrap/create')}><i className="fa fa-plus" /> 创建传统应用</Button>
-            <Button size="large" className="refreshBtn" onClick={()=>this.pageAndSerch(null,1,true)}><i className='fa fa-refresh'/> 刷新</Button>
+            <Button size="large" className="refreshBtn" onClick={()=>this.pageAndSerch(null,1,true)}><i className='fa fa-refresh'/> 刷 新</Button>
             {/*<Button size="large" icon="delete" className="deleteBtn">删除</Button>*/}
             <CommonSearchInput onSearch={(value)=>{this.pageAndSerch(value,1,true)}} size="large" placeholder="请输入应用名搜索"/>
             { service.total >0 &&
