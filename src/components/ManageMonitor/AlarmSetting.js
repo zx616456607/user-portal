@@ -25,6 +25,7 @@ import { formatDate } from '../../common/tools.js'
 import './style/AlarmRecord.less'
 import cloneDeep from 'lodash/cloneDeep'
 import Title from '../Title'
+import classNames from 'classnames'
 
 const Option = Select.Option
 
@@ -429,12 +430,18 @@ let MyComponent = React.createClass({
   },
   render() {
     const { data } = this.state
-    if(!data || data.length <= 0) return (<div className="text-center"><img src={no_alarm} />
-        <div>您还没有告警设置，创建一个吧！<Button onClick={()=> this.createAlarm()} type="primary" size="large">创建</Button></div>
-        </div>)
-    const lists = data.map((list, index)=> {
-      if (list.active) {
-        return (
+    let lists
+    if(!data || data.length <= 0){
+      lists = <tr className='nodata'>
+        <td colSpan={9}>
+          <Icon type="frown" />
+          暂无数据
+        </td>
+      </tr>
+    } else {
+      lists = data.map((list, index) => {
+        if (list.active) {
+          return (
             [<tr key={`list${index}`}>
              <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
               <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-down" /> <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
@@ -471,11 +478,18 @@ let MyComponent = React.createClass({
             <td onClick={()=> this.tableListMore(index)}>{list.updater}</td>
           <td className='dropdownTd'><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list)}>忽略</Dropdown.Button></td>
           </tr>
-      )
+        )
+      })
+    }
+    const strategyTablePadding = classNames({
+      'ant-table-table': true,
+      'strategyTable': true,
+      'nodataPadding': data.length == 0 ? true : false,
+      'dataPadding': data.length !== 0 ? true : false,
     })
     return (
       <Card className="ant-table" style={{clear: 'both'}}>
-        <table className="ant-table-table strategyTable">
+        <table className={strategyTablePadding}>
           <thead className="ant-table-thead">
             <tr>
               <th style={{width:'5%',textAlign:'center'}}><Checkbox onChange={(e)=> this.changeAll(e)} checked={this.state.checkAll}/></th>
