@@ -107,10 +107,19 @@ exports.getUsers = function* () {
   }
 
   // get users is online
-  const sessionUsers = yield sessionService.getAllSessions()
+  let sessionUsers = []
+  let allSessions = yield sessionService.getAllSessions()
+  allSessions.forEach(session => {
+    if (session.loginUser) {
+      sessionUsers.push(session.loginUser)
+    }
+  })
+  const sessionTotal = sessionUsers.length
+  sessionUsers = _.unionBy(sessionUsers, 'namespace')
+
   users.map(user => {
     for (let i = 0; i < sessionUsers.length; i++) {
-      const sessionUser = sessionUsers[i].loginUser || {}
+      const sessionUser = sessionUsers[i]
       if (user.userID === sessionUser.id) {
         user.online = true
         return
@@ -121,6 +130,7 @@ exports.getUsers = function* () {
   this.body = {
     users,
     total,
+    sessionTotal,
     onlineTotal: sessionUsers.length,
   }
 }

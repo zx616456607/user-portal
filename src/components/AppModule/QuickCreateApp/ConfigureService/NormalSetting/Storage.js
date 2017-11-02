@@ -56,22 +56,25 @@ const Storage = React.createClass({
   componentWillMount() {
     const { fields } = this.props
     if (!fields || !fields.storageType) {
-      this.setStorageTypeToDefault()
+      // this.setStorageTypeToDefault()
     }
     if (!fields || !fields.serviceType) {
       this.setServiceTypeToDefault()
     }
     this.getVolumes()
   },
-  setStorageTypeToDefault() {
+  /* setStorageTypeToDefault() {
     const { currentCluster, form, isCanCreateVolume } = this.props
     if (!isCanCreateVolume) {
       return
     }
+    const { storageTypes } = currentCluster
+    console.log('storageTypes', storageTypes)
+    const storageType = storageTypes && storageTypes[0] || {}
     form.setFieldsValue({
       storageType: currentCluster.storageTypes[0],
     })
-  },
+  }, */
   setServiceTypeToDefault() {
     this.props.form.setFieldsValue({
       serviceType: false,
@@ -104,7 +107,7 @@ const Storage = React.createClass({
       setReplicasToDefault(value)
     }
     if (value) {
-      this.setStorageTypeToDefault()
+      // this.setStorageTypeToDefault()
       this.setBindVolumesToDefault()
       this.getVolumes()
       let storageList = form.getFieldValue('storageList') || []
