@@ -98,7 +98,6 @@ class VMList extends React.Component {
       postVMinfoList(res, {
         success: {
           func: res => {
-            console.log(res)
             if (res.statusCode === 201) {
               notification.success(`添加成功`)
               notification.close()
