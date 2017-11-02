@@ -318,7 +318,6 @@ class ClusterDetail extends Component {
     super(props)
     this.handleTimeChange = this.handleTimeChange.bind(this)
     this.changeTime = this.changeTime.bind(this)
-    this.formatNodemetrics = this.formatNodemetrics.bind(this)
     this.state = {
       schedulable: false,
       foreverPodNumber: 0,
@@ -636,75 +635,16 @@ class ClusterDetail extends Component {
       }, UPDATE_INTERVAL)
     })
   }
-
-  formetCpumetrics(cpuData, nodeName) {
-    if (!cpuData.data) return {}
-    let formetDate = { data: [] }
-    let metrics = []
-    if (cpuData.data.metrics) {
-      metrics = cpuData.data.metrics.map((list) => {
-        let floatValue = list.floatValue || list.value
-        return {
-          timestamp: formatDate(list.timestamp).substr(list.timestamp.indexOf('-')+1),
-          value: floatValue
-        }
-      })
-
-    }
-    formetDate.data.push({ metrics, containerName: nodeName })
-    return formetDate
+  
+  formatMetrics(result, nodeName) {
+    if (!result || !result.data) return {}
+    let formatData = { data: [] }
+    let metrics
+    result.data.metrics.length && (metrics = result.data.metrics)
+    formatData.data.push({metrics, containerName: nodeName})
+    return formatData
   }
-  formetMemorymetrics(memoryData, nodeName) {
-    if (!memoryData.data) return {}
-    let formetDate = { data: [] }
-    let metrics = {}
-    if (memoryData.data.metrics) {
-      metrics = memoryData.data.metrics.map((list) => {
-        return {
-          timestamp: formatDate(list.timestamp).substr(list.timestamp.indexOf('-')+1),
-          value: list.floatValue || list.value
-        }
-      })
-
-    }
-    formetDate.data.push({ metrics, containerName: nodeName})
-    return formetDate
-  }
-  formetNetworkmetrics(memoryData, nodeName) {
-    if (!memoryData.data) return {}
-    let formetDate = { data: [] }
-    let metrics = {}
-    memoryData.data.containerName= nodeName
-    if (memoryData.data.metrics) {
-      metrics = memoryData.data.metrics.map((list) => {
-        return {
-          timestamp: formatDate(list.timestamp).substr(list.timestamp.indexOf('-')+1),
-          value: list.floatValue || list.value,
-        }
-      })
-
-    }
-    formetDate.data.push({ metrics,containerName: nodeName})
-    return formetDate
-  }
-  formatNodemetrics(memoryData, nodeName){
-    if (!memoryData || !memoryData.data) return {}
-    let formetDate = { data: [] }
-    let metrics = {}
-    memoryData.data.containerName = nodeName
-    if (memoryData.data.metrics) {
-      metrics = memoryData.data.metrics.map((list) => {
-        return {
-          timestamp: formatDate(list.timestamp).substr(list.timestamp.indexOf('-')+1),
-          value: list.floatValue || list.value,
-        }
-      })
-
-    }
-    formetDate.data.push({ metrics,containerName: nodeName})
-    return formetDate
-  }
-
+  
   render() {
     if (this.props.hostInfo.isFetching) {
       return (
@@ -721,12 +661,12 @@ class ClusterDetail extends Component {
     } = this.props
     const hostInfo = this.props.hostInfo.result ? this.props.hostInfo.result : {objectMeta:{creationTimestamp:''}, address:' '}
     hostInfo.isFetching = this.props.isFetching
-    const showCpu = switchCpu ? this.formetCpumetrics(hostCpu, clusterName) : this.formetCpumetrics(cpu, clusterName)
-    const showMemory = switchMemory ? this.formetMemorymetrics(hostMemory, clusterName): this.formetMemorymetrics(memory, clusterName)
-    const showNetworkRec = switchNetwork ? this.formetNetworkmetrics(hostNetworkRx, clusterName) : this.formetNetworkmetrics(networkReceived, clusterName)
-    const showNetworkTrans = switchNetwork ? this.formetNetworkmetrics(hostNetworkTx, clusterName) : this.formetNetworkmetrics(networkTransmitted, clusterName)
-    const showNodeReadIo = switchDisk ? this.formatNodemetrics(hostDiskReadIo, clusterName) : this.formatNodemetrics(diskReadIo, clusterName)
-    const showNodeWriteIo = switchDisk ? this.formatNodemetrics(hostDiskWriteIo, clusterName) : this.formatNodemetrics(diskWriteIo, clusterName)
+    const showCpu = switchCpu ? this.formatMetrics(hostCpu, clusterName) : this.formatMetrics(cpu, clusterName)
+    const showMemory = switchMemory ? this.formatMetrics(hostMemory, clusterName): this.formatMetrics(memory, clusterName)
+    const showNetworkRec = switchNetwork ? this.formatMetrics(hostNetworkRx, clusterName) : this.formatMetrics(networkReceived, clusterName)
+    const showNetworkTrans = switchNetwork ? this.formatMetrics(hostNetworkTx, clusterName) : this.formatMetrics(networkTransmitted, clusterName)
+    const showNodeReadIo = switchDisk ? this.formatMetrics(hostDiskReadIo, clusterName) : this.formatMetrics(diskReadIo, clusterName)
+    const showNodeWriteIo = switchDisk ? this.formatMetrics(hostDiskWriteIo, clusterName) : this.formatMetrics(diskWriteIo, clusterName)
     const fetchApi = {
       getNodeLabels: this.props.getNodeLabels,
       clusterID: this.props.clusterID,
@@ -777,6 +717,7 @@ class ClusterDetail extends Component {
               <TimeControl onChange={this.handleTimeChange} />
               <Metrics
                 scope={this}
+                diskHide={false}
                 cpu={showCpu}
                 memory={showMemory}
                 networkReceived={showNetworkRec}

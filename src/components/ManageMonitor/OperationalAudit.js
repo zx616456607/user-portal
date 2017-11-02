@@ -1851,11 +1851,11 @@ class OperationalAudit extends Component {
             </Select>
             <DatePicker onChange={this.onChangeStartTime} style={{ marginRight: 20, marginTop: 10, float: 'left' }} showTime format='yyyy-MM-dd HH:mm:ss' size='large' />
             <DatePicker onChange={this.onChangeEndTime} style={{ marginRight: 20, marginTop: 10, float: 'left' }} showTime format='yyyy-MM-dd HH:mm:ss' size='large' />
-            <Button className='searchBtn' size='large' onClick={this.submitSearch}>
+            <Button className='searchBtn' size='large' onClick={this.submitSearch} type='primary'>
               <i className='fa fa-wpforms'></i> <FormattedMessage {...menusText.search} />
             </Button>
-            <Button type="primary" size="large" className='refresh' onClick={this.refreshLogs}>
-              刷新
+            <Button type="default" size="large" className='refresh' onClick={this.refreshLogs}>
+              刷 新
             </Button>
             { this.state.totalNum !== 0 && <div className='bottomBox'>
               <div className='pageBox'>
