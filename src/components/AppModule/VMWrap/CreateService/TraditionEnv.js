@@ -85,7 +85,8 @@ class TraditionEnv extends Component{
       checkVMUser(infos,{
         success: {
           func: res => {
-            if(res.code === 200){
+            console.log(res)
+            if(res.statusCode === 200){
               this.setState({
                 Prompt: true,
                 loading: false

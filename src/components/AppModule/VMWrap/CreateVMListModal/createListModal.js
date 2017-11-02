@@ -40,7 +40,7 @@ let CreateVMListModal = React.createClass({
     scope.props.checkVMUser(query, {
       success: {
         func: res => {
-          if (res.code === 200) {
+          if (res.statusCode === 200) {
             this.setState({
               Prompt: true,
               isShow: true,
@@ -138,7 +138,7 @@ let CreateVMListModal = React.createClass({
       scope.props.checkVminfoExists(query, {
         success: {
           func: res => {
-            if (res.code === 200) {
+            if (res.statusCode === 200) {
               callback()
               return
             }

@@ -63,6 +63,11 @@ class VMServiceList extends React.Component {
       },
       failed:{
         func: res => {
+          if (res.statusCode === 400){
+            this.pageAndSerch(null,1,true)
+            notify.error(res.message)
+            return
+          }
           this.pageAndSerch(null,1,true)
           notify.error('重新部署失败')
         },
@@ -130,9 +135,10 @@ class VMServiceList extends React.Component {
     },{
       success: {
         func: (res) => {
-          this.addKey(res.body.services)
+          this.addKey(res.results)
           this.setState({
-            service:res.body,
+            service:res.results,
+            total:res.count,
             name,
             loading: false
           })
@@ -240,7 +246,7 @@ class VMServiceList extends React.Component {
               </div>
             }
           </div>
-          <Table loading={loading} pagination={false} columns={columns} dataSource={service.services} onRowClick={(record)=>this.rowClick(record)}/>
+          <Table loading={loading} pagination={false} columns={columns} dataSource={service} onRowClick={(record)=>this.rowClick(record)}/>
         </div>
       </QueueAnim>
     )
