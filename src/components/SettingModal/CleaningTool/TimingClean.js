@@ -614,7 +614,7 @@ class TimingClean extends Component {
                       className='reset_formItem_style'
                     >
                       <TimePicker
-                        // format="HH:mm"
+                        format="HH:mm"
                         disabled={systemEdit}
                         {...systemCleaningTimeProps}
                       />
@@ -692,7 +692,7 @@ class TimingClean extends Component {
                       className='reset_formItem_style'
                     >
                       <TimePicker
-                        // format="HH:mm"
+                        format="HH:mm"
                         {...CICDcacheTimeProps}
                         disabled={cicdEdit}
                       />
