@@ -69,7 +69,7 @@ class SearchInput extends React.Component{
       success: {
         func: res => {
           if(REG.test(res.data.code)){
-            Search(res.data.data)
+            Search(res.data.data, filter)
           }
         }
       }
