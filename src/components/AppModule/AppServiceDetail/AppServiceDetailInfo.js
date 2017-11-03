@@ -651,7 +651,15 @@ class AppServiceDetailInfo extends Component {
                 storageType: type,
                 hostPath: mountPath,
               }
-              list.push(container)
+              // 过滤掉 hostPath 的 path 为 '/etc/localtime' 和 '/etc/timezone' 的情况
+              if(item.hostPath){
+                if(item.hostPath.path !== '/etc/localtime' && item.hostPath.path !== '/etc/timezone'){
+                  list.push(container)
+                }
+              }
+              if(item.persistentVolumeClaim){
+                list.push(container)
+              }
             }
             // 老存储
             if(item.rbd){
