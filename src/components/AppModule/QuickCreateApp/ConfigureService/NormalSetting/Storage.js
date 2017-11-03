@@ -208,7 +208,11 @@ const Storage = React.createClass({
             volumeName = `${name}`
           }
           if(type == 'host'){
-            volumeName = '未绑定'
+            if(this.getServiceIsBindNode()){
+              volumeName = '已绑定'
+            } else {
+              volumeName = '未绑定'
+            }
           }
         } else {
           if(type == 'private'){
@@ -219,7 +223,11 @@ const Storage = React.createClass({
             volumeName = `${name}`
           }
           if(type == 'host'){
-            volumeName = '未绑定'
+            if(this.getServiceIsBindNode()){
+              volumeName = '已绑定'
+            } else {
+              volumeName = '未绑定'
+            }
           }
         }
         return <Row key={`storagelist${index}`} className='storage_row_style'>
@@ -373,6 +381,17 @@ const Storage = React.createClass({
       storageList: list,
     })
   },
+  getServiceIsBindNode(){
+    const { form } = this.props
+    const { getFieldValue } = form
+    const bindNodeType = getFieldValue('bindNodeType')
+    const bindNode = getFieldValue('bindNode')
+    let isBindNode = false
+    if(bindNodeType == 'hostname' && bindNode !== 'tenx_system_default_schedule' ){
+      isBindNode = true
+    }
+    return isBindNode
+  },
   render() {
     const {
       formItemLayout, form, isCanCreateVolume,
@@ -455,6 +474,7 @@ const Storage = React.createClass({
             replicas={currentFields.replicas && currentFields.replicas.value || 1}
             isAutoScale={false}
             from={'createApp'}
+            isBindNode={this.getServiceIsBindNode()}
           />
         </Modal>
       </Row>
