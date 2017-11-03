@@ -1348,19 +1348,19 @@ class Ordinary extends Component {
     const serviceList = [
       {
         key: 'mysql',
-        text: '关系型数据库 (个)'
+        text: 'MySQL集群 (个)'
       }, {
         key: 'redis',
-        text: '缓存 (个)'
+        text: 'Redis集群 (个)'
       }, {
         key: 'zookeeper',
-        text: 'Zookeeper (个)'
+        text: 'Zookeeper集群 (个)'
       }, {
         key: 'elasticsearch',
-        text: 'ElasticSearch (个)'
+        text: 'ElasticSearch集群 (个)'
       }, {
         key: 'etcd',
-        text: 'Etcd (个)'
+        text: 'Etcd集群 (个)'
       }]
     const spaceName = space.name || space.userName
     return (
@@ -1516,13 +1516,13 @@ class Ordinary extends Component {
                   serviceList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={12}>
+                        <Col span={13}>
                           <span>{item.text}</span>
                         </Col>
                         <Col span={5}>
                           <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
-                        <Col span={7}>
+                        <Col span={6}>
                           {
                             this.useClusterCount(item.key) > this.maxClusterCount(item.key) ?
                               this.maxClusterCount(item.key) === -1 ?
