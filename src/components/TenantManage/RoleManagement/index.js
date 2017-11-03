@@ -55,6 +55,7 @@ class RoleManagement extends React.Component {
       creationTime: true,
       total: 0,
       current: 0,
+      searchValue: '',
     }
   }
 
@@ -79,13 +80,14 @@ class RoleManagement extends React.Component {
    */
   loadData(isSort, n) {
     const { ListRole } = this.props
-    const { creationTime } = this.state
+    const { creationTime, searchValue } = this.state
     let page = n - 1 || 0
     let sort = isSort ? this.getSort(creationTime, 'create_time') : this.getSort(!creationTime, 'update_time')
     let query = {
       from: page * 10,
       size: 10,
       sort,
+      filter: searchValue !== '' ? searchValue : ''
     }
     ListRole(query, {
       success: {
@@ -344,11 +346,12 @@ class RoleManagement extends React.Component {
    * 模糊搜索
    * @param {*} data
    */
-  handleSearch(data) {
+  handleSearch(data, value) {
     this.setState({
       roleData: data ? data.items : [],
       total: data.total,
       current: 1,
+      searchValue: value,
     })
   }
   handleSort() {
