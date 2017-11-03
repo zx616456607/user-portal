@@ -365,7 +365,7 @@ class TimingClean extends Component {
         return `${time} 1/1 * ?`
         break;
       case 'week':
-        return `${time} 0 * ${CICDcacheDate}`
+        return `${time} * * ${CICDcacheDate}`
         break;
       case 'month':
         return `${time} ${CICDcacheDate} * ?`
