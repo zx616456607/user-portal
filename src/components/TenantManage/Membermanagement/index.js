@@ -29,6 +29,7 @@ import CommonSearchInput from '../../CommonSearchInput'
 import DeletedUsersModal from './DeletedUsersModal'
 import DeleteUserModal from './DeleteUserModal'
 import successPic from '../../../assets/img/wancheng.png'
+import QueueAnim from 'rc-queue-anim'
 
 const confirm = Modal.confirm
 
@@ -815,9 +816,11 @@ class Membermanagement extends Component {
       checkUserName
     }
     return (
-      <div id="Membermanagement">
+      <QueueAnim>
+      <div id="Membermanagement" key='Membermanagement'>
         <Alert message={`成员是指公司内外共同协作使用平台的人，创建成员成功后该成员将有一个默认的个人的项目，可在项目中创建个人的资源。系统管理员有创建并管理所有成员（其他系统管理员、普通成员）的权限。`}
           type="info" />
+        <Title title="成员管理"/>
         <Row>
           {
             userDetail.role === ROLE_SYS_ADMIN &&
@@ -876,7 +879,7 @@ class Membermanagement extends Component {
               可将该成员添加到某团队；或将该成员添加到某项目中，并授予角色。
             </div>
           </Modal>
-          <div className="total">共计 {this.props.total} 条&nbsp; </div>
+          { this.props.total !== 0 && <div className="total">共计 {this.props.total} 条&nbsp; </div>}
         </Row>
         <Row className="memberList">
           <Card className="memberlist">
@@ -921,6 +924,7 @@ class Membermanagement extends Component {
           loginUser={userDetail}
         /> */}
       </div>
+      </QueueAnim>
     )
   }
 }

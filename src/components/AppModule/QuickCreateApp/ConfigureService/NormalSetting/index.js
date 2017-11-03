@@ -193,6 +193,17 @@ const Normal = React.createClass({
         { required: true },
       ],
     })
+    const enabledNode = []
+    const disabledNode = []
+    clusterNodes.forEach((item, index) => {
+      const { isMaster, schedulable } = item
+      if (isMaster || !schedulable) {
+        disabledNode.push(item)
+      } else {
+        enabledNode.push(item)
+      }
+    })
+    const mapArray = enabledNode.concat(disabledNode)
     return <div>
       <FormItem className='hostname'>
         <Select
@@ -205,7 +216,7 @@ const Normal = React.createClass({
         >
           <Select.Option value={SYSTEM_DEFAULT_SCHEDULE}>使用系统默认调度</Select.Option>
           {
-            clusterNodes.map(node => {
+            mapArray.map(node => {
               const { name, ip, podCount, schedulable, isMaster } = node
               return (
                 <Select.Option key={name} disabled={isMaster || !schedulable}>

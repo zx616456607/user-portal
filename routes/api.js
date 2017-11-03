@@ -245,6 +245,7 @@ module.exports = function (Router) {
   router.get('/overview/clusters/:cluster_id/dbservices', overviewClusterController.getClusterDbServices)
   router.get('/overview/clusters/:cluster_id/nodesummary', overviewClusterController.getClusterNodeSummary)
   router.get('/overview/clusters/:cluster_id/summary', overviewClusterController.getClusterSummary)
+  router.get('/overview/clusters/:cluster_id/volumestats', overviewClusterController.getClusterStats)
 
   //Overview Space
   router.get('/overview/spaceinfo', overviewSpaceController.getSpaceOverview)
@@ -654,6 +655,7 @@ module.exports = function (Router) {
   router.post('/cleaner/cron', cleanController.deleteLogsAutoClean)
   router.post('/cleanlogs/flush', cleanController.deleteCleanLogs)
   router.get('/cleaner/monitor', cleanController.getMonitorSetting)
-
+  router.get('/cleaner/systemlog/status', cleanController.getSystemLogStatus)
+  
   return router.routes()
 }

@@ -23,6 +23,7 @@ import CreateRoleModal from './RoleEditManage/index.js'
 import Roles from './../ProjectManage/CreateRole'
 import { REG } from '../../../constants/index.js'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
+import Title from '../../Title'
 
 const Option = Select.Option
 
@@ -53,6 +54,8 @@ class RoleManagement extends React.Component {
       autoExpandParent: true,
       creationTime: true,
       total: 0,
+      current: 0,
+      searchValue: '',
     }
   }
 
@@ -77,13 +80,14 @@ class RoleManagement extends React.Component {
    */
   loadData(isSort, n) {
     const { ListRole } = this.props
-    const { creationTime } = this.state
+    const { creationTime, searchValue } = this.state
     let page = n - 1 || 0
     let sort = isSort ? this.getSort(creationTime, 'create_time') : this.getSort(!creationTime, 'update_time')
     let query = {
       from: page * 10,
       size: 10,
-      sort
+      sort,
+      filter: searchValue !== '' ? searchValue : ''
     }
     ListRole(query, {
       success: {
@@ -93,7 +97,8 @@ class RoleManagement extends React.Component {
             this.setState({
               loading: false,
               roleData: data,
-              total: res.data.data.total
+              current: n === undefined ? 1 : n,
+              total: res.data.data.total,
             })
           }
         },
@@ -341,9 +346,12 @@ class RoleManagement extends React.Component {
    * 模糊搜索
    * @param {*} data
    */
-  handleSearch(data) {
+  handleSearch(data, value) {
     this.setState({
-      roleData: data ? data.items : []
+      roleData: data ? data.items : [],
+      total: data.total,
+      current: 1,
+      searchValue: value,
     })
   }
   handleSort() {
@@ -368,6 +376,7 @@ class RoleManagement extends React.Component {
       total: total,
       defaultPageSize: 10,
       defaultCurrent: 1,
+      current: this.state.current,
       onChange: (n) => this.loadData(null, n)
     };
     const columns = [{
@@ -497,16 +506,16 @@ class RoleManagement extends React.Component {
       return <TreeNode key={item.id} title={item.name} disableCheckbox />;
     })
     const scope = this
-
     return (
       <QueueAnim className="RoleManagement">
-        <div id="RoleManagement">
+        <div id="RoleManagement" key='RoleManagement'>
+          <Title title="项目角色"/>
           <Alert message={`项目角色是指一组权限的集合，你可以创建一个有若干权限的角色，在某项目中添加角色并为该角色关联对象（成员或团队成员）。系统管理员有管理所有角色的权限，其他成员可创建角色并管理自己创建的角色。`}
             type="info" />
           <div className='operationBox'>
             <div className='leftBox'>
               <Button onClick={this.handleRoleitem.bind(this)} type='primary' size='large'>
-                <i className="fa fa-plus" aria-hidden="true" style={{ marginRight: '8px' }}></i>创建角色
+                <i className="fa fa-plus" aria-hidden="true" style={{ marginRight: '8px' }}/>创建角色
               </Button>
               <Button className="bag" type='ghost' size='large' onClick={() => this.handleRefresh()}>
                 <i className='fa fa-refresh' />刷新
@@ -516,10 +525,10 @@ class RoleManagement extends React.Component {
             </Button> */}
             </div>
             <SearchInput scope={scope} searchIntOption={searchIntOption} Search={this.handleSearch.bind(this)} />
-            <div className='pageBox'>
+            { roleData && roleData.length !== 0 && <div className='pageBox'>
               <span className='totalPage'>共计{total ? total : 0}条</span>
               <Pagination className="pag" {...pageOption} />
-            </div>
+            </div>}
           </div>
           <div className='appBox'>
             <Table

@@ -1076,7 +1076,7 @@ class AppList extends Component {
                   onPressEnter={this.searchApps} />
               </div>
             </div>
-            <div className='pageBox'>
+            { total !== 0 && <div className='pageBox'>
               <span className='totalPage'>共 {total} 条</span>
               <div className='paginationBox'>
                 <Pagination
@@ -1088,7 +1088,7 @@ class AppList extends Component {
                   pageSize={size}
                   total={total} />
               </div>
-            </div>
+            </div>}
             <div className='clearDiv'></div>
           </div>
 
@@ -1135,7 +1135,7 @@ class AppList extends Component {
                   onPressEnter={this.searchApps} />
               </div>
             </div>
-            <div className='pageBox'>
+            { total !== 0 && <div className='pageBox'>
               <span className='totalPage'>共 {total} 条</span>
               <div className='paginationBox'>
                 <Pagination
@@ -1147,7 +1147,7 @@ class AppList extends Component {
                   pageSize={size}
                   total={total} />
               </div>
-            </div>
+            </div>}
             <div className='clearDiv'></div>
           </div>
 
@@ -1191,7 +1191,7 @@ class AppList extends Component {
                   onPressEnter={this.searchApps} />
               </div>
             </div>
-            <div className='pageBox'>
+            { total !== 0 && <div className='pageBox'>
               <span className='totalPage'>共 {total} 条</span>
               <div className='paginationBox'>
                 <Pagination
@@ -1203,7 +1203,7 @@ class AppList extends Component {
                   pageSize={size}
                   total={total} />
               </div>
-            </div>
+            </div>}
             <div className='clearDiv'></div>
           </div>
 

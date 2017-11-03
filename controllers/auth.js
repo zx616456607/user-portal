@@ -21,7 +21,12 @@ const security = require("../utils/security")
 
 exports.login = function* () {
   let method = 'login'
-  let title = `${this.t('common:login')} | ${this.t('common:tenxcloud')}`
+  let title = this.t('common:login')
+  const oemInfo = global.globalConfig.oemInfo || {}
+  const productName = oemInfo.company && oemInfo.company.productName
+  if (productName) {
+    title = title + ' | ' + productName
+  }
 
   if (this.session.loginUser) {
     this.status = 302

@@ -252,8 +252,8 @@ exports.getServiceAutoScaleList = function* () {
   for (let key in tempList){ 
     if ((filter === "" || key.match(filter) != null || tempList[key].metadata.labels.strategyName.match(filter) != null) && index >= from && index < from + size){
       autoScaleList[key] = tempList[key]
+      index++
     }
-    index++
   }
   this.body = {
     cluster,

@@ -23,7 +23,7 @@ class Metrics extends Component {
   }
 
   render() {
-    const { cpu, memory, networkReceived, networkTransmitted, events, diskReadIo, diskWriteIo, scope } = this.props
+    const { cpu, memory, networkReceived, networkTransmitted, events, diskReadIo, diskWriteIo, scope, diskHide } = this.props
     return (
       <div className="metrics" style={{marginTop:12}}>
         <CPU cpu={cpu} events={events} scope={scope}/>
@@ -34,12 +34,15 @@ class Metrics extends Component {
           events={events}
           scope={scope}
         />
-        <Disk 
-          diskReadIo={diskReadIo} 
-          events={events} 
-          diskWriteIo={diskWriteIo}
-          scope={scope}
-        />
+        {
+          !diskHide &&
+            <Disk
+              diskReadIo={diskReadIo}
+              events={events}
+              diskWriteIo={diskWriteIo}
+              scope={scope}
+            />
+        }
       </div>
     )
   }

@@ -663,9 +663,9 @@ function mapStateToProps(state, props) {
   const { getCdRules, getCdImage} = state.cicd_flow
   const { cdRulesList, isFetching } = getCdRules || defaultConfig
   const { cdImageList } = getCdImage || []
-  const { projectClusterList } = state.projectAuthority
+  const { projectVisibleClusters } = state.projectAuthority
   const currentNamespace = space.namespace
-  const currentProjectClusterList = projectClusterList[currentNamespace] || {}
+  const currentProjectClusterList = projectVisibleClusters[currentNamespace] || {}
   const projectClusters = currentProjectClusterList.data || []
   return {
     isFetching,

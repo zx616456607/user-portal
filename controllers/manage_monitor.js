@@ -8,6 +8,8 @@
  * @author GaoJian
  */
 'use strict'
+
+const moment = require('moment')
 const Service = require('../kubernetes/objects/service')
 const apiFactory = require('../services/api_factory')
 const elasticdump = require('../services/elasticdump')
@@ -84,7 +86,7 @@ function* dumpLog(clusterID, loginUser, query, containerName, podNames) {
     }
   }
   let logName = containerName || podNames.join('|')
-  logName = `${logName}|${(new Date()).toISOString()}`
+  logName = `${logName}-${moment().format('YYYY-MM-DD-HH-mm-ss')}`
 
   const scope = this
   this.status = 200

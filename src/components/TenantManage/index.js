@@ -18,6 +18,7 @@ import './style/tenantManage.less'
 import Title from '../Title'
 import { fetchinfoList } from '../../actions/tenant_overview'
 import ReactEcharts from 'echarts-for-react'
+import QueueAnim from 'rc-queue-anim'
 
 class TenantManage extends React.Component {
   constructor(props) {
@@ -458,7 +459,8 @@ class TenantManage extends React.Component {
       visibility: this.state.iconState ? 'hidden' : 'inherit'
     }
     return (
-      <div id="tenantManage">
+      <QueueAnim>
+      <div id="tenantManage" key='tenantManage'>
         <Title title="概览" />
         <Row className="title">
           控制权限概览
@@ -557,6 +559,7 @@ class TenantManage extends React.Component {
           </Col>
         </Row>
       </div>
+      </QueueAnim>
     )
   }
 }

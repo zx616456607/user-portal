@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, Tooltip, Spin, Popover, Menu } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, Tooltip, Spin, Popover, Menu, Alert } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -20,7 +20,7 @@ import { appNameCheck } from '../../../../../common/naming_validation'
 import DockerFileEditor from '../../../../Editor/DockerFile'
 import ShellEditor from '../../../../Editor/Shell'
 import { createTenxFlowState, createDockerfile, getTenxFlowDetail, createScripts } from '../../../../../actions/cicd_flow'
-import { loadProjectList } from '../../../../../actions/harbor'
+import { loadProjectList, loadRepositoriesTagConfigInfo } from '../../../../../actions/harbor'
 import './style/CreateTenxFlowModal.less'
 import EnvComponent from './EnvComponent.js'
 import CreateImageEnvComponent from './CreateImageEnvComponent.js'
@@ -264,7 +264,7 @@ let CreateTenxFlowModal = React.createClass({
       isFirstChangeTag: true,
       isFirstChangeDockerfileType: true,
       isCreateScripts: true,
-      shellCodeType: 'scripts',
+      shellCodeType: 'default',
       shellModalShow: false,
       scriptsTextarea: '',
       saveShellCodeBtnLoading: false,
@@ -273,6 +273,7 @@ let CreateTenxFlowModal = React.createClass({
       noShell: false,
       cachedVolumes: [],
       addCachedVolumeModal: false,
+      shellDefaultCmd: [],
     }
   },
   getUniformRepo() {
@@ -302,6 +303,27 @@ let CreateTenxFlowModal = React.createClass({
     const { loadClusterList, loadProjectList } = this.props
     loadClusterList()
     loadProjectList(DEFAULT_REGISTRY, { page_size: 100 })
+  },
+  loadBaseImageConfig(imageNameAndTag) {
+    let [ imageName, tag ] = imageNameAndTag.split(':')
+    tag = tag || 'latest'
+    const { loadRepositoriesTagConfigInfo } = this.props
+    loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY, imageName, tag, {
+      success: {
+        func: res => {
+          this.setState({
+            shellDefaultCmd: res.data.cmd || [],
+          })
+        }
+      },
+      failed: {
+        func: res => {
+          this.setState({
+            shellDefaultCmd: [],
+          })
+        }
+      },
+    })
   },
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
@@ -856,7 +878,7 @@ let CreateTenxFlowModal = React.createClass({
           notification.error('使用脚本命令，内容不能为空，请先填写脚本命令')
           return
         }
-      } else {
+      } else if (_this.state.shellCodeType == 'scripts') {
         if (this.state.otherFlowType != 3 && (!this.state.scriptsTextarea || this.state.scriptsTextarea.replace(/\s/g, '') === '#!/bin/sh')) {
           this.setState({
             noShell: true,
@@ -897,10 +919,8 @@ let CreateTenxFlowModal = React.createClass({
           status: values.cachedVolume ? 1 : 0,
           containerPath: cachedVolumeValues.containerPath,
           pvcName: cachedVolumeValues.pvcName,
-        }
-        if (!cachedVolumeValues.pvcName) {
-          cachedVolumeObj.volumeName = cachedVolumeValues.volumeName
-          cachedVolumeObj.volumeSize = cachedVolumeValues.volumeSize
+          volumeName: cachedVolumeValues.volumeName,
+          volumeSize: cachedVolumeValues.volumeSize,
         }
         body.spec.container.cachedVolume = cachedVolumeObj
       }
@@ -1011,7 +1031,7 @@ let CreateTenxFlowModal = React.createClass({
         });
       }
       // 使用命令或构建镜像时直接创建 stage 跳过创建脚本
-      if (_this.state.shellCodeType === 'cmd' || body.metadata.type === 3) {
+      if (_this.state.shellCodeType === 'cmd' || _this.state.shellCodeType == 'default' || body.metadata.type === 3) {
         return _createTenxFlowState()
       }
       const { createScripts } = _this.props
@@ -1112,6 +1132,10 @@ let CreateTenxFlowModal = React.createClass({
     setFieldsValue({
       imageName: key
     })
+    // if is not build image
+    if (groupKey != 3) {
+      this.loadBaseImageConfig(key)
+    }
     if (!oldImageName) {
       this.flowTypeChange(groupKey, false)
       return
@@ -1567,7 +1591,7 @@ let CreateTenxFlowModal = React.createClass({
             </div>
             <div style={{ clear: 'both' }} />
           </div>}
-          {this.props.isBuildImage ? '' : <div className='commonBox'>
+          {(this.props.isBuildImage || this.state.otherFlowType == 3) ? '' : <div className='commonBox'>
             <div className='title'>
               <span><FormattedMessage {...menusText.servicesTitle} /></span>
             </div>
@@ -1583,7 +1607,7 @@ let CreateTenxFlowModal = React.createClass({
             </div>
             <div style={{ clear: 'both' }} />
           </div>}
-          {this.props.isBuildImage ? '' : <div className='commonBox'>
+          {(this.props.isBuildImage || this.state.otherFlowType == 3) ? '' : <div className='commonBox'>
             <div className='title'>
               <span><FormattedMessage {...menusText.shellCode} /></span>
             </div>
@@ -1593,8 +1617,9 @@ let CreateTenxFlowModal = React.createClass({
                 disabled={this.state.otherFlowType == 3}
                 onChange={e => this.setState({ shellCodeType: e.target.value })}
               >
+                <Radio value="default" key="default">镜像命令</Radio>
                 <Radio value="scripts" key="scripts">使用脚本文件</Radio>
-                <Radio value="cmd" key="cmd">使用命令</Radio>
+                <Radio value="cmd" key="cmd">定制命令</Radio>
               </RadioGroup>
             </div>
             <div style={{ clear: 'both' }} />
@@ -1602,8 +1627,15 @@ let CreateTenxFlowModal = React.createClass({
             </div>
             <div className='input shellCode'>
               {
+                this.state.shellCodeType === 'default' && (
+                  <div className="shellDefaultCmd">
+                    <Alert message={this.state.shellDefaultCmd.join(' ') || '无'} type="success" />
+                  </div>
+                )
+              }
+              {
                 this.state.shellCodeType === 'scripts'
-                  ? (
+                  && (
                     <Button
                       size="large"
                       disabled={this.state.otherFlowType == 3}
@@ -1622,8 +1654,10 @@ let CreateTenxFlowModal = React.createClass({
                       }
                     </Button>
                   )
-                  : <div>{shellCodeItems}</div>
               }
+              <div className={this.state.shellCodeType === 'cmd' ? '' : 'hide'}>
+                {shellCodeItems}
+              </div>
             </div>
             <div style={{ clear: 'both' }} />
             {
@@ -2083,6 +2117,7 @@ export default connect(mapStateToProps, {
   getAllClusterNodes,
   loadProjectList,
   createScripts,
+  loadRepositoriesTagConfigInfo,
 })(injectIntl(CreateTenxFlowModal, {
   withRef: true,
 }));

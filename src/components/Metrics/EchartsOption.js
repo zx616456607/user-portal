@@ -11,6 +11,7 @@
 
 import ColorHash from 'color-hash'
 const colorHash = new ColorHash()
+import { formatDate } from "../../common/tools";
 
 class EchartsOption {
   constructor(text) {
@@ -21,8 +22,23 @@ class EchartsOption {
         fontWeight: 'normal',
       }
     }
+    this.toolbox = {
+      show: false
+    }
+    this.tooltipUnit = ''
     this.tooltip = {
       trigger: 'axis',
+      formatter: (params) => {
+        let res = `${formatDate(params[0]['data'][0], 'MM-DD HH:mm:ss')}<br/>`
+        params.forEach(item => {
+          let name = item.seriesName
+          name = name.split('-')
+          name.splice(1, 1)
+          name = name.join('-')
+          res += `${name} : ${item.data[1]}${this.tooltipUnit}<br/>`
+        })
+        return res
+      },
       axisPointer: {
         animation: false
       }
@@ -44,7 +60,8 @@ class EchartsOption {
     }]
     this.xAxis = {
       name: '',
-      type: 'category',
+      type: 'value',
+      max: 'dataMax',
       boundaryGap: false,
       axisLine: { onZero: true },
       splitLine: {
@@ -52,6 +69,9 @@ class EchartsOption {
         lineStyle: {
           type: 'dashed'
         }
+      },
+      axisLabel: {
+        formatter: value => formatDate(value, 'MM-DD HH:mm:ss')
       },
       data: []
     }
@@ -62,17 +82,28 @@ class EchartsOption {
   setXAxis(xAxis) {
     this.xAxis = xAxis
   }
-
+  
+  setXAxisMinAndMax(min, max) {
+    min && (this.xAxis.min = min)
+    max && (this.xAxis.max = max)
+  }
+  
+  setToolTipUnit(unit) {
+    this.tooltipUnit = unit
+  }
+  
   setXAxisData(data) {
     this.xAxis.data = data
   }
 
-  addYAxis(type, axisLabel) {
+  addYAxis(type, axisLabel, min, max) {
     const yAxisItem = {
       type: 'value',
       axisLabel: {
         formatter: '{value} %'
       },
+      min,
+      max,
       splitLine: {
         lineStyle: {
           type: 'dashed'
@@ -85,6 +116,12 @@ class EchartsOption {
     if (axisLabel) {
       yAxisItem.axisLabel = axisLabel
     }
+    if (min) {
+      yAxisItem.min = min
+    }
+    if (max) {
+      yAxisItem.max = max
+    }
     this.yAxis.push(yAxisItem)
   }
 
@@ -94,6 +131,7 @@ class EchartsOption {
       type: 'line',
       hoverAnimation: false,
       // symbol: 'none',
+      showSymbol: false,
       symbolSize: '5',
       itemStyle: {
         normal: {

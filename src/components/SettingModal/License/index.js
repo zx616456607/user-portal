@@ -19,6 +19,7 @@ import { getPortalRealMode } from '../../../common/tools'
 import { LITE } from '../../../constants'
 import { camelize } from 'humps'
 import Title from '../../Title'
+import QueueAnim from 'rc-queue-anim'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -220,7 +221,8 @@ class License extends Component {
     }
     const { licenses, merged } = license
     return (
-      <div id='License'>
+      <QueueAnim>
+      <div id='License' key='License'>
         <Title title="授权管理" />
         <div className="title">授权管理</div>
         <Card className="licenseWrap">
@@ -320,6 +322,7 @@ class License extends Component {
           </div>
         </Card>
       </div>
+      </QueueAnim>
     )
   }
 }

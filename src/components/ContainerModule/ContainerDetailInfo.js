@@ -65,6 +65,9 @@ export default class ContainerDetailInfo extends Component {
             break
           }
         }
+        if((type == '本地存储' && mountPath == '/etc/localtime') || (type == '本地存储' && mountPath == '/etc/timezone')){
+          return null
+        }
         return <Row key={`volume${index}`}>
           <Col span='8' className='commonTitle'>{type}</Col>
           <Col span='8' className='commonTitle'>{name}</Col>

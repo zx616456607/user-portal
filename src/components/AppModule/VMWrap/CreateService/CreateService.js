@@ -101,20 +101,20 @@ class VMServiceCreate extends React.Component {
         return notify.info('请选择部署包')
       }
       createVMservice({
-        serviceName,
-        vmInfo:{
+        name: serviceName,
+        vminfo:{
           host,
           account,
           password
         },
-        healthCheck:{
-          address,
-          init,
-          normal,
+        healthcheck:{
+          check_address:address,
+          init_timeout:init,
+          normal_timeout:normal,
           interval
         },
-        Packages:packages,
-        ENV:obj
+        packages:packages,
+        envs:obj
       },{
         success: {
           func: res => {

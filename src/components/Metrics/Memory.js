@@ -13,7 +13,7 @@
 import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
-import { Row, Col, Switch } from 'antd'
+import { Tooltip, Switch } from 'antd'
 
 function formatGrid(count) {
   //this fucntion for format grid css
@@ -31,32 +31,46 @@ class Memory extends Component {
     const option = new EchartsOption('内存')
     const { memory, scope } = this.props
     const { isFetching, data } = memory
-    const { switchMemory, freshTime, MemoryLoading } = scope.state
-    let timeText = switchMemory ? '5秒钟' : freshTime
+    const { switchMemory, freshTime, MemoryLoading, currentStart, currentMemoryStart } = scope.state
+    let timeText = switchMemory ? '10秒钟' : freshTime
     option.addYAxis('value', {
       formatter: '{value} M'
     })
+    option.setToolTipUnit(' M')
+    let minValue = 'dataMin'
     data&&data.map((item) => {
-      let timeData = []
-      let values = []
+      let dataArr = []
       const metrics = Array.isArray(item.metrics)
         ? item.metrics
         : []
       metrics.map((metric) => {
-        timeData.push(metric.timestamp)
         // metric.value || floatValue  only one
-        values.push(Math.floor((metric.floatValue || metric.value) / 1024 / 1024 * 10) /10)
+        dataArr.push([
+          Date.parse(metric.timestamp),
+          Math.floor((metric.floatValue || metric.value) / 1024 / 1024 * 10) /10
+        ])
       })
-      option.setXAxisData(timeData)
-      option.addSeries(values, item.containerName)
+      if (switchMemory) {
+        if (Date.parse(item.metrics && item.metrics.length && item.metrics[0].timestamp) > Date.parse(currentMemoryStart)) {
+          minValue = Date.parse(currentMemoryStart)
+        }
+      } else {
+        if (Date.parse(item.metrics && item.metrics.length && item.metrics[0].timestamp) > Date.parse(currentStart)) {
+          minValue = Date.parse(currentStart)
+        }
+      }
+      option.addSeries(dataArr, item.containerName)
     })
+    option.setXAxisMinAndMax(minValue)
     option.setGirdForDataCommon(data&&data.length)
     return (
       <div className="chartBox">
         <span className="freshTime">
           {`时间间隔：${timeText}`}
         </span>
-        <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Memory')} checkedChildren="开" unCheckedChildren="关"/>
+        <Tooltip title="实时开关">
+          <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Memory')} checkedChildren="开" unCheckedChildren="关"/>
+        </Tooltip>
         <ReactEcharts
           style={{ height: formatGrid(data&&data.length) }}
           notMerge={true}

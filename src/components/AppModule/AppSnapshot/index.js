@@ -23,6 +23,7 @@ import { Link } from 'react-router'
 import CreateVolume from '../../StorageModule/CreateVolume'
 import { browserHistory } from 'react-router'
 import { UPDATE_INTERVAL } from '../../../constants'
+import QueueAnim from 'rc-queue-anim'
 
 const notificationHandler = new NotificationHandler()
 
@@ -430,13 +431,13 @@ class Snapshot extends Component {
   }
 
   handleCloneSnapshot(key){
-    const { snapshotDataList, currentCluster } = this.props
-    const storage_type = currentCluster.storageTypes
+    const { snapshotDataList, currentCluster, storageClassType } = this.props
     //判断当前快照状态
     if(snapshotDataList[key].status !== 0){
       return this.statusModalInfo(snapshotDataList[key].status)
     }
-    if (!storage_type || storage_type.indexOf('rbd') < 0){
+    const { private: privateValue } = storageClassType
+    if(!privateValue){
       this.setState({
         createFalse: true,
       })
@@ -583,7 +584,8 @@ class Snapshot extends Component {
       onChange: this.onSelectChange,
     };
     return (
-      <div id="appmanage_snapshot">
+      <QueueAnim className='appmanage_snapshot' type='right'>
+      <div id="appmanage_snapshot" key='appmanage_snapshot'>
         <Title title="快照" />
         <div className='appmanage_snapshot_header'>
           <Button icon="delete" size='large' onClick={this.handleDeleteSnapshots} disabled={DeleteSnapshotButton}>删除</Button>
@@ -592,8 +594,8 @@ class Snapshot extends Component {
             <i className="fa fa-search searchIcon" aria-hidden="true" onClick={this.handelEnterSearch}></i>
           </span>
           {
-            snapshotDataList && snapshotDataList.length !== 0
-              ? <span className='totalNum'>共计<span className='item'>{snapshotDataList.length}</span>条</span>
+            this.state.SnapshotList && this.state.SnapshotList.length !== 0
+              ? <span className='totalNum'>共计<span className='item'>{this.state.SnapshotList.length}</span>条</span>
               : <span></span>
           }
         </div>
@@ -770,6 +772,7 @@ class Snapshot extends Component {
             </div>
           </Modal>
       </div>
+      </QueueAnim>
     )
   }
 }
@@ -781,12 +784,21 @@ function mapStateToProps(state, props){
   for(let i = 0; i < snapshotDataList.length; i++){
     snapshotDataList[i].key = i
   }
+  let defaultStorageClassType = {
+    private: false,
+    share: false,
+    host: false,
+  }
+  if(cluster.storageClassType){
+    defaultStorageClassType = cluster.storageClassType
+  }
   return {
     storageList: state.storage.storageList || [],
     currentImagePool: DEFAULT_IMAGE_POOL,
     cluster: cluster.clusterID,
     snapshotDataList,
-    currentCluster: cluster
+    currentCluster: cluster,
+    storageClassType: defaultStorageClassType,
   }
 }
 

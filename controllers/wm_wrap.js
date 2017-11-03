@@ -55,7 +55,7 @@ exports.deployService = function* () {
   const api = apiFactory.getVMWrapApi(loginUser)
   const serviceId = this.params.service_id
 
-  const result = yield api.services.createBy([ serviceId, 'deployment' ])
+  const result = yield api.services.updateBy([ serviceId, 'deployment' ])
   this.body = result
 }
 

@@ -541,19 +541,19 @@ class ResourceQuota extends React.Component {
     const serviceList = [
       {
         key: 'mysql',
-        text: '关系型数据库 (个)'
+        text: 'MySQL集群 (个)'
       }, {
         key: 'redis',
-        text: '缓存 (个)'
+        text: 'Redis集群 (个)'
       }, {
         key: 'zookeeper',
-        text: 'Zookeeper (个)'
+        text: 'Zookeeper集群 (个)'
       }, {
         key: 'elasticsearch',
-        text: 'ElasticSearch (个)'
+        text: 'ElasticSearch集群 (个)'
       }, {
         key: 'etcd',
-        text: 'Etcd (个)'
+        text: 'Etcd集群 (个)'
       }]
     const { getFieldProps, getFieldValue, setFieldsValue, setFields } = this.props.form
     return (

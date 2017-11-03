@@ -20,7 +20,7 @@ import NotificationHandler from '../../../components/Notification'
 import ReactEcharts from 'echarts-for-react'
 import {
   startClean, getCleanLogs, cleanSystemLogs, cleanMonitor,
-  getSystemCleanLogs, getMonitorSetting
+  getSystemCleanLogs, getMonitorSetting, getSystemCleanStatus
 } from '../../../actions/clean'
 import { formatDate } from '../../../common/tools'
 import classNames from 'classnames'
@@ -56,6 +56,21 @@ class CleaningTool extends Component {
     this.getSystemLogs()
     this.getCicdLogs()
     this.getMonitorSetting()
+    this.systemCleanStatus()
+  }
+  systemCleanStatus() {
+    const { getSystemCleanStatus } = this.props
+    getSystemCleanStatus({
+      success: {
+        func: res => {
+          if (!res.data) {
+            this.setState({
+              cleanSystemLogStatus: 'cleaning'
+            })
+          }
+        }
+      }
+    })
   }
   getMonitorSetting() {
     const { getMonitorSetting, form } = this.props
@@ -243,13 +258,15 @@ class CleaningTool extends Component {
       time_range,
     }, {
       success: {
-        func: () => {
-          notify.close()
-          notify.success('服务日志手动清理成功')
-          this.setState({
-            cleanSystemLogStatus: true
-          })
-          this.getSystemLogs()
+        func: res => {
+          if (res.data) {
+            notify.close()
+            notify.success('服务日志手动清理成功')
+            this.setState({
+              cleanSystemLogStatus: true
+            })
+            this.getSystemLogs()
+          }
         },
         isAsync: true
       },
@@ -372,6 +389,9 @@ class CleaningTool extends Component {
     const { activeKey, logsLoading, cleanLogs } = this.state
     let tailText = activeKey === 'systemLog' ? ' 个文件' : 'MB 垃圾'
     function formatTotal(total) {
+      if (!total) {
+        return 0
+      }
       if (activeKey === 'cache') {
         return (total / (1024 * 1024)).toFixed(2)
       }
@@ -397,7 +417,7 @@ class CleaningTool extends Component {
             return (
               <TimelineItem key={item.id} color={index === 0 ? 'green' : '#e9e9e9'}>
                 <Row className={classNames({'successColor': index === 0})}>
-                  <Col span={20}>{index === 0 ? `上次清理 ${formatTotal(item.total)}${tailText}` : `清理 ${formatTotal(item.total || 0)}${tailText}`}</Col>
+                  <Col span={20}>{index === 0 ? `上次清理 ${formatTotal(item.total)}${tailText}` : `清理 ${formatTotal(item.total)}${tailText}`}</Col>
                   <Col className="time_item" span={4}>{formatDate(item.createTime, 'MM-DD')}</Col>
                 </Row>
               </TimelineItem>
@@ -585,6 +605,7 @@ class CleaningTool extends Component {
     })
     if (tab === 'systemLog') {
       this.getSystemLogs()
+      this.systemCleanStatus()
     } else if (tab === 'cache') {
       this.getCicdLogs()
     } else {
@@ -929,5 +950,6 @@ export default connect(mapStateToProp, {
   cleanSystemLogs,
   cleanMonitor,
   getSystemCleanLogs,
-  getMonitorSetting
+  getMonitorSetting,
+  getSystemCleanStatus
 })(CleaningTool)
