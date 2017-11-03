@@ -387,6 +387,14 @@ exports.getTargetInstant = function* () {
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], mem))
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tx_rage))
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], rx_rate))
+  if(type == 'node'){
+    let disk = {
+      targetType: type,
+      type: 'disk/usage',
+      source: 'prometheus'
+    }
+    reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], disk))
+  }
   const results = yield reqArray
   let totalMemoryByte = 0
   if (type == 'node') {
@@ -435,7 +443,8 @@ exports.getTargetInstant = function* () {
       cpus: results[0].data[name],
       memory: memory,
       tx_rate: results[2].data[name],
-      rx_rate: results[3].data[name]
+      rx_rate: results[3].data[name],
+      disk: results[4] ? results[4].data[name] : null
     }
   }
 }
