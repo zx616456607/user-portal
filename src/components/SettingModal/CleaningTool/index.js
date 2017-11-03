@@ -20,7 +20,7 @@ import NotificationHandler from '../../../components/Notification'
 import ReactEcharts from 'echarts-for-react'
 import {
   startClean, getCleanLogs, cleanSystemLogs, cleanMonitor,
-  getSystemCleanLogs, getMonitorSetting
+  getSystemCleanLogs, getMonitorSetting, getSystemCleanStatus
 } from '../../../actions/clean'
 import { formatDate } from '../../../common/tools'
 import classNames from 'classnames'
@@ -56,6 +56,21 @@ class CleaningTool extends Component {
     this.getSystemLogs()
     this.getCicdLogs()
     this.getMonitorSetting()
+    this.systemCleanStatus()
+  }
+  systemCleanStatus() {
+    const { getSystemCleanStatus } = this.props
+    getSystemCleanStatus({
+      success: {
+        func: res => {
+          if (!res.data) {
+            this.setState({
+              cleanSystemLogStatus: 'cleaning'
+            })
+          }
+        }
+      }
+    })
   }
   getMonitorSetting() {
     const { getMonitorSetting, form } = this.props
@@ -243,13 +258,15 @@ class CleaningTool extends Component {
       time_range,
     }, {
       success: {
-        func: () => {
-          notify.close()
-          notify.success('服务日志手动清理成功')
-          this.setState({
-            cleanSystemLogStatus: true
-          })
-          this.getSystemLogs()
+        func: res => {
+          if (res.data) {
+            notify.close()
+            notify.success('服务日志手动清理成功')
+            this.setState({
+              cleanSystemLogStatus: true
+            })
+            this.getSystemLogs()
+          }
         },
         isAsync: true
       },
@@ -588,6 +605,7 @@ class CleaningTool extends Component {
     })
     if (tab === 'systemLog') {
       this.getSystemLogs()
+      this.systemCleanStatus()
     } else if (tab === 'cache') {
       this.getCicdLogs()
     } else {
@@ -932,5 +950,6 @@ export default connect(mapStateToProp, {
   cleanSystemLogs,
   cleanMonitor,
   getSystemCleanLogs,
-  getMonitorSetting
+  getMonitorSetting,
+  getSystemCleanStatus
 })(CleaningTool)

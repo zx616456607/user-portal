@@ -655,6 +655,7 @@ module.exports = function (Router) {
   router.post('/cleaner/cron', cleanController.deleteLogsAutoClean)
   router.post('/cleanlogs/flush', cleanController.deleteCleanLogs)
   router.get('/cleaner/monitor', cleanController.getMonitorSetting)
-
+  router.get('/cleaner/systemlog/status', cleanController.getSystemLogStatus)
+  
   return router.routes()
 }

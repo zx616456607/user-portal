@@ -318,7 +318,16 @@ let TeamTable = React.createClass({
     this.setState({ targetKeys })
   },
   handleMenuClick(e, record) {
-    this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})
+    switch(e.key) {
+      case 'delete':
+        this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})
+        break
+      case 'manage':
+        this.addNewMember(record.key)
+        break
+      default:
+        return
+    }
   },
   render() {
     let { sortedInfo, filteredInfo, targetKeys, sort } = this.state
@@ -417,15 +426,18 @@ let TeamTable = React.createClass({
           const menu = (
             <Menu onClick={(e) => this.handleMenuClick(e, record)}>
               <Menu.Item disabled={roleNum !==1 && record.role === 'participator'} key="delete">
-                删除
+                删除团队
+              </Menu.Item>
+              <Menu.Item disabled={roleNum !==1 && record.role === 'participator'} key="manage">
+                管理团队成员
               </Menu.Item>
             </Menu>
           );
           return (
             <Dropdown.Button
               disabled={roleNum !== 1 && record.role === 'participator'}
-              onClick={() => this.addNewMember(record.key)} overlay={menu} type="ghost">
-              管理团队成员
+              onClick={() => {browserHistory.push(`/tenant_manage/team/${record.key}?teamPage=${scope.state.page}`)}} overlay={menu} type="ghost">
+              查看详情
             </Dropdown.Button>
           )
         }
@@ -791,7 +803,7 @@ class TeamManage extends Component {
               查看成员&团队图例
             </Button>
             <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams} />
-            <div className="total">共{this.props.total}个</div>
+            { this.props.total !== 0 && <div className="total">共{this.props.total}个</div>}
           </Row>
           <Row className="teamList">
             <Card>

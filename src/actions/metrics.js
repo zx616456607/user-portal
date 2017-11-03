@@ -186,7 +186,7 @@ export const GET_ALL_METRICS_CONTAINER_REQUEST = 'GET_ALL_METRICS_CONTAINER_REQU
 export const GET_ALL_METRICS_CONTAINER_SUCCESS = 'GET_ALL_METRICS_CONTAINER_SUCCESS'
 export const GET_ALL_METRICS_CONTAINER_FAILURE = 'GET_ALL_METRICS_CONTAINER_FAILURE'
 
-function fetchContainerAllOfMetrics(cluster, containerName, query = {}) {
+function fetchContainerAllOfMetrics(cluster, containerName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/getAllmetrics`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -198,12 +198,13 @@ function fetchContainerAllOfMetrics(cluster, containerName, query = {}) {
       types: [GET_ALL_METRICS_CONTAINER_REQUEST, GET_ALL_METRICS_CONTAINER_SUCCESS, GET_ALL_METRICS_CONTAINER_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
-export function loadContainerAllOfMetrics(cluster, containerName, query) {
+export function loadContainerAllOfMetrics(cluster, containerName, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchContainerAllOfMetrics(cluster, containerName, query))
+    return dispatch(fetchContainerAllOfMetrics(cluster, containerName, query, callback))
   }
 }
 
@@ -381,7 +382,7 @@ export const GET_ALL_METRICS_SERVICE_REQUEST = 'GET_ALL_METRICS_SERVICE_REQUEST'
 export const GET_ALL_METRICS_SERVICE_SUCCESS = 'GET_ALL_METRICS_SERVICE_SUCCESS'
 export const GET_ALL_METRICS_SERVICE_FAILURE = 'GET_ALL_METRICS_SERVICE_FAILURE'
 
-function fetchServiceAllOfMetrics(cluster, serviceName, query = {}) {
+function fetchServiceAllOfMetrics(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/getAllMetrics`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -393,12 +394,13 @@ function fetchServiceAllOfMetrics(cluster, serviceName, query = {}) {
       types: [GET_ALL_METRICS_SERVICE_REQUEST, GET_ALL_METRICS_SERVICE_SUCCESS, GET_ALL_METRICS_SERVICE_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
-export function loadServiceAllOfMetrics(cluster, serviceName, query) {
+export function loadServiceAllOfMetrics(cluster, serviceName, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchServiceAllOfMetrics(cluster, serviceName, query))
+    return dispatch(fetchServiceAllOfMetrics(cluster, serviceName, query, callback))
   }
 }
 

@@ -204,7 +204,7 @@ class AppAutoScale extends Component {
     const { isPrivate } = this.state
     if (isPrivate) {
       let notify = new NotificationHandler()
-      notify.info('挂载独享性存储的服务不支持自动伸缩')
+      notify.info('挂载独享型存储的服务不支持自动伸缩')
       return
     }
     this.setState({
@@ -278,7 +278,7 @@ class AppAutoScale extends Component {
     const { switchOpen, scaleDetail, isPrivate } = this.state
     let notify = new NotificationHandler()
     if (isPrivate) {
-      notify.info('挂载独享性存储的服务不支持自动伸缩')
+      notify.info('挂载独享型存储的服务不支持自动伸缩')
       return
     }
     let msg = switchOpen ? '关闭' : '开启'

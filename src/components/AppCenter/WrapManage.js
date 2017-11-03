@@ -242,7 +242,7 @@ class UploadModal extends Component {
     return callback()
   }
   render() {
-    const { form, func, loginUser } = this.props
+    const { form, func, loginUser,space } = this.props
     const { fileType,fileName,fileTag } = this.state
     // const isReq = type =='local' ? false : true
     const wrapName = form.getFieldProps('wrapName',{
@@ -273,12 +273,22 @@ class UploadModal extends Component {
       wrapperCol: { span: 18 },
     }
     const self = this
+    let headers = {}
+    if (space.userName) {
+      // 个人项目
+      headers = {onbehalfuser: space.userName}
+    }
+    if (space.namespace !== 'default') {
+      // 共享项目
+      headers = {teamspace: space.namespace}
+    }
     // const fileName = form.getFieldValue('wrapName')
     // const fileTag = form.getFieldValue('versionLabel')
     const actionUrl = `${API_URL_PREFIX}/pkg/${fileName}/${fileTag}/${fileType}/local`
     const selfProps = {
       name: 'pkg',
       action: actionUrl,
+      headers,
       beforeUpload(file) {
         // x-tar x-gzip zip java-archive war=''
         // let fileType = 'war'
@@ -333,7 +343,7 @@ class UploadModal extends Component {
         maskClosable={false}
         okText="立即提交"
         className="uploadModal"
-        confirmLoading={this.state.fileCallback}
+        confirmLoading={!!this.state.fileCallback}
         >
         <Form>
           <Form.Item {...formItemLayout} label="应用包名称">
@@ -512,6 +522,7 @@ class WrapManage extends Component {
           func={funcCallback}
           visible={this.state.uploadModal}
           loginUser={this.props.loginUser}
+          space = {this.props.space}
         />
         <Modal title="删除操作" visible={this.state.delAll}
           onCancel={()=> this.deleteAction(false)}
@@ -525,7 +536,7 @@ class WrapManage extends Component {
 }
 
 function mapStateToProps(state,props) {
-  const { loginUser } = state.entities
+  const { loginUser,current } = state.entities
   const { wrapList } = state.images
   const list = wrapList || {}
   let datalist = {pkgs:[],total:0}
@@ -535,6 +546,7 @@ function mapStateToProps(state,props) {
   return {
     wrapList: datalist,
     loginUser: loginUser.info,
+    space: current.space
   }
 }
 

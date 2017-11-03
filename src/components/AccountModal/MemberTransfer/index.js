@@ -29,8 +29,8 @@ class MemberTransfer extends Component{
     loadUserList({size: 0})
   }
   renderItem(item){
-    return(
-      <Row key={`${item && item.key}`} style={{display:'inline-block',width:'100%'}}>
+    return (
+      <Row title="" key={`${item && item.key}`} style={{display:'inline-block',width:'100%'}}>
         <Col span={9} style={{overflow:'hidden',whiteSpace: "nowrap",textOverflow: 'ellipsis'}}>{item && item.title}</Col>
         <Col span={12} style={{overflow:'hidden',whiteSpace: "nowrap",textOverflow: 'ellipsis'}}>{item && item.description}</Col>
       </Row>

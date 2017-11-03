@@ -5,7 +5,7 @@ import React, { Component, propTypes } from 'react'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../components/Notification'
-import { Card, Button, Tooltip, Icon, Input, Spin, Menu, Dropdown, Switch, Tag, Modal, Form, Table } from 'antd'
+import { Card, Button, Tooltip, Icon, Input, Spin, Menu, Dropdown, Switch, Tag, Modal, Form, Table, Pagination } from 'antd'
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -356,10 +356,11 @@ const MyComponent = React.createClass({
 
     return (
       <div className='imageList'>
+        <Pagination simple defaultCurrent={1} total={nodeList && nodeList.length}/>
         <Table
           columns={column}
           dataSource={nodeList}
-          pagination={{simple: true}}
+          pagination={false}
           loading={isFetching}
         />
       </div>

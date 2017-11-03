@@ -29,17 +29,51 @@
     top: 5px;
     margin: 0;
     .totalPage {
-      line-height: 35px;
+      line-height: 32px;
       display: inline-block;
       vertical-align: bottom;
       padding: 0 10px;
     }
   }
   .ant-card-body{padding:10px 0 0;}
+  .nodata{
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    > td {
+      border-bottom: none;
+      vertical-align: middle;
+      > i {
+        font-size: 17px;
+        margin-right: 3px;
+        display: inline-block;
+        font-style: normal;
+        vertical-align: top;
+        text-align: center;
+        text-transform: none;
+        text-rendering: auto;
+        line-height: 1;
+      }
+      > i:before{
+        display: block;
+      }
+    }
+  }
+  .nodata:hover{
+    background: #ffffff;
+    .anticon{
+      color: #999999 !important;
+    }
+  }
   // 自定义 table
   .ant-table{border-radius: 6px;}
+  .nodataPadding{
+    padding-bottom: 24px;
+  }
+  .dataPadding{
+    padding-bottom: 44px;
+  }
   .strategyTable {
-    padding-bottom: 50px;
     .ant-table-thead > tr > th {
       background: white;
       font-weight: 500;

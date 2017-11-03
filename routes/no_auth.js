@@ -50,7 +50,7 @@ module.exports = function (Router) {
 
   // alert
   router.get('/email/invitations/join', function* (){
-    yield this.render(global.indexHtml, { title: '邮箱验证 | 时速云', body: '' })
+    yield this.render(global.indexHtml, { title: '', body: '' })
   })
   // router.get('/alerts/invitations/join', function* (){
   //   yield this.render(global.indexHtml, { title: '邮箱验证 | 时速云', body: '' })

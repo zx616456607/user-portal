@@ -235,14 +235,14 @@ export function cleanLogsFlush(body, callback) {
   }
 }
 
-export const FETCH_CLEAN_MONITOR_SETTING = 'FETCH_CLEAN_MONITOR_SETTING'
-export const FETCH_CLEAN_MONITOR_SUCCESS = 'FETCH_CLEAN_MONITOR_SUCCESS'
-export const FETCH_CLEAN_MONITOR_FAILURE = 'FETCH_CLEAN_MONITOR_FAILURE'
+export const FETCH_CLEAN_MONITOR_SETTING_REQUEST = 'FETCH_CLEAN_MONITOR_SETTING_REQUEST'
+export const FETCH_CLEAN_MONITOR_SETTING_SUCCESS = 'FETCH_CLEAN_MONITOR_SETTING_SUCCESS'
+export const FETCH_CLEAN_MONITOR_SETTING_FAILURE = 'FETCH_CLEAN_MONITOR_SETTING_FAILURE'
 
 function fetchCleanMonitorSetting(callback) {
   return {
     [FETCH_API]: {
-      types: [FETCH_CLEAN_MONITOR_SETTING,FETCH_CLEAN_MONITOR_SUCCESS,FETCH_CLEAN_MONITOR_FAILURE],
+      types: [FETCH_CLEAN_MONITOR_SETTING_REQUEST,FETCH_CLEAN_MONITOR_SETTING_SUCCESS,FETCH_CLEAN_MONITOR_SETTING_FAILURE],
       endpoint: `${API_URL_PREFIX}/cleaner/monitor`,
       schema: {}
     },
@@ -253,5 +253,26 @@ function fetchCleanMonitorSetting(callback) {
 export function getMonitorSetting(callback) {
   return dispatch => {
     return dispatch(fetchCleanMonitorSetting(callback))
+  }
+}
+
+export const FETCH_SYSTEM_LOGS_CLEAN_STATUS_REQUEST = 'FETCH_SYSTEM_LOGS_CLEAN_STATUS_REQUEST'
+export const FETCH_SYSTEM_LOGS_CLEAN_STATUS_SUCCESS = 'FETCH_SYSTEM_LOGS_CLEAN_STATUS_SUCCESS'
+export const FETCH_SYSTEM_LOGS_CLEAN_STATUS_FAILURE = 'FETCH_SYSTEM_LOGS_CLEAN_STATUS_FAILURE'
+
+function fetchSystemCleanStatus(callback) {
+  return {
+    [FETCH_API]: {
+      types: [FETCH_SYSTEM_LOGS_CLEAN_STATUS_REQUEST,FETCH_SYSTEM_LOGS_CLEAN_STATUS_SUCCESS,FETCH_SYSTEM_LOGS_CLEAN_STATUS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cleaner/systemlog/status`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getSystemCleanStatus(callback) {
+  return dispatch => {
+    return dispatch(fetchSystemCleanStatus(callback))
   }
 }

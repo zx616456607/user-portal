@@ -13,7 +13,7 @@
 import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
-import { Row, Col, Switch } from 'antd'
+import { Tooltip, Switch } from 'antd'
 
 function formatGrid(count) {
   //this fucntion for format grid css
@@ -30,48 +30,62 @@ class Network extends Component {
   render() {
     const option = new EchartsOption('网络')
     const { networkReceived, networkTransmitted ,events, scope } = this.props
-    const { switchNetwork, freshTime, NetworkLoading } = scope.state
-    let timeText = switchNetwork ? '5秒钟' : freshTime
+    const { switchNetwork, freshTime, NetworkLoading, currentStart, currentNetworkStart } = scope.state
+    let timeText = switchNetwork ? '10秒钟' : freshTime
     option.addYAxis('value', {
       formatter: '{value} KB/s'
     })
+    option.setToolTipUnit(' KB/s')
+    let minValue = 'dataMin'
     networkReceived.data && networkReceived.data.map((item) => {
-      let timeData = []
-      let values = []
+      let dataArr = []
       const metrics = Array.isArray(item.metrics)
                       ? item.metrics
                       : []
       metrics.map((metric) => {
-        timeData.push(metric.timestamp)
         // metric.value || floatValue  only one
-        values.push(Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100)
+        dataArr.push([
+          Date.parse(metric.timestamp),
+          Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100
+        ])
       })
-      option.setXAxisData(timeData)
-      option.addSeries(values, `${item.containerName} 下载`)
+      if (switchNetwork) {
+        if (Date.parse(item.metrics && item.metrics.length && item.metrics[0].timestamp) > Date.parse(currentNetworkStart)) {
+          minValue = Date.parse(currentNetworkStart)
+        }
+      } else {
+        if (Date.parse(item.metrics && item.metrics.length && item.metrics[0].timestamp) > Date.parse(currentStart)) {
+          minValue = Date.parse(currentStart)
+        }
+      }
+      option.addSeries(dataArr, `${item.containerName} 下载`)
     })
     networkTransmitted.data&&networkTransmitted.data.map((item) => {
-      let timeData = []
-      let values = []
+      let dataArr = []
       const metrics = Array.isArray(item.metrics)
                       ? item.metrics
                       : []
       metrics.map((metric) => {
-        timeData.push(metric.timestamp)
         // metric.value || metric.floatValue  only one
-        values.push(Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100)
+        dataArr.push([
+          Date.parse(metric.timestamp),
+          Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100
+        ])
       })
-      option.setXAxisData(timeData)
-      option.addSeries(values, `${item.containerName} 上传`)
+      option.addSeries(dataArr, `${item.containerName} 上传`)
     })
-    option.setGirdForDataNetWork(networkTransmitted.data && networkTransmitted.data.length + networkReceived.data.length, events)
+    option.setXAxisMinAndMax(minValue)
+    option.setGirdForDataNetWork(networkTransmitted.data && networkReceived.data.length + networkReceived.data && networkReceived.data.length, events)
     return (
       <div className="chartBox">
         <span className="freshTime">
           {`时间间隔：${timeText}`}
         </span>
-        <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Network')} checkedChildren="开" unCheckedChildren="关"/>
+        <Tooltip title="实时开关">
+          <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Network')} checkedChildren="开" unCheckedChildren="关"/>
+        </Tooltip>
         <ReactEcharts
-          style={{ height: formatGrid(networkTransmitted.data && networkTransmitted.data.length + networkReceived.data.length) }}
+          style={{ height: formatGrid(networkTransmitted.data && networkTransmitted.data.length + networkReceived.data && networkReceived.data.length) }}
           notMerge={true}
           option={option}
           showLoading={NetworkLoading}

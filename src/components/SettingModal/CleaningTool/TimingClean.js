@@ -78,6 +78,7 @@ class TimingClean extends Component {
     })
   }
   parseCron(str, type) {
+    if (!str.spec.cron) return
     let cronArr = str.spec.cron.split(' ')
     cronArr.length === 6 && cronArr.splice(0, 1)
     if (str.meta.automatic) {
@@ -113,15 +114,21 @@ class TimingClean extends Component {
     })
   }
   getTime(m, h, type) {
+    let newH = Number(h)
+    if (type === 'system') {
+      newH += 8
+      newH = newH > 24 ? (newH - 24) : newH
+    }
+    newH = String(newH)
     let minute = m.length === 1 ? `0${m}`: m
-    let hour = h.length === 1 ? `0${h}` : h
+    let hour = newH.length === 1 ? `0${newH}` : newH
     let time = `${hour}:${minute}:00`
     this.setState({
       [`${type}Time`]: time
     })
   }
-  systemConfirmFun() {
-    const { deleteLogAutoClean } = this.props
+  systemCloseFun() {
+    const { deleteLogAutoClean, form } = this.props
     let notify = new Notification()
     notify.spin('服务日志定时清理关闭中')
     deleteLogAutoClean({
@@ -129,11 +136,15 @@ class TimingClean extends Component {
         func: () => {
           notify.close()
           notify.success('服务日志定时清理已关闭')
+          form.resetFields(['systemCleaningScope', 'systemCleaningCycle', 'systemCleaningTime'])
           this.setState({
             systemChecked: false,
             systemEdit: false,
+            systemScope: '1',
+            systemCycle: 'day',
+            systemDate: '1',
+            systemTime: formatDate(new Date(new Date().setHours(0,0,0,0)), 'HH:mm:ss')
           })
-          this.getSystemSetting()
         },
         isAsync: true
       },
@@ -169,14 +180,14 @@ class TimingClean extends Component {
       }
       const { systemCleaningScope, systemCleaningCycle, systemCleaningTime, systemCleaningDate } = values
       if(systemChecked){
-        this.systemConfirmFun()
+        this.systemCloseFun()
         return
       }
       notify.spin('服务日志定时清理开启中')
       cleanSystemLogs({
         type: 1,
         time_range: parseInt(systemCleaningScope),
-        scheduled_time: this.getCronString(systemCleaningCycle, systemCleaningDate, systemCleaningTime)
+        scheduled_time: this.getCronString(systemCleaningCycle, systemCleaningDate, systemCleaningTime, 'system')
       }, {
         success: {
           func: () => {
@@ -220,7 +231,7 @@ class TimingClean extends Component {
     })
   }
   
-  cicdConfimFun() {
+  cicdCloseFun() {
     const { startClean, userName, form } = this.props
     const { getFieldsValue } = form
     let notify = new Notification()
@@ -240,7 +251,7 @@ class TimingClean extends Component {
           type: 'stop',
         },
         spec: {
-          cron: this.getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime),
+          cron: this.getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime, 'cicd'),
           scope: parseInt(CICDcacheScope)
         }
       }
@@ -249,11 +260,15 @@ class TimingClean extends Component {
         func: () => {
           notify.close()
           notify.success('cicd定时清理已关闭')
+          form.resetFields(['CICDcacheScope', 'CICDcacheCycle', 'CICDcacheDate', 'CICDcacheTime'])
           this.setState({
             cicdChecked: false,
             cicdEdit: false,
+            cicdScope: '1',
+            cicdCycle: 'day',
+            cicdDate: '1',
+            cicdTime: formatDate(new Date(new Date().setHours(0,0,0,0)), 'HH:mm:ss'),
           })
-          this.getSettings()
         },
         isAsync: true
       },
@@ -288,7 +303,7 @@ class TimingClean extends Component {
       }
       const { CICDcacheScope, CICDcacheCycle, CICDcacheTime, CICDcacheDate } = values
       if(cicdChecked){
-        this.cicdConfimFun()
+        this.cicdCloseFun()
         return
       }
       notify.spin('cicd定时清理开启中')
@@ -327,19 +342,30 @@ class TimingClean extends Component {
       })
     })
   }
-  getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime) {
+  getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime, type) {
     let time = typeof CICDcacheTime === 'string' ? CICDcacheTime.split(':') : String(formatDate(CICDcacheTime, 'HH mm')).split(' ')
     time.length === 3 && time.splice(0, 1)
     time = time.map(item => {
       return item.indexOf(0) === 0 ? item.substring(1) : item
     })
-    time = time.reverse().join(' ')
+    time = time.reverse()
+    if (type === 'system') {
+      let timeInd2 = Number(time[1])
+      if (timeInd2 >= 0 && timeInd2 <= 8) {
+        timeInd2 += 16
+      } else {
+        timeInd2 -= 8
+      }
+      timeInd2 = String(timeInd2)
+      time.splice(1, 1, timeInd2)
+    }
+    time = time.join(' ')
     switch(CICDcacheCycle) {
       case 'day':
         return `${time} 1/1 * ?`
         break;
       case 'week':
-        return `${time} 0 * ${CICDcacheDate}`
+        return `${time} * * ${CICDcacheDate}`
         break;
       case 'month':
         return `${time} ${CICDcacheDate} * ?`

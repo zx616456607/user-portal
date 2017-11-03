@@ -376,11 +376,7 @@ class AlarmGroup extends Component {
               onRowClick={(e) => this.handClickRow(e)}
             >
             </Table>
-            <span className="pageCount">共计 {tableData.length} 条</span>
-            {tableData.length == 0 ?
-              <ul className="ant-pagination ant-pagination-simple ant-table-pagination" style={{ top: -70, right: -10, width: 152 }}><li title="上一页" className="ant-pagination-disabled ant-pagination-prev"><a></a></li><div title="1/0" className="ant-pagination-simple-pager"><input type="text" value="1" style={{ width: 30, textAlign: 'center', borderRadius: 6, height: 24, border: '1px solid #d9d9d9' }} /><span className="ant-pagination-slash">／</span>0</div><li title="下一页" className="ant-pagination-disabled ant-pagination-next"><a></a></li></ul>
-              : null
-            }
+            { tableData && tableData.length !== 0 &&<span className="pageCount">共计 {tableData.length} 条</span>}
           </Card>
           {(this.state.createGroup || this.state.modifyGroup) ?
           <Modal title={this.state.createModalTitle} onCancel={() => this.handleCancel()} visible={this.state.createGroup || this.state.modifyGroup}

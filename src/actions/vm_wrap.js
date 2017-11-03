@@ -88,7 +88,6 @@ export const VM_WRAP_VMDEL_SUCCESS = 'VM_WRAP_VMDEL_SUCCESS'
 export const VM_WRAP_VMDEL_FAILURE = 'VM_WRAP_VMDEL_FAILURE'
 
 function deleteVMInfoList(ID, callback) {
-  debugger
   let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos/${ID.vmID}`
   return {
     [FETCH_API]: {

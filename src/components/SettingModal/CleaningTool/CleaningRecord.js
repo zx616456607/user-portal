@@ -54,7 +54,7 @@ class CleaningRecord extends Component {
     this.getSystemLogs()
   }
   getCleanLogs(loading) {
-    const { currentPage, sort, startValue: start, endValue: end } = this.state
+    const { currentPage, sort, startValue, endValue } = this.state
     const { getCleanLogs, form } = this.props
     const { getFieldsValue } = form
     const { status, type } = getFieldsValue(['status', 'type'])
@@ -67,8 +67,8 @@ class CleaningRecord extends Component {
       sort,
       type: newType,
       status: newStatus,
-      start,
-      end,
+      start: startValue && formatDate(startValue),
+      end: endValue && formatDate(endValue),
       from: (currentPage - 1) * 10,
       size: 10,
     }, {
@@ -566,8 +566,8 @@ class CleaningRecord extends Component {
               >
                 <i className="fa fa-trash-o"/> 清空所有记录
               </Button>
-              <Pagination {...pagination}/>
-              <div className='totle_num'>共计 <span>{totalCount}</span> 条</div>
+              { totalCount !== 0 && <Pagination {...pagination}/>}
+              { totalCount !== 0 && <div className='totle_num'>共计 <span>{totalCount}</span> 条</div>}
             </div>
             <div style={{clear: 'both'}}/>
             <div className='table_box'>

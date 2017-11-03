@@ -11,6 +11,7 @@
 import React, { Component } from 'react'
 import { Spin, Icon } from 'antd'
 import Top from '../../components/Top'
+import Title from '../../components/Title'
 import { connect } from 'react-redux'
 import { STANDARD_MODE } from '../../../configs/constants'
 import { mode } from '../../../configs/model'
@@ -57,6 +58,7 @@ class Template extends Component {
     if (isFetching) {
       return (
         <div id={divId} className="joincode">
+          <Title title="邮箱验证" />
           <Top />
           <div className='loadingBox' style={{color:'#eee'}}><Spin size='large'/> </div>
         </div>
