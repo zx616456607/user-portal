@@ -552,7 +552,8 @@ class AppServiceDetailInfo extends Component {
       loading: false,
       isAutoScale: false,
       replicas: 1,
-      currentService: ''
+      currentService: '',
+      isBindNode: false,
     }
   }
 
@@ -592,12 +593,22 @@ class AppServiceDetailInfo extends Component {
             && res.data.spec
             && res.data.spec.template
             && res.data.spec.template.spec
-            && res.data.spec.template.spec.containers
-            && res.data.spec.template.spec.containers[0]
-            && res.data.spec.template.spec.containers[0].volumeMounts
           ){
-            volumeMounts = res.data.spec.template.spec.containers[0].volumeMounts
-            volumeList = res.data.spec.template.spec.volumes || []
+            // 获取当前服务绑定节点的情况
+            if(res.data.spec.template.spec.nodeSelector){
+              this.setState({
+                isBindNode: true
+              })
+            }
+            // 获取服务存储的 容器目录 及 存储卷信息
+            if(
+              res.data.spec.template.spec.containers
+              && res.data.spec.template.spec.containers[0]
+              && res.data.spec.template.spec.containers[0].volumeMounts
+            ){
+              volumeMounts = res.data.spec.template.spec.containers[0].volumeMounts
+              volumeList = res.data.spec.template.spec.volumes || []
+            }
           }
           // 为兼容旧服务，需要在 spec 不同的位置取当前服务的 container
           const list = []
@@ -1020,7 +1031,7 @@ class AppServiceDetailInfo extends Component {
 
   render() {
     const { isFetching, serviceDetail, cluster, volumes } = this.props
-    const { isEdit, currentItem, currentIndex, containerCatalogueVisible, nouseEditing, volumeList, isAutoScale, replicas, loading, currentService } = this.state
+    const { isEdit, currentItem, currentIndex, containerCatalogueVisible, nouseEditing, volumeList, isAutoScale, replicas, loading, currentService, isBindNode } = this.state
     if (isFetching || !serviceDetail.metadata) {
       return ( <div className="loadingBox">
           <Spin size="large" />
@@ -1171,6 +1182,7 @@ class AppServiceDetailInfo extends Component {
             from={'editService'}
             currentIndex={ currentIndex }
             currentService={currentService}
+            isBindNode={isBindNode}
           />
         </Modal>
         <Modal
