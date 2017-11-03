@@ -19,6 +19,7 @@ import { loadNotifyGroups, addAlertSetting, updateAlertSetting, getAlertSetting,
 import { ADMIN_ROLE } from '../../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import startsWith from 'lodash/startsWith'
+import cloneDeep from 'lodash/cloneDeep'
 
 const Option = Select.Option
 const RadioGroup = Radio.Group
@@ -687,6 +688,8 @@ let TwoStop = React.createClass({
         return 'network/tx_rate'
       case '下载流量':
         return 'network/rx_rate'
+      case '磁盘利用率':
+        return 'disk/usage'
       default:
         return 'cpu/usage_rate'
     }
@@ -695,6 +698,7 @@ let TwoStop = React.createClass({
     type = type.trim()
     switch (type) {
       case 'CPU利用率':
+      case '磁盘利用率':
         return '%'
       case '内存使用率':
       case '内存使用':
@@ -712,6 +716,7 @@ let TwoStop = React.createClass({
     type = type.trim()
     switch (type) {
       case 'CPU利用率':
+      case '磁盘利用率':
         return parseInt(threshold)
       case '内存使用率':
       case '内存使用':
@@ -737,17 +742,50 @@ let TwoStop = React.createClass({
         return 0
     }
   },
+  renderAlarmRulesOption(){
+    const { alarmType } = this.props
+    const optionArray = [
+      <Option key="1" value="cpu/usage_rate">CPU利用率</Option>,
+      <Option key="2" value="memory/usage">内存使用</Option>,
+      <Option key="3" value="network/tx_rate">上传流量</Option>,
+      <Option key="4" value="network/rx_rate">下载流量</Option>
+    ]
+    if(alarmType == 'node') {
+      optionArray.push(<Option key="5" value="disk/usage">磁盘利用率</Option>)
+    }
+    return optionArray
+  },
   render() {
     const { getFieldProps, getFieldValue } = this.props.form;
-    const { funcs, data, isEdit } = this.props
+    const { funcs, data, isEdit, alarmType } = this.props
     let cpuItems
     if (isEdit) {
+      const cloneData = cloneDeep(data)
+      // 当告警类型有'节点'型修改为'服务'型时，移除原有告警规则中的'磁盘利用率'
+      let ruleList = []
+      if(alarmType == 'service'){
+        cloneData.forEach((item, index) => {
+          if(item.type && item.type.trim() !== '磁盘利用率'){
+            ruleList.push(item)
+          }
+        })
+      } else if (alarmType == 'node') {
+        ruleList = cloneData
+      }
+      if(!ruleList.length){
+        ruleList.push({
+          operation: '>',
+          recordCount: '0',
+          threshold: '80%',
+          type: "CPU利用率 ",
+        })
+      }
       getFieldProps('cpu', {
-        initialValue: data.map((item, index) => index),
+        initialValue: ruleList.map((item, index) => index),
       })
       cpuItems = getFieldValue('cpu').map((key) => {
-        let value = data[key] || { type: '', threshold: '' }
-
+        let ruleItem = ruleList[key] || {}
+        let value = Object.assign({}, { type: '', threshold: '' }, ruleItem)
         return (
           <div className="ruleItem" key={key}>
             <Form.Item>
@@ -759,10 +797,7 @@ let TwoStop = React.createClass({
                 initialValue: this.switchType(value.type),
                 onChange: (type) => this.changeType(key, type)
               }) } style={{ width: 135 }} >
-                <Option value="cpu/usage_rate">CPU利用率</Option>
-                <Option value="memory/usage">内存使用</Option>
-                <Option value="network/tx_rate">上传流量</Option>
-                <Option value="network/rx_rate">下载流量</Option>
+                { this.renderAlarmRulesOption() }
               </Select>
             </Form.Item>
             <Form.Item >
@@ -814,7 +849,7 @@ let TwoStop = React.createClass({
       });
       cpuItems = getFieldValue('cpu').map((key) => {
         return (
-          <div className="ruleItem" key={key}>
+          <div className="ruleItem" key={`create-${key}`}>
             <Form.Item>
               <Select {...getFieldProps(`used_name@${key}`, {
                 rules: [{
@@ -824,10 +859,7 @@ let TwoStop = React.createClass({
                 initialValue: 'cpu/usage_rate',
                 onChange: (type) => this.changeType(key, type)
               }) } style={{ width: 135 }} >
-                <Option value="cpu/usage_rate">CPU利用率</Option>
-                <Option value="memory/usage">内存使用</Option>
-                <Option value="network/tx_rate">上传流量</Option>
-                <Option value="network/rx_rate">下载流量</Option>
+                { this.renderAlarmRulesOption() }
               </Select>
             </Form.Item>
             <span className='secondItem'>
@@ -1196,7 +1228,10 @@ class AlarmModal extends Component {
             <FistStop isShow={this.props.isShow} funcs={funcs} setParentState={this.setParentState()} currentApp={this.props.currentApp} currentService={this.props.currentService} isEdit={isEdit} data={this.props.strategy} resetFields={()=> this.resetFields()}/>
           </div>
           <div className={funcs.scope.state.step == 2 ? 'steps' : 'hidden'}>
-            <TwoStop funcs={funcs} setParentState={this.setParentState()} isEdit={isEdit} data={this.props.setting} isShow={this.props.isShow} resetFields={()=> this.resetFields()}/>
+            {
+              funcs.scope.state.step >= 2 &&
+              <TwoStop funcs={funcs} setParentState={this.setParentState()} isEdit={isEdit} data={this.props.setting} isShow={this.props.isShow} resetFields={()=> this.resetFields()} alarmType={this.state.type}/>
+            }
           </div>
           <div className={funcs.scope.state.step == 3 ? 'steps' : 'hidden'}>
             <Form className="alarmAction">
