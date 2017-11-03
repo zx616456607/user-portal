@@ -383,7 +383,7 @@ let Login = React.createClass({
           <Card className="loginForm" bordered={false}>
             <div>
               {
-                loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
+                !submitting && loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
               }
             </div>
             <Form onSubmit={this.handleSubmit}>
