@@ -1795,9 +1795,13 @@ let EditTenxFlowModal = React.createClass({
     const errorContinueChecked = !!config.spec.container
       ? (config.spec.container.errorContinue == 1)
       : false
-    const cachedVolumeChecked = (!!config.spec.container && config.spec.container.cachedVolume)
+    let cachedVolumeChecked = (!!config.spec.container && config.spec.container.cachedVolume)
       ? (config.spec.container.cachedVolume.status == 1)
       : false
+    const isPrivateStorageInstall = this.props.storageClassType && this.props.storageClassType.private
+    if (!isPrivateStorageInstall) {
+      cachedVolumeChecked = false
+    }
     return (
       <div id='EditTenxFlowModal' key='EditTenxFlowModal'>
         <div className='titleBox'>
@@ -2174,7 +2178,14 @@ let EditTenxFlowModal = React.createClass({
                     })
                   }
                   defaultChecked={false}
+                  disabled={!isPrivateStorageInstall}
                 />
+                {
+                  !isPrivateStorageInstall &&
+                  <div className="storageInstallAlert">
+                    <Alert showIcon message="尚未配置块存储集群，暂不能配置缓存卷" type="warning" />
+                  </div>
+                }
                 <div className="customizeBaseImage cachedVolumes">
                   {
                     this.state.cachedVolumes[0]
@@ -2401,10 +2412,12 @@ function mapStateToProps(state, props) {
     newList.push(project)
   })
   harborProjects.list = newList.concat(visitorList)
+  const currentCluster = state.entities.current.cluster
   return {
     clusters,
     clustersNodes,
     harborProjects,
+    storageClassType: currentCluster.storageClassType || {},
   }
 }
 
