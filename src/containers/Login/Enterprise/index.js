@@ -247,10 +247,10 @@ let Login = React.createClass({
                   outdated = true //show error and not allow login
                 } else {
                   const { licenseStatus, leftTrialDays } = res.data
-                  if (licenseStatus == 'NO_LICENSE' && parseInt(leftTrialDays) <= 0) {
+                  if (licenseStatus == 'NO_LICENSE' && Math.floor(leftTrialDays *10) /10 <= 0) {
                     outdated = true //show error and not allow login
                   }
-                  if (licenseStatus == 'VALID' && parseInt(res.data.leftLicenseDays) <= 0) {
+                  if (licenseStatus == 'VALID' && Math.floor(res.data.leftLicenseDays *10) /10 <= 0) {
                     outdated = true //show error and not allow login
                   }
                 }
