@@ -12,6 +12,7 @@ import React from 'react'
 import { Input, Form, Icon, Button, Modal } from 'antd'
 import { sendAlertNotifyInvitation, getAlertNotifyInvitationStatus, createNotifyGroup, modifyNotifyGroup, loadNotifyGroups } from '../../../actions/alert'
 import { connect } from 'react-redux'
+import QRCode from 'qrcode.react'
 import NotificationHandler from '../../../components/Notification'
 
 const EMAIL_STATUS_WAIT_ACCEPT = 0
@@ -20,6 +21,7 @@ const EMAIL_STATUS_WAIT_SEND = 2
 
 // create alarm group from
 let mid = 0
+let phoneUuid = 0
 let CreateAlarmGroup = React.createClass({
   getInitialState() {
     return {
@@ -333,6 +335,30 @@ let CreateAlarmGroup = React.createClass({
       // default: this.setState({transitionTime:text})
     }
   },
+  removePhone(k) {
+    const { form } = this.props;
+    let phoneKeys = form.getFieldValue('phoneKeys');
+    phoneKeys = phoneKeys.filter((key) => {
+      return key !== k;
+    });
+    form.setFieldsValue({
+      phoneKeys,
+    });
+  },
+  addPhone() {
+    const { form } = this.props;
+    phoneUuid++;
+    let phoneKeys = form.getFieldValue('phoneKeys');
+    phoneKeys = phoneKeys.concat(phoneUuid);
+    form.setFieldsValue({
+      phoneKeys,
+    });
+  },
+  boundWechat() {
+    this.setState({
+      QRCodeVisible: true,
+    })
+  },
   render() {
     const formItemLayout = {
       labelCol: { span: 3 },
@@ -383,6 +409,38 @@ let CreateAlarmGroup = React.createClass({
       </div>
       );
     });
+    getFieldProps('phoneKeys', {
+      initialValue: [0],
+    });
+    const phoneItems =getFieldValue('phoneKeys').map((k) => {
+      let indexed = Math.max(0,k-1)
+      let initAddrValue = ''
+      let initDescValue = ''
+      if (isModify && data.receivers.email[indexed]) {
+        initAddrValue = data.receivers.email[indexed].addr
+        initDescValue = data.receivers.email[indexed].desc
+      }
+      return (
+        <div key={`phone-${k}`} className="createEmailList" style={{clear:'both'}}>
+          <Form.Item style={{float:'left'}}>
+            <Input style={{ width: '150px', marginRight: 8 }} />
+          </Form.Item>
+          <Form.Item style={{float:'left'}}>
+            <Input placeholder="备注" size="large" style={{ width: 80,  marginRight: 8 }} />
+          </Form.Item>
+          <Button
+            type="primary"
+            style={{padding:5}}
+            size="large"
+          >
+            验证手机
+          </Button>
+          <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removePhone(k)}>
+            取消
+          </Button>
+        </div>
+      );
+    });
     return (
       <Form className="alarmAction" form={this.props.form}>
         <Form.Item label="名称" {...formItemLayout} >
@@ -403,15 +461,48 @@ let CreateAlarmGroup = React.createClass({
             邮箱
           </div>
           <div className="emaillItem" >
-
             {formItems}
             <div style={{clear:'both'}}><a onClick={() => this.addEmail()}><Icon type="plus-circle-o" /> 添加邮箱</a></div>
+          </div>
+        </div>
+        <div className="lables">
+          <div className="keys">
+            手机
+          </div>
+          <div className="emaillItem" >
+            {phoneItems}
+            <div style={{clear:'both'}}>
+              <a onClick={() => this.addPhone()}>
+                <Icon type="plus-circle-o" /> 添加手机
+              </a>
+            </div>
+          </div>
+        </div>
+        <div className="lables">
+          <div className="keys">
+            微信
+          </div>
+          <div className="emaillItem" >
+            <div style={{clear:'both'}}>
+              <a onClick={() => this.boundWechat()}>
+                <Icon type="plus-circle-o" /> 绑定微信
+              </a>
+            </div>
           </div>
         </div>
         <div className="ant-modal-footer" style={{margin:'0 -30px'}}>
           <Button type="ghost" size="large" onClick={()=> this.handCancel()}>取消</Button>
           <Button type="primary" size="large" onClick={()=> this.okModal()}>保存</Button>
         </div>
+        <Modal
+          title="扫描二维码绑定微信"
+          footer={null}
+          visible={this.state.QRCodeVisible}
+          onCancel={() => this.setState({ QRCodeVisible: false })}
+          wrapClassName="QRCodeModal"
+        >
+          <QRCode value="https://tenxcloud.com/" />
+        </Modal>
       </Form>
     )
   }
