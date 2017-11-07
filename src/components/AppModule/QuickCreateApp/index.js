@@ -123,6 +123,7 @@ class QuickCreateApp extends Component {
 
   componentWillUnmount() {
     this.removeAllFormFieldsAsync(this.props)
+    window.WrapListTbale = null
   }
   getExistentServices() {
     const { loadServiceList, current, location } = this.props
@@ -542,7 +543,48 @@ class QuickCreateApp extends Component {
     }
     return <span>&nbsp;创建&nbsp;</span>
   }
+  nextStep() {
+    const { wrapList, location } = this.props
+    if (!window.WrapListTbale) {
+      notification.info('请先选择应用包')
+      return
+    }
+    const row = window.WrapListTbale
+    // @todo has appRegistryMap
+    if(row.appRegistryMap && Object.keys(row.appRegistryMap).length > 0 && location.query.entryPkgID) {
+      notification.error('应用下已有设置entryPkgID的服务')
+      return
+    }
+    // /app_manage/app_create/quick_create#configure-service
+    let { version, defaultTemplate, template } = window
+    if (!defaultTemplate) {
+      defaultTemplate = 1
+      if (window.WrapListTbale.fileType == 'jar') {
+        defaultTemplate = 0
+      }
+    }
+    let registry = wrapList.registry
+    registry = registry && registry.split(/^(http:\/\/|https:\/\/)/)[2]
+    let tag = version
+    if (!version) {
+      tag = template[defaultTemplate].version[0]
+    }
+    if (!registry) {
+      notification.error('镜像地址获取失败','尝试刷新后重试')
+      return
+    }
+    if (template[defaultTemplate].version.indexOf(tag) == -1) {
+      notification.info('版本有误，请重新选择版本')
+      return
+    }
+    const { appName, action} = location.query
+    let imageName ='?imageName='+ template[defaultTemplate].name +`&tag=${tag}`+`&registryServer=${registry}&appPkgID=${row.id}&entryPkgID=${(row.appRegistryMap && Object.keys(row.appRegistryMap).length > 0) ? row.id : ''}`
+    if (appName) {
+      imageName += `&appName=${appName}&action=${action}`
+    }
+    browserHistory.push('/app_manage/app_create/quick_create'+ imageName + SERVICE_CONFIG_HASH)
 
+}
   renderFooterSteps() {
     const { location } = this.props
     const { hash } = location
@@ -581,6 +623,7 @@ class QuickCreateApp extends Component {
         >
           上一步
         </Button>
+        <Button size="large" style={{marginLeft:10}} onClick={()=> this.nextStep()}>下一步</Button>
       </div>
     )
   }
@@ -872,11 +915,19 @@ class QuickCreateApp extends Component {
 function mapStateToProps(state, props) {
   const { quickCreateApp, entities } = state
   const { location } = props
+  const { wrapList } = state.images
+
+  const list = wrapList || {}
+  let datalist = { pkgs: [], total: 0 }
+  if (list.result) {
+    datalist = list.result.data
+  }
   return {
     fields: quickCreateApp.fields,
     standardFlag,
     current: entities.current,
     loginUser: entities.loginUser.info,
+    wrapList: datalist,
   }
 }
 

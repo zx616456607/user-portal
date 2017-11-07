@@ -110,9 +110,8 @@ class WrapListTbale extends Component {
         <Button
           type="primary"
           key="1"
-          onClick={() => {func.goDeploy(row.id)}}
         >
-          部署
+          选择
         </Button>
       )
     }
@@ -148,7 +147,7 @@ class WrapListTbale extends Component {
   }
 
   rowClick(record, index){
-    const { func, selectedRowKeys } = this.props
+    const { func, selectedRowKeys, rowCheckbox } = this.props
     const { id } = func.scope.state
     const newId = cloneDeep(id)
     const newSelectedRowKeys = cloneDeep(selectedRowKeys)
@@ -173,6 +172,16 @@ class WrapListTbale extends Component {
     }
     if(!idIsExist){
       newId.push(record.id)
+    }
+    if (!rowCheckbox) {
+      func.scope.setState({
+        selectedRowKeys: newSelectedRowKeys,
+        id: newId,
+        defaultTemplate: record.fileType =='jar' ? 0 : 1,
+        version: null,
+      })
+      window.WrapListTbale = record
+      return
     }
     func.scope.setState({
       selectedRowKeys: newSelectedRowKeys,
@@ -239,12 +248,22 @@ class WrapListTbale extends Component {
           return row.id
         })
         _this.setState({id:ids })
-
+        if (!rowCheckbox) {
+          func.scope.setState({
+            selectedRowKeys,
+            id: ids,
+            defaultTemplate: selectedRows[0].fileType =='jar' ? 0 : 1,
+            version: null,
+          })
+          window.WrapListTbale = selectedRows[0]
+          return
+        }
         func && func.scope.setState({selectedRowKeys,id:ids})
       }
     }
     if (!rowCheckbox) {
-      rowSelection = null
+      // rowSelection = null
+      rowSelection.type = 'radio'
     }
 
     return (

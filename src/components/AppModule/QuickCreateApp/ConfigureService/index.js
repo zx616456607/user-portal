@@ -489,15 +489,24 @@ let ConfigureService = React.createClass({
                 ref="serviceNameInput"
               />
             </FormItem>
+            {window.WrapListTbale &&
+            <FormItem {...formItemLayout}
+              wrapperCol={{ span: 6 }}
+              label="应用包"
+              hasFeedback
+              key="Appwrap">
+              <Input disabled={true} value={window.WrapListTbale.fileName  + ' | '+ window.WrapListTbale.fileTag} />
+            </FormItem>
+            }
             <FormItem
               {...formItemLayout}
               wrapperCol={{ span: 9 }}
-              label="镜像"
+              label={location.query.appPkgID ? '运行环境':"镜像"}
               key="image"
             >
               <Input
                 size="large"
-                placeholder="请输入镜像地址"
+                placeholder={`请输入${location.query.appPkgID ?'运行环境':"镜像"}地址`}
                 autoComplete="off"
                 readOnly
                 {...imageUrlProps}
@@ -506,12 +515,12 @@ let ConfigureService = React.createClass({
             <FormItem
               {...formItemLayout}
               wrapperCol={{ span: 6 }}
-              label="镜像版本"
+              label={location.query.appPkgID ?'环境版本':"镜像版本"}
               key="imageTag"
             >
               <Select
                 size="large"
-                placeholder="请选择镜像版本"
+                placeholder={`请输入${location.query.appPkgID ?'运行':"镜像"}版本`}
                 showSearch
                 optionFilterProp="children"
                 {...imageTagProps}
