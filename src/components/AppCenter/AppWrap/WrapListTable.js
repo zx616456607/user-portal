@@ -31,7 +31,7 @@ const wrapType = ['.jar','.war','.tar','.tar.gz','.zip']
 const wrapTypelist = ['jar','war','tar','tar.gz','zip']
 
 
-class WrapListTbale extends Component {
+class WrapListTable extends Component {
   constructor(props) {
     super()
     this.rowClick = this.rowClick.bind(this)
@@ -180,7 +180,7 @@ class WrapListTbale extends Component {
         defaultTemplate: record.fileType =='jar' ? 0 : 1,
         version: null,
       })
-      window.WrapListTbale = record
+      window.WrapListTable = record
       return
     }
     func.scope.setState({
@@ -255,7 +255,7 @@ class WrapListTbale extends Component {
             defaultTemplate: selectedRows[0].fileType =='jar' ? 0 : 1,
             version: null,
           })
-          window.WrapListTbale = selectedRows[0]
+          window.WrapListTable = selectedRows[0]
           return
         }
         func && func.scope.setState({selectedRowKeys,id:ids})
@@ -303,4 +303,4 @@ function mapStateToProps(state,props) {
 export default connect(mapStateToProps,{
   wrapManageList,
   deleteWrapManage,
-})(WrapListTbale)
+})(WrapListTable)
