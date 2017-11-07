@@ -123,7 +123,7 @@ class QuickCreateApp extends Component {
 
   componentWillUnmount() {
     this.removeAllFormFieldsAsync(this.props)
-    window.WrapListTbale = null
+    window.WrapListTable = null
   }
   getExistentServices() {
     const { loadServiceList, current, location } = this.props
@@ -545,11 +545,11 @@ class QuickCreateApp extends Component {
   }
   nextStep() {
     const { wrapList, location } = this.props
-    if (!window.WrapListTbale) {
+    if (!window.WrapListTable) {
       notification.info('请先选择应用包')
       return
     }
-    const row = window.WrapListTbale
+    const row = window.WrapListTable
     // @todo has appRegistryMap
     if(row.appRegistryMap && Object.keys(row.appRegistryMap).length > 0 && location.query.entryPkgID) {
       notification.error('应用下已有设置entryPkgID的服务')
@@ -559,7 +559,7 @@ class QuickCreateApp extends Component {
     let { version, defaultTemplate, template } = window
     if (!defaultTemplate) {
       defaultTemplate = 1
-      if (window.WrapListTbale.fileType == 'jar') {
+      if (window.WrapListTable.fileType == 'jar') {
         defaultTemplate = 0
       }
     }

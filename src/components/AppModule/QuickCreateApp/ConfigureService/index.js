@@ -489,13 +489,13 @@ let ConfigureService = React.createClass({
                 ref="serviceNameInput"
               />
             </FormItem>
-            {window.WrapListTbale &&
+            {window.WrapListTable &&
             <FormItem {...formItemLayout}
               wrapperCol={{ span: 6 }}
               label="应用包"
               hasFeedback
               key="Appwrap">
-              <Input disabled={true} value={window.WrapListTbale.fileName  + ' | '+ window.WrapListTbale.fileTag} />
+              <Input disabled={true} value={window.WrapListTable.fileName  + ' | '+ window.WrapListTable.fileTag} />
             </FormItem>
             }
             <FormItem

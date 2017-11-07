@@ -21,7 +21,7 @@ import javaImage from '../../../assets/img/appstore/java.png'
 import tomcatImage from '../../../assets/img/appstore/tomcat.png'
 // import weblogicImage from '../../../assets/img/appstore/weblogic.jpg'
 import Title from '../../Title'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import WrapListTable from '../../AppCenter/AppWrap/WrapListTable'
 import { connect } from 'react-redux'
 import './style/WrapManage.less'
@@ -135,7 +135,7 @@ class WrapManage extends Component {
     const { template,defaultTemplate } = this.state
     return template.map((item,index) => {
       return (
-        <Button type="ghost" key={index} disabled={ !window.WrapListTbale || defaultTemplate !== index} style={{border:0}}>
+        <Button type="ghost" key={index} disabled={ !window.WrapListTable || defaultTemplate !== index} style={{border:0}}>
         <div className="template" key={item.name} onClick={()=> this.changTemplate(index,item)}>
           <img src={`${item.imageUrl}`} />
           {defaultTemplate == index?
@@ -288,7 +288,7 @@ class WrapManage extends Component {
               </Collapse>
               <div className="footerBtn">
                 <Button size="large" onClick={() => browserHistory.goBack()}>上一步</Button>
-                <Button size="large" style={{marginLeft:10}} onClick={() => this.goDeploy(window.WrapListTbale)}>下一步</Button>
+                <Button size="large" style={{marginLeft:10}} onClick={() => this.goDeploy(window.WrapListTable)}>下一步</Button>
               </div>
             </Card>
           </Col>
