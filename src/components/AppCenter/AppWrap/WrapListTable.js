@@ -175,8 +175,8 @@ class WrapListTable extends Component {
     }
     if (!rowCheckbox) {
       func.scope.setState({
-        selectedRowKeys: newSelectedRowKeys,
-        id: newId,
+        selectedRowKeys: [index],
+        id: [record.id],
         defaultTemplate: record.fileType =='jar' ? 0 : 1,
         version: null,
       })

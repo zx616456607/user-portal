@@ -460,7 +460,7 @@ let ConfigureService = React.createClass({
           <Form horizontal>
             <FormItem
               {...formItemLayout}
-              wrapperCol={{ span: 6 }}
+              wrapperCol={{ span: 8 }}
               label="应用名称"
               hasFeedback
               key="appName"
@@ -476,7 +476,7 @@ let ConfigureService = React.createClass({
             </FormItem>
             <FormItem
               {...formItemLayout}
-              wrapperCol={{ span: 6 }}
+              wrapperCol={{ span: 8 }}
               label="服务名称"
               hasFeedback
               key="serviceName"
@@ -491,16 +491,16 @@ let ConfigureService = React.createClass({
             </FormItem>
             {window.WrapListTable &&
             <FormItem {...formItemLayout}
-              wrapperCol={{ span: 6 }}
+              wrapperCol={{ span: 8 }}
               label="应用包"
               hasFeedback
               key="Appwrap">
-              <Input disabled={true} value={window.WrapListTable.fileName  + ' | '+ window.WrapListTable.fileTag} />
+              <Input readOnly value={window.WrapListTable.fileName  + ' | '+ window.WrapListTable.fileTag} />
             </FormItem>
             }
             <FormItem
               {...formItemLayout}
-              wrapperCol={{ span: 9 }}
+              wrapperCol={{ span: 8 }}
               label={location.query.appPkgID ? '运行环境':"镜像"}
               key="image"
             >
