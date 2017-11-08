@@ -34,7 +34,13 @@ exports.createApp = function* () {
   // app.desc = yaml.dump(app.desc)
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.createBy([cluster, 'apps'], null, app)
+  let result = {}
+  if (!app.appPkgID){
+    result = yield api.createBy([cluster, 'apps'], null, app)
+  }else{
+    const pkgApi = apiFactory.getApi(loginUser)
+    result = yield pkgApi.pkg.createBy([cluster, 'deployment'], null, app)
+  }
   this.body = {
     cluster,
     data: result.data
