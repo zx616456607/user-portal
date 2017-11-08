@@ -1092,7 +1092,7 @@ class ProjectDetail extends Component {
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {projectDetail && projectDetail.updateTime && projectDetail.updateTime.replace(/T/g, ' ').replace(/Z/g, '')}
+                        {projectDetail && projectDetail.updateTime && formatDate(projectDetail.updateTime)}
                       </div>
                     </Col>
                   </Row>
