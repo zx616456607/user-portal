@@ -307,6 +307,13 @@ const Storage = React.createClass({
       </div>
     )
   },
+  cancelAddContainerPath(){
+    const fileds = {
+      type: 'cancel',
+      value: {},
+    }
+    this.callbackFields(fileds)
+  },
   callbackFields(fields) {
     const { volumeList, currentIndex } = this.state
     const { form } = this.props
@@ -474,7 +481,7 @@ const Storage = React.createClass({
           title="添加容器目录"
           visible={this.state.addContainerPathModal}
           closable={true}
-          onCancel={() => this.setState({ addContainerPathModal: false })}
+          onCancel={this.cancelAddContainerPath}
           width="570px"
           maskClosable={false}
           wrapClassName="add_container_path"
