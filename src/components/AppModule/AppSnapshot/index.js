@@ -94,7 +94,7 @@ class Snapshot extends Component {
           this.setState({
             hasAlreadyGetStorageList: true,
           })
-          operate
+          operate()
         },
         isAsync: true,
       },
@@ -321,7 +321,7 @@ class Snapshot extends Component {
       this.rollbackOperate(key)
       return
     }
-    this.getStorageList('rollback', this.rollbackOperate(key))
+    this.getStorageList('rollback', this.rollbackOperate.bind(this, key))
   }
 
   handlecolsetips(){
@@ -448,7 +448,7 @@ class Snapshot extends Component {
       this.cloneSnapshotOperate(key)
       return
     }
-    this.getStorageList('clone', this.cloneSnapshotOperate(key))
+    this.getStorageList('clone', this.cloneSnapshotOperate.bind(this, key))
   }
 
   handleDropdown(key, item){

@@ -416,6 +416,10 @@ class CreateVolume extends Component {
   }
 
   changeVolumeSizeSlider(size){
+    const { volumeSizemin } = this.state
+    if(size < volumeSizemin){
+      size = volumeSizemin
+    }
     if (size > 20480) {
       size = 20480
     }
@@ -593,7 +597,7 @@ class CreateVolume extends Component {
             </Col>
             <Col span="12">
               <Slider
-                min={this.state.volumeSizemin}
+                min={512}
                 max={20480}
                 step={512}
                 defaultValue={this.state.volumeSizemin}

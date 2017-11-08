@@ -1493,6 +1493,7 @@ let CreateTenxFlowModal = React.createClass({
         }
       </Button>
     )
+    const isPrivateStorageInstall = this.props.storageClassType && this.props.storageClassType.private
     return (
       <div id='CreateTenxFlowModal' key='CreateTenxFlowModal'>
         <div className='titleBox'>
@@ -1875,7 +1876,14 @@ let CreateTenxFlowModal = React.createClass({
                     })
                   }
                   defaultChecked={false}
+                  disabled={!isPrivateStorageInstall}
                 />
+                {
+                  !isPrivateStorageInstall &&
+                  <div className="storageInstallAlert">
+                    <Alert showIcon message="尚未配置块存储集群，暂不能配置缓存卷" type="warning" />
+                  </div>
+                }
                 <div className="customizeBaseImage cachedVolumes">
                   {
                     this.state.cachedVolumes[0]
@@ -2096,10 +2104,12 @@ function mapStateToProps(state, props) {
     newList.push(project)
   })
   harborProjects.list = newList.concat(visitorList)
+  const currentCluster = state.entities.current.cluster
   return {
     clusters,
     clustersNodes,
     harborProjects,
+    storageClassType: currentCluster.storageClassType || {},
   }
 }
 

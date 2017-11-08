@@ -39,6 +39,7 @@ let MyComponent = React.createClass({
       ignoreSymbol: 'm',
       clearStraregy: {},
       search: '',
+      preItem: {},
     }
   },
   componentWillReceiveProps(nextProps) {
@@ -291,6 +292,8 @@ let MyComponent = React.createClass({
   tableListMore(list, e) {
     if(e && e.target && e.target.nodeName == 'A') return
     const oldData = cloneDeep(this.state.data)
+    const preItem = cloneDeep(this.state.preItem)
+    const currentItem = oldData[list]
     let data
     const newData = oldData.map((item, index)=> {
       if (index == list) {
@@ -302,11 +305,15 @@ let MyComponent = React.createClass({
       return item
     })
     this.setState({
-      data: newData
+      data: newData,
+      preItem: data,
     })
     if(data && data.active) {
       const { scope, getSettingInstant, settingInstant } = this.props
-      if(settingInstant.result && settingInstant.result[data.strategyName]) return
+      // 策略名称且策略类型不改变，不请求新数据
+      if(preItem.strategyName === currentItem.strategyName && preItem.targetType === currentItem.targetType){
+        return
+      }
       let type = 'node'
       if(data.targetType == 0) {
         type = 'service'
@@ -326,9 +333,28 @@ let MyComponent = React.createClass({
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
     if(!data) { return <div>无数据</div>}
+    const leftNameStyle = classNames({
+      'leftName': true,
+      'leftName3': data.disk ? false : true,
+      'leftName4': data.disk ? true : false,
+    })
+    const memoryListsStyle = classNames({
+      'memoryList3': data.disk ? false : true,
+      'memoryList3After': data.disk ? false : true,
+      'memoryList4': data.disk ? true : false,
+      'memoryList4After': data.disk ? true : false
+    })
+    const diskListsStyle = classNames({
+      'lastLists': true,
+      'disklists': data.disk ? true : false,
+    })
+    const rateListsStyle = classNames({
+      'lastLists': true,
+      'ratelists': data.disk ? false : true,
+    })
     return (
       <div className="wrapChild">
-        <div className="leftName">
+        <div className={leftNameStyle}>
           { list.targetName }
         </div>
         <div className="rightList">
@@ -336,11 +362,11 @@ let MyComponent = React.createClass({
             <span className="keys">CPU</span>
             <Progress percent={parseFloat(data.cpus).toFixed(2)} strokeWidth={8} format={ percent => percent + '%'} status={data.cpu > 80 ? 'exception' : ''}  className="progress" />
           </div>
-          <div className="lists">
+          <div className={memoryListsStyle}>
             <span className="keys">内存</span>
             <Progress percent={ data.memory[2] * 100 } strokeWidth={8} format={ () =>  parseInt(data.memory[0]/(1024*1024)) + 'MB'}   status={ data.memory[2]*100 > 80 ? 'exception' : ''} className="progress"/>
           </div>
-          <div className="lists">
+          <div className={rateListsStyle}>
             <span className="keys">流量</span>
             <span className="keys">
               <Icon type="arrow-up" />
@@ -351,6 +377,16 @@ let MyComponent = React.createClass({
               { (data.rxRate / 1024).toFixed(2) + 'Kb/s' }
             </span>
           </div>
+          { data.disk && <div className={diskListsStyle}>
+            <span className="keys">磁盘</span>
+            <Progress
+              className="progress"
+              percent={parseFloat(data.disk).toFixed(2)}
+              strokeWidth={8}
+              format={ percent => percent + '%'}
+              status={ data.disk > 80 ? 'exception' : ''}
+            />
+          </div> }
         </div>
       </div>
     )

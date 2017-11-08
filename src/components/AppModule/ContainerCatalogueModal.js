@@ -234,17 +234,16 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   renderHostType() {
-    const { form, fieldsList, currentIndex } = this.props
+    const { form, fieldsList, currentIndex, isBindNode } = this.props
     const { getFieldProps } = form
-    const bind = false
     return <div>
       <Row className='host_node_row'>
         <Col span="4">绑定节点</Col>
         <Col span="17">
           {
-            bind
-              ? <span>已绑定  ubuntu-26 | 192.168.1.26</span>
-              : <span>未绑定  如需保持数据一致性建议绑定具体节点</span>
+            isBindNode
+              ? <span>已绑定</span>
+              : <span>未绑定</span>
           }
         </Col>
       </Row>
