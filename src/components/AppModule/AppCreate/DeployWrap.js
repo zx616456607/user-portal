@@ -145,6 +145,7 @@ class WrapManage extends Component {
           }
           <span className="textoverflow">{item.name.split('/')[1]}</span>
         </div>
+        <div className="template_version">最新版本：{template[index].version[0]}</div>
         </Button>
       )
 
@@ -239,6 +240,7 @@ class WrapManage extends Component {
               <div className="template_list">
                 {this.templateList()}
               </div>
+              <div className="wrap_hint"><Icon type="exclamation-circle-o"/> 设置 JAVA_OPTS：在下一步『配置服务』页面，配置环境变量中修改 JAVA_OPTS 键对应的值</div>
             </div>
             <Collapse>
               <Collapse.Panel header={header}>
@@ -275,6 +277,7 @@ class WrapManage extends Component {
                 <div className="template_list">
                   {this.templateList()}
                 </div>
+                <div className="wrap_hint"><Icon type="exclamation-circle-o"/> 设置 JAVA_OPTS：在下一步『配置服务』页面，配置环境变量中修改 JAVA_OPTS 键对应的值</div>
               </div>
               <Collapse>
                 <Collapse.Panel header={header}>
