@@ -266,51 +266,33 @@ let MyComponent = React.createClass({
   },
   renderBuildBtn(item, index) {
     const { projectId, defaultBranch, stagesCount, repoType } = item
-    const { repoBranchesAndTags } = this.props
-    const dropdown = (
-      <Menu onClick={this.operaMenuClick.bind(this, item)} style={{width:'127px'}}>
-        <Menu.Item key="deloylog111">
-          <i className="anticon anticon-book" style={{marginRight: '5px'}}/>&nbsp;
-          <FormattedMessage {...menusText.deloyLog}/>
-        </Menu.Item>
-        <Menu.Item key="checkImage111">
-          <i className="anticon anticon-folder-open" style={{marginRight: '5px'}}/>&nbsp;
-          <FormattedMessage {...menusText.checkImage}/>
-        </Menu.Item>
-        <Menu.Item key='deleteFlow111'>
-          <i className="anticon anticon-delete" style={{marginRight: '5px'}}/>&nbsp;
-          <FormattedMessage {...menusText.delete}/>
-        </Menu.Item>
-      </Menu>
-    );
-    const targetElement = (
-      <span>
-        <i className='fa fa-pencil-square-o' />&nbsp;
+    const { repoBranchesAndTags, scope } = this.props
+    let targetElement = (
+      <Button
+        className='logBtn'
+        size='large'
+        type='primary'
+        onClick={() => {
+          if (repoType === 'svn') {
+            this.startBuildStage(item, index)
+            return
+          }
+          this.starFlowBuild(item, index)
+        }}
+      >
+        <svg className='structure commonImg'>
+          <use xlinkHref="#structure"></use>
+        </svg> &nbsp;
         <FormattedMessage {...menusText.deloyStart} />
-      </span>
+      </Button>
     )
     if (repoType === 'svn') {
-      return (
-        <Dropdown.Button
-          overlay={dropdown}
-          type='ghost'
-          size='large'
-          onClick={() => {
-            if (repoType === 'svn') {
-              this.startBuildStage(item, index)
-              return
-            }
-            this.starFlowBuild(item, index)
-          }}
-        >
-        { targetElement }
-      </Dropdown.Button>
-      )
+      return targetElement
     }
     const tabs = []
     let loading
     const branchesAndTags = repoBranchesAndTags[projectId]
-    if (!branchesAndTags) {
+    if (!branchesAndTags || (!branchesAndTags.data.branches && !branchesAndTags.data.tags)) {
       if (stagesCount > 0) {
         tabs.push(<PopOption key="not_found_branches_tags">未找到分支及标签，点击构建</PopOption>)
       }
@@ -333,17 +315,44 @@ let MyComponent = React.createClass({
         }
       }
     }
-
     return (
-      <Dropdown.Button overlay={dropdown} type='ghost' size='large' onClick={() => this.starFlowBuild(item, index)}>
-        <PopTabSelect
-          onChange={this.startBuildStage.bind(this, item, index)}
-          targetElement={targetElement}
-          loading={loading}
-          isShowBuildBtn={true}
-          getTooltipContainer={() => document.body}>
-          {tabs}
-        </PopTabSelect>
+      <PopTabSelect
+        placeholder="请输入分支或标签"
+        style={{float: 'left'}}
+        onChange={this.startBuildStage.bind(this, item, index)}
+        targetElement={targetElement}
+        getTooltipContainer={() => document.body}
+        isShowBuildBtn={true}
+        loading={loading}>
+        {tabs}
+      </PopTabSelect>
+    )
+  },
+  renderDropdownBtn(item, index) {
+    const { scope } = this.props
+    const dropdown = (
+      <Menu onClick={this.operaMenuClick.bind(this, item)} style={{width:'127px'}}>
+        <Menu.Item key="checkImage111">
+          <i className="anticon anticon-folder-open" style={{marginRight: '5px'}}/>&nbsp;
+          <FormattedMessage {...menusText.checkImage}/>
+        </Menu.Item>
+        <Menu.Item key='deleteFlow111'>
+          <i className="anticon anticon-delete" style={{marginRight: '5px'}}/>&nbsp;
+          <FormattedMessage {...menusText.delete}/>
+        </Menu.Item>
+      </Menu>
+    );
+    return (
+      <Dropdown.Button
+        overlay={dropdown}
+        type='ghost'
+        size='large'
+        onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}
+      >
+        <span>
+          <i className='fa fa-wpforms' />&nbsp;
+          <FormattedMessage {...menusText.deloyLog} />
+        </span>
       </Dropdown.Button>
     )
   },
@@ -412,6 +421,9 @@ let MyComponent = React.createClass({
             {/*</Button>*/}
             {
               this.renderBuildBtn(item, index)
+            }
+            {
+              this.renderDropdownBtn(item, index)
             }
           </div>
         </div>
