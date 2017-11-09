@@ -28,6 +28,14 @@ const menuList = [
   {
     url: '/app_center/wrap_manage',
     name: '应用包管理'
+  },
+  {
+    url: '/app_center/wrap_store',
+    name: '应用包商店'
+  },
+  {
+    url: '/app_center/wrap_check',
+    name: '发布审核'
   }
 ]
 

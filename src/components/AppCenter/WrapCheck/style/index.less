@@ -1,0 +1,60 @@
+@import "../../../../assets/style/site/core";
+.wrapCheck{
+  padding: 25px;
+  .wrapCheckHead{
+    position: relative;
+    margin-bottom: 20px;
+    .refreshBtn{
+      margin-right: 12px;
+    }
+    .total{
+      right: 180px;
+    }
+  }
+  .wrapCheckTableBox{
+    background-color: white;
+    .wrapCheckTable{
+      position: relative;
+      padding: 0 20px 40px;
+      .ant-table-body{
+        padding-top: 10px;
+        .ant-table-thead > tr > th{
+          background: #ffffff;
+          font-weight: normal;
+          border-bottom: 1px solid #d9d9d9;
+        }
+      }
+      .ant-pagination{
+        position: absolute;
+        top: -64px;
+        right: 0;
+      }
+      .statusPass, .waitForCheck{
+        display: inline-flex;
+        align-items: center;
+        i{
+          display: inline-block;
+          margin-right: 8px;
+          height: 12px;
+          width: 12px;
+          border-radius: 50%;
+        }
+      }
+      .statusPass {
+        color: @success-color;
+        i{
+          background-color: @success-color;
+        }
+      }
+      .waitForCheck {
+        color: @error-color;
+        i{
+          background-color: @error-color;
+        }
+      }
+    }
+    .passBtn{
+      margin-right: 12px;
+    }
+  }
+}

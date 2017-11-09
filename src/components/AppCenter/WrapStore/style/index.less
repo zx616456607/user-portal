@@ -1,0 +1,112 @@
+@import "../../../../assets/style/site/core";
+.appWrapStore {
+  background-color: #ecf0f4;
+  padding-bottom: 30px;
+  .wrapStoreHead{
+    padding: 40px;
+    background: url("../../../../assets/img/wrapStoreBg.jpg") no-repeat;
+    background-size: cover;
+    background-position: center;
+    text-align: center;
+    .storeHeadText{
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+  }
+  .filterAndSortBox{
+    padding: 20px 24px;
+    .filterClassify{
+      margin-bottom: 20px;
+    }
+    .filterTab{
+      margin-left: 5px;
+      display: inline-block;
+      border-radius: 17px;
+      padding: 8px 20px;
+      cursor: pointer;
+      &:hover{
+        color: @primary-color;
+      }
+    }
+    .active{
+      background-color: @primary-color;
+      color: white;
+    }
+  }
+  .wrapStoreBody{
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-around;
+    .wrapStoreLeft{
+      flex: 1 1 auto;
+      margin-right: 24px;
+    }
+    .wrapStoreRight{
+      flex: 0 0 340px;
+    }
+    .wrapListBox{
+      border-radius: 4px;
+      overflow: hidden;
+      .wrapList{
+        background-color: white;
+        padding: 24px;
+        &:not(:last-of-type) {
+          border-bottom: @border-width-base @border-style-base @border-color-split;
+        }
+        .hotOrder{
+          display: inline-block;
+          width: 24px;
+          text-align: center;
+        }
+        .hotOrder2{
+          color: #ffae02;
+        }
+        .hotOrder3{
+          color: #fecd01;
+        }
+        .hotOrder4, .hotOrder5{
+          color: #cccccc;
+        }
+        .champion{
+          display: inline-block;
+          background: url("../../../../assets/img/champion.png");
+          width: 24px;
+          height: 18px;
+        }
+        .wrapIcon{
+          width: 80px;
+          height: 80px;
+          border: @border-width-base @border-style-base @border-color-base;
+          border-radius: 4px;
+        }
+        .hotWrapIcon{
+          width: 50px;
+          height: 50px;
+          border: @border-width-base @border-style-base @border-color-base;
+          border-radius: 4px;
+        }
+        .wrapListMiddle{
+          .appName{
+            font-size: 14px;
+          }
+          .appDesc{
+            margin-bottom: 20px;
+          }
+          .downloadBox{
+            span:first-of-type{
+              margin-right: 30px;
+            }
+          }
+        }
+      }
+      .noBorder{
+        border-bottom: none !important;
+      }
+      .hotWrapCard{
+        .ant-card-body{
+          padding: 0;
+        }
+      }
+    }
+  }
+}
