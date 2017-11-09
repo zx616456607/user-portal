@@ -230,7 +230,11 @@ const Storage = React.createClass({
             }
           }
         }
-        return <Row key={`storagelist${index}`} className='storage_row_style'>
+        const rowClassName = classNames({
+          'storage_row_style': true,
+          'first_row': index == 0,
+        })
+        return <Row key={`storagelist${index}`} className={rowClassName}>
           <Col span="4" className='text'>
             {this.formatType(type)}
           </Col>
@@ -247,13 +251,14 @@ const Storage = React.createClass({
                 : <span>&nbsp;</span>
             }
           </Col>*/}
-          <Col span="3">
+          <Col span="3" className='read_only'>
             <Checkbox checked={readOnly} disabled>只读</Checkbox>
           </Col>
           <Col span="4">
             <Button
               icon="edit"
               style={{ marginRight: 8 }}
+              type='dashed'
               onClick={() => this.editStorage(index)}
             />
             <Button
@@ -301,6 +306,13 @@ const Storage = React.createClass({
         </div>
       </div>
     )
+  },
+  cancelAddContainerPath(){
+    const fileds = {
+      type: 'cancel',
+      value: {},
+    }
+    this.callbackFields(fileds)
   },
   callbackFields(fields) {
     const { volumeList, currentIndex } = this.state
@@ -444,10 +456,19 @@ const Storage = React.createClass({
             {
               (serviceType && serviceType.value) && (
                 <div className={volumesClass}>
-                  <div>
-                    独享型存储，仅支持一个容器实例读写操作；<br/>
-                    共享型支持多个容器实例同时对同一个存储卷读写操作；<br/>
-                    本地存储支持在宿主机节点上保存数据。
+                  <div className='tips_container'>
+                    <div className='item'>
+                      <span className='icon'>。</span>
+                      独享型存储，仅支持一个容器实例读写操作；
+                    </div>
+                    <div className='item'>
+                      <span className='icon'>。</span>
+                      共享型支持多个容器实例同时对同一个存储卷读写操作；
+                    </div>
+                    <div className='item'>
+                      <span className='icon'>。</span>
+                      本地存储支持在宿主机节点上保存数据。
+                    </div>
                   </div>
                   <Spin className={volumeSpinClass} />
                   {this.renderConfigure()}
@@ -460,7 +481,7 @@ const Storage = React.createClass({
           title="添加容器目录"
           visible={this.state.addContainerPathModal}
           closable={true}
-          onCancel={() => this.setState({ addContainerPathModal: false })}
+          onCancel={this.cancelAddContainerPath}
           width="570px"
           maskClosable={false}
           wrapClassName="add_container_path"

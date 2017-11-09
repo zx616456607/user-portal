@@ -47,6 +47,11 @@ class CreateRoleModal extends React.Component {
   componentWillUnmount() {
     clearTimeout(this.roleNameTime)
   }
+  componentDidMount() {
+    setTimeout(function () {
+      document.getElementById('roleName').focus()
+    }, 100)
+  }
 
   fetchRowDate() {
     const { scope, roleId } = this.props
@@ -387,21 +392,21 @@ class CreateRoleModal extends React.Component {
       isCheck: true,
     })
   }
-  fetchNode(category){
+  fetchNode(category) {
     const { allPermission } = this.state
     let childrenKey = []
     this.fetchCategory(allPermission, childrenKey, category)
     return childrenKey
   }
-  fetchCategory(data, childrenKey, category){
+  fetchCategory(data, childrenKey, category) {
     const children = []
     for (let i = 0; i < data.length; i++) {
       let RowData = data[i]
       if (RowData.id === category) {
-        if(RowData.children){
+        if (RowData.children) {
           RowData.children.forEach((item, index) => {
-            if(item.name.indexOf('查看') !== -1){
-              if(item.children){
+            if (item.name.indexOf('查看') !== -1) {
+              if (item.children) {
                 item.children.forEach((item, index) => {
                   childrenKey.push(item.id)
                 })
@@ -466,7 +471,6 @@ class CreateRoleModal extends React.Component {
               ],
               initialValue: isAdd ? undefined : rowDate.name
             }) }
-
             />
           </Form.Item>
           <Form.Item label="描述" {...formItemLayout}>
@@ -497,7 +501,7 @@ class CreateRoleModal extends React.Component {
               }
             </div>
           </div>
-          <span className="notes"><Icon type="exclamation-circle-o" className='tips_icon'/>  注：查看作为基本操作权限，无查看权限时其他相关操作权限不生效</span>
+          <span className="notes"><Icon type="exclamation-circle-o" className='tips_icon' />  注：查看作为基本操作权限，无查看权限时其他相关操作权限不生效</span>
         </div>
       </Modal>
     )

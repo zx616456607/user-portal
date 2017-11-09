@@ -38,6 +38,11 @@ const Ports = React.createClass({
     const { getFieldValue } = this.props.form
     const portsKeys = getFieldValue('portsKeys') || []
     let error
+    portsKeys.forEach((item, index) => {
+      if(item.deleted){
+        portsKeys.splice(index, 1)
+      }
+    })
     portsKeys.every(_key => {
       const port = getFieldValue(`port${_key.value}`)
       if (_key.value !== key && value === port) {

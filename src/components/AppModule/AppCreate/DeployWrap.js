@@ -8,7 +8,7 @@
  * @author Baiyu
  */
 import React, { Component } from 'react'
-import { Input, Button, Card, Steps, Row, Col, Select,Icon } from 'antd'
+import { Input, Button, Card, Steps, Row, Collapse, Col, Select,Icon } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { Link, browserHistory } from 'react-router'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
@@ -19,6 +19,7 @@ import { API_URL_PREFIX } from '../../../constants'
 import { formatDate } from '../../../common/tools'
 import javaImage from '../../../assets/img/appstore/java.png'
 import tomcatImage from '../../../assets/img/appstore/tomcat.png'
+// import weblogicImage from '../../../assets/img/appstore/weblogic.jpg'
 import Title from '../../Title'
 import NotificationHandler from '../../../components/Notification'
 import WrapListTable from '../../AppCenter/AppWrap/WrapListTable'
@@ -36,7 +37,10 @@ class WrapManage extends Component {
       stepStatus: 'process',
       serviceList: [],
       page: 1,
-      defaultTemplate:0,// 默认选中一个模板
+      defaultTemplate:99,// 默认选中一个模板
+      selectedRowKeys:[],
+      version:'none',
+      id:[],// selected id
       template: [
         {
           registry: DEFAULT_REGISTRY,
@@ -49,7 +53,13 @@ class WrapManage extends Component {
           name: 'tenx_containers/tomcat',
           imageUrl: tomcatImage,
           version: ['9','8','7']
-        }
+        },
+        // {
+        //   registry: DEFAULT_REGISTRY,
+        //   name:'tenx_containers/weblogic',
+        //   imageUrl:weblogicImage,
+        //   version: ['latest']
+        // }
       ]
     }
   }
@@ -63,6 +73,7 @@ class WrapManage extends Component {
       return
     }
     this.loadData()
+    window.template = this.state.template
   }
   getList(e) {
     let inputValue = e.target.value
@@ -124,7 +135,8 @@ class WrapManage extends Component {
     const { template,defaultTemplate } = this.state
     return template.map((item,index) => {
       return (
-        <div className="template cursor" key={item.name} onClick={()=> this.changTemplate(index,item)}>
+        <Button type="ghost" key={index} disabled={ !window.WrapListTable || defaultTemplate !== index} style={{border:0}}>
+        <div className="template" key={item.name} onClick={()=> this.changTemplate(index,item)}>
           <img src={`${item.imageUrl}`} />
           {defaultTemplate == index?
           [<span className="triangle" key={index+1}></span>,
@@ -133,20 +145,33 @@ class WrapManage extends Component {
           }
           <span className="textoverflow">{item.name.split('/')[1]}</span>
         </div>
+        <div className="template_version">最新版本：{template[index].version[0]}</div>
+        </Button>
       )
 
     })
   }
   templateVersion() {
     const { defaultTemplate, template } = this.state
+    if (defaultTemplate >9) {
+      return <Select.Option key="none">请先选择应用包</Select.Option>
+    }
     return template[defaultTemplate].version.map(item=> {
       return <Select.Option key={item}>{item}</Select.Option>
     })
   }
-  goDeploy = (id)=> {
+  goDeploy = (row)=> {
+    if (!row) {
+      notificat.info('请先选择应用包')
+      return
+    }
+    const { wrapList, location } = this.props
+    if(row.appRegistryMap && Object.keys(row.appRegistryMap).length > 0 && location.query.entryPkgID) {
+      notificat.error('应用下已有设置entryPkgID的服务')
+      return
+    }
     // /app_manage/app_create/quick_create#configure-service
     const { version, defaultTemplate, template } = this.state
-    const { wrapList, location } = this.props
     let registry = wrapList.registry
     registry = registry && registry.split(/^(http:\/\/|https:\/\/)/)[2]
     // if (!version) {
@@ -166,7 +191,7 @@ class WrapManage extends Component {
       return
     }
     const { appName, action} = location.query
-    let imageName ='?imageName='+this.state.template[defaultTemplate].name +`&tag=${tag}`+`&registryServer=${registry}&appPkgID=`+ id
+    let imageName ='?imageName='+this.state.template[defaultTemplate].name +`&tag=${tag}`+`&registryServer=${registry}&appPkgID=${row.id}&entryPkgID=${(row.appRegistryMap && Object.keys(row.appRegistryMap).length > 0) ? row.id : ''}`
     if (appName) {
       imageName += `&appName=${appName}&action=${action}`
     }
@@ -175,10 +200,11 @@ class WrapManage extends Component {
   }
   render() {
     const { serviceList, template, defaultTemplate, version } = this.state
-    const { current, quick_create} = this.props
+    const { current, quick_create, location} = this.props
     const { resource, priceHour, priceMonth } = this.getAppResources()
     const funcCallback = {
-      goDeploy: this.goDeploy
+      goDeploy: this.goDeploy,
+      scope: this
     }
     let showprice = 18
     if (!SHOW_BILLING) {
@@ -191,33 +217,41 @@ class WrapManage extends Component {
         <Step title="配置服务" />
       </Steps>
     )
+    const header = (
+      <div>高级设置
+      </div>
+    )
     if (quick_create) {
       return (
         <QueueAnim id="deploy_wrap">
           <div className="wrap_manage" >
+            <div className="list_row">
+              <span className="wrap_key">选择应用包</span>
+              <span className="searchInput">
+                <Input size="large" onPressEnter={(e) => this.getList(e)} placeholder="请输入包名称搜索" />
+                <Button type="primary" onClick={() => browserHistory.push('/app_center/wrap_manage')} size="large">去上传部署包</Button>
+
+              </span>
+            </div>
+            <WrapListTable func={funcCallback} selectedRowKeys={this.state.selectedRowKeys} entryPkgID={location.query.entryPkgID}/>
+            <br />
             <div className="list_row" style={{ height: 'auto' }}>
-              <span className="wrap_key" style={{ float: 'left' }}>选择模板</span>
+              <span className="wrap_key" style={{ float: 'left' }}>运行环境</span>
               <div className="template_list">
                 {this.templateList()}
               </div>
               <div className="wrap_hint"><Icon type="exclamation-circle-o"/> 设置 JAVA_OPTS：在下一步『配置服务』页面，配置环境变量中修改 JAVA_OPTS 键对应的值</div>
             </div>
-            <div className="list_row">
-              <span className="wrap_key">选择版本</span>
-              <Select style={{width:180}} size="large" value={version || template[defaultTemplate].version[0]} onChange={(e)=> this.setState({version: e})}>
-                { this.templateVersion() }
-              </Select>
-            </div>
-            <div className="list_row">
-              <span className="wrap_key">选择应用包</span>
-              <span className="searchInput">
-                <Input size="large" onPressEnter={(e) => this.getList(e)} placeholder="请输入包名称或标签搜索" />
-                <Button type="primary" onClick={() => browserHistory.push('/app_center/wrap_manage')} size="large">去上传部署包</Button>
-
-              </span>
-            </div>
-            <br />
-            <WrapListTable func={funcCallback}/>
+            <Collapse>
+              <Collapse.Panel header={header}>
+              <div className="list_row">
+                <span className="wrap_key">选择版本</span>
+                <Select style={{width:180}} size="large" value={version || template[defaultTemplate].version[0]} onChange={(e)=> {this.setState({version: e});window.version = e}}>
+                  { this.templateVersion() }
+                </Select>
+              </div>
+              </Collapse.Panel>
+            </Collapse>
           </div>
         </QueueAnim>
       )
@@ -228,31 +262,36 @@ class WrapManage extends Component {
         <Row gutter={16}>
           <Col span={showprice}>
             <Card key="wrap_manage" className="wrap_manage" title={steps}>
+              <div className="list_row">
+                <span className="wrap_key">选择应用包</span>
+                <span className="searchInput">
+                  <Input size="large" onPressEnter={(e) => this.getList(e)} placeholder="请输入包名称搜索" />
+                  <Button type="primary" onClick={() => browserHistory.push('/app_center/wrap_manage')} size="large">去上传部署包</Button>
+
+                </span>
+              </div>
+              <WrapListTable func={funcCallback} selectedRowKeys={this.state.selectedRowKeys} entryPkgID={location.query.entryPkgID}/>
+              <br />
               <div className="list_row" style={{ height: 'auto' }}>
-                <span className="wrap_key" style={{ float: 'left' }}>选择模板</span>
+                <span className="wrap_key" style={{ float: 'left' }}>运行环境</span>
                 <div className="template_list">
                   {this.templateList()}
                 </div>
                 <div className="wrap_hint"><Icon type="exclamation-circle-o"/> 设置 JAVA_OPTS：在下一步『配置服务』页面，配置环境变量中修改 JAVA_OPTS 键对应的值</div>
               </div>
-              <div className="list_row">
-                <span className="wrap_key">选择版本</span>
-                <Select style={{width:180}} size="large" value={version || template[defaultTemplate].version[0]} onChange={(e)=> this.setState({version: e})}>
-                  { this.templateVersion() }
-                </Select>
-              </div>
-              <div className="list_row">
-                <span className="wrap_key">选择应用包</span>
-                <span className="searchInput">
-                  <Input size="large" onPressEnter={(e) => this.getList(e)} placeholder="请输入包名称或标签搜索" />
-                  <Button type="primary" onClick={() => browserHistory.push('/app_center/wrap_manage')} size="large">去上传部署包</Button>
-
-                </span>
-              </div>
-              <br />
-              <WrapListTable func={funcCallback}/>
+              <Collapse>
+                <Collapse.Panel header={header}>
+                <div className="list_row">
+                  <span className="wrap_key">选择版本</span>
+                  <Select style={{width:180}} size="large" value={version || template[defaultTemplate].version[0]} onChange={(e)=> {this.setState({version: e});window.version = e}}>
+                    { this.templateVersion() }
+                  </Select>
+                </div>
+                </Collapse.Panel>
+              </Collapse>
               <div className="footerBtn">
-                <Button onClick={() => browserHistory.goBack()}>上一步</Button>
+                <Button size="large" onClick={() => browserHistory.goBack()}>上一步</Button>
+                <Button size="large" style={{marginLeft:10}} onClick={() => this.goDeploy(window.WrapListTable)}>下一步</Button>
               </div>
             </Card>
           </Col>

@@ -57,8 +57,14 @@
       }
     }
   }
+  .first_row{
+    border-top: 1px solid #e5e5e5;
+  }
   .storage_row_style{
     margin: 5px 0;
+    border-bottom: 1px solid #e5e5e5;
+    height:50px;
+    line-height: 50px;
     .text{
       overflow: hidden;
       text-overflow: ellipsis;
@@ -67,6 +73,22 @@
     .mountPath_style{
       max-width: 150px;
       padding-right: 5px;
+    }
+    .read_only{
+      text-align: center;
+    }
+  }
+  .tips_container{
+    color: #9a9a9a;
+    .item{
+      position: relative;
+      padding-left: 20px;
+      .icon{
+        font-size: 26px;
+        position: absolute;
+        left: 0;
+        top: -8px;
+      }
     }
   }
 }

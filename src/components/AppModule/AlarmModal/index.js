@@ -967,7 +967,7 @@ class AlarmModal extends Component {
     if(!nextProps.isShow) {
       form.resetFields()
       this.state.firstForm.resetFields()
-      this.state.secondForm.resetFields()
+      //this.state.secondForm.resetFields()
     }
     if(nextProps.space.spaceID && nextProps.space.spaceID !== this.props.space.spaceID) {
       loadNotifyGroups('', nextProps.cluster.clusterID)
@@ -1168,7 +1168,9 @@ class AlarmModal extends Component {
     funcs.scope.setState({
       resetFields: () => {
         form.resetFields()
-        secondForm.resetFields()
+        if(secondForm){
+          secondForm.resetFields()
+        }
         firstForm.resetFields()
       }
     })

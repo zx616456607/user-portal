@@ -247,9 +247,8 @@ class Information extends Component {
         func: (ret) => {
           _this.setState({visibleMember: false})
           notification.success('充值成功')
-          if (userDetail.namespace== loginUser.namespace) {
+          if (userDetail.namespace == loginUser.namespace) {
             loadLoginUserDetail()
-            return
           }
           loadUserDetail(userID)
         },

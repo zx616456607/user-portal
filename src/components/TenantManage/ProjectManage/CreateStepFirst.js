@@ -40,6 +40,9 @@ let CreateStepFirst = React.createClass({
     if (!choosableClusters.length && !selectedClusters.length) {
       this.getAllClusters()
     }
+    setTimeout(function () {
+      document.getElementById('projectName').focus()
+    }, 100)
   },
   getAllClusters() {
     const { loadClusterList } = this.props;
