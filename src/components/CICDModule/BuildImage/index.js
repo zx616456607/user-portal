@@ -492,11 +492,7 @@ class TenxFlowList extends Component {
   }
 
   componentWillMount() {
-    const { getTenxFlowList } = this.props;
-    const self = this
-
     this.loadData()
-
   }
   componentDidMount() {
     const { status, buildId, stageId } = this.props.loginUser
@@ -754,16 +750,8 @@ class TenxFlowList extends Component {
     const scope = this;
     const { isFetching, buildFetching, logs, cicdApi, repoBranchesAndTags } = this.props;
     const { searchingFlag } = this.state;
-    const { flowList } = this.props
+    const flowList = this.props.flowList || []
     let message = '';
-    if (isFetching || !flowList) {
-      return (
-        <div className='loadingBox'>
-          <Spin size='large' />
-        </div>
-      )
-    }
-
     if (flowList.length < 1 && !searchingFlag) {
       message = " * 目前还没有添加任何 TenxFlow"
     } else if (flowList.length < 1 && searchingFlag) {
@@ -778,6 +766,9 @@ class TenxFlowList extends Component {
             <Button className='createBtn' size='large' type='primary' onClick={this.openCreateTenxFlowModal}>
               <i className='fa fa-plus' />&nbsp;
               <FormattedMessage {...menusText.create} />
+            </Button>
+            <Button className="refreshBtn"  size='large' type="ghost" onClick={this.loadData.bind(this, null)}>
+              <i className='fa fa-refresh' /> 刷新
             </Button>
             <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' onChange={this.onSearchFlow} />
             <i className='fa fa-search'></i>
@@ -804,7 +795,13 @@ class TenxFlowList extends Component {
                 <FormattedMessage {...menusText.opera} />
               </div>
             </div>
-            <MyComponent scope={scope} config={this.state.flowList} isFetching={isFetching} repoBranchesAndTags={repoBranchesAndTags} changeCheckStatus={(name, e) => this.changeCheckStatus(name, e)} checkImage={this.props.checkImage}/>
+            {
+              (isFetching || !flowList)
+                ? <div className='loadingBox'>
+                    <Spin size='large' />
+                  </div>
+                : <MyComponent scope={scope} config={this.state.flowList} isFetching={isFetching} repoBranchesAndTags={repoBranchesAndTags} changeCheckStatus={(name, e) => this.changeCheckStatus(name, e)} checkImage={this.props.checkImage}/>
+            }
             {flowList.length < 1 && !searchingFlag ?
               <div className='loadingBox'>暂无数据</div> :
               (flowList.length < 1 && searchingFlag ?
