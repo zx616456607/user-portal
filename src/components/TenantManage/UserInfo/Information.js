@@ -250,7 +250,7 @@ class Information extends Component {
           if (userDetail.namespace == loginUser.namespace) {
             loadLoginUserDetail()
           }
-          loadUserDetail(userID)
+          loadUserDetail(userID || 'default')
         },
         isAsync: true
       }
