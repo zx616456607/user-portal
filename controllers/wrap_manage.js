@@ -50,7 +50,7 @@ exports.downloadPkg = function*() {
   const file = yield api.pkg.downloadFile([id])
   this.set('content-disposition', file.headers['content-disposition'])
   this.set('content-type', file.headers['content-type'])
-  this.body = file.data
+  this.body = file.res
 }
 
 exports.deletePkg = function* () {

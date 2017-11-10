@@ -607,16 +607,8 @@ class TenxFlowList extends Component {
     const scope = this;
     const { isFetching, buildFetching, logs, cicdApi, repoBranchesAndTags } = this.props;
     const { searchingFlag } = this.state;
-    const { flowList } = this.state
+    const flowList = this.state.flowList || []
     let message = '';
-    if (isFetching || !flowList) {
-      return (
-        <div className='loadingBox'>
-          <Spin size='large' />
-        </div>
-      )
-    }
-
     if (flowList.length < 1 && !searchingFlag) {
       message = " * 目前还没有添加任何 TenxFlow"
     } else if (flowList.length < 1 && searchingFlag) {
@@ -633,6 +625,9 @@ class TenxFlowList extends Component {
             <Button className='createBtn' size='large' type='primary' onClick={()=>this.openCreateTenxFlowModal(null,false)}>
               <i className='fa fa-plus' />&nbsp;
               <FormattedMessage {...menusText.create} />
+            </Button>
+            <Button className="refreshBtn"  size='large' type="ghost" onClick={this.loadData.bind(this, null)}>
+              <i className='fa fa-refresh' /> 刷新
             </Button>
             <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' value={this.state.searchValue}
                    onChange={(e)=> this.setState({searchValue:e.target.value})} onPressEnter={()=>this.onSearchFlow()}
@@ -655,13 +650,19 @@ class TenxFlowList extends Component {
                 <FormattedMessage {...menusText.opera} />
               </div>
             </div>
-            <MyComponent
-              scope={scope}
-              config={flowList}
-              isFetching={isFetching}
-              repoBranchesAndTags={repoBranchesAndTags}
-              openCreateTenxFlowModal={this.openCreateTenxFlowModal.bind(this)}
-            />
+            {
+              (isFetching || !flowList)
+                ? <div className='loadingBox'>
+                    <Spin size='large' />
+                  </div>
+                :  <MyComponent
+                      scope={scope}
+                      config={flowList}
+                      isFetching={isFetching}
+                      repoBranchesAndTags={repoBranchesAndTags}
+                      openCreateTenxFlowModal={this.openCreateTenxFlowModal.bind(this)}
+                    />
+            }
             {flowList.length < 1 && !searchingFlag ?
               <div className='loadingBox'>暂无数据</div> :
               (flowList.length < 1 && searchingFlag ?
