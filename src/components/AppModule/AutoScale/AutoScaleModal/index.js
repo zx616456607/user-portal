@@ -348,7 +348,7 @@ class AutoScaleModal extends React.Component {
       if (!!errors) {
         return
       }
-      
+
       let copyThresholdArr = thresholdArr.slice(0)
       this.uuid++
       copyThresholdArr = copyThresholdArr.concat(this.uuid)
@@ -504,7 +504,7 @@ class AutoScaleModal extends React.Component {
     })
     return (
       <Modal
-        title={reuse ? '复用自动伸缩侧漏' : (isEmpty(scaleDetail) ? "创建自动伸缩策略" : "修改自动伸缩策略")}
+        title={reuse ? '复用自动伸缩策略' : (isEmpty(scaleDetail) ? "创建自动伸缩策略" : "修改自动伸缩策略")}
         className="autoScaleModal"
         visible={visible}
         footer={this.renderFooter()}
@@ -577,7 +577,7 @@ class AutoScaleModal extends React.Component {
             </Select>
           </FormItem>
           {
-            isGroupHide ? null : 
+            isGroupHide ? null :
               [
                 <FormItem
                   {...formItemLargeLayout}
