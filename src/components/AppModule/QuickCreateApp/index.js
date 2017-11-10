@@ -22,10 +22,10 @@ import DepolyWrap from '../AppCreate/DeployWrap'
 import ResourceQuotaModal from '../../ResourceQuotaModal'
 import NotificationHandler from '../../../components/Notification'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
-import { removeFormFields, removeAllFormFields } from '../../../actions/quick_create_app'
+import { removeFormFields, removeAllFormFields, setFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
 import { addService, loadServiceList } from '../../../actions/services'
-import { buildJson, getFieldsValues } from './utils'
+import { buildJson, getFieldsValues, formatValuesToFields } from './utils'
 import './style/index.less'
 import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
 
@@ -501,7 +501,14 @@ class QuickCreateApp extends Component {
         }
         return
       }
-      this.createAppOrAddService()
+      const { setFormFields } = this.props
+      const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey
+      setFormFields(id, formatValuesToFields(values), {
+        success: {
+          func: this.createAppOrAddService,
+          isAsync: true,
+        }
+      })
     })
   }
 
@@ -936,5 +943,6 @@ export default connect(mapStateToProps, {
   removeAllFormFields,
   createApp,
   addService,
-  loadServiceList
+  loadServiceList,
+  setFormFields,
 })(QuickCreateApp)
