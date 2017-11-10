@@ -114,3 +114,53 @@ exports.getVersions = function* (){
   const list = yield api.pkg.getBy([filename,filetype,'versions'],query)
   this.body = list
 }
+
+exports.publishPkg = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const body = this.request.body
+  const id = this.params.id
+  const result = yield api.pkg.createBy([id, 'publish'], null, body)
+  this.body = result
+}
+
+exports.updatePkgStatus = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const body = this.request.body
+  const id = this.params.id
+  const result = yield api.pkg.updateBy([id, 'status'], null, body)
+  this.body = result
+}
+
+exports.getPkgPublishList = function* () {
+  const loginUser = this.session.loginUser
+  const query = this.query
+  const api = apiFactory.getApi(loginUser)
+  const request = yield api.pkg.getBy(['publish'], query)
+  this.body = request
+}
+
+exports.getPkgStoreList = function* () {
+  const loginUser = this.session.loginUser
+  const query = this.query
+  const api = apiFactory.getApi(loginUser)
+  const request = yield api.pkg.getBy(['store'], query)
+  this.body = request 
+}
+
+exports.getPkgGroupList = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const request = yield api.pkg.getBy(['group'], null)
+  this.body = request
+}
+
+exports.uploadPkgIcon = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const body = this.request.body
+  const type = this.params.type
+  const request = yield api.pkg.uploadFile(['icon', type], null, body)
+  this.body = request
+}

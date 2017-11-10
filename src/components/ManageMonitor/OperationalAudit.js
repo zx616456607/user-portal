@@ -840,7 +840,6 @@ function resourceFormat(resourceType, scope) {
     case '59':
       return formatMessage(menusText.ProjectRoles)
       break;
-
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)

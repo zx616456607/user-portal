@@ -8,9 +8,11 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
+import { connect } from 'react-redux'
 import SecondSider from '../../components/SecondSider'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppCenter.less'
+import { ROLE_USER, ROLE_SYS_ADMIN } from '../../../constants'
 
 const menuList = [
   {
@@ -32,15 +34,11 @@ const menuList = [
   {
     url: '/app_center/wrap_store',
     name: '应用包商店'
-  },
-  {
-    url: '/app_center/wrap_check',
-    name: '发布审核'
   }
 ]
 
 
-export default class ImageCenter extends Component {
+class ImageCenter extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -49,8 +47,14 @@ export default class ImageCenter extends Component {
   }
 
   render() {
-    const { children } = this.props
+    const { children, role } = this.props
     const scope = this
+    if (role === ROLE_SYS_ADMIN) {
+      menuList.push({
+        url: '/app_center/wrap_check',
+        name: '发布审核'
+      })
+    }
     return (
       <div id='AppCenter'>
         <QueueAnim
@@ -74,3 +78,17 @@ ImageCenter.propTypes = {
   // Injected by React Router
   children: PropTypes.node
 }
+
+function mapStateToProp(state) {
+  let role = ROLE_USER
+  const {entities} = state
+  if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
+    role = entities.loginUser.info.role
+  }
+  return {
+    role
+  }
+}
+
+export default connect(mapStateToProp, {
+})(ImageCenter)

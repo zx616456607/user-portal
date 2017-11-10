@@ -9,8 +9,11 @@
  */
 
 import React from 'react'
+import { connect } from 'react-redux'
 import { Modal, Form, Input, Select, Upload, Button, Icon, Row, Col } from 'antd'
-
+import { getWrapGroupList, uploadWrapIcon } from '../../../actions/app_center'
+import uploadFile from '../../../common/upload.js'
+import isEmpty from 'lodash/isEmpty'
 const FormItem = Form.Item;
 const Option = Select.Option;
 
@@ -23,25 +26,77 @@ class ReleaseAppModal extends React.Component {
   }
   componentWillReceiveProps(nextProps) {
     const { visible: oldVisible } = this.props
-    const { visible: newVisible } = nextProps
+    const { visible: newVisible, getWrapGroupList, wrapGroupList: newGroupList } = nextProps
     if (oldVisible !== newVisible) {
       this.setState({
         visible: newVisible
       })
     }
+    if (!oldVisible && newVisible && isEmpty(newGroupList && newGroupList.classifies)) {
+      getWrapGroupList()
+    }
   }
   releaseNameProps(rule, value, callback) {
+    if (!value) {
+      return callback('请输入发布名称')
+    }
+    if (value.length > 20) {
+      return callback('发布名称不能超过20个字符')
+    }
     callback()
   }
   checkClassify(rule, value, callback) {
+    if(!value) {
+      return callback('请选择或输入分类')
+    }
     callback()
   }
-  confirmModal() {
-    const { closeRleaseModal } = this.props
-    this.setState({
-      visible: false
+  uploadIcon(file) {
+    const { uploadWrapIcon } = this.props
+    uploadWrapIcon(file.type.split('/')[1], file, {
+      
     })
-    closeRleaseModal()
+  }
+  confirmModal() {
+    const { closeRleaseModal, form, releaseWrap, wrapManageList, currentApp } = this.props
+    const { validateFields } = form
+    const { id } = currentApp
+    validateFields((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      const { fileName, fileNickName, classifyName, description} = values
+      this.setState({
+        loading: true
+      })
+      releaseWrap(id, {
+        fileName,
+        fileNickName,
+        classifyName: classifyName[0],
+        description
+      }, {
+        success: {
+          func: () => {
+            wrapManageList({from: 0, size: 10})
+            this.setState({
+              visible: false,
+              loading: false
+            })
+            closeRleaseModal()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            this.setState({
+              visible: false,
+              loading: false
+            })
+            closeRleaseModal()
+          }
+        }
+      })
+    })
   }
   cancelModal() {
     const { closeRleaseModal } = this.props
@@ -50,41 +105,51 @@ class ReleaseAppModal extends React.Component {
     })
     closeRleaseModal()
   }
+  renderFooter() {
+    const { loading } = this.state
+    return[
+      <Button key="cancel" onClick={this.cancelModal.bind(this)}>取消</Button>,
+      <Button key="confirm" type="primary" loading={loading} onClick={this.confirmModal.bind(this)}>提交审核</Button>
+    ]
+  }
   render() {
-    const { form } = this.props
+    const { form, currentApp, wrapGroupList } = this.props
     const { visible } = this.state
     const { getFieldProps, getFieldError, isFieldValidating } = form;
     const formItemLayout = {
-      labelCol: { span: 7 },
-      wrapperCol: { span: 12 },
+      labelCol: { span: 4 },
+      wrapperCol: { span: 18 },
     };
-    const nameProps = getFieldProps('name', {
-      initialValue: 'app'
+    const nameProps = getFieldProps('fileName', {
+      initialValue: currentApp && currentApp.fileName
     })
-    const releaseNameProps = getFieldProps('releaseName', {
+    const releaseNameProps = getFieldProps('fileNickName', {
       rules: [
         {
           validator: this.releaseNameProps,
         }
       ]
     })
-    const classifyProps = getFieldProps('classify', {
+    const classifyProps = getFieldProps('classifyName', {
       rules: [
         {
           validator: this.checkClassify,
         }
       ]
     })
-    let children = [];
-    for (let i = 10; i < 36; i++) {
-      children.push(<Option key={i.toString(36) + i}>{i.toString(36) + i}</Option>);
-    }
+    const children = wrapGroupList && 
+          wrapGroupList.classifies && 
+          wrapGroupList.classifies.length && 
+          wrapGroupList.classifies.map(item => {
+      return <Option key={item.classifyName}>{item.classifyName}</Option>
+    })
     return(
       <Modal
         title="发布到应用包商店"
         visible={visible}
         onOk={this.confirmModal.bind(this)}
         onCancel={this.cancelModal.bind(this)}
+        footer={this.renderFooter()}
       >
         <Form
           horizontal
@@ -93,7 +158,7 @@ class ReleaseAppModal extends React.Component {
           <FormItem
             {...formItemLayout}
             hasFeedback
-            label="应用名称"
+            label="应用包名称"
           >
             <Input {...nameProps} disabled/>
           </FormItem>
@@ -101,7 +166,7 @@ class ReleaseAppModal extends React.Component {
             {...formItemLayout}
             hasFeedback
             label="发布名称"
-            help={isFieldValidating('releaseName') ? '校验中...' : (getFieldError('releaseName') || []).join(', ')}
+            help={isFieldValidating('fileNickName') ? '校验中...' : (getFieldError('fileNickName') || []).join(', ')}
           >
             <Input {...releaseNameProps} placeholder="请输入发布名称" />
           </FormItem>
@@ -126,13 +191,13 @@ class ReleaseAppModal extends React.Component {
             {...formItemLayout}
             label="上传icon"
           >
-            <Upload listType="picture-card" accept="image/*">
+            <Upload listType="picture-card" accept="image/*" beforeUpload={file => this.uploadIcon(file)}>
               <Icon type="plus" />
               <div className="ant-upload-text">上传应用图标</div>
             </Upload>
           </FormItem>
           <Row>
-            <Col span={7}>
+            <Col span={4}>
             </Col>
             <Col className="hintColor">
               上传icon支持（jpg/pgn图片格式，建议尺寸100px*100px）
@@ -145,5 +210,18 @@ class ReleaseAppModal extends React.Component {
 }
 
 ReleaseAppModal = Form.create()(ReleaseAppModal)
-export default ReleaseAppModal
+
+function mapStateToProps(state) {
+  const { images } = state
+  const { wrapGroupList } = images
+  const { result: groupList } = wrapGroupList || { result: {} }
+  const { data: groupData } = groupList || { data: [] }
+  return {
+    wrapGroupList: groupData
+  }
+}
+export default connect(mapStateToProps, {
+  getWrapGroupList,
+  uploadWrapIcon
+})(ReleaseAppModal)
 

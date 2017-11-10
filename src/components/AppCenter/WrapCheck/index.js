@@ -15,6 +15,10 @@ import QueueAnim from 'rc-queue-anim'
 import classNames from 'classnames'
 import './style/index.less'
 import CommonSearchInput from '../../CommonSearchInput'
+import TenxStatus from '../../TenxStatus/index'
+import { getWrapPublishList, updateWrapStatus } from '../../../actions/app_center'
+import { formatDate } from '../../../common/tools'
+import NotificationHandler from '../../../components/Notification'
 
 const TabPane = Tabs.TabPane;
 
@@ -22,78 +26,146 @@ class WrapCheckTable extends React.Component {
   constructor(props) {
     super(props)
     this.getWrapStatus = this.getWrapStatus.bind(this)
+    this.onTableChange = this.onTableChange.bind(this)
     this.state = {
-      
+      creationTime: undefined
     }
   }
-  getWrapStatus(status) {
-    return(
-      <span className={classNames({"statusPass": status, 'waitForCheck': !status})}><i/>{status ? '已通过' : '待审核'}</span>
-    )
+  getWrapStatus(status){
+    let phase
+    let progress = {status: false};
+    switch(status) {
+      case 1:
+        phase = 'AppWaitForCheck'
+        break
+      case 2:
+        phase = 'AppPass'
+        break
+      case 3:
+        phase = 'AppReject'
+        break
+      case 4:
+        phase = 'AppOffShelf'
+        break
+    }
+    return <TenxStatus phase={phase} progress={progress}/>
+  }
+  onTableChange(pagination) {
+    const { updateParentPage } = this.props
+    const page = pagination.current
+    updateParentPage(page)
+  }
+  handleSort(sortStr) {
+    const { updateParentSort } = this.props
+    let currentSort = this.state[sortStr]
+    let sortOrder = this.getSortOrder(currentSort)
+    this.setState({
+      [sortStr]: !currentSort,
+    }, () => {
+      updateParentSort(sortStr, sortOrder)
+    })
+  }
+  getSortOrder(flag) {
+    let str = 'asc'
+    if (flag) {
+      str = 'desc'
+    }
+    return str
   }
   render() {
+    const { wrapPublishList, updateAppStatus } = this.props
+    const pagination = {
+      simple: true,
+      defaultCurrent: 1,
+      defaultPageSize: 10,
+      total: wrapPublishList.total,
+    }
     const columns = [{
       title: '状态',
-      dataIndex: 'status',
-      key: 'status',
+      dataIndex: 'publishStatus',
+      key: 'publishStatus',
+      width: '10%',
       render: this.getWrapStatus
     }, {
       title: '应用包名称',
-      dataIndex: 'appName',
-      key: 'appName',
+      dataIndex: 'fileName',
+      key: 'fileName',
+      width: '10%',
     }, {
       title: '分类名称',
       dataIndex: 'classifyName',
       key: 'classifyName',
+      width: '10%',
     }, {
       title: '发布名称',
-      dataIndex: 'releaseName',
-      key: 'releaseName',
+      dataIndex: 'fileNickName',
+      key: 'fileNickName',
+      width: '10%',
     }, {
       title: '应用包描述',
       dataIndex: 'description',
       key: 'description',
+      width: '10%',
     }, {
       title: '发布者',
-      dataIndex: 'releaseMan',
-      key: 'releaseMan'
+      dataIndex: 'creatorName',
+      key: 'creatorName',
+      width: '10%',
     }, {
-      title: '提交时间',
-      dataIndex: 'submitTime',
-      key: 'submitTime'
+      title: (
+        <div onClick={() => this.handleSort('creationTime')}>
+          提交时间
+          <div className="ant-table-column-sorter">
+            <span
+              className={this.state.creationTime === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
+              title="↑">
+              <i className="anticon anticon-caret-up"/>
+            </span>
+            <span
+              className={this.state.creationTime === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+              title="↓">
+              <i className="anticon anticon-caret-down"/>
+            </span>
+          </div>
+        </div>
+      ),
+      dataIndex: 'creationTime',
+      key: 'creationTime',
+      width: '20%',
+      render: text => formatDate(text)
     }, {
       title: '操作',
       key: 'operation',
-      render: () => {
+      width: '20%',
+      render: (text, record) => {
         return(
           <div>
-            <Button className="passBtn" type="primary">通过</Button>
-            <Button type="ghost">拒绝</Button>
+            <Button 
+              className="passBtn" type="primary"
+              onClick={() => updateAppStatus(record.id, 2)}
+              disabled={record.publishStatus !== 1}
+            >
+              通过
+            </Button>
+            <Button 
+              type="ghost"
+              onClick={() => updateAppStatus(record.id, 3)}
+              disabled={record.publishStatus !== 1}
+            >
+              拒绝
+            </Button>
           </div>
         )
       }
     }]
-    
-    const data = []
-    for (let i = 0; i < 5; i++) {
-      data.push({
-        key: i + 1,
-        status: i === 1 ? true : false,
-        appName: 'appTest',
-        classifyName: '机器人学习',
-        releaseName: 'release',
-        description: '描述',
-        releaseMan: 'admin',
-        submitTime: '2017-11-09 10:50:00'
-      })
-    }
     return (
       <div className="wrapCheckTableBox">
         <Table
           className="wrapCheckTable"
-          dataSource={data}
+          dataSource={wrapPublishList.pkgs}
           columns={columns}
-          pagination={{simple: true}}
+          onChange={this.onTableChange}
+          pagination={pagination}
         />
       </div>
     )
@@ -103,26 +175,99 @@ class WrapCheckTable extends React.Component {
 class WrapCheck extends React.Component {
   constructor(props) {
     super(props)
+    this.getWrapPublishList = this.getWrapPublishList.bind(this)
+    this.updateAppStatus = this.updateAppStatus.bind(this)
+    this.updateParentPage = this.updateParentPage.bind(this)
+    this.updateParentFilter = this.updateParentFilter.bind(this)
+    this.updateParentSort = this.updateParentSort.bind(this)
     this.state = {
-      
+      current: 1,
+      filterName: undefined,
+      sort_by: undefined,
+      sort_order: undefined
     }
   }
+  componentWillMount() {
+    this.getWrapPublishList()
+  }
+  getWrapPublishList() {
+    const { current, filterName, sort_by, sort_order } = this.state
+    const { getWrapPublishList } = this.props
+    let query = {
+      from: (current - 1) * 10,
+      size: 10
+    }
+    if (filterName) {
+      Object.assign(query, { filter: `fileName contains ${filterName}` })
+    }
+    if (sort_by) {
+      Object.assign(query, { sort_by })
+    }
+    if (sort_order) {
+      Object.assign(query, { sort_order })
+    }
+    getWrapPublishList(query)
+  }
+  updateParentPage(page) {
+    this.setState({
+      current: page
+    }, () => this.getWrapPublishList())
+  }
+  updateParentFilter(name) {
+    this.setState({
+      filterName:name
+    }, () => this.getWrapPublishList())
+  }
+  updateParentSort(sort_by, sort_order) {
+    this.setState({
+      sort_by: sort_by,
+      sort_order: sort_order
+    }, () => this.getWrapPublishList())
+  }
+  updateAppStatus(pkgID, status) {
+    const { updateWrapStatus } = this.props
+    let notify = new NotificationHandler()
+    notify.spin('操作中')
+    updateWrapStatus(pkgID, { status }, {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success('操作成功')
+          this.getWrapPublishList()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notify.close()
+          notify.error('操作失败')
+        }
+      }
+    })
+  }
   render() {
+    const { wrapPublishList } = this.props
     return (
       <QueueAnim>
         <div key="wrapCheck" className="wrapCheck">
           <div className="wrapCheckHead">
-            <Button className="refreshBtn" type="primary" size="large">
+            <Button className="refreshBtn" type="primary" size="large" onClick={() => this.getWrapPublishList()}>
               <i className='fa fa-refresh'/> 刷新
             </Button>
             <CommonSearchInput
               size="large"
               placeholder="请输入应用宝搜索"
               style={{ width: 200 }}
+              onSearch={value => this.updateParentFilter(value)}
             />
-            <span className="total verticalCenter">共 3 条</span>
+            <span className="total verticalCenter">共 {wrapPublishList && wrapPublishList.total} 条</span>
           </div>
-          <WrapCheckTable/>
+          <WrapCheckTable
+            wrapPublishList={wrapPublishList}
+            updateAppStatus={this.updateAppStatus}
+            updateParentPage={this.updateParentPage}
+            updateParentSort={this.updateParentSort}
+          />
         </div>
       </QueueAnim>
     )
@@ -130,11 +275,16 @@ class WrapCheck extends React.Component {
 }
 
 function mapStateToProps(state, props) {
+  const { images } = state
+  const { wrapPublishList } = images
+  const { result } = wrapPublishList || { result: {}}
+  const { data } = result || { data: [] }
   return {
-    
+    wrapPublishList: data
   }
 }
 
 export default connect(mapStateToProps, {
-  
+  getWrapPublishList,
+  updateWrapStatus
 })(WrapCheck)

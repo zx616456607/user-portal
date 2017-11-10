@@ -22,7 +22,7 @@ import { API_URL_PREFIX } from '../../../constants'
 import cloneDeep from 'lodash/cloneDeep'
 import ReleaseAppModal from './ReleaseAppModal'
 
-import { wrapManageList, deleteWrapManage } from '../../../actions/app_center'
+import { wrapManageList, deleteWrapManage, releaseWrap, updateWrapStatus } from '../../../actions/app_center'
 const RadioGroup = Radio.Group
 const TabPane = Tabs.TabPane
 const notificat = new NotificationHandler()
@@ -112,13 +112,28 @@ class WrapListTable extends Component {
     }
     if (e.key === 'release') {
       this.setState({
-        releaseVisible: true
+        releaseVisible: true,
+        currentApp: row
       })
+    }
+    switch (e.key) {
+      case 'delete':
+        this.deleteAction(true,row.id)
+        break
+      case 'release':
+        this.setState({
+          releaseVisible: true,
+          currentApp: row
+        })
+        break
+      case 'download':
+        break
     }
   }
   closeRleaseModal() {
     this.setState({
-      releaseVisible: false
+      releaseVisible: false,
+      currentApp: null
     })
   }
   renderDeployBtn(row, func, rowCheckbox) {
@@ -147,12 +162,12 @@ class WrapListTable extends Component {
       </Menu>
     )
     const menu = (
-      <Menu onClick={e => this.handleMenuClick(e, row)}>
-        <Menu.Item key="release">
+      <Menu onClick={e => this.handleMenuClick(e, row)} style={{ width: 90 }}>
+        <Menu.Item key="release" disabled={[1, 2, 3].includes(row.publishStatus)}>
           发布
         </Menu.Item>
-        <Menu.Item key="offShelf">
-          下架
+        <Menu.Item key="download">
+          <a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}>下载</a>
         </Menu.Item>
         <Menu.Item key="delete">
           删除
@@ -219,15 +234,32 @@ class WrapListTable extends Component {
   getAppStatus(status){
     let phase
     let progress = {status: false};
-    phase = 'Running'
+    switch(status) {
+      case 0:
+        phase = 'AppUnpublished'
+        break
+      case 1:
+        phase = 'AppChecking'
+        progress = {status: true}
+        break
+      case 2:
+        phase = 'AppPublished'
+        break
+      case 3:
+        phase = 'AppReject'
+        break
+      case 4:
+        phase = 'AppOffShelf'
+        break
+    }
     return <TenxStatus phase={phase} progress={progress}/>
   }
   
   render() {
     // jar war ,tar.gz zip
     const dataSource = this.props.wrapList
-    const { func, rowCheckbox } = this.props
-    const { releaseVisible } = this.state
+    const { func, rowCheckbox, releaseWrap, wrapManageList } = this.props
+    const { releaseVisible, currentApp } = this.state
     const columns = [
       {
         title: '包名称',
@@ -242,27 +274,27 @@ class WrapListTable extends Component {
         width: '10%',
       }, {
         title: '分类名称',
-        dataIndex: 'type',
-        key: 'type',
+        dataIndex: 'classifyName',
+        key: 'classifyName',
         width: '10%',
-        render: () => 'test'
+        render: text => text ? text : '-'
       }, {
         title: '发布名称',
-        dataIndex: 'releaseName',
-        key: 'releaseName',
+        dataIndex: 'fileNickName',
+        key: 'fileNickName',
         width: '10%',
-        render: () => 'test'
+        render: text => text ? text : '-'
       }, {
         title: '应用商店',
-        dataIndex: 'status',
-        key: 'status',
+        dataIndex: 'publishStatus',
+        key: 'publishStatus',
         width: '10%',
         render: this.getAppStatus
       }, {
         title: '包类型',
         dataIndex: 'fileType',
         key: 'fileType',
-        width:'10%'
+        width:'10%',
       }, {
         title: '上传时间',
         dataIndex: 'creationTime',
@@ -318,7 +350,13 @@ class WrapListTable extends Component {
 
     return (
       <div className="wrapListTable" id="wrapListTable">
-        <ReleaseAppModal visible={releaseVisible} closeRleaseModal={this.closeRleaseModal}/>
+        <ReleaseAppModal
+          currentApp={currentApp}
+          visible={releaseVisible} 
+          closeRleaseModal={this.closeRleaseModal}
+          releaseWrap={releaseWrap}
+          wrapManageList={wrapManageList}
+        />
         <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource.pkgs} columns={columns} pagination={paginationOpts} onRowClick={this.rowClick}/>
         { dataSource.total && dataSource.total >0 ?
           <span className="pageCount" style={{position:'absolute',right:'160px',top:'-55px'}}>共计 {dataSource.total} 条</span>
@@ -354,4 +392,6 @@ function mapStateToProps(state,props) {
 export default connect(mapStateToProps,{
   wrapManageList,
   deleteWrapManage,
+  releaseWrap,
+  updateWrapStatus
 })(WrapListTable)

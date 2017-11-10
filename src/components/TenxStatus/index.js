@@ -138,6 +138,34 @@ const messages = defineMessages({
   ServiceNormalFailed: {
     id: 'TenxStatus.ServiceNormalFailed',
     defaultMessage: '服务常规超时'
+  },
+  AppUnpublished: {
+    id: 'TenxStatus.AppUnpublished',
+    defaultMessage: '未发布'
+  },
+  AppChecking: {
+    id: 'TenxStatus.AppChecking',
+    defaultMessage: '审核中'
+  },
+  AppPublished: {
+    id: 'TenxStatus.AppPublished',
+    defaultMessage: '已发布'
+  },
+  AppReject: {
+    id: 'TenxStatus.AppReject',
+    defaultMessage: '审核未通过'
+  },
+  AppOffShelf: {
+    id: 'TenxStatus.AppOffShelf',
+    defaultMessage: '下架'
+  },
+  AppWaitForCheck: {
+    id: 'TenxStatus.AppWaitForCheck',
+    defaultMessage: '待审核'
+  },
+  AppPass: {
+    id: 'TenxStatus.AppPass',
+    defaultMessage: '已通过'
   }
 })
 
@@ -360,7 +388,14 @@ TenxStatus.propTypes = {
     'UploadPkgAndEnvFailed',
     'UploadPkgAndEnvSuccess',
     'ServiceInitFailed',
-    'ServiceNormalFailed'
+    'ServiceNormalFailed',
+    'AppUnpublished',
+    'AppChecking',
+    'AppPublished',
+    'AppReject',
+    'AppOffShelf',
+    'AppWaitForCheck',
+    'AppPass'
   ]).isRequired,
   progress: PropTypes.shape({
     status: PropTypes.bool,

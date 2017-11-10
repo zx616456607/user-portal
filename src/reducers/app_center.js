@@ -291,6 +291,26 @@ export function images(state = { publicImages: {} }, action) {
       SUCCESS: ActionTypes.GET_WRAP_MANAGE_LIST_SUCCESS,
       FAILURE: ActionTypes.GET_WRAP_MANAGE_LIST_FAILURE,
     }, state.wrapList, action,{overwrite: true}),
+    wrapPublishList: reducerFactory({
+      REQUEST: ActionTypes.GET_WRAP_PUBLISH_LIST_REQUEST,
+      SUCCESS: ActionTypes.GET_WRAP_PUBLISH_LIST_SUCCESS,
+      FAILURE: ActionTypes.GET_WRAP_PUBLISH_LIST_FAILURE,
+    }, state.wrapPublishList, action, {overwrite: true}),
+    wrapStoreList: reducerFactory({
+      REQUEST: ActionTypes.GET_WRAP_STORE_LIST_REQUEST,
+      SUCCESS: ActionTypes.GET_WRAP_STORE_LIST_SUCCESS,
+      FAILURE: ActionTypes.GET_WRAP_STORE_LIST_FAILURE,
+    }, state.wrapStoreList, action, {overwrite: true}),
+    wrapStoreHotList: reducerFactory({
+      REQUEST: ActionTypes.GET_WRAP_STORE_HOT_LIST_REQUEST,
+      SUCCESS: ActionTypes.GET_WRAP_STORE_HOT_LIST_SUCCESS,
+      FAILURE: ActionTypes.GET_WRAP_STORE_HOT_LIST_FAILURE,
+    }, state.wrapStoreHotList, action, {overwrite: true}),
+    wrapGroupList: reducerFactory({
+      REQUEST: ActionTypes.GET_WRAP_GROUP_LIST_REQUEST,
+      SUCCESS: ActionTypes.GET_WRAP_GROUP_LIST_SUCCESS,
+      FAILURE: ActionTypes.GET_WRAP_GROUP_LIST_FAILURE,
+    }, state.wrapGroupList, action, {overwrite: true})
     // deleteStack: deleteStack(state.deleteStack, action)
   }
 }
