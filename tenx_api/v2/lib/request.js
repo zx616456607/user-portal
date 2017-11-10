@@ -45,6 +45,7 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
     // options.headers = object.headers
     // options.data = object.data
     options.method = object.method
+    options.streaming = object.streaming
     options.dataType = (typeof object.dataType !== 'undefined' ? object.dataType : DEFAULT_DATATYPE)
     options.contentType = (typeof object.contentType !== 'undefined' ? object.contentType : DEFAULT_DATATYPE)
     options.timeout = object.timeout || timeout
