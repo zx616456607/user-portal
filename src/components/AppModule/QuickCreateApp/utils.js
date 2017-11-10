@@ -29,6 +29,12 @@ export function getFieldsValues(fields) {
   return values
 }
 
+export function formatValuesToFields(values) {
+  const fields = {}
+  Object.keys(values).map(key => fields[key] = { name: key, value: values[key] })
+  return fields
+}
+
 export function buildJson(fields, cluster, loginUser, imageConfigs) {
   const fieldsValues = getFieldsValues(fields)
   // 获取各字段值
