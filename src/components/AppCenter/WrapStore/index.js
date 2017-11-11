@@ -20,7 +20,7 @@ import CommonSearchInput from '../../CommonSearchInput'
 import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX } from '../../../constants'
-
+// import { tenx_api } from '../../../../configs/index'
 const sortOption = [
   {
     key: 'publish_time',
@@ -188,7 +188,9 @@ class AppWrapStore extends React.Component {
             isHot && <Col span={3}>{index !== 0 ? <span className={`hotOrder hotOrder${index + 1}`}>{index + 1}</span> : <i className="champion"/>}</Col>
           }
           <Col span={isHot ? 5 : 4}>
-            <img className={classNames({"wrapIcon": !isHot, "hotWrapIcon": isHot})} src={require('../../../assets/img/docker.png')}/>
+            <img className={classNames({"wrapIcon": !isHot, "hotWrapIcon": isHot})} 
+              src={`http://192.168.0.227:8000/api/v2/pkg/icon/${item.pkgIconID}`}
+            />
           </Col>
           <Col span={isHot ? 8 : 15}>
             <Row className="wrapListMiddle">

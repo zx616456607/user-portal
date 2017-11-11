@@ -22,7 +22,7 @@ import { API_URL_PREFIX } from '../../../constants'
 import cloneDeep from 'lodash/cloneDeep'
 import ReleaseAppModal from './ReleaseAppModal'
 
-import { wrapManageList, deleteWrapManage, releaseWrap, updateWrapStatus } from '../../../actions/app_center'
+import { wrapManageList, deleteWrapManage, releaseWrap, updateWrapStatus, getWrapStoreList } from '../../../actions/app_center'
 const RadioGroup = Radio.Group
 const TabPane = Tabs.TabPane
 const notificat = new NotificationHandler()
@@ -62,7 +62,18 @@ class WrapListTable extends Component {
     }
     this.props.wrapManageList(from)
   }
-
+  getStoreList(value, current) {
+    const { getWrapStoreList } = this.props
+    current = current || this.state.page
+    const query = {
+      from: (current - 1) * DEFAULT_PAGE_SIZE,
+      size: DEFAULT_PAGE_SIZE
+    }
+    if (value) {
+      Object.assign(query, { file_name: value })
+    }
+    getWrapStoreList(query)
+  }
   componentWillReceiveProps(nextProps) {
     if (nextProps.space.namespace !== this.props.space.namespace) {
       this.loadData()
@@ -257,9 +268,9 @@ class WrapListTable extends Component {
   
   render() {
     // jar war ,tar.gz zip
-    const dataSource = this.props.wrapList
-    const { func, rowCheckbox, releaseWrap, wrapManageList } = this.props
+    const { func, rowCheckbox, releaseWrap, wrapManageList, wrapList, wrapStoreList, currentType } = this.props
     const { releaseVisible, currentApp } = this.state
+    const dataSource = currentType === 'trad' ? wrapList : wrapStoreList
     const columns = [
       {
         title: '包名称',
@@ -319,8 +330,8 @@ class WrapListTable extends Component {
       simple: true,
       pageSize: DEFAULT_PAGE_SIZE,
       current: this.state.page,
-      total: dataSource.total,
-      onChange: current => this.loadData(current),
+      total: dataSource && dataSource.total,
+      onChange: current =>  currentType === 'trad' ? this.loadData(current) : this.getStoreList(null, current),
     }
     const _this = this
     let rowSelection = {
@@ -357,8 +368,8 @@ class WrapListTable extends Component {
           releaseWrap={releaseWrap}
           wrapManageList={wrapManageList}
         />
-        <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource.pkgs} columns={columns} pagination={paginationOpts} onRowClick={this.rowClick}/>
-        { dataSource.total && dataSource.total >0 ?
+        <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource && dataSource.pkgs} columns={columns} pagination={paginationOpts} onRowClick={this.rowClick}/>
+        { dataSource && dataSource.total && dataSource.total >0 ?
           <span className="pageCount" style={{position:'absolute',right:'160px',top:'-55px'}}>共计 {dataSource.total} 条</span>
           :null
         }
@@ -374,10 +385,13 @@ class WrapListTable extends Component {
 }
 
 function mapStateToProps(state,props) {
-  const { wrapList } = state.images
+  const { currentType } = props
+  const { wrapList, wrapStoreList } = state.images
   const { current } = state.entities
   const { space } = current
   const list = wrapList || {}
+  const { result: storeList, isFetching: storeFetching } = wrapStoreList || { result: {}}
+  const { data: storeData } = storeList || { data: [] }
   let datalist = {pkgs:[],total:0}
   if (list.result) {
     datalist = list.result.data
@@ -385,7 +399,8 @@ function mapStateToProps(state,props) {
   return {
     space,
     wrapList: datalist,
-    isFetching: list.isFetching
+    isFetching: currentType === 'trad' ? list.isFetching : storeFetching,
+    wrapStoreList: storeData,
   }
 }
 
@@ -393,5 +408,6 @@ export default connect(mapStateToProps,{
   wrapManageList,
   deleteWrapManage,
   releaseWrap,
-  updateWrapStatus
+  updateWrapStatus,
+  getWrapStoreList
 })(WrapListTable)

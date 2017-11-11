@@ -11,12 +11,13 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Modal, Form, Input, Select, Upload, Button, Icon, Row, Col } from 'antd'
-import { getWrapGroupList, uploadWrapIcon } from '../../../actions/app_center'
-import uploadFile from '../../../common/upload.js'
+import { getWrapGroupList } from '../../../actions/app_center'
 import isEmpty from 'lodash/isEmpty'
+import NotificationHandler from '../../../components/Notification'
+import { API_URL_PREFIX, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
 const FormItem = Form.Item;
 const Option = Select.Option;
-
+const wrapTypelist = ['png','jpg','jpeg']
 class ReleaseAppModal extends React.Component {
   constructor(props) {
     super(props)
@@ -26,11 +27,12 @@ class ReleaseAppModal extends React.Component {
   }
   componentWillReceiveProps(nextProps) {
     const { visible: oldVisible } = this.props
-    const { visible: newVisible, getWrapGroupList, wrapGroupList: newGroupList } = nextProps
+    const { visible: newVisible, getWrapGroupList, wrapGroupList: newGroupList, form } = nextProps
     if (oldVisible !== newVisible) {
       this.setState({
         visible: newVisible
       })
+      form.resetFields()
     }
     if (!oldVisible && newVisible && isEmpty(newGroupList && newGroupList.classifies)) {
       getWrapGroupList()
@@ -49,17 +51,30 @@ class ReleaseAppModal extends React.Component {
     if(!value) {
       return callback('请选择或输入分类')
     }
+    if(value.length > 1) {
+      return callback('只能选择一个分类')
+    }
     callback()
   }
-  uploadIcon(file) {
-    const { uploadWrapIcon } = this.props
-    uploadWrapIcon(file.type.split('/')[1], file, {
-      
-    })
+  checkDesc(rule, value, callback) {
+    if(!value) {
+      return callback('请输入描述信息')
+    }
+    if(value.length > 128) {
+      return callback('描述信息不得超过128个字符')
+    }
+    callback()
   }
+  // checkUpload(rule, value, callback) {
+  //   if(!value) {
+  //     return callback('请上传图片')
+  //   }
+  //   callback()
+  // }
   confirmModal() {
     const { closeRleaseModal, form, releaseWrap, wrapManageList, currentApp } = this.props
     const { validateFields } = form
+    const { pkgIcon } = this.state
     const { id } = currentApp
     validateFields((errors, values) => {
       if (!!errors) {
@@ -73,7 +88,8 @@ class ReleaseAppModal extends React.Component {
         fileName,
         fileNickName,
         classifyName: classifyName[0],
-        description
+        description,
+        pkgIcon
       }, {
         success: {
           func: () => {
@@ -113,7 +129,7 @@ class ReleaseAppModal extends React.Component {
     ]
   }
   render() {
-    const { form, currentApp, wrapGroupList } = this.props
+    const { form, currentApp, wrapGroupList, space } = this.props
     const { visible } = this.state
     const { getFieldProps, getFieldError, isFieldValidating } = form;
     const formItemLayout = {
@@ -137,6 +153,60 @@ class ReleaseAppModal extends React.Component {
         }
       ]
     })
+    const descProps = getFieldProps('description', {
+      rules: [
+        {
+          validator: this.checkDesc
+        }
+      ]
+    })
+    let headers = {}
+    if (space && space.userName) {
+      // 个人项目
+      headers = {onbehalfuser: space.userName}
+    }
+    if (space && space.namespace !== 'default') {
+      // 共享项目
+      headers = {teamspace: space.namespace}
+    }
+    let notificat = new NotificationHandler()
+    const uploadOpt = {
+      name: 'pkg',
+      listType:"picture-card",
+      accept:"image/*",
+      action: `${API_URL_PREFIX}/pkg/icon`,
+      headers,
+      beforeUpload(file) {
+        // x-tar x-gzip zip java-archive war=''
+        // let fileType = 'war'
+        let isType = false
+
+        isType = file.name.match(/\.(jpg|png|jpeg)$/)
+
+        if (!isType) {
+          notificat.error('上传文件格式错误', '支持：'+ wrapTypelist.join('、')+'文件格式')
+          return false
+        }
+      },
+      onChange: e => {
+        if (e.file.status == 'done') {
+          notificat.success('上传成功')
+          this.setState({
+            pkgIcon: e.file.response.data.id
+          })
+        }
+        if (e.file.status == 'error') {
+          let message = e.file.response.message
+          if (typeof e.file.response.message =='object') {
+            message = JSON.stringify(e.file.response.message)
+            notificat.info(message)
+          }
+          if(e.file.response.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
+            notificat.error('上传失败',message)
+          }
+        }
+      }
+    }
     const children = wrapGroupList && 
           wrapGroupList.classifies && 
           wrapGroupList.classifies.length && 
@@ -185,13 +255,16 @@ class ReleaseAppModal extends React.Component {
             {...formItemLayout}
             label="描述"
           >
-            <Input type="textarea" {...getFieldProps('description')} placeholder="描述" />
+            <Input type="textarea" {...descProps} placeholder="描述" />
           </FormItem>
           <FormItem
             {...formItemLayout}
             label="上传icon"
           >
-            <Upload listType="picture-card" accept="image/*" beforeUpload={file => this.uploadIcon(file)}>
+            <Upload
+              {...uploadOpt}
+              
+            >
               <Icon type="plus" />
               <div className="ant-upload-text">上传应用图标</div>
             </Upload>
@@ -200,7 +273,7 @@ class ReleaseAppModal extends React.Component {
             <Col span={4}>
             </Col>
             <Col className="hintColor">
-              上传icon支持（jpg/pgn图片格式，建议尺寸100px*100px）
+              上传icon支持（jpg/jpeg//png图片格式，建议尺寸100px*100px）
             </Col>
           </Row>
         </Form>
@@ -212,16 +285,16 @@ class ReleaseAppModal extends React.Component {
 ReleaseAppModal = Form.create()(ReleaseAppModal)
 
 function mapStateToProps(state) {
-  const { images } = state
+  const { images, current } = state
   const { wrapGroupList } = images
   const { result: groupList } = wrapGroupList || { result: {} }
   const { data: groupData } = groupList || { data: [] }
   return {
-    wrapGroupList: groupData
+    wrapGroupList: groupData,
+    space: current && current.space
   }
 }
 export default connect(mapStateToProps, {
-  getWrapGroupList,
-  uploadWrapIcon
+  getWrapGroupList
 })(ReleaseAppModal)
 

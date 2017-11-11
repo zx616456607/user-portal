@@ -157,7 +157,7 @@ const messages = defineMessages({
   },
   AppOffShelf: {
     id: 'TenxStatus.AppOffShelf',
-    defaultMessage: '下架'
+    defaultMessage: '已下架'
   },
   AppWaitForCheck: {
     id: 'TenxStatus.AppWaitForCheck',

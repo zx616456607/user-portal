@@ -13,7 +13,7 @@ import QueueAnim from 'rc-queue-anim'
 import { Link, browserHistory } from 'react-router'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { wrapManageList } from '../../../actions/app_center'
+import { wrapManageList, getWrapStoreList } from '../../../actions/app_center'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../constants'
 import { API_URL_PREFIX } from '../../../constants'
 import { formatDate } from '../../../common/tools'
@@ -24,11 +24,13 @@ import Title from '../../Title'
 import NotificationHandler from '../../../components/Notification'
 import WrapListTable from '../../AppCenter/AppWrap/WrapListTable'
 import { connect } from 'react-redux'
+import classNames from 'classnames'
 import './style/WrapManage.less'
 const notificat = new NotificationHandler()
 import { SHOW_BILLING } from '../../../constants'
 const SERVICE_CONFIG_HASH = '#configure-service'
 const Step = Steps.Step
+const ButtonGroup = Button.Group;
 
 class WrapManage extends Component {
   constructor(props) {
@@ -60,7 +62,8 @@ class WrapManage extends Component {
         //   imageUrl:weblogicImage,
         //   version: ['latest']
         // }
-      ]
+      ],
+      currentType: 'trad'
     }
   }
   componentWillMount() {
@@ -94,6 +97,44 @@ class WrapManage extends Component {
       size: DEFAULT_PAGE_SIZE
     }
     this.props.wrapManageList(from)
+  }
+  getStoreList(value, current) {
+    const { getWrapStoreList } = this.props
+    current = current || this.state.page
+    const query = {
+      from: (current - 1) * DEFAULT_PAGE_SIZE,
+      size: DEFAULT_PAGE_SIZE
+    }
+    if (value) {
+      Object.assign(query, { file_name: value })
+    }
+    getWrapStoreList(query)
+  }
+  changeWrap(type) {
+    this.setState({
+      currentType: type,
+      selectedRowKeys: [],
+      id: [],
+    })
+    switch(type) {
+      case 'trad':
+        this.loadData()
+        break
+      case 'store':
+        this.getStoreList()
+        break
+    }
+  }
+  searchData(e) {
+    const { currentType } = this.state
+    switch(currentType) {
+      case 'trad':
+        this.getList(e)
+        break
+      case 'store':
+        this.getStoreList(e.target.value)
+        break
+    }
   }
   getStepsCurrent() {
     return 1
@@ -199,7 +240,7 @@ class WrapManage extends Component {
 
   }
   render() {
-    const { serviceList, template, defaultTemplate, version } = this.state
+    const { serviceList, template, defaultTemplate, version, currentType } = this.state
     const { current, quick_create, location} = this.props
     const { resource, priceHour, priceMonth } = this.getAppResources()
     const funcCallback = {
@@ -228,12 +269,18 @@ class WrapManage extends Component {
             <div className="list_row">
               <span className="wrap_key">选择应用包</span>
               <span className="searchInput">
-                <Input size="large" onPressEnter={(e) => this.getList(e)} placeholder="请输入包名称搜索" />
+                <Input size="large" onPressEnter={(e) => this.searchData(e)} placeholder="请输入包名称搜索" />
                 <Button type="primary" onClick={() => browserHistory.push('/app_center/wrap_manage')} size="large">去上传部署包</Button>
 
               </span>
             </div>
-            <WrapListTable func={funcCallback} selectedRowKeys={this.state.selectedRowKeys} entryPkgID={location.query.entryPkgID}/>
+            <div style={{ marginBottom: 20 }}>
+              <ButtonGroup> 
+                <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>传统应用包</Button>
+                <Button type="ghost" className={classNames({'active': currentType === 'store'})} onClick={() =>this.changeWrap('store')}>应用包商店</Button>
+              </ButtonGroup>
+            </div>
+            <WrapListTable currentType={currentType} func={funcCallback} selectedRowKeys={this.state.selectedRowKeys} entryPkgID={location.query.entryPkgID}/>
             <br />
             <div className="list_row" style={{ height: 'auto' }}>
               <span className="wrap_key" style={{ float: 'left' }}>运行环境</span>
@@ -270,7 +317,13 @@ class WrapManage extends Component {
 
                 </span>
               </div>
-              <WrapListTable func={funcCallback} selectedRowKeys={this.state.selectedRowKeys} entryPkgID={location.query.entryPkgID}/>
+              <div style={{ marginBottom: 20 }}>
+                <ButtonGroup> 
+                  <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>传统应用包</Button>
+                  <Button type="ghost" className={classNames({'active': currentType === 'store'})} onClick={() =>this.changeWrap('store')}>应用包商店</Button>
+                </ButtonGroup>
+              </div>
+              <WrapListTable currentType={currentType} func={funcCallback} selectedRowKeys={this.state.selectedRowKeys} entryPkgID={location.query.entryPkgID}/>
               <br />
               <div className="list_row" style={{ height: 'auto' }}>
                 <span className="wrap_key" style={{ float: 'left' }}>运行环境</span>
@@ -367,5 +420,6 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  wrapManageList
+  wrapManageList,
+  getWrapStoreList
 })(WrapManage)

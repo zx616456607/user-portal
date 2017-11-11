@@ -159,8 +159,21 @@ exports.getPkgGroupList = function* () {
 exports.uploadPkgIcon = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const body = this.request.body
-  const type = this.params.type
-  const request = yield api.pkg.uploadFile(['icon', type], null, body)
-  this.body = request
+  const parts = parse(this, {
+    autoFields: true
+  })
+  if (!parts) {
+    this.status = 400
+    this.message = { message: 'error' }
+    return
+  }
+  const fileStream = yield parts
+  const stream = formStream()
+  const mimeType = mime.lookup(fileStream.filename)
+  stream.stream('pkg', fileStream, fileStream.filename, mimeType)
+  const response = yield api.pkg.uploadFile(['icon'], null, stream, stream.headers()).catch(err => {
+    return err
+  })
+  this.status = response.statusCode
+  this.body = response
 }

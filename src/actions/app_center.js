@@ -1046,26 +1046,3 @@ function fetchWrapGroupList(callback) {
 export function getWrapGroupList(callback) {
   return dispatch => dispatch(fetchWrapGroupList(callback))
 }
-
-export const UPLOAD_WRAP_ICON_REQUEST = 'UPLOAD_WRAP_ICON_REQUEST'
-export const UPLOAD_WRAP_ICON_SUCCESS = 'UPLOAD_WRAP_ICON_SUCCESS'
-export const UPLOAD_WRAP_ICON_FAILURE = 'UPLOAD_WRAP_ICON_FAILURE'
-
-function fetchUploadWrapIcon(type, body, callback) {
-  return {
-    [FETCH_API]: {
-      types: [UPLOAD_WRAP_ICON_REQUEST,UPLOAD_WRAP_ICON_SUCCESS,UPLOAD_WRAP_ICON_FAILURE],
-      endpoint: `${API_URL_PREFIX}/pkg/icon/${type}`,
-      schema: {},
-      options: {
-        method: 'POST',
-        body
-      }
-    },
-    callback
-  }
-}
-
-export function uploadWrapIcon(type, body, callback) {
-  return dispatch => dispatch(fetchUploadWrapIcon(type, body, callback))
-}
