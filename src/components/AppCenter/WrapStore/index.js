@@ -189,7 +189,7 @@ class AppWrapStore extends React.Component {
           }
           <Col span={isHot ? 5 : 4}>
             <img className={classNames({"wrapIcon": !isHot, "hotWrapIcon": isHot})} 
-              src={`http://192.168.0.227:8000/api/v2/pkg/icon/${item.pkgIconID}`}
+              src={`${API_URL_PREFIX}/pkg/icon/${item.pkgIconID}`}
             />
           </Col>
           <Col span={isHot ? 8 : 15}>

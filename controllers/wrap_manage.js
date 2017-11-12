@@ -177,3 +177,11 @@ exports.uploadPkgIcon = function* () {
   this.status = response.statusCode
   this.body = response
 }
+
+exports.getPkgIcon = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const id = this.params.id
+  const result = yield api.pkg.getBy(['icon', id, null])
+  this.body = result
+}
