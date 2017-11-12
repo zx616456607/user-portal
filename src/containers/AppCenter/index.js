@@ -36,7 +36,11 @@ const menuList = [
     name: '应用包商店'
   }
 ]
-
+const wrapCheck = {
+  url: '/app_center/wrap_check',
+  name: '发布审核'
+}
+const admin_menuList = menuList.concat(wrapCheck)
 
 class ImageCenter extends Component {
   constructor(props) {
@@ -49,11 +53,9 @@ class ImageCenter extends Component {
   render() {
     const { children, role } = this.props
     const scope = this
+    let routerList = menuList
     if (role === ROLE_SYS_ADMIN) {
-      menuList.push({
-        url: '/app_center/wrap_check',
-        name: '发布审核'
-      })
+      routerList = admin_menuList
     }
     return (
       <div id='AppCenter'>
@@ -63,7 +65,7 @@ class ImageCenter extends Component {
           type='left'
           >
           <div className={ this.state.containerSiderStyle == 'normal' ?  'imageMenu CommonSecondMenu' : 'hiddenMenu imageMenu CommonSecondMenu'} key='imageSider'>
-            <SecondSider menuList={menuList} scope={scope} />
+            <SecondSider menuList={routerList} scope={scope} />
           </div>
         </QueueAnim>
         <div className={ this.state.containerSiderStyle == 'normal' ? 'imageContent CommonSecondContent' : 'hiddenContent imageContent CommonSecondContent' } >
