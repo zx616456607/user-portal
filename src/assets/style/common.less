@@ -1,3 +1,4 @@
+@import "./site/core";
 html,
 body {
   padding-right: 0 !important;
@@ -486,7 +487,7 @@ pre{
 }
 .strategyTable {
     padding: 0 20px;
-    padding-bottom: 50px;
+    padding-bottom: 40px;
     .ant-table-thead > tr > th {
       background: white;
       font-weight: 500;
@@ -529,6 +530,9 @@ pre{
 }
 .successColor {
   color: #60ba62;
+}
+.hintColor {
+  color:  @font-color-4;
 }
 .back {
   display: inline-block;
@@ -612,7 +616,6 @@ pre{
     }
   }
 }
-
 // 模拟tabs样式
 .tabs_header_style{
   height: 40px;

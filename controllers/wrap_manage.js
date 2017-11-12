@@ -114,3 +114,89 @@ exports.getVersions = function* (){
   const list = yield api.pkg.getBy([filename,filetype,'versions'],query)
   this.body = list
 }
+
+exports.publishPkg = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const body = this.request.body
+  const id = this.params.id
+  const result = yield api.pkg.createBy([id, 'publish'], null, body)
+  this.body = result
+}
+
+exports.passPkgPublish = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const id = this.params.id
+  const result = yield api.pkg.updateBy(['publish', id, 'pass'], null, null)
+  this.body = result
+}
+
+exports.refusePkgPublish = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const id = this.params.id
+  const result = yield api.pkg.updateBy(['publish', id, 'refuse'], null, null)
+  this.body = result
+}
+
+exports.offShelfPkg = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const id = this.params.id
+  const result = yield api.pkg.updateBy(['store', id, 'status'], null, null)
+  this.body = result
+}
+
+exports.getPkgPublishList = function* () {
+  const loginUser = this.session.loginUser
+  const query = this.query
+  const api = apiFactory.getApi(loginUser)
+  const request = yield api.pkg.getBy(['publish'], query)
+  this.body = request
+}
+
+exports.getPkgStoreList = function* () {
+  const loginUser = this.session.loginUser
+  const query = this.query
+  const api = apiFactory.getApi(loginUser)
+  const request = yield api.pkg.getBy(['store'], query)
+  this.body = request 
+}
+
+exports.getPkgGroupList = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const request = yield api.pkg.getBy(['group'], null)
+  this.body = request
+}
+
+exports.uploadPkgIcon = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const parts = parse(this, {
+    autoFields: true
+  })
+  if (!parts) {
+    this.status = 400
+    this.message = { message: 'error' }
+    return
+  }
+  const fileStream = yield parts
+  const stream = formStream()
+  const mimeType = mime.lookup(fileStream.filename)
+  stream.stream('pkg', fileStream, fileStream.filename, mimeType)
+  const response = yield api.pkg.uploadFile(['icon'], null, stream, stream.headers()).catch(err => {
+    return err
+  })
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.getPkgIcon = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const id = this.params.id
+  const result = yield api.pkg.getBy(['icon', id, null])
+  this.body = result
+}

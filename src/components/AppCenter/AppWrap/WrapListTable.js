@@ -10,7 +10,7 @@
 
 
 import React, { Component } from 'react'
-import { Modal, Table, Icon, Form, Radio, Button, Tabs, Card, Input, Select, Tooltip, Menu, Popover } from 'antd'
+import { Modal, Table, Icon, Radio, Button, Tabs, Tooltip, Menu, Popover, Dropdown } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
@@ -20,11 +20,13 @@ import { formatDate } from '../../../common/tools'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../constants'
 import { API_URL_PREFIX } from '../../../constants'
 import cloneDeep from 'lodash/cloneDeep'
+import ReleaseAppModal from './ReleaseAppModal'
 
-import { wrapManageList, deleteWrapManage } from '../../../actions/app_center'
+import { wrapManageList, deleteWrapManage, releaseWrap, getWrapStoreList } from '../../../actions/app_center'
 const RadioGroup = Radio.Group
 const TabPane = Tabs.TabPane
 const notificat = new NotificationHandler()
+import TenxStatus from '../../TenxStatus/index'
 
 // file type
 const wrapType = ['.jar','.war','.tar','.tar.gz','.zip']
@@ -35,6 +37,7 @@ class WrapListTable extends Component {
   constructor(props) {
     super()
     this.rowClick = this.rowClick.bind(this)
+    this.closeRleaseModal = this.closeRleaseModal.bind(this)
     this.state = {
       page: 1,
     }
@@ -59,7 +62,18 @@ class WrapListTable extends Component {
     }
     this.props.wrapManageList(from)
   }
-
+  getStoreList(value, current) {
+    const { getWrapStoreList } = this.props
+    current = current || this.state.page
+    const query = {
+      from: (current - 1) * DEFAULT_PAGE_SIZE,
+      size: DEFAULT_PAGE_SIZE
+    }
+    if (value) {
+      Object.assign(query, { file_name: value })
+    }
+    getWrapStoreList(query)
+  }
   componentWillReceiveProps(nextProps) {
     if (nextProps.space.namespace !== this.props.space.namespace) {
       this.loadData()
@@ -103,7 +117,36 @@ class WrapListTable extends Component {
       }
     })
   }
-
+  handleMenuClick(e, row) {
+    if (e.key === 'delete') {
+      this.deleteAction(true,row.id)
+    }
+    if (e.key === 'release') {
+      this.setState({
+        releaseVisible: true,
+        currentApp: row
+      })
+    }
+    switch (e.key) {
+      case 'delete':
+        this.deleteAction(true,row.id)
+        break
+      case 'release':
+        this.setState({
+          releaseVisible: true,
+          currentApp: row
+        })
+        break
+      case 'download':
+        break
+    }
+  }
+  closeRleaseModal() {
+    this.setState({
+      releaseVisible: false,
+      currentApp: null
+    })
+  }
   renderDeployBtn(row, func, rowCheckbox) {
     if (!rowCheckbox) {
       return (
@@ -129,20 +172,30 @@ class WrapListTable extends Component {
         <Menu.Item key="vm">传统应用</Menu.Item>
       </Menu>
     )
+    const menu = (
+      <Menu onClick={e => this.handleMenuClick(e, row)} style={{ width: 90 }}>
+        <Menu.Item key="release" disabled={[1, 2, 3].includes(row.publishStatus)}>
+          发布
+        </Menu.Item>
+        <Menu.Item key="download">
+          <a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}>下载</a>
+        </Menu.Item>
+        <Menu.Item key="delete">
+          删除
+        </Menu.Item>
+      </Menu>
+    )
     return (
-      <Popover
-        content={deployMethod}
-        title="请选择部署方式"
-        trigger="click"
-        getTooltipContainer={() => document.getElementById('wrapListTable')}
-      >
-        <Button
-          type="primary"
-          key="1"
+      <Dropdown.Button overlay={menu} type="ghost">
+        <Popover
+          content={deployMethod}
+          title="请选择部署方式"
+          trigger="click"
+          getTooltipContainer={() => document.getElementById('wrapListTable')}
         >
-          部署
-        </Button>
-      </Popover>
+          <span><Icon type="appstore-o" /> 部署</span>
+        </Popover>
+      </Dropdown.Button>
     )
   }
 
@@ -188,28 +241,71 @@ class WrapListTable extends Component {
       id: newId,
     })
   }
-
+  
+  getAppStatus(status){
+    let phase
+    let progress = {status: false};
+    switch(status) {
+      case 0:
+        phase = 'AppUnpublished'
+        break
+      case 1:
+        phase = 'AppChecking'
+        progress = {status: true}
+        break
+      case 2:
+        phase = 'AppPublished'
+        break
+      case 3:
+        phase = 'AppReject'
+        break
+      case 4:
+        phase = 'AppOffShelf'
+        break
+    }
+    return <TenxStatus phase={phase} progress={progress}/>
+  }
+  
   render() {
     // jar war ,tar.gz zip
-    const dataSource = this.props.wrapList
-    const { func, rowCheckbox } = this.props
+    const { func, rowCheckbox, releaseWrap, wrapManageList, wrapList, wrapStoreList, currentType } = this.props
+    const { releaseVisible, currentApp } = this.state
+    const dataSource = currentType === 'trad' ? wrapList : wrapStoreList
     const columns = [
       {
         title: '包名称',
         dataIndex: 'fileName',
         key: 'name',
-        width: '25%',
+        width: '10%',
         render: (text,row) => <Tooltip title="点击下载"><a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}><Icon type="download" /> {text}</a></Tooltip>
       }, {
         title: '版本标签',
         dataIndex: 'fileTag',
         key: 'tag',
-        width: '20%',
+        width: '10%',
+      }, {
+        title: '分类名称',
+        dataIndex: 'classifyName',
+        key: 'classifyName',
+        width: '10%',
+        render: text => text ? text : '-'
+      }, {
+        title: '发布名称',
+        dataIndex: 'fileNickName',
+        key: 'fileNickName',
+        width: '10%',
+        render: text => text ? text : '-'
+      }, {
+        title: '应用商店',
+        dataIndex: 'publishStatus',
+        key: 'publishStatus',
+        width: '10%',
+        render: this.getAppStatus
       }, {
         title: '包类型',
         dataIndex: 'fileType',
-        key: 'type',
-        width:'10%'
+        key: 'fileType',
+        width:'10%',
       }, {
         title: '上传时间',
         dataIndex: 'creationTime',
@@ -223,10 +319,7 @@ class WrapListTable extends Component {
         width:'20%',
         render: (e, row) => {
           if (rowCheckbox) {
-            return [
-              this.renderDeployBtn(row, func, rowCheckbox),
-              <Button key="2" style={{ marginLeft: 10 }} onClick={()=> this.deleteAction(true,row.id)}>删除</Button>
-            ]
+            return this.renderDeployBtn(row, func, rowCheckbox)
           }
           return this.renderDeployBtn(row, func)
         }
@@ -237,8 +330,8 @@ class WrapListTable extends Component {
       simple: true,
       pageSize: DEFAULT_PAGE_SIZE,
       current: this.state.page,
-      total: dataSource.total,
-      onChange: current => this.loadData(current),
+      total: dataSource && dataSource.total,
+      onChange: current =>  currentType === 'trad' ? this.loadData(current) : this.getStoreList(null, current),
     }
     const _this = this
     let rowSelection = {
@@ -268,8 +361,15 @@ class WrapListTable extends Component {
 
     return (
       <div className="wrapListTable" id="wrapListTable">
-        <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource.pkgs} columns={columns} pagination={paginationOpts} onRowClick={this.rowClick}/>
-        { dataSource.total && dataSource.total >0 ?
+        <ReleaseAppModal
+          currentApp={currentApp}
+          visible={releaseVisible} 
+          closeRleaseModal={this.closeRleaseModal}
+          releaseWrap={releaseWrap}
+          wrapManageList={wrapManageList}
+        />
+        <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource && dataSource.pkgs} columns={columns} pagination={paginationOpts} onRowClick={this.rowClick}/>
+        { dataSource && dataSource.total && dataSource.total >0 ?
           <span className="pageCount" style={{position:'absolute',right:'160px',top:'-55px'}}>共计 {dataSource.total} 条</span>
           :null
         }
@@ -285,10 +385,13 @@ class WrapListTable extends Component {
 }
 
 function mapStateToProps(state,props) {
-  const { wrapList } = state.images
+  const { currentType } = props
+  const { wrapList, wrapStoreList } = state.images
   const { current } = state.entities
   const { space } = current
   const list = wrapList || {}
+  const { result: storeList, isFetching: storeFetching } = wrapStoreList || { result: {}}
+  const { data: storeData } = storeList || { data: [] }
   let datalist = {pkgs:[],total:0}
   if (list.result) {
     datalist = list.result.data
@@ -296,11 +399,14 @@ function mapStateToProps(state,props) {
   return {
     space,
     wrapList: datalist,
-    isFetching: list.isFetching
+    isFetching: currentType === 'trad' ? list.isFetching : storeFetching,
+    wrapStoreList: storeData,
   }
 }
 
 export default connect(mapStateToProps,{
   wrapManageList,
   deleteWrapManage,
+  releaseWrap,
+  getWrapStoreList
 })(WrapListTable)

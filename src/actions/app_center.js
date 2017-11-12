@@ -906,3 +906,186 @@ export function checkWrapName(query, callback) {
     return dispatch(fetchCheckWrapManage(query, callback))
   }
 }
+
+export const RELEASE_WRAP_REQUEST = 'RELEASE_WRAP_REQUEST'
+export const RELEASE_WRAP_SUCCESS = 'RELEASE_WRAP_SUCCESS'
+export const RELEASE_WRAP_FAILURE = 'RELEASE_WRAP_FAILURE'
+
+function fetchReleaseWrap(pkgID, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [RELEASE_WRAP_REQUEST,RELEASE_WRAP_SUCCESS,RELEASE_WRAP_FAILURE],
+      endpoint: `${API_URL_PREFIX}/pkg/${pkgID}/publish`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+export function releaseWrap(pkgID, body, callback) {
+  return dispatch => dispatch(fetchReleaseWrap(pkgID, body, callback))
+}
+
+export const PASS_WRAP_PUBLISH_REQUEST = 'PASS_WRAP_PUBLISH_REQUEST'
+export const PASS_WRAP_PUBLISH_SUCCESS = 'PASS_WRAP_PUBLISH_SUCCESS'
+export const PASS_WRAP_PUBLISH_FAIULRE = 'PASS_WRAP_PUBLISH_FAIULRE'
+
+function fetchPassWrapPublish(id, callback) {
+  return {
+    [FETCH_API]: {
+      types: [PASS_WRAP_PUBLISH_FAIULRE,PASS_WRAP_PUBLISH_SUCCESS,PASS_WRAP_PUBLISH_FAIULRE],
+      endpoint: `${API_URL_PREFIX}/pkg/publish/${id}/pass`,
+      schema: {},
+      options: {
+        method: 'PUT'
+      }
+    },
+    callback
+  }
+}
+
+export function passWrapPublish(id, callback) {
+  return dispatch => dispatch(fetchPassWrapPublish(id, callback))
+}
+
+export const REFUSE_WRAP_PUBLISH_REQUEST = 'REFUSE_WRAP_PUBLISH_REQUEST'
+export const REFUSE_WRAP_PUBLISH_SUCCESS = 'REFUSE_WRAP_PUBLISH_SUCCESS'
+export const REFUSE_WRAP_PUBLISH_FAIULRE = 'REFUSE_WRAP_PUBLISH_FAIULRE'
+
+function fetchRefuseWrapPublish(id, callback) {
+  return {
+    [FETCH_API]: {
+      types: [REFUSE_WRAP_PUBLISH_REQUEST,REFUSE_WRAP_PUBLISH_SUCCESS,REFUSE_WRAP_PUBLISH_FAIULRE],
+      endpoint: `${API_URL_PREFIX}/pkg/publish/${id}/refuse`,
+      schema: {},
+      options: {
+        method: 'PUT'
+      }
+    },
+    callback
+  }
+}
+
+export function refuseWrapPublish(id, callback) {
+  return dispatch => dispatch(fetchRefuseWrapPublish(id, callback))
+}
+
+export const OFFSHELF_WRAP_REQUEST = 'OFFSHELF_WRAP_REQUEST'
+export const OFFSHELF_WRAP_SUCCESS = 'OFFSHELF_WRAP_SUCCESS'
+export const OFFSHELF_WRAP_FAILURE = 'OFFSHELF_WRAP_FAILURE'
+
+function fetchOffShelfWrap(id, callback) {
+  return {
+    [FETCH_API]: {
+      types: [OFFSHELF_WRAP_REQUEST,OFFSHELF_WRAP_SUCCESS,OFFSHELF_WRAP_FAILURE],
+      endpoint: `${API_URL_PREFIX}/pkg/store/${id}/status`,
+      schema: {},
+      options: {
+        method: 'PUT'
+      }
+    },
+    callback
+  }
+}
+
+export function offShelfWrap(id, callback) {
+  return dispatch => dispatch(fetchOffShelfWrap(id, callback))
+}
+
+export const GET_WRAP_PUBLISH_LIST_REQUEST = 'GET_WRAP_PUBLISH_LIST_REQUEST'
+export const GET_WRAP_PUBLISH_LIST_SUCCESS = 'GET_WRAP_PUBLISH_LIST_SUCCESS'
+export const GET_WRAP_PUBLISH_LIST_FAILURE = 'GET_WRAP_PUBLISH_LIST_FAILURE'
+
+function fetchWrapPublishList(query,callback) {
+  let endpointUrl = `${API_URL_PREFIX}/pkg/publish`
+  if (query) {
+    endpointUrl += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [GET_WRAP_PUBLISH_LIST_REQUEST, GET_WRAP_PUBLISH_LIST_SUCCESS, GET_WRAP_PUBLISH_LIST_FAILURE],
+      endpoint: endpointUrl,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
+  }
+}
+
+export function getWrapPublishList(query, callback) {
+  return dispatch => dispatch(fetchWrapPublishList(query, callback))
+}
+
+export const GET_WRAP_STORE_LIST_REQUEST = 'GET_WRAP_STORE_LIST_REQUEST'
+export const GET_WRAP_STORE_LIST_SUCCESS = 'GET_WRAP_STORE_LIST_SUCCESS'
+export const GET_WRAP_STORE_LIST_FAILURE = 'GET_WRAP_STORE_LIST_FAILURE'
+
+function fetchWrapStoreList(query,callback) {
+  let endpointUrl = `${API_URL_PREFIX}/pkg/store`
+  if (query) {
+    endpointUrl += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [GET_WRAP_STORE_LIST_REQUEST, GET_WRAP_STORE_LIST_SUCCESS, GET_WRAP_STORE_LIST_FAILURE],
+      endpoint: endpointUrl,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
+  }
+}
+
+export function getWrapStoreList(query, callback) {
+  return dispatch => dispatch(fetchWrapStoreList(query, callback))
+}
+
+export const GET_WRAP_STORE_HOT_LIST_REQUEST = 'GET_WRAP_STORE_HOT_LIST_REQUEST'
+export const GET_WRAP_STORE_HOT_LIST_SUCCESS = 'GET_WRAP_STORE_HOT_LIST_SUCCESS'
+export const GET_WRAP_STORE_HOT_LIST_FAILURE = 'GET_WRAP_STORE_HOT_LIST_FAILURE'
+
+function fetchWrapStoreHotList(callback) {
+  let endpointUrl = `${API_URL_PREFIX}/pkg/store`
+  let query = {
+    from: 0,
+    page: 10,
+    sort_by: 'download_times',
+    sort_order: 'desc'
+  }
+  if (query) {
+    endpointUrl += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [GET_WRAP_STORE_HOT_LIST_REQUEST, GET_WRAP_STORE_HOT_LIST_SUCCESS, GET_WRAP_STORE_HOT_LIST_FAILURE],
+      endpoint: endpointUrl,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
+  }
+}
+
+export function getWrapStoreHotList(callback) {
+  return dispatch => dispatch(fetchWrapStoreHotList(callback))
+}
+
+export const GET_WRAP_GROUP_LIST_REQUEST ='GET_WRAP_GROUP_LIST_REQUEST' 
+export const GET_WRAP_GROUP_LIST_SUCCESS ='GET_WRAP_GROUP_LIST_SUCCESS' 
+export const GET_WRAP_GROUP_LIST_FAILURE ='GET_WRAP_GROUP_LIST_FAILURE' 
+
+function fetchWrapGroupList(callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_WRAP_GROUP_LIST_REQUEST,GET_WRAP_GROUP_LIST_SUCCESS,GET_WRAP_GROUP_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/pkg/group`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getWrapGroupList(callback) {
+  return dispatch => dispatch(fetchWrapGroupList(callback))
+}

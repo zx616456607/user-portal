@@ -43,6 +43,14 @@ const appCenterRoutes = [
     path: 'wrap_manage',
     component: require('../components/AppCenter/WrapManage').default,
   },
+  {
+    path: 'wrap_store',
+    component: require('../components/AppCenter/WrapStore').default,
+  },
+  {
+    path: 'wrap_check',
+    component: require('../components/AppCenter/WrapCheck').default,
+  }
 ]
 
 export default appCenterRoutes

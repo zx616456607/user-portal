@@ -510,6 +510,42 @@ const menusText = defineMessages({
   Disable: {
     id: 'ManageMonitor.operationalAudit.Disable',
     defaultMessage: '停用'
+  },
+  WrapManage: {
+    id: 'ManageMonitor.operationalAudit.WrapManage',
+    defaultMessage: '应用包管理'
+  },
+  UploadWrap: {
+    id: 'ManageMonitor.operationalAudit.UploadWrap',
+    defaultMessage: '上传应用包'
+  },
+  DownloadWrap: {
+    id: 'ManageMonitor.operationalAudit.DownloadWrap',
+    defaultMessage: '下载应用包'
+  },
+  PublishWrap: {
+    id: 'ManageMonitor.operationalAudit.PublishWrap',
+    defaultMessage: '发布应用包'
+  },
+  OffShelfWrap: {
+    id: 'ManageMonitor.operationalAudit.OffShelfWrap',
+    defaultMessage: '下架应用包'
+  },
+  WrapStore: {
+    id: 'ManageMonitor.operationalAudit.WrapStore',
+    defaultMessage: '应用包商店'
+  },
+  WrapPublishCheck: {
+    id: 'ManageMonitor.operationalAudit.WrapPublishCheck',
+    defaultMessage: '发布审核'
+  },
+  WrapPublishPass: {
+    id: 'ManageMonitor.operationalAudit.WrapPublishPass',
+    defaultMessage: '审核通过'
+  },
+  WrapPublishReject: {
+    id: 'ManageMonitor.operationalAudit.WrapPublishReject',
+    defaultMessage: '审核拒绝'
   }
 });
 
@@ -634,6 +670,30 @@ function returnOperationList(scope) {
     { // 28
       value: '31',
       label: (<FormattedMessage {...menusText.DeleteMember}/>)
+    },
+    {
+      value: '32',
+      label: (<FormattedMessage {...menusText.UploadWrap}/>)
+    },
+    { // 30
+      value: '33',
+      label: (<FormattedMessage {...menusText.DownloadWrap}/>)
+    },
+    {
+      value: '34',
+      label: (<FormattedMessage {...menusText.PublishWrap}/>)
+    },
+    { //32
+      value: '35',
+      label: (<FormattedMessage {...menusText.OffShelfWrap}/>)
+    },
+    {
+      value: '36',
+      label: (<FormattedMessage {...menusText.WrapPublishPass}/>)
+    },
+    { //34
+      value: '37',
+      label: (<FormattedMessage {...menusText.WrapPublishReject}/>)
     }
   ];
   return operationalList;
@@ -840,7 +900,15 @@ function resourceFormat(resourceType, scope) {
     case '59':
       return formatMessage(menusText.ProjectRoles)
       break;
-
+    case '60':
+      return formatMessage(menusText.WrapManage)
+      break;
+    case '61':
+      return formatMessage(menusText.WrapStore)
+      break;
+    case '62':
+      return formatMessage(menusText.WrapPublishCheck)
+      break;
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -940,6 +1008,18 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.AddMember)
     case '31':
       return formatMessage(menusText.DeleteMember)
+    case '32':
+      return formatMessage(menusText.UploadWrap)
+    case '33':
+      return formatMessage(menusText.DownloadWrap)
+    case '34':
+      return formatMessage(menusText.PublishWrap)
+    case '35':
+      return formatMessage(menusText.OffShelfWrap)
+    case '36':
+      return formatMessage(menusText.WrapPublishPass)
+    case '37':
+      return formatMessage(menusText.WrapPublishReject)
   }
 }
 
@@ -1064,6 +1144,9 @@ function formatResourceName(resourceName, resourceId) {
     }
     if (newBody.ids && Array.isArray(newBody.ids) && newBody.ids.length > 0) {
       return newBody.ids.join(",")
+    }
+    if(newBody.fileName) {
+      return newBody.fileName
     }
   } else {
     if (resourceName.length == 0) {
@@ -1527,6 +1610,22 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[1]);
         showOperationalList.push(operationalList[2]);
         break
+      case '60':
+        // 应用包管理
+        showOperationalList.push(operationalList[29]);
+        showOperationalList.push(operationalList[31]);
+        showOperationalList.push(operationalList[2]);
+        break;
+      case '61':
+        // 应用包商店
+        showOperationalList.push(operationalList[30]);
+        showOperationalList.push(operationalList[32]);
+        break;
+      case '62':
+        // 发布审核
+        showOperationalList.push(operationalList[33]);
+        showOperationalList.push(operationalList[34]);
+        break;
       case '0':
         //Unknown
         showOperationalList = operationalList;
@@ -1809,6 +1908,18 @@ class OperationalAudit extends Component {
       {
         value: '54',
         label: formatMessage(menusText.DBCache),
+      },
+      {
+        value: '60',
+        label: formatMessage(menusText.WrapManage),
+      },
+      {
+        value: '61',
+        label: formatMessage(menusText.WrapStore)
+      },
+      {
+        value: '62',
+        label: formatMessage(menusText.WrapPublishCheck)
       },
       {
         value: null,

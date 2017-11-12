@@ -37,7 +37,9 @@ class Personalized extends Component{
           }
           document.title = `个性外观 | ${ret.company.productName}`
           scope.setState({siderColor:ret.colorThemeID})
-          document.getElementById('productName').value = ret.company.productName
+          if (document.getElementById('productName')) {
+            document.getElementById('productName').value = ret.company.productName
+          }
         }
       }
     })

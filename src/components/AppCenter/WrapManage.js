@@ -514,7 +514,7 @@ class WrapManage extends Component {
             <i className="fa fa-search btn-search" onClick={()=> this.getList(true)}/>
           </div>
           <Card className="wrap_content">
-            <WrapListTable func={func} rowCheckbox={true} selectedRowKeys={this.state.selectedRowKeys} />
+            <WrapListTable currentType="trad" func={func} rowCheckbox={true} selectedRowKeys={this.state.selectedRowKeys} />
           </Card>
         </div>
 

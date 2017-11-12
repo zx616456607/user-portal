@@ -16,9 +16,10 @@ import { connect } from 'react-redux'
 import { Card, Row, Col, Form, Input, Button, Checkbox, Collapse, Icon, Table, Tooltip, Pagination } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/selectPacket.less'
-import { wrapManageList } from '../../../../actions/app_center'
+import { wrapManageList, getWrapStoreList } from '../../../../actions/app_center'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import { formatDate } from '../../../../common/tools'
+import classNames from 'classnames'
 const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
 import NotificationHandler from '../../../../components/Notification'
@@ -30,7 +31,8 @@ class SelectPacket extends Component{
       sortedInfo: {},
       selectedRowKeys: [],
       packageInfo: {},
-      loading: false
+      loading: false,
+      currentType: 'trad'
     }
   }
   componentWillMount() {
@@ -38,7 +40,6 @@ class SelectPacket extends Component{
     this.pageAndSerch(fileName)
   }
   handleChange(pagination, filters, sorter) {
-    console.log('各类参数是', pagination, filters, sorter);
     this.setState({
       filteredInfo: filters,
       sortedInfo: sorter,
@@ -118,6 +119,39 @@ class SelectPacket extends Component{
       Object.assign(arr[i],{key:arr[i].id})
     }
   }
+  getStoreList(value, n) {
+    const { getWrapStoreList } = this.props
+    this.setState({
+      loading: true
+    })
+    const query = {
+      from: (n - 1) * 5,
+      size: 5
+    }
+    if (value) {
+      Object.assign(query, { file_name: value })
+    }
+    getWrapStoreList(query, {
+      success: {
+        func: res => {
+          if (res.data.pkgs) {
+            this.addKey(res.data.pkgs)
+          }
+          this.setState({
+            packageInfo: res.data,
+            loading: false
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: res => {
+
+        },
+        isAsync: true
+      }
+    })
+  }
   pageAndSerch(value,n) {
     const { wrapManageList } = this.props;
     this.setState({
@@ -148,6 +182,41 @@ class SelectPacket extends Component{
         isAsync: true
       }
     })
+  }
+  changeWrap(type){
+    this.setState({
+      currentType: type
+    })
+    switch(type) {
+      case 'trad':
+        this.pageAndSerch()
+      break
+      case 'store':
+        this.getStoreList()
+      break
+    }
+  }
+  searchData(value) {
+    const { currentType } = this.state
+    switch(currentType) {
+      case 'trad':
+        this.pageAndSerch(value)
+      break
+      case 'store':
+        this.getStoreList(value)
+      break
+    }
+  }
+  pageChange(noop) {
+    const { currentType } = this.state
+    switch(currentType) {
+      case 'trad':
+        this.pageAndSerch(null, noop)
+      break
+      case 'store':
+        this.getStoreList(null, noop)
+      break
+    }
   }
   envKeyCheck(rules,value,callback) {
     const { scope, form } = this.props;
@@ -187,7 +256,7 @@ class SelectPacket extends Component{
 
   }
   render() {
-    let { sortedInfo, selectedRowKeys, packageInfo, loading } = this.state;
+    let { sortedInfo, selectedRowKeys, packageInfo, loading, currentType } = this.state;
     sortedInfo = sortedInfo || {};
     const { getFieldProps, getFieldValue, getFieldError, isFieldValidating } = this.props.form;
     getFieldProps('envKeys', {
@@ -196,7 +265,7 @@ class SelectPacket extends Component{
       defaultCurrent: 1,
       defaultPageSize: 5,
       total: packageInfo.total,
-      onChange: (n)=>this.pageAndSerch(null,n)
+      onChange: this.pageChange.bind(this)
     }
     const formItemLayout = {
       labelCol: { span: 3 },
@@ -292,13 +361,20 @@ class SelectPacket extends Component{
           选择应用包 : &nbsp;&nbsp;
         </Col>
         <Col span={21}>
-          <CommonSearchInput onSearch={this.pageAndSerch.bind(this)} placeholder="请输入包名称搜索" size="large"/>
+          <CommonSearchInput onSearch={value => this.searchData(value)} placeholder="请输入包名称搜索" size="large"/>
           <Link to="/app_center/wrap_manage" className="uploadBox">
             <Button type="primary" className="toUploadBtn" size="large">去上传部署包</Button>
           </Link>
         </Col>
       </Row>
-
+      <Row className="btnGroup">
+        <Col span={21} offset={3}>
+          <ButtonGroup> 
+            <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>传统应用包</Button>
+            <Button type="ghost" className={classNames({'active': currentType === 'store'})} onClick={() =>this.changeWrap('store')}>应用包商店</Button>
+          </ButtonGroup>
+        </Col>
+      </Row>
         <Form id="selectPacketForm">
           <Row>
             <Col offset={3} className="tableBox">
@@ -349,5 +425,6 @@ function mapStateToProps(state, props) {
   }
 }
 export default connect(mapStateToProps, {
-  wrapManageList
+  wrapManageList,
+  getWrapStoreList
 })(SelectPacket)

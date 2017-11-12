@@ -606,7 +606,15 @@ module.exports = function (Router) {
   router.post('/pkg/batch-delete', pkgController.deletePkg)
   router.post('/pkg/:filename/:filetag/:filetype/local', pkgController.localUploadPkg)
   router.post('/pkg/:filename/:filetag/:filetype/remote', pkgController.romoteUploadPkg)
-
+  router.post('/pkg/:id/publish', pkgController.publishPkg)
+  router.put('/pkg/publish/:id/pass', pkgController.passPkgPublish)
+  router.put('/pkg/publish/:id/refuse', pkgController.refusePkgPublish)
+  router.put('/pkg/store/:id/status', pkgController.offShelfPkg)
+  router.get('/pkg/publish', pkgController.getPkgPublishList)
+  router.get('/pkg/store', pkgController.getPkgStoreList)
+  router.get('/pkg/group', pkgController.getPkgGroupList)
+  router.post('/pkg/icon', pkgController.uploadPkgIcon)
+  router.get('/pkg/icon/:id', pkgController.getPkgIcon)
   // VM wrap
   router.post('/vm-wrap/services', vmWrapController.createService)
   router.get('/vm-wrap/services', vmWrapController.listServices)
