@@ -526,6 +526,14 @@ const menusText = defineMessages({
   PublishWrap: {
     id: 'ManageMonitor.operationalAudit.PublishWrap',
     defaultMessage: '发布应用包'
+  },
+  OffShelfWrap: {
+    id: 'ManageMonitor.operationalAudit.OffShelfWrap',
+    defaultMessage: '下架应用包'
+  },
+  WrapStore: {
+    id: 'ManageMonitor.operationalAudit.WrapStore',
+    defaultMessage: '应用包商店'
   }
 });
 
@@ -662,6 +670,10 @@ function returnOperationList(scope) {
     {
       value: '34',
       label: (<FormattedMessage {...menusText.PublishWrap}/>)
+    },
+    { //32
+      value: '35',
+      label: (<FormattedMessage {...menusText.OffShelfWrap}/>)
     }
   ];
   return operationalList;
@@ -871,6 +883,9 @@ function resourceFormat(resourceType, scope) {
     case '60':
       return formatMessage(menusText.WrapManage)
       break;
+    case '61':
+      return formatMessage(menusText.WrapStore)
+      break;
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -976,6 +991,8 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.DownloadWrap)
     case '34':
       return formatMessage(menusText.PublishWrap)
+    case '35':
+      return formatMessage(menusText.OffShelfWrap)
   }
 }
 
@@ -1566,9 +1583,13 @@ class OperationalAudit extends Component {
       case '60':
         // 应用包管理
         showOperationalList.push(operationalList[29]);
-        showOperationalList.push(operationalList[30]);
         showOperationalList.push(operationalList[31]);
         showOperationalList.push(operationalList[2]);
+        break;
+      case '61':
+        // 应用包商店
+        showOperationalList.push(operationalList[30])
+        showOperationalList.push(operationalList[32])
         break;
       case '0':
         //Unknown
@@ -1856,6 +1877,10 @@ class OperationalAudit extends Component {
       {
         value: '60',
         label: formatMessage(menusText.WrapManage),
+      },
+      {
+        value: '61',
+        label: formatMessage(menusText.WrapStore)
       },
       {
         value: null,

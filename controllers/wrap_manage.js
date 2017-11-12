@@ -129,7 +129,15 @@ exports.updatePkgStatus = function* () {
   const api = apiFactory.getApi(loginUser)
   const body = this.request.body
   const id = this.params.id
-  const result = yield api.pkg.updateBy([id, 'status'], null, body)
+  const result = yield api.pkg.updateBy(['publish', id, 'status'], null, body)
+  this.body = result
+}
+
+exports.offShelfPkg = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const id = this.params.id
+  const result = yield api.pkg.updateBy(['store', id, 'status'], null, null)
   this.body = result
 }
 

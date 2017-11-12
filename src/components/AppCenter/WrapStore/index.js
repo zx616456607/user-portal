@@ -14,7 +14,7 @@ import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { Row, Col, Icon, Dropdown, Menu, Card, Popover, Pagination } from 'antd'
 import classNames from 'classnames'
-import { getWrapStoreList, getWrapStoreHotList, updateWrapStatus, getWrapGroupList } from '../../../actions/app_center'
+import { getWrapStoreList, getWrapStoreHotList, offShelfWrap, getWrapGroupList } from '../../../actions/app_center'
 import './style/index.less'
 import CommonSearchInput from '../../CommonSearchInput'
 import { formatDate } from '../../../common/tools'
@@ -129,11 +129,11 @@ class AppWrapStore extends React.Component {
   goDeploy(fileName) {
     browserHistory.push('/app_manage/deploy_wrap?fileName='+fileName)
   }
-  updateAppStatus(pkgID, status) {
-    const { updateWrapStatus, getWrapStoreHotList } = this.props
+  updateAppStatus(pkgID) {
+    const { offShelfWrap, getWrapStoreHotList } = this.props
     let notify = new NotificationHandler()
     notify.spin('操作中')
-    updateWrapStatus(pkgID, { status }, {
+    offShelfWrap(pkgID, {
       success: {
         func: () => {
           notify.close()
@@ -154,7 +154,7 @@ class AppWrapStore extends React.Component {
   handleMenuClick(e, row) {
     switch(e.key) {
       case 'offShelf':
-        this.updateAppStatus(row.id, 4)
+        this.updateAppStatus(row.id)
     }
   }
   renderWrapList(dataSorce, isHot) {
@@ -289,6 +289,6 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   getWrapStoreList,
   getWrapStoreHotList,
-  updateWrapStatus,
-  getWrapGroupList
+  getWrapGroupList,
+  offShelfWrap
 })(AppWrapStore)

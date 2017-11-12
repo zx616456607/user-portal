@@ -938,7 +938,7 @@ function fetchUpdateWrapStatus(pkgID, body, callback) {
   return {
     [FETCH_API]: {
       types: [UPDATE_WRAP_STATUS_REQUEST,UPDATE_WRAP_STATUS_SUCCESS,UPDATE_WRAP_STATUS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/pkg/${pkgID}/status`,
+      endpoint: `${API_URL_PREFIX}/pkg/publish/${pkgID}/status`,
       schema: {},
       options: {
         method: 'PUT',
@@ -951,6 +951,28 @@ function fetchUpdateWrapStatus(pkgID, body, callback) {
 
 export function updateWrapStatus(pkgID, body, callback) {
   return dispatch => dispatch(fetchUpdateWrapStatus(pkgID, body, callback))
+}
+
+export const OFFSHELF_WRAP_REQUEST = 'OFFSHELF_WRAP_REQUEST'
+export const OFFSHELF_WRAP_SUCCESS = 'OFFSHELF_WRAP_SUCCESS'
+export const OFFSHELF_WRAP_FAILURE = 'OFFSHELF_WRAP_FAILURE'
+
+function fetchOffShelfWrap(id, callback) {
+  return {
+    [FETCH_API]: {
+      types: [OFFSHELF_WRAP_REQUEST,OFFSHELF_WRAP_SUCCESS,OFFSHELF_WRAP_FAILURE],
+      endpoint: `${API_URL_PREFIX}/pkg/store/${id}/status`,
+      schema: {},
+      options: {
+        method: 'PUT'
+      }
+    },
+    callback
+  }
+}
+
+export function offShelfWrap(id, callback) {
+  return dispatch => dispatch(fetchOffShelfWrap(id, callback))
 }
 
 export const GET_WRAP_PUBLISH_LIST_REQUEST = 'GET_WRAP_PUBLISH_LIST_REQUEST'

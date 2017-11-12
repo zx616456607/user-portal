@@ -22,7 +22,7 @@ import { API_URL_PREFIX } from '../../../constants'
 import cloneDeep from 'lodash/cloneDeep'
 import ReleaseAppModal from './ReleaseAppModal'
 
-import { wrapManageList, deleteWrapManage, releaseWrap, updateWrapStatus, getWrapStoreList } from '../../../actions/app_center'
+import { wrapManageList, deleteWrapManage, releaseWrap, getWrapStoreList } from '../../../actions/app_center'
 const RadioGroup = Radio.Group
 const TabPane = Tabs.TabPane
 const notificat = new NotificationHandler()
@@ -408,6 +408,5 @@ export default connect(mapStateToProps,{
   wrapManageList,
   deleteWrapManage,
   releaseWrap,
-  updateWrapStatus,
   getWrapStoreList
 })(WrapListTable)
