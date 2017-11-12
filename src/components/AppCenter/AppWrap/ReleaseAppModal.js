@@ -23,7 +23,8 @@ class ReleaseAppModal extends React.Component {
     super(props)
     this.state = {
       visible: false,
-      uploaded: false
+      uploaded: false,
+      fileList: []
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -32,7 +33,8 @@ class ReleaseAppModal extends React.Component {
     if (oldVisible !== newVisible) {
       this.setState({
         visible: newVisible,
-        uploaded: false
+        uploaded: false,
+        fileList: []
       })
       form.resetFields()
     }
@@ -97,7 +99,8 @@ class ReleaseAppModal extends React.Component {
             this.setState({
               visible: false,
               loading: false,
-              uploaded: false
+              uploaded: false,
+              fileList: []
             })
             closeRleaseModal()
           },
@@ -118,7 +121,8 @@ class ReleaseAppModal extends React.Component {
   cancelModal() {
     const { closeRleaseModal } = this.props
     this.setState({
-      visible: false
+      visible: false,
+      fileList: []
     })
     closeRleaseModal()
   }
@@ -131,7 +135,7 @@ class ReleaseAppModal extends React.Component {
   }
   render() {
     const { form, currentApp, wrapGroupList, space } = this.props
-    const { visible } = this.state
+    const { visible, fileList } = this.state
     const { getFieldProps, getFieldError, isFieldValidating } = form;
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -177,7 +181,7 @@ class ReleaseAppModal extends React.Component {
       accept:"image/*",
       action: `${API_URL_PREFIX}/pkg/icon`,
       headers,
-      beforeUpload(file) {
+      beforeUpload: file => {
         let isType = false
 
         isType = file.name.match(/\.(jpg|png|jpeg)$/)
@@ -192,7 +196,8 @@ class ReleaseAppModal extends React.Component {
           notificat.success('上传成功')
           this.setState({
             pkgIcon: e.file.response.data.id,
-            uploaded: true
+            uploaded: true,
+            fileList: e.fileList
           })
         }
         if (e.file.status == 'error') {
@@ -270,7 +275,7 @@ class ReleaseAppModal extends React.Component {
               <div className="ant-upload-text">上传应用图标</div>
             </Upload>
           </FormItem>
-          <Row>
+          <Row style={{ marginTop: -20 }}>
             <Col span={4}>
             </Col>
             <Col className="hintColor">
