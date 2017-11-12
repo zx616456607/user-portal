@@ -96,7 +96,8 @@ class ReleaseAppModal extends React.Component {
             wrapManageList({from: 0, size: 10})
             this.setState({
               visible: false,
-              loading: false
+              loading: false,
+              uploaded: false
             })
             closeRleaseModal()
           },
@@ -177,8 +178,6 @@ class ReleaseAppModal extends React.Component {
       action: `${API_URL_PREFIX}/pkg/icon`,
       headers,
       beforeUpload(file) {
-        // x-tar x-gzip zip java-archive war=''
-        // let fileType = 'war'
         let isType = false
 
         isType = file.name.match(/\.(jpg|png|jpeg)$/)
@@ -192,7 +191,8 @@ class ReleaseAppModal extends React.Component {
         if (e.file.status == 'done') {
           notificat.success('上传成功')
           this.setState({
-            pkgIcon: e.file.response.data.id
+            pkgIcon: e.file.response.data.id,
+            uploaded: true
           })
         }
         if (e.file.status == 'error') {
