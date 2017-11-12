@@ -930,27 +930,48 @@ export function releaseWrap(pkgID, body, callback) {
   return dispatch => dispatch(fetchReleaseWrap(pkgID, body, callback))
 }
 
-export const UPDATE_WRAP_STATUS_REQUEST = 'UPDATE_WRAP_STATUS_REQUEST'
-export const UPDATE_WRAP_STATUS_SUCCESS = 'UPDATE_WRAP_STATUS_SUCCESS'
-export const UPDATE_WRAP_STATUS_FAILURE = 'UPDATE_WRAP_STATUS_FAILURE'
+export const PASS_WRAP_PUBLISH_REQUEST = 'PASS_WRAP_PUBLISH_REQUEST'
+export const PASS_WRAP_PUBLISH_SUCCESS = 'PASS_WRAP_PUBLISH_SUCCESS'
+export const PASS_WRAP_PUBLISH_FAIULRE = 'PASS_WRAP_PUBLISH_FAIULRE'
 
-function fetchUpdateWrapStatus(pkgID, body, callback) {
+function fetchPassWrapPublish(id, callback) {
   return {
     [FETCH_API]: {
-      types: [UPDATE_WRAP_STATUS_REQUEST,UPDATE_WRAP_STATUS_SUCCESS,UPDATE_WRAP_STATUS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/pkg/publish/${pkgID}/status`,
+      types: [PASS_WRAP_PUBLISH_FAIULRE,PASS_WRAP_PUBLISH_SUCCESS,PASS_WRAP_PUBLISH_FAIULRE],
+      endpoint: `${API_URL_PREFIX}/pkg/publish/${id}/pass`,
       schema: {},
       options: {
-        method: 'PUT',
-        body
+        method: 'PUT'
       }
     },
     callback
   }
 }
 
-export function updateWrapStatus(pkgID, body, callback) {
-  return dispatch => dispatch(fetchUpdateWrapStatus(pkgID, body, callback))
+export function passWrapPublish(id, callback) {
+  return dispatch => dispatch(fetchPassWrapPublish(id, callback))
+}
+
+export const REFUSE_WRAP_PUBLISH_REQUEST = 'REFUSE_WRAP_PUBLISH_REQUEST'
+export const REFUSE_WRAP_PUBLISH_SUCCESS = 'REFUSE_WRAP_PUBLISH_SUCCESS'
+export const REFUSE_WRAP_PUBLISH_FAIULRE = 'REFUSE_WRAP_PUBLISH_FAIULRE'
+
+function fetchRefuseWrapPublish(id, callback) {
+  return {
+    [FETCH_API]: {
+      types: [REFUSE_WRAP_PUBLISH_REQUEST,REFUSE_WRAP_PUBLISH_SUCCESS,REFUSE_WRAP_PUBLISH_FAIULRE],
+      endpoint: `${API_URL_PREFIX}/pkg/publish/${id}/refuse`,
+      schema: {},
+      options: {
+        method: 'PUT'
+      }
+    },
+    callback
+  }
+}
+
+export function refuseWrapPublish(id, callback) {
+  return dispatch => dispatch(fetchRefuseWrapPublish(id, callback))
 }
 
 export const OFFSHELF_WRAP_REQUEST = 'OFFSHELF_WRAP_REQUEST'

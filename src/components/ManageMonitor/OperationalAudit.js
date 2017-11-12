@@ -534,6 +534,18 @@ const menusText = defineMessages({
   WrapStore: {
     id: 'ManageMonitor.operationalAudit.WrapStore',
     defaultMessage: '应用包商店'
+  },
+  WrapPublishCheck: {
+    id: 'ManageMonitor.operationalAudit.WrapPublishCheck',
+    defaultMessage: '发布审核'
+  },
+  WrapPublishPass: {
+    id: 'ManageMonitor.operationalAudit.WrapPublishPass',
+    defaultMessage: '审核通过'
+  },
+  WrapPublishReject: {
+    id: 'ManageMonitor.operationalAudit.WrapPublishReject',
+    defaultMessage: '审核拒绝'
   }
 });
 
@@ -674,6 +686,14 @@ function returnOperationList(scope) {
     { //32
       value: '35',
       label: (<FormattedMessage {...menusText.OffShelfWrap}/>)
+    },
+    {
+      value: '36',
+      label: (<FormattedMessage {...menusText.WrapPublishPass}/>)
+    },
+    { //34
+      value: '37',
+      label: (<FormattedMessage {...menusText.WrapPublishReject}/>)
     }
   ];
   return operationalList;
@@ -886,6 +906,9 @@ function resourceFormat(resourceType, scope) {
     case '61':
       return formatMessage(menusText.WrapStore)
       break;
+    case '62':
+      return formatMessage(menusText.WrapPublishCheck)
+      break;
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -993,6 +1016,10 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.PublishWrap)
     case '35':
       return formatMessage(menusText.OffShelfWrap)
+    case '36':
+      return formatMessage(menusText.WrapPublishPass)
+    case '37':
+      return formatMessage(menusText.WrapPublishReject)
   }
 }
 
@@ -1117,6 +1144,9 @@ function formatResourceName(resourceName, resourceId) {
     }
     if (newBody.ids && Array.isArray(newBody.ids) && newBody.ids.length > 0) {
       return newBody.ids.join(",")
+    }
+    if(newBody.fileName) {
+      return newBody.fileName
     }
   } else {
     if (resourceName.length == 0) {
@@ -1588,8 +1618,13 @@ class OperationalAudit extends Component {
         break;
       case '61':
         // 应用包商店
-        showOperationalList.push(operationalList[30])
-        showOperationalList.push(operationalList[32])
+        showOperationalList.push(operationalList[30]);
+        showOperationalList.push(operationalList[32]);
+        break;
+      case '62':
+        // 发布审核
+        showOperationalList.push(operationalList[33]);
+        showOperationalList.push(operationalList[34]);
         break;
       case '0':
         //Unknown
@@ -1881,6 +1916,10 @@ class OperationalAudit extends Component {
       {
         value: '61',
         label: formatMessage(menusText.WrapStore)
+      },
+      {
+        value: '62',
+        label: formatMessage(menusText.WrapPublishCheck)
       },
       {
         value: null,

@@ -16,7 +16,7 @@ import classNames from 'classnames'
 import './style/index.less'
 import CommonSearchInput from '../../CommonSearchInput'
 import TenxStatus from '../../TenxStatus/index'
-import { getWrapPublishList, updateWrapStatus } from '../../../actions/app_center'
+import { getWrapPublishList, passWrapPublish, refuseWrapPublish } from '../../../actions/app_center'
 import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 
@@ -73,7 +73,7 @@ class WrapCheckTable extends React.Component {
     return str
   }
   render() {
-    const { wrapPublishList, updateAppStatus } = this.props
+    const { wrapPublishList, passPublish, refusePublish } = this.props
     const pagination = {
       simple: true,
       defaultCurrent: 1,
@@ -142,14 +142,14 @@ class WrapCheckTable extends React.Component {
           <div>
             <Button 
               className="passBtn" type="primary"
-              onClick={() => updateAppStatus(record.id, 2)}
+              onClick={() => passPublish(record.id)}
               disabled={record.publishStatus !== 1}
             >
               通过
             </Button>
             <Button 
               type="ghost"
-              onClick={() => updateAppStatus(record.id, 3)}
+              onClick={() => refusePublish(record.id)}
               disabled={record.publishStatus !== 1}
             >
               拒绝
@@ -176,7 +176,8 @@ class WrapCheck extends React.Component {
   constructor(props) {
     super(props)
     this.getWrapPublishList = this.getWrapPublishList.bind(this)
-    this.updateAppStatus = this.updateAppStatus.bind(this)
+    this.passPublish = this.passPublish.bind(this)
+    this.refusePublish = this.refusePublish.bind(this)
     this.updateParentPage = this.updateParentPage.bind(this)
     this.updateParentFilter = this.updateParentFilter.bind(this)
     this.updateParentSort = this.updateParentSort.bind(this)
@@ -224,15 +225,15 @@ class WrapCheck extends React.Component {
       sort_order: sort_order
     }, () => this.getWrapPublishList())
   }
-  updateAppStatus(pkgID, status) {
-    const { updateWrapStatus } = this.props
+  passPublish(pkgID) {
+    const { passWrapPublish } = this.props
     let notify = new NotificationHandler()
-    notify.spin('操作中')
-    updateWrapStatus(pkgID, { status }, {
+    notify.spin('通过中')
+    passWrapPublish(pkgID, {
       success: {
         func: () => {
           notify.close()
-          notify.success('操作成功')
+          notify.success('通过审批成功')
           this.getWrapPublishList()
         },
         isAsync: true
@@ -240,7 +241,28 @@ class WrapCheck extends React.Component {
       failed: {
         func: () => {
           notify.close()
-          notify.error('操作失败')
+          notify.error('通过审批失败')
+        }
+      }
+    })
+  }
+  refusePublish(pkgID) {
+    const { refuseWrapPublish } = this.props
+    let notify = new NotificationHandler()
+    notify.spin('拒绝中')
+    refuseWrapPublish(pkgID, {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success('拒绝审批成功')
+          this.getWrapPublishList()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notify.close()
+          notify.error('拒绝审批失败')
         }
       }
     })
@@ -264,7 +286,8 @@ class WrapCheck extends React.Component {
           </div>
           <WrapCheckTable
             wrapPublishList={wrapPublishList}
-            updateAppStatus={this.updateAppStatus}
+            passPublish={this.passPublish}
+            refusePublish={this.refusePublish}
             updateParentPage={this.updateParentPage}
             updateParentSort={this.updateParentSort}
           />
@@ -286,5 +309,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   getWrapPublishList,
-  updateWrapStatus
+  passWrapPublish, 
+  refuseWrapPublish
 })(WrapCheck)
