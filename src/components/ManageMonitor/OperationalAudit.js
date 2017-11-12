@@ -510,6 +510,22 @@ const menusText = defineMessages({
   Disable: {
     id: 'ManageMonitor.operationalAudit.Disable',
     defaultMessage: '停用'
+  },
+  WrapManage: {
+    id: 'ManageMonitor.operationalAudit.WrapManage',
+    defaultMessage: '应用包管理'
+  },
+  UploadWrap: {
+    id: 'ManageMonitor.operationalAudit.UploadWrap',
+    defaultMessage: '上传应用包'
+  },
+  DownloadWrap: {
+    id: 'ManageMonitor.operationalAudit.DownloadWrap',
+    defaultMessage: '下载应用包'
+  },
+  PublishWrap: {
+    id: 'ManageMonitor.operationalAudit.PublishWrap',
+    defaultMessage: '发布应用包'
   }
 });
 
@@ -634,6 +650,18 @@ function returnOperationList(scope) {
     { // 28
       value: '31',
       label: (<FormattedMessage {...menusText.DeleteMember}/>)
+    },
+    {
+      value: '32',
+      label: (<FormattedMessage {...menusText.UploadWrap}/>)
+    },
+    { // 30
+      value: '33',
+      label: (<FormattedMessage {...menusText.DownloadWrap}/>)
+    },
+    {
+      value: '34',
+      label: (<FormattedMessage {...menusText.PublishWrap}/>)
     }
   ];
   return operationalList;
@@ -840,6 +868,9 @@ function resourceFormat(resourceType, scope) {
     case '59':
       return formatMessage(menusText.ProjectRoles)
       break;
+    case '60':
+      return formatMessage(menusText.WrapManage)
+      break;
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -939,6 +970,12 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.AddMember)
     case '31':
       return formatMessage(menusText.DeleteMember)
+    case '32':
+      return formatMessage(menusText.UploadWrap)
+    case '33':
+      return formatMessage(menusText.DownloadWrap)
+    case '34':
+      return formatMessage(menusText.PublishWrap)
   }
 }
 
@@ -1526,6 +1563,13 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[1]);
         showOperationalList.push(operationalList[2]);
         break
+      case '60':
+        // 应用包管理
+        showOperationalList.push(operationalList[29]);
+        showOperationalList.push(operationalList[30]);
+        showOperationalList.push(operationalList[31]);
+        showOperationalList.push(operationalList[2]);
+        break;
       case '0':
         //Unknown
         showOperationalList = operationalList;
@@ -1808,6 +1852,10 @@ class OperationalAudit extends Component {
       {
         value: '54',
         label: formatMessage(menusText.DBCache),
+      },
+      {
+        value: '60',
+        label: formatMessage(menusText.WrapManage),
       },
       {
         value: null,
