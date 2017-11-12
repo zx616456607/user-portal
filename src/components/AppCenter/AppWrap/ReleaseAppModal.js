@@ -22,7 +22,8 @@ class ReleaseAppModal extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      visible: false
+      visible: false,
+      uploaded: false
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -30,7 +31,8 @@ class ReleaseAppModal extends React.Component {
     const { visible: newVisible, getWrapGroupList, wrapGroupList: newGroupList, form } = nextProps
     if (oldVisible !== newVisible) {
       this.setState({
-        visible: newVisible
+        visible: newVisible,
+        uploaded: false
       })
       form.resetFields()
     }
@@ -65,20 +67,18 @@ class ReleaseAppModal extends React.Component {
     }
     callback()
   }
-  // checkUpload(rule, value, callback) {
-  //   if(!value) {
-  //     return callback('请上传图片')
-  //   }
-  //   callback()
-  // }
   confirmModal() {
     const { closeRleaseModal, form, releaseWrap, wrapManageList, currentApp } = this.props
     const { validateFields } = form
-    const { pkgIcon } = this.state
+    const { pkgIcon, uploaded } = this.state
     const { id } = currentApp
+    let notify = new NotificationHandler()
     validateFields((errors, values) => {
       if (!!errors) {
         return
+      }
+      if(!uploaded) {
+        return notify.info('请上传图片')
       }
       const { fileName, fileNickName, classifyName, description} = values
       this.setState({
@@ -207,11 +207,12 @@ class ReleaseAppModal extends React.Component {
         }
       }
     }
-    const children = wrapGroupList && 
-          wrapGroupList.classifies && 
-          wrapGroupList.classifies.length && 
-          wrapGroupList.classifies.map(item => {
-      return <Option key={item.classifyName}>{item.classifyName}</Option>
+    const children = [];
+    wrapGroupList && 
+    wrapGroupList.classifies && 
+    wrapGroupList.classifies.length &&
+    wrapGroupList.classifies.forEach(item => {
+      return children.push(<Option key={item.classifyName}>{item.classifyName}</Option>)
     })
     return(
       <Modal
