@@ -20,6 +20,7 @@ import NotificationHandler from '../../components/Notification'
 import { formatDate } from '../../common/tools'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { API_URL_PREFIX, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
+import { isResourcePermissionError } from '../../common/tools'
 import WrapListTable from './AppWrap/WrapListTable'
 import { throwError } from '../../actions'
 import { wrapManageList, deleteWrapManage, uploadWrap, checkWrapName } from '../../actions/app_center'
@@ -322,11 +323,10 @@ class UploadModal extends Component {
           let message = e.file.response.message
           if (typeof e.file.response.message =='object') {
             message = JSON.stringify(e.file.response.message)
-            if ( e.file.response.statusCode == 412) {
+            if (e.file.response.statusCode == UPGRADE_EDITION_REQUIRED_CODE || isResourcePermissionError(e.file.response)) {
               func.throwError(e.file.response)
             }
-          }
-          if(e.file.response.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
+          } else {
             notificat.error('上传失败',message)
           }
           uploadFile = false

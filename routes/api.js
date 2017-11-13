@@ -615,6 +615,7 @@ module.exports = function (Router) {
   router.get('/pkg/group', pkgController.getPkgGroupList)
   router.post('/pkg/icon', pkgController.uploadPkgIcon)
   router.get('/pkg/icon/:id', pkgController.getPkgIcon)
+  
   // VM wrap
   router.post('/vm-wrap/services', vmWrapController.createService)
   router.get('/vm-wrap/services', vmWrapController.listServices)
