@@ -181,6 +181,7 @@ class ReleaseAppModal extends React.Component {
       action: `${API_URL_PREFIX}/pkg/icon`,
       headers,
       fileList,
+      disabled: fileList && fileList.length >= 1,
       beforeUpload: file => {
         let isType
 

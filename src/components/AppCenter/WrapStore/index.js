@@ -128,7 +128,7 @@ class AppWrapStore extends React.Component {
     })
   }
   goDeploy(fileName) {
-    browserHistory.push('/app_manage/deploy_wrap?fileName='+fileName)
+    browserHistory.push('/app_manage/deploy_wrap?from=wrapStore&fileName='+fileName)
   }
   updateAppStatus(pkgID) {
     const { offShelfWrap, getWrapStoreHotList } = this.props
@@ -180,7 +180,7 @@ class AppWrapStore extends React.Component {
             if (key === 'container') {
               return this.goDeploy(item.fileName)
             }
-            browserHistory.push(`/app_manage/vm_wrap/create?fileName=${item.fileName}`)
+            browserHistory.push(`/app_manage/vm_wrap/create?from=wrapStore&fileName=${item.fileName}`)
           }}
         >
           <Menu.Item key="container">容器应用</Menu.Item>
@@ -199,29 +199,36 @@ class AppWrapStore extends React.Component {
           </Col>
           <Col span={isHot ? 8 : 15}>
             <Row className="wrapListMiddle">
-              <Col className="appName">{item.fileNickName}<span className="nickName hintColor"> ({item.fileName})</span></Col>
+              <Col className="appName" style={{ marginBottom: isHot ? 0 : 10 }}>{item.fileNickName}<span className="nickName hintColor"> ({item.fileName})</span></Col>
               {
                 !isHot && <Col className="hintColor appDesc">{item.description}</Col>
               }
-              <Col className="downloadBox">
-                <span className="hintColor"><Icon type="download" /> {item.downloadTimes}</span>
-                {
-                  !isHot && <span className="hintColor"><Icon type="clock-circle-o" /> 发布于 {formatDate(item.publishTime)}</span>
-                }
-              </Col>
+              {
+                isHot &&
+                <Col className="downloadBox">
+                  <span className="hintColor"><Icon type="download" /> {item.downloadTimes}</span>
+                </Col>
+              }
             </Row>
           </Col>
           <Col span={isHot ? 8 : 5} style={{ textAlign: 'right' }}>
-            <Dropdown.Button overlay={menu} type="ghost">
+            <Dropdown.Button className="wrapPopBtn" overlay={menu} type="ghost">
               <Popover
                 content={deployMethod}
                 title="请选择部署方式"
                 trigger="click"
                 getTooltipContainer={() => document.getElementsByClassName(isHot ? 'hotWrapList' : 'commonWrapList')[0]}
               >
-                <span><Icon type="appstore-o" /> 部署</span>
+                <span className="operateBtn"><Icon type="appstore-o" /> 部署</span>
               </Popover>
             </Dropdown.Button>
+            {
+              !isHot &&
+                <div className="downloadBox">
+                  <span className="hintColor"><Icon type="download" /> {item.downloadTimes}</span>
+                  <span className="hintColor"><Icon type="clock-circle-o" /> 发布于 {formatDate(item.publishTime)}</span>
+                </div>
+            }
           </Col>
         </Row>
       )
@@ -258,6 +265,7 @@ class AppWrapStore extends React.Component {
               <span>排序：</span>
               {this.renderSortTab()}
             </div>
+            <div className="total">共 {wrapStoreList && wrapStoreList.total || 0} 条</div>
             <Pagination {...pagination}/>
           </div>
           <div className="wrapStoreBody">
