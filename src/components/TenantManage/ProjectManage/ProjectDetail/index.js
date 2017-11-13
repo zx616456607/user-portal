@@ -609,6 +609,7 @@ class ProjectDetail extends Component {
           func: () => {
             if (flag) {
               this.getCurrentRole(currentRoleInfo.id)
+              this.getProjectDetail()
               notify.success('关联成员操作成功')
               this.setState({
                 connectModal: false,
@@ -648,6 +649,7 @@ class ProjectDetail extends Component {
           func: () => {
             if (flag) {
               this.getCurrentRole(currentRoleInfo.id)
+              this.getProjectDetail()
               notify.success('关联成员操作成功')
               this.setState({
                 connectModal: false,
