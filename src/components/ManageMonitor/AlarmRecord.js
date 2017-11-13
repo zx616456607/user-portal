@@ -238,7 +238,7 @@ class AlarmRecord extends Component {
             if (isEmpty(result.data)) {
               notify.error('此策略不存在或者已被删除')
             } else {
-              browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(record.strategyID)}?name=${record.strategyName}`)
+              browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(record.strategyID)}?name=${record.strategyName}&clusterID=${clusterID}`)
             }
           },
           isAsync: true

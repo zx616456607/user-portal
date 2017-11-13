@@ -151,25 +151,6 @@ class AlarmGroup extends Component {
       </div>
     )
   }
-  toAlarmDetail(item, e) {
-    const { data, cluster, setCurrent } = this.props;
-    let currentCluster = data.find((record, index) => record.clusterID === item.clusterID)
-    if (cluster.clusterID !== currentCluster.clusterID) {
-      setCurrent({
-        cluster: currentCluster
-      }, {
-          success: {
-            func: () => {
-              browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}`)
-            },
-            isAsync: true
-          }
-        })
-    } else {
-      browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}`)
-    }
-    e.stopPropagation()
-  }
   getStragegies(strategies) {
     const _this = this;
     if (!strategies) {
@@ -178,7 +159,9 @@ class AlarmGroup extends Component {
     let popover = '-'
     if (strategies.length > 0) {
       popover = strategies.map(function (item) {
-        return <div className='alarmGroupItem'><span onClick={(e) => _this.toAlarmDetail(item, e)}>{item.name}</span></div>
+        return <div className='alarmGroupItem'>
+          <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}&clusterID=${item.clusterID}`}>{item.name}</Link>
+        </div>
       })
     }
     return (

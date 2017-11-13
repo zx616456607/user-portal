@@ -339,7 +339,7 @@ class AlarmStrategy extends Component {
         dataIndex: 'strategyName',
         key: 'strategyName',
         width:'13%',
-        render: (text,row) => <Link to={`/manange_monitor/alarm_setting/${row.strategyID}`}>{text}</Link>,
+        render: (text,row) => <Link to={`/manange_monitor/alarm_setting/${row.strategyID}?clusterID=${row.clusterID}`}>{text}</Link>,
       },
       {
         title: '状态',
