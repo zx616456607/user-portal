@@ -198,6 +198,7 @@ class App extends Component {
       window.location.href = '/logout'
       return
     }
+    // 没有权限
     if (isResourcePermissionError(errorMessage.error)) {
       this.setState({
         resourcePermissionModal: true,
