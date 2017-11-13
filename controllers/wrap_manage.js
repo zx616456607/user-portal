@@ -174,21 +174,8 @@ exports.getPkgGroupList = function* () {
 exports.uploadPkgIcon = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const parts = parse(this, {
-    autoFields: true
-  })
-  if (!parts) {
-    this.status = 400
-    this.message = { message: 'error' }
-    return
-  }
-  const fileStream = yield parts
-  const stream = formStream()
-  const mimeType = mime.lookup(fileStream.filename)
-  stream.stream('pkg', fileStream, fileStream.filename, mimeType)
-  const response = yield api.pkg.uploadFile(['icon'], null, stream, stream.headers()).catch(err => {
-    return err
-  })
+  const content = yield parseForm(this)
+  const response = yield api.pkg.createBy(['icon'], null, content)
   this.status = response.statusCode
   this.body = response
 }
@@ -197,6 +184,22 @@ exports.getPkgIcon = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const id = this.params.id
-  const result = yield api.pkg.getBy(['icon', id, null])
-  this.body = result
+  const file = yield api.pkg.downloadFile(['icon', id])
+  this.set('content-type', file.headers['content-type'])
+  this.body = file.res
+}
+
+function* parseForm(ctx) {
+  const parts = parse(ctx, {autoFields: true})
+  const fileStream = yield parts
+  return new Promise((resolve, reject) => {
+    ctx.field = parts.field
+    try {
+      let buffer = []
+      fileStream.on('data', chunk => buffer.push(chunk))
+      fileStream.on('end', () => resolve(Buffer.concat(buffer)))
+    } catch (err) {
+      reject(err)
+    }
+  })
 }

@@ -176,13 +176,13 @@ class ReleaseAppModal extends React.Component {
     }
     let notificat = new NotificationHandler()
     const uploadOpt = {
-      name: 'pkg',
       listType:"picture-card",
       accept:"image/*",
       action: `${API_URL_PREFIX}/pkg/icon`,
       headers,
+      fileList,
       beforeUpload: file => {
-        let isType = false
+        let isType
 
         isType = file.name.match(/\.(jpg|png|jpeg)$/)
 
@@ -192,17 +192,19 @@ class ReleaseAppModal extends React.Component {
         }
       },
       onChange: e => {
-        if (e.file.status == 'done') {
+        this.setState({
+          fileList: e.fileList
+        })
+        if (e.file.status === 'done') {
           notificat.success('上传成功')
           this.setState({
             pkgIcon: e.file.response.data.id,
-            uploaded: true,
-            fileList: e.fileList
+            uploaded: true
           })
         }
-        if (e.file.status == 'error') {
+        if (e.file.status === 'error') {
           let message = e.file.response.message
-          if (typeof e.file.response.message =='object') {
+          if (typeof e.file.response.message === 'object') {
             message = JSON.stringify(e.file.response.message)
             notificat.info(message)
           }
