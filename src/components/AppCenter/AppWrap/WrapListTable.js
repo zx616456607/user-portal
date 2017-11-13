@@ -174,7 +174,8 @@ class WrapListTable extends Component {
     )
     const menu = (
       <Menu onClick={e => this.handleMenuClick(e, row)} style={{ width: 90 }}>
-        <Menu.Item key="release" disabled={[1, 2, 3].includes(row.publishStatus)}>
+        /* 1代表发布审核中 2代表已发布*/
+        <Menu.Item key="release" disabled={[1, 2].includes(row.publishStatus)}>
           发布
         </Menu.Item>
         <Menu.Item key="download">
