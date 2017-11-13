@@ -36,7 +36,14 @@ class SelectPacket extends Component{
     }
   }
   componentWillMount() {
-    const { fileName } = this.props.scope.props.location.query
+    const { from, fileName } = this.props.scope.props.location.query
+    if (from && from === 'wrapStore') {
+      this.setState({
+        currentType: 'store'
+      })
+      this.getStoreList(fileName)
+      return
+    }
     this.pageAndSerch(fileName)
   }
   handleChange(pagination, filters, sorter) {
