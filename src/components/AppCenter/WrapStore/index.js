@@ -197,7 +197,7 @@ class AppWrapStore extends React.Component {
               src={`${API_URL_PREFIX}/pkg/icon/${item.pkgIconID}`}
             />
           </Col>
-          <Col span={isHot ? 8 : 15}>
+          <Col span={isHot ? 8 : 10}>
             <Row className="wrapListMiddle">
               <Col className="appName" style={{ marginBottom: isHot ? 0 : 10 }}>{item.fileNickName}<span className="nickName hintColor"> ({item.fileName})</span></Col>
               {
@@ -211,7 +211,7 @@ class AppWrapStore extends React.Component {
               }
             </Row>
           </Col>
-          <Col span={isHot ? 8 : 5} style={{ textAlign: 'right' }}>
+          <Col span={isHot ? 8 : 10} style={{ textAlign: 'right' }}>
             <Dropdown.Button className="wrapPopBtn" overlay={menu} type="ghost">
               <Popover
                 content={deployMethod}
