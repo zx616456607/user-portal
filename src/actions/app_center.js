@@ -1050,7 +1050,7 @@ function fetchWrapStoreHotList(callback) {
   let endpointUrl = `${API_URL_PREFIX}/pkg/store`
   let query = {
     from: 0,
-    page: 10,
+    size: 10,
     sort_by: 'download_times',
     sort_order: 'desc'
   }
