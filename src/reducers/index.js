@@ -8,6 +8,8 @@
  * @author Zhangpc
  */
 import * as ActionTypes from '../actions'
+import * as EntitiesActionTypes from '../actions/entities'
+import * as QucikCreateAppTypes from '../actions/quick_create_app'
 import merge from 'lodash/merge'
 import union from 'lodash/union'
 import { routerReducer as routing } from 'react-router-redux'
@@ -50,9 +52,17 @@ import projectAuthority from './project'
 import role from './role'
 import vmWrap from './vm_wrap'
 import * as apm from './apm'
+import {
+  LOGIN_EXPIRED_MESSAGE,
+  PAYMENT_REQUIRED_CODE,
+  UPGRADE_EDITION_REQUIRED_CODE,
+} from '../constants'
 
-import { LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE, } from '../constants'
-
+// for other actions support callback
+const OTHER_SUPPORT_CALLBACK_TYPES = [
+  EntitiesActionTypes.SET_CURRENT,
+  QucikCreateAppTypes.QUICK_CREATE_APP_SET_FORM_FIELDS,
+]
 
 // Updates error message to notify about the failed fetches.
 function errorMessage(state = null, action) {
@@ -88,7 +98,7 @@ function actionCallback(state = null, action) {
       callback.finally.func(action.error || action.response.result)
     }
   }
-  if (actionType === 'SUCCESS' || callback.success) {
+  if (actionType === 'SUCCESS' || OTHER_SUPPORT_CALLBACK_TYPES.indexOf(action.type) > -1) {
     if (!callback.success) return state
     if (callback.success.func) {
       if (callback.success.isAsync) {
