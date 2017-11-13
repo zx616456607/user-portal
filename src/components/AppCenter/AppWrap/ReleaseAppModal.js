@@ -72,7 +72,7 @@ class ReleaseAppModal extends React.Component {
   confirmModal() {
     const { closeRleaseModal, form, releaseWrap, wrapManageList, currentApp } = this.props
     const { validateFields } = form
-    const { pkgIcon, uploaded } = this.state
+    const { pkgIcon, uploaded, resolve } = this.state
     const { id } = currentApp
     let notify = new NotificationHandler()
     validateFields((errors, values) => {

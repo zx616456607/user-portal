@@ -537,6 +537,7 @@ class App extends Component {
         }
         <Xterm />
         <Modal
+          title="当前操作未被授权"
           visible={resourcePermissionModal}
           maskClosable={false}
           onCancel={() => this.setState({ resourcePermissionModal: false })}

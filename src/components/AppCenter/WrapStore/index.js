@@ -20,7 +20,8 @@ import CommonSearchInput from '../../CommonSearchInput'
 import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX } from '../../../constants'
-// import { tenx_api } from '../../../../configs/index'
+import { ROLE_SYS_ADMIN } from '../../../../constants'
+
 const sortOption = [
   {
     key: 'publish_time',
@@ -158,6 +159,7 @@ class AppWrapStore extends React.Component {
     }
   }
   renderWrapList(dataSorce, isHot) {
+    const { role } = this.props
     if (!dataSorce || !dataSorce.pkgs || !dataSorce.pkgs.length) {
       return
     }
@@ -165,7 +167,10 @@ class AppWrapStore extends React.Component {
       const menu = (
         <Menu style={{ width: 90 }} onClick={e => this.handleMenuClick(e, item)}>
           <Menu.Item key="download"><a target="_blank" href={`${API_URL_PREFIX}/pkg/${item.id}`}>下载</a></Menu.Item>
-          <Menu.Item key="offShelf" disabled={[0, 1, 4].includes(item.publishStatus)}>下架</Menu.Item>
+          {
+            role === ROLE_SYS_ADMIN &&
+              <Menu.Item key="offShelf" disabled={[0, 1, 4].includes(item.publishStatus)}>下架</Menu.Item>
+          }
         </Menu>
       );
       const deployMethod = (
@@ -271,8 +276,10 @@ class AppWrapStore extends React.Component {
   }
 }
 
-function mapStateToProps(state, props) {
-  const { images } = state
+function mapStateToProps(state) {
+  const { images, entities } = state
+  const { loginUser } = entities
+  const { role } = loginUser.info || { role: 0 }
   const { wrapStoreList, wrapStoreHotList, wrapGroupList } = images
   const { result: storeList } = wrapStoreList || { result: {}}
   const { data: storeData } = storeList || { data: [] }
@@ -283,7 +290,8 @@ function mapStateToProps(state, props) {
   return {
     wrapStoreList: storeData,
     wrapStoreHotList: storeHotData,
-    wrapGroupList: groupData
+    wrapGroupList: groupData,
+    role
   }
 }
 export default connect(mapStateToProps, {
