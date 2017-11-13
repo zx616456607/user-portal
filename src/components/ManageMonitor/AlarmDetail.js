@@ -34,12 +34,15 @@ class AlarmDetail extends Component {
     }
   }
   loadData() {
+    const { location } = this.props
+    const { query } = location
+    const { clusterID } = query
     const id = this.props.params.id
     const { getAlertSetting, cluster, getSettingList } = this.props
-    getAlertSetting(cluster.clusterID, {
+    getAlertSetting(clusterID, {
       strategy: id
     })
-    getSettingList(cluster.clusterID, {
+    getSettingList(clusterID, {
       strategyID: id
     }, true)
   }
