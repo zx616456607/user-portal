@@ -201,7 +201,7 @@ class CleaningTool extends Component {
     this.setState({
       cleanCicdStatus: 'cleaning'
     })
-    notify.spin('cicd手动清理中')
+    notify.spin('CICD手动清理中')
     startClean({
       cicd_clean: {
         meta: {
@@ -219,7 +219,7 @@ class CleaningTool extends Component {
       success: {
         func: () => {
           notify.close()
-          notify.success('cicd手动清理成功')
+          notify.success('CICD手动清理成功')
           this.setState({
             cleanCicdStatus: true,
           })
@@ -234,7 +234,7 @@ class CleaningTool extends Component {
             notify.info('有用户正在操作，请稍后重试')
           } else {
             notify.close()
-            notify.error('cicd手动清理失败')
+            notify.error('CICD手动清理失败')
           }
           this.setState({
             cleanCicdStatus: false,
