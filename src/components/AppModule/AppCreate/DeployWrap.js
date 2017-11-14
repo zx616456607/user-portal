@@ -285,7 +285,7 @@ class WrapManage extends Component {
             </div>
             <div style={{ marginBottom: 20 }}>
               <ButtonGroup> 
-                <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>传统应用包</Button>
+                <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>应用包</Button>
                 <Button type="ghost" className={classNames({'active': currentType === 'store'})} onClick={() =>this.changeWrap('store')}>应用包商店</Button>
               </ButtonGroup>
             </div>
@@ -328,7 +328,7 @@ class WrapManage extends Component {
               </div>
               <div style={{ marginBottom: 20 }}>
                 <ButtonGroup> 
-                  <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>传统应用包</Button>
+                  <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>应用包</Button>
                   <Button type="ghost" className={classNames({'active': currentType === 'store'})} onClick={() =>this.changeWrap('store')}>应用包商店</Button>
                 </ButtonGroup>
               </div>
