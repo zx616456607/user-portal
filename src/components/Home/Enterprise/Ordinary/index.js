@@ -29,6 +29,7 @@ import { Link } from 'react-router'
 import { AVATAR_HOST, SHOW_BILLING, REG, DEFAULT_IMAGE_POOL } from '../../../../constants'
 import { fetchStorage } from '../../../../actions/storage'
 import { getClusterQuota, getClusterQuotaList } from '../../../../actions/quota'
+import { GetProjectsDetail } from '../../../../actions/project'
 
 const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
@@ -164,6 +165,7 @@ class Ordinary extends Component {
       memoryCount: 0,
       hostCount: 0,
       publicCount: 0,
+      roleNameArr: '',
     }
   }
 
@@ -185,9 +187,41 @@ class Ordinary extends Component {
     this.loadClusterSummary(clusterID)
     this.fetchQuotaList()
     this.storageList()
+    this.fetchProjectName()
   }
 
-  storageList(){
+  fetchProjectName() {
+    const { GetProjectsDetail, projectName } = this.props
+    GetProjectsDetail({
+      projectsName: projectName
+    }, {
+        success: {
+          func: res => {
+            if (res.statusCode === 200) {
+              let roleIdArr = []
+              let roleNameArr = []
+              res.data.outlineRoles.forEach(item => {
+                if (item.indexOf('RID-') !== -1) {
+                  roleIdArr.push(item)
+                }
+              })
+              const { relatedRoles } = res.data
+              roleIdArr.length && relatedRoles && relatedRoles.length && relatedRoles.forEach(item => {
+                if (roleIdArr.includes(item.roleId)) {
+                  roleNameArr.push(item.roleName)
+                }
+              })
+              this.setState({
+                roleNameArr,
+              })
+            }
+          },
+          isAsync: true,
+        }
+      })
+  }
+
+  storageList() {
     const { fetchStorage, clusterID } = this.props
     let query = {
       cluster: clusterID
@@ -196,7 +230,7 @@ class Ordinary extends Component {
     fetchStorage(query, {
       success: {
         func: res => {
-          if(res.code === 200){
+          if (res.code === 200) {
             this.setState({
               hostCount: res.data.host,
               publicCount: res.data.share,
@@ -1313,7 +1347,7 @@ class Ordinary extends Component {
       }]
     }
     const img = userName.substr(0, 1).toUpperCase()
-    const { isComputing, isApplication, isService } = this.state
+    const { isComputing, isApplication, isService, roleNameArr } = this.state
     const computeList = [
       {
         key: 'cpu',
@@ -1365,38 +1399,39 @@ class Ordinary extends Component {
     const spaceName = space.name || space.userName
     return (
       <div id='Ordinary'>
-        <Row className="title">{this.props.userID === undefined ? spaceName === '我的个人项目' ? '':'共享项目 - ':'个人项目 - '}{spaceName} - {clusterName}</Row>
+        <Row className="title">{this.props.userID === undefined ? spaceName === '我的个人项目' ? '' : '共享项目 - ' : '个人项目 - '}{spaceName} - {clusterName}</Row>
         <Row className="content" gutter={16}>
           {SHOW_BILLING ?
             <Col span={6} className='clusterCost'>
-              <Card title="帐户余额" bordered={false} bodyStyle={{ height: 220, padding: '36px 24px' }}>
+              <Card title="项目信息" bordered={false} bodyStyle={{ height: 220, padding: '30px 24px' }}
+                extra={spaceName !== '我的个人项目' ? this.props.userID === undefined ?
+                  <Link to={`/tenant_manage/project_manage/project_detail?name=${this.props.projectName}`}>
+                    <Button type="primary" size="small">项目详情</Button></Link> : '' : ''}>
                 <div className='costInfo'>
-                  <div className='loginUser'>
-                    <div className='logAvatar'>
-                      <Link to='/account'>
-                        <span style={{ color: 'white' }}>{img}</span>
-                        {/*<img alt={userName} src={`${AVATAR_HOST}${avatar}`} />*/}
-                      </Link>
-                    </div>
-                    <div className="loginText">
-                      <div className="text">
-                        <Link to='/account'>
-                          <p className="userName">
-                            {userName}
-                          </p>
-                        </Link>
-                        <Tooltip title={email}>
-                          <p className="email textoverflow">{email || '...'}</p>
+                  <div className="projectUser">
+                    <span className="project">项目名称：</span>
+                    <span>{spaceName}</span>
+                    {
+                      spaceName === '我的个人项目' ?
+                        <span className="desc">个人</span> : this.props.userID === undefined ?
+                          <span className="public">共享</span> : <span className="desc">个人</span>
+                    }
+                    <span className="desc">{}</span>
+                  </div>
+                  <div className="projectRole">
+                    <span className="project">项目角色：</span>
+                    {
+                      spaceName === '我的个人项目' || this.props.userID !== undefined ?
+                        <span className="projectDesc">个人项目无角色</span> :
+                        <Tooltip title={roleNameArr.length === 0 ? '- -' : roleNameArr.join('/ ')}>
+                          <div className="projectName">{roleNameArr.length === 0 ? '- -' : roleNameArr.join('/ ')}</div>
                         </Tooltip>
-                      </div>
-                    </div>
-                    {/*<div className='loginTag'>个人</div>*/}
-                    <div style={{ clear: 'both' }}></div>
+                    }
                   </div>
                   <div>
                     <div className='userCost'>
-                      <div>
-                        <i style={{ backgroundColor: '#46b2fa' }}></i>
+                      <div className="project">
+                        {/* <i style={{ backgroundColor: '#46b2fa' }}></i> */}
                         {this.state.isTeam ? '账户余额' : '我的余额'}：
                       </div>
                       <span className='costNum'>
@@ -1407,8 +1442,8 @@ class Ordinary extends Component {
                       {/*<Link to='/account'><Button type='primary'>去充值</Button></Link>*/}
                     </div>
                     <div className='userCost'>
-                      <div>
-                        <i style={{ backgroundColor: '#28bd83' }}></i>
+                      <div className="project">
+                        {/* <i style={{ backgroundColor: '#28bd83' }}></i> */}
                         今日消费：
                       </div>
                       <span className='costNum'>
@@ -2399,5 +2434,6 @@ export default connect(mapStateToProp, {
   getClusterQuota,
   getClusterQuotaList,
   loadClusterInfo,
-  loadClusterSummary
+  loadClusterSummary,
+  GetProjectsDetail,
 })(Ordinary)
