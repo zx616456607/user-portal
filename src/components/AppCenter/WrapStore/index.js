@@ -258,8 +258,14 @@ class AppWrapStore extends React.Component {
               <span>排序：</span>
               {this.renderSortTab()}
             </div>
-            <div className="total">共 {wrapStoreList && wrapStoreList.total || 0} 条</div>
-            <Pagination {...pagination}/>
+            {
+              wrapStoreList && wrapStoreList.total !== 0 &&
+                <div className="total">共 {wrapStoreList && wrapStoreList.total || 0} 条</div>
+            }
+            {
+              wrapStoreList && wrapStoreList.total !== 0 &&
+                <Pagination {...pagination}/>
+            }
           </div>
           <div className="wrapStoreBody">
             <div className="wrapListBox wrapStoreLeft">
