@@ -156,7 +156,13 @@ class AppWrapStore extends React.Component {
     switch(e.key) {
       case 'offShelf':
         this.updateAppStatus(row.id)
+        break
+      case 'vm':
+        browserHistory.push(`/app_manage/vm_wrap/create?from=wrapStore&fileName=${row.fileName}`)
     }
+  }
+  handleButtonClick(item) {
+    this.goDeploy(item.fileName)
   }
   renderWrapList(dataSorce, isHot) {
     const { role } = this.props
@@ -166,6 +172,9 @@ class AppWrapStore extends React.Component {
     return dataSorce && dataSorce.pkgs.map((item, index) => {
       const menu = (
         <Menu style={{ width: 90 }} onClick={e => this.handleMenuClick(e, item)}>
+          <Menu.Item key="vm">
+            传统部署
+          </Menu.Item>
           <Menu.Item key="download"><a target="_blank" href={`${API_URL_PREFIX}/pkg/${item.id}`}>下载</a></Menu.Item>
           {
             role === ROLE_SYS_ADMIN &&
@@ -173,20 +182,6 @@ class AppWrapStore extends React.Component {
           }
         </Menu>
       );
-      const deployMethod = (
-        <Menu
-          className="deployModeList"
-          onClick={({ key }) => {
-            if (key === 'container') {
-              return this.goDeploy(item.fileName)
-            }
-            browserHistory.push(`/app_manage/vm_wrap/create?from=wrapStore&fileName=${item.fileName}`)
-          }}
-        >
-          <Menu.Item key="container">容器应用</Menu.Item>
-          <Menu.Item key="vm">传统应用</Menu.Item>
-        </Menu>
-      )
       return (
         <Row key={item.id} className={classNames("wrapList", {"noBorder": isHot, 'hotWrapList': isHot, 'commonWrapList': !isHot})} type="flex" justify="space-around" align="middle">
           {
@@ -197,7 +192,7 @@ class AppWrapStore extends React.Component {
               src={`${API_URL_PREFIX}/pkg/icon/${item.pkgIconID}`}
             />
           </Col>
-          <Col span={isHot ? 8 : 10}>
+          <Col span={isHot ? 7 : 10}>
             <Row className="wrapListMiddle">
               <Col className="appName" style={{ marginBottom: isHot ? 0 : 10 }}>{item.fileNickName}<span className="nickName hintColor"> ({item.fileName})</span></Col>
               {
@@ -211,16 +206,14 @@ class AppWrapStore extends React.Component {
               }
             </Row>
           </Col>
-          <Col span={isHot ? 8 : 10} style={{ textAlign: 'right' }}>
-            <Dropdown.Button className="wrapPopBtn" overlay={menu} type="ghost">
-              <Popover
-                content={deployMethod}
-                title="请选择部署方式"
-                trigger="click"
-                getTooltipContainer={() => document.getElementsByClassName(isHot ? 'hotWrapList' : 'commonWrapList')[0]}
-              >
-                <span className="operateBtn"><Icon type="appstore-o" /> 部署</span>
-              </Popover>
+          <Col span={isHot ? 9 : 10} style={{ textAlign: 'right' }}>
+            <Dropdown.Button
+              className="wrapPopBtn" 
+              overlay={menu} 
+              type="ghost"
+              onClick={() => this.handleButtonClick(item)}
+            >
+              <span className="operateBtn"><Icon type="appstore-o" /> 容器部署</span>
             </Dropdown.Button>
             {
               !isHot &&
@@ -265,8 +258,14 @@ class AppWrapStore extends React.Component {
               <span>排序：</span>
               {this.renderSortTab()}
             </div>
-            <div className="total">共 {wrapStoreList && wrapStoreList.total || 0} 条</div>
-            <Pagination {...pagination}/>
+            {
+              wrapStoreList && wrapStoreList.total !== 0 &&
+                <div className="total">共 {wrapStoreList && wrapStoreList.total || 0} 条</div>
+            }
+            {
+              wrapStoreList && wrapStoreList.total !== 0 &&
+                <Pagination {...pagination}/>
+            }
           </div>
           <div className="wrapStoreBody">
             <div className="wrapListBox wrapStoreLeft">

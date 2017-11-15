@@ -278,7 +278,7 @@ class WrapCheck extends React.Component {
             </Button>
             <CommonSearchInput
               size="large"
-              placeholder="请输入应用宝搜索"
+              placeholder="按应用包或发布名称搜索"
               style={{ width: 200 }}
               onSearch={value => this.updateParentFilter(value)}
             />

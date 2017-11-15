@@ -282,7 +282,7 @@ class ReleaseAppModal extends React.Component {
             <Col span={4}>
             </Col>
             <Col className="hintColor">
-              上传icon支持（jpg/jpeg//png图片格式，建议尺寸100px*100px）
+              上传icon支持（jpg/jpeg/png图片格式，建议尺寸100px*100px）
             </Col>
           </Row>
         </Form>

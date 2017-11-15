@@ -117,18 +117,18 @@ class WrapListTable extends Component {
       }
     })
   }
+  deleteHint() {
+    Modal.info({
+      title: '只有未发布和已下架的应用包可以被删除'
+    })
+  }
   handleMenuClick(e, row) {
-    if (e.key === 'delete') {
-      this.deleteAction(true,row.id)
-    }
-    if (e.key === 'release') {
-      this.setState({
-        releaseVisible: true,
-        currentApp: row
-      })
-    }
     switch (e.key) {
       case 'delete':
+        if (![0, 4].includes(row.publishStatus)) {
+          this.deleteHint()
+          return
+        }
         this.deleteAction(true,row.id)
         break
       case 'release':
@@ -139,6 +139,9 @@ class WrapListTable extends Component {
         break
       case 'download':
         break
+      case 'vm':
+        browserHistory.push(`/app_manage/vm_wrap/create?fileName=${row.fileName}`)
+        break
     }
   }
   closeRleaseModal() {
@@ -146,6 +149,10 @@ class WrapListTable extends Component {
       releaseVisible: false,
       currentApp: null
     })
+  }
+  handleButtonClick(row, func) {
+    const { goDeploy } = func
+    goDeploy(row.fileName)
   }
   renderDeployBtn(row, func, rowCheckbox) {
     if (!rowCheckbox) {
@@ -158,22 +165,11 @@ class WrapListTable extends Component {
         </Button>
       )
     }
-    const deployMethod = (
-      <Menu
-        className="deployModeList"
-        onClick={({ key }) => {
-          if (key === 'container') {
-            return func.goDeploy(row.fileName)
-          }
-          browserHistory.push(`/app_manage/vm_wrap/create?fileName=${row.fileName}`)
-        }}
-      >
-        <Menu.Item key="container">容器应用</Menu.Item>
-        <Menu.Item key="vm">传统应用</Menu.Item>
-      </Menu>
-    )
     const menu = (
       <Menu onClick={e => this.handleMenuClick(e, row)} style={{ width: 90 }}>
+        <Menu.Item key="vm">
+          传统部署
+        </Menu.Item>
         <Menu.Item key="release" disabled={[1, 2].includes(row.publishStatus)}>
           发布
         </Menu.Item>
@@ -186,15 +182,8 @@ class WrapListTable extends Component {
       </Menu>
     )
     return (
-      <Dropdown.Button overlay={menu} type="ghost">
-        <Popover
-          content={deployMethod}
-          title="请选择部署方式"
-          trigger="click"
-          getTooltipContainer={() => document.getElementById('wrapListTable')}
-        >
-          <span><Icon type="appstore-o" /> 部署</span>
-        </Popover>
+      <Dropdown.Button onClick={() => this.handleButtonClick(row, func)} overlay={menu} type="ghost" className="dropDownBox">
+        <span><Icon type="appstore-o" /> 容器部署</span>
       </Dropdown.Button>
     )
   }
