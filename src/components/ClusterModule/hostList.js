@@ -397,29 +397,29 @@ class hostList extends Component {
     getAllClusterNodes(clusterID, {
       success: {
         func: (result) => {
-          let nodeList = result.data.clusters.nodes.nodes;
-          let podCount = result.data.clusters.podCount;
-          if (Array.isArray(summary) &&　e) {
-           nodeList = result.data.clusters.nodes.nodes.filter(item =>{
-             let isEqual = false
-              summary[0].targets.every(el=> {
-                if (el === item.objectMeta.name) {
-                  isEqual = true
-                  return false
-                }
-                return true
-              })
-              if (isEqual) {
-                return true
+          let nodeList = result.data.clusters.nodes.nodes
+          let podCount = result.data.clusters.podCount
+          if (Array.isArray(summary) && e) {
+            nodeList = nodeList.filter(item => {
+              const firstSummary = summary[ 0 ]
+              const { objectMeta } = item
+              const { labels } = objectMeta
+              if (labels && firstSummary && labels[ firstSummary.key ] && labels[ firstSummary.key ] == firstSummary.value) {
+                return item
               }
-              return false
+            })
+            this.setState({
+              nodeList,
+              podCount: podCount,
+              summary,
+            })
+          } else {
+            this.setState({
+              nodeList,
+              podCount: podCount,
+              summary: [],
             })
           }
-          this.setState({
-            nodeList: nodeList,
-            podCount: podCount,
-            summary: [],
-          })
           let slaveAvailable = false
           nodeList.map((item) => {
             if (item.isMaster === false) {
@@ -451,7 +451,8 @@ class hostList extends Component {
     if (!nextProps.summary || nextProps.summary.length ==0) {
       return
     }
-    if (!isEqual(nextProps.summary,this.props.summary)) {
+    const { activeKey } = this.props
+    if (nextProps.activeKey !== activeKey && nextProps.activeKey === 'host' && nextProps.summary) {
       let nodeList =[]
       nextProps.nodes.nodes.map((item)=> {
         if (item.objectMeta.labels[nextProps.summary[0].key] && item.objectMeta.labels[nextProps.summary[0].key] == nextProps.summary[0].value) {
