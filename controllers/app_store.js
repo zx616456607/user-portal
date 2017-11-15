@@ -9,38 +9,19 @@
 'use strict'
 
 const apiFactory = require('../services/api_factory')
+const securityUtil = require('../utils/security')
 
-exports.publish = function* () {
+/*------------------------ apps store approve start--------------------*/
+exports.approveApps = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const body = this.request.body
-  if (!body.versions){
-    this.status = 400
-    this.message = { message: 'versions is required' }
-    return
-  }
-  let result = {}
-  let requestBody = body
-  body.versions.forEach(item => {
-    requestBody.id = body.imageName + `:` + item
-    result = yield api.appstore.createBy(['apps','publish'], null, requestBody)
-    if (result.statusCode != 200){
-        this.body = result
-        return
-    }
-  })
+  const auth = securityUtil.decryptContent(loginUser.registryAuth)
+  const result = yield api.appstore.updateBy(['apps','approval'], null, body,{'HarborAuth': 'Basic ' + auth})
   this.body = result
 }
 
-exports.management = function* () {
-  const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  const body = this.request.body
-  const result = yield api.appstore.updateBy([apps], null, body)
-  this.body = result
-}
-
-exports.getStorelist = function* () {
+exports.getAppslist = function* () {
   const loginUser = this.session.loginUser
   const query = this.query
   const api = apiFactory.getApi(loginUser)
@@ -48,14 +29,39 @@ exports.getStorelist = function* () {
   this.body = result
 }
 
-exports.getVisibleList = function* (){
+/*------------------------ apps store approve end--------------------*/
+
+
+/*------------------------ image start--------------------*/
+
+exports.publishImage = function* () {
   const loginUser = this.session.loginUser
-  const query = this.query
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.appstore.getBy(['apps','visible'], query)
+  const body = this.request.body
+  result = yield api.appstore.createBy(['apps','publish'], null, body)
   this.body = result
 }
 
+exports.manageImages = function* (){
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const body = this.request.body
+  const result = yield api.appstore.updateBy(['apps','images'], null, body)
+  this.body = result
+}
+
+exports.getImagesList = function* (){
+  const loginUser = this.session.loginUser
+  const query = this.query
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.appstore.getBy(['apps','images'], query)
+  this.body = result
+}
+
+/*------------------------ image end--------------------*/
+
+
+/*------------------------ icon start--------------------*/
 exports.uploadIcon = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
@@ -71,7 +77,7 @@ exports.uploadIcon = function* () {
   const stream = formStream()
   const mimeType = mime.lookup(fileStream.filename)
   stream.stream('pkg', fileStream, fileStream.filename, mimeType)
-  const result = yield api.appstore.uploadFile(['icon'], null, stream, stream.headers()).catch(err => {
+  const result = yield api.appstore.uploadFile(['apps','icon'], null, stream, stream.headers()).catch(err => {
     return err
   })
   this.status = result.statusCode
@@ -82,6 +88,8 @@ exports.getIcon = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const id = this.params.id
-  const result = yield api.appstore.getBy(['icon', id, null])
+  const result = yield api.appstore.getBy(['apps','icon', id, null])
   this.body = result
 }
+
+/*------------------------ image end--------------------*/
