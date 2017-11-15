@@ -69,6 +69,7 @@ module.exports = function (request) {
      * get method with query
      *
      * @param {Object} querys
+     * @param {Object} options
      * @param {Function|Object} callback
      * ```
      * {
@@ -82,11 +83,12 @@ module.exports = function (request) {
      *
      * @memberOf Collections
      */
-    get(querys, callback) {
+    get(querys, options, callback) {
       let endpoint = this[_getPaths]() + this[_getQuerys](querys)
       let object = {
         endpoint,
-        method: 'GET'
+        method: 'GET',
+        options,
       }
       if (typeof callback === 'object') {
         object = Object.assign({}, callback, object)
@@ -99,6 +101,7 @@ module.exports = function (request) {
      * get method with path and query
      *
      * @param {Object} querys
+     * @param {Object} options
      * @param {Function|Object} callback
      * ```
      * {
@@ -112,11 +115,12 @@ module.exports = function (request) {
      *
      * @memberOf Collections
      */
-    getBy(paths, querys, callback) {
+    getBy(paths, querys, options, callback) {
       let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
       let object = {
         endpoint,
-        method: 'GET'
+        method: 'GET',
+        options,
       }
       if (typeof callback === 'object') {
         object = Object.assign({}, callback, object)
@@ -125,73 +129,81 @@ module.exports = function (request) {
       return request(object, callback)
     }
 
-    create(data, callback) {
+    create(data, options, callback) {
       let endpoint = this[_getPaths]()
       return request({
         endpoint,
         data,
-        method: 'POST'
+        method: 'POST',
+        options,
       }, callback)
     }
 
-    createBy(paths, querys, data, callback) {
+    createBy(paths, querys, data, options, callback) {
       let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
       return request({
         endpoint,
         data,
-        method: 'POST'
+        method: 'POST',
+        options,
       }, callback)
     }
 
-    update(id, data, callback) {
+    update(id, data, options, callback) {
       let endpoint = this[_getPaths](id)
       return request({
         endpoint,
         data,
-        method: 'PUT'
+        method: 'PUT',
+        options,
       }, callback)
     }
 
-    updateBy(paths, querys, data, callback) {
+    updateBy(paths, querys, data, options, callback) {
       let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
       return request({
         endpoint,
         data,
-        method: 'PUT'
+        method: 'PUT',
+        options,
       }, callback)
     }
 
-    patch(id, data, callback) {
+    patch(id, data, options, callback) {
       let endpoint = this[_getPaths](id)
       return request({
         endpoint,
         data,
-        method: 'PATCH'
+        method: 'PATCH',
+        options,
       }, callback)
     }
 
-    patchBy(paths, querys, data, callback) {
+    patchBy(paths, querys, data, options, callback) {
       let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
       return request({
         endpoint,
         data,
-        method: 'PATCH'
+        method: 'PATCH',
+        options,
       }, callback)
     }
 
-    delete(id, callback) {
+    delete(id, options, callback) {
       let endpoint = this[_getPaths](id)
       return request({
         endpoint,
-        method: 'DELETE'
+        method: 'DELETE',
+        options,
       }, callback)
     }
 
-    deleteBy(paths, querys, callback) {
+    deleteBy(paths, querys, options, callback) {
       let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
       return request({
         endpoint,
-        method: 'DELETE'
+        method: 'DELETE',
+        options,
       }, callback)
     }
 
