@@ -123,30 +123,6 @@ const Storage = React.createClass({
       replicasInputDisabled: !!value
     })
   },
-  renderStorageType() {
-    const { currentCluster, form, isCanCreateVolume } = this.props
-    if (!isCanCreateVolume) {
-      return
-    }
-    const { storageTypes } = currentCluster
-    // for test
-    // const storageTypes= [ 'rbd', 'hostPath' ]
-    return (
-      <FormItem key="storageType" className="floatRight storageType">
-        {
-          storageTypes.indexOf('hostPath') > -1 && (
-            <span>
-              Tips：选择『本地存储』时，为保证有状态有效，推荐使用『绑定节点』功能&nbsp;
-              <Tooltip title="以保证容器及其Volume存储不被系统调度迁移"
-                getTooltipContainer={() => document.getElementById('normalConfigureService')}>
-                <Icon type="question-circle-o" />
-              </Tooltip>
-            </span>
-          )
-        }
-      </FormItem>
-    )
-  },
   renderServiceType(serviceType) {
     const serviceTypeValue = serviceType && serviceType.value
     let descContent
@@ -155,7 +131,6 @@ const Storage = React.createClass({
     } else {
       descContent = [
         <div className="floatRight" key="service">有状态服务</div>,
-        this.renderStorageType()
       ]
     }
     return (

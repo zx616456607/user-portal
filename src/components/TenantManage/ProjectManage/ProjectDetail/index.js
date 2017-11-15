@@ -609,7 +609,8 @@ class ProjectDetail extends Component {
           func: () => {
             if (flag) {
               this.getCurrentRole(currentRoleInfo.id)
-              notify.success('关联对象操作成功')
+              this.getProjectDetail()
+              notify.success('关联成员操作成功')
               this.setState({
                 connectModal: false,
                 memberType: 'user'
@@ -621,7 +622,7 @@ class ProjectDetail extends Component {
         failed: {
           func: () => {
             if (flag) {
-              notify.error('关联对象操作失败')
+              notify.error('关联成员操作失败')
               this.setState({
                 connectModal: false,
                 memberType: 'user'
@@ -648,7 +649,8 @@ class ProjectDetail extends Component {
           func: () => {
             if (flag) {
               this.getCurrentRole(currentRoleInfo.id)
-              notify.success('关联对象操作成功')
+              this.getProjectDetail()
+              notify.success('关联成员操作成功')
               this.setState({
                 connectModal: false,
                 memberType: 'user'
@@ -660,7 +662,7 @@ class ProjectDetail extends Component {
         failed: {
           func: () => {
             if (flag) {
-              notify.success('关联对象操作成功')
+              notify.success('关联成员操作成功')
               this.setState({
                 connectModal: false,
                 memberType: 'user'
@@ -1187,7 +1189,7 @@ class ProjectDetail extends Component {
             characterModal={characterModal}
             loadData={this.loadRoleList.bind(this)}
           />
-          <Modal title="关联对象" width={765} visible={connectModal}
+          <Modal title="关联成员" width={765} visible={connectModal}
             onCancel={() => this.closeMemberModal()}
             onOk={() => this.submitMemberModal()}
           >
@@ -1212,7 +1214,7 @@ class ProjectDetail extends Component {
           </Modal>
           <div className="projectMember">
             <Tabs className="clearfix connectCard" defaultActiveKey={this.state.tabsKey !== '' ? this.state.tabsKey : 'project'}>
-              <TabPane tab="项目角色及关联对象" key="project">
+              <TabPane tab="项目角色及关联成员" key="project">
                 {/* <Card title="项目中角色关联的对象" className="clearfix connectCard"> */}
                 <div className="project">
                   <div className="connectLeft pull-left">
@@ -1230,7 +1232,7 @@ class ProjectDetail extends Component {
                     }
                   </div>
                   <div className="connectRight pull-left">
-                    <p className="rightTitle">角色关联对象</p>
+                    <p className="rightTitle">角色关联成员</p>
                     <div className="rightContainer">
                       <div className="authBox inlineBlock">
                         <p className="authTitle">该角色共 <span style={{ color: '#59c3f5' }}>{currentRoleInfo && currentRoleInfo.total || 0}</span> 个权限</p>
@@ -1253,7 +1255,7 @@ class ProjectDetail extends Component {
                         <div className="memberTitle">
                           <span className="connectMemberCount">该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
                           {
-                            (roleNum === 1 || isManager) && !getRoleLoading && currentMembers.length > 0 && <Button type="primary" size="large" onClick={() => this.getProjectMember('user')}>继续关联对象</Button>
+                            (roleNum === 1 || isManager) && !getRoleLoading && currentMembers.length > 0 && <Button type="primary" size="large" onClick={() => this.getProjectMember('user')}>继续关联成员</Button>
                           }
                         </div>
                         <div className="memberTableBox">
@@ -1266,7 +1268,7 @@ class ProjectDetail extends Component {
                                 {loopFunc(currentMembers)}
                               </Tree>
                               :
-                              (roleNum === 1 || isManager) && <Button type="primary" size="large" className="addMemberBtn" onClick={() => this.getProjectMember('user')}>关联对象</Button>
+                              (roleNum === 1 || isManager) && <Button type="primary" size="large" className="addMemberBtn" onClick={() => this.getProjectMember('user')}>关联成员</Button>
                               : null
                           }
                         </div>

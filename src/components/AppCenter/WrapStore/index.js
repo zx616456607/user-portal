@@ -20,7 +20,8 @@ import CommonSearchInput from '../../CommonSearchInput'
 import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX } from '../../../constants'
-// import { tenx_api } from '../../../../configs/index'
+import { ROLE_SYS_ADMIN } from '../../../../constants'
+
 const sortOption = [
   {
     key: 'publish_time',
@@ -127,7 +128,7 @@ class AppWrapStore extends React.Component {
     })
   }
   goDeploy(fileName) {
-    browserHistory.push('/app_manage/deploy_wrap?fileName='+fileName)
+    browserHistory.push('/app_manage/deploy_wrap?from=wrapStore&fileName='+fileName)
   }
   updateAppStatus(pkgID) {
     const { offShelfWrap, getWrapStoreHotList } = this.props
@@ -158,6 +159,7 @@ class AppWrapStore extends React.Component {
     }
   }
   renderWrapList(dataSorce, isHot) {
+    const { role } = this.props
     if (!dataSorce || !dataSorce.pkgs || !dataSorce.pkgs.length) {
       return
     }
@@ -165,7 +167,10 @@ class AppWrapStore extends React.Component {
       const menu = (
         <Menu style={{ width: 90 }} onClick={e => this.handleMenuClick(e, item)}>
           <Menu.Item key="download"><a target="_blank" href={`${API_URL_PREFIX}/pkg/${item.id}`}>下载</a></Menu.Item>
-          <Menu.Item key="offShelf" disabled={[0, 1, 4].includes(item.publishStatus)}>下架</Menu.Item>
+          {
+            role === ROLE_SYS_ADMIN &&
+              <Menu.Item key="offShelf" disabled={[0, 1, 4].includes(item.publishStatus)}>下架</Menu.Item>
+          }
         </Menu>
       );
       const deployMethod = (
@@ -175,7 +180,7 @@ class AppWrapStore extends React.Component {
             if (key === 'container') {
               return this.goDeploy(item.fileName)
             }
-            browserHistory.push(`/app_manage/vm_wrap/create?fileName=${item.fileName}`)
+            browserHistory.push(`/app_manage/vm_wrap/create?from=wrapStore&fileName=${item.fileName}`)
           }}
         >
           <Menu.Item key="container">容器应用</Menu.Item>
@@ -192,31 +197,38 @@ class AppWrapStore extends React.Component {
               src={`${API_URL_PREFIX}/pkg/icon/${item.pkgIconID}`}
             />
           </Col>
-          <Col span={isHot ? 8 : 15}>
+          <Col span={isHot ? 8 : 10}>
             <Row className="wrapListMiddle">
-              <Col className="appName">{item.fileNickName}<span className="nickName hintColor"> ({item.fileName})</span></Col>
+              <Col className="appName" style={{ marginBottom: isHot ? 0 : 10 }}>{item.fileNickName}<span className="nickName hintColor"> ({item.fileName})</span></Col>
               {
                 !isHot && <Col className="hintColor appDesc">{item.description}</Col>
               }
-              <Col className="downloadBox">
-                <span className="hintColor"><Icon type="download" /> {item.downloadTimes}</span>
-                {
-                  !isHot && <span className="hintColor"><Icon type="clock-circle-o" /> 发布于 {formatDate(item.publishTime)}</span>
-                }
-              </Col>
+              {
+                isHot &&
+                <Col className="downloadBox">
+                  <span className="hintColor"><Icon type="download" /> {item.downloadTimes}</span>
+                </Col>
+              }
             </Row>
           </Col>
-          <Col span={isHot ? 8 : 5} style={{ textAlign: 'right' }}>
-            <Dropdown.Button overlay={menu} type="ghost">
+          <Col span={isHot ? 8 : 10} style={{ textAlign: 'right' }}>
+            <Dropdown.Button className="wrapPopBtn" overlay={menu} type="ghost">
               <Popover
                 content={deployMethod}
                 title="请选择部署方式"
                 trigger="click"
                 getTooltipContainer={() => document.getElementsByClassName(isHot ? 'hotWrapList' : 'commonWrapList')[0]}
               >
-                <span><Icon type="appstore-o" /> 部署</span>
+                <span className="operateBtn"><Icon type="appstore-o" /> 部署</span>
               </Popover>
             </Dropdown.Button>
+            {
+              !isHot &&
+                <div className="downloadBox">
+                  <span className="hintColor"><Icon type="download" /> {item.downloadTimes}</span>
+                  <span className="hintColor"><Icon type="clock-circle-o" /> 发布于 {formatDate(item.publishTime)}</span>
+                </div>
+            }
           </Col>
         </Row>
       )
@@ -253,6 +265,7 @@ class AppWrapStore extends React.Component {
               <span>排序：</span>
               {this.renderSortTab()}
             </div>
+            <div className="total">共 {wrapStoreList && wrapStoreList.total || 0} 条</div>
             <Pagination {...pagination}/>
           </div>
           <div className="wrapStoreBody">
@@ -271,8 +284,10 @@ class AppWrapStore extends React.Component {
   }
 }
 
-function mapStateToProps(state, props) {
-  const { images } = state
+function mapStateToProps(state) {
+  const { images, entities } = state
+  const { loginUser } = entities
+  const { role } = loginUser.info || { role: 0 }
   const { wrapStoreList, wrapStoreHotList, wrapGroupList } = images
   const { result: storeList } = wrapStoreList || { result: {}}
   const { data: storeData } = storeList || { data: [] }
@@ -283,7 +298,8 @@ function mapStateToProps(state, props) {
   return {
     wrapStoreList: storeData,
     wrapStoreHotList: storeHotData,
-    wrapGroupList: groupData
+    wrapGroupList: groupData,
+    role
   }
 }
 export default connect(mapStateToProps, {

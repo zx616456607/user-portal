@@ -36,7 +36,14 @@ class SelectPacket extends Component{
     }
   }
   componentWillMount() {
-    const { fileName } = this.props.scope.props.location.query
+    const { from, fileName } = this.props.scope.props.location.query
+    if (from && from === 'wrapStore') {
+      this.setState({
+        currentType: 'store'
+      })
+      this.getStoreList(fileName)
+      return
+    }
     this.pageAndSerch(fileName)
   }
   handleChange(pagination, filters, sorter) {
@@ -370,7 +377,7 @@ class SelectPacket extends Component{
       <Row className="btnGroup">
         <Col span={21} offset={3}>
           <ButtonGroup> 
-            <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>传统应用包</Button>
+            <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>应用包</Button>
             <Button type="ghost" className={classNames({'active': currentType === 'store'})} onClick={() =>this.changeWrap('store')}>应用包商店</Button>
           </ButtonGroup>
         </Col>

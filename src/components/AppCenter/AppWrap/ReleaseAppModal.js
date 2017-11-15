@@ -23,7 +23,8 @@ class ReleaseAppModal extends React.Component {
     super(props)
     this.state = {
       visible: false,
-      uploaded: false
+      uploaded: false,
+      fileList: []
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -32,7 +33,8 @@ class ReleaseAppModal extends React.Component {
     if (oldVisible !== newVisible) {
       this.setState({
         visible: newVisible,
-        uploaded: false
+        uploaded: false,
+        fileList: []
       })
       form.resetFields()
     }
@@ -70,7 +72,7 @@ class ReleaseAppModal extends React.Component {
   confirmModal() {
     const { closeRleaseModal, form, releaseWrap, wrapManageList, currentApp } = this.props
     const { validateFields } = form
-    const { pkgIcon, uploaded } = this.state
+    const { pkgIcon, uploaded, resolve } = this.state
     const { id } = currentApp
     let notify = new NotificationHandler()
     validateFields((errors, values) => {
@@ -97,7 +99,8 @@ class ReleaseAppModal extends React.Component {
             this.setState({
               visible: false,
               loading: false,
-              uploaded: false
+              uploaded: false,
+              fileList: []
             })
             closeRleaseModal()
           },
@@ -118,7 +121,8 @@ class ReleaseAppModal extends React.Component {
   cancelModal() {
     const { closeRleaseModal } = this.props
     this.setState({
-      visible: false
+      visible: false,
+      fileList: []
     })
     closeRleaseModal()
   }
@@ -131,7 +135,7 @@ class ReleaseAppModal extends React.Component {
   }
   render() {
     const { form, currentApp, wrapGroupList, space } = this.props
-    const { visible } = this.state
+    const { visible, fileList } = this.state
     const { getFieldProps, getFieldError, isFieldValidating } = form;
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -172,13 +176,14 @@ class ReleaseAppModal extends React.Component {
     }
     let notificat = new NotificationHandler()
     const uploadOpt = {
-      name: 'pkg',
       listType:"picture-card",
       accept:"image/*",
       action: `${API_URL_PREFIX}/pkg/icon`,
       headers,
-      beforeUpload(file) {
-        let isType = false
+      fileList,
+      disabled: fileList && fileList.length >= 1,
+      beforeUpload: file => {
+        let isType
 
         isType = file.name.match(/\.(jpg|png|jpeg)$/)
 
@@ -188,16 +193,19 @@ class ReleaseAppModal extends React.Component {
         }
       },
       onChange: e => {
-        if (e.file.status == 'done') {
+        this.setState({
+          fileList: e.fileList
+        })
+        if (e.file.status === 'done') {
           notificat.success('上传成功')
           this.setState({
             pkgIcon: e.file.response.data.id,
             uploaded: true
           })
         }
-        if (e.file.status == 'error') {
+        if (e.file.status === 'error') {
           let message = e.file.response.message
-          if (typeof e.file.response.message =='object') {
+          if (typeof e.file.response.message === 'object') {
             message = JSON.stringify(e.file.response.message)
             notificat.info(message)
           }
@@ -270,7 +278,7 @@ class ReleaseAppModal extends React.Component {
               <div className="ant-upload-text">上传应用图标</div>
             </Upload>
           </FormItem>
-          <Row>
+          <Row style={{ marginTop: -20 }}>
             <Col span={4}>
             </Col>
             <Col className="hintColor">

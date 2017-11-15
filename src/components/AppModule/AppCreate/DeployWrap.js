@@ -68,11 +68,20 @@ class WrapManage extends Component {
   }
   componentWillMount() {
     const { location } = this.props
-    if (location && location.query.fileName) {
-      const query = {
+    const { from, fileName } = location.query
+    let query = {}
+    if (fileName) {
+      query = {
         filter: `fileName contains ${location.query.fileName}`,
       }
-      this.props.wrapManageList(query)
+      if (from && from === 'wrapStore') {
+        this.setState({
+          currentType: 'store'
+        })
+        this.getStoreList(fileName)
+      } else {
+        this.props.wrapManageList(query)
+      }
       return
     }
     this.loadData()
@@ -276,7 +285,7 @@ class WrapManage extends Component {
             </div>
             <div style={{ marginBottom: 20 }}>
               <ButtonGroup> 
-                <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>传统应用包</Button>
+                <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>应用包</Button>
                 <Button type="ghost" className={classNames({'active': currentType === 'store'})} onClick={() =>this.changeWrap('store')}>应用包商店</Button>
               </ButtonGroup>
             </div>
@@ -312,14 +321,14 @@ class WrapManage extends Component {
               <div className="list_row">
                 <span className="wrap_key">选择应用包</span>
                 <span className="searchInput">
-                  <Input size="large" onPressEnter={(e) => this.getList(e)} placeholder="请输入包名称搜索" />
+                  <Input size="large" onPressEnter={(e) => this.searchData(e)} placeholder="请输入包名称搜索" />
                   <Button type="primary" onClick={() => browserHistory.push('/app_center/wrap_manage')} size="large">去上传部署包</Button>
 
                 </span>
               </div>
               <div style={{ marginBottom: 20 }}>
                 <ButtonGroup> 
-                  <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>传统应用包</Button>
+                  <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>应用包</Button>
                   <Button type="ghost" className={classNames({'active': currentType === 'store'})} onClick={() =>this.changeWrap('store')}>应用包商店</Button>
                 </ButtonGroup>
               </div>

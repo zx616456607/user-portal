@@ -198,6 +198,7 @@ class App extends Component {
       window.location.href = '/logout'
       return
     }
+    // 没有权限
     if (isResourcePermissionError(errorMessage.error)) {
       this.setState({
         resourcePermissionModal: true,
@@ -537,6 +538,7 @@ class App extends Component {
         }
         <Xterm />
         <Modal
+          title="当前操作未被授权"
           visible={resourcePermissionModal}
           maskClosable={false}
           onCancel={() => this.setState({ resourcePermissionModal: false })}
