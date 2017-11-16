@@ -29,6 +29,19 @@ exports.getAppslist = function* () {
   this.body = result
 }
 
+exports.checkAppNameExists = function*(){
+  const loginUser = this.session.loginUser
+  const name = this.params.name
+  if (!name){
+    this.status = 400
+    this.message = { message: 'name is empty' }
+    return
+  }
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.appstore.getBy(['apps',name,'existence'], null)
+  this.body = result 
+} 
+
 /*------------------------ apps store approve end--------------------*/
 
 
@@ -55,6 +68,14 @@ exports.getImagesList = function* (){
   const query = this.query
   const api = apiFactory.getApi(loginUser)
   const result = yield api.appstore.getBy(['apps','images'], query)
+  this.body = result
+}
+
+exports.getImageStatus = function* (){
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const body = this.request.body
+  const result = yield api.appstore.createBy(['apps','images','status'], null, body)
   this.body = result
 }
 

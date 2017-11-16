@@ -68,6 +68,34 @@ export function appStoreApprove(body,callback) {
 
 
 
+export const CHECK_APP_NAME_EXIST_REQUEST = 'CHECK_APP_NAME_EXIST_REQUEST'
+export const CHECK_APP_NAME_EXIST_SUCCESS = 'CHECK_APP_NAME_EXIST_SUCCESS'
+export const CHECK_APP_NAME_EXIST_FAILURE = 'CHECK_APP_NAME_EXIST_FAILURE'
+
+// Fetches wechat auth qr code from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchCheckAppNameExists(name, callback) {
+  let endpoint = `${API_URL_PREFIX}/app-store/apps/${name}/existence`
+  return {
+    [FETCH_API]: {
+      types: [CHECK_APP_NAME_EXIST_REQUEST, CHECK_APP_NAME_EXIST_SUCCESS, CHECK_APP_NAME_EXIST_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback,
+  }
+}
+
+// Fetches wechat auth qr code from API
+// Relies on Redux Thunk middleware.
+export function checkAppNameExists(name, callback) {
+  return (dispatch) => {
+    return dispatch(fetchCheckAppNameExists(name, callback))
+  }
+}
+
+
+
 export const APP_IMAGE_PUBLISH_REQUEST = 'APP_IMAGE_PUBLISH_REQUEST'
 export const APP_IMAGE_PUBLISH_SUCCESS = 'APP_IMAGE_PUBLISH_SUCCESS'
 export const APP_IMAGE_PUBLISH_FAILURE = 'APP_IMAGE_PUBLISH_FAILURE'
@@ -107,7 +135,7 @@ function fetchAppImageManage(body, callback) {
       types: [APP_IMAGE_MANAGE_REQUEST, APP_IMAGE_MANAGE_SUCCESS, APP_IMAGE_MANAGE_FAILURE],
       endpoint,
       options: {
-        method: 'POST',
+        method: 'PUT',
         body: body,
       },
       schema: {}
@@ -122,6 +150,32 @@ export function imageManage(body,callback) {
   }
 }
 
+
+export const APP_IMAGE_STATUS_REQUEST = 'APP_IMAGE_STATUS_REQUEST'
+export const APP_IMAGE_STATUS_SUCCESS = 'APP_IMAGE_STATUS_SUCCESS'
+export const APP_IMAGE_STATUS_FAILURE = 'APP_IMAGE_STATUS_FAILURE'
+
+function fetchAppImageStatus(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/app-store/apps/images/status`
+  return {
+    [FETCH_API]: {
+      types: [APP_IMAGE_STATUS_REQUEST, APP_IMAGE_STATUS_SUCCESS, APP_IMAGE_STATUS_FAILURE],
+      endpoint,
+      options: {
+        method: 'post',
+        body: body,
+      },
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function getImageStatus(body,callback) {
+  return (dispatch) => {
+    return dispatch(fetchAppImageStatus(body,callback))
+  }
+}
 
 
 export const APP_STORE_IMAGE_LIST_REQUEST = 'APP_STORE_IMAGE_LIST_REQUEST'
