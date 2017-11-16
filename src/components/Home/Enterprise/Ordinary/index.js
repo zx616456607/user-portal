@@ -1417,7 +1417,6 @@ class Ordinary extends Component {
                         <span className="desc">个人</span> : this.props.userID === undefined ?
                           <span className="public">共享</span> : <span className="desc">个人</span>
                     }
-                    <span className="desc">{}</span>
                   </div>
                   <div className="projectRole">
                     <span className="project">项目角色：</span>
