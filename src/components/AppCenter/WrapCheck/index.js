@@ -28,7 +28,7 @@ class WrapCheckTable extends React.Component {
     this.getWrapStatus = this.getWrapStatus.bind(this)
     this.onTableChange = this.onTableChange.bind(this)
     this.state = {
-      creationTime: undefined
+      publish_time: undefined
     }
   }
   getWrapStatus(status){
@@ -113,24 +113,24 @@ class WrapCheckTable extends React.Component {
       width: '10%',
     }, {
       title: (
-        <div onClick={() => this.handleSort('creationTime')}>
+        <div onClick={() => this.handleSort('publish_time')}>
           提交时间
           <div className="ant-table-column-sorter">
             <span
-              className={this.state.creationTime === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
+              className={this.state.publish_time === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
               title="↑">
               <i className="anticon anticon-caret-up"/>
             </span>
             <span
-              className={this.state.creationTime === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+              className={this.state.publish_time === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
               title="↓">
               <i className="anticon anticon-caret-down"/>
             </span>
           </div>
         </div>
       ),
-      dataIndex: 'creationTime',
-      key: 'creationTime',
+      dataIndex: 'publishTime',
+      key: 'publishTime',
       width: '20%',
       render: text => formatDate(text)
     }, {
