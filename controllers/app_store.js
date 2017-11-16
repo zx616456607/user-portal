@@ -9,15 +9,13 @@
 'use strict'
 
 const apiFactory = require('../services/api_factory')
-const securityUtil = require('../utils/security')
 
 /*------------------------ apps store approve start--------------------*/
 exports.approveApps = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const body = this.request.body
-  const auth = securityUtil.decryptContent(loginUser.registryAuth)
-  const result = yield api.appstore.updateBy(['apps','approval'], null, body,{'HarborAuth': 'Basic ' + auth})
+  const result = yield api.appstore.updateBy(['apps','approval'], null, body)
   this.body = result
 }
 
