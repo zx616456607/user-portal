@@ -142,4 +142,7 @@ module.exports = function (config) {
   
   // ~ clean
   this.cleaner = collections.create('cleaner')
+  
+  // ~ appstore
+  this.appstore =  collections.create('appstore')
 }

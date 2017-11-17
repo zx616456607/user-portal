@@ -11,7 +11,7 @@ import { toQuerystring } from '../common/tools'
 
 
 export const APP_STORE_LIST_REQUEST = 'APP_STORE_LIST_REQUEST'
-export const APP_STORE_LIST_SUCCESS = 'VM_WRAP_VMINFOS_SUCCESS'
+export const APP_STORE_LIST_SUCCESS = 'APP_STORE_LIST_SUCCESS'
 export const APP_STORE_LIST_FAILURE = 'APP_STORE_LIST_FAILURE'
 
 // Fetches wechat auth qr code from API.
@@ -162,7 +162,7 @@ function fetchAppImageStatus(body, callback) {
       types: [APP_IMAGE_STATUS_REQUEST, APP_IMAGE_STATUS_SUCCESS, APP_IMAGE_STATUS_FAILURE],
       endpoint,
       options: {
-        method: 'post',
+        method: 'POST',
         body: body,
       },
       schema: {}

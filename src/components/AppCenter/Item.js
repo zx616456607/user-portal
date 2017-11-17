@@ -360,6 +360,8 @@ class ImageCenter extends Component {
     let type='private'
     if (location.pathname.indexOf('/app_center/projects/public') >-1) {
       type = 'public'
+    } else if (location.pathname.indexOf('/app_center/projects/publish') >-1) {
+      type = 'publish'
     }
     this.setState({itemType:type})
     this.props.LoadOtherImage({
@@ -398,6 +400,7 @@ class ImageCenter extends Component {
           <div className="ImageCenterTabs">
            <span className={this.state.itemType =='private' ?'tab active':'tab'} onClick={()=> this.setItem('private')}>我的仓库组</span>
             <span className={this.state.itemType =='public' ?'tab active':'tab'} onClick={()=> this.setItem('public')}>公开仓库组</span>
+            <span className={this.state.itemType =='publish' ?'tab active':'tab'} onClick={()=> this.setItem('publish')}>发布记录</span>
             {OtherItem}
             <span style={{display:'inline-block',float:'right'}}>
               <Button type="primary" size="large" onClick={()=> this.setState({createModalShow:true})}><i className='fa fa-plus'/>&nbsp;添加第三方</Button>

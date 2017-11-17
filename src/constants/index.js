@@ -124,7 +124,7 @@ export const PLUGIN_DEFAULT_CONFIG = {
     memory: 200
   }
 }
-export const SHOW_BILLING = true
+export const SHOW_BILLING = false
 export const DEFAULT_SHARE_DIR = '/tenxcloud-tmp-dir'
 export const DEACTIVE = 0
 export const ACTIVE = 1
