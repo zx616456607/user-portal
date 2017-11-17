@@ -1432,7 +1432,7 @@ class Ordinary extends Component {
                     <div className='userCost'>
                       <div className="project">
                         {/* <i style={{ backgroundColor: '#46b2fa' }}></i> */}
-                        {this.state.isTeam ? '账户余额' : '我的余额'}：
+                        {this.state.isTeam ? '项目余额' : '我的余额'}：
                       </div>
                       <span className='costNum'>
                         <Tooltip title={parseAmount(clusterNodeSpaceConsumption.balance).amount + 'T'}>
