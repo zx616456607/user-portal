@@ -22,7 +22,7 @@ import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
 import { checkVersion } from '../../actions/version'
 import { getCookie, isEmptyObject, getVersion, getPortalRealMode, toQuerystring } from '../../common/tools'
 import { USER_CURRENT_CONFIG, ROLE_SYS_ADMIN } from '../../../constants'
-import { MY_SPACE, SESSION_STORAGE_TENX_HIDE_DOT_KEY, LITE } from '../../constants'
+import { MY_SPACE, SESSION_STORAGE_TENX_HIDE_DOT_KEY, LITE, API_URL_PREFIX } from '../../constants'
 import { Link } from 'react-router'
 import NotificationHandler from '../../components/Notification'
 import UserPanel from './UserPanel'
@@ -411,7 +411,6 @@ class Header extends Component {
       showSpace,
       showCluster,
       checkVersionContent,
-      openApi,
       projects,
       isProjectsFetching,
       projectClusters,
@@ -531,9 +530,9 @@ class Header extends Component {
           </a>
         */}
           {
-            openApi.result && msaUrl && (
+            msaUrl && (
               <div className="docBtn quickentry">
-                <a target="_blank" href={`${msaUrl}?${toQuerystring(openApi.result)}`}>
+                <a target="_blank" href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: msaUrl })}`}>
                 微服务入口
                 </a>
               </div>
@@ -621,7 +620,6 @@ function mapStateToProps(state, props) {
     showCluster,
     checkVersionContent: checkVersion.data,
     isCheckVersion: checkVersion.isFetching,
-    openApi: state.openApi,
   }
 }
 

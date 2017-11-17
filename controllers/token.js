@@ -10,6 +10,8 @@
  */
 
 'use strict'
+const qs = require('querystring')
+const apiFactory = require('../services/api_factory')
 
 // get namespace and token from session
 exports.getTokenInfo = function* () {
@@ -17,4 +19,20 @@ exports.getTokenInfo = function* () {
     username: this.session.loginUser.user,
     token: this.session.loginUser.token,
   }
+}
+
+exports.authJWT = function* () {
+  const loginUser = this.session.loginUser
+  const redirect = this.query.redirect
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.auth.get()
+  if (!redirect) {
+    this.body = result
+    return
+  }
+  const query = {
+    jwt: result.data.token,
+    authUrl: this.origin + this.path,
+  }
+  this.redirect(`${redirect}?${qs.stringify(query)}`)
 }

@@ -139,7 +139,10 @@ module.exports = function (config) {
 
   // ~ quota
   this.resourcequota = collections.create('resourcequota')
-  
+
   // ~ clean
   this.cleaner = collections.create('cleaner')
+
+  // ~ auth
+  this.auth = collections.create('auth')
 }

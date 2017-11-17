@@ -22,7 +22,6 @@ import { setSockets, loadLoginUserDetail } from '../../actions/entities'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
 import { loadLicensePlatform } from '../../actions/license'
 import { updateAppServicesList, updateServiceContainersList, updateServicesList } from '../../actions/services'
-import { loadApiInfo } from '../../actions/open_api'
 import { handleOnMessage } from './status'
 import {
   SHOW_ERROR_PAGE_ACTION_TYPES,
@@ -67,7 +66,7 @@ class App extends Component {
 
   componentWillMount() {
     const self = this
-    const { loginUser, loadLoginUserDetail, loadApiInfo } = this.props
+    const { loginUser, loadLoginUserDetail } = this.props
     // load user info
     if (isEmptyObject(loginUser)) {
       loadLoginUserDetail({
@@ -82,7 +81,6 @@ class App extends Component {
         }
       })
     }
-    loadApiInfo()
   }
 
   setSwitchSpaceOrCluster() {
@@ -651,7 +649,6 @@ App = connect(mapStateToProps, {
   updateServiceContainersList,
   updateServicesList,
   loadLicensePlatform,
-  loadApiInfo,
 })(App)
 
 export default injectIntl(App, {
