@@ -496,6 +496,7 @@ module.exports = function (Router) {
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)
+  router.get('/jwt-auth', tokenController.authJWT)
 
   // Licenses
   router.get('/licenses', licenseController.getLicenses)
@@ -616,7 +617,7 @@ module.exports = function (Router) {
   router.get('/pkg/group', pkgController.getPkgGroupList)
   router.post('/pkg/icon', pkgController.uploadPkgIcon)
   router.get('/pkg/icon/:id', pkgController.getPkgIcon)
-  
+
   // VM wrap
   router.post('/vm-wrap/services', vmWrapController.createService)
   router.get('/vm-wrap/services', vmWrapController.listServices)
@@ -667,7 +668,6 @@ module.exports = function (Router) {
   router.get('/cleaner/monitor', cleanController.getMonitorSetting)
   router.get('/cleaner/systemlog/status', cleanController.getSystemLogStatus)
 
-
   //app_store
   router.put('/app-store/apps/approval',appStoreController.approveApps)
   router.get('/app-store/apps',appStoreController.getAppslist)
@@ -678,6 +678,6 @@ module.exports = function (Router) {
   router.post('/app-store/apps/images/status',appStoreController.getImageStatus)
   router.post('/app-store/apps/icon', appStoreController.uploadIcon)
   router.get('/app-store/apps/icon/:id', appStoreController.getIcon)
-  
+
   return router.routes()
 }
