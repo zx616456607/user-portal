@@ -166,12 +166,12 @@ class WrapListTable extends Component {
       )
     }
     const menu = (
-      <Menu onClick={e => this.handleMenuClick(e, row)} style={{ width: 90 }}>
+      <Menu onClick={e => this.handleMenuClick(e, row)} style={{ width: 110 }}>
         <Menu.Item key="vm">
           传统部署
         </Menu.Item>
         <Menu.Item key="release" disabled={[1, 2].includes(row.publishStatus)}>
-          发布
+          上传到商店
         </Menu.Item>
         <Menu.Item key="download">
           <a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}>下载</a>

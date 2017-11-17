@@ -200,7 +200,11 @@ class WrapCheckTable extends React.Component {
           <Menu style={{ width: 80 }} onClick={e => this.handleMenuClick(e, record)}>
             <Menu.Item key="refuse" disabled={record.publishStatus !== 1}>拒绝</Menu.Item>
             <Menu.Item key="download" disabled={![1, 2].includes(record.publishStatus)}>
-              <a target="_blank" href={`${API_URL_PREFIX}/pkg/${record.id}`}>下载</a>
+              {
+                ![1, 2].includes(record.publishStatus) ? '下载'
+                  :
+                  <a target="_blank" href={`${API_URL_PREFIX}/pkg/${record.id}`}>下载</a>
+              }
             </Menu.Item>
           </Menu>
         );
