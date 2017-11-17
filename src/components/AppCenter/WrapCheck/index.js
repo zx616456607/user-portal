@@ -27,9 +27,6 @@ class WrapCheckTable extends React.Component {
     super(props)
     this.getWrapStatus = this.getWrapStatus.bind(this)
     this.onTableChange = this.onTableChange.bind(this)
-    this.state = {
-      creationTime: undefined
-    }
   }
   getWrapStatus(status){
     let phase
@@ -56,14 +53,9 @@ class WrapCheckTable extends React.Component {
     updateParentPage(page)
   }
   handleSort(sortStr) {
-    const { updateParentSort } = this.props
-    let currentSort = this.state[sortStr]
-    let sortOrder = this.getSortOrder(currentSort)
-    this.setState({
-      [sortStr]: !currentSort,
-    }, () => {
-      updateParentSort(sortStr, sortOrder)
-    })
+    const { updateParentSort, updateParentPublishTime, publish_time } = this.props
+    let sortOrder = this.getSortOrder(publish_time)
+    updateParentPublishTime(!publish_time, () => updateParentSort(sortStr, sortOrder))
   }
   getSortOrder(flag) {
     let str = 'asc'
@@ -73,7 +65,7 @@ class WrapCheckTable extends React.Component {
     return str
   }
   render() {
-    const { wrapPublishList, passPublish, refusePublish } = this.props
+    const { wrapPublishList, passPublish, refusePublish, publish_time } = this.props
     const pagination = {
       simple: true,
       defaultCurrent: 1,
@@ -113,24 +105,24 @@ class WrapCheckTable extends React.Component {
       width: '10%',
     }, {
       title: (
-        <div onClick={() => this.handleSort('creationTime')}>
+        <div onClick={() => this.handleSort('publish_time')}>
           提交时间
           <div className="ant-table-column-sorter">
             <span
-              className={this.state.creationTime === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
+              className={publish_time === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
               title="↑">
               <i className="anticon anticon-caret-up"/>
             </span>
             <span
-              className={this.state.creationTime === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+              className={publish_time === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
               title="↓">
               <i className="anticon anticon-caret-down"/>
             </span>
           </div>
         </div>
       ),
-      dataIndex: 'creationTime',
-      key: 'creationTime',
+      dataIndex: 'publishTime',
+      key: 'publishTime',
       width: '20%',
       render: text => formatDate(text)
     }, {
@@ -181,11 +173,13 @@ class WrapCheck extends React.Component {
     this.updateParentPage = this.updateParentPage.bind(this)
     this.updateParentFilter = this.updateParentFilter.bind(this)
     this.updateParentSort = this.updateParentSort.bind(this)
+    this.updateParentPublishTime = this.updateParentPublishTime.bind(this)
     this.state = {
       current: 1,
       filterName: undefined,
       sort_by: undefined,
-      sort_order: undefined
+      sort_order: undefined,
+      publish_time: undefined
     }
   }
   componentWillMount() {
@@ -209,6 +203,14 @@ class WrapCheck extends React.Component {
     }
     getWrapPublishList(query)
   }
+  refreshData() {
+    this.setState({
+      filterName: '',
+      sort_by: '',
+      sort_order: '',
+      publish_time: '',
+    }, this.getWrapPublishList)
+  }
   updateParentPage(page) {
     this.setState({
       current: page
@@ -224,6 +226,11 @@ class WrapCheck extends React.Component {
       sort_by: sort_by,
       sort_order: sort_order
     }, () => this.getWrapPublishList())
+  }
+  updateParentPublishTime(time, callback) {
+    this.setState({
+      publish_time: time
+    }, callback)
   }
   passPublish(pkgID) {
     const { passWrapPublish } = this.props
@@ -269,23 +276,28 @@ class WrapCheck extends React.Component {
   }
   render() {
     const { wrapPublishList } = this.props
+    const { filterName, publish_time } = this.state
     return (
       <QueueAnim>
         <div key="wrapCheck" className="wrapCheck">
           <div className="wrapCheckHead">
-            <Button className="refreshBtn" type="primary" size="large" onClick={() => this.getWrapPublishList()}>
+            <Button className="refreshBtn" type="primary" size="large" onClick={() => this.refreshData()}>
               <i className='fa fa-refresh'/> 刷新
             </Button>
             <CommonSearchInput
+              ref="tableChild"
               size="large"
-              placeholder="请输入应用宝搜索"
+              placeholder="按应用包或发布名称搜索"
               style={{ width: 200 }}
+              value={filterName}
               onSearch={value => this.updateParentFilter(value)}
             />
             <span className="total verticalCenter">共 {wrapPublishList && wrapPublishList.total} 条</span>
           </div>
           <WrapCheckTable
             wrapPublishList={wrapPublishList}
+            publish_time={publish_time}
+            updateParentPublishTime={this.updateParentPublishTime}
             passPublish={this.passPublish}
             refusePublish={this.refusePublish}
             updateParentPage={this.updateParentPage}

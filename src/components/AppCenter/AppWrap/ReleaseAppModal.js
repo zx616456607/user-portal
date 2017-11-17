@@ -34,7 +34,8 @@ class ReleaseAppModal extends React.Component {
       this.setState({
         visible: newVisible,
         uploaded: false,
-        fileList: []
+        fileList: [],
+        pkgIcon: ''
       })
       form.resetFields()
     }
@@ -129,13 +130,13 @@ class ReleaseAppModal extends React.Component {
   renderFooter() {
     const { loading } = this.state
     return[
-      <Button key="cancel" onClick={this.cancelModal.bind(this)}>取消</Button>,
-      <Button key="confirm" type="primary" loading={loading} onClick={this.confirmModal.bind(this)}>提交审核</Button>
+      <Button key="cancel" size="large" onClick={this.cancelModal.bind(this)}>取消</Button>,
+      <Button key="confirm" size="large" type="primary" loading={loading} onClick={this.confirmModal.bind(this)}>提交审核</Button>
     ]
   }
   render() {
     const { form, currentApp, wrapGroupList, space } = this.props
-    const { visible, fileList } = this.state
+    const { visible, fileList, pkgIcon } = this.state
     const { getFieldProps, getFieldError, isFieldValidating } = form;
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -176,12 +177,10 @@ class ReleaseAppModal extends React.Component {
     }
     let notificat = new NotificationHandler()
     const uploadOpt = {
-      listType:"picture-card",
+      showUploadList: false,
       accept:"image/*",
       action: `${API_URL_PREFIX}/pkg/icon`,
       headers,
-      fileList,
-      disabled: fileList && fileList.length >= 1,
       beforeUpload: file => {
         let isType
 
@@ -224,6 +223,7 @@ class ReleaseAppModal extends React.Component {
     })
     return(
       <Modal
+        className="publishModal"
         title="发布到应用包商店"
         visible={visible}
         onOk={this.confirmModal.bind(this)}
@@ -274,15 +274,22 @@ class ReleaseAppModal extends React.Component {
               {...uploadOpt}
               
             >
-              <Icon type="plus" />
-              <div className="ant-upload-text">上传应用图标</div>
+              <span className="wrap-image">
+                <Icon key="iconPlus" type="plus" className="plus-icon verticalCenter"/>
+                {
+                  pkgIcon ?
+                    <img className="wrapLogo" src={`${API_URL_PREFIX}/pkg/icon/${pkgIcon}`} />
+                    :
+                    <span className="ant-upload-text">上传应用图标</span>
+                }
+              </span>
             </Upload>
           </FormItem>
           <Row style={{ marginTop: -20 }}>
             <Col span={4}>
             </Col>
             <Col className="hintColor">
-              上传icon支持（jpg/jpeg//png图片格式，建议尺寸100px*100px）
+              上传icon支持（jpg/jpeg/png图片格式，建议尺寸100px*100px）
             </Col>
           </Row>
         </Form>

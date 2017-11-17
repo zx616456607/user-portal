@@ -513,23 +513,23 @@ const menusText = defineMessages({
   },
   WrapManage: {
     id: 'ManageMonitor.operationalAudit.WrapManage',
-    defaultMessage: '应用包管理'
+    defaultMessage: '应用包'
   },
   UploadWrap: {
     id: 'ManageMonitor.operationalAudit.UploadWrap',
-    defaultMessage: '上传应用包'
+    defaultMessage: '上传'
   },
   DownloadWrap: {
     id: 'ManageMonitor.operationalAudit.DownloadWrap',
-    defaultMessage: '下载应用包'
+    defaultMessage: '下载'
   },
   PublishWrap: {
     id: 'ManageMonitor.operationalAudit.PublishWrap',
-    defaultMessage: '发布应用包'
+    defaultMessage: '发布'
   },
   OffShelfWrap: {
     id: 'ManageMonitor.operationalAudit.OffShelfWrap',
-    defaultMessage: '下架应用包'
+    defaultMessage: '下架'
   },
   WrapStore: {
     id: 'ManageMonitor.operationalAudit.WrapStore',
@@ -537,15 +537,15 @@ const menusText = defineMessages({
   },
   WrapPublishCheck: {
     id: 'ManageMonitor.operationalAudit.WrapPublishCheck',
-    defaultMessage: '发布审核'
+    defaultMessage: '应用包发布审核'
   },
   WrapPublishPass: {
     id: 'ManageMonitor.operationalAudit.WrapPublishPass',
-    defaultMessage: '审核通过'
+    defaultMessage: '通过'
   },
   WrapPublishReject: {
     id: 'ManageMonitor.operationalAudit.WrapPublishReject',
-    defaultMessage: '审核拒绝'
+    defaultMessage: '拒绝'
   }
 });
 

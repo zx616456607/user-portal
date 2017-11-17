@@ -1,3 +1,4 @@
+@import "../../../assets/style/site/core";
 #app_wrap_manage {
   padding: 20px;
   position: relative;
@@ -42,6 +43,33 @@
 
 }
 
+.publishModal{
+  .wrap-image{
+    background: #fbfbfb;
+    border: @border-width-base dashed @border-color-base;
+    cursor: pointer;
+    border-radius: 5px;
+    position: relative;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    overflow: hidden;
+    display: block;
+    .wrapLogo{
+      width: 100px;
+      height: 100px;
+    }
+    .ant-upload-text{
+      position: absolute;
+      left: 12px;
+      bottom: 5px;
+    }
+    .plus-icon{
+      z-index: 2;
+      left: 43%;
+    }
+  }
+}
 // upload modal
 .uploadModal {
   .row {height: 40px;}

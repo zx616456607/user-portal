@@ -211,6 +211,7 @@ class ClusterTabList extends Component {
                 clusterID={clusterID}
                 summary={this.state.summary}
                 callbackActiveKey={this.handleCallbackActiveKey}
+                activeKey={TabsactiveKey}
               />
             </TabPane>
             <TabPane tab={<div className='tablepanediv'><svg className='size select hover'><use xlinkHref="#managelabels"></use></svg><span className='tablepanespan'>标签管理</span></div>} key="labels">

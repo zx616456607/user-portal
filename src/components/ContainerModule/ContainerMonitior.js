@@ -345,7 +345,7 @@ class ContainerMonitior extends Component {
         <TimeControl onChange={this.handleTimeChange} setInterval={this.setIntervalFunc} intervalStatus={this.state.intervalStatus} />
         <Metrics
           scope={this}
-          diskHide={true}
+          diskHide={false}
           cpu={showCpu}
           memory={showMemory}
           networkReceived={showNetworkRec}

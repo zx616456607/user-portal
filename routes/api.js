@@ -51,6 +51,7 @@ const apmController = require('../controllers/apm')
 const storageController = require('../controllers/storage_manage')
 const quotaController = require('../controllers/quota')
 const cleanController = require('../controllers/clean')
+const appStoreController = require('../controllers/app_store')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -666,6 +667,17 @@ module.exports = function (Router) {
   router.post('/cleanlogs/flush', cleanController.deleteCleanLogs)
   router.get('/cleaner/monitor', cleanController.getMonitorSetting)
   router.get('/cleaner/systemlog/status', cleanController.getSystemLogStatus)
+
+  //app_store
+  router.put('/app-store/apps/approval',appStoreController.approveApps)
+  router.get('/app-store/apps',appStoreController.getAppslist)
+  router.get('/app-store/apps/:name/existence',appStoreController.checkAppNameExists)
+  router.post('/app-store/apps/images/publishment',appStoreController.publishImage)
+  router.put('/app-store/apps/images/management',appStoreController.manageImages)
+  router.get('/app-store/apps/images',appStoreController.getImagesList)
+  router.post('/app-store/apps/images/status',appStoreController.getImageStatus)
+  router.post('/app-store/apps/icon', appStoreController.uploadIcon)
+  router.get('/app-store/apps/icon/:id', appStoreController.getIcon)
 
   return router.routes()
 }
