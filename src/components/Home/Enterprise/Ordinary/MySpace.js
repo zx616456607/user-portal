@@ -1280,6 +1280,42 @@ const menusText = defineMessages({
   Disable: {
     id: 'ManageMonitor.operationalAudit.Disable',
     defaultMessage: '停用'
+  },
+  WrapManage: {
+    id: 'ManageMonitor.operationalAudit.WrapManage',
+    defaultMessage: '应用包'
+  },
+  UploadWrap: {
+    id: 'ManageMonitor.operationalAudit.UploadWrap',
+    defaultMessage: '上传'
+  },
+  DownloadWrap: {
+    id: 'ManageMonitor.operationalAudit.DownloadWrap',
+    defaultMessage: '下载'
+  },
+  PublishWrap: {
+    id: 'ManageMonitor.operationalAudit.PublishWrap',
+    defaultMessage: '发布'
+  },
+  OffShelfWrap: {
+    id: 'ManageMonitor.operationalAudit.OffShelfWrap',
+    defaultMessage: '下架'
+  },
+  WrapStore: {
+    id: 'ManageMonitor.operationalAudit.WrapStore',
+    defaultMessage: '应用包商店'
+  },
+  WrapPublishCheck: {
+    id: 'ManageMonitor.operationalAudit.WrapPublishCheck',
+    defaultMessage: '应用包发布审核'
+  },
+  WrapPublishPass: {
+    id: 'ManageMonitor.operationalAudit.WrapPublishPass',
+    defaultMessage: '通过'
+  },
+  WrapPublishReject: {
+    id: 'ManageMonitor.operationalAudit.WrapPublishReject',
+    defaultMessage: '拒绝'
   }
 });
 
@@ -1483,7 +1519,16 @@ function resourceFormat(resourceType, scope) {
     case '59':
       return formatMessage(menusText.ProjectRoles)
       break;
-
+    case '60':
+      return formatMessage(menusText.WrapManage)
+      break;
+    case '61':
+      return formatMessage(menusText.WrapStore)
+      break;
+    case '62':
+      return formatMessage(menusText.WrapPublishCheck)
+      break;
+      
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -1587,6 +1632,18 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.AddMember)
     case '31':
       return formatMessage(menusText.DeleteMember)
+    case '32':
+      return formatMessage(menusText.UploadWrap)
+    case '33':
+      return formatMessage(menusText.DownloadWrap)
+    case '34':
+      return formatMessage(menusText.PublishWrap)
+    case '35':
+      return formatMessage(menusText.OffShelfWrap)
+    case '36':
+      return formatMessage(menusText.WrapPublishPass)
+    case '37':
+      return formatMessage(menusText.WrapPublishReject)
     case '0':
       return formatMessage(menusText.Unknown)
       break;
@@ -1640,6 +1697,9 @@ function formatResourceName(resourceName) {
     }
     if (newBody.strategyIDs && Array.isArray(newBody.strategyIDs) && newBody.strategyIDs.length > 0) {
       return newBody.strategyIDs.join(",")
+    }
+    if(newBody.fileName) {
+      return newBody.fileName
     }
     if (newBody.strategies && Array.isArray(newBody.strategies) && newBody.strategies.length > 0) {
       let ids = new Array()
