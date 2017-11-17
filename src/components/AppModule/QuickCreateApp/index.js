@@ -230,11 +230,15 @@ class QuickCreateApp extends Component {
       imageName,
       registryServer,
     })
-    if(fromDetail){
+    if (fromDetail) {
       browserHistory.push(`/app_manage/app_create/quick_create${SERVICE_CONFIG_HASH}?appName=${appName}&fromDetail=${fromDetail}`)
       return;
     }
-    browserHistory.push(`/app_manage/app_create/quick_create${SERVICE_CONFIG_HASH}`)
+    const query = {
+      imageName,
+      registryServer,
+    }
+    browserHistory.push(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_CONFIG_HASH}`)
   }
 
   goSelectCreateAppMode() {

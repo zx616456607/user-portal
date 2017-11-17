@@ -126,6 +126,7 @@ exports.verifyUser = function* (next) {
   } else if(body.accountType == 'vsettan') {
     data.accountType = body.accountType
     data.accountID = body.accountID
+    data.userName = body.userName
   } else if ((!body.username && !body.email) || !body.password) {
     err = new Error('username(email), password are required.')
     err.status = 400
@@ -177,6 +178,10 @@ exports.verifyUser = function* (next) {
   }
   // These message(and watchToken etc.) will be save to session
   let registryAuth = Buffer(result.userName + ':' + body.password).toString('base64');
+  if(body.accountType == 'vsettan') {
+    // Use accountName and accountID for authority check
+    registryAuth =  Buffer(result.namespace + ':' + body.accountID).toString('base64');
+  }
   const loginUser = {
     user: result.userName,
     id: result.userID,
