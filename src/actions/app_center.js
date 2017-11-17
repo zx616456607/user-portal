@@ -956,22 +956,23 @@ export const REFUSE_WRAP_PUBLISH_REQUEST = 'REFUSE_WRAP_PUBLISH_REQUEST'
 export const REFUSE_WRAP_PUBLISH_SUCCESS = 'REFUSE_WRAP_PUBLISH_SUCCESS'
 export const REFUSE_WRAP_PUBLISH_FAIULRE = 'REFUSE_WRAP_PUBLISH_FAIULRE'
 
-function fetchRefuseWrapPublish(id, callback) {
+function fetchRefuseWrapPublish(id, body, callback) {
   return {
     [FETCH_API]: {
       types: [REFUSE_WRAP_PUBLISH_REQUEST,REFUSE_WRAP_PUBLISH_SUCCESS,REFUSE_WRAP_PUBLISH_FAIULRE],
       endpoint: `${API_URL_PREFIX}/pkg/publish/${id}/refuse`,
       schema: {},
       options: {
-        method: 'PUT'
+        method: 'PUT',
+        body
       }
     },
     callback
   }
 }
 
-export function refuseWrapPublish(id, callback) {
-  return dispatch => dispatch(fetchRefuseWrapPublish(id, callback))
+export function refuseWrapPublish(id, body, callback) {
+  return dispatch => dispatch(fetchRefuseWrapPublish(id, body, callback))
 }
 
 export const OFFSHELF_WRAP_REQUEST = 'OFFSHELF_WRAP_REQUEST'
