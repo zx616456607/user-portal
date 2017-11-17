@@ -321,6 +321,8 @@ class TenxStatus extends Component {
       progress,
       smart,
       deletionTimestamp,
+      showDesc,
+      description
     } = this.props
     const {
       percent
@@ -336,7 +338,15 @@ class TenxStatus extends Component {
     }
     let phaseElement = (
       <div>
-        <i className="fa fa-circle" /> <FormattedMessage {...messages[phase]} />
+        <i className="fa fa-circle" /> <FormattedMessage {...messages[phase]} />&nbsp;
+        {
+          showDesc &&
+            <Tooltip
+              title={description}
+            >
+              <Icon type="question-circle-o"/>
+            </Tooltip>
+        }
       </div>
     )
     let progressElement

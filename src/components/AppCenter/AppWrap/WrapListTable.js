@@ -231,7 +231,7 @@ class WrapListTable extends Component {
     })
   }
   
-  getAppStatus(status){
+  getAppStatus(status, record){
     let phase
     let progress = {status: false};
     switch(status) {
@@ -252,7 +252,7 @@ class WrapListTable extends Component {
         phase = 'AppOffShelf'
         break
     }
-    return <TenxStatus phase={phase} progress={progress}/>
+    return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && record.approveMessage}/>
   }
   
   render() {
@@ -289,7 +289,7 @@ class WrapListTable extends Component {
         dataIndex: 'publishStatus',
         key: 'publishStatus',
         width: '10%',
-        render: this.getAppStatus
+        render: (text, record) => this.getAppStatus(text, record)
       }, {
         title: '包类型',
         dataIndex: 'fileType',

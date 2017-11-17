@@ -143,7 +143,8 @@ exports.refusePkgPublish = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const id = this.params.id
-  const result = yield api.pkg.updateBy(['publish', id, 'refuse'], null, null)
+  const body = this.request.body
+  const result = yield api.pkg.updateBy(['publish', id, 'refuse'], null, body)
   this.body = result
 }
 
