@@ -10,7 +10,7 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Tabs, Button, Table, Icon, Card, Pagination } from 'antd'
+import { Tabs, Button, Table, Dropdown, Menu, Modal, Form, Input } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import classNames from 'classnames'
 import './style/index.less'
@@ -18,15 +18,23 @@ import CommonSearchInput from '../../CommonSearchInput'
 import TenxStatus from '../../TenxStatus/index'
 import { getWrapPublishList, passWrapPublish, refuseWrapPublish } from '../../../actions/app_center'
 import { formatDate } from '../../../common/tools'
+import { API_URL_PREFIX } from '../../../constants'
 import NotificationHandler from '../../../components/Notification'
 
 const TabPane = Tabs.TabPane;
+const FormItem = Form.Item
 
 class WrapCheckTable extends React.Component {
   constructor(props) {
     super(props)
     this.getWrapStatus = this.getWrapStatus.bind(this)
     this.onTableChange = this.onTableChange.bind(this)
+    this.confirmModal = this.confirmModal.bind(this)
+    this.cancelModal = this.cancelModal.bind(this)
+    this.checkApprove = this.checkApprove.bind(this)
+    this.state = {
+      approveVisible: false
+    }
   }
   getWrapStatus(status){
     let phase
@@ -64,8 +72,66 @@ class WrapCheckTable extends React.Component {
     }
     return str
   }
+  handleButtonClick(record) {
+    const { passPublish } = this.props
+    if (record.publishStatus !== 1) {
+      Modal.info({
+        title: '只有待审核状态的应用才能进行通过和拒绝操作'
+      });
+      return
+    }
+    passPublish(record.id)
+  }
+  handleMenuClick(e, record) {
+    switch(e.key) {
+      case 'refuse':
+        this.setState({
+          currentWrapId: record.id,
+          approveVisible: true
+        })
+        break
+    }
+  }
+  
+  confirmModal() {
+    const { refusePublish, form } = this.props
+    const { currentWrapId } = this.state
+    form.validateFields((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      const { approve } = values
+      const body = {
+        approve_message: approve
+      }
+      refusePublish(currentWrapId, body).then(() => {
+        this.setState({
+          approveVisible: false
+        })
+        form.resetFields()
+      })
+    })
+  }
+  
+  cancelModal() {
+    const { form } = this.props
+    this.setState({
+      approveVisible: false
+    })
+    form.resetFields()
+  }
+  
+  checkApprove(rule, value, callback) {
+    let newValue = value && value.trim()
+    if (!newValue) {
+      return callback('请输入拒绝理由')
+    }
+    callback()
+  }
   render() {
-    const { wrapPublishList, passPublish, refusePublish, publish_time } = this.props
+    const { wrapPublishList, publish_time, form } = this.props
+    const { getFieldProps } = form
+    const { approveVisible } = this.state
     const pagination = {
       simple: true,
       defaultCurrent: 1,
@@ -130,28 +196,50 @@ class WrapCheckTable extends React.Component {
       key: 'operation',
       width: '20%',
       render: (text, record) => {
+        const menu = (
+          <Menu style={{ width: 80 }} onClick={e => this.handleMenuClick(e, record)}>
+            <Menu.Item key="refuse" disabled={record.publishStatus !== 1}>拒绝</Menu.Item>
+            <Menu.Item key="download" disabled={![1, 2].includes(record.publishStatus)}>
+              <a target="_blank" href={`${API_URL_PREFIX}/pkg/${record.id}`}>下载</a>
+            </Menu.Item>
+          </Menu>
+        );
         return(
           <div>
-            <Button 
-              className="passBtn" type="primary"
-              onClick={() => passPublish(record.id)}
-              disabled={record.publishStatus !== 1}
-            >
+            <Dropdown.Button onClick={() => this.handleButtonClick(record)} overlay={menu} type="ghost">
               通过
-            </Button>
-            <Button 
-              type="ghost"
-              onClick={() => refusePublish(record.id)}
-              disabled={record.publishStatus !== 1}
-            >
-              拒绝
-            </Button>
+            </Dropdown.Button>
           </div>
         )
       }
     }]
     return (
       <div className="wrapCheckTableBox">
+        <Modal
+          title="拒绝理由"
+          visible={approveVisible}
+          onOk={this.confirmModal}
+          onCancel={this.cancelModal}
+        >
+          <Form
+            horizontal
+            form={form}
+          >
+            <FormItem>
+              <Input
+                {...getFieldProps('approve', {
+                  rules: [
+                    {
+                      validator: this.checkApprove
+                    }
+                  ]
+                })}
+                type="textarea" 
+                rows={4} 
+                placeholder="请输入拒绝理由"/>
+            </FormItem>
+          </Form>
+        </Modal>
         <Table
           className="wrapCheckTable"
           dataSource={wrapPublishList.pkgs}
@@ -163,6 +251,8 @@ class WrapCheckTable extends React.Component {
     )
   }
 }
+
+WrapCheckTable = Form.create()(WrapCheckTable)
 
 class WrapCheck extends React.Component {
   constructor(props) {
@@ -253,25 +343,29 @@ class WrapCheck extends React.Component {
       }
     })
   }
-  refusePublish(pkgID) {
+  refusePublish(pkgID, body) {
     const { refuseWrapPublish } = this.props
     let notify = new NotificationHandler()
     notify.spin('拒绝中')
-    refuseWrapPublish(pkgID, {
-      success: {
-        func: () => {
-          notify.close()
-          notify.success('拒绝审批成功')
-          this.getWrapPublishList()
+    return new Promise((resolve, reject) => {
+      refuseWrapPublish(pkgID, body, {
+        success: {
+          func: () => {
+            notify.close()
+            notify.success('拒绝审批成功')
+            this.getWrapPublishList()
+            resolve()
+          },
+          isAsync: true
         },
-        isAsync: true
-      },
-      failed: {
-        func: () => {
-          notify.close()
-          notify.error('拒绝审批失败')
+        failed: {
+          func: res => {
+            notify.close()
+            notify.error('拒绝审批失败\n', res.message ? res.message: '')
+            reject(res.message ? res.message : '拒绝审批失败')
+          }
         }
-      }
+      })
     })
   }
   render() {
