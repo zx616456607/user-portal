@@ -55,9 +55,34 @@ function imagePublishRecord(state = {}, action) {
       return state
   }
 }
+
+function imageCheckList(state = {}, action) {
+  const defaultState = {
+    isFetching: false
+  }
+  switch(action.type) {
+    case ActionTypes.APP_STORE_IMAGE_LIST_REQUEST:
+      return Object.assign({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.APP_STORE_IMAGE_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data
+      })
+    case ActionTypes.APP_STORE_IMAGE_LIST_FAILURE:
+      return Object.assign({}, defaultState, state, {
+        isFetching: false
+      })
+    default: 
+      return state
+  }
+}
+
 export default function app_store(state = {}, action) {
   return {
     currentImageWithStatus: imageWithStatus(state.currentImageWithStatus, action),
-    imagePublishRecord: imagePublishRecord(state.imagePublishRecord, action)
+    imagePublishRecord: imagePublishRecord(state.imagePublishRecord, action),
+    imageCheckList: imageCheckList(state.imageCheckList, action)
   }
 }
