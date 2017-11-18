@@ -139,10 +139,16 @@ module.exports = function (config) {
 
   // ~ quota
   this.resourcequota = collections.create('resourcequota')
-  
+
   // ~ clean
   this.cleaner = collections.create('cleaner')
+<<<<<<< HEAD
   
   // ~ appstore
   this.appstore =  collections.create('appstore')
+=======
+
+  // ~ auth
+  this.auth = collections.create('auth')
+>>>>>>> upstream/dev-branch
 }
