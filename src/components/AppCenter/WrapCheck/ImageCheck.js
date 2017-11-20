@@ -84,13 +84,16 @@ class ImageCheckTable extends React.Component {
     }
     return `${str},${type}`
   }
-  checkImageStatus(ID, status, message) {
+  checkImageStatus(record, status, message) {
     const { appStoreApprove, getImagesList } = this.props
     let notify = new NotificationHandler()
     const body = {
-      ID: ID,
+      ID: record.iD,
       type: 2,
       status
+    }
+    if (status === 2) {
+      Object.assign(body, { OriginID: record.originID })
     }
     if (message) {
       Object.assign(body, { approve_message: message })
@@ -121,32 +124,32 @@ class ImageCheckTable extends React.Component {
       })
     })
   }
-  openRejectModal(ID) {
+  openRejectModal(record) {
     this.setState({
-      currentID: ID,
+      currentImage: record,
       rejectModal: true
     })
   }
   confirmModal() {
     const { form } = this.props
-    const { currentID } = this.state
+    const { currentImage } = this.state
     let notify = new NotificationHandler()
     form.validateFields((errors, values) => {
       if (!!errors) {
         return
       }
       const { approve } = values
-      this.checkImageStatus(currentID, 3, approve).then(() => {
+      this.checkImageStatus(currentImage, 3, approve).then(() => {
         notify.close()
         this.setState({
           rejectModal: false,
-          currentID: ''
+          currentImage: ''
         })
         form.resetFields()
       }).catch(() => {
         this.setState({
           rejectModal: false,
-          currentID: ''
+          currentImage: ''
         })
         form.resetFields()
       })
@@ -156,7 +159,7 @@ class ImageCheckTable extends React.Component {
     const { form } = this.props
     this.setState({
       rejectModal: false,
-      currentID: ''
+      currentImage: null
     })
     form.resetFields()
   }
@@ -307,16 +310,16 @@ class ImageCheckTable extends React.Component {
                     key="pass" 
                     type="primary" 
                     className="passBtn"
-                    onClick={() => this.checkImageStatus(record.iD, 2, null, index)}
+                    onClick={() => this.checkImageStatus(record, 2)}
                   >
                     {record.publishStatus === 1 ? '通过' : '重试'}
                   </Button>,
-                  <Button key="reject" onClick={() => this.openRejectModal(record.iD)}>拒绝</Button>
+                  <Button key="reject" onClick={() => this.openRejectModal(record)}>拒绝</Button>
                 ]
             }
             {
               [4].includes(record.publishStatus) &&
-                <Button onClick={() => this.checkImageStatus(record.iD, 5)}>删除</Button>
+                <Button onClick={() => this.checkImageStatus(record, 5)}>删除</Button>
             }
           </div>
         )
