@@ -83,20 +83,20 @@ class PublishImage extends React.Component {
     let progress = {status: false};
     switch(status) {
       case 0:
-        phase = 'AppUnpublished'
+        phase = 'Unpublished'
         break
       case 1:
-        phase = 'AppChecking'
+        phase = 'Checking'
         progress = {status: true}
         break
       case 2:
-        phase = 'AppPublished'
+        phase = 'Published'
         break
       case 3:
-        phase = 'AppReject'
+        phase = 'CheckReject'
         break
       case 4:
-        phase = 'AppOffShelf'
+        phase = 'OffShelf'
         break
     }
     return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && record.approveMessage}/>

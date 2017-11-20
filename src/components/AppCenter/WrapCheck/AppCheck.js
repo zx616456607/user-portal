@@ -39,16 +39,16 @@ class WrapCheckTable extends React.Component {
     let progress = {status: false};
     switch(status) {
       case 1:
-        phase = 'AppWaitForCheck'
+        phase = 'WaitForCheck'
         break
       case 2:
-        phase = 'AppPass'
+        phase = 'CheckPass'
         break
       case 3:
-        phase = 'AppReject'
+        phase = 'CheckReject'
         break
       case 4:
-        phase = 'AppOffShelf'
+        phase = 'OffShelf'
         break
     }
     return <TenxStatus phase={phase} progress={progress}/>
@@ -366,7 +366,7 @@ class WrapCheck extends React.Component {
         failed: {
           func: res => {
             notify.close()
-            notify.error('拒绝审批失败\n', res.message ? res.message: '')
+            notify.error(`拒绝审批失败\n${res.message ? res.message: ''}`)
             reject(res.message ? res.message : '拒绝审批失败')
           }
         }

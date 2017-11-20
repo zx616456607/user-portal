@@ -10,12 +10,12 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Button, Table, Dropdown, Menu, Modal, Form, Input } from 'antd'
+import { Button, Table, Dropdown, Menu, Modal, Form, Input, Popover, Row, Col, Icon, Tooltip } from 'antd'
 import classNames from 'classnames'
 import './style/ImageCheck.less'
 import CommonSearchInput from '../../CommonSearchInput'
 import TenxStatus from '../../TenxStatus/index'
-import { getImagesList, imageManage } from '../../../actions/app_store'
+import { getImagesList, appStoreApprove } from '../../../actions/app_store'
 import { formatDate } from '../../../common/tools'
 import { API_URL_PREFIX } from '../../../constants'
 import NotificationHandler from '../../../components/Notification'
@@ -26,28 +26,168 @@ class ImageCheckTable extends React.Component {
   constructor(props) {
     super(props)
     this.getImageStatus = this.getImageStatus.bind(this)
+    this.openRejectModal = this.openRejectModal.bind(this)
+    this.confirmModal = this.confirmModal.bind(this)
+    this.cancelModal = this.cancelModal.bind(this)
+    this.checkApprove = this.checkApprove.bind(this)
+    this.onTableChange = this.onTableChange.bind(this)
+    this.startCopy = this.startCopy.bind(this)
+    this.copyOperate = this.copyOperate.bind(this)
+    this.copyEnd = this.copyEnd.bind(this)
+    this.state = {
+      publish_time: undefined
+    }
   }
   getImageStatus(status){
     let phase
     let progress = {status: false};
     switch(status) {
       case 1:
-        phase = 'AppWaitForCheck'
+        phase = 'WaitForCheck'
         break
       case 2:
-        phase = 'AppPass'
+        phase = 'CheckPass'
         break
       case 3:
-        phase = 'AppReject'
+        phase = 'CheckReject'
         break
       case 4:
-        phase = 'AppOffShelf'
+        phase = 'OffShelf'
+        break
+      case 5:
+        phase = 'ImageCopy'
+        progress = {status: true}
+        break
+      case 6:
+        phase = 'ImageCopyFailed'
         break
     }
     return <TenxStatus phase={phase} progress={progress}/>
   }
+  onTableChange(pagination) {
+    const { updateParentState } = this.props
+    updateParentState('current', pagination.current)
+  }
+  handleSort(type) {
+    const { updateParentState } = this.props
+    const sortFlag = this.state[type]
+    const sort = this.getSortOrder(sortFlag, type)
+    this.setState({
+      [type]: !sortFlag
+    })
+    updateParentState('sort', sort)
+  }
+  getSortOrder(flag, type) {
+    let str = 'a'
+    if (flag) {
+      str = 'd'
+    }
+    return `${str},${type}`
+  }
+  checkImageStatus(ID, status, message) {
+    const { appStoreApprove, getImagesList } = this.props
+    let notify = new NotificationHandler()
+    const body = {
+      ID: ID,
+      type: 2,
+      status
+    }
+    if (message) {
+      Object.assign(body, { approve_message: message })
+    }
+    notify.spin('操作中')
+    return new Promise((resolve, reject) => {
+      appStoreApprove(body, {
+        success: {
+          func: () => {
+            getImagesList({
+              from: 0,
+              size: 10,
+              type: 2
+            })
+            resolve()
+            notify.close()
+            notify.success('操作成功')
+          },
+          isAsync: true
+        },
+        failed: {
+          func: res => {
+            reject(res.message)
+            notify.close()
+            notify.error(`操作失败\n${res.message}`)
+          }
+        }
+      })
+    })
+  }
+  openRejectModal(ID) {
+    this.setState({
+      currentID: ID,
+      rejectModal: true
+    })
+  }
+  confirmModal() {
+    const { form } = this.props
+    const { currentID } = this.state
+    let notify = new NotificationHandler()
+    form.validateFields((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      const { approve } = values
+      this.checkImageStatus(currentID, 3, approve).then(() => {
+        notify.close()
+        this.setState({
+          rejectModal: false,
+          currentID: ''
+        })
+        form.resetFields()
+      }).catch(() => {
+        this.setState({
+          rejectModal: false,
+          currentID: ''
+        })
+        form.resetFields()
+      })
+    })
+  }
+  cancelModal() {
+    const { form } = this.props
+    this.setState({
+      rejectModal: false,
+      currentID: ''
+    })
+    form.resetFields()
+  }
+  checkApprove(rule, value, callback) {
+    let newValue = value && value.trim()
+    if (!newValue) {
+      return callback('请输入拒绝理由')
+    }
+    callback()
+  }
+  startCopy(value) {
+    const target = document.getElementsByClassName('imageIDCopyInput')[0]
+    target.value = value
+  }
+  copyOperate() {
+    let target = document.getElementsByClassName('imageIDCopyInput')[0];
+    target.select()
+    document.execCommand("Copy", false);
+    this.setState({
+      copyStatus: true
+    })
+  }
+  copyEnd() {
+    this.setState({
+      copyStatus: false
+    })
+  }
   render() {
-    const { imageCheckList, total } = this.props
+    const { imageCheckList, total, form } = this.props
+    const { getFieldProps } = form
+    const { publish_time, rejectModal, copyStatus } = this.state 
     const pagination = {
       simple: true,
       defaultCurrent: 1,
@@ -82,29 +222,102 @@ class ImageCheckTable extends React.Component {
       width: '10%',
     }, {
       title: '镜像地址',
-      dataIndex: 'originID',
-      key: 'originID',
+      dataIndex: 'iD',
+      key: 'iD',
       width: '10%',
+      render: (text, record) => {
+        const content = (
+          <div className="imageIDBox">
+            <div>原地址</div>
+            <input type="text" className="imageIDCopyInput" style={{ position: "absolute", opacity: "0", top:'0'}}/>
+            <p className="address">{record.originID}
+              <Tooltip title={copyStatus ? '复制成功' : '点击复制'}>
+                <Icon 
+                  type="copy"
+                  onMouseEnter={() => this.startCopy(record.originID)}
+                  onClick={this.copyOperate}
+                  onMouseLeave={this.copyEnd}
+                />
+              </Tooltip>
+            </p>
+            <div>发布地址</div>
+            <p className="address">{text}
+              <Tooltip title={copyStatus ? '复制成功' : '点击复制'}>
+                <Icon 
+                  type="copy"
+                  onMouseEnter={() => this.startCopy(text)}
+                  onClick={this.copyOperate}
+                  onMouseLeave={this.copyEnd}
+                />
+              </Tooltip>
+            </p>
+          </div>
+        );
+        return(
+          <Row>
+            <Col className="textoverflow" span={20}>
+              {text}
+            </Col>
+            <Col span={4}>
+              <Popover content={content} trigger="click">
+                <Icon type="plus-square" />
+              </Popover>
+            </Col>
+          </Row>
+        )
+      }
     }, {
       title: '发布者',
       dataIndex: 'userName',
       key: 'userName',
       width: '10%',
     }, {
-      title: '提交时间',
+      title: (
+        <div onClick={() => this.handleSort('publish_time')}>
+          提交时间
+          <div className="ant-table-column-sorter">
+            <span
+              className={publish_time === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
+              title="↑">
+              <i className="anticon anticon-caret-up"/>
+            </span>
+            <span
+              className={publish_time === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+              title="↓">
+              <i className="anticon anticon-caret-down"/>
+            </span>
+          </div>
+        </div>
+      ),
       dataIndex: 'publishTime',
       key: 'publishTime',
-      width: '20%',
+      width: '10%',
       render: text => formatDate(text)
     }, {
       title: '操作',
       key: 'operation',
       width: '20%',
-      render: (text, record) => {
+      render: (text, record, index) => {
         return(
-          <div>
-            <Button type="primary">通过</Button>
-            <Button>拒绝</Button>
+          <div className="operateBtn">
+            {
+              [1, 6].includes(record.publishStatus) && 
+                [
+                  <Button 
+                    key="pass" 
+                    type="primary" 
+                    className="passBtn"
+                    onClick={() => this.checkImageStatus(record.iD, 2, null, index)}
+                  >
+                    {record.publishStatus === 1 ? '通过' : '重试'}
+                  </Button>,
+                  <Button key="reject" onClick={() => this.openRejectModal(record.iD)}>拒绝</Button>
+                ]
+            }
+            {
+              [4].includes(record.publishStatus) &&
+                <Button onClick={() => this.checkImageStatus(record.iD, 5)}>删除</Button>
+            }
           </div>
         )
       }
@@ -118,24 +331,48 @@ class ImageCheckTable extends React.Component {
           onChange={this.onTableChange}
           pagination={pagination}
         />
+        <Modal
+          title="拒绝理由"
+          visible={rejectModal}
+          onOk={this.confirmModal}
+          onCancel={this.cancelModal}
+        >
+          <Form
+            horizontal
+            form={form}
+          >
+            <FormItem>
+              <Input
+                {...getFieldProps('approve', {
+                  rules: [
+                    {
+                      validator: this.checkApprove
+                    }
+                  ]
+                })}
+                type="textarea"
+                rows={4}
+                placeholder="请输入拒绝理由"/>
+            </FormItem>
+          </Form>
+        </Modal>
       </div>
     )
   }
 }
+
+ImageCheckTable = Form.create()(ImageCheckTable)
+
 class ImageCheck extends React.Component {
   constructor(props) {
     super(props)
     this.getImagePublishList = this.getImagePublishList.bind(this)
-    this.updateParentPage = this.updateParentPage.bind(this)
-    this.updateParentFilter = this.updateParentFilter.bind(this)
-    this.updateParentSort = this.updateParentSort.bind(this)
-    this.updateParentPublishTime = this.updateParentPublishTime.bind(this)
+    this.updateParentState = this.updateParentState.bind(this)
     this.state = {
       current: 1,
+      filter: 'type,2',
       filterName: undefined,
-      sort_by: undefined,
-      sort_order: undefined,
-      publish_time: undefined
+      sort: undefined,
     }
   }
   componentWillMount() {
@@ -145,55 +382,36 @@ class ImageCheck extends React.Component {
     }
   }
   getImagePublishList() {
-    const { current, filterName, sort_by, sort_order } = this.state
+    const { current, filterName, sort, filter } = this.state
     const { getImagesList } = this.props
     let query = {
       from: (current - 1) * 10,
-      size: 10
+      size: 10,
+      filter
     }
     if (filterName) {
-      Object.assign(query, { filter: `file_nick_name,${filterName}` })
+      Object.assign(query, { filter: `type,2,file_nick_name,${filterName}` })
     }
-    if (sort_by) {
-      Object.assign(query, { sort_by })
-    }
-    if (sort_order) {
-      Object.assign(query, { sort_order })
+    if (sort) {
+      Object.assign(query, { sort })
     }
     getImagesList(query)
   }
   refreshData() {
     this.setState({
       filterName: '',
-      sort_by: '',
-      sort_order: '',
-      publish_time: '',
+      sort: '',
+      current: 1,
     }, this.getImagePublishList)
   }
-  updateParentPage(page) {
+  updateParentState(type, value) {
     this.setState({
-      current: page
+      [type]: value
     }, this.getImagePublishList)
-  }
-  updateParentFilter(name) {
-    this.setState({
-      filterName:name
-    }, this.getImagePublishList)
-  }
-  updateParentSort(sort_by, sort_order) {
-    this.setState({
-      sort_by: sort_by,
-      sort_order: sort_order
-    }, this.getImagePublishList)
-  }
-  updateParentPublishTime(time, callback) {
-    this.setState({
-      publish_time: time
-    }, callback)
   }
   render() {
-    const { imageCheckList, total } = this.props
-    const { filterName, publish_time } = this.state
+    const { imageCheckList, total, appStoreApprove, getImagesList } = this.props
+    const { filterName, current } = this.state
     return(
       <div className="imageCheck">
         <div className="wrapCheckHead">
@@ -206,17 +424,17 @@ class ImageCheck extends React.Component {
             placeholder="按镜像名称或发布名称搜索"
             style={{ width: 200 }}
             value={filterName}
-            onSearch={value => this.updateParentFilter(value)}
+            onSearch={value => this.updateParentState('filterName', value)}
           />
           <span className="total verticalCenter">共 {total && total} 条</span>
         </div>
         <ImageCheckTable
           imageCheckList={imageCheckList}
+          current={current}
           total={total}
-          publish_time={publish_time}
-          updateParentPublishTime={this.updateParentPublishTime}
-          updateParentPage={this.updateParentPage}
-          updateParentSort={this.updateParentSort}
+          updateParentState={this.updateParentState}
+          appStoreApprove={appStoreApprove}
+          getImagesList={getImagesList}
         />
       </div>
     )
@@ -236,5 +454,5 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   getImagesList,
-  imageManage
+  appStoreApprove
 })(ImageCheck)

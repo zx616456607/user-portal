@@ -4,7 +4,7 @@
  *
  * Redux reducers for app manage
  *
- * v0.1 - 2017-11-117
+ * v0.1 - 2017-11-17
  * @author zhangxuan
  */
 
