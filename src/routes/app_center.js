@@ -30,6 +30,10 @@ const appCenterRoutes = [
         component: require('../components/AppCenter/ImageCenter/Project/PublicProject').default,
       },
       {
+        path: 'publish',
+        component: require('../components/AppCenter/ImageCenter/Project/PublishImage').default
+      },
+      {
         path: 'other',
         component: require('../components/AppCenter/ImageCenter/Project/PublicProject').default,
       },

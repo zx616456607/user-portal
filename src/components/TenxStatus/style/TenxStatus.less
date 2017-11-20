@@ -1,6 +1,6 @@
 .TenxStatus{
   line-height: 30px;
-  .Pending, .Starting, .Deploying, .AppUnpublished, .AppChecking {
+  .Pending, .Starting, .Deploying, .Unpublished, .Checking, .ImageCopy {
     color: #0b9eeb;
     position: relative;
     top: 5px;
@@ -13,7 +13,7 @@
       position: relative;
     }
   }
-  .Running, .Restarting, .Redeploying, .Rebuilding, .Succeeded, .UploadPkgAndEnvSuccess, .AppPublished, .AppPass {
+  .Running, .Restarting, .Redeploying, .Rebuilding, .Succeeded, .UploadPkgAndEnvSuccess, .Published, .CheckPass {
     color: #33b867;
     position: relative;
     top: 5px;
@@ -26,7 +26,7 @@
       position: relative;
     }
   }
-  .Unknown, .AppOffShelf {
+  .Unknown, .OffShelf, .ImageCopyFailed {
     color: #636363;
     position: relative;
     top: 5px;
@@ -44,7 +44,7 @@
       position: relative;
     }
   }
-  .Stopping, .Stopped, .Failed, .UploadPkgAndEnvFailed, .ServiceInitFailed, .ServiceNormalFailed, .AppReject, .AppWaitForCheck {
+  .Stopping, .Stopped, .Failed, .UploadPkgAndEnvFailed, .ServiceInitFailed, .ServiceNormalFailed, .CheckReject, .WaitForCheck {
     color: #f23e3f;
     position: relative;
     top: 5px;

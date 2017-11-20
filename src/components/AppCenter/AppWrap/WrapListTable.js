@@ -166,12 +166,12 @@ class WrapListTable extends Component {
       )
     }
     const menu = (
-      <Menu onClick={e => this.handleMenuClick(e, row)} style={{ width: 90 }}>
+      <Menu onClick={e => this.handleMenuClick(e, row)} style={{ width: 110 }}>
         <Menu.Item key="vm">
           传统部署
         </Menu.Item>
         <Menu.Item key="release" disabled={[1, 2].includes(row.publishStatus)}>
-          发布
+          上传到商店
         </Menu.Item>
         <Menu.Item key="download">
           <a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}>下载</a>
@@ -236,20 +236,20 @@ class WrapListTable extends Component {
     let progress = {status: false};
     switch(status) {
       case 0:
-        phase = 'AppUnpublished'
+        phase = 'Unpublished'
         break
       case 1:
-        phase = 'AppChecking'
+        phase = 'Checking'
         progress = {status: true}
         break
       case 2:
-        phase = 'AppPublished'
+        phase = 'Published'
         break
       case 3:
-        phase = 'AppReject'
+        phase = 'CheckReject'
         break
       case 4:
-        phase = 'AppOffShelf'
+        phase = 'OffShelf'
         break
     }
     return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && record.approveMessage}/>

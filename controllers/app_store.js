@@ -8,7 +8,9 @@
 
 'use strict'
 
+const parse = require('co-busboy')
 const apiFactory = require('../services/api_factory')
+const registry_harbor = require('./registry_harbor')
 
 /*------------------------ apps store approve start--------------------*/
 exports.approveApps = function* () {
@@ -49,7 +51,7 @@ exports.publishImage = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const body = this.request.body
-  result = yield api.appstore.createBy(['apps','publish'], null, body)
+  const result = yield api.appstore.createBy(['apps', 'images','publishment'], null, body)
   this.body = result
 }
 
@@ -72,8 +74,37 @@ exports.getImagesList = function* (){
 exports.getImageStatus = function* (){
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const body = this.request.body
+  let body = this.request.body
+  if (!body.image){
+    this.statusCode = 400
+    this.message = {message:"request repositories is empty"}
+    return
+  }
+  const repositories = body.image.split('/')
+  if (repositories.length != 3){
+    this.statusCode = 400
+    this.message = {message:"request repositories is invalid"}
+    return
+  }
+  this.params.user = repositories[1]
+  this.params.name = repositories[2]
+  yield registry_harbor.getRepositoriesTags.call(this)
+  if ( !this.body.data || this.body.data.length == 0){
+    return
+  }
+  body.tags = this.body.data
   const result = yield api.appstore.createBy(['apps','images','status'], null, body)
+  if (result.statusCode != 200){
+    return
+  }
+  let arrayResult = []
+  for (let i in result.data){
+    arrayResult.push({
+      name:i,
+      status:result.data[i]
+    })
+  }
+  result.data = arrayResult
   this.body = result
 }
 
@@ -84,23 +115,10 @@ exports.getImageStatus = function* (){
 exports.uploadIcon = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const parts = parse(this, {
-    autoFields: true
-  })
-  if (!parts) {
-    this.status = 400
-    this.message = { message: 'error' }
-    return
-  }
-  const fileStream = yield parts
-  const stream = formStream()
-  const mimeType = mime.lookup(fileStream.filename)
-  stream.stream('pkg', fileStream, fileStream.filename, mimeType)
-  const result = yield api.appstore.uploadFile(['apps','icon'], null, stream, stream.headers()).catch(err => {
-    return err
-  })
-  this.status = result.statusCode
-  this.body = result
+  const content = yield parseForm(this)
+  const response = yield api.appstore.createBy(['apps', 'icon'], null, content)
+  this.status = response.statusCode
+  this.body = response
 }
 
 exports.getIcon = function* () {
@@ -109,6 +127,21 @@ exports.getIcon = function* () {
   const id = this.params.id
   const result = yield api.appstore.getBy(['apps','icon', id, null])
   this.body = result
+}
+
+function* parseForm(ctx) {
+  const parts = parse(ctx, {autoFields: true})
+  const fileStream = yield parts
+  return new Promise((resolve, reject) => {
+    ctx.field = parts.field
+    try {
+      let buffer = []
+      fileStream.on('data', chunk => buffer.push(chunk))
+      fileStream.on('end', () => resolve(Buffer.concat(buffer)))
+    } catch (err) {
+      reject(err)
+    }
+  })
 }
 
 /*------------------------ image end--------------------*/
