@@ -16,7 +16,7 @@ import { getWrapStoreList, getWrapGroupList } from '../../../actions/app_center'
 import { getAppsList, getAppsHotList } from '../../../actions/app_store'
 import './style/index.less'
 import StoreTemplate from './StoreTemplate'
-
+import CommonSearchInput from '../../CommonSearchInput'
 const TabPane = Tabs.TabPane;
 
 class AppWrapStore extends React.Component {
