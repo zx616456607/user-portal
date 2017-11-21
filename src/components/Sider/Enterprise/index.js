@@ -558,7 +558,7 @@ class Sider extends Component {
                   </Menu.Item>
                   <Menu.Item key='wrap_store'>
                     <Link to='/app_center/wrap_store'>
-                      <span><div className='sideCircle'/> 应用包商店</span>
+                      <span><div className='sideCircle'/> 商店</span>
                     </Link>
                   </Menu.Item>
                   {role === ROLE_SYS_ADMIN ?

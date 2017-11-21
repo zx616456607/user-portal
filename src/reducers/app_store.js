@@ -56,6 +56,29 @@ function imagePublishRecord(state = {}, action) {
   }
 }
 
+function imageHotRecord(state = {}, action) {
+  const defaultState = {
+    isFetching: false
+  }
+  switch(action.type) {
+    case ActionTypes.APP_STORE_HOT_LIST_REQUEST:
+      return Object.assign({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.APP_STORE_HOT_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data
+      })
+    case ActionTypes.APP_STORE_HOT_LIST_FAILURE:
+      return Object.assign({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 function imageCheckList(state = {}, action) {
   const defaultState = {
     isFetching: false
@@ -83,6 +106,7 @@ export default function app_store(state = {}, action) {
   return {
     currentImageWithStatus: imageWithStatus(state.currentImageWithStatus, action),
     imagePublishRecord: imagePublishRecord(state.imagePublishRecord, action),
+    imageHotRecord: imageHotRecord(state.imageHotRecord, action),
     imageCheckList: imageCheckList(state.imageCheckList, action)
   }
 }

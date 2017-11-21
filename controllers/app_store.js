@@ -115,8 +115,9 @@ exports.getImageStatus = function* (){
 exports.uploadIcon = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
+  const app = this.params.app
   const content = yield parseForm(this)
-  const response = yield api.appstore.createBy(['apps', 'icon'], null, content)
+  const response = yield api.appstore.createBy(['apps', app, 'icon'], null, content)
   this.status = response.statusCode
   this.body = response
 }

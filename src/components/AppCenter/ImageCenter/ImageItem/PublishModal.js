@@ -12,7 +12,6 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { Modal, Form, Input, Select, Upload, Icon, Row, Col, Button } from 'antd'
-import { loadRepositoriesTags } from '../../../../actions/harbor'
 import { getWrapGroupList } from '../../../../actions/app_center'
 import { imagePublish, checkAppNameExists, getImageStatus } from '../../../../actions/app_store'
 import { API_URL_PREFIX, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
@@ -38,7 +37,7 @@ class PublishModal extends React.Component {
     const { visible: oldVisible } = this.props
     const { 
       visible: newVisible, wrapGroupList,
-      currentImageName, form, getWrapGroupList, getImageStatus, server } = nextProps
+      currentImage, form, getWrapGroupList, getImageStatus, server } = nextProps
     if (oldVisible !== newVisible) {
       this.setState({
         visible: newVisible,
@@ -50,7 +49,7 @@ class PublishModal extends React.Component {
     }
     if (!oldVisible && newVisible) {
       let body = {
-        image: `${server}/${currentImageName}`
+        image: `${server}/${currentImage.name}`
       }
       getImageStatus(body)
     }
@@ -116,7 +115,7 @@ class PublishModal extends React.Component {
     callback()
   }
   confirmModal() {
-    const { callback, form, imagePublish, currentImageName, server } = this.props
+    const { callback, form, imagePublish, currentImage, server } = this.props
     const { uploaded, pkgIcon } = this.state
     let notify = new NotificationHandler()
     form.validateFields((errors, values) => {
@@ -131,13 +130,13 @@ class PublishModal extends React.Component {
       })
       const { fileNickName, tagsName, description, classifyName, request_message } = values
       const body = {
-        origin_id: `${server}/${currentImageName}:${tagsName}`,
+        origin_id: `${server}/${currentImage.name}:${tagsName}`,
         fileNickName,
         description,
         classifyName,
         request_message,
         type: 2,
-        pkgIcon
+        icon_id: pkgIcon
       }
       notify.close()
       notify.spin('发布中')
@@ -196,14 +195,14 @@ class PublishModal extends React.Component {
   }
   render() {
     const { visible, pkgIcon, successModal } = this.state
-    const { space, form, currentImageName, imgTag, wrapGroupList, server } = this.props
+    const { space, form, currentImage, imgTag, wrapGroupList, server } = this.props
     const { getFieldProps, isFieldValidating, getFieldError } = form
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
     };
     const nameProps = getFieldProps('imageName', {
-      initialValue: currentImageName && currentImageName.split('/')[1]
+      initialValue: currentImage && currentImage.name && currentImage.name.split('/')[1]
     })
     const releaseNameProps = getFieldProps('fileNickName', {
       rules: [
@@ -253,7 +252,7 @@ class PublishModal extends React.Component {
     const uploadOpt = {
       showUploadList: false,
       accept:"image/*",
-      action: `${API_URL_PREFIX}/app-store/apps/icon`,
+      action: `${API_URL_PREFIX}/app-store/apps/${currentImage && currentImage.id}/icon`,
       headers,
       beforeUpload: file => {
         let isType

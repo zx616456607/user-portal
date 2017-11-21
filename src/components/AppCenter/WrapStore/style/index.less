@@ -2,6 +2,16 @@
 .appWrapStore {
   background-color: #ecf0f4;
   padding-bottom: 30px;
+  .storeTabs{
+    .ant-tabs-bar{
+      background-color: white;
+      padding: 0 50px;
+      margin: 0;
+      .ant-tabs-tab{
+        height: 40px;
+      }
+    }
+  }
   .wrapStoreHead{
     padding: 40px;
     background: url("../../../../assets/img/wrapStoreBg.jpg") no-repeat;
@@ -13,18 +23,22 @@
       margin-bottom: 16px;
     }
   }
+  .storeTemplate{
+    padding: 30px 25px;
+  }
   .filterAndSortBox{
+    background-color: white;
     position: relative;
     padding: 20px 24px;
     .ant-pagination{
       position: absolute;
-      top: 60px;
-      right: 388px;
+      top: 24px;
+      right: 0px;
     }
     .total{
       position: absolute;
-      top: 63px;
-      right: 550px;
+      top: 25px;
+      right: 150px;
     }
     .filterClassify{
       margin-bottom: 10px;
@@ -44,8 +58,11 @@
       color: white;
     }
   }
+  .storeListBox{
+    padding: 20px;
+    background-color: white;
+  }
   .wrapStoreBody{
-    padding: 0 24px;
     display: flex;
     justify-content: space-around;
     .wrapStoreLeft{
@@ -59,11 +76,9 @@
       border-radius: 4px;
       overflow: hidden;
       .wrapList{
-        background-color: white;
         padding: 24px;
-        &:not(:last-of-type) {
-          border-bottom: @border-width-base @border-style-base @border-color-split;
-        }
+        border: @border-width-base @border-style-base @border-color-split;
+        border-radius: @border-radius-base;
         .hotOrder{
           display: inline-block;
           width: 24px;
@@ -102,6 +117,22 @@
           }
           .appDesc{
             margin-bottom: 20px;
+          }
+          .tagBox{
+            background-color: #d5f1fd;
+            color: @primary-color;
+            margin-left: 10px;
+            padding: 3px 6px;
+            border-radius: @border-radius-base;
+            .tag{
+              margin-right: 5px;
+            }
+          }
+          .sourceAddr{
+            .copyBtn{
+              margin-left: 8px;
+              color: @primary-color;
+            }
           }
         }
       }

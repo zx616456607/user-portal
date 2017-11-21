@@ -676,7 +676,7 @@ module.exports = function (Router) {
   router.put('/app-store/apps/images/management',appStoreController.manageImages)
   router.get('/app-store/apps/images',appStoreController.getImagesList)
   router.post('/app-store/apps/images/status',appStoreController.getImageStatus)
-  router.post('/app-store/apps/icon', appStoreController.uploadIcon)
+  router.post('/app-store/apps/:app/icon', appStoreController.uploadIcon)
   router.get('/app-store/apps/icon/:id', appStoreController.getIcon)
 
   return router.routes()
