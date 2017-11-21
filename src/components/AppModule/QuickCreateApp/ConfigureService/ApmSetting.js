@@ -102,6 +102,7 @@ const ApmSetting = React.createClass({
       confirmApmChecked,
     } = this.state
     const midSupportModalProps = {}
+    const POD_IP = "{POD_IP}"
     if (isOnlyShowSubmitBtn) {
       midSupportModalProps.footer = [
         <Button
@@ -146,11 +147,24 @@ const ApmSetting = React.createClass({
       >
         {this.renderApm()}
         <Modal
-          title="性能管理 APM 支持的中间件"
+          title="应用性能管理（APM）- 须知"
           visible={midSupportModal}
           {...midSupportModalProps}
           className="midSupportModal"
         >
+        需要如下 JVM 配置：
+          <ul>
+            <li>
+              支持通过 JAVA_OPTS 传递 JVM 参数
+            </li>
+            <li>
+              设置 Pinpoint agent id, 需要提前在镜像中添加 JVM 参数：-Dpinpoint.agentId=${POD_IP}
+            </li>
+            <li>
+              Dockerfile CMD 示例：
+              <br/><strong>CMD java $JAVA_OPTS -Dpinpoint.agentId=${POD_IP} -jar /app/app.jar</strong>
+            </li>
+          </ul>
         支持的中间件如下：
           <ul>
             <li>
@@ -190,7 +204,7 @@ const ApmSetting = React.createClass({
                 onChange={e => this.setState({ confirmApmChecked: e.target.checked })}
                 checked={confirmApmChecked}
               >
-              确认镜像所用中间件在上述列表内，且若为 Java 系支持 JAVA-OPTS 注入
+              确认镜像所用中间件在上述列表内，且满足 JVM 配置
               </Checkbox>
             )
           }
