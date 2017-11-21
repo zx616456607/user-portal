@@ -33,7 +33,7 @@ const menuList = [
   },
   {
     url: '/app_center/wrap_store',
-    name: '应用包商店'
+    name: '商店'
   }
 ]
 const wrapCheck = {

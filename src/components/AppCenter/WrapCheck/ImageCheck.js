@@ -11,13 +11,11 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Button, Table, Dropdown, Menu, Modal, Form, Input, Popover, Row, Col, Icon, Tooltip } from 'antd'
-import classNames from 'classnames'
 import './style/ImageCheck.less'
 import CommonSearchInput from '../../CommonSearchInput'
 import TenxStatus from '../../TenxStatus/index'
 import { getImagesList, appStoreApprove } from '../../../actions/app_store'
 import { formatDate } from '../../../common/tools'
-import { API_URL_PREFIX } from '../../../constants'
 import NotificationHandler from '../../../components/Notification'
 
 const FormItem = Form.Item
@@ -88,12 +86,12 @@ class ImageCheckTable extends React.Component {
     const { appStoreApprove, getImagesList } = this.props
     let notify = new NotificationHandler()
     const body = {
-      ID: record.iD,
+      id: record.iD,
       type: 2,
       status
     }
     if (status === 2) {
-      Object.assign(body, { OriginID: record.originID })
+      Object.assign(body, { origin_id: record.originID })
     }
     if (message) {
       Object.assign(body, { approve_message: message })
@@ -118,7 +116,7 @@ class ImageCheckTable extends React.Component {
           func: res => {
             reject(res.message)
             notify.close()
-            notify.error(`操作失败\n${res.message}`)
+            notify.error(`操作失败\n${res.message.message}`)
           }
         }
       })
@@ -225,8 +223,8 @@ class ImageCheckTable extends React.Component {
       width: '10%',
     }, {
       title: '镜像地址',
-      dataIndex: 'iD',
-      key: 'iD',
+      dataIndex: 'resourceAddr',
+      key: 'resourceAddr',
       width: '10%',
       render: (text, record) => {
         const content = (
@@ -319,7 +317,7 @@ class ImageCheckTable extends React.Component {
             }
             {
               [4].includes(record.publishStatus) &&
-                <Button onClick={() => this.checkImageStatus(record, 5)}>删除</Button>
+                <Button onClick={() => this.checkImageStatus(record, 7)}>删除</Button>
             }
           </div>
         )

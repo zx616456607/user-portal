@@ -11,8 +11,8 @@
 
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Modal, Tabs, Menu, Dropdown, Table, Icon, Button, Card, Input } from 'antd'
-import { Link, browserHistory } from 'react-router'
+import { Modal, Menu, Dropdown, Table, Button, Input } from 'antd'
+import { browserHistory } from 'react-router'
 import { camelize } from 'humps'
 import { loadProjectRepos, deleteRepo } from '../../../../actions/harbor'
 import NotificationHandler from '../../../../components/Notification'
@@ -132,13 +132,13 @@ class CodeRepo extends Component {
   confirmPublishModal() {
     this.setState({
       publishModal: false,
-      currentImageName: ''
+      currentImage: ''
     })
   }
   
   render() {
     const { repos, projectDetail } = this.props
-    const { publishModal, currentImageName } = this.state
+    const { publishModal, currentImage } = this.state
     let { isFetching, list, server, total } = repos || {}
     list = list || []
     server = server || ''
@@ -202,7 +202,7 @@ class CodeRepo extends Component {
                 if (key === 'publish') {
                   this.setState({
                     publishModal: true,
-                    currentImageName: row.name
+                    currentImage: row
                   })
                 }
               }}
@@ -263,7 +263,7 @@ class CodeRepo extends Component {
         <PublishModal
           server={server}
           visible={publishModal}
-          currentImageName={currentImageName}
+          currentImage={currentImage}
           callback={this.confirmPublishModal}
         />
         <Modal title="上传镜像" className="uploadImageModal" visible={this.state.uploadModalVisible} width="800px"

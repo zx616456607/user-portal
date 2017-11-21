@@ -11,7 +11,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Button, Table, Dropdown, Menu, Modal, Form, Input } from 'antd'
-import classNames from 'classnames'
 import './style/AppCheck.less'
 import CommonSearchInput from '../../CommonSearchInput'
 import TenxStatus from '../../TenxStatus/index'
@@ -341,9 +340,9 @@ class WrapCheck extends React.Component {
         isAsync: true
       },
       failed: {
-        func: () => {
+        func: res => {
           notify.close()
-          notify.error('通过审批失败')
+          notify.error(`通过审批失败\n,${res.message}`)
         }
       }
     })
