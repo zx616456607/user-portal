@@ -310,14 +310,57 @@ let ConfigureService = React.createClass({
     // set envs `./AdvancedSetting.js`
     const envKeys = []
     const envFields = {}
+    // weblogic env config
+    if (window.WrapListTable) {
+      const { weblogic } = window.WrapListTable
+      if (weblogic) {
+        const dbkeys =  envKeys.length
+        const dblist = ['DB_TYPE','DB_HOST','DB_PORT','DB_USER','DB_PASSWORD','isRAC','JNDI_NAME']
+        dblist.forEach((list,i)=> {
+          envKeys.push(
+            { value: dbkeys + i,disabled: true}
+          )
+          // envFields[`envName${dbkeys+i}`] = Object.getOwnPropertyNames(weblogic)[i]
+          // envFields[`envValue${dbkeys+i}`] = weblogic[Object.getOwnPropertyNames(weblogic)[i]]
+        })
+        envFields.envName0 = dblist[0]
+        envFields.envValue0 = weblogic.DB_TYPE
+
+        envFields.envName1 = dblist[1]
+        envFields.envValue1 = weblogic.DB_HOST
+
+        envFields.envName2 = dblist[2]
+        envFields.envValue2 = weblogic.DB_PORT
+
+        envFields.envName3 = dblist[3]
+        envFields.envValue3 = weblogic.DB_USER
+
+        envFields.envName4= dblist[4]
+        envFields.envValue4 = weblogic.DB_PASSWORD
+
+        // envFields.envName5 = dblist[5]
+        // envFields.envValue5 = weblogic.isRAC
+
+        envFields.envName6 = dblist[6]
+        envFields.envValue6 = weblogic.JNDI_NAME
+
+        if (!!weblogic.DB_checked) {
+          envFields.envName5 = 'SERVICE_NAME'
+          envFields.envValue5 = weblogic.isRAC
+        } else {
+          envFields.envName5 = 'SID'
+          envFields.envValue5 = weblogic.isRAC
+        }
+      }
+    }
     if (defaultEnv) {
       defaultEnv.forEach((env, index) => {
         // magic code ！
         // the same as portsKeys
-        envKeys.push({ value: index })
+        envKeys.push({ value: 7 + index })
         const keyIndex = env.indexOf('=')
-        envFields[`envName${index}`] = env.substr(0, keyIndex)
-        envFields[`envValue${index}`] = env.substr(keyIndex + 1)
+        envFields[`envName${7 + index}`] = env.substr(0, keyIndex)
+        envFields[`envValue${7 + index}`] = env.substr(keyIndex + 1)
       })
     }
 
