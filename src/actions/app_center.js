@@ -932,12 +932,12 @@ export function releaseWrap(pkgID, body, callback) {
 
 export const PASS_WRAP_PUBLISH_REQUEST = 'PASS_WRAP_PUBLISH_REQUEST'
 export const PASS_WRAP_PUBLISH_SUCCESS = 'PASS_WRAP_PUBLISH_SUCCESS'
-export const PASS_WRAP_PUBLISH_FAIULRE = 'PASS_WRAP_PUBLISH_FAIULRE'
+export const PASS_WRAP_PUBLISH_FAILURE = 'PASS_WRAP_PUBLISH_FAILURE'
 
 function fetchPassWrapPublish(id, callback) {
   return {
     [FETCH_API]: {
-      types: [PASS_WRAP_PUBLISH_FAIULRE,PASS_WRAP_PUBLISH_SUCCESS,PASS_WRAP_PUBLISH_FAIULRE],
+      types: [PASS_WRAP_PUBLISH_REQUEST,PASS_WRAP_PUBLISH_SUCCESS,PASS_WRAP_PUBLISH_FAILURE],
       endpoint: `${API_URL_PREFIX}/pkg/publish/${id}/pass`,
       schema: {},
       options: {
@@ -954,12 +954,12 @@ export function passWrapPublish(id, callback) {
 
 export const REFUSE_WRAP_PUBLISH_REQUEST = 'REFUSE_WRAP_PUBLISH_REQUEST'
 export const REFUSE_WRAP_PUBLISH_SUCCESS = 'REFUSE_WRAP_PUBLISH_SUCCESS'
-export const REFUSE_WRAP_PUBLISH_FAIULRE = 'REFUSE_WRAP_PUBLISH_FAIULRE'
+export const REFUSE_WRAP_PUBLISH_FAILURE = 'REFUSE_WRAP_PUBLISH_FAILURE'
 
 function fetchRefuseWrapPublish(id, body, callback) {
   return {
     [FETCH_API]: {
-      types: [REFUSE_WRAP_PUBLISH_REQUEST,REFUSE_WRAP_PUBLISH_SUCCESS,REFUSE_WRAP_PUBLISH_FAIULRE],
+      types: [REFUSE_WRAP_PUBLISH_REQUEST,REFUSE_WRAP_PUBLISH_SUCCESS,REFUSE_WRAP_PUBLISH_FAILURE],
       endpoint: `${API_URL_PREFIX}/pkg/publish/${id}/refuse`,
       schema: {},
       options: {

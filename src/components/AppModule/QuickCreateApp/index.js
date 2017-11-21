@@ -543,7 +543,7 @@ class QuickCreateApp extends Component {
       )
     }
     if (addWrap) {
-      return <DepolyWrap location={location} quick_create={'quick_create'}/>
+      return <DepolyWrap goBack={this.goSelectCreateAppMode}  location={location} quick_create={'quick_create'}/>
     }
     return <SelectImage location={location} onChange={this.onSelectImage} />
   }
@@ -562,6 +562,7 @@ class QuickCreateApp extends Component {
     }
     const row = window.WrapListTable
     // @todo has appRegistryMap
+    // 此方法放弃了
     if(row.appRegistryMap && Object.keys(row.appRegistryMap).length > 0 && location.query.entryPkgID) {
       notification.error('应用下已有设置entryPkgID的服务')
       return
@@ -626,17 +627,17 @@ class QuickCreateApp extends Component {
         </div>
       )
     }
-    return (
-      <div className="footerSteps">
-        <Button
-          size="large"
-          onClick={this.goSelectCreateAppMode}
-        >
-          上一步
-        </Button>
-        <Button size="large" style={{marginLeft:10}} onClick={()=> this.nextStep()}>下一步</Button>
-      </div>
-    )
+    // return (
+    //   <div className="footerSteps">
+    //     <Button
+    //       size="large"
+    //       onClick={this.goSelectCreateAppMode}
+    //     >
+    //       上一步
+    //     </Button>
+    //     <Button size="large" style={{marginLeft:10}} onClick={()=> this.nextStep()}>下一步</Button>
+    //   </div>
+    // )
   }
 
   editService(key) {
