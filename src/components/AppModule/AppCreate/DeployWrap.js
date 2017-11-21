@@ -8,7 +8,7 @@
  * @author Baiyu
  */
 import React, { Component } from 'react'
-import { Input, Button, Card, Steps, Row, Collapse, Col, Select,Icon } from 'antd'
+import { Input, Button, Card, Steps, Row, Collapse, Col, Select,Icon,Switch,Form } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { Link, browserHistory } from 'react-router'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
@@ -19,12 +19,13 @@ import { API_URL_PREFIX } from '../../../constants'
 import { formatDate } from '../../../common/tools'
 import javaImage from '../../../assets/img/appstore/java.png'
 import tomcatImage from '../../../assets/img/appstore/tomcat.png'
-// import weblogicImage from '../../../assets/img/appstore/weblogic.jpg'
+import weblogicImage from '../../../assets/img/appstore/weblogic.png'
 import Title from '../../Title'
 import NotificationHandler from '../../../components/Notification'
 import WrapListTable from '../../AppCenter/AppWrap/WrapListTable'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
+import Weblogic from './WeblogicConfig'
 import './style/WrapManage.less'
 const notificat = new NotificationHandler()
 import { SHOW_BILLING } from '../../../constants'
@@ -39,7 +40,7 @@ class WrapManage extends Component {
       stepStatus: 'process',
       serviceList: [],
       page: 1,
-      defaultTemplate:99,// 默认选中一个模板
+      defaultTemplate:null,// 默认选中一个模板
       selectedRowKeys:[],
       version:'none',
       id:[],// selected id
@@ -56,12 +57,12 @@ class WrapManage extends Component {
           imageUrl: tomcatImage,
           version: ['9','8','7']
         },
-        // {
-        //   registry: DEFAULT_REGISTRY,
-        //   name:'tenx_containers/weblogic',
-        //   imageUrl:weblogicImage,
-        //   version: ['latest']
-        // }
+        {
+          registry: DEFAULT_REGISTRY,
+          name: 'tenx_containers/weblogic',
+          imageUrl: weblogicImage,
+          version: ['11g']
+        }
       ],
       currentType: 'trad'
     }
@@ -183,9 +184,16 @@ class WrapManage extends Component {
   }
   templateList() {
     const { template,defaultTemplate } = this.state
+    let disabled = [defaultTemplate]
+    if (defaultTemplate === 0) {
+      disabled = [1,2]
+    }
+    if (defaultTemplate >0) {
+      disabled = [0]
+    }
     return template.map((item,index) => {
       return (
-        <Button type="ghost" key={index} disabled={ !window.WrapListTable || defaultTemplate !== index} style={{border:0}}>
+        <Button type="ghost" key={index} disabled={ !window.WrapListTable || disabled.some(list=> list === index)} style={{border:0}}>
         <div className="template" key={item.name} onClick={()=> this.changTemplate(index,item)}>
           <img src={`${item.imageUrl}`} />
           {defaultTemplate == index?
@@ -203,7 +211,7 @@ class WrapManage extends Component {
   }
   templateVersion() {
     const { defaultTemplate, template } = this.state
-    if (defaultTemplate >9) {
+    if (!defaultTemplate) {
       return <Select.Option key="none">请先选择应用包</Select.Option>
     }
     return template[defaultTemplate].version.map(item=> {
@@ -214,6 +222,13 @@ class WrapManage extends Component {
     if (!row) {
       notificat.info('请先选择应用包')
       return
+    }
+    if (this.state.weblogicChecked) {
+      const weblogicconfig = this.refs.Weblogic.formCheckecd()
+      if (!weblogicconfig) {
+        return
+      }
+      window.WrapListTable.weblogic = weblogicconfig
     }
     const { wrapList, location } = this.props
     if(row.appRegistryMap && Object.keys(row.appRegistryMap).length > 0 && location.query.entryPkgID) {
@@ -247,6 +262,29 @@ class WrapManage extends Component {
     }
     browserHistory.push('/app_manage/app_create/quick_create'+ imageName + SERVICE_CONFIG_HASH)
 
+  }
+  heightConfig () {
+    const { defaultTemplate } = this.state
+    if (defaultTemplate === 2) {
+      if (this.state.weblogicChecked) {
+        return (
+          <div className="reset_form_item_label_style">
+            <div className="list_row">
+              <span className="wrap_key">连接Oracle </span>
+              <Switch checked={this.state.weblogicChecked} onChange={(e)=> this.setState({weblogicChecked: e})} checkedChildren="开" unCheckedChildren="关" />
+            </div>
+            <Weblogic form={this.props.form} ref="Weblogic" />
+          </div>
+        )
+      }
+      return (
+        <div className="list_row">
+          <span className="wrap_key">连接Oracle </span>
+          <Switch checked={this.state.weblogicChecked} onChange={(e)=> this.setState({weblogicChecked: e})} checkedChildren="开" unCheckedChildren="关" />
+        </div>
+      )
+    }
+    return null
   }
   render() {
     const { serviceList, template, defaultTemplate, version, currentType } = this.state
@@ -284,7 +322,7 @@ class WrapManage extends Component {
               </span>
             </div>
             <div style={{ marginBottom: 20 }}>
-              <ButtonGroup> 
+              <ButtonGroup>
                 <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>应用包</Button>
                 <Button type="ghost" className={classNames({'active': currentType === 'store'})} onClick={() =>this.changeWrap('store')}>应用包商店</Button>
               </ButtonGroup>
@@ -306,8 +344,13 @@ class WrapManage extends Component {
                   { this.templateVersion() }
                 </Select>
               </div>
+              {this.heightConfig()}
               </Collapse.Panel>
             </Collapse>
+            <div className="footerBtn">
+              <Button size="large" onClick={() => this.props.goBack()}>上一步</Button>
+              <Button size="large" style={{marginLeft:10}} onClick={() => this.goDeploy(window.WrapListTable)}>下一步</Button>
+            </div>
           </div>
         </QueueAnim>
       )
@@ -327,7 +370,7 @@ class WrapManage extends Component {
                 </span>
               </div>
               <div style={{ marginBottom: 20 }}>
-                <ButtonGroup> 
+                <ButtonGroup>
                   <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>应用包</Button>
                   <Button type="ghost" className={classNames({'active': currentType === 'store'})} onClick={() =>this.changeWrap('store')}>应用包商店</Button>
                 </ButtonGroup>
@@ -349,6 +392,7 @@ class WrapManage extends Component {
                     { this.templateVersion() }
                   </Select>
                 </div>
+                {this.heightConfig()}
                 </Collapse.Panel>
               </Collapse>
               <div className="footerBtn">
@@ -427,6 +471,7 @@ function mapStateToProps(state, props) {
     isFetching: list.isFetching
   }
 }
+WrapManage = Form.create()(WrapManage)
 
 export default connect(mapStateToProps, {
   wrapManageList,
