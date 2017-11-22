@@ -22,7 +22,9 @@ function imageWithStatus(state = {}, action) {
     case ActionTypes.APP_IMAGE_STATUS_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        data: action.response.result.data
+        data: action.response.result.data,
+        name: action.response.result.name,
+        status: action.response.result.status
       })
     case ActionTypes.APP_IMAGE_STATUS_FAILURE:
       return Object.assign({}, defaultState, {
@@ -43,6 +45,7 @@ function imagePublishRecord(state = {}, action) {
         isFetching: true
       })
     case ActionTypes.APP_STORE_LIST_SUCCESS:
+      console.log(action.response.result)
       return Object.assign({}, state, {
         isFetching: false,
         data: action.response.result.data
@@ -102,11 +105,34 @@ function imageCheckList(state = {}, action) {
   }
 }
 
+function imageApprovalList(state = {}, action) {
+  const defaultState = {
+    isFetching: false
+  }
+  switch(action.type) {
+    case ActionTypes.IMAGE_APPROVAL_LIST_REQUEST:
+      return Object.assign({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.IMAGE_APPROVAL_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data
+      })
+    case ActionTypes.IMAGE_APPROVAL_LIST_FAILURE:
+      return Object.assign({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
 export default function app_store(state = {}, action) {
   return {
     currentImageWithStatus: imageWithStatus(state.currentImageWithStatus, action),
     imagePublishRecord: imagePublishRecord(state.imagePublishRecord, action),
     imageHotRecord: imageHotRecord(state.imageHotRecord, action),
-    imageCheckList: imageCheckList(state.imageCheckList, action)
+    imageCheckList: imageCheckList(state.imageCheckList, action),
+    imageApprovalList: imageApprovalList(state.imageApprovalList, action)
   }
 }

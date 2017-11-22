@@ -19,6 +19,7 @@ import {
   publicFilterServer
 } from '../../../actions/app_center'
 import { loadAllProject, searchHarborPublicImages, searchHarborPrivateImages } from '../../../actions/harbor'
+import { getAppsList } from '../../../actions/app_store'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/SelectImage.less'
 
@@ -29,6 +30,7 @@ const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
 const TabPane = Tabs.TabPane
 const PUBLIC_IMAGES = 'publicImages'
+const IMAGE_STORE = 'imageStore'
 class SelectImage extends Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
@@ -106,6 +108,12 @@ class SelectImage extends Component {
 
   imageTypeChange(e, isResetSearchInput, callback) {
     const imageType = e.target.value
+    if (imageType === IMAGE_STORE) {
+      this.setState({
+        imageType
+      })
+      return this.loadImageStore()
+    }
     const {
       registry,
       //loadPrivateImageList,
@@ -137,7 +145,20 @@ class SelectImage extends Component {
     //     break
     // }
   }
-
+  loadImageStore() {
+    const { getAppsList } = this.props
+    const { searchInputValue, currentPage } = this.state
+    let filter = 'type,2,publish_status,2'
+    if (searchInputValue) {
+      filter += `,file_nick_name,${searchInputValue}`
+    }
+    let query = {
+      form: (currentPage - 1) * 10,
+      size: 10,
+      filter
+    }
+    getAppsList(query)
+  }
   imageFilterChange(e) {
     const { publicFilterServer, registry } = this.props
     const imageFilter = e.target.value
@@ -195,20 +216,23 @@ class SelectImage extends Component {
   onDeploy(imageName, registry) {
     this.props.onChange(imageName, registry)
   }
-
   renderImageList(imageData) {
     if(!imageData) {
       imageData = {
         server: '',
       }
     }
+    const { imageStoreList } = this.props 
     const { server, isFetching } = imageData
     const { imageType } = this.state
-    const imageList = imageData[imageType]
+    let imageList = imageData[imageType]
+    if (imageType === IMAGE_STORE) {
+      imageList = imageStoreList && imageStoreList.apps
+    }
     const columns = [{
       title: '镜像名称',
-      dataIndex: 'repositoryName',
-      key: 'repositoryName',
+      dataIndex: imageType === IMAGE_STORE ? 'resourceName' : 'repositoryName',
+      key: imageType === IMAGE_STORE ? 'resourceName' : 'repositoryName',
       render(text, row) {
         return (
           <div>
@@ -217,7 +241,7 @@ class SelectImage extends Component {
             </svg>
             <div className="infoBox">
               <span className="name">{text}</span> <br />
-              <span className="desc">{row.description}</span>
+              <span className="desc">{imageType !== IMAGE_STORE ? row.description : row.versions[0].description}</span>
             </div>
           </div>
         )
@@ -228,12 +252,18 @@ class SelectImage extends Component {
       key: 'deploy',
       width: '10%',
       render: (text, row)=> {
+        let str = row.repositoryName
+        let server = server
+        if (imageType === IMAGE_STORE) {
+          server = row.resourceLink.split('/')[0]
+          str = row.resourceName
+        }
         return (
           <div className="deployBox">
             <Button
               className="deployBtn"
               type="primary" size="large"
-              onClick={this.onDeploy.bind(this, row.repositoryName, server)}
+              onClick={this.onDeploy.bind(this, str, server)}
             >
               部署&nbsp;
               <i className="fa fa-arrow-circle-o-right" />
@@ -245,7 +275,7 @@ class SelectImage extends Component {
     const paginationOpts = {
       simple: true,
       current: this.state.currentPage,
-      onChange: current => this.setState({ currentPage: current }),
+      onChange: current => this.setState({ currentPage: current }, imageType === IMAGE_STORE && this.loadImageStore()),
       pageSize: 10
     }
     return (
@@ -278,6 +308,7 @@ class SelectImage extends Component {
             <RadioGroup size="large" onChange={this.imageTypeChange} value={imageType}>
               <RadioButton value={PUBLIC_IMAGES}>公有</RadioButton>
               <RadioButton value="privateImages">私有</RadioButton>
+              <RadioButton value="imageStore">镜像商店</RadioButton>
               { /*<RadioButton value="fockImages">收藏</RadioButton> */ }
             </RadioGroup>
           </span>
@@ -331,12 +362,16 @@ function mapStateToProps(state, props) {
   const { cluster, unit } =  state.entities.current
   const oemInfo = state.entities.loginUser.info.oemInfo || {}
   const { productName } = oemInfo.company || {}
+  const { appStore }  = state
+  const { imagePublishRecord } = appStore
+  const { data: imageStoreList } = imagePublishRecord || { data: {} }
   return {
     registry,
     images: state.harbor.allProject[registry],
     cluster: cluster.clusterID,
     unit,
-    productName
+    productName,
+    imageStoreList
   }
 }
 
@@ -348,5 +383,6 @@ export default connect(mapStateToProps, {
   searchFavoriteImages,
   searchPrivateImages,
   publicFilterServer,
-  loadAllProject
+  loadAllProject,
+  getAppsList
 })(SelectImage)

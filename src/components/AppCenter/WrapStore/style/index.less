@@ -29,7 +29,7 @@
   .filterAndSortBox{
     background-color: white;
     position: relative;
-    padding: 20px 24px;
+    padding: 20px 190px 20px 24px;
     .ant-pagination{
       position: absolute;
       top: 24px;
@@ -78,6 +78,9 @@
       .wrapList{
         padding: 24px;
         border: @border-width-base @border-style-base @border-color-split;
+        &:not(:last-of-type) {
+          border-bottom: none;
+        }
         border-radius: @border-radius-base;
         .hotOrder{
           display: inline-block;
@@ -137,7 +140,7 @@
         }
       }
       .noBorder{
-        border-bottom: none !important;
+        border: none !important;
       }
       .hotWrapCard{
         .ant-card-body{

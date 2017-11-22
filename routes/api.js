@@ -670,7 +670,8 @@ module.exports = function (Router) {
 
   //app_store
   router.put('/app-store/apps/approval',appStoreController.approveApps)
-  router.get('/app-store/apps',appStoreController.getAppslist)
+  router.get('/app-store/apps/approval',appStoreController.getAppApprovalList)
+  router.get('/app-store/apps',appStoreController.getStorelist)
   router.get('/app-store/apps/:name/existence',appStoreController.checkAppNameExists)
   router.post('/app-store/apps/images/publishment',appStoreController.publishImage)
   router.put('/app-store/apps/images/management',appStoreController.manageImages)
@@ -678,6 +679,7 @@ module.exports = function (Router) {
   router.post('/app-store/apps/images/status',appStoreController.getImageStatus)
   router.post('/app-store/apps/:app/icon', appStoreController.uploadIcon)
   router.get('/app-store/apps/icon/:id', appStoreController.getIcon)
-
+  router.post('/app-store/apps/images/existence',appStoreController.checkImageExists)
+  
   return router.routes()
 }

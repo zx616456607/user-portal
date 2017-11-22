@@ -19,7 +19,7 @@ import { calcuDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX } from '../../../constants'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
-
+import ProjectDetail from '../ImageCenter/ProjectDetail'
 const sortOption = [
   {
     key: 'publish_time',
@@ -28,10 +28,6 @@ const sortOption = [
   {
     key: 'download_times',
     text: '按照下载次数'
-  },
-  {
-    key: 'file_nick_name',
-    text: '按照名称'
   }
 ]
 
@@ -41,6 +37,8 @@ class WrapComopnent extends React.Component {
     this.closeModal = this.closeModal.bind(this)
     this.offShelfConfirm = this.offShelfConfirm.bind(this)
     this.offShelfCancel = this.offShelfCancel.bind(this)
+    this.showImageDetail = this.showImageDetail.bind(this)
+    this.closeImageDetailModal = this.closeImageDetailModal.bind(this)
     this.state = {
       
     }
@@ -74,8 +72,24 @@ class WrapComopnent extends React.Component {
     })
   }
   renderSortTab() {
-    const { changeSort, sort_by } = this.props
-    return sortOption.map(item => {
+    const { changeSort, sort_by, activeKey } = this.props
+    let newSortOpt
+    if (activeKey === 'app') {
+      newSortOpt = sortOption.concat(
+        {
+          key: 'file_nick_name',
+          text: '按照名称'
+        }
+      )
+    } else {
+      newSortOpt = sortOption.concat(
+        {
+          key: 'app_name',
+          text: '按照名称'
+        }
+      )
+    }
+    return newSortOpt.map(item => {
       return(
         <span
           className={classNames('filterTab', { 'active': sort_by === item.key })}
@@ -193,12 +207,9 @@ class WrapComopnent extends React.Component {
       this.goDeploy(item.fileName)
       return
     }
-    const { resourceAddr } = item
-    const resource = resourceAddr.split(':')[0]
-    const resourceArr = resource.split('/')
-    const server = resourceArr[0]
-    const node = `${resourceArr[1]}/${resourceArr[2]}`
-    browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${server}&imageName=${node}#configure-service`)
+    const { resourceLink, resourceName } = item
+    const server = resourceLink && resourceLink.split('/')[0]
+    browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${server}&imageName=${resourceName}#configure-service`)
   }
   startCopy(value) {
     const target = document.getElementsByClassName('storeCopyInput')[0]
@@ -216,6 +227,12 @@ class WrapComopnent extends React.Component {
     this.setState({
       copyStatus: false
     })
+  }
+  closeImageDetailModal(){
+    this.setState({imageDetailModalShow:false})
+  }
+  showImageDetail(item) {
+    this.setState({currentImage: item, imageDetailModalShow: true})
   }
   renderWrapList(dataSource, isHot) {
     const { role, activeKey } = this.props
@@ -262,32 +279,32 @@ class WrapComopnent extends React.Component {
           }
           <Col span={isHot ? 5 : 4}>
             <img className={classNames({"wrapIcon": !isHot, "hotWrapIcon": isHot})}
-                 src={`${API_URL_PREFIX}/pkg/icon/${ activeKey === 'app' ? item.pkgIconID : item.iconID}`}
+                 src={`${API_URL_PREFIX}/pkg/icon/${ activeKey === 'app' ? item.pkgIconID : item.versions[0].iconID}`}
             />
           </Col>
           <Col span={isHot ? 7 : 10}>
             <Row className="wrapListMiddle">
               <Col className="appName" style={{ marginBottom: isHot || activeKey === 'image' ? 0 : 10 }}>
-                {item.fileNickName}
-                <span className="nickName hintColor"> ({activeKey === 'app' ? item.fileName : item.image})</span>
+                <span onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)} className="themeColor pointer">{activeKey === 'app' ? item.fileNickName : item.appName}</span>
+                <span className="nickName hintColor"> ({activeKey === 'app' ? item.fileName : item.resourceName})</span>
                 {
                   activeKey === 'image' && !isHot &&
                     <span className="tagBox">
                       <Icon type="tag" className="tag"/>
-                      {item.tag}
+                      {item.versions[0].tag}
                     </span>
                 }
               </Col>
               {
                 activeKey === 'image' && !isHot && 
                 <Col className="sourceAddr hintColor">
-                  镜像地址：{item.resourceAddr}
+                  镜像地址：{item.resourceLink}:{item.versions[0].tag}
                   <input type="text" className="storeCopyInput" style={{ position: "absolute", opacity: "0", top:'0'}}/>
                   <Tooltip title={copyStatus ? '复制成功' : '点击复制'}>
                     <Icon
                       type="copy"
                       className="copyBtn pointer"
-                      onMouseEnter={() => this.startCopy(item.resourceAddr)}
+                      onMouseEnter={() => this.startCopy(`${item.resourceLink}:${item.versions[0].tag}`)}
                       onClick={this.copyOperate.bind(this)}
                       onMouseLeave={this.copyEnd.bind(this)}
                     />
@@ -295,7 +312,7 @@ class WrapComopnent extends React.Component {
                 </Col>
               }
               {
-                !isHot && <Col className="hintColor appDesc">描述：{item.description}</Col>
+                !isHot && <Col className="hintColor appDesc">描述：{activeKey === 'app' ? item.description : item.versions[0].description}</Col>
               }
               {
                 isHot &&
@@ -328,12 +345,13 @@ class WrapComopnent extends React.Component {
   }
   render() {
     const { current, dataSource, dataHotList, updatePage } = this.props
-    const { downloadModalVisible, currentImage, offShelfModal } = this.state
+    const { downloadModalVisible, currentImage, offShelfModal, imageDetailModalShow } = this.state
     let server
     let node
     if (currentImage) {
-      server = currentImage.resourceAddr.split('/')[0]
-      node = currentImage.resourceAddr.split('/')[1]
+      server = currentImage.resource && currentImage.resource.split('/')[0]
+      node = currentImage.resource && currentImage.resource.split('/')[1]
+      Object.assign(currentImage, { name: currentImage.image })
     }
     const pagination = {
       simple: true,
@@ -344,6 +362,14 @@ class WrapComopnent extends React.Component {
     }
     return(
       <div className="storeTemplate">
+        <Modal
+          visible={imageDetailModalShow}
+          className="AppServiceDetail"
+          transitionName="move-right"
+          onCancel={()=> this.setState({imageDetailModalShow:false})}
+        >
+          <ProjectDetail server={server} scope={this} config={currentImage}/>
+        </Modal>
         <Modal 
           title="下载镜像"
           className="uploadImageModal" 
