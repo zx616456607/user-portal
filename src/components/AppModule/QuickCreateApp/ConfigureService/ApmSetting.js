@@ -16,6 +16,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { loadApms } from '../../../../actions/apm'
 import { ROLE_SYS_ADMIN } from '../../../../../constants'
+import { API_URL_PREFIX } from '../../../../constants'
 import { toQuerystring } from '../../../../common/tools'
 import './style/ApmSetting.less'
 
@@ -71,7 +72,7 @@ const ApmSetting = React.createClass({
     if (!apms || apms.length === 0) {
       return (
         <span>
-          当前空间未安装 APM Agent，前往安装 <a target="_blank" href={`${msaUrl}/setting/apms?${toQuerystring(openApi.result)}`}>微服务平台</a>
+          当前空间未安装 APM Agent，前往安装 <a target="_blank" href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: `${msaUrl}/setting/apms` })}`}>微服务平台</a>
         </span>
       )
     }
