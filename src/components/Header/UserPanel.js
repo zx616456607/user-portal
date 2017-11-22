@@ -293,13 +293,7 @@ function mapStateToProp(state, props) {
   let role = ROLE_USER
   const { entities } = state
   const { loginUser } = props
-  const { clusterInfo } = state.overviewCluster
-  let { balance } = loginUser
-  if (clusterInfo && clusterInfo.result) {
-    if (clusterInfo.result.spaceconsumption) {
-      balance = clusterInfo.result.spaceconsumption.balance
-    }
-  }
+  const { balance } = loginUser
   if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
     role = entities.loginUser.info.role
   }
