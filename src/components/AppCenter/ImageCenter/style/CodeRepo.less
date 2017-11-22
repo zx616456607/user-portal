@@ -1,3 +1,4 @@
+@import "../../../../assets/style/site/core";
 #codeRepo {
   .ant-table-thead > tr > th, .ant-table-tbody > tr > td{padding:0;}
   .topRow {padding-top: 10px;}
@@ -78,5 +79,54 @@
     color: #3d6cb4;
     background-color: #F8F8F8;
     overflow: auto;
+  }
+}
+
+.imagePublishModal{
+  .wrap-image{
+    background: #fbfbfb;
+    border: @border-width-base dashed @border-color-base;
+    cursor: pointer;
+    border-radius: 5px;
+    position: relative;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    overflow: hidden;
+    display: block;
+    .wrapLogo{
+      width: 100px;
+      height: 100px;
+    }
+    .ant-upload-text{
+      position: absolute;
+      left: 12px;
+      bottom: 5px;
+    }
+    .plus-icon{
+      z-index: 2;
+      left: 43%;
+    }
+  }
+}
+
+.publishSuccessModal{
+  padding: 30px;
+  text-align: center;
+  .successIcon{
+    font-size: 90px;
+  }
+  .successText{
+    margin-top: 15px;
+    font-size: @font-size-large;
+  }
+  .waitText{
+    margin-top: 8px;
+    font-size: @font-size-medium;
+    margin-bottom: 20px;
+  }
+  .stepHint{
+    text-align: left;
+    text-indent: 70px;
   }
 }

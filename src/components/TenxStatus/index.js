@@ -139,33 +139,41 @@ const messages = defineMessages({
     id: 'TenxStatus.ServiceNormalFailed',
     defaultMessage: '服务常规超时'
   },
-  AppUnpublished: {
-    id: 'TenxStatus.AppUnpublished',
+  Unpublished: {
+    id: 'TenxStatus.Unpublished',
     defaultMessage: '未发布'
   },
-  AppChecking: {
-    id: 'TenxStatus.AppChecking',
+  Checking: {
+    id: 'TenxStatus.Checking',
     defaultMessage: '审核中'
   },
-  AppPublished: {
-    id: 'TenxStatus.AppPublished',
+  Published: {
+    id: 'TenxStatus.Published',
     defaultMessage: '已发布'
   },
-  AppReject: {
-    id: 'TenxStatus.AppReject',
+  CheckReject: {
+    id: 'TenxStatus.CheckReject',
     defaultMessage: '审核未通过'
   },
-  AppOffShelf: {
-    id: 'TenxStatus.AppOffShelf',
+  OffShelf: {
+    id: 'TenxStatus.OffShelf',
     defaultMessage: '已下架'
   },
-  AppWaitForCheck: {
-    id: 'TenxStatus.AppWaitForCheck',
+  WaitForCheck: {
+    id: 'TenxStatus.WaitForCheck',
     defaultMessage: '待审核'
   },
-  AppPass: {
-    id: 'TenxStatus.AppPass',
+  CheckPass: {
+    id: 'TenxStatus.CheckPass',
     defaultMessage: '已通过'
+  },
+  ImageCopy: {
+    id: 'TenxStatus.ImageCopy',
+    defaultMessage: '镜像复制中'
+  },
+  ImageCopyFailed: {
+    id: 'TenxStatus.ImageCopyFailed',
+    defineMessages: '复制失败'
   }
 })
 
@@ -321,6 +329,8 @@ class TenxStatus extends Component {
       progress,
       smart,
       deletionTimestamp,
+      showDesc,
+      description
     } = this.props
     const {
       percent
@@ -336,7 +346,15 @@ class TenxStatus extends Component {
     }
     let phaseElement = (
       <div>
-        <i className="fa fa-circle" /> <FormattedMessage {...messages[phase]} />
+        <i className="fa fa-circle" /> <FormattedMessage {...messages[phase]} />&nbsp;
+        {
+          showDesc &&
+            <Tooltip
+              title={description}
+            >
+              <Icon type="question-circle-o"/>
+            </Tooltip>
+        }
       </div>
     )
     let progressElement
@@ -389,13 +407,15 @@ TenxStatus.propTypes = {
     'UploadPkgAndEnvSuccess',
     'ServiceInitFailed',
     'ServiceNormalFailed',
-    'AppUnpublished',
-    'AppChecking',
-    'AppPublished',
-    'AppReject',
-    'AppOffShelf',
-    'AppWaitForCheck',
-    'AppPass'
+    'Unpublished',
+    'Checking',
+    'Published',
+    'CheckReject',
+    'OffShelf',
+    'WaitForCheck',
+    'CheckPass',
+    'ImageCopy',
+    'ImageCopyFailed'
   ]).isRequired,
   progress: PropTypes.shape({
     status: PropTypes.bool,

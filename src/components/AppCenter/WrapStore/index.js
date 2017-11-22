@@ -10,65 +10,85 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
-import { Row, Col, Icon, Dropdown, Menu, Card, Popover, Pagination } from 'antd'
-import classNames from 'classnames'
-import { getWrapStoreList, getWrapStoreHotList, offShelfWrap, getWrapGroupList } from '../../../actions/app_center'
+import { Tabs } from 'antd'
+import { getWrapStoreList, getWrapGroupList } from '../../../actions/app_center'
+import { getAppsList, getAppsHotList } from '../../../actions/app_store'
 import './style/index.less'
+import StoreTemplate from './StoreTemplate'
 import CommonSearchInput from '../../CommonSearchInput'
-import { formatDate } from '../../../common/tools'
-import NotificationHandler from '../../../components/Notification'
-import { API_URL_PREFIX } from '../../../constants'
-import { ROLE_SYS_ADMIN } from '../../../../constants'
+const TabPane = Tabs.TabPane;
 
-const sortOption = [
-  {
-    key: 'publish_time',
-    text: '按照发布时间'
-  },
-  {
-    key: 'download_times',
-    text: '按照下载次数'
-  },
-  {
-    key: 'file_nick_name',
-    text: '按照名称'
-  }
-]
 class AppWrapStore extends React.Component {
   constructor(props) {
     super(props)
+    this.changeTab = this.changeTab.bind(this)
+    this.getStoreList = this.getStoreList.bind(this)
+    this.changeSort = this.changeSort.bind(this)
+    this.filterClassify = this.filterClassify.bind(this)
+    this.updatePage = this.updatePage.bind(this)
     this.state = {
       current: 1,
       filterName: '',
-      filterClassify: '',
-      sort_by: 'publish_time'
+      classify: '',
+      sort_by: 'publish_time',
+      activeKey: 'app'
     }
   }
   componentWillMount() {
-    const { getWrapStoreHotList, getWrapGroupList } = this.props
-    this.getStoreList()
-    getWrapStoreHotList()
+    const { getWrapGroupList } = this.props
     getWrapGroupList()
+    this.getStoreList()
+  }
+  changeTab(activeKey){
+    this.setState({
+      current: 1,
+      filterName: '',
+      classify: '',
+      sort_by: 'publish_time',
+      activeKey
+    }, this.getStoreList)
   }
   getStoreList() {
-    const { getWrapStoreList } = this.props
-    const { current, filterName, sort_by, filterClassify } = this.state
-    const query = {
+    const { getWrapStoreList, getAppsList } = this.props
+    const { current, filterName, sort_by, classify, activeKey } = this.state
+    let query = {
       from: (current - 1) * 10,
       size: 10
     }
+    if (activeKey === 'image') {
+      Object.assign(query, { filter: 'type,2,publish_status,2' })
+    }
     if (filterName) {
-      Object.assign(query, { file_name: filterName })
+      if (activeKey === 'app') {
+        Object.assign(query, { file_name: filterName })
+      } else {
+        const { filter } = query
+        let newFilter = filter + `,file_nick_name,${filterName}`
+        Object.assign(query, { filter: newFilter })
+      }
     }
     if (sort_by) {
-      Object.assign(query, { sort_by, sort_order: 'desc' })
+      if (activeKey === 'app') {
+        Object.assign(query, { sort_by, sort_order: 'desc' })
+      } else {
+        Object.assign(query, { sort: `d,${sort_by}` })
+      }
     }
-    if (filterClassify) {
-      Object.assign(query, { classify_id: filterClassify })
+    if (classify) {
+      if (activeKey === 'app') {
+        Object.assign(query, { classify_id: classify })
+      } else {
+        const { filter } = query
+        let newFilter = filter + `,classify_id,${classify}`
+        Object.assign(query, { filter: newFilter })
+      }
     }
-    getWrapStoreList(query)
+    if (activeKey === 'app') {
+      getWrapStoreList(query)
+      return
+    }
+    getAppsList(query)
   }
   changeSort(sort) {
     const { sort_by } = this.state
@@ -84,7 +104,7 @@ class AppWrapStore extends React.Component {
   }
   filterClassify(value) {
     this.setState({
-      filterClassify: value
+      classify: value
     }, this.getStoreList)
   }
   updatePage(current) {
@@ -92,191 +112,56 @@ class AppWrapStore extends React.Component {
       current
     }, this.getStoreList)
   }
-  renderClassifyTab() {
-    const { wrapGroupList } = this.props
-    const { filterClassify } = this.state
-    if (!wrapGroupList || !wrapGroupList.classifies || !wrapGroupList.classifies.length) return
-    const allClassify = [{
-      iD: "",
-      classifyName: "全部"
-    }]
-    let newClassifies = allClassify.concat(wrapGroupList.classifies)
-    return newClassifies.map(item => {
-      return(
-        <span 
-          className={classNames('filterTab', {'active': item.iD === filterClassify})} 
-          key={item.iD}
-          onClick={() => this.filterClassify(item.iD)}
-        >
-          {item.classifyName}
-        </span>
-      ) 
-    })
-  }
-  renderSortTab() {
-    const { sort_by } = this.state
-    return sortOption.map(item => {
-      return(
-        <span
-          className={classNames('filterTab', { 'active': sort_by === item.key })}
-          key={item.key}
-          onClick={() => this.changeSort(item.key)}
-        >
-          {item.text}
-        </span>
-      )
-    })
-  }
-  goDeploy(fileName) {
-    browserHistory.push('/app_manage/deploy_wrap?from=wrapStore&fileName='+fileName)
-  }
-  updateAppStatus(pkgID) {
-    const { offShelfWrap, getWrapStoreHotList } = this.props
-    let notify = new NotificationHandler()
-    notify.spin('操作中')
-    offShelfWrap(pkgID, {
-      success: {
-        func: () => {
-          notify.close()
-          notify.success('操作成功')
-          this.getStoreList()
-          getWrapStoreHotList()
-        },
-        isAsync: true
-      },
-      failed: {
-        func: () => {
-          notify.close()
-          notify.error('操作失败')
-        }
-      }
-    })
-  }
-  handleMenuClick(e, row) {
-    switch(e.key) {
-      case 'offShelf':
-        this.updateAppStatus(row.id)
-        break
-      case 'vm':
-        browserHistory.push(`/app_manage/vm_wrap/create?from=wrapStore&fileName=${row.fileName}`)
-    }
-  }
-  handleButtonClick(item) {
-    this.goDeploy(item.fileName)
-  }
-  renderWrapList(dataSorce, isHot) {
-    const { role } = this.props
-    if (!dataSorce || !dataSorce.pkgs || !dataSorce.pkgs.length) {
-      return
-    }
-    return dataSorce && dataSorce.pkgs.map((item, index) => {
-      const menu = (
-        <Menu style={{ width: 90 }} onClick={e => this.handleMenuClick(e, item)}>
-          <Menu.Item key="vm">
-            传统部署
-          </Menu.Item>
-          <Menu.Item key="download"><a target="_blank" href={`${API_URL_PREFIX}/pkg/${item.id}`}>下载</a></Menu.Item>
-          {
-            role === ROLE_SYS_ADMIN &&
-              <Menu.Item key="offShelf" disabled={[0, 1, 4].includes(item.publishStatus)}>下架</Menu.Item>
-          }
-        </Menu>
-      );
-      return (
-        <Row key={item.id} className={classNames("wrapList", {"noBorder": isHot, 'hotWrapList': isHot, 'commonWrapList': !isHot})} type="flex" justify="space-around" align="middle">
-          {
-            isHot && <Col span={3}>{index !== 0 ? <span className={`hotOrder hotOrder${index + 1}`}>{index + 1}</span> : <i className="champion"/>}</Col>
-          }
-          <Col span={isHot ? 5 : 4}>
-            <img className={classNames({"wrapIcon": !isHot, "hotWrapIcon": isHot})} 
-              src={`${API_URL_PREFIX}/pkg/icon/${item.pkgIconID}`}
-            />
-          </Col>
-          <Col span={isHot ? 7 : 10}>
-            <Row className="wrapListMiddle">
-              <Col className="appName" style={{ marginBottom: isHot ? 0 : 10 }}>{item.fileNickName}<span className="nickName hintColor"> ({item.fileName})</span></Col>
-              {
-                !isHot && <Col className="hintColor appDesc">{item.description}</Col>
-              }
-              {
-                isHot &&
-                <Col className="downloadBox">
-                  <span className="hintColor"><Icon type="download" /> {item.downloadTimes}</span>
-                </Col>
-              }
-            </Row>
-          </Col>
-          <Col span={isHot ? 9 : 10} style={{ textAlign: 'right' }}>
-            <Dropdown.Button
-              className="wrapPopBtn" 
-              overlay={menu} 
-              type="ghost"
-              onClick={() => this.handleButtonClick(item)}
-            >
-              <span className="operateBtn"><Icon type="appstore-o" /> 容器部署</span>
-            </Dropdown.Button>
-            {
-              !isHot &&
-                <div className="downloadBox">
-                  <span className="hintColor"><Icon type="download" /> {item.downloadTimes}</span>
-                  <span className="hintColor"><Icon type="clock-circle-o" /> 发布于 {formatDate(item.publishTime)}</span>
-                </div>
-            }
-          </Col>
-        </Row>
-      )
-    })
-  }
+  
   render() {
-    const { wrapStoreList, wrapStoreHotList} = this.props
-    const { current } = this.state
-    const pagination = {
-      simple: true,
-      current,
-      pageSize: 10,
-      total: wrapStoreList && wrapStoreList.total || 0,
-      onChange: this.updatePage.bind(this)
-    }
+    const { wrapGroupList, wrapStoreList, wrapStoreHotList, role, imageStoreList, imageHotList } = this.props
+    const { activeKey, current, classify, sort_by } = this.state
     return (
       <QueueAnim>
         <div key="appWrapStore" className="appWrapStore">
           <div className="wrapStoreHead">
-            <div className="storeHeadText">应用包商店</div>
+            <div className="storeHeadText">商店</div>
             <CommonSearchInput 
-              placeholder="请输入应用包名称搜索"
+              placeholder={activeKey === 'app' ? "请输入应用包名称搜索" : "请输入镜像名称搜索"}
               size="large"
               style={{ width: 280 }}
               onSearch={value => this.filterValue(value)}
             />
           </div>
-          <div className="filterAndSortBox">
-            <div className="filterClassify">
-              <span>分类：</span>
-              {this.renderClassifyTab()}
-            </div>
-            <div className="sortBox">
-              <span>排序：</span>
-              {this.renderSortTab()}
-            </div>
-            {
-              wrapStoreList && wrapStoreList.total !== 0 &&
-                <div className="total">共 {wrapStoreList && wrapStoreList.total || 0} 条</div>
-            }
-            {
-              wrapStoreList && wrapStoreList.total !== 0 &&
-                <Pagination {...pagination}/>
-            }
-          </div>
-          <div className="wrapStoreBody">
-            <div className="wrapListBox wrapStoreLeft">
-              {this.renderWrapList(wrapStoreList, false)}
-            </div>
-            <div className="wrapListBox wrapStoreRight">
-              <Card title="排行榜" bordered={false} className="hotWrapCard">
-                {this.renderWrapList(wrapStoreHotList, true)}
-              </Card>
-            </div>
-          </div>
+          <Tabs className="storeTabs" activeKey={activeKey} onChange={this.changeTab}>
+            <TabPane tab="应用包商店" key="app">
+              <StoreTemplate
+                activeKey={activeKey}
+                current={current}
+                classify={classify}
+                sort_by={sort_by}
+                wrapGroupList={wrapGroupList}
+                dataSource={wrapStoreList}
+                dataHotList={wrapStoreHotList}
+                role={role}
+                getStoreList={this.getStoreList}
+                changeSort={this.changeSort}
+                filterClassify={this.filterClassify}
+                updatePage={this.updatePage}
+              />
+            </TabPane>
+            <TabPane tab="镜像应用商店" key="image">
+              <StoreTemplate
+                activeKey={activeKey}
+                current={current}
+                classify={classify}
+                sort_by={sort_by}
+                wrapGroupList={wrapGroupList}
+                dataSource={imageStoreList}
+                dataHotList={imageHotList}
+                role={role}
+                getStoreList={this.getStoreList}
+                changeSort={this.changeSort}
+                filterClassify={this.filterClassify}
+                updatePage={this.updatePage}
+              />
+            </TabPane>
+          </Tabs>
         </div>
       </QueueAnim>
     )
@@ -284,7 +169,7 @@ class AppWrapStore extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const { images, entities } = state
+  const { images, entities, appStore } = state
   const { loginUser } = entities
   const { role } = loginUser.info || { role: 0 }
   const { wrapStoreList, wrapStoreHotList, wrapGroupList } = images
@@ -294,16 +179,21 @@ function mapStateToProps(state) {
   const { data: storeHotData } = storeHotList || { data: [] }
   const { result: groupList } = wrapGroupList || { result: {} }
   const { data: groupData } = groupList || { data: [] }
+  const { imagePublishRecord, imageHotRecord } = appStore
+  const { data: imageStoreList } = imagePublishRecord || { data: {} }
+  const { data: imageHotList } = imageHotRecord || { data: {} }
   return {
     wrapStoreList: storeData,
     wrapStoreHotList: storeHotData,
     wrapGroupList: groupData,
+    imageStoreList,
+    imageHotList,
     role
   }
 }
 export default connect(mapStateToProps, {
   getWrapStoreList,
-  getWrapStoreHotList,
   getWrapGroupList,
-  offShelfWrap
+  getAppsList,
+  getAppsHotList
 })(AppWrapStore)

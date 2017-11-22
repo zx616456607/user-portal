@@ -57,7 +57,7 @@ exports.vsettanLogin = function* (next) {
       dataType: 'json'
     }).then(result => {
       if (result.res.statusCode >= 300) {
-        logger.error('get user project faile ', user, JSON.stringify(result))
+        logger.error('get user project failed ', user, JSON.stringify(result))
         self.redirect(redirect_url)
         return
       }
@@ -102,6 +102,17 @@ exports.vsettanLogin = function* (next) {
     const userInfo = yield spi.users.getBy([user.username, 'existence'])
     if (userInfo.data) {
       yield next
+      // Return apiToken to vsettan system
+      let apiToken = this.session.loginUser.token;
+      urllib.request(`${vsettanConfig.project_url}/container/api_token?token=${access_token}&api_token=${apiToken}`, {
+        method: 'GET'
+      }).then(result => {
+        if (result.res.statusCode >= 300) {
+          logger.error('failed to send token back ', user, JSON.stringify(result))
+        } else {
+          logger.info('Send token back successfully...')
+        }
+      })
       self.redirect('/')
       return
     }
@@ -111,6 +122,16 @@ exports.vsettanLogin = function* (next) {
     //use userinfo login
     let api = apiFactory.getApi()
     api = yield api.users.createBy(['login'], null, { userName: user.userName, accountType: user.accountType, accountID: user.accountID }).then(result => {
+      // Return apiToken to vsettan system
+      urllib.request(`${vsettanConfig.project_url}/container/api_token?token=${access_token}&api_token=${result.apiToken}`, {
+        method: 'GET'
+      }).then(result2 => {
+        if (result2.res.statusCode >= 300) {
+          logger.error('failed to send token back ', user, JSON.stringify(result2))
+        } else {
+          logger.info('Send token back successfully...')
+        }
+      })
       if (!userHaveProject) return
       api = apiFactory.getApi({
         user: result.userName,

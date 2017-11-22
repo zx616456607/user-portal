@@ -42,6 +42,9 @@ class WrapListTable extends Component {
       page: 1,
     }
   }
+  componentWillMount() {
+    window.WrapListTable = null
+  }
   getList = (e)=> {
     const inputValue = this.refs.wrapSearch.refs.input.value
     if (!e || inputValue == '') {
@@ -166,12 +169,12 @@ class WrapListTable extends Component {
       )
     }
     const menu = (
-      <Menu onClick={e => this.handleMenuClick(e, row)} style={{ width: 90 }}>
+      <Menu onClick={e => this.handleMenuClick(e, row)} style={{ width: 110 }}>
         <Menu.Item key="vm">
           传统部署
         </Menu.Item>
         <Menu.Item key="release" disabled={[1, 2].includes(row.publishStatus)}>
-          发布
+          上传到商店
         </Menu.Item>
         <Menu.Item key="download">
           <a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}>下载</a>
@@ -230,31 +233,31 @@ class WrapListTable extends Component {
       id: newId,
     })
   }
-  
-  getAppStatus(status){
+
+  getAppStatus(status, record){
     let phase
     let progress = {status: false};
     switch(status) {
       case 0:
-        phase = 'AppUnpublished'
+        phase = 'Unpublished'
         break
       case 1:
-        phase = 'AppChecking'
+        phase = 'Checking'
         progress = {status: true}
         break
       case 2:
-        phase = 'AppPublished'
+        phase = 'Published'
         break
       case 3:
-        phase = 'AppReject'
+        phase = 'CheckReject'
         break
       case 4:
-        phase = 'AppOffShelf'
+        phase = 'OffShelf'
         break
     }
-    return <TenxStatus phase={phase} progress={progress}/>
+    return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && record.approveMessage}/>
   }
-  
+
   render() {
     // jar war ,tar.gz zip
     const { func, rowCheckbox, releaseWrap, wrapManageList, wrapList, wrapStoreList, currentType } = this.props
@@ -289,7 +292,7 @@ class WrapListTable extends Component {
         dataIndex: 'publishStatus',
         key: 'publishStatus',
         width: '10%',
-        render: this.getAppStatus
+        render: (text, record) => this.getAppStatus(text, record)
       }, {
         title: '包类型',
         dataIndex: 'fileType',
@@ -352,7 +355,7 @@ class WrapListTable extends Component {
       <div className="wrapListTable" id="wrapListTable">
         <ReleaseAppModal
           currentApp={currentApp}
-          visible={releaseVisible} 
+          visible={releaseVisible}
           closeRleaseModal={this.closeRleaseModal}
           releaseWrap={releaseWrap}
           wrapManageList={wrapManageList}

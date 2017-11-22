@@ -114,15 +114,15 @@ const AdvancedSetting = React.createClass({
       <Row className="configItem" key={`configItem${keyValue}`}>
         <Col span={8}>
           <FormItem>
-            <Input size="default" placeholder="请填写键" {...envNameProps} />
+            <Input size="default" disabled={key.disabled} placeholder="请填写键" {...envNameProps} />
           </FormItem>
         </Col>
-        <Col span={8}>
+        <Col span={12}>
           <FormItem>
-            <Input size="default" placeholder="请填写值" {...envValueProps} />
+            <Input size="default" disabled={key.disabled} placeholder="请填写值" {...envValueProps} />
           </FormItem>
         </Col>
-        <Col span={8}>
+        <Col span={4}>
           <Tooltip title="删除">
             <Button
               className="deleteBtn"
@@ -173,10 +173,10 @@ const AdvancedSetting = React.createClass({
                     <Col span={8}>
                       键
                     </Col>
-                    <Col span={8}>
+                    <Col span={12}>
                       值
                     </Col>
-                    <Col span={8}>
+                    <Col span={4}>
                       操作
                     </Col>
                   </Row>

@@ -11,7 +11,7 @@ import { toQuerystring } from '../common/tools'
 
 
 export const APP_STORE_LIST_REQUEST = 'APP_STORE_LIST_REQUEST'
-export const APP_STORE_LIST_SUCCESS = 'VM_WRAP_VMINFOS_SUCCESS'
+export const APP_STORE_LIST_SUCCESS = 'APP_STORE_LIST_SUCCESS'
 export const APP_STORE_LIST_FAILURE = 'APP_STORE_LIST_FAILURE'
 
 // Fetches wechat auth qr code from API.
@@ -39,6 +39,40 @@ export function getAppsList(query, callback) {
   }
 }
 
+export const APP_STORE_HOT_LIST_REQUEST = 'APP_STORE_HOT_LIST_REQUEST'
+export const APP_STORE_HOT_LIST_SUCCESS = 'APP_STORE_HOT_LIST_SUCCESS'
+export const APP_STORE_HOT_LIST_FAILURE = 'APP_STORE_HOT_LIST_FAILURE'
+
+// Fetches wechat auth qr code from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchAppsHotList(callback) {
+  let query = {
+    from: 0,
+    size: 10,
+    filter: `type,2,publish_status,2`,
+    sort: 'd,download_times',
+  }
+  let endpoint = `${API_URL_PREFIX}/app-store/apps`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [APP_STORE_HOT_LIST_REQUEST, APP_STORE_HOT_LIST_SUCCESS, APP_STORE_HOT_LIST_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback,
+  }
+}
+
+// Fetches wechat auth qr code from API
+// Relies on Redux Thunk middleware.
+export function getAppsHotList(callback) {
+  return (dispatch) => {
+    return dispatch(fetchAppsHotList(callback))
+  }
+}
 
 export const APP_STORE_APPROVAL_REQUEST = 'APP_STORE_APPROVAL_REQUEST'
 export const APP_STORE_APPROVAL_SUCCESS = 'APP_STORE_APPROVAL_SUCCESS'
@@ -162,7 +196,7 @@ function fetchAppImageStatus(body, callback) {
       types: [APP_IMAGE_STATUS_REQUEST, APP_IMAGE_STATUS_SUCCESS, APP_IMAGE_STATUS_FAILURE],
       endpoint,
       options: {
-        method: 'post',
+        method: 'POST',
         body: body,
       },
       schema: {}

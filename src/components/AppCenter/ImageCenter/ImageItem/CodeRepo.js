@@ -11,13 +11,14 @@
 
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Modal, Tabs, Menu, Dropdown, Table, Icon, Button, Card, Input } from 'antd'
-import { Link, browserHistory } from 'react-router'
+import { Modal, Menu, Dropdown, Table, Button, Input } from 'antd'
+import { browserHistory } from 'react-router'
 import { camelize } from 'humps'
 import { loadProjectRepos, deleteRepo } from '../../../../actions/harbor'
 import NotificationHandler from '../../../../components/Notification'
 import '../style/CodeRepo.less'
 import ProjectDetail from '../ProjectDetail'
+import PublishModal from './PublishModal'
 
 const notification = new NotificationHandler()
 
@@ -42,6 +43,7 @@ class CodeRepo extends Component {
     this.deleteRepoOk= this.deleteRepoOk.bind(this)
     this.loadRepos = this.loadRepos.bind(this)
     this.searchProjects = this.searchProjects.bind(this)
+    this.confirmPublishModal = this.confirmPublishModal.bind(this)
   }
 
   componentWillMount() {
@@ -126,9 +128,17 @@ class CodeRepo extends Component {
   closeImageDetailModal(){
     this.setState({imageDetailModalShow:false})
   }
-
+  
+  confirmPublishModal() {
+    this.setState({
+      publishModal: false,
+      currentImage: ''
+    })
+  }
+  
   render() {
     const { repos, projectDetail } = this.props
+    const { publishModal, currentImage } = this.state
     let { isFetching, list, server, total } = repos || {}
     list = list || []
     server = server || ''
@@ -189,9 +199,18 @@ class CodeRepo extends Component {
                     selectedRepo: row.name
                   })
                 }
+                if (key === 'publish') {
+                  this.setState({
+                    publishModal: true,
+                    currentImage: row
+                  })
+                }
               }}
               style={{ width: "100px" }}
             >
+              <Menu.Item key="publish">
+                发布
+              </Menu.Item>
               <Menu.Item key="delete">
                 删除
               </Menu.Item>
@@ -240,6 +259,12 @@ class CodeRepo extends Component {
           columns={columns}
           pagination={paginationOpts}
           loading={isFetching}
+        />
+        <PublishModal
+          server={server}
+          visible={publishModal}
+          currentImage={currentImage}
+          callback={this.confirmPublishModal}
         />
         <Modal title="上传镜像" className="uploadImageModal" visible={this.state.uploadModalVisible} width="800px"
           onCancel={()=> this.showUpload(false)} onOk={()=> this.showUpload(false)}
