@@ -584,7 +584,11 @@ let NetworkConfiguration = React.createClass ({
           data.push(item)
         }
       })
-      newnetworkConfigArray[item.key].deleted = true
+      newnetworkConfigArray.forEach(network => {
+        if(network.key == item.key){
+          network.deleted = true
+        }
+      })
       if(data[item.key] && data[item.key].isDefault){
         form.setFieldsValue({ 'defaultSetting': undefined})
         this.setState({
