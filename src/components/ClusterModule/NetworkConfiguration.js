@@ -585,7 +585,7 @@ let NetworkConfiguration = React.createClass ({
         }
       })
       newnetworkConfigArray[item.key].deleted = true
-      if(data[item.key].isDefault){
+      if(data[item.key] && data[item.key].isDefault){
         form.setFieldsValue({ 'defaultSetting': undefined})
         this.setState({
           defaultGroup: undefined
