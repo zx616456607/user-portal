@@ -151,6 +151,8 @@ const ApmSetting = React.createClass({
           visible={midSupportModal}
           {...midSupportModalProps}
           className="midSupportModal"
+          onCancel={() => this.setState({midSupportModal: false})}
+          closable
         >
         需要如下 JVM 配置：
           <ul>
