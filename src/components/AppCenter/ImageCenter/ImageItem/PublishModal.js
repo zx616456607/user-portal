@@ -306,7 +306,7 @@ class PublishModal extends React.Component {
         if (e.file.status === 'done') {
           notificat.success('上传成功')
           this.setState({
-            pkgIcon: e.file.response.data.id,
+            pkgIcon: `${e.file.response.data.id}?${+new Date()}`,
             uploaded: true
           })
         }
@@ -408,10 +408,12 @@ class PublishModal extends React.Component {
         
               >
               <span className="wrap-image">
-                <Icon key="iconPlus" type="plus" className="plus-icon verticalCenter"/>
+                {
+                  !pkgIcon && <Icon key="iconPlus" type="plus" className="plus-icon verticalCenter"/>
+                }
                 {
                   pkgIcon ?
-                    <img className="wrapLogo" src={`${API_URL_PREFIX}/pkg/icon/${pkgIcon}`} />
+                    <img className="wrapLogo" src={`${API_URL_PREFIX}/app-store/apps/icon/${pkgIcon}`} />
                     :
                     <span className="ant-upload-text">上传应用图标</span>
                 }

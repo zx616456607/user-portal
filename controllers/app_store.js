@@ -179,8 +179,9 @@ exports.getIcon = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const id = this.params.id
-  const result = yield api.appstore.getBy(['apps','icon', id, null])
-  this.body = result
+  const file = yield api.appstore.downloadFile(['apps','icon', id, null])
+  this.set('content-type', file.headers['content-type'])
+  this.body = file.res
 }
 
 /*------------------------ image end--------------------*/
