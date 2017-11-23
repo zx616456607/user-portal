@@ -190,7 +190,9 @@ class AppSettingsHttps extends Component {
       certificateExists: certificateExists,
       canOpenHttps: hasBindingDomainForHttp && hasHTTPPort && certificateExists,
     })
-    this.setHttpsSwitchState(k8sService)
+    if( this.props.isCurrentTab !== nextProps.isCurrentTab && nextProps.isCurrentTab){
+      this.setHttpsSwitchState(k8sService)
+    }
   }
   hasBindingDomainForHttp(k8sService, deployment) {
     if (!this.hasHTTPPort(k8sService)) {
@@ -259,6 +261,7 @@ class AppSettingsHttps extends Component {
           this.setState({
             httpsOpened: typ,
           })
+          this.props.loadServiceDetail(cluster, serviceName)
           this.props.onSwitchChange(typ)
           new NotificationHandler().success(`HTTPS${opText}成功`)
           this.setState({ statusText: opText })

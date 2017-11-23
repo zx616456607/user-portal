@@ -27,6 +27,7 @@ let defaultPort = []
 let changeType = {}
 let allPort = []
 let allUsedPort = []
+const notificationHandler = new NotificationHandler()
 
 function validatePortNumber(proxyType, portNumber) {
   let minimumPort = 10000
@@ -89,6 +90,11 @@ let MyComponent = React.createClass({
   },
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow } = nextProps
+    if (this.props.isCurrentTab !== nextProps.isCurrentTab && !nextProps.isCurrentTab) {
+      this.setState({
+        newselectType: 0
+      })
+    }
     if (!(this.props.isCurrentTab === false && nextProps.isCurrentTab === true)) {
       return
     }
@@ -135,7 +141,11 @@ let MyComponent = React.createClass({
   handCancel(i) {
     // cancel action
     const openPort = {[i]: false}
-    this.setState({openPort, selectType: 0})
+    this.setState({
+      openPort,
+      selectType: 0,
+      newselectType: 0
+    })
   },
   checkPort(rule, value, callback, index){
     if(!value) return callback()
@@ -203,9 +213,23 @@ let MyComponent = React.createClass({
     }
     return callback()
   },
-  editPort(name, index) {
+  editPort(item, index) {
+    const { bindHttpsStatus } = this.props
+    const { newselectType } = this.state
+    const { port } = item
+    const { bindingPort, https } = bindHttpsStatus
+    if (https && port == bindingPort) {
+      return notificationHandler.info('请先关闭HTTPS后再编辑此端口')
+    }
+    if (newselectType) {
+      return notificationHandler.info('请保存正在编辑的端口后再编辑的端口')
+    }
     const openPort = {[index]: true}
-    this.setState({openPort, inPort: '1'})
+    this.setState({
+      openPort,
+      inPort: '1',
+      newselectType: 1,
+    })
   },
   showModal(item, i) {
     const { form, k8sService, serviceName } = this.props
@@ -269,7 +293,10 @@ let MyComponent = React.createClass({
     })
   },
   add() {
-    if(this.state.newselectType) return
+    const { newselectType } = this.state
+    if(newselectType) {
+      return notificationHandler.info('请保存正在编辑的端口后再添加新的端口')
+    }
     uuid++;
     const { form } = this.props;
     // can use data-binding to get
@@ -588,7 +615,7 @@ let MyComponent = React.createClass({
       if(!target) return
       if(target[1].toLowerCase() == 'tcp' && target.length < 3) return
       const dropdown = (
-        <Menu style={{width:'100px'}} onClick={()=> this.editPort(item.name, index)}>
+        <Menu style={{width:'100px'}} onClick={()=> this.editPort(item, index)}>
           <Menu.Item key="1"><Icon type="edit" /> &nbsp;编辑</Menu.Item>
         </Menu>
       )
@@ -714,7 +741,7 @@ class PortDetail extends Component {
   }
 
   render() {
-    const { containerList, loading, currentCluster } = this.props
+    const { containerList, loading, currentCluster, bindHttpsStatus } = this.props
     return (
       <div id="PortDetail">
         <Alert message='Tips:若该服务在访问方式中使用的网络出口没有在『基础设施』-『网络配置』中配置网络出口域名,则该服务的 http 协议无法正常使用' type="info" />
@@ -741,6 +768,7 @@ class PortDetail extends Component {
           serviceName={this.props.serviceName}
           loadData = {this.props.loadData}
           serviceDetailmodalShow={this.props.serviceDetailmodalShow}
+          bindHttpsStatus={bindHttpsStatus}
           isCurrentTab={this.props.isCurrentTab} />
       </div>
     )
