@@ -249,6 +249,13 @@ class WrapComopnent extends React.Component {
       }
       newData = dataSource.apps
     }
+    if (!newData || !newData.length) {
+      return (
+        <div className='loadingBox'>
+          暂无数据
+        </div>
+      )
+    }
     return newData.map((item, index) => {
       const menu = (
         <Menu style={{ width: 90 }} onClick={e => this.handleMenuClick(e, item)}>
@@ -356,9 +363,9 @@ class WrapComopnent extends React.Component {
     let server
     let node
     if (currentImage) {
-      server = currentImage.resource && currentImage.resource.split('/')[0]
-      node = currentImage.resource && currentImage.resource.split('/')[1]
-      Object.assign(currentImage, { name: currentImage.image })
+      server = currentImage.resourceLink && currentImage.resourceLink.split('/')[0]
+      node = currentImage.resourceLink && currentImage.resourceLink.split('/')[1]
+      Object.assign(currentImage, { name: currentImage.resourceName })
     }
     const pagination = {
       simple: true,
