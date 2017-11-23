@@ -35,7 +35,7 @@ class ImageCheckTable extends React.Component {
     this.copyEnd = this.copyEnd.bind(this)
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this)
     this.state = {
-      publish_time: undefined
+      publish_time: false
     }
   }
   getImageStatus(status){
@@ -391,7 +391,7 @@ class ImageCheck extends React.Component {
       current: 1,
       filter: 'type,2',
       filterName: undefined,
-      sort: undefined,
+      sort: 'd,publish_time',
     }
   }
   componentWillMount() {
