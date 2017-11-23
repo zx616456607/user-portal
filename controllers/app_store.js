@@ -44,31 +44,33 @@ exports.getStorelist = function* () {
   this.query.detail = 1
   yield registry_harbor.getProjectRepositories.call(this)
   const repo_detail = this.body
-  for (let i=0;i<result.data.apps.length;i++){
-    for (let j=0;j<repo_detail.data.length;j++){
-      result.data.apps[i].download_times = 0
-      if (result.data.apps[i].resource_name == repo_detail.data[j].name){
-        result.data.apps[i].download_times = repo_detail.data[j].pull_count
+  if (result.data.apps && result.data.apps.length > 0) {
+    for (let i=0;i<result.data.apps.length;i++){
+      for (let j=0;j<repo_detail.data.length;j++){
+        result.data.apps[i].download_times = 0
+        if (result.data.apps[i].resource_name == repo_detail.data[j].name){
+          result.data.apps[i].download_times = repo_detail.data[j].pull_count
+        }
       }
     }
-  }
-  if (query.download_times){
-    result.data.apps.sort((a,b) => {
-      return (a.download_times < b.download_times) == (query.download_times == 'd')
-    })
-  }
-  if (query.publish_time){
-    result.data.apps.sort((a,b) => {
-      return (a.publish_time < b.publish_time) == (query.publish_time == 'd')
-    })
-  }
-  if (query.app_name){
-    result.data.apps.sort((a,b) => {
-      return (a.app_name < b.app_name) == (query.app_name == 'd')
-    })
-  }
-  if (query.from && query.size){
-    result.data.apps = result.data.apps.slice(query.from,query.from+query.size)
+    if (query.download_times){
+      result.data.apps.sort((a,b) => {
+        return (a.download_times < b.download_times) == (query.download_times == 'd')
+      })
+    }
+    if (query.publish_time){
+      result.data.apps.sort((a,b) => {
+        return (a.publish_time < b.publish_time) == (query.publish_time == 'd')
+      })
+    }
+    if (query.app_name){
+      result.data.apps.sort((a,b) => {
+        return (a.app_name < b.app_name) == (query.app_name == 'd')
+      })
+    }
+    if (query.from && query.size){
+      result.data.apps = result.data.apps.slice(query.from,query.from+query.size)
+    }
   }
   this.body = result
 }
