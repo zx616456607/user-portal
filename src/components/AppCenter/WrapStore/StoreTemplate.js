@@ -273,26 +273,21 @@ class WrapComopnent extends React.Component {
         </Menu>
       );
       return (
-        <Row key={activeKey === 'app' ? item.id : item.iD} className={classNames("wrapList", {"noBorder": isHot, 'hotWrapList': isHot, 'commonWrapList': !isHot})} type="flex" justify="space-around" align="middle">
+        <div key={activeKey === 'app' ? item.id : item.iD} className={classNames("wrapList", {"noBorder": isHot})} type="flex">
           {
-            isHot && <Col span={3}>{index !== 0 ? <span className={`hotOrder hotOrder${index + 1}`}>{index + 1}</span> : <i className="champion"/>}</Col>
+            isHot && <div className="rank">{index !== 0 ? <span className={`hotOrder hotOrder${index + 1}`}>{index + 1}</span> : <i className="champion"/>}</div>
           }
-          <Col span={isHot ? 5 : 4}>
+          {/*<div className={classNames('')} span={isHot ? 8: 4}>*/}
             <img className={classNames({"wrapIcon": !isHot, "hotWrapIcon": isHot})}
                  src={`${API_URL_PREFIX}/pkg/icon/${ activeKey === 'app' ? item.pkgIconID : item.versions[0].iconID}`}
             />
-          </Col>
-          <Col span={isHot ? 7 : 10}>
-            <Row className="wrapListMiddle">
-              <Col className="appName" style={{ marginBottom: isHot || activeKey === 'image' ? 0 : 10 }}>
+          {/*</div>*/}
+          {/*<div span={isHot ? 7 : 10}>*/}
+            <div className="wrapListMiddle">
+              <div className="appName" style={{ marginBottom: isHot || activeKey === 'image' ? 0 : 10 }}>
                 <div onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)} className={classNames("themeColor pointer", {'inlineBlock' : !isHot})}>{activeKey === 'app' ? item.fileNickName : item.appName}</div>
                 {
-                  isHot ? 
-                    <Tooltip title={activeKey === 'app' ? item.fileName : item.resourceName}>
-                      <div className="nickName hintColor textoverflow"> ({activeKey === 'app' ? item.fileName : item.resourceName})</div>
-                    </Tooltip>
-                    :
-                    <span className="nickName hintColor"> ({activeKey === 'app' ? item.fileName : item.resourceName})</span>
+                  !isHot && <span className="nickName hintColor"> ({activeKey === 'app' ? item.fileName : item.resourceName})</span>
                 }
                 {
                   activeKey === 'image' && !isHot &&
@@ -301,11 +296,20 @@ class WrapComopnent extends React.Component {
                       {item.versions[0].tag}
                     </span>
                 }
-              </Col>
+              </div>
+              {
+                isHot &&
+                  <Tooltip title={activeKey === 'app' ? item.fileName : item.resourceName}>
+                    <div className="nickName hintColor textoverflow"> ({activeKey === 'app' ? item.fileName : item.resourceName})</div>
+                  </Tooltip>
+              }
               {
                 activeKey === 'image' && !isHot && 
-                <Col className="sourceAddr hintColor">
-                  镜像地址：{item.resourceLink}:{item.versions[0].tag}
+                <div className="sourceAddr hintColor">
+                  <span className="sourceText noWrap">镜像地址：</span>
+                  <Tooltip title={`${item.resourceLink}:${item.versions[0].tag}`}>
+                    <span className="textoverflow resourceLink">{item.resourceLink}:{item.versions[0].tag}</span>
+                  </Tooltip>
                   <input type="text" className="storeCopyInput" style={{ position: "absolute", opacity: "0", top:'0'}}/>
                   <Tooltip title={copyStatus ? '复制成功' : '点击复制'}>
                     <Icon
@@ -316,20 +320,20 @@ class WrapComopnent extends React.Component {
                       onMouseLeave={this.copyEnd.bind(this)}
                     />
                   </Tooltip>
-                </Col>
+                </div>
               }
               {
                 !isHot && <Col className="hintColor appDesc">描述：{activeKey === 'app' ? item.description : item.versions[0].description}</Col>
               }
               {
                 isHot &&
-                <Col className="downloadBox">
+                <div className="downloadBox">
                   <span className="hintColor"><Icon type="download" /> {item.downloadTimes}</span>
-                </Col>
+                </div>
               }
-            </Row>
-          </Col>
-          <Col span={isHot ? 9 : 10} style={{ textAlign: 'right' }}>
+            </div>
+          {/*</div>*/}
+          <div className="wrapListRight" style={{ textAlign: 'right' }}>
             <Dropdown.Button
               className="wrapPopBtn"
               overlay={menu}
@@ -345,8 +349,8 @@ class WrapComopnent extends React.Component {
                 <span className="hintColor"><Icon type="clock-circle-o" /> 发布于 {calcuDate(item.publishTime)}</span>
               </div>
             }
-          </Col>
-        </Row>
+          </div>
+        </div>
       )
     })
   }

@@ -19,10 +19,10 @@ const menuList = [
     url: '/app_center/projects',
     name: '镜像仓库'
   },
-  {
-    url: '/app_center/image_store',
-    name: '应用商店'
-  },
+  // {
+  //   url: '/app_center/image_store',
+  //   name: '应用商店'
+  // },
   {
     url: '/app_center/stack_center',
     name: '编排文件'
@@ -33,7 +33,7 @@ const menuList = [
   },
   {
     url: '/app_center/wrap_store',
-    name: '商店'
+    name: '应用商店'
   }
 ]
 const wrapCheck = {

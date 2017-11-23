@@ -165,7 +165,7 @@ class PublishModal extends React.Component {
         classifyName: classifyName[0],
         request_message,
         type: 2,
-        icon_id: pkgIcon.split('?')[0]
+        icon_id: Number(pkgIcon.split('?')[0])
       }
       notify.close()
       notify.spin('发布中')
