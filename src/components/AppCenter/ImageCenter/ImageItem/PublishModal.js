@@ -14,7 +14,7 @@ import { browserHistory } from 'react-router'
 import { Modal, Form, Input, Select, Upload, Icon, Row, Col, Button } from 'antd'
 import { getWrapGroupList } from '../../../../actions/app_center'
 import { imagePublish, checkAppNameExists, getImageStatus, imageNameExists } from '../../../../actions/app_store'
-import { API_URL_PREFIX, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
+import { API_URL_PREFIX, ASYNC_VALIDATOR_TIMEOUT, UPGRADE_EDITION_REQUIRED_CODE } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import isEmpty from 'lodash/isEmpty'
 const FormItem = Form.Item;
@@ -311,6 +311,7 @@ class PublishModal extends React.Component {
           })
         }
         if (e.file.status === 'error') {
+          console.log(e.file)
           let message = e.file.response.message
           if (typeof e.file.response.message === 'object') {
             message = JSON.stringify(e.file.response.message)
