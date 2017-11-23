@@ -61,6 +61,9 @@ class ImageCheckTable extends React.Component {
       case 6:
         phase = 'ImageCopyFailed'
         break
+      case 7:
+        phase = 'Deleted'
+        break
     }
     return <TenxStatus phase={phase} progress={progress}/>
   }

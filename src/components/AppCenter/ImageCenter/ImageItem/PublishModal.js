@@ -14,7 +14,7 @@ import { browserHistory } from 'react-router'
 import { Modal, Form, Input, Select, Upload, Icon, Row, Col, Button } from 'antd'
 import { getWrapGroupList } from '../../../../actions/app_center'
 import { imagePublish, checkAppNameExists, getImageStatus, imageNameExists } from '../../../../actions/app_store'
-import { API_URL_PREFIX, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
+import { API_URL_PREFIX, ASYNC_VALIDATOR_TIMEOUT, UPGRADE_EDITION_REQUIRED_CODE } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import isEmpty from 'lodash/isEmpty'
 const FormItem = Form.Item;
@@ -144,10 +144,14 @@ class PublishModal extends React.Component {
     callback()
   }
   confirmModal() {
-    const { callback, form, imagePublish, currentImage, server } = this.props
+    const { callback, form, imagePublish, currentImage, server, publishName } = this.props
     const { uploaded, pkgIcon } = this.state
     let notify = new NotificationHandler()
-    form.validateFields((errors, values) => {
+    let validateArr = ['imageName', 'tagsName', 'description', 'classifyName', 'request_message']
+    if (!publishName) {
+      validateArr.concat('fileNickName')
+    }
+    form.validateFields(validateArr, (errors, values) => {
       if (!!errors) {
         return
       }
@@ -225,7 +229,7 @@ class PublishModal extends React.Component {
   render() {
     const { visible, pkgIcon, successModal } = this.state
     const { space, form, currentImage, imgTag, wrapGroupList, publishName } = this.props
-    const { getFieldProps, isFieldValidating, getFieldError } = form
+    const { getFieldProps, isFieldValidating, getFieldError, getFieldValue } = form
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
@@ -358,18 +362,18 @@ class PublishModal extends React.Component {
             >
               <Input {...nameProps} disabled/>
             </FormItem>
-            <FormItem
+            <Form.Item
               {...formItemLayout}
-              hasFeedback
+              hasFeedback={getFieldValue('fileNickName')}
               label="发布名称"
               help={isFieldValidating('fileNickName') ? '校验中...' : (getFieldError('fileNickName') || []).join(', ')}
             >
               <Input 
                 disabled={publishName && publishName ? true : false}
-                {...releaseNameProps} 
+                {...releaseNameProps}
                 placeholder="请输入发布名称" 
               />
-            </FormItem>
+            </Form.Item>
             <FormItem
               {...formItemLayout}
               label="镜像版本"

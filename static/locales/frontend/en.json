@@ -92,6 +92,7 @@
   "TenxStatus.CheckPass": "Check pass",
   "TenxStatus.ImageCopy": "Image copy",
   "TenxStatus.ImageCopyFailed": "Image copy failed",
+  "TenxStatus.Deleted": "Deleted",
   "this.is.an.commnent": "/-------------------App Center交付中心------------------/",
   "AppCenter.ImageCenter.ImageSpace.search": "Search",
   "AppCenter.ImageCenter.ImageSpace.publicType": "Public",
