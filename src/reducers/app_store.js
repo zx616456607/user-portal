@@ -45,7 +45,6 @@ function imagePublishRecord(state = {}, action) {
         isFetching: true
       })
     case ActionTypes.APP_STORE_LIST_SUCCESS:
-      console.log(action.response.result)
       return Object.assign({}, state, {
         isFetching: false,
         data: action.response.result.data

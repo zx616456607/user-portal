@@ -285,11 +285,18 @@ class WrapComopnent extends React.Component {
           <Col span={isHot ? 7 : 10}>
             <Row className="wrapListMiddle">
               <Col className="appName" style={{ marginBottom: isHot || activeKey === 'image' ? 0 : 10 }}>
-                <span onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)} className="themeColor pointer">{activeKey === 'app' ? item.fileNickName : item.appName}</span>
-                <span className="nickName hintColor"> ({activeKey === 'app' ? item.fileName : item.resourceName})</span>
+                <div onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)} className={classNames("themeColor pointer", {'inlineBlock' : !isHot})}>{activeKey === 'app' ? item.fileNickName : item.appName}</div>
+                {
+                  isHot ? 
+                    <Tooltip title={activeKey === 'app' ? item.fileName : item.resourceName}>
+                      <div className="nickName hintColor textoverflow"> ({activeKey === 'app' ? item.fileName : item.resourceName})</div>
+                    </Tooltip>
+                    :
+                    <span className="nickName hintColor"> ({activeKey === 'app' ? item.fileName : item.resourceName})</span>
+                }
                 {
                   activeKey === 'image' && !isHot &&
-                    <span className="tagBox">
+                    <span className="tagBox noWrap">
                       <Icon type="tag" className="tag"/>
                       {item.versions[0].tag}
                     </span>
