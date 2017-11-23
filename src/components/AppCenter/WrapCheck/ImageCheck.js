@@ -443,7 +443,7 @@ class ImageCheck extends React.Component {
           <CommonSearchInput
             ref="tableChild"
             size="large"
-            placeholder="按镜像名称或发布名称搜索"
+            placeholder="按发布名称搜索"
             style={{ width: 200 }}
             value={filterName}
             onSearch={value => this.updateParentState('filterName', value)}
