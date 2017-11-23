@@ -225,7 +225,7 @@ class PublishModal extends React.Component {
   render() {
     const { visible, pkgIcon, successModal } = this.state
     const { space, form, currentImage, imgTag, wrapGroupList, publishName } = this.props
-    const { getFieldProps, isFieldValidating, getFieldError } = form
+    const { getFieldProps, isFieldValidating, getFieldError, getFieldValue } = form
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
@@ -358,18 +358,18 @@ class PublishModal extends React.Component {
             >
               <Input {...nameProps} disabled/>
             </FormItem>
-            <FormItem
+            <Form.Item
               {...formItemLayout}
-              hasFeedback
+              hasFeedback={getFieldValue('fileNickName')}
               label="发布名称"
               help={isFieldValidating('fileNickName') ? '校验中...' : (getFieldError('fileNickName') || []).join(', ')}
             >
               <Input 
                 disabled={publishName && publishName ? true : false}
-                {...releaseNameProps} 
+                {...releaseNameProps}
                 placeholder="请输入发布名称" 
               />
-            </FormItem>
+            </Form.Item>
             <FormItem
               {...formItemLayout}
               label="镜像版本"
