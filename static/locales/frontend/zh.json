@@ -91,6 +91,7 @@
   "TenxStatus.CheckPass": "已通过",
   "TenxStatus.ImageCopy": "镜像复制中",
   "TenxStatus.ImageCopyFailed": "镜像复制失败",
+  "TenxStatus.Deleted": "已删除",
   "this.is.an.commnent": "/------------------------App Center交付中心-----------------------/",
   "AppCenter.ImageCenter.ImageSpace.search": "搜索",
   "AppCenter.ImageCenter.ImageSpace.publicType": "公有",

@@ -97,6 +97,16 @@ class PublishImage extends React.Component {
       case 4:
         phase = 'OffShelf'
         break
+      case 5:
+        phase = 'ImageCopy'
+        progress = {status: true}
+        break
+      case 6:
+        phase = 'ImageCopyFailed'
+        break
+      case 7:
+        phase = 'Deleted'
+        break
     }
     return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && record.approveMessage}/>
   }

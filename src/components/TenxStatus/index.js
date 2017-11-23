@@ -173,7 +173,11 @@ const messages = defineMessages({
   },
   ImageCopyFailed: {
     id: 'TenxStatus.ImageCopyFailed',
-    defineMessages: '复制失败'
+    defaultMessage: '复制失败'
+  },
+  Deleted: {
+    id: 'TenxStatus.Deleted',
+    defaultMessage: '已删除'
   }
 })
 
@@ -415,7 +419,8 @@ TenxStatus.propTypes = {
     'WaitForCheck',
     'CheckPass',
     'ImageCopy',
-    'ImageCopyFailed'
+    'ImageCopyFailed',
+    'Deleted'
   ]).isRequired,
   progress: PropTypes.shape({
     status: PropTypes.bool,
