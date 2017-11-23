@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Table, Button, Icon } from 'antd'
-import { getAppsList } from '../../../../actions/app_store'
+import { getImagesList } from '../../../../actions/app_store'
 import CommonSearchInput from '../../../CommonSearchInput'
 import '../style/PublishImage.less'
 import TenxStatus from '../../../TenxStatus/index'
@@ -33,7 +33,7 @@ class PublishImage extends React.Component {
     this.loadData()
   }
   loadData() {
-    const { getAppsList } = this.props
+    const { getImagesList } = this.props
     const { filterName, current } = this.state
     const query = {
       from: (current - 1) * 10,
@@ -43,7 +43,7 @@ class PublishImage extends React.Component {
     this.setState({
       tableLoading: true
     })
-    return getAppsList(query).then(() => {
+    return getImagesList(query).then(() => {
       this.setState({
         tableLoading: false
       })
@@ -86,8 +86,7 @@ class PublishImage extends React.Component {
         phase = 'Unpublished'
         break
       case 1:
-        phase = 'Checking'
-        progress = {status: true}
+        phase = 'WaitForCheck'
         break
       case 2:
         phase = 'Published'
@@ -176,8 +175,8 @@ class PublishImage extends React.Component {
 
 function mapStateToProps(state) {
   const { appStore } = state
-  const { imagePublishRecord } = appStore
-  const { data: publishRecord } = imagePublishRecord || { data: {} }
+  const { imageCheckList } = appStore
+  const { data: publishRecord } = imageCheckList || { data: {} }
   const { apps, total } = publishRecord || { apps: [], total: 0 }
   return {
     apps,
@@ -186,5 +185,5 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps, {
-  getAppsList
+  getImagesList
 })(PublishImage)
