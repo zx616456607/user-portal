@@ -144,10 +144,14 @@ class PublishModal extends React.Component {
     callback()
   }
   confirmModal() {
-    const { callback, form, imagePublish, currentImage, server } = this.props
+    const { callback, form, imagePublish, currentImage, server, publishName } = this.props
     const { uploaded, pkgIcon } = this.state
     let notify = new NotificationHandler()
-    form.validateFields((errors, values) => {
+    let validateArr = ['imageName', 'tagsName', 'description', 'classifyName', 'request_message']
+    if (!publishName) {
+      validateArr.concat('fileNickName')
+    }
+    form.validateFields(validateArr, (errors, values) => {
       if (!!errors) {
         return
       }
