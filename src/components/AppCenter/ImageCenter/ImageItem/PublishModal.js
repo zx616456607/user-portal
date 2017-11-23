@@ -165,7 +165,7 @@ class PublishModal extends React.Component {
         classifyName: classifyName[0],
         request_message,
         type: 2,
-        icon_id: pkgIcon
+        icon_id: pkgIcon.split('?')[0]
       }
       notify.close()
       notify.spin('发布中')
@@ -501,18 +501,6 @@ class SuccessModal extends React.Component {
       </Modal>
     )
   }
-}
-function processImageName(name) {
-  if (!name) return
-  let arr = name.split('/')
-  if (arr.length > 2) {
-    name = arr[0] + '/' + arr[1]
-    for (let i = 2; i < arr.length; i++) {
-      name += "%2F"
-      name += arr[i]
-    }
-  }
-  return name
 }
 
 PublishModal = Form.create()(PublishModal)

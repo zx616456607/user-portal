@@ -374,6 +374,32 @@ class ImageCenter extends Component {
       }
     })
   }
+  componentWillReceiveProps(nextProps) {
+    const { location: oldLocation } = this.props
+    const { location: newLocation } = nextProps
+    if (oldLocation !== newLocation) {
+      if (newLocation.pathname === '/app_center') {
+        browserHistory.replace('/app_center/projects')
+        return
+      }
+      let type='private'
+      if (newLocation.pathname.indexOf('/app_center/projects/public') >-1) {
+        type = 'public'
+      } else if (newLocation.pathname.indexOf('/app_center/projects/publish') >-1) {
+        type = 'publish'
+      }
+      this.setState({itemType:type})
+      this.props.LoadOtherImage({
+        success: {
+          func: (res) => {
+            this.setState({
+              otherImageHead: res.data
+            })
+          }
+        }
+      })
+    }
+  }
   render() {
     const { children } = this.props
     const { otherImageHead,other } = this.state
