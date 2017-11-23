@@ -511,42 +511,46 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.Disable',
     defaultMessage: '停用'
   },
-  WrapManage: {
-    id: 'ManageMonitor.operationalAudit.WrapManage',
+  Store: {
+    id: 'ManageMonitor.operationalAudit.Store',
+    defaultMessage: '商店'
+  },
+  PublishCheck: {
+    id: 'ManageMonitor.operationalAudit.PublishCheck',
+    defaultMessage: '发布审核'
+  },
+  Wrap: {
+    id: 'ManageMonitor.operationalAudit.Wrap',
     defaultMessage: '应用包'
   },
-  UploadWrap: {
-    id: 'ManageMonitor.operationalAudit.UploadWrap',
+  Image: {
+    id: 'ManageMonitor.operationalAudit.Image',
+    defaultMessage: '镜像'
+  },
+  Upload: {
+    id: 'ManageMonitor.operationalAudit.Upload',
     defaultMessage: '上传'
   },
-  DownloadWrap: {
-    id: 'ManageMonitor.operationalAudit.DownloadWrap',
+  Download: {
+    id: 'ManageMonitor.operationalAudit.Download',
     defaultMessage: '下载'
   },
-  PublishWrap: {
-    id: 'ManageMonitor.operationalAudit.PublishWrap',
+  Publish: {
+    id: 'ManageMonitor.operationalAudit.Publish',
     defaultMessage: '发布'
   },
-  OffShelfWrap: {
-    id: 'ManageMonitor.operationalAudit.OffShelfWrap',
+  OffShelf: {
+    id: 'ManageMonitor.operationalAudit.OffShelf',
     defaultMessage: '下架'
   },
-  WrapStore: {
-    id: 'ManageMonitor.operationalAudit.WrapStore',
-    defaultMessage: '应用包商店'
-  },
-  WrapPublishCheck: {
-    id: 'ManageMonitor.operationalAudit.WrapPublishCheck',
-    defaultMessage: '应用包发布审核'
-  },
-  WrapPublishPass: {
-    id: 'ManageMonitor.operationalAudit.WrapPublishPass',
+  PublishPass: {
+    id: 'ManageMonitor.operationalAudit.PublishPass',
     defaultMessage: '通过'
   },
-  WrapPublishReject: {
-    id: 'ManageMonitor.operationalAudit.WrapPublishReject',
+  PublishReject: {
+    id: 'ManageMonitor.operationalAudit.PublishReject',
     defaultMessage: '拒绝'
-  }
+  },
 });
 
 function returnOperationList(scope) {
@@ -673,27 +677,27 @@ function returnOperationList(scope) {
     },
     {
       value: '32',
-      label: (<FormattedMessage {...menusText.UploadWrap}/>)
+      label: (<FormattedMessage {...menusText.Upload}/>)
     },
     { // 30
       value: '33',
-      label: (<FormattedMessage {...menusText.DownloadWrap}/>)
+      label: (<FormattedMessage {...menusText.Download}/>)
     },
     {
       value: '34',
-      label: (<FormattedMessage {...menusText.PublishWrap}/>)
+      label: (<FormattedMessage {...menusText.Publish}/>)
     },
     { //32
       value: '35',
-      label: (<FormattedMessage {...menusText.OffShelfWrap}/>)
+      label: (<FormattedMessage {...menusText.OffShelf}/>)
     },
     {
       value: '36',
-      label: (<FormattedMessage {...menusText.WrapPublishPass}/>)
+      label: (<FormattedMessage {...menusText.PublishPass}/>)
     },
     { //34
       value: '37',
-      label: (<FormattedMessage {...menusText.WrapPublishReject}/>)
+      label: (<FormattedMessage {...menusText.PublishReject}/>)
     }
   ];
   return operationalList;
@@ -901,13 +905,22 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.ProjectRoles)
       break;
     case '60':
-      return formatMessage(menusText.WrapManage)
+      return formatMessage(menusText.Wrap)
       break;
     case '61':
-      return formatMessage(menusText.WrapStore)
+      return formatMessage(menusText.Wrap)
       break;
     case '62':
-      return formatMessage(menusText.WrapPublishCheck)
+      return formatMessage(menusText.Wrap)
+      break;
+    case '63':
+      return formatMessage(menusText.Image)
+      break;
+    case '64':
+      return formatMessage(menusText.Image)
+      break;
+    case '65':
+      return formatMessage(menusText.Image)
       break;
     // For CI related
     case '1000':
@@ -1009,17 +1022,17 @@ function operationalFormat(operationalType, scope) {
     case '31':
       return formatMessage(menusText.DeleteMember)
     case '32':
-      return formatMessage(menusText.UploadWrap)
+      return formatMessage(menusText.Upload)
     case '33':
-      return formatMessage(menusText.DownloadWrap)
+      return formatMessage(menusText.Download)
     case '34':
-      return formatMessage(menusText.PublishWrap)
+      return formatMessage(menusText.Publish)
     case '35':
-      return formatMessage(menusText.OffShelfWrap)
+      return formatMessage(menusText.OffShelf)
     case '36':
-      return formatMessage(menusText.WrapPublishPass)
+      return formatMessage(menusText.PublishPass)
     case '37':
-      return formatMessage(menusText.WrapPublishReject)
+      return formatMessage(menusText.PublishReject)
   }
 }
 
@@ -1147,6 +1160,9 @@ function formatResourceName(resourceName, resourceId) {
     }
     if(newBody.fileName) {
       return newBody.fileName
+    }
+    if (newBody.fileNickName) {
+      return newBody.fileNickName
     }
   } else {
     if (resourceName.length == 0) {
@@ -1626,6 +1642,14 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[33]);
         showOperationalList.push(operationalList[34]);
         break;
+      case '63':
+        // 镜像管理
+        showOperationalList.push(operationalList[31]);
+        break;
+      case '64':
+        // 镜像商店
+        showOperationalList.push(operationalList[32]);
+        break;
       case '0':
         //Unknown
         showOperationalList = operationalList;
@@ -1910,16 +1934,40 @@ class OperationalAudit extends Component {
         label: formatMessage(menusText.DBCache),
       },
       {
-        value: '60',
-        label: formatMessage(menusText.WrapManage),
-      },
-      {
         value: '61',
-        label: formatMessage(menusText.WrapStore)
+        label: formatMessage(menusText.Store),
+        children: [
+          {
+            value: '61',
+            label: formatMessage(menusText.Wrap),
+          },
+          {
+            value: '64',
+            label: formatMessage(menusText.Image),
+          }
+        ]
       },
       {
         value: '62',
-        label: formatMessage(menusText.WrapPublishCheck)
+        label: formatMessage(menusText.PublishCheck),
+        children: [
+          {
+            value: '62',
+            label: formatMessage(menusText.Wrap)
+          },
+          {
+            value: '65',
+            label: formatMessage(menusText.Image)
+          }
+        ]
+      },
+      {
+        value: '60',
+        label: formatMessage(menusText.Wrap),
+      },
+      {
+        value: '63',
+        label: formatMessage(menusText.Image)
       },
       {
         value: null,

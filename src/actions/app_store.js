@@ -50,7 +50,7 @@ function fetchAppsHotList(callback) {
     from: 0,
     size: 10,
     filter: `type,2,publish_status,2`,
-    sort: 'd,download_times',
+    download_times: 'd'
   }
   let endpoint = `${API_URL_PREFIX}/app-store/apps`
   if (query) {
@@ -100,7 +100,28 @@ export function appStoreApprove(body,callback) {
   }
 }
 
+export const IMAGE_APPROVAL_LIST_REQUEST = 'IMAGE_APPROVAL_LIST_REQUEST'
+export const IMAGE_APPROVAL_LIST_SUCCESS = 'IMAGE_APPROVAL_LIST_SUCCESS'
+export const IMAGE_APPROVAL_LIST_FAILURE = 'IMAGE_APPROVAL_LIST_FAILURE'
 
+function fetImageApprovalList(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/app-store/apps/approval`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [IMAGE_APPROVAL_LIST_REQUEST,IMAGE_APPROVAL_LIST_SUCCESS,IMAGE_APPROVAL_LIST_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function imageApprovalList(query, callback) {
+  return dispatch => dispatch(fetImageApprovalList(query, callback))
+}
 
 export const CHECK_APP_NAME_EXIST_REQUEST = 'CHECK_APP_NAME_EXIST_REQUEST'
 export const CHECK_APP_NAME_EXIST_SUCCESS = 'CHECK_APP_NAME_EXIST_SUCCESS'
@@ -241,59 +262,25 @@ export function getImagesList(query, callback) {
   }
 }
 
+export const CHECK_IAMGE_NAME_EXISTS_REQUEST = 'CHECK_IAMGE_NAME_EXISTS_REQUEST'
+export const CHECK_IAMGE_NAME_EXISTS_SUCCESS = 'CHECK_IAMGE_NAME_EXISTS_SUCCESS'
+export const CHECK_IAMGE_NAME_EXISTS_FAILURE = 'CHECK_IAMGE_NAME_EXISTS_FAILURE'
 
-
-
-export const APP_ICON_UPLOAD_REQUEST = 'APP_ICON_UPLOAD_REQUEST'
-export const APP_ICON_UPLOAD_SUCCESS = 'APP_ICON_UPLOAD_SUCCESS'
-export const APP_ICON_UPLOAD_FAILURE = 'APP_ICON_UPLOAD_FAILURE'
-
-function fetchAppIconUpload(body, callback) {
-  let endpoint = `${API_URL_PREFIX}/app-store/apps/icon`
+function fetchImageNameExists(body, callback) {
   return {
     [FETCH_API]: {
-      types: [APP_ICON_UPLOAD_REQUEST, APP_ICON_UPLOAD_SUCCESS, APP_ICON_UPLOAD_FAILURE],
-      endpoint,
+      types: [CHECK_IAMGE_NAME_EXISTS_REQUEST,CHECK_IAMGE_NAME_EXISTS_SUCCESS,CHECK_IAMGE_NAME_EXISTS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/app-store/apps/images/existence`,
+      schema: {},
       options: {
         method: 'POST',
-        body: body,
-      },
-      schema: {}
+        body
+      }
     },
-    callback,
+    callback
   }
 }
 
-export function appIconUpload(body,callback) {
-  return (dispatch) => {
-    return dispatch(fetchAppIconUpload(body,callback))
-  }
-}
-
-
-
-export const APP_ICON_GET_REQUEST = 'APP_ICON_GET_REQUEST'
-export const APP_ICON_GET_SUCCESS = 'APP_ICON_GET_SUCCESS'
-export const APP_ICON_GET_FAILURE = 'APP_ICON_GET_FAILURE'
-
-// Fetches wechat auth qr code from API.
-// Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchAppIcon(id, callback) {
-  let endpoint = `${API_URL_PREFIX}/app-store/apps/icon/${id}`
-  return {
-    [FETCH_API]: {
-      types: [APP_ICON_GET_REQUEST, APP_ICON_GET_SUCCESS, APP_ICON_GET_FAILURE],
-      endpoint,
-      schema: {}
-    },
-    callback,
-  }
-}
-
-// Fetches wechat auth qr code from API
-// Relies on Redux Thunk middleware.
-export function getAppIcon(id, callback) {
-  return (dispatch) => {
-    return dispatch(fetchAppIcon(id, callback))
-  }
+export function imageNameExists(body, callback) {
+  return dispatch => dispatch(fetchImageNameExists(body, callback))
 }

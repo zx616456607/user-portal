@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { Modal, Form, Input, Select, Upload, Icon, Row, Col, Button } from 'antd'
 import { getWrapGroupList } from '../../../../actions/app_center'
-import { imagePublish, checkAppNameExists, getImageStatus } from '../../../../actions/app_store'
+import { imagePublish, checkAppNameExists, getImageStatus, imageNameExists } from '../../../../actions/app_store'
 import { API_URL_PREFIX, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import isEmpty from 'lodash/isEmpty'
@@ -27,6 +27,7 @@ class PublishModal extends React.Component {
     this.cancelModal = this.cancelModal.bind(this)
     this.fileNickProps = this.fileNickProps.bind(this)
     this.closeSuccessModal = this.closeSuccessModal.bind(this)
+    this.checkImageName = this.checkImageName.bind(this)
     this.state = {
       visible: false,
       uploaded: false,
@@ -59,6 +60,31 @@ class PublishModal extends React.Component {
   }
   componentWillUnmount() {
     clearTimeout(this.nickNameTimeout)
+    clearTimeout(this.imageNameTimeout)
+  }
+  checkImageName(rule, value, callback) {
+    const { imageNameExists, form } = this.props
+    const tag = form.getFieldValue('tagsName')
+    if (!tag) return
+    this.imageNameTimeout = setTimeout(()=>{
+      const body = {
+        image: `${value}:${tag}`
+      }
+      imageNameExists(body, {
+        success: {
+          func: () => {
+            callback()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            callback(new Error('该发布名称已存在'))
+          },
+          isAsync: true
+        }
+      })
+    },ASYNC_VALIDATOR_TIMEOUT)
   }
   fileNickProps(rule, value, callback) {
     const { checkAppNameExists } = this.props
@@ -97,6 +123,9 @@ class PublishModal extends React.Component {
     if(!value) {
       return callback('请选择或输入分类')
     }
+    if(value.length > 1) {
+      return callback('只能选择一个分类')
+    }
     callback()
   }
   checkDesc(rule, value, callback) {
@@ -133,7 +162,7 @@ class PublishModal extends React.Component {
         origin_id: `${server}/${currentImage.name}:${tagsName}`,
         fileNickName,
         description,
-        classifyName,
+        classifyName: classifyName[0],
         request_message,
         type: 2,
         icon_id: pkgIcon
@@ -195,13 +224,18 @@ class PublishModal extends React.Component {
   }
   render() {
     const { visible, pkgIcon, successModal } = this.state
-    const { space, form, currentImage, imgTag, wrapGroupList, server } = this.props
+    const { space, form, currentImage, imgTag, wrapGroupList, publishName } = this.props
     const { getFieldProps, isFieldValidating, getFieldError } = form
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
     };
     const nameProps = getFieldProps('imageName', {
+      rules: [
+        {
+          validator: this.checkImageName
+        }
+      ],
       initialValue: currentImage && currentImage.name && currentImage.name.split('/')[1]
     })
     const releaseNameProps = getFieldProps('fileNickName', {
@@ -209,7 +243,8 @@ class PublishModal extends React.Component {
         {
           validator: this.fileNickProps,
         }
-      ]
+      ],
+      initialValue: publishName && publishName
     })
     const tagsProps = getFieldProps('tagsName', {
       rules: [
@@ -287,14 +322,16 @@ class PublishModal extends React.Component {
         }
       }
     }
-    let tagsChildren
-    tagsChildren = imgTag && imgTag.length && imgTag.map(item => <Option key={item.name} disabled={[1, 2].includes(item.status)}>{item.name}</Option>)
+    const tagsChildren = []
+    imgTag && imgTag.length && imgTag.forEach(item => {
+      tagsChildren.push(<Option key={item.name} disabled={[1, 2].includes(item.status)}>{item.name}</Option>)
+    })
     const children = [];
     wrapGroupList &&
     wrapGroupList.classifies &&
     wrapGroupList.classifies.length &&
     wrapGroupList.classifies.forEach(item => {
-      return children.push(<Option key={item.classifyName}>{item.classifyName}</Option>)
+      children.push(<Option key={item.classifyName}>{item.classifyName}</Option>)
     })
     return(
       <div>
@@ -327,7 +364,11 @@ class PublishModal extends React.Component {
               label="发布名称"
               help={isFieldValidating('fileNickName') ? '校验中...' : (getFieldError('fileNickName') || []).join(', ')}
             >
-              <Input {...releaseNameProps} placeholder="请输入发布名称" />
+              <Input 
+                disabled={publishName && publishName ? true : false}
+                {...releaseNameProps} 
+                placeholder="请输入发布名称" 
+              />
             </FormItem>
             <FormItem
               {...formItemLayout}
@@ -347,6 +388,7 @@ class PublishModal extends React.Component {
               <Select
                 showSearch
                 {...classifyProps}
+                tags
               >
                 {children}
               </Select>
@@ -479,9 +521,10 @@ function mapStateToProps(state, props) {
   const { result: groupList } = wrapGroupList || { result: {} }
   const { data: groupData } = groupList || { data: [] }
   const { currentImageWithStatus } = appStore || { data: [] }
-  const { data } = currentImageWithStatus
+  const { data, name: publishName } = currentImageWithStatus
   return {
     imgTag: data,
+    publishName,
     wrapGroupList: groupData,
     space: current && current.space
   }
@@ -491,5 +534,6 @@ export default connect(mapStateToProps, {
   getWrapGroupList,
   imagePublish,
   checkAppNameExists,
-  getImageStatus
+  getImageStatus,
+  imageNameExists
 })(PublishModal)

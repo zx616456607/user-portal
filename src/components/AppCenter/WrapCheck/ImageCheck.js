@@ -14,9 +14,10 @@ import { Button, Table, Dropdown, Menu, Modal, Form, Input, Popover, Row, Col, I
 import './style/ImageCheck.less'
 import CommonSearchInput from '../../CommonSearchInput'
 import TenxStatus from '../../TenxStatus/index'
-import { getImagesList, appStoreApprove } from '../../../actions/app_store'
+import { imageApprovalList, appStoreApprove } from '../../../actions/app_store'
 import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
+import ProjectDetail from '../ImageCenter/ProjectDetail'
 
 const FormItem = Form.Item
 
@@ -32,6 +33,7 @@ class ImageCheckTable extends React.Component {
     this.startCopy = this.startCopy.bind(this)
     this.copyOperate = this.copyOperate.bind(this)
     this.copyEnd = this.copyEnd.bind(this)
+    this.closeImageDetailModal = this.closeImageDetailModal.bind(this)
     this.state = {
       publish_time: undefined
     }
@@ -83,7 +85,7 @@ class ImageCheckTable extends React.Component {
     return `${str},${type}`
   }
   checkImageStatus(record, status, message) {
-    const { appStoreApprove, getImagesList } = this.props
+    const { appStoreApprove, imageApprovalList } = this.props
     let notify = new NotificationHandler()
     const body = {
       id: record.iD,
@@ -101,7 +103,7 @@ class ImageCheckTable extends React.Component {
       appStoreApprove(body, {
         success: {
           func: () => {
-            getImagesList({
+            imageApprovalList({
               from: 0,
               size: 10,
               type: 2
@@ -185,10 +187,13 @@ class ImageCheckTable extends React.Component {
       copyStatus: false
     })
   }
+  closeImageDetailModal(){
+    this.setState({imageDetailModalShow:false})
+  }
   render() {
     const { imageCheckList, total, form } = this.props
     const { getFieldProps } = form
-    const { publish_time, rejectModal, copyStatus } = this.state 
+    const { publish_time, rejectModal, copyStatus, imageDetailModalShow, currentImage } = this.state 
     const pagination = {
       simple: true,
       defaultCurrent: 1,
@@ -218,13 +223,13 @@ class ImageCheckTable extends React.Component {
       width: '10%',
     }, {
       title: '发布镜像',
-      dataIndex: 'tag',
-      key: 'tag',
+      dataIndex: 'image',
+      key: 'image',
       width: '10%',
     }, {
       title: '镜像地址',
-      dataIndex: 'resourceAddr',
-      key: 'resourceAddr',
+      dataIndex: 'resource',
+      key: 'resource',
       width: '10%',
       render: (text, record) => {
         const content = (
@@ -242,11 +247,11 @@ class ImageCheckTable extends React.Component {
               </Tooltip>
             </p>
             <div>发布地址</div>
-            <p className="address">{text}
+            <p className="address">{record.resource}:{record.tag}
               <Tooltip title={copyStatus ? '复制成功' : '点击复制'}>
                 <Icon 
                   type="copy"
-                  onMouseEnter={() => this.startCopy(text)}
+                  onMouseEnter={() => this.startCopy(`${record.resource}:${record.tag}`)}
                   onClick={this.copyOperate}
                   onMouseLeave={this.copyEnd}
                 />
@@ -256,7 +261,7 @@ class ImageCheckTable extends React.Component {
         );
         return(
           <Row>
-            <Col className="textoverflow" span={20}>
+            <Col className="textoverflow themeColor pointer" span={20} onClick={() => this.setState({imageDetailModalShow: true, currentImage: record})}>
               {text}
             </Col>
             <Col span={4}>
@@ -323,6 +328,11 @@ class ImageCheckTable extends React.Component {
         )
       }
     }]
+    let server
+    if (currentImage) {
+      server = currentImage.resource && currentImage.resource.split('/')[0]
+      Object.assign(currentImage, { name: currentImage.image })
+    }
     return(
       <div className="imageCheckTableBox">
         <Table
@@ -357,6 +367,14 @@ class ImageCheckTable extends React.Component {
             </FormItem>
           </Form>
         </Modal>
+        <Modal
+          visible={imageDetailModalShow}
+          className="AppServiceDetail"
+          transitionName="move-right"
+          onCancel={()=> this.setState({imageDetailModalShow:false})}
+        >
+          <ProjectDetail server={server} scope={this} config={currentImage}/>
+        </Modal>
       </div>
     )
   }
@@ -384,7 +402,7 @@ class ImageCheck extends React.Component {
   }
   getImagePublishList() {
     const { current, filterName, sort, filter } = this.state
-    const { getImagesList } = this.props
+    const { imageApprovalList } = this.props
     let query = {
       from: (current - 1) * 10,
       size: 10,
@@ -396,7 +414,7 @@ class ImageCheck extends React.Component {
     if (sort) {
       Object.assign(query, { sort })
     }
-    getImagesList(query)
+    imageApprovalList(query)
   }
   refreshData() {
     this.setState({
@@ -411,7 +429,7 @@ class ImageCheck extends React.Component {
     }, this.getImagePublishList)
   }
   render() {
-    const { imageCheckList, total, appStoreApprove, getImagesList } = this.props
+    const { imageCheckList, total, appStoreApprove, imageApprovalList } = this.props
     const { filterName, current } = this.state
     return(
       <div className="imageCheck">
@@ -435,7 +453,7 @@ class ImageCheck extends React.Component {
           total={total}
           updateParentState={this.updateParentState}
           appStoreApprove={appStoreApprove}
-          getImagesList={getImagesList}
+          imageApprovalList={imageApprovalList}
         />
       </div>
     )
@@ -444,8 +462,8 @@ class ImageCheck extends React.Component {
 
 function mapStateToProps(state) {
   const { appStore } = state
-  const { imageCheckList } = appStore || { imageCheckList: {} }
-  const { data } = imageCheckList || { data: {} }
+  const { imageApprovalList } = appStore || { imageApprovalList: {} }
+  const { data } = imageApprovalList || { data: {} }
   const { apps, total } = data || { apps: [], total: 0 }
   return {
     imageCheckList: apps,
@@ -454,6 +472,6 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps, {
-  getImagesList,
+  imageApprovalList,
   appStoreApprove
 })(ImageCheck)

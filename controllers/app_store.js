@@ -21,11 +21,55 @@ exports.approveApps = function* () {
   this.body = result
 }
 
-exports.getAppslist = function* () {
+exports.getAppApprovalList = function*(){
   const loginUser = this.session.loginUser
   const query = this.query
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.appstore.getBy(['apps'], query)
+  const result = yield api.appstore.getBy(['apps','approval'], query)
+  this.body = result
+}
+
+exports.getStorelist = function* () {
+  const loginUser = this.session.loginUser
+  const query = this.query
+  const api = apiFactory.getApi(loginUser)
+  let result = yield api.appstore.getBy(['apps'], query)
+  if (result.statusCode != 200){
+    this.body = result
+    return
+  }
+  this.query = {}
+  const project_id = yield getAppStoreProjectID.call(this)
+  this.query.project_id = project_id
+  this.query.detail = 1
+  yield registry_harbor.getProjectRepositories.call(this)
+  const repo_detail = this.body
+  for (let i=0;i<result.data.apps.length;i++){
+    for (let j=0;j<repo_detail.data.length;j++){
+      result.data.apps[i].download_times = 0
+      if (result.data.apps[i].resource_name == repo_detail.data[j].name){
+        result.data.apps[i].download_times = repo_detail.data[j].pull_count
+      }
+    }
+  }
+  if (query.download_times){
+    result.data.apps.sort((a,b) => {
+      return (a.download_times < b.download_times) == (query.download_times == 'd')
+    })
+  }
+  if (query.publish_time){
+    result.data.apps.sort((a,b) => {
+      return (a.publish_time < b.publish_time) == (query.publish_time == 'd')
+    })
+  }
+  if (query.app_name){
+    result.data.apps.sort((a,b) => {
+      return (a.app_name < b.app_name) == (query.app_name == 'd')
+    })
+  }
+  if (query.from && query.size){
+    result.data.apps = result.data.apps.slice(query.from,query.from+query.size)
+  }
   this.body = result
 }
 
@@ -39,8 +83,8 @@ exports.checkAppNameExists = function*(){
   }
   const api = apiFactory.getApi(loginUser)
   const result = yield api.appstore.getBy(['apps',name,'existence'], null)
-  this.body = result 
-} 
+  this.body = result
+}
 
 /*------------------------ apps store approve end--------------------*/
 
@@ -98,13 +142,22 @@ exports.getImageStatus = function* (){
     return
   }
   let arrayResult = []
-  for (let i in result.data){
+  for (let i in result.data.status){
     arrayResult.push({
       name:i,
-      status:result.data[i]
+      status:result.data.status[i]
     })
   }
+  result.name = result.data.name
   result.data = arrayResult
+  this.body = result
+}
+
+exports.checkImageExists = function*(){
+  const loginUser = this.session.loginUser
+  const body = this.request.body
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.appstore.createBy(['apps','images','existence'], null,body)
   this.body = result
 }
 
@@ -130,6 +183,17 @@ exports.getIcon = function* () {
   this.body = result
 }
 
+/*------------------------ image end--------------------*/
+
+
+function* getAppStoreProjectID(){
+  this.query.project_name = 'tenx_store'
+  yield registry_harbor.getProjects.call(this)
+  if (this.body.total == 0){
+    return -1
+  }
+  return this.body.data[0].project_id
+}
 function* parseForm(ctx) {
   const parts = parse(ctx, {autoFields: true})
   const fileStream = yield parts

@@ -1281,40 +1281,40 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.Disable',
     defaultMessage: '停用'
   },
-  WrapManage: {
-    id: 'ManageMonitor.operationalAudit.WrapManage',
+  Wrap: {
+    id: 'ManageMonitor.operationalAudit.Wrap',
     defaultMessage: '应用包'
   },
-  UploadWrap: {
-    id: 'ManageMonitor.operationalAudit.UploadWrap',
+  Image: {
+    id: 'ManageMonitor.operationalAudit.Image',
+    defaultMessage: '镜像'
+  },
+  Upload: {
+    id: 'ManageMonitor.operationalAudit.Upload',
     defaultMessage: '上传'
   },
-  DownloadWrap: {
-    id: 'ManageMonitor.operationalAudit.DownloadWrap',
+  Download: {
+    id: 'ManageMonitor.operationalAudit.Download',
     defaultMessage: '下载'
   },
-  PublishWrap: {
-    id: 'ManageMonitor.operationalAudit.PublishWrap',
+  Publish: {
+    id: 'ManageMonitor.operationalAudit.Publish',
     defaultMessage: '发布'
   },
-  OffShelfWrap: {
-    id: 'ManageMonitor.operationalAudit.OffShelfWrap',
+  OffShelf: {
+    id: 'ManageMonitor.operationalAudit.OffShelf',
     defaultMessage: '下架'
   },
-  WrapStore: {
-    id: 'ManageMonitor.operationalAudit.WrapStore',
-    defaultMessage: '应用包商店'
+  PublishCheck: {
+    id: 'ManageMonitor.operationalAudit.PublishCheck',
+    defaultMessage: '发布审核'
   },
-  WrapPublishCheck: {
-    id: 'ManageMonitor.operationalAudit.WrapPublishCheck',
-    defaultMessage: '应用包发布审核'
-  },
-  WrapPublishPass: {
-    id: 'ManageMonitor.operationalAudit.WrapPublishPass',
+  PublishPass: {
+    id: 'ManageMonitor.operationalAudit.PublishPass',
     defaultMessage: '通过'
   },
-  WrapPublishReject: {
-    id: 'ManageMonitor.operationalAudit.WrapPublishReject',
+  PublishReject: {
+    id: 'ManageMonitor.operationalAudit.PublishReject',
     defaultMessage: '拒绝'
   }
 });
@@ -1520,13 +1520,22 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.ProjectRoles)
       break;
     case '60':
-      return formatMessage(menusText.WrapManage)
+      return formatMessage(menusText.Wrap)
       break;
     case '61':
-      return formatMessage(menusText.WrapStore)
+      return formatMessage(menusText.Wrap)
       break;
     case '62':
-      return formatMessage(menusText.WrapPublishCheck)
+      return formatMessage(menusText.PublishCheck)
+      break;
+    case '63':
+      return formatMessage(menusText.Image)
+      break;
+    case '64':
+      return formatMessage(menusText.Image)
+      break;
+    case '65':
+      return formatMessage(menusText.Image)
       break;
       
     // For CI related
@@ -1633,17 +1642,17 @@ function operationalFormat(operationalType, scope) {
     case '31':
       return formatMessage(menusText.DeleteMember)
     case '32':
-      return formatMessage(menusText.UploadWrap)
+      return formatMessage(menusText.Upload)
     case '33':
-      return formatMessage(menusText.DownloadWrap)
+      return formatMessage(menusText.Download)
     case '34':
-      return formatMessage(menusText.PublishWrap)
+      return formatMessage(menusText.Publish)
     case '35':
-      return formatMessage(menusText.OffShelfWrap)
+      return formatMessage(menusText.OffShelf)
     case '36':
-      return formatMessage(menusText.WrapPublishPass)
+      return formatMessage(menusText.PublishPass)
     case '37':
-      return formatMessage(menusText.WrapPublishReject)
+      return formatMessage(menusText.PublishReject)
     case '0':
       return formatMessage(menusText.Unknown)
       break;
@@ -1700,6 +1709,9 @@ function formatResourceName(resourceName) {
     }
     if(newBody.fileName) {
       return newBody.fileName
+    }
+    if (newBody.fileNickName) {
+      return newBody.fileNickName
     }
     if (newBody.strategies && Array.isArray(newBody.strategies) && newBody.strategies.length > 0) {
       let ids = new Array()
