@@ -276,6 +276,11 @@ class AppServiceDetail extends Component {
       bindingIPs,
       k8sService,
     } = this.props
+    const { bindingPort, https } = serviceDetail
+    const bindHttpsStatus = {
+      bindingPort,
+      https,
+    }
     const { activeTabKey, currentContainer, deleteModal } = this.state
     const httpsTabKey = '#https'
     const isKubeNode = (SERVICE_KUBE_NODE_PORT == loginUser.info.proxyType)
@@ -462,6 +467,7 @@ class AppServiceDetail extends Component {
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   loadData = {()=> this.loadData()}
                   isCurrentTab={activeTabKey==='#ports'}
+                  bindHttpsStatus={bindHttpsStatus}
                   />
               </TabPane>
               <TabPane tab={<Tooltip placement="right" title={isKubeNode ? '当前代理不支持设置 HTTPS': ''}><span>设置 HTTPS</span></Tooltip>} disabled={isKubeNode} key={httpsTabKey}>
