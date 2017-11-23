@@ -541,11 +541,11 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 镜像仓库</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='image_store'>
-                    <Link to='/app_center/image_store'>
-                      <span><div className='sideCircle'></div> 应用商店</span>
-                    </Link>
-                  </Menu.Item>
+                  {/*<Menu.Item key='image_store'>*/}
+                    {/*<Link to='/app_center/image_store'>*/}
+                      {/*<span><div className='sideCircle'></div> 应用商店</span>*/}
+                    {/*</Link>*/}
+                  {/*</Menu.Item>*/}
                   <Menu.Item key='stack_center'>
                     <Link to='/app_center/stack_center'>
                       <span><div className='sideCircle'></div> 编排文件</span>
@@ -558,7 +558,7 @@ class Sider extends Component {
                   </Menu.Item>
                   <Menu.Item key='wrap_store'>
                     <Link to='/app_center/wrap_store'>
-                      <span><div className='sideCircle'/> 商店</span>
+                      <span><div className='sideCircle'/> 应用商店</span>
                     </Link>
                   </Menu.Item>
                   {role === ROLE_SYS_ADMIN ?

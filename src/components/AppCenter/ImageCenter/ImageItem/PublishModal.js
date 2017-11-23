@@ -165,7 +165,7 @@ class PublishModal extends React.Component {
         classifyName: classifyName[0],
         request_message,
         type: 2,
-        icon_id: pkgIcon
+        icon_id: Number(pkgIcon.split('?')[0])
       }
       notify.close()
       notify.spin('发布中')
@@ -306,7 +306,7 @@ class PublishModal extends React.Component {
         if (e.file.status === 'done') {
           notificat.success('上传成功')
           this.setState({
-            pkgIcon: e.file.response.data.id,
+            pkgIcon: `${e.file.response.data.id}?${+new Date()}`,
             uploaded: true
           })
         }
@@ -408,10 +408,12 @@ class PublishModal extends React.Component {
         
               >
               <span className="wrap-image">
-                <Icon key="iconPlus" type="plus" className="plus-icon verticalCenter"/>
+                {
+                  !pkgIcon && <Icon key="iconPlus" type="plus" className="plus-icon verticalCenter"/>
+                }
                 {
                   pkgIcon ?
-                    <img className="wrapLogo" src={`${API_URL_PREFIX}/pkg/icon/${pkgIcon}`} />
+                    <img className="wrapLogo" src={`${API_URL_PREFIX}/app-store/apps/icon/${pkgIcon}`} />
                     :
                     <span className="ant-upload-text">上传应用图标</span>
                 }
@@ -499,18 +501,6 @@ class SuccessModal extends React.Component {
       </Modal>
     )
   }
-}
-function processImageName(name) {
-  if (!name) return
-  let arr = name.split('/')
-  if (arr.length > 2) {
-    name = arr[0] + '/' + arr[1]
-    for (let i = 2; i < arr.length; i++) {
-      name += "%2F"
-      name += arr[i]
-    }
-  }
-  return name
 }
 
 PublishModal = Form.create()(PublishModal)

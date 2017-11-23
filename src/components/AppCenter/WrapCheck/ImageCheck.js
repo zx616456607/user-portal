@@ -10,7 +10,7 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Button, Table, Dropdown, Menu, Modal, Form, Input, Popover, Row, Col, Icon, Tooltip } from 'antd'
+import { Button, Table, Modal, Form, Input, Popover, Row, Col, Icon, Tooltip } from 'antd'
 import './style/ImageCheck.less'
 import CommonSearchInput from '../../CommonSearchInput'
 import TenxStatus from '../../TenxStatus/index'
@@ -35,7 +35,7 @@ class ImageCheckTable extends React.Component {
     this.copyEnd = this.copyEnd.bind(this)
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this)
     this.state = {
-      publish_time: undefined
+      publish_time: false
     }
   }
   getImageStatus(status){
@@ -230,7 +230,7 @@ class ImageCheckTable extends React.Component {
       title: '镜像地址',
       dataIndex: 'resource',
       key: 'resource',
-      width: '10%',
+      width: '15%',
       render: (text, record) => {
         const content = (
           <div className="imageIDBox">
@@ -302,7 +302,7 @@ class ImageCheckTable extends React.Component {
     }, {
       title: '操作',
       key: 'operation',
-      width: '20%',
+      width: '15%',
       render: (text, record, index) => {
         return(
           <div className="operateBtn">
@@ -391,7 +391,7 @@ class ImageCheck extends React.Component {
       current: 1,
       filter: 'type,2',
       filterName: undefined,
-      sort: undefined,
+      sort: 'd,publish_time',
     }
   }
   componentWillMount() {

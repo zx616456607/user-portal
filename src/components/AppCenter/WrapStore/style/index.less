@@ -68,14 +68,35 @@
     .wrapStoreLeft{
       flex: 1 1 auto;
       margin-right: 24px;
+      .wrapListMiddle{
+        flex: 1 1 40%;
+      }
+      .wrapListRight{
+        flex: 1 1 40%;
+      }
     }
     .wrapStoreRight{
       flex: 0 0 340px;
+      .hotWrapCard{
+        .wrapList{
+          .wrapListMiddle{
+            flex: 0 0 75px;
+            .nickName{
+              width: 99%;
+            }
+          }
+          .wrapListRight{
+            flex: 0 0 110px;
+          }
+        }
+      }
     }
     .wrapListBox{
       border-radius: 4px;
       overflow: hidden;
       .wrapList{
+        display: flex;
+        align-items: center;
         padding: 24px;
         border: @border-width-base @border-style-base @border-color-split;
         &:not(:last-of-type) {
@@ -102,14 +123,19 @@
           width: 24px;
           height: 18px;
         }
+        .rank{
+          margin-right: 5px;
+        }
         .wrapIcon{
-          width: 80px;
+          flex: 0 0 80px;
+          margin-right: 20px;
           height: 80px;
           border: @border-width-base @border-style-base @border-color-base;
           border-radius: 4px;
         }
         .hotWrapIcon{
-          width: 50px;
+          flex: 0 0 50px;
+          margin-right: 10px;
           height: 50px;
           border: @border-width-base @border-style-base @border-color-base;
           border-radius: 4px;
@@ -132,6 +158,12 @@
             }
           }
           .sourceAddr{
+            display: flex;
+            align-items: center;
+            .resourceLink{
+              display: inline-block;
+              max-width: 300px;
+            }
             .copyBtn{
               margin-left: 8px;
               color: @primary-color;

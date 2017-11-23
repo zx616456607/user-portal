@@ -179,7 +179,7 @@ class ReleaseAppModal extends React.Component {
     const uploadOpt = {
       showUploadList: false,
       accept:"image/*",
-      action: `${API_URL_PREFIX}/app-store/apps/${currentApp && currentApp.id}/icon`,
+      action: `${API_URL_PREFIX}/pkg/icon`,
       headers,
       beforeUpload: file => {
         let isType
