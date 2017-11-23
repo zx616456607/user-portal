@@ -280,7 +280,7 @@ class WrapComopnent extends React.Component {
         </Menu>
       );
       return (
-        <div key={activeKey === 'app' ? item.id : item.iD} className={classNames("wrapList", {"noBorder": isHot})} type="flex">
+        <div key={activeKey === 'app' ? item.id : item.publishTime} className={classNames("wrapList", {"noBorder": isHot})} type="flex">
           {
             isHot && <div className="rank">{index !== 0 ? <span className={`hotOrder hotOrder${index + 1}`}>{index + 1}</span> : <i className="champion"/>}</div>
           }
