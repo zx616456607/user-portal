@@ -311,7 +311,6 @@ class PublishModal extends React.Component {
           })
         }
         if (e.file.status === 'error') {
-          console.log(e.file)
           let message = e.file.response.message
           if (typeof e.file.response.message === 'object') {
             message = JSON.stringify(e.file.response.message)
