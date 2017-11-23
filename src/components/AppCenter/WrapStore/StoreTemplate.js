@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
-import { Row, Col, Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal } from 'antd'
+import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal } from 'antd'
 import classNames from 'classnames'
 import { offShelfWrap, getWrapStoreHotList } from '../../../actions/app_center'
 import { getAppsList, getAppsHotList, appStoreApprove } from '../../../actions/app_store'
@@ -277,12 +277,9 @@ class WrapComopnent extends React.Component {
           {
             isHot && <div className="rank">{index !== 0 ? <span className={`hotOrder hotOrder${index + 1}`}>{index + 1}</span> : <i className="champion"/>}</div>
           }
-          {/*<div className={classNames('')} span={isHot ? 8: 4}>*/}
             <img className={classNames({"wrapIcon": !isHot, "hotWrapIcon": isHot})}
                  src={`${API_URL_PREFIX}/pkg/icon/${ activeKey === 'app' ? item.pkgIconID : item.versions[0].iconID}`}
             />
-          {/*</div>*/}
-          {/*<div span={isHot ? 7 : 10}>*/}
             <div className="wrapListMiddle">
               <div className="appName" style={{ marginBottom: isHot || activeKey === 'image' ? 0 : 10 }}>
                 <div onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)} className={classNames("themeColor pointer", {'inlineBlock' : !isHot})}>{activeKey === 'app' ? item.fileNickName : item.appName}</div>
@@ -323,7 +320,7 @@ class WrapComopnent extends React.Component {
                 </div>
               }
               {
-                !isHot && <Col className="hintColor appDesc">描述：{activeKey === 'app' ? item.description : item.versions[0].description}</Col>
+                !isHot && <div className="hintColor appDesc">描述：{activeKey === 'app' ? item.description : item.versions[0].description}</div>
               }
               {
                 isHot &&
@@ -332,7 +329,6 @@ class WrapComopnent extends React.Component {
                 </div>
               }
             </div>
-          {/*</div>*/}
           <div className="wrapListRight" style={{ textAlign: 'right' }}>
             <Dropdown.Button
               className="wrapPopBtn"
