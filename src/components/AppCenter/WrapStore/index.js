@@ -32,7 +32,7 @@ class AppWrapStore extends React.Component {
       filterName: '',
       classify: '',
       sort_by: 'publish_time',
-      activeKey: 'app'
+      activeKey: 'image'
     }
   }
   componentWillMount() {
@@ -129,22 +129,6 @@ class AppWrapStore extends React.Component {
             />
           </div>
           <Tabs className="storeTabs" activeKey={activeKey} onChange={this.changeTab}>
-            <TabPane tab="应用包商店" key="app">
-              <StoreTemplate
-                activeKey={activeKey}
-                current={current}
-                classify={classify}
-                sort_by={sort_by}
-                wrapGroupList={wrapGroupList}
-                dataSource={wrapStoreList}
-                dataHotList={wrapStoreHotList}
-                role={role}
-                getStoreList={this.getStoreList}
-                changeSort={this.changeSort}
-                filterClassify={this.filterClassify}
-                updatePage={this.updatePage}
-              />
-            </TabPane>
             <TabPane tab="镜像应用商店" key="image">
               <StoreTemplate
                 activeKey={activeKey}
@@ -154,6 +138,22 @@ class AppWrapStore extends React.Component {
                 wrapGroupList={wrapGroupList}
                 dataSource={imageStoreList}
                 dataHotList={imageHotList}
+                role={role}
+                getStoreList={this.getStoreList}
+                changeSort={this.changeSort}
+                filterClassify={this.filterClassify}
+                updatePage={this.updatePage}
+              />
+            </TabPane>
+            <TabPane tab="应用包商店" key="app">
+              <StoreTemplate
+                activeKey={activeKey}
+                current={current}
+                classify={classify}
+                sort_by={sort_by}
+                wrapGroupList={wrapGroupList}
+                dataSource={wrapStoreList}
+                dataHotList={wrapStoreHotList}
                 role={role}
                 getStoreList={this.getStoreList}
                 changeSort={this.changeSort}

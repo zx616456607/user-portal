@@ -24,7 +24,7 @@ export default class CheckPage extends React.Component {
     super(props)
     this.tabChange = this.tabChange.bind(this)
     this.state = {
-      activeKey: 'app'
+      activeKey: 'image'
     }
   }
   tabChange(activeKey) {
@@ -37,11 +37,11 @@ export default class CheckPage extends React.Component {
     return(
       <QueueAnim>
         <Tabs key="checkPage" type="card" onChange={this.tabChange} className="checkPage" activeKey={activeKey}>
-          <TabPane tab="应用包" key="app">
-            <AppCheck activeKey={activeKey}/>
-          </TabPane>
           <TabPane tab="镜像发布" key="image">
             <ImageCheck activeKey={activeKey}/>
+          </TabPane>
+          <TabPane tab="应用包" key="app">
+            <AppCheck activeKey={activeKey}/>
           </TabPane>
         </Tabs>
       </QueueAnim>
