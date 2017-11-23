@@ -448,16 +448,16 @@ class AppAutoScale extends Component {
       }
     })
     if (result) {
-      return callback('阈值类型重复')
+      return callback('阀值类型重复')
     }
     callback()
   }
   checkValue = (rule, value, callback) => {
     if (!value) {
-      return callback('请输入阈值')
+      return callback('请输入阀值')
     }
     if (value < 1 || value > 99) {
-      return callback('阈值范围为1至99')
+      return callback('阀值范围为1至99')
     }
     callback()
   }
@@ -572,7 +572,7 @@ class AppAutoScale extends Component {
         <Row type="flex" align="middle" key={key} className="strategyBox">
           <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginBottom: 24, textAlign: 'right'}}>
             {
-              thresholdArr.indexOf(key) === 0 ? <span className="threshold">阈值</span> : ''
+              thresholdArr.indexOf(key) === 0 ? <span className="threshold">阀值</span> : ''
             }
           </Col>
           <Col span={6}>
@@ -587,8 +587,8 @@ class AppAutoScale extends Component {
                   initialValue: Object.keys(optItem)[0]
                 }) }
               >
-                <Option value="cpu">CPU阈值</Option>
-                <Option value="memory">内存阈值</Option>
+                <Option value="cpu">CPU阀值</Option>
+                <Option value="memory">内存阀值</Option>
               </Select>
             </FormItem>
           </Col>
@@ -621,7 +621,7 @@ class AppAutoScale extends Component {
           <TabPane tab="伸缩策略" key="autoScaleForm">
             <div className="autoScaleFormBox">
               <div className="alertRow">
-                任意指标超过阈值都会触发扩展，所有指标都满足n-1个实例平均值低于阈值才会触发收缩
+                任意指标超过阀值都会触发扩展，所有指标都满足n-1个实例平均值低于阀值才会触发收缩
               </div>
               <div className="autoScaleInnerBox">
                 <Form form={form} className="autoScaleForm">
@@ -666,7 +666,7 @@ class AppAutoScale extends Component {
                   <Row style={{margin: '0 0 20px'}}>
                     <Col span={4}/>
                     <Col span={20}>
-                      <Icon type="exclamation-circle-o"/> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
+                      <Icon type="exclamation-circle-o"/> 所有实例平均使用率超过阀值自动扩展，n-1个实例平均值低于阀值自动收缩
                     </Col>
                   </Row>
                   <FormItem
