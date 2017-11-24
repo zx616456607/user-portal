@@ -20,6 +20,8 @@ import isEmpty from 'lodash/isEmpty'
 const FormItem = Form.Item;
 const Option = Select.Option;
 
+const wrapTypelist = ['png','jpg','jpeg']
+
 class PublishModal extends React.Component {
   constructor(props) {
     super(props)
@@ -326,7 +328,7 @@ class PublishModal extends React.Component {
         let isType
       
         isType = file.name.match(/\.(jpg|png|jpeg)$/)
-      
+        
         if (!isType) {
           notificat.error('上传文件格式错误', '支持：'+ wrapTypelist.join('、')+'文件格式')
           return false
