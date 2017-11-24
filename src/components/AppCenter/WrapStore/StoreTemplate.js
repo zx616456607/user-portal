@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
-import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal, Select, Row, Col } from 'antd'
+import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal, Select, Row, Col, Button } from 'antd'
 import classNames from 'classnames'
 import { offShelfWrap, getWrapStoreHotList } from '../../../actions/app_center'
 import { getAppsList, getAppsHotList, appStoreApprove } from '../../../actions/app_store'
@@ -43,6 +43,7 @@ class WrapComopnent extends React.Component {
     this.showImageDetail = this.showImageDetail.bind(this)
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this)
     this.selectTag = this.selectTag.bind(this)
+    this.renderFooter = this.renderFooter.bind(this)
     this.state = {
       selectTag: ''
     }
@@ -389,6 +390,13 @@ class WrapComopnent extends React.Component {
       )
     })
   }
+  renderFooter() {
+    const { offshelfId } = this.state
+    return [
+      <Button key="cancel" onClick={this.offShelfCancel}>取消</Button>,
+      <Button key="confirm" onClick={this.offShelfConfirm} type="primary" disabled={!offshelfId}>确定</Button> 
+    ]
+  }
   render() {
     const { current, dataSource, dataHotList, updatePage } = this.props
     const { downloadModalVisible, currentImage, offShelfModal, imageDetailModalShow, offshelfId } = this.state
@@ -440,6 +448,7 @@ class WrapComopnent extends React.Component {
           visible={offShelfModal}
           onOk={this.offShelfConfirm}
           onCancel={this.offShelfCancel}
+          footer={this.renderFooter()}
         >
           <Row type="flex" justify="center" align="middle">
             <Col span={3}>
