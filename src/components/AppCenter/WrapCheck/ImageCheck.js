@@ -329,7 +329,7 @@ class ImageCheckTable extends React.Component {
                 <Button onClick={() => this.checkImageStatus(record, 7)}>删除</Button>
             }
             {
-              ![1, 4, 6].includes(record.publishStats) && '-'
+              ![1, 4, 6].includes(record.publishStatus) && <span style={{ marginLeft: 28 }}>-</span>
             }
           </div>
         )

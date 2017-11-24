@@ -306,18 +306,30 @@ class WrapComopnent extends React.Component {
             />
             <div className="wrapListMiddle">
               <div className="appName" style={{ marginBottom: isHot || activeKey === 'image' ? 0 : 10 }}>
-                <div onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)} className={classNames("themeColor pointer", {'inlineBlock' : !isHot})}>{activeKey === 'app' ? item.fileNickName : item.appName}</div>
+                <div onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)} className={classNames("themeColor pointer", {'inlineBlock' : !isHot, 'hidden': isHot})}>
+                  {activeKey === 'app' ? item.fileNickName : item.appName}
+                </div>
                 {
                   !isHot && <span className="nickName hintColor"> ({activeKey === 'app' ? item.fileName : item.resourceName})</span>
                 }
                 {
                   activeKey === 'image' && !isHot &&
-                    <span className="tagBox noWrap">
-                      <Icon type="tag" className="tag"/>
-                      {item.versions[0].tag}
-                    </span>
+                    <Tooltip title={`最新版本：${item.versions[0].tag}`}>
+                      <span className="tagBox noWrap hintColor textoverflow inlineBlock">
+                        <Icon type="tag" className="tag"/>
+                        {item.versions[0].tag}
+                      </span>
+                    </Tooltip>
                 }
               </div>
+              {
+                isHot && 
+                  <Tooltip title={activeKey === 'app' ? item.fileNickName : item.appName}>
+                    <div onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)} className="themeColor pointer textoverflow">
+                      {activeKey === 'app' ? item.fileNickName : item.appName}
+                    </div>
+                  </Tooltip>
+              }
               {
                 isHot &&
                   <Tooltip title={activeKey === 'app' ? item.fileName : item.resourceName}>
@@ -328,8 +340,8 @@ class WrapComopnent extends React.Component {
                 activeKey === 'image' && !isHot && 
                 <div className="sourceAddr hintColor">
                   <span className="sourceText noWrap">镜像地址：</span>
-                  <Tooltip title={`${item.resourceLink}:${item.versions[0].tag}`}>
-                    <span className="textoverflow resourceLink">{item.resourceLink}:{item.versions[0].tag}</span>
+                  <Tooltip title={item.resourceLink}>
+                    <span className="textoverflow resourceLink">{item.resourceLink}</span>
                   </Tooltip>
                   <input type="text" className="storeCopyInput" style={{ position: "absolute", opacity: "0", top:'0'}}/>
                   <Tooltip title={copyStatus ? '复制成功' : '点击复制'}>

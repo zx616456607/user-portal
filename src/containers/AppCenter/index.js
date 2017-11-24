@@ -24,12 +24,12 @@ const menuList = [
   //   name: '应用商店'
   // },
   {
-    url: '/app_center/stack_center',
-    name: '编排文件'
-  },
-  {
     url: '/app_center/wrap_manage',
     name: '应用包管理'
+  },
+  {
+    url: '/app_center/stack_center',
+    name: '编排文件'
   },
   {
     url: '/app_center/wrap_store',
