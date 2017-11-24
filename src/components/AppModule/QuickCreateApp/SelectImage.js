@@ -225,8 +225,8 @@ class SelectImage extends Component {
         server: '',
       }
     }
-    const { imageStoreList } = this.props 
-    const { server, isFetching } = imageData
+    const { imageStoreList } = this.props
+    const { isFetching } = imageData
     const { imageType } = this.state
     let imageList = imageData[imageType]
     if (imageType === IMAGE_STORE) {
@@ -256,7 +256,7 @@ class SelectImage extends Component {
       width: '10%',
       render: (text, row)=> {
         let str = row.repositoryName
-        let server = server
+        let server = imageData.server
         if (imageType === IMAGE_STORE) {
           server = row.resourceLink.split('/')[0]
           str = row.resourceName

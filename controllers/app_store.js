@@ -127,14 +127,15 @@ exports.getImageStatus = function* (){
     this.message = {message:"request repositories is empty"}
     return
   }
-  const repositories = body.image.split('/')
-  if (repositories.length != 3){
-    this.statusCode = 400
-    this.message = {message:"request repositories is invalid"}
-    return
+  let firstIndex = body.image.indexOf('/')
+  if (firstIndex > 1) {
+    let fullName = body.image.substring(firstIndex + 1)
+    let splitIndex = fullName.indexOf('/')
+    if (splitIndex > 1) {
+      this.params.user = fullName.substring(0, splitIndex)
+      this.params.name = fullName.substring(splitIndex + 1)
+    }
   }
-  this.params.user = repositories[1]
-  this.params.name = repositories[2]
   yield registry_harbor.getRepositoriesTags.call(this)
   if ( !this.body.data || this.body.data.length == 0){
     return
