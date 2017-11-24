@@ -3,7 +3,7 @@
   .topBox {
     width: 100%;
     min-height: 300px;
-    .stack{margin-top: 20px;margin-bottom: 20px;clear: both;}
+    .stack{margin: 20px 40px 40px;clear: both;}
     .stack.selected{color: #00a1ea;}
     .otherStack {
       display: inline-block;
@@ -23,9 +23,11 @@
       vertical-align: sub;
     }
     .contentBox {
-      margin: auto;
-      min-width: 500px;
-      max-width: 900px;
+      margin: 0 40px;
+      //min-width: 500px;
+      //max-width: 900px;
+      display: flex;
+      justify-content: space-between;
       .commonBox,.disabled {
         transition: all 0.3s;
         position: relative;

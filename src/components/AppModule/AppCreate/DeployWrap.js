@@ -85,6 +85,13 @@ class WrapManage extends Component {
       }
       return
     }
+    if (from && from === 'wrapStore') {
+      this.setState({
+        currentType: 'store'
+      })
+      this.getStoreList()
+      return
+    }
     this.loadData()
     window.template = this.state.template
   }

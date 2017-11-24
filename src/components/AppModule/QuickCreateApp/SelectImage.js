@@ -92,6 +92,9 @@ class SelectImage extends Component {
 
   componentWillMount() {
     const { searchInputValue, imageType } = this.state
+    if (imageType === IMAGE_STORE) {
+      return this.loadImageStore()
+    }
     if(searchInputValue) {
       this.loadData(this.props, {
         q: searchInputValue
