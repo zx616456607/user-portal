@@ -73,6 +73,11 @@ exports.deleteRepository = harborHandler(
   }
 )
 
+exports.deleteRepositoryTag = harborHandler(
+    (harbor, ctx, callback) => harbor.deleteRepositoryTag(
+        ctx.params.user, ctx.params.name, ctx.params.tag, callback)
+)
+
 // [GET] /repositories/:user/:name/tags
 exports.getRepositoriesTags = harborHandler(
   (harbor, ctx, callback) => {
