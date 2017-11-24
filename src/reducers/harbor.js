@@ -60,12 +60,14 @@ function projects(state = {}, action) {
         }
       })
     case ActionTypes.HARBOR_PROJECT_LIST_SUCCESS:
+      let total = action.response.result.total
+      let hasTenxStore = action.response.result.data.some(item => item.name !== 'tenx_store')
       return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
           server: action.response.result.server,
-          list: action.response.result.data,
-          total: action.response.result.total,
+          list: action.response.result.data.filter(item => item.name !== 'tenx_store'),
+          total: hasTenxStore ? total - 1 : total,
         }
       })
     case ActionTypes.HARBOR_PROJECT_LIST_FAILURE:

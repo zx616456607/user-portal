@@ -475,10 +475,12 @@ class WrapComopnent extends React.Component {
         <div className="wrapStoreBody">
           <div className="wrapListBox wrapStoreLeft">
             <div className="filterAndSortBox">
-              <div className="filterClassify">
-                <span>分类：</span>
-                {this.renderClassifyTab()}
-              </div>
+              <Row className="filterClassify">
+                <Col span={2} style={{ lineHeight: '28px' }}>分类：</Col>
+                <Col span={22}>
+                  {this.renderClassifyTab()}
+                </Col>
+              </Row>
               <div className="sortBox">
                 <span>排序：</span>
                 {this.renderSortTab()}
