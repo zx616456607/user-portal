@@ -230,6 +230,7 @@ class ImageCheckTable extends React.Component {
       dataIndex: 'image',
       key: 'image',
       width: '10%',
+      render: (text, record) => <Tooltip title={`${text}:${record.tag}`}><div style={{ width: 90 }} className="textoverflow">{`${text}:${record.tag}`}</div></Tooltip>
     }, {
       title: '镜像地址',
       dataIndex: 'resource',

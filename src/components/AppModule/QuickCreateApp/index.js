@@ -627,17 +627,17 @@ class QuickCreateApp extends Component {
         </div>
       )
     }
-    // return (
-    //   <div className="footerSteps">
-    //     <Button
-    //       size="large"
-    //       onClick={this.goSelectCreateAppMode}
-    //     >
-    //       上一步
-    //     </Button>
-    //     <Button size="large" style={{marginLeft:10}} onClick={()=> this.nextStep()}>下一步</Button>
-    //   </div>
-    // )
+    return (
+      <div className="footerSteps">
+        <Button
+          size="large"
+          onClick={this.goSelectCreateAppMode}
+        >
+          上一步
+        </Button>
+        <Button size="large" style={{marginLeft:10}} onClick={()=> this.nextStep()}>下一步</Button>
+      </div>
+    )
   }
 
   editService(key) {

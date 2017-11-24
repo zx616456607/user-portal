@@ -91,6 +91,9 @@ class CreateModel extends Component {
         linkUrl = 'quick_create'
         break
       }
+      case 'image_store':
+        linkUrl = 'quick_create?imageType=imageStore'
+        break
       case 'store': {
         linkUrl = "app_store"
         break
@@ -101,6 +104,10 @@ class CreateModel extends Component {
       }
       case 'deploy_wrap': {
         linkUrl = "deploy_wrap"
+        break
+      }
+      case 'wrap_store': {
+        linkUrl = 'wrap_store'
         break
       }
       default: linkUrl = 'quick_create'
@@ -204,6 +211,9 @@ class CreateModel extends Component {
           url+=`&appName=${appName}${urlQuery}`
         }
       }
+      if (linkUrl === 'wrap_store') {
+        url = '/app_manage/app_create/quick_create?addWrap=true&from=wrapStore'
+      }
       browserHistory.push(url)
     })
   }
@@ -247,6 +257,28 @@ class CreateModel extends Component {
                 </svg>
                 <i className="fa fa-check"></i>
               </div>
+              <div className={createModel == "image_store" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"} onClick={this.selectCreateModel.bind(this, "image_store")}>
+                <img src={createModel == "image_store" ? appStoreHover : appStore} />
+                <div className="infoBox">
+                  <p>镜像商店</p>
+                  <span>通过镜像商店创建应用</span>
+                </div>
+                <svg className="commonSelectedImg">
+                  <use xlinkHref="#appcreatemodelselect" />
+                </svg>
+                <i className="fa fa-check"></i>
+              </div>
+              <div className={createModel == "deploy_wrap" ? "deploy_wrap commonBox selectedBox" : "deploy_wrap commonBox"} onClick={this.selectCreateModel.bind(this, "deploy_wrap")}>
+                <img src={createModel == "deploy_wrap" ? wrapManageHover : wrapManage} />
+                <div className="infoBox">
+                  <p>应用包部署</p>
+                  <span>通过应用包文件创建应用</span>
+                </div>
+                <svg className="commonSelectedImg">
+                  <use xlinkHref="#appcreatemodelselect" />
+                </svg>
+                <i className="fa fa-check"></i>
+              </div>
               { moreService ?
               <Tooltip title='添加服务暂不支持应用商店方式'>
               <div className="appStore disabled">
@@ -262,10 +294,10 @@ class CreateModel extends Component {
               </div>
               </Tooltip>
               :
-              <div className={createModel == "store" ? " commonBox selectedBox" : " commonBox"} onClick={this.selectCreateModel.bind(this, "store")}>
-                <img src={createModel == "store" ? appStoreHover : appStore} />
+              <div className={createModel == "wrap_store" ? " commonBox selectedBox" : " commonBox"} onClick={this.selectCreateModel.bind(this, "wrap_store")}>
+                <img src={createModel == "wrap_store" ? appStoreHover : appStore} />
                 <div className="infoBox">
-                  <p>应用商店</p>
+                  <p>应用包商店</p>
                   <span>通过应用商店创建应用</span>
                 </div>
                 <svg className="commonSelectedImg">
@@ -273,34 +305,22 @@ class CreateModel extends Component {
                 </svg>
                 <i className="fa fa-check"></i>
               </div>
-
               }
-              <div className={createModel == "deploy_wrap" ? "deploy_wrap commonBox selectedBox" : "deploy_wrap commonBox"} onClick={this.selectCreateModel.bind(this, "deploy_wrap")}>
-                <img src={createModel == "deploy_wrap" ? wrapManageHover : wrapManage} />
-                <div className="infoBox">
-                  <p>应用包部署</p>
-                  <span>通过应用包文件创建应用</span>
-                </div>
-                <svg className="commonSelectedImg">
-                  <use xlinkHref="#appcreatemodelselect" />
-                </svg>
-                <i className="fa fa-check"></i>
-              </div>
-              {moreService ?
+            </div>
+  
+            {moreService ?
               <Tooltip title='添加服务暂不支持编排文件方式'>
-              <div className='otherStack'>
-                <img src={stackIcon} className="stackIcon" />
-                编排文件
-              </div>
+                <div className='otherStack'>
+                  <img src={stackIcon} className="stackIcon" />
+                  编排文件
+                </div>
               </Tooltip>
               :
               <Button type={createModel=='layout' ? 'primary':'ghost'} className='stack' onClick={()=> this.selectCreateModel('layout')}>
                 <img src={createModel == 'layout' ? stackIconHover : stackIcon} className="stackIcon" />
                 编排文件
               </Button>
-              }
-
-            </div>
+            }
           </div>
           <div className="envirBox">
             <Form>
