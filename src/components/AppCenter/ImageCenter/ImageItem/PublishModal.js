@@ -464,7 +464,7 @@ class PublishModal extends React.Component {
               {...formItemLayout}
               label="提交信息"
             >
-              <Input type="textarea" {...infoProps} placeholder="请填写应用包简要描述，将展示在应用包商店，以供使用者参考" />
+              <Input type="textarea" {...infoProps} placeholder="请输入提交信息，便于系统管理员快速了解发布内容" />
             </FormItem>
           </Form>
         </Modal>
