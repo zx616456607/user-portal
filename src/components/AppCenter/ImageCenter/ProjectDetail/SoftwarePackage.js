@@ -730,7 +730,7 @@ class TableTemplate extends Component{
         sorter:(a,b) => a.softwareimpact.impactSorterNum - b.softwareimpact.impactSorterNum
       },
       {
-        title: '介绍了在图像',
+        title: '引入镜像层',
         dataIndex: 'softwarepicture',
         key: 'softwarepicture',
         width: '30%',

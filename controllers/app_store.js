@@ -46,10 +46,11 @@ exports.getStorelist = function* () {
   const repo_detail = this.body
   if (result.data.apps && result.data.apps.length > 0) {
     for (let i=0;i<result.data.apps.length;i++){
+      result.data.apps[i].download_times = 0
       for (let j=0;j<repo_detail.data.length;j++){
-        result.data.apps[i].download_times = 0
         if (result.data.apps[i].resource_name == repo_detail.data[j].name){
           result.data.apps[i].download_times = repo_detail.data[j].pull_count
+          break
         }
       }
     }
