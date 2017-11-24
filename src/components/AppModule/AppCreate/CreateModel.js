@@ -83,7 +83,6 @@ class CreateModel extends Component {
     return `${this.serviceSum}-${genRandomString('0123456789')}`
   }
   selectCreateModel(currentSelect) {
-    console.log(currentSelect)
     //user select current create model,so that current selected model's css will be change
     let linkUrl = ""
     // compose_file
