@@ -306,12 +306,12 @@ class WrapComopnent extends React.Component {
                  src={`${API_URL_PREFIX}/pkg/icon/${ activeKey === 'app' ? item.pkgIconID : item.versions[0].iconID}`}
             />
             <div className="wrapListMiddle">
-              <div className="appName" style={{ marginBottom: isHot || activeKey === 'image' ? 0 : 10 }}>
+              <div className="appName">
                 <div onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)} className={classNames("themeColor pointer", {'inlineBlock' : !isHot, 'hidden': isHot})}>
                   {activeKey === 'app' ? item.fileNickName : item.appName}
                 </div>
                 {
-                  !isHot && <span className="nickName hintColor"> ({activeKey === 'app' ? item.fileName : item.resourceName})</span>
+                  !isHot && <span className="nickName hintColor"> ({activeKey === 'app' ? item.fileName : item.resourceName.split('/')[1]})</span>
                 }
                 {
                   activeKey === 'image' && !isHot &&
@@ -475,15 +475,17 @@ class WrapComopnent extends React.Component {
         <div className="wrapStoreBody">
           <div className="wrapListBox wrapStoreLeft">
             <div className="filterAndSortBox">
-              <Row className="filterClassify">
-                <Col span={2} style={{ lineHeight: '28px' }}>分类：</Col>
-                <Col span={22}>
+              <div className="filterClassify">
+                <div className="text">分类：</div>
+                <div className="listBox">
                   {this.renderClassifyTab()}
-                </Col>
-              </Row>
+                </div>
+              </div>
               <div className="sortBox">
-                <span>排序：</span>
-                {this.renderSortTab()}
+                <div className="text">排序：</div>
+                <div className="listBox">
+                  {this.renderSortTab()}
+                </div>
               </div>
               {
                 dataSource && dataSource.total !== 0 &&

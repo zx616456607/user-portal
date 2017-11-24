@@ -279,21 +279,6 @@ class CreateModel extends Component {
                 </svg>
                 <i className="fa fa-check"></i>
               </div>
-              { moreService ?
-              <Tooltip title='添加服务暂不支持应用商店方式'>
-              <div className="appStore disabled">
-                <img src={appStore} />
-                <div className="infoBox">
-                  <p>应用商店</p>
-                  <span>通过应用商店创建应用</span>
-                </div>
-                <svg className="commonSelectedImg">
-                  <use xlinkHref="#appcreatemodelselect" />
-                </svg>
-                <i className="fa fa-check"></i>
-              </div>
-              </Tooltip>
-              :
               <div className={createModel == "wrap_store" ? " commonBox selectedBox" : " commonBox"} onClick={this.selectCreateModel.bind(this, "wrap_store")}>
                 <img src={createModel == "wrap_store" ? appStoreHover : appStore} />
                 <div className="infoBox">
@@ -305,7 +290,6 @@ class CreateModel extends Component {
                 </svg>
                 <i className="fa fa-check"></i>
               </div>
-              }
             </div>
   
             {moreService ?
