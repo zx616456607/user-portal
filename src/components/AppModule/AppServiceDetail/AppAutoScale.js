@@ -471,7 +471,7 @@ class AppAutoScale extends Component {
       if (!!errors) {
         return
       }
-      
+
       let copyThresholdArr = thresholdArr.slice(0)
       this.uuid++
       copyThresholdArr = copyThresholdArr.concat(this.uuid)
@@ -522,11 +522,11 @@ class AppAutoScale extends Component {
     const { getFieldProps, isFieldValidating, getFieldError, getFieldValue } = form
     const isGroupHide = getFieldValue('alert_strategy') === 'SendNoEmail'
     const formItemLargeLayout = {
-      labelCol: { span: 3},
+      labelCol: { span: 4},
       wrapperCol: { span: 13}
     }
     const formItemSmallLayout = {
-      labelCol: { span: 3},
+      labelCol: { span: 4},
       wrapperCol: { span: 8}
     }
     const scaleName = getFieldProps('strategyName', {
@@ -570,9 +570,9 @@ class AppAutoScale extends Component {
       let optItem = cpuAndMemory[key] || { 'cpu': 80 }
       return (
         <Row type="flex" align="middle" key={key} className="strategyBox">
-          <Col className={classNames({"strategyLabel": key === 0})} span={3} style={{ marginBottom: 24, textAlign: 'right'}}>
+          <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginBottom: 24, textAlign: 'right'}}>
             {
-              thresholdArr.indexOf(key) === 0 ? '阈值：' : ''
+              thresholdArr.indexOf(key) === 0 ? <span className="threshold">阈值</span> : ''
             }
           </Col>
           <Col span={6}>
@@ -664,8 +664,8 @@ class AppAutoScale extends Component {
                   </FormItem>
                   {thresholdItem}
                   <Row style={{margin: '0 0 20px'}}>
-                    <Col span={3}/>
-                    <Col span={21}>
+                    <Col span={4}/>
+                    <Col span={20}>
                       <Icon type="exclamation-circle-o"/> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
                     </Col>
                   </Row>
@@ -686,7 +686,7 @@ class AppAutoScale extends Component {
                     </Select>
                   </FormItem>
                   {
-                    isGroupHide ? null : 
+                    isGroupHide ? null :
                       [
                         <FormItem
                           {...formItemLargeLayout}
@@ -708,8 +708,8 @@ class AppAutoScale extends Component {
                           </Select>
                         </FormItem>,
                         <Row key="groupHint">
-                          <Col span={3}/>
-                          <Col span={21} className="hintBox">
+                          <Col span={4}/>
+                          <Col span={20} className="hintBox">
                             <Icon type="exclamation-circle-o" /> 发生弹性伸缩时会向该通知组发送邮件通知
                           </Col>
                         </Row>,

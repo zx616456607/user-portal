@@ -44,7 +44,7 @@ exports.getStorelist = function* () {
   this.query.detail = 1
   yield registry_harbor.getProjectRepositories.call(this)
   const repo_detail = this.body
-  if (result.data.apps && result.data.apps.length) {
+  if (result.data.apps && result.data.apps.length > 0) {
     for (let i=0;i<result.data.apps.length;i++){
       for (let j=0;j<repo_detail.data.length;j++){
         result.data.apps[i].download_times = 0
@@ -191,6 +191,8 @@ exports.getIcon = function* () {
 
 function* getAppStoreProjectID(){
   this.query.project_name = 'tenx_store'
+  // Search in public scope
+  this.query.is_public = 1
   yield registry_harbor.getProjects.call(this)
   if (this.body.total == 0){
     return -1
