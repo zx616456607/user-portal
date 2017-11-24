@@ -43,8 +43,20 @@
     .filterClassify{
       margin-bottom: 10px;
     }
+    .filterClassify, .sortBox{
+      display: flex;
+      display: -webkit-flex;
+      justify-content: space-between;
+      .text{
+        flex: 0 0 50px;
+        line-height: 28px;
+      }
+      .listBox{
+        flex: 1 1 auto;
+      }
+    }
     .filterTab{
-      margin-left: 5px;
+      margin-right: 5px;
       display: inline-block;
       border-radius: 17px;
       padding: 5px 20px;
@@ -73,6 +85,9 @@
       .wrapListMiddle{
         flex: 1 1 40%;
         -webkit-flex: 1 1 40%;
+        &>div:not(:last-of-type) {
+          margin-bottom: 4px;
+        }
       }
       .wrapListRight{
         flex: 1 1 40%;

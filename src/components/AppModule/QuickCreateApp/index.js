@@ -599,7 +599,7 @@ class QuickCreateApp extends Component {
 }
   renderFooterSteps() {
     const { location } = this.props
-    const { hash } = location
+    const { hash, query } = location
     if (hash === SERVICE_CONFIG_HASH || hash === SERVICE_EDIT_HASH) {
       return (
         <div className="footerSteps">
@@ -628,15 +628,16 @@ class QuickCreateApp extends Component {
       )
     }
     return (
-      <div className="footerSteps">
-        <Button
-          size="large"
-          onClick={this.goSelectCreateAppMode}
-        >
-          上一步
-        </Button>
-        <Button size="large" style={{marginLeft:10}} onClick={()=> this.nextStep()}>下一步</Button>
-      </div>
+      query.addWrap && query.addWrap === 'true' ? null :
+        <div className="footerSteps">
+          <Button
+            size="large"
+            onClick={this.goSelectCreateAppMode}
+          >
+            上一步
+          </Button>
+          <Button size="large" style={{marginLeft:10}} onClick={()=> this.nextStep()}>下一步</Button>
+        </div>
     )
   }
 
