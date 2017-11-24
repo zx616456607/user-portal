@@ -469,7 +469,7 @@ class WrapComopnent extends React.Component {
             </Col>
           </Row>
           <Row type="flex" justify="center" style={{ marginTop: 20 }}>
-            <Col span={18} offset={5}><Icon type="exclamation-circle-o" /> 下架之后会将所选镜像版本删除，原镜像不受影响</Col>
+            <Col span={18} offset={5}><Icon type="info-circle-o" /> 下架之后会将所选镜像版本删除，原镜像不受影响</Col>
           </Row>
         </Modal>
         <div className="wrapStoreBody">
