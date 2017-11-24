@@ -129,7 +129,7 @@ class AppWrapStore extends React.Component {
             />
           </div>
           <Tabs className="storeTabs" activeKey={activeKey} onChange={this.changeTab}>
-            <TabPane tab="镜像应用商店" key="image">
+            <TabPane tab="镜像商店" key="image">
               <StoreTemplate
                 activeKey={activeKey}
                 current={current}

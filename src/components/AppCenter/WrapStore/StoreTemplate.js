@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
-import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal } from 'antd'
+import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal, Select, Row, Col } from 'antd'
 import classNames from 'classnames'
 import { offShelfWrap, getWrapStoreHotList } from '../../../actions/app_center'
 import { getAppsList, getAppsHotList, appStoreApprove } from '../../../actions/app_store'
@@ -20,6 +20,9 @@ import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX } from '../../../constants'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
+
+const Option = Select.Option;
+
 const sortOption = [
   {
     key: 'publish_time',
@@ -39,8 +42,9 @@ class WrapComopnent extends React.Component {
     this.offShelfCancel = this.offShelfCancel.bind(this)
     this.showImageDetail = this.showImageDetail.bind(this)
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this)
+    this.selectTag = this.selectTag.bind(this)
     this.state = {
-      
+      selectTag: ''
     }
   }
   componentWillMount() {
@@ -126,10 +130,10 @@ class WrapComopnent extends React.Component {
       }
     })
   }
-  offsetImage(id) {
+  offsetImage(image) {
     this.setState({
       offShelfModal: true,
-      offshelfId: id
+      currentImage: image
     })
   }
   offShelfConfirm() {
@@ -151,7 +155,8 @@ class WrapComopnent extends React.Component {
           getAppsHotList()
           this.setState({
             offShelfModal: false,
-            offshelfId: ''
+            offshelfId: '',
+            currentImage: null
           })
         },
         isAsync: true
@@ -162,7 +167,8 @@ class WrapComopnent extends React.Component {
           notify.error(`操作失败\n${res.message.message}`)
           this.setState({
             offShelfModal: false,
-            offshelfId: ''
+            offshelfId: '',
+            currentImage: null
           })
         }
       }
@@ -171,7 +177,8 @@ class WrapComopnent extends React.Component {
   offShelfCancel() {
     this.setState({
       offShelfModal: false,
-      offshelfId: ''
+      offshelfId: '',
+      currentImage: null
     })
   }
   handleMenuClick(e, row) {
@@ -183,7 +190,7 @@ class WrapComopnent extends React.Component {
           this.updateAppStatus(row.id)
           return
         }
-        this.offsetImage(row.iD)
+        this.offsetImage(row)
         break
       case 'vm':
         browserHistory.push(`/app_manage/vm_wrap/create?from=wrapStore&fileName=${row.fileName}`)
@@ -236,6 +243,11 @@ class WrapComopnent extends React.Component {
   }
   showImageDetail(item) {
     this.setState({currentImage: item, imageDetailModalShow: true})
+  }
+  selectTag(tagId) {
+    this.setState({
+      offshelfId: tagId
+    })
   }
   renderWrapList(dataSource, isHot) {
     const { role, activeKey } = this.props
@@ -364,13 +376,15 @@ class WrapComopnent extends React.Component {
   }
   render() {
     const { current, dataSource, dataHotList, updatePage } = this.props
-    const { downloadModalVisible, currentImage, offShelfModal, imageDetailModalShow } = this.state
+    const { downloadModalVisible, currentImage, offShelfModal, imageDetailModalShow, offshelfId } = this.state
     let server
     let node
+    let tagArr = []
     if (currentImage) {
       server = currentImage.resourceLink && currentImage.resourceLink.split('/')[0]
       node = currentImage.resourceLink && currentImage.resourceLink.split('/')[1]
       Object.assign(currentImage, { name: currentImage.resourceName })
+      tagArr = currentImage.versions.map(item => <Option key={item.iD}>{item.tag}</Option>)
     }
     const pagination = {
       simple: true,
@@ -412,10 +426,27 @@ class WrapComopnent extends React.Component {
           onOk={this.offShelfConfirm}
           onCancel={this.offShelfCancel}
         >
-         <div className="deleteRow">
-           <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
-           <span>下架后会将该镜像删除并且无法恢复，是否确定下架？</span>
-         </div> 
+          <Row type="flex" justify="center" align="middle">
+            <Col span={3}>
+              下架版本
+            </Col>
+            <Col span={18}>
+              <Select
+                showSearch
+                value={offshelfId}
+                style={{ width: 300, marginLeft: 20 }}
+                placeholder="请选择版本"
+                optionFilterProp="children"
+                notFoundContent="无法找到"
+                onChange={this.selectTag}
+              >
+                {tagArr}
+              </Select>
+            </Col>
+          </Row>
+          <Row type="flex" justify="center" style={{ marginTop: 20 }}>
+            <Col span={18} offset={5}><Icon type="exclamation-circle-o" /> 下架之后会将对应镜像版本删除，原镜像不受影响</Col>
+          </Row>
         </Modal>
         <div className="wrapStoreBody">
           <div className="wrapListBox wrapStoreLeft">
