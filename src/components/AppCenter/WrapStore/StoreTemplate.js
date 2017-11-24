@@ -344,7 +344,10 @@ class WrapComopnent extends React.Component {
                 </div>
               }
               {
-                !isHot && <div className="hintColor appDesc">描述：{activeKey === 'app' ? item.description : item.versions[0].description}</div>
+                !isHot && 
+                <Tooltip title={activeKey === 'app' ? item.description : item.versions[0].description}>
+                  <div className="hintColor appDesc textoverflow">描述：{activeKey === 'app' ? item.description : item.versions[0].description}</div>
+                </Tooltip>
               }
               {
                 isHot &&
@@ -366,7 +369,7 @@ class WrapComopnent extends React.Component {
               !isHot &&
               <div className="downloadBox">
                 <span className="hintColor"><Icon type="download" /> {item.downloadTimes}</span>
-                <span className="hintColor"><Icon type="clock-circle-o" /> 发布于 {calcuDate(item.publishTime)}</span>
+                <span className="hintColor"><Icon type="clock-circle-o" /> {activeKey === 'app' ? '发布' : '更新'}于 {calcuDate(item.publishTime)}</span>
               </div>
             }
           </div>
@@ -445,7 +448,7 @@ class WrapComopnent extends React.Component {
             </Col>
           </Row>
           <Row type="flex" justify="center" style={{ marginTop: 20 }}>
-            <Col span={18} offset={5}><Icon type="exclamation-circle-o" /> 下架之后会将对应镜像版本删除，原镜像不受影响</Col>
+            <Col span={18} offset={5}><Icon type="exclamation-circle-o" /> 下架之后会将所选镜像版本删除，原镜像不受影响</Col>
           </Row>
         </Modal>
         <div className="wrapStoreBody">

@@ -214,6 +214,7 @@ class ImageCheckTable extends React.Component {
       dataIndex: 'requestMessage',
       key: 'requestMessage',
       width: '10%',
+      render: text => <Tooltip title={text}><div style={{ width: 90 }} className="textoverflow">{text}</div></Tooltip>
     }, {
       title: '分类名称',
       dataIndex: 'classifyName',
@@ -326,6 +327,9 @@ class ImageCheckTable extends React.Component {
             {
               [4].includes(record.publishStatus) && isAdmin &&
                 <Button onClick={() => this.checkImageStatus(record, 7)}>删除</Button>
+            }
+            {
+              ![1, 4, 6].includes(record.publishStats) && '-'
             }
           </div>
         )
