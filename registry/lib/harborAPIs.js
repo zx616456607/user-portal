@@ -170,6 +170,11 @@ HarborAPIs.prototype.deleteRepository = function(name, callback) {
   this.sendRequest(requestUrl, 'DELETE', null, callback)
 }
 
+HarborAPIs.prototype.deleteRepositoryTag = function (project, repository, tag, callback) {
+  const url = `${this.getAPIPrefix()}/repositories/${project}/${repository}/tags/${tag}`
+  this.sendRequest(url, 'DELETE', null, callback)
+}
+
 HarborAPIs.prototype.getRepositoriesTags = function(name, callback) {
   const method = 'getRepositoriesTags'
   logger.debug(method, `Get Repos tags`)
