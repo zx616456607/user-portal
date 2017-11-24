@@ -890,8 +890,14 @@ class Storage extends Component {
       },
       failed: {
         isAsync: true,
-        func: () => {
+        func: err => {
           notification.close()
+          const { statusCode, message } = err
+          if (statusCode === 409 && message.data && message.data.length > 0) {
+            notification.error(`${message.data} 存储删除失败，请稍后重试`)
+            this.getStorageList()
+            return
+          }
           notification.error('删除存储失败')
           this.getStorageList()
         }

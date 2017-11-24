@@ -201,8 +201,14 @@ class Snapshot extends Component {
         isAsync: true
       },
       failed: {
-        func: () => {
-          info.error('快照删除失败！')
+        func: err => {
+          const { statusCode, message } = err
+          if (statusCode === 409 && message.data && message.data.length > 0) {
+            info.error(`${message.data} 存储删除失败，请稍后重试`)
+            this.updateSnapshotList()
+          } else {
+            info.error('快照删除失败！')
+          }
           this.setState({
             DeletaSnapshotModal: false,
             DeleteSnapshotConfirmLoading: false,
@@ -211,7 +217,8 @@ class Snapshot extends Component {
             RowDelete: false,
             TopDelete: false,
           })
-        }
+        },
+        isAsync: true
       }
     })
   }
