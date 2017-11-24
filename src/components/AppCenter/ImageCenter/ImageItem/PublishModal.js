@@ -84,21 +84,24 @@ class PublishModal extends React.Component {
   checkImageName(rule, value, callback) {
     const { imageNameExists, form } = this.props
     const tag = form.getFieldValue('tagsName')
-    if (!tag) return
+    if (!tag) return callback('请选择版本')
     this.imageNameTimeout = setTimeout(()=>{
       const body = {
         image: `${value}:${tag}`
       }
       imageNameExists(body, {
         success: {
-          func: () => {
+          func: res => {
+            if (res.data) {
+              return callback('该镜像名称已存在')
+            }
             callback()
           },
           isAsync: true
         },
         failed: {
           func: () => {
-            callback(new Error('该发布名称已存在'))
+            callback()
           },
           isAsync: true
         }
@@ -111,21 +114,24 @@ class PublishModal extends React.Component {
     if (!newValue) {
       return callback('请输入发布名称')
     }
-    if (newValue.length > 20) {
-      return callback('发布名称不能超过20个字符')
+    if (newValue.length < 3 || newValue.length > 20) {
+      return callback('发布名称需在3-20个字符之间')
     }
     clearTimeout(this.nickNameTimeout)
     this.nickNameTimeout = setTimeout(()=>{
       checkAppNameExists(newValue, {
         success: {
-          func: () => {
+          func: res => {
+            if (res.data) {
+              return callback('该发布名称已存在')
+            }
             callback()
           },
           isAsync: true
         },
         failed: {
           func: () => {
-            callback(new Error('该发布名称已存在'))
+            callback()
           },
           isAsync: true
         }
@@ -159,6 +165,9 @@ class PublishModal extends React.Component {
   checkInfo(rule, value, callback) {
     if (!value) {
       return callback('请输入提交信息')
+    }
+    if (value.length > 50) {
+      return callback('提交信息不能超过50个字符')
     }
     callback()
   }
