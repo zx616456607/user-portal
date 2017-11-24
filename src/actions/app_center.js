@@ -283,7 +283,7 @@ function fetchCheckImage(obj, callback) {
   return {
     [FETCH_API]: {
       types: [GET_CHECK_IMAGE_REQUEST, GET_CHECK_IMAGE_SUCCESS, GET_CHECK_IMAGE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${urlImage}`,
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/repositories/${urlImage}/tags`,
       schema: {}
     },
     registry: obj.registry,
@@ -1072,9 +1072,9 @@ export function getWrapStoreHotList(callback) {
   return dispatch => dispatch(fetchWrapStoreHotList(callback))
 }
 
-export const GET_WRAP_GROUP_LIST_REQUEST ='GET_WRAP_GROUP_LIST_REQUEST' 
-export const GET_WRAP_GROUP_LIST_SUCCESS ='GET_WRAP_GROUP_LIST_SUCCESS' 
-export const GET_WRAP_GROUP_LIST_FAILURE ='GET_WRAP_GROUP_LIST_FAILURE' 
+export const GET_WRAP_GROUP_LIST_REQUEST ='GET_WRAP_GROUP_LIST_REQUEST'
+export const GET_WRAP_GROUP_LIST_SUCCESS ='GET_WRAP_GROUP_LIST_SUCCESS'
+export const GET_WRAP_GROUP_LIST_FAILURE ='GET_WRAP_GROUP_LIST_FAILURE'
 
 function fetchWrapGroupList(callback) {
   return {

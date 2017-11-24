@@ -130,26 +130,26 @@ let MyComponent = React.createClass({
         notify.error('镜像不存在，请先执行构建')
         return
       }
-      const image = item.namespace + '/' + item.image
+      const image = item.project + '/' + item.image
       const config = { registry: DEFAULT_REGISTRY, image }
       let notification = new NotificationHandler()
-      const { namespace, owner } = item
       this.setState({ showTargeImage: false })
       this.props.checkImage(config, {
         success: {
-          func: (res) => {
-            if (res.data.hasOwnProperty('status') && res.data.status == 404) {
-              notification.error('镜像不存在，请先执行构建')
+          func: res => {
+            if (res.data.length <= 0) {
+              notification.warn('镜像不存在，请先执行构建')
               return
             }
-            if (namespace != res.data.contributor && owner != res.data.contributor) {
-              notification.error('没有权限访问该镜像')
-              return
-            }
-            browserHistory.push(`/app_center?imageName=${image}`)
+            browserHistory.push(`/app_center/projects/detail/${item.projectId}?imageName=${image}`)
           },
           isAsync: true
-        }
+        },
+        failed: {
+          func: res => {
+            notification.warn('镜像不存在，请先执行构建')
+          },
+        },
       })
       return
     }

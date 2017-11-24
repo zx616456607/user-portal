@@ -149,7 +149,7 @@ exports.checkImage = function* () {
 
   const result = yield registryService.getImageInfo(registryUser, imageFullName, true)
   this.body = {
-    server: validConfig.v2Server,
+    server: validConfig ? validConfig.v2Server : registryService.getOfficialTenxCloudHub().v2Server,
     name: imageFullName,
     data: result
   }

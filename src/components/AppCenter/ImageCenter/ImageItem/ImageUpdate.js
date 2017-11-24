@@ -1029,7 +1029,12 @@ class ImageUpdate extends Component {
       <div id='imageUpdata'>
         <div className='rules'>
           <div className='header'>
-            <Button type="primary" size='large' className='buttonadd' onClick={this.handleAddRules}><i className='fa fa-plus'/>&nbsp;添加规则</Button>
+            <Button type="primary" size='large' className='buttonadd' onClick={this.handleAddRules}>
+              <i className='fa fa-plus'/>&nbsp;添加规则
+            </Button>
+            <Button size='large' className='btn-refresh' onClick={this.handleloadImageUpdateList}>
+              <i className='fa fa-refresh'/>&nbsp;刷新
+            </Button>
             {/*<span className='searchBox'>
               <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
                 onChange={this.handleInputValue}/>
@@ -1043,6 +1048,7 @@ class ImageUpdate extends Component {
           </div>
           <div className="body">
             <Table
+              loading={this.props.loading}
               columns={rulesColumn}
               dataSource={rulesData}
               pagination={{simple: true}}
@@ -1065,6 +1071,7 @@ class ImageUpdate extends Component {
           </div>
           <div className="body">
             <Table
+              loading={this.props.loading}
               columns={updataTaskColumn}
               dataSource={taskUpdataData}
               pagination={{simple: true}}
@@ -1202,6 +1209,7 @@ function mapStateToProp(state, props) {
   const { policies, jobs, targets } = imageUpdate
   return {
     detail,
+    loading: imageUpdate.isFetching,
     rulesData: policies || [],
     taskUpdataData: jobs || [],
     targets: targets || [],
