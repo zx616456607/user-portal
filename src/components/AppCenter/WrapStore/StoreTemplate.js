@@ -398,11 +398,10 @@ class WrapComopnent extends React.Component {
           onOk={this.closeModal}
         >
           <p>在本地 docker 环境中输入以下命令，就可以 pull 一个镜像到本地了</p>
-          <p><i className="fa fa-exclamation-triangle"/>&nbsp;私有镜像需要先 login 后才能拉取</p>
           <pre className="codeSpan">
             {`sudo docker pull ${server && server}/${node && node}/<image name>:<tag>`}
           </pre>
-          <p><i className="fa fa-exclamation-triangle"/>&nbsp;为了在本地方便使用，下载后可以修改tag为短标签，比如：</p>
+          <p>为了在本地方便使用，下载后可以修改tag为短标签，比如：</p>
           <pre className="codeSpan">
             {`sudo docker tag  ${server && server}/${node && node}/hello-world:latest ${node && node}/hello-world:latest`}
             </pre>
