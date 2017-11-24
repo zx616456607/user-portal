@@ -35,7 +35,7 @@ class ImageCheckTable extends React.Component {
     this.copyEnd = this.copyEnd.bind(this)
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this)
     this.state = {
-      publish_time: false
+      
     }
   }
   getImageStatus(status){
@@ -72,13 +72,10 @@ class ImageCheckTable extends React.Component {
     updateParentState('current', pagination.current)
   }
   handleSort(type) {
-    const { updateParentState } = this.props
-    const sortFlag = this.state[type]
-    const sort = this.getSortOrder(sortFlag, type)
-    this.setState({
-      [type]: !sortFlag
-    })
-    updateParentState('sort', sort)
+    const { updateParentState, publish_time } = this.props
+    const sort = this.getSortOrder(publish_time, type)
+    updateParentState('publish_time', !publish_time, false)
+    updateParentState('sort', sort, true)
   }
   getSortOrder(flag, type) {
     let str = 'a'
@@ -194,9 +191,9 @@ class ImageCheckTable extends React.Component {
     this.setState({imageDetailModalShow:false})
   }
   render() {
-    const { imageCheckList, total, form } = this.props
+    const { imageCheckList, total, form, publish_time } = this.props
     const { getFieldProps } = form
-    const { publish_time, rejectModal, copyStatus, imageDetailModalShow, currentImage } = this.state 
+    const { rejectModal, copyStatus, imageDetailModalShow, currentImage } = this.state 
     const pagination = {
       simple: true,
       defaultCurrent: 1,
@@ -395,6 +392,7 @@ class ImageCheck extends React.Component {
       filter: 'type,2',
       filterName: undefined,
       sort: 'd,publish_time',
+      publish_time: false
     }
   }
   componentWillMount() {
@@ -422,18 +420,19 @@ class ImageCheck extends React.Component {
   refreshData() {
     this.setState({
       filterName: '',
-      sort: '',
+      sort: 'd,publish_time',
       current: 1,
+      publish_time: false
     }, this.getImagePublishList)
   }
-  updateParentState(type, value) {
+  updateParentState(type, value, callback) {
     this.setState({
       [type]: value
-    }, this.getImagePublishList)
+    }, callback && this.getImagePublishList)
   }
   render() {
     const { imageCheckList, total, appStoreApprove, imageApprovalList } = this.props
-    const { filterName, current } = this.state
+    const { filterName, current, publish_time } = this.state
     return(
       <div className="imageCheck">
         <div className="wrapCheckHead">
@@ -443,16 +442,17 @@ class ImageCheck extends React.Component {
           <CommonSearchInput
             ref="tableChild"
             size="large"
-            placeholder="按镜像名称或发布名称搜索"
+            placeholder="按发布名称搜索"
             style={{ width: 200 }}
             value={filterName}
-            onSearch={value => this.updateParentState('filterName', value)}
+            onSearch={value => this.updateParentState('filterName', value, true)}
           />
           <span className="total verticalCenter">共 {total && total} 条</span>
         </div>
         <ImageCheckTable
           imageCheckList={imageCheckList}
           current={current}
+          publish_time={publish_time}
           total={total}
           updateParentState={this.updateParentState}
           appStoreApprove={appStoreApprove}

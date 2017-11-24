@@ -176,6 +176,7 @@ class WrapComopnent extends React.Component {
   }
   handleMenuClick(e, row) {
     const { activeKey } = this.props
+    const { downloadModalVisible } = this.state
     switch(e.key) {
       case 'offShelf':
         if (activeKey === 'app') {
@@ -188,10 +189,12 @@ class WrapComopnent extends React.Component {
         browserHistory.push(`/app_manage/vm_wrap/create?from=wrapStore&fileName=${row.fileName}`)
         break
       case 'download':
-        this.setState({
-          downloadModalVisible: true,
-          currentImage: row
-        })
+        if (!downloadModalVisible) {
+          this.setState({
+            currentImage: row,
+            downloadModalVisible: true
+          })
+        }
         break
     }
   }
@@ -249,14 +252,22 @@ class WrapComopnent extends React.Component {
       }
       newData = dataSource.apps
     }
+    if (!newData || !newData.length) {
+      return (
+        <div className='loadingBox'>
+          暂无数据
+        </div>
+      )
+    }
     return newData.map((item, index) => {
       const menu = (
         <Menu style={{ width: 90 }} onClick={e => this.handleMenuClick(e, item)}>
           {
-            activeKey === 'app' &&
-              <Menu.Item key="vm">
+            activeKey === 'app' 
+              ? <Menu.Item key="vm">
                 传统部署
-              </Menu.Item>
+                </Menu.Item>
+              : <Menu.Item key="none" style={{ display: 'none' }}/>
           }
           <Menu.Item key="download">
             {
@@ -267,13 +278,14 @@ class WrapComopnent extends React.Component {
             }
           </Menu.Item>
           {
-            role === ROLE_SYS_ADMIN &&
-            <Menu.Item key="offShelf" disabled={[0, 1, 4].includes(item.publishStatus)}>下架</Menu.Item>
+            role === ROLE_SYS_ADMIN
+              ? <Menu.Item key="offShelf" disabled={[0, 1, 4].includes(item.publishStatus)}>下架</Menu.Item>
+              : <Menu.Item key="none" style={{ display: 'none' }}/>
           }
         </Menu>
       );
       return (
-        <div key={activeKey === 'app' ? item.id : item.iD} className={classNames("wrapList", {"noBorder": isHot})} type="flex">
+        <div key={activeKey === 'app' ? item.id : item.publishTime} className={classNames("wrapList", {"noBorder": isHot})} type="flex">
           {
             isHot && <div className="rank">{index !== 0 ? <span className={`hotOrder hotOrder${index + 1}`}>{index + 1}</span> : <i className="champion"/>}</div>
           }
@@ -356,9 +368,9 @@ class WrapComopnent extends React.Component {
     let server
     let node
     if (currentImage) {
-      server = currentImage.resource && currentImage.resource.split('/')[0]
-      node = currentImage.resource && currentImage.resource.split('/')[1]
-      Object.assign(currentImage, { name: currentImage.image })
+      server = currentImage.resourceLink && currentImage.resourceLink.split('/')[0]
+      node = currentImage.resourceLink && currentImage.resourceLink.split('/')[1]
+      Object.assign(currentImage, { name: currentImage.resourceName })
     }
     const pagination = {
       simple: true,

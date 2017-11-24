@@ -52,7 +52,26 @@ class PublishModal extends React.Component {
       let body = {
         image: `${server}/${currentImage.name}`
       }
-      getImageStatus(body)
+      getImageStatus(body, {
+        success: {
+          func: res => {
+            let flag = false
+            if (res.data) {
+              flag = res.data.every(item => {
+                return [1, 2].includes(item.status)
+              })
+            }
+            if (flag) {
+              form.setFields({
+                tagsName: {
+                  errors: ['无可发布版本'],
+                  value: ''
+                }
+              })
+            }
+          }
+        }
+      })
     }
     if (!oldVisible && newVisible && isEmpty(wrapGroupList && wrapGroupList.classifies)) {
       getWrapGroupList()
