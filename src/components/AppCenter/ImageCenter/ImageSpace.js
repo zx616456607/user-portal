@@ -307,7 +307,7 @@ class ImageSpace extends Component {
       this.props.checkImage(config, {
         success: {
           func: (res) => {
-            if (res.data.hasOwnProperty('status') && res.data.status == 404) {
+            if (res.data.length <= 0) {
               let notification = new NotificationHandler()
               notification.warn('所查看的镜像不存在')
               return
