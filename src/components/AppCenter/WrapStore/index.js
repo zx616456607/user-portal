@@ -120,7 +120,7 @@ class AppWrapStore extends React.Component {
       <QueueAnim>
         <div key="appWrapStore" className="appWrapStore">
           <div className="wrapStoreHead">
-            <div className="storeHeadText">商店</div>
+            <div className="storeHeadText">应用商店</div>
             <CommonSearchInput 
               placeholder={activeKey === 'app' ? "请输入应用包名称搜索" : "请输入镜像名称搜索"}
               size="large"

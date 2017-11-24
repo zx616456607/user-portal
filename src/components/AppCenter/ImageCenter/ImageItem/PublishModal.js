@@ -159,8 +159,8 @@ class PublishModal extends React.Component {
     if(!value) {
       return callback('请输入描述信息')
     }
-    if(value.length > 128) {
-      return callback('描述信息不得超过128个字符')
+    if(value.length < 3 || value.length > 80) {
+      return callback('描述信息需在3-80个字符之间')
     }
     callback()
   }
@@ -168,8 +168,8 @@ class PublishModal extends React.Component {
     if (!value) {
       return callback('请输入提交信息')
     }
-    if (value.length > 50) {
-      return callback('提交信息不能超过50个字符')
+    if (value.length < 3 || value.length > 20) {
+      return callback('提交信息需在3-20个字符之间')
     }
     callback()
   }

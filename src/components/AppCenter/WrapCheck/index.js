@@ -37,10 +37,10 @@ export default class CheckPage extends React.Component {
     return(
       <QueueAnim>
         <Tabs key="checkPage" type="card" onChange={this.tabChange} className="checkPage" activeKey={activeKey}>
-          <TabPane tab="镜像发布" key="image">
+          <TabPane tab="镜像审核" key="image">
             <ImageCheck activeKey={activeKey}/>
           </TabPane>
-          <TabPane tab="应用包" key="app">
+          <TabPane tab="应用包审核" key="app">
             <AppCheck activeKey={activeKey}/>
           </TabPane>
         </Tabs>
