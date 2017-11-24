@@ -189,7 +189,8 @@ class PublishModal extends React.Component {
       this.setState({
         loading: true
       })
-      const { fileNickName, tagsName, description, classifyName, request_message } = values
+      const { tagsName, description, classifyName, request_message } = values
+      const fileNickName = form.getFieldValue('fileNickName')
       const body = {
         origin_id: `${server}/${currentImage.name}:${tagsName}`,
         fileNickName,
