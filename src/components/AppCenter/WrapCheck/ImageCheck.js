@@ -18,6 +18,8 @@ import { imageApprovalList, appStoreApprove } from '../../../actions/app_store'
 import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
+import { camelize } from 'humps'
+import { ROLE_SYS_ADMIN } from '../../../../constants'
 
 const FormItem = Form.Item
 
@@ -191,9 +193,10 @@ class ImageCheckTable extends React.Component {
     this.setState({imageDetailModalShow:false})
   }
   render() {
-    const { imageCheckList, total, form, publish_time } = this.props
+    const { imageCheckList, total, form, publish_time, loginUser } = this.props
     const { getFieldProps } = form
-    const { rejectModal, copyStatus, imageDetailModalShow, currentImage } = this.state 
+    const { rejectModal, copyStatus, imageDetailModalShow, currentImage } = this.state
+    const isAdmin = loginUser.harbor[camelize('has_admin_role')] === 1 && loginUser.role === ROLE_SYS_ADMIN
     const pagination = {
       simple: true,
       defaultCurrent: 1,
@@ -307,7 +310,7 @@ class ImageCheckTable extends React.Component {
         return(
           <div className="operateBtn">
             {
-              [1, 6].includes(record.publishStatus) && 
+              [1, 6].includes(record.publishStatus) && isAdmin &&
                 [
                   <Button 
                     key="pass" 
@@ -321,7 +324,7 @@ class ImageCheckTable extends React.Component {
                 ]
             }
             {
-              [4].includes(record.publishStatus) &&
+              [4].includes(record.publishStatus) && isAdmin &&
                 <Button onClick={() => this.checkImageStatus(record, 7)}>删除</Button>
             }
           </div>
@@ -431,7 +434,7 @@ class ImageCheck extends React.Component {
     }, callback && this.getImagePublishList)
   }
   render() {
-    const { imageCheckList, total, appStoreApprove, imageApprovalList } = this.props
+    const { imageCheckList, total, appStoreApprove, imageApprovalList, loginUser } = this.props
     const { filterName, current, publish_time } = this.state
     return(
       <div className="imageCheck">
@@ -453,6 +456,7 @@ class ImageCheck extends React.Component {
           imageCheckList={imageCheckList}
           current={current}
           publish_time={publish_time}
+          loginUser={loginUser}
           total={total}
           updateParentState={this.updateParentState}
           appStoreApprove={appStoreApprove}
@@ -464,11 +468,12 @@ class ImageCheck extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const { appStore } = state
+  const { appStore, entities } = state
   const { imageApprovalList } = appStore || { imageApprovalList: {} }
   const { data } = imageApprovalList || { data: {} }
   const { apps, total } = data || { apps: [], total: 0 }
   return {
+    loginUser: entities.loginUser.info,
     imageCheckList: apps,
     total
   }
