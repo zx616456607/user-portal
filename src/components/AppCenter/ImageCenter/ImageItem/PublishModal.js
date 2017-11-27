@@ -86,7 +86,7 @@ class PublishModal extends React.Component {
   checkImageName(rule, value, callback) {
     const { imageNameExists, form } = this.props
     const tag = form.getFieldValue('tagsName')
-    if (!tag) return callback('请选择版本')
+    if (!tag) return callback()
     this.imageNameTimeout = setTimeout(()=>{
       const body = {
         image: `${value}:${tag}`
@@ -395,7 +395,7 @@ class PublishModal extends React.Component {
             </FormItem>
             <Form.Item
               {...formItemLayout}
-              hasFeedback={getFieldValue('fileNickName')}
+              hasFeedback={!!getFieldValue('fileNickName')}
               label="发布名称"
               help={isFieldValidating('fileNickName') ? '校验中...' : (getFieldError('fileNickName') || []).join(', ')}
             >

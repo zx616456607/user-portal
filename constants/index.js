@@ -88,3 +88,6 @@ exports.TEAM_CREATOR_ROLE = 'team-creator'
 exports.PROJECT_CREATOR_ROLE = 'project-creator'
 
 exports.APM_SERVICE_LABEL_KEY = 'system/apm-service'
+
+//tenx_store
+exports.TENX_STORE = 'tenx_store'

@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Tabs } from 'antd'
 import { getWrapStoreList, getWrapGroupList } from '../../../actions/app_center'
-import { getAppsList, getAppsHotList } from '../../../actions/app_store'
+import { getAppsList } from '../../../actions/app_store'
 import './style/index.less'
 import StoreTemplate from './StoreTemplate'
 import CommonSearchInput from '../../CommonSearchInput'
@@ -194,6 +194,5 @@ function mapStateToProps(state) {
 export default connect(mapStateToProps, {
   getWrapStoreList,
   getWrapGroupList,
-  getAppsList,
-  getAppsHotList
+  getAppsList
 })(AppWrapStore)

@@ -15,7 +15,7 @@ import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal, Select, Row, Co
 import classNames from 'classnames'
 import { offShelfWrap, getWrapStoreHotList } from '../../../actions/app_center'
 import { getAppsList, getAppsHotList, appStoreApprove } from '../../../actions/app_store'
-import { calcuDate } from '../../../common/tools'
+import { calcuDate, encodeImageFullname } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX } from '../../../constants'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
@@ -220,7 +220,7 @@ class WrapComopnent extends React.Component {
     }
     const { resourceLink, resourceName } = item
     const server = resourceLink && resourceLink.split('/')[0]
-    browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${server}&imageName=${resourceName}#configure-service`)
+    browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${server}&imageName=${encodeImageFullname(resourceName)}#configure-service`)
   }
   startCopy(value) {
     const target = document.getElementsByClassName('storeCopyInput')[0]

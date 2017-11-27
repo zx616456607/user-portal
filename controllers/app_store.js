@@ -48,25 +48,25 @@ exports.getStorelist = function* () {
     for (let i=0;i<result.data.apps.length;i++){
       result.data.apps[i].download_times = 0
       for (let j=0;j<repo_detail.data.length;j++){
-        if (result.data.apps[i].resource_name == repo_detail.data[j].name){
+        if (result.data.apps[i].resource_name === repo_detail.data[j].name){
           result.data.apps[i].download_times = repo_detail.data[j].pull_count
           break
         }
       }
     }
-    if (query.download_times){
+    if (query.download_times && query.download_times === 'd'){
       result.data.apps.sort((a,b) => {
-        return (a.download_times < b.download_times) == (query.download_times == 'd')
+        return b.download_times - a.download_times
       })
     }
-    if (query.publish_time){
+    if (query.publish_time && query.publish_time === 'd'){
       result.data.apps.sort((a,b) => {
-        return (a.publish_time < b.publish_time) == (query.publish_time == 'd')
+        return new Date(b.publish_time).getTime() - new Date(a.publish_time).getTime()
       })
     }
-    if (query.app_name){
+    if (query.app_name && query.app_name === 'd'){
       result.data.apps.sort((a,b) => {
-        return (a.app_name < b.app_name) == (query.app_name == 'd')
+        return a.app_name < b.app_name ? 1 : -1
       })
     }
     if (query.from && query.size){

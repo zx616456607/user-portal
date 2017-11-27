@@ -38,6 +38,7 @@ class PublishImage extends React.Component {
     const query = {
       from: (current - 1) * 10,
       size: 10,
+      sort: 'd,publish_time'
     }
     filterName && Object.assign(query, { filter: `file_nick_name,${filterName}` })
     this.setState({
