@@ -51,7 +51,18 @@ class CleaningRecord extends Component {
     }
   }
   componentWillMount() {
-    this.getSystemLogs()
+    const { type, form } = this.props
+    if (type === 'system') {
+      form.setFieldsValue({
+        target: 'system_clean'
+      })
+      this.getSystemLogs()
+      return
+    }
+    form.setFieldsValue({
+      target: 'cicd_clean'
+    })
+    this.getCleanLogs()
   }
   getCleanLogs(loading) {
     const { currentPage, sort, startValue, endValue } = this.state
@@ -591,10 +602,13 @@ CleaningRecord = Form.create()(CleaningRecord)
 
 function mapStateToProp(state, props) {
   const { loginUser } = state.entities
+  const { location } = props
+  const { type } = location.query
   const { info } = loginUser
   const { userName } = info
   return {
-    userName
+    userName,
+    type
   }
 }
 
