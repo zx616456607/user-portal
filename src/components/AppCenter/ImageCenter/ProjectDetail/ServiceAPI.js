@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 import { loadRepositoriesTagConfigInfo } from '../../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import './style/ServiceAPI.less'
+import {encodeImageFullname} from "../../../../common/tools";
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -68,7 +69,7 @@ class ServiceAPI extends Component {
   componentWillMount() {
     const { registry, loadRepositoriesTagConfigInfo } = this.props;
     const { fullname, imageTags} = this.props;
-    let processedName = processImageName(fullname)
+    let processedName = encodeImageFullname(fullname)
     loadRepositoriesTagConfigInfo(registry, processedName, imageTags);
   }
   render() {
@@ -153,19 +154,6 @@ class ServiceAPI extends Component {
     )
   }
 }
-
-function processImageName(name) {
-  let arr = name.split('/')
-  if (arr.length > 2) {
-    name = arr[0] + '/' + arr[1]
-    for (let i = 2; i < arr.length; i++) {
-      name += "%2F"
-      name += arr[i]
-    }
-  }
-  return name
-}
-
 
 function mapStateToProps(state, props) {
   const defaultImageDetailTagConfig = {

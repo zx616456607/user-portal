@@ -174,7 +174,7 @@ export const GET_OTHER_IMAGE_TAGS_SUCCESS = 'GET_OTHER_IMAGE_TAGS_SUCCESS'
 export const GET_OTHER_IMAGE_TAGS_FAILURE = 'GET_OTHER_IMAGE_TAGS_FAILURE'
 
 export function getOtherImageTag(obj, callback) {
-  let urlImageName = processImageName(obj.imageName)
+  let urlImageName = encodeImageFullname(obj.imageName)
   return {
     registry: obj.registry,
     [FETCH_API]: {
@@ -192,7 +192,7 @@ export const IMAGE_GET_DETAILTAG_SUCCESS = 'IMAGE_GET_DETAILTAG_SUCCESS'
 export const IMAGE_GET_DETAILTAG_FAILURE = 'IMAGE_GET_DETAILTAG_FAILURE'
 
 function fetchImageGetDetailTag(registry, fullName, callback) {
-  let urlFullName = processImageName(fullName)
+  let urlFullName = encodeImageFullname(fullName)
   return {
     registry,
     fullName,
@@ -221,7 +221,7 @@ export const IMAGE_GET_DETAILTAGCONFIG_FAILURE = 'IMAGE_GET_DETAILTAGCONFIG_FAIL
 // Fetches apps list from API unless it is cached.
 // Relies on Redux Thunk middleware.
 function fetchImageGetDetailTagConfig(registry, fullName, tag, callback) {
-  let urlFullName = processImageName(fullName)
+  let urlFullName = encodeImageFullname(fullName)
   return {
     registry,
     [FETCH_API]: {
@@ -244,7 +244,7 @@ export const GET_OTHER_TAG_CONFIG_REQUEST = 'GET_OTHER_TAG_CONFIG_REQUEST'
 export const GET_OTHER_TAG_CONFIG_SUCCESS = 'GET_OTHER_TAG_CONFIG_SUCCESS'
 export const GET_OTHER_TAG_CONFIG_FAILURE = 'GET_OTHER_TAG_CONFIG_FAILURE'
 export function loadOtherDetailTagConfig(obj, callback) {
-  let urlFullName = processImageName(obj.fullname)
+  let urlFullName = encodeImageFullname(obj.fullname)
   return {
     [FETCH_API]: {
       types: [GET_OTHER_TAG_CONFIG_REQUEST, GET_OTHER_TAG_CONFIG_SUCCESS, GET_OTHER_TAG_CONFIG_FAILURE],
@@ -262,7 +262,7 @@ export const GET_IMAGEINFO_SUCCESS = 'GET_IMAGEINFO_SUCCESS'
 export const GET_IMAGEINFO_FAILURE = 'GET_IMAGEINFO_FAILURE'
 
 export function getImageDetailInfo(obj, callback) {
-  let urlFullName = processImageName(obj.fullName)
+  let urlFullName = encodeImageFullname(obj.fullName)
   return {
     registry: obj.registry,
     [FETCH_API]: {
@@ -279,7 +279,7 @@ export const GET_CHECK_IMAGE_SUCCESS = 'GET_CHECK_IMAGE_SUCCESS'
 export const GET_CHECK_IMAGE_FAILURE = 'GET_CHECK_IMAGE_FAILURE'
 
 function fetchCheckImage(obj, callback) {
-  let urlImage = processImageName(obj.image)
+  let urlImage = encodeImageFullname(obj.image)
   return {
     [FETCH_API]: {
       types: [GET_CHECK_IMAGE_REQUEST, GET_CHECK_IMAGE_SUCCESS, GET_CHECK_IMAGE_FAILURE],
@@ -302,7 +302,7 @@ export const DELETE_PRIVATE_IMAGE_SUCCESS = 'DELETE_PRIVATE_IMAGE_SUCCESS'
 export const DELETE_PRIVATE_IMAGE_FAILURE = 'DELETE_PRIVATE_IMAGE_FAILURE'
 
 function fetchDeletePrivateImage(obj, callback) {
-  let urlImage = processImageName(obj.image)
+  let urlImage = encodeImageFullname(obj.image)
   return {
     [FETCH_API]: {
       types: [DELETE_PRIVATE_IMAGE_REQUEST, DELETE_PRIVATE_IMAGE_SUCCESS, DELETE_PRIVATE_IMAGE_FAILURE],
@@ -329,7 +329,7 @@ export const UPDATA_IMAGE_INFO_SUCCESS = 'UPDATA_IMAGE_INFO_SUCCESS'
 export const UPDATA_IMAGE_INFO_FAILURE = 'UPDATA_IMAGE_INFO_FAILURE'
 
 function fetchUpdateImageInfo(obj, callback) {
-  let urlImage = processImageName(obj.image)
+  let urlImage = encodeImageFullname(obj.image)
   return {
     [FETCH_API]: {
       types: [UPDATA_IMAGE_INFO_REQUEST, UPDATA_IMAGE_INFO_SUCCESS, UPDATA_IMAGE_INFO_FAILURE],
@@ -357,7 +357,7 @@ export const SET_IMAGE_STORE_SUCCESS = 'SET_IMAGE_STORE_SUCCESS'
 export const SET_IMAGE_STORE_FAILURE = 'SET_IMAGE_STORE_FAILURE'
 // set image store 收藏镜像
 export function imageStore(obj, callback) {
-  let urlImage = processImageName(obj.image)
+  let urlImage = encodeImageFullname(obj.image)
   return {
     [FETCH_API]: {
       types: [SET_IMAGE_STORE_REQUEST, SET_IMAGE_STORE_SUCCESS, SET_IMAGE_STORE_FAILURE],
@@ -377,7 +377,7 @@ export function imageStore(obj, callback) {
 }
 // set image store 设置镜像 公开 or 私有
 export function imageSwitch(obj, callback) {
-  let urlImage = processImageName(obj.image)
+  let urlImage = encodeImageFullname(obj.image)
   return {
     [FETCH_API]: {
       types: [SET_IMAGE_STORE_REQUEST, SET_IMAGE_STORE_SUCCESS, SET_IMAGE_STORE_FAILURE],
@@ -789,18 +789,6 @@ export function loadMirrorSafetyChairinfo(body, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchMirrorSafetyChairinfo(body, callback))
   }
-}
-
-function processImageName(name) {
-  let arr = name.split('/')
-  if (arr.length > 2) {
-    name = arr[0] + '/' + arr[1]
-    for (let i = 2; i < arr.length; i++) {
-      name += "%2F"
-      name += arr[i]
-    }
-  }
-  return name
 }
 
 export const GET_WRAP_MANAGE_LIST_REQUEST = 'GET_WRAP_MANAGE_LIST_REQUEST'
