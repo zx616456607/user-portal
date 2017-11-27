@@ -16,8 +16,6 @@ import { connect } from 'react-redux'
 import { setFormFields } from '../../../../actions/quick_create_app'
 import { checkAppName, checkServiceName } from '../../../../actions/app_manage'
 import {
-  loadImageDetailTag,
-  loadImageDetailTagConfig,
   getOtherImageTag,
   loadOtherDetailTagConfig,
 } from '../../../../actions/app_center'
@@ -109,8 +107,8 @@ let ConfigureService = React.createClass({
   },
   loadImageTags(props) {
     const {
-      location, loadImageDetailTag, getOtherImageTag,
-      form, currentFields, mode, loadRepositoriesTags
+      location, getOtherImageTag, form,
+      currentFields, mode, loadRepositoriesTags
     } = props
     let { imageName } = props
     const { other } = location.query
@@ -178,7 +176,7 @@ let ConfigureService = React.createClass({
              imageTag,
            })
            // load image config by tag
-           this.loadImageConfig(other, imageName,imageTag)
+           this.loadImageConfig(other, imageName, imageTag)
          },
          isAsync: true,
        }
@@ -201,11 +199,10 @@ let ConfigureService = React.createClass({
    //   }
    // })
   },
-  loadImageConfig(other,images, imageTag) {
+  loadImageConfig(other, images, imageTag) {
     let {
       mode,
       loadOtherDetailTagConfig,
-      //loadImageDetailTagConfig,
       loadRepositoriesTagConfigInfo,
       imageName,
       location
@@ -490,7 +487,7 @@ let ConfigureService = React.createClass({
         { required: true }
       ],
       onChange: (tag) => {
-        this.loadImageConfig(location.query.other,null, tag)
+        this.loadImageConfig(location.query.other, null, tag)
       }
     })
     const formItemLayout = {
@@ -682,8 +679,6 @@ ConfigureService = connect(mapStateToProps, {
   setFormFields,
   checkAppName,
   checkServiceName,
-  //loadImageDetailTag,
-  //loadImageDetailTagConfig,
   getOtherImageTag,
   loadOtherDetailTagConfig,
   loadRepositoriesTagConfigInfo,
