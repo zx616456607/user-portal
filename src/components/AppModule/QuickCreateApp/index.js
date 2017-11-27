@@ -636,7 +636,7 @@ class QuickCreateApp extends Component {
           >
             上一步
           </Button>
-          <Button size="large" style={{marginLeft:10}} onClick={()=> this.nextStep()}>下一步</Button>
+          {/*<Button size="large" style={{marginLeft:10}} onClick={()=> this.nextStep()}>下一步</Button>*/}
         </div>
     )
   }

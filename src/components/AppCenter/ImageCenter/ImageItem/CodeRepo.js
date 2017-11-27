@@ -15,6 +15,7 @@ import { Modal, Menu, Dropdown, Table, Button, Input } from 'antd'
 import { browserHistory } from 'react-router'
 import { camelize } from 'humps'
 import { loadProjectRepos, deleteRepo } from '../../../../actions/harbor'
+import { encodeImageFullname } from '../../../../common/tools'
 import NotificationHandler from '../../../../components/Notification'
 import '../style/CodeRepo.less'
 import ProjectDetail from '../ProjectDetail'
@@ -76,7 +77,7 @@ class CodeRepo extends Component {
       })
       this.loadRepos()
     }
-    let processedImageName = processImageName(selectedRepo)
+    let processedImageName = encodeImageFullname(selectedRepo)
     deleteRepo(this.DEFAULT_QUERY, processedImageName, {
       success: {
         func: () => {
@@ -315,18 +316,6 @@ class CodeRepo extends Component {
   }
 }
 
-function processImageName(name) {
-  let arr = name.split('/')
-  if (arr.length > 2) {
-    name = arr[0] + '/' + arr[1]
-    for (let i = 2; i < arr.length; i++) {
-      name += "%2F"
-
-      name += arr[i]
-    }
-  }
-  return name
-}
 function mapStateToProps(state, props) {
   const { harbor } = state
   return {

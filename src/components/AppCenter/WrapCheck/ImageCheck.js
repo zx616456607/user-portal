@@ -87,7 +87,7 @@ class ImageCheckTable extends React.Component {
     return `${str},${type}`
   }
   checkImageStatus(record, status, message) {
-    const { appStoreApprove, imageApprovalList } = this.props
+    const { appStoreApprove, getImagePublishList } = this.props
     let notify = new NotificationHandler()
     const body = {
       id: record.iD,
@@ -105,11 +105,7 @@ class ImageCheckTable extends React.Component {
       appStoreApprove(body, {
         success: {
           func: () => {
-            imageApprovalList({
-              from: 0,
-              size: 10,
-              type: 2
-            })
+            getImagePublishList()
             resolve()
             notify.close()
             notify.success('操作成功')
@@ -312,22 +308,34 @@ class ImageCheckTable extends React.Component {
         return(
           <div className="operateBtn">
             {
-              [1, 6].includes(record.publishStatus) && isAdmin &&
+              [1, 6].includes(record.publishStatus) &&
                 [
                   <Button 
                     key="pass" 
                     type="primary" 
                     className="passBtn"
                     onClick={() => this.checkImageStatus(record, 2)}
+                    disabled={!isAdmin}
                   >
                     {record.publishStatus === 1 ? '通过' : '重试'}
                   </Button>,
-                  <Button key="reject" onClick={() => this.openRejectModal(record)}>拒绝</Button>
+                  <Button
+                    disabled={!isAdmin}
+                    key="reject" 
+                    onClick={() => this.openRejectModal(record)}
+                  >
+                    拒绝
+                  </Button>
                 ]
             }
             {
-              [4].includes(record.publishStatus) && isAdmin &&
-                <Button onClick={() => this.checkImageStatus(record, 7)}>删除</Button>
+              [4].includes(record.publishStatus) &&
+                <Button
+                  disabled={!isAdmin}
+                  onClick={() => this.checkImageStatus(record, 7)} 
+                >
+                  删除
+                </Button>
             }
             {
               ![1, 4, 6].includes(record.publishStatus) && <span style={{ marginLeft: 28 }}>-</span>
@@ -439,7 +447,7 @@ class ImageCheck extends React.Component {
     }, callback && this.getImagePublishList)
   }
   render() {
-    const { imageCheckList, total, appStoreApprove, imageApprovalList, loginUser } = this.props
+    const { imageCheckList, total, appStoreApprove, loginUser } = this.props
     const { filterName, current, publish_time } = this.state
     return(
       <div className="imageCheck">
@@ -465,7 +473,7 @@ class ImageCheck extends React.Component {
           total={total}
           updateParentState={this.updateParentState}
           appStoreApprove={appStoreApprove}
-          imageApprovalList={imageApprovalList}
+          getImagePublishList={this.getImagePublishList}
         />
       </div>
     )

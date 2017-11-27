@@ -11,6 +11,7 @@ import React, { Component } from 'react'
 import { Card, Spin, Tabs } from 'antd'
 import { connect } from 'react-redux'
 import { DEFAULT_REGISTRY } from '../../../../constants'
+import { encodeImageFullname } from '../../../../common/tools'
 import ServiceAPI from './ServiceAPI.js'
 import './style/ImageVersion.less'
 import { loadRepositoriesTags } from '../../../../actions/harbor'
@@ -69,7 +70,7 @@ class ImageVersion extends Component {
   componentWillMount() {
     const { loadRepositoriesTags, loadRepositoriesTagConfigInfo } = this.props
     const imageDetail = this.props.config
-    let processedName = processImageName(imageDetail.name)
+    let processedName = encodeImageFullname(imageDetail.name)
     loadRepositoriesTags(DEFAULT_REGISTRY, processedName)
   }
 
@@ -81,7 +82,7 @@ class ImageVersion extends Component {
     const newImageDetail = nextPorps.config;
     const { loadRepositoriesTags } = this.props
     if (newImageDetail.name != oldImageDatail.name) {
-      let processedName = processImageName(newImageDetail.name)
+      let processedName = encodeImageFullname(newImageDetail.name)
       loadRepositoriesTags(DEFAULT_REGISTRY, processedName)
     }
   }
@@ -98,19 +99,6 @@ class ImageVersion extends Component {
   }
 }
 
-function processImageName(name) {
-  let arr = name.split('/')
-  if (arr.length > 2) {
-    name = arr[0] + '/' + arr[1]
-    for (let i = 2; i < arr.length; i++) {
-      name += "%2F"
-
-      name += arr[i]
-    }
-  }
-  return name
-}
-
 function mapStateToProps(state, props) {
   const defaultImageDetailTag = {
     isFetching: false,
@@ -118,7 +106,7 @@ function mapStateToProps(state, props) {
     tag: [],
   }
   const { imageTags } = state.harbor
-  let processedName = processImageName(props.config.name)
+  let processedName = encodeImageFullname(props.config.name)
   let targetImageTag = {}
   if (imageTags[DEFAULT_REGISTRY]) {
     targetImageTag = imageTags[DEFAULT_REGISTRY][processedName] || {}

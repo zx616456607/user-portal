@@ -86,7 +86,7 @@ class PublishModal extends React.Component {
   checkImageName(rule, value, callback) {
     const { imageNameExists, form } = this.props
     const tag = form.getFieldValue('tagsName')
-    if (!tag) return callback('请选择版本')
+    if (!tag) return callback()
     this.imageNameTimeout = setTimeout(()=>{
       const body = {
         image: `${value}:${tag}`
@@ -333,6 +333,10 @@ class PublishModal extends React.Component {
           notificat.error('上传文件格式错误', '支持：'+ wrapTypelist.join('、')+'文件格式')
           return false
         }
+        if (file.size > 1024 * 1024 * 10) {
+          notificat.error('请上传10M以内的图片')
+          return false
+        }
       },
       onChange: e => {
         this.setState({
@@ -395,7 +399,7 @@ class PublishModal extends React.Component {
             </FormItem>
             <Form.Item
               {...formItemLayout}
-              hasFeedback={getFieldValue('fileNickName')}
+              hasFeedback={!!getFieldValue('fileNickName')}
               label="发布名称"
               help={isFieldValidating('fileNickName') ? '校验中...' : (getFieldError('fileNickName') || []).join(', ')}
             >
