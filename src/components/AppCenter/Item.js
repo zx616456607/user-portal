@@ -150,17 +150,21 @@ let MyComponent = React.createClass({
       createModalShow: false
     });
   },
-  regnameExists(rule ,values, callback) {
-    if (!values) {
+  regnameExists(rule, value, callback) {
+    if (!value) {
       callback([new Error('请输入仓库名称')])
       return
     }
-    if (values.length < 3) {
+    if (value.length < 3) {
       callback([new Error('仓库名称不能少于3位')])
       return
     }
-    if (values.length > 63) {
+    if (value.length > 63) {
       callback([new Error('仓库名称过长，名称不能超过63位')])
+      return
+    }
+    if (!/^[a-zA-Z0-9\u4e00-\u9fa5]+$/.test(value)) {
+      callback([new Error('仓库名称只能由中英文、数字等组成')])
       return
     }
     callback()
