@@ -333,6 +333,10 @@ class PublishModal extends React.Component {
           notificat.error('上传文件格式错误', '支持：'+ wrapTypelist.join('、')+'文件格式')
           return false
         }
+        if (file.size > 1024 * 1024 * 10) {
+          notificat.error('请上传10M以内的图片')
+          return false
+        }
       },
       onChange: e => {
         this.setState({

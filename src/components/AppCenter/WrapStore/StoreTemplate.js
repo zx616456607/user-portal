@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
-import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal, Select, Row, Col, Button } from 'antd'
+import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal, Select, Row, Col, Button, Spin } from 'antd'
 import classNames from 'classnames'
 import { offShelfWrap, getWrapStoreHotList } from '../../../actions/app_center'
 import { getAppsList, getAppsHotList, appStoreApprove } from '../../../actions/app_store'
@@ -251,26 +251,44 @@ class WrapComopnent extends React.Component {
     })
   }
   renderWrapList(dataSource, isHot) {
-    const { role, activeKey } = this.props
+    const { role, activeKey, dataFetching, dataHotFetching } = this.props
     const { copyStatus } = this.state
     let newData
+    if (isHot) {
+      if (dataHotFetching) {
+        return (
+          <div className='loadingBox'>
+            <Spin size='large'/>
+          </div>
+        )
+      }
+    } else {
+      if (dataFetching) {
+        return (
+          <div className='loadingBox'>
+            <Spin size='large'/>
+          </div>
+        )
+      }
+    }
     if (activeKey === 'app') {
       if (!dataSource || !dataSource.pkgs || !dataSource.pkgs.length) {
-        return
+        return (
+          <div className='loadingBox'>
+            <i className="anticon anticon-frown"/>暂无数据
+          </div>
+        )
       }
       newData = dataSource.pkgs
     } else {
       if (!dataSource || !dataSource.apps || !dataSource.apps.length) {
-        return
+        return (
+          <div className='loadingBox'>
+            <i className="anticon anticon-frown"/>暂无数据
+          </div>
+        )
       }
       newData = dataSource.apps
-    }
-    if (!newData || !newData.length) {
-      return (
-        <div className='loadingBox'>
-          暂无数据
-        </div>
-      )
     }
     return newData.map((item, index) => {
       const menu = (
@@ -398,7 +416,7 @@ class WrapComopnent extends React.Component {
     ]
   }
   render() {
-    const { current, dataSource, dataHotList, updatePage } = this.props
+    const { current, dataSource, dataHotList, updatePage, dataFetching, dataHotFetching } = this.props
     const { downloadModalVisible, currentImage, offShelfModal, imageDetailModalShow, offshelfId } = this.state
     let server
     let node

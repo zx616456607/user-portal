@@ -15,7 +15,7 @@ const registry_harbor = require('./registry_harbor')
 /*------------------------ apps store approve start--------------------*/
 exports.approveApps = function* () {
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
+  const api = apiFactory.getApi(loginUser, 180000)
   const body = this.request.body
   const result = yield api.appstore.updateBy(['apps','approval'], null, body)
   this.body = result
