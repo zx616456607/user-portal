@@ -10,7 +10,7 @@
 
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
-import { toQuerystring } from '../common/tools'
+import { toQuerystring, encodeImageFullname } from '../common/tools'
 
 export const IMAGE_PRIVATE_LIST_REQUEST = 'IMAGE_PRIVATE_LIST_REQUEST'
 export const IMAGE_PRIVATE_LIST_SUCCESS = 'IMAGE_PRIVATE_LIST_SUCCESS'
@@ -179,7 +179,7 @@ export function getOtherImageTag(obj, callback) {
     registry: obj.registry,
     [FETCH_API]: {
       types: [GET_OTHER_IMAGE_TAGS_REQUEST, GET_OTHER_IMAGE_TAGS_SUCCESS, GET_OTHER_IMAGE_TAGS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.id}/images/${urlImageName}/tags`,
+      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.id}/images/${encodeImageFullname(urlImageName)}/tags`,
       schema: Schemas.REGISTRYS
     },
     callback
@@ -248,7 +248,7 @@ export function loadOtherDetailTagConfig(obj, callback) {
   return {
     [FETCH_API]: {
       types: [GET_OTHER_TAG_CONFIG_REQUEST, GET_OTHER_TAG_CONFIG_SUCCESS, GET_OTHER_TAG_CONFIG_FAILURE],
-      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.imageId}/images/${urlFullName}/tags/${obj.imageTag}`,
+      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.imageId}/images/${encodeImageFullname(urlFullName)}/tags/${obj.imageTag}`,
       schema: Schemas.REGISTRYS
     },
     tag: obj.imageTag,

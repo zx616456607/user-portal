@@ -12,7 +12,7 @@
 
 import { FETCH_API } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
-import { toQuerystring } from '../common/tools'
+import { toQuerystring, encodeImageFullname } from '../common/tools'
 
 export const HARBOR_PROJECT_LIST_REQUEST = 'HARBOR_PROJECT_LIST_REQUEST'
 export const HARBOR_PROJECT_LIST_SUCCESS = 'HARBOR_PROJECT_LIST_SUCCESS'
@@ -337,7 +337,7 @@ function fetchRepositoriesTags(registry, imageName, callback) {
     callback,
     [FETCH_API]: {
       types: [ HARBOR_REPOSITORIES_TAGS_REQUEST, HARBOR_REPOSITORIES_TAGS_SUCCESS, HARBOR_REPOSITORIES_TAGS_FAILURE ],
-      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${imageName}/tags`,
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${encodeImageFullname(imageName)}/tags`,
       schema: {}
     }
   }
@@ -440,7 +440,7 @@ function fetchRepositoriesTagConfigInfo(registry, imageName, tag, callback) {
     callback,
     [FETCH_API]: {
       types: [ HARBOR_REPOSITORIES_TAG_CONFIGINFO_REQUEST, HARBOR_REPOSITORIES_TAG_CONFIGINFO_SUCCESS, HARBOR_REPOSITORIES_TAG_CONFIGINFO_FAILURE ],
-      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${imageName}/tags/${tag}/configinfo`,
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${encodeImageFullname(imageName)}/tags/${tag}/configinfo`,
       schema: {}
     }
   }

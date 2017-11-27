@@ -649,3 +649,18 @@ export function isResourcePermissionError(err) {
   const { statusCode, message } = err
   return statusCode === 403 && (message && message.details && message.details.kind === 'ResourcePermission')
 }
+/**
+ * encode image fullname
+ * `carrot/node/edge` -> `carrot/node%2Fedge`
+ *
+ * @export
+ * @param {string} fullname
+ * @return {string} encoded fullname
+ */
+export function encodeImageFullname(fullname) {
+  const [ project, ...imageName ] = fullname.split('/')
+  if (!imageName || imageName.length === 1) {
+    return fullname
+  }
+  return `${project}/${encodeURIComponent(imageName.join('/'))}`
+}
