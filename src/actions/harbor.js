@@ -615,7 +615,7 @@ export const CREATE_TARGET_STORE_SUCCESS = 'CREATE_TARGET_STORE_SUCCESS'
 export const CREATE_TARGET_STORE_FAILURE = 'CREATE_TARGET_STORE_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchCreateTargeStore(registry, body,callback) {
+function fetchCreateTargeStore(registry, body, callback) {
   let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets`
   return {
     [FETCH_API]: {
@@ -783,8 +783,11 @@ export const GET_TARGETS_SUCCESS = 'GET_TARGETS_SUCCESS'
 export const GET_TARGETS_FAILURE = 'GET_TARGETS_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetTargets(registry, callback) {
+function fetchGetTargets(registry, query, callback) {
   let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets`
+  if (query) {
+    endpoint = `${endpoint}?${toQuerystring(query)}`
+  }
   return {
     [FETCH_API]: {
       types: [ GET_TARGETS_REQUEST, GET_TARGETS_SUCCESS, GET_TARGETS_FAILURE ],
@@ -796,9 +799,9 @@ function fetchGetTargets(registry, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function getTargets(registry, callback) {
+export function getTargets(registry, query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchGetTargets(registry, callback))
+    return dispatch(fetchGetTargets(registry, query, callback))
   }
 }
 
@@ -826,5 +829,57 @@ function fetchDeleteTargetById(registry, id, callback) {
 export function deleteTargetById(registry, id, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchDeleteTargetById(registry, id, callback))
+  }
+}
+
+export const UPDATE_TARGET_BY_ID_REQUEST = 'UPDATE_TARGET_BY_ID_REQUEST'
+export const UPDATE_TARGET_BY_ID_SUCCESS = 'UPDATE_TARGET_BY_ID_SUCCESS'
+export const UPDATE_TARGET_BY_ID_FAILURE = 'UPDATE_TARGET_BY_ID_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateTargetById(registry, id, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/${id}`
+  return {
+    [FETCH_API]: {
+      types: [ UPDATE_TARGET_BY_ID_REQUEST, UPDATE_TARGET_BY_ID_SUCCESS, UPDATE_TARGET_BY_ID_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function updateTargetById(registry, id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateTargetById(registry, id, body, callback))
+  }
+}
+
+export const GET_TARGET_POLICIES_REQUEST = 'GET_TARGET_POLICIES_REQUEST'
+export const GET_TARGET_POLICIES_SUCCESS = 'GET_TARGET_POLICIES_SUCCESS'
+export const GET_TARGET_POLICIES_FAILURE = 'GET_TARGET_POLICIES_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchGetTargetPolicies(registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/${id}/policies`
+  return {
+    [FETCH_API]: {
+      types: [ GET_TARGET_POLICIES_REQUEST, GET_TARGET_POLICIES_SUCCESS, GET_TARGET_POLICIES_FAILURE ],
+      endpoint,
+      schema: {},
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function getTargetPolicies(registry, id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchGetTargetPolicies(registry, id, callback))
   }
 }

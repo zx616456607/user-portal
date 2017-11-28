@@ -315,7 +315,7 @@ class MyComponent extends Component {
                 } placeholder={env.value} size="default"/>
               </FormItem>
               :<Tooltip title={env.value} placement="topLeft">
-                <span style={{width:'33%'}}>{env.value}</span>
+                <span style={{width:'33%'}}>{env.value || <i>&nbsp;</i>}</span>
               </Tooltip>
             }
           </div>
