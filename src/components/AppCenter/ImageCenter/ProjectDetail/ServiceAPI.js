@@ -22,7 +22,7 @@ let MyComponent = React.createClass({
   formatEnv: function (envList) {
     //this function for format the env list ,change the single elem to an new json
     let newList = new Array();
-    envList.map((item) => {
+    envList.forEach((item) => {
       let tempList = item.split("=");
       let tempElem = {
         "envName": tempList[0],

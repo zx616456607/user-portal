@@ -129,14 +129,14 @@ class CodeRepo extends Component {
   closeImageDetailModal(){
     this.setState({imageDetailModalShow:false})
   }
-  
+
   confirmPublishModal() {
     this.setState({
       publishModal: false,
       currentImage: ''
     })
   }
-  
+
   render() {
     const { repos, projectDetail } = this.props
     const { publishModal, currentImage } = this.state
@@ -170,10 +170,19 @@ class CodeRepo extends Component {
         title: '地址',
         dataIndex: 'address',
         key: 'address',
-        width:'35%',
+        width:'33%',
         render: (text, row) => {
           return (
             <div className="imgurl">镜像地址：{server}/{row.name}</div>
+          )
+        }
+      }, {
+        title: '版本数',
+        dataIndex: 'count',
+        key: 'count',
+        render: (text, row) => {
+          return (
+            <div className="imgurl">版本数：0</div>
           )
         }
       }, {
