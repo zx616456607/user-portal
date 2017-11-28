@@ -105,10 +105,8 @@ const UpsertModal = React.createClass({
           func: () => this.setState({ pingBtnLoading: false })
         },
       }
-      console.log(mode)
       if (mode === 'edit') {
         const { isChanged } = this.getChangedValues(values)
-        console.log(this.getChangedValues(values))
         if (!isChanged) {
           func.validationOldTargetStore(DEFAULT_REGISTRY, currentRow.id, callback)
           return
