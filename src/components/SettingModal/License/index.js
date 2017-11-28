@@ -8,7 +8,7 @@
  * @author BaiYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Spin, Alert, Card, Tooltip, Popover, Icon, Button, Form, Input } from 'antd'
+import { Row, Col, Spin, Alert, Card, Tooltip, Popover, Icon, Button, Form, Input, Modal } from 'antd'
 import './style/License.less'
 import { loadLicenseList, loadLicensePlatform, addLicense, loadMergedLicense } from '../../../actions/license'
 import { connect } from 'react-redux'
@@ -20,6 +20,7 @@ import { LITE } from '../../../constants'
 import { camelize } from 'humps'
 import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
+import QRCode from 'qrcode.react'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -27,6 +28,11 @@ const mode = getPortalRealMode
 const liteFlag = mode === LITE
 
 let LicenseKey = React.createClass({
+  getInitialState() {
+    return {
+      qrCodeModalVisible: false,
+    }
+  },
   changeValue(e) {
     // fix in ie input change value issue
     this.props.form.setFieldsValue({'rePasswd': e.target.value})
@@ -235,6 +241,11 @@ class License extends Component {
                 type="copy"/></a></Tooltip>
               <input className="licenseInput" defaultValue={platform.data.platformid}/>
             </span>
+            <span className="ant-col-2 qrcode-btn">
+              <Tooltip title="查看平台 ID 二维码">
+                <Button icon="qrcode" size="large" onClick={() => this.setState({ qrCodeModalVisible: true })} />
+              </Tooltip>
+            </span>
           </div>
           <div className="list">
             <span className="leftKey ant-col-2">License</span>
@@ -321,6 +332,20 @@ class License extends Component {
             </table>
           </div>
         </Card>
+        <Modal
+          title="平台 ID 二维码"
+          visible={this.state.qrCodeModalVisible}
+          wrapClassName="platformid-qrcode-modal"
+          onCancel={() => this.setState({ qrCodeModalVisible: false })}
+          footer={
+            <Button type="primary" size="large" onClick={() => this.setState({ qrCodeModalVisible: false })}>
+              确 定
+            </Button>
+          }
+          width={260}
+        >
+          <QRCode value={platform.data.platformid} size={200} />
+        </Modal>
       </div>
       </QueueAnim>
     )
