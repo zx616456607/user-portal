@@ -1009,10 +1009,14 @@ class AppServiceDetailInfo extends Component {
         Object.assign(list[currentIndex], values)
       } else {
         const lastVolume = list[list.length - 1]
-        const { volumesName } = lastVolume
-        const vloumeArray = volumesName.split('-')
-        const index = parseInt(vloumeArray[1]) + 1
-        values.volumesName = `volume-${index}`
+        if (lastVolume) {
+          const { volumesName } = lastVolume
+          const vloumeArray = volumesName.split('-')
+          const index = parseInt(vloumeArray[1]) + 1
+          values.volumesName = `volume-${index}`
+        } else {
+          values.volumesName = `volume-0`
+        }
         list.push(values)
       }
       this.setState({
