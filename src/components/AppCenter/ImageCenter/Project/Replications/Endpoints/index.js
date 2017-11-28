@@ -15,7 +15,15 @@ import { connect } from 'react-redux'
 import { Table, Button, Modal, Alert } from 'antd'
 import CommonSearchInput from '../../../../../CommonSearchInput'
 import NotificationHandler from '../../../../../Notification'
-import { getTargets, deleteTargetById } from '../../../../../../actions/harbor'
+import {
+  getTargets,
+  deleteTargetById,
+  createTargetStore,
+  updateTargetById,
+  getTargetPolicies,
+  validationNewTargetStore,
+  validationOldTargetStore,
+} from '../../../../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../../../../constants'
 import { formatDate } from '../../../../../../common/tools'
 import UpsertModal from './UpsertModal'
@@ -30,20 +38,24 @@ class Endpoints extends React.Component {
       currentRow: {},
       delBtnLoading: false,
       upsertModal: false,
+      upsertBtnLoading: false,
       mode: 'create',
+      updateTargetDisabled: false,
     }
     this.loadTargets = this.loadTargets.bind(this)
     this.delTarget = this.delTarget.bind(this)
     this.onUpsertModalOk = this.onUpsertModalOk.bind(this)
+    this.updateTarget = this.updateTarget.bind(this)
   }
 
   componentWillMount() {
     this.loadTargets()
   }
 
-  loadTargets() {
+  loadTargets(query) {
     const { getTargets } = this.props
-    getTargets(DEFAULT_REGISTRY)
+    const { searchInput } = this.state
+    getTargets(DEFAULT_REGISTRY, { name: searchInput }, query)
   }
 
   delTarget() {
@@ -81,19 +93,87 @@ class Endpoints extends React.Component {
   }
 
   onUpsertModalOk(body) {
-    console.log(body)
+    const { createTargetStore, updateTargetById } = this.props
+    const { mode, currentRow } = this.state
+    this.setState({
+      upsertBtnLoading: true,
+    })
+    const notification = new NotificationHandler()
+    if (mode === 'create') {
+      createTargetStore(DEFAULT_REGISTRY, body, {
+        success: {
+          func: () => {
+            this.loadTargets()
+            this.setState({
+              upsertModal: false,
+            })
+            notification.success('添加目标成功')
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: () => {
+            notification.error('添加目标失败')
+          },
+        },
+        finally: {
+          func: () => this.setState({ upsertBtnLoading: false })
+        },
+      })
+      return
+    }
+
+    updateTargetById(DEFAULT_REGISTRY, currentRow.id, body, {
+      success: {
+        func: () => {
+          this.loadTargets()
+          this.setState({
+            upsertModal: false,
+          })
+          notification.success('修改目标成功')
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          notification.error('修改目标失败')
+        },
+      },
+      finally: {
+        func: () => this.setState({ upsertBtnLoading: false })
+      },
+    })
+  }
+
+  updateTarget(currentRow) {
+    const { getTargetPolicies } = this.props
+    this.setState({
+      mode: 'edit',
+      upsertModal: true,
+      updateTargetDisabled: false,
+      currentRow,
+    })
+    getTargetPolicies(DEFAULT_REGISTRY, currentRow.id, {
+      success: {
+        func: res => {
+          if (res.data && res.data.length > 0) {
+            this.setState({
+              updateTargetDisabled: true,
+            })
+          }
+        },
+        // isAsync: true,
+      },
+    })
   }
 
   render() {
-    const { targets } = this.props
+    const { targets, validationNewTargetStore, validationOldTargetStore } = this.props
     const { isFetching, data } = targets
     const {
       searchInput, deleteModal, currentRow, delBtnLoading,
-      mode, upsertModal,
+      mode, upsertModal, upsertBtnLoading, updateTargetDisabled,
     } = this.state
-
-    const dataSource = (data || []).filter(item => item.name.indexOf(searchInput) > -1)
-
     const columns = [{
       title: '目标名',
       dataIndex: 'name',
@@ -120,11 +200,7 @@ class Endpoints extends React.Component {
         <div className="row-actions">
           <Button
             type="primary"
-            onClick={() => this.setState({
-              mode: 'edit',
-              upsertModal: true,
-              currentRow: row,
-            })}
+            onClick={this.updateTarget.bind(this, row)}
           >
             编辑
           </Button>
@@ -141,7 +217,11 @@ class Endpoints extends React.Component {
           <Button
             type="primary"
             size="large"
-            onClick={() => this.setState({ mode: 'create', upsertModal: true })}
+            onClick={() => this.setState({
+              mode: 'create',
+              upsertModal: true,
+              updateTargetDisabled: false,
+            })}
           >
             <i className="fa fa-plus" /> 目标
           </Button>
@@ -155,10 +235,11 @@ class Endpoints extends React.Component {
             placeholder="输入目标名搜索"
             size="large"
             onChange={searchInput => this.setState({ searchInput })}
+            onSearch={name => this.loadTargets({ name })}
           />
         </div>
         <Table
-          dataSource={dataSource}
+          dataSource={data || []}
           columns={columns}
           pagination={false}
           loading={isFetching}
@@ -183,6 +264,12 @@ class Endpoints extends React.Component {
             onCancel={() => this.setState({ upsertModal: false })}
             currentRow={currentRow}
             onOk={this.onUpsertModalOk}
+            confirmLoading={upsertBtnLoading}
+            disabled={updateTargetDisabled}
+            func={{
+              validationNewTargetStore,
+              validationOldTargetStore,
+            }}
           />
         }
       </div>
@@ -200,4 +287,9 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   getTargets,
   deleteTargetById,
+  createTargetStore,
+  updateTargetById,
+  getTargetPolicies,
+  validationNewTargetStore,
+  validationOldTargetStore,
 })(Endpoints)
