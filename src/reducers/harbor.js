@@ -11,6 +11,7 @@
  */
 import * as ActionTypes from '../actions/harbor'
 import merge from 'lodash/merge'
+import { TENX_STORE } from '../../constants'
 
 function systeminfo(state = {}, action) {
   const { registry } = action
@@ -60,13 +61,14 @@ function projects(state = {}, action) {
         }
       })
     case ActionTypes.HARBOR_PROJECT_LIST_SUCCESS:
+      // 隐藏tenx_store镜像仓库
       let total = action.response.result.total
-      let hasTenxStore = action.response.result.data.some(item => item.name !== 'tenx_store')
+      let hasTenxStore = action.response.result.data.some(item => item.name !== TENX_STORE)
       return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
           server: action.response.result.server,
-          list: action.response.result.data.filter(item => item.name !== 'tenx_store'),
+          list: action.response.result.data.filter(item => item.name !== TENX_STORE),
           total: hasTenxStore ? total - 1 : total,
         }
       })

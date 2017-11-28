@@ -11,11 +11,11 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
-import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal, Select, Row, Col, Button } from 'antd'
+import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal, Select, Row, Col, Button, Spin } from 'antd'
 import classNames from 'classnames'
 import { offShelfWrap, getWrapStoreHotList } from '../../../actions/app_center'
 import { getAppsList, getAppsHotList, appStoreApprove } from '../../../actions/app_store'
-import { calcuDate } from '../../../common/tools'
+import { calcuDate, encodeImageFullname } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX } from '../../../constants'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
@@ -220,7 +220,7 @@ class WrapComopnent extends React.Component {
     }
     const { resourceLink, resourceName } = item
     const server = resourceLink && resourceLink.split('/')[0]
-    browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${server}&imageName=${resourceName}#configure-service`)
+    browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${server}&imageName=${encodeImageFullname(resourceName)}#configure-service`)
   }
   startCopy(value) {
     const target = document.getElementsByClassName('storeCopyInput')[0]
@@ -251,26 +251,44 @@ class WrapComopnent extends React.Component {
     })
   }
   renderWrapList(dataSource, isHot) {
-    const { role, activeKey } = this.props
+    const { role, activeKey, dataFetching, dataHotFetching } = this.props
     const { copyStatus } = this.state
     let newData
+    if (isHot) {
+      if (dataHotFetching) {
+        return (
+          <div className='loadingBox'>
+            <Spin size='large'/>
+          </div>
+        )
+      }
+    } else {
+      if (dataFetching) {
+        return (
+          <div className='loadingBox'>
+            <Spin size='large'/>
+          </div>
+        )
+      }
+    }
     if (activeKey === 'app') {
       if (!dataSource || !dataSource.pkgs || !dataSource.pkgs.length) {
-        return
+        return (
+          <div className='loadingBox'>
+            <i className="anticon anticon-frown"/>暂无数据
+          </div>
+        )
       }
       newData = dataSource.pkgs
     } else {
       if (!dataSource || !dataSource.apps || !dataSource.apps.length) {
-        return
+        return (
+          <div className='loadingBox'>
+            <i className="anticon anticon-frown"/>暂无数据
+          </div>
+        )
       }
       newData = dataSource.apps
-    }
-    if (!newData || !newData.length) {
-      return (
-        <div className='loadingBox'>
-          暂无数据
-        </div>
-      )
     }
     return newData.map((item, index) => {
       const menu = (
@@ -306,12 +324,12 @@ class WrapComopnent extends React.Component {
                  src={`${API_URL_PREFIX}/pkg/icon/${ activeKey === 'app' ? item.pkgIconID : item.versions[0].iconID}`}
             />
             <div className="wrapListMiddle">
-              <div className="appName" style={{ marginBottom: isHot || activeKey === 'image' ? 0 : 10 }}>
+              <div className="appName">
                 <div onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)} className={classNames("themeColor pointer", {'inlineBlock' : !isHot, 'hidden': isHot})}>
                   {activeKey === 'app' ? item.fileNickName : item.appName}
                 </div>
                 {
-                  !isHot && <span className="nickName hintColor"> ({activeKey === 'app' ? item.fileName : item.resourceName})</span>
+                  !isHot && <span className="nickName hintColor"> ({activeKey === 'app' ? item.fileName : item.resourceName.split('/')[1]})</span>
                 }
                 {
                   activeKey === 'image' && !isHot &&
@@ -398,7 +416,7 @@ class WrapComopnent extends React.Component {
     ]
   }
   render() {
-    const { current, dataSource, dataHotList, updatePage } = this.props
+    const { current, dataSource, dataHotList, updatePage, dataFetching, dataHotFetching } = this.props
     const { downloadModalVisible, currentImage, offShelfModal, imageDetailModalShow, offshelfId } = this.state
     let server
     let node
@@ -475,15 +493,17 @@ class WrapComopnent extends React.Component {
         <div className="wrapStoreBody">
           <div className="wrapListBox wrapStoreLeft">
             <div className="filterAndSortBox">
-              <Row className="filterClassify">
-                <Col span={2} style={{ lineHeight: '28px' }}>分类：</Col>
-                <Col span={22}>
+              <div className="filterClassify">
+                <div className="text">分类：</div>
+                <div className="listBox">
                   {this.renderClassifyTab()}
-                </Col>
-              </Row>
+                </div>
+              </div>
               <div className="sortBox">
-                <span>排序：</span>
-                {this.renderSortTab()}
+                <div className="text">排序：</div>
+                <div className="listBox">
+                  {this.renderSortTab()}
+                </div>
               </div>
               {
                 dataSource && dataSource.total !== 0 &&

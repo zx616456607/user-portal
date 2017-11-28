@@ -43,8 +43,20 @@
     .filterClassify{
       margin-bottom: 10px;
     }
+    .filterClassify, .sortBox{
+      display: flex;
+      display: -webkit-flex;
+      justify-content: space-between;
+      .text{
+        flex: 0 0 50px;
+        line-height: 28px;
+      }
+      .listBox{
+        flex: 1 1 auto;
+      }
+    }
     .filterTab{
-      margin-left: 5px;
+      margin-right: 5px;
       display: inline-block;
       border-radius: 17px;
       padding: 5px 20px;
@@ -64,30 +76,37 @@
   }
   .wrapStoreBody{
     display: flex;
+    display: -webkit-flex;
     justify-content: space-around;
     .wrapStoreLeft{
       flex: 1 1 auto;
+      -webkit-flex: 1 1 auto;
       margin-right: 24px;
       .wrapListMiddle{
         flex: 1 1 40%;
+        -webkit-flex: 1 1 40%;
+        height: 80px;
+        &>div{
+          width: 100%;
+        }
       }
       .wrapListRight{
         flex: 1 1 40%;
+        -webkit-flex: 1 1 40%;
       }
     }
     .wrapStoreRight{
       flex: 0 0 340px;
+      -webkit-flex: 0 0 340px;
       .hotWrapCard{
         .wrapList{
           .wrapListMiddle{
-            flex: 0 0 75px;
             width: 75px;
-            .nickName{
-              //width: 99%;
-            }
+            height: 50px;
           }
           .wrapListRight{
             flex: 0 0 110px;
+            -webkit-flex: 0 0 110px;
           }
         }
       }
@@ -97,6 +116,7 @@
       overflow: hidden;
       .wrapList{
         display: flex;
+        display: -webkit-flex;
         align-items: center;
         padding: 24px;
         border: @border-width-base @border-style-base @border-color-split;
@@ -128,7 +148,6 @@
           margin-right: 5px;
         }
         .wrapIcon{
-          flex: 0 0 80px;
           width: 80px;
           margin-right: 20px;
           height: 80px;
@@ -136,7 +155,6 @@
           border-radius: 4px;
         }
         .hotWrapIcon{
-          flex: 0 0 50px;
           width: 50px;
           margin-right: 10px;
           height: 50px;
@@ -144,13 +162,31 @@
           border-radius: 4px;
         }
         .wrapListMiddle{
+          display: flex;
+          display: -webkit-flex;
+          -webkit-flex-wrap: wrap;
+          -moz-flex-wrap: wrap;
+          -ms-flex-wrap: wrap;
+          -o-flex-wrap: wrap;
+          -khtml-flex-wrap: wrap;
+          flex-wrap: wrap;
+          -webkit-align-content: space-around;
+          -moz-align-content: space-around;
+          -ms-align-content: space-around;
+          -o-align-content: space-around;
+          -khtml-align-content: space-around;
+          align-content: space-around;
+          .nickName{
+            font-size: 14px;
+          }
           .appName{
             font-size: 16px;
             display: inline-flex;
+            display: -webkit-inline-flex;
             align-items: center;
           }
           .appDesc{
-            margin-bottom: 20px;
+            //margin-bottom: 20px;
             max-width: 280px;
           }
           .tagBox{
@@ -166,6 +202,7 @@
           }
           .sourceAddr{
             display: flex;
+            display: -webkit-flex;
             align-items: center;
             .resourceLink{
               display: inline-block;
@@ -200,7 +237,11 @@
       }
       .downloadBox{
         span:first-of-type{
-          margin-right: 30px;
+          margin-right: 20px;
+        }
+        span:last-of-type{
+          display: inline-block;
+          min-width: 110px;
         }
       }
     }

@@ -12,7 +12,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Tabs } from 'antd'
-import { getWrapStoreList, getWrapGroupList } from '../../../actions/app_center'
+import { getWrapStoreList, getWrapStoreHotList, getWrapGroupList } from '../../../actions/app_center'
 import { getAppsList, getAppsHotList } from '../../../actions/app_store'
 import './style/index.less'
 import StoreTemplate from './StoreTemplate'
@@ -41,6 +41,7 @@ class AppWrapStore extends React.Component {
     this.getStoreList()
   }
   changeTab(activeKey){
+    const { getAppsHotList, getWrapStoreHotList } = this.props
     this.setState({
       current: 1,
       filterName: '',
@@ -48,6 +49,8 @@ class AppWrapStore extends React.Component {
       sort_by: 'publish_time',
       activeKey
     }, this.getStoreList)
+    getAppsHotList()
+    getWrapStoreHotList()
   }
   getStoreList() {
     const { getWrapStoreList, getAppsList } = this.props
@@ -114,7 +117,11 @@ class AppWrapStore extends React.Component {
   }
   
   render() {
-    const { wrapGroupList, wrapStoreList, wrapStoreHotList, role, imageStoreList, imageHotList } = this.props
+    const { 
+      wrapGroupList, wrapStoreList, wrapStoreHotList, 
+      role, imageStoreList, imageHotList, wrapStoreFetching,
+      wrapHotFetching, imageStoreFetching, imageHotFetching
+    } = this.props
     const { activeKey, current, classify, sort_by } = this.state
     return (
       <QueueAnim>
@@ -137,7 +144,9 @@ class AppWrapStore extends React.Component {
                 sort_by={sort_by}
                 wrapGroupList={wrapGroupList}
                 dataSource={imageStoreList}
+                dataFetching={imageStoreFetching}
                 dataHotList={imageHotList}
+                dataHotFetching={imageHotFetching}
                 role={role}
                 getStoreList={this.getStoreList}
                 changeSort={this.changeSort}
@@ -153,7 +162,9 @@ class AppWrapStore extends React.Component {
                 sort_by={sort_by}
                 wrapGroupList={wrapGroupList}
                 dataSource={wrapStoreList}
+                dataFetching={wrapStoreFetching}
                 dataHotList={wrapStoreHotList}
+                dataHotFetching={wrapHotFetching}
                 role={role}
                 getStoreList={this.getStoreList}
                 changeSort={this.changeSort}
@@ -173,26 +184,31 @@ function mapStateToProps(state) {
   const { loginUser } = entities
   const { role } = loginUser.info || { role: 0 }
   const { wrapStoreList, wrapStoreHotList, wrapGroupList } = images
-  const { result: storeList } = wrapStoreList || { result: {}}
+  const { result: storeList, isFetching: wrapStoreFetching } = wrapStoreList || { result: {}, isFetching: false }
   const { data: storeData } = storeList || { data: [] }
-  const { result: storeHotList } = wrapStoreHotList || { result: {} }
+  const { result: storeHotList, isFetching: wrapHotFetching } = wrapStoreHotList || { result: {}, isFetching: false }
   const { data: storeHotData } = storeHotList || { data: [] }
   const { result: groupList } = wrapGroupList || { result: {} }
   const { data: groupData } = groupList || { data: [] }
   const { imagePublishRecord, imageHotRecord } = appStore
-  const { data: imageStoreList } = imagePublishRecord || { data: {} }
-  const { data: imageHotList } = imageHotRecord || { data: {} }
+  const { data: imageStoreList, isFetching: imageStoreFetching } = imagePublishRecord || { data: {}, isFetching: false }
+  const { data: imageHotList, isFetching: imageHotFetching } = imageHotRecord || { data: {}, isFetching: false }
   return {
     wrapStoreList: storeData,
+    wrapStoreFetching,
     wrapStoreHotList: storeHotData,
+    wrapHotFetching,
     wrapGroupList: groupData,
     imageStoreList,
+    imageStoreFetching,
     imageHotList,
+    imageHotFetching,
     role
   }
 }
 export default connect(mapStateToProps, {
   getWrapStoreList,
+  getWrapStoreHotList,
   getWrapGroupList,
   getAppsList,
   getAppsHotList
