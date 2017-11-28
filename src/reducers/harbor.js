@@ -494,6 +494,26 @@ function imageUpdateLogs(state = {},action) {
   }
 }
 
+function targets(state = {},action) {
+  switch(action.type){
+    case ActionTypes.GET_TARGETS_REQUEST:
+      return merge({}, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_TARGETS_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data
+      })
+    case ActionTypes.GET_TARGETS_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 export default function harborRegistry(state = { projects: {} }, action) {
   return {
     systeminfo: systeminfo(state.systeminfo, action),
@@ -509,5 +529,6 @@ export default function harborRegistry(state = { projects: {} }, action) {
     configurations: getConfigurations(state.configurations, action),
     imageUpdate: imageUpdate(state.imageUpdate, action),
     imageUpdateLogs: imageUpdateLogs(state.imageUpdateLogs, action),
+    targets: targets(state.targets, action),
   }
 }
