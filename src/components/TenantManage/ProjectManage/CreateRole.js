@@ -41,7 +41,12 @@ class CreateRoleModal extends Component{
       this.getPermission()
     }
     if (!characterModal && this.props.characterModal) {
-      form.resetFields()
+      form.resetFields(['roleName', 'roleDesc'])
+      this.setState({
+        expandedKeys: [],
+        checkedKeys: [],
+        selectedKeys: []
+      })
     }
   }
   onExpand(expandedKeys) {
