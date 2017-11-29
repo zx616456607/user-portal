@@ -133,20 +133,28 @@ class WrapComopnent extends React.Component {
     })
   }
   offsetImage(image) {
+    let tagWithId = {}
+    image.versions.forEach(item => {
+      Object.assign(tagWithId, {
+        [item.iD]: item.tag
+      })
+    })
     this.setState({
+      tagWithId,
       offShelfModal: true,
       currentImage: image
     })
   }
   offShelfConfirm() {
     const { appStoreApprove, getStoreList, getAppsHotList } = this.props
-    const { offshelfId } = this.state
+    const { offshelfId, currentImage, tagWithId } = this.state
     let notify = new NotificationHandler()
     notify.spin('操作中')
     const body = {
       id: offshelfId,
       type: 2,
       status: 4,
+      imageTagName: `${currentImage.resourceName}:${tagWithId[offshelfId]}`
     }
     appStoreApprove(body, {
       success: {
@@ -158,7 +166,8 @@ class WrapComopnent extends React.Component {
           this.setState({
             offShelfModal: false,
             offshelfId: '',
-            currentImage: null
+            currentImage: null,
+            tagWithId: {}
           })
         },
         isAsync: true
@@ -170,7 +179,8 @@ class WrapComopnent extends React.Component {
           this.setState({
             offShelfModal: false,
             offshelfId: '',
-            currentImage: null
+            currentImage: null,
+            tagWithId: {}
           })
         }
       }

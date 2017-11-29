@@ -92,7 +92,8 @@ class ImageCheckTable extends React.Component {
     const body = {
       id: record.iD,
       type: 2,
-      status
+      status,
+      imageTagName: `${record.image}:${record.tag}`
     }
     if (status === 2) {
       Object.assign(body, { origin_id: record.originID })
