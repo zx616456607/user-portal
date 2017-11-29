@@ -106,8 +106,9 @@ let CreateAlarmGroup = React.createClass({
     let newValue = value.trim()
     let isAddEmail= true
     if(!Boolean(newValue)) {
-      callback(new Error('请输入邮箱地址'))
-      isAddEmail = false
+      return callback()
+      // callback(new Error('请输入邮箱地址'))
+      // isAddEmail = false
     }
     if (!/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(newValue)) {
       callback(new Error('请输入正确的邮箱地址'))
