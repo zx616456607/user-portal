@@ -10,11 +10,12 @@
 import React, { Component } from 'react'
 import { Card, Spin, Tabs, Button, Table, Icon, Select, Input, Pagination, Dropdown, Menu, Modal } from 'antd'
 import { connect } from 'react-redux'
+import { browserHistory } from 'react-router'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { encodeImageFullname } from '../../../../common/tools'
 import ServiceAPI from './ServiceAPI.js'
 import './style/ImageVersion.less'
-import { loadRepositoriesTags } from '../../../../actions/harbor'
+import { loadRepositoriesTags, deleteAlone } from '../../../../actions/harbor'
 
 const TabPane = Tabs.TabPane
 const Search = Input.Search
@@ -55,7 +56,7 @@ let MyComponent = React.createClass({
     })
 
     return (
-      <div></div>
+      <div>{items}</div>
     )
   }
 })
@@ -64,10 +65,14 @@ class ImageVersion extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      serverIp: '',
       dataAry: [],
       edition: '',
+      warehouseName: [],
       detailVisible: false,
       imageDetail: null,
+      processedName: '',
+
     }
   }
 
@@ -75,6 +80,9 @@ class ImageVersion extends Component {
     const { loadRepositoriesTags, loadRepositoriesTagConfigInfo } = this.props
     const imageDetail = this.props.config
     let processedName = encodeImageFullname(imageDetail.name)
+    this.setState({
+      processedName,
+    })
     loadRepositoriesTags(DEFAULT_REGISTRY, processedName)
   }
 
@@ -85,6 +93,9 @@ class ImageVersion extends Component {
     const oldImageDatail = this.props.config;
     const newImageDetail = nextPorps.config;
     const tableData = nextPorps.detailAry
+    this.setState({
+      serverIp: nextPorps.scope.props.server,
+    })
     const { loadRepositoriesTags } = this.props
     this.fetchData(tableData)
     if (newImageDetail.name != oldImageDatail.name) {
@@ -95,6 +106,7 @@ class ImageVersion extends Component {
 
   fetchData(data) {
     const curData = []
+    if (data === undefined) return
     if (Object.keys(data).length > 0) {
       data.forEach((item, index) => {
         const curColums = {
@@ -124,19 +136,81 @@ class ImageVersion extends Component {
     })
   }
 
-  handleMenu(e, record) {
-    switch (e.key) {
-      case 'deploy':
-        this.setState({
-
-        })
-        return
-      case 'delete':
-        this.setState({
-
-        })
-        return
+  handleDelete(value) {
+    const { deleteAlone, scopeDetail } = this.props
+    const { processedName } = this.state
+    const query = {
+      tagName: value,
+      registry: DEFAULT_REGISTRY,
+      repoName: processedName,
     }
+    deleteAlone(query, {
+      success: {
+        func: res => {
+          scopeDetail.setState({
+            imageDetailModalShow: false,
+          })
+          scopeDetail.loadRepos()
+        },
+        isAsync: true
+      }, failed: {
+        func: err => {},
+        isAsync: true
+      }
+    })
+  }
+
+  handleBatchDel() {
+    const { deleteAlone, scopeDetail } = this.props
+    const { warehouseName, processedName } = this.state
+    let names = ''
+    if (warehouseName) {
+      warehouseName.forEach(item => {
+        names += `,${item}`
+      })
+    }
+    const query = {
+      tagName: names.replace(',', ''),
+      registry: DEFAULT_REGISTRY,
+      repoName: processedName,
+    }
+    deleteAlone(query, {
+      success: {
+        func: res => {
+          scopeDetail.setState({
+            imageDetailModalShow: false,
+          })
+          scopeDetail.loadRepos()
+        },
+        isAsync: true
+      }, failed: {
+        func: err => {},
+        isAsync: true
+      }
+    })
+  }
+
+  handleDeploy(value) {
+    const { serverIp, processedName } = this.state
+    browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${serverIp}&imageName=${processedName}&tag=${value}`)
+  }
+
+  handleMenu(record, e) {
+    if(e.key === 'deploy'){
+      this.handleDeploy(record.edition)
+    } if(e.key === 'del') {
+      this.handleDelete(record.edition)
+    }
+  }
+
+  onSelectChange(selectedRowKeys, selectedRows) {
+    const aryData = []
+    selectedRows.forEach(item => {
+      aryData.push(item.edition)
+    })
+    this.setState({
+      warehouseName: aryData
+    })
   }
 
   render() {
@@ -144,12 +218,7 @@ class ImageVersion extends Component {
     const { edition, dataAry } = this.state
     const imageDetail = this.props.config
     const rowSelection = {
-      onSelect(record, selected, selectedRows) {
-        console.log(record, selected, selectedRows);
-      },
-      onSelectAll(selected, selectedRows, changeRows) {
-        console.log(selected, selectedRows, changeRows);
-      },
+      onChange: this.onSelectChange.bind(this)
     }
     const columns = [{
       id: 'id',
@@ -164,7 +233,7 @@ class ImageVersion extends Component {
         <svg className='notscanning'>
           <use xlinkHref='#notscanning' />
         </svg>
-        <span style={{ marginLeft:5 }}>未扫描, <a>开始扫描</a></span>
+        <span style={{ marginLeft: 5 }}>未扫描, <a>开始扫描</a></span>
       </div>
     }, {
       title: '大小',
@@ -181,7 +250,7 @@ class ImageVersion extends Component {
         {
           <Dropdown.Button
             overlay={
-              <Menu style={{ width: '115px' }} onClick={() => { }} >
+              <Menu style={{ width: '115px' }} onClick={this.handleMenu.bind(this, record)} >
                 <MenuItem key='deploy'>
                   <i className="anticon anticon-appstore-o"></i> 部署镜像
                 </MenuItem>
@@ -213,10 +282,10 @@ class ImageVersion extends Component {
     }
     return (
       <Card className="ImageVersion" >
-        {/* <MyComponent loading={isFetching} config={imageDetailTag} fullname={imageDetail.name ? imageDetail.name : imageDetail} /> */}
+        {/* {<MyComponent loading={isFetching} config={imageDetailTag} fullname={imageDetail.name ? imageDetail.name : imageDetail} />} */}
         < div className="table" >
           <div className="top">
-            <Button className="delete"><Icon type="delete" />删除</Button>
+            <Button className="delete" onClick={this.handleBatchDel.bind(this)} ><Icon type="delete" />删除</Button>
             <div className='SearchInput' style={{ width: 280 }}>
               <div className='littleLeft'>
                 <i className='fa fa-search' onClick={this.handleSearch} />
@@ -276,5 +345,6 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
+  deleteAlone,
   loadRepositoriesTags
 })(ImageVersion)
