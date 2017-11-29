@@ -188,7 +188,7 @@ class WrapComopnent extends React.Component {
     switch(e.key) {
       case 'offShelf':
         if (activeKey === 'app') {
-          this.updateAppStatus(row.id)
+          this.updateAppStatus(row.appId)
           return
         }
         this.offsetImage(row)
