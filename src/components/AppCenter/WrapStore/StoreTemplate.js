@@ -395,7 +395,7 @@ class WrapComopnent extends React.Component {
             <div className="wrapListRight" style={{ textAlign: 'right' }}>
               <Dropdown.Button
                 className="wrapPopBtn"
-                overlay={menu(90)}
+                overlay={menu(100)}
                 type="ghost"
                 onClick={() => this.handleButtonClick(item)}
               >
