@@ -18,6 +18,7 @@ import { loadRepositoriesTagConfigInfo } from '../../../../actions/harbor'
 import { API_URL_PREFIX, ASYNC_VALIDATOR_TIMEOUT, UPGRADE_EDITION_REQUIRED_CODE, DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import { encodeImageFullname } from '../../../../common/tools'
+import defaultImage from '../../../../../static/img/appStore/defaultImage.png'
 import isEmpty from 'lodash/isEmpty'
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -34,7 +35,6 @@ class PublishModal extends React.Component {
     this.checkImageName = this.checkImageName.bind(this)
     this.state = {
       visible: false,
-      uploaded: false,
       pkgIcon: '',
     }
   }
@@ -46,7 +46,6 @@ class PublishModal extends React.Component {
     if (oldVisible !== newVisible) {
       this.setState({
         visible: newVisible,
-        uploaded: false,
         pkgIcon: '',
         successModal: false,
         imageID: ''
@@ -183,7 +182,7 @@ class PublishModal extends React.Component {
   }
   confirmModal() {
     const { callback, form, imagePublish, currentImage, server, publishName } = this.props
-    const { uploaded, pkgIcon, imageID } = this.state
+    const { pkgIcon, imageID } = this.state
     let notify = new NotificationHandler()
     let validateArr = ['imageName', 'tagsName', 'description', 'classifyName', 'request_message']
     if (!publishName) {
@@ -192,9 +191,6 @@ class PublishModal extends React.Component {
     form.validateFields(validateArr, (errors, values) => {
       if (!!errors) {
         return
-      }
-      if (!uploaded && !pkgIcon) {
-        return notify.info('请上传图片')
       }
       this.setState({
         loading: true
@@ -208,8 +204,10 @@ class PublishModal extends React.Component {
         classifyName: classifyName[0],
         request_message,
         type: 2,
-        icon_id: Number(pkgIcon.split('?')[0]),
         resource: imageID
+      }
+      if (pkgIcon) {
+        Object.assign(body, { icon_id: Number(pkgIcon.split('?')[0]) })
       }
       notify.close()
       notify.spin('发布中')
@@ -375,7 +373,6 @@ class PublishModal extends React.Component {
           notificat.success('上传成功')
           this.setState({
             pkgIcon: `${e.file.response.data.id}?${+new Date()}`,
-            uploaded: true
           })
         }
         if (e.file.status === 'error') {
@@ -477,15 +474,15 @@ class PublishModal extends React.Component {
         
               >
               <span className="wrap-image">
-                {
-                  !pkgIcon && <Icon key="iconPlus" type="plus" className="plus-icon verticalCenter"/>
-                }
-                {
-                  pkgIcon ?
-                    <img className="wrapLogo" src={`${API_URL_PREFIX}/app-store/apps/icon/${pkgIcon}`} />
+              <img 
+                className="wrapLogo" 
+                src={
+                  pkgIcon ? 
+                    `${API_URL_PREFIX}/app-store/apps/icon/${pkgIcon}`
                     :
-                    <span className="ant-upload-text">上传应用图标</span>
-                }
+                    defaultImage
+                } 
+              />
               </span>
               </Upload>
             </FormItem>

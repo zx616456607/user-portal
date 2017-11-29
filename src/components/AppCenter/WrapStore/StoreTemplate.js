@@ -14,10 +14,11 @@ import { browserHistory } from 'react-router'
 import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal, Select, Row, Col, Button, Spin } from 'antd'
 import classNames from 'classnames'
 import { offShelfWrap, getWrapStoreHotList } from '../../../actions/app_center'
-import { getAppsList, getAppsHotList, appStoreApprove, imageTags } from '../../../actions/app_store'
+import { getAppsList, getAppsHotList, appStoreApprove } from '../../../actions/app_store'
 import { calcuDate, encodeImageFullname } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX } from '../../../constants'
+import defaultImage from '../../../../static/img/appStore/defaultImage.png'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
 
@@ -323,7 +324,15 @@ class WrapComopnent extends React.Component {
               isHot && <div className="rank">{index !== 0 ? <span className={`hotOrder hotOrder${index + 1}`}>{index + 1}</span> : <i className="champion"/>}</div>
             }
             <img className={classNames({"wrapIcon": !isHot, "hotWrapIcon": isHot})}
-                 src={`${API_URL_PREFIX}/pkg/icon/${ activeKey === 'app' ? item.pkgIconID : item.versions[0].iconID}`}
+                 src={
+                   activeKey === 'app' ?
+                     `${API_URL_PREFIX}/pkg/icon/${item.pkgIconID}`
+                     :
+                       item.versions[0].iconID ?
+                         `${API_URL_PREFIX}/pkg/icon/${item.versions[0].iconID}`
+                         :
+                         defaultImage
+                 }
             />
             <div className="wrapListMiddle">
               <div className="appName">
@@ -415,7 +424,15 @@ class WrapComopnent extends React.Component {
             <div className="reactBoxTop pointer" onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)}>
               <img
                 className="reactImg"
-                src={`${API_URL_PREFIX}/pkg/icon/${ activeKey === 'app' ? item.pkgIconID : item.versions[0].iconID}`}
+                src={
+                  activeKey === 'app' ?
+                    `${API_URL_PREFIX}/pkg/icon/${item.pkgIconID}`
+                    :
+                    item.versions[0].iconID ?
+                      `${API_URL_PREFIX}/pkg/icon/${item.versions[0].iconID}`
+                      :
+                      defaultImage
+                }
               />
               <div className="rectAppName">
                 {activeKey === 'app' ? item.fileNickName : item.appName}
@@ -585,6 +602,5 @@ export default connect(mapStateToProps, {
   getWrapStoreHotList,
   getAppsList, 
   getAppsHotList,
-  appStoreApprove,
-  imageTags
+  appStoreApprove
 })(WrapComopnent)

@@ -239,7 +239,7 @@ class ImageCheckTable extends React.Component {
       key: 'fileNickName',
       width: '10%',
     }, {
-      title: '发布镜像',
+      title: '原镜像名称',
       dataIndex: 'originID',
       key: 'originID',
       width: '15%',
@@ -421,7 +421,7 @@ class ImageCheckTable extends React.Component {
           transitionName="move-right"
           onCancel={()=> this.setState({imageDetailModalShow:false})}
         >
-          <ProjectDetail server={serverName} scope={this} config={currentImage}/>
+          <ProjectDetail server={serverName} visible={imageDetailModalShow} scope={this} config={currentImage}/>
         </Modal>
       </div>
     )
