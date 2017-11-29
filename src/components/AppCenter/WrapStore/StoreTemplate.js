@@ -327,19 +327,22 @@ class WrapComopnent extends React.Component {
             />
             <div className="wrapListMiddle">
               <div className="appName">
-                <div onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)} className={classNames("themeColor pointer", {'inlineBlock' : !isHot, 'hidden': isHot})}>
+                <div
+                  onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)}
+                  className={classNames("themeColor", {'inlineBlock pointer' : !isHot, 'hidden': isHot})}
+                >
                   {activeKey === 'app' ? item.fileNickName : item.appName}
                 </div>
                 {
-                  !isHot && <span className="nickName hintColor"> ({activeKey === 'app' ? item.fileName : item.resourceName.split('/')[1]})</span>
+                  !isHot && <span className="nickName firstNickName hintColor"> ({activeKey === 'app' ? item.fileName : item.resourceName.split('/')[1]})</span>
                 }
                 {
                   activeKey === 'image' && !isHot &&
                   <Tooltip title={`最新版本：${item.versions[0].tag}`}>
-                          <span className="tagBox noWrap hintColor textoverflow inlineBlock">
-                            <Icon type="tag" className="tag"/>
-                            {item.versions[0].tag}
-                          </span>
+                    <span className="tagBox noWrap hintColor textoverflow inlineBlock">
+                      <Icon type="tag" className="tag"/>
+                      {item.versions[0].tag}
+                    </span>
                   </Tooltip>
                 }
               </div>
