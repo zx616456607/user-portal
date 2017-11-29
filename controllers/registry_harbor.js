@@ -73,10 +73,29 @@ exports.deleteRepository = harborHandler(
   }
 )
 
-exports.deleteRepositoryTag = harborHandler(
-    (harbor, ctx, callback) => harbor.deleteRepositoryTag(
-        ctx.params.user, ctx.params.name, ctx.params.tag, callback)
-)
+function* deleteRepoTags() {
+  const config = getRegistryConfig()
+  const loginUser = this.session.loginUser
+  const user = this.params.user
+  const name = this.params.name
+  const tags = this.params.tags.split(',')
+  const auth = yield getAuthInfo(loginUser)
+  const harbor = new harborAPIs(config, auth)
+  const reqArray = tags.map(tag => new Promise((resolve, reject) => {
+    harbor.deleteRepositoryTag(user, name, tag, (err, statusCode, body) => {
+      if (err || statusCode >= 300) {
+        return reject(err)
+      }
+      resolve(body)
+    })
+  }))
+  const result = yield reqArray
+  this.body = {
+    data: result,
+    server: config.url
+  }
+}
+exports.deleteRepoTags = deleteRepoTags
 
 // [GET] /repositories/:user/:name/tags
 exports.getRepositoriesTags = harborHandler(
