@@ -77,7 +77,14 @@ class Endpoints extends React.Component {
         isAsync: true,
       },
       failed: {
-        func: () => {
+        func: err => {
+          if (err.statusCode === 412) {
+            notification.error('无法删除正在使用的目标')
+            this.setState({
+              deleteModal: false,
+            })
+            return
+          }
           notification.error('删除目标失败')
         },
         isAsync: true,

@@ -40,9 +40,9 @@ class Replications extends React.Component {
               <TabPane tab="同步目标" key="endpoints">
                 <Endpoints />
               </TabPane>
-              <TabPane tab="同步规则" key="rules">
+              {/* <TabPane tab="同步规则" key="rules">
                 <Rules />
-              </TabPane>
+              </TabPane> */}
             </Tabs>
           </Card>
         </div>
