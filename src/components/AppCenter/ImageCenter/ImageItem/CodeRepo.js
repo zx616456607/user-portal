@@ -129,14 +129,14 @@ class CodeRepo extends Component {
   closeImageDetailModal(){
     this.setState({imageDetailModalShow:false})
   }
-  
+
   confirmPublishModal() {
     this.setState({
       publishModal: false,
       currentImage: ''
     })
   }
-  
+
   render() {
     const { repos, projectDetail } = this.props
     const { publishModal, currentImage } = this.state
