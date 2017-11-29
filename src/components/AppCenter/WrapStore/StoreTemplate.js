@@ -18,7 +18,7 @@ import { getAppsList, getAppsHotList, appStoreApprove } from '../../../actions/a
 import { calcuDate, encodeImageFullname } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX } from '../../../constants'
-import defaultImage from '../../../../static/img/appStore/defaultImage.png'
+import defaultImage from '../../../../static/img/appstore/defaultimage.png'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
 

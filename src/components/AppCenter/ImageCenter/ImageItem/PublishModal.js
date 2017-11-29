@@ -18,7 +18,7 @@ import { loadRepositoriesTagConfigInfo } from '../../../../actions/harbor'
 import { API_URL_PREFIX, ASYNC_VALIDATOR_TIMEOUT, UPGRADE_EDITION_REQUIRED_CODE, DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import { encodeImageFullname } from '../../../../common/tools'
-import defaultImage from '../../../../../static/img/appStore/defaultImage.png'
+import defaultImage from '../../../../../static/img/appstore/defaultimage.png'
 import isEmpty from 'lodash/isEmpty'
 const FormItem = Form.Item;
 const Option = Select.Option;
