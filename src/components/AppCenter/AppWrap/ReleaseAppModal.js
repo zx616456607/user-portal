@@ -184,7 +184,7 @@ class ReleaseAppModal extends React.Component {
       beforeUpload: file => {
         let isType
 
-        isType = file.name.match(/\.(jpg|png|jpeg)$/)
+        isType = file.name.toLowerCase().match(/\.(jpg|png|jpeg)$/)
 
         if (!isType) {
           notificat.error('上传文件格式错误', '支持：'+ wrapTypelist.join('、')+'文件格式')

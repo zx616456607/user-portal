@@ -14,8 +14,11 @@ import { browserHistory } from 'react-router'
 import { Modal, Form, Input, Select, Upload, Icon, Row, Col, Button } from 'antd'
 import { getWrapGroupList } from '../../../../actions/app_center'
 import { imagePublish, checkAppNameExists, getImageStatus, imageNameExists } from '../../../../actions/app_store'
-import { API_URL_PREFIX, ASYNC_VALIDATOR_TIMEOUT, UPGRADE_EDITION_REQUIRED_CODE } from '../../../../constants'
+import { loadRepositoriesTagConfigInfo } from '../../../../actions/harbor'
+import { API_URL_PREFIX, ASYNC_VALIDATOR_TIMEOUT, UPGRADE_EDITION_REQUIRED_CODE, DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
+import { encodeImageFullname } from '../../../../common/tools'
+import defaultImage from '../../../../../static/img/appStore/defaultImage.png'
 import isEmpty from 'lodash/isEmpty'
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -32,7 +35,6 @@ class PublishModal extends React.Component {
     this.checkImageName = this.checkImageName.bind(this)
     this.state = {
       visible: false,
-      uploaded: false,
       pkgIcon: '',
     }
   }
@@ -44,9 +46,9 @@ class PublishModal extends React.Component {
     if (oldVisible !== newVisible) {
       this.setState({
         visible: newVisible,
-        uploaded: false,
         pkgIcon: '',
-        successModal: false
+        successModal: false,
+        imageID: ''
       })
       form.resetFields()
     }
@@ -61,6 +63,11 @@ class PublishModal extends React.Component {
             if (res.data) {
               flag = res.data.every(item => {
                 return [1, 2].includes(item.status)
+              })
+            }
+            if (res.icon > 0) {
+              this.setState({
+                pkgIcon: `${res.icon}?${+new Date()}`
               })
             }
             if (flag) {
@@ -175,7 +182,7 @@ class PublishModal extends React.Component {
   }
   confirmModal() {
     const { callback, form, imagePublish, currentImage, server, publishName } = this.props
-    const { uploaded, pkgIcon } = this.state
+    const { pkgIcon, imageID } = this.state
     let notify = new NotificationHandler()
     let validateArr = ['imageName', 'tagsName', 'description', 'classifyName', 'request_message']
     if (!publishName) {
@@ -184,9 +191,6 @@ class PublishModal extends React.Component {
     form.validateFields(validateArr, (errors, values) => {
       if (!!errors) {
         return
-      }
-      if (!uploaded) {
-        return notify.info('请上传图片')
       }
       this.setState({
         loading: true
@@ -200,7 +204,10 @@ class PublishModal extends React.Component {
         classifyName: classifyName[0],
         request_message,
         type: 2,
-        icon_id: Number(pkgIcon.split('?')[0])
+        resource: imageID
+      }
+      if (pkgIcon) {
+        Object.assign(body, { icon_id: Number(pkgIcon.split('?')[0]) })
       }
       notify.close()
       notify.spin('发布中')
@@ -220,11 +227,16 @@ class PublishModal extends React.Component {
         },
         failed: {
           func: res => {
+            if (res.statusCode === 409) {
+              notify.close()
+              notify.error('发布失败\n', `该镜像与${res.message.details.name}内容完全相同，不能发布`)
+            } else {
+              notify.close()
+              notify.error('发布失败\n', res.message)
+            }
             this.setState({
               loading: false
             })
-            notify.close()
-            notify.error('发布失败\n', res.message)
           }
         },
         finally: {
@@ -257,9 +269,21 @@ class PublishModal extends React.Component {
       successModal: false
     })
   }
+  getConfigInfo(tag) {
+    const { loadRepositoriesTagConfigInfo, currentImage } = this.props
+    loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY,encodeImageFullname(currentImage.name), tag, {
+      success: {
+        func: res => {
+          this.setState({
+            imageID: res.data.imageID
+          })
+        }
+      }
+    })
+  }
   render() {
     const { visible, pkgIcon, successModal } = this.state
-    const { space, form, currentImage, imgTag, wrapGroupList, publishName } = this.props
+    const { space, form, currentImage, imgTag, wrapGroupList, publishName, description, classify_name } = this.props
     const { getFieldProps, isFieldValidating, getFieldError, getFieldValue } = form
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -286,21 +310,24 @@ class PublishModal extends React.Component {
         {
           validator: this.checkTags,
         }
-      ]
+      ],
+      onChange: tag => this.getConfigInfo(tag)
     })
     const classifyProps = getFieldProps('classifyName', {
       rules: [
         {
           validator: this.checkClassify,
         }
-      ]
+      ],
+      initialValue: classify_name ? [classify_name] : []
     })
     const descProps = getFieldProps('description', {
       rules: [
         {
           validator: this.checkDesc
         }
-      ]
+      ],
+      initialValue: description && description
     })
     const infoProps = getFieldProps('request_message', {
       rules: [
@@ -327,7 +354,7 @@ class PublishModal extends React.Component {
       beforeUpload: file => {
         let isType
       
-        isType = file.name.match(/\.(jpg|png|jpeg)$/)
+        isType = file.name.toLowerCase().match(/\.(jpg|png|jpeg)$/)
         
         if (!isType) {
           notificat.error('上传文件格式错误', '支持：'+ wrapTypelist.join('、')+'文件格式')
@@ -346,7 +373,6 @@ class PublishModal extends React.Component {
           notificat.success('上传成功')
           this.setState({
             pkgIcon: `${e.file.response.data.id}?${+new Date()}`,
-            uploaded: true
           })
         }
         if (e.file.status === 'error') {
@@ -425,6 +451,7 @@ class PublishModal extends React.Component {
               label="分类"
             >
               <Select
+                disabled={classify_name && classify_name ? true : false}
                 showSearch
                 {...classifyProps}
                 tags
@@ -447,15 +474,15 @@ class PublishModal extends React.Component {
         
               >
               <span className="wrap-image">
-                {
-                  !pkgIcon && <Icon key="iconPlus" type="plus" className="plus-icon verticalCenter"/>
-                }
-                {
-                  pkgIcon ?
-                    <img className="wrapLogo" src={`${API_URL_PREFIX}/app-store/apps/icon/${pkgIcon}`} />
+              <img 
+                className="wrapLogo" 
+                src={
+                  pkgIcon ? 
+                    `${API_URL_PREFIX}/app-store/apps/icon/${pkgIcon}`
                     :
-                    <span className="ant-upload-text">上传应用图标</span>
-                }
+                    defaultImage
+                } 
+              />
               </span>
               </Upload>
             </FormItem>
@@ -514,7 +541,7 @@ class SuccessModal extends React.Component {
   renderFooter() {
     return[
       <Button key="cancel" size="large" onClick={this.cancelModal.bind(this)}>关闭</Button>,
-      <Button key="confirm" size="large" type="primary" onClick={this.confirmModal.bind(this)}>查看已发布镜像</Button>
+      <Button key="confirm" size="large" type="primary" onClick={this.confirmModal.bind(this)}>查看发布记录</Button>
     ]
   }
   render() {
@@ -533,7 +560,7 @@ class SuccessModal extends React.Component {
         <div className="successColor waitText">等待系统管理员审核...</div>
         <div className="stepHint">
           1.提交审核后可以到 
-          <span onClick={() => browserHistory.push('/app_center/projects/publish')} className="themeColor pointer">已发布镜像</span>
+          <span onClick={() => browserHistory.push('/app_center/projects/publish')} className="themeColor pointer">发布记录</span>
           查看审核状态
         </div>
         <div className="stepHint">2.审核通过系统将会复制一个新的镜像，与原镜像无关</div>
@@ -544,16 +571,19 @@ class SuccessModal extends React.Component {
 
 PublishModal = Form.create()(PublishModal)
 
-function mapStateToProps(state, props) {
+function mapStateToProps(state) {
   const { images, current, appStore } = state
   const { wrapGroupList } = images
   const { result: groupList } = wrapGroupList || { result: {} }
   const { data: groupData } = groupList || { data: [] }
   const { currentImageWithStatus } = appStore || { data: [] }
-  const { data, name: publishName } = currentImageWithStatus
+  const { data, file_nick_name: publishName, icon, description, classify_name } = currentImageWithStatus
   return {
     imgTag: data,
     publishName,
+    icon,
+    description,
+    classify_name,
     wrapGroupList: groupData,
     space: current && current.space
   }
@@ -564,5 +594,6 @@ export default connect(mapStateToProps, {
   imagePublish,
   checkAppNameExists,
   getImageStatus,
-  imageNameExists
+  imageNameExists,
+  loadRepositoriesTagConfigInfo
 })(PublishModal)

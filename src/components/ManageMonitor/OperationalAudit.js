@@ -1164,6 +1164,9 @@ function formatResourceName(resourceName, resourceId) {
     if (newBody.fileNickName) {
       return newBody.fileNickName
     }
+    if (newBody.imageTagName) {
+      return newBody.imageTagName
+    }
   } else {
     if (resourceName.length == 0) {
       if (resourceId.length == 0) {

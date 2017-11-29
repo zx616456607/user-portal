@@ -92,7 +92,8 @@ class ImageCheckTable extends React.Component {
     const body = {
       id: record.iD,
       type: 2,
-      status
+      status,
+      imageTagName: `${record.image}:${record.tag}`
     }
     if (status === 2) {
       Object.assign(body, { origin_id: record.originID })
@@ -188,6 +189,23 @@ class ImageCheckTable extends React.Component {
   closeImageDetailModal(){
     this.setState({imageDetailModalShow:false})
   }
+  
+  getServeAndName(origin) {
+    const arr = origin && origin.split('/')
+    const [server, ...nameArr] = arr
+    let name
+    if (nameArr.length > 1) {
+      for (let i = 0; i < nameArr.length; i++) {
+        if (i === nameArr.length - 1) {
+          nameArr[i] = nameArr[i].split(':')[0]
+        }
+      }
+      name = nameArr.join('/')
+    } else {
+      name = nameArr.split(':')[0]
+    }
+    return { server, name }
+  }
   render() {
     const { imageCheckList, total, form, publish_time, loginUser } = this.props
     const { getFieldProps } = form
@@ -222,16 +240,28 @@ class ImageCheckTable extends React.Component {
       key: 'fileNickName',
       width: '10%',
     }, {
-      title: '发布镜像',
-      dataIndex: 'image',
-      key: 'image',
-      width: '10%',
-      render: (text, record) => <Tooltip title={`${text}:${record.tag}`}><div style={{ width: 90 }} className="textoverflow">{`${text}:${record.tag}`}</div></Tooltip>
+      title: '原镜像名称',
+      dataIndex: 'originID',
+      key: 'originID',
+      width: '15%',
+      render: (text, record) => {
+        return (
+          <Tooltip title={text}>
+            <div
+              onClick={() => this.setState({imageDetailModalShow: true, currentImage: record})}
+              style={{ maxWidth: 200 }} 
+              className="textoverflow themeColor pointer"
+            >
+              {text}
+              </div>
+          </Tooltip>
+        )
+      }
     }, {
       title: '镜像地址',
       dataIndex: 'resource',
       key: 'resource',
-      width: '15%',
+      width: '10%',
       render: (text, record) => {
         const content = (
           <div className="imageIDBox">
@@ -262,9 +292,11 @@ class ImageCheckTable extends React.Component {
         );
         return(
           <Row>
-            <Col className="textoverflow themeColor pointer" span={20} onClick={() => this.setState({imageDetailModalShow: true, currentImage: record})}>
-              {text}
-            </Col>
+            <Tooltip title={text}>
+              <Col className="textoverflow" span={20}>
+                {text}
+              </Col>
+            </Tooltip>
             <Col span={4}>
               <Popover content={content} trigger="click">
                 <Icon type="plus-square" />
@@ -329,7 +361,7 @@ class ImageCheckTable extends React.Component {
                 ]
             }
             {
-              [4].includes(record.publishStatus) &&
+              [3, 4].includes(record.publishStatus) &&
                 <Button
                   disabled={!isAdmin}
                   onClick={() => this.checkImageStatus(record, 7)} 
@@ -344,10 +376,11 @@ class ImageCheckTable extends React.Component {
         )
       }
     }]
-    let server
+    let serverName
     if (currentImage) {
-      server = currentImage.resource && currentImage.resource.split('/')[0]
-      Object.assign(currentImage, { name: currentImage.image })
+      const { server, name } = this.getServeAndName(currentImage.originID)
+      serverName = server
+      Object.assign(currentImage, { name })
     }
     return(
       <div className="imageCheckTableBox">
@@ -389,7 +422,7 @@ class ImageCheckTable extends React.Component {
           transitionName="move-right"
           onCancel={()=> this.setState({imageDetailModalShow:false})}
         >
-          <ProjectDetail server={server} scope={this} config={currentImage}/>
+          <ProjectDetail server={serverName} visible={imageDetailModalShow} scope={this} config={currentImage}/>
         </Modal>
       </div>
     )

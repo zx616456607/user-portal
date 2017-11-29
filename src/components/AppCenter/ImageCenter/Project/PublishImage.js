@@ -124,7 +124,8 @@ class PublishImage extends React.Component {
       title: '镜像名称',
       dataIndex: 'image',
       key: 'image',
-      width: '20%'
+      width: '20%',
+      render: text => text && text.split('/')[1]
     }, {
       title: '发布名称',
       dataIndex: 'fileNickName',

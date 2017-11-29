@@ -24,9 +24,7 @@ class AppWrapStore extends React.Component {
     super(props)
     this.changeTab = this.changeTab.bind(this)
     this.getStoreList = this.getStoreList.bind(this)
-    this.changeSort = this.changeSort.bind(this)
-    this.filterClassify = this.filterClassify.bind(this)
-    this.updatePage = this.updatePage.bind(this)
+    this.updateParentState = this.updateParentState.bind(this)
     this.state = {
       current: 1,
       filterName: '',
@@ -56,8 +54,8 @@ class AppWrapStore extends React.Component {
     const { getWrapStoreList, getAppsList } = this.props
     const { current, filterName, sort_by, classify, activeKey } = this.state
     let query = {
-      from: (current - 1) * 10,
-      size: 10
+      from: (current - 1) * 12,
+      size: 12
     }
     if (activeKey === 'image') {
       Object.assign(query, { filter: 'type,2,publish_status,2' })
@@ -93,27 +91,10 @@ class AppWrapStore extends React.Component {
     }
     getAppsList(query)
   }
-  changeSort(sort) {
-    const { sort_by } = this.state
-    if (sort_by === sort) return
+  updateParentState(key, value, callback) {
     this.setState({
-      sort_by: sort,
-    },  this.getStoreList)
-  }
-  filterValue(value) {
-    this.setState({
-      filterName: value
-    }, this.getStoreList)
-  }
-  filterClassify(value) {
-    this.setState({
-      classify: value
-    }, this.getStoreList)
-  }
-  updatePage(current) {
-    this.setState({
-      current
-    }, this.getStoreList)
+      [key]: value
+    }, callback && this.getStoreList)
   }
   
   render() {
@@ -122,17 +103,17 @@ class AppWrapStore extends React.Component {
       role, imageStoreList, imageHotList, wrapStoreFetching,
       wrapHotFetching, imageStoreFetching, imageHotFetching
     } = this.props
-    const { activeKey, current, classify, sort_by } = this.state
+    const { activeKey, current, classify, sort_by, rectStyle } = this.state
     return (
       <QueueAnim>
         <div key="appWrapStore" className="appWrapStore">
           <div className="wrapStoreHead">
             <div className="storeHeadText">应用商店</div>
             <CommonSearchInput 
-              placeholder={activeKey === 'app' ? "请输入应用包名称搜索" : "请输入镜像名称搜索"}
+              placeholder={activeKey === 'app' ? "请输入应用包名称搜索" : "请输入镜像名称或发布名称搜索"}
               size="large"
               style={{ width: 280 }}
-              onSearch={value => this.filterValue(value)}
+              onSearch={value => this.updateParentState('filterName', value, true)}
             />
           </div>
           <Tabs className="storeTabs" activeKey={activeKey} onChange={this.changeTab}>
@@ -142,6 +123,7 @@ class AppWrapStore extends React.Component {
                 current={current}
                 classify={classify}
                 sort_by={sort_by}
+                rectStyle={rectStyle}
                 wrapGroupList={wrapGroupList}
                 dataSource={imageStoreList}
                 dataFetching={imageStoreFetching}
@@ -149,9 +131,7 @@ class AppWrapStore extends React.Component {
                 dataHotFetching={imageHotFetching}
                 role={role}
                 getStoreList={this.getStoreList}
-                changeSort={this.changeSort}
-                filterClassify={this.filterClassify}
-                updatePage={this.updatePage}
+                updateParentState={this.updateParentState}
               />
             </TabPane>
             <TabPane tab="应用包商店" key="app">
@@ -160,6 +140,7 @@ class AppWrapStore extends React.Component {
                 current={current}
                 classify={classify}
                 sort_by={sort_by}
+                rectStyle={rectStyle}
                 wrapGroupList={wrapGroupList}
                 dataSource={wrapStoreList}
                 dataFetching={wrapStoreFetching}
@@ -167,9 +148,7 @@ class AppWrapStore extends React.Component {
                 dataHotFetching={wrapHotFetching}
                 role={role}
                 getStoreList={this.getStoreList}
-                changeSort={this.changeSort}
-                filterClassify={this.filterClassify}
-                updatePage={this.updatePage}
+                updateParentState={this.updateParentState}
               />
             </TabPane>
           </Tabs>

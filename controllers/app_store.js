@@ -152,7 +152,10 @@ exports.getImageStatus = function* (){
       status:result.data.status[i]
     })
   }
-  result.name = result.data.name
+  result.icon = result.data.icon
+  result.description = result.data.description
+  result.file_nick_name = result.data.file_nick_name
+  result.classify_name = result.data.classify_name
   result.data = arrayResult
   this.body = result
 }
