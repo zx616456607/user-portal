@@ -399,6 +399,33 @@ export function deleteRepo(registry, repoName, callback) {
   }
 }
 
+export const DELETE_DETAIL_ALONE_REQUEST = 'DELETE_DETAIL_ALONE_REQUEST'
+export const DELETE_DETAIL_ALONE_SUCCESS = 'DELETE_DETAIL_ALONE_SUCCESS'
+export const DELETE_DETAIL_ALONE_FAILURE = 'DELETE_DETAIL_ALONE_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDeleteAlone(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${query.registry}/repositories/${query.repoName}/tags/${query.tagName}`
+  return {
+    [FETCH_API]: {
+      types: [ DELETE_DETAIL_ALONE_REQUEST, DELETE_DETAIL_ALONE_SUCCESS, DELETE_DETAIL_ALONE_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function deleteAlone(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteAlone(query, callback))
+  }
+}
+
 export const DELETE_HARBOR_PROJECT_REQUEST = 'DELETE_HARBOR_PROJECT_REQUEST'
 export const DELETE_HARBOR_PROJECT_SUCCESS = 'DELETE_HARBOR_PROJECT_SUCCESS'
 export const DELETE_HARBOR_PROJECT_FAILURE = 'DELETE_HARBOR_PROJECT_FAILURE'

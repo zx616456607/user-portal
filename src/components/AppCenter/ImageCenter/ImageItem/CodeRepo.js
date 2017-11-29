@@ -20,6 +20,7 @@ import NotificationHandler from '../../../../components/Notification'
 import '../style/CodeRepo.less'
 import ProjectDetail from '../ProjectDetail'
 import PublishModal from './PublishModal'
+import { DEFAULT_REGISTRY } from '../../../../constants'
 
 const notification = new NotificationHandler()
 
@@ -78,7 +79,7 @@ class CodeRepo extends Component {
       this.loadRepos()
     }
     let processedImageName = encodeImageFullname(selectedRepo)
-    deleteRepo(this.DEFAULT_QUERY, processedImageName, {
+    deleteRepo(DEFAULT_REGISTRY, processedImageName, {
       success: {
         func: () => {
           doSuccess()
@@ -182,7 +183,7 @@ class CodeRepo extends Component {
         key: 'count',
         render: (text, row) => {
           return (
-            <div className="imgurl">版本数：0</div>
+            <div className="imgurl">版本数：{row.tagsCount}</div>
           )
         }
       }, {
@@ -311,7 +312,7 @@ class CodeRepo extends Component {
           transitionName="move-right"
           onCancel={()=> this.setState({imageDetailModalShow:false})}
         >
-          <ProjectDetail server={server} scope={this} config={this.state.currentImage}/>
+          <ProjectDetail server={server} scope={this} config={this.state.currentImage} />
         </Modal>
         {/* 删除镜像 Modal */}
         <Modal title="删除镜像" visible={this.state.deleteRepoVisible}
