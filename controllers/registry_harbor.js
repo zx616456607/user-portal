@@ -138,7 +138,8 @@ function _formatConfig(configInfo) {
     entrypoint: config.Entrypoint,
     sizeInfo: {
       totalSize: configInfo.size
-    }
+    },
+    ImageID: config.Image
   }
   body.containerPorts = []
   if(config.ExposedPorts) {

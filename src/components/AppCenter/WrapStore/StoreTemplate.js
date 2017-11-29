@@ -14,7 +14,7 @@ import { browserHistory } from 'react-router'
 import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal, Select, Row, Col, Button, Spin } from 'antd'
 import classNames from 'classnames'
 import { offShelfWrap, getWrapStoreHotList } from '../../../actions/app_center'
-import { getAppsList, getAppsHotList, appStoreApprove } from '../../../actions/app_store'
+import { getAppsList, getAppsHotList, appStoreApprove, imageTags } from '../../../actions/app_store'
 import { calcuDate, encodeImageFullname } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX } from '../../../constants'
@@ -57,7 +57,7 @@ class WrapComopnent extends React.Component {
     }
   }
   renderClassifyTab() {
-    const { wrapGroupList, classify, filterClassify } = this.props
+    const { wrapGroupList, classify, updateParentState } = this.props
     if (!wrapGroupList || !wrapGroupList.classifies || !wrapGroupList.classifies.length) return
     const allClassify = [{
       iD: "",
@@ -69,7 +69,7 @@ class WrapComopnent extends React.Component {
         <span
           className={classNames('filterTab', {'active': item.iD === classify})}
           key={item.iD}
-          onClick={() => filterClassify(item.iD)}
+          onClick={() => updateParentState('classify', item.iD, true)}
         >
           {item.classifyName}
         </span>
@@ -77,7 +77,7 @@ class WrapComopnent extends React.Component {
     })
   }
   renderSortTab() {
-    const { changeSort, sort_by, activeKey } = this.props
+    const { updateParentState, sort_by, activeKey } = this.props
     let newSortOpt
     if (activeKey === 'app') {
       newSortOpt = sortOption.concat(
@@ -99,7 +99,7 @@ class WrapComopnent extends React.Component {
         <span
           className={classNames('filterTab', { 'active': sort_by === item.key })}
           key={item.key}
-          onClick={() => changeSort(item.key)}
+          onClick={() => updateParentState('sort_by', item.key, true)}
         >
           {item.text}
         </span>
@@ -251,7 +251,7 @@ class WrapComopnent extends React.Component {
     })
   }
   renderWrapList(dataSource, isHot) {
-    const { role, activeKey, dataFetching, dataHotFetching } = this.props
+    const { role, activeKey, dataFetching, dataHotFetching, rectStyle } = this.props
     const { copyStatus } = this.state
     let newData
     if (isHot) {
@@ -291,8 +291,8 @@ class WrapComopnent extends React.Component {
       newData = dataSource.apps
     }
     return newData.map((item, index) => {
-      const menu = (
-        <Menu style={{ width: 90 }} onClick={e => this.handleMenuClick(e, item)}>
+      const menu = width => (
+        <Menu style={{ width }} onClick={e => this.handleMenuClick(e, item)}>
           {
             activeKey === 'app' 
               ? <Menu.Item key="vm">
@@ -316,10 +316,12 @@ class WrapComopnent extends React.Component {
         </Menu>
       );
       return (
-        <div key={activeKey === 'app' ? item.id : item.publishTime} className={classNames("wrapList", {"noBorder": isHot})} type="flex">
-          {
-            isHot && <div className="rank">{index !== 0 ? <span className={`hotOrder hotOrder${index + 1}`}>{index + 1}</span> : <i className="champion"/>}</div>
-          }
+        [
+          (!rectStyle || isHot) &&
+          <div key={activeKey === 'app' ? item.id : item.publishTime} className={classNames("wrapList", {"noBorder": isHot})} type="flex">
+            {
+              isHot && <div className="rank">{index !== 0 ? <span className={`hotOrder hotOrder${index + 1}`}>{index + 1}</span> : <i className="champion"/>}</div>
+            }
             <img className={classNames({"wrapIcon": !isHot, "hotWrapIcon": isHot})}
                  src={`${API_URL_PREFIX}/pkg/icon/${ activeKey === 'app' ? item.pkgIconID : item.versions[0].iconID}`}
             />
@@ -333,30 +335,30 @@ class WrapComopnent extends React.Component {
                 }
                 {
                   activeKey === 'image' && !isHot &&
-                    <Tooltip title={`最新版本：${item.versions[0].tag}`}>
-                      <span className="tagBox noWrap hintColor textoverflow inlineBlock">
-                        <Icon type="tag" className="tag"/>
-                        {item.versions[0].tag}
-                      </span>
-                    </Tooltip>
+                  <Tooltip title={`最新版本：${item.versions[0].tag}`}>
+                          <span className="tagBox noWrap hintColor textoverflow inlineBlock">
+                            <Icon type="tag" className="tag"/>
+                            {item.versions[0].tag}
+                          </span>
+                  </Tooltip>
                 }
               </div>
               {
-                isHot && 
-                  <Tooltip title={activeKey === 'app' ? item.fileNickName : item.appName}>
-                    <div onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)} className="themeColor pointer textoverflow">
-                      {activeKey === 'app' ? item.fileNickName : item.appName}
-                    </div>
-                  </Tooltip>
+                isHot &&
+                <Tooltip title={activeKey === 'app' ? item.fileNickName : item.appName}>
+                  <div onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)} className="themeColor pointer textoverflow">
+                    {activeKey === 'app' ? item.fileNickName : item.appName}
+                  </div>
+                </Tooltip>
               }
               {
                 isHot &&
-                  <Tooltip title={activeKey === 'app' ? item.fileName : item.resourceName}>
-                    <div className="nickName hintColor textoverflow"> ({activeKey === 'app' ? item.fileName : item.resourceName})</div>
-                  </Tooltip>
+                <Tooltip title={activeKey === 'app' ? item.fileName : item.resourceName}>
+                  <div className="nickName hintColor textoverflow"> ({activeKey === 'app' ? item.fileName : item.resourceName})</div>
+                </Tooltip>
               }
               {
-                activeKey === 'image' && !isHot && 
+                activeKey === 'image' && !isHot &&
                 <div className="sourceAddr hintColor">
                   <span className="sourceText noWrap">镜像地址：</span>
                   <Tooltip title={item.resourceLink}>
@@ -375,7 +377,7 @@ class WrapComopnent extends React.Component {
                 </div>
               }
               {
-                !isHot && 
+                !isHot &&
                 <Tooltip title={activeKey === 'app' ? item.description : item.versions[0].description}>
                   <div className="hintColor appDesc textoverflow">描述：{activeKey === 'app' ? item.description : item.versions[0].description}</div>
                 </Tooltip>
@@ -387,24 +389,61 @@ class WrapComopnent extends React.Component {
                 </div>
               }
             </div>
-          <div className="wrapListRight" style={{ textAlign: 'right' }}>
-            <Dropdown.Button
-              className="wrapPopBtn"
-              overlay={menu}
-              type="ghost"
-              onClick={() => this.handleButtonClick(item)}
-            >
-              <span className="operateBtn"><Icon type="appstore-o" /> {activeKey === 'app' ? '容器部署' : '部署'}</span>
-            </Dropdown.Button>
-            {
-              !isHot &&
-              <div className="downloadBox">
-                <span className="hintColor"><Icon type="download" /> {item.downloadTimes}</span>
-                <span className="hintColor"><Icon type="clock-circle-o" /> {activeKey === 'app' ? '发布' : '更新'}于 {calcuDate(item.publishTime)}</span>
+            <div className="wrapListRight" style={{ textAlign: 'right' }}>
+              <Dropdown.Button
+                className="wrapPopBtn"
+                overlay={menu(90)}
+                type="ghost"
+                onClick={() => this.handleButtonClick(item)}
+              >
+                <span className="operateBtn"><Icon type="appstore-o" /> {activeKey === 'app' ? '容器部署' : '部署'}</span>
+              </Dropdown.Button>
+              {
+                !isHot &&
+                <div className="downloadBox">
+                  <span className="hintColor"><Icon type="download" /> {item.downloadTimes}</span>
+                  <span className="hintColor"><Icon type="clock-circle-o" /> {activeKey === 'app' ? '发布' : '更新'}于 {calcuDate(item.publishTime)}</span>
+                </div>
+              }
+            </div>
+          </div>,
+          rectStyle && !isHot &&
+          <div className="rectBox" key={activeKey === 'app' ? item.id : item.publishTime}>
+            <div className="reactBoxTop pointer" onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)}>
+              <img
+                className="reactImg"
+                src={`${API_URL_PREFIX}/pkg/icon/${ activeKey === 'app' ? item.pkgIconID : item.versions[0].iconID}`}
+              />
+              <div className="rectAppName">
+                {activeKey === 'app' ? item.fileNickName : item.appName}
               </div>
-            }
+              <Tooltip title={activeKey === 'app' ? item.description : item.versions[0].description}>
+                <div className="rectDesc textoverflow hintColor">{activeKey === 'app' ? item.description : item.versions[0].description}</div>
+              </Tooltip>
+            </div>
+            <div className="reactBoxFooter">
+              <Tooltip title={item.downloadTimes}>
+                <div className="hintColor downLoadBox textoverflow">
+                  <Icon type="download" /> {item.downloadTimes}
+                </div>
+              </Tooltip>
+              <Tooltip title={calcuDate(item.publishTime)}>
+                <div className="hintColor timeBox textoverflow">
+                  <Icon type="clock-circle-o" /> {calcuDate(item.publishTime)}
+                </div>
+              </Tooltip>
+              <div className={classNames("dropDownBox", { 'appDrop': activeKey === 'app' })}>
+                <Dropdown.Button
+                  overlay={menu(80)}
+                  type="ghost"
+                  onClick={() => this.handleButtonClick(item)}
+                >
+                  <span>{activeKey === 'app' ? '容器部署' : '部署'}</span>
+                </Dropdown.Button>
+              </div>
+            </div>
           </div>
-        </div>
+        ]
       )
     })
   }
@@ -416,7 +455,7 @@ class WrapComopnent extends React.Component {
     ]
   }
   render() {
-    const { current, dataSource, dataHotList, updatePage, dataFetching, dataHotFetching } = this.props
+    const { current, dataSource, dataHotList, updateParentState, rectStyle } = this.props
     const { downloadModalVisible, currentImage, offShelfModal, imageDetailModalShow, offshelfId } = this.state
     let server
     let node
@@ -430,9 +469,9 @@ class WrapComopnent extends React.Component {
     const pagination = {
       simple: true,
       current,
-      pageSize: 10,
+      pageSize: 12,
       total: dataSource && dataSource.total || 0,
-      onChange: updatePage
+      onChange: current => updateParentState('current', current, true)
     }
     return(
       <div className="storeTemplate">
@@ -513,6 +552,10 @@ class WrapComopnent extends React.Component {
                 dataSource && dataSource.total !== 0 &&
                 <Pagination {...pagination}/>
               }
+              <div className="styleChange">
+                <Icon type="bars" className={classNames("pointer", {'btnActive': !rectStyle})} onClick={() => updateParentState('rectStyle', false)}/>
+                <Icon type="appstore-o" className={classNames("pointer", {'btnActive': rectStyle})} onClick={() => updateParentState('rectStyle', true)}/>
+              </div>
             </div>
             <div className="storeListBox">
               {this.renderWrapList(dataSource, false)}
@@ -539,5 +582,6 @@ export default connect(mapStateToProps, {
   getWrapStoreHotList,
   getAppsList, 
   getAppsHotList,
-  appStoreApprove
+  appStoreApprove,
+  imageTags
 })(WrapComopnent)
