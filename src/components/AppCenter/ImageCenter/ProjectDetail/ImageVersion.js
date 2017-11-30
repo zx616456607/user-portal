@@ -162,6 +162,7 @@ class ImageVersion extends Component {
       registry: DEFAULT_REGISTRY,
       repoName: processedName,
     }
+
     deleteAlone(query, {
       success: {
         func: res => {
@@ -199,12 +200,12 @@ class ImageVersion extends Component {
       warehouseName.forEach(item => {
         names += `, ${item}`
       })
+      this.setState({
+        aryName: names.replace(',', ''),
+        isBatchDel: true,
+        deleteVisible: true,
+      })
     }
-    this.setState({
-      aryName: names.replace(',', ''),
-      isBatchDel: true,
-      deleteVisible: true,
-    })
   }
 
   handleDeploy(value) {
@@ -242,7 +243,7 @@ class ImageVersion extends Component {
       title: '版本',
       dataIndex: 'edition',
       key: 'edition',
-      width: '35%',
+      width: '70%',
     }, {
       title: '操作',
       dataIndex: 'comment',
@@ -294,11 +295,6 @@ class ImageVersion extends Component {
       </Select>)
     const pageOption = {
       simple: true,
-      total: 10,
-      defaultPageSize: 10,
-      defaultCurrent: 1,
-      // current: this.state.current,
-      onChange: () => { }
     }
     return (
       <Card className="ImageVersion" >
@@ -306,7 +302,7 @@ class ImageVersion extends Component {
         < div className="table" >
           <div className="top">
             <Button className="delete" onClick={this.handleBatchDel.bind(this)} ><Icon type="delete" />删除</Button>
-            <div className='SearchInput' style={{ width: 280 }}>
+            {/* <div className='SearchInput' style={{ width: 280 }}>
               <div className='littleLeft'>
                 <i className='fa fa-search' onClick={this.handleSearch} />
               </div>
@@ -319,18 +315,20 @@ class ImageVersion extends Component {
                   onPressEnter={this.handleSearch}
                 />
               </div>
-            </div>
+            </div> */}
             <div className="right">
-              <span style={{ verticalAlign: 'super' }}>共计 {dataAry.length} 条</span>
-              <Pagination className="pag" {...pageOption} />
+            <span style={{ verticalAlign: 'super' }}>共计 {dataAry.length} 条</span>
+              {/* <Pagination className="pag" {...pageOption} /> */}
             </div>
+
           </div>
+
           <div className="body">
             <Table
               columns={columns}
               dataSource={dataAry}
-              pagination={false}
               loading={false}
+              pagination={pageOption}
               rowSelection={rowSelection}
             />
           </div>
