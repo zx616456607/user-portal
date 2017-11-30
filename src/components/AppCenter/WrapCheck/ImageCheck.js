@@ -221,19 +221,19 @@ class ImageCheckTable extends React.Component {
       title: '状态',
       dataIndex: 'publishStatus',
       key: 'publishStatus',
-      width: '10%',
+      width: '9%',
       render: this.getImageStatus
     }, {
       title: '提交信息',
       dataIndex: 'requestMessage',
       key: 'requestMessage',
-      width: '10%',
-      render: text => <Tooltip title={text}><div style={{ width: 90 }} className="textoverflow">{text}</div></Tooltip>
+      width: '6%',
+      render: text => <Tooltip title={text}><div style={{ maxWidth: 90 }} className="textoverflow">{text}</div></Tooltip>
     }, {
       title: '分类名称',
       dataIndex: 'classifyName',
       key: 'classifyName',
-      width: '10%',
+      width: '8%',
     }, {
       title: '发布名称',
       dataIndex: 'fileNickName',
@@ -249,7 +249,7 @@ class ImageCheckTable extends React.Component {
           <Tooltip title={text}>
             <div
               onClick={() => this.setState({imageDetailModalShow: true, currentImage: record})}
-              style={{ maxWidth: 200 }} 
+              style={{ maxWidth: 150 }} 
               className="textoverflow themeColor pointer"
             >
               {text}
@@ -309,7 +309,7 @@ class ImageCheckTable extends React.Component {
       title: '发布者',
       dataIndex: 'userName',
       key: 'userName',
-      width: '10%',
+      width: '8%',
     }, {
       title: (
         <div onClick={() => this.handleSort('publish_time')}>
@@ -330,12 +330,12 @@ class ImageCheckTable extends React.Component {
       ),
       dataIndex: 'publishTime',
       key: 'publishTime',
-      width: '10%',
+      width: '17%',
       render: text => formatDate(text)
     }, {
       title: '操作',
       key: 'operation',
-      width: '15%',
+      width: '17%',
       render: (text, record, index) => {
         return(
           <div className="operateBtn">
