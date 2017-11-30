@@ -135,7 +135,7 @@ class ServiceAPI extends Component {
     }
     let { defaultEnv } = configList;
     return (
-      <Card className="imageServiceAPI" key='imageserviceapi'>
+      <div className="imageServiceAPI" key='imageserviceapi'>
         <p><li>服务端口:&nbsp;&nbsp;{portsShow ? portsShow:"该镜像无端口定义"}</li></p>
         <p><li>存储卷</li></p>
         {dataStorageShow.length ? dataStorageShow : <span>&nbsp;&nbsp;&nbsp;&nbsp; - 该镜像无存储卷定义</span>}
@@ -150,7 +150,7 @@ class ServiceAPI extends Component {
           </div>
           <MyComponent config={defaultEnv} />
         </div>
-      </Card>
+      </div>
     )
   }
 }
