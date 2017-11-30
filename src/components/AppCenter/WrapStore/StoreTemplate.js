@@ -19,6 +19,7 @@ import { calcuDate, encodeImageFullname } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX } from '../../../constants'
 import defaultImage from '../../../../static/img/appstore/defaultimage.png'
+import defaultApp from '../../../../static/img/appstore/defaultapp.png'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
 
@@ -336,7 +337,10 @@ class WrapComopnent extends React.Component {
             <img className={classNames({"wrapIcon": !isHot, "hotWrapIcon": isHot})}
                  src={
                    activeKey === 'app' ?
-                     `${API_URL_PREFIX}/pkg/icon/${item.pkgIconID}`
+                     item.pkgIconID ?
+                      `${API_URL_PREFIX}/pkg/icon/${item.pkgIconID}`
+                       :
+                       defaultApp
                      :
                        item.versions[0].iconID ?
                          `${API_URL_PREFIX}/pkg/icon/${item.versions[0].iconID}`
@@ -436,7 +440,10 @@ class WrapComopnent extends React.Component {
                 className="reactImg"
                 src={
                   activeKey === 'app' ?
-                    `${API_URL_PREFIX}/pkg/icon/${item.pkgIconID}`
+                    item.pkgIconID ?
+                      `${API_URL_PREFIX}/pkg/icon/${item.pkgIconID}`
+                      :
+                      defaultApp
                     :
                     item.versions[0].iconID ?
                       `${API_URL_PREFIX}/pkg/icon/${item.versions[0].iconID}`
