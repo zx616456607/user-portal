@@ -15,6 +15,7 @@ import { DEFAULT_REGISTRY } from '../../../../constants'
 import { encodeImageFullname } from '../../../../common/tools'
 import ServiceAPI from './ServiceAPI.js'
 import './style/ImageVersion.less'
+import NotificationHandler from '../../../../components/Notification'
 import { loadRepositoriesTags, deleteAlone } from '../../../../actions/harbor'
 
 const TabPane = Tabs.TabPane
@@ -67,8 +68,12 @@ class ImageVersion extends Component {
     this.state = {
       serverIp: '',
       dataAry: [],
+      aryName: [],
       edition: '',
+      delValue: '',
+      isBatchDel: false,
       warehouseName: [],
+      deleteVisible: false,
       detailVisible: false,
       imageDetail: null,
       processedName: '',
@@ -111,8 +116,6 @@ class ImageVersion extends Component {
       data.forEach((item, index) => {
         const curColums = {
           id: index,
-          size: '2M',
-          source: '容器导出镜像',
           edition: item,
         }
         curData.push(curColums)
@@ -129,6 +132,12 @@ class ImageVersion extends Component {
     })
   }
 
+  handleDelClose() {
+    this.setState({
+      deleteVisible: false,
+    })
+  }
+
   handleDetail(record) {
     this.setState({
       edition: record.edition,
@@ -137,16 +146,33 @@ class ImageVersion extends Component {
   }
 
   handleDelete(value) {
+    this.setState({
+      isBatchDel: false,
+      delValue: value,
+      deleteVisible: true,
+    })
+  }
+
+  handleOk() {
     const { deleteAlone, scopeDetail } = this.props
-    const { processedName } = this.state
+    const { processedName, aryName, delValue, isBatchDel } = this.state
+    let notify = new NotificationHandler()
     const query = {
-      tagName: value,
+      tagName: isBatchDel ? aryName.trim() : delValue,
       registry: DEFAULT_REGISTRY,
       repoName: processedName,
     }
     deleteAlone(query, {
       success: {
         func: res => {
+          if (isBatchDel) {
+            notify.success(`批量删除成功`)
+          } else {
+            notify.success(`删除 ${processedName} 成功`)
+          }
+          this.setState({
+            deleteVisible: false,
+          })
           scopeDetail.setState({
             imageDetailModalShow: false,
           })
@@ -154,39 +180,30 @@ class ImageVersion extends Component {
         },
         isAsync: true
       }, failed: {
-        func: err => {},
+        func: err => {
+          if (isBatchDel) {
+            notify.error(`批量删除失败`)
+          } else {
+            notify.error(`删除 ${processedName} 失败`)
+          }
+        },
         isAsync: true
       }
     })
   }
 
   handleBatchDel() {
-    const { deleteAlone, scopeDetail } = this.props
-    const { warehouseName, processedName } = this.state
+    const { warehouseName } = this.state
     let names = ''
     if (warehouseName) {
       warehouseName.forEach(item => {
-        names += `,${item}`
+        names += `, ${item}`
       })
     }
-    const query = {
-      tagName: names.replace(',', ''),
-      registry: DEFAULT_REGISTRY,
-      repoName: processedName,
-    }
-    deleteAlone(query, {
-      success: {
-        func: res => {
-          scopeDetail.setState({
-            imageDetailModalShow: false,
-          })
-          scopeDetail.loadRepos()
-        },
-        isAsync: true
-      }, failed: {
-        func: err => {},
-        isAsync: true
-      }
+    this.setState({
+      aryName: names.replace(',', ''),
+      isBatchDel: true,
+      deleteVisible: true,
     })
   }
 
@@ -196,9 +213,9 @@ class ImageVersion extends Component {
   }
 
   handleMenu(record, e) {
-    if(e.key === 'deploy'){
+    if (e.key === 'deploy') {
       this.handleDeploy(record.edition)
-    } if(e.key === 'del') {
+    } if (e.key === 'del') {
       this.handleDelete(record.edition)
     }
   }
@@ -215,7 +232,7 @@ class ImageVersion extends Component {
 
   render() {
     const { isFetching, detailAry } = this.props
-    const { edition, dataAry } = this.state
+    const { edition, dataAry, delValue, aryName, isBatchDel } = this.state
     const imageDetail = this.props.config
     const rowSelection = {
       onChange: this.onSelectChange.bind(this)
@@ -225,24 +242,7 @@ class ImageVersion extends Component {
       title: '版本',
       dataIndex: 'edition',
       key: 'edition',
-    }, {
-      title: '安全扫描',
-      dataIndex: 'scanning',
-      key: 'scanning',
-      render: (text, record) => <div>
-        <svg className='notscanning'>
-          <use xlinkHref='#notscanning' />
-        </svg>
-        <span style={{ marginLeft: 5 }}>未扫描, <a>开始扫描</a></span>
-      </div>
-    }, {
-      title: '大小',
-      dataIndex: 'size',
-      key: 'size',
-    }, {
-      title: '版本来源',
-      dataIndex: 'source',
-      key: 'source',
+      width: '35%',
     }, {
       title: '操作',
       dataIndex: 'comment',
@@ -264,6 +264,26 @@ class ImageVersion extends Component {
         }
       </div >
     }]
+
+    // {
+    //   title: '安全扫描',
+    //   dataIndex: 'scanning',
+    //   key: 'scanning',
+    //   render: (text, record) => <div>
+    //     <svg className='notscanning'>
+    //       <use xlinkHref='#notscanning' />
+    //     </svg>
+    //     <span style={{ marginLeft: 5 }}>未扫描, <a>开始扫描</a></span>
+    //   </div>
+    // }, {
+    //   title: '大小',
+    //   dataIndex: 'size',
+    //   key: 'size',
+    // }, {
+    //   title: '版本来源',
+    //   dataIndex: 'source',
+    //   key: 'source',
+    // },
 
     const selectBefore = (
       <Select defaultValue="全部版本" style={{ width: 100 }}>
@@ -292,7 +312,8 @@ class ImageVersion extends Component {
               </div>
               <div className='littleRight'>
                 <Input
-                  addonBefore={selectBefore}
+                  style={{ width: '80%' }}
+                  // addonBefore={selectBefore}
                   onChange={this.handleInt}
                   placeholder={"请输入关键词搜索"}
                   onPressEnter={this.handleSearch}
@@ -314,11 +335,20 @@ class ImageVersion extends Component {
             />
           </div>
         </div>
-        <Modal title="镜像版本详情" visible={this.state.detailVisible} onCancel={this.handleClose.bind(this)}
+        <Modal title="镜像版本详情" visible={this.state.detailVisible} style={{ paddingRight: 5 }}
+          onCancel={this.handleClose.bind(this)}
           footer={[
             <Button key="back" type="primary" size="large" onClick={this.handleClose.bind(this)}>知道了</Button>,
           ]}>
-          {<ServiceAPI imageTags={edition} fullname={imageDetail.name ? imageDetail.name : imageDetail} />}
+          <ServiceAPI imageTags={edition} fullname={imageDetail.name ? imageDetail.name : imageDetail} />
+        </Modal>
+        <Modal title="删除版本" visible={this.state.deleteVisible}
+          onCancel={this.handleDelClose.bind(this)}
+          onOk={this.handleOk.bind(this)}>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+            <span>确认要删除镜像版本 {isBatchDel ? aryName : delValue} ？</span>
+          </div>
         </Modal>
       </Card>
     )
