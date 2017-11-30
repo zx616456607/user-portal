@@ -789,7 +789,7 @@ class QueryLog extends Component {
     }
     if(logType == 'file'){
       const { currentServiceItem } = this.state
-      if(currentServiceItem.annotations
+      if (currentServiceItem && currentServiceItem.annotations
         && currentServiceItem.annotations.annotations
         && currentServiceItem.annotations.annotations.applogs){
         this.setState({
