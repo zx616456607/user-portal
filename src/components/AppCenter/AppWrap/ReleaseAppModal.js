@@ -15,6 +15,8 @@ import { getWrapGroupList } from '../../../actions/app_center'
 import isEmpty from 'lodash/isEmpty'
 import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
+import defaultApp from '../../../../static/img/appstore/defaultapp.png'
+
 const FormItem = Form.Item;
 const Option = Select.Option;
 const wrapTypelist = ['png','jpg','jpeg']
@@ -22,9 +24,7 @@ class ReleaseAppModal extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      visible: false,
-      uploaded: false,
-      fileList: []
+      visible: false
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -33,8 +33,6 @@ class ReleaseAppModal extends React.Component {
     if (oldVisible !== newVisible) {
       this.setState({
         visible: newVisible,
-        uploaded: false,
-        fileList: [],
         pkgIcon: ''
       })
       form.resetFields()
@@ -73,35 +71,36 @@ class ReleaseAppModal extends React.Component {
   confirmModal() {
     const { closeRleaseModal, form, releaseWrap, wrapManageList, currentApp } = this.props
     const { validateFields } = form
-    const { pkgIcon, uploaded } = this.state
+    const { pkgIcon } = this.state
     const { id } = currentApp
     let notify = new NotificationHandler()
     validateFields((errors, values) => {
       if (!!errors) {
         return
       }
-      if(!uploaded) {
-        return notify.info('请上传图片')
-      }
       const { fileName, fileNickName, classifyName, description} = values
       this.setState({
         loading: true
       })
-      releaseWrap(id, {
+      const body = {
         fileName,
         fileNickName,
         classifyName: classifyName[0],
-        description,
-        pkgIcon
-      }, {
+        description
+      }
+      if (pkgIcon) {
+        Object.assign(body, { pkgIcon })
+      }
+      notify.spin('发布中')
+      releaseWrap(id, body, {
         success: {
           func: () => {
+            notify.close()
+            notify.success('发布成功')
             wrapManageList({from: 0, size: 10})
             this.setState({
               visible: false,
-              loading: false,
-              uploaded: false,
-              fileList: []
+              loading: false
             })
             closeRleaseModal()
           },
@@ -122,8 +121,7 @@ class ReleaseAppModal extends React.Component {
   cancelModal() {
     const { closeRleaseModal } = this.props
     this.setState({
-      visible: false,
-      fileList: []
+      visible: false
     })
     closeRleaseModal()
   }
@@ -136,7 +134,7 @@ class ReleaseAppModal extends React.Component {
   }
   render() {
     const { form, currentApp, wrapGroupList, space } = this.props
-    const { visible, fileList, pkgIcon } = this.state
+    const { visible, pkgIcon } = this.state
     const { getFieldProps, getFieldError, isFieldValidating } = form;
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -196,14 +194,10 @@ class ReleaseAppModal extends React.Component {
         }
       },
       onChange: e => {
-        this.setState({
-          fileList: e.fileList
-        })
         if (e.file.status === 'done') {
           notificat.success('上传成功')
           this.setState({
-            pkgIcon: e.file.response.data.id,
-            uploaded: true
+            pkgIcon: e.file.response.data.id
           })
         }
         if (e.file.status === 'error') {
@@ -279,13 +273,15 @@ class ReleaseAppModal extends React.Component {
               
             >
               <span className="wrap-image">
-                <Icon key="iconPlus" type="plus" className="plus-icon verticalCenter"/>
-                {
-                  pkgIcon ?
-                    <img className="wrapLogo" src={`${API_URL_PREFIX}/pkg/icon/${pkgIcon}`} />
-                    :
-                    <span className="ant-upload-text">上传应用图标</span>
-                }
+                <img 
+                  className="wrapLogo" 
+                  src={
+                    pkgIcon ?
+                      `${API_URL_PREFIX}/pkg/icon/${pkgIcon}`
+                      :
+                      defaultApp
+                  } 
+                />
               </span>
             </Upload>
           </FormItem>
