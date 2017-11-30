@@ -169,7 +169,7 @@ class PublishImage extends React.Component {
             onSearch={this.searchData}
           />
           {
-            total && <div className="total">共计 {total} 条</div>
+            total ? <div className="total">共计 {total} 条</div> : null
           }
         </div>
         <Table

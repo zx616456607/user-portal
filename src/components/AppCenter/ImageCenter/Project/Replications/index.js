@@ -32,6 +32,7 @@ class Replications extends React.Component {
   }
 
   render() {
+    const { location } = this.props
     return (
       <QueueAnim className="project-replications">
         <div key="replications">
@@ -41,7 +42,7 @@ class Replications extends React.Component {
                 <Endpoints />
               </TabPane>
               <TabPane tab="同步规则" key="rules">
-                <Rules />
+                <Rules location={location}/>
               </TabPane>
             </Tabs>
           </Card>
@@ -53,8 +54,10 @@ class Replications extends React.Component {
 
 function mapStateToProps(state, props) {
   const { entities } = state
+  const { location } = props
   return {
     loginUser: entities.loginUser.info,
+    location
   }
 }
 

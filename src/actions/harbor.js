@@ -910,3 +910,25 @@ export function getTargetPolicies(registry, id, callback) {
     return dispatch(fetchGetTargetPolicies(registry, id, callback))
   }
 }
+
+export const GET_REPLICATION_POLICIES_REQUEST = 'GET_REPLICATION_POLICIES_REQUEST'
+export const GET_REPLICATION_POLICIES_SUCCESS = 'GET_REPLICATION_POLICIES_SUCCESS'
+export const GET_REPLICATION_POLICIES_FAILURE = 'GET_REPLICATION_POLICIES_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetReplicationPolicies(registry, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication`
+  return {
+    [FETCH_API]: {
+      types: [GET_REPLICATION_POLICIES_REQUEST,GET_REPLICATION_POLICIES_SUCCESS,GET_REPLICATION_POLICIES_FAILURE],
+      endpoint,
+      schema: {},
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function getReplicationPolicies(registry, callback) {
+  return dispatch => dispatch(fetReplicationPolicies(registry, callback))
+}

@@ -82,7 +82,7 @@ class ItemDetail extends Component {
   }
 
   render() {
-    const { projectDetail, params, projectMembers, loginUser, registry } = this.props
+    const { projectDetail, params, projectMembers, loginUser, registry, location } = this.props
     const { name } = projectDetail
     const members = projectMembers.list || []
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] == 1
@@ -119,7 +119,14 @@ class ItemDetail extends Component {
       )
     }
     if (isAdmin) {
-      tabPanels.push(<TabPane tab="镜像同步" key="sync"><ImageUpdate registry={registry} /></TabPane>)
+      tabPanels.push(
+        <TabPane tab="镜像同步" key="sync">
+          <ImageUpdate 
+            registry={registry} 
+            location={location}
+          />
+        </TabPane>
+      )
     }
     return (
       <div className="imageProject">
@@ -160,11 +167,13 @@ class ItemDetail extends Component {
 
 function mapStateToProps(state, props) {
   const { harbor, entities } = state
+  const { location } = props
   return {
     projectDetail: harbor.detail.data || {},
     projectMembers: harbor.members || {},
     loginUser: entities.loginUser.info,
-    registry: DEFAULT_REGISTRY
+    registry: DEFAULT_REGISTRY,
+    location
   }
 }
 

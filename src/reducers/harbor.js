@@ -514,6 +514,25 @@ function targets(state = {},action) {
   }
 }
 
+function rules(state = {}, action) {
+  switch(action.type) {
+    case ActionTypes.GET_REPLICATION_POLICIES_REQUEST:
+      return merge({}, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_REPLICATION_POLICIES_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data.map((item, index) => Object.assign(item, { key: index }))
+      })
+    case ActionTypes.GET_REPLICATION_POLICIES_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+    default: 
+      return state
+  }
+}
 export default function harborRegistry(state = { projects: {} }, action) {
   return {
     systeminfo: systeminfo(state.systeminfo, action),
@@ -530,5 +549,6 @@ export default function harborRegistry(state = { projects: {} }, action) {
     imageUpdate: imageUpdate(state.imageUpdate, action),
     imageUpdateLogs: imageUpdateLogs(state.imageUpdateLogs, action),
     targets: targets(state.targets, action),
+    rules: rules(state.rules, action)
   }
 }

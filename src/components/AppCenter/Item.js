@@ -21,6 +21,7 @@ import { LoadOtherImage, addOtherStore, } from '../../actions/app_center'
 import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
 import { ROLE_SYS_ADMIN } from '../../../constants'
+import { camelize } from 'humps'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -431,6 +432,7 @@ class ImageCenter extends Component {
         </TabPane>
       )
     })
+    const isAdmin = loginUser.harbor[camelize('has_admin_role')] === 1
     return (
       <QueueAnim className='ImageCenterBox' type='right'>
         <div id='ImageCenter' key='ImageCenterBox'>
@@ -440,7 +442,7 @@ class ImageCenter extends Component {
             <span className={itemType =='public' ?'tab active':'tab'} onClick={()=> this.setItem('public')}>公开仓库组</span>
             <span className={itemType =='publish' ?'tab active':'tab'} onClick={()=> this.setItem('publish')}>发布记录</span>
             {
-              loginUser.role === ROLE_SYS_ADMIN &&
+              isAdmin &&
               <span className={itemType =='replications' ?'tab active':'tab'} onClick={()=> this.setItem('replications')}>
               同步管理
               </span>
