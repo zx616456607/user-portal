@@ -139,6 +139,7 @@ exports.getRepositoriyConfig = function* () {
         body.config = {}
       }
       body.config.size = size
+      body.config.config.Image = manifest.config.digest
       resolve(body.config)
     })
   })

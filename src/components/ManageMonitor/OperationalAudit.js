@@ -1641,7 +1641,7 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[32]);
         break;
       case '62':
-        // 发布审核
+        // 应用发布审核
         showOperationalList.push(operationalList[33]);
         showOperationalList.push(operationalList[34]);
         break;
@@ -1652,6 +1652,12 @@ class OperationalAudit extends Component {
       case '64':
         // 镜像商店
         showOperationalList.push(operationalList[32]);
+        break;
+      case '65':
+        // 镜像发布审核
+        showOperationalList.push(operationalList[33]);
+        showOperationalList.push(operationalList[34]);
+        showOperationalList.push(operationalList[2]);
         break;
       case '0':
         //Unknown
