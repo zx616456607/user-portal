@@ -32,7 +32,7 @@ const vendors = [
   'rc-scroll-anim',
   'rc-tween-one',
   'react',
-  'react-codemirror',
+  'react-codemirror2',
   'react-dom',
   'react-intercom',
   'react-intl',
