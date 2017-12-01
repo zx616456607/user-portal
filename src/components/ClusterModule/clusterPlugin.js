@@ -42,7 +42,6 @@ class ClusterPlugin extends Component {
       getClusterPlugins(cluster.clusterID, {
         success: {
           func: res => {
-            debugger
             if (Object.keys(res).length > 0) {
               this.setState({
                 data: res[camelize(cluster.clusterID)].data
