@@ -27,15 +27,11 @@ let CreateStepFirst = React.createClass({
   componentWillMount() {
     this.getAllClusters()
   },
-  componentDidMount() {
-    setTimeout(function () {
-      document.getElementById('projectName').focus()
-    }, 100)
-  },
   componentWillReceiveProps(nextProps) {
     const { choosableClusters, selectedClusters } = this.state;
-    const { step, form, scope } = nextProps;
-    if (!step) {
+    const { step: oldStep } = this.props
+    const { step: newStep, form } = nextProps;
+    if (oldStep && !newStep) {
       form.resetFields()
       this.setState({
         selectedClusters: [],
@@ -44,6 +40,11 @@ let CreateStepFirst = React.createClass({
     }
     if (!choosableClusters.length && !selectedClusters.length) {
       this.getAllClusters()
+    }
+    if (!oldStep || oldStep !== 'first' && newStep === 'first') {
+      setTimeout(function () {
+        document.getElementById('projectName').focus()
+      }, 100)
     }
   },
   getAllClusters() {
