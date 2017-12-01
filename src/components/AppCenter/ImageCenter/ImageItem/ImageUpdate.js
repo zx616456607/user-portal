@@ -1255,7 +1255,7 @@ function mapStateToProp(state, props) {
   const { data: allTargetList } = allTargets
   return {
     detail,
-    loading: imageUpdate.isFetching,
+    loading: isReplications ? rules.isFetching : imageUpdate.isFetching,
     rulesData: isReplications ? ruleList : policies || [],
     taskUpdataData: jobs || [],
     targets: isReplications ? allTargetList : targets || [],
