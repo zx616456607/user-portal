@@ -147,6 +147,8 @@ let SvnComponent = React.createClass({
               notification.error('所添加项目（' + config.name + '）已经存在，修改后重试')
             } else if (res.statusCode === 401) {
               notification.error('用户名、密码错误，或该用户无权访问')
+            } else if (res.statusCode === 400) {
+              notification.info('只支持 http, https, svn 开头的协议地址')
             } else {
               notification.error('添加失败：' + JSON.stringify(res))
             }
