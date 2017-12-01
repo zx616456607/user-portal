@@ -174,9 +174,9 @@ class ImageVersion extends Component {
           this.setState({
             deleteVisible: false,
           })
-          scopeDetail.setState({
-            imageDetailModalShow: false,
-          })
+          // scopeDetail.setState({
+          //   imageDetailModalShow: false,
+          // })
           scopeDetail.loadRepos()
         },
         isAsync: true
