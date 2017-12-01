@@ -139,7 +139,7 @@ class CodeRepo extends Component {
   }
 
   render() {
-    const { repos, projectDetail } = this.props
+    const { repos, projectDetail, isAdminAndHarbor, location } = this.props
     const { publishModal, currentImage } = this.state
     let { isFetching, list, server, total } = repos || {}
     list = list || []
@@ -312,7 +312,7 @@ class CodeRepo extends Component {
           transitionName="move-right"
           onCancel={()=> this.setState({imageDetailModalShow:false})}
         >
-          <ProjectDetail server={server} scope={this} config={this.state.currentImage} />
+          <ProjectDetail isAdminAndHarbor={isAdminAndHarbor} location={location} server={server} scope={this} config={this.state.currentImage} />
         </Modal>
         {/* 删除镜像 Modal */}
         <Modal title="删除镜像" visible={this.state.deleteRepoVisible}
