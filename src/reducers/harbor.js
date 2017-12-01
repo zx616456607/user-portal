@@ -11,6 +11,7 @@
  */
 import * as ActionTypes from '../actions/harbor'
 import merge from 'lodash/merge'
+import { TENX_STORE } from '../../constants'
 
 function systeminfo(state = {}, action) {
   const { registry } = action
@@ -60,12 +61,15 @@ function projects(state = {}, action) {
         }
       })
     case ActionTypes.HARBOR_PROJECT_LIST_SUCCESS:
+      // 隐藏tenx_store镜像仓库
+      let total = action.response.result.total
+      let hasTenxStore = action.response.result.data.some(item => item.name !== TENX_STORE)
       return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
           server: action.response.result.server,
-          list: action.response.result.data,
-          total: action.response.result.total,
+          list: action.response.result.data.filter(item => item.name !== TENX_STORE),
+          total: hasTenxStore ? total - 1 : total,
         }
       })
     case ActionTypes.HARBOR_PROJECT_LIST_FAILURE:
@@ -490,6 +494,45 @@ function imageUpdateLogs(state = {},action) {
   }
 }
 
+function targets(state = {},action) {
+  switch(action.type){
+    case ActionTypes.GET_TARGETS_REQUEST:
+      return merge({}, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_TARGETS_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data
+      })
+    case ActionTypes.GET_TARGETS_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function rules(state = {}, action) {
+  switch(action.type) {
+    case ActionTypes.GET_REPLICATION_POLICIES_REQUEST:
+      return merge({}, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_REPLICATION_POLICIES_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data.map((item, index) => Object.assign(item, { key: index }))
+      })
+    case ActionTypes.GET_REPLICATION_POLICIES_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+    default: 
+      return state
+  }
+}
 export default function harborRegistry(state = { projects: {} }, action) {
   return {
     systeminfo: systeminfo(state.systeminfo, action),
@@ -505,5 +548,7 @@ export default function harborRegistry(state = { projects: {} }, action) {
     configurations: getConfigurations(state.configurations, action),
     imageUpdate: imageUpdate(state.imageUpdate, action),
     imageUpdateLogs: imageUpdateLogs(state.imageUpdateLogs, action),
+    targets: targets(state.targets, action),
+    rules: rules(state.rules, action)
   }
 }

@@ -15,7 +15,7 @@ const registry_harbor = require('./registry_harbor')
 /*------------------------ apps store approve start--------------------*/
 exports.approveApps = function* () {
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
+  const api = apiFactory.getApi(loginUser, 180000)
   const body = this.request.body
   const result = yield api.appstore.updateBy(['apps','approval'], null, body)
   this.body = result
@@ -44,31 +44,34 @@ exports.getStorelist = function* () {
   this.query.detail = 1
   yield registry_harbor.getProjectRepositories.call(this)
   const repo_detail = this.body
-  for (let i=0;i<result.data.apps.length;i++){
-    for (let j=0;j<repo_detail.data.length;j++){
+  if (result.data.apps && result.data.apps.length > 0) {
+    for (let i=0;i<result.data.apps.length;i++){
       result.data.apps[i].download_times = 0
-      if (result.data.apps[i].resource_name == repo_detail.data[j].name){
-        result.data.apps[i].download_times = repo_detail.data[j].pull_count
+      for (let j=0;j<repo_detail.data.length;j++){
+        if (result.data.apps[i].resource_name === repo_detail.data[j].name){
+          result.data.apps[i].download_times = repo_detail.data[j].pull_count
+          break
+        }
       }
     }
-  }
-  if (query.download_times){
-    result.data.apps.sort((a,b) => {
-      return (a.download_times < b.download_times) == (query.download_times == 'd')
-    })
-  }
-  if (query.publish_time){
-    result.data.apps.sort((a,b) => {
-      return (a.publish_time < b.publish_time) == (query.publish_time == 'd')
-    })
-  }
-  if (query.app_name){
-    result.data.apps.sort((a,b) => {
-      return (a.app_name < b.app_name) == (query.app_name == 'd')
-    })
-  }
-  if (query.from && query.size){
-    result.data.apps = result.data.apps.slice(query.from,query.from+query.size)
+    if (query.download_times && query.download_times === 'd'){
+      result.data.apps.sort((a,b) => {
+        return b.download_times - a.download_times
+      })
+    }
+    if (query.publish_time && query.publish_time === 'd'){
+      result.data.apps.sort((a,b) => {
+        return new Date(b.publish_time).getTime() - new Date(a.publish_time).getTime()
+      })
+    }
+    if (query.app_name && query.app_name === 'd'){
+      result.data.apps.sort((a,b) => {
+        return a.app_name < b.app_name ? 1 : -1
+      })
+    }
+    if (query.from && query.size){
+      result.data.apps = result.data.apps.slice(query.from,query.from+query.size)
+    }
   }
   this.body = result
 }
@@ -124,14 +127,15 @@ exports.getImageStatus = function* (){
     this.message = {message:"request repositories is empty"}
     return
   }
-  const repositories = body.image.split('/')
-  if (repositories.length != 3){
-    this.statusCode = 400
-    this.message = {message:"request repositories is invalid"}
-    return
+  let firstIndex = body.image.indexOf('/')
+  if (firstIndex > 1) {
+    let fullName = body.image.substring(firstIndex + 1)
+    let splitIndex = fullName.indexOf('/')
+    if (splitIndex > 1) {
+      this.params.user = fullName.substring(0, splitIndex)
+      this.params.name = fullName.substring(splitIndex + 1)
+    }
   }
-  this.params.user = repositories[1]
-  this.params.name = repositories[2]
   yield registry_harbor.getRepositoriesTags.call(this)
   if ( !this.body.data || this.body.data.length == 0){
     return
@@ -148,7 +152,10 @@ exports.getImageStatus = function* (){
       status:result.data.status[i]
     })
   }
-  result.name = result.data.name
+  result.icon = result.data.icon
+  result.description = result.data.description
+  result.file_nick_name = result.data.file_nick_name
+  result.classify_name = result.data.classify_name
   result.data = arrayResult
   this.body = result
 }
@@ -189,6 +196,8 @@ exports.getIcon = function* () {
 
 function* getAppStoreProjectID(){
   this.query.project_name = 'tenx_store'
+  // Search in public scope
+  this.query.is_public = 1
   yield registry_harbor.getProjects.call(this)
   if (this.body.total == 0){
     return -1

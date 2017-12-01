@@ -1164,6 +1164,9 @@ function formatResourceName(resourceName, resourceId) {
     if (newBody.fileNickName) {
       return newBody.fileNickName
     }
+    if (newBody.imageTagName) {
+      return newBody.imageTagName
+    }
   } else {
     if (resourceName.length == 0) {
       if (resourceId.length == 0) {
@@ -1638,7 +1641,7 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[32]);
         break;
       case '62':
-        // 发布审核
+        // 应用发布审核
         showOperationalList.push(operationalList[33]);
         showOperationalList.push(operationalList[34]);
         break;
@@ -1649,6 +1652,12 @@ class OperationalAudit extends Component {
       case '64':
         // 镜像商店
         showOperationalList.push(operationalList[32]);
+        break;
+      case '65':
+        // 镜像发布审核
+        showOperationalList.push(operationalList[33]);
+        showOperationalList.push(operationalList[34]);
+        showOperationalList.push(operationalList[2]);
         break;
       case '0':
         //Unknown

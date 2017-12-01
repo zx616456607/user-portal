@@ -272,13 +272,21 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     })
   }
   // 设置环境变量
+  let {
+    defaultEnv,
+  } = imageConfigs
   if (envKeys) {
+    const envObj = {}
+    defaultEnv && defaultEnv.forEach(env => {
+      const [ key, ...value ] = env.split('=')
+      envObj[key] = value.join('=')
+    })
     envKeys.forEach(key => {
       if (!key.deleted) {
         const keyValue = key.value
         const envName = fieldsValues[`envName${keyValue}`]
         const envValue = fieldsValues[`envValue${keyValue}`]
-        if (envName) {
+        if (envName && envValue !== envObj[envName]) {
           deployment.addContainerEnv(serviceName, envName, envValue)
         }
       }

@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 import { loadRepositoriesTagConfigInfo } from '../../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import './style/ServiceAPI.less'
+import {encodeImageFullname} from "../../../../common/tools";
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -21,7 +22,7 @@ let MyComponent = React.createClass({
   formatEnv: function (envList) {
     //this function for format the env list ,change the single elem to an new json
     let newList = new Array();
-    envList.map((item) => {
+    envList.forEach((item) => {
       let tempList = item.split("=");
       let tempElem = {
         "envName": tempList[0],
@@ -68,7 +69,7 @@ class ServiceAPI extends Component {
   componentWillMount() {
     const { registry, loadRepositoriesTagConfigInfo } = this.props;
     const { fullname, imageTags} = this.props;
-    let processedName = processImageName(fullname)
+    let processedName = encodeImageFullname(fullname)
     loadRepositoriesTagConfigInfo(registry, processedName, imageTags);
   }
   render() {
@@ -134,7 +135,7 @@ class ServiceAPI extends Component {
     }
     let { defaultEnv } = configList;
     return (
-      <Card className="imageServiceAPI" key='imageserviceapi'>
+      <div className="imageServiceAPI" key='imageserviceapi'>
         <p><li>服务端口:&nbsp;&nbsp;{portsShow ? portsShow:"该镜像无端口定义"}</li></p>
         <p><li>存储卷</li></p>
         {dataStorageShow.length ? dataStorageShow : <span>&nbsp;&nbsp;&nbsp;&nbsp; - 该镜像无存储卷定义</span>}
@@ -149,23 +150,10 @@ class ServiceAPI extends Component {
           </div>
           <MyComponent config={defaultEnv} />
         </div>
-      </Card>
+      </div>
     )
   }
 }
-
-function processImageName(name) {
-  let arr = name.split('/')
-  if (arr.length > 2) {
-    name = arr[0] + '/' + arr[1]
-    for (let i = 2; i < arr.length; i++) {
-      name += "%2F"
-      name += arr[i]
-    }
-  }
-  return name
-}
-
 
 function mapStateToProps(state, props) {
   const defaultImageDetailTagConfig = {

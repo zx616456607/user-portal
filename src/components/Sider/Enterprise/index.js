@@ -546,14 +546,14 @@ class Sider extends Component {
                       {/*<span><div className='sideCircle'></div> 应用商店</span>*/}
                     {/*</Link>*/}
                   {/*</Menu.Item>*/}
-                  <Menu.Item key='stack_center'>
-                    <Link to='/app_center/stack_center'>
-                      <span><div className='sideCircle'></div> 编排文件</span>
-                    </Link>
-                  </Menu.Item>
                   <Menu.Item key='wrap_manage'>
                     <Link to='/app_center/wrap_manage'>
                       <span><div className='sideCircle'></div> 应用包管理</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='stack_center'>
+                    <Link to='/app_center/stack_center'>
+                      <span><div className='sideCircle'></div> 编排文件</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='wrap_store'>

@@ -38,6 +38,7 @@ class PublishImage extends React.Component {
     const query = {
       from: (current - 1) * 10,
       size: 10,
+      sort: 'd,publish_time'
     }
     filterName && Object.assign(query, { filter: `file_nick_name,${filterName}` })
     this.setState({
@@ -123,7 +124,8 @@ class PublishImage extends React.Component {
       title: '镜像名称',
       dataIndex: 'image',
       key: 'image',
-      width: '20%'
+      width: '20%',
+      render: text => text && text.split('/')[1]
     }, {
       title: '发布名称',
       dataIndex: 'fileNickName',
@@ -167,7 +169,7 @@ class PublishImage extends React.Component {
             onSearch={this.searchData}
           />
           {
-            total && <div className="total">共计 {total} 条</div>
+            total ? <div className="total">共计 {total} 条</div> : null
           }
         </div>
         <Table

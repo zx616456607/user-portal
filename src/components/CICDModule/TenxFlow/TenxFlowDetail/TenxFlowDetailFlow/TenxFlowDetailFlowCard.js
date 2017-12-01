@@ -131,13 +131,18 @@ function currentStatus(status) {
   //this function for show different status
   const podName = status ? status.podName : ''
   const stageStatus = !!status ? status.status : 3;
+  const noRunningCheckDetail = <p style={{bottom: '60px'}}>
+    <Tooltip title="任务未运行">
+      <span className="diabledColor">查看详情</span>
+    </Tooltip>
+  </p>
   switch (stageStatus) {
     case 0:
       return (
         <div className='finishStatus status'>
           <Icon type="check-circle-o" />
           <p><FormattedMessage {...menusText.finish} /></p>
-          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看详情</Link> : ''}</p>
+          {noRunningCheckDetail}
         </div>
       );
     case 2:
@@ -153,7 +158,7 @@ function currentStatus(status) {
         <div className='failStatus status'>
           <Icon type="cross-circle-o" />
           <p><FormattedMessage {...menusText.fail} /></p>
-          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看详情</Link> : ''}</p>
+          {noRunningCheckDetail}
         </div>
       );
     case 3:
@@ -161,7 +166,7 @@ function currentStatus(status) {
         <div className='runningStatus status'>
           <Icon type="clock-circle-o" />
           <p><FormattedMessage {...menusText.wait} /></p>
-          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看详情</Link> : ''}</p>
+          {noRunningCheckDetail}
         </div>
       );
   }

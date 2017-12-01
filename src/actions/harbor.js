@@ -12,7 +12,7 @@
 
 import { FETCH_API } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
-import { toQuerystring } from '../common/tools'
+import { toQuerystring, encodeImageFullname } from '../common/tools'
 
 export const HARBOR_PROJECT_LIST_REQUEST = 'HARBOR_PROJECT_LIST_REQUEST'
 export const HARBOR_PROJECT_LIST_SUCCESS = 'HARBOR_PROJECT_LIST_SUCCESS'
@@ -337,7 +337,7 @@ function fetchRepositoriesTags(registry, imageName, callback) {
     callback,
     [FETCH_API]: {
       types: [ HARBOR_REPOSITORIES_TAGS_REQUEST, HARBOR_REPOSITORIES_TAGS_SUCCESS, HARBOR_REPOSITORIES_TAGS_FAILURE ],
-      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${imageName}/tags`,
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${encodeImageFullname(imageName)}/tags`,
       schema: {}
     }
   }
@@ -399,6 +399,33 @@ export function deleteRepo(registry, repoName, callback) {
   }
 }
 
+export const DELETE_DETAIL_ALONE_REQUEST = 'DELETE_DETAIL_ALONE_REQUEST'
+export const DELETE_DETAIL_ALONE_SUCCESS = 'DELETE_DETAIL_ALONE_SUCCESS'
+export const DELETE_DETAIL_ALONE_FAILURE = 'DELETE_DETAIL_ALONE_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDeleteAlone(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${query.registry}/repositories/${query.repoName}/tags/${query.tagName}`
+  return {
+    [FETCH_API]: {
+      types: [ DELETE_DETAIL_ALONE_REQUEST, DELETE_DETAIL_ALONE_SUCCESS, DELETE_DETAIL_ALONE_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function deleteAlone(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteAlone(query, callback))
+  }
+}
+
 export const DELETE_HARBOR_PROJECT_REQUEST = 'DELETE_HARBOR_PROJECT_REQUEST'
 export const DELETE_HARBOR_PROJECT_SUCCESS = 'DELETE_HARBOR_PROJECT_SUCCESS'
 export const DELETE_HARBOR_PROJECT_FAILURE = 'DELETE_HARBOR_PROJECT_FAILURE'
@@ -440,7 +467,7 @@ function fetchRepositoriesTagConfigInfo(registry, imageName, tag, callback) {
     callback,
     [FETCH_API]: {
       types: [ HARBOR_REPOSITORIES_TAG_CONFIGINFO_REQUEST, HARBOR_REPOSITORIES_TAG_CONFIGINFO_SUCCESS, HARBOR_REPOSITORIES_TAG_CONFIGINFO_FAILURE ],
-      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${imageName}/tags/${tag}/configinfo`,
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${encodeImageFullname(imageName)}/tags/${tag}/configinfo`,
       schema: {}
     }
   }
@@ -615,7 +642,7 @@ export const CREATE_TARGET_STORE_SUCCESS = 'CREATE_TARGET_STORE_SUCCESS'
 export const CREATE_TARGET_STORE_FAILURE = 'CREATE_TARGET_STORE_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchCreateTargeStore(registry, body,callback) {
+function fetchCreateTargeStore(registry, body, callback) {
   let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets`
   return {
     [FETCH_API]: {
@@ -776,4 +803,132 @@ export function getTasklogs(registry, id, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchGetImageUpdateTaskLog(registry, id, callback))
   }
+}
+
+export const GET_TARGETS_REQUEST = 'GET_TARGETS_REQUEST'
+export const GET_TARGETS_SUCCESS = 'GET_TARGETS_SUCCESS'
+export const GET_TARGETS_FAILURE = 'GET_TARGETS_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchGetTargets(registry, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets`
+  if (query) {
+    endpoint = `${endpoint}?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [ GET_TARGETS_REQUEST, GET_TARGETS_SUCCESS, GET_TARGETS_FAILURE ],
+      endpoint,
+      schema: {},
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function getTargets(registry, query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchGetTargets(registry, query, callback))
+  }
+}
+
+export const DELETE_TARGET_BY_ID_REQUEST = 'DELETE_TARGET_BY_ID_REQUEST'
+export const DELETE_TARGET_BY_ID_SUCCESS = 'DELETE_TARGET_BY_ID_SUCCESS'
+export const DELETE_TARGET_BY_ID_FAILURE = 'DELETE_TARGET_BY_ID_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDeleteTargetById(registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/${id}`
+  return {
+    [FETCH_API]: {
+      types: [ DELETE_TARGET_BY_ID_REQUEST, DELETE_TARGET_BY_ID_SUCCESS, DELETE_TARGET_BY_ID_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function deleteTargetById(registry, id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteTargetById(registry, id, callback))
+  }
+}
+
+export const UPDATE_TARGET_BY_ID_REQUEST = 'UPDATE_TARGET_BY_ID_REQUEST'
+export const UPDATE_TARGET_BY_ID_SUCCESS = 'UPDATE_TARGET_BY_ID_SUCCESS'
+export const UPDATE_TARGET_BY_ID_FAILURE = 'UPDATE_TARGET_BY_ID_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateTargetById(registry, id, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/${id}`
+  return {
+    [FETCH_API]: {
+      types: [ UPDATE_TARGET_BY_ID_REQUEST, UPDATE_TARGET_BY_ID_SUCCESS, UPDATE_TARGET_BY_ID_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function updateTargetById(registry, id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateTargetById(registry, id, body, callback))
+  }
+}
+
+export const GET_TARGET_POLICIES_REQUEST = 'GET_TARGET_POLICIES_REQUEST'
+export const GET_TARGET_POLICIES_SUCCESS = 'GET_TARGET_POLICIES_SUCCESS'
+export const GET_TARGET_POLICIES_FAILURE = 'GET_TARGET_POLICIES_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchGetTargetPolicies(registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/${id}/policies`
+  return {
+    [FETCH_API]: {
+      types: [ GET_TARGET_POLICIES_REQUEST, GET_TARGET_POLICIES_SUCCESS, GET_TARGET_POLICIES_FAILURE ],
+      endpoint,
+      schema: {},
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function getTargetPolicies(registry, id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchGetTargetPolicies(registry, id, callback))
+  }
+}
+
+export const GET_REPLICATION_POLICIES_REQUEST = 'GET_REPLICATION_POLICIES_REQUEST'
+export const GET_REPLICATION_POLICIES_SUCCESS = 'GET_REPLICATION_POLICIES_SUCCESS'
+export const GET_REPLICATION_POLICIES_FAILURE = 'GET_REPLICATION_POLICIES_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetReplicationPolicies(registry, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication`
+  return {
+    [FETCH_API]: {
+      types: [GET_REPLICATION_POLICIES_REQUEST,GET_REPLICATION_POLICIES_SUCCESS,GET_REPLICATION_POLICIES_FAILURE],
+      endpoint,
+      schema: {},
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function getReplicationPolicies(registry, callback) {
+  return dispatch => dispatch(fetReplicationPolicies(registry, callback))
 }

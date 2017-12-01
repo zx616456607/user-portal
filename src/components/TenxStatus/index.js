@@ -153,7 +153,7 @@ const messages = defineMessages({
   },
   CheckReject: {
     id: 'TenxStatus.CheckReject',
-    defaultMessage: '审核未通过'
+    defaultMessage: '已拒绝'
   },
   OffShelf: {
     id: 'TenxStatus.OffShelf',

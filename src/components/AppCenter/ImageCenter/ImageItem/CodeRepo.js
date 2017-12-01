@@ -15,10 +15,12 @@ import { Modal, Menu, Dropdown, Table, Button, Input } from 'antd'
 import { browserHistory } from 'react-router'
 import { camelize } from 'humps'
 import { loadProjectRepos, deleteRepo } from '../../../../actions/harbor'
+import { encodeImageFullname } from '../../../../common/tools'
 import NotificationHandler from '../../../../components/Notification'
 import '../style/CodeRepo.less'
 import ProjectDetail from '../ProjectDetail'
 import PublishModal from './PublishModal'
+import { DEFAULT_REGISTRY } from '../../../../constants'
 
 const notification = new NotificationHandler()
 
@@ -76,8 +78,8 @@ class CodeRepo extends Component {
       })
       this.loadRepos()
     }
-    let processedImageName = processImageName(selectedRepo)
-    deleteRepo(this.DEFAULT_QUERY, processedImageName, {
+    let processedImageName = encodeImageFullname(selectedRepo)
+    deleteRepo(DEFAULT_REGISTRY, processedImageName, {
       success: {
         func: () => {
           doSuccess()
@@ -128,14 +130,14 @@ class CodeRepo extends Component {
   closeImageDetailModal(){
     this.setState({imageDetailModalShow:false})
   }
-  
+
   confirmPublishModal() {
     this.setState({
       publishModal: false,
       currentImage: ''
     })
   }
-  
+
   render() {
     const { repos, projectDetail } = this.props
     const { publishModal, currentImage } = this.state
@@ -169,10 +171,19 @@ class CodeRepo extends Component {
         title: '地址',
         dataIndex: 'address',
         key: 'address',
-        width:'35%',
+        width:'33%',
         render: (text, row) => {
           return (
             <div className="imgurl">镜像地址：{server}/{row.name}</div>
+          )
+        }
+      }, {
+        title: '版本数',
+        dataIndex: 'count',
+        key: 'count',
+        render: (text, row) => {
+          return (
+            <div className="imgurl">版本数：{row.tagsCount}</div>
           )
         }
       }, {
@@ -301,7 +312,7 @@ class CodeRepo extends Component {
           transitionName="move-right"
           onCancel={()=> this.setState({imageDetailModalShow:false})}
         >
-          <ProjectDetail server={server} scope={this} config={this.state.currentImage}/>
+          <ProjectDetail server={server} scope={this} config={this.state.currentImage} />
         </Modal>
         {/* 删除镜像 Modal */}
         <Modal title="删除镜像" visible={this.state.deleteRepoVisible}
@@ -315,18 +326,6 @@ class CodeRepo extends Component {
   }
 }
 
-function processImageName(name) {
-  let arr = name.split('/')
-  if (arr.length > 2) {
-    name = arr[0] + '/' + arr[1]
-    for (let i = 2; i < arr.length; i++) {
-      name += "%2F"
-
-      name += arr[i]
-    }
-  }
-  return name
-}
 function mapStateToProps(state, props) {
   const { harbor } = state
   return {

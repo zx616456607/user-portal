@@ -34,16 +34,38 @@ export default class CheckPage extends React.Component {
   }
   render() {
     const { activeKey } = this.state
+    const imageComposeStyle = classNames({
+      'tabs_item_style': true,
+      'tabs_item_selected_style': activeKey === "image"
+    })
+    const appComposeStyle = classNames({
+      'tabs_item_style': true,
+      'tabs_item_selected_style': activeKey === "app"
+    })
     return(
-      <QueueAnim>
-        <Tabs key="checkPage" type="card" onChange={this.tabChange} className="checkPage" activeKey={activeKey}>
-          <TabPane tab="镜像发布" key="image">
-            <ImageCheck activeKey={activeKey}/>
-          </TabPane>
-          <TabPane tab="应用包" key="app">
-            <AppCheck activeKey={activeKey}/>
-          </TabPane>
-        </Tabs>
+      <QueueAnim className="checkPage">
+        <ul className='tabs_header_style'>
+          <li className={imageComposeStyle}
+              onClick={this.tabChange.bind(this, "image")}
+          >
+            镜像审核
+          </li>
+          <li className={appComposeStyle}
+              onClick={this.tabChange.bind(this, "app")}
+          >
+            应用包审核
+          </li>
+        </ul>
+        {activeKey === "image" ? [<ImageCheck activeKey={activeKey} />] : null}
+        {activeKey === "app" ? [<AppCheck activeKey={activeKey} />] : null}
+        {/*<Tabs key="checkPage" type="card" onChange={this.tabChange} className="checkPage" activeKey={activeKey}>*/}
+          {/*<TabPane tab="镜像审核" key="image">*/}
+            {/*<ImageCheck activeKey={activeKey}/>*/}
+          {/*</TabPane>*/}
+          {/*<TabPane tab="应用包审核" key="app">*/}
+            {/*<AppCheck activeKey={activeKey}/>*/}
+          {/*</TabPane>*/}
+        {/*</Tabs>*/}
       </QueueAnim>
     )
   }

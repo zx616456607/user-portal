@@ -569,7 +569,10 @@ let LogComponent = React.createClass({
       const logDetail = (
         <div className={logDetailClass} key={'logDetail' + index} id={item.timeNano}>
           <span className='instanceSpan'>{'[' + item.name + ']'}</span>
-          <span className='instanceSpan'>{timeFormat(item.timeNano)}</span>
+          {
+            item.timeNano &&
+            <span className='instanceSpan'>{timeFormat(item.timeNano)}</span>
+          }
           <span className='logSpan'>
             <span dangerouslySetInnerHTML={{ __html: keywordFormat(item.log, scope) }}></span>
           </span>
@@ -786,7 +789,7 @@ class QueryLog extends Component {
     }
     if(logType == 'file'){
       const { currentServiceItem } = this.state
-      if(currentServiceItem.annotations
+      if (currentServiceItem && currentServiceItem.annotations
         && currentServiceItem.annotations.annotations
         && currentServiceItem.annotations.annotations.applogs){
         this.setState({

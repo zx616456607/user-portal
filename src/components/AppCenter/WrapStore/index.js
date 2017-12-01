@@ -12,7 +12,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Tabs } from 'antd'
-import { getWrapStoreList, getWrapGroupList } from '../../../actions/app_center'
+import { getWrapStoreList, getWrapStoreHotList, getWrapGroupList } from '../../../actions/app_center'
 import { getAppsList, getAppsHotList } from '../../../actions/app_store'
 import './style/index.less'
 import StoreTemplate from './StoreTemplate'
@@ -24,9 +24,7 @@ class AppWrapStore extends React.Component {
     super(props)
     this.changeTab = this.changeTab.bind(this)
     this.getStoreList = this.getStoreList.bind(this)
-    this.changeSort = this.changeSort.bind(this)
-    this.filterClassify = this.filterClassify.bind(this)
-    this.updatePage = this.updatePage.bind(this)
+    this.updateParentState = this.updateParentState.bind(this)
     this.state = {
       current: 1,
       filterName: '',
@@ -41,6 +39,7 @@ class AppWrapStore extends React.Component {
     this.getStoreList()
   }
   changeTab(activeKey){
+    const { getAppsHotList, getWrapStoreHotList } = this.props
     this.setState({
       current: 1,
       filterName: '',
@@ -48,13 +47,15 @@ class AppWrapStore extends React.Component {
       sort_by: 'publish_time',
       activeKey
     }, this.getStoreList)
+    getAppsHotList()
+    getWrapStoreHotList()
   }
   getStoreList() {
     const { getWrapStoreList, getAppsList } = this.props
     const { current, filterName, sort_by, classify, activeKey } = this.state
     let query = {
-      from: (current - 1) * 10,
-      size: 10
+      from: (current - 1) * 12,
+      size: 12
     }
     if (activeKey === 'image') {
       Object.assign(query, { filter: 'type,2,publish_status,2' })
@@ -90,59 +91,47 @@ class AppWrapStore extends React.Component {
     }
     getAppsList(query)
   }
-  changeSort(sort) {
-    const { sort_by } = this.state
-    if (sort_by === sort) return
+  updateParentState(key, value, callback) {
     this.setState({
-      sort_by: sort,
-    },  this.getStoreList)
-  }
-  filterValue(value) {
-    this.setState({
-      filterName: value
-    }, this.getStoreList)
-  }
-  filterClassify(value) {
-    this.setState({
-      classify: value
-    }, this.getStoreList)
-  }
-  updatePage(current) {
-    this.setState({
-      current
-    }, this.getStoreList)
+      [key]: value
+    }, callback && this.getStoreList)
   }
   
   render() {
-    const { wrapGroupList, wrapStoreList, wrapStoreHotList, role, imageStoreList, imageHotList } = this.props
-    const { activeKey, current, classify, sort_by } = this.state
+    const { 
+      wrapGroupList, wrapStoreList, wrapStoreHotList, 
+      role, imageStoreList, imageHotList, wrapStoreFetching,
+      wrapHotFetching, imageStoreFetching, imageHotFetching
+    } = this.props
+    const { activeKey, current, classify, sort_by, rectStyle } = this.state
     return (
       <QueueAnim>
         <div key="appWrapStore" className="appWrapStore">
           <div className="wrapStoreHead">
-            <div className="storeHeadText">商店</div>
+            <div className="storeHeadText">应用商店</div>
             <CommonSearchInput 
-              placeholder={activeKey === 'app' ? "请输入应用包名称搜索" : "请输入镜像名称搜索"}
+              placeholder={activeKey === 'app' ? "请输入应用包名称搜索" : "请输入镜像名称或发布名称搜索"}
               size="large"
               style={{ width: 280 }}
-              onSearch={value => this.filterValue(value)}
+              onSearch={value => this.updateParentState('filterName', value, true)}
             />
           </div>
           <Tabs className="storeTabs" activeKey={activeKey} onChange={this.changeTab}>
-            <TabPane tab="镜像应用商店" key="image">
+            <TabPane tab="镜像商店" key="image">
               <StoreTemplate
                 activeKey={activeKey}
                 current={current}
                 classify={classify}
                 sort_by={sort_by}
+                rectStyle={rectStyle}
                 wrapGroupList={wrapGroupList}
                 dataSource={imageStoreList}
+                dataFetching={imageStoreFetching}
                 dataHotList={imageHotList}
+                dataHotFetching={imageHotFetching}
                 role={role}
                 getStoreList={this.getStoreList}
-                changeSort={this.changeSort}
-                filterClassify={this.filterClassify}
-                updatePage={this.updatePage}
+                updateParentState={this.updateParentState}
               />
             </TabPane>
             <TabPane tab="应用包商店" key="app">
@@ -151,14 +140,15 @@ class AppWrapStore extends React.Component {
                 current={current}
                 classify={classify}
                 sort_by={sort_by}
+                rectStyle={rectStyle}
                 wrapGroupList={wrapGroupList}
                 dataSource={wrapStoreList}
+                dataFetching={wrapStoreFetching}
                 dataHotList={wrapStoreHotList}
+                dataHotFetching={wrapHotFetching}
                 role={role}
                 getStoreList={this.getStoreList}
-                changeSort={this.changeSort}
-                filterClassify={this.filterClassify}
-                updatePage={this.updatePage}
+                updateParentState={this.updateParentState}
               />
             </TabPane>
           </Tabs>
@@ -173,26 +163,31 @@ function mapStateToProps(state) {
   const { loginUser } = entities
   const { role } = loginUser.info || { role: 0 }
   const { wrapStoreList, wrapStoreHotList, wrapGroupList } = images
-  const { result: storeList } = wrapStoreList || { result: {}}
+  const { result: storeList, isFetching: wrapStoreFetching } = wrapStoreList || { result: {}, isFetching: false }
   const { data: storeData } = storeList || { data: [] }
-  const { result: storeHotList } = wrapStoreHotList || { result: {} }
+  const { result: storeHotList, isFetching: wrapHotFetching } = wrapStoreHotList || { result: {}, isFetching: false }
   const { data: storeHotData } = storeHotList || { data: [] }
   const { result: groupList } = wrapGroupList || { result: {} }
   const { data: groupData } = groupList || { data: [] }
   const { imagePublishRecord, imageHotRecord } = appStore
-  const { data: imageStoreList } = imagePublishRecord || { data: {} }
-  const { data: imageHotList } = imageHotRecord || { data: {} }
+  const { data: imageStoreList, isFetching: imageStoreFetching } = imagePublishRecord || { data: {}, isFetching: false }
+  const { data: imageHotList, isFetching: imageHotFetching } = imageHotRecord || { data: {}, isFetching: false }
   return {
     wrapStoreList: storeData,
+    wrapStoreFetching,
     wrapStoreHotList: storeHotData,
+    wrapHotFetching,
     wrapGroupList: groupData,
     imageStoreList,
+    imageStoreFetching,
     imageHotList,
+    imageHotFetching,
     role
   }
 }
 export default connect(mapStateToProps, {
   getWrapStoreList,
+  getWrapStoreHotList,
   getWrapGroupList,
   getAppsList,
   getAppsHotList

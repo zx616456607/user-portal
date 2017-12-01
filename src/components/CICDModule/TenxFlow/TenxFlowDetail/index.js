@@ -21,7 +21,6 @@ import {
 } from '../../../../actions/cicd_flow'
 import { loadRepositoriesTags } from '../../../../actions/harbor'
 import { LoadOtherImage } from '../../../../actions/app_center'
-import { checkImage } from '../../../../actions/app_center'
 import './style/TenxFlowDetail.less'
 import TenxFlowDetailAlert from './TenxFlowDetailAlert.js'
 import TenxFlowDetailYaml from './TenxFlowDetailYaml.js'
@@ -601,7 +600,6 @@ export default connect(mapStateToProps, {
   getTenxFlowYAML,
   getTenxFlowDetail,
   getTenxflowBuildLastLogs,
-  checkImage,
   deploymentLog,
   getCdInimage,
   getTenxflowBuildLogs,

@@ -20,6 +20,8 @@ import './style/Item.less'
 import { LoadOtherImage, addOtherStore, } from '../../actions/app_center'
 import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
+import { ROLE_SYS_ADMIN } from '../../../constants'
+import { camelize } from 'humps'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -150,17 +152,21 @@ let MyComponent = React.createClass({
       createModalShow: false
     });
   },
-  regnameExists(rule ,values, callback) {
-    if (!values) {
+  regnameExists(rule, value, callback) {
+    if (!value) {
       callback([new Error('请输入仓库名称')])
       return
     }
-    if (values.length < 3) {
+    if (value.length < 3) {
       callback([new Error('仓库名称不能少于3位')])
       return
     }
-    if (values.length > 63) {
+    if (value.length > 63) {
       callback([new Error('仓库名称过长，名称不能超过63位')])
+      return
+    }
+    if (!/^[a-zA-Z0-9\u4e00-\u9fa5]+$/.test(value)) {
+      callback([new Error('仓库名称只能由中英文、数字等组成')])
       return
     }
     callback()
@@ -358,10 +364,12 @@ class ImageCenter extends Component {
       return
     }
     let type='private'
-    if (location.pathname.indexOf('/app_center/projects/public') >-1) {
+    if (location.pathname === '/app_center/projects/public') {
       type = 'public'
-    } else if (location.pathname.indexOf('/app_center/projects/publish') >-1) {
+    } else if (location.pathname === '/app_center/projects/publish') {
       type = 'publish'
+    } else if (location.pathname === '/app_center/projects/replications') {
+      type = 'replications'
     }
     this.setState({itemType:type})
     this.props.LoadOtherImage({
@@ -382,27 +390,32 @@ class ImageCenter extends Component {
         browserHistory.replace('/app_center/projects')
         return
       }
-      let type='private'
-      if (newLocation.pathname.indexOf('/app_center/projects/public') >-1) {
-        type = 'public'
-      } else if (newLocation.pathname.indexOf('/app_center/projects/publish') >-1) {
-        type = 'publish'
-      }
-      this.setState({itemType:type})
-      this.props.LoadOtherImage({
-        success: {
-          func: (res) => {
-            this.setState({
-              otherImageHead: res.data
-            })
+      if (newLocation.pathname === '/app_center/projects/other') {
+        this.props.LoadOtherImage({
+          success: {
+            func: (res) => {
+              this.setState({
+                otherImageHead: res.data
+              })
+            }
           }
-        }
-      })
+        })
+        return
+      }
+      let type='private'
+      if (newLocation.pathname === '/app_center/projects/public') {
+        type = 'public'
+      } else if (newLocation.pathname === '/app_center/projects/publish') {
+        type = 'publish'
+      } else if (newLocation.pathname === '/app_center/projects/replications') {
+        type = 'replications'
+      }
+      this.setState({ itemType: type })
     }
   }
   render() {
-    const { children } = this.props
-    const { otherImageHead,other } = this.state
+    const { children, loginUser } = this.props
+    const { otherImageHead, other, itemType } = this.state
     const _this = this
     const OtherItem = otherImageHead.map(item => {
       return (<span key={item.title} className={ other.title == item.title ?'tab active':'tab'} onClick={()=> this.setItem('other',item)}>
@@ -419,14 +432,21 @@ class ImageCenter extends Component {
         </TabPane>
       )
     })
+    const isAdmin = loginUser.harbor[camelize('has_admin_role')] === 1
     return (
       <QueueAnim className='ImageCenterBox' type='right'>
         <div id='ImageCenter' key='ImageCenterBox'>
           <Title title="镜像仓库" />
           <div className="ImageCenterTabs">
-           <span className={this.state.itemType =='private' ?'tab active':'tab'} onClick={()=> this.setItem('private')}>我的仓库组</span>
-            <span className={this.state.itemType =='public' ?'tab active':'tab'} onClick={()=> this.setItem('public')}>公开仓库组</span>
-            <span className={this.state.itemType =='publish' ?'tab active':'tab'} onClick={()=> this.setItem('publish')}>发布记录</span>
+           <span className={itemType =='private' ?'tab active':'tab'} onClick={()=> this.setItem('private')}>我的仓库组</span>
+            <span className={itemType =='public' ?'tab active':'tab'} onClick={()=> this.setItem('public')}>公开仓库组</span>
+            <span className={itemType =='publish' ?'tab active':'tab'} onClick={()=> this.setItem('publish')}>发布记录</span>
+            {
+              isAdmin &&
+              <span className={itemType =='replications' ?'tab active':'tab'} onClick={()=> this.setItem('replications')}>
+              同步管理
+              </span>
+            }
             {OtherItem}
             <span style={{display:'inline-block',float:'right'}}>
               <Button type="primary" size="large" onClick={()=> this.setState({createModalShow:true})}><i className='fa fa-plus'/>&nbsp;添加第三方</Button>
@@ -439,11 +459,11 @@ class ImageCenter extends Component {
               </Tooltip>
             </span>
           </div>
-          {this.state.itemType =='other'?
+          {itemType =='other'?
             <Tabs
               key='ImageCenterTabs'
               className="otherStore"
-              activeKey={this.state.other.title}
+              activeKey={other.title}
               >
               {tempImageList}
             </Tabs>
@@ -469,7 +489,8 @@ function mapStateToProps(state, props) {
   const defaultBindInfo = {
     configured: false
   }
-  const { privateImages, otherImages, imagesInfo, getAppCenterBindUser } = state.images
+  const { images, entities } = state
+  const { privateImages, otherImages, imagesInfo, getAppCenterBindUser } = images
   const { registry, imageList, isFetching } = privateImages || defaultConfig
   const { imageRow, server} = otherImages || defaultConfig
   const { configured } = getAppCenterBindUser || defaultBindInfo
@@ -477,7 +498,8 @@ function mapStateToProps(state, props) {
     otherImageHead: imageRow,
     isFetching,
     server,
-    configured
+    configured,
+    loginUser: entities.loginUser.info,
   }
 }
 

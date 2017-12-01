@@ -485,9 +485,19 @@ let MyComponent = React.createClass({
           onClick={(e) => { this.showAction(e, 'format', item) } }
           style={{ width: '80px' }}
         >
-          <Menu.Item key='resize' disabled={item.status == 'pending'}><FormattedMessage {...messages.dilation} /></Menu.Item>
-          <Menu.Item key="createSnapshot" disabled={item.status == 'pending'}>创建快照</Menu.Item>
-          <Menu.Item key="format" disabled={item.status == 'pending'}><FormattedMessage {...messages.formatting} /></Menu.Item>
+          <Menu.Item key='resize' disabled={item.status == 'pending'}>
+            <FormattedMessage {...messages.dilation} />
+          </Menu.Item>
+          <Menu.Item key="createSnapshot" disabled={item.status == 'pending'}>
+          创建快照
+          </Menu.Item>
+          <Menu.Item
+            key="format"
+            disabled={item.status == 'pending' || item.status == 'used'}
+            title="使用中存储不能进行格式化操作"
+          >
+            <FormattedMessage {...messages.formatting} />
+          </Menu.Item>
         </Menu>
       })
     }
@@ -597,8 +607,15 @@ let MyComponent = React.createClass({
           />
         </div>
 
-        <Modal title={this.state.modalTitle} visible={this.state.visible} okText="确定" cancelText="取消" className="storageModal" width={600} onCancel= {() => this.cancelModal() }
-         footer={[
+        <Modal
+          title={this.state.modalTitle}
+          visible={this.state.visible}
+          okText="确定"
+          cancelText="取消"
+          className="storageModal"
+          width={600}
+          onCancel= {() => this.cancelModal() }
+          footer={[
             <Button key="back" type="ghost" size="large" onClick={(e) => { this.cancelModal() } }>取消</Button>,
             <Button key="submit" type="primary" size="large" disabled={isActing} loading={this.state.loading} onClick={(e) => { this.handleSure() } }>
               确定
@@ -642,7 +659,9 @@ let MyComponent = React.createClass({
 
           </div>
           <div className={this.state.modalType === 'format' ? 'show' : 'hide'}>
-            <div style={{ height: '30px' }}>确定格式化存储卷{this.state.modalName}吗? <span style={{ color: 'red' }}>(格式化后数据将被清除)。</span></div>
+            <div style={{ height: '30px' }}>确定格式化存储卷 {this.state.modalName} 吗？
+              <span style={{ color: 'red' }}>(格式化后数据将被清除)。</span>
+            </div>
             <Col span="6" style={{ lineHeight: '30px' }}>选择文件系统格式：</Col>
             <RadioGroup defaultValue='ext4' value={this.state.formateType} size="large" onChange={(e) => this.changeType(e)}>
               <RadioButton value="ext4">ext4</RadioButton>
@@ -890,8 +909,14 @@ class Storage extends Component {
       },
       failed: {
         isAsync: true,
-        func: () => {
+        func: err => {
           notification.close()
+          const { statusCode, message } = err
+          if (statusCode === 409 && message.data && message.data.length > 0) {
+            notification.error(`${message.data} 存储删除失败，请稍后重试`)
+            this.getStorageList()
+            return
+          }
           notification.error('删除存储失败')
           this.getStorageList()
         }

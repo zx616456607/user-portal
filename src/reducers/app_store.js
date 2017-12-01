@@ -23,7 +23,10 @@ function imageWithStatus(state = {}, action) {
       return Object.assign({}, state, {
         isFetching: false,
         data: action.response.result.data,
-        name: action.response.result.name,
+        file_nick_name: action.response.result.fileNickName,
+        icon: action.response.result.icon,
+        description: action.response.result.description,
+        classify_name: action.response.result.classifyName,
         status: action.response.result.status
       })
     case ActionTypes.APP_IMAGE_STATUS_FAILURE:

@@ -233,3 +233,9 @@ svg.http {
   height: 14px;
   vertical-align: text-bottom;
 }
+.notscanning {
+  width: 14px;
+  height: 14px;
+  vertical-align: text-bottom;
+}
+#notscanning .st0 {fill: #5B5B5B}

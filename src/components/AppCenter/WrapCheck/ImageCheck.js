@@ -18,6 +18,8 @@ import { imageApprovalList, appStoreApprove } from '../../../actions/app_store'
 import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
+import { camelize } from 'humps'
+import { ROLE_SYS_ADMIN } from '../../../../constants'
 
 const FormItem = Form.Item
 
@@ -35,7 +37,7 @@ class ImageCheckTable extends React.Component {
     this.copyEnd = this.copyEnd.bind(this)
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this)
     this.state = {
-      publish_time: false
+      
     }
   }
   getImageStatus(status){
@@ -72,13 +74,10 @@ class ImageCheckTable extends React.Component {
     updateParentState('current', pagination.current)
   }
   handleSort(type) {
-    const { updateParentState } = this.props
-    const sortFlag = this.state[type]
-    const sort = this.getSortOrder(sortFlag, type)
-    this.setState({
-      [type]: !sortFlag
-    })
-    updateParentState('sort', sort)
+    const { updateParentState, publish_time } = this.props
+    const sort = this.getSortOrder(publish_time, type)
+    updateParentState('publish_time', !publish_time, false)
+    updateParentState('sort', sort, true)
   }
   getSortOrder(flag, type) {
     let str = 'a'
@@ -88,12 +87,13 @@ class ImageCheckTable extends React.Component {
     return `${str},${type}`
   }
   checkImageStatus(record, status, message) {
-    const { appStoreApprove, imageApprovalList } = this.props
+    const { appStoreApprove, getImagePublishList } = this.props
     let notify = new NotificationHandler()
     const body = {
       id: record.iD,
       type: 2,
-      status
+      status,
+      imageTagName: `${record.image}:${record.tag}`
     }
     if (status === 2) {
       Object.assign(body, { origin_id: record.originID })
@@ -106,11 +106,7 @@ class ImageCheckTable extends React.Component {
       appStoreApprove(body, {
         success: {
           func: () => {
-            imageApprovalList({
-              from: 0,
-              size: 10,
-              type: 2
-            })
+            getImagePublishList()
             resolve()
             notify.close()
             notify.success('操作成功')
@@ -193,10 +189,28 @@ class ImageCheckTable extends React.Component {
   closeImageDetailModal(){
     this.setState({imageDetailModalShow:false})
   }
+  
+  getServeAndName(origin) {
+    const arr = origin && origin.split('/')
+    const [server, ...nameArr] = arr
+    let name
+    if (nameArr.length > 1) {
+      for (let i = 0; i < nameArr.length; i++) {
+        if (i === nameArr.length - 1) {
+          nameArr[i] = nameArr[i].split(':')[0]
+        }
+      }
+      name = nameArr.join('/')
+    } else {
+      name = nameArr.split(':')[0]
+    }
+    return { server, name }
+  }
   render() {
-    const { imageCheckList, total, form } = this.props
+    const { imageCheckList, total, form, publish_time, loginUser } = this.props
     const { getFieldProps } = form
-    const { publish_time, rejectModal, copyStatus, imageDetailModalShow, currentImage } = this.state 
+    const { rejectModal, copyStatus, imageDetailModalShow, currentImage } = this.state
+    const isAdmin = loginUser.harbor[camelize('has_admin_role')] === 1 && loginUser.role === ROLE_SYS_ADMIN
     const pagination = {
       simple: true,
       defaultCurrent: 1,
@@ -207,33 +221,47 @@ class ImageCheckTable extends React.Component {
       title: '状态',
       dataIndex: 'publishStatus',
       key: 'publishStatus',
-      width: '10%',
+      width: '9%',
       render: this.getImageStatus
     }, {
       title: '提交信息',
       dataIndex: 'requestMessage',
       key: 'requestMessage',
-      width: '10%',
+      width: '6%',
+      render: text => <Tooltip title={text}><div style={{ maxWidth: 90 }} className="textoverflow">{text}</div></Tooltip>
     }, {
       title: '分类名称',
       dataIndex: 'classifyName',
       key: 'classifyName',
-      width: '10%',
+      width: '8%',
     }, {
       title: '发布名称',
       dataIndex: 'fileNickName',
       key: 'fileNickName',
       width: '10%',
     }, {
-      title: '发布镜像',
-      dataIndex: 'image',
-      key: 'image',
-      width: '10%',
+      title: '原镜像名称',
+      dataIndex: 'originID',
+      key: 'originID',
+      width: '15%',
+      render: (text, record) => {
+        return (
+          <Tooltip title={text}>
+            <div
+              onClick={() => this.setState({imageDetailModalShow: true, currentImage: record})}
+              style={{ maxWidth: 150 }} 
+              className="textoverflow themeColor pointer"
+            >
+              {text}
+              </div>
+          </Tooltip>
+        )
+      }
     }, {
       title: '镜像地址',
       dataIndex: 'resource',
       key: 'resource',
-      width: '15%',
+      width: '10%',
       render: (text, record) => {
         const content = (
           <div className="imageIDBox">
@@ -264,9 +292,11 @@ class ImageCheckTable extends React.Component {
         );
         return(
           <Row>
-            <Col className="textoverflow themeColor pointer" span={20} onClick={() => this.setState({imageDetailModalShow: true, currentImage: record})}>
-              {text}
-            </Col>
+            <Tooltip title={text}>
+              <Col className="textoverflow" span={20}>
+                {text}
+              </Col>
+            </Tooltip>
             <Col span={4}>
               <Popover content={content} trigger="click">
                 <Icon type="plus-square" />
@@ -279,7 +309,7 @@ class ImageCheckTable extends React.Component {
       title: '发布者',
       dataIndex: 'userName',
       key: 'userName',
-      width: '10%',
+      width: '8%',
     }, {
       title: (
         <div onClick={() => this.handleSort('publish_time')}>
@@ -300,41 +330,57 @@ class ImageCheckTable extends React.Component {
       ),
       dataIndex: 'publishTime',
       key: 'publishTime',
-      width: '10%',
+      width: '17%',
       render: text => formatDate(text)
     }, {
       title: '操作',
       key: 'operation',
-      width: '15%',
+      width: '17%',
       render: (text, record, index) => {
         return(
           <div className="operateBtn">
             {
-              [1, 6].includes(record.publishStatus) && 
+              [1, 6].includes(record.publishStatus) &&
                 [
                   <Button 
                     key="pass" 
                     type="primary" 
                     className="passBtn"
                     onClick={() => this.checkImageStatus(record, 2)}
+                    disabled={!isAdmin}
                   >
                     {record.publishStatus === 1 ? '通过' : '重试'}
                   </Button>,
-                  <Button key="reject" onClick={() => this.openRejectModal(record)}>拒绝</Button>
+                  <Button
+                    disabled={!isAdmin}
+                    key="reject" 
+                    onClick={() => this.openRejectModal(record)}
+                  >
+                    拒绝
+                  </Button>
                 ]
             }
             {
-              [4].includes(record.publishStatus) &&
-                <Button onClick={() => this.checkImageStatus(record, 7)}>删除</Button>
+              [3, 4].includes(record.publishStatus) &&
+                <Button
+                  disabled={!isAdmin}
+                  onClick={() => this.checkImageStatus(record, 7)} 
+                >
+                  删除
+                </Button>
+            }
+            {
+              ![1, 4, 6].includes(record.publishStatus) && <span style={{ marginLeft: 28 }}>-</span>
             }
           </div>
         )
       }
     }]
-    let server
+    let serverName
     if (currentImage) {
-      server = currentImage.resource && currentImage.resource.split('/')[0]
-      Object.assign(currentImage, { name: currentImage.image })
+      const { server, name } = this.getServeAndName(currentImage.originID)
+      serverName = server
+      Object.assign(currentImage, { name })
     }
     return(
       <div className="imageCheckTableBox">
@@ -376,7 +422,7 @@ class ImageCheckTable extends React.Component {
           transitionName="move-right"
           onCancel={()=> this.setState({imageDetailModalShow:false})}
         >
-          <ProjectDetail server={server} scope={this} config={currentImage}/>
+          <ProjectDetail server={serverName} visible={imageDetailModalShow} scope={this} config={currentImage}/>
         </Modal>
       </div>
     )
@@ -395,6 +441,7 @@ class ImageCheck extends React.Component {
       filter: 'type,2',
       filterName: undefined,
       sort: 'd,publish_time',
+      publish_time: false
     }
   }
   componentWillMount() {
@@ -422,18 +469,19 @@ class ImageCheck extends React.Component {
   refreshData() {
     this.setState({
       filterName: '',
-      sort: '',
+      sort: 'd,publish_time',
       current: 1,
+      publish_time: false
     }, this.getImagePublishList)
   }
-  updateParentState(type, value) {
+  updateParentState(type, value, callback) {
     this.setState({
       [type]: value
-    }, this.getImagePublishList)
+    }, callback && this.getImagePublishList)
   }
   render() {
-    const { imageCheckList, total, appStoreApprove, imageApprovalList } = this.props
-    const { filterName, current } = this.state
+    const { imageCheckList, total, appStoreApprove, loginUser } = this.props
+    const { filterName, current, publish_time } = this.state
     return(
       <div className="imageCheck">
         <div className="wrapCheckHead">
@@ -443,20 +491,22 @@ class ImageCheck extends React.Component {
           <CommonSearchInput
             ref="tableChild"
             size="large"
-            placeholder="按镜像名称或发布名称搜索"
+            placeholder="按发布名称搜索"
             style={{ width: 200 }}
             value={filterName}
-            onSearch={value => this.updateParentState('filterName', value)}
+            onSearch={value => this.updateParentState('filterName', value, true)}
           />
           <span className="total verticalCenter">共 {total && total} 条</span>
         </div>
         <ImageCheckTable
           imageCheckList={imageCheckList}
           current={current}
+          publish_time={publish_time}
+          loginUser={loginUser}
           total={total}
           updateParentState={this.updateParentState}
           appStoreApprove={appStoreApprove}
-          imageApprovalList={imageApprovalList}
+          getImagePublishList={this.getImagePublishList}
         />
       </div>
     )
@@ -464,11 +514,12 @@ class ImageCheck extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const { appStore } = state
+  const { appStore, entities } = state
   const { imageApprovalList } = appStore || { imageApprovalList: {} }
   const { data } = imageApprovalList || { data: {} }
   const { apps, total } = data || { apps: [], total: 0 }
   return {
+    loginUser: entities.loginUser.info,
     imageCheckList: apps,
     total
   }

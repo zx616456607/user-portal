@@ -282,6 +282,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/projects/search', harborController.searchProjects)
 
   router.del('/registries/:registry/repositories/:user/:name/tags', harborController.deleteRepository)
+  router.del('/registries/:registry/repositories/:user/:name/tags/:tags', harborController.deleteRepoTags)
   router.get('/registries/:registry/repositories/:user/:name/tags', harborController.getRepositoriesTags)
   router.get('/registries/:registry/repositories/:user/:name/tags/:tag/configinfo', harborController.getRepositoriyConfig)
 
@@ -680,6 +681,6 @@ module.exports = function (Router) {
   router.post('/app-store/apps/:app/icon', appStoreController.uploadIcon)
   router.get('/app-store/apps/icon/:id', appStoreController.getIcon)
   router.post('/app-store/apps/images/existence',appStoreController.checkImageExists)
-  
+
   return router.routes()
 }

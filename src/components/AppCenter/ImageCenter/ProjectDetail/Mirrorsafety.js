@@ -17,6 +17,7 @@ import BaseScan from './BaseScan'
 import './style/MirrorSafety.less'
 import { loadMirrorSafetyLayerinfo, loadMirrorSafetyScanStatus, loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, loadMirrorSafetyChairinfo } from '../../../../actions/app_center'
 import { loadRepositoriesTags } from '../../../../actions/harbor'
+import { encodeImageFullname } from '../../../../common/tools'
 import { connect } from 'react-redux'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
@@ -54,7 +55,7 @@ class MirrorSafety extends Component {
     if( mode === standard && envEdition == 0){
       return
     }
-    let processedName = processImageName(imageName)
+    let processedName = encodeImageFullname(imageName)
     loadRepositoriesTags(registry, processedName)
     if (tagVersion !== '') {
       this.setState({
@@ -79,7 +80,7 @@ class MirrorSafety extends Component {
       ActiveKeyNext = this.state.ActiveKey
     }
     if (this.state.imageName !== imageName) {
-      let processedName = processImageName(imageName)
+      let processedName = encodeImageFullname(imageName)
       loadRepositoriesTags(registry, processedName)
       this.setState({
         TabsDisabled: true,
@@ -268,24 +269,12 @@ class MirrorSafety extends Component {
   }
 }
 
-function processImageName(name) {
-  let arr = name.split('/')
-  if (arr.length > 2) {
-    name = arr[0] + '/' + arr[1]
-    for (let i = 2; i < arr.length; i++) {
-      name += "%2F"
-      name += arr[i]
-    }
-  }
-  return name
-}
-
 function mapStateToProps(state, props) {
   const { entities, harbor,images} = state
   const { imageTags } = harbor
   const { imageInfo, imageName, imageType } = props
   let imgTag = []
-  let processedName = processImageName(imageName)
+  let processedName = encodeImageFullname(imageName)
   if (imageTags[DEFAULT_REGISTRY] && imageTags[DEFAULT_REGISTRY][processedName]) {
     imgTag = imageTags[DEFAULT_REGISTRY][processedName].tag || []
   }

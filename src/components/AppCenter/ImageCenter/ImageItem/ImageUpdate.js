@@ -22,6 +22,7 @@ import {
   validationOldTargetStore,
   validationNewTargetStore,
   getTasklogs,
+  getReplicationPolicies
 } from '../../../../actions/harbor'
 import { formatDate, formatDuration } from  '../../../../common/tools'
 import { ecma48SgrEscape } from '../../../../common/ecma48_sgr_escape'
@@ -110,6 +111,7 @@ class ImageUpdate extends Component {
     this.validationTargetStore = this.validationTargetStore.bind(this)
     this.getLogs = this.getLogs.bind(this)
     this.startUseRules = this.startUseRules.bind(this)
+    this.refreshData = this.refreshData.bind(this)
     this.state = {
       inputValue: '',
       addRulesVisible: false,
@@ -157,8 +159,17 @@ class ImageUpdate extends Component {
       })
     })
   }
-
+  
+  loadAllPolicies() {
+    const { getReplicationPolicies, registry } = this.props
+    getReplicationPolicies(registry)
+  }
   componentWillMount() {
+    const { isReplications } = this.props
+    if (isReplications) {
+      this.loadAllPolicies()
+      return
+    }
     this.handleloadImageUpdateList()
   }
 
@@ -190,7 +201,16 @@ class ImageUpdate extends Component {
 
     document.removeEventListener('keyup', handler)
   }
-
+  
+  refreshData() {
+    const { isReplications } = this.props
+    if (isReplications) {
+      this.loadAllPolicies()
+      return
+    }
+    this.handleloadImageUpdateList()
+  }
+  
   handleInputValue(e){
     this.setState({
       inputValue: e.target.value
@@ -263,13 +283,17 @@ class ImageUpdate extends Component {
   }
 
   handelEidtImageRules(id, body){
-    const { editImageUpdateRules, registry } = this.props
+    const { editImageUpdateRules, registry, isReplications } = this.props
     let Notification = new NotificationHandler()
     editImageUpdateRules(registry, id, body, {
       success : {
         func: () => {
           Notification.success('修改规则成功')
-          this.handleloadImageUpdateList()
+          if (isReplications) {
+            this.loadAllPolicies()
+          } else {
+            this.handleloadImageUpdateList()
+          }
           this.setState({
             addRulesVisible: false
           })
@@ -467,10 +491,10 @@ class ImageUpdate extends Component {
   }
 
   handleeditImageUpdateRules(values){
-    const { rulesData, detail, targets } = this.props
+    const { rulesData, detail, targets, isReplications } = this.props
     const { currentKey } = this.state
     let id = rulesData[currentKey].id
-    let projectID = detail.data.projectId
+    let projectID = isReplications ? rulesData[currentKey].projectId : detail.data.projectId
     let targetId = 0
     let Notification = new NotificationHandler()
     for(let i=0; i < targets.length; i++){
@@ -634,7 +658,7 @@ class ImageUpdate extends Component {
   }
 
   handleImageUpdateSwitch(currentKey){
-    const { registry, imageUpdateSwitch, rulesData, deleteImageUpdateRules } = this.props
+    const { registry, imageUpdateSwitch, rulesData, deleteImageUpdateRules, isReplications } = this.props
     let Notification = new NotificationHandler()
     const { switchTitle } = this.state
     let id = rulesData[currentKey].id
@@ -649,7 +673,11 @@ class ImageUpdate extends Component {
       success : {
         func: () => {
           Notification.success(switchTitle + '规则成功')
-          this.handleloadImageUpdateList()
+          if (isReplications) {
+            this.loadAllPolicies()
+          } else {
+            this.handleloadImageUpdateList()
+          }
           this.setState({
             SwitchRulesVisible: false
           })
@@ -668,7 +696,7 @@ class ImageUpdate extends Component {
   }
 
   handleDeleteImageUpdataRules(currentKey){
-    const { registry, rulesData, deleteImageUpdateRules } = this.props
+    const { registry, rulesData, deleteImageUpdateRules, isReplications } = this.props
     let Notification = new NotificationHandler()
     let id = rulesData[currentKey].id
     if(rulesData[currentKey].enabled == 1){
@@ -682,7 +710,11 @@ class ImageUpdate extends Component {
       success : {
         func: () => {
           Notification.success('删除规则成功')
-          this.handleloadImageUpdateList()
+          if (isReplications) {
+            this.loadAllPolicies()
+          } else {
+            this.handleloadImageUpdateList()
+          }
           this.setState({
             SwitchRulesVisible: false
           })
@@ -870,7 +902,7 @@ class ImageUpdate extends Component {
   }
 
   render(){
-    const { form, rulesData, taskUpdataData, imageUpdateLogs } = this.props
+    const { form, rulesData, taskUpdataData, imageUpdateLogs, isReplications } = this.props
     const { edit, currentRules, currentRulesEnabled } = this.state
     if(!rulesData || !taskUpdataData){
       return <div style={{textAlign:'center'}}><Spin style={{textAlign:'center'}}></Spin></div>
@@ -1029,7 +1061,15 @@ class ImageUpdate extends Component {
       <div id='imageUpdata'>
         <div className='rules'>
           <div className='header'>
-            <Button type="primary" size='large' className='buttonadd' onClick={this.handleAddRules}><i className='fa fa-plus'/>&nbsp;添加规则</Button>
+            {
+              !isReplications &&
+              <Button type="primary" size='large' className='buttonadd' onClick={this.handleAddRules}>
+                <i className='fa fa-plus'/>&nbsp;添加规则
+              </Button>
+            }
+            <Button size='large' className='btn-refresh' onClick={this.refreshData}>
+              <i className='fa fa-refresh'/>&nbsp;刷新
+            </Button>
             {/*<span className='searchBox'>
               <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
                 onChange={this.handleInputValue}/>
@@ -1043,34 +1083,39 @@ class ImageUpdate extends Component {
           </div>
           <div className="body">
             <Table
+              loading={this.props.loading}
               columns={rulesColumn}
               dataSource={rulesData}
               pagination={{simple: true}}
             />
           </div>
         </div>
-        <div className='updataTask'>
-          <div className='title'>同步任务</div>
-          <div className="header">
+        {
+          !isReplications &&
+          <div className='updataTask'>
+            <div className='title'>同步任务</div>
+            <div className="header">
             <span className="searchBox">
               <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
-                onChange={this.handleInputValue}/>
+                     onChange={this.handleInputValue}/>
               <Icon type="search" className='iconSearch' onClick={this.handleSearchRules}/>
             </span>
-            {
-              taskUpdataData.length
-              ? <span className='totleNum'>共计：{taskUpdataData.length} 条</span>
-              : null
-            }
+              {
+                taskUpdataData.length
+                  ? <span className='totleNum'>共计：{taskUpdataData.length} 条</span>
+                  : null
+              }
+            </div>
+            <div className="body">
+              <Table
+                loading={this.props.loading}
+                columns={updataTaskColumn}
+                dataSource={taskUpdataData}
+                pagination={{simple: true}}
+              />
+            </div>
           </div>
-          <div className="body">
-            <Table
-              columns={updataTaskColumn}
-              dataSource={taskUpdataData}
-              pagination={{simple: true}}
-            />
-          </div>
-        </div>
+        }
 
         <Modal
           title={this.state.edit ? '修改规则' : '新建规则'}
@@ -1198,14 +1243,24 @@ ImageUpdate = Form.create()(ImageUpdate)
 
 function mapStateToProp(state, props) {
   const { harbor } = state
-  const { detail, imageUpdate, imageUpdateLogs } = harbor
+  const { location } = props
+  const { detail, imageUpdate, imageUpdateLogs, rules, targets: allTargets } = harbor
   const { policies, jobs, targets } = imageUpdate
+  const { data: ruleList } = rules
+  const { pathname } = location
+  let isReplications = false
+  if (pathname === "/app_center/projects/replications") {
+    isReplications = true
+  }
+  const { data: allTargetList } = allTargets
   return {
     detail,
-    rulesData: policies || [],
+    loading: imageUpdate.isFetching,
+    rulesData: isReplications ? ruleList : policies || [],
     taskUpdataData: jobs || [],
-    targets: targets || [],
+    targets: isReplications ? allTargetList : targets || [],
     imageUpdateLogs,
+    isReplications
   }
 }
 
@@ -1219,5 +1274,6 @@ export default connect(mapStateToProp, {
   validationNewTargetStore,
   validationOldTargetStore,
   getTasklogs,
+  getReplicationPolicies
 })(ImageUpdate)
 

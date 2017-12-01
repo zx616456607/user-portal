@@ -21,6 +21,7 @@ import {
 import { loadAllProject, searchHarborPublicImages, searchHarborPrivateImages } from '../../../actions/harbor'
 import { getAppsList } from '../../../actions/app_store'
 import { DEFAULT_REGISTRY } from '../../../constants'
+import { encodeImageFullname } from '../../../common/tools'
 import './style/SelectImage.less'
 
 const standard = require('../../../../configs/constants').STANDARD_MODE
@@ -92,6 +93,9 @@ class SelectImage extends Component {
 
   componentWillMount() {
     const { searchInputValue, imageType } = this.state
+    if (imageType === IMAGE_STORE) {
+      return this.loadImageStore()
+    }
     if(searchInputValue) {
       this.loadData(this.props, {
         q: searchInputValue
@@ -222,8 +226,8 @@ class SelectImage extends Component {
         server: '',
       }
     }
-    const { imageStoreList } = this.props 
-    const { server, isFetching } = imageData
+    const { imageStoreList } = this.props
+    const { isFetching } = imageData
     const { imageType } = this.state
     let imageList = imageData[imageType]
     if (imageType === IMAGE_STORE) {
@@ -253,10 +257,10 @@ class SelectImage extends Component {
       width: '10%',
       render: (text, row)=> {
         let str = row.repositoryName
-        let server = server
+        let server = imageData.server
         if (imageType === IMAGE_STORE) {
           server = row.resourceLink.split('/')[0]
-          str = row.resourceName
+          str = encodeImageFullname(row.resourceName)
         }
         return (
           <div className="deployBox">
