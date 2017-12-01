@@ -645,11 +645,11 @@ class Sider extends Component {
                   </Link>
                 </Menu.Item>
 
-                <Menu.Item key='etcd_cluster'>
+                {/* <Menu.Item key='etcd_cluster'>
                   <Link to='/database_cache/etcd_cluster'>
                     <span><div className='sideCircle'></div> Etcd集群</span>
                   </Link>
-                </Menu.Item>
+                </Menu.Item> */}
 
                   <div className='sline'></div>
                 </SubMenu>

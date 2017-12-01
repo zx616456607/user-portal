@@ -83,12 +83,6 @@ class ShareStorageDetail extends Component {
                   <Col span="9">
                     存储server：{ StorageInfo.storageServer }
                   </Col>
-                  <Col span="15">
-                    <div className="use">
-                      总量
-                      ：{ parseInt(StorageInfo.size) }M
-                    </div>
-                  </Col>
                 </Row>
               </div>
             </div>
