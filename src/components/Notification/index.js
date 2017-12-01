@@ -126,7 +126,7 @@ class Notification {
     if (timeout === undefined) {
       timeout = DEFAULT_CONFIG.duration
     }
-    notification.info({
+    notification.warn({
       message: (
         <div style={{ fontSize: '13px', paddingRight: '20px', color: '#666'}}>
           {message}
