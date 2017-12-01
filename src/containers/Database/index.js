@@ -35,11 +35,11 @@ const menuList = [
     name: 'ES集群'
   },
 
-  {
-    url: '/database_cache/etcd_cluster',
-    name: 'Etcd集群'
-  }
- 
+  //{
+  //  url: '/database_cache/etcd_cluster',
+  //  name: 'Etcd集群'
+  //}
+
 ]
 
 export default class Database extends Component {
@@ -49,15 +49,15 @@ export default class Database extends Component {
       containerSiderStyle: 'normal'
     }
   }
-  
+
   render() {
     const { children } = this.props
     const scope = this
     return (
       <div id="Database">
-        <QueueAnim 
-          className="DatabaseSider" 
-          key="DatabaseSider" 
+        <QueueAnim
+          className="DatabaseSider"
+          key="DatabaseSider"
           type="left"
           >
           <div className={ this.state.containerSiderStyle == 'normal' ? 'DatabaseMenu CommonSecondMenu' : 'hiddenMenu DatabaseMenu CommonSecondMenu'} key='databaseSider'>

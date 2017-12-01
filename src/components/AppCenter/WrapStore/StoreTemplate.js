@@ -20,6 +20,8 @@ import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX } from '../../../constants'
 import defaultImage from '../../../../static/img/appstore/defaultimage.png'
 import defaultApp from '../../../../static/img/appstore/defaultapp.png'
+import defaultAppSmall from '../../../../static/img/appstore/defaultappsmall.png'
+import defaultImageSmall from '../../../../static/img/appstore/defaultimagesmall.png'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
 
@@ -263,7 +265,7 @@ class WrapComopnent extends React.Component {
     })
   }
   renderWrapList(dataSource, isHot) {
-    const { role, activeKey, dataFetching, dataHotFetching, rectStyle } = this.props
+    const { activeKey, dataFetching, dataHotFetching, rectStyle, isAdmin } = this.props
     const { copyStatus } = this.state
     let newData
     if (isHot) {
@@ -321,7 +323,7 @@ class WrapComopnent extends React.Component {
             }
           </Menu.Item>
           {
-            role === ROLE_SYS_ADMIN
+            isAdmin
               ? <Menu.Item key="offShelf" disabled={[0, 1, 4].includes(item.publishStatus)}>下架</Menu.Item>
               : <Menu.Item key="none" style={{ display: 'none' }}/>
           }
@@ -435,7 +437,7 @@ class WrapComopnent extends React.Component {
           </div>,
           rectStyle && !isHot &&
           <div className="rectBox" key={activeKey === 'app' ? item.id : item.publishTime}>
-            <div className="reactBoxTop pointer" onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)}>
+            <div className={classNames("reactBoxTop", {'pointer': activeKey === 'image'})} onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)}>
               <img
                 className="reactImg"
                 src={
@@ -443,12 +445,12 @@ class WrapComopnent extends React.Component {
                     item.pkgIconID ?
                       `${API_URL_PREFIX}/pkg/icon/${item.pkgIconID}`
                       :
-                      defaultApp
+                      defaultAppSmall
                     :
                     item.versions[0].iconID ?
                       `${API_URL_PREFIX}/pkg/icon/${item.versions[0].iconID}`
                       :
-                      defaultImage
+                      defaultImageSmall
                 }
               />
               <div className="rectAppName">

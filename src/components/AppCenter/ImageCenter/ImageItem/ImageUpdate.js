@@ -722,11 +722,15 @@ class ImageUpdate extends Component {
         isAsync: true
       },
       failed: {
-        func: (err) => {
-          Notification.error('删除规则失败')
+        func: err => {
           this.setState({
             SwitchRulesVisible: false
           })
+          if (err.statusCode === 412) {
+            Notification.warn('删除复制规则失败', '仍有未完成的任务或规则未停用。')
+            return
+          }
+          Notification.error('删除规则失败')
         }
       }
     })
@@ -1255,7 +1259,7 @@ function mapStateToProp(state, props) {
   const { data: allTargetList } = allTargets
   return {
     detail,
-    loading: imageUpdate.isFetching,
+    loading: isReplications ? rules.isFetching : imageUpdate.isFetching,
     rulesData: isReplications ? ruleList : policies || [],
     taskUpdataData: jobs || [],
     targets: isReplications ? allTargetList : targets || [],

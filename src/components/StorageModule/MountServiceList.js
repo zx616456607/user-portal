@@ -21,7 +21,8 @@ class MountServiceList extends Component {
     super(props)
     this.renderServiceList = this.renderServiceList.bind(this)
     this.state = {
-
+      changeValue: undefined,
+      searchValue: undefined,
     }
   }
 
@@ -31,6 +32,12 @@ class MountServiceList extends Component {
   }
 
   renderServiceList(mountserviceData){
+    const { searchValue } = this.state
+    if (!mountserviceData.length && searchValue) {
+      return <div id='mount_service_list'>
+        <div className='no_data'>未搜索到符合条件的服务</div>
+      </div>
+    }
     if(!mountserviceData.length){
       return <div id='mount_service_list'>
         <div className='no_data'>无绑定服务</div>
@@ -59,8 +66,20 @@ class MountServiceList extends Component {
 
   searchService(){
     const { searchStoreageBindInfo } = this.props
-    const value = document.getElementById('search_service').value
-    searchStoreageBindInfo(value)
+    const { changeValue } = this.state
+    this.setState({
+      searchValue: changeValue
+    }, () => {
+      const { searchValue } = this.state
+      searchStoreageBindInfo(searchValue)
+    })
+  }
+
+  searchInputChange(e) {
+    const changeValue = e.target.value.trim()
+    this.setState({
+      changeValue,
+    })
   }
 
   render() {
@@ -81,6 +100,7 @@ class MountServiceList extends Component {
               placeholder="按服务名称搜索"
               id='search_service'
               onPressEnter={() => this.searchService()}
+              onChange={e => this.searchInputChange(e)}
             />
             <i className="fa fa-search search_icon" aria-hidden="true" onClick={() => this.searchService()}></i>
           </div>
