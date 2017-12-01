@@ -312,7 +312,7 @@ class ImageVersion extends Component {
               role === 2 ?
                 <Button className="delete" onClick={this.handleBatchDel.bind(this)} ><Icon type="delete" />删除</Button> : ''
             }
-            <Button className="delete" onClick={this.handleRefresh.bind(this)}><i className='fa fa-refresh' /> &nbsp;刷新</Button>
+            <Button className="refresh" onClick={this.handleRefresh.bind(this)}><i className='fa fa-refresh' /> &nbsp;刷新</Button>
             {/* <div className='SearchInput' style={{ width: 280 }}>
               <div className='littleLeft'>
                 <i className='fa fa-search' onClick={this.handleSearch} />
