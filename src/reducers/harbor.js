@@ -529,7 +529,7 @@ function rules(state = {}, action) {
       return merge({}, state, {
         isFetching: false
       })
-    default: 
+    default:
       return state
   }
 }

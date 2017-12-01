@@ -198,7 +198,7 @@ class ImageVersion extends Component {
     let names = ''
     if (warehouseName) {
       warehouseName.forEach(item => {
-        names += `, ${item}`
+        names += `,${item}`
       })
       this.setState({
         aryName: names.replace(',', ''),
@@ -231,13 +231,19 @@ class ImageVersion extends Component {
     })
   }
 
+  handleRefresh() {
+    const { detailAry } = this.props
+    this.fetchData(detailAry)
+  }
+
   render() {
-    const { isFetching, detailAry } = this.props
+    const { isFetching, detailAry, role } = this.props
     const { edition, dataAry, delValue, aryName, isBatchDel } = this.state
     const imageDetail = this.props.config
     const rowSelection = {
       onChange: this.onSelectChange.bind(this)
     }
+
     const columns = [{
       id: 'id',
       title: '版本',
@@ -248,21 +254,22 @@ class ImageVersion extends Component {
       title: '操作',
       dataIndex: 'comment',
       render: (text, record) => <div>
-        {
-          <Dropdown.Button
-            overlay={
-              <Menu style={{ width: '115px' }} onClick={this.handleMenu.bind(this, record)} >
-                <MenuItem key='deploy'>
-                  <i className="anticon anticon-appstore-o"></i> 部署镜像
-                </MenuItem>
-                <MenuItem key='del'>
-                  <Icon type="delete" /> 删除
-                </MenuItem>
-              </Menu>
-            } type="ghost" onClick={this.handleDetail.bind(this, record)}>
-            <Icon type="eye-o" />查看详情
+        <Dropdown.Button
+          overlay={
+            <Menu style={{ width: '115px' }} onClick={this.handleMenu.bind(this, record)} >
+              <MenuItem key='deploy'>
+                <i className="anticon anticon-appstore-o"></i> 部署镜像
+              </MenuItem>
+              {
+                role === 2 ?
+                  <MenuItem key='del'>
+                    <Icon type="delete" /> 删除
+                  </MenuItem> : ''
+              }
+            </Menu>
+          } type="ghost" onClick={this.handleDetail.bind(this, record)}>
+          <Icon type="eye-o" />查看详情
           </Dropdown.Button>
-        }
       </div >
     }]
 
@@ -301,7 +308,11 @@ class ImageVersion extends Component {
         {/* {<MyComponent loading={isFetching} config={imageDetailTag} fullname={imageDetail.name ? imageDetail.name : imageDetail} />} */}
         < div className="table" >
           <div className="top">
-            <Button className="delete" onClick={this.handleBatchDel.bind(this)} ><Icon type="delete" />删除</Button>
+            {
+              role === 2 ?
+                <Button className="delete" onClick={this.handleBatchDel.bind(this)} ><Icon type="delete" />删除</Button> : ''
+            }
+            <Button className="delete" onClick={this.handleRefresh.bind(this)}><i className='fa fa-refresh' /> &nbsp;刷新</Button>
             {/* <div className='SearchInput' style={{ width: 280 }}>
               <div className='littleLeft'>
                 <i className='fa fa-search' onClick={this.handleSearch} />
@@ -317,12 +328,10 @@ class ImageVersion extends Component {
               </div>
             </div> */}
             <div className="right">
-            <span style={{ verticalAlign: 'super' }}>共计 {dataAry.length} 条</span>
+              <span style={{ verticalAlign: 'super' }}>共计 {dataAry.length} 条</span>
               {/* <Pagination className="pag" {...pageOption} /> */}
             </div>
-
           </div>
-
           <div className="body">
             <Table
               columns={columns}
@@ -360,6 +369,8 @@ function mapStateToProps(state, props) {
     tag: [],
   }
   const { imageTags } = state.harbor
+  const { loginUser } = state.entities
+  const { role } = loginUser.info
   let processedName = encodeImageFullname(props.config.name)
   let targetImageTag = {}
   if (imageTags[DEFAULT_REGISTRY]) {
@@ -367,6 +378,7 @@ function mapStateToProps(state, props) {
   }
   const { tag, server } = targetImageTag || defaultImageDetailTag
   return {
+    role,
     detailAry: tag,
     isFetching: targetImageTag.isFetching
   }
