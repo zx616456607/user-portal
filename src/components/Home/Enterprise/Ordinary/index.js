@@ -597,7 +597,7 @@ class Ordinary extends Component {
       redis: "Redis",
       zookeeper: "ZooKeeper",
       elasticsearch: "ElasticSearch",
-      etcd: "Etcd",
+      //etcd: "Etcd",
     }
     const statefulAppTabMapping = {
       mysql: 'tab1',
