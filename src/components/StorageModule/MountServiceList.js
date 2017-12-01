@@ -31,6 +31,15 @@ class MountServiceList extends Component {
   }
 
   renderServiceList(mountserviceData){
+    let value = undefined
+    if (document.getElementById('search_service')) {
+      value = document.getElementById('search_service').value
+    }
+    if (!mountserviceData.length && value) {
+      return <div id='mount_service_list'>
+        <div className='no_data'>未搜索到符合条件的服务</div>
+      </div>
+    }
     if(!mountserviceData.length){
       return <div id='mount_service_list'>
         <div className='no_data'>无绑定服务</div>
