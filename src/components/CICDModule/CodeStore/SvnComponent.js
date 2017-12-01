@@ -169,7 +169,16 @@ let SvnComponent = React.createClass({
     });
     const forUrl = getFieldProps('address', {
       rules: [
-        { required: true, message: "请输入地址" }
+        { validator: (rule, value, callback) => {
+            if (!value) {
+              return callback('请输入地址')
+            }
+            if (!/^(http|https|svn):/.test(value)) {
+              return callback('只支持 http, https, svn 协议地址')
+            }
+            return callback()
+          }
+        }
       ],
     });
     const forType = getFieldProps('type', {
