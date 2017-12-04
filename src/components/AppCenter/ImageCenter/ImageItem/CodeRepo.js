@@ -228,7 +228,7 @@ class CodeRepo extends Component {
             </Menu>
           );
           return (
-            <Dropdown.Button overlay={dropdown} type="ghost" trigger={['click']} onClick={() => browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${server}&imageName=${row.name}`)}>
+            <Dropdown.Button overlay={dropdown} type="ghost" onClick={() => browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${server}&imageName=${row.name}`)}>
               部署服务
             </Dropdown.Button>
           )

@@ -15,7 +15,7 @@ import { Icon, Button, Tooltip, Select } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import CodeMirror from 'react-codemirror'
+import {UnControlled as CodeMirror} from 'react-codemirror2'
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/monokai.css'
 import 'codemirror/theme/abcdef.css'
@@ -104,6 +104,7 @@ class Editor extends Component {
     this.onChangeLastError = this.onChangeLastError.bind(this);
     this.onChangeNextError = this.onChangeNextError.bind(this);
     this.onChangeTheme = this.onChangeTheme.bind(this);
+    this.codeMirrorChange = this.codeMirrorChange.bind(this)
     this.state = {
       currentBox: 'normal',
       currentValues: '',
@@ -185,6 +186,11 @@ class Editor extends Component {
     })
   }
 
+  codeMirrorChange(editor, data, value) {
+    const { onChange } = this.props
+    onChange(value)
+  }
+
   render() {
     const { title, errorList, currentErrorIndex, onChange } = this.props;
     const { currentTheme, currentBox, currentValues } = this.state
@@ -240,7 +246,7 @@ class Editor extends Component {
             </Select>
           </div>
         </div>
-        <CodeMirror ref='CodeMirror' value={currentValues} options={options} onChange={onChange} />
+        <CodeMirror ref='CodeMirror' value={currentValues} options={options} onChange={this.codeMirrorChange} autoCursor={false}/>
         {
           !options.readOnly && title == 'Yaml' ? [
             <div className='CodeMirrorErrorBox' key='CodeMirrorErrorBox'>
