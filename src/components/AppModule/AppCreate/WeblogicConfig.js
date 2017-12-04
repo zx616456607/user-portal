@@ -16,6 +16,7 @@ class Weblogic extends React.Component {
   constructor() {
     super()
     this.state ={
+      readOnly: true
     }
   }
   componentDidMount() {
@@ -28,8 +29,15 @@ class Weblogic extends React.Component {
     let callback= null
     form.validateFields((errors,values)=> {
       if(errors) return false
+      if (!!values.DB_checked) {
+        values.SERVICE_NAME = values.isRAC
+      } else {
+        values.SID = values.isRAC
+      }
       callback = values
     })
+    delete callback.DB_checked
+    delete callback.isRAC
     return callback
   }
   checkUrl(rule,value,callback) {
@@ -119,10 +127,16 @@ class Weblogic extends React.Component {
           <Input size="large" {...portProps} placeholder="请输入端口" />
         </Form.Item>
         <Form.Item {...formItemLayout} label="用户名">
-          <Input size="large" {...userNameProps} placeholder="请输入用户名" />
+          <Input size="large" {...userNameProps} autoComplete="off" placeholder="请输入用户名" />
         </Form.Item>
         <Form.Item {...formItemLayout} label="密码">
-          <Input size="large" type="password" {...psdProps} placeholder="请输入密码" />
+          <Input size="large"
+            autoComplete="off"
+            readOnly={this.state.readOnly}
+            onFocus={() => this.setState({ readOnly: false })}
+            onBlur={() => this.setState({ readOnly: true })}
+            type="password" {...psdProps} placeholder="请输入密码"
+          />
         </Form.Item>
         <Form.Item {...formItemLayout} label={isRac ? '服务名称':'SID'}>
           <Input size="large" {...racProps} placeholder={`请输入${isRac ? '服务名称':'SID'}`} />
