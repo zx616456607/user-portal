@@ -123,6 +123,10 @@ class ImageVersion extends Component {
       this.setState({
         dataAry: curData,
       })
+    } else {
+      this.setState({
+        dataAry: curData,
+      })
     }
   }
 
@@ -154,7 +158,7 @@ class ImageVersion extends Component {
   }
 
   handleOk() {
-    const { deleteAlone, scopeDetail } = this.props
+    const { deleteAlone, scopeDetail, loadRepositoriesTags, config } = this.props
     const { processedName, aryName, delValue, isBatchDel } = this.state
     let notify = new NotificationHandler()
     const query = {
@@ -178,6 +182,7 @@ class ImageVersion extends Component {
           //   imageDetailModalShow: false,
           // })
           scopeDetail.loadRepos()
+          loadRepositoriesTags(DEFAULT_REGISTRY, config.name)
         },
         isAsync: true
       }, failed: {
@@ -232,8 +237,8 @@ class ImageVersion extends Component {
   }
 
   handleRefresh() {
-    const { detailAry } = this.props
-    this.fetchData(detailAry)
+    const { config } = this.props
+    loadRepositoriesTags(DEFAULT_REGISTRY, config.name)
   }
 
   render() {
