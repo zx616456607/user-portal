@@ -207,7 +207,7 @@ class ImageCheckTable extends React.Component {
     return { server, name }
   }
   render() {
-    const { imageCheckList, total, form, publish_time, loginUser } = this.props
+    const { imageCheckList, total, form, publish_time, loginUser, location } = this.props
     const { getFieldProps } = form
     const { rejectModal, copyStatus, imageDetailModalShow, currentImage } = this.state
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] === 1 && loginUser.role === ROLE_SYS_ADMIN
@@ -366,7 +366,7 @@ class ImageCheckTable extends React.Component {
                   disabled={!isAdmin}
                   onClick={() => this.checkImageStatus(record, 7)} 
                 >
-                  删除
+                  删除记录
                 </Button>
             }
             {
@@ -422,7 +422,7 @@ class ImageCheckTable extends React.Component {
           transitionName="move-right"
           onCancel={()=> this.setState({imageDetailModalShow:false})}
         >
-          <ProjectDetail server={serverName} visible={imageDetailModalShow} scope={this} config={currentImage}/>
+          <ProjectDetail location={location} isAdminAndHarbor={isAdmin} server={serverName} visible={imageDetailModalShow} scope={this} config={currentImage}/>
         </Modal>
       </div>
     )
@@ -480,7 +480,7 @@ class ImageCheck extends React.Component {
     }, callback && this.getImagePublishList)
   }
   render() {
-    const { imageCheckList, total, appStoreApprove, loginUser } = this.props
+    const { imageCheckList, total, appStoreApprove, loginUser, location } = this.props
     const { filterName, current, publish_time } = this.state
     return(
       <div className="imageCheck">
@@ -499,6 +499,7 @@ class ImageCheck extends React.Component {
           <span className="total verticalCenter">共 {total && total} 条</span>
         </div>
         <ImageCheckTable
+          location={location}
           imageCheckList={imageCheckList}
           current={current}
           publish_time={publish_time}

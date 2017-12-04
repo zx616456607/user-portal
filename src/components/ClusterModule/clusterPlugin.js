@@ -708,7 +708,7 @@ class ClusterPlugin extends Component {
               </Menu>
             )
           } else {
-            if (row.name === 'fluentd-elk') {
+            if (row.serviceInfo && row.serviceInfo.isDeamonSet === true) {
               menu = (
                 <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
                   <Menu.Item key="delete">卸载插件</Menu.Item>
