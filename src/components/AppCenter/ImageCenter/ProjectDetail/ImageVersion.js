@@ -154,7 +154,7 @@ class ImageVersion extends Component {
   }
 
   handleOk() {
-    const { deleteAlone, scopeDetail, isWrapStore, location } = this.props
+    const { deleteAlone, scopeDetail, loadRepositoriesTags, config } = this.props
     const { processedName, aryName, delValue, isBatchDel } = this.state
     let notify = new NotificationHandler()
     if (isWrapStore) {
@@ -178,14 +178,11 @@ class ImageVersion extends Component {
           this.setState({
             deleteVisible: false,
           })
-          scopeDetail.setState({
-            imageDetailModalShow: false,
-          })
-          if (location.pathname === '/app_center/wrap_check') {
-            scopeDetail.props.getImagePublishList()
-          } else {
-            scopeDetail.loadRepos()
-          }
+          // scopeDetail.setState({
+          //   imageDetailModalShow: false,
+          // })
+          scopeDetail.loadRepos()
+          loadRepositoriesTags(DEFAULT_REGISTRY, config.name)
         },
         isAsync: true
       }, failed: {
@@ -200,7 +197,7 @@ class ImageVersion extends Component {
       }
     })
   }
-  
+
   offShelfImage() {
     const { appStoreApprove, config, scopeDetail } = this.props
     const { delValue } = this.state
@@ -241,7 +238,7 @@ class ImageVersion extends Component {
       }
     })
   }
-  
+
   handleBatchDel() {
     const { warehouseName } = this.state
     let names = ''
@@ -281,8 +278,8 @@ class ImageVersion extends Component {
   }
 
   handleRefresh() {
-    const { detailAry } = this.props
-    this.fetchData(detailAry)
+    const { config } = this.props
+    loadRepositoriesTags(DEFAULT_REGISTRY, config.name)
   }
 
   render() {
