@@ -253,7 +253,7 @@ class ImageDetailBox extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const imageInfo = this.props.config;
-    const { imageType, UpgradeVisible, scope } = this.props
+    const { imageType, UpgradeVisible, scope, isAdminAndHarbor, location } = this.props
     if (!imageInfo) {
       return ('')
     }
@@ -354,7 +354,7 @@ class ImageDetailBox extends Component {
         </div>
         <div className="tabBox">
           <Tabs className="itemList" activeKey={this.state.activeKey} onChange={this.handleTabsSwitch}>
-            <TabPane tab={formatMessage(menusText.tag)} key="tag"><ImageVersion scope={this} config={imageDetail} scopeDetail={scope}/></TabPane>
+            <TabPane tab={formatMessage(menusText.tag)} key="tag"><ImageVersion location={location} isAdminAndHarbor={isAdminAndHarbor} scope={this} config={imageDetail} scopeDetail={scope}/></TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="attr"><Attribute detailInfo={imageInfo} /></TabPane>
             <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} imageType="publicImages" registry={DEFAULT_REGISTRY} tagVersion={this.state.tag} tabledisabled={this.state.tabledisabled} /></TabPane>
           </Tabs>
