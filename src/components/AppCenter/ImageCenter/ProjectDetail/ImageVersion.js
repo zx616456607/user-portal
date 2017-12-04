@@ -154,7 +154,7 @@ class ImageVersion extends Component {
   }
 
   handleOk() {
-    const { deleteAlone, scopeDetail, loadRepositoriesTags, config } = this.props
+    const { deleteAlone, scopeDetail, loadRepositoriesTags, config, isWrapStore } = this.props
     const { processedName, aryName, delValue, isBatchDel } = this.state
     let notify = new NotificationHandler()
     if (isWrapStore) {
