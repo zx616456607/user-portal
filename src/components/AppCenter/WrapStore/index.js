@@ -15,6 +15,8 @@ import { Tabs } from 'antd'
 import { getWrapStoreList, getWrapStoreHotList, getWrapGroupList } from '../../../actions/app_center'
 import { getAppsList, getAppsHotList } from '../../../actions/app_store'
 import './style/index.less'
+import { camelize } from 'humps'
+import { ROLE_SYS_ADMIN } from '../../../../constants'
 import StoreTemplate from './StoreTemplate'
 import CommonSearchInput from '../../CommonSearchInput'
 const TabPane = Tabs.TabPane;
@@ -100,10 +102,12 @@ class AppWrapStore extends React.Component {
   render() {
     const { 
       wrapGroupList, wrapStoreList, wrapStoreHotList, 
-      role, imageStoreList, imageHotList, wrapStoreFetching,
-      wrapHotFetching, imageStoreFetching, imageHotFetching
+      imageStoreList, imageHotList, wrapStoreFetching,
+      wrapHotFetching, imageStoreFetching, imageHotFetching,
+      loginUser
     } = this.props
     const { activeKey, current, classify, sort_by, rectStyle } = this.state
+    const isAdmin = loginUser.harbor[camelize('has_admin_role')] === 1 && loginUser.role === ROLE_SYS_ADMIN
     return (
       <QueueAnim>
         <div key="appWrapStore" className="appWrapStore">
@@ -119,6 +123,7 @@ class AppWrapStore extends React.Component {
           <Tabs className="storeTabs" activeKey={activeKey} onChange={this.changeTab}>
             <TabPane tab="镜像商店" key="image">
               <StoreTemplate
+                isAdmin={isAdmin}
                 activeKey={activeKey}
                 current={current}
                 classify={classify}
@@ -129,13 +134,13 @@ class AppWrapStore extends React.Component {
                 dataFetching={imageStoreFetching}
                 dataHotList={imageHotList}
                 dataHotFetching={imageHotFetching}
-                role={role}
                 getStoreList={this.getStoreList}
                 updateParentState={this.updateParentState}
               />
             </TabPane>
             <TabPane tab="应用包商店" key="app">
               <StoreTemplate
+                isAdmin={isAdmin}
                 activeKey={activeKey}
                 current={current}
                 classify={classify}
@@ -146,7 +151,6 @@ class AppWrapStore extends React.Component {
                 dataFetching={wrapStoreFetching}
                 dataHotList={wrapStoreHotList}
                 dataHotFetching={wrapHotFetching}
-                role={role}
                 getStoreList={this.getStoreList}
                 updateParentState={this.updateParentState}
               />
@@ -161,7 +165,6 @@ class AppWrapStore extends React.Component {
 function mapStateToProps(state) {
   const { images, entities, appStore } = state
   const { loginUser } = entities
-  const { role } = loginUser.info || { role: 0 }
   const { wrapStoreList, wrapStoreHotList, wrapGroupList } = images
   const { result: storeList, isFetching: wrapStoreFetching } = wrapStoreList || { result: {}, isFetching: false }
   const { data: storeData } = storeList || { data: [] }
@@ -173,6 +176,7 @@ function mapStateToProps(state) {
   const { data: imageStoreList, isFetching: imageStoreFetching } = imagePublishRecord || { data: {}, isFetching: false }
   const { data: imageHotList, isFetching: imageHotFetching } = imageHotRecord || { data: {}, isFetching: false }
   return {
+    loginUser: loginUser.info,
     wrapStoreList: storeData,
     wrapStoreFetching,
     wrapStoreHotList: storeHotData,
@@ -181,8 +185,7 @@ function mapStateToProps(state) {
     imageStoreList,
     imageStoreFetching,
     imageHotList,
-    imageHotFetching,
-    role
+    imageHotFetching
   }
 }
 export default connect(mapStateToProps, {
