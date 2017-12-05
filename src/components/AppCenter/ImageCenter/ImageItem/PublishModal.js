@@ -186,7 +186,7 @@ class PublishModal extends React.Component {
     let notify = new NotificationHandler()
     let validateArr = ['imageName', 'tagsName', 'description', 'classifyName', 'request_message']
     if (!publishName) {
-      validateArr.concat('fileNickName')
+      validateArr.push('fileNickName')
     }
     form.validateFields(validateArr, (errors, values) => {
       if (!!errors) {
