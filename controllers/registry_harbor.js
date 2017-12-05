@@ -200,6 +200,14 @@ exports.deleteProjectMember = harborHandler(
 exports.getProjectRepositories = harborHandler(
   (harbor, ctx, callback) => harbor.getProjectRepositories(ctx.query, callback))
 
+// [GET] /repositories/:name
+exports.getRepository= harborHandler(
+  (harbor, ctx, callback) => harbor.getRepository(ctx.params.name, callback))
+
+// [PUT] /repositories/:name
+exports.updateRepository= harborHandler(
+  (harbor, ctx, callback) => harbor.updateRepository(ctx.params.name, ctx.request.body, callback))
+
 // [GET] /statistics
 exports.getStatistics = harborHandler(
   (harbor, ctx, callback) => {
