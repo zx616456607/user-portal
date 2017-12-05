@@ -295,6 +295,8 @@ module.exports = function (Router) {
   router.put('/registries/:registry/projects/:project_id/members/:user_id', harborController.updateProjectMember)
   router.del('/registries/:registry/projects/:project_id/members/:user_id', harborController.deleteProjectMember)
   router.get('/registries/:registry/repositories', harborController.getProjectRepositories)
+  router.get('/registries/:registry/repositories/:name', harborController.getRepository)
+  router.put('/registries/:registry/repositories/:name', harborController.updateRepository)
 
   router.get('/registries/:registry/logs', harborController.getLogs)
   router.post('/registries/:registry/projects/:projectID/logs', harborController.getProjectLogs)
