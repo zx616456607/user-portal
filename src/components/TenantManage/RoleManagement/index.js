@@ -252,12 +252,15 @@ class RoleManagement extends React.Component {
    */
   handleOkDel(e) {
     const { DeleteRole } = this.props
-    const { id, isChecked } = this.state
+    const { id, isChecked, roleData} = this.state
     let notification = new NotificationHandler()
     notification.spin(`删除中...`)//${this.state.Name}
     let res = {
       id: id,
       state: isChecked
+    }
+    if (roleData && roleData.length > 0) {
+      res.name = roleData[0].name
     }
     DeleteRole({ res }, {
       success: {
