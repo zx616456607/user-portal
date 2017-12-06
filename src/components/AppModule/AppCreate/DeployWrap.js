@@ -218,7 +218,7 @@ class WrapManage extends Component {
   }
   templateVersion() {
     const { defaultTemplate, template } = this.state
-    if (!defaultTemplate) {
+    if (defaultTemplate === null) {
       return <Select.Option key="none">请先选择应用包</Select.Option>
     }
     return template[defaultTemplate].version.map(item=> {
