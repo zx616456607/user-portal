@@ -494,7 +494,7 @@ class WrapComopnent extends React.Component {
     ]
   }
   render() {
-    const { current, dataSource, dataHotList, updateParentState, rectStyle } = this.props
+    const { current, dataSource, dataHotList, updateParentState, rectStyle, isAdmin, location, getStoreList, getAppsHotList } = this.props
     const { downloadModalVisible, currentImage, offShelfModal, imageDetailModalShow, offshelfId } = this.state
     let server
     let node
@@ -520,7 +520,15 @@ class WrapComopnent extends React.Component {
           transitionName="move-right"
           onCancel={()=> this.setState({imageDetailModalShow:false})}
         >
-          <ProjectDetail server={server} scope={this} config={currentImage}/>
+          <ProjectDetail
+            getStoreList={getStoreList} 
+            getAppsHotList={getAppsHotList} 
+            location={location} 
+            isAdminAndHarbor={isAdmin} 
+            server={server} 
+            scope={this} 
+            config={currentImage}
+          />
         </Modal>
         <Modal 
           title="下载镜像"

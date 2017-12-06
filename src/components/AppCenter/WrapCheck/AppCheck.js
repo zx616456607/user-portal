@@ -313,13 +313,13 @@ class WrapCheck extends React.Component {
   updateParentFilter(name) {
     this.setState({
       filterName:name
-    }, getWrapPublishList)
+    }, this.getWrapPublishList)
   }
   updateParentSort(sort_by, sort_order) {
     this.setState({
       sort_by: sort_by,
       sort_order: sort_order
-    }, getWrapPublishList)
+    }, this.getWrapPublishList)
   }
   updateParentPublishTime(time, callback) {
     this.setState({

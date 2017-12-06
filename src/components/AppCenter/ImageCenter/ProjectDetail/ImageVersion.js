@@ -16,8 +16,9 @@ import { encodeImageFullname } from '../../../../common/tools'
 import ServiceAPI from './ServiceAPI.js'
 import './style/ImageVersion.less'
 import NotificationHandler from '../../../../components/Notification'
-import { loadRepositoriesTags, deleteAlone } from '../../../../actions/harbor'
-
+import { loadRepositoriesTags, deleteAlone, loadProjectMembers } from '../../../../actions/harbor'
+import { appStoreApprove } from '../../../../actions/app_store'
+import isEmpty from 'lodash/isEmpty'
 const TabPane = Tabs.TabPane
 const Search = Input.Search
 const Option = Select.Option
@@ -111,8 +112,7 @@ class ImageVersion extends Component {
 
   fetchData(data) {
     const curData = []
-    if (data === undefined) return
-    if (Object.keys(data).length > 0) {
+    if (data && data.length) {
       data.forEach((item, index) => {
         const curColums = {
           id: index,
@@ -120,10 +120,10 @@ class ImageVersion extends Component {
         }
         curData.push(curColums)
       })
-      this.setState({
-        dataAry: curData,
-      })
     }
+    this.setState({
+      dataAry: curData,
+    })
   }
 
   handleClose() {
@@ -154,9 +154,13 @@ class ImageVersion extends Component {
   }
 
   handleOk() {
-    const { deleteAlone, scopeDetail } = this.props
+    const { deleteAlone, scopeDetail, loadRepositoriesTags, config, isWrapStore } = this.props
     const { processedName, aryName, delValue, isBatchDel } = this.state
     let notify = new NotificationHandler()
+    if (isWrapStore) {
+      this.offShelfImage()
+      return
+    }
     const query = {
       tagName: isBatchDel ? aryName.trim() : delValue,
       registry: DEFAULT_REGISTRY,
@@ -178,6 +182,7 @@ class ImageVersion extends Component {
           //   imageDetailModalShow: false,
           // })
           scopeDetail.loadRepos()
+          loadRepositoriesTags(DEFAULT_REGISTRY, config.name)
         },
         isAsync: true
       }, failed: {
@@ -189,6 +194,47 @@ class ImageVersion extends Component {
           }
         },
         isAsync: true
+      }
+    })
+  }
+
+  offShelfImage() {
+    const { appStoreApprove, config, scopeDetail } = this.props
+    const { delValue } = this.state
+    let notify = new NotificationHandler()
+    let offshelfId
+    let versions = config.versions
+    for (let i = 0; i < versions.length; i++) {
+      if (versions[i].tag === delValue) {
+        offshelfId = versions[i].iD
+        break
+      }
+    }
+    const body = {
+      id: offshelfId,
+      type: 2,
+      status: 4,
+      imageTagName: `${config.resourceName}:${delValue}`
+    }
+    appStoreApprove(body, {
+      success: {
+        func: () => {
+          notify.success('删除成功')
+          scopeDetail.setState({
+            imageDetailModalShow: false,
+          })
+          this.setState({
+            deleteVisible: false,
+          })
+          scopeDetail.props.getStoreList()
+          scopeDetail.props.getAppsHotList()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notify.error('删除失败')
+        }
       }
     })
   }
@@ -232,12 +278,12 @@ class ImageVersion extends Component {
   }
 
   handleRefresh() {
-    const { detailAry } = this.props
-    this.fetchData(detailAry)
+    const { config } = this.props
+    loadRepositoriesTags(DEFAULT_REGISTRY, config.name)
   }
 
   render() {
-    const { isFetching, detailAry, role } = this.props
+    const { isFetching, detailAry, isAdminAndHarbor, isWrapStore, scopeDetail, location } = this.props
     const { edition, dataAry, delValue, aryName, isBatchDel } = this.state
     const imageDetail = this.props.config
     const rowSelection = {
@@ -261,9 +307,9 @@ class ImageVersion extends Component {
                 <i className="anticon anticon-appstore-o"></i> 部署镜像
               </MenuItem>
               {
-                role === 2 ?
+                isAdminAndHarbor ?
                   <MenuItem key='del'>
-                    <Icon type="delete" /> 删除
+                    <Icon type="delete" /> {isWrapStore ? '下架（删除）' : '删除'}
                   </MenuItem> : ''
               }
             </Menu>
@@ -309,7 +355,7 @@ class ImageVersion extends Component {
         < div className="table" >
           <div className="top">
             {
-              role === 2 ?
+              isAdminAndHarbor && !isWrapStore ?
                 <Button className="delete" onClick={this.handleBatchDel.bind(this)} ><Icon type="delete" />删除</Button> : ''
             }
             <Button className="refresh" onClick={this.handleRefresh.bind(this)}><i className='fa fa-refresh' /> &nbsp;刷新</Button>
@@ -338,7 +384,7 @@ class ImageVersion extends Component {
               dataSource={dataAry}
               loading={false}
               pagination={pageOption}
-              rowSelection={rowSelection}
+              rowSelection={isWrapStore ? null : rowSelection}
             />
           </div>
         </div>
@@ -368,23 +414,29 @@ function mapStateToProps(state, props) {
     server: '',
     tag: [],
   }
+  const { location } = props
+  const { pathname } = location || { pathname: '' }
   const { imageTags } = state.harbor
-  const { loginUser } = state.entities
-  const { role } = loginUser.info
   let processedName = encodeImageFullname(props.config.name)
   let targetImageTag = {}
   if (imageTags[DEFAULT_REGISTRY]) {
     targetImageTag = imageTags[DEFAULT_REGISTRY][processedName] || {}
   }
+  let isWrapStore = false
+  if (pathname === '/app_center/wrap_store') {
+    isWrapStore = true
+  }
   const { tag, server } = targetImageTag || defaultImageDetailTag
   return {
-    role,
     detailAry: tag,
-    isFetching: targetImageTag.isFetching
+    isFetching: targetImageTag.isFetching,
+    isWrapStore
   }
 }
 
 export default connect(mapStateToProps, {
   deleteAlone,
-  loadRepositoriesTags
+  loadRepositoriesTags,
+  loadProjectMembers,
+  appStoreApprove
 })(ImageVersion)

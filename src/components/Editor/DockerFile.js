@@ -30,7 +30,9 @@ class DockerFileEditor extends Component {
   }
   onChangeFunc(e) {
     const { callback } = this.props;
-    callback(e);
+    if (callback) {
+      callback(e)
+    }
   }
   render() {
     const { value, options, parentId, callback, title } = this.props

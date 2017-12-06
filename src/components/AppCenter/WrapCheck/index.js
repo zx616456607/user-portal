@@ -33,6 +33,7 @@ export default class CheckPage extends React.Component {
     })
   }
   render() {
+    const { location } = this.props
     const { activeKey } = this.state
     const imageComposeStyle = classNames({
       'tabs_item_style': true,
@@ -56,7 +57,7 @@ export default class CheckPage extends React.Component {
             应用包审核
           </li>
         </ul>
-        {activeKey === "image" ? [<ImageCheck activeKey={activeKey} />] : null}
+        {activeKey === "image" ? [<ImageCheck activeKey={activeKey} location={location} />] : null}
         {activeKey === "app" ? [<AppCheck activeKey={activeKey} />] : null}
         {/*<Tabs key="checkPage" type="card" onChange={this.tabChange} className="checkPage" activeKey={activeKey}>*/}
           {/*<TabPane tab="镜像审核" key="image">*/}

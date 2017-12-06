@@ -21,6 +21,7 @@ import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../cons
 import { API_URL_PREFIX } from '../../../constants'
 import cloneDeep from 'lodash/cloneDeep'
 import ReleaseAppModal from './ReleaseAppModal'
+import WrapDetailModal from './WrapDetailModal'
 
 import { wrapManageList, deleteWrapManage, releaseWrap, getWrapStoreList } from '../../../actions/app_center'
 const RadioGroup = Radio.Group
@@ -38,6 +39,7 @@ class WrapListTable extends Component {
     super()
     this.rowClick = this.rowClick.bind(this)
     this.closeRleaseModal = this.closeRleaseModal.bind(this)
+    this.closeDetailModal = this.closeDetailModal.bind(this)
     this.state = {
       page: 1,
     }
@@ -257,11 +259,17 @@ class WrapListTable extends Component {
     }
     return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && record.approveMessage}/>
   }
-
+  
+  closeDetailModal() {
+    this.setState({
+      detailModal: false
+    })  
+  }
+  
   render() {
     // jar war ,tar.gz zip
     const { func, rowCheckbox, releaseWrap, wrapManageList, wrapList, wrapStoreList, currentType } = this.props
-    const { releaseVisible, currentApp } = this.state
+    const { releaseVisible, currentApp, detailModal } = this.state
     const dataSource = currentType === 'trad' ? wrapList : wrapStoreList
     const columns = [
       {
@@ -269,7 +277,7 @@ class WrapListTable extends Component {
         dataIndex: 'fileName',
         key: 'name',
         width: '10%',
-        render: (text,row) => <Tooltip title="点击下载"><a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}><Icon type="download" /> {text}</a></Tooltip>
+        render: text => <span className="pointer themeColor" onClick={() => this.setState({detailModal: true})}>{text}</span>
       }, {
         title: '版本标签',
         dataIndex: 'fileTag',
@@ -353,6 +361,10 @@ class WrapListTable extends Component {
 
     return (
       <div className="wrapListTable" id="wrapListTable">
+        <WrapDetailModal
+          visible={detailModal}
+          closeDetailModal={this.closeDetailModal}
+        />
         <ReleaseAppModal
           currentApp={currentApp}
           visible={releaseVisible}

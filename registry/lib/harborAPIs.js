@@ -377,6 +377,18 @@ HarborAPIs.prototype.getProjectRepositories = function (query, callback) {
   this.sendRequest(url, 'GET', null, callback)
 }
 
+// [GET] /repositories/:name
+HarborAPIs.prototype.getRepository = function (name, callback) {
+  const url = `${this.getAPIPrefix()}/repositories/${name}`
+  this.sendRequest(url, 'GET', null, callback)
+}
+
+// [PUT] /repositories/:name
+HarborAPIs.prototype.updateRepository = function (name, body, callback) {
+  const url = `${this.getAPIPrefix()}/repositories/${name}`
+  this.sendRequest(url, 'PUT', body, callback)
+}
+
 HarborAPIs.prototype.sendRequest = function (requestUrl, httpMethod, data, callback) {
   var method = "sendRequest";
   logger.info(method, "Sending request: " + requestUrl);

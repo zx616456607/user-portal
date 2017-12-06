@@ -21,6 +21,7 @@ import CodeRepo from './ImageItem/CodeRepo'
 import ImageUpdate from './ImageItem/ImageUpdate'
 import { loadProjectDetail, loadProjectMembers } from '../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../constants'
+import { ROLE_SYS_ADMIN } from '../../../../constants'
 import { camelize } from 'humps'
 import NotificationHandler from '../../../components/Notification'
 
@@ -82,7 +83,7 @@ class ItemDetail extends Component {
   }
 
   render() {
-    const { projectDetail, params, projectMembers, loginUser, registry, location } = this.props
+    const { projectDetail, params, projectMembers, loginUser, registry, location, role } = this.props
     const { name } = projectDetail
     const members = projectMembers.list || []
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] == 1
@@ -100,9 +101,10 @@ class ItemDetail extends Component {
       this.currentUser = currentMember
     }
     const currentUserRole = currentMember[camelize('role_id')]
+    let isAdminAndHarbor = (isAdmin && role === ROLE_SYS_ADMIN) || (currentUserRole === 1)
     const tabPanels = [
       <TabPane tab="镜像仓库" key="repo">
-        <CodeRepo registry={DEFAULT_REGISTRY} {...this.props} />
+        <CodeRepo registry={DEFAULT_REGISTRY} {...this.props} isAdminAndHarbor={isAdminAndHarbor}/>
       </TabPane>,
     ]
     if (currentUserRole > 0 || isAdmin) {
@@ -168,12 +170,15 @@ class ItemDetail extends Component {
 function mapStateToProps(state, props) {
   const { harbor, entities } = state
   const { location } = props
+  const { loginUser } = entities
+  const { role } = loginUser.info
   return {
     projectDetail: harbor.detail.data || {},
     projectMembers: harbor.members || {},
     loginUser: entities.loginUser.info,
     registry: DEFAULT_REGISTRY,
-    location
+    location,
+    role
   }
 }
 

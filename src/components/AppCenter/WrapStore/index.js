@@ -104,7 +104,7 @@ class AppWrapStore extends React.Component {
       wrapGroupList, wrapStoreList, wrapStoreHotList, 
       imageStoreList, imageHotList, wrapStoreFetching,
       wrapHotFetching, imageStoreFetching, imageHotFetching,
-      loginUser
+      loginUser, location
     } = this.props
     const { activeKey, current, classify, sort_by, rectStyle } = this.state
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] === 1 && loginUser.role === ROLE_SYS_ADMIN
@@ -123,6 +123,7 @@ class AppWrapStore extends React.Component {
           <Tabs className="storeTabs" activeKey={activeKey} onChange={this.changeTab}>
             <TabPane tab="镜像商店" key="image">
               <StoreTemplate
+                location={location}
                 isAdmin={isAdmin}
                 activeKey={activeKey}
                 current={current}
@@ -140,6 +141,7 @@ class AppWrapStore extends React.Component {
             </TabPane>
             <TabPane tab="应用包商店" key="app">
               <StoreTemplate
+                location={location}
                 isAdmin={isAdmin}
                 activeKey={activeKey}
                 current={current}

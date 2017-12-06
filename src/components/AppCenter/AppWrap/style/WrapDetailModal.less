@@ -1,0 +1,74 @@
+@import "../../../../assets/style/site/core";
+.wrapDetail{
+  .wrapDetailHeader{
+    padding: 30px 45px;
+    background-color: white;
+    border-bottom: @border-width-base @border-style-base @border-color-base;
+    display: flex;
+    display: -webkit-flex;
+    -webkit-align-items: center;
+    -moz-align-items: center;
+    -ms-align-items: center;
+    -o-align-items: center;
+    -khtml-align-items: center;
+    align-items: center;
+    .appLogo{
+      -webkit-flex: 0 0 100px;
+      -moz-flex: 0 0 100px;
+      -ms-flex: 0 0 100px;
+      -o-flex: 0 0 100px;
+      -khtml-flex: 0 0 100px;
+      flex: 0 0 100px;
+      height: 100px;
+      margin-right: 38px;
+      overflow: hidden;
+      border: @border-width-base @border-style-base @border-color-base;
+      border-radius: @border-radius-base;
+    }
+    .nameAndTag{
+      -webkit-flex: 1 1 auto;
+      -moz-flex: 1 1 auto;
+      -ms-flex: 1 1 auto;
+      -o-flex: 1 1 auto;
+      -khtml-flex: 1 1 auto;
+      flex: 1 1 auto;
+      .name{
+        font-size: @font-size-large;
+      }
+    }
+    .dropDown{
+      -webkit-flex: 0 0 115px;
+      -moz-flex: 0 0 115px;
+      -ms-flex: 0 0 115px;
+      -o-flex: 0 0 115px;
+      -khtml-flex: 0 0 115px;
+      flex: 0 0 115px;
+    }
+  }
+  .wrapDetailBody{
+    padding: 25px 30px;
+    .btnBox{
+      margin-bottom: 20px;
+      .cancelBtn{
+        margin-right: 12px;
+      }
+    }
+    .dataBox{
+      padding: 30px 38px;
+      background-color: white;
+      border: @border-width-base @border-style-base @border-color-base;
+      border-radius: @border-radius-base;
+      .ant-form-item{
+        .ant-form-item-label{
+          text-align: left;
+          label:after{
+            content: '';
+          }
+        }
+      }
+      .rowLabel{
+        margin-bottom: 24px;
+      }
+    }
+  }
+}
