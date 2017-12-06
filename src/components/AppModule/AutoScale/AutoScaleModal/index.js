@@ -23,6 +23,7 @@ import {
 } from '../../../../actions/alert'
 import Notification from '../../../Notification'
 import {ASYNC_VALIDATOR_TIMEOUT} from '../../../../constants'
+import { autoScaleNameCheck } from '../../../../common/naming_validation'
 import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import './style/index.less'
@@ -195,16 +196,9 @@ class AutoScaleModal extends React.Component {
   checkScaleName = (rule, value, callback) => {
     const {checkAutoScaleName, clusterID, form, create, scaleDetail} = this.props
     const {getFieldValue} = form
-    if (!value) {
-      return callback('请输入策略名称')
-    }
-    if (value.length < 3 || value.length > 21) {
-      return callback('策略名称长度在3-21位之间')
-    }
-    if (!isEmpty(scaleDetail)) {
-      if (getFieldValue('serviceName') === scaleDetail.serviceName) {
-        return callback()
-      }
+    let message = autoScaleNameCheck(value) 
+    if (message !== 'success') {
+      return callback(message)
     }
     const service_name = create ? getFieldValue('serviceName') : ''
     clearTimeout(this.checkScaleNameExist)

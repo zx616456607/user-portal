@@ -30,6 +30,7 @@ import AppAutoScaleLogs from './AppAutoScaleLogs'
 import './style/AppAutoScale.less'
 import NotificationHandler from '../../../components/Notification'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
+import { autoScaleNameCheck } from '../../../common/naming_validation'
 import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 
@@ -319,11 +320,9 @@ class AppAutoScale extends Component {
     const { checkAutoScaleName, cluster, form } = this.props
     const { isEdit, scaleDetail } = this.state
     const { getFieldValue } = form
-    if (!value) {
-      return callback('请输入策略名称')
-    }
-    if (value.length < 3 || value.length > 21) {
-      return callback('策略名称长度在3-21位之间')
+    let message = autoScaleNameCheck(value)
+    if (message !== 'success') {
+      return callback(message)
     }
     if (!isEmpty(scaleDetail)) {
       if (getFieldValue('serviceName') === scaleDetail.serviceName) {
