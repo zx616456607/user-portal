@@ -15,8 +15,9 @@ const CONTAINER_MAX_RESTART_COUNT = 5
  * return one of [Pending, Running, Terminating, Failed, Unknown, Abnormal]
  */
 export function getContainerStatus(container) {
-  const { status, metadata } = container
+  const { metadata } = container
   const { deletionTimestamp } = metadata
+  const status = container.status || { phase: 'Pending' }
   if (deletionTimestamp) {
     status.phase = 'Terminating'
   }
