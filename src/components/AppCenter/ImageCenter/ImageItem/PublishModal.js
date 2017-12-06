@@ -396,7 +396,7 @@ class PublishModal extends React.Component {
     wrapGroupList.classifies &&
     wrapGroupList.classifies.length &&
     wrapGroupList.classifies.forEach(item => {
-      children.push(<Option key={item.classifyName}>{item.classifyName}</Option>)
+      children.push(<Option value={item.classifyName} key={item.classifyName}>{item.classifyName}</Option>)
     })
     return(
       <div>
