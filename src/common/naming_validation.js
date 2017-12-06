@@ -369,3 +369,19 @@ export function KubernetesValidator() {
     return errs
   }
 }
+/**
+ * this function for create auto scale name check
+ */
+export function autoScaleNameCheck(value) {
+  if (!value) {
+    return '请输入策略名称'
+  }
+  if (value.length < 3 || value.length > 21) {
+    return '策略名称长度在3-21位之间'
+  }
+  let regx = /^[a-zA-Z0-9]+([-.~/][a-zA-Z0-9]+)*$/
+  if (!regx.test(value)) {
+    return '可由数字、中划线、下划线组成，以字母开头，字母或者数字结尾'
+  }
+  return 'success'
+}
