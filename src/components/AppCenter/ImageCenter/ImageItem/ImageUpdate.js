@@ -906,7 +906,7 @@ class ImageUpdate extends Component {
   }
 
   render(){
-    const { form, rulesData, taskUpdataData, imageUpdateLogs, isReplications } = this.props
+    const { form, rulesData, taskUpdataData, imageUpdateLogs, isReplications, loading } = this.props
     const { edit, currentRules, currentRulesEnabled } = this.state
     if(!rulesData || !taskUpdataData){
       return <div style={{textAlign:'center'}}><Spin style={{textAlign:'center'}}></Spin></div>
@@ -924,7 +924,7 @@ class ImageUpdate extends Component {
       }
     }
 
-    const menu = rulesData.map((item, index) => {
+    const menu = rulesData && rulesData.length && rulesData.map((item, index) => {
       return <Menu onClick={this.handleDropDownMenu.bind(this,index)}>
         {
           item.enabled == 1

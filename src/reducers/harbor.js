@@ -521,9 +521,10 @@ function rules(state = {}, action) {
         isFetching: true
       })
     case ActionTypes.GET_REPLICATION_POLICIES_SUCCESS:
+      let data = action.response.result.data
       return Object.assign({}, state, {
         isFetching: false,
-        data: action.response.result.data.map((item, index) => Object.assign(item, { key: index }))
+        data: data && data.length ? data.map((item, index) => Object.assign(item, { key: index })) : []
       })
     case ActionTypes.GET_REPLICATION_POLICIES_FAILURE:
       return merge({}, state, {
