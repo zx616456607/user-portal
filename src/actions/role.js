@@ -134,10 +134,7 @@ export const ROLE_DELETE_FAILURE = 'ROLE_DELETE_FAILURE'
 // Fetches get delete from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchDeleteRole(body,callback){
-	let endpoint = `${API_URL_PREFIX}/role/${body.res.id}`
-	if (body.res.state) {
-    endpoint += `?retain=${body.res.state}`
-  }
+	let endpoint = `${API_URL_PREFIX}/role/${body.res.id}?name=${body.res.name}`
 	return {
 		[FETCH_API]: {
       types: [ROLE_DELETE_REQUEST, ROLE_DELETE_SUCCESS, ROLE_DELETE_FAILURE],

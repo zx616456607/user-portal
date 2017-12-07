@@ -447,7 +447,11 @@ const MyComponent = React.createClass({
       ){
         const volumes = item.spec.template.spec.volumes
         for(let i = 0; i < volumes.length; i++){
-          if(volumes[i].persistentVolumeClaim || volumes[i].hostPath || volumes[i].rbd){
+          if(
+            volumes[i].persistentVolumeClaim
+            || volumes[i].rbd
+            || (volumes[i].hostPath && (volumes[i].hostPath.path !== '/etc/localtime' && volumes[i].hostPath.path !== '/etc/timezone'))
+          ){
             volume = true
             break
           }

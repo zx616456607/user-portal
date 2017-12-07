@@ -1,6 +1,9 @@
 # Dockerfile.alpine
 FROM mhart/alpine-node:6
 
+# If you have native dependencies, you'll need extra tools
+RUN apk add --no-cache bash git openssh
+
 # Create app directory
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app

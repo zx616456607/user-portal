@@ -14,7 +14,7 @@ const env = process.env
 
 module.exports = {
   protocol: env.IMAGE_SCAN_PROTOCOL || 'http',
-  host: env.IMAGE_SCAN_HOST || '192.168.1.24:18080',
+  host: env.IMAGE_SCAN_HOST || '192.168.1.250:18080',
   external_protocol: env.IMAGE_SCAN_EXTERNAL_PROTOCOL || 'http',
-  external_host: env.IMAGE_SCAN_EXTERNAL_HOST || '192.168.1.24',
+  external_host: env.IMAGE_SCAN_EXTERNAL_HOST || '192.168.1.250',
 }
