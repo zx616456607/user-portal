@@ -16,6 +16,7 @@ import classNames from 'classnames'
 import AppCheck from './AppCheck'
 import ImageCheck from './ImageCheck'
 import './style/index.less'
+import Title from '../../Title'
 import { getWrapPublishList, passWrapPublish, refuseWrapPublish } from '../../../actions/app_center'
 const TabPane = Tabs.TabPane;
 
@@ -45,6 +46,7 @@ export default class CheckPage extends React.Component {
     })
     return(
       <QueueAnim className="checkPage">
+        <Title title="发布审核"/>
         <ul className='tabs_header_style'>
           <li className={imageComposeStyle}
               onClick={this.tabChange.bind(this, "image")}
