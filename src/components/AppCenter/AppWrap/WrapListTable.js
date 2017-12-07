@@ -150,6 +150,11 @@ class WrapListTable extends Component {
             notify.error('发布失败', res.message || res.message.message)
           }
         }
+      },
+      finally: {
+        func: () => {
+          notify.close()
+        }
       }
     })
   }

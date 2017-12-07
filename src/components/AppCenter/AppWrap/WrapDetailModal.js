@@ -493,7 +493,7 @@ class WrapDetailModal extends React.Component {
                 上传时间
               </Col>
               <Col span={10}>
-                {formatDate(pkgDetail && pkgDetail.publishTime)}
+                {formatDate(pkgDetail && pkgDetail.creationTime)}
               </Col>
             </Row>
           </div>

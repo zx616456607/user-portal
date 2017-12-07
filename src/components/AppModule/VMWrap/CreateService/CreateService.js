@@ -39,12 +39,18 @@ class VMServiceCreate extends React.Component {
       normal:undefined,
       interval:undefined,
       packages:[],
-      env:[]
+      env:[],
+      isNewEnv: true
     }
   }
 
   onChange(key) {
 
+  }
+  changeEnv(flag) {
+    this.setState({
+      isNewEnv: flag
+    })
   }
   renderPanelHeader(text) {
     return (
@@ -86,27 +92,34 @@ class VMServiceCreate extends React.Component {
   createService() {
     const { createVMservice, form } = this.props;
     const { validateFields } = form;
-    const { host, account, password, address, init, normal, interval, packages, env} = this.state;
+    const { host, account, password, address, init, normal, interval, packages, env, isNewEnv } = this.state;
     let notify = new NotificationHandler()
     let obj = {}
     for (let i = 0; i < env.length; i++) {
       obj[Object.keys(env[i])] = Object.values(env[i])[0]
     }
     let serviceName = form.getFieldValue('serviceName')
-    validateFields((errors,values)=>{
+    let validateArr = ['checkAddress','initTimeout','ruleTimeout','intervalTimeout']
+    if (isNewEnv) {
+      validateArr = validateArr.concat(['envIP','userName','password'])
+    } else {
+      validateArr.push('host')
+    }
+    validateFields(validateArr, (errors,values)=>{
       if (!!errors) {
         return
       }
       if (!packages.length) {
         return notify.info('请选择部署包')
       }
+      let vminfo = {
+        host,
+        account,
+        password
+      }
       createVMservice({
         name: serviceName,
-        vminfo:{
-          host,
-          account,
-          password
-        },
+        vminfo: isNewEnv ? vminfo : Number(values.host),
         healthcheck:{
           check_address:address,
           init_timeout:init,
@@ -170,13 +183,13 @@ class VMServiceCreate extends React.Component {
             </Form>
             <Collapse defaultActiveKey={['env','status','packet']} onChange={this.onChange}>
               <Panel header={this.renderPanelHeader('传统环境')} key="env">
-                <TraditionEnv scope={this} form={this.props.form}/>
-              </Panel>
-              <Panel header={this.renderPanelHeader('服务状态')} key="status">
-                <ServiceStatus scope={this} form={this.props.form}/>
+                <TraditionEnv scope={this} form={this.props.form} changeEnv={this.changeEnv.bind(this)}/>
               </Panel>
               <Panel header={this.renderPanelHeader('选择部署包')} key="packet">
                 <SelectPacket scope={this} form={this.props.form}/>
+              </Panel>
+              <Panel header={this.renderPanelHeader('服务状态')} key="status">
+                <ServiceStatus scope={this} form={this.props.form}/>
               </Panel>
             </Collapse>
             <div className="btnBox clearfix">

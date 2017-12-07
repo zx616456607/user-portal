@@ -127,12 +127,12 @@ class AppWrapStore extends React.Component {
             <li className={imageComposeStyle}
                 onClick={this.changeTab.bind(this, "image")}
             >
-              镜像审核
+              镜像商店
             </li>
             <li className={appComposeStyle}
                 onClick={this.changeTab.bind(this, "app")}
             >
-              应用包审核
+              应用包商店
             </li>
             <CommonSearchInput
               placeholder={activeKey === 'app' ? "请输入应用包名称搜索" : "请输入镜像名称或发布名称搜索"}
