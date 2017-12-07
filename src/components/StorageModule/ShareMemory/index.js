@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Button, Input, Table, Modal, Form, Select, Icon } from 'antd'
+import { Button, Input, Table, Modal, Form, Select, Icon, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
@@ -251,9 +251,9 @@ class ShareMemory extends Component {
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
-  
+
   render() {
-    const { form, nfsList, storageList, storageListIsFetching, clusterID } = this.props
+    const { form, nfsList, storageList, storageListIsFetching, clusterID, storageClassType } = this.props
     const {
       selectedRowKeys,
       createShareMemoryVisible,
@@ -320,6 +320,14 @@ class ShareMemory extends Component {
     	labelCol: {span: 5},
     	wrapperCol: {span: 16}
     }
+    let canCreate = false
+    if(storageClassType.share){
+      canCreate = storageClassType.share
+    }
+    let title = ''
+    if (!canCreate) {
+      title = '尚未配置共享存储，暂不能创建'
+    }
     return(
       <QueueAnim className='share_memory'>
         <div id='share_memory' key="share_memory">
@@ -328,15 +336,18 @@ class ShareMemory extends Component {
           </div>
           <div className='data_container'>
             <div className='handle_box'>
-              <Button
-                type="primary"
-                size='large'
-                className='button_margin'
-                onClick={() => this.openCreateModal()}
-              >
-                <i className="fa fa-plus button_icon" aria-hidden="true"></i>
-                创建共享存储
-              </Button>
+              <Tooltip title={title} placement="right">
+                <Button
+                  type="primary"
+                  size='large'
+                  className='button_margin'
+                  onClick={() => this.openCreateModal()}
+                  disabled={!canCreate}
+                >
+                  <i className="fa fa-plus button_icon" aria-hidden="true"></i>
+                  创建共享存储
+                </Button>
+              </Tooltip>
               <Button
                 size="large"
                 className='button_refresh'
@@ -475,11 +486,20 @@ function mapStateToProp(state, props) {
   const clusterID = current.cluster.clusterID
   const nfsList = cluster.clusterStorage && cluster.clusterStorage[clusterID] && cluster.clusterStorage[clusterID].nfsList || []
   const storageList = storage.storageList[DEFAULT_IMAGE_POOL] || {}
+  let defaultStorageClassType = {
+    private: false,
+    share: false,
+    host: false,
+  }
+  if(current.cluster.storageClassType){
+    defaultStorageClassType = current.cluster.storageClassType
+  }
   return {
     clusterID,
     nfsList,
     storageList: storageList && storageList.storageList || [],
     storageListIsFetching: storageList.isFetching,
+    storageClassType: defaultStorageClassType,
   }
 }
 
