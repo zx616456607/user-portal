@@ -114,6 +114,15 @@ class ReleaseAppModal extends React.Component {
             })
             closeRleaseModal()
           }
+        },
+        finally: {
+          func: () => {
+            this.setState({
+              visible: false,
+              loading: false
+            })
+            notify.close()
+          }
         }
       })
     })
