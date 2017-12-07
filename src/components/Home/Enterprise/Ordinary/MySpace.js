@@ -591,7 +591,7 @@ class MySpace extends Component {
                       <tr>
                         <td>
                           <div className='cicdDot' style={{ backgroundColor: '#13c563' }} />
-                          我的镜像仓库
+                          我的镜像
                       </td>
                         <td className="cicdNum">
                           {spaceImageStats.myRepoCount} 个
@@ -609,7 +609,7 @@ class MySpace extends Component {
                       <tr>
                         <td>
                           <div className='cicdDot' style={{ backgroundColor: '#46b2fa' }} />
-                          公开镜像仓库
+                          公开镜像
                       </td>
                         <td className="cicdNum">
                           {spaceImageStats.publicRepoCount} 个
@@ -1541,7 +1541,7 @@ function resourceFormat(resourceType, scope) {
     case '65':
       return formatMessage(menusText.Image)
       break;
-      
+
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
