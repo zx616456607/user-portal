@@ -11,7 +11,7 @@
  */
 
 import React from 'react'
-import { Button, Table, Row, Card, Modal, Icon, Input, Pagination } from 'antd'
+import { Button, Table, Row, Card, Modal, Icon, Input, Pagination, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/VMList.less'
@@ -21,6 +21,7 @@ import { getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUs
 import reduce from '../../../reducers/vm_wrap'
 import CreateVMListModal from './CreateVMListModal/createListModal'
 import NotificationHandler from '../../../components/Notification'
+import classNames from 'classnames'
 
 class VMList extends React.Component {
   constructor(props) {
@@ -50,6 +51,7 @@ class VMList extends React.Component {
   getInfo(n, value) {
     const { getVMinfosList } = this.props
     const { createTime } = this.state
+    let notify = new NotificationHandler()
     const query = {
       page: n || 1,
       size: 10,
@@ -72,6 +74,17 @@ class VMList extends React.Component {
           }
         },
         isAsync: true,
+      },
+      failed: {
+        success: {
+          func: res => {
+            if (res.statusCode < 500) {
+              notify.warn('获取数据失败', res.message || res.message.message)
+            } else {
+              notify.error('获取数据失败', res.message || res.message.message)
+            }
+          }
+        }
       }
     })
   }
@@ -288,7 +301,46 @@ class VMList extends React.Component {
       })
     }
   }
-
+  
+  renderStatus(record) {
+    let successCount = 0
+    let javeMessage = ''
+    let tomcatMessage = ''
+    if (!record.javaStatus) {
+      successCount++
+      javeMessage = 'jre正常'
+    } else {
+      javeMessage = 'jre异常'
+    }
+    if (!record.tomcatStatus) {
+      successCount++
+      tomcatMessage = 'tomcat正常'
+    } else {
+      tomcatMessage = 'tomcat异常'
+    }
+    return(
+      <div>
+        <div className={successCount === 2 ? 'successColor' : 'warnColor'}>
+          <i className={classNames("circle", {'successCircle': successCount === 2, 'warnCircle': successCount !== 2})}/>
+          {successCount === 2 ? '正常' : '异常'}
+        </div>
+        <div>
+          {
+            successCount !== 2 &&
+              <Tooltip
+                title={
+                  tomcatMessage + ' ' + javeMessage
+                }
+              >
+                <Icon type="exclamation-circle-o" className="warnColor" style={{ marginRight: 5 }}/>
+              </Tooltip>
+          }
+          {`${successCount}/2 运行中`}
+          </div>
+      </div>
+    )
+  }
+  
   render() {
     const { data } = this.props
     const { ciphertext, list, total } = this.state
@@ -305,6 +357,10 @@ class VMList extends React.Component {
         dataIndex: 'host',
         key: 'host',
         ID: 'vminfoId'
+      },
+      {
+        title: '运行状态',
+        render: (text, record) => this.renderStatus(record)
       },
       {
         title: '登录账号',

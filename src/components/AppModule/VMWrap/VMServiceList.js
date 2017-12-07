@@ -194,7 +194,13 @@ class VMServiceList extends React.Component {
     },{
       title: '部署环境IP',
       dataIndex: 'host',
-      key: 'host'
+      key: 'host',
+      width: '15%'
+    },{
+      title: '服务地址',
+      dataIndex: 'healthCheck',
+      width: '15%',
+      render: text => <a href={text} target="_blank">{text}</a>
     },{
       title: '最后修改人',
       dataIndex: 'updateUserName',

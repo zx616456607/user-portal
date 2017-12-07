@@ -13,12 +13,15 @@
 import React,{ Component, PropTypes } from 'react'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { Card, Row, Col, Form, Input, Button, Checkbox, Collapse, Icon  } from 'antd'
+import { Row, Col, Form, Input, Button, Icon, Select, Popover  } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/traditionEnv.less'
+import classNames from 'classnames'
+import { checkVMUser, getVMinfosList } from '../../../../actions/vm_wrap'
+
 const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
-import { checkVMUser } from '../../../../actions/vm_wrap'
+const Option = Select.Option
 
 class TraditionEnv extends Component{
   constructor(props) {
@@ -26,8 +29,13 @@ class TraditionEnv extends Component{
     this.state = {
       Prompt: undefined,
       isShow: false,
-      loading: false
+      loading: false,
+      activeBtn: 'new'
     }
+  }
+  componentWillUnmount() {
+    clearTimeout(this.failedTime)
+    clearTimeout(this.successTime)
   }
   checkHost(rules,value,callback) {
     const { scope } = this.props;
@@ -68,7 +76,8 @@ class TraditionEnv extends Component{
   checkUser(){
     const { form,checkVMUser } = this.props
     const { validateFields, getFieldsValue } = form
-    validateFields(['envIP','userName','password'],(errors,values)=>{
+    let validateArr = ['envIP','userName','password']
+    validateFields(validateArr,(errors,values)=>{
       if (!!errors) {
         return
       }
@@ -121,7 +130,35 @@ class TraditionEnv extends Component{
     })
     
   }
+  
+  getVMList() {
+    const { getVMinfosList } = this.props
+    getVMinfosList({
+      size: -1
+    })
+  }
+  changeBtn(activeBtn) {
+    const { changeEnv } = this.props
+    this.setState({
+      activeBtn
+    }) 
+    if (activeBtn === 'old') {
+      this.getVMList()
+      changeEnv(false)
+    } else {
+      changeEnv(true)
+    }
+  }
+  selectHost(vminfoId) {
+    const { vmList } = this.props
+    const currentVm = vmList.filter(item => item.vminfoId === Number(vminfoId))
+    this.setState({
+      portList: currentVm[0].ports
+    })
+  }
   render() {
+    const { activeBtn, portList } = this.state
+    const { vmList } = this.props
     const { getFieldProps } = this.props.form;
     const formItemLayout = {
       labelCol: { span: 3 },
@@ -151,6 +188,12 @@ class TraditionEnv extends Component{
         { validator: this.checkPass.bind(this)}
       ],
     });
+    const hostProps = getFieldProps('host', {
+      rules: [
+        {required: true, message: "请选择应用环境"}
+      ],
+      onChange: this.selectHost.bind(this)
+    })
     let testStyle = {
       color: '#31ba6a',
       marginLeft: '20px',
@@ -161,57 +204,98 @@ class TraditionEnv extends Component{
       marginLeft: '20px',
       size: 20
     }
+    let children = [];
+    vmList &&
+      vmList.length &&
+      vmList.forEach(item => children.push(<Option key={item.vminfoId}>{item.host}</Option>))
+    const content = (
+      <div className="portBody">
+        {
+          portList && 
+            portList.length &&
+            portList.map(item => <div key={item}>{item}</div>)
+        }
+      </div>
+    );
     return (
       <div className="traditionEnv">
+        <Row style={{ marginBottom: 20 }}>
+          <Col offset={3}>
+            <ButtonGroup size="large">
+              <Button type="ghost" className={classNames({'active': activeBtn === 'new'})} onClick={() => this.changeBtn('new')}>新环境</Button>
+              <Button type="ghost" className={classNames({'active': activeBtn === 'old'})} onClick={() => this.changeBtn('old')}>已导入环境</Button>
+            </ButtonGroup>
+          </Col>
+        </Row>
         <Form>
-          {/*<Row>*/}
-            {/*<Col offset={3}>*/}
-              {/*<ButtonGroup size="large">*/}
-                {/*<Button type="ghost">新环境</Button>*/}
-                {/*<Button type="ghost">已导入环境</Button>*/}
-              {/*</ButtonGroup>*/}
-            {/*</Col>*/}
-          {/*</Row>*/}
-          <FormItem
-            label="传统环境IP"
-            {...formItemLayout}
-          >
-            <Input placeholder="请输入已开通SSH登录的传统环境IP" size="large" {...envIP}/>
-          </FormItem>
-          <FormItem
-            {...formTextLayout}
-          >
-            <div><Icon type="question-circle-o" /> 传统环境一般指非容器环境（Linux的虚拟机、物理机等）</div>
-          </FormItem>
-
-          <FormItem
-            label="环境登录账号"
-            {...formItemLayout}
-          >
-            <Input placeholder="请输入传统环境登录账号" size="large" {...userName}/>
-          </FormItem>
-          <FormItem
-            label="环境登录密码"
-            {...formItemLayout}
-          >
-            <Input placeholder="请输入传统环境登录密码" size="large" {...password}/>
-          </FormItem>
-          <FormItem
-            {...formBtnLayout}
-          >
-            <Button type="primary" size="large" loading={this.state.loading} onClick={this.checkUser.bind(this)}>测试连接</Button>
-            {
-              this.state.isShow ?
-                <span>
+          {
+            activeBtn === 'new' ?
+              <div>
+                <FormItem
+                  label="传统环境IP"
+                  {...formItemLayout}
+                >
+                  <Input placeholder="请输入已开通SSH登录的传统环境IP" size="large" {...envIP}/>
+                </FormItem>
+                <FormItem
+                  {...formTextLayout}
+                >
+                  <div><Icon type="question-circle-o" /> 传统环境一般指非容器环境（Linux的虚拟机、物理机等）</div>
+                </FormItem>
+  
+                <FormItem
+                  label="环境登录账号"
+                  {...formItemLayout}
+                >
+                  <Input placeholder="请输入传统环境登录账号" size="large" {...userName}/>
+                </FormItem>
+                <FormItem
+                  label="环境登录密码"
+                  {...formItemLayout}
+                >
+                  <Input placeholder="请输入传统环境登录密码" size="large" {...password}/>
+                </FormItem>
+                <FormItem
+                  {...formBtnLayout}
+                >
+                  <Button type="primary" size="large" loading={this.state.loading} onClick={this.checkUser.bind(this)}>测试连接</Button>
                   {
-                    this.state.Prompt === true ? <span style={testStyle}><Icon type="check-circle-o" /> 测试连接成功</span> : ''
+                    this.state.isShow ?
+                      <span>
+                        {
+                          this.state.Prompt === true ? <span style={testStyle}><Icon type="check-circle-o" /> 测试连接成功</span> : ''
+                        }
+                        {
+                          this.state.Prompt === false ? <span style={fallStyle}><Icon type="cross-circle-o" /> 测试连接失败</span> : ''
+                        }
+                      </span> : ''
                   }
-                  {
-                    this.state.Prompt === false ? <span style={fallStyle}><Icon type="cross-circle-o" /> 测试连接失败</span> : ''
-                  }
-                </span> : ''
-            }
-          </FormItem>
+                </FormItem>
+              </div>
+              :
+              <div>
+                <FormItem
+                  label="选择应用环境"
+                  {...formItemLayout}
+                  className="envSelectBox"
+                >
+                  <Select 
+                    showSearch
+                    searchPlaceholder="标签模式"
+                    {...hostProps}
+                  >
+                    {children}
+                  </Select>
+                  <Popover
+                    content={content}
+                    title="已被占用的端口"
+                    trigger="click"
+                  >
+                    <Button className="portBtn verticalCenter" type="primary">查看已用端口</Button>
+                  </Popover>
+                </FormItem>
+              </div>
+          }
         </Form>
       </div>
     )
@@ -219,11 +303,14 @@ class TraditionEnv extends Component{
 }
 
 function mapStateToProps(state, props) {
-
+  const { vmWrap } = state
+  const { vminfosList } = vmWrap
+  const { list: vmList } = vminfosList || { list: [] }
   return {
-
+    vmList
   }
 }
 export default connect(mapStateToProps, {
-  checkVMUser
+  checkVMUser,
+  getVMinfosList
 })(TraditionEnv)
