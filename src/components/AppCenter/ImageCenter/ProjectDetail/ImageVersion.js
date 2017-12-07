@@ -356,7 +356,7 @@ class ImageVersion extends Component {
           <div className="top">
             {
               isAdminAndHarbor && !isWrapStore ?
-                <Button className="delete" onClick={this.handleBatchDel.bind(this)} ><Icon type="delete" />删除</Button> : ''
+                <Button className="delete" disabled={this.state.warehouseName.length === 0} onClick={this.handleBatchDel.bind(this)} ><Icon type="delete" />删除</Button> : ''
             }
             <Button className="refresh" onClick={this.handleRefresh.bind(this)}><i className='fa fa-refresh' /> &nbsp;刷新</Button>
             {/* <div className='SearchInput' style={{ width: 280 }}>
@@ -390,6 +390,7 @@ class ImageVersion extends Component {
         </div>
         <Modal title="镜像版本详情" visible={this.state.detailVisible} style={{ paddingRight: 5 }}
           onCancel={this.handleClose.bind(this)}
+          wrapClassName="image-detail-modal"
           footer={[
             <Button key="back" type="primary" size="large" onClick={this.handleClose.bind(this)}>知道了</Button>,
           ]}>

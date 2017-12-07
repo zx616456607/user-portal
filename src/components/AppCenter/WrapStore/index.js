@@ -20,6 +20,7 @@ import { ROLE_SYS_ADMIN } from '../../../../constants'
 import StoreTemplate from './StoreTemplate'
 import CommonSearchInput from '../../CommonSearchInput'
 import classNames from 'classnames'
+import Title from '../../Title'
 
 const TabPane = Tabs.TabPane;
 
@@ -100,10 +101,10 @@ class AppWrapStore extends React.Component {
       [key]: value
     }, callback && this.getStoreList)
   }
-  
+
   render() {
-    const { 
-      wrapGroupList, wrapStoreList, wrapStoreHotList, 
+    const {
+      wrapGroupList, wrapStoreList, wrapStoreHotList,
       imageStoreList, imageHotList, wrapStoreFetching,
       wrapHotFetching, imageStoreFetching, imageHotFetching,
       loginUser, location
@@ -120,6 +121,7 @@ class AppWrapStore extends React.Component {
     })
     return (
       <QueueAnim>
+        <Title title="应用商店"/>
         <div key="appWrapStore" className="appWrapStore">
           <ul className='tabs_header_style'>
             <li className={imageComposeStyle}

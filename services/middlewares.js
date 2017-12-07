@@ -89,7 +89,7 @@ exports.auth = function* (next) {
   }
   // get teamspace from cookie
   if (!teamspace) {
-    const currentConfig = this.cookies.get(USER_CURRENT_CONFIG)
+    const currentConfig = this.cookies.get(USER_CURRENT_CONFIG) || ''
     const _teamspace = currentConfig.split(',')[1]
     if (_teamspace && _teamspace !== 'default' && _teamspace !== 'undefined') {
       teamspace = _teamspace

@@ -205,7 +205,7 @@ class RedisDatabase extends Component {
     return (
       <QueueAnim id='mysqlDatabase' type='right'>
         <div className='databaseCol' key='RedisDatabase'>
-          <Title title="缓存" />
+          <Title title="Redis" />
           <div className='databaseHead'>
             { mode === standard ? <div className='alertRow'>您的 Redis 集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div>}
             <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
