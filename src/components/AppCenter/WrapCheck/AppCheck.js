@@ -38,7 +38,7 @@ class WrapCheckTable extends React.Component {
     let progress = {status: false};
     switch(status) {
       case 1:
-        phase = 'WaitForCheck'
+        phase = 'Published'
         break
       case 2:
         phase = 'CheckPass'
@@ -48,6 +48,9 @@ class WrapCheckTable extends React.Component {
         break
       case 4:
         phase = 'OffShelf'
+        break
+      case 8:
+        phase = 'WaitForCheck'
         break
     }
     return <TenxStatus phase={phase} progress={progress}/>
@@ -71,7 +74,7 @@ class WrapCheckTable extends React.Component {
   }
   handleButtonClick(record) {
     const { passPublish } = this.props
-    if (record.publishStatus !== 1) {
+    if (record.publishStatus !== 8) {
       Modal.info({
         title: '只有待审核状态的应用才能进行通过和拒绝操作'
       });
@@ -195,10 +198,10 @@ class WrapCheckTable extends React.Component {
       render: (text, record) => {
         const menu = (
           <Menu style={{ width: 80 }} onClick={e => this.handleMenuClick(e, record)}>
-            <Menu.Item key="refuse" disabled={record.publishStatus !== 1}>拒绝</Menu.Item>
-            <Menu.Item key="download" disabled={![1, 2].includes(record.publishStatus)}>
+            <Menu.Item key="refuse" disabled={record.publishStatus !== 8}>拒绝</Menu.Item>
+            <Menu.Item key="download" disabled={![8, 2].includes(record.publishStatus)}>
               {
-                ![1, 2].includes(record.publishStatus) ? '下载'
+                ![8, 2].includes(record.publishStatus) ? '下载'
                   :
                   <a target="_blank" href={`${API_URL_PREFIX}/pkg/${record.id}`}>下载</a>
               }

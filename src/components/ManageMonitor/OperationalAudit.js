@@ -551,6 +551,10 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.PublishReject',
     defaultMessage: '拒绝'
   },
+  SubmitAudit: {
+    id: 'ManageMonitor.operationalAudit.SubmitAudit',
+    defaultMessage: '提交审核'
+  }
 });
 
 function returnOperationList(scope) {
@@ -698,6 +702,10 @@ function returnOperationList(scope) {
     { //34
       value: '37',
       label: (<FormattedMessage {...menusText.PublishReject}/>)
+    },
+    {
+      value: '38',
+      label: (<FormattedMessage {...menusText.SubmitAudit}/>)
     }
   ];
   return operationalList;
@@ -1033,6 +1041,8 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.PublishPass)
     case '37':
       return formatMessage(menusText.PublishReject)
+    case '38':
+      return formatMessage(menusText.SubmitAudit)
   }
 }
 
@@ -1632,6 +1642,7 @@ class OperationalAudit extends Component {
       case '60':
         // 应用包管理
         showOperationalList.push(operationalList[29]);
+        showOperationalList.push(operationalList[35]);
         showOperationalList.push(operationalList[31]);
         showOperationalList.push(operationalList[2]);
         break;

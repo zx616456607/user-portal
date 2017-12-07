@@ -370,7 +370,7 @@ class ImageCheckTable extends React.Component {
                 </Button>
             }
             {
-              ![1, 4, 6].includes(record.publishStatus) && <span style={{ marginLeft: 28 }}>-</span>
+              ![1, 3, 4, 6].includes(record.publishStatus) && <span style={{ marginLeft: 28 }}>-</span>
             }
           </div>
         )

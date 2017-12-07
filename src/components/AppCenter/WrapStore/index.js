@@ -19,6 +19,8 @@ import { camelize } from 'humps'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
 import StoreTemplate from './StoreTemplate'
 import CommonSearchInput from '../../CommonSearchInput'
+import classNames from 'classnames'
+
 const TabPane = Tabs.TabPane;
 
 class AppWrapStore extends React.Component {
@@ -108,20 +110,37 @@ class AppWrapStore extends React.Component {
     } = this.props
     const { activeKey, current, classify, sort_by, rectStyle } = this.state
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] === 1 && loginUser.role === ROLE_SYS_ADMIN
+    const imageComposeStyle = classNames({
+      'tabs_item_style': true,
+      'tabs_item_selected_style': activeKey === "image"
+    })
+    const appComposeStyle = classNames({
+      'tabs_item_style': true,
+      'tabs_item_selected_style': activeKey === "app"
+    })
     return (
       <QueueAnim>
         <div key="appWrapStore" className="appWrapStore">
-          <div className="wrapStoreHead">
-            <div className="storeHeadText">应用商店</div>
-            <CommonSearchInput 
+          <ul className='tabs_header_style'>
+            <li className={imageComposeStyle}
+                onClick={this.changeTab.bind(this, "image")}
+            >
+              镜像审核
+            </li>
+            <li className={appComposeStyle}
+                onClick={this.changeTab.bind(this, "app")}
+            >
+              应用包审核
+            </li>
+            <CommonSearchInput
               placeholder={activeKey === 'app' ? "请输入应用包名称搜索" : "请输入镜像名称或发布名称搜索"}
               size="large"
-              style={{ width: 280 }}
+              style={{ width: 280, float: 'right' }}
               onSearch={value => this.updateParentState('filterName', value, true)}
             />
-          </div>
-          <Tabs className="storeTabs" activeKey={activeKey} onChange={this.changeTab}>
-            <TabPane tab="镜像商店" key="image">
+          </ul>
+          {
+            activeKey === "image" ?
               <StoreTemplate
                 location={location}
                 isAdmin={isAdmin}
@@ -138,8 +157,10 @@ class AppWrapStore extends React.Component {
                 getStoreList={this.getStoreList}
                 updateParentState={this.updateParentState}
               />
-            </TabPane>
-            <TabPane tab="应用包商店" key="app">
+              : null
+          }
+          {
+            activeKey === "app" ?
               <StoreTemplate
                 location={location}
                 isAdmin={isAdmin}
@@ -156,8 +177,8 @@ class AppWrapStore extends React.Component {
                 getStoreList={this.getStoreList}
                 updateParentState={this.updateParentState}
               />
-            </TabPane>
-          </Tabs>
+              : null
+          }
         </div>
       </QueueAnim>
     )

@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Modal, Form, Input, Select, Upload, Button, Icon, Row, Col } from 'antd'
-import { getWrapGroupList } from '../../../actions/app_center'
+import { getWrapGroupList, auditWrap } from '../../../actions/app_center'
 import isEmpty from 'lodash/isEmpty'
 import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
@@ -69,7 +69,7 @@ class ReleaseAppModal extends React.Component {
     callback()
   }
   confirmModal() {
-    const { closeRleaseModal, form, releaseWrap, wrapManageList, currentApp } = this.props
+    const { closeRleaseModal, form, auditWrap, callback, currentApp } = this.props
     const { validateFields } = form
     const { pkgIcon } = this.state
     const { id } = currentApp
@@ -92,12 +92,12 @@ class ReleaseAppModal extends React.Component {
         Object.assign(body, { pkgIcon })
       }
       notify.spin('发布中')
-      releaseWrap(id, body, {
+      auditWrap(id, body, {
         success: {
           func: () => {
             notify.close()
             notify.success('发布成功')
-            wrapManageList({from: 0, size: 10})
+            callback()
             this.setState({
               visible: false,
               loading: false
@@ -217,7 +217,7 @@ class ReleaseAppModal extends React.Component {
     wrapGroupList.classifies && 
     wrapGroupList.classifies.length &&
     wrapGroupList.classifies.forEach(item => {
-      return children.push(<Option key={item.classifyName}>{item.classifyName}</Option>)
+    children.push(<Option value={item.classifyName} key={item.classifyName}>{item.classifyName}</Option>)
     })
     return(
       <Modal
@@ -311,6 +311,7 @@ function mapStateToProps(state) {
   }
 }
 export default connect(mapStateToProps, {
-  getWrapGroupList
+  getWrapGroupList,
+  auditWrap
 })(ReleaseAppModal)
 

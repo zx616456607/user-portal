@@ -122,12 +122,37 @@ exports.getVersions = function* (){
   this.body = list
 }
 
-exports.publishPkg = function* () {
+exports.auditPkg = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const body = this.request.body
   const id = this.params.id
-  const result = yield api.pkg.createBy([id, 'publish'], null, body)
+  const result = yield api.pkg.createBy([id, 'audit'], null, body)
+  this.body = result
+}
+
+exports.publishPkg = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const id = this.params.id
+  const result = yield api.pkg.createBy([id, 'publish'])
+  this.body = result
+}
+
+exports.getPkgDetail = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const id = this.params.id
+  const result = yield api.pkg.getBy([id])
+  this.body = result
+}
+
+exports.updatePkgDetail = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const id = this.params.id
+  const body = this.request.body
+  const result = yield api.pkg.updateBy([id, 'edit'], null, body)
   this.body = result
 }
 
