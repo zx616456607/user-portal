@@ -24,6 +24,7 @@ import defaultAppSmall from '../../../../static/img/appstore/defaultappsmall.png
 import defaultImageSmall from '../../../../static/img/appstore/defaultimagesmall.png'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
+import WrapDetailModal from '../AppWrap/WrapDetailModal'
 
 const Option = Select.Option;
 
@@ -48,6 +49,10 @@ class WrapComopnent extends React.Component {
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this)
     this.selectTag = this.selectTag.bind(this)
     this.renderFooter = this.renderFooter.bind(this)
+    this.goDeploy = this.goDeploy.bind(this)
+    this.closeDetailModal = this.closeDetailModal.bind(this)
+    this.loadWrapCallback = this.loadWrapCallback.bind(this)
+    this.updateAppStatus = this.updateAppStatus.bind(this)
     this.state = {
       selectTag: ''
     }
@@ -257,7 +262,18 @@ class WrapComopnent extends React.Component {
     this.setState({imageDetailModalShow:false})
   }
   showImageDetail(item) {
-    this.setState({currentImage: item, imageDetailModalShow: true})
+    const { activeKey } = this.props
+    if (activeKey === 'image') {
+      this.setState({
+        currentImage: item, 
+        imageDetailModalShow: true
+      })
+      return
+    }
+    this.setState({
+      currentWrap: item,
+      detailModal: true
+    })
   }
   selectTag(tagId) {
     this.setState({
@@ -324,7 +340,7 @@ class WrapComopnent extends React.Component {
           </Menu.Item>
           {
             isAdmin
-              ? <Menu.Item key="offShelf" disabled={[0, 1, 4].includes(item.publishStatus)}>下架</Menu.Item>
+              ? <Menu.Item key="offShelf" disabled={[0, 4, 8].includes(item.publishStatus)}>下架</Menu.Item>
               : <Menu.Item key="none" style={{ display: 'none' }}/>
           }
         </Menu>
@@ -336,7 +352,8 @@ class WrapComopnent extends React.Component {
             {
               isHot && <div className="rank">{index !== 0 ? <span className={`hotOrder hotOrder${index + 1}`}>{index + 1}</span> : <i className="champion"/>}</div>
             }
-            <img className={classNames({"wrapIcon": !isHot, "hotWrapIcon": isHot})}
+            <img className={classNames('pointer', {"wrapIcon": !isHot, "hotWrapIcon": isHot})}
+                 onClick={this.showImageDetail.bind(this, item)}
                  src={
                    activeKey === 'app' ?
                      item.pkgIconID ?
@@ -353,7 +370,7 @@ class WrapComopnent extends React.Component {
             <div className="wrapListMiddle">
               <div className="appName">
                 <div
-                  onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)}
+                  onClick={this.showImageDetail.bind(this, item)}
                   className={classNames("themeColor", {'inlineBlock pointer' : !isHot, 'hidden': isHot})}
                 >
                   {activeKey === 'app' ? item.fileNickName : item.appName}
@@ -363,12 +380,15 @@ class WrapComopnent extends React.Component {
                 }
                 {
                   activeKey === 'image' && !isHot &&
-                  <Tooltip title={`最新版本：${item.versions[0].tag}`}>
-                    <span className="tagBox noWrap hintColor textoverflow inlineBlock">
-                      <Icon type="tag" className="tag"/>
-                      {item.versions[0].tag}
-                    </span>
-                  </Tooltip>
+                    [
+                      <Tooltip title={`最新版本：${item.versions[0].tag}`}>
+                        <span key="tag" className="tagBox noWrap hintColor textoverflow inlineBlock">
+                          <Icon type="tag" className="tag"/>
+                          {item.versions[0].tag}
+                        </span>
+                      </Tooltip>,
+                      <span key="more" className="pointer more hintColor" onClick={this.showImageDetail.bind(this, item)}>更多>></span>
+                    ]
                 }
               </div>
               {
@@ -437,7 +457,7 @@ class WrapComopnent extends React.Component {
           </div>,
           rectStyle && !isHot &&
           <div className="rectBox" key={activeKey === 'app' ? item.id : item.publishTime}>
-            <div className={classNames("reactBoxTop", {'pointer': activeKey === 'image'})} onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)}>
+            <div className={classNames("reactBoxTop pointer")} onClick={this.showImageDetail.bind(this, item)}>
               <img
                 className="reactImg"
                 src={
@@ -493,9 +513,25 @@ class WrapComopnent extends React.Component {
       <Button key="confirm" onClick={this.offShelfConfirm} type="primary" disabled={!offshelfId}>确定</Button> 
     ]
   }
+  loadWrapCallback() {
+    const { getStoreList, getAppsHotList } = this.props
+    getStoreList()
+    getAppsHotList()
+  }
+  
+  closeDetailModal() {
+    this.setState({
+      detailModal: false
+    })
+  }
   render() {
-    const { current, dataSource, dataHotList, updateParentState, rectStyle, isAdmin, location, getStoreList, getAppsHotList } = this.props
-    const { downloadModalVisible, currentImage, offShelfModal, imageDetailModalShow, offshelfId } = this.state
+    const { 
+      current, dataSource, dataHotList, updateParentState, rectStyle, 
+      isAdmin, location, getStoreList, getAppsHotList 
+    } = this.props
+    const { downloadModalVisible, currentImage, offShelfModal, 
+      imageDetailModalShow, offshelfId, detailModal, currentWrap
+    } = this.state
     let server
     let node
     let tagArr = []
@@ -530,6 +566,16 @@ class WrapComopnent extends React.Component {
             config={currentImage}
           />
         </Modal>
+        <WrapDetailModal
+          visible={detailModal}
+          currentWrap={currentWrap}
+          callback={this.loadWrapCallback}
+          deploy={this.goDeploy}
+          closeDetailModal={this.closeDetailModal}
+          updateAppStatus={this.updateAppStatus}
+          isStore={true}
+          isAdmin={isAdmin}
+        />
         <Modal 
           title="下载镜像"
           className="uploadImageModal" 

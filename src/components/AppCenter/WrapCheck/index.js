@@ -59,14 +59,6 @@ export default class CheckPage extends React.Component {
         </ul>
         {activeKey === "image" ? [<ImageCheck activeKey={activeKey} location={location} />] : null}
         {activeKey === "app" ? [<AppCheck activeKey={activeKey} />] : null}
-        {/*<Tabs key="checkPage" type="card" onChange={this.tabChange} className="checkPage" activeKey={activeKey}>*/}
-          {/*<TabPane tab="镜像审核" key="image">*/}
-            {/*<ImageCheck activeKey={activeKey}/>*/}
-          {/*</TabPane>*/}
-          {/*<TabPane tab="应用包审核" key="app">*/}
-            {/*<AppCheck activeKey={activeKey}/>*/}
-          {/*</TabPane>*/}
-        {/*</Tabs>*/}
       </QueueAnim>
     )
   }

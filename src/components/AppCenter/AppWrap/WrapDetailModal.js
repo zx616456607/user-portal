@@ -10,9 +10,20 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
+import { browserHistory } from 'react-router'
 import { Modal, Form, Input, Button, Dropdown, Menu, Icon, Row, Col, Select } from 'antd'
 import defaultApp from '../../../../static/img/appstore/defaultapp.png'
 import './style/WrapDetailModal.less'
+import { 
+  getWrapDetail, updateWrapDetail, getWrapGroupList, 
+  deleteWrapManage, publishWrap
+} from '../../../actions/app_center'
+import { API_URL_PREFIX } from '../../../constants'
+import { formatDate } from "../../../common/tools";
+import isEmpty from 'lodash/isEmpty'
+import TenxStatus from '../../TenxStatus/index'
+import NotificationHandler from '../../../components/Notification'
+import ReleaseAppModal from './ReleaseAppModal'
 
 const FormItem = Form.Item
 const Option = Select.Option;
@@ -23,18 +34,35 @@ class WrapDetailModal extends React.Component {
     this.cancelModal = this.cancelModal.bind(this)
     this.cancelEdit = this.cancelEdit.bind(this)
     this.saveEdit = this.saveEdit.bind(this)
+    this.closeRleaseModal = this.closeRleaseModal.bind(this)
+    this.loadDetail = this.loadDetail.bind(this)
+    this.auditCallback = this.auditCallback.bind(this)
     this.state = {
       visible: false
     }
   }
   componentWillReceiveProps(nextProps) {
-    const { visible: oldVisible } = this.props
-    const { visible: newVisible } = nextProps
+    const { visible: oldVisible, currentWrap: oldWrap } = this.props
+    const { visible: newVisible, currentWrap: newWrap, getWrapGroupList, wrapGroupList: newGroupList, form } = nextProps
     if (!oldVisible && newVisible) {
       this.setState({
         visible: newVisible
       })
+      if (!oldWrap || (oldWrap && oldWrap.fileName !== newWrap.fileName)) {
+        this.loadDetail(newWrap.id)
+      }
     }
+    if (!oldVisible && newVisible && isEmpty(newGroupList && newGroupList.classifies)) {
+      getWrapGroupList()
+    }
+    if (!newVisible && oldVisible) {
+      form.resetFields()
+    }
+  }
+  
+  loadDetail(pkgID) {
+    const { getWrapDetail } = this.props
+    getWrapDetail(pkgID)
   }
   
   cancelModal() {
@@ -46,36 +74,315 @@ class WrapDetailModal extends React.Component {
   }
   
   cancelEdit() {
+    const { form, pkgDetail } = this.props
+    form.resetFields()
+    this.loadDetail(pkgDetail.id)
     this.setState({
       isEdit: false
     })
   }
   
   saveEdit() {
-    this.setState({
-      isEdit: false
+    const { updateWrapDetail, form, pkgDetail, callback } = this.props
+    const { validateFields } = form
+    let notify = new NotificationHandler()
+    validateFields((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      const { classifyName, fileNickName, description } = values
+      const pkgID = pkgDetail.id
+      const body = {
+        classifyName: classifyName[0],
+        fileNickName,
+        description
+      }
+      notify.spin('保存中')
+      updateWrapDetail(pkgID, body, {
+        success: {
+          func: () => {
+            notify.close()
+            notify.success('保存成功')
+            this.loadDetail(pkgID)
+            callback()
+            this.setState({
+              isEdit: false
+            })
+          },
+          isAsync: true
+        },
+        failed: {
+          func: res => {
+            notify.close()
+            if (res.statusCode < 500) {
+              notify.warn('保存失败', res.message)
+            } else {
+              notify.error('保存失败', res.message)
+            }
+          }
+        }
+      })
     })
-  } 
+  }
   
-  render() {
-    const { form } = this.props 
-    const { visible, isEdit } = this.state
-    const { getFieldProps, getFieldError, isFieldValidating } = form
+  checkClassify(rule, value, callback) {
+    if(!value) {
+      return callback('请选择或输入分类')
+    }
+    if(value.length > 1) {
+      return callback('只能选择一个分类')
+    }
+    callback()
+  }
+  
+  releaseNameProps(rule, value, callback) {
+    if (!value) {
+      return callback('请输入发布名称')
+    }
+    if (value.length > 20) {
+      return callback('发布名称不能超过20个字符')
+    }
+    callback()
+  }
+  
+  getStatus(status) {
+    if (!status && status !== 0) return
+    const { pkgDetail } = this.props
+    let phase
+    let progress = {status: false};
+    switch(status) {
+      case 0:
+        phase = 'Unpublished'
+        break
+      case 1:
+        phase = 'Published'
+        break
+      case 2:
+        phase = 'CheckPass'
+        break
+      case 3:
+        phase = 'CheckReject'
+        break
+      case 4:
+        phase = 'OffShelf'
+        break
+      case 8:
+        phase = 'Checking'
+        break
+    }
+    return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && pkgDetail.approveMessage}/>
+  }
+  
+  deleteHint() {
+    Modal.info({
+      title: '只有未发布和已下架的应用包可以被删除'
+    })
+  }
+  
+  deleteAction(status,id) {
+    if (status) {
+      id = [id]
+      this.setState({delAll: true,id})
+      return
+    }
+    this.setState({delAll: false})
+  }
+  
+  deleteVersion = ()=> {
+    let notificat = new NotificationHandler()
+    const { id } = this.state
+    const { deleteWrapManage, callback, closeDetailModal } = this.props
+    deleteWrapManage({ids: id},{
+      success: {
+        func:()=> {
+          notificat.success('删除成功')
+          callback()
+          closeDetailModal()
+          this.setState({
+            visible: false
+          })
+        },isAsync: true
+      },
+      failed: {
+        func: (err)=> {
+          notificat.error('删除失败',err.message.message || err.message)
+        }
+      },
+      finally: {
+        func:()=> {
+          this.deleteAction(false)
+        }
+      }
+    })
+  }
+  
+  publishAction(id) {
+    const { publishWrap, callback, pkgDetail } = this.props
+    let notify = new NotificationHandler()
+    notify.spin('发布中')
+    publishWrap(id, {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success('发布成功')
+          callback()
+          this.loadDetail(pkgDetail.id)
+        },
+        isAsync: true
+      },
+      failed: {
+        func: res => {
+          notify.close()
+          if (res.statusCode < 500) {
+            notify.warn('发布失败', res.message || res.message.message)
+          } else {
+            notify.error('发布失败', res.message || res.message.message)
+          }
+        }
+      }
+    })
+  }
+  handleMenuClick(e, row) {
+    const { updateAppStatus, closeDetailModal } = this.props
+    switch (e.key) {
+      case 'delete':
+        if (![0, 4].includes(row.publishStatus)) {
+          this.deleteHint()
+          return
+        }
+        this.deleteAction(true,row.id)
+        break
+      case 'audit':
+        this.setState({
+          releaseVisible: true
+        })
+        break
+      case 'publish':
+        this.publishAction(row.id)
+        break
+      case 'download':
+        break
+      case 'offShelf':
+        this.setState({
+          visible: false
+        })
+        closeDetailModal()
+        updateAppStatus(row.appId)
+        break
+      case 'vm':
+        browserHistory.push(`/app_manage/vm_wrap/create?fileName=${row.fileName}`)
+        break
+    }
+  }
+  
+  handleButtonClick() {
+    const { deploy, pkgDetail } = this.props
+    deploy(pkgDetail.fileName)
+  }
+  renderDeployBtn() {
+    const { pkgDetail, isStore, isAdmin } = this.props
     const menu = (
-      <Menu>
-        <Menu.Item key="1">第一个菜单项</Menu.Item>
-        <Menu.Item key="2">第二个菜单项</Menu.Item>
-        <Menu.Item key="3">第三个菜单项</Menu.Item>
+      <Menu onClick={e => this.handleMenuClick(e, pkgDetail)} style={{ width: 110 }}>
+        <Menu.Item key="vm">
+          传统部署
+        </Menu.Item>
+        {
+          !isStore ?
+            [
+  
+              <Menu.Item key="audit" disabled={[1, 2, 8].includes(pkgDetail && pkgDetail.publishStatus)}>
+                提交审核
+              </Menu.Item>,
+              <Menu.Item key="publish" disabled={![2].includes(pkgDetail && pkgDetail.publishStatus)}>
+                发布
+              </Menu.Item>
+            ]
+            :
+            <Menu.Item key="none" style={{ display: 'none' }}/>
+        }
+        <Menu.Item key="download">
+          <a target="_blank" href={`${API_URL_PREFIX}/pkg/${pkgDetail && pkgDetail.id}`}>下载</a>
+        </Menu.Item>
+        {
+          !isStore ?
+            <Menu.Item key="delete">
+              删除
+            </Menu.Item>
+            :
+            isAdmin ?
+              <Menu.Item key="offShelf">
+                下架
+              </Menu.Item>
+              :
+              <Menu.Item key="noneAdmin" style={{ display: 'none' }}/>
+        }
       </Menu>
-    );
+        
+    )
+    return (
+      <Dropdown.Button onClick={() => this.handleButtonClick()} overlay={menu} type="ghost" className="dropDownBox">
+        <span><Icon type="appstore-o" /> 容器部署</span>
+      </Dropdown.Button>
+    )
+  }
+  
+  closeRleaseModal() {
+    this.setState({
+      releaseVisible: false
+    })
+  }
+  
+  auditCallback() {
+    const { pkgDetail, callback } = this.props
+    this.loadDetail(pkgDetail.id)
+    callback()
+  }
+  
+  closeModal() {
+    const { closeDetailModal } = this.props
+    this.setState({
+      visible: false
+    })
+    closeDetailModal()
+  }
+  render() {
+    const { form, pkgDetail, wrapGroupList } = this.props 
+    const { visible, isEdit, releaseVisible } = this.state
+    const { getFieldProps } = form
+    let isPublished = false
+    if (pkgDetail && (pkgDetail.publishStatus === 1 || pkgDetail.publishStatus === 4)) {
+      isPublished = true
+    }
     const formItemLayout = {
       labelCol: {span: 3},
       wrapperCol: {span: 10},
     }
-    let children = [];
-    for (let i = 1; i < 6; i++) {
-      children.push(<Option key={i.toString(36) + i}>{i.toString(36) + i}</Option>);
-    }
+    const children = [];
+    wrapGroupList &&
+    wrapGroupList.classifies &&
+    wrapGroupList.classifies.length &&
+    wrapGroupList.classifies.forEach(item => {
+      children.push(<Option value={item.classifyName} key={item.classifyName}>{item.classifyName}</Option>)
+    })
+    const classifyProps = getFieldProps('classifyName', {
+      rules: [
+        {
+          validator: this.checkClassify,
+        }
+      ],
+      initialValue: pkgDetail && pkgDetail.classifyName ? [pkgDetail.classifyName] : []
+    })
+    const releaseNameProps = getFieldProps('fileNickName', {
+      rules: [
+        {
+          validator: this.releaseNameProps,
+        }
+      ],
+      initialValue: pkgDetail && pkgDetail.fileNickName ? pkgDetail.fileNickName : ''
+    }) 
+    const descProps = getFieldProps('description', {
+      initialValue: pkgDetail && pkgDetail.description ? pkgDetail.description : ''
+    })
     return(
       <Modal
         className="wrapDetail AppServiceDetail"
@@ -83,16 +390,39 @@ class WrapDetailModal extends React.Component {
         visible={visible}
         onCancel={this.cancelModal}
       >
+        <Modal title="删除操作" visible={this.state.delAll}
+               onCancel={()=> this.deleteAction(false)}
+               onOk={this.deleteVersion}
+        >
+          <div className="confirmText">确定要删除所选版本？</div>
+        </Modal>
+        <ReleaseAppModal
+          currentApp={pkgDetail}
+          visible={releaseVisible}
+          closeRleaseModal={this.closeRleaseModal}
+          callback={this.auditCallback}
+        />
         <div className="wrapDetailHeader">
-          <img className="appLogo" src={defaultApp}/>
+          <img 
+            className="appLogo" 
+            src={
+              pkgDetail && pkgDetail.pkgIconID ?
+                `${API_URL_PREFIX}/pkg/icon/${pkgDetail.pkgIconID}`
+                :
+                defaultApp
+            }
+          />
           <div className="nameAndTag">
-            <div className="name">carrot/test-build</div>
-            <div className="tag">版本：v1.0.1</div>
+            <div key="name" className="name">{pkgDetail && pkgDetail.fileName}</div>
+            <div key="tag" className="tag">版本：{pkgDetail && pkgDetail.fileTag}</div>
           </div>
           <div className="dropDown">
-            <Dropdown.Button overlay={menu} type="ghost">
-              某功能按钮
-            </Dropdown.Button>
+            <Icon 
+              type='cross' className='cursor' 
+              style={{ fontSize: '18px', position: 'absolute', top: '-38px', right: '0px' }} 
+              onClick={() => this.closeModal()} 
+            />
+            {this.renderDeployBtn()}
           </div>
         </div>
         <div className="wrapDetailBody">
@@ -112,7 +442,7 @@ class WrapDetailModal extends React.Component {
                 版本标签
               </Col>
               <Col span={10}>
-                v1.0.1
+                {pkgDetail && pkgDetail.fileTag}
               </Col>
             </Row>
             <FormItem
@@ -121,9 +451,11 @@ class WrapDetailModal extends React.Component {
             >
               <Select
                 showSearch={true}
+                disabled={!isEdit || !isPublished}
                 tags
-                searchPlaceholder="标签模式"
+                searchPlaceholder="请选择分类"
                 style={{ width: '100%' }}
+                {...classifyProps}
               >
                 {children}
               </Select>
@@ -132,14 +464,14 @@ class WrapDetailModal extends React.Component {
               label="发布名称"
               {...formItemLayout}
             >
-              <Input/>
+              <Input disabled={!isEdit || !isPublished} {...releaseNameProps}/>
             </FormItem>
-            <Row className="rowLabel">
+            <Row className="rowLabel" type="flex" align="middle">
               <Col span={3}>
                 应用商店
               </Col>
               <Col span={10} className="successColor">
-                已发布
+                {this.getStatus(pkgDetail && pkgDetail.publishStatus)}
               </Col>
             </Row>
             <Row className="rowLabel">
@@ -147,21 +479,21 @@ class WrapDetailModal extends React.Component {
                 包类型
               </Col>
               <Col span={10}>
-                war
+                {pkgDetail && pkgDetail.fileType}
               </Col>
             </Row>
             <FormItem
               label="描述"
               {...formItemLayout}
             >
-              <Input type="textarea"/>
+              <Input disabled={!isEdit} {...descProps} type="textarea"/>
             </FormItem>
             <Row className="rowLabel">
               <Col span={3}>
                 上传时间
               </Col>
               <Col span={10}>
-                2017.12.04 20:20:28
+                {formatDate(pkgDetail && pkgDetail.publishTime)}
               </Col>
             </Row>
           </div>
@@ -172,11 +504,23 @@ class WrapDetailModal extends React.Component {
 }
 
 function mapStateToProps(state) {
+  const { images } = state
+  const { wrapDetail, wrapGroupList } = images || { wrapDetail: {} }
+  const { result } = wrapDetail || { result: {} }
+  const { data } = result || { data: {} }
+  const { pkgs } = data || { pkgs: {} }
+  const { result: groupList } = wrapGroupList || { result: {} }
+  const { data: groupData } = groupList || { data: [] }
   return {
-    
+    wrapGroupList: groupData,
+    pkgDetail: pkgs
   }
 }
 
 export default connect(mapStateToProps, {
-  
+  getWrapDetail,
+  updateWrapDetail,
+  getWrapGroupList,
+  deleteWrapManage,
+  publishWrap
 })(Form.create()(WrapDetailModal))

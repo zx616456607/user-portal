@@ -895,15 +895,15 @@ export function checkWrapName(query, callback) {
   }
 }
 
-export const RELEASE_WRAP_REQUEST = 'RELEASE_WRAP_REQUEST'
-export const RELEASE_WRAP_SUCCESS = 'RELEASE_WRAP_SUCCESS'
-export const RELEASE_WRAP_FAILURE = 'RELEASE_WRAP_FAILURE'
+export const AUDIT_WRAP_REQUEST = 'AUDIT_WRAP_REQUEST'
+export const AUDIT_WRAP_SUCCESS = 'AUDIT_WRAP_SUCCESS'
+export const AUDIT_WRAP_FAILURE = 'AUDIT_WRAP_FAILURE'
 
-function fetchReleaseWrap(pkgID, body, callback) {
+function fetchAuditWrap(pkgID, body, callback) {
   return {
     [FETCH_API]: {
-      types: [RELEASE_WRAP_REQUEST,RELEASE_WRAP_SUCCESS,RELEASE_WRAP_FAILURE],
-      endpoint: `${API_URL_PREFIX}/pkg/${pkgID}/publish`,
+      types: [AUDIT_WRAP_REQUEST,AUDIT_WRAP_SUCCESS,AUDIT_WRAP_FAILURE],
+      endpoint: `${API_URL_PREFIX}/pkg/${pkgID}/audit`,
       schema: {},
       options: {
         method: 'POST',
@@ -914,8 +914,72 @@ function fetchReleaseWrap(pkgID, body, callback) {
   }
 }
 
-export function releaseWrap(pkgID, body, callback) {
-  return dispatch => dispatch(fetchReleaseWrap(pkgID, body, callback))
+export function auditWrap(pkgID, body, callback) {
+  return dispatch => dispatch(fetchAuditWrap(pkgID, body, callback))
+}
+
+export const PUBLISH_WRAP_REQUEST = 'PUBLISH_WRAP_REQUEST'
+export const PUBLISH_WRAP_SUCCESS = 'PUBLISH_WRAP_SUCCESS'
+export const PUBLISH_WRAP_FAILURE = 'PUBLISH_WRAP_FAILURE'
+
+function fetchPublishWrap(pkgID, callback) {
+  return {
+    [FETCH_API]: {
+      types: [PUBLISH_WRAP_REQUEST,PUBLISH_WRAP_SUCCESS,PUBLISH_WRAP_FAILURE],
+      endpoint: `${API_URL_PREFIX}/pkg/${pkgID}/publish`,
+      schema: {},
+      options: {
+        method: 'POST'
+      }
+    },
+    callback
+  }
+}
+
+export function publishWrap(pkgID, callback) {
+  return dispatch => dispatch(fetchPublishWrap(pkgID, callback))
+}
+
+export const WRAP_DETAIL_REQUEST = 'WRAP_DETAIL_REQUEST'
+export const WRAP_DETAIL_SUCCESS = 'WRAP_DETAIL_SUCCESS'
+export const WRAP_DETAIL_FAILURE = 'WRAP_DETAIL_FAILURE'
+
+function fetchWrapDetail(pkgID, callback) {
+  return {
+    [FETCH_API]: {
+      types: [WRAP_DETAIL_REQUEST,WRAP_DETAIL_SUCCESS,WRAP_DETAIL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/pkg/${pkgID}/detail`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getWrapDetail(pkgID, callback) {
+  return dispatch => dispatch(fetchWrapDetail(pkgID, callback))
+}
+
+export const UPDATE_WRAP_DETAIL_REQUEST = 'UPDATE_WRAP_DETAIL_REQUEST'
+export const UPDATE_WRAP_DETAIL_SUCCESS = 'UPDATE_WRAP_DETAIL_SUCCESS'
+export const UPDATE_WRAP_DETAIL_FAILURE = 'UPDATE_WRAP_DETAIL_FAILURE'
+
+function editWrapDetail(pkgID, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_WRAP_DETAIL_REQUEST,UPDATE_WRAP_DETAIL_SUCCESS,UPDATE_WRAP_DETAIL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/pkg/${pkgID}/detail`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function updateWrapDetail(pkgID, body, callback) {
+  return dispatch => dispatch(editWrapDetail(pkgID, body, callback))
 }
 
 export const PASS_WRAP_PUBLISH_REQUEST = 'PASS_WRAP_PUBLISH_REQUEST'

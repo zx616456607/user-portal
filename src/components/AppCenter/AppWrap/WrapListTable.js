@@ -23,7 +23,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import ReleaseAppModal from './ReleaseAppModal'
 import WrapDetailModal from './WrapDetailModal'
 
-import { wrapManageList, deleteWrapManage, releaseWrap, getWrapStoreList } from '../../../actions/app_center'
+import { wrapManageList, deleteWrapManage, auditWrap, getWrapStoreList, publishWrap } from '../../../actions/app_center'
 const RadioGroup = Radio.Group
 const TabPane = Tabs.TabPane
 const notificat = new NotificationHandler()
@@ -40,6 +40,7 @@ class WrapListTable extends Component {
     this.rowClick = this.rowClick.bind(this)
     this.closeRleaseModal = this.closeRleaseModal.bind(this)
     this.closeDetailModal = this.closeDetailModal.bind(this)
+    this.loadData = this.loadData.bind(this)
     this.state = {
       page: 1,
     }
@@ -127,6 +128,31 @@ class WrapListTable extends Component {
       title: '只有未发布和已下架的应用包可以被删除'
     })
   }
+  publishAction(id) {
+    const { publishWrap } = this.props
+    let notify = new NotificationHandler()
+    notify.spin('发布中')
+    publishWrap(id, {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success('发布成功')
+          this.loadData()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: res => {
+          notify.close()
+          if (res.statusCode < 500) {
+            notify.warn('发布失败', res.message || res.message.message)
+          } else {
+            notify.error('发布失败', res.message || res.message.message)
+          }
+        }
+      }
+    })
+  }
   handleMenuClick(e, row) {
     switch (e.key) {
       case 'delete':
@@ -136,11 +162,14 @@ class WrapListTable extends Component {
         }
         this.deleteAction(true,row.id)
         break
-      case 'release':
+      case 'audit':
         this.setState({
           releaseVisible: true,
           currentApp: row
         })
+        break
+      case 'publish':
+        this.publishAction(row.id)
         break
       case 'download':
         break
@@ -175,8 +204,11 @@ class WrapListTable extends Component {
         <Menu.Item key="vm">
           传统部署
         </Menu.Item>
-        <Menu.Item key="release" disabled={[1, 2].includes(row.publishStatus)}>
-          上传到商店
+        <Menu.Item key="audit" disabled={[1, 2, 8].includes(row.publishStatus)}>
+          提交审核
+        </Menu.Item>
+        <Menu.Item key="publish" disabled={![2].includes(row.publishStatus)}>
+          发布
         </Menu.Item>
         <Menu.Item key="download">
           <a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}>下载</a>
@@ -244,11 +276,10 @@ class WrapListTable extends Component {
         phase = 'Unpublished'
         break
       case 1:
-        phase = 'Checking'
-        progress = {status: true}
+        phase = 'Published'
         break
       case 2:
-        phase = 'Published'
+        phase = 'CheckPass'
         break
       case 3:
         phase = 'CheckReject'
@@ -256,8 +287,19 @@ class WrapListTable extends Component {
       case 4:
         phase = 'OffShelf'
         break
+      case 8:
+        phase = 'Checking'
+        progress = {status: true}
+        break
     }
     return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && record.approveMessage}/>
+  }
+  
+  openDetailModal(row) {
+    this.setState({
+      detailModal: true,
+      currentWrap: row
+    })
   }
   
   closeDetailModal() {
@@ -268,8 +310,8 @@ class WrapListTable extends Component {
   
   render() {
     // jar war ,tar.gz zip
-    const { func, rowCheckbox, releaseWrap, wrapManageList, wrapList, wrapStoreList, currentType } = this.props
-    const { releaseVisible, currentApp, detailModal } = this.state
+    const { func, rowCheckbox, auditWrap, wrapManageList, wrapList, wrapStoreList, currentType } = this.props
+    const { releaseVisible, currentApp, detailModal, currentWrap } = this.state
     const dataSource = currentType === 'trad' ? wrapList : wrapStoreList
     const columns = [
       {
@@ -277,7 +319,7 @@ class WrapListTable extends Component {
         dataIndex: 'fileName',
         key: 'name',
         width: '10%',
-        render: text => <span className="pointer themeColor" onClick={() => this.setState({detailModal: true})}>{text}</span>
+        render: (text, row) => <span className="pointer themeColor" onClick={() => this.openDetailModal(row)}>{text}</span>
       }, {
         title: '版本标签',
         dataIndex: 'fileTag',
@@ -363,14 +405,16 @@ class WrapListTable extends Component {
       <div className="wrapListTable" id="wrapListTable">
         <WrapDetailModal
           visible={detailModal}
+          currentWrap={currentWrap}
+          callback={this.loadData}
+          deploy={func.goDeploy}
           closeDetailModal={this.closeDetailModal}
         />
         <ReleaseAppModal
           currentApp={currentApp}
           visible={releaseVisible}
           closeRleaseModal={this.closeRleaseModal}
-          releaseWrap={releaseWrap}
-          wrapManageList={wrapManageList}
+          callback={this.loadData}
         />
         <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource && dataSource.pkgs} columns={columns} pagination={paginationOpts} onRowClick={this.rowClick}/>
         { dataSource && dataSource.total && dataSource.total >0 ?
@@ -411,6 +455,7 @@ function mapStateToProps(state,props) {
 export default connect(mapStateToProps,{
   wrapManageList,
   deleteWrapManage,
-  releaseWrap,
-  getWrapStoreList
+  auditWrap,
+  getWrapStoreList,
+  publishWrap
 })(WrapListTable)

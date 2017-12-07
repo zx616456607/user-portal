@@ -1316,6 +1316,10 @@ const menusText = defineMessages({
   PublishReject: {
     id: 'ManageMonitor.operationalAudit.PublishReject',
     defaultMessage: '拒绝'
+  },
+  SubmitAudit: {
+    id: 'ManageMonitor.operationalAudit.SubmitAudit',
+    defaultMessage: '提交审核'
   }
 });
 
@@ -1653,6 +1657,8 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.PublishPass)
     case '37':
       return formatMessage(menusText.PublishReject)
+    case '38':
+      return formatMessage(menusText.SubmitAudit)
     case '0':
       return formatMessage(menusText.Unknown)
       break;

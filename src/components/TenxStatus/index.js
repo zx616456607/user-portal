@@ -334,7 +334,8 @@ class TenxStatus extends Component {
       smart,
       deletionTimestamp,
       showDesc,
-      description
+      description,
+      hidePhaseEle
     } = this.props
     const {
       percent

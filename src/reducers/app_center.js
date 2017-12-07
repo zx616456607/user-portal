@@ -310,7 +310,8 @@ export function images(state = { publicImages: {} }, action) {
       REQUEST: ActionTypes.GET_WRAP_GROUP_LIST_REQUEST,
       SUCCESS: ActionTypes.GET_WRAP_GROUP_LIST_SUCCESS,
       FAILURE: ActionTypes.GET_WRAP_GROUP_LIST_FAILURE,
-    }, state.wrapGroupList, action, {overwrite: true})
+    }, state.wrapGroupList, action, {overwrite: true}),
+    wrapDetail: wrapDetail(state.wrapDetail, action)
     // deleteStack: deleteStack(state.deleteStack, action)
   }
 }
@@ -925,6 +926,26 @@ function mirrorSafetyClairinfo(state = {}, action) {
         isFetching: false,
       })
     default:
+      return state
+  }
+}
+
+function wrapDetail(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.WRAP_DETAIL_REQUEST:
+      return merge({}, state, {
+        isFetching: true,
+      })
+    case ActionTypes.WRAP_DETAIL_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        result: action.response.result
+      })
+    case ActionTypes.WRAP_DETAIL_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+    default: 
       return state
   }
 }
