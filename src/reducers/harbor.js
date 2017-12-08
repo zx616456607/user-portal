@@ -534,7 +534,37 @@ function rules(state = {}, action) {
       return state
   }
 }
-export default function harborRegistry(state = { projects: {} }, action) {
+function imageBasicInfo(state = {}, action) {
+  const { registry } = action
+  switch (action.type) {
+    case ActionTypes.GET_HARBOR_IMAGEINFO_REQUEST:
+      return Object.assign({}, state, {
+        [registry]: {
+          isFetching: true,
+        },
+      })
+    case ActionTypes.GET_HARBOR_IMAGEINFO_SUCCESS:
+      return Object.assign({}, state, {
+        [registry]: {
+          isFetching: false,
+          markdownData: action.response.result.result,
+          htmlData: action.response.result.htmlData,
+        },
+      })
+    case ActionTypes.GET_HARBOR_IMAGEINFO_FAILURE:
+      return Object.assign({}, state, {
+        [registry]: {
+          isFetching: false,
+        },
+      })
+    default:
+      return state
+  }
+}
+
+export default function harborRegistry(state = {
+  projects: {},
+}, action) {
   return {
     systeminfo: systeminfo(state.systeminfo, action),
     projects: projects(state.projects, action),
@@ -550,6 +580,7 @@ export default function harborRegistry(state = { projects: {} }, action) {
     imageUpdate: imageUpdate(state.imageUpdate, action),
     imageUpdateLogs: imageUpdateLogs(state.imageUpdateLogs, action),
     targets: targets(state.targets, action),
-    rules: rules(state.rules, action)
+    rules: rules(state.rules, action),
+    imageBasicInfo: imageBasicInfo(state.imageBasicInfo, action),
   }
 }

@@ -13,6 +13,7 @@ const harborAPIs = require('../registry/lib/harborAPIs')
 const registryConfigLoader = require('../registry/registryConfigLoader')
 const constants = require('../constants')
 const utils = require('../utils')
+const markdown = require('markdown-it')()
 
 const securityUtil = require('../utils/security')
 
@@ -201,12 +202,29 @@ exports.getProjectRepositories = harborHandler(
   (harbor, ctx, callback) => harbor.getProjectRepositories(ctx.query, callback))
 
 // [GET] /repositories/:name
-exports.getRepository= harborHandler(
-  (harbor, ctx, callback) => harbor.getRepository(ctx.params.name, callback))
+exports.getRepository = function* () {
+  const config = getRegistryConfig()
+  const loginUser = this.session.loginUser
+  const auth = yield getAuthInfo(loginUser)
+  const harbor = new harborAPIs(config, auth)
+  const name = this.params.name
+  const result = yield new Promise((resolve, reject) => {
+    harbor.getRepository(name, (err, statusCode, body) => {
+      if (statusCode != 200) {
+        return reject(err)
+      }
+      return resolve(body)
+    })
+  })
+  this.body = {
+    result,
+    htmlData: markdown.render(result)
+  }
+}
 
 // [PUT] /repositories/:name
 exports.updateRepository= harborHandler(
-  (harbor, ctx, callback) => harbor.updateRepository(ctx.params.name, ctx.request.body, callback))
+  (harbor, ctx, callback) => harbor.updateRepository(ctx.params.name, ctx.request.body && ctx.request.body.detail, callback))
 
 // [GET] /statistics
 exports.getStatistics = harborHandler(
