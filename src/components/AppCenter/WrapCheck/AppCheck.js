@@ -203,7 +203,7 @@ class WrapCheckTable extends React.Component {
               {
                 ![8, 2].includes(record.publishStatus) ? '下载'
                   :
-                  <a target="_blank" href={`${API_URL_PREFIX}/pkg/${record.id}`}>下载</a>
+                  <a target="_blank" href={`${API_URL_PREFIX}/pkg/${record.originId}`}>下载</a>
               }
             </Menu.Item>
           </Menu>

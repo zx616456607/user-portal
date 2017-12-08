@@ -300,7 +300,8 @@ class WrapListTable extends Component {
     return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && record.approveMessage}/>
   }
   
-  openDetailModal(row) {
+  openDetailModal(e, row) {
+    e.stopPropagation()
     this.setState({
       detailModal: true,
       currentWrap: row
@@ -324,7 +325,7 @@ class WrapListTable extends Component {
         dataIndex: 'fileName',
         key: 'name',
         width: '10%',
-        render: (text, row) => <span className="pointer themeColor" onClick={() => this.openDetailModal(row)}>{text}</span>
+        render: (text, row) => <span className="pointer themeColor" onClick={(e) => this.openDetailModal(e, row)}>{text}</span>
       }, {
         title: '版本标签',
         dataIndex: 'fileTag',
