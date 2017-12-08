@@ -64,7 +64,7 @@ class CostRecord extends Component{
   handleSpaceChange(space) {
     this.setState({
       spacesVisible: false,
-      currentSpaceName: space.namespace,
+      currentSpaceName: space.spaceName ? space.spaceName : space.namespace,
       currentTeamName: space.teamName,
       currentNamespace: space.namespace,
       consumptionDetailCurrentPage: 1,
