@@ -532,12 +532,12 @@ class Snapshot extends Component {
         title:'快照名称',
         key:'name',
         dataIndex:'name',
-        width:'14%',
+        width:'16%',
       },{
         title:'状态',
         key:'status',
         dataIndex:'status',
-        width:'12%',
+        width:'10%',
         render: (text) => <div className={iconclassName('正常')}>
           { this.formatStatus(text)}
         </div>
@@ -567,6 +567,7 @@ class Snapshot extends Component {
         title: '卷类型',
         key: 'storageServer',
         dataIndex: 'storageServer',
+        width: '15%',
         render: (text, record, index) => <div style={{wordBreak: 'break-all'}}>块存储 ({text})</div>
       },{
         title:'创建时间',
