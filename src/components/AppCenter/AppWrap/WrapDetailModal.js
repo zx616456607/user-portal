@@ -38,7 +38,8 @@ class WrapDetailModal extends React.Component {
     this.loadDetail = this.loadDetail.bind(this)
     this.auditCallback = this.auditCallback.bind(this)
     this.state = {
-      visible: false
+      visible: false,
+      isPublished: false
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -57,12 +58,26 @@ class WrapDetailModal extends React.Component {
     }
     if (!newVisible && oldVisible) {
       form.resetFields()
+      this.setState({
+        isEdit: false
+      })
     }
   }
   
   loadDetail(pkgID) {
     const { getWrapDetail } = this.props
-    getWrapDetail(pkgID)
+    getWrapDetail(pkgID, {
+      success: {
+        func: () => {
+          const { pkgDetail } = this.props
+          if (pkgDetail && (pkgDetail.publishStatus === 1 || pkgDetail.publishStatus === 4 || pkgDetail.publishStatus === 8)) {
+            this.setState({
+              isPublished: true
+            })
+          }
+        }
+      }
+    })
   }
   
   cancelModal() {
@@ -83,7 +98,8 @@ class WrapDetailModal extends React.Component {
   }
   
   saveEdit() {
-    const { updateWrapDetail, form, pkgDetail, callback, isPublished } = this.props
+    const { updateWrapDetail, form, pkgDetail, callback } = this.props
+    const { isPublished } = this.state
     const { validateFields } = form
     let notify = new NotificationHandler()
     let validateArr = ['description']
@@ -134,10 +150,10 @@ class WrapDetailModal extends React.Component {
   }
   
   checkClassify(rule, value, callback) {
-    if(!value) {
+    if(!value || !value.length) {
       return callback('请选择或输入分类')
     }
-    if(value.length > 1) {
+    if(value && value.length > 1) {
       return callback('只能选择一个分类')
     }
     callback()
@@ -153,6 +169,15 @@ class WrapDetailModal extends React.Component {
     callback()
   }
   
+  descCheck(rule, value, callback) {
+    if (!value) {
+      return callback('请输入描述信息')
+    }
+    if(value.length > 128) {
+      return callback('描述信息不得超过128个字符')
+    }
+    callback()
+  }
   getStatus(status) {
     if (!status && status !== 0) return
     const { pkgDetail } = this.props
@@ -355,12 +380,8 @@ class WrapDetailModal extends React.Component {
   }
   render() {
     const { form, pkgDetail, wrapGroupList } = this.props 
-    const { visible, isEdit, releaseVisible } = this.state
+    const { visible, isEdit, releaseVisible, isPublished } = this.state
     const { getFieldProps } = form
-    let isPublished = false
-    if (pkgDetail && (pkgDetail.publishStatus === 1 || pkgDetail.publishStatus === 4)) {
-      isPublished = true
-    }
     const formItemLayout = {
       labelCol: {span: 3},
       wrapperCol: {span: 10},
@@ -389,6 +410,11 @@ class WrapDetailModal extends React.Component {
       initialValue: pkgDetail && pkgDetail.fileNickName ? pkgDetail.fileNickName : ''
     }) 
     const descProps = getFieldProps('description', {
+      rules: [
+        {
+          validator: this.descCheck
+        }
+      ],
       initialValue: pkgDetail && pkgDetail.description ? pkgDetail.description : ''
     })
     return(

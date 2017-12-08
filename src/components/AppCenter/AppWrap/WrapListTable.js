@@ -125,7 +125,7 @@ class WrapListTable extends Component {
   }
   deleteHint() {
     Modal.info({
-      title: '只有未发布和已下架的应用包可以被删除'
+      title: '只有未发布、已拒绝、已下架的应用包可被删除'
     })
   }
   publishAction(id) {
@@ -154,6 +154,10 @@ class WrapListTable extends Component {
       finally: {
         func: () => {
           notify.close()
+          this.setState({
+            publishModal: false,
+            publishId: ''
+          })
         }
       }
     })
@@ -161,7 +165,7 @@ class WrapListTable extends Component {
   handleMenuClick(e, row) {
     switch (e.key) {
       case 'delete':
-        if (![0, 4].includes(row.publishStatus)) {
+        if (![0, 3, 4].includes(row.publishStatus)) {
           this.deleteHint()
           return
         }
@@ -174,7 +178,10 @@ class WrapListTable extends Component {
         })
         break
       case 'publish':
-        this.publishAction(row.id)
+        this.setState({
+          publishModal: true,
+          publishId: row.id
+        })
         break
       case 'download':
         break
@@ -182,6 +189,16 @@ class WrapListTable extends Component {
         browserHistory.push(`/app_manage/vm_wrap/create?fileName=${row.fileName}`)
         break
     }
+  }
+  cancelPublishModal() {
+    this.setState({
+      publishModal: false,
+      publishId: ''
+    })
+  }
+  confirmPublishModal() {
+    const { publishId } = this.state
+    this.publishAction(publishId)
   }
   closeRleaseModal() {
     this.setState({
@@ -284,7 +301,7 @@ class WrapListTable extends Component {
         phase = 'Published'
         break
       case 2:
-        phase = 'CheckPass'
+        phase = 'CheckWrapPass'
         break
       case 3:
         phase = 'CheckReject'
@@ -317,7 +334,7 @@ class WrapListTable extends Component {
   render() {
     // jar war ,tar.gz zip
     const { func, rowCheckbox, auditWrap, wrapManageList, wrapList, wrapStoreList, currentType } = this.props
-    const { releaseVisible, currentApp, detailModal, currentWrap } = this.state
+    const { releaseVisible, currentApp, detailModal, currentWrap, publishModal } = this.state
     const dataSource = currentType === 'trad' ? wrapList : wrapStoreList
     const columns = [
       {
@@ -406,7 +423,6 @@ class WrapListTable extends Component {
       // rowSelection = null
       rowSelection.type = 'radio'
     }
-
     return (
       <div className="wrapListTable" id="wrapListTable">
         <WrapDetailModal
@@ -432,6 +448,16 @@ class WrapListTable extends Component {
           onOk={this.deleteVersion}
           >
           <div className="confirmText">确定要删除所选版本？</div>
+        </Modal>
+        <Modal
+          title="发布"
+          visible={publishModal}
+          onCancel={() => this.cancelPublishModal()}
+          onOk={() => this.confirmPublishModal()}
+        >
+          <div className="confirmText">
+            <Icon type="question-circle-o" /> 该应用包已通过管理员审核，点击确认即可发布到应用包商店，确认发布？
+          </div>
         </Modal>
       </div>
     )
