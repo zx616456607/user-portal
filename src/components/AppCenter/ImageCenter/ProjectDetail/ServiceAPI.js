@@ -8,7 +8,7 @@
  * @author BaiYu
  */
 import React, { Component } from 'react'
-import { Card, Spin } from 'antd'
+import { Table, Spin, Row, Col } from 'antd'
 import { connect } from 'react-redux'
 import { loadRepositoriesTagConfigInfo } from '../../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../../constants'
@@ -34,29 +34,26 @@ let MyComponent = React.createClass({
   },
   render: function () {
     let config = this.props.config;
-    let items;
+    let showList = []
     if (!!config) {
-      let showList = this.formatEnv(config);
-      items = showList.map((item, index) => {
-        return (
-          <div className="apiItemDetail" key={index} >
-            <span className="leftSpan">{item.envName}</span>
-            <span className="rightSpan">{item.envData}</span>
-            <div style={{ clear: "both" }}></div>
-          </div>
-        );
-      });
-    } else {
-      items = (
-        <div className="apiItemDetail" key="apiItemDetail" >
-          暂无数据
-        </div>
-      )
+      showList = this.formatEnv(config);
     }
+    const columns = [{
+      dataIndex: 'envName',
+      width: '30%'
+    }, {
+      dataIndex: 'envData',
+      width: '70%'
+    }]
     return (
-      <div className="apiItemList">
-        {items}
-      </div>
+      <Table
+        showHeader={false}
+        columns={columns}
+        dataSource={showList}
+        bordered
+        title={() => '变量名默认值'}
+        pagination={false}
+      />
     );
   }
 });
@@ -94,7 +91,7 @@ class ServiceAPI extends Component {
     let dataStorage = configList.mountPath;
     if (dataStorage && Object.keys(dataStorage).length) {
       for(let key in dataStorage){
-        dataStorageShow.push(<p key={key}>&nbsp;&nbsp;&nbsp;&nbsp; - {key}</p>)
+        dataStorageShow.push(<p key={key}>- {key}</p>)
       }
       //dataStorageShow = dataStorage.map((item) => {
       //  return (
@@ -136,20 +133,40 @@ class ServiceAPI extends Component {
     let { defaultEnv } = configList;
     return (
       <div className="imageServiceAPI" key='imageserviceapi'>
-        <p><li>服务端口:&nbsp;&nbsp;{portsShow ? portsShow:"该镜像无端口定义"}</li></p>
-        <p><li>存储卷</li></p>
-        {dataStorageShow.length ? dataStorageShow : <span>&nbsp;&nbsp;&nbsp;&nbsp; - 该镜像无存储卷定义</span>}
-        <p><li>运行命令及参数:&nbsp;&nbsp;{entrypointShow}&nbsp;{cmdShow}</li></p>
-        <div><li>大小：{(size > 0) ? size + unit : '未知'}</li></div>
-        <p><li>环境变量定义</li></p>
-        <div className="itemBox">
-          <div className="title">
-            <span className="leftSpan">变量名</span>
-            <span className="rightSpan">默认值</span>
-            <div style={{ clear: "both" }}></div>
-          </div>
-          <MyComponent config={defaultEnv} />
-        </div>
+        <Row>
+          <Col span={6}>
+            服务端口
+          </Col>
+          <Col span={18}>
+            {portsShow ? portsShow:"该镜像无端口定义"}
+          </Col>
+        </Row>
+        <Row>
+          <Col span={6}>
+            存储卷
+          </Col>
+          <Col span={18}>
+            {dataStorageShow.length ? dataStorageShow :  '该镜像无存储卷定义'}
+          </Col>
+        </Row>
+        <Row>
+          <Col span={6}>
+            运行命令及参数
+          </Col>
+          <Col span={18}>
+            {entrypointShow}&nbsp;{cmdShow}
+          </Col>
+        </Row>
+        <Row>
+          <Col span={6}>
+            大小
+          </Col>
+          <Col span={18}>
+            {(size > 0) ? size + unit : '未知'}
+          </Col>
+        </Row>
+        <Row>环境变量定义</Row>
+        <MyComponent config={defaultEnv} />
       </div>
     )
   }
