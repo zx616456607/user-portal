@@ -216,6 +216,7 @@ class WrapComopnent extends React.Component {
         browserHistory.push(`/app_manage/vm_wrap/create?from=wrapStore&fileName=${row.fileName}`)
         break
       case 'download':
+        if (activeKey === 'app') return
         if (!downloadModalVisible) {
           this.setState({
             currentImage: row,
@@ -539,7 +540,7 @@ class WrapComopnent extends React.Component {
       server = currentImage.resourceLink && currentImage.resourceLink.split('/')[0]
       node = currentImage.resourceLink && currentImage.resourceLink.split('/')[1]
       Object.assign(currentImage, { name: currentImage.resourceName })
-      tagArr = currentImage.versions.map(item => <Option key={item.iD}>{item.tag}</Option>)
+      tagArr = currentImage && currentImage.versions && currentImage.versions.map(item => <Option key={item.iD}>{item.tag}</Option>)
     }
     const pagination = {
       simple: true,
