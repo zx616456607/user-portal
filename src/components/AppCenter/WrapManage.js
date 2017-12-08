@@ -489,6 +489,20 @@ class WrapManage extends Component {
     // /app_manage/app_create/quick_create#configure-service
     browserHistory.push('/app_manage/deploy_wrap?fileName='+fileName)
   }
+  deleteHint() {
+    Modal.info({
+      title: '只有未发布、已拒绝、已下架的应用包可被删除'
+    })
+  }
+  showDeleteModal() {
+    const { wrapList } = this.props
+    const { id } = this.state
+    const hasPublishWrap = wrapList.pkgs.some(item => id.includes(item.id) && (item.publishStatus === 1))
+    if (hasPublishWrap) {
+      return this.deleteHint()
+    }
+    this.setState({delAll: true})
+  }
   render() {
     const funcCallback = {
       uploadModal: this.uploadModal,
@@ -501,7 +515,6 @@ class WrapManage extends Component {
       scope: this,
       goDeploy: this.goDeploy
     }
-
     return (
       <QueueAnim>
         <Title title="应用包管理" />
@@ -509,7 +522,7 @@ class WrapManage extends Component {
           <div className="btnRow">
             <Button size="large" type="primary" icon="upload" onClick={() => this.uploadModal(true)}>上传包文件</Button>
             <Button className="refreshBtn" size="large" style={{ margin: '0 10px' }} onClick={()=> this.getList()}><i className='fa fa-refresh' />&nbsp;刷 新</Button>
-            <Button className="refreshBtn" size="large" onClick={()=> this.setState({delAll: true})} icon="delete" style={{ marginRight: '10px' }} disabled={this.state.selectedRowKeys.length == 0}>删 除</Button>
+            <Button className="refreshBtn" size="large" onClick={()=> this.showDeleteModal()} icon="delete" style={{ marginRight: '10px' }} disabled={this.state.selectedRowKeys.length == 0}>删 除</Button>
             <Input size="large" onPressEnter={()=> this.getList(true)} style={{ width: 180 }} placeholder="请输入包名称搜索" ref="wrapSearch" />
             <i className="fa fa-search btn-search" onClick={()=> this.getList(true)}/>
           </div>

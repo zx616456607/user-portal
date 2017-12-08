@@ -178,6 +178,11 @@ const messages = defineMessages({
   Deleted: {
     id: 'TenxStatus.Deleted',
     defaultMessage: '已删除'
+  },
+  // 应用包专用
+  CheckWrapPass: {
+    id: 'TenxStatus.CheckWrapPass',
+    defaultMessage: '审核已通过'
   }
 })
 
@@ -421,7 +426,8 @@ TenxStatus.propTypes = {
     'CheckPass',
     'ImageCopy',
     'ImageCopyFailed',
-    'Deleted'
+    'Deleted',
+    'CheckWrapPass'
   ]).isRequired,
   progress: PropTypes.shape({
     status: PropTypes.bool,
