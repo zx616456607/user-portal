@@ -78,7 +78,6 @@ class ImageVersion extends Component {
       detailVisible: false,
       imageDetail: null,
       processedName: '',
-
     }
   }
 
@@ -199,7 +198,7 @@ class ImageVersion extends Component {
   }
 
   offShelfImage() {
-    const { appStoreApprove, config, scopeDetail } = this.props
+    const { appStoreApprove, config, scopeDetail, loadRepositoriesTags } = this.props
     const { delValue } = this.state
     let notify = new NotificationHandler()
     let offshelfId
@@ -228,6 +227,11 @@ class ImageVersion extends Component {
           })
           scopeDetail.props.getStoreList()
           scopeDetail.props.getAppsHotList()
+          let processedName = encodeImageFullname(config.name)
+          this.setState({
+            processedName,
+          })
+          loadRepositoriesTags(DEFAULT_REGISTRY, processedName)
         },
         isAsync: true
       },
@@ -283,7 +287,7 @@ class ImageVersion extends Component {
   }
 
   render() {
-    const { isFetching, detailAry, isAdminAndHarbor, isWrapStore, scopeDetail, location } = this.props
+    const { isFetching, detailAry, isAdminAndHarbor, isWrapStore } = this.props
     const { edition, dataAry, delValue, aryName, isBatchDel } = this.state
     const imageDetail = this.props.config
     const rowSelection = {
