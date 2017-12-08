@@ -94,16 +94,19 @@
           var inputCmd = ''
           term.on('data', function (_data) {
             inputCmd += _data
+            if (ws && ws.readyState === 1) {
+              ws.send("0" + utf8_to_b64(_data));
+            }
             if (_data == '\r' || _data == '\n') {
               if (inputCmd.trim() == 'exit') {
-                term.destroy()
-                term = null
+                // timeout for websocket send message
+                setTimeout(() => {
+                  term.destroy()
+                  term = null
+                }, 100);
                 termCallback(data['pod'], 'exit')
               }
               inputCmd = ''
-            }
-            if (ws && ws.readyState === 1) {
-              ws.send("0" + utf8_to_b64(_data));
             }
           });
         });

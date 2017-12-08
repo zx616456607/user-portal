@@ -332,7 +332,7 @@ class TerminalModal extends Component {
               pod: name,
               cluster: clusterID,
               container,
-              '_': '20171026', // for clear cache
+              '_': '20171208', // for clear cache
             }
             return (
               <TabPane tab={titleTab} key={name}>
