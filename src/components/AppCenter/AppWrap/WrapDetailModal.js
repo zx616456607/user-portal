@@ -83,19 +83,27 @@ class WrapDetailModal extends React.Component {
   }
   
   saveEdit() {
-    const { updateWrapDetail, form, pkgDetail, callback } = this.props
+    const { updateWrapDetail, form, pkgDetail, callback, isPublished } = this.props
     const { validateFields } = form
     let notify = new NotificationHandler()
-    validateFields((errors, values) => {
+    let validateArr = ['description']
+    if (isPublished) {
+      validateArr = ['description', 'classifyName', 'fileNickName']
+    }
+    validateFields(validateArr, (errors, values) => {
       if (!!errors) {
         return
       }
       const { classifyName, fileNickName, description } = values
       const pkgID = pkgDetail.id
       const body = {
-        classifyName: classifyName[0],
-        fileNickName,
         description
+      }
+      if (isPublished) {
+        Object.assign(body, {
+          classifyName: classifyName[0],
+          fileNickName
+        })
       }
       notify.spin('保存中')
       updateWrapDetail(pkgID, body, {
