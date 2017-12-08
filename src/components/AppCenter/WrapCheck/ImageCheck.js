@@ -291,7 +291,7 @@ class ImageCheckTable extends React.Component {
           </div>
         );
         return(
-          <Row>
+          <Row style={{ maxWidth: 120 }}>
             <Tooltip title={text}>
               <Col className="textoverflow" span={20}>
                 {text}
