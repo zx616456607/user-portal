@@ -51,10 +51,10 @@ class ReleaseAppModal extends React.Component {
     callback()
   }
   checkClassify(rule, value, callback) {
-    if(!value) {
+    if(!value || !value.length) {
       return callback('请选择或输入分类')
     }
-    if(value.length > 1) {
+    if(value && value.length > 1) {
       return callback('只能选择一个分类')
     }
     callback()
@@ -250,9 +250,7 @@ class ReleaseAppModal extends React.Component {
           </FormItem>
           <FormItem
             {...formItemLayout}
-            hasFeedback
             label="发布名称"
-            help={isFieldValidating('fileNickName') ? '校验中...' : (getFieldError('fileNickName') || []).join(', ')}
           >
             <Input {...releaseNameProps} placeholder="请输入发布名称" />
           </FormItem>

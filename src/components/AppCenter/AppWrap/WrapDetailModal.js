@@ -58,6 +58,9 @@ class WrapDetailModal extends React.Component {
     }
     if (!newVisible && oldVisible) {
       form.resetFields()
+      this.setState({
+        isEdit: false
+      })
     }
   }
   
@@ -147,10 +150,10 @@ class WrapDetailModal extends React.Component {
   }
   
   checkClassify(rule, value, callback) {
-    if(!value) {
+    if(!value || !value.length) {
       return callback('请选择或输入分类')
     }
-    if(value.length > 1) {
+    if(value && value.length > 1) {
       return callback('只能选择一个分类')
     }
     callback()
@@ -166,6 +169,15 @@ class WrapDetailModal extends React.Component {
     callback()
   }
   
+  descCheck(rule, value, callback) {
+    if (!value) {
+      return callback('请输入描述信息')
+    }
+    if(value.length > 128) {
+      return callback('描述信息不得超过128个字符')
+    }
+    callback()
+  }
   getStatus(status) {
     if (!status && status !== 0) return
     const { pkgDetail } = this.props
@@ -398,6 +410,11 @@ class WrapDetailModal extends React.Component {
       initialValue: pkgDetail && pkgDetail.fileNickName ? pkgDetail.fileNickName : ''
     }) 
     const descProps = getFieldProps('description', {
+      rules: [
+        {
+          validator: this.descCheck
+        }
+      ],
       initialValue: pkgDetail && pkgDetail.description ? pkgDetail.description : ''
     })
     return(
