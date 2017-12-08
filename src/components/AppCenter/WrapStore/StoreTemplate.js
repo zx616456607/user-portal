@@ -262,13 +262,16 @@ class WrapComopnent extends React.Component {
   closeImageDetailModal(){
     this.setState({imageDetailModalShow:false})
   }
-  showImageDetail(item) {
+  showImageDetail(item, showTag) {
     const { activeKey } = this.props
     if (activeKey === 'image') {
       this.setState({
         currentImage: item, 
         imageDetailModalShow: true
       })
+      if (showTag) {
+        browserHistory.replace('/app_center/wrap_store?activeKey=tag')
+      }
       return
     }
     this.setState({
@@ -354,7 +357,7 @@ class WrapComopnent extends React.Component {
               isHot && <div className="rank">{index !== 0 ? <span className={`hotOrder hotOrder${index + 1}`}>{index + 1}</span> : <i className="champion"/>}</div>
             }
             <img className={classNames('pointer', {"wrapIcon": !isHot, "hotWrapIcon": isHot})}
-                 onClick={this.showImageDetail.bind(this, item)}
+                 onClick={() => this.showImageDetail(item)}
                  src={
                    activeKey === 'app' ?
                      item.pkgIconID ?
@@ -371,7 +374,7 @@ class WrapComopnent extends React.Component {
             <div className="wrapListMiddle">
               <div className="appName">
                 <div
-                  onClick={this.showImageDetail.bind(this, item)}
+                  onClick={() => this.showImageDetail(item)}
                   className={classNames("themeColor", {'inlineBlock pointer' : !isHot, 'hidden': isHot})}
                 >
                   {activeKey === 'app' ? item.fileNickName : item.appName}
@@ -388,14 +391,14 @@ class WrapComopnent extends React.Component {
                           {item.versions[0].tag}
                         </span>
                       </Tooltip>,
-                      <span key="more" className="pointer more hintColor" onClick={this.showImageDetail.bind(this, item)}>更多>></span>
+                      <span key="more" className="pointer more hintColor" onClick={() => this.showImageDetail(item, true)}>更多>></span>
                     ]
                 }
               </div>
               {
                 isHot &&
                 <Tooltip title={activeKey === 'app' ? item.fileNickName : item.appName}>
-                  <div onClick={this.showImageDetail.bind(this, item)} className="themeColor pointer textoverflow">
+                  <div onClick={() => this.showImageDetail(item)} className="themeColor pointer textoverflow">
                     {activeKey === 'app' ? item.fileNickName : item.appName}
                   </div>
                 </Tooltip>
@@ -458,7 +461,7 @@ class WrapComopnent extends React.Component {
           </div>,
           rectStyle && !isHot &&
           <div className="rectBox" key={activeKey === 'app' ? item.id : item.publishTime}>
-            <div className={classNames("reactBoxTop pointer")} onClick={this.showImageDetail.bind(this, item)}>
+            <div className={classNames("reactBoxTop pointer")} onClick={() => this.showImageDetail(item)}>
               <img
                 className="reactImg"
                 src={
@@ -525,6 +528,13 @@ class WrapComopnent extends React.Component {
       detailModal: false
     })
   }
+  
+  cancelImageModal() {
+    this.setState({
+      imageDetailModalShow:false
+    })
+    browserHistory.replace('/app_center/wrap_store')
+  }
   render() {
     const { 
       current, dataSource, dataHotList, updateParentState, rectStyle, 
@@ -555,7 +565,7 @@ class WrapComopnent extends React.Component {
           visible={imageDetailModalShow}
           className="AppServiceDetail"
           transitionName="move-right"
-          onCancel={()=> this.setState({imageDetailModalShow:false})}
+          onCancel={()=> this.cancelImageModal()}
         >
           <ProjectDetail
             getStoreList={getStoreList} 
@@ -565,6 +575,7 @@ class WrapComopnent extends React.Component {
             server={server} 
             scope={this} 
             config={currentImage}
+            visible={imageDetailModalShow}
           />
         </Modal>
         <WrapDetailModal

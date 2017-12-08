@@ -49,7 +49,7 @@ class WrapDetailModal extends React.Component {
       this.setState({
         visible: newVisible
       })
-      if (!oldWrap || (oldWrap && oldWrap.fileName !== newWrap.fileName)) {
+      if (!oldWrap || (oldWrap && oldWrap.id !== newWrap.id)) {
         this.loadDetail(newWrap.id)
       }
     }

@@ -106,7 +106,25 @@ class ImageDetailBox extends Component {
       safetyscanVisible:false,
     }
   }
-
+  
+  componentWillReceiveProps(nextPorps) {
+    const { location } = nextPorps
+    const { query } = location
+    const { visible: oldVisible } = this.props
+    const { visible: newVisible } = nextPorps
+    if (!oldVisible && newVisible) {
+      if (query && query.activeKey) {
+        this.setState({
+          activeKey: query.activeKey
+        })
+      }
+    }
+    if (oldVisible && !newVisible) {
+      this.setState({
+        activeKey: 'detailInfo'
+      })
+    }
+  }
   copyDownloadCode() {
     //this function for user click the copy btn and copy the download code
     const scope = this;
