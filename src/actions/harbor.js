@@ -10,7 +10,7 @@
  * @author Zhangpc
  */
 
-import { FETCH_API } from '../middleware/api'
+import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
 import { toQuerystring, encodeImageFullname } from '../common/tools'
 
@@ -931,4 +931,40 @@ function fetReplicationPolicies(registry, callback) {
 // Relies on Redux Thunk middleware.
 export function getReplicationPolicies(registry, callback) {
   return dispatch => dispatch(fetReplicationPolicies(registry, callback))
+}
+
+//this is get the image info(docker and attribute)
+export const GET_HARBOR_IMAGEINFO_REQUEST = 'GET_HARBOR_IMAGEINFO_REQUEST'
+export const GET_HARBOR_IMAGEINFO_SUCCESS = 'GET_HARBOR_IMAGEINFO_SUCCESS'
+export const GET_HARBOR_IMAGEINFO_FAILURE = 'GET_HARBOR_IMAGEINFO_FAILURE'
+
+export function getImageDetailInfo(obj, callback) {
+  return {
+    registry: obj.registry,
+    [FETCH_API]: {
+      types: [GET_HARBOR_IMAGEINFO_REQUEST, GET_HARBOR_IMAGEINFO_SUCCESS, GET_HARBOR_IMAGEINFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/repositories/${obj.name}`,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
+  }
+}
+
+export const PUT_HARBOR_EDIT_IMAGEINfO_REQUEST = 'PUT_HARBOR_EDIT_IMAGEINfO_REQUEST'
+export const PUT_HARBOR_EDIT_IMAGEINfO_SUCCESS = 'PUT_HARBOR_EDIT_IMAGEINfO_SUCCESS'
+export const PUT_HARBOR_EDIT_IMAGEINfO_FAILURE = 'PUT_HARBOR_EDIT_IMAGEINfO_FAILURE'
+
+export function putEditImageDetailInfo(obj, callback) {
+  return {
+    [FETCH_API]: {
+      types: [PUT_HARBOR_EDIT_IMAGEINfO_REQUEST, PUT_HARBOR_EDIT_IMAGEINfO_SUCCESS, PUT_HARBOR_EDIT_IMAGEINfO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/repositories/${obj.name}`,
+      options: {
+        method: 'PUT',
+        body: obj.body,
+      },
+      schema: {},
+    },
+    callback
+  }
 }
