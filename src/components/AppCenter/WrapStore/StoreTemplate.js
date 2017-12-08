@@ -394,7 +394,7 @@ class WrapComopnent extends React.Component {
               {
                 isHot &&
                 <Tooltip title={activeKey === 'app' ? item.fileNickName : item.appName}>
-                  <div onClick={activeKey === 'image' && this.showImageDetail.bind(this, item)} className="themeColor pointer textoverflow">
+                  <div onClick={this.showImageDetail.bind(this, item)} className="themeColor pointer textoverflow">
                     {activeKey === 'app' ? item.fileNickName : item.appName}
                   </div>
                 </Tooltip>

@@ -112,6 +112,7 @@ class VMServiceCreate extends React.Component {
       if (!packages.length) {
         return notify.info('请选择部署包')
       }
+      const { checkAddress } = values
       let vminfo = {
         host,
         account,
@@ -121,7 +122,7 @@ class VMServiceCreate extends React.Component {
         name: serviceName,
         vminfo: isNewEnv ? vminfo : Number(values.host),
         healthcheck:{
-          check_address:address,
+          check_address:checkAddress,
           init_timeout:init,
           normal_timeout:normal,
           interval
@@ -156,7 +157,8 @@ class VMServiceCreate extends React.Component {
     browserHistory.push('/app_manage/vm_wrap')
   }
   render() {
-    const { getFieldProps, isFieldValidating, getFieldError } = this.props.form;
+    const { currentPacket } = this.state
+    const { getFieldProps } = this.props.form;
     return (
       <QueueAnim
         id="vmServiceCreate"
@@ -189,7 +191,7 @@ class VMServiceCreate extends React.Component {
                 <SelectPacket scope={this} form={this.props.form}/>
               </Panel>
               <Panel header={this.renderPanelHeader('服务状态')} key="status">
-                <ServiceStatus scope={this} form={this.props.form}/>
+                <ServiceStatus scope={this} form={this.props.form} currentPacket={currentPacket}/>
               </Panel>
             </Collapse>
             <div className="btnBox clearfix">

@@ -264,6 +264,18 @@ let CreateVMListModal = React.createClass({
           >
             <Input key="passWord"{...passwordProps} placeholder="请输入传统环境登录密码" id="password" />
           </FormItem>
+          <FormItem
+            {...formItemLayout}
+            label="环境安装路径"
+            style={{ marginBottom: 0 }}
+          >
+            <div className="alertRow" style={{ fontSize: 12 }}>
+              <div>JAVA_HOME='/home/java'</div>
+              <div>JRE_HOME='/home/java/jre1.8.0_151'</div>
+              <div>CATALINA_HOME='/usr/local/tomcat'</div>
+              <div style={{ marginTop: 20 }}>系统将默认安装该 Tomcat 环境</div>
+            </div>
+          </FormItem>
         </Form>
       </Modal>
     )

@@ -62,7 +62,13 @@ class ServiceStatus extends Component{
     callback()
   }
   render() {
-    const { getFieldProps } = this.props.form;
+    const { currentPacket, form, scope } = this.props
+    const { getFieldProps } = form;
+    let warHost = ''
+    let serviceName = scope.props.form.getFieldValue('serviceName')
+    if (currentPacket && currentPacket.fileType === 'war') {
+      warHost = `http://${scope.state.host}:8080/${serviceName}`
+    }
     const formItemLayout = {
       labelCol: { span: 3 },
       wrapperCol: { span: 9 },
@@ -72,6 +78,7 @@ class ServiceStatus extends Component{
         { required: true, message: "请输入检查地址" },
         { validator: this.checkAddr.bind(this)}
       ],
+      initialValue: warHost ? warHost : ''
     });
     const initTimeout = getFieldProps('initTimeout', {
       rules: [

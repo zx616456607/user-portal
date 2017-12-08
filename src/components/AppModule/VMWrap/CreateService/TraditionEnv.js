@@ -13,7 +13,7 @@
 import React,{ Component, PropTypes } from 'react'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { Row, Col, Form, Input, Button, Icon, Select, Popover  } from 'antd'
+import { Row, Col, Form, Input, Button, Icon, Select, Popover, Alert  } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/traditionEnv.less'
 import classNames from 'classnames'
@@ -150,10 +150,13 @@ class TraditionEnv extends Component{
     }
   }
   selectHost(vminfoId) {
-    const { vmList } = this.props
+    const { vmList, scope } = this.props
     const currentVm = vmList.filter(item => item.vminfoId === Number(vminfoId))
     this.setState({
       portList: currentVm[0].ports
+    })
+    scope.setState({
+      host: currentVm[0].host
     })
   }
   render() {
@@ -164,6 +167,10 @@ class TraditionEnv extends Component{
       labelCol: { span: 3 },
       wrapperCol: { span: 9 },
     };
+    const formSmallLayout = {
+      labelCol: { span: 3 },
+      wrapperCol: { span: 4 }
+    }
     const formBtnLayout = {
       wrapperCol: { span: 9, offset: 3 },
     }
@@ -276,7 +283,7 @@ class TraditionEnv extends Component{
               <div>
                 <FormItem
                   label="选择应用环境"
-                  {...formItemLayout}
+                  {...formSmallLayout}
                   className="envSelectBox"
                 >
                   <Select 
@@ -296,6 +303,18 @@ class TraditionEnv extends Component{
                 </FormItem>
               </div>
           }
+          <FormItem
+            {...formSmallLayout}
+            label="环境安装路径"
+            style={{ marginTop: 20}}
+          >
+            <div className="alertRow" style={{ fontSize: 12 }}>
+              <div>JAVA_HOME='/home/java'</div>
+              <div>JRE_HOME='/home/java/jre1.8.0_151'</div>
+              <div>CATALINA_HOME='/usr/local/tomcat'</div>
+              <div style={{ marginTop: 20 }}>系统将默认安装该 Tomcat 环境</div>
+            </div>
+          </FormItem>
         </Form>
       </div>
     )

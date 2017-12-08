@@ -97,28 +97,13 @@ class SelectPacket extends Component{
     })
   }
   rowClick(record) {
-    const { selectedRowKeys } = this.state;
     const { scope } = this.props;
-    let newKeys = selectedRowKeys.slice(0)
-    if (newKeys.indexOf(record.key) > -1) {
-      newKeys.splice(newKeys.indexOf(record.key),1)
-    }else {
-      newKeys.push(record.key)
-    }
     this.setState({
-      selectedRowKeys:newKeys
+      selectedRowKeys:[record.key]
     })
     scope.setState({
-      packages: newKeys
-    })
-  }
-  selectAll(selectedRows) {
-    let arr = []
-    for (let i = 0; i < selectedRows.length; i++) {
-      arr.push(selectedRows[i].key)
-    }
-    this.setState({
-      selectedRowKeys: arr
+      packages: [record.key],
+      currentPacket: record
     })
   }
   addKey(arr) {
@@ -358,8 +343,8 @@ class SelectPacket extends Component{
     }];
     const rowSelection = {
       selectedRowKeys,
-      onSelect:(record)=> this.rowClick(record),
-      onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
+      type: 'radio',
+      onSelect:(record)=> this.rowClick(record)
     };
     return(
       <div className="selectPacket">
