@@ -14,7 +14,6 @@
 
 const apiFactory = require('../services/api_factory')
 const logger     = require('../utils/logger.js').getLogger("permission")
-const markdown   = require('markdown-it')()
 
 exports.list = function* () {
   const loginUser = this.session.loginUser

@@ -36,7 +36,7 @@ const standard = require('../../../../configs/constants').STANDARD_MODE
 const mode = require('../../../../configs/model').mode
 const standardFlag = standard === mode
 const notification = new NotificationHandler()
-let serviceNameList = []
+// let serviceNameList = []
 
 class QuickCreateApp extends Component {
   constructor(props) {
@@ -85,6 +85,7 @@ class QuickCreateApp extends Component {
     }
     this.serviceSum = 0
     this.configureServiceKey = this.genConfigureServiceKey()
+    this.serviceNameList = []
   }
 
   getAppName(fields) {
@@ -243,12 +244,12 @@ class QuickCreateApp extends Component {
 
   goSelectCreateAppMode() {
     const { query } = this.props.location;
-    if (serviceNameList.length < 1) {
+    if (this.serviceNameList.length < 1) {
       if (query.fromDetail ) {
         browserHistory.push(`/app_manage/detail/${query.appName}`)
         return
       }
-      browserHistory.push('/app_manage/app_create')
+      browserHistory.goBack()
       return
     }
     this.setState({
@@ -258,7 +259,8 @@ class QuickCreateApp extends Component {
 
   confirmGoBack() {
     this.removeAllFormFieldsAsync(this.props)
-    browserHistory.push('/app_manage/app_create')
+    // browserHistory.push('/app_manage/app_create')
+    browserHistory.goBack()
   }
 
   confirmSave() {
@@ -292,7 +294,8 @@ class QuickCreateApp extends Component {
     })
     const { removeFormFields, location } = this.props
     if (location.query.appPkgID) {
-      browserHistory.push('/app_manage/deploy_wrap')
+      // browserHistory.push('/app_manage/deploy_wrap')
+      browserHistory.goBack()
       return
     }
     const { validateFieldsAndScroll } = this.form
@@ -303,7 +306,8 @@ class QuickCreateApp extends Component {
           setTimeout(() => {
             removeFormFields(this.configureServiceKey)
           })
-          browserHistory.push('/app_manage/app_create/quick_create')
+          // browserHistory.push('/app_manage/app_create/quick_create')
+          browserHistory.goBack()
           return
         }
         // 如果已填写服务名称，保存 errors 到 state 中
@@ -595,8 +599,8 @@ class QuickCreateApp extends Component {
       imageName += `&appName=${appName}&action=${action}`
     }
     browserHistory.push('/app_manage/app_create/quick_create'+ imageName + SERVICE_CONFIG_HASH)
+  }
 
-}
   renderFooterSteps() {
     const { location } = this.props
     const { hash, query } = location
@@ -757,7 +761,7 @@ class QuickCreateApp extends Component {
       }
     }
     newServiceList = newServiceList.concat(serviceList)
-    serviceNameList = _serviceNameList
+    this.serviceNameList = _serviceNameList
     if (newServiceList.length < 1) {
       return (
         <div className="noService">本应用中暂无任何服务</div>
@@ -897,7 +901,7 @@ class QuickCreateApp extends Component {
             onCancel={() => this.setState({confirmGoBackModalVisible: false})}
             onOk={this.confirmGoBack.bind(this)}
           >
-            是否确定返回“上一步”？确定后已添加的服务 {serviceNameList.join(', ')} 将不被保留
+            是否确定返回“上一步”？确定后已添加的服务 {this.serviceNameList.join(', ')} 将不被保留
           </Modal>
           <Modal
             title="返回上一步"
