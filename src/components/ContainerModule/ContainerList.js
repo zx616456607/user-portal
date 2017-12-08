@@ -390,6 +390,7 @@ let MyComponent = React.createClass({
         </Menu>
       );
       const images = this.getImages(item)
+      const status = item.status || {}
       return (
         <div className={item.checked ? 'selectedContainer containerDetail' : 'containerDetail'}
           key={item.metadata.name}
@@ -425,8 +426,8 @@ let MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='visitIp commonData'>
-            <Tooltip placement='topLeft' title={item.status.podIP}>
-              <span>{item.status.podIP || '-'}</span>
+            <Tooltip placement='topLeft' title={status.podIP}>
+              <span>{status.podIP || '-'}</span>
             </Tooltip>
           </div>
           <div className='createTime commonData'>

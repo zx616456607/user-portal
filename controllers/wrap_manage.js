@@ -57,6 +57,10 @@ exports.downloadPkg = function*() {
     this.body = '当前操作未被授权，请联系管理员进行授权后，再进行操作。'
     return
   }
+  if (file.status === 404) {
+    this.body = '应用包不存在，如有疑问，请联系管理员。'
+    return
+  }
   this.body = file.res
 }
 
@@ -194,7 +198,7 @@ exports.getPkgStoreList = function* () {
   const query = this.query
   const api = apiFactory.getApi(loginUser)
   const request = yield api.pkg.getBy(['store'], query)
-  this.body = request 
+  this.body = request
 }
 
 exports.getPkgGroupList = function* () {

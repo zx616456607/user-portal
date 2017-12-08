@@ -70,6 +70,7 @@ const MyComponent = React.createClass({
     }
     const items = config.map((item) => {
       const images = this.getImages(item)
+      const status = item.status || {}
       return (
         <div className="containerDetail" key={item.metadata.name}>
           {/*(<div className="selectIconTitle commonData">
@@ -91,7 +92,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="address commonData">
-            <span>内&nbsp;:&nbsp;{item.status.podIP}</span>
+            <span>内&nbsp;:&nbsp;{status.podIP}</span>
           </div>
           <div className="createTime commonData">
             {calcuDate(item.metadata.creationTimestamp || '')}
