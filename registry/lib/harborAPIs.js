@@ -17,6 +17,7 @@ const utils = require('../../utils')
 var request = require('request');
 var async = require('async');
 var queryString = require ('querystring')
+var _ = require('lodash')
 var registryConfigLoader = require('../registryConfigLoader')
 
 /*
@@ -386,11 +387,19 @@ HarborAPIs.prototype.getRepository = function (name, callback) {
 // [PUT] /repositories/:name
 HarborAPIs.prototype.updateRepository = function (name, body, callback) {
   const url = `${this.getAPIPrefix()}/repositories/${name}`
-  this.sendRequest(url, 'PUT', body, callback)
+  const headers = {
+    'Content-Type': 'text/plain',
+  }
+  this.sendRequest(url, 'PUT', body, { headers, json: false }, callback)
 }
 
-HarborAPIs.prototype.sendRequest = function (requestUrl, httpMethod, data, callback) {
+HarborAPIs.prototype.sendRequest = function (requestUrl, httpMethod, data, options, callback) {
   var method = "sendRequest";
+
+  if (!callback) {
+    callback = options
+    options = null
+  }
   logger.info(method, "Sending request: " + requestUrl);
   var requestAction = request.get;
   data = (data == null ? "" : data)
@@ -401,14 +410,20 @@ HarborAPIs.prototype.sendRequest = function (requestUrl, httpMethod, data, callb
   } else if (httpMethod == 'DELETE') {
     requestAction = request.del;
   }
-  logger.debug(method, this.getAuthorizationHeader());
-  logger.debug(method, data);
-  requestAction({
+  const defaultOptions = {
     url: requestUrl,
     json: true,
     body: data,
-    headers: this.getAuthorizationHeader()
-  }, function (err, resp, body) {
+    headers: this.getAuthorizationHeader(),
+  }
+
+  options = _.merge(defaultOptions, options)
+
+  logger.debug(method, this.getAuthorizationHeader());
+  logger.debug(method, data);
+  logger.debug(method, options);
+
+  requestAction(options, function (err, resp, body) {
     if (err) {
       logger.error(method, err);
       callback(err, 500, body);

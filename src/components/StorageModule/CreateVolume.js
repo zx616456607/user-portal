@@ -447,7 +447,7 @@ class CreateVolume extends Component {
 
   selectStorageServer(value) {
     const {snapshotDataList, form} = this.props
-    const { swicthChecked } = this.state 
+    const { swicthChecked } = this.state
     if(swicthChecked){
       form.setFieldsValue({
         selectSnapshotName: undefined
@@ -513,33 +513,39 @@ class CreateVolume extends Component {
               存储类型
             </Col>
             <Col span="19" className='type_value'>
-              <Form.Item className='form_item_style'>
-                <Select
-                  placeholder="请选择类型"
-                  disabled={this.state.selectChecked}
-                  {...getFieldProps('type', {
-                    initialValue: "ceph",
-                    rules: [{required: true, message: '类型不能为空'}]
-                  })}
-                >
-                  <Option key="ceph" value="ceph">块存储</Option>
-                </Select>
-              </Form.Item>
-              <Form.Item className='form_item_style'>
-                <Select
-                  disabled={this.state.selectChecked}
-                  placeholder="请选择一个块存储集群"
-                  {...getFieldProps('address', {
-                    rules: [{
-                      required: true,
-                      message: "请选择块存储集群"
-                    }],
-                    onChange: this.selectStorageServer,
-                  })}
-                >
-                  { this.renderCephSeverOption() }
-                </Select>
-              </Form.Item>
+              <Row>
+                <Col span={12}>
+                  <Form.Item>
+                    <Select
+                      placeholder="请选择类型"
+                      disabled={this.state.selectChecked}
+                      {...getFieldProps('type', {
+                        initialValue: "ceph",
+                        rules: [{required: true, message: '类型不能为空'}]
+                      })}
+                    >
+                      <Option key="ceph" value="ceph">块存储</Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item>
+                    <Select
+                      disabled={this.state.selectChecked}
+                      placeholder="请选择一个块存储集群"
+                      {...getFieldProps('address', {
+                        rules: [{
+                          required: true,
+                          message: "请选择块存储集群"
+                        }],
+                        onChange: this.selectStorageServer,
+                      })}
+                    >
+                      { this.renderCephSeverOption() }
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
             </Col>
           </Row>
           <Row className='switchSnapshot'>

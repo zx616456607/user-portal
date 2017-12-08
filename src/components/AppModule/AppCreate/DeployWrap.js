@@ -355,7 +355,7 @@ class WrapManage extends Component {
               </Collapse.Panel>
             </Collapse>
             <div className="footerBtn">
-              <Button size="large" onClick={() => this.props.goBack()}>上一步</Button>
+              <Button size="large" onClick={() => browserHistory.push('/app_manage/app_create')}>上一步</Button>
               <Button size="large" style={{marginLeft:10}} onClick={() => this.goDeploy(window.WrapListTable)}>下一步</Button>
             </div>
           </div>

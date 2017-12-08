@@ -22,6 +22,7 @@ import MirrorSafety from './Mirrorsafety'
 import './style/ImageDetailBox.less'
 import NotificationHandler from '../../../../components/Notification'
 import { camelize } from 'humps'
+import DetailInfo from './DetailInfo'
 
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
@@ -96,7 +97,7 @@ class ImageDetailBox extends Component {
       imageDetail: null,
       copySuccess: false,
       editInfo: false,
-      activeKey: 'tag',
+      activeKey: 'detailInfo',
       disable: true,
       tagVersion: '',
       tag: '',
@@ -354,6 +355,12 @@ class ImageDetailBox extends Component {
         </div>
         <div className="tabBox">
           <Tabs className="itemList" activeKey={this.state.activeKey} onChange={this.handleTabsSwitch}>
+            <TabPane tab={formatMessage(menusText.info)} key="detailInfo">
+              <DetailInfo
+                registry={DEFAULT_REGISTRY}
+                imageName={this.props.imageName}
+              />
+            </TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="tag"><ImageVersion location={location} isAdminAndHarbor={isAdminAndHarbor} scope={this} config={imageDetail} scopeDetail={scope}/></TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="attr"><Attribute detailInfo={imageInfo} /></TabPane>
             <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} imageType="publicImages" registry={DEFAULT_REGISTRY} tagVersion={this.state.tag} tabledisabled={this.state.tabledisabled} /></TabPane>
