@@ -336,7 +336,7 @@ class QuickCreateApp extends Component {
       if (this.configureMode === 'create') {
         this.configureServiceKey = this.genConfigureServiceKey()
       }
-      if (options.addWrap) {
+      if (options && options.addWrap) {
         browserHistory.push(`/app_manage/app_create/quick_create?appName=${values.appName}&addWrap=true`)
         return
       }
