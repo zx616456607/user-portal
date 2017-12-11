@@ -247,7 +247,6 @@ class LDAP extends Component {
     } = lastSyncInfo || {}
     return (
       <div className='lastDetails'>
-        <Title title="集成企业目录" />
         <div className='title'>上次同步详情</div>
         <div className='container'>
           <div className='imgcomtainer'>
@@ -339,6 +338,7 @@ class LDAP extends Component {
     return (
       <QueueAnim>
       <div id="account_ldap" key='account_ldap'>
+        <Title title="集成企业目录"/>
         <div className='alertRow'>
         通过配置以下信息可将企业用户目录信息同步到该平台。所有接入的成员都默认是普通成员，同步到平台后，可修改成员类型（系统管理员、普通成员）或设置相应的权限；*为必填字段，其他为选填字段。
         </div>
