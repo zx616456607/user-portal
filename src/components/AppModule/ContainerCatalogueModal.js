@@ -351,6 +351,9 @@ let ContainerCatalogueModal = React.createClass({
       })
       form.validateFields(validateArray, (errors, values) => {
         if (!!errors) {
+          this.setState({
+            confirmLoading: false
+          })
           return
         }
         const obj = {
