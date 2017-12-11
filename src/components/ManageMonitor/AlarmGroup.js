@@ -329,8 +329,9 @@ class AlarmGroup extends Component {
               创建
             </Button>
             <Button size="large" type="ghost" onClick={() => this.props.loadNotifyGroups("", clusterID)}><i className="fa fa-refresh" />刷新</Button>
-            <Button size="large" disabled={this.state.selectedRowKeys.length === 0} icon="delete" onClick={(e) => this.openDeleteModal(e, this.getSelectedGroups())} type="ghost">删除</Button>
-            <Button size="large" disabled={this.state.selectedRowKeys.length !== 1} icon="edit" onClick={() => this.openModifyModal(this.getModifyingGroup())} type="ghost">修改</Button>
+            <Button size="large" disabled={this.state.selectedRowKeys.length === 0} onClick={(e) => this.openDeleteModal(e, this.getSelectedGroups())} type="ghost"><i className="fa fa-trash-o" aria-hidden="true"/>删除</Button>
+            <Button size="large" disabled={this.state.selectedRowKeys.length !== 1} onClick={() => this.openModifyModal(this.getModifyingGroup())} type="ghost"><Icon type="edit"
+              style={{ marginRight: 0 }}/>修改</Button>
             <div className="Search">
               <Input size="large" placeholder="搜索" id="AlarmGroupInput" onChange={(e) => this.setState({ search: e.target.value.trim()})} onPressEnter={() => this.handSearch()} />
               <i className="fa fa-search" onClick={() => this.handSearch()} />
