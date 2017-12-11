@@ -127,6 +127,9 @@ class ImageCheckTable extends React.Component {
     this.setState({
       currentImage: record,
       rejectModal: true
+    }, () => {
+      let input = document.getElementById('approve')
+      input && input.focus()
     })
   }
   confirmModal() {

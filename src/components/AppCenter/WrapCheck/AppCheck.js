@@ -88,6 +88,9 @@ class WrapCheckTable extends React.Component {
         this.setState({
           currentWrapId: record.id,
           approveVisible: true
+        }, () => {
+          let input = document.getElementById('approve')
+          input && input.focus()
         })
         break
     }
