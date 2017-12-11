@@ -10,28 +10,36 @@
     font-size: 16px;
   }
   .body{
+    padding-top: 20px;
     .title{
       font-size: 14px;
     }
     .standard{
-      height:61px;
-      line-height: 60px;
       border-bottom: 1px solid #e5e5e5;
-      padding:0 14px 0 14px;
+      padding:20px 14px;
+      .ant-col-10 {
+        line-height: 28px;
+      }
       .item_header{
         color: #a1a1a1;
       }
       .title{
+        text-align: left;
         text-transform: capitalize;
       }
       .tips{
         color: #68b863;
-        margin-left: 30px;
         .check_icon{
           margin-right: 8px;
           font-size: 14px;
         }
       }
+    }
+    .standard:first-child {
+      border-top: 1px solid #e5e5e5;
+    }
+    .standard:last-child {
+      padding-bottom: 0;
     }
     .open_permission{
       cursor: pointer;
@@ -117,7 +125,6 @@
   .create_area{
     height:150px;
     overflow-y: scroll;
-   
   }
   .copy_icon{
     position: absolute;

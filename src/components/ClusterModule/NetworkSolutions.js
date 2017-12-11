@@ -81,49 +81,50 @@ class NetworkSolutions extends Component {
       return
     }
     let arr = networksolutions[clusterID].supported.map((item,index) => {
-      return <div key={`list${index}`}>
-        <Row className='standard' key={'body' + item}
-          style={{ borderBottom: item == 'calico' ? 'none': '1px solid #e5e5e5' }}>
-          <Col span="10">
-            <span className='item_header'>网络方案：</span><span className='title'>{item}</span>
-            {
-              item == networksolutions[clusterID].current
-                ? <span className='tips'>{this.handleCurrentTemplate(item)}</span>
-                : <span></span>
-            }
-          </Col>
-          <Col className='seconditem' span="14">
-            {
-              (item == 'calico' && item == networksolutions[clusterID].current) && <div>
-                <span>
-                  <span className='item_header'>允许该集群用户变更 inbound 隔离策略：</span>
-                  <span>
-                    {
-                      networkPolicySupported
-                        ? '允许变更'
-                        : '禁止变更'
-                    }
-                    </span>
-                  <span className='open_permission' onClick={this.openPermissionModal}>
-                    {
-                      !networkPolicySupported
-                        ? '[ 允许变更 ]'
-                        : '[ 禁止变更 ]'
-                    }
-                  </span>
-                  <Button
-                    type="primary"
-                    style={{ marginLeft: 8 }}
-                    onClick={() => this.setState({ helpVisible: true })}
-                  >
-                    帮助
-                  </Button>
+      return <Row className='standard' key={'body' + item}
+        style={{ borderBottom: item == 'calico' ? 'none': '1px solid #e5e5e5' }}>
+        <Col span="10">
+          <Row>
+            <Col span={5} className='item_header'>网络方案：</Col>
+            <Col span={4} className='title'>{item}</Col>
+            <Col span={15}>
+              {
+                item == networksolutions[ clusterID ].current
+                  ? <span className='tips'>{this.handleCurrentTemplate(item)}</span>
+                  : <span></span>
+              }
+            </Col>
+          </Row>
+        </Col>
+        <Col className='seconditem' span="14">
+          {
+            (item == 'calico' && item == networksolutions[ clusterID ].current) && <span>
+              <span className='item_header'>允许该集群用户变更 inbound 隔离策略：</span>
+              <span>
+                {
+                  networkPolicySupported
+                    ? '允许变更'
+                    : '禁止变更'
+                }
                 </span>
-              </div>
-            }
-          </Col>
-        </Row>
-      </div>
+              <span className='open_permission' onClick={this.openPermissionModal}>
+                {
+                  !networkPolicySupported
+                    ? '[ 允许变更 ]'
+                    : '[ 禁止变更 ]'
+                }
+              </span>
+              <Button
+                type="primary"
+                style={{ marginLeft: 8 }}
+                onClick={() => this.setState({ helpVisible: true })}
+              >
+                帮助
+              </Button>
+            </span>
+          }
+        </Col>
+      </Row>
     })
     return arr
   }
@@ -278,7 +279,6 @@ class NetworkSolutions extends Component {
           集群网络方案
         </div>
         <div className='body'>
-          <Row className='standard' style={{ height: 40 }}/>
           {this.handlebodyTemplate()}
         </div>
         <div className="footer">
