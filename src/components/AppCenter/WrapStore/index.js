@@ -52,8 +52,11 @@ class AppWrapStore extends React.Component {
       sort_by: 'publish_time',
       activeKey
     }, this.getStoreList)
+    if (activeKey === 'app') {
+      getWrapStoreHotList()
+      return
+    } 
     getAppsHotList()
-    getWrapStoreHotList()
   }
   getStoreList() {
     const { getWrapStoreList, getAppsList } = this.props
@@ -165,7 +168,6 @@ class AppWrapStore extends React.Component {
             activeKey === "app" ?
               <StoreTemplate
                 location={location}
-                isAdmin={isAdmin}
                 activeKey={activeKey}
                 current={current}
                 classify={classify}

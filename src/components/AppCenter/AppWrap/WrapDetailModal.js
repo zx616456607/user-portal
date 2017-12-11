@@ -49,9 +49,7 @@ class WrapDetailModal extends React.Component {
       this.setState({
         visible: newVisible
       })
-      if (!oldWrap || (oldWrap && oldWrap.id !== newWrap.id)) {
-        this.loadDetail(newWrap.id)
-      }
+      this.loadDetail(newWrap.id)
     }
     if (!oldVisible && newVisible && isEmpty(newGroupList && newGroupList.classifies)) {
       getWrapGroupList()
@@ -59,7 +57,8 @@ class WrapDetailModal extends React.Component {
     if (!newVisible && oldVisible) {
       form.resetFields()
       this.setState({
-        isEdit: false
+        isEdit: false,
+        isPublished: false
       })
     }
   }
@@ -68,11 +67,15 @@ class WrapDetailModal extends React.Component {
     const { getWrapDetail } = this.props
     getWrapDetail(pkgID, {
       success: {
-        func: () => {
-          const { pkgDetail } = this.props
+        func: res => {
+          const pkgDetail  = res.data.pkgs
           if (pkgDetail && (pkgDetail.publishStatus === 1 || pkgDetail.publishStatus === 4 || pkgDetail.publishStatus === 8)) {
             this.setState({
               isPublished: true
+            })
+          } else {
+            this.setState({
+              isPublished: false
             })
           }
         }
@@ -111,9 +114,11 @@ class WrapDetailModal extends React.Component {
         return
       }
       const { classifyName, fileNickName, description } = values
+      
       const pkgID = pkgDetail.id
       const body = {
-        description
+        description,
+        filePkgName: pkgDetail.fileName
       }
       if (isPublished) {
         Object.assign(body, {

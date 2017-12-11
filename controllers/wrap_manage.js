@@ -162,9 +162,10 @@ exports.updatePkgDetail = function* () {
 
 exports.passPkgPublish = function* () {
   const loginUser = this.session.loginUser
+  const body = this.request.body
   const api = apiFactory.getApi(loginUser)
   const id = this.params.id
-  const result = yield api.pkg.updateBy(['publish', id, 'pass'], null, null)
+  const result = yield api.pkg.updateBy(['publish', id, 'pass'], null, body)
   this.body = result
 }
 
@@ -179,9 +180,10 @@ exports.refusePkgPublish = function* () {
 
 exports.offShelfPkg = function* () {
   const loginUser = this.session.loginUser
+  const body = this.request.body
   const api = apiFactory.getApi(loginUser)
   const id = this.params.id
-  const result = yield api.pkg.updateBy(['store', id, 'status'], null, null)
+  const result = yield api.pkg.updateBy(['store', id, 'status'], null, body)
   this.body = result
 }
 
