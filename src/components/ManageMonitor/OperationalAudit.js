@@ -1177,6 +1177,9 @@ function formatResourceName(resourceName, resourceId) {
     if (newBody.imageTagName) {
       return newBody.imageTagName
     }
+    if (newBody.filePkgName) {
+      return newBody.filePkgName
+    }
   } else {
     if (resourceName.length == 0) {
       if (resourceId.length == 0) {

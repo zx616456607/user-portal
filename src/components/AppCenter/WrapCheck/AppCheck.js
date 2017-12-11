@@ -80,13 +80,16 @@ class WrapCheckTable extends React.Component {
       });
       return
     }
-    passPublish(record.id)
+    const body = {
+      filePkgName: record.fileName
+    }
+    passPublish(record.id, body)
   }
   handleMenuClick(e, record) {
     switch(e.key) {
       case 'refuse':
         this.setState({
-          currentWrapId: record.id,
+          currentWrap: record,
           approveVisible: true
         }, () => {
           let input = document.getElementById('approve')
@@ -98,16 +101,17 @@ class WrapCheckTable extends React.Component {
   
   confirmModal() {
     const { refusePublish, form } = this.props
-    const { currentWrapId } = this.state
+    const { currentWrap } = this.state
     form.validateFields((errors, values) => {
       if (!!errors) {
         return
       }
       const { approve } = values
       const body = {
-        approve_message: approve
+        approve_message: approve,
+        filePkgName: currentWrap.fileName
       }
-      refusePublish(currentWrapId, body).then(() => {
+      refusePublish(currentWrap.id, body).then(() => {
         this.setState({
           approveVisible: false
         })
@@ -332,11 +336,11 @@ class WrapCheck extends React.Component {
       publish_time: time
     }, callback)
   }
-  passPublish(pkgID) {
+  passPublish(pkgID, body) {
     const { passWrapPublish } = this.props
     let notify = new NotificationHandler()
     notify.spin('通过中')
-    passWrapPublish(pkgID, {
+    passWrapPublish(pkgID, body, {
       success: {
         func: () => {
           notify.close()
