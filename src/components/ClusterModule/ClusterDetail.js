@@ -12,8 +12,8 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import { Icon, Button, Card, Tabs, Table, Input, Spin, Row, Col, Dropdown, Menu, Modal, Progress, Switch, Tag, Tooltip } from 'antd'
-import { 
-  getNodesPodeList, loadHostMetrics, searchPodeList, 
+import {
+  getNodesPodeList, loadHostMetrics, searchPodeList,
   loadHostCpu, loadHostMemory, loadHostRxrate, loadHostTxrate,
   loadHostDiskReadIo, loadHostDiskWriteIo
 } from '../../actions/cluster'
@@ -393,7 +393,7 @@ class ClusterDetail extends Component {
     const body = { clusterID, clusterName }
     loadHostMetrics(body, query)
   }
-  
+
   changeSchedulable(node, e) {
     //this function for change node schedulable
     const { clusterID, changeClusterNodeSchedule } = this.props;
@@ -635,16 +635,16 @@ class ClusterDetail extends Component {
       }, UPDATE_INTERVAL)
     })
   }
-  
+
   formatMetrics(result, nodeName) {
     if (!result || !result.data) return {}
     let formatData = { data: [] }
     let metrics
-    result.data.metrics.length && (metrics = result.data.metrics)
+    result.data.metrics && result.data.metrics.length && (metrics = result.data.metrics)
     formatData.data.push({metrics, containerName: nodeName})
     return formatData
   }
-  
+
   render() {
     if (this.props.hostInfo.isFetching) {
       return (
@@ -654,9 +654,9 @@ class ClusterDetail extends Component {
       )
     }
     const { freshTime, switchCpu, switchMemory, switchNetwork, switchDisk } = this.state
-    const { 
-      clusterName, cpu, hostCpu, memory, hostMemory,  
-      networkReceived, hostNetworkRx, networkTransmitted, hostNetworkTx, 
+    const {
+      clusterName, cpu, hostCpu, memory, hostMemory,
+      networkReceived, hostNetworkRx, networkTransmitted, hostNetworkTx,
       diskReadIo, diskWriteIo, hostDiskReadIo, hostDiskWriteIo
     } = this.props
     const hostInfo = this.props.hostInfo.result ? this.props.hostInfo.result : {objectMeta:{creationTimestamp:''}, address:' '}
@@ -726,7 +726,7 @@ class ClusterDetail extends Component {
                 diskWriteIo={showNodeWriteIo}
               />
             </TabPane>
-            <TabPane tab="告警策略" key="alarm">
+            <TabPane tab="告警策略告警策略" key="alarm">
               <AlarmStrategy nodeName={this.props.clusterName} cluster={this.props.clusterID} modalOpen={this.state.alarmOpen}/>
             </TabPane>
           </Tabs>
@@ -800,7 +800,7 @@ function mapStateToProps(state, props) {
   if (hostWriteIo && hostWriteIo.result) {
     instantDiskWriteIo.data = hostWriteIo.result.diskWriteIo
   }
-  
+
   /*let instant = {}
   if (hostInstant && hostInstant.result) {
     instant = hostInstant.result
@@ -838,8 +838,8 @@ export default connect(mapStateToProps, {
   getNodeLabels,
   loadHostCpu,
   loadHostMemory,
-  loadHostRxrate, 
+  loadHostRxrate,
   loadHostTxrate,
-  loadHostDiskReadIo, 
+  loadHostDiskReadIo,
   loadHostDiskWriteIo
 })(ClusterDetail)
