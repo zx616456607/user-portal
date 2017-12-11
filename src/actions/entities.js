@@ -27,7 +27,10 @@ export function setCurrent(current, callback) {
   if (current.cluster) {
     clusterID = current.cluster.clusterID
   }
-  setCookie(USER_CURRENT_CONFIG, `${teamID},${namespace},${clusterID}`)
+  // 管理员切换到个人项目不保存 cookie
+  if (!(current.space && current.space.userName)) {
+    setCookie(USER_CURRENT_CONFIG, `${teamID},${namespace},${clusterID}`)
+  }
   return {
     current,
     type: SET_CURRENT,
