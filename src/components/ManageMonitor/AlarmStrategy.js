@@ -183,7 +183,9 @@ class AlarmStrategy extends Component {
     let enables = enable == 'start' ? 1: 0
     const noticeText = enable== 'start' ? '策略启动中...':'策略停止中...'
     const body = {
-      strategyIDs:[strategyID.toString()]
+      strategies:[{
+        strategyID: strategyID.toString(),
+      }]
     }
     const notifcation = new NotificationHandler()
     notifcation.spin(noticeText)

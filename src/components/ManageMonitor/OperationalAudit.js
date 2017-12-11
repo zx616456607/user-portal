@@ -1784,18 +1784,7 @@ class OperationalAudit extends Component {
       end_time: null
     }
     let notification = new NotificationHandler()
-    getOperationLogList(body, {
-      success: {
-        func: (res) => {
-          notification.success("刷新成功")
-        }
-      },
-      failed: {
-        func: (error) => {
-          notification.error('刷新失败，请重试');
-        }
-      }
-    })
+    getOperationLogList(body)
   }
 
   render() {
