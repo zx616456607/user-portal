@@ -333,44 +333,47 @@ class WrapListTable extends Component {
   
   render() {
     // jar war ,tar.gz zip
-    const { func, rowCheckbox, auditWrap, wrapManageList, wrapList, wrapStoreList, currentType } = this.props
+    const { func, rowCheckbox, wrapList, wrapStoreList, currentType, isWrapManage } = this.props
     const { releaseVisible, currentApp, detailModal, currentWrap, publishModal } = this.state
     const dataSource = currentType === 'trad' ? wrapList : wrapStoreList
+    const classifyName = {
+      title: '分类名称',
+      dataIndex: 'classifyName',
+      key: 'classifyName',
+      width: '10%',
+      render: text => text ? text : '-'
+    }
+    const fileNickName = {
+      title: '发布名称',
+      dataIndex: 'fileNickName',
+      key: 'fileNickName',
+      width: '10%',
+      render: text => text ? text : '-'
+    }
+    const publishStatus = {
+      title: '应用商店',
+      dataIndex: 'publishStatus',
+      key: 'publishStatus',
+      width: '10%',
+      render: (text, record) => this.getAppStatus(text, record)
+    }
     const columns = [
       {
         title: '包名称',
         dataIndex: 'fileName',
         key: 'name',
-        width: '10%',
+        width: isWrapManage ? '10%' : '20%',
         render: (text, row) => <span className="pointer themeColor" onClick={(e) => this.openDetailModal(e, row)}>{text}</span>
       }, {
         title: '版本标签',
         dataIndex: 'fileTag',
         key: 'tag',
-        width: '10%',
-      }, {
-        title: '分类名称',
-        dataIndex: 'classifyName',
-        key: 'classifyName',
-        width: '10%',
-        render: text => text ? text : '-'
-      }, {
-        title: '发布名称',
-        dataIndex: 'fileNickName',
-        key: 'fileNickName',
-        width: '10%',
-        render: text => text ? text : '-'
-      }, {
-        title: '应用商店',
-        dataIndex: 'publishStatus',
-        key: 'publishStatus',
-        width: '10%',
-        render: (text, record) => this.getAppStatus(text, record)
+        width: isWrapManage ? '10%' : '20%',
       }, {
         title: '包类型',
         dataIndex: 'fileType',
         key: 'fileType',
-        width:'10%',
+        width: isWrapManage ? '10%' : '20%',
       }, {
         title: '上传时间',
         dataIndex: 'creationTime',
@@ -391,6 +394,10 @@ class WrapListTable extends Component {
 
       }
     ]
+    if (isWrapManage) {
+      columns.splice(2, 0, classifyName, fileNickName, publishStatus)
+    }
+    
     const paginationOpts = {
       simple: true,
       pageSize: DEFAULT_PAGE_SIZE,
@@ -465,13 +472,20 @@ class WrapListTable extends Component {
 }
 
 function mapStateToProps(state,props) {
-  const { currentType } = props
+  const { currentType, func } = props
   const { wrapList, wrapStoreList } = state.images
   const { current } = state.entities
   const { space } = current
   const list = wrapList || {}
   const { result: storeList, isFetching: storeFetching } = wrapStoreList || { result: {}}
   const { data: storeData } = storeList || { data: [] }
+  const { location } = func
+  const { pathname } = location
+  // 判断是否是应用包管理页面，table columns展示不同
+  let isWrapManage = false
+  if (pathname.indexOf('/app_center/wrap_manage') > -1) {
+    isWrapManage = true
+  }
   let datalist = {pkgs:[],total:0}
   if (list.result) {
     datalist = list.result.data
@@ -481,6 +495,7 @@ function mapStateToProps(state,props) {
     wrapList: datalist,
     isFetching: currentType === 'trad' ? list.isFetching : storeFetching,
     wrapStoreList: storeData,
+    isWrapManage
   }
 }
 

@@ -504,6 +504,7 @@ class WrapManage extends Component {
     this.setState({delAll: true})
   }
   render() {
+    const { location } = this.props
     const funcCallback = {
       uploadModal: this.uploadModal,
       getList: this.getList,
@@ -513,7 +514,8 @@ class WrapManage extends Component {
     }
     const func = {
       scope: this,
-      goDeploy: this.goDeploy
+      goDeploy: this.goDeploy,
+      location
     }
     return (
       <QueueAnim>

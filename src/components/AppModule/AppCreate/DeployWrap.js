@@ -299,7 +299,8 @@ class WrapManage extends Component {
     const { resource, priceHour, priceMonth } = this.getAppResources()
     const funcCallback = {
       goDeploy: this.goDeploy,
-      scope: this
+      scope: this,
+      location
     }
     let showprice = 18
     if (!SHOW_BILLING) {
@@ -382,7 +383,7 @@ class WrapManage extends Component {
                   <Button type="ghost" className={classNames({'active': currentType === 'store'})} onClick={() =>this.changeWrap('store')}>应用包商店</Button>
                 </ButtonGroup>
               </div>
-              <WrapListTable currentType={currentType} func={funcCallback} selectedRowKeys={this.state.selectedRowKeys} entryPkgID={location.query.entryPkgID}/>
+              <WrapListTable location={location} currentType={currentType} func={funcCallback} selectedRowKeys={this.state.selectedRowKeys} entryPkgID={location.query.entryPkgID}/>
               <br />
               <div className="list_row" style={{ height: 'auto' }}>
                 <span className="wrap_key" style={{ float: 'left' }}>运行环境</span>
