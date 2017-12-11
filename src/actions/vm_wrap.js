@@ -117,7 +117,6 @@ export const VM_WRAP_VMPUT_SUCCESS = 'VM_WRAP_VMPUT_SUCCESS'
 export const VM_WRAP_VMPUT_FAILURE = 'VM_WRAP_VMPUT_FAILURE'
 
 function editVMInfo(state, callback) {
-  debugger
   let endpoint = `${API_URL_PREFIX}/vm-wrap/vminfos/${state.vmInfoID}`
   /*if(state){
     endpoint += `?${toQuerystring(state)}`

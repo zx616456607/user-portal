@@ -62,11 +62,15 @@ let CreateVMListModal = React.createClass({
     })
   },
   handleAdd() {
-    const { form, onSubmit, scope } = this.props
-    form.validateFields((errors, values) => {
+    const { form, onSubmit, scope, modalTitle } = this.props
+    const validateArr = ['account', 'password']
+    if (modalTitle) {
+      validateArr.unshift('host')
+    }
+    form.validateFields(validateArr, (errors, values) => {
       if (errors !== null) return
       let List = {
-        host: values.host,
+        host: form.getFieldValue('host'),
         account: values.account,
         password: values.password
       }
@@ -162,7 +166,7 @@ let CreateVMListModal = React.createClass({
       labelCol: { span: 5 },
       wrapperCol: { span: 17 }
     }
-    const { form, Rows, isAdd } = this.props
+    const { form, Rows, isAdd, modalTitle } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = form
     const hostProps = getFieldProps('host', {
       rules: [
@@ -201,10 +205,9 @@ let CreateVMListModal = React.createClass({
     let promptStyle = {
       marginRight: 120
     }
-
     return (
       <Modal
-        title={this.props.modalTitle ? "添加传统环境" : "编辑传统环境"}
+        title={modalTitle ? "添加传统环境" : "编辑传统环境"}
         visible={this.props.visible}
         onCancel={() => this.handleClose()}
         footer={[
@@ -247,7 +250,7 @@ let CreateVMListModal = React.createClass({
             hasFeedback
             {...formItemLayout}
           >
-            <Input key="IP"{...hostProps} placeholder="请输入已开通 SSH 登录的传递环境 IP" id="host" ref={host => this.host = host} />
+            <Input disabled={!modalTitle} key="IP"{...hostProps} placeholder="请输入已开通 SSH 登录的传递环境 IP" id="host" ref={host => this.host = host} />
             <span style={style}><Icon size={15} type="question-circle-o" />传统环境一般指非容器环境（Linux的虚拟机、物理机等）</span>
           </FormItem>
           <FormItem
