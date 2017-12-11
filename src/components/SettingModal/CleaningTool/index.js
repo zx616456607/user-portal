@@ -56,7 +56,7 @@ class CleaningTool extends Component {
     this.getSystemLogs()
     this.getCicdLogs()
     this.getMonitorSetting()
-    this.systemCleanStatus()
+    //this.systemCleanStatus()
   }
   systemCleanStatus() {
     const { getSystemCleanStatus } = this.props
@@ -490,7 +490,7 @@ class CleaningTool extends Component {
         return (
           <div className='done_box'>
             <div className='tips'>
-              清理完成，此次清理 <span className='number'>{systemLogs && systemLogs[0] && systemLogs[0].total}</span> 个文件，查看 <Link to="/setting/cleaningTool/cleaningRecord?type=system">清理记录</Link>
+              清理已提交，{/*此次清理 <span className='number'>{systemLogs && systemLogs[0] && systemLogs[0].total}</span> 个文件，*/}查看 <Link to="/setting/cleaningTool/cleaningRecord?type=system">清理记录</Link>
             </div>
             <Button size="large" type="primary" onClick={() => this.setState({cleanSystemLogStatus: undefined})}>完成</Button>
           </div>
@@ -605,7 +605,7 @@ class CleaningTool extends Component {
     })
     if (tab === 'systemLog') {
       this.getSystemLogs()
-      this.systemCleanStatus()
+      //this.systemCleanStatus()
     } else if (tab === 'cache') {
       this.getCicdLogs()
     } else {
