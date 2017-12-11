@@ -350,19 +350,16 @@ let ContainerCatalogueModal = React.createClass({
         validateArray.push(item)
       })
       form.validateFields(validateArray, (errors, values) => {
+        this.setState({
+          confirmLoading: false
+        })
         if (!!errors) {
-          this.setState({
-            confirmLoading: false
-          })
           return
         }
         const obj = {
           type,
           values,
         }
-        this.setState({
-          confirmLoading: false
-        })
         return callbackFields(obj)
       })
     }
