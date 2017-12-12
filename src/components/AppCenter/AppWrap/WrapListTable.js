@@ -227,9 +227,9 @@ class WrapListTable extends Component {
     const { enabled } = vmWrapConfig
     const menu = (
       <Menu onClick={e => this.handleMenuClick(e, row)} style={{ width: 110 }}>
-        <Menu.Item key="vm" disabled={!enabled}>
+        { enabled && <Menu.Item key="vm">
           传统部署
-        </Menu.Item>
+        </Menu.Item> }
         <Menu.Item key="audit" disabled={[1, 2, 8].includes(row.publishStatus)}>
           提交审核
         </Menu.Item>
