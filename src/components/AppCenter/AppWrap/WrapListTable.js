@@ -87,20 +87,24 @@ class WrapListTable extends Component {
     }
   }
 
-  deleteAction(status,id) {
+  deleteAction(status, row) {
     if (status) {
-      id = [id]
-      this.setState({delAll: true,id})
+      this.setState({delAll: true, currentApp: row})
       return
     }
     this.setState({delAll: false})
   }
   deleteVersion = ()=> {
     // const notificat = new NotificationHandler()
-    const { id,page } = this.state
+    const { currentApp, page } = this.state
     const { wrapList,func } = this.props
     func.scope.setState({selectedRowKeys:[]}) // set parent state
-    this.props.deleteWrapManage({ids: id},{
+    let id = [currentApp.id]
+    let body = {
+      ids: id,
+      filePkgName: currentApp.fileName
+    }
+    this.props.deleteWrapManage(body, {
       success: {
         func:()=> {
           notificat.success('删除成功')
@@ -131,9 +135,13 @@ class WrapListTable extends Component {
   }
   publishAction(id) {
     const { publishWrap } = this.props
+    const { currentApp } = this.state
     let notify = new NotificationHandler()
     notify.spin('发布中')
-    publishWrap(id, {
+    const body = {
+      filePkgName: currentApp.fileName
+    }
+    publishWrap(id, body, {
       success: {
         func: () => {
           notify.close()
@@ -157,7 +165,7 @@ class WrapListTable extends Component {
           notify.close()
           this.setState({
             publishModal: false,
-            publishId: ''
+            currentApp: null
           })
         }
       }
@@ -170,7 +178,7 @@ class WrapListTable extends Component {
           this.deleteHint()
           return
         }
-        this.deleteAction(true,row.id)
+        this.deleteAction(true,row)
         break
       case 'audit':
         this.setState({
@@ -181,7 +189,7 @@ class WrapListTable extends Component {
       case 'publish':
         this.setState({
           publishModal: true,
-          publishId: row.id
+          currentApp: row
         })
         break
       case 'download':
@@ -194,12 +202,12 @@ class WrapListTable extends Component {
   cancelPublishModal() {
     this.setState({
       publishModal: false,
-      publishId: ''
+      currentApp: null
     })
   }
   confirmPublishModal() {
-    const { publishId } = this.state
-    this.publishAction(publishId)
+    const { currentApp } = this.state
+    this.publishAction(currentApp.id)
   }
   closeRleaseModal() {
     this.setState({

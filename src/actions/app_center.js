@@ -922,22 +922,23 @@ export const PUBLISH_WRAP_REQUEST = 'PUBLISH_WRAP_REQUEST'
 export const PUBLISH_WRAP_SUCCESS = 'PUBLISH_WRAP_SUCCESS'
 export const PUBLISH_WRAP_FAILURE = 'PUBLISH_WRAP_FAILURE'
 
-function fetchPublishWrap(pkgID, callback) {
+function fetchPublishWrap(pkgID, body, callback) {
   return {
     [FETCH_API]: {
       types: [PUBLISH_WRAP_REQUEST,PUBLISH_WRAP_SUCCESS,PUBLISH_WRAP_FAILURE],
       endpoint: `${API_URL_PREFIX}/pkg/${pkgID}/publish`,
       schema: {},
       options: {
-        method: 'POST'
+        method: 'POST',
+        body
       }
     },
     callback
   }
 }
 
-export function publishWrap(pkgID, callback) {
-  return dispatch => dispatch(fetchPublishWrap(pkgID, callback))
+export function publishWrap(pkgID, body, callback) {
+  return dispatch => dispatch(fetchPublishWrap(pkgID, body, callback))
 }
 
 export const WRAP_DETAIL_REQUEST = 'WRAP_DETAIL_REQUEST'
