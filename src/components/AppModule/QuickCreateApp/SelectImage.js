@@ -23,6 +23,7 @@ import { getAppsList } from '../../../actions/app_store'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { encodeImageFullname } from '../../../common/tools'
 import './style/SelectImage.less'
+import NotificationHandler from '../../../components/Notification'
 
 const standard = require('../../../../configs/constants').STANDARD_MODE
 const mode = require('../../../../configs/model').mode
@@ -72,6 +73,7 @@ class SelectImage extends Component {
     // }
     // loadPublicImageList(registry, serverType, callback)
     const { registry, loadAllProject } = props
+    let notify = new NotificationHandler()
     if (!callback) {
       callback = {
         success: {
@@ -83,6 +85,13 @@ class SelectImage extends Component {
                   imageType: PUBLIC_IMAGES,
                 })
               }
+            }
+          }
+        },
+        failed: {
+          func: res => {
+            if (res.statusCode === 500) {
+              notify.error('请求错误', '镜像仓库暂时无法访问，请联系管理员')
             }
           }
         }
@@ -152,6 +161,7 @@ class SelectImage extends Component {
   loadImageStore() {
     const { getAppsList } = this.props
     const { searchInputValue, currentPage } = this.state
+    let notify = new NotificationHandler()
     let filter = 'type,2,publish_status,2'
     if (searchInputValue) {
       filter += `,file_nick_name,${searchInputValue}`
@@ -161,7 +171,15 @@ class SelectImage extends Component {
       size: 10,
       filter
     }
-    getAppsList(query)
+    getAppsList(query, {
+      failed: {
+        func: res => {
+          if (res.statusCode === 500) {
+            notify.error('请求错误', '镜像仓库暂时无法访问，请联系管理员')
+          }
+        }
+      }
+    })
   }
   imageFilterChange(e) {
     const { publicFilterServer, registry } = this.props
