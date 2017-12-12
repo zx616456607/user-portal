@@ -47,7 +47,7 @@ export default class CheckPage extends React.Component {
     return(
       <QueueAnim className="checkPage">
         <Title title="发布审核"/>
-        <ul className='tabs_header_style'>
+        <ul className='tabs_header_style' key="btns">
           <li className={imageComposeStyle}
               onClick={this.tabChange.bind(this, "image")}
           >
@@ -59,8 +59,8 @@ export default class CheckPage extends React.Component {
             应用包审核
           </li>
         </ul>
-        {activeKey === "image" ? [<ImageCheck activeKey={activeKey} location={location} />] : null}
-        {activeKey === "app" ? [<AppCheck activeKey={activeKey} />] : null}
+        {activeKey === "image" ? <ImageCheck key="imageBody" activeKey={activeKey} location={location} /> : null}
+        {activeKey === "app" ? <AppCheck key="appBody" activeKey={activeKey} /> : null}
       </QueueAnim>
     )
   }
