@@ -57,14 +57,7 @@ class WrapComopnent extends React.Component {
       selectTag: ''
     }
   }
-  componentWillMount() {
-    const { getWrapStoreHotList, activeKey, getAppsHotList } = this.props
-    if (activeKey === 'app') {
-      getWrapStoreHotList()
-    } else {
-      getAppsHotList()
-    }
-  }
+  
   renderClassifyTab() {
     const { wrapGroupList, classify, updateParentState } = this.props
     if (!wrapGroupList || !wrapGroupList.classifies || !wrapGroupList.classifies.length) return
@@ -118,11 +111,16 @@ class WrapComopnent extends React.Component {
   goDeploy(fileName) {
     browserHistory.push('/app_manage/deploy_wrap?from=wrapStore&fileName='+fileName)
   }
+  // 下架应用包
   updateAppStatus(pkgID) {
     const { offShelfWrap, getWrapStoreHotList, getStoreList } = this.props
+    const { currentImage } = this.state
     let notify = new NotificationHandler()
     notify.spin('操作中')
-    offShelfWrap(pkgID, {
+    const body = {
+      filePkgName: currentImage.fileName
+    }
+    offShelfWrap(pkgID, body, {
       success: {
         func: () => {
           notify.close()
@@ -153,6 +151,7 @@ class WrapComopnent extends React.Component {
       currentImage: image
     })
   }
+  // 下架镜像
   offShelfConfirm() {
     const { appStoreApprove, getStoreList, getAppsHotList } = this.props
     const { offshelfId, currentImage, tagWithId } = this.state
@@ -207,7 +206,9 @@ class WrapComopnent extends React.Component {
     switch(e.key) {
       case 'offShelf':
         if (activeKey === 'app') {
-          this.updateAppStatus(row.appId)
+          this.setState({
+            currentImage: row
+          }, () => this.updateAppStatus(row.appId))
           return
         }
         this.offsetImage(row)
@@ -343,9 +344,10 @@ class WrapComopnent extends React.Component {
             }
           </Menu.Item>
           {
-            isAdmin
+            activeKey === 'image' ? isAdmin
               ? <Menu.Item key="offShelf" disabled={[0, 4, 8].includes(item.publishStatus)}>下架</Menu.Item>
               : <Menu.Item key="none" style={{ display: 'none' }}/>
+              : <Menu.Item key="offShelf" disabled={[0, 4, 8].includes(item.publishStatus)}>下架</Menu.Item>
           }
         </Menu>
       );

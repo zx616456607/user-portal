@@ -43,6 +43,7 @@ class WrapListTable extends Component {
     this.loadData = this.loadData.bind(this)
     this.state = {
       page: 1,
+      detailModal: false
     }
   }
   componentWillMount() {
@@ -320,8 +321,8 @@ class WrapListTable extends Component {
   openDetailModal(e, row) {
     e.stopPropagation()
     this.setState({
-      detailModal: true,
-      currentWrap: row
+      currentWrap: row,
+      detailModal: true
     })
   }
   

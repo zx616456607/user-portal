@@ -986,22 +986,23 @@ export const PASS_WRAP_PUBLISH_REQUEST = 'PASS_WRAP_PUBLISH_REQUEST'
 export const PASS_WRAP_PUBLISH_SUCCESS = 'PASS_WRAP_PUBLISH_SUCCESS'
 export const PASS_WRAP_PUBLISH_FAILURE = 'PASS_WRAP_PUBLISH_FAILURE'
 
-function fetchPassWrapPublish(id, callback) {
+function fetchPassWrapPublish(id, body, callback) {
   return {
     [FETCH_API]: {
       types: [PASS_WRAP_PUBLISH_REQUEST,PASS_WRAP_PUBLISH_SUCCESS,PASS_WRAP_PUBLISH_FAILURE],
       endpoint: `${API_URL_PREFIX}/pkg/publish/${id}/pass`,
       schema: {},
       options: {
-        method: 'PUT'
+        method: 'PUT',
+        body
       }
     },
     callback
   }
 }
 
-export function passWrapPublish(id, callback) {
-  return dispatch => dispatch(fetchPassWrapPublish(id, callback))
+export function passWrapPublish(id, body, callback) {
+  return dispatch => dispatch(fetchPassWrapPublish(id, body, callback))
 }
 
 export const REFUSE_WRAP_PUBLISH_REQUEST = 'REFUSE_WRAP_PUBLISH_REQUEST'
@@ -1031,22 +1032,23 @@ export const OFFSHELF_WRAP_REQUEST = 'OFFSHELF_WRAP_REQUEST'
 export const OFFSHELF_WRAP_SUCCESS = 'OFFSHELF_WRAP_SUCCESS'
 export const OFFSHELF_WRAP_FAILURE = 'OFFSHELF_WRAP_FAILURE'
 
-function fetchOffShelfWrap(id, callback) {
+function fetchOffShelfWrap(id, body, callback) {
   return {
     [FETCH_API]: {
       types: [OFFSHELF_WRAP_REQUEST,OFFSHELF_WRAP_SUCCESS,OFFSHELF_WRAP_FAILURE],
       endpoint: `${API_URL_PREFIX}/pkg/store/${id}/status`,
       schema: {},
       options: {
-        method: 'PUT'
+        method: 'PUT',
+        body
       }
     },
     callback
   }
 }
 
-export function offShelfWrap(id, callback) {
-  return dispatch => dispatch(fetchOffShelfWrap(id, callback))
+export function offShelfWrap(id, body, callback) {
+  return dispatch => dispatch(fetchOffShelfWrap(id, body, callback))
 }
 
 export const GET_WRAP_PUBLISH_LIST_REQUEST = 'GET_WRAP_PUBLISH_LIST_REQUEST'
