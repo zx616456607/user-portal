@@ -448,7 +448,7 @@ class UserProjectsAndTeams extends React.Component {
     ]
     return (
       <div className="UserProjectsAndTeams">
-        <Tabs type="line" defaultActiveKey={this.state.tabsKey === '3' ? 'quota' : 'projects'}>
+        <Tabs type="line" defaultActiveKey={this.state.tabsKey === 'quota' ? this.state.tabsKey : 'projects'}>
           <TabPane tab="参与项目" key="projects">
             <div className="projects">
               <div className="projectsTitle">
