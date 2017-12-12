@@ -726,7 +726,7 @@ class ClusterDetail extends Component {
                 diskWriteIo={showNodeWriteIo}
               />
             </TabPane>
-            <TabPane tab="告警策略告警策略" key="alarm">
+            <TabPane tab="告警策略" key="alarm">
               <AlarmStrategy nodeName={this.props.clusterName} cluster={this.props.clusterID} modalOpen={this.state.alarmOpen}/>
             </TabPane>
           </Tabs>
