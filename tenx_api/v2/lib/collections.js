@@ -90,10 +90,6 @@ module.exports = function (request) {
         method: 'GET',
         options,
       }
-      if (typeof callback === 'object') {
-        object = Object.assign({}, callback, object)
-        callback = null
-      }
       return request(object, callback)
     }
 
@@ -104,6 +100,7 @@ module.exports = function (request) {
      * @param {Object} options
      * @param {Function|Object} callback
      * ```
+     * options =
      * {
      *   dataType: 'text|json|buffer',
      *   contentType: 'json',
@@ -121,10 +118,6 @@ module.exports = function (request) {
         endpoint,
         method: 'GET',
         options,
-      }
-      if (typeof callback === 'object') {
-        object = Object.assign({}, callback, object)
-        callback = null
       }
       return request(object, callback)
     }
@@ -229,12 +222,17 @@ module.exports = function (request) {
       let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
       return request({
         endpoint,
-        streaming: true,
-        options,
-        returnAll: true,
+        options: Object.assign(
+          {},
+          options,
+          {
+            dataType: null,
+            contentType: null,
+            streaming: true,
+            returnAll: true,
+          }
+        ),
         method: 'GET',
-        dataType: null,
-        contentType: null,
       })
     }
   }

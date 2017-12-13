@@ -38,22 +38,22 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
     object = _.clone(object)
     let url = _getUrl(object)
     const options = {}
-    // options.method = object.method
-    // options.dataType = object.dataType || DEFAULT_DATATYPE
-    // options.contentType = object.contentType || DEFAULT_DATATYPE
-    // options.timeout = object.timeout || timeout
-    // options.headers = object.headers
-    // options.data = object.data
     options.method = object.method
-    options.streaming = object.streaming
-    options.dataType = (typeof object.dataType !== 'undefined' ? object.dataType : DEFAULT_DATATYPE)
-    options.contentType = (typeof object.contentType !== 'undefined' ? object.contentType : DEFAULT_DATATYPE)
-    options.timeout = object.timeout || timeout
-    options.headers = object.headers
+    options.dataType = DEFAULT_DATATYPE
+    options.contentType = DEFAULT_DATATYPE
+    options.timeout = timeout
     options.data = object.data
 
     if (object.options) {
-      options.headers = _.merge(options.headers, object.options)
+      if (typeof object.options.dataType !== 'undefined') {
+        options.dataType = object.options.dataType
+      }
+      if (typeof object.options.contentType !== 'undefined') {
+        options.contentType = object.options.contentType
+      }
+      options.headers = object.options.headers
+      options.timeout = object.options.timeout
+      options.streaming = object.options.streaming
     }
 
     // For file upload, volume etc...
@@ -61,10 +61,8 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
       options.stream = object.stream
       options.timeout = 36000000
       delete options.contentType
-    } else {
-      object.contentType = options.contentType
-      object.dataType = options.dataType
     }
+
     logger.info(`<-- [${options.method || 'GET'}] ${url}`)
     logger.info(`--> [options]`, options)
     if (!callback) {
@@ -72,7 +70,7 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
         function done(result) {
           logger.debug(`--> [${options.method || 'GET'}] ${url}`)
           logger.debug(`api result: ${JSON.stringify(result.data)}`)
-          if (object.returnAll) {
+          if (object.options && object.options.returnAll) {
             return result
           }
           if (_isSuccess(result.res.statusCode)) {
@@ -92,7 +90,7 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
       )
     }
 
-    urllib.request(url, object, (err, data, res) => {
+    urllib.request(url, options, (err, data, res) => {
       if (err) {
         err.statusCode = err.res.statusCode
         err = errors.get(err)
@@ -109,7 +107,7 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
   }
 
   return (object, callback) => {
-    object = _.merge({}, object, { "headers": oauth.getAuthHeader(auth) })
+    object = _.merge({}, object, { options: { "headers": oauth.getAuthHeader(auth) } })
     return _makeRequest(object, callback)
   }
 }

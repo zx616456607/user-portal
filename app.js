@@ -50,7 +50,7 @@ app.use(function* (next) {
     try {
       yield oemInfo.initOEMInfo()
     } catch (error) {
-      logger.error('oem-info', error.message)
+      logger.error('oem-info', error.stack)
     }
   }
   yield next

@@ -90,7 +90,7 @@ exports.localUploadPkg = function*() {
   const stream = formStream()
   const mimeType = mime.lookup(fileStream.filename)
   stream.stream('pkg', fileStream, fileStream.filename, mimeType)
-  let response = yield api.pkg.uploadFile([filename,filetag,filetype], null, stream, stream.headers()).catch(err => {
+  let response = yield api.pkg.uploadFile([filename,filetag,filetype], null, stream, { headers: stream.headers() }).catch(err => {
     return err
   })
   this.status = response.statusCode
