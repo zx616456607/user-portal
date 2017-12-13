@@ -1214,7 +1214,7 @@ class ProjectDetail extends Component {
             }
           </Modal>
           <div className="projectMember">
-            <Tabs className="clearfix connectCard" defaultActiveKey={this.state.tabsKey === 'quota' ? this.state.tabsKey : 'project'}>
+            <Tabs className="clearfix connectCard" defaultActiveKey={this.state.tabsKey}>
               <TabPane tab="项目角色及关联成员" key="project">
                 {/* <Card title="项目中角色关联的对象" className="clearfix connectCard"> */}
                 <div className="project">
