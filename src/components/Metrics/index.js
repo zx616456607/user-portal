@@ -16,6 +16,7 @@ import CPU from './CPU'
 import Memory from './Memory'
 import Network from './Network'
 import Disk from './Disk'
+import Tcp from './Tcp'
 
 class Metrics extends Component {
   constructor(props) {
@@ -23,7 +24,11 @@ class Metrics extends Component {
   }
 
   render() {
-    const { cpu, memory, networkReceived, networkTransmitted, events, diskReadIo, diskWriteIo, scope, diskHide } = this.props
+    const { 
+      cpu, memory, networkReceived, networkTransmitted, 
+      events, diskReadIo, diskWriteIo, scope, diskHide,
+      tcpListen, tcpEst, showTcp
+    } = this.props
     return (
       <div className="metrics" style={{marginTop:12}}>
         <CPU cpu={cpu} events={events} scope={scope}/>
@@ -40,6 +45,15 @@ class Metrics extends Component {
               diskReadIo={diskReadIo}
               events={events}
               diskWriteIo={diskWriteIo}
+              scope={scope}
+            />
+        }
+        {
+          showTcp &&
+            <Tcp
+              tcpListen={tcpListen}
+              tcpEst={tcpEst}
+              events={events}
               scope={scope}
             />
         }

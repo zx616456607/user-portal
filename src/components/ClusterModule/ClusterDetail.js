@@ -657,7 +657,8 @@ class ClusterDetail extends Component {
     const {
       clusterName, cpu, hostCpu, memory, hostMemory,
       networkReceived, hostNetworkRx, networkTransmitted, hostNetworkTx,
-      diskReadIo, diskWriteIo, hostDiskReadIo, hostDiskWriteIo
+      diskReadIo, diskWriteIo, hostDiskReadIo, hostDiskWriteIo,
+      tcpListen, tcpEst
     } = this.props
     const hostInfo = this.props.hostInfo.result ? this.props.hostInfo.result : {objectMeta:{creationTimestamp:''}, address:' '}
     hostInfo.isFetching = this.props.isFetching
@@ -667,6 +668,8 @@ class ClusterDetail extends Component {
     const showNetworkTrans = switchNetwork ? this.formatMetrics(hostNetworkTx, clusterName) : this.formatMetrics(networkTransmitted, clusterName)
     const showNodeReadIo = switchDisk ? this.formatMetrics(hostDiskReadIo, clusterName) : this.formatMetrics(diskReadIo, clusterName)
     const showNodeWriteIo = switchDisk ? this.formatMetrics(hostDiskWriteIo, clusterName) : this.formatMetrics(diskWriteIo, clusterName)
+    const showTcpListen = this.formatMetrics(tcpListen, clusterName)
+    const showTcpEst = this.formatMetrics(tcpEst, clusterName)
     const fetchApi = {
       getNodeLabels: this.props.getNodeLabels,
       clusterID: this.props.clusterID,
@@ -724,6 +727,9 @@ class ClusterDetail extends Component {
                 networkTransmitted={showNetworkTrans}
                 diskReadIo={showNodeReadIo}
                 diskWriteIo={showNodeWriteIo}
+                tcpListen={showTcpListen}
+                tcpEst={showTcpEst}
+                showTcp={true}
               />
             </TabPane>
             <TabPane tab="告警策略" key="alarm">
@@ -767,6 +773,12 @@ function mapStateToProps(state, props) {
   const diskWriteIo = {
     isFetching: hostMetrics ? hostMetrics.isFetching : false,
   }
+  const tcpListen = {
+    isFetching: hostMetrics ? hostMetrics.isFetching: false,
+  }
+  const tcpEst = {
+    isFetching: hostMetrics ? hostMetrics.isFetching: false,
+  }
   const { nodeLabel } = state.cluster_nodes || {}
   if (hostMetrics && hostMetrics.result) {
     cpuData.data = hostMetrics.result.cpus
@@ -775,6 +787,8 @@ function mapStateToProps(state, props) {
     networkTransmittedData.data = hostMetrics.result.txRate
     diskReadIo.data = hostMetrics.result.diskReadIo
     diskWriteIo.data = hostMetrics.result.diskWriteIo
+    tcpListen.data = hostMetrics.result.tcpListen
+    tcpEst.data = hostMetrics.result.tcpEst
   }
   let instantCpu = {}
   let instantMemory = {}
@@ -812,6 +826,8 @@ function mapStateToProps(state, props) {
     networkTransmitted: networkTransmittedData,
     diskReadIo,
     diskWriteIo,
+    tcpListen,
+    tcpEst,
     nodeLabel: nodeLabel ? nodeLabel.result: {} ,
     clusterID,
     clusterName,
