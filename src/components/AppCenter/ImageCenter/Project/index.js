@@ -140,7 +140,16 @@ class Project extends Component {
 
   loadData(query) {
     const { loadProjectList } = this.props
-    loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, query))
+    let notify = new NotificationHandler()
+    loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, query), {
+      failed: {
+        func: res => {
+          if (res.statusCode === 500) {
+            notify.error('请求错误', '镜像仓库暂时无法访问，请联系管理员')
+          }
+        }
+      }
+    })
   }
 
   componentWillMount() {

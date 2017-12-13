@@ -56,7 +56,7 @@ class CleaningTool extends Component {
     this.getSystemLogs()
     this.getCicdLogs()
     this.getMonitorSetting()
-    this.systemCleanStatus()
+    //this.systemCleanStatus()
   }
   systemCleanStatus() {
     const { getSystemCleanStatus } = this.props
@@ -388,14 +388,11 @@ class CleaningTool extends Component {
   renderLogsList(){
     const { activeKey, logsLoading, cleanLogs } = this.state
     let tailText = activeKey === 'systemLog' ? ' 个文件' : 'MB 垃圾'
-    function formatTotal(total) {
-      if (!total) {
-        return 0
-      }
+    function formatTotal(item) {
       if (activeKey === 'cache') {
-        return (total / (1024 * 1024)).toFixed(2)
+        return ((item.total) / (1024 * 1024)).toFixed(2)
       }
-      return total
+      return item.detail[0].total
     }
     if (logsLoading) {
       return(
@@ -417,7 +414,7 @@ class CleaningTool extends Component {
             return (
               <TimelineItem key={item.id} color={index === 0 ? 'green' : '#e9e9e9'}>
                 <Row className={classNames({'successColor': index === 0})}>
-                  <Col span={20}>{index === 0 ? `上次清理 ${formatTotal(item.total)}${tailText}` : `清理 ${formatTotal(item.total)}${tailText}`}</Col>
+                  <Col span={20}>{index === 0 ? `上次清理 ${formatTotal(item)}${tailText}` : `清理 ${formatTotal(item)}${tailText}`}</Col>
                   <Col className="time_item" span={4}>{formatDate(item.createTime, 'MM-DD')}</Col>
                 </Row>
               </TimelineItem>
@@ -490,7 +487,7 @@ class CleaningTool extends Component {
         return (
           <div className='done_box'>
             <div className='tips'>
-              清理完成，此次清理 <span className='number'>{systemLogs && systemLogs[0] && systemLogs[0].total}</span> 个文件，查看 <Link to="/setting/cleaningTool/cleaningRecord?type=system">清理记录</Link>
+              清理已提交，{/*此次清理 <span className='number'>{systemLogs && systemLogs[0] && systemLogs[0].total}</span> 个文件，*/}查看 <Link to="/setting/cleaningTool/cleaningRecord?type=system">清理记录</Link>
             </div>
             <Button size="large" type="primary" onClick={() => this.setState({cleanSystemLogStatus: undefined})}>完成</Button>
           </div>
@@ -605,7 +602,7 @@ class CleaningTool extends Component {
     })
     if (tab === 'systemLog') {
       this.getSystemLogs()
-      this.systemCleanStatus()
+      //this.systemCleanStatus()
     } else if (tab === 'cache') {
       this.getCicdLogs()
     } else {

@@ -50,7 +50,7 @@ class UploadModal extends Component {
   componentWillReceiveProps(nextProps) {
     if (!nextProps.visible) {
       this.props.form.resetFields()
-      this.setState({fileCallback: false})
+      this.setState({fileCallback: false, isPublished: false})
     }
   }
   handleSubmit() {
@@ -170,6 +170,7 @@ class UploadModal extends Component {
       filter: `fileName contains ${wrapName}`,
     }
     let isEq = false
+    let isPublished = false
     clearTimeout(this.wrapNameCheckTimeout)
     this.wrapNameCheckTimeout = setTimeout(()=> func.checkWrapName(query,{
       success:{
@@ -178,6 +179,9 @@ class UploadModal extends Component {
             ret.data.pkgs.every(item => {
               if (item.fileTag == labelVersion && item.fileName == wrapName) {
                 isEq = true
+                if (item.publishStatus === 1) {
+                  isPublished = true
+                }
                 return false
               }
               return true
@@ -186,6 +190,9 @@ class UploadModal extends Component {
           if (isEq) {
             notificat.info('应用包名称和版本重复，继续上传会覆盖原有的')
           }
+          this.setState({
+            isPublished
+          })
         }
       }
     }), ASYNC_VALIDATOR_TIMEOUT)
@@ -244,7 +251,7 @@ class UploadModal extends Component {
   }
   render() {
     const { form, func, loginUser,space } = this.props
-    const { fileType,fileName,fileTag } = this.state
+    const { fileType,fileName,fileTag, isPublished } = this.state
     // const isReq = type =='local' ? false : true
     const wrapName = form.getFieldProps('wrapName',{
       rules: [
@@ -353,6 +360,10 @@ class UploadModal extends Component {
           <Form.Item {...formItemLayout} label="版本标签">
             <Input {...versionLabel} placeholder="请输入版本标签来标记此次上传文件" />
           </Form.Item>
+          {
+            isPublished && 
+              <div className="failedColor publishedHint"><Icon type="exclamation-circle-o" /> 注意：该应用包已发布至商店，本次上传将下架原版本，需重新发布</div>
+          }
           {
             !ftpConfiged &&
             <Alert message="系统尚未配置 FTP 服务，不能使用本地上传，请联系系统管理员" type="info" showIcon closable />

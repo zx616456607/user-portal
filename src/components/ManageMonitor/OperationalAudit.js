@@ -1165,6 +1165,9 @@ function formatResourceName(resourceName, resourceId) {
       }
       return ids.join(',')
     }
+    if (newBody.filePkgName) {
+      return newBody.filePkgName
+    }
     if (newBody.ids && Array.isArray(newBody.ids) && newBody.ids.length > 0) {
       return newBody.ids.join(",")
     }
@@ -1176,9 +1179,6 @@ function formatResourceName(resourceName, resourceId) {
     }
     if (newBody.imageTagName) {
       return newBody.imageTagName
-    }
-    if (newBody.filePkgName) {
-      return newBody.filePkgName
     }
   } else {
     if (resourceName.length == 0) {
