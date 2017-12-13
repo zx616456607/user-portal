@@ -144,9 +144,10 @@ class UserProjectsAndTeams extends React.Component {
   }
 
   componentWillMount() {
+    const key = this.props.location.query
     this.loadProjectsData()
     this.setState({
-      tabsKey: this.props.location.hash ? /[a-z]+/g.exec(this.props.location.hash)[0] : ''
+      tabsKey: key.tabs,
     })
   }
 
@@ -447,7 +448,7 @@ class UserProjectsAndTeams extends React.Component {
     ]
     return (
       <div className="UserProjectsAndTeams">
-        <Tabs type="line" defaultActiveKey={this.state.tabsKey !== ''? this.state.tabsKey : 'projects'}>
+        <Tabs type="line" defaultActiveKey={this.state.tabsKey}>
           <TabPane tab="参与项目" key="projects">
             <div className="projects">
               <div className="projectsTitle">
@@ -458,7 +459,7 @@ class UserProjectsAndTeams extends React.Component {
                     </Button>
                   )
                 }
-                { projects && projects.length !== 0 &&<div className="total">
+                {projects && projects.length !== 0 && <div className="total">
                   共计 {projects.length} 条
                 </div>}
               </div>
@@ -490,7 +491,7 @@ class UserProjectsAndTeams extends React.Component {
                   <Input size='large' placeholder='搜索' onChange={this.handleSearchChange} />
                   <i className='fa fa-search' />
                 </span>
-                { teams && teams.length !== 0 && <div className="total">
+                {teams && teams.length !== 0 && <div className="total">
                   共计 {teams.length} 条
                 </div>}
               </div>
@@ -509,7 +510,7 @@ class UserProjectsAndTeams extends React.Component {
             </div>
           </TabPane>
           <TabPane tab="个人资源配额管理" key="quota">
-            <ResourceQuota isProject={false} userName={userDetail.displayName}/>
+            <ResourceQuota isProject={false} userName={userDetail.displayName} />
           </TabPane>
         </Tabs>
         <Modal

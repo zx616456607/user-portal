@@ -83,8 +83,9 @@ class ProjectDetail extends Component {
     this.getClustersWithStatus();
     // this.getProjectMember();
     // this.loadRoleList()
+    const key = this.props.location.query
     this.setState({
-      tabsKey: this.props.location.hash ? /[a-z]+/g.exec(this.props.location.hash)[0] : ''
+      tabsKey: key.tabs,
     })
   }
   getClustersWithStatus() {
@@ -846,7 +847,7 @@ class ProjectDetail extends Component {
         })
       ]
     )
-    
+
     const roleList = projectDetail.relatedRoles && projectDetail.relatedRoles.map((item, index) => {
       return (
         <li key={item.roleId} className={classNames({ 'active': currentRoleInfo && currentRoleInfo.id === item.roleId })} onClick={() => this.getCurrentRole(item.roleId)}>{item.roleName}
@@ -1213,7 +1214,7 @@ class ProjectDetail extends Component {
             }
           </Modal>
           <div className="projectMember">
-            <Tabs className="clearfix connectCard" defaultActiveKey={this.state.tabsKey !== '' ? this.state.tabsKey : 'project'}>
+            <Tabs className="clearfix connectCard" defaultActiveKey={this.state.tabsKey}>
               <TabPane tab="项目角色及关联成员" key="project">
                 {/* <Card title="项目中角色关联的对象" className="clearfix connectCard"> */}
                 <div className="project">
