@@ -147,13 +147,12 @@ class DetailInfo extends Component {
         {/* 只有 管理人员 | 开发人员 | harbor管理员 才有权限编辑镜像基本信息 */}
         {
           !this.state.editor && (currentUserRole == 1 || currentUserRole == 2 || isAdmin)
-            ? <Button
-              style={{ float: 'right' }}
+            ? <div style={{ textAlign: 'right' }}><Button
               onClick={() => this.handEdit()}
               icon="edit"
             >
               编辑
-            </Button>
+            </Button></div>
             : null
         }
         {
