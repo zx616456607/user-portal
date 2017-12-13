@@ -144,7 +144,7 @@ exports.uploadFile = function* () {
   }
   const mimeType = mime.lookup(fileStream.filename)
   stream.stream(fileStream.filename, fileStream, fileName, mimeType)
-  let response = yield api.uploadFile(['scan-rules'], null, stream, stream.headers())
+  let response = yield api.uploadFile(['scan-rules'], null, stream, { headers: stream.headers() })
   this.body = response
 }
 
