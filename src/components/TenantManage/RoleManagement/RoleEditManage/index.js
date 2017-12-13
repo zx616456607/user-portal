@@ -259,7 +259,7 @@ class CreateRoleModal extends React.Component {
                 loadData && loadData()
                 scope.setState({ characterModal: false })
               }
-            }
+            },isAsync: true
           },
           failed: {
             func: (err) => {
