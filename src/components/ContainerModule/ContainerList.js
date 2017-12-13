@@ -77,6 +77,8 @@ let MyComponent = React.createClass({
         })
         this.exportImageModal(name, status)
         return
+      case 'forceDelete':
+        return this.deleteContainer(name, 'force')
       default:
         return
     }
@@ -339,13 +341,17 @@ let MyComponent = React.createClass({
     e.stopPropagation();
     funcs.openTerminal(item);
   },
-  deleteContainer: function (name) {
+  deleteContainer: function (name, type) {
     const { config, funcs } = this.props
     const { confirmDeleteContainer } = funcs
     const container = {
       metadata: {
         name
       }
+    }
+    if (type === 'force') {
+      confirmDeleteContainer([container], 'force')
+      return
     }
     confirmDeleteContainer([container])
   },
@@ -383,6 +389,9 @@ let MyComponent = React.createClass({
           >
           <Menu.Item key='exportImage'>
             <span>导出镜像</span>
+          </Menu.Item>
+          <Menu.Item key='forceDelete'>
+            <span>强制删除</span>
           </Menu.Item>
           <Menu.Item key='deleteContainer'>
             <span>重新分配</span>
@@ -612,7 +621,8 @@ class ContainerList extends Component {
       searchInputDisabled: false,
       TerminalLayoutModal: false,
       currentContainer: [],
-      checkedContainerList: []
+      checkedContainerList: [],
+      forceDeleteVisble: false,
     }
   }
 
@@ -688,17 +698,26 @@ class ContainerList extends Component {
     this.loadData(nextProps)
   }
 
-  batchDeleteContainers(e) {
+  batchDeleteContainers(type) {
     const {containerList} = this.state
     const checkedContainerList = containerList.filter((container) => container.checked)
-    this.confirmDeleteContainer(checkedContainerList)
+    this.confirmDeleteContainer(checkedContainerList, type)
   }
 
-  confirmDeleteContainer(checkedContainerList) {
+  confirmDeleteContainer(checkedContainerList, type) {
     // change to handleOk()
-    this.setState({Relocating: true, checkedContainerList})
+    this.setState({
+      checkedContainerList,
+    })
+    if (type === 'force') {
+      this.setState({
+        forceDeleteVisble: true,
+      })
+      return
+    }
+    this.setState({Relocating: true})
   }
-  handleOk() {
+  handleOk(query = {}) {
     const {cluster, deleteContainers, updateContainerList, removeTerminal, terminalList } = this.props
     const allContainers = this.props.containerList
     const containerNames = this.state.checkedContainerList.map((container) => container.metadata.name)
@@ -708,7 +727,10 @@ class ContainerList extends Component {
         removeTerminal(cluster, item)
       })
     }
-    this.setState({Relocating: false})
+    this.setState({
+      Relocating: false,
+      forceDeleteVisble: false,
+    })
     return new Promise((resolve) => {
       resolve()
       allContainers.map(container => {
@@ -720,7 +742,7 @@ class ContainerList extends Component {
         }
       })
       updateContainerList(cluster, allContainers)
-      deleteContainers(cluster, containerNames, {
+      deleteContainers(cluster, containerNames, query, {
         success: {
           func: () => {
             // loadData(self.props)
@@ -812,7 +834,7 @@ class ContainerList extends Component {
       isFetching, instanceExport, exportimageUrl,
       loadProjectList, harborProjects, loadAllProject, loadRepositoriesTags
     } = this.props
-    const {containerList, searchInputValue, searchInputDisabled } = this.state
+    const { containerList, searchInputValue, searchInputDisabled, forceDeleteVisble } = this.state
     const checkedContainerList = containerList.filter((app) => app.checked)
     const isChecked = (checkedContainerList.length > 0)
     let isAllChecked = (containerList.length === checkedContainerList.length)
@@ -842,6 +864,16 @@ class ContainerList extends Component {
                 onClick={this.batchDeleteContainers}>
                 <i className='fa fa-undo' />
                 重新分配
+              </Button>
+              <Button
+                size="large"
+                disabled={!isChecked}
+                type="ghost"
+                className="refresh"
+                onClick={() => this.batchDeleteContainers('force')}
+              >
+                <i className='fa fa-trash-o'></i>
+                强制删除
               </Button>
               <Button
                 size='large'
@@ -896,6 +928,23 @@ class ContainerList extends Component {
                 : `这${this.state.checkedContainerList.length}个容器？`
               }
            </div>
+          </Modal>
+          <Modal
+            title="强制删除操作"
+            visible={forceDeleteVisble}
+            closable={true}
+            onOk={() => this.handleOk({force: true})}
+            onCancel={() => this.setState({forceDeleteVisble: false})}
+          >
+            <div className="confirm" style={{color: 'red'}}>
+              <Icon type="question-circle-o" style={{ marginRight: '8px' }} />
+              您是否确定要强制删除
+              {
+                this.state.checkedContainerList.length === 1
+                  ? `容器 ${this.state.checkedContainerList[0].metadata.name} ？`
+                  : `这${this.state.checkedContainerList.length}个容器？`
+              }
+            </div>
           </Modal>
           <Card className='containerBox'>
             <div className='containerTitle'>

@@ -107,6 +107,7 @@ exports.getContainerLogs = function* () {
 
 exports.deleteContainers = function* () {
   const cluster = this.params.cluster
+  const query = this.query
   const instances = this.request.body
   if (!instances) {
     const err = new Error('Service names are required.')
@@ -115,7 +116,7 @@ exports.deleteContainers = function* () {
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.batchDeleteBy([cluster, 'instances', 'batch-delete'], null, { instances })
+  const result = yield api.batchDeleteBy([cluster, 'instances', 'batch-delete'], query, { instances })
   this.body = {
     cluster,
     data: result
