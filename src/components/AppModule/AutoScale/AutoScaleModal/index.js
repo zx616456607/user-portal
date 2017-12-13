@@ -200,6 +200,11 @@ class AutoScaleModal extends React.Component {
     if (message !== 'success') {
       return callback(message)
     }
+    if (!isEmpty(scaleDetail)) {
+      if (getFieldValue('serviceName') === scaleDetail.serviceName) {
+        return callback()
+      }
+    }
     const service_name = create ? getFieldValue('serviceName') : ''
     clearTimeout(this.checkScaleNameExist)
     this.checkScaleNameExist = setTimeout(() => {
