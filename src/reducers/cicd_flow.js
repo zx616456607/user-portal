@@ -1010,11 +1010,6 @@ export default function cicd_flow(state = {}, action) {
     }, state.getDeploymentOrAppCDRule, action, {
       overwrite: true
     }),
-    deleteDeploymentOrAppCDRule: reducerFactory({
-      REQUEST: ActionTypes.DELETE_DEPLOYMENT_CDRULE_REQUEST,
-      SUCCESS: ActionTypes.DELETE_DEPLOYMENT_CDRULE_SUCCESS,
-      FAILURE: ActionTypes.DELETE_DEPLOYMENT_CDRULE_FAILURE
-    }, state.deleteDeploymentOrAppCDRule, action),
     cachedVolumes: reducerFactory({
       REQUEST: ActionTypes.GET_CACHED_VOLUMES_REQUEST,
       SUCCESS: ActionTypes.GET_CACHED_VOLUMES_SUCCESS,

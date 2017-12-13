@@ -9,3 +9,5 @@
  */
 import '../assets/style/common.less'
 import '../assets/style/markdown.less'
+
+import './version'

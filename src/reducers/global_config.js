@@ -22,7 +22,7 @@ export function globalConfig(state = {}, action) {
     updateGlobalConfig: reducerFactory({
       REQUEST: ActionTypes.UPDATE_GLOBAL_CONFIG_REQUEST,
       SUCCESS: ActionTypes.UPDATE_GLOBAL_CONFIG_SUCCESS,
-      FAILURE: ActionTypes.UPDATE_SERVICE_PORT_FAILED
+      FAILURE: ActionTypes.UPDATE_GLOBAL_CONFIG_FAILURE
     }, state.updateGlobalConfig, action),
     globalConfig: reducerFactory({
       REQUEST: ActionTypes.GET_GLOBAL_CONFIG_REQUEST,

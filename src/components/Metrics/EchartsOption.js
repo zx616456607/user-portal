@@ -13,7 +13,7 @@ import ColorHash from 'color-hash'
 const colorHash = new ColorHash()
 import { formatDate } from "../../common/tools";
 
-class EchartsOption {
+export default class EchartsOption {
   constructor(text) {
     this.title = {
       text,
@@ -82,16 +82,16 @@ class EchartsOption {
   setXAxis(xAxis) {
     this.xAxis = xAxis
   }
-  
+
   setXAxisMinAndMax(min, max) {
     min && (this.xAxis.min = min)
     max && (this.xAxis.max = max)
   }
-  
+
   setToolTipUnit(unit) {
     this.tooltipUnit = unit
   }
-  
+
   setXAxisData(data) {
     this.xAxis.data = data
   }
@@ -206,5 +206,3 @@ class EchartsOption {
     }]
   }
 }
-
-module.exports = EchartsOption

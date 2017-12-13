@@ -11,7 +11,7 @@
 */
 'use strict'
 
-const uuid = require('node-uuid')
+const uuid = require('uuid')
 const apiFactory = require('../../../services/api_factory')
 const wechatConfig = require('../../../configs/_standard/wechat_pay')
 const wechatPay = require('../../../pay/wechat_pay')

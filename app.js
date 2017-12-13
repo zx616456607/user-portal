@@ -111,9 +111,9 @@ if (!global.CONFIG_PROD) {
     noInfo: true,
     publicPath: webpackConfig.output.publicPath,
     watchOptions: {
-      aggregateTimeout: 500,
-      poll: true
-    }
+      aggregateTimeout: 300,
+      poll: true,
+    },
   }))
   app.use(c2k(expressWebpackHotMiddleware(compiler, {
     log: console.log,

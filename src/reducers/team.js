@@ -26,11 +26,6 @@ export default function team(state = {
   teamDetail: {},
 }, action) {
   return {
-    teams: reducerFactory({
-      REQUEST: ActionTypes.TEAM_LIST_REQUEST,
-      SUCCESS: ActionTypes.TEAM_LIST_SUCCESS,
-      FAILURE: ActionTypes.TEAM_LIST_FAILURE
-    }, state.teams, action, options),
     teamspaces: reducerFactory({
       REQUEST: ActionTypes.TEAMSPACE_LIST_REQUEST,
       SUCCESS: ActionTypes.TEAMSPACE_LIST_SUCCESS,

@@ -13,9 +13,9 @@ import reducerFactory from './factory'
 // import merge from 'lodash/merge'
 
 function copyright(state= false, action) {
-  if (action.type === ActionTypes.SET_COPYRIGHT) {
+  /* if (action.type === ActionTypes.SET_COPYRIGHT) {
     return action.types
-  }
+  } */
   return state
 }
 

@@ -10,3 +10,5 @@
 import '../assets/style/index.enterprise.less'
 import '../assets/style/common.less'
 import '../assets/style/markdown.less'
+
+import './version'
