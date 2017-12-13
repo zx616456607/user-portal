@@ -39,6 +39,9 @@ function checkUrlSelectedKey(pathname) {
     if (pathList[1] == 'app_manage' && pathList[2] == 'detail') {
       return [pathList[1], pathList[1] + '_default']
     }
+    if (pathList[1] == 'app_manage' && pathList[2] == 'vm_wrap') {
+      return [pathList[1], pathList[1] + '_default']
+    }
     if (pathList[1] == 'account' && pathList[2] == 'user') {
       return [pathList[1], 'member']
     }

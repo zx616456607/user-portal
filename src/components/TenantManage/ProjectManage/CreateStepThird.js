@@ -90,24 +90,6 @@ class CreateStepThird extends Component{
     if (name) {
       query = Object.assign(query, {filter: `name,${name}`})
     }
-    // GetProjectsMembers(query, {
-    //   success: {
-    //     func: (res) => {
-    //       if (res.statusCode === 200) {
-    //         let newArr = res.data.iteams || []
-    //         this.formatMember(newArr)
-    //         this.setState({
-    //           memberArr: newArr,
-    //           totalMemberCount: res.data.listMeta.total,
-    //           connectModal:true,
-    //           memberType: type,
-    //           filterFlag: flag
-    //         })
-    //       }
-    //     },
-    //     isAsync: true
-    //   }
-    // })
     return new Promise((resolve) => {
       GetProjectsMembers(query, {
         success: {
@@ -305,7 +287,7 @@ class CreateStepThird extends Component{
     return (
       <div id="projectCreateStepThird">
         <div className="inputBox" style={{marginBottom:0}}>
-          <Form.Item label="项目名称" {...projectNameLayout}>
+          <Form.Item className="thirdNameLabel" label="项目名称" {...projectNameLayout}>
             <Input disabled value={scope.state.projectName}
             />
           </Form.Item>

@@ -417,8 +417,12 @@ class AutoScale extends React.Component {
       render: record => {
         const menu = (
           <Menu onClick={(e) => this.handleMenuClick(e, record)}>
-            <Menu.Item key="start"><i className='fa fa-play' /> 启用</Menu.Item>
-            <Menu.Item key="stop"><i className='fa fa-stop' /> 停用</Menu.Item>
+            {
+              record.metadata.annotations.status === 'RUN' ?
+                <Menu.Item key="stop"><i className='fa fa-stop' /> 停用</Menu.Item>
+                :
+                <Menu.Item key="start"><i className='fa fa-play' /> 启用</Menu.Item>
+            }
             <Menu.Item key="edit"><Icon type="file-text" /> 修改</Menu.Item>
             <Menu.Item key="delete"><i className='fa fa-trash-o' /> 删除</Menu.Item>
           </Menu>

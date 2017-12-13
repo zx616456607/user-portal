@@ -41,6 +41,7 @@ class WrapListTable extends Component {
     this.closeRleaseModal = this.closeRleaseModal.bind(this)
     this.closeDetailModal = this.closeDetailModal.bind(this)
     this.loadData = this.loadData.bind(this)
+    this.renderDeployBtn = this.renderDeployBtn.bind(this)
     this.state = {
       page: 1,
       detailModal: false
@@ -87,20 +88,24 @@ class WrapListTable extends Component {
     }
   }
 
-  deleteAction(status,id) {
+  deleteAction(status, row) {
     if (status) {
-      id = [id]
-      this.setState({delAll: true,id})
+      this.setState({delAll: true, currentApp: row})
       return
     }
     this.setState({delAll: false})
   }
   deleteVersion = ()=> {
     // const notificat = new NotificationHandler()
-    const { id,page } = this.state
+    const { currentApp, page } = this.state
     const { wrapList,func } = this.props
     func.scope.setState({selectedRowKeys:[]}) // set parent state
-    this.props.deleteWrapManage({ids: id},{
+    let id = [currentApp.id]
+    let body = {
+      ids: id,
+      filePkgName: currentApp.fileName
+    }
+    this.props.deleteWrapManage(body, {
       success: {
         func:()=> {
           notificat.success('删除成功')
@@ -131,9 +136,13 @@ class WrapListTable extends Component {
   }
   publishAction(id) {
     const { publishWrap } = this.props
+    const { currentApp } = this.state
     let notify = new NotificationHandler()
     notify.spin('发布中')
-    publishWrap(id, {
+    const body = {
+      filePkgName: currentApp.fileName
+    }
+    publishWrap(id, body, {
       success: {
         func: () => {
           notify.close()
@@ -157,7 +166,7 @@ class WrapListTable extends Component {
           notify.close()
           this.setState({
             publishModal: false,
-            publishId: ''
+            currentApp: null
           })
         }
       }
@@ -170,7 +179,7 @@ class WrapListTable extends Component {
           this.deleteHint()
           return
         }
-        this.deleteAction(true,row.id)
+        this.deleteAction(true,row)
         break
       case 'audit':
         this.setState({
@@ -181,7 +190,7 @@ class WrapListTable extends Component {
       case 'publish':
         this.setState({
           publishModal: true,
-          publishId: row.id
+          currentApp: row
         })
         break
       case 'download':
@@ -194,12 +203,12 @@ class WrapListTable extends Component {
   cancelPublishModal() {
     this.setState({
       publishModal: false,
-      publishId: ''
+      currentApp: null
     })
   }
   confirmPublishModal() {
-    const { publishId } = this.state
-    this.publishAction(publishId)
+    const { currentApp } = this.state
+    this.publishAction(currentApp.id)
   }
   closeRleaseModal() {
     this.setState({
@@ -222,11 +231,13 @@ class WrapListTable extends Component {
         </Button>
       )
     }
+    const { vmWrapConfig } = this.props
+    const { enabled } = vmWrapConfig
     const menu = (
       <Menu onClick={e => this.handleMenuClick(e, row)} style={{ width: 110 }}>
-        <Menu.Item key="vm">
+        { enabled && <Menu.Item key="vm">
           传统部署
-        </Menu.Item>
+        </Menu.Item> }
         <Menu.Item key="audit" disabled={[1, 2, 8].includes(row.publishStatus)}>
           提交审核
         </Menu.Item>
@@ -317,7 +328,7 @@ class WrapListTable extends Component {
     }
     return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && record.approveMessage}/>
   }
-  
+
   openDetailModal(e, row) {
     e.stopPropagation()
     this.setState({
@@ -325,13 +336,13 @@ class WrapListTable extends Component {
       detailModal: true
     })
   }
-  
+
   closeDetailModal() {
     this.setState({
       detailModal: false
-    })  
+    })
   }
-  
+
   render() {
     // jar war ,tar.gz zip
     const { func, rowCheckbox, wrapList, wrapStoreList, currentType, isWrapManage } = this.props
@@ -398,7 +409,7 @@ class WrapListTable extends Component {
     if (isWrapManage) {
       columns.splice(2, 0, classifyName, fileNickName, publishStatus)
     }
-    
+
     const paginationOpts = {
       simple: true,
       pageSize: DEFAULT_PAGE_SIZE,
@@ -475,8 +486,10 @@ class WrapListTable extends Component {
 function mapStateToProps(state,props) {
   const { currentType, func } = props
   const { wrapList, wrapStoreList } = state.images
-  const { current } = state.entities
+  const { current, loginUser } = state.entities
   const { space } = current
+  const { info } = loginUser
+  const { vmWrapConfig } = info
   const list = wrapList || {}
   const { result: storeList, isFetching: storeFetching } = wrapStoreList || { result: {}}
   const { data: storeData } = storeList || { data: [] }
@@ -496,7 +509,8 @@ function mapStateToProps(state,props) {
     wrapList: datalist,
     isFetching: currentType === 'trad' ? list.isFetching : storeFetching,
     wrapStoreList: storeData,
-    isWrapManage
+    isWrapManage,
+    vmWrapConfig,
   }
 }
 
