@@ -10,6 +10,7 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
+import QueueAnim from 'rc-queue-anim'
 import { Button, Table, Dropdown, Menu, Modal, Form, Input } from 'antd'
 import './style/AppCheck.less'
 import CommonSearchInput from '../../CommonSearchInput'
@@ -386,8 +387,8 @@ class WrapCheck extends React.Component {
     const { wrapPublishList } = this.props
     const { filterName, publish_time } = this.state
     return (
-      <div className="wrapCheck">
-        <div className="wrapCheckHead">
+      <QueueAnim className="wrapCheck">
+        <div className="wrapCheckHead" key="wrapCheckHead">
           <Button className="refreshBtn" type="primary" size="large" onClick={() => this.refreshData()}>
             <i className='fa fa-refresh'/> 刷新
           </Button>
@@ -402,6 +403,7 @@ class WrapCheck extends React.Component {
           <span className="total verticalCenter">共 {wrapPublishList && wrapPublishList.total} 条</span>
         </div>
         <WrapCheckTable
+          key="wrapCheckTable"
           wrapPublishList={wrapPublishList}
           publish_time={publish_time}
           updateParentPublishTime={this.updateParentPublishTime}
@@ -410,7 +412,7 @@ class WrapCheck extends React.Component {
           updateParentPage={this.updateParentPage}
           updateParentSort={this.updateParentSort}
         />
-      </div>
+      </QueueAnim>
     )
   }
 }

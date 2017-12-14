@@ -10,15 +10,12 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Tabs, Button, Table, Dropdown, Menu, Modal, Form, Input } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import classNames from 'classnames'
 import AppCheck from './AppCheck'
 import ImageCheck from './ImageCheck'
 import './style/index.less'
 import Title from '../../Title'
-import { getWrapPublishList, passWrapPublish, refuseWrapPublish } from '../../../actions/app_center'
-const TabPane = Tabs.TabPane;
 
 export default class CheckPage extends React.Component {
   constructor(props) {
@@ -46,21 +43,23 @@ export default class CheckPage extends React.Component {
     })
     return(
       <QueueAnim className="checkPage">
-        <Title title="发布审核"/>
-        <ul className='tabs_header_style' key="btns">
-          <li className={imageComposeStyle}
-              onClick={this.tabChange.bind(this, "image")}
-          >
-            镜像审核
-          </li>
-          <li className={appComposeStyle}
-              onClick={this.tabChange.bind(this, "app")}
-          >
-            应用包审核
-          </li>
-        </ul>
-        {activeKey === "image" ? <ImageCheck key="imageBody" activeKey={activeKey} location={location} /> : null}
-        {activeKey === "app" ? <AppCheck key="appBody" activeKey={activeKey} /> : null}
+        <div key="checkPage">
+          <Title title="发布审核"/>
+          <ul className='tabs_header_style' key="btns">
+            <li className={imageComposeStyle}
+                onClick={this.tabChange.bind(this, "image")}
+            >
+              镜像审核
+            </li>
+            <li className={appComposeStyle}
+                onClick={this.tabChange.bind(this, "app")}
+            >
+              应用包审核
+            </li>
+          </ul>
+          {activeKey === "image" ? <ImageCheck key="imageBody" activeKey={activeKey} location={location} /> : null}
+          {activeKey === "app" ? <AppCheck key="appBody" activeKey={activeKey} /> : null}
+        </div>
       </QueueAnim>
     )
   }
