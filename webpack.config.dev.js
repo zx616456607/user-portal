@@ -11,6 +11,7 @@
 var path = require('path')
 var webpack = require('webpack')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
+var postcssConfig = require('./webpack.config.postcss')
 var nodeModulesPath = path.join(__dirname, '/node_modules/')
 var hotMiddleWareConfig = 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000'
 
@@ -108,10 +109,10 @@ module.exports = {
         use: [
           'style-loader',
           'css-loader',
-          /* {
+          {
             loader: 'postcss-loader',
             options: postcssConfig,
-          }, */
+          },
         ],
       },
       {
@@ -120,10 +121,10 @@ module.exports = {
           'style-loader',
           'css-loader',
           'less-loader',
-          /* {
+          {
             loader: 'postcss-loader',
             options: postcssConfig,
-          }, */
+          },
         ],
       }
     ]

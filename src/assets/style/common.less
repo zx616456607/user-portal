@@ -5,7 +5,7 @@ body {
   overflow-x: auto !important;
   overflow-y: auto !important;
   background-color: #ecf0f4 !important;
-  font-size: 14px;
+  font-size: 12px;
   min-width: 1024px;
 }
 svg path {
@@ -35,7 +35,6 @@ svg path {
 .toptips.tenx-layout .tenx-layout-content{padding-top: 105px;}
 //header
 .tenx-layout-header {
-  -webkit-transition: all 0.3s;
   transition: all 0.3s;
   z-index: 100;
   position: fixed;
@@ -56,7 +55,6 @@ svg path {
 }
 //sider
 .tenx-layout-sider {
-  -webkit-transition: all 0.3s;
   transition: all 0.3s;
   z-index: 100;
   position: fixed;
@@ -73,7 +71,6 @@ svg path {
 }
 .tenx-layout-content {
   z-index: 200;
-  -webkit-transition: all 0.3s;
   transition: all 0.3s;
   padding-top: 55px;
   margin-left: 60px;
@@ -81,21 +78,10 @@ svg path {
   overflow-x: auto;
   width: calc(~"100% - 60px");
 }
-// @media screen and (max-width:1280px) {
-//   .tenx-layout-content {
-//     width: calc(~"100% - 60px")
-//   }
-// }
 .tenx-layout-content-bigger {
   margin-left: 200px;
   width: calc(~"100% - 200px");
-  // @media screen and (width:1920px) {
-  //   .tenx-layout-content-bigger {
-  //     width: calc(~"100% - 200px")
-  //   }
-  // }
   .CommonSecondMenu {
-    -webkit-transform: translateX(-140px) !important;
     transform: translateX(-140px) !important;
   }
   .CommonSecondContent {
@@ -159,7 +145,7 @@ svg path {
 .margin {
   margin: 0 5px;
 }
-//modal's cover
+//modal cover
 .ant-modal-wrap {
   width: 100%;
   overflow-x: hidden !important;
@@ -168,19 +154,10 @@ svg path {
   // font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "宋体";
   font-weight: normal !important;
 }
-//   modal 垂直居中
+//modal 垂直居中
 .vertical-center-modal {
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-box;
-  display: -webkit-flex;
   display: flex;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
   align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
   -ms-flex-pack: center;
   justify-content: center;
   .ant-modal {
@@ -329,7 +306,6 @@ svg path {
  :root .ant-table-column-sorter .anticon-caret-up,
 :root .ant-table-column-sorter .anticon-caret-down {
   font-size: 12px;
-  -webkit-filter: none;
   filter:none;
 }
 .ant-table-column-sorter-up.on .anticon-caret-up,
@@ -343,10 +319,9 @@ svg path {
   display: inline-block;
   font-size: 12px;
   font-size: 6px \9;
-  -webkit-transform: scale(0.5) rotate(0deg);
   -ms-transform: scale(0.5) rotate(0deg);
   transform: scale(0.5) rotate(0deg);
-  -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(sizingMethod='auto expand', M11=1, M12=0, M21=0, M22=1)";
+  -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(sizingMethod=\"auto expand\",M11=1,M12=0,M21=0,M22=1)";
   zoom: 1;
   line-height: 6px;
   height: 6px;
@@ -361,8 +336,6 @@ svg path {
   text-rendering: auto;
   line-height: 1;
   text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 // format error form input
 .ant-input:hover {
@@ -391,8 +364,6 @@ svg path {
   word-break: keep-all;
   white-space: nowrap;
   // width: fit-content;
-  // width: -webkit-fit-content;
-  // width: -moz-fit-content;
   height: 18px;
   line-height: 18px !important;
   color: #FFFFFF !important;
@@ -402,7 +373,7 @@ svg path {
 .has-error .ant-form-explain:before {
   margin-right: 5px;
   font-family: anticon!important;
-  content: '\E635';
+  content: "\E635";
 }
 .has-success.has-feedback:after,
 .has-warning.has-feedback:after,
@@ -436,19 +407,19 @@ pre{
 .modalColor {color: #00a0ea}
 .ant-modal-body {
   .ant-form-item-with-help{
-  .ant-form-explain {
-    color: white ;
-    border-radius: 4px;
-    background-color: #fe4e50;
-    padding: 0 5px;
-    white-space: pre;
-    word-break: break-all;
-  }
-  .ant-form-explain:before {
-    margin-right: 5px;
-    font-family: anticon;
-    content: '\E635';
-  }
+    .ant-form-explain {
+      color: white ;
+      border-radius: 4px;
+      background-color: #fe4e50;
+      padding: 0 5px;
+      white-space: pre;
+      word-break: break-all;
+    }
+    .ant-form-explain:before {
+      margin-right: 5px;
+      font-family: anticon;
+      content: "\E635";
+    }
   }
 }
 .not-allowed {cursor: not-allowed}
@@ -476,9 +447,7 @@ pre{
   border: 1px dashed #fedc9f;
   border-radius: 6px;
   display: flex;
-  display: -webkit-flex;
   align-items: center;
-  -webkit-align-items: center;
   .fa-exclamation-triangle{
     margin-right: 12px;
     font-size: 20px;
@@ -577,10 +546,6 @@ pre{
 .verticalCenter{
   position: absolute;
   top: 50%;
-  -webkit-transform: translateY(-50%);
-  -moz-transform: translateY(-50%);
-  -ms-transform: translateY(-50%);
-  -o-transform: translateY(-50%);
   transform: translateY(-50%);
 }
 
