@@ -515,7 +515,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="image commonData">
-            <Tooltip title={images.join(', ') ? images.join(', ') : ""}>
+            <Tooltip title={images.join(', ') ? images.join(', ') : ""} placement="topLeft">
               <span>{images.join(', ') || '-'}</span>
             </Tooltip>
           </div>

@@ -459,7 +459,7 @@ const MyComponent = React.createClass({
             <ServiceStatus service={item} />
           </div>
           <div className="image commonData">
-            <Tooltip title={item.images.join(', ') ? item.images.join(', ') : ""}>
+            <Tooltip title={item.images.join(', ') ? item.images.join(', ') : ""} placement="topLeft">
               <span>{item.images.join(', ') || '-'}</span>
             </Tooltip>
           </div>

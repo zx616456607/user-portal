@@ -62,11 +62,20 @@ class DataTable extends Component {
     })
   }
 
+  paginationChange(current) {
+    const { func } = this.props
+    const { scope, loadData } = func
+    scope.setState({
+      currentPage: current,
+    })
+    loadData({ page: current })
+  }
+
   render() {
     let { sortedInfo, filteredInfo } = this.state
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    const { dataSource, func, loginUser } = this.props
+    const { dataSource, func, loginUser, from } = this.props
     const scope = func.scope
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] == 1
     const defaultColumns = [
@@ -185,13 +194,20 @@ class DataTable extends Component {
         scope.setState({selectedRows})
       }
     }*/
-    const paginationOpts = {
+    let paginationOpts = {
       size: "small",
       pageSize: 10,
       total: dataSource.total,
       onChange: current => func.loadData({ page: current }),
       showTotal: total => `共计： ${total} 条`,
       simple: true,
+    }
+    if (from === "private") {
+      const { currentPage } = this.props
+      paginationOpts = Object.assign({}, paginationOpts, {
+        onChange: current => this.paginationChange(current),
+        current: currentPage,
+      })
     }
     const setPublicValue = Math.abs(this.state.currentProject.public - 1)
     const publicModalTitle = `设为${setPublicValue == 1 ? '公开' : '私有'}`
