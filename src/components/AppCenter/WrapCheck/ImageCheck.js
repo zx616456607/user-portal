@@ -10,6 +10,7 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
+import QueueAnim from 'rc-queue-anim'
 import { Button, Table, Modal, Form, Input, Popover, Row, Col, Icon, Tooltip } from 'antd'
 import './style/ImageCheck.less'
 import CommonSearchInput from '../../CommonSearchInput'
@@ -486,8 +487,8 @@ class ImageCheck extends React.Component {
     const { imageCheckList, total, appStoreApprove, loginUser, location } = this.props
     const { filterName, current, publish_time } = this.state
     return(
-      <div className="imageCheck">
-        <div className="wrapCheckHead">
+      <QueueAnim className="imageCheck">
+        <div className="wrapCheckHead" key="wrapCheckHead">
           <Button className="refreshBtn" type="primary" size="large" onClick={() => this.refreshData()}>
             <i className='fa fa-refresh'/> 刷新
           </Button>
@@ -502,6 +503,7 @@ class ImageCheck extends React.Component {
           <span className="total verticalCenter">共 {total && total} 条</span>
         </div>
         <ImageCheckTable
+          key="wrapCheckTable"
           location={location}
           imageCheckList={imageCheckList}
           current={current}
@@ -512,7 +514,7 @@ class ImageCheck extends React.Component {
           appStoreApprove={appStoreApprove}
           getImagePublishList={this.getImagePublishList}
         />
-      </div>
+      </QueueAnim>
     )
   }
 }
