@@ -494,7 +494,7 @@ class hostList extends Component {
   }
   openTerminalModal(item, e) {
     const { kubectlsPods, addTerminal, clusterID } = this.props
-    let { currentContainer } = this.state;
+    let { currentContainer } = this.state
     let notification = new NotificationHandler()
     if (currentContainer.length > 0) {
       addTerminal(clusterID, currentContainer[0])
