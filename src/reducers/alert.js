@@ -15,7 +15,7 @@ const option = {
 }
 
 
-function getSettingList(state = {}, action) {
+/* function getSettingList(state = {}, action) {
   const defaultState = {
     isFetching: false
   }
@@ -29,7 +29,7 @@ function getSettingList(state = {}, action) {
     default:
       return state
   }
-}
+} */
 
 function getSettingListfromserviceorapp(state = {}, action) {
   const defaultState = {
@@ -78,18 +78,13 @@ export default function alert(state = {
       SUCCESS: ActionTypes.ALERT_SETTING_ADD_SUCCESS,
       FAILURE: ActionTypes.ALERT_SETTING_ADD_FAILURE
     }, state.addSetting, action, option),
-    settingList: getSettingList(state.settingList, action),
+    // settingList: getSettingList(state.settingList, action),
     SettingListfromserviceorapp: getSettingListfromserviceorapp(state.SettingListfromserviceorapp, action),
     deleteSetting: reducerFactory({
       REQUEST: ActionTypes.ALERT_DELETE_SETTING_REQUEST,
       SUCCESS: ActionTypes.ALERT_DELETE_SETTING_SUCCESS,
       FAILURE: ActionTypes.ALERT_DELETE_SETTING_FAILURE
     }, state.deleteSetting, action, option),
-    ingoreSetting: reducerFactory({
-      REQUEST: ActionTypes.ALERT_INGORE_SETTING_REQUEST,
-      SUCCESS: ActionTypes.ALERT_INGORE_SETTING_SUCCESS,
-      FAILURE: ActionTypes.ALERT_INGORE_SETTING_FAILURE
-    }, state.ignoreSetting, action, option),
     settingInstant: reducerFactory({
       REQUEST: ActionTypes.ALERT_SETTING_INSTANT_REQUEST,
       SUCCESS: ActionTypes.ALERT_SETTING_INSTANT_SUCCESS,
@@ -107,16 +102,6 @@ export default function alert(state = {
       SUCCESS: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_SUCCESS,
       FAILURE: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_FAILURE
     }, state.batchDisable, action, option),
-    batchEnableEmail: reducerFactory({
-      REQUEST: ActionTypes.ALERT_UPDATE_SETTING_SENDEMAIL_REQUEST,
-      SUCCESS: ActionTypes.ALERT_UPDATE_SETTING_SENDEMAIL_SUCCESS,
-      FAILURE: ActionTypes.ALERT_UPDATE_SETTING_SENDEMAIL_FAILURE
-    }, state.batchEnableEmail, action, option),
-    batchDisableEmail: reducerFactory({
-      REQUEST: ActionTypes.ALERT_UPDATE_SETTING_SENDEMAIL_REQUEST,
-      SUCCESS: ActionTypes.ALERT_UPDATE_SETTING_SENDEMAIL_SUCCESS,
-      FAILURE: ActionTypes.ALERT_UPDATE_SETTING_SENDEMAIL_FAILURE
-    }, state.batchDisableEmail, action, option),
     deleteRule: reducerFactory({
       REQUEST: ActionTypes.ALERT_DELETE_RULE_REQUEST,
       SUCCESS: ActionTypes.ALERT_DELETE_RULE_SUCCESS,

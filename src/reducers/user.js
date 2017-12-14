@@ -202,11 +202,6 @@ export default function user(state = {
       SUCCESS: ActionTypes.USER_TEAMSPACE_DETAIL_LIST_SUCCESS,
       FAILURE: ActionTypes.USER_TEAMSPACE_DETAIL_LIST_FAILURE
     }, state.teamspaceDetails, action, option),
-    updateUserRole: reducerFactory({
-      REQUEST: ActionTypes.UPDATE_USER_ROLE_REQUEST,
-      SUCCESS: ActionTypes.UPDATE_USER_ROLE_SUCCESS,
-      FAILURE: ActionTypes.UPDATE_USER_ROLE_FAILURE
-    }, state.updateUserRole, action, option),
     deletedUsers: reducerFactory({
       REQUEST: ActionTypes.GET_DELETED_USERS_REQUEST,
       SUCCESS: ActionTypes.GET_DELETED_USERS_SUCCESS,

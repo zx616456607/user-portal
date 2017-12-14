@@ -19,7 +19,7 @@ notification.config({
   duration: 10,
 })
 
-class NotificationHandler {
+export default class NotificationHandler {
   // timeout is optional, and used for loading interval
   constructor(timeout) {
     // generate a key, only required for loading notification
@@ -108,5 +108,3 @@ class NotificationHandler {
     })
   }
 }
-
-module.exports = NotificationHandler

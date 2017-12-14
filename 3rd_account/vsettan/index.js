@@ -12,7 +12,7 @@ const vsettanConfig = require('../../configs/3rd_account/vsettan.js')
 const urllib = require('urllib')
 const apiFactory = require('../../services/api_factory.js')
 const logger = require('../../utils/logger').getLogger('vsettan')
-const uuid = require('node-uuid')
+const uuid = require('uuid')
 
 exports.vsettanLogin = function* (next) {
   const access_token = this.query.access_token
@@ -75,7 +75,7 @@ exports.vsettanLogin = function* (next) {
           }
           project.amount = project.amount || 0
         }
-    } 
+    }
     if (!project) return
     if(project.amount != undefined) {
       user.defaultUserBalance = project.amount * 10000

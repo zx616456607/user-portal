@@ -304,7 +304,7 @@ function beforeExportFile(state = {}, action) {
   }
 }
 
-function exportFile(state = {}, action) {
+/* function exportFile(state = {}, action) {
   const defaultState = {
     isFetching: false,
     percent: 0,
@@ -323,7 +323,7 @@ function exportFile(state = {}, action) {
     default:
       return merge({}, defaultState, state)
   }
-}
+} */
 
 function avaliableVolume(state = {}, action) {
   switch(action.type) {
@@ -372,7 +372,7 @@ export default function storageReducer(state = {}, action) {
     beforeUploadFile: beforeUploadFile(state.beforeUploadFile, action),
     volumeBindInfo: volumeBindInfo(state.volumeBindInfo, action),
     uploadFileOptions: changeUploadFileOptions(state.uploadFileOptions, action),
-    exportFile: exportFile(state.exportFile, action),
+    // exportFile: exportFile(state.exportFile, action),
     avaliableVolume: avaliableVolume(state.avaliableVolume, action),
     snapshotList:snapshotList(state.snapshotList,action)
   }

@@ -15,7 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import union from 'lodash/union'
 import filter from 'lodash/filter'
 import "./style/BindDomain.less"
-import { loadServiceDomain, serviceBindDomain, clearServiceDomain, deleteServiceDomain, loadServiceDetail, loadK8sService } from '../../../actions/services'
+import { serviceBindDomain, clearServiceDomain, deleteServiceDomain, loadServiceDetail, loadK8sService } from '../../../actions/services'
 import NotificationHandler from '../../../components/Notification'
 import { ANNOTATION_HTTPS } from '../../../../constants'
 import { camelize } from 'humps'
@@ -365,7 +365,6 @@ function mapStateToProp(state, props) {
   }
 }
 BindDomain = connect(mapStateToProp, {
-  loadServiceDomainInfo: loadServiceDomain,
   bindDomain: serviceBindDomain,
   clearServiceDomain: clearServiceDomain,
   deleteServiceDomain: deleteServiceDomain,

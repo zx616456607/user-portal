@@ -10,7 +10,6 @@
 import React, { Component, PropTypes } from 'react'
 import { Provider } from 'react-redux'
 import routes from '../routes'
-import DevTools from './DevTools'
 import { Router } from 'react-router'
 
 // Internationalization
@@ -26,10 +25,12 @@ class Root extends Component {
       <Provider store={store}>
         <LocaleProvider locale={appLocale.antd}>
           <IntlProvider locale={appLocale.locale} messages={appLocale.messages}>
-            <div>
-              <Router onUpdate={() => window.scrollTo(0, 0)} history={history} routes={routes} />
-              <DevTools />
-            </div>
+            <Router
+              onUpdate={() => window.scrollTo(0, 0)}
+              history={history}
+              routes={routes}
+              key={Math.random()} // for react hot load
+            />
           </IntlProvider>
         </LocaleProvider>
       </Provider>

@@ -10,6 +10,7 @@
 'use strict'
 
 const webpack = require('webpack')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const env = process.env
 const plugin = new webpack.DefinePlugin({
   'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV),
@@ -24,4 +25,18 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 config.plugins.unshift(plugin)
+
+const analyze = !!env.ANALYZE_ENV
+if (analyze) {
+  config.plugins.push(new BundleAnalyzerPlugin())
+}
+
+// for banner license
+const site = 'tenxcloud.com'
+const licenseBannerPlugin = new webpack.BannerPlugin({
+  banner: `Licensed Materials - Property of ${site}\n(C) Copyright 2017~2018 ${site}. All Rights Reserved.\nhttp://${site}`,
+  exclude: /\.svg$/,
+})
+config.plugins.push(licenseBannerPlugin)
+
 module.exports = config
