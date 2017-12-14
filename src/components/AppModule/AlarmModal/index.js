@@ -775,7 +775,6 @@ let TwoStop = React.createClass({
   render() {
     const { getFieldProps, getFieldValue } = this.props.form;
     const { funcs, data, isEdit, alarmType } = this.props
-    console.log(data)
     let cpuItems
     if (isEdit) {
       const cloneData = cloneDeep(data)
@@ -790,7 +789,6 @@ let TwoStop = React.createClass({
       } else if (alarmType == 'node') {
         ruleList = cloneData
       }
-      console.log(ruleList,'---')
       if(!ruleList.length){
         ruleList.push({
           operation: '>',
