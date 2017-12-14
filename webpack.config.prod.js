@@ -57,7 +57,7 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         use: [
-          'thread-loader',
+          // 'thread-loader',
           'babel-loader',
         ]
       },
