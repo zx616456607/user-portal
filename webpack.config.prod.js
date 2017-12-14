@@ -56,7 +56,12 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        exclude: /node_modules/,
+        // exclude: /node_modules/,
+        include: path.resolve(__dirname, 'src'),
+        use: [
+          'thread-loader',
+          'babel-loader',
+        ]
       },
       {
   　　　 test: /\.(jpe?g|png|gif|svg)$/,
