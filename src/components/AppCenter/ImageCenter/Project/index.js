@@ -63,7 +63,7 @@ class CreateItem extends Component {
           func: () => {
             notification.success(`仓库组 ${values.project_name} 创建成功`)
             func.loadData()
-            func.scope.setState({ createItem:false })
+            func.scope.setState({ createItem:false, currentPage: 1 })
             form.resetFields()
           },
           isAsync: true,
@@ -132,6 +132,7 @@ class Project extends Component {
       deleteItem: false,// delte modal
       selectedRows:[],
       searchInput: '',
+      currentPage: 1,
     }
     this.loadData = this.loadData.bind(this)
     this.searchProjects = this.searchProjects.bind(this)
@@ -173,7 +174,8 @@ class Project extends Component {
       this.setState({
         deleteItem: false,
       })
-      this.loadData()
+      const { currentPage } = this.state
+      this.loadData({page: currentPage})
     }
     deleteProject(DEFAULT_QUERY, selectedRows[0][camelize('project_id')], {
       success: {
@@ -209,6 +211,7 @@ class Project extends Component {
   render() {
     const { getFieldProps } = this.props.form
     const { harborProjects, harborSysteminfo, createProject, updateProject, loginUser } = this.props
+    const { currentPage } = this.state
     const func = {
       scope: this,
       loadData: this.loadData,
@@ -250,7 +253,7 @@ class Project extends Component {
                 :null
                 }*/}
               </div>
-              <DataTable loginUser={loginUser} dataSource={harborProjects} func={func}/>
+              <DataTable loginUser={loginUser} dataSource={harborProjects} func={func} from="private" currentPage={currentPage}/>
             </Card>
             {/* 创建仓库组 Modal */}
             <CreateItem visible={this.state.createItem} func={func}/>
