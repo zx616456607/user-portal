@@ -459,12 +459,18 @@ export const CONTAINER_BATCH_DELETE_FAILURE = 'CONTAINER_BATCH_DELETE_FAILURE'
 
 // Fetches container list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchDeleteContainers(cluster, body, callback) {
+function fetchDeleteContainers(cluster, body, query, callback) {
+  let endpoint =`${API_URL_PREFIX}/clusters/${cluster}/containers/batch-delete`
+  if (callback && Object.keys(query).length) {
+    endpoint += `?${toQuerystring(query)}`
+  } else {
+    callback = query
+  }
   return {
     cluster,
     [FETCH_API]: {
       types: [CONTAINER_BATCH_DELETE_REQUEST, CONTAINER_BATCH_DELETE_SUCCESS, CONTAINER_BATCH_DELETE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/containers/batch-delete`,
+      endpoint,
       options: {
         method: 'POST',
         body
@@ -477,9 +483,9 @@ function fetchDeleteContainers(cluster, body, callback) {
 
 // Fetches containers list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function deleteContainers(cluster, body, callback) {
+export function deleteContainers(cluster, body, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchDeleteContainers(cluster, body, callback))
+    return dispatch(fetchDeleteContainers(cluster, body, query, callback))
   }
 }
 

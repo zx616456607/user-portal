@@ -54,7 +54,7 @@ let CreateVMListModal = React.createClass({
           notification.error('验证信息异常')
           this.setState({
             Prompt: false,
-            isShow: false,
+            isShow: true,
             verification: false
           })
         }

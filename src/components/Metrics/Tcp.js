@@ -4,10 +4,10 @@
  */
 
 /**
- * Network metrics
+ * Tcp metrics
  *
- * v0.1 - 2017-8-3
- * @author Zhangcz
+ * v0.1 - 2017-12-13
+ * @author zhangxuan
  */
 
 import React, { Component, PropTypes } from 'react'
@@ -22,20 +22,20 @@ function formatGrid(count) {
   return initHeight + 'px';
 }
 
-class Disk extends Component {
+class Tcp extends Component {
   constructor(props) {
     super(props)
   }
-
+  
   render() {
-    const option = new EchartsOption('磁盘')
-    const { diskReadIo, diskWriteIo, events, scope } = this.props
+    const option = new EchartsOption('TCP')
+    const { tcpListen, tcpEst, events, scope } = this.props
     const { switchDisk, freshTime, DiskLoading, currentStart, currentDiskStart } = scope.state
     let timeText = switchDisk ? '10秒钟' : freshTime
-    option.setToolTipUnit(' KB/s')
+    option.setToolTipUnit(' 个')
     let minValue = 'dataMin'
     let isDataEmpty = false
-    diskReadIo.data && diskReadIo.data.map((item) => {
+    tcpListen.data && tcpListen.data.map((item) => {
       let dataArr = []
       const metrics = item && Array.isArray(item.metrics)
         ? item.metrics
@@ -45,7 +45,7 @@ class Disk extends Component {
         // metric.value || floatValue  only one
         dataArr.push([
           Date.parse(metric.timestamp),
-          Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100
+          metric.floatValue || metric.value
         ])
       })
       if (switchDisk) {
@@ -57,9 +57,9 @@ class Disk extends Component {
           minValue = Date.parse(currentStart)
         }
       }
-      option.addSeries(dataArr, `读取`)
+      option.addSeries(dataArr, `listen`)
     })
-    diskWriteIo.data && diskWriteIo.data.map((item) => {
+    tcpEst.data && tcpEst.data.map((item) => {
       let dataArr = []
       const metrics = item && Array.isArray(item.metrics)
         ? item.metrics
@@ -68,26 +68,26 @@ class Disk extends Component {
         // metric.value || metric.floatValue  only one
         dataArr.push([
           Date.parse(metric.timestamp),
-          Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100
+          metric.floatValue || metric.value
         ])
       })
-      option.addSeries(dataArr, `写入`)
+      option.addSeries(dataArr, `established`)
     })
-    isDataEmpty ? option.addYAxis('value', {formatter: '{value} KB/s'}, 0, 1000) : option.addYAxis('value', {formatter: '{value} KB/s'})
+    isDataEmpty ? option.addYAxis('value', {formatter: '{value} 个'}, 0, 1000) : option.addYAxis('value', {formatter: '{value} 个'})
     isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
       option.setXAxisMinAndMax(minValue)
     
-    option.setGirdForDataNetWork(diskReadIo.data && diskReadIo.data.length + diskWriteIo.data.length, events)
+    option.setGirdForDataNetWork(tcpListen.data && tcpListen.data.length + tcpEst.data.length, events)
     return (
       <div className="chartBox">
         <span className="freshTime">
           {`时间间隔：${timeText}`}
         </span>
         {/*<Tooltip title="实时开关">*/}
-          {/*<Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Disk')} checkedChildren="开" unCheckedChildren="关"/>*/}
+        {/*<Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Disk')} checkedChildren="开" unCheckedChildren="关"/>*/}
         {/*</Tooltip>*/}
         <ReactEcharts
-          style={{ height: formatGrid(diskReadIo.data && diskReadIo.data.length + diskWriteIo.data.length) }}
+          style={{ height: formatGrid(tcpListen.data && tcpListen.data.length + tcpEst.data.length) }}
           notMerge={true}
           option={option}
           showLoading={DiskLoading}
@@ -97,20 +97,20 @@ class Disk extends Component {
   }
 }
 
-Disk.propTypes = {
-  diskReadIo: PropTypes.object.isRequired,
-  diskWriteIo: PropTypes.object.isRequired,
+Tcp.propTypes = {
+  tcpListen: PropTypes.object.isRequired,
+  tcpEst: PropTypes.object.isRequired,
 }
 
-Disk.defaultProps = {
-  diskReadIo: {
+Tcp.defaultProps = {
+  tcpListen: {
     isFetching: false,
     data: []
   },
-  diskWriteIo: {
+  tcpEst: {
     isFetching: false,
     data: []
   }
 }
 
-export default Disk
+export default Tcp

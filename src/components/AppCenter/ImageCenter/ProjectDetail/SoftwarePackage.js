@@ -693,7 +693,7 @@ class TableTemplate extends Component{
         title: '包版本',
         dataIndex: 'softwareversions',
         key: 'softwareversions',
-        width: "16%",
+        width: "14%",
       },
       {
         title: '漏洞',
@@ -713,7 +713,7 @@ class TableTemplate extends Component{
         title: '升级后的剩余',
         dataIndex: 'softwareremain',
         key: 'softwareremain',
-        width: '12%',
+        width: '17%',
         render: text => (<div className='softwareremain'><i className="fa fa-arrow-circle-right softwareremainspan" aria-hidden="true"></i>{text}</div>),
         sorter:  (a,b) => a.softwareremain - b.softwareremain
       },
@@ -721,7 +721,7 @@ class TableTemplate extends Component{
         title: '升级的影响',
         dataIndex: 'softwareimpact',
         key: 'softwareimpact',
-        width: '9%',
+        width: '17%',
         render: (text) => (
           <div className='softwareimpact'>
             {this.TempalteUpgradeImpact(text)}
@@ -733,7 +733,7 @@ class TableTemplate extends Component{
         title: '引入镜像层',
         dataIndex: 'softwarepicture',
         key: 'softwarepicture',
-        width: '30%',
+        width: '20%',
         render: (text) => (<div className='softwarepicture'><span className='softwarepicturelleft'>{text.action}</span><Tooltip title={text.parameters}><span className="textoverflow softwarepicturespan">{text.parameters}</span></Tooltip><i className="fa fa-database softwarepicturelright" aria-hidden="true" onClick={this.handleGetBackLayerTop.bind(this,text.parameters)}></i>
           </div>)
       }

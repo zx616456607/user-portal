@@ -59,7 +59,7 @@ class Memory extends Component {
           minValue = Date.parse(currentStart)
         }
       }
-      option.addSeries(dataArr, item.containerName)
+      option.addSeries(dataArr, '内存')
     })
     option.setXAxisMinAndMax(minValue)
     option.setGirdForDataCommon(data&&data.length)

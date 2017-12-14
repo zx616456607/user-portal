@@ -47,11 +47,7 @@ export default class EchartsOption {
       data: [],
       right: 50,
       left: 80,
-      orient: 'horizontal',
-      formatter: (name)=> {
-        let item = name.substring(0,name.indexOf('-'))
-        return item + name.substr(name.lastIndexOf('-'))
-      }
+      orient: 'horizontal'
     }
     this.grid = [{
       top: 70,

@@ -39,7 +39,7 @@ class WrapDetailModal extends React.Component {
     this.auditCallback = this.auditCallback.bind(this)
     this.state = {
       visible: false,
-      isPublished: false
+      canRename: false
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -58,7 +58,7 @@ class WrapDetailModal extends React.Component {
       form.resetFields()
       this.setState({
         isEdit: false,
-        isPublished: false
+        canRename: false
       })
     }
   }
@@ -69,13 +69,13 @@ class WrapDetailModal extends React.Component {
       success: {
         func: res => {
           const pkgDetail  = res.data.pkgs
-          if (pkgDetail && (pkgDetail.publishStatus === 1 || pkgDetail.publishStatus === 4 || pkgDetail.publishStatus === 8)) {
+          if (pkgDetail && (pkgDetail.publishStatus !== 0)) {
             this.setState({
-              isPublished: true
+              canRename: true
             })
           } else {
             this.setState({
-              isPublished: false
+              canRename: false
             })
           }
         }
@@ -102,25 +102,25 @@ class WrapDetailModal extends React.Component {
   
   saveEdit() {
     const { updateWrapDetail, form, pkgDetail, callback } = this.props
-    const { isPublished } = this.state
+    const { canRename } = this.state
     const { validateFields } = form
     let notify = new NotificationHandler()
-    let validateArr = ['description']
-    if (isPublished) {
+    let validateArr = []
+    if (canRename) {
       validateArr = ['description', 'classifyName', 'fileNickName']
     }
     validateFields(validateArr, (errors, values) => {
       if (!!errors) {
         return
       }
-      const { classifyName, fileNickName, description } = values
+      const { classifyName, fileNickName, description } = form.getFieldsValue()
       
       const pkgID = pkgDetail.id
       const body = {
         description,
         filePkgName: pkgDetail.fileName
       }
-      if (isPublished) {
+      if (canRename) {
         Object.assign(body, {
           classifyName: classifyName[0],
           fileNickName
@@ -175,6 +175,10 @@ class WrapDetailModal extends React.Component {
   }
   
   descCheck(rule, value, callback) {
+    const { canRename } = this.state
+    if (!canRename) {
+      return callback()
+    }
     if (!value) {
       return callback('请输入描述信息')
     }
@@ -385,7 +389,7 @@ class WrapDetailModal extends React.Component {
   }
   render() {
     const { form, pkgDetail, wrapGroupList } = this.props 
-    const { visible, isEdit, releaseVisible, isPublished } = this.state
+    const { visible, isEdit, releaseVisible, canRename } = this.state
     const { getFieldProps } = form
     const formItemLayout = {
       labelCol: {span: 3},
@@ -417,7 +421,7 @@ class WrapDetailModal extends React.Component {
     const descProps = getFieldProps('description', {
       rules: [
         {
-          validator: this.descCheck
+          validator: this.descCheck.bind(this)
         }
       ],
       initialValue: pkgDetail && pkgDetail.description ? pkgDetail.description : ''
@@ -490,7 +494,7 @@ class WrapDetailModal extends React.Component {
             >
               <Select
                 showSearch={true}
-                disabled={!isEdit || !isPublished}
+                disabled={!isEdit || !canRename}
                 tags
                 searchPlaceholder="请选择分类"
                 style={{ width: '100%' }}
@@ -503,7 +507,7 @@ class WrapDetailModal extends React.Component {
               label="发布名称"
               {...formItemLayout}
             >
-              <Input disabled={!isEdit || !isPublished} {...releaseNameProps}/>
+              <Input disabled={!isEdit || !canRename} {...releaseNameProps}/>
             </FormItem>
             <Row className="rowLabel" type="flex" align="middle">
               <Col span={3}>
