@@ -55,10 +55,9 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        // exclude: /node_modules/,
-        include: path.resolve(__dirname, 'src'),
+        exclude: /node_modules/,
         use: [
-          'thread-loader',
+          // 'thread-loader',
           'babel-loader',
         ]
       },
