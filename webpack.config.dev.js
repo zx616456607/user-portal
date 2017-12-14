@@ -61,8 +61,7 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        // exclude: /node_modules/,
-        include: path.resolve(__dirname, 'src'),
+        exclude: /node_modules/,
         use: [{
           loader: "thread-loader",
           // 有同样配置的 loader 会共享一个 worker 池(worker pool)
