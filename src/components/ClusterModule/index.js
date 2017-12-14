@@ -611,16 +611,20 @@ class ClusterList extends Component {
   }
 
   componentDidMount() {
-    const { loginUser, getAddClusterCMD, location } = this.props
+    const { loginUser, getAddClusterCMD, location, changeActiveCluster, currentClusterID } = this.props
     const { role } = loginUser
     if (!this.checkIsAdmin()) {
       browserHistory.push('/')
+      return
     }
+    let activeCluster = currentClusterID
     if(location && location.query && location.query.from == 'clusterDetail'){
+      activeCluster = location.query.clusterID
       this.setState({
         clusterTabPaneKey: location.query.clusterID
       })
     }
+    changeActiveCluster(activeCluster)
     getAddClusterCMD()
   }
 
