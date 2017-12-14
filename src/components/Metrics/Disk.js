@@ -57,7 +57,7 @@ class Disk extends Component {
           minValue = Date.parse(currentStart)
         }
       }
-      option.addSeries(dataArr, `${item.containerName} 读取`)
+      option.addSeries(dataArr, `读取`)
     })
     diskWriteIo.data && diskWriteIo.data.map((item) => {
       let dataArr = []
@@ -71,7 +71,7 @@ class Disk extends Component {
           Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100
         ])
       })
-      option.addSeries(dataArr, `${item.containerName} 写入`)
+      option.addSeries(dataArr, `写入`)
     })
     isDataEmpty ? option.addYAxis('value', {formatter: '{value} KB/s'}, 0, 1000) : option.addYAxis('value', {formatter: '{value} KB/s'})
     isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :

@@ -29,6 +29,7 @@ import CodeStoreListModal from './CodeStoreListModal.js'
 import NotificationHandler from '../../../../../components/Notification'
 import PopTabSelect from '../../../../PopTabSelect'
 import { loadClusterList } from '../../../../../actions/cluster'
+import { getStorageClassType } from '../../../../../actions/storage'
 import { getAllClusterNodes } from '../../../../../actions/cluster_node'
 import { isStandardMode } from '../../../../../common/tools'
 import DockerfileModal from '../../../DockerfileModal'
@@ -311,6 +312,7 @@ let EditTenxFlowModal = React.createClass({
       cachedVolumes,
       addCachedVolumeModal: false,
       shellDefaultCmd: [],
+      isPrivateStorageInstall: false,
     }
   },
   componentWillMount() {
@@ -340,6 +342,11 @@ let EditTenxFlowModal = React.createClass({
         currentBuildCluster = config.spec.ci.config.buildCluster
       }
     }
+    let alreadyGetStorageClassType = false
+    if (currentBuildCluster) {
+      this.getClusterStroageClassType(currentBuildCluster)
+      alreadyGetStorageClassType = true
+    }
     const { loadClusterList, loadProjectList } = this.props
     loadClusterList(null, {
       success: {
@@ -349,6 +356,16 @@ let EditTenxFlowModal = React.createClass({
           }
           const clusters = res.data
           let isBuildClusterExist = false
+          if (!alreadyGetStorageClassType) {
+            let initialBuilderCluster
+            for(let i = 0; i < clusters.length; i++){
+              if (clusters[i].isBuilder) {
+                initialBuilderCluster = clusters[i].clusterID
+                break
+              }
+            }
+            this.getClusterStroageClassType(initialBuilderCluster)
+          }
           clusters.every(cluster => {
             if (cluster.isBuilder) {
               if (currentBuildCluster === cluster.clusterID) {
@@ -363,7 +380,8 @@ let EditTenxFlowModal = React.createClass({
               buildCluster: null,
             })
           }
-        }
+        },
+        isAsync: true,
       }
     })
     loadProjectList(DEFAULT_REGISTRY, { page_size: 100 })
@@ -1364,6 +1382,28 @@ let EditTenxFlowModal = React.createClass({
       return <Option key={item.id} value={item.id}>{item.title}</Option>
     })
   },
+  getClusterStroageClassType (cluster) {
+    if (!cluster) {
+      return
+    }
+    const { getStorageClassType } = this.props
+    const notificationHandler = new NotificationHandler()
+    getStorageClassType(cluster, {
+      success: {
+        func: res => {
+          const storageClassType = res.data
+          if (storageClassType.private) {
+            this.setState({
+              isPrivateStorageInstall: true
+            })
+          }
+        }
+      },
+      failed: res => {
+        notificationHandler.error('获取构建环境存储配置失败，请重新选择构建环境或刷新页面重试')
+      }
+    })
+  },
   addOtherImage(){
     this.setState({
       addOtherImage: false
@@ -1798,7 +1838,7 @@ let EditTenxFlowModal = React.createClass({
     let cachedVolumeChecked = (!!config.spec.container && config.spec.container.cachedVolume)
       ? (config.spec.container.cachedVolume.status == 1)
       : false
-    const isPrivateStorageInstall = this.props.storageClassType && this.props.storageClassType.private
+    const { isPrivateStorageInstall } = this.state
     if (!isPrivateStorageInstall) {
       cachedVolumeChecked = false
     }
@@ -2183,7 +2223,7 @@ let EditTenxFlowModal = React.createClass({
                 {
                   !isPrivateStorageInstall &&
                   <div className="storageInstallAlert">
-                    <Alert showIcon message="尚未配置块存储集群，暂不能配置缓存卷" type="warning" />
+                    <Alert showIcon message="该构建环境尚未配置块存储，暂不能配置缓存卷" type="warning" />
                   </div>
                 }
                 <div className="customizeBaseImage cachedVolumes">
@@ -2412,12 +2452,10 @@ function mapStateToProps(state, props) {
     newList.push(project)
   })
   harborProjects.list = newList.concat(visitorList)
-  const currentCluster = state.entities.current.cluster
   return {
     clusters,
     clustersNodes,
     harborProjects,
-    storageClassType: currentCluster.storageClassType || {},
   }
 }
 
@@ -2441,6 +2479,7 @@ export default connect(mapStateToProps, {
   updateScriptsById,
   getScriptsById,
   loadRepositoriesTagConfigInfo,
+  getStorageClassType,
 })(injectIntl(EditTenxFlowModal, {
   withRef: true,
 }));

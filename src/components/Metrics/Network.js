@@ -58,7 +58,7 @@ class Network extends Component {
           minValue = Date.parse(currentStart)
         }
       }
-      option.addSeries(dataArr, `${item.containerName} 下载`)
+      option.addSeries(dataArr, `下载`)
     })
     networkTransmitted.data&&networkTransmitted.data.map((item) => {
       let dataArr = []
@@ -72,7 +72,7 @@ class Network extends Component {
           Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100
         ])
       })
-      option.addSeries(dataArr, `${item.containerName} 上传`)
+      option.addSeries(dataArr, `上传`)
     })
     option.setXAxisMinAndMax(minValue)
     option.setGirdForDataNetWork(networkTransmitted.data && networkReceived.data.length + networkReceived.data && networkReceived.data.length, events)

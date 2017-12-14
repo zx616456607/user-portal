@@ -34,6 +34,7 @@ import ConfigMapSetting from './ConfigMapSetting'
 import AdvancedSetting from './AdvancedSetting'
 import LogCollection from './LogCollection'
 import './style/index.less'
+import NotificationHandler from '../../../../components/Notification'
 
 const LATEST = 'latest'
 const FormItem = Form.Item
@@ -113,6 +114,7 @@ let ConfigureService = React.createClass({
     let { imageName } = props
     const { other } = location.query
     const { setFieldsValue } = form
+    let notify = new NotificationHandler()
     if (mode !== 'create') {
       imageName = currentFields.imageUrl.value
       imageName = imageName.substr(imageName.indexOf('/') + 1)
@@ -155,6 +157,9 @@ let ConfigureService = React.createClass({
     loadRepositoriesTags(DEFAULT_REGISTRY, imageName, {
        success: {
          func: result => {
+           if (!result.data.length) {
+             return notify.warn('运行环境的镜像（版本）不存在', '请联系管理员上传')
+           }
            let imageTag = result.data[0]
            if (result.data.indexOf(LATEST) > -1) {
              imageTag = LATEST

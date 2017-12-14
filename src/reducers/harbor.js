@@ -213,9 +213,9 @@ function repositoriesTags(state = {}, action) {
     })
   case ActionTypes.HARBOR_REPOSITORIES_TAGS_SUCCESS:
     const LATEST = 'latest'
-    let data = action.response.result.data
+    let data = action.response.result.data || []
     // Do reverse, maybe helpful for timestamp based tags
-    data = merge([], Array.reverse(data))
+    data = merge([], data.reverse())
     const latestTagIndex = data.indexOf(LATEST)
     if (latestTagIndex > 0) {
       data.splice(latestTagIndex,1)

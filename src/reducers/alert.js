@@ -15,7 +15,7 @@ const option = {
 }
 
 
-/* function getSettingList(state = {}, action) {
+ function getSettingList(state = {}, action) {
   const defaultState = {
     isFetching: false
   }
@@ -24,12 +24,12 @@ const option = {
       return Object.assign({}, defaultState, state, { isFetching: action.needFetching})
     case ActionTypes.ALERT_SETTING_LIST_QUERY_SUCCESS:
       return Object.assign({}, defaultState, state, { isFetching: false, result: action.response.result})
-    case ActionTypes.ALERT_SETTING_LIST_QUERY_FAILED:
+    case ActionTypes.ALERT_SETTING_LIST_QUERY_FAILURE:
       return Object.assign({}, defaultState, state, { isFetching: false})
     default:
       return state
   }
-} */
+} 
 
 function getSettingListfromserviceorapp(state = {}, action) {
   const defaultState = {
@@ -78,7 +78,7 @@ export default function alert(state = {
       SUCCESS: ActionTypes.ALERT_SETTING_ADD_SUCCESS,
       FAILURE: ActionTypes.ALERT_SETTING_ADD_FAILURE
     }, state.addSetting, action, option),
-    // settingList: getSettingList(state.settingList, action),
+    settingList: getSettingList(state.settingList, action),
     SettingListfromserviceorapp: getSettingListfromserviceorapp(state.SettingListfromserviceorapp, action),
     deleteSetting: reducerFactory({
       REQUEST: ActionTypes.ALERT_DELETE_SETTING_REQUEST,

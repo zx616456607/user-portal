@@ -73,11 +73,11 @@ class ImageVersion extends Component {
       edition: '',
       delValue: '',
       isBatchDel: false,
-      warehouseName: [],
       deleteVisible: false,
       detailVisible: false,
       imageDetail: null,
       processedName: '',
+      selectedRowKeys: [],
     }
   }
 
@@ -154,7 +154,7 @@ class ImageVersion extends Component {
 
   handleOk() {
     const { deleteAlone, scopeDetail, loadRepositoriesTags, config, isWrapStore } = this.props
-    const { processedName, aryName, delValue, isBatchDel } = this.state
+    const { aryName, delValue, isBatchDel } = this.state
     let notify = new NotificationHandler()
     if (isWrapStore) {
       this.offShelfImage()
@@ -163,7 +163,7 @@ class ImageVersion extends Component {
     const query = {
       tagName: isBatchDel ? aryName.trim() : delValue,
       registry: DEFAULT_REGISTRY,
-      repoName: processedName,
+      repoName: config.name,
     }
 
     deleteAlone(query, {
@@ -172,10 +172,11 @@ class ImageVersion extends Component {
           if (isBatchDel) {
             notify.success(`批量删除成功`)
           } else {
-            notify.success(`删除 ${processedName} 成功`)
+            notify.success(`删除 ${config.name} 成功`)
           }
           this.setState({
             deleteVisible: false,
+            selectedRowKeys: [],
           })
           // scopeDetail.setState({
           //   imageDetailModalShow: false,
@@ -189,7 +190,7 @@ class ImageVersion extends Component {
           if (isBatchDel) {
             notify.error(`批量删除失败`)
           } else {
-            notify.error(`删除 ${processedName} 失败`)
+            notify.error(`删除 ${config.name} 失败`)
           }
         },
         isAsync: true
@@ -244,11 +245,11 @@ class ImageVersion extends Component {
   }
 
   handleBatchDel() {
-    const { warehouseName } = this.state
+    const { selectedRowKeys, dataAry } = this.state
     let names = ''
-    if (warehouseName) {
-      warehouseName.forEach(item => {
-        names += `,${item}`
+    if (selectedRowKeys) {
+      selectedRowKeys.forEach(item => {
+        names += `,${dataAry[item].edition}`
       })
       this.setState({
         aryName: names.replace(',', ''),
@@ -271,26 +272,31 @@ class ImageVersion extends Component {
     }
   }
 
-  onSelectChange(selectedRowKeys, selectedRows) {
-    const aryData = []
-    selectedRows.forEach(item => {
-      aryData.push(item.edition)
-    })
+  onSelectChange(selectedRowKeys) {
     this.setState({
-      warehouseName: aryData
+      selectedRowKeys
     })
   }
 
   handleRefresh() {
-    const { config } = this.props
-    loadRepositoriesTags(DEFAULT_REGISTRY, config.name)
+    const { config, loadRepositoriesTags } = this.props
+    loadRepositoriesTags(DEFAULT_REGISTRY, config.name, {
+      finally: {
+        func: () => {
+          this.setState({
+            selectedRowKeys: [],
+          })
+        }
+      }
+    })
   }
 
   render() {
     const { isFetching, detailAry, isAdminAndHarbor, isWrapStore } = this.props
-    const { edition, dataAry, delValue, aryName, isBatchDel } = this.state
+    const { edition, dataAry, delValue, aryName, isBatchDel, selectedRowKeys } = this.state
     const imageDetail = this.props.config
     const rowSelection = {
+      selectedRowKeys,
       onChange: this.onSelectChange.bind(this)
     }
 
@@ -360,7 +366,7 @@ class ImageVersion extends Component {
           <div className="top">
             {
               isAdminAndHarbor && !isWrapStore ?
-                <Button className="delete" disabled={this.state.warehouseName.length === 0} onClick={this.handleBatchDel.bind(this)} ><Icon type="delete" />删除</Button> : ''
+                <Button className="delete" disabled={!selectedRowKeys.length} onClick={this.handleBatchDel.bind(this)} ><Icon type="delete" />删除</Button> : ''
             }
             <Button className="refresh" onClick={this.handleRefresh.bind(this)}><i className='fa fa-refresh' /> &nbsp;刷新</Button>
             {/* <div className='SearchInput' style={{ width: 280 }}>
@@ -386,7 +392,7 @@ class ImageVersion extends Component {
             <Table
               columns={columns}
               dataSource={dataAry}
-              loading={false}
+              loading={isFetching}
               pagination={pageOption}
               rowSelection={isWrapStore ? null : rowSelection}
             />

@@ -57,7 +57,7 @@ class Tcp extends Component {
           minValue = Date.parse(currentStart)
         }
       }
-      option.addSeries(dataArr, `${item.containerName} listen`)
+      option.addSeries(dataArr, `listen`)
     })
     tcpEst.data && tcpEst.data.map((item) => {
       let dataArr = []
@@ -71,7 +71,7 @@ class Tcp extends Component {
           metric.floatValue || metric.value
         ])
       })
-      option.addSeries(dataArr, `${item.containerName} established`)
+      option.addSeries(dataArr, `established`)
     })
     isDataEmpty ? option.addYAxis('value', {formatter: '{value} 个'}, 0, 1000) : option.addYAxis('value', {formatter: '{value} 个'})
     isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :

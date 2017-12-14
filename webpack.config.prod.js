@@ -13,6 +13,7 @@ var webpack = require('webpack')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
 var WebpackMd5Hash = require('webpack-md5-hash')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
+var postcssConfig = require('./webpack.config.postcss')
 
 module.exports = {
   // devtool: 'cheap-source-map',
@@ -55,8 +56,11 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        loader: 'babel-loader',
         exclude: /node_modules/,
+        use: [
+          // 'thread-loader',
+          'babel-loader',
+        ]
       },
       {
   　　　 test: /\.(jpe?g|png|gif|svg)$/,
@@ -77,10 +81,10 @@ module.exports = {
                 minimize: true,
               },
             },
-            /* {
+            {
               loader: 'postcss-loader',
               options: postcssConfig,
-            }, */
+            },
           ],
         }),
       },
@@ -96,10 +100,10 @@ module.exports = {
               },
             },
             'less-loader',
-            /* {
+            {
               loader: 'postcss-loader',
               options: postcssConfig,
-            }, */
+            },
           ],
         }),
       },
