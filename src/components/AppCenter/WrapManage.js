@@ -508,7 +508,7 @@ class WrapManage extends Component {
   showDeleteModal() {
     const { wrapList } = this.props
     const { id } = this.state
-    const hasPublishWrap = wrapList.pkgs.some(item => id.includes(item.id) && (item.publishStatus === 1))
+    const hasPublishWrap = wrapList.pkgs.some(item => id.includes(item.id) && ([1, 2].includes(item.publishStatus)))
     if (hasPublishWrap) {
       return this.deleteHint()
     }

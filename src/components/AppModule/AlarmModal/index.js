@@ -566,6 +566,10 @@ let TwoStop = React.createClass({
       this.setState({ [typeProps]: 'MB' })
       return
     }
+    if (type === 'tcp/listen_state' || type === 'tcp/est_state') {
+      this.setState({ [typeProps]: '个' })
+      return
+    }
     this.setState({ [typeProps]: '%' })
   },
   usedRule(rule, value, callback, key) {
@@ -691,6 +695,10 @@ let TwoStop = React.createClass({
         return 'network/rx_rate'
       case '磁盘利用率':
         return 'disk/usage'
+      case 'tcp listen连接数':
+        return 'tcp/listen_state'
+      case 'tcp established连接数':
+        return 'tcp/est_state'
       default:
         return 'cpu/usage_rate'
     }
@@ -708,6 +716,10 @@ let TwoStop = React.createClass({
         return 'kb/s'
       case '下载流量':
         return 'kb/s'
+      case 'tcp listen连接数':
+        return '个'
+      case 'tcp established连接数':
+        return '个'
       default:
         return '%'
     }
@@ -718,6 +730,8 @@ let TwoStop = React.createClass({
     switch (type) {
       case 'CPU利用率':
       case '磁盘利用率':
+      case 'tcp listen连接数':
+      case 'tcp established连接数':
         return parseInt(threshold)
       case '内存使用率':
       case '内存使用':
@@ -753,6 +767,8 @@ let TwoStop = React.createClass({
     ]
     if(alarmType == 'node') {
       optionArray.push(<Option key="5" value="disk/usage">磁盘利用率</Option>)
+      optionArray.push(<Option key="6" value="tcp/listen_state">tcp listen</Option>)
+      optionArray.push(<Option key="7" value="tcp/est_state">tcp established</Option>)
     }
     return optionArray
   },
@@ -766,7 +782,7 @@ let TwoStop = React.createClass({
       let ruleList = []
       if(alarmType == 'service'){
         cloneData.forEach((item, index) => {
-          if(item.type && item.type.trim() !== '磁盘利用率'){
+          if(item.type && (!['磁盘利用率','tcp listen连接数', 'tcp established连接数'].includes(item.type.trim()))){
             ruleList.push(item)
           }
         })
@@ -1009,7 +1025,7 @@ class AlarmModal extends Component {
           obj.value = obj.value * 1024
         } else if (obj.metricType == 'memory/usage') {
           obj.value = obj.value * 1024 * 1024
-        } else {
+        } else if (obj.metricType === 'cpu/usage_rate') {
           obj.value = obj.value * 100
         }
         obj.value = obj.value.toString()

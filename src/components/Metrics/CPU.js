@@ -60,7 +60,7 @@ class CPU extends Component {
           minValue = Date.parse(currentStart)
         }
       }
-      option.addSeries(dataArr, item.containerName)
+      option.addSeries(dataArr, 'cpu')
     })
     option.setXAxisMinAndMax(minValue)
     option.setGirdForDataCommon(data&&data.length)
