@@ -134,7 +134,7 @@ class DataTable extends Component {
         sortOrder: sortedInfo.columnKey === camelize('repo_count') && sortedInfo.order
       },
       {
-        title: '创建时间',
+        title: '更新时间',
         dataIndex: camelize('creation_time'),
         key: camelize('creation_time'),
         render: text => formatDate(text),
@@ -142,7 +142,7 @@ class DataTable extends Component {
         sortOrder: sortedInfo.columnKey === camelize('creation_time') && sortedInfo.order
       },
       {
-        title: '更新时间',
+        title: '创建时间',
         dataIndex: camelize('update_time'),
         key: camelize('update_time'),
         render: text => formatDate(text),
