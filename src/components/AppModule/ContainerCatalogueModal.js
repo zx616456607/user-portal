@@ -581,7 +581,7 @@ let ContainerCatalogueModal = React.createClass({
                   { volume === 'create' &&  <Col span={12}>
                     <FormItem className='not_host_type'>
                       <Select
-                        placeholder="请选择一个 server"
+                        placeholder="请选择一个存储集群"
                         disabled={isEdit && fieldsList[currentIndex].oldVolume}
                         {...getFieldProps('storageClassName', {
                           rules: [{
