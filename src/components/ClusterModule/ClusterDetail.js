@@ -721,6 +721,7 @@ class ClusterDetail extends Component {
               <Metrics
                 scope={this}
                 diskHide={false}
+                hideInstantBtn={true}
                 cpu={showCpu}
                 memory={showMemory}
                 networkReceived={showNetworkRec}

@@ -29,7 +29,7 @@ class Network extends Component {
 
   render() {
     const option = new EchartsOption('网络')
-    const { networkReceived, networkTransmitted ,events, scope } = this.props
+    const { networkReceived, networkTransmitted ,events, scope, hideInstantBtn } = this.props
     const { switchNetwork, freshTime, NetworkLoading, currentStart, currentNetworkStart } = scope.state
     let timeText = switchNetwork ? '10秒钟' : freshTime
     option.addYAxis('value', {
@@ -81,9 +81,12 @@ class Network extends Component {
         <span className="freshTime">
           {`时间间隔：${timeText}`}
         </span>
-        <Tooltip title="实时开关">
-          <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Network')} checkedChildren="开" unCheckedChildren="关"/>
-        </Tooltip>
+        {
+          !hideInstantBtn &&
+          <Tooltip title="实时开关">
+            <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Network')} checkedChildren="开" unCheckedChildren="关"/>
+          </Tooltip>
+        }
         <ReactEcharts
           style={{ height: formatGrid(networkTransmitted.data && networkTransmitted.data.length + networkReceived.data && networkReceived.data.length) }}
           notMerge={true}

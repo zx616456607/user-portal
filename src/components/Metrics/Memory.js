@@ -29,7 +29,7 @@ class Memory extends Component {
 
   render() {
     const option = new EchartsOption('内存')
-    const { memory, scope } = this.props
+    const { memory, scope, hideInstantBtn } = this.props
     const { isFetching, data } = memory
     const { switchMemory, freshTime, MemoryLoading, currentStart, currentMemoryStart } = scope.state
     let timeText = switchMemory ? '10秒钟' : freshTime
@@ -68,9 +68,12 @@ class Memory extends Component {
         <span className="freshTime">
           {`时间间隔：${timeText}`}
         </span>
-        <Tooltip title="实时开关">
-          <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Memory')} checkedChildren="开" unCheckedChildren="关"/>
-        </Tooltip>
+        {
+          !hideInstantBtn &&
+          <Tooltip title="实时开关">
+            <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Memory')} checkedChildren="开" unCheckedChildren="关"/>
+          </Tooltip>
+        }
         <ReactEcharts
           style={{ height: formatGrid(data&&data.length) }}
           notMerge={true}
