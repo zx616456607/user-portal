@@ -27,7 +27,7 @@ class Metrics extends Component {
     const { 
       cpu, memory, networkReceived, networkTransmitted, 
       events, diskReadIo, diskWriteIo, scope, diskHide,
-      tcpListen, tcpEst, showTcp, hideInstantBtn
+      tcpListen, tcpEst, tcpClose, tcpTime, showTcp, hideInstantBtn
     } = this.props
     return (
       <div className="metrics" style={{marginTop:12}}>
@@ -55,6 +55,8 @@ class Metrics extends Component {
             <Tcp
               tcpListen={tcpListen}
               tcpEst={tcpEst}
+              tcpClose={tcpClose}
+              tcpTime={tcpTime}
               events={events}
               scope={scope}
               hideInstantBtn={hideInstantBtn}
