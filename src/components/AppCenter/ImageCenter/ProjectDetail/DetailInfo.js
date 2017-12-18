@@ -158,6 +158,7 @@ class DetailInfo extends Component {
         {
           this.state.editor
             ? <div className="editInfo">
+              <div className="edit-tips">注：基本信息支持 Markdow 语法编辑</div>
               <MarkdownEditor
                 title="基本信息"
                 value={markdownValue}
