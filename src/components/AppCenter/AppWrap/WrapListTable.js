@@ -155,9 +155,9 @@ class WrapListTable extends Component {
         func: res => {
           notify.close()
           if (res.statusCode < 500) {
-            notify.warn('发布失败', res.message || res.message.message)
+            notify.warn('发布失败', res.message.message)
           } else {
-            notify.error('发布失败', res.message || res.message.message)
+            notify.error('发布失败', res.message.message)
           }
         }
       },
