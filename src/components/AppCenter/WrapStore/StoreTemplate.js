@@ -286,7 +286,7 @@ class WrapComopnent extends React.Component {
     })
   }
   renderWrapList(dataSource, isHot) {
-    const { activeKey, dataFetching, dataHotFetching, rectStyle, isAdmin } = this.props
+    const { activeKey, dataFetching, dataHotFetching, rectStyle, isAdmin, isUPAdmin } = this.props
     const { copyStatus } = this.state
     let newData
     if (isHot) {
@@ -347,7 +347,10 @@ class WrapComopnent extends React.Component {
             activeKey === 'image' ? isAdmin
               ? <Menu.Item key="offShelf" disabled={[0, 4, 8].includes(item.publishStatus)}>下架</Menu.Item>
               : <Menu.Item key="none" style={{ display: 'none' }}/>
-              : <Menu.Item key="offShelf" disabled={[0, 4, 8].includes(item.publishStatus)}>下架</Menu.Item>
+              :
+              isUPAdmin 
+                ? <Menu.Item key="offShelf" disabled={[0, 4, 8].includes(item.publishStatus)}>下架</Menu.Item>
+                : <Menu.Item key="none" style={{ display: 'none' }}/>
           }
         </Menu>
       );

@@ -113,7 +113,8 @@ class AppWrapStore extends React.Component {
       loginUser, location
     } = this.props
     const { activeKey, current, classify, sort_by, rectStyle } = this.state
-    const isAdmin = loginUser.harbor[camelize('has_admin_role')] === 1 && loginUser.role === ROLE_SYS_ADMIN
+    const isUPAdmin = loginUser.role === ROLE_SYS_ADMIN
+    const isAdmin = loginUser.harbor[camelize('has_admin_role')] === 1 && isUPAdmin
     const imageComposeStyle = classNames({
       'tabs_item_style': true,
       'tabs_item_selected_style': activeKey === "image"
@@ -168,6 +169,7 @@ class AppWrapStore extends React.Component {
             activeKey === "app" ?
               <StoreTemplate
                 location={location}
+                isUPAdmin={isUPAdmin}
                 activeKey={activeKey}
                 current={current}
                 classify={classify}
