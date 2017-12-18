@@ -557,6 +557,7 @@ let TwoStop = React.createClass({
     })
   },
   changeType(key, type) {
+    let tcpArr = ['tcp/listen_state', 'tcp/est_state', 'tcp/close_wait_state', 'tcp/time_wait_state']
     let typeProps = `typeProps_${key}`
     if (type == 'network/rx_rate' || type == 'network/tx_rate') {
       this.setState({ [typeProps]: 'KB/s' })
@@ -566,7 +567,7 @@ let TwoStop = React.createClass({
       this.setState({ [typeProps]: 'MB' })
       return
     }
-    if (type === 'tcp/listen_state' || type === 'tcp/est_state') {
+    if (tcpArr.includes(type)) {
       this.setState({ [typeProps]: '个' })
       return
     }
@@ -699,6 +700,10 @@ let TwoStop = React.createClass({
         return 'tcp/listen_state'
       case 'tcp established连接数':
         return 'tcp/est_state'
+      case 'tcp close_wait连接数':
+        return 'tcp/close_wait_state'
+      case 'tcp time_wait连接数':
+        return 'tcp/time_wait_state'
       default:
         return 'cpu/usage_rate'
     }
@@ -717,8 +722,9 @@ let TwoStop = React.createClass({
       case '下载流量':
         return 'kb/s'
       case 'tcp listen连接数':
-        return '个'
       case 'tcp established连接数':
+      case 'tcp close_wait连接数':
+      case 'tcp time_wait连接数':
         return '个'
       default:
         return '%'
@@ -732,6 +738,8 @@ let TwoStop = React.createClass({
       case '磁盘利用率':
       case 'tcp listen连接数':
       case 'tcp established连接数':
+      case 'tcp close_wait连接数':
+      case 'tcp time_wait连接数':
         return parseInt(threshold)
       case '内存使用率':
       case '内存使用':
@@ -769,6 +777,8 @@ let TwoStop = React.createClass({
       optionArray.push(<Option key="5" value="disk/usage">磁盘利用率</Option>)
       optionArray.push(<Option key="6" value="tcp/listen_state">tcp listen</Option>)
       optionArray.push(<Option key="7" value="tcp/est_state">tcp established</Option>)
+      optionArray.push(<Option key="8" value="tcp/close_wait_state">tcp closeWait</Option>)
+      optionArray.push(<Option key="9" value="tcp/time_wait_state">tcp timeWait</Option>)
     }
     return optionArray
   },
