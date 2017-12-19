@@ -115,7 +115,7 @@ class Deployment {
               let volume = vol
               if (vol.rbd && vol.rbd.image) {
                 let strs = vol.rbd.image.split('.')
-                volume.rbd = { image: strs[strs.length - 1] }
+                volume.rbd = {image: strs[strs.length - 1]}
               }
               volumes.push(volume)
             }
@@ -327,7 +327,7 @@ class Deployment {
             mountPath: item.mountPath,
             readOnly: item.readOnly || false
           }
-          if(item.subPath) {
+          if (item.subPath) {
             body.subPath = item.subPath
           }
           container.volumeMounts.push(body)
@@ -372,7 +372,7 @@ class Deployment {
         })
         return
       }
-      if(volume.emptyDir){
+      if (volume.emptyDir) {
         this.spec.template.spec.volumes.push({
           name: volume.name,
           emptyDir: {},
@@ -456,10 +456,20 @@ class Deployment {
     }
   }
 
+  ensureNodeAffinityDefaultValue() {
+    this.spec.template.spec.affinity = this.spec.template.spec.affinity || {}
+    this.spec.template.spec.affinity.nodeAffinity = this.spec.template.spec.affinity.nodeAffinity || {}
+    this.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution =
+      this.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution || {}
+    this.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms =
+      this.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms || []
+  }
+
   setLabelSelector(labels) {
-     if (labels && labels.length && labels.length > 0) {
-      this.spec.template.metadata.annotations = this.spec.template.metadata.annotations || {}
-      this.spec.template.metadata.annotations["scheduler.alpha.kubernetes.io/affinity"] = this.makeNodeAffinity(labels)
+    if (labels && labels.length && labels.length > 0) {
+      this.ensureNodeAffinityDefaultValue()
+      this.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms
+        .concat(this.makeNodeAffinity(labels))
     }
   }
 
@@ -475,8 +485,8 @@ class Deployment {
       name: item.name,
     }]
     this.addContainerVolume(serviceName, volume, volumeMounts)
-    if(!annotations["applogs"]){
-     annotations["applogs"] = []
+    if (!annotations["applogs"]) {
+      annotations["applogs"] = []
     } else {
       annotations["applogs"] = JSON.parse(annotations["applogs"] = [])
     }
@@ -487,18 +497,12 @@ class Deployment {
   makeNodeAffinity(labels) {
     const multiMap = {}
     labels.forEach(label => this.mergeLabelsToMultiMap(multiMap, label))
-    return JSON.stringify({
-      nodeAffinity: {
-        requiredDuringSchedulingIgnoredDuringExecution: {
-          nodeSelectorTerms: [
-            {
-              matchExpressions: Object.getOwnPropertyNames(multiMap).map(
-                key => this.multiMapEntryToMatchExpression(key, multiMap[key]))
-            }
-          ]
-        }
+    return [
+      {
+        matchExpressions: Object.getOwnPropertyNames(multiMap).map(
+          key => this.multiMapEntryToMatchExpression(key, multiMap[key]))
       }
-    })
+    ]
   }
 
   mergeLabelsToMultiMap(multiMap, label) {
