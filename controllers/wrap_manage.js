@@ -64,8 +64,6 @@ exports.downloadPkg = function*() {
     this.res.writeHead(200, { "content-disposition" : `attachment;filename=${fileInfo.fileName}.${fileInfo.fileType}`})
     //writeStream不可放入options中
     yield api.pkg.downloadBigFile(["download", id], null, this.res, {
-    }).catch(err => {
-      console.log(err)
     })
     return
   } 
