@@ -29,7 +29,6 @@ module.exports = {
     en: './src/entry/en.js',
     zh: './src/entry/zh.js',
     vendor: [
-      // 'babel-polyfill',
       '@babel/polyfill',
       'echarts',
       'moment',
