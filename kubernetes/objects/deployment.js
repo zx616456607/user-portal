@@ -457,19 +457,18 @@ class Deployment {
   }
 
   ensureNodeAffinityDefaultValue() {
-    this.spec.template.spec.affinity = this.spec.template.spec.affinity || {}
-    this.spec.template.spec.affinity.nodeAffinity = this.spec.template.spec.affinity.nodeAffinity || {}
-    this.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution =
-      this.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution || {}
-    this.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms =
-      this.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms || []
+    const affinity = this.spec.template.spec.affinity = this.spec.template.spec.affinity || {}
+    const nodeAffinity = affinity.nodeAffinity = affinity.nodeAffinity || {}
+    const policy = nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution =
+      nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution || {}
+    policy.nodeSelectorTerms = policy.nodeSelectorTerms || []
   }
 
   setLabelSelector(labels) {
     if (labels && labels.length && labels.length > 0) {
       this.ensureNodeAffinityDefaultValue()
-      this.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms
-        .concat(this.makeNodeAffinity(labels))
+      const policy = this.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution
+      policy.nodeSelectorTerms = policy.nodeSelectorTerms.concat(this.makeNodeAffinity(labels))
     }
   }
 
