@@ -255,9 +255,9 @@ function getCpuFreeCount(singleHz, count, usedHz) {
 }
 
 function setCpuAllocate(pods, max, isClientWidth) {
-  let sortList = [];
-  let cpuTotal = 0;
-  let maxCpu = 0;
+  let sortList = []
+  let cpuTotal = 0
+  let maxCpu = 0
   pods.map((item) => {
     let usedCpu = Math.round(item.cpuTotalUsedMhz / item.cpuMhz);
     if (item.cpuNumber > maxCpu) {
@@ -270,67 +270,67 @@ function setCpuAllocate(pods, max, isClientWidth) {
     }
     sortList.push(tempBody)
   })
-  sortList.sort();
-  let nameList = [];
-  let cpuList = [];
+  sortList.sort()
+  let nameList = []
+  let cpuList = []
   let ipList = []
   sortList.map((item, index) => {
     if (index < 3) {
       ipList.push(item.name.split('.')[2] + '.' + item.name.split('.')[3])
-      nameList.push(item.name);
-      cpuList.push(item.usedCpu);
+      nameList.push(item.name)
+      cpuList.push(item.usedCpu)
     }
   })
   if (isClientWidth) {
-    CPUOption.xAxis[0].data = ipList;
-    CPUOption.series[0].data = ipList;
+    CPUOption.xAxis[0].data = ipList
+    CPUOption.series[0].data = ipList
   } else {
-    CPUOption.xAxis[0].data = nameList;
-    CPUOption.series[0].data = cpuList;
+    CPUOption.xAxis[0].data = nameList
+    CPUOption.series[0].data = cpuList
   }
   CPUOption.yAxis[0].max = maxCpu;
-  CPUOption.yAxis[0].interval = Math.round(maxCpu / 2);
+  CPUOption.yAxis[0].interval = Math.round(maxCpu / 2)
 }
 
 function setMemoryAllocate(pods, max, isClientWidth) {
   let sortList = [];
-  let memoryTotalMb = 0;
+  let memoryTotalMb = 0
   pods.map((item) => {
-    memoryTotalMb = memoryTotalMb + item.memoryTotalMb;
+    memoryTotalMb = memoryTotalMb + item.memoryTotalMb
     let tempBody = {
       name: item.name,
       memoryUsedMb: diskFormatNoUnit(item.memoryUsedMb)
     }
     sortList.push(tempBody)
   })
-  sortList.sort();
-  let nameList = [];
+  sortList.sort()
+  let nameList = []
   let memoryUsedMbList = [];
   let ipList = []
   sortList.map((item, index) => {
     if (index < 3) {
       ipList.push(item.name.split('.')[2] + '.' + item.name.split('.')[3])
-      nameList.push(item.name);
-      memoryUsedMbList.push(item.memoryUsedMb);
+      nameList.push(item.name)
+      memoryUsedMbList.push(item.memoryUsedMb)
     }
   })
   memoryTotalMb = diskFormatNoUnit(max)
   if (isClientWidth) {
-    memoryOption.xAxis[0].data = ipList;
-    memoryOption.series[0].data = ipList;
+    memoryOption.xAxis[0].data = ipList
+    memoryOption.series[0].data = ipList
   } else {
-    memoryOption.xAxis[0].data = nameList;
-    memoryOption.series[0].data = memoryUsedMbList;
+    memoryOption.xAxis[0].data = nameList
+    memoryOption.series[0].data = memoryUsedMbList
   }
 
-  memoryOption.yAxis[0].max = memoryTotalMb;
-  memoryOption.yAxis[0].interval = Math.round(memoryTotalMb / 2);
+  memoryOption.yAxis[0].max = memoryTotalMb
+  memoryOption.yAxis[0].interval = Math.round(memoryTotalMb / 2)
 }
 
 class VSphereDetail extends Component {
   constructor(props) {
     super(props);
-    this.onChangeDataCenter = this.onChangeDataCenter.bind(this);
+    this.onChangeDataCenter = this.onChangeDataCenter.bind(this)
     this.state = {
       isClientWidth: false,
     }
