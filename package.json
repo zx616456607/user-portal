@@ -48,8 +48,8 @@
   "author": "tenxcloud",
   "license": "ISC",
   "dependencies": {
-    "@babel/preset-env": "^7.0.0-beta.34",
-    "@babel/runtime": "^7.0.0-beta.34",
+    "@babel/preset-env": "7.0.0-beta.34",
+    "@babel/runtime": "7.0.0-beta.34",
     "async": "^2.0.1",
     "babel-polyfill": "^6.26.0",
     "bluebird": "^3.4.6",
@@ -95,11 +95,11 @@
     "xml2js": "^0.4.17"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0-beta.34",
-    "@babel/plugin-transform-runtime": "^7.0.0-beta.34",
-    "@babel/polyfill": "^7.0.0-beta.34",
-    "@babel/preset-react": "^7.0.0-beta.34",
-    "@babel/preset-stage-0": "^7.0.0-beta.34",
+    "@babel/core": "7.0.0-beta.34",
+    "@babel/plugin-transform-runtime": "7.0.0-beta.34",
+    "@babel/polyfill": "7.0.0-beta.34",
+    "@babel/preset-react": "7.0.0-beta.34",
+    "@babel/preset-stage-0": "7.0.0-beta.34",
     "antd": "~1.11.6",
     "assert": "~1.4.1",
     "autoprefixer": "^7.2.3",
