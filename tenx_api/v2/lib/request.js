@@ -55,6 +55,9 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
       options.timeout = object.options.timeout
       options.streaming = object.options.streaming
     }
+    if (object.writeStream) {
+      options.writeStream = object.writeStream
+    }
 
     // For file upload, volume etc...
     if (object.stream) {
@@ -72,6 +75,9 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
           logger.debug(`api result: ${JSON.stringify(result.data)}`)
           if (object.options && object.options.returnAll) {
             return result
+          }
+          if (object.writeStream) {
+            return
           }
           if (_isSuccess(result.res.statusCode)) {
             // data maybe null

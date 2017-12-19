@@ -47,21 +47,30 @@ exports.downloadPkg = function*() {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const id = this.params.id
-  const file = yield api.pkg.downloadFile(['download', id])
-  const disposition = file.headers['content-disposition']
-  if (disposition) {
-    this.set('content-disposition', file.headers['content-disposition'])
-  }
-  this.set('content-type', file.headers['content-type'])
-  if (file.status === 403) {
+
+  const result = yield api.pkg.getBy([id], null, {
+    returnAll: true
+  })
+  if (result.status === 403) {
     this.body = '当前操作未被授权，请联系管理员进行授权后，再进行操作。'
     return
   }
-  if (file.status === 404) {
+  if (result.status === 404) {
     this.body = '应用包不存在，如有疑问，请联系管理员。'
     return
   }
-  this.body = file.res
+  if(result.data && result.data.data && result.data.data.pkgs) {
+    const fileInfo = result.data.data.pkgs
+    this.res.writeHead(200, { "content-disposition" : `attachment;filename=${fileInfo.fileName}.${fileInfo.fileType}`})
+    //writeStream不可放入options中
+    yield api.pkg.downloadBigFile(["download", id], null, this.res, {
+    }).catch(err => {
+      console.log(err)
+    })
+    return
+  } 
+  this.status = 404
+  this.body = "Not found"
 }
 
 exports.deletePkg = function* () {
