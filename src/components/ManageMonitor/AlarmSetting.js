@@ -400,10 +400,10 @@ let MyComponent = React.createClass({
               established {parseInt(data.tcpEst)} 个
             </span>
             <span className="keys">
-              established {parseInt(data.tcpClose)} 个
+              close_wait {parseInt(data.tcpClose)} 个
             </span>
             <span className="keys">
-              established {parseInt(data.tcpTime)} 个
+              time_wait {parseInt(data.tcpTime)} 个
             </span>
           </div>
         </div>
