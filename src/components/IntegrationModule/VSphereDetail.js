@@ -353,7 +353,6 @@ class VSphereDetail extends Component {
     }
   }
   componentWillUnMount() {
-    debugger
     window.onresize = null
   }
 
