@@ -777,8 +777,8 @@ let TwoStop = React.createClass({
       optionArray.push(<Option key="5" value="disk/usage">磁盘利用率</Option>)
       optionArray.push(<Option key="6" value="tcp/listen_state">tcp listen</Option>)
       optionArray.push(<Option key="7" value="tcp/est_state">tcp established</Option>)
-      optionArray.push(<Option key="8" value="tcp/close_wait_state">tcp closeWait</Option>)
-      optionArray.push(<Option key="9" value="tcp/time_wait_state">tcp timeWait</Option>)
+      optionArray.push(<Option key="8" value="tcp/close_wait_state">tcp close_wait</Option>)
+      optionArray.push(<Option key="9" value="tcp/time_wait_state">tcp time_wait</Option>)
     }
     return optionArray
   },

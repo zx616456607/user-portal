@@ -818,7 +818,7 @@ let Vm = React.createClass({
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem >
-                  <Input {...urlProps} placeholder="如：https://192.168.1.113:4081" disabled={vmDisable} id='vmAppAgent'/>
+                  <Input {...urlProps} placeholder="如：https://192.168.1.113:19005" disabled={vmDisable} id='vmAppAgent'/>
                 </FormItem>
                 <FormItem>
                   {
