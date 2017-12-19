@@ -187,7 +187,7 @@ let CreateVMListModal = React.createClass({
       initialValue: isAdd ? undefined : Rows.password
     })
     let style = {
-      fontSize: 2
+      fontSize: 12
     }
     let btnStyle = {
       position: 'absolute',
