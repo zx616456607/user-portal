@@ -713,8 +713,10 @@ class ProjectDetail extends Component {
       filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster
     } = this.state;
     const TreeNode = Tree.TreeNode;
-    const { form, roleNum, projectClusters } = this.props;
+    const { form, roleNum, projectClusters, location } = this.props;
     const { getFieldProps } = form;
+    const quota = location.query.tabs
+    const url = quota ? '/' : '/tenant_manage/project_manage'
     const loopFunc = data => data.length > 0 && data.map((item) => {
       return <TreeNode key={item.key} title={item.userName} disableCheckbox={true} />;
     });
@@ -887,7 +889,7 @@ class ProjectDetail extends Component {
       <QueueAnim>
         <div key='projectDetailBox' className="projectDetailBox">
           <div className="goBackBox">
-            <span className="goBackBtn pointer" onClick={() => browserHistory.push('/tenant_manage/project_manage')}>返回</span>
+            <span className="goBackBtn pointer" onClick={() => browserHistory.push(url)}>返回</span>
             <i />
             项目详情
           </div>
