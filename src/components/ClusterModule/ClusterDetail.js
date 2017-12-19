@@ -658,7 +658,7 @@ class ClusterDetail extends Component {
       clusterName, cpu, hostCpu, memory, hostMemory,
       networkReceived, hostNetworkRx, networkTransmitted, hostNetworkTx,
       diskReadIo, diskWriteIo, hostDiskReadIo, hostDiskWriteIo,
-      tcpListen, tcpEst
+      tcpListen, tcpEst, tcpClose, tcpTime
     } = this.props
     const hostInfo = this.props.hostInfo.result ? this.props.hostInfo.result : {objectMeta:{creationTimestamp:''}, address:' '}
     hostInfo.isFetching = this.props.isFetching
@@ -670,6 +670,8 @@ class ClusterDetail extends Component {
     const showNodeWriteIo = switchDisk ? this.formatMetrics(hostDiskWriteIo, clusterName) : this.formatMetrics(diskWriteIo, clusterName)
     const showTcpListen = this.formatMetrics(tcpListen, clusterName)
     const showTcpEst = this.formatMetrics(tcpEst, clusterName)
+    const showTcpClose = this.formatMetrics(tcpClose, clusterName)
+    const showTcpTime = this.formatMetrics(tcpTime, clusterName)
     const fetchApi = {
       getNodeLabels: this.props.getNodeLabels,
       clusterID: this.props.clusterID,
@@ -730,6 +732,8 @@ class ClusterDetail extends Component {
                 diskWriteIo={showNodeWriteIo}
                 tcpListen={showTcpListen}
                 tcpEst={showTcpEst}
+                tcpClose={showTcpClose}
+                tcpTime={showTcpTime}
                 showTcp={true}
               />
             </TabPane>
@@ -780,6 +784,12 @@ function mapStateToProps(state, props) {
   const tcpEst = {
     isFetching: hostMetrics ? hostMetrics.isFetching: false,
   }
+  const tcpClose = {
+    isFetching: hostMetrics ? hostMetrics.isFetching: false,
+  }
+  const tcpTime = {
+    isFetching: hostMetrics ? hostMetrics.isFetching: false,
+  }
   const { nodeLabel } = state.cluster_nodes || {}
   if (hostMetrics && hostMetrics.result) {
     cpuData.data = hostMetrics.result.cpus
@@ -790,6 +800,8 @@ function mapStateToProps(state, props) {
     diskWriteIo.data = hostMetrics.result.diskWriteIo
     tcpListen.data = hostMetrics.result.tcpListen
     tcpEst.data = hostMetrics.result.tcpEst
+    tcpClose.data = hostMetrics.result.tcpCloseWait
+    tcpTime.data = hostMetrics.result.tcpTimeWait
   }
   let instantCpu = {}
   let instantMemory = {}
@@ -829,6 +841,8 @@ function mapStateToProps(state, props) {
     diskWriteIo,
     tcpListen,
     tcpEst,
+    tcpClose,
+    tcpTime,
     nodeLabel: nodeLabel ? nodeLabel.result: {} ,
     clusterID,
     clusterName,

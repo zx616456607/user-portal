@@ -399,6 +399,12 @@ let MyComponent = React.createClass({
             <span className="keys">
               established {parseInt(data.tcpEst)} 个
             </span>
+            <span className="keys">
+              established {parseInt(data.tcpClose)} 个
+            </span>
+            <span className="keys">
+              established {parseInt(data.tcpTime)} 个
+            </span>
           </div>
         </div>
       </div>
