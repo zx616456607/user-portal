@@ -305,7 +305,7 @@ class ImageVersion extends Component {
       title: '版本',
       dataIndex: 'edition',
       key: 'edition',
-      width: '70%',
+      width: '65%',
     }, {
       title: '操作',
       dataIndex: 'comment',
