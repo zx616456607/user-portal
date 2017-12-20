@@ -40,6 +40,7 @@ class UserInfo extends Component {
   }
   render() {
     const { userID, userDetail, appCount, serviceCount, containerCount, editPass, loginUser, location } = this.props
+    const quota = location.query.tabs
     const href = window.location.href;
     let memberFlag = false;
     if(href.indexOf('tenant_manage/user') > -1) {
@@ -53,7 +54,7 @@ class UserInfo extends Component {
         <Row className="content">
           {
             userID && (
-              <Link className="back goback" to="/tenant_manage/user">
+              <Link className="back goback" to={quota ? "/" :"/tenant_manage/user"}>
                 <span className="backjia"></span>
                 <span className="btn-back">返回</span>
               </Link>

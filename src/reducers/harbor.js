@@ -61,7 +61,6 @@ function projects(state = {}, action) {
         }
       })
     case ActionTypes.HARBOR_PROJECT_LIST_SUCCESS:
-      // 隐藏tenx_store镜像仓库
       // let total = action.response.result.total
       // let hasTenxStore = action.response.result.data.some(item => item.name !== TENX_STORE)
       return Object.assign({}, state, {
