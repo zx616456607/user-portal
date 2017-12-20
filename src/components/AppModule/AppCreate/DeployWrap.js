@@ -267,6 +267,10 @@ class WrapManage extends Component {
     if (appName) {
       imageName += `&appName=${appName}&action=${action}`
     }
+    if (location.pathname ==='/app_center/app_template/create') {
+      browserHistory.push('/app_center/app_template/create'+ imageName + SERVICE_CONFIG_HASH)
+      return
+    }
     browserHistory.push('/app_manage/app_create/quick_create'+ imageName + SERVICE_CONFIG_HASH)
 
   }
@@ -295,7 +299,7 @@ class WrapManage extends Component {
   }
   render() {
     const { serviceList, template, defaultTemplate, version, currentType } = this.state
-    const { current, quick_create, location} = this.props
+    const { current, quick_create, location, childrenSteps } = this.props
     const { resource, priceHour, priceMonth } = this.getAppResources()
     const funcCallback = {
       goDeploy: this.goDeploy,
@@ -306,13 +310,14 @@ class WrapManage extends Component {
     if (!SHOW_BILLING) {
       showprice = 24
     }
-    const steps = (
-      <Steps size="small" className="steps" status={this.state.stepStatus} current={this.getStepsCurrent()}>
-        <Step title="部署方式" />
-        <Step title="选择基础镜像" />
-        <Step title="配置服务" />
-      </Steps>
-    )
+    let steps = null
+    if (!childrenSteps) {
+      steps = (<Steps size="small" className="steps" status={this.state.stepStatus} current={this.getStepsCurrent()}>
+      <Step title="部署方式" />
+      <Step title="选择基础镜像" />
+      <Step title="配置服务" />
+    </Steps>)
+    }
     const header = (
       <div>高级设置
       </div>
