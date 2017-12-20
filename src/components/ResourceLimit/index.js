@@ -610,7 +610,7 @@ class ResourceQuota extends React.Component {
                   ciList.map((item, index) => {
                     const inputValue = getFieldValue(item.key)
                     const beforeValue = this.maxGlobaleCount(item.key)
-                    const plusValue = inputValue - beforeValue
+                    const plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
                     const checkKey = `${item.key}-check`
                     const checkProps = getFieldProps(checkKey, {
                       initialValue: beforeValue === -1 ? true : false,
@@ -675,7 +675,7 @@ class ResourceQuota extends React.Component {
                   cdList.map((item, index) => {
                     const inputValue = getFieldValue(item.key)
                     const beforeValue = this.maxGlobaleCount(item.key)
-                    const plusValue = inputValue - beforeValue
+                    const plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
                     const checkKey = `${item.key}-check`
                     const checkProps = getFieldProps(checkKey, {
                       initialValue: beforeValue === -1 ? true : false,
@@ -822,7 +822,7 @@ class ResourceQuota extends React.Component {
                       computeList.map((item, index) => {
                         const inputValue = getFieldValue(item.key)
                         const beforeValue = this.maxClusterCount(item.key)
-                        const plusValue = inputValue - beforeValue
+                        const plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
                         const checkKey = `${item.key}-check`
                         const checkProps = getFieldProps(checkKey, {
                           initialValue: beforeValue === -1 ? true : false,
@@ -887,7 +887,7 @@ class ResourceQuota extends React.Component {
                       platformList.map((item, index) => {
                         const inputValue = getFieldValue(item.key)
                         const beforeValue = this.maxClusterCount(item.key)
-                        const plusValue = inputValue - beforeValue
+                        const plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
                         const isPlus = inputValue > beforeValue ? true : false
                         const checkKey = `${item.key}-check`
                         const checkProps = getFieldProps(checkKey, {
@@ -953,7 +953,7 @@ class ResourceQuota extends React.Component {
                       serviceList.map((item, index) => {
                         const inputValue = getFieldValue(item.key)
                         const beforeValue = this.maxClusterCount(item.key)
-                        const plusValue = inputValue - beforeValue
+                        const plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
                         const checkKey = `${item.key}-check`
                         const checkProps = getFieldProps(checkKey, {
                           initialValue: beforeValue === -1 ? true : false,

@@ -375,14 +375,14 @@ class NetworkSolutions extends Component {
         <div className="footer">
           {this.handlefooterTemplate()}
         </div>
-        <div className="bottom">
+        {/* <div className="bottom">
           <div className="header">外部DNS <span>配置需要访问的外部 DNS ，如公司内网 DNS 等，最多 3 个外部 DNS</span>
           <a onClick={() => this.handleSketch()}>查看示意图</a></div>
           <Form form={this.props.form}>
             {formItems}
             <a className="btn-add" onClick={() => this.handleAdd()}><Icon type="plus-circle-o" style={{ color: '#2db7f5' }} /> 添加DNS</a>
           </Form>
-        </div>
+        </div> */}
         <Modal
           title={<span>{networkPolicySupported ? '禁止变更' : '允许变更'}</span>}
           visible={this.state.permissionVisible}
