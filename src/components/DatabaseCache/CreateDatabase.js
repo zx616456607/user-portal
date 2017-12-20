@@ -526,6 +526,9 @@ let CreateDatabase = React.createClass({
                 </div>
                 <div style={{ clear: 'both' }}></div>
               </div>
+              <div className='desc'>
+                <span>每个副本占用的cpu、内存等资源也将在计算资源配额中统计</span>
+              </div>
               <div className='commonBox' style={{marginBottom: '4px'}}>
                 <div className='title'>
                   <span>存储</span>
