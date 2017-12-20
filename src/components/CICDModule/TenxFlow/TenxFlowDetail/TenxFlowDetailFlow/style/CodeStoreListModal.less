@@ -39,10 +39,7 @@
       }
       .ant-select-selection:before{
         content: '\E603';
-        -webkit-transition: -webkit-transform 0.2s ease;
-        transition: -webkit-transform 0.2s ease;
         transition: transform 0.2s ease;
-        transition: transform 0.2s ease, -webkit-transform 0.2s ease;
         display: block;
         font-family: "anticon" !important;
         position: absolute;
@@ -50,8 +47,6 @@
         right: 7px;
       }
       .ant-select-open .ant-select-selection:before{
-        -webkit-transform: rotate(180deg);
-        -ms-transform: rotate(180deg);
         transform: rotate(180deg)
       }
 

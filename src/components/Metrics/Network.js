@@ -29,7 +29,7 @@ class Network extends Component {
 
   render() {
     const option = new EchartsOption('网络')
-    const { networkReceived, networkTransmitted ,events, scope } = this.props
+    const { networkReceived, networkTransmitted ,events, scope, hideInstantBtn } = this.props
     const { switchNetwork, freshTime, NetworkLoading, currentStart, currentNetworkStart } = scope.state
     let timeText = switchNetwork ? '10秒钟' : freshTime
     option.addYAxis('value', {
@@ -58,7 +58,7 @@ class Network extends Component {
           minValue = Date.parse(currentStart)
         }
       }
-      option.addSeries(dataArr, `${item.containerName} 下载`)
+      option.addSeries(dataArr, `下载`)
     })
     networkTransmitted.data&&networkTransmitted.data.map((item) => {
       let dataArr = []
@@ -72,7 +72,7 @@ class Network extends Component {
           Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100
         ])
       })
-      option.addSeries(dataArr, `${item.containerName} 上传`)
+      option.addSeries(dataArr, `上传`)
     })
     option.setXAxisMinAndMax(minValue)
     option.setGirdForDataNetWork(networkTransmitted.data && networkReceived.data.length + networkReceived.data && networkReceived.data.length, events)
@@ -81,9 +81,12 @@ class Network extends Component {
         <span className="freshTime">
           {`时间间隔：${timeText}`}
         </span>
-        <Tooltip title="实时开关">
-          <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Network')} checkedChildren="开" unCheckedChildren="关"/>
-        </Tooltip>
+        {
+          !hideInstantBtn &&
+          <Tooltip title="实时开关">
+            <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Network')} checkedChildren="开" unCheckedChildren="关"/>
+          </Tooltip>
+        }
         <ReactEcharts
           style={{ height: formatGrid(networkTransmitted.data && networkTransmitted.data.length + networkReceived.data && networkReceived.data.length) }}
           notMerge={true}

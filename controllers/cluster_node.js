@@ -183,6 +183,16 @@ exports.getClustersMetrics = function* () {
     source: 'prometheus',
     start: query.start
   }
+  let tcp_close_wait_state = {
+    type: 'tcp/close_wait_state',
+    source: 'prometheus',
+    start: query.start
+  }
+  let tcp_time_wait_state = {
+    type: 'tcp/time_wait_state',
+    source: 'prometheus',
+    start: query.start
+  }
   const reqArray = []
   // metrics cpu use
   reqArray.push(api.getBy([cluster,'metric','nodes',node,'metrics'], cpuq))
@@ -200,6 +210,10 @@ exports.getClustersMetrics = function* () {
   reqArray.push(api.getBy([cluster,'metric','nodes',node,'metrics'],tcp_listen))
   // metrics tcp_est
   reqArray.push(api.getBy([cluster,'metric','nodes',node,'metrics'],tcp_est))
+  // metrics tcp_close_wait
+  reqArray.push(api.getBy([cluster,'metric','nodes',node,'metrics'],tcp_close_wait_state))
+  // metrics tcp_time_wait
+  reqArray.push(api.getBy([cluster,'metric','nodes',node,'metrics'],tcp_time_wait_state))
   const results = yield reqArray
   this.body = {
     cpus: results[0][node],
@@ -209,7 +223,9 @@ exports.getClustersMetrics = function* () {
     diskReadIo: results[4][node],
     diskWriteIo: results[5][node],
     tcpListen: results[6][node],
-    tcpEst: results[7][node]
+    tcpEst: results[7][node],
+    tcpCloseWait: results[8][node],
+    tcpTimeWait: results[9][node]
   }
 }
 

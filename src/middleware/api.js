@@ -10,7 +10,6 @@
 
 import { Schema, arrayOf, normalize } from 'normalizr'
 import { camelizeKeys } from 'humps'
-import 'isomorphic-fetch'
 import { genRandomString, getType } from '../common/tools'
 import 'whatwg-fetch' // For Edge browser
 

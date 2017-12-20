@@ -346,11 +346,15 @@ let MyComponent = React.createClass({
     })
     const diskListsStyle = classNames({
       'lastLists': true,
-      'disklists': data.disk ? true : false,
+      'disklists': data.disk ? false : true,
     })
     const rateListsStyle = classNames({
       'lastLists': true,
       'ratelists': data.disk ? false : true,
+    })
+    const connectNum = classNames({
+      'lastLists': true,
+      'connectList': data.disk ? true: false
     })
     return (
       <div className="wrapChild">
@@ -387,6 +391,21 @@ let MyComponent = React.createClass({
               status={ data.disk > 80 ? 'exception' : ''}
             />
           </div> }
+          <div className={connectNum}>
+            <span className="keys">tcp 连接数</span>
+            <span className="keys">
+              listen {data.tcpListen} 个
+            </span>
+            <span className="keys">
+              established {parseInt(data.tcpEst)} 个
+            </span>
+            <span className="keys">
+              close_wait {parseInt(data.tcpClose)} 个
+            </span>
+            <span className="keys">
+              time_wait {parseInt(data.tcpTime)} 个
+            </span>
+          </div>
         </div>
       </div>
     )

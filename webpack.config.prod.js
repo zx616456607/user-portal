@@ -13,19 +13,34 @@ var webpack = require('webpack')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
 var WebpackMd5Hash = require('webpack-md5-hash')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
+var postcssConfig = require('./webpack.config.postcss')
 
 module.exports = {
   // devtool: 'cheap-source-map',
   // !入口文件的顺序不能动！
   entry: {
+    main: './src/entry/index.js',
     zh: './src/entry/zh.js',
     en: './src/entry/en.js',
-    main: './src/entry/index.js',
-    // vendor: ['react', 'lodash', 'moment', 'codemirror', 'antd'],
+    vendor: [
+      '@babel/polyfill',
+      'echarts',
+      'moment',
+      'js-yaml',
+      'codemirror',
+      'jquery'
+    ],
   },
 
   resolve: {
-    extensions: ['', '.js', '.jsx'],
+    modules: [
+      path.join(__dirname, '../src'),
+      'node_modules',
+    ],
+    extensions: [ '.js', '.jsx', '.json' ],
+    alias: {
+      '@': path.join(__dirname, '../src'),
+    },
   },
 
   output: {
@@ -35,46 +50,69 @@ module.exports = {
     publicPath: '/bundles/'
   },
 
-  externals: {
-    'clipboard': 'Clipboard',
-    'emojify.js': 'emojify'
-  },
 
   module: {
-    loaders: [{
-      test: /\.js$/,
-      loaders: ['babel'],
-      exclude: /node_modules/,
-      include: __dirname
-    }, {
-　　　 test: /\.(jpe?g|png|gif|svg)$/,
-　　　 loader: 'url-loader', // 5KB 以下图片自动转成 base64 码
-      query: {
-        limit: 5120, // 5KB 以下图片自动转成 base64 码
-        name: 'img/[name].[hash:8].[ext]',
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: [
+          // 'thread-loader',
+          'babel-loader',
+        ]
       },
-　　 }, {
-      test: /\.json$/,
-      loader: 'json-loader'
-    }, {
-      test: /\.css$/,
-      loader: ExtractTextPlugin.extract(
-        'css'
-      )
-    }, {
-      test: /\.less$/,
-      loader: ExtractTextPlugin.extract(
-        // activate source maps via loader query
-        'css!' +
-        'less'
-      )
-    }]
+      {
+  　　　 test: /\.(jpe?g|png|gif|svg)$/,
+        loader: 'url-loader',
+        options: {
+          limit: 5192, // 5KB 以下图片自动转成 base64 码
+          name: 'img/[name].[hash:8].[ext]',
+        },
+  　　 },
+      {
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: [
+            {
+              loader: 'css-loader',
+              options: {
+                minimize: true,
+              },
+            },
+            {
+              loader: 'postcss-loader',
+              options: postcssConfig,
+            },
+          ],
+        }),
+      },
+      {
+        test: /\.less$/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: [
+            {
+              loader: 'css-loader',
+              options: {
+                minimize: true,
+              },
+            },
+            'less-loader',
+            {
+              loader: 'postcss-loader',
+              options: postcssConfig,
+            },
+          ],
+        }),
+      },
+    ]
   },
 
   plugins: [
     new HtmlWebpackPlugin({
       inject: false, // disabled inject
-      chunks: ['zh', 'main', 'common'],
+      chunks: ['zh', 'main', 'commons', 'vendor' ],
       minify: {
         collapseWhitespace: true,
         minifyJS: true,
@@ -87,29 +125,33 @@ module.exports = {
       template: path.join(__dirname, 'src/templates/index.html'),
       filename: path.join(__dirname, 'index.html'),
     }),
-    // 删除重复数据
-    new webpack.optimize.DedupePlugin(),
     // 设置分块传输最大数量和最小 size
     new webpack.optimize.LimitChunkCountPlugin({maxChunks: 18}),
     new webpack.optimize.MinChunkSizePlugin({minChunkSize: 200000}),
-    // new webpack.optimize.CommonsChunkPlugin('vendor', 'common.js'),
-    new webpack.optimize.CommonsChunkPlugin('common', 'common.[chunkhash:8].js'),
-    new webpack.optimize.OccurrenceOrderPlugin(),
-    new webpack.NoErrorsPlugin(),
-    new ExtractTextPlugin('index.[chunkhash:8].css', { allChunks: true }),
+    new webpack.optimize.ModuleConcatenationPlugin(),
     new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      },
-      comments: false
+      sourceMap: true,
+      comments: false,
+      unused: true,
+      dead_code: true,
     }),
-    new webpack.BannerPlugin('Licensed Materials - Property of tenxcloud.com\n(C) Copyright 2017 TenxCloud. All Rights Reserved.\nhttps://www.tenxcloud.com'),
-    function() {
-      this.plugin('done', function(stats) {
-        require('fs').writeFileSync(
-          path.join(__dirname, 'stats.json'),
-          JSON.stringify(stats.toJson()))
-      })
-    }
-  ]
+    new webpack.NoEmitOnErrorsPlugin(),
+    new ExtractTextPlugin({
+      filename: 'styles.[contenthash:8].css',
+      allChunks: true,
+    }),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'vendor',
+      filename: 'vendor.[chunkhash:8].js',
+      // (Give the chunk a different name)
+      minChunks: Infinity,
+      // (with more entries, this ensures that no other module
+      //  goes into the vendor chunk)
+    }),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'commons',
+      filename: 'commons.[hash:8].js',
+    }),
+    new webpack.NoEmitOnErrorsPlugin(),
+  ],
 }

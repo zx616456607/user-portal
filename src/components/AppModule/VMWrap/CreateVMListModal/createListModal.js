@@ -54,7 +54,7 @@ let CreateVMListModal = React.createClass({
           notification.error('验证信息异常')
           this.setState({
             Prompt: false,
-            isShow: false,
+            isShow: true,
             verification: false
           })
         }
@@ -187,7 +187,7 @@ let CreateVMListModal = React.createClass({
       initialValue: isAdd ? undefined : Rows.password
     })
     let style = {
-      fontSize: 2
+      fontSize: 12
     }
     let btnStyle = {
       position: 'absolute',

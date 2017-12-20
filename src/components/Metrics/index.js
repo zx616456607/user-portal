@@ -27,17 +27,18 @@ class Metrics extends Component {
     const { 
       cpu, memory, networkReceived, networkTransmitted, 
       events, diskReadIo, diskWriteIo, scope, diskHide,
-      tcpListen, tcpEst, showTcp
+      tcpListen, tcpEst, tcpClose, tcpTime, showTcp, hideInstantBtn
     } = this.props
     return (
       <div className="metrics" style={{marginTop:12}}>
-        <CPU cpu={cpu} events={events} scope={scope}/>
-        <Memory memory={memory} events={events} scope={scope}/>
+        <CPU cpu={cpu} events={events} scope={scope} hideInstantBtn={hideInstantBtn}/>
+        <Memory memory={memory} events={events} scope={scope} hideInstantBtn={hideInstantBtn}/>
         <Network 
           networkReceived={networkReceived}
           networkTransmitted={networkTransmitted}
           events={events}
           scope={scope}
+          hideInstantBtn={hideInstantBtn}
         />
         {
           !diskHide &&
@@ -46,6 +47,7 @@ class Metrics extends Component {
               events={events}
               diskWriteIo={diskWriteIo}
               scope={scope}
+              hideInstantBtn={hideInstantBtn}
             />
         }
         {
@@ -53,8 +55,11 @@ class Metrics extends Component {
             <Tcp
               tcpListen={tcpListen}
               tcpEst={tcpEst}
+              tcpClose={tcpClose}
+              tcpTime={tcpTime}
               events={events}
               scope={scope}
+              hideInstantBtn={hideInstantBtn}
             />
         }
       </div>

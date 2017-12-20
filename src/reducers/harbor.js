@@ -61,15 +61,14 @@ function projects(state = {}, action) {
         }
       })
     case ActionTypes.HARBOR_PROJECT_LIST_SUCCESS:
-      // 隐藏tenx_store镜像仓库
-      let total = action.response.result.total
-      let hasTenxStore = action.response.result.data.some(item => item.name !== TENX_STORE)
+      // let total = action.response.result.total
+      // let hasTenxStore = action.response.result.data.some(item => item.name !== TENX_STORE)
       return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
           server: action.response.result.server,
-          list: action.response.result.data.filter(item => item.name !== TENX_STORE),
-          total: hasTenxStore ? total - 1 : total,
+          list: action.response.result.data,
+          total: action.response.result.total,
         }
       })
     case ActionTypes.HARBOR_PROJECT_LIST_FAILURE:
@@ -213,9 +212,9 @@ function repositoriesTags(state = {}, action) {
     })
   case ActionTypes.HARBOR_REPOSITORIES_TAGS_SUCCESS:
     const LATEST = 'latest'
-    let data = action.response.result.data
+    let data = action.response.result.data || []
     // Do reverse, maybe helpful for timestamp based tags
-    data = merge([], Array.reverse(data))
+    data = merge([], data.reverse())
     const latestTagIndex = data.indexOf(LATEST)
     if (latestTagIndex > 0) {
       data.splice(latestTagIndex,1)

@@ -112,9 +112,10 @@ exports.deleteDBService = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
   const serviceName = this.params.name
+  const query = this.query || {}
   const api = apiFactory.getK8sApi(loginUser)
 
-  const result = yield api.deleteBy([cluster, 'dbservices', serviceName]);
+  const result = yield api.deleteBy([cluster, 'dbservices', serviceName], query);
 
   this.body = {
     result

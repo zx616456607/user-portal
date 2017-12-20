@@ -27,6 +27,7 @@ import { instanceExport } from '../../actions/instance_export'
 import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
+import { TENX_STORE } from '../../../constants/index'
 
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm
@@ -506,7 +507,7 @@ let MyComponent = React.createClass({
                       (this.props.harborProjects.list || []).map(project => {
                         const currentRoleId = project[camelize('current_user_role_id')]
                         return (
-                          <Option key={project.name + `/detail/${project.projectId}`} disabled={currentRoleId === 3}>
+                          <Option key={project.name + `/detail/${project.projectId}`} disabled={currentRoleId === 3 || project.name === TENX_STORE}>
                             {project.name} {currentRoleId == 3 && '（访客）'}
                           </Option>
                         )}

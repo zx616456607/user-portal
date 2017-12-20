@@ -192,7 +192,7 @@ class Ordinary extends Component {
 
   fetchProjectName() {
     const { GetProjectsDetail, projectName } = this.props
-    if (projectName === 'default') return
+    if (!projectName || projectName === 'default') return
     GetProjectsDetail({
       projectsName: projectName
     }, {

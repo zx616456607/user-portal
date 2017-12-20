@@ -10,8 +10,8 @@
 import React, { Component, PropTypes } from 'react'
 import { Menu, Button, Card, Input, Spin, Modal, Tooltip } from 'antd'
 import QueueAnim from 'rc-queue-anim'
-import ScrollAnim from 'rc-scroll-anim'
-import Animate from 'rc-animate'
+// import ScrollAnim from 'rc-scroll-anim'
+// import Animate from 'rc-animate'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -19,17 +19,7 @@ import { loadAppStore , loadStackDetail } from '../../actions/app_center'
 import DetailBox from './StoreDetail'
 import { DEFAULT_REGISTRY, TIMESTRAP } from '../../constants'
 import Title from '../Title'
-
 import "./style/ImageStore.less"
-
-// const InputGroup = Input.Group;
-// const SubMenu = Menu.SubMenu;
-// const MenuItemGroup = Menu.ItemGroup;
-// const Link = ScrollAnim.Link;
-const Element = ScrollAnim.Element;
-// const ScrollOverPack = ScrollAnim.OverPack;
-// const EventListener = ScrollAnim.Event;
-
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -97,22 +87,6 @@ const MyComponent = React.createClass({
         </div>
         */}
         {items}
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
       </div>
     );
   }
@@ -121,8 +95,6 @@ const MyComponent = React.createClass({
 class AppStore extends Component {
   constructor(props) {
     super(props);
-    super(...arguments);
-    this.windowScroll = this.windowScroll.bind(this);
     this.state = {
       current: "1",
       scrollTop: 0,
@@ -138,46 +110,6 @@ class AppStore extends Component {
     loadAppStore(DEFAULT_REGISTRY)
   }
 
-  windowScroll(e) {
-    //this function for user scroll the window
-    let moduleList = document.getElementsByClassName("moduleDetail");
-    let rootElement = document.getElementsByClassName("ImageStoreBox");
-    let rootHeight = rootElement[0].clientHeight;
-    let parentHeight = moduleList[0].parentElement.clientHeight;
-    let temp = new Array();
-    let scroll = e.target.scrollTop;//it's mean the big box scroll height
-    for (let i = 0; i < moduleList.length; i++) {
-      let offetset = moduleList[i].offsetTop;
-      let itemClient = moduleList[i].clientHeight;
-      if (scroll > (offetset - 150) && scroll < (offetset + 150)) {
-        //it's mean user scroll the box and the little module's head apart from the top end in -150px~150px
-        //and the nav will be underscore
-        this.setState({
-          current: i + 1
-        });
-      }
-      if ((scroll + rootHeight - itemClient) > (offetset + 350) && i == moduleList.length - 1) {
-        //it's mean when the box sroll to the bottom ,and the last module apart from the top end bigger than 150px
-        //so that the current will be change to the last one
-        this.setState({
-          current: i + 1
-        });
-      }
-    }
-  }
-
-  scrollElem(index) {
-    let moduleList = document.getElementsByClassName("moduleDetail");
-    let rootElement = document.getElementsByClassName("ImageStoreBox");
-    let offetset = moduleList[index].offsetTop;
-    //    rootElement[0].srcollTop = offetset;
-    let domElem = this.refs.ImageStoreBox;
-    domElem.Animate({ scrollTop: offetset }, 500)
-    // console.log(domElem)
-    // return
-    //    domElem.srcollTop = offetset;
-  }
-
   render() {
     const { current } = this.state;
     const { formatMessage } = this.props.intl;
@@ -186,28 +118,13 @@ class AppStore extends Component {
     if (!appStoreList || appStoreList.length === 0) {
       return (<div className='loadingBox'><Spin size='large' /></div>)
     }
-    const storeList = appStoreList.map((list, index) => {
-      return (
-        <span>
-          <div className={current == index + 1 ? "currentNav navItem" : "navItem"} onClick={() => this.scrollElem(index)}>
-            <i className={current == index + 1 ? "fa fa-star" : "fa fa-star-o"}></i>&nbsp;&nbsp;
-              {list.title}
-          </div>
-          {(appStoreList.length - 1 > index) ? [<div className="line"></div>] : null}
-        </span>
-      )
-    })
     return (
       <QueueAnim className="ImageStoreBox"
         type="right"
-        onScroll={this.windowScroll.bind(this)}
         ref="ImageStoreBox"
         key="ImageStoreBox"
-        >
-        <div className="nav">
-          {storeList}
-          <Title title="应用商店" />
-        </div>
+      >
+        <Title title="应用商店" />
         <MyComponent key="ImageStoreBox-component" scope={scope} config={this.props.appStoreList} />
         <Modal
           visible={this.state.detailModal}

@@ -1,14 +1,39 @@
 {
-  "presets": ["es2015", "react", "stage-0"],
+  "presets": [
+    [
+      "@babel/env",
+      {
+        "targets": {
+          "browsers": [
+            "last 2 versions",
+            "iOS >= 9",
+            "safari >= 7",
+            "IE 11"
+          ]
+        },
+        "debug": false,
+        "useBuiltIns": "entry",
+        "modules": false
+      }
+    ],
+    "@babel/react",
+    "@babel/stage-0"
+  ],
   "env": {
     "development": {
-      "presets": ["react-hmre"]
+      "plugins": [
+        "react-hot-loader/babel"
+      ]
     }
   },
   "plugins": [
-    "transform-runtime",
-    ["antd", {
-      "style": "css"
-    }]
+    "@babel/transform-runtime",
+    [
+      "import",
+      {
+        "libraryName": "antd",
+        "libraryDirectory": "lib"
+      }
+    ]
   ]
 }

@@ -25,7 +25,7 @@ const DEFAULT_CONFIG = {
 // Set notification global
 notification.config(DEFAULT_CONFIG)
 
-class Notification {
+export default class Notification {
   // timeout is optional, and used for loading interval
   constructor(timeout) {
     // generate a key, only required for loading notification
@@ -189,5 +189,3 @@ class Notification {
     })
   }
 }
-
-module.exports = Notification

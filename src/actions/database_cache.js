@@ -198,7 +198,7 @@ function deleteDbCluster(cluster, dbName, clusterTypes ,callback) {
     cluster,
     [FETCH_API]: {
       types: [DELETE_DATABASE_CACHE_REQUEST, DELETE_DATABASE_CACHE_SUCCESS, DELETE_DATABASE_CACHE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/dbservices/${dbName}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/dbservices/${dbName}?type=${clusterTypes}`,
       options: {
         method: 'DELETE'
       },

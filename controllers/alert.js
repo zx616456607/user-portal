@@ -383,10 +383,34 @@ exports.getTargetInstant = function* () {
     type: 'network/rx_rate',
     source: 'prometheus'
   }
+  let tcp_listen = {
+    targetType: type,
+    type: 'tcp/listen_state',
+    source: 'prometheus'
+  }
+  let tcp_est = {
+    targetType: type,
+    type: 'tcp/est_state',
+    source: 'prometheus'
+  }
+  let tcp_close = {
+    targetType: type,
+    type: 'tcp/close_wait_state',
+    source: 'prometheus'
+  }
+  let tcp_time = {
+    targetType: type,
+    type: 'tcp/time_wait_state',
+    source: 'prometheus'
+  }
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], cpu))
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], mem))
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tx_rage))
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], rx_rate))
+  reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_listen))
+  reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_est))
+  reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_close))
+  reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_time))
   if(type == 'node'){
     let disk = {
       targetType: type,
@@ -444,7 +468,11 @@ exports.getTargetInstant = function* () {
       memory: memory,
       tx_rate: results[2].data[name],
       rx_rate: results[3].data[name],
-      disk: results[4] ? results[4].data[name] : null
+      disk: results[4] ? results[4].data[name] : null,
+      tcpListen: results[5].data[name],
+      tcpEst: results[6].data[name],
+      tcpClose: results[7].data[name],
+      tcpTime: results[8].data[name]
     }
   }
 }

@@ -29,9 +29,11 @@ import NotificationHandler from '../../../../../components/Notification'
 import { isStandardMode } from '../../../../../common/tools'
 import PopTabSelect from '../../../../PopTabSelect'
 import { loadClusterList } from '../../../../../actions/cluster'
+import { getStorageClassType } from '../../../../../actions/storage'
 import { getAllClusterNodes } from '../../../../../actions/cluster_node'
 import DockerfileModal from '../../../DockerfileModal'
 import AddCachedVolumeModal from '../../CachedVolumes/AddModal'
+import { TENX_STORE } from '../../../../../../constants/index'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -274,6 +276,7 @@ let CreateTenxFlowModal = React.createClass({
       cachedVolumes: [],
       addCachedVolumeModal: false,
       shellDefaultCmd: [],
+      isPrivateStorageInstall: false,
     }
   },
   getUniformRepo() {
@@ -301,7 +304,28 @@ let CreateTenxFlowModal = React.createClass({
     // const {getAvailableImage} = this.props
     // getAvailableImage()
     const { loadClusterList, loadProjectList } = this.props
-    loadClusterList()
+    const notificationHandler = new NotificationHandler()
+    loadClusterList({}, {
+      success: {
+        func: res => {
+          const clusterList = res.data
+          let initialBuilderCluster = undefined
+          for (let i = 0; i < clusterList.length; i++) {
+            if (clusterList[i].isBuilder) {
+              initialBuilderCluster = clusterList[i].clusterID
+              break
+            }
+          }
+          this.getClusterStroageClassType(initialBuilderCluster)
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: res => {
+          notificationHandler.error('获取构建环境列表失败，请刷新页面重试')
+        }
+      }
+    })
     loadProjectList(DEFAULT_REGISTRY, { page_size: 100 })
   },
   loadBaseImageConfig(imageNameAndTag) {
@@ -1096,6 +1120,28 @@ let CreateTenxFlowModal = React.createClass({
       return <Option value={item.id}>{item.title}</Option>
     })
   },
+  getClusterStroageClassType (cluster) {
+    if (!cluster) {
+      return
+    }
+    const { getStorageClassType } = this.props
+    const notificationHandler = new NotificationHandler()
+    getStorageClassType(cluster, {
+      success: {
+        func: res => {
+          const storageClassType = res.data
+          if (storageClassType.private) {
+            this.setState({
+              isPrivateStorageInstall: true
+            })
+          }
+        }
+      },
+      failed: res => {
+        notificationHandler.error('获取构建环境存储配置失败，请重新选择构建环境或刷新页面重试')
+      }
+    })
+  },
   addOtherImage() {
     this.setState({
       addOtherImage: false
@@ -1458,7 +1504,8 @@ let CreateTenxFlowModal = React.createClass({
       rules: [
         { message: '请选择构建集群', required: isStandardMode() ? false : true }
       ],
-      initialValue: buildClusters[0]
+      initialValue: buildClusters[0],
+      onChange: this.getClusterStroageClassType,
     })
     const buildArea = getFieldProps('buildArea', {
       rules: [
@@ -1493,7 +1540,7 @@ let CreateTenxFlowModal = React.createClass({
         }
       </Button>
     )
-    const isPrivateStorageInstall = this.props.storageClassType && this.props.storageClassType.private
+    const { isPrivateStorageInstall } = this.state
     return (
       <div id='CreateTenxFlowModal' key='CreateTenxFlowModal'>
         <div className='titleBox'>
@@ -1757,7 +1804,7 @@ let CreateTenxFlowModal = React.createClass({
                           (this.props.harborProjects.list || []).map(project => {
                             const currentRoleId = project[camelize('current_user_role_id')]
                             return (
-                              <Option key={project.name} disabled={currentRoleId === 3}>
+                              <Option key={project.name} disabled={currentRoleId === 3 || project.name === TENX_STORE}>
                                 {project.name} {currentRoleId == 3 && '（访客）'}
                               </Option>
                             )
@@ -1881,7 +1928,7 @@ let CreateTenxFlowModal = React.createClass({
                 {
                   !isPrivateStorageInstall &&
                   <div className="storageInstallAlert">
-                    <Alert showIcon message="尚未配置块存储集群，暂不能配置缓存卷" type="warning" />
+                    <Alert showIcon message="该构建环境尚未配置块存储，暂不能配置缓存卷" type="warning" />
                   </div>
                 }
                 <div className="customizeBaseImage cachedVolumes">
@@ -2104,12 +2151,10 @@ function mapStateToProps(state, props) {
     newList.push(project)
   })
   harborProjects.list = newList.concat(visitorList)
-  const currentCluster = state.entities.current.cluster
   return {
     clusters,
     clustersNodes,
     harborProjects,
-    storageClassType: currentCluster.storageClassType || {},
   }
 }
 
@@ -2128,6 +2173,7 @@ export default connect(mapStateToProps, {
   loadProjectList,
   createScripts,
   loadRepositoriesTagConfigInfo,
+  getStorageClassType,
 })(injectIntl(CreateTenxFlowModal, {
   withRef: true,
 }));

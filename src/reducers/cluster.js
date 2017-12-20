@@ -211,16 +211,6 @@ export default function cluster(state = {
       FAILURE: ActionTypes.GET_HOST_INFO_FAILURE,
     }, state.hostInfo, action, option),
     podeList: podeList(state.podeList, action),
-    staticInfo: reducerFactory({
-      REQUEST: ActionTypes.GET_CLUSTER_STATIC_REQUEST,
-      SUCCESS: ActionTypes.GET_CLUSTER_STATIC_SUCCESS,
-      FAILURE: ActionTypes.GET_CLUSTER_STATIC_FAILURE,
-    }, state.staticInfo, action, option),
-    dynamicInfo: reducerFactory({
-      REQUEST: ActionTypes.GET_CLUSTER_DYNAMIC_REQUEST,
-      SUCCESS: ActionTypes.GET_CLUSTER_DYNAMIC_SUCCESS,
-      FAILURE: ActionTypes.GET_CLUSTER_DYNAMIC_FAILURE,
-    }, state.dynamicInfo, action, option),
     hostMetrics: reducerFactory({
       REQUEST: ActionTypes.LOAD_HOST_METRICS_REQUEST,
       SUCCESS: ActionTypes.LOAD_HOST_METRICS_SUCCESS,

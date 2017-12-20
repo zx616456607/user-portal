@@ -735,7 +735,7 @@ let Vm = React.createClass({
         success: {
           func: (result) => {
             notification.close()
-            notification.success('微服务配置保存成功')
+            notification.success('传统应用配置保存成功')
             const { form } = self.props
             const { getFieldProps, getFieldValue, setFieldsValue } = form
             self.handleMsa()
@@ -762,7 +762,7 @@ let Vm = React.createClass({
             } else {
               msg = err.message
             }
-            notification.error('微服务配置保存失败 => ' + msg)
+            notification.error('传统应用配置保存失败 => ' + msg)
             this.setState({
               canClick: true
             })
@@ -818,7 +818,7 @@ let Vm = React.createClass({
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem >
-                  <Input {...urlProps} placeholder="如：https://192.168.1.113:4081" disabled={vmDisable} id='vmAppAgent'/>
+                  <Input {...urlProps} placeholder="如：https://192.168.1.113:19005" disabled={vmDisable} id='vmAppAgent'/>
                 </FormItem>
                 <FormItem>
                   {

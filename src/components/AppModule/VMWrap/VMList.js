@@ -304,13 +304,13 @@ class VMList extends React.Component {
   
   renderStatus(record) {
     let successCount = 0
-    let javeMessage = ''
+    let javaMessage = ''
     let tomcatMessage = ''
     if (!record.javaStatus) {
       successCount++
-      javeMessage = 'jre正常'
+      javaMessage = 'jre正常'
     } else {
-      javeMessage = 'jre异常'
+      javaMessage = 'jre异常'
     }
     if (!record.tomcatStatus) {
       successCount++
@@ -329,7 +329,7 @@ class VMList extends React.Component {
             successCount !== 2 &&
               <Tooltip
                 title={
-                  tomcatMessage + ' ' + javeMessage
+                  tomcatMessage + ' ' + javaMessage
                 }
               >
                 <Icon type="exclamation-circle-o" className="warnColor" style={{ marginRight: 5 }}/>

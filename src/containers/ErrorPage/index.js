@@ -50,7 +50,7 @@ class ErrorPage extends Component {
     }
     return (
       <div id='NotFoundErrorPageBox' className='CommonSecondContent'>
-        <p className='codeTitle'>{code}</p>
+        {/* <p className='codeTitle'>{code}</p> */}
         <img className='errorImg' src={error404PNG} />
         <p>{message}</p>
         <div>
@@ -72,7 +72,7 @@ ErrorPage.defaultProps = {
   code: 404,
   errorMessage: {
     error: {
-      message: "Page not found"
+      message: "当前操作目标不存在，请确认是否已执行完毕后退出或对象已删除"
     }
   },
 }

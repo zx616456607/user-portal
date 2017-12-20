@@ -23,6 +23,7 @@ build_user_portal() {
 
 build_user_portal_backend() {
   set -x
+  set +e
   echo "start build backtend files ..."
   outputPath="dist"
   tmp="user_portal_tmp"
@@ -59,6 +60,7 @@ build_user_portal_backend() {
   fi
 
   set +x
+  set -e
 }
 
 project="user-portal 2.0"

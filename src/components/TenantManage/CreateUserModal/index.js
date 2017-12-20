@@ -14,7 +14,9 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Input, Modal, Form, Radio, Checkbox, Tooltip, Icon, Button, Select } from 'antd'
 import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
-import { ROLE_SYS_ADMIN, CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID } from '../../../../constants'
+import {
+  PHONE_REGEX, ROLE_SYS_ADMIN, CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID,
+} from '../../../../constants'
 import { serviceNameCheck } from '../../../common/naming_validation'
 const Option = Select.Option
 const createForm = Form.create
@@ -101,7 +103,7 @@ let CreateUserModal = React.createClass({
     callback()
   },
   telExists(rule, value, callback) {
-    if (!/^[0-9][-0-9()]{5,12}[0-9]$/.test(value)) {
+    if (!PHONE_REGEX.test(value)) {
       callback([new Error('请输入正确的手机号')])
       return
     }
