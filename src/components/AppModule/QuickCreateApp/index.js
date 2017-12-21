@@ -126,6 +126,7 @@ class QuickCreateApp extends Component {
     this.removeAllFormFieldsAsync(this.props)
     window.WrapListTable = null
   }
+
   getExistentServices() {
     const { loadServiceList, current, location } = this.props
     let serviceList = []
@@ -337,8 +338,11 @@ class QuickCreateApp extends Component {
         })
       }
       // if create service, update the configure service key
+      // use timeout: when history change generate a new configure serivce key
       if (this.configureMode === 'create') {
-        this.configureServiceKey = this.genConfigureServiceKey()
+        setTimeout(() => {
+          this.configureServiceKey = this.genConfigureServiceKey()
+        }, 50)
       }
       if (options && options.addWrap) {
         browserHistory.push(`/app_manage/app_create/quick_create?appName=${values.appName}&addWrap=true`)
