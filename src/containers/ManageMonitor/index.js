@@ -24,10 +24,6 @@ const menuList = [
     name: '日志查询'
   },
   {
-    url: '/manange_monitor/panel',
-    name: '监控面板'
-  },
-  {
     url: '/manange_monitor/alarm_setting',
     name:'告警设置'
   },

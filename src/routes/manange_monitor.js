@@ -16,10 +16,6 @@ const manangeMonitorRoutes = [
     component: require('../components/ManageMonitor/QueryLog').default,
   },
   {
-    path: 'panel',
-    component: require('../components/ManageMonitor/MonitorPanel').default,
-  },
-  {
     path: 'alarm_setting',
     component: require('../components/ManageMonitor/AlarmSetting').default
   },
