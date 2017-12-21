@@ -52,7 +52,7 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
         options.contentType = object.options.contentType
       }
       options.headers = object.options.headers
-      options.timeout = object.options.timeout
+      options.timeout = object.options.timeout || timeout
       options.streaming = object.options.streaming
     }
 
