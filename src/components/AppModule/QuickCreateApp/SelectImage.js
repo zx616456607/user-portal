@@ -318,7 +318,7 @@ class SelectImage extends Component {
     const { imageType, imageFilter, searchInputValue } = this.state
     const noTabimageList = (
       <div>
-        <div style={{height: "28px"}}></div>
+        {/* <div style={{height: "28px"}}></div> */}
         {this.renderImageList(images)}
       </div>
     )
