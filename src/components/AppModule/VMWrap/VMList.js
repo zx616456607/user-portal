@@ -76,14 +76,19 @@ class VMList extends React.Component {
         isAsync: true,
       },
       failed: {
-        success: {
-          func: res => {
-            if (res.statusCode < 500) {
-              notify.warn('获取数据失败', res.message || res.message.message)
-            } else {
-              notify.error('获取数据失败', res.message || res.message.message)
-            }
+        func: res => {
+          if (res.statusCode < 500) {
+            notify.warn('获取数据失败', res.message || res.message.message)
+          } else {
+            notify.error('获取数据失败', res.message || res.message.message)
           }
+        }
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            isLoading: false
+          })
         }
       }
     })
@@ -304,25 +309,49 @@ class VMList extends React.Component {
   
   renderStatus(record) {
     let successCount = 0
+    let errorCount = 0
+    let startCount = 0
     let javaMessage = ''
     let tomcatMessage = ''
-    if (!record.javaStatus) {
-      successCount++
-      javaMessage = 'jre正常'
-    } else {
-      javaMessage = 'jre异常'
+    switch (record.javaStatus) {
+      case 0:
+        javaMessage = 'jre启动中'
+        startCount ++
+        break
+      case 1:
+        javaMessage = 'jre停止'
+        errorCount ++
+        break
+      case 2:
+        javaMessage = 'jre运行中'
+        successCount ++
+        break
+      default:
+        break
     }
-    if (!record.tomcatStatus) {
-      successCount++
-      tomcatMessage = 'tomcat正常'
-    } else {
-      tomcatMessage = 'tomcat异常'
+    switch (record.tomcatStatus) {
+      case 0:
+        tomcatMessage = 'tomcat启动中'
+        startCount ++
+        break
+      case 1:
+        tomcatMessage = 'tomcat停止'
+        errorCount ++
+        break
+      case 2:
+        tomcatMessage = 'tomcat运行中'
+        successCount ++
+        break
+      default:
+        break
     }
     return(
       <div>
-        <div className={successCount === 2 ? 'successColor' : 'warnColor'}>
-          <i className={classNames("circle", {'successCircle': successCount === 2, 'warnCircle': successCount !== 2})}/>
-          {successCount === 2 ? '正常' : '异常'}
+        <div className={errorCount ? 'warnColor' : 'successColor'}>
+          <i className={classNames("circle", {'successCircle': !errorCount, 'warnCircle': errorCount})}/>
+          {successCount === 2 ? '正常' : ''}
+          {errorCount ? '异常' : ''}
+          {!errorCount && startCount ? '启动中' : ''}
         </div>
         <div>
           {
