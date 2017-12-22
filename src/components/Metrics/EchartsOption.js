@@ -78,7 +78,10 @@ export default class EchartsOption {
   setXAxis(key, option) {
     this.xAxis[key] = option
   }
-
+  
+  setGrid(grid) {
+    this.grid = grid
+  }
   setXAxisMinAndMax(min, max) {
     min && (this.xAxis.min = min)
     max && (this.xAxis.max = max)

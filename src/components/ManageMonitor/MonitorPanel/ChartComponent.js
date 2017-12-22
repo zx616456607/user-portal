@@ -26,9 +26,15 @@ export default class ChartComponent extends React.Component {
     const { isFetching, data } = sourceData
     const option = new EchartsOption('')
     option.addYAxis('value', {
-      formatter: '{value} 个'
+      formatter: '{value}'
     })
     option.setToolTipUnit(' 个')
+    option.setGrid([{
+      top: 50,
+      left: 50,
+      right: 20,
+      bottom: 20
+    }])
     data && data.map((item) => {
       let timeData = []
       let values = []
