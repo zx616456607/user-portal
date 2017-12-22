@@ -106,16 +106,13 @@ class MonitorChartModal extends React.Component {
   }
   
   changeExport(proxyID) {
-    const { getProxiesService, clusterID,  } = this.props
+    const { getProxiesService, clusterID } = this.props
     getProxiesService(clusterID, proxyID)
   }
   
   targetCheck(rule, value, callback) {
     if (!value) {
       return callback('请选择监控对象')
-    }
-    if (value.length > 5) {
-      return callback('监控对象不能多于5个')
     }
     callback()
   }
