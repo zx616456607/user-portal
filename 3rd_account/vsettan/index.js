@@ -11,7 +11,7 @@
 const vsettanConfig = require('../../configs/3rd_account/vsettan.js')
 const urllib = require('urllib')
 const apiFactory = require('../../services/api_factory.js')
-const logger = require('../../utils/logger').getLogger('vsettan')
+const logger = require('../../utils/logger').getLogger('3rd_account/vsettan')
 const uuid = require('uuid')
 
 exports.vsettanLogin = function* (next) {
