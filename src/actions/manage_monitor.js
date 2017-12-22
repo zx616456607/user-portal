@@ -456,9 +456,9 @@ export const GET_MONITOR_METRICS_REQUEST = 'GET_MONITOR_METRICS_REQUEST'
 export const GET_MONITOR_METRICS_SUCCESS = 'GET_MONITOR_METRICS_SUCCESS'
 export const GET_MONITOR_METRICS_FAILURE = 'GET_MONITOR_METRICS_FAILURE'
 
-function fetchMonitorMetrics(clusterID, lbgroup, services, query, callback) {
+function fetchMonitorMetrics(panelID, chartID, clusterID, lbgroup, services, query, callback) {
   return {
-    query: toQuerystring(query),
+    monitorID: panelID + chartID,
     [FETCH_API]: {
       types: [GET_MONITOR_METRICS_REQUEST,GET_MONITOR_METRICS_SUCCESS,GET_MONITOR_METRICS_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/metric/nexport/${lbgroup}/service/${services}/metrics?${toQuerystring(query)}`,
@@ -468,6 +468,6 @@ function fetchMonitorMetrics(clusterID, lbgroup, services, query, callback) {
   }
 }
 
-export function getMonitorMetrics(clusterID, lbgroup, services, query, callback) {
-  return dispatch => dispatch(fetchMonitorMetrics(clusterID, lbgroup, services, query, callback))
+export function getMonitorMetrics(panelID, chartID, clusterID, lbgroup, services, query, callback) {
+  return dispatch => dispatch(fetchMonitorMetrics(panelID, chartID, clusterID, lbgroup, services, query, callback))
 }

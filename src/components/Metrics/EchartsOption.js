@@ -75,8 +75,8 @@ export default class EchartsOption {
     this.series = []
   }
 
-  setXAxis(xAxis) {
-    this.xAxis = xAxis
+  setXAxis(key, option) {
+    this.xAxis[key] = option
   }
 
   setXAxisMinAndMax(min, max) {
