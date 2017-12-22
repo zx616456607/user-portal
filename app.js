@@ -294,9 +294,13 @@ app.use(apiRoutes(Router))
 const proxyRoutes = require('./routes/proxy')
 app.use(proxyRoutes(Router))
 
-//3rd_account vsettan
+// 3rd_account vsettan
 const vsettan = require('./routes/3rd_account/vsettan/no_auth')
 app.use(vsettan(Router))
+
+// 3rd_account cas
+const cas = require('./routes/3rd_account/cas/no_auth')
+app.use(cas(Router))
 
 // Serve static files
 app.use(function* (next){
