@@ -10,52 +10,61 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Tabs, Button } from 'antd'
-import cloneDeep from 'lodash/cloneDeep'
+import { Tabs, Button, Spin } from 'antd'
 import './style/index.less'
 import PanelContent from './PanelContent'
 import PanelModal from './PanelModal'
 import MonitorChartModal from './MonitorChartModal'
+import { getPanelList, createPanel, updatePanel, getChartList } from '../../../actions/manage_monitor'
 
 const TabPane = Tabs.TabPane;
 
 class MonitorPanel extends React.Component {
   constructor(props) {
     super(props)
-    this.add = this.add.bind(this)
     this.onChange = this.onChange.bind(this)
-    this.onEdit = this.onEdit.bind(this)
-    this.remove = this.remove.bind(this)
     this.closePanelModal = this.closePanelModal.bind(this)
     this.openPanelModal = this.openPanelModal.bind(this)
-    this.editPanel = this.editPanel.bind(this)
     this.openChartModal = this.openChartModal.bind(this)
     this.closeChartModal = this.closeChartModal.bind(this)
-    this.newTabIndex = 0;
-    let btnGroupFunc = {
-      openModal: this.openPanelModal,
-      openChartModal: this.openChartModal
-    }
-    const panes = [
-      { 
-        title: '出口监控', 
-        content: <PanelContent
-          currentPanel={{ title: '出口监控', key: '1' }}
-          btnGroupFunc={btnGroupFunc}
-        />, 
-        key: '1' 
-      }
-    ];
+    this.onChange = this.onChange.bind(this)
+    this.getPanes = this.getPanes.bind(this)
     this.state = {
-      activeKey: panes[0].key,
-      panes,
+      activeKey: ''
     }
   }
-  onChange(activeKey) {
-    this.setState({ activeKey });
+  
+  componentDidMount() {
+    const { getPanelList, clusterID, getChartList } = this.props
+    getPanelList(clusterID, {
+      success: {
+        func: res => {
+          const panels = res.data.panels
+          if (panels && panels.length) {
+            this.setState({
+              activeKey: panels[0]['iD']
+            })
+            getChartList(clusterID, {
+              panel_id: panels[0]['iD']
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
   }
-  onEdit(targetKey, action) {
-    this[action](targetKey);
+  
+  getPanes() {
+    const { getPanelList, clusterID } = this.props
+    getPanelList(clusterID)
+  }
+  
+  onChange(activeKey) {
+    const { getChartList, clusterID } = this.props
+    this.setState({ activeKey });
+    getChartList(clusterID, {
+      panel_id: activeKey
+    })
   }
   openPanelModal(currentPanel) {
     this.setState({
@@ -69,52 +78,12 @@ class MonitorPanel extends React.Component {
       currentPanel: null
     })
   }
-  add(title) {
-    let btnGroupFunc = {
-      openModal: this.openPanelModal,
-      openChartModal: this.openChartModal
-    }
-    const panes = this.state.panes;
-    const activeKey = `newTab${this.newTabIndex++}`;
-    panes.push({ 
-      title: title, 
-      content: <PanelContent 
-        currentPanel={{ title, key: activeKey }}
-        btnGroupFunc={btnGroupFunc}/>, 
-      key: activeKey });
-    this.setState({ panes, activeKey });
-  }
-  editPanel(title, activeKey) {
-    const panes = cloneDeep(this.state.panes);
-    panes.forEach(item => {
-      if (item.key === activeKey) {
-        item.title = title
-      }
-    })
-    this.setState({
-      panes,
-    })
-  }
   
-  remove(targetKey) {
-    let activeKey = this.state.activeKey;
-    let lastIndex;
-    this.state.panes.forEach((pane, i) => {
-      if (pane.key === targetKey) {
-        lastIndex = i - 1;
-      }
-    });
-    const panes = this.state.panes.filter(pane => pane.key !== targetKey);
-    if (lastIndex >= 0 && activeKey === targetKey) {
-      activeKey = panes[lastIndex].key;
-    }
-    this.setState({ panes, activeKey });
-  }
-  
-  openChartModal(currentChart) {
+  openChartModal(panel_id,currentChart) {
     this.setState({
       chartModal: true,
       currentChart,
+      panel_id
     })
   }
   
@@ -126,56 +95,84 @@ class MonitorPanel extends React.Component {
   }
   
   render() {
-    const { panes, panelModal, currentPanel, chartModal, currentChart } = this.state
+    const { panels, clusterID, isFetching } = this.props
+    const { activeKey, panelModal, currentPanel, chartModal, currentChart, panel_id } = this.state
+    if (isFetching) {
+      return <div className="loadingBox">
+        <Spin size="large"/>
+      </div>
+    }
     const panelFunc = {
       closeModal: this.closePanelModal,
-      addPanel: this.add,
-      editPanel: this.editPanel,
-      removePanel: this.remove,
+      getPanes: this.getPanes,
+      currentPanel,
+      visible: panelModal,
+      clusterID,
+      activeKey
     }
     const chartFunc = {
       closeModal: this.closeChartModal,
+      visible: chartModal,
+      currentChart,
+      panel_id,
+      clusterID
+    }
+    const contentFunc = {
+      openModal: this.openPanelModal, 
+      openChartModal: this.openChartModal,
+      clusterID,
+      activeKey
     }
     return (
       <div className="monitorPanel">
-        <Button type="primary" size="large" className="addMonitorBtn pointer" onClick={() => this.openPanelModal(null)} icon="plus">添加监控</Button>
+        <Button type="primary" size="large" className="addMonitorBtn pointer" onClick={() => this.openPanelModal(null)} icon="plus">添加监控面板</Button>
         {
           panelModal &&
           <PanelModal
-            visible={panelModal}
-            currentPanel={currentPanel}
-            callbackFunc={panelFunc}
+            {...panelFunc}
           />
         }
         {
           chartModal &&
           <MonitorChartModal
-            visible={chartModal}
-            currentChart={currentChart}
-            chartFunc={chartFunc}
+            {...chartFunc}
           />
         }
-        <Tabs
-          className="monitorTabs"
-          hideAdd
-          onChange={this.onChange}
-          activeKey={this.state.activeKey}
-          type="editable-card"
-          onEdit={this.onEdit}
-        >
-          {panes.map(pane => <TabPane tab={pane.title} key={pane.key}>{pane.content}</TabPane>)}
-        </Tabs>
+        {
+          panels && panels.length &&
+          <Tabs
+            className="monitorTabs"
+            hideAdd
+            onChange={this.onChange}
+            activeKey={activeKey}
+            type="editable-card"
+          >
+            {
+              panels.map(pane => <TabPane tab={pane.name} key={pane.iD}>{<PanelContent currentPanel={pane} {...contentFunc}/>}</TabPane>)
+            }
+          </Tabs>
+        }
       </div>
     )
   }
 }
 
 function mapStateToProps(state) {
+  const { entities, manageMonitor } = state
+  const { cluster } = entities.current
+  const { clusterID } = cluster
+  const { monitorPanel } = manageMonitor
+  const { panels, isFetching } = monitorPanel || { panels: {}}
   return {
-    
+    clusterID,
+    panels,
+    isFetching
   }
 }
 
 export default connect(mapStateToProps, {
-  
+  getPanelList,
+  createPanel, 
+  updatePanel,
+  getChartList
 })(MonitorPanel)
