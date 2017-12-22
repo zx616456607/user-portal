@@ -39,7 +39,7 @@ class MonitorChartTemp extends React.Component {
   render() {
     const { currentChart, monitorMetrics  } = this.props
     return (
-      <Card title={currentChart.name} className="chartBody" extra={this.cardExtra()}>
+      <Card title={`${currentChart.name}（个）`} className="chartBody" extra={this.cardExtra()}>
         <ChartComponent
           sourceData={monitorMetrics}
         />
