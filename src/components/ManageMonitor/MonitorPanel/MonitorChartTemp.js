@@ -9,21 +9,49 @@
  */
 
 import React from 'react'
+import { connect } from 'react-redux'
 import { Card, Button, Icon } from 'antd'
+import EchartsOption from '../../Metrics/EchartsOption'
+import { getMonitorMetrics } from '../../../actions/manage_monitor'
 
-export default class MonitorChartTemp extends React.Component {
+class MonitorChartTemp extends React.Component {
+  
+  componentDidMount() {
+    const { currentChart, getMonitorMetrics, clusterID } = this.props
+    const { content, metrics } = currentChart
+    let parseContent = JSON.parse(content)
+    let lbgroup = Object.keys(parseContent)[0]
+    let services = parseContent[lbgroup]
+    const query = {
+      type: metrics,
+      source: 'prometheus',
+      start: '2017-12-21T06%3A13%3A11.070Z'
+    }
+    getMonitorMetrics(clusterID, lbgroup, services, query)
+  }
   cardExtra() {
+    const { openChartModal, currentPanel, currentChart } = this.props
     return [
       <Icon key="salt" type="arrow-salt" />,
-      <Icon key="setting" type="setting" />
+      <Icon key="setting" type="setting" onClick={() => openChartModal(currentPanel.iD, currentChart)}/>
     ]
   }
   render() {
-    const { title } = this.props
+    const { currentChart, clusterID } = this.props
     return (
-      <Card title={title} className="chartBody" extra={this.cardExtra()}>
+      <Card title={currentChart.name} className="chartBody" extra={this.cardExtra()}>
         
       </Card>
     )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    
+  }
+}
+
+export default connect(mapStateToProps, {
+  getMonitorMetrics
+})(MonitorChartTemp)
