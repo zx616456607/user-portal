@@ -296,28 +296,42 @@ function proxiesServices(state = {}, action) {
   }
 }
 
+function formatMetric(result) {
+  let data = []
+  for (let i in result) {
+    if (i === 'statusCode') {
+      break
+    }
+    let obj = {
+      name: i,
+      ...result[i]
+    }
+    data.push(obj)
+  }
+  return data
+}
 function monitorMetrics(state = {}, action) {
-  const { query } = action
+  const { monitorID } = action
   switch(action.type) {
     case ActionTypes.GET_MONITOR_METRICS_REQUEST:
       return {
         ...state,
-        [query]: Object.assign({}, state[query], {
+        [monitorID]: Object.assign({}, state[monitorID], {
           isFetching: true
         })
       }
     case ActionTypes.GET_MONITOR_METRICS_SUCCESS:
       return {
         ...state,
-        [query]: Object.assign({}, state[query], {
+        [monitorID]: Object.assign({}, state[monitorID], {
           isFetching: false,
-          ...action.response.result
+          data: formatMetric(action.response.result)
         })
       }
     case ActionTypes.GET_MONITOR_METRICS_FAILURE:
       return {
         ...state,
-        [query]: Object.assign(({}, state[query], {
+        [monitorID]: Object.assign(({}, state[monitorID], {
           isFetching: false
         }))
       }
