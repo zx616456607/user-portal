@@ -20,8 +20,7 @@ const emailUtil = require("../utils/email")
 const security = require("../utils/security")
 const cas = require('../3rd_account/cas')
 
-const isCasMode = true
-// const isCasMode = !!process.env.CAS_SSO_BASE
+const isCasMode = !!process.env.CAS_SSO_BASE
 
 exports.login = function* () {
   let method = 'login'
