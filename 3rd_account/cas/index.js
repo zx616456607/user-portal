@@ -42,14 +42,6 @@ class Cas {
     })
   }
 
-  getTicket(ticket) {
-    const validateUrl = this.ssoBase + '/v1/tickets/' + ticket
-    logger.info('validateUrl', validateUrl)
-    return urllib.request(validateUrl, {
-      dataType: 'text',
-    })
-  }
-
   parseXml(xml) {
     return new Promise((resolve, reject) => {
       xml2js.parseString(xml, {
@@ -89,22 +81,43 @@ function* casLogin(next) {
     this.redirect(authUrl)
     return
   }
-  // if (validateRes.authenticationsuccess)
-  console.log('authenticationsuccess', validateRes.authenticationsuccess)
-  const ticketRes = yield cas.getTicket(ticket)
-  console.log('ticketRes', ticketRes.data)
-  console.log('ticketRes', ticketRes.res.statusCode)
-  // check if user exist
-  /* const userName = validateRes.authenticationsuccess.user
-  const userInfo = yield spi.users.getBy([ username, 'existence' ])
-  if (userInfo.data) {
-    //
-  } */
-  yield next
+  const userAttributes = validateRes.authenticationsuccess.attributes || {}
+  const user = {
+    userName: validateRes.authenticationsuccess.user,
+    password: uuid.v4(),
+    email: userAttributes.emailaddress,
+    phone: userAttributes.mobilephone || userAttributes.phone_no,
+    is_3rd_account: 1,
+    accountType: 'cas',
+    accountID: userAttributes.userid,
+    accountDetail: JSON.stringify(userAttributes),
+  }
+  this.request.body = {
+    accountType: user.accountType,
+    accountID: user.accountID,
+    userName: user.userName
+  }
+  const spi = apiFactory.getTenxSysSignSpi()
+  try {
+    // check if user exist
+    const userExistence = yield spi.users.getBy([ user.userName, 'existence' ])
+    // user exist, login success
+    if (userExistence.data) {
+      yield next
+      return this.redirect('/')
+    }
+    // user not exist, create a new user
+    yield spi.users.createBy([ '3rdparty-account' ], null, user)
+    yield next
+    this.redirect('/')
+  } catch (error) {
+    logger.error('get or insert user to db failed: ', error.stack)
+    this.redirect(authUrl)
+  }
 }
 exports.casLogin = casLogin
 
-function* casLogout() {
+function casLogout() {
   this.redirect(`${cas.ssoBase}/logout`)
 }
 exports.casLogout = casLogout
