@@ -35,7 +35,7 @@ const btnArr = [{
   text: '30天',
 }]
 
-export default class ApmTimePicker extends React.Component {
+export default class PanelBtnGroup extends React.Component {
   static propTypes = {
     // 时间范围
     value: PropTypes.array,
@@ -158,11 +158,10 @@ export default class ApmTimePicker extends React.Component {
   }
   render() {
     const { value, isRangeTime, currentRadio } = this.state
-    const { currentPanel, btnGroupFunc } = this.props
-    const { openModal, openChartModal } = btnGroupFunc
+    const { currentPanel, openModal, openChartModal } = this.props
     return (
       <div className="monitor-timepicker">
-        <Button className="addChartBtn" size="large" type="primary" icon="plus" onClick={() => openChartModal(null)}>添加图标</Button>
+        <Button className="addChartBtn" size="large" type="primary" icon="plus" onClick={() => openChartModal(currentPanel.iD, null)}>添加图表</Button>
         <Button size="large" type="ghost"><i className='fa fa-refresh' /> 刷新</Button>
         <div className="right-part">
           <Button

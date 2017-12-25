@@ -10,6 +10,7 @@
 
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
+import {toQuerystring} from "../common/tools";
 
 export const GET_MANAGE_MONITOR_LOG_REQUEST = 'GET_MANAGE_MONITOR_LOG_REQUEST'
 export const GET_MANAGE_MONITOR_LOG_SUCCESS = 'GET_MANAGE_MONITOR_LOG_SUCCESS'
@@ -193,4 +194,280 @@ export function searchFileLogOfQueryLog(searchValue, callback){
     searchValue,
     callback,
   }
+}
+
+export const GET_PANEL_LIST_REQUEST = 'GET_PANEL_LIST_REQUEST'
+export const GET_PANEL_LIST_SUCCESS = 'GET_PANEL_LIST_SUCCESS'
+export const GET_PANEL_LIST_FAILURE = 'GET_PANEL_LIST_FAILURE'
+
+function fetchPanelList(clusterId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_PANEL_LIST_REQUEST,GET_PANEL_LIST_SUCCESS,GET_PANEL_LIST_FAILURE],
+      endpoint:`${API_URL_PREFIX}/clusters/${clusterId}/metric/panels`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getPanelList(clusterId, callback) {
+  return dispatch => dispatch(fetchPanelList(clusterId, callback))
+}
+
+export const CHECK_PANEL_NAME_REQUEST = 'CHECK_PANEL_NAME_REQUEST'
+export const CHECK_PANEL_NAME_SUCCESS = 'CHECK_PANEL_NAME_SUCCESS'
+export const CHECK_PANEL_NAME_FAILURE = 'CHECK_PANEL_NAME_FAILURE'
+
+function fetchCheckPanelName(clusterID, name, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CHECK_PANEL_NAME_REQUEST,CHECK_PANEL_NAME_SUCCESS,CHECK_PANEL_NAME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/metric/panels/${name}/check`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function checkPanelName(clusterID, name, callback) {
+  return dispatch => dispatch(fetchCheckPanelName(clusterID, name, callback))
+}
+
+export const CREATE_PANEL_REQUEST = 'CREATE_PANEL_REQUEST'
+export const CREATE_PANEL_SUCCESS = 'CREATE_PANEL_SUCCESS'
+export const CREATE_PANEL_FAILURE = 'CREATE_PANEL_FAILURE'
+
+function fetchCreatePanel(clusterId, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CREATE_PANEL_REQUEST,CREATE_PANEL_SUCCESS,CREATE_PANEL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/metric/panels`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function createPanel(clusterId, body, callback) {
+  return dispatch => dispatch(fetchCreatePanel(clusterId, body, callback))
+}
+
+export const UPDATE_PANEL_REQUEST = 'UPDATE_PANEL_REQUEST'
+export const UPDATE_PANEL_SUCCESS = 'UPDATE_PANEL_SUCCESS'
+export const UPDATE_PANEL_FAILURE = 'UPDATE_PANEL_FAILURE'
+
+function fetchUpdatePanel(clusterId, panelId, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_PANEL_REQUEST,UPDATE_PANEL_SUCCESS,UPDATE_PANEL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/metric/panels/${panelId}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function updatePanel(clusterId, panelId, body, callback) {
+  return dispatch => dispatch(fetchUpdatePanel(clusterId, panelId, body, callback))
+}
+
+export const DELETE_PANEL_REQUEST = 'DELETE_PANEL_REQUEST'
+export const DELETE_PANEL_SUCCESS = 'DELETE_PANEL_SUCCESS'
+export const DELETE_PANEL_FAILURE = 'DELETE_PANEL_FAILURE'
+
+function fetchDeletePanel(clusterId, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_PANEL_REQUEST,DELETE_PANEL_SUCCESS,DELETE_PANEL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/metric/panels/batch-delete`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function deletePanel(clusterId, body, callback) {
+  return dispatch => dispatch(fetchDeletePanel(clusterId, body, callback))
+}
+
+export const GET_CHART_LIST_REQUEST = 'GET_CHART_LIST_REQUEST'
+export const GET_CHART_LIST_SUCCESS = 'GET_CHART_LIST_SUCCESS'
+export const GET_CHART_LIST_FAILURE = 'GET_CHART_LIST_FAILURE'
+
+function fetchChartList(clusterID, query, callback) {
+  return {
+    panelId: query.panel_id,
+    [FETCH_API]: {
+      types: [GET_CHART_LIST_REQUEST,GET_CHART_LIST_SUCCESS,GET_CHART_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/metric/charts?${toQuerystring(query)}`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getChartList(clusterID, query, callback) {
+  return dispatch => dispatch(fetchChartList(clusterID, query, callback))
+}
+
+export const CREATE_CHART_REQUEST = 'CREATE_CHART_REQUEST'
+export const CREATE_CHART_SUCCESS = 'CREATE_CHART_SUCCESS'
+export const CREATE_CHART_FAILURE = 'CREATE_CHART_FAILURE'
+
+function fetchCreateChart(clusterID, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CREATE_CHART_REQUEST,CREATE_CHART_SUCCESS,CREATE_CHART_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/metric/charts`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function createChart(clusterID, body, callback) {
+  return dispatch => dispatch(fetchCreateChart(clusterID, body, callback))
+}
+
+export const CHECK_CHART_NAME_REQUEST = 'CHECK_CHART_NAME_REQUEST'
+export const CHECK_CHART_NAME_SUCCESS = 'CHECK_CHART_NAME_SUCCESS'
+export const CHECK_CHART_NAME_FAILURE = 'CHECK_CHART_NAME_FAILURE'
+
+function fetchCheckChartName(clusterID, name, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CHECK_CHART_NAME_REQUEST,CHECK_CHART_NAME_SUCCESS,CHECK_CHART_NAME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/metric/charts/${name}/check`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function checkChartName(clusterID, name, callback) {
+  return dispatch => dispatch(fetchCheckChartName(clusterID, name, callback))
+}
+
+export const UPDATE_CHART_REQUEST = 'UPDATE_CHART_REQUEST'
+export const UPDATE_CHART_SUCCESS = 'UPDATE_CHART_SUCCESS'
+export const UPDATE_CHART_FAILURE = 'UPDATE_CHART_FAILURE'
+
+function fetchUpdateChart(clusterID, chartID, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_CHART_REQUEST,UPDATE_CHART_SUCCESS,UPDATE_CHART_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/metric/charts/${chartID}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function updateChart(clusterID, chartID, body, callback) {
+  return dispatch => dispatch(fetchUpdateChart(clusterID, chartID, body, callback))
+}
+
+export const DELETE_CHART_REQUEST = 'DELETE_CHART_REQUEST'
+export const DELETE_CHART_SUCCESS = 'DELETE_CHART_SUCCESS'
+export const DELETE_CHART_FAILURE = 'DELETE_CHART_FAILURE'
+
+function fetchDeleteChart(clusterID, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_CHART_REQUEST,DELETE_CHART_SUCCESS,DELETE_CHART_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/metric/charts/batch-delete`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function deleteChart(clusterID, body, callback) {
+  return dispatch => dispatch(fetchDeleteChart(clusterID, body, callback))
+}
+
+export const GET_METRICS_REQUEST = 'GET_METRICS_REQUEST'
+export const GET_METRICS_SUCCESS = 'GET_METRICS_SUCCESS'
+export const GET_METRICS_FAILURE = 'GET_METRICS_FAILURE'
+
+function fetchMetrics(clusterID, query, callback) {
+  return {
+    metricType: query.type,
+    [FETCH_API]: {
+      types: [GET_METRICS_REQUEST,GET_METRICS_SUCCESS,GET_METRICS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/metric/monitor?${toQuerystring(query)}`,
+      schema: {},
+      options: {}
+    },
+    callback
+  }
+}
+
+export function getMetrics(clusterID, query, callback) {
+  return dispatch => dispatch(fetchMetrics(clusterID, query, callback))
+}
+
+export const GET_PROXIES_SERVICES_REQUEST = 'GET_PROXIES_SERVICES_REQUEST'
+export const GET_PROXIES_SERVICES_SUCCESS = 'GET_PROXIES_SERVICES_SUCCESS'
+export const GET_PROXIES_SERVICES_FAILURE = 'GET_PROXIES_SERVICES_FAILURE'
+
+function fetchProxiesServices(clusterID, proxyID, callback) {
+  return {
+    proxyID,
+    [FETCH_API]: {
+      types: [GET_PROXIES_SERVICES_REQUEST,GET_PROXIES_SERVICES_SUCCESS,GET_PROXIES_SERVICES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/proxies/${proxyID}/services`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getProxiesService(clusterID, proxyID, callback) {
+  return dispatch => dispatch(fetchProxiesServices(clusterID, proxyID, callback))
+}
+
+export const GET_MONITOR_METRICS_REQUEST = 'GET_MONITOR_METRICS_REQUEST'
+export const GET_MONITOR_METRICS_SUCCESS = 'GET_MONITOR_METRICS_SUCCESS'
+export const GET_MONITOR_METRICS_FAILURE = 'GET_MONITOR_METRICS_FAILURE'
+
+function fetchMonitorMetrics(panelID, chartID, clusterID, lbgroup, services, query, callback) {
+  return {
+    monitorID: panelID + chartID,
+    [FETCH_API]: {
+      types: [GET_MONITOR_METRICS_REQUEST,GET_MONITOR_METRICS_SUCCESS,GET_MONITOR_METRICS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/metric/nexport/${lbgroup}/service/${services}/metrics?${toQuerystring(query)}`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getMonitorMetrics(panelID, chartID, clusterID, lbgroup, services, query, callback) {
+  return dispatch => dispatch(fetchMonitorMetrics(panelID, chartID, clusterID, lbgroup, services, query, callback))
 }

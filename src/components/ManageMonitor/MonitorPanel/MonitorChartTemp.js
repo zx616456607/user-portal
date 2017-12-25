@@ -9,21 +9,55 @@
  */
 
 import React from 'react'
-import { Card, Button, Icon } from 'antd'
+import { connect } from 'react-redux'
+import { Card, Icon } from 'antd'
+import { getMonitorMetrics } from '../../../actions/manage_monitor'
+import ChartComponent from './ChartComponent'
 
-export default class MonitorChartTemp extends React.Component {
+class MonitorChartTemp extends React.Component {
+  
+  componentDidMount() {
+    const { currentChart, getMonitorMetrics, clusterID, currentPanel } = this.props
+    const { content, metrics } = currentChart
+    let parseContent = JSON.parse(content)
+    let lbgroup = Object.keys(parseContent)[0]
+    let services = parseContent[lbgroup]
+    const query = {
+      type: metrics,
+      source: 'prometheus',
+      start: '2017-12-21T06%3A13%3A11.070Z'
+    }
+    getMonitorMetrics(currentPanel.iD, currentChart.id, clusterID, lbgroup, services, query)
+  }
   cardExtra() {
+    const { openChartModal, currentPanel, currentChart } = this.props
     return [
       <Icon key="salt" type="arrow-salt" />,
-      <Icon key="setting" type="setting" />
+      <Icon key="setting" type="setting" onClick={() => openChartModal(currentPanel.iD, currentChart)}/>
     ]
   }
   render() {
-    const { title } = this.props
+    const { currentChart, monitorMetrics  } = this.props
     return (
-      <Card title={title} className="chartBody" extra={this.cardExtra()}>
-        
+      <Card title={`${currentChart.name}（个）`} className="chartBody" extra={this.cardExtra()}>
+        <ChartComponent
+          sourceData={monitorMetrics}
+        />
       </Card>
     )
   }
 }
+
+function mapStateToProps(state, props) {
+  const { manageMonitor } = state
+  const { currentPanel, currentChart } = props
+  const monitorID =  currentPanel.iD + currentChart.id
+  const { monitorMetrics } = manageMonitor
+  return {
+    monitorMetrics: monitorMetrics[monitorID] || { data: [], isFetching: true }
+  }
+}
+
+export default connect(mapStateToProps, {
+  getMonitorMetrics
+})(MonitorChartTemp)

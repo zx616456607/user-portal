@@ -12,7 +12,7 @@
 import React from 'react'
 import { Form,Card,Row,Col,Input,Button,Affix } from 'antd'
 import { connect } from 'react-redux'
-import { checkName } from '../../../../common/naming_validation'
+// import { checkName } from '../../../../common/naming_validation'
 import { browserHistory } from 'react-router'
 
 class TemplateName extends React.Component {

@@ -176,3 +176,123 @@ exports.getServiceOfQueryLog = function* () {
     data: serviceList
   }
 }
+
+exports.getPanelList = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'metric', 'panels'], null)
+  this.body = result
+}
+
+exports.checkPanelName = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'metric', 'panels', name, 'check'])
+  this.body = result
+}
+
+exports.createPanel = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, 'metric', 'panels'], null, body)
+  this.body = result
+}
+
+exports.updatePanel = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const panelID = this.params.panelID
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'metric', 'panels', panelID], null, body)
+  this.body = result
+}
+
+exports.deletePanel = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, 'metric', 'panels', 'batch-delete'], null, body)
+  this.body = result
+}
+
+exports.getChartList = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const query = this.query
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'metric', 'charts'], query)
+  this.body = result
+}
+
+exports.checkChartName = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'metric', 'charts', name, 'check'])
+  this.body = result
+}
+
+exports.createCharts = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, 'metric', 'charts'], null, body)
+  this.body = result
+}
+
+exports.updateCharts = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const id = this.params.id
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'metric', 'charts', id], null, body)
+  this.body = result
+}
+
+exports.deleteCharts = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, 'metric', 'charts', 'batch-delete'], null, body)
+  this.body = result
+}
+
+exports.getMetrics = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const query = this.query
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'metric'], query) 
+  this.body = result
+}
+
+exports.getProxiesServices = function* () {
+  const loginUser = this.session.loginUser
+  const id = this.params.id
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'proxies', id, 'services'])
+  this.body = result
+}
+
+exports.getMonitorMetrics = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const lbgroup = this.params.lbgroup
+  const services = this.params.services
+  const query = this.query
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'metric', 'nexport', lbgroup, 'service', services, 'metrics'], query)
+  this.body = result
+}
