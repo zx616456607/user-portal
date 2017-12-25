@@ -11,7 +11,7 @@
 const vsettanConfig = require('../../configs/3rd_account/vsettan.js')
 const urllib = require('urllib')
 const apiFactory = require('../../services/api_factory.js')
-const logger = require('../../utils/logger').getLogger('vsettan')
+const logger = require('../../utils/logger').getLogger('3rd_account/vsettan')
 const uuid = require('uuid')
 
 exports.vsettanLogin = function* (next) {
@@ -118,7 +118,7 @@ exports.vsettanLogin = function* (next) {
     }
     //create user
     user.accountDetail = JSON.stringify(user)
-    const createUser = yield spi.users.createBy(["vsettan"], null, user)
+    const createUser = yield spi.users.createBy([ '3rdparty-account' ], null, user)
     //use userinfo login
     let api = apiFactory.getApi()
     api = yield api.users.createBy(['login'], null, { userName: user.userName, accountType: user.accountType, accountID: user.accountID }).then(result => {
