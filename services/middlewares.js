@@ -123,7 +123,7 @@ exports.verifyUser = function* (next) {
       const userInfo = yield wechat.getUserInfo(access_token, accountID)
       data.accountDetail = JSON.stringify(userInfo)
     }
-  } else if(body.accountType == 'vsettan') {
+  } else if(body.accountType == 'vsettan' || body.accountType == 'cas') {
     data.accountType = body.accountType
     data.accountID = body.accountID
     data.userName = body.userName
