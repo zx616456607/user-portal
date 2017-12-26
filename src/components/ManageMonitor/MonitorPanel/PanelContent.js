@@ -15,26 +15,40 @@ import PanelBtnGroup from './PanelBtnGroup'
 import MonitorChartTemp from './MonitorChartTemp'
 import './style/PanelContent.less'
 import { getChartList } from '../../../actions/manage_monitor'
+import { formatDate } from "../../../common/tools";
 
 class PanelContent extends React.Component {
   constructor() {
     super()
-    this.startTime = new Date(new Date(new Date()
-      .setDate(new Date().getDate() - 1))
-      .setHours(0, 0, 0, 0))
+    this.getTimeRange = this.getTimeRange.bind(this)
+    this.state = {
+      timeRange: [formatDate(new Date(Date.parse(new Date()) - (60 * 60 * 1000))), formatDate(new Date())]
+    }
+  }
+  
+  getTimeRange(timeRange) {
+    this.setState({
+      timeRange
+    })
   }
   
   render() {
-    const { openModal, openChartModal, currentPanel, charts, isFetching, clusterID } = this.props
+    const { timeRange } = this.state
+    const { openModal, openChartModal, currentPanel, charts, isFetching, clusterID, getChartList, activeKey } = this.props
     const btnGroupFunc = {
       currentPanel,
       openModal, 
-      openChartModal
+      openChartModal,
+      onChange: this.getTimeRange,
+      clusterID,
+      getChartList,
+      activeKey
     }
     const tempFunc = {
       openChartModal,
       currentPanel,
-      clusterID
+      clusterID,
+      timeRange
     }
     if (isFetching) {
       return <div className="loadingBox">
@@ -45,17 +59,16 @@ class PanelContent extends React.Component {
       <div>
         <PanelBtnGroup
           {...btnGroupFunc}
-          value={[this.startTime, new Date()]}
-          onOk={() => console.log('ok')}
+          value={[timeRange[0], timeRange[1]]}
         />
         <div className="chartTempWrapper">
           {
             charts && charts.length ? 
-              charts.map(item => <MonitorChartTemp key={item.id} currentChart={item} {...tempFunc}/>) 
+              charts.map(item => <MonitorChartTemp {...Object.assign(tempFunc, {currentChart: item, key: item.id})}/>) 
               :
               [
-                <div className="monitorNoData"/>,
-                <div className="noDataText">您还没有图表，添加一个吧！
+                <div className="monitorNoData" key="monitorNoData"/>,
+                <div className="noDataText" key="noDataText">您还没有图表，添加一个吧！
                   <Button type="primary" size="large" onClick={() => openChartModal(currentPanel.iD, null)}>添加</Button>
                 </div>
               ]

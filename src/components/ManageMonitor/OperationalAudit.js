@@ -554,6 +554,18 @@ const menusText = defineMessages({
   SubmitAudit: {
     id: 'ManageMonitor.operationalAudit.SubmitAudit',
     defaultMessage: '提交审核'
+  },
+  Monitor: {
+    id: 'ManageMonitor.operationalAudit.Monitor',
+    defaultMessage: '监控'
+  },
+  MonitorPanel: {
+    id: 'ManageMonitor.operationalAudit.MonitorPanel',
+    defaultMessage: '监控面板'
+  },
+  MonitorChart: {
+    id: 'ManageMonitor.operationalAudit.MonitorChart',
+    defaultMessage: '监控图表'
   }
 });
 
@@ -930,6 +942,12 @@ function resourceFormat(resourceType, scope) {
     case '65':
       return formatMessage(menusText.Image)
       break;
+    case '66':
+      return formatMessage(menusText.MonitorPanel)
+      break;
+    case '67':
+      return formatMessage(menusText.MonitorChart)
+      break;
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -1164,6 +1182,9 @@ function formatResourceName(resourceName, resourceId) {
         }
       }
       return ids.join(',')
+    }
+    if (newBody.names) {
+      return newBody.names[0]
     }
     if (newBody.filePkgName) {
       return newBody.filePkgName
@@ -1673,6 +1694,18 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[34]);
         showOperationalList.push(operationalList[2]);
         break;
+      case '66':
+        // 监控面板
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[1]);
+        showOperationalList.push(operationalList[2]);
+        break;
+      case '67':
+        // 监控图表
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[1]);
+        showOperationalList.push(operationalList[2]);
+        break;
       case '0':
         //Unknown
         showOperationalList = operationalList;
@@ -1915,6 +1948,19 @@ class OperationalAudit extends Component {
       }, {
         value: '47',
         label: formatMessage(menusText.InstanceExport),
+      }, {
+        value: '66',
+        label: formatMessage(menusText.Monitor),
+        children: [
+          {
+            value: '66',
+            label: formatMessage(menusText.MonitorPanel),
+          },
+          {
+            value: '67',
+            label: formatMessage(menusText.MonitorChart)
+          }
+        ]
       }, {
         value: '48',
         label: formatMessage(menusText.Alert),

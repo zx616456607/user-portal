@@ -5,6 +5,9 @@
   .chartBody{
     flex: 0 1 32%;
     margin-bottom: 20px;
+    .ant-card-body{
+      padding: 10px;
+    }
     &:not(:nth-of-type(3n + 3)) {
       margin-right: 2%;
     }
@@ -24,5 +27,13 @@
   .noDataText{
     width: 100%;
     text-align: center;
+  }
+  .monitorChart{
+    @media screen and (max-width: 1366px) {
+      height: 220px !important;
+    }
+    @media (min-width: 1367px) and (max-width: 1600px) {
+      height: 260px !important;
+    }
   }
 }

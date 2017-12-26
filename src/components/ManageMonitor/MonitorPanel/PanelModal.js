@@ -31,7 +31,12 @@ class PanelModal extends React.Component {
   }
   
   checkName(rule, value, callback) {
-    const { checkPanelName, clusterID } = this.props
+    const { checkPanelName, clusterID, currentPanel } = this.props
+    if (currentPanel) {
+      if (currentPanel.name === value) {
+        return callback()
+      }
+    }
     if (!value) {
       return callback('请输入面板名称')
     }
@@ -58,7 +63,8 @@ class PanelModal extends React.Component {
     const { currentPanel, deletePanel, clusterID, getPanes } = this.props
     let notify = new NotificationHandler()
     const body = {
-      ids: [currentPanel.iD]
+      ids: [currentPanel.iD],
+      names: [currentPanel.name]
     }
     notify.spin('删除中')
     deletePanel(clusterID, body, {
@@ -66,7 +72,7 @@ class PanelModal extends React.Component {
         func: () => {
           notify.close()
           notify.success('删除成功')
-          getPanes()
+          getPanes(true)
           this.cancelModal()
         },
         isAsync: true
@@ -138,7 +144,7 @@ class PanelModal extends React.Component {
           func: () => {
             notify.close()
             notify.success('创建成功')
-            getPanes()
+            getPanes(true, true)
             this.cancelModal()
           },
           isAsync: true

@@ -11,27 +11,28 @@
  */
 
 import React, { PropTypes } from 'react'
-import { Button, DatePicker, Radio, Icon } from 'antd'
-import moment from 'moment'
+import { Button, DatePicker, Radio } from 'antd'
 import './style/PanelBtnGroup.less'
+import { UPDATE_INTERVAL } from '../../../constants'
+import { formatDate } from "../../../common/tools"
 
 const { RangePicker } = DatePicker
 const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
 const btnArr = [{
-  key: 'fiveMin',
+  key: 'oneHour',
   text: '近1小时',
 }, {
-  key: 'threeHour',
+  key: 'sixHour',
   text: '6小时',
 }, {
-  key: 'today',
+  key: 'yesterday',
   text: '24小时',
 }, {
-  key: 'yesterday',
+  key: 'sevenDays',
   text: '7天',
 }, {
-  key: 'beforeYes',
+  key: 'oneMonth',
   text: '30天',
 }]
 
@@ -41,18 +42,17 @@ export default class PanelBtnGroup extends React.Component {
     value: PropTypes.array,
     // 获取选中的时间范围
     onChange: PropTypes.func,
-    // 回调
-    onOk: PropTypes.func.isRequired,
   }
-  constructor(props) {
-    super(props)
+  constructor() {
+    super()
     this.toggleTimePicker = this.toggleTimePicker.bind(this)
-    this.onChange = this.onChange.bind(this)
-    this.onOk = this.onOk.bind(this)
+    this.rangePickerChange = this.rangePickerChange.bind(this)
+    this.handleClick = this.handleClick.bind(this)
+    this.refreshMetric = this.refreshMetric.bind(this)
     this.state = {
       value: [],
       isRangeTime: false,
-      currentRadio: 'fiveMin',
+      currentRadio: 'oneHour',
     }
   }
   componentDidMount() {
@@ -75,49 +75,28 @@ export default class PanelBtnGroup extends React.Component {
     clearInterval(this.timeInterval)
   }
   setDefaultTime(value) {
-    const time = 'fiveMin'
-    if (value && value.length === 2) {
-      this.setState({
-        isRangeTime: true,
-      })
-    } else {
-      value = this.getTimeArr(time)
-      this.changeTimeInterval(time)
-    }
-    this.onChange(value)
-  }
-  onOk() {
-    const { onOk } = this.props
-    /**
-     * loadData 点击刷新时的回调
-     *
-     */
-    if (onOk) {
-      onOk()
-    }
+    const time = 'oneHour'
+    value = this.getTimeArr(time)
+    this.changeTimeInterval(time)
+    this.rangePickerChange(value)
   }
   getTimeArr(time) {
     const now = Date.parse(new Date())
     let startTime
-    if (time === 'fiveMin') {
-      startTime = now - (5 * 60 * 1000)
-    } else if (time === 'threeHour') {
-      startTime = now - (3 * 60 * 60 * 1000)
-    } else if (time === 'today') {
-      startTime = new Date(new Date().setHours(0, 0, 0, 0))
+    if (time === 'oneHour') {
+      startTime = now - (60 * 60 * 1000)
+    } else if (time === 'sixHour') {
+      startTime = now - (6 * 60 * 60 * 1000)
     } else if (time === 'yesterday') {
-      startTime = new Date(new Date(new Date()
-        .setDate(new Date().getDate() - 1))
-        .setHours(0, 0, 0, 0))
-        .valueOf()
-    } else if (time === 'beforeYes') {
-      startTime = new Date(new Date().setDate(new Date().getDate() - 2))
-        .setHours(0, 0, 0, 0)
-      startTime = new Date(startTime).valueOf()
+      startTime = now - (24 * 60 * 60 * 1000)
+    } else if (time === 'sevenDays') {
+      startTime = now - (7 * 24 * 60 * 60 * 1000)
+    } else {
+      startTime = now - (30 * 24 * 60 * 60 * 1000)
     }
-    return [ moment(startTime), moment(now) ]
+    return [ formatDate(startTime), formatDate(now) ]
   }
-  onChange(value) {
+  rangePickerChange(value) {
     const { onChange } = this.props
     this.setState({ value })
     /**
@@ -129,13 +108,13 @@ export default class PanelBtnGroup extends React.Component {
       onChange(value)
     }
   }
-  handleClick(time) {
+  handleClick(e) {
+    const time = e.target.value
     const value = this.getTimeArr(time)
     this.setState({
       currentRadio: time,
     })
-    this.onChange(value)
-    setTimeout(this.onOk, 0)
+    this.rangePickerChange(value)
     this.changeTimeInterval(time)
   }
   changeTimeInterval(time) {
@@ -143,8 +122,8 @@ export default class PanelBtnGroup extends React.Component {
     let value = this.getTimeArr(time)
     this.timeInterval = setInterval(() => {
       value = this.getTimeArr(time)
-      this.onChange(value)
-    }, 1000)
+      this.rangePickerChange(value)
+    }, UPDATE_INTERVAL)
   }
   toggleTimePicker() {
     const { isRangeTime } = this.state
@@ -156,13 +135,20 @@ export default class PanelBtnGroup extends React.Component {
     }
     this.setState({ isRangeTime: !isRangeTime })
   }
+  
+  refreshMetric() {
+    const { getChartList, activeKey, clusterID } = this.props
+    getChartList(clusterID, {
+      panel_id: activeKey
+    })
+  }
   render() {
     const { value, isRangeTime, currentRadio } = this.state
     const { currentPanel, openModal, openChartModal } = this.props
     return (
       <div className="monitor-timepicker">
         <Button className="addChartBtn" size="large" type="primary" icon="plus" onClick={() => openChartModal(currentPanel.iD, null)}>添加图表</Button>
-        <Button size="large" type="ghost"><i className='fa fa-refresh' /> 刷新</Button>
+        <Button size="large" type="ghost" onClick={this.refreshMetric}><i className='fa fa-refresh' /> 刷新</Button>
         <div className="right-part">
           <Button
             className="type-change-btn"
@@ -179,21 +165,20 @@ export default class PanelBtnGroup extends React.Component {
                 key="timePicker"
                 size="large"
                 showTime={{ format: 'HH:mm' }}
-                format="YYYY-MM-DD HH:mm"
+                format="yyyy-MM-dd HH:mm"
                 placeholder={[ '开始日期', '结束日期' ]}
                 value={value}
-                onChange={this.onChange}
-                onOk={this.onOk}
+                onChange={this.rangePickerChange}
               />
               :
               <RadioGroup
                 size="large"
-                onChange={e => this.handleClick(e.target.value)}
+                onChange={this.handleClick}
                 value={currentRadio}
               >
                 {
                   btnArr.map(item => (
-                    <RadioButton size="large" key={item.key} value={item.key}>{item.text}</RadioButton>
+                    <RadioButton key={item.key} value={item.key}>{item.text}</RadioButton>
                   ))
                 }
               </RadioGroup>
