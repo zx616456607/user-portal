@@ -68,7 +68,7 @@ class PanelContent extends React.Component {
               :
               [
                 <div className="monitorNoData" key="monitorNoData"/>,
-                <div className="noDataText" key="noDataText">您还没有图表，添加一个吧！
+                <div className="noDataText" key="noDataText">您还没有监控图表，添加一个吧！
                   <Button type="primary" size="large" onClick={() => openChartModal(currentPanel.iD, null)}>添加</Button>
                 </div>
               ]

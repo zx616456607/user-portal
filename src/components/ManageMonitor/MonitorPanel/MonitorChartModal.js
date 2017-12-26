@@ -33,10 +33,12 @@ const Option = Select.Option
 
 const adminTypeArr = [{
   key: 'service',
-  text: '服务'
+  text: '服务',
+  disabled: true
 }, {
   key: 'node',
-  text: '节点'
+  text: '节点',
+  disabled: true
 }, {
   key: 'nexport',
   text: '网络出口'
@@ -44,8 +46,25 @@ const adminTypeArr = [{
 
 const defaultTypeArr = [{
   key: 'service',
-  text: '服务'
+  text: '服务',
+  disabled: false
 }]
+
+function formatMetric(result) {
+  let data = []
+  for (let i in result) {
+    if (i === 'statusCode') {
+      break
+    }
+    let obj = {
+      name: i,
+      ...result[i]
+    }
+    data.push(obj)
+  }
+  return data
+}
+
 class MonitorChartModal extends React.Component {
   constructor(props) {
     super(props)
@@ -59,6 +78,12 @@ class MonitorChartModal extends React.Component {
     this.changeExport = this.changeExport.bind(this)
     this.changeTarget = this.changeTarget.bind(this)
     this.changeMetrics = this.changeMetrics.bind(this)
+    this.state = {
+      previewMetrics: {
+        isFetching: false,
+        data: []
+      }
+    }
   }
   
   componentWillMount() {
@@ -89,7 +114,18 @@ class MonitorChartModal extends React.Component {
       start: new Date(Date.parse(new Date()) - (60 * 60 * 1000)).toISOString(),
       end: new Date().toISOString()
     }
-    getMonitorMetrics(panel_id, null, clusterID, nexport, target, query)
+    getMonitorMetrics(panel_id, null, clusterID, nexport, target, query, {
+      success: {
+        func: res => {
+          this.setState({
+            previewMetrics:{
+              isFetching: false,
+              data: formatMetric(res)
+            }
+          })
+        }
+      }
+    })
   }
   
   nameCheck(rule, value, callback) {
@@ -318,6 +354,7 @@ class MonitorChartModal extends React.Component {
       proxyList, metricList, proxiesServices, monitorMetrics,
       isAdmin
     } = this.props
+    const { previewMetrics } = this.state
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     const formItemLayout = {
       labelCol: { span: 3 },
@@ -328,8 +365,7 @@ class MonitorChartModal extends React.Component {
       wrapperCol: { span: 17 }
     }
     
-    let chartDate = monitorMetrics 
-    
+    let chartDate = currentChart ? monitorMetrics : previewMetrics
     let defaultNexport = ''
     let initialTarget
     if (currentChart && currentChart.content) {
@@ -402,7 +438,7 @@ class MonitorChartModal extends React.Component {
     
     let typeArr = isAdmin ? adminTypeArr : defaultTypeArr
     targetTypeChildren = typeArr.map(item => {
-      return <Option key={item.key}>{item.text}</Option>
+      return <Option key={item.key} disabled={item.disabled}>{item.text}</Option>
     })
     
     if (metrics_type === 'service') {
@@ -422,7 +458,7 @@ class MonitorChartModal extends React.Component {
       return <Option key={item.id}>{item.name}</Option>
     }) : []
     metricsChildren = !isEmpty(metricList) ? metricList.map(item => {
-      return <Option key={`${item.iD}/${item.name}`}>{item.name}</Option>
+      return <Option key={`${item.iD}/${item.name}`}>{item.nickName}</Option>
     }) : []
     return (
       <Modal
@@ -524,9 +560,14 @@ class MonitorChartModal extends React.Component {
           <Row>
             <Col span={3} className="viewText">预览</Col>
             <Col span={17} className="chartBox">
-              <ChartComponent
-                sourceData={chartDate}
-              />
+              {
+                isEmpty(chartDate.data) ?
+                  <div className="noChartData"/>
+                  :
+                  <ChartComponent
+                    sourceData={chartDate}
+                  />
+              }
             </Col>
           </Row>
         </Form>
@@ -559,7 +600,7 @@ function mapStateToProps(state, props) {
   const { metricType } = metrics || { metricType: '' }
   const { proxyID } = proxiesServices || { proxyID: '' }
   
-  let monitorID =  panel_id
+  let monitorID =  ''
   if (currentChart) {
     monitorID = panel_id + currentChart.id
   }
