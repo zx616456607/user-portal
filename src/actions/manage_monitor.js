@@ -457,8 +457,9 @@ export const GET_MONITOR_METRICS_SUCCESS = 'GET_MONITOR_METRICS_SUCCESS'
 export const GET_MONITOR_METRICS_FAILURE = 'GET_MONITOR_METRICS_FAILURE'
 
 function fetchMonitorMetrics(panelID, chartID, clusterID, lbgroup, services, query, callback) {
+  let monitorID = chartID ? panelID + chartID : panelID
   return {
-    monitorID: panelID + chartID,
+    monitorID,
     [FETCH_API]: {
       types: [GET_MONITOR_METRICS_REQUEST,GET_MONITOR_METRICS_SUCCESS,GET_MONITOR_METRICS_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/metric/nexport/${lbgroup}/service/${services}/metrics?${toQuerystring(query)}`,

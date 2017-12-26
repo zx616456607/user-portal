@@ -15,9 +15,23 @@ import { getMonitorMetrics } from '../../../actions/manage_monitor'
 import ChartComponent from './ChartComponent'
 
 class MonitorChartTemp extends React.Component {
-  
+  constructor() {
+    super()
+  }
   componentDidMount() {
-    const { currentChart, getMonitorMetrics, clusterID, currentPanel } = this.props
+    this.getMetrics(this.props)
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    const { timeRange: oldRange } = this.props
+    const { timeRange: newRange } = nextProps
+    if (oldRange[0] !== newRange[0]) {
+      this.getMetrics(nextProps)
+    }
+  }
+  
+  getMetrics(props) {
+    const { currentChart, getMonitorMetrics, clusterID, currentPanel, timeRange } = props
     const { content, metrics } = currentChart
     let parseContent = JSON.parse(content)
     let lbgroup = Object.keys(parseContent)[0]
@@ -25,22 +39,24 @@ class MonitorChartTemp extends React.Component {
     const query = {
       type: metrics,
       source: 'prometheus',
-      start: '2017-12-21T06%3A13%3A11.070Z'
+      start: new Date(timeRange[0]).toISOString(),
+      end: new Date(timeRange[1]).toISOString()
     }
     getMonitorMetrics(currentPanel.iD, currentChart.id, clusterID, lbgroup, services, query)
   }
   cardExtra() {
     const { openChartModal, currentPanel, currentChart } = this.props
     return [
-      <Icon key="salt" type="arrow-salt" />,
+      //<Icon key="salt" type="arrow-salt" />,
       <Icon key="setting" type="setting" onClick={() => openChartModal(currentPanel.iD, currentChart)}/>
     ]
   }
   render() {
     const { currentChart, monitorMetrics  } = this.props
     return (
-      <Card title={`${currentChart.name}（个）`} className="chartBody" extra={this.cardExtra()}>
+      <Card title={`${currentChart.name}（${currentChart.unit || '个'}）`} className="chartBody" extra={this.cardExtra()}>
         <ChartComponent
+          className="monitorChart"
           sourceData={monitorMetrics}
         />
       </Card>

@@ -13,39 +13,28 @@ import ReactEcharts from 'echarts-for-react'
 import EchartsOption from '../../Metrics/EchartsOption'
 import { formatDate } from "../../../common/tools"
 
-function formatGrid(count) {
-  //this fucntion for format grid css
-  //due to the memory counts > 6, this grid would be display wrong
-  let initHeight = 300 + ((count - 4)/2)*25;
-  return initHeight + 'px';
-}
-
 export default class ChartComponent extends React.Component {
   render() {
-    const { sourceData  } = this.props
+    const { sourceData, className  } = this.props
     const { isFetching, data } = sourceData
     const option = new EchartsOption('')
     option.addYAxis('value', {
       formatter: '{value}'
     })
     option.setToolTipUnit(' 个')
+    let minValue = 'dataMin'
     option.setGrid([{
       top: 50,
       left: 50,
       right: 20,
-      bottom: 20
+      bottom: 25
     }])
     data && data.map((item) => {
-      let timeData = []
-      let values = []
       let dataArr = []
       item && item.metrics && item.metrics.length && item.metrics.map((metric) => {
-        timeData.push(metric.timestamp)
-        // metric.value || floatValue  only one
-        values.push(Math.floor((metric.floatValue || metric.value)))
         dataArr.push([
           Date.parse(metric.timestamp),
-          Math.floor((metric.floatValue || metric.value))
+          Math.floor(metric.floatValue || metric.value)
         ])
       })
       option.addSeries(dataArr, item.name)
@@ -53,10 +42,10 @@ export default class ChartComponent extends React.Component {
         formatter: value => formatDate(value, 'HH:mm')
       })
     })
-    option.setGirdForDataCommon(data&&data.length)
+    option.setXAxisMinAndMax(minValue)
     return (
       <ReactEcharts
-        style={{ height: formatGrid(data&&data.length) }}
+        className={className}
         notMerge={true}
         option={option}
         showLoading={isFetching}
