@@ -141,7 +141,7 @@ class MonitorPanel extends React.Component {
           />
         }
         {
-          panels && panels.length &&
+          panels && panels.length ?
           <Tabs
             className="monitorTabs"
             hideAdd
@@ -153,6 +153,13 @@ class MonitorPanel extends React.Component {
               panels.map(pane => <TabPane tab={pane.name} key={pane.iD}>{<PanelContent currentPanel={pane} {...contentFunc}/>}</TabPane>)
             }
           </Tabs>
+            :
+            [
+              <div className="monitorNoData" key="monitorNoData"/>,
+              <div className="noDataText" key="noDataText">您还没有监控面板，添加一个吧！
+                <Button type="primary" size="large" onClick={() => this.openPanelModal(null)}>添加</Button>
+              </div>
+            ]
         }
       </div>
     )
