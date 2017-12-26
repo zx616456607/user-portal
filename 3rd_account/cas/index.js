@@ -14,7 +14,7 @@ const urllib = require('urllib')
 const apiFactory = require('../../services/api_factory')
 const logger = require('../../utils/logger').getLogger('3rd_account/cas')
 const uuid = require('uuid')
-const qs = require('query-string')
+const qs = require('querystring')
 const xml2js = require('xml2js')
 const processors = require('xml2js/lib/processors')
 
