@@ -476,7 +476,7 @@ class MonitorChartModal extends React.Component {
           <FormItem
             label="图表名称"
             {...formItemLayout}
-            hasFeedback
+            hasFeedback={!!getFieldValue('name')}
             help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
           >
             <Input placeholder="请输入名称" {...nameProps}/>
