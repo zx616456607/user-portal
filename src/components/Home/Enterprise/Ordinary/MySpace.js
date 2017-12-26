@@ -1320,6 +1320,18 @@ const menusText = defineMessages({
   SubmitAudit: {
     id: 'ManageMonitor.operationalAudit.SubmitAudit',
     defaultMessage: '提交审核'
+  },
+  Monitor: {
+    id: 'ManageMonitor.operationalAudit.Monitor',
+    defaultMessage: '监控'
+  },
+  MonitorPanel: {
+    id: 'ManageMonitor.operationalAudit.MonitorPanel',
+    defaultMessage: '监控面板'
+  },
+  MonitorChart: {
+    id: 'ManageMonitor.operationalAudit.MonitorChart',
+    defaultMessage: '监控图表'
   }
 });
 
@@ -1541,7 +1553,12 @@ function resourceFormat(resourceType, scope) {
     case '65':
       return formatMessage(menusText.Image)
       break;
-
+    case '66':
+      return formatMessage(menusText.MonitorPanel)
+      break;
+    case '67':
+      return formatMessage(menusText.MonitorChart)
+      break;
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -1703,6 +1720,9 @@ function formatResourceName(resourceName) {
       }
       newName = newName.join(',');
       return newName;
+    }
+    if (newBody.names) {
+      return newBody.names[0]
     }
     if (newBody.name) {
       return newBody.name
