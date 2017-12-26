@@ -16,9 +16,9 @@ import PanelContent from './PanelContent'
 import PanelModal from './PanelModal'
 import MonitorChartModal from './MonitorChartModal'
 import { getPanelList, createPanel, updatePanel, getChartList } from '../../../actions/manage_monitor'
+import { ROLE_SYS_ADMIN } from '../../../../constants'
 
 const TabPane = Tabs.TabPane;
-
 class MonitorPanel extends React.Component {
   constructor(props) {
     super(props)
@@ -27,7 +27,6 @@ class MonitorPanel extends React.Component {
     this.openPanelModal = this.openPanelModal.bind(this)
     this.openChartModal = this.openChartModal.bind(this)
     this.closeChartModal = this.closeChartModal.bind(this)
-    this.onChange = this.onChange.bind(this)
     this.getPanes = this.getPanes.bind(this)
     this.state = {
       activeKey: ''
@@ -35,28 +34,30 @@ class MonitorPanel extends React.Component {
   }
   
   componentDidMount() {
+    this.getPanes(true)
+  }
+  
+  
+  getPanes(callback, create) {
     const { getPanelList, clusterID, getChartList } = this.props
-    getPanelList(clusterID, {
+    const cb = {
       success: {
         func: res => {
           const panels = res.data.panels
           if (panels && panels.length) {
+            const id = create ? panels[panels.length - 1]['iD']: panels[0]['iD']
             this.setState({
-              activeKey: panels[0]['iD']
+              activeKey: id
             })
             getChartList(clusterID, {
-              panel_id: panels[0]['iD']
+              panel_id: id
             })
           }
         },
         isAsync: true
       }
-    })
-  }
-  
-  getPanes() {
-    const { getPanelList, clusterID } = this.props
-    getPanelList(clusterID)
+    }
+    getPanelList(clusterID, callback && cb)
   }
   
   onChange(activeKey) {
@@ -95,7 +96,7 @@ class MonitorPanel extends React.Component {
   }
   
   render() {
-    const { panels, clusterID, isFetching } = this.props
+    const { panels, clusterID, isFetching, isAdmin } = this.props
     const { activeKey, panelModal, currentPanel, chartModal, currentChart, panel_id } = this.state
     if (isFetching) {
       return <div className="loadingBox">
@@ -115,7 +116,8 @@ class MonitorPanel extends React.Component {
       visible: chartModal,
       currentChart,
       panel_id,
-      clusterID
+      clusterID,
+      isAdmin
     }
     const contentFunc = {
       openModal: this.openPanelModal, 
@@ -159,14 +161,18 @@ class MonitorPanel extends React.Component {
 
 function mapStateToProps(state) {
   const { entities, manageMonitor } = state
-  const { cluster } = entities.current
+  const { current, loginUser } = entities
+  const { cluster } = current
   const { clusterID } = cluster
   const { monitorPanel } = manageMonitor
   const { panels, isFetching } = monitorPanel || { panels: {}}
+  const { role } = loginUser.info
+  const isAdmin = role === ROLE_SYS_ADMIN
   return {
     clusterID,
     panels,
-    isFetching
+    isFetching,
+    isAdmin
   }
 }
 

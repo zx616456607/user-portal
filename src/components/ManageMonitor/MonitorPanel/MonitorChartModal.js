@@ -15,8 +15,6 @@ import { connect } from 'react-redux'
 import { Modal, Form, Input, Button, Select, Row, Col } from 'antd'
 import { camelize } from 'humps'
 import isEmpty from 'lodash/isEmpty'
-import ReactEcharts from 'echarts-for-react'
-import EchartsOption from '../../Metrics/EchartsOption'
 import './style/MonitorChartModal.less'
 import { getAllClusterNodes } from '../../../actions/cluster_node'
 import { loadAllServices } from '../../../actions/services'
@@ -24,21 +22,30 @@ import { getProxy } from '../../../actions/cluster'
 import { 
   createChart, updateChart, deleteChart, 
   getChartList, getMetrics, getProxiesService,
-  checkChartName
+  checkChartName, getMonitorMetrics
 } from '../../../actions/manage_monitor'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import NotificationHandler from '../../../components/Notification'
+import ChartComponent from './ChartComponent'
 
 const FormItem = Form.Item
 const Option = Select.Option
 
-function formatGrid(count) {
-  //this fucntion for format grid css
-  //due to the memory counts > 6, this grid would be display wrong
-  let initHeight = 300 + ((count - 4)/2)*25;
-  return initHeight + 'px';
-}
+const adminTypeArr = [{
+  key: 'service',
+  text: '服务'
+}, {
+  key: 'node',
+  text: '节点'
+}, {
+  key: 'nexport',
+  text: '网络出口'
+}]
 
+const defaultTypeArr = [{
+  key: 'service',
+  text: '服务'
+}]
 class MonitorChartModal extends React.Component {
   constructor(props) {
     super(props)
@@ -48,20 +55,50 @@ class MonitorChartModal extends React.Component {
     this.handleDelete = this.handleDelete.bind(this)
     this.changeExport = this.changeExport.bind(this)
     this.nameCheck = this.nameCheck.bind(this)
+    this.getMonitorMetric = this.getMonitorMetric.bind(this)
+    this.changeExport = this.changeExport.bind(this)
+    this.changeTarget = this.changeTarget.bind(this)
+    this.changeMetrics = this.changeMetrics.bind(this)
   }
   
   componentWillMount() {
-    const { clusterID, getAllClusterNodes, loadAllServices, getProxy } = this.props
+    const { clusterID, getAllClusterNodes, loadAllServices, getProxy, currentChart } = this.props
     getProxy(clusterID)
     getAllClusterNodes(clusterID)
     loadAllServices(clusterID, {
       pageIndex: 1,
       pageSize: 100
     })
+    if (currentChart) {
+      let content = JSON.parse(currentChart.content)
+      const contentKey = Object.keys(content)[0]
+      this.changeExport(contentKey)
+      this.changeTargetType(currentChart.type)
+    }
+  }
+  
+  getMonitorMetric() {
+    const { getMonitorMetrics, clusterID, panel_id } = this.props
+    const { nexport, target, metrics_id } = this.state
+    if (!metrics_id || !nexport || !target || !target.length) {
+      return
+    }
+    const query = {
+      type: metrics_id.split('/')[1],
+      source: 'prometheus',
+      start: new Date(Date.parse(new Date()) - (60 * 60 * 1000)).toISOString(),
+      end: new Date().toISOString()
+    }
+    getMonitorMetrics(panel_id, null, clusterID, nexport, target, query)
   }
   
   nameCheck(rule, value, callback) {
-    const { checkChartName, clusterID } = this.props
+    const { checkChartName, clusterID, currentChart } = this.props
+    if (currentChart) {
+      if (value === currentChart.name) {
+        return callback()
+      }
+    }
     if (!value) {
       return callback('请输入名称')
     } 
@@ -106,18 +143,27 @@ class MonitorChartModal extends React.Component {
   }
   
   changeExport(proxyID) {
-    const { getProxiesService, clusterID,  } = this.props
+    const { getProxiesService, clusterID, currentChart } = this.props
     getProxiesService(clusterID, proxyID)
+    if (currentChart) return
+    this.setState({
+      nexport: proxyID
+    }, this.getMonitorMetric)
   }
   
   targetCheck(rule, value, callback) {
     if (!value) {
       return callback('请选择监控对象')
     }
-    if (value.length > 5) {
-      return callback('监控对象不能多于5个')
-    }
     callback()
+  }
+  
+  changeTarget(target) {
+    const { currentChart } = this.props
+    if (currentChart) return
+    this.setState({
+      target
+    }, this.getMonitorMetric)
   }
   
   metricsCheck(rule, value, callback) {
@@ -125,6 +171,14 @@ class MonitorChartModal extends React.Component {
       return callback('请选择监控指标')
     }
     callback()
+  }
+  
+  changeMetrics(id) {
+    const { currentChart } = this.props
+    if (currentChart) return
+    this.setState({
+      metrics_id: id
+    }, this.getMonitorMetric)
   }
   
   aggregationCheck(rule, value, callback) {
@@ -144,7 +198,11 @@ class MonitorChartModal extends React.Component {
     const { deleteChart, clusterID, currentChart, getChartList, panel_id } = this.props
     let notify = new NotificationHandler()
     notify.spin('删除中')
-    deleteChart(clusterID, { ids: [currentChart.id]}, {
+    const query = {
+      ids: [currentChart.id],
+      names: [currentChart.name]
+    }
+    deleteChart(clusterID, query, {
       success: {
         func: () => {
           notify.close()
@@ -172,7 +230,7 @@ class MonitorChartModal extends React.Component {
     const { validateFields, getFieldValue } = form
     let notify = new NotificationHandler()
     const metrics_type = getFieldValue('metrics_type')
-    let validateArr = ['name', 'metrics_type', 'target', 'metrics_id']
+    let validateArr = [ 'name', 'metrics_type', 'target', 'metrics_id']
     if (metrics_type === 'nexport') {
       validateArr.push('nexport')
     }
@@ -183,7 +241,7 @@ class MonitorChartModal extends React.Component {
       const { name, target, metrics_id, nexport } = values
       const body = {
         name,
-        metrics_id,
+        metrics_id: metrics_id.split('/')[0],
         panel_id,
         content: JSON.stringify({
           [nexport]: target
@@ -255,21 +313,27 @@ class MonitorChartModal extends React.Component {
   }
   
   render() {
-    const { currentChart, visible, form, nodeList, allServiceList, proxyList, metricList, proxiesServices } = this.props
+    const { 
+      currentChart, visible, form, nodeList, allServiceList, 
+      proxyList, metricList, proxiesServices, monitorMetrics,
+      isAdmin
+    } = this.props
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     const formItemLayout = {
       labelCol: { span: 3 },
-      wrapperCol: { span: 16 }
+      wrapperCol: { span: 17 }
     }
     const formSmallLayout = {
-      labelCol: { span: 8 },
-      wrapperCol: { span: 16 }
+      labelCol: { span: 7 },
+      wrapperCol: { span: 17 }
     }
+    
+    let chartDate = monitorMetrics 
+    
     let defaultNexport = ''
     let initialTarget
     if (currentChart && currentChart.content) {
       let content = JSON.parse(currentChart.content)
-      console.log(content)
       let nodeAndService = ['node', 'service']
       const contentKey = Object.keys(content)[0]
       if (!nodeAndService.includes(contentKey)) {
@@ -277,7 +341,6 @@ class MonitorChartModal extends React.Component {
       }
       initialTarget = content[contentKey]
     }
-    console.log(initialTarget)
     const nameProps = getFieldProps('name', {
       rules: [
         {
@@ -310,7 +373,8 @@ class MonitorChartModal extends React.Component {
           validator: this.targetCheck
         }
       ],
-      initialValue: initialTarget ? initialTarget : []
+      initialValue: initialTarget ? initialTarget : [],
+      onChange: this.changeTarget
     })
     const metricsProps = getFieldProps('metrics_id', {
       rules: [
@@ -318,7 +382,8 @@ class MonitorChartModal extends React.Component {
           validator: this.metricsCheck
         }
       ],
-      initialValue: currentChart ? currentChart.metricsId : ''
+      initialValue: currentChart ? `${currentChart.metricsId}/${currentChart.metrics}` : '',
+      onChange: this.changeMetrics
     })
     const aggregationProps = getFieldProps('aggregation', {
       rules: [
@@ -328,18 +393,17 @@ class MonitorChartModal extends React.Component {
       ]
     })
     
-    const option = new EchartsOption(getFieldValue('name'))
-    option.addYAxis('value', {
-      formatter: '{value} %'
-    })
-    option.setToolTipUnit(' %')
-    let minValue = 'dataMin'
-    option.setXAxisMinAndMax(minValue)
-    
     let metrics_type = getFieldValue('metrics_type')
+    
+    let targetTypeChildren
     let targetChildren
     let exportChildren
     let metricsChildren
+    
+    let typeArr = isAdmin ? adminTypeArr : defaultTypeArr
+    targetTypeChildren = typeArr.map(item => {
+      return <Option key={item.key}>{item.text}</Option>
+    })
     
     if (metrics_type === 'service') {
       targetChildren = allServiceList && allServiceList.length ? allServiceList.map(item => {
@@ -358,7 +422,7 @@ class MonitorChartModal extends React.Component {
       return <Option key={item.id}>{item.name}</Option>
     }) : []
     metricsChildren = !isEmpty(metricList) ? metricList.map(item => {
-      return <Option key={item.iD}>{item.name}</Option>
+      return <Option key={`${item.iD}/${item.name}`}>{item.name}</Option>
     }) : []
     return (
       <Modal
@@ -367,7 +431,7 @@ class MonitorChartModal extends React.Component {
         footer={this.renderFooter()}
         onCancel={this.cancelModal}
         onOk={this.confirmModal}
-        width={640}
+        width={740}
         className="monitorChartModal"
       >
         <Form
@@ -382,7 +446,7 @@ class MonitorChartModal extends React.Component {
             <Input placeholder="请输入名称" {...nameProps}/>
           </FormItem>
           <Row gutter={16}>
-            <Col span={10}>
+            <Col span={11}>
               <FormItem
                 label="监控对象"
                 {...formSmallLayout}
@@ -391,9 +455,7 @@ class MonitorChartModal extends React.Component {
                   showSearch={true}
                   {...targetTypeProps}
                 >
-                  <Option key="service">服务</Option>
-                  <Option key="node">节点</Option>
-                  <Option key="nexport">网络出口</Option>
+                  {targetTypeChildren}
                 </Select>
               </FormItem>
             </Col>
@@ -411,14 +473,14 @@ class MonitorChartModal extends React.Component {
                       </Select>
                     </FormItem>
                   </Col>,
-                  <Col className="hintColor" span={5} style={{ lineHeight: '32px' }} key="exportText">
+                  <Col className="hintColor" span={4} style={{ lineHeight: '32px' }} key="exportText">
                     多代理节点的汇总
                   </Col>
                 ]
             }
           </Row>
           <Row gutter={16}>
-            <Col span={16} offset={3}>
+            <Col span={17} offset={3}>
               <FormItem>
                 <Select
                   {...targetProps}
@@ -430,7 +492,7 @@ class MonitorChartModal extends React.Component {
                 </Select>
               </FormItem>
             </Col>
-            <Col className="hintColor" span={5} style={{ lineHeight: '32px' }}>推荐不多于5个</Col>
+            <Col className="hintColor" span={4} style={{ lineHeight: '32px' }}>推荐不多于5个</Col>
           </Row>
           <FormItem
             label="监控指标"
@@ -461,11 +523,9 @@ class MonitorChartModal extends React.Component {
           {/*</FormItem>*/}
           <Row>
             <Col span={3} className="viewText">预览</Col>
-            <Col span={16} className="chartBox">
-              <ReactEcharts
-                style={{ height: formatGrid(0) }}
-                notMerge={true}
-                option={option}
+            <Col span={17} className="chartBox">
+              <ChartComponent
+                sourceData={chartDate}
               />
             </Col>
           </Row>
@@ -477,8 +537,9 @@ class MonitorChartModal extends React.Component {
 
 MonitorChartModal = Form.create()(MonitorChartModal)
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
   const { entities, cluster_nodes, services, cluster, manageMonitor } = state
+  const { panel_id, currentChart } = props
   const { current } = entities
   const { cluster: currentCluster } = current
   const { clusterID } = currentCluster
@@ -494,16 +555,22 @@ function mapStateToProps(state) {
   const { result } = proxy || { result: {} }
   const { data: proxyList } = result && result[camelize(clusterID)] || { data: [] }
   
-  const { metrics, proxiesServices } = manageMonitor || { metrics: {}, proxiesServices: {} }
+  const { metrics, proxiesServices, monitorMetrics } = manageMonitor || { metrics: {}, proxiesServices: {}, monitorMetrics: {} }
   const { metricType } = metrics || { metricType: '' }
   const { proxyID } = proxiesServices || { proxyID: '' }
+  
+  let monitorID =  panel_id
+  if (currentChart) {
+    monitorID = panel_id + currentChart.id
+  }
   return {
     clusterID,
     nodeList,
     allServiceList,
     proxyList,
     metricList: metricType ? metrics[metricType].metrics : [],
-    proxiesServices: proxyID ? proxiesServices[proxyID].data : []
+    proxiesServices: proxyID ? proxiesServices[proxyID].data : [],
+    monitorMetrics: monitorMetrics[monitorID] || { data: [], isFetching: false },
   }
 }
 export default connect(mapStateToProps, {
@@ -516,5 +583,6 @@ export default connect(mapStateToProps, {
   getChartList,
   getMetrics,
   getProxiesService,
-  checkChartName
+  checkChartName,
+  getMonitorMetrics
 })(MonitorChartModal)
