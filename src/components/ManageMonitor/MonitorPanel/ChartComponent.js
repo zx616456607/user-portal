@@ -15,13 +15,13 @@ import { formatDate } from "../../../common/tools"
 
 export default class ChartComponent extends React.Component {
   render() {
-    const { sourceData, className  } = this.props
+    const { sourceData, className, unit  } = this.props
     const { isFetching, data } = sourceData
     const option = new EchartsOption('')
     option.addYAxis('value', {
       formatter: '{value}'
     })
-    option.setToolTipUnit(' 个')
+    option.setToolTipUnit(` ${unit}`)
     let minValue = 'dataMin'
     option.setGrid([{
       top: 50,
