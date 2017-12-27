@@ -99,19 +99,21 @@ class MonitorChartModal extends React.Component {
       const contentKey = Object.keys(content)[0]
       this.changeExport(contentKey)
       this.changeTargetType(currentChart.type)
+      this.changeTarget(content[contentKey])
+      this.changeMetrics(currentChart.metricsNickName)
     }
   }
   
   getMonitorMetric() {
     const { getMonitorMetrics, clusterID, panel_id } = this.props
-    const { nexport, target, metrics_id } = this.state
-    if (!metrics_id || !nexport || !target || !target.length) {
+    const { nexport, target, metricsName } = this.state
+    if (!metricsName || !nexport || !target || !target.length) {
       return
     }
     const query = {
-      type: metrics_id.split('/')[1],
+      type: metricsName,
       source: 'prometheus',
-      start: new Date(Date.parse(new Date()) - (60 * 60 * 1000)).toISOString(),
+      start: new Date(Date.parse(new Date()) - (60 * 60 * 1000)).toISOString(), // 一小时前
       end: new Date().toISOString()
     }
     getMonitorMetrics(panel_id, null, clusterID, nexport, target, query, {
@@ -181,7 +183,7 @@ class MonitorChartModal extends React.Component {
   changeExport(proxyID) {
     const { getProxiesService, clusterID, currentChart } = this.props
     getProxiesService(clusterID, proxyID)
-    if (currentChart) return
+    // if (currentChart) return
     this.setState({
       nexport: proxyID
     }, this.getMonitorMetric)
@@ -196,7 +198,7 @@ class MonitorChartModal extends React.Component {
   
   changeTarget(target) {
     const { currentChart } = this.props
-    if (currentChart) return
+    // if (currentChart) return
     this.setState({
       target
     }, this.getMonitorMetric)
@@ -210,22 +212,17 @@ class MonitorChartModal extends React.Component {
   }
   
   changeMetrics(nickName) {
-    const { currentChart, metricList, form } = this.props
-    if (currentChart || !metricList ||!metricList.length) return
-    let id = ''
+    const { currentChart, metricList } = this.props
+    if (!metricList ||!metricList.length) return
+    let name = ''
     for (let i = 0; i < metricList.length; i++) {
       if (nickName === metricList[i].nickName) {
-        id = `${metricList[i].iD}/${metricList[i].name}`
+        name = metricList[i].name
         break
       }
     }
-    setTimeout(() => {
-      form.setFieldsValue({
-        metrics_id: id
-      })
-    })
     this.setState({
-      metrics_id: id
+      metricsName: name
     }, this.getMonitorMetric)
   }
   
@@ -274,7 +271,7 @@ class MonitorChartModal extends React.Component {
     })
   }
   confirmModal() {
-    const { form, createChart, updateChart, panel_id, clusterID, currentChart, getChartList } = this.props
+    const { form, createChart, updateChart, panel_id, clusterID, currentChart, getChartList, metricList } = this.props
     const { validateFields, getFieldValue } = form
     let notify = new NotificationHandler()
     const metrics_type = getFieldValue('metrics_type')
@@ -287,9 +284,16 @@ class MonitorChartModal extends React.Component {
         return
       }
       const { name, target, metrics_id, nexport } = values
+      let id = ''
+      for (let i = 0; i < metricList.length; i++) {
+        if (metrics_id === metricList[i].nickName) {
+          id = metricList[i].iD
+          break
+        }
+      }
       const body = {
         name,
-        metrics_id: metrics_id.split('/')[0],
+        metrics_id: id,
         panel_id,
         content: JSON.stringify({
           [nexport]: target
@@ -376,8 +380,7 @@ class MonitorChartModal extends React.Component {
       labelCol: { span: 7 },
       wrapperCol: { span: 17 }
     }
-    
-    let chartDate = currentChart ? monitorMetrics : previewMetrics
+    let chartDate = !isEmpty(previewMetrics.data) ? previewMetrics : monitorMetrics
     let defaultNexport = ''
     let initialTarget
     if (currentChart && currentChart.content) {
