@@ -56,6 +56,7 @@ class MonitorChartTemp extends React.Component {
     return (
       <Card title={`${currentChart.name}（${currentChart.unit || '个'}）`} className="chartBody" extra={this.cardExtra()}>
         <ChartComponent
+          unit={currentChart.unit || '个'}
           className="monitorChart"
           sourceData={monitorMetrics}
         />
