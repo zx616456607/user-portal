@@ -209,9 +209,21 @@ class MonitorChartModal extends React.Component {
     callback()
   }
   
-  changeMetrics(id) {
-    const { currentChart } = this.props
-    if (currentChart) return
+  changeMetrics(nickName) {
+    const { currentChart, metricList, form } = this.props
+    if (currentChart || !metricList ||!metricList.length) return
+    let id = ''
+    for (let i = 0; i < metricList.length; i++) {
+      if (nickName === metricList[i].nickName) {
+        id = `${metricList[i].iD}/${metricList[i].name}`
+        break
+      }
+    }
+    setTimeout(() => {
+      form.setFieldsValue({
+        metrics_id: id
+      })
+    })
     this.setState({
       metrics_id: id
     }, this.getMonitorMetric)
@@ -418,7 +430,7 @@ class MonitorChartModal extends React.Component {
           validator: this.metricsCheck
         }
       ],
-      initialValue: currentChart ? `${currentChart.metricsId}/${currentChart.metrics}` : '',
+      initialValue: currentChart ? currentChart.metricsNickName : '',
       onChange: this.changeMetrics
     })
     const aggregationProps = getFieldProps('aggregation', {
@@ -458,7 +470,7 @@ class MonitorChartModal extends React.Component {
       return <Option key={item.id}>{item.name}</Option>
     }) : []
     metricsChildren = !isEmpty(metricList) ? metricList.map(item => {
-      return <Option key={`${item.iD}/${item.name}`}>{item.nickName}</Option>
+      return <Option key={item.nickName}>{item.nickName}</Option>
     }) : []
     return (
       <Modal
