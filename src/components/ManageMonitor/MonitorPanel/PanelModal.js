@@ -180,7 +180,7 @@ class PanelModal extends React.Component {
   
   render() {
     const { form, visible, currentPanel } = this.props
-    const { getFieldProps, isFieldValidating, getFieldError } = form
+    const { getFieldProps, isFieldValidating, getFieldError, getFieldValue } = form
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 20 },
@@ -207,7 +207,7 @@ class PanelModal extends React.Component {
           <FormItem
             label="监控面板"
             {...formItemLayout}
-            hasFeedback
+            hasFeedback={!!getFieldValue('name')}
             help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
           >
             <Input {...panelNameProps}/>
