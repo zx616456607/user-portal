@@ -178,7 +178,7 @@ exports.verifyUser = function* (next) {
   }
   // These message(and watchToken etc.) will be save to session
   let registryAuth = Buffer(result.userName + ':' + body.password).toString('base64');
-  if(body.accountType == 'vsettan') {
+  if (body.accountType == 'vsettan' || body.accountType == 'cas') {
     // Use accountName and accountID for authority check
     registryAuth =  Buffer(result.namespace + ':' + body.accountID).toString('base64');
   }
