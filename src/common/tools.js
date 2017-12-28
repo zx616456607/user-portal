@@ -642,3 +642,22 @@ export function encodeImageFullname(fullname) {
   }
   return `${project}/${encodeURIComponent(imageName.join('/'))}`
 }
+
+/**
+ * 
+ * @param bytes
+ * @param size
+ * @returns
+ */
+export function bytesToSize(bytes, size) {
+  if (bytes === 0) return { value: 0, unit: 'B' };
+  let k = 1024,
+    sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+    i = Math.floor(Math.log(bytes) / Math.log(k));
+  if (size) {
+    i = sizes.findIndex(item => item === size)
+  }
+  let value = (bytes / Math.pow(k, i)).toFixed(2)
+  let unit = sizes[i]
+  return { value, unit };
+}

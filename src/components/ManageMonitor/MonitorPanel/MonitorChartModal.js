@@ -16,6 +16,7 @@ import { Modal, Form, Input, Button, Select, Row, Col } from 'antd'
 import { camelize } from 'humps'
 import isEmpty from 'lodash/isEmpty'
 import './style/MonitorChartModal.less'
+import { bytesToSize } from '../../../common/tools'
 import { getAllClusterNodes } from '../../../actions/cluster_node'
 import { loadAllServices } from '../../../actions/services'
 import { getProxy } from '../../../actions/cluster'
@@ -78,6 +79,7 @@ class MonitorChartModal extends React.Component {
     this.changeExport = this.changeExport.bind(this)
     this.changeTarget = this.changeTarget.bind(this)
     this.changeMetrics = this.changeMetrics.bind(this)
+    this.updateUnit = this.updateUnit.bind(this)
     this.state = {
       previewMetrics: {
         isFetching: false,
@@ -181,9 +183,8 @@ class MonitorChartModal extends React.Component {
   }
   
   changeExport(proxyID) {
-    const { getProxiesService, clusterID, currentChart } = this.props
+    const { getProxiesService, clusterID } = this.props
     getProxiesService(clusterID, proxyID)
-    // if (currentChart) return
     this.setState({
       nexport: proxyID
     }, this.getMonitorMetric)
@@ -197,8 +198,6 @@ class MonitorChartModal extends React.Component {
   }
   
   changeTarget(target) {
-    const { currentChart } = this.props
-    // if (currentChart) return
     this.setState({
       target
     }, this.getMonitorMetric)
@@ -212,7 +211,7 @@ class MonitorChartModal extends React.Component {
   }
   
   changeMetrics(nickName) {
-    const { currentChart, metricList } = this.props
+    const { metricList } = this.props
     if (!metricList ||!metricList.length) return
     let name = ''
     for (let i = 0; i < metricList.length; i++) {
@@ -351,6 +350,13 @@ class MonitorChartModal extends React.Component {
     })
   }
   
+  updateUnit(bytes) {
+    const { unit } = bytesToSize(bytes)
+    this.setState({
+      unit
+    })
+  }
+  
   renderFooter() {
     const { currentChart } = this.props
     return [
@@ -370,7 +376,7 @@ class MonitorChartModal extends React.Component {
       proxyList, metricList, proxiesServices, monitorMetrics,
       isAdmin
     } = this.props
-    const { previewMetrics } = this.state
+    const { previewMetrics, unit } = this.state
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     const formItemLayout = {
       labelCol: { span: 3 },
@@ -580,6 +586,9 @@ class MonitorChartModal extends React.Component {
                   <div className="noChartData"/>
                   :
                   <ChartComponent
+                    unit={unit}
+                    metrics={currentChart.metrics}
+                    updateUnit={this.updateUnit}
                     sourceData={chartDate}
                   />
               }

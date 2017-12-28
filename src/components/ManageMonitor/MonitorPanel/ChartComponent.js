@@ -11,9 +11,26 @@
 import React from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from '../../Metrics/EchartsOption'
-import { formatDate } from "../../../common/tools"
+import { formatDate, bytesToSize } from "../../../common/tools"
 
 export default class ChartComponent extends React.Component {
+  
+  componentWillMount() {
+    const { updateUnit, sourceData, metrics } = this.props
+    const { data } = sourceData
+    let reg = /byte/
+    if (reg.test(metrics)) {
+      let maxValue = 0
+      data && data.forEach(item => {
+        item && item.metrics && item.metrics.length && item.metrics.forEach(metric => {
+          if (metric.floatValue > maxValue) {
+            maxValue = metric.floatValue
+          }
+        })
+      })
+      updateUnit && updateUnit(maxValue)
+    }
+  }
   render() {
     const { sourceData, className, unit  } = this.props
     const { isFetching, data } = sourceData
@@ -32,9 +49,14 @@ export default class ChartComponent extends React.Component {
     data && data.map((item) => {
       let dataArr = []
       item && item.metrics && item.metrics.length && item.metrics.map((metric) => {
+        let defaultValue = metric.floatValue || metric.value
+        if (unit !== '个') {
+          const { value } = bytesToSize(defaultValue, unit)
+          defaultValue = value
+        }
         dataArr.push([
           Date.parse(metric.timestamp),
-          Math.floor(metric.floatValue || metric.value)
+          defaultValue
         ])
       })
       option.addSeries(dataArr, item.name)
