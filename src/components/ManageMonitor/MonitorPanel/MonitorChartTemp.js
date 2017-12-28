@@ -10,14 +10,20 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Card, Icon } from 'antd'
+import { Card, Icon, Spin } from 'antd'
 import { getMonitorMetrics } from '../../../actions/manage_monitor'
 import ChartComponent from './ChartComponent'
+import { bytesToSize } from '../../../common/tools'
 
 class MonitorChartTemp extends React.Component {
   constructor() {
     super()
+    this.updateUnit = this.updateUnit.bind(this)
+    this.state = {
+      unit: '个'
+    }
   }
+  
   componentDidMount() {
     this.getMetrics(this.props)
   }
@@ -44,6 +50,14 @@ class MonitorChartTemp extends React.Component {
     }
     getMonitorMetrics(currentPanel.iD, currentChart.id, clusterID, lbgroup, services, query)
   }
+  
+  updateUnit(bytes) {
+    const { unit } = bytesToSize(bytes)
+    this.setState({
+      unit
+    })
+  }
+  
   cardExtra() {
     const { openChartModal, currentPanel, currentChart } = this.props
     return [
@@ -52,14 +66,24 @@ class MonitorChartTemp extends React.Component {
     ]
   }
   render() {
+    const { unit } = this.state
     const { currentChart, monitorMetrics  } = this.props
     return (
-      <Card title={`${currentChart.name}（${currentChart.unit || '个'}）`} className="chartBody" extra={this.cardExtra()}>
-        <ChartComponent
-          unit={currentChart.unit || '个'}
-          className="monitorChart"
-          sourceData={monitorMetrics}
-        />
+      <Card title={`${currentChart.name}（${unit}）`} className="chartBody" extra={this.cardExtra()}>
+        {
+          monitorMetrics.isFetching ?
+            <div className="loadingBox">
+              <Spin size="large"/>
+            </div>
+            :
+            <ChartComponent
+              unit={unit}
+              metrics={currentChart.metrics}
+              updateUnit={this.updateUnit}
+              className="monitorChart"
+              sourceData={monitorMetrics}
+            />
+        }
       </Card>
     )
   }
