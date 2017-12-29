@@ -10,7 +10,7 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Card, Icon, Spin } from 'antd'
+import { Card, Icon, Spin, Row, Col, Tooltip } from 'antd'
 import { getMonitorMetrics } from '../../../actions/manage_monitor'
 import ChartComponent from './ChartComponent'
 import { bytesToSize } from '../../../common/tools'
@@ -65,6 +65,21 @@ class MonitorChartTemp extends React.Component {
       <Icon key="setting" type="setting" onClick={() => openChartModal(currentPanel.iD, currentChart)}/>
     ]
   }
+  
+  renderType(chart) {
+    const { type } = chart
+    switch(type) {
+      case 'nexport':
+        return `网络出口/${chart.netExportName}`
+      case 'node':
+        return '节点'
+      case 'service':
+        return '服务'
+      default:
+        return '未知'
+    }
+  }
+  
   render() {
     const { unit } = this.state
     const { currentChart, monitorMetrics  } = this.props
@@ -76,13 +91,30 @@ class MonitorChartTemp extends React.Component {
               <Spin size="large"/>
             </div>
             :
-            <ChartComponent
-              unit={unit}
-              metrics={currentChart.metrics}
-              updateUnit={this.updateUnit}
-              className="monitorChart"
-              sourceData={monitorMetrics}
-            />
+            [
+              <ChartComponent
+                unit={unit}
+                metrics={currentChart.metrics}
+                updateUnit={this.updateUnit}
+                className="monitorChart"
+                sourceData={monitorMetrics}
+              />,
+              <Row className="cardFooter">
+                <Tooltip
+                  placement="topLeft"
+                  title={this.renderType(currentChart)}
+                  
+                >
+                  <Col span={12} className="textoverflow">{this.renderType(currentChart)}</Col>
+                </Tooltip>
+                <Tooltip
+                  placement="topRight"
+                  title={currentChart.metricsNickName}
+                >
+                  <Col span={12} className="textoverflow">{currentChart.metricsNickName}</Col>
+                </Tooltip>
+              </Row>
+            ]
         }
       </Card>
     )
