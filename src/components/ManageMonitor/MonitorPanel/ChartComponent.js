@@ -39,6 +39,13 @@ export default class ChartComponent extends React.Component {
       formatter: '{value}'
     })
     option.setToolTipUnit(` ${unit}`)
+    option.setTooltip('position', function (pos, params, dom, rect, size) {
+      // 鼠标在左侧时 tooltip 显示到右侧，鼠标在右侧时 tooltip 显示到左侧。
+      let obj = {top: 60};
+      let leftPart = pos[0] < size.viewSize[0] / 2
+      obj[['left', 'right'][+leftPart]] = leftPart ? (size.viewSize[0] - (1.5 * pos[0]) - 120) : (pos[0] / 2)
+      return obj;
+    })
     let minValue = 'dataMin'
     option.setGrid([{
       top: 50,
