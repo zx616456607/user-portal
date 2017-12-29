@@ -417,7 +417,7 @@ class MonitorChartModal extends React.Component {
       proxyList, metricList, proxiesServices, monitorMetrics,
       isAdmin
     } = this.props
-    const { previewMetrics, unit, deleteModal, deleteLoading } = this.state
+    const { previewMetrics, unit, deleteModal, deleteLoading, metricsName } = this.state
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     const formItemLayout = {
       labelCol: { span: 3 },
@@ -640,7 +640,7 @@ class MonitorChartModal extends React.Component {
                   :
                   <ChartComponent
                     unit={unit}
-                    metrics={currentChart && currentChart.metrics}
+                    metrics={currentChart ? currentChart.metrics : metricsName}
                     updateUnit={this.updateUnit}
                     sourceData={chartDate}
                   />
