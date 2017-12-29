@@ -383,41 +383,42 @@ exports.getTargetInstant = function* () {
     type: 'network/rx_rate',
     source: 'prometheus'
   }
-  let tcp_listen = {
-    targetType: type,
-    type: 'tcp/listen_state',
-    source: 'prometheus'
-  }
-  let tcp_est = {
-    targetType: type,
-    type: 'tcp/est_state',
-    source: 'prometheus'
-  }
-  let tcp_close = {
-    targetType: type,
-    type: 'tcp/close_wait_state',
-    source: 'prometheus'
-  }
-  let tcp_time = {
-    targetType: type,
-    type: 'tcp/time_wait_state',
-    source: 'prometheus'
-  }
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], cpu))
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], mem))
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tx_rage))
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], rx_rate))
-  reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_listen))
-  reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_est))
-  reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_close))
-  reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_time))
   if(type == 'node'){
     let disk = {
       targetType: type,
       type: 'disk/usage',
       source: 'prometheus'
     }
+  
+    let tcp_listen = {
+      targetType: type,
+      type: 'tcp/listen_state',
+      source: 'prometheus'
+    }
+    let tcp_est = {
+      targetType: type,
+      type: 'tcp/est_state',
+      source: 'prometheus'
+    }
+    let tcp_close = {
+      targetType: type,
+      type: 'tcp/close_wait_state',
+      source: 'prometheus'
+    }
+    let tcp_time = {
+      targetType: type,
+      type: 'tcp/time_wait_state',
+      source: 'prometheus'
+    }
     reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], disk))
+    reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_listen))
+    reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_est))
+    reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_close))
+    reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_time))
   }
   const results = yield reqArray
   let totalMemoryByte = 0
