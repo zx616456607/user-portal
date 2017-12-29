@@ -80,6 +80,8 @@ class MonitorChartModal extends React.Component {
     this.changeTarget = this.changeTarget.bind(this)
     this.changeMetrics = this.changeMetrics.bind(this)
     this.updateUnit = this.updateUnit.bind(this)
+    this.deleteConfirm = this.deleteConfirm.bind(this)
+    this.deleteCancel = this.deleteCancel.bind(this)
     this.state = {
       previewMetrics: {
         isFetching: false,
@@ -239,9 +241,23 @@ class MonitorChartModal extends React.Component {
   }
   
   handleDelete() {
+    this.setState({
+      deleteModal: true
+    })
+  }
+  
+  deleteCancel() {
+    this.setState({
+      deleteModal: false
+    })
+  }
+  deleteConfirm() {
     const { deleteChart, clusterID, currentChart, getChartList, panel_id } = this.props
     let notify = new NotificationHandler()
     notify.spin('删除中')
+    this.setState({
+      deleteLoading: true
+    })
     const query = {
       ids: [currentChart.id],
       names: [currentChart.name]
@@ -252,6 +268,10 @@ class MonitorChartModal extends React.Component {
           notify.close()
           notify.success('删除成功')
           getChartList(clusterID, { panel_id })
+          this.setState({
+            deleteModal: false,
+            deleteLoading: false
+          })
           this.cancelModal()
         },
         isAsync: true
@@ -264,11 +284,16 @@ class MonitorChartModal extends React.Component {
           } else {
             notify.error('删除失败', res.message)
           }
+          this.setState({
+            deleteModal: false,
+            deleteLoading: false
+          })
           this.cancelModal()
         }
       }
     })
   }
+  
   confirmModal() {
     const { form, createChart, updateChart, panel_id, clusterID, currentChart, getChartList, metricList } = this.props
     const { validateFields, getFieldValue } = form
@@ -298,6 +323,9 @@ class MonitorChartModal extends React.Component {
           [nexport]: target
         })
       }
+      this.setState({
+        confirmLoading: true
+      })
       if (currentChart) {
         notify.spin('修改中')
         updateChart(clusterID, currentChart.id, body, {
@@ -305,6 +333,9 @@ class MonitorChartModal extends React.Component {
             func: () => {
               notify.close()
               notify.success('修改成功')
+              this.setState({
+                confirmLoading: false
+              })
               getChartList(clusterID, { panel_id })
               this.cancelModal()
             },
@@ -319,6 +350,9 @@ class MonitorChartModal extends React.Component {
                 notify.error('修改失败', res.message)
               }
               this.cancelModal()
+              this.setState({
+                confirmLoading: false
+              })
             }
           }
         })
@@ -329,6 +363,9 @@ class MonitorChartModal extends React.Component {
             func: () => {
               notify.close()
               notify.success('创建成功')
+              this.setState({
+                confirmLoading: false
+              })
               getChartList(clusterID, { panel_id })
               this.cancelModal()
             },
@@ -343,6 +380,9 @@ class MonitorChartModal extends React.Component {
                 notify.error('创建失败', res.message)
               }
               this.cancelModal()
+              this.setState({
+                confirmLoading: false
+              })
             }
           }
         })
@@ -358,6 +398,7 @@ class MonitorChartModal extends React.Component {
   }
   
   renderFooter() {
+    const { confirmLoading } = this.state
     const { currentChart } = this.props
     return [
       <Button key="cancel" onClick={this.cancelModal} size="large">取消</Button>,
@@ -366,7 +407,7 @@ class MonitorChartModal extends React.Component {
         onClick={this.handleDelete}
         style={{ borderColor: 'red', color: 'red' }} 
         size="large" key="delete">删除</Button>,
-      <Button key="confirm" type="primary" size="large" onClick={this.confirmModal}>确认</Button>
+      <Button key="confirm" type="primary" size="large" loading={confirmLoading} onClick={this.confirmModal}>确认</Button>
     ]
   }
   
@@ -376,7 +417,7 @@ class MonitorChartModal extends React.Component {
       proxyList, metricList, proxiesServices, monitorMetrics,
       isAdmin
     } = this.props
-    const { previewMetrics, unit } = this.state
+    const { previewMetrics, unit, deleteModal, deleteLoading } = this.state
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     const formItemLayout = {
       labelCol: { span: 3 },
@@ -491,6 +532,18 @@ class MonitorChartModal extends React.Component {
         width={740}
         className="monitorChartModal"
       >
+        <Modal
+          title="删除监控图表"
+          visible={deleteModal}
+          onCancel={this.deleteCancel}
+          onOk={this.deleteConfirm}
+          confirmLoading={deleteLoading}
+        >
+          <div className="themeColor">
+            <i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}/>
+            确定删除此监控图表？
+          </div>
+        </Modal>
         <Form
           form={form}
         >
