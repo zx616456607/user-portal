@@ -587,7 +587,7 @@ class MonitorChartModal extends React.Component {
                   :
                   <ChartComponent
                     unit={unit}
-                    metrics={currentChart.metrics}
+                    metrics={currentChart && currentChart.metrics}
                     updateUnit={this.updateUnit}
                     sourceData={chartDate}
                   />
