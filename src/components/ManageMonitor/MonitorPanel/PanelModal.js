@@ -24,6 +24,11 @@ class PanelModal extends React.Component {
     this.confirmModal = this.confirmModal.bind(this)
     this.deletePanel = this.deletePanel.bind(this)
     this.checkName = this.checkName.bind(this)
+    this.deleteCancel = this.deleteCancel.bind(this)
+    this.deleteConfirm = this.deleteConfirm.bind(this)
+    this.state = {
+      deleteModal: false
+    }
   }
   
   componentWillUnmount() {
@@ -60,6 +65,18 @@ class PanelModal extends React.Component {
   }
   
   deletePanel() {
+    this.setState({
+      deleteModal: true
+    })
+  }
+  
+  deleteCancel() {
+    this.setState({
+      deleteModal: false
+    })
+  }
+  
+  deleteConfirm() {
     const { currentPanel, deletePanel, clusterID, getPanes } = this.props
     let notify = new NotificationHandler()
     const body = {
@@ -67,12 +84,19 @@ class PanelModal extends React.Component {
       names: [currentPanel.name]
     }
     notify.spin('删除中')
+    this.setState({
+      deleteLoading: true
+    })
     deletePanel(clusterID, body, {
       success: {
         func: () => {
           notify.close()
           notify.success('删除成功')
           getPanes(true)
+          this.setState({
+            deleteModal: false,
+            deleteLoading: false
+          })
           this.cancelModal()
         },
         isAsync: true
@@ -85,6 +109,10 @@ class PanelModal extends React.Component {
           } else {
             notify.error('删除失败', res.message)
           }
+          this.setState({
+            deleteModal: false,
+            deleteLoading: false
+          })
           this.cancelModal()
         }
       }
@@ -112,6 +140,9 @@ class PanelModal extends React.Component {
       const body = {
         name
       }
+      this.setState({
+        confirmLoading: true
+      })
       notify.spin('操作中')
       if (currentPanel) {
         const panelID = currentPanel.iD
@@ -119,6 +150,9 @@ class PanelModal extends React.Component {
           success: {
             func: () => {
               notify.close()
+              this.setState({
+                confirmLoading: false
+              })
               notify.success('修改成功')
               getPanes()
               this.cancelModal()
@@ -133,6 +167,9 @@ class PanelModal extends React.Component {
               } else {
                 notify.error('请求失败', res.message)
               }
+              this.setState({
+                confirmLoading: false
+              })
               this.cancelModal()
             }
           }
@@ -145,6 +182,9 @@ class PanelModal extends React.Component {
             notify.close()
             notify.success('创建成功')
             getPanes(true, true)
+            this.setState({
+              confirmLoading: false
+            })
             this.cancelModal()
           },
           isAsync: true
@@ -158,6 +198,9 @@ class PanelModal extends React.Component {
               notify.error('创建失败', res.message)
             }
             this.cancelModal()
+            this.setState({
+              confirmLoading: false
+            })
           }
         }
       })
@@ -165,6 +208,7 @@ class PanelModal extends React.Component {
   }
   
   renderFooter() {
+    const { confirmLoading } = this.state
     const { currentPanel } = this.props
     return (
       [
@@ -173,12 +217,13 @@ class PanelModal extends React.Component {
         <Button 
           style={{ borderColor: 'red', color: 'red' }} 
           onClick={this.deletePanel} size="large" type="ghost" key="delete">删除</Button>,
-        <Button type="primary" key="confirm" size="large" onClick={this.confirmModal}>{currentPanel ? '确定' : '立即创建'}</Button>
+        <Button type="primary" key="confirm" size="large" loading={confirmLoading} onClick={this.confirmModal}>{currentPanel ? '确定' : '立即创建'}</Button>
       ]
     )
   }
   
   render() {
+    const { deleteModal, deleteLoading } = this.state
     const { form, visible, currentPanel } = this.props
     const { getFieldProps, isFieldValidating, getFieldError, getFieldValue } = form
     const formItemLayout = {
@@ -201,6 +246,18 @@ class PanelModal extends React.Component {
         onOk={this.confirmModal}
         footer={this.renderFooter()}
       >
+        <Modal
+          title="删除监控面板"
+          visible={deleteModal}
+          onOk={this.deleteConfirm}
+          onCancel={this.deleteCancel}
+          confirmLoading={deleteLoading}
+        >
+          <div className="themeColor">
+            <i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}/>
+            确定删除此监控面板？
+          </div>
+        </Modal>
         <Form
           form={form}
         >
