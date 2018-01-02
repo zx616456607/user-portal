@@ -25,7 +25,11 @@ class MonitorChartTemp extends React.Component {
   }
   
   componentDidMount() {
+    const { currentChart } = this.props
     this.getMetrics(this.props)
+    this.setState({
+      unit: currentChart.unit || ''
+    })
   }
   
   componentWillReceiveProps(nextProps) {
