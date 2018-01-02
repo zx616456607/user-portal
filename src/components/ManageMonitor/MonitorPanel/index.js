@@ -17,6 +17,7 @@ import PanelModal from './PanelModal'
 import MonitorChartModal from './MonitorChartModal'
 import { getPanelList, createPanel, updatePanel, getChartList } from '../../../actions/manage_monitor'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
+import Title from '../../Title'
 
 const TabPane = Tabs.TabPane;
 class MonitorPanel extends React.Component {
@@ -127,6 +128,7 @@ class MonitorPanel extends React.Component {
     }
     return (
       <div className="monitorPanel">
+        <Title title="监控面板"/>
         <Button type="primary" size="large" className="addMonitorBtn pointer" onClick={() => this.openPanelModal(null)} icon="plus">添加监控面板</Button>
         {
           panelModal &&
