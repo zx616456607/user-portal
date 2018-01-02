@@ -211,7 +211,8 @@ class AlarmDetail extends Component {
       {
         title: '监控项',
         dataIndex: 'type',
-        key:'type'
+        key:'type',
+        render: text => text.indexOf('tcp') > -1 ? text.replace('tcp', 'TCP') : text
       }, {
         title: '条件',
         dataIndex: 'operation',

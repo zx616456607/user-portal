@@ -775,10 +775,10 @@ let TwoStop = React.createClass({
     ]
     if(alarmType == 'node') {
       optionArray.push(<Option key="5" value="disk/usage">磁盘利用率</Option>)
-      optionArray.push(<Option key="6" value="tcp/listen_state">tcp listen</Option>)
-      optionArray.push(<Option key="7" value="tcp/est_state">tcp established</Option>)
-      optionArray.push(<Option key="8" value="tcp/close_wait_state">tcp close_wait</Option>)
-      optionArray.push(<Option key="9" value="tcp/time_wait_state">tcp time_wait</Option>)
+      optionArray.push(<Option key="6" value="tcp/listen_state">TCP listen</Option>)
+      optionArray.push(<Option key="7" value="tcp/est_state">TCP established</Option>)
+      optionArray.push(<Option key="8" value="tcp/close_wait_state">TCP close_wait</Option>)
+      optionArray.push(<Option key="9" value="tcp/time_wait_state">TCP time_wait</Option>)
     }
     return optionArray
   },
@@ -792,7 +792,7 @@ let TwoStop = React.createClass({
       let ruleList = []
       if(alarmType == 'service'){
         cloneData.forEach((item, index) => {
-          if(item.type && (!['磁盘利用率','tcp listen连接数', 'tcp established连接数'].includes(item.type.trim()))){
+          if(item.type && (!['磁盘利用率','tcp listen连接数', 'tcp established连接数', 'tcp close_wait连接数', 'tcp time_wait连接数'].includes(item.type.trim()))){
             ruleList.push(item)
           }
         })

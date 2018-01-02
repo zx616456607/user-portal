@@ -470,10 +470,10 @@ exports.getTargetInstant = function* () {
       tx_rate: results[2].data[name],
       rx_rate: results[3].data[name],
       disk: results[4] ? results[4].data[name] : null,
-      tcpListen: results[5].data[name],
-      tcpEst: results[6].data[name],
-      tcpClose: results[7].data[name],
-      tcpTime: results[8].data[name]
+      tcpListen: results[5] ? results[5].data[name] : null,
+      tcpEst: results[6] ? results[6].data[name] : null,
+      tcpClose: results[7] ? results[7].data[name] : null,
+      tcpTime: results[8] ? results[8].data[name] : null
     }
   }
 }
