@@ -30,12 +30,12 @@ export function validateK8sResourceForServiceName(name) {
   if (!name) {
     return false
   }
-  if (name.length < 3 || name.length > 24) {
+  if (name.length < 3 || name.length > 63) {
     return false
   }
   // TODO: not work with below syntax
   // let regx = /^[a-z0-9]+([-.~/][a-z0-9]+)*$/
-  let regx = new RegExp('^[a-z][-a-z0-9]{1,22}[a-z0-9]$')
+  let regx = new RegExp('^[a-z][-a-z0-9]{1,61}[a-z0-9]$')
   if (!regx.test(name)) {
     return false
   }
