@@ -397,7 +397,7 @@ let ConfigureService = React.createClass({
     }
     const { current, checkServiceName, allFields, id } = this.props
     if (!validateK8sResourceForServiceName(value)) {
-      return callback('服务名称可由3~24位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
+      return callback('服务名称可由3~63位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
     }
     for (let key in allFields) {
       if (allFields.hasOwnProperty(key)) {
