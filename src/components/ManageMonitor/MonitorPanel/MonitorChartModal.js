@@ -48,7 +48,7 @@ const adminTypeArr = [{
 const defaultTypeArr = [{
   key: 'service',
   text: '服务',
-  disabled: false
+  disabled: true
 }]
 
 function formatMetric(result) {
@@ -185,8 +185,13 @@ class MonitorChartModal extends React.Component {
   }
   
   changeExport(proxyID) {
-    const { getProxiesService, clusterID } = this.props
+    const { getProxiesService, clusterID, form } = this.props
+    const { getFieldValue, resetFields } = form
     getProxiesService(clusterID, proxyID)
+    const preID = getFieldValue('nexport')
+    if (preID !== proxyID) {
+      resetFields(['target'])
+    }
     this.setState({
       nexport: proxyID
     }, this.getMonitorMetric)
