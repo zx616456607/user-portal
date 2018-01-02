@@ -10,6 +10,7 @@
 
 import * as ActionTypes from '../actions/manage_monitor'
 import merge from 'lodash/merge'
+import { decamelize } from 'humps'
 import reducerFactory from './factory'
 import cloneDeep from 'lodash/cloneDeep'
 import union from 'lodash/union'
@@ -303,7 +304,7 @@ function formatMetric(result) {
       break
     }
     let obj = {
-      name: i,
+      name: decamelize(i, { separator: '-' }),
       ...result[i]
     }
     data.push(obj)
