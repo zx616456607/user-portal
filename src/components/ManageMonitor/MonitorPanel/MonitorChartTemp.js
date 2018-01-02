@@ -11,6 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Card, Icon, Spin, Row, Col, Tooltip } from 'antd'
+import isEmpty from 'lodash/isEmpty'
 import { getMonitorMetrics } from '../../../actions/manage_monitor'
 import ChartComponent from './ChartComponent'
 import { bytesToSize } from '../../../common/tools'
@@ -25,8 +26,8 @@ class MonitorChartTemp extends React.Component {
   }
   
   componentDidMount() {
-    const { currentChart } = this.props
-    this.getMetrics(this.props)
+    const { currentChart, monitorMetrics } = this.props
+    isEmpty(monitorMetrics.data) && this.getMetrics(this.props)
     this.setState({
       unit: currentChart.unit || ''
     })
