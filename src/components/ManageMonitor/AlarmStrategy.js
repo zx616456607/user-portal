@@ -93,11 +93,11 @@ class AlarmStrategy extends Component {
         return
       }
       case 'stop':{
-        this.setState({enable: 'stop',strategyID: [record.strategyID]})
+        this.setState({enable: 'stop',strategyID: [record.strategyID],strategyName: [record.strategyName]})
         return
       }
       case 'start':{
-        this.setState({enable: 'start',strategyID: [record.strategyID]})
+        this.setState({enable: 'start',strategyID: [record.strategyID],strategyName: [record.strategyName]})
         return
       }
       case 'edit': {
@@ -178,13 +178,14 @@ class AlarmStrategy extends Component {
     })
   }
   handEnable() {
-    const { strategyID, enable } = this.state
+    const { strategyID, strategyName, enable } = this.state
     const _this = this
     let enables = enable == 'start' ? 1: 0
     const noticeText = enable== 'start' ? '策略启动中...':'策略停止中...'
     const body = {
       strategies:[{
         strategyID: strategyID.toString(),
+        strategyName: strategyName.join(',')
       }]
     }
     const notifcation = new NotificationHandler()
