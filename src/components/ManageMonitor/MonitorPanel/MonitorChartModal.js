@@ -105,6 +105,9 @@ class MonitorChartModal extends React.Component {
       this.changeTargetType(currentChart.type)
       this.changeTarget(content[contentKey])
       this.changeMetrics(currentChart.metricsNickName)
+      this.setState({
+        unit: currentChart.unit || ''
+      })
     }
   }
   
