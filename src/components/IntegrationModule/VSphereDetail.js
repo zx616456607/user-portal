@@ -283,7 +283,7 @@ function setCpuAllocate(pods, max, isClientWidth) {
   })
   if (isClientWidth) {
     CPUOption.xAxis[0].data = ipList
-    CPUOption.series[0].data = ipList
+    CPUOption.series[0].data = cpuList
   } else {
     CPUOption.xAxis[0].data = nameList
     CPUOption.series[0].data = cpuList
@@ -317,7 +317,7 @@ function setMemoryAllocate(pods, max, isClientWidth) {
   memoryTotalMb = diskFormatNoUnit(max)
   if (isClientWidth) {
     memoryOption.xAxis[0].data = ipList
-    memoryOption.series[0].data = ipList
+    memoryOption.series[0].data = memoryUsedMbList
   } else {
     memoryOption.xAxis[0].data = nameList
     memoryOption.series[0].data = memoryUsedMbList
