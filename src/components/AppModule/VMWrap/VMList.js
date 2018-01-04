@@ -77,6 +77,9 @@ class VMList extends React.Component {
       },
       failed: {
         func: res => {
+          this.setState({
+            isLoading: false,
+          })
           if (res.statusCode < 500) {
             notify.warn('获取数据失败', res.message || res.message.message)
           } else {
@@ -160,20 +163,23 @@ class VMList extends React.Component {
    */
   handleA() {
     this.setState({
-      visible: true,
-      modalTitle: true,
-      isModal: true,
-      isAdd: true
+      isDelVisible: true,
     })
-    const self = this
-    setTimeout(() => {
-      document.getElementById('host').focus()
-    },100)
-    setTimeout(function () {
-      if (self.focusInput) {
-        self.focusInput.refs.input.focus()
-      }
-    }, 0)
+    // this.setState({
+    //   visible: true,
+    //   modalTitle: true,
+    //   isModal: true,
+    //   isAdd: true
+    // })
+    // const self = this
+    // setTimeout(() => {
+    //   document.getElementById('host').focus()
+    // },100)
+    // setTimeout(function () {
+    //   if (self.focusInput) {
+    //     self.focusInput.refs.input.focus()
+    //   }
+    // }, 0)
   }
 
   /**
@@ -306,7 +312,7 @@ class VMList extends React.Component {
       })
     }
   }
-  
+
   renderStatus(record) {
     let successCount = 0
     let errorCount = 0
@@ -369,7 +375,7 @@ class VMList extends React.Component {
       </div>
     )
   }
-  
+
   render() {
     const { data } = this.props
     const { ciphertext, list, total } = this.state
@@ -504,11 +510,12 @@ class VMList extends React.Component {
               title={"删除传统环境"}
               visible={this.state.isDelVisible}
               footer={[
-                <Button key="back" type="ghost" size="large" onClick={() => this.handleClose()}>  取 消 </Button>,
-                <Button key="submit" type="primary" size="large" onClick={() => this.handleDel()}> 确 定 </Button>,
+                <Button key="back" size="large" type="ghost" onClick={() => this.handleClose()}>  取 消 </Button>,
+                <Button key="submit" size="large" type="primary" onClick={() => this.handleDel()}> 确 定 </Button>,
               ]}
             >
-              <span style={{ fontSize: 16, color: '#ff0000' }}><Icon size={15} style={{ color: '#ff0000' }} type="question-circle-o" />是否删除当前传统应用环境</span>
+              <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>是否删除当前传统应用环境？</div>
+              {/* <span style={{ fontSize: 16, color: '#ff0000' }}><Icon size={15} style={{ color: '#ff0000' }} type="question-circle-o" />是否删除当前传统应用环境</span> */}
             </Modal>
           </Row>
         </div>
