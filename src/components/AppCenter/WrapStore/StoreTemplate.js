@@ -554,7 +554,7 @@ class WrapComopnent extends React.Component {
     if (currentImage) {
       server = currentImage.resourceLink && currentImage.resourceLink.split('/')[0]
       node = currentImage.resourceLink && currentImage.resourceLink.split('/')[1]
-      Object.assign(currentImage, { name: currentImage.resourceName })
+      Object.assign(currentImage, { name: currentImage.resourceName, pullCount: currentImage.downloadTimes })
       tagArr = currentImage && currentImage.versions && currentImage.versions.map(item => <Option key={item.iD}>{item.tag}</Option>)
     }
     const pagination = {
