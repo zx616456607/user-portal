@@ -29,7 +29,7 @@ class MonitorChartTemp extends React.Component {
     const { currentChart, monitorMetrics } = this.props
     isEmpty(monitorMetrics.data) && this.getMetrics(this.props)
     this.setState({
-      unit: currentChart.unit || ''
+      unit: currentChart.unit || '个'
     })
   }
   

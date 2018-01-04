@@ -523,6 +523,18 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.Wrap',
     defaultMessage: '应用包'
   },
+  UploadDocs: {
+    id: 'ManageMonitor.operationalAudit.UploadDocs',
+    defaultMessage: '上传附件'
+  },
+  DeleteDocs: {
+    id: 'ManageMonitor.operationalAudit.DeleteDocs',
+    defaultMessage: '删除附件'
+  },
+  DownloadDocs: {
+    id: 'ManageMonitor.operationalAudit.DownloadDocs',
+    defaultMessage: '下载附件'
+  },
   Image: {
     id: 'ManageMonitor.operationalAudit.Image',
     defaultMessage: '镜像'
@@ -718,6 +730,18 @@ function returnOperationList(scope) {
     {
       value: '38',
       label: (<FormattedMessage {...menusText.SubmitAudit}/>)
+    },
+    { // 36
+      value: '39',
+      label: (<FormattedMessage {...menusText.UploadDocs}/>)
+    },
+    {
+      value: '40',
+      label: (<FormattedMessage {...menusText.DeleteDocs}/>)
+    },
+    { // 38
+      value: '41',
+      label: (<FormattedMessage {...menusText.DownloadDocs}/>)
     }
   ];
   return operationalList;
@@ -1061,6 +1085,12 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.PublishReject)
     case '38':
       return formatMessage(menusText.SubmitAudit)
+    case '39':
+      return formatMessage(menusText.UploadDocs)
+    case '40':
+      return formatMessage(menusText.DeleteDocs)
+    case '41':
+      return formatMessage(menusText.DownloadDocs)
   }
 }
 
@@ -1669,6 +1699,9 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[35]);
         showOperationalList.push(operationalList[31]);
         showOperationalList.push(operationalList[2]);
+        showOperationalList.push(operationalList[36]);
+        showOperationalList.push(operationalList[37]);
+        showOperationalList.push(operationalList[38]);
         break;
       case '61':
         // 应用包商店

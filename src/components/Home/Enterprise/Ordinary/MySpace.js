@@ -1285,6 +1285,18 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.Wrap',
     defaultMessage: '应用包'
   },
+  UploadDocs: {
+    id: 'ManageMonitor.operationalAudit.UploadDocs',
+    defaultMessage: '上传附件'
+  },
+  DeleteDocs: {
+    id: 'ManageMonitor.operationalAudit.DeleteDocs',
+    defaultMessage: '删除附件'
+  },
+  DownloadDocs: {
+    id: 'ManageMonitor.operationalAudit.DownloadDocs',
+    defaultMessage: '下载附件'
+  },
   Image: {
     id: 'ManageMonitor.operationalAudit.Image',
     defaultMessage: '镜像'
@@ -1676,6 +1688,12 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.PublishReject)
     case '38':
       return formatMessage(menusText.SubmitAudit)
+    case '39':
+      return formatMessage(menusText.UploadDocs)
+    case '40':
+      return formatMessage(menusText.DeleteDocs)
+    case '41':
+      return formatMessage(menusText.DownloadDocs)
     case '0':
       return formatMessage(menusText.Unknown)
       break;
