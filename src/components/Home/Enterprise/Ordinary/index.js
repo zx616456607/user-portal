@@ -1552,10 +1552,10 @@ class Ordinary extends Component {
                   serviceList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={13}>
+                        <Col span={14}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={5}>
+                        <Col span={4}>
                           <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
                         <Col span={6}>
