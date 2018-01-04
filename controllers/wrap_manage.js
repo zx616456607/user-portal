@@ -229,6 +229,58 @@ exports.getPkgIcon = function* () {
   this.body = file.res
 }
 
+exports.uploadDocs = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const id = this.params.id
+  const query = this.query
+  const parts = parse(this, {
+    autoFields: true
+  })
+  if (!parts) {
+    this.status = 400
+    this.message = { message: 'error' }
+    return
+  }
+  const fileStream = yield parts
+  const stream = formStream()
+  const mimeType = mime.lookup(fileStream.filename)
+  stream.stream('docs', fileStream, fileStream.filename, mimeType)
+  let response = yield api.pkg.uploadFile([id, 'docs'], query, stream, { headers: stream.headers() }).catch(err => {
+    return err
+  })
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.deleteDocs = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const id = this.params.id
+  const body = this.request.body
+  const result = yield api.pkg.createBy([id, 'docs', 'batch-delete'], null, body)
+  this.body = result
+}
+
+exports.downloadDocs = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const id = this.params.id
+  const query = this.query
+  const result = yield api.pkg.downloadFile([id, 'docs', 'download'], query)
+  const disposition = result.headers['content-disposition']
+  if (disposition) {
+    this.set('content-disposition', result.headers['content-disposition'])
+  }
+  this.set('content-type', result.headers['content-type'])
+  if (result.status === 403) {
+    this.body = '当前操作未被授权，请联系管理员进行授权后，再进行操作。'
+    return
+  }
+  this.set('content-type', result.headers['content-type'])
+  this.body = result.res
+}
+
 function* parseForm(ctx) {
   const parts = parse(ctx, {autoFields: true})
   const fileStream = yield parts
