@@ -543,7 +543,7 @@ class WrapComopnent extends React.Component {
   render() {
     const { 
       current, dataSource, dataHotList, updateParentState, rectStyle, 
-      isAdmin, location, getStoreList, getAppsHotList 
+      isAdmin, location, getStoreList, getAppsHotList
     } = this.props
     const { downloadModalVisible, currentImage, offShelfModal, 
       imageDetailModalShow, offshelfId, detailModal, currentWrap
@@ -592,6 +592,7 @@ class WrapComopnent extends React.Component {
           updateAppStatus={this.updateAppStatus}
           isStore={true}
           isAdmin={isAdmin}
+          location={location}
         />
         <Modal 
           title="下载镜像"
