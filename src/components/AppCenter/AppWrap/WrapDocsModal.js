@@ -19,8 +19,6 @@ import { throwError } from '../../../actions'
 const notify = new NotificationHandler()
 const FormItem = Form.Item
 
-const docsTypelist = ['docx', 'xlsx', 'doc', 'xls']
-
 class WrapDocsModal extends React.Component {
   constructor() {
     super()
@@ -79,20 +77,6 @@ class WrapDocsModal extends React.Component {
       multiple: true,
       fileList,
       beforeUpload: (file)=> {
-        let isType
-        
-        isType = file.name.toLowerCase().match(/\.(docx|xlsx|doc|xls)$/)
-  
-        if (!isType) {
-          notify.error('上传文件格式错误', '支持：'+ docsTypelist.join('、')+'文件格式')
-          return false
-        }
-        let newList = {
-          uid: file.uid,
-          name: file.name,
-          size: file.size,
-          type: file.type
-        }
         this.setState(preState => ({
             fileList: [...preState.fileList, file]
         }))

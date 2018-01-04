@@ -481,7 +481,7 @@ class WrapDetailModal extends React.Component {
     })
   }
   render() {
-    const { form, pkgDetail, wrapGroupList } = this.props 
+    const { form, pkgDetail, wrapGroupList, isWrapStore } = this.props 
     const { visible, isEdit, releaseVisible, canRename, deleteLoading, docsModal, activeKey } = this.state
     const { getFieldProps } = form
     const formItemLayout = {
@@ -658,6 +658,7 @@ class WrapDetailModal extends React.Component {
           <TabPane
             key="docs"
             tab="相关文件"
+            disabled={isWrapStore}
           >
             <Button type="primary" size="large" icon="upload" onClick={() => this.setState({docsModal: true})}>上传文件</Button>
             <div className="docsBox">
@@ -670,7 +671,7 @@ class WrapDetailModal extends React.Component {
   }
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
   const { images } = state
   const { wrapDetail, wrapGroupList } = images || { wrapDetail: {} }
   const { result } = wrapDetail || { result: {} }
@@ -678,9 +679,16 @@ function mapStateToProps(state) {
   const { pkgs } = data || { pkgs: {} }
   const { result: groupList } = wrapGroupList || { result: {} }
   const { data: groupData } = groupList || { data: [] }
+  const { location } = props
+  const { pathname } = location || { pathname: '' }
+  let isWrapStore = false
+  if (pathname === '/app_center/wrap_store') {
+    isWrapStore = true
+  }
   return {
     wrapGroupList: groupData,
-    pkgDetail: pkgs
+    pkgDetail: pkgs,
+    isWrapStore
   }
 }
 
