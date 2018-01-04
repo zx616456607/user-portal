@@ -31,6 +31,10 @@ class PanelModal extends React.Component {
     }
   }
   
+  componentDidMount() {
+    let nameInput = document.getElementById('name')
+    nameInput && nameInput.focus()
+  }
   componentWillUnmount() {
     clearTimeout(this.nameTimeout)
   }
