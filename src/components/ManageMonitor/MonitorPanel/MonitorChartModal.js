@@ -111,6 +111,10 @@ class MonitorChartModal extends React.Component {
     }
   }
   
+  componentDidMount() {
+    let nameInput = document.getElementById('name')
+    nameInput && nameInput.focus()
+  }
   getMonitorMetric() {
     const { getMonitorMetrics, clusterID, panel_id } = this.props
     const { nexport, target, metricsName } = this.state
