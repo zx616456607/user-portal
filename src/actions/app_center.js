@@ -1145,3 +1145,26 @@ function fetchWrapGroupList(callback) {
 export function getWrapGroupList(callback) {
   return dispatch => dispatch(fetchWrapGroupList(callback))
 }
+
+export const DELETE_WRAP_DOCS_REQUEST = 'DELETE_WRAP_DOCS_REQUEST'
+export const DELETE_WRAP_DOCS_SUCCESS = 'DELETE_WRAP_DOCS_SUCCESS'
+export const DELETE_WRAP_DOCS_FAILURE = 'DELETE_WRAP_DOCS_FAILURE'
+
+function fetchDeleteWrapDocs(id, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_WRAP_DOCS_REQUEST,DELETE_WRAP_DOCS_SUCCESS,DELETE_WRAP_DOCS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/pkg/${id}/docs/batch-delete`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function deleteWrapDocs(id, body, callback) {
+  return dispatch => dispatch(fetchDeleteWrapDocs(id, body, callback))
+}
