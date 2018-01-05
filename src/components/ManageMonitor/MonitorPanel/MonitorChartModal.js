@@ -15,6 +15,7 @@ import { connect } from 'react-redux'
 import { Modal, Form, Input, Button, Select, Row, Col } from 'antd'
 import { camelize } from 'humps'
 import isEmpty from 'lodash/isEmpty'
+import cloneDeep from 'lodash/cloneDeep'
 import './style/MonitorChartModal.less'
 import { bytesToSize } from '../../../common/tools'
 import { getAllClusterNodes } from '../../../actions/cluster_node'
@@ -114,6 +115,9 @@ class MonitorChartModal extends React.Component {
   componentDidMount() {
     let nameInput = document.getElementById('name')
     nameInput && nameInput.focus()
+    this.setState({
+      currentChart: cloneDeep(this.props.currentChart)
+    })
   }
   getMonitorMetric() {
     const { getMonitorMetrics, clusterID, panel_id } = this.props
@@ -194,13 +198,18 @@ class MonitorChartModal extends React.Component {
   changeExport(proxyID) {
     const { getProxiesService, clusterID, form } = this.props
     const { getFieldValue, resetFields } = form
+    const { currentChart } = this.state
     getProxiesService(clusterID, proxyID)
     const preID = getFieldValue('nexport')
-    if (preID !== proxyID) {
+    if (preID && preID !== proxyID) {
       resetFields(['target'])
+      if (currentChart && currentChart.content) {
+        currentChart.content = null
+      }
     }
     this.setState({
-      nexport: proxyID
+      nexport: proxyID,
+      target: []
     }, this.getMonitorMetric)
   }
   
@@ -425,11 +434,11 @@ class MonitorChartModal extends React.Component {
   
   render() {
     const { 
-      currentChart, visible, form, nodeList, allServiceList, 
+      visible, form, nodeList, allServiceList, 
       proxyList, metricList, proxiesServices, monitorMetrics,
       isAdmin
     } = this.props
-    const { previewMetrics, unit, deleteModal, deleteLoading, metricsName } = this.state
+    const { previewMetrics, unit, deleteModal, deleteLoading, metricsName, currentChart } = this.state
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     const formItemLayout = {
       labelCol: { span: 3 },

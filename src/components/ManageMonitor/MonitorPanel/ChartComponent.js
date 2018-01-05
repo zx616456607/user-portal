@@ -10,6 +10,7 @@
 
 import React from 'react'
 import ReactEcharts from 'echarts-for-react'
+import { decamelize } from 'humps'
 import EchartsOption from '../../Metrics/EchartsOption'
 import { formatDate, bytesToSize } from "../../../common/tools"
 
@@ -57,7 +58,7 @@ export default class ChartComponent extends React.Component {
       let dataArr = []
       item && item.metrics && item.metrics.length && item.metrics.map((metric) => {
         let defaultValue = metric.floatValue || metric.value
-        if (unit !== '个') {
+        if (unit === 'byte') {
           const { value } = bytesToSize(defaultValue, unit)
           defaultValue = value
         }
@@ -66,7 +67,7 @@ export default class ChartComponent extends React.Component {
           defaultValue
         ])
       })
-      option.addSeries(dataArr, item.name)
+      option.addSeries(dataArr, decamelize(item.name, { separator: '-' }))
       option.setXAxis('axisLabel', {
         formatter: value => formatDate(value, 'HH:mm')
       })
