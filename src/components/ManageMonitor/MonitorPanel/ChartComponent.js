@@ -14,6 +14,7 @@ import { decamelize } from 'humps'
 import EchartsOption from '../../Metrics/EchartsOption'
 import { formatDate, bytesToSize } from "../../../common/tools"
 
+const exceptByte = ['个', 's']
 export default class ChartComponent extends React.Component {
   
   componentWillMount() {
@@ -58,7 +59,7 @@ export default class ChartComponent extends React.Component {
       let dataArr = []
       item && item.metrics && item.metrics.length && item.metrics.map((metric) => {
         let defaultValue = metric.floatValue || metric.value
-        if (unit === 'byte') {
+        if (!exceptByte.includes(unit)) {
           const { value } = bytesToSize(defaultValue, unit)
           defaultValue = value
         }
