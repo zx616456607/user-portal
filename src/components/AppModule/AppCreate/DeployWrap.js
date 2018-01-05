@@ -70,6 +70,7 @@ class WrapManage extends Component {
   componentWillMount() {
     const { location } = this.props
     const { from, fileName } = location.query
+    const { template } = this.state
     let query = {}
     if (fileName) {
       query = {
@@ -81,8 +82,31 @@ class WrapManage extends Component {
         })
         this.getStoreList(fileName)
       } else {
-        this.props.wrapManageList(query)
+        this.props.wrapManageList(query).then(res => {
+          const { pkgs } = res.response.result.data
+          const { fileType } = pkgs[0]
+          window.WrapListTable = pkgs[0]
+          switch(fileType) {
+            case 'jar':
+              this.setState({
+                defaultTemplate: 0,
+                version: template[0].version[0]
+              })
+              break
+            case 'war':
+              this.setState({
+                defaultTemplate: 1,
+                version: template[1].version[0]
+              })
+              break
+            default:
+              break
+          }
+        })
       }
+      this.setState({
+        selectedRowKeys: [0]
+      })
       return
     }
     if (from && from === 'wrapStore') {
