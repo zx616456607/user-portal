@@ -845,17 +845,15 @@ const UPLOAD_WRAP_REQUEST = 'UPLOAD_WRAP_REQUEST'
 const UPLOAD_WRAP_SUCCESS = 'UPLOAD_WRAP_SUCCESS'
 const UPLOAD_WRAP_FAILURE = 'UPLOAD_WRAP_FAILURE'
 
-function fetchUploadWrap(body,callback) {
-  // fileName,fileTag,fileType
-  const {fileName,fileTag,fileType} = body
+function fetchUploadWrap(query,body,callback) {
   return {
     [FETCH_API]: {
       types: [UPLOAD_WRAP_REQUEST, UPLOAD_WRAP_SUCCESS, UPLOAD_WRAP_FAILURE],
-      endpoint: `${API_URL_PREFIX}/pkg/${fileName}/${fileTag}/${fileType}/remote`,
+      endpoint: `${API_URL_PREFIX}/pkg/remote?${toQuerystring(query)}`,
       schema: Schemas.REGISTRYS,
       options:{
         method:'POST',
-        body: body.body
+        body
       }
 
     },

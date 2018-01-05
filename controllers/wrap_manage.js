@@ -75,9 +75,7 @@ exports.deletePkg = function* () {
 exports.localUploadPkg = function*() {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const filename = this.params.filename
-  const filetag = this.params.filetag
-  const filetype = this.params.filetype
+  const query = this.query
   const parts = parse(this, {
     autoFields: true
   })
@@ -90,7 +88,7 @@ exports.localUploadPkg = function*() {
   const stream = formStream()
   const mimeType = mime.lookup(fileStream.filename)
   stream.stream('pkg', fileStream, fileStream.filename, mimeType)
-  let response = yield api.pkg.uploadFile([filename,filetag,filetype], null, stream, { headers: stream.headers() }).catch(err => {
+  let response = yield api.pkg.uploadFile(null, query, stream, { headers: stream.headers() }).catch(err => {
     return err
   })
   this.status = response.statusCode
@@ -100,10 +98,8 @@ exports.localUploadPkg = function*() {
 exports.romoteUploadPkg = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const filename = this.params.filename
-  const filetag = this.params.filetag
-  const filetype = this.params.filetype
-  const body = yield api.pkg.createBy([filename,filetag,filetype,'remote'],null,this.request.body)
+  const query = this.query
+  const body = yield api.pkg.createBy(['remote'],query,this.request.body)
   this.body = body
 }
 
@@ -234,7 +230,7 @@ exports.uploadDocs = function* () {
   const api = apiFactory.getApi(loginUser)
   const id = this.params.id
   const query = this.query
-  const parts = parse(this, {
+  let parts = parse(this, {
     autoFields: true
   })
   if (!parts) {
@@ -242,15 +238,17 @@ exports.uploadDocs = function* () {
     this.message = { message: 'error' }
     return
   }
-  const fileStream = yield parts
+  // const fileStream = yield parts
+  let part
+  let response
   const stream = formStream()
-  const mimeType = mime.lookup(fileStream.filename)
-  stream.stream('docs', fileStream, fileStream.filename, mimeType)
-  let response = yield api.pkg.uploadFile([id, 'docs'], query, stream, { headers: stream.headers() }).catch(err => {
-    return err
-  })
-  this.status = response.statusCode
-  this.body = response
+  while (part = yield parts) {
+    const mimeType = mime.lookup(part.filename)
+    stream.stream('docs', part, part.filename, mimeType)
+    response = yield api.pkg.uploadFile([id, 'docs'], query, stream, { headers: stream.headers() })
+    this.status = response.statusCode
+    this.body = response
+  }
 }
 
 exports.deleteDocs = function* () {
