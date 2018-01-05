@@ -199,6 +199,7 @@ class WrapManage extends Component {
       disabled = [0]
     }
     return template.map((item,index) => {
+      let name = item.name.split('/')[1]
       return (
         <Button type="ghost" key={index} disabled={ !window.WrapListTable || disabled.some(list=> list === index)} style={{border:0}}>
         <div className="template" key={item.name} onClick={()=> this.changTemplate(index,item)}>
@@ -208,7 +209,7 @@ class WrapManage extends Component {
           <Icon type="check" key={index +2}/>]
           :null
           }
-          <span className="textoverflow">{item.name.split('/')[1]}</span>
+          <span className="textoverflow">{name.substring(0, 1).toUpperCase() + name.substring(1)}</span>
         </div>
         <div className="template_version">最新版本：{template[index].version[0]}</div>
         </Button>
