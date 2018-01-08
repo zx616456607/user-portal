@@ -28,7 +28,6 @@ import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../../constants'
 import './style/ServiceMonitor.less'
 import {formatDate} from "../../../common/tools";
 
-const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
 const timeFrequency = {
@@ -72,7 +71,7 @@ class ServiceMonitior extends Component {
       instantValue: 30
     }
   }
-  
+
   getServiceCpu() {
     const { loadServiceMetricsCPU, cluster, serviceName } = this.props
     const { currentCpuStart } = this.state
@@ -244,13 +243,13 @@ class ServiceMonitior extends Component {
     d.setHours(d.getHours() - hours)
     return d.toISOString()
   }
-  
+
   changeMinutes(min) {
     let d = new Date()
     d.setMinutes(d.getMinutes() - min)
     return d.toISOString()
   }
-  
+
   handleTimeChange(e) {
     const { loadServiceAllOfMetrics, cluster, serviceName } = this.props
     const {value} = e.target
