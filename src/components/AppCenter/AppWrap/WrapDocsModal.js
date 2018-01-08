@@ -48,7 +48,7 @@ class WrapDocsModal extends React.Component {
     }
     const formData = new FormData();
     fileList.forEach((file) => {
-      formData.append(file.name.split('.')[0], file);
+      formData.append('docs', file);
     });
     this.setState({
       confirmLoading: true
@@ -63,7 +63,7 @@ class WrapDocsModal extends React.Component {
       _this.setState({
         confirmLoading: false
       })
-      if (response.statusCode > 400 && response.statusCode < 500) {
+      if (response.statusCode >= 400 && response.statusCode < 500) {
         if (isResourcePermissionError(response)) {
           throwError(response)
           return

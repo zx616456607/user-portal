@@ -13,6 +13,7 @@ const formStream = require('formstream')
 const constants = require('../constants')
 const parse = require('co-busboy')
 const mime = require('mime')
+const FormData = require('form-data')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
@@ -230,25 +231,10 @@ exports.uploadDocs = function* () {
   const api = apiFactory.getApi(loginUser)
   const id = this.params.id
   const query = this.query
-  let parts = parse(this, {
-    autoFields: true
-  })
-  if (!parts) {
-    this.status = 400
-    this.message = { message: 'error' }
-    return
-  }
-  // const fileStream = yield parts
-  let part
-  let response
-  const stream = formStream()
-  while (part = yield parts) {
-    const mimeType = mime.lookup(part.filename)
-    stream.stream('docs', part, part.filename, mimeType)
-    response = yield api.pkg.uploadFile([id, 'docs'], query, stream, { headers: stream.headers() })
-    this.status = response.statusCode
-    this.body = response
-  }
+  const stream = yield getFormData(this)
+  const response = yield api.pkg.uploadFile([id, 'docs'], query, stream, { headers: stream.getHeaders()})
+  this.status = response.statusCode
+  this.body = response
 }
 
 exports.deleteDocs = function* () {
@@ -292,4 +278,21 @@ function* parseForm(ctx) {
       reject(err)
     }
   })
+}
+
+function* getFormData(ctx) {
+  const formData = new FormData()
+  const parts = parse(ctx, {
+    autoFields: true,
+    checkFile: function (fieldname, file, filename) {
+      formData.append(fieldname, file, {
+        filename: filename
+      })
+    },
+    checkField: function (name, value) {
+      formData.append(name, value)
+    }
+  })
+  yield parts
+  return formData
 }
