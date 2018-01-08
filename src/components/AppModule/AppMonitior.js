@@ -23,7 +23,6 @@ import {
   loadAppMetricsDiskWrite,
 } from '../../actions/metrics'
 
-const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 let metricsInterval;
 

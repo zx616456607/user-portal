@@ -17,7 +17,6 @@ import { UPDATE_INTERVAL } from '../../../constants'
 import { formatDate } from "../../../common/tools"
 
 const { RangePicker } = DatePicker
-const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
 const btnArr = [{
   key: 'oneHour',
@@ -135,7 +134,7 @@ export default class PanelBtnGroup extends React.Component {
     }
     this.setState({ isRangeTime: !isRangeTime })
   }
-  
+
   refreshMetric() {
     const { getChartList, activeKey, clusterID } = this.props
     getChartList(clusterID, {
@@ -178,7 +177,7 @@ export default class PanelBtnGroup extends React.Component {
               >
                 {
                   btnArr.map(item => (
-                    <RadioButton key={item.key} value={item.key}>{item.text}</RadioButton>
+                    <Radio prefixCls="ant-radio-button" key={item.key} value={item.key}>{item.text}</Radio>
                   ))
                 }
               </RadioGroup>
