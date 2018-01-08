@@ -149,9 +149,9 @@ class WrapDetailModal extends React.Component {
           func: res => {
             notify.close()
             if (res.statusCode < 500) {
-              notify.warn('保存失败', res.message)
+              notify.warn('保存失败', res.message.message)
             } else {
-              notify.error('保存失败', res.message)
+              notify.error('保存失败', res.message.message)
             }
           }
         }
