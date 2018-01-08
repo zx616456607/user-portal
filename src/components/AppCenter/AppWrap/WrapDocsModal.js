@@ -36,6 +36,7 @@ class WrapDocsModal extends React.Component {
   }
   
   confirmModal() {
+    const { closeModal, currentWrap, callback } = this.props
     const {  fileList } = this.state
     if (!fileList || !fileList.length) {
       notify.warn('请选择附件')
@@ -43,10 +44,45 @@ class WrapDocsModal extends React.Component {
     }
     if (fileList.length > 20) {
       notify.warn('上传附件数需在20个以内')
-      return 
+      return
     }
-    fileList.forEach(item => {
-      this.state[`${item.uid}-resolve`](true)
+    const formData = new FormData();
+    fileList.forEach((file) => {
+      formData.append('docs', file);
+    });
+    this.setState({
+      confirmLoading: true
+    })
+    const _this = this
+    notify.spin('文件上传中')
+    fetch(`${API_URL_PREFIX}/pkg/${currentWrap.id}/docs`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'same-origin',
+    }).then(function(response) {
+      _this.setState({
+        confirmLoading: false
+      })
+      if (response.statusCode >= 400 && response.statusCode < 500) {
+        if (isResourcePermissionError(response)) {
+          throwError(response)
+          return
+        }
+        notify.warn('上传失败', response.message)
+        return
+      }
+      notify.close()
+      notify.success('上传成功')
+      callback()
+      closeModal()
+    }).catch(function(ex) {
+      notify.success('上传失败')
+      _this.setState({
+        confirmLoading: false
+      })
+      notify.close()
+      notify.error('上传失败', ex.message)
+      closeModal()
     })
   }
   
