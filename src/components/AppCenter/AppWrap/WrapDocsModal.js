@@ -157,7 +157,7 @@ class WrapDocsModal extends React.Component {
     return (
       <Modal
         visible={visible}
-        title="上传文件"
+        title="上传附件"
         onCancel={this.cancelModal}
         onOk={this.confirmModal}
         confirmLoading={confirmLoading}
@@ -167,11 +167,11 @@ class WrapDocsModal extends React.Component {
         >
           <FormItem
             {...formItemLayout}
-            label="相关文件"
+            label="相关附件"
           >
             <Upload {...props}>
               <Button type="ghost" style={{ marginRight: 10 }}>
-                添加文件
+                添加附件
               </Button>
               <span className="hintColor">
               如测试用例.xlsx/功能测试.docx...等
