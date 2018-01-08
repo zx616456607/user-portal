@@ -70,6 +70,7 @@ class WrapManage extends Component {
   componentWillMount() {
     const { location } = this.props
     const { from, fileName } = location.query
+    const { template } = this.state
     let query = {}
     if (fileName) {
       query = {
@@ -81,8 +82,31 @@ class WrapManage extends Component {
         })
         this.getStoreList(fileName)
       } else {
-        this.props.wrapManageList(query)
+        this.props.wrapManageList(query).then(res => {
+          const { pkgs } = res.response.result.data
+          const { fileType } = pkgs[0]
+          window.WrapListTable = pkgs[0]
+          switch(fileType) {
+            case 'jar':
+              this.setState({
+                defaultTemplate: 0,
+                version: template[0].version[0]
+              })
+              break
+            case 'war':
+              this.setState({
+                defaultTemplate: 1,
+                version: template[1].version[0]
+              })
+              break
+            default:
+              break
+          }
+        })
       }
+      this.setState({
+        selectedRowKeys: [0]
+      })
       return
     }
     if (from && from === 'wrapStore') {
@@ -199,6 +223,7 @@ class WrapManage extends Component {
       disabled = [0]
     }
     return template.map((item,index) => {
+      let name = item.name.split('/')[1]
       return (
         <Button type="ghost" key={index} disabled={ !window.WrapListTable || disabled.some(list=> list === index)} style={{border:0}}>
         <div className="template" key={item.name} onClick={()=> this.changTemplate(index,item)}>
@@ -208,7 +233,7 @@ class WrapManage extends Component {
           <Icon type="check" key={index +2}/>]
           :null
           }
-          <span className="textoverflow">{item.name.split('/')[1]}</span>
+          <span className="textoverflow">{name.substring(0, 1).toUpperCase() + name.substring(1)}</span>
         </div>
         <div className="template_version">最新版本：{template[index].version[0]}</div>
         </Button>
@@ -267,6 +292,10 @@ class WrapManage extends Component {
     if (appName) {
       imageName += `&appName=${appName}&action=${action}`
     }
+    if (location.pathname ==='/app_center/app_template/create') {
+      browserHistory.push('/app_center/app_template/create'+ imageName + SERVICE_CONFIG_HASH)
+      return
+    }
     browserHistory.push('/app_manage/app_create/quick_create'+ imageName + SERVICE_CONFIG_HASH)
 
   }
@@ -295,7 +324,7 @@ class WrapManage extends Component {
   }
   render() {
     const { serviceList, template, defaultTemplate, version, currentType } = this.state
-    const { current, quick_create, location} = this.props
+    const { current, quick_create, location, childrenSteps } = this.props
     const { resource, priceHour, priceMonth } = this.getAppResources()
     const funcCallback = {
       goDeploy: this.goDeploy,
@@ -306,13 +335,14 @@ class WrapManage extends Component {
     if (!SHOW_BILLING) {
       showprice = 24
     }
-    const steps = (
-      <Steps size="small" className="steps" status={this.state.stepStatus} current={this.getStepsCurrent()}>
-        <Step title="部署方式" />
-        <Step title="选择基础镜像" />
-        <Step title="配置服务" />
-      </Steps>
-    )
+    let steps = null
+    if (!childrenSteps) {
+      steps = (<Steps size="small" className="steps" status={this.state.stepStatus} current={this.getStepsCurrent()}>
+      <Step title="部署方式" />
+      <Step title="选择基础镜像" />
+      <Step title="配置服务" />
+    </Steps>)
+    }
     const header = (
       <div>高级设置
       </div>

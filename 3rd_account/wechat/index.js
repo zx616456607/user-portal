@@ -10,7 +10,7 @@
  */
 'use strict'
 
-const logger = require('../../utils/logger').getLogger('wechat')
+const logger = require('../../utils/logger').getLogger('3rd_account/wechat')
 const indexConfig = require('../../configs/_standard')
 const oauth = require('../../tenx_api/v2/lib/oauth')
 const request = require('../request')('wechat')

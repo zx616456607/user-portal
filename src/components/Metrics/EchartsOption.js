@@ -75,10 +75,13 @@ export default class EchartsOption {
     this.series = []
   }
 
-  setXAxis(xAxis) {
-    this.xAxis = xAxis
+  setXAxis(key, option) {
+    this.xAxis[key] = option
   }
-
+  
+  setGrid(grid) {
+    this.grid = grid
+  }
   setXAxisMinAndMax(min, max) {
     min && (this.xAxis.min = min)
     max && (this.xAxis.max = max)
@@ -87,7 +90,11 @@ export default class EchartsOption {
   setToolTipUnit(unit) {
     this.tooltipUnit = unit
   }
-
+  
+  setTooltip(key, value) {
+    this.tooltip[key] = value
+  }
+  
   setXAxisData(data) {
     this.xAxis.data = data
   }

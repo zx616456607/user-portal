@@ -523,6 +523,18 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.Wrap',
     defaultMessage: '应用包'
   },
+  UploadDocs: {
+    id: 'ManageMonitor.operationalAudit.UploadDocs',
+    defaultMessage: '上传附件'
+  },
+  DeleteDocs: {
+    id: 'ManageMonitor.operationalAudit.DeleteDocs',
+    defaultMessage: '删除附件'
+  },
+  DownloadDocs: {
+    id: 'ManageMonitor.operationalAudit.DownloadDocs',
+    defaultMessage: '下载附件'
+  },
   Image: {
     id: 'ManageMonitor.operationalAudit.Image',
     defaultMessage: '镜像'
@@ -554,6 +566,18 @@ const menusText = defineMessages({
   SubmitAudit: {
     id: 'ManageMonitor.operationalAudit.SubmitAudit',
     defaultMessage: '提交审核'
+  },
+  Monitor: {
+    id: 'ManageMonitor.operationalAudit.Monitor',
+    defaultMessage: '监控'
+  },
+  MonitorPanel: {
+    id: 'ManageMonitor.operationalAudit.MonitorPanel',
+    defaultMessage: '监控面板'
+  },
+  MonitorChart: {
+    id: 'ManageMonitor.operationalAudit.MonitorChart',
+    defaultMessage: '监控图表'
   }
 });
 
@@ -706,6 +730,18 @@ function returnOperationList(scope) {
     {
       value: '38',
       label: (<FormattedMessage {...menusText.SubmitAudit}/>)
+    },
+    { // 36
+      value: '39',
+      label: (<FormattedMessage {...menusText.UploadDocs}/>)
+    },
+    {
+      value: '40',
+      label: (<FormattedMessage {...menusText.DeleteDocs}/>)
+    },
+    { // 38
+      value: '41',
+      label: (<FormattedMessage {...menusText.DownloadDocs}/>)
     }
   ];
   return operationalList;
@@ -930,6 +966,12 @@ function resourceFormat(resourceType, scope) {
     case '65':
       return formatMessage(menusText.Image)
       break;
+    case '66':
+      return formatMessage(menusText.MonitorPanel)
+      break;
+    case '67':
+      return formatMessage(menusText.MonitorChart)
+      break;
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -1043,6 +1085,12 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.PublishReject)
     case '38':
       return formatMessage(menusText.SubmitAudit)
+    case '39':
+      return formatMessage(menusText.UploadDocs)
+    case '40':
+      return formatMessage(menusText.DeleteDocs)
+    case '41':
+      return formatMessage(menusText.DownloadDocs)
   }
 }
 
@@ -1164,6 +1212,9 @@ function formatResourceName(resourceName, resourceId) {
         }
       }
       return ids.join(',')
+    }
+    if (newBody.names) {
+      return newBody.names[0]
     }
     if (newBody.filePkgName) {
       return newBody.filePkgName
@@ -1648,6 +1699,9 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[35]);
         showOperationalList.push(operationalList[31]);
         showOperationalList.push(operationalList[2]);
+        showOperationalList.push(operationalList[36]);
+        showOperationalList.push(operationalList[37]);
+        showOperationalList.push(operationalList[38]);
         break;
       case '61':
         // 应用包商店
@@ -1671,6 +1725,18 @@ class OperationalAudit extends Component {
         // 镜像发布审核
         showOperationalList.push(operationalList[33]);
         showOperationalList.push(operationalList[34]);
+        showOperationalList.push(operationalList[2]);
+        break;
+      case '66':
+        // 监控面板
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[1]);
+        showOperationalList.push(operationalList[2]);
+        break;
+      case '67':
+        // 监控图表
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[1]);
         showOperationalList.push(operationalList[2]);
         break;
       case '0':
@@ -1915,6 +1981,19 @@ class OperationalAudit extends Component {
       }, {
         value: '47',
         label: formatMessage(menusText.InstanceExport),
+      }, {
+        value: '66',
+        label: formatMessage(menusText.Monitor),
+        children: [
+          {
+            value: '66',
+            label: formatMessage(menusText.MonitorPanel),
+          },
+          {
+            value: '67',
+            label: formatMessage(menusText.MonitorChart)
+          }
+        ]
       }, {
         value: '48',
         label: formatMessage(menusText.Alert),

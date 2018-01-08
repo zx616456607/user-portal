@@ -123,7 +123,7 @@ exports.verifyUser = function* (next) {
       const userInfo = yield wechat.getUserInfo(access_token, accountID)
       data.accountDetail = JSON.stringify(userInfo)
     }
-  } else if(body.accountType == 'vsettan') {
+  } else if(body.accountType == 'vsettan' || body.accountType == 'cas') {
     data.accountType = body.accountType
     data.accountID = body.accountID
     data.userName = body.userName
@@ -178,7 +178,7 @@ exports.verifyUser = function* (next) {
   }
   // These message(and watchToken etc.) will be save to session
   let registryAuth = Buffer(result.userName + ':' + body.password).toString('base64');
-  if(body.accountType == 'vsettan') {
+  if (body.accountType == 'vsettan' || body.accountType == 'cas') {
     // Use accountName and accountID for authority check
     registryAuth =  Buffer(result.namespace + ':' + body.accountID).toString('base64');
   }

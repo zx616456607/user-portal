@@ -29,7 +29,7 @@ class Tcp extends Component {
   
   render() {
     const option = new EchartsOption('TCP')
-    const { tcpListen, tcpEst, events, scope } = this.props
+    const { tcpListen, tcpEst, tcpClose, tcpTime, events, scope } = this.props
     const { switchDisk, freshTime, DiskLoading, currentStart, currentDiskStart } = scope.state
     let timeText = switchDisk ? '10秒钟' : freshTime
     option.setToolTipUnit(' 个')
@@ -72,6 +72,34 @@ class Tcp extends Component {
         ])
       })
       option.addSeries(dataArr, `established`)
+    })
+    tcpClose.data && tcpClose.data.map((item) => {
+      let dataArr = []
+      const metrics = item && Array.isArray(item.metrics)
+        ? item.metrics
+        : []
+      metrics.map((metric) => {
+        // metric.value || metric.floatValue  only one
+        dataArr.push([
+          Date.parse(metric.timestamp),
+          metric.floatValue || metric.value
+        ])
+      })
+      option.addSeries(dataArr, `close_wait`)
+    })
+    tcpTime.data && tcpTime.data.map((item) => {
+      let dataArr = []
+      const metrics = item && Array.isArray(item.metrics)
+        ? item.metrics
+        : []
+      metrics.map((metric) => {
+        // metric.value || metric.floatValue  only one
+        dataArr.push([
+          Date.parse(metric.timestamp),
+          metric.floatValue || metric.value
+        ])
+      })
+      option.addSeries(dataArr, `time_wait`)
     })
     isDataEmpty ? option.addYAxis('value', {formatter: '{value} 个'}, 0, 1000) : option.addYAxis('value', {formatter: '{value} 个'})
     isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :

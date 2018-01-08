@@ -57,7 +57,7 @@ let ConfigureService = React.createClass({
   },
   componentWillMount() {
     const { callback, imageName, registryServer, form, mode, location } = this.props
-    let  { appName } = this.props
+    let  { appName,templateName } = this.props
     const { setFieldsValue } = form
     callback(form)
     if (mode === 'create') {
@@ -71,6 +71,12 @@ let ConfigureService = React.createClass({
       }
       if (appName) {
         values.appName = appName
+      }
+      if (location.pathname ==='/app_center/app_template/create') {
+        values.templateName = ''
+      }
+      if (templateName) {
+        values.templateName = templateName
       }
       setFieldsValue(values)
     }
@@ -391,7 +397,7 @@ let ConfigureService = React.createClass({
     }
     const { current, checkServiceName, allFields, id } = this.props
     if (!validateK8sResourceForServiceName(value)) {
-      return callback('服务名称可由3~24位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
+      return callback('服务名称可由3~63位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
     }
     for (let key in allFields) {
       if (allFields.hasOwnProperty(key)) {
@@ -442,9 +448,14 @@ let ConfigureService = React.createClass({
     const allFieldsKeys = Object.keys(allFields) || []
     const { imageConfigs } = this.state
     const { getFieldProps } = form
+    let isTemplate = false
+    // is app template or display appName
+    if (location.pathname === '/app_center/app_template/create') {
+      isTemplate = true
+    }
     const appNameProps = getFieldProps('appName', {
       rules: [
-        { required: true, message: '应用名称至少为3个字符' },
+        { required: !isTemplate, message: '应用名称至少为3个字符' },
         { validator: this.checkAppName }
       ],
     })
@@ -475,6 +486,7 @@ let ConfigureService = React.createClass({
       <QueueAnim id="quickCreateAppConfigureService" type="right">
         <div id="basic" key="basic">
           <Form horizontal>
+          {!isTemplate &&
             <FormItem
               {...formItemLayout}
               wrapperCol={{ span: 8 }}
@@ -491,6 +503,7 @@ let ConfigureService = React.createClass({
                 disabled={this.getAppNameDisabled()}
               />
             </FormItem>
+            }
             <FormItem
               {...formItemLayout}
               wrapperCol={{ span: 8 }}

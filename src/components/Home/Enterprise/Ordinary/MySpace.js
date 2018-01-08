@@ -399,7 +399,7 @@ class MySpace extends Component {
                 }
               </div>
             </Card>
-            <Card title="今日该空间记录" bordered={false} bodyStyle={{ height: 175, padding: '20', position: 'relative', fontSize: '14px' }} style={{ marginTop: 10 }}>
+            <Card title="今日该项目记录" bordered={false} bodyStyle={{ height: 175, padding: '20', position: 'relative', fontSize: '14px' }} style={{ marginTop: 10 }}>
               <div style={{ overflowY: 'auto', height: '124px' }}>
                 <table className="clusterTab">
                   <tbody>
@@ -1285,6 +1285,18 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.Wrap',
     defaultMessage: '应用包'
   },
+  UploadDocs: {
+    id: 'ManageMonitor.operationalAudit.UploadDocs',
+    defaultMessage: '上传附件'
+  },
+  DeleteDocs: {
+    id: 'ManageMonitor.operationalAudit.DeleteDocs',
+    defaultMessage: '删除附件'
+  },
+  DownloadDocs: {
+    id: 'ManageMonitor.operationalAudit.DownloadDocs',
+    defaultMessage: '下载附件'
+  },
   Image: {
     id: 'ManageMonitor.operationalAudit.Image',
     defaultMessage: '镜像'
@@ -1320,6 +1332,18 @@ const menusText = defineMessages({
   SubmitAudit: {
     id: 'ManageMonitor.operationalAudit.SubmitAudit',
     defaultMessage: '提交审核'
+  },
+  Monitor: {
+    id: 'ManageMonitor.operationalAudit.Monitor',
+    defaultMessage: '监控'
+  },
+  MonitorPanel: {
+    id: 'ManageMonitor.operationalAudit.MonitorPanel',
+    defaultMessage: '监控面板'
+  },
+  MonitorChart: {
+    id: 'ManageMonitor.operationalAudit.MonitorChart',
+    defaultMessage: '监控图表'
   }
 });
 
@@ -1541,7 +1565,12 @@ function resourceFormat(resourceType, scope) {
     case '65':
       return formatMessage(menusText.Image)
       break;
-
+    case '66':
+      return formatMessage(menusText.MonitorPanel)
+      break;
+    case '67':
+      return formatMessage(menusText.MonitorChart)
+      break;
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -1659,6 +1688,12 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.PublishReject)
     case '38':
       return formatMessage(menusText.SubmitAudit)
+    case '39':
+      return formatMessage(menusText.UploadDocs)
+    case '40':
+      return formatMessage(menusText.DeleteDocs)
+    case '41':
+      return formatMessage(menusText.DownloadDocs)
     case '0':
       return formatMessage(menusText.Unknown)
       break;
@@ -1703,6 +1738,9 @@ function formatResourceName(resourceName) {
       }
       newName = newName.join(',');
       return newName;
+    }
+    if (newBody.names) {
+      return newBody.names[0]
     }
     if (newBody.name) {
       return newBody.name

@@ -383,29 +383,42 @@ exports.getTargetInstant = function* () {
     type: 'network/rx_rate',
     source: 'prometheus'
   }
-  let tcp_listen = {
-    targetType: type,
-    type: 'tcp/listen_state',
-    source: 'prometheus'
-  }
-  let tcp_est = {
-    targetType: type,
-    type: 'tcp/est_state',
-    source: 'prometheus'
-  }
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], cpu))
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], mem))
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tx_rage))
   reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], rx_rate))
-  reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_listen))
-  reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_est))
   if(type == 'node'){
     let disk = {
       targetType: type,
       type: 'disk/usage',
       source: 'prometheus'
     }
+  
+    let tcp_listen = {
+      targetType: type,
+      type: 'tcp/listen_state',
+      source: 'prometheus'
+    }
+    let tcp_est = {
+      targetType: type,
+      type: 'tcp/est_state',
+      source: 'prometheus'
+    }
+    let tcp_close = {
+      targetType: type,
+      type: 'tcp/close_wait_state',
+      source: 'prometheus'
+    }
+    let tcp_time = {
+      targetType: type,
+      type: 'tcp/time_wait_state',
+      source: 'prometheus'
+    }
     reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], disk))
+    reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_listen))
+    reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_est))
+    reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_close))
+    reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tcp_time))
   }
   const results = yield reqArray
   let totalMemoryByte = 0
@@ -457,8 +470,10 @@ exports.getTargetInstant = function* () {
       tx_rate: results[2].data[name],
       rx_rate: results[3].data[name],
       disk: results[4] ? results[4].data[name] : null,
-      tcpListen: results[5].data[name],
-      tcpEst: results[6].data[name]
+      tcpListen: results[5] ? results[5].data[name] : null,
+      tcpEst: results[6] ? results[6].data[name] : null,
+      tcpClose: results[7] ? results[7].data[name] : null,
+      tcpTime: results[8] ? results[8].data[name] : null
     }
   }
 }

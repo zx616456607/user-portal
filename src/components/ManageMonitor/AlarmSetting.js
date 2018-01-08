@@ -325,6 +325,7 @@ let MyComponent = React.createClass({
   },
   childerList(list) {
     const { settingInstant } = this.props
+    const targetType = list.targetType
     if(!settingInstant.result) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
@@ -381,7 +382,7 @@ let MyComponent = React.createClass({
               { (data.rxRate / 1024).toFixed(2) + 'Kb/s' }
             </span>
           </div>
-          { data.disk && <div className={diskListsStyle}>
+          { targetType && <div className={diskListsStyle}>
             <span className="keys">磁盘</span>
             <Progress
               className="progress"
@@ -391,15 +392,36 @@ let MyComponent = React.createClass({
               status={ data.disk > 80 ? 'exception' : ''}
             />
           </div> }
-          <div className={connectNum}>
-            <span className="keys">tcp 连接数</span>
-            <span className="keys">
-              listen {data.tcpListen} 个
-            </span>
-            <span className="keys">
-              established {parseInt(data.tcpEst)} 个
-            </span>
-          </div>
+          {
+            targetType &&
+            <div className={connectNum}>
+              <span className="keys">TCP 连接数</span>
+              {
+                data.tcpListen &&
+                <span className="keys">
+                listen {parseInt(data.tcpListen)} 个
+              </span>
+              }
+              {
+                data.tcpEst &&
+                <span className="keys">
+                established {parseInt(data.tcpEst)} 个
+              </span>
+              }
+              {
+                data.tcpClose &&
+                <span className="keys">
+                close_wait {parseInt(data.tcpClose)} 个
+              </span>
+              }
+              {
+                data.tcpTime &&
+                <span className="keys">
+                time_wait {parseInt(data.tcpTime)} 个
+              </span>
+              }
+            </div>
+          }
         </div>
       </div>
     )

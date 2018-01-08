@@ -1,0 +1,47 @@
+@import "../../../../assets/style/site/core";
+.monitorPanel{
+  padding: 20px 20px 20px 0;
+  margin-left: 20px;
+  position: relative;
+  min-height: 72px;
+  .addMonitorBtn{
+    position: absolute;
+    right: 30px;
+    top: 20px;
+    z-index: 1;
+  } 
+  .monitorTabs{
+    .ant-tabs-nav{
+      .ant-tabs-tab{
+        margin: 0;
+        background-color: white;
+        border-radius: 4px 4px 0 0;
+        border-bottom: @border-width-base @border-style-base @border-color-base;
+        &:hover{
+          .ant-tabs-tab-inner{
+            padding: 7px 30px 6px 30px !important;
+          }
+        }
+        .ant-tabs-tab-inner{
+          padding: 7px 30px 6px 30px;
+          border-bottom: none;
+          .anticon-cross{
+            display: none;
+          }
+        }
+      }
+      .ant-tabs-tab-active{
+        background-color: @backgroud-color-body;
+        border-color: @primary-color;
+        border-bottom: none;
+        .ant-tabs-tab-inner{
+          border-bottom: @border-width-base @border-style-base @backgroud-color-body !important;
+        }
+      }
+    }
+  }
+  .noDataText{
+    width: 100%;
+    text-align: center;
+  }
+}

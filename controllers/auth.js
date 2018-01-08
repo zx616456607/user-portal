@@ -18,6 +18,9 @@ const config = require('../configs')
 const enterpriseMode = require('../configs/constants').ENTERPRISE_MODE
 const emailUtil = require("../utils/email")
 const security = require("../utils/security")
+const cas = require('../3rd_account/cas')
+
+const isCasMode = !!process.env.CAS_SSO_BASE
 
 exports.login = function* () {
   let method = 'login'
@@ -38,12 +41,24 @@ exports.login = function* () {
     this.redirect('/')
     return
   }
+
+  // cas mode
+  if (isCasMode) {
+    return this.redirect('/cas/login')
+  }
+
   yield this.render(global.indexHtml, { title, body: '' })
 }
 
 exports.logout = function* () {
   delete this.session.loginUser
   this.session = null
+
+  // cas mode
+  if (isCasMode) {
+    return cas.casLogout.apply(this)
+  }
+
   if (this.method === 'GET') {
     this.status = 302
     this.redirect('/login')

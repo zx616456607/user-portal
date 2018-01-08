@@ -76,14 +76,22 @@ class VMList extends React.Component {
         isAsync: true,
       },
       failed: {
-        success: {
-          func: res => {
-            if (res.statusCode < 500) {
-              notify.warn('获取数据失败', res.message || res.message.message)
-            } else {
-              notify.error('获取数据失败', res.message || res.message.message)
-            }
+        func: res => {
+          this.setState({
+            isLoading: false,
+          })
+          if (res.statusCode < 500) {
+            notify.warn('获取数据失败', res.message || res.message.message)
+          } else {
+            notify.error('获取数据失败', res.message || res.message.message)
           }
+        }
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            isLoading: false
+          })
         }
       }
     })
@@ -155,20 +163,23 @@ class VMList extends React.Component {
    */
   handleA() {
     this.setState({
-      visible: true,
-      modalTitle: true,
-      isModal: true,
-      isAdd: true
+      isDelVisible: true,
     })
-    const self = this
-    setTimeout(() => {
-      document.getElementById('host').focus()
-    },100)
-    setTimeout(function () {
-      if (self.focusInput) {
-        self.focusInput.refs.input.focus()
-      }
-    }, 0)
+    // this.setState({
+    //   visible: true,
+    //   modalTitle: true,
+    //   isModal: true,
+    //   isAdd: true
+    // })
+    // const self = this
+    // setTimeout(() => {
+    //   document.getElementById('host').focus()
+    // },100)
+    // setTimeout(function () {
+    //   if (self.focusInput) {
+    //     self.focusInput.refs.input.focus()
+    //   }
+    // }, 0)
   }
 
   /**
@@ -301,35 +312,59 @@ class VMList extends React.Component {
       })
     }
   }
-  
+
   renderStatus(record) {
     let successCount = 0
-    let javeMessage = ''
+    let errorCount = 0
+    let startCount = 0
+    let javaMessage = ''
     let tomcatMessage = ''
-    if (!record.javaStatus) {
-      successCount++
-      javeMessage = 'jre正常'
-    } else {
-      javeMessage = 'jre异常'
+    switch (record.javaStatus) {
+      case 0:
+        javaMessage = 'jre启动中'
+        startCount ++
+        break
+      case 1:
+        javaMessage = 'jre停止'
+        errorCount ++
+        break
+      case 2:
+        javaMessage = 'jre运行中'
+        successCount ++
+        break
+      default:
+        break
     }
-    if (!record.tomcatStatus) {
-      successCount++
-      tomcatMessage = 'tomcat正常'
-    } else {
-      tomcatMessage = 'tomcat异常'
+    switch (record.tomcatStatus) {
+      case 0:
+        tomcatMessage = 'tomcat启动中'
+        startCount ++
+        break
+      case 1:
+        tomcatMessage = 'tomcat停止'
+        errorCount ++
+        break
+      case 2:
+        tomcatMessage = 'tomcat运行中'
+        successCount ++
+        break
+      default:
+        break
     }
     return(
       <div>
-        <div className={successCount === 2 ? 'successColor' : 'warnColor'}>
-          <i className={classNames("circle", {'successCircle': successCount === 2, 'warnCircle': successCount !== 2})}/>
-          {successCount === 2 ? '正常' : '异常'}
+        <div className={errorCount ? 'warnColor' : 'successColor'}>
+          <i className={classNames("circle", {'successCircle': !errorCount, 'warnCircle': errorCount})}/>
+          {successCount === 2 ? '正常' : ''}
+          {errorCount ? '异常' : ''}
+          {!errorCount && startCount ? '启动中' : ''}
         </div>
         <div>
           {
             successCount !== 2 &&
               <Tooltip
                 title={
-                  tomcatMessage + ' ' + javeMessage
+                  tomcatMessage + ' ' + javaMessage
                 }
               >
                 <Icon type="exclamation-circle-o" className="warnColor" style={{ marginRight: 5 }}/>
@@ -340,7 +375,7 @@ class VMList extends React.Component {
       </div>
     )
   }
-  
+
   render() {
     const { data } = this.props
     const { ciphertext, list, total } = this.state
@@ -475,11 +510,12 @@ class VMList extends React.Component {
               title={"删除传统环境"}
               visible={this.state.isDelVisible}
               footer={[
-                <Button key="back" type="ghost" size="large" onClick={() => this.handleClose()}>  取 消 </Button>,
-                <Button key="submit" type="primary" size="large" onClick={() => this.handleDel()}> 确 定 </Button>,
+                <Button key="back" size="large" type="ghost" onClick={() => this.handleClose()}>  取 消 </Button>,
+                <Button key="submit" size="large" type="primary" onClick={() => this.handleDel()}> 确 定 </Button>,
               ]}
             >
-              <span style={{ fontSize: 16, color: '#ff0000' }}><Icon size={15} style={{ color: '#ff0000' }} type="question-circle-o" />是否删除当前传统应用环境</span>
+              <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>是否删除当前传统应用环境？</div>
+              {/* <span style={{ fontSize: 16, color: '#ff0000' }}><Icon size={15} style={{ color: '#ff0000' }} type="question-circle-o" />是否删除当前传统应用环境</span> */}
             </Modal>
           </Row>
         </div>

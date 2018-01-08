@@ -33,6 +33,7 @@ import { getStorageClassType } from '../../../../../actions/storage'
 import { getAllClusterNodes } from '../../../../../actions/cluster_node'
 import DockerfileModal from '../../../DockerfileModal'
 import AddCachedVolumeModal from '../../CachedVolumes/AddModal'
+import { TENX_STORE } from '../../../../../../constants/index'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -1803,7 +1804,7 @@ let CreateTenxFlowModal = React.createClass({
                           (this.props.harborProjects.list || []).map(project => {
                             const currentRoleId = project[camelize('current_user_role_id')]
                             return (
-                              <Option key={project.name} disabled={currentRoleId === 3}>
+                              <Option key={project.name} disabled={currentRoleId === 3 || project.name === TENX_STORE}>
                                 {project.name} {currentRoleId == 3 && '（访客）'}
                               </Option>
                             )

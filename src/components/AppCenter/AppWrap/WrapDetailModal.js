@@ -11,12 +11,12 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
-import { Modal, Form, Input, Button, Dropdown, Menu, Icon, Row, Col, Select } from 'antd'
+import { Modal, Form, Input, Button, Dropdown, Menu, Icon, Row, Col, Select, Tabs, Upload } from 'antd'
 import defaultApp from '../../../../static/img/appstore/defaultapp.png'
 import './style/WrapDetailModal.less'
 import { 
   getWrapDetail, updateWrapDetail, getWrapGroupList, 
-  deleteWrapManage, publishWrap
+  deleteWrapManage, publishWrap, deleteWrapDocs
 } from '../../../actions/app_center'
 import { API_URL_PREFIX } from '../../../constants'
 import { formatDate } from "../../../common/tools";
@@ -24,9 +24,11 @@ import isEmpty from 'lodash/isEmpty'
 import TenxStatus from '../../TenxStatus/index'
 import NotificationHandler from '../../../components/Notification'
 import ReleaseAppModal from './ReleaseAppModal'
+import WrapDocsModal from './WrapDocsModal'
 
 const FormItem = Form.Item
 const Option = Select.Option;
+const TabPane = Tabs.TabPane;
 
 class WrapDetailModal extends React.Component {
   constructor(props) {
@@ -37,9 +39,11 @@ class WrapDetailModal extends React.Component {
     this.closeRleaseModal = this.closeRleaseModal.bind(this)
     this.loadDetail = this.loadDetail.bind(this)
     this.auditCallback = this.auditCallback.bind(this)
+    this.closeDocsModal = this.closeDocsModal.bind(this)
     this.state = {
       visible: false,
-      canRename: false
+      canRename: false,
+      activeKey: 'info'
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -58,7 +62,8 @@ class WrapDetailModal extends React.Component {
       form.resetFields()
       this.setState({
         isEdit: false,
-        canRename: false
+        canRename: false,
+        activeKey: 'info'
       })
     }
   }
@@ -387,9 +392,97 @@ class WrapDetailModal extends React.Component {
     })
     closeDetailModal()
   }
+  
+  confirmDeleteModal() {
+    const { currentFile } = this.state
+    const { deleteWrapDocs, pkgDetail } = this.props
+    let notify = new NotificationHandler()
+    this.setState({
+      deleteLoading: true
+    })
+    notify.spin('删除中')
+    deleteWrapDocs(pkgDetail.id, {
+      name: currentFile
+    }, {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success('删除成功')
+          this.loadDetail(pkgDetail.id)
+          this.closeDeleteModal()
+          this.setState({
+            deleteLoading: false
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: res => {
+          notify.close()
+          if (res.statusCode < 500) {
+            notify.warn('删除失败', res.message.message)
+            this.setState({
+              deleteLoading: false
+            })
+            return
+          }
+          notify.error('删除失败', res.message)
+        }
+      },
+      finally: {
+        func: () => {
+          notify.close()
+          this.setState({
+            deleteLoading: false
+          })
+          this.closeDeleteModal()
+        }
+      }
+    })
+  }
+  
+  openDeleteModal(name) {
+    this.setState({
+      currentFile: name,
+      deleteModal: true
+    })
+  }
+  
+  closeDeleteModal() {
+    this.setState({
+      currentFile: '',
+      deleteModal: false
+    })
+  }
+  renderDocsList() {
+    const { pkgDetail } = this.props
+    if (!pkgDetail || !pkgDetail.documents || !JSON.parse(pkgDetail.documents).length) {
+      return <div className="docsList" style={{ textAlign: 'center' }}>暂无附件</div>
+    }
+    const docs = JSON.parse(pkgDetail.documents)
+    return docs.map(item => {
+      return <div className="docsList" key={item}>
+        <Icon type="file-text" /> 
+        {item}
+        <a target="_blank" href={`${API_URL_PREFIX}/pkg/${pkgDetail.id}/docs/download?file=${encodeURIComponent(item)}`}><Icon type="download" /></a>
+        <Icon type="delete" onClick={() => this.openDeleteModal(item)}/></div>
+    })
+  }
+  
+  closeDocsModal() {
+    this.setState({
+      docsModal: false
+    })
+  }
+  
+  changeTabs(key) {
+    this.setState({
+      activeKey: key
+    })
+  }
   render() {
-    const { form, pkgDetail, wrapGroupList } = this.props 
-    const { visible, isEdit, releaseVisible, canRename } = this.state
+    const { form, pkgDetail, wrapGroupList, isWrapStore } = this.props 
+    const { visible, isEdit, releaseVisible, canRename, deleteLoading, docsModal, activeKey } = this.state
     const { getFieldProps } = form
     const formItemLayout = {
       labelCol: {span: 3},
@@ -439,12 +532,28 @@ class WrapDetailModal extends React.Component {
         >
           <div className="confirmText">确定要删除所选版本？</div>
         </Modal>
+        <Modal title="删除操作" visible={this.state.deleteModal}
+               onCancel={()=> this.closeDeleteModal()}
+               onOk={() => this.confirmDeleteModal()}
+               confirmLoading={deleteLoading}
+        >
+          <div className="confirmText">确定要删除所选附件？</div>
+        </Modal>
         <ReleaseAppModal
           currentApp={pkgDetail}
           visible={releaseVisible}
           closeRleaseModal={this.closeRleaseModal}
           callback={this.auditCallback}
         />
+        {
+          docsModal &&
+          <WrapDocsModal
+            visible={docsModal}
+            closeModal={this.closeDocsModal}
+            currentWrap={pkgDetail}
+            callback={() => this.loadDetail(pkgDetail.id)}
+          />
+        }
         <div className="wrapDetailHeader">
           <img 
             className="appLogo" 
@@ -468,85 +577,101 @@ class WrapDetailModal extends React.Component {
             {this.renderDeployBtn()}
           </div>
         </div>
-        <div className="wrapDetailBody">
-          <div className="btnBox">
-            {
-              isEdit ? 
-                [
-                  <Button className="cancelBtn" key="cancel" size="large" onClick={this.cancelEdit}>取消</Button>,
-                  <Button key="save" size="large" type="primary" onClick={this.saveEdit}>保存</Button>
-                ] :
-                <Button type="primary" size="large" onClick={() => this.setState({isEdit: true})}>编辑</Button>
-            }
-          </div>
-          <div className="dataBox">
-            <Row className="rowLabel">
-              <Col span={3}>
-                版本标签
-              </Col>
-              <Col span={10}>
-                {pkgDetail && pkgDetail.fileTag}
-              </Col>
-            </Row>
-            <FormItem
-              label="分类名称"
-              {...formItemLayout}
-            >
-              <Select
-                showSearch={true}
-                disabled={!isEdit || !canRename}
-                tags
-                searchPlaceholder="请选择分类"
-                style={{ width: '100%' }}
-                {...classifyProps}
-              >
-                {children}
-              </Select>
-            </FormItem>
-            <FormItem
-              label="发布名称"
-              {...formItemLayout}
-            >
-              <Input disabled={!isEdit || !canRename} {...releaseNameProps}/>
-            </FormItem>
-            <Row className="rowLabel" type="flex" align="middle">
-              <Col span={3}>
-                应用商店
-              </Col>
-              <Col span={10} className="successColor">
-                {this.getStatus(pkgDetail && pkgDetail.publishStatus)}
-              </Col>
-            </Row>
-            <Row className="rowLabel">
-              <Col span={3}>
-                包类型
-              </Col>
-              <Col span={10}>
-                {pkgDetail && pkgDetail.fileType}
-              </Col>
-            </Row>
-            <FormItem
-              label="描述"
-              {...formItemLayout}
-            >
-              <Input disabled={!isEdit} {...descProps} type="textarea"/>
-            </FormItem>
-            <Row className="rowLabel">
-              <Col span={3}>
-                上传时间
-              </Col>
-              <Col span={10}>
-                {formatDate(pkgDetail && pkgDetail.creationTime)}
-              </Col>
-            </Row>
-          </div>
-        </div>
+        <Tabs className="wrapDetailBody" activeKey={activeKey} onChange={this.changeTabs.bind(this)}>
+          <TabPane
+            key="info" tab="基本信息"
+          >
+            <div>
+              <div className="btnBox">
+                {
+                  isEdit ?
+                    [
+                      <Button className="cancelBtn" key="cancel" size="large" onClick={this.cancelEdit}>取消</Button>,
+                      <Button key="save" size="large" type="primary" onClick={this.saveEdit}>保存</Button>
+                    ] :
+                    <Button type="primary" size="large" onClick={() => this.setState({isEdit: true})}>编辑</Button>
+                }
+              </div>
+              <div className="dataBox">
+                <Row className="rowLabel">
+                  <Col span={3}>
+                    版本标签
+                  </Col>
+                  <Col span={10}>
+                    {pkgDetail && pkgDetail.fileTag}
+                  </Col>
+                </Row>
+                <FormItem
+                  label="分类名称"
+                  {...formItemLayout}
+                >
+                  <Select
+                    showSearch={true}
+                    disabled={!isEdit || !canRename}
+                    tags
+                    searchPlaceholder="请选择分类"
+                    style={{ width: '100%' }}
+                    {...classifyProps}
+                  >
+                    {children}
+                  </Select>
+                </FormItem>
+                <FormItem
+                  label="发布名称"
+                  {...formItemLayout}
+                >
+                  <Input disabled={!isEdit || !canRename} {...releaseNameProps}/>
+                </FormItem>
+                <Row className="rowLabel" type="flex" align="middle">
+                  <Col span={3}>
+                    应用商店
+                  </Col>
+                  <Col span={10} className="successColor">
+                    {this.getStatus(pkgDetail && pkgDetail.publishStatus)}
+                  </Col>
+                </Row>
+                <Row className="rowLabel">
+                  <Col span={3}>
+                    包类型
+                  </Col>
+                  <Col span={10}>
+                    {pkgDetail && pkgDetail.fileType}
+                  </Col>
+                </Row>
+                <FormItem
+                  label="描述"
+                  {...formItemLayout}
+                >
+                  <Input disabled={!isEdit} {...descProps} type="textarea"/>
+                </FormItem>
+                <Row className="rowLabel">
+                  <Col span={3}>
+                    上传时间
+                  </Col>
+                  <Col span={10}>
+                    {formatDate(pkgDetail && pkgDetail.creationTime)}
+                  </Col>
+                </Row>
+              </div>
+            </div>
+          </TabPane>
+          <TabPane
+            key="docs"
+            tab="相关文件"
+            disabled={isWrapStore}
+          >
+            <Button type="primary" size="large" icon="upload" onClick={() => this.setState({docsModal: true})}>上传文件</Button>
+            <div className="docsBox">
+              {this.renderDocsList()}
+            </div>
+          </TabPane>
+        </Tabs>
       </Modal>
     )
   }
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
   const { images } = state
   const { wrapDetail, wrapGroupList } = images || { wrapDetail: {} }
   const { result } = wrapDetail || { result: {} }
@@ -554,9 +679,16 @@ function mapStateToProps(state) {
   const { pkgs } = data || { pkgs: {} }
   const { result: groupList } = wrapGroupList || { result: {} }
   const { data: groupData } = groupList || { data: [] }
+  const { location } = props
+  const { pathname } = location || { pathname: '' }
+  let isWrapStore = false
+  if (pathname === '/app_center/wrap_store') {
+    isWrapStore = true
+  }
   return {
     wrapGroupList: groupData,
-    pkgDetail: pkgs
+    pkgDetail: pkgs,
+    isWrapStore
   }
 }
 
@@ -565,5 +697,6 @@ export default connect(mapStateToProps, {
   updateWrapDetail,
   getWrapGroupList,
   deleteWrapManage,
-  publishWrap
+  publishWrap,
+  deleteWrapDocs
 })(Form.create()(WrapDetailModal))

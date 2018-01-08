@@ -91,7 +91,7 @@ const rootRoutes = {
       path: 'app_center',
       component: require('../containers/AppCenter').default,
       indexRoute: {
-        component: require('../components/AppCenter/Item').default,
+        component: require('../components/AppCenter/AppTemplate').default,
       },
       getChildRoutes: (location, cb) => {
         require.ensure([], function (require) {

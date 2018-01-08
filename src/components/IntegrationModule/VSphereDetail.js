@@ -30,15 +30,15 @@ let CPUOption = {
     top: '15px',
     left: 'center',
     textStyle: {
-      fontWeight:'normal',
-      fontSize:14
+      fontWeight: 'normal',
+      fontSize: 14
     }
   },
   color: ['#3398DB'],
-  tooltip : {
+  tooltip: {
     trigger: 'axis',
-    axisPointer : {
-      type : 'shadow'
+    axisPointer: {
+      type: 'shadow'
     },
     formatter: '{c} 核'
   },
@@ -48,10 +48,10 @@ let CPUOption = {
     bottom: '3%',
     containLabel: true
   },
-  xAxis : [
+  xAxis: [
     {
-      type : 'category',
-      data : ['node', 'node1', 'node2'],
+      type: 'category',
+      data: ['node', 'node1', 'node2'],
       splitLine: {
         "show": false
       },
@@ -66,9 +66,9 @@ let CPUOption = {
       },
     }
   ],
-  yAxis : [
+  yAxis: [
     {
-      type : 'value',
+      type: 'value',
       max: 100,
       splitNumber: 2,
       interval: 50,
@@ -80,12 +80,12 @@ let CPUOption = {
       },
     }
   ],
-  series : [
+  series: [
     {
-      name:'',
-      type:'bar',
+      name: '',
+      type: 'bar',
       barWidth: 60,
-      data:[10, 52, 100],
+      data: [10, 52, 100],
 
     }
   ]
@@ -97,15 +97,15 @@ let memoryOption = {
     top: '15px',
     left: 'center',
     textStyle: {
-      fontWeight:'normal',
-      fontSize:14
+      fontWeight: 'normal',
+      fontSize: 14
     }
   },
   color: ['#3398DB'],
-  tooltip : {
+  tooltip: {
     trigger: 'axis',
-    axisPointer : {
-      type : 'shadow'
+    axisPointer: {
+      type: 'shadow'
     },
     formatter: '{c} G'
   },
@@ -115,10 +115,10 @@ let memoryOption = {
     bottom: '3%',
     containLabel: true
   },
-  xAxis : [
+  xAxis: [
     {
-      type : 'category',
-      data : ['node', 'node1', 'node2'],
+      type: 'category',
+      data: ['node', 'node1', 'node2'],
       splitLine: {
         "show": false
       },
@@ -133,9 +133,9 @@ let memoryOption = {
       },
     }
   ],
-  yAxis : [
+  yAxis: [
     {
-      type : 'value',
+      type: 'value',
       max: 100,
       splitNumber: 2,
       interval: 50,
@@ -147,12 +147,12 @@ let memoryOption = {
       },
     }
   ],
-  series : [
+  series: [
     {
-      name:'',
-      type:'bar',
+      name: '',
+      type: 'bar',
       barWidth: 60,
-      data:[10, 52, 100],
+      data: [10, 52, 100],
 
     }
   ]
@@ -206,11 +206,11 @@ const menusText = defineMessages({
 })
 
 function diskFormat(num) {
-  if(num < 1024) {
+  if (num < 1024) {
     return num + 'MB'
   }
   num = parseInt(num / 1024);
-  if(num < 1024) {
+  if (num < 1024) {
     return num + 'GB'
   }
   num = parseInt(num / 1024);
@@ -218,11 +218,11 @@ function diskFormat(num) {
 }
 
 function diskFormatNoUnit(num) {
-  if(num < 1024) {
+  if (num < 1024) {
     return num
   }
   num = parseInt(num / 1024);
-  if(num < 1024) {
+  if (num < 1024) {
     return num
   }
   num = parseInt(num / 1024);
@@ -232,7 +232,7 @@ function diskFormatNoUnit(num) {
 function checkHealthPods(config) {
   let num = 0;
   config.map((item) => {
-    if(item.powerstate == 'poweron') {
+    if (item.powerstate == 'poweron') {
       num++
     }
   })
@@ -242,7 +242,7 @@ function checkHealthPods(config) {
 function checkErrorPods(config) {
   let num = 0;
   config.map((item) => {
-    if(item.powerstate == 'poweroff') {
+    if (item.powerstate == 'poweroff') {
       num++
     }
   })
@@ -250,17 +250,17 @@ function checkErrorPods(config) {
 }
 
 function getCpuFreeCount(singleHz, count, usedHz) {
-  let usedCpu = Math.round(usedHz/singleHz);
+  let usedCpu = Math.round(usedHz / singleHz);
   return (count - usedCpu)
 }
 
-function setCpuAllocate(pods, max) {
-  let sortList = [];
-  let cpuTotal = 0;
-  let maxCpu = 0;
+function setCpuAllocate(pods, max, isClientWidth) {
+  let sortList = []
+  let cpuTotal = 0
+  let maxCpu = 0
   pods.map((item) => {
-    let usedCpu = Math.round(item.cpuTotalUsedMhz/item.cpuMhz);
-    if(item.cpuNumber > maxCpu) {
+    let usedCpu = Math.round(item.cpuTotalUsedMhz / item.cpuMhz);
+    if (item.cpuNumber > maxCpu) {
       maxCpu = item.cpuNumber;
     }
     cpuTotal = cpuTotal + item.cpuNumber;
@@ -270,53 +270,69 @@ function setCpuAllocate(pods, max) {
     }
     sortList.push(tempBody)
   })
-  sortList.sort();
-  let nameList = [];
-  let cpuList = [];
+  sortList.sort()
+  let nameList = []
+  let cpuList = []
+  let ipList = []
   sortList.map((item, index) => {
-    if(index < 3) {
-      nameList.push(item.name);
-      cpuList.push(item.usedCpu);
+    if (index < 3) {
+      ipList.push(item.name.split('.')[2] + '.' + item.name.split('.')[3])
+      nameList.push(item.name)
+      cpuList.push(item.usedCpu)
     }
   })
-  CPUOption.xAxis[0].data = nameList;
-  CPUOption.series[0].data = cpuList;
+  if (isClientWidth) {
+    CPUOption.xAxis[0].data = ipList
+    CPUOption.series[0].data = cpuList
+  } else {
+    CPUOption.xAxis[0].data = nameList
+    CPUOption.series[0].data = cpuList
+  }
   CPUOption.yAxis[0].max = maxCpu;
-  CPUOption.yAxis[0].interval = Math.round(maxCpu/2);
+  CPUOption.yAxis[0].interval = Math.round(maxCpu / 2)
 }
 
-function setMemoryAllocate(pods, max) {
+function setMemoryAllocate(pods, max, isClientWidth) {
   let sortList = [];
-  let memoryTotalMb = 0;
+  let memoryTotalMb = 0
   pods.map((item) => {
-    memoryTotalMb = memoryTotalMb + item.memoryTotalMb;
+    memoryTotalMb = memoryTotalMb + item.memoryTotalMb
     let tempBody = {
       name: item.name,
       memoryUsedMb: diskFormatNoUnit(item.memoryUsedMb)
     }
     sortList.push(tempBody)
   })
-  sortList.sort();
-  let nameList = [];
+  sortList.sort()
+  let nameList = []
   let memoryUsedMbList = [];
+  let ipList = []
   sortList.map((item, index) => {
-    if(index < 3) {
-      nameList.push(item.name);
-      memoryUsedMbList.push(item.memoryUsedMb);
+    if (index < 3) {
+      ipList.push(item.name.split('.')[2] + '.' + item.name.split('.')[3])
+      nameList.push(item.name)
+      memoryUsedMbList.push(item.memoryUsedMb)
     }
   })
   memoryTotalMb = diskFormatNoUnit(max)
-  memoryOption.xAxis[0].data = nameList;
-  memoryOption.series[0].data = memoryUsedMbList;
-  memoryOption.yAxis[0].max = memoryTotalMb;
-  memoryOption.yAxis[0].interval = Math.round(memoryTotalMb/2);
+  if (isClientWidth) {
+    memoryOption.xAxis[0].data = ipList
+    memoryOption.series[0].data = memoryUsedMbList
+  } else {
+    memoryOption.xAxis[0].data = nameList
+    memoryOption.series[0].data = memoryUsedMbList
+  }
+
+  memoryOption.yAxis[0].max = memoryTotalMb
+  memoryOption.yAxis[0].interval = Math.round(memoryTotalMb / 2)
 }
 
 class VSphereDetail extends Component {
   constructor(props) {
     super(props);
-    this.onChangeDataCenter = this.onChangeDataCenter.bind(this);
+    this.onChangeDataCenter = this.onChangeDataCenter.bind(this)
     this.state = {
+      isClientWidth: false,
     }
   }
 
@@ -324,11 +340,25 @@ class VSphereDetail extends Component {
     const { getIntegrationPodDetail, dataCenters, integrationId, currentDataCenter } = this.props;
     let datacenter = !!currentDataCenter ? currentDataCenter : dataCenters[0];
     getIntegrationPodDetail(integrationId, currentDataCenter);
+    window.onresize = e => {
+      if (document.body.clientWidth <= 1280) {
+        this.setState({
+          isClientWidth: true
+        })
+      } else {
+        this.setState({
+          isClientWidth: false
+        })
+      }
+    }
+  }
+  componentWillUnMount() {
+    window.onresize = null
   }
 
   componentWillReceiveProps(nextProps) {
     const { getIntegrationPodDetail, integrationId, currentDataCenter } = nextProps;
-    if(nextProps.currentDataCenter != this.props.currentDataCenter) {
+    if (nextProps.currentDataCenter != this.props.currentDataCenter) {
       getIntegrationPodDetail(integrationId, currentDataCenter)
     }
   }
@@ -344,8 +374,8 @@ class VSphereDetail extends Component {
 
   render() {
     const { formatMessage } = this.props.intl;
-    const {isFetching, pods, dataCenters, currentDataCenter} = this.props;
-    if(isFetching || !Boolean(pods)) {
+    const { isFetching, pods, dataCenters, currentDataCenter } = this.props;
+    if (isFetching || !Boolean(pods)) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -369,21 +399,21 @@ class VSphereDetail extends Component {
     let netHealtTotal = 0;
     let netShow = [];
     pods.map((item) => {
-      if(item.memoryTotalMb > maxMemory) {
+      if (item.memoryTotalMb > maxMemory) {
         maxMemory = item.memoryTotalMb;
       }
-      if(item.cpuTotal > maxCpu) {
+      if (item.cpuTotal > maxCpu) {
         maxCpu = item.cpuTotal
       }
-      memoryTotal= memoryTotal + item.memoryTotalMb;
-      memoryUsedTotal= memoryUsedTotal + item.memoryUsedMb;
+      memoryTotal = memoryTotal + item.memoryTotalMb;
+      memoryUsedTotal = memoryUsedTotal + item.memoryUsedMb;
       cpuTotal = cpuTotal + item.cpuNumber;
       diskCount = diskCount + item.disks.length;
       vmTotal = vmTotal + item.vmNumber;
       cpuFree = cpuFree + getCpuFreeCount(item.cpuMhz, item.cpuNumber, item.cpuTotalUsedMhz);
       netTotal = netTotal + item.networks.length;
       netShow.push(item.networks.map((network) => {
-        if(network.vmNumber > 0) {
+        if (network.vmNumber > 0) {
           netHealtTotal++;
         }
         return (
@@ -401,7 +431,7 @@ class VSphereDetail extends Component {
         diskTotal = diskTotal + disk.capacityMb;
         diskFree = diskFree + disk.freeMb;
         diskUsed = diskUsed + disk.capacityMb - disk.freeMb;
-        if(disk.accessable) {
+        if (disk.accessable) {
           diskHealthCount++;
         }
         return (
@@ -414,8 +444,8 @@ class VSphereDetail extends Component {
         )
       }))
     });
-    setCpuAllocate(pods, maxCpu)
-    setMemoryAllocate(pods, maxMemory)
+    setCpuAllocate(pods, maxCpu, this.state.isClientWidth)
+    setMemoryAllocate(pods, maxMemory, this.state.isClientWidth)
     return (
       <div id='VSphereDetail'>
         {
@@ -436,14 +466,14 @@ class VSphereDetail extends Component {
                   <ReactEcharts
                     notMerge={true}
                     option={CPUOption}
-                    style={{height:'200px', width: '100%'}}
+                    style={{ height: '200px', width: '100%' }}
                   />
                 </div>
                 <div className='littelMiddle'>
                   <ReactEcharts
                     notMerge={true}
                     option={memoryOption}
-                    style={{height:'200px', width: '100%'}}
+                    style={{ height: '200px', width: '100%' }}
                   />
                 </div>
                 <div className='littelRight'>
@@ -480,7 +510,7 @@ class VSphereDetail extends Component {
                   <FormattedMessage {...menusText.storage} />
                 </div>
                 <div className='littleLeft'>
-                  <ProgressBox boxPos={parseFloat(diskUsed/diskTotal).toFixed(2)} />
+                  <ProgressBox boxPos={parseFloat(diskUsed / diskTotal).toFixed(2)} />
                 </div>
                 <div className='littelRight'>
                   <div className='commonBox'>
@@ -571,7 +601,7 @@ function mapStateToProps(state, props) {
     pods: []
   }
   const { getIntegrationPodDetail } = state.integration
-  const {isFetching, pods} = getIntegrationPodDetail || defaultApp
+  const { isFetching, pods } = getIntegrationPodDetail || defaultApp
   return {
     isFetching,
     pods

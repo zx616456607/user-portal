@@ -29,7 +29,7 @@ class CPU extends Component {
 
   render() {
     const option = new EchartsOption('CPU')
-    const { cpu, scope } = this.props
+    const { cpu, scope, hideInstantBtn } = this.props
     const { isFetching, data } = cpu
     const { switchCpu, freshTime, CpuLoading, currentStart, currentCpuStart } = scope.state
     let timeText = switchCpu ? '10秒钟' : freshTime
@@ -69,9 +69,12 @@ class CPU extends Component {
         <span className="freshTime">
           {`时间间隔：${timeText}`}
         </span>
-        <Tooltip title="实时开关">
-          <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Cpu')} checkedChildren="开" unCheckedChildren="关"/>
-        </Tooltip>
+        {
+          !hideInstantBtn &&
+          <Tooltip title="实时开关">
+            <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Cpu')} checkedChildren="开" unCheckedChildren="关"/>
+          </Tooltip>
+        }
         <ReactEcharts
           style={{ height: formatGrid(data&&data.length) }}
           notMerge={true}

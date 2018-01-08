@@ -28,29 +28,6 @@ import { mode } from '../../configs/model'
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const locale = window.appLocale.locale
 
-// Set moment internationalize
-if (locale === 'zh') {
-  moment.locale('zh-cn')
-} else {
-  moment.locale('en', {
-    relativeTime: {
-      future: "in %s",
-      past: "%s ago",
-      s: "%d s",
-      m: "a min",
-      mm: "%d min",
-      h: "1 h",
-      hh: "%d h",
-      d: "a day",
-      dd: "%d days",
-      M: "a month",
-      MM: "%d months",
-      y: "a year",
-      yy: "%d years"
-    }
-  })
-}
-
 /**
  * Format date
  * `YYYY-MM-DD HH:mm:ss`
@@ -158,6 +135,7 @@ function toDate(date) {
  * - three days ago, etc
  */
 export function calcuDate(beginDate) {
+  moment.locale('zh-cn')
   return moment(beginDate).fromNow()
 }
 
@@ -663,4 +641,23 @@ export function encodeImageFullname(fullname) {
     return fullname
   }
   return `${project}/${encodeURIComponent(imageName.join('/'))}`
+}
+
+/**
+ * 
+ * @param bytes
+ * @param size
+ * @returns
+ */
+export function bytesToSize(bytes, size) {
+  if (bytes === 0) return { value: 0, unit: 'B' };
+  let k = 1024,
+    sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+    i = Math.floor(Math.log(bytes) / Math.log(k));
+  if (size) {
+    i = sizes.findIndex(item => item === size)
+  }
+  let value = (bytes / Math.pow(k, i)).toFixed(2)
+  let unit = sizes[i]
+  return { value, unit };
 }

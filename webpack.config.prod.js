@@ -19,11 +19,10 @@ module.exports = {
   // devtool: 'cheap-source-map',
   // !入口文件的顺序不能动！
   entry: {
+    main: './src/entry/index.js',
     zh: './src/entry/zh.js',
     en: './src/entry/en.js',
-    main: './src/entry/index.js',
     vendor: [
-      // 'babel-polyfill',
       '@babel/polyfill',
       'echarts',
       'moment',

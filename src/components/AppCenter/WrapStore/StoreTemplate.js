@@ -182,7 +182,7 @@ class WrapComopnent extends React.Component {
       failed: {
         func: res => {
           notify.close()
-          notify.error(`操作失败\n${res.message.message}`)
+          notify.error(`操作失败\n${res.message}`)
           this.setState({
             offShelfModal: false,
             offshelfId: '',
@@ -286,7 +286,7 @@ class WrapComopnent extends React.Component {
     })
   }
   renderWrapList(dataSource, isHot) {
-    const { activeKey, dataFetching, dataHotFetching, rectStyle, isAdmin } = this.props
+    const { activeKey, dataFetching, dataHotFetching, rectStyle, isAdmin, isUPAdmin } = this.props
     const { copyStatus } = this.state
     let newData
     if (isHot) {
@@ -347,7 +347,10 @@ class WrapComopnent extends React.Component {
             activeKey === 'image' ? isAdmin
               ? <Menu.Item key="offShelf" disabled={[0, 4, 8].includes(item.publishStatus)}>下架</Menu.Item>
               : <Menu.Item key="none" style={{ display: 'none' }}/>
-              : <Menu.Item key="offShelf" disabled={[0, 4, 8].includes(item.publishStatus)}>下架</Menu.Item>
+              :
+              isUPAdmin 
+                ? <Menu.Item key="offShelf" disabled={[0, 4, 8].includes(item.publishStatus)}>下架</Menu.Item>
+                : <Menu.Item key="none" style={{ display: 'none' }}/>
           }
         </Menu>
       );
@@ -540,7 +543,7 @@ class WrapComopnent extends React.Component {
   render() {
     const { 
       current, dataSource, dataHotList, updateParentState, rectStyle, 
-      isAdmin, location, getStoreList, getAppsHotList 
+      isAdmin, location, getStoreList, getAppsHotList
     } = this.props
     const { downloadModalVisible, currentImage, offShelfModal, 
       imageDetailModalShow, offshelfId, detailModal, currentWrap
@@ -551,7 +554,7 @@ class WrapComopnent extends React.Component {
     if (currentImage) {
       server = currentImage.resourceLink && currentImage.resourceLink.split('/')[0]
       node = currentImage.resourceLink && currentImage.resourceLink.split('/')[1]
-      Object.assign(currentImage, { name: currentImage.resourceName })
+      Object.assign(currentImage, { name: currentImage.resourceName, pullCount: currentImage.downloadTimes, creationTime: currentImage.publishTime })
       tagArr = currentImage && currentImage.versions && currentImage.versions.map(item => <Option key={item.iD}>{item.tag}</Option>)
     }
     const pagination = {
@@ -589,6 +592,7 @@ class WrapComopnent extends React.Component {
           updateAppStatus={this.updateAppStatus}
           isStore={true}
           isAdmin={isAdmin}
+          location={location}
         />
         <Modal 
           title="下载镜像"
