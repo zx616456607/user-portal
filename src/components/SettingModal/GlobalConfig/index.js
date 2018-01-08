@@ -805,7 +805,7 @@ let Vm = React.createClass({
     });
 
     return (
-      <div className="GlobalConfigMSA">
+      <div className="GlobalConfigVm">
         <div className="title">传统应用</div>
         <div className="content">
           <div className="contentMain">
