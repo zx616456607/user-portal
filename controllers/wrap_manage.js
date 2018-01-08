@@ -13,6 +13,7 @@ const formStream = require('formstream')
 const constants = require('../constants')
 const parse = require('co-busboy')
 const mime = require('mime')
+const FormData = require('form-data')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
@@ -75,9 +76,7 @@ exports.deletePkg = function* () {
 exports.localUploadPkg = function*() {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const filename = this.params.filename
-  const filetag = this.params.filetag
-  const filetype = this.params.filetype
+  const query = this.query
   const parts = parse(this, {
     autoFields: true
   })
@@ -90,7 +89,7 @@ exports.localUploadPkg = function*() {
   const stream = formStream()
   const mimeType = mime.lookup(fileStream.filename)
   stream.stream('pkg', fileStream, fileStream.filename, mimeType)
-  let response = yield api.pkg.uploadFile([filename,filetag,filetype], null, stream, { headers: stream.headers() }).catch(err => {
+  let response = yield api.pkg.uploadFile(null, query, stream, { headers: stream.headers() }).catch(err => {
     return err
   })
   this.status = response.statusCode
@@ -100,10 +99,8 @@ exports.localUploadPkg = function*() {
 exports.romoteUploadPkg = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const filename = this.params.filename
-  const filetag = this.params.filetag
-  const filetype = this.params.filetype
-  const body = yield api.pkg.createBy([filename,filetag,filetype,'remote'],null,this.request.body)
+  const query = this.query
+  const body = yield api.pkg.createBy(['remote'],query,this.request.body)
   this.body = body
 }
 
@@ -234,21 +231,8 @@ exports.uploadDocs = function* () {
   const api = apiFactory.getApi(loginUser)
   const id = this.params.id
   const query = this.query
-  const parts = parse(this, {
-    autoFields: true
-  })
-  if (!parts) {
-    this.status = 400
-    this.message = { message: 'error' }
-    return
-  }
-  const fileStream = yield parts
-  const stream = formStream()
-  const mimeType = mime.lookup(fileStream.filename)
-  stream.stream('docs', fileStream, fileStream.filename, mimeType)
-  let response = yield api.pkg.uploadFile([id, 'docs'], query, stream, { headers: stream.headers() }).catch(err => {
-    return err
-  })
+  const stream = yield getFormData(this)
+  const response = yield api.pkg.uploadFile([id, 'docs'], query, stream, { headers: stream.getHeaders()})
   this.status = response.statusCode
   this.body = response
 }
@@ -294,4 +278,21 @@ function* parseForm(ctx) {
       reject(err)
     }
   })
+}
+
+function* getFormData(ctx) {
+  const formData = new FormData()
+  const parts = parse(ctx, {
+    autoFields: true,
+    checkFile: function (fieldname, file, filename) {
+      formData.append(fieldname, file, {
+        filename: filename
+      })
+    },
+    checkField: function (name, value) {
+      formData.append(name, value)
+    }
+  })
+  yield parts
+  return formData
 }
