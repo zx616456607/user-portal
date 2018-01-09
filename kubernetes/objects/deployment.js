@@ -154,11 +154,11 @@ class Deployment {
                 let resources = {}
                 if (ct.resources.limits) {
                   let limits = {}
-                  if (ct.resources.limits.memory) {
-                    limits.memory = ct.resources.limits.memory
-                  }
                   if (ct.resources.limits.cpu) {
                     limits.cpu = ct.resources.limits.cpu
+                  }
+                  if (ct.resources.limits.memory) {
+                    limits.memory = ct.resources.limits.memory
                   }
                   if (Object.keys(limits).length > 0) {
                     resources.limits = limits
@@ -227,7 +227,6 @@ class Deployment {
       if (container.name !== containerName) {
         return
       }
-      console.log(utils.getResources(memory, cpu, limitMemory, limitCpu))
       container.resources = utils.getResources(memory, cpu, limitMemory, limitCpu)
     })
   }
