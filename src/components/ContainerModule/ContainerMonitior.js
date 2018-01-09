@@ -24,7 +24,6 @@ import {
 } from '../../actions/metrics'
 import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../constants'
 
-const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
 const timeFrequency = {
@@ -240,13 +239,13 @@ class ContainerMonitior extends Component {
     d.setHours(d.getHours() - hours)
     return d.toISOString()
   }
-  
+
   changeMinutes(min) {
     let d = new Date()
     d.setMinutes(d.getMinutes() - min)
     return d.toISOString()
   }
-  
+
   handleTimeChange(e) {
     const { loadContainerAllOfMetrics, cluster, containerName } = this.props
     const {value} = e.target
