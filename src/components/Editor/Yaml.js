@@ -123,7 +123,7 @@ class YamlEditor extends Component {
         newErrorList.push(matchYamlError(error, 0, _this, height))
       }
     }
-    callback(e);
+    callback && callback(e);
     //the error num changed
     if(newErrorList.length != errorList.length && newErrorList.length > 0) {
       currentErrorIndex = newErrorList.length - 1;

@@ -551,13 +551,15 @@ export function isSafariBrower() {
   return false
 }
 
-export function getResourceByMemory(memory, DIYMemory, DIYCPU) {
+export function getResourceByMemory(memory, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU) {
   if (memory !== RESOURCES_DIY) {
     memory = parseInt(memory)
   }
   let cpuShow = 1 // unit: C
   let cpu = 0.1 // unit: C
   let memoryShow = 0.5 // unit: G
+  let limitCpu = 0.1 // unit: C
+  let limitMemory = 0.5 // unit: G
   let config = '2x'
   switch (memory) {
     case 256:
@@ -601,12 +603,14 @@ export function getResourceByMemory(memory, DIYMemory, DIYCPU) {
       memory = Math.ceil(DIYMemory) + 'Mi'
       cpuShow = DIYCPU
       cpu = DIYCPU
+      limitCpu = DIYMaxCPU
+      limitMemory = Math.ceil(DIYMaxMemory) + 'Mi'
       config = RESOURCES_DIY
       break
     default:
       break
   }
-  return { cpu, memory, cpuShow, memoryShow, config }
+  return { cpu, memory, cpuShow, memoryShow, limitCpu, limitMemory, config }
 }
 
 export function isValidateDate(date) {
