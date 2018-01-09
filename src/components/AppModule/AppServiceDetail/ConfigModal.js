@@ -61,6 +61,8 @@ class ConfigModal extends Component {
       haveRBDVolume: false,
       DIYMemory: RESOURCES_MEMORY_MIN,
       DIYCPU: RESOURCES_CPU_DEFAULT,
+      DIYMaxMemory: RESOURCES_MEMORY_MIN,
+      DIYMaxCPU: RESOURCES_CPU_DEFAULT
     }
   }
 
@@ -76,39 +78,48 @@ class ConfigModal extends Component {
     let resources = service.spec.template.spec.containers[0].resources || DEFAULT_CONTAINER_RESOURCES
     let limits = resources.limits || DEFAULT_CONTAINER_RESOURCES.limits
     let requests = resources.requests || DEFAULT_CONTAINER_RESOURCES.requests
-    let memory = limits.memory || DEFAULT_CONTAINER_RESOURCES.limits.memory
-    let cpu = requests.cpu
+    let limitsMemory = limits.memory || DEFAULT_CONTAINER_RESOURCES.limits.memory
+    let requestsMemory = requests.memory || DEFAULT_CONTAINER_RESOURCES.requests.memory
+    let limitsCPU = limits.cpu || DEFAULT_CONTAINER_RESOURCES.limits.cpu
+    let requestsCPU = requests.cpu
+    limitsMemory = this.formatMemory(limitsMemory)
+    requestsMemory = this.formatMemory(requestsMemory)
+    limitsCPU = this.formatCPU(limitsCPU)
+    requestsCPU = this.formatCPU(requestsCPU)
+
+    let composeType = limitsMemory
+    const memoryIndex = PRESET_MEMORY_ARRAY.indexOf(composeType)
+    if ( memoryIndex < 0 || PRESET_CPU_ARRAY[memoryIndex] !== requestsCPU) {
+      composeType = RESOURCES_DIY
+    }
+    this.setState({
+      composeType,
+      haveRBDVolume: isStorageUsed(service.spec.template.spec.volumes),
+      DIYMemory: requestsMemory,
+      DIYCPU: requestsCPU,
+      DIYMaxMemory: limitsMemory,
+      DIYMaxCPU: limitsCPU
+    })
+  }
+  
+  formatMemory(memory) {
     if (memory.indexOf('Gi') > -1) {
       memory = parseInt(memory) * 1024
     } else {
       memory = parseInt(memory)
     }
-    if (!cpu) {
-      cpu = getCPUByMemory(memory)
-    } else {
-      cpu = cpu.toString()
-    }
+    return memory
+  }
+  
+  formatCPU(cpu) {
     if (cpu.indexOf('m') > -1) {
       cpu = parseInt(cpu)
       cpu /= 1000
     } else {
       cpu = parseFloat(cpu)
     }
-
-    let composeType = memory
-    let composeCpu = cpu
-    const memoryIndex = PRESET_MEMORY_ARRAY.indexOf(composeType)
-    if ( memoryIndex < 0 || PRESET_CPU_ARRAY[memoryIndex] != cpu) {
-      composeType = RESOURCES_DIY
-    }
-    this.setState({
-      composeType,
-      haveRBDVolume: isStorageUsed(service.spec.template.spec.volumes),
-      DIYMemory: memory,
-      DIYCPU: cpu,
-    })
+    return cpu
   }
-
   selectComposeType(type) {
     this.setState({
       composeType: type
@@ -124,12 +135,12 @@ class ConfigModal extends Component {
       loadServiceList,
       changeQuotaService
     } = this.props
-    const { DIYMemory, DIYCPU } = this.state
+    const { DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU } = this.state
     const { composeType } = this.state
     const serviceName = service.metadata.name
     let resources = getResources(composeType)
     if (composeType === RESOURCES_DIY) {
-      resources = getResources(DIYMemory + 'Mi', DIYCPU * 1000 + 'm')
+      resources = getResources(DIYMemory + 'Mi', DIYCPU * 1000 + 'm', DIYMaxMemory + 'Mi', DIYMaxCPU * 1000 + 'm')
     }
     const { requests, limits } = resources
     let notification = new NotificationHandler()
@@ -169,7 +180,7 @@ class ConfigModal extends Component {
 
   render() {
     const { service, visible } = this.props
-    const { DIYMemory, DIYCPU } = this.state
+    const { DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU } = this.state
     if (!visible) {
       return null
     }
@@ -194,16 +205,16 @@ class ConfigModal extends Component {
         footer={modalFooter}>
         <div id="ConfigModal">
           <Row className="serviceName">
-            <Col className="itemTitle" span={4} style={{ textAlign: 'left' }}>服务名称</Col>
-            <Col className="itemBody" span={20}>
+            <Col className="itemTitle" span={3} style={{ textAlign: 'left' }}>服务名称</Col>
+            <Col className="itemBody" span={21}>
               {service.metadata.name}
             </Col>
           </Row>
           <Row>
-            <Col className="itemTitle" span={4} style={{ textAlign: 'left' }}>
+            <Col className="itemTitle" span={3} style={{ textAlign: 'left' }}>
               选择配置
             </Col>
-            <Col className="itemBody" span={20}>
+            <Col className="itemBody" span={21}>
               <div className="operaBox">
                 <div className="selectCompose">
                   <ul className="composeList">
@@ -227,7 +238,7 @@ class ConfigModal extends Component {
                         </div>
                         <div className="bottomBox">
                           <span>512M&nbsp;内存</span><br />
-                          <span>1CPU&nbsp;(共享)</span>
+                          <span>0.2~1CPU</span>
                           <div className="triangle"></div>
                           <Icon type="check" />
                         </div>
@@ -241,7 +252,7 @@ class ConfigModal extends Component {
                         </div>
                         <div className="bottomBox">
                           <span>1GB&nbsp;内存</span><br />
-                          <span>1CPU&nbsp;(共享)</span>
+                          <span>0.4~1CPU</span>
                           <div className="triangle"></div>
                           <Icon type="check" />
                         </div>
@@ -255,7 +266,7 @@ class ConfigModal extends Component {
                         </div>
                         <div className="bottomBox">
                           <span>2GB&nbsp;内存</span><br />
-                          <span>1CPU&nbsp;(共享)</span>
+                          <span>0.8~1CPU</span>
                           <div className="triangle"></div>
                           <Icon type="check" />
                         </div>
@@ -303,26 +314,70 @@ class ConfigModal extends Component {
                             自定义
                         </div>
                           <div className="bottomBox">
-                            <div className="DIYKey">
-                              <InputNumber
-                                onChange={(value) => this.setState({DIYMemory: value})}
-                                value={parseInt(DIYMemory)}
-                                defaultValue={RESOURCES_MEMORY_MIN}
-                                step={RESOURCES_MEMORY_STEP}
-                                min={RESOURCES_MEMORY_MIN}
-                                max={RESOURCES_MEMORY_MAX} />
-                              MB&nbsp;内存
-                            </div>
-                            <div className="DIYKey">
-                              <InputNumber
-                                onChange={(value) => this.setState({DIYCPU: value})}
-                                value={DIYCPU}
-                                defaultValue={DIYCPU}
-                                step={RESOURCES_CPU_STEP}
-                                min={RESOURCES_CPU_MIN}
-                                max={RESOURCES_CPU_MAX}/>
-                              核 CPU
-                            </div>
+                            <Row>
+                              <Col span={8}>
+                                <InputNumber
+                                  onChange={(value) => this.setState({DIYMemory: value})}
+                                  value={parseInt(DIYMemory)}
+                                  defaultValue={RESOURCES_MEMORY_MIN}
+                                  step={RESOURCES_MEMORY_STEP}
+                                  min={RESOURCES_MEMORY_MIN}
+                                  max={RESOURCES_MEMORY_MAX} />
+                              </Col>
+                              <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
+                              <Col span={8}>
+                                <InputNumber
+                                  onChange={(value) => this.setState({DIYMaxMemory: value})}
+                                  value={parseInt(DIYMaxMemory)}
+                                  defaultValue={RESOURCES_MEMORY_MIN}
+                                  step={RESOURCES_MEMORY_STEP}
+                                  min={RESOURCES_MEMORY_MIN}
+                                  max={RESOURCES_MEMORY_MAX} />
+                              </Col>
+                              <Col span={7} style={{ lineHeight: '32px' }}>MB&nbsp;内存</Col>
+                            </Row>
+                            <Row>
+                              <Col span={8}>
+                                <InputNumber
+                                  onChange={(value) => this.setState({DIYCPU: value})}
+                                  value={DIYCPU}
+                                  defaultValue={DIYCPU}
+                                  step={RESOURCES_CPU_STEP}
+                                  min={RESOURCES_CPU_MIN}
+                                  max={RESOURCES_CPU_MAX}/>
+                              </Col>
+                              <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
+                              <Col span={8}>
+                                <InputNumber
+                                  onChange={(value) => this.setState({DIYMaxCPU: value})}
+                                  value={DIYMaxCPU}
+                                  defaultValue={DIYMaxCPU}
+                                  step={RESOURCES_CPU_STEP}
+                                  min={RESOURCES_CPU_MIN}
+                                  max={RESOURCES_CPU_MAX}/>
+                              </Col>
+                              <Col span={7} style={{ lineHeight: '32px' }}>核 CPU</Col>
+                            </Row>
+                            {/*<div className="DIYKey">*/}
+                              {/*<InputNumber*/}
+                                {/*onChange={(value) => this.setState({DIYMemory: value})}*/}
+                                {/*value={parseInt(DIYMemory)}*/}
+                                {/*defaultValue={RESOURCES_MEMORY_MIN}*/}
+                                {/*step={RESOURCES_MEMORY_STEP}*/}
+                                {/*min={RESOURCES_MEMORY_MIN}*/}
+                                {/*max={RESOURCES_MEMORY_MAX} />*/}
+                              {/*MB&nbsp;内存*/}
+                            {/*</div>*/}
+                            {/*<div className="DIYKey">*/}
+                              {/*<InputNumber*/}
+                                {/*onChange={(value) => this.setState({DIYCPU: value})}*/}
+                                {/*value={DIYCPU}*/}
+                                {/*defaultValue={DIYCPU}*/}
+                                {/*step={RESOURCES_CPU_STEP}*/}
+                                {/*min={RESOURCES_CPU_MIN}*/}
+                                {/*max={RESOURCES_CPU_MAX}/>*/}
+                              {/*核 CPU*/}
+                            {/*</div>*/}
                             <div className="triangle"></div>
                             <Icon type="check" />
                           </div>
