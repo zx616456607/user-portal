@@ -31,7 +31,6 @@ import { fetchStorage } from '../../../../actions/storage'
 import { getClusterQuota, getClusterQuotaList } from '../../../../actions/quota'
 import { GetProjectsDetail } from '../../../../actions/project'
 
-const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -1492,9 +1491,9 @@ class Ordinary extends Component {
                   `/tenant_manage/user/${this.props.userID}?tabs=quota`}><Button type="primary" size="small">{this.props.loginUser.role === 2 ? '设置配额' : '查看详情'}</Button></Link>}>
               <Row className="radios">
                 <RadioGroup size="small" onChange={(e) => this.onChange(e)} defaultValue="computing">
-                  <RadioButton value="computing">计算资源</RadioButton>
-                  <RadioButton value="application">应用管理</RadioButton>
-                  <RadioButton value="service">数据库&缓存</RadioButton>
+                  <Radio prefixCls="ant-radio-button" value="computing">计算资源</Radio>
+                  <Radio prefixCls="ant-radio-button" value="application">应用管理</Radio>
+                  <Radio prefixCls="ant-radio-button" value="service">数据库&缓存</Radio>
                 </RadioGroup>
               </Row>
               <div className="calculation" style={{ display: isComputing ? 'block' : 'none' }}>

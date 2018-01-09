@@ -22,7 +22,6 @@ import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
 import homeHarbor from '../../../../assets/img/homeHarbor.png'
 import { getGlobaleQuota, getGlobaleQuotaList } from '../../../../actions/quota'
 
-const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
 class MySpace extends Component {
   constructor(props) {
@@ -349,8 +348,8 @@ class MySpace extends Component {
               <Row className="radios">
                 <Col span={16} offset={5}>
                   <RadioGroup size="small" onChange={(e) => this.handleChange(e)} defaultValue="ci">
-                    <RadioButton value="ci">CI/CD</RadioButton>
-                    <RadioButton value="deliver">交付中心</RadioButton>
+                    <Radio prefixCls="ant-radio-button" value="ci">CI/CD</Radio>
+                    <Radio prefixCls="ant-radio-button" value="deliver">交付中心</Radio>
                   </RadioGroup>
                 </Col>
               </Row>

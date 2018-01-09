@@ -40,14 +40,14 @@ module.exports = {
 
   resolve: {
     modules: [
-      path.join(__dirname, '../src'),
+      path.join(__dirname, './src'),
       'node_modules',
     ],
     extensions: [ '.js', '.jsx', '.json' ],
-    alias: {
-      '@': path.join(__dirname, '../src'),
-    },
-    symlinks: false,
+    // alias: {
+    //   '@': path.join(__dirname, './src'),
+    // },
+    // symlinks: false,
   },
 
   output: {
@@ -62,6 +62,7 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
+        // include: path.join(__dirname, './src'),
         use: [{
           loader: "thread-loader",
           // 有同样配置的 loader 会共享一个 worker 池(worker pool)
