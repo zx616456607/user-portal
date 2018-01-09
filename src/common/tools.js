@@ -566,6 +566,7 @@ export function getResourceByMemory(memory, DIYMemory, DIYCPU, DIYMaxMemory, DIY
       memoryShow = 256 / 1024
       cpuShow = 1
       cpu = 0.1
+      limitCpu = 1
       config = '1x'
       break
     case 512:
@@ -578,24 +579,28 @@ export function getResourceByMemory(memory, DIYMemory, DIYCPU, DIYMaxMemory, DIY
       memoryShow = 1024 / 1024
       cpuShow = 1
       cpu = 0.2
+      limitCpu = 1
       config = '4x'
       break
     case 2048:
       memoryShow = 2048 / 1024
       cpuShow = 1
       cpu = 0.4
+      limitCpu = 1
       config = '8x'
       break
     case 4096:
       memoryShow = 4096 / 1024
       cpuShow = 1
       cpu = 1
+      limitCpu = 1
       config = '16x'
       break
     case 8192:
       memoryShow = 8192 / 1024
       cpuShow = 2
       cpu = 2
+      limitCpu = 2
       config = '32x'
       break
     case RESOURCES_DIY:
