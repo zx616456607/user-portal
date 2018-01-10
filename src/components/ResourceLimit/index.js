@@ -534,10 +534,12 @@ class ResourceQuota extends React.Component {
       }, {
         key: 'elasticsearch',
         text: 'ElasticSearch集群 (个)'
-      }, {
-        key: 'etcd',
-        text: 'Etcd集群 (个)'
-      }]
+      }, 
+      // {
+      //   key: 'etcd',
+      //   text: 'Etcd集群 (个)'
+      // }
+      ]
     const { getFieldProps, getFieldValue, setFieldsValue, setFields } = this.props.form
     return (
       <div className="quota">
@@ -599,7 +601,7 @@ class ResourceQuota extends React.Component {
                       inputProps.value - this.useGlobaleCount(item.key) : '无限制'
                     return (
                       <Row key={index} className="connents">
-                        <Col span={3}>
+                        <Col span={3} style={{ minWidth: '120px' }}>
                           <span>{item.text}</span>
                         </Col>
                         <Col span={7}>
@@ -663,7 +665,7 @@ class ResourceQuota extends React.Component {
                       inputProps.value - this.useGlobaleCount(item.key) : '无限制'
                     return (
                       <Row key={index} className="connents">
-                        <Col span={3}>
+                        <Col span={3} style={{ minWidth: '120px' }}>
                           <span>{item.text}</span>
                         </Col>
                         <Col span={7}>
@@ -707,10 +709,10 @@ class ResourceQuota extends React.Component {
                   ciList.map((item, index) => {
                     return (
                       <Row className="list" key={index}>
-                        <Col span={2}>
+                        <Col span={3} style={{ minWidth: '120px' }}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={8}>
+                        <Col span={10}>
                           <Progress percent={this.filterPercent(this.maxGlobaleCount(item.key), this.useGlobaleCount(item.key))} showInfo={false} />
                         </Col>
                         <Col span={4}>
@@ -736,10 +738,10 @@ class ResourceQuota extends React.Component {
                 {
                   cdList.map((item, index) => (
                     <Row className="list" key={index}>
-                      <Col span={2}>
+                      <Col span={3} style={{ minWidth: '120px' }}>
                         <span>{item.text}</span>
                       </Col>
-                      <Col span={8}>
+                      <Col span={10}>
                         <Progress percent={this.filterPercent(this.maxGlobaleCount(item.key), this.useGlobaleCount(item.key))} showInfo={false} />
                       </Col>
                       <Col span={4}>
@@ -809,7 +811,7 @@ class ResourceQuota extends React.Component {
                           inputProps.value - this.useClusterCount(item.key) : '无限制'
                         return (
                           <Row key={index} className="connents">
-                            <Col span={3}>
+                            <Col span={3} style={{ minWidth: '120px' }}>
                               <span>{item.text}</span>
                             </Col>
                             <Col span={7}>
@@ -874,7 +876,7 @@ class ResourceQuota extends React.Component {
                           inputProps.value - this.useClusterCount(item.key) : '无限制'
                         return (
                           <Row key={index} className="connents">
-                            <Col span={3}>
+                            <Col span={3} style={{ minWidth: '120px' }}>
                               <span>{item.text}</span>
                             </Col>
                             <Col span={7}>
@@ -938,7 +940,7 @@ class ResourceQuota extends React.Component {
                           inputProps.value - this.useClusterCount(item.key) : '无限制'
                         return (
                           <Row key={index} className="connents">
-                            <Col span={3}>
+                            <Col span={3} style={{ minWidth: '120px' }}>
                               <span>{item.text}</span>
                             </Col>
                             <Col span={7}>
@@ -976,10 +978,10 @@ class ResourceQuota extends React.Component {
                     {
                       computeList.map((item, index) => (
                         <Row className="list" key={index}>
-                          <Col span={2}>
+                          <Col span={3} style={{ minWidth: '120px' }}>
                             <span>{item.text}</span>
                           </Col>
-                          <Col span={8}>
+                          <Col span={10}>
                             <Progress percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                           </Col>
                           <Col span={4}>
@@ -1004,10 +1006,10 @@ class ResourceQuota extends React.Component {
                     {
                       platformList.map((item, index) => (
                         <Row className="list" key={index}>
-                          <Col span={2}>
+                          <Col span={3} style={{ minWidth: '120px' }}>
                             <span>{item.text}</span>
                           </Col>
-                          <Col span={8}>
+                          <Col span={10}>
                             <Progress percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                           </Col>
                           <Col span={4}>
@@ -1032,10 +1034,10 @@ class ResourceQuota extends React.Component {
                     {
                       serviceList.map((item, index) => (
                         <Row className="list" key={index}>
-                          <Col span={3}>
+                          <Col span={3} style={{ minWidth: '120px' }}>
                             <span>{item.text}</span>
                           </Col>
-                          <Col span={7}>
+                          <Col span={10}>
                             <Progress percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                           </Col>
                           <Col span={4}>
