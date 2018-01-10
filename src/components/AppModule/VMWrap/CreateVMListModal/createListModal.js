@@ -250,7 +250,7 @@ let CreateVMListModal = React.createClass({
             hasFeedback
             {...formItemLayout}
           >
-            <Input disabled={!modalTitle} key="IP"{...hostProps} placeholder="请输入已开通 SSH 登录的传递环境 IP" id="host" ref={host => this.host = host} />
+            <Input disabled={!modalTitle} {...hostProps} placeholder="请输入已开通 SSH 登录的传递环境 IP" id="host" ref={host => this.host = host} />
             <span style={style}><Icon size={15} type="question-circle-o" />传统环境一般指非容器环境（Linux的虚拟机、物理机等）</span>
           </FormItem>
           <FormItem
@@ -272,7 +272,7 @@ let CreateVMListModal = React.createClass({
             label="环境安装路径"
             style={{ marginBottom: 0 }}
           >
-            <div className="alertRow" style={{ fontSize: 12 }}>
+            <div key="hint" className="alertRow" style={{ fontSize: 12 }}>
               <div>JAVA_HOME='/home/java'</div>
               <div>JRE_HOME='/home/java/jre1.8.0_151'</div>
               <div>CATALINA_HOME='/usr/local/tomcat'</div>
