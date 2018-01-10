@@ -163,23 +163,20 @@ class VMList extends React.Component {
    */
   handleA() {
     this.setState({
-      isDelVisible: true,
+      visible: true,
+      modalTitle: true,
+      isModal: true,
+      isAdd: true
     })
-    // this.setState({
-    //   visible: true,
-    //   modalTitle: true,
-    //   isModal: true,
-    //   isAdd: true
-    // })
-    // const self = this
-    // setTimeout(() => {
-    //   document.getElementById('host').focus()
-    // },100)
-    // setTimeout(function () {
-    //   if (self.focusInput) {
-    //     self.focusInput.refs.input.focus()
-    //   }
-    // }, 0)
+    const self = this
+    setTimeout(() => {
+      document.getElementById('host').focus()
+    },100)
+    setTimeout(function () {
+      if (self.focusInput) {
+        self.focusInput.refs.input.focus()
+      }
+    }, 0)
   }
 
   /**

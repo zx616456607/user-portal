@@ -18,7 +18,7 @@ const ENTERPRISE_MODE = require('../configs/constants').ENTERPRISE_MODE
 const mode = require('../configs/model').mode
 const enterpriseFlag = ENTERPRISE_MODE == mode
 
-exports.getResources = function (memory, cpu) {
+exports.getResources = function (memory, cpu, limitMemory, limitCpu) {
   let resources = clone(DEFAULT_CONTAINER_RESOURCES)
   const intMemory = parseInt(memory || DEFAULT_CONTAINER_RESOURCES_MEMORY)
   switch (intMemory) {
@@ -49,12 +49,12 @@ exports.getResources = function (memory, cpu) {
       resources.requests.memory = '16384Mi'
       break
     default:
-      resources.limits.memory = memory
+      resources.limits.memory = limitMemory
       resources.requests.memory = memory
   }
   if (enterpriseFlag && cpu) {
     resources.requests.cpu = cpu
-    resources.limits.cpu = cpu
+    resources.limits.cpu = limitCpu
   }
   return resources
 }

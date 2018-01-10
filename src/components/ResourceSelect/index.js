@@ -11,7 +11,7 @@
  */
 
 import React, { PropTypes, Component } from 'react'
-import { Input, Button, Icon, InputNumber, Form  } from 'antd'
+import { Input, Button, Icon, InputNumber, Form, Row, Col  } from 'antd'
 import {
   RESOURCES_MEMORY_MAX,
   RESOURCES_MEMORY_MIN,
@@ -35,11 +35,13 @@ export default class ResourceSelect extends Component {
   constructor(props) {
     super()
     this.selectResourceType = this.selectResourceType.bind(this)
-    const { resourceType, DIYMemory, DIYCPU } = props
+    const { resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU } = props
     this.state = {
       resourceType: resourceType || 512,
       DIYMemory: DIYMemory || RESOURCES_MEMORY_MIN,
       DIYCPU: DIYCPU || RESOURCES_CPU_DEFAULT,
+      DIYMaxMemory: DIYMaxMemory || RESOURCES_MEMORY_MIN,
+      DIYMaxCPU: DIYMaxCPU || RESOURCES_CPU_DEFAULT
     }
   }
 
@@ -69,7 +71,7 @@ export default class ResourceSelect extends Component {
   }
 
   render() {
-    const { standardFlag } = this.props
+    const { standardFlag, DIYMemoryProps, DIYCPUProps, DIYMaxMemoryProps, DIYMaxCPUProps, memoryMin, cpuMin } = this.props
     const { resourceType, DIYMemory, DIYCPU } = this.state
     return (
       <div className="resourceSelect">
@@ -88,13 +90,13 @@ export default class ResourceSelect extends Component {
           </li>*/}
           <li className="resourceDetail">
             <Button type={resourceType == 512 ? "primary" : "ghost"}
-              onClick={() => this.selectResourceType(512)}>
+                    onClick={() => this.selectResourceType(512)}>
               <div className="topBox">
                 2X
               </div>
               <div className="bottomBox">
                 <span>512M&nbsp;内存</span><br />
-                <span>1CPU&nbsp;(共享)</span>
+                <span>0.2~1CPU</span>
                 <div className="triangle"></div>
                 <Icon type="check" />
               </div>
@@ -102,13 +104,13 @@ export default class ResourceSelect extends Component {
           </li>
           <li className="resourceDetail">
             <Button type={resourceType == 1024 ? "primary" : "ghost"}
-              onClick={() => this.selectResourceType(1024)}>
+                    onClick={() => this.selectResourceType(1024)}>
               <div className="topBox">
                 4X
               </div>
               <div className="bottomBox">
                 <span>1GB&nbsp;内存</span><br />
-                <span>1CPU&nbsp;(共享)</span>
+                <span>0.4~1CPU</span>
                 <div className="triangle"></div>
                 <Icon type="check" />
               </div>
@@ -116,13 +118,13 @@ export default class ResourceSelect extends Component {
           </li>
           <li className="resourceDetail">
             <Button type={resourceType == 2048 ? "primary" : "ghost"}
-              onClick={() => this.selectResourceType(2048)}>
+                    onClick={() => this.selectResourceType(2048)}>
               <div className="topBox">
                 8X
               </div>
               <div className="bottomBox">
                 <span>2GB&nbsp;内存</span><br />
-                <span>1CPU&nbsp;(共享)</span>
+                <span>0.8~1CPU</span>
                 <div className="triangle"></div>
                 <Icon type="check" />
               </div>
@@ -130,7 +132,7 @@ export default class ResourceSelect extends Component {
           </li>
           <li className="resourceDetail">
             <Button type={resourceType == 4096 ? "primary" : "ghost"}
-              onClick={() => this.selectResourceType(4096)}>
+                    onClick={() => this.selectResourceType(4096)}>
               <div className="topBox">
                 16X
               </div>
@@ -144,7 +146,7 @@ export default class ResourceSelect extends Component {
           </li>
           <li className="resourceDetail">
             <Button type={resourceType == 8192 ? "primary" : "ghost"}
-              onClick={() => this.selectResourceType(8192)}>
+                    onClick={() => this.selectResourceType(8192)}>
               <div className="topBox">
                 32X
               </div>
@@ -162,39 +164,65 @@ export default class ResourceSelect extends Component {
               <div
                 className={
                   resourceType == RESOURCES_DIY
-                  ? "btn ant-btn-primary"
-                  : "btn ant-btn-ghost"
+                    ? "btn ant-btn-primary"
+                    : "btn ant-btn-ghost"
                 }
                 onClick={()=> this.selectResourceType(RESOURCES_DIY)}>
                 <div className="topBox">
                   自定义
-              </div>
+                </div>
                 <div className="bottomBox">
-                  <div className="DIYKey">
-                    <FormItem>
-                      <InputNumber
-                        {...this.props.DIYMemoryProps}
-                        step={RESOURCES_MEMORY_STEP}
-                        min={RESOURCES_MEMORY_MIN}
-                        max={RESOURCES_MEMORY_MAX}
-                        size="default"
-                      />
-                      MB&nbsp;内存
-                    </FormItem>
-                  </div>
-                  <div className="DIYKey">
-                    <FormItem>
-                      <InputNumber
-                        {...this.props.DIYCPUProps}
-                        step={RESOURCES_CPU_STEP}
-                        min={RESOURCES_CPU_MIN}
-                        max={RESOURCES_CPU_MAX}
-                        size="default"
-                      />
-                      核 CPU
-                    </FormItem>
-                  </div>
-                  <div className="triangle"></div>
+                  <Row>
+                    <Col span={8}>
+                      <FormItem>
+                        <InputNumber
+                          {...DIYMemoryProps}
+                          step={RESOURCES_MEMORY_STEP}
+                          min={RESOURCES_MEMORY_MIN}
+                          max={RESOURCES_MEMORY_MAX}
+                          size="default"/>
+                      </FormItem>
+                    </Col>
+                    <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
+                    <Col span={8}>
+                      <FormItem>
+                        <InputNumber
+                          {...DIYMaxMemoryProps}
+                          step={RESOURCES_MEMORY_STEP}
+                          min={memoryMin}
+                          max={RESOURCES_MEMORY_MAX}
+                          size="default"
+                        />
+                      </FormItem>
+                    </Col>
+                    <Col span={7} style={{ lineHeight: '32px' }}>MB&nbsp;内存</Col>
+                  </Row>
+                  <Row>
+                    <Col span={8}>
+                      <FormItem>
+                        <InputNumber
+                          {...DIYCPUProps}
+                          step={RESOURCES_CPU_STEP}
+                          min={RESOURCES_CPU_MIN}
+                          max={RESOURCES_CPU_MAX}
+                          size="default"/>
+                      </FormItem>
+                    </Col>
+                    <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
+                    <Col span={8}>
+                      <FormItem>
+                        <InputNumber
+                          {...DIYMaxCPUProps}
+                          step={RESOURCES_CPU_STEP}
+                          min={cpuMin}
+                          max={RESOURCES_CPU_MAX}
+                          size="default"
+                        />
+                      </FormItem>
+                    </Col>
+                    <Col span={7} style={{ lineHeight: '32px' }}>核 CPU</Col>
+                  </Row>
+                  <div className="triangle"/>
                   <Icon type="check" />
                 </div>
               </div>
