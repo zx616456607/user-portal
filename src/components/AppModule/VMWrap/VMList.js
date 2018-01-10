@@ -40,8 +40,17 @@ class VMList extends React.Component {
       Name: '',
       creationTime: true,
       createTime: true,
-      ciphertext: true,
-      list: [],
+      list: [
+        {
+          password: '123456'
+        },
+        {
+          password: '123456'
+        },
+        {
+          password: '123456'
+        },
+      ],
       total: 0,
       host: '',
       isLoading: true,
@@ -268,9 +277,9 @@ class VMList extends React.Component {
   /**
    * 显示密文
    */
-  handleChange(value) {
+  handleChange(index) {
     this.setState({
-      ciphertext: value
+      [`password${index}`]: !this.state[`password${index}`]
     })
   }
 
@@ -375,7 +384,7 @@ class VMList extends React.Component {
 
   render() {
     const { data } = this.props
-    const { ciphertext, list, total } = this.state
+    const { list, total } = this.state
     const pagination = {
       simple: true,
       defaultCurrent: 1,
@@ -404,21 +413,13 @@ class VMList extends React.Component {
         dataIndex: 'password',
         key: 'password',
         render: (text, record, index) =>
-          ciphertext ?
-            <div>
-              <span ref="info" className="info">******</span>
-              <Icon
-                type={this.state.isShowText === 'eye' ? 'eye-o' : 'eye'}
-                style={{ float: 'right', marginRight: 30 }}
-                onClick={this.handleChange.bind(this, false)} />
-            </div> :
-            <div>
-              <span ref="info" className="info">{text}</span>
-              <Icon
-                type={this.state.isShowText === 'eye' ? 'eye-o' : 'eye'}
-                style={{ float: 'right', marginRight: 30 }}
-                onClick={this.handleChange.bind(this, true)} />
-            </div>
+          <div>
+            <span ref="info" className="info">{this.state[`password${index}`] ? text : '******'}</span>
+            <Icon
+              type={this.state[`password${index}`] ? 'eye-o' : 'eye'}
+              style={{ float: 'right', marginRight: 30 }}
+              onClick={this.handleChange.bind(this, index)} />
+          </div>
         ,
       },
       {
