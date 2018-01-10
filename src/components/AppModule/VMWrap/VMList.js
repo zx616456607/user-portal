@@ -40,17 +40,7 @@ class VMList extends React.Component {
       Name: '',
       creationTime: true,
       createTime: true,
-      list: [
-        {
-          password: '123456'
-        },
-        {
-          password: '123456'
-        },
-        {
-          password: '123456'
-        },
-      ],
+      list: [],
       total: 0,
       host: '',
       isLoading: true,
