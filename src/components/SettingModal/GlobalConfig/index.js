@@ -10,6 +10,7 @@
 import React, { Component } from 'react'
 import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, Table } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
+import classNames from 'classnames'
 import './style/GlobalConfig.less'
 import EmailImg from '../../../assets/img/setting/globalconfigEmail.png'
 import conInter from '../../../assets/img/setting/globalconfigCICD.png'
@@ -582,12 +583,10 @@ let Ftp = React.createClass({
   checkUrl(rule, value, callback) {
     const { validateFields } = this.props.form
     if (!value) {
-      callback()
-      return
+      return callback('请输入服务地址')
     }
     if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
-      callback([new Error('请填入合法的 ftp 地址')])
-      return
+      return callback([new Error('请填入合法的 ftp 地址')])
     }
     callback()
   },
@@ -610,13 +609,13 @@ let Ftp = React.createClass({
     });
     const usernameProps = getFieldProps('username', {
       rules: [
-        { required: false, message: '请填写用户名' },
+        { required: true, message: '请填写用户名' },
       ],
       initialValue: ftpDetail.username,
     });
     const passwordProps = getFieldProps('password', {
       rules: [
-        { required: false, whitespace: true, message: '请填写密码' },
+        { required: true, whitespace: true, message: '请填写密码' },
       ],
       initialValue: ftpDetail.password,
     });
@@ -640,7 +639,11 @@ let Ftp = React.createClass({
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
-                <FormItem >
+                <FormItem
+                  className={classNames({'has-error': getFieldError('addr')})}
+                  hasFeedback
+                  help={isFieldValidating('addr') ? '校验中...' : (getFieldError('addr') || []).join(', ')}
+                >
                   <Input {...addrProps} placeholder="如：192.168.1.113:21" disabled={ftpDisable} id='ftpServerAgent'/>
                 </FormItem>
                 <FormItem >
@@ -817,7 +820,11 @@ let Vm = React.createClass({
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
-                <FormItem >
+                <FormItem
+                  className={classNames({'has-error': getFieldError('url')})}
+                  hasFeedback
+                  help={isFieldValidating('url') ? '校验中...' : (getFieldError('url') || []).join(', ')}
+                >
                   <Input {...urlProps} placeholder="如：https://192.168.1.113:19005" disabled={vmDisable} id='vmAppAgent'/>
                 </FormItem>
                 <FormItem>
