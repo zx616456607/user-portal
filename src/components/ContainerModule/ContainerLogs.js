@@ -183,13 +183,16 @@ class ContainerLogs extends Component {
     const { watchToken, namespace } = loginUser
     const watchAuthInfo = {
       accessToken: watchToken,
-      namespace: namespace,
+      namespace,
       type: 'log',
       name: containerName,
       cluster,
     }
     if (current.space.namespace !== 'default') {
       watchAuthInfo.teamspace = current.space.namespace
+    }
+    if (current.space.userName) {
+      watchAuthInfo.onbehalfuser = current.space.userName
     }
     ws.send(JSON.stringify(watchAuthInfo))
     ws.onmessage = (event) => {
