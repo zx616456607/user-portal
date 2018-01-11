@@ -49,23 +49,41 @@ class CodeRepo extends Component {
   }
 
   componentWillMount() {
-    const { params } = this.props
-    this.loadRepos()
-    const imagename = location.search.split('imageName=')[1]
-    if (imagename !== '' && imagename !== undefined) {
+    const { params, location } = this.props
+    const { imageName } = location.query || {}
+    let q
+    if (imageName !== '' && imageName !== undefined) {
+      q = imageName.split('/')[1]
       this.setState({
         imageDetailModalShow: true,
-        currentImage: {name:imagename}
+        currentImage: { name: imageName },
+        searchInput: q,
       })
     }
+    this.loadRepos({ q })
   }
   componentDidUpdate() {
     let searchInput = document.getElementsByClassName('search')[0]
     searchInput && searchInput.focus()
   }
   loadRepos(query) {
-    const { loadProjectRepos, registry } = this.props
-    loadProjectRepos(registry, Object.assign({}, this.DEFAULT_QUERY, query))
+    const { loadProjectRepos, registry, location } = this.props
+    const { imageName } = location.query || {}
+    loadProjectRepos(registry, Object.assign({}, this.DEFAULT_QUERY, query), {
+      success: {
+        func: res => {
+          res.data && res.data.forEach(image => {
+            if (image.name === imageName) {
+              this.setState({
+                imageDetailModalShow: true,
+                currentImage: image,
+              })
+            }
+          })
+        },
+        isAsync: true,
+      }
+    })
   }
 
   deleteRepoOk() {
@@ -119,7 +137,7 @@ class CodeRepo extends Component {
     this.setState({downloadModalVisible:visible})
   }
 
-  showImageDetail (item) {
+  showImageDetail(item) {
     //this function for user select image and show the image detail info
     this.setState({
       imageDetailModalShow: true,
@@ -254,6 +272,7 @@ class CodeRepo extends Component {
             placeholder="按镜像名称搜索"
             className="search"
             size="large"
+            value={this.state.searchInput}
             onChange={e => this.setState({ searchInput: e.target.value })}
             onPressEnter={this.searchProjects}
           />
