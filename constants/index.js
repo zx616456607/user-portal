@@ -12,6 +12,7 @@
 'use strict'
 
 exports.METRICS_DEFAULT_SOURCE = 'prometheus' // influxdb || prometheus
+exports.METRICS_INFLUXDB = 'influxdb'
 exports.METRICS_CPU = 'cpu/usage_rate'
 exports.METRICS_MEMORY = 'memory/usage'
 exports.METRICS_NETWORK_RECEIVED = 'network/rx_rate'
