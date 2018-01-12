@@ -12,6 +12,10 @@
 
 const manangeMonitorRoutes = [
   {
+    path: 'audit',
+    component: require('../components/ManageMonitor/OperationalAudit').default,
+  },
+  {
     path: 'query_log',
     component: require('../components/ManageMonitor/QueryLog').default,
   },
