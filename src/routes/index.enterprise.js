@@ -147,7 +147,7 @@ const rootRoutes = {
       path: 'manange_monitor',
       component: require('../containers/ManageMonitor').default,
       indexRoute: {
-        component: require('../components/ManageMonitor/OperationalAudit').default,
+        onEnter: (nextState, replace) => replace('/manange_monitor/audit'),
       },
       getChildRoutes: (location, cb) => {
         require.ensure([], function (require) {
