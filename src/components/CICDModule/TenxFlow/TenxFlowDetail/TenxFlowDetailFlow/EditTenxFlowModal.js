@@ -145,11 +145,11 @@ const menusText = defineMessages({
   },
   imageRealName: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.imageRealName',
-    defaultMessage: '镜像名称',
+    defaultMessage: '镜像仓库名称',
   },
   imageStore: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.imageStore',
-    defaultMessage: '镜像仓库',
+    defaultMessage: '镜像仓库组',
   },
   otherImage: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.otherImage',
@@ -161,7 +161,7 @@ const menusText = defineMessages({
   },
   ImageStoreType: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.ImageStoreType',
-    defaultMessage: '仓库类型',
+    defaultMessage: '仓库组类型',
   },
   ImageTagByBranch: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.ImageTagByBranch',
