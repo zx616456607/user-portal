@@ -731,11 +731,6 @@ class TeamDetail extends Component {
       return
     }
     const { checkTeamName } = this.props
-    if (!USERNAME_REG_EXP_NEW.test(value)) {
-      callback(new Error('以[a~z]开头，允许[0~9]、[-]，长度大于4，且以小写英文和数字结尾'))
-      return
-    }
-
     clearTimeout(this.teamExistsTimeout)
     this.teamExistsTimeout = setTimeout(() => {
       checkTeamName(value, {
