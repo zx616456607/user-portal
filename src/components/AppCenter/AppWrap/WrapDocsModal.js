@@ -73,7 +73,7 @@ class WrapDocsModal extends React.Component {
       }
       notify.close()
       notify.success('上传成功')
-      callback()
+      callback && callback()
       closeModal()
     }).catch(function(ex) {
       notify.success('上传失败')
