@@ -73,6 +73,9 @@ const appManageRoutes = [{
   indexRoute: {
     component: require('../components/ServiceConfig/Service').default,
   },
+},{
+  path: 'load_balance',
+  component: require('../components/AppModule/LoadBalance').default,
 }, {
   path: 'snapshot',
   indexRoute: {

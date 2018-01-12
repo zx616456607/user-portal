@@ -646,3 +646,26 @@ button.ant-btn-ghost {
 .ant-spin-container {
   transition: unset;
 }
+
+.layout-content {
+  padding: 20px;
+  min-height: 520px;
+  height: 100%;
+  &-btns {
+    padding-bottom: @padding-medium;
+    & > *:not(:last-child) {
+      margin-right: 10px;
+    }
+    .page-box {
+      float: right;
+      padding-top: 5px;
+      .total {
+        margin-right: 18px;
+        line-height: 24px;
+      }
+      .ant-pagination-simple {
+        float: right;
+      }
+    }
+  }
+}
