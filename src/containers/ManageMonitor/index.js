@@ -16,7 +16,7 @@ import './style/ManageMonitor.less'
 
 const menuList = [
   {
-    url: '/manange_monitor',
+    url: '/manange_monitor/audit',
     name: '操作审计'
   },
   {

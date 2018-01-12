@@ -269,7 +269,7 @@ class ShareMemory extends Component {
         dataIndex: 'name',
         width: '15%',
         render: (text, record, index) => (
-          <Link to={`/app_manage/storage/shareMemory/${clusterID}/${text}`}>
+          <Link to={`/app_manage/storage/shared/${clusterID}/${text}`}>
             {text}
           </Link>
         )
