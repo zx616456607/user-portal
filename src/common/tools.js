@@ -551,19 +551,22 @@ export function isSafariBrower() {
   return false
 }
 
-export function getResourceByMemory(memory, DIYMemory, DIYCPU) {
+export function getResourceByMemory(memory, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU) {
   if (memory !== RESOURCES_DIY) {
     memory = parseInt(memory)
   }
   let cpuShow = 1 // unit: C
   let cpu = 0.1 // unit: C
   let memoryShow = 0.5 // unit: G
+  let limitCpu = 0.1 // unit: C
+  let limitMemory = 0.5 // unit: G
   let config = '2x'
   switch (memory) {
     case 256:
       memoryShow = 256 / 1024
       cpuShow = 1
       cpu = 0.1
+      limitCpu = 1
       config = '1x'
       break
     case 512:
@@ -576,24 +579,28 @@ export function getResourceByMemory(memory, DIYMemory, DIYCPU) {
       memoryShow = 1024 / 1024
       cpuShow = 1
       cpu = 0.2
+      limitCpu = 1
       config = '4x'
       break
     case 2048:
       memoryShow = 2048 / 1024
       cpuShow = 1
       cpu = 0.4
+      limitCpu = 1
       config = '8x'
       break
     case 4096:
       memoryShow = 4096 / 1024
       cpuShow = 1
       cpu = 1
+      limitCpu = 1
       config = '16x'
       break
     case 8192:
       memoryShow = 8192 / 1024
       cpuShow = 2
       cpu = 2
+      limitCpu = 2
       config = '32x'
       break
     case RESOURCES_DIY:
@@ -601,12 +608,14 @@ export function getResourceByMemory(memory, DIYMemory, DIYCPU) {
       memory = Math.ceil(DIYMemory) + 'Mi'
       cpuShow = DIYCPU
       cpu = DIYCPU
+      limitCpu = DIYMaxCPU
+      limitMemory = Math.ceil(DIYMaxMemory) + 'Mi'
       config = RESOURCES_DIY
       break
     default:
       break
   }
-  return { cpu, memory, cpuShow, memoryShow, config }
+  return { cpu, memory, cpuShow, memoryShow, limitCpu, limitMemory, config }
 }
 
 export function isValidateDate(date) {
@@ -641,4 +650,23 @@ export function encodeImageFullname(fullname) {
     return fullname
   }
   return `${project}/${encodeURIComponent(imageName.join('/'))}`
+}
+
+/**
+ * 
+ * @param bytes
+ * @param size
+ * @returns
+ */
+export function bytesToSize(bytes, size) {
+  if (bytes === 0) return { value: 0, unit: 'B' };
+  let k = 1024,
+    sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+    i = Math.floor(Math.log(bytes) / Math.log(k));
+  if (size) {
+    i = sizes.findIndex(item => item === size)
+  }
+  let value = (bytes / Math.pow(k, i)).toFixed(2)
+  let unit = sizes[i]
+  return { value, unit };
 }

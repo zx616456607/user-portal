@@ -1392,10 +1392,12 @@ class Ordinary extends Component {
       }, {
         key: 'elasticsearch',
         text: 'ElasticSearch集群 (个)'
-      }, {
-        key: 'etcd',
-        text: 'Etcd集群 (个)'
-      }]
+      }, 
+      // {
+      //   key: 'etcd',
+      //   text: 'Etcd集群 (个)'
+      // }
+      ]
     const spaceName = space.name || space.userName
     return (
       <div id='Ordinary'>
@@ -1484,7 +1486,7 @@ class Ordinary extends Component {
             </Col>
           }
           <Col span={6} className='quota'>
-            <Card title="项目&集群相关资源配额" bordered={false} bodyStyle={{ height: 220, padding: '1px' }}
+            <Card title="项目&集群相关资源配额" bordered={false} bodyStyle={{ height: 220 }}
               extra={<Link to={spaceName === '我的个人项目' ? this.props.loginUser.role !== 2 ?
                 '/account?tabs=quota' : `/tenant_manage/user/${this.props.loginUser.userID}?tabs=quota` :
                 this.props.userID === undefined ? `/tenant_manage/project_manage/project_detail?name=${this.props.projectName}&tabs=quota` :
@@ -1551,13 +1553,13 @@ class Ordinary extends Component {
                   serviceList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={13}>
+                        <Col span={12} style={{ minWidth: '129px' }}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={5}>
+                        <Col span={3}>
                           <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
-                        <Col span={6}>
+                        <Col span={7}>
                           {
                             this.useClusterCount(item.key) > this.maxClusterCount(item.key) ?
                               this.maxClusterCount(item.key) === -1 ?

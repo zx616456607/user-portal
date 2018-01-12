@@ -373,7 +373,20 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/services/:services/dumpSearchLog', manageMonitorController.dumpServiceSearchLog)
   router.get('/clusters/:cluster/instances/:instances/dumpSearchLog', manageMonitorController.dumpInstancesSearchLog)
   router.post('/clusters/:cluster/logs/instances/:instances/logfiles', manageMonitorController.getServiceLogfiles)
-
+  router.get('/clusters/:cluster/metric/panels', manageMonitorController.getPanelList)
+  router.get('/clusters/:cluster/metric/panels/:name/check', manageMonitorController.checkPanelName)
+  router.post('/clusters/:cluster/metric/panels', manageMonitorController.createPanel)
+  router.put('/clusters/:cluster/metric/panels/:panelID', manageMonitorController.updatePanel)
+  router.post('/clusters/:cluster/metric/panels/batch-delete', manageMonitorController.deletePanel)
+  router.get('/clusters/:cluster/metric/charts', manageMonitorController.getChartList)
+  router.get('/clusters/:cluster/metric/charts/:name/check', manageMonitorController.checkChartName)
+  router.post('/clusters/:cluster/metric/charts', manageMonitorController.createCharts)
+  router.put('/clusters/:cluster/metric/charts/:id', manageMonitorController.updateCharts)
+  router.post('/clusters/:cluster/metric/charts/batch-delete', manageMonitorController.deleteCharts)
+  router.get('/clusters/:cluster/metric/monitor', manageMonitorController.getMetrics)
+  router.get('/clusters/:cluster/proxies/:id/services', manageMonitorController.getProxiesServices)
+  router.get('/clusters/:cluster/metric/nexport/:lbgroup/service/:services/metrics', manageMonitorController.getMonitorMetrics)
+  
   // DevOps service: CI/CD
   router.get('/devops/stats', devopsController.getStats)
   // Repos
@@ -623,6 +636,9 @@ module.exports = function (Router) {
   router.get('/pkg/icon/:id', pkgController.getPkgIcon)
   router.get('/pkg/:id/detail', pkgController.getPkgDetail)
   router.put('/pkg/:id/detail', pkgController.updatePkgDetail)
+  router.post('/pkg/:id/docs', pkgController.uploadDocs)
+  router.post('/pkg/:id/docs/batch-delete', pkgController.deleteDocs)
+  router.get('/pkg/:id/docs/download', pkgController.downloadDocs)
   
   // VM wrap
   router.post('/vm-wrap/services', vmWrapController.createService)

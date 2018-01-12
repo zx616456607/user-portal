@@ -13,6 +13,7 @@ const formStream = require('formstream')
 const constants = require('../constants')
 const parse = require('co-busboy')
 const mime = require('mime')
+const FormData = require('form-data')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
@@ -229,6 +230,45 @@ exports.getPkgIcon = function* () {
   this.body = file.res
 }
 
+exports.uploadDocs = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const id = this.params.id
+  const query = this.query
+  const stream = yield getFormData(this)
+  const response = yield api.pkg.uploadFile([id, 'docs'], query, stream, { headers: stream.getHeaders()})
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.deleteDocs = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const id = this.params.id
+  const body = this.request.body
+  const result = yield api.pkg.createBy([id, 'docs', 'batch-delete'], null, body)
+  this.body = result
+}
+
+exports.downloadDocs = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const id = this.params.id
+  const query = this.query
+  const result = yield api.pkg.downloadFile([id, 'docs', 'download'], query)
+  const disposition = result.headers['content-disposition']
+  if (disposition) {
+    this.set('content-disposition', result.headers['content-disposition'])
+  }
+  this.set('content-type', result.headers['content-type'])
+  if (result.status === 403) {
+    this.body = '当前操作未被授权，请联系管理员进行授权后，再进行操作。'
+    return
+  }
+  this.set('content-type', result.headers['content-type'])
+  this.body = result.res
+}
+
 function* parseForm(ctx) {
   const parts = parse(ctx, {autoFields: true})
   const fileStream = yield parts
@@ -242,4 +282,21 @@ function* parseForm(ctx) {
       reject(err)
     }
   })
+}
+
+function* getFormData(ctx) {
+  const formData = new FormData()
+  const parts = parse(ctx, {
+    autoFields: true,
+    checkFile: function (fieldname, file, filename) {
+      formData.append(fieldname, file, {
+        filename: filename
+      })
+    },
+    checkField: function (name, value) {
+      formData.append(name, value)
+    }
+  })
+  yield parts
+  return formData
 }

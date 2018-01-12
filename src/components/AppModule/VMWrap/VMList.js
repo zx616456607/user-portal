@@ -40,7 +40,6 @@ class VMList extends React.Component {
       Name: '',
       creationTime: true,
       createTime: true,
-      ciphertext: true,
       list: [],
       total: 0,
       host: '',
@@ -77,6 +76,9 @@ class VMList extends React.Component {
       },
       failed: {
         func: res => {
+          this.setState({
+            isLoading: false,
+          })
           if (res.statusCode < 500) {
             notify.warn('获取数据失败', res.message || res.message.message)
           } else {
@@ -265,9 +267,9 @@ class VMList extends React.Component {
   /**
    * 显示密文
    */
-  handleChange(value) {
+  handleChange(index) {
     this.setState({
-      ciphertext: value
+      [`password${index}`]: !this.state[`password${index}`]
     })
   }
 
@@ -306,7 +308,7 @@ class VMList extends React.Component {
       })
     }
   }
-  
+
   renderStatus(record) {
     let successCount = 0
     let errorCount = 0
@@ -369,10 +371,10 @@ class VMList extends React.Component {
       </div>
     )
   }
-  
+
   render() {
     const { data } = this.props
-    const { ciphertext, list, total } = this.state
+    const { list, total } = this.state
     const pagination = {
       simple: true,
       defaultCurrent: 1,
@@ -401,21 +403,13 @@ class VMList extends React.Component {
         dataIndex: 'password',
         key: 'password',
         render: (text, record, index) =>
-          ciphertext ?
-            <div>
-              <span ref="info" className="info">******</span>
-              <Icon
-                type={this.state.isShowText === 'eye' ? 'eye-o' : 'eye'}
-                style={{ float: 'right', marginRight: 30 }}
-                onClick={this.handleChange.bind(this, false)} />
-            </div> :
-            <div>
-              <span ref="info" className="info">{text}</span>
-              <Icon
-                type={this.state.isShowText === 'eye' ? 'eye-o' : 'eye'}
-                style={{ float: 'right', marginRight: 30 }}
-                onClick={this.handleChange.bind(this, true)} />
-            </div>
+          <div>
+            <span ref="info" className="info">{this.state[`password${index}`] ? text : '******'}</span>
+            <Icon
+              type={this.state[`password${index}`] ? 'eye-o' : 'eye'}
+              style={{ float: 'right', marginRight: 30 }}
+              onClick={this.handleChange.bind(this, index)} />
+          </div>
         ,
       },
       {
@@ -504,11 +498,12 @@ class VMList extends React.Component {
               title={"删除传统环境"}
               visible={this.state.isDelVisible}
               footer={[
-                <Button key="back" type="ghost" size="large" onClick={() => this.handleClose()}>  取 消 </Button>,
-                <Button key="submit" type="primary" size="large" onClick={() => this.handleDel()}> 确 定 </Button>,
+                <Button key="back" size="large" type="ghost" onClick={() => this.handleClose()}>  取 消 </Button>,
+                <Button key="submit" size="large" type="primary" onClick={() => this.handleDel()}> 确 定 </Button>,
               ]}
             >
-              <span style={{ fontSize: 16, color: '#ff0000' }}><Icon size={15} style={{ color: '#ff0000' }} type="question-circle-o" />是否删除当前传统应用环境</span>
+              <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>是否删除当前传统应用环境？</div>
+              {/* <span style={{ fontSize: 16, color: '#ff0000' }}><Icon size={15} style={{ color: '#ff0000' }} type="question-circle-o" />是否删除当前传统应用环境</span> */}
             </Modal>
           </Row>
         </div>

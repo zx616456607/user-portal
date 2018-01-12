@@ -308,7 +308,7 @@ class TraditionEnv extends Component{
             label="环境安装路径"
             style={{ marginTop: 20}}
           >
-            <div className="alertRow" style={{ fontSize: 12 }}>
+            <div className="alertRow" style={{ fontSize: 12, wordBreak: 'break-all' }}>
               <div>JAVA_HOME='/home/java'</div>
               <div>JRE_HOME='/home/java/jre1.8.0_151'</div>
               <div>CATALINA_HOME='/usr/local/tomcat'</div>

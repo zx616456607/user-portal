@@ -20,7 +20,8 @@ import AccessMethod from './AccessMethod'
 import { getNodes, getClusterLabel } from '../../../../../actions/cluster_node'
 import {
   SYSTEM_DEFAULT_SCHEDULE,
-  RESOURCES_DIY
+  RESOURCES_DIY, RESOURCES_MEMORY_MIN,
+  RESOURCES_CPU_MIN
  } from '../../../../../constants'
 import './style/index.less'
 import TagDropDown from '../../../../ClusterModule/TagDropdown'
@@ -34,6 +35,8 @@ const Normal = React.createClass({
       replicasInputDisabled: false,
       summary: [],
       createApp: true,
+      memoryMin: RESOURCES_MEMORY_MIN,
+      cpuMin: RESOURCES_CPU_MIN
     }
   },
   componentWillMount() {
@@ -92,7 +95,7 @@ const Normal = React.createClass({
       bindNodeType: 'hostname',
     })
   },
-  onResourceChange({ resourceType, DIYMemory, DIYCPU }) {
+  onResourceChange({ resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU }) {
     const { form, id } = this.props
     const { setFieldsValue } = form
     const values = { resourceType }
@@ -101,6 +104,12 @@ const Normal = React.createClass({
     }
     if (DIYCPU) {
       values.DIYCPU = DIYCPU
+    }
+    if (DIYMaxMemory) {
+      values.DIYMaxMemory = DIYMaxMemory
+    }
+    if (DIYMaxCPU) {
+      values.DIYMaxCPU = DIYMaxCPU
     }
     setFieldsValue(values)
   },
@@ -352,6 +361,33 @@ const Normal = React.createClass({
       resourceType: RESOURCES_DIY,
     })
   },
+  setInputMin(type, min) {
+    this.setState({
+      [type]: min
+    })
+  },
+  memoryChange(value) {
+    const { getFieldsValue, setFieldsValue } = this.props.form
+    this.setResourceTypeToDIY()
+    const { DIYMaxMemory } = getFieldsValue()
+    this.setInputMin('memoryMin', value)
+    if (value > DIYMaxMemory) {
+      setFieldsValue({
+        DIYMaxMemory: value
+      })
+    }
+  },
+  cpuChange(value) {
+    const { getFieldsValue, setFieldsValue } = this.props.form
+    this.setResourceTypeToDIY()
+    const { DIYMaxCPU } = getFieldsValue()
+    this.setInputMin('cpuMin', value)
+    if (value > DIYMaxCPU) {
+      setFieldsValue({
+        DIYMaxCPU: value
+      })
+    }
+  },
   render() {
     const {
       formItemLayout, form, standardFlag,
@@ -359,10 +395,10 @@ const Normal = React.createClass({
       isCanCreateVolume, imageConfigs,
       id,
     } = this.props
-    const { replicasInputDisabled } = this.state
+    const { replicasInputDisabled, memoryMin, cpuMin } = this.state
     const { getFieldProps } = form
     const { mountPath, containerPorts } = imageConfigs
-    const { resourceType, DIYMemory, DIYCPU } = fields || {}
+    const { resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU } = fields || {}
     const replicasProps = getFieldProps('replicas', {
       rules: [
         { required: true, message: '实例数量为 1~10 之间' },
@@ -375,9 +411,15 @@ const Normal = React.createClass({
       ],
     })
     const DIYMemoryProps = getFieldProps('DIYMemory', {
+      onChange: this.memoryChange,
+    })
+    const DIYMaxMemoryProps = getFieldProps('DIYMaxMemory', {
       onChange: this.setResourceTypeToDIY,
     })
     const DIYCPUProps = getFieldProps('DIYCPU', {
+      onChange: this.cpuChange,
+    })
+    const DIYMaxCPUProps = getFieldProps('DIYMaxCPU', {
       onChange: this.setResourceTypeToDIY,
     })
     return (
@@ -408,12 +450,14 @@ const Normal = React.createClass({
             <Col span={formItemLayout.wrapperCol.span}>
               <ResourceSelect
                 form={form}
-                {...{DIYMemoryProps, DIYCPUProps}}
+                {...{DIYMemoryProps, DIYCPUProps, DIYMaxMemoryProps, DIYMaxCPUProps, memoryMin, cpuMin}}
                 standardFlag={standardFlag}
                 onChange={this.onResourceChange}
                 resourceType={resourceType && resourceType.value}
                 DIYMemory={DIYMemory && DIYMemory.value}
                 DIYCPU={DIYCPU && DIYCPU.value}
+                DIYMaxMemory={DIYMaxMemory && DIYMaxMemory.value}
+                DIYMaxCPU={DIYMaxCPU && DIYMaxCPU.value}
               />
             </Col>
           </Row>

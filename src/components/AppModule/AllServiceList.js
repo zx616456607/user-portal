@@ -689,11 +689,12 @@ class ServiceList extends Component {
     }
     handleStateOfServiceList(this, serviceList)
   }
-
-  componentWillMount() {
-    const { serName, serviceList, tab } = this.props
-    this.loadServices(null, null).then(() => {
+  
+  componentDidMount() {
+    const { serName } = this.props
+    this.loadServices().then(() => {
       if (serName) {
+        const { serviceList } = this.props
         if (serName && serviceList) {
           this.setState({
             currentShowInstance: serviceList.filter((item)=>item.metadata.name === serName)[0],
@@ -705,9 +706,6 @@ class ServiceList extends Component {
         }
       }
     })
-  }
-  componentDidMount() {
-    this.loadServices()
     // Reload list each UPDATE_INTERVAL
     this.upStatusInterval = setInterval(() => {
       this.loadServices(null, { keepChecked: true })
@@ -1486,17 +1484,20 @@ class ServiceList extends Component {
             transitionName='move-right'
             onCancel={this.closeModal}
             >
-            <AppServiceDetail
-              appName={appName}
-              scope={parentScope}
-              funcs={funcs}
-              loadServices={()=>this.loadServices(this.props)}
-              selectTab={selectTab}
-              serviceDetailmodalShow={this.state.modalShow}
-              page={page}
-              size={size}
-              name={this.props.name}
+            {
+              modalShow &&
+              <AppServiceDetail
+                appName={appName}
+                scope={parentScope}
+                funcs={funcs}
+                loadServices={()=>this.loadServices(this.props)}
+                selectTab={selectTab}
+                serviceDetailmodalShow={this.state.modalShow}
+                page={page}
+                size={size}
+                name={this.props.name}
               />
+            }
           </Modal>
           {
             rollingUpdateModalShow ?

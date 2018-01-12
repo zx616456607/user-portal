@@ -10,6 +10,7 @@
 
 import * as ActionTypes from '../actions/manage_monitor'
 import merge from 'lodash/merge'
+import { decamelize } from 'humps'
 import reducerFactory from './factory'
 import cloneDeep from 'lodash/cloneDeep'
 import union from 'lodash/union'
@@ -180,6 +181,165 @@ function getLogFileOfQueryLog(state = {}, action){
   }
 }
 
+function monitorPanel(state = {}, action) {
+  switch(action.type) {
+    case ActionTypes.GET_PANEL_LIST_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_PANEL_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        ...action.response.result.data
+      })
+    case ActionTypes.GET_PANEL_LIST_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function panelCharts(state = {}, action) {
+  const { panelId } = action 
+  switch(action.type) {
+    case ActionTypes.GET_CHART_LIST_REQUEST:
+      return {
+        ...state,
+        [panelId]: Object.assign({}, state[panelId], {
+          isFetching: true
+        })
+      }
+    case ActionTypes.GET_CHART_LIST_SUCCESS:
+      return {
+        ...state,
+        [panelId]: Object.assign({}, state[panelId], {
+          isFetching: false,
+          ...action.response.result.data
+        })
+      }
+    case ActionTypes.GET_CHART_LIST_FAILURE:
+      return {
+        ...state,
+        [panelId]: Object.assign({}, state[panelId], {
+          isFetching: false
+        })
+      }
+    default:
+      return state
+  }
+}
+
+function metrics(state = {}, action) {
+  const { metricType } = action
+  switch(action.type) {
+    case ActionTypes.GET_METRICS_REQUEST:
+      return {
+        ...state,
+        metricType,
+        [metricType]: Object.assign({}, state[metricType], {
+          isFetching: true
+        })
+      }
+    case ActionTypes.GET_METRICS_SUCCESS:
+      return {
+        ...state,
+        metricType,
+        [metricType]: Object.assign(({}, state[metricType], {
+          isFetching: false,
+          ...action.response.result.data
+        }))
+      }
+    case ActionTypes.GET_METRICS_FAILURE:
+      return {
+        ...state,
+        metricType,
+        [metricType]: Object.assign({}, state[metricType], {
+          isFetching: false
+        })
+      }
+    default:
+      return state
+  }
+}
+
+function proxiesServices(state = {}, action) {
+  const { proxyID } = action
+  switch(action.type) {
+    case ActionTypes.GET_PROXIES_SERVICES_REQUEST:
+      return {
+        ...state,
+        proxyID,
+        [proxyID]: Object.assign({}, state[proxyID], {
+          isFetching: true
+        })
+      }
+    case ActionTypes.GET_PROXIES_SERVICES_SUCCESS:
+      return {
+        ...state,
+        proxyID,
+        [proxyID]: Object.assign({}, state[proxyID], {
+          isFetching: false,
+          ...action.response.result
+        })
+      }
+    case ActionTypes.GET_PROXIES_SERVICES_FAILURE:
+      return {
+        ...state,
+        proxyID,
+        [proxyID]: Object.assign({}, state[proxyID], {
+          isFetching: false
+        })
+      }
+    default:
+      return state
+  }
+}
+
+function formatMetric(result) {
+  let data = []
+  for (let i in result) {
+    if (i === 'statusCode') {
+      break
+    }
+    let obj = {
+      name: decamelize(i, { separator: '-' }),
+      ...result[i]
+    }
+    data.push(obj)
+  }
+  return data
+}
+function monitorMetrics(state = {}, action) {
+  const { monitorID } = action
+  switch(action.type) {
+    case ActionTypes.GET_MONITOR_METRICS_REQUEST:
+      return {
+        ...state,
+        [monitorID]: Object.assign({}, state[monitorID], {
+          isFetching: true
+        })
+      }
+    case ActionTypes.GET_MONITOR_METRICS_SUCCESS:
+      return {
+        ...state,
+        [monitorID]: Object.assign({}, state[monitorID], {
+          isFetching: false,
+          data: formatMetric(action.response.result)
+        })
+      }
+    case ActionTypes.GET_MONITOR_METRICS_FAILURE:
+      return {
+        ...state,
+        [monitorID]: Object.assign(({}, state[monitorID], {
+          isFetching: false
+        }))
+      }
+    default:
+      return state
+  }
+}
 export function manageMonitor(state = { manageMonitor: {} }, action) {
   return {
     operationAuditLog: operationAuditLog(state.operationAuditLog, action),
@@ -187,5 +347,10 @@ export function manageMonitor(state = { manageMonitor: {} }, action) {
     getClusterOfQueryLog: getClusterOfQueryLog(state.getClusterOfQueryLog, action),
     getServiceOfQueryLog: getServiceOfQueryLog(state.getServiceOfQueryLog, action),
     getLogFileOfQueryLog: getLogFileOfQueryLog(state.getLogFileOfQueryLog, action),
+    monitorPanel: monitorPanel(state.monitorPanel, action),
+    panelCharts: panelCharts(state.panelCharts, action),
+    metrics: metrics(state.metrics, action),
+    proxiesServices: proxiesServices(state.proxiesServices, action),
+    monitorMetrics: monitorMetrics(state.monitorMetrics, action)
   }
 }

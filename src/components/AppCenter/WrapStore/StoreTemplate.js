@@ -182,7 +182,7 @@ class WrapComopnent extends React.Component {
       failed: {
         func: res => {
           notify.close()
-          notify.error(`操作失败\n${res.message.message}`)
+          notify.error(`操作失败\n${res.message}`)
           this.setState({
             offShelfModal: false,
             offshelfId: '',
@@ -543,7 +543,7 @@ class WrapComopnent extends React.Component {
   render() {
     const { 
       current, dataSource, dataHotList, updateParentState, rectStyle, 
-      isAdmin, location, getStoreList, getAppsHotList 
+      isAdmin, location, getStoreList, getAppsHotList
     } = this.props
     const { downloadModalVisible, currentImage, offShelfModal, 
       imageDetailModalShow, offshelfId, detailModal, currentWrap
@@ -554,7 +554,7 @@ class WrapComopnent extends React.Component {
     if (currentImage) {
       server = currentImage.resourceLink && currentImage.resourceLink.split('/')[0]
       node = currentImage.resourceLink && currentImage.resourceLink.split('/')[1]
-      Object.assign(currentImage, { name: currentImage.resourceName })
+      Object.assign(currentImage, { name: currentImage.resourceName, pullCount: currentImage.downloadTimes, creationTime: currentImage.publishTime })
       tagArr = currentImage && currentImage.versions && currentImage.versions.map(item => <Option key={item.iD}>{item.tag}</Option>)
     }
     const pagination = {
@@ -592,6 +592,7 @@ class WrapComopnent extends React.Component {
           updateAppStatus={this.updateAppStatus}
           isStore={true}
           isAdmin={isAdmin}
+          location={location}
         />
         <Modal 
           title="下载镜像"
