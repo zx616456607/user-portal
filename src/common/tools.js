@@ -443,10 +443,10 @@ export function cpuFormat(memory, resources) {
   let cpuLimits = parseCpuToNumber(resources.limits ? resources.limits.cpu : null)
   let cpuRequests = parseCpuToNumber(resources.requests ? resources.requests.cpu : null)
   if (enterpriseFlag) {
-    if (cpuLimits && cpuRequests) {
+    if (cpuLimits && cpuRequests && cpuLimits !== cpuRequests) {
       return `${cpuRequests}~${cpuLimits} CPU`
     }
-    if (cpuRequests) {
+    if (cpuLimits && cpuRequests && cpuLimits === cpuRequests) {
       return `${cpuRequests} CPU`
     }
   }
