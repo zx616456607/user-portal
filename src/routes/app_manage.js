@@ -50,23 +50,32 @@ const appManageRoutes = [{
   path: 'storage',
   component: require('../components/StorageModule').default,
   indexRoute: {
-    component: require('../components/StorageModule/Storage').default
+    onEnter: (nextState, replace) => replace('/app_manage/storage/rbd')
   },
   childRoutes: [{
     path: 'shareMemory',
+    onEnter: (nextState, replace) => replace('/app_manage/storage/shared')
+  }, {
+    path: 'hostMemory',
+    onEnter: (nextState, replace) => replace('/app_manage/storage/host')
+  }, {
+    path: 'rbd',
+    component: require('../components/StorageModule/Storage').default,
+  },{
+    path: 'shared',
     component: require('../components/StorageModule/ShareMemory').default,
   },{
-    path: 'hostMemory',
+    path: 'host',
     component: require('../components/StorageModule/HostMemory').default,
   }]
 },{
   path: 'storage/exclusiveMemory/:pool/:cluster/:storage_name',
   component: require('../components/StorageModule/StorageDetail').default,
 },{
-  path: 'storage/hostMemory/:host_name',
+  path: 'storage/host/:host_name',
   component: require('../components/StorageModule/HostMemory/HostStorageDetail').default,
 },{
-  path: 'storage/shareMemory/:cluster/:share_name',
+  path: 'storage/shared/:cluster/:share_name',
   component: require('../components/StorageModule/ShareMemory/ShareStorageDetail').default,
 },{
   path: 'configs',

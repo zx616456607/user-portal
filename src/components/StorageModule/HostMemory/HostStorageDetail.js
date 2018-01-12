@@ -49,7 +49,7 @@ class HostStorageDetail extends Component {
           <div className="topRow">
               <span
                 className="back"
-                onClick={() => browserHistory.push(`/app_manage/storage/hostMemory`)}
+                onClick={() => browserHistory.push(`/app_manage/storage/host`)}
               >
                 <span className="backjia"></span>
                 <span className="btn-back">返回</span>

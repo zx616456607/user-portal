@@ -55,12 +55,26 @@
         line-height: 35px;
         margin-bottom: 10px;
         padding:0 10px;
-        .platformId{
-          width:180px;display: inline-block;overflow: hidden;vertical-align: middle;border-left: 1px solid #d9d9d9;
-          height: 22px;line-height: 22px;
+        .platformId {
+          width: 161px;
+          display: inline-block;
+          overflow: hidden;
+          vertical-align: middle;
+          border-left: 1px solid #d9d9d9;
+          height: 22px;
+          line-height: 22px;
         }
-        .copyBtn {font-size: 16px;cursor: pointer;vertical-align: middle;}
-        .actions{color: #2db7f5}
+        .copyBtn {
+          font-size: 16px;
+          cursor: pointer;
+          vertical-align: middle;
+          &.qrcode {
+            margin-left: 5px;
+          }
+        }
+        .actions{
+          color: #2db7f5
+        }
       }
       .ant-card-body {
         padding: 24px 0;

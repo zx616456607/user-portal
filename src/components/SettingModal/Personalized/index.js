@@ -24,7 +24,8 @@ class Personalized extends Component{
     super(props)
     this.state = {
       // switch: false,
-      siderColor:'1'
+      siderColor:'1',
+      productName: null,
     }
     this.updateInfo = this.updateInfo.bind(this)
   }
@@ -37,9 +38,9 @@ class Personalized extends Component{
           }
           document.title = `个性外观 | ${ret.company.productName}`
           scope.setState({siderColor:ret.colorThemeID})
-          if (document.getElementById('productName')) {
-            document.getElementById('productName').value = ret.company.productName
-          }
+          this.setState({
+            productName: ret.company.productName,
+          })
         }
       }
     })
@@ -84,17 +85,20 @@ class Personalized extends Component{
     }
     this.updateInfo(body)
   }
-  clearProductName() {
-    document.getElementById('productName').value = ''
-  }
+  /* clearProductName() {
+    const { oemInfo } = this.props
+    this.setState({
+      productName: oemInfo.company.productName,
+    })
+  } */
   saveproductName() {
     // bai 更新产品名称
     const { oemInfo } = this.props
-    const name = document.getElementById('productName').value
+    const { productName } = this.state
     const body = {
       "company": {
       "name": oemInfo.company.name,
-      "productName": name ||'',
+      "productName": productName || '',
       "visible": oemInfo.company.visible
       }
     }
@@ -243,9 +247,24 @@ class Personalized extends Component{
               <Col span="20" style={{width:600}}>
                 <div className="row-text">此处文字用于替换平台上的产品标识字样；</div>
                 <div className="image-flex">
-                  <Input style={{width:200}} id="productName"  size="large" placeholder="请输入产品名称"  />
-                  <Button size="large" onClick={()=> this.clearProductName()} style={{margin:'0 10px'}}>取消</Button>
-                  <Button size="large" type="primary" loading={this.state.loading} onClick={()=> this.saveproductName()}>保存</Button>
+                  <Input
+                    style={{width:200}}
+                    id="productName"
+                    size="large"
+                    placeholder="请输入产品名称"
+                    value={this.state.productName}
+                    onChange={e => this.setState({ productName: e.target.value })}
+                  />
+                  {/* <Button size="large" onClick={()=> this.clearProductName()} style={{margin:'0 10px'}}>取消</Button> */}
+                  <Button
+                    size="large"
+                    type="primary"
+                    loading={this.state.loading}
+                    onClick={()=> this.saveproductName()}
+                    style={{margin:'0 10px'}}
+                  >
+                  保存
+                  </Button>
                 </div>
               </Col>
             </Row>
