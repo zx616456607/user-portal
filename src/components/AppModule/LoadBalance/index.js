@@ -24,6 +24,37 @@ class LoadBalance extends React.Component {
   }
   
   render() {
+    const rowSelection = {
+      onChange(selectedRowKeys, selectedRows) {
+        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+      },
+      onSelect(record, selected, selectedRows) {
+        console.log(record, selected, selectedRows);
+      },
+      onSelectAll(selected, selectedRows, changeRows) {
+        console.log(selected, selectedRows, changeRows);
+      },
+    };
+    const columns = [{
+      title: '姓名',
+      dataIndex: 'name',
+      render: text => <a href="#">{text}</a>,
+    }, {
+      title: '年龄',
+      dataIndex: 'age',
+    }, {
+      title: '住址',
+      dataIndex: 'address',
+    }];
+    const data = []
+    for (let i = 0; i < 3; i ++ ) {
+      data.push({
+        key: i,
+        name: `${i}mao`,
+        age: `1${i}`,
+        address: `00${i}`
+      })
+    }
     return (
       <div className="loadBalance layout-content">
         <div className="layout-content-btns">
@@ -39,6 +70,13 @@ class LoadBalance extends React.Component {
             className="page-box"
           />
         </div>
+        <Table 
+          className="loadBalanceTable reset_antd_table_header"
+          rowSelection={rowSelection} 
+          columns={columns}
+          dataSource={data}
+          pagination={false}
+        />
       </div>
     )
   }
