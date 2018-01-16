@@ -364,7 +364,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
           <Menu.Divider key="baseline1" />
           <Menu.Item key="rollingUpdate">
-            灰度升级
+            滚动发布
           </Menu.Item>
           <SubMenu title="扩展">
             <Menu.Item key="manualScale" style={{width:'102px'}}>
