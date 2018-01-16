@@ -79,9 +79,9 @@ class AppWrapStore extends React.Component {
     }
     if (sort_by) {
       if (activeKey === 'app') {
-        Object.assign(query, { sort_by, sort_order: 'desc' })
+        Object.assign(query, { sort_by, sort_order: sort_by !== 'file_nick_name' ? 'desc' : 'asc' })
       } else {
-        Object.assign(query, { [sort_by]: 'd' })
+        Object.assign(query, { [sort_by]: sort_by !== 'app_name' ? 'd' : 'a' })
       }
     }
     if (classify) {
