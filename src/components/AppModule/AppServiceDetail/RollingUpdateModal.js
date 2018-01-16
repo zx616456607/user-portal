@@ -238,7 +238,6 @@ class RollingUpdateModal extends Component {
     if (!visible) {
       return null
     }
-    console.log(this.props)
     const { containers } = this.state
     if(!service) {
       return <div></div>

@@ -31,6 +31,7 @@ import { deleteSetting, getSettingListfromserviceorapp } from '../../actions/ale
 import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
+import GrayscaleUpgradeModal from './AppServiceDetail/GrayscaleUpgradeModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'
 import ManualScaleModal from './AppServiceDetail/ManualScaleModal'
 import { parseServiceDomain } from '../parseDomain'
@@ -224,6 +225,8 @@ const MyComponent = React.createClass({
         return scope.batchDeleteServices()
       case 'rollingUpdate':
         return this.showRollingUpdateModal()
+      case 'grayscaleUpgrade':
+        return this.showGrayscaleUpgradeModal()
       // 扩展
       case 'manualScale':
         return this.showManualScaleModal(item)
@@ -249,6 +252,12 @@ const MyComponent = React.createClass({
     const { scope } = this.props
     scope.setState({
       rollingUpdateModalShow: true
+    })
+  },
+  showGrayscaleUpgradeModal() {
+    const { scope } = this.props
+    scope.setState({
+      grayscaleUpgradeModalVisible: true
     })
   },
   showConfigModal() {
@@ -388,6 +397,9 @@ const MyComponent = React.createClass({
           <Menu.Divider key="baseline1" />
           <Menu.Item key="rollingUpdate" >
             滚动发布
+          </Menu.Item>
+          <Menu.Item key="grayscaleUpgrade">
+             灰度升级
           </Menu.Item>
           <SubMenu title="扩展">
             <Menu.Item key="manualScale" style={{width:'102px'}}>
@@ -617,6 +629,7 @@ class ServiceList extends Component {
       k8sServiceList: [],
       step:1 ,// create alarm step
       alarmStrategy: true,
+      grayscaleUpgradeModalVisible: false,
     }
   }
   getInitialState() {
@@ -1224,7 +1237,9 @@ class ServiceList extends Component {
       rollingUpdateModalShow,
       configModal,
       manualScaleModalShow,
-      runBtn, stopBtn, restartBtn, redeploybtn
+      runBtn, stopBtn, restartBtn,
+      redeploybtn,
+      grayscaleUpgradeModalVisible,
     } = this.state
     const {
       pathname, page, size, total, isFetching, cluster,
@@ -1509,6 +1524,12 @@ class ServiceList extends Component {
               loadServiceList={() => this.loadServices(this.props)}
               service={currentShowInstance} />
             :null
+          }
+          {
+            grayscaleUpgradeModalVisible &&
+            <GrayscaleUpgradeModal
+              onCancel={() => this.setState({ grayscaleUpgradeModalVisible: false })}
+            />
           }
           <ConfigModal
             parentScope={parentScope}
