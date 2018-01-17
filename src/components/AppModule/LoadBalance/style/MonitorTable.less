@@ -1,0 +1,20 @@
+@import "../../../../assets/style/site/core";
+
+.monitorTable {
+  background-color: white;
+  .ant-table-expanded-row {
+    td:not(:first-of-type) {
+      padding: 0;
+    }
+  }
+  .expandedRow {
+    height: 60px;
+    line-height: 60px;
+    &:not(:last-of-type) {
+      border-bottom: @border-width-base @border-style-base @border-color-base;
+    }
+  }
+  .editBtn {
+    margin-right: 12px;
+  }
+}
