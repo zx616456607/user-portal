@@ -455,7 +455,7 @@ class hostList extends Component {
     if (nextProps.activeKey !== activeKey && nextProps.activeKey === 'host' && nextProps.summary) {
       let nodeList =[]
       nextProps.nodes.nodes.map((item)=> {
-        if (item.objectMeta.labels[nextProps.summary[0].key] && item.objectMeta.labels[nextProps.summary[0].key] == nextProps.summary[0].value) {
+        if (item.objectMeta.labels[nextProps.summary[0].key] == nextProps.summary[0].value) {
           nodeList.push(item)
         }
       })
