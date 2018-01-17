@@ -1,0 +1,36 @@
+@import "../../../../assets/style/site/core";
+
+.monitorDetail {
+  .bundleBtn {
+    border-color: @primary-color;
+    color: @primary-color;
+  }
+  .serviceHeader {
+    background-color: #f2f2f2;
+    margin-top: 15px;
+    &>div{
+      padding: 15px 25px;
+    }
+    border: @border-width-base @border-style-base @border-color-base;
+    border-bottom: none;
+  }
+  .noneService {
+    height: 40px;
+  }
+  .serviceList {
+    &>div{
+      padding: 15px 0 15px 25px;
+      .ant-form-item {
+        margin-bottom: 0;
+      }
+    }
+    border: @border-width-base @border-style-base @border-color-base;
+    &:not(:last-of-type) {
+      border-bottom: none;
+    }
+  }
+  .confirmEditBtn, .editServiceBtn, .cancelEditBtn {
+    margin-right: 12px;
+    padding: 4px 8px;
+  }
+}
