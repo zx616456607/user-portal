@@ -12,6 +12,7 @@ import React from 'react'
 import { browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import { Button, Pagination } from 'antd'
+import QueueAnim from 'rc-queue-anim'
 import BaseInfo from './BaseInfo'
 import MonitorTable from './MonitorTable'
 import MonitorDetail from './MonitorDetail'
@@ -32,8 +33,8 @@ class LoadBalanceConfig extends React.Component {
   render() {
     const { tablePart, currentMonitor } = this.state
     return (
-      <div className="loadBalanceConfig">
-        <div className="configHeader">
+      <QueueAnim className="loadBalanceConfig">
+        <div className="configHeader" key="configHeader">
           <span
             className="back"
             onClick={() => browserHistory.push(`/app_manage/load_balance`)}
@@ -45,10 +46,11 @@ class LoadBalanceConfig extends React.Component {
             配置负载均衡器
           </span>
         </div>
-        <BaseInfo/>
+        <BaseInfo key="baseInfo"/>
         {
           tablePart ?
             <MonitorTable
+              key="monitorTable"
               togglePart={this.togglePart}
             />
             :
@@ -57,7 +59,7 @@ class LoadBalanceConfig extends React.Component {
               togglePart={this.togglePart}
             />
         }
-      </div>
+      </QueueAnim>
     )
   }
 }

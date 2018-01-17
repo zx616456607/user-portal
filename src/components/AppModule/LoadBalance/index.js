@@ -12,9 +12,11 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import { Button, Table, Icon, Pagination, Popover, Modal, Menu, Dropdown } from 'antd'
+import QueueAnim from 'rc-queue-anim'
 import SearchInput from '../../CommonSearchInput'
 import LoadBalanceModal from './LoadBalanceModal'
 import Notification from '../../Notification'
+import Title from '../../Title'
 
 import './style/index.less'
 
@@ -173,7 +175,8 @@ class LoadBalance extends React.Component {
       })
     }
     return (
-      <div className="loadBalance layout-content">
+      <QueueAnim className="loadBalance layout-content">
+        <Title title="负载均衡"/>
         {
           loadBalanceVisible &&
           <LoadBalanceModal
@@ -193,7 +196,7 @@ class LoadBalance extends React.Component {
             删除后将失去负载均衡器内的所有监听
           </div>
         </Modal>
-        <div className="layout-content-btns">
+        <div className="layout-content-btns" key="layout-content-btns">
           <Button type="primary" size="large" icon="plus" onClick={this.openBalanceModal}>创建负载均衡</Button>
           <Button type="ghost" size="large"><i className='fa fa-refresh' /> 刷新</Button>
           <Button type="ghost" size="large" icon="delete" onClick={() => this.showDeleteModal([1,2,3])}>删除</Button>
@@ -209,13 +212,14 @@ class LoadBalance extends React.Component {
           </div>
         </div>
         <Table 
+          key="loadBalanceTable"
           className="loadBalanceTable reset_antd_table_header"
           rowSelection={rowSelection} 
           columns={columns}
           dataSource={data}
           pagination={false}
         />
-      </div>
+      </QueueAnim>
     )
   }
 }

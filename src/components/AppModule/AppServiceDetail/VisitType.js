@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Alert, Card, Input, Button, Select, Radio, Icon, Modal, Tooltip, Form } from 'antd'
+import { Row, Col, Card, Button, Select, Radio, Icon, Modal, Tooltip, Form } from 'antd'
 import { Link } from 'react-router'
 import classNames from 'classnames'
 import { connect } from 'react-redux'
@@ -39,7 +39,8 @@ class VisitType extends Component{
       initValue: undefined,
       initGroupID:undefined,
       initSelect: undefined,
-      isLbgroupNull: false
+      isLbgroupNull: false,
+      activeKey: 'netExport'
     }
   }
   componentWillMount() {
@@ -202,6 +203,7 @@ class VisitType extends Component{
     }
   }
   toggleDisabled() {
+    const { activeKey } = this.state
     this.setState({
       disabled: false,
       forEdit:true
@@ -318,10 +320,29 @@ class VisitType extends Component{
       }
     })
   }
+  tabChange = activeKey => {
+    this.setState({
+      activeKey,
+      forEdit: false,
+      disabled: true
+    })
+  }
   render() {
     const { form } = this.props;
     const { getFieldProps } = form;
-    const { value, disabled, forEdit, selectDis, deleteHint,privateNet, addrHide, currentProxy, initGroupID, initValue, initSelectDics, isLbgroupNull } = this.state;
+    const { 
+      value, disabled, forEdit, selectDis, deleteHint,privateNet,
+      addrHide, currentProxy, initGroupID, initValue, initSelectDics, 
+      isLbgroupNull, activeKey
+    } = this.state;
+    const imageComposeStyle = classNames({
+      'tabs_item_style': true,
+      'tabs_item_selected_bg_white_style': activeKey === "netExport"
+    })
+    const appComposeStyle = classNames({
+      'tabs_item_style': true,
+      'tabs_item_selected_bg_white_style': activeKey === "loadBalance"
+    })
     const selectGroup = getFieldProps("groupID", {
       rules:[
         { required: deleteHint && value !== 3 ? true : false, message: "请选择网络出口" }
@@ -345,7 +366,19 @@ class VisitType extends Component{
               ] :
               <Button type="primary" size="large" onClick={this.toggleDisabled.bind(this)}>编辑</Button>
             }
-            <div className="radioBox">
+            <ul className='tabs_header_style visitTypeTabs'>
+              <li className={imageComposeStyle}
+                  onClick={this.tabChange.bind(this, "netExport")}
+              >
+                集群网络出口
+              </li>
+              <li className={appComposeStyle}
+                  onClick={this.tabChange.bind(this, "loadBalance")}
+              >
+                应用负载均衡
+              </li>
+            </ul>
+            <div className={classNames("radioBox", {'hide': activeKey === 'loadBalance'})}>
               <RadioGroup onChange={this.onChange.bind(this)} value={value || initValue}>
                 <Radio key="a" value={1} disabled={disabled}>可公网访问</Radio>
                 <Radio key="b" value={2} disabled={disabled}>内网访问</Radio>
@@ -372,6 +405,22 @@ class VisitType extends Component{
                 </Form.Item>
               </div>
               <div className={classNames("inlineBlock deleteHint",{'hide': !isLbgroupNull})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>已选网络出口已被管理员删除，请选择其他网络出口或访问方式</div>
+            </div>
+            <div className={classNames('loadBalancePart',{'hide': activeKey === 'netExport'})}>
+              <Row type="flex" align="middle" justify="center">
+                <Col span={8}>
+                  <Form.Item
+                    wrapperCol={{ span: 24 }}
+                  >
+                    <Select disabled={disabled} {...getFieldProps('monitor')} style={{ width: '90%' }}>
+                      <Option key="1">ingress/10.10</Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={4}><Link to="app_manage/load_balance/balance_config">前往修改监听</Link></Col>
+                <Col span={4} className="themeColor pointer">解绑负载均衡</Col>
+                <Col span={8} className="hintColor">（解绑后可切换至集群网络出口）</Col>
+              </Row>
             </div>
           </div>
         </div>
