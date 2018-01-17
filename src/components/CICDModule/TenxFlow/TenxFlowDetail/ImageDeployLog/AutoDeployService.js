@@ -86,7 +86,7 @@ const menusText = defineMessages({
   },
   imageUpdate: {
     id: 'CICD.Tenxflow.AutoDeployService.imageUpdate',
-    defaultMessage: '灰度升级',
+    defaultMessage: '滚动发布',
   },
 
 })
@@ -604,7 +604,7 @@ let AutoDeployService = React.createClass({
                     </div>
                     {
                       isVolMounted ?
-                        [<Tooltip placement='top' title="挂载存储卷的服务不支持灰度升级">
+                        [<Tooltip placement='top' title="挂载存储卷的服务不支持滚动发布">
                            {strategyGroup}
                          </Tooltip>] :
                         strategyGroup

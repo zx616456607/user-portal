@@ -10,14 +10,16 @@
 import React, { Component } from 'react'
 import './style/RollingUpdateModal.less'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { Button, Card, Menu, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Modal, Input } from 'antd'
+import {
+  Button, Card, Menu, Icon, Tooltip, Row, Col,
+  Select, InputNumber, Alert, Modal, Input, Tag,
+ } from 'antd'
 import { loadRepositoriesTags, loadWrapTags } from '../../../actions/harbor'
 import { rollingUpdateService } from '../../../actions/services'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../components/Notification'
 
 const Option = Select.Option
-const OptGroup = Select.OptGroup
 
 function loadTags(props, imageFullName) {
   const { loadRepositoriesTags, registry } = props
@@ -147,7 +149,7 @@ class RollingUpdateModal extends Component {
     const hide = notification.spin('正在保存中...', 0)
 
 
-    notification.spin(`服务 ${serviceName} 灰度升级中...`)
+    notification.spin(`服务 ${serviceName} 滚动发布中...`)
     const body = {
       type: 0,
       targets,
@@ -166,7 +168,7 @@ class RollingUpdateModal extends Component {
           notification.close()
           loadServiceList(cluster, appName)
           setTimeout(function () {
-            notification.success(`服务 ${serviceName} 灰度升级已成功开启`)
+            notification.success(`服务 ${serviceName} 滚动发布已成功开启`)
           }, 300)
           parentScope.setState({
             rollingUpdateModalShow: false
@@ -178,7 +180,7 @@ class RollingUpdateModal extends Component {
         func: () => {
           notification.close()
           setTimeout(function () {
-            notification.error(`服务 ${serviceName} 开启灰度升级失败`)
+            notification.error(`服务 ${serviceName} 开启滚动发布失败`)
           }, 300)
         }
       }
@@ -248,7 +250,7 @@ class RollingUpdateModal extends Component {
       <Modal
         visible={visible}
         maskClosable={false}
-        title="灰度升级" onOk={this.handleOK} onCancel={this.handleCancel}
+        title="滚动发布" onOk={this.handleOK} onCancel={this.handleCancel}
         footer={[
           <Button
             key="back" type="ghost" size="large" onClick={this.handleCancel}>
@@ -265,20 +267,24 @@ class RollingUpdateModal extends Component {
         <div id="RollingUpdateModal">
           {
             containers.length > 1 && (
-              <Alert message="提示: 检测到您的服务实例为k8s多容器 (Pod内多个容器) 实例,选择灰度升级时请确认下列服务实例中要升级的容器" type="info" />
+              <Alert message="提示: 检测到您的服务实例为k8s多容器 (Pod内多个容器) 实例,选择滚动发布时请确认下列服务实例中要升级的容器" type="info" />
             )
           }
           {
-            incloudPrivate && <div className='alertRow'>Tips: 挂载独享型存储的服务不支持灰度升级</div>
+            incloudPrivate && <div className='alertRow'>Tips: 挂载独享型存储的服务不支持滚动发布</div>
           }
-          <Row className="serviceName">
-            <Col className="itemTitle" span={4} style={{ textAlign: "right" }}>服务名称：</Col>
-            <Col className="itemBody" span={10}>
+          <div className="alertRow">
+          滚动发布是指将应用完全更新为下面所选的目标版本，可升级也可回滚版本
+          </div>
+          <Row>
+            <Col span={6}>服务名称</Col>
+            <Col className="itemBody" span={18}>
               {service.metadata.name}
             </Col>
-            <Col span={3} className="itemBody"></Col>
           </Row>
           {containers.map((item, index) => {
+            let imageTags = this.props[item.imageObj.fullName]
+            imageTags = imageTags && imageTags.tag || []
             let start = item.image.lastIndexOf(":")
             let tag, image
             if(start >= 0) {
@@ -289,63 +295,84 @@ class RollingUpdateModal extends Component {
               tag = "latest"
             }
             let show = image
-            let showText = '镜像版本：'
+            let showText = '镜像版本'
             if(image.length > 40) show = image.substring(0, 40) + "..."
             if (service.wrapper) {
               show = service.wrapper.appPkgName
               tag = service.wrapper.appPkgTag
-              showText = '应用包：'
+              showText = '应用包'
             }
-            return (
-              <div key={item.name}>
-              <Row style={{marginBottom: "10px"}}>
-                <Col span={4} style={{ textAlign: "right" }}>{showText}</Col>
+            return [
+              <Row key="old-tag" className="old-tag">
+                <Col span={6}>
+                {showText}
+                </Col>
                 <Tooltip title={item.image}>
-                  <Col className="rollingUpdateUpdateItem" span={15}>{`${show}：${tag}`}</Col>
+                  <Col span={18}>
+                  {show}:
+                  <Tag>{tag}</Tag>
+                  </Col>
                 </Tooltip>
-              </Row>
-              <Row style={{marginBottom: "10px"}} >
-                <Col span={4}></Col>
-                <Col className="rollingUpdateUpdateItem" span={10}>
+              </Row>,
+              <Row key="target-tag">
+                <Col span={6}>
+                目标版本
+                </Col>
+                <Col span={10}>
                   <Select
                     placeholder="请选择目标版本"
                     value={item.targetTag}
                     onChange={(value) => this.handleTagChange(value, item)}
-                    className='rollingUpdateUpdateItemSelect'
                   >
                   {// app wrap
                     service.wrapper ?
-                    this.state.wrapTags.map((item,index) => {
-                      return <Select.Option value={item.fileName +'.'+ item.fileType + ':'+item.fileTag+'||'+item.iD} disabled={item.fileTag == tag} key={index}>{item.fileTag}</Select.Option>
+                    this.state.wrapTags.map((item, index) => {
+                      return <Option
+                        value={item.fileName +'.'+ item.fileType + ':'+item.fileTag+'||'+item.iD}
+                        disabled={item.fileTag == tag}
+                        key={index}
+                      >
+                        {item.fileTag}
+                      </Option>
                     })
                     :
-                    <OptGroup label="请选择目标版本">
+                    <Select.OptGroup label="请选择目标版本">
                       {
-
-                        this.props[item.imageObj.fullName] && this.props[item.imageObj.fullName].tag && this.props[item.imageObj.fullName].tag.map((tag) => {
+                        imageTags.map(tag => {
                           let disabled = false
                           if (tag === item.imageObj.tag) {
                             disabled = true
                           }
                           return (
-                            <Option value={tag} disabled={disabled}>
+                            <Option key={tag} value={tag} disabled={disabled}>
                               {tag}
                             </Option>
                           )
                         })
                       }
-                    </OptGroup>
+                    </Select.OptGroup>
                   }
-
                   </Select>
                 </Col>
+              </Row>,
+              index <= 0 &&
+              <Row key="minReadySeconds">
                 <Col span={6}>
-                  {index > 0 ? "" : <Input placeholder="更新间隔时间 2~60s" defaultValue={ minReadySeconds ? minReadySeconds : 0 } onChange={(e) => { this.getintervalTime(e, item.name)}}/>}
+                更新间隔时间&nbsp;
+                <Tooltip title="容器实例升级时间间隔，例如若为 0 秒，则 Pod 在 Ready 后就会被认为是可用状态，继续升级">
+                  <Icon type="question-circle-o" />
+                </Tooltip>
                 </Col>
-                <Col span={1} >{ index > 0 ? "" : <span style={{marginLeft: "2px", lineHeight: "28px"}}>&nbsp;秒</span>}</Col>
+                <Col span={10}>
+                  <Input
+                    placeholder="建议 2~60s"
+                    defaultValue={ minReadySeconds ? minReadySeconds : 0 }
+                    onChange={(e) => { this.getintervalTime(e, item.name)}}
+                  />
+                </Col>
+                <Col span={1}>&nbsp;秒</Col>
               </Row>
-              </div>
-            )
+            ]
           })}
           </div>
       </Modal>
