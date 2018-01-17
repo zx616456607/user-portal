@@ -1,0 +1,94 @@
+@import "../../../../assets/style/site/core";
+
+.baseInfo {
+  margin: 20px 0;
+  .ant-card-body {
+    display: flex;
+    align-items: center;
+    .balanceIcon {
+      flex: 0 0 100px;
+      height: 100px;
+    }
+    .baseInfoRightPart {
+      flex: 1 1 auto;
+      margin-left: 45px;
+      .balanceNameBox {
+        height: 32px;
+        max-width: 345px;
+        display: flex;
+        align-items: center;
+        font-size: @font-size-medium;
+        margin-bottom: 10px;
+        .nameLabel {
+          flex: 0 0 120px;
+        }
+        .balanceName{
+          flex: 1 1 200px;
+          position: relative;
+          .ant-form-item{
+            display: inline-block;
+            margin: 0;
+            .ant-form-explain{
+              font-size: 12px;
+              white-space: normal;
+              height: auto;
+            }
+          }
+          .cancel, .confirm{
+            position: absolute;
+            top: 15px;
+          }
+          .cancel{
+            right: 30px;
+          }
+          .confirm{
+            right: 0;
+          }
+          .edit{
+            margin-left: 15px;
+          }
+          .teamInput{
+            padding-right: 30px;
+          }
+        }
+      }
+      .balanceDescBox {
+        max-width: 345px;
+        display: flex;
+        .nameLabel {
+          flex: 0 0 40px;
+        }
+        .balanceName{
+          flex: 1 1 200px;
+          position: relative;
+          font-size: @font-size-medium;
+          .ant-form-item{
+            display: inline-block;
+            margin: 0;
+            .ant-form-explain{
+              font-size: 12px;
+              white-space: normal;
+              height: auto;
+            }
+          }
+          .cancel, .confirm{
+            position: absolute;
+            bottom: 0;
+          }
+          .cancel{
+            right: 30px;
+          }
+          .confirm{
+            right: 0;
+          }
+          .edit{
+            margin-left: 15px;
+          }
+          .teamInput{
+            padding-right: 30px;
+          }
+        }
+      }
+    }
+  }
+}
