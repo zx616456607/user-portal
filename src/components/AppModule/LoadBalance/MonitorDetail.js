@@ -148,6 +148,11 @@ class MonitorDetail extends React.Component {
     })
   }
   
+  goBack = () => {
+    const { togglePart } = this.props
+    togglePart(true, null)
+  }
+  
   render() {
     const { checkVisible } = this.state
     const { currentMonitor, form } = this.props
@@ -246,10 +251,13 @@ class MonitorDetail extends React.Component {
         title={currentMonitor ? '编辑监听' : '创建监听'}
         className="monitorDetail"
       >
-        <HealthCheckModal
-          visible={checkVisible}
-          closeModal={this.closeCheckModal}
-        />
+        {
+          checkVisible &&
+          <HealthCheckModal
+            visible={checkVisible}
+            closeModal={this.closeCheckModal}
+          />
+        }
         <Form form={form}>
           <Row>
             <Col span={6}>
@@ -340,6 +348,10 @@ class MonitorDetail extends React.Component {
             </Col>
           </Row>
         </Form>
+        <div className="configFooter">
+          <Button type="ghost" size="large" onClick={this.goBack}>取消</Button>
+          <Button type="primary" size="large">确认</Button>
+        </div>
       </Card>
     )
   }
