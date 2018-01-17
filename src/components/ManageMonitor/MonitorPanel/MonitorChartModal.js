@@ -214,7 +214,7 @@ class MonitorChartModal extends React.Component {
   }
   
   targetCheck(rule, value, callback) {
-    if (!value) {
+    if (!value || !value.length) {
       return callback('请选择监控对象')
     }
     callback()
