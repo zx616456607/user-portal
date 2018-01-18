@@ -1252,6 +1252,10 @@ class AppServiceList extends Component {
           {
             grayscaleUpgradeModalVisible &&
             <GrayscaleUpgradeModal
+              cluster={cluster}
+              appName={appName}
+              loadServiceList={loadServiceList}
+              service={currentShowInstance}
               onCancel={() => this.setState({ grayscaleUpgradeModalVisible: false })}
             />
           }

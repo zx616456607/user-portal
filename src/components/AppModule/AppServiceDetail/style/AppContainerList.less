@@ -1,3 +1,5 @@
+@import '~assets/style/site/core.less';
+
 #AppContainerList {
   .operaBox {
     button {
@@ -63,6 +65,9 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        a {
+          display: inline-block;
+        }
       }
       .status,
       .image {
@@ -89,6 +94,15 @@
           overflow: hidden;
           text-overflow: ellipsis;
         }
+      }
+      .ant-tag {
+        font-family: Consolas, Menlo, Courier, monospace;
+        background-color: #fff;
+        margin-right: 5px;
+      }
+      .new-tag {
+        color: @success-color;
+        border-color: @success-color;
       }
     }
   }

@@ -20,7 +20,7 @@ import isEqual from 'lodash/isEqual'
 const PROGRESS_PHASES = [
   'Pending',
   'Terminating', 'Starting', 'Stopping',
-  'Scaling', 'Restarting', 'Redeploying',
+  'Scaling', 'Restarting', 'Redeploying', 'RollingUpdate',
   'Rebuilding',
 ]
 const locale = window.appLocale.locale
@@ -78,6 +78,10 @@ const messages = defineMessages({
   Redeploying: {
     id: 'TenxStatus.Redeploying',
     defaultMessage: '正在重新部署',
+  },
+  RollingUpdate: {
+    id: 'TenxStatus.RollingUpdate',
+    defaultMessage: '灰度发布中',
   },
   Rebuilding: {
     id: 'TenxStatus.Rebuilding',
@@ -408,7 +412,7 @@ TenxStatus.propTypes = {
     'Terminating',
     'Scaling',
     'Restarting',
-    'Redeploying', 'Rebuilding',
+    'Redeploying', 'Rebuilding', 'RollingUpdate',
     'Unknown', 'Succeeded',
     'Stopped',
     'Running',

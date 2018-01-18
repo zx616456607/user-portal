@@ -403,6 +403,7 @@ class AppServiceDetail extends Component {
               <TabPane tab='容器实例' key='#containers'>
                 <ContainerList
                   serviceName={service.metadata.name}
+                  serviceDetail={serviceDetail}
                   cluster={service.cluster}
                   containerList={containers}
                   loading={isContainersFetching}

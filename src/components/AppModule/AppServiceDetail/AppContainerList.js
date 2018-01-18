@@ -8,8 +8,9 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Checkbox, Button, Card, Menu, Spin, Tooltip } from 'antd'
+import { Checkbox, Button, Card, Menu, Spin, Tooltip, Tag } from 'antd'
 import { Link } from 'react-router'
+import { camelize } from 'humps'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppContainerList.less'
@@ -50,10 +51,10 @@ const MyComponent = React.createClass({
     item.spec.containers.map((container) => {
       images.push(container.image)
     })
-    return images.join(', ')
+    return images
   },
   render: function () {
-    const {config, loading} = this.props
+    const { config, loading, serviceName } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -68,15 +69,33 @@ const MyComponent = React.createClass({
         </div>
       )
     }
+    const serviceDetail = this.props.serviceDetail || {}
     const items = config.map((item) => {
-      const images = this.getImages(item)
+      const imageArray = this.getImages(item)
+      const images = imageArray.join(', ')
       const status = item.status || {}
+      const annotations = item.metadata.annotations || {}
+      const serviceStatus = serviceDetail.status || {}
+      const serviceReplicas = serviceDetail.spec && serviceDetail.spec.replicas
+      const isRollingUpdate = serviceStatus.replicas > serviceReplicas
+      let isNew = false
+      if (isRollingUpdate) {
+        const currentImages = JSON.parse(annotations['rollingupdate/target'] || '{}')
+        const image = currentImages[0] && currentImages[0].to || ''
+        isNew = image === imageArray[0]
+      }
       return (
         <div className="containerDetail" key={item.metadata.name}>
           {/*(<div className="selectIconTitle commonData">
             <Checkbox checked={this.checkedFunc(item.id)} onChange={()=>this.onchange(item.id)}></Checkbox>
           </div>)*/}
           <div className="name commonData" style={{ marginLeft: 24 }} >
+            {
+              isRollingUpdate &&
+              <Tag className={isNew ? 'new-tag' : 'old-tag'}>
+               {isNew ? 'new' : 'old'}
+              </Tag>
+            }
             <Tooltip placement="topLeft" title={item.metadata.name} >
               <Link to={`/app_manage/container/${item.metadata.name}`}>
                 {item.metadata.name}
@@ -146,7 +165,7 @@ class AppContainerList extends Component {
 
   render() {
     const parentScope = this;
-    const { containerList, loading } = this.props
+    const { containerList, loading, serviceName, serviceDetail } = this.props
     return (
       <div id="AppContainerList">
         <QueueAnim className="demo-content"
@@ -196,7 +215,13 @@ class AppContainerList extends Component {
               </div>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={parentScope} config={containerList} loading={loading} />
+            <MyComponent
+              scope={parentScope}
+              config={containerList}
+              loading={loading}
+              serviceName={serviceName}
+              serviceDetail={serviceDetail}
+            />
           </Card>
         </QueueAnim>
       </div>
