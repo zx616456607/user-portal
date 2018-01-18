@@ -50,30 +50,32 @@ class PanelContent extends React.Component {
       clusterID,
       timeRange
     }
-    if (isFetching) {
-      return <div className="loadingBox">
-        <Spin size="large"/>
-      </div>
-    }
     return (
       <div>
         <PanelBtnGroup
           {...btnGroupFunc}
           value={[timeRange[0], timeRange[1]]}
         />
-        <div className="chartTempWrapper">
-          {
-            charts && charts.length ? 
-              charts.map(item => <MonitorChartTemp {...Object.assign(tempFunc, {currentChart: item, key: item.id})}/>) 
-              :
-              [
-                <div className="monitorNoData" key="monitorNoData"/>,
-                <div className="noDataText" key="noDataText">您还没有监控图表，添加一个吧！
-                  <Button type="primary" size="large" onClick={() => openChartModal(currentPanel.iD, null)}>添加</Button>
-                </div>
-              ]
-          }
-        </div>
+        {
+          isFetching ?
+            <div className="loadingBox">
+              <Spin size="large"/>
+            </div>
+            :
+            <div className="chartTempWrapper">
+              {
+                charts && charts.length ?
+                  charts.map(item => <MonitorChartTemp {...Object.assign(tempFunc, {currentChart: item, key: item.id})}/>)
+                  :
+                  [
+                    <div className="monitorNoData" key="monitorNoData"/>,
+                    <div className="noDataText" key="noDataText">您还没有监控图表，添加一个吧！
+                      <Button type="primary" size="large" onClick={() => openChartModal(currentPanel.iD, null)}>添加</Button>
+                    </div>
+                  ]
+              }
+            </div>
+        }
       </div>
     )
   }
