@@ -11,10 +11,12 @@
 import React, { Component } from 'react'
 import { Form, Radio, Select, Row, Col, Icon, Tooltip } from 'antd'
 import { connect } from 'react-redux'
+import classNames from 'classnames'
 import './style/AccessMethod.less'
 import { getProxy } from '../../../../../actions/cluster'
 import { camelize } from 'humps'
 import { genRandomString } from '../../../../../common/tools'
+import LoadBalance from './LoadBalance'
 
 const Option = Select.Option
 
@@ -25,6 +27,7 @@ class AccessMethod extends Component {
       copyCMDSuccess: false,
       lbgroup: '暂无',
       openInputId: `lbgroup${genRandomString('0123456789',4)}`,
+      activeKey: 'netExport'
     }
   }
 
@@ -283,10 +286,23 @@ class AccessMethod extends Component {
     }
     return defaultValue
   }
-
+  tabChange = activeKey => {
+    this.setState({
+      activeKey
+    })
+  }
   render() {
+    const { activeKey } = this.state
     const { formItemLayout, form } = this.props
     const { getFieldProps, getFieldValue } = form
+    const imageComposeStyle = classNames({
+      'tabs_item_style': true,
+      'tabs_item_selected_bg_white_style': activeKey === "netExport"
+    })
+    const appComposeStyle = classNames({
+      'tabs_item_style': true,
+      'tabs_item_selected_bg_white_style': activeKey === "loadBalance"
+    })
     const accessMethodProps = getFieldProps('accessMethod', {
       initialValue: this.getDefaultAccessMethod(),
       onChange: this.accessTypeChange
@@ -299,17 +315,42 @@ class AccessMethod extends Component {
           label="访问方式"
           className='radioBox'
         >
-          <Radio.Group {...accessMethodProps}>
-            <Radio value="PublicNetwork" key="PublicNetwork">可公网访问</Radio>
-            <Radio value="Internaletwork" key="Internaletwork">内网访问</Radio>
-            <Radio value="Cluster" key="Cluster">仅在集群内访问</Radio>
-          </Radio.Group>
+  
+          <ul className='tabs_header_style'>
+            <li className={imageComposeStyle}
+                onClick={this.tabChange.bind(this, "netExport")}
+            >
+              集群网络出口
+            </li>
+            <li className={appComposeStyle}
+                onClick={this.tabChange.bind(this, "loadBalance")}
+            >
+              应用负载均衡
+            </li>
+          </ul>
+          {
+            activeKey === 'netExport' &&
+            <Radio.Group {...accessMethodProps}>
+              <Radio value="PublicNetwork" key="PublicNetwork">可公网访问</Radio>
+              <Radio value="Internaletwork" key="Internaletwork">内网访问</Radio>
+              <Radio value="Cluster" key="Cluster">仅在集群内访问</Radio>
+            </Radio.Group>
+          }
         </Form.Item>
-        <Row className='tipsRow'>
-          <Col span="4" />
-          <Col span="20">{this.accessMethodTips(accessMethodValue)}</Col>
-        </Row>
-        {this.accessMethodContent(accessMethodValue)}
+        {
+          activeKey === 'netExport' &&
+          <Row className='tipsRow'>
+            <Col span="4" />
+            <Col span="20">{this.accessMethodTips(accessMethodValue)}</Col>
+          </Row>
+        }
+        {activeKey === 'netExport' && this.accessMethodContent(accessMethodValue)}
+        {
+          activeKey === 'loadBalance' &&
+          <LoadBalance
+            form={form}
+          />
+        }
       </div>
     )
   }
