@@ -989,8 +989,8 @@ class ClusterList extends Component {
                         disabled={createClusterBtnDisabled}
                         key='addBtn'
                         type='primary'
-                        icon="plus"
                         onClick={() => this.setState({ createModal: true })}>
+                        <i className="fa fa-plus" aria-hidden="true"/>&nbsp;
                         添加集群
                       </Button>
                     </span>
