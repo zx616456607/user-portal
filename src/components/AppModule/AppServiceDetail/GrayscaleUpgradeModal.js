@@ -59,9 +59,6 @@ class GrayscaleUpgradeModal extends React.Component {
     const isRollingUpdate = serviceStatus.phase === 'RollingUpdate'
     let targetTag
     let newCount = 0
-    console.log('service', {
-      service,
-    })
     if (isRollingUpdate) {
       const annotations = service.metadata.annotations || {}
       const currentImages = JSON.parse(annotations['rollingupdate/target'] || '{}')
@@ -73,12 +70,6 @@ class GrayscaleUpgradeModal extends React.Component {
     containers.map((container) => {
       const { image } = container
       container.imageObj = this.parseImage(image)
-    })
-    console.log('xxx', {
-      isRollingUpdate,
-      newCount,
-      targetTag,
-      containers,
     })
     this.setState({
       isRollingUpdate,
