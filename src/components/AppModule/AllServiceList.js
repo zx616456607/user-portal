@@ -399,7 +399,7 @@ const MyComponent = React.createClass({
             滚动发布
           </Menu.Item>
           <Menu.Item key="grayscaleUpgrade">
-             灰度升级
+             灰度发布
           </Menu.Item>
           <SubMenu title="扩展">
             <Menu.Item key="manualScale" style={{width:'102px'}}>
@@ -1528,6 +1528,10 @@ class ServiceList extends Component {
           {
             grayscaleUpgradeModalVisible &&
             <GrayscaleUpgradeModal
+              cluster={cluster}
+              appName={appName}
+              service={currentShowInstance}
+              loadServiceList={() => this.loadServices(this.props)}
               onCancel={() => this.setState({ grayscaleUpgradeModalVisible: false })}
             />
           }

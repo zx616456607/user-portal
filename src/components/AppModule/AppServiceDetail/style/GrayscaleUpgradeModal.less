@@ -20,21 +20,26 @@
       background-color: #fff;
       margin-right: 5px;
     }
-    .new-tag {
-      color: @success-color;
-      border-color: @success-color;
-    }
     .ant-select {
       width: 200px;
     }
     .ant-input-number {
       width: 150px;
     }
-    .ant-slider {
-      margin: 20px 0 20px 5px;
-    }
     .target-tag {
-      margin-bottom: 24px;
+      line-height: 32px;
+      .ant-form-item {
+        display: inline-block;
+      }
+      .new-tag {
+        color: @success-color;
+        border-color: @success-color;
+        vertical-align: top;
+        margin-top: 6px;
+      }
+    }
+    .ant-slider {
+      margin: 10px 0 30px 5px;
     }
   }
 }

@@ -38,6 +38,7 @@ class RollingUpdateModal extends Component {
       rollingInterval: false
     }
   }
+
   componentWillMount() {
   // componentWillReceiveProps(nextProps) {
     const { service, visible } = this.props
@@ -81,6 +82,24 @@ class RollingUpdateModal extends Component {
       loadTags(this.props, imageObj.fullName)
     })
   }
+
+  componentDidMount() {
+    const { service } = this.props
+    if (service && service.status.phase === 'RollingUpdate') {
+      this.handleCancel()
+      Modal.info({
+        title: '正在灰度发布或滚动发布，该服务暂不能做滚动发布操作',
+        width: 480,
+        content: (
+          <div>
+            确认发布完成或确认发布回滚后方可进行下一次发布
+          </div>
+        ),
+        onOk() {},
+      })
+    }
+  }
+
   getWrapTags() {
     const { service } = this.props
     const wrap = service.wrapper.appPkgName.split('.')
@@ -242,10 +261,12 @@ class RollingUpdateModal extends Component {
     if(!service) {
       return <div></div>
     }
+    if (service.status.phase === 'RollingUpdate') {
+      return null
+    }
     const minReadySeconds = service.spec.minReadySeconds
     const isOnly = containers.length > 1 ? false : true
     const incloudPrivate = this.getVolumeTypeInfo()
-    // const containers = service.spec.template.spec.containers
     return (
       <Modal
         visible={visible}
