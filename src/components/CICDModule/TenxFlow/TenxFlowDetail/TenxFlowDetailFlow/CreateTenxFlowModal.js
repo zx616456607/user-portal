@@ -982,7 +982,9 @@ let CreateTenxFlowModal = React.createClass({
           'projectId': projectId
         }
         if (imageBuildBody.registryType == 3) {
-          imageBuildBody.customRegistry = values.otherImage
+          const [ customRegistry, registryName ] = values.otherImage.split('|')
+          imageBuildBody.customRegistry = customRegistry
+          imageBuildBody.registryName = registryName
         }
         if (this.state.otherTag) {
           imageBuildBody.customTag = values.otherTag
@@ -1117,7 +1119,15 @@ let CreateTenxFlowModal = React.createClass({
       return []
     }
     return otherImage.map(item => {
-      return <Option value={item.id}>{item.title}</Option>
+      const { title, id, type } = item
+      let value = id
+      if (type) {
+        value = `${value}|${type}`
+      }
+      return <Option value={value} key={value}>
+        {title}
+        {type && type !== '3rdparty-registry' && ` (${type})`}
+      </Option>
     })
   },
   getClusterStroageClassType (cluster) {
@@ -1439,7 +1449,10 @@ let CreateTenxFlowModal = React.createClass({
     });
     const harborProjectProps = getFieldProps('harborProjectName', {
       rules: [
-        { message: '请选择仓库组', required: this.state.groupKey == 3 },
+        {
+          message: '请选择仓库组',
+          required: this.state.groupKey == 3 && !this.state.showOtherImage
+        },
       ],
     });
     let initialBuildImage = buildImages[intFlowTypeIndex] ? buildImages[intFlowTypeIndex].imageList[0].imageName : ''
@@ -1788,7 +1801,7 @@ let CreateTenxFlowModal = React.createClass({
                     <FormItem style={{ float: 'left' }}>
                       <RadioGroup {...getFieldProps('imageType', { initialValue: '1', onChange: this.changeImageStoreType }) }>
                         <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
-                        <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio>
+                        {/* <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio> */}
                         <Radio key='otherImage' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
                       </RadioGroup>
                       <div style={{ clear: 'both' }} />

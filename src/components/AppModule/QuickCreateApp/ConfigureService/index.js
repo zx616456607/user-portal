@@ -252,7 +252,7 @@ let ConfigureService = React.createClass({
     this.setState({
       imageConfigs: configs,
     })
-    const { callback, form } = this.props
+    const { callback, form, location } = this.props
     callback(form, configs)
     const { setFieldsValue } = form
     let {
@@ -344,6 +344,9 @@ let ConfigureService = React.createClass({
       })
     }
 
+    // set annotation => system/registry = dockerhub
+    const systemRegistry = location.query.systemRegistry
+
     // use `setFieldsValue` once, dispatch one action
     let fieldsValues = {
       storageKeys,
@@ -352,6 +355,7 @@ let ConfigureService = React.createClass({
       envKeys,
       imagePullPolicy: 'Always',
       livenessProtocol: 'none',
+      systemRegistry,
     }
     Object.assign(fieldsValues, storageFields, portsFields,
       commandFields,

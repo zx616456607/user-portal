@@ -171,6 +171,12 @@ class OtherSpace extends Component {
         <div id='OtherSpace' key='OtherSpace'>
           <Card className='OtherSpaceCard'>
             <div className='operaBox'>
+              <div className="spanceInfo">
+                <span className="first-title">
+                  {otherHead.title}
+                </span>
+                <span>仓库类型：hub.docker.com</span>
+              </div>
               <div className='infoBox'>
                 <div className='url'>
                   <i className='fa fa-link'></i>&nbsp;&nbsp;
