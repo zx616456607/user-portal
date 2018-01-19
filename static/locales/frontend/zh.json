@@ -65,6 +65,7 @@
   "TenxStatus.Scaling": "正在水平扩展",
   "TenxStatus.Restarting": "全部重启中",
   "TenxStatus.Redeploying": "正在重新部署",
+  "TenxStatus.RollingUpdate": "灰度发布中",
   "TenxStatus.Rebuilding": "正在重建",
   "TenxStatus.Unknown": "状态不明",
   "TenxStatus.Succeeded": "已完成",
