@@ -76,9 +76,7 @@ exports.deletePkg = function* () {
 exports.localUploadPkg = function*() {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const filename = this.params.filename
-  const filetag = this.params.filetag
-  const filetype = this.params.filetype
+  const query = this.query
   const parts = parse(this, {
     autoFields: true
   })
@@ -91,7 +89,7 @@ exports.localUploadPkg = function*() {
   const stream = formStream()
   const mimeType = mime.lookup(fileStream.filename)
   stream.stream('pkg', fileStream, fileStream.filename, mimeType)
-  let response = yield api.pkg.uploadFile([filename,filetag,filetype], null, stream, { headers: stream.headers() }).catch(err => {
+  let response = yield api.pkg.uploadFile(null, query, stream, { headers: stream.headers() }).catch(err => {
     return err
   })
   this.status = response.statusCode
@@ -101,10 +99,8 @@ exports.localUploadPkg = function*() {
 exports.romoteUploadPkg = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const filename = this.params.filename
-  const filetag = this.params.filetag
-  const filetype = this.params.filetype
-  const body = yield api.pkg.createBy([filename,filetag,filetype,'remote'],null,this.request.body)
+  const query = this.query
+  const body = yield api.pkg.createBy(['remote'],query,this.request.body)
   this.body = body
 }
 
