@@ -67,7 +67,9 @@ class OtherServiceApi extends Component {
     const { registry, loadOtherDetailTagConfig } = this.props;
     const { fullname, imageTag} = this.props;
     const config= {
-      imageId: this.props.imageId, fullname, imageTag
+      imageId: this.props.imageId,
+      fullname,
+      imageTag,
     }
     loadOtherDetailTagConfig(config);
   }
@@ -153,7 +155,7 @@ function mapStateToProps(state, props) {
   }
   const { otherTagConfig} = state.getImageTagConfig
   const { tag, isFetching, configList ,sizeInfo} = otherTagConfig || defaultImageDetailTagConfig
-  
+
   return {
     configList,
     isFetching,
