@@ -43,6 +43,7 @@ class GrayscaleUpgradeModal extends React.Component {
     const imageSrc = image.substring(0, tagIndex)
     const fullName = image.substring(image.indexOf('/') + 1, tagIndex)
     return {
+      image,
       tag,
       imageSrc,
       fullName,
@@ -59,16 +60,20 @@ class GrayscaleUpgradeModal extends React.Component {
     const isRollingUpdate = serviceStatus.phase === 'RollingUpdate'
     let targetTag
     let newCount = 0
+    let currentImages
     if (isRollingUpdate) {
       const annotations = service.metadata.annotations || {}
-      const currentImages = JSON.parse(annotations['rollingupdate/target'] || '{}')
+      currentImages = JSON.parse(annotations['rollingupdate/target'] || '{}')
       const image = currentImages[0] && currentImages[0].to || ''
       targetTag = this.parseImage(image).tag
       newCount = parseInt(annotations['rollingupdate/newCount'])
     }
     const containers = cloneDeep(service.spec.template.spec.containers)
-    containers.map((container) => {
-      const { image } = container
+    containers.map((container, index) => {
+      let { image } = container
+      if (isRollingUpdate) {
+        image = currentImages[index] && currentImages[index].from || ''
+      }
       container.imageObj = this.parseImage(image)
     })
     this.setState({
@@ -81,6 +86,26 @@ class GrayscaleUpgradeModal extends React.Component {
       let { imageObj } = container
       loadRepositoriesTags(registry, imageObj.fullName)
     })
+  }
+
+  componentDidMount() {
+    const { service, onCancel } = this.props
+    const replicas = service.spec.replicas
+    const isPrivateVolume = this.isPrivateVolume()
+    let title
+    if (isPrivateVolume) {
+      title = '服务已挂载独享型存储，不能做灰度发布操作'
+    } else if (replicas < 2) {
+      title = '服务只有 1 个实例，不能做灰度发布操作'
+    }
+    if (title) {
+      onCancel()
+      Modal.info({
+        title,
+        width: 480,
+        onOk() {},
+      })
+    }
   }
 
   handleSubmit = () => {
@@ -140,10 +165,27 @@ class GrayscaleUpgradeModal extends React.Component {
     })
   }
 
+  isPrivateVolume(){
+    const { service } = this.props
+    const { volumeTypeList } = service
+    let incloudPrivate = false
+    for (let i = 0; i < volumeTypeList.length; i++) {
+      if(volumeTypeList[i] == 'private'){
+        incloudPrivate = true
+        break
+      }
+    }
+    return incloudPrivate
+  }
+
   render() {
     const { onCancel, cluster, service, form, imageTags } = this.props
     const { containers, newCount, isRollingUpdate, targetTag } = this.state
     const { getFieldProps, setFieldsValue } = form
+    const replicas = service.spec.replicas
+    if (this.isPrivateVolume() || replicas < 2) {
+      return null
+    }
     const targetTagProps = getFieldProps('targetTag', {
       initialValue: targetTag,
       rules: [
@@ -174,14 +216,13 @@ class GrayscaleUpgradeModal extends React.Component {
     const currentContainer = containers[0]
     let currentImageTags = imageTags[currentContainer.imageObj.fullName]
     currentImageTags = currentImageTags && currentImageTags.tag || []
-    const replicas = service.spec.replicas
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 20 },
     }
     return (
       <Modal
-        title="灰度升级"
+        title="灰度发布"
         visible={true}
         onCancel={onCancel}
         onOk={this.handleSubmit}
@@ -191,7 +232,7 @@ class GrayscaleUpgradeModal extends React.Component {
       >
         <div className="alertRow">
           灰度发布，应用新老版本之间的平滑过渡，发布新版本时不直接替换旧版本，经过一段时间的版本共存来灰度验证。
-          <strong>选择灰度发布后，在「灰度升级」期间不能进行「滚动发布」</strong>。
+          <strong>选择灰度发布后，在「灰度发布」期间不能进行「滚动发布」</strong>。
         </div>
         <Form horizontal>
           <FormItem
@@ -204,7 +245,7 @@ class GrayscaleUpgradeModal extends React.Component {
             {...formItemLayout}
             label="镜像版本"
           >
-            {currentContainer.image}
+            {currentContainer.imageObj.image}
           </FormItem>
           <FormItem
             {...formItemLayout}
