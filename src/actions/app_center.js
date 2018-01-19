@@ -248,7 +248,7 @@ export function loadOtherDetailTagConfig(obj, callback) {
   return {
     [FETCH_API]: {
       types: [GET_OTHER_TAG_CONFIG_REQUEST, GET_OTHER_TAG_CONFIG_SUCCESS, GET_OTHER_TAG_CONFIG_FAILURE],
-      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.imageId}/images/${encodeImageFullname(urlFullName)}/tags/${obj.imageTag}`,
+      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.imageId}/images/${urlFullName}/tags/${obj.imageTag}`,
       schema: Schemas.REGISTRYS
     },
     tag: obj.imageTag,
