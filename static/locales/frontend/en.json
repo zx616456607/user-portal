@@ -66,6 +66,7 @@
   "TenxStatus.Scaling": "Scaling",
   "TenxStatus.Restarting": "Restarting",
   "TenxStatus.Redeploying": "Redeploying",
+  "TenxStatus.RollingUpdate": "RollingUpdate",
   "TenxStatus.Rebuilding": "Rebuilding",
   "TenxStatus.Unknown": "Unknown",
   "TenxStatus.Succeeded": "Succeeded",

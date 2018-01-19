@@ -242,7 +242,7 @@ let ConfigureService = React.createClass({
         fullname: imageName,
         imageTag
       }
-      loadImageConfigFunc = loadOtherDetailTagConfig.bind(this, imageTag, callback)
+      loadImageConfigFunc = loadOtherDetailTagConfig.bind(this, config, callback)
     } else {
       loadImageConfigFunc = loadRepositoriesTagConfigInfo.bind(this, DEFAULT_REGISTRY, imageName, imageTag, callback)
     }
