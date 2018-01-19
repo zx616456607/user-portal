@@ -88,7 +88,7 @@ class WrapDocsModal extends React.Component {
   
   render() {
     const { fileList, confirmLoading } = this.state
-    const { visible, form, currentWrap, space, closeModal, callback, throwError } = this.props
+    const { visible, form, currentWrap, space } = this.props
     let fileName = ''
     if (fileList && fileList.length) {
       fileName = fileList[0]['name']
@@ -112,46 +112,21 @@ class WrapDocsModal extends React.Component {
       action: `${API_URL_PREFIX}/pkg/${currentWrap.id}/docs?file=${fileName}`,
       multiple: true,
       fileList,
-      beforeUpload: (file)=> {
-        this.setState(preState => ({
-            fileList: [...preState.fileList, file]
+      beforeUpload: file=> {
+        this.setState(({ fileList }) => ({
+          fileList: [...fileList, file]
         }))
-        return new Promise(resolve => {
-          this.setState({
-            [`${file.uid}-resolve`]: resolve
-          })
-        })
+        return false
       },
-      onChange: e => {
-        this.setState({
-          fileList: e.fileList
-        })
-        if (e.file.status === 'uploading') {
-          this.setState({
-            confirmLoading: true
-          })
-        }
-        if (e.file.status === 'done') {
-          notify.success('上传成功')
-          callback && callback()
-          closeModal()
-          this.setState({
-            confirmLoading: false
-          })
-        }
-        if (e.file.status === 'error') {
-          let message = e.file.response.message
-          if (typeof message === 'object') {
-            if (isResourcePermissionError(e.file.response)) {
-              throwError(e.file.response)
-            }
-          } else {
-            notify.info(message)
-          }
-          this.setState({
-            confirmLoading: false
-          })
-        }
+      onRemove: (file) => {
+        this.setState(({ fileList }) => {
+          const index = fileList.indexOf(file);
+          const newFileList = fileList.slice();
+          newFileList.splice(index, 1);
+          return {
+            fileList: newFileList,
+          };
+        });
       }
     };
     return (
