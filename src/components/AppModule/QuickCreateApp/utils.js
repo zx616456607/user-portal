@@ -40,6 +40,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
   // 获取各字段值
   const {
     serviceName, // 服务名称
+    systemRegistry, // 镜像服务类型
     imageUrl, // 镜像地址
     imageTag, // 镜像版本
     apm, //是否开通 APM
@@ -49,7 +50,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     resourceType, // 容器配置
     DIYMemory, // 自定义配置-内存
     DIYCPU, // 自定义配置-CPU
-    DIYMaxMemory, // 自定义配置-最大内存 
+    DIYMaxMemory, // 自定义配置-最大内存
     DIYMaxCPU, // 自定义配置-最大CPU
     serviceType, // 服务类型(有状态, 无状态)
     storageType, // 存储类型(rbd, hostPath)
@@ -89,6 +90,10 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
   const MAPPING_PORT = 'mappingPort' // 映射服务端口
 
   const deployment = new Deployment(serviceName)
+  // set annotation => system/registry = dockerhub
+  deployment.setAnnotations({
+    'system/registry': systemRegistry
+  })
   // 设置镜像地址
   deployment.addContainer(serviceName, `${imageUrl}:${imageTag}`)
   // 设置 APM
