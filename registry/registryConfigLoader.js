@@ -27,3 +27,23 @@ function GetRegistryConfig() {
   return registryLocalStorage
 }
 exports.GetRegistryConfig = GetRegistryConfig
+
+
+function* DockerHubRegistryConfig(user, id) {
+  const api = apiFactory.getManagedRegistryApi(user)
+  // Get the list of private docker registry
+  const result = yield api.get()
+  if (result.code === 200) {
+    for (var i in result.data) {
+      if (result.data[i].id === id) {
+        return {
+          "server":     result.data[i].url,
+          "authServer": result.data[i].auth_url,
+          "username":   result.data[i].username,
+          "password":   result.data[i].encrypted_password
+        }
+      }
+    }
+  }
+  return ""
+}

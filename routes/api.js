@@ -348,6 +348,7 @@ module.exports = function (Router) {
   router.get('/docker-registry/:id/images', registryController.specListRepositories)
   router.get('/docker-registry/:id/images/:image*/tags', registryController.specGetImageTags)
   router.get('/docker-registry/:id/images/:image*/tags/:tag', registryController.specGetImageTagInfo)
+  router.get('/docker-registry/:id/images/search', registryController.searchDockerImages)
   // spi for tenxcloud hub
   router.get('/tenx-hubs', registryController.isTenxCloudHubConfigured)
   router.post('/tenx-hubs', registryController.addTenxCloudHub)
