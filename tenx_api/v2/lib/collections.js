@@ -236,6 +236,5 @@ module.exports = function (request) {
       })
     }
   }
-
   this.create = (collection) => new Collections(collection)
 }
