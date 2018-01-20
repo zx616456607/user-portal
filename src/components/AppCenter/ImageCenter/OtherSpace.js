@@ -170,8 +170,8 @@ class OtherSpace extends Component {
           imageName: row.name,
           other: imageId,
         }
-        if (row.type === 'dockerhub') {
-          query.systemRegistry = row.type
+        if (otherHead.type === 'dockerhub') {
+          query.systemRegistry = 'dockerhub'
         }
         // registryServer=${registryServer}&imageName=${row.name}&other=${imageId}
         return (
