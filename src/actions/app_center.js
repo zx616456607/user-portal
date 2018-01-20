@@ -139,6 +139,32 @@ export function getOtherImageList(id) {
   }
 }
 
+export const SEARCH_DOCKERHUB_REPOS_REQUEST = 'SEARCH_DOCKERHUB_REPOS_REQUEST'
+export const SEARCH_DOCKERHUB_REPOS_SUCCESS = 'SEARCH_DOCKERHUB_REPOS_SUCCESS'
+export const SEARCH_DOCKERHUB_REPOS_FAILURE = 'SEARCH_DOCKERHUB_REPOS_FAILURE'
+
+function fetchSearchDockerhubRepos(id, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/docker-registry/${id}/images/search`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    id,
+    [FETCH_API]: {
+      types: [SEARCH_DOCKERHUB_REPOS_REQUEST, SEARCH_DOCKERHUB_REPOS_SUCCESS, SEARCH_DOCKERHUB_REPOS_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function searchDockerhubRepos(id, query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchSearchDockerhubRepos(id, query, callback))
+  }
+}
+
 export const SEARCH_OTHER_LIST_REQUEST = 'SEARCH_OTHER_LIST_REQUEST'
 // Search Other image list getOtherImageList
 export function SearchOtherImage(image,id) {
