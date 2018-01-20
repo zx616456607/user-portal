@@ -39,9 +39,10 @@ class AppWrapStore extends React.Component {
     }
   }
   componentWillMount() {
-    const { getWrapGroupList } = this.props
+    const { getWrapGroupList, getAppsHotList } = this.props
     getWrapGroupList()
     this.getStoreList()
+    getAppsHotList()
   }
   changeTab(activeKey){
     const { getAppsHotList, getWrapStoreHotList } = this.props
