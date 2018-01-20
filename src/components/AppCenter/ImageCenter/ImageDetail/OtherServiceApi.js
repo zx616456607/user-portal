@@ -74,7 +74,7 @@ class OtherServiceApi extends Component {
     loadOtherDetailTagConfig(config);
   }
   render() {
-    const { isFetching, configList , sizeInfo} = this.props;
+    const { isFetching, configList , sizeInfo } = this.props;
     if (!configList || configList =='') return (<div>无</div>)
     if (isFetching) {
       return (
@@ -112,7 +112,7 @@ class OtherServiceApi extends Component {
         )
       });
     }
-    let size = sizeInfo.totalSize;
+    let size = sizeInfo && sizeInfo.totalSize;
     let unit = ' K'
     if (size > 1024) {
       size = Math.ceil(size /1024)

@@ -23,6 +23,7 @@ import { LoadOtherImage, addOtherStore } from '../../actions/app_center'
 import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
 import { ROLE_SYS_ADMIN } from '../../../constants'
+import DockerImg from '../../assets/img/quickentry/docker.png'
 import { camelize } from 'humps'
 
 const createForm = Form.create;
@@ -52,6 +53,7 @@ let MyComponent = React.createClass({
       regPaused: true,
       regReverse: false,
       inputType: 'text',
+      btnLoading: false,
     };
   },
   propTypes: {
@@ -115,6 +117,9 @@ let MyComponent = React.createClass({
         //it's mean there are some thing is null,user didn't input
         return;
       }
+      this.setState({
+        btnLoading: true,
+      })
       const config = {
         registryName: values.registryName,
         username: values.username || null,
@@ -124,28 +129,26 @@ let MyComponent = React.createClass({
       }
       let notification = new NotificationHandler()
 
-      this.setState({ visible: false });
       const self = this
-      notification.spin(`添加第三方镜像中...`)
       this.props.addOtherStore(config, {
         success: {
           func: (res) => {
-            notification.close()
             notification.success('添加第三方镜像成功')
-            setTimeout(() => {
-              scope.props.LoadOtherImage({
-                success: {
-                  func: (res) => {
-                    scope.setState({
-                      otherImageHead: res.data
-                    })
-                    self.props.form.resetFields()
-                  }
+            scope.setState({
+              createModalShow: false
+            });
+            scope.props.LoadOtherImage({
+              success: {
+                func: (res) => {
+                  scope.setState({
+                    otherImageHead: res.data
+                  })
+                  self.props.form.resetFields()
                 }
-              })
-
-            }, 500)
-          }
+              }
+            })
+          },
+          isAsync: true
         },
         failed: {
           func: (err) => {
@@ -153,17 +156,18 @@ let MyComponent = React.createClass({
               title: '添加第三方镜像失败',
               content: (<h3>{err.message.message}</h3>)
             });*/
-            notification.close()
             notification.error('添加第三方镜像失败', err.message.message)
-          }
+          },
+          isAsync: true
         },
-        isAsync: true
+        finally: {
+          func: () => {
+            this.setState({
+              btnLoading: false,
+            })
+          }
+        }
       })
-      //when the code running here,it's meaning user had input all things,
-      //and should submit the message to the backend
-      scope.setState({
-        createModalShow: false
-      });
     });
   },
   render() {
@@ -173,7 +177,7 @@ let MyComponent = React.createClass({
       getFieldValue,
     } = this.props.form;
     const registryTypeProps = getFieldProps('type', {
-      initialValue: 'registry',
+      initialValue: '3rdparty-registry',
       rules: [{ required: true, message: '请选择接入类型' }],
       onChange: e => {
         let url
@@ -215,7 +219,7 @@ let MyComponent = React.createClass({
         <Form className='addForm' horizontal>
           <FormItem label="接入类型" {...formItemLayout}>
             <RadioGroup {...registryTypeProps}>
-              <Radio value="registry">Docker Registry</Radio>
+              <Radio value="3rdparty-registry">Docker Registry</Radio>
               <Radio value="dockerhub">index.docker.io</Radio>
             </RadioGroup>
           </FormItem>
@@ -238,7 +242,14 @@ let MyComponent = React.createClass({
           </FormItem>
           <br />
           <div className='btnBox'>
-            <Button size='large' type='primary' onClick={this.handleSubmit}>确定</Button>
+            <Button
+              size='large'
+              type='primary'
+              loading={this.state.btnLoading}
+              onClick={this.handleSubmit}
+            >
+            确定
+            </Button>
             &nbsp;&nbsp;
             <Button size='large' onClick={this.handleReset}>取消</Button>
           </div>
@@ -333,7 +344,12 @@ class ImageCenter extends Component {
     const _this = this
     const OtherItem = otherImageHead.map(item => {
       return (<span key={item.title} className={ other.title == item.title ?'tab active':'tab'} onClick={()=> this.setItem('other',item)}>
-        <Icon type="shopping-cart" />&nbsp;{item.title}
+        {
+          item.type === 'dockerhub'
+          ? <img src={DockerImg} className="docker-icon" />
+          : <Icon type='shopping-cart' />
+        }
+        &nbsp;{item.title}
       </span>)
     })
     if (OtherItem.length >0) {
