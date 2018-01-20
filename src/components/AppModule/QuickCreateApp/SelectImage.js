@@ -28,7 +28,6 @@ import NotificationHandler from '../../../components/Notification'
 const standard = require('../../../../configs/constants').STANDARD_MODE
 const mode = require('../../../../configs/model').mode
 const standardFlag = mode === standard
-const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
 const TabPane = Tabs.TabPane
 const PUBLIC_IMAGES = 'publicImages'
@@ -328,10 +327,10 @@ class SelectImage extends Component {
           选择镜像
           <span className="imageType">
             <RadioGroup size="large" onChange={this.imageTypeChange} value={imageType}>
-              <RadioButton value={PUBLIC_IMAGES}>公有</RadioButton>
-              <RadioButton value="privateImages">私有</RadioButton>
-              <RadioButton value="imageStore">镜像商店</RadioButton>
-              { /*<RadioButton value="fockImages">收藏</RadioButton> */ }
+              <Radio prefixCls="ant-radio-button" value={PUBLIC_IMAGES}>公有</Radio>
+              <Radio prefixCls="ant-radio-button" value="privateImages">私有</Radio>
+              <Radio prefixCls="ant-radio-button" value="imageStore">镜像商店</Radio>
+              { /*<Radio value="fockImages">收藏</Radio> */ }
             </RadioGroup>
           </span>
           <span className="searchInputBox">
@@ -357,12 +356,12 @@ class SelectImage extends Component {
               <Tabs type="card" onChange={this.onTabChange}>
                 <TabPane tab="官方镜像" key="local">
                   <RadioGroup onChange={this.imageFilterChange} value={imageFilter}>
-                    <RadioButton value="all">全部</RadioButton>
-                    <RadioButton value="runtime">运行环境</RadioButton>
-                    <RadioButton value="server">Web服务器</RadioButton>
-                    <RadioButton value="database">数据库与缓存</RadioButton>
-                    <RadioButton value="os">操作系统</RadioButton>
-                    <RadioButton value="others">中间件与其他</RadioButton>
+                    <Radio prefixCls="ant-radio-button" value="all">全部</Radio>
+                    <Radio prefixCls="ant-radio-button" value="runtime">运行环境</Radio>
+                    <Radio prefixCls="ant-radio-button" value="server">Web服务器</Radio>
+                    <Radio prefixCls="ant-radio-button" value="database">数据库与缓存</Radio>
+                    <Radio prefixCls="ant-radio-button" value="os">操作系统</Radio>
+                    <Radio prefixCls="ant-radio-button" value="others">中间件与其他</Radio>
                   </RadioGroup>
                   {this.renderImageList(imageData)}
                 </TabPane>

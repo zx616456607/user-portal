@@ -9,8 +9,9 @@
  * @author BaiYu
  */
 import React, { PropTypes } from 'react'
-import { Button, Form, Input, Card, message, Alert, Col, Row, Icon, Tooltip } from 'antd'
+import { Button, Form, Input, Card, message, Alert, Col, Row, Icon, Tooltip, Modal } from 'antd'
 import { connect } from 'react-redux'
+import QRCode from 'qrcode.react'
 import { browserHistory } from 'react-router'
 import Top from '../../components/Top'
 import '../Login/Enterprise/style/Login.less'
@@ -27,7 +28,8 @@ let Activation = React.createClass({
       submitting: false,
       loginResult: {},
       intNameFocus: false,
-      copySuccess:false
+      copySuccess:false,
+      qrCodeModalVisible: false,
     }
   },
 
@@ -88,7 +90,8 @@ let Activation = React.createClass({
     }, 500);
   },
   render() {
-    const { getFieldProps } = this.props.form
+    const { platform, form } = this.props
+    const { getFieldProps } = form
     const { submitting, loginResult, submitProps } = this.state
     const nameProps = getFieldProps('name', {
       rules: [
@@ -114,19 +117,24 @@ let Activation = React.createClass({
                 loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
               }
             </div>
-            <div className="platform">平台ID <span className="platformId textoverflow">{this.props.platform.platformid}</span>
+            <div className="platform">平台ID <span className="platformId textoverflow">{platform.platformid}</span>
               <Tooltip title={this.state.copySuccess ? '复制成功': '点击复制'}>
                 <a className={this.state.copySuccess ? "actions copyBtn":"copyBtn"} onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}>
                   <Icon type="copy" />
                 </a>
               </Tooltip>
-              <input className="CodeInput" style={{ position: "absolute", opacity: "0", top:'0'}} value={this.props.platform.platformid} />
+              <Tooltip title="查看平台 ID 二维码">
+                <a className="copyBtn qrcode">
+                  <Icon type="qrcode" onClick={() => this.setState({ qrCodeModalVisible: true })} />
+                </a>
+              </Tooltip>
+              <input className="CodeInput" style={{ position: "absolute", opacity: "0", top:'0'}} value={platform.platformid} />
             </div>
             <Form onSubmit={(e)=> this.handleSubmit(e)}>
               <FormItem>
                 <Input {...nameProps}
                   ref="intName"
-                  type="textarea" placeholder="请输入许可证（发送“ 平台ID + 姓名 + 电话 + 公司名 ” 到 support@tenxcloud.com 我们将主动与您联系）"
+                  type="textarea" placeholder="请输入许可证"
                   style={{ maxHeight: 180 , height:180}} />
               </FormItem>
 
@@ -150,6 +158,20 @@ let Activation = React.createClass({
           :null
           }
         </div>
+        <Modal
+          title="平台 ID 二维码"
+          visible={this.state.qrCodeModalVisible}
+          wrapClassName="platformid-qrcode-modal"
+          onCancel={() => this.setState({ qrCodeModalVisible: false })}
+          footer={
+            <Button type="primary" size="large" onClick={() => this.setState({ qrCodeModalVisible: false })}>
+              确 定
+            </Button>
+          }
+          width={260}
+        >
+          <QRCode value={platform.platformid} size={200} />
+        </Modal>
       </div>
     )
   }

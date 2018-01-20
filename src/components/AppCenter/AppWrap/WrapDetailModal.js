@@ -149,9 +149,9 @@ class WrapDetailModal extends React.Component {
           func: res => {
             notify.close()
             if (res.statusCode < 500) {
-              notify.warn('保存失败', res.message)
+              notify.warn('保存失败', res.message.message)
             } else {
-              notify.error('保存失败', res.message)
+              notify.error('保存失败', res.message.message)
             }
           }
         }
@@ -657,10 +657,10 @@ class WrapDetailModal extends React.Component {
           </TabPane>
           <TabPane
             key="docs"
-            tab="相关文件"
+            tab="相关附件"
             disabled={isWrapStore}
           >
-            <Button type="primary" size="large" icon="upload" onClick={() => this.setState({docsModal: true})}>上传文件</Button>
+            <Button type="primary" size="large" icon="upload" onClick={() => this.setState({docsModal: true})}>上传附件</Button>
             <div className="docsBox">
               {this.renderDocsList()}
             </div>

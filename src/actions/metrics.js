@@ -9,7 +9,7 @@
  */
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
-import { METRICS_CPU, METRICS_MEMORY, METRICS_NETWORK_RECEIVED, METRICSS_NETWORK_TRANSMITTED, METRICSS_DISK_READ, METRICSS_DISK_WRITE } from '../../constants'
+import { METRICS_CPU, METRICS_MEMORY, METRICS_NETWORK_RECEIVED, METRICSS_NETWORK_TRANSMITTED, METRICSS_DISK_READ, METRICSS_DISK_WRITE, METRICS_INFLUXDB } from '../../constants'
 import { toQuerystring } from '../common/tools'
 
 // ~~ container
@@ -217,6 +217,7 @@ export const METRICS_SERVICE_CPU_FAILURE = 'METRICS_SERVICE_CPU_FAILURE'
 function fetchServiceMetricsCPU(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICS_CPU
+  query.source = METRICS_INFLUXDB
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
@@ -245,6 +246,7 @@ export const METRICS_SERVICE_MEMORY_FAILURE = 'METRICS_SERVICE_MEMORY_FAILURE'
 function fetchServiceMetricsMemory(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICS_MEMORY
+  query.source = METRICS_INFLUXDB
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
@@ -273,6 +275,7 @@ export const METRICS_SERVICE_NETWORK_RECEIVED_FAILURE = 'METRICS_SERVICE_NETWORK
 function fetchServiceMetricsNetworkReceived(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICS_NETWORK_RECEIVED
+  query.source = METRICS_INFLUXDB
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
@@ -301,6 +304,7 @@ export const METRICS_SERVICE_NETWORK_TRANSMITTED_FAILURE = 'METRICS_SERVICE_NETW
 function fetchServiceMetricsNetworkTransmitted(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICSS_NETWORK_TRANSMITTED
+  query.source = METRICS_INFLUXDB
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
@@ -329,6 +333,7 @@ export const METRICS_SERVICE_DISK_READ_FAILURE = 'METRICS_SERVICE_DISK_READ_FAIL
 function fetchServiceMetricsDiskRead(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICSS_DISK_READ
+  query.source = METRICS_INFLUXDB
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
@@ -357,6 +362,7 @@ export const METRICS_SERVICE_DISK_WRITE_FAILURE = 'METRICS_SERVICE_DISK_WRITE_FA
 function fetchServiceMetricsDiskWrite(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICSS_DISK_WRITE
+  query.source = METRICS_INFLUXDB
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }

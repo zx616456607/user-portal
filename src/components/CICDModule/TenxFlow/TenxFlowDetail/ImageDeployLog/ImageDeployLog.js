@@ -81,7 +81,7 @@ const menusText = defineMessages({
   },
   imageUpdate: {
     id: 'CICD.Tenxflow.ImageDeployLog.imageUpdate',
-    defaultMessage: '灰度升级',
+    defaultMessage: '滚动发布',
   },
 })
 
@@ -100,7 +100,7 @@ function checkStatusClass(status) {
     return 'normal'
   }
   return 'fail'
- 
+
 }
 
 function checkStatusIcon(status) {
@@ -239,7 +239,7 @@ const MyComponent = React.createClass({
     });
     return (
       <div className='rightBox'>
-        <Collapse className='logBox' onChange={this.collapseAction}> 
+        <Collapse className='logBox' onChange={this.collapseAction}>
           {items}
         </Collapse>
       </div>
@@ -262,7 +262,7 @@ class ImageDeployLog extends Component {
 
   render() {
     const scope = this;
-    
+
     return (
       <div id='ImageDeployLog'>
         <div className='title'>

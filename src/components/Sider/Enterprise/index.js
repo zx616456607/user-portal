@@ -497,6 +497,11 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 服务配置</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key='load_balance'>
+                    <Link to='/app_manage/load_balance'>
+                      <span><div className='sideCircle'></div> 负载均衡</span>
+                    </Link>
+                  </Menu.Item>
                   <Menu.Item key='network_isolation'>
                     <Link to='/app_manage/network_isolation'>
                       <span><div className='sideCircle'></div> 网络隔离</span>
@@ -678,8 +683,8 @@ class Sider extends Component {
                     </span>
                   }
                 >
-                  <Menu.Item key='manange_monitor_default'>
-                    <Link to='/manange_monitor'>
+                  <Menu.Item key='audit'>
+                    <Link to='/manange_monitor/audit'>
                       <span><div className='sideCircle'></div> 操作审计</span>
                     </Link>
                   </Menu.Item>

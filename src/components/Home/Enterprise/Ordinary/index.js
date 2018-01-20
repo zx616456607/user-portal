@@ -31,7 +31,6 @@ import { fetchStorage } from '../../../../actions/storage'
 import { getClusterQuota, getClusterQuotaList } from '../../../../actions/quota'
 import { GetProjectsDetail } from '../../../../actions/project'
 
-const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -1393,10 +1392,12 @@ class Ordinary extends Component {
       }, {
         key: 'elasticsearch',
         text: 'ElasticSearch集群 (个)'
-      }, {
-        key: 'etcd',
-        text: 'Etcd集群 (个)'
-      }]
+      }, 
+      // {
+      //   key: 'etcd',
+      //   text: 'Etcd集群 (个)'
+      // }
+      ]
     const spaceName = space.name || space.userName
     return (
       <div id='Ordinary'>
@@ -1485,16 +1486,16 @@ class Ordinary extends Component {
             </Col>
           }
           <Col span={6} className='quota'>
-            <Card title="项目&集群相关资源配额" bordered={false} bodyStyle={{ height: 220, padding: '1px' }}
+            <Card title="项目&集群相关资源配额" bordered={false} bodyStyle={{ height: 220 }}
               extra={<Link to={spaceName === '我的个人项目' ? this.props.loginUser.role !== 2 ?
                 '/account?tabs=quota' : `/tenant_manage/user/${this.props.loginUser.userID}?tabs=quota` :
                 this.props.userID === undefined ? `/tenant_manage/project_manage/project_detail?name=${this.props.projectName}&tabs=quota` :
                   `/tenant_manage/user/${this.props.userID}?tabs=quota`}><Button type="primary" size="small">{this.props.loginUser.role === 2 ? '设置配额' : '查看详情'}</Button></Link>}>
               <Row className="radios">
                 <RadioGroup size="small" onChange={(e) => this.onChange(e)} defaultValue="computing">
-                  <RadioButton value="computing">计算资源</RadioButton>
-                  <RadioButton value="application">应用管理</RadioButton>
-                  <RadioButton value="service">数据库&缓存</RadioButton>
+                  <Radio prefixCls="ant-radio-button" value="computing">计算资源</Radio>
+                  <Radio prefixCls="ant-radio-button" value="application">应用管理</Radio>
+                  <Radio prefixCls="ant-radio-button" value="service">数据库&缓存</Radio>
                 </RadioGroup>
               </Row>
               <div className="calculation" style={{ display: isComputing ? 'block' : 'none' }}>
@@ -1552,13 +1553,13 @@ class Ordinary extends Component {
                   serviceList.map((item, index) => (
                     <div className="info">
                       <Row>
-                        <Col span={14}>
+                        <Col span={12} style={{ minWidth: '129px' }}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={4}>
+                        <Col span={3}>
                           <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
-                        <Col span={6}>
+                        <Col span={7}>
                           {
                             this.useClusterCount(item.key) > this.maxClusterCount(item.key) ?
                               this.maxClusterCount(item.key) === -1 ?

@@ -20,7 +20,7 @@ import NotificationHandler from '../../components/Notification'
 import { formatDate } from '../../common/tools'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { API_URL_PREFIX, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
-import { isResourcePermissionError } from '../../common/tools'
+import { isResourcePermissionError, toQuerystring } from '../../common/tools'
 import WrapListTable from './AppWrap/WrapListTable'
 import { throwError } from '../../actions'
 import { wrapManageList, deleteWrapManage, uploadWrap, checkWrapName } from '../../actions/app_center'
@@ -85,22 +85,22 @@ class UploadModal extends Component {
         notificat.error('上传文件地址格式错误', '支持：'+ wrapTypelist.join('、')+'文件格式')
         return
       }
+      const query = {
+        filename:values.wrapName,
+        filetag: values.versionLabel,
+        filetype: isType[1],
+      }
       const body = {
-        fileName:values.wrapName,
-        fileTag: values.versionLabel,
-        fileType: isType[1],
-        body:{
-          sourceURL: values.protocolUrl,
-          userName: values.username,
-          password: values.password
-        }
+        sourceURL: values.protocolUrl,
+        userName: values.username,
+        password: values.password
       }
 
       const fileCallback = notificat.spin('上传中...')
 
       this.setState({fileCallback: fileCallback})
 
-      func.uploadWrap(body,{
+      func.uploadWrap(query,body,{
         success:{
           func:()=> {
             const notificat = new NotificationHandler()
@@ -292,7 +292,12 @@ class UploadModal extends Component {
     }
     // const fileName = form.getFieldValue('wrapName')
     // const fileTag = form.getFieldValue('versionLabel')
-    const actionUrl = `${API_URL_PREFIX}/pkg/${fileName}/${fileTag}/${fileType}/local`
+    let query = {
+      filename: fileName,
+      filetag: fileTag,
+      filetype: fileType
+    }
+    const actionUrl = `${API_URL_PREFIX}/pkg/local?${toQuerystring(query)}`
     const selfProps = {
       name: 'pkg',
       action: actionUrl,

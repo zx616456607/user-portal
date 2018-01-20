@@ -8,6 +8,7 @@
  * v0.1 - 2016-11-21
  * @author Zhangpc
  */
+import cloneDeep from 'lodash/cloneDeep'
 import { TENX_MARK } from '../constants'
 const CONTAINER_MAX_RESTART_COUNT = 5
 /**
@@ -57,8 +58,12 @@ export function getContainerStatus(container) {
  * Get service status
  * return one of [Pending, Running, Deploying, Stopped]
  */
-export function getServiceStatus(service) {
+export function getServiceStatus(_service) {
+  const service = cloneDeep(_service)
   const { status, metadata } = service
+  if (!metadata.annotations) {
+    metadata.annotations = {}
+  }
   const specReplicas = service.spec.replicas
   let replicas = specReplicas
   if (replicas === undefined) {
@@ -80,8 +85,12 @@ export function getServiceStatus(service) {
     unavailableReplicas,
     observedGeneration,
   } = status
-  if (!metadata.annotations) {
-    metadata.annotations = {}
+  if (status.replicas > specReplicas) {
+    return {
+      phase: 'RollingUpdate',
+      availableReplicas,
+      replicas
+    }
   }
   status.replicas = replicas
   if (phase && phase !== 'Running') {
@@ -128,7 +137,7 @@ export function getServiceStatusByContainers(service, containers) {
   })
   if (!service.status) {
     service.status = {}
-  } else {
+  } else if (service.status.phase !== 'RollingUpdate') {
     delete service.status.phase
   }
   service.status.availableReplicas = availableReplicas

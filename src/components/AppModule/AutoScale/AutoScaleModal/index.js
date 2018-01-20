@@ -86,7 +86,7 @@ class AutoScaleModal extends React.Component {
       this.initThresholdArr(scaleDetail)
       loadAllServices(clusterID, {
         pageIndex: 1,
-        pageSize: -1,
+        pageSize: 100,
       })
       loadNotifyGroups(null, clusterID)
     }

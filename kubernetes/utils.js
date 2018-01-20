@@ -17,44 +17,60 @@ const DEFAULT_CONTAINER_RESOURCES_MEMORY = constants.DEFAULT_CONTAINER_RESOURCES
 const ENTERPRISE_MODE = require('../configs/constants').ENTERPRISE_MODE
 const mode = require('../configs/model').mode
 const enterpriseFlag = ENTERPRISE_MODE == mode
-
-exports.getResources = function (memory, cpu) {
+exports.getResources = function (memory, cpu, limitMemory, limitCpu) {
   let resources = clone(DEFAULT_CONTAINER_RESOURCES)
   const intMemory = parseInt(memory || DEFAULT_CONTAINER_RESOURCES_MEMORY)
-  switch (intMemory) {
-    case 256:
-      return resources
-    case 512:
-      resources.limits.memory = '512Mi'
-      resources.requests.memory = '512Mi'
-      break
-    case 1024:
-      resources.limits.memory = '1024Mi'
-      resources.requests.memory = '1024Mi'
-      break
-    case 2048:
-      resources.limits.memory = '2048Mi'
-      resources.requests.memory = '2048Mi'
-      break
-    case 4096:
-      resources.limits.memory = '4096Mi'
-      resources.requests.memory = '4096Mi'
-      break
-    case 8192:
-      resources.limits.memory = '8192Mi'
-      resources.requests.memory = '8192Mi'
-      break
-    case 16384:
-      resources.limits.memory = '16384Mi'
-      resources.requests.memory = '16384Mi'
-      break
-    default:
-      resources.limits.memory = memory
-      resources.requests.memory = memory
+  if (memory && limitMemory) {
+    resources.limits.memory = limitMemory
+    resources.requests.memory = memory
+  } else {
+    switch (intMemory) {
+      case 256:
+        return resources
+      case 512:
+        resources.limits.memory = '512Mi'
+        resources.requests.memory = '512Mi'
+        resources.limits.cpu = '1000m'
+        resources.requests.cpu = '200m'
+        break
+      case 1024:
+        resources.limits.memory = '1024Mi'
+        resources.requests.memory = '1024Mi'
+        resources.limits.cpu = '1000m'
+        resources.requests.cpu = '400m'
+        break
+      case 2048:
+        resources.limits.memory = '2048Mi'
+        resources.requests.memory = '2048Mi'
+        resources.limits.cpu = '1000m'
+        resources.requests.cpu = '800m'
+        break
+      case 4096:
+        resources.limits.memory = '4096Mi'
+        resources.requests.memory = '4096Mi'
+        resources.limits.cpu = '1000m'
+        resources.requests.cpu = '1000m'
+        break
+      case 8192:
+        resources.limits.memory = '8192Mi'
+        resources.requests.memory = '8192Mi'
+        resources.limits.cpu = '2000m'
+        resources.requests.cpu = '2000m'
+        break
+      case 16384:
+        resources.limits.memory = '16384Mi'
+        resources.requests.memory = '16384Mi'
+        resources.limits.cpu = '4000m'
+        resources.requests.cpu = '4000m'
+        break
+      default:
+        resources.limits.memory = limitMemory
+        resources.requests.memory = memory
+    }
   }
   if (enterpriseFlag && cpu) {
     resources.requests.cpu = cpu
-    resources.limits.cpu = cpu
+    resources.limits.cpu = limitCpu
   }
   return resources
 }

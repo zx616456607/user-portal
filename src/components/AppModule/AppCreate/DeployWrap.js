@@ -233,7 +233,13 @@ class WrapManage extends Component {
           <Icon type="check" key={index +2}/>]
           :null
           }
-          <span className="textoverflow">{name.substring(0, 1).toUpperCase() + name.substring(1)}</span>
+          <span className="textoverflow">
+            {
+              name === 'weblogic' ?
+                name.replace('w', 'W').replace('l', 'L'):
+                name.substring(0, 1).toUpperCase() + name.substring(1)
+            }
+            </span>
         </div>
         <div className="template_version">最新版本：{template[index].version[0]}</div>
         </Button>

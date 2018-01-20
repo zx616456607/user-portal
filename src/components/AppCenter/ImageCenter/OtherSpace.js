@@ -16,6 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DeleteOtherImage, SearchOtherImage, getOtherImageList} from '../../../actions/app_center'
 import './style/OtherSpace.less'
 import ImageDetailBox from './ImageDetail/OtherDetail.js'
+import { toQuerystring } from '../../../common/tools'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -109,6 +110,14 @@ class OtherSpace extends Component {
       currentImage:imageName
     });
   }
+  renderRegistryType(type) {
+    switch (type) {
+      case 'dockerhub':
+        return 'hub.docker.com'
+      default:
+        return 'Docker Registry'
+    }
+  }
   render() {
     const { formatMessage } = this.props.intl;
     const { liteFlag, imageId } = this.props;
@@ -156,8 +165,17 @@ class OtherSpace extends Component {
       key: 'icon',
       width:'15%',
       render: (text, row)=> {
+        const query = {
+          registryServer,
+          imageName: row.name,
+          other: imageId,
+        }
+        if (row.type === 'dockerhub') {
+          query.systemRegistry = row.type
+        }
+        // registryServer=${registryServer}&imageName=${row.name}&other=${imageId}
         return (
-          <Button type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${registryServer}&imageName=${row.name}&other=${imageId}`)}>
+          <Button type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/quick_create?${toQuerystring(query)}`)}>
             <FormattedMessage {...menusText.deployService} />
           </Button>
         )
@@ -171,6 +189,12 @@ class OtherSpace extends Component {
         <div id='OtherSpace' key='OtherSpace'>
           <Card className='OtherSpaceCard'>
             <div className='operaBox'>
+              <div className="spanceInfo">
+                <span className="first-title">
+                  {otherHead.title}
+                </span>
+                <span>仓库类型：{this.renderRegistryType(otherHead.type)}</span>
+              </div>
               <div className='infoBox'>
                 <div className='url'>
                   <i className='fa fa-link'></i>&nbsp;&nbsp;

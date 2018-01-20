@@ -10,14 +10,16 @@
 
 
 import React, { Component, PropTypes } from 'react'
-import { Modal, Menu,Tabs, Icon, Button,Form, Card, Alert, Input, Tooltip } from 'antd'
+import {
+  Modal, Menu, Tabs, Icon, Button, Form, Card, Alert, Input, Tooltip,
+  Radio,
+} from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import { Link,browserHistory } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import OtherSpace from './ImageCenter/OtherSpace'
-import TweenOne from 'rc-tween-one'
 import './style/Item.less'
-import { LoadOtherImage, addOtherStore, } from '../../actions/app_center'
+import { LoadOtherImage, addOtherStore } from '../../actions/app_center'
 import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
 import { ROLE_SYS_ADMIN } from '../../../constants'
@@ -26,6 +28,7 @@ import { camelize } from 'humps'
 const createForm = Form.create;
 const FormItem = Form.Item;
 const TabPane = Tabs.TabPane;
+const RadioGroup = Radio.Group;
 
 let MyComponent = React.createClass({
   getInitialState: function () {
@@ -60,88 +63,6 @@ let MyComponent = React.createClass({
     scope.setState({
       otherSpaceType: type
     });
-  },
-  inputOnFocus(current) {
-    //this function for user focus on current input and the title will be add an animate
-    switch (current) {
-      case 'url':
-        this.setState({
-          UrlReverse: false,
-          UrlPaused: false,
-          UrlMoment: null
-        });
-        break;
-      case 'username':
-        this.setState({
-          NameReverse: false,
-          NamePaused: false,
-          NameMoment: null
-        });
-        break;
-      case 'password':
-        this.setState({
-          PwdPaused: false,
-          PwdReverse: false,
-          PwdMoment: null,
-          inputType: 'password'
-        });
-        break;
-      case 'registryName':
-        this.setState({
-          regPaused: false,
-          regReverse: false,
-          regMoment: null
-        });
-        break;
-    }
-  },
-  inputOnBlur(current) {
-    //this function for user blur out current input and the title will be add an animate
-    let urlInput = this.refs.urlInput;
-    let textareaInput = this.refs.textareaInput;
-    let nameInput = this.refs.nameInput;
-    let pwdInput = this.refs.pwdInput;
-    let registryInput = this.refs.registryInput
-    switch (current) {
-      case 'registryName':
-        if (!!!registryInput.props.value) {
-          this.setState({
-            regPaused: false,
-            regReverse: true,
-            regMoment: null
-          });
-        }
-        break;
-      case 'url':
-        if (!urlInput.props.value) {
-          //it's meaning user hadn't input message in the input box so that the title will be move
-          this.setState({
-            UrlPaused: false,
-            UrlReverse: true,
-            UrlMoment: null
-          });
-        }
-        break;
-      case 'username':
-        if (!nameInput.props.value) {
-          this.setState({
-            NamePaused: false,
-            NameReverse: true,
-            NameMoment: null
-          });
-        }
-        break;
-      case 'password':
-        if (!pwdInput.props.value) {
-          this.setState({
-            PwdPaused: false,
-            PwdReverse: true,
-            PwdMoment: null
-          });
-        }
-        break;
-
-    }
   },
   handleReset(e) {
     //this function for user close add other image space modal
@@ -246,7 +167,23 @@ let MyComponent = React.createClass({
   },
   render() {
     const scope = this.props.scope;
-    const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
+    const {
+      getFieldProps, getFieldError, setFieldsValue, isFieldValidating,
+      getFieldValue,
+    } = this.props.form;
+    const registryTypeProps = getFieldProps('registryType', {
+      initialValue: 'registry',
+      rules: [{ required: true, message: '请选择接入类型' }],
+      onChange: e => {
+        let url
+        if (e.target.value === 'hub.docker.com') {
+          url = 'https://hub.docker.com'
+        }
+        setTimeout(() => setFieldsValue({
+          url,
+        }), 100)
+      },
+    })
     const registryProps = getFieldProps('registryName', {
       rules: [{ required: true, validator: this.regnameExists}]
     })
@@ -255,7 +192,6 @@ let MyComponent = React.createClass({
         { required: true, validator: this.urlExists }
       ],
     });
-
     const nameProps = getFieldProps('username', {
       rules: [
         { required: false, message: '请输入用户名' }
@@ -266,62 +202,39 @@ let MyComponent = React.createClass({
         { required: false, message: '请输入密码' },
       ],
     });
+    const formItemLayout = {
+      labelCol: { span: 4 },
+      wrapperCol: { span: 20 },
+    };
     return (
       <div className='modalBox'>
         <div className='alertRow'>
-          第三方仓库接入，仅支持标准 Docker Registry 接口（暂不支持 Harbor 等第三方接口）。
+          第三方仓库接入，支持标准 Docker Registry 和 hub.docker.com 接口（暂不支持 Harbor 等第三方接口）。
         </div>
-        <Form className='addForm' horizontal form={this.props.form}>
-          <FormItem hasFeedback >
-            <TweenOne
-              animation={{ top: '-20', duration: 500 }}
-              paused={this.state.regPaused}
-              reverse={this.state.regReverse}
-              moment={this.state.regMoment}
-              style={{ position: 'absolute', width: '200px', top: '0' }}
-              >
-                <span className='title' key='name'>仓库名</span>
-            </TweenOne>
-            <Input {...registryProps} ref='registryInput' onFocus={this.inputOnFocus.bind(this, 'registryName')} onBlur={this.inputOnBlur.bind(this, 'registryName')} />
+        <Form className='addForm' horizontal>
+          <FormItem label="接入类型" {...formItemLayout}>
+            <RadioGroup {...registryTypeProps}>
+              <Radio value="registry">Docker Registry</Radio>
+              <Radio value="hub.docker.com">hub.docker.com</Radio>
+            </RadioGroup>
           </FormItem>
-          <FormItem hasFeedback >
-            <TweenOne
-              animation={{ top: '-20', duration: 500 }}
-              paused={this.state.UrlPaused}
-              reverse={this.state.UrlReverse}
-              moment={this.state.UrlMoment}
-              style={{ position: 'absolute', width: '200px', top: '0' }}
-              >
-              <span className='title' key='title'>地址</span>
-            </TweenOne>
-            <Input {...urlProps} ref='urlInput' onFocus={this.inputOnFocus.bind(this, 'url')} onBlur={this.inputOnBlur.bind(this, 'url')} />
+          <FormItem label="仓库名" {...formItemLayout}>
+            <Input {...registryProps} placeholder="自定义仓库名" />
+          </FormItem>
+          <FormItem label="地址" {...formItemLayout}>
+            <Input
+              {...urlProps}
+              placeholder="仓库地址"
+              disabled={getFieldValue('registryType') === 'hub.docker.com'}
+            />
           </FormItem>
           <Alert message="私有仓库需要填写用户名和密码" type="info" showIcon />
-          <FormItem hasFeedback >
-            <TweenOne
-              animation={{ top: '-20', duration: 500 }}
-              paused={this.state.NamePaused}
-              reverse={this.state.NameReverse}
-              moment={this.state.NameMoment}
-              style={{ position: 'absolute', width: '20%', top: '0' }}
-              >
-              <span className='title'>用户名</span>
-            </TweenOne>
-            <Input {...nameProps} ref='nameInput' onFocus={this.inputOnFocus.bind(this, 'username')} onBlur={this.inputOnBlur.bind(this, 'username')} />
+          <FormItem label="用户名" {...formItemLayout}>
+            <Input {...nameProps} placeholder="仓库用户名" />
           </FormItem>
-          <FormItem hasFeedback >
-            <TweenOne
-              animation={{ top: '-20', duration: 500 }}
-              paused={this.state.PwdPaused}
-              reverse={this.state.PwdReverse}
-              moment={this.state.PwdMoment}
-              style={{ position: 'absolute', width: '20%', top: '0' }}
-              >
-              <span className='title'>密码</span>
-            </TweenOne>
-            <Input {...passwdProps} ref='pwdInput' type={this.state.inputType} autoComplete='off' onFocus={this.inputOnFocus.bind(this, 'password')} onBlur={this.inputOnBlur.bind(this, 'password')} />
+          <FormItem label="密码" {...formItemLayout}>
+            <Input {...passwdProps} placeholder="仓库密码" />
           </FormItem>
-
           <br />
           <div className='btnBox'>
             <Button size='large' type='primary' onClick={this.handleSubmit}>确定</Button>

@@ -36,6 +36,7 @@ class WrapDocsModal extends React.Component {
   }
   
   confirmModal() {
+    const { closeModal, currentWrap, callback } = this.props
     const {  fileList } = this.state
     if (!fileList || !fileList.length) {
       notify.warn('请选择附件')
@@ -45,14 +46,49 @@ class WrapDocsModal extends React.Component {
       notify.warn('上传附件数需在20个以内')
       return 
     }
-    fileList.forEach(item => {
-      this.state[`${item.uid}-resolve`](true)
+    const formData = new FormData();
+    fileList.forEach((file) => {
+      formData.append('docs', file);
+    });
+    this.setState({
+      confirmLoading: true
+    })
+    const _this = this
+    notify.spin('文件上传中')
+    fetch(`${API_URL_PREFIX}/pkg/${currentWrap.id}/docs`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'same-origin',
+    }).then(function(response) {
+      _this.setState({
+        confirmLoading: false
+      })
+      if (response.statusCode >= 400 && response.statusCode < 500) {
+        if (isResourcePermissionError(response)) {
+          throwError(response)
+          return
+        }
+        notify.warn('上传失败', response.message)
+        return 
+      }
+      notify.close()
+      notify.success('上传成功')
+      callback && callback()
+      closeModal()
+    }).catch(function(ex) {
+      notify.success('上传失败')
+      _this.setState({
+        confirmLoading: false
+      })
+      notify.close()
+      notify.error('上传失败', ex.message)
+      closeModal()
     })
   }
   
   render() {
     const { fileList, confirmLoading } = this.state
-    const { visible, form, currentWrap, space, closeModal, callback, throwError } = this.props
+    const { visible, form, currentWrap, space } = this.props
     let fileName = ''
     if (fileList && fileList.length) {
       fileName = fileList[0]['name']
@@ -76,52 +112,27 @@ class WrapDocsModal extends React.Component {
       action: `${API_URL_PREFIX}/pkg/${currentWrap.id}/docs?file=${fileName}`,
       multiple: true,
       fileList,
-      beforeUpload: (file)=> {
-        this.setState(preState => ({
-            fileList: [...preState.fileList, file]
+      beforeUpload: file=> {
+        this.setState(({ fileList }) => ({
+            fileList: [...fileList, file]
         }))
-        return new Promise(resolve => {
-          this.setState({
-            [`${file.uid}-resolve`]: resolve
-          })
-        })
+        return false
       },
-      onChange: e => {
-        this.setState({
-          fileList: e.fileList
-        })
-        if (e.file.status === 'uploading') {
-          this.setState({
-            confirmLoading: true
-          })
-        }
-        if (e.file.status === 'done') {
-          notify.success('上传成功')
-          callback && callback()
-          closeModal()
-          this.setState({
-            confirmLoading: false
-          })
-        }
-        if (e.file.status === 'error') {
-          let message = e.file.response.message
-          if (typeof message === 'object') {
-            if (isResourcePermissionError(e.file.response)) {
-              throwError(e.file.response)
-            }
-          } else {
-            notify.info(message)
-          }
-          this.setState({
-            confirmLoading: false
-          })
-        }
+      onRemove: (file) => {
+        this.setState(({ fileList }) => {
+          const index = fileList.indexOf(file);
+          const newFileList = fileList.slice();
+          newFileList.splice(index, 1);
+          return {
+            fileList: newFileList,
+          };
+        });
       }
     };
     return (
       <Modal
         visible={visible}
-        title="上传文件"
+        title="上传附件"
         onCancel={this.cancelModal}
         onOk={this.confirmModal}
         confirmLoading={confirmLoading}
@@ -131,11 +142,11 @@ class WrapDocsModal extends React.Component {
         >
           <FormItem
             {...formItemLayout}
-            label="相关文件"
+            label="相关附件"
           >
             <Upload {...props}>
               <Button type="ghost" style={{ marginRight: 10 }}>
-                添加文件
+                添加附件
               </Button>
               <span className="hintColor">
               如测试用例.xlsx/功能测试.docx...等

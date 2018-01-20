@@ -67,6 +67,10 @@ const menuList_enterprise = [
     name: '服务配置'
   },
   {
+    url: '/app_manage/load_balance',
+    name: '负载均衡'
+  },
+  {
     url: '/app_manage/network_isolation',
     name: '网络隔离'
   },

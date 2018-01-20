@@ -145,11 +145,11 @@ const menusText = defineMessages({
   },
   imageRealName: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.imageRealName',
-    defaultMessage: '镜像名称',
+    defaultMessage: '镜像仓库名称',
   },
   imageStore: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.imageStore',
-    defaultMessage: '镜像仓库',
+    defaultMessage: '镜像仓库组',
   },
   otherImage: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.otherImage',
@@ -161,7 +161,7 @@ const menusText = defineMessages({
   },
   ImageStoreType: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.ImageStoreType',
-    defaultMessage: '仓库类型',
+    defaultMessage: '仓库组类型',
   },
   ImageTagByBranch: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.ImageTagByBranch',
@@ -1265,7 +1265,9 @@ let EditTenxFlowModal = React.createClass({
           imageBuildBody.customTag = values.otherTag;
         }
         if(imageBuildBody.registryType == 3) {
-          imageBuildBody.customRegistry = values.otherImage
+          const [ customRegistry, registryName ] = values.otherImage.split('|')
+          imageBuildBody.customRegistry = customRegistry
+          imageBuildBody.registryName = registryName
         }
         // if (this.state.ImageStoreType) {
         //   imageBuildBody.customRegistry = values.otherStoreUrl;
@@ -1380,7 +1382,15 @@ let EditTenxFlowModal = React.createClass({
       return []
     }
     return otherImage.map(item => {
-      return <Option key={item.id} value={item.id}>{item.title}</Option>
+      const { title, id, type } = item
+      let value = id
+      if (type) {
+        value = `${value}|${type}`
+      }
+      return <Option value={value} key={value}>
+        {title}
+        {type && type !== '3rdparty-registry' && ` (${type})`}
+      </Option>
     })
   },
   getClusterStroageClassType (cluster) {
@@ -1630,6 +1640,9 @@ let EditTenxFlowModal = React.createClass({
       const index = findIndex(this.props.otherImage, item => {
         return item.id == otherImageValue
       })
+      if (config.spec.build.registryName) {
+        otherImageValue += `|${config.spec.build.registryName}`
+      }
       if(index < 0) otherImageValue = ''
     }
     if (this.state.showOtherImage) {
@@ -1749,7 +1762,10 @@ let EditTenxFlowModal = React.createClass({
     });
     const harborProjectProps = getFieldProps('harborProjectName', {
       rules: [
-        { message: '请选择仓库组', required: this.state.otherFlowType == 3 },
+        {
+          message: '请选择仓库组',
+          required: this.state.groupKey == 3 && !this.state.showOtherImage
+        },
       ],
       initialValue: (!!config.spec.build ? config.spec.build.project : null)
     });
@@ -2097,7 +2113,7 @@ let EditTenxFlowModal = React.createClass({
                     <FormItem style={{ float: 'left' }}>
                       <RadioGroup {...getFieldProps('imageType', { initialValue: (!!config.spec.build ? (config.spec.build.registryType + '') : '1'), onChange: this.changeImageStoreType }) }>
                         <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
-                        <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio>
+                        {/* <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio> */}
                         <Radio key='otherImage' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
                       </RadioGroup>
                     </FormItem>
