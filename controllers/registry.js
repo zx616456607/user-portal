@@ -319,20 +319,29 @@ exports.specListRepositories = function* () {
     if (registryConfig.type && registryConfig.type == DockerHubType) {
       const api = new DockerHub(registryConfig)
       const result = yield api.getImageList()
-      if(result && result.results) {
+      /*if(result && result.results) {
         result.repositories = formatDockerHupRepo(result.results)
         delete result.results
-      }
+      }*/
       this.body = result
       return
     }
 
     let specRegistryService = new SpecRegistryService(registryConfig)
     var self = this
-    var result = yield specRegistryService.getCatalog()
-
-    this.status = result.code
-    this.body = result.result
+    var images = yield specRegistryService.getCatalog()
+    let results = []
+    if (images && images.result) {
+      images.result.repositories.forEach(function(name) {
+        results.push({
+          name: name
+        })
+      })
+    }
+    this.status = images.code
+    this.body = {
+      results: results
+    }
   } else {
     logger.info("No matched registry config found ...")
     this.status = 404
@@ -512,15 +521,6 @@ function* _getRegistryServerInfo(session, user, id){
     }
   }
   return serverInfo
-}
-
-function formatDockerHupRepo(repos) {
-  if(repos) {
-    return repos.map(repo => {
-      return `${repo.user}/${repo.name}`
-    })
-  }
-  return[]
 }
 
 function formatDockerHupTags(tags) {

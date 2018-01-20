@@ -128,9 +128,6 @@ module.exports = class DockerHub {
     })
   }
 
-
-
-
   sendRequest(url, options, callback) {
     const defaultOptions = {
       headers: {
@@ -157,7 +154,7 @@ module.exports = class DockerHub {
         }
         const e = new Error("请求镜像仓库错误，错误代码：" + res.statusCode)
         e.status = res.statusCode
-        callback(e.status,e)
+        callback(e.status, e)
       })
       return
     }
