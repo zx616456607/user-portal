@@ -235,15 +235,6 @@ module.exports = function (request) {
         method: 'GET',
       })
     }
-    downloadBigFile(paths, querys, writeStream, options, callback) {
-      let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
-      return request({
-        endpoint,
-        writeStream,
-        options,
-        method: 'GET'
-      })
-    }
   }
   this.create = (collection) => new Collections(collection)
 }
