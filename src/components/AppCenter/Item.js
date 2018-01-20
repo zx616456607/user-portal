@@ -119,6 +119,7 @@ let MyComponent = React.createClass({
         registryName: values.registryName,
         username: values.username || null,
         password: values.passwd || null,
+        type: values.type,
         url: values.url,
       }
       let notification = new NotificationHandler()
@@ -171,13 +172,13 @@ let MyComponent = React.createClass({
       getFieldProps, getFieldError, setFieldsValue, isFieldValidating,
       getFieldValue,
     } = this.props.form;
-    const registryTypeProps = getFieldProps('registryType', {
+    const registryTypeProps = getFieldProps('type', {
       initialValue: 'registry',
       rules: [{ required: true, message: '请选择接入类型' }],
       onChange: e => {
         let url
-        if (e.target.value === 'hub.docker.com') {
-          url = 'https://hub.docker.com'
+        if (e.target.value === 'dockerhub') {
+          url = 'https://index.docker.io'
         }
         setTimeout(() => setFieldsValue({
           url,
@@ -209,13 +210,13 @@ let MyComponent = React.createClass({
     return (
       <div className='modalBox'>
         <div className='alertRow'>
-          第三方仓库接入，支持标准 Docker Registry 和 hub.docker.com 接口（暂不支持 Harbor 等第三方接口）。
+          第三方仓库接入，支持标准 Docker Registry 和 index.docker.io 接口（暂不支持 Harbor 等第三方接口）。
         </div>
         <Form className='addForm' horizontal>
           <FormItem label="接入类型" {...formItemLayout}>
             <RadioGroup {...registryTypeProps}>
               <Radio value="registry">Docker Registry</Radio>
-              <Radio value="hub.docker.com">hub.docker.com</Radio>
+              <Radio value="dockerhub">index.docker.io</Radio>
             </RadioGroup>
           </FormItem>
           <FormItem label="仓库名" {...formItemLayout}>
@@ -225,7 +226,7 @@ let MyComponent = React.createClass({
             <Input
               {...urlProps}
               placeholder="仓库地址"
-              disabled={getFieldValue('registryType') === 'hub.docker.com'}
+              disabled={getFieldValue('type') === 'dockerhub'}
             />
           </FormItem>
           <Alert message="私有仓库需要填写用户名和密码" type="info" showIcon />
@@ -233,7 +234,7 @@ let MyComponent = React.createClass({
             <Input {...nameProps} placeholder="仓库用户名" />
           </FormItem>
           <FormItem label="密码" {...formItemLayout}>
-            <Input {...passwdProps} placeholder="仓库密码" />
+            <Input {...passwdProps} placeholder="仓库密码" type="password" />
           </FormItem>
           <br />
           <div className='btnBox'>
