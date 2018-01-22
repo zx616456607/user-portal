@@ -127,6 +127,12 @@ module.exports = class DockerHub {
       })
     })
   }
+  getDockerHubNamespaces() {
+    const path = `/v2/repositories/namespaces/`
+    return this.sendRequest(this.getRequestUrl(path, DockerHubDomain), {
+      method: "GET"
+    })
+  }
 
 
 
