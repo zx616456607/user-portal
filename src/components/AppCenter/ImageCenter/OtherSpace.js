@@ -280,9 +280,8 @@ function mapStateToProps(state, props) {
       return { name:item }
     })
   }
-  console.log('otherImages', otherImages)
   return {
-    imageList: privateImage || [],
+    imageList: imageList || [],
     imageRow,
     isFetching,
     total,

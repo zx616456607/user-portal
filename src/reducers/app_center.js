@@ -191,15 +191,15 @@ function otherImages(state = {}, action) {
       })
     case ActionTypes.GET_OTHER_LIST_SUCCESS:
       return Object.assign({}, defaultState, state, {
-        [action.id]:{
+        [action.id]: {
           isFetching: false,
-          imageList: action.response.result.repositories || [],
-          bak: action.response.result.repositories
+          imageList: action.response.result.results || [],
+          bak: action.response.result.results
         }
       })
     case ActionTypes.SEARCH_DOCKERHUB_REPOS_SUCCESS:
       return Object.assign({}, defaultState, state, {
-        [action.id]:{
+        [action.id]: {
           isFetching: false,
           total: action.response.result.count,
           imageList: action.response.result.results || [],
