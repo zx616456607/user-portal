@@ -2110,20 +2110,20 @@ let EditTenxFlowModal = React.createClass({
                     <span><FormattedMessage {...menusText.ImageStoreType} /></span>
                   </div>
                   <div className='input imageType'>
-                    <FormItem style={{ float: 'left' }}>
+                    <FormItem>
                       <RadioGroup {...getFieldProps('imageType', { initialValue: (!!config.spec.build ? (config.spec.build.registryType + '') : '1'), onChange: this.changeImageStoreType }) }>
                         <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
                         {/* <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio> */}
                         <Radio key='otherImage' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
                       </RadioGroup>
                     </FormItem>
-                    <FormItem style={{ width:'220px' }}>
-                      <Select {...validOtherImage} style={{display: getFieldProps('imageType').value == '3' ? 'inline-block' : 'none'}}>
+                    <FormItem style={{ width: '220px', display: getFieldProps('imageType').value == '3' ? 'inline-block' : 'none' }}>
+                      <Select {...validOtherImage}>
                         {this.getOtherImage()}
                       </Select>
                     </FormItem>
-                    <FormItem style={{ width: '220px'}}>
-                      <Select {...harborProjectProps} size='large' style={{display: !this.state.showOtherImage ? 'inline-block' : 'none'}}>
+                    <FormItem style={{ width: '220px', display: !this.state.showOtherImage ? 'inline-block' : 'none'}}>
+                      <Select {...harborProjectProps} size='large'>
                         {
                           (this.props.harborProjects.list || []).map(project => {
                             const currentRoleId = project[camelize('current_user_role_id')]

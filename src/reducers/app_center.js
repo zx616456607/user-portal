@@ -187,7 +187,9 @@ function otherImages(state = {}, action) {
     case ActionTypes.GET_OTHER_LIST_REQUEST:
     case ActionTypes.SEARCH_DOCKERHUB_REPOS_REQUEST:
       return merge({}, defaultState, state, {
-        isFetching: true
+        [action.id]: {
+          isFetching: true
+        }
       })
     case ActionTypes.GET_OTHER_LIST_SUCCESS:
       return Object.assign({}, defaultState, state, {

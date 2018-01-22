@@ -21,7 +21,7 @@ const DEFAULT_TIMEOUT = 1000 * 60
 
 
 var TokenCacheMgr = []
-var TokenExpiredTime = 600 // seconds
+var TokenExpiredTime = 300 // seconds
 const DockerHubDomain = 'https://hub.docker.com'
 const DockerRegistry = 'registry.docker.io'
 const Repository_Scope_Prefix = 'repository'
