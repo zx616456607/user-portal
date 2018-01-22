@@ -66,7 +66,10 @@ class GrayscaleUpgradeModal extends React.Component {
       currentImages = JSON.parse(annotations['rollingupdate/target'] || '{}')
       const image = currentImages[0] && currentImages[0].to || ''
       targetTag = this.parseImage(image).tag
-      newCount = parseInt(annotations['rollingupdate/newCount'])
+      newCount = annotations['rollingupdate/newCount'] || 0
+      if (newCount) {
+        newCount = parseInt(newCount)
+      }
     }
     const containers = cloneDeep(service.spec.template.spec.containers)
     containers.map((container, index) => {
@@ -180,7 +183,7 @@ class GrayscaleUpgradeModal extends React.Component {
 
   render() {
     const { onCancel, cluster, service, form, imageTags } = this.props
-    const { containers, newCount, isRollingUpdate, targetTag } = this.state
+    const { containers, newCount, isRollingUpdate, targetTag, confirmLoading } = this.state
     const { getFieldProps, setFieldsValue } = form
     const replicas = service.spec.replicas
     if (this.isPrivateVolume() || replicas < 2) {
@@ -198,7 +201,7 @@ class GrayscaleUpgradeModal extends React.Component {
         { required: true, message: '请选择目标版本数量' }
       ],
       onChange: value => {
-        if (value < this.state.newCount) {
+        if (isRollingUpdate && value < this.state.newCount) {
           value = 0
           setTimeout(() => setFieldsValue({
             newCount: value,
@@ -228,6 +231,7 @@ class GrayscaleUpgradeModal extends React.Component {
         onOk={this.handleSubmit}
         width={600}
         maskClosable={false}
+        confirmLoading={confirmLoading}
         wrapClassName="grayscale-upgrade-modal"
       >
         <div className="alertRow">
