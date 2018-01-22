@@ -21,7 +21,7 @@ const DEFAULT_TIMEOUT = 1000 * 60
 
 
 var TokenCacheMgr = []
-var TokenExpiredTime = 3600 // seconds
+var TokenExpiredTime = 600 // seconds
 const DockerHubDomain = 'https://hub.docker.com'
 const DockerRegistry = 'registry.docker.io'
 const Repository_Scope_Prefix = 'repository'
@@ -128,9 +128,6 @@ module.exports = class DockerHub {
     })
   }
 
-
-
-
   sendRequest(url, options, callback) {
     const defaultOptions = {
       headers: {
@@ -157,7 +154,7 @@ module.exports = class DockerHub {
         }
         const e = new Error("请求镜像仓库错误，错误代码：" + res.statusCode)
         e.status = res.statusCode
-        callback(e.status,e)
+        callback(e.status, e)
       })
       return
     }
