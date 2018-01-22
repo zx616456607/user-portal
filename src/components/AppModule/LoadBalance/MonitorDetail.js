@@ -268,7 +268,7 @@ class MonitorDetail extends React.Component {
               >
                 <Select {...agreementProps}>
                   <Option key="HTTP">HTTP</Option>
-                  <Option key="HTTPS">HTTPS</Option>
+                  <Option key="HTTPS" disabled>HTTPS</Option>
                 </Select>
               </FormItem>
             </Col>
