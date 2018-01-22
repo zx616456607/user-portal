@@ -274,12 +274,6 @@ function mapStateToProps(state, props) {
   const { otherImages} = state.images
   const { imageList, isFetching, total } = otherImages[props.imageId] || defaultPrivateImages
   const { imageRow } = otherImages
-  let privateImage
-  if (imageList) {
-    privateImage = imageList.map(item => {
-      return { name:item }
-    })
-  }
   return {
     imageList: imageList || [],
     imageRow,

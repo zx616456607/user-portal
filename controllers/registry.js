@@ -396,7 +396,7 @@ exports.specGetImageTagInfo = function* () {
     if(registryConfig.type == DockerHubType) {
       const api = new DockerHub(registryConfig)
       const result = yield api.getImageTagInfo(image, tag)
-      this.body = result
+      this.body = result.result
       return
     }
 
