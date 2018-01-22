@@ -1798,7 +1798,7 @@ let CreateTenxFlowModal = React.createClass({
                     <span><FormattedMessage {...menusText.ImageStoreType} /></span>
                   </div>
                   <div className='input imageType'>
-                    <FormItem style={{ float: 'left' }}>
+                    <FormItem>
                       <RadioGroup {...getFieldProps('imageType', { initialValue: '1', onChange: this.changeImageStoreType }) }>
                         <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
                         {/* <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio> */}
@@ -1806,13 +1806,13 @@ let CreateTenxFlowModal = React.createClass({
                       </RadioGroup>
                       <div style={{ clear: 'both' }} />
                     </FormItem>
-                    <FormItem style={{ width: '220px' }}>
-                      <Select showSearch placeholder='请选择自定义仓库' {...validOtherImage} style={{ display: this.state.showOtherImage ? 'inline-block' : 'none' }} dropdownMatchSelectWidth={false}>
+                    <FormItem style={{ width: '220px', display: this.state.showOtherImage ? 'inline-block' : 'none' }}>
+                      <Select showSearch placeholder='请选择自定义仓库' {...validOtherImage} dropdownMatchSelectWidth={false}>
                         {this.getOtherImage()}
                       </Select>
                     </FormItem>
-                    <FormItem style={{ width: '220px' }}>
-                      <Select showSearch placeholder='请选择仓库组' {...harborProjectProps} size='large' style={{ display: !this.state.showOtherImage ? 'inline-block' : 'none' }} dropdownMatchSelectWidth={false}>
+                    <FormItem style={{ width: '220px', display: !this.state.showOtherImage ? 'inline-block' : 'none' }}>
+                      <Select showSearch placeholder='请选择仓库组' {...harborProjectProps} size='large' dropdownMatchSelectWidth={false}>
                         {
                           (this.props.harborProjects.list || []).map(project => {
                             const currentRoleId = project[camelize('current_user_role_id')]

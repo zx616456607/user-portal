@@ -8,8 +8,9 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Spin,Input, Modal, Table } from 'antd'
+import { Menu, Button, Card, Spin, Input, Modal, Table } from 'antd'
 import { Link ,browserHistory} from 'react-router'
+import { camelize } from 'humps'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -58,18 +59,25 @@ const menusText = defineMessages({
 class OtherSpace extends Component {
   constructor(props) {
     super(props);
+    this.loadData = this.loadData.bind(this);
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this);
     this.searchDockerhub = this.searchDockerhub.bind(this);
     this.onTableChange = this.onTableChange.bind(this);
+    this.searchImage = this.searchImage.bind(this);
     this.state = {
       currentImage: null,
-      imageDetailModalShow: false
+      imageDetailModalShow: false,
+      searchInput: null,
     }
   }
 
-  componentWillMount() {
+  loadData() {
     const { getOtherImageList, imageId } = this.props;
     getOtherImageList(imageId);
+  }
+
+  componentWillMount() {
+    this.loadData()
   }
   componentDidUpdate() {
     const { imageId } = this.props
@@ -101,22 +109,33 @@ class OtherSpace extends Component {
       }
     })
   }
-  searchDockerhub(_query) {
+  searchDockerhub(query) {
     const { otherHead, imageId, searchDockerhubRepos } = this.props
-    const query = document.getElementById(imageId).value
-    searchDockerhubRepos(imageId, Object.assign({}, { query }, _query))
+    const defaultQuery = {
+      query: this.state.searchInput,
+      page_size: 10,
+    }
+    searchDockerhubRepos(imageId, Object.assign({}, defaultQuery, query))
   }
-  onTableChange(o) {
-    console.log('o', o)
+  onTableChange(pagination) {
+    const { otherHead } = this.props
+    const { searchInput } = this.state
+    if (otherHead.type === 'dockerhub' && searchInput && searchInput.trim()) {
+      const { current } = pagination
+      this.searchDockerhub({ page: current })
+    }
   }
-  searchImage(e) {
-    const image = document.getElementById(this.props.imageId).value
+  searchImage(image) {
     const otherHead = this.props.otherHead
     if (otherHead.type === 'dockerhub') {
+      if (!image || !image.trim()) {
+        this.loadData()
+        return
+      }
       this.searchDockerhub()
       return
     }
-    this.props.SearchOtherImage(image,this.props.imageId)
+    this.props.SearchOtherImage(image, this.props.imageId)
     // this.props.getOtherImageList(this.props.imageId)
   }
   showImageDetail(imageName) {
@@ -142,62 +161,82 @@ class OtherSpace extends Component {
     const otherHead = this.props.otherHead
     const registryServer = otherHead.url.split('//')[1]
     const total = this.props.total || imageList.length
-    const columns = [{
-      title: '镜像名',
-      dataIndex: 'name',
-      key: 'name',
-      width:'30%',
-      render: (text,row) => {
-        return (
-          <div className="imageList">
-            <div className="imageBox">
-              <svg className='appcenterlogo'>
-                <use xlinkHref='#appcenterlogo' />
-              </svg>
-            </div>
-            <div className="contentBox">
-              <div className="title" onClick={()=> this.showImageDetail(row.name)}>
-                {text}
+    const { searchInput } = this.state
+    // const isSearchDockerhub = otherHead.type === 'dockerhub' && searchInput
+    const columns = [
+      {
+        title: '镜像名',
+        dataIndex: 'name',
+        key: 'name',
+        width:'20%',
+        render: (text, row) => {
+          return (
+            <div className="imageList">
+              <div className="imageBox">
+                <svg className='appcenterlogo'>
+                  <use xlinkHref='#appcenterlogo' />
+                </svg>
               </div>
-              <div className='type'>
-                <FormattedMessage {...menusText.belong} />&nbsp;私有
+              <div className="contentBox">
+                <div className="title" onClick={()=> this.showImageDetail(row.name)}>
+                  {text}
+                </div>
+                <div className='type'>
+                  <FormattedMessage {...menusText.belong} />&nbsp;
+                  {row[camelize('is_private')] ? '私有' : '公有'}
+                </div>
               </div>
             </div>
-          </div>
-        )
-      }
-    }, {
-      title: '地址',
-      dataIndex: 'description',
-      key: 'description',
-      width:'40%',
-      render:(text, row) => {
-        return (
-          <div className="imgurl"><FormattedMessage {...menusText.imageUrl} />{registryServer}/{row.name}</div>
-        )
-      }
-    }, {
-      title: '部署',
-      dataIndex: 'icon',
-      key: 'icon',
-      width:'15%',
-      render: (text, row)=> {
-        const query = {
-          registryServer,
-          imageName: row.name,
-          other: imageId,
+          )
         }
-        if (otherHead.type === 'dockerhub') {
-          query.systemRegistry = 'dockerhub'
+      },
+      {
+        title: '地址',
+        dataIndex: 'description',
+        key: 'description',
+        width:'35%',
+        render:(text, row) => {
+          return (
+            <div className="imgurl"><FormattedMessage {...menusText.imageUrl} />{registryServer}/{row.name}</div>
+          )
         }
-        // registryServer=${registryServer}&imageName=${row.name}&other=${imageId}
-        return (
-          <Button type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/quick_create?${toQuerystring(query)}`)}>
-            <FormattedMessage {...menusText.deployService} />
-          </Button>
-        )
+      },
+      {
+        title: '下载',
+        dataIndex: camelize('pull_count'),
+        key: camelize('pull_count'),
+        width:'15%',
+        render: text => {
+          if (text === undefined) {
+            return ''
+          }
+          return (
+            <div>下载次数：{text}</div>
+          )
+        }
+      },
+      {
+        title: '部署',
+        dataIndex: 'icon',
+        key: 'icon',
+        width:'15%',
+        render: (text, row)=> {
+          const query = {
+            registryServer,
+            imageName: row.name,
+            other: imageId,
+          }
+          if (otherHead.type === 'dockerhub') {
+            query.systemRegistry = 'dockerhub'
+          }
+          // registryServer=${registryServer}&imageName=${row.name}&other=${imageId}
+          return (
+            <Button type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/quick_create?${toQuerystring(query)}`)}>
+              <FormattedMessage {...menusText.deployService} />
+            </Button>
+          )
+        }
       }
-    }
     ];
     return (
       <QueueAnim className='OtherSpace'
@@ -229,35 +268,49 @@ class OtherSpace extends Component {
                 <FormattedMessage {...menusText.logout} />
               </Button>
               <div className="searchBox">
-                <Input size="large" id={imageId} placeholder={formatMessage(menusText.search)} type='text' onPressEnter={()=>this.searchImage()}/>
-                <i className='fa fa-search' onClick={()=>this.searchImage()}></i>
+                <Input
+                  size="large"
+                  id={imageId}
+                  placeholder={formatMessage(menusText.search)}
+                  onPressEnter={e => this.searchImage(e.target.value)}
+                  onChange={e => this.setState({ searchInput: e.target.value.trim() })}
+                />
+                <i className='fa fa-search' onClick={() => this.searchImage(searchInput)}></i>
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
             <Table
+              showHeader={false}
               className="privateImage"
               dataSource={imageList}
               columns={columns}
               pagination={{ simple:true, total }}
               loading={this.props.isFetching}
               onChange={this.onTableChange}
+              rowKey={row => row.name}
             />
             {/*<MyComponent scope={scope} parentScope={this.props.scope.parentScope} isFetching={this.props.isFetching} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.imageList} />*/}
           </Card>
+          {
+            this.state.imageDetailModalShow &&
+            <Modal
+              visible={true}
+              className='AppServiceDetail'
+              transitionName='move-right'
+              onCancel={this.closeImageDetailModal}
+            >
+              <ImageDetailBox scope={scope} server={otherHead.url} parentScope={rootscope} imageId ={this.props.imageId} config={this.state.currentImage} />
+            </Modal>
+          }
+          <Modal title="删除第三方镜像操作" visible={this.state.delModal}
+            onOk={()=> this.deleteImage()} onCancel={()=> this.setState({delModal: false})}
+          >
+            <div className="modalColor">
+              <i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>
+              您是否确定要删除这项操作?
+            </div>
+          </Modal>
         </div>
-        <Modal
-          visible={this.state.imageDetailModalShow}
-          className='AppServiceDetail'
-          transitionName='move-right'
-          onCancel={this.closeImageDetailModal}
-        >
-          <ImageDetailBox scope={scope}  server={otherHead.url} parentScope={rootscope} imageId ={this.props.imageId} config={this.state.currentImage} />
-        </Modal>
-        <Modal title="删除第三方镜像操作" visible={this.state.delModal}
-          onOk={()=> this.deleteImage()} onCancel={()=> this.setState({delModal: false})}
-        >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除这项操作?</div>
-        </Modal>
       </QueueAnim>
     )
   }
