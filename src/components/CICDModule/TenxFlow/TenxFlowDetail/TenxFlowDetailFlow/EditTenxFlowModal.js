@@ -10,6 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, Tooltip, Spin, Popover, Menu, Alert } from 'antd'
 import { Link, browserHistory } from 'react-router'
+import classNames from 'classnames'
 import QueueAnim from 'rc-queue-anim'
 import { camelize } from 'humps'
 import { connect } from 'react-redux'
@@ -31,6 +32,7 @@ import PopTabSelect from '../../../../PopTabSelect'
 import { loadClusterList } from '../../../../../actions/cluster'
 import { getStorageClassType } from '../../../../../actions/storage'
 import { getAllClusterNodes } from '../../../../../actions/cluster_node'
+import { getRegistryNamespaces } from '../../../../../actions/app_center'
 import { isStandardMode } from '../../../../../common/tools'
 import DockerfileModal from '../../../DockerfileModal'
 import AddCachedVolumeModal from '../../CachedVolumes/AddModal'
@@ -449,6 +451,13 @@ let EditTenxFlowModal = React.createClass({
           }
         }
       })
+    }
+    // 获取 registry namespaces
+    if (config.spec.build) {
+      const { registryType, registryName, customRegistry } = config.spec.build
+      if (registryType === 3 && registryName === 'dockerhub') {
+        this.props.getRegistryNamespaces(customRegistry)
+      }
     }
     // 获取脚本
     const scriptsId = config.spec.container.scriptsId
@@ -1268,6 +1277,7 @@ let EditTenxFlowModal = React.createClass({
           const [ customRegistry, registryName ] = values.otherImage.split('|')
           imageBuildBody.customRegistry = customRegistry
           imageBuildBody.registryName = registryName
+          imageBuildBody.project = values.otherImageNS
         }
         // if (this.state.ImageStoreType) {
         //   imageBuildBody.customRegistry = values.otherStoreUrl;
@@ -1525,6 +1535,45 @@ let EditTenxFlowModal = React.createClass({
     })
     return buildClusters
   },
+  renderOtherImageNamespace() {
+    const { form, config, registryNamespaces } = this.props
+    const { getFieldValue, getFieldProps } = form
+    const imageType = getFieldValue('imageType')
+    const otherImage = getFieldValue('otherImage') || ''
+    const [ id, type ] = otherImage.split('|')
+    const nsSelectClass = classNames('other-image-ns', {
+      hide: imageType !== '3' || !otherImage || type !== 'dockerhub'
+    })
+    const nsInputClass = classNames('other-image-ns', {
+      hide: imageType !== '3' || !otherImage || type === 'dockerhub'
+    })
+    const otherImageNSProps = getFieldProps('otherImageNS', {
+      rules: [
+        {
+          required: imageType === '3',
+          message: '请填写或选择命名空间'
+        },
+      ],
+      initialValue: (
+        (!!config.spec.build && config.spec.build.registryType == 3)
+        ? config.spec.build.project
+        : undefined
+      )
+    })
+    const nsList = registryNamespaces[id] && registryNamespaces[id].list || []
+    return [
+      <FormItem className={nsSelectClass} key="select">
+        <Select placeholder="选择命名空间" {...otherImageNSProps}>
+          {
+            nsList.map(ns => <Option key={ns} value={ns}>{ns}</Option>)
+          }
+        </Select>
+      </FormItem>,
+      <FormItem className={nsInputClass} key="input">
+        <Input placeholder="填写命名空间" {...otherImageNSProps} />
+      </FormItem>
+    ]
+  },
   render() {
     const { formatMessage } = this.props.intl;
     const {
@@ -1651,10 +1700,20 @@ let EditTenxFlowModal = React.createClass({
           { message: '请选择镜像仓库' },
           { validator: this.validOtherImage },
         ],
-        initialValue: otherImageValue
+        initialValue: otherImageValue ? otherImageValue : undefined,
+        onChange: id => {
+          const { getRegistryNamespaces } = this.props
+          getRegistryNamespaces(id.split('|')[0])
+          form.setFieldsValue({
+            otherImageNS: undefined
+          })
+        }
       });
     } else {
-      validOtherImage = getFieldProps('otherImage', { rules: [], initialValue: otherImageValue})
+      validOtherImage = getFieldProps('otherImage', {
+        rules: [],
+        initialValue: otherImageValue ? otherImageValue : undefined
+      })
     }
     getFieldProps('services', {
       initialValue: [0],
@@ -1929,7 +1988,7 @@ let EditTenxFlowModal = React.createClass({
               {
                 this.props.isBuildImage ? '' : index === 0 && (
                   <FormItem style={{height: "30px"}}>
-                      <Checkbox {...uniformRepoProps}>当前流水线所有任务（包括新建任务），统一使用该代码库</Checkbox>
+                    <Checkbox {...uniformRepoProps}>当前流水线所有任务（包括新建任务），统一使用该代码库</Checkbox>
                   </FormItem>
                 )
               }
@@ -2118,10 +2177,11 @@ let EditTenxFlowModal = React.createClass({
                       </RadioGroup>
                     </FormItem>
                     <FormItem style={{ width: '220px', display: getFieldProps('imageType').value == '3' ? 'inline-block' : 'none' }}>
-                      <Select {...validOtherImage}>
+                      <Select {...validOtherImage} placeholder="请选择自定义仓库">
                         {this.getOtherImage()}
                       </Select>
                     </FormItem>
+                    {this.renderOtherImageNamespace()}
                     <FormItem style={{ width: '220px', display: !this.state.showOtherImage ? 'inline-block' : 'none'}}>
                       <Select {...harborProjectProps} size='large'>
                         {
@@ -2469,10 +2529,12 @@ function mapStateToProps(state, props) {
     newList.push(project)
   })
   harborProjects.list = newList.concat(visitorList)
+  const registryNamespaces = state.images.registryNamespaces || {}
   return {
     clusters,
     clustersNodes,
     harborProjects,
+    registryNamespaces,
   }
 }
 
@@ -2497,6 +2559,7 @@ export default connect(mapStateToProps, {
   getScriptsById,
   loadRepositoriesTagConfigInfo,
   getStorageClassType,
+  getRegistryNamespaces,
 })(injectIntl(EditTenxFlowModal, {
   withRef: true,
 }));

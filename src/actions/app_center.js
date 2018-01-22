@@ -165,6 +165,29 @@ export function searchDockerhubRepos(id, query, callback) {
   }
 }
 
+export const GET_DOCKER_REGISTRY_NAMESPACES_REQUEST = 'GET_DOCKER_REGISTRY_NAMESPACES_REQUEST'
+export const GET_DOCKER_REGISTRY_NAMESPACES_SUCCESS = 'GET_DOCKER_REGISTRY_NAMESPACES_SUCCESS'
+export const GET_DOCKER_REGISTRY_NAMESPACES_FAILURE = 'GET_DOCKER_REGISTRY_NAMESPACES_FAILURE'
+
+function fetchRegistryNamespaces(id, callback) {
+  let endpoint = `${API_URL_PREFIX}/docker-registry/${id}/namespaces`
+  return {
+    id,
+    [FETCH_API]: {
+      types: [GET_DOCKER_REGISTRY_NAMESPACES_REQUEST, GET_DOCKER_REGISTRY_NAMESPACES_SUCCESS, GET_DOCKER_REGISTRY_NAMESPACES_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function getRegistryNamespaces(id, callback) {
+  return (dispatch) => {
+    return dispatch(fetchRegistryNamespaces(id, callback))
+  }
+}
+
 export const SEARCH_OTHER_LIST_REQUEST = 'SEARCH_OTHER_LIST_REQUEST'
 // Search Other image list getOtherImageList
 export function SearchOtherImage(image,id) {
