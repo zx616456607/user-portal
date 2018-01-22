@@ -451,7 +451,35 @@ exports.searchDockerImages = function*() {
       this.body = result
       return
     }
+    this.status = 400
     this.body = "Not support search"
+  } else {
+    logger.info("No matched registry config found ...")
+    this.status = 404
+    this.body = "Docker Registry not found"
+  }
+}
+
+exports.getDockerHubNamespaces = function*() {
+  const loginUser = this.session.loginUser
+  const registryId = this.params.id
+
+  let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, registryId)
+  // If find the valid registry info
+  if (serverInfo.server) {
+    logger.info("Found the matched registry config ...")
+    // Get the real password before pass to registry service
+    let realPassword = securityUtil.decryptContent(serverInfo.password, loginUser.token, algorithm)
+    let registryConfig = JSON.parse(JSON.stringify(serverInfo))
+    registryConfig.password = realPassword
+    if(registryConfig.type == DockerHubType) {
+      const api = new DockerHub(registryConfig)
+      const result = yield api.getDockerHubNamespaces()
+      this.body = result
+      return
+    }
+    this.status = 400
+    this.body = "Not support"
   } else {
     logger.info("No matched registry config found ...")
     this.status = 404
