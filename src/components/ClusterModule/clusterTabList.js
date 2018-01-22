@@ -229,10 +229,10 @@ class ClusterTabList extends Component {
               />
             </TabPane>
             <TabPane
-              tab={<span className='tablepanediv'>
-                <i className="fa fa-hdd-o storage_icon" aria-hidden="true"></i>
-                集群存储
-              </span>}
+              tab={<div className='tablepanediv'>
+                <i className="fa fa-hdd-o size" aria-hidden="true"/>
+                <span className="tablepanespan">集群存储</span>
+              </div>}
               key="cluster_storage"
             >
               <ClusterStorage
