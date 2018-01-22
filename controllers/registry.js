@@ -295,6 +295,11 @@ exports.getPrivateRegistries = function* () {
   const api = apiFactory.getManagedRegistryApi(loginUser)
   // Get the list of private docker registry
   const result = yield api.get()
+  if (result.data) {
+    result.data.forEach(function(row) {
+      delete row.encrypted_password
+    })
+  }
 
   this.status = result.code
   this.body = {
@@ -319,10 +324,9 @@ exports.specListRepositories = function* () {
     if (registryConfig.type && registryConfig.type == DockerHubType) {
       const api = new DockerHub(registryConfig)
       const result = yield api.getImageList()
-      /*if(result && result.results) {
-        result.repositories = formatDockerHupRepo(result.results)
-        delete result.results
-      }*/
+      if (result && result.results) {
+        result.results = formatDockerHupRepo(result.results, 1)
+      }
       this.body = result
       return
     }
@@ -405,7 +409,7 @@ exports.specGetImageTagInfo = function* () {
     if(registryConfig.type == DockerHubType) {
       const api = new DockerHub(registryConfig)
       const result = yield api.getImageTagInfo(image, tag)
-      this.body = result
+      this.body = result.result
       return
     }
 
@@ -441,10 +445,41 @@ exports.searchDockerImages = function*() {
     if(registryConfig.type == DockerHubType) {
       const api = new DockerHub(registryConfig)
       const result = yield api.searchDockerImage(query, page, pageSize)
+      if (result && result.results) {
+        result.results = formatDockerHupRepo(result.results, 2)
+      }
       this.body = result
       return
     }
+    this.status = 400
     this.body = "Not support search"
+  } else {
+    logger.info("No matched registry config found ...")
+    this.status = 404
+    this.body = "Docker Registry not found"
+  }
+}
+
+exports.getDockerHubNamespaces = function*() {
+  const loginUser = this.session.loginUser
+  const registryId = this.params.id
+
+  let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, registryId)
+  // If find the valid registry info
+  if (serverInfo.server) {
+    logger.info("Found the matched registry config ...")
+    // Get the real password before pass to registry service
+    let realPassword = securityUtil.decryptContent(serverInfo.password, loginUser.token, algorithm)
+    let registryConfig = JSON.parse(JSON.stringify(serverInfo))
+    registryConfig.password = realPassword
+    if(registryConfig.type == DockerHubType) {
+      const api = new DockerHub(registryConfig)
+      const result = yield api.getDockerHubNamespaces()
+      this.body = result
+      return
+    }
+    this.status = 400
+    this.body = "Not support"
   } else {
     logger.info("No matched registry config found ...")
     this.status = 404
@@ -521,6 +556,22 @@ function* _getRegistryServerInfo(session, user, id){
     }
   }
   return serverInfo
+}
+
+function formatDockerHupRepo(repos, type) {
+  if (repos) {
+    repos.forEach(function(repo) {
+      if (type === 1) {
+        // For user images
+        repo.name = repo.namespace + '/' + repo.name
+      } else if (type === 2) {
+        // For searched images
+        repo.name = repo.repo_name
+      }
+    })
+    return repos
+  }
+  return[]
 }
 
 function formatDockerHupTags(tags) {
