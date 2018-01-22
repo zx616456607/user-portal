@@ -64,9 +64,9 @@ exports.getStorelist = function* () {
         return new Date(b.publish_time).getTime() - new Date(a.publish_time).getTime()
       })
     }
-    if (query.app_name && query.app_name === 'd'){
+    if (query.app_name && query.app_name === 'a'){
       result.data.apps.sort((a,b) => {
-        return a.app_name < b.app_name ? 1 : -1
+        return a.app_name > b.app_name ? 1 : -1
       })
     }
     if (query.from && query.size){
