@@ -476,8 +476,7 @@ class Deployment {
   }
 
   setCollectLog(serviceName, item) {
-    this.spec.template.metadata.annotations = this.spec.template.metadata.annotations || {}
-    let annotations = this.spec.template.metadata.annotations
+    const annotations = {}
     let volume = {
       name: item.name,
       emptyDir: {}
@@ -494,6 +493,7 @@ class Deployment {
     }
     annotations["applogs"].push(item)
     annotations["applogs"] = JSON.stringify(annotations["applogs"])
+    this.setAnnotations(annotations)
   }
 
   makeNodeAffinity(labels) {
@@ -523,6 +523,14 @@ class Deployment {
       operator: "In",
       values,
     }
+  }
+
+  setAnnotations(annotations) {
+    this.spec.template.metadata.annotations = Object.assign(
+      {},
+      this.spec.template.metadata.annotations,
+      annotations
+    )
   }
 }
 

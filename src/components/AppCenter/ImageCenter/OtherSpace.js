@@ -13,7 +13,9 @@ import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { DeleteOtherImage, SearchOtherImage, getOtherImageList} from '../../../actions/app_center'
+import {
+  DeleteOtherImage, SearchOtherImage, getOtherImageList, searchDockerhubRepos,
+} from '../../../actions/app_center'
 import './style/OtherSpace.less'
 import ImageDetailBox from './ImageDetail/OtherDetail.js'
 import { toQuerystring } from '../../../common/tools'
@@ -57,6 +59,8 @@ class OtherSpace extends Component {
   constructor(props) {
     super(props);
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this);
+    this.searchDockerhub = this.searchDockerhub.bind(this);
+    this.onTableChange = this.onTableChange.bind(this);
     this.state = {
       currentImage: null,
       imageDetailModalShow: false
@@ -96,14 +100,26 @@ class OtherSpace extends Component {
         isAsync: true
       }
     })
-
+  }
+  searchDockerhub(query) {
+    const { otherHead, imageId, searchDockerhubRepos } = this.props
+    const q = document.getElementById(imageId).value
+    searchDockerhubRepos(imageId, Object.assign({}, { q }, query))
+  }
+  onTableChange(o) {
+    console.log('o', o)
   }
   searchImage(e) {
     const image = document.getElementById(this.props.imageId).value
+    const otherHead = this.props.otherHead
+    if (otherHead.type === 'dockerhub') {
+      this.searchDockerhub()
+      return
+    }
     this.props.SearchOtherImage(image,this.props.imageId)
     // this.props.getOtherImageList(this.props.imageId)
   }
-  showImageDetail (imageName) {
+  showImageDetail(imageName) {
     //this function for user select image and show the image detail info
     this.setState({
       imageDetailModalShow:true,
@@ -113,18 +129,19 @@ class OtherSpace extends Component {
   renderRegistryType(type) {
     switch (type) {
       case 'dockerhub':
-        return 'hub.docker.com'
+        return 'index.docker.io'
       default:
         return 'Docker Registry'
     }
   }
   render() {
     const { formatMessage } = this.props.intl;
-    const { liteFlag, imageId } = this.props;
+    const { liteFlag, imageId, imageList } = this.props;
     const rootscope = this.props.scope;
     const scope = this;
     const otherHead = this.props.otherHead
     const registryServer = otherHead.url.split('//')[1]
+    const total = this.props.total || imageList.length
     const columns = [{
       title: '镜像名',
       dataIndex: 'name',
@@ -217,7 +234,14 @@ class OtherSpace extends Component {
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
-            <Table className="privateImage" dataSource={this.props.imageList} columns={columns} pagination={{simple:true}} loading={this.props.isFetching}/>
+            <Table
+              className="privateImage"
+              dataSource={imageList}
+              columns={columns}
+              pagination={{ simple:true, total }}
+              loading={this.props.isFetching}
+              onChange={this.onTableChange}
+            />
             {/*<MyComponent scope={scope} parentScope={this.props.scope.parentScope} isFetching={this.props.isFetching} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.imageList} />*/}
           </Card>
         </div>
@@ -248,26 +272,21 @@ function mapStateToProps(state, props) {
     imageList: [],
   }
   const { otherImages} = state.images
-  const { imageList, isFetching} = otherImages[props.imageId] || defaultPrivateImages
+  const { imageList, isFetching, total } = otherImages[props.imageId] || defaultPrivateImages
   const { imageRow } = otherImages
-  let privateImage
-  if (imageList) {
-    privateImage = imageList.map(item => {
-      return { name:item }
-    })
-
-  }
   return {
-    imageList: privateImage,
+    imageList: imageList || [],
     imageRow,
     isFetching,
+    total,
   }
 }
 
 export default connect(mapStateToProps,{
   getOtherImageList,
   DeleteOtherImage,
-  SearchOtherImage
+  SearchOtherImage,
+  searchDockerhubRepos,
 })(injectIntl(OtherSpace, {
   withRef: true,
 }))

@@ -185,25 +185,35 @@ function otherImages(state = {}, action) {
         isFetching: false
       })
     case ActionTypes.GET_OTHER_LIST_REQUEST:
+    case ActionTypes.SEARCH_DOCKERHUB_REPOS_REQUEST:
       return merge({}, defaultState, state, {
         isFetching: true
       })
     case ActionTypes.GET_OTHER_LIST_SUCCESS:
       return Object.assign({}, defaultState, state, {
-        [action.id]:{
+        [action.id]: {
           isFetching: false,
-          imageList: action.response.result.repositories || [],
-          bak: action.response.result.repositories
+          imageList: action.response.result.results || [],
+          bak: action.response.result.results
+        }
+      })
+    case ActionTypes.SEARCH_DOCKERHUB_REPOS_SUCCESS:
+      return Object.assign({}, defaultState, state, {
+        [action.id]: {
+          isFetching: false,
+          total: action.response.result.count,
+          imageList: action.response.result.results || [],
         }
       })
     case ActionTypes.GET_OTHER_LIST_FAILURE:
+    case ActionTypes.SEARCH_DOCKERHUB_REPOS_FAILURE:
       return merge({}, defaultState, state, {
         [action.id]:{isFetching: false}
       })
     case ActionTypes.DELETE_OTHER_IMAGE_REQUEST:
       return merge({}, state, {
         isFetching: true
-    })
+      })
     case ActionTypes.DELETE_OTHER_IMAGE_SUCCESS:
       const oldState = cloneDeep(state)
       const Id = action.id
@@ -945,7 +955,7 @@ function wrapDetail(state = {}, action) {
       return merge({}, state, {
         isFetching: false
       })
-    default: 
+    default:
       return state
   }
 }
