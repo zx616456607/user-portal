@@ -101,10 +101,10 @@ class OtherSpace extends Component {
       }
     })
   }
-  searchDockerhub(query) {
+  searchDockerhub(_query) {
     const { otherHead, imageId, searchDockerhubRepos } = this.props
-    const q = document.getElementById(imageId).value
-    searchDockerhubRepos(imageId, Object.assign({}, { q }, query))
+    const query = document.getElementById(imageId).value
+    searchDockerhubRepos(imageId, Object.assign({}, { query }, _query))
   }
   onTableChange(o) {
     console.log('o', o)
