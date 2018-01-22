@@ -47,18 +47,19 @@ class LoadBalanceConfig extends React.Component {
           </span>
         </div>
         <BaseInfo key="baseInfo"/>
-        {
-          tablePart ?
-            <MonitorTable
-              key="monitorTable"
-              togglePart={this.togglePart}
-            />
-            :
-            <MonitorDetail
-              currentMonitor={currentMonitor}
-              togglePart={this.togglePart}
-            />
-        }
+        <div key="tableAndDetail">
+          {
+            tablePart ?
+              <MonitorTable
+                togglePart={this.togglePart}
+              />
+              :
+              <MonitorDetail
+                currentMonitor={currentMonitor}
+                togglePart={this.togglePart}
+              />
+          }
+        </div>
       </QueueAnim>
     )
   }
