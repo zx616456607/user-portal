@@ -295,6 +295,11 @@ exports.getPrivateRegistries = function* () {
   const api = apiFactory.getManagedRegistryApi(loginUser)
   // Get the list of private docker registry
   const result = yield api.get()
+  if (result.data) {
+    result.data.forEach(function(row) {
+      delete row.encrypted_password
+    })
+  }
 
   this.status = result.code
   this.body = {
@@ -319,9 +324,8 @@ exports.specListRepositories = function* () {
     if (registryConfig.type && registryConfig.type == DockerHubType) {
       const api = new DockerHub(registryConfig)
       const result = yield api.getImageList()
-      if(result && result.results) {
-        result.repositories = formatDockerHupRepo(result.results)
-        delete result.results
+      if (result && result.results) {
+        result.results = formatDockerHupRepo(result.results, 1)
       }
       this.body = result
       return
@@ -432,6 +436,9 @@ exports.searchDockerImages = function*() {
     if(registryConfig.type == DockerHubType) {
       const api = new DockerHub(registryConfig)
       const result = yield api.searchDockerImage(query, page, pageSize)
+      if (result && result.results) {
+        result.results = formatDockerHupRepo(result.results, 2)
+      }
       this.body = result
       return
     }
@@ -542,11 +549,18 @@ function* _getRegistryServerInfo(session, user, id){
   return serverInfo
 }
 
-function formatDockerHupRepo(repos) {
-  if(repos) {
-    return repos.map(repo => {
-      return `${repo.user}/${repo.name}`
+function formatDockerHupRepo(repos, type) {
+  if (repos) {
+    repos.forEach(function(repo) {
+      if (type === 1) {
+        // For user images
+        repo.name = repo.namespace + '/' + repo.name
+      } else if (type === 2) {
+        // For searched images
+        repo.name = repo.repo_name
+      }
     })
+    return repos
   }
   return[]
 }
