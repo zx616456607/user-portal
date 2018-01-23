@@ -254,9 +254,8 @@ module.exports = class DockerHub {
 
   getRequestUrl(path, domain) {
     if(domain) {
-      return new url.URL(path, domain).toString()
+      return url.resolve(domain, path)
     }
-    return new url.URL(path, this.config.server).toString()
+    return url.resolve(this.config.server, path)
   }
-
 }
