@@ -356,7 +356,7 @@ class RechargeRecord extends Component {
             </Row>
             <Row style={{ paddingLeft: '22px', height: 35 }}>
               <Col span={4} style={{ color: '#7a7a7a' }}>提醒规则</Col>
-              <Col span={20} style={{ color: '#666666' }}>我的空间可用余额小于&nbsp;
+              <Col span={20} style={{ color: '#666666' }}>我的项目可用余额小于&nbsp;
                 {
                   standard?
                   <span>¥ </span>:
