@@ -223,12 +223,12 @@ export const GET_OTHER_IMAGE_TAGS_SUCCESS = 'GET_OTHER_IMAGE_TAGS_SUCCESS'
 export const GET_OTHER_IMAGE_TAGS_FAILURE = 'GET_OTHER_IMAGE_TAGS_FAILURE'
 
 export function getOtherImageTag(obj, callback) {
-  let urlImageName = encodeImageFullname(obj.imageName)
   return {
+    fullname: obj.imageName,
     registry: obj.registry,
     [FETCH_API]: {
       types: [GET_OTHER_IMAGE_TAGS_REQUEST, GET_OTHER_IMAGE_TAGS_SUCCESS, GET_OTHER_IMAGE_TAGS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.id}/images/${encodeImageFullname(urlImageName)}/tags`,
+      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.id}/images/${encodeImageFullname(obj.imageName)}/tags`,
       schema: Schemas.REGISTRYS
     },
     callback
