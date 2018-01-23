@@ -148,7 +148,7 @@ class OtherSpace extends Component {
   renderRegistryType(type) {
     switch (type) {
       case 'dockerhub':
-        return 'index.docker.io'
+        return 'hub.docker.com'
       default:
         return 'Docker Registry'
     }

@@ -1129,7 +1129,7 @@ let CreateTenxFlowModal = React.createClass({
       }
       return <Option value={value} key={value}>
         {title}
-        {type && type !== '3rdparty-registry' && ` (${type})`}
+        {type && type === 'dockerhub' && ' (hub.docker.com)'}
       </Option>
     })
   },
