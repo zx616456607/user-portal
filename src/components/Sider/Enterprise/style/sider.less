@@ -213,13 +213,33 @@
       height: 45px !important;
       line-height: 45px !important;
       color: #c4c4c4;
+      .forAdmin {
+        margin-top: 18px !important;
+      }
       a {
         width: 100%;
         color: #C4C4C4;
+        span {
+          .start {
+            float: right;
+            margin: 15px 20px 0 0;
+            use {
+              fill: #c4c4c4 !important;
+            }
+          }
+        }
       }
       &:hover {
         a {
           color: #FFFFFF !important;
+          .start {
+            use {
+              fill: #FFFFFF !important;
+            }
+          }
+          use {
+            fill: #FFFFFF;
+          }
         }
         .sideCircle {
           background-color: #FFFFFF;
@@ -250,6 +270,13 @@
       color: #FFFFFF;
       a {
         color: #FFFFFF;
+        span {
+          .start {
+            use {
+              fill: #FFFFFF !important;
+            }
+          }
+        }
       }
       .sideCircle {
         background-color: #FFFFFF;
