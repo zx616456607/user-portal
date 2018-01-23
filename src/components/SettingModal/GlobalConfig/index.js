@@ -585,7 +585,7 @@ let Ftp = React.createClass({
     if (!value) {
       return callback('请输入服务地址')
     }
-    if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+    if (!/^(http:\/\/|https:\/\/|ftp:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
       return callback([new Error('请填入合法的 ftp 地址')])
     }
     callback()
