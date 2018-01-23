@@ -1,3 +1,4 @@
+@import "../../../assets/style/site/core";
 #SecondSider {
   transition: all 0.3s;
   opacity: 1;
@@ -13,6 +14,19 @@
       a {
         color: #333333;
         font-size: 14px;
+        .start {
+          margin-left: 10px;
+          use {
+            fill: #c4c4c4;
+          }
+        }
+      }
+      &:hover {
+        .start {
+          use {
+            fill: @primary-color;
+          }
+        }
       }
     }
   }
@@ -21,6 +35,11 @@
     background-color: #eaf8fe;
     a {
       color: #2db7f5;
+      .start {
+        use {
+          fill: @primary-color;
+        }
+      }
     }
   }
   .ant-menu-item-selected:hover {

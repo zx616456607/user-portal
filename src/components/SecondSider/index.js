@@ -109,7 +109,14 @@ export default class SecondSider extends Component {
     let menuShow = menuList.map((item, index) => {
       return (
         <Menu.Item key={'secondSider' + index}>
-          <Link to={item.url}>{item.name}</Link>
+          <Link to={item.url}>{item.name}
+            {
+              item.admin &&
+              <svg className="start">
+                <use xlinkHref='#start' />
+              </svg>
+            }
+          </Link>
         </Menu.Item>
       )
     })
