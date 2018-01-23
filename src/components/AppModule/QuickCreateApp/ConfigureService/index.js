@@ -649,8 +649,9 @@ function mapStateToProps(state, props) {
   let tags = []
   let tagsIsFetching = false
   if (location.query.other) {
-    tags = otherImageTag.imageTag || []
-    tagsIsFetching = otherImageTag.isFetching
+    const otherImageTags = otherImageTag[location.query.imageName] || {}
+    tags = otherImageTags.imageTag || []
+    tagsIsFetching = otherImageTags.isFetching
   } else {
     if (imageTags[DEFAULT_REGISTRY] && imageTags[DEFAULT_REGISTRY][imageName]) {
       const currentImageTags = imageTags[DEFAULT_REGISTRY][imageName]
