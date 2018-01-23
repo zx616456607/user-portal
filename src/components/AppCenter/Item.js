@@ -216,13 +216,13 @@ let MyComponent = React.createClass({
     return (
       <div className='modalBox'>
         <div className='alertRow'>
-          第三方仓库接入，支持标准 Docker Registry 和 index.docker.io 接口（暂不支持 Harbor 等第三方接口）。
+          第三方仓库接入，支持标准 Docker Registry 和 hub.docker.com 接口（暂不支持 Harbor 等第三方接口）。
         </div>
         <Form className='addForm' horizontal>
           <FormItem label="接入类型" {...formItemLayout}>
             <RadioGroup {...registryTypeProps}>
               <Radio value="3rdparty-registry">Docker Registry</Radio>
-              <Radio value="dockerhub">index.docker.io</Radio>
+              <Radio value="dockerhub">hub.docker.com</Radio>
             </RadioGroup>
           </FormItem>
           <FormItem label="仓库名" {...formItemLayout}>
@@ -237,10 +237,23 @@ let MyComponent = React.createClass({
           </FormItem>
           <Alert message="私有仓库需要填写用户名和密码" type="info" showIcon />
           <FormItem label="用户名" {...formItemLayout}>
-            <Input {...nameProps} placeholder="仓库用户名" />
+            <Input
+              {...nameProps}
+              placeholder={
+                `仓库用户名${getFieldValue('type') === 'dockerhub' && '（暂不支持邮箱）' || ''}`
+              }
+            />
           </FormItem>
           <FormItem label="密码" {...formItemLayout}>
-            <Input {...passwdProps} placeholder="仓库密码" type="password" />
+            <Input
+              {...passwdProps}
+              placeholder="仓库密码"
+              type="password"
+              autoComplete="new-password"
+              readOnly={!!this.state.readOnly}
+              onFocus={() => this.setState({ readOnly: false })}
+              onBlur={() => this.setState({ readOnly: true })}
+            />
           </FormItem>
           <br />
           <div className='btnBox'>
