@@ -21,7 +21,7 @@ const DEFAULT_TIMEOUT = 1000 * 60
 
 
 var TokenCacheMgr = []
-var TokenExpiredTime = 600 // seconds
+var TokenExpiredTime = 300 // seconds
 const DockerHubDomain = 'https://hub.docker.com'
 const DockerRegistry = 'registry.docker.io'
 const Repository_Scope_Prefix = 'repository'
@@ -146,8 +146,8 @@ module.exports = class DockerHub {
     if (options) {
       options = merge(defaultOptions, options)
     }
-    logger.info(`<-- [${options.method || 'GET'}] ${url}`)
-    logger.info(`--> [options]`, options)
+    logger.debug(`<-- [${options.method || 'GET'}] ${url}`)
+    logger.debug(`--> [options]`, options)
     if(callback) {
       urllib.request(url, options, (err, data, res) => {
         if (err) {

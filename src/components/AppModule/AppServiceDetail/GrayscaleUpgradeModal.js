@@ -20,7 +20,7 @@ import { camelize } from 'humps'
 import cloneDeep from 'lodash/cloneDeep'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { loadRepositoriesTags } from '../../../actions/harbor'
-import { rollingUpdateService } from '../../../actions/services'
+import { rollingUpdateService, rollbackUpdateService } from '../../../actions/services'
 import NotificationHandler from '../../Notification'
 import './style/GrayscaleUpgradeModal.less'
 
@@ -66,7 +66,11 @@ class GrayscaleUpgradeModal extends React.Component {
       currentImages = JSON.parse(annotations['rollingupdate/target'] || '{}')
       const image = currentImages[0] && currentImages[0].to || ''
       targetTag = this.parseImage(image).tag
-      newCount = parseInt(annotations['rollingupdate/newCount'])
+      newCount = annotations['rollingupdate/newCount'] || 0
+      if (newCount) {
+        newCount = parseInt(newCount)
+      }
+      this.newCount = newCount
     }
     const containers = cloneDeep(service.spec.template.spec.containers)
     containers.map((container, index) => {
@@ -111,7 +115,7 @@ class GrayscaleUpgradeModal extends React.Component {
   handleSubmit = () => {
     const {
       form, rollingUpdateService, cluster, service, loadServiceList,
-      onCancel, appName,
+      onCancel, appName, rollbackUpdateService,
     } = this.props
     const { validateFields } = form
     validateFields((errors, values) => {
@@ -136,12 +140,18 @@ class GrayscaleUpgradeModal extends React.Component {
         newCount,
       }
       const notification = new NotificationHandler()
-      rollingUpdateService(cluster, serviceName, body, {
+      let action = rollingUpdateService.bind(this, cluster, serviceName, body)
+      let msg = '灰度发布'
+      if (newCount === 0) {
+        action = rollbackUpdateService.bind(this, cluster, serviceName)
+        msg = '发布回滚'
+      }
+      action({
         success: {
           func: () => {
             loadServiceList(cluster, appName)
             setTimeout(function () {
-              notification.success(`服务 ${serviceName} 灰度发布已成功开启`)
+              notification.success(`服务 ${serviceName} ${msg}已成功开启`)
             }, 300)
             onCancel()
           },
@@ -150,7 +160,7 @@ class GrayscaleUpgradeModal extends React.Component {
         failed: {
           func: () => {
             setTimeout(function () {
-              notification.error(`服务 ${serviceName} 开启灰度发布失败`)
+              notification.error(`服务 ${serviceName} 开启${msg}失败`)
             }, 300)
           }
         },
@@ -180,7 +190,7 @@ class GrayscaleUpgradeModal extends React.Component {
 
   render() {
     const { onCancel, cluster, service, form, imageTags } = this.props
-    const { containers, newCount, isRollingUpdate, targetTag } = this.state
+    const { containers, newCount, isRollingUpdate, targetTag, confirmLoading } = this.state
     const { getFieldProps, setFieldsValue } = form
     const replicas = service.spec.replicas
     if (this.isPrivateVolume() || replicas < 2) {
@@ -198,7 +208,7 @@ class GrayscaleUpgradeModal extends React.Component {
         { required: true, message: '请选择目标版本数量' }
       ],
       onChange: value => {
-        if (value < this.state.newCount) {
+        if (isRollingUpdate && value < this.newCount) {
           value = 0
           setTimeout(() => setFieldsValue({
             newCount: value,
@@ -220,6 +230,12 @@ class GrayscaleUpgradeModal extends React.Component {
       labelCol: { span: 4 },
       wrapperCol: { span: 20 },
     }
+    let okText = '确定'
+    if (newCount === 0) {
+      okText = '确认发布回滚'
+    } else if (newCount === replicas) {
+      okText = '确认发布完成'
+    }
     return (
       <Modal
         title="灰度发布"
@@ -228,6 +244,8 @@ class GrayscaleUpgradeModal extends React.Component {
         onOk={this.handleSubmit}
         width={600}
         maskClosable={false}
+        confirmLoading={confirmLoading}
+        okText={okText}
         wrapClassName="grayscale-upgrade-modal"
       >
         <div className="alertRow">
@@ -345,4 +363,5 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   loadRepositoriesTags,
   rollingUpdateService,
+  rollbackUpdateService
 })(Form.create()(GrayscaleUpgradeModal))

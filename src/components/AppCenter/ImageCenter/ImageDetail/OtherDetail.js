@@ -138,7 +138,9 @@ class OtherDetail extends Component {
         </div>
         <div className="tabBox">
           <Tabs className="itemList" defaultActiveKey="1">
-            <TabPane tab={formatMessage(menusText.tag)} key="1"><ImageVersion imageId={this.props.imageId} config={imageDetail} /></TabPane>
+            <TabPane tab={formatMessage(menusText.tag)} key="1">
+              <ImageVersion imageId={this.props.imageId} config={imageDetail} />
+            </TabPane>
           </Tabs>
         </div>
       </div>

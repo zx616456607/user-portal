@@ -162,6 +162,33 @@ function publicImages(state = {}, action) {
   }
 }
 
+function registryNamespaces(state = {}, action) {
+  const { id, type } = action
+  switch (type) {
+    case ActionTypes.GET_DOCKER_REGISTRY_NAMESPACES_REQUEST:
+      return merge({}, state, {
+        [id]: {
+          isFetching: true,
+        },
+      })
+    case ActionTypes.GET_DOCKER_REGISTRY_NAMESPACES_SUCCESS:
+      return merge({}, state, {
+        [id]: {
+          isFetching: false,
+          list: action.response.result.namespaces,
+        },
+      })
+    case ActionTypes.GET_DOCKER_REGISTRY_NAMESPACES_FAILURE:
+      return merge({}, state, {
+        [id]: {
+          isFetching: false,
+        },
+      })
+    default:
+      break;
+  }
+}
+
 function otherImages(state = {}, action) {
   const defaultState = {
     isFetching: false,
@@ -187,7 +214,9 @@ function otherImages(state = {}, action) {
     case ActionTypes.GET_OTHER_LIST_REQUEST:
     case ActionTypes.SEARCH_DOCKERHUB_REPOS_REQUEST:
       return merge({}, defaultState, state, {
-        isFetching: true
+        [action.id]: {
+          isFetching: true
+        }
       })
     case ActionTypes.GET_OTHER_LIST_SUCCESS:
       return Object.assign({}, defaultState, state, {
@@ -277,6 +306,7 @@ export function images(state = { publicImages: {} }, action) {
     publicImages: publicImages(state.publicImages, action),
     fockImages: fockImagesList(state.fockImages, action),
     otherImages: otherImages(state.otherImages, action),
+    registryNamespaces: registryNamespaces(state.registryNamespaces, action),
     imagesInfo: imagesInfo(state.imagesInfo, action),
     stackCenter: stackList(state.stackCenter, action),
     createStack: createStack(state.createStack, action),

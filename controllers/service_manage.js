@@ -285,7 +285,7 @@ exports.autoScaleService = function* () {
     err.status = 400
     throw err
   }
-  
+
   if (cpu && (isNaN(cpu) || cpu < 1 || cpu > INSTANCE_AUTO_SCALE_MAX_CPU)) {
     const err = new Error(`cpu is between 1 and ${INSTANCE_AUTO_SCALE_MAX_CPU}.`)
     err.status = 400
@@ -298,7 +298,7 @@ exports.autoScaleService = function* () {
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  let result 
+  let result
   if (operationType === 'create') {
     result = yield api.createBy([cluster, 'services', serviceName, 'autoscale'], null, { min, max, cpu ,memory, scale_strategy_name, alert_strategy, alert_group, type })
   } else {
@@ -417,6 +417,19 @@ exports.rollingUpdateService = function* () {
     cluster,
     serviceName,
     targets,
+    data: result
+  }
+}
+
+exports.rollbackUpdateService = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'upgrade', 'services', serviceName, 'rollbackupdate'])
+  this.body = {
+    cluster,
+    serviceName,
     data: result
   }
 }
