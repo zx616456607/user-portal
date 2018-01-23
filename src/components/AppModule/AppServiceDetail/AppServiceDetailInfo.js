@@ -455,7 +455,8 @@ class BindNodes extends Component {
       return null
     }
     const affinity = spec.affinity
-    const labels = affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms.reduce(
+    const requiredDSIE = affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution
+    const labels = requiredDSIE && requiredDSIE.nodeSelectorTerms.reduce(
       (expressions, term) => expressions.concat(term.matchExpressions), []).reduce(
       (labels, expression) => {
         expression.values.map((value, index) => {
