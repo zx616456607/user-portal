@@ -175,6 +175,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/quota', serviceController.changeServiceQuota)
   router.put('/clusters/:cluster/services/:service_name/ha', serviceController.changeServiceHa)
   router.put('/clusters/:cluster/services/:service_name/rollingupdate', serviceController.rollingUpdateService)
+  router.put('/clusters/:cluster/services/:service_name/rollbackupdate', serviceController.rollbackUpdateService)
   router.get('/clusters/:cluster/replicaset/:service_name/events', serviceController.getReplicasetDetailEvents)
   router.get('/clusters/:cluster/dbservice/:service_name/events', serviceController.getDbServiceDetailEvents)
   router.get('/clusters/:cluster/service/:service_name/pods/events', serviceController.getPodsEventByServicementName)
@@ -388,7 +389,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/metric/monitor', manageMonitorController.getMetrics)
   router.get('/clusters/:cluster/proxies/:id/services', manageMonitorController.getProxiesServices)
   router.get('/clusters/:cluster/metric/nexport/:lbgroup/service/:services/metrics', manageMonitorController.getMonitorMetrics)
-  
+
   // DevOps service: CI/CD
   router.get('/devops/stats', devopsController.getStats)
   // Repos
@@ -641,7 +642,7 @@ module.exports = function (Router) {
   router.post('/pkg/:id/docs', pkgController.uploadDocs)
   router.post('/pkg/:id/docs/batch-delete', pkgController.deleteDocs)
   router.get('/pkg/:id/docs/download', pkgController.downloadDocs)
-  
+
   // VM wrap
   router.post('/vm-wrap/services', vmWrapController.createService)
   router.get('/vm-wrap/services', vmWrapController.listServices)

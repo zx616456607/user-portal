@@ -730,7 +730,6 @@ export function changeQuotaService(cluster, serviceName, body, callback) {
   }
 }
 
-
 export const SERVICE_ROLLING_UPDATE_REQUEST = 'SERVICE_ROLLING_UPDATE_REQUEST'
 export const SERVICE_ROLLING_UPDATE_SUCCESS = 'SERVICE_ROLLING_UPDATE_SUCCESS'
 export const SERVICE_ROLLING_UPDATE_FAILURE = 'SERVICE_ROLLING_UPDATE_FAILURE'
@@ -756,6 +755,29 @@ export function rollingUpdateService(cluster, serviceName, body, callback) {
   }
 }
 
+export const SERVICE_ROLLBACK_UPDATE_REQUEST = 'SERVICE_ROLLBACK_UPDATE_REQUEST'
+export const SERVICE_ROLLBACK_UPDATE_SUCCESS = 'SERVICE_ROLLBACK_UPDATE_SUCCESS'
+export const SERVICE_ROLLBACK_UPDATE_FAILURE = 'SERVICE_ROLLBACK_UPDATE_FAILURE'
+
+function fetchRollbackUpdateService(cluster, serviceName, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_ROLLBACK_UPDATE_REQUEST, SERVICE_ROLLBACK_UPDATE_SUCCESS, SERVICE_ROLLBACK_UPDATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/rollbackupdate`,
+      options: {
+        method: 'PUT',
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function rollbackUpdateService(cluster, serviceName, callback) {
+  return (dispath) => {
+    return dispath(fetchRollbackUpdateService(cluster, serviceName, callback))
+  }
+}
 
 // Get all service
 export const SERVICE_GET_ALL_LIST_REQUEST = 'SERVICE_GET_ALL_LIST_REQUEST'

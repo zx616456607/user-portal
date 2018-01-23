@@ -137,16 +137,18 @@ let MyComponent = React.createClass({
             scope.setState({
               createModalShow: false
             });
-            scope.props.LoadOtherImage({
-              success: {
-                func: (res) => {
-                  scope.setState({
-                    otherImageHead: res.data
-                  })
-                  self.props.form.resetFields()
+            setTimeout(() => {
+              scope.props.LoadOtherImage({
+                success: {
+                  func: (res) => {
+                    scope.setState({
+                      otherImageHead: res.data
+                    })
+                    self.props.form.resetFields()
+                  }
                 }
-              }
-            })
+              })
+            }, 100)
           },
           isAsync: true
         },
@@ -275,7 +277,7 @@ class ImageCenter extends Component {
   }
   setItem(type,other) {
     other = other || {}
-    this.setState({itemType:type,other})
+    this.setState({itemType:type, other})
     if (type=='private') {
       browserHistory.push('/app_center/projects')
       return
@@ -343,22 +345,31 @@ class ImageCenter extends Component {
     const { otherImageHead, other, itemType } = this.state
     const _this = this
     const OtherItem = otherImageHead.map(item => {
-      return (<span key={item.title} className={ other.title == item.title ?'tab active':'tab'} onClick={()=> this.setItem('other',item)}>
-        {
-          item.type === 'dockerhub'
-          ? <img src={DockerImg} className="docker-icon" />
-          : <Icon type='shopping-cart' />
-        }
-        &nbsp;{item.title}
-      </span>)
+      return (
+        <span
+          key={item.id}
+          className={ other.id === item.id ? 'tab active':'tab'}
+          onClick={()=> this.setItem('other', item)}
+        >
+          {
+            item.type === 'dockerhub'
+            ? <img src={DockerImg} className="docker-icon" />
+            : <Icon type='shopping-cart' />
+          }
+          &nbsp;{item.title}
+        </span>
+      )
     })
     if (OtherItem.length >0) {
       OtherItem.unshift(<span className="otherName">第三方仓库：</span>)
     }
     let tempImageList = otherImageHead.map((list, index) => {
       return (
-        <TabPane tab={<span>{list.title}</span>} key={list.title}>
-          <OtherSpace scope={_this} otherHead={list} imageId={list.id} />
+        <TabPane tab={<span>{list.title}</span>} key={list.id}>
+          {
+            other.id === list.id &&
+            <OtherSpace scope={_this} otherHead={list} imageId={list.id} />
+          }
         </TabPane>
       )
     })
@@ -393,7 +404,7 @@ class ImageCenter extends Component {
             <Tabs
               key='ImageCenterTabs'
               className="otherStore"
-              activeKey={other.title}
+              activeKey={other.id}
               >
               {tempImageList}
             </Tabs>

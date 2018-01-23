@@ -78,8 +78,10 @@ class OtherServiceApi extends Component {
     if (!configList || configList =='') return (<div>无</div>)
     if (isFetching) {
       return (
-        <Card className='loadingBox'>
-          <Spin size='large' />
+        <Card>
+          <div className="loadingBox">
+            <Spin size='large' />
+          </div>
         </Card>
       )
     }
