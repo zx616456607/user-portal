@@ -227,6 +227,12 @@ function otherImages(state = {}, action) {
         }
       })
     case ActionTypes.SEARCH_DOCKERHUB_REPOS_SUCCESS:
+      action.response.result.results &&
+      action.response.result.results.forEach(image => {
+        if (image.name.indexOf('/') < 0) {
+          image.name = `library/${image.name}`
+        }
+      })
       return Object.assign({}, defaultState, state, {
         [action.id]: {
           isFetching: false,
@@ -530,10 +536,14 @@ function getOtherImageTag(state = {}, action) {
     isFetching: false,
     imageTag: ''
   }
+  const { fullname } = action
   switch (action.type) {
     case ActionTypes.GET_OTHER_IMAGE_TAGS_REQUEST:
       return merge({}, defaultState, state, {
-        isFetching: true
+        [fullname]: {
+          isFetching: true,
+          imageTag: null,
+        }
       })
     case ActionTypes.GET_OTHER_IMAGE_TAGS_SUCCESS:
       const LATEST = 'latest'
@@ -544,12 +554,16 @@ function getOtherImageTag(state = {}, action) {
         data.unshift(LATEST)
       }
       return Object.assign({}, state, {
-        isFetching: false,
-        imageTag: data || null
+        [fullname]: {
+          isFetching: false,
+          imageTag: data || null
+        }
       })
     case ActionTypes.GET_OTHER_IMAGE_TAGS_FAILURE:
       return merge({}, defaultState, state, {
-        isFetching: false
+        [fullname]: {
+          isFetching: false,
+        }
       })
     default:
       return state

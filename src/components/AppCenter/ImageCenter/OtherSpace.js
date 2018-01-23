@@ -294,17 +294,17 @@ class OtherSpace extends Component {
             />
             {/*<MyComponent scope={scope} parentScope={this.props.scope.parentScope} isFetching={this.props.isFetching} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.imageList} />*/}
           </Card>
-          {
-            this.state.imageDetailModalShow &&
-            <Modal
-              visible={true}
-              className='AppServiceDetail'
-              transitionName='move-right'
-              onCancel={this.closeImageDetailModal}
-            >
+          <Modal
+            visible={this.state.imageDetailModalShow}
+            className='AppServiceDetail'
+            transitionName='move-right'
+            onCancel={this.closeImageDetailModal}
+          >
+            {
+              this.state.imageDetailModalShow &&
               <ImageDetailBox scope={scope} server={otherHead.url} parentScope={rootscope} imageId ={this.props.imageId} config={this.state.currentImage} />
-            </Modal>
-          }
+            }
+          </Modal>
           <Modal title="删除第三方镜像操作" visible={this.state.delModal}
             onOk={()=> this.deleteImage()} onCancel={()=> this.setState({delModal: false})}
           >
