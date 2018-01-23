@@ -162,6 +162,33 @@ function publicImages(state = {}, action) {
   }
 }
 
+function registryNamespaces(state = {}, action) {
+  const { id, type } = action
+  switch (type) {
+    case ActionTypes.GET_DOCKER_REGISTRY_NAMESPACES_REQUEST:
+      return merge({}, state, {
+        [id]: {
+          isFetching: true,
+        },
+      })
+    case ActionTypes.GET_DOCKER_REGISTRY_NAMESPACES_SUCCESS:
+      return merge({}, state, {
+        [id]: {
+          isFetching: false,
+          list: action.response.result.namespaces,
+        },
+      })
+    case ActionTypes.GET_DOCKER_REGISTRY_NAMESPACES_FAILURE:
+      return merge({}, state, {
+        [id]: {
+          isFetching: false,
+        },
+      })
+    default:
+      break;
+  }
+}
+
 function otherImages(state = {}, action) {
   const defaultState = {
     isFetching: false,
@@ -185,25 +212,43 @@ function otherImages(state = {}, action) {
         isFetching: false
       })
     case ActionTypes.GET_OTHER_LIST_REQUEST:
+    case ActionTypes.SEARCH_DOCKERHUB_REPOS_REQUEST:
       return merge({}, defaultState, state, {
-        isFetching: true
+        [action.id]: {
+          isFetching: true
+        }
       })
     case ActionTypes.GET_OTHER_LIST_SUCCESS:
       return Object.assign({}, defaultState, state, {
-        [action.id]:{
+        [action.id]: {
           isFetching: false,
-          imageList: action.response.result.repositories || [],
-          bak: action.response.result.repositories
+          imageList: action.response.result.results || [],
+          bak: action.response.result.results
+        }
+      })
+    case ActionTypes.SEARCH_DOCKERHUB_REPOS_SUCCESS:
+      action.response.result.results &&
+      action.response.result.results.forEach(image => {
+        if (image.name.indexOf('/') < 0) {
+          image.name = `library/${image.name}`
+        }
+      })
+      return Object.assign({}, defaultState, state, {
+        [action.id]: {
+          isFetching: false,
+          total: action.response.result.count,
+          imageList: action.response.result.results || [],
         }
       })
     case ActionTypes.GET_OTHER_LIST_FAILURE:
+    case ActionTypes.SEARCH_DOCKERHUB_REPOS_FAILURE:
       return merge({}, defaultState, state, {
         [action.id]:{isFetching: false}
       })
     case ActionTypes.DELETE_OTHER_IMAGE_REQUEST:
       return merge({}, state, {
         isFetching: true
-    })
+      })
     case ActionTypes.DELETE_OTHER_IMAGE_SUCCESS:
       const oldState = cloneDeep(state)
       const Id = action.id
@@ -267,6 +312,7 @@ export function images(state = { publicImages: {} }, action) {
     publicImages: publicImages(state.publicImages, action),
     fockImages: fockImagesList(state.fockImages, action),
     otherImages: otherImages(state.otherImages, action),
+    registryNamespaces: registryNamespaces(state.registryNamespaces, action),
     imagesInfo: imagesInfo(state.imagesInfo, action),
     stackCenter: stackList(state.stackCenter, action),
     createStack: createStack(state.createStack, action),
@@ -490,10 +536,14 @@ function getOtherImageTag(state = {}, action) {
     isFetching: false,
     imageTag: ''
   }
+  const { fullname } = action
   switch (action.type) {
     case ActionTypes.GET_OTHER_IMAGE_TAGS_REQUEST:
       return merge({}, defaultState, state, {
-        isFetching: true
+        [fullname]: {
+          isFetching: true,
+          imageTag: null,
+        }
       })
     case ActionTypes.GET_OTHER_IMAGE_TAGS_SUCCESS:
       const LATEST = 'latest'
@@ -504,12 +554,16 @@ function getOtherImageTag(state = {}, action) {
         data.unshift(LATEST)
       }
       return Object.assign({}, state, {
-        isFetching: false,
-        imageTag: data || null
+        [fullname]: {
+          isFetching: false,
+          imageTag: data || null
+        }
       })
     case ActionTypes.GET_OTHER_IMAGE_TAGS_FAILURE:
       return merge({}, defaultState, state, {
-        isFetching: false
+        [fullname]: {
+          isFetching: false,
+        }
       })
     default:
       return state
@@ -945,7 +999,7 @@ function wrapDetail(state = {}, action) {
       return merge({}, state, {
         isFetching: false
       })
-    default: 
+    default:
       return state
   }
 }

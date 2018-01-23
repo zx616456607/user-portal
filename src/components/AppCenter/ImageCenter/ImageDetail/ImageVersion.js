@@ -111,7 +111,7 @@ class ImageVersion extends Component {
     const imageId = this.props.imageId
     const imageDetail = this.props.config;
     const config = { imageName: image, id: imageId }
-   
+
     if (typeof imageDetail === "string") {
       const config = { imageName: image, id: imageId }
       getOtherImageTag(config)
@@ -121,13 +121,16 @@ class ImageVersion extends Component {
   }
 
   render() {
-    const { isFetching } = this.props;
+    let isFetching = this.props.isFetching
     const imageDetail = this.props.config;
     let tagList = {
       "tagList": this.props.imageDetailTag
     };
     if (this.props.imageId) {
-      tagList = { 'tagList': this.props.otherDetailTag }
+      tagList = {
+        'tagList': this.props.otherImageTags
+      }
+      isFetching = this.props.otherImageTagsIsFetching
     }
     return (
       <Card className="ImageVersion">
@@ -143,19 +146,21 @@ function mapStateToProps(state, props) {
     registry: DEFAULT_REGISTRY,
     tag: [],
   }
-  const { imageTag, otherImageTag} = state.getImageTag
+  const { imageTag, otherImageTag } = state.getImageTag
   let targetImageTag
   if (imageTag[DEFAULT_REGISTRY]) {
     targetImageTag = imageTag[DEFAULT_REGISTRY][props.config.name]
   }
   const { registry, tag, isFetching, server} = targetImageTag || defaultImageDetailTag
-  const otherDetailTag = otherImageTag.imageTag || []
+  const fullname = props.config.name ? props.config.name : props.config
+  const otherImageTags = otherImageTag && otherImageTag[fullname] || {}
   return {
     registry,
     registryServer: server,
     imageDetailTag: tag,
     isFetching,
-    otherDetailTag,
+    otherImageTags: otherImageTags.imageTag || [],
+    otherImageTagsIsFetching: otherImageTag.isFetching,
   }
 }
 

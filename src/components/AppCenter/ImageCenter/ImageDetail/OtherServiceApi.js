@@ -74,12 +74,14 @@ class OtherServiceApi extends Component {
     loadOtherDetailTagConfig(config);
   }
   render() {
-    const { isFetching, configList , sizeInfo} = this.props;
+    const { isFetching, configList , sizeInfo } = this.props;
     if (!configList || configList =='') return (<div>无</div>)
     if (isFetching) {
       return (
-        <Card className='loadingBox'>
-          <Spin size='large' />
+        <Card>
+          <div className="loadingBox">
+            <Spin size='large' />
+          </div>
         </Card>
       )
     }
@@ -112,7 +114,7 @@ class OtherServiceApi extends Component {
         )
       });
     }
-    let size = sizeInfo.totalSize;
+    let size = sizeInfo && sizeInfo.totalSize;
     let unit = ' K'
     if (size > 1024) {
       size = Math.ceil(size /1024)

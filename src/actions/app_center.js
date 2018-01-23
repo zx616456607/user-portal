@@ -139,6 +139,55 @@ export function getOtherImageList(id) {
   }
 }
 
+export const SEARCH_DOCKERHUB_REPOS_REQUEST = 'SEARCH_DOCKERHUB_REPOS_REQUEST'
+export const SEARCH_DOCKERHUB_REPOS_SUCCESS = 'SEARCH_DOCKERHUB_REPOS_SUCCESS'
+export const SEARCH_DOCKERHUB_REPOS_FAILURE = 'SEARCH_DOCKERHUB_REPOS_FAILURE'
+
+function fetchSearchDockerhubRepos(id, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/docker-registry/${id}/images/search`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    id,
+    [FETCH_API]: {
+      types: [SEARCH_DOCKERHUB_REPOS_REQUEST, SEARCH_DOCKERHUB_REPOS_SUCCESS, SEARCH_DOCKERHUB_REPOS_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function searchDockerhubRepos(id, query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchSearchDockerhubRepos(id, query, callback))
+  }
+}
+
+export const GET_DOCKER_REGISTRY_NAMESPACES_REQUEST = 'GET_DOCKER_REGISTRY_NAMESPACES_REQUEST'
+export const GET_DOCKER_REGISTRY_NAMESPACES_SUCCESS = 'GET_DOCKER_REGISTRY_NAMESPACES_SUCCESS'
+export const GET_DOCKER_REGISTRY_NAMESPACES_FAILURE = 'GET_DOCKER_REGISTRY_NAMESPACES_FAILURE'
+
+function fetchRegistryNamespaces(id, callback) {
+  let endpoint = `${API_URL_PREFIX}/docker-registry/${id}/namespaces`
+  return {
+    id,
+    [FETCH_API]: {
+      types: [GET_DOCKER_REGISTRY_NAMESPACES_REQUEST, GET_DOCKER_REGISTRY_NAMESPACES_SUCCESS, GET_DOCKER_REGISTRY_NAMESPACES_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function getRegistryNamespaces(id, callback) {
+  return (dispatch) => {
+    return dispatch(fetchRegistryNamespaces(id, callback))
+  }
+}
+
 export const SEARCH_OTHER_LIST_REQUEST = 'SEARCH_OTHER_LIST_REQUEST'
 // Search Other image list getOtherImageList
 export function SearchOtherImage(image,id) {
@@ -174,12 +223,12 @@ export const GET_OTHER_IMAGE_TAGS_SUCCESS = 'GET_OTHER_IMAGE_TAGS_SUCCESS'
 export const GET_OTHER_IMAGE_TAGS_FAILURE = 'GET_OTHER_IMAGE_TAGS_FAILURE'
 
 export function getOtherImageTag(obj, callback) {
-  let urlImageName = encodeImageFullname(obj.imageName)
   return {
+    fullname: obj.imageName,
     registry: obj.registry,
     [FETCH_API]: {
       types: [GET_OTHER_IMAGE_TAGS_REQUEST, GET_OTHER_IMAGE_TAGS_SUCCESS, GET_OTHER_IMAGE_TAGS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.id}/images/${encodeImageFullname(urlImageName)}/tags`,
+      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.id}/images/${encodeImageFullname(obj.imageName)}/tags`,
       schema: Schemas.REGISTRYS
     },
     callback
