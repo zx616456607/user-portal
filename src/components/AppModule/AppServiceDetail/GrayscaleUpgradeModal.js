@@ -14,7 +14,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import {
   Modal, Form, Select, InputNumber, Tooltip, Icon, Tag,
-  Row, Col, Slider,
+  Row, Col, Slider, Button,
 } from 'antd'
 import { camelize } from 'humps'
 import cloneDeep from 'lodash/cloneDeep'
@@ -230,10 +230,10 @@ class GrayscaleUpgradeModal extends React.Component {
       labelCol: { span: 4 },
       wrapperCol: { span: 20 },
     }
-    let okText = '确定'
-    if (newCount === 0) {
+    let okText = '确 定'
+    if (isRollingUpdate && newCount === 0) {
       okText = '确认发布回滚'
-    } else if (newCount === replicas) {
+    } else if (isRollingUpdate && newCount === replicas) {
       okText = '确认发布完成'
     }
     return (
@@ -244,9 +244,22 @@ class GrayscaleUpgradeModal extends React.Component {
         onOk={this.handleSubmit}
         width={600}
         maskClosable={false}
-        confirmLoading={confirmLoading}
-        okText={okText}
         wrapClassName="grayscale-upgrade-modal"
+        footer={[
+          <Button key="back" type="ghost" size="large" onClick={onCancel}>
+          取 消
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            size="large"
+            loading={confirmLoading}
+            onClick={this.handleSubmit}
+            disabled={!isRollingUpdate && newCount === 0}
+          >
+            {okText}
+          </Button>,
+        ]}
       >
         <div className="alertRow">
           灰度发布，应用新老版本之间的平滑过渡，发布新版本时不直接替换旧版本，经过一段时间的版本共存来灰度验证。
