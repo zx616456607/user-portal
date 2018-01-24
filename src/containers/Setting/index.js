@@ -33,8 +33,7 @@ const menuList_sysAdmin = [
   },
   {
     url: '/setting/license',
-    name: '授权管理',
-    admin: true
+    name: '授权管理'
   },
   {
     url: '/setting/API',
@@ -42,20 +41,16 @@ const menuList_sysAdmin = [
   },
   {
     url: '/setting/globalConfig',
-    name: '全局配置',
-    admin: true
+    name: '全局配置'
   },{
     url: '/setting/advancedSetting',
-    name: '高级设置',
-    admin: true
+    name: '高级设置'
   },{
     url:'/setting/personalized',
-    name:'个性外观',
-    admin: true
+    name:'个性外观'
   },{
     url:'/setting/cleaningTool',
-    name:'清理工具',
-    admin: true
+    name:'清理工具'
   }
 ]
 
