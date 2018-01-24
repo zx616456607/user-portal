@@ -37,28 +37,32 @@ let CreateVMListModal = React.createClass({
     this.setState({
       verification: true
     })
-    scope.props.checkVMUser(query, {
-      success: {
-        func: res => {
-          if (res.statusCode === 200) {
+    return new Promise((resolve, reject) => {
+      scope.props.checkVMUser(query, {
+        success: {
+          func: res => {
+            if (res.statusCode === 200) {
+              resolve()
+              this.setState({
+                Prompt: true,
+                isShow: true,
+                verification: false
+              })
+            }
+          }
+        },
+        failed: {
+          func: err => {
+            reject(err)
+            notification.error('验证信息异常')
             this.setState({
-              Prompt: true,
+              Prompt: false,
               isShow: true,
               verification: false
             })
           }
         }
-      },
-      failed: {
-        func: err => {
-          notification.error('验证信息异常')
-          this.setState({
-            Prompt: false,
-            isShow: true,
-            verification: false
-          })
-        }
-      }
+      })
     })
   },
   handleAdd() {
@@ -69,17 +73,28 @@ let CreateVMListModal = React.createClass({
     }
     form.validateFields(validateArr, (errors, values) => {
       if (errors !== null) return
+      this.setState({
+        confirmLoading: true
+      })
       let List = {
         host: form.getFieldValue('host'),
         account: values.account,
         password: values.password
       }
-      this.handleSub()
-      onSubmit(List)
-      scope.setState({
-        visible: false
+      this.handleSub().then(() => {
+        onSubmit(List)
+        scope.setState({
+          visible: false
+        })
+        this.setState({
+          confirmLoading: false
+        })
+        form.resetFields()
+      }).catch(() => {
+        this.setState({
+          confirmLoading: false
+        })
       })
-      form.resetFields()
     })
   },
   handleClose() {
@@ -162,6 +177,7 @@ let CreateVMListModal = React.createClass({
     }, ASYNC_VALIDATOR_TIMEOUT)
   },
   render() {
+    const { confirmLoading } = this.state
     const formItemLayout = {
       labelCol: { span: 5 },
       wrapperCol: { span: 17 }
@@ -239,6 +255,7 @@ let CreateVMListModal = React.createClass({
             key="submit"
             type="primary"
             size="large"
+            loading={confirmLoading}
             onClick={() => this.handleAdd()}>
             保 存
           </Button>,
