@@ -15,6 +15,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { Row, Col, Form, Input, Button, Icon, Select, Popover, Alert  } from 'antd'
 import QueueAnim from 'rc-queue-anim'
+import isEmpty from 'lodash/isEmpty'
 import './style/traditionEnv.less'
 import classNames from 'classnames'
 import { checkVMUser, getVMinfosList } from '../../../../actions/vm_wrap'
@@ -33,9 +34,18 @@ class TraditionEnv extends Component{
       activeBtn: 'new'
     }
   }
+  componentWillMount() {
+    this.getVMList()
+  }
   componentWillUnmount() {
     clearTimeout(this.failedTime)
     clearTimeout(this.successTime)
+  }
+  checkHostExist(host) {
+    const { vmList } = this.props
+    let flag
+    flag = !isEmpty(vmList) ? vmList.some(item => item.host === host) : false
+    return flag
   }
   checkHost(rules,value,callback) {
     const { scope } = this.props;
@@ -47,6 +57,9 @@ class TraditionEnv extends Component{
     if (reg.test(value) !== true) {
       callback([new Error('请输入正确IP地址')])
       return
+    }
+    if (this.checkHostExist(value)) {
+      return callback('该环境已经存在，请直接在已导入环境中选择')
     }
     scope.setState({
       host:value

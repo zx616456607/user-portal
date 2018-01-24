@@ -549,11 +549,13 @@ class WrapComopnent extends React.Component {
       imageDetailModalShow, offshelfId, detailModal, currentWrap
     } = this.state
     let server
-    let node
+    let version
+    let imageName
     let tagArr = []
     if (currentImage) {
       server = currentImage.resourceLink && currentImage.resourceLink.split('/')[0]
-      node = currentImage.resourceLink && currentImage.resourceLink.split('/')[1]
+      imageName = currentImage.resourceName && currentImage.resourceName
+      version = currentImage.versions && currentImage.versions[0].tag
       Object.assign(currentImage, { name: currentImage.resourceName, pullCount: currentImage.downloadTimes, creationTime: currentImage.publishTime })
       tagArr = currentImage && currentImage.versions && currentImage.versions.map(item => <Option key={item.iD}>{item.tag}</Option>)
     }
@@ -604,11 +606,11 @@ class WrapComopnent extends React.Component {
         >
           <p>在本地 docker 环境中输入以下命令，就可以 pull 一个镜像到本地了</p>
           <pre className="codeSpan">
-            {`sudo docker pull ${server && server}/${node && node}/<image name>:<tag>`}
+            {`sudo docker pull ${currentImage && currentImage.resourceLink}:${version}`}
           </pre>
           <p>为了在本地方便使用，下载后可以修改tag为短标签，比如：</p>
           <pre className="codeSpan">
-            {`sudo docker tag  ${server && server}/${node && node}/hello-world:latest ${node && node}/hello-world:latest`}
+            {`sudo docker tag  ${currentImage && currentImage.resourceLink}:${version} ${imageName}:${version}`}
             </pre>
         </Modal>
         <Modal

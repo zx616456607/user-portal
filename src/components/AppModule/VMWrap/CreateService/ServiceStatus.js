@@ -111,19 +111,19 @@ class ServiceStatus extends Component{
             label="初始化超时"
             {...formItemLayout}
           >
-            <InputNumber size="large" {...initTimeout} style={{width: '100%'}}/><span className="second">s</span>
+            <InputNumber size="large" {...initTimeout} style={{width: '100%'}} min={0}/><span className="second">s</span>
           </FormItem>
           <FormItem
             label="常规检查超时"
             {...formItemLayout}
           >
-            <InputNumber size="large" {...ruleTimeout} style={{width: '100%'}}/><span className="second">s</span>
+            <InputNumber size="large" {...ruleTimeout} style={{width: '100%'}} min={0}/><span className="second">s</span>
           </FormItem>
           <FormItem
             label="间隔检查超时"
             {...formItemLayout}
           >
-            <InputNumber size="large" {...intervalTimeout} style={{width: '100%'}}/><span className="second">s</span>
+            <InputNumber size="large" {...intervalTimeout} style={{width: '100%'}} min={0}/><span className="second">s</span>
           </FormItem>
         </Form>
       </div>
