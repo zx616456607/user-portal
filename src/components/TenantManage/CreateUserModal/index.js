@@ -215,7 +215,7 @@ let CreateUserModal = React.createClass({
       <Modal title="创建新成员" visible={visible}
         onOk={this.handleOk} onCancel={this.handleCancel}
         wrapClassName="NewMemberForm"
-        width="500px"
+        width="500px" maskClosable={false}
         footer={[
           <Button
             key="back"

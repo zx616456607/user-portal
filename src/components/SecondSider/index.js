@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Menu } from 'antd'
+import { Menu, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import "./style/SecondSider.less"
 
@@ -109,14 +109,7 @@ export default class SecondSider extends Component {
     let menuShow = menuList.map((item, index) => {
       return (
         <Menu.Item key={'secondSider' + index}>
-          <Link to={item.url}>{item.name}
-            {
-              item.admin &&
-              <svg className="start">
-                <use xlinkHref='#start' />
-              </svg>
-            }
-          </Link>
+          <Link to={item.url}>{item.name}</Link>
         </Menu.Item>
       )
     })

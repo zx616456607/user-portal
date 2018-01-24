@@ -38,8 +38,7 @@ const menuList = [
 ]
 const wrapCheck = {
   url: '/app_center/wrap_check',
-  name: '发布审核',
-  admin: true
+  name: '发布审核'
 }
 const admin_menuList = menuList.concat(wrapCheck)
 
