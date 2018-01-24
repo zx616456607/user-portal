@@ -233,6 +233,7 @@ class ReleaseAppModal extends React.Component {
         className="publishModal"
         title="发布到应用包商店"
         visible={visible}
+        maskClosable={false}
         onOk={this.confirmModal.bind(this)}
         onCancel={this.cancelModal.bind(this)}
         footer={this.renderFooter()}
