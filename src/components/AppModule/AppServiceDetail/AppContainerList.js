@@ -90,14 +90,14 @@ const MyComponent = React.createClass({
             <Checkbox checked={this.checkedFunc(item.id)} onChange={()=>this.onchange(item.id)}></Checkbox>
           </div>)*/}
           <div className="name commonData" style={{ marginLeft: 24 }} >
-            {
-              isRollingUpdate &&
-              <Tag className={isNew ? 'new-tag' : 'old-tag'}>
-               {isNew ? 'new' : 'old'}
-              </Tag>
-            }
-            <Tooltip placement="topLeft" title={item.metadata.name} >
+            <Tooltip placement="topLeft" title={item.metadata.name}>
               <Link to={`/app_manage/container/${item.metadata.name}`}>
+                {
+                  isRollingUpdate &&
+                  <Tag className={isNew ? 'new-tag' : 'old-tag'}>
+                  {isNew ? 'new' : 'old'}
+                  </Tag>
+                }
                 {item.metadata.name}
               </Link>
             </Tooltip>

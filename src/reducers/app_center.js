@@ -271,9 +271,9 @@ function otherImages(state = {}, action) {
         newState[action.id].imageList = newState[action.id].bak
         return newState
       }
-      const temp = state[action.id].bak.filter(list => {
+      const temp = state[action.id].bak.filter(image => {
         const search = new RegExp(imageName)
-        if (search.test(list)) {
+        if (search.test(image.name)) {
           return true
         }
         return false
