@@ -23,7 +23,7 @@ const FormItem = Form.Item;
 const Panel = Collapse.Panel;
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
-import { checkServiceExists, createVMservice } from '../../../../actions/vm_wrap'
+import { checkServiceExists, createVMservice, checkVMUser } from '../../../../actions/vm_wrap'
 import { validateK8sResourceForServiceName } from '../../../../common/naming_validation'
 
 class VMServiceCreate extends React.Component {
@@ -42,10 +42,6 @@ class VMServiceCreate extends React.Component {
       env:[],
       isNewEnv: true
     }
-  }
-
-  onChange(key) {
-
   }
   changeEnv(flag) {
     this.setState({
@@ -89,16 +85,32 @@ class VMServiceCreate extends React.Component {
       })
     },ASYNC_VALIDATOR_TIMEOUT)
   }
+  checkHost(infos) {
+    const { checkVMUser } = this.props
+    return new Promise((resolve, reject) => {
+      checkVMUser(infos,{
+        success: {
+          func: () => {
+            resolve()
+          }
+        },
+        failed: {
+          func: err => {
+            reject(err)
+          }
+        }
+      })
+    })
+  }
   createService() {
-    const { createVMservice, form } = this.props;
+    const { form } = this.props;
     const { validateFields } = form;
-    const { host, account, password, address, init, normal, interval, packages, env, isNewEnv } = this.state;
+    const { host, account, password, packages, env, isNewEnv } = this.state;
     let notify = new NotificationHandler()
     let obj = {}
     for (let i = 0; i < env.length; i++) {
       obj[Object.keys(env[i])] = Object.values(env[i])[0]
     }
-    let serviceName = form.getFieldValue('serviceName')
     let validateArr = ['checkAddress','initTimeout','ruleTimeout','intervalTimeout']
     if (isNewEnv) {
       validateArr = validateArr.concat(['envIP','userName','password'])
@@ -112,43 +124,70 @@ class VMServiceCreate extends React.Component {
       if (!packages.length) {
         return notify.info('请选择部署包')
       }
-      const { checkAddress } = values
+      this.setState({
+        confirmLoading: true
+      })
       let vminfo = {
         host,
         account,
         password
       }
-      createVMservice({
-        name: serviceName,
-        vminfo: isNewEnv ? vminfo : Number(values.host),
-        healthcheck:{
-          check_address:checkAddress,
-          init_timeout:init,
-          normal_timeout:normal,
-          interval
+      if (isNewEnv) {
+        this.checkHost(vminfo).then(() => {
+          this.createAction(vminfo, values, obj)
+        }).catch(() => {
+          notify.close()
+          notify.warn('传统环境测试连接失败，请重新填写')
+          this.setState({
+            confirmLoading: false
+          })
+        })
+        return
+      }
+      this.createAction(vminfo, values, obj)
+    })
+  }
+  createAction(vminfo, values, obj) {
+    const { createVMservice, form } = this.props;
+    const { init, normal, interval, packages, isNewEnv } = this.state;
+    let serviceName = form.getFieldValue('serviceName')
+    let notify = new NotificationHandler()
+    createVMservice({
+      name: serviceName,
+      vminfo: isNewEnv ? vminfo : Number(values.host),
+      healthcheck:{
+        check_address:values.checkAddress,
+        init_timeout:init,
+        normal_timeout:normal,
+        interval
+      },
+      packages:packages,
+      envs:obj
+    },{
+      success: {
+        func: () => {
+          notify.success('创建应用成功')
+          form.resetFields()
+          browserHistory.push('/app_manage/vm_wrap')
+          this.setState({
+            confirmLoading: false
+          })
         },
-        packages:packages,
-        envs:obj
-      },{
-        success: {
-          func: res => {
-            notify.success('创建应用成功')
-            form.resetFields()
-            browserHistory.push('/app_manage/vm_wrap')
-          },
-          isAsync: true
+        isAsync: true
+      },
+      failed: {
+        func: res => {
+          this.setState({
+            confirmLoading: false
+          })
+          if (res && res.statusCode === 409) {
+            notify.error('相关资源已经存在，请修改后重试')
+            return
+          }
+          notify.error('创建应用失败')
         },
-        failed: {
-          func: res => {
-            if (res && res.statusCode === 409) {
-              notify.error('相关资源已经存在，请修改后重试')
-              return
-            }
-            notify.error('创建应用失败')
-          },
-          isAsync: true
-        }
-      })
+        isAsync: true
+      }
     })
   }
   cancelCreate = () => {
@@ -157,7 +196,7 @@ class VMServiceCreate extends React.Component {
     browserHistory.push('/app_manage/vm_wrap')
   }
   render() {
-    const { currentPacket } = this.state
+    const { currentPacket, confirmLoading } = this.state
     const { getFieldProps } = this.props.form;
     return (
       <QueueAnim
@@ -183,7 +222,7 @@ class VMServiceCreate extends React.Component {
                 })} placeholder="请输入应用名称"/>
               </FormItem>
             </Form>
-            <Collapse defaultActiveKey={['env','status','packet']} onChange={this.onChange}>
+            <Collapse defaultActiveKey={['env','status','packet']}>
               <Panel header={this.renderPanelHeader('传统环境')} key="env">
                 <TraditionEnv scope={this} form={this.props.form} changeEnv={this.changeEnv.bind(this)}/>
               </Panel>
@@ -195,7 +234,7 @@ class VMServiceCreate extends React.Component {
               </Panel>
             </Collapse>
             <div className="btnBox clearfix">
-              <Button type="primary" size="large" className="pull-right" onClick={this.createService.bind(this)}>创建</Button>
+              <Button type="primary" size="large" className="pull-right" loading={confirmLoading} onClick={this.createService.bind(this)}>创建</Button>
               <Button size="large" className="pull-right" onClick={this.cancelCreate}>取消</Button>
             </div>
           </Card>
@@ -213,5 +252,6 @@ function mapStateToProps(state, props) {
 }
 export default connect(mapStateToProps, {
   checkServiceExists,
-  createVMservice
+  createVMservice,
+  checkVMUser
 })(Form.create()(VMServiceCreate))
