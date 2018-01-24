@@ -64,8 +64,7 @@ class Tenant extends Component {
     if (role === ROLE_SYS_ADMIN) {
       menuListToShow.push({
         url: '/tenant_manage/ldap',
-        name: '集成企业目录',
-        admin: true
+        name: '集成企业目录'
       })
     }
     return (
