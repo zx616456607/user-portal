@@ -65,7 +65,7 @@ class VMServiceList extends React.Component {
         func: res => {
           if (res.statusCode === 400){
             this.pageAndSerch(null,1,true)
-            notify.error(res.message)
+            notify.warn('传统应用环境已被删除（或无法连接），请重新添加部署环境\n')
             return
           }
           this.pageAndSerch(null,1,true)
