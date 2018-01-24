@@ -655,16 +655,18 @@ class WrapDetailModal extends React.Component {
               </div>
             </div>
           </TabPane>
-          <TabPane
-            key="docs"
-            tab="相关附件"
-            disabled={isWrapStore}
-          >
-            <Button type="primary" size="large" icon="upload" onClick={() => this.setState({docsModal: true})}>上传附件</Button>
-            <div className="docsBox">
-              {this.renderDocsList()}
-            </div>
-          </TabPane>
+          {
+            !isWrapStore ?
+            <TabPane
+              key="docs"
+              tab="相关附件"
+            >
+              <Button type="primary" size="large" icon="upload" onClick={() => this.setState({docsModal: true})}>上传附件</Button>
+              <div className="docsBox">
+                {this.renderDocsList()}
+              </div>
+            </TabPane> : <TabPane key="none"/>
+          }
         </Tabs>
       </Modal>
     )
