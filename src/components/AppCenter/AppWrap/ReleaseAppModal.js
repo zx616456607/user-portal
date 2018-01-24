@@ -91,12 +91,12 @@ class ReleaseAppModal extends React.Component {
       if (pkgIcon) {
         Object.assign(body, { pkgIcon })
       }
-      notify.spin('发布中')
+      notify.spin('提交审核中')
       auditWrap(id, body, {
         success: {
           func: () => {
             notify.close()
-            notify.success('发布成功')
+            notify.success('提交审核成功')
             callback()
             this.setState({
               visible: false,
