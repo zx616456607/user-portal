@@ -171,7 +171,8 @@ class ReleaseAppModal extends React.Component {
         {
           validator: this.checkDesc
         }
-      ]
+      ],
+      initialValue: currentApp ? currentApp.description : ''
     })
     let headers = {}
     if (space && space.userName) {
