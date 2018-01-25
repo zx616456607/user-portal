@@ -404,6 +404,7 @@ class PublishModal extends React.Component {
           className="imagePublishModal"
           title="发布"
           visible={visible}
+          maskClosable={false}
           onOk={this.confirmModal}
           onCancel={this.cancelModal}
           footer={this.renderFooter()}

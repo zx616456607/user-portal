@@ -380,7 +380,7 @@ class WrapListTable extends Component {
       render: text => text ? text : '-'
     }
     const publishStatus = {
-      title: '应用商店',
+      title: '状态',
       dataIndex: 'publishStatus',
       key: 'publishStatus',
       width: '10%',
@@ -388,7 +388,7 @@ class WrapListTable extends Component {
     }
     const columns = [
       {
-        title: '包名称',
+        title: '应用包名称',
         dataIndex: 'fileName',
         key: 'name',
         width: isWrapManage ? '10%' : '20%',

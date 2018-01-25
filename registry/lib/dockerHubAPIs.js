@@ -146,8 +146,8 @@ module.exports = class DockerHub {
     if (options) {
       options = merge(defaultOptions, options)
     }
-    logger.info(`<-- [${options.method || 'GET'}] ${url}`)
-    logger.info(`--> [options]`, options)
+    logger.debug(`<-- [${options.method || 'GET'}] ${url}`)
+    logger.debug(`--> [options]`, options)
     if(callback) {
       urllib.request(url, options, (err, data, res) => {
         if (err) {
@@ -251,9 +251,8 @@ module.exports = class DockerHub {
 
   getRequestUrl(path, domain) {
     if(domain) {
-      return new url.URL(path, domain).toString()
+      return url.resolve(domain, path)
     }
-    return new url.URL(path, this.config.server).toString()
+    return url.resolve(this.config.server, path)
   }
-
 }

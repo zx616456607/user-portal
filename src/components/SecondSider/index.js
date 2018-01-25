@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Menu } from 'antd'
+import { Menu, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import "./style/SecondSider.less"
 

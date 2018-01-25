@@ -568,9 +568,16 @@ class Sider extends Component {
                   </Menu.Item>
                   {role === ROLE_SYS_ADMIN ?
                     <Menu.Item key='wrap_check'>
-                      <Link to='/app_center/wrap_check'>
-                        <span><div className='sideCircle'/> 发布审核</span>
-                      </Link>
+                      <div className="adminBox">
+                        <Tooltip title="仅系统管理员可见">
+                          <svg className="start forAdmin">
+                            <use xlinkHref='#start' />
+                          </svg>
+                        </Tooltip>
+                        <Link to='/app_center/wrap_check'>
+                        <span>发布审核</span>
+                        </Link>
+                      </div>
                     </Menu.Item> : <Menu.Item key="none-setting" style={{ display: 'none' }}/>
                   }
                   <div className='sline'/>
@@ -795,9 +802,18 @@ class Sider extends Component {
                   </Menu.Item>
                   {role == ROLE_SYS_ADMIN ?
                     <Menu.Item key='ldap'>
-                      <Link to='/tenant_manage/ldap'>
-                        <span><div className='sideCircle'></div> 集成企业目录</span>
-                      </Link>
+                      <div className="adminBox">
+                        <Tooltip title="仅系统管理员可见">
+                          <svg className="start forAdmin">
+                            <use xlinkHref='#start' />
+                          </svg>
+                        </Tooltip>
+                        <Link to='/tenant_manage/ldap'>
+                          <span>
+                            集成企业目录
+                          </span>
+                        </Link>
+                      </div>
                     </Menu.Item> : <Menu.Item key="none-ldap" style={{ display: 'none' }}></Menu.Item>
                   }
                   <div className='sline'></div>
@@ -820,9 +836,18 @@ class Sider extends Component {
                   </Menu.Item>
                   {role == ROLE_SYS_ADMIN ?
                     <Menu.Item key='license'>
-                      <Link to='/setting/license'>
-                        <span><div className='sideCircle'></div> 授权管理</span>
-                      </Link>
+                      <div className="adminBox">
+                        <Tooltip title="仅系统管理员可见">
+                          <svg className="start forAdmin">
+                            <use xlinkHref='#start' />
+                          </svg>
+                        </Tooltip>
+                        <Link to='/setting/license'>
+                          <span>
+                            授权管理
+                          </span>
+                        </Link>
+                      </div>
                     </Menu.Item> : <Menu.Item key="none-setting" style={{ display: 'none' }}></Menu.Item>
                   }
                   <Menu.Item key='API'>
@@ -832,24 +857,60 @@ class Sider extends Component {
                   </Menu.Item>
                   {role == ROLE_SYS_ADMIN ?
                     [<Menu.Item key='globalConfig'>
-                      <Link to='/setting/globalConfig'>
-                        <span><div className='sideCircle' style={{marginRight:'18px'}}></div>全局配置</span>
-                      </Link>
+                      <div className="adminBox">
+                        <Tooltip title="仅系统管理员可见">
+                          <svg className="start forAdmin">
+                            <use xlinkHref='#start' />
+                          </svg>
+                        </Tooltip>
+                        <Link to='/setting/globalConfig'>
+                          <span>
+                            全局配置
+                          </span>
+                        </Link>
+                      </div>
                     </Menu.Item>,
                     <Menu.Item key='advancedSetting'>
-                      <Link to='/setting/advancedSetting'>
-                        <span><div className='sideCircle' style={{marginRight:'18px'}}></div>高级设置</span>
-                      </Link>
+                      <div className="adminBox">
+                        <Tooltip title="仅系统管理员可见">
+                          <svg className="start forAdmin">
+                            <use xlinkHref='#start' />
+                          </svg>
+                        </Tooltip>
+                        <Link to='/setting/advancedSetting'>
+                          <span>
+                            高级设置
+                          </span>
+                        </Link>
+                      </div>
                     </Menu.Item>,
                     <Menu.Item key='personalized'>
-                      <Link to='/setting/personalized'>
-                    <span><div className='sideCircle'></div> 个性外观</span>
-                    </Link>
+                      <div className="adminBox">
+                        <Tooltip title="仅系统管理员可见">
+                          <svg className="start forAdmin">
+                            <use xlinkHref='#start' />
+                          </svg>
+                        </Tooltip>
+                        <Link to='/setting/personalized'>
+                          <span>
+                            个性外观
+                          </span>
+                        </Link>
+                      </div>
                     </Menu.Item>,
                     <Menu.Item key='cleaningTool'>
-                      <Link to='/setting/cleaningTool'>
-                        <span><div className='sideCircle'></div> 清理工具</span>
-                      </Link>
+                      <div className="adminBox">
+                        <Tooltip title="仅系统管理员可见">
+                          <svg className="start forAdmin">
+                            <use xlinkHref='#start' />
+                          </svg>
+                        </Tooltip>
+                        <Link to='/setting/cleaningTool'>
+                          <span>
+                            清理工具
+                          </span>
+                        </Link>
+                      </div>
                     </Menu.Item>
                     ]
                     :

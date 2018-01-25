@@ -25,9 +25,9 @@ class MonitorChartTemp extends React.Component {
     }
   }
   
-  componentDidMount() {
-    const { currentChart, monitorMetrics } = this.props
-    isEmpty(monitorMetrics.data) && this.getMetrics(this.props)
+  componentWillMount() {
+    const { currentChart } = this.props
+    this.getMetrics(this.props)
     this.setState({
       unit: currentChart.unit || '个'
     })
@@ -36,7 +36,7 @@ class MonitorChartTemp extends React.Component {
   componentWillReceiveProps(nextProps) {
     const { timeRange: oldRange } = this.props
     const { timeRange: newRange } = nextProps
-    if (oldRange[0] !== newRange[0]) {
+    if (oldRange[0] !== newRange[0] || oldRange[1] !== newRange[1]) {
       this.getMetrics(nextProps)
     }
   }

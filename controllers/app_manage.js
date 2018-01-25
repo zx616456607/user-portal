@@ -34,7 +34,7 @@ exports.createApp = function* () {
   // app.desc = yaml.dump(app.desc)
   const loginUser = this.session.loginUser
   let api = apiFactory.getK8sApi(loginUser)
-  if (!app.appPkgID){
+  if (!app.appPkgID || Object.keys(app.appPkgID).length === 0 ){
     api = apiFactory.getK8sApi(loginUser)
   }else{
     api = apiFactory.getApi(loginUser).pkg

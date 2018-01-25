@@ -168,7 +168,7 @@ class OtherSpace extends Component {
         title: '镜像名',
         dataIndex: 'name',
         key: 'name',
-        width:'20%',
+        width:'30%',
         render: (text, row) => {
           return (
             <div className="imageList">
@@ -202,16 +202,19 @@ class OtherSpace extends Component {
         }
       },
       {
-        title: '下载',
+        title: '统计信息',
         dataIndex: camelize('pull_count'),
         key: camelize('pull_count'),
         width:'15%',
-        render: text => {
+        render: (text, row) => {
           if (text === undefined) {
             return ''
           }
           return (
-            <div>下载次数：{text}</div>
+            <div>
+              下载次数：{row[camelize('pull_count')]} <br/>
+              评价星级：{row[camelize('star_count')]}
+            </div>
           )
         }
       },

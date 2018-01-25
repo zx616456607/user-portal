@@ -213,13 +213,52 @@
       height: 45px !important;
       line-height: 45px !important;
       color: #c4c4c4;
+      .adminBox {
+        .start {
+          use {
+            fill: #C4C4C4 !important;
+          }
+        }
+        .forAdmin {
+          margin: 0 12px 0 -2px;
+        }
+        a {
+          display: inline-block;
+          color: #C4C4C4;
+        }
+      }
       a {
         width: 100%;
         color: #C4C4C4;
+        span {
+          .start {
+            use {
+              fill: #C4C4C4 !important;
+            }
+          }
+          .forAdmin {
+            margin: 0 12px 0 -2px;
+          }
+        }
       }
       &:hover {
+        .adminBox {
+          .start {
+            use {
+              fill: #FFFFFF !important;
+            }
+          }
+        }
         a {
           color: #FFFFFF !important;
+          .start {
+            use {
+              fill: #FFFFFF !important;
+            }
+          }
+          use {
+            fill: #FFFFFF;
+          }
         }
         .sideCircle {
           background-color: #FFFFFF;
@@ -247,7 +286,19 @@
       }
     }
     .ant-menu-item-selected {
-      color: #FFFFFF;
+      .adminBox {
+        color: #FFF;
+        .start {
+          use {
+            fill: #FFFFFF !important;
+          }
+        }
+        a {
+          span {
+            color: #FFF;
+          }
+        }
+      }
       a {
         color: #FFFFFF;
       }

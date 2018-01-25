@@ -497,6 +497,7 @@ class VMList extends React.Component {
             <Modal
               title={"删除传统环境"}
               visible={this.state.isDelVisible}
+              onCancel={() => this.handleClose()}
               footer={[
                 <Button key="back" size="large" type="ghost" onClick={() => this.handleClose()}>  取 消 </Button>,
                 <Button key="submit" size="large" type="primary" onClick={() => this.handleDel()}> 确 定 </Button>,
