@@ -225,8 +225,8 @@ class WrapManage extends Component {
     return template.map((item,index) => {
       let name = item.name.split('/')[1]
       return (
-        <Button type="ghost" key={index} disabled={ !window.WrapListTable || disabled.some(list=> list === index)} style={{border:0}}>
-        <div className="template" key={item.name} onClick={()=> this.changTemplate(index,item)}>
+        <Button type="ghost" key={index} onClick={()=> this.changTemplate(index,item)} disabled={ !window.WrapListTable || disabled.some(list=> list === index)} style={{border:0}}>
+        <div className="template" key={item.name}>
           <img src={`${item.imageUrl}`} />
           {defaultTemplate == index?
           [<span className="triangle" key={index+1}></span>,
