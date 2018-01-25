@@ -412,12 +412,22 @@ exports.rollingUpdateService = function* () {
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'upgrade', 'services', serviceName, 'rollingupdate'], null, targets)
-  this.body = {
-    cluster,
-    serviceName,
-    targets,
-    data: result
+  if(targets.onlyRollingUpdate) {
+    const result = yield api.updateBy([cluster, 'upgrade', 'services', serviceName, 'rollingupdate'], null, targets)
+    this.body = {
+      cluster,
+      serviceName,
+      targets,
+      data: result
+    }
+  } else {
+    const result = yield api.updateBy([cluster, 'upgrade', 'services', serviceName, 'grayrelease'], null, targets)
+    this.body = {
+      cluster,
+      serviceName,
+      targets,
+      data: result
+    }
   }
 }
 
