@@ -66,6 +66,7 @@ class OtherSpace extends Component {
     this.searchImage = this.searchImage.bind(this);
     this.state = {
       currentImage: null,
+      currentImageConfig: null,
       imageDetailModalShow: false,
       searchInput: null,
     }
@@ -138,11 +139,12 @@ class OtherSpace extends Component {
     this.props.SearchOtherImage(image, this.props.imageId)
     // this.props.getOtherImageList(this.props.imageId)
   }
-  showImageDetail(imageName) {
+  showImageDetail(imageName, row) {
     //this function for user select image and show the image detail info
     this.setState({
       imageDetailModalShow:true,
-      currentImage:imageName
+      currentImage: imageName,
+      currentImageConfig: row,
     });
   }
   renderRegistryType(type) {
@@ -178,7 +180,7 @@ class OtherSpace extends Component {
                 </svg>
               </div>
               <div className="contentBox">
-                <div className="title" onClick={()=> this.showImageDetail(row.name)}>
+                <div className="title" onClick={()=> this.showImageDetail(row.name, row)}>
                   {text}
                 </div>
                 <div className='type'>
@@ -306,7 +308,14 @@ class OtherSpace extends Component {
           >
             {
               this.state.imageDetailModalShow &&
-              <ImageDetailBox scope={scope} server={otherHead.url} parentScope={rootscope} imageId ={this.props.imageId} config={this.state.currentImage} />
+              <ImageDetailBox
+                scope={scope}
+                server={otherHead.url}
+                parentScope={rootscope}
+                imageId ={this.props.imageId}
+                config={this.state.currentImage}
+                imageConfig={this.state.currentImageConfig}
+              />
             }
           </Modal>
           <Modal title="删除第三方镜像操作" visible={this.state.delModal}
