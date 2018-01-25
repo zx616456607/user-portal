@@ -214,7 +214,7 @@ let MyComponent = React.createClass({
         {
           required: false,
           message: '请输入用户名',
-          validator: this.requiredCheck.bind('请输入用户名')
+          validator: this.requiredCheck.bind(this, '请输入用户名')
         }
       ],
     });
@@ -223,7 +223,7 @@ let MyComponent = React.createClass({
         {
           required: false,
           message: '请输入密码',
-          validator: this.requiredCheck.bind('请输入密码')
+          validator: this.requiredCheck.bind(this, '请输入密码')
         },
       ],
     });
