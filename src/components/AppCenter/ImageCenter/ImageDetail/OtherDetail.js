@@ -8,6 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
+import { camelize } from 'humps'
 import { Tabs, Button, Card, Menu, Tooltip ,Icon} from 'antd'
 import { Link, browserHistory} from 'react-router'
 import { connect } from 'react-redux'
@@ -105,8 +106,9 @@ class OtherDetail extends Component {
     // const ipAddress = this.props.scope.props.otherHead;
     const ipAddress = (this.props.server).split('//')[1]
     let pullCode = "docker pull " + ipAddress + "/" + imageDetail;
+    const pullCount = this.props.imageConfig[camelize('pull_count')]
     return (
-      <div id="ImageDetailBox">
+      <div id="OtherImageDetailBox">
         <div className="headerBox">
           <div className="imgBox">
             <svg className='appcenterlogo'>
@@ -126,14 +128,27 @@ class OtherDetail extends Component {
         </div>
         <div className="downloadBox">
           <div className="code">
-            <i className="fa fa-download"></i>&nbsp;
-          <FormattedMessage {...menusText.downloadImage} />&nbsp;&nbsp;&nbsp;&nbsp;
-           <span className="pullCode textoverflow">docker pull {ipAddress}/{imageDetail}&nbsp;&nbsp;</span>
+            <svg className='appcenterdownload' >
+              <use xlinkHref='#appcenterdownload' />
+            </svg>
+            <FormattedMessage {...menusText.downloadImage} />&nbsp;&nbsp;&nbsp;&nbsp;
+            <span className="pullCode textoverflow">docker pull {ipAddress}/{imageDetail}&nbsp;&nbsp;</span>
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn)}>
-              <i className="fa fa-copy" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}></i>
+              <svg className='appcentercopy' onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}>
+                <use xlinkHref='#appcentercopy' />
+              </svg>
             </Tooltip>
             <input className="pullCodeInput" defaultValue={pullCode} style={{ position: "absolute", opacity: "0" }} />
           </div>
+          {
+            pullCount &&
+            <div className="times">
+              <svg className='appcenterdownload' >
+                <use xlinkHref='#appcenterdownload' />
+              </svg>
+              {pullCount}
+            </div>
+          }
           <div style={{ clear: "both" }}></div>
         </div>
         <div className="tabBox">
