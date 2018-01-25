@@ -172,7 +172,8 @@ class RollingUpdateModal extends Component {
     const body = {
       type: 0,
       targets,
-      interval: parseInt(intervalTime)
+      interval: parseInt(intervalTime),
+      onlyRollingUpdate: true
     }
     if (service.wrapper) {
       const wrapfile = this.state.wrap.split('||')
