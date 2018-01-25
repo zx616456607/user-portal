@@ -21,7 +21,10 @@ import ConfigureService from './ConfigureService'
 import DepolyWrap from '../AppCreate/DeployWrap'
 import ResourceQuotaModal from '../../ResourceQuotaModal'
 import NotificationHandler from '../../../components/Notification'
-import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
+import {
+  genRandomString, toQuerystring, getResourceByMemory, parseAmount,
+  isResourcePermissionError,
+} from '../../../common/tools'
 import { removeFormFields, removeAllFormFields, setFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
 import { addService, loadServiceList } from '../../../actions/services'
@@ -407,8 +410,9 @@ class QuickCreateApp extends Component {
           } else {
             msgObj = '创建应用'
           }
-          if (err.statusCode == 403) {
+          if (err.statusCode == 403 && !isResourcePermissionError(err)) {
             const { data } = err.message
+            console.log(err)
             const { require, capacity, used } = data
             let resourceQuota = {
               selectResource: {
@@ -446,7 +450,7 @@ class QuickCreateApp extends Component {
           if (err.statusCode == 402) {
             return
           }
-          if(err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
+          if (err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE && !isResourcePermissionError(err)){
             const { message } = err
             notification.error(`${msgObj}失败`, message.message)
           }
