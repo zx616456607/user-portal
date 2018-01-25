@@ -8,7 +8,7 @@
  * @author ZhangChengZheng
  */
 import React, { Component, propTypes } from 'react'
-import { Switch, Checkbox, Spin, Modal, Icon, Form, Radio, Button } from 'antd';
+import { Switch, Checkbox, Spin, Modal, Icon, Form, Radio, Button, Card } from 'antd';
 import './style/AdvancedSetting.less'
 import { connect } from 'react-redux'
 import { updateClusterConfig } from '../../../actions/cluster'
@@ -249,6 +249,31 @@ class AdvancedSetting extends Component {
     })
   }
   /**
+   * 计费功能
+   */
+  handleBilling = checked => {
+    this.setState({
+      billingVisible: true,
+      billingChecked: checked
+    })
+  }
+  
+  cancelBilling = () => {
+    this.setState({
+      billingVisible: false
+    })
+  }
+  
+  confirmBilling = () => {
+    this.setState({
+      billingLoading: true
+    })
+    this.setState({
+      billingVisible: false,
+      billingLoading: false
+    })
+  }
+  /**
    * 弹框确定
    */
   handleConfirmTradition() {
@@ -440,7 +465,11 @@ class AdvancedSetting extends Component {
   }
 
   render() {
-    const { traditionChecked, traditiondisable, swicthChecked, Ipcheckbox, TagCheckbox, switchdisable, Tagdisabled, Ipdisabled, imageProjectRightIsEdit } = this.state
+    const { 
+      traditionChecked, traditiondisable, swicthChecked, Ipcheckbox, TagCheckbox, 
+      switchdisable, Tagdisabled, Ipdisabled, imageProjectRightIsEdit, billingChecked,
+      billingVisible, billingLoading
+    } = this.state
     const { cluster, form, configurations, harbor } = this.props
     const { listNodes } = cluster
     const { getFieldProps  } = form
@@ -566,6 +595,16 @@ class AdvancedSetting extends Component {
             </div>
           </div>
         </div>
+        <Card title="计费功能开关" className="billingCard">
+          <div className='alertRow'>
+            开启后，平台资源使用支持计费功能，系统将向个人项目和共享项目默认分配10 T 的余额，应用、存储、数据库与缓存这些功能的使用将被计费，
+            请管理员根据项目需要向成员的个人项目和共享项目充值；关闭后，平台不支持计费功能
+          </div>
+          <span>
+            计费功能
+          </span>
+          <Switch checkedChildren="开" unCheckedChildren="关" checked={billingChecked} onChange={this.handleBilling} className='switchstyle' />
+        </Card>
       </div>
       <Modal
         title={swicthChecked ? '关闭绑定节点' : '开启绑定节点'}
@@ -628,6 +667,33 @@ class AdvancedSetting extends Component {
           </div>
         }
       </Modal>
+        <Modal
+          title={!billingChecked ? '关闭计费功能' : '开启计费功能'}
+          visible={billingVisible}
+          wrapClassName="AdvancedSettingSwitch"
+          maskClosable={false}
+          onCancel={this.cancelBilling}
+          onOk={this.confirmBilling}
+          confirmLoading={billingLoading}
+        >
+          {
+            !billingChecked ?
+              <div className='container'>
+                <div className='item'>
+                  关闭计费功能后，平台上计费相关的将被移除，应用、存储、数据库与缓存的使用将不计费，在资源配额充的情况下，
+                  用户可无需考虑项目余额任意创建资源。
+                </div>
+                <div className='item color'><Icon type="question-circle-o" style={{marginRight:'8px'}}/>确认关闭计费功能？</div>
+              </div>
+              : <div className='container'>
+                <div className='item'>
+                  开启后，平台支持计费功能，系统将向个人项目和共享项目默认分配10 T 的余额，应用、存储、数据库与缓存这些功能的使用将被计费，
+                  请管理员根据项目需要向成员的个人项目和共享项目充值，以免资源不足造成停止。
+                </div>
+                <div className='item color'><Icon type="question-circle-o" style={{marginRight:'8px'}}/>确认开启计费功能？</div>
+              </div>
+          }
+        </Modal>
     </div>
       </QueueAnim>
     )
