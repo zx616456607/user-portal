@@ -222,14 +222,6 @@ let MyComponent = React.createClass({
   },
   startBuildStage(item, index, key, tabKey) {
     const notification = new NotificationHandler()
-    if(!item.address) {
-      notification.error('该构建没有选择代码仓库')
-      return
-    }
-    if(!item.defaultBranch && item.repoType !== 'svn') {
-      notification.error('该构建没有选择代码分支')
-      return
-    }
     const { flowId } = item
     const parentScope = this.props.scope
     const { CreateTenxflowBuild, getTenxflowBuildDetailLogs } = this.props.scope.props
