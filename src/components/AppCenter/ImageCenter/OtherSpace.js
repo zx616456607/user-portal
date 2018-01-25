@@ -274,7 +274,11 @@ class OtherSpace extends Component {
                 <Input
                   size="large"
                   id={imageId}
-                  placeholder={formatMessage(menusText.search)}
+                  placeholder={
+                    otherHead.type === 'dockerhub'
+                    ? '搜索 Docker Hub 公有镜像'
+                    : '搜索'
+                  }
                   onPressEnter={e => this.searchImage(e.target.value)}
                   onChange={e => this.setState({ searchInput: e.target.value.trim() })}
                 />
