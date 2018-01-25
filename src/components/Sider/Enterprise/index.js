@@ -564,7 +564,7 @@ class Sider extends Component {
                   {role === ROLE_SYS_ADMIN ?
                     <Menu.Item key='wrap_check'>
                       <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见">
+                        <Tooltip title="仅系统管理员可见" placement="right">
                           <svg className="start forAdmin">
                             <use xlinkHref='#start' />
                           </svg>
@@ -798,7 +798,7 @@ class Sider extends Component {
                   {role == ROLE_SYS_ADMIN ?
                     <Menu.Item key='ldap'>
                       <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见">
+                        <Tooltip title="仅系统管理员可见" placement="right">
                           <svg className="start forAdmin">
                             <use xlinkHref='#start' />
                           </svg>
@@ -832,7 +832,7 @@ class Sider extends Component {
                   {role == ROLE_SYS_ADMIN ?
                     <Menu.Item key='license'>
                       <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见">
+                        <Tooltip title="仅系统管理员可见" placement="right">
                           <svg className="start forAdmin">
                             <use xlinkHref='#start' />
                           </svg>
@@ -853,7 +853,7 @@ class Sider extends Component {
                   {role == ROLE_SYS_ADMIN ?
                     [<Menu.Item key='globalConfig'>
                       <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见">
+                        <Tooltip title="仅系统管理员可见" placement="right">
                           <svg className="start forAdmin">
                             <use xlinkHref='#start' />
                           </svg>
@@ -867,7 +867,7 @@ class Sider extends Component {
                     </Menu.Item>,
                     <Menu.Item key='advancedSetting'>
                       <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见">
+                        <Tooltip title="仅系统管理员可见" placement="right">
                           <svg className="start forAdmin">
                             <use xlinkHref='#start' />
                           </svg>
@@ -881,7 +881,7 @@ class Sider extends Component {
                     </Menu.Item>,
                     <Menu.Item key='personalized'>
                       <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见">
+                        <Tooltip title="仅系统管理员可见" placement="right">
                           <svg className="start forAdmin">
                             <use xlinkHref='#start' />
                           </svg>
@@ -895,7 +895,7 @@ class Sider extends Component {
                     </Menu.Item>,
                     <Menu.Item key='cleaningTool'>
                       <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见">
+                        <Tooltip title="仅系统管理员可见" placement="right">
                           <svg className="start forAdmin">
                             <use xlinkHref='#start' />
                           </svg>
