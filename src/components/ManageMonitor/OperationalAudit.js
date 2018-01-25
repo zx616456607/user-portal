@@ -1878,6 +1878,9 @@ class OperationalAudit extends Component {
           value: '11',
           label: formatMessage(menusText.ServiceRollingUpgrade),
         }, {
+          value: '68',
+          label: formatMessage(menusText.ServiceGrayRelease),
+        },{
           value: '12',
           label: formatMessage(menusText.ServiceManualScale),
         }, {
@@ -1892,9 +1895,6 @@ class OperationalAudit extends Component {
         }, {
           value: '16',
           label: formatMessage(menusText.ServiceDomain),
-        }, {
-          value: '68',
-          label: formatMessage(menusText.ServiceGrayRelease),
         }],
       }, {
         value: '17',
