@@ -178,6 +178,30 @@ class ConfigModal extends Component {
     })
   }
   
+  changeDIYMemory = value => {
+    const { DIYMaxMemory } = this.state
+    this.setState({
+      DIYMemory: value
+    })
+    if (value > DIYMaxMemory) {
+      this.setState({
+        DIYMaxMemory: value
+      })
+    }
+  }
+  
+  changeDIYCPU = value => {
+    const { DIYMaxCPU }  = this.state  
+    this.setState({
+      DIYCPU: value
+    })
+    if (value > DIYMaxCPU) {
+      this.setState({
+        DIYMaxCPU: value
+      })
+    }
+  }
+  
   render() {
     const { service, visible } = this.props
     const { DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU, composeType } = this.state
@@ -316,12 +340,12 @@ class ConfigModal extends Component {
                             <Row>
                               <Col span={8}>
                                 <InputNumber
-                                  onChange={value => this.setState({ DIYMemory: value })}
+                                  onChange={value => this.changeDIYMemory(value)}
                                   value={parseInt(DIYMemory)}
                                   defaultValue={RESOURCES_MEMORY_MIN}
                                   step={RESOURCES_MEMORY_STEP}
                                   min={RESOURCES_MEMORY_MIN}
-                                  max={DIYMaxMemory} />
+                                  max={RESOURCES_MEMORY_MAX} />
                               </Col>
                               <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
                               <Col span={8}>
@@ -338,11 +362,11 @@ class ConfigModal extends Component {
                             <Row>
                               <Col span={8}>
                                 <InputNumber
-                                  onChange={value => this.setState({ DIYCPU: value })}
+                                  onChange={value => this.changeDIYCPU(value)}
                                   value={DIYCPU}
                                   step={RESOURCES_CPU_STEP}
                                   min={RESOURCES_CPU_MIN}
-                                  max={DIYMaxCPU}/>
+                                  max={RESOURCES_CPU_MAX}/>
                               </Col>
                               <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
                               <Col span={8}>
