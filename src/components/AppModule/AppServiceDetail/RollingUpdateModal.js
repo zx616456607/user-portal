@@ -88,7 +88,7 @@ class RollingUpdateModal extends Component {
     if (service && service.status.phase === 'RollingUpdate') {
       this.handleCancel()
       Modal.info({
-        title: '正在灰度发布或滚动发布，该服务暂不能做滚动发布操作',
+        title: '正在灰度发布，该服务暂不能做滚动发布操作',
         width: 480,
         content: (
           <div>

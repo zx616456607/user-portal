@@ -108,6 +108,16 @@ let MyComponent = React.createClass({
     return
 
   },
+  requiredCheck(error, rule, value, callback) {
+    const {
+      getFieldValue,
+    } = this.props.form
+    const isDockerhub = getFieldValue('type') === 'dockerhub'
+    if (isDockerhub && !value) {
+      return callback(error)
+    }
+    callback()
+  },
   handleSubmit(e) {
     //this function for user submit add other image space
     e.preventDefault();
@@ -201,12 +211,20 @@ let MyComponent = React.createClass({
     });
     const nameProps = getFieldProps('username', {
       rules: [
-        { required: false, message: '请输入用户名' }
+        {
+          required: false,
+          message: '请输入用户名',
+          validator: this.requiredCheck.bind('请输入用户名')
+        }
       ],
     });
     const passwdProps = getFieldProps('passwd', {
       rules: [
-        { required: false, message: '请输入密码' },
+        {
+          required: false,
+          message: '请输入密码',
+          validator: this.requiredCheck.bind('请输入密码')
+        },
       ],
     });
     const formItemLayout = {
