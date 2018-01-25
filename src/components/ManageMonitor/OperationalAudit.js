@@ -245,7 +245,11 @@ const menusText = defineMessages({
   },
   ServiceRollingUpgrade: {
     id: 'ManageMonitor.operationalAudit.ServiceRollingUpgrade',
-    defaultMessage: '服务弹性伸缩',
+    defaultMessage: '服务滚动发布',
+  },
+  ServiceGrayRelease: {
+    id: 'ManageMonitor.operationalAudit.ServiceGrayRelease',
+    defaultMessage: '服务灰度发布',
   },
   ServiceManualScale: {
     id: 'ManageMonitor.operationalAudit.ServiceManualScale',
@@ -971,6 +975,9 @@ function resourceFormat(resourceType, scope) {
       break;
     case '67':
       return formatMessage(menusText.MonitorChart)
+      break;
+    case '68':
+      return formatMessage(menusText.ServiceGrayRelease)
       break;
     // For CI related
     case '1000':
@@ -1885,6 +1892,9 @@ class OperationalAudit extends Component {
         }, {
           value: '16',
           label: formatMessage(menusText.ServiceDomain),
+        }, {
+          value: '68',
+          label: formatMessage(menusText.ServiceGrayRelease),
         }],
       }, {
         value: '17',
