@@ -12,6 +12,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
+import classNames from 'classnames'
 import './style/index.less'
 import { InputNumber, Table, Button, Icon, Input, Modal, Row, Col, Tooltip, Dropdown, Menu, Progress, Select, Checkbox, Form } from 'antd'
 import { putGlobaleQuota, putClusterQuota, getGlobaleQuota, getGlobaleQuotaList, getClusterQuota, getClusterQuotaList } from '../../actions/quota'
@@ -174,13 +175,13 @@ class ResourceQuota extends React.Component {
       let query = {
         header,
         body: {
-          subTask: value.subTask,
-          registry: value.registry,
-          tenxflow: value.tenxflow,
-          dockerfile: value.dockerfile,
-          registryProject: value.registryProject,
-          applicationPackage: value.applicationPackage,
-          orchestrationTemplate: value.orchestrationTemplate,
+          subTask: Number(value.subTask),
+          registry: Number(value.registry),
+          tenxflow: Number(value.tenxflow),
+          dockerfile: Number(value.dockerfile),
+          registryProject: Number(value.registryProject),
+          applicationPackage: Number(value.applicationPackage),
+          orchestrationTemplate: Number(value.orchestrationTemplate),
         }
       }
       putGlobaleQuota(query, {
@@ -236,17 +237,17 @@ class ResourceQuota extends React.Component {
           cpu: value.cpu && Number(parseFloat(value.cpu).toFixed(2)),
           memory: value.memory && Number(parseFloat(value.memory).toFixed(2)),
           storage: value.storage && Number(parseFloat(value.storage).toFixed(2)),
-          application: value.application,
-          service: value.service,
-          container: value.container,
-          volume: value.volume,
-          snapshot: value.snapshot,
-          configuration: value.configuration,
-          mysql: value.mysql,
-          redis: value.redis,
-          zookeeper: value.zookeeper,
-          elasticsearch: value.elasticsearch,
-          etcd: value.etcd,
+          application: Number(value.application),
+          service: Number(value.service),
+          container: Number(value.container),
+          volume: Number(value.volume),
+          snapshot: Number(value.snapshot),
+          configuration: Number(value.configuration),
+          mysql: Number(value.mysql),
+          redis: Number(value.redis),
+          zookeeper: Number(value.zookeeper),
+          elasticsearch: Number(value.elasticsearch),
+          etcd: Number(value.etcd),
         }
       }
       putClusterQuota(query, {
@@ -447,6 +448,21 @@ class ResourceQuota extends React.Component {
     if (value.length > 8) {
       return callback(`${key}配额不能超过8位字符`)
     }
+    let reg = /^[1-9]\d*(\.\d{1,2})?$/
+    if (!reg.test(value)) {
+      return callback(`${key}配额格式不正确`)
+    }
+    callback()
+  }
+  
+  globalValueCheck = (rules, value, callback, key) => {
+    if (!value) {
+      return callback(`${key}配额不能为空`)
+    }
+    let reg = /^[1-9]*[1-9][0-9]*$/
+    if (!reg.test(value)) {
+      return callback(`${key}配额数量必须是整数`)
+    }
     callback()
   }
   
@@ -550,7 +566,7 @@ class ResourceQuota extends React.Component {
       //   text: 'Etcd集群 (个)'
       // }
       ]
-    const { getFieldProps, getFieldValue, setFieldsValue, setFields } = this.props.form
+    const { getFieldProps, getFieldValue, setFieldsValue, setFields, getFieldError } = this.props.form
     return (
       <Form form={this.props.form} className="quota">
         {
@@ -593,18 +609,24 @@ class ResourceQuota extends React.Component {
                     const checkProps = getFieldProps(checkKey, {
                       initialValue: beforeValue === -1 ? true : false,
                       onChange: (e) => {
+                        this.setState({
+                          [`${item.key}-check`]: e.target.checked
+                        })
                         e.target.checked ? setFieldsValue({
                           [item.key]: undefined,
                         }) : setFieldsValue({
                           [item.key]: this.maxGlobaleCount(item.key) === -1 ? undefined : this.maxGlobaleCount(item.key)
                         })
                       },
-                      validate: [{
-                        valuePropName: 'checked',
-                      }]
+                      valuePropName: 'checked',
                     })
                     const checkValue = getFieldValue(checkKey)
                     const inputProps = getFieldProps(item.key, {
+                      rules: !checkValue && !this.state[`${item.key}-check`] ? [
+                        {
+                          validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.key)
+                        },
+                      ] : [],
                       initialValue: globaleList ? checkValue === true ? undefined : beforeValue === -1 ? undefined : beforeValue : 0,
                     })
                     const surplu = inputProps.value !== undefined ?
@@ -614,9 +636,12 @@ class ResourceQuota extends React.Component {
                         <Col span={3} style={{ minWidth: '120px' }}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={7}>
-                          <FormItem>
-                            <InputNumber {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} id="input" min={0} />
+                        <Col span={7} style={{ height: 'auto' }}>
+                          <FormItem
+                            className={classNames({'has-error': getFieldError(`${item.key}`)})}
+                            help={(getFieldError(`${item.key}`) || []).join(', ')}
+                          >
+                            <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} id="input" />
                           </FormItem>
                         </Col>
                         <Col span={3}>
@@ -657,18 +682,24 @@ class ResourceQuota extends React.Component {
                     const checkProps = getFieldProps(checkKey, {
                       initialValue: beforeValue === -1 ? true : false,
                       onChange: (e) => {
+                        this.setState({
+                          [`${item.key}-check`]: e.target.checked
+                        })
                         e.target.checked ? setFieldsValue({
                           [item.key]: undefined,
                         }) : setFieldsValue({
                           [item.key]: this.maxGlobaleCount(item.key) === -1 ? undefined : this.maxGlobaleCount(item.key)
                         })
                       },
-                      validate: [{
-                        valuePropName: 'checked',
-                      }]
+                      valuePropName: 'checked',
                     })
                     const checkValue = getFieldValue(checkKey)
                     const inputProps = getFieldProps(item.key, {
+                      rules: !checkValue && !this.state[`${item.key}-check`] ? [
+                        {
+                          validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.key)
+                        },
+                      ] : [],
                       initialValue: globaleList ? checkValue === true ? undefined : this.maxGlobaleCount(item.key) === -1 ? undefined : this.maxGlobaleCount(item.key) : 0
                     })
                     const surplu = inputProps.value !== undefined ?
@@ -678,9 +709,12 @@ class ResourceQuota extends React.Component {
                         <Col span={3} style={{ minWidth: '120px' }}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={7}>
-                          <FormItem>
-                            <InputNumber {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} id="input" min={0} />
+                        <Col span={7} style={{ height: 'auto' }}>
+                          <FormItem
+                            className={classNames({'has-error': getFieldError(`${item.key}`)})}
+                            help={(getFieldError(`${item.key}`) || []).join(', ')}
+                          >
+                            <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} id="input" />
                           </FormItem>
                         </Col>
                         <Col span={3}>
@@ -816,7 +850,7 @@ class ResourceQuota extends React.Component {
                         })
                         const checkValue = getFieldValue(checkKey)
                         const inputProps = getFieldProps(item.key, {
-                          rules: !checkValue ? [
+                          rules: !checkValue && !this.state[`${item.key}-check`] ? [
                             {
                               validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, item.key)
                             }
@@ -879,13 +913,19 @@ class ResourceQuota extends React.Component {
                             }) : setFieldsValue({
                               [item.key]: this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key)
                             })
+                            this.setState({
+                              [`${item.key}-check`]: e.target.checked
+                            })
                           },
-                          validate: [{
-                            valuePropName: 'checked',
-                          }]
+                          valuePropName: 'checked',
                         })
                         const checkValue = getFieldValue(checkKey)
                         const inputProps = getFieldProps(item.key, {
+                          rules: !checkValue && !this.state[`${item.key}-check`] ? [
+                            {
+                              validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.key)  
+                            }
+                          ] : [],
                           initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key) : 0
                         })
                         const surplus = inputProps.value !== undefined ?
@@ -895,9 +935,9 @@ class ResourceQuota extends React.Component {
                             <Col span={3} style={{ minWidth: '120px' }}>
                               <span>{item.text}</span>
                             </Col>
-                            <Col span={7}>
+                            <Col span={7} style={{ height: 'auto' }}>
                               <FormItem>
-                                <InputNumber {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} min={0} />
+                                <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} />
                               </FormItem>
                             </Col>
                             <Col span={3}>
@@ -943,13 +983,19 @@ class ResourceQuota extends React.Component {
                             }) : setFieldsValue({
                               [item.key]: this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key)
                             })
+                            this.setState({
+                              [`${item.key}-check`]: e.target.checked
+                            })
                           },
-                          validate: [{
-                            valuePropName: 'checked',
-                          }]
+                          valuePropName: 'checked',
                         })
                         const checkValue = getFieldValue(checkKey)
                         const inputProps = getFieldProps(item.key, {
+                          rules: !checkValue && !this.state[`${item.key}-check`] ? [
+                            {
+                              validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.key)
+                            }
+                          ] : [],
                           initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key) : 0
                         })
                         const surplus = inputProps.value !== undefined ?
@@ -959,9 +1005,9 @@ class ResourceQuota extends React.Component {
                             <Col span={3} style={{ minWidth: '120px' }}>
                               <span>{item.text}</span>
                             </Col>
-                            <Col span={7}>
+                            <Col span={7} style={{ height: 'auto' }}>
                               <FormItem>
-                                <InputNumber {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} min={0} />
+                                <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} />
                               </FormItem>
                             </Col>
                             <Col span={3}>

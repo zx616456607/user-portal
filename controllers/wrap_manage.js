@@ -17,6 +17,7 @@ const FormData = require('form-data')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
+const MAX_TIMEOUT = constants.MAX_TIMEOUT
 
 exports.getPkgManageList = function*() {
   const loginUser = this.session.loginUser
@@ -228,7 +229,7 @@ exports.getPkgIcon = function* () {
 
 exports.uploadDocs = function* () {
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
+  const api = apiFactory.getApi(loginUser, MAX_TIMEOUT)
   const id = this.params.id
   const query = this.query
   const stream = yield getFormData(this)
