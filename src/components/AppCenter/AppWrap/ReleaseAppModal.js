@@ -258,7 +258,7 @@ class ReleaseAppModal extends React.Component {
           </FormItem>
           <FormItem
             {...formItemLayout}
-            label="分类"
+            label="分类名称"
           >
             <Select
               {...classifyProps}
