@@ -449,7 +449,7 @@ class PublishModal extends React.Component {
             </FormItem>
             <FormItem
               {...formItemLayout}
-              label="分类"
+              label="分类名称"
             >
               <Select
                 disabled={classify_name && classify_name ? true : false}
