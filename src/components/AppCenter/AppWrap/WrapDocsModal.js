@@ -76,7 +76,6 @@ class WrapDocsModal extends React.Component {
       callback && callback()
       closeModal()
     }).catch(function(ex) {
-      notify.success('上传失败')
       _this.setState({
         confirmLoading: false
       })

@@ -210,12 +210,12 @@ class PublishModal extends React.Component {
         Object.assign(body, { icon_id: Number(pkgIcon.split('?')[0]) })
       }
       notify.close()
-      notify.spin('发布中')
+      notify.spin('提交审核中')
       imagePublish(body, {
         success: {
           func: () => {
             notify.close()
-            notify.success('发布成功')
+            notify.success('提交审核成功')
             this.setState({
               visible: false,
               loading: false,
@@ -229,10 +229,10 @@ class PublishModal extends React.Component {
           func: res => {
             if (res.statusCode === 409) {
               notify.close()
-              notify.error('发布失败\n', `该镜像与${res.message.details.name}内容完全相同，不能发布`)
+              notify.error('提交审核失败\n', `该镜像与${res.message.details.name}内容完全相同，不能发布`)
             } else {
               notify.close()
-              notify.error('发布失败\n', res.message)
+              notify.error('提交审核失败\n', res.message)
             }
             this.setState({
               loading: false
@@ -449,7 +449,7 @@ class PublishModal extends React.Component {
             </FormItem>
             <FormItem
               {...formItemLayout}
-              label="分类"
+              label="分类名称"
             >
               <Select
                 disabled={classify_name && classify_name ? true : false}
