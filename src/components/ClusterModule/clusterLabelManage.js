@@ -287,7 +287,8 @@ class ClusterLabelManage extends Component{
         key:'keys',
         dataIndex:'key',
         width:'15%',
-        sorter: (a, b) => a.key.localeCompare(b.key)
+        sorter: (a, b) => a.key.localeCompare(b.key),
+        render: text => <Tooltip title={text}><div className="textoverflow" style={{ width: '99%'}}>{text}</div></Tooltip>
       },{
         title:'属性',
         key:'2',
