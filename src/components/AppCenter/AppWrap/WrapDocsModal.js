@@ -85,6 +85,14 @@ class WrapDocsModal extends React.Component {
     })
   }
   
+  renderFooter = () => {
+    const { confirmLoading } = this.state
+    return [
+      <Button type="ghost" disabled={confirmLoading} onClick={this.cancelModal}>取消</Button>,
+      <Button type="primary" loading={confirmLoading} onClick={this.confirmModal}>确定</Button>
+    ]
+  }
+  
   render() {
     const { fileList, confirmLoading } = this.state
     const { visible, form, currentWrap, space } = this.props
@@ -132,9 +140,11 @@ class WrapDocsModal extends React.Component {
       <Modal
         visible={visible}
         title="上传附件"
+        closable={!confirmLoading}
         onCancel={this.cancelModal}
         onOk={this.confirmModal}
         confirmLoading={confirmLoading}
+        footer={this.renderFooter()}
       >
         <Form
           form={form}
