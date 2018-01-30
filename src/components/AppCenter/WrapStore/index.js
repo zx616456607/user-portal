@@ -12,6 +12,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Tabs } from 'antd'
+import cloneDeep from 'lodash/cloneDeep'
 import { getWrapStoreList, getWrapStoreHotList, getWrapGroupList } from '../../../actions/app_center'
 import { getAppsList, getAppsHotList } from '../../../actions/app_store'
 import './style/index.less'
@@ -45,7 +46,7 @@ class AppWrapStore extends React.Component {
     getAppsHotList()
   }
   changeTab(activeKey){
-    const { getAppsHotList, getWrapStoreHotList } = this.props
+    const { getAppsHotList } = this.props
     this.setState({
       current: 1,
       filterName: '',
@@ -54,7 +55,7 @@ class AppWrapStore extends React.Component {
       activeKey
     }, this.getStoreList)
     if (activeKey === 'app') {
-      getWrapStoreHotList()
+      this.resetDownloadCount()
       return
     } 
     getAppsHotList()
@@ -104,8 +105,25 @@ class AppWrapStore extends React.Component {
     this.setState({
       [key]: value
     }, callback && this.getStoreList)
+    this.resetDownloadCount()
   }
-
+  downloadCount = (id) => {
+    const { downloadCount } = this.state
+    let newCount = cloneDeep(downloadCount)
+    newCount = Object.assign({}, {
+      [`${id}-count`]: (newCount[`${id}-count`] ? newCount[`${id}-count`] : 0) + 1
+    })
+    this.setState({
+      downloadCount: newCount
+    })
+  }
+  resetDownloadCount = () => {
+    const { getWrapStoreHotList } = this.props
+    this.setState({
+      downloadCount: {}
+    })
+    getWrapStoreHotList()
+  }
   render() {
     const {
       wrapGroupList, wrapStoreList, wrapStoreHotList,
@@ -113,7 +131,7 @@ class AppWrapStore extends React.Component {
       wrapHotFetching, imageStoreFetching, imageHotFetching,
       loginUser, location
     } = this.props
-    const { activeKey, current, classify, sort_by, rectStyle } = this.state
+    const { activeKey, current, classify, sort_by, rectStyle, downloadCount } = this.state
     const isUPAdmin = loginUser.role === ROLE_SYS_ADMIN
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] === 1 && isUPAdmin
     const imageComposeStyle = classNames({
@@ -176,6 +194,7 @@ class AppWrapStore extends React.Component {
                 classify={classify}
                 sort_by={sort_by}
                 rectStyle={rectStyle}
+                downloadCount={downloadCount}
                 wrapGroupList={wrapGroupList}
                 dataSource={wrapStoreList}
                 dataFetching={wrapStoreFetching}
@@ -183,6 +202,7 @@ class AppWrapStore extends React.Component {
                 dataHotFetching={wrapHotFetching}
                 getStoreList={this.getStoreList}
                 updateParentState={this.updateParentState}
+                updateDownloadCount={this.downloadCount}
               />
               : null
           }
