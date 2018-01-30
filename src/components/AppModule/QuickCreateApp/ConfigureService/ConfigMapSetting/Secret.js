@@ -17,7 +17,7 @@ import {
   Checkbox,
 } from 'antd'
 import includes from 'lodash/includes'
-import { loadConfigGroup, secretConfigGroupName } from '../../../../../actions/configs'
+import { loadConfigGroup, configGroupName } from '../../../../../actions/configs'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -144,14 +144,14 @@ const SecretConfigMap = React.createClass({
           <FormItem>
             <RadioGroup {...secretConfigMapIsWholeDirProps}>
               <Radio key="severalFiles" value={false}>
-                挂载若干配置文件&nbsp;
-                <Tooltip width="200px" title="镜像内该目录『同名文件』会给覆盖，修改配置文件需『重启容器』来生效">
+                挂载若干加密对象&nbsp;
+                <Tooltip width="200px" title="镜像内该目录『同名文件』会给覆盖，修改加密对象需『重启容器』来生效">
                   <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
                 </Tooltip>
               </Radio>
               <Radio key="wholeDir" value={true}>
                 挂载整个配置组&nbsp;
-                <Tooltip width="200px" title="镜像内该目录『所有文件』会被覆盖，支持『不重启容器』5 min 左右生效（含增、删、改配置文件）。">
+                <Tooltip width="200px" title="镜像内该目录『所有文件』会被覆盖，支持『不重启容器』5 min 左右生效（含增、删、改加密对象）。">
                   <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
                 </Tooltip>
               </Radio>
@@ -302,7 +302,7 @@ const SecretConfigMap = React.createClass({
             <span className="title">配置管理</span>
           </Col>
           <Col span={formItemLayout.wrapperCol.span} key="right">
-            <div className="desc">满足您统一管理某些服务配置文件的需求，即：不用停止服务，即可变更多个容器内的配置文件</div>
+            <div className="desc">满足您统一管理某些服务加密对象的需求，即：不用停止服务，即可变更多个容器内的加密对象</div>
           </Col>
         </Row>
       </div>
@@ -312,7 +312,7 @@ const SecretConfigMap = React.createClass({
         <Col span={formItemLayout.labelCol.span} className="formItemLabel">
           加密配置&nbsp;
           <a>
-            <Tooltip title="加密配置将通过 volume 的方式，将需要加密的配置文件挂载到指定目录，如：挂载目录为 /db-token，配置文件为 user、passwd，则挂载结果为 /db-token/user、/db-token/passwd">
+            <Tooltip title="加密配置将通过 volume 的方式，将需要加密的加密对象挂载到指定目录，如：挂载目录为 /db-token，加密对象为 user、passwd，则挂载结果为 /db-token/user、/db-token/passwd">
               <Icon type="question-circle-o" />
             </Tooltip>
           </a>
@@ -330,7 +330,7 @@ const SecretConfigMap = React.createClass({
                 配置组
               </Col>
               <Col span={5}>
-                配置文件
+                加密对象
               </Col>
               <Col span={4}>
                 操作
@@ -371,5 +371,5 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   loadConfigGroup,
-  secretConfigGroupName,
+  configGroupName,
 })(SecretConfigMap)

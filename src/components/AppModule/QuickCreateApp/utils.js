@@ -293,9 +293,20 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
       if (!key.deleted) {
         const keyValue = key.value
         const envName = fieldsValues[`envName${keyValue}`]
+        const envValueType = fieldsValues[`envValueType${keyValue}`]
         const envValue = fieldsValues[`envValue${keyValue}`]
         if (envName && envValue !== envObj[envName]) {
-          deployment.addContainerEnv(serviceName, envName, envValue)
+          if (envValueType === 'normal') {
+            deployment.addContainerEnv(serviceName, envName, envValue)
+          } else {
+            const valueFrom = {
+              secretKeyRef: {
+                name: envValue[0],
+                key: envValue[1],
+              }
+            }
+            deployment.addContainerEnv(serviceName, envName, null, valueFrom)
+          }
         }
       }
     })

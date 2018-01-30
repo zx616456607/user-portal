@@ -245,14 +245,15 @@ class Deployment {
     })
   }
 
-  addContainerEnv(containerName, name, value) {
+  addContainerEnv(containerName, name, value, valueFrom) {
     this.spec.template.spec.containers.map((container) => {
       if (container.name !== containerName) {
         return
       }
       container.env.push({
         name,
-        value
+        value,
+        valueFrom,
       })
     })
   }
