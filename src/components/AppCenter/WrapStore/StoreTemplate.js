@@ -22,7 +22,6 @@ import defaultImage from '../../../../static/img/appstore/defaultimage.png'
 import defaultApp from '../../../../static/img/appstore/defaultapp.png'
 import defaultAppSmall from '../../../../static/img/appstore/defaultappsmall.png'
 import defaultImageSmall from '../../../../static/img/appstore/defaultimagesmall.png'
-import { ROLE_SYS_ADMIN } from '../../../../constants'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
 import WrapDetailModal from '../AppWrap/WrapDetailModal'
 
@@ -285,13 +284,8 @@ class WrapComopnent extends React.Component {
       offshelfId: tagId
     })
   }
-  downloadCount(id) {
-    this.setState({
-      [`${id}-count`]: (this.state[`${id}-count`] || 0) + 1
-    })
-  }
   renderWrapList(dataSource, isHot) {
-    const { activeKey, dataFetching, dataHotFetching, rectStyle, isAdmin, isUPAdmin } = this.props
+    const { activeKey, dataFetching, dataHotFetching, rectStyle, isAdmin, isUPAdmin, downloadCount, updateDownloadCount } = this.props
     const { copyStatus } = this.state
     let newData
     if (isHot) {
@@ -343,7 +337,7 @@ class WrapComopnent extends React.Component {
           <Menu.Item key="download">
             {
               activeKey === 'app' ?
-                <a target="_blank" href={`${API_URL_PREFIX}/pkg/${item.id}`} onClick={() => this.downloadCount(item.id)}>下载</a>
+                <a target="_blank" href={`${API_URL_PREFIX}/pkg/${item.id}`} onClick={() => updateDownloadCount(item.id)}>下载</a>
                 :
                 '下载'
             }
@@ -447,7 +441,7 @@ class WrapComopnent extends React.Component {
               {
                 isHot &&
                 <div className="downloadBox">
-                  <span className="hintColor"><Icon type="download" /> {item.downloadTimes + (activeKey === 'app' ? (this.state[`${item.id}-count`] || 0) : 0)}</span>
+                  <span className="hintColor"><Icon type="download" /> {item.downloadTimes + (activeKey === 'app' ? (downloadCount && downloadCount[`${item.id}-count`] || 0) : 0)}</span>
                 </div>
               }
             </div>
@@ -463,7 +457,7 @@ class WrapComopnent extends React.Component {
               {
                 !isHot &&
                 <div className="downloadBox">
-                  <span className="hintColor"><Icon type="download" /> {item.downloadTimes + (activeKey === 'app' ? (this.state[`${item.id}-count`] || 0) : 0)}</span>
+                  <span className="hintColor"><Icon type="download" /> {item.downloadTimes + (activeKey === 'app' ? (downloadCount && downloadCount[`${item.id}-count`] || 0) : 0)}</span>
                   <span className="hintColor"><Icon type="clock-circle-o" /> {activeKey === 'app' ? '发布' : '更新'}于 {calcuDate(item.publishTime)}</span>
                 </div>
               }
@@ -497,7 +491,7 @@ class WrapComopnent extends React.Component {
             <div className="reactBoxFooter">
               <Tooltip title={item.downloadTimes}>
                 <div className="hintColor downLoadBox textoverflow">
-                  <Icon type="download" /> {item.downloadTimes + (activeKey === 'app' ? (this.state[`${item.id}-count`] || 0) : 0)}
+                  <Icon type="download" /> {item.downloadTimes + (activeKey === 'app' ? (downloadCount && downloadCount[`${item.id}-count`] || 0) : 0)}
                 </div>
               </Tooltip>
               <Tooltip title={calcuDate(item.publishTime)}>
