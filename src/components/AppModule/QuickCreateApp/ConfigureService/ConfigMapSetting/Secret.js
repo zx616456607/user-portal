@@ -1,0 +1,375 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2017 TenxCloud. All Rights Reserved.
+ */
+
+/**
+ * Create app: secret config map setting for service
+ *
+ * v0.1 - 2018-01-30
+ * @author Zhangpc
+ */
+
+import React, { PropTypes } from 'react'
+import { connect } from 'react-redux'
+import {
+  Form, Collapse, Row, Col, Icon, Input, Select, Radio, Tooltip, Button,
+  Checkbox,
+} from 'antd'
+import includes from 'lodash/includes'
+import { loadConfigGroup, secretConfigGroupName } from '../../../../../actions/configs'
+
+const Panel = Collapse.Panel
+const FormItem = Form.Item
+const Option = Select.Option
+const RadioGroup = Radio.Group
+const CheckboxGroup = Checkbox.Group
+const PATH_REG = /^\//
+
+const SecretConfigMap = React.createClass({
+  componentWillMount() {
+    const { currentCluster, loadConfigGroup } = this.props
+    loadConfigGroup(currentCluster.clusterID)
+  },
+  onIsWholeDirChange(keyValue, currentConfigGroup, e) {
+    if (!currentConfigGroup) {
+      return
+    }
+    const value = e.target.value
+    e.target.checked = value
+    this.handleSelectAll(keyValue, currentConfigGroup, e)
+  },
+  onConfigGroupChange(keyValue, value) {
+    const { form, configGroupList } = this.props
+    const { getFieldValue } = form
+    const secretConfigMapIsWholeDir = getFieldValue(`secretConfigMapIsWholeDir${keyValue}`)
+    if (secretConfigMapIsWholeDir) {
+      const currentConfigGroup = this.getConfigGroupByName(configGroupList, value [1])
+      this.handleSelectAll(keyValue, currentConfigGroup, { target: { checked: true } })
+    }
+  },
+  getConfigGroupByName(configGroupList, secretConfigGroupName) {
+    let currentConfigGroup
+    configGroupList.every(item => {
+      if (item.name === secretConfigGroupName) {
+        currentConfigGroup = item
+        return false
+      }
+      return true
+    })
+    return currentConfigGroup
+  },
+  checkPath(keyValue, rule, value, callback) {
+    if (!value) {
+      return callback()
+    }
+    if (!PATH_REG.test(value)) {
+      return callback('请输入正确的路径')
+    }
+    const { getFieldValue } = this.props.form
+    const secretConfigMapKeys = getFieldValue('secretConfigMapKeys') || []
+    let error
+    secretConfigMapKeys.every(_key => {
+      if (_key.deleted) {
+        return true
+      }
+      const _keyValue = _key.value
+      const secretConfigMapMountPath = getFieldValue(`secretConfigMapMountPath${_keyValue}`)
+      if (_keyValue !== keyValue && value === secretConfigMapMountPath) {
+        error = '已填写过该路径'
+        return false
+      }
+      return true
+    })
+    callback(error)
+  },
+  renderConfigMapItem(key) {
+    const { form, configGroupList, defaultSelectValue } = this.props
+    const { getFieldProps, getFieldValue, setFieldsValue } = form
+    const keyValue = key.value
+    const secretConfigMapSubPathValuesKey = `secretConfigMapSubPathValues${keyValue}`
+    if (key.deleted) {
+      // fix issue http://jira.tenxcloud.com/browse/CRYSTAL-4604
+      // set secretConfigMapSubPathValues to unrequired
+      getFieldProps(secretConfigMapSubPathValuesKey)
+      return
+    }
+    const secretConfigMapMountPathKey = `secretConfigMapMountPath${keyValue}`
+    const secretConfigMapIsWholeDirKey = `secretConfigMapIsWholeDir${keyValue}`
+    const secretConfigGroupNameKey = `secretConfigGroupName${keyValue}`
+    const secretConfigGroupName = getFieldValue(secretConfigGroupNameKey)
+    const secretConfigMapIsWholeDir = getFieldValue(secretConfigMapIsWholeDirKey)
+    const currentConfigGroup = this.getConfigGroupByName(configGroupList, secretConfigGroupName)
+    let configMapSubPathOptions = []
+    if (currentConfigGroup) {
+      configMapSubPathOptions = currentConfigGroup.configs.map(config => {
+        return {
+          label: config.name,
+          value: config.name,
+        }
+      })
+    }
+    const secretConfigMapMountPathProps = getFieldProps(secretConfigMapMountPathKey, {
+      rules: [
+        { required: true, message: '请填写挂载目录' },
+        { validator: this.checkPath.bind(this, keyValue) },
+      ],
+    })
+    const secretConfigMapIsWholeDirProps = getFieldProps(secretConfigMapIsWholeDirKey, {
+      rules: [
+        { required: true, message: '请选择覆盖方式' },
+      ],
+      onChange: this.onIsWholeDirChange.bind(this, keyValue, currentConfigGroup),
+    })
+    const secretConfigGroupNameProps = getFieldProps(secretConfigGroupNameKey, {
+      rules: [
+        { required: true, message: '请选择配置组' }
+      ],
+      onChange: this.onConfigGroupChange.bind(this, keyValue),
+      initialValue: defaultSelectValue
+    })
+    const secretConfigMapSubPathValuesProps = getFieldProps(secretConfigMapSubPathValuesKey, {
+      rules: [
+        { required: true, message: '请选择配置组文件' }
+      ],
+    })
+    return (
+      <Row className="configMapItem" key={`configMapItem${keyValue}`}>
+        <Col span={5}>
+          <FormItem>
+            <Input type="textarea" size="default" placeholder="挂载目录，例如：/App" {...secretConfigMapMountPathProps} />
+          </FormItem>
+        </Col>
+        <Col span={5}>
+          <FormItem>
+            <RadioGroup {...secretConfigMapIsWholeDirProps}>
+              <Radio key="severalFiles" value={false}>
+                挂载若干配置文件&nbsp;
+                <Tooltip width="200px" title="镜像内该目录『同名文件』会给覆盖，修改配置文件需『重启容器』来生效">
+                  <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
+                </Tooltip>
+              </Radio>
+              <Radio key="wholeDir" value={true}>
+                挂载整个配置组&nbsp;
+                <Tooltip width="200px" title="镜像内该目录『所有文件』会被覆盖，支持『不重启容器』5 min 左右生效（含增、删、改配置文件）。">
+                  <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
+                </Tooltip>
+              </Radio>
+            </RadioGroup>
+          </FormItem>
+        </Col>
+        <Col span={5}>
+          <FormItem>
+            <Select placeholder="配置组" {...secretConfigGroupNameProps}>
+              {
+                configGroupList.map(group => <Option key={group.name}>
+                  {group.name}
+                </Option>)
+              }
+            </Select>
+          </FormItem>
+        </Col>
+        <Col span={5}>
+          {
+            !currentConfigGroup
+            ? <FormItem>请选择配置组</FormItem>
+            : (
+              <div>
+                <FormItem>
+                  <Checkbox
+                    onChange={this.handleSelectAll.bind(this, keyValue, currentConfigGroup)}
+                    checked={this.getSelectAllChecked(keyValue, currentConfigGroup)}
+                    disabled={secretConfigMapIsWholeDir}
+                  >
+                    全选
+                  </Checkbox>
+                </FormItem>
+                <FormItem>
+                  <CheckboxGroup
+                    {...secretConfigMapSubPathValuesProps}
+                    options={configMapSubPathOptions}
+                    disabled={secretConfigMapIsWholeDir}
+                  />
+                  <div className="clearBoth"></div>
+                </FormItem>
+              </div>
+            )
+          }
+        </Col>
+        <Col span={4}>
+          <Tooltip title="删除">
+            <Button
+              className="deleteBtn"
+              type="dashed"
+              size="small"
+              onClick={this.removeConfigMapKey.bind(this, keyValue)}
+            >
+              <Icon type="delete" />
+            </Button>
+          </Tooltip>
+        </Col>
+      </Row>
+    )
+  },
+  addConfigMapKey() {
+    const { form, defaultSelectValue } = this.props
+    const { setFieldsValue, getFieldValue, validateFields } = form
+    let secretConfigMapKeys = getFieldValue('secretConfigMapKeys') || []
+    const validateFieldsKeys = []
+    secretConfigMapKeys.forEach(key => {
+      if (key.deleted) {
+        return
+      }
+      const keyValue = key.value
+      validateFieldsKeys.push(`secretConfigMapMountPath${keyValue}`)
+      validateFieldsKeys.push(`secretConfigMapIsWholeDir${keyValue}`)
+      validateFieldsKeys.push(`secretConfigGroupName${keyValue}`)
+      const secretConfigGroupName = getFieldValue(`secretConfigGroupName${keyValue}`)
+      if (secretConfigGroupName) {
+        validateFieldsKeys.push(`secretConfigMapSubPathValues${keyValue}`)
+      }
+    })
+    validateFields(validateFieldsKeys, (errors, values) => {
+      if (!!errors) {
+        return
+      }
+      const key = secretConfigMapKeys[secretConfigMapKeys.length - 1] || { value: 0 }
+      let uid = key.value
+      uid ++
+      secretConfigMapKeys = secretConfigMapKeys.concat({ value: uid })
+      setFieldsValue({
+        secretConfigMapKeys,
+        [`secretConfigMapIsWholeDir${uid}`]: false,
+        [`secretConfigGroupName${uid}`]: defaultSelectValue
+      })
+    })
+  },
+  removeConfigMapKey(keyValue) {
+    const { form } = this.props
+    const { setFieldsValue, getFieldValue, resetFields } = form
+    const secretConfigMapKeys = getFieldValue('secretConfigMapKeys') || []
+    setFieldsValue({
+      secretConfigMapKeys: secretConfigMapKeys.map(_key => {
+        if (_key.value === keyValue) {
+          // magic code ！
+          // 必须通过标记的方式删除，否则 redux store 中的 fields 与 form 中的 fields 无法一一对应
+          _key.deleted = true
+          resetFields([
+            `secretConfigMapMountPath${keyValue}`,
+            `secretConfigMapIsWholeDir${keyValue}`,
+            `secretConfigGroupName${keyValue}`,
+            `secretConfigMapSubPathValues${keyValue}`,
+          ])
+        }
+        return _key
+      })
+    })
+  },
+  handleSelectAll(keyValue, currentConfigGroup, e) {
+    const { form } = this.props
+    const { setFieldsValue } = form
+    const checked = e.target.checked
+    if (!checked) {
+      setFieldsValue({
+        [`secretConfigMapSubPathValues${keyValue}`]: [],
+      })
+      return
+    }
+    const secretConfigMapSubPathValues = currentConfigGroup.configs.map(config => config.name)
+    setFieldsValue({
+      [`secretConfigMapSubPathValues${keyValue}`]: secretConfigMapSubPathValues,
+    })
+  },
+  getSelectAllChecked(keyValue, currentConfigGroup) {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const allConfigMapSubPathValues = currentConfigGroup.configs.map(config => config.name)
+    const secretConfigMapSubPathValues = getFieldValue(`secretConfigMapSubPathValues${keyValue}`) || []
+    if (allConfigMapSubPathValues.length === secretConfigMapSubPathValues.length) {
+      return true
+    }
+    return false
+  },
+  render() {
+    const { formItemLayout, form } = this.props
+    const { getFieldValue } = form
+    const secretConfigMapKeys = getFieldValue('secretConfigMapKeys') || []
+    const header = (
+      <div className="headerBox">
+        <Row className="configBoxHeader" key="header">
+          <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
+            <div className="line"></div>
+            <span className="title">配置管理</span>
+          </Col>
+          <Col span={formItemLayout.wrapperCol.span} key="right">
+            <div className="desc">满足您统一管理某些服务配置文件的需求，即：不用停止服务，即可变更多个容器内的配置文件</div>
+          </Col>
+        </Row>
+      </div>
+    )
+    return (
+      <Row className="secret-config-map">
+        <Col span={formItemLayout.labelCol.span} className="formItemLabel">
+          加密配置&nbsp;
+          <a>
+            <Tooltip title="加密配置将通过 volume 的方式，将需要加密的配置文件挂载到指定目录，如：挂载目录为 /db-token，配置文件为 user、passwd，则挂载结果为 /db-token/user、/db-token/passwd">
+              <Icon type="question-circle-o" />
+            </Tooltip>
+          </a>
+        </Col>
+        <Col span={formItemLayout.wrapperCol.span}>
+          <div className="configMap">
+            <Row className="configMapHeader">
+              <Col span={5}>
+                挂载目录
+              </Col>
+              <Col span={5}>
+                覆盖方式
+              </Col>
+              <Col span={5}>
+                配置组
+              </Col>
+              <Col span={5}>
+                配置文件
+              </Col>
+              <Col span={4}>
+                操作
+              </Col>
+            </Row>
+            <div className="configMapBody">
+              {secretConfigMapKeys.map(this.renderConfigMapItem)}
+              <span className="addConfigMap" onClick={this.addConfigMapKey}>
+                <Icon type="plus-circle-o" />
+                <span>添加配置目录</span>
+              </span>
+            </div>
+          </div>
+        </Col>
+      </Row>
+    )
+  }
+})
+
+function mapStateToProps(state, props) {
+  const { entities, configReducers } = state
+  const { current } = entities
+  const { cluster } = current
+  const { configGroupList: configGroupListSrc } = configReducers
+  const defaultConfigList = {
+    isFetching: false,
+    cluster: cluster.clusterID,
+    configGroup: [],
+  }
+  const { configGroup } = configGroupListSrc[cluster.clusterID] || defaultConfigList
+  const configGroupList = (configGroupListSrc[cluster.clusterID] ? configGroupListSrc[cluster.clusterID].configGroup : [])
+  return {
+    currentCluster: cluster,
+    configGroupList,
+    defaultSelectValue: configGroupList[0] && configGroupList[0].name
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadConfigGroup,
+  secretConfigGroupName,
+})(SecretConfigMap)

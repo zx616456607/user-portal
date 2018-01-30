@@ -12,13 +12,16 @@
 
 import React, { PropTypes } from 'react'
 import {
-  Form, Collapse, Row, Col, Input, Tooltip, Button, Icon
+  Form, Collapse, Row, Col, Input, Tooltip, Button, Icon,
+  Select, Cascader,
 } from 'antd'
+import classNames from 'classnames'
 import { appEnvCheck } from '../../../../common/naming_validation'
 import './style/AdvancedSetting.less'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
+const Option = Select.Option
 
 const AdvancedSetting = React.createClass({
   getInitialState(){
@@ -95,9 +98,10 @@ const AdvancedSetting = React.createClass({
       return
     }
     const { form } = this.props
-    const { getFieldProps } = form
+    const { getFieldProps, getFieldValue } = form
     const keyValue = key.value
     const envNameKey = `envName${keyValue}`
+    const envValueTypeKey = `envValueType${keyValue}`
     const envValueKey = `envValue${keyValue}`
     const envNameProps = getFieldProps(envNameKey, {
       rules: [
@@ -105,11 +109,31 @@ const AdvancedSetting = React.createClass({
         { validator: this.checkEnv },
       ],
     })
+    const envValueTypeProps = getFieldProps(envValueTypeKey, {
+       initialValue: 'normal',
+    })
     const envValueProps = getFieldProps(envValueKey, {
        rules: [
          { required: true, message: '请填写值' }
        ],
     })
+    const envValueType = getFieldValue(envValueTypeKey)
+    const envValueInputClass = classNames({
+      hide: envValueType !== 'normal',
+    })
+    const envValueSelectClass = classNames('ant-input-wrapper ant-input-group', {
+      hide: envValueType !== 'secret',
+    })
+    const selectBefore = (
+      <Select
+        {...envValueTypeProps}
+        style={{ width: 80 }}
+        size="default"
+      >
+        <Option value="normal">普通变量</Option>
+        <Option value="secret">加密变量</Option>
+      </Select>
+    )
     return (
       <Row className="configItem" key={`configItem${keyValue}`}>
         <Col span={8}>
@@ -119,7 +143,21 @@ const AdvancedSetting = React.createClass({
         </Col>
         <Col span={12}>
           <FormItem>
-            <Input size="default" disabled={key.disabled} placeholder="请填写值" {...envValueProps} />
+            <span className={envValueInputClass}>
+              <Input
+                size="default"
+                disabled={key.disabled}
+                placeholder="请填写值"
+                {...envValueProps}
+                addonBefore={selectBefore}
+              />
+            </span>
+            <span className={envValueSelectClass}>
+              <span className="ant-input-group-addon">
+                {selectBefore}
+              </span>
+              <Cascader {...envValueProps} placeholder="请选择加密对象" />
+            </span>
           </FormItem>
         </Col>
         <Col span={4}>
@@ -166,6 +204,14 @@ const AdvancedSetting = React.createClass({
             <Row>
               <Col span={formItemLayout.labelCol.span} className="formItemLabel">
                 环境变量
+                <div className="tips">
+                  加密变量&nbsp;
+                  <a>
+                    <Tooltip title="加密变量将通过读取加密配置 Secret 的方式，将需要加密的变量映射至对应键，如：变量键为 DB_PASSWD 值选择加密变量 Token/passwd 则映射结果为 DB_PASSWD:[Token/passwd 的值]">
+                      <Icon type="question-circle-o" />
+                    </Tooltip>
+                  </a>
+                </div>
               </Col>
               <Col span={formItemLayout.wrapperCol.span}>
                 <div className="envConfig">

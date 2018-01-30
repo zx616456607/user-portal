@@ -16,7 +16,8 @@ import {
   Form, Collapse, Row, Col, Icon, Input, Select, Radio, Tooltip, Button, Checkbox, Cascader
 } from 'antd'
 import includes from 'lodash/includes'
-import { loadConfigGroup, configGroupName } from '../../../../actions/configs'
+import { loadConfigGroup, configGroupName } from '../../../../../actions/configs'
+import SecretConfigMap from './Secret'
 import './style/ConfigMapSetting.less'
 
 const Panel = Collapse.Panel
@@ -339,7 +340,7 @@ const ConfigMapSetting = React.createClass({
           <Panel header={header}>
             <Row>
               <Col span={formItemLayout.labelCol.span} className="formItemLabel">
-                配置目录
+              普通配置
               </Col>
               <Col span={formItemLayout.wrapperCol.span}>
                 <div className="configMap">
@@ -370,6 +371,10 @@ const ConfigMapSetting = React.createClass({
                 </div>
               </Col>
             </Row>
+            <SecretConfigMap
+              form={form}
+              formItemLayout={formItemLayout}
+            />
           </Panel>
         </Collapse>
       </div>

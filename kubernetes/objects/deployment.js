@@ -375,6 +375,10 @@ class Deployment {
         })
         return
       }
+      if (volume.secret) {
+        this.spec.template.spec.volumes.push(volume)
+        return
+      }
       if (volume.emptyDir) {
         this.spec.template.spec.volumes.push({
           name: volume.name,

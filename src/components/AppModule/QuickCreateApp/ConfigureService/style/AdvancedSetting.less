@@ -1,5 +1,9 @@
 #advancedConfigureService {
   padding-top: 38px;
+  .tips {
+    color: #ccc;
+    font-size: 12px;
+  }
   .envConfig {
     width: 84%;
     .configHeader {
@@ -22,6 +26,9 @@
           padding-left: 10px;
           vertical-align: middle;
         }
+        .ant-col-12 {
+          margin-top: 2px;
+        }
         .ant-form-item {
           margin-bottom: 0;
           .ant-input-number {
@@ -33,6 +40,21 @@
         }
         .deleteBtn {
           margin-top: 5px;
+        }
+        .ant-input-group-addon {
+          background-color: initial;
+        }
+        .ant-cascader-picker {
+          position: relative;
+          z-index: 2;
+          float: left;
+          width: 100%;
+          margin-bottom: 0;
+          display: table-cell;
+          .ant-cascader-input {
+            border-bottom-left-radius: 0;
+            border-top-left-radius: 0;
+          }
         }
       }
       .addEnv {
