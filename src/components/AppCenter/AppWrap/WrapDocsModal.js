@@ -19,6 +19,10 @@ import { throwError } from '../../../actions'
 const notify = new NotificationHandler()
 const FormItem = Form.Item
 
+function noop() {
+  return false
+}
+
 class WrapDocsModal extends React.Component {
   constructor() {
     super()
@@ -118,6 +122,7 @@ class WrapDocsModal extends React.Component {
       headers,
       action: `${API_URL_PREFIX}/pkg/${currentWrap.id}/docs?file=${fileName}`,
       multiple: true,
+      disabled: confirmLoading,
       fileList,
       beforeUpload: file=> {
         this.setState(({ fileList }) => ({
@@ -125,7 +130,7 @@ class WrapDocsModal extends React.Component {
         }))
         return false
       },
-      onRemove: (file) => {
+      onRemove: confirmLoading ? noop : (file) => {
         this.setState(({ fileList }) => {
           const index = fileList.indexOf(file);
           const newFileList = fileList.slice();
@@ -154,7 +159,7 @@ class WrapDocsModal extends React.Component {
             label="相关附件"
           >
             <Upload {...props}>
-              <Button type="ghost" style={{ marginRight: 10 }}>
+              <Button type="ghost" style={{ marginRight: 10 }} disabled={confirmLoading}>
                 添加附件
               </Button>
               <span className="hintColor">
