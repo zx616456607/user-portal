@@ -865,6 +865,21 @@ export function wrapManageList(query, callback) {
   }
 }
 
+export const GET_REGISTRY_TEMPLATE_REQUEST = 'GET_REGISTRY_TEMPLATE_REQUEST'
+export const GET_REGISTRY_TEMPLATE_SUCCESS = 'GET_REGISTRY_TEMPLATE_SUCCESS'
+export const GET_REGISTRY_TEMPLATE_FAILURE = 'GET_REGISTRY_TEMPLATE_FAILURE'
+
+export function getImageTempate(registry, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_REGISTRY_TEMPLATE_REQUEST, GET_REGISTRY_TEMPLATE_SUCCESS, GET_REGISTRY_TEMPLATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/template`,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
+  }
+}
+
 export const DEL_WRAP_MANAGE_LIST_REQUEST = 'DEL_WRAP_MANAGE_LIST_REQUEST'
 export const DEL_WRAP_MANAGE_LIST_SUCCESS = 'DEL_WRAP_MANAGE_LIST_SUCCESS'
 export const DEL_WRAP_MANAGE_LIST_FAILURE = 'DEL_WRAP_MANAGE_LIST_FAILURE'

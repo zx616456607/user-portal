@@ -13,13 +13,10 @@ import QueueAnim from 'rc-queue-anim'
 import { Link, browserHistory } from 'react-router'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { wrapManageList, getWrapStoreList } from '../../../actions/app_center'
+import { wrapManageList, getWrapStoreList,getImageTempate } from '../../../actions/app_center'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../constants'
 import { API_URL_PREFIX } from '../../../constants'
 import { formatDate } from '../../../common/tools'
-import javaImage from '../../../assets/img/appstore/java.png'
-import tomcatImage from '../../../assets/img/appstore/tomcat.png'
-import weblogicImage from '../../../assets/img/appstore/weblogic.png'
 import Title from '../../Title'
 import NotificationHandler from '../../../components/Notification'
 import WrapListTable from '../../AppCenter/AppWrap/WrapListTable'
@@ -44,26 +41,7 @@ class WrapManage extends Component {
       selectedRowKeys:[],
       version:'none',
       id:[],// selected id
-      template: [
-        {
-          registry: DEFAULT_REGISTRY,
-          name: 'tenx_containers/java',
-          imageUrl: javaImage,
-          version: ['8','7']
-        },
-        {
-          registry: DEFAULT_REGISTRY,
-          name: 'tenx_containers/tomcat',
-          imageUrl: tomcatImage,
-          version: ['9','8','7']
-        },
-        {
-          registry: DEFAULT_REGISTRY,
-          name: 'tenx_containers/weblogic',
-          imageUrl: weblogicImage,
-          version: ['11g']
-        }
-      ],
+      template: [],
       currentType: 'trad'
     }
   }
@@ -117,7 +95,15 @@ class WrapManage extends Component {
       return
     }
     this.loadData()
-    window.template = this.state.template
+    this.props.getImageTempate(DEFAULT_REGISTRY,{
+      success:{
+        func:(res) => {
+          window.template = res.template
+          this.setState({template:res.template})
+        }
+      }
+
+    })
   }
   getList(e) {
     let inputValue = e.target.value
@@ -156,6 +142,9 @@ class WrapManage extends Component {
       currentType: type,
       selectedRowKeys: [],
       id: [],
+      defaultTemplate:null, // not selected
+      version:'none', // not selected
+      fileType:'none', // not selected
     })
     switch(type) {
       case 'trad':
@@ -214,18 +203,15 @@ class WrapManage extends Component {
     this.setState({defaultTemplate: num,version:item.version[0]})
   }
   templateList() {
-    const { template,defaultTemplate } = this.state
-    let disabled = [defaultTemplate]
-    if (defaultTemplate === 0) {
-      disabled = [1,2]
-    }
-    if (defaultTemplate >0) {
-      disabled = [0]
-    }
+    const { template,defaultTemplate,fileType } = this.state
     return template.map((item,index) => {
+      let disabled = item.type !== fileType
+      if (item.type.indexOf('|')> -1) {
+        disabled = false
+      }
       let name = item.name.split('/')[1]
       return (
-        <Button type="ghost" key={index} onClick={()=> this.changTemplate(index,item)} disabled={ !window.WrapListTable || disabled.some(list=> list === index)} style={{border:0}}>
+        <Button type="ghost" key={index} onClick={()=> this.changTemplate(index,item)} disabled={ !window.WrapListTable || disabled} style={{border:0}}>
         <div className="template" key={item.name}>
           <img src={`${item.imageUrl}`} />
           {defaultTemplate == index?
@@ -241,7 +227,7 @@ class WrapManage extends Component {
             }
             </span>
         </div>
-        <div className="template_version">最新版本：{template[index].version[0]}</div>
+        <div className="template_version">最新版本：{item.version[0]}</div>
         </Button>
       )
 
@@ -514,5 +500,6 @@ WrapManage = Form.create()(WrapManage)
 
 export default connect(mapStateToProps, {
   wrapManageList,
+  getImageTempate,
   getWrapStoreList
 })(WrapManage)

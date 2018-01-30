@@ -14,7 +14,7 @@ const registryConfigLoader = require('../registry/registryConfigLoader')
 const constants = require('../constants')
 const utils = require('../utils')
 const markdown = require('markdown-it')()
-
+const configEnv = require('../configs')
 const securityUtil = require('../utils/security')
 
 // [GET] /projects/search
@@ -370,6 +370,19 @@ exports.getReplicationTargetRelatedPolicies = harborHandler(
 exports.getReplicationSummary = harborHandler(
   (harbor, ctx, callback) => next(null, null, null, ensureUserHasAdminRole, callback, harbor, ctx, {})
 )
+exports.getImageTemplate = function* () {
+  const registry = this.params.registry
+  this.status = 200
+  let body = JSON.parse(configEnv.registryTemplate)
+  if (registry !== 'default') {
+    body.forEach(item=> {
+      item.registry = registry
+    })
+  }
+  this.body = {
+    template: body
+  }
+}
 
 function next(err, statusCode, body, successor, predecessor, harbor, ctx, result) {
   if (err || statusCode > 300) {

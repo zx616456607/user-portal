@@ -327,6 +327,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/projects/:id/replication/summary', harborController.getReplicationSummary)
 
   router.get('/registries/:registry/statistics', harborController.getStatistics)
+  router.get('/registries/:registry/template', harborController.getImageTemplate)
 
   // Registries of TenxCloud
   router.get('/registries/:registry', registryController.getImages)

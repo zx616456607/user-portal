@@ -309,6 +309,7 @@ class WrapListTable extends Component {
         id: [record.id],
         defaultTemplate: record.fileType =='jar' ? 0 : 1,
         version: null,
+        fileType: record.fileType,
       })
       window.WrapListTable = record
       return
@@ -316,6 +317,7 @@ class WrapListTable extends Component {
     func.scope.setState({
       selectedRowKeys: newSelectedRowKeys,
       id: newId,
+      fileType: record.fileType,
     })
   }
 
@@ -448,6 +450,7 @@ class WrapListTable extends Component {
             id: ids,
             defaultTemplate: selectedRows[0].fileType =='jar' ? 0 : 1,
             version: null,
+            fileType:selectedRows[0].fileType
           })
           window.WrapListTable = selectedRows[0]
           return
