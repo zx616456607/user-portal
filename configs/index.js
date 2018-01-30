@@ -10,7 +10,7 @@
 'use strict'
 const constants = require('./constants')
 const globalConstants = require('../constants')
-
+const registryTemplate = require('./3rd_account/registry_template.json')
 const env = process.env
 
 const config = {
@@ -76,7 +76,8 @@ const config = {
   registryConfig: {
     user: env.REGISTRY_USER || 'admin',
     password: env.REGISTRY_PASSWORD || 'e3442e6a-779b-4c34-911f-855b42ea80af'
-  }
+  },
+  registryTemplate: env.REGISTRY_TEMPLATE || JSON.stringify(registryTemplate)
 }
 const node_env = config.node_env
 if (node_env === 'staging') {
