@@ -48,7 +48,15 @@ class WrapManage extends Component {
   componentWillMount() {
     const { location } = this.props
     const { from, fileName } = location.query
-    const { template } = this.state
+    this.props.getImageTempate(DEFAULT_REGISTRY,{
+      success:{
+        func:(res) => {
+          window.template = res.template
+          this.setState({template:res.template})
+        }
+      }
+
+    })
     let query = {}
     if (fileName) {
       query = {
@@ -68,13 +76,15 @@ class WrapManage extends Component {
             case 'jar':
               this.setState({
                 defaultTemplate: 0,
-                version: template[0].version[0]
+                fileType:'jar',
+                version: window.template[0].version[0]
               })
               break
             case 'war':
               this.setState({
                 defaultTemplate: 1,
-                version: template[1].version[0]
+                fileType:'war',
+                version: window.template[1].version[0]
               })
               break
             default:
@@ -95,15 +105,6 @@ class WrapManage extends Component {
       return
     }
     this.loadData()
-    this.props.getImageTempate(DEFAULT_REGISTRY,{
-      success:{
-        func:(res) => {
-          window.template = res.template
-          this.setState({template:res.template})
-        }
-      }
-
-    })
   }
   getList(e) {
     let inputValue = e.target.value
