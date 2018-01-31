@@ -258,11 +258,6 @@ function mapStateToProps(state, props) {
   const { entities, secrets } = state
   const { current } = entities
   const { cluster } = current
-  const defaultConfigList = {
-    isFetching: false,
-    cluster: cluster.clusterID,
-    configGroup: [],
-  }
   let secretsList = secrets.list[cluster.clusterID] || {}
   secretsList = secretsList.data || []
   const secretsOptions = secretsList.map(secret => ({
