@@ -25,6 +25,7 @@ import * as integrationReducers from './integration'
 import * as clusterNodeReducers from './cluster_node'
 import * as globalConfig from './global_config'
 import configReducers from './configs'
+import secrets from './secrets'
 import storage from './storage'
 import metrics from './metrics'
 import user from './user'
@@ -147,6 +148,7 @@ const rootReducer = combineReducers({
   ...clusterNodeReducers,
   ...globalConfig,
   configReducers,
+  secrets,
   metrics,
   user,
   routing,

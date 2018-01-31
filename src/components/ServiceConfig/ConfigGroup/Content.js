@@ -4,21 +4,18 @@
  */
 
 /**
- * service config: secret
+ * config group: content
  *
  * v0.1 - 2018-01-30
  * @author Zhangpc
  */
 
 import React from 'react'
-import './style/Secret.less'
 
-export default class ServiceSecretConfig extends React.Component {
+export default class ConfigGroupContent extends React.Component {
   render() {
     return (
-      <div className="service-secret-config">
-        <h1>加密配置</h1>
-      </div>
+      <h1>content</h1>
     )
   }
 }

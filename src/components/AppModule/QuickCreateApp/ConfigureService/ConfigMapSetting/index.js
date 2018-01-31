@@ -17,7 +17,7 @@ import {
 } from 'antd'
 import includes from 'lodash/includes'
 import { loadConfigGroup, configGroupName } from '../../../../../actions/configs'
-import SecretConfigMap from './Secret'
+import SecretsConfigMap from './Secrets'
 import './style/ConfigMapSetting.less'
 
 const Panel = Collapse.Panel
@@ -371,7 +371,7 @@ const ConfigMapSetting = React.createClass({
                 </div>
               </Col>
             </Row>
-            <SecretConfigMap
+            <SecretsConfigMap
               form={form}
               formItemLayout={formItemLayout}
             />

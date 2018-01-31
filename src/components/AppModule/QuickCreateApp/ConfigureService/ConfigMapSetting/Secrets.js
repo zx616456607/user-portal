@@ -26,7 +26,7 @@ const RadioGroup = Radio.Group
 const CheckboxGroup = Checkbox.Group
 const PATH_REG = /^\//
 
-const SecretConfigMap = React.createClass({
+const SecretsConfigMap = React.createClass({
   componentWillMount() {
     const { currentCluster, loadConfigGroup } = this.props
     loadConfigGroup(currentCluster.clusterID)
@@ -372,4 +372,4 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   loadConfigGroup,
   configGroupName,
-})(SecretConfigMap)
+})(SecretsConfigMap)

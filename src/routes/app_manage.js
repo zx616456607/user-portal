@@ -85,7 +85,7 @@ const appManageRoutes = [{
   },
   childRoutes: [{
     path: 'secrets',
-    component: require('../components/ServiceConfig/Secret').default
+    component: require('../components/ServiceConfig/Secrets').default
   }]
 },{
   path: 'load_balance',
