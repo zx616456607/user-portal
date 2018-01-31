@@ -32,7 +32,6 @@ class SecretsConfig extends React.Component {
 
   getSecretsConfigMap = () => {
     const { service, secretsList } = this.props
-    console.log('secretsList', secretsList)
     const secretsConfigMap = []
     service.spec.template.spec.volumes.forEach(v => {
       const { secret, name } = v
@@ -69,9 +68,7 @@ class SecretsConfig extends React.Component {
 
   render() {
     const { service } = this.props
-    console.log('service', service)
     const secretsConfigMap = this.getSecretsConfigMap()
-    console.log('secretsConfigMap', secretsConfigMap)
     return (
       <div id="secrets-config">
         <div className="titleBox">
