@@ -104,7 +104,7 @@ const AdvancedSetting = React.createClass({
       return
     }
     const { form, secretsOptions } = this.props
-    const { getFieldProps, getFieldValue } = form
+    const { getFieldProps, getFieldValue, resetFields } = form
     const keyValue = key.value
     const envNameKey = `envName${keyValue}`
     const envValueTypeKey = `envValueType${keyValue}`
@@ -117,6 +117,7 @@ const AdvancedSetting = React.createClass({
     })
     const envValueTypeProps = getFieldProps(envValueTypeKey, {
        initialValue: 'normal',
+       onChange: () => resetFields([ envValueKey ]),
     })
     const envValueProps = getFieldProps(envValueKey, {
        rules: [

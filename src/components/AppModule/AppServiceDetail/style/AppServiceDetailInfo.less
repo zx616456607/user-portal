@@ -188,6 +188,21 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow : ellipsis;
+      .ant-input-group-addon {
+        background-color: initial;
+      }
+      .ant-cascader-picker {
+        position: relative;
+        z-index: 2;
+        float: left;
+        width: 100%;
+        margin-bottom: 0;
+        display: table-cell;
+        .ant-cascader-input {
+          border-bottom-left-radius: 0;
+          border-top-left-radius: 0;
+        }
+      }
     }
     .saveBtn{
       margin-right: 5px;
