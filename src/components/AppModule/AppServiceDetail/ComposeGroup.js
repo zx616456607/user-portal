@@ -13,7 +13,9 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import filter from 'lodash/filter'
+import classNames from 'classnames'
 import { loadConfigName, loadConfigGroup } from '../../../actions/configs.js'
+import SecretsConfig from './SecretsConfig'
 import "./style/ComposeGroup.less"
 
 let MyComponent = React.createClass({
@@ -182,9 +184,9 @@ let MyComponent = React.createClass({
           <div className="configFile-wrap">
             <div className="ant-col-3 key">内容：</div>
             <div className="ant-col-19">
-              <div className="configFile-content">
+              <pre className="configFile-content">
               {this.state.configtextarea}
-              </div>
+              </pre>
             </div>
           </div>
           <br />
@@ -206,31 +208,76 @@ MyComponent = connect(mapStateToProps, {
   loadConfigGroup
 })(MyComponent)
 
+const tabs = [
+  {
+    text: '普通配置',
+    key: 'normal'
+  },
+  {
+    text: '加密配置',
+    key: 'secrets'
+  },
+]
+
 export default class ComposeGroup extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      activeKey: 'normal'
+    }
   }
 
   render() {
     const parentScope = this;
+    const { activeKey } = this.state
+    const { service } = this.props
     return (
       <div id="ComposeGroup">
-        <div className="titleBox">
-          <div className="commonTitle">
-            容器挂载点
-          </div>
-          <div className="commonTitle">
-            配置分类
-          </div>
-          <div className="commonTitle">
-            配置组
-          </div>
-          <div className="commonTitle">
-            配置文件
-          </div>
-          <div style={{ clear: "both" }}></div>
+        <div className='tabs_header_style'>
+          {
+            tabs.map(tab => {
+              const { text, key } = tab
+              const active = key === activeKey
+              const tabClassNames = classNames('tabs_item_style', {
+                'tabs_item_selected_style': active,
+              })
+              return (
+                <div
+                  className={tabClassNames}
+                  key={key}
+                  onClick={() => this.setState({ activeKey: key })}
+                >
+                  {text}
+                </div>
+              )
+            })
+          }
         </div>
-        <MyComponent service={this.props.service} serviceName={this.props.serviceName} cluster={this.props.cluster} serviceDetailmodalShow={this.props.serviceDetailmodalShow}/>
+        {
+          activeKey === 'normal' &&
+          <div>
+            <div className="titleBox">
+              <div className="commonTitle">
+                容器挂载点
+              </div>
+              <div className="commonTitle">
+                配置分类
+              </div>
+              <div className="commonTitle">
+                配置组
+              </div>
+              <div className="commonTitle">
+                配置文件
+              </div>
+              <div style={{ clear: "both" }}></div>
+            </div>
+            <MyComponent service={service} serviceName={this.props.serviceName} cluster={this.props.cluster} serviceDetailmodalShow={this.props.serviceDetailmodalShow}/>
+          </div>
+        }
+        {
+          activeKey === 'secrets' &&
+          <SecretsConfig service={service} />
+        }
       </div>
     )
   }

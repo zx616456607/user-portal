@@ -7,7 +7,10 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Card, Spin, Icon, Form, Input, Select, Button, Dropdown, Menu, Tooltip, Modal, Row, Col, Checkbox } from 'antd'
+import {
+  Card, Spin, Icon, Form, Input, Select, Button, Dropdown,
+  Menu, Tooltip, Modal, Row, Col, Checkbox, Cascader
+} from 'antd'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
 import QueueAnim from 'rc-queue-anim'
@@ -20,6 +23,7 @@ import { editServiceEnv, loadAutoScale, editServiceVolume, loadServiceDetail, lo
 import NotificationHandler from '../../../components/Notification'
 import PersistentVolumeClaim from '../../../../kubernetes/objects/persistentVolumeClaim'
 import { createStorage } from '../../../actions/storage'
+import { getSecrets } from '../../../actions/secrets'
 import { Link } from 'react-router'
 import ContainerCatalogueModal from '../ContainerCatalogueModal'
 import cloneDeep from 'lodash/cloneDeep'
@@ -32,6 +36,7 @@ const scheduleBySystem = 'ScheduleBySystem'
 const scheduleByHostNameOrIP = 'ScheduleByHostNameOrIP'
 const scheduleByLabels = 'ScheduleByLabels'
 const unknownSchedulePolicy = 'Error'
+const Option = Select.Option
 
 class MyComponent extends Component {
   constructor(props){
@@ -59,7 +64,7 @@ class MyComponent extends Component {
   }
 
   componentWillMount(){
-    const { serviceDetail } = this.props
+    const { serviceDetail, currentCluster, getSecrets } = this.props
     const containers = serviceDetail.spec.template.spec.containers[0].env
     let rowDisableArray = []
     let dataArray = []
@@ -76,6 +81,7 @@ class MyComponent extends Component {
       dataArray,
       saveBtnLoadingArray,
     })
+    getSecrets(currentCluster.clusterID)
   }
   handleEdit(index){
     const { rowDisableArray, dataArray } = this.state
@@ -125,11 +131,11 @@ class MyComponent extends Component {
     const { serviceDetail, cluster, editServiceEnv } = this.props
     const Notification = new NotificationHandler()
     this.setState({appEditLoading: true})
-    if(dataArray.length > 1 && (dataArray[dataArray.length-1].name == '' || dataArray[dataArray.length-1].value == '' )){
+    /* if(dataArray.length > 1 && (dataArray[dataArray.length-1].name == '' || dataArray[dataArray.length-1].value == '' )){
 
       new NotificationHandler().error("请先保存新增的环境变量")
       return
-    }
+    } */
     let body = {
       clusterId : cluster,
       service : serviceDetail.metadata.name,
@@ -184,7 +190,16 @@ class MyComponent extends Component {
     }
     saveBtnLoadingArray[index].loading = true
     dataArray[index].name = name
-    dataArray[index].value = value
+    if (Array.isArray(value)) {
+      dataArray[index].valueFrom = {
+        secretKeyRef: {
+          name: value[0],
+          key: value[1],
+        }
+      }
+    } else {
+      dataArray[index].value = value
+    }
     this.setState({
       saveBtnLoadingArray,
       appEditBtn: true
@@ -280,14 +295,42 @@ class MyComponent extends Component {
     if(dataArray.length == 0) {
       return <div className='noData'>暂无环境变量</div>
     }
-    const { form } = this.props
-    const { getFieldProps } = form
+    const { form, secretsOptions } = this.props
+    const { getFieldProps, getFieldValue, resetFields } = form
     const ele = []
     dataArray.forEach((env,index) => {
-
-      const editMenu = (<Menu style={{width:'100px'}} onClick={() => this.handleEdit(index)}>
+      const editMenu = <Menu style={{width:'100px'}} onClick={() => this.handleEdit(index)}>
         <Menu.Item key="1"><Icon type="edit" />&nbsp;编辑</Menu.Item>
-      </Menu>)
+      </Menu>
+      let value = env.value
+      if (env.valueFrom) {
+        value = [ env.valueFrom.secretKeyRef.name, env.valueFrom.secretKeyRef.key ]
+      }
+      const valueString = Array.isArray(value) ? value.join('/') : value
+      const envValueProps = getFieldProps(`envValue${index}`, {
+        initialValue: value
+      })
+      const envValueTypeProps = getFieldProps(`envValueType${index}`, {
+        initialValue: env.valueFrom ? 'secret' : 'normal',
+        onChange: () => resetFields([ `envValue${index}` ]),
+      })
+      const envValueType = getFieldValue(`envValueType${index}`)
+      const envValueInputClass = classNames({
+        hide: envValueType !== 'normal',
+      })
+      const envValueSelectClass = classNames('ant-input-wrapper ant-input-group', {
+        hide: envValueType !== 'secret',
+      })
+      const selectBefore = (
+        <Select
+          {...envValueTypeProps}
+          style={{ width: 80 }}
+          size="default"
+        >
+          <Option value="normal">普通变量</Option>
+          <Option value="secret">加密变量</Option>
+        </Select>
+      )
 
       ele.push(
         <div className="dataBox" key={index}>
@@ -309,14 +352,39 @@ class MyComponent extends Component {
             {
               rowDisableArray[index].disable
               ?<FormItem>
-                <Input {...getFieldProps(`envValue${index}`,{
-                  initialValue:env.value
-                })
-                } placeholder={env.value} size="default"/>
+                <span className={envValueInputClass}>
+                  <Input
+                    size="default"
+                    placeholder="请填写值"
+                    {...envValueProps}
+                    addonBefore={selectBefore}
+                  />
+                </span>
+                <span className={envValueSelectClass}>
+                  <span className="ant-input-group-addon">
+                    {selectBefore}
+                  </span>
+                  <Cascader
+                    {...envValueProps}
+                    placeholder="请选择加密对象"
+                    options={secretsOptions}
+                  />
+                </span>
               </FormItem>
-              :<Tooltip title={env.value} placement="topLeft">
-                <span style={{width:'33%'}}>{env.value || <i>&nbsp;</i>}</span>
-              </Tooltip>
+              : <span style={{width:'33%'}}>
+                {
+                  Array.isArray(value) &&
+                  <a>
+                    <Tooltip title="加密变量" placement="top">
+                      <i className="fa fa-key" />
+                    </Tooltip>
+                  </a>
+                }
+                &nbsp;
+                <Tooltip title={valueString} placement="topLeft">
+                  <span>{valueString || ' '}</span>
+                </Tooltip>
+              </span>
             }
           </div>
           <div>
@@ -399,14 +467,37 @@ class MyComponent extends Component {
 MyComponent = Form.create()(MyComponent)
 
 function mapStateToProp(state, props){
-
+  const { entities, secrets } = state
+  const { current } = entities
+  const { cluster } = current
+  const defaultConfigList = {
+    isFetching: false,
+    cluster: cluster.clusterID,
+    configGroup: [],
+  }
+  let secretsList = secrets.list[cluster.clusterID] || {}
+  secretsList = secretsList.data || []
+  const secretsOptions = secretsList.map(secret => ({
+    value: secret.name,
+    label: secret.name,
+    disabled: !secret.data,
+    children: !secret.data
+      ? []
+      : Object.keys(secret.data).map(key => ({
+        value: key,
+        label: key,
+      }))
+  }))
   return {
-
+    currentCluster: cluster,
+    secretsList,
+    secretsOptions,
   }
 }
 
 MyComponent = connect(mapStateToProp, {
   editServiceEnv,
+  getSecrets,
 })(MyComponent)
 
 class BindNodes extends Component {
@@ -1216,10 +1307,9 @@ AppServiceDetailInfo.propTypes = {
   //
 }
 
-function mapStateToPropsInfo(state, props){
-
+function mapStateToPropsInfo(state, props) {
   return {
-
+    //
   }
 }
 
@@ -1228,5 +1318,5 @@ export default connect(mapStateToPropsInfo, {
   createStorage,
   editServiceVolume,
   loadAllServices,
-  loadServiceDetail
+  loadServiceDetail,
 })(AppServiceDetailInfo)

@@ -79,9 +79,14 @@ const appManageRoutes = [{
   component: require('../components/StorageModule/ShareMemory/ShareStorageDetail').default,
 },{
   path: 'configs',
+  component: require('../components/ServiceConfig').default,
   indexRoute: {
     component: require('../components/ServiceConfig/Service').default,
   },
+  childRoutes: [{
+    path: 'secrets',
+    component: require('../components/ServiceConfig/Secrets').default
+  }]
 },{
   path: 'load_balance',
   indexRoute: {

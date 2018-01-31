@@ -9,7 +9,6 @@
  */
 
 import React, { Component } from 'react'
-import {  } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/index.less'

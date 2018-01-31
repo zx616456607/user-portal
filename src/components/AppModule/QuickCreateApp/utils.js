@@ -78,7 +78,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     livenessPeriodSeconds, // 高可用-检查间隔
     livenessPath, // 高可用-Path 路径
     envKeys, // 环境变量的 keys(数组)
-    configMapKeys, // 配置目录的 keys(数组)
+    configMapKeys, // 普通配置目录的 keys(数组)
+    secretConfigMapKeys, // 加密配置目录的 keys(数组)
   } = fieldsValues
   const MOUNT_PATH = 'mountPath' // 容器目录
   const VOLUME = 'volume' // 存储卷(rbd)
@@ -292,15 +293,26 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
       if (!key.deleted) {
         const keyValue = key.value
         const envName = fieldsValues[`envName${keyValue}`]
+        const envValueType = fieldsValues[`envValueType${keyValue}`]
         const envValue = fieldsValues[`envValue${keyValue}`]
         if (envName && envValue !== envObj[envName]) {
-          deployment.addContainerEnv(serviceName, envName, envValue)
+          if (envValueType === 'normal') {
+            deployment.addContainerEnv(serviceName, envName, envValue)
+          } else {
+            const valueFrom = {
+              secretKeyRef: {
+                name: envValue[0],
+                key: envValue[1],
+              }
+            }
+            deployment.addContainerEnv(serviceName, envName, null, valueFrom)
+          }
         }
       }
     })
   }
 
-  // 设置配置目录
+  // 设置普通配置目录
   if (configMapKeys) {
     configMapKeys.forEach(key => {
       if (!key.deleted) {
@@ -336,6 +348,40 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
           })
         }
         deployment.addContainerVolume(serviceName, volume, volumeMounts, configMapIsWholeDir)
+      }
+    })
+  }
+
+  // 设置加密配置目录
+  if (secretConfigMapKeys) {
+    secretConfigMapKeys.forEach(key => {
+      if (!key.deleted) {
+        const keyValue = key.value
+        const secretConfigMapMountPath = fieldsValues[`secretConfigMapMountPath${keyValue}`]
+        const secretConfigMapIsWholeDir = fieldsValues[`secretConfigMapIsWholeDir${keyValue}`]
+        const secretConfigGroupName = fieldsValues[`secretConfigGroupName${keyValue}`]
+        const secretConfigMapSubPathValues = fieldsValues[`secretConfigMapSubPathValues${keyValue}`]
+        const volume = {
+          name: `secret-volume-${keyValue}`,
+          secret: {
+            secretName: secretConfigGroupName,
+          },
+        }
+        if (!secretConfigMapIsWholeDir) {
+          volume.secret.items = secretConfigMapSubPathValues.map(value => {
+            return {
+              key: value,
+              path: value,
+            }
+          })
+        }
+        const volumeMounts = []
+        volumeMounts.push({
+          name: `secret-volume-${keyValue}`,
+          mountPath: secretConfigMapMountPath,
+          readOnly: true,
+        })
+        deployment.addContainerVolume(serviceName, volume, volumeMounts, true)
       }
     })
   }
