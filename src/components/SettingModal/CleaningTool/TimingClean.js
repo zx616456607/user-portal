@@ -349,7 +349,8 @@ class TimingClean extends Component {
       return item.indexOf(0) === 0 ? item.substring(1) : item
     })
     time = time.reverse()
-    if (type === 'system') {
+    // No need to adjust the time if timezone is correct
+    /*if (type === 'system') {
       let timeInd2 = Number(time[1])
       if (timeInd2 >= 0 && timeInd2 <= 8) {
         timeInd2 += 16
@@ -358,7 +359,7 @@ class TimingClean extends Component {
       }
       timeInd2 = String(timeInd2)
       time.splice(1, 1, timeInd2)
-    }
+    }*/
     time = time.join(' ')
     switch(CICDcacheCycle) {
       case 'day':
