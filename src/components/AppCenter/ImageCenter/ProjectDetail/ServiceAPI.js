@@ -69,6 +69,16 @@ class ServiceAPI extends Component {
     let processedName = encodeImageFullname(fullname)
     loadRepositoriesTagConfigInfo(registry, processedName, imageTags);
   }
+  componentWillReceiveProps(nextProps) {
+    const newImagename = nextProps.fullname
+    const newImageTag = nextProps.imageTags
+    const { registry, loadRepositoriesTagConfigInfo } = this.props;
+    const { fullname, imageTags} = this.props;
+    if (newImagename !== fullname || imageTags !== newImageTag) {
+      let processedName = encodeImageFullname(newImagename)
+      loadRepositoriesTagConfigInfo(registry, processedName, newImageTag);
+    }
+  }
   render() {
     const { isFetching, configList } = this.props
     if (isFetching) {
