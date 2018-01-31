@@ -17,7 +17,7 @@ import {
   Checkbox,
 } from 'antd'
 import includes from 'lodash/includes'
-import { loadConfigGroup, configGroupName } from '../../../../../actions/configs'
+import { getSecrets } from '../../../../../actions/secrets'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -28,8 +28,8 @@ const PATH_REG = /^\//
 
 const SecretsConfigMap = React.createClass({
   componentWillMount() {
-    const { currentCluster, loadConfigGroup } = this.props
-    loadConfigGroup(currentCluster.clusterID)
+    const { currentCluster, getSecrets } = this.props
+    getSecrets(currentCluster.clusterID)
   },
   onIsWholeDirChange(keyValue, currentConfigGroup, e) {
     if (!currentConfigGroup) {
@@ -40,17 +40,17 @@ const SecretsConfigMap = React.createClass({
     this.handleSelectAll(keyValue, currentConfigGroup, e)
   },
   onConfigGroupChange(keyValue, value) {
-    const { form, configGroupList } = this.props
+    const { form, secretsList } = this.props
     const { getFieldValue } = form
     const secretConfigMapIsWholeDir = getFieldValue(`secretConfigMapIsWholeDir${keyValue}`)
     if (secretConfigMapIsWholeDir) {
-      const currentConfigGroup = this.getConfigGroupByName(configGroupList, value [1])
+      const currentConfigGroup = this.getConfigGroupByName(secretsList, value)
       this.handleSelectAll(keyValue, currentConfigGroup, { target: { checked: true } })
     }
   },
-  getConfigGroupByName(configGroupList, secretConfigGroupName) {
+  getConfigGroupByName(secretsList, secretConfigGroupName) {
     let currentConfigGroup
-    configGroupList.every(item => {
+    secretsList.every(item => {
       if (item.name === secretConfigGroupName) {
         currentConfigGroup = item
         return false
@@ -84,7 +84,7 @@ const SecretsConfigMap = React.createClass({
     callback(error)
   },
   renderConfigMapItem(key) {
-    const { form, configGroupList, defaultSelectValue } = this.props
+    const { form, secretsList, defaultSelectValue } = this.props
     const { getFieldProps, getFieldValue, setFieldsValue } = form
     const keyValue = key.value
     const secretConfigMapSubPathValuesKey = `secretConfigMapSubPathValues${keyValue}`
@@ -99,13 +99,13 @@ const SecretsConfigMap = React.createClass({
     const secretConfigGroupNameKey = `secretConfigGroupName${keyValue}`
     const secretConfigGroupName = getFieldValue(secretConfigGroupNameKey)
     const secretConfigMapIsWholeDir = getFieldValue(secretConfigMapIsWholeDirKey)
-    const currentConfigGroup = this.getConfigGroupByName(configGroupList, secretConfigGroupName)
+    const currentConfigGroup = this.getConfigGroupByName(secretsList, secretConfigGroupName)
     let configMapSubPathOptions = []
     if (currentConfigGroup) {
-      configMapSubPathOptions = currentConfigGroup.configs.map(config => {
+      configMapSubPathOptions = Object.keys(currentConfigGroup.data || {}).map(key => {
         return {
-          label: config.name,
-          value: config.name,
+          label: key,
+          value: key,
         }
       })
     }
@@ -162,7 +162,7 @@ const SecretsConfigMap = React.createClass({
           <FormItem>
             <Select placeholder="配置组" {...secretConfigGroupNameProps}>
               {
-                configGroupList.map(group => <Option key={group.name}>
+                secretsList.map(group => <Option key={group.name}>
                   {group.name}
                 </Option>)
               }
@@ -275,7 +275,7 @@ const SecretsConfigMap = React.createClass({
       })
       return
     }
-    const secretConfigMapSubPathValues = currentConfigGroup.configs.map(config => config.name)
+    const secretConfigMapSubPathValues = Object.keys(currentConfigGroup.data || {})
     setFieldsValue({
       [`secretConfigMapSubPathValues${keyValue}`]: secretConfigMapSubPathValues,
     })
@@ -283,7 +283,7 @@ const SecretsConfigMap = React.createClass({
   getSelectAllChecked(keyValue, currentConfigGroup) {
     const { form } = this.props
     const { getFieldValue } = form
-    const allConfigMapSubPathValues = currentConfigGroup.configs.map(config => config.name)
+    const allConfigMapSubPathValues = Object.keys(currentConfigGroup.data || {})
     const secretConfigMapSubPathValues = getFieldValue(`secretConfigMapSubPathValues${keyValue}`) || []
     if (allConfigMapSubPathValues.length === secretConfigMapSubPathValues.length) {
       return true
@@ -351,25 +351,23 @@ const SecretsConfigMap = React.createClass({
 })
 
 function mapStateToProps(state, props) {
-  const { entities, configReducers } = state
+  const { entities, secrets } = state
   const { current } = entities
   const { cluster } = current
-  const { configGroupList: configGroupListSrc } = configReducers
   const defaultConfigList = {
     isFetching: false,
     cluster: cluster.clusterID,
     configGroup: [],
   }
-  const { configGroup } = configGroupListSrc[cluster.clusterID] || defaultConfigList
-  const configGroupList = (configGroupListSrc[cluster.clusterID] ? configGroupListSrc[cluster.clusterID].configGroup : [])
+  let secretsList = secrets.list[cluster.clusterID] || {}
+  secretsList = secretsList.data || []
   return {
     currentCluster: cluster,
-    configGroupList,
-    defaultSelectValue: configGroupList[0] && configGroupList[0].name
+    defaultSelectValue: secretsList[0] && secretsList[0].name,
+    secretsList,
   }
 }
 
 export default connect(mapStateToProps, {
-  loadConfigGroup,
-  configGroupName,
+  getSecrets,
 })(SecretsConfigMap)

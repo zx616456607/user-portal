@@ -371,7 +371,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
           volume.secret.items = secretConfigMapSubPathValues.map(value => {
             return {
               key: value,
-              path: secretConfigMapMountPath + '/' + value,
+              path: value,
             }
           })
         }

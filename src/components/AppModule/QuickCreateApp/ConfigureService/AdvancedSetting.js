@@ -11,12 +11,14 @@
  */
 
 import React, { PropTypes } from 'react'
+import { connect } from 'react-redux'
 import {
   Form, Collapse, Row, Col, Input, Tooltip, Button, Icon,
   Select, Cascader,
 } from 'antd'
 import classNames from 'classnames'
 import { appEnvCheck } from '../../../../common/naming_validation'
+import { getSecrets } from '../../../../actions/secrets'
 import './style/AdvancedSetting.less'
 
 const Panel = Collapse.Panel
@@ -24,6 +26,10 @@ const FormItem = Form.Item
 const Option = Select.Option
 
 const AdvancedSetting = React.createClass({
+  componentWillMount() {
+    const { currentCluster, getSecrets } = this.props
+    getSecrets(currentCluster.clusterID)
+  },
   getInitialState(){
     return {
       activeKey: null,
@@ -97,7 +103,7 @@ const AdvancedSetting = React.createClass({
     if (key.deleted) {
       return
     }
-    const { form } = this.props
+    const { form, secretsOptions } = this.props
     const { getFieldProps, getFieldValue } = form
     const keyValue = key.value
     const envNameKey = `envName${keyValue}`
@@ -156,7 +162,11 @@ const AdvancedSetting = React.createClass({
               <span className="ant-input-group-addon">
                 {selectBefore}
               </span>
-              <Cascader {...envValueProps} placeholder="请选择加密对象" />
+              <Cascader
+                {...envValueProps}
+                placeholder="请选择加密对象"
+                options={secretsOptions}
+              />
             </span>
           </FormItem>
         </Col>
@@ -243,4 +253,35 @@ const AdvancedSetting = React.createClass({
   }
 })
 
-export default AdvancedSetting
+function mapStateToProps(state, props) {
+  const { entities, secrets } = state
+  const { current } = entities
+  const { cluster } = current
+  const defaultConfigList = {
+    isFetching: false,
+    cluster: cluster.clusterID,
+    configGroup: [],
+  }
+  let secretsList = secrets.list[cluster.clusterID] || {}
+  secretsList = secretsList.data || []
+  const secretsOptions = secretsList.map(secret => ({
+    value: secret.name,
+    label: secret.name,
+    disabled: !secret.data,
+    children: !secret.data
+      ? []
+      : Object.keys(secret.data).map(key => ({
+        value: key,
+        label: key,
+      }))
+  }))
+  return {
+    currentCluster: cluster,
+    secretsList,
+    secretsOptions,
+  }
+}
+
+export default connect(mapStateToProps, {
+  getSecrets,
+})(AdvancedSetting)
