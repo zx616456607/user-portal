@@ -18,6 +18,8 @@ import ConfigGroupContent from './Content'
 export default function ConfigGroup(props) {
   const {
     group, checkedList, setCheckedList, removeSecrets,
+    openCreateConfigFileModal, openUpdateConfigFileModal,
+    removeKeyFromSecret,
     ...otherProps
   } = props
   return (
@@ -28,11 +30,16 @@ export default function ConfigGroup(props) {
           checkedList={checkedList}
           setCheckedList={setCheckedList}
           removeSecrets={removeSecrets}
+          openCreateConfigFileModal={openCreateConfigFileModal}
         />
       }
       {...otherProps}
     >
-      <ConfigGroupContent />
+      <ConfigGroupContent
+        group={group}
+        openUpdateConfigFileModal={openUpdateConfigFileModal}
+        removeKeyFromSecret={removeKeyFromSecret}
+      />
     </Collapse.Panel>
   )
 }

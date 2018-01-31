@@ -19,8 +19,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import unionWith from 'lodash/unionWith'
 import isEqual from 'lodash/isEqual'
-
-const FormItem = Form.Item
+import UpdateConfigFileModal from './UpdateConfigFileModal'
 
 function formatLinkContainer(data, groupname, name) {
   let linkContainer = []
@@ -110,148 +109,6 @@ function formatVolumeMounts(data, groupname, name) {
   }
   return volumeMounts
 }
-
-const createForm = Form.create
-
-let CreateConfigFileModal = React.createClass({
-  getInitialState() {
-    return {
-      filePath: '请上传文件或直接输入内容'
-    }
-  },
-  editConfigFile(group) {
-    const parentScope = this.props.scope
-    const _this = this
-    this.props.form.validateFields((errors, values) => {
-      if (!!errors) {
-        return
-      }
-      let notification = new NotificationHandler()
-      const groups = {
-        group, name: parentScope.state.configName,
-        cluster: parentScope.props.cluster,
-        desc: values.configDesc
-      }
-      parentScope.props.updateConfigName(groups, {
-        success: {
-          func: () => {
-            parentScope.setState({
-              modalConfigFile: false,
-            })
-            _this.setState({
-              filePath: "请上传文件或直接输入内容"
-            })
-            setTimeout(() => _this.props.form.resetFields())
-            notification.success('修改配置文件成功')
-          },
-          isAsync: true
-        }
-      })
-    })
-
-  },
-  configDescExists(rule, value, callback) {
-    const form = this.props.form;
-    if (!value) {
-      this.setState({
-        filePath: '请上传文件或直接输入内容'
-      })
-      callback([new Error('内容不能为空，请重新输入内容')])
-      return
-    }
-    callback()
-  },
-  closeModal() {
-    const parentScope = this.props.scope
-    this.props.form.resetFields()
-    parentScope.setState({modalConfigFile:false})
-    this.setState({
-      filePath: '请上传文件或直接输入内容'
-    })
-  },
-  beforeUpload(file) {
-    const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
-    const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
-    const notify = new NotificationHandler()
-    if(!/xml|json|conf|config|data|ini|txt|properties|yaml|yml/.test(fileType)) {
-      notify.info('目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式', true)
-      return false
-    }
-    const self = this
-    const fileName = fileInput.value.substr(fileInput.value.lastIndexOf('\\') + 1)
-    self.setState({
-      disableUpload: true,
-      filePath: '上传文件为 ' + fileName
-    })
-    notify.spin('读取文件内容中，请稍后')
-    const fileReader = new FileReader()
-    fileReader.onerror = function(err) {
-      self.setState({
-        disableUpload: false,
-      })
-      notify.close()
-      notify.error('读取文件内容失败')
-    }
-    fileReader.onload = function() {
-      self.setState({
-        disableUpload: false
-      })
-      notify.close()
-      notify.success('文件内容读取完成')
-      self.props.form.setFieldsValue({
-        configDesc: fileReader.result.replace(/\r\n/g, '\n')
-      })
-    }
-    fileReader.readAsText(file)
-    return false
-  },
-  render() {
-    const { getFieldProps } = this.props.form
-    const parentScope = this.props.scope
-    const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
-    const descProps = getFieldProps('configDesc', {
-      rules: [
-        { validator: this.configDescExists },
-      ],
-      initialValue: parentScope.state.configtextarea
-    })
-    return(
-      <Modal
-        title="修改配置文件"
-        wrapClassName="configFile-create-modal"
-        visible={this.props.modalConfigFile}
-        onOk={() => this.editConfigFile(parentScope.props.groupname)}
-        onCancel={() => this.closeModal() }
-        width="600px"
-        >
-        <div className="configFile-inf" style={{ padding: '0 10px' }}>
-          <div className="configFile-tip" style={{ color: "#16a3ea", height: '35px', textIndent: '10px' }}>
-            &nbsp;&nbsp;&nbsp;<Icon type="info-circle-o" style={{ marginRight: "10px" }} />
-            即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
-          </div>
-          <Form horizontal>
-            <FormItem  {...formItemLayout} label="名称">
-              <Input type="text" disabled  value={parentScope.state.configName}/>
-            </FormItem>
-            <FormItem>
-              <Upload beforeUpload={(file) => this.beforeUpload(file)} showUploadList={false} style={{marginLeft: '38px'}} ref={(instance) => this.uploadInput = instance}>
-                <span style={{width: '325px', display:'inline-block'}}>{this.state.filePath}</span>
-                <Button type="ghost" style={{marginLeft: '10px'}} disable={this.state.disableUpload}>
-                  <Icon type="upload" /> 读取文件内容
-                </Button>
-              </Upload>
-            </FormItem>
-            <FormItem {...formItemLayout} label="内容">
-              <Input type="textarea" style={{ minHeight: '300px' }} {...descProps}/>
-            </FormItem>
-          </Form>
-        </div>
-      </Modal>
-    )
-  }
-})
-
-CreateConfigFileModal = createForm()(CreateConfigFileModal)
 
 class CollapseContainer extends Component {
   constructor(props) {
@@ -464,7 +321,10 @@ class CollapseContainer extends Component {
           {configFileList}
         </Timeline>
         {/*                     修改配置文件-弹出层-start     */}
-        <CreateConfigFileModal scope={this} modalConfigFile={this.state.modalConfigFile}/>
+        <UpdateConfigFileModal
+          scope={this}
+          modalConfigFile={this.state.modalConfigFile}
+        />
 
         {/* <Modal
           title='修改配置文件'

@@ -39,7 +39,9 @@ export default class ConfigGroupHeader extends React.Component {
   }
 
   render() {
-    const { group, checkedList = [] } = this.props
+    const {
+      group, checkedList = [], openCreateConfigFileModal
+    } = this.props
     const { name, data = {}, createdAt } = group
     const menu = (
       <Menu onClick={this.handleMenuClick.bind(this, name)} mode="vertical">
@@ -61,7 +63,7 @@ export default class ConfigGroupHeader extends React.Component {
           <span>{name}</span>
         </Col>
         <Col span="6">
-          配置文件 &nbsp;
+          加密对象 &nbsp;
           {Object.keys(data).length || '0'}个
         </Col>
         <Col span="6">
@@ -72,11 +74,11 @@ export default class ConfigGroupHeader extends React.Component {
           <ButtonGroup onClick={this.stopPropagation}>
             <Dropdown.Button
               size="large"
-              onClick={(e) => this.createConfigModal(e, true)}
+              onClick={openCreateConfigFileModal.bind(this, name)}
               overlay={menu}
               type="ghost"
             >
-              <Icon type="plus" /> 配置文件
+              <Icon type="plus" /> 加密对象
             </Dropdown.Button>
           </ButtonGroup>
         </Col>

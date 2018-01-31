@@ -89,3 +89,83 @@ export function removeSecrets(clusterID, names, callback) {
     return dispatch(fetchRemoveSecrets(clusterID, names, callback))
   }
 }
+
+export const ADD_KEY_INTO_SECRET_REQUEST = 'ADD_KEY_INTO_SECRET_REQUEST'
+export const ADD_KEY_INTO_SECRET_SUCCESS = 'ADD_KEY_INTO_SECRET_SUCCESS'
+export const ADD_KEY_INTO_SECRET_FAILURE = 'ADD_KEY_INTO_SECRET_FAILURE'
+
+function fetchAddKeyIntoSecret(clusterID, name, body, callback) {
+  const endpoint = `${API_URL_PREFIX}/clusters/${clusterID}/secrets/${name}/entries`
+  return {
+    clusterID,
+    [FETCH_API]: {
+      types: [ ADD_KEY_INTO_SECRET_REQUEST, ADD_KEY_INTO_SECRET_SUCCESS, ADD_KEY_INTO_SECRET_FAILURE ],
+      endpoint,
+      options: {
+        method: 'POST',
+        body,
+      },
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function addKeyIntoSecret(clusterID, name, body, callback) {
+  return (dispatch) => {
+    return dispatch(fetchAddKeyIntoSecret(clusterID, name, body, callback))
+  }
+}
+
+export const UPDATE_KEY_INTO_SECRET_REQUEST = 'UPDATE_KEY_INTO_SECRET_REQUEST'
+export const UPDATE_KEY_INTO_SECRET_SUCCESS = 'UPDATE_KEY_INTO_SECRET_SUCCESS'
+export const UPDATE_KEY_INTO_SECRET_FAILURE = 'UPDATE_KEY_INTO_SECRET_FAILURE'
+
+function fetchUpdateKeyIntoSecret(clusterID, name, body, callback) {
+  const endpoint = `${API_URL_PREFIX}/clusters/${clusterID}/secrets/${name}/entries`
+  return {
+    clusterID,
+    [FETCH_API]: {
+      types: [ UPDATE_KEY_INTO_SECRET_REQUEST, UPDATE_KEY_INTO_SECRET_SUCCESS, UPDATE_KEY_INTO_SECRET_FAILURE ],
+      endpoint,
+      options: {
+        method: 'PUT',
+        body,
+      },
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function updateKeyIntoSecret(clusterID, name, body, callback) {
+  return (dispatch) => {
+    return dispatch(fetchUpdateKeyIntoSecret(clusterID, name, body, callback))
+  }
+}
+
+export const REMOVE_KEY_FROM_SECRET_REQUEST = 'REMOVE_KEY_FROM_SECRET_REQUEST'
+export const REMOVE_KEY_FROM_SECRET_SUCCESS = 'REMOVE_KEY_FROM_SECRET_SUCCESS'
+export const REMOVE_KEY_FROM_SECRET_FAILURE = 'REMOVE_KEY_FROM_SECRET_FAILURE'
+
+function fetchRemoveKeyFromSecret(clusterID, name, key, callback) {
+  const endpoint = `${API_URL_PREFIX}/clusters/${clusterID}/secrets/${name}/entries/${key}`
+  return {
+    clusterID,
+    [FETCH_API]: {
+      types: [ REMOVE_KEY_FROM_SECRET_REQUEST, REMOVE_KEY_FROM_SECRET_SUCCESS, REMOVE_KEY_FROM_SECRET_FAILURE ],
+      endpoint,
+      options: {
+        method: 'DELETE',
+      },
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function removeKeyFromSecret(clusterID, name, key, callback) {
+  return (dispatch) => {
+    return dispatch(fetchRemoveKeyFromSecret(clusterID, name, key, callback))
+  }
+}
