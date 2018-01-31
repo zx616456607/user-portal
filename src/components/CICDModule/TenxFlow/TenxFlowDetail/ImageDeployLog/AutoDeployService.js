@@ -189,8 +189,7 @@ let AutoDeployService = React.createClass({
     editingList[item.ruleId] = true;
     self.setState({editingList})
   },
-  updateReule(item) {
-    // console.log('list in', item.ruleId)
+  updateRule(item) {
     const self = this
     const { form } = this.props;
     const body = form.getFieldValue('rulesList')
@@ -408,13 +407,14 @@ let AutoDeployService = React.createClass({
         appListOptions.push(<Option key={item.imagename + '&@' + item.bindId}>{item.imagename}</Option>)
       })
     }
+
     let items = cdRulesList.map((item, index) => {
       // let items = getFieldValue('rulesList').map((i= i-1) => {
       const tagSelect = getFieldProps('tagSelect' + item.ruleId, {
         rules: [
           { required: true, message: "请选择镜像版本" }
         ],
-        initialValue: item.matchTag == 1 ? '匹配版本' : '不匹配版本',
+        initialValue: item.matchTag.toString(),
       });
       const imageSelect = getFieldProps('imageSelect' + item.ruleId, {
         rules: [
@@ -495,7 +495,7 @@ let AutoDeployService = React.createClass({
                 ] :
                   [
                     <span>
-                      <Button className='cancelBtn' size='large' type='ghost' onClick={() => self.updateReule(item)}>
+                      <Button className='cancelBtn' size='large' type='ghost' onClick={() => self.updateRule(item)}>
                         <FormattedMessage {...menusText.confirm} />
                       </Button>
 
