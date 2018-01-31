@@ -425,6 +425,7 @@ class ImageVersion extends Component {
         <Modal title="镜像版本详情" visible={this.state.detailVisible} style={{ paddingRight: 5 }}
           onCancel={this.handleClose.bind(this)}
           wrapClassName="image-detail-modal"
+          width="600"
           footer={[
             <Button key="back" type="primary" size="large" onClick={this.handleClose.bind(this)}>知道了</Button>,
           ]}>
