@@ -9,16 +9,40 @@
  */
 
 import React from 'react'
+import { browserHistory } from 'react-router'
 import { Card, Icon, Input, Form, Tooltip, Row, Col } from 'antd'
-
+import { formatDate, cpuFormat, memoryFormat } from "../../../common/tools"
+import Notification from '../../Notification'
 import './style/BaseInfo.less'
 import loadBalanceIcon from '../../../assets/img/appmanage/loadBalance.png'
 
 const FormItem = Form.Item
 
+const notify = new Notification()
+
 class BaseInfo extends React.Component {
   state = {
     
+  }
+  
+  editLoadBalance = async body => {
+    const { editLB, clusterID, lbDetail, getLBDetail } = this.props
+    const { name } = lbDetail.deployment.metadata
+    const { displayName, description, usegzip } = lbDetail.deployment.metadata.annotations
+    const newBody = Object.assign({}, { displayName, description, usegzip }, body)
+    const editRes = await editLB(clusterID, name, newBody)
+    if (editRes.error) {
+      notify.warn('修改失败', editRes.error.message.message || editRes.error.message)
+      notify.close()
+      return false
+    }
+    const detailRes = await getLBDetail(clusterID, name, displayName)
+    if (detailRes.error) {
+      notify.warn('获取详情失败', detailRes.error.message.message || detailRes.error.message)
+      notify.close()
+      return false
+    }
+    return true
   }
   
   nameCheck = (rules, value, callback) => {
@@ -40,7 +64,21 @@ class BaseInfo extends React.Component {
     })
   }
   
-  saveName = () => {
+  saveName = async () => {
+    const { form, location } = this.props
+    const { getFieldValue } = form
+    const { query, pathname } = location
+    const { name } = query
+    const displayName = getFieldValue('name')
+    notify.spin('名称修改中')
+    const res = await this.editLoadBalance({ displayName })
+    if (!res) {
+      notify.close()
+      return
+    }
+    browserHistory.replace(`${pathname}?name=${name}&displayName=${displayName}`)
+    notify.close()
+    notify.success('名称修改成功')
     this.setState({
       nameEdit: false
     })
@@ -58,7 +96,18 @@ class BaseInfo extends React.Component {
     })
   }
   
-  saveDesc = () => {
+  saveDesc = async () => {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const description = getFieldValue('description')
+    notify.spin('备注修改中')
+    const res = await this.editLoadBalance({ description })
+    if (!res) {
+      notify.close()
+      return
+    }
+    notify.close()
+    notify.success('备注修改成功')
     this.setState({
       descEdit: false
     })
@@ -66,20 +115,21 @@ class BaseInfo extends React.Component {
   
   render() {
     const { nameEdit, descEdit } = this.state
-    const { form } = this.props
+    const { form, lbDetail } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = form
-    
+    const { deployment } = lbDetail || { deployment: {} }
     const nameProps = getFieldProps('name', {
       rules: [{
         validator: this.nameCheck
       }],
-      initialValue: ''
+      initialValue: deployment && deployment.metadata && 
+      deployment.metadata.annotations && deployment.metadata.annotations.displayName
     })
     
     const descProps = getFieldProps('description', {
-      initialValue: ''
+      initialValue: deployment && deployment.metadata && 
+      deployment.metadata.annotations && deployment.metadata.annotations.description
     })
-    
     return (
       <Card className="baseInfo">
         <img className="balanceIcon" src={loadBalanceIcon} />
@@ -98,7 +148,7 @@ class BaseInfo extends React.Component {
                     <Input {...nameProps} style={{ width: 170 }}/>
                   </FormItem>
                   :
-                  <span>hahaha123</span>
+                  <span>{deployment && deployment.metadata && deployment.metadata.annotations.displayName}</span>
               }
               {
                 nameEdit ?
@@ -118,45 +168,73 @@ class BaseInfo extends React.Component {
           </div>
           <Row style={{ marginBottom: 15 }}>
             <Col span={10}>
-              地址IP：<span className="successColor">192.168.0.1</span>
+              地址IP：<span className="successColor">
+              {deployment && deployment.metadata && deployment.metadata.annotations && deployment.metadata.annotations.allocatedIP}
+              </span>
             </Col>
             <Col span={14}>
-              创建时间：2016-08-10 23:12:12
+              创建时间：{formatDate(deployment && deployment.metadata && deployment.metadata.creationTimestamp)}
             </Col>
           </Row>
           <Row style={{ marginBottom: 15 }}>
             <Col span={10}>
-              监听类型：HTTP/HTTPS
+              监听类型：HTTP
             </Col>
             <Col span={14}>
-              配置：xx-xx 核  xx-xx MB 内存
+              配置：
+              {cpuFormat(
+                deployment &&
+                deployment.spec && 
+                deployment.spec.template &&
+                deployment.spec.template.spec &&
+                deployment.spec.template.spec.containers[0] &&
+                deployment.spec.template.spec.containers[0].resources &&
+                deployment.spec.template.spec.containers[0].resources.requests &&
+                deployment.spec.template.spec.containers[0].resources.requests.memory, 
+                deployment &&
+                deployment.spec &&
+                deployment.spec.template &&
+                deployment.spec.template.spec &&
+                deployment.spec.template.spec.containers[0] &&
+                deployment.spec.template.spec.containers[0].resources)}
+              &nbsp;&nbsp;&nbsp;
+              {
+                memoryFormat(
+                  deployment &&
+                  deployment.spec &&
+                  deployment.spec.template &&
+                  deployment.spec.template.spec &&
+                  deployment.spec.template.spec.containers[0] &&
+                  deployment.spec.template.spec.containers[0].resources
+                )
+              } 内存
             </Col>
           </Row>
           <div className="balanceDescBox">
             <span className="nameLabel">
               备注：
             </span>
-            <div className="balanceName">
+            <div className="balanceDesc">
               {
                 descEdit ?
                   <FormItem>
                     <Input type="textarea" {...descProps} style={{ width: 250 }}/>
                   </FormItem>
                   :
-                  <span>hahaha123</span>
+                  <span>{deployment && deployment.metadata && deployment.metadata.annotations && deployment.metadata.annotations.description}</span>
               }
               {
                 descEdit ?
                   [
                     <Tooltip title="取消">
-                      <i key="cancelName" className="cancel anticon anticon-minus-circle-o pointer" onClick={this.cancelEditDesc} />
+                      <i key="cancelDesc" className="cancel anticon anticon-minus-circle-o pointer" onClick={this.cancelEditDesc} />
                     </Tooltip>,
                     <Tooltip title="保存">
-                      <i key="saveName" className="confirm anticon anticon-save pointer" onClick={this.saveDesc} />
+                      <i key="saveDesc" className="confirm anticon anticon-save pointer" onClick={this.saveDesc} />
                     </Tooltip>
                   ] :
                   <Tooltip title="编辑">
-                    <i key="editName" className="edit anticon anticon-edit pointer" onClick={this.editDesc} />
+                    <i key="editDesc" className="edit anticon anticon-edit pointer" onClick={this.editDesc} />
                   </Tooltip>
               }
             </div>

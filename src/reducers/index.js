@@ -54,6 +54,7 @@ import role from './role'
 import vmWrap from './vm_wrap'
 import * as apm from './apm'
 import appStore from './app_store'
+import loadBalance from './load_balance'
 import {
   LOGIN_EXPIRED_MESSAGE,
   PAYMENT_REQUIRED_CODE,
@@ -176,7 +177,8 @@ const rootReducer = combineReducers({
   role,
   vmWrap,
   ...apm,
-  appStore
+  appStore,
+  loadBalance
 })
 
 export default rootReducer

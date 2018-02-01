@@ -181,7 +181,7 @@ class LoadBalance extends React.Component {
         )
       }):
       <Row className="serviceList hintColor noneService" type="flex" align="middle" justify="center">
-        暂时监听服务
+        暂无监听服务
       </Row>
     return (
       <Row className="serviceCreateLb">

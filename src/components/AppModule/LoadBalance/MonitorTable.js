@@ -10,7 +10,7 @@
 
 import React from 'react'
 import { Table, Button, Pagination, Row, Col, Tooltip, Modal } from 'antd'
-
+import Notification from '../../Notification'
 import './style/MonitorTable.less'
 
 export default class MonitorTable extends React.Component {
@@ -20,7 +20,7 @@ export default class MonitorTable extends React.Component {
   
   showDelModal = row => {
     this.setState({
-      currentMonitor: row,
+      currentIngress: row,
       deleteModal: true
     })
   }
@@ -32,32 +32,56 @@ export default class MonitorTable extends React.Component {
   }
   
   confirmDelModal = () => {
+    const { deleteIngress, clusterID, location, getLBDetail } = this.props
+    const { name, displayName } = location.query
+    const { currentIngress } = this.state
+    let notify = new Notification()
     this.setState({
       delConfirmLoading: true
     })
-    this.setState({
-      deleteModal: false,
-      delConfirmLoading: false
+    notify.spin('删除中')
+    deleteIngress(clusterID, name, currentIngress.name, displayName, {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success('删除成功')
+          getLBDetail(clusterID, name, displayName)
+          this.setState({
+            deleteModal: false,
+            delConfirmLoading: false
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: res => {
+          notify.close()
+          notify.warn('删除失败', res.message.message || res.message)
+          this.setState({
+            delConfirmLoading: false
+          })
+        }
+      }
     })
   }
   
   expandedRender = row => {
-    if (!row.children || !row.children.length) {
+    if (!row.items || !row.items.length) {
       return
     }
     return (
       <div>
         <Row className="expandedRow">
-          <Col span={6}>后端服务</Col>
-          <Col span={6}>服务端口</Col>
-          <Col span={6}>权重</Col>
+          <Col span={5}>后端服务</Col>
+          <Col span={5}>服务端口</Col>
+          <Col span={5}>权重</Col>
         </Row>
         {
-          row.children.map(item => 
-            <Row className="expandedRow">
-              <Col span={6}>{item.serviceName}</Col>
-              <Col span={6}>{item.port}</Col>
-              <Col span={6}>{item.weight}</Col>
+          row.items.map(item => 
+            <Row className="expandedRow" key={item.serviceName}>
+              <Col span={5}>{item.serviceName}</Col>
+              <Col span={5}>{item.servicePort}</Col>
+              <Col span={5}>{item.weight}</Col>
             </Row>
           )
         }
@@ -67,15 +91,28 @@ export default class MonitorTable extends React.Component {
   
   render() {
     const { deleteModal, delConfirmLoading } = this.state
-    const { togglePart } = this.props
+    const { togglePart, lbDetail } = this.props
+    const { ingress } = lbDetail || { ingress: [] }
     const columns = [
-      {title: '协议', dataIndex: 'agreement', width: '25%', key: 'agreement'}, 
-      {title: '监听端口', dataIndex: 'monitorPort', width: '25%', key: 'monitorPort'},
-      {title: '域名', dataIndex: 'domain', width: '25%', key: 'domain'},
+      {
+        title: '监听器名称',
+        dataIndex: 'displayName',
+        width: '20%'
+      },
+      {
+        title: '协议',
+        width: '20%',
+        render: () => 'http'
+      }, 
+      {
+        title: '监听端口', 
+        width: '20%', 
+        render: () => 80
+      },
+      {title: '域名', dataIndex: 'host', width: '20%'},
       {
         title: '操作',
-        width: '25%',
-        key: 'operate',
+        width: '20%',
         render: (text, row) =>
           <div>
             <Button type="primary" className="editBtn" onClick={() => togglePart(false, row)}>编辑</Button>
@@ -83,21 +120,6 @@ export default class MonitorTable extends React.Component {
           </div>
       }
     ]
-    const data = []
-    for (let i = 0; i < 3; i ++) {
-      data.push({
-        key: i,
-        agreement: 'HTTP',
-        monitorPort: `808${i}`,
-        domain: '-',
-        children: [{
-          key: `1${i}`,
-          serviceName: `service-0${i}`,
-          port: 3280,
-          weight: 49
-        }]
-      })
-    }
     return (
       <div className="monitorTable layout-content">
         <Modal
@@ -118,18 +140,23 @@ export default class MonitorTable extends React.Component {
           >
             <Button type="primary" size="large" icon="plus" onClick={() => togglePart(false, null)}>创建监听</Button>
           </Tooltip>
-          <div className="page-box">
-            <span className="total">共计 3 条</span>
-            <Pagination
-              simple
-            />
-          </div>
+          {
+            ingress && ingress.length &&
+            <div className="page-box">
+              <span className="total">共计 {ingress && ingress.length} 条</span>
+              <Pagination
+                simple
+                total={ingress && ingress.length}
+              />
+            </div>
+          }
         </div>
         <Table
           className="reset_antd_table_header"
           columns={columns}
-          dataSource={data}
+          dataSource={ingress}
           expandedRowRender={row => this.expandedRender(row)}
+          rowKey={row => row.name}
           pagination={false}
         />
       </div>

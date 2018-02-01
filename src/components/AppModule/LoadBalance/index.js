@@ -17,7 +17,9 @@ import SearchInput from '../../CommonSearchInput'
 import LoadBalanceModal from './LoadBalanceModal'
 import Notification from '../../Notification'
 import Title from '../../Title'
-
+import { getLBList, deleteLB } from '../../../actions/load_balance'
+import { formatDate } from "../../../common/tools";
+import ServiceStatus from '../../TenxStatus/ServiceStatus'
 import './style/index.less'
 
 const notify = new Notification()
@@ -28,9 +30,17 @@ class LoadBalance extends React.Component {
   }
   
   componentWillMount() {
-    
+    this.loadLBList()
   }
   
+  loadLBList = () => {
+    const { clusterID, getLBList } = this.props
+    getLBList(clusterID)
+  }
+  
+  deleteLoadBalance = name => {
+    const { deleteLB, clusterID } = this.props
+  }
   openBalanceModal = () => {
     this.setState({
       loadBalanceVisible: true
@@ -59,22 +69,6 @@ class LoadBalance extends React.Component {
     })
   }
   
-  renderService = (text, row) => {
-    const content = (
-      <div>{text}</div>
-    )
-    return (
-      <div>{text}
-        <Popover content={content} trigger="click" placement="right"
-                 visible={this.state[`popoverVisible${row.key}`]}
-                 onVisibleChange={(visible) => this.handleVisibleChange(visible, row)}
-        >
-          <Icon className="pointer" type={this.state[`popoverVisible${row.key}`] ? "minus-square" : "plus-square"} style={{ marginLeft: 10 }}/>
-        </Popover>
-      </div>
-    )
-  }
-  
   cancelDelModal = () => {
     this.setState({
       deleteModal: false
@@ -82,12 +76,38 @@ class LoadBalance extends React.Component {
   }
   
   confirmDelModal = () => {
+    const { currentBalance } = this.state
+    const { deleteLB, clusterID } = this.props
+    let notify = new Notification()
     this.setState({
       delConfirmLoading: true
     })
-    this.setState({
-      deleteModal: false,
-      delConfirmLoading: false
+    notify.spin('删除中')
+    let name = currentBalance.metadata.name
+    let displayName = currentBalance.metadata.annotations.displayName
+    deleteLB(clusterID, name, displayName, {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success('删除成功')
+          this.loadLBList()
+          this.setState({
+            deleteModal: false,
+            delConfirmLoading: false,
+            currentBalance: null
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: res => {
+          notify.close()
+          this.setState({
+            delConfirmLoading: false
+          })
+          notify.warn('删除失败', res.message.message || res.message)
+        }
+      }
     })
   }
   
@@ -104,6 +124,9 @@ class LoadBalance extends React.Component {
         })
         break
       case 'delete':
+        this.setState({
+          currentBalance: row
+        })
         this.showDeleteModal([row.key])
         break
       default:
@@ -111,41 +134,59 @@ class LoadBalance extends React.Component {
     }
   }
   
+  renderLBStatus = LB => {
+    return <ServiceStatus service={LB} smart={true}/>
+  }
   render() {
-    const { loadBalanceVisible, deleteModal, delConfirmLoading } = this.state
-    const rowSelection = {
-      onChange(selectedRowKeys, selectedRows) {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-      },
-      onSelect(record, selected, selectedRows) {
-        console.log(record, selected, selectedRows);
-      },
-      onSelectAll(selected, selectedRows, changeRows) {
-        console.log(selected, selectedRows, changeRows);
-      },
-    };
+    const { loadBalanceVisible, deleteModal, delConfirmLoading, currentBalance } = this.state
+    const { loadBalanceList, isFetching } = this.props
+    // const rowSelection = {
+    //   onChange(selectedRowKeys, selectedRows) {
+    //     console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+    //   },
+    //   onSelect(record, selected, selectedRows) {
+    //     console.log(record, selected, selectedRows);
+    //   },
+    //   onSelectAll(selected, selectedRows, changeRows) {
+    //     console.log(selected, selectedRows, changeRows);
+    //   },
+    // };
     const columns = [{
       title: '名称',
-      dataIndex: 'name',
-      render: text => <Link to={`/app_manage/load_balance/balance_config?name=${text}`}>{text}</Link>
+      dataIndex: 'metadata.annotations.displayName',
+      width: '15%',
+      render: (text, record) => 
+        <Link to={`/app_manage/load_balance/balance_config?name=${record.metadata.name}&displayName=${record.metadata.annotations.displayName}`}>{text}</Link>
     }, {
       title: '状态',
       dataIndex: 'status',
+      width: '10%',
+      render: (text, record) => this.renderLBStatus(record)
     }, {
-      title: '住址',
-      dataIndex: 'address',
+      title: '地址',
+      width: '10%',
+      dataIndex: 'metadata.annotations.allocatedIP',
     }, {
       title: '监听端口',
-      dataIndex: 'port'
+      dataIndex: 'port',
+      width: '10%',
+      render: () => 80
     }, {
-      title: '后端监听服务',
-      dataIndex: 'server',
-      render: (text, row) => this.renderService(text, row)
+      title: '监听器数量',
+      width: '10%',
+      dataIndex: 'metadata.annotations.ingressCount'
+    }, {
+      title: '监听服务数量',
+      width: '10%',
+      dataIndex: 'metadata.annotations.ingressServiceCount'
     }, {
       title: '创建时间',
-      dataIndex: 'creationTime'
+      width: '15%',
+      dataIndex: 'metadata.creationTimestamp',
+      render: text => formatDate(text)
     }, {
       title: '操作',
+      width: '20%',
       render: (text, row) => {
         const menu = (
           <Menu onClick={e => this.handleMenuClick(e, row)}
@@ -162,18 +203,6 @@ class LoadBalance extends React.Component {
         )
       }
     }];
-    const data = []
-    for (let i = 0; i < 3; i ++ ) {
-      data.push({
-        key: i,
-        name: `${i}mao`,
-        status: `1${i}`,
-        address: `00${i}`,
-        port: `tpc:800${i}`,
-        server: `service:900${i}`,
-        creationTime: `2018-01-1${i} 12:00:00`,
-      })
-    }
     return (
       <QueueAnim className="loadBalance layout-content">
         <Title title="负载均衡"/>
@@ -181,7 +210,9 @@ class LoadBalance extends React.Component {
           loadBalanceVisible &&
           <LoadBalanceModal
             visible={loadBalanceVisible}
+            currentBalance={currentBalance}
             closeModal={this.closeBalanceModal}
+            callback={this.loadLBList}
           />
         }
         <Modal
@@ -197,27 +228,32 @@ class LoadBalance extends React.Component {
           </div>
         </Modal>
         <div className="layout-content-btns" key="layout-content-btns">
-          <Button type="primary" size="large" icon="plus" onClick={this.openBalanceModal}>创建负载均衡</Button>
-          <Button type="ghost" size="large"><i className='fa fa-refresh' /> 刷新</Button>
-          <Button type="ghost" size="large" icon="delete" onClick={() => this.showDeleteModal([1,2,3])}>删除</Button>
+          <Button type="primary" size="large" onClick={this.openBalanceModal}><i className="fa fa-plus" /> 创建负载均衡</Button>
+          <Button type="ghost" size="large" onClick={this.loadLBList}><i className='fa fa-refresh' /> 刷新</Button>
+          {/*<Button type="ghost" size="large" icon="delete" onClick={() => this.showDeleteModal([1,2,3])}>删除</Button>*/}
           <SearchInput
             placeholder="请输入关键词搜索"
             size="large"
           />
-          <div className="page-box">
-            <span className="total">共计 3 条</span>
-            <Pagination
-              simple
-            />
-          </div>
+          {
+            loadBalanceList && loadBalanceList.length &&
+            <div className="page-box">
+              <span className="total">共计 {loadBalanceList && loadBalanceList.length} 条</span>
+              <Pagination
+                simple
+                total={loadBalanceList && loadBalanceList.length}
+              />
+            </div>
+          }
         </div>
         <Table 
           key="loadBalanceTable"
           className="loadBalanceTable reset_antd_table_header"
-          rowSelection={rowSelection} 
+          // rowSelection={rowSelection} 
           columns={columns}
-          dataSource={data}
+          dataSource={loadBalanceList}
           pagination={false}
+          loading={isFetching}
         />
       </QueueAnim>
     )
@@ -225,11 +261,18 @@ class LoadBalance extends React.Component {
 }
 
 function mapStateToProps(state) {
+  const { entities, loadBalance } = state
+  const { clusterID } = entities.current.cluster
+  const { loadBalanceList } = loadBalance
+  const { data, isFetching } = loadBalanceList || { data: [] }
   return {
-    
+    clusterID,
+    isFetching,
+    loadBalanceList: data
   }
 }
 
 export default connect(mapStateToProps, {
-  
+  getLBList,
+  deleteLB
 })(LoadBalance)

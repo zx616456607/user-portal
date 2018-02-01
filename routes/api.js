@@ -53,6 +53,7 @@ const storageController = require('../controllers/storage_manage')
 const quotaController = require('../controllers/quota')
 const cleanController = require('../controllers/clean')
 const appStoreController = require('../controllers/app_store')
+const loadBalanceController = require('../controllers/load_balance')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -715,5 +716,16 @@ module.exports = function (Router) {
   router.get('/app-store/apps/icon/:id', appStoreController.getIcon)
   router.post('/app-store/apps/images/existence',appStoreController.checkImageExists)
 
+  // Load Balance
+  router.get('/clusters/:cluster/loadbalances/ip', loadBalanceController.getLBIPList)
+  router.post('/clusters/:cluster/loadbalances', loadBalanceController.createLB)
+  router.put('/clusters/:cluster/loadbalances/:name/displayname/:displayname', loadBalanceController.editLB)
+  router.get('/clusters/:cluster/loadbalances', loadBalanceController.getLBList)
+  router.get('/clusters/:cluster/loadbalances/:name/displayname/:displayname', loadBalanceController.getLBDetail)
+  router.del('/clusters/:cluster/loadbalances/:name/displayname/:displayname', loadBalanceController.deleteLB)
+  router.post('/clusters/:cluster/loadbalances/:name/ingress', loadBalanceController.createIngress)
+  router.put('/clusters/:cluster/loadbalances/:name/ingress/:displayname', loadBalanceController.updateIngress)
+  router.del('/clusters/:cluster/loadbalances/:lbname/ingresses/:name/displayname/:displayname', loadBalanceController.deleteIngress)
+  
   return router.routes()
 }
