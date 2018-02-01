@@ -17,7 +17,7 @@ import { Link } from 'react-router'
 import {
   Card, Spin, Modal ,Input , Button, Popover, Icon, Tooltip
 } from 'antd'
-import { getSecrets } from '../../../actions/secrets'
+// import { getSecrets } from '../../../actions/secrets'
 import './style/SecretsConfig.less'
 
 class SecretsConfig extends React.Component {
@@ -25,13 +25,13 @@ class SecretsConfig extends React.Component {
     currentItem: {},
   }
 
-  componentWillMount() {
+  /* componentWillMount() {
     const { currentCluster, getSecrets } = this.props
     getSecrets(currentCluster.clusterID)
-  }
+  } */
 
   getSecretsConfigMap = () => {
-    const { service, secretsList } = this.props
+    const { service, secretsList = [] } = this.props
     const secretsConfigMap = []
     service.spec.template.spec.volumes.forEach(v => {
       const { secret, name } = v
@@ -79,7 +79,7 @@ class SecretsConfig extends React.Component {
             配置组
           </div>
           <div className="commonTitle">
-            配置文件
+            加密对象
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
@@ -96,28 +96,29 @@ class SecretsConfig extends React.Component {
                   <span>{config.groupName}</span>
                 </div>
                 <div className="composefile commonData">
-                  <span
-                    title="点击查看配置文件"
-                    onClick={() => this.setState({
-                      currentItem: config.items[0] || {},
-                      modalConfigFile: true,
-                    })}
+                  <p
+                    // title="点击查看配置文件"
+                    // onClick={() => this.setState({
+                    //   currentItem: config.items[0] || {},
+                    //   modalConfigFile: true,
+                    // })}
                   >
                     {config.items[0] && config.items[0].key}
-                  </span>
+                  </p>
                   {
                     config.items.length > 1 &&
                     <Popover
                       content={config.items.map(item => (
-                        <a>
-                          <div onClick={() => this.setState({
-                            currentItem: item,
-                            modalConfigFile: true,
-                          })}
+                        // <a>
+                          <div
+                            // onClick={() => this.setState({
+                            //   currentItem: item,
+                            //   modalConfigFile: true,
+                            // })}
                           >
                             {item.key}
                           </div>
-                        </a>
+                        // </a>
                       ))}
                       getTooltipContainer={()=> document.getElementById('secrets-config')}
                     >
@@ -171,17 +172,17 @@ class SecretsConfig extends React.Component {
 }
 
 function mapStateToProps(state, props) {
-  const { entities, secrets } = state
+  /* const { entities, secrets } = state
   const { current } = entities
   const { cluster } = current
   let secretsList = secrets.list[cluster.clusterID] || {}
-  secretsList = secretsList.data || []
+  secretsList = secretsList.data || [] */
   return {
-    currentCluster: cluster,
-    secretsList,
+    // currentCluster: cluster,
+    // secretsList,
   }
 }
 
 export default connect(mapStateToProps, {
-  getSecrets,
+  // getSecrets,
 })(SecretsConfig)

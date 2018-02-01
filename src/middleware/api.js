@@ -11,7 +11,13 @@
 import { Schema, arrayOf, normalize } from 'normalizr'
 import { camelizeKeys } from 'humps'
 import { genRandomString, getType } from '../common/tools'
+import { API_URL_PREFIX } from '../constants'
 import 'whatwg-fetch' // For Edge browser
+
+// These endpoints will skip camelize
+const SKIP_CAMELIZE_KEYS_ENDPOINTS = [
+  /^\/clusters\/[\-\w]+\/secrets/,
+]
 
 // Fetches an API response
 function fetchApi(endpoint, options, schema) {
@@ -58,7 +64,19 @@ function fetchApi(endpoint, options, schema) {
     if (!response.ok) {
       return Promise.reject(json)
     }
-    const camelizedJson = camelizeKeys(json)
+    const pathname = endpoint.replace(API_URL_PREFIX, '')
+    let isMatchSkipCamelize = false
+    SKIP_CAMELIZE_KEYS_ENDPOINTS.every(pathReg => {
+      if (pathReg.test(pathname)) {
+        isMatchSkipCamelize = true
+        return false
+      }
+      return true
+    })
+    let camelizedJson = camelizeKeys(json)
+    if (isMatchSkipCamelize) {
+      camelizedJson = json
+    }
     return Object.assign({},
       normalize(camelizedJson, schema)
     )

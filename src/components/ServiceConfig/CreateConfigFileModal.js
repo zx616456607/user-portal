@@ -63,7 +63,7 @@ let CreateConfigFileModal = React.createClass({
         return
       }
       const { type, addKeyIntoSecret } = this.props
-      if (type === 'secret') {
+      if (type === 'secrets') {
         return addKeyIntoSecret(values)
       }
       let configfile = {
@@ -171,7 +171,7 @@ let CreateConfigFileModal = React.createClass({
     });
     return(
       <Modal
-        title={`添加${type === 'secret' ? '加密对象': '配置文件'}`}
+        title={`添加${type === 'secrets' ? '加密对象': '配置文件'}`}
         wrapClassName="configFile-create-modal"
         visible={parentScope.state.modalConfigFile}
         onOk={() => this.createConfigFile(this.props.groupName)}
@@ -182,7 +182,7 @@ let CreateConfigFileModal = React.createClass({
           <div className="configFile-tip" style={{ color: "#16a3ea", height: '35px' }}>
             &nbsp;&nbsp;&nbsp;<Icon type="info-circle-o" style={{ marginRight: "10px" }} />
             {
-              type === 'secret'
+              type === 'secrets'
               ? '即将保存一个加密对象，您可以在创建应用→添加服务时，配置管理或环境变量使用该对象'
               : '即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置'
             }
@@ -197,7 +197,16 @@ let CreateConfigFileModal = React.createClass({
               </Upload>
             </FormItem>
             <FormItem  {...formItemLayout} label="名称">
-              <Input type="text" {...nameProps} className="nameInput" />
+              <Input
+                type="text"
+                {...nameProps}
+                className="nameInput"
+                placeholder={
+                  type === 'secrets'
+                  ? '如 My-PassWord'
+                  : '如 My-Config'
+                }
+              />
             </FormItem>
             <FormItem {...formItemLayout} label="内容">
               <Input type="textarea" style={{ minHeight: '300px' }} {...descProps}/>
