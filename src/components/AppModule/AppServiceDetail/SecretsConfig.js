@@ -17,7 +17,7 @@ import { Link } from 'react-router'
 import {
   Card, Spin, Modal ,Input , Button, Popover, Icon, Tooltip
 } from 'antd'
-// import { getSecrets } from '../../../actions/secrets'
+import { getSecrets } from '../../../actions/secrets'
 import './style/SecretsConfig.less'
 
 class SecretsConfig extends React.Component {
@@ -25,10 +25,10 @@ class SecretsConfig extends React.Component {
     currentItem: {},
   }
 
-  /* componentWillMount() {
+  componentWillMount() {
     const { currentCluster, getSecrets } = this.props
     getSecrets(currentCluster.clusterID)
-  } */
+  }
 
   getSecretsConfigMap = () => {
     const { service, secretsList = [] } = this.props
@@ -96,7 +96,7 @@ class SecretsConfig extends React.Component {
                   <span>{config.groupName}</span>
                 </div>
                 <div className="composefile commonData">
-                  <p
+                  <span
                     // title="点击查看配置文件"
                     // onClick={() => this.setState({
                     //   currentItem: config.items[0] || {},
@@ -104,7 +104,7 @@ class SecretsConfig extends React.Component {
                     // })}
                   >
                     {config.items[0] && config.items[0].key}
-                  </p>
+                  </span>
                   {
                     config.items.length > 1 &&
                     <Popover
@@ -172,17 +172,17 @@ class SecretsConfig extends React.Component {
 }
 
 function mapStateToProps(state, props) {
-  /* const { entities, secrets } = state
+  const { entities, secrets } = state
   const { current } = entities
   const { cluster } = current
   let secretsList = secrets.list[cluster.clusterID] || {}
-  secretsList = secretsList.data || [] */
+  secretsList = secretsList.data || []
   return {
-    // currentCluster: cluster,
-    // secretsList,
+    currentCluster: cluster,
+    secretsList,
   }
 }
 
 export default connect(mapStateToProps, {
-  // getSecrets,
+  getSecrets,
 })(SecretsConfig)
