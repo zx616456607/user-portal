@@ -271,6 +271,13 @@ function mapStateToProps(state, props) {
         label: key,
       }))
   }))
+  if (secretsOptions.length === 0) {
+    secretsOptions.push({
+      value: 'empty',
+      label: '无加密对象',
+      disabled: true,
+    })
+  }
   return {
     currentCluster: cluster,
     secretsList,

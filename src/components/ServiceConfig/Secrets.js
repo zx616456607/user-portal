@@ -344,7 +344,7 @@ class ServiceSecretsConfig extends React.Component {
             scope={this}
             modalConfigFile={modalConfigFile}
             addKeyIntoSecret={this.handleAddKeyIntoSecret}
-            type="secret"
+            type="secrets"
           />
         }
         {/* 修改加密对象-弹出层-*/}
@@ -354,7 +354,7 @@ class ServiceSecretsConfig extends React.Component {
             scope={this}
             modalConfigFile={modalConfigFile}
             updateKeyIntoSecret={this.handleUpdateKeyIntoSecret}
-            type="secret"
+            type="secrets"
           />
         }
         {/* 移除加密对象-弹出层-*/}
