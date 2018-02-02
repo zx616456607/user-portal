@@ -25,7 +25,7 @@ import wrapManageHover from '../../../assets/img/app/wrapManageHover.png'
 import wrapManage from '../../../assets/img/app/wrapManage.png'
 import stackIcon from '../../../assets/img/app/stackIcon.svg'
 import stackIconHover from '../../../assets/img/app/stackIconHover.svg'
-import { genRandomString } from '../../../common/tools'
+import { genRandomString, toQuerystring } from '../../../common/tools'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -92,7 +92,8 @@ class CreateModel extends Component {
         break
       }
       case 'image_store':
-        linkUrl = 'quick_create?imageType=imageStore'
+        // linkUrl = 'quick_create?imageType=imageStore'
+        linkUrl = 'image_store'
         break
       case 'store': {
         linkUrl = "app_store"
@@ -199,22 +200,26 @@ class CreateModel extends Component {
       if (!!errors) {
         return
       }
-      let url = `/app_manage/app_create/${linkUrl}`
-      const { appName, action, fromDetail } = location.query
-      const urlQuery = `&action=${action}&fromDetail=${fromDetail}`
-      if (this.state.moreService) {
-        url+=`?appName=${appName}${urlQuery}`
+      const { query } = location
+      let next = linkUrl
+      switch (linkUrl) {
+        case 'image_store':
+          next = 'quick_create'
+          query.imageType = 'imageStore'
+          break
+        case 'deploy_wrap':
+          next = 'quick_create'
+          query.addWrap = true
+          break
+        case 'wrap_store':
+          next = 'quick_create'
+          query.addWrap = true
+          query.from = 'wrapStore'
+          break
+        default:
+          break
       }
-      if (linkUrl === 'deploy_wrap') {
-        url = '/app_manage/app_create/quick_create?addWrap=true'
-        if (this.state.moreService) {
-          url+=`&appName=${appName}${urlQuery}`
-        }
-      }
-      if (linkUrl === 'wrap_store') {
-        url = '/app_manage/app_create/quick_create?addWrap=true&from=wrapStore'
-      }
-      browserHistory.push(url)
+      browserHistory.push(`/app_manage/app_create/${next}?${toQuerystring(query)}`)
     })
   }
 
@@ -291,7 +296,7 @@ class CreateModel extends Component {
                 <i className="fa fa-check"></i>
               </div>
             </div>
-  
+
             {moreService ?
               <Tooltip title='添加服务暂不支持编排文件方式'>
                 <div className='otherStack'>
