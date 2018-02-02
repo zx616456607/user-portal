@@ -28,6 +28,7 @@ import {
 import { removeFormFields, removeAllFormFields, setFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
 import { addService, loadServiceList } from '../../../actions/services'
+import { createAppIngress } from '../../../actions/load_balance'
 import { buildJson, getFieldsValues, formatValuesToFields } from './utils'
 import './style/index.less'
 import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
@@ -364,11 +365,15 @@ class QuickCreateApp extends Component {
     })
     const {
       fields, current, loginUser,
-      createApp, addService,location
+      createApp, addService,location,
+      createAppIngress
     } = this.props
     const { clusterID } = current.cluster
     let template = []
     let appPkgID = {}
+    let accessType = ''
+    let lbName = ''
+    let lbBody = []
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         let json = buildJson(fields[key], current.cluster, loginUser, this.imageConfigs)
@@ -377,6 +382,26 @@ class QuickCreateApp extends Component {
         json.storage.forEach(item => {
           template.push(yaml.dump(item))
         })
+        if (fields[key].accessType) {
+          accessType = fields[key].accessType.value
+          lbName = fields[key].loadBalance.value
+          const items = []
+          let lbKeys = fields[key].lbKeys.value
+          lbKeys.forEach(item => {
+            const { host } = fields[key][`ingress-${item}`].value
+            const [hostname, ...path] = host.split('/')
+            items.push({
+              serviceName: fields[key].serviceName.value,
+              servicePort: parseInt(fields[key][`port-${item}`].value)
+            })
+            const body = {
+              host: hostname,
+              path: '/' + path.join('/'),
+              items
+            }
+            lbBody.push(Object.assign(fields[key][`ingress-${item}`].value, body))
+          })
+        }
         if (fields[key].appPkgID) {
           let serviceName = fields[key].serviceName.value
           appPkgID[serviceName] = fields[key].appPkgID.value
@@ -386,6 +411,9 @@ class QuickCreateApp extends Component {
     const callback = {
       success: {
         func: res => {
+          if (accessType === 'loadBalance') {
+            createAppIngress(clusterID, lbName, {data: lbBody})
+          }
           this.setState({
             stepStatus: 'finish',
           })
@@ -963,4 +991,5 @@ export default connect(mapStateToProps, {
   addService,
   loadServiceList,
   setFormFields,
+  createAppIngress
 })(QuickCreateApp)

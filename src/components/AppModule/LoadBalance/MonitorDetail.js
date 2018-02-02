@@ -37,7 +37,7 @@ class MonitorDetail extends React.Component {
     healthCheck: false
   }
   componentWillMount() {
-    const { loadAllServices, clusterID, currentIngress, form } = this.props
+    const { loadAllServices, clusterID } = this.props
     loadAllServices(clusterID, {
       pageIndex: 1,
       pageSize: 100,
@@ -427,7 +427,7 @@ class MonitorDetail extends React.Component {
   render() {
     const { checkVisible, allServices,  confirmLoading, healthCheck, healthOptions } = this.state
     const { currentIngress, form } = this.props
-    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue, setFieldsValue } = form
+    const { getFieldProps, getFieldValue, setFieldsValue } = form
     const formItemLayout = {
       labelCol: { span: 2 },
       wrapperCol: { span: 8 }
@@ -655,7 +655,7 @@ class MonitorDetail extends React.Component {
             {...formItemLayout}
           >
             <p className="ant-form-text">
-              <span className={classNames("successColor", { 'hintColor': !healthCheck })}>已开启</span>&nbsp;
+              <span className={classNames("successColor", { 'hintColor': !healthCheck })}>{healthCheck ? '已开启' : '未开启'}</span>&nbsp;
               <i className="fa fa-pencil-square-o pointer" aria-hidden="true" onClick={this.openCheckModal}/>
             </p>
           </FormItem>

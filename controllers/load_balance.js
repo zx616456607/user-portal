@@ -75,6 +75,16 @@ exports.deleteLB = function* () {
   this.body = result
 }
 
+exports.createAppIngress = function* () {
+  const cluster = this.params.cluster
+  const lbname = this.params.lbname
+  const body = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, 'loadbalances', lbname, 'ingress', 'app'], null, body)
+  this.body = result
+}
+
 exports.createIngress = function* () {
   const cluster = this.params.cluster
   const name = this.params.name

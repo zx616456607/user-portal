@@ -499,7 +499,7 @@ class Sider extends Component {
                   </Menu.Item>
                   <Menu.Item key='load_balance'>
                     <Link to='/app_manage/load_balance'>
-                      <span><div className='sideCircle'></div> 负载均衡</span>
+                      <span><div className='sideCircle'></div> 应用负载均衡</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='network_isolation'>

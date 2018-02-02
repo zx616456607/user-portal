@@ -238,3 +238,29 @@ const fetchDeleteIngress = (cluster, lbname, name, displayName, callback) => {
 
 export const deleteIngress = (cluster, lbname, name, displayName, callback) =>
   dispatch => dispatch(fetchDeleteIngress(cluster, lbname, name, displayName, callback))
+
+export const CREATE_APP_INGRESS_REQUEST = 'CREATE_APP_INGRESS_REQUEST'
+export const CREATE_APP_INGRESS_SUCCESS = 'CREATE_APP_INGRESS_SUCCESS'
+export const CREATE_APP_INGRESS_FAILURE = 'CREATE_APP_INGRESS_FAILURE'
+
+const fetchCreateAppIngress = (cluster, lbname, body, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        CREATE_APP_INGRESS_REQUEST,
+        CREATE_APP_INGRESS_SUCCESS,
+        CREATE_APP_INGRESS_FAILURE
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/ingress/app`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      },
+    },
+    callback
+  }
+}
+
+export const createAppIngress = (cluster, lbname, body, callback) => 
+  dispatch => dispatch(fetchCreateAppIngress(cluster, lbname, body, callback))
