@@ -243,6 +243,7 @@ class ResourceQuota extends React.Component {
           volume: Number(value.volume),
           snapshot: Number(value.snapshot),
           configuration: Number(value.configuration),
+          secret: Number(value.secret),
           mysql: Number(value.mysql),
           redis: Number(value.redis),
           zookeeper: Number(value.zookeeper),
@@ -431,6 +432,7 @@ class ResourceQuota extends React.Component {
         volume: value.volume,
         snapshot: value.snapshot,
         configuration: value.configuration,
+        secret: value.secret,
         mysql: value.mysql,
         redis: value.redis,
         zookeeper: value.zookeeper,
@@ -440,7 +442,7 @@ class ResourceQuota extends React.Component {
     })
     return plus
   }
-  
+
   checkInputValue = (rules, value, callback, key) => {
     if (!value) {
       return callback(`${key}配额不能为空`)
@@ -454,7 +456,7 @@ class ResourceQuota extends React.Component {
     }
     callback()
   }
-  
+
   globalValueCheck = (rules, value, callback, key) => {
     if (!value) {
       return callback(`${key}配额不能为空`)
@@ -465,7 +467,7 @@ class ResourceQuota extends React.Component {
     }
     callback()
   }
-  
+
   render() {
     const { gIsEdit, cIsEdit, isDisabled, inputsDisabled, quotaName, sum } = this.state //属性
     const { globaleList, clusterList } = this.state //数据
@@ -546,6 +548,9 @@ class ResourceQuota extends React.Component {
       }, {
         key: 'configuration',
         text: '服务配置 (个)'
+      }, {
+        key: 'secret',
+        text: '加密服务配置 (个)'
       }]
     const serviceList = [
       {
@@ -560,7 +565,7 @@ class ResourceQuota extends React.Component {
       }, {
         key: 'elasticsearch',
         text: 'ElasticSearch集群 (个)'
-      }, 
+      },
       // {
       //   key: 'etcd',
       //   text: 'Etcd集群 (个)'
@@ -923,7 +928,7 @@ class ResourceQuota extends React.Component {
                         const inputProps = getFieldProps(item.key, {
                           rules: !checkValue && !this.state[`${item.key}-check`] ? [
                             {
-                              validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.key)  
+                              validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.key)
                             }
                           ] : [],
                           initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key) : 0

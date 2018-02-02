@@ -120,7 +120,7 @@ export default class ConfigGroupContent extends React.Component {
                           </td>
                           {useElement}
                           {
-                            useArray.length > 0 &&
+                            useArray.length > 1 &&
                             <td style={{ textAlign: 'center' }}>
                               <div
                                 style={{cursor:'pointer'}}

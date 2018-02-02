@@ -508,6 +508,8 @@
   "ManageMonitor.operationalAudit.AppTopology": "应用拓扑",
   "ManageMonitor.operationalAudit.Config": "服务配置",
   "ManageMonitor.operationalAudit.ConfigGroup": "配置组",
+  "ManageMonitor.operationalAudit.SecretConfig": "加密服务配置",
+  "ManageMonitor.operationalAudit.SecretConfigGroup": "加密配置组",
   "ManageMonitor.operationalAudit.Node": "主机",
   "ManageMonitor.operationalAudit.NodeMetrics": "主机指标",
   "ManageMonitor.operationalAudit.ThirdPartyRegistry": "第三方镜像仓库",
