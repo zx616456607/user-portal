@@ -82,6 +82,10 @@ class VMList extends React.Component {
           if (res.statusCode < 500) {
             notify.warn('获取数据失败', res.message || res.message.message)
           } else {
+            if (res.statusCode == 501) {
+              notify.warn('环境异常，请联系管理员处理')
+              return
+            }
             notify.error('获取数据失败', res.message || res.message.message)
           }
         }
