@@ -8,7 +8,7 @@
  * @author zhangxuan
  */
 
-import React from 'react'
+import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Row, Col, Modal, Form, Switch, Input, Slider, InputNumber, Checkbox } from 'antd'
 
@@ -61,7 +61,14 @@ class HealthCheckModal extends React.Component {
       })
       closeModal()
       form.resetFields()
-    }, 1000)
+    }, 500)
+  }
+  
+  switchChange = checked => {
+    const { form } = this.props
+    if (!checked) {
+      form.resetFields()
+    }
   }
   
   render() {
@@ -74,7 +81,8 @@ class HealthCheckModal extends React.Component {
     }
     
     const switchProps = getFieldProps('isCheck', {
-      valuePropName: 'checked'
+      valuePropName: 'checked',
+      onChange: this.switchChange
     })
     const directoryProps = getFieldProps('httpSend')
     const intervalProps = getFieldProps('interval', {
@@ -174,11 +182,11 @@ class HealthCheckModal extends React.Component {
 
 HealthCheckModal = Form.create()(HealthCheckModal)
 
-const mapStateToProps = () => {
-  return {
-    
-  }
+HealthCheckModal.PropTypes = {
+  visible: PropTypes.string.isRequired,
+  closeModal: PropTypes.func.isRequired,
+  callback: PropTypes.func,
+  healthOptions: PropTypes.object
 }
-export default connect(mapStateToProps, {
-  
-})(HealthCheckModal)
+
+export default HealthCheckModal

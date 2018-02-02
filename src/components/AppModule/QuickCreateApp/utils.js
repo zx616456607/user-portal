@@ -57,10 +57,12 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     storageList, // 存储的配置列表
     // storageKeys, // 存储的 keys(数组)
     replicas, // 实例数量
+    accessType, // 是否为负载均衡
     accessMethod, //访问方式
     publicNetwork, //公网出口
     internaletwork, //内网出口
     portsKeys, // 端口的 keys(数组)
+    lbKeys, // 访问方式为负载均衡时的端口(数组)
     argsType,
     command, // 进入点
     argsKeys, // 启动命令的 keys(数组)
@@ -201,28 +203,37 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
       groupID = 'none'; break
   }
   service.addLBGroupAnnotation(groupID)
-
-  portsKeys && portsKeys.forEach(key => {
-    if (key.deleted) {
-      return
-    }
-    const keyValue = key.value
-    const name = `${serviceName}-${keyValue}`
-    const port = fieldsValues[`${PORT}${keyValue}`]
-    const portProtocol = fieldsValues[`${PORT_PROTOCOL}${keyValue}`]
-    const mappingPort = fieldsValues[`${MAPPING_PORT}${keyValue}`]
-    const mappingPortType = fieldsValues[`${MAPPING_PORTTYPE}${keyValue}`]
-    service.addPort(proxyType, name, portProtocol, port, port, mappingPort)
-    if (groupID !== 'none') {
-      // No need to expose ports if network mode is 'none'
-      if (mappingPortType === 'special') {
-        service.addPortAnnotation(name, portProtocol, mappingPort)
-      } else {
-        service.addPortAnnotation(name, portProtocol)
+  if (accessType === 'loadBalance') {
+    // 访问方式为负载均衡
+    lbKeys && lbKeys.forEach(key => {
+      const port = parseInt(fieldsValues[`${PORT}-${key}`])
+      const name = `${serviceName}-${key}`
+      deployment.addContainerPort(serviceName, port)
+      service.addPort(proxyType, name, null, port, port)
+    })
+  } else {
+    portsKeys && portsKeys.forEach(key => {
+      if (key.deleted) {
+        return
       }
-    }
-    deployment.addContainerPort(serviceName, port, portProtocol)
-  })
+      const keyValue = key.value
+      const name = `${serviceName}-${keyValue}`
+      const port = fieldsValues[`${PORT}${keyValue}`]
+      const portProtocol = fieldsValues[`${PORT_PROTOCOL}${keyValue}`]
+      const mappingPort = fieldsValues[`${MAPPING_PORT}${keyValue}`]
+      const mappingPortType = fieldsValues[`${MAPPING_PORTTYPE}${keyValue}`]
+      service.addPort(proxyType, name, portProtocol, port, port, mappingPort)
+      if (groupID !== 'none') {
+        // No need to expose ports if network mode is 'none'
+        if (mappingPortType === 'special') {
+          service.addPortAnnotation(name, portProtocol, mappingPort)
+        } else {
+          service.addPortAnnotation(name, portProtocol)
+        }
+      }
+      deployment.addContainerPort(serviceName, port, portProtocol)
+    })
+  }
   // 设置进入点
   let {
     entrypoint,

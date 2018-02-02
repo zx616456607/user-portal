@@ -287,13 +287,17 @@ class AccessMethod extends Component {
     return defaultValue
   }
   tabChange = activeKey => {
+    const { form } = this.props
     this.setState({
       activeKey
+    })
+    form.setFieldsValue({
+      accessType: activeKey
     })
   }
   render() {
     const { activeKey } = this.state
-    const { formItemLayout, form } = this.props
+    const { formItemLayout, form, clusterID } = this.props
     const { getFieldProps, getFieldValue } = form
     const imageComposeStyle = classNames({
       'tabs_item_style': true,

@@ -726,6 +726,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/loadbalances/:name/ingress', loadBalanceController.createIngress)
   router.put('/clusters/:cluster/loadbalances/:name/ingress/:displayname', loadBalanceController.updateIngress)
   router.del('/clusters/:cluster/loadbalances/:lbname/ingresses/:name/displayname/:displayname', loadBalanceController.deleteIngress)
+  router.post('/clusters/:cluster/loadbalances/:lbname/ingress/app', loadBalanceController.createAppIngress)
   
   return router.routes()
 }
