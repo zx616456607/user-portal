@@ -511,6 +511,8 @@
   "ManageMonitor.operationalAudit.AppTopology": "AppTopology",
   "ManageMonitor.operationalAudit.Config": "Config",
   "ManageMonitor.operationalAudit.ConfigGroup": "ConfigGroup",
+  "ManageMonitor.operationalAudit.SecretConfig": "SecretConfig",
+  "ManageMonitor.operationalAudit.SecretConfigGroup": "SecretConfigGroup",
   "ManageMonitor.operationalAudit.Node": "Node",
   "ManageMonitor.operationalAudit.NodeMetrics": "NodeMetrics",
   "ManageMonitor.operationalAudit.ThirdPartyRegistry": "ThirdPartyRegistry",

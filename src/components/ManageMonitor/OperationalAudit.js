@@ -299,6 +299,14 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.ConfigGroup',
     defaultMessage: '配置组',
   },
+  SecretConfig: {
+    id: 'ManageMonitor.operationalAudit.SecretConfig',
+    defaultMessage: '加密服务配置',
+  },
+  SecretConfigGroup: {
+    id: 'ManageMonitor.operationalAudit.SecretConfigGroup',
+    defaultMessage: '加密配置组',
+  },
   Node: {
     id: 'ManageMonitor.operationalAudit.Node',
     defaultMessage: '主机',
@@ -979,6 +987,10 @@ function resourceFormat(resourceType, scope) {
     case '68':
       return formatMessage(menusText.ServiceGrayRelease)
       break;
+    case '69':
+      return formatMessage(menusText.SecretConfigGroup)
+    case '70':
+      return formatMessage(menusText.SecretConfig)
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -1238,6 +1250,10 @@ function formatResourceName(resourceName, resourceId) {
     if (newBody.imageTagName) {
       return newBody.imageTagName
     }
+    // secret config
+    if (newBody.key && newBody.value) {
+      return newBody.key
+    }
   } else {
     if (resourceName.length == 0) {
       if (resourceId.length == 0) {
@@ -1294,7 +1310,10 @@ let MyComponent = React.createClass({
             <span className='commonSpan'>{operationalFormat(item.operationType, scope)}</span>
           </div>
           <div className={standardFlag ? 'standardObj commonTitle' : 'obj commonTitle'}>
-            <span className='objSpan' style={{ top: '5px' }}><FormattedMessage {...menusText.objType} />{resourceFormat(item.resourceType, scope)}</span>
+            <span className='objSpan' style={{ top: '5px' }}>
+            <FormattedMessage {...menusText.objType} />
+              {resourceFormat(item.resourceType, scope)}
+            </span>
             <span className='objSpan' style={{ top: '-2px' }}>
               <Tooltip placement="topLeft" title={formatResourceName(item.resourceName, item.resourceId)}>
                 <span><FormattedMessage {...menusText.objName} />{formatResourceName(item.resourceName, item.resourceId)}</span>
@@ -1522,6 +1541,16 @@ class OperationalAudit extends Component {
         break;
       case '23':
         //Config
+        showOperationalList.push(operationalList[8]);
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[1]);
+      case '69':
+        //SecretConfigGroup
+        showOperationalList.push(operationalList[8]);
+        showOperationalList.push(operationalList[0]);
+        break;
+      case '70':
+        //SecretConfig
         showOperationalList.push(operationalList[8]);
         showOperationalList.push(operationalList[0]);
         showOperationalList.push(operationalList[1]);
@@ -1915,6 +1944,16 @@ class OperationalAudit extends Component {
         }, {
           value: '23',
           label: formatMessage(menusText.Config),
+        }],
+      }, {
+        value: '70',
+        label: formatMessage(menusText.SecretConfig),
+        children: [{
+          value: '69',
+          label: formatMessage(menusText.SecretConfigGroup),
+        }, {
+          value: '70',
+          label: formatMessage(menusText.SecretConfig),
         }],
       }, {
         value: '26',
