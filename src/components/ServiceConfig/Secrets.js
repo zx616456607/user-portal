@@ -273,7 +273,8 @@ class ServiceSecretsConfig extends React.Component {
   render() {
     const { secretsList, secretsOnUse } = this.props
     const {
-      checkedList, createServiceGroupModalVisible,
+      checkedList,
+      createServiceGroupModalVisible,
       createServiceGroupModalConfrimLoading,
       deleteServiceGroupModalVisible,
       deleteServiceGroupModalConfrimLoading,
@@ -281,8 +282,13 @@ class ServiceSecretsConfig extends React.Component {
       createConfigFileModalVisible,
       updateConfigFileModalVisible,
       removeKeyModalVisible,
+      searchInput,
     } = this.state
-    const { data = [], isFetching } = secretsList
+    const { isFetching } = secretsList
+    let data = secretsList.data || []
+    if (searchInput) {
+      data = data.filter(secret => secret.name.indexOf(searchInput) > -1)
+    }
     return (
       <div className="service-secret-config" id="service-secret-config">
         <div className="layout-content-btns">
@@ -318,7 +324,12 @@ class ServiceSecretsConfig extends React.Component {
             <div className="text-center">
               <img src={noConfigGroupImg} />
               <div>
-                您还没有配置组，创建一个吧！&nbsp;
+                {
+                  searchInput
+                  ? '未找到相关配置组'
+                  : '您还没有配置组，创建一个吧！'
+                }
+                &nbsp;
                 <Button
                   type="primary"
                   size="large"
