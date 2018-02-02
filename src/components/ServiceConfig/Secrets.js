@@ -97,10 +97,32 @@ class ServiceSecretsConfig extends React.Component {
   onCreateServiceGroupModalCancel = () => this.setState({ createServiceGroupModalVisible: false })
 
   handleRemoveSecrets = () => {
-    const { removeSecrets, clusterID } = this.props
+    const { removeSecrets, clusterID, secretsOnUse } = this.props
     const {
       checkedList,
     } = this.state
+    if (secretsOnUse) {
+      const onUseSecrets = []
+      checkedList.forEach(secretName => {
+        if (Object.keys(secretsOnUse[secretName]).length > 0) {
+          onUseSecrets.push(secretName)
+        }
+      })
+      if (onUseSecrets.length > 0) {
+        this.setState({
+          deleteServiceGroupModalVisible: false,
+          checkedList: [],
+        })
+        return Modal.warning({
+          title: '删除配置组失败!',
+          content: <div>
+            {
+              onUseSecrets.map(secretName => <div>{secretName}：配置组正在使用中</div>)
+            }
+          </div>,
+        })
+      }
+    }
     this.setState({
       deleteServiceGroupModalConfrimLoading: true,
     })
@@ -215,8 +237,18 @@ class ServiceSecretsConfig extends React.Component {
   }
 
   handleRemoveKeyFromSecret = () => {
-    const { removeKeyFromSecret, clusterID } = this.props
+    const { removeKeyFromSecret, clusterID, secretsOnUse } = this.props
     const { activeGroupName, configName } = this.state
+    if (secretsOnUse[activeGroupName] && secretsOnUse[activeGroupName][configName].length > 0) {
+      this.setState({
+        modalConfigFile: false,
+        removeKeyModalVisible: false,
+      })
+      return Modal.warning({
+        title: '移除加密对象失败!',
+        content: `${configName}：加密对象正在使用中`,
+      })
+    }
     removeKeyFromSecret(clusterID, activeGroupName, configName, {
       success: {
         func: () => {

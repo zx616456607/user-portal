@@ -12,15 +12,22 @@
 
 import React from 'react'
 import { Link } from 'react-router'
-import { Timeline, Row, Icon, Button, Tooltip } from 'antd'
+import { Timeline, Row, Icon, Button, Tooltip, Modal } from 'antd'
 
 export default class ConfigGroupContent extends React.Component {
+  state = {
+    moreModalVisible: false,
+    moreUseArray: [],
+    moreKey: undefined,
+  }
+
   render() {
     const {
       group, openUpdateConfigFileModal, removeKeyFromSecret,
       secretOnUse,
     } = this.props
     const { name, data = {}, createdAt } = group
+    const { moreModalVisible, moreUseArray, moreKey } = this.state
     if (Object.keys(data).length === 0) {
       return (
         <div className='li' style={{ lineHeight: '60px', height: '10px' }}>
@@ -40,6 +47,17 @@ export default class ConfigGroupContent extends React.Component {
                   <div>暂无挂载</div>
                 </td>
               } else {
+                const secretServiceMap = <span>
+                  {
+                    useArray[0].mountPath &&
+                    useArray[0].mountPath + '（挂载路径）'
+                  }
+                  &nbsp;&nbsp;
+                  {
+                    useArray[0].env.length > 0 &&
+                    useArray[0].env.join(', ') + '（环境变量）'
+                  }
+                </span>
                 useElement = <td>
                   <div className="li">
                     应用：
@@ -51,17 +69,9 @@ export default class ConfigGroupContent extends React.Component {
                     {useArray[0].serviceName}
                     </Link>
                   </div>
-                  <Tooltip title={useArray[0].mountPath}>
+                  <Tooltip title={secretServiceMap}>
                     <div className='lis textoverflow'>
-                      {
-                        useArray[0].mountPath &&
-                        useArray[0].mountPath + '（挂载路径）'
-                      }
-                      &nbsp;&nbsp;
-                      {
-                        useArray[0].env.length > 0 &&
-                        useArray[0].env.join(', ') + '（环境变量）'
-                      }
+                      {secretServiceMap}
                     </div>
                   </Tooltip>
                 </td>
@@ -115,7 +125,11 @@ export default class ConfigGroupContent extends React.Component {
                               <div
                                 style={{cursor:'pointer'}}
                                 onClick={
-                                  () => {}
+                                  () => this.setState({
+                                    moreModalVisible: true,
+                                    moreUseArray: useArray.slice(1),
+                                    moreKey: key,
+                                  })
                                 }
                               >
                                 <a>查看更多</a>
@@ -125,6 +139,47 @@ export default class ConfigGroupContent extends React.Component {
                         </tr>
                       </tbody>
                     </table>
+                    <Modal
+                      title={`加密对象 ${moreKey}`}
+                      wrapClassName="server-check-modal"
+                      visible={moreModalVisible}
+                      onCancel={() => { this.setState({ moreModalVisible: false }) }}
+                      onOk={() => { this.setState({ moreModalVisible: false }) }}
+                    >
+                      <div className="check-config-head">
+                        <div className="span4">服务名称</div>
+                        <div className="span6">映射方式</div>
+                      </div>
+                        {/*查看更多-关联服务列表-start*/}
+                        {moreUseArray.map((item, index) => {
+                          const secretServiceMap = <span>
+                            {
+                              item.mountPath &&
+                              item.mountPath + '（挂载路径）'
+                            }
+                            &nbsp;&nbsp;
+                            {
+                              item.env.length > 0 &&
+                              item.env.join(', ') + '（环境变量）'
+                            }
+                          </span>
+                          return (
+                            <div className="check-config" key={index}>
+                              <div className="span4">
+                                <Link to={`/app_manage/service?serName=${item.serviceName}`}>
+                                  {item.serviceName}
+                                </Link>
+                              </div>
+                              <div className="span6 textoverflow">
+                                <Tooltip title={secretServiceMap} placement="topLeft">
+                                  {secretServiceMap}
+                                </Tooltip>
+                              </div>
+                            </div>
+                          )
+                        })}
+                        {/*查看更多-关联服务列表*-end*/}
+                    </Modal>
                   </Row>
                 </Timeline.Item>
               )}
