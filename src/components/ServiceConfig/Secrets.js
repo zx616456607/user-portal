@@ -26,6 +26,7 @@ import CreateConfigFileModal from './CreateConfigFileModal'
 import UpdateConfigFileModal from './UpdateConfigFileModal'
 import CreateServiceGroupModal from './ConfigGroup/CreateModal'
 import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
+import { isResourceQuotaError } from '../../common/tools'
 import './style/Secret.less'
 import './style/ServiceConfig.less'
 
@@ -104,7 +105,7 @@ class ServiceSecretsConfig extends React.Component {
     if (secretsOnUse) {
       const onUseSecrets = []
       checkedList.forEach(secretName => {
-        if (Object.keys(secretsOnUse[secretName]).length > 0) {
+        if (Object.keys(secretsOnUse[secretName] || {}).length > 0) {
           onUseSecrets.push(secretName)
         }
       })
@@ -190,7 +191,14 @@ class ServiceSecretsConfig extends React.Component {
         isAsync: true
       },
       failed: {
-        func: () => {
+        func: error => {
+          if (isResourceQuotaError(error)) {
+            this.setState({
+              modalConfigFile: false,
+              createConfigFileModalVisible: false,
+            })
+            return
+          }
           notification.error('添加失败')
         },
         isAsync: true
