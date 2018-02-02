@@ -441,6 +441,7 @@ function mapStateToProps(state, props) {
     appList.forEach(app => {
       app.services.forEach(service => {
         const { volumes = [] } = service.spec.template.spec
+        // volumes
         volumes.forEach(v => {
           const { secret, name } = v
           if (secret) {
@@ -469,7 +470,7 @@ function mapStateToProps(state, props) {
                 mountPath: volumeMount.mountPath,
                 env: [],
               }
-              const { env = [] } = service.spec.template.spec.containers[0]
+              /* const { env = [] } = service.spec.template.spec.containers[0]
               env.forEach(({ name, valueFrom }) => {
                 if (valueFrom
                   && valueFrom.secretKeyRef.name === secretName
@@ -477,9 +478,33 @@ function mapStateToProps(state, props) {
                 ) {
                   secretAndService.env.push(name)
                 }
-              })
+              }) */
               secretsOnUse[secretName][key].push(secretAndService)
             })
+          }
+        })
+        // env
+        const { env = [] } = service.spec.template.spec.containers[0]
+        env.forEach(({ name, valueFrom }) => {
+          if (valueFrom && valueFrom.secretKeyRef) {
+            const { secretKeyRef } = valueFrom
+            const secretAndService = {
+              appName: app.name,
+              serviceName: service.metadata.name,
+            }
+            if (!secretsOnUse[secretKeyRef.name]) {
+              secretsOnUse[secretKeyRef.name] = {}
+            }
+            if (!secretsOnUse[secretKeyRef.name][secretKeyRef.key]) {
+              secretsOnUse[secretKeyRef.name][secretKeyRef.key] = []
+            }
+            const currentSecretsOnUseNameKey = find(secretsOnUse[secretKeyRef.name][secretKeyRef.key], secretAndService)
+            if (currentSecretsOnUseNameKey) {
+              currentSecretsOnUseNameKey.env.push(name)
+            } else {
+              secretAndService.env = [ name ]
+              secretsOnUse[secretKeyRef.name][secretKeyRef.key].push(secretAndService)
+            }
           }
         })
       })
