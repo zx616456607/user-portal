@@ -277,9 +277,9 @@ class CollapseContainer extends Component {
                   { volume }
 
                   {(mounts && mounts.length >1) ?
-                    [<td style={{ textAlign: 'center' }}>
+                    <td style={{ textAlign: 'center' }}>
                       <div style={{cursor:'pointer'}} onClick={()=> {this.setState({[this.props.groupname + configFileItem.name]: true})}}><a>查看更多</a></div>
-                    </td>]
+                    </td>
                     :null
                   }
                 </tr>

@@ -17,6 +17,8 @@ import {
   createSecret, getSecrets, removeSecrets, removeKeyFromSecret,
   addKeyIntoSecret, updateKeyIntoSecret,
 } from '../../actions/secrets'
+import find from 'lodash/find'
+import { loadAppList } from '../../actions/app_manage'
 import NotificationHandler from '../../components/Notification'
 import CommonSearchInput from '../../components/CommonSearchInput'
 import ConfigGroup from './ConfigGroup'
@@ -47,8 +49,9 @@ class ServiceSecretsConfig extends React.Component {
   }
 
   loadData = () => {
-    const { getSecrets, clusterID } = this.props
+    const { getSecrets, loadAppList, clusterID } = this.props
     getSecrets(clusterID)
+    loadAppList(clusterID)
     this.setState({
       checkedList: []
     })
@@ -236,7 +239,7 @@ class ServiceSecretsConfig extends React.Component {
   }
 
   render() {
-    const { secretsList } = this.props
+    const { secretsList, secretsOnUse } = this.props
     const {
       checkedList, createServiceGroupModalVisible,
       createServiceGroupModalConfrimLoading,
@@ -311,7 +314,8 @@ class ServiceSecretsConfig extends React.Component {
                       removeKeyModalVisible: true,
                       activeGroupName: name,
                       configName: key,
-                    })
+                    }),
+                    secretOnUse: secretsOnUse[secret.name] || {},
                   })
                 ))
               }
@@ -374,13 +378,67 @@ class ServiceSecretsConfig extends React.Component {
 }
 
 function mapStateToProps(state, props) {
-  const { entities, secrets } = state
+  const { entities, secrets, apps } = state
   const { current } = entities
   const { cluster } = current
   const { clusterID } = cluster
+  const { appItems } = apps
+  const secretsList = secrets.list[clusterID] || {}
+  const appList = appItems[clusterID] && appItems[clusterID].appList || []
+  const secretsOnUse = {}
+  if (secretsList.data && appList.length > 0) {
+    appList.forEach(app => {
+      app.services.forEach(service => {
+        const { volumes = [] } = service.spec.template.spec
+        volumes.forEach(v => {
+          const { secret, name } = v
+          if (secret) {
+            const { secretName, items } = secret
+            secretsOnUse[secretName] = Object.assign({}, secretsOnUse[secretName])
+            const currentSecret = find(secretsList.data, { name: secretName }) || {}
+            const currentSecretData = currentSecret.data || {}
+            const volumeMount = find(
+              service.spec.template.spec.containers[0].volumeMounts,
+              { name }
+            ) || {}
+            let configItems = items
+            if (!items) {
+              configItems = Object.keys(currentSecretData).map(key => ({
+                key,
+              }))
+            }
+            configItems.forEach(config => {
+              const { key } = config
+              if (!secretsOnUse[secretName][key]) {
+                secretsOnUse[secretName][key] = []
+              }
+              const secretAndService = {
+                appName: app.name,
+                serviceName: service.metadata.name,
+                mountPath: volumeMount.mountPath,
+                env: [],
+              }
+              const { env = [] } = service.spec.template.spec.containers[0]
+              env.forEach(({ name, valueFrom }) => {
+                if (valueFrom
+                  && valueFrom.secretKeyRef.name === secretName
+                  && valueFrom.secretKeyRef.key === key
+                ) {
+                  secretAndService.env.push(name)
+                }
+              })
+              secretsOnUse[secretName][key].push(secretAndService)
+            })
+          }
+        })
+      })
+    })
+  }
   return {
     clusterID,
-    secretsList: secrets.list[clusterID] || {}
+    secretsList,
+    secretsOnUse,
+    appList,
   }
 }
 
@@ -391,4 +449,5 @@ export default connect(mapStateToProps, {
   removeKeyFromSecret,
   addKeyIntoSecret,
   updateKeyIntoSecret,
+  loadAppList,
 })(ServiceSecretsConfig)
