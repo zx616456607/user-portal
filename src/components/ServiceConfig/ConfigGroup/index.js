@@ -19,7 +19,7 @@ export default function ConfigGroup(props) {
   const {
     group, checkedList, setCheckedList, removeSecrets,
     openCreateConfigFileModal, openUpdateConfigFileModal,
-    removeKeyFromSecret,
+    removeKeyFromSecret, secretOnUse,
     ...otherProps
   } = props
   return (
@@ -39,6 +39,7 @@ export default function ConfigGroup(props) {
         group={group}
         openUpdateConfigFileModal={openUpdateConfigFileModal}
         removeKeyFromSecret={removeKeyFromSecret}
+        secretOnUse={secretOnUse}
       />
     </Collapse.Panel>
   )

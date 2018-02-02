@@ -1072,6 +1072,14 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.ConfigGroup',
     defaultMessage: '配置组',
   },
+  SecretConfig: {
+    id: 'ManageMonitor.operationalAudit.SecretConfig',
+    defaultMessage: '加密服务配置',
+  },
+  SecretConfigGroup: {
+    id: 'ManageMonitor.operationalAudit.SecretConfigGroup',
+    defaultMessage: '加密配置组',
+  },
   Node: {
     id: 'ManageMonitor.operationalAudit.Node',
     defaultMessage: '主机',
@@ -1575,6 +1583,10 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.MonitorChart)
     case '68':
       return formatMessage(menusText.ServiceGrayRelease)
+    case '69':
+      return formatMessage(menusText.SecretConfigGroup)
+    case '70':
+      return formatMessage(menusText.SecretConfig)
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -1776,6 +1788,10 @@ function formatResourceName(resourceName) {
     }
     if (newBody.ids && Array.isArray(newBody.ids) && newBody.ids.length > 0) {
       return newBody.ids.join(",")
+    }
+    // secret config
+    if (newBody.key && newBody.value) {
+      return newBody.key
     }
     return resourceName;
   } else {

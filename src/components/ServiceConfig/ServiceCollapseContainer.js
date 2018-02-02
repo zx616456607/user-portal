@@ -183,7 +183,7 @@ class CollapseContainer extends Component {
                 <h3>{list.name} ：{list.text}</h3>
               )
             })
-            Modal.error({
+            Modal.warning({
               title: '删除配置文件失败!',
               content
             })
@@ -277,9 +277,9 @@ class CollapseContainer extends Component {
                   { volume }
 
                   {(mounts && mounts.length >1) ?
-                    [<td style={{ textAlign: 'center' }}>
+                    <td style={{ textAlign: 'center' }}>
                       <div style={{cursor:'pointer'}} onClick={()=> {this.setState({[this.props.groupname + configFileItem.name]: true})}}><a>查看更多</a></div>
-                    </td>]
+                    </td>
                     :null
                   }
                 </tr>
@@ -290,15 +290,16 @@ class CollapseContainer extends Component {
               wrapClassName="server-check-modal"
               visible={this.state[this.props.groupname + configFileItem.name]}
               onCancel={() => { this.setState({ [this.props.groupname + configFileItem.name]: false }) } }
+              onOk={() => { this.setState({ [this.props.groupname + configFileItem.name]: false }) } }
               >
               <div className="check-config-head">
                 <div className="span4">服务名称</div>
                 <div className="span6">挂载路径</div>
               </div>
                 {/*查看更多-关联容器列表-start*/}
-                {mounts && mounts.slice(1).map((list) => {
+                {mounts && mounts.slice(1).map((list, index) => {
                   return (
-                    <div className="check-config">
+                    <div className="check-config" key={index}>
                       <div className="span4"><Link to={`/app_manage/detail/${list.imageName}`}>{list.serviceName}</Link></div>
                       <div className="span6 textoverflow">
                         <Tooltip title={list.mountPath} placement="topLeft">

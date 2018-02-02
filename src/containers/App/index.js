@@ -422,6 +422,8 @@ class App extends Component {
         return '快照'
       case 'configuration':
         return '服务配置'
+      case 'secret':
+        return '加密服务配置'
       case 'mysql':
         return 'MySQL'
       case 'redis':
@@ -579,8 +581,16 @@ class App extends Component {
             <i className="fa fa-exclamation-triangle" aria-hidden="true"></i>
             <div className="alert_text">
               超过配额，你目前只剩下
-            <a> {resourcequotaMessage.available >= 0 ? this.quotaSuffix(resourcequotaMessage.type) === '个' ? resourcequotaMessage.available.toFixed(0) : resourcequotaMessage.available.toFixed(2) : 0} 
-            {this.quotaSuffix(resourcequotaMessage.type)} {this.quotaEn(resourcequotaMessage.type)} </a>
+              <a>
+              {
+                resourcequotaMessage.available >= 0
+                ? this.quotaSuffix(resourcequotaMessage.type) === '个'
+                  ? resourcequotaMessage.available.toFixed(0)
+                  : resourcequotaMessage.available.toFixed(2)
+                : 0
+              }
+              {this.quotaSuffix(resourcequotaMessage.type)} {this.quotaEn(resourcequotaMessage.type)}
+              </a>
               配额
             </div>
             <div>

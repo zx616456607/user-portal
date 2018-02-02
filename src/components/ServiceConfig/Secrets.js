@@ -17,6 +17,8 @@ import {
   createSecret, getSecrets, removeSecrets, removeKeyFromSecret,
   addKeyIntoSecret, updateKeyIntoSecret,
 } from '../../actions/secrets'
+import find from 'lodash/find'
+import { loadAppList } from '../../actions/app_manage'
 import NotificationHandler from '../../components/Notification'
 import CommonSearchInput from '../../components/CommonSearchInput'
 import ConfigGroup from './ConfigGroup'
@@ -24,6 +26,7 @@ import CreateConfigFileModal from './CreateConfigFileModal'
 import UpdateConfigFileModal from './UpdateConfigFileModal'
 import CreateServiceGroupModal from './ConfigGroup/CreateModal'
 import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
+import { isResourceQuotaError } from '../../common/tools'
 import './style/Secret.less'
 import './style/ServiceConfig.less'
 
@@ -47,8 +50,9 @@ class ServiceSecretsConfig extends React.Component {
   }
 
   loadData = () => {
-    const { getSecrets, clusterID } = this.props
+    const { getSecrets, loadAppList, clusterID } = this.props
     getSecrets(clusterID)
+    loadAppList(clusterID)
     this.setState({
       checkedList: []
     })
@@ -94,10 +98,32 @@ class ServiceSecretsConfig extends React.Component {
   onCreateServiceGroupModalCancel = () => this.setState({ createServiceGroupModalVisible: false })
 
   handleRemoveSecrets = () => {
-    const { removeSecrets, clusterID } = this.props
+    const { removeSecrets, clusterID, secretsOnUse } = this.props
     const {
       checkedList,
     } = this.state
+    if (secretsOnUse) {
+      const onUseSecrets = []
+      checkedList.forEach(secretName => {
+        if (Object.keys(secretsOnUse[secretName] || {}).length > 0) {
+          onUseSecrets.push(secretName)
+        }
+      })
+      if (onUseSecrets.length > 0) {
+        this.setState({
+          deleteServiceGroupModalVisible: false,
+          checkedList: [],
+        })
+        return Modal.warning({
+          title: '删除配置组失败!',
+          content: <div>
+            {
+              onUseSecrets.map(secretName => <div>{secretName}：配置组正在使用中</div>)
+            }
+          </div>,
+        })
+      }
+    }
     this.setState({
       deleteServiceGroupModalConfrimLoading: true,
     })
@@ -165,7 +191,14 @@ class ServiceSecretsConfig extends React.Component {
         isAsync: true
       },
       failed: {
-        func: () => {
+        func: error => {
+          if (isResourceQuotaError(error)) {
+            this.setState({
+              modalConfigFile: false,
+              createConfigFileModalVisible: false,
+            })
+            return
+          }
           notification.error('添加失败')
         },
         isAsync: true
@@ -212,8 +245,18 @@ class ServiceSecretsConfig extends React.Component {
   }
 
   handleRemoveKeyFromSecret = () => {
-    const { removeKeyFromSecret, clusterID } = this.props
+    const { removeKeyFromSecret, clusterID, secretsOnUse } = this.props
     const { activeGroupName, configName } = this.state
+    if (secretsOnUse[activeGroupName] && secretsOnUse[activeGroupName][configName].length > 0) {
+      this.setState({
+        modalConfigFile: false,
+        removeKeyModalVisible: false,
+      })
+      return Modal.warning({
+        title: '移除加密对象失败!',
+        content: `${configName}：加密对象正在使用中`,
+      })
+    }
     removeKeyFromSecret(clusterID, activeGroupName, configName, {
       success: {
         func: () => {
@@ -236,9 +279,10 @@ class ServiceSecretsConfig extends React.Component {
   }
 
   render() {
-    const { secretsList } = this.props
+    const { secretsList, secretsOnUse } = this.props
     const {
-      checkedList, createServiceGroupModalVisible,
+      checkedList,
+      createServiceGroupModalVisible,
       createServiceGroupModalConfrimLoading,
       deleteServiceGroupModalVisible,
       deleteServiceGroupModalConfrimLoading,
@@ -246,8 +290,13 @@ class ServiceSecretsConfig extends React.Component {
       createConfigFileModalVisible,
       updateConfigFileModalVisible,
       removeKeyModalVisible,
+      searchInput,
     } = this.state
-    const { data = [], isFetching } = secretsList
+    const { isFetching } = secretsList
+    let data = secretsList.data || []
+    if (searchInput) {
+      data = data.filter(secret => secret.name.indexOf(searchInput) > -1)
+    }
     return (
       <div className="service-secret-config" id="service-secret-config">
         <div className="layout-content-btns">
@@ -283,7 +332,12 @@ class ServiceSecretsConfig extends React.Component {
             <div className="text-center">
               <img src={noConfigGroupImg} />
               <div>
-                您还没有配置组，创建一个吧！&nbsp;
+                {
+                  searchInput
+                  ? '未找到相关配置组'
+                  : '您还没有配置组，创建一个吧！'
+                }
+                &nbsp;
                 <Button
                   type="primary"
                   size="large"
@@ -311,7 +365,8 @@ class ServiceSecretsConfig extends React.Component {
                       removeKeyModalVisible: true,
                       activeGroupName: name,
                       configName: key,
-                    })
+                    }),
+                    secretOnUse: secretsOnUse[secret.name] || {},
                   })
                 ))
               }
@@ -374,13 +429,67 @@ class ServiceSecretsConfig extends React.Component {
 }
 
 function mapStateToProps(state, props) {
-  const { entities, secrets } = state
+  const { entities, secrets, apps } = state
   const { current } = entities
   const { cluster } = current
   const { clusterID } = cluster
+  const { appItems } = apps
+  const secretsList = secrets.list[clusterID] || {}
+  const appList = appItems[clusterID] && appItems[clusterID].appList || []
+  const secretsOnUse = {}
+  if (secretsList.data && appList.length > 0) {
+    appList.forEach(app => {
+      app.services.forEach(service => {
+        const { volumes = [] } = service.spec.template.spec
+        volumes.forEach(v => {
+          const { secret, name } = v
+          if (secret) {
+            const { secretName, items } = secret
+            secretsOnUse[secretName] = Object.assign({}, secretsOnUse[secretName])
+            const currentSecret = find(secretsList.data, { name: secretName }) || {}
+            const currentSecretData = currentSecret.data || {}
+            const volumeMount = find(
+              service.spec.template.spec.containers[0].volumeMounts,
+              { name }
+            ) || {}
+            let configItems = items
+            if (!items) {
+              configItems = Object.keys(currentSecretData).map(key => ({
+                key,
+              }))
+            }
+            configItems.forEach(config => {
+              const { key } = config
+              if (!secretsOnUse[secretName][key]) {
+                secretsOnUse[secretName][key] = []
+              }
+              const secretAndService = {
+                appName: app.name,
+                serviceName: service.metadata.name,
+                mountPath: volumeMount.mountPath,
+                env: [],
+              }
+              const { env = [] } = service.spec.template.spec.containers[0]
+              env.forEach(({ name, valueFrom }) => {
+                if (valueFrom
+                  && valueFrom.secretKeyRef.name === secretName
+                  && valueFrom.secretKeyRef.key === key
+                ) {
+                  secretAndService.env.push(name)
+                }
+              })
+              secretsOnUse[secretName][key].push(secretAndService)
+            })
+          }
+        })
+      })
+    })
+  }
   return {
     clusterID,
-    secretsList: secrets.list[clusterID] || {}
+    secretsList,
+    secretsOnUse,
+    appList,
   }
 }
 
@@ -391,4 +500,5 @@ export default connect(mapStateToProps, {
   removeKeyFromSecret,
   addKeyIntoSecret,
   updateKeyIntoSecret,
+  loadAppList,
 })(ServiceSecretsConfig)
