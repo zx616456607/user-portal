@@ -351,7 +351,7 @@ class MonitorDetail extends React.Component {
         displayName: monitorName,
         agreement,
         port,
-        strategy,
+        lbAlgorithm: strategy,
         host: hostname,
         path: '/' + path.join('/'),
         items: this.getServiceList()
