@@ -314,7 +314,7 @@ class MonitorDetail extends React.Component {
     let notify = new Notification()
     const keys = getFieldValue('keys')
     let endIndexValue = keys[keys.length - 1]
-    let validateArr = ['monitorName', 'agreement', 'port', 'lbAlgorithm', 'sessionSticky', 'sessionPersistent', 'host']
+    let validateArr = ['monitorName', 'agreement', 'port', 'lbAlgorithm', 'sessionSticky', 'host']
     if (keys.length) {
       validateArr = validateArr.concat([
         `service-${endIndexValue}`,
@@ -325,7 +325,7 @@ class MonitorDetail extends React.Component {
     if (getFieldValue('sessionSticky')) {
       validateArr.push('sessionPersistent')
     }
-    validateFields(validateArr ,(errors, values) => {
+    validateFields(validateArr, (errors, values) => {
       if (!!errors) {
         return
       }
@@ -476,7 +476,7 @@ class MonitorDetail extends React.Component {
     
     const sessionProps = getFieldProps('sessionSticky', {
       valuePropName: 'checked',
-      initialValue: currentIngress && currentIngress.sessionSticky
+      initialValue: currentIngress ? currentIngress.sessionSticky : false
     })
     
     const relayRuleProps = getFieldProps('host', {
