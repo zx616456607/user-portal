@@ -10,13 +10,14 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Select, Radio, Checkbox, Slider, Form,
-  InputNumber, Icon, Button, Input, Row, Col 
+import { Select, Radio, Form,
+  Button, Input, Row, Col 
 } from 'antd'
-import isEmpty from 'lodash/isEmpty'
+import cloneDeep from 'lodash/cloneDeep'
 
 import './style/LoadBalance.less'
-import HealthCheckModal from '../../../LoadBalance/HealthCheckModal'
+import IngressModal from './IngressModal'
+import { getLBList } from '../../../../../actions/load_balance'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -30,6 +31,11 @@ class LoadBalance extends React.Component {
     
   }
   
+  componentWillMount() {
+    const { clusterID, getLBList } = this.props
+    getLBList(clusterID)
+  }
+  
   checkLoadBalance = (rule, value, callback) => {
     if (!value) {
       return callback('请选择负载均衡')
@@ -37,101 +43,90 @@ class LoadBalance extends React.Component {
     callback()
   }
   
-  validateNewItem = () => {
-    const { form } = this.props
-    const { getFieldValue, setFields } = form
-    const keys = getFieldValue('keys')
-    let endIndexValue = keys[keys.length - 1]
-    let service = getFieldValue(`service-${endIndexValue}`)
-    let port = getFieldValue(`port-${endIndexValue}`)
-    let errorObj = {}
-    
-    if (!service) {
-      Object.assign(errorObj, {
-        [`service-${endIndexValue}`]: {
-          errors: ['请选择服务'],
-          value: ''
-        }
-      })
-    }
-    if (!port) {
-      Object.assign(errorObj, {
-        [`port-${endIndexValue}`]: {
-          errors: ['请选择端口'],
-          value: ''
-        }
-      })
-    }
-    setFields(errorObj)
-    return errorObj
-  }
-  
-  addItem = () => {
+  addItem = configs => {
+    const { editKey } = this.state
     const { form } = this.props
     const { getFieldValue, setFieldsValue } = form
     
-    const currentKeys = getFieldValue('keys')
-    
-    if (currentKeys.length) {
-      const result = this.validateNewItem()
-      if (!isEmpty(result)) {
-        return
-      }
+    const currentKeys = getFieldValue('lbKeys')
+    const copyKey = editKey || ++ uidd
+    this.setState({
+      [`config-${copyKey}`]: configs
+    })
+    const { 
+      httpSend, interval, fall, rise, sessionSticky, sessionPersistent, expectAlive,
+      host, lbAlgorithm, monitorName, port,
+    } = configs
+    let body = {
+      healthCheck: {
+        httpSend,
+        interval,
+        fall,
+        rise,
+        sessionSticky,
+        sessionPersistent,
+        expectAlive
+      },
+      host,
+      lbAlgorithm,
+      displayName: monitorName,
+      port
     }
-    uidd ++
-    
     setFieldsValue({
-      keys: currentKeys.concat(uidd)
+      [`ingress-${copyKey}`]: body,
+      [`displayName-${copyKey}`]: configs.monitorName,
+      [`lbAlgorithm-${copyKey}`]: configs.lbAlgorithm,
+      [`sessionPersistent-${copyKey}`]: configs.sessionSticky ? `已启用（${configs.sessionPersistent}s）` : '未启用',
+      [`host-${copyKey}`]: configs.host,
+      [`port-${copyKey}`]: configs.port
+    })
+    if (!editKey) {
+      setFieldsValue({
+        lbKeys: currentKeys.concat(uidd)
+      })
+    }
+    this.setState({
+      editKey: 0
     })
   }
   
   removeKey = key => {
     const { form } = this.props
     const { getFieldValue, setFieldsValue } = form
-    
+    const cloneState = cloneDeep(this.state)
+    delete cloneState[`config-key`]
+    this.setState(cloneState)
     setFieldsValue({
-      keys: getFieldValue('keys').filter(item => item !== key)
+      lbKeys: getFieldValue('lbKeys').filter(item => item !== key)
     })
   }
-  checkService = (rules, value, callback) => {
-    if (!value) {
-      return callback('请选择服务')
-    }
-    callback()
-  }
-  
-  checkPort = (rules, value, callback) => {
-    if (!value) {
-      return callback('请选择端口')
-    }
-    callback()
-  }
-  
-  openCheckModal = () => {
+  openIngressModal = key => {
     this.setState({
-      checkVisible: true
+      editKey: key,
+      currentIngress: this.state[`config-${key}`],
+      ingressVisible: true
     })
   }
   
-  closeCheckModal = () => {
+  closeIngressModal = () => {
     this.setState({
-      checkVisible: false
+      ingressVisible: false
     })
   }
+  
+  getIngressConfig = configs => {
+    this.addItem(configs)
+  }
+  
   
   render() {
-    const { checkVisible } = this.state
-    const { form } = this.props
-    const { getFieldProps, getFieldValue, setFieldsValue, isFieldValidating, getFieldError } = form
+    const { ingressVisible, currentIngress } = this.state
+    const { form, loadBalanceList } = this.props
+    const { getFieldProps, getFieldValue } = form
     
-    const formItemLayout = {
-      labelCol: { span: 2 },
-      wrapperCol: { span: 20 }
-    }
-    getFieldProps('keys', {
+    getFieldProps('lbKeys', {
       initialValue: [],
     });
-    const showSlider = getFieldValue('conversation')
     const lbSelectProps = getFieldProps('loadBalance', {
       rules: [
         {
@@ -139,57 +134,70 @@ class LoadBalance extends React.Component {
         }
       ]
     })
-    const serviceList = getFieldValue('keys').length ? getFieldValue('keys').map((item, index, array) => {
+    const serviceList = getFieldValue('lbKeys').length ? getFieldValue('lbKeys').map((item, index, array) => {
         return (
           <Row className="serviceList" type="flex" align="middle" key={`service${item}`}>
-            <Col span={6}>
+            <Col span={4}>
               <FormItem>
                 <Input
-                  placeholder="输入域名 URL（非必填）"
-                  {...getFieldProps(`service-${item}`, {
-                    rules: [
-                      {
-                        validator: this.checkService
-                      }
-                    ]
-                  })} >
+                  disabled
+                  {...getFieldProps(`displayName-${item}`)} >
                 </Input>
               </FormItem>
             </Col>
-            <Col span={4} offset={3}>
+            <Col span={4}>
               <FormItem>
                 <Input
-                  placeholder="请输入端口"
-                  {...getFieldProps(`port-${item}`, {
-                    rules: [
-                      {
-                        validator: this.checkPort
-                      }
-                    ]
-                  })}>
+                  disabled
+                  {...getFieldProps(`lbAlgorithm-${item}`)}>
                 </Input>
               </FormItem>
             </Col>
-            <Col span={4} offset={1}>
-              <span className="successColor">已开启</span>&nbsp;
-              <i className="fa fa-pencil-square-o pointer" aria-hidden="true" onClick={this.openCheckModal}/>
+            <Col span={4}>
+              <FormItem>
+                <Input
+                  disabled
+                  {...getFieldProps(`sessionPersistent-${item}`)}>
+                </Input>
+              </FormItem>
             </Col>
-            <Col span={4} offset={1}>
-              <Button disabled={item !== array[array.length - 1]} type="dashed" icon="delete" key={`delete${item}`} onClick={() => this.removeKey(item)}/>
+            <Col span={4}>
+              <FormItem>
+                <Input
+                  disabled
+                  {...getFieldProps(`host-${item}`)}>
+                </Input>
+              </FormItem>
+            </Col>
+            <Col span={4}>
+              <FormItem>
+                <Input
+                  disabled
+                  {...getFieldProps(`port-${item}`)}>
+                </Input>
+              </FormItem>
+            </Col>
+            <Col span={4}>   
+              <Button type="dashed" key={`edit${item}`}
+                      className="editServiceBtn" onClick={() => this.openIngressModal(item)}>
+                <i className="fa fa-pencil-square-o" aria-hidden="true"/></Button>
+              <Button type="dashed" icon="delete" key={`delete${item}`} onClick={() => this.removeKey(item)}/>
             </Col>
           </Row>
         )
       }):
       <Row className="serviceList hintColor noneService" type="flex" align="middle" justify="center">
-        暂无监听服务
+        暂无监听配置
       </Row>
     return (
       <Row className="serviceCreateLb">
         {
-          checkVisible &&
-          <HealthCheckModal
-            visible={checkVisible}
-            closeModal={this.closeCheckModal}
+          ingressVisible &&
+          <IngressModal
+            visible={ingressVisible}
+            currentIngress={currentIngress}
+            closeModal={this.closeIngressModal}
+            callback={this.getIngressConfig}
           />
         }
         <Col span={20} offset={4}>
@@ -197,50 +205,21 @@ class LoadBalance extends React.Component {
             wrapperCol={{ span: 8 }}
           >
             <Select placeholder="选择应用负载均衡" {...lbSelectProps}>
-              <Option key="load1">load balance 1</Option>
+              {
+                (loadBalanceList || []).map(item => 
+                  <Option key={item.metadata.name}>{item.metadata.annotations.displayName}</Option>
+                )
+              }
             </Select>
           </FormItem>
-          <FormItem
-            label="调度算法"
-            {...formItemLayout}
-          >
-            <RadioGroup {...getFieldProps('algorithm', { initialValue: '1'})}>
-              <Radio value="1">轮询</Radio>
-              <Radio value="2">最小连接数</Radio>
-              <Radio value="3">源地址散列IP_HASH</Radio>
-            </RadioGroup>
-          </FormItem>
-          <FormItem
-            label="会话保持"
-            {...formItemLayout}
-          >
-            <Checkbox {...getFieldProps('conversation')}>启用会话保持</Checkbox>
-          </FormItem>
-          {
-            showSlider &&
-            <Row>
-              <Col span={8}>
-                <FormItem
-                  label="保持时间"
-                  labelCol={{ span: 6 }}
-                  wrapperCol={{ span: 18 }}
-                >
-                  <Slider {...getFieldProps('time')}/>
-                </FormItem>
-              </Col>
-              <Col span={3}>
-                <InputNumber
-                  style={{ marginRight: 0 }} max={100}
-                  value={getFieldValue('time')} onChange={value => setFieldsValue({time: value})}/> s
-              </Col>
-            </Row>
-          }
-          <Button className="addConfig" type="ghost" icon="plus" onClick={this.addItem}>添加监听器配置</Button>
+          <Button className="addConfig" type="ghost" icon="plus" onClick={() => this.openIngressModal(0)}>添加监听器配置</Button>
           <Row className="monitorConfigHeader">
-            <Col span={9}>域名</Col>
-            <Col span={5}>服务端口</Col>
-            <Col span={5}>健康检查</Col>
-            <Col span={5}>操作</Col>
+            <Col span={4}>名称</Col>
+            <Col span={4}>调度算法</Col>
+            <Col span={4}>会话保持</Col>
+            <Col span={4}>转发规则</Col>
+            <Col span={4}>服务端口</Col>
+            <Col span={4}>操作</Col>
           </Row>
           {serviceList}
         </Col>
@@ -249,12 +228,17 @@ class LoadBalance extends React.Component {
   }
 }
 
-const mapStateToProps = () => {
+const mapStateToProps = state => {
+  const { entities, loadBalance } = state
+  const { clusterID } = entities.current.cluster
+  const { loadBalanceList } = loadBalance
+  const { data } = loadBalanceList || { data: [] }
   return {
-    
+    clusterID,
+    loadBalanceList: data
   }
 }
 
 export default connect(mapStateToProps, {
-  
+  getLBList
 })(LoadBalance)

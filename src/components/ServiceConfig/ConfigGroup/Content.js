@@ -41,6 +41,11 @@ export default class ConfigGroupContent extends React.Component {
           {
             Object.keys(data).map(key => {
               const useArray = secretOnUse[key] || []
+              const useService = new Set()
+              useArray.forEach(use => {
+                useService.add(use.serviceName)
+              })
+              const useServiceSum = Array.from(useService).length
               let useElement
               if (useArray.length === 0) {
                 useElement = <td style={{ textAlign: 'center' }}>
@@ -84,7 +89,8 @@ export default class ConfigGroupContent extends React.Component {
                       <tbody>
                         <tr>
                           <td style={{ padding: '15px' }}>
-                            <div style={{ width: '160px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px',float:'left' }} />
+                            <div style={{ width: '160px' }} className='textoverflow'>
+                              <Icon type='file-text' style={{ marginRight: '10px',float:'left' }} />
                               <Tooltip title={key} placement="topLeft">
                                 <div style={{float:'left',width:'130px'}} className="textoverflow">
                                   {key}
@@ -113,14 +119,14 @@ export default class ConfigGroupContent extends React.Component {
                             <div className='li'>
                               关联服务&nbsp;
                               <span className='node-number'>
-                              {useArray.length + ''}
+                              {useServiceSum + ''}
                               </span>
                             </div>
                             <div className='lis'>映射方式</div>
                           </td>
                           {useElement}
                           {
-                            useArray.length > 0 &&
+                            useArray.length > 1 &&
                             <td style={{ textAlign: 'center' }}>
                               <div
                                 style={{cursor:'pointer'}}

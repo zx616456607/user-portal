@@ -1,0 +1,237 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ *
+ * Ingress modal
+ *
+ * v0.1 - 2018-02-02
+ * @author Zhangxuan
+ */
+
+import React from 'react'
+import { 
+  Modal, Form, Input, InputNumber, 
+  Radio, Checkbox, Slider, Row, Col
+} from 'antd'
+import classNames from 'classnames'
+import HealthCheckModal from '../../../LoadBalance/HealthCheckModal'
+
+const FormItem = Form.Item
+const RadioGroup = Radio.Group
+
+class IngressModal extends React.Component {
+  state = {
+    
+  }
+  
+  componentWillMount() {
+    const { currentIngress } = this.props
+    if (currentIngress) {
+      const { httpSend, interval, fall, rise, expectAlive } = currentIngress
+      this.setState({
+        healthOptions: {
+          httpSend,
+          interval,
+          fall,
+          rise,
+          expectAlive
+        }
+      })
+      if (interval && fall && rise) {
+        this.setState({
+          healthCheck: true
+        })
+      }
+    }
+  }
+  componentWillUnmount() {
+    clearTimeout(this.confirmSetTimeout)
+  }
+  
+  openCheckModal = () => {
+    this.setState({
+      checkVisible: true
+    })
+  }
+  
+  closeCheckModal = () => {
+    this.setState({
+      checkVisible: false
+    })
+  }
+  
+  getHealthData = values => {
+    const {
+      isCheck, httpSend, interval, fall, rise,
+      http_1xx, http_2xx, http_3xx, http_4xx, http_5xx
+    } = values
+    let expectAlive = []
+    http_1xx && expectAlive.push('http_1xx')
+    http_2xx && expectAlive.push('http_2xx')
+    http_3xx && expectAlive.push('http_3xx')
+    http_4xx && expectAlive.push('http_4xx')
+    http_5xx && expectAlive.push('http_5xx')
+    this.setState({
+      healthCheck: isCheck,
+      healthOptions: {
+        httpSend,
+        interval,
+        fall,
+        rise,
+        expectAlive
+      }
+    })
+  }
+  
+  cancelModal = () => {
+    const { closeModal } = this.props
+    closeModal()
+  }
+  
+  confirmModal = () => {
+    const { healthOptions } = this.state
+    const { closeModal, form, callback } = this.props
+    this.setState({
+      confirmLoading: true
+    })
+    form.validateFields((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      this.confirmSetTimeout = setTimeout(() => {
+        this.setState({
+          confirmLoading: false
+        })
+        const newValues = Object.assign({}, values, healthOptions)
+        callback && callback(newValues)
+        closeModal()
+      }, 500)
+    })
+  }
+  render() {
+    const { confirmLoading, checkVisible, healthOptions, healthCheck } = this.state
+    const { visible, form, currentIngress } = this.props
+    const { getFieldProps, getFieldValue, setFieldsValue } = form
+  
+    const formItemLayout = {
+      labelCol: { span: 4 },
+      wrapperCol: { span: 18 }
+    }
+    const monitorNameProps = getFieldProps('monitorName', {
+      initialValue: currentIngress ? currentIngress.monitorName : ''
+    })
+    const lbAlgorithmProps = getFieldProps('lbAlgorithm', { 
+      initialValue: currentIngress ? currentIngress.lbAlgorithm : 'round-robin'
+    })
+    const sessionProps = getFieldProps('sessionSticky', {
+      valuePropName: 'checked',
+      initialValue: currentIngress ? currentIngress.sessionSticky : false
+    })
+    const relayRuleProps = getFieldProps('host', {
+      initialValue: currentIngress ? currentIngress.host : ''
+    })
+    const portProps = getFieldProps('port', {
+      initialValue: currentIngress ? currentIngress.port : ''
+    })
+  
+    const showSlider = getFieldValue('sessionSticky')
+    return (
+      <Modal
+        title="配置监听器"
+        width={560}
+        visible={visible}
+        onCancel={this.cancelModal}
+        onOk={this.confirmModal}
+        confirmLoading={confirmLoading}
+      >
+        {
+          checkVisible &&
+          <HealthCheckModal
+            visible={checkVisible}
+            healthOptions={healthOptions}
+            closeModal={this.closeCheckModal}
+            callback={this.getHealthData}
+          />
+        }
+        <Form form={form}>
+          <FormItem
+            label="监听器名称"
+            {...formItemLayout}
+          >
+            <Input {...monitorNameProps} placeholder="请输入监听器名称"/>
+          </FormItem>
+          <FormItem
+            label="调度算法"
+            {...formItemLayout}
+          >
+            <RadioGroup {...lbAlgorithmProps}>
+              <Radio value="round-robin">加权轮询</Radio>
+              <Radio value="least_conn">最小连接数</Radio>
+              <Radio value="ip_hash">源地址散列IP_HASH</Radio>
+            </RadioGroup>
+          </FormItem>
+          {
+            getFieldValue('lbAlgorithm') !== 'ip_hash' &&
+            <FormItem
+              label="会话保持"
+              {...formItemLayout}
+            >
+              <Checkbox {...sessionProps}>启用会话</Checkbox>
+            </FormItem>
+          }
+          {
+            showSlider &&
+            <Row>
+              <Col span={16}>
+                <FormItem
+                  label="保持时间"
+                  labelCol={{ span: 6 }}
+                  wrapperCol={{ span: 18 }}
+                >
+                  <Slider {...getFieldProps('sessionPersistent', {
+                    initialValue: currentIngress ? currentIngress.sessionPersistent : 0
+                  })}/>
+                </FormItem>
+              </Col>
+              <Col span={6}>
+                <InputNumber
+                  style={{ marginRight: 0 }} max={100}
+                  value={getFieldValue('sessionPersistent')} onChange={value => setFieldsValue({sessionPersistent: value})}/> s
+              </Col>
+            </Row>
+          }
+          <FormItem
+            label="健康检查"
+            {...formItemLayout}
+          >
+            <p className="ant-form-text">
+              <span className={classNames("successColor", { 'hintColor': !healthCheck })}>{healthCheck ? '已开启' : '未开启'}</span>&nbsp;
+              <i className="fa fa-pencil-square-o pointer" aria-hidden="true" onClick={this.openCheckModal}/>
+            </p>
+          </FormItem>
+          <FormItem
+            label="添加 HTTP头 "
+            {...formItemLayout}
+          >
+            <p className="ant-form-text">已开启客户端真是 IP<span className="hintColor">（通过 X-Forwarded-For 头字段获取）</span></p>
+            <p className="ant-form-text">已开启负载均衡监听协议<span className="hintColor">（通过 X-Forwarded-Proto 头字段获取）</span></p>
+          </FormItem>
+          <FormItem
+            label="转发规则"
+            {...formItemLayout}
+          >
+            <Input placeholder="输入域名 URL （非必填）" {...relayRuleProps}/>
+          </FormItem>
+          <FormItem
+            label="端口"
+            {...formItemLayout}
+          >
+            <Input placeholder="输入端口" {...portProps}/>
+          </FormItem>
+        </Form>
+      </Modal>
+    )
+  }
+}
+
+export default Form.create()(IngressModal)

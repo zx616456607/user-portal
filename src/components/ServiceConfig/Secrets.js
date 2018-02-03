@@ -26,6 +26,7 @@ import CreateConfigFileModal from './CreateConfigFileModal'
 import UpdateConfigFileModal from './UpdateConfigFileModal'
 import CreateServiceGroupModal from './ConfigGroup/CreateModal'
 import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
+import { isResourceQuotaError } from '../../common/tools'
 import './style/Secret.less'
 import './style/ServiceConfig.less'
 
@@ -104,7 +105,7 @@ class ServiceSecretsConfig extends React.Component {
     if (secretsOnUse) {
       const onUseSecrets = []
       checkedList.forEach(secretName => {
-        if (Object.keys(secretsOnUse[secretName]).length > 0) {
+        if (Object.keys(secretsOnUse[secretName] || {}).length > 0) {
           onUseSecrets.push(secretName)
         }
       })
@@ -190,7 +191,14 @@ class ServiceSecretsConfig extends React.Component {
         isAsync: true
       },
       failed: {
-        func: () => {
+        func: error => {
+          if (isResourceQuotaError(error)) {
+            this.setState({
+              modalConfigFile: false,
+              createConfigFileModalVisible: false,
+            })
+            return
+          }
           notification.error('添加失败')
         },
         isAsync: true
@@ -273,7 +281,8 @@ class ServiceSecretsConfig extends React.Component {
   render() {
     const { secretsList, secretsOnUse } = this.props
     const {
-      checkedList, createServiceGroupModalVisible,
+      checkedList,
+      createServiceGroupModalVisible,
       createServiceGroupModalConfrimLoading,
       deleteServiceGroupModalVisible,
       deleteServiceGroupModalConfrimLoading,
@@ -281,8 +290,13 @@ class ServiceSecretsConfig extends React.Component {
       createConfigFileModalVisible,
       updateConfigFileModalVisible,
       removeKeyModalVisible,
+      searchInput,
     } = this.state
-    const { data = [], isFetching } = secretsList
+    const { isFetching } = secretsList
+    let data = secretsList.data || []
+    if (searchInput) {
+      data = data.filter(secret => secret.name.indexOf(searchInput) > -1)
+    }
     return (
       <div className="service-secret-config" id="service-secret-config">
         <div className="layout-content-btns">
@@ -318,7 +332,12 @@ class ServiceSecretsConfig extends React.Component {
             <div className="text-center">
               <img src={noConfigGroupImg} />
               <div>
-                您还没有配置组，创建一个吧！&nbsp;
+                {
+                  searchInput
+                  ? '未找到相关配置组'
+                  : '您还没有配置组，创建一个吧！'
+                }
+                &nbsp;
                 <Button
                   type="primary"
                   size="large"
@@ -422,6 +441,7 @@ function mapStateToProps(state, props) {
     appList.forEach(app => {
       app.services.forEach(service => {
         const { volumes = [] } = service.spec.template.spec
+        // volumes
         volumes.forEach(v => {
           const { secret, name } = v
           if (secret) {
@@ -450,7 +470,7 @@ function mapStateToProps(state, props) {
                 mountPath: volumeMount.mountPath,
                 env: [],
               }
-              const { env = [] } = service.spec.template.spec.containers[0]
+              /* const { env = [] } = service.spec.template.spec.containers[0]
               env.forEach(({ name, valueFrom }) => {
                 if (valueFrom
                   && valueFrom.secretKeyRef.name === secretName
@@ -458,9 +478,33 @@ function mapStateToProps(state, props) {
                 ) {
                   secretAndService.env.push(name)
                 }
-              })
+              }) */
               secretsOnUse[secretName][key].push(secretAndService)
             })
+          }
+        })
+        // env
+        const { env = [] } = service.spec.template.spec.containers[0]
+        env.forEach(({ name, valueFrom }) => {
+          if (valueFrom && valueFrom.secretKeyRef) {
+            const { secretKeyRef } = valueFrom
+            const secretAndService = {
+              appName: app.name,
+              serviceName: service.metadata.name,
+            }
+            if (!secretsOnUse[secretKeyRef.name]) {
+              secretsOnUse[secretKeyRef.name] = {}
+            }
+            if (!secretsOnUse[secretKeyRef.name][secretKeyRef.key]) {
+              secretsOnUse[secretKeyRef.name][secretKeyRef.key] = []
+            }
+            const currentSecretsOnUseNameKey = find(secretsOnUse[secretKeyRef.name][secretKeyRef.key], secretAndService)
+            if (currentSecretsOnUseNameKey) {
+              currentSecretsOnUseNameKey.env.push(name)
+            } else {
+              secretAndService.env = [ name ]
+              secretsOnUse[secretKeyRef.name][secretKeyRef.key].push(secretAndService)
+            }
           }
         })
       })
