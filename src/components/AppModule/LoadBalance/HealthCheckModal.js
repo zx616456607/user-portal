@@ -89,10 +89,10 @@ class HealthCheckModal extends React.Component {
       initialValue: switchProps.checked ? 10 : 0
     })
     const errorProps = getFieldProps('fall', {
-      initialValue: switchProps.checked ? 1 : 0
+      initialValue: switchProps.checked ? 3 : 0
     })
     const healthProps = getFieldProps('rise', {
-      initialValue: switchProps.checked ? 1 : 0
+      initialValue: switchProps.checked ? 3 : 0
     })
     return (
       <Modal

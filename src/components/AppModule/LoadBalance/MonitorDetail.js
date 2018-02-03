@@ -429,8 +429,8 @@ class MonitorDetail extends React.Component {
     const { currentIngress, form } = this.props
     const { getFieldProps, getFieldValue, setFieldsValue } = form
     const formItemLayout = {
-      labelCol: { span: 2 },
-      wrapperCol: { span: 9 }
+      labelCol: { span: 3 },
+      wrapperCol: { span: 10 }
     }
     const showSlider = getFieldValue('sessionSticky')
     const showWeight = getFieldValue('lbAlgorithm') === 'round-robin'
@@ -590,7 +590,7 @@ class MonitorDetail extends React.Component {
             <Input {...monitorNameProps} placeholder="请输入监听器名称"/>
           </FormItem>
           <Row>
-            <Col span={6}>
+            <Col span={9}>
               <FormItem
                 label="监听协议"
                 labelCol={{ span: 8 }}
@@ -619,7 +619,7 @@ class MonitorDetail extends React.Component {
             <RadioGroup {...lbAlgorithmProps}>
               <Radio value="round-robin">加权轮询</Radio>
               <Radio value="least_conn">最小连接数</Radio>
-              <Radio value="ip_hash">源地址散列IP_HASH</Radio>
+              <Radio value="ip_hash">源地址散列 IP_HASH</Radio>
             </RadioGroup>
           </FormItem>
           {
@@ -663,7 +663,7 @@ class MonitorDetail extends React.Component {
             label="添加 HTTP头 "
             {...formItemLayout}
           >
-            <p className="ant-form-text">已开启客户端真是 IP<span className="hintColor">（通过 X-Forwarded-For 头字段获取）</span></p>
+            <p className="ant-form-text">已开启客户端真实 IP<span className="hintColor">（通过 X-Forwarded-For 头字段获取）</span></p>
             <p className="ant-form-text">已开启负载均衡监听协议<span className="hintColor">（通过 X-Forwarded-Proto 头字段获取）</span></p>
           </FormItem>
           <FormItem
@@ -673,7 +673,7 @@ class MonitorDetail extends React.Component {
             <Input placeholder="输入域名 URL （非必填）" {...relayRuleProps}/>
           </FormItem>
           <Row>
-            <Col span={20} offset={2}>
+            <Col span={20} offset={3}>
               <Button type="ghost" className="bundleBtn" onClick={this.addItem}><Icon type="link" /> 绑定后端服务</Button>
               <Row className="serviceHeader">
                 <Col span={8}>服务</Col>
