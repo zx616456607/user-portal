@@ -141,14 +141,14 @@ export default class MonitorTable extends React.Component {
             <Button type="primary" size="large" icon="plus" onClick={() => togglePart(false, null)}>创建监听</Button>
           </Tooltip>
           {
-            ingress && ingress.length &&
+            ingress && ingress.length ?
             <div className="page-box">
               <span className="total">共计 {ingress && ingress.length} 条</span>
               <Pagination
                 simple
                 total={ingress && ingress.length}
               />
-            </div>
+            </div> : null
           }
         </div>
         <Table

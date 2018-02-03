@@ -310,7 +310,6 @@ class MonitorDetail extends React.Component {
     const { form, createIngress, updateIngress, clusterID, location, getLBDetail, currentIngress } = this.props
     const { validateFields, getFieldValue } = form
     const { healthOptions, healthCheck } = this.state
-    const { httpSend, interval, fall, rise, expectAlive } = healthOptions
     const { name, displayName } = location.query
     let notify = new Notification()
     const keys = getFieldValue('keys')
@@ -350,9 +349,10 @@ class MonitorDetail extends React.Component {
         Object.assign(body, { name: currentIngress.name })
       }
       if (healthCheck) {
+        const { httpSend, interval, fall, rise, expectAlive } = healthOptions
         Object.assign(body, {
           healthCheck: {
-            httpSend,
+            httpSend: httpSend ? httpSend : '/',
             interval,
             fall,
             rise,
@@ -430,7 +430,7 @@ class MonitorDetail extends React.Component {
     const { getFieldProps, getFieldValue, setFieldsValue } = form
     const formItemLayout = {
       labelCol: { span: 2 },
-      wrapperCol: { span: 8 }
+      wrapperCol: { span: 9 }
     }
     const showSlider = getFieldValue('sessionSticky')
     const showWeight = getFieldValue('lbAlgorithm') === 'round-robin'
@@ -645,7 +645,7 @@ class MonitorDetail extends React.Component {
               </Col>
               <Col span={2}>
                 <InputNumber
-                  style={{ marginRight: 0 }} max={3600}
+                  style={{ marginRight: 0, width: '80%' }} max={3600}
                   value={getFieldValue('sessionPersistent')} onChange={value => setFieldsValue({time: value})}/> s
               </Col>
             </Row>

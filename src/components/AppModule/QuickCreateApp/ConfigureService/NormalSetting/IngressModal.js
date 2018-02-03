@@ -89,7 +89,7 @@ class IngressModal extends React.Component {
   }
   
   confirmModal = () => {
-    const { healthOptions } = this.state
+    const { healthOptions, healthCheck } = this.state
     const { closeModal, form, callback } = this.props
     this.setState({
       confirmLoading: true
@@ -102,11 +102,25 @@ class IngressModal extends React.Component {
         this.setState({
           confirmLoading: false
         })
-        const newValues = Object.assign({}, values, healthOptions)
+        const newValues = Object.assign({}, values, { healthOptions, healthCheck })
         callback && callback(newValues)
         closeModal()
       }, 500)
     })
+  }
+
+  monitorNameCheck = (rules, value, callback) => {
+    if (!value) {
+      return callback('请输入监听器名称')
+    } 
+    callback()
+  }
+
+  portCheck = (rules, value, callback) => {
+    if (!value) {
+      return callback('请输入监听端口')
+    }
+    callback()
   }
   render() {
     const { confirmLoading, checkVisible, healthOptions, healthCheck } = this.state
@@ -118,6 +132,11 @@ class IngressModal extends React.Component {
       wrapperCol: { span: 18 }
     }
     const monitorNameProps = getFieldProps('monitorName', {
+      rules: [
+        {
+          validator: this.monitorNameCheck
+        }
+      ],
       initialValue: currentIngress ? currentIngress.monitorName : ''
     })
     const lbAlgorithmProps = getFieldProps('lbAlgorithm', { 
@@ -131,6 +150,11 @@ class IngressModal extends React.Component {
       initialValue: currentIngress ? currentIngress.host : ''
     })
     const portProps = getFieldProps('port', {
+      rules: [
+        {
+          validator: this.portCheck
+        }
+      ],
       initialValue: currentIngress ? currentIngress.port : ''
     })
   
@@ -188,8 +212,8 @@ class IngressModal extends React.Component {
                   labelCol={{ span: 6 }}
                   wrapperCol={{ span: 18 }}
                 >
-                  <Slider {...getFieldProps('sessionPersistent', {
-                    initialValue: currentIngress ? currentIngress.sessionPersistent : 0
+                  <Slider  max={3600} {...getFieldProps('sessionPersistent', {
+                    initialValue: currentIngress ? currentIngress.sessionPersistent : 100
                   })}/>
                 </FormItem>
               </Col>
