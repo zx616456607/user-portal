@@ -314,7 +314,7 @@ class MonitorDetail extends React.Component {
     let notify = new Notification()
     const keys = getFieldValue('keys')
     let endIndexValue = keys[keys.length - 1]
-    let validateArr = ['monitorName', 'agreement', 'port', 'lbAlgorithm', 'sessionSticky', 'host']
+    let validateArr = ['monitorName', 'agreement', 'port', 'lbAlgorithm', 'host']
     if (keys.length) {
       validateArr = validateArr.concat([
         `service-${endIndexValue}`,
@@ -322,8 +322,11 @@ class MonitorDetail extends React.Component {
         `weight-${endIndexValue}`
       ])
     }
-    if (getFieldValue('sessionSticky')) {
-      validateArr.push('sessionPersistent')
+    if (getFieldValue('lbAlgorithm') !== 'ip_hash') {
+      validateArr.push('sessionSticky')
+      if (getFieldValue('sessionSticky')) {
+        validateArr.push('sessionPersistent')
+      }
     }
     validateFields(validateArr, (errors, values) => {
       if (!!errors) {
