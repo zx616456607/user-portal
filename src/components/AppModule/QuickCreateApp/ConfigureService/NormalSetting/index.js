@@ -398,7 +398,7 @@ const Normal = React.createClass({
     const { replicasInputDisabled, memoryMin, cpuMin } = this.state
     const { getFieldProps } = form
     const { mountPath, containerPorts } = imageConfigs
-    const { resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU } = fields || {}
+    const { resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU, accessType } = fields || {}
     const replicasProps = getFieldProps('replicas', {
       rules: [
         { required: true, message: '实例数量为 1~10 之间' },
@@ -504,14 +504,17 @@ const Normal = React.createClass({
             currentCluster={currentCluster}
             key="accessmethod"
           />
-          <Ports
-            formItemLayout={formItemLayout}
-            form={form}
-            fields={fields}
-            containerPorts={containerPorts}
-            currentCluster={currentCluster}
-            key="ports"
-          />
+          {
+            accessType !== 'loadBalance' &&
+            <Ports
+              formItemLayout={formItemLayout}
+              form={form}
+              fields={fields}
+              containerPorts={containerPorts}
+              currentCluster={currentCluster}
+              key="ports"
+            />
+          }
         </div>
       </div>
     )
