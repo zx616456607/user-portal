@@ -505,7 +505,7 @@ const Normal = React.createClass({
             key="accessmethod"
           />
           {
-            accessType !== 'loadBalance' &&
+            accessType && accessType.value !== 'loadBalance' &&
             <Ports
               formItemLayout={formItemLayout}
               form={form}
