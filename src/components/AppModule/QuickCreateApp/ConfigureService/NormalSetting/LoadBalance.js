@@ -54,30 +54,30 @@ class LoadBalance extends React.Component {
       [`config-${copyKey}`]: configs
     })
     const { 
-      httpSend, interval, fall, rise, sessionSticky, sessionPersistent, expectAlive,
-      host, lbAlgorithm, monitorName, port,
+      healthCheck, healthOptions, host, lbAlgorithm, monitorName, port,
+      sessionSticky, sessionPersistent
     } = configs
     let body = {
-      healthCheck: {
-        httpSend,
-        interval,
-        fall,
-        rise,
-        sessionSticky,
-        sessionPersistent,
-        expectAlive
-      },
       host,
       lbAlgorithm,
       displayName: monitorName,
       port
+    }
+    if (sessionSticky) {
+      body = Object.assign({}, body, {
+        sessionSticky,
+        sessionPersistent: `${sessionPersistent}s`
+      })
+    }
+    if (healthCheck) {
+      body = Object.assign({}, body, { healthCheck: healthOptions })
     }
     setFieldsValue({
       [`ingress-${copyKey}`]: body,
       [`displayName-${copyKey}`]: configs.monitorName,
       [`lbAlgorithm-${copyKey}`]: configs.lbAlgorithm,
       [`sessionPersistent-${copyKey}`]: configs.sessionSticky ? `已启用（${configs.sessionPersistent}s）` : '未启用',
-      [`host-${copyKey}`]: configs.host,
+      [`host-${copyKey}`]: configs.host || '未启用',
       [`port-${copyKey}`]: configs.port
     })
     if (!editKey) {
