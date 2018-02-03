@@ -318,9 +318,11 @@ class MonitorDetail extends React.Component {
     if (keys.length) {
       validateArr = validateArr.concat([
         `service-${endIndexValue}`,
-        `port-${endIndexValue}`,
-        `weight-${endIndexValue}`
+        `port-${endIndexValue}`
       ])
+      if (getFieldValue('lbAlgorithm') === 'round-robin') {
+        validateArr.push(`weight-${endIndexValue}`)
+      }
     }
     if (getFieldValue('lbAlgorithm') !== 'ip_hash') {
       validateArr.push('sessionSticky')
@@ -328,6 +330,7 @@ class MonitorDetail extends React.Component {
         validateArr.push('sessionPersistent')
       }
     }
+
     validateFields(validateArr, (errors, values) => {
       if (!!errors) {
         return
@@ -339,11 +342,16 @@ class MonitorDetail extends React.Component {
       
       const { monitorName, agreement, port, lbAlgorithm, sessionSticky, sessionPersistent, host } = values
       const [hostname, ...path] = host.split('/')
+      let strategy = lbAlgorithm
+      // Nginx don't need round-robin to be explicitly specified
+      if (strategy === 'round-robin') {
+        strategy = ''
+      }
       const body = {
         displayName: monitorName,
         agreement,
         port,
-        lbAlgorithm,
+        strategy,
         host: hostname,
         path: '/' + path.join('/'),
         items: this.getServiceList()
