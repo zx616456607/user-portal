@@ -31,7 +31,7 @@ let UpdateConfigFileModal = React.createClass({
         return
       }
       const { type, updateKeyIntoSecret } = this.props
-      if (type === 'secret') {
+      if (type === 'secrets') {
         return updateKeyIntoSecret(values)
       }
       let notification = new NotificationHandler()
@@ -125,7 +125,7 @@ let UpdateConfigFileModal = React.createClass({
     })
     return(
       <Modal
-        title={`修改${type === 'secret' ? '加密对象': '配置文件'}`}
+        title={`修改${type === 'secrets' ? '加密对象': '配置文件'}`}
         wrapClassName="configFile-create-modal"
         visible={this.props.modalConfigFile}
         onOk={() => this.editConfigFile(parentScope.props.groupname)}
@@ -137,7 +137,7 @@ let UpdateConfigFileModal = React.createClass({
             &nbsp;&nbsp;&nbsp;<Icon type="info-circle-o" style={{ marginRight: "10px" }} />
             即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
             {
-              type === 'secret'
+              type === 'secrets'
               ? '即将保存一个加密对象，您可以在创建应用→添加服务时，配置管理或环境变量使用该对象'
               : '即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置'
             }
