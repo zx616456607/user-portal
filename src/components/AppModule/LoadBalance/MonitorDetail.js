@@ -341,7 +341,7 @@ class MonitorDetail extends React.Component {
       }
       
       const { monitorName, agreement, port, lbAlgorithm, sessionSticky, sessionPersistent, host } = values
-      const [hostname, ...path] = host.split('/')
+      const [hostname, ...path] = (host || '/').split('/')
       let strategy = lbAlgorithm
       // Nginx don't need round-robin to be explicitly specified
       if (strategy === 'round-robin') {
@@ -550,7 +550,8 @@ class MonitorDetail extends React.Component {
                       {
                         validator: this.checkWeight
                       }
-                    ]
+                    ],
+                    initialValue: 1
                   })}
                 />
               </FormItem>

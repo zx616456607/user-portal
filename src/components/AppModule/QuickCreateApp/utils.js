@@ -202,7 +202,6 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     default:
       groupID = 'none'; break
   }
-  service.addLBGroupAnnotation(groupID)
   if (accessType === 'loadBalance') {
     // 访问方式为负载均衡
     lbKeys && lbKeys.forEach(key => {
@@ -212,6 +211,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
       service.addPort(proxyType, name, null, port, port)
     })
   } else {
+    service.addLBGroupAnnotation(groupID)
     portsKeys && portsKeys.forEach(key => {
       if (key.deleted) {
         return

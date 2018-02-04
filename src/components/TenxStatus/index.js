@@ -262,21 +262,22 @@ class TenxStatus extends Component {
       return
     }
     let replicasText
-    const { availableReplicas, replicas, text } = status
+    const { availableReplicas, readyReplicas, replicas, text } = status
+    let newReplicas = readyReplicas || availableReplicas || 0
     if (text) {
       replicasText = text
-      if (availableReplicas < replicas) {
+      if (newReplicas < replicas) {
         replicasText = (
           <span>
             {text}{exclamationIcon}
           </span>
         )
       }
-    } else if (availableReplicas === 0) {
+    } else if (newReplicas === 0) {
       replicasText = (
         <span><FormattedMessage {...messages.StoppedMsg} /></span>
       )
-    } else if (availableReplicas < replicas) {
+    } else if (newReplicas < replicas) {
       replicasText = (
         <span>
           <FormattedMessage {...messages.SectionRunningMsg} />
@@ -290,7 +291,7 @@ class TenxStatus extends Component {
     }
     return (
       <div>
-        {`${availableReplicas}/${replicas} `}
+        {`${newReplicas}/${replicas} `}
         {replicasText}
       </div>
     )
@@ -444,6 +445,7 @@ TenxStatus.propTypes = {
   status: PropTypes.shape({
     replicas: PropTypes.number,
     availableReplicas: PropTypes.number,
+    readyReplicas: PropTypes.number,
     text: PropTypes.string,
   }),
   creationTimestamp: PropTypes.string,
