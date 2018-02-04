@@ -22,12 +22,18 @@ class ServiceStatus extends Component {
   render() {
     const { service, smart } = this.props
     const status = getServiceStatus(service)
-    const { phase, progress, replicas, availableReplicas } = status
+    const { phase, progress, replicas, readyReplicas } = status
+
+    // Mark it as runing if ready replicas > 0
+    let lbPhase = phase
+    if (readyReplicas > 0) {
+      lbPhase = 'Running'
+    }
     return (
       <TenxStatus
-        phase={phase}
+        phase={lbPhase}
         progress={progress}
-        status={{ replicas: parseInt(replicas), availableReplicas }}
+        status={{ replicas: parseInt(replicas), readyReplicas }}
         smart={smart} />
     )
   }
