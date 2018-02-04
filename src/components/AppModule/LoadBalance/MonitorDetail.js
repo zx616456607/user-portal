@@ -645,7 +645,7 @@ class MonitorDetail extends React.Component {
           {
             showSlider &&
             <Row>
-              <Col span={8}>
+              <Col span={12}>
                 <FormItem
                   label="保持时间"
                   labelCol={{ span: 6 }}
