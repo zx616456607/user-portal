@@ -236,14 +236,14 @@ class LoadBalance extends React.Component {
             size="large"
           />
           {
-            loadBalanceList && loadBalanceList.length &&
+            loadBalanceList && loadBalanceList.length ?
             <div className="page-box">
               <span className="total">共计 {loadBalanceList && loadBalanceList.length} 条</span>
               <Pagination
                 simple
                 total={loadBalanceList && loadBalanceList.length}
               />
-            </div>
+            </div> : null
           }
         </div>
         <Table 
