@@ -167,9 +167,9 @@ class HealthCheckModal extends React.Component {
             label="HTTP 状态码检测"
             {...formItemLayout}
           >
-            <Checkbox style={{ marginLeft: 8 }} {...getFieldProps('http_1xx', {valuePropName: 'checked'})}>http_1xx</Checkbox>
-            <Checkbox {...getFieldProps('http_2xx', {valuePropName: 'checked'})}>http_2xx</Checkbox>
-            <Checkbox {...getFieldProps('http_3xx', {valuePropName: 'checked'})}>http_3xx</Checkbox>
+            {/* <Checkbox style={{ marginLeft: 8 }} {...getFieldProps('http_1xx', {valuePropName: 'checked'})}>http_1xx</Checkbox> */}
+            <Checkbox style={{ marginLeft: 8 }} {...getFieldProps('http_2xx', {valuePropName: 'checked', initialValue: true})}>http_2xx</Checkbox>
+            <Checkbox {...getFieldProps('http_3xx', {valuePropName: 'checked', initialValue: true})}>http_3xx</Checkbox>
             <Checkbox {...getFieldProps('http_4xx', {valuePropName: 'checked'})}>http_4xx</Checkbox>
             <Checkbox {...getFieldProps('http_5xx', {valuePropName: 'checked'})}>http_5xx</Checkbox>
             <p className="ant-form-text hintColor" style={{ paddingLeft: 8 }}>当状态码为以上值时，认为后端服务存活</p>
