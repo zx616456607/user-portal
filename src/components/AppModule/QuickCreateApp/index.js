@@ -392,7 +392,8 @@ class QuickCreateApp extends Component {
             const [hostname, ...path] = host.split('/')
             items.push({
               serviceName: fields[key].serviceName.value,
-              servicePort: parseInt(fields[key][`port-${item}`].value)
+              servicePort: parseInt(fields[key][`port-${item}`].value),
+              weight: 1
             })
             const body = {
               host: hostname,
