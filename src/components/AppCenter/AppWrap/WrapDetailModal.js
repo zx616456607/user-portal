@@ -14,8 +14,8 @@ import { browserHistory } from 'react-router'
 import { Modal, Form, Input, Button, Dropdown, Menu, Icon, Row, Col, Select } from 'antd'
 import defaultApp from '../../../../static/img/appstore/defaultapp.png'
 import './style/WrapDetailModal.less'
-import { 
-  getWrapDetail, updateWrapDetail, getWrapGroupList, 
+import {
+  getWrapDetail, updateWrapDetail, getWrapGroupList,
   deleteWrapManage, publishWrap
 } from '../../../actions/app_center'
 import { API_URL_PREFIX } from '../../../constants'
@@ -62,7 +62,7 @@ class WrapDetailModal extends React.Component {
       })
     }
   }
-  
+
   loadDetail(pkgID) {
     const { getWrapDetail } = this.props
     getWrapDetail(pkgID, {
@@ -82,7 +82,7 @@ class WrapDetailModal extends React.Component {
       }
     })
   }
-  
+
   cancelModal() {
     const { closeDetailModal } = this.props
     closeDetailModal()
@@ -90,7 +90,7 @@ class WrapDetailModal extends React.Component {
       visible: false
     })
   }
-  
+
   cancelEdit() {
     const { form, pkgDetail } = this.props
     form.resetFields()
@@ -99,7 +99,7 @@ class WrapDetailModal extends React.Component {
       isEdit: false
     })
   }
-  
+
   saveEdit() {
     const { updateWrapDetail, form, pkgDetail, callback } = this.props
     const { canRename } = this.state
@@ -114,7 +114,7 @@ class WrapDetailModal extends React.Component {
         return
       }
       const { classifyName, fileNickName, description } = form.getFieldsValue()
-      
+
       const pkgID = pkgDetail.id
       const body = {
         description,
@@ -153,7 +153,7 @@ class WrapDetailModal extends React.Component {
       })
     })
   }
-  
+
   checkClassify(rule, value, callback) {
     if(!value || !value.length) {
       return callback('请选择或输入分类')
@@ -163,7 +163,7 @@ class WrapDetailModal extends React.Component {
     }
     callback()
   }
-  
+
   releaseNameProps(rule, value, callback) {
     if (!value) {
       return callback('请输入发布名称')
@@ -173,7 +173,7 @@ class WrapDetailModal extends React.Component {
     }
     callback()
   }
-  
+
   descCheck(rule, value, callback) {
     const { canRename } = this.state
     if (!canRename) {
@@ -214,13 +214,13 @@ class WrapDetailModal extends React.Component {
     }
     return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && pkgDetail.approveMessage}/>
   }
-  
+
   deleteHint() {
     Modal.info({
       title: '只有未发布和已下架的应用包可以被删除'
     })
   }
-  
+
   deleteAction(status,id) {
     if (status) {
       id = [id]
@@ -229,7 +229,7 @@ class WrapDetailModal extends React.Component {
     }
     this.setState({delAll: false})
   }
-  
+
   deleteVersion = ()=> {
     let notificat = new NotificationHandler()
     const { id } = this.state
@@ -257,7 +257,7 @@ class WrapDetailModal extends React.Component {
       }
     })
   }
-  
+
   publishAction(id) {
     const { publishWrap, callback, pkgDetail } = this.props
     let notify = new NotificationHandler()
@@ -316,7 +316,7 @@ class WrapDetailModal extends React.Component {
         break
     }
   }
-  
+
   handleButtonClick() {
     const { deploy, pkgDetail } = this.props
     deploy(pkgDetail.fileName)
@@ -331,7 +331,7 @@ class WrapDetailModal extends React.Component {
         {
           !isStore ?
             [
-  
+
               <Menu.Item key="audit" disabled={[1, 2, 8].includes(pkgDetail && pkgDetail.publishStatus)}>
                 提交审核
               </Menu.Item>,
@@ -359,7 +359,7 @@ class WrapDetailModal extends React.Component {
               <Menu.Item key="noneAdmin" style={{ display: 'none' }}/>
         }
       </Menu>
-        
+
     )
     return (
       <Dropdown.Button onClick={() => this.handleButtonClick()} overlay={menu} type="ghost" className="dropDownBox">
@@ -367,19 +367,19 @@ class WrapDetailModal extends React.Component {
       </Dropdown.Button>
     )
   }
-  
+
   closeRleaseModal() {
     this.setState({
       releaseVisible: false
     })
   }
-  
+
   auditCallback() {
     const { pkgDetail, callback } = this.props
     this.loadDetail(pkgDetail.id)
     callback()
   }
-  
+
   closeModal() {
     const { closeDetailModal } = this.props
     this.setState({
@@ -388,7 +388,7 @@ class WrapDetailModal extends React.Component {
     closeDetailModal()
   }
   render() {
-    const { form, pkgDetail, wrapGroupList } = this.props 
+    const { form, pkgDetail, wrapGroupList } = this.props
     const { visible, isEdit, releaseVisible, canRename } = this.state
     const { getFieldProps } = form
     const formItemLayout = {
@@ -417,7 +417,7 @@ class WrapDetailModal extends React.Component {
         }
       ],
       initialValue: pkgDetail && pkgDetail.fileNickName ? pkgDetail.fileNickName : ''
-    }) 
+    })
     const descProps = getFieldProps('description', {
       rules: [
         {
@@ -446,8 +446,8 @@ class WrapDetailModal extends React.Component {
           callback={this.auditCallback}
         />
         <div className="wrapDetailHeader">
-          <img 
-            className="appLogo" 
+          <img
+            className="appLogo"
             src={
               pkgDetail && pkgDetail.pkgIconID ?
                 `${API_URL_PREFIX}/pkg/icon/${pkgDetail.pkgIconID}`
@@ -460,10 +460,10 @@ class WrapDetailModal extends React.Component {
             <div key="tag" className="tag">版本：{pkgDetail && pkgDetail.fileTag}</div>
           </div>
           <div className="dropDown">
-            <Icon 
-              type='cross' className='cursor' 
-              style={{ fontSize: '18px', position: 'absolute', top: '-38px', right: '0px' }} 
-              onClick={() => this.closeModal()} 
+            <Icon
+              type='cross' className='cursor'
+              style={{ fontSize: '18px', position: 'absolute', top: '-38px', right: '0px' }}
+              onClick={() => this.closeModal()}
             />
             {this.renderDeployBtn()}
           </div>
@@ -471,7 +471,7 @@ class WrapDetailModal extends React.Component {
         <div className="wrapDetailBody">
           <div className="btnBox">
             {
-              isEdit ? 
+              isEdit ?
                 [
                   <Button className="cancelBtn" key="cancel" size="large" onClick={this.cancelEdit}>取消</Button>,
                   <Button key="save" size="large" type="primary" onClick={this.saveEdit}>保存</Button>
