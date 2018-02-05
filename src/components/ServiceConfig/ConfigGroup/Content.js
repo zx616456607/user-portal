@@ -31,7 +31,7 @@ export default class ConfigGroupContent extends React.Component {
     if (Object.keys(data).length === 0) {
       return (
         <div className='li' style={{ lineHeight: '60px', height: '10px' }}>
-        未添加配置文件
+        未添加加密对象
         </div>
       )
     }
