@@ -14,21 +14,9 @@ import { browserHistory } from 'react-router'
 import { Modal, Form, Input, Button, Dropdown, Menu, Icon, Row, Col, Select, Tabs, Upload } from 'antd'
 import defaultApp from '../../../../static/img/appstore/defaultapp.png'
 import './style/WrapDetailModal.less'
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 import {
   getWrapDetail, updateWrapDetail, getWrapGroupList,
   deleteWrapManage, publishWrap, deleteWrapDocs
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-import {
-  getWrapDetail, updateWrapDetail, getWrapGroupList,
-  deleteWrapManage, publishWrap
->>>>>>> Stashed changes
 } from '../../../actions/app_center'
 import { API_URL_PREFIX } from '../../../constants'
 import { formatDate } from "../../../common/tools";
