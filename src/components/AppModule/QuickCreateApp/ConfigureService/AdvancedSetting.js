@@ -26,7 +26,7 @@ const FormItem = Form.Item
 const Option = Select.Option
 
 const AdvancedSetting = React.createClass({
-  componentWillMount() {
+  loadSecrets() {
     const { currentCluster, getSecrets } = this.props
     getSecrets(currentCluster.clusterID)
   },
@@ -116,8 +116,11 @@ const AdvancedSetting = React.createClass({
       ],
     })
     const envValueTypeProps = getFieldProps(envValueTypeKey, {
-       initialValue: 'normal',
-       onChange: () => resetFields([ envValueKey ]),
+      initialValue: 'normal',
+        onChange: type => {
+          resetFields([ envValueKey ])
+          type === 'secret' && this.loadSecrets()
+      },
     })
     const envValueProps = getFieldProps(envValueKey, {
        rules: [
