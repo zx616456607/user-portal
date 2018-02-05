@@ -550,8 +550,7 @@ class MonitorDetail extends React.Component {
                       {
                         validator: this.checkWeight
                       }
-                    ],
-                    initialValue: 1
+                    ]
                   })}
                 />
               </FormItem>
