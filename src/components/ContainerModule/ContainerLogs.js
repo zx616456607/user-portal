@@ -244,7 +244,7 @@ class ContainerLogs extends Component {
 
   renderLog(logObj, index) {
     let { name, log, mark } = logObj
-    const dateReg = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{9})?(Z|(\+\d{2}:\d{2}))\b/
+    const dateReg = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,})?(Z|(\+\d{2}:\d{2}))\b/
     let logDateArray = log.match(dateReg)
     let logDate
     if (logDateArray && logDateArray[0]) {
