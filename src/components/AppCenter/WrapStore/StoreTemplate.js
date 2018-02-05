@@ -22,7 +22,6 @@ import defaultImage from '../../../../static/img/appstore/defaultimage.png'
 import defaultApp from '../../../../static/img/appstore/defaultapp.png'
 import defaultAppSmall from '../../../../static/img/appstore/defaultappsmall.png'
 import defaultImageSmall from '../../../../static/img/appstore/defaultimagesmall.png'
-import { ROLE_SYS_ADMIN } from '../../../../constants'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
 import WrapDetailModal from '../AppWrap/WrapDetailModal'
 
@@ -182,7 +181,7 @@ class WrapComopnent extends React.Component {
       failed: {
         func: res => {
           notify.close()
-          notify.error(`操作失败\n${res.message.message}`)
+          notify.error(`操作失败\n${res.message}`)
           this.setState({
             offShelfModal: false,
             offshelfId: '',
@@ -286,7 +285,7 @@ class WrapComopnent extends React.Component {
     })
   }
   renderWrapList(dataSource, isHot) {
-    const { activeKey, dataFetching, dataHotFetching, rectStyle, isAdmin, isUPAdmin } = this.props
+    const { activeKey, dataFetching, dataHotFetching, rectStyle, isAdmin, isUPAdmin, downloadCount, updateDownloadCount } = this.props
     const { copyStatus } = this.state
     let newData
     if (isHot) {
@@ -338,7 +337,7 @@ class WrapComopnent extends React.Component {
           <Menu.Item key="download">
             {
               activeKey === 'app' ?
-                <a target="_blank" href={`${API_URL_PREFIX}/pkg/${item.id}`}>下载</a>
+                <a target="_blank" href={`${API_URL_PREFIX}/pkg/${item.id}`} onClick={() => updateDownloadCount(item.id)}>下载</a>
                 :
                 '下载'
             }
@@ -442,7 +441,7 @@ class WrapComopnent extends React.Component {
               {
                 isHot &&
                 <div className="downloadBox">
-                  <span className="hintColor"><Icon type="download" /> {item.downloadTimes}</span>
+                  <span className="hintColor"><Icon type="download" /> {item.downloadTimes + (activeKey === 'app' ? (downloadCount && downloadCount[`${item.id}-count`] || 0) : 0)}</span>
                 </div>
               }
             </div>
@@ -458,7 +457,7 @@ class WrapComopnent extends React.Component {
               {
                 !isHot &&
                 <div className="downloadBox">
-                  <span className="hintColor"><Icon type="download" /> {item.downloadTimes}</span>
+                  <span className="hintColor"><Icon type="download" /> {item.downloadTimes + (activeKey === 'app' ? (downloadCount && downloadCount[`${item.id}-count`] || 0) : 0)}</span>
                   <span className="hintColor"><Icon type="clock-circle-o" /> {activeKey === 'app' ? '发布' : '更新'}于 {calcuDate(item.publishTime)}</span>
                 </div>
               }
@@ -492,7 +491,7 @@ class WrapComopnent extends React.Component {
             <div className="reactBoxFooter">
               <Tooltip title={item.downloadTimes}>
                 <div className="hintColor downLoadBox textoverflow">
-                  <Icon type="download" /> {item.downloadTimes}
+                  <Icon type="download" /> {item.downloadTimes + (activeKey === 'app' ? (downloadCount && downloadCount[`${item.id}-count`] || 0) : 0)}
                 </div>
               </Tooltip>
               <Tooltip title={calcuDate(item.publishTime)}>
@@ -543,18 +542,20 @@ class WrapComopnent extends React.Component {
   render() {
     const { 
       current, dataSource, dataHotList, updateParentState, rectStyle, 
-      isAdmin, location, getStoreList, getAppsHotList 
+      isAdmin, location, getStoreList, getAppsHotList
     } = this.props
     const { downloadModalVisible, currentImage, offShelfModal, 
       imageDetailModalShow, offshelfId, detailModal, currentWrap
     } = this.state
     let server
-    let node
+    let version
+    let imageName
     let tagArr = []
     if (currentImage) {
       server = currentImage.resourceLink && currentImage.resourceLink.split('/')[0]
-      node = currentImage.resourceLink && currentImage.resourceLink.split('/')[1]
-      Object.assign(currentImage, { name: currentImage.resourceName })
+      imageName = currentImage.resourceName && currentImage.resourceName
+      version = currentImage.versions && currentImage.versions[0].tag
+      Object.assign(currentImage, { name: currentImage.resourceName, pullCount: currentImage.downloadTimes, creationTime: currentImage.publishTime })
       tagArr = currentImage && currentImage.versions && currentImage.versions.map(item => <Option key={item.iD}>{item.tag}</Option>)
     }
     const pagination = {
@@ -592,6 +593,7 @@ class WrapComopnent extends React.Component {
           updateAppStatus={this.updateAppStatus}
           isStore={true}
           isAdmin={isAdmin}
+          location={location}
         />
         <Modal 
           title="下载镜像"
@@ -603,11 +605,11 @@ class WrapComopnent extends React.Component {
         >
           <p>在本地 docker 环境中输入以下命令，就可以 pull 一个镜像到本地了</p>
           <pre className="codeSpan">
-            {`sudo docker pull ${server && server}/${node && node}/<image name>:<tag>`}
+            {`sudo docker pull ${currentImage && currentImage.resourceLink}:${version}`}
           </pre>
           <p>为了在本地方便使用，下载后可以修改tag为短标签，比如：</p>
           <pre className="codeSpan">
-            {`sudo docker tag  ${server && server}/${node && node}/hello-world:latest ${node && node}/hello-world:latest`}
+            {`sudo docker tag  ${currentImage && currentImage.resourceLink}:${version} ${imageName}:${version}`}
             </pre>
         </Modal>
         <Modal

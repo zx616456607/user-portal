@@ -208,16 +208,11 @@ class ContainerProgress extends Component{
   }
 }
 function mapStateToProps (state, props) {
-  let processList = []
-  let isFetching = true
-  const result = state.containers.containerProcess
-  try {
-    processList = result.result.data.data
-    isFetching = result.isFetching
-  } catch (e) {
-    processList = []
-    isFetching = true
-  }
+  const { containerName } = props
+  const { containers } = state
+  const { containerProcess } = containers
+  const { isFetching = true } = containerProcess
+  const processList = containerProcess[containerName]
   return {
     processList,
     isFetching,

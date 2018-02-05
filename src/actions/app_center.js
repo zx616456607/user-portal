@@ -139,6 +139,55 @@ export function getOtherImageList(id) {
   }
 }
 
+export const SEARCH_DOCKERHUB_REPOS_REQUEST = 'SEARCH_DOCKERHUB_REPOS_REQUEST'
+export const SEARCH_DOCKERHUB_REPOS_SUCCESS = 'SEARCH_DOCKERHUB_REPOS_SUCCESS'
+export const SEARCH_DOCKERHUB_REPOS_FAILURE = 'SEARCH_DOCKERHUB_REPOS_FAILURE'
+
+function fetchSearchDockerhubRepos(id, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/docker-registry/${id}/images/search`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    id,
+    [FETCH_API]: {
+      types: [SEARCH_DOCKERHUB_REPOS_REQUEST, SEARCH_DOCKERHUB_REPOS_SUCCESS, SEARCH_DOCKERHUB_REPOS_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function searchDockerhubRepos(id, query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchSearchDockerhubRepos(id, query, callback))
+  }
+}
+
+export const GET_DOCKER_REGISTRY_NAMESPACES_REQUEST = 'GET_DOCKER_REGISTRY_NAMESPACES_REQUEST'
+export const GET_DOCKER_REGISTRY_NAMESPACES_SUCCESS = 'GET_DOCKER_REGISTRY_NAMESPACES_SUCCESS'
+export const GET_DOCKER_REGISTRY_NAMESPACES_FAILURE = 'GET_DOCKER_REGISTRY_NAMESPACES_FAILURE'
+
+function fetchRegistryNamespaces(id, callback) {
+  let endpoint = `${API_URL_PREFIX}/docker-registry/${id}/namespaces`
+  return {
+    id,
+    [FETCH_API]: {
+      types: [GET_DOCKER_REGISTRY_NAMESPACES_REQUEST, GET_DOCKER_REGISTRY_NAMESPACES_SUCCESS, GET_DOCKER_REGISTRY_NAMESPACES_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function getRegistryNamespaces(id, callback) {
+  return (dispatch) => {
+    return dispatch(fetchRegistryNamespaces(id, callback))
+  }
+}
+
 export const SEARCH_OTHER_LIST_REQUEST = 'SEARCH_OTHER_LIST_REQUEST'
 // Search Other image list getOtherImageList
 export function SearchOtherImage(image,id) {
@@ -174,12 +223,12 @@ export const GET_OTHER_IMAGE_TAGS_SUCCESS = 'GET_OTHER_IMAGE_TAGS_SUCCESS'
 export const GET_OTHER_IMAGE_TAGS_FAILURE = 'GET_OTHER_IMAGE_TAGS_FAILURE'
 
 export function getOtherImageTag(obj, callback) {
-  let urlImageName = encodeImageFullname(obj.imageName)
   return {
+    fullname: obj.imageName,
     registry: obj.registry,
     [FETCH_API]: {
       types: [GET_OTHER_IMAGE_TAGS_REQUEST, GET_OTHER_IMAGE_TAGS_SUCCESS, GET_OTHER_IMAGE_TAGS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.id}/images/${encodeImageFullname(urlImageName)}/tags`,
+      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.id}/images/${encodeImageFullname(obj.imageName)}/tags`,
       schema: Schemas.REGISTRYS
     },
     callback
@@ -248,7 +297,7 @@ export function loadOtherDetailTagConfig(obj, callback) {
   return {
     [FETCH_API]: {
       types: [GET_OTHER_TAG_CONFIG_REQUEST, GET_OTHER_TAG_CONFIG_SUCCESS, GET_OTHER_TAG_CONFIG_FAILURE],
-      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.imageId}/images/${encodeImageFullname(urlFullName)}/tags/${obj.imageTag}`,
+      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.imageId}/images/${urlFullName}/tags/${obj.imageTag}`,
       schema: Schemas.REGISTRYS
     },
     tag: obj.imageTag,
@@ -816,6 +865,21 @@ export function wrapManageList(query, callback) {
   }
 }
 
+export const GET_REGISTRY_TEMPLATE_REQUEST = 'GET_REGISTRY_TEMPLATE_REQUEST'
+export const GET_REGISTRY_TEMPLATE_SUCCESS = 'GET_REGISTRY_TEMPLATE_SUCCESS'
+export const GET_REGISTRY_TEMPLATE_FAILURE = 'GET_REGISTRY_TEMPLATE_FAILURE'
+
+export function getImageTempate(registry, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_REGISTRY_TEMPLATE_REQUEST, GET_REGISTRY_TEMPLATE_SUCCESS, GET_REGISTRY_TEMPLATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/template`,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
+  }
+}
+
 export const DEL_WRAP_MANAGE_LIST_REQUEST = 'DEL_WRAP_MANAGE_LIST_REQUEST'
 export const DEL_WRAP_MANAGE_LIST_SUCCESS = 'DEL_WRAP_MANAGE_LIST_SUCCESS'
 export const DEL_WRAP_MANAGE_LIST_FAILURE = 'DEL_WRAP_MANAGE_LIST_FAILURE'
@@ -845,19 +909,16 @@ const UPLOAD_WRAP_REQUEST = 'UPLOAD_WRAP_REQUEST'
 const UPLOAD_WRAP_SUCCESS = 'UPLOAD_WRAP_SUCCESS'
 const UPLOAD_WRAP_FAILURE = 'UPLOAD_WRAP_FAILURE'
 
-function fetchUploadWrap(body,callback) {
-  // fileName,fileTag,fileType
-  const {fileName,fileTag,fileType} = body
+function fetchUploadWrap(query,body,callback) {
   return {
     [FETCH_API]: {
       types: [UPLOAD_WRAP_REQUEST, UPLOAD_WRAP_SUCCESS, UPLOAD_WRAP_FAILURE],
-      endpoint: `${API_URL_PREFIX}/pkg/${fileName}/${fileTag}/${fileType}/remote`,
+      endpoint: `${API_URL_PREFIX}/pkg/remote?${toQuerystring(query)}`,
       schema: Schemas.REGISTRYS,
       options:{
         method:'POST',
-        body: body.body
+        body
       }
-
     },
     callback
   }
@@ -1144,4 +1205,27 @@ function fetchWrapGroupList(callback) {
 
 export function getWrapGroupList(callback) {
   return dispatch => dispatch(fetchWrapGroupList(callback))
+}
+
+export const DELETE_WRAP_DOCS_REQUEST = 'DELETE_WRAP_DOCS_REQUEST'
+export const DELETE_WRAP_DOCS_SUCCESS = 'DELETE_WRAP_DOCS_SUCCESS'
+export const DELETE_WRAP_DOCS_FAILURE = 'DELETE_WRAP_DOCS_FAILURE'
+
+function fetchDeleteWrapDocs(id, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_WRAP_DOCS_REQUEST,DELETE_WRAP_DOCS_SUCCESS,DELETE_WRAP_DOCS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/pkg/${id}/docs/batch-delete`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function deleteWrapDocs(id, body, callback) {
+  return dispatch => dispatch(fetchDeleteWrapDocs(id, body, callback))
 }

@@ -129,7 +129,10 @@ class MonitorPanel extends React.Component {
     return (
       <div className="monitorPanel">
         <Title title="监控面板"/>
-        <Button type="primary" size="large" className="addMonitorBtn pointer" onClick={() => this.openPanelModal(null)} icon="plus">添加监控面板</Button>
+        <Button type="primary" size="large" className="addMonitorBtn pointer" onClick={() => this.openPanelModal(null)}>
+          <i className="fa fa-plus" aria-hidden="true"/>&nbsp;
+          添加监控面板
+        </Button>
         {
           panelModal &&
           <PanelModal

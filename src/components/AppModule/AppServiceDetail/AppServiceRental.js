@@ -61,7 +61,8 @@ class AppServiceRental extends Component {
   countPrice(serviceDetail) {
     let price = 0
     serviceDetail.forEach(list => {
-      price += this.formetPrice(list.spec.template.spec.containers[0].resources.requests.memory) * list.spec.replicas
+      let memory = list.spec.template.spec.containers[0].resources.requests ? list.spec.template.spec.containers[0].resources.requests.memory : 0
+      price += this.formetPrice(memory) * list.spec.replicas
     })
     return price
   }
@@ -86,12 +87,13 @@ class AppServiceRental extends Component {
     const hourPrice = this.countPrice(serviceDetail) /10000
     countPrice = parseAmount(countPrice, 4)
     const dataRow = serviceDetail.map((list, index)=> {
+        let memory = list.spec.template.spec.containers[0].resources.requests ? list.spec.template.spec.containers[0].resources.requests.memory : 0
         return(
           <tr key={index}>
             <td>{list.metadata.name}</td>
-            <td>{this.formetCpuMemory(list.spec.template.spec.containers[0].resources.requests.memory)}</td>
+            <td>{this.formetCpuMemory(memory)}</td>
             <td>{list.spec.replicas}</td>
-            <td>{this.formetPrice(list.spec.template.spec.containers[0].resources.requests.memory) /10000 } {countPrice.unit == '￥' ? '元': ' T'}/小时</td>
+            <td>{this.formetPrice(memory) /10000 } {countPrice.unit == '￥' ? '元': ' T'}/小时</td>
           </tr>
         )
     })

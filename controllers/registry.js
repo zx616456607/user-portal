@@ -14,11 +14,13 @@ const apiFactory           = require('../services/api_factory')
 const registryService      = require('../services/tenx_registry')
 const SpecRegistryService  = require('../services/docker_registry')
 const registryConfigLoader = require('../registry/registryConfigLoader')
+const DockerHub            = require('../registry/lib/dockerHubAPIs')
 
 const securityUtil        = require('../utils/security')
 const logger              = require('../utils/logger.js').getLogger("registry")
 const crypto              = require('crypto')
 const algorithm           = 'aes-256-ctr'
+const DockerHubType       = 'dockerhub'
 
 exports.getImages = function* () {
   const registry = this.params.registry
@@ -293,6 +295,11 @@ exports.getPrivateRegistries = function* () {
   const api = apiFactory.getManagedRegistryApi(loginUser)
   // Get the list of private docker registry
   const result = yield api.get()
+  if (result.data) {
+    result.data.forEach(function(row) {
+      delete row.encrypted_password
+    })
+  }
 
   this.status = result.code
   this.body = {
@@ -313,6 +320,16 @@ exports.specListRepositories = function* () {
     let realPassword = securityUtil.decryptContent(serverInfo.password, loginUser.token, algorithm)
     let registryConfig = JSON.parse(JSON.stringify(serverInfo))
     registryConfig.password = realPassword
+
+    if (registryConfig.type && registryConfig.type == DockerHubType) {
+      const api = new DockerHub(registryConfig)
+      const result = yield api.getImageList()
+      if (result && result.results) {
+        result.results = formatDockerHupRepo(result.results, 1)
+      }
+      this.body = result
+      return
+    }
 
     let specRegistryService = new SpecRegistryService(registryConfig)
     var self = this
@@ -342,6 +359,17 @@ exports.specGetImageTags = function* () {
     let registryConfig = JSON.parse(JSON.stringify(serverInfo))
     registryConfig.password = realPassword
 
+    if(registryConfig.type == DockerHubType) {
+      const api = new DockerHub(registryConfig)
+      const result = yield api.getImageTags(image)
+      if(result && result.results) {
+        result.tags = formatDockerHupTags(result.results)
+        delete result.results
+      }
+      this.body = result
+      return
+    }
+
     let specRegistryService = new SpecRegistryService(registryConfig)
     var self = this
     var result = yield specRegistryService.getImageTags(image)
@@ -360,6 +388,41 @@ exports.specGetImageTagInfo = function* () {
   const registryId = this.params.id
   const image = this.params.image
   const tag = this.params.tag
+  let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, registryId)
+
+  // If find the valid registry info
+  if (serverInfo.server) {
+    logger.info("Found the matched registry config ...")
+    // Get the real password before pass to registry service
+    let realPassword = securityUtil.decryptContent(serverInfo.password, loginUser.token, algorithm)
+    let registryConfig = JSON.parse(JSON.stringify(serverInfo))
+    registryConfig.password = realPassword
+    if(registryConfig.type == DockerHubType) {
+      const api = new DockerHub(registryConfig)
+      const result = yield api.getImageTagInfo(image, tag)
+      this.body = result.result
+      return
+    }
+
+    let specRegistryService = new SpecRegistryService(registryConfig)
+    var self = this
+    var result = yield specRegistryService.getImageTagInfo(image, tag)
+
+    this.status = result.code
+    this.body = result.result
+  } else {
+    logger.info("No matched registry config found ...")
+    this.status = 404
+    this.body = "Docker Registry not found"
+  }
+}
+
+exports.searchDockerImages = function*() {
+  const loginUser = this.session.loginUser
+  const registryId = this.params.id
+  const query = this.query.query
+  const page = this.query.page
+  const pageSize = this.query.page_size
 
   let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, registryId)
 
@@ -370,13 +433,44 @@ exports.specGetImageTagInfo = function* () {
     let realPassword = securityUtil.decryptContent(serverInfo.password, loginUser.token, algorithm)
     let registryConfig = JSON.parse(JSON.stringify(serverInfo))
     registryConfig.password = realPassword
+    if(registryConfig.type == DockerHubType) {
+      const api = new DockerHub(registryConfig)
+      const result = yield api.searchDockerImage(query, page, pageSize)
+      if (result && result.results) {
+        result.results = formatDockerHupRepo(result.results, 2)
+      }
+      this.body = result
+      return
+    }
+    this.status = 400
+    this.body = "Not support search"
+  } else {
+    logger.info("No matched registry config found ...")
+    this.status = 404
+    this.body = "Docker Registry not found"
+  }
+}
 
-    let specRegistryService = new SpecRegistryService(registryConfig)
-    var self = this
-    var result = yield specRegistryService.getImageTagInfo(image, tag)
+exports.getDockerHubNamespaces = function*() {
+  const loginUser = this.session.loginUser
+  const registryId = this.params.id
 
-    this.status = result.code
-    this.body = result.result
+  let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, registryId)
+  // If find the valid registry info
+  if (serverInfo.server) {
+    logger.info("Found the matched registry config ...")
+    // Get the real password before pass to registry service
+    let realPassword = securityUtil.decryptContent(serverInfo.password, loginUser.token, algorithm)
+    let registryConfig = JSON.parse(JSON.stringify(serverInfo))
+    registryConfig.password = realPassword
+    if(registryConfig.type == DockerHubType) {
+      const api = new DockerHub(registryConfig)
+      const result = yield api.getDockerHubNamespaces()
+      this.body = result
+      return
+    }
+    this.status = 400
+    this.body = "Not support"
   } else {
     logger.info("No matched registry config found ...")
     this.status = 404
@@ -422,7 +516,9 @@ function* _getRegistryServerInfo(session, user, id){
       "server":     session.registries[id].server,
       "authServer": session.registries[id].authServer,
       "username":   session.registries[id].username,
-      "password":   session.registries[id].password
+      "password":   session.registries[id].password,
+      "type":       session.registries[id].type,
+      "token":       session.registries[id].token
     }
   } else {
     // Get from API server and save to session
@@ -440,7 +536,9 @@ function* _getRegistryServerInfo(session, user, id){
             "server":     result.data[i].url,
             "authServer": result.data[i].auth_url,
             "username":   result.data[i].username,
-            "password":   result.data[i].encrypted_password
+            "password":   result.data[i].encrypted_password,
+            "type":       result.data[i].type,
+            "token":      result.data[i].token
           }
           serverInfo = session.registries[id]
           break
@@ -449,4 +547,29 @@ function* _getRegistryServerInfo(session, user, id){
     }
   }
   return serverInfo
+}
+
+function formatDockerHupRepo(repos, type) {
+  if (repos) {
+    repos.forEach(function(repo) {
+      if (type === 1) {
+        // For user images
+        repo.name = repo.namespace + '/' + repo.name
+      } else if (type === 2) {
+        // For searched images
+        repo.name = repo.repo_name
+      }
+    })
+    return repos
+  }
+  return[]
+}
+
+function formatDockerHupTags(tags) {
+  if(tags) {
+    return tags.map(tag => {
+      return tag.name
+    })
+  }
+  return[]
 }

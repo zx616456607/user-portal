@@ -91,12 +91,12 @@ class ReleaseAppModal extends React.Component {
       if (pkgIcon) {
         Object.assign(body, { pkgIcon })
       }
-      notify.spin('发布中')
+      notify.spin('提交审核中')
       auditWrap(id, body, {
         success: {
           func: () => {
             notify.close()
-            notify.success('发布成功')
+            notify.success('提交审核成功')
             callback()
             this.setState({
               visible: false,
@@ -171,7 +171,8 @@ class ReleaseAppModal extends React.Component {
         {
           validator: this.checkDesc
         }
-      ]
+      ],
+      initialValue: currentApp ? currentApp.description : ''
     })
     let headers = {}
     if (space && space.userName) {
@@ -233,6 +234,7 @@ class ReleaseAppModal extends React.Component {
         className="publishModal"
         title="发布到应用包商店"
         visible={visible}
+        maskClosable={false}
         onOk={this.confirmModal.bind(this)}
         onCancel={this.cancelModal.bind(this)}
         footer={this.renderFooter()}
@@ -256,7 +258,7 @@ class ReleaseAppModal extends React.Component {
           </FormItem>
           <FormItem
             {...formItemLayout}
-            label="分类"
+            label="分类名称"
           >
             <Select
               {...classifyProps}

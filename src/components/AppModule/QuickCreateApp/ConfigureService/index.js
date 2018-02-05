@@ -236,7 +236,7 @@ let ConfigureService = React.createClass({
         fullname: imageName,
         imageTag
       }
-      loadImageConfigFunc = loadOtherDetailTagConfig.bind(this, imageTag, callback)
+      loadImageConfigFunc = loadOtherDetailTagConfig.bind(this, config, callback)
     } else {
       loadImageConfigFunc = loadRepositoriesTagConfigInfo.bind(this, DEFAULT_REGISTRY, imageName, imageTag, callback)
     }
@@ -246,7 +246,7 @@ let ConfigureService = React.createClass({
     this.setState({
       imageConfigs: configs,
     })
-    const { callback, form } = this.props
+    const { callback, form, location } = this.props
     callback(form, configs)
     const { setFieldsValue } = form
     let {
@@ -338,6 +338,9 @@ let ConfigureService = React.createClass({
       })
     }
 
+    // set annotation => system/registry = dockerhub
+    const systemRegistry = location.query.systemRegistry
+
     // use `setFieldsValue` once, dispatch one action
     let fieldsValues = {
       storageKeys,
@@ -346,6 +349,7 @@ let ConfigureService = React.createClass({
       envKeys,
       imagePullPolicy: 'Always',
       livenessProtocol: 'none',
+      systemRegistry,
     }
     Object.assign(fieldsValues, storageFields, portsFields,
       commandFields,
@@ -632,8 +636,9 @@ function mapStateToProps(state, props) {
   let tags = []
   let tagsIsFetching = false
   if (location.query.other) {
-    tags = otherImageTag.imageTag || []
-    tagsIsFetching = otherImageTag.isFetching
+    const otherImageTags = otherImageTag[location.query.imageName] || {}
+    tags = otherImageTags.imageTag || []
+    tagsIsFetching = otherImageTags.isFetching
   } else {
     if (imageTags[DEFAULT_REGISTRY] && imageTags[DEFAULT_REGISTRY][imageName]) {
       const currentImageTags = imageTags[DEFAULT_REGISTRY][imageName]

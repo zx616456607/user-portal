@@ -424,9 +424,8 @@ class BindNodes extends Component {
 
   getSchedulingPolicy(data) {
     const template = data.spec.template
-    const metadata = template.metadata
     const spec = template.spec
-    const labels = this.getNodeAffinityLabels(metadata)
+    const labels = this.getNodeAffinityLabels(spec)
     const node = this.getNodeSelectorTarget(spec)
     const policy = {
       type: scheduleBySystem,
@@ -451,13 +450,13 @@ class BindNodes extends Component {
     return spec.nodeSelector[hostNameKey]
   }
 
-  getNodeAffinityLabels(metadata) {
-    const affinityKey = 'scheduler.alpha.kubernetes.io/affinity'
-    if (!metadata.hasOwnProperty('annotations') || !metadata.annotations.hasOwnProperty(affinityKey)) {
+  getNodeAffinityLabels(spec) {
+    if (!spec.affinity) {
       return null
     }
-    const affinity = JSON.parse(metadata.annotations[affinityKey])
-    const labels = affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms.reduce(
+    const affinity = spec.affinity
+    const requiredDSIE = affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution
+    const labels = requiredDSIE && requiredDSIE.nodeSelectorTerms.reduce(
       (expressions, term) => expressions.concat(term.matchExpressions), []).reduce(
       (labels, expression) => {
         expression.values.map((value, index) => {

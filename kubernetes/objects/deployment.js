@@ -154,6 +154,9 @@ class Deployment {
                 let resources = {}
                 if (ct.resources.limits) {
                   let limits = {}
+                  if (ct.resources.limits.cpu) {
+                    limits.cpu = ct.resources.limits.cpu
+                  }
                   if (ct.resources.limits.memory) {
                     limits.memory = ct.resources.limits.memory
                   }
@@ -164,9 +167,9 @@ class Deployment {
                 if (ct.resources.requests) {
                   let requests = {}
                   // Handle cpu allocation in api-server side
-                  /*if (ct.resources.requests.cpu) {
+                  if (ct.resources.requests.cpu) {
                     requests.cpu = ct.resources.requests.cpu
-                  }*/
+                  }
                   if (ct.resources.requests.memory) {
                     requests.memory = ct.resources.requests.memory
                   }
@@ -219,12 +222,12 @@ class Deployment {
     this.spec.template.metadata.labels[APM_SERVICE_LABEL_KEY] = type
   }
 
-  setContainerResources(containerName, memory, cpu) {
+  setContainerResources(containerName, memory, cpu, limitMemory, limitCpu) {
     this.spec.template.spec.containers.map((container) => {
       if (container.name !== containerName) {
         return
       }
-      container.resources = utils.getResources(memory, cpu)
+      container.resources = utils.getResources(memory, cpu, limitMemory, limitCpu)
     })
   }
 
@@ -473,8 +476,7 @@ class Deployment {
   }
 
   setCollectLog(serviceName, item) {
-    this.spec.template.metadata.annotations = this.spec.template.metadata.annotations || {}
-    let annotations = this.spec.template.metadata.annotations
+    const annotations = {}
     let volume = {
       name: item.name,
       emptyDir: {}
@@ -491,6 +493,7 @@ class Deployment {
     }
     annotations["applogs"].push(item)
     annotations["applogs"] = JSON.stringify(annotations["applogs"])
+    this.setAnnotations(annotations)
   }
 
   makeNodeAffinity(labels) {
@@ -520,6 +523,14 @@ class Deployment {
       operator: "In",
       values,
     }
+  }
+
+  setAnnotations(annotations) {
+    this.spec.template.metadata.annotations = Object.assign(
+      {},
+      this.spec.template.metadata.annotations,
+      annotations
+    )
   }
 }
 

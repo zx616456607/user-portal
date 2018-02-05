@@ -13,7 +13,7 @@
 import React from 'react'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
-import { Card, Row, Col, Form, Input, Button, Checkbox, Collapse, Table, Menu, Dropdown, Pagination  } from 'antd'
+import { Button, Table, Menu, Dropdown, Pagination, Modal  } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import CommonSearchInput from '../../CommonSearchInput'
 import './style/VMServiceList.less'
@@ -65,7 +65,7 @@ class VMServiceList extends React.Component {
         func: res => {
           if (res.statusCode === 400){
             this.pageAndSerch(null,1,true)
-            notify.error(res.message)
+            notify.warn('传统应用环境已被删除（或无法连接），请重新添加部署环境\n')
             return
           }
           this.pageAndSerch(null,1,true)
@@ -77,28 +77,54 @@ class VMServiceList extends React.Component {
   }
 
   handleMenuClick(e,record) {
-    const { vmServiceDelete } = this.props;
-    let notify = new NotificationHandler()
     if (e.key === 'delete') {
-      vmServiceDelete({
-        serviceId: record.serviceId
-      },{
-        success: {
-          func: (res) => {
-            this.pageAndSerch(null,1,true)
-            notify.success('删除应用成功')
-          },
-          isAsync:true
-        },
-        failed: {
-          func: res => {
-            notify.error('删除应用失败')
-            this.pageAndSerch(null,1,true)
-          },
-          isAsync: true
-        }
+      this.setState({
+        currentVM: record,
+        deleteVisible: true
       })
     }
+  }
+  
+  cancelModal = () => {
+    this.setState({
+      deleteVisible: false
+    })
+  }
+  
+  confirmModal = () => {
+    const { vmServiceDelete } = this.props;
+    const { currentVM } = this.state
+    let notify = new NotificationHandler()
+    notify.spin('删除中')
+    this.setState({
+      confirmLoading: true
+    })
+    vmServiceDelete({
+      serviceId: currentVM.serviceId
+    },{
+      success: {
+        func: () => {
+          notify.close()
+          this.pageAndSerch(null,1,true)
+          notify.success('删除应用成功')
+          this.setState({
+            deleteVisible: false,
+            confirmLoading: false
+          })
+        },
+        isAsync:true
+      },
+      failed: {
+        func: () => {
+          notify.close()
+          notify.error('删除应用失败')
+          this.setState({
+            deleteVisible: false,
+            confirmLoading: false
+          })
+        }
+      }
+    })
   }
   rowClick(record) {
     const { selectedRowKeys } = this.state;
@@ -112,15 +138,7 @@ class VMServiceList extends React.Component {
       selectedRowKeys:newKeys
     })
   }
-  selectAll(selectedRows) {
-    let arr = []
-    for (let i = 0; i < selectedRows.length; i++) {
-      arr.push(selectedRows[i].key)
-    }
-    this.setState({
-      selectedRowKeys: arr
-    })
-  }
+  
   pageAndSerch(name,n,flag) {
     const { getVMserviceList } = this.props;
     if (flag) {
@@ -174,7 +192,7 @@ class VMServiceList extends React.Component {
     return <TenxStatus phase={phase} progress={progress}/>
   }
   render() {
-    const { selectedRowKeys, service, loading, searchValue } = this.state;
+    const { service, loading, deleteVisible, confirmLoading } = this.state;
 
     const columns = [{
       title: '应用名',
@@ -219,16 +237,8 @@ class VMServiceList extends React.Component {
           </Dropdown.Button>
         )
       }
-
-
     }];
-
-// 通过 rowSelection 对象表明需要行选择
-//     const rowSelection = {
-//       selectedRowKeys,
-//       onSelect:(record)=> this.rowClick(record),
-//       onSelectAll: (selected, selectedRows)=>this.selectAll(selectedRows),
-//     };
+    
     const pageOption = {
       simple: true,
       defaultCurrent: 1,
@@ -239,6 +249,18 @@ class VMServiceList extends React.Component {
     return (
       <QueueAnim>
         <div key='vmServiceList' className="vmServiceList">
+          <Modal
+            title="删除传统应用"
+            visible={deleteVisible}
+            confirmLoading={confirmLoading}
+            onCancel={this.cancelModal}
+            onOk={this.confirmModal}
+          >
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle"/>
+              确定删除该传统应用？
+            </div>
+          </Modal>
           <Title title="传统应用"/>
           <div className="serviceListBtnBox">
             <Button type="primary" size="large" onClick={()=>browserHistory.push('/app_manage/vm_wrap/create')}><i className="fa fa-plus" /> 创建传统应用</Button>

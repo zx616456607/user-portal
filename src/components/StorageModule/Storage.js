@@ -27,7 +27,6 @@ import ResourceQuotaModal from '../ResourceQuotaModal/Storage'
 import CreateVolume from '../StorageModule/CreateVolume'
 import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
 import Title from '../Title'
-const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 let isActing = false
 
@@ -664,8 +663,8 @@ let MyComponent = React.createClass({
             </div>
             <Col span="6" style={{ lineHeight: '30px' }}>选择文件系统格式：</Col>
             <RadioGroup defaultValue='ext4' value={this.state.formateType} size="large" onChange={(e) => this.changeType(e)}>
-              <RadioButton value="ext4">ext4</RadioButton>
-              <RadioButton value="xfs">xfs</RadioButton>
+              <Radio prefixCls="ant-radio-button" value="ext4">ext4</Radio>
+              <Radio prefixCls="ant-radio-button" value="xfs">xfs</Radio>
 
             </RadioGroup>
           </div>

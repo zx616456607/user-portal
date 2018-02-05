@@ -22,6 +22,7 @@ import { API_URL_PREFIX } from '../../../constants'
 import cloneDeep from 'lodash/cloneDeep'
 import ReleaseAppModal from './ReleaseAppModal'
 import WrapDetailModal from './WrapDetailModal'
+import WrapDocsModal from './WrapDocsModal'
 
 import { wrapManageList, deleteWrapManage, auditWrap, getWrapStoreList, publishWrap } from '../../../actions/app_center'
 const RadioGroup = Radio.Group
@@ -42,6 +43,7 @@ class WrapListTable extends Component {
     this.closeDetailModal = this.closeDetailModal.bind(this)
     this.loadData = this.loadData.bind(this)
     this.renderDeployBtn = this.renderDeployBtn.bind(this)
+    this.closeDocsModal = this.closeDocsModal.bind(this)
     this.state = {
       page: 1,
       detailModal: false
@@ -187,6 +189,12 @@ class WrapListTable extends Component {
           currentApp: row
         })
         break
+      case 'docs':
+        this.setState({
+          docsModal: true,
+          currentApp: row
+        })
+        break
       case 'publish':
         this.setState({
           publishModal: true,
@@ -216,6 +224,12 @@ class WrapListTable extends Component {
       currentApp: null
     })
   }
+  closeDocsModal() {
+    this.setState({
+      docsModal: false,
+      currentApp: null
+    })
+  }
   handleButtonClick(row, func) {
     const { goDeploy } = func
     goDeploy(row.fileName)
@@ -235,11 +249,14 @@ class WrapListTable extends Component {
     const { enabled } = vmWrapConfig
     const menu = (
       <Menu onClick={e => this.handleMenuClick(e, row)} style={{ width: 110 }}>
-        { enabled && <Menu.Item key="vm">
+        { enabled ? <Menu.Item key="vm">
           传统部署
-        </Menu.Item> }
+        </Menu.Item> : <Menu.Item key="node" style={{ display: 'none' }}/>}
         <Menu.Item key="audit" disabled={[1, 2, 8].includes(row.publishStatus)}>
           提交审核
+        </Menu.Item>
+        <Menu.Item key="docs">
+          上传附件
         </Menu.Item>
         <Menu.Item key="publish" disabled={![2].includes(row.publishStatus)}>
           发布
@@ -292,6 +309,7 @@ class WrapListTable extends Component {
         id: [record.id],
         defaultTemplate: record.fileType =='jar' ? 0 : 1,
         version: null,
+        fileType: record.fileType,
       })
       window.WrapListTable = record
       return
@@ -299,6 +317,7 @@ class WrapListTable extends Component {
     func.scope.setState({
       selectedRowKeys: newSelectedRowKeys,
       id: newId,
+      fileType: record.fileType,
     })
   }
 
@@ -346,7 +365,7 @@ class WrapListTable extends Component {
   render() {
     // jar war ,tar.gz zip
     const { func, rowCheckbox, wrapList, wrapStoreList, currentType, isWrapManage } = this.props
-    const { releaseVisible, currentApp, detailModal, currentWrap, publishModal } = this.state
+    const { releaseVisible, currentApp, detailModal, currentWrap, publishModal, docsModal } = this.state
     const dataSource = currentType === 'trad' ? wrapList : wrapStoreList
     const classifyName = {
       title: '分类名称',
@@ -363,7 +382,7 @@ class WrapListTable extends Component {
       render: text => text ? text : '-'
     }
     const publishStatus = {
-      title: '应用商店',
+      title: '状态',
       dataIndex: 'publishStatus',
       key: 'publishStatus',
       width: '10%',
@@ -371,7 +390,7 @@ class WrapListTable extends Component {
     }
     const columns = [
       {
-        title: '包名称',
+        title: '应用包名称',
         dataIndex: 'fileName',
         key: 'name',
         width: isWrapManage ? '10%' : '20%',
@@ -431,6 +450,7 @@ class WrapListTable extends Component {
             id: ids,
             defaultTemplate: selectedRows[0].fileType =='jar' ? 0 : 1,
             version: null,
+            fileType:selectedRows[0].fileType
           })
           window.WrapListTable = selectedRows[0]
           return
@@ -457,6 +477,14 @@ class WrapListTable extends Component {
           closeRleaseModal={this.closeRleaseModal}
           callback={this.loadData}
         />
+        {
+          docsModal &&
+          <WrapDocsModal
+            visible={docsModal}
+            closeModal={this.closeDocsModal}
+            currentWrap={currentApp}
+          />
+        }
         <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource && dataSource.pkgs} columns={columns} pagination={paginationOpts} onRowClick={this.rowClick}/>
         { dataSource && dataSource.total && dataSource.total >0 ?
           <span className="pageCount" style={{position:'absolute',right:'160px',top:'-55px'}}>共计 {dataSource.total} 条</span>

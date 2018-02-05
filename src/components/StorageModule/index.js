@@ -37,7 +37,7 @@ class StorageHome extends Component {
       })
       return
     }
-    if(pathname === "/app_manage/storage/shareMemory"){
+    if(pathname === "/app_manage/storage/shared"){
       this.setState({
         sharedMemorySelected: true,
         exclusiveMemorySelected: false,
@@ -45,7 +45,7 @@ class StorageHome extends Component {
       })
       return
     }
-    if(pathname === "/app_manage/storage/hostMemory"){
+    if(pathname === "/app_manage/storage/host"){
       this.setState({
         sharedMemorySelected: false,
         exclusiveMemorySelected: false,
@@ -101,13 +101,13 @@ class StorageHome extends Component {
             </div>
             <div
               className={sharedMemory}
-              onClick={() => browserHistory.push(`/app_manage/storage/shareMemory`)}
+              onClick={() => browserHistory.push(`/app_manage/storage/shared`)}
             >
               共享型存储
             </div>
             <div
               className={hostMemory}
-              onClick={() => browserHistory.push(`/app_manage/storage/hostMemory`)}
+              onClick={() => browserHistory.push(`/app_manage/storage/host`)}
             >
               本地存储
             </div>

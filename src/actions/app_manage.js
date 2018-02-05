@@ -496,6 +496,7 @@ export const CONTAINER_GET_PROCESS_FAILURE = 'CONTAINER_GET_PROCESS_FAILURE'
 function fetchPodProcess(cluster, name, query) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${name}/process?${toQuerystring(query)}`
   return {
+    containerName: name,
     [FETCH_API]: {
       types: [CONTAINER_GET_PROCESS_REQUEST, CONTAINER_GET_PROCESS_SUCCESS, CONTAINER_GET_PROCESS_FAILURE],
       endpoint,

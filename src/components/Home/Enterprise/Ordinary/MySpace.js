@@ -22,7 +22,6 @@ import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
 import homeHarbor from '../../../../assets/img/homeHarbor.png'
 import { getGlobaleQuota, getGlobaleQuotaList } from '../../../../actions/quota'
 
-const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
 class MySpace extends Component {
   constructor(props) {
@@ -349,8 +348,8 @@ class MySpace extends Component {
               <Row className="radios">
                 <Col span={16} offset={5}>
                   <RadioGroup size="small" onChange={(e) => this.handleChange(e)} defaultValue="ci">
-                    <RadioButton value="ci">CI/CD</RadioButton>
-                    <RadioButton value="deliver">交付中心</RadioButton>
+                    <Radio prefixCls="ant-radio-button" value="ci">CI/CD</Radio>
+                    <Radio prefixCls="ant-radio-button" value="deliver">交付中心</Radio>
                   </RadioGroup>
                 </Col>
               </Row>
@@ -1285,6 +1284,18 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.Wrap',
     defaultMessage: '应用包'
   },
+  UploadDocs: {
+    id: 'ManageMonitor.operationalAudit.UploadDocs',
+    defaultMessage: '上传附件'
+  },
+  DeleteDocs: {
+    id: 'ManageMonitor.operationalAudit.DeleteDocs',
+    defaultMessage: '删除附件'
+  },
+  DownloadDocs: {
+    id: 'ManageMonitor.operationalAudit.DownloadDocs',
+    defaultMessage: '下载附件'
+  },
   Image: {
     id: 'ManageMonitor.operationalAudit.Image',
     defaultMessage: '镜像'
@@ -1676,6 +1687,12 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.PublishReject)
     case '38':
       return formatMessage(menusText.SubmitAudit)
+    case '39':
+      return formatMessage(menusText.UploadDocs)
+    case '40':
+      return formatMessage(menusText.DeleteDocs)
+    case '41':
+      return formatMessage(menusText.DownloadDocs)
     case '0':
       return formatMessage(menusText.Unknown)
       break;

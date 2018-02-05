@@ -327,6 +327,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/projects/:id/replication/summary', harborController.getReplicationSummary)
 
   router.get('/registries/:registry/statistics', harborController.getStatistics)
+  router.get('/registries/:registry/template', harborController.getImageTemplate)
 
   // Registries of TenxCloud
   router.get('/registries/:registry', registryController.getImages)
@@ -348,6 +349,8 @@ module.exports = function (Router) {
   router.get('/docker-registry/:id/images', registryController.specListRepositories)
   router.get('/docker-registry/:id/images/:image*/tags', registryController.specGetImageTags)
   router.get('/docker-registry/:id/images/:image*/tags/:tag', registryController.specGetImageTagInfo)
+  router.get('/docker-registry/:id/images/search', registryController.searchDockerImages)
+  router.get('/docker-registry/:id/namespaces', registryController.getDockerHubNamespaces)
   // spi for tenxcloud hub
   router.get('/tenx-hubs', registryController.isTenxCloudHubConfigured)
   router.post('/tenx-hubs', registryController.addTenxCloudHub)
@@ -622,8 +625,8 @@ module.exports = function (Router) {
   router.get('/pkg/:filename/:filetype/versions', pkgController.getVersions)
   router.get('/pkg/:id', pkgController.downloadPkg)
   router.post('/pkg/batch-delete', pkgController.deletePkg)
-  router.post('/pkg/:filename/:filetag/:filetype/local', pkgController.localUploadPkg)
-  router.post('/pkg/:filename/:filetag/:filetype/remote', pkgController.romoteUploadPkg)
+  router.post('/pkg/local', pkgController.localUploadPkg)
+  router.post('/pkg/remote', pkgController.romoteUploadPkg)
   router.post('/pkg/:id/audit', pkgController.auditPkg)
   router.post('/pkg/:id/publish', pkgController.publishPkg)
   router.put('/pkg/publish/:id/pass', pkgController.passPkgPublish)
@@ -636,6 +639,9 @@ module.exports = function (Router) {
   router.get('/pkg/icon/:id', pkgController.getPkgIcon)
   router.get('/pkg/:id/detail', pkgController.getPkgDetail)
   router.put('/pkg/:id/detail', pkgController.updatePkgDetail)
+  router.post('/pkg/:id/docs', pkgController.uploadDocs)
+  router.post('/pkg/:id/docs/batch-delete', pkgController.deleteDocs)
+  router.get('/pkg/:id/docs/download', pkgController.downloadDocs)
   
   // VM wrap
   router.post('/vm-wrap/services', vmWrapController.createService)

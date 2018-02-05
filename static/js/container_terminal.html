@@ -100,7 +100,7 @@
             if (_data == '\r' || _data == '\n') {
               if (inputCmd.trim() == 'exit') {
                 // timeout for websocket send message
-                setTimeout(() => {
+                setTimeout(function() {
                   term.destroy()
                   term = null
                 }, 100);

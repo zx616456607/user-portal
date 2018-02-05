@@ -243,7 +243,7 @@ class ImageCheckTable extends React.Component {
     const { imageCheckList, total, form, publish_time, loginUser, location } = this.props
     const { getFieldProps } = form
     const { rejectModal, copyStatus, imageDetailModalShow, currentImage, delModal } = this.state
-    const isAdmin = loginUser.harbor[camelize('has_admin_role')] === 1 && loginUser.role === ROLE_SYS_ADMIN
+    const isAdmin = loginUser.role === ROLE_SYS_ADMIN
     const pagination = {
       simple: true,
       defaultCurrent: 1,

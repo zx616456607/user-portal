@@ -18,7 +18,6 @@ import './style/ImageVersion.less'
 import NotificationHandler from '../../../../components/Notification'
 import { loadRepositoriesTags, deleteAlone, loadProjectMembers } from '../../../../actions/harbor'
 import { appStoreApprove } from '../../../../actions/app_store'
-import isEmpty from 'lodash/isEmpty'
 const TabPane = Tabs.TabPane
 const Search = Input.Search
 const Option = Select.Option
@@ -82,19 +81,30 @@ class ImageVersion extends Component {
   }
 
   componentWillMount() {
-    const { loadRepositoriesTags, loadRepositoriesTagConfigInfo } = this.props
+    const { loadRepositoriesTags, loadRepositoriesTagConfigInfo, detailAry } = this.props
     const imageDetail = this.props.config
     let processedName = encodeImageFullname(imageDetail.name)
     this.setState({
       processedName,
     })
-    loadRepositoriesTags(DEFAULT_REGISTRY, processedName)
+    loadRepositoriesTags(DEFAULT_REGISTRY, processedName, {
+      success: {
+        func: res => {
+          if (res && res.data && res.data.length) {
+            this.fetchData(res.data)
+          }
+        }
+      }
+    })
   }
 
   componentWillReceiveProps(nextPorps) {
     //this function mean when the user change show image detail
     //it will be check the old iamge is different from the new one or not
     //if the different is true,so that the function will be request the new one's tag
+    // if (isEqual(this.props.config.name, nextPorps.config.name)) {
+    //   return
+    // }
     const oldImageDatail = this.props.config;
     const newImageDetail = nextPorps.config;
     const tableData = nextPorps.detailAry
@@ -102,10 +112,17 @@ class ImageVersion extends Component {
       serverIp: nextPorps.scope.props.server,
     })
     const { loadRepositoriesTags } = this.props
-    this.fetchData(tableData)
     if (newImageDetail.name != oldImageDatail.name) {
       let processedName = encodeImageFullname(newImageDetail.name)
-      loadRepositoriesTags(DEFAULT_REGISTRY, processedName)
+      loadRepositoriesTags(DEFAULT_REGISTRY, processedName, {
+        success: {
+          func: res => {
+            if (res && res.data && res.data.length) {
+              this.fetchData(res.data)
+            }
+          }
+        }
+      })
     }
   }
 
@@ -281,6 +298,13 @@ class ImageVersion extends Component {
   handleRefresh() {
     const { config, loadRepositoriesTags } = this.props
     loadRepositoriesTags(DEFAULT_REGISTRY, config.name, {
+      success: {
+        func: res => {
+          if (res && res.data && res.data.length) {
+            this.fetchData(res.data)
+          }
+        }
+      },
       finally: {
         func: () => {
           this.setState({
@@ -401,6 +425,7 @@ class ImageVersion extends Component {
         <Modal title="镜像版本详情" visible={this.state.detailVisible} style={{ paddingRight: 5 }}
           onCancel={this.handleClose.bind(this)}
           wrapClassName="image-detail-modal"
+          width="600"
           footer={[
             <Button key="back" type="primary" size="large" onClick={this.handleClose.bind(this)}>知道了</Button>,
           ]}>

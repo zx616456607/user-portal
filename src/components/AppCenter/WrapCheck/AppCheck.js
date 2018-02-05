@@ -10,8 +10,10 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
+import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { Button, Table, Dropdown, Menu, Modal, Form, Input } from 'antd'
+import cloneDeep from 'lodash/cloneDeep'
 import './style/AppCheck.less'
 import CommonSearchInput from '../../CommonSearchInput'
 import TenxStatus from '../../TenxStatus/index'
@@ -19,6 +21,7 @@ import { getWrapPublishList, passWrapPublish, refuseWrapPublish } from '../../..
 import { formatDate } from '../../../common/tools'
 import { API_URL_PREFIX } from '../../../constants'
 import NotificationHandler from '../../../components/Notification'
+import WrapDetailModal from '../AppWrap/WrapDetailModal'
 
 const FormItem = Form.Item
 
@@ -30,6 +33,7 @@ class WrapCheckTable extends React.Component {
     this.confirmModal = this.confirmModal.bind(this)
     this.cancelModal = this.cancelModal.bind(this)
     this.checkApprove = this.checkApprove.bind(this)
+    this.closeDetailModal = this.closeDetailModal.bind(this)
     this.state = {
       approveVisible: false
     }
@@ -136,10 +140,32 @@ class WrapCheckTable extends React.Component {
     }
     callback()
   }
+  
+  openDetailModal(e, row) {
+    e.stopPropagation()
+    this.setState({
+      currentWrap: row,
+      detailModal: true
+    })
+  }
+  
+  goDeploy(fileName) {
+    browserHistory.push('/app_manage/deploy_wrap?fileName='+fileName)
+  }
+  
+  closeDetailModal() {
+    this.setState({
+      detailModal: false
+    })
+  }
   render() {
     const { wrapPublishList, publish_time, form } = this.props
     const { getFieldProps } = form
-    const { approveVisible } = this.state
+    const { approveVisible, detailModal, currentWrap } = this.state
+    let newWrap
+    if (currentWrap) {
+      newWrap = Object.assign({}, currentWrap, { id: currentWrap.originId})
+    }
     const pagination = {
       simple: true,
       defaultCurrent: 1,
@@ -157,6 +183,7 @@ class WrapCheckTable extends React.Component {
       dataIndex: 'fileName',
       key: 'fileName',
       width: '10%',
+      render: (text, row) => <span className="pointer themeColor" onClick={(e) => this.openDetailModal(e, row)}>{text}</span>
     }, {
       title: '分类名称',
       dataIndex: 'classifyName',
@@ -252,6 +279,12 @@ class WrapCheckTable extends React.Component {
             </FormItem>
           </Form>
         </Modal>
+        <WrapDetailModal
+          visible={detailModal}
+          currentWrap={newWrap}
+          deploy={this.goDeploy}
+          closeDetailModal={this.closeDetailModal}
+        />
         <Table
           className="wrapCheckTable"
           dataSource={wrapPublishList && wrapPublishList.pkgs}

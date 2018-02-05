@@ -67,17 +67,21 @@ class OtherServiceApi extends Component {
     const { registry, loadOtherDetailTagConfig } = this.props;
     const { fullname, imageTag} = this.props;
     const config= {
-      imageId: this.props.imageId, fullname, imageTag
+      imageId: this.props.imageId,
+      fullname,
+      imageTag,
     }
     loadOtherDetailTagConfig(config);
   }
   render() {
-    const { isFetching, configList , sizeInfo} = this.props;
+    const { isFetching, configList , sizeInfo } = this.props;
     if (!configList || configList =='') return (<div>无</div>)
     if (isFetching) {
       return (
-        <Card className='loadingBox'>
-          <Spin size='large' />
+        <Card>
+          <div className="loadingBox">
+            <Spin size='large' />
+          </div>
         </Card>
       )
     }
@@ -110,7 +114,7 @@ class OtherServiceApi extends Component {
         )
       });
     }
-    let size = sizeInfo.totalSize;
+    let size = sizeInfo && sizeInfo.totalSize;
     let unit = ' K'
     if (size > 1024) {
       size = Math.ceil(size /1024)
@@ -153,7 +157,7 @@ function mapStateToProps(state, props) {
   }
   const { otherTagConfig} = state.getImageTagConfig
   const { tag, isFetching, configList ,sizeInfo} = otherTagConfig || defaultImageDetailTagConfig
-  
+
   return {
     configList,
     isFetching,

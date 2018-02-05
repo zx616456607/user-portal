@@ -395,6 +395,29 @@ function containerLogs(state = {}, action) {
   }
 }
 
+function containerProcess(state = {}, action) {
+  const { containerName } = action
+  switch (action.type){
+    case ActionTypes.CONTAINER_GET_PROCESS_REQUEST:
+      return {
+        isFetching: true,
+        [containerName]: [],
+      }
+    case ActionTypes.CONTAINER_GET_PROCESS_SUCCESS:
+      return {
+        isFetching: false,
+        [containerName]: action.response.result.data.data || [],
+      }
+    case ActionTypes.CONTAINER_GET_PROCESS_FAILURE:
+      return {
+        isFetching: false,
+        [containerName]: [],
+      }
+    default:
+      return state
+  }
+}
+
 
 export function containers(state = {}, action) {
   return {
@@ -407,10 +430,6 @@ export function containers(state = {}, action) {
       SUCCESS: ActionTypes.CONTAINER_BATCH_DELETE_SUCCESS,
       FAILURE: ActionTypes.CONTAINER_BATCH_DELETE_FAILURE
     }, state.deleteContainers, action),
-    containerProcess: reducerFactory({
-      REQUEST: ActionTypes.CONTAINER_GET_PROCESS_REQUEST,
-      SUCCESS: ActionTypes.CONTAINER_GET_PROCESS_SUCCESS,
-      FAILURE: ActionTypes.CONTAINER_GET_PROCESS_FAILURE
-    }, state.containerProcess, action),
+    containerProcess: containerProcess(state.containerProcess, action),
   }
 }

@@ -466,8 +466,20 @@ class TenxFlowDetail extends Component {
       )
     }
     const checkImage = this.state.showImage.length > 0 && this.state.showImage.map(list => {
+      const { registryType } = list
       return (
-        <div className="cursor" onClick={() => this.goCheckImage(list)} key={list.imageName} style={{ lineHeight: '25px' }}><a>{list.imageName}</a></div>
+        <div
+          className={registryType !== 3 ? 'cursor' : ''}
+          onClick={() => registryType !== 3 && this.goCheckImage(list)}
+          key={list.imageName}
+          style={{ lineHeight: '25px' }}
+        >
+          {
+            registryType !== 3
+            ? <a>{list.imageName}</a>
+            : list.imageName
+          }
+        </div>
       )
     })
     return (

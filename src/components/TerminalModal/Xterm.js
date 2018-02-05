@@ -198,7 +198,7 @@ class TerminalModal extends Component {
       this.props.loadContainerDetailEvents(clusterID, key)
       return
     }
-    // 控制日志是否显示
+    // tab 切换时先卸载日志组件
     this.setState({containerName:false})
   }
 
@@ -283,7 +283,12 @@ class TerminalModal extends Component {
       this.setState({logModal:!logModal})
       return
     }
-    this.setState({logModal: true,containerName: item.metadata.name})
+    // http://jira.tenxcloud.com/browse/EV-607
+    // tab 切换时先卸载日志组件，然后再挂载，这样可以保证日志正确的加载
+    // 挂载日志组件需要在卸载日志组件之后，所以这里给了 50 毫秒的延迟
+    setTimeout(() => {
+      this.setState({logModal: true,containerName: item.metadata.name})
+    }, 50)
     this.props.setTingLogs('big')
     let bottomBox = document.getElementsByClassName('bottomBox')[0]
     bottomBox && setTimeout(()=> {
@@ -332,7 +337,7 @@ class TerminalModal extends Component {
               pod: name,
               cluster: clusterID,
               container,
-              '_': '20171208', // for clear cache
+              '_': '20180123', // for clear cache
             }
             return (
               <TabPane tab={titleTab} key={name}>

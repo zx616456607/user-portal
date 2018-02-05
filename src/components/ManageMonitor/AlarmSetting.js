@@ -365,7 +365,7 @@ let MyComponent = React.createClass({
         <div className="rightList">
           <div className="lists">
             <span className="keys">CPU</span>
-            <Progress percent={parseFloat(data.cpus).toFixed(2)} strokeWidth={8} format={ percent => percent + '%'} status={data.cpu > 80 ? 'exception' : ''}  className="progress" />
+            <Progress percent={parseFloat(data.cpus).toFixed(2)} strokeWidth={8} format={ percent => percent + '%'} status={parseFloat(data.cpus) > 80 ? 'exception' : ''}  className="progress" />
           </div>
           <div className={memoryListsStyle}>
             <span className="keys">内存</span>

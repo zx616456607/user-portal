@@ -106,18 +106,23 @@ class ImageDetailBox extends Component {
       safetyscanVisible:false,
     }
   }
-  
-  componentWillReceiveProps(nextPorps) {
-    const { location } = nextPorps
+  componentDidMount() {
+    const { location } = this.props
     const { query } = location
+    if (query && query.activeKey) {
+      this.setState({
+        activeKey: query.activeKey
+      })
+    }
+  }
+  componentWillReceiveProps(nextPorps) {
     const { visible: oldVisible } = this.props
-    const { visible: newVisible } = nextPorps
-    if (!oldVisible && newVisible) {
-      if (query && query.activeKey) {
-        this.setState({
-          activeKey: query.activeKey
-        })
-      }
+    const { visible: newVisible, location } = nextPorps
+    const { query } = location
+    if (query !== this.props.location.query && query.activeKey) {
+      this.setState({
+        activeKey: query.activeKey
+      })
     }
     if (oldVisible && !newVisible) {
       this.setState({
