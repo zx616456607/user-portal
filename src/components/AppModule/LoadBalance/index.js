@@ -111,8 +111,8 @@ class LoadBalance extends React.Component {
     })
   }
   
-  handleButtonClick = () => {
-    browserHistory.push(`/app_manage/load_balance/balance_config`)
+  handleButtonClick = record => {
+    browserHistory.push(`/app_manage/load_balance/balance_config?name=${record.metadata.name}&displayName=${record.metadata.annotations.displayName}`)
   }
   
   handleMenuClick = (e, row) => {
@@ -197,7 +197,7 @@ class LoadBalance extends React.Component {
           </Menu>
         );
         return (
-          <Dropdown.Button onClick={this.handleButtonClick} overlay={menu} type="ghost">
+          <Dropdown.Button onClick={() => this.handleButtonClick(row)} overlay={menu} type="ghost">
             配置
           </Dropdown.Button>
         )

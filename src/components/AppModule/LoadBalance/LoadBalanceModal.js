@@ -48,7 +48,7 @@ class LoadBalanceModal extends React.Component {
       const { limits, requests } = resources
       const { cpu: limitsCPU, memory: limitsMemory } = limits
       const { cpu: requestsCPU, memory: requestsMemory } = requests
-      if (limitsCPU === requestsCPU === '100m' && limitsMemory === requestsMemory === '512Mi') {
+      if (limitsCPU === '100m' && requestsCPU === '100m' && limitsMemory === '512Mi' &&  requestsMemory === '512Mi') {
         this.setState({
           composeType: 512
         })
