@@ -467,7 +467,6 @@ class TenxFlowDetail extends Component {
     }
     const checkImage = this.state.showImage.length > 0 && this.state.showImage.map(list => {
       const { registryType } = list
-      console.log('registryType', registryType)
       return (
         <div
           className={registryType !== 3 ? 'cursor' : ''}
@@ -475,7 +474,11 @@ class TenxFlowDetail extends Component {
           key={list.imageName}
           style={{ lineHeight: '25px' }}
         >
-          <a>{list.imageName}</a>
+          {
+            registryType !== 3
+            ? <a>{list.imageName}</a>
+            : list.imageName
+          }
         </div>
       )
     })
