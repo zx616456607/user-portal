@@ -15,10 +15,13 @@ import { Modal, Form, Input, Button, Dropdown, Menu, Icon, Row, Col, Select, Tab
 import defaultApp from '../../../../static/img/appstore/defaultapp.png'
 import './style/WrapDetailModal.less'
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import {
   getWrapDetail, updateWrapDetail, getWrapGroupList,
   deleteWrapManage, publishWrap, deleteWrapDocs
 =======
+=======
+>>>>>>> Stashed changes
 import {
   getWrapDetail, updateWrapDetail, getWrapGroupList,
   deleteWrapManage, publishWrap
