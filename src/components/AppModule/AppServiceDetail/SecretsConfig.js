@@ -26,14 +26,16 @@ class SecretsConfig extends React.Component {
   }
 
   componentWillMount() {
-    const { currentCluster, getSecrets } = this.props
-    getSecrets(currentCluster.clusterID)
+    const { currentCluster, getSecrets, service } = this.props
+    const { volumes = [] } = service.spec.template.spec
+    volumes.length > 0 && getSecrets(currentCluster.clusterID)
   }
 
   getSecretsConfigMap = () => {
     const { service, secretsList = [] } = this.props
     const secretsConfigMap = []
-    service.spec.template.spec.volumes.forEach(v => {
+    const { volumes = [] } = service.spec.template.spec
+    volumes.forEach(v => {
       const { secret, name } = v
       if (secret) {
         const { secretName, items } = secret
@@ -111,6 +113,7 @@ class SecretsConfig extends React.Component {
                       content={config.items.map(item => (
                         // <a>
                           <div
+                            key={item.key}
                             // onClick={() => this.setState({
                             //   currentItem: item,
                             //   modalConfigFile: true,
