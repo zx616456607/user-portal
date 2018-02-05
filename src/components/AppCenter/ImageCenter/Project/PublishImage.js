@@ -152,11 +152,10 @@ class PublishImage extends React.Component {
     return(
       <div className="publishImage">
         <div className="headerBox">
-          <Button 
-            type="primary" 
-            size="large" 
+          <Button
+            type="primary"
+            size="large"
             className="refreshBtn"
-            loading={btnLoading}
             onClick={this.refreshData}
           >
             <i className="fa fa-refresh" /> 刷新
