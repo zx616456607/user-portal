@@ -652,7 +652,10 @@ class MonitorDetail extends React.Component {
                   labelCol={{ span: 6 }}
                   wrapperCol={{ span: 18 }}
                 >
-                  <Slider max={3600} {...getFieldProps('sessionPersistent', { initialValue: 100 })}/>
+                  <Slider max={3600} {...getFieldProps('sessionPersistent', 
+                    { 
+                      initialValue: currentIngress ? parseInt(currentIngress.sessionPersistent) : 100 
+                    })}/>
                 </FormItem>
               </Col>
               <Col span={2}>

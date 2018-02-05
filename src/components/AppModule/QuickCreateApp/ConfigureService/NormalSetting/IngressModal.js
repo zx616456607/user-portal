@@ -27,15 +27,10 @@ class IngressModal extends React.Component {
   componentWillMount() {
     const { currentIngress } = this.props
     if (currentIngress) {
-      const { httpSend, interval, fall, rise, expectAlive } = currentIngress
+      const { healthOptions } = currentIngress
+      const { interval, fall, rise } = healthOptions
       this.setState({
-        healthOptions: {
-          httpSend,
-          interval,
-          fall,
-          rise,
-          expectAlive
-        }
+        healthOptions
       })
       if (interval && fall && rise) {
         this.setState({

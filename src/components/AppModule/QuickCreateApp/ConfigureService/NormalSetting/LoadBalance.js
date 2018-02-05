@@ -47,7 +47,6 @@ class LoadBalance extends React.Component {
     const { editKey } = this.state
     const { form } = this.props
     const { getFieldValue, setFieldsValue } = form
-    
     const currentKeys = getFieldValue('lbKeys')
     const copyKey = editKey || ++ uidd
     this.setState({
