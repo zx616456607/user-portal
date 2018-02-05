@@ -16,10 +16,13 @@ import defaultApp from '../../../../static/img/appstore/defaultapp.png'
 import './style/WrapDetailModal.less'
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import {
   getWrapDetail, updateWrapDetail, getWrapGroupList,
   deleteWrapManage, publishWrap, deleteWrapDocs
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 import {
