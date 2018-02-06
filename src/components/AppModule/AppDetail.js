@@ -192,7 +192,7 @@ class AppDetail extends Component {
                 <div className='leftInfo'>
                   <div className='status'>
                     状态：
-                    <div style={{ display: 'inline-block', position: 'relative', top: '-5px' }}>
+                    <div style={{ display: 'inline-block', position: 'relative' }}>
                       <AppStatus
                         app={
                           serviceList
