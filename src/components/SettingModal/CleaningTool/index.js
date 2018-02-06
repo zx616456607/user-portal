@@ -47,7 +47,6 @@ class CleaningTool extends Component {
       forbid: false,
       systemLogs: [],
       cicdLogs: [],
-      cleanLogs: [],
       logsLoading: false,
       activeKey: 'systemLog'
     }
@@ -56,21 +55,6 @@ class CleaningTool extends Component {
     this.getSystemLogs()
     this.getCicdLogs()
     this.getMonitorSetting()
-    //this.systemCleanStatus()
-  }
-  systemCleanStatus() {
-    const { getSystemCleanStatus } = this.props
-    getSystemCleanStatus({
-      success: {
-        func: res => {
-          if (!res.data) {
-            this.setState({
-              cleanSystemLogStatus: 'cleaning'
-            })
-          }
-        }
-      }
-    })
   }
   getMonitorSetting() {
     const { getMonitorSetting, form } = this.props
@@ -100,7 +84,6 @@ class CleaningTool extends Component {
         func: res => {
           this.setState({
             cicdLogs: res.data.body,
-            cleanLogs: res.data.body,
             logsLoading: false
           })
         },
@@ -110,7 +93,6 @@ class CleaningTool extends Component {
         func: () => {
           this.setState({
             cicdLogs: [],
-            cleanLogs: [],
             logsLoading: false
           })
         },
@@ -140,7 +122,6 @@ class CleaningTool extends Component {
         func: res => {
           this.setState({
             systemLogs: res.data.data,
-            cleanLogs: res.data.data,
             logsLoading: false
           })
         },
@@ -150,7 +131,6 @@ class CleaningTool extends Component {
         func: () => {
           this.setState({
             systemLogs: [],
-            cleanLogs: [],
             logsLoading: false
           })
         },
@@ -386,7 +366,8 @@ class CleaningTool extends Component {
   }
 
   renderLogsList(){
-    const { activeKey, logsLoading, cleanLogs } = this.state
+    const { activeKey, logsLoading, systemLogs, cicdLogs } = this.state
+    let copyLog = activeKey === 'systemLog' ? systemLogs : cicdLogs
     let tailText = activeKey === 'systemLog' ? ' 个文件' : 'MB 垃圾'
     function formatTotal(item) {
       if (activeKey === 'cache') {
@@ -404,13 +385,13 @@ class CleaningTool extends Component {
     if (activeKey === 'monitoringData') {
       return <div style={{ textAlign: 'center' }}>监控数据无清理记录</div>
     }
-    if (!cleanLogs || !cleanLogs.length) {
+    if (!copyLog || !copyLog.length) {
       return <div style={{ textAlign: 'center' }}>{ activeKey !== 'monitoringData' ? '暂无数据' : ''}</div>
     }
     return(
       <Timeline>
         {
-          cleanLogs && cleanLogs.length && cleanLogs.map((item, index) => {
+          copyLog && copyLog.length && copyLog.map((item, index) => {
             return (
               <TimelineItem key={item.id} color={index === 0 ? 'green' : '#e9e9e9'}>
                 <Row className={classNames({'successColor': index === 0})}>
@@ -605,10 +586,6 @@ class CleaningTool extends Component {
       //this.systemCleanStatus()
     } else if (tab === 'cache') {
       this.getCicdLogs()
-    } else {
-      this.setState({
-        cleanLogs: []
-      })
     }
   }
   render() {
