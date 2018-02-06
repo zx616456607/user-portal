@@ -123,21 +123,19 @@ exports.initGlobalConfig = function* () {
     if (configType === 'vm') {
       globalConfig.vmWrapConfig.enabled = configDetail.enabled
       globalConfig.vmWrapConfig.configID = item.ConfigID
-      if (!globalConfig.vmWrapConfig.host) {
-        let host
-        let protocol
-        if (configDetail.url) {
-          host = configDetail.url
-          const arr = host.split('://')
-          protocol = arr[0]
-          host = arr[1]
-        } else if (configDetail.host) {
-          host = configDetail.host
-          protocol = configDetail.protocol
-        }
-        globalConfig.vmWrapConfig.protocol = protocol
-        globalConfig.vmWrapConfig.host = host
+      let host
+      let protocol
+      if (configDetail.url) {
+        host = configDetail.url
+        const arr = host.split('://')
+        protocol = arr[0]
+        host = arr[1]
+      } else if (configDetail.host) {
+        host = configDetail.host
+        protocol = configDetail.protocol
       }
+      globalConfig.vmWrapConfig.protocol = protocol
+      globalConfig.vmWrapConfig.host = host
       return
     }
     if (configType === 'msa') {
