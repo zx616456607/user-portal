@@ -22,9 +22,11 @@ function loadData(props) {
   const notification = new NotificationHandler()
   const { cluster, serviceName, type } = props;
   props.loadServiceDetailEvents(cluster, serviceName, type, {
-    failed: err => {
-      if (err.message && err.message.code === 404) {
-        notification.warn('服务正在启动中')
+    failed: {
+      func: err => {
+        if (err.message && err.message.code === 404) {
+          notification.warn('服务正在启动中')
+        }
       }
     }
   })
