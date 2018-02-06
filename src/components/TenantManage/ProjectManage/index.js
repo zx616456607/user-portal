@@ -669,7 +669,7 @@ let ProjectManage = React.createClass({
 
   render() {
     const step = this.props.location.query.step || '';
-    const {roleNum} = this.props;
+    const {roleNum, billingEnabled} = this.props;
     const {payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal,
       paySinglePro, userList, deleteSingleChecked, filteredInfo, systemRoleID
     } = this.state;
@@ -795,7 +795,7 @@ let ProjectManage = React.createClass({
         width: '15%',
         render: (text, record) => {
           const menu = (
-            <Menu onClick={(e) => this.delSingle(e, record)}>
+            <Menu onClick={(e) => this.delSingle(e, record)} style={{ width: 80 }}>
               <Menu.Item disabled={roleNum !==1 && record.role === 'participator'} key="delete">
                 删除
               </Menu.Item>
@@ -806,8 +806,15 @@ let ProjectManage = React.createClass({
               {
                 roleNum === 1 ?
                 <Dropdown.Button
-                  onClick={(e) => this.paySingle(e, record)} overlay={menu} type="ghost">
-                  充值
+                  overlay={menu} type="ghost"
+                  onClick={(e) => {
+                    if (!billingEnabled) {
+                      browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${record.projectName}`)
+                      return
+                    }
+                    this.paySingle(e, record)
+                  }} >
+                  { billingEnabled ? '充值' : '查看' }
                 </Dropdown.Button> :
                   <Button disabled={record.role === '参与者'}
                           type='ghost' style={{marginLeft: '10px'}}
@@ -817,7 +824,12 @@ let ProjectManage = React.createClass({
           )
         }
       }]
-    roleNum === 1 ? columns.splice(1, 0, roleCol): ''
+    if (roleNum === 1) {
+      columns.splice(1, 0, roleCol)
+      columns.splice(5, 1)
+    } else {
+      columns.splice(4, 1)
+    }
     return (
       <QueueAnim>
         <div key='account_projectManage' id="account_projectManage">
@@ -927,7 +939,7 @@ let ProjectManage = React.createClass({
                 </svg> 哪些人可以创建项目</Button>
             }
             {
-              roleNum === 1 &&
+              billingEnabled && roleNum === 1 &&
               <Button type="ghost" icon="pay-circle-o" size="large" className="manageBtn" onClick={() => this.pay()}>批量充值</Button>
             }
             <Button type="ghost" size="large" className="manageBtn" onClick={() => this.refreshTeamList()}><i
@@ -1004,7 +1016,8 @@ let ProjectManage = React.createClass({
 
 function mapStateToProps(state, props) {
   const {loginUser} = state.entities
-  const {globalRoles, role} = loginUser.info || {globalRoles: [], role: 0}
+  const {globalRoles, role, billingConfig} = loginUser.info || {globalRoles: [], role: 0}
+  const { enabled: billingEnabled } = billingConfig
   let roleNum = 0
   if (role === ROLE_SYS_ADMIN) {
     roleNum = 1
@@ -1019,7 +1032,8 @@ function mapStateToProps(state, props) {
     }
   }
   return {
-    roleNum
+    roleNum,
+    billingEnabled
   }
 }
 

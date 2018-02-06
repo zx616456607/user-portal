@@ -465,7 +465,7 @@ class CreateVolume extends Component {
   }
 
   render(){
-    const { form, cluster, snapshotRequired, isFetching } = this.props
+    const { form, cluster, snapshotRequired, isFetching, billingEnabled } = this.props
     const { currentSnapshot } = this.state
     const { getFieldProps } = form
     const VolumeNameProps = getFieldProps('volumeName',{
@@ -666,7 +666,7 @@ class CreateVolume extends Component {
             </Radio.Group>
             <span className='strategy_tips'><Icon type="question-circle-o" className='tips_icon'/>暂不支持删除策略</span>
           </Form.Item>*/}
-          { SHOW_BILLING ?
+          { billingEnabled ?
           <div className="modal-price">
             <div className="price-left">
               存储：{hourPrice.unit == '￥' ? '￥' : ''}{ storagePrice } {hourPrice.unit == '￥' ? '' : ' T'}/(GB*小时)
@@ -692,9 +692,11 @@ CreateVolume = Form.create()(CreateVolume)
 
 function mapStateToProp(state, props) {
   const { cluster } = state.entities.current
+  const { billingConfig } = state.entities.loginUser.info
   const clusterID = cluster.clusterID
   const stateCluster = state.cluster
   const { snapshotList } = state.storage
+  const { enabled: billingEnabled } = billingConfig
   let cephList = []
   if(stateCluster.clusterStorage && stateCluster.clusterStorage[clusterID] && stateCluster.clusterStorage[clusterID].cephList){
     cephList = stateCluster.clusterStorage[clusterID].cephList
@@ -712,6 +714,7 @@ function mapStateToProp(state, props) {
     currentImagePool: DEFAULT_IMAGE_POOL,
     cephList,
     isFetching,
+    billingEnabled
   }
 }
 

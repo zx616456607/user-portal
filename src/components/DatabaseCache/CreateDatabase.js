@@ -331,7 +331,7 @@ let CreateDatabase = React.createClass({
     return option
   },
   render() {
-    const { isFetching, projects, projectVisibleClusters, space } = this.props
+    const { isFetching, projects, projectVisibleClusters, space, billingEnabled } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue} = this.props.form;
     const selectNamespaceProps = getFieldProps('namespaceSelect', {
       rules: [
@@ -573,7 +573,7 @@ let CreateDatabase = React.createClass({
                   </div>
                   <div style={{ clear: 'both' }}></div>
                 </div>}
-              { SHOW_BILLING ?
+              { billingEnabled ?
                 <div className="modal-price">
                   <div className="price-left">
                     <div className="keys">实例：{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
@@ -610,6 +610,7 @@ let CreateDatabase = React.createClass({
 
 function mapStateToProps(state, props) {
   const { cluster, space } = state.entities.current
+  const { billingConfig } = state.entities.loginUser.info
   const { clusterStorage } = state.cluster
   const defaultDbNames = {
     isFetching: false,
@@ -620,6 +621,7 @@ function mapStateToProps(state, props) {
   const { databaseNames, isFetching } = databaseAllNames.DbClusters || defaultDbNames
   const { current } = state.entities
   const { projectList, projectVisibleClusters } = state.projectAuthority
+  const { enabled: billingEnabled } = billingConfig
   let projects = projectList.data || []
   projects = ([ MY_SPACE ]).concat(projects)
   let defaultStorageClassList = {
@@ -640,6 +642,7 @@ function mapStateToProps(state, props) {
     projectVisibleClusters,
     resourcePrice: cluster.resourcePrice, //storage
     storageClassList: defaultStorageClassList,
+    billingEnabled
   }
 
 }
