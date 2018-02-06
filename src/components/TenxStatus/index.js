@@ -318,7 +318,8 @@ class TenxStatus extends Component {
     if (phase === 'Abnormal') {
       return (
         <div>
-          {status.abnormalText}{exclamationIcon}
+          {status.abnormalText}
+          {/* {exclamationIcon} */}
         </div>
       )
     }
