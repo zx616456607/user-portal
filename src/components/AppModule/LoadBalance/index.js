@@ -18,7 +18,7 @@ import LoadBalanceModal from './LoadBalanceModal'
 import Notification from '../../Notification'
 import Title from '../../Title'
 import { getLBList, deleteLB } from '../../../actions/load_balance'
-import { formatDate } from "../../../common/tools";
+import { calcuDate } from "../../../common/tools";
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
 import './style/index.less'
 
@@ -184,7 +184,7 @@ class LoadBalance extends React.Component {
       title: '创建时间',
       width: '15%',
       dataIndex: 'metadata.creationTimestamp',
-      render: text => formatDate(text)
+      render: text => calcuDate(text)
     }, {
       title: '操作',
       width: '20%',
