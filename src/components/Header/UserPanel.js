@@ -139,11 +139,12 @@ class UserPanel extends Component {
   }
 
   getContent() {
-    const { loginUser, role, balance } = this.props
+    const { loginUser, role, balance, billingEnabled } = this.props
     /*let { balance } = loginUser
     if (balance !== undefined) {
       balance = parseAmount(balance).amount
     }*/
+    const { userID } = loginUser
     let menuItems = [
       {
         to: '/account',
@@ -163,7 +164,7 @@ class UserPanel extends Component {
         text: '我的团队',
       })
     }
-    if (SHOW_BILLING) {
+    if (billingEnabled) {
       if (role === ROLE_TEAM_ADMIN || role === ROLE_SYS_ADMIN) {
         menuItems.push({
           to: '/account/costCenter#consumptions',
@@ -183,7 +184,12 @@ class UserPanel extends Component {
           text: '消费记录',
         })
       }
-
+    } else {
+      menuItems.push({
+        to: `/tenant_manage/user/${userID}`,
+        svgHref: '#project',
+        text: '参与项目',
+      })
     }
     if (mode === standard) {
       menuItems = [
@@ -211,7 +217,7 @@ class UserPanel extends Component {
     }
     return (
       <div className='logMenu'>
-        { SHOW_BILLING ?
+        { billingEnabled ?
         <div className='rechangeInf'>
           <div className='balance'>
             <p>帐户余额 &nbsp;:</p>
@@ -293,13 +299,15 @@ function mapStateToProp(state, props) {
   let role = ROLE_USER
   const { entities } = state
   const { loginUser } = props
-  const { balance } = loginUser
+  const { balance, billingConfig } = loginUser
   if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
     role = entities.loginUser.info.role
   }
+  const { enabled: billingEnabled } = billingConfig || { enabled: false }
   return {
     role,
-    balance: parseAmount(balance).amount
+    balance: parseAmount(balance).amount,
+    billingEnabled
   }
 }
 

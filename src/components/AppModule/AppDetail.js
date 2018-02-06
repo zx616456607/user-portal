@@ -152,7 +152,7 @@ class AppDetail extends Component {
   }
 
   render() {
-    const { children, appName, app, isFetching, location, bindingDomains, bindingIPs } = this.props
+    const { children, appName, app, isFetching, location, bindingDomains, bindingIPs, billingEnabled } = this.props
     const { activeTabKey, serviceList, availableReplicas, total } = this.state
     if (isFetching || !app) {
       return (
@@ -278,7 +278,7 @@ class AppDetail extends Component {
                     {/*cluster={this.props.cluster}*/}
                     {/*appName={appName} />*/}
                 {/*</TabPane>*/}
-                { SHOW_BILLING ?
+                { billingEnabled ?
                   [<TabPane tab="租赁信息" key="#rentalInfo">
                     <AppServiceRental serviceName={appName} serviceDetail={app.services} />
                   </TabPane>,
@@ -320,6 +320,8 @@ function mapStateToProps(state, props) {
   const { app_name } = props.params
   const { hash, pathname } = props.location
   const { cluster,space } = state.entities.current
+  const { billingConfig } = state.entities.loginUser.info
+  const { enabled: billingEnabled } = billingEnabled || { enabled: false }
   const defaultApp = {
     isFetching: false,
     cluster: cluster.clusterID,
@@ -340,7 +342,8 @@ function mapStateToProps(state, props) {
     hash,
     pathname,
     teamspace: space.namespace,
-    location: props.location
+    location: props.location,
+    billingEnabled
   }
 }
 

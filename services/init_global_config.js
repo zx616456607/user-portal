@@ -42,6 +42,7 @@ global.globalConfig = {
   },
   msaConfig: {},
   ftpConfig: {},
+  billingConfig: {}
 }
 
 const apiFactory = require('./api_factory.js')
@@ -148,6 +149,10 @@ exports.initGlobalConfig = function* () {
       globalConfig.ftpConfig.username = configDetail.username
       globalConfig.ftpConfig.password = configDetail.password
     }
+    if (configType === 'billing') {
+      globalConfig.billingConfig.enabled = configDetail.enabled
+      globalConfig.billingConfig.configID = item.ConfigID
+    }
   })
   if (ConfigArray.Mail!=='NotEmpty'){
       globalConfig.mail_server={
@@ -167,4 +172,5 @@ exports.initGlobalConfig = function* () {
   logger.info('mailbox config: ', globalConfig.mail_server.host)
   logger.info('msa config: ', globalConfig.msaConfig.url)
   logger.info('ftp config: ', globalConfig.ftpConfig.addr)
+  logger.info('billing config: ', globalConfig.billingConfig.enabled)
 }
