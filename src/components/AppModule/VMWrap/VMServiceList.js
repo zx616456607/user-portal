@@ -141,6 +141,7 @@ class VMServiceList extends React.Component {
   
   pageAndSerch(name,n,flag) {
     const { getVMserviceList } = this.props;
+    let notify = new NotificationHandler()
     if (flag) {
       this.setState({
         loading: true
@@ -164,11 +165,14 @@ class VMServiceList extends React.Component {
         isAsync:true
       },
       failed: {
-        func: () => {
+        func: res => {
           this.setState({
             service: [],
             loading: false
           })
+          if (res.statusCode >= 500) {
+            notify.warn('传统应用环境服务端异常', '请联系管理员检查后端相关服务')
+          }
         }
       }
     })
