@@ -470,7 +470,7 @@ let MyComponent = React.createClass({
     })
   },
   render() {
-    const { isFetching, storage } = this.props
+    const { isFetching, storage, billingEnabled } = this.props
     const { formatMessage } = this.props.intl
     let list = this.props.storage;
     let storageList = storage.storageList
@@ -643,7 +643,7 @@ let MyComponent = React.createClass({
                 <span style={{ paddingLeft: 10 }} >MB</span>
               </Col>
             </Row>
-            { SHOW_BILLING ?
+            { billingEnabled ?
             <div className="modal-price">
               <div className="price-left">
                 存储：{hourPrice.unit == '￥'? '￥': ''}{ resourcePrice.storage /10000 } {hourPrice.unit == '￥'? '': ' T'}/(GB*小时)
@@ -1057,7 +1057,7 @@ class Storage extends Component {
   render() {
     const { formatMessage } = this.props.intl
     const { getFieldProps } = this.props.form
-    const { SnapshotCreate, snapshotDataList } = this.props
+    const { SnapshotCreate, snapshotDataList, billingEnabled } = this.props
     const currentCluster = this.props.currentCluster
     const { storageClassType } = this.props
     let canCreate = false
@@ -1167,6 +1167,7 @@ class Storage extends Component {
               SnapshotCreate={SnapshotCreate}
               snapshotDataList={snapshotDataList}
               delModal={this.state.delModal}
+              billingEnabled={billingEnabled}
             />
           </div>
           <ResourceQuotaModal
@@ -1188,8 +1189,10 @@ Storage.propTypes = {
 
 function mapStateToProps(state) {
   const { cluster } = state.entities.current
+  const { billingConfig } = state.entities.loginUser.info
   const { snapshotList } = state.storage
   const snapshotDataList = snapshotList.result || []
+  const { enabled: billingEnabled } = billingConfig
   let defaultStorageClassType = {
     private: false,
     share: false,
@@ -1206,7 +1209,8 @@ function mapStateToProps(state) {
     cluster: cluster.clusterID,
     currentCluster: cluster,
     snapshotDataList,
-    storageClassType: defaultStorageClassType
+    storageClassType: defaultStorageClassType,
+    billingEnabled
   }
 }
 
