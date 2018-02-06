@@ -15,11 +15,19 @@ import QueueAnim from 'rc-queue-anim'
 import { loadServiceDetailEvents, loadContainersAllEvents } from '../../../actions/services'
 import { calcuDate } from '../../../common/tools.js'
 import CommonStatus from '../../CommonStatus'
+import NotificationHandler from '../../../components/Notification'
 import './style/AppServiceEvent.less'
 
 function loadData(props) {
+  const notification = new NotificationHandler()
   const { cluster, serviceName, type } = props;
-  props.loadServiceDetailEvents(cluster, serviceName, type);
+  props.loadServiceDetailEvents(cluster, serviceName, type, {
+    failed: err => {
+      if (err.message && err.message.code === 404) {
+        notification.warn('服务正在启动中')
+      }
+    }
+  })
   props.loadContainersAllEvents(cluster, serviceName)
 }
 
