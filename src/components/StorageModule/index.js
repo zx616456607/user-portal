@@ -9,107 +9,52 @@
  */
 
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/index.less'
 import classNames from 'classnames'
 import { browserHistory } from 'react-router'
 import Title from '../Title'
 
-class StorageHome extends Component {
-  constructor(props) {
-    super(props)
-    this.loadSelectedClass = this.loadSelectedClass.bind(this)
-    this.state = {
-      sharedMemorySelected: false,
-      exclusiveMemorySelected: true,
-      hostMemorySelected: false,
-    }
-  }
+const tabs = [
+  {
+    text: '独享型存储',
+    key: '/app_manage/storage/rbd'
+  }, {
+    text: '共享型存储',
+    key: '/app_manage/storage/shared'
+  }, {
+    text: '本地存储',
+    key: '/app_manage/storage/host'
+  },
+]
 
-  loadSelectedClass(pathname){
-    if(pathname === "/app_manage/storage"){
-      this.setState({
-        sharedMemorySelected: false,
-        exclusiveMemorySelected: true,
-        hostMemorySelected: false,
-      })
-      return
-    }
-    if(pathname === "/app_manage/storage/shared"){
-      this.setState({
-        sharedMemorySelected: true,
-        exclusiveMemorySelected: false,
-        hostMemorySelected: false,
-      })
-      return
-    }
-    if(pathname === "/app_manage/storage/host"){
-      this.setState({
-        sharedMemorySelected: false,
-        exclusiveMemorySelected: false,
-        hostMemorySelected: true,
-      })
-      return
-    }
-    this.setState({
-      sharedMemorySelected: false,
-      exclusiveMemorySelected: true,
-      hostMemorySelected: false,
-    })
-  }
-
-  componentWillMount() {
-    const { location } = this.props
-    this.loadSelectedClass(location.pathname)
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { location } = nextProps
-    if(this.props.location.pathname === location.pathname){
-      return
-    }
-    this.loadSelectedClass(location.pathname)
-  }
-
+export default class StorageHome extends Component {
   render() {
-    const { children } = this.props
-    const { sharedMemorySelected, exclusiveMemorySelected, hostMemorySelected } = this.state
-    const sharedMemory = classNames({
-      'tabs_item_style': true,
-      'tabs_item_selected_style': sharedMemorySelected
-    })
-    const exclusiveMemory = classNames({
-      'tabs_item_style': true,
-      'tabs_item_selected_style': exclusiveMemorySelected
-    })
-    const hostMemory = classNames({
-      'tabs_item_style': true,
-      'tabs_item_selected_style': hostMemorySelected
-    })
+    const { children, location } = this.props
+    const { pathname } = location
     return(
       <QueueAnim className='storage_home'>
         <Title title="存储"/>
         <div id='storage_home' key="storage_home">
           <div className='tabs_header_style'>
-            <div
-              className={exclusiveMemory}
-              onClick={() => browserHistory.push(`/app_manage/storage`)}
-            >
-              独享型存储
-            </div>
-            <div
-              className={sharedMemory}
-              onClick={() => browserHistory.push(`/app_manage/storage/shared`)}
-            >
-              共享型存储
-            </div>
-            <div
-              className={hostMemory}
-              onClick={() => browserHistory.push(`/app_manage/storage/host`)}
-            >
-              本地存储
-            </div>
+            {
+              tabs.map(tab => {
+                const { text, key } = tab
+                const active = key === pathname
+                const tabClassNames = classNames('tabs_item_style', {
+                  'tabs_item_selected_style': active,
+                })
+                return (
+                  <div
+                    className={tabClassNames}
+                    key={key}
+                    onClick={() => !active && browserHistory.push(key)}
+                  >
+                    {text}
+                  </div>
+                )
+              })
+            }
           </div>
           <div className="children_box">
             { children }
@@ -119,14 +64,3 @@ class StorageHome extends Component {
     )
   }
 }
-
-function mapStateToProp(state, props) {
-
-  return {
-
-  }
-}
-
-export default connect(mapStateToProp, {
-
-})(StorageHome)

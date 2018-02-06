@@ -190,7 +190,7 @@ class Personalized extends Component{
       <QueueAnim className="Personalized" type="right">
         <div id='Personalized' key="Personalized">
           <div className="toptitle">个性外观</div>
-          <Card className="image-push" title={[<img className="img-icon" src={tenxImgIcon} key="image" />,<span key="span-1">Logo 定制  支持jpg/png/gif 格式图片，文件需小于2M （推荐png格式）</span>]} extra={<Button icon="setting" className="btnRestore" onClick={()=> this.restoreDefault('logo')}>恢复默认设置</Button>} >
+          <Card className="image-push" title={[<img className="img-icon" src={tenxImgIcon} key="image" />,<span key="span-1">Logo定制  <span style={{fontSize:12,paddingLeft:30}}>支持jpg/png/gif 格式图片，文件需小于2M （推荐png格式）</span></span>]} extra={<Button icon="setting" className="btnRestore" onClick={()=> this.restoreDefault('logo')}>恢复默认设置</Button>} >
             <Row className="image-row">
               <Col span="3"style={{width:150}}>导航图片（展开）</Col>
               <Col span="20" style={{width:400}}>

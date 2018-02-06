@@ -343,21 +343,21 @@ class CleaningRecord extends Component {
     return(
       <Timeline>
         {
-          nodeArr.map(item => 
+          nodeArr.map(item =>
             <Timeline.Item key={item.name} color={colorOpt[item.status]}>
               <Row className="nodeItem">
                 <Col span={8}>{item.name}</Col>
                 <Col span={8}>{this.formatStatus(item.status)}</Col>
                 {
-                  isCicd ? 
+                  isCicd ?
                     <Col span={8}>{`已清理：${((item.total - item.remain) / (1024 * 1024)).toFixed(2)}MB`}</Col>
                     :
                     <Col span={8}>{`已清理：${item.total}个文件`}</Col>
                 }
-                
+
               </Row>
             </Timeline.Item>
-          ) 
+          )
         }
       </Timeline>
     )
@@ -529,54 +529,62 @@ class CleaningRecord extends Component {
                   <Option key="auto" value="auto">定时清理</Option>
                 </Select>
               </FormItem>
-              <DatePicker
-                showTime
-                format="yyyy-MM-dd HH:mm:ss"
-                disabledDate={this.disabledStartDate}
-                value={this.state.startValue}
-                placeholder="开始日期"
-                onChange={this.onStartChange}
-                toggleOpen={this.handleStartToggle}
-                size="large"
-                style={{marginRight: 12, float: 'left', width: 148, marginBottom: 25}}
-              />
-              <DatePicker
-                showTime
-                format="yyyy-MM-dd HH:mm:ss"
-                disabledDate={this.disabledEndDate}
-                value={this.state.endValue}
-                placeholder="结束日期"
-                onChange={this.onEndChange}
-                open={this.state.endOpen}
-                toggleOpen={this.handleEndToggle}
-                size="large"
-                style={{marginRight: 12, float: 'left', width: 148,marginBottom: 25}}
-              />
-              <Button
-                icon="exception"
-                type="primary"
-                size="large"
-                onClick={this.searchLogs}
-                className='button_style'
-                loading={searchBtnLoading}
-              >
-                立即查询
-              </Button>
-              <Button
-                size='large'
-                onClick={this.refreshLogList.bind(this)}
-                className='button_style refreshBtn'
-                loading={freshBtnLoading}
-              >
-                <i className='fa fa-refresh'/> 刷 新
-              </Button>
-              <Button 
-                size="large"
-                className="deleteBtn"
-                onClick={this.showDeleteModal.bind(this)}
-              >
-                <i className="fa fa-trash-o"/> 清空所有记录
-              </Button>
+              <FormItem className='filter_formItem' style={{width:'auto'}}>
+                <DatePicker
+                  showTime
+                  format="yyyy-MM-dd HH:mm:ss"
+                  disabledDate={this.disabledStartDate}
+                  value={this.state.startValue}
+                  placeholder="开始日期"
+                  onChange={this.onStartChange}
+                  toggleOpen={this.handleStartToggle}
+                  size="large"
+                />
+              </FormItem>
+              <FormItem className='filter_formItem' style={{width:'auto'}}>
+                <DatePicker
+                  showTime
+                  format="yyyy-MM-dd HH:mm:ss"
+                  disabledDate={this.disabledEndDate}
+                  value={this.state.endValue}
+                  placeholder="结束日期"
+                  onChange={this.onEndChange}
+                  open={this.state.endOpen}
+                  toggleOpen={this.handleEndToggle}
+                  size="large"
+                />
+              </FormItem>
+              <FormItem className='filter_formItem' style={{width:'auto'}}>
+                <Button
+                  icon="exception"
+                  type="primary"
+                  size="large"
+                  onClick={this.searchLogs}
+                  className='button_style'
+                  loading={searchBtnLoading}
+                >
+                  立即查询
+                </Button>
+              </FormItem>
+              <FormItem className='filter_formItem' style={{width:'auto'}}>
+                <Button
+                  size='large'
+                  onClick={this.refreshLogList.bind(this)}
+                  className='button_style refreshBtn'
+                  loading={freshBtnLoading}
+                >
+                  <i className='fa fa-refresh'/> 刷 新
+                </Button>
+              </FormItem>
+              <FormItem className='filter_formItem' style={{width:'auto'}}>
+                <Button
+                  size="large"
+                  className="deleteBtn"
+                  onClick={this.showDeleteModal.bind(this)}
+                >
+                  <i className="fa fa-trash-o"/> 清空所有记录
+                </Button>
+              </FormItem>
               { totalCount !== 0 && <Pagination {...pagination}/>}
               { totalCount !== 0 && <div className='totle_num'>共计 <span>{totalCount}</span> 条</div>}
             </div>
