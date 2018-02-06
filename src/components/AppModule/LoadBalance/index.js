@@ -49,6 +49,7 @@ class LoadBalance extends React.Component {
   
   closeBalanceModal = () => {
     this.setState({
+      currentBalance: null,
       loadBalanceVisible: false
     })
   }

@@ -15,6 +15,7 @@ import {
   Checkbox, Row, Col, Button, Icon, InputNumber
 } from 'antd'
 import isEmpty from 'lodash/isEmpty'
+import classNames from 'classnames'
 import './style/LoadBalanceModal.less'
 import { getLBIPList, createLB, editLB } from '../../../actions/load_balance'
 import { getResources } from '../../../../kubernetes/utils'
@@ -387,8 +388,10 @@ class LoadBalanceModal extends React.Component {
                   <Icon type="check" />
                 </div>
               </Button>
-              <Button className="configList DIY" type={composeType === 'DIY' ? "primary" : "ghost"}
-                      onClick={() => this.selectComposeType('DIY')}>
+              <div className={classNames("configList DIY",{
+                "btn ant-btn-primary": composeType === 'DIY',
+                "btn ant-btn-ghost": composeType !== 'DIY'
+                })} onClick={() => this.selectComposeType('DIY')}>
                 <div className="topBox">
                   自定义
                 </div>
@@ -444,7 +447,7 @@ class LoadBalanceModal extends React.Component {
                   <div className="triangle"/>
                   <Icon type="check" />
                 </div>
-              </Button>
+              </div>
             </Col>
           </Row>
           <FormItem
