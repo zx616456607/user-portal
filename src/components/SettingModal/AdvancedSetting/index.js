@@ -241,11 +241,21 @@ class AdvancedSetting extends Component {
       Tagdisabled: true,
     })
   }
-
+  vmInfo(){
+    Modal.info({
+      title: '请先完成全局配置内传统应用配置',
+    });
+  }
   /**
    * 传统应用管理
    */
   handleTradition (checked){
+    const { vmWrapConfig } = this.props
+    const { host } = vmWrapConfig || { host: '' }
+    if (!host) {
+      this.vmInfo()
+      return
+    }
     return this.setState({
       traditionVisible: true,
       isTradition: checked,
