@@ -249,8 +249,10 @@ class Sider extends Component {
   }
 
   render() {
-    const { siderStyle, role,backColor,oemInfo } = this.props
+    const { siderStyle, role,backColor,oemInfo, loginUser } = this.props
     const { currentKey } = this.state
+    const { billingConfig } = loginUser
+    const { enabled: billingEnabled } = billingConfig
     const scope = this
     return (
       <div id='sider' className={`oemMenu-drek-${backColor}`}>
@@ -743,7 +745,7 @@ class Sider extends Component {
                    <span><div className='sideCircle'></div> 费用中心</span>
                    </Link>
                    </Menu.Item>*/}
-                  { SHOW_BILLING ?
+                  { billingEnabled ?
                     [<Menu.Item key='costCenter#consumptions'>
                       <Link to='/account/costCenter#consumptions'>
                         <span><div className='sideCircle'></div> 消费记录</span>

@@ -843,7 +843,7 @@ class QuickCreateApp extends Component {
   }
 
   render() {
-    const { current, location } = this.props
+    const { current, location, billingEnabled } = this.props
     const {
       confirmGoBackModalVisible, confirmSaveModalVisible, isCreatingApp,
       stepStatus,
@@ -881,7 +881,6 @@ class QuickCreateApp extends Component {
                 { this.renderFooterSteps() }
               </Card>
             </Col>
-            { SHOW_BILLING ?
             <Col span={6}>
               <Card
                 className="rightCard"
@@ -895,29 +894,32 @@ class QuickCreateApp extends Component {
                 <div className="serviceList">
                   {serviceList}
                 </div>
-                <div className="resourcePrice">
-                  <div className="resource">
-                    计算资源：
-                    <span>{resource}</span>
+                {
+                  billingEnabled &&
+                  <div className="resourcePrice">
+                    <div className="resource">
+                      计算资源：
+                      <span>{resource}</span>
+                    </div>
+                    {
+                      current.unit === '¥'
+                        ? (
+                          <div className="price">
+                            合计：
+                            <span className="hourPrice"><font>¥</font> {priceHour}/小时</span>
+                            <span className="monthPrice">（合 <font>¥</font> {priceMonth}/月）</span>
+                          </div>
+                        )
+                        : (
+                          <div className="price">
+                            合计：
+                            <span className="hourPrice">{priceHour} {current.unit}/小时</span>
+                            <span className="monthPrice">（合 {priceMonth} {current.unit}/月）</span>
+                          </div>
+                        )
+                    }
                   </div>
-                  {
-                    current.unit === '¥'
-                    ? (
-                      <div className="price">
-                        合计：
-                        <span className="hourPrice"><font>¥</font> {priceHour}/小时</span>
-                        <span className="monthPrice">（合 <font>¥</font> {priceMonth}/月）</span>
-                      </div>
-                    )
-                    : (
-                      <div className="price">
-                        合计：
-                        <span className="hourPrice">{priceHour} {current.unit}/小时</span>
-                        <span className="monthPrice">（合 {priceMonth} {current.unit}/月）</span>
-                      </div>
-                    )
-                  }
-                </div>
+                }
                 {
                   (serviceList && serviceList.length > 0 && currentStep === 1) && (
                     <div className="createApp">
@@ -929,8 +931,6 @@ class QuickCreateApp extends Component {
                 }
               </Card>
             </Col>
-            :null
-            }
           </Row>
           <Modal
             title="返回上一步"
@@ -970,7 +970,9 @@ function mapStateToProps(state, props) {
   const { quickCreateApp, entities } = state
   const { location } = props
   const { wrapList } = state.images
-
+  const { loginUser, current } = entities
+  const { billingConfig } = loginUser.info
+  const { enabled: billingEnabled } = billingConfig
   const list = wrapList || {}
   let datalist = { pkgs: [], total: 0 }
   if (list.result) {
@@ -979,9 +981,10 @@ function mapStateToProps(state, props) {
   return {
     fields: quickCreateApp.fields,
     standardFlag,
-    current: entities.current,
-    loginUser: entities.loginUser.info,
+    current: current,
+    loginUser: loginUser.info,
     wrapList: datalist,
+    billingEnabled
   }
 }
 
