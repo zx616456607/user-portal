@@ -80,8 +80,15 @@ class ServiceSecretsConfig extends React.Component {
         isAsync: true
       },
       failed: {
-        func: () => {
-          notification.error('创建失败')
+        func: err => {
+          let errorText
+          switch (err.message.code) {
+            case 403: errorText = '添加的配置过多'; break
+            case 409: errorText = `配置组 ${name} 已存在`; break
+            case 500: errorText = '网络异常'; break
+            default: errorText = '创建失败'
+          }
+          notification.error(errorText)
         },
         isAsync: true
       },
