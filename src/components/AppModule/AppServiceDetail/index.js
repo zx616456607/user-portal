@@ -296,6 +296,8 @@ class AppServiceDetail extends Component {
         statusService = tmp
       }
     }
+    const { billingConfig } = loginUser.info
+    const { enabled: billingEnabled } = billingConfig
     const operaMenu = (<Menu>
       <Menu.Item key='restart' disabled={this.handleMenuDisabled('restart')}>
         <span onClick={() => this.restartService(service)}>重新部署</span>
@@ -525,7 +527,7 @@ class AppServiceDetail extends Component {
                   serviceDetail={serviceDetail}
                 relative/>
               </TabPane>
-              {SHOW_BILLING ?
+              {billingEnabled ?
               [<TabPane tab='事件' key='#events'>
                 <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} type={'replicaset'} serviceDetailmodalShow={serviceDetailmodalShow}/>
               </TabPane>,

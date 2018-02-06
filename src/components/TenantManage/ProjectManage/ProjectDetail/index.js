@@ -713,7 +713,7 @@ class ProjectDetail extends Component {
       filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster
     } = this.state;
     const TreeNode = Tree.TreeNode;
-    const { form, roleNum, projectClusters, location } = this.props;
+    const { form, roleNum, projectClusters, location, billingEnabled } = this.props;
     const { getFieldProps } = form;
     const quota = location.query.tabs
     const url = quota ? '/' : '/tenant_manage/project_manage'
@@ -968,21 +968,24 @@ class ProjectDetail extends Component {
                       </div>
                     </Col>
                   </Row>
-                  <Row gutter={16}>
-                    <Col className='gutter-row' span={4}>
-                      <div className="gutter-box">
-                        余额
-                      </div>
-                    </Col>
-                    <Col className='gutter-row' span={20}>
-                      <div className="gutter-box">
-                        <span style={{ marginRight: '30px' }}>{parseAmount(projectDetail && projectDetail.balance, 4).fullAmount}</span>
-                        {
-                          roleNum === 1 && <Button type="primary" size="large" onClick={this.paySingle.bind(this)}>充值</Button>
-                        }
-                      </div>
-                    </Col>
-                  </Row>
+                  {
+                    billingEnabled &&
+                    <Row gutter={16}>
+                      <Col className='gutter-row' span={4}>
+                        <div className="gutter-box">
+                          余额
+                        </div>
+                      </Col>
+                      <Col className='gutter-row' span={20}>
+                        <div className="gutter-box">
+                          <span style={{ marginRight: '30px' }}>{parseAmount(projectDetail && projectDetail.balance, 4).fullAmount}</span>
+                          {
+                            roleNum === 1 && <Button type="primary" size="large" onClick={this.paySingle.bind(this)}>充值</Button>
+                          }
+                        </div>
+                      </Col>
+                    </Row>
+                  }
                   {/*<Row gutter={16}>*/}
                   {/*<Col className='gutter-row' span={4}>*/}
                   {/*<div className="gutter-box">*/}
@@ -1298,7 +1301,8 @@ function mapStateToThirdProp(state, props) {
   const { query } = props.location
   const { name } = query
   const { loginUser } = state.entities
-  const { globalRoles, role } = loginUser.info || { globalRoles: [], role: 0 }
+  const { globalRoles, role, billingConfig } = loginUser.info || { globalRoles: [], role: 0 }
+  const { enabled: billingEnabled } = billingConfig
   let roleNum = 0
   if (role === ROLE_SYS_ADMIN) {
     roleNum = 1
@@ -1319,6 +1323,7 @@ function mapStateToThirdProp(state, props) {
     name,
     roleNum,
     projectClusters,
+    billingEnabled
   }
 }
 

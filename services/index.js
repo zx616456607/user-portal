@@ -135,6 +135,8 @@ exports.addConfigsForFrontend = function (user, loginUser) {
   user.msaConfig = globalConfig.msaConfig
   // Add ftp config
   user.ftpConfig = globalConfig.ftpConfig
+  // Add billing config
+  user.billingConfig = globalConfig.billingConfig
   return user
 }
 
