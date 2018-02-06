@@ -191,11 +191,11 @@ class BindDomain extends Component {
           }
         },
         failed: {
-          func: (result) => {
+          func: error => {
             notification.close()
             canAddDomain = true
-            if(result.message.message === 'Internal error occurred: domain is already bound') {
-              notification.error('此域名已被绑定')
+            if(error.message === 'Internal error occurred: domain is already bound') {
+              notification.warn('此域名已被绑定')
               return
             }
             notification.error('添加域名绑定失败')
