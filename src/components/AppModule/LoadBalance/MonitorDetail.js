@@ -81,7 +81,7 @@ class MonitorDetail extends React.Component {
             [`port-${uidd}`]: item.servicePort
           })
           this.selectService(item.serviceName, uidd)
-          if (currentIngress.lbAlgorithm === 'round-robin') {
+          if (currentIngress.lbAlgorithm === '') {
             form.setFieldsValue({
               [`weight-${uidd}`]: item.weight
             })
