@@ -304,7 +304,7 @@ export const SERVICE_DETAIL_EVENTS_FAILURE = 'SERVICE_DETAIL_EVENTS_FAILURE'
 
 // Fetches service list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchServiceDetailEvents(cluster, serviceName, type) {
+function fetchServiceDetailEvents(cluster, serviceName, type, callback) {
   return {
     cluster,
     serviceName,
@@ -312,15 +312,16 @@ function fetchServiceDetailEvents(cluster, serviceName, type) {
       types: [SERVICE_DETAIL_EVENTS_REQUEST, SERVICE_DETAIL_EVENTS_SUCCESS, SERVICE_DETAIL_EVENTS_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/${type}/${serviceName}/events`,
       schema: {}
-    }
+    },
+    callback,
   }
 }
 
 // Fetches services list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadServiceDetailEvents(cluster, serviceName, type) {
+export function loadServiceDetailEvents(cluster, serviceName, type, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchServiceDetailEvents(cluster, serviceName, type))
+    return dispatch(fetchServiceDetailEvents(cluster, serviceName, type, callback))
   }
 }
 
@@ -330,7 +331,7 @@ export const CONTAINERS_ALL_EVENTS_FAILURE = 'CONTAINERS_ALL_EVENTS_FAILURE'
 
 // Fetches service list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchContainersAllEvents(cluster, serviceName) {
+function fetchContainersAllEvents(cluster, serviceName, callback) {
   return {
     cluster,
     serviceName,
@@ -338,15 +339,16 @@ function fetchContainersAllEvents(cluster, serviceName) {
       types: [CONTAINERS_ALL_EVENTS_REQUEST, CONTAINERS_ALL_EVENTS_SUCCESS, CONTAINERS_ALL_EVENTS_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/service/${serviceName}/pods/events`,
       schema: {}
-    }
+    },
+    callback,
   }
 }
 
 // Fetches services list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadContainersAllEvents(cluster, serviceName, type) {
+export function loadContainersAllEvents(cluster, serviceName, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchContainersAllEvents(cluster, serviceName, type))
+    return dispatch(fetchContainersAllEvents(cluster, serviceName, callback))
   }
 }
 
