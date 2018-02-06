@@ -431,7 +431,8 @@ class Ordinary extends Component {
     const { clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
       clusterNodeSummary, clusterDbServices, clusterName, clusterUseList, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching, loginUser, current } = this.props
     const { space } = current
-    const { userName, email, avatar, certInfos } = loginUser
+    const { userName, email, avatar, certInfos, billingConfig } = loginUser
+    const { enabled: billingEnabled } = billingConfig || { enabled: false }
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
       boxPos = (clusterStorage.usedSize / (clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(4)
@@ -1429,34 +1430,37 @@ class Ordinary extends Component {
                         </Tooltip>
                     }
                   </div>
-                  <div>
-                    <div className='userCost'>
-                      <div className="project">
-                        {/* <i style={{ backgroundColor: '#46b2fa' }}></i> */}
-                        {this.state.isTeam ? '项目余额' : '我的余额'}：
-                      </div>
-                      <span className='costNum'>
+                  {
+                    billingEnabled &&
+                    <div>
+                      <div className='userCost'>
+                        <div className="project">
+                          {/* <i style={{ backgroundColor: '#46b2fa' }}></i> */}
+                          {this.state.isTeam ? '项目余额' : '我的余额'}：
+                        </div>
+                        <span className='costNum'>
                         <Tooltip title={parseAmount(clusterNodeSpaceConsumption.balance).amount + 'T'}>
                           <span>{parseAmount(clusterNodeSpaceConsumption.balance).amount} T</span>
                         </Tooltip>
                       </span>
-                      {/*<Link to='/account'><Button type='primary'>去充值</Button></Link>*/}
-                    </div>
-                    <div className='userCost'>
-                      <div className="project">
-                        {/* <i style={{ backgroundColor: '#28bd83' }}></i> */}
-                        今日消费：
+                        {/*<Link to='/account'><Button type='primary'>去充值</Button></Link>*/}
                       </div>
-                      <span className='costNum'>
+                      <div className='userCost'>
+                        <div className="project">
+                          {/* <i style={{ backgroundColor: '#28bd83' }}></i> */}
+                          今日消费：
+                        </div>
+                        <span className='costNum'>
                         <Tooltip title={parseAmount(clusterNodeSpaceConsumption.consumption).amount + 'T'}>
                           <span>{parseAmount(clusterNodeSpaceConsumption.consumption).amount} T</span>
                         </Tooltip>
-                        &nbsp;
-                        <Tooltip title="全区域"><Icon type="question-circle-o" /></Tooltip>
+                          &nbsp;
+                          <Tooltip title="全区域"><Icon type="question-circle-o" /></Tooltip>
                       </span>
-                      <Link to='/account/costCenter#consumptions'><Button type='primary'>去查看</Button></Link>
+                        <Link to='/account/costCenter#consumptions'><Button type='primary'>去查看</Button></Link>
+                      </div>
                     </div>
-                  </div>
+                  }
                 </div>
               </Card>
             </Col>

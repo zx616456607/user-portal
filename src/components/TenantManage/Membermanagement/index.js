@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { camelize } from 'humps'
 import { loadUserList, createUser, deleteUser, checkUserName, updateUserActive, loadAllUserList } from '../../../actions/user'
 import { chargeUser } from '../../../actions/charge'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import { parseAmount } from '../../../common/tools'
 import CreateUserModal from '../CreateUserModal'
 import NotificationHandler from '../../../components/Notification'
@@ -46,8 +46,7 @@ let MemberTable = React.createClass({
       filter: "",
       selectedRowKeys: [],
       deactiveUserModal: false,
-      deactiveUserBtnLoading: false,
-      deactiveUserModal: false,
+      deactiveUserBtnLoading: false
     }
   },
 
@@ -311,7 +310,8 @@ let MemberTable = React.createClass({
     const { data, scope, loginUser, teams } = this.props
 
     let userManageName = this.currentUser ? this.currentUser.name : ''
-
+    const { billingConfig } = loginUser
+    const { enabled: billingEnabled } = billingConfig
     filteredInfo = filteredInfo || {}
     const pagination = {
       simple: true,
@@ -501,7 +501,13 @@ let MemberTable = React.createClass({
         render: (text, record, index) => (
           <div className="action">
             <Dropdown.Button
-              onClick={() => scope.memberRecharge(record)}
+              onClick={() => {
+                if (!billingEnabled) {
+                  browserHistory.push(`/tenant_manage/user/${record.key}`)
+                  return
+                }
+                scope.memberRecharge(record)
+              }}
               overlay={
                 <Menu
                   onClick={this.handleMenuClick.bind(this, record)}
@@ -522,11 +528,14 @@ let MemberTable = React.createClass({
               }
               type="ghost"
             >
-              充值
+              { billingEnabled ? '充值' : '查看' }
             </Dropdown.Button>
           </div>
         ),
       })
+    }
+    if (!billingEnabled) {
+      columns.splice(6, 1)
     }
     if (notFound) {
       return (
@@ -803,6 +812,8 @@ class Membermanagement extends Component {
     const { users, checkUserName, loadAllUserList, userDetail, teams, onlineTotal, usersIsFetching } = this.props
     const scope = this
     const { visible, memberList, hasSelected, createUserErrorMsg, sendEmailSuccess } = this.state
+    const { billingConfig } = userDetail
+    const { enabled: billingEnabled } = billingConfig
     const searchIntOption = {
       addBefore: [
         { key: 'name', value: '成员名' },
@@ -829,7 +840,7 @@ class Membermanagement extends Component {
             </Button>
           }
           {
-            userDetail.role === ROLE_SYS_ADMIN && (
+            billingEnabled && userDetail.role === ROLE_SYS_ADMIN && (
               <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ chargeModalVisible: true })}>
                 <Icon type="pay-circle-o" />批量充值
               </Button>

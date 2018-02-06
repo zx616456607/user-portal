@@ -49,6 +49,9 @@ exports.changeGlobalConfig = function* () {
   if (type == 'ftp') {
     this.body = yield ftpConfigFunc.apply(this, [entity])
   }
+  if (type == 'billing') {
+    this.body = yield billingConfigFunc.apply(this, [entity])
+  }
   yield initGlobalConfig.initGlobalConfig()
 }
 
@@ -170,6 +173,20 @@ function* ftpConfigFunc(entity) {
   return response
 }
 
+function* billingConfigFunc(entity) {
+  const api = apiFactory.getApi(this.session.loginUser)
+  const type = 'billing'
+  entity.detail = Object.assign({}, global.globalConfig.billingConfig, entity.detail)
+  let response
+  entity.configDetail = JSON.stringify(entity.detail)
+  if (entity.configID) {
+    response = yield api.configs.updateBy([type], null, entity)
+  } else {
+    response = yield api.configs.createBy([type], null, entity)
+  }
+  return response
+}
+
 function* mailConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'mail'
@@ -269,6 +286,15 @@ exports.getGlobalConfig = function* () {
   }
   this.status = response.code
   this.body = response
+}
+
+exports.getGlobalConfigByType = function* () {
+  const type = this.params.type
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getApi(loginUser)
+  const result = yield spi.configs.getBy([type])
+  this.status = result.code
+  this.body = result
 }
 
 exports.isValidConfig = function* () {
