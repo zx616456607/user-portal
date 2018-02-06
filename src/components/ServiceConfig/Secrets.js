@@ -186,6 +186,8 @@ class ServiceSecretsConfig extends React.Component {
           this.setState({
             modalConfigFile: false,
             createConfigFileModalVisible: false,
+            configName: undefined,
+            configtextarea: undefined,
           })
         },
         isAsync: true
@@ -196,6 +198,8 @@ class ServiceSecretsConfig extends React.Component {
             this.setState({
               modalConfigFile: false,
               createConfigFileModalVisible: false,
+              configName: undefined,
+              configtextarea: undefined,
             })
             return
           }
@@ -230,7 +234,9 @@ class ServiceSecretsConfig extends React.Component {
           this.loadData()
           this.setState({
             modalConfigFile: false,
-            createConfigFileModalVisible: false,
+            updateConfigFileModalVisible: false,
+            configName: undefined,
+            configtextarea: undefined,
           })
         },
         isAsync: true

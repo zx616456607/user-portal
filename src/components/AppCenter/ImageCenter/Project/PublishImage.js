@@ -15,7 +15,8 @@ import { getImagesList } from '../../../../actions/app_store'
 import CommonSearchInput from '../../../CommonSearchInput'
 import '../style/PublishImage.less'
 import TenxStatus from '../../../TenxStatus/index'
-import { formatDate } from "../../../../common/tools";
+import { formatDate } from "../../../../common/tools"
+import QueueAnim from 'rc-queue-anim'
 
 class PublishImage extends React.Component {
   constructor(props) {
@@ -150,16 +151,15 @@ class PublishImage extends React.Component {
       render: text => formatDate(text)
     }]
     return(
-      <div className="publishImage">
-        <div className="headerBox">
-          <Button 
-            type="primary" 
-            size="large" 
+      <QueueAnim className="publishImage">
+        <div className="headerBox" key="headerBox">
+          <Button
+            type="primary"
+            size="large"
             className="refreshBtn"
-            loading={btnLoading}
             onClick={this.refreshData}
           >
-            <i className="fa fa-refresh" /> 刷新
+            <i className="fa fa-refresh"/> 刷新
           </Button>
           <CommonSearchInput
             size="large"
@@ -179,8 +179,9 @@ class PublishImage extends React.Component {
           pagination={total ? pagination : false}
           onChange={this.onTableChange}
           loading={tableLoading}
+          key="body"
         />
-      </div>
+      </QueueAnim>
     )
   }
 }

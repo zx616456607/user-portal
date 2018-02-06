@@ -27,7 +27,7 @@ const CheckboxGroup = Checkbox.Group
 const PATH_REG = /^\//
 
 const SecretsConfigMap = React.createClass({
-  componentWillMount() {
+  loadSecrets() {
     const { currentCluster, getSecrets } = this.props
     getSecrets(currentCluster.clusterID)
   },
@@ -162,9 +162,14 @@ const SecretsConfigMap = React.createClass({
           <FormItem>
             <Select placeholder="配置组" {...secretConfigGroupNameProps}>
               {
-                secretsList.map(group => <Option key={group.name}>
-                  {group.name}
-                </Option>)
+                secretsList.map(group =>
+                  <Option
+                    key={group.name}
+                    disabled={!group.data || Object.keys(group.data).length === 0}
+                  >
+                    {group.name}
+                  </Option>
+                )
               }
             </Select>
           </FormItem>
@@ -212,6 +217,7 @@ const SecretsConfigMap = React.createClass({
     )
   },
   addConfigMapKey() {
+    this.loadSecrets()
     const { form, defaultSelectValue } = this.props
     const { setFieldsValue, getFieldValue, validateFields } = form
     let secretConfigMapKeys = getFieldValue('secretConfigMapKeys') || []
@@ -361,9 +367,17 @@ function mapStateToProps(state, props) {
   }
   let secretsList = secrets.list[cluster.clusterID] || {}
   secretsList = secretsList.data || []
+  let defaultSelectValue
+  secretsList.every(secret => {
+    if (secret.data && Object.keys(secret.data).length > 0) {
+      defaultSelectValue = secret.name
+      return false
+    }
+    return true
+  })
   return {
     currentCluster: cluster,
-    defaultSelectValue: secretsList[0] && secretsList[0].name,
+    defaultSelectValue: defaultSelectValue,
     secretsList,
   }
 }

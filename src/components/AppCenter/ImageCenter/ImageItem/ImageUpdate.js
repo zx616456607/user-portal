@@ -28,7 +28,7 @@ import { formatDate, formatDuration } from  '../../../../common/tools'
 import { ecma48SgrEscape } from '../../../../common/ecma48_sgr_escape'
 import NotificationHandler from '../../../../components/Notification'
 
-const DATE_REG = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{9})?(Z|(\+\d{2}:\d{2}))\b/
+const DATE_REG = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,})?(Z|(\+\d{2}:\d{2}))\b/
 
 let LogsTemplate = React.createClass({
   getInitialState() {
