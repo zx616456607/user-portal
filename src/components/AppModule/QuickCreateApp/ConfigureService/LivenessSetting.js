@@ -95,14 +95,24 @@ const LivenessSetting = React.createClass({
             >
               <RadioGroup {...livenessProtocolProps}>
                 <Radio value="none">无</Radio>
-                <Radio value="HTTP">HTTP</Radio>
+                <Radio value="HTTP">HTTP（推荐）</Radio>
                 <Radio value="TCP">TCP</Radio>
               </RadioGroup>
+              <div className="tips">
+                {
+                  livenessProtocol === 'HTTP' &&
+                  '通过 HTTP GET 请求进行健康检查。如果响应状态码小于 400，则认为容器健康'
+                }
+                {
+                  livenessProtocol === 'TCP' &&
+                  '检测端口是否为打开状态，若端口为关闭或进程停止关闭状态，则健康检查不通过'
+                }
+              </div>
             </FormItem>
             {
               (livenessProtocol === 'HTTP' || livenessProtocol === 'TCP') && (
-                <Row>
-                  <Col span={formItemLayout.labelCol.span} className='configCol'>配置</Col>
+                <Row className="configRow">
+                  <Col span={formItemLayout.labelCol.span} className="configCol">配置</Col>
                   <Col span={formItemLayout.wrapperCol.span}>
                     <div className="livenessConfig">
                       <Row className="configHeader">

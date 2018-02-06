@@ -11,6 +11,32 @@
 import reducerFactory from './factory'
 import * as ActionTypes from  '../actions/global_config'
 
+function configByType(state, action) {
+  const { type, configType } = action
+  switch (type) {
+    case ActionTypes.GET_CONFIG_BY_TYPE_REQUEST:
+      return Object.assign({}, state, {
+        [configType]: {
+          isFetching: true
+        }
+      })
+    case ActionTypes.GET_CONFIG_BY_TYPE_SUCCESS:
+      return Object.assign({}, state, {
+        [configType]: {
+          isFetching: false,
+          data: action.response.result.data,
+        }
+      })
+    case ActionTypes.GET_CONFIG_BY_TYPE_FAILURE:
+      return Object.assign({}, state, {
+        [configType]: {
+          isFetching: false
+        }
+      })
+    default:
+      return state
+  }
+}
 
 export function globalConfig(state = {}, action) {
   return {
@@ -33,6 +59,7 @@ export function globalConfig(state = {}, action) {
       REQUEST: ActionTypes.IS_VALID_CONFIG_REQUEST,
       SUCCESS: ActionTypes.IS_VALID_CONFIG_SUCCESS,
       FAILURE: ActionTypes.IS_VALID_CONFIG_FAILURE
-    }, state.isValidConfig, action)
+    }, state.isValidConfig, action),
+    configByType: configByType(state.configByType, action)
   }
  }

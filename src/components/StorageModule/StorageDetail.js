@@ -77,7 +77,7 @@ class StorageDetail extends Component {
   render() {
     const { formatMessage } = this.props.intl
     const { currentKey } = this.state
-    const { StorageInfo, isFetching, params } = this.props
+    const { StorageInfo, isFetching, params, billingEnabled } = this.props
     if (isFetching) {
       return (
         <div className="loadingBox">
@@ -149,7 +149,7 @@ class StorageDetail extends Component {
                 tabPosition="top"
                 defaultActiveKey="1"
               >
-              {SHOW_BILLING ?
+              {billingEnabled ?
                 [<TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="1" >
                   <StorageBind
                     pool={StorageInfo.imagePool}
@@ -181,6 +181,8 @@ StorageDetail.propTypes = {
 
 function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
+  const { billingConfig } = state.entities.loginUser.info
+  const { enabled: billingEnabled } = billingConfig
   const defaultInfo = {
     imagePool: props.params.pool,
     volumeName: props.params.storage_name,
@@ -193,7 +195,8 @@ function mapStateToProps(state, props) {
   return {
     isFetching: state.storage.storageDetail.isFetching,
     StorageInfo,
-    resourcePrice: cluster.resourcePrice
+    resourcePrice: cluster.resourcePrice,
+    billingEnabled
   }
 }
 

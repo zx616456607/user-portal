@@ -25,17 +25,18 @@ export function validateK8sResource(name) {
 }
 /*
  * Validation for service name
+ * 长度最高限制为 60，超过 60 可能会导致端口号名称超过 63 位限制
  */
 export function validateK8sResourceForServiceName(name) {
   if (!name) {
     return false
   }
-  if (name.length < 3 || name.length > 63) {
+  if (name.length < 3 || name.length > 60) {
     return false
   }
   // TODO: not work with below syntax
   // let regx = /^[a-z0-9]+([-.~/][a-z0-9]+)*$/
-  let regx = new RegExp('^[a-z][-a-z0-9]{1,61}[a-z0-9]$')
+  let regx = new RegExp('^[a-z][-a-z0-9]{1,58}[a-z0-9]$')
   if (!regx.test(name)) {
     return false
   }
