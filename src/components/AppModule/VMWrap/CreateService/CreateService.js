@@ -59,7 +59,7 @@ class VMServiceCreate extends React.Component {
     const { checkServiceExists } = this.props;
     let newValue = value
     if (!Boolean(newValue)) {
-      callback()
+      callback('请输入传统应用名称')
       return
     }
     if (!validateK8sResourceForServiceName(newValue)) {
@@ -111,7 +111,7 @@ class VMServiceCreate extends React.Component {
     for (let i = 0; i < env.length; i++) {
       obj[Object.keys(env[i])] = Object.values(env[i])[0]
     }
-    let validateArr = ['checkAddress','initTimeout','ruleTimeout','intervalTimeout']
+    let validateArr = ['serviceName','checkAddress','initTimeout','ruleTimeout','intervalTimeout']
     if (isNewEnv) {
       validateArr = validateArr.concat(['envIP','userName','password'])
     } else {
@@ -197,7 +197,7 @@ class VMServiceCreate extends React.Component {
   }
   render() {
     const { currentPacket, confirmLoading } = this.state
-    const { getFieldProps } = this.props.form;
+    const { getFieldProps, isFieldValidating, getFieldError } = this.props.form;
     return (
       <QueueAnim
         id="vmServiceCreate"
@@ -212,11 +212,10 @@ class VMServiceCreate extends React.Component {
                 wrapperCol={{ span: 9 }}
                 hasFeedback
                 className='app_name_style'
-                // help={isFieldValidating('serviceName') ? '校验中...' : (getFieldError('serviceName') || []).join(', ')}
+                help={isFieldValidating('serviceName') ? '校验中...' : (getFieldError('serviceName') || []).join(', ')}
               >
                 <Input {...getFieldProps('serviceName',{
                   rules: [
-                    {required: true,message:'请输入应用名称'},
                     { validator: this.serviceNameCheck.bind(this)}
                   ]
                 })} placeholder="请输入应用名称"/>
