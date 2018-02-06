@@ -219,7 +219,7 @@ class AutoScale extends React.Component {
         <div key="metricsTwo">{str.split(';')[1]}</div>
       ]
     }
-    return str
+    return str.split(';')[0]
   }
   scaleStatus = text => {
     return <div className={classNames('status',{'successStatus': text === 'RUN', 'errorStatus': text === 'STOP'})}><i/>{text === 'RUN' ? '开启' : '关闭'}</div>
