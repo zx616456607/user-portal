@@ -142,8 +142,9 @@ const AssistSetting = React.createClass({
     const { getFieldProps } = form
     const commandProps = getFieldProps('command')
     const imagePullPolicyProps = getFieldProps('imagePullPolicy', {
+      initialValue: 'always',
       rules: [
-        { required: true }
+        { required: true, message: '请选择重新部署拉取镜像方式' }
       ],
     })
     const timeZoneProps = getFieldProps('timeZone', {
