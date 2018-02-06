@@ -172,6 +172,7 @@ class BaseInfo extends Component {
   render() {
     const { bindingIPs, databaseInfo ,dbName } = this.props
     const parentScope = this.props.scope
+    const { billingEnabled } = parentScope.props
     const rootScope = parentScope.props.scope
     const selfScope = this
     let podSpec = {}
@@ -203,21 +204,24 @@ class BaseInfo extends Component {
           {/* <Slider min={500} max={10000} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} step={100} /> */}
           <InputNumber min={512} step={512} max={20480} disabled={true} value={databaseInfo.volumeInfo.size} /> &nbsp;
         </div>
-        <div className="modal-price">
-          <div className="price-left">
-            <div className="keys">实例：<span className="unit">{ containerPrc.fullAmount }</span>/（个*小时）* { parentScope.state.replicas } 个</div>
-            <div className="keys">存储：<span className="unit">{ storagePrc.fullAmount }</span>/（GB*小时）* { parentScope.state.replicas } 个</div>
+        {
+          billingEnabled &&
+          <div className="modal-price">
+            <div className="price-left">
+              <div className="keys">实例：<span className="unit">{ containerPrc.fullAmount }</span>/（个*小时）* { parentScope.state.replicas } 个</div>
+              <div className="keys">存储：<span className="unit">{ storagePrc.fullAmount }</span>/（GB*小时）* { parentScope.state.replicas } 个</div>
+            </div>
+            <div className="price-unit">
+              <p>合计：
+                <span className="unit">{countPrice.unit=='￥' ? ' ￥' : ''}</span>
+                <span className="unit blod">{ hourPrice.amount }{containerPrc.unit=='￥'? '' : ' T'}/小时</span>
+              </p>
+              <p>
+                <span className="unit">（约：{ countPrice.fullAmount } /月）</span>
+              </p>
+            </div>
           </div>
-          <div className="price-unit">
-            <p>合计：
-            <span className="unit">{countPrice.unit=='￥' ? ' ￥' : ''}</span>
-            <span className="unit blod">{ hourPrice.amount }{containerPrc.unit=='￥'? '' : ' T'}/小时</span>
-            </p>
-            <p>
-            <span className="unit">（约：{ countPrice.fullAmount } /月）</span>
-            </p>
-          </div>
-        </div>
+        }
         {parentScope.state.putModaling ?
           <div className="modal-footer"><Button size="large" onClick={() => parentScope.colseModal()}>取消</Button><Button size="large" loading={true} type="primary">保存</Button></div>
         :
@@ -865,7 +869,7 @@ class ModalDetail extends Component {
     return (<span className='stop'><i className="fa fa-circle"></i> 已停止 </span>)
   }
   render() {
-    const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs } = this.props;
+    const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled } = this.props;
 
     if (isFetching || databaseInfo == null) {
       return (
@@ -928,7 +932,7 @@ class ModalDetail extends Component {
               <TabPane tab='基础信息' key='#BaseInfo'>
                 <BaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
               </TabPane>
-              { SHOW_BILLING ?
+              { billingEnabled ?
                 [<TabPane tab='访问方式' key='#VisitType'>
                  <VisitTypes isCurrentTab={this.state.activeTabKey==='#VisitType'} domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} detailModal={this.props.detailModal}
                               databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
@@ -959,6 +963,8 @@ class ModalDetail extends Component {
 
 function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
+  const { billingConfig } = state.entities.loginUser.info
+  const { enabled: billingEnabled } = billingConfig
   const defaultMysqlList = {
     isFetching: false,
     cluster: cluster.clusterID,
@@ -972,8 +978,9 @@ function mapStateToProps(state, props) {
     domainSuffix: cluster.bindingDomains,
     bindingIPs: cluster.bindingIPs,
     databaseInfo: databaseInfo,
-    resourcePrice: cluster.resourcePrice //storage
+    resourcePrice: cluster.resourcePrice, //storage
     // podSpec: databaseInfo.pods[0].podSpec
+    billingEnabled
   }
 }
 

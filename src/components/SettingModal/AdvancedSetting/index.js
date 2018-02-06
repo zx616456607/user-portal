@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import { updateClusterConfig } from '../../../actions/cluster'
 import { setCurrent } from '../../../actions/entities'
 import { updateConfigurations, getConfigurations } from '../../../actions/harbor'
-import { saveGlobalConfig } from '../../../actions/global_config'
+import { saveGlobalConfig, getConfigByType, updateGlobalConfig } from '../../../actions/global_config'
 import { loadLoginUserDetail } from '../../../actions/entities'
 import NotificationHandler from '../../../components/Notification'
 import { DEFAULT_REGISTRY } from '../../../constants'
@@ -57,7 +57,7 @@ class AdvancedSetting extends Component {
   }
 
   componentWillMount(){
-    const { cluster, getConfigurations, harbor } = this.props
+    const { cluster, getConfigurations, harbor, billingConfig } = this.props
     const { listNodes } = cluster
     this.handleListNodeStatus(listNodes)
     if(!harbor.hasAdminRole) {
@@ -89,8 +89,11 @@ class AdvancedSetting extends Component {
         }
       }
     })
+    const { enabled } = billingConfig
+    this.setState({
+      billingChecked: enabled
+    })
   }
-
   handleUpdataConfigMessage(status,num){
     const Notification = new NotificationHandler()
     if(status == 'success'){
@@ -251,10 +254,10 @@ class AdvancedSetting extends Component {
   /**
    * 计费功能
    */
-  handleBilling = checked => {
+  handleBilling = () => {
     this.setState({
       billingVisible: true,
-      billingChecked: checked
+      // billingChecked: checked
     })
   }
   
@@ -265,12 +268,42 @@ class AdvancedSetting extends Component {
   }
   
   confirmBilling = () => {
+    const { billingChecked } = this.state
+    const { updateGlobalConfig, cluster, billingConfig, loadLoginUserDetail } = this.props
+    let notify = new NotificationHandler()
+    const body = {
+      configID: billingConfig.configID,
+      detail: {
+        enabled: !billingChecked
+      }
+    }
     this.setState({
       billingLoading: true
     })
-    this.setState({
-      billingVisible: false,
-      billingLoading: false
+    notify.spin(billingChecked ? '关闭计费功能中' : '开启计费功能中')
+    updateGlobalConfig(cluster, null, 'billing', body, {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success(billingChecked ? '关闭成功' : '开启成功')
+          this.setState({
+            billingVisible: false,
+            billingLoading: false,
+            billingChecked: !billingChecked
+          })
+          loadLoginUserDetail()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notify.close()
+          notify.warn(billingChecked ? '关闭失败' : '开启失败')
+          this.setState({
+            billingLoading: false
+          })
+        }
+      }
     })
   }
   /**
@@ -668,7 +701,7 @@ class AdvancedSetting extends Component {
         }
       </Modal>
         <Modal
-          title={!billingChecked ? '关闭计费功能' : '开启计费功能'}
+          title={billingChecked ? '关闭计费功能' : '开启计费功能'}
           visible={billingVisible}
           wrapClassName="AdvancedSettingSwitch"
           maskClosable={false}
@@ -677,7 +710,7 @@ class AdvancedSetting extends Component {
           confirmLoading={billingLoading}
         >
           {
-            !billingChecked ?
+            billingChecked ?
               <div className='container'>
                 <div className='item'>
                   关闭计费功能后，平台上计费相关的将被移除，应用、存储、数据库与缓存的使用将不计费，在资源配额充的情况下，
@@ -704,13 +737,14 @@ AdvancedSetting = Form.create()(AdvancedSetting)
 
 function mapPropsToState(state,props) {
   const { cluster } = state.entities.current
-  const { harbor, vmWrapConfig } = state.entities.loginUser.info
+  const { harbor, vmWrapConfig, billingConfig } = state.entities.loginUser.info
   const { configurations } = state.harbor
   return {
     cluster,
     configurations,
     harbor,
     vmWrapConfig,
+    billingConfig
   }
 }
 
@@ -721,4 +755,6 @@ export default connect(mapPropsToState,{
   getConfigurations,
   saveGlobalConfig,
   loadLoginUserDetail,
+  getConfigByType,
+  updateGlobalConfig
 })(AdvancedSetting)
