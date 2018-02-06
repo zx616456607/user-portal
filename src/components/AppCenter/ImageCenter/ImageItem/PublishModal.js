@@ -40,7 +40,7 @@ class PublishModal extends React.Component {
   }
   componentWillReceiveProps(nextProps) {
     const { visible: oldVisible } = this.props
-    const { 
+    const {
       visible: newVisible, wrapGroupList,
       currentImage, form, getWrapGroupList, getImageStatus, server } = nextProps
     if (oldVisible !== newVisible) {
@@ -353,9 +353,9 @@ class PublishModal extends React.Component {
       headers,
       beforeUpload: file => {
         let isType
-      
+
         isType = file.name.toLowerCase().match(/\.(jpg|png|jpeg)$/)
-        
+
         if (!isType) {
           notificat.error('上传文件格式错误', '支持：'+ wrapTypelist.join('、')+'文件格式')
           return false
@@ -404,6 +404,7 @@ class PublishModal extends React.Component {
           className="imagePublishModal"
           title="发布"
           visible={visible}
+          style={{top:20}}
           maskClosable={false}
           onOk={this.confirmModal}
           onCancel={this.cancelModal}
@@ -430,10 +431,10 @@ class PublishModal extends React.Component {
               label="发布名称"
               help={isFieldValidating('fileNickName') ? '校验中...' : (getFieldError('fileNickName') || []).join(', ')}
             >
-              <Input 
+              <Input
                 disabled={publishName && publishName ? true : false}
                 {...releaseNameProps}
-                placeholder="请输入发布名称" 
+                placeholder="请输入发布名称"
               />
             </Form.Item>
             <FormItem
@@ -472,17 +473,17 @@ class PublishModal extends React.Component {
             >
               <Upload
                 {...uploadOpt}
-        
+
               >
               <span className="wrap-image">
-              <img 
-                className="wrapLogo" 
+              <img
+                className="wrapLogo"
                 src={
-                  pkgIcon ? 
+                  pkgIcon ?
                     `${API_URL_PREFIX}/app-store/apps/icon/${pkgIcon}`
                     :
                     defaultImage
-                } 
+                }
               />
               </span>
               </Upload>
@@ -560,7 +561,7 @@ class SuccessModal extends React.Component {
         <div className="successColor successText">提交成功</div>
         <div className="successColor waitText">等待系统管理员审核...</div>
         <div className="stepHint">
-          1.提交审核后可以到 
+          1.提交审核后可以到
           <span onClick={() => browserHistory.push('/app_center/projects/publish')} className="themeColor pointer">发布记录</span>
           查看审核状态
         </div>
