@@ -199,6 +199,7 @@ exports.getPkgStoreList = function* () {
   const query = this.query
   const api = apiFactory.getApi(loginUser)
   const request = yield api.pkg.getBy(['store'], query)
+  request.data.registry = global.globalConfig.ftpConfig.addr
   this.body = request
 }
 
