@@ -179,8 +179,8 @@ exports.getDBService = function* () {
     if (podTemplate.metadata.labels && podTemplate.metadata.labels[PetsetLabel] == 'redis') {
       isRedis = true
       // For redis, get password from init container
-      if (podTemplate.metadata.annotations['pod.alpha.kubernetes.io/init-containers']) {
-        let initContainers = JSON.parse(podTemplate.metadata.annotations['pod.alpha.kubernetes.io/init-containers'])
+      if (podTemplate.spec.initContainers) {
+        let initContainers = podTemplate.spec.initContainers
         initContainers.forEach(function (c) {
           if (c.name === 'install' && c.env) {
             c.env.forEach(function (e) {
