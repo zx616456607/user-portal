@@ -111,8 +111,7 @@ exports.createIntegrationVm = function* () {
   const body = this.request.body
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  console.log(body)
-  const result = yield api.integrations.createBy(['vsphere', id, 'vm', 'clone'], {'dc': dcPath}, body);
+  const result = yield api.integrations.createBy(['vsphere', id, 'vm', 'clone'], {'dc': dcPath}, body,{timeout:1800000});
   this.body = {
     result,
   }
