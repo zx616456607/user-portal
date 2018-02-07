@@ -136,7 +136,33 @@ class WrapManage extends Component {
     if (value) {
       Object.assign(query, { file_name: value })
     }
-    getWrapStoreList(query)
+    getWrapStoreList(query, {
+      success: {
+        func: res => {
+          if (res && res.data && res.data.pkgs) {
+            window.WrapListTable = res.data.pkgs[0]
+            switch(res.data.pkgs[0].fileType) {
+              case 'jar':
+                this.setState({
+                  defaultTemplate: 0,
+                  fileType:'jar',
+                  version: window.template[0].version[0]
+                })
+                break
+              case 'war':
+                this.setState({
+                  defaultTemplate: 1,
+                  fileType:'war',
+                  version: window.template[1].version[0]
+                })
+                break
+              default:
+                break
+            }
+          }
+        }
+      }
+    })
   }
   changeWrap(type) {
     this.setState({
@@ -255,7 +281,8 @@ class WrapManage extends Component {
       }
       window.WrapListTable.weblogic = weblogicconfig
     }
-    const { wrapList, location } = this.props
+    const { wrapList, location, wrapStoreList } = this.props
+    const { from } = location.query
     if(row.appRegistryMap && Object.keys(row.appRegistryMap).length > 0 && location.query.entryPkgID) {
       notificat.error('应用下已有设置entryPkgID的服务')
       return
@@ -263,7 +290,11 @@ class WrapManage extends Component {
     // /app_manage/app_create/quick_create#configure-service
     const { version, defaultTemplate, template } = this.state
     let registry = wrapList.registry
-    registry = registry && registry.split(/^(http:\/\/|https:\/\/)/)[2]
+    if (from && from === 'wrapStore') {
+      registry = wrapStoreList.registry
+    }
+    // registry = registry && registry.split(/^(http:\/\/|https:\/\/)/)[2]
+    registry = registry && registry.split('//')[1]
     // if (!version) {
     //   notificat.info('请选择版本')
     //   return
@@ -482,8 +513,9 @@ class WrapManage extends Component {
 
 function mapStateToProps(state, props) {
   const { entities } = state
-  const { wrapList } = state.images
-
+  const { wrapList, wrapStoreList } = state.images
+  const { result: storeList } = wrapStoreList || { result: {}}
+  const { data: storeData } = storeList || { data: [] }
   const list = wrapList || {}
   let datalist = { pkgs: [], total: 0 }
   if (list.result) {
@@ -494,7 +526,8 @@ function mapStateToProps(state, props) {
     loginUser: entities.loginUser.info,
 
     wrapList: datalist,
-    isFetching: list.isFetching
+    isFetching: list.isFetching,
+    wrapStoreList: storeData,
   }
 }
 WrapManage = Form.create()(WrapManage)
