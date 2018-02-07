@@ -213,6 +213,7 @@ let CreateUserModal = React.createClass({
     }
     return (
       <Modal title="创建新成员" visible={visible}
+        style={{ top: 30 }}
         onOk={this.handleOk} onCancel={this.handleCancel}
         wrapClassName="NewMemberForm"
         width="500px" maskClosable={false}
