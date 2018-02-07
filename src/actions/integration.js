@@ -243,6 +243,7 @@ function postCreateIntegrationVm(id, dcPath, body, callback) {
       endpoint,
       options: {
         method: 'POST',
+        timeout: 1800000,
         body: body
       },
       schema: {}
