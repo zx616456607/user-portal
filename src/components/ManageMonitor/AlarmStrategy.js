@@ -15,7 +15,10 @@ import { Link, browserHistory } from 'react-router'
 import { calcuTime, formatDate } from '../../common/tools'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
-import { Icon, Button, Input, InputNumber, Select, Table, Dropdown, Modal, Menu, Pagination } from 'antd'
+import {
+  Icon, Button, Input, InputNumber, Select, Table, Dropdown,
+  Modal, Menu, Pagination, Row, Col,
+} from 'antd'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import './style/AlarmStrategy.less'
 import NotificationHandler from '../../components/Notification'
@@ -388,7 +391,13 @@ class AlarmStrategy extends Component {
         key: 'action',
         width:'20%',
         render: (text, record) => {
-          return <Dropdown.Button type="ghost" onClick={()=> this.setState({lookModel: true, record})} overlay={this.dropdowns(record)}>忽略</Dropdown.Button>
+          return <Dropdown.Button
+            type="ghost"
+            onClick={()=> this.setState({lookModel: true, record})}
+            overlay={this.dropdowns(record)}
+          >
+          忽略
+          </Dropdown.Button>
         }
       }
     ];
@@ -442,11 +451,45 @@ class AlarmStrategy extends Component {
         >
           <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>策略删除后将不再发送邮件告警，是否确定删除？</div>
         </Modal>
-        <Modal title="忽略" visible={this.state.lookModel}
-          onOk={()=> this.handignoreSetting()} onCancel={()=> this.setState({lookModel: false})}
-          okText="提交"
+        <Modal
+          title="忽略"
+          visible={this.state.lookModel}
+          onOk={()=> this.handignoreSetting()}
+          onCancel={()=> this.setState({lookModel: false})}
+          footer={[
+            <Button
+              key="back"
+              type="ghost"
+              size="large"
+              onClick={()=> this.setState({lookModel: false})}
+            >
+            返 回
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              onClick={()=> this.handignoreSetting()}
+              disabled={this.state.record && this.state.record.statusCode == 0}
+            >
+              提 交
+            </Button>,
+          ]}
         >
-          <div className="alertRow">注意：在忽略时间内我们将不会发送告警邮件通知！</div>
+          {
+            this.state.record && this.state.record.statusCode == 0
+            ? <Row className="alertRow warningRow">
+              <Col span={2} className="alertRowIcon">
+                <i className="fa fa-exclamation-triangle" />
+              </Col>
+              <Col span={22} className="alertRowDesc">
+              当前告警策略已停用，请先启用该策略
+              </Col>
+            </Row>
+            : <div className="alertRow">
+            注意：在忽略时间内我们将不会发送告警邮件通知！
+            </div>
+          }
           <div className="modalParams">
             <span className="keys">忽略时长</span>
             <InputNumber size="large" value={this.state.time} min={1} style={{margin:'0 10px'}} onChange={(e)=> this.setState({time: e})}/>
