@@ -85,8 +85,8 @@ export function getServiceStatus(_service) {
     unavailableReplicas,
     observedGeneration,
   } = status
-  const { strategy = {} } = service.spec.template || {}
-  if (strategy && status.replicas > specReplicas && strategy.type === 'RollingUpdate') {
+  const { strategy = {} } = service.spec || {}
+  if (status.replicas > specReplicas && strategy.type === 'RollingUpdate') {
     const newCount = metadata.annotations['rollingupdate/newCount']
     if (newCount === undefined) {
       phase = 'ScrollRelease'
