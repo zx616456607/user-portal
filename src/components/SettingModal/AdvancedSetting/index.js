@@ -549,7 +549,7 @@ class AdvancedSetting extends Component {
             </div>
             <div>
               <div className='contentbodycontainers'>
-                <span>
+                <span className="switchLabel">
                  {/* {
                     swicthChecked
                       ? <span>开启</span>
@@ -610,7 +610,7 @@ class AdvancedSetting extends Component {
             </div>
             <div>
               <div className='contentbodycontainers'>
-                <span>
+                <span className="switchLabel">
                  {/* {
                     traditionChecked
                       ? <span>开启</span>
@@ -640,10 +640,9 @@ class AdvancedSetting extends Component {
         </div>
         <Card title="计费功能开关" className="billingCard">
           <div className='alertRow'>
-            开启后，平台资源使用支持计费功能，系统将向个人项目和共享项目默认分配10 T 的余额，应用、存储、数据库与缓存这些功能的使用将被计费，
-            请管理员根据项目需要向成员的个人项目和共享项目充值；关闭后，平台不支持计费功能
+            通过计费功能开关，切换平台上应用、存储、数据库与缓存等资源的计费功能。重新开启后，项目的余额将保持在上一次关闭前的状态
           </div>
-          <span>
+          <span className="switchLabel">
             计费功能
           </span>
           <Switch checkedChildren="开" unCheckedChildren="关" checked={billingChecked} onChange={this.handleBilling} className='switchstyle' />
@@ -723,15 +722,14 @@ class AdvancedSetting extends Component {
             billingChecked ?
               <div className='container'>
                 <div className='item'>
-                  关闭计费功能后，平台上计费相关的将被移除，应用、存储、数据库与缓存的使用将不计费，在资源配额充的情况下，
-                  用户可无需考虑项目余额任意创建资源。
+                  关闭计费功能后，平台上计费相关的将被移除，应用、存储、数据库与缓存的使用将不计费，在资源配额充足的情况下，
+                  创建资源时将不受项目余额限制。
                 </div>
                 <div className='item color'><Icon type="question-circle-o" style={{marginRight:'8px'}}/>确认关闭计费功能？</div>
               </div>
               : <div className='container'>
                 <div className='item'>
-                  开启后，平台支持计费功能，系统将向个人项目和共享项目默认分配10 T 的余额，应用、存储、数据库与缓存这些功能的使用将被计费，
-                  请管理员根据项目需要向成员的个人项目和共享项目充值，以免资源不足造成停止。
+                  开启后，平台支持对应用、存储、数据库与缓存等资源计费，请管理员根据项目需要像个人项目和共享项目充值，以免余额不足影响使用。
                 </div>
                 <div className='item color'><Icon type="question-circle-o" style={{marginRight:'8px'}}/>确认开启计费功能？</div>
               </div>
