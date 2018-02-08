@@ -590,6 +590,10 @@ const menusText = defineMessages({
   MonitorChart: {
     id: 'ManageMonitor.operationalAudit.MonitorChart',
     defaultMessage: '监控图表'
+  },
+  ManageClassify: {
+    id: 'ManageMonitor.operationalAudit.ManageClassify',
+    defaultMessage: '分类管理'
   }
 });
 
@@ -991,6 +995,8 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.SecretConfigGroup)
     case '70':
       return formatMessage(menusText.SecretConfig)
+    case '71':
+      return formatMessage(menusText.ManageClassify)
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -1184,6 +1190,13 @@ function formatResourceName(resourceName, resourceId) {
     //check cloneName
     if (!!newBody.cloneName){
       return newBody.cloneName
+    }
+    // check classifyName
+    if (newBody.classifies) {
+      const classifyNameArray = newBody.classifies.map(item => {
+        return item.classifyName
+      })
+      return classifyNameArray.join(',')
     }
     //check snapshotName
     if (!!newBody.snapshotName && !newBody.cloneName){
@@ -1542,17 +1555,6 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[8]);
         showOperationalList.push(operationalList[0]);
         showOperationalList.push(operationalList[1]);
-      case '69':
-        //SecretConfigGroup
-        showOperationalList.push(operationalList[8]);
-        showOperationalList.push(operationalList[0]);
-        break;
-      case '70':
-        //SecretConfig
-        showOperationalList.push(operationalList[8]);
-        showOperationalList.push(operationalList[0]);
-        showOperationalList.push(operationalList[1]);
-        break;
       case '24':
         //Node
         showOperationalList = [];
@@ -1775,6 +1777,21 @@ class OperationalAudit extends Component {
       case '68':
         // 监控图表
         showOperationalList.push(operationalList[1]);
+        break;
+      case '69':
+        //SecretConfigGroup
+        showOperationalList.push(operationalList[8]);
+        showOperationalList.push(operationalList[0]);
+        break;
+      case '70':
+        //SecretConfig
+        showOperationalList.push(operationalList[8]);
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[1]);
+        break;
+      case '71':
+        // 分类管理
+        showOperationalList.push(operationalList[1])
         break;
       case '0':
         //Unknown
@@ -2085,6 +2102,10 @@ class OperationalAudit extends Component {
           {
             value: '64',
             label: formatMessage(menusText.Image),
+          },
+          {
+            value: '71',
+            label: formatMessage(menusText.ManageClassify)
           }
         ]
       },
