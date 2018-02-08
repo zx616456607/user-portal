@@ -51,7 +51,34 @@ exports.getLBList = function* () {
   const query = this.query
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'loadbalances'], query)
+  const result = yield api.getBy([cluster, 'loadbalances'])
+  let { data } = result
+  result.total = data.length || 0
+  if (data.length) {
+    if (query.creationTime) {
+      switch (query.creationTime) {
+        case 'd':
+          data.sort((a, b) => 
+            new Date(b.metadata.creationTimestamp).getTime() - new Date(a.metadata.creationTimestamp).getTime())
+          break
+        case 'a':
+          data.sort((a, b) => 
+            new Date(a.metadata.creationTimestamp).getTime() - new Date(b.metadata.creationTimestamp).getTime())
+          break
+        default:
+          break
+      }
+    }
+    if (query.name) {
+      data = data.filter(item => item.metadata.annotations.displayName.indexOf(query.name) > -1)
+      result.total = data.length
+    }
+    if (query.page && query.size) {
+      data = data.slice((query.page - 1) * query.size, query.size)
+    }
+    result.data = data
+  }
+  
   this.body = result
 }
 
