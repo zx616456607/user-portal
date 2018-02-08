@@ -366,7 +366,7 @@ class UploadModal extends Component {
             <Input {...versionLabel} placeholder="请输入版本标签来标记此次上传文件" />
           </Form.Item>
           {
-            isPublished && 
+            isPublished &&
               <div className="failedColor publishedHint"><Icon type="exclamation-circle-o" /> 注意：该应用包已发布至商店，本次上传将下架原版本，需重新发布</div>
           }
           {
@@ -423,6 +423,7 @@ class WrapManage extends Component {
       selectedRowKeys: [],
       page: 1,
       id: [],
+      isRefresh: false,
     }
   }
   getList = (e)=> {
@@ -519,6 +520,10 @@ class WrapManage extends Component {
     }
     this.setState({delAll: true})
   }
+  handleRefresh() {
+    this.setState({isRefresh: true})
+    this.getList()
+  }
   render() {
     const { location } = this.props
     const funcCallback = {
@@ -533,19 +538,20 @@ class WrapManage extends Component {
       goDeploy: this.goDeploy,
       location
     }
+    const _this = this
     return (
       <QueueAnim>
         <Title title="应用包管理" />
         <div key="wrap_list" id="app_wrap_manage">
           <div className="btnRow">
             <Button size="large" type="primary" icon="upload" onClick={() => this.uploadModal(true)}>上传包文件</Button>
-            <Button className="refreshBtn" size="large" style={{ margin: '0 10px' }} onClick={()=> this.getList()}><i className='fa fa-refresh' />&nbsp;刷 新</Button>
+            <Button className="refreshBtn" size="large" style={{ margin: '0 10px' }} onClick={()=> this.handleRefresh()}><i className='fa fa-refresh' />&nbsp;刷 新</Button>
             <Button className="refreshBtn" size="large" onClick={()=> this.showDeleteModal()} icon="delete" style={{ marginRight: '10px' }} disabled={this.state.selectedRowKeys.length == 0}>删 除</Button>
             <Input size="large" onPressEnter={()=> this.getList(true)} style={{ width: 180 }} placeholder="请输入包名称搜索" ref="wrapSearch" />
             <i className="fa fa-search btn-search" onClick={()=> this.getList(true)}/>
           </div>
           <Card className="wrap_content">
-            <WrapListTable currentType="trad" func={func} rowCheckbox={true} selectedRowKeys={this.state.selectedRowKeys} />
+            <WrapListTable currentType="trad" _this={_this} isRefresh={this.state.isRefresh} func={func} rowCheckbox={true} selectedRowKeys={this.state.selectedRowKeys} />
           </Card>
         </div>
 
