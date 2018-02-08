@@ -136,7 +136,6 @@ class VmList extends Component {
     this.meunClick = this.meunClick.bind(this);
     this.closeCreateVmModal = this.closeCreateVmModal.bind(this);
     this.openCreateVmModal = this.openCreateVmModal.bind(this);
-    this.refreshVmList = this.refreshVmList.bind(this);
     this.onSearchVmList = this.onSearchVmList.bind(this);
     this.onConfirmOperaVm = this.onConfirmOperaVm.bind(this);
     this.closeConfirmModal = this.closeConfirmModal.bind(this);
@@ -153,22 +152,7 @@ class VmList extends Component {
   }
 
   componentWillMount() {
-    const { getIntegrationVmList, integrationId, currentDataCenter } = this.props;
-    const _this = this;
-    getIntegrationVmList(integrationId, currentDataCenter, {
-      success: {
-        func: (res) => {
-          let vmList = res.result.data;
-          if (!Boolean(vmList)) {
-            vmList = [];
-          }
-          _this.setState({
-            vmList: vmList
-          })
-        },
-        isAsync: true
-      }
-    })
+    this.loadData()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -191,7 +175,23 @@ class VmList extends Component {
       })
     }
   }
-
+  loadData() {
+    const { getIntegrationVmList, integrationId, currentDataCenter } = this.props;
+    getIntegrationVmList(integrationId, currentDataCenter, {
+      success: {
+        func: (res) => {
+          let vmList = res.result.data;
+          if (!Boolean(vmList)) {
+            vmList = [];
+          }
+          this.setState({
+            vmList: vmList
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
   onChangeShowType(type) {
     //this function for user change the type of app list
     this.setState({
@@ -293,12 +293,6 @@ class VmList extends Component {
     this.setState({
       createVmModal: false
     })
-  }
-
-  refreshVmList() {
-    //this function for refresh the vm list
-    const { currentDataCenter, getIntegrationVmList, integrationId } = this.props;
-    getIntegrationVmList(integrationId, currentDataCenter);
   }
 
   onSearchVmList(e) {
@@ -481,7 +475,7 @@ class VmList extends Component {
             <i className='fa fa-plus' />&nbsp;
             <FormattedMessage {...menusText.create} />
           </Button>
-          <Button type='primary' size='large' className='refreshBtn' onClick={this.refreshVmList.bind(this)}>
+          <Button type='primary' size='large' className='refreshBtn' onClick={()=> this.loadData()}>
             <i className='fa fa-refresh' />&nbsp;
             <FormattedMessage {...menusText.refresh} />
           </Button>
