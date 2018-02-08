@@ -1482,8 +1482,6 @@ class OperationalAudit extends Component {
         break;
       case '11':
         //ServiceRollingUpgrade
-        showOperationalList.push(operationalList[6]);
-        showOperationalList.push(operationalList[7]);
         showOperationalList.push(operationalList[1]);
         break;
       case '12':
@@ -1774,6 +1772,9 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[0]);
         showOperationalList.push(operationalList[1]);
         showOperationalList.push(operationalList[2]);
+      case '68':
+        // 监控图表
+        showOperationalList.push(operationalList[1]);
         break;
       case '0':
         //Unknown
