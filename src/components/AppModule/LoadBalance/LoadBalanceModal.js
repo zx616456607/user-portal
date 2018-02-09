@@ -178,6 +178,12 @@ class LoadBalanceModal extends React.Component {
             this.setState({
               confirmLoading: false
             })
+            if (res.statusCode === 409) {
+              if (res.message.message.indexOf('name') > -1) {
+                notify.warn(currentBalance ? '修改失败' : '创建失败', '该负载均衡器的名称已经存在')
+                return
+              }
+            }
             notify.warn(currentBalance ? '修改失败' : '创建失败', res.message.message || res.message)
           }
         },

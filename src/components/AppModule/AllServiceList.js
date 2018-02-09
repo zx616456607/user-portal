@@ -13,6 +13,7 @@ import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pag
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
+import isEmpty from 'lodash/isEmpty'
 import AppServiceDetail from './AppServiceDetail'
 import './style/AllService.less'
 import { calcuDate } from '../../common/tools'
@@ -328,16 +329,23 @@ const MyComponent = React.createClass({
     }
     switch(group.type){
       case 'private':
-        return <Tooltip title='该服务可内网访问'>
+        return <Tooltip title='该服务可内网访问（通过集群网络出口）'>
           <span className='standrand privateColor'>内</span>
         </Tooltip>
       case 'public':
-        return <Tooltip title='该服务可公网访问'>
+        return <Tooltip title='该服务可公网访问（通过集群网络出口）'>
           <span className='standrand publicColor'>公</span>
         </Tooltip>
       default:
         return <span></span>
     }
+  },
+  renderLBIcon() {
+    return (
+      <Tooltip title='该服务可被访问（通过应用负载均衡 LB ）'>
+        <span className='standrand privateColor'>lb</span>
+      </Tooltip>
+    )
   },
   render: function () {
     const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs, loginUser, scope } = this.props
@@ -447,10 +455,21 @@ const MyComponent = React.createClass({
         appName = item.metadata.labels[LABEL_APPNAME]
       }
       let httpIcon = 'http'
+      let lb = false
       for (let k8sService of this.props.k8sServiceList) {
         if (k8sService && k8sService.metadata && item.metadata.name === k8sService.metadata.name) {
           if (k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
             httpIcon = 'https'
+          }
+          if (
+            k8sService.metadata.annotations && 
+            k8sService.metadata.annotations['tenxcloud.com/lb'] &&
+            !isEmpty(k8sService.metadata.annotations['tenxcloud.com/lb'])
+          ) {
+            let lbArr = JSON.parse(k8sService.metadata.annotations['tenxcloud.com/lb'])
+            if (!isEmpty(lbArr) && !isEmpty(lbArr[0].name)) {
+              lb = true
+            }
           }
           break
         }
@@ -482,7 +501,7 @@ const MyComponent = React.createClass({
       }
       let heightSize = '60px'
       let lineHeightSize = '60px'
-      if(volume || group){
+      if(volume || group || lb){
         heightSize = '30px'
         lineHeightSize = '40px'
       }
@@ -499,7 +518,7 @@ const MyComponent = React.createClass({
               {item.metadata.name}
             </div>
             {
-              (volume || group) && <div className='icon_container'>
+              (volume || group || lb) && <div className='icon_container'>
                 {
                   volume && <Tooltip title="该服务已添加存储" placement="top">
                     <span className='standrand volumeColor'>存</span>
@@ -507,6 +526,9 @@ const MyComponent = React.createClass({
                 }
                 {
                   group && this.renderGroupIcon(item.lbgroup)
+                }
+                {
+                  lb && this.renderLBIcon()
                 }
               </div>
             }

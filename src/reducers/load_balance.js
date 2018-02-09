@@ -39,7 +39,8 @@ function loadBalanceList(state = {}, action) {
     case ActionTypes.LOAD_BALANCE_LIST_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        data: action.response.result.data
+        data: action.response.result.data,
+        total: action.response.result.total
       })
     case ActionTypes.LOAD_BALANCE_LIST_FAILURE:
       return Object.assign({}, state, {
@@ -70,6 +71,25 @@ function loadBalanceDetail(state = {}, action) {
   }
 }
 
+function serviceLoadBalances(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.GET_SERVICE_LOADBALANCE_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_SERVICE_LOADBALANCE_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data
+      })
+    case ActionTypes.GET_SERVICE_LOADBALANCE_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
 export default function loadBalance (state = {
   loadBalanceIPList,
   loadBalanceList
@@ -77,6 +97,7 @@ export default function loadBalance (state = {
   return {
     loadBalanceIPList: loadBalanceIPList(state.loadBalanceIPList, action),
     loadBalanceList: loadBalanceList(state.loadBalanceList, action),
-    loadBalanceDetail: loadBalanceDetail(state.loadBalanceDetail, action)
+    loadBalanceDetail: loadBalanceDetail(state.loadBalanceDetail, action),
+    serviceLoadBalances: serviceLoadBalances(state.serviceLoadBalances, action)
   }
 }
