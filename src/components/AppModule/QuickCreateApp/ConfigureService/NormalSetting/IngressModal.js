@@ -14,6 +14,7 @@ import {
   Radio, Checkbox, Slider, Row, Col
 } from 'antd'
 import classNames from 'classnames'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../../constants'
 import HealthCheckModal from '../../../LoadBalance/HealthCheckModal'
 
 const FormItem = Form.Item
@@ -105,22 +106,76 @@ class IngressModal extends React.Component {
   }
 
   monitorNameCheck = (rules, value, callback) => {
+    const { checkIngressNameAndHost, clusterID, lbname, form } = this.props
     if (!value) {
       return callback('请输入监听器名称')
     } 
-    callback()
+    clearTimeout(this.nameTimeout)
+    this.nameTimeout = setTimeout(() => {
+      checkIngressNameAndHost(clusterID, lbname, {
+        displayName: value,
+        path: form.getFieldValue('host')
+      }, {
+        success: {
+          func: () => {
+            callback()
+          }
+        },
+        failed: {
+          func: res => {
+            if (res.statusCode === 409) {
+              return callback('监听器名称已经存在')
+            }
+            callback(res.message.message || res.message)
+          }
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
   }
-
+  
+  hostCheck = (rules, value, callback) => {
+    const { checkIngressNameAndHost, clusterID, lbname, form } = this.props
+    if (!value) {
+      return callback('请输入校验规则')
+    }
+    clearTimeout(this.nameTimeout)
+    this.nameTimeout = setTimeout(() => {
+      checkIngressNameAndHost(clusterID, lbname, {
+        displayName: form.getFieldValue('monitorName'),
+        path: value
+      }, {
+        success: {
+          func: () => {
+            callback()
+          }
+        },
+        failed: {
+          func: res => {
+            if (res.statusCode === 409) {
+              return callback('校验规则已经存在')
+            }
+            callback(res.message.message || res.message)
+          }
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
+  }
   portCheck = (rules, value, callback) => {
     if (!value) {
       return callback('请输入监听端口')
+    }
+    if (!/^[0-9]*$/.test(value)) {
+      return callback('监听端口必须为数字')
+    }
+    if (+value < 1 || +value > 65535) {
+      return callback('监听端口必须在1-65535之间')
     }
     callback()
   }
   render() {
     const { confirmLoading, checkVisible, healthOptions, healthCheck } = this.state
     const { visible, form, currentIngress } = this.props
-    const { getFieldProps, getFieldValue, setFieldsValue } = form
+    const { getFieldProps, getFieldValue, setFieldsValue, getFieldError, isFieldValidating } = form
   
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -142,7 +197,12 @@ class IngressModal extends React.Component {
       initialValue: currentIngress ? currentIngress.sessionSticky : false
     })
     const relayRuleProps = getFieldProps('host', {
-      initialValue: currentIngress ? currentIngress.host : ''
+      initialValue: currentIngress ? currentIngress.host : '',
+      rules: [
+        {
+          validator: this.hostCheck
+        }
+      ]
     })
     const portProps = getFieldProps('port', {
       rules: [
@@ -176,6 +236,8 @@ class IngressModal extends React.Component {
           <FormItem
             label="监听器名称"
             {...formItemLayout}
+            hasFeedback={!!getFieldValue('monitorName')}
+            help={isFieldValidating('monitorName') ? '校验中...' : (getFieldError('monitorName') || []).join(', ')}
           >
             <Input {...monitorNameProps} placeholder="请输入监听器名称"/>
           </FormItem>
@@ -238,8 +300,10 @@ class IngressModal extends React.Component {
           <FormItem
             label="转发规则"
             {...formItemLayout}
+            hasFeedback={!!getFieldValue('host')}
+            help={isFieldValidating('host') ? '校验中...' : (getFieldError('host') || []).join(', ')}
           >
-            <Input placeholder="输入域名 URL （非必填）" {...relayRuleProps}/>
+            <Input placeholder="输入域名 URL " {...relayRuleProps}/>
           </FormItem>
           <FormItem
             label="端口"

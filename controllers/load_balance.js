@@ -143,6 +143,35 @@ exports.deleteIngress = function* () {
   this.body = result
 }
 
+exports.getServiceLB = function* () {
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'loadbalances', 'services', name, 'controller'])
+  this.body = result
+}
+
+exports.unbindService = function* () {
+  const cluster = this.params.cluster
+  const lbname = this.params.lbname
+  const serviceName = this.params.servicename
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.deleteBy([cluster, 'loadbalances', lbname, 'services', serviceName])
+  this.body = result
+}
+
+exports.nameAndHostCheck = function* () {
+  const cluster = this.params.cluster
+  const lbname = this.params.lbname
+  const query = this.query
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'loadbalances', lbname, 'ingresses', 'exist'], query)
+  this.body = result
+}
+
 function getRegistryURL() {
   // Global check
   if (registryConfigLoader.GetRegistryConfig() && registryConfigLoader.GetRegistryConfig().url) {

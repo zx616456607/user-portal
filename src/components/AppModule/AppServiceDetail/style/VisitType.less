@@ -10,14 +10,14 @@
   }
   .visitTypeInnerBox{
     padding: 16px;
-    .visitTypeTabs {
-      margin-top: 20px;
-    }
-    &>.ant-btn{
-      margin-right: 20px;
-    }
     .radioBox{
       margin-top: 20px;
+      .btnBox {
+        margin-bottom: 20px;
+        &>.ant-btn{
+          margin-right: 20px;
+        }
+      }
       .ant-radio-wrapper{
         font-size: 14px;
         color: #747474;
@@ -40,8 +40,11 @@
     }
     .loadBalancePart {
       padding-top: 20px;
-      .ant-row {
-        margin-bottom: 0;
+      .ant-row-flex:not(:last-of-type) {
+        margin-bottom: 20px;
+      }
+      .noLB {
+        text-align: center;
       }
     }
   }

@@ -17,7 +17,7 @@ import cloneDeep from 'lodash/cloneDeep'
 
 import './style/LoadBalance.less'
 import IngressModal from './IngressModal'
-import { getLBList } from '../../../../../actions/load_balance'
+import { getLBList, checkIngressNameAndHost } from '../../../../../actions/load_balance'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -120,7 +120,7 @@ class LoadBalance extends React.Component {
   
   render() {
     const { ingressVisible, currentIngress } = this.state
-    const { form, loadBalanceList } = this.props
+    const { form, loadBalanceList, checkIngressNameAndHost, clusterID } = this.props
     const { getFieldProps, getFieldValue } = form
     
     getFieldProps('lbKeys', {
@@ -197,6 +197,9 @@ class LoadBalance extends React.Component {
             currentIngress={currentIngress}
             closeModal={this.closeIngressModal}
             callback={this.getIngressConfig}
+            clusterID={clusterID}
+            lbname={getFieldValue('loadBalance')}
+            checkIngressNameAndHost={checkIngressNameAndHost}
           />
         }
         <Col span={20} offset={4}>
@@ -239,5 +242,6 @@ const mapStateToProps = state => {
 }
 
 export default connect(mapStateToProps, {
-  getLBList
+  getLBList,
+  checkIngressNameAndHost
 })(LoadBalance)
