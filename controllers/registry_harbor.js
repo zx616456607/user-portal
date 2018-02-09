@@ -211,6 +211,10 @@ exports.getRepository = function* () {
   const result = yield new Promise((resolve, reject) => {
     harbor.getRepository(name, (err, statusCode, body) => {
       if (statusCode != 200) {
+        if (!err) {
+          err = new Error(`${statusCode} error`)
+          err.status = statusCode
+        }
         return reject(err)
       }
       return resolve(body)
