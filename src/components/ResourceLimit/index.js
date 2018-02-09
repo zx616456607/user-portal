@@ -443,27 +443,31 @@ class ResourceQuota extends React.Component {
     return plus
   }
 
+  filterValue(value) {
+    return value.replace(/[()]个[()]/g, '')
+  }
+
   checkInputValue = (rules, value, callback, key) => {
     if (!value) {
-      return callback(`${key}配额不能为空`)
+      return callback(`${this.filterValue(key)}配额不能为空`)
     }
     if (value.length > 8) {
-      return callback(`${key}配额不能超过8位字符`)
+      return callback(`${this.filterValue(key)}配额不能超过8位字符`)
     }
     let reg = /^[1-9]\d*(\.\d{1,2})?$/
     if (!reg.test(value)) {
-      return callback(`${key}配额格式不正确`)
+      return callback(`${this.filterValue(key)}配额格式不正确`)
     }
     callback()
   }
 
   globalValueCheck = (rules, value, callback, key) => {
     if (!value) {
-      return callback(`${key}配额不能为空`)
+      return callback(`${this.filterValue(key)}配额不能为空`)
     }
     let reg = /^[1-9]*[1-9][0-9]*$/
     if (!reg.test(value)) {
-      return callback(`${key}配额数量必须是整数`)
+      return callback(`${this.filterValue(key)}配额数量必须是整数`)
     }
     callback()
   }
@@ -629,7 +633,7 @@ class ResourceQuota extends React.Component {
                     const inputProps = getFieldProps(item.key, {
                       rules: !checkValue && !this.state[`${item.key}-check`] ? [
                         {
-                          validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.key)
+                          validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.text)
                         },
                       ] : [],
                       initialValue: globaleList ? checkValue === true ? undefined : beforeValue === -1 ? undefined : beforeValue : 0,
@@ -702,7 +706,7 @@ class ResourceQuota extends React.Component {
                     const inputProps = getFieldProps(item.key, {
                       rules: !checkValue && !this.state[`${item.key}-check`] ? [
                         {
-                          validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.key)
+                          validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.text)
                         },
                       ] : [],
                       initialValue: globaleList ? checkValue === true ? undefined : this.maxGlobaleCount(item.key) === -1 ? undefined : this.maxGlobaleCount(item.key) : 0
@@ -857,7 +861,7 @@ class ResourceQuota extends React.Component {
                         const inputProps = getFieldProps(item.key, {
                           rules: !checkValue && !this.state[`${item.key}-check`] ? [
                             {
-                              validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, item.key)
+                              validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, item.text)
                             }
                           ] : [],
                           initialValue: clusterList ? checkValue === true ? undefined : beforeValue === -1 ? undefined : beforeValue : 0
@@ -928,7 +932,7 @@ class ResourceQuota extends React.Component {
                         const inputProps = getFieldProps(item.key, {
                           rules: !checkValue && !this.state[`${item.key}-check`] ? [
                             {
-                              validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.key)
+                              validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.text)
                             }
                           ] : [],
                           initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key) : 0
@@ -998,7 +1002,7 @@ class ResourceQuota extends React.Component {
                         const inputProps = getFieldProps(item.key, {
                           rules: !checkValue && !this.state[`${item.key}-check`] ? [
                             {
-                              validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.key)
+                              validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.text)
                             }
                           ] : [],
                           initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key) : 0

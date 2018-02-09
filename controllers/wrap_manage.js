@@ -199,6 +199,7 @@ exports.getPkgStoreList = function* () {
   const query = this.query
   const api = apiFactory.getApi(loginUser)
   const request = yield api.pkg.getBy(['store'], query)
+  request.data.registry = global.globalConfig.ftpConfig.addr
   this.body = request
 }
 
@@ -264,6 +265,21 @@ exports.downloadDocs = function* () {
   }
   this.set('content-type', result.headers['content-type'])
   this.body = result.res
+}
+
+exports.updatePkgGroup = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const body = this.request.body
+  const result = yield api.pkg.updateBy(['group'], null, body)
+  this.body = result
+}
+
+exports.getPkgGroupDetailList = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.pkg.getBy(['group', 'detail'], null)
+  this.body = result
 }
 
 function* parseForm(ctx) {

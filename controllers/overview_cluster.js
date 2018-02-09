@@ -81,7 +81,7 @@ exports.getClusterOverview = function* () {
   try {
     // Set timeout to 20 seconds
     const api = apiFactory.getApi(loginUser)
-    let summaryResult = yield api.overview.getBy(["clusters", cluster, "nodesummary"], null, {"timeout": 20 * 1000})
+    let summaryResult = yield api.overview.getBy(["clusters", cluster, "nodesummary"], this.query, {"timeout": 20 * 1000})
     if (summaryResult && summaryResult.data) {
       nodesummary = summaryResult.data
     }

@@ -18,11 +18,11 @@ export const OVERVIEW_CLUSTERINFO_FAILURE = 'OVERVIEW_CLUSTERINFO_FAILURE'
 
 // Fetches cluster info from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchClusterInfo(clusterID) {
+function fetchClusterInfo(clusterID, query) {
   return {
     [FETCH_API]: {
       types: [OVERVIEW_CLUSTERINFO_REQUEST, OVERVIEW_CLUSTERINFO_SUCCESS, OVERVIEW_CLUSTERINFO_FAILURE],
-      endpoint: `${API_URL_PREFIX}/overview/clusterinfo/clusters/${clusterID}`,
+      endpoint: `${API_URL_PREFIX}/overview/clusterinfo/clusters/${clusterID}?${toQuerystring(query)}`,
       schema: {}
     }
   }
@@ -40,9 +40,9 @@ function fetchStdClusterInfo(clusterID) {
 
 // Fetches cluster info from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadClusterInfo(clusterID) {
+export function loadClusterInfo(clusterID, query) {
   return (dispatch, getState) => {
-    return dispatch(fetchClusterInfo(clusterID))
+    return dispatch(fetchClusterInfo(clusterID, query))
   }
 }
 

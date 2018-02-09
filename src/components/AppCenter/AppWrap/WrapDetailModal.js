@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
-import { Modal, Form, Input, Button, Dropdown, Menu, Icon, Row, Col, Select, Tabs, Upload } from 'antd'
+import { Modal, Form, Input, Button, Dropdown, Menu, Icon, Row, Col, Select, Tabs, Upload, Tooltip } from 'antd'
 import defaultApp from '../../../../static/img/appstore/defaultapp.png'
 import './style/WrapDetailModal.less'
 import {
@@ -73,7 +73,7 @@ class WrapDetailModal extends React.Component {
     getWrapDetail(pkgID, {
       success: {
         func: res => {
-          const pkgDetail  = res.data.pkgs
+          const pkgDetail = res.data.pkgs
           if (pkgDetail && (pkgDetail.publishStatus !== 0)) {
             this.setState({
               canRename: true
@@ -160,10 +160,10 @@ class WrapDetailModal extends React.Component {
   }
 
   checkClassify(rule, value, callback) {
-    if(!value || !value.length) {
+    if (!value || !value.length) {
       return callback('请选择或输入分类')
     }
-    if(value && value.length > 1) {
+    if (value && value.length > 1) {
       return callback('只能选择一个分类')
     }
     callback()
@@ -187,7 +187,7 @@ class WrapDetailModal extends React.Component {
     if (!value) {
       return callback('请输入描述信息')
     }
-    if(value.length > 128) {
+    if (value.length > 128) {
       return callback('描述信息不得超过128个字符')
     }
     callback()
@@ -196,8 +196,8 @@ class WrapDetailModal extends React.Component {
     if (!status && status !== 0) return
     const { pkgDetail } = this.props
     let phase
-    let progress = {status: false};
-    switch(status) {
+    let progress = { status: false };
+    switch (status) {
       case 0:
         phase = 'Unpublished'
         break
@@ -217,7 +217,7 @@ class WrapDetailModal extends React.Component {
         phase = 'Checking'
         break
     }
-    return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && pkgDetail.approveMessage}/>
+    return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && pkgDetail.approveMessage} />
   }
 
   deleteHint() {
@@ -226,37 +226,37 @@ class WrapDetailModal extends React.Component {
     })
   }
 
-  deleteAction(status,id) {
+  deleteAction(status, id) {
     if (status) {
       id = [id]
-      this.setState({delAll: true,id})
+      this.setState({ delAll: true, id })
       return
     }
-    this.setState({delAll: false})
+    this.setState({ delAll: false })
   }
 
-  deleteVersion = ()=> {
+  deleteVersion = () => {
     let notificat = new NotificationHandler()
     const { id } = this.state
     const { deleteWrapManage, callback, closeDetailModal } = this.props
-    deleteWrapManage({ids: id},{
+    deleteWrapManage({ ids: id }, {
       success: {
-        func:()=> {
+        func: () => {
           notificat.success('删除成功')
           callback()
           closeDetailModal()
           this.setState({
             visible: false
           })
-        },isAsync: true
+        }, isAsync: true
       },
       failed: {
-        func: (err)=> {
-          notificat.error('删除失败',err.message.message || err.message)
+        func: (err) => {
+          notificat.error('删除失败', err.message.message || err.message)
         }
       },
       finally: {
-        func:()=> {
+        func: () => {
           this.deleteAction(false)
         }
       }
@@ -297,7 +297,7 @@ class WrapDetailModal extends React.Component {
           this.deleteHint()
           return
         }
-        this.deleteAction(true,row.id)
+        this.deleteAction(true, row.id)
         break
       case 'audit':
         this.setState({
@@ -345,7 +345,7 @@ class WrapDetailModal extends React.Component {
               </Menu.Item>
             ]
             :
-            <Menu.Item key="none" style={{ display: 'none' }}/>
+            <Menu.Item key="none" style={{ display: 'none' }} />
         }
         <Menu.Item key="download">
           <a target="_blank" href={`${API_URL_PREFIX}/pkg/${pkgDetail && pkgDetail.id}`}>下载</a>
@@ -361,7 +361,7 @@ class WrapDetailModal extends React.Component {
                 下架
               </Menu.Item>
               :
-              <Menu.Item key="noneAdmin" style={{ display: 'none' }}/>
+              <Menu.Item key="noneAdmin" style={{ display: 'none' }} />
         }
       </Menu>
 
@@ -404,41 +404,41 @@ class WrapDetailModal extends React.Component {
     deleteWrapDocs(pkgDetail.id, {
       name: currentFile
     }, {
-      success: {
-        func: () => {
-          notify.close()
-          notify.success('删除成功')
-          this.loadDetail(pkgDetail.id)
-          this.closeDeleteModal()
-          this.setState({
-            deleteLoading: false
-          })
-        },
-        isAsync: true
-      },
-      failed: {
-        func: res => {
-          notify.close()
-          if (res.statusCode < 500) {
-            notify.warn('删除失败', res.message.message)
+        success: {
+          func: () => {
+            notify.close()
+            notify.success('删除成功')
+            this.loadDetail(pkgDetail.id)
+            this.closeDeleteModal()
             this.setState({
               deleteLoading: false
             })
-            return
+          },
+          isAsync: true
+        },
+        failed: {
+          func: res => {
+            notify.close()
+            if (res.statusCode < 500) {
+              notify.warn('删除失败', res.message.message)
+              this.setState({
+                deleteLoading: false
+              })
+              return
+            }
+            notify.error('删除失败', res.message)
           }
-          notify.error('删除失败', res.message)
+        },
+        finally: {
+          func: () => {
+            notify.close()
+            this.setState({
+              deleteLoading: false
+            })
+            this.closeDeleteModal()
+          }
         }
-      },
-      finally: {
-        func: () => {
-          notify.close()
-          this.setState({
-            deleteLoading: false
-          })
-          this.closeDeleteModal()
-        }
-      }
-    })
+      })
   }
 
   openDeleteModal(name) {
@@ -465,7 +465,7 @@ class WrapDetailModal extends React.Component {
         <Icon type="file-text" />
         {item}
         <a target="_blank" href={`${API_URL_PREFIX}/pkg/${pkgDetail.id}/docs/download?file=${encodeURIComponent(item)}`}><Icon type="download" /></a>
-        <Icon type="delete" onClick={() => this.openDeleteModal(item)}/></div>
+        <Icon type="delete" onClick={() => this.openDeleteModal(item)} /></div>
     })
   }
 
@@ -485,16 +485,16 @@ class WrapDetailModal extends React.Component {
     const { visible, isEdit, releaseVisible, canRename, deleteLoading, docsModal, activeKey } = this.state
     const { getFieldProps } = form
     const formItemLayout = {
-      labelCol: {span: 3},
-      wrapperCol: {span: 10},
+      labelCol: { span: 3 },
+      wrapperCol: { span: 10 },
     }
     const children = [];
     wrapGroupList &&
-    wrapGroupList.classifies &&
-    wrapGroupList.classifies.length &&
-    wrapGroupList.classifies.forEach(item => {
-      children.push(<Option value={item.classifyName} key={item.classifyName}>{item.classifyName}</Option>)
-    })
+      wrapGroupList.classifies &&
+      wrapGroupList.classifies.length &&
+      wrapGroupList.classifies.forEach(item => {
+        children.push(<Option value={item.classifyName} key={item.classifyName}>{item.classifyName}</Option>)
+      })
     const classifyProps = getFieldProps('classifyName', {
       rules: [
         {
@@ -519,7 +519,7 @@ class WrapDetailModal extends React.Component {
       ],
       initialValue: pkgDetail && pkgDetail.description ? pkgDetail.description : ''
     })
-    return(
+    return (
       <Modal
         className="wrapDetail AppServiceDetail"
         transitionName="move-right"
@@ -527,15 +527,15 @@ class WrapDetailModal extends React.Component {
         onCancel={this.cancelModal}
       >
         <Modal title="删除操作" visible={this.state.delAll}
-               onCancel={()=> this.deleteAction(false)}
-               onOk={this.deleteVersion}
+          onCancel={() => this.deleteAction(false)}
+          onOk={this.deleteVersion}
         >
           <div className="confirmText">确定要删除所选版本？</div>
         </Modal>
         <Modal title="删除操作" visible={this.state.deleteModal}
-               onCancel={()=> this.closeDeleteModal()}
-               onOk={() => this.confirmDeleteModal()}
-               confirmLoading={deleteLoading}
+          onCancel={() => this.closeDeleteModal()}
+          onOk={() => this.confirmDeleteModal()}
+          confirmLoading={deleteLoading}
         >
           <div className="confirmText">确定要删除所选附件？</div>
         </Modal>
@@ -565,7 +565,9 @@ class WrapDetailModal extends React.Component {
             }
           />
           <div className="nameAndTag">
-            <div key="name" className="name">{pkgDetail && pkgDetail.fileName}</div>
+            <Tooltip title={pkgDetail && pkgDetail.fileName}>
+              <div key="name" className="name">{pkgDetail && pkgDetail.fileName}</div>
+            </Tooltip>
             <div key="tag" className="tag">版本：{pkgDetail && pkgDetail.fileTag}</div>
           </div>
           <div className="dropDown">
@@ -589,7 +591,7 @@ class WrapDetailModal extends React.Component {
                       <Button className="cancelBtn" key="cancel" size="large" onClick={this.cancelEdit}>取消</Button>,
                       <Button key="save" size="large" type="primary" onClick={this.saveEdit}>保存</Button>
                     ] :
-                    <Button type="primary" size="large" onClick={() => this.setState({isEdit: true})}>编辑</Button>
+                    <Button type="primary" size="large" onClick={() => this.setState({ isEdit: true })}>编辑</Button>
                 }
               </div>
               <div className="dataBox">
@@ -620,7 +622,7 @@ class WrapDetailModal extends React.Component {
                   label="发布名称"
                   {...formItemLayout}
                 >
-                  <Input disabled={!isEdit || !canRename} {...releaseNameProps}/>
+                  <Input disabled={!isEdit || !canRename} {...releaseNameProps} />
                 </FormItem>
                 <Row className="rowLabel" type="flex" align="middle">
                   <Col span={3}>
@@ -642,7 +644,7 @@ class WrapDetailModal extends React.Component {
                   label="描述"
                   {...formItemLayout}
                 >
-                  <Input disabled={!isEdit} {...descProps} type="textarea"/>
+                  <Input disabled={!isEdit} {...descProps} type="textarea" />
                 </FormItem>
                 <Row className="rowLabel">
                   <Col span={3}>
@@ -657,15 +659,15 @@ class WrapDetailModal extends React.Component {
           </TabPane>
           {
             !isWrapStore ?
-            <TabPane
-              key="docs"
-              tab="相关附件"
-            >
-              <Button type="primary" size="large" icon="upload" onClick={() => this.setState({docsModal: true})}>上传附件</Button>
-              <div className="docsBox">
-                {this.renderDocsList()}
-              </div>
-            </TabPane> : <TabPane key="none"/>
+              <TabPane
+                key="docs"
+                tab="相关附件"
+              >
+                <Button type="primary" size="large" icon="upload" onClick={() => this.setState({ docsModal: true })}>上传附件</Button>
+                <div className="docsBox">
+                  {this.renderDocsList()}
+                </div>
+              </TabPane> : <TabPane key="none" />
           }
         </Tabs>
       </Modal>
