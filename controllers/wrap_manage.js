@@ -267,6 +267,21 @@ exports.downloadDocs = function* () {
   this.body = result.res
 }
 
+exports.updatePkgGroup = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const body = this.request.body
+  const result = yield api.pkg.updateBy(['group'], null, body)
+  this.body = result
+}
+
+exports.getPkgGroupDetailList = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.pkg.getBy(['group', 'detail'], null)
+  this.body = result
+}
+
 function* parseForm(ctx) {
   const parts = parse(ctx, {autoFields: true})
   const fileStream = yield parts
