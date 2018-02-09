@@ -72,7 +72,7 @@ class ImageCheckTable extends React.Component {
   }
   onTableChange(pagination) {
     const { updateParentState } = this.props
-    updateParentState('current', pagination.current)
+    updateParentState('current', pagination.current, true)
   }
   handleSort(type) {
     const { updateParentState, publish_time } = this.props

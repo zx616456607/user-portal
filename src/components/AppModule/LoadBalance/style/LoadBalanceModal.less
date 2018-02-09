@@ -1,4 +1,4 @@
-
+@import "../../../../assets/style/site/core";
 .loadBalanceModal {
   .ant-form-item-label {
     label {
@@ -14,15 +14,17 @@
       padding-right: 10px;
     }
     .configBox {
+      display: flex;
+      align-items: center;
       .configList {
         margin-right: 20px;
-        &:first-of-type {
+        &:first-child {
           width: 100px;
           .bottomBox {
             padding: 15px 0;
           }
         }
-        &:last-of-type {
+        &:last-child {
           width: 200px;
           cursor: pointer;
           .bottomBox {
@@ -36,12 +38,16 @@
         }
       }
       .ant-btn-primary {
+        border: @border-width-base @border-style-base @primary-color;
+        border-radius: @border-radius-base;
         padding: 0 ;
         overflow: hidden;
+        position: relative;
         .topBox {
           height: 25px;
           line-height: 25px;
           font-size: 16px;
+          text-align: center;
         }
         .bottomBox {
           width: 100%;
@@ -76,11 +82,14 @@
         }
       }
       .ant-btn-ghost {
+        border: @border-width-base @border-style-base @border-color-base;
+        border-radius: @border-radius-base;
         padding: 0 ;
         .topBox {
           height: 25px;
           line-height: 25px;
           font-size: 16px;
+          text-align: center;
           background-color: #d9d9d9;
           border-top-left-radius: 4px;
           border-top-right-radius: 4px;

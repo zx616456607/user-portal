@@ -22,6 +22,7 @@ import FTPImg from '../../../assets/img/setting/globalconfigftp.png'
 import VmImg from '../../../assets/img/setting/globalconfigvm.png'
 import { connect } from 'react-redux'
 import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification } from '../../../actions/global_config'
+import { loadLoginUserDetail } from '../../../actions/entities'
 import NotificationHandler from '../../../components/Notification'
 import { getPortalRealMode } from '../../../common/tools'
 import { LITE } from '../../../constants'
@@ -34,8 +35,8 @@ const mode = getPortalRealMode
 const liteFlag = mode === LITE
 
 function inputFocusMethod(node){
-  node.focus();
-  const value = node.value
+  node && node.focus();
+  const value = node && node.value
   if(value){
     node.selectionStart = value.length
     node.selectionEnd = value.length
@@ -722,7 +723,7 @@ let Vm = React.createClass({
         canClick: false,
         aleardySave: true
       })
-      const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig } = this.props
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
       const { getFieldValue } = form
       const [ protocol, host ] = getFieldValue('url').split('://')
       const vmID = getFieldValue('vmID')
@@ -731,8 +732,11 @@ let Vm = React.createClass({
         configID: vmID,
         detail: {
           protocol,
-          host,
+          host: host || ''
         }
+      }
+      if (!protocol && !host) {
+        Object.assign(body.detail, { enabled: false })
       }
       saveGlobalConfig(cluster.clusterID, 'vm', body , {
         success: {
@@ -753,8 +757,11 @@ let Vm = React.createClass({
               aleardySave: true
             })
             body.configDetail = JSON.stringify(body.detail)
-            setGlobalConfig('msa', body)
-          }
+            setGlobalConfig('vm', body)
+            loadGlobalConfig(cluster.clusterID)
+            loadLoginUserDetail()
+          },
+          isAsync: true
         },
         failed: {
           func: (err) => {
@@ -777,7 +784,7 @@ let Vm = React.createClass({
   checkUrl(rule, value, callback) {
     const { validateFields } = this.props.form
     if (!value) {
-      callback([new Error('请填写传统应用服务地址')])
+      callback()
       return
     }
     if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
@@ -790,17 +797,19 @@ let Vm = React.createClass({
     const { vmDisable, emailChange, config } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
     let vmDetail = {
-      url: '',
+      protocol: '',
+      host: ''
     }
     if (config) {
       vmDetail = JSON.parse(config.configDetail)
     }
-    // 微服务地址
+    const { protocol, host } = vmDetail
+    // 传统应用地址
     const urlProps = getFieldProps('url', {
       rules: [
         { validator: this.checkUrl }
       ],
-      initialValue: `${vmDetail.protocol}://${vmDetail.host}`
+      initialValue: !!(protocol && host) ? `${protocol}://${host}` : ''
     });
 
     const vmID = getFieldProps('vmID', {
@@ -1593,7 +1602,7 @@ class GlobalConfig extends Component {
 
   render() {
     const { emailDisable, msaDisable, ftpDisable, vmDisable, emailChange, cicdeditDisable, cicdeditChange, mirrorDisable, mirrorChange, cephDisable, cephChange, globalConfig } = this.state
-    const { updateGlobalConfig, saveGlobalConfig } = this.props
+    const { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
     let { cluster } = this.props
     if (!cluster) {
       cluster = {
@@ -1638,6 +1647,8 @@ class GlobalConfig extends Component {
           vmChange={this.vmChange.bind(this)}
           saveGlobalConfig={saveGlobalConfig}
           updateGlobalConfig={saveGlobalConfig}
+          loadGlobalConfig={loadGlobalConfig}
+          loadLoginUserDetail={loadLoginUserDetail}
           cluster={cluster}
           config={globalConfig.vm}
         />
@@ -1663,5 +1674,6 @@ export default connect(mapPropsToState, {
   saveGlobalConfig,
   updateGlobalConfig,
   loadGlobalConfig,
-  isValidConfig
+  isValidConfig,
+  loadLoginUserDetail
 })(GlobalConfig)

@@ -18,7 +18,8 @@ import LoadBalanceModal from './LoadBalanceModal'
 import Notification from '../../Notification'
 import Title from '../../Title'
 import { getLBList, deleteLB } from '../../../actions/load_balance'
-import { formatDate } from "../../../common/tools";
+import { calcuDate } from "../../../common/tools";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../../../constants'
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
 import './style/index.less'
 
@@ -26,7 +27,8 @@ const notify = new Notification()
 
 class LoadBalance extends React.Component {
   state = {
-    loadBalanceVisible: false
+    loadBalanceVisible: false,
+    page: DEFAULT_PAGE
   }
   
   componentWillMount() {
@@ -35,9 +37,47 @@ class LoadBalance extends React.Component {
   
   loadLBList = () => {
     const { clusterID, getLBList } = this.props
-    getLBList(clusterID)
+    const { page, name, sort } = this.state
+    const query = {
+      page: page || DEFAULT_PAGE,
+      size: DEFAULT_PAGE_SIZE
+    }
+    if (name) {
+      Object.assign(query, { name })
+    }
+    if (sort) {
+      Object.assign(query, {
+        creationTime: sort.substring(0, 1)
+      })
+    }
+    getLBList(clusterID, query)
   }
   
+  handlePage = page => {
+    this.setState({
+      page
+    }, this.loadLBList)
+  }
+  
+  handleSearch = name => {
+    this.setState({
+      name
+    }, this.loadLBList)
+  }
+  
+  tableChange = (pagination, filters, sorter) => {
+    this.setState({
+      sort: sorter && sorter.order,
+    }, this.loadLBList)
+  }
+  
+  refreshData = () => {
+    this.setState({
+      page: 1,
+      name: '',
+      sort: ''
+    }, this.loadLBList)
+  } 
   deleteLoadBalance = name => {
     const { deleteLB, clusterID } = this.props
   }
@@ -49,6 +89,7 @@ class LoadBalance extends React.Component {
   
   closeBalanceModal = () => {
     this.setState({
+      currentBalance: null,
       loadBalanceVisible: false
     })
   }
@@ -138,8 +179,8 @@ class LoadBalance extends React.Component {
     return <ServiceStatus service={LB} smart={true}/>
   }
   render() {
-    const { loadBalanceVisible, deleteModal, delConfirmLoading, currentBalance } = this.state
-    const { loadBalanceList, isFetching } = this.props
+    const { loadBalanceVisible, deleteModal, delConfirmLoading, currentBalance, page, name } = this.state
+    const { loadBalanceList, total, isFetching } = this.props
     // const rowSelection = {
     //   onChange(selectedRowKeys, selectedRows) {
     //     console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
@@ -151,6 +192,13 @@ class LoadBalance extends React.Component {
     //     console.log(selected, selectedRows, changeRows);
     //   },
     // };
+    const pagination = {
+      simple: true,
+      total,
+      current: page,
+      pageSize: DEFAULT_PAGE_SIZE,
+      onChange: this.handlePage
+    }
     const columns = [{
       title: '名称',
       dataIndex: 'metadata.annotations.displayName',
@@ -170,7 +218,7 @@ class LoadBalance extends React.Component {
       title: '监听端口',
       dataIndex: 'port',
       width: '10%',
-      render: () => 80
+      render: () => 'http: 80'
     }, {
       title: '监听器数量',
       width: '10%',
@@ -183,7 +231,8 @@ class LoadBalance extends React.Component {
       title: '创建时间',
       width: '15%',
       dataIndex: 'metadata.creationTimestamp',
-      render: text => formatDate(text)
+      sorter: (a, b) => a.metadata.creationTimestamp.length - b.metadata.creationTimestamp.length,
+      render: text => calcuDate(text)
     }, {
       title: '操作',
       width: '20%',
@@ -229,20 +278,19 @@ class LoadBalance extends React.Component {
         </Modal>
         <div className="layout-content-btns" key="layout-content-btns">
           <Button type="primary" size="large" onClick={this.openBalanceModal}><i className="fa fa-plus" /> 创建负载均衡</Button>
-          <Button type="ghost" size="large" onClick={this.loadLBList}><i className='fa fa-refresh' /> 刷新</Button>
+          <Button type="ghost" size="large" onClick={this.refreshData}><i className='fa fa-refresh' /> 刷新</Button>
           {/*<Button type="ghost" size="large" icon="delete" onClick={() => this.showDeleteModal([1,2,3])}>删除</Button>*/}
           <SearchInput
             placeholder="请输入关键词搜索"
             size="large"
+            value={name}
+            onSearch={this.handleSearch}
           />
           {
-            loadBalanceList && loadBalanceList.length ?
+            total ?
             <div className="page-box">
-              <span className="total">共计 {loadBalanceList && loadBalanceList.length} 条</span>
-              <Pagination
-                simple
-                total={loadBalanceList && loadBalanceList.length}
-              />
+              <span className="total">共计 {total} 条</span>
+              <Pagination {...pagination}/>
             </div> : null
           }
         </div>
@@ -254,6 +302,7 @@ class LoadBalance extends React.Component {
           dataSource={loadBalanceList}
           pagination={false}
           loading={isFetching}
+          onChange={this.tableChange}
         />
       </QueueAnim>
     )
@@ -264,10 +313,11 @@ function mapStateToProps(state) {
   const { entities, loadBalance } = state
   const { clusterID } = entities.current.cluster
   const { loadBalanceList } = loadBalance
-  const { data, isFetching } = loadBalanceList || { data: [] }
+  const { data, total, isFetching } = loadBalanceList || { data: [], total: 0 }
   return {
     clusterID,
     isFetching,
+    total,
     loadBalanceList: data
   }
 }
