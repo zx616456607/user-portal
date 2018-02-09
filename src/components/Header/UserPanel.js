@@ -156,41 +156,17 @@ class UserPanel extends Component {
         svgHref: '#logchangepass',
         text: '修改密码',
       },
-    ]
-    if (role === ROLE_TEAM_ADMIN || role === ROLE_SYS_ADMIN) {
-      menuItems.push({
+      {
         to: '/tenant_manage/team',
         svgHref: '#logteam',
-        text: '我的团队',
-      })
-    }
-    if (billingEnabled) {
-      if (role === ROLE_TEAM_ADMIN || role === ROLE_SYS_ADMIN) {
-        menuItems.push({
-          to: '/account/costCenter#consumptions',
-          svgHref: '#logcostrecord',
-          text: '消费记录',
-        })
-      } else {
-        menuItems.push({
-          to: '/account/costCenter#payments',
-          // TODO: replace it
-          svgHref: '#logpayment',
-          text: '充值记录',
-        },
-        {
-          to: '/account/costCenter#consumptions',
-          svgHref: '#logcostrecord',
-          text: '消费记录',
-        })
-      }
-    } else {
-      menuItems.push({
-        to: `/tenant_manage/user/${userID}`,
+        text: '团队',
+      },
+      {
+        to: `/tenant_manage/project_manage`,
         svgHref: '#project',
-        text: '参与项目',
-      })
-    }
+        text: '项目',
+      }
+    ]
     if (mode === standard) {
       menuItems = [
         {
