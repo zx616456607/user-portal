@@ -553,7 +553,7 @@ module.exports = function (Router) {
   router.post('/type/:type/isvalidconfig', globalConfigController.isValidConfig)
   router.post('/configs/email/verification',globalConfigController.sendVerification)
   router.get('/cluster/:cluster/config/:type', globalConfigController.getGlobalConfigByType)
-  
+
   //image scan
   router.get('/images/scan-status', imageScanController.getScanStatus)
   router.get('/images/layer-info', imageScanController.getLayerInfo)
@@ -654,6 +654,8 @@ module.exports = function (Router) {
   router.post('/pkg/:id/docs', pkgController.uploadDocs)
   router.post('/pkg/:id/docs/batch-delete', pkgController.deleteDocs)
   router.get('/pkg/:id/docs/download', pkgController.downloadDocs)
+  router.put('/pkg/group/update', pkgController.updatePkgGroup)
+  router.get('/pkg/group/detail', pkgController.getPkgGroupDetailList)
 
   // VM wrap
   router.post('/vm-wrap/services', vmWrapController.createService)

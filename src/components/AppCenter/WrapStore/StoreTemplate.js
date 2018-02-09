@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal, Select, Row, Col, Button, Spin } from 'antd'
 import classNames from 'classnames'
-import { offShelfWrap, getWrapStoreHotList } from '../../../actions/app_center'
+import { offShelfWrap, getWrapStoreHotList, getWrapGroupList, updateWrapGroup } from '../../../actions/app_center'
 import { getAppsList, getAppsHotList, appStoreApprove } from '../../../actions/app_store'
 import { calcuDate, encodeImageFullname } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
@@ -24,8 +24,11 @@ import defaultAppSmall from '../../../../static/img/appstore/defaultappsmall.png
 import defaultImageSmall from '../../../../static/img/appstore/defaultimagesmall.png'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
 import WrapDetailModal from '../AppWrap/WrapDetailModal'
+import ManageClassifyLabel from './ManageClassifyLabel'
+import { ROLE_SYS_ADMIN } from '../../../../constants'
 
 const Option = Select.Option;
+const notify = new NotificationHandler()
 
 const sortOption = [
   {
@@ -53,10 +56,12 @@ class WrapComopnent extends React.Component {
     this.loadWrapCallback = this.loadWrapCallback.bind(this)
     this.updateAppStatus = this.updateAppStatus.bind(this)
     this.state = {
-      selectTag: ''
+      selectTag: '',
+      manageLabelVisible: false,
+      confirmLoading: false,
     }
   }
-  
+
   renderClassifyTab() {
     const { wrapGroupList, classify, updateParentState } = this.props
     if (!wrapGroupList || !wrapGroupList.classifies || !wrapGroupList.classifies.length) return
@@ -262,11 +267,37 @@ class WrapComopnent extends React.Component {
   closeImageDetailModal(){
     this.setState({imageDetailModalShow:false})
   }
+  confirmManageLabel(list) {
+    if (!list.length) {
+      return this.setState({ manageLabelVisible: false })
+    }
+    const { getWrapGroupList, updateWrapGroup } = this.props
+    this.setState({ confirmLoading: true })
+    updateWrapGroup({ classifies: list }, {
+      success: {
+        func: res => {
+          notify.success('更新分类成功')
+          getWrapGroupList()
+          this.setState({ manageLabelVisible: false })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: res => {
+          const { message = '更新失败，请重试' } = res
+          return notify.error(message)
+        }
+      },
+      finally: {
+        func: () => this.setState({ confirmLoading: false })
+      }
+    })
+  }
   showImageDetail(item, showTag) {
     const { activeKey } = this.props
     if (activeKey === 'image') {
       this.setState({
-        currentImage: item, 
+        currentImage: item,
         imageDetailModalShow: true
       })
       if (showTag) {
@@ -328,7 +359,7 @@ class WrapComopnent extends React.Component {
       const menu = width => (
         <Menu style={{ width }} onClick={e => this.handleMenuClick(e, item)}>
           {
-            activeKey === 'app' 
+            activeKey === 'app'
               ? <Menu.Item key="vm">
                 传统部署
                 </Menu.Item>
@@ -347,7 +378,7 @@ class WrapComopnent extends React.Component {
               ? <Menu.Item key="offShelf" disabled={[0, 4, 8].includes(item.publishStatus)}>下架</Menu.Item>
               : <Menu.Item key="none" style={{ display: 'none' }}/>
               :
-              isUPAdmin 
+              isUPAdmin
                 ? <Menu.Item key="offShelf" disabled={[0, 4, 8].includes(item.publishStatus)}>下架</Menu.Item>
                 : <Menu.Item key="none" style={{ display: 'none' }}/>
           }
@@ -518,7 +549,7 @@ class WrapComopnent extends React.Component {
     const { offshelfId } = this.state
     return [
       <Button key="cancel" onClick={this.offShelfCancel}>取消</Button>,
-      <Button key="confirm" onClick={this.offShelfConfirm} type="primary" disabled={!offshelfId}>确定</Button> 
+      <Button key="confirm" onClick={this.offShelfConfirm} type="primary" disabled={!offshelfId}>确定</Button>
     ]
   }
   loadWrapCallback() {
@@ -526,13 +557,13 @@ class WrapComopnent extends React.Component {
     getStoreList()
     getAppsHotList()
   }
-  
+
   closeDetailModal() {
     this.setState({
       detailModal: false
     })
   }
-  
+
   cancelImageModal() {
     this.setState({
       imageDetailModalShow:false
@@ -540,12 +571,13 @@ class WrapComopnent extends React.Component {
     browserHistory.replace('/app_center/wrap_store')
   }
   render() {
-    const { 
-      current, dataSource, dataHotList, updateParentState, rectStyle, 
-      isAdmin, location, getStoreList, getAppsHotList
+    const {
+      current, dataSource, dataHotList, updateParentState, rectStyle,
+      isAdmin, location, getStoreList, getAppsHotList, role,
     } = this.props
-    const { downloadModalVisible, currentImage, offShelfModal, 
-      imageDetailModalShow, offshelfId, detailModal, currentWrap
+    const { downloadModalVisible, currentImage, offShelfModal,
+      imageDetailModalShow, offshelfId, detailModal, currentWrap,
+      confirmLoading, manageLabelVisible,
     } = this.state
     let server
     let version
@@ -574,12 +606,12 @@ class WrapComopnent extends React.Component {
           onCancel={()=> this.cancelImageModal()}
         >
           <ProjectDetail
-            getStoreList={getStoreList} 
-            getAppsHotList={getAppsHotList} 
-            location={location} 
-            isAdminAndHarbor={isAdmin} 
-            server={server} 
-            scope={this} 
+            getStoreList={getStoreList}
+            getAppsHotList={getAppsHotList}
+            location={location}
+            isAdminAndHarbor={isAdmin}
+            server={server}
+            scope={this}
             config={currentImage}
             visible={imageDetailModalShow}
           />
@@ -595,12 +627,12 @@ class WrapComopnent extends React.Component {
           isAdmin={isAdmin}
           location={location}
         />
-        <Modal 
+        <Modal
           title="下载镜像"
-          className="uploadImageModal" 
-          visible={downloadModalVisible} 
+          className="uploadImageModal"
+          visible={downloadModalVisible}
           width="800px"
-          onCancel={this.closeModal} 
+          onCancel={this.closeModal}
           onOk={this.closeModal}
         >
           <p>在本地 docker 环境中输入以下命令，就可以 pull 一个镜像到本地了</p>
@@ -648,6 +680,13 @@ class WrapComopnent extends React.Component {
                 <div className="text">分类：</div>
                 <div className="listBox">
                   {this.renderClassifyTab()}
+                  { ROLE_SYS_ADMIN == role && <span
+                    key="managementIcon" onClick={() => this.setState({ manageLabelVisible: true })}
+                    className="manage-style filterTab"
+                  >
+                    <Icon type="setting" />
+                    管理
+                  </span>}
                 </div>
               </div>
               <div className="sortBox">
@@ -679,20 +718,32 @@ class WrapComopnent extends React.Component {
             </Card>
           </div>
         </div>
+
+        { manageLabelVisible && <ManageClassifyLabel
+          closeModalMethod={() => this.setState({ manageLabelVisible: false })}
+          loading={confirmLoading}
+          callback={list => this.confirmManageLabel(list)}
+        /> }
       </div>
     )
   }
 }
 
 function mapStateToProps(state) {
+  const { entities } = state
+  const { loginUser } = entities
+  const { info } = loginUser
+  const { role } = info
   return {
-    
+    role,
   }
 }
 export default connect(mapStateToProps, {
   offShelfWrap,
   getWrapStoreHotList,
-  getAppsList, 
+  getAppsList,
   getAppsHotList,
-  appStoreApprove
+  appStoreApprove,
+  getWrapGroupList,
+  updateWrapGroup,
 })(WrapComopnent)
