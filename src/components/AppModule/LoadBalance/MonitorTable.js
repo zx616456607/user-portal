@@ -15,9 +15,16 @@ import './style/MonitorTable.less'
 
 export default class MonitorTable extends React.Component {
   state = {
-    
+    current: 1,
   }
-  
+  componentWillMount() {
+    const { current } = this.state
+    const { lbDetail } = this.props
+    const { ingress } = lbDetail || { ingress: [] }
+    this.setState({
+      copyIngress: ingress.slice((current - 1) * 5, current * 5)
+    })
+  }
   showDelModal = row => {
     this.setState({
       currentIngress: row,
@@ -89,10 +96,25 @@ export default class MonitorTable extends React.Component {
     )
   }
   
+  handlePage = current => {
+    const { lbDetail } = this.props
+    const { ingress } = lbDetail
+    this.setState({
+      current,
+      copyIngress: ingress.slice((current - 1) * 5, current * 5)
+    })
+  }
   render() {
-    const { deleteModal, delConfirmLoading } = this.state
+    const { deleteModal, delConfirmLoading, copyIngress, current } = this.state
     const { togglePart, lbDetail } = this.props
     const { ingress } = lbDetail || { ingress: [] }
+    const pagination = {
+      simple: true,
+      total: ingress && ingress.length || 0,
+      pageSize: 5,
+      current,
+      onChange: this.handlePage
+    }
     const columns = [
       {
         title: '监听器名称',
@@ -144,17 +166,14 @@ export default class MonitorTable extends React.Component {
             ingress && ingress.length ?
             <div className="page-box">
               <span className="total">共计 {ingress && ingress.length} 条</span>
-              <Pagination
-                simple
-                total={ingress && ingress.length}
-              />
+              <Pagination {...pagination}/>
             </div> : null
           }
         </div>
         <Table
           className="reset_antd_table_header"
           columns={columns}
-          dataSource={ingress}
+          dataSource={copyIngress}
           expandedRowRender={row => this.expandedRender(row)}
           rowKey={row => row.name}
           pagination={false}
