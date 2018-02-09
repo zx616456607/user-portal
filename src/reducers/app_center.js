@@ -357,6 +357,11 @@ export function images(state = { publicImages: {} }, action) {
       SUCCESS: ActionTypes.GET_WRAP_GROUP_LIST_SUCCESS,
       FAILURE: ActionTypes.GET_WRAP_GROUP_LIST_FAILURE,
     }, state.wrapGroupList, action, {overwrite: true}),
+    wrapGroupDetailList: reducerFactory({
+      REQUEST: ActionTypes.GET_WRAP_GROUP_DETAIL_LIST_REQUEST,
+      SUCCESS: ActionTypes.GET_WRAP_GROUP_DETAIL_LIST_SUCCESS,
+      FAILURE: ActionTypes.GET_WRAP_GROUP_DETAIL_LIST_FALIURE,
+    }, state.wrapGroupDetailList, action, {overwrite: true}),
     wrapDetail: wrapDetail(state.wrapDetail, action)
     // deleteStack: deleteStack(state.deleteStack, action)
   }

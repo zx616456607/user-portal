@@ -1207,6 +1207,59 @@ export function getWrapGroupList(callback) {
   return dispatch => dispatch(fetchWrapGroupList(callback))
 }
 
+
+// 修改/删除 镜像商店分类标签
+export const PUT_UPDATE_WRAP_GROUP_REQUEST = 'PUT_UPDATE_WRAP_GROUP_REQUEST'
+export const PUT_UPDATE_WRAP_GROUP_SUCCESS = 'PUT_UPDATE_WRAP_GROUP_SUCCESS'
+export const PUT_UPDATE_WRAP_GROUP_FALIURE = 'PUT_UPDATE_WRAP_GROUP_FALIURE'
+
+function fetchUpdateWrapGroup(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        PUT_UPDATE_WRAP_GROUP_REQUEST,
+        PUT_UPDATE_WRAP_GROUP_SUCCESS,
+        PUT_UPDATE_WRAP_GROUP_FALIURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/pkg/group/update`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function updateWrapGroup(body, callback) {
+  return dispatch => dispatch(fetchUpdateWrapGroup(body, callback))
+}
+
+// 获取镜像分类标签详情
+export const GET_WRAP_GROUP_DETAIL_LIST_REQUEST = 'GET_WRAP_GROUP_DETAIL_LIST_REQUEST'
+export const GET_WRAP_GROUP_DETAIL_LIST_SUCCESS = 'GET_WRAP_GROUP_DETAIL_LIST_SUCCESS'
+export const GET_WRAP_GROUP_DETAIL_LIST_FALIURE = 'GET_WRAP_GROUP_DETAIL_LIST_FALIURE'
+
+function fetchGetWrapGroupDetailList(callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        GET_WRAP_GROUP_DETAIL_LIST_REQUEST,
+        GET_WRAP_GROUP_DETAIL_LIST_SUCCESS,
+        GET_WRAP_GROUP_DETAIL_LIST_FALIURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/pkg/group/detail`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getWrapGroupDetailList(callback) {
+  return dispatch => dispatch(fetchGetWrapGroupDetailList(callback))
+}
+
 export const DELETE_WRAP_DOCS_REQUEST = 'DELETE_WRAP_DOCS_REQUEST'
 export const DELETE_WRAP_DOCS_SUCCESS = 'DELETE_WRAP_DOCS_SUCCESS'
 export const DELETE_WRAP_DOCS_FAILURE = 'DELETE_WRAP_DOCS_FAILURE'
