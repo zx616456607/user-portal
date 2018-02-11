@@ -456,8 +456,10 @@ class MonitorDetail extends React.Component {
         success: {
           func: () => {
             getLBDetail(clusterID, name, displayName, {
-              success: () => {
-                this.goBack()
+              success: {
+                func: () => {
+                  this.goBack()
+                }
               }
             })
             this.setState({
