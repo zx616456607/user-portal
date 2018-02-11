@@ -166,7 +166,7 @@ class Ordinary extends Component {
       hostCount: 0,
       publicCount: 0,
       roleNameArr: '',
-      minVisible: true,
+      minvisible: true,
     }
   }
 
@@ -183,9 +183,9 @@ class Ordinary extends Component {
 
   componentWillMount() {
     const { loadClusterInfo, current } = this.props
-    const { minVisible } = this.state
+    const { minvisible } = this.state
     const { clusterID } = current.cluster
-    loadClusterInfo(clusterID, { minVisible })
+    loadClusterInfo(clusterID, { minvisible })
     this.loadClusterSummary(clusterID)
     this.fetchQuotaList()
     this.storageList()
@@ -195,9 +195,9 @@ class Ordinary extends Component {
   handleMinVisible(e) {
     const { loadClusterInfo, current } = this.props
     const { clusterID } = current.cluster
-    const minVisible = !e.target.checked
-    this.setState({ minVisible }, state => {
-      loadClusterInfo(clusterID, { minVisible })
+    const minvisible = !e.target.checked
+    this.setState({ minvisible }, state => {
+      loadClusterInfo(clusterID, { minvisible })
     })
   }
 
@@ -2090,7 +2090,7 @@ class Ordinary extends Component {
                 </Col>
                 <Col span={8}>
                   <div className="minvisible">
-                    <Checkbox checked={!this.state.minVisible} onChange={this.handleMinVisible}>
+                    <Checkbox checked={!this.state.minvisible} onChange={this.handleMinVisible}>
                       显示 Master 节点
                     </Checkbox>
                   </div>
