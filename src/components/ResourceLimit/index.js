@@ -638,8 +638,9 @@ class ResourceQuota extends React.Component {
                       ] : [],
                       initialValue: globaleList ? checkValue === true ? undefined : beforeValue === -1 ? undefined : beforeValue : 0,
                     })
-                    const surplu = inputProps.value !== undefined ?
-                      inputProps.value - this.useGlobaleCount(item.key) : '无限制'
+                    const surplu = inputProps.value !== undefined
+                      ? Math.round((inputProps.value - this.useGlobaleCount(item.key)) * 100) / 100
+                      : '无限制'
                     return (
                       <Row key={index} className="connents">
                         <Col span={3} style={{ minWidth: '120px' }}>
@@ -686,7 +687,8 @@ class ResourceQuota extends React.Component {
                   cdList.map((item, index) => {
                     const inputValue = getFieldValue(item.key)
                     const beforeValue = this.maxGlobaleCount(item.key)
-                    const plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
+                    let plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
+                    plusValue = Math.floor(plusValue * 100) / 100
                     const checkKey = `${item.key}-check`
                     const checkProps = getFieldProps(checkKey, {
                       initialValue: beforeValue === -1 ? true : false,
@@ -711,8 +713,9 @@ class ResourceQuota extends React.Component {
                       ] : [],
                       initialValue: globaleList ? checkValue === true ? undefined : this.maxGlobaleCount(item.key) === -1 ? undefined : this.maxGlobaleCount(item.key) : 0
                     })
-                    const surplu = inputProps.value !== undefined ?
-                      inputProps.value - this.useGlobaleCount(item.key) : '无限制'
+                    const surplu = inputProps.value !== undefined
+                      ? Math.round((inputProps.value - this.useGlobaleCount(item.key)) * 100) / 100
+                      : '无限制'
                     return (
                       <Row key={index} className="connents">
                         <Col span={3} style={{ minWidth: '120px' }}>
@@ -841,7 +844,8 @@ class ResourceQuota extends React.Component {
                       computeList.map((item, index) => {
                         const inputValue = getFieldValue(item.key)
                         const beforeValue = this.maxClusterCount(item.key)
-                        const plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
+                        let plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
+                        plusValue = Math.floor(plusValue * 100) / 100
                         const checkKey = `${item.key}-check`
                         const checkProps = getFieldProps(checkKey, {
                           initialValue: beforeValue === -1 ? true : false,
@@ -866,8 +870,9 @@ class ResourceQuota extends React.Component {
                           ] : [],
                           initialValue: clusterList ? checkValue === true ? undefined : beforeValue === -1 ? undefined : beforeValue : 0
                         })
-                        const surplus = inputProps.value !== undefined ?
-                          inputProps.value - this.useClusterCount(item.key) : '无限制'
+                        const surplus = inputProps.value !== undefined
+                          ? Math.round((inputProps.value - this.useClusterCount(item.key)) * 100) / 100
+                          : '无限制'
                         return (
                           <Row key={index} className="connents">
                             <Col span={3} style={{ minWidth: '120px', height: 'auto' }}>
@@ -911,7 +916,8 @@ class ResourceQuota extends React.Component {
                       platformList.map((item, index) => {
                         const inputValue = getFieldValue(item.key)
                         const beforeValue = this.maxClusterCount(item.key)
-                        const plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
+                        let plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
+                        plusValue = Math.floor(plusValue * 100) / 100
                         const isPlus = inputValue > beforeValue ? true : false
                         const checkKey = `${item.key}-check`
                         const checkProps = getFieldProps(checkKey, {
@@ -937,8 +943,9 @@ class ResourceQuota extends React.Component {
                           ] : [],
                           initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key) : 0
                         })
-                        const surplus = inputProps.value !== undefined ?
-                          inputProps.value - this.useClusterCount(item.key) : '无限制'
+                        const surplus = inputProps.value !== undefined
+                          ? Math.round((inputProps.value - this.useClusterCount(item.key)) * 100) / 100
+                          : '无限制'
                         return (
                           <Row key={index} className="connents">
                             <Col span={3} style={{ minWidth: '120px' }}>
@@ -982,7 +989,8 @@ class ResourceQuota extends React.Component {
                       serviceList.map((item, index) => {
                         const inputValue = getFieldValue(item.key)
                         const beforeValue = this.maxClusterCount(item.key)
-                        const plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
+                        let plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
+                        plusValue = Math.floor(plusValue * 100) / 100
                         const checkKey = `${item.key}-check`
                         const checkProps = getFieldProps(checkKey, {
                           initialValue: beforeValue === -1 ? true : false,
