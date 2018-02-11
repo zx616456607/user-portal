@@ -712,6 +712,24 @@ let NetworkConfiguration = React.createClass ({
       copyCMDSuccess: true,
     })
   },
+  renderDomainWarningStatus(data, item) {
+    const { form } = this.props
+    const { editCluster } = this.state
+    const { getFieldValue } = form
+    const initialValue = data[item.key] && data[item.key].domain ? data[item.key].domain : undefined
+    const currentValue = getFieldValue(`domain${item.key}`)
+    let status = {
+      status: 'success',
+      message: ''
+    }
+    if (editCluster && initialValue && !currentValue.length) {
+      status = {
+        status: 'warning',
+        message: '若清空域名，使用该网络出口的服务的 http 协议将无法正常使用'
+      }
+    }
+    return status
+  },
   render (){
     const { cluster, form, clusterProxy } = this.props
     const { editCluster, saveBtnLoading, sketchshow } = this.state
@@ -790,6 +808,7 @@ let NetworkConfiguration = React.createClass ({
           initialValue: data[item.key] && data[item.key].domain ? data[item.key].domain: '',
           rules: [{ required: false }]
         })
+        const domainWarningStatus = this.renderDomainWarningStatus(data, item)
         let groupidProps = getFieldProps(`groupId${item.key}`,{
           initialValue: data[item.key] && data[item.key].id ? data[item.key].id : '',
         })
@@ -907,6 +926,8 @@ let NetworkConfiguration = React.createClass ({
               <FormItem
                 label={<span>服务域名配置</span>}
                 {...formItemLayout}
+                validateStatus={domainWarningStatus.status}
+                extra={domainWarningStatus.message}
               >
                 <Input
                   placeholder='服务访问地址的域名(可选)'
