@@ -86,6 +86,9 @@ class MonitorDetail extends React.Component {
             form.setFieldsValue({
               [`weight-${uidd}`]: item.weight
             })
+            this.setState({
+              [`weight-${uidd}`]: item.weight
+            })
           }
         })
         form.setFieldsValue({
@@ -342,6 +345,18 @@ class MonitorDetail extends React.Component {
     callback()
   }
   
+  handleAlgorithm = e => {
+    const { getFieldValue, setFieldsValue } = this.props.form
+    const keys = getFieldValue('keys')
+    if (e.target.value === 'round-robin' && !isEmpty(keys)) {
+      keys.forEach(item => {
+        setFieldsValue({
+          [`weight-${item}`]: this.state[`weight-${item}`]
+        })
+      })
+    } 
+  }
+  
   getHealthData = values => {
     const { 
       isCheck, httpSend, interval, fall, rise,
@@ -570,7 +585,8 @@ class MonitorDetail extends React.Component {
           validator: this.algorithmCheck
         }
       ],
-      initialValue: currentIngress && currentIngress.lbAlgorithm || 'round-robin'
+      initialValue: currentIngress && currentIngress.lbAlgorithm || 'round-robin',
+      onChange: this.handleAlgorithm
     })
     
     const sessionProps = getFieldProps('sessionSticky', {
@@ -643,7 +659,8 @@ class MonitorDetail extends React.Component {
                       {
                         validator: this.checkWeight
                       }
-                    ]
+                    ],
+                    onChange: value => this.setState({ [`weight-${item}`]: value })
                   })}
                 />
               </FormItem>
