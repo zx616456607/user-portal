@@ -289,6 +289,14 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
       timeoutSeconds: parseInt(livenessTimeoutSeconds),
       periodSeconds: parseInt(livenessPeriodSeconds),
     })
+    // Keep liveness and readiness probe the same
+    deployment.setReadinessProbe(serviceName, livenessProtocol, {
+      port: parseInt(livenessPort),
+      path: livenessPath,
+      initialDelaySeconds: parseInt(livenessInitialDelaySeconds),
+      timeoutSeconds: parseInt(livenessTimeoutSeconds),
+      periodSeconds: parseInt(livenessPeriodSeconds),
+    })
   }
   // 设置环境变量
   let {
