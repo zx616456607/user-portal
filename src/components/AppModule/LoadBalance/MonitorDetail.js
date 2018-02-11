@@ -135,7 +135,7 @@ class MonitorDetail extends React.Component {
   
   addItem = () => {
     const { defaultAllServices } = this.state
-    const { form } = this.props
+    const { form, currentIngress } = this.props
     const { getFieldValue, setFieldsValue } = form
     
     const currentKeys = getFieldValue('keys')
@@ -160,7 +160,11 @@ class MonitorDetail extends React.Component {
       })
     }
     uidd ++
-    
+    if (currentIngress) {
+      this.setState({
+        [`service${uidd}`]: true
+      })
+    }
     setFieldsValue({
       keys: currentKeys.concat(uidd)
     })
@@ -198,6 +202,10 @@ class MonitorDetail extends React.Component {
   }
   
   confirmEdit = key => {
+    const result = this.validateNewItem()
+    if (!isEmpty(result)) {
+      return
+    }
     this.setState({
       [`service${key}`]: false
     })
@@ -740,7 +748,7 @@ class MonitorDetail extends React.Component {
                 >
                   <Slider max={3600} {...getFieldProps('sessionPersistent', 
                     { 
-                      initialValue: currentIngress ? parseInt(currentIngress.sessionPersistent) : 100 
+                      initialValue: currentIngress && currentIngress.sessionPersistent ? parseInt(currentIngress.sessionPersistent) : 100 
                     })}/>
                 </FormItem>
               </Col>
