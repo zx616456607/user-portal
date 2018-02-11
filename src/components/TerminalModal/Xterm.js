@@ -199,7 +199,7 @@ class TerminalModal extends Component {
       return
     }
     // tab 切换时先卸载日志组件
-    this.setState({containerName:false})
+    this.setState({logModal: false, containerName:false})
   }
 
   closeTerminalItem(item, e) {
