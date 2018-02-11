@@ -1759,6 +1759,9 @@ function formatResourceName(resourceName) {
     if (newBody.imageTagName) {
       return newBody.imageTagName
     }
+    if (newBody.filePkgName) {
+      return newBody.filePkgName
+    }
     if (newBody.strategies && Array.isArray(newBody.strategies) && newBody.strategies.length > 0) {
       let ids = new Array()
       for (let i = 0; i < newBody.strategies.length; i++) {
