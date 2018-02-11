@@ -10,6 +10,7 @@
 
 import React from 'react'
 import { Table, Button, Pagination, Row, Col, Tooltip, Modal } from 'antd'
+import isEqual from 'lodash/isEqual'
 import Notification from '../../Notification'
 import './style/MonitorTable.less'
 
@@ -17,13 +18,25 @@ export default class MonitorTable extends React.Component {
   state = {
     current: 1,
   }
-  componentWillMount() {
+  componentDidMount() {
     const { current } = this.state
     const { lbDetail } = this.props
     const { ingress } = lbDetail || { ingress: [] }
     this.setState({
       copyIngress: ingress.slice((current - 1) * 5, current * 5)
     })
+  }
+  componentWillReceiveProps(nextProps) {
+    const { current } = this.state
+    const { lbDetail: oldLB } = this.props
+    const { lbDetail: newLB } = nextProps
+    const { ingress: oldIngress } = oldLB || { ingress: [] }
+    const { ingress: newIngress } = newLB || { ingress: [] }
+    if (!isEqual(oldIngress, newIngress)) {
+      this.setState({
+        copyIngress: newIngress.slice((current - 1) * 5, current * 5)
+      })
+    }
   }
   showDelModal = row => {
     this.setState({

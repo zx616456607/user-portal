@@ -18,11 +18,12 @@ import {
 import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import Notification from '../../Notification'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import './style/MonitorDetail.less'
 import HealthCheckModal from './HealthCheckModal'
 
 import { loadAllServices } from '../../../actions/services'
-import { createIngress, updateIngress, getLBDetail } from '../../../actions/load_balance'
+import { createIngress, updateIngress, getLBDetail, checkIngressNameAndHost } from '../../../actions/load_balance'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -241,10 +242,75 @@ class MonitorDetail extends React.Component {
   }
   
   monitorNameCheck = (rules, value, callback) => {
+    const { checkIngressNameAndHost, clusterID, location, form, currentIngress } = this.props
+    const { name: lbname } = location.query
+    if (currentIngress && (currentIngress.displayName === value)) {
+      return callback()
+    }
     if (!value) {
       return callback('请输入监听器名称')
-    } 
-    callback()
+    }
+    const query = {
+      displayName: value,
+      path: form.getFieldValue('host')
+    }
+    if (currentIngress) {
+      delete query.path
+    }
+    clearTimeout(this.nameTimeout)
+    this.nameTimeout = setTimeout(() => {
+      checkIngressNameAndHost(clusterID, lbname, query, {
+        success: {
+          func: () => {
+            callback()
+          }
+        },
+        failed: {
+          func: res => {
+            if (res.statusCode === 409) {
+              return callback('监听器名称已经存在')
+            }
+            callback(res.message.message || res.message)
+          }
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
+  }
+  
+  hostCheck = (rules, value, callback) => {
+    const { checkIngressNameAndHost, clusterID, location, form, currentIngress } = this.props
+    const { name: lbname } = location.query
+    if (currentIngress && (`${currentIngress.host}${currentIngress.path}` === value)) {
+      return callback()
+    }
+    if (!value) {
+      return callback('请输入校验规则')
+    }
+    clearTimeout(this.nameTimeout)
+    const query = {
+      path: value,
+      displayName: form.getFieldValue('monitorName'),
+    }
+    if (currentIngress) {
+      delete query.displayName
+    }
+    this.nameTimeout = setTimeout(() => {
+      checkIngressNameAndHost(clusterID, lbname, query, {
+        success: {
+          func: () => {
+            callback()
+          }
+        },
+        failed: {
+          func: res => {
+            if (res.statusCode === 409) {
+              return callback('校验规则已经存在')
+            }
+            callback(res.message.message || res.message)
+          }
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
   }
   
   agreementCheck = (rules, value, callback) => {
@@ -389,16 +455,19 @@ class MonitorDetail extends React.Component {
       const callback = {
         success: {
           func: () => {
+            getLBDetail(clusterID, name, displayName, {
+              success: () => {
+                this.goBack()
+              }
+            })
             this.setState({
               confirmLoading: false,
               healthCheck: false,
               healthOptions: null
             })
-            getLBDetail(clusterID, name, displayName)
             notify.close()
             notify.success(currentIngress ? '修改成功' : '创建成功')
             form.resetFields()
-            this.goBack()
           },
           isAsync: true
         },
@@ -408,6 +477,15 @@ class MonitorDetail extends React.Component {
             this.setState({
               confirmLoading: false
             })
+            if (res.statusCode === 409) {
+              if (res.message.message.indexOf('URL') > -1) {
+                notify.warn(currentIngress ? '修改失败' : '创建失败', '该转发规则已经存在')
+                return
+              } else if (res.message.message.indexOf('name') > -1) {
+                notify.warn(currentIngress ? '修改失败' : '创建失败', '该监听名称已经存在')
+                return
+              }
+            }
             notify.warn(currentIngress ? '修改失败' : '创建失败', res.message.message || res.message)
           }
         },
@@ -438,7 +516,7 @@ class MonitorDetail extends React.Component {
   render() {
     const { checkVisible, allServices,  confirmLoading, healthCheck, healthOptions } = this.state
     const { currentIngress, form } = this.props
-    const { getFieldProps, getFieldValue, setFieldsValue } = form
+    const { getFieldProps, getFieldValue, setFieldsValue, getFieldError, isFieldValidating } = form
     const formItemLayout = {
       labelCol: { span: 3 },
       wrapperCol: { span: 10 }
@@ -491,7 +569,12 @@ class MonitorDetail extends React.Component {
     })
     
     const relayRuleProps = getFieldProps('host', {
-      initialValue: currentIngress && (currentIngress.host + currentIngress.path)
+      initialValue: currentIngress && (currentIngress.host + currentIngress.path),
+      rules: [
+        {
+          validator: this.hostCheck
+        }
+      ]
     })
     
     const serviceChild = (allServices || []).map(item =>{
@@ -597,6 +680,8 @@ class MonitorDetail extends React.Component {
           <FormItem
             label="监听器名称"
             {...formItemLayout}
+            hasFeedback={!!getFieldValue('monitorName')}
+            help={isFieldValidating('monitorName') ? '校验中...' : (getFieldError('monitorName') || []).join(', ')}
           >
             <Input {...monitorNameProps} placeholder="请输入监听器名称"/>
           </FormItem>
@@ -683,8 +768,10 @@ class MonitorDetail extends React.Component {
           <FormItem
             label="转发规则"
             {...formItemLayout}
+            hasFeedback={!!getFieldValue('host')}
+            help={isFieldValidating('host') ? '校验中...' : (getFieldError('host') || []).join(', ')}
           >
-            <Input placeholder="输入域名 URL （非必填）" {...relayRuleProps}/>
+            <Input placeholder="输入域名 URL " {...relayRuleProps}/>
           </FormItem>
           <Row>
             <Col span={20} offset={3}>
@@ -726,5 +813,6 @@ export default connect(mapStateToProps, {
   loadAllServices,
   createIngress,
   updateIngress,
-  getLBDetail
+  getLBDetail,
+  checkIngressNameAndHost
 })(MonitorDetail)

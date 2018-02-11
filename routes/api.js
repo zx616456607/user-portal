@@ -731,6 +731,9 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/loadbalances/:name/ingress/:displayname', loadBalanceController.updateIngress)
   router.del('/clusters/:cluster/loadbalances/:lbname/ingresses/:name/displayname/:displayname', loadBalanceController.deleteIngress)
   router.post('/clusters/:cluster/loadbalances/:lbname/ingress/app', loadBalanceController.createAppIngress)
-
+  router.get('/clusters/:cluster/loadbalances/services/:name/controller', loadBalanceController.getServiceLB)
+  router.del('/clusters/:cluster/loadbalances/:lbname/services/:servicename', loadBalanceController.unbindService)
+  router.get('/clusters/:cluster/loadbalances/:lbname/ingresses/exist', loadBalanceController.nameAndHostCheck)
+  
   return router.routes()
 }

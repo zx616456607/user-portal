@@ -9,13 +9,14 @@
  */
 
 import React, { Component } from 'react'
-import { Row, Col, Card, Button, Select, Radio, Icon, Modal, Tooltip, Form } from 'antd'
+import { Row, Col, Card, Button, Select, Radio, Icon, Modal, Tooltip, Form, Input } from 'antd'
 import { Link } from 'react-router'
 import classNames from 'classnames'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
 import "./style/VisitType.less"
 import { setServiceProxyGroup, loadAllServices, loadServiceDetail } from '../../../actions/services'
+import { getServiceLBList, unbindIngressService } from '../../../actions/load_balance'
 import { getProxy } from '../../../actions/cluster'
 import NotificationHandler from '../../../common/notification_handler'
 import { parseServiceDomain } from '../../parseDomain'
@@ -44,7 +45,7 @@ class VisitType extends Component{
     }
   }
   componentWillMount() {
-    const { service, bindingDomains, bindingIPs, getProxy, cluster } = this.props;
+    const { service, bindingDomains, bindingIPs, getProxy, cluster, getServiceLBList } = this.props;
     this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
     if (service.lbgroup && service.lbgroup.id === 'mismatch') {
       this.setState({
@@ -55,6 +56,7 @@ class VisitType extends Component{
         isLbgroupNull: false
       })
     }
+    getServiceLBList(cluster, service.metadata.name)
   }
   componentWillReceiveProps(nextProps) {
     let preShow = this.props.serviceDetailmodalShow;
@@ -327,13 +329,80 @@ class VisitType extends Component{
       disabled: true
     })
   }
+  
+  renderIngresses = () => {
+    const { LBList } = this.props
+    if (!LBList || !LBList.length) {
+      return <div className="hintColor noLB">未绑定负载均衡器</div>
+    }
+    return LBList.map(item => {
+      return (
+        <Row type="flex" align="middle" className="LBList">
+          <Col span={8}><Input value={item.displayName} disabled style={{ width: '90%' }}/></Col>
+          <Col span={4}>
+            <Button type="primary" onClick={() => this.openModal(item)}>
+              解绑负载均衡
+            </Button>
+          </Col>
+          <Col span={4}><Link to={`app_manage/load_balance/balance_config?name=${item.name}&displayName=${item.displayName}`}>前往修改监听</Link></Col>
+        </Row>
+      )
+    })
+  }
+  
+  openModal = ingress => {
+    this.setState({
+      currentLB: ingress,
+      unbindVisible: true
+    })
+  }
+  
+  cancelModal = () => {
+    this.setState({
+      unbindVisible: false,
+      confirmLoading: false
+    })
+  }
+  
+  confirmModal = () => {
+    const { unbindIngressService, getServiceLBList, cluster, service } = this.props
+    const { currentLB } = this.state
+    let notify = new NotificationHandler()
+    this.setState({
+      confirmLoading: true
+    })
+    notify.spin('解绑中')
+    unbindIngressService(cluster, currentLB.name, service.metadata.name, {
+      success: {
+        func: () => {
+          getServiceLBList(cluster, service.metadata.name)
+          notify.close()
+          notify.success('解绑成功')
+          this.setState({
+            confirmLoading: false,
+            unbindVisible: false
+          })
+        },
+        isAsync: true
+      },
+      failure: {
+        func: res => {
+          notify.close()
+          notify.warn('解绑失败', res.message.message || res.message)
+          this.setState({
+            confirmLoading: false,
+          })
+        }
+      }
+    })
+  }
   render() {
-    const { form } = this.props;
+    const { form, service, LBList } = this.props;
     const { getFieldProps } = form;
     const { 
       value, disabled, forEdit, selectDis, deleteHint,privateNet,
       addrHide, currentProxy, initGroupID, initValue, initSelectDics, 
-      isLbgroupNull, activeKey
+      isLbgroupNull, activeKey, unbindVisible, confirmLoading, currentLB
     } = this.state;
     const imageComposeStyle = classNames({
       'tabs_item_style': true,
@@ -356,16 +425,21 @@ class VisitType extends Component{
     }):null
     return (
       <Card id="visitTypePage">
+        <Modal
+          title='解绑负载均衡'
+          visible={unbindVisible}
+          onCancle={this.cancelModal}
+          onOk={this.confirmModal}
+          confirmLoading={confirmLoading}
+        >
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
+            <span> {`确定要将服务${service.metadata.name}从负载均衡器${currentLB && currentLB.displayName}上解绑？`}</span>
+          </div>
+        </Modal>
         <div className="visitTypeTopBox">
           <div className="visitTypeTitle">服务访问方式</div>
           <div className="visitTypeInnerBox">
-            {
-              forEdit ? [
-                <Button key="cancel" size="large" onClick={this.cancelEdit.bind(this)}>取消</Button>,
-                <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>
-              ] :
-              <Button type="primary" size="large" onClick={this.toggleDisabled.bind(this)}>编辑</Button>
-            }
             <ul className='tabs_header_style visitTypeTabs'>
               <li className={imageComposeStyle}
                   onClick={this.tabChange.bind(this, "netExport")}
@@ -379,6 +453,15 @@ class VisitType extends Component{
               </li>
             </ul>
             <div className={classNames("radioBox", {'hide': activeKey === 'loadBalance'})}>
+              <div className="btnBox">
+                {
+                  forEdit ? [
+                      <Button key="cancel" size="large" onClick={this.cancelEdit.bind(this)}>取消</Button>,
+                      <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>
+                    ] :
+                    <Button type="primary" size="large" onClick={this.toggleDisabled.bind(this)}>编辑</Button>
+                }
+              </div>
               <RadioGroup onChange={this.onChange.bind(this)} value={value || initValue}>
                 <Radio key="a" value={1} disabled={disabled}>可公网访问</Radio>
                 <Radio key="b" value={2} disabled={disabled}>内网访问</Radio>
@@ -407,20 +490,7 @@ class VisitType extends Component{
               <div className={classNames("inlineBlock deleteHint",{'hide': !isLbgroupNull})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>已选网络出口已被管理员删除，请选择其他网络出口或访问方式</div>
             </div>
             <div className={classNames('loadBalancePart',{'hide': activeKey === 'netExport'})}>
-              <Row type="flex" align="middle" justify="center">
-                <Col span={8}>
-                  <Form.Item
-                    wrapperCol={{ span: 24 }}
-                  >
-                    <Select disabled={disabled} {...getFieldProps('monitor')} style={{ width: '90%' }}>
-                      <Option key="1">ingress/10.10</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={4}><Link to="app_manage/load_balance/balance_config">前往修改监听</Link></Col>
-                <Col span={4} className="themeColor pointer">解绑负载均衡</Col>
-                <Col span={8} className="hintColor">（解绑后可切换至集群网络出口）</Col>
-              </Row>
+              {this.renderIngresses()}
             </div>
           </div>
         </div>
@@ -444,9 +514,13 @@ class VisitType extends Component{
 }
 
 function mapSateToProp(state) {
+  const { loadBalance } = state
+  const { serviceLoadBalances } = loadBalance
+  const { data: LBList } = serviceLoadBalances || { data: [] }
   return {
     bindingDomains: state.entities.current.cluster.bindingDomains,
     bindingIPs: state.entities.current.cluster.bindingIPs,
+    LBList
   }
 }
 
@@ -454,6 +528,8 @@ VisitType = connect(mapSateToProp, {
   setServiceProxyGroup,
   getProxy,
   loadAllServices,
-  loadServiceDetail
+  loadServiceDetail,
+  getServiceLBList,
+  unbindIngressService
 })(Form.create()(VisitType))
 export default VisitType;
