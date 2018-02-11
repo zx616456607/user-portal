@@ -458,6 +458,30 @@ class Deployment {
     })
   }
 
+  setReadinessProbe(containerName, protocol, probe) {
+    this.spec.template.spec.containers.map((container) => {
+      if (container.name !== containerName) {
+        return
+      }
+      const readinessProbe = {}
+      if (protocol === 'HTTP') {
+        readinessProbe.httpGet = {
+          port: probe.port,
+          path: probe.path
+        }
+      }
+      if (protocol === 'TCP') {
+        readinessProbe.tcpSocket = {
+          port: probe.port
+        }
+      }
+      readinessProbe.initialDelaySeconds = probe.initialDelaySeconds
+      readinessProbe.timeoutSeconds = probe.timeoutSeconds
+      readinessProbe.periodSeconds = probe.periodSeconds
+      container.readinessProbe = readinessProbe
+    })
+  }
+
   setNodeSelector(hostname) {
     this.spec.template.spec.nodeSelector = {
       [K8S_NODE_SELECTOR_KEY]: hostname
