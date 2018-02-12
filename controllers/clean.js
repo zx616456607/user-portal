@@ -52,9 +52,10 @@ exports.getCleanerLogs = function* () {
 
 exports.startCleanSystemLogs = function* () {
   const body = this.request.body
+  const query = this.query
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser, MAX_TIMEOUT)
-  const result = yield api.cleaner.createBy(['systemlog', 'clean'], null, body)
+  const result = yield api.cleaner.createBy(['systemlog', 'clean'], query, body)
   this.body = result
 }
 
