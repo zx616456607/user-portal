@@ -382,7 +382,7 @@ class QuickCreateApp extends Component {
         json.storage.forEach(item => {
           template.push(yaml.dump(item))
         })
-        if (fields[key].accessType) {
+        if (fields[key].accessType && fields[key].accessType.value === 'loadBalance') {
           accessType = fields[key].accessType.value
           lbName = fields[key].loadBalance.value
           const items = []
