@@ -73,6 +73,12 @@ class MonitorDetail extends React.Component {
           })
         }
       }
+      if (currentIngress.lbAlgorithm !== 'ip_hash') {
+        this.setState({
+          sessionSticky: currentIngress.sessionSticky,
+          sessionPersistent: parseInt(currentIngress.sessionPersistent)
+        })
+      }
       if (!isEmpty(currentIngress.items)) {
         const keys = []
         currentIngress.items.forEach(item => {
@@ -346,6 +352,7 @@ class MonitorDetail extends React.Component {
   }
   
   handleAlgorithm = e => {
+    const { sessionSticky,  sessionPersistent } = this.state
     const { getFieldValue, setFieldsValue } = this.props.form
     const keys = getFieldValue('keys')
     if (e.target.value === 'round-robin' && !isEmpty(keys)) {
@@ -355,6 +362,12 @@ class MonitorDetail extends React.Component {
         })
       })
     } 
+    if (e.target.value !== 'ip_hash') {
+      setFieldsValue({
+        sessionSticky,
+        sessionPersistent
+      })
+    }
   }
   
   getHealthData = values => {
@@ -546,7 +559,7 @@ class MonitorDetail extends React.Component {
       labelCol: { span: 3 },
       wrapperCol: { span: 10 }
     }
-    const showSlider = getFieldValue('sessionSticky')
+    const showSlider = getFieldValue('sessionSticky') && (getFieldValue('lbAlgorithm') !== 'ip_hash')
     const showWeight = getFieldValue('lbAlgorithm') === 'round-robin'
     getFieldProps('keys', {
       initialValue: [],
