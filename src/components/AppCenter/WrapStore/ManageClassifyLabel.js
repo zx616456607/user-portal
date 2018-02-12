@@ -43,7 +43,7 @@ class ManageClassifyLabel extends Component {
       success: {
         func: res => {
           const { data } = res
-          const initalList = cloneDeep(data)
+          const initalList = cloneDeep(data) || []
           initalList.forEach(item => {
             item.isEdit = false
           })

@@ -64,18 +64,20 @@ class WrapComopnent extends React.Component {
 
   renderClassifyTab() {
     const { wrapGroupList, classify, updateParentState } = this.props
-    if (!wrapGroupList || !wrapGroupList.classifies || !wrapGroupList.classifies.length) return
+    if (!wrapGroupList || !wrapGroupList.classifies || !wrapGroupList.classifies.length) {
+      return <span className="hintColor">暂无分类</span>
+    }
     const allClassify = [{
-      iD: "",
+      id: "",
       classifyName: "全部"
     }]
     let newClassifies = allClassify.concat(wrapGroupList.classifies)
     return newClassifies.map(item => {
       return(
         <span
-          className={classNames('filterTab', {'active': item.iD === classify})}
-          key={item.iD}
-          onClick={() => updateParentState('classify', item.iD, true)}
+          className={classNames('filterTab', {'active': item.id === classify})}
+          key={item.id}
+          onClick={() => updateParentState('classify', item.id, true)}
         >
           {item.classifyName}
         </span>
@@ -146,7 +148,7 @@ class WrapComopnent extends React.Component {
     let tagWithId = {}
     image.versions.forEach(item => {
       Object.assign(tagWithId, {
-        [item.iD]: item.tag
+        [item.id]: item.tag
       })
     })
     this.setState({
@@ -588,7 +590,7 @@ class WrapComopnent extends React.Component {
       imageName = currentImage.resourceName && currentImage.resourceName
       version = currentImage.versions && currentImage.versions[0].tag
       Object.assign(currentImage, { name: currentImage.resourceName, pullCount: currentImage.downloadTimes, creationTime: currentImage.publishTime })
-      tagArr = currentImage && currentImage.versions && currentImage.versions.map(item => <Option key={item.iD}>{item.tag}</Option>)
+      tagArr = currentImage && currentImage.versions && currentImage.versions.map(item => <Option key={item.id}>{item.tag}</Option>)
     }
     const pagination = {
       simple: true,
