@@ -422,7 +422,7 @@ class ImageVersion extends Component {
             />
           </div>
         </div>
-        <Modal title="镜像版本详情" visible={this.state.detailVisible} style={{ paddingRight: 5 }}
+        <Modal title="镜像版本详情" visible={this.state.detailVisible} style={{ paddingRight: 5, top: 40 }}
           onCancel={this.handleClose.bind(this)}
           wrapClassName="image-detail-modal"
           width="600"
