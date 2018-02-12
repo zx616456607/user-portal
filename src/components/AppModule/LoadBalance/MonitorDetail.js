@@ -104,16 +104,18 @@ class MonitorDetail extends React.Component {
     }
     
   }
-  validateNewItem = () => {
+  validateNewItem = key => {
     const { form } = this.props
     const { getFieldValue, setFields } = form
     const keys = getFieldValue('keys')
     let endIndexValue = keys[keys.length - 1]
+    if (key) {
+      endIndexValue = key
+    }
     let service = getFieldValue(`service-${endIndexValue}`)
     let port = getFieldValue(`port-${endIndexValue}`)
     let weight = getFieldValue(`weight-${endIndexValue}`)
     let errorObj = {}
-    
     if (!service) {
       Object.assign(errorObj, { 
         [`service-${endIndexValue}`]: {
@@ -154,19 +156,7 @@ class MonitorDetail extends React.Component {
       if (!isEmpty(result)) {
         return
       }
-      let filterServices
-      filterServices = defaultAllServices.filter(item => {
-        let flag = true
-        currentKeys.forEach(key => {
-          if (item.metadata.name === getFieldValue(`service-${key}`)) {
-            flag = false
-          }
-        })
-        return flag
-      })
-      this.setState({
-        allServices: filterServices
-      })
+      this.filterServices()
     }
     uidd ++
     if (currentIngress) {
@@ -177,6 +167,31 @@ class MonitorDetail extends React.Component {
     setFieldsValue({
       keys: currentKeys.concat(uidd)
     })
+  }
+  
+  filterServices = () => {
+    const { defaultAllServices } = this.state
+    const { form } = this.props
+    const { getFieldValue } = form
+  
+    const currentKeys = getFieldValue('keys')
+    let filterServices
+    filterServices = defaultAllServices.filter(item => {
+      let flag = true
+      currentKeys.forEach(key => {
+        if (item.metadata.name === getFieldValue(`service-${key}`)) {
+          flag = false
+        }
+      })
+      return flag
+    })
+    this.setState({
+      allServices: filterServices
+    })
+  }
+  editItem = item => {
+    this.filterServices()
+    this.setState({[`service${item}`]: true})
   }
   
   removeKey = key => {
@@ -211,7 +226,7 @@ class MonitorDetail extends React.Component {
   }
   
   confirmEdit = key => {
-    const result = this.validateNewItem()
+    const result = this.validateNewItem(key)
     if (!isEmpty(result)) {
       return
     }
@@ -685,7 +700,7 @@ class MonitorDetail extends React.Component {
                 [
                   currentIngress && 
                   <Button type="dashed" key={`edit${item}`} 
-                          className="editServiceBtn" onClick={() => this.setState({[`service${item}`]: true})}>
+                          className="editServiceBtn" onClick={() => this.editItem(item)}>
                     <i className="fa fa-pencil-square-o" aria-hidden="true"/></Button>,
                   <Button type="dashed" icon="delete" key={`delete${item}`} onClick={() => this.removeKey(item)}/>
                 ]
