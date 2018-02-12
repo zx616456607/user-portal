@@ -91,14 +91,10 @@ class Account extends Component {
     this.state = {
       containerSiderStyle: 'normal'
     }
-    if (!SHOW_BILLING) {
-      menuList_enterprise_user.splice(1)
-      menuList_enterprise_admin.splice(3)
-    }
   }
 
   render() {
-    const { children, role } = this.props
+    const { children, role, billingEnabled } = this.props
     const scope = this
     let menuList = menuList_standard
     if (mode != standard) {
@@ -109,6 +105,9 @@ class Account extends Component {
       } else {
         menuList = menuList_enterprise_user
       }
+    }
+    if (!billingEnabled) {
+      menuList = menuList.slice(0, 1)
     }
     return (
       <div id="Account">
@@ -140,8 +139,11 @@ function mapStateToProp(state) {
   if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
     role = entities.loginUser.info.role
   }
+  const { billingConfig } = entities.loginUser.info
+  const { enabled: billingEnabled } = billingConfig
   return {
-    role
+    role,
+    billingEnabled
   }
 }
 
