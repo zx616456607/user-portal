@@ -116,15 +116,15 @@ export default class Version extends Component{
                 </Row>
                 <Row className='contentList firstItem'>
                   <Col span={8}>Kubernetes</Col>
-                  <Col span={8}>v1.6.11</Col>
+                  <Col span={8}>v1.9.2</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>Etcd</Col>
-                  <Col span={8}>v3.0.12</Col>
+                  <Col span={8}>v3.1.11</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>Docker</Col>
-                  <Col span={8}>v1.12.6</Col>
+                  <Col span={8}>v17.03.1-ce</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>Registry</Col>
