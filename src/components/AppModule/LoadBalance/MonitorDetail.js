@@ -73,6 +73,12 @@ class MonitorDetail extends React.Component {
           })
         }
       }
+      if (currentIngress.lbAlgorithm !== 'ip_hash') {
+        this.setState({
+          sessionSticky: currentIngress.sessionSticky,
+          sessionPersistent: parseInt(currentIngress.sessionPersistent)
+        })
+      }
       if (!isEmpty(currentIngress.items)) {
         const keys = []
         currentIngress.items.forEach(item => {
@@ -86,6 +92,9 @@ class MonitorDetail extends React.Component {
             form.setFieldsValue({
               [`weight-${uidd}`]: item.weight
             })
+            this.setState({
+              [`weight-${uidd}`]: item.weight
+            })
           }
         })
         form.setFieldsValue({
@@ -95,16 +104,18 @@ class MonitorDetail extends React.Component {
     }
     
   }
-  validateNewItem = () => {
+  validateNewItem = key => {
     const { form } = this.props
     const { getFieldValue, setFields } = form
     const keys = getFieldValue('keys')
     let endIndexValue = keys[keys.length - 1]
+    if (key) {
+      endIndexValue = key
+    }
     let service = getFieldValue(`service-${endIndexValue}`)
     let port = getFieldValue(`port-${endIndexValue}`)
     let weight = getFieldValue(`weight-${endIndexValue}`)
     let errorObj = {}
-    
     if (!service) {
       Object.assign(errorObj, { 
         [`service-${endIndexValue}`]: {
@@ -135,7 +146,7 @@ class MonitorDetail extends React.Component {
   
   addItem = () => {
     const { defaultAllServices } = this.state
-    const { form } = this.props
+    const { form, currentIngress } = this.props
     const { getFieldValue, setFieldsValue } = form
     
     const currentKeys = getFieldValue('keys')
@@ -145,25 +156,42 @@ class MonitorDetail extends React.Component {
       if (!isEmpty(result)) {
         return
       }
-      let filterServices
-      filterServices = defaultAllServices.filter(item => {
-        let flag = true
-        currentKeys.forEach(key => {
-          if (item.metadata.name === getFieldValue(`service-${key}`)) {
-            flag = false
-          }
-        })
-        return flag
-      })
-      this.setState({
-        allServices: filterServices
-      })
+      this.filterServices()
     }
     uidd ++
-    
+    if (currentIngress) {
+      this.setState({
+        [`service${uidd}`]: true
+      })
+    }
     setFieldsValue({
       keys: currentKeys.concat(uidd)
     })
+  }
+  
+  filterServices = () => {
+    const { defaultAllServices } = this.state
+    const { form } = this.props
+    const { getFieldValue } = form
+  
+    const currentKeys = getFieldValue('keys')
+    let filterServices
+    filterServices = defaultAllServices.filter(item => {
+      let flag = true
+      currentKeys.forEach(key => {
+        if (item.metadata.name === getFieldValue(`service-${key}`)) {
+          flag = false
+        }
+      })
+      return flag
+    })
+    this.setState({
+      allServices: filterServices
+    })
+  }
+  editItem = item => {
+    this.filterServices()
+    this.setState({[`service${item}`]: true})
   }
   
   removeKey = key => {
@@ -198,6 +226,10 @@ class MonitorDetail extends React.Component {
   }
   
   confirmEdit = key => {
+    const result = this.validateNewItem(key)
+    if (!isEmpty(result)) {
+      return
+    }
     this.setState({
       [`service${key}`]: false
     })
@@ -334,6 +366,25 @@ class MonitorDetail extends React.Component {
     callback()
   }
   
+  handleAlgorithm = e => {
+    const { sessionSticky,  sessionPersistent } = this.state
+    const { getFieldValue, setFieldsValue } = this.props.form
+    const keys = getFieldValue('keys')
+    if (e.target.value === 'round-robin' && !isEmpty(keys)) {
+      keys.forEach(item => {
+        setFieldsValue({
+          [`weight-${item}`]: this.state[`weight-${item}`]
+        })
+      })
+    } 
+    if (e.target.value !== 'ip_hash') {
+      setFieldsValue({
+        sessionSticky,
+        sessionPersistent
+      })
+    }
+  }
+  
   getHealthData = values => {
     const { 
       isCheck, httpSend, interval, fall, rise,
@@ -456,8 +507,10 @@ class MonitorDetail extends React.Component {
         success: {
           func: () => {
             getLBDetail(clusterID, name, displayName, {
-              success: () => {
-                this.goBack()
+              success: {
+                func: () => {
+                  this.goBack()
+                }
               }
             })
             this.setState({
@@ -521,7 +574,7 @@ class MonitorDetail extends React.Component {
       labelCol: { span: 3 },
       wrapperCol: { span: 10 }
     }
-    const showSlider = getFieldValue('sessionSticky')
+    const showSlider = getFieldValue('sessionSticky') && (getFieldValue('lbAlgorithm') !== 'ip_hash')
     const showWeight = getFieldValue('lbAlgorithm') === 'round-robin'
     getFieldProps('keys', {
       initialValue: [],
@@ -560,7 +613,8 @@ class MonitorDetail extends React.Component {
           validator: this.algorithmCheck
         }
       ],
-      initialValue: currentIngress && currentIngress.lbAlgorithm || 'round-robin'
+      initialValue: currentIngress && currentIngress.lbAlgorithm || 'round-robin',
+      onChange: this.handleAlgorithm
     })
     
     const sessionProps = getFieldProps('sessionSticky', {
@@ -633,7 +687,8 @@ class MonitorDetail extends React.Component {
                       {
                         validator: this.checkWeight
                       }
-                    ]
+                    ],
+                    onChange: value => this.setState({ [`weight-${item}`]: value })
                   })}
                 />
               </FormItem>
@@ -645,7 +700,7 @@ class MonitorDetail extends React.Component {
                 [
                   currentIngress && 
                   <Button type="dashed" key={`edit${item}`} 
-                          className="editServiceBtn" onClick={() => this.setState({[`service${item}`]: true})}>
+                          className="editServiceBtn" onClick={() => this.editItem(item)}>
                     <i className="fa fa-pencil-square-o" aria-hidden="true"/></Button>,
                   <Button type="dashed" icon="delete" key={`delete${item}`} onClick={() => this.removeKey(item)}/>
                 ]
@@ -738,7 +793,7 @@ class MonitorDetail extends React.Component {
                 >
                   <Slider max={3600} {...getFieldProps('sessionPersistent', 
                     { 
-                      initialValue: currentIngress ? parseInt(currentIngress.sessionPersistent) : 100 
+                      initialValue: currentIngress && currentIngress.sessionPersistent ? parseInt(currentIngress.sessionPersistent) : 100 
                     })}/>
                 </FormItem>
               </Col>

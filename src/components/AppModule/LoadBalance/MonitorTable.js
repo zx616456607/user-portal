@@ -144,7 +144,12 @@ export default class MonitorTable extends React.Component {
         width: '20%', 
         render: () => 80
       },
-      {title: '域名', dataIndex: 'host', width: '20%'},
+      {
+        title: '域名', 
+        dataIndex: 'host', 
+        width: '20%',
+        render: (text, record) => record.host + record.path
+      },
       {
         title: '操作',
         width: '20%',
