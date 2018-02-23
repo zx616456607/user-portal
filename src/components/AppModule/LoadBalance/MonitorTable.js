@@ -60,7 +60,7 @@ export default class MonitorTable extends React.Component {
       delConfirmLoading: true
     })
     notify.spin('删除中')
-    deleteIngress(clusterID, name, currentIngress.name, displayName, {
+    deleteIngress(clusterID, name, currentIngress.name, currentIngress.displayName, {
       success: {
         func: () => {
           notify.close()
@@ -89,19 +89,27 @@ export default class MonitorTable extends React.Component {
     if (!row.items || !row.items.length) {
       return
     }
+    const isRoundRobin = row.lbAlgorithm === 'round-robin'
+    
     return (
       <div>
         <Row className="expandedRow">
           <Col span={5}>后端服务</Col>
           <Col span={5}>服务端口</Col>
-          <Col span={5}>权重</Col>
+          {
+            isRoundRobin &&
+            <Col span={5}>权重</Col>
+          }
         </Row>
         {
           row.items.map(item => 
             <Row className="expandedRow" key={item.serviceName}>
               <Col span={5}>{item.serviceName}</Col>
               <Col span={5}>{item.servicePort}</Col>
-              <Col span={5}>{item.weight}</Col>
+              {
+                isRoundRobin &&
+                <Col span={5}>{item.weight}</Col>
+              }
             </Row>
           )
         }
@@ -144,7 +152,12 @@ export default class MonitorTable extends React.Component {
         width: '20%', 
         render: () => 80
       },
-      {title: '域名', dataIndex: 'host', width: '20%'},
+      {
+        title: '域名', 
+        dataIndex: 'host', 
+        width: '20%',
+        render: (text, record) => record.host + record.path
+      },
       {
         title: '操作',
         width: '20%',

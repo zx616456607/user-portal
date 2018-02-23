@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Row, Col, Switch, Form, Select, TimePicker } from 'antd'
+import { Row, Col, Switch, Form, Select, TimePicker, Button } from 'antd'
 import { browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -29,14 +29,13 @@ class TimingClean extends Component {
   constructor(props) {
     super(props)
     this.systemChange = this.systemChange.bind(this)
-    this.CICDcacheChange = this.CICDcacheChange.bind(this)
     this.mirrorImageChange = this.mirrorImageChange.bind(this)
     this.stopContainerChange = this.stopContainerChange.bind(this)
     this.state = {
       systemChecked: false,
-      systemEdit: false,
+      systemEdit: true,
       cicdChecked: false,
-      cicdEdit: false,
+      cicdEdit: true,
       mirrorImage: false,
       mirrorImageEdit: false,
       stopContainer: false,
@@ -57,10 +56,27 @@ class TimingClean extends Component {
   }
   getSettings() {
     const { getCleanSettings } = this.props
+    let notify = new Notification()
     getCleanSettings({
       success: {
         func: res => {
           this.parseCron(res.data.cicdClean, 'cicd')
+        },
+        isAsync: true
+      },
+      failed: {
+        func: res => {
+          if (
+            res.detail &&
+            res.detail.causes &&
+            !isEmpty(res.detail.causes) &&
+            !isEmpty(res.detail.causes[0].message)
+          ) {
+            let message = JSON.parse(res.detail.causes[0].message)
+            if (Object.keys(message).length > 1) {
+              notify.warn('重置配置')
+            }
+          }
         },
         isAsync: true
       }
@@ -68,10 +84,28 @@ class TimingClean extends Component {
   }
   getSystemSetting() {
     const { getSystemSettings } = this.props
+    let notify = new Notification()
     getSystemSettings({
       success: {
         func: res => {
           this.parseCron(res.data, 'system')
+        },
+        isAsync: true
+      },
+      failed: {
+        func: res => {
+          if (
+            res.detail &&
+            res.detail.causes &&
+            !isEmpty(res.detail.causes) &&
+            !isEmpty(res.detail.causes[0].message)
+          ) {
+            let message = JSON.parse(res.detail.causes[0].message)
+            if (Object.keys(message).length > 1) {
+              notify.warn('重置配置中')
+              this.systemReset()
+            }
+          }
         },
         isAsync: true
       }
@@ -81,17 +115,30 @@ class TimingClean extends Component {
     if (!str.spec.cron) return
     let cronArr = str.spec.cron.split(' ')
     cronArr.length === 6 && cronArr.splice(0, 1)
-    if (str.meta.automatic) {
-      this.setState({
-        [`${type}Checked`]: true,
-        [`${type}Edit`]: true
-      })
+    if (type === 'cicd') {
+      if (str.meta.automatic) {
+        this.setState({
+          [`${type}Checked`]: true
+        })
+      } else {
+        this.setState({
+          [`${type}Checked`]: false
+        })
+        return
+      }
     } else {
-      this.setState({
-        [`${type}Checked`]: false,
-        [`${type}Edit`]: false
-      })
-      return
+      if (str.meta.automatic) {
+        if (str.status === 'start') {
+          this.setState({
+            [`${type}Checked`]: true
+          })
+        } else {
+          this.setState({
+            [`${type}Checked`]: false
+          })
+          return
+        }
+      }
     }
     if (cronArr[4] !== '?') {
       this.setState({
@@ -127,6 +174,20 @@ class TimingClean extends Component {
       [`${type}Time`]: time
     })
   }
+  systemReset = () => {
+    const { cleanSystemLogs } = this.props
+    const query = {
+      reset: true
+    }
+    cleanSystemLogs(null, query, {
+      success: {
+        func: () => {
+          this.getSystemSetting()
+        },
+        isAsync: true
+      }
+    })
+  }
   systemCloseFun() {
     const { deleteLogAutoClean, form } = this.props
     let notify = new Notification()
@@ -137,30 +198,37 @@ class TimingClean extends Component {
           notify.close()
           notify.success('服务日志定时清理已关闭')
           form.resetFields(['systemCleaningScope', 'systemCleaningCycle', 'systemCleaningTime'])
-          this.setState({
-            systemChecked: false,
-            systemEdit: false,
-            systemScope: '1',
-            systemCycle: 'day',
-            systemDate: '1',
-            systemTime: formatDate(new Date(new Date().setHours(0,0,0,0)), 'HH:mm:ss')
-          })
+          this.getSystemSetting()
         },
         isAsync: true
       },
       failed: {
-        func: () => {
+        func: res => {
+          if (
+            res.detail &&
+            res.detail.causes &&
+            !isEmpty(res.detail.causes) &&
+            !isEmpty(res.detail.causes[0].message)
+          ) {
+            let message = JSON.parse(res.detail.causes[0].message)
+            if (Object.keys(message).length > 1) {
+              notify.warn('重置配置中')
+              this.systemReset()
+              return
+            }
+          }
           notify.close()
           notify.error('服务日志定时清理关闭失败')
           this.setState({
             systemChecked: true,
             systemEdit: true,
           })
-        }
+        },
+        isAsync: true
       }
     })
   }
-  systemChange(){
+  systemChange(toggle){
     const { systemChecked } = this.state
     let notify = new Notification()
     const { form, cleanSystemLogs } = this.props
@@ -179,42 +247,82 @@ class TimingClean extends Component {
         return
       }
       const { systemCleaningScope, systemCleaningCycle, systemCleaningTime, systemCleaningDate } = values
-      if(systemChecked){
+      if(toggle && systemChecked){
         this.systemCloseFun()
         return
       }
-      notify.spin('服务日志定时清理开启中')
-      cleanSystemLogs({
+      notify.spin(toggle ? '服务日志定时清理开启中' : '服务日志定时编辑中')
+      const body = {
+        status: 'start',
         type: 1,
         time_range: parseInt(systemCleaningScope),
         scheduled_time: this.getCronString(systemCleaningCycle, systemCleaningDate, systemCleaningTime, 'system')
-      }, {
+      }
+      if (!toggle) {
+        body.status = systemChecked ? 'start' : 'stop'
+      }
+      cleanSystemLogs(body, null, {
         success: {
           func: () => {
             notify.close()
-            notify.success('服务日志定时清理开启成功')
-            this.setState({
-              systemChecked: true,
-              systemEdit: true,
-            })
-            this.getSystemSetting()
+            notify.success(toggle ? '服务日志定时清理开启成功' : '服务日志定时编辑成功')
+            if (toggle) {
+              this.setState({
+                systemChecked: !systemChecked
+              })
+            } else {
+              this.setState({
+                systemEdit: true
+              })
+            }
           },
           isAsync: true
         },
         failed: {
-          func: () => {
+          func: res => {
+            if (
+              res.detail &&
+              res.detail.causes &&
+              !isEmpty(res.detail.causes) &&
+              !isEmpty(res.detail.causes[0].message)
+            ) {
+              let message = JSON.parse(res.detail.causes[0].message)
+              if (Object.keys(message).length > 1) {
+                notify.warn('重置配置中')
+                this.systemReset()
+                return
+              }
+            }
             notify.close()
-            notify.error('服务日志定时清理开启失败')
-            this.setState({
-              systemChecked: false,
-              systemEdit: false,
-            })
-          }
+            notify.error(toggle ? '服务日志定时清理开启失败' : '服务日志定时编辑失败')
+            if (toggle) {
+              this.setState({
+                systemChecked,
+              })
+            } else {
+              this.setState({
+                systemEdit: false
+              })
+            }
+          },
+          isAsync: true
         }
       })
     })
   }
-
+  
+  systemHandleEdit = () => {
+    this.setState({
+      systemEdit: false
+    })
+  }
+  
+  systemHandleCancel = () => {
+    this.getSystemSetting()
+    this.setState({
+      systemEdit: true
+    })
+  }
   renderCleaningDateOption(cleaningCycle){
     if(cleaningCycle === 'week'){
       let weekArray = ['一', '二', '三', '四', '五', '六', '日']
@@ -261,14 +369,7 @@ class TimingClean extends Component {
           notify.close()
           notify.success('cicd定时清理已关闭')
           form.resetFields(['CICDcacheScope', 'CICDcacheCycle', 'CICDcacheDate', 'CICDcacheTime'])
-          this.setState({
-            cicdChecked: false,
-            cicdEdit: false,
-            cicdScope: '1',
-            cicdCycle: 'day',
-            cicdDate: '1',
-            cicdTime: formatDate(new Date(new Date().setHours(0,0,0,0)), 'HH:mm:ss'),
-          })
+          this.getSettings()
         },
         isAsync: true
       },
@@ -277,14 +378,14 @@ class TimingClean extends Component {
           notify.close()
           notify.error('cicd定时清理关闭失败')
           this.setState({
-            cicdChecked: true,
-            cicdEdit: true,
+            cicdChecked: true
           })
         }
       }
     })
   }
-  CICDcacheChange(){
+  
+  CICDEditChange = (toggle) => {
     const { cicdChecked } = this.state
     const { form, startClean, userName } = this.props
     let notify = new Notification()
@@ -302,18 +403,18 @@ class TimingClean extends Component {
         return
       }
       const { CICDcacheScope, CICDcacheCycle, CICDcacheTime, CICDcacheDate } = values
-      if(cicdChecked){
+      if(toggle && cicdChecked){
         this.cicdCloseFun()
         return
       }
-      notify.spin('cicd定时清理开启中')
+      notify.spin(toggle ? 'cicd定时清理开启中' : 'cicd定时编辑中')
       startClean({
         cicd_clean: {
           meta: {
-            automatic: true,
+            automatic: toggle ? true : cicdChecked,
             cleaner: userName,
             target: "cicd_clean",
-            type: "auto"
+            type: cicdChecked ? "auto" : "stop"
           },
           spec: {
             cron: this.getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime),
@@ -324,24 +425,52 @@ class TimingClean extends Component {
         success: {
           func: () => {
             notify.close()
-            notify.success('cicd定时清理开启成功')
-            this.getSettings()
+            notify.success(toggle ? 'cicd定时清理开启成功' : 'cicd定时编辑成功')
+            // this.getSettings()
+            if (toggle) {
+              this.setState({
+                cicdChecked: !cicdChecked
+              })
+            } else {
+              this.setState({
+                cicdEdit: true
+              })
+            }
           },
           isAsync: true
         },
         failed: {
           func: () => {
             notify.close()
-            notify.error('cicd定时清理开启失败')
-            this.setState({
-              cicdChecked,
-              cicdEdit: cicdChecked
-            })
+            notify.error(toggle ? 'cicd定时清理开启失败' : 'cicd定时编辑失败')
+            if (toggle) {
+              this.setState({
+                cicdChecked,
+              })
+            } else {
+              this.setState({
+                cicdEdit: false
+              })
+            }
           }
         }
       })
     })
   }
+  
+  cicdHandleEdit = () => {
+    this.setState({
+      cicdEdit: false
+    })
+  }
+  
+  cicdHandleCancel = () => {
+    this.getSettings()
+    this.setState({
+      cicdEdit: true
+    })
+  }
+  
   getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime, type) {
     let time = typeof CICDcacheTime === 'string' ? CICDcacheTime.split(':') : String(formatDate(CICDcacheTime, 'HH mm')).split(' ')
     time.length === 3 && time.splice(0, 1)
@@ -455,8 +584,8 @@ class TimingClean extends Component {
     } = this.state
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
-    	labelCol: {span: 6},
-    	wrapperCol: {span: 18}
+    	labelCol: {span: 5},
+    	wrapperCol: {span: 19}
     }
     const systemCleaningScopeProps = getFieldProps('systemCleaningScope', {
       initialValue: systemScope,
@@ -554,7 +683,7 @@ class TimingClean extends Component {
                       unCheckedChildren="关"
                       className='switch_style'
                       checked={systemChecked}
-                      onChange={this.systemChange}
+                      onChange={() => this.systemChange(true)}
                     />
                   </div>
                   <div className="body">
@@ -620,6 +749,21 @@ class TimingClean extends Component {
                         {...systemCleaningTimeProps}
                       />
                     </FormItem>
+                    <Row>
+                      <Col offset={5}>
+                        {
+                          systemEdit ?
+                            <Button type="primary" size="large" onClick={this.systemHandleEdit}>编辑</Button>
+                            :
+                            [
+                              <Button
+                                style={{ marginRight: 12 }}
+                                key="cicdSave" type="primary" size="large" onClick={() => this.systemChange(false)}>保存</Button>,
+                              <Button key="cicdCancel" type="ghost" size="large" onClick={this.systemHandleCancel}>取消</Button>
+                            ]
+                        }
+                      </Col>
+                    </Row>
                   </div>
                 </div>
               </Col>
@@ -632,7 +776,7 @@ class TimingClean extends Component {
                       unCheckedChildren="关"
                       className='switch_style'
                       checked={cicdChecked}
-                      onChange={this.CICDcacheChange}
+                      onChange={() => this.CICDEditChange(true)}
                     />
                   </div>
                   <div className="body">
@@ -698,6 +842,21 @@ class TimingClean extends Component {
                         disabled={cicdEdit}
                       />
                     </FormItem>
+                    <Row>
+                      <Col offset={5}>
+                        {
+                          cicdEdit ?
+                            <Button type="primary" size="large" onClick={this.cicdHandleEdit}>编辑</Button>
+                            :
+                            [
+                              <Button 
+                                style={{ marginRight: 12 }}
+                                key="cicdSave" type="primary" size="large" onClick={() => this.CICDEditChange(false)}>保存</Button>,
+                              <Button key="cicdCancel" type="ghost" size="large" onClick={this.cicdHandleCancel}>取消</Button>
+                            ]
+                        }
+                      </Col>
+                    </Row>
                   </div>
                 </div>
               </Col>
