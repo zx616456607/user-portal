@@ -132,20 +132,21 @@ class MonitorDetail extends React.Component {
         }
       })
     }
-    if (!weight) {
-      Object.assign(errorObj, {
-        [`weight-${endIndexValue}`]: {
-          errors: ['请输入权重'],
-          value: ''
-        }
-      })
+    if (getFieldValue('lbAlgorithm') === 'round-robin') {
+      if (!weight) {
+        Object.assign(errorObj, {
+          [`weight-${endIndexValue}`]: {
+            errors: ['请输入权重'],
+            value: ''
+          }
+        })
+      }
     }
     setFields(errorObj)
     return errorObj
   }
   
   addItem = () => {
-    const { defaultAllServices } = this.state
     const { form, currentIngress } = this.props
     const { getFieldValue, setFieldsValue } = form
     
