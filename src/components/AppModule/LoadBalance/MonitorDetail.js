@@ -553,7 +553,7 @@ class MonitorDetail extends React.Component {
         }
       }
       if (currentIngress) {
-        updateIngress(clusterID, name, displayName, body, callback)
+        updateIngress(clusterID, name, currentIngress.displayName, body, callback)
         return
       }
       createIngress(clusterID, name, body, callback)
