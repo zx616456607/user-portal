@@ -1043,7 +1043,7 @@ class AppServiceDetailInfo extends Component {
             loading: false,
             //nouseEditing: false,
           })
-          notification.error(res[i].message)
+          // notification.error(res[i].message)
           createVolume = 'failed'
         }
       }
