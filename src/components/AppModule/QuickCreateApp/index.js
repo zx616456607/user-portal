@@ -385,9 +385,9 @@ class QuickCreateApp extends Component {
         if (fields[key].accessType && fields[key].accessType.value === 'loadBalance') {
           accessType = fields[key].accessType.value
           lbName = fields[key].loadBalance.value
-          const items = []
           let lbKeys = fields[key].lbKeys.value
           lbKeys.forEach(item => {
+            const items = []
             const { host } = fields[key][`ingress-${item}`].value
             const [hostname, ...path] = host.split('/')
             items.push({
