@@ -132,20 +132,21 @@ class MonitorDetail extends React.Component {
         }
       })
     }
-    if (!weight) {
-      Object.assign(errorObj, {
-        [`weight-${endIndexValue}`]: {
-          errors: ['请输入权重'],
-          value: ''
-        }
-      })
+    if (getFieldValue('lbAlgorithm') === 'round-robin') {
+      if (!weight) {
+        Object.assign(errorObj, {
+          [`weight-${endIndexValue}`]: {
+            errors: ['请输入权重'],
+            value: ''
+          }
+        })
+      }
     }
     setFields(errorObj)
     return errorObj
   }
   
   addItem = () => {
-    const { defaultAllServices } = this.state
     const { form, currentIngress } = this.props
     const { getFieldValue, setFieldsValue } = form
     
@@ -373,7 +374,7 @@ class MonitorDetail extends React.Component {
     if (e.target.value === 'round-robin' && !isEmpty(keys)) {
       keys.forEach(item => {
         setFieldsValue({
-          [`weight-${item}`]: this.state[`weight-${item}`]
+          [`weight-${item}`]: this.state[`weight-${item}`] || 1
         })
       })
     } 
@@ -688,7 +689,8 @@ class MonitorDetail extends React.Component {
                         validator: this.checkWeight
                       }
                     ],
-                    onChange: value => this.setState({ [`weight-${item}`]: value })
+                    onChange: value => this.setState({ [`weight-${item}`]: value }),
+                    initialValue: 1
                   })}
                 />
               </FormItem>
