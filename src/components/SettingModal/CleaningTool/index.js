@@ -236,7 +236,7 @@ class CleaningTool extends Component {
     cleanSystemLogs({
       type: 0,
       time_range,
-    }, {
+    } ,null, {
       success: {
         func: res => {
           if (res.data) {
