@@ -91,7 +91,7 @@ class ImageCheckTable extends React.Component {
     const { appStoreApprove, getImagePublishList } = this.props
     let notify = new NotificationHandler()
     const body = {
-      id: record.iD,
+      id: record.id,
       type: 2,
       status,
       imageTagName: `${record.image}:${record.tag}`
