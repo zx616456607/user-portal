@@ -144,26 +144,42 @@ class ManageClassifyLabel extends Component {
           return text
         },
       },
-      { title: '镜像', key: 'images', dataIndex: 'images', width: '25%' },
-      { title: '应用包', key: 'apppkgs', dataIndex: 'apppkgs', width: '25%' },
+      {
+        title: '镜像', key: 'images', dataIndex: 'images', width: '25%',
+        render: (text, record) => {
+          if (record.isEdit) {
+            return <div className="editing-style">{text}</div>
+          }
+          return text
+        }
+      },
+      {
+        title: '应用包', key: 'apppkgs', dataIndex: 'apppkgs', width: '25%',
+        render: (text, record) => {
+          if (record.isEdit) {
+            return <div className="editing-style">{text}</div>
+          }
+          return text
+        }
+      },
       {
         title: '操作', key: 'handler', dataIndex: 'handler', width: '25%',
         render: (text, record, index) => {
           if (record.isEdit) {
             return (
-              <span>
+              <div className="editing-style">
                 <Button icon="check" type="primary" onClick={this.saveEdit.bind(this, index)}
-                  style={{ marginRight: 8 }}
+                  className="button-margin-style"
                 />
                 <Button icon="cross" type="ghost" onClick={this.cancelEdit.bind(this, index)}/>
-              </span>
+              </div>
             )
           }
           return (
             <span>
               <Button icon="edit" key="edit" onClick={this.editLabel.bind(this, index)}
                 type="dashed"
-                style={{ marginRight: 8 }}
+                className="button-margin-style"
               />
               <Button icon="delete" key="delete" type="dashed" onClick={this.deleteLabel.bind(this, index)}
                 disabled={record.images || record.apppkgs}
