@@ -594,6 +594,18 @@ const menusText = defineMessages({
   ManageClassify: {
     id: 'ManageMonitor.operationalAudit.ManageClassify',
     defaultMessage: '分类管理'
+  },
+  Loadbalance: {
+    id: 'ManageMonitor.operationalAudit.Loadbalance',
+    defaultMessage: '负载均衡'
+  },
+  Ingress: {
+    id: 'ManageMonitor.operationalAudit.Ingress',
+    defaultMessage: '监听器'
+  },
+  Unbind: {
+    id: 'ManageMonitor.operationalAudit.Unbind',
+    defaultMessage: '解绑'
   }
 });
 
@@ -758,6 +770,10 @@ function returnOperationList(scope) {
     { // 38
       value: '41',
       label: (<FormattedMessage {...menusText.DownloadDocs}/>)
+    },
+    {
+      value: '42',
+      label: (<FormattedMessage {...menusText.Unbind}/>)
     }
   ];
   return operationalList;
@@ -997,6 +1013,10 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.SecretConfig)
     case '71':
       return formatMessage(menusText.ManageClassify)
+    case '72':
+      return formatMessage(menusText.Loadbalance)
+    case '73':
+      return formatMessage(menusText.Ingress)
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -1116,6 +1136,8 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.DeleteDocs)
     case '41':
       return formatMessage(menusText.DownloadDocs)
+    case '42':
+      return formatMessage(menusText.Unbind)
   }
 }
 
@@ -1793,6 +1815,17 @@ class OperationalAudit extends Component {
         // 分类管理
         showOperationalList.push(operationalList[1])
         break;
+      case '72':
+        showOperationalList.push(operationalList[0])
+        showOperationalList.push(operationalList[1])
+        showOperationalList.push(operationalList[2])
+        showOperationalList.push(operationalList[39])
+      break;
+      case '73':
+        showOperationalList.push(operationalList[0])
+        showOperationalList.push(operationalList[1])
+        showOperationalList.push(operationalList[2])
+        break;
       case '0':
         //Unknown
         showOperationalList = operationalList;
@@ -2130,6 +2163,14 @@ class OperationalAudit extends Component {
       {
         value: '63',
         label: formatMessage(menusText.Image)
+      },
+      {
+        value: '72',
+        label: formatMessage(menusText.Loadbalance)
+      },
+      {
+        value: '73',
+        label: formatMessage(menusText.Ingress)
       },
       {
         value: null,
