@@ -20,6 +20,7 @@ import {
 } from '../../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlowCard.less'
 import EditTenxFlowModal from './EditTenxFlowModal.js'
+import CreateTenxFlowModal from './CreateTenxFlowModal'
 import CICDSettingModal from './CICDSettingModal.js'
 import StageBuildLog from './StageBuildLog.js'
 import SetStageFileLink from './SetStageFileLink.js'
@@ -621,180 +622,204 @@ class TenxFlowDetailFlowCard extends Component {
       logs, supportedDependencies, totalLength,
       imageList, toggleCustomizeBaseImageModal,
       baseImages, firstState,
+      currentStageAdd, setCurrentStageAdd,
+      CreateTenxFlowModalEl,
     } = this.props;
     const scopeThis = this;
     const dropdown = (
         <Menu onClick={this.operaMenuClick.bind(this, config.metadata.id)} style={{ width: '110px' }}>
           <Menu.Item key='deleteStage' disabled={index == (totalLength - 1) ? false : true}>
             <Icon type='delete' style={{ float: 'left', lineHeight: '16px', marginRight: '5px', fontSize: '14px' }} />
-            <span style={{ float: 'left', lineHeight: '16px', fontSize: '14px' }} ><FormattedMessage {...menusText.deleteBtn} /></span>
+            <span style={{ float: 'left', lineHeight: '16px', fontSize: '14px' }}>
+              <FormattedMessage {...menusText.deleteBtn} />
+            </span>
             <div style={{ clear: 'both' }}></div>
           </Menu.Item>
         </Menu>
       )
     return (
-      <div id='TenxFlowDetailFlowCard' key={'TenxFlowDetailFlowCard' + index} className={currentFlowEdit == index ? 'TenxFlowDetailFlowCardBigDiv' : ''} >
-        <Card className={currentEditClass(config.lastBuildStatus, currentFlowEdit, index)}>
-          {
-            currentFlowEdit != index ? [
-              <QueueAnim key={'FlowCardShowAnimate' + index}>
-                <div key={'TenxFlowDetailFlowCardShow' + index}>
-                  <div className='statusBox'>
-                    {currentStatus(config.lastBuildStatus)}
-                  </div>
-                  <div className='infoBox'>
-                    <div className='name commonInfo'>
-                      <div className='title'>
-                        <FormattedMessage {...menusText.name} />
-                      </div>
-                      <div className='info'>
-                        <span className='infoSpan'>{config.metadata.name}</span>
-                      </div>
-                      <div style={{ clear: 'both' }}></div>
+      <div>
+        <div key={'TenxFlowDetailFlowCard' + index} className={currentFlowEdit == index ? 'TenxFlowDetailFlowCard TenxFlowDetailFlowCardBigDiv' : 'TenxFlowDetailFlowCard'} >
+          <Card className={currentEditClass(config.lastBuildStatus, currentFlowEdit, index)}>
+            {
+              currentFlowEdit != index
+                ? <QueueAnim key={'FlowCardShowAnimate' + index}>
+                  <div key={'TenxFlowDetailFlowCardShow' + index}>
+                    <div className='statusBox'>
+                      {currentStatus(config.lastBuildStatus)}
                     </div>
-                    <div className='type commonInfo'>
-                      <div className='title'>
-                        <FormattedMessage {...menusText.type} />
-                      </div>
-                      <div className='info'>
-                        <i className='fa fa-cog' />
-                        {currentFlowType(config.metadata.type, config.metadata.customType, imageList)}
-                      </div>
-                      <div style={{ clear: 'both' }}></div>
-                    </div>
-                    <div className='code commonInfo'>
-                      <div className='title'>
-                        <FormattedMessage {...menusText.code} />
-                      </div>
-                      <div className='info'>
-                        <i className='fa fa-github' />
-                        <span className='infoSpan'>{!!config.spec.project ? fetchCodeStoreName(config.spec.project.id, codeList) : null}</span>
+                    <div className='infoBox'>
+                      <div className='name commonInfo'>
+                        <div className='title'>
+                          <FormattedMessage {...menusText.name} />
+                        </div>
+                        <div className='info'>
+                          <span className='infoSpan'>{config.metadata.name}</span>
+                        </div>
                         <div style={{ clear: 'both' }}></div>
                       </div>
-                      <div style={{ clear: 'both' }}></div>
-                    </div>
-                    <div className='branch commonInfo'>
-                      <div className='title'>
-                        <FormattedMessage {...menusText.branch} />
-                      </div>
-                      <div className='info'>
-                        <i className='fa fa-sitemap' />
-                        <span className='infoSpan'>{!!config.spec.project ? config.spec.project.branch : null}</span>
+                      <div className='type commonInfo'>
+                        <div className='title'>
+                          <FormattedMessage {...menusText.type} />
+                        </div>
+                        <div className='info'>
+                          <i className='fa fa-cog' />
+                          {currentFlowType(config.metadata.type, config.metadata.customType, imageList)}
+                        </div>
                         <div style={{ clear: 'both' }}></div>
                       </div>
-                      <div style={{ clear: 'both' }}></div>
-                    </div>
-                    <div className='btnBox'>
-                      {/*<Button size='large' type='primary' className='startBtn'
-                        onClick={this.buildFlow.bind(this, config.metadata.id, config.lastBuildStatus, config.metadata.name)}>
-                        {currentStatusBtn(config.lastBuildStatus)}
-                      </Button>*/}
-                      {
-                        this.renderBuildBtn(config, preStage)
-                      }
-                      <Button size='large' type='ghost' className='logBtn' onClick={this.openTenxFlowDeployLogModal.bind(this, config.metadata.id)}>
-                        <svg className='cicdlogSvg'>
-                          <use xlinkHref='#cicdlog' />
-                        </svg>
-                        <FormattedMessage {...menusText.logBtn} />
-                      </Button>
-                      {this.props.isBuildImage ? <Button size='large' type='ghost' className='logBtn' onClick={this.editFlow}>
-                        <svg className='cicdlogSvg'>
-                          <use xlinkHref='#cicdedit' />
-                        </svg>
-                        <FormattedMessage {...menusText.editBtn} />
-                      </Button>
-                        :
-                        <Dropdown.Button overlay={dropdown} type='ghost' size='large'
-                        className='editBtn' onClick={this.editFlow} disabled={buildButtonCheck(config.lastBuildStatus)}>
-                        <svg className='cicdlogSvg'>
-                          <use xlinkHref='#cicdedit' />
-                        </svg>
-                        <FormattedMessage {...menusText.editBtn} />
-                      </Dropdown.Button>}
+                      <div className='code commonInfo'>
+                        <div className='title'>
+                          <FormattedMessage {...menusText.code} />
+                        </div>
+                        <div className='info'>
+                          <i className='fa fa-github' />
+                          <span className='infoSpan'>{!!config.spec.project ? fetchCodeStoreName(config.spec.project.id, codeList) : null}</span>
+                          <div style={{ clear: 'both' }}></div>
+                        </div>
+                        <div style={{ clear: 'both' }}></div>
+                      </div>
+                      <div className='branch commonInfo'>
+                        <div className='title'>
+                          <FormattedMessage {...menusText.branch} />
+                        </div>
+                        <div className='info'>
+                          <i className='fa fa-sitemap' />
+                          <span className='infoSpan'>{!!config.spec.project ? config.spec.project.branch : null}</span>
+                          <div style={{ clear: 'both' }}></div>
+                        </div>
+                        <div style={{ clear: 'both' }}></div>
+                      </div>
+                      <div className='btnBox'>
+                        {/*<Button size='large' type='primary' className='startBtn'
+                          onClick={this.buildFlow.bind(this, config.metadata.id, config.lastBuildStatus, config.metadata.name)}>
+                          {currentStatusBtn(config.lastBuildStatus)}
+                        </Button>*/}
+                        {
+                          this.renderBuildBtn(config, preStage)
+                        }
+                        <Button size='large' type='ghost' className='logBtn' onClick={this.openTenxFlowDeployLogModal.bind(this, config.metadata.id)}>
+                          <svg className='cicdlogSvg'>
+                            <use xlinkHref='#cicdlog' />
+                          </svg>
+                          <FormattedMessage {...menusText.logBtn} />
+                        </Button>
+                        {this.props.isBuildImage ? <Button size='large' type='ghost' className='logBtn' onClick={this.editFlow}>
+                          <svg className='cicdlogSvg'>
+                            <use xlinkHref='#cicdedit' />
+                          </svg>
+                          <FormattedMessage {...menusText.editBtn} />
+                        </Button>
+                          :
+                          <Dropdown.Button overlay={dropdown} type='ghost' size='large'
+                          className='editBtn' onClick={this.editFlow} disabled={buildButtonCheck(config.lastBuildStatus)}>
+                          <svg className='cicdlogSvg'>
+                            <use xlinkHref='#cicdedit' />
+                          </svg>
+                          <FormattedMessage {...menusText.editBtn} />
+                        </Dropdown.Button>}
 
-                      <div style={{ clear: 'both' }}></div>
+                        <div style={{ clear: 'both' }}></div>
+                      </div>
                     </div>
+                    <div style={{ clear: 'both' }}></div>
                   </div>
-                  <div style={{ clear: 'both' }}></div>
-                </div>
-              </QueueAnim>
-            ] : null
-          }
-          {
-            currentFlowEdit == index ? [
-              <QueueAnim key={'EditTenxFlowModalAnimate' + index}>
-                <EditTenxFlowModal key={'EditTenxFlowModal' + index} rootScope={scope} scope={scopeThis}
-                  config={config} flowId={flowId} stageId={config.metadata.id} codeList={codeList} index={index}
-                  supportedDependencies={supportedDependencies} imageList={imageList} baseImages={baseImages}
-                  otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={toggleCustomizeBaseImageModal}
-                  uniformRepo={uniformRepo} isBuildImage={this.props.isBuildImage}
-                  />
-              </QueueAnim>
-            ] : null
-          }
-          {
-            (index == 0 && currentFlowEdit != index) && (
-              (config.spec.project && config.spec.project.repoType === 'svn')
-              ? (
-                <Tooltip title="开启持续集成（SVN 暂不支持修改规则）">
+                </QueueAnim>
+                : null
+            }
+            {
+              currentFlowEdit == index
+                ? <QueueAnim key={'EditTenxFlowModalAnimate' + index}>
+                  <EditTenxFlowModal key={'EditTenxFlowModal' + index} rootScope={scope} scope={scopeThis}
+                    config={config} flowId={flowId} stageId={config.metadata.id} codeList={codeList} index={index}
+                    supportedDependencies={supportedDependencies} imageList={imageList} baseImages={baseImages}
+                    otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={toggleCustomizeBaseImageModal}
+                    uniformRepo={uniformRepo} isBuildImage={this.props.isBuildImage}
+                    />
+                </QueueAnim>
+                : null
+            }
+            {
+              (index == 0 && currentFlowEdit != index) && (
+                (config.spec.project && config.spec.project.repoType === 'svn')
+                ? (
+                  <Tooltip title="开启持续集成（SVN 暂不支持修改规则）">
+                    <div className='cicdBox' key='cicdBox'>
+                      <Switch onChange={value => this.viewCicdBox(value, true)} checked={this.state.ciRulesOpened} />
+                      <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
+                    </div>
+                  </Tooltip>
+                )
+                : (
                   <div className='cicdBox' key='cicdBox'>
-                    <Switch onChange={value => this.viewCicdBox(value, true)} checked={this.state.ciRulesOpened} />
+                    <Switch onChange={this.viewCicdBox} checked={this.state.ciRulesOpened} />
                     <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
+                    <p className='viewP' onClick={()=>this.viewCicdBoxP()}><FormattedMessage {...menusText.view} /></p>
                   </div>
-                </Tooltip>
+                )
               )
-              : (
-                <div className='cicdBox' key='cicdBox'>
-                  <Switch onChange={this.viewCicdBox} checked={this.state.ciRulesOpened} />
-                  <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
-                  <p className='viewP' onClick={()=>this.viewCicdBoxP()}><FormattedMessage {...menusText.view} /></p>
-                </div>
-              )
-            )
+            }
+          </Card>
+          {
+            currentFlowEdit != index ? (
+              <div className={config.lastBuildStatus == 'finish' ? 'finishArrow arrowBox' : 'arrowBox'} key='finishArrow'>
+                {index != (totalLength - 1) ? [<Button size='large' className='fileButton' type='ghost' onClick={this.openSettingStageFile}>
+                                              <span>{config.lastBuildStatus == 'finish' ? '重选文件' : '提取文件'}</span>
+                                            </Button>] : null}
+                {this.props.isBuildImage ? '' : <svg className='cicdarrow'>
+                  <use xlinkHref='#cicdarrow' />
+                </svg> }
+                {
+                  (index != (totalLength - 1) && config.link.enabled === 1)
+                    ? <p className='fileUrl'>{formatStageLink(config.link)}</p>
+                    : (index != (totalLength - 1) && <div className="addBtn">
+                      <Tooltip title="添加子任务">
+                        <Button
+                          icon="plus"
+                          shape="circle-outline"
+                          onClick={() => setCurrentStageAdd(index)}
+                        />
+                      </Tooltip>
+                    </div>)
+                }
+              </div>
+            ) : null
           }
-        </Card>
+          <div style={{ clear: 'both' }}></div>
+          <Modal className='tenxFlowCicdSetting'
+            visible={this.state.cicdSetModalShow}
+            onCancel={()=>this.setState({cicdSetModalShow:false})}
+            maskClosable={true}
+            >
+            <CICDSettingModal scope={scopeThis} flowId={flowId}
+              ciRules={ciRules} isFetching={isFetching} visible={this.state.cicdSetModalShow}/>
+          </Modal>
+          <Modal
+            visible={this.state.TenxFlowDeployLogModal}
+            className='TenxFlowBuildLogModal'
+            onCancel={this.closeTenxFlowDeployLogModal}
+            >
+            <StageBuildLog parent={scopeThis} isFetching={buildFetching} logs={logs} flowId={flowId} visible={this.state.TenxFlowDeployLogModal} stageId={this.state.currentStageID}/>
+          </Modal>
+          <Modal
+            visible={this.state.setStageFileModal}
+            className='tenxFlowCicdSetting'
+            onCancel={()=>this.setState({setStageFileModal:false})}
+            >
+            <SetStageFileLink scope={scopeThis} flowId={flowId} config={config} />
+          </Modal>
+          <Modal title="删除子任务操作" visible={this.state.delFlowModal}
+            onOk={()=> this.delFlowItem()} onCancel={()=> this.setState({delFlowModal: false})}
+            >
+            <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除子任务 {config.metadata.name} 这项操作?</div>
+          </Modal>
+        </div>
         {
-          currentFlowEdit != index ? [
-            <div className={config.lastBuildStatus == 'finish' ? 'finishArrow arrowBox' : 'arrowBox'} key='finishArrow'>
-              {index != (totalLength - 1) ? [<Button size='large' className='fileButton' type='ghost' onClick={this.openSettingStageFile}>
-                                            <span>{config.lastBuildStatus == 'finish' ? '重选文件' : '提取文件'}</span>
-                                          </Button>] : null}
-              {this.props.isBuildImage ? '' : <svg className='cicdarrow'>
-                <use xlinkHref='#cicdarrow' />
-              </svg> }
-              {(index != (totalLength - 1) && config.link.enabled === 1) ? [<p className='fileUrl'>{formatStageLink(config.link)}</p>]:null}
-            </div>
-          ] : null
+          currentStageAdd === index &&
+          <div className="TenxFlowDetailFlowCard TenxFlowDetailFlowCardBigDiv">
+            <Card className="edittingCard commonCard">{CreateTenxFlowModalEl}</Card>
+          </div>
         }
-        <div style={{ clear: 'both' }}></div>
-        <Modal className='tenxFlowCicdSetting'
-          visible={this.state.cicdSetModalShow}
-          onCancel={()=>this.setState({cicdSetModalShow:false})}
-          maskClosable={true}
-          >
-          <CICDSettingModal scope={scopeThis} flowId={flowId}
-            ciRules={ciRules} isFetching={isFetching} visible={this.state.cicdSetModalShow}/>
-        </Modal>
-        <Modal
-          visible={this.state.TenxFlowDeployLogModal}
-          className='TenxFlowBuildLogModal'
-          onCancel={this.closeTenxFlowDeployLogModal}
-          >
-          <StageBuildLog parent={scopeThis} isFetching={buildFetching} logs={logs} flowId={flowId} visible={this.state.TenxFlowDeployLogModal} stageId={this.state.currentStageID}/>
-        </Modal>
-        <Modal
-          visible={this.state.setStageFileModal}
-          className='tenxFlowCicdSetting'
-          onCancel={()=>this.setState({setStageFileModal:false})}
-          >
-          <SetStageFileLink scope={scopeThis} flowId={flowId} config={config} />
-        </Modal>
-        <Modal title="删除子任务操作" visible={this.state.delFlowModal}
-          onOk={()=> this.delFlowItem()} onCancel={()=> this.setState({delFlowModal: false})}
-          >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除子任务 {config.metadata.name} 这项操作?</div>
-        </Modal>
       </div>
     )
   }

@@ -726,10 +726,15 @@ let CreateTenxFlowModal = React.createClass({
       ImageStoreType: false
     });
     scope.closeCreateNewFlow();
+    this.props.setCurrentStageAdd(null);
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope, createTenxFlowState, flowId, stageInfo, createDockerfile, getTenxFlowDetail, stageList } = this.props;
+    const {
+      scope, createTenxFlowState, flowId, stageInfo,
+      createDockerfile, getTenxFlowDetail, stageList,
+      currentStageAdd, setCurrentStageAdd,
+    } = this.props;
     const { getTenxFlowStateList } = scope.props;
     const _this = this;
     let notification = new NotificationHandler()
@@ -938,6 +943,9 @@ let CreateTenxFlowModal = React.createClass({
           uniformRepo: (values.uniformRepo ? 0 : 1),
         }
       }
+      if (currentStageAdd > -1 && stageList[currentStageAdd]) {
+        body.precursorId = stageList[currentStageAdd].metadata.id
+      }
       // cachedVolume
       const cachedVolumeValues = this.state.cachedVolumes[0]
       if (cachedVolumeValues) {
@@ -1035,6 +1043,7 @@ let CreateTenxFlowModal = React.createClass({
                   success: {
                     func: () => {
                       scope.closeCreateNewFlow();
+                      setCurrentStageAdd(null);
                       getTenxFlowStateList(flowId, {
                         success: {
                           func: (results) => {
@@ -1048,6 +1057,7 @@ let CreateTenxFlowModal = React.createClass({
                 })
               } else {
                 scope.closeCreateNewFlow();
+                setCurrentStageAdd(null);
                 getTenxFlowStateList(flowId, {
                   success: {
                     func: (results) => {

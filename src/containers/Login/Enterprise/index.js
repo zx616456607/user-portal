@@ -16,7 +16,7 @@ import { connect } from 'react-redux'
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
 import { NO_CLUSTER_FLAG, CLUSTER_PAGE } from '../../../../constants'
 import { loadMergedLicense } from '../../../actions/license'
-import { isAdminPasswordSet} from '../../../actions/admin'
+import { isAdminPasswordSet } from '../../../actions/admin'
 import { browserHistory } from 'react-router'
 import { genRandomString, clearSessionStorage } from '../../../common/tools'
 import Top from '../../../components/Top'
@@ -299,7 +299,8 @@ let Login = React.createClass({
         isAsync: true
       },
       failed: {
-        func: ()=> {
+        func: () => {
+          message.warning('服务不可用', 10)
           setTimeout(function(){
             const intName = _this.refs.intName.refs.input
             intName.focus()
