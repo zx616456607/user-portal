@@ -10,14 +10,34 @@
 
 import React from 'react'
 import { Table, Button, Pagination, Row, Col, Tooltip, Modal } from 'antd'
+import isEqual from 'lodash/isEqual'
 import Notification from '../../Notification'
 import './style/MonitorTable.less'
 
 export default class MonitorTable extends React.Component {
   state = {
-    
+    current: 1,
   }
-  
+  componentDidMount() {
+    const { current } = this.state
+    const { lbDetail } = this.props
+    const { ingress } = lbDetail || { ingress: [] }
+    this.setState({
+      copyIngress: ingress.slice((current - 1) * 5, current * 5)
+    })
+  }
+  componentWillReceiveProps(nextProps) {
+    const { current } = this.state
+    const { lbDetail: oldLB } = this.props
+    const { lbDetail: newLB } = nextProps
+    const { ingress: oldIngress } = oldLB || { ingress: [] }
+    const { ingress: newIngress } = newLB || { ingress: [] }
+    if (!isEqual(oldIngress, newIngress)) {
+      this.setState({
+        copyIngress: newIngress.slice((current - 1) * 5, current * 5)
+      })
+    }
+  }
   showDelModal = row => {
     this.setState({
       currentIngress: row,
@@ -40,7 +60,7 @@ export default class MonitorTable extends React.Component {
       delConfirmLoading: true
     })
     notify.spin('删除中')
-    deleteIngress(clusterID, name, currentIngress.name, displayName, {
+    deleteIngress(clusterID, name, currentIngress.name, currentIngress.displayName, {
       success: {
         func: () => {
           notify.close()
@@ -69,19 +89,27 @@ export default class MonitorTable extends React.Component {
     if (!row.items || !row.items.length) {
       return
     }
+    const isRoundRobin = row.lbAlgorithm === 'round-robin'
+    
     return (
       <div>
         <Row className="expandedRow">
           <Col span={5}>后端服务</Col>
           <Col span={5}>服务端口</Col>
-          <Col span={5}>权重</Col>
+          {
+            isRoundRobin &&
+            <Col span={5}>权重</Col>
+          }
         </Row>
         {
           row.items.map(item => 
             <Row className="expandedRow" key={item.serviceName}>
               <Col span={5}>{item.serviceName}</Col>
               <Col span={5}>{item.servicePort}</Col>
-              <Col span={5}>{item.weight}</Col>
+              {
+                isRoundRobin &&
+                <Col span={5}>{item.weight}</Col>
+              }
             </Row>
           )
         }
@@ -89,10 +117,25 @@ export default class MonitorTable extends React.Component {
     )
   }
   
+  handlePage = current => {
+    const { lbDetail } = this.props
+    const { ingress } = lbDetail
+    this.setState({
+      current,
+      copyIngress: ingress.slice((current - 1) * 5, current * 5)
+    })
+  }
   render() {
-    const { deleteModal, delConfirmLoading } = this.state
+    const { deleteModal, delConfirmLoading, copyIngress, current } = this.state
     const { togglePart, lbDetail } = this.props
     const { ingress } = lbDetail || { ingress: [] }
+    const pagination = {
+      simple: true,
+      total: ingress && ingress.length || 0,
+      pageSize: 5,
+      current,
+      onChange: this.handlePage
+    }
     const columns = [
       {
         title: '监听器名称',
@@ -109,7 +152,12 @@ export default class MonitorTable extends React.Component {
         width: '20%', 
         render: () => 80
       },
-      {title: '域名', dataIndex: 'host', width: '20%'},
+      {
+        title: '域名', 
+        dataIndex: 'host', 
+        width: '20%',
+        render: (text, record) => record.host + record.path
+      },
       {
         title: '操作',
         width: '20%',
@@ -144,17 +192,14 @@ export default class MonitorTable extends React.Component {
             ingress && ingress.length ?
             <div className="page-box">
               <span className="total">共计 {ingress && ingress.length} 条</span>
-              <Pagination
-                simple
-                total={ingress && ingress.length}
-              />
+              <Pagination {...pagination}/>
             </div> : null
           }
         </div>
         <Table
           className="reset_antd_table_header"
           columns={columns}
-          dataSource={ingress}
+          dataSource={copyIngress}
           expandedRowRender={row => this.expandedRender(row)}
           rowKey={row => row.name}
           pagination={false}

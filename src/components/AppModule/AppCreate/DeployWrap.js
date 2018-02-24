@@ -294,7 +294,7 @@ class WrapManage extends Component {
       registry = wrapStoreList.registry
     }
     // registry = registry && registry.split(/^(http:\/\/|https:\/\/)/)[2]
-    registry = registry && registry.split('//')[1]
+    // registry = registry && registry.split('//')[1]
     // if (!version) {
     //   notificat.info('请选择版本')
     //   return

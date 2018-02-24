@@ -66,7 +66,7 @@ export const EDIT_LOAD_BALANCE_REQUEST = 'EDIT_LOAD_BALANCE_REQUEST'
 export const EDIT_LOAD_BALANCE_SUCCESS = 'EDIT_LOAD_BALANCE_SUCCESS'
 export const EDIT_LOAD_BALANCE_FAILURE = 'EDIT_LOAD_BALANCE_FAILURE'
 
-const fetchEditLB = (cluster, name, body, callback) => {
+const fetchEditLB = (cluster, name, displayname, body, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -74,7 +74,7 @@ const fetchEditLB = (cluster, name, body, callback) => {
         EDIT_LOAD_BALANCE_SUCCESS,
         EDIT_LOAD_BALANCE_FAILURE
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${name}/displayname/${body.displayName}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${name}/displayname/${displayname}`,
       schema: {},
       options: {
         method: 'PUT',
@@ -85,8 +85,8 @@ const fetchEditLB = (cluster, name, body, callback) => {
   }
 }
 
-export const editLB = (cluster, name, body, callback) =>
-  dispatch => dispatch(fetchEditLB(cluster, name, body, callback))
+export const editLB = (cluster, name, displayname, body, callback) =>
+  dispatch => dispatch(fetchEditLB(cluster, name, displayname, body, callback))
 
 export const LOAD_BALANCE_LIST_REQUEST = 'LOAD_BALANCE_LIST_REQUEST'
 export const LOAD_BALANCE_LIST_SUCCESS = 'LOAD_BALANCE_LIST_SUCCESS'
@@ -264,3 +264,72 @@ const fetchCreateAppIngress = (cluster, lbname, body, callback) => {
 
 export const createAppIngress = (cluster, lbname, body, callback) => 
   dispatch => dispatch(fetchCreateAppIngress(cluster, lbname, body, callback))
+
+export const GET_SERVICE_LOADBALANCE_REQUEST = 'GET_SERVICE_LOADBALANCE_REQUEST'
+export const GET_SERVICE_LOADBALANCE_SUCCESS = 'GET_SERVICE_LOADBALANCE_SUCCESS'
+export const GET_SERVICE_LOADBALANCE_FAILURE = 'GET_SERVICE_LOADBALANCE_FAILURE'
+
+const fetchServiceLB = (cluster, serviceName, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        GET_SERVICE_LOADBALANCE_REQUEST,
+        GET_SERVICE_LOADBALANCE_SUCCESS,
+        GET_SERVICE_LOADBALANCE_FAILURE
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/services/${serviceName}/controller`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export const getServiceLBList = (cluster, serviceName, callback) => 
+  dispatch => dispatch(fetchServiceLB(cluster, serviceName, callback))
+
+export const DELETE_INGRESS_SERVICES_REQUEST = 'DELETE_INGRESS_SERVICES_REQUEST'
+export const DELETE_INGRESS_SERVICES_SUCCESS = 'DELETE_INGRESS_SERVICES_SUCCESS'
+export const DELETE_INGRESS_SERVICES_FAILURE = 'DELETE_INGRESS_SERVICES_FAILURE'
+
+const fetchUnbindService = (cluster, lbname, serviceName, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        DELETE_INGRESS_SERVICES_REQUEST,
+        DELETE_INGRESS_SERVICES_SUCCESS,
+        DELETE_INGRESS_SERVICES_FAILURE
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/services/${serviceName}`,
+      schema: {},
+      options: {
+        method: 'DELETE'
+      }
+    },
+    callback
+  }
+}
+
+export const unbindIngressService = (cluster, lbname, serviceName, callback) =>
+  dispatch => dispatch(fetchUnbindService(cluster, lbname, serviceName, callback))
+
+export const INGRESS_NAME_AND_HOST_EXISTENCE_REQUEST = 'INGRESS_NAME_AND_HOST_EXISTENCE_REQUEST'
+export const INGRESS_NAME_AND_HOST_EXISTENCE_SUCCESS = 'INGRESS_NAME_AND_HOST_EXISTENCE_SUCCESS'
+export const INGRESS_NAME_AND_HOST_EXISTENCE_FAILURE = 'INGRESS_NAME_AND_HOST_EXISTENCE_FAILURE'
+
+const fetchIngressNameAndHost = (cluster, lbname, query, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        INGRESS_NAME_AND_HOST_EXISTENCE_REQUEST,
+        INGRESS_NAME_AND_HOST_EXISTENCE_SUCCESS,
+        INGRESS_NAME_AND_HOST_EXISTENCE_FAILURE
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/ingresses/exist?${toQuerystring(query)}`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export const checkIngressNameAndHost = (cluster, lbname, query, callback) =>
+  dispatch => dispatch(fetchIngressNameAndHost(cluster, lbname, query, callback))

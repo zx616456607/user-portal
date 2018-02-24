@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Radio, Icon, Spin, Tooltip, Progress, Button, Select } from 'antd'
+import { Row, Col, Card, Radio, Icon, Spin, Tooltip, Progress, Button, Select, Checkbox } from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
@@ -146,6 +146,7 @@ class Ordinary extends Component {
     this.handleSize = this.handleSize.bind(this)
     this.thousandBitSeparator = this.thousandBitSeparator.bind(this)
     this.loadClusterSummary = this.loadClusterSummary.bind(this)
+    this.handleMinVisible = this.handleMinVisible.bind(this)
     this.state = {
       tab1: true,
       tab2: false,
@@ -165,6 +166,7 @@ class Ordinary extends Component {
       hostCount: 0,
       publicCount: 0,
       roleNameArr: '',
+      minvisible: true,
     }
   }
 
@@ -181,12 +183,22 @@ class Ordinary extends Component {
 
   componentWillMount() {
     const { loadClusterInfo, current } = this.props
+    const { minvisible } = this.state
     const { clusterID } = current.cluster
-    loadClusterInfo(clusterID)
+    loadClusterInfo(clusterID, { minvisible })
     this.loadClusterSummary(clusterID)
     this.fetchQuotaList()
     this.storageList()
     this.fetchProjectName()
+  }
+
+  handleMinVisible(e) {
+    const { loadClusterInfo, current } = this.props
+    const { clusterID } = current.cluster
+    const minvisible = !e.target.checked
+    this.setState({ minvisible }, state => {
+      loadClusterInfo(clusterID, { minvisible })
+    })
   }
 
   fetchProjectName() {
@@ -1393,7 +1405,7 @@ class Ordinary extends Component {
       }, {
         key: 'elasticsearch',
         text: 'ElasticSearch集群 (个)'
-      }, 
+      },
       // {
       //   key: 'etcd',
       //   text: 'Etcd集群 (个)'
@@ -2077,6 +2089,11 @@ class Ordinary extends Component {
                   />
                 </Col>
                 <Col span={8}>
+                  <div className="minvisible">
+                    <Checkbox checked={!this.state.minvisible} onChange={this.handleMinVisible}>
+                      显示 Master 节点
+                    </Checkbox>
+                  </div>
                   <ReactEcharts
                     notMerge={true}
                     option={memoryOption}

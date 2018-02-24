@@ -250,11 +250,16 @@ class Deployment {
       if (container.name !== containerName) {
         return
       }
-      container.env.push({
+      const envObj = {
         name,
-        value,
-        valueFrom,
-      })
+      }
+      if (value) {
+        envObj.value = value
+      }
+      if (valueFrom) {
+        envObj.valueFrom = valueFrom
+      }
+      container.env.push(envObj)
     })
   }
 
@@ -455,6 +460,30 @@ class Deployment {
       livenessProbe.timeoutSeconds = probe.timeoutSeconds
       livenessProbe.periodSeconds = probe.periodSeconds
       container.livenessProbe = livenessProbe
+    })
+  }
+
+  setReadinessProbe(containerName, protocol, probe) {
+    this.spec.template.spec.containers.map((container) => {
+      if (container.name !== containerName) {
+        return
+      }
+      const readinessProbe = {}
+      if (protocol === 'HTTP') {
+        readinessProbe.httpGet = {
+          port: probe.port,
+          path: probe.path
+        }
+      }
+      if (protocol === 'TCP') {
+        readinessProbe.tcpSocket = {
+          port: probe.port
+        }
+      }
+      readinessProbe.initialDelaySeconds = probe.initialDelaySeconds
+      readinessProbe.timeoutSeconds = probe.timeoutSeconds
+      readinessProbe.periodSeconds = probe.periodSeconds
+      container.readinessProbe = readinessProbe
     })
   }
 

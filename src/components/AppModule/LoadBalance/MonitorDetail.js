@@ -18,11 +18,12 @@ import {
 import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import Notification from '../../Notification'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import './style/MonitorDetail.less'
 import HealthCheckModal from './HealthCheckModal'
 
 import { loadAllServices } from '../../../actions/services'
-import { createIngress, updateIngress, getLBDetail } from '../../../actions/load_balance'
+import { createIngress, updateIngress, getLBDetail, checkIngressNameAndHost } from '../../../actions/load_balance'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -72,6 +73,12 @@ class MonitorDetail extends React.Component {
           })
         }
       }
+      if (currentIngress.lbAlgorithm !== 'ip_hash') {
+        this.setState({
+          sessionSticky: currentIngress.sessionSticky,
+          sessionPersistent: parseInt(currentIngress.sessionPersistent)
+        })
+      }
       if (!isEmpty(currentIngress.items)) {
         const keys = []
         currentIngress.items.forEach(item => {
@@ -85,6 +92,9 @@ class MonitorDetail extends React.Component {
             form.setFieldsValue({
               [`weight-${uidd}`]: item.weight
             })
+            this.setState({
+              [`weight-${uidd}`]: item.weight
+            })
           }
         })
         form.setFieldsValue({
@@ -94,16 +104,18 @@ class MonitorDetail extends React.Component {
     }
     
   }
-  validateNewItem = () => {
+  validateNewItem = key => {
     const { form } = this.props
     const { getFieldValue, setFields } = form
     const keys = getFieldValue('keys')
     let endIndexValue = keys[keys.length - 1]
+    if (key) {
+      endIndexValue = key
+    }
     let service = getFieldValue(`service-${endIndexValue}`)
     let port = getFieldValue(`port-${endIndexValue}`)
     let weight = getFieldValue(`weight-${endIndexValue}`)
     let errorObj = {}
-    
     if (!service) {
       Object.assign(errorObj, { 
         [`service-${endIndexValue}`]: {
@@ -120,21 +132,22 @@ class MonitorDetail extends React.Component {
         }
       })
     }
-    if (!weight) {
-      Object.assign(errorObj, {
-        [`weight-${endIndexValue}`]: {
-          errors: ['请输入权重'],
-          value: ''
-        }
-      })
+    if (getFieldValue('lbAlgorithm') === 'round-robin') {
+      if (!weight) {
+        Object.assign(errorObj, {
+          [`weight-${endIndexValue}`]: {
+            errors: ['请输入权重'],
+            value: ''
+          }
+        })
+      }
     }
     setFields(errorObj)
     return errorObj
   }
   
   addItem = () => {
-    const { defaultAllServices } = this.state
-    const { form } = this.props
+    const { form, currentIngress } = this.props
     const { getFieldValue, setFieldsValue } = form
     
     const currentKeys = getFieldValue('keys')
@@ -144,25 +157,42 @@ class MonitorDetail extends React.Component {
       if (!isEmpty(result)) {
         return
       }
-      let filterServices
-      filterServices = defaultAllServices.filter(item => {
-        let flag = true
-        currentKeys.forEach(key => {
-          if (item.metadata.name === getFieldValue(`service-${key}`)) {
-            flag = false
-          }
-        })
-        return flag
-      })
-      this.setState({
-        allServices: filterServices
-      })
+      this.filterServices()
     }
     uidd ++
-    
+    if (currentIngress) {
+      this.setState({
+        [`service${uidd}`]: true
+      })
+    }
     setFieldsValue({
       keys: currentKeys.concat(uidd)
     })
+  }
+  
+  filterServices = () => {
+    const { defaultAllServices } = this.state
+    const { form } = this.props
+    const { getFieldValue } = form
+  
+    const currentKeys = getFieldValue('keys')
+    let filterServices
+    filterServices = defaultAllServices.filter(item => {
+      let flag = true
+      currentKeys.forEach(key => {
+        if (item.metadata.name === getFieldValue(`service-${key}`)) {
+          flag = false
+        }
+      })
+      return flag
+    })
+    this.setState({
+      allServices: filterServices
+    })
+  }
+  editItem = item => {
+    this.filterServices()
+    this.setState({[`service${item}`]: true})
   }
   
   removeKey = key => {
@@ -197,6 +227,10 @@ class MonitorDetail extends React.Component {
   }
   
   confirmEdit = key => {
+    const result = this.validateNewItem(key)
+    if (!isEmpty(result)) {
+      return
+    }
     this.setState({
       [`service${key}`]: false
     })
@@ -241,10 +275,75 @@ class MonitorDetail extends React.Component {
   }
   
   monitorNameCheck = (rules, value, callback) => {
+    const { checkIngressNameAndHost, clusterID, location, form, currentIngress } = this.props
+    const { name: lbname } = location.query
+    if (currentIngress && (currentIngress.displayName === value)) {
+      return callback()
+    }
     if (!value) {
       return callback('请输入监听器名称')
-    } 
-    callback()
+    }
+    const query = {
+      displayName: value,
+      path: form.getFieldValue('host')
+    }
+    if (currentIngress) {
+      delete query.path
+    }
+    clearTimeout(this.nameTimeout)
+    this.nameTimeout = setTimeout(() => {
+      checkIngressNameAndHost(clusterID, lbname, query, {
+        success: {
+          func: () => {
+            callback()
+          }
+        },
+        failed: {
+          func: res => {
+            if (res.statusCode === 409) {
+              return callback('监听器名称已经存在')
+            }
+            callback(res.message.message || res.message)
+          }
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
+  }
+  
+  hostCheck = (rules, value, callback) => {
+    const { checkIngressNameAndHost, clusterID, location, form, currentIngress } = this.props
+    const { name: lbname } = location.query
+    if (currentIngress && (`${currentIngress.host}${currentIngress.path}` === value)) {
+      return callback()
+    }
+    if (!value) {
+      return callback('请输入校验规则')
+    }
+    clearTimeout(this.nameTimeout)
+    const query = {
+      path: value,
+      displayName: form.getFieldValue('monitorName'),
+    }
+    if (currentIngress) {
+      delete query.displayName
+    }
+    this.nameTimeout = setTimeout(() => {
+      checkIngressNameAndHost(clusterID, lbname, query, {
+        success: {
+          func: () => {
+            callback()
+          }
+        },
+        failed: {
+          func: res => {
+            if (res.statusCode === 409) {
+              return callback('校验规则已经存在')
+            }
+            callback(res.message.message || res.message)
+          }
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
   }
   
   agreementCheck = (rules, value, callback) => {
@@ -266,6 +365,25 @@ class MonitorDetail extends React.Component {
       return callback('请选择调度算法')
     }
     callback()
+  }
+  
+  handleAlgorithm = e => {
+    const { sessionSticky,  sessionPersistent } = this.state
+    const { getFieldValue, setFieldsValue } = this.props.form
+    const keys = getFieldValue('keys')
+    if (e.target.value === 'round-robin' && !isEmpty(keys)) {
+      keys.forEach(item => {
+        setFieldsValue({
+          [`weight-${item}`]: this.state[`weight-${item}`] || 1
+        })
+      })
+    } 
+    if (e.target.value !== 'ip_hash') {
+      setFieldsValue({
+        sessionSticky,
+        sessionPersistent
+      })
+    }
   }
   
   getHealthData = values => {
@@ -389,16 +507,21 @@ class MonitorDetail extends React.Component {
       const callback = {
         success: {
           func: () => {
+            getLBDetail(clusterID, name, displayName, {
+              success: {
+                func: () => {
+                  this.goBack()
+                }
+              }
+            })
             this.setState({
               confirmLoading: false,
               healthCheck: false,
               healthOptions: null
             })
-            getLBDetail(clusterID, name, displayName)
             notify.close()
             notify.success(currentIngress ? '修改成功' : '创建成功')
             form.resetFields()
-            this.goBack()
           },
           isAsync: true
         },
@@ -408,6 +531,15 @@ class MonitorDetail extends React.Component {
             this.setState({
               confirmLoading: false
             })
+            if (res.statusCode === 409) {
+              if (res.message.message.indexOf('URL') > -1) {
+                notify.warn(currentIngress ? '修改失败' : '创建失败', '该转发规则已经存在')
+                return
+              } else if (res.message.message.indexOf('name') > -1) {
+                notify.warn(currentIngress ? '修改失败' : '创建失败', '该监听名称已经存在')
+                return
+              }
+            }
             notify.warn(currentIngress ? '修改失败' : '创建失败', res.message.message || res.message)
           }
         },
@@ -421,7 +553,7 @@ class MonitorDetail extends React.Component {
         }
       }
       if (currentIngress) {
-        updateIngress(clusterID, name, displayName, body, callback)
+        updateIngress(clusterID, name, currentIngress.displayName, body, callback)
         return
       }
       createIngress(clusterID, name, body, callback)
@@ -438,12 +570,12 @@ class MonitorDetail extends React.Component {
   render() {
     const { checkVisible, allServices,  confirmLoading, healthCheck, healthOptions } = this.state
     const { currentIngress, form } = this.props
-    const { getFieldProps, getFieldValue, setFieldsValue } = form
+    const { getFieldProps, getFieldValue, setFieldsValue, getFieldError, isFieldValidating } = form
     const formItemLayout = {
       labelCol: { span: 3 },
       wrapperCol: { span: 10 }
     }
-    const showSlider = getFieldValue('sessionSticky')
+    const showSlider = getFieldValue('sessionSticky') && (getFieldValue('lbAlgorithm') !== 'ip_hash')
     const showWeight = getFieldValue('lbAlgorithm') === 'round-robin'
     getFieldProps('keys', {
       initialValue: [],
@@ -482,7 +614,8 @@ class MonitorDetail extends React.Component {
           validator: this.algorithmCheck
         }
       ],
-      initialValue: currentIngress && currentIngress.lbAlgorithm || 'round-robin'
+      initialValue: currentIngress && currentIngress.lbAlgorithm || 'round-robin',
+      onChange: this.handleAlgorithm
     })
     
     const sessionProps = getFieldProps('sessionSticky', {
@@ -491,7 +624,12 @@ class MonitorDetail extends React.Component {
     })
     
     const relayRuleProps = getFieldProps('host', {
-      initialValue: currentIngress && (currentIngress.host + currentIngress.path)
+      initialValue: currentIngress && (currentIngress.host + currentIngress.path),
+      rules: [
+        {
+          validator: this.hostCheck
+        }
+      ]
     })
     
     const serviceChild = (allServices || []).map(item =>{
@@ -550,7 +688,9 @@ class MonitorDetail extends React.Component {
                       {
                         validator: this.checkWeight
                       }
-                    ]
+                    ],
+                    onChange: value => this.setState({ [`weight-${item}`]: value }),
+                    initialValue: 1
                   })}
                 />
               </FormItem>
@@ -562,7 +702,7 @@ class MonitorDetail extends React.Component {
                 [
                   currentIngress && 
                   <Button type="dashed" key={`edit${item}`} 
-                          className="editServiceBtn" onClick={() => this.setState({[`service${item}`]: true})}>
+                          className="editServiceBtn" onClick={() => this.editItem(item)}>
                     <i className="fa fa-pencil-square-o" aria-hidden="true"/></Button>,
                   <Button type="dashed" icon="delete" key={`delete${item}`} onClick={() => this.removeKey(item)}/>
                 ]
@@ -597,6 +737,8 @@ class MonitorDetail extends React.Component {
           <FormItem
             label="监听器名称"
             {...formItemLayout}
+            hasFeedback={!!getFieldValue('monitorName')}
+            help={isFieldValidating('monitorName') ? '校验中...' : (getFieldError('monitorName') || []).join(', ')}
           >
             <Input {...monitorNameProps} placeholder="请输入监听器名称"/>
           </FormItem>
@@ -653,7 +795,7 @@ class MonitorDetail extends React.Component {
                 >
                   <Slider max={3600} {...getFieldProps('sessionPersistent', 
                     { 
-                      initialValue: currentIngress ? parseInt(currentIngress.sessionPersistent) : 100 
+                      initialValue: currentIngress && currentIngress.sessionPersistent ? parseInt(currentIngress.sessionPersistent) : 100 
                     })}/>
                 </FormItem>
               </Col>
@@ -683,8 +825,10 @@ class MonitorDetail extends React.Component {
           <FormItem
             label="转发规则"
             {...formItemLayout}
+            hasFeedback={!!getFieldValue('host')}
+            help={isFieldValidating('host') ? '校验中...' : (getFieldError('host') || []).join(', ')}
           >
-            <Input placeholder="输入域名 URL （非必填）" {...relayRuleProps}/>
+            <Input placeholder="输入域名 URL " {...relayRuleProps}/>
           </FormItem>
           <Row>
             <Col span={20} offset={3}>
@@ -726,5 +870,6 @@ export default connect(mapStateToProps, {
   loadAllServices,
   createIngress,
   updateIngress,
-  getLBDetail
+  getLBDetail,
+  checkIngressNameAndHost
 })(MonitorDetail)
