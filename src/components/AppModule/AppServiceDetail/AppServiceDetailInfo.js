@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import classNames from 'classnames'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppServiceDetailInfo.less'
-import { formatDate, cpuFormat, memoryFormat } from '../../../common/tools'
+import { formatDate, cpuFormat, memoryFormat, isResourceQuotaError } from '../../../common/tools'
 import { ENTERPRISE_MODE } from '../../../../configs/constants'
 import { mode } from '../../../../configs/model'
 import { appEnvCheck } from '../../../common/naming_validation'
@@ -1027,7 +1027,7 @@ class AppServiceDetailInfo extends Component {
               func: res => {
                 return resolve({
                   result: 'failed',
-                  message: res.message
+                  res
                 })
               }
             }
@@ -1043,12 +1043,15 @@ class AppServiceDetailInfo extends Component {
             loading: false,
             //nouseEditing: false,
           })
-          notification.error(res[i].message)
-          createVolume = 'failed'
+          if (isResourceQuotaError(res[i].res)) {
+            createVolume = 'failed'
+          } else {
+            notification.error(res[i].res.message.message || res[i].res.message)
+          }
         }
       }
       if(createVolume == 'failed'){
-        return notification.error('修改服务存储卷失败，请重试')
+        return
       }
       return editServiceVolume(cluster, serviceName, volumeList, {
         success: {
