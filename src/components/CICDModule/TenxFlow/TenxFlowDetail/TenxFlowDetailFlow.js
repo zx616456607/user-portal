@@ -58,6 +58,7 @@ class TenxFlowDetailFlow extends Component {
     this.buildFlow = this.buildFlow.bind(this);
     this.refreshStageList = this.refreshStageList.bind(this);
     this.toggleCustomizeBaseImageModal = this.toggleCustomizeBaseImageModal.bind(this);
+    this.setCurrentStageAdd = this.setCurrentStageAdd.bind(this)
     const queryObj = parseQueryStringToObject(window.location.search)
     this.state = {
       editTenxFlowModal: false,
@@ -68,6 +69,7 @@ class TenxFlowDetailFlow extends Component {
       websocket: '',
       forCacheShow: false,
       customizeBaseImageModalVisible: false,
+      currentStageAdd: null,
     }
     if(queryObj.showCard == 'true') {
       this.state.createNewFlow = true
@@ -388,6 +390,13 @@ class TenxFlowDetailFlow extends Component {
     })
     socket.emit('stageBuildStage', watchCondition)
   }
+
+  setCurrentStageAdd(currentStageAdd) {
+    this.setState({
+      currentStageAdd,
+    })
+  }
+
   render() {
     const {
       flowId, stageInfo, stageList,
@@ -395,31 +404,40 @@ class TenxFlowDetailFlow extends Component {
       logs, supportedDependencies, cicdApi,
       imageList, baseImages, uniformRepo,
     } = this.props;
-    const { forCacheShow } = this.state;
+    const { forCacheShow, currentStageAdd } = this.state;
     let scope = this;
     let { currentFlowEdit } = scope.state;
-    let cards = null;
     if (!Boolean(stageList) || forCacheShow) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
       )
-    } else {
-      let preStage = {}
-      cards = stageList.map((item, index) => {
-        let content = (
-          <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} preStage={preStage} config={item} uniformRepo={uniformRepo}
-            scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} totalLength={stageList.length}
-            codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList} baseImages={baseImages}
-            otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
-            firstState={stageList[0]} isBuildImage={this.props.isBuildImage}
-            />
-        )
-        preStage = item
-        return content
-      });
     }
+    const CreateTenxFlowModalEl = <QueueAnim key='creattingCardAnimate'>
+    <CreateTenxFlowModal key='CreateTenxFlowModal' stageList={stageList} scope={scope}
+      flowId={flowId} stageInfo={stageInfo} codeList={projectList} uniformRepo={uniformRepo}
+      supportedDependencies={supportedDependencies} imageList={imageList}
+      otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
+      baseImages={baseImages} isBuildImage={this.props.isBuildImage}
+      currentStageAdd={currentStageAdd} setCurrentStageAdd={this.setCurrentStageAdd}
+    />
+  </QueueAnim>
+    let preStage = {}
+    const cards = stageList.map((item, index) => {
+      let content = (
+        <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} preStage={preStage} config={item} uniformRepo={uniformRepo}
+          scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} totalLength={stageList.length}
+          codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList} baseImages={baseImages}
+          otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
+          firstState={stageList[0]} isBuildImage={this.props.isBuildImage}
+          currentStageAdd={currentStageAdd} setCurrentStageAdd={this.setCurrentStageAdd}
+          CreateTenxFlowModalEl={CreateTenxFlowModalEl}
+        />
+      )
+      preStage = item
+      return content
+    });
     return (
       <div id='TenxFlowDetailFlow'>
         <div className='paddingBox'>
@@ -428,8 +446,9 @@ class TenxFlowDetailFlow extends Component {
           {cards.length !=0 && this.props.isBuildImage ? '' :
           <div className={this.state.createNewFlow ? 'TenxFlowDetailFlowCardBigDiv commonCardBox createCardBox' : 'commonCardBox createCardBox'}>
               <Card className='commonCard createCard' onClick={this.createNewFlow}>
-                {!this.state.createNewFlow ? [
-                  <QueueAnim key='createCardAnimate'>
+                {
+                  !this.state.createNewFlow
+                  ? <QueueAnim key='createCardAnimate'>
                     <div className='createInfo' key='createCard'>
                       <svg className='addIcon'>
                         <use xlinkHref='#cicdcreate' />
@@ -439,18 +458,11 @@ class TenxFlowDetailFlow extends Component {
                       </p>
                     </div>
                   </QueueAnim>
-                ] : null}
-              {
-                this.state.createNewFlow ? [
-                  <QueueAnim key='creattingCardAnimate'>
-                    <CreateTenxFlowModal key='CreateTenxFlowModal' stageList={stageList} scope={scope}
-                      flowId={flowId} stageInfo={stageInfo} codeList={projectList} uniformRepo={uniformRepo}
-                      supportedDependencies={supportedDependencies} imageList={imageList}
-                      otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
-                      baseImages={baseImages} isBuildImage={this.props.isBuildImage}/>
-                  </QueueAnim>
-                ] : null
-              }
+                  : null
+                }
+                {
+                  this.state.createNewFlow && CreateTenxFlowModalEl
+                }
             </Card>
           </div>}
 

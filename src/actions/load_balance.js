@@ -66,7 +66,7 @@ export const EDIT_LOAD_BALANCE_REQUEST = 'EDIT_LOAD_BALANCE_REQUEST'
 export const EDIT_LOAD_BALANCE_SUCCESS = 'EDIT_LOAD_BALANCE_SUCCESS'
 export const EDIT_LOAD_BALANCE_FAILURE = 'EDIT_LOAD_BALANCE_FAILURE'
 
-const fetchEditLB = (cluster, name, body, callback) => {
+const fetchEditLB = (cluster, name, displayname, body, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -74,7 +74,7 @@ const fetchEditLB = (cluster, name, body, callback) => {
         EDIT_LOAD_BALANCE_SUCCESS,
         EDIT_LOAD_BALANCE_FAILURE
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${name}/displayname/${body.displayName}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${name}/displayname/${displayname}`,
       schema: {},
       options: {
         method: 'PUT',
@@ -85,8 +85,8 @@ const fetchEditLB = (cluster, name, body, callback) => {
   }
 }
 
-export const editLB = (cluster, name, body, callback) =>
-  dispatch => dispatch(fetchEditLB(cluster, name, body, callback))
+export const editLB = (cluster, name, displayname, body, callback) =>
+  dispatch => dispatch(fetchEditLB(cluster, name, displayname, body, callback))
 
 export const LOAD_BALANCE_LIST_REQUEST = 'LOAD_BALANCE_LIST_REQUEST'
 export const LOAD_BALANCE_LIST_SUCCESS = 'LOAD_BALANCE_LIST_SUCCESS'
