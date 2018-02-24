@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Checkbox, Dropdown, Button, Card, Menu, Icon, Spin } from 'antd'
+import { Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -51,9 +51,11 @@ let MyComponent = React.createClass({
           </div>
           <div className='infoBox' >
             <div className={item.type == 'Normal' ? 'status success' : 'status fail'} >
-              <span className='commonSpan' >
-                {item.reason}
-              </span>
+              <Tooltip title={item.reason} placement="topLeft">
+                <span className='commonSpan textoverflow'>
+                  {item.reason}
+                </span>
+              </Tooltip>
             </div>
             <div className='message' >
               消息: {item.message}
