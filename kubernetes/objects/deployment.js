@@ -250,11 +250,16 @@ class Deployment {
       if (container.name !== containerName) {
         return
       }
-      container.env.push({
+      const envObj = {
         name,
-        value,
-        valueFrom,
-      })
+      }
+      if (value) {
+        envObj.value = value
+      }
+      if (valueFrom) {
+        envObj.valueFrom = valueFrom
+      }
+      container.env.push(envObj)
     })
   }
 
