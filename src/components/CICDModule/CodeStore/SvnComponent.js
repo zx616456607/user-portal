@@ -160,11 +160,11 @@ let SvnComponent = React.createClass({
   },
   changeType(e) {
     this.setState({ privateType: e });
-    setTimeout(()=> {
-      if (!e) {
+    if (!e) {
+      setTimeout(()=> {
         this.refs.focusUser.refs.input.focus()
-      }
-    },400)
+      },400)
+    }
   },
   render() {
     const { config, scope, formatMessage } = this.props
