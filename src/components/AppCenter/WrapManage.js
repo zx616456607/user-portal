@@ -538,7 +538,6 @@ class WrapManage extends Component {
       goDeploy: this.goDeploy,
       location
     }
-    const _this = this
     return (
       <QueueAnim>
         <Title title="应用包管理" />
@@ -551,7 +550,7 @@ class WrapManage extends Component {
             <i className="fa fa-search btn-search" onClick={()=> this.getList(true)}/>
           </div>
           <Card className="wrap_content">
-            <WrapListTable currentType="trad" _this={_this} isRefresh={this.state.isRefresh} func={func} rowCheckbox={true} selectedRowKeys={this.state.selectedRowKeys} />
+            <WrapListTable currentType="trad" isRefresh={this.state.isRefresh} func={func} rowCheckbox={true} selectedRowKeys={this.state.selectedRowKeys} />
           </Card>
         </div>
 
