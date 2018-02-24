@@ -108,11 +108,11 @@ export const START_CLEAN_SYSTEM_LOGS_REQUEST = 'START_CLEAN_SYSTEM_LOGS_REQUEST'
 export const START_CLEAN_SYSTEM_LOGS_SUCCESS = 'START_CLEAN_SYSTEM_LOGS_SUCCESS'
 export const START_CLEAN_SYSTEM_LOGS_FAILURE = 'START_CLEAN_SYSTEM_LOGS_FAILURE'
 
-function startCleanSystemLogs(body, callback) {
+function startCleanSystemLogs(body, query, callback) {
   return {
     [FETCH_API]: {
       types: [START_CLEAN_SYSTEM_LOGS_REQUEST,START_CLEAN_SYSTEM_LOGS_SUCCESS,START_CLEAN_SYSTEM_LOGS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cleaner/logs`,
+      endpoint: `${API_URL_PREFIX}/cleaner/logs?${toQuerystring(query)}`,
       schema: {},
       options: {
         method: 'POST',
@@ -123,9 +123,9 @@ function startCleanSystemLogs(body, callback) {
   }  
 }
 
-export function cleanSystemLogs(body, callback) {
+export function cleanSystemLogs(body, query, callback) {
   return dispatch => {
-    return dispatch(startCleanSystemLogs(body, callback))
+    return dispatch(startCleanSystemLogs(body, query, callback))
   }
 }
 

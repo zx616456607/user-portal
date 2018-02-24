@@ -1343,6 +1343,10 @@ const menusText = defineMessages({
   MonitorChart: {
     id: 'ManageMonitor.operationalAudit.MonitorChart',
     defaultMessage: '监控图表'
+  },
+  ManageClassify: {
+    id: 'ManageMonitor.operationalAudit.ManageClassify',
+    defaultMessage: '分类管理'
   }
 });
 
@@ -1569,7 +1573,14 @@ function resourceFormat(resourceType, scope) {
       break;
     case '67':
       return formatMessage(menusText.MonitorChart)
-      break;
+    case '68':
+      return formatMessage(menusText.ServiceGrayRelease)
+    case '69':
+      return formatMessage(menusText.SecretConfigGroup)
+    case '70':
+      return formatMessage(menusText.SecretConfig)
+    case '71':
+      return formatMessage(menusText.ManageClassify)
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -1729,6 +1740,13 @@ function formatResourceName(resourceName) {
       newName = newName.join(',');
       return newName;
     }
+    // check classifyName
+    if (newBody.classifies) {
+      const classifyNameArray = newBody.classifies.map(item => {
+        return item.classifyName
+      })
+      return classifyNameArray.join(',')
+    }
     // check configs
     if (!!newBody.configs) {
       let newName = newBody.configs;
@@ -1758,6 +1776,9 @@ function formatResourceName(resourceName) {
     }
     if (newBody.imageTagName) {
       return newBody.imageTagName
+    }
+    if (newBody.filePkgName) {
+      return newBody.filePkgName
     }
     if (newBody.strategies && Array.isArray(newBody.strategies) && newBody.strategies.length > 0) {
       let ids = new Array()

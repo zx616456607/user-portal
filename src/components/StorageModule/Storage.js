@@ -587,7 +587,7 @@ let MyComponent = React.createClass({
     ]
     const rowSelection = {
       getCheckboxProps: record => ({
-        disabled: record.status === "used" || record.status === 'pending',
+        disabled: record.status === "used",
       }),
       selectedRowKeys,
       onChange: this.onSelectChange,
