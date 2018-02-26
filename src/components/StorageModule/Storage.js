@@ -599,7 +599,6 @@ let MyComponent = React.createClass({
     const paginationProps = {
       simple: true,
       current: parseInt(query.page) || 1,
-      pageSize: 3,
       onChange: page => adjustBrowserUrl(location, mergeQueryFunc(DEFAULT_QUERY, { page, search: query.search })),
     }
     return (

@@ -168,20 +168,34 @@ export function calcuDate(beginDate) {
 }*/
 
 
-export function toQuerystring(obj, sep, eq) {
+export function toQuerystring(obj, sep, eq, isSort) {
   sep = sep || '&'
   eq = eq || '='
   if (!obj) {
     return ''
+  }
+  function stringifyPrimitive(v) {
+    switch (typeof v) {
+      case 'string':
+        return v
+      case 'boolean':
+        return v ? 'true' : 'false'
+      case 'number':
+        return isFinite(v) ? v : ''
+      default:
+        return ''
+    }
   }
   for (const k in obj) {
     if (obj[k] === null || obj[k] === '' || obj[k] === undefined) {
       delete obj[k]
     }
   }
-  const queryString = Object.keys(obj)
-    .sort()
-    .map(function (k) {
+  let objKeysArray = Object.keys(obj)
+  if (isSort) {
+    objKeysArray = objKeysArray.sort()
+  }
+  const queryString = objKeysArray.map(function (k) {
       let ks = stringifyPrimitive(k) + eq
       if (Array.isArray(obj[k])) {
         return obj[k].map(function (v) {
@@ -195,18 +209,6 @@ export function toQuerystring(obj, sep, eq) {
     return ''
   }
   return queryString
-  function stringifyPrimitive(v) {
-    switch (typeof v) {
-      case 'string':
-        return v
-      case 'boolean':
-        return v ? 'true' : 'false'
-      case 'number':
-        return isFinite(v) ? v : ''
-      default:
-        return ''
-    }
-  }
 }
 
 export function parseQueryStringToObject(querystring) {
@@ -713,7 +715,7 @@ export function mergeQueryFunc(defaultQuery, query) {
  * @return {boolean} is equal
  */
 export function isQueryEqual(q1, q2) {
-  return toQuerystring(q1) === toQuerystring(q2)
+  return toQuerystring(q1, null, null, true) === toQuerystring(q2, null, null, true)
 }
 
 /**
