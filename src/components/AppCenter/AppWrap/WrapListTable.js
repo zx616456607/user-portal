@@ -31,8 +31,8 @@ const notificat = new NotificationHandler()
 import TenxStatus from '../../TenxStatus/index'
 
 // file type
-const wrapType = ['.jar','.war','.tar','.tar.gz','.zip']
-const wrapTypelist = ['jar','war','tar','tar.gz','zip']
+const wrapType = ['.jar', '.war', '.tar', '.tar.gz', '.zip']
+const wrapTypelist = ['jar', 'war', 'tar', 'tar.gz', 'zip']
 
 
 class WrapListTable extends Component {
@@ -52,7 +52,7 @@ class WrapListTable extends Component {
   componentWillMount() {
     window.WrapListTable = null
   }
-  getList = (e)=> {
+  getList = (e) => {
     const inputValue = this.refs.wrapSearch.refs.input.value
     if (!e || inputValue == '') {
       this.loadData()
@@ -64,12 +64,11 @@ class WrapListTable extends Component {
     this.props.wrapManageList(query)
   }
   loadData(current) {
-    const { func } = this.props
+    const { callback } = this.props
     current = current || this.state.page
-    func.scope.setState({isRefresh: false})
-    this.setState({page: current})
+    this.setState({ page: current }, callback)
     let from = {
-      from: (current-1) * DEFAULT_PAGE_SIZE,
+      from: (current - 1) * DEFAULT_PAGE_SIZE,
       size: DEFAULT_PAGE_SIZE
     }
     this.props.wrapManageList(from)
@@ -94,16 +93,16 @@ class WrapListTable extends Component {
 
   deleteAction(status, row) {
     if (status) {
-      this.setState({delAll: true, currentApp: row})
+      this.setState({ delAll: true, currentApp: row })
       return
     }
-    this.setState({delAll: false})
+    this.setState({ delAll: false })
   }
-  deleteVersion = ()=> {
+  deleteVersion = () => {
     // const notificat = new NotificationHandler()
     const { currentApp, page } = this.state
-    const { wrapList,func } = this.props
-    func.scope.setState({selectedRowKeys:[]}) // set parent state
+    const { wrapList, callbackRowKeys } = this.props
+    callbackRowKeys()
     let id = [currentApp.id]
     let body = {
       ids: id,
@@ -111,23 +110,23 @@ class WrapListTable extends Component {
     }
     this.props.deleteWrapManage(body, {
       success: {
-        func:()=> {
+        func: () => {
           notificat.success('删除成功')
           let newPage = Math.floor((wrapList.total - id.length) / DEFAULT_PAGE_SIZE)
           if (newPage < page) {
-            this.loadData(page -1)
+            this.loadData(page - 1)
             return
           }
           this.loadData(page)
-        },isAsync: true
+        }, isAsync: true
       },
       failed: {
-        func: (err)=> {
-          notificat.error('删除失败',err.message.message || err.message)
+        func: (err) => {
+          notificat.error('删除失败', err.message.message || err.message)
         }
       },
       finally: {
-        func:()=> {
+        func: () => {
           this.deleteAction(false)
         }
       }
@@ -183,7 +182,7 @@ class WrapListTable extends Component {
           this.deleteHint()
           return
         }
-        this.deleteAction(true,row)
+        this.deleteAction(true, row)
         break
       case 'audit':
         this.setState({
@@ -251,9 +250,9 @@ class WrapListTable extends Component {
     const { enabled } = vmWrapConfig
     const menu = (
       <Menu onClick={e => this.handleMenuClick(e, row)} style={{ width: 110 }}>
-        { enabled ? <Menu.Item key="vm">
+        {enabled ? <Menu.Item key="vm">
           传统部署
-        </Menu.Item> : <Menu.Item key="node" style={{ display: 'none' }}/>}
+        </Menu.Item> : <Menu.Item key="node" style={{ display: 'none' }} />}
         <Menu.Item key="audit" disabled={[1, 2, 8].includes(row.publishStatus)}>
           提交审核
         </Menu.Item>
@@ -278,55 +277,45 @@ class WrapListTable extends Component {
     )
   }
 
-  rowClick(record, index){
-    const { func, selectedRowKeys, rowCheckbox } = this.props
-    const { id } = func.scope.state
+  rowClick(record, index) {
+    const { func, selectedRowKeys, rowCheckbox, callbackRow, callbackRows } = this.props
+    const { id } = func
     const newId = cloneDeep(id)
     const newSelectedRowKeys = cloneDeep(selectedRowKeys)
     let idIsExist = false
     let keysIsExist = false
-    for(let i = 0; i < newId.length; i++){
-    	if(newId[i] == record.id){
+    for (let i = 0; i < newId.length; i++) {
+      if (newId[i] == record.id) {
         newId.splice(i, 1)
         idIsExist = true
         break
       }
     }
-    for(let i = 0; i < newSelectedRowKeys.length; i++){
-    	if(newSelectedRowKeys[i] == index){
+    for (let i = 0; i < newSelectedRowKeys.length; i++) {
+      if (newSelectedRowKeys[i] == index) {
         newSelectedRowKeys.splice(i, 1)
         keysIsExist = true
         break
       }
     }
-    if(!keysIsExist){
+    if (!keysIsExist) {
       newSelectedRowKeys.push(index)
     }
-    if(!idIsExist){
+    if (!idIsExist) {
       newId.push(record.id)
     }
     if (!rowCheckbox) {
-      func.scope.setState({
-        selectedRowKeys: [index],
-        id: [record.id],
-        defaultTemplate: record.fileType =='jar' ? 0 : 1,
-        version: null,
-        fileType: record.fileType,
-      })
+      callbackRow([index], [record.id], record.fileType == 'jar' ? 0 : 1, record.fileType)
       window.WrapListTable = record
       return
     }
-    func.scope.setState({
-      selectedRowKeys: newSelectedRowKeys,
-      id: newId,
-      fileType: record.fileType,
-    })
+    callbackRows(newSelectedRowKeys, newId, record.fileType)
   }
 
-  getAppStatus(status, record){
+  getAppStatus(status, record) {
     let phase
-    let progress = {status: false};
-    switch(status) {
+    let progress = { status: false };
+    switch (status) {
       case 0:
         phase = 'Unpublished'
         break
@@ -344,10 +333,10 @@ class WrapListTable extends Component {
         break
       case 8:
         phase = 'Checking'
-        progress = {status: true}
+        progress = { status: true }
         break
     }
-    return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && record.approveMessage}/>
+    return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && record.approveMessage} />
   }
 
   openDetailModal(e, row) {
@@ -366,7 +355,8 @@ class WrapListTable extends Component {
 
   render() {
     // jar war ,tar.gz zip
-    const { func, rowCheckbox, wrapList, wrapStoreList, currentType, isWrapManage, isRefresh } = this.props
+    const { func, rowCheckbox, wrapList, wrapStoreList, currentType, isWrapManage, isRefresh,
+      callbackRow, callbackRowSelection } = this.props
     const { releaseVisible, currentApp, detailModal, currentWrap, publishModal, docsModal } = this.state
     const dataSource = currentType === 'trad' ? wrapList : wrapStoreList
     const classifyName = {
@@ -411,13 +401,13 @@ class WrapListTable extends Component {
         title: '上传时间',
         dataIndex: 'creationTime',
         key: 'creationTime',
-        width:'20%',
+        width: '20%',
         render: text => formatDate(text)
       }, {
         title: '操作',
         dataIndex: 'actions',
         key: 'actions',
-        width:'20%',
+        width: '20%',
         render: (e, row) => {
           if (rowCheckbox) {
             return this.renderDeployBtn(row, func, rowCheckbox)
@@ -436,7 +426,7 @@ class WrapListTable extends Component {
       pageSize: DEFAULT_PAGE_SIZE,
       current: isRefresh ? 1 : this.state.page,
       total: dataSource && dataSource.total,
-      onChange: current =>  currentType === 'trad' ? this.loadData(current) : this.getStoreList(null, current),
+      onChange: current => currentType === 'trad' ? this.loadData(current) : this.getStoreList(null, current),
     }
     let rowSelection = {
       selectedRowKeys: this.props.selectedRowKeys, // 控制checkbox是否选中
@@ -445,17 +435,11 @@ class WrapListTable extends Component {
           return row.id
         })
         if (!rowCheckbox) {
-          func.scope.setState({
-            selectedRowKeys,
-            id: ids,
-            defaultTemplate: selectedRows[0].fileType =='jar' ? 0 : 1,
-            version: null,
-            fileType:selectedRows[0].fileType
-          })
+          callbackRow(selectedRowKeys, ids, selectedRows[0].fileType == 'jar' ? 0 : 1, selectedRows[0].fileType)
           window.WrapListTable = selectedRows[0]
           return
         }
-        func && func.scope.setState({selectedRowKeys,id:ids})
+        func && callbackRowSelection(ids, selectedRowKeys)
       }
     }
     if (!rowCheckbox) {
@@ -485,15 +469,15 @@ class WrapListTable extends Component {
             currentWrap={currentApp}
           />
         }
-        <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource && dataSource.pkgs} columns={columns} pagination={paginationOpts} onRowClick={this.rowClick}/>
-        { dataSource && dataSource.total && dataSource.total >0 ?
-          <span className="pageCount" style={{position:'absolute',right:'160px',top:'-55px'}}>共计 {dataSource.total} 条</span>
-          :null
+        <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource && dataSource.pkgs} columns={columns} pagination={paginationOpts} onRowClick={this.rowClick} />
+        {dataSource && dataSource.total && dataSource.total > 0 ?
+          <span className="pageCount" style={{ position: 'absolute', right: '160px', top: '-55px' }}>共计 {dataSource.total} 条</span>
+          : null
         }
         <Modal title="删除操作" visible={this.state.delAll}
-          onCancel={()=> this.deleteAction(false)}
+          onCancel={() => this.deleteAction(false)}
           onOk={this.deleteVersion}
-          >
+        >
           <div className="confirmText">确定要删除所选版本？</div>
         </Modal>
         <Modal
@@ -511,7 +495,7 @@ class WrapListTable extends Component {
   }
 }
 
-function mapStateToProps(state,props) {
+function mapStateToProps(state, props) {
   const { currentType, func } = props
   const { wrapList, wrapStoreList } = state.images
   const { current, loginUser } = state.entities
@@ -519,7 +503,7 @@ function mapStateToProps(state,props) {
   const { info } = loginUser
   const { vmWrapConfig } = info
   const list = wrapList || {}
-  const { result: storeList, isFetching: storeFetching } = wrapStoreList || { result: {}}
+  const { result: storeList, isFetching: storeFetching } = wrapStoreList || { result: {} }
   const { data: storeData } = storeList || { data: [] }
   const { location } = func
   const { pathname } = location
@@ -528,7 +512,7 @@ function mapStateToProps(state,props) {
   if (pathname.indexOf('/app_center/wrap_manage') > -1) {
     isWrapManage = true
   }
-  let datalist = {pkgs:[],total:0}
+  let datalist = { pkgs: [], total: 0 }
   if (list.result) {
     datalist = list.result.data
   }
@@ -542,7 +526,7 @@ function mapStateToProps(state,props) {
   }
 }
 
-export default connect(mapStateToProps,{
+export default connect(mapStateToProps, {
   wrapManageList,
   deleteWrapManage,
   auditWrap,
