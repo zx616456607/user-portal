@@ -342,7 +342,7 @@ class ShareMemory extends Component {
     if (!canCreate) {
       title = '尚未配置共享存储，暂不能创建'
     }
-    const mergedQuery = mergeQueryFunc(DEFAULT_QUERY, { page, search: query.search })
+    const mergedQuery = mergeQueryFunc(DEFAULT_QUERY, { page: query.page || 1, search: query.search })
     const paginationProps = {
       simple: true,
       current: parseInt(query.page) || 1,
