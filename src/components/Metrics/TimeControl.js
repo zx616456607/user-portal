@@ -41,7 +41,7 @@ class TimeControl extends Component {
           <Radio prefixCls="ant-radio-button" value="6">最近6小时</Radio>
           <Radio prefixCls="ant-radio-button" value="24">最近24小时</Radio>
           <Radio prefixCls="ant-radio-button" value="168">最近7天</Radio>
-          <Radio prefixCls="ant-radio-button" value="672">最近30天</Radio>
+          <Radio prefixCls="ant-radio-button" value="720">最近30天</Radio>
         </RadioGroup>
       </div>
     )
