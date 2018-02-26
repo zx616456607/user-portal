@@ -17,6 +17,7 @@ import isEmpty from 'lodash/isEmpty'
 import AppServiceDetail from './AppServiceDetail'
 import './style/AllService.less'
 import { calcuDate } from '../../common/tools'
+import { camelize } from 'humps'
 import {
   addService,
   startServices,
@@ -454,6 +455,7 @@ const MyComponent = React.createClass({
       if(item.metadata){
         appName = item.metadata.labels[LABEL_APPNAME]
       }
+
       let httpIcon = 'http'
       let lb = false
       for (let k8sService of this.props.k8sServiceList) {
@@ -461,12 +463,13 @@ const MyComponent = React.createClass({
           if (k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
             httpIcon = 'https'
           }
+          const key = camelize('ingress-lb')
           if (
             k8sService.metadata.annotations && 
-            k8sService.metadata.annotations['tenxcloud.com/lb'] &&
-            !isEmpty(k8sService.metadata.annotations['tenxcloud.com/lb'])
+            k8sService.metadata.annotations[key] &&
+            !isEmpty(k8sService.metadata.annotations[key])
           ) {
-            let lbArr = JSON.parse(k8sService.metadata.annotations['tenxcloud.com/lb'])
+            let lbArr = JSON.parse(k8sService.metadata.annotations[key])
             if (!isEmpty(lbArr) && !isEmpty(lbArr[0].name)) {
               lb = true
             }
