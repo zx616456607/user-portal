@@ -36,8 +36,8 @@ function storageList(state = {}, action) {
       return Object.assign({}, defaultState, {
         [pool]: {
           isFetching: false,
-          storageList: action.response.result.data,
-          searchList: action.response.result.data,
+          storageList: action.response.result.data || [],
+          searchList: action.response.result.data || [],
           pool: pool
         }
       })
@@ -359,7 +359,13 @@ function snapshotList(state = {}, action) {
 }
 
 
-export default function storageReducer(state = {}, action) {
+export default function storageReducer(state = {
+  storageList: {
+    isFetching: false,
+    storageList: [],
+    searchList: [],
+  }
+}, action) {
   return {
     storageList: storageList(state.storageList, action),
     deleteStorage: deleteStorage(state.deleteStorage, action),

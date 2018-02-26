@@ -19,13 +19,18 @@ import { getClusterStorageList } from '../../../actions/cluster'
 import { createStorage, loadStorageList, deleteStorage, searchStorage, getCheckVolumeNameExist } from '../../../actions/storage'
 import PersistentVolumeClaim from '../../../../kubernetes/objects/persistentVolumeClaim'
 import { serviceNameCheck } from '../../../common/naming_validation'
-import { formatDate } from '../../../common/tools'
+import { formatDate, adjustBrowserUrl, mergeQueryFunc } from '../../../common/tools'
 import { DEFAULT_IMAGE_POOL, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import NotificationHandler from '../../Notification'
 import './style/index.less'
 
 const FormItem = Form.Item
 const Option = Select.Option
+
+const DEFAULT_QUERY = {
+  storagetype: 'nfs',
+  srtype: 'share',
+}
 
 class ShareMemory extends Component {
   constructor(props) {
@@ -44,21 +49,26 @@ class ShareMemory extends Component {
     }
   }
 
-  loadData(query) {
-    const { loadStorageList, clusterID } = this.props
-    const defaultQuery = {
-      storagetype: 'nfs',
-      srtype: 'share',
-    }
-    query = Object.assign({}, defaultQuery, query)
-    loadStorageList(DEFAULT_IMAGE_POOL, clusterID, query)
-    this.setState({
-      selectedRowKeys: [],
+  loadData(query = {}, isFirstLoad) {
+    const { loadStorageList, clusterID, location } = this.props
+    const { searchInput } = this.state
+    query = Object.assign({}, mergeQueryFunc(DEFAULT_QUERY, query))
+    loadStorageList(DEFAULT_IMAGE_POOL, clusterID, query, {
+      success: {
+        func: () => {
+          this.setState({ selectedRowKeys: [] })
+          if (searchInput) {
+            return this.searchStorage(query)
+          }
+          adjustBrowserUrl(location, query, isFirstLoad)
+        },
+        isAsync: true,
+      }
     })
   }
 
   componentDidMount() {
-    this.loadData()
+    this.loadData({}, true)
   }
 
   onSelectChange(selectedRowKeys) {
@@ -77,8 +87,9 @@ class ShareMemory extends Component {
   }
 
   confirmDeleteItem() {
-    const { deleteStorage, clusterID } = this.props
-    const { selectedRowKeys } = this.state
+    const { deleteStorage, clusterID, location } = this.props
+    const { query = {} } = location
+    const { selectedRowKeys, searchInput } = this.state
     const notification = new NotificationHandler
     this.setState({
       confirmLoading: true,
@@ -87,7 +98,7 @@ class ShareMemory extends Component {
       success: {
         func: () => {
           notification.success(`删除存储卷 ${selectedRowKeys.join(', ')} 成功`)
-          this.loadData()
+          this.loadData({ page: query.page || 1, search: searchInput })
           this.setState({
             deleteModalVisible: false,
           })
@@ -143,6 +154,7 @@ class ShareMemory extends Component {
       'storageClassName',
       'name'
     ]
+    this.setState({ confirmLoading: true })
     form.validateFields(viladateArray, (errors, values) => {
       if(!!errors){
         this.setState({
@@ -150,9 +162,6 @@ class ShareMemory extends Component {
         })
         return
       }
-      this.setState({
-        confirmLoading: true,
-      })
       const { name, storageType, storageClassName } = values
       const persistentVolumeClaim = new PersistentVolumeClaim({
         name,
@@ -166,19 +175,18 @@ class ShareMemory extends Component {
       }
       createStorage(body, {
         success: {
-          func: res => {
-            console.log('res, res', res)
+          func: () => {
             notification.success(`创建共享型存储 ${name} 操作成功`)
             this.setState({
               createShareMemoryVisible: false,
+              searchInput: '',
             })
-            this.loadData()
+            this.loadData({ page: 1, search: '' })
           },
           isAsync: true,
         },
          error: {
-          func: err => {
-            console.log('err, err', err)
+          func: () => {
             notification.error(`创建共享型存储 ${name} 操作失败`)
           }
         },
@@ -193,10 +201,12 @@ class ShareMemory extends Component {
     })
   }
 
-  searchStorage() {
+  searchStorage(query = { page: 1}) {
     const { searchInput } = this.state
-    const { searchStorage } = this.props
+    const { searchStorage, location } = this.props
     searchStorage(searchInput.trim())
+    const mergedQuery = mergeQueryFunc(DEFAULT_QUERY, { page: query.page, search: searchInput})
+    adjustBrowserUrl(location, mergedQuery)
   }
 
   formatStatus(status){
@@ -253,7 +263,10 @@ class ShareMemory extends Component {
   }
 
   render() {
-    const { form, nfsList, storageList, storageListIsFetching, clusterID, storageClassType } = this.props
+    const {
+      form, nfsList, storageList, storageListIsFetching, clusterID,
+      storageClassType, location
+    } = this.props
     const {
       selectedRowKeys,
       createShareMemoryVisible,
@@ -261,6 +274,7 @@ class ShareMemory extends Component {
       deleteModalVisible,
       searchInput,
     } = this.state
+    const { query = {} } = location
     const { getFieldProps } = form
     const columns = [
       {
@@ -328,6 +342,12 @@ class ShareMemory extends Component {
     if (!canCreate) {
       title = '尚未配置共享存储，暂不能创建'
     }
+    const mergedQuery = mergeQueryFunc(DEFAULT_QUERY, { page, search: query.search })
+    const paginationProps = {
+      simple: true,
+      current: parseInt(query.page) || 1,
+      onChange: page => adjustBrowserUrl(location, mergedQuery),
+    }
     return(
       <QueueAnim className='share_memory'>
         <div id='share_memory' key="share_memory">
@@ -351,9 +371,11 @@ class ShareMemory extends Component {
               <Button
                 size="large"
                 className='button_refresh'
-                onClick={this.loadData}
+                onClick={() => this.loadData({ page: parseInt(query.page) || 1, search: searchInput })}
               >
-                <i className="fa fa-refresh button_icon" aria-hidden="true"></i>
+                <i className="fa fa-refresh button_icon" aria-hidden="true"
+                  onClick={() => this.loadData({ page: parseInt(query.page) || 1, search: searchInput })}
+                />
                 刷新
               </Button>
               <Button
@@ -371,7 +393,7 @@ class ShareMemory extends Component {
                   placeholder="按存储名称搜索"
                   value={searchInput}
                   onChange={e => this.setState({ searchInput: e.target.value })}
-                  onPressEnter={this.searchStorage}
+                  onPressEnter={() => this.searchStorage({ page: 1 })}
                 />
                 <i className="fa fa-search search_icon" onClick={this.searchStorage}></i>
               </div>
@@ -386,7 +408,7 @@ class ShareMemory extends Component {
               	columns={columns}
               	dataSource={storageList}
               	rowSelection={rowSelection}
-              	pagination={{ simple: true }}
+              	pagination={paginationProps}
               	loading={storageListIsFetching}
                 onRowClick={this.tableRowClick}
                 rowKey={row => row.name}

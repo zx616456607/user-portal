@@ -20,7 +20,7 @@ import findIndex from 'lodash/findIndex'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage, SnapshotCreate, searchStorage } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP, UPDATE_INTERVAL } from '../../constants'
 import './style/storage.less'
-import { calcuDate, parseAmount, formatDate } from '../../common/tools'
+import { calcuDate, parseAmount, formatDate, adjustBrowserUrl, mergeQueryFunc } from '../../common/tools'
 import { volNameCheck } from '../../common/naming_validation'
 import NotificationHandler from '../../components/Notification'
 import ResourceQuotaModal from '../ResourceQuotaModal/Storage'
@@ -125,6 +125,11 @@ const messages = defineMessages({
   }
 })
 
+const DEFAULT_QUERY = {
+  storagetype: 'ceph',
+  srtype: 'private',
+}
+
 let MyComponent = React.createClass({
   getInitialState() {
     return {
@@ -137,7 +142,7 @@ let MyComponent = React.createClass({
       volumeName: '',
       volumeFormat: '',
       volumeSize: '',
-      CreateSnapshotSuccessModal: '',
+      CreateSnapshotSuccessModal: false,
       snapshotName: '',
       tipsModal: false,
       dilation: false,
@@ -162,6 +167,8 @@ let MyComponent = React.createClass({
   handleSure() {
     if(isActing) return
     isActing = true
+    const { location, loadStorageList } = this.props
+    const { query = {} } = location
     const type = this.state.modalType
     const self = this
     let notification = new NotificationHandler()
@@ -180,7 +187,7 @@ let MyComponent = React.createClass({
               isActing = false
               notification.close()
               notification.success('格式化存储卷成功')
-              this.props.loadStorageList()
+              loadStorageList({ page: query.page || 1 })
             }
           },
           failed: {
@@ -192,7 +199,6 @@ let MyComponent = React.createClass({
               isActing = false
               notification.close()
               notification.error('格式化存储卷失败')
-              this.props.loadStorageList()
             }
           }
         })
@@ -216,7 +222,7 @@ let MyComponent = React.createClass({
               isActing = false
               notification.close()
               notification.success('扩容成功')
-              self.props.loadStorageList()
+              loadStorageList({ page: query.page || 1 })
             }
           },
           failed: {
@@ -229,7 +235,6 @@ let MyComponent = React.createClass({
               notification.close()
               let message = this.formatMessage(res, '扩容失败')
               notification.error(message)
-              self.props.loadStorageList()
             }
           }
         })
@@ -470,37 +475,17 @@ let MyComponent = React.createClass({
     })
   },
   render() {
-    const { isFetching, storage, billingEnabled } = this.props
+    const {
+      isFetching, storage, billingEnabled, location,
+      scope, form, imagePool, cluster,
+    } = this.props
+    const { selectedRowKeys } = this.state
     const { formatMessage } = this.props.intl
-    let list = this.props.storage;
+    const { query = {} } = location
     let storageList = storage.storageList
     if(!storageList || !storageList.length){
       storageList = []
     }
-    let menus = []
-    if(Array.isArray(storageList) && storageList.length){
-      menus = storageList.map((item, index) => {
-        return <Menu
-          onClick={(e) => { this.showAction(e, 'format', item) } }
-          style={{ width: '80px' }}
-        >
-          <Menu.Item key='resize' disabled={item.status == 'pending'}>
-            <FormattedMessage {...messages.dilation} />
-          </Menu.Item>
-          <Menu.Item key="createSnapshot" disabled={item.status == 'pending'}>
-          创建快照
-          </Menu.Item>
-          <Menu.Item
-            key="format"
-            disabled={item.status == 'pending' || item.status == 'used'}
-            title="使用中存储不能进行格式化操作"
-          >
-            <FormattedMessage {...messages.formatting} />
-          </Menu.Item>
-        </Menu>
-      })
-    }
-    const { scope, form } = this.props
     const { getFieldProps } = form
     const { resourcePrice } = scope.props.currentCluster
     const hourPrice = parseAmount(this.state.size /1024 * resourcePrice.storage, 4)
@@ -510,7 +495,6 @@ let MyComponent = React.createClass({
         validator: this.checksnapshotName
       }]
     })
-    const { selectedRowKeys } = this.state
     const columns = [
       {
         title: '存储名称',
@@ -575,14 +559,34 @@ let MyComponent = React.createClass({
         key: 'handle',
         dataIndex: 'handle',
         width: '15%',
-        render: (text, record, index) => <Dropdown.Button
-          overlay={menus[index]}
-          type='ghost'
-          onClick={() => browserHistory.push(`/app_manage/storage/exclusiveMemory/${this.props.imagePool}/${this.props.cluster}/${record.name}`)}
-          key="dilation"
-        >
-          查看
-        </Dropdown.Button>
+        render: (text, record, index) => {
+          const menu = <Menu
+            onClick={(e) => { this.showAction(e, 'format', record) } }
+            style={{ width: '80px' }}
+          >
+            <Menu.Item key='resize' disabled={record.status == 'pending'}>
+              <FormattedMessage {...messages.dilation} />
+            </Menu.Item>
+            <Menu.Item key="createSnapshot" disabled={record.status == 'pending'}>
+              创建快照
+            </Menu.Item>
+            <Menu.Item
+              key="format"
+              disabled={record.status == 'pending' || record.status == 'used'}
+              title="使用中存储不能进行格式化操作"
+            >
+              <FormattedMessage {...messages.formatting} />
+            </Menu.Item>
+          </Menu>
+          return <Dropdown.Button
+            overlay={menu}
+            type='ghost'
+            onClick={() => browserHistory.push(`/app_manage/storage/exclusiveMemory/${imagePool}/${cluster}/${record.name}`)}
+            key="dilation"
+          >
+            查看
+          </Dropdown.Button>
+        }
       }
     ]
     const rowSelection = {
@@ -592,6 +596,12 @@ let MyComponent = React.createClass({
       selectedRowKeys,
       onChange: this.onSelectChange,
     }
+    const paginationProps = {
+      simple: true,
+      current: parseInt(query.page) || 1,
+      pageSize: 3,
+      onChange: page => adjustBrowserUrl(location, mergeQueryFunc(DEFAULT_QUERY, { page, search: query.search })),
+    }
     return (
       <div className="dataBox">
         <div className='reset_antd_table_header'>
@@ -600,7 +610,7 @@ let MyComponent = React.createClass({
             dataSource={storageList}
             rowSelection={rowSelection}
             onRowClick={this.tableRowClick}
-            pagination={{ simple: true }}
+            pagination={paginationProps}
             loading={isFetching}
             rowKey={record => record.name}
           />
@@ -801,32 +811,47 @@ class Storage extends Component {
       visible: false,
       volumeArray: [],
       currentType: 'ext4',
-      inputName: '',
       size: 512,
       nameError: false,
       nameErrorMsg: '',
       resourceQuotaModal: false,
-      resourceQuota: null,
+      resourceQuota: {},
       comfirmRisk: false,
       disableListArray: [],
       ableListArray: [],
+      searchInput: '',
+      refreshLoading: false,
     }
   }
-  getStorageList(){
-    const { loadStorageList, cluster, currentImagePool } = this.props
-    const query = {
-      storagetype: 'ceph',
-      srtype: 'private'
-    }
-    loadStorageList(currentImagePool, cluster, query)
+  getStorageList(query = {}, isFirstLoad){
+    const { loadStorageList, cluster, currentImagePool, location } = this.props
+    const { searchInput } = this.state
+    query = Object.assign({}, mergeQueryFunc(DEFAULT_QUERY, query))
+    loadStorageList(currentImagePool, cluster, DEFAULT_QUERY, {
+      success: {
+        func: () => {
+          this.setState({
+            selectedRowKeys: [],
+            refreshLoading: false,
+          })
+          if (searchInput) {
+            return this.searchByStorageName(query)
+          }
+          adjustBrowserUrl(location, query, isFirstLoad)
+        },
+        isAsync: true,
+      }
+    })
   }
   componentWillMount() {
-    this.getStorageList()
+    this.getStorageList({}, true)
   }
 
   componentDidMount() {
     this.loadInterval = setInterval(() => {
-      this.getStorageList()
+      const { location } = this.props
+      const { query = {} } = location
+      this.getStorageList({ page: query.page || 1})
     }, UPDATE_INTERVAL)
   }
 
@@ -863,6 +888,8 @@ class Storage extends Component {
   }
   deleteStorage() {
     const { disableListArray } = this.state
+    const { location } = this.props
+    const { query = {} } = location
     let volumeArray = this.state.ableListArray
     let notification = new NotificationHandler()
     let message = ''
@@ -899,7 +926,7 @@ class Storage extends Component {
             volumeArray: [],
             disableListArray: [],
             ableListArray: [],
-          })
+          }, this.getStorageList({ page: query.page || 1 }))
           if(disableListArray.length){
             notification.info(message)
           }
@@ -923,13 +950,17 @@ class Storage extends Component {
     })
   }
   refreshstorage() {
-    this.getStorageList()
+    const { location } = this.props
+    const { query = {} } = location
+    const { searchInput } = this.state
     this.setState({
       volumeArray: [],
       disableListArray: [],
       ableListArray: [],
-    })
+      refreshLoading: true,
+    }, this.getStorageList({ page: query.page || 1, search: searchInput }))
   }
+
   onAllChange(e) {
     const storage = this.props.storageList[this.props.currentImagePool]
     if (!storage || !storage.storageList) {
@@ -1016,15 +1047,12 @@ class Storage extends Component {
       nameErrorMsg: errorMsg
     })
   }
-  getSearchStorageName(e) {
-    this.setState({
-      storageName: e.target.value
-    })
-  }
-  searchByStorageName(e) {
-    const { searchStorage } = this.props
-    const keyword = document.getElementById('searchStorage').value.trim()
-    searchStorage(keyword)
+  searchByStorageName(query = { page: 1 }) {
+    const { searchStorage, location } = this.props
+    const { searchInput } = this.state
+    searchStorage(searchInput)
+    const mergedQuery = mergeQueryFunc(DEFAULT_QUERY, { page: query.page, search: searchInput})
+    adjustBrowserUrl(location, mergedQuery)
   }
 
   deleteButton(){
@@ -1057,9 +1085,12 @@ class Storage extends Component {
   render() {
     const { formatMessage } = this.props.intl
     const { getFieldProps } = this.props.form
-    const { SnapshotCreate, snapshotDataList, billingEnabled } = this.props
-    const currentCluster = this.props.currentCluster
-    const { storageClassType } = this.props
+    const {
+      SnapshotCreate, snapshotDataList, billingEnabled, location, currentCluster,
+      storageClassType,
+    } = this.props
+    const { searchInput, refreshLoading } = this.state
+    const { query = {} } = location
     let canCreate = false
     if(storageClassType.private){
       canCreate = storageClassType.private
@@ -1070,11 +1101,11 @@ class Storage extends Component {
     if (!canCreate) {
       title = '尚未配置块存储集群，暂不能创建'
     }
-    if (!this.props.currentCluster.resourcePrice) return <div></div>
+    if (!currentCluster.resourcePrice) return <div></div>
     if (!this.props.storageList[this.props.currentImagePool]) return <div></div>
-    const storagePrice = this.props.currentCluster.resourcePrice.storage /10000
-    const hourPrice = parseAmount(this.state.size / 1024 * this.props.currentCluster.resourcePrice.storage, 4)
-    const countPrice = parseAmount(this.state.size / 1024 * this.props.currentCluster.resourcePrice.storage * 24 *30, 4)
+    const storagePrice = currentCluster.resourcePrice.storage /10000
+    const hourPrice = parseAmount(this.state.size / 1024 * currentCluster.resourcePrice.storage, 4)
+    const countPrice = parseAmount(this.state.size / 1024 * currentCluster.resourcePrice.storage * 24 *30, 4)
     const dataStorage = this.props.storageList[this.props.currentImagePool].storageList
     const confirmRisk = getFieldProps('confirmRisk',{
       valuePropName: 'checked',
@@ -1093,7 +1124,7 @@ class Storage extends Component {
           <div className='alertRow'>
             独享存储，仅支持一个容器实例读写操作；块存储类型的存储卷可创建快照
           </div>
-          { mode === standard ? <div className='alertRow'>您的存储创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div> }
+          { mode === standard && <div className='alertRow'>您的存储创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。</div> }
           <div className="operationBox">
             <div className="leftBox">
               <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>
@@ -1134,6 +1165,7 @@ class Storage extends Component {
                    snapshotDataList={snapshotDataList}
                    storageList={dataStorage}
                    createModal={this.state.visible}
+                   loadStorageList={this.getStorageList}
                  />
               </Modal>
             </div>
@@ -1142,15 +1174,16 @@ class Storage extends Component {
                 <i className="fa fa-search cursor" onClick={() => this.searchByStorageName()}/>
               </div>
               <div className="littleRight">
-                <Input size="large" style={{paddingRight: '28px'}} placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchStorageName(e)} onPressEnter={() => this.searchByStorageName()} id="searchStorage"/>
+                <Input size="large"
+                  style={{ paddingRight: '28px' }}
+                  placeholder={formatMessage(messages.inputPlaceholder)}
+                  onChange={e => this.setState({ searchInput: e.target.value })}
+                  onPressEnter={() => this.searchByStorageName()}
+                />
               </div>
             </div>
             <div className='total_num'>
-              {
-                storageList.length
-                ? <div>共 {storageList.length} 条</div>
-                : null
-              }
+              { storageList.length > 0 && <div>共 {storageList.length} 条</div> }
             </div>
             <div className="clearDiv"></div>
           </div>
@@ -1163,11 +1196,12 @@ class Storage extends Component {
               imagePool={this.props.currentImagePool}
               loadStorageList = {() => this.getStorageList()}
               scope ={ this }
-              isFetching={this.props.storageList[this.props.currentImagePool].isFetching}
+              isFetching={refreshLoading}
               SnapshotCreate={SnapshotCreate}
               snapshotDataList={snapshotDataList}
               delModal={this.state.delModal}
               billingEnabled={billingEnabled}
+              location={location}
             />
           </div>
           <ResourceQuotaModal

@@ -11,6 +11,7 @@
 'use strict'
 
 import moment from 'moment'
+import { browserHistory } from 'react-router'
 import {
   AMOUNT_CONVERSION,
   AMOUNT_DEFAULT_PRECISION,
@@ -678,4 +679,44 @@ export function bytesToSize(bytes, size) {
   let value = (bytes / Math.pow(k, i)).toFixed(2)
   let unit = sizes[i]
   return { value, unit };
+}
+
+/**
+ *
+ * @param defaultQuery obj
+ * @param query obj
+ * @return query obj
+ */
+export function mergeQueryFunc(defaultQuery, query) {
+  return query = Object.assign({}, defaultQuery, query)
+}
+
+/**
+ *
+ * @param q1 obj
+ * @param q2 obj
+ * @return boolean
+ */
+export function isQueryEqual(q1, q2) {
+  return toQuerystring(q1) === toQuerystring(q2)
+}
+
+/**
+ *
+ * @param location obj
+ * @param mergedQuery obj
+ * @param isFirstLoad boolean
+ * @return browserHistory function
+ */
+export function adjustBrowserUrl(location = {}, mergedQuery = {}, isFirstLoad) {
+  const { pathname, query } = location
+  if (isQueryEqual(mergedQuery, query)) return
+  if ( !mergedQuery.page || parseInt(mergedQuery.page) === 1) delete mergedQuery.page
+  if (!mergedQuery.search) delete mergedQuery.search
+  const path = `${pathname}?${toQuerystring(mergedQuery)}`
+  if (isFirstLoad) {
+    browserHistory.replace(path)
+    return
+  }
+  browserHistory.push(`${pathname}?${toQuerystring(mergedQuery)}`)
 }

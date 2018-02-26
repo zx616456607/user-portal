@@ -14,7 +14,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CreateVolume.less'
 import { calcuDate, parseAmount, formatDate } from '../../common/tools'
 import { serviceNameCheck } from '../../common/naming_validation'
-import { SnapshotClone, createStorage, loadStorageList, getCheckVolumeNameExist, SnapshotList } from '../../actions/storage'
+import { SnapshotClone, createStorage, getCheckVolumeNameExist, SnapshotList } from '../../actions/storage'
 import { getClusterStorageList } from '../../actions/cluster'
 import PersistentVolumeClaim from '../../../kubernetes/objects/persistentVolumeClaim'
 import yaml from 'js-yaml'
@@ -237,7 +237,10 @@ class CreateVolume extends Component {
   }
 
   handleComfirmCreateVolume() {
-    const { form,SnapshotClone,cluster,currentVolume,createStorage,currentImagePool,loadStorageList, snapshotDataList } = this.props
+    const {
+      form, SnapshotClone, cluster, currentVolume, createStorage, loadStorageList,
+      snapshotDataList, scope
+    } = this.props
     const { volumeSize,fstype, swicthChecked } = this.state
     this.setState({
       loading: true,
@@ -281,11 +284,7 @@ class CreateVolume extends Component {
               this.handleResetState()
               notification.close()
               notification.success(`创建独享型存储 ${config.name} 操作成功`)
-              const query = {
-                storagetype: 'ceph',
-                srtype: 'private'
-              }
-              loadStorageList(currentImagePool, cluster.clusterID, query)
+              scope.setState({ searchInput: '' }, loadStorageList({ page: 1, search: '' }))
             },
             isAsync: true
           },
@@ -711,7 +710,6 @@ function mapStateToProp(state, props) {
   return {
     cluster,
     clusterID,
-    currentImagePool: DEFAULT_IMAGE_POOL,
     cephList,
     isFetching,
     billingEnabled
@@ -721,7 +719,6 @@ function mapStateToProp(state, props) {
 export default connect(mapStateToProp, {
   SnapshotClone,
   createStorage,
-  loadStorageList,
   getClusterStorageList,
   getCheckVolumeNameExist,
   SnapshotList,
