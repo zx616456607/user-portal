@@ -42,7 +42,10 @@ class CPU extends Component {
       let timeData = []
       let values = []
       let dataArr = []
-      item.metrics.map((metric) => {
+      const metrics = item && Array.isArray(item.metrics)
+        ? item.metrics
+        : []
+      metrics.map((metric) => {
         timeData.push(metric.timestamp)
         // metric.value || floatValue  only one
         values.push(Math.floor((metric.floatValue || metric.value) * 10) /10)
