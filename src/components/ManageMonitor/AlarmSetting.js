@@ -10,7 +10,10 @@
 import React, { Component, PropTypes } from 'react'
 import { Link, browserHistory } from 'react-router'
 import { camelize } from 'humps'
-import { Card, Input, Modal, InputNumber, Checkbox, Progress, Icon, Spin, Table, Select, Dropdown, DatePicker, Menu, Button, Pagination } from 'antd'
+import {
+  Card, Input, Modal, InputNumber, Checkbox, Progress, Icon, Spin, Table, Select,
+  Dropdown, DatePicker, Menu, Button, Pagination, Row, Col
+} from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../components/Notification'
@@ -547,7 +550,15 @@ let MyComponent = React.createClass({
             <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
             <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.updater}</td>
-          <td className='dropdownTd'><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list)}>忽略</Dropdown.Button></td>
+            <td className='dropdownTd'>
+              <Dropdown.Button
+                type="ghost"
+                overlay={ this.dropdowns(list) }
+                onClick={ this.setIgnore(list)}
+              >
+              忽略
+              </Dropdown.Button>
+            </td>
           </tr>
         )
       })
@@ -583,11 +594,45 @@ let MyComponent = React.createClass({
           { lists }
           </tbody>
         </table>
-        <Modal title="忽略" visible={this.state.lookModel}
-         onOk={()=> this.handOverlook()} onCancel={()=> this.setState({lookModel: false, currentStrategy: null})}
-          okText="提交"
+        <Modal
+          title="忽略"
+          visible={this.state.lookModel}
+          onOk={()=> this.handOverlook()}
+          onCancel={()=> this.setState({lookModel: false, currentStrategy: null})}
+          footer={[
+            <Button
+              key="back"
+              type="ghost"
+              size="large"
+              onClick={()=> this.setState({lookModel: false, currentStrategy: null})}
+            >
+            返 回
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              onClick={()=> this.handOverlook()}
+              disabled={this.state.currentStrategy && this.state.currentStrategy.statusCode == 0}
+            >
+              提 交
+            </Button>,
+          ]}
         >
-          <div className="alertRow">注意：在忽略时间内我们将不会发送告警邮件通知！</div>
+          {
+            this.state.currentStrategy && this.state.currentStrategy.statusCode == 0
+            ? <Row className="alertRow warningRow">
+              <Col span={2} className="alertRowIcon">
+                <i className="fa fa-exclamation-triangle" />
+              </Col>
+              <Col span={22} className="alertRowDesc">
+              当前告警策略已停用，请先启用该策略
+              </Col>
+            </Row>
+            : <div className="alertRow">
+            注意：在忽略时间内我们将不会发送告警邮件通知！
+            </div>
+          }
           <div className="modalParams">
             <span className="keys">忽略时长</span>
         <InputNumber size="large" min={1} style={{margin:'0 10px'}} defaultValue={100} value={this.state.ignoreTime} onChange={(e) => this.getIgnoreTime(e)}/>
