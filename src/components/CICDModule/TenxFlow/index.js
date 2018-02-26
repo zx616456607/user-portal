@@ -353,6 +353,12 @@ let MyComponent = React.createClass({
         default:
           status = "等待中..."
       }
+      let isApproving = false
+      console.log('item', item)
+      if (item.waitingApprovalStages && item.waitingApprovalStages.length > 0) {
+        isApproving = 'true'
+        status = '等待审批'
+      }
       return (
         <div className='tenxflowDetail' key={item.name} >
           <div className='name'>

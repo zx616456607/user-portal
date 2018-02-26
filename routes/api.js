@@ -435,6 +435,7 @@ module.exports = function (Router) {
   router.post('/devops/ci-flows/:flow_id/stages', devopsController.createFlowStages)
   router.delete('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.deleteFlowStage)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.updateFlowStage)
+  router.put('/devops/ci-flows/:flow_id/stages/:stage_id/approval', devopsController.updateApproval)
   router.get('/ci-flows/:flow_id/stages/:stage_id', devopsController.getStage)
   router.get('/devops/ci-flows/:flow_id/stages/:stage_id/getStageBuildLogs', devopsController.getStageBuildLogList)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id/link/:target_id', devopsController.updateStageLink)
@@ -734,6 +735,6 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/loadbalances/services/:name/controller', loadBalanceController.getServiceLB)
   router.del('/clusters/:cluster/loadbalances/:lbname/services/:servicename', loadBalanceController.unbindService)
   router.get('/clusters/:cluster/loadbalances/:lbname/ingresses/exist', loadBalanceController.nameAndHostCheck)
-  
+
   return router.routes()
 }
