@@ -492,7 +492,7 @@ class TenxFlowDetail extends Component {
             <div className='imgBox' >
               <img src={flowImg} />
             </div>
-            <p className='title'>{flowInfo.name}</p>
+            <p className='flow-title'>{flowInfo.name}</p>
             <div className='msgBox'>
               状态：<span className={'status-' + this.state.statusName}><i className="fa fa-circle" style={{ marginRight: '5px' }}></i>{this.state.status}</span>
               <span className='updateTime'>{flowInfo.update_time ? flowInfo.update_time : flowInfo.create_time}</span>
