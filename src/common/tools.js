@@ -174,16 +174,22 @@ export function toQuerystring(obj, sep, eq) {
   if (!obj) {
     return ''
   }
-  return Object.keys(obj).map(function (k) {
-    let ks = stringifyPrimitive(k) + eq
-    if (Array.isArray(obj[k])) {
-      return obj[k].map(function (v) {
-        return ks + stringifyPrimitive(v)
-      }).join(sep)
-    } else {
-      return ks + stringifyPrimitive(obj[k])
-    }
-  }).join(sep)
+  const queryString = Object.keys(obj)
+    .sort()
+    .map(function (k) {
+      let ks = stringifyPrimitive(k) + eq
+      if (Array.isArray(obj[k])) {
+        return obj[k].map(function (v) {
+          return ks + stringifyPrimitive(v)
+        }).join(sep)
+      } else {
+        return ks + stringifyPrimitive(obj[k])
+      }
+    }).join(sep)
+  if (!queryString) {
+    return ''
+  }
+  return queryString
   function stringifyPrimitive(v) {
     switch (typeof v) {
       case 'string':
@@ -682,31 +688,37 @@ export function bytesToSize(bytes, size) {
 }
 
 /**
+ * merge query
  *
- * @param defaultQuery obj
- * @param query obj
- * @return query obj
+ * @export
+ * @param {object} defaultQuery
+ * @param {object} query another query
+ * @return {object} query
  */
 export function mergeQueryFunc(defaultQuery, query) {
   return query = Object.assign({}, defaultQuery, query)
 }
 
 /**
+ * is query equal
  *
- * @param q1 obj
- * @param q2 obj
- * @return boolean
+ * @export
+ * @param {object} q1 query
+ * @param {object} q2 another query
+ * @return {boolean} is equal
  */
 export function isQueryEqual(q1, q2) {
   return toQuerystring(q1) === toQuerystring(q2)
 }
 
 /**
+ * adjust Browser Url
  *
- * @param location obj
- * @param mergedQuery obj
- * @param isFirstLoad boolean
- * @return browserHistory function
+ * @export
+ * @param {object} location obj
+ * @param {object} mergedQuery obj
+ * @param {boolean} isFirstLoad
+ * @return {function} browserHistory push
  */
 export function adjustBrowserUrl(location = {}, mergedQuery = {}, isFirstLoad) {
   const { pathname, query } = location
