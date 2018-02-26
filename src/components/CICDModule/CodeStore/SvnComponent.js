@@ -67,7 +67,8 @@ let SvnComponent = React.createClass({
     return {
       authorizeModal: false,
       privateType: true,
-      submiting: false
+      submiting: false,
+      readOnly: true
     }
   },
   setModalStaus(status) {
@@ -157,6 +158,14 @@ let SvnComponent = React.createClass({
       })
     })
   },
+  changeType(e) {
+    this.setState({ privateType: e });
+    if (!e) {
+      setTimeout(()=> {
+        this.refs.focusUser.refs.input.focus()
+      },400)
+    }
+  },
   render() {
     const { config, scope, formatMessage } = this.props
     const { getFieldProps, getFieldValue } = this.props.form;
@@ -192,7 +201,7 @@ let SvnComponent = React.createClass({
           <div style={{ paddingTop: "20px" }}>
             <Form horizontal onSubmit={(e)=> this.handleSubmit(e)}>
               <FormItem  {...formItemLayout} label="名称">
-                <Input placeholder="输入名称" id="name" size="large" {...forName} />
+                <Input placeholder="输入名称" size="large" {...forName} />
               </FormItem>
 
               <FormItem {...formItemLayout} label="地址" >
@@ -200,19 +209,26 @@ let SvnComponent = React.createClass({
               </FormItem>
 
               <FormItem {...formItemLayout} label="类型">
-                <Switch checked={this.state.privateType}  onChange={(e) => { this.setState({ privateType: e }) } } checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
+                <Switch checked={this.state.privateType}  onChange={(e) => this.changeType(e) } checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
               </FormItem>
 
               {!this.state.privateType ?
-                [<QueueAnim type='right' key='svnModal-type'>
+                <div>
                   <FormItem {...formItemLayout} label="用户名 : ">
-                    <Input placeholder="输入用户名称" size="large" {...forUsername } />
+                    <Input
+                      placeholder="输入用户名称"
+                      size="large" {...forUsername }
+                      ref="focusUser"
+                      readOnly={this.state.readOnly}
+                      onFocus={() => this.setState({ readOnly: false })}
+                      onBlur={() => this.setState({ readOnly: true })}
+                    />
                   </FormItem>
 
                   <FormItem {...formItemLayout} label="密码 : ">
                     <Input type="password" placeholder="请输入密码" {...forPassword} />
                   </FormItem>
-                </QueueAnim>]
+                </div>
                 : null
               }
 
