@@ -64,7 +64,9 @@ class WrapListTable extends Component {
     this.props.wrapManageList(query)
   }
   loadData(current) {
+    const { func } = this.props
     current = current || this.state.page
+    func.scope.setState({isRefresh: false})
     this.setState({page: current})
     let from = {
       from: (current-1) * DEFAULT_PAGE_SIZE,
@@ -364,7 +366,7 @@ class WrapListTable extends Component {
 
   render() {
     // jar war ,tar.gz zip
-    const { func, rowCheckbox, wrapList, wrapStoreList, currentType, isWrapManage } = this.props
+    const { func, rowCheckbox, wrapList, wrapStoreList, currentType, isWrapManage, isRefresh } = this.props
     const { releaseVisible, currentApp, detailModal, currentWrap, publishModal, docsModal } = this.state
     const dataSource = currentType === 'trad' ? wrapList : wrapStoreList
     const classifyName = {
@@ -432,18 +434,16 @@ class WrapListTable extends Component {
     const paginationOpts = {
       simple: true,
       pageSize: DEFAULT_PAGE_SIZE,
-      current: this.state.page,
+      current: isRefresh ? 1 : this.state.page,
       total: dataSource && dataSource.total,
       onChange: current =>  currentType === 'trad' ? this.loadData(current) : this.getStoreList(null, current),
     }
-    const _this = this
     let rowSelection = {
       selectedRowKeys: this.props.selectedRowKeys, // 控制checkbox是否选中
       onChange(selectedRowKeys, selectedRows) {
         const ids = selectedRows.map(row => {
           return row.id
         })
-        _this.setState({id:ids })
         if (!rowCheckbox) {
           func.scope.setState({
             selectedRowKeys,
