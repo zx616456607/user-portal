@@ -174,6 +174,11 @@ export function toQuerystring(obj, sep, eq) {
   if (!obj) {
     return ''
   }
+  for (const k in obj) {
+    if (obj[k] === null || obj[k] === '' || obj[k] === undefined) {
+      delete obj[k]
+    }
+  }
   const queryString = Object.keys(obj)
     .sort()
     .map(function (k) {
