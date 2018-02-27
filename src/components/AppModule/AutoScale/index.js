@@ -207,9 +207,9 @@ class AutoScale extends React.Component {
   formatMetrics = record => {
     let str = ''
     record && record.length && record.forEach(item => {
-      if (item.resource.name === 'memory') {
+      if (item.resource && item.resource.name === 'memory') {
         str += `内存 ${item.resource.targetAverageUtilization}%;`
-      } else if (item.resource.name === 'cpu') {
+      } else if (item.resource && item.resource.name === 'cpu') {
         str += `CPU ${item.resource.targetAverageUtilization}%`
       }
     })
