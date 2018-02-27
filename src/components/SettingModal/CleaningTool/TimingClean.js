@@ -584,8 +584,8 @@ class TimingClean extends Component {
     } = this.state
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
-    	labelCol: {span: 5},
-    	wrapperCol: {span: 19}
+    	labelCol: {span: 6},
+    	wrapperCol: {span: 18}
     }
     const systemCleaningScopeProps = getFieldProps('systemCleaningScope', {
       initialValue: systemScope,
@@ -750,7 +750,7 @@ class TimingClean extends Component {
                       />
                     </FormItem>
                     <Row>
-                      <Col offset={5}>
+                      <Col offset={6}>
                         {
                           systemEdit ?
                             <Button type="primary" size="large" onClick={this.systemHandleEdit}>编辑</Button>
@@ -843,7 +843,7 @@ class TimingClean extends Component {
                       />
                     </FormItem>
                     <Row>
-                      <Col offset={5}>
+                      <Col offset={6}>
                         {
                           cicdEdit ?
                             <Button type="primary" size="large" onClick={this.cicdHandleEdit}>编辑</Button>
