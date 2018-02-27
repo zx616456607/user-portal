@@ -573,7 +573,8 @@ class WrapManage extends Component {
       throwError: this.props.throwError
     }
     const func = {
-      id: this.state.id,
+      // id: this.state.id,
+      scope: this,
       goDeploy: this.goDeploy,
       location
     }
