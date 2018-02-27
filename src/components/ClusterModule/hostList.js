@@ -508,6 +508,13 @@ class hostList extends Component {
     let randomPodNum = Math.ceil(Math.random() * pods.length)
     if (randomPodNum === 0) randomPodNum = 1
     currentContainer = [{
+      spec: {
+        containers: [
+          {
+            name: 'kubectl' // must specify the container name to connect to
+          }
+        ]
+      },
       metadata: {
         namespace,
         name: pods[randomPodNum - 1]
