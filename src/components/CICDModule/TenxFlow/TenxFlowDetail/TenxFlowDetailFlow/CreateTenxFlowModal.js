@@ -1041,7 +1041,7 @@ let CreateTenxFlowModal = React.createClass({
         }
         body.spec.container.env.push({
           name: 'TIMEOUT_IN_SECOND',
-          value: approvingTimeout * TIME_EXCHANGE_IN_SECOND[approvingTimeoutUnit],
+          value: approvingTimeout * TIME_EXCHANGE_IN_SECOND[approvingTimeoutUnit] + '',
         })
       }
       // 创建 stage
