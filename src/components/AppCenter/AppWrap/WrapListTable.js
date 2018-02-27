@@ -279,7 +279,7 @@ class WrapListTable extends Component {
 
   rowClick(record, index) {
     const { func, selectedRowKeys, rowCheckbox, callbackRow, callbackRows } = this.props
-    const { id } = func
+    const { id } = func.scope.state
     const newId = cloneDeep(id)
     const newSelectedRowKeys = cloneDeep(selectedRowKeys)
     let idIsExist = false
@@ -305,11 +305,23 @@ class WrapListTable extends Component {
       newId.push(record.id)
     }
     if (!rowCheckbox) {
-      callbackRow([index], [record.id], record.fileType == 'jar' ? 0 : 1, record.fileType)
+      func.scope.setState({
+        selectedRowKeys: [index],
+        id: [record.id],
+        defaultTemplate: record.fileType =='jar' ? 0 : 1,
+        version: null,
+        fileType: record.fileType,
+      })
+      callbackRow && callbackRow([index], [record.id], record.fileType == 'jar' ? 0 : 1, record.fileType)
       window.WrapListTable = record
       return
     }
     callbackRows(newSelectedRowKeys, newId, record.fileType)
+    func.scope.setState({
+      selectedRowKeys: newSelectedRowKeys,
+      id: newId,
+      fileType: record.fileType,
+    })
   }
 
   getAppStatus(status, record) {
@@ -435,7 +447,7 @@ class WrapListTable extends Component {
           return row.id
         })
         if (!rowCheckbox) {
-          callbackRow(selectedRowKeys, ids, selectedRows[0].fileType == 'jar' ? 0 : 1, selectedRows[0].fileType)
+          callbackRow && callbackRow(selectedRowKeys, ids, selectedRows[0].fileType == 'jar' ? 0 : 1, selectedRows[0].fileType)
           window.WrapListTable = selectedRows[0]
           return
         }
