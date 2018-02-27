@@ -35,6 +35,7 @@ import { loadClusterList } from '../../../../../actions/cluster'
 import { getStorageClassType } from '../../../../../actions/storage'
 import { getAllClusterNodes } from '../../../../../actions/cluster_node'
 import { getRegistryNamespaces } from '../../../../../actions/app_center'
+import { GetProjectsMembers } from '../../../../../actions/project'
 import { isStandardMode } from '../../../../../common/tools'
 import DockerfileModal from '../../../DockerfileModal'
 import AddCachedVolumeModal from '../../CachedVolumes/AddModal'
@@ -323,6 +324,7 @@ let EditTenxFlowModal = React.createClass({
       addCachedVolumeModal: false,
       shellDefaultCmd: [],
       isPrivateStorageInstall: false,
+      projectMembers: [],
     }
   },
   componentWillMount() {
@@ -491,6 +493,9 @@ let EditTenxFlowModal = React.createClass({
         currentCodeStoreName: codeStoreName,
         currentCodeStoreBranch: config.spec.project.branch
       });
+      if (otherFlowType == 6) {
+        this.getProjectsMembers({ byProjectNamespace: 1 })
+      }
     } else {
       let useDockerfile = (config.spec.build && config.spec.build.dockerfileFrom == 1) ? true : false;
       let ImageStoreType = (config.spec.build && config.spec.build.registryType == 3) ? true : false;
@@ -1316,7 +1321,7 @@ let EditTenxFlowModal = React.createClass({
       if (this.state.otherFlowType == 6) {
         const { approvingBy, approvingTimeout, approvingTimeoutUnit } = values
         body.spec.ci.config.approvalConfig = {
-          approvingBy: values.approvingBy.split(',').map(id => parseInt(id)),
+          approvingBy: values.approvingBy.map(id => parseInt(id)),
           approvingTimeoutUnit,
         }
         body.spec.container.env = [
@@ -1474,8 +1479,27 @@ let EditTenxFlowModal = React.createClass({
     }
     return callback()
   },
+  getProjectsMembers() {
+    const { GetProjectsMembers } = this.props
+    const notification = new NotificationHandler()
+    GetProjectsMembers({ byProjectNamespace: 1 }, {
+      success: {
+        func: res => {
+          this.setState({
+            projectMembers: res.data || [],
+          })
+        }
+      },
+      failed: {
+        func: err => {
+          notification.error('获取项目成员失败')
+        }
+      },
+    })
+  },
   baseImageChange(key, tabKey, groupKey) {
-    const { setFieldsValue, getFieldValue } = this.props.form
+    const { form } = this.props
+    const { setFieldsValue, getFieldValue } = form
     const oldImageName = getFieldValue('imageName')
     const oldOtherFlowType = this.state.otherFlowType
     if (oldOtherFlowType == groupKey && oldImageName == key) return
@@ -1483,6 +1507,9 @@ let EditTenxFlowModal = React.createClass({
       baseImageUrl: key,
       otherFlowType: groupKey,
     })
+    if (groupKey == 6) {
+      this.getProjectsMembers({ byProjectNamespace: 1 })
+    }
     setFieldsValue({
       imageName: key
     })
@@ -1951,8 +1978,8 @@ let EditTenxFlowModal = React.createClass({
       >
         {
           isDockerfile
-          ? [<span>编辑云端 Dockerfile</span>]
-          : [<FormattedMessage {...menusText.createNewDockerFile} />]
+          ? <span>编辑云端 Dockerfile</span>
+          : <FormattedMessage {...menusText.createNewDockerFile} />
         }
       </Button>
     )
@@ -2442,17 +2469,24 @@ let EditTenxFlowModal = React.createClass({
                 </div>
                   <div className='input imageType'>
                     <FormItem>
-                      <Input
+                      <Select
+                        multiple
+                        style={{ width: '220px' }}
                         placeholder="请选择平台用户"
                         {
                           ...getFieldProps('approvingBy' , {
-                            initialValue: (approvalConfig.approvingBy || []).join(','),
+                            initialValue: approvalConfig.approvingBy.map(id => id + ''),
                             rules: [
                               { message: '请选择平台用户', required: true },
                             ],
                           })
                         }
-                      />
+                      >
+                        {
+                          this.state.projectMembers.map(({ userId, userName }) =>
+                          <Option key={userId}>{userName}</Option>)
+                        }
+                      </Select>
                     </FormItem>
                   </div>
                   <div style={{ clear: 'both' }} />
@@ -2698,6 +2732,7 @@ export default connect(mapStateToProps, {
   loadRepositoriesTagConfigInfo,
   getStorageClassType,
   getRegistryNamespaces,
+  GetProjectsMembers,
 })(injectIntl(EditTenxFlowModal, {
   withRef: true,
 }));

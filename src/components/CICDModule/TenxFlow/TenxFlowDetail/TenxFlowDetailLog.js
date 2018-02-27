@@ -82,11 +82,15 @@ function checkStatusSpan(status, scope, isApproving) {
     case 0:
       return formatMessage(menusText.normal);
     case 1:
-      return isApproving ? '拒绝执行' : formatMessage(menusText.fail);
+      return formatMessage(menusText.fail);
     case 2:
       return isApproving ? '等待审批' : formatMessage(menusText.running);
     case 3:
       return formatMessage(menusText.wait);
+    case 33:
+      return '审批超时'
+    case 34:
+      return '拒绝执行'
     default:
       return formatMessage(menusText.normal);
   }
@@ -98,6 +102,8 @@ function checkStatusClass(status, isApproving) {
     case 0:
       return 'normal';
     case 1:
+    case 33:
+    case 34:
       return 'fail';
     case 2:
       return isApproving ? 'approving' : 'runing';

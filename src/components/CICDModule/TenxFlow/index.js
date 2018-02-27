@@ -350,6 +350,12 @@ let MyComponent = React.createClass({
         case 2:
           status = "执行中..."
           break;
+        case 33:
+          status = "审批超时"
+          break;
+        case 34:
+          status = "拒绝执行"
+          break;
         default:
           status = "等待中..."
       }

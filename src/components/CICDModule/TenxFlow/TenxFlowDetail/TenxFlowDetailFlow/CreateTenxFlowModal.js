@@ -36,6 +36,7 @@ import { loadClusterList } from '../../../../../actions/cluster'
 import { getStorageClassType } from '../../../../../actions/storage'
 import { getAllClusterNodes } from '../../../../../actions/cluster_node'
 import { getRegistryNamespaces } from '../../../../../actions/app_center'
+import { GetProjectsMembers } from '../../../../../actions/project'
 import DockerfileModal from '../../../DockerfileModal'
 import AddCachedVolumeModal from '../../CachedVolumes/AddModal'
 import { TENX_STORE } from '../../../../../../constants/index'
@@ -282,6 +283,7 @@ let CreateTenxFlowModal = React.createClass({
       addCachedVolumeModal: false,
       shellDefaultCmd: [],
       isPrivateStorageInstall: false,
+      projectMembers: [],
     }
   },
   getUniformRepo() {
@@ -1034,7 +1036,8 @@ let CreateTenxFlowModal = React.createClass({
           d: 60 * 60 * 24,
         }
         body.spec.ci.config.approvalConfig = {
-          approvingBy: values.approvingBy.split(',').map(id => parseInt(id))
+          approvingBy: values.approvingBy.map(id => parseInt(id)),
+          approvingTimeoutUnit,
         }
         body.spec.container.env.push({
           name: 'TIMEOUT_IN_SECOND',
@@ -1211,15 +1214,33 @@ let CreateTenxFlowModal = React.createClass({
     return callback()
   },
   baseImageChange(key, tabKey, groupKey) {
-    const { setFieldsValue, getFieldValue } = this.props.form
+    const { form, GetProjectsMembers } = this.props
+    const { setFieldsValue, getFieldValue } = form
     const oldImageName = getFieldValue('imageName')
     const oldOtherFlowType = this.state.otherFlowType
     if (oldOtherFlowType == groupKey && oldImageName == key) return
+    const notification = new NotificationHandler()
     this.setState({
       baseImageUrl: key,
       groupKey,
       otherFlowType: groupKey,
     })
+    if (groupKey == 6) {
+      GetProjectsMembers({ byProjectNamespace: 1 }, {
+        success: {
+          func: res => {
+            this.setState({
+              projectMembers: res.data || [],
+            })
+          }
+        },
+        failed: {
+          func: err => {
+            notification.error('获取项目成员失败')
+          }
+        },
+      })
+    }
     setFieldsValue({
       imageName: key
     })
@@ -1637,8 +1658,8 @@ let CreateTenxFlowModal = React.createClass({
       >
         {
           isDockerfile
-            ? [<span>编辑云端 Dockerfile</span>]
-            : [<FormattedMessage {...menusText.createNewDockerFile} />]
+            ? <span>编辑云端 Dockerfile</span>
+            : <FormattedMessage {...menusText.createNewDockerFile} />
         }
       </Button>
     )
@@ -2125,16 +2146,24 @@ let CreateTenxFlowModal = React.createClass({
                 </div>
                   <div className='input imageType'>
                     <FormItem>
-                      <Input
+                      <Select
+                        multiple
+                        style={{ width: '220px' }}
                         placeholder="请选择平台用户"
                         {
                           ...getFieldProps('approvingBy' , {
+                            initialValue: [],
                             rules: [
                               { message: '请选择平台用户', required: true },
                             ],
                           })
                         }
-                      />
+                      >
+                        {
+                          this.state.projectMembers.map(({ userId, userName }) =>
+                          <Option key={userId}>{userName}</Option>)
+                        }
+                      </Select>
                     </FormItem>
                   </div>
                   <div style={{ clear: 'both' }} />
@@ -2368,6 +2397,7 @@ export default connect(mapStateToProps, {
   loadRepositoriesTagConfigInfo,
   getStorageClassType,
   getRegistryNamespaces,
+  GetProjectsMembers,
 })(injectIntl(CreateTenxFlowModal, {
   withRef: true,
 }));

@@ -98,9 +98,9 @@ function checkStatusSpan(status, scope, stage) {
         : formatMessage(menusText.building);
     case 3:
       return formatMessage(menusText.waitting);
-    case 129:
+    case 33:
       return '审批超时'
-    case 130:
+    case 34:
       return '审批拒绝'
   }
 }
@@ -112,8 +112,8 @@ function checkStatusClass(status, stage) {
     case 0:
       return 'finish';
     case 1:
-    case 129:
-    case 130:
+    case 33:
+    case 34:
       return 'fail';
     case 2:
       return isApproving ? 'approving' : 'running';

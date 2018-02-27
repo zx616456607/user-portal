@@ -182,14 +182,14 @@ function currentStatus(status, stateType) {
           {noRunningCheckDetail}
         </div>
       );
-    case 129: // timeout
+    case 33: // timeout
       return (
         <div className='failStatus status'>
           <Icon type="cross-circle-o" />
           <p>审批超时</p>
         </div>
       );
-    case 130: // deny
+    case 34: // deny
       return (
         <div className='failStatus status'>
           <Icon type="cross-circle-o" />
@@ -257,6 +257,8 @@ function currentStatusBtn(status) {
         </div>
       );
     case 1:
+    case 33:
+    case 34:
       return (
         <div>
           <i className='fa fa-repeat' />
@@ -799,11 +801,14 @@ class TenxFlowDetailFlowCard extends Component {
                   (index != (totalLength - 1) && config.link.enabled === 1)
                     ? <p className='fileUrl'>{formatStageLink(config.link)}</p>
                     : (index != (totalLength - 1) && <div className="addBtn">
-                      <Tooltip title="添加子任务">
+                      <Tooltip
+                        title="添加子任务"
+                      >
                         <Button
                           icon="plus"
                           shape="circle-outline"
                           onClick={() => setCurrentStageAdd(index)}
+                          disabled={this.props.flowBuildStatus == 2}
                         />
                       </Tooltip>
                     </div>)
