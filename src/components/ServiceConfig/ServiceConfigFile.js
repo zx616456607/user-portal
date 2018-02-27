@@ -115,6 +115,7 @@ class ConfigFile extends Component {
                 <Modal
                   title="修改配置文件"
                   wrapClassName="configFile-create-modal"
+                  className="configFile-modal"
                   visible={this.state.modalConfigFile}
                   onOk={() => this.editConfigFile()}
                   onCancel={() => this.editConfigModal(false)}
