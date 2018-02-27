@@ -399,30 +399,18 @@ let MyComponent = React.createClass({
             targetType &&
             <div className={connectNum}>
               <span className="keys">TCP 连接数</span>
-              {
-                data.tcpListen &&
-                <span className="keys">
+              <span className="keys">
                 listen {parseInt(data.tcpListen)} 个
               </span>
-              }
-              {
-                data.tcpEst &&
-                <span className="keys">
+              <span className="keys">
                 established {parseInt(data.tcpEst)} 个
               </span>
-              }
-              {
-                data.tcpClose &&
-                <span className="keys">
+              <span className="keys">
                 close_wait {parseInt(data.tcpClose)} 个
               </span>
-              }
-              {
-                data.tcpTime &&
-                <span className="keys">
+              <span className="keys">
                 time_wait {parseInt(data.tcpTime)} 个
               </span>
-              }
             </div>
           }
         </div>
