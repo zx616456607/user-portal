@@ -124,7 +124,7 @@ export default class Version extends Component{
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>Docker</Col>
-                  <Col span={8}>v17.03.1-ce</Col>
+                  <Col span={8}>v17.03.2-ce</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>Registry</Col>
