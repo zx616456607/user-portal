@@ -316,7 +316,9 @@ class ServiceSecretsConfig extends React.Component {
           <Button
             type="primary"
             size="large"
-            onClick={() => this.setState({ createServiceGroupModalVisible: true })}
+            onClick={() => this.setState({ createServiceGroupModalVisible: true }, () => {
+              document.getElementById('name').focus()
+            })}
           >
             <i className="fa fa-plus" /> 创建配置组
           </Button>
