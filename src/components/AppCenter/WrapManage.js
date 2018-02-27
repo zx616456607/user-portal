@@ -461,19 +461,19 @@ class WrapManage extends Component {
   //   }
   // }
 
-  callbackRowSelection(id, RowKeys) {
+  callbackRowSelection = (id, RowKeys) => {
     this.setState({
       id,
       selectedRowKeys: RowKeys,
     })
   }
 
-  callbackRefresh() {
+  callbackRefresh = () => {
     this.setState({
       isRefresh: false
     })
   }
-  callbackRowKeys() {
+  callbackRowKeys = () => {
     this.setState({
       selectedRowKeys: []
     })
