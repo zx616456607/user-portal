@@ -128,7 +128,7 @@ const menusText = defineMessages({
 })
 
 //<p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看执行容器</Link> : ''}</p>
-function currentStatus(status) {
+function currentStatus(status, stateType) {
   //this function for show different status
   const podName = status ? status.podName : ''
   const stageStatus = !!status ? status.status : 3;
@@ -139,19 +139,17 @@ function currentStatus(status) {
   </p>
   switch (stageStatus) {
     case 0:
+      if (stateType == 6) {
+        return <div className='finishStatus status'>
+          <Icon type="check-circle-o" />
+          <p>审批通过</p>
+        </div>
+      }
       return (
         <div className='finishStatus status'>
           <Icon type="check-circle-o" />
           <p><FormattedMessage {...menusText.finish} /></p>
           {noRunningCheckDetail}
-        </div>
-      );
-    case 2:
-      return (
-        <div className='runningStatus status'>
-          <i className='fa fa-cog fa-spin fa-3x fa-fw' />
-          <p><FormattedMessage {...menusText.running} /></p>
-          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看详情</Link> : ''}</p>
         </div>
       );
     case 1:
@@ -162,12 +160,40 @@ function currentStatus(status) {
           {noRunningCheckDetail}
         </div>
       );
+    case 2:
+      if (stateType == 6) {
+        return <div className='approvingStatus status'>
+          <i className='fa fa-cog fa-spin fa-3x fa-fw' />
+          <p>等待审批</p>
+        </div>
+      }
+      return (
+        <div className='runningStatus status'>
+          <i className='fa fa-cog fa-spin fa-3x fa-fw' />
+          <p><FormattedMessage {...menusText.running} /></p>
+          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看详情</Link> : ''}</p>
+        </div>
+      );
     case 3:
       return (
         <div className='runningStatus status'>
           <Icon type="clock-circle-o" />
           <p><FormattedMessage {...menusText.wait} /></p>
           {noRunningCheckDetail}
+        </div>
+      );
+    case 33: // timeout
+      return (
+        <div className='failStatus status'>
+          <Icon type="cross-circle-o" />
+          <p>审批超时</p>
+        </div>
+      );
+    case 34: // deny
+      return (
+        <div className='failStatus status'>
+          <Icon type="cross-circle-o" />
+          <p>审批拒绝</p>
         </div>
       );
   }
@@ -231,6 +257,8 @@ function currentStatusBtn(status) {
         </div>
       );
     case 1:
+    case 33:
+    case 34:
       return (
         <div>
           <i className='fa fa-repeat' />
@@ -646,7 +674,7 @@ class TenxFlowDetailFlowCard extends Component {
                 ? <QueueAnim key={'FlowCardShowAnimate' + index}>
                   <div key={'TenxFlowDetailFlowCardShow' + index}>
                     <div className='statusBox'>
-                      {currentStatus(config.lastBuildStatus)}
+                      {currentStatus(config.lastBuildStatus, config.metadata.type)}
                     </div>
                     <div className='infoBox'>
                       <div className='name commonInfo'>
@@ -773,11 +801,14 @@ class TenxFlowDetailFlowCard extends Component {
                   (index != (totalLength - 1) && config.link.enabled === 1)
                     ? <p className='fileUrl'>{formatStageLink(config.link)}</p>
                     : (index != (totalLength - 1) && <div className="addBtn">
-                      <Tooltip title="添加子任务">
+                      <Tooltip
+                        title="添加子任务"
+                      >
                         <Button
                           icon="plus"
                           shape="circle-outline"
                           onClick={() => setCurrentStageAdd(index)}
+                          disabled={this.props.flowBuildStatus == 2}
                         />
                       </Tooltip>
                     </div>)
@@ -799,7 +830,15 @@ class TenxFlowDetailFlowCard extends Component {
             className='TenxFlowBuildLogModal'
             onCancel={this.closeTenxFlowDeployLogModal}
             >
-            <StageBuildLog parent={scopeThis} isFetching={buildFetching} logs={logs} flowId={flowId} visible={this.state.TenxFlowDeployLogModal} stageId={this.state.currentStageID}/>
+            <StageBuildLog
+              parent={scopeThis}
+              isFetching={buildFetching}
+              logs={logs}
+              flowId={flowId}
+              visible={this.state.TenxFlowDeployLogModal}
+              stageId={this.state.currentStageID}
+              stage={config}
+            />
           </Modal>
           <Modal
             visible={this.state.setStageFileModal}

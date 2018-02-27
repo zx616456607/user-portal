@@ -433,11 +433,16 @@ class TenxFlowDetailFlow extends Component {
           firstState={stageList[0]} isBuildImage={this.props.isBuildImage}
           currentStageAdd={currentStageAdd} setCurrentStageAdd={this.setCurrentStageAdd}
           CreateTenxFlowModalEl={CreateTenxFlowModalEl}
+          flowBuildStatus={this.props.flowBuildStatus}
         />
       )
       preStage = item
       return content
     });
+    let buildImageAdd = <FormattedMessage {...menusText.add} />
+    if (this.props.flowBuildStatus == 2) {
+      buildImageAdd = '流水线正在执行，请稍后添加'
+    }
     return (
       <div id='TenxFlowDetailFlow'>
         <div className='paddingBox'>
@@ -445,7 +450,7 @@ class TenxFlowDetailFlow extends Component {
           {cards}
           {cards.length !=0 && this.props.isBuildImage ? '' :
           <div className={this.state.createNewFlow ? 'TenxFlowDetailFlowCardBigDiv commonCardBox createCardBox' : 'commonCardBox createCardBox'}>
-              <Card className='commonCard createCard' onClick={this.createNewFlow}>
+              <Card className='commonCard createCard' onClick={this.props.flowBuildStatus != 2 && this.createNewFlow}>
                 {
                   !this.state.createNewFlow
                   ? <QueueAnim key='createCardAnimate'>
@@ -454,7 +459,7 @@ class TenxFlowDetailFlow extends Component {
                         <use xlinkHref='#cicdcreate' />
                       </svg>
                       <p>
-                        { this.props.isBuildImage ? <FormattedMessage {...menusText.buildImageAdd} /> : <FormattedMessage {...menusText.add} /> }
+                        { this.props.isBuildImage ? <FormattedMessage {...menusText.buildImageAdd} /> : buildImageAdd }
                       </p>
                     </div>
                   </QueueAnim>

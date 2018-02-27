@@ -622,6 +622,20 @@ exports.updateFlowStage = function* () {
   }
 }
 
+exports.updateApproval = function* () {
+  const loginUser = this.session.loginUser
+  const flow_build_id = this.params.flow_build_id
+  const stage_id = this.params.stage_id
+  const body = this.request.body
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.updateBy(["ci-flow-builds", flow_build_id, "stages", stage_id, "approval"], null, body)
+
+  this.body = {
+    data: result
+  }
+}
+
 exports.getStage = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id

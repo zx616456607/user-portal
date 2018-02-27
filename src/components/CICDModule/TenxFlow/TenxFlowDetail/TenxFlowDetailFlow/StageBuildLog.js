@@ -81,40 +81,44 @@ const menusText = defineMessages({
   },
 })
 
-function checkStatusSpan(status, scope) {
+function checkStatusSpan(status, scope, stage) {
   //this function for user input the status return current words
   const { formatMessage } = scope.props.intl;
+  const isApproving = stage.metadata.type == 6
   switch (status) {
     case 0:
-      return formatMessage(menusText.finish);
-      break;
+      return isApproving
+        ? '审批通过'
+        : formatMessage(menusText.finish);
     case 1:
       return formatMessage(menusText.fail);
-      break;
     case 2:
-      return formatMessage(menusText.building);
-      break;
+      return isApproving
+        ? '等待审批'
+        : formatMessage(menusText.building);
     case 3:
       return formatMessage(menusText.waitting);
-      break;
+    case 33:
+      return '审批超时'
+    case 34:
+      return '审批拒绝'
   }
 }
 
-function checkStatusClass(status) {
+function checkStatusClass(status, stage) {
   //this function for user input the status return current className
+  const isApproving = stage.metadata.type == 6
   switch (status) {
     case 0:
       return 'finish';
-      break;
     case 1:
+    case 33:
+    case 34:
       return 'fail';
-      break;
     case 2:
-      return 'running';
-      break;
+      return isApproving ? 'approving' : 'running';
     case 3:
       return 'waitting';
-      break;
   }
 }
 
@@ -248,7 +252,7 @@ let MyComponent = React.createClass({
     }
   },
   render: function () {
-    const { config, scope, flowId } = this.props;
+    const { config, scope, flowId, stage } = this.props;
     let defaultIndex = 0
     config.some((item,index) => {
       if(item.status == 2) {
@@ -269,8 +273,8 @@ let MyComponent = React.createClass({
                 {item.stageName}
               </span>
               <span className='status commonHeader'>
-                <span className={checkStatusClass(item.status)}>
-                  {checkStatusSpan(item.status, scope)}
+                <span className={checkStatusClass(item.status, stage)}>
+                  {checkStatusSpan(item.status, scope, stage)}
                 </span>
               </span>
               <span className='updateTime commonHeader'>
@@ -278,14 +282,14 @@ let MyComponent = React.createClass({
                 {dateFormat(item.creationTime)}
               </span>
               <span className='commonHeader'>
-                {(item.status != 2 && item.status != 3) ? [<Icon type='clock-circle-o' />] : null}
-                {(item.status != 2 && item.status != 3) ? [<FormattedMessage {...menusText.cost} />] : null}
+                {(item.status != 2 && item.status != 3) ? <Icon type='clock-circle-o' /> : null}
+                {(item.status != 2 && item.status != 3) ? <FormattedMessage {...menusText.cost} /> : null}
                 {(item.status == 2 || item.status == 3) ? '' : dateSizeFormat(item.creationTime, item.endTime, scope)}
-                {(item.status == 2 || item.status == 3) ? [
+                {(item.status == 2 || item.status == 3) ?
                   <Button type='primary' onClick={() => this.showModal(item)}>
                     <span>停止</span>
                   </Button>
-                ] : null}
+                : null}
               </span>
               <div style={{ clear: 'both' }}></div>
             </div>
@@ -382,7 +386,7 @@ class StageBuildLog extends Component {
 
   render() {
     const scope = this;
-    const { logs, isFetching, flowId } = this.props;
+    const { logs, isFetching, flowId, stage } = this.props;
 
     if (isFetching) {
       return (
@@ -424,8 +428,16 @@ class StageBuildLog extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='paddingBox'>
-        <MyComponent config={logs} scope={scope} flowId={flowId} stageId={this.props.stageId} getTenxflowBuildLastLogs={(flowId)=>this.props.getTenxflowBuildLastLogs(flowId)} visible={this.props.visible}/>
-          <div style={{ clear: 'both' }}></div>
+        <MyComponent
+          config={logs}
+          scope={scope}
+          flowId={flowId}
+          stageId={this.props.stageId}
+          getTenxflowBuildLastLogs={(flowId)=>this.props.getTenxflowBuildLastLogs(flowId)}
+          visible={this.props.visible}
+          stage={stage}
+        />
+        <div style={{ clear: 'both' }}></div>
         </div>
       </div>
     )

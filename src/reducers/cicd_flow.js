@@ -700,9 +700,9 @@ function getTenxflowBuildLogs(state = {}, action) {
     case ActionTypes.GET_FLOW_BUILD_LOG_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        logs: action.response.result.data.results.results || []
-      }
-      )
+        logs: action.response.result.data.results.results || [],
+        waitingApprovalStages: action.response.result.data.results.waitingApprovalStages,
+      })
     case ActionTypes.GET_FLOW_BUILD_LOG_FAILURE:
       return merge({}, defaultState, state, {
         isFetching: false

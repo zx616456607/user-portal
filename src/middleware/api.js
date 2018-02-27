@@ -17,6 +17,7 @@ import 'whatwg-fetch' // For Edge browser
 // These endpoints will skip camelize
 const SKIP_CAMELIZE_KEYS_ENDPOINTS = [
   /^\/clusters\/[\-\w]+\/secrets/,
+  /^\/devops\/ci\-flows\/[\-\w]+\/getBuildLogs/,
 ]
 
 // Fetches an API response

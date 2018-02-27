@@ -350,8 +350,19 @@ let MyComponent = React.createClass({
         case 2:
           status = "执行中..."
           break;
+        case 33:
+          status = "审批超时"
+          break;
+        case 34:
+          status = "拒绝执行"
+          break;
         default:
           status = "等待中..."
+      }
+      let isApproving = false
+      if (item.waitingApprovalStages && Object.keys(item.waitingApprovalStages).length > 0) {
+        isApproving = 'true'
+        status = '等待审批'
       }
       return (
         <div className='tenxflowDetail' key={item.name} >
@@ -367,8 +378,19 @@ let MyComponent = React.createClass({
               </Tooltip>
             </span>
           </div>
-          <div className={`status status-` + `${item.status}`} style={{width: '25%'}}>
-            <span><i className="fa fa-circle"></i>{status} <span style={{color: '#747474'}}>{getTriggeredInfo(item)}</span></span>
+          <div className={`status status-${item.status} ${isApproving ? 'status-approving' : ''}`} style={{width: '25%'}}>
+            <span>
+              <i className="fa fa-circle"></i>
+              {status} <span style={{color: '#747474'}}>
+              {getTriggeredInfo(item)}
+              </span>
+            </span>
+            {
+              isApproving &&
+              <Link className="go-approving" to={`/ci_cd/tenx_flow/tenx_flow_build?${item.flowId}&${item.status}#flow-build-logs`}>
+                前往审批 <i className="fa fa-arrow-circle-o-right" />
+              </Link>
+            }
           </div>
           <div className='oprea'>
             {
