@@ -86,7 +86,7 @@ export default class CommonSearchInput extends Component{
     })
   }
   render() {
-    const { size, placeholder, selectProps, style } = this.props;
+    const { size, placeholder, selectProps, style, id } = this.props;
     const selectBefore = (
       <Select defaultValue={selectProps && selectProps.defaultValue} value={this.state.currentOption}
               style={{ width: selectProps && selectProps.selectWidth ? selectProps.selectWidth : '80px' }}
@@ -103,7 +103,7 @@ export default class CommonSearchInput extends Component{
       <div className="ant-search-input-wrapper commonSearchInputWrapper" style={style}>
         <Input placeholder={placeholder} size={size} value={this.state.value} onChange={this.handleInputChange.bind(this)}
                onFocus={this.handleFocusBlur.bind(this)} onBlur={this.handleFocusBlur.bind(this)} onPressEnter={this.handleSearch.bind(this)}
-               addonBefore={selectProps ? selectBefore : null}
+               addonBefore={selectProps ? selectBefore : null} id={id}
         />
         <i className='fa fa-search searchIcon verticalCenter pointer' onClick={this.handleSearch.bind(this)}/>
       </div>

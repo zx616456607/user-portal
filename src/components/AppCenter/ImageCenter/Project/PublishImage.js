@@ -33,6 +33,10 @@ class PublishImage extends React.Component {
   componentWillMount() {
     this.loadData()
   }
+  componentDidUpdate() {
+    let input = document.getElementById('publishRecordInput')
+    input && input.focus()
+  }
   loadData() {
     const { getImagesList } = this.props
     const { filterName, current } = this.state
@@ -163,6 +167,7 @@ class PublishImage extends React.Component {
           </Button>
           <CommonSearchInput
             size="large"
+            id="publishRecordInput"
             placeholder="请输入发布名称搜索"
             value={filterName}
             style={{ width: 200 }}
