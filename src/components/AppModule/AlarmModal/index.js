@@ -1018,7 +1018,8 @@ class AlarmModal extends Component {
     }
   }
   submitRule() {
-    const { form, getSettingList, pathname, activeCluster } = this.props;
+    const { form, getSettingList, pathname, activeCluster, loadData, funcs } = this.props;
+    const { scope } = funcs
     form.validateFields((error, values) => {
       if (!!error) {
         return
@@ -1131,9 +1132,15 @@ class AlarmModal extends Component {
               this.state.firstForm.resetFields()
               this.state.secondForm.resetFields()
               funcs.nextStep(1)
-              if (getSettingList) {
-                getSettingList()
-              }
+              scope && scope.setState({
+                currentPage: 1,
+                search: '',
+              }, () => {
+                loadData && loadData({
+                  from: 0,
+                  page: 1,
+                })
+              })
             },
             isAsync: true
           },
