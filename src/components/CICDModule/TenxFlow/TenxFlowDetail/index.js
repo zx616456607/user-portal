@@ -141,6 +141,12 @@ class TenxFlowDetail extends Component {
       case '2':
         status = "执行中..."
         break;
+      case '33':
+        status = "审批超时"
+        break;
+      case '34':
+        status = "拒绝执行"
+        break;
       default:
         status = "等待中..."
     }
@@ -326,6 +332,12 @@ class TenxFlowDetail extends Component {
       case 2:
         status = "执行中..."
         break;
+      case 33:
+        status = "审批超时"
+        break;
+      case 34:
+        status = "拒绝执行"
+        break;
       default:
         status = "等待中..."
     }
@@ -355,6 +367,12 @@ class TenxFlowDetail extends Component {
               break;
             case 2:
               status = "执行中..."
+              break;
+            case 33:
+              status = "审批超时"
+              break;
+            case 34:
+              status = "拒绝执行"
               break;
             default:
               status = "等待中..."
@@ -494,7 +512,10 @@ class TenxFlowDetail extends Component {
             </div>
             <p className='flow-title'>{flowInfo.name}</p>
             <div className='msgBox'>
-              状态：<span className={'status-' + this.state.statusName}><i className="fa fa-circle" style={{ marginRight: '5px' }}></i>{this.state.status}</span>
+              状态：<span className={'status-' + this.state.statusName}>
+              <i className="fa fa-circle" style={{ marginRight: '5px' }}></i>
+              {this.state.status}
+              </span>
               <span className='updateTime'>{flowInfo.update_time ? flowInfo.update_time : flowInfo.create_time}</span>
             </div>
             <div className='btnBox'>
@@ -542,6 +563,7 @@ class TenxFlowDetail extends Component {
                 buildInfo={this.state.buildInfo}
                 refreshFlag={this.state.refreshFlag}
                 isBuildImage={this.state.isBuildImage}
+                flowBuildStatus={this.state.statusName}
               />
             </TabPane>
             {this.state.isBuildImage ? [ <TabPane tab='执行记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>,

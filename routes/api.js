@@ -430,6 +430,8 @@ module.exports = function (Router) {
   router.delete('/devops/ci-flows/:flow_id', devopsController.removeCIFlow)
   router.get('/devops/ci-flows/:flow_id/images', devopsController.getImagesOfFlow)
   router.get('/devops/ci-flows/:flow_id/deployment-logs', devopsController.listDeploymentLogsOfFlow)
+  router.put('/devops/ci-flow-builds/:flow_build_id/stages/:stage_id/approval', devopsController.updateApproval)
+
   // CI flow stages
   router.get('/devops/ci-flows/:flow_id/stages', devopsController.listFlowStages)
   router.post('/devops/ci-flows/:flow_id/stages', devopsController.createFlowStages)
@@ -734,6 +736,6 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/loadbalances/services/:name/controller', loadBalanceController.getServiceLB)
   router.del('/clusters/:cluster/loadbalances/:lbname/services/:servicename', loadBalanceController.unbindService)
   router.get('/clusters/:cluster/loadbalances/:lbname/ingresses/exist', loadBalanceController.nameAndHostCheck)
-  
+
   return router.routes()
 }
