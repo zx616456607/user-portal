@@ -414,7 +414,7 @@ class TimingClean extends Component {
             automatic: toggle ? true : cicdChecked,
             cleaner: userName,
             target: "cicd_clean",
-            type: cicdChecked ? "auto" : "stop"
+            type: !cicdChecked ? "auto" : "stop"
           },
           spec: {
             cron: this.getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime),
