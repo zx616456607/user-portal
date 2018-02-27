@@ -19,7 +19,7 @@ export default class Storage extends Component {
   static propTypes = {
     visible: PropTypes.bool.isRequired,
     closeModal: PropTypes.func.isRequired,
-    storageResource: PropTypes.func.isRequired,
+    storageResource: PropTypes.object.isRequired,
   }
 
   static defaultProps = {
