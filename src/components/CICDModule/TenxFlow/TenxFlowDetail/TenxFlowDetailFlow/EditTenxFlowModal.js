@@ -51,6 +51,11 @@ let index = 0
 const defaultOptions = {
   readOnly: false
 }
+const TIME_EXCHANGE_IN_SECOND = {
+  m: 60,
+  h: 60 * 60,
+  d: 60 * 60 * 24,
+}
 
 const menusText = defineMessages({
   titleEdit: {
@@ -1030,16 +1035,18 @@ let EditTenxFlowModal = React.createClass({
           dockerfileError = true;
         }
         //check image env list
-        let imageEnvLength = values.imageEnvInputs || [];
-        imageEnvLength.map((item, index) => {
-          if (values['imageEnvName' + item] != '') {
-            if (values['imageEnvValue' + item] == '') {
-              _this.setState({
-                emptyImageEnv: true
-              });
+        if (this.state.otherFlowType != 6) {
+          let imageEnvLength = values.imageEnvInputs || [];
+          imageEnvLength.map((item, index) => {
+            if (values['imageEnvName' + item] != '') {
+              if (values['imageEnvValue' + item] == '') {
+                _this.setState({
+                  emptyImageEnv: true
+                });
+              }
             }
-          }
-        });
+          });
+        }
         //check service code
         let serviceLength = values.services;
         let emptyServiceEnv = _this.state.emptyServiceEnv;
@@ -1141,17 +1148,19 @@ let EditTenxFlowModal = React.createClass({
       let imageEnvLength = values.imageEnvInputs || [];
       let imageEnvList = [];
       let imageEnvFlag = false;
-      imageEnvLength.map((item, index) => {
-        if (!!values['imageEnvName' + item]) {
-          let Names = values['imageEnvName' + item] ? values['imageEnvName' + item].trim(): ''
-          let Value = values['imageEnvValue' + item] ? values['imageEnvValue' + item].trim(): ''
-          let tempBody = {
-            name: Names,
-            value: Value
+      if (this.state.otherFlowType != 6) {
+        imageEnvLength.map((item, index) => {
+          if (!!values['imageEnvName' + item]) {
+            let Names = values['imageEnvName' + item] ? values['imageEnvName' + item].trim(): ''
+            let Value = values['imageEnvValue' + item] ? values['imageEnvValue' + item].trim(): ''
+            let tempBody = {
+              name: Names,
+              value: Value
+            }
+            imageEnvList.push(tempBody)
           }
-          imageEnvList.push(tempBody)
-        }
-      });
+        });
+      }
       if (!imageEnvFlag) {
         _this.setState({
           emptyImageEnv: false
@@ -1306,18 +1315,16 @@ let EditTenxFlowModal = React.createClass({
       // 人工审批
       if (this.state.otherFlowType == 6) {
         const { approvingBy, approvingTimeout, approvingTimeoutUnit } = values
-        const TIME_EXCHANGE_IN_SECOND = {
-          m: 60,
-          h: 60 * 60,
-          d: 60 * 60 * 24,
-        }
         body.spec.ci.config.approvalConfig = {
-          approvingBy: values.approvingBy.split(',').map(id => parseInt(id))
+          approvingBy: values.approvingBy.split(',').map(id => parseInt(id)),
+          approvingTimeoutUnit,
         }
-        body.spec.container.env.push({
-          name: 'TIMEOUT_IN_SECOND',
-          value: approvingTimeout * TIME_EXCHANGE_IN_SECOND[approvingTimeoutUnit],
-        })
+        body.spec.container.env = [
+          {
+            name: 'TIMEOUT_IN_SECOND',
+            value: approvingTimeout * TIME_EXCHANGE_IN_SECOND[approvingTimeoutUnit] + '',
+          }
+        ]
       }
       this.setState({
         isOnece: false
@@ -1606,6 +1613,16 @@ let EditTenxFlowModal = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
     const currenImageUrl = config.spec.container.image
+    const approvalConfig = config.spec.ci.config.approvalConfig || {}
+    const containerEnv = config.spec.container.env || []
+    let approvingTimeout
+    containerEnv.every(({ name, value }) => {
+      if (name === 'TIMEOUT_IN_SECOND') {
+        approvingTimeout = parseInt(value)
+        return false
+      }
+      return true
+    })
     if (imageList === undefined || imageList.length === 0) {
       return (<div></div>)
     }
@@ -2429,6 +2446,7 @@ let EditTenxFlowModal = React.createClass({
                         placeholder="请选择平台用户"
                         {
                           ...getFieldProps('approvingBy' , {
+                            initialValue: (approvalConfig.approvingBy || []).join(','),
                             rules: [
                               { message: '请选择平台用户', required: true },
                             ],
@@ -2449,6 +2467,7 @@ let EditTenxFlowModal = React.createClass({
                         placeholder="请填写超时时间"
                         {
                           ...getFieldProps('approvingTimeout' , {
+                            initialValue: approvingTimeout / TIME_EXCHANGE_IN_SECOND[approvalConfig.approvingTimeoutUnit],
                             rules: [
                               { message: '请填写超时时间', required: true },
                             ],
@@ -2461,7 +2480,7 @@ let EditTenxFlowModal = React.createClass({
                         placeholder="请填写超时时间"
                         {
                           ...getFieldProps('approvingTimeoutUnit' , {
-                            initialValue: 'm',
+                            initialValue: approvalConfig.approvingTimeoutUnit || 'm',
                             rules: [
                               { message: '请填写超时时间', required: true },
                             ],
@@ -2474,7 +2493,7 @@ let EditTenxFlowModal = React.createClass({
                       </Select>
                     </FormItem>
                     <div className="customizeBaseImage">
-                      若审批人未在超时时间完成审批，默认为拒绝。
+                      若审批人未在超时时间完成审批，默认为拒绝
                     </div>
                   </div>
                   <div style={{ clear: 'both' }} />

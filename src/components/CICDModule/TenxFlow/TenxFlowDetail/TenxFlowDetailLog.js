@@ -14,11 +14,15 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { getTenxflowBuildLogs, getTenxflowBuildDetailLogs, getTenxflowBuildLastLogs, changeBuildStatus } from '../../../../actions/cicd_flow'
+import {
+  getTenxflowBuildLogs, getTenxflowBuildDetailLogs, getTenxflowBuildLastLogs,
+  changeBuildStatus, approveFlowStage,
+} from '../../../../actions/cicd_flow'
 import moment from 'moment'
 import './style/TenxFLowDetailLog.less'
 import TenxFlowBuildLog from '../TenxFlowBuildLog'
 import Title from '../../../Title'
+import Notification from '../../../Notification'
 
 const menusText = defineMessages({
   bulidLog: {
@@ -71,16 +75,16 @@ const menusText = defineMessages({
   },
 })
 
-function checkStatusSpan(status, scope) {
+function checkStatusSpan(status, scope, isApproving) {
   //this function for user input the status return current words
   const { formatMessage } = scope.props.intl;
   switch(status) {
     case 0:
       return formatMessage(menusText.normal);
     case 1:
-      return formatMessage(menusText.fail);
+      return isApproving ? '拒绝执行' : formatMessage(menusText.fail);
     case 2:
-      return formatMessage(menusText.running);
+      return isApproving ? '等待审批' : formatMessage(menusText.running);
     case 3:
       return formatMessage(menusText.wait);
     default:
@@ -88,7 +92,7 @@ function checkStatusSpan(status, scope) {
   }
 }
 
-function checkStatusClass(status) {
+function checkStatusClass(status, isApproving) {
   //this function for user input the status return current className
   switch(status) {
     case 0:
@@ -96,7 +100,7 @@ function checkStatusClass(status) {
     case 1:
       return 'fail';
     case 2:
-      return 'runing';
+      return isApproving ? 'approving' : 'runing';
     case 3:
       return 'wait';
   }
@@ -161,8 +165,47 @@ let MyComponent = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
+  getInitialState() {
+    return {
+      approvalBtnLoading: false,
+      approvalObj: {},
+      approvalModal: false,
+    }
+  },
   operaMenuClick: function () {
     //this function for user click the drop menu
+  },
+  confirmApproval() {
+    this.setState({
+      approvalBtnLoading: true,
+    })
+    const { flowBuildId, stageId, approval } = this.state.approvalObj
+    const { scope } = this.props
+    const { approveFlowStage, getTenxflowBuildLogs, flowId } = scope.props
+    const notification = new Notification()
+    approveFlowStage(flowBuildId, stageId, { approval }, {
+      success: {
+        func: res => {
+          this.setState({
+            approvalModal: false,
+            approvalBtnLoading: false,
+            approvalObj: {},
+          })
+          getTenxflowBuildLogs(flowId)
+          notification.success('审批成功')
+        },
+        isAsync: true,
+      },
+      failed: {
+        func:  err => {
+          this.setState({
+            approvalBtnLoading: false,
+          })
+          notification.error('审批失败')
+        },
+        isAsync: true,
+      },
+    })
   },
   render: function () {
     const { config, scope, isFetching, spaceName, flowName } = this.props;
@@ -192,13 +235,14 @@ let MyComponent = React.createClass({
       //     </Menu.Item>
       //   </Menu>
       // );
+      const { isApproving, waitingApprovalStages } = item
       return (
         <div className='LogDetail' key={item.buildId + index} >
           <div className='leftBox'>
-            <p className={ checkStatusClass(item.status) + ' title' }>
-              { checkStatusSpan(item.status, scope) }
+            <p className={ checkStatusClass(item.status, isApproving) + ' title' }>
+              { checkStatusSpan(item.status, scope, isApproving) }
             </p>
-            <i className={ checkStatusClass(item.status) + ' fa fa-dot-circle-o dot' } />
+            <i className={ checkStatusClass(item.status, isApproving) + ' fa fa-dot-circle-o dot' } />
           </div>
           <div className='rightBox'>
             <p className='title'>
@@ -228,17 +272,86 @@ let MyComponent = React.createClass({
                   <i className='fa fa-wpforms' />&nbsp;
                   <FormattedMessage {...menusText.bulidLog} />
                 </Button>
+                {
+                  isApproving && [
+                    <Button
+                      key="deny"
+                      size="large"
+                      className="operaBtn deny"
+                      icon="minus-circle-o"
+                      // onClick={() => this.approveFlowStage(item.buildId, waitingApprovalStages[0].stageId, 'deny')}
+                      onClick={() => this.setState({
+                        approvalModal: true,
+                        approvalObj: {
+                          flowBuildId: item.buildId,
+                          stageId: waitingApprovalStages[0].stageId,
+                          approval: 'deny',
+                        }
+                      })}
+                    >
+                    拒绝
+                    </Button>,
+                    <Button
+                      key="approve"
+                      size="large"
+                      className="operaBtn approve"
+                      icon="check-circle-o"
+                      // onClick={() => this.approveFlowStage(item.buildId, waitingApprovalStages[0].stageId, 'approve')}
+                      onClick={() => this.setState({
+                        approvalModal: true,
+                        approvalObj: {
+                          flowBuildId: item.buildId,
+                          stageId: waitingApprovalStages[0].stageId,
+                          approval: 'approve',
+                        }
+                      })}
+                    >
+                    通过
+                    </Button>,
+                  ]
+                }
               </div>
               <div style={{ clear:'both' }}></div>
             </div>
           </div>
-            <div style={{ clear:'both' }}></div>
+          <div style={{ clear:'both' }}></div>
         </div>
       );
     });
+    const approvalText = this.state.approvalObj.approval === 'deny'
+      ? '拒绝'
+      : '通过'
     return (
       <div className='DeployLogList'>
         {items}
+        <Modal
+          title={`审批${approvalText}`}
+          visible={this.state.approvalModal}
+          width={610}
+          onCancel={() => this.setState({ approvalModal: false })}
+          onOk={this.confirmApproval}
+          okText={approvalText}
+          confirmLoading={this.state.approvalBtnLoading}
+        >
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+            <span>
+            {
+              this.state.approvalObj.approval === 'deny'
+                ? '该操作后流水线将终止执行！'
+                : '该操作后流水线将继续执行！'
+            }
+            </span>
+          </div>
+          <div className="themeColor" style={{marginBottom: '15px'}}>
+            <i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}/>
+            {
+              this.state.approvalObj.approval === 'deny'
+                ? '您是否确认拒绝本次流水线执行？'
+                : '您是否确认通过本次流水线执行？'
+            }
+          </div>
+        </Modal>
       </div>
     );
   }
@@ -320,9 +433,15 @@ function mapStateToProps(state, props) {
   }
   const { current } = state.entities
   const { space } = current
-  const { spaceName } = space
+  const spaceName = space.spaceName || space.projectName
   const { getTenxflowBuildLogs, getTenxflowBuildDetailLogs } = state.cicd_flow
-  const { logs, isFetching } = getTenxflowBuildLogs || defaultLogs
+  const { logs, waitingApprovalStages, isFetching } = getTenxflowBuildLogs || defaultLogs
+  logs.forEach(log => {
+    if (waitingApprovalStages && waitingApprovalStages[0] && waitingApprovalStages[0].flowBuildId === log.buildId) {
+      log.isApproving = true
+      log.waitingApprovalStages = waitingApprovalStages
+    }
+  })
   const detailLogs = getTenxflowBuildDetailLogs.logs || defaultDetailStageLogs.logs
   const detailFetching = getTenxflowBuildDetailLogs.isFetching || defaultDetailStageLogs.detailFetching
   return {
@@ -342,7 +461,8 @@ export default connect(mapStateToProps, {
   getTenxflowBuildLogs,
   getTenxflowBuildDetailLogs,
   getTenxflowBuildLastLogs,
-  changeBuildStatus
+  changeBuildStatus,
+  approveFlowStage,
 })(injectIntl(TenxFLowDetailLog, {
   withRef: true,
 }));

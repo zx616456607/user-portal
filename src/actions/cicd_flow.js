@@ -1314,6 +1314,31 @@ export function getTenxflowBuildLogs(flowId, callback) {
   }
 }
 
+export const FLOW_STAGE_APPROVAL_REQUEST = 'FLOW_STAGE_APPROVAL_REQUEST'
+export const FLOW_STAGE_APPROVAL_SUCCESS = 'FLOW_STAGE_APPROVAL_SUCCESS'
+export const FLOW_STAGE_APPROVAL_FAILURE = 'FLOW_STAGE_APPROVAL_FAILURE'
+
+function fetchApproveFlowStage(flowBuildId, stageId, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [FLOW_STAGE_APPROVAL_REQUEST, FLOW_STAGE_APPROVAL_SUCCESS, FLOW_STAGE_APPROVAL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flow-builds/${flowBuildId}/stages/${stageId}/approval`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body,
+      }
+    },
+    callback: callback
+  }
+}
+
+export function approveFlowStage(flowBuildId, stageId, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchApproveFlowStage(flowBuildId, stageId, body, callback))
+  }
+}
+
 export const GET_FLOW_BUILD_DETAIL_LOG_REQUEST = 'GET_FLOW_BUILD_DETAIL_LOG_REQUEST'
 export const GET_FLOW_BUILD_DETAIL_LOG_SUCCESS = 'GET_FLOW_BUILD_DETAIL_LOG_SUCCESS'
 export const GET_FLOW_BUILD_DETAIL_LOG_FAILURE = 'GET_FLOW_BUILD_DETAIL_LOG_FAILURE'

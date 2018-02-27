@@ -430,12 +430,13 @@ module.exports = function (Router) {
   router.delete('/devops/ci-flows/:flow_id', devopsController.removeCIFlow)
   router.get('/devops/ci-flows/:flow_id/images', devopsController.getImagesOfFlow)
   router.get('/devops/ci-flows/:flow_id/deployment-logs', devopsController.listDeploymentLogsOfFlow)
+  router.put('/devops/ci-flow-builds/:flow_build_id/stages/:stage_id/approval', devopsController.updateApproval)
+
   // CI flow stages
   router.get('/devops/ci-flows/:flow_id/stages', devopsController.listFlowStages)
   router.post('/devops/ci-flows/:flow_id/stages', devopsController.createFlowStages)
   router.delete('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.deleteFlowStage)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.updateFlowStage)
-  router.put('/devops/ci-flows/:flow_id/stages/:stage_id/approval', devopsController.updateApproval)
   router.get('/ci-flows/:flow_id/stages/:stage_id', devopsController.getStage)
   router.get('/devops/ci-flows/:flow_id/stages/:stage_id/getStageBuildLogs', devopsController.getStageBuildLogList)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id/link/:target_id', devopsController.updateStageLink)
