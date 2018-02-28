@@ -101,11 +101,14 @@ class AutoScale extends React.Component {
     const { maxReplicas: max, minReplicas: min, metrics } = spec
     let memory
     let cpu
+    let qps
     metrics.forEach(item => {
       if (item.resource.name === 'memory') {
         memory = item.resource.targetAverageUtilization
       } else if (item.resource.name === 'cpu') {
         cpu = item.resource.targetAverageUtilization
+      } else if (item.resource.name === 'qps') {
+        qps = item.resource.targetAverageUtilization
       }
     })
     const scaleDetail = {
@@ -115,6 +118,7 @@ class AutoScale extends React.Component {
       alert_group,
       memory,
       cpu,
+      qps,
       max,
       min,
       type: status === 'RUN' ? 1 : 0
@@ -138,11 +142,14 @@ class AutoScale extends React.Component {
     const { maxReplicas: max, minReplicas: min, metrics } = spec
     let memory
     let cpu
+    let qps
     metrics.forEach(item => {
       if (item.resource.name === 'memory') {
         memory = item.resource.targetAverageUtilization
       } else if (item.resource.name === 'cpu') {
         cpu = item.resource.targetAverageUtilization
+      } else if (item.resource.name === 'qps') {
+        qps = item.resource.targetAverageUtilization
       }
     })
     const body = {
@@ -151,6 +158,7 @@ class AutoScale extends React.Component {
       alert_group,
       memory,
       cpu,
+      qps,
       max,
       min,
     }
@@ -210,13 +218,21 @@ class AutoScale extends React.Component {
       if (item.resource && item.resource.name === 'memory') {
         str += `内存 ${item.resource.targetAverageUtilization}%;`
       } else if (item.resource && item.resource.name === 'cpu') {
-        str += `CPU ${item.resource.targetAverageUtilization}%`
+        str += `CPU ${item.resource.targetAverageUtilization}%;`
+      } else if (item.resource && item.resource.name === 'qps') {
+        str += `QPS ${item.resource.targetAverageUtilization}次/s`
       }
     })
     if (str.split(';')[1] !== '') {
       return [
         <div key="metricsOne">{str.split(';')[0]}</div>,
         <div key="metricsTwo">{str.split(';')[1]}</div>
+      ]
+    } else if (str.split(';')[2] !== '') {
+      return [
+        <div key="metricsOne">{str.split(';')[0]}</div>,
+        <div key="metricsTwo">{str.split(';')[1]}</div>,
+        <div key="metricsThree">{str.split(';')[2]}</div>
       ]
     }
     return str.split(';')[0]
