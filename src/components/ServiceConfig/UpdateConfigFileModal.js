@@ -127,6 +127,7 @@ let UpdateConfigFileModal = React.createClass({
       <Modal
         title={`修改${type === 'secrets' ? '加密对象': '配置文件'}`}
         wrapClassName="configFile-create-modal"
+        className="configFile-modal"
         visible={this.props.modalConfigFile}
         onOk={() => this.editConfigFile(parentScope.props.groupname)}
         onCancel={() => this.closeModal() }
