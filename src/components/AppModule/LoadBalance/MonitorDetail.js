@@ -24,6 +24,7 @@ import HealthCheckModal from './HealthCheckModal'
 
 import { loadAllServices } from '../../../actions/services'
 import { createIngress, updateIngress, getLBDetail, checkIngressNameAndHost } from '../../../actions/load_balance'
+import { ingressNameCheck, ingressRelayRuleCheck } from '../../../common/naming_validation'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -283,6 +284,10 @@ class MonitorDetail extends React.Component {
     if (!value) {
       return callback('请输入监听器名称')
     }
+    let message = ingressNameCheck(value)
+    if (message !== 'success') {
+      return callback(message)
+    }
     const query = {
       displayName: value,
       path: form.getFieldValue('host')
@@ -318,6 +323,10 @@ class MonitorDetail extends React.Component {
     }
     if (!value) {
       return callback('请输入校验规则')
+    }
+    let message = ingressRelayRuleCheck(value)
+    if (message !== 'success') {
+      return callback(message)
     }
     clearTimeout(this.nameTimeout)
     const query = {
