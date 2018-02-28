@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import {
   Button, Row, Col, InputNumber, Icon, Switch,
-  Modal, Form, Select, Input, Tabs
+  Modal, Form, Select, Input, Tabs, Tooltip
 } from 'antd'
 import {
   loadAutoScale,
@@ -51,7 +51,7 @@ const sendEmailOpt = [{
   type: 'SendNoEmail',
   text: '不发送邮件'
 }]
-const thresholdKey = ['cpu', 'memory']
+const thresholdKey = ['cpu', 'memory', 'qps']
 
 class AppAutoScale extends Component {
   constructor() {
@@ -126,12 +126,14 @@ class AppAutoScale extends Component {
                   const { strategyName } = metadata.labels
                   const { alertStrategy: alert_strategy, alertgroupId: alert_group, status } = metadata.annotations
                   const { maxReplicas: max, minReplicas: min, metrics } = spec
-                  let cpu, memory
+                  let cpu, memory, qps
                   metrics.forEach(item => {
                     if (item.resource.name === 'memory') {
                       memory = item.resource.targetAverageUtilization
                     } else if (item.resource.name === 'cpu') {
                       cpu = item.resource.targetAverageUtilization
+                    } else if (item.resource.name === 'qps') {
+                      qps = item.resource.targetAverageUtilization
                     }
                   })
                   const scaleDetail = {
@@ -143,6 +145,7 @@ class AppAutoScale extends Component {
                     min,
                     cpu,
                     memory,
+                    qps,
                     type: status === 'RUN' ? 1 : 0
                   }
                   this.setState({
@@ -565,49 +568,67 @@ class AppAutoScale extends Component {
       initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.alert_group
     })
     let thresholdItem
+    let message = '所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩'
     thresholdItem = thresholdArr.map((key) => {
       let optItem = cpuAndMemory[key] || { 'cpu': 80 }
       return (
-        <Row type="flex" align="middle" key={key} className="strategyBox">
-          <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginBottom: 24, textAlign: 'right'}}>
-            {
-              thresholdArr.indexOf(key) === 0 ? <span className="threshold">阈值</span> : ''
-            }
-          </Col>
-          <Col span={6}>
-            <FormItem>
-              <Select
-                disabled={!isEdit}
-                style={{width: 120}}
-                {...getFieldProps(`type${key}`, {
-                  rules: [{
-                    validator: (rule, value, callback) => this.checkType(rule, value, callback, key)
-                  }],
-                  initialValue: Object.keys(optItem)[0]
-                }) }
-              >
-                <Option value="cpu">CPU阈值</Option>
-                <Option value="memory">内存阈值</Option>
-              </Select>
-            </FormItem>
-          </Col>
-          <Col span={5}>
-            <FormItem>
-              <InputNumber
-                disabled={!isEdit}
-                {...getFieldProps(`value${key}`, {
-                  rules: [{
-                    validator: this.checkValue
-                  }],
-                  initialValue: optItem[Object.keys(optItem)[0]]
-                })}/> %
-            </FormItem>
-          </Col>
-          <Col span={4} style={{ marginBottom: 24 }}>
-            <Button type="primary" size="large" icon="plus" disabled={!isEdit} onClick={this.addRule}/>&nbsp;
-            <Button type="ghost" size="large" icon="cross" disabled={!isEdit} onClick={() => this.delRule(key)}/>
-          </Col>
-        </Row>
+        <div>
+          <Row type="flex" align="middle" key={key} className="strategyBox">
+            <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginBottom: 24, textAlign: 'right'}}>
+              {
+                thresholdArr.indexOf(key) === 0
+                  ? <div> 阈值 <Tooltip title={message}><Icon type="exclamation-circle-o"/></Tooltip>：</div>
+                  : ''
+              }
+            </Col>
+            <Col span={6}>
+              <FormItem>
+                <Select
+                  disabled={!isEdit}
+                  style={{width: 120}}
+                  {...getFieldProps(`type${key}`, {
+                    rules: [{
+                      validator: (rule, value, callback) => this.checkType(rule, value, callback, key)
+                    }],
+                    initialValue: Object.keys(optItem)[0]
+                  }) }
+                >
+                  <Option value="cpu">CPU阈值</Option>
+                  <Option value="memory">内存阈值</Option>
+                  <Option value="qps">QPS阈值</Option>
+                </Select>
+              </FormItem>
+            </Col>
+            <Col span={5}>
+              <FormItem>
+                <InputNumber
+                  disabled={!isEdit}
+                  {...getFieldProps(`value${key}`, {
+                    rules: [{
+                      validator: this.checkValue
+                    }],
+                    initialValue: getFieldValue(`type${key}`) === 'qps' ? 100 : 80
+                  })}/>
+                {
+                  getFieldValue(`type${key}`) !== 'qps' ? '%' : '次/s'
+                }
+              </FormItem>
+            </Col>
+            <Col span={4} style={{ marginBottom: 24 }}>
+              <Button type="primary" size="large" icon="plus" disabled={!isEdit} onClick={this.addRule}/>&nbsp;
+              <Button type="ghost" size="large" icon="cross" disabled={!isEdit} onClick={() => this.delRule(key)}/>
+            </Col>
+          </Row>
+          {
+            getFieldValue(`type${key}`) === 'qps' &&
+            <Row style={{margin: '0 0 20px'}}>
+              <Col span={4}/>
+              <Col span={20}>
+                <Icon type="exclamation-circle-o"/> 该阈值统计该服务通过【负载均衡】的QPS，若绑定了多个LB，则统计为QPS之和
+              </Col>
+            </Row>
+          }
+        </div>
       )
     })
     return(
@@ -662,12 +683,6 @@ class AppAutoScale extends Component {
                     <InputNumber disabled={!isEdit} {...maxReplicas}/> 个
                   </FormItem>
                   {thresholdItem}
-                  <Row style={{margin: '0 0 20px'}}>
-                    <Col span={4}/>
-                    <Col span={20}>
-                      <Icon type="exclamation-circle-o"/> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
-                    </Col>
-                  </Row>
                   <FormItem
                     {...formItemLargeLayout}
                     label="发送邮件"
