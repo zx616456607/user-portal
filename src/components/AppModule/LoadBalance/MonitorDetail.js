@@ -474,7 +474,7 @@ class MonitorDetail extends React.Component {
         port,
         lbAlgorithm: strategy,
         host: hostname,
-        path: '/' + path.join('/'),
+        path: path ? '/' + path.join('/') : '',
         items: this.getServiceList()
       }
       if (currentIngress) {
