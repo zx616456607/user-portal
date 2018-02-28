@@ -1041,7 +1041,7 @@ let CreateTenxFlowModal = React.createClass({
         }
         body.spec.container.env.push({
           name: 'TIMEOUT_IN_SECOND',
-          value: approvingTimeout * TIME_EXCHANGE_IN_SECOND[approvingTimeoutUnit],
+          value: approvingTimeout * TIME_EXCHANGE_IN_SECOND[approvingTimeoutUnit] + '',
         })
       }
       // 创建 stage
@@ -1239,6 +1239,9 @@ let CreateTenxFlowModal = React.createClass({
             notification.error('获取项目成员失败')
           }
         },
+      })
+      setFieldsValue({
+        uniformRepo: false
       })
     }
     setFieldsValue({
@@ -2178,6 +2181,7 @@ let CreateTenxFlowModal = React.createClass({
                         placeholder="请填写超时时间"
                         {
                           ...getFieldProps('approvingTimeout' , {
+                            initialValue: 7,
                             rules: [
                               { message: '请填写超时时间', required: true },
                             ],
@@ -2190,9 +2194,9 @@ let CreateTenxFlowModal = React.createClass({
                         placeholder="请填写超时时间"
                         {
                           ...getFieldProps('approvingTimeoutUnit' , {
-                            initialValue: 'm',
+                            initialValue: 'd',
                             rules: [
-                              { message: '请填写超时时间', required: true },
+                              { message: '请填写超时时间单位', required: true },
                             ],
                           })
                         }

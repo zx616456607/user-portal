@@ -500,6 +500,37 @@ class TenxFlowDetail extends Component {
         </div>
       )
     })
+    const flowDefineTab = <TabPane
+      tab={this.state.isBuildImage
+      ? <span>
+        构建镜像任务
+        <Tooltip title={<FormattedMessage {...menusText.buildImageTooltip} />}>
+        <Icon style={{marginLeft: '3px'}} type="question-circle-o" />
+        </Tooltip>
+      </span>
+      : <span>
+        TenxFlow流程定义
+        <Tooltip title={<FormattedMessage {...menusText.tenxFlowtooltip} />}>
+        <Icon style={{marginLeft: '5px'}} type="question-circle-o" />
+        </Tooltip>
+      </span>}
+      key='2'
+    >
+      <TenxFlowDetailFlow
+        scope={scope}
+        setStatus={this.setStatus}
+        otherImage={this.props.otherImage}
+        flowId={flowInfo.flowId}
+        uniformRepo={flowInfo[camelize('uniform_repo')]}
+        stageInfo={flowInfo.stageInfo}
+        supportedDependencies={flowInfo.supportedDependencies}
+        startBuild={this.state.startBuild}
+        buildInfo={this.state.buildInfo}
+        refreshFlag={this.state.refreshFlag}
+        isBuildImage={this.state.isBuildImage}
+        flowBuildStatus={this.state.statusName}
+      />
+    </TabPane>
     return (
       <QueueAnim className='TenxFlowDetail'
         type='right'
@@ -550,28 +581,15 @@ class TenxFlowDetail extends Component {
             <div style={{ clear: 'both' }}></div>
           </Card>
           <Tabs defaultActiveKey='1' size="small" onChange={(e) => this.handleChange(e)}>
-            <TabPane tab={this.state.isBuildImage ? <span>构建镜像任务<Tooltip title={<FormattedMessage {...menusText.buildImageTooltip} />}><Icon style={{marginLeft: '3px'}} type="question-circle-o" /></Tooltip></span> : <span>TenxFlow流程定义<Tooltip title={<FormattedMessage {...menusText.tenxFlowtooltip} />}><Icon style={{marginLeft: '5px'}} type="question-circle-o" /></Tooltip></span>} key='1'>
-              <TenxFlowDetailFlow
-                scope={scope}
-                setStatus={this.setStatus}
-                otherImage={this.props.otherImage}
-                flowId={flowInfo.flowId}
-                uniformRepo={flowInfo[camelize('uniform_repo')]}
-                stageInfo={flowInfo.stageInfo}
-                supportedDependencies={flowInfo.supportedDependencies}
-                startBuild={this.state.startBuild}
-                buildInfo={this.state.buildInfo}
-                refreshFlag={this.state.refreshFlag}
-                isBuildImage={this.state.isBuildImage}
-                flowBuildStatus={this.state.statusName}
-              />
+            <TabPane tab={this.state.isBuildImage ? '执行记录' : 'TenxFlow执行记录'} key='1'>
+              <TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} />
             </TabPane>
-            {this.state.isBuildImage ? [ <TabPane tab='执行记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>,
+            {this.state.isBuildImage ? [ flowDefineTab,
               <TabPane tab='自动部署' key='3'><ImageDeployLogBox scope={scope} flowId={flowInfo.flowId} /></TabPane>,
               <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>,
               <TabPane tab='设置' key='6'><TenxFlowDetailSetting scope={scope} flowId={flowInfo.flowId} /></TabPane>]
               :
-              [ <TabPane tab='TenxFlow执行记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>,
+              [ flowDefineTab,
                 <TabPane tab='自动部署' key='3'><ImageDeployLogBox scope={scope} flowId={flowInfo.flowId} /></TabPane>,
                 <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>,
                 <TabPane tab='TenxFlow Yaml 描述' key='5'><TenxFlowDetailYaml flowId={flowInfo.flowId} yaml={this.state.yamlContent} /></TabPane>,

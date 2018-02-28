@@ -1650,6 +1650,10 @@ let EditTenxFlowModal = React.createClass({
       }
       return true
     })
+    let approvingTimeoutWithUnit = approvingTimeout / TIME_EXCHANGE_IN_SECOND[approvalConfig.approvingTimeoutUnit]
+    if (isNaN(approvingTimeoutWithUnit)) {
+      approvingTimeoutWithUnit = 7
+    }
     if (imageList === undefined || imageList.length === 0) {
       return (<div></div>)
     }
@@ -2475,7 +2479,8 @@ let EditTenxFlowModal = React.createClass({
                         placeholder="请选择平台用户"
                         {
                           ...getFieldProps('approvingBy' , {
-                            initialValue: approvalConfig.approvingBy.map(id => id + ''),
+                            initialValue: approvalConfig.approvingBy &&
+                              approvalConfig.approvingBy.map(id => id + ''),
                             rules: [
                               { message: '请选择平台用户', required: true },
                             ],
@@ -2501,7 +2506,7 @@ let EditTenxFlowModal = React.createClass({
                         placeholder="请填写超时时间"
                         {
                           ...getFieldProps('approvingTimeout' , {
-                            initialValue: approvingTimeout / TIME_EXCHANGE_IN_SECOND[approvalConfig.approvingTimeoutUnit],
+                            initialValue: approvingTimeoutWithUnit,
                             rules: [
                               { message: '请填写超时时间', required: true },
                             ],
@@ -2514,9 +2519,9 @@ let EditTenxFlowModal = React.createClass({
                         placeholder="请填写超时时间"
                         {
                           ...getFieldProps('approvingTimeoutUnit' , {
-                            initialValue: approvalConfig.approvingTimeoutUnit || 'm',
+                            initialValue: approvalConfig.approvingTimeoutUnit || 'd',
                             rules: [
-                              { message: '请填写超时时间', required: true },
+                              { message: '请填写超时时间单位', required: true },
                             ],
                           })
                         }
