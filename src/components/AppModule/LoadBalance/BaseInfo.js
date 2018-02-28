@@ -30,7 +30,7 @@ class BaseInfo extends React.Component {
     const { name } = lbDetail.deployment.metadata
     const { displayName, description, usegzip } = lbDetail.deployment.metadata.annotations
     const newBody = Object.assign({}, { displayName, description, usegzip }, body)
-    const editRes = await editLB(clusterID, name, newBody)
+    const editRes = await editLB(clusterID, name, displayName,newBody)
     if (editRes.error) {
       notify.warn('修改失败', editRes.error.message.message || editRes.error.message)
       notify.close()
