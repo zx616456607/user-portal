@@ -24,6 +24,7 @@ import HealthCheckModal from './HealthCheckModal'
 
 import { loadAllServices } from '../../../actions/services'
 import { createIngress, updateIngress, getLBDetail, checkIngressNameAndHost } from '../../../actions/load_balance'
+import { ingressNameCheck, ingressRelayRuleCheck } from '../../../common/naming_validation'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -88,7 +89,7 @@ class MonitorDetail extends React.Component {
             [`port-${uidd}`]: item.servicePort
           })
           this.selectService(item.serviceName, uidd)
-          if (currentIngress.lbAlgorithm === '') {
+          if (currentIngress.lbAlgorithm !== 'ip_hash') {
             form.setFieldsValue({
               [`weight-${uidd}`]: item.weight
             })
@@ -280,8 +281,9 @@ class MonitorDetail extends React.Component {
     if (currentIngress && (currentIngress.displayName === value)) {
       return callback()
     }
-    if (!value) {
-      return callback('请输入监听器名称')
+    let message = ingressNameCheck(value)
+    if (message !== 'success') {
+      return callback(message)
     }
     const query = {
       displayName: value,
@@ -316,8 +318,9 @@ class MonitorDetail extends React.Component {
     if (currentIngress && (`${currentIngress.host}${currentIngress.path}` === value)) {
       return callback()
     }
-    if (!value) {
-      return callback('请输入校验规则')
+    let message = ingressRelayRuleCheck(value)
+    if (message !== 'success') {
+      return callback(message)
     }
     clearTimeout(this.nameTimeout)
     const query = {
@@ -471,7 +474,7 @@ class MonitorDetail extends React.Component {
         port,
         lbAlgorithm: strategy,
         host: hostname,
-        path: '/' + path.join('/'),
+        path: path ? '/' + path.join('/') : '',
         items: this.getServiceList()
       }
       if (currentIngress) {
@@ -577,7 +580,7 @@ class MonitorDetail extends React.Component {
       wrapperCol: { span: 10 }
     }
     const showSlider = getFieldValue('sessionSticky') && (getFieldValue('lbAlgorithm') !== 'ip_hash')
-    const showWeight = getFieldValue('lbAlgorithm') === 'round-robin'
+    const showWeight = getFieldValue('lbAlgorithm') !== 'ip_hash'
     getFieldProps('keys', {
       initialValue: [],
     });
