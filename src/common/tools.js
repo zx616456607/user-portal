@@ -25,6 +25,7 @@ import {
 } from '../constants'
 import { STANDARD_MODE, ENTERPRISE_MODE } from '../../configs/constants'
 import { mode } from '../../configs/model'
+import isEmpty from 'lodash/isEmpty'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const locale = window.appLocale.locale
@@ -730,11 +731,21 @@ export function isQueryEqual(q1, q2) {
 export function adjustBrowserUrl(location = {}, mergedQuery = {}, isFirstLoad) {
   const { pathname, query } = location
   if (isQueryEqual(mergedQuery, query)) return
-  if ( !mergedQuery.page || parseInt(mergedQuery.page) === 1) delete mergedQuery.page
-  if (!mergedQuery.search) delete mergedQuery.search
-  const path = `${pathname}?${toQuerystring(mergedQuery)}`
-  if (isFirstLoad) {
-    browserHistory.replace(path)
+  delete mergedQuery.from
+  delete mergedQuery.size
+  for (let key in mergedQuery) {
+    if (mergedQuery[key] === '' || mergedQuery[key] === null || mergedQuery[key] === undefined) {
+      delete mergedQuery[key]
+    }
+  }
+  if (parseInt(mergedQuery.page) === 1) {
+    delete mergedQuery.page
+  }
+  if (typeof mergedQuery.search === 'boolean') {
+    delete mergedQuery.search
+  }
+  if (isFirstLoad || isEmpty(mergedQuery)) {
+    browserHistory.replace(pathname)
     return
   }
   browserHistory.push(`${pathname}?${toQuerystring(mergedQuery)}`)
