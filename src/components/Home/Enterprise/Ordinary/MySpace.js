@@ -189,7 +189,7 @@ class MySpace extends Component {
   }
   useCount(value) {
     const { globaleUseList } = this.state
-    let count = ''
+    let count = 0
     if (globaleUseList) {
       Object.keys(globaleUseList).forEach((item, index) => {
         if (item === value) {
@@ -199,7 +199,21 @@ class MySpace extends Component {
     }
     return count
   }
-
+  renderProcessNumber(key) {
+    const useCount = this.useCount(key)
+    const maxCount = this.maxCount(key)
+    let overUsed = false
+    if (useCount > maxCount && maxCount !== -1) {
+      overUsed = true
+    }
+    return (
+      <Row className="number-row">
+        <Col span={11} style={{ color: overUsed ? 'red' : '#ccc' }}>{useCount}</Col>
+        <Col span={2}>/</Col>
+        <Col span={11}>{maxCount === -1 ? '无限制' : maxCount}</Col>
+      </Row>
+    )
+  }
   filterPercent(value, count) {
     let max = 100
     let result = 0
@@ -356,44 +370,34 @@ class MySpace extends Component {
               <div className="ci" style={{ display: isCi ? 'block' : 'none' }}>
                 {
                   ciList.map((item, index) => (
-                    <Row className="info">
-                      <Col span={9}>
-                        <span>{item.text}</span>
-                      </Col>
-                      <Col span={8}>
-                        <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
-                      </Col>
-                      <Col span={6}>
-                        {
-                          this.useCount(item.key) > this.maxCount(item.key) ?
-                            this.maxCount(item.key) === -1 ?
-                              <span>{this.useCount(item.key)}</span> :
-                              <span style={{ color: 'red' }}>{this.useCount(item.key)}</span> : <span>{this.useCount(item.key)}</span>
-                        }/<p>{this.maxCount(item.key) === -1 ? '无限制' : this.maxCount(item.key)}</p>
-                      </Col>
-                    </Row>
+                    <div className="info" key={`ci-${index}`}>
+                      <Row>
+                        <Col span={9}>
+                          <span>{item.text}</span>
+                        </Col>
+                        <Col span={15}>
+                          <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
+                        </Col>
+                      </Row>
+                      {this.renderProcessNumber(item.key)}
+                    </div>
                   ))
                 }
               </div>
               <div className="deliver" style={{ overflowY: 'auto', display: isdeliver ? 'block' : 'none' }}>
                 {
                   deliverList.map((item, index) => (
-                    <Row className="info">
-                      <Col span={9}>
-                        <span>{item.text}</span>
-                      </Col>
-                      <Col span={9}>
-                        <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
-                      </Col>
-                      <Col span={6}>
-                        {
-                          this.useCount(item.key) > this.maxCount(item.key) ?
-                            this.maxCount(item.key) === -1 ?
-                              <span>{this.useCount(item.key)}</span> :
-                              <span style={{ color: 'red' }}>{this.useCount(item.key)}</span> : <span>{this.useCount(item.key)}</span>
-                        }/<p>{this.maxCount(item.key) === -1 ? '无限制' : this.maxCount(item.key)}</p>
-                      </Col>
-                    </Row>
+                    <div className="info" key={`deliver-${index}`}>
+                      <Row>
+                        <Col span={9}>
+                          <span>{item.text}</span>
+                        </Col>
+                        <Col span={15}>
+                          <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
+                        </Col>
+                      </Row>
+                      {this.renderProcessNumber(item.key)}
+                    </div>
                   ))
                 }
               </div>

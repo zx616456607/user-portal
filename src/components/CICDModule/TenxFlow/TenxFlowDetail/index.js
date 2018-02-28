@@ -16,7 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import {
   getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML,
-  deploymentLog, getTenxflowBuildLogs, getCdInimage,
+  deploymentLog, getTenxflowBuildLogs, getCdInimage, gitCdRules,
   changeBuildStatus, getTenxFlowStatus, getRepoBranchesAndTagsByProjectId,
 } from '../../../../actions/cicd_flow'
 import { loadRepositoriesTags } from '../../../../actions/harbor'
@@ -106,6 +106,7 @@ class TenxFlowDetail extends Component {
     this.openTenxFlowDeployLogModal = this.openTenxFlowDeployLogModal.bind(this);
     this.closeTenxFlowDeployLogModal = this.closeTenxFlowDeployLogModal.bind(this);
     this.refreshStageList = this.refreshStageList.bind(this);
+    this.refresh = this.refresh.bind(this);
     this.startBuildStage = this.startBuildStage.bind(this);
     this.renderBuildBtn = this.renderBuildBtn.bind(this);
     const pathname = window.location.pathname
@@ -390,6 +391,16 @@ class TenxFlowDetail extends Component {
     });
   }
 
+  refresh() {
+    // refresh stages, flow build logs, CD rules, deploy records
+    this.refreshStageList()
+    const { getTenxflowBuildLogs, gitCdRules, getCdInimage, flowInfo } = this.props
+    const { flowId } = flowInfo
+    getTenxflowBuildLogs(flowId)
+    gitCdRules(flowId)
+    getCdInimage(flowId)
+  }
+
   callback(flowId) {
     const {getTenxflowBuildLastLogs, changeBuildStatus} = this.props
     return ()=> {
@@ -500,6 +511,37 @@ class TenxFlowDetail extends Component {
         </div>
       )
     })
+    const flowDefineTab = <TabPane
+      tab={this.state.isBuildImage
+      ? <span>
+        构建镜像任务
+        <Tooltip title={<FormattedMessage {...menusText.buildImageTooltip} />}>
+        <Icon style={{marginLeft: '3px'}} type="question-circle-o" />
+        </Tooltip>
+      </span>
+      : <span>
+        TenxFlow流程定义
+        <Tooltip title={<FormattedMessage {...menusText.tenxFlowtooltip} />}>
+        <Icon style={{marginLeft: '5px'}} type="question-circle-o" />
+        </Tooltip>
+      </span>}
+      key='2'
+    >
+      <TenxFlowDetailFlow
+        scope={scope}
+        setStatus={this.setStatus}
+        otherImage={this.props.otherImage}
+        flowId={flowInfo.flowId}
+        uniformRepo={flowInfo[camelize('uniform_repo')]}
+        stageInfo={flowInfo.stageInfo}
+        supportedDependencies={flowInfo.supportedDependencies}
+        startBuild={this.state.startBuild}
+        buildInfo={this.state.buildInfo}
+        refreshFlag={this.state.refreshFlag}
+        isBuildImage={this.state.isBuildImage}
+        flowBuildStatus={this.state.statusName}
+      />
+    </TabPane>
     return (
       <QueueAnim className='TenxFlowDetail'
         type='right'
@@ -542,7 +584,7 @@ class TenxFlowDetail extends Component {
                 </svg>
                 <FormattedMessage {...menusText.deloyLog} />
               </Button>
-              <Button size='large' type='ghost' onClick={this.refreshStageList}>
+              <Button size='large' type='ghost' onClick={this.refresh}>
                 <span><i className='fa fa-refresh'></i>&nbsp;刷新</span>
               </Button>
               <div style={{ clear: 'both' }}></div>
@@ -550,28 +592,15 @@ class TenxFlowDetail extends Component {
             <div style={{ clear: 'both' }}></div>
           </Card>
           <Tabs defaultActiveKey='1' size="small" onChange={(e) => this.handleChange(e)}>
-            <TabPane tab={this.state.isBuildImage ? <span>构建镜像任务<Tooltip title={<FormattedMessage {...menusText.buildImageTooltip} />}><Icon style={{marginLeft: '3px'}} type="question-circle-o" /></Tooltip></span> : <span>TenxFlow流程定义<Tooltip title={<FormattedMessage {...menusText.tenxFlowtooltip} />}><Icon style={{marginLeft: '5px'}} type="question-circle-o" /></Tooltip></span>} key='1'>
-              <TenxFlowDetailFlow
-                scope={scope}
-                setStatus={this.setStatus}
-                otherImage={this.props.otherImage}
-                flowId={flowInfo.flowId}
-                uniformRepo={flowInfo[camelize('uniform_repo')]}
-                stageInfo={flowInfo.stageInfo}
-                supportedDependencies={flowInfo.supportedDependencies}
-                startBuild={this.state.startBuild}
-                buildInfo={this.state.buildInfo}
-                refreshFlag={this.state.refreshFlag}
-                isBuildImage={this.state.isBuildImage}
-                flowBuildStatus={this.state.statusName}
-              />
+            <TabPane tab={this.state.isBuildImage ? '执行记录' : 'TenxFlow执行记录'} key='1'>
+              <TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} />
             </TabPane>
-            {this.state.isBuildImage ? [ <TabPane tab='执行记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>,
+            {this.state.isBuildImage ? [ flowDefineTab,
               <TabPane tab='自动部署' key='3'><ImageDeployLogBox scope={scope} flowId={flowInfo.flowId} /></TabPane>,
               <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>,
               <TabPane tab='设置' key='6'><TenxFlowDetailSetting scope={scope} flowId={flowInfo.flowId} /></TabPane>]
               :
-              [ <TabPane tab='TenxFlow执行记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>,
+              [ flowDefineTab,
                 <TabPane tab='自动部署' key='3'><ImageDeployLogBox scope={scope} flowId={flowInfo.flowId} /></TabPane>,
                 <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>,
                 <TabPane tab='TenxFlow Yaml 描述' key='5'><TenxFlowDetailYaml flowId={flowInfo.flowId} yaml={this.state.yamlContent} /></TabPane>,
@@ -635,6 +664,7 @@ export default connect(mapStateToProps, {
   getTenxFlowDetail,
   getTenxflowBuildLastLogs,
   deploymentLog,
+  gitCdRules,
   getCdInimage,
   getTenxflowBuildLogs,
   changeBuildStatus,

@@ -386,3 +386,33 @@ export function autoScaleNameCheck(value) {
   }
   return 'success'
 }
+
+/**
+ * this function for ingress name check
+ */
+
+export function ingressNameCheck(value) {
+  if (!value) {
+    return '请输入监听器名称'
+  }
+  let regx = /^[a-zA-Z0-9]+([-.~/][a-zA-Z0-9]+)*$/
+  if (!regx.test(value)) {
+    return '可由数字、中划线、下划线组成，以字母开头，字母或者数字结尾'
+  }
+  return 'success'
+}
+
+/**
+ * this function for ingress relayRule check
+ */
+
+export function ingressRelayRuleCheck(value) {
+  if (!value) {
+    return '请输入校验规则'
+  }
+  let regx = /^\/[a-zA-Z0-9]*/
+  if (!regx.test(value)) {
+    return '由数字、字母组成，以 / 开头'
+  }
+  return 'success'
+}
