@@ -1240,6 +1240,9 @@ let CreateTenxFlowModal = React.createClass({
           }
         },
       })
+      setFieldsValue({
+        uniformRepo: false
+      })
     }
     setFieldsValue({
       imageName: key
@@ -2169,6 +2172,7 @@ let CreateTenxFlowModal = React.createClass({
                         placeholder="请填写超时时间"
                         {
                           ...getFieldProps('approvingTimeout' , {
+                            initialValue: 7,
                             rules: [
                               { message: '请填写超时时间', required: true },
                             ],
@@ -2181,9 +2185,9 @@ let CreateTenxFlowModal = React.createClass({
                         placeholder="请填写超时时间"
                         {
                           ...getFieldProps('approvingTimeoutUnit' , {
-                            initialValue: 'm',
+                            initialValue: 'd',
                             rules: [
-                              { message: '请填写超时时间', required: true },
+                              { message: '请填写超时时间单位', required: true },
                             ],
                           })
                         }
