@@ -11,6 +11,7 @@
 'use strict'
 
 import moment from 'moment'
+import { browserHistory } from 'react-router'
 import {
   AMOUNT_CONVERSION,
   AMOUNT_DEFAULT_PRECISION,
@@ -24,6 +25,7 @@ import {
 } from '../constants'
 import { STANDARD_MODE, ENTERPRISE_MODE } from '../../configs/constants'
 import { mode } from '../../configs/model'
+import isEmpty from 'lodash/isEmpty'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const locale = window.appLocale.locale
@@ -167,22 +169,12 @@ export function calcuDate(beginDate) {
 }*/
 
 
-export function toQuerystring(obj, sep, eq) {
+export function toQuerystring(obj, sep, eq, isSort) {
   sep = sep || '&'
   eq = eq || '='
   if (!obj) {
     return ''
   }
-  return Object.keys(obj).map(function (k) {
-    let ks = stringifyPrimitive(k) + eq
-    if (Array.isArray(obj[k])) {
-      return obj[k].map(function (v) {
-        return ks + stringifyPrimitive(v)
-      }).join(sep)
-    } else {
-      return ks + stringifyPrimitive(obj[k])
-    }
-  }).join(sep)
   function stringifyPrimitive(v) {
     switch (typeof v) {
       case 'string':
@@ -195,6 +187,29 @@ export function toQuerystring(obj, sep, eq) {
         return ''
     }
   }
+  for (const k in obj) {
+    if (obj[k] === null || obj[k] === '' || obj[k] === undefined) {
+      delete obj[k]
+    }
+  }
+  let objKeysArray = Object.keys(obj)
+  if (isSort) {
+    objKeysArray = objKeysArray.sort()
+  }
+  const queryString = objKeysArray.map(function (k) {
+      let ks = stringifyPrimitive(k) + eq
+      if (Array.isArray(obj[k])) {
+        return obj[k].map(function (v) {
+          return ks + stringifyPrimitive(v)
+        }).join(sep)
+      } else {
+        return ks + stringifyPrimitive(obj[k])
+      }
+    }).join(sep)
+  if (!queryString) {
+    return ''
+  }
+  return queryString
 }
 
 export function parseQueryStringToObject(querystring) {
@@ -678,4 +693,60 @@ export function bytesToSize(bytes, size) {
   let value = (bytes / Math.pow(k, i)).toFixed(2)
   let unit = sizes[i]
   return { value, unit };
+}
+
+/**
+ * merge query
+ *
+ * @export
+ * @param {object} defaultQuery
+ * @param {object} query another query
+ * @return {object} query
+ */
+export function mergeQueryFunc(defaultQuery, query) {
+  return query = Object.assign({}, defaultQuery, query)
+}
+
+/**
+ * is query equal
+ *
+ * @export
+ * @param {object} q1 query
+ * @param {object} q2 another query
+ * @return {boolean} is equal
+ */
+export function isQueryEqual(q1, q2) {
+  return toQuerystring(q1, null, null, true) === toQuerystring(q2, null, null, true)
+}
+
+/**
+ * adjust Browser Url
+ *
+ * @export
+ * @param {object} location obj
+ * @param {object} mergedQuery obj
+ * @param {boolean} isFirstLoad
+ * @return {function} browserHistory push
+ */
+export function adjustBrowserUrl(location = {}, mergedQuery = {}, isFirstLoad) {
+  const { pathname, query } = location
+  if (isQueryEqual(mergedQuery, query)) return
+  delete mergedQuery.from
+  delete mergedQuery.size
+  for (let key in mergedQuery) {
+    if (mergedQuery[key] === '' || mergedQuery[key] === null || mergedQuery[key] === undefined) {
+      delete mergedQuery[key]
+    }
+  }
+  if (parseInt(mergedQuery.page) === 1) {
+    delete mergedQuery.page
+  }
+  if (typeof mergedQuery.search === 'boolean') {
+    delete mergedQuery.search
+  }
+  if (isFirstLoad || isEmpty(mergedQuery)) {
+    browserHistory.replace(pathname)
+    return
+  }
+  browserHistory.push(`${pathname}?${toQuerystring(mergedQuery)}`)
 }

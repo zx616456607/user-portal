@@ -51,7 +51,7 @@ class RollingUpdateModal extends Component {
     const containers = service.spec.template.spec.containers
     containers.map((container) => {
       let { image } = container
-      let tagIndex = image.indexOf(':')
+      let tagIndex = image.lastIndexOf(':')
       if(tagIndex < 0) {
         tagIndex = image.length
       }

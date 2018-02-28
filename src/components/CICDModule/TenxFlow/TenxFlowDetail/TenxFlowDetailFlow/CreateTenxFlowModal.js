@@ -8,7 +8,10 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, Tooltip, Spin, Popover, Menu, Alert } from 'antd'
+import {
+  Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal,
+  Tooltip, Spin, Popover, Menu, Alert, InputNumber
+} from 'antd'
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import classNames from 'classnames'
@@ -33,6 +36,7 @@ import { loadClusterList } from '../../../../../actions/cluster'
 import { getStorageClassType } from '../../../../../actions/storage'
 import { getAllClusterNodes } from '../../../../../actions/cluster_node'
 import { getRegistryNamespaces } from '../../../../../actions/app_center'
+import { GetProjectsMembers } from '../../../../../actions/project'
 import DockerfileModal from '../../../DockerfileModal'
 import AddCachedVolumeModal from '../../CachedVolumes/AddModal'
 import { TENX_STORE } from '../../../../../../constants/index'
@@ -279,6 +283,7 @@ let CreateTenxFlowModal = React.createClass({
       addCachedVolumeModal: false,
       shellDefaultCmd: [],
       isPrivateStorageInstall: false,
+      projectMembers: [],
     }
   },
   getUniformRepo() {
@@ -1022,6 +1027,23 @@ let CreateTenxFlowModal = React.createClass({
         }
         body.spec.build = imageBuildBody;
       }
+      // 人工审批
+      if (this.state.otherFlowType == 6) {
+        const { approvingBy, approvingTimeout, approvingTimeoutUnit } = values
+        const TIME_EXCHANGE_IN_SECOND = {
+          m: 60,
+          h: 60 * 60,
+          d: 60 * 60 * 24,
+        }
+        body.spec.ci.config.approvalConfig = {
+          approvingBy: values.approvingBy.map(id => parseInt(id)),
+          approvingTimeoutUnit,
+        }
+        body.spec.container.env.push({
+          name: 'TIMEOUT_IN_SECOND',
+          value: approvingTimeout * TIME_EXCHANGE_IN_SECOND[approvingTimeoutUnit] + '',
+        })
+      }
       // 创建 stage
       const _createTenxFlowState = function () {
         createTenxFlowState(flowId, body, {
@@ -1192,15 +1214,33 @@ let CreateTenxFlowModal = React.createClass({
     return callback()
   },
   baseImageChange(key, tabKey, groupKey) {
-    const { setFieldsValue, getFieldValue } = this.props.form
+    const { form, GetProjectsMembers } = this.props
+    const { setFieldsValue, getFieldValue } = form
     const oldImageName = getFieldValue('imageName')
     const oldOtherFlowType = this.state.otherFlowType
     if (oldOtherFlowType == groupKey && oldImageName == key) return
+    const notification = new NotificationHandler()
     this.setState({
       baseImageUrl: key,
       groupKey,
       otherFlowType: groupKey,
     })
+    if (groupKey == 6) {
+      GetProjectsMembers({ byProjectNamespace: 1 }, {
+        success: {
+          func: res => {
+            this.setState({
+              projectMembers: res.data || [],
+            })
+          }
+        },
+        failed: {
+          func: err => {
+            notification.error('获取项目成员失败')
+          }
+        },
+      })
+    }
     setFieldsValue({
       imageName: key
     })
@@ -1213,15 +1253,6 @@ let CreateTenxFlowModal = React.createClass({
       return
     }
     let notResetShell = false
-    // if(oldImageName.indexOf(':') > 0 && oldOtherFlowType == groupKey) {
-    //   if(key.indexOf(':') > 0) {
-    //     let old = oldImageName.split(':')
-    //     let newKey = key.split(':')
-    //     if(old[0] == newKey[0] && old[1] != newKey[1]) {
-    //       notResetShell = true
-    //     }
-    //   }
-    // }
     if (oldOtherFlowType == groupKey) {
       notResetShell = true
     }
@@ -1311,6 +1342,7 @@ let CreateTenxFlowModal = React.createClass({
       supportedDependencies, imageList,
       toggleCustomizeBaseImageModal,
       baseImages, uniformRepo,
+      currentProject,
     } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
@@ -1384,10 +1416,22 @@ let CreateTenxFlowModal = React.createClass({
               defaultBaseImage = imageName
             }
             groupsNodes.push(
-              <PopGroup label={categoryName} value={categoryId} key={categoryId}>
+              <PopGroup
+                label={
+                  categoryName +
+                  (categoryId === 6 && currentProject.namespace === 'default'
+                  ? '（个人项目暂不支持）'
+                  : '')
+                }
+                value={categoryId}
+                key={categoryId}
+              >
                 {
                   images.map(image => (
-                    <PopOption value={image.imageUrl}>
+                    <PopOption
+                      value={image.imageUrl}
+                      disabled={categoryId === 6 && currentProject.namespace === 'default'}
+                    >
                       {image.imageName}
                     </PopOption>
                   ))
@@ -1605,8 +1649,8 @@ let CreateTenxFlowModal = React.createClass({
       >
         {
           isDockerfile
-            ? [<span>编辑云端 Dockerfile</span>]
-            : [<FormattedMessage {...menusText.createNewDockerFile} />]
+            ? <span>编辑云端 Dockerfile</span>
+            : <FormattedMessage {...menusText.createNewDockerFile} />
         }
       </Button>
     )
@@ -1709,7 +1753,9 @@ let CreateTenxFlowModal = React.createClass({
             </div>
             <div style={{ clear: 'both' }} />
           </div>}
-          {(this.props.isBuildImage || this.state.otherFlowType == 3) ? '' : <div className='commonBox'>
+          {(this.props.isBuildImage || this.state.otherFlowType == 3 || this.state.otherFlowType == 6)
+            ? ''
+            : <div className='commonBox'>
             <div className='title'>
               <span><FormattedMessage {...menusText.servicesTitle} /></span>
             </div>
@@ -1725,7 +1771,9 @@ let CreateTenxFlowModal = React.createClass({
             </div>
             <div style={{ clear: 'both' }} />
           </div>}
-          {(this.props.isBuildImage || this.state.otherFlowType == 3) ? '' : <div className='commonBox'>
+          {(this.props.isBuildImage || this.state.otherFlowType == 3 || this.state.otherFlowType == 6)
+            ? ''
+            : <div className='commonBox'>
             <div className='title'>
               <span><FormattedMessage {...menusText.shellCode} /></span>
             </div>
@@ -1977,93 +2025,182 @@ let CreateTenxFlowModal = React.createClass({
               </QueueAnim>
             ] : null
           }
-          <div className='commonBox'>
-            <div className='title'>
-              <span>缓存卷</span>
-            </div>
-            <div className='input imageType'>
-              <FormItem>
-                <Switch
-                  checkedChildren="开"
-                  unCheckedChildren="关"
-                  {
-                    ...getFieldProps('cachedVolume' , {
-                      valuePropName: 'checked',
-                      initialValue: false,
-                      onChange: checked => this.setState({ addCachedVolumeModal: checked }),
-                    })
-                  }
-                  defaultChecked={false}
-                  disabled={!isPrivateStorageInstall}
-                />
-                {
-                  !isPrivateStorageInstall &&
-                  <div className="storageInstallAlert">
-                    <Alert showIcon message="该构建环境尚未配置块存储，暂不能配置缓存卷" type="warning" />
+          {
+             this.state.otherFlowType != 6
+             ? [
+                <div className='commonBox' key="cachedVolume">
+                  <div className='title'>
+                    <span>缓存卷</span>
                   </div>
-                }
-                <div className="customizeBaseImage cachedVolumes">
-                  {
-                    this.state.cachedVolumes[0]
-                      ? [
-                          <span key="text">独享型（rbd）</span>,
-                          <span key="name">
-                            {
-                              this.state.cachedVolumes[0].cachedVolume === 'create'
-                                ? this.state.cachedVolumes[0].volumeName
-                                : this.state.cachedVolumes[0].cachedVolume
-                            }
-                          </span>,
-                          <span key="path">
-                            {this.state.cachedVolumes[0].containerPath}
-                          </span>,
-                          <Button
-                            key="edit"
-                            icon="edit"
-                            size="small"
-                            onClick={() => this.setState({ addCachedVolumeModal: true })}
-                          />,
-                          <Button
-                            key="delete"
-                            icon="delete"
-                            size="small"
-                            onClick={() => {
-                              form.setFieldsValue({ cachedVolume: false })
-                              this.setState({ cachedVolumes: [] })
-                            }}
-                          />,
-                        ]
-                      : '未挂载缓存卷'
-                  }
-                  {/* <span className="link">添加缓存卷</span> */}
+                  <div className='input imageType'>
+                    <FormItem>
+                      <Switch
+                        checkedChildren="开"
+                        unCheckedChildren="关"
+                        {
+                          ...getFieldProps('cachedVolume' , {
+                            valuePropName: 'checked',
+                            initialValue: false,
+                            onChange: checked => this.setState({ addCachedVolumeModal: checked }),
+                          })
+                        }
+                        defaultChecked={false}
+                        disabled={!isPrivateStorageInstall}
+                      />
+                      {
+                        !isPrivateStorageInstall &&
+                        <div className="storageInstallAlert">
+                          <Alert showIcon message="该构建环境尚未配置块存储，暂不能配置缓存卷" type="warning" />
+                        </div>
+                      }
+                      <div className="customizeBaseImage cachedVolumes">
+                        {
+                          this.state.cachedVolumes[0]
+                            ? [
+                                <span key="text">独享型（rbd）</span>,
+                                <span key="name">
+                                  {
+                                    this.state.cachedVolumes[0].cachedVolume === 'create'
+                                      ? this.state.cachedVolumes[0].volumeName
+                                      : this.state.cachedVolumes[0].cachedVolume
+                                  }
+                                </span>,
+                                <span key="path">
+                                  {this.state.cachedVolumes[0].containerPath}
+                                </span>,
+                                <Button
+                                  key="edit"
+                                  icon="edit"
+                                  size="small"
+                                  onClick={() => this.setState({ addCachedVolumeModal: true })}
+                                />,
+                                <Button
+                                  key="delete"
+                                  icon="delete"
+                                  size="small"
+                                  onClick={() => {
+                                    form.setFieldsValue({ cachedVolume: false })
+                                    this.setState({ cachedVolumes: [] })
+                                  }}
+                                />,
+                              ]
+                            : '未挂载缓存卷'
+                        }
+                        {/* <span className="link">添加缓存卷</span> */}
+                      </div>
+                    </FormItem>
+                  </div>
+                  <div style={{ clear: 'both' }} />
+                </div>,
+                <div className='commonBox' key="errorContinue">
+                  <div className='title'>
+                    <span>允许失败</span>
+                  </div>
+                  <div className='input imageType'>
+                    <FormItem>
+                      <Switch
+                        checkedChildren="开"
+                        unCheckedChildren="关"
+                        {
+                          ...getFieldProps('errorContinue' , {
+                            valuePropName: 'checked',
+                            initialValue: false,
+                          })
+                        }
+                      />
+                      <div className="customizeBaseImage">
+                        此任务执行失败时不会影响流水线的执行。
+                      </div>
+                    </FormItem>
+                  </div>
+                  <div style={{ clear: 'both' }} />
                 </div>
-              </FormItem>
-            </div>
-            <div style={{ clear: 'both' }} />
-          </div>
-          <div className='commonBox'>
-            <div className='title'>
-              <span>允许失败</span>
-            </div>
-            <div className='input imageType'>
-              <FormItem>
-                <Switch
-                  checkedChildren="开"
-                  unCheckedChildren="关"
-                  {
-                    ...getFieldProps('errorContinue' , {
-                      valuePropName: 'checked',
-                      initialValue: false,
-                    })
-                  }
-                />
-                <div className="customizeBaseImage">
-                  此任务执行失败时不会影响流水线的执行。
+             ]
+             : [
+              <div className='commonBox' key="approvingMode">
+                <div className='title'>
+                  <span>&nbsp;</span>
                 </div>
-              </FormItem>
-            </div>
-            <div style={{ clear: 'both' }} />
-          </div>
+                  <div className='input imageType'>
+                    <FormItem>
+                      <RadioGroup defaultValue="1">
+                        <Radio value="1">通过平台审批</Radio>
+                        <Radio value="2" disabled={true}>通过邮件审批</Radio>
+                      </RadioGroup>
+                    </FormItem>
+                  </div>
+                  <div style={{ clear: 'both' }} />
+              </div>,
+              <div className='commonBox' key="approvingBy">
+                <div className='title'>
+                  <span>平台账号</span>
+                </div>
+                  <div className='input imageType'>
+                    <FormItem>
+                      <Select
+                        multiple
+                        style={{ width: '220px' }}
+                        placeholder="请选择平台用户"
+                        {
+                          ...getFieldProps('approvingBy' , {
+                            initialValue: [],
+                            rules: [
+                              { message: '请选择平台用户', required: true },
+                            ],
+                          })
+                        }
+                      >
+                        {
+                          this.state.projectMembers.map(({ userId, userName }) =>
+                          <Option key={userId}>{userName}</Option>)
+                        }
+                      </Select>
+                    </FormItem>
+                  </div>
+                  <div style={{ clear: 'both' }} />
+              </div>,
+              <div className='commonBox' key="approvingTimeout">
+                <div className='title'>
+                  <span>超时时间</span>
+                </div>
+                  <div className='input approvingTimeout'>
+                    <FormItem className="timeout">
+                      <InputNumber
+                        placeholder="请填写超时时间"
+                        {
+                          ...getFieldProps('approvingTimeout' , {
+                            rules: [
+                              { message: '请填写超时时间', required: true },
+                            ],
+                          })
+                        }
+                      />
+                    </FormItem>
+                    <FormItem className="timeoutUnit">
+                      <Select
+                        placeholder="请填写超时时间"
+                        {
+                          ...getFieldProps('approvingTimeoutUnit' , {
+                            initialValue: 'm',
+                            rules: [
+                              { message: '请填写超时时间', required: true },
+                            ],
+                          })
+                        }
+                      >
+                        <Option value="m">分钟</Option>
+                        <Option value="h">小时</Option>
+                        <Option value="d">天</Option>
+                      </Select>
+                    </FormItem>
+                    <div className="customizeBaseImage">
+                      若审批人未在超时时间完成审批，默认为拒绝。
+                    </div>
+                  </div>
+                  <div style={{ clear: 'both' }} />
+              </div>,
+             ]
+          }
           {
             this.state.addCachedVolumeModal && (
               <AddCachedVolumeModal
@@ -2223,11 +2360,14 @@ function mapStateToProps(state, props) {
   })
   harborProjects.list = newList.concat(visitorList)
   const registryNamespaces = state.images.registryNamespaces || {}
+
+  const { current } = state.entities
   return {
     clusters,
     clustersNodes,
     harborProjects,
     registryNamespaces,
+    currentProject: current.space,
   }
 }
 
@@ -2248,6 +2388,7 @@ export default connect(mapStateToProps, {
   loadRepositoriesTagConfigInfo,
   getStorageClassType,
   getRegistryNamespaces,
+  GetProjectsMembers,
 })(injectIntl(CreateTenxFlowModal, {
   withRef: true,
 }));
