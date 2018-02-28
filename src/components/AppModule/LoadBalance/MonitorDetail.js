@@ -281,9 +281,6 @@ class MonitorDetail extends React.Component {
     if (currentIngress && (currentIngress.displayName === value)) {
       return callback()
     }
-    if (!value) {
-      return callback('请输入监听器名称')
-    }
     let message = ingressNameCheck(value)
     if (message !== 'success') {
       return callback(message)
@@ -320,9 +317,6 @@ class MonitorDetail extends React.Component {
     const { name: lbname } = location.query
     if (currentIngress && (`${currentIngress.host}${currentIngress.path}` === value)) {
       return callback()
-    }
-    if (!value) {
-      return callback('请输入校验规则')
     }
     let message = ingressRelayRuleCheck(value)
     if (message !== 'success') {
