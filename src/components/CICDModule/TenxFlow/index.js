@@ -387,7 +387,7 @@ let MyComponent = React.createClass({
             </span>
             {
               isApproving &&
-              <Link className="go-approving" to={`/ci_cd/tenx_flow/tenx_flow_build?${item.flowId}&${item.status}#flow-build-logs`}>
+              <Link className="go-approving" to={`/ci_cd/tenx_flow/tenx_flow_build?${item.flowId}&${item.status}`}>
                 前往审批 <i className="fa fa-arrow-circle-o-right" />
               </Link>
             }
@@ -649,7 +649,7 @@ class TenxFlowList extends Component {
               <FormattedMessage {...menusText.create} />
             </Button>
             <Button className="refreshBtn"  size='large' type="ghost" onClick={this.loadData.bind(this, null)}>
-              <i className='fa fa-refresh' /> 刷新
+              <i className='fa fa-refresh' /> 刷 新
             </Button>
             <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' value={this.state.searchValue}
                    onChange={(e)=> this.setState({searchValue:e.target.value})} onPressEnter={()=>this.onSearchFlow()}

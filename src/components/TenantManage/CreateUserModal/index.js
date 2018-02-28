@@ -127,10 +127,6 @@ let CreateUserModal = React.createClass({
         resetPassword,
       }
       onSubmit(newUser)
-      form.resetFields()
-      scope.setState({
-        visible: false,
-      })
     })
   },
   handleCancel(e) {
@@ -142,7 +138,7 @@ let CreateUserModal = React.createClass({
     })
   },
   render() {
-    const { form, visible, loginUser } = this.props
+    const { form, visible, loginUser, confirmLoading } = this.props
     const { disabled } = this.state
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue, setFieldsValue } = form
     const nameProps = getFieldProps('name', {
@@ -230,7 +226,9 @@ let CreateUserModal = React.createClass({
             type="primary"
             size="large"
             disabled={disabled}
-            onClick={this.handleOk}>
+            onClick={this.handleOk}
+            loading={confirmLoading}
+          >
             提 交
           </Button>,
         ]}>

@@ -207,6 +207,14 @@ let MyComponent = React.createClass({
           this.setState({
             approvalBtnLoading: false,
           })
+          const { statusCode, message } = err
+          if (statusCode === 400 && message.message === 'approval daemon is not ready') {
+            this.setState({
+              approvalModal: false,
+            })
+            notification.warn('审批流程启动中，请稍后进行操作')
+            return
+          }
           notification.error('审批失败')
         },
         isAsync: true,
@@ -265,7 +273,7 @@ let MyComponent = React.createClass({
               </span>
               <span className='costTime'>
                 <Icon type='clock-circle-o' />
-                { item.status != 2 ? [<FormattedMessage {...menusText.cost} />] : null }
+                { item.status != 2 ? <FormattedMessage {...menusText.cost} /> : null }
                 { dateSizeFormat(item.creationTime, item.endTime, scope) }
               </span>
               <span className='costTime' style={{width:'105px'}}>
@@ -285,7 +293,6 @@ let MyComponent = React.createClass({
                       size="large"
                       className="operaBtn deny"
                       icon="minus-circle-o"
-                      // onClick={() => this.approveFlowStage(item.buildId, waitingApprovalStages[0].stageId, 'deny')}
                       onClick={() => this.setState({
                         approvalModal: true,
                         approvalObj: {
@@ -302,7 +309,6 @@ let MyComponent = React.createClass({
                       size="large"
                       className="operaBtn approve"
                       icon="check-circle-o"
-                      // onClick={() => this.approveFlowStage(item.buildId, waitingApprovalStages[0].stageId, 'approve')}
                       onClick={() => this.setState({
                         approvalModal: true,
                         approvalObj: {
@@ -441,7 +447,7 @@ function mapStateToProps(state, props) {
   const { space } = current
   const spaceName = space.spaceName || space.projectName
   const { getTenxflowBuildLogs, getTenxflowBuildDetailLogs } = state.cicd_flow
-  const { logs, waitingApprovalStages, isFetching } = getTenxflowBuildLogs || defaultLogs
+  const { logs = [], waitingApprovalStages, isFetching } = getTenxflowBuildLogs || defaultLogs
   logs.forEach(log => {
     if (waitingApprovalStages && waitingApprovalStages[0] && waitingApprovalStages[0].flowBuildId === log.buildId) {
       log.isApproving = true
