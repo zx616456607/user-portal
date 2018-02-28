@@ -16,7 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import {
   getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML,
-  deploymentLog, getTenxflowBuildLogs, getCdInimage,
+  deploymentLog, getTenxflowBuildLogs, getCdInimage, gitCdRules,
   changeBuildStatus, getTenxFlowStatus, getRepoBranchesAndTagsByProjectId,
 } from '../../../../actions/cicd_flow'
 import { loadRepositoriesTags } from '../../../../actions/harbor'
@@ -106,6 +106,7 @@ class TenxFlowDetail extends Component {
     this.openTenxFlowDeployLogModal = this.openTenxFlowDeployLogModal.bind(this);
     this.closeTenxFlowDeployLogModal = this.closeTenxFlowDeployLogModal.bind(this);
     this.refreshStageList = this.refreshStageList.bind(this);
+    this.refresh = this.refresh.bind(this);
     this.startBuildStage = this.startBuildStage.bind(this);
     this.renderBuildBtn = this.renderBuildBtn.bind(this);
     const pathname = window.location.pathname
@@ -390,6 +391,16 @@ class TenxFlowDetail extends Component {
     });
   }
 
+  refresh() {
+    // refresh stages, flow build logs, CD rules, deploy records
+    this.refreshStageList()
+    const { getTenxflowBuildLogs, gitCdRules, getCdInimage, flowInfo } = this.props
+    const { flowId } = flowInfo
+    getTenxflowBuildLogs(flowId)
+    gitCdRules(flowId)
+    getCdInimage(flowId)
+  }
+
   callback(flowId) {
     const {getTenxflowBuildLastLogs, changeBuildStatus} = this.props
     return ()=> {
@@ -573,7 +584,7 @@ class TenxFlowDetail extends Component {
                 </svg>
                 <FormattedMessage {...menusText.deloyLog} />
               </Button>
-              <Button size='large' type='ghost' onClick={this.refreshStageList}>
+              <Button size='large' type='ghost' onClick={this.refresh}>
                 <span><i className='fa fa-refresh'></i>&nbsp;刷新</span>
               </Button>
               <div style={{ clear: 'both' }}></div>
@@ -653,6 +664,7 @@ export default connect(mapStateToProps, {
   getTenxFlowDetail,
   getTenxflowBuildLastLogs,
   deploymentLog,
+  gitCdRules,
   getCdInimage,
   getTenxflowBuildLogs,
   changeBuildStatus,
