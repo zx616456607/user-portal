@@ -89,7 +89,7 @@ class MonitorDetail extends React.Component {
             [`port-${uidd}`]: item.servicePort
           })
           this.selectService(item.serviceName, uidd)
-          if (currentIngress.lbAlgorithm === '') {
+          if (currentIngress.lbAlgorithm !== 'ip_hash') {
             form.setFieldsValue({
               [`weight-${uidd}`]: item.weight
             })
@@ -580,7 +580,7 @@ class MonitorDetail extends React.Component {
       wrapperCol: { span: 10 }
     }
     const showSlider = getFieldValue('sessionSticky') && (getFieldValue('lbAlgorithm') !== 'ip_hash')
-    const showWeight = getFieldValue('lbAlgorithm') === 'round-robin'
+    const showWeight = getFieldValue('lbAlgorithm') !== 'ip_hash'
     getFieldProps('keys', {
       initialValue: [],
     });
