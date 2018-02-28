@@ -11,7 +11,7 @@
 import React from 'react'
 import {
   Modal, Form, Input, Select, Button,
-  InputNumber, Row, Col, Icon
+  InputNumber, Row, Col, Icon, Tooltip
 } from 'antd'
 import {connect} from 'react-redux'
 import { Link } from 'react-router'
@@ -21,6 +21,9 @@ import {
 import {
   loadNotifyGroups
 } from '../../../../actions/alert'
+import { 
+  getServiceLBList 
+} from '../../../../actions/load_balance'
 import Notification from '../../../Notification'
 import {ASYNC_VALIDATOR_TIMEOUT} from '../../../../constants'
 import { autoScaleNameCheck } from '../../../../common/naming_validation'
@@ -44,7 +47,7 @@ const sendEmailOpt = [{
   type: 'SendNoEmail',
   text: '不发送邮件'
 }]
-const thresholdKey = ['cpu', 'memory']
+const thresholdKey = ['cpu', 'memory', 'qps']
 
 class AutoScaleModal extends React.Component {
   constructor() {
@@ -231,35 +234,24 @@ class AutoScaleModal extends React.Component {
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
   checkServiceName = (rule, value, callback) => {
-    const {checkAutoScaleName, clusterID, form, create} = this.props
-    const {getFieldValue} = form
+    const {getServiceLBList, clusterID, create} = this.props
     if (!create) {
       return callback()
     }
     if (!value) {
       return callback('请选择服务')
     }
-    const strategy_name = getFieldValue('scale_strategy_name') || ''
-    clearTimeout(this.checkSerivceNameExist)
-    this.checkSerivceNameExist = setTimeout(() => {
-      checkAutoScaleName(clusterID, {
-        service_name: value,
-        strategy_name,
-      }, {
+    clearTimeout(this.checkSerivceIsLB)
+    this.checkSerivceIsLB = setTimeout(() => {
+      getServiceLBList(clusterID, value, {
         success: {
-          func: () => {
-            callback()
-          },
-          isAsync: true
-        },
-        failed: {
           func: res => {
-            if (res.statusCode === 400) {
-              callback('该服务已经关联弹性伸缩策略')
+            if (isEmpty(res.data)) {
+              callback('该服务未绑定任何【负载均衡】，无法基于QPS创建伸缩策略')
+            } else {
+              callback()
             }
-            callback()
-          },
-          isAsync: true
+          }
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
@@ -328,9 +320,12 @@ class AutoScaleModal extends React.Component {
     }
     callback()
   }
-  checkValue(rule, value, callback) {
+  checkValue(rule, value, callback, type) {
     if (!value && value !== 0) {
       return callback('请输入阈值')
+    }
+    if (type === 'qps') {
+      return callback()
     }
     if (value < 1 || value > 99) {
       return callback('阈值范围为1至99')
@@ -458,47 +453,65 @@ class AutoScaleModal extends React.Component {
       initialValue: isEmpty(scaleDetail) ? undefined : scaleDetail.alert_group
     })
     let thresholdItem
+    let message = '所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩'
     thresholdItem = thresholdArr.map((key) => {
       let optItem = cpuAndMemory[key] || { 'cpu': 80 }
       return (
-        <Row type="flex" align="middle" key={key} className="strategyBox">
-          <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginBottom: 24, textAlign: 'right' }}>
-            {
-              thresholdArr.indexOf(key) === 0 ? '阈值：' : ''
-            }
-          </Col>
-          <Col span={7}>
-            <FormItem>
-              <Select
-                style={{width: 120}}
-                {...getFieldProps(`type${key}`, {
-                  rules: [{
-                    validator: (rule, value, callback) => this.checkType(rule, value, callback, key)
-                  }],
-                  initialValue: Object.keys(optItem)[0]
-                }) }
-              >
-                <Option value="cpu">CPU阈值</Option>
-                <Option value="memory">内存阈值</Option>
-              </Select>
-            </FormItem>
-          </Col>
-          <Col span={6}>
-            <FormItem>
-              <InputNumber
-                {...getFieldProps(`value${key}`, {
-                  rules: [{
-                    validator: this.checkValue
-                  }],
-                  initialValue: optItem[Object.keys(optItem)[0]]
-                })}/> %
-            </FormItem>
-          </Col>
-          <Col span={7} style={{ marginBottom: 24 }}>
-            <Button type="primary" size="large" icon="plus" onClick={this.addRule}/>&nbsp;
-            <Button type="ghost" size="large" icon="cross" onClick={this.delRule.bind(this, key)}/>
-          </Col>
-        </Row>
+        <div>
+          <Row type="flex" align="middle" key={key} className="strategyBox">
+            <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginBottom: 24, textAlign: 'right' }}>
+              {
+                thresholdArr.indexOf(key) === 0
+                  ? <div> 阈值 <Tooltip title={message}><Icon type="exclamation-circle-o"/></Tooltip>：</div>
+                  : ''
+              }
+            </Col>
+            <Col span={7}>
+              <FormItem>
+                <Select
+                  style={{width: 120}}
+                  {...getFieldProps(`type${key}`, {
+                    rules: [{
+                      validator: (rule, value, callback) => this.checkType(rule, value, callback, key)
+                    }],
+                    initialValue: Object.keys(optItem)[0]
+                  }) }
+                >
+                  <Option value="cpu">CPU阈值</Option>
+                  <Option value="memory">内存阈值</Option>
+                  <Option value="qps">QPS阈值</Option>
+                </Select>
+              </FormItem>
+            </Col>
+            <Col span={6}>
+              <FormItem>
+                <InputNumber
+                  {...getFieldProps(`value${key}`, {
+                    rules: [{
+                      validator: (rules, value, callback) => this.checkValue(rules, value, callback, getFieldValue(`type${key}`))
+                    }],
+                    initialValue: optItem[Object.keys(optItem)[0]]
+                  })}/>
+                {
+                  getFieldValue(`type${key}`) !== 'qps' ? '%' : '次/s'
+                }
+              </FormItem>
+            </Col>
+            <Col span={7} style={{ marginBottom: 24 }}>
+              <Button type="primary" size="large" icon="plus" onClick={this.addRule}/>&nbsp;
+              <Button type="ghost" size="large" icon="cross" onClick={this.delRule.bind(this, key)}/>
+            </Col>
+          </Row>
+          {
+            getFieldValue(`type${key}`) === 'qps' &&
+            <Row style={{margin: '-3px 0 10px'}}>
+              <Col span={4}/>
+              <Col span={16}>
+                <Icon type="exclamation-circle-o"/> 该阈值统计该服务通过【负载均衡】的QPS，若绑定了多个LB，则统计为QPS之和
+              </Col>
+            </Row>
+          }
+        </div>
       )
     })
     return (
@@ -554,12 +567,6 @@ class AutoScaleModal extends React.Component {
             <InputNumber {...maxReplicas}/> 个
           </FormItem>
           {thresholdItem}
-          <Row style={{margin: '-3px 0 10px'}}>
-            <Col span={4}/>
-            <Col span={16}>
-              <Icon type="exclamation-circle-o"/> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
-            </Col>
-          </Row>
           <FormItem
             {...formItemLargeLayout}
             label="发送邮件"
@@ -624,6 +631,9 @@ function mapStateToProps(state, props) {
   const {groups} = state.alert || {groups: {}}
   const {result} = groups || {result: {}}
   const {data: alertList} = result || {data: []}
+  const { loadBalance } = state
+  const { serviceLoadBalances } = loadBalance
+  const { data: LBList } = serviceLoadBalances || { data: [] }
   let {services} = serviceList || {services: []}
   services = services && services.length && existServices && services.filter(item => {
     return !existServices.includes(item.metadata.name)
@@ -631,7 +641,8 @@ function mapStateToProps(state, props) {
   return {
     clusterID,
     services,
-    alertList
+    alertList,
+    LBList
   }
 }
 
@@ -641,5 +652,6 @@ export default connect(mapStateToProps, {
   loadAllServices,
   updateAutoScale,
   loadNotifyGroups,
-  checkAutoScaleName
+  checkAutoScaleName,
+  getServiceLBList
 })(AutoScaleModal)
