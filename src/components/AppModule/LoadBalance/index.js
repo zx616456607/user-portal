@@ -30,11 +30,11 @@ class LoadBalance extends React.Component {
     loadBalanceVisible: false,
     page: DEFAULT_PAGE
   }
-  
+
   componentWillMount() {
     this.loadLBList()
   }
-  
+
   loadLBList = () => {
     const { clusterID, getLBList } = this.props
     const { page, name, sort } = this.state
@@ -52,32 +52,32 @@ class LoadBalance extends React.Component {
     }
     getLBList(clusterID, query)
   }
-  
+
   handlePage = page => {
     this.setState({
       page
     }, this.loadLBList)
   }
-  
+
   handleSearch = name => {
     this.setState({
       name
     }, this.loadLBList)
   }
-  
+
   tableChange = (pagination, filters, sorter) => {
     this.setState({
       sort: sorter && sorter.order,
     }, this.loadLBList)
   }
-  
+
   refreshData = () => {
     this.setState({
       page: 1,
       name: '',
       sort: ''
     }, this.loadLBList)
-  } 
+  }
   deleteLoadBalance = name => {
     const { deleteLB, clusterID } = this.props
   }
@@ -86,20 +86,20 @@ class LoadBalance extends React.Component {
       loadBalanceVisible: true
     })
   }
-  
+
   closeBalanceModal = () => {
     this.setState({
       currentBalance: null,
       loadBalanceVisible: false
     })
   }
-  
+
   handleVisibleChange = (visible, row) => {
     this.setState({
       [`popoverVisible${row.key}`]: visible
     })
   }
-  
+
   showDeleteModal = delArr => {
     if (!delArr || !delArr.length) {
       notify.warn('请选择要删除的负载均衡器')
@@ -109,13 +109,13 @@ class LoadBalance extends React.Component {
       deleteModal: true
     })
   }
-  
+
   cancelDelModal = () => {
     this.setState({
       deleteModal: false
     })
   }
-  
+
   confirmDelModal = () => {
     const { currentBalance } = this.state
     const { deleteLB, clusterID } = this.props
@@ -151,11 +151,11 @@ class LoadBalance extends React.Component {
       }
     })
   }
-  
+
   handleButtonClick = record => {
     browserHistory.push(`/app_manage/load_balance/balance_config?name=${record.metadata.name}&displayName=${record.metadata.annotations.displayName}`)
   }
-  
+
   handleMenuClick = (e, row) => {
     switch (e.key) {
       case 'edit':
@@ -174,7 +174,7 @@ class LoadBalance extends React.Component {
         break
     }
   }
-  
+
   renderLBStatus = LB => {
     return <ServiceStatus service={LB} smart={true}/>
   }
@@ -203,7 +203,7 @@ class LoadBalance extends React.Component {
       title: '名称',
       dataIndex: 'metadata.annotations.displayName',
       width: '15%',
-      render: (text, record) => 
+      render: (text, record) =>
         <Link to={`/app_manage/load_balance/balance_config?name=${record.metadata.name}&displayName=${record.metadata.annotations.displayName}`}>{text}</Link>
     }, {
       title: '状态',
@@ -278,7 +278,7 @@ class LoadBalance extends React.Component {
         </Modal>
         <div className="layout-content-btns" key="layout-content-btns">
           <Button type="primary" size="large" onClick={this.openBalanceModal}><i className="fa fa-plus" /> 创建负载均衡</Button>
-          <Button type="ghost" size="large" onClick={this.refreshData}><i className='fa fa-refresh' /> 刷新</Button>
+          <Button type="ghost" size="large" onClick={this.refreshData}><i className='fa fa-refresh' /> 刷 新</Button>
           {/*<Button type="ghost" size="large" icon="delete" onClick={() => this.showDeleteModal([1,2,3])}>删除</Button>*/}
           <SearchInput
             placeholder="请输入关键词搜索"
@@ -294,10 +294,10 @@ class LoadBalance extends React.Component {
             </div> : null
           }
         </div>
-        <Table 
+        <Table
           key="loadBalanceTable"
           className="loadBalanceTable reset_antd_table_header"
-          // rowSelection={rowSelection} 
+          // rowSelection={rowSelection}
           columns={columns}
           dataSource={loadBalanceList}
           pagination={false}

@@ -150,7 +150,7 @@ export default class PanelBtnGroup extends React.Component {
           <i className="fa fa-plus" aria-hidden="true"/>&nbsp;
           添加图表
         </Button>
-        <Button size="large" type="ghost" onClick={this.refreshMetric}><i className='fa fa-refresh' /> 刷新</Button>
+        <Button size="large" type="ghost" onClick={this.refreshMetric}><i className='fa fa-refresh' /> 刷 新</Button>
         <div className="right-part">
           <Button
             className="type-change-btn"
