@@ -159,11 +159,11 @@ class CachedVolumes extends React.Component {
             <Button
               className='createBtn'
               size='large'
-              type='primary'
+              type="ghost"
               onClick={this.loadData}
             >
               <i className='fa fa-refresh' />&nbsp;
-              刷新
+              刷 新
             </Button>
             <Input
               className='searchBox'

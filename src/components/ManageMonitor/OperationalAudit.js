@@ -2217,7 +2217,7 @@ class OperationalAudit extends Component {
               <i className='fa fa-wpforms'></i> <FormattedMessage {...menusText.search} />
             </Button>
             <Button type="ghost" size="large" className='refresh' onClick={this.refreshLogs}>
-              刷 新
+              <i className='fa fa-refresh' style={{marginRight: 5 }}/>刷 新
             </Button>
             { this.state.totalNum !== 0 && <div className='bottomBox'>
               <div className='pageBox'>
