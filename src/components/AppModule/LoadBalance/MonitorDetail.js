@@ -563,6 +563,7 @@ class MonitorDetail extends React.Component {
   selectService = (name, key) => {
     const { allServices } = this.state
     const currentService = allServices.filter(item => item.metadata.name === name)[0]
+    if (!currentService) return
     this.setState({
       [`port-${key}`]: currentService.spec.ports.map(item => item.port)
     })
