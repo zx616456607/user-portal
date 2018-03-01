@@ -57,10 +57,23 @@ class CreateRoleModal extends Component{
       autoExpandParent: false,
     });
   }
-  onCheck(checkedKeys) {
+  onCheck(key, e) {
+    const { checkedKeys } = this.state
+    const categoryKey = this.fetchNode(e.node.props.category)
+    
+    categoryKey.forEach(item => {
+      if (checkedKeys.length === 0) {
+        key.push(item)
+      } else {
+        if (checkedKeys.indexOf(item) === -1) {
+          key.push(item)
+        }
+      }
+    })
+    
     this.setState({
-      checkedKeys
-    });
+      checkedKeys: key
+    })
   }
   onSelect(selectedKeys, info) {
     this.setState({ selectedKeys });
@@ -167,6 +180,42 @@ class CreateRoleModal extends Component{
       })
     })
     
+  }
+  fetchNode(category) {
+    const { allPermission } = this.state
+    let childrenKey = []
+    this.fetchCategory(allPermission, childrenKey, category)
+    return childrenKey
+  }
+  fetchCategory(data, childrenKey, category) {
+    const children = []
+    for (let i = 0; i < data.length; i++) {
+      let RowData = data[i]
+      if (RowData.id === category) {
+        if (RowData.children) {
+          RowData.children.forEach((item, index) => {
+            if (item.name.indexOf('查看') !== -1) {
+              if (item.children) {
+                item.children.forEach((item, index) => {
+                  childrenKey.push(item.id)
+                })
+              } else {
+                childrenKey.push(item.id)
+              }
+            }
+          })
+        }
+      }
+      children.push(RowData.id)
+    }
+    
+    children.forEach((key, index) => {
+      if (data[index]["children"] !== undefined) {
+        if (data[index].children.length !== 0) {
+          return this.fetchCategory(data[index].children, childrenKey, category);
+        }
+      }
+    })
   }
   render() {
     const TreeNode = Tree.TreeNode;
