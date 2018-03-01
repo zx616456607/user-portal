@@ -99,7 +99,7 @@ class MyComponent extends Component {
     const { getFieldValue } = form
     let name = getFieldValue(`envName${index}`)
     let value = getFieldValue(`envValue${index}`)
-    if(name == undefined || value == undefined || name == '' || value == ''){
+    /* if(name == undefined || value == undefined || name == '' || value == ''){
       dataArray.splice(index,1)
       rowDisableArray.splice(index,1)
       saveBtnLoadingArray.splice(index,1)
@@ -109,7 +109,7 @@ class MyComponent extends Component {
         saveBtnLoadingArray,
       })
       return
-    }
+    } */
     if(dataArray[index].flag == true){
       dataArray.splice(index,1)
       rowDisableArray.splice(index,1)
