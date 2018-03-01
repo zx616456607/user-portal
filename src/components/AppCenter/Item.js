@@ -216,7 +216,7 @@ let MyComponent = React.createClass({
     return (
       <div className='modalBox'>
         <div className='alertRow'>
-          第三方仓库接入，支持标准 Docker Registry 和 hub.docker.com 接口（暂不支持 Harbor 等第三方接口）。
+        第三方仓库接入，支持标准 Docker Registry 和 hub.docker.com 接口（平台默认 registry 为 Harbor，第三方接口无需再次接入）。
         </div>
         <Form className='addForm' horizontal>
           <FormItem label="接入类型" {...formItemLayout}>
