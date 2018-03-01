@@ -1,40 +1,10 @@
 .ClusterBox {
-  padding-top: 20px;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding: 20px 20px 0 20px;
   #ClusterContent {
-    .ant-tabs-card{
-      overflow: visible;
-      .ant-tabs-bar{
-        overflow: visible;
-        .ant-tabs-nav-container{
-          overflow: visible;
-          .ant-tabs-nav-wrap{
-            overflow: visible;
-            .ant-tabs-nav-scroll{
-              overflow: visible;
-              .ant-tabs-nav{
-                overflow: visible;
-                .ant-tabs-tab{
-                  overflow: visible;
-                  .ant-tabs-tab-inner{
-                    overflow: visible;
-                    .clusterDiv{
-                      overflow: visible;
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
     .ant-tabs-bar {
       background: #e9ecf1;
       border-radius: 4px;
       font-size: 12px;
-      position: relative;
       overflow: hidden;
       transition: all 0.3s;
       border-bottom: 1px solid #d9d9d9;
@@ -47,7 +17,6 @@
         background-color: #F8F8F8;
       }
       .ant-tabs-nav {
-        width: 124px;
         height: 40px;
         line-height: 40px;
         .ant-tabs-tab-inner{
@@ -59,18 +28,24 @@
           margin-right: 0 !important;
           .clusterDiv{
             position: relative;
-            width: 124px;
-            .clustername{
+            width: 145px;
+            padding: 0 10px;
+            text-align: left;
+            .common-style {
               display: inline-block;
-              width: 124px;
+              text-align: left;
+              width: 135px;
               overflow: hidden;
               text-overflow: ellipsis;
               white-space: nowrap;
             }
+            .builder-style {
+              width: 112px;
+            }
             .clusterImg{
               position: absolute;
-              top: -8px;
-              left: 105px;
+              top: 10px;
+              left: 120px;
             }
           }
         }
@@ -83,7 +58,8 @@
       .ant-tabs-tab-prev,
       .ant-tabs-tab-next {
         margin-top: 0 !important;
-        line-height: 50px !important;
+        line-height: 40px !important;
+        z-index: 11;
       }
       .ant-tabs-nav :nth-child(5) {
         border-left: 1px solid #efefef;
@@ -93,9 +69,7 @@
       }
     }
     .authorityBtn{
-      position: absolute;
-      right:160px;
-      top:7px;
+      margin-right: 20px;
       z-index: 2;
       border:1px solid #e9ecf1;
       color: #57c5f7;
@@ -128,7 +102,6 @@
       border: 1px solid #57c5f7;
     }
     .addBtn {
-      position: absolute;
       right: 40px;
       padding: 4px;
       z-index: 2;
