@@ -104,7 +104,28 @@ export const LITE = 'lite'
 export const MAX_CHARGE = 200000
 export const CHARGE_NUMBERS = [ 10, 20, 50, 100 ]
 export const NOT_AVAILABLE = 'N/A'
-export const BASE_IMAGE_TYPE = ["单元测试", "代码编译", "构建镜像", "集成测试"]
+export const BASE_IMAGE_TYPE = [
+  {
+    key: 1,
+    text: '单元测试'
+  },
+  {
+    key: 2,
+    text: '代码编译'
+  },
+  {
+    key: 3,
+    text: '构建镜像'
+  },
+  {
+    key: 4,
+    text: '集成测试'
+  },
+  {
+    key: 6,
+    text: '人工审批'
+  },
+]
 export const NEED_BUILD_IMAGE = true
 export const PLUGIN_DEFAULT_CONFIG = {
   ['elasticsearch-logging']:{
