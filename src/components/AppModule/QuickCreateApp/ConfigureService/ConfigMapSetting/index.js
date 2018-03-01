@@ -28,12 +28,12 @@ const CheckboxGroup = Checkbox.Group
 const PATH_REG = /^\//
 
 const ConfigMapSetting = React.createClass({
-  componentWillMount() {
-    const { currentCluster, loadConfigGroup } = this.props
-    loadConfigGroup(currentCluster.clusterID)
-  },
   componentDidUpdate() {
     this.addClick()
+  },
+  loadConfigGroups() {
+    const { currentCluster, loadConfigGroup } = this.props
+    loadConfigGroup(currentCluster.clusterID)
   },
   addClick() {
     const { getFieldValue } = this.props.form
@@ -260,6 +260,7 @@ const ConfigMapSetting = React.createClass({
       if (!!errors) {
         return
       }
+      this.loadConfigGroups()
       const key = configMapKeys[configMapKeys.length - 1] || { value: 0 }
       let uid = key.value
       uid ++
