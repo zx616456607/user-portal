@@ -199,18 +199,21 @@ class MySpace extends Component {
     }
     return count
   }
-  renderProcessNumber(key) {
+  renderProcessNumber(key, span = {}) {
     const useCount = this.useCount(key)
     const maxCount = this.maxCount(key)
+    const { left = 9, right = 15 } = span
     let overUsed = false
     if (useCount > maxCount && maxCount !== -1) {
       overUsed = true
     }
     return (
       <Row className="number-row">
-        <Col span={11} style={{ color: overUsed ? 'red' : '#ccc' }}>{useCount}</Col>
-        <Col span={2}>/</Col>
-        <Col span={11}>{maxCount === -1 ? '无限制' : maxCount}</Col>
+        <Col span={left}></Col>
+        <Col span={right} className="number">
+          <span style={{ color: overUsed ? 'red' : '#ccc' }}>{useCount}</span>
+          /<span>{maxCount === -1 ? '无限制' : maxCount}</span>
+        </Col>
       </Row>
     )
   }
@@ -379,7 +382,7 @@ class MySpace extends Component {
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                         </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key)}
+                      {this.renderProcessNumber(item.key, { left: 9, rigth: 15 })}
                     </div>
                   ))
                 }
@@ -396,7 +399,7 @@ class MySpace extends Component {
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                         </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key)}
+                      {this.renderProcessNumber(item.key, { left: 9, rigth: 15 })}
                     </div>
                   ))
                 }

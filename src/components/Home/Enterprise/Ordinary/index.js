@@ -407,18 +407,22 @@ class Ordinary extends Component {
     }
     return count
   }
-  renderProcessNumber(key) {
+  renderProcessNumber(key, span = {}) {
     const usedCount = this.useClusterCount(key)
     const maxCount = this.maxClusterCount(key)
+    const { left = 10, right = 10 } = span
     let overUesd = false
     if (usedCount > maxCount && maxCount !== -1) {
       overUesd = true
     }
     return (
       <Row className="number-row">
-        <Col span={11}><span style={{ color: overUesd ? 'red' : '#ccc' }}>{usedCount}</span></Col>
-        <Col span={2}>/</Col>
-        <Col span={11}><p>{maxCount === -1 ? '无限制' : maxCount}</p></Col>
+        <Col span={left}></Col>
+        <Col span={right} className="number">
+          <span style={{ color: overUesd ? 'red' : '#ccc' }}>{usedCount}</span>
+          /
+          <p>{maxCount === -1 ? '无限制' : maxCount}</p>
+        </Col>
       </Row>
     )
   }
@@ -1541,7 +1545,7 @@ class Ordinary extends Component {
                           <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key)}
+                      {this.renderProcessNumber(item.key, { left: 6, right: 18})}
                     </div>
                   ))
                 }
@@ -1558,7 +1562,7 @@ class Ordinary extends Component {
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key)}
+                      {this.renderProcessNumber(item.key, { left: 9, right: 15})}
                     </div>
                   ))
                 }
@@ -1575,7 +1579,7 @@ class Ordinary extends Component {
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key)}
+                      {this.renderProcessNumber(item.key, { left: 14, right: 10})}
                     </div>
                   ))
                 }
