@@ -978,14 +978,14 @@ class AppServiceDetailInfo extends Component {
     loadAllServices(cluster, query)
   }
 
-  saveVolumnsChange(){
-    const { cluster, serviceName, createStorage, editServiceVolume, loadServiceDetail } = this.props
+  saveVolumnsChange = async () => {
+    const { cluster, serviceName, createStorage, editServiceVolume } = this.props
     const { volumeList } = this.state
-    const promiseArray = []
     const notification = new NotificationHandler()
     this.setState({
       loading: true,
     })
+    const template = []
     volumeList.forEach((item, index) => {
       if(item.volume == 'create' && item.type){
         let body = {}
@@ -1010,76 +1010,43 @@ class AppServiceDetailInfo extends Component {
           }
         }
         const persistentVolumeClaim = new PersistentVolumeClaim(body)
-        const obj = {
-          cluster,
-          template: yaml.dump(persistentVolumeClaim),
-        }
-        promiseArray.push(new Promise(( resolve ) => {
-          createStorage(obj, {
-            success: {
-              func: () => {
-                return resolve({
-                  result: 'success'
-                })
-              }
-            },
-            failed: {
-              func: res => {
-                return resolve({
-                  result: 'failed',
-                  res
-                })
-              }
-            }
-          })
-        }))
+        template.push(yaml.dump(persistentVolumeClaim))
       }
     })
-    Promise.all(promiseArray).then(res => {
-      let createVolume = 'success'
-      for(let i = 0; i < res.length; i++){
-        if(res[i].result == 'failed'){
-          this.setState({
-            loading: false,
-            //nouseEditing: false,
-          })
-          if (isResourceQuotaError(res[i].res)) {
-            createVolume = 'failed'
-          } else {
-            notification.error(res[i].res.message.message || res[i].res.message)
-          }
-        }
-      }
-      if(createVolume == 'failed'){
+    const body = {
+      cluster,
+      template
+    }
+    const result = await createStorage(body)
+    if (result.error) {
+      this.setState({
+        loading: false
+      })
+      if (isResourceQuotaError(result.error)) {
         return
       }
-      return editServiceVolume(cluster, serviceName, volumeList, {
-        success: {
-          func: () => {
-            this.setState({
-              nouseEditing: true,
-              loading: false,
-            })
-            this.getServiceDetail(cluster, serviceName)
-            this.loadServiceList()
-            notification.success('修改服务存储卷成功')
-          },
-          isAsync: true
-        },
-        failed: {
-          func: res => {
-            this.setState({
-              loading: false,
-            })
-            let message = '修改服务存储卷失败，请重试'
-            if(res.message){
-              message = res.message
-            }
-            notification.error(message)
-          }
-        }
+      notification.warn(result.message.message || result.message)
+      return
+    }
+    const editResult = await editServiceVolume(cluster, serviceName, volumeList)
+    if (editResult.error) {
+      this.setState({
+        loading: false,
       })
+      let message = '修改服务存储卷失败，请重试'
+      if(editResult.error.message){
+        message = editResult.error.message
+      }
+      notification.warn(message)
+      return
+    }
+    this.setState({
+      nouseEditing: true,
+      loading: false,
     })
+    this.getServiceDetail(cluster, serviceName)
+    this.loadServiceList()
+    notification.success('修改服务存储卷成功')
   }
 
   callbackFields(info){
