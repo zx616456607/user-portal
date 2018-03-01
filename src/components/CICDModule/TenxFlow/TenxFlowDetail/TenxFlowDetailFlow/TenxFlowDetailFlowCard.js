@@ -553,13 +553,13 @@ class TenxFlowDetailFlowCard extends Component {
     const project = config.spec.project || {}
     const projectId = project.id
     const { lastBuildStatus } = config
-    const { id, name } = config.metadata
+    const { id, name, type } = config.metadata
     let disabled = false
     if (preStage && preStage.link && preStage.link.enabled == 1 && preStage.link.sourceDir != "") {
       disabled = true
     }
     const btn = currentStatusBtn(lastBuildStatus)
-    if (lastBuildStatus && lastBuildStatus.status === 2) {
+    if ((lastBuildStatus && lastBuildStatus.status === 2) || type == 6) {
       return (
         <Button size='large' type='primary' className='startBtn'
           onClick={this.buildFlow.bind(this, id, lastBuildStatus, name, null, null)}>
@@ -656,7 +656,10 @@ class TenxFlowDetailFlowCard extends Component {
     const scopeThis = this;
     const dropdown = (
         <Menu onClick={this.operaMenuClick.bind(this, config.metadata.id)} style={{ width: '110px' }}>
-          <Menu.Item key='deleteStage' disabled={index == (totalLength - 1) ? false : true}>
+          <Menu.Item
+            key='deleteStage'
+            disabled={index == 0 && totalLength > 1}
+          >
             <Icon type='delete' style={{ float: 'left', lineHeight: '16px', marginRight: '5px', fontSize: '14px' }} />
             <span style={{ float: 'left', lineHeight: '16px', fontSize: '14px' }}>
               <FormattedMessage {...menusText.deleteBtn} />

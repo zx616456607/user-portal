@@ -77,7 +77,8 @@ class AutoScaleModal extends React.Component {
       })
       this.setState({
         thresholdArr: [0],
-        cpuAndMemory: []
+        cpuAndMemory: [],
+        currentType: ''
       })
       this.uuid = 0
       form.resetFields()
@@ -234,27 +235,34 @@ class AutoScaleModal extends React.Component {
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
   checkServiceName = (rule, value, callback) => {
-    const {getServiceLBList, clusterID, create} = this.props
+    const {getServiceLBList, clusterID, create, form} = this.props
+    const { currentType, currentKey } = this.state
     if (!create) {
       return callback()
     }
     if (!value) {
       return callback('请选择服务')
     }
-    clearTimeout(this.checkSerivceIsLB)
-    this.checkSerivceIsLB = setTimeout(() => {
-      getServiceLBList(clusterID, value, {
-        success: {
-          func: res => {
-            if (isEmpty(res.data)) {
-              callback('该服务未绑定任何【负载均衡】，无法基于QPS创建伸缩策略')
-            } else {
-              callback()
+    if (currentType === 'qps') {
+      clearTimeout(this.checkSerivceIsLB)
+      this.checkSerivceIsLB = setTimeout(() => {
+        getServiceLBList(clusterID, value, {
+          success: {
+            func: res => {
+              if (isEmpty(res.data)) {
+                form.setFields({
+                  [`type${currentKey}`]: {
+                    errors: ['该服务未绑定任何【负载均衡】，无法基于 QPS 创建伸缩策略'],
+                    value: 'qps'
+                  }
+                })
+              }
             }
           }
-        }
-      })
-    }, ASYNC_VALIDATOR_TIMEOUT)
+        })
+      }, ASYNC_VALIDATOR_TIMEOUT)
+    }
+    callback()
   }
   checkMin = (rule, value, callback) => {
     const { getFieldValue } = this.props.form
@@ -299,8 +307,8 @@ class AutoScaleModal extends React.Component {
     callback()
   }
   checkType = (rule, value, callback, key) => {
-    const { form } = this.props
-    const { getFieldValue } = form
+    const { form, getServiceLBList, clusterID } = this.props
+    const { getFieldValue, getFieldError } = form
     const { thresholdArr } = this.state
     if (!value) {
       return callback('请选择类型')
@@ -318,7 +326,27 @@ class AutoScaleModal extends React.Component {
     if (result) {
       return callback('阈值类型重复')
     }
-    callback()
+    this.setState({
+      currentType: value,
+      currentKey: key
+    })
+    const serviceName = form.getFieldValue('serviceName')
+    if (!serviceName || value !== 'qps') return callback()
+    if (getFieldError(`type${key}`)) return callback()
+    clearTimeout(this.checkSerivceIsLB)
+    this.checkSerivceIsLB = setTimeout(() => {
+      getServiceLBList(clusterID, serviceName, {
+        success: {
+          func: res => {
+            if (isEmpty(res.data)) {
+              return callback('该服务未绑定任何【负载均衡】，无法基于 QPS 创建伸缩策略')
+            } else {
+              callback()
+            }
+          }
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
   }
   checkValue(rule, value, callback, type) {
     if (!value && value !== 0) {
@@ -342,7 +370,6 @@ class AutoScaleModal extends React.Component {
       if (!!errors) {
         return
       }
-
       let copyThresholdArr = thresholdArr.slice(0)
       this.uuid++
       copyThresholdArr = copyThresholdArr.concat(this.uuid)
@@ -418,7 +445,7 @@ class AutoScaleModal extends React.Component {
     }
     const scaleName = getFieldProps('scale_strategy_name', {
       rules: [{
-        validator: this.checkScaleName.bind(this),
+        validator: this.checkScaleName,
       }],
       initialValue: create || isEmpty(scaleDetail) ? undefined : scaleDetail.scale_strategy_name
     })
@@ -458,8 +485,8 @@ class AutoScaleModal extends React.Component {
       let optItem = cpuAndMemory[key] || { 'cpu': 80 }
       return (
         <div>
-          <Row type="flex" align="middle" key={key} className="strategyBox">
-            <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginBottom: 24, textAlign: 'right' }}>
+          <Row key={key} className="strategyBox">
+            <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginTop: 8, textAlign: 'right' }}>
               {
                 thresholdArr.indexOf(key) === 0
                   ? <div> 阈值 <Tooltip title={message}><Icon type="exclamation-circle-o"/></Tooltip>：</div>
@@ -505,9 +532,8 @@ class AutoScaleModal extends React.Component {
           {
             getFieldValue(`type${key}`) === 'qps' &&
             <Row style={{margin: '-3px 0 10px'}}>
-              <Col span={4}/>
-              <Col span={16}>
-                <Icon type="exclamation-circle-o"/> 该阈值统计该服务通过【负载均衡】的QPS，若绑定了多个LB，则统计为QPS之和
+              <Col offset={4} span={16}>
+                <Icon type="exclamation-circle-o"/> 该阈值统计该服务通过【负载均衡】的 QPS，若绑定了多个 LB，则统计为 QPS 之和
               </Col>
             </Row>
           }
