@@ -30,6 +30,7 @@ import CI from '../../assets/img/setting/shishi.png'
 import OpenModalImage from '../../assets/img/cluster/clusterAuthority.svg'
 import { calcuDate } from '../../common/tools'
 import Title from '../Title'
+import classNames from 'classnames'
 
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
@@ -903,9 +904,13 @@ class ClusterList extends Component {
 
     let ImageTabList = []
     clusters.forEach(cluster => {
+      const clusterNameClass = classNames({
+        'builder-style': cluster.isBuilder,
+        'common-style': true,
+      })
       let tabPaneTab = <div className='clusterDiv'>
         <Tooltip title={cluster.clusterName}>
-          <span className='clustername'>{cluster.clusterName}</span>
+          <span className={clusterNameClass}>{cluster.clusterName}</span>
         </Tooltip>
           { cluster.isBuilder && <Tooltip title='构建环境'><img src={CI} className='clusterImg'/></Tooltip> }
         </div>
