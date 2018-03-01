@@ -1188,7 +1188,7 @@ let EditTenxFlowModal = React.createClass({
             shellList.push(values['shellCode' + item]);
           }
         });
-        if (this.state.otherFlowType != 3 && shellList.length === 0) {
+        if (this.state.otherFlowType != 3 && this.state.otherFlowType != 6 && shellList.length === 0) {
           this.setState({
             noShell: true,
           })
@@ -1196,7 +1196,7 @@ let EditTenxFlowModal = React.createClass({
           return
         }
       } else if (_this.state.shellCodeType == 'scripts') {
-        if (this.state.otherFlowType != 3 && (!_this.state.scriptsId || _this.state.scriptsId === '')) {
+        if (this.state.otherFlowType != 3 && this.state.otherFlowType != 6 && (!_this.state.scriptsId || _this.state.scriptsId === '')) {
           this.setState({
             noShell: true,
           })
@@ -1253,7 +1253,7 @@ let EditTenxFlowModal = React.createClass({
         body.spec.uniformRepo = this.props.uniformRepo
       }
       // 增加 scripts id
-      if (_this.state.shellCodeType === 'scripts') {
+      if (_this.state.shellCodeType === 'scripts' && this.state.otherFlowType != 3 && this.state.otherFlowType != 6) {
         body.spec.container.scripts_id = _this.state.scriptsId
       }
       //if user select the customer type (5), ths customType must be input
