@@ -24,6 +24,10 @@ let CreateConfigFileModal = React.createClass({
       filePath: '请上传文件或直接输入内容'
     }
   },
+  componentDidMount() {
+    const configName = document.getElementById('configName')
+    configName && configName.focus()
+  },
   configNameExists(rule, value, callback) {
     const form = this.props.form;
     if (!value) {
