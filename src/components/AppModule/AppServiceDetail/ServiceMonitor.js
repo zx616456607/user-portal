@@ -261,7 +261,7 @@ class ServiceMonitior extends Component {
       currentValue: value
     }, () => {
       const { currentValue } = this.state
-      loadServiceAllOfMetrics(cluster, serviceName, { start: this.changeTime(currentValue) })
+      loadServiceAllOfMetrics(cluster, serviceName, { start: this.changeTime(currentValue), end: new Date().toISOString() })
       this.setIntervalFunc()
     })
   }
