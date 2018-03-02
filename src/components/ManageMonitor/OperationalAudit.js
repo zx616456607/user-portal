@@ -1930,16 +1930,21 @@ class OperationalAudit extends Component {
 
   refreshLogs() {
     const { getOperationLogList } = this.props
+    const {
+      from = 0, size = 15, namespace = null, operation = null,
+      resource = null, start_time = null, end_time = null,
+      status = null,
+    } = this.state
     let body = {
-      from: 0,
-      size: 15,
-      namespace: null,
-      operation: null,
-      resource: null,
-      start_time: null,
-      end_time: null
+      from: (from - 1) * size,
+      size,
+      namespace,
+      operation,
+      resource,
+      start_time,
+      end_time,
+      status,
     }
-    let notification = new NotificationHandler()
     getOperationLogList(body)
   }
 
