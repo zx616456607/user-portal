@@ -150,6 +150,7 @@ class StatefulCluster extends Component {
     super()
     this.createDatabaseShow = this.createDatabaseShow.bind(this);
     this.clusterRefresh = this.clusterRefresh.bind(this);
+    this.handSearch = this.handSearch.bind(this);
     this.state = {
       search: '',
       detailModal: false,
@@ -171,7 +172,17 @@ class StatefulCluster extends Component {
       }
     })
     getProxy(cluster)
-    loadDbCacheList(cluster, clusterType)
+    loadDbCacheList(cluster, clusterType, {
+      success: {
+        func: () => {
+          const { search } = this.state
+          if (search) {
+            return this.handSearch()
+          }
+        },
+        isAsync: true,
+      }
+    })
   }
   componentWillMount() {
     const { loadDbCacheList, cluster, clusterType, getProxy } = this.props

@@ -556,7 +556,7 @@ class WrapManage extends Component {
   }
   handleRefresh() {
     this.setState({ isRefresh: true })
-    this.getList()
+    this.getList(true)
   }
   render() {
     const { location } = this.props
