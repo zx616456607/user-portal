@@ -1038,6 +1038,8 @@ class AlarmModal extends Component {
           obj.value = obj.value * 1024 * 1024
         } else if (obj.metricType === 'cpu/usage_rate') {
           obj.value = obj.value * 100
+        } else if (obj.metricType === 'disk/usage') {
+          obj.value = obj.value * 100
         }
         obj.value = obj.value.toString()
         specs.push(obj)
