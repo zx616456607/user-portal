@@ -114,6 +114,7 @@ class RedisDatabase extends Component {
     super()
     this.createDatabaseShow = this.createDatabaseShow.bind(this);
     this.clusterRefresh = this.clusterRefresh.bind(this);
+    this.handSearch = this.handSearch.bind(this);
     this.state = {
       search: '',
       detailModal: false,
@@ -134,7 +135,17 @@ class RedisDatabase extends Component {
         }
       }
     })
-    loadDbCacheList(cluster, 'redis')
+    loadDbCacheList(cluster, 'redis', {
+      success: {
+        func: () => {
+          const { search } = this.state
+          if (search) {
+            return this.handSearch()
+          }
+        },
+        isAsync: true,
+      }
+    })
   }
   componentWillMount() {
     const { loadDbCacheList, cluster, getProxy } = this.props
