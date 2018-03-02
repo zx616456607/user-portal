@@ -257,7 +257,7 @@ class ContainerMonitior extends Component {
       currentValue: value
     }, () => {
       const { currentValue } = this.state
-      loadContainerAllOfMetrics(cluster, containerName, { start: this.changeTime(currentValue) })
+      loadContainerAllOfMetrics(cluster, containerName, { start: this.changeTime(currentValue), end: new Date().toISOString() })
       this.setIntervalFunc()
     })
   }

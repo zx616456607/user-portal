@@ -630,7 +630,7 @@ class ClusterDetail extends Component {
           currentStart: this.changeTime(currentValue)
         }, () => {
           const { currentStart} = this.state
-          this.loadData(this.props, { start: currentStart })
+          this.loadData(this.props, { start: currentStart, end: new Date().toISOString() })
         })
       }, UPDATE_INTERVAL)
     })
