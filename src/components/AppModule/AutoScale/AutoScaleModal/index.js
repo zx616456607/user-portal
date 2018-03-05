@@ -331,24 +331,31 @@ class AutoScaleModal extends React.Component {
       currentKey: key
     })
     const serviceName = form.getFieldValue('serviceName')
-    if (!serviceName || value !== 'qps') return callback()
-    if (getFieldError(`type${key}`)) return callback()
-    clearTimeout(this.checkSerivceIsLB)
-    this.checkSerivceIsLB = setTimeout(() => {
+    if (!serviceName || value !== 'qps') { return  callback()}
+    if (getFieldError(`type${key}`)) { return callback()}
+    clearTimeout(this.checkSerivceIsLBType)
+    this.checkSerivceIsLBType = setTimeout(() => {
       getServiceLBList(clusterID, serviceName, {
         success: {
           func: res => {
             if (isEmpty(res.data)) {
-              return callback('该服务未绑定任何【负载均衡】，无法基于 QPS 创建伸缩策略')
+              callback('该服务未绑定任何【负载均衡】，无法基于 QPS 创建伸缩策略')
             } else {
               callback()
             }
-          }
+          },
+          isAsync: true
+        },
+        failed: {
+          func: res => {
+            callback(res.message.message || res.message)
+          },
+          isAsync: true
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
-  checkValue(rule, value, callback, type) {
+  checkValue = (rule, value, callback, type) => {
     if (!value && value !== 0) {
       return callback('请输入阈值')
     }
