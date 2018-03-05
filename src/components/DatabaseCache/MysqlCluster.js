@@ -116,6 +116,7 @@ class MysqlCluster extends Component {
     super(props)
     this.createDatabaseShow = this.createDatabaseShow.bind(this);
     this.refreshDatabase = this.refreshDatabase.bind(this);
+    this.handSearch = this.handSearch.bind(this);
     this.state = {
       detailModal: false,
       putVisible: false,
@@ -137,7 +138,17 @@ class MysqlCluster extends Component {
         }
       }
     })
-    loadDbCacheList(cluster, 'mysql')
+    loadDbCacheList(cluster, 'mysql', {
+      success: {
+        func: () => {
+          const { search } = this.state
+          if (search) {
+            return this.handSearch()
+          }
+        },
+        isAsync: true,
+      }
+    })
     const { teamCluster } = this.props
     if(teamCluster && teamCluster.result && teamCluster.result.data && location.search == '?createDatabase'){
       _this.setState({
