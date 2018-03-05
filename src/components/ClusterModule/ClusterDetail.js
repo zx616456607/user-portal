@@ -359,13 +359,13 @@ class ClusterDetail extends Component {
       }
     })
 
-    this.loadData(this.props, { start: this.changeTime(currentValue) })
+    this.loadData(this.props, { start: this.changeTime(currentValue), end: new Date().toISOString() })
     this.changeTimeInterval = setInterval(() => {
       this.setState({
         currentStart: this.changeTime(currentValue)
       }, () => {
         const { currentStart} = this.state
-        this.loadData(this.props, { start: currentStart })
+        this.loadData(this.props, { start: currentStart, end: new Date().toISOString() })
       })
     }, UPDATE_INTERVAL)
 
@@ -624,7 +624,7 @@ class ClusterDetail extends Component {
     }, () => {
       const { currentValue, currentStart } = this.state
       clearInterval(this.changeTimeInterval)
-      this.loadData(this.props, { start: currentStart })
+      this.loadData(this.props, { start: currentStart, end: new Date().toISOString() })
       this.changeTimeInterval = setInterval(() => {
         this.setState({
           currentStart: this.changeTime(currentValue)
