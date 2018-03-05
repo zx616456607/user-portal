@@ -230,6 +230,27 @@ function networksolutions(state = {}, action){
   }
 }
 
+function getNodeDetail(state, action) {
+  switch (action.type) {
+    case ActionTypes.GET_NODE_DETAIL_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+        data: []
+      })
+    case ActionTypes.GET_NODE_DETAIL_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data
+      })
+    case ActionTypes.GET_NODE_DETAIL_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: []
+      })
+    default:
+      return state
+  }
+}
 export function cluster_nodes(state = { cluster_nodes: {}, clusterLabel: {} }, action) {
   return {
     getAllClusterNodes: getAllClusterNodes(state.getAllClusterNodes, action),
@@ -252,6 +273,7 @@ export function cluster_nodes(state = { cluster_nodes: {}, clusterLabel: {} }, a
     addNodeCMD: addNodeCMD(state.addNodeCMD, action),
     clusterLabel: clusterLabel(state.clusterLabel, action),
     networksolutions: networksolutions(state.networksolutions, action),
-    nodeLabel: getNodeLabels(state.nodeLabel, action)
+    nodeLabel: getNodeLabels(state.nodeLabel, action),
+    nodeDetail: getNodeDetail(state.nodeDetail, action)
   }
 }
