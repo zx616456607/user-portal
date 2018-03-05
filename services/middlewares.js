@@ -95,7 +95,7 @@ exports.auth = function* (next) {
       teamspace = _teamspace
     }
   }
-  this.session.loginUser.teamspace = teamspace
+  this.session.loginUser.teamspace = !onbehalfuser ? teamspace : null
   this.session.loginUser.onbehalfuser = onbehalfuser
   yield next
 }
