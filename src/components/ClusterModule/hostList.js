@@ -9,14 +9,18 @@ import { Card, Button, Tooltip, Icon, Input, Spin, Menu, Dropdown, Switch, Tag, 
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getAllClusterNodes, getClusterNodesMetrics, getKubectlsPods, deleteClusterNode, getClusterLabel, changeClusterNodeSchedule } from '../../actions/cluster_node'
+import { 
+  getAllClusterNodes, getClusterNodesMetrics, getKubectlsPods, 
+  deleteClusterNode, getClusterLabel, changeClusterNodeSchedule,
+  getNodeDetail, maintainNode, exitMaintainNode, getNotMigratedPodCount
+} from '../../actions/cluster_node'
 import { addTerminal } from '../../actions/terminal'
 import { NOT_AVAILABLE } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
 import TagDropdown from './TagDropdown'
 import ManageLabelModal from './MangeLabelModal'
 import './style/hostList.less'
-import isEqual from 'lodash/isEqual'
+import isEmpty from 'lodash/isEmpty'
 
 const MASTER = 'Master'
 const SLAVE = 'Slave'
@@ -101,7 +105,7 @@ const MyComponent = React.createClass({
   ShowDeleteClusterNodeModal(node,item) {
     //this function for delete cluster node
     const { scope } = this.props;
-    let handle = item.key.substring(0,6)
+    let handle = item.key.split('/')[0]
     if(handle == 'manage'){
       scope.setState({
         deleteNode: node,
@@ -114,6 +118,46 @@ const MyComponent = React.createClass({
         deleteNode: node,
         deleteNodeModal: true
       })
+    }
+    if (handle === 'maintain') {
+      this.loadNodeDetail(node)
+    }
+    if (handle === 'exitMaintain') {
+      this.nodeIsMigrate(node)
+      
+    }
+  },
+  async loadNodeDetail(currentNode){
+    const { getNodeDetail, clusterID, scope } = this.props
+    const result = await getNodeDetail(clusterID, currentNode.objectMeta.name)
+    const { node, pod } = result.response.result.data || { node: [], pod: []}
+    scope.setState({
+      deleteNode: currentNode,
+      maintainModal: true
+    })
+    if (isEmpty(node) && isEmpty(pod)) {
+      scope.setState({
+        canMaintain: true
+      })
+      return
+    }
+    scope.setState({
+      canMaintain: false
+    })
+  },
+  async nodeIsMigrate(currentNode) {
+    const { getNotMigratedPodCount, clusterID, scope } = this.props
+    const result = await getNotMigratedPodCount(clusterID, currentNode.objectMeta.name)
+    const { current } = result.response.result.data
+    if (current === 0) {
+      scope.setState({
+        deleteNode: currentNode,
+        exitMaintainModal: true
+      })
+    } else {
+      Modal.info({
+        content: '容器迁移未完成，无法退出维护状态',
+      });
     }
   },
   getDiskStage(node) {
@@ -141,6 +185,41 @@ const MyComponent = React.createClass({
     })
     return (
       <Tag color={color}>{text}</Tag>
+    )
+  },
+  renderStatus(text, record) {
+    const { maintainStatus, current, total } = record.objectMeta.annotations || { maintainStatus: 'fetching', current: 0, total: 0 }
+    let message = '异常'
+    let classname = 'errorSpan'
+    if (text === 'True') {
+      if (record.objectMeta.annotations.maintenance === 'true') {
+        message = '维护中'
+        classname = 'themeColor'
+      } else if (maintainStatus === 'processing') {
+        message = '服务迁移中'
+        classname = 'themeColor'
+      } else {
+        message = '运行中'
+        classname = 'runningSpan'
+      }
+    }
+    return (
+      <div>
+        <span className={classname}>
+          <i className='fa fa-circle'/>&nbsp;&nbsp;{message}
+          {
+            maintainStatus === 'processing' && 
+            <Tooltip
+              title="服务迁移过程最好不要进行其他操作，避免发生未知错误！"
+            >
+              <Icon type="exclamation-circle-o" />
+            </Tooltip>
+          }
+        </span>
+        {
+          maintainStatus === 'processing' && <div>已迁移服务 <span>{total - current}</span>/{total}</div>
+        }
+      </div>
     )
   },
   render: function () {
@@ -181,12 +260,23 @@ const MyComponent = React.createClass({
             onClick={this.ShowDeleteClusterNodeModal.bind(this, item)}
             style={{ width: '100px' }}
           >
-            <Menu.Item key={'manage'+item.address}>
+            <Menu.Item key={'manage/'+item.address}>
               <span>管理标签</span>
             </Menu.Item>
-            <Menu.Item key={'delete'+item.address}>
+            <Menu.Item key={'delete/'+item.address}>
               <span>删除节点</span>
             </Menu.Item>
+            {
+              item.objectMeta.annotations.maintenance === 'true'
+                ?
+                <Menu.Item key={'exitMaintain/'+item.address}>
+                  <span>退出维护</span>
+                </Menu.Item>
+                :
+                <Menu.Item key={'maintain/'+item.address}>
+                  <span>节点维护</span>
+                </Menu.Item>
+            }
           </Menu>
         )
       })
@@ -204,10 +294,7 @@ const MyComponent = React.createClass({
         },{
           title: '状态',
           dataIndex: 'ready',
-          render: (text) => <div>
-          <span className={text == 'True' ? 'runningSpan': 'errorSpan'}><i
-            className='fa fa-circle'/>&nbsp;&nbsp;{text == 'True' ? '运行中': '异常'}</span>
-          </div>,
+          render: (text, record) => this.renderStatus(text, record),
           sorter: (a, b) => readySorter(a.ready) - readySorter(b.ready)
         },{
           title: '角色',
@@ -251,37 +338,50 @@ const MyComponent = React.createClass({
         },{
           title: '调度状态',
           dataIndex: 'schedulable',
-          render: (text, item, index) => <div>
-            <Switch
-              className='switchBox'
-              checked={item.schedulable || false}
-              checkedChildren='开'
-              unCheckedChildren='关'
-              disabled={index >= maxNodes}
-              onChange={this.changeSchedulable.bind(root, item.objectMeta.name)} /><br/>
-            <span className='scheduleSpan'>
-              {
-                item.schedulable
-                  ? (
-
-                  <span>
-                      正常调度&nbsp;
-                    <Tooltip title={`允许分配新容器`}>
-                        <Icon type="question-circle-o" />
-                      </Tooltip>
-                    </span>
-                )
-                  : (
-                  <span>
-                      暂停调度&nbsp;
-                    <Tooltip title={`不允许分配新容器，正常运行的不受影响`}>
-                        <Icon type="question-circle-o" />
-                      </Tooltip>
-                    </span>
-                )
-              }
-            </span>
-          </div>,
+          render: (text, item, index) => {
+            const isMaintaining = item.objectMeta.annotations.maintenance === 'true'
+            return (
+              <div>
+                <Tooltip
+                  title={isMaintaining ? '维护状态禁止使用调度开关' : ''}
+                >
+                  <Switch
+                    className='switchBox'
+                    checked={item.schedulable || false}
+                    checkedChildren='开'
+                    unCheckedChildren='关'
+                    disabled={index >= maxNodes}
+                    onChange={
+                      isMaintaining ? () => null :
+                      this.changeSchedulable.bind(root, item.objectMeta.name)
+                    } />
+                </Tooltip>
+                <br/>
+                <span className='scheduleSpan'>
+                  {
+                    item.schedulable
+                      ? (
+          
+                        <span>
+                          正常调度&nbsp;
+                          <Tooltip title={`允许分配新容器`}>
+                            <Icon type="question-circle-o" />
+                          </Tooltip>
+                        </span>
+                      )
+                      : (
+                        <span>
+                          暂停调度&nbsp;
+                          <Tooltip title={`不允许分配新容器，正常运行的不受影响`}>
+                            <Icon type="question-circle-o" />
+                          </Tooltip>
+                        </span>
+                      )
+                  }
+                </span>
+              </div>
+            )
+          },
           sorter: (a, b) => isMasterSorter(a.schedulable) - isMasterSorter(b.schedulable)
         },{
           title: '磁盘情况',
@@ -649,10 +749,161 @@ class hostList extends Component {
       manageLabelModal: false
     })
   }
-
+  
+  maintainConfirm = () => {
+    this.setState({
+      confirmModal: true
+    })
+  }
+  
+  maintainCancel = () => {
+    this.setState({
+      maintainModal: false
+    })
+  }
+  
+  renderFooter = () => {
+    const { canMaintain } = this.state
+    if (canMaintain) {
+      return [
+        <Button key="cancel" type="ghost" onClick={this.maintainCancel}>取消</Button>,
+        <Button key="confirm" type="primary" onClick={this.maintainConfirm}>确定</Button>,
+      ]
+    }
+    return <Button type="primary" onClick={() => this.setState({ maintainModal: false })}>知道了</Button>
+  }
+  
+  doubleConfirm = async () => {
+    const { deleteNode } = this.state
+    const { maintainNode, clusterID } = this.props
+    let notify = new NotificationHandler()
+    this.setState({
+      doubleConfirmLoading: true
+    })
+    notify.spin('节点维护开启中')
+    const res = await maintainNode(clusterID, deleteNode.objectMeta.name)
+    if (res.error) {
+      this.setState({
+        doubleConfirmLoading: false
+      })
+      notify.close()
+      notify.warn('节点维护开始失败', res.error.message.message || res.error.message)
+      return
+    }
+    this.loadData()
+    this.setState({
+      doubleConfirmLoading: false,
+      confirmModal: false,
+      maintainModal: false
+    })
+    notify.close()
+    notify.success('节点维护开始成功')
+  }
+  
+  doubleCancel = () => {
+    this.setState({
+      confirmModal: false
+    })
+  }
+  
+  exitMaintainConfirm = async () => {
+    const { exitMaintainNode, clusterID } = this.props
+    const { deleteNode } = this.state
+    let notify = new NotificationHandler()
+    const result = await exitMaintainNode(clusterID, deleteNode.objectMeta.name)
+    this.setState({
+      exitMaintainLoading: true
+    })
+    notify.spin('退出节点维护中')
+    if (result.error) {
+      this.setState({
+        exitMaintainLoading: false
+      })
+      notify.close()
+      notify.warn('退出节点维护失败', result.error.message.message || result.error.message)
+      return
+    }
+    this.loadData()
+    this.setState({
+      exitMaintainLoading: false,
+      exitMaintainModal: false
+    })
+    notify.close()
+    notify.success('退出节点维护成功')
+  }
+  formatType = type => {
+    switch (type) {
+      case 0:
+        return 'host 存储'
+      case 1:
+        return '绑定标签'
+      case 2:
+        return '绑定节点'
+      default:
+        return
+    }
+  }
+  
+  renderInfo = () => {
+    const { canMaintain } = this.state
+    const { nodeInfo } = this.props
+    const { pod, node } = nodeInfo || { pod: [], node: [] }
+    if (canMaintain) { return }
+    const column = [
+      {
+        title: '问题',
+        dataIndex: 'msgType',
+        width: '15%',
+        render: text => this.formatType(text)
+      }, {
+        title: '对象',
+        dataIndex: 'podName',
+        width: '50%'
+      }, {
+        title: '所属项目',
+        dataIndex: 'namespace',
+        width: '15%'
+      }, {
+        title: '所属服务',
+        dataIndex: 'svcName',
+        width: '15%'
+      }
+    ]
+    return (
+      <div className="extraInfo">
+        <div className="errorInfo">
+          <i className="fa fa-exclamation-triangle" aria-hidden="true"/> 该节点存在以下问题无法进入维护状态！
+        </div>
+        <div className="container">
+          <div className="titleLabel">全局问题</div>
+          {
+            (node || []).map(item => {
+              if (item.resourceName) {
+                return <div className="globalList"><i/>{`该节点被负载均衡 ${item.resourceName} 占用`}</div>
+              }
+              return <div className="globalList"><i/>该节点被设为集群网络出口</div>
+            })
+          }
+        </div>
+        <div className="container">
+          <div className="titleLabel">容器问题</div>
+          <Table
+            className="podTable"
+            columns={column}
+            dataSource={pod}
+            pagination={false}
+          />
+        </div>
+      </div>
+    )
+  }
   render() {
     const { addNodeCMD, labels } = this.props
-    const { deleteNode, podCount, summary, nodeList } = this.state
+    const { 
+      deleteNode, podCount, summary, nodeList,
+      maintainModal, confirmModal, doubleConfirmLoading,
+      exitMaintainModal, exitMaintainLoading
+    } = this.state
     const scope = this;
     return <div id="cluster__hostlist">
       <Card className='ClusterListCard'>
@@ -738,6 +989,46 @@ class hostList extends Component {
         </div>
         <div className="note">注意：请保证其他开启调度状态的主机节点，剩余的配置足够运行所有应用的容器</div>
       </Modal>
+      <Modal
+        title="节点维护"
+        className="maintainModal"
+        visible={maintainModal}
+        onOk={this.maintainConfirm}
+        onCancel={this.maintainCancel}
+        footer={this.renderFooter()}
+      >
+        <div>进入维护状态之后，节点调度状态将会关闭，节点上容器将会被随机迁移到其它可调度节点上；点击确定后进入维护状态，容器迁移完成后，才能退出维护状态</div>
+        <br/>
+        <div>适用场景：</div>
+        <p className="maintainScene"><span>1</span>节点内核升级</p>
+        <p className="maintainScene"><span>2</span>硬件系统维护</p>
+        <p className="maintainScene"><span>3</span>替换集群节点</p>
+        <p className="maintainScene">......</p>
+        {this.renderInfo()}
+      </Modal>
+      <Modal
+        title="再次确认"
+        visible={confirmModal}
+        onOk={this.doubleConfirm}
+        onCancel={this.doubleCancel}
+        confirmLoading={doubleConfirmLoading}
+      >
+        <div className="deleteRow">
+          <i className="fa fa-exclamation-triangle" aria-hidden="true"/> 进入维护状态，会迁移容器，将会导致服务中断，请谨慎操作！
+        </div>
+      </Modal>
+      <Modal
+        title="退出维护"
+        visible={exitMaintainModal}
+        onCancel={() => this.setState({ exitMaintainModal: false })}
+        onOk={this.exitMaintainConfirm}
+        confirmLoading={exitMaintainLoading}
+      >
+        <div className="deleteRow">
+          <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+          退出维护将恢复调度，允许调度新的容器到该节点上，请先确认是否完成维护工作，避免出现不必要的错误，影响您的使用体验，是否确定退出？
+        </div>
+      </Modal>
     </div>
   }
 }
@@ -748,7 +1039,7 @@ function mapStateToProps(state, props) {
     isFetching: false
   }
   const clusterID = props.cluster.clusterID
-  const { getAllClusterNodes, kubectlsPods, addNodeCMD, clusterLabel } = state.cluster_nodes
+  const { getAllClusterNodes, kubectlsPods, addNodeCMD, clusterLabel, nodeDetail } = state.cluster_nodes
   const { clusterSummary } = state.cluster
   const targetAllClusterNodes = getAllClusterNodes[clusterID]
   const { isFetching } = targetAllClusterNodes || pods
@@ -765,6 +1056,7 @@ function mapStateToProps(state, props) {
   if (!result) {
     result = {summary:[]}
   }
+  const { data: nodeInfo } = nodeDetail || { data: []}
   return {
     labels:result.summary,
     nodes,
@@ -774,6 +1066,7 @@ function mapStateToProps(state, props) {
     isFetching,
     kubectlsPods,
     addNodeCMD: addNodeCMD[clusterID] || {},
+    nodeInfo
   }
 }
 export default connect(mapStateToProps, {
@@ -783,7 +1076,11 @@ export default connect(mapStateToProps, {
   getKubectlsPods,
   deleteClusterNode,
   getClusterLabel,
-  changeClusterNodeSchedule
+  changeClusterNodeSchedule,
+  getNodeDetail, 
+  maintainNode, 
+  exitMaintainNode, 
+  getNotMigratedPodCount
 })(injectIntl(hostList, {
   withRef: true,
 }))
