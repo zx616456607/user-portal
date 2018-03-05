@@ -70,14 +70,22 @@ const MyComponent = React.createClass({
       )
     }
     const serviceDetail = this.props.serviceDetail || {}
+    const serviceStatus = serviceDetail.status || {}
+    const serviceReplicas = serviceDetail.spec && serviceDetail.spec.replicas
+    let isRollingUpdate = serviceStatus.replicas > serviceReplicas
+    const imagesSet = new Set()
+    config.forEach(item => {
+      imagesSet.add(this.getImages(item)[0])
+    })
+    const imagesList = Array.from(imagesSet)
+    if (imagesList.length === 1) {
+      isRollingUpdate = false
+    }
     const items = config.map((item) => {
       const imageArray = this.getImages(item)
       const images = imageArray.join(', ')
       const status = item.status || {}
       const annotations = item.metadata.annotations || {}
-      const serviceStatus = serviceDetail.status || {}
-      const serviceReplicas = serviceDetail.spec && serviceDetail.spec.replicas
-      const isRollingUpdate = serviceStatus.replicas > serviceReplicas
       let isNew = false
       if (isRollingUpdate) {
         const currentImages = JSON.parse(annotations['rollingupdate/target'] || '{}')
