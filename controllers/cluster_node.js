@@ -35,7 +35,20 @@ exports.getClusterNodes = function* () {
   if (!license.max_clusters || license.max_clusters < DEFAULT_LICENSE.max_clusters) {
     license.max_clusters = DEFAULT_LICENSE.max_clusters
   }
-  clusters.nodes.nodes.forEach(node => node.objectMeta.labels = JSON.stringify(node.objectMeta.labels))
+  const isMaintainingReqArr = []
+  clusters.nodes.nodes.forEach(node => {
+    node.objectMeta.labels = JSON.stringify(node.objectMeta.labels)
+    isMaintainingReqArr.push(api.clusters.getBy([cluster, 'nodes', node.objectMeta.name, 'drain', 'podmetric']))
+  })
+  const isMaintainingResult = yield isMaintainingReqArr
+  clusters.nodes.nodes.forEach((node, index) => {
+    let { current, total } = isMaintainingResult[index].data
+    if (current < total && current !== 0) {
+      node.objectMeta.annotations.maintainStatus = 'processing'
+      node.objectMeta.annotations.current = current
+      node.objectMeta.annotations.total = total
+    }
+  })
   this.body = {
     data: {
       clusters,
