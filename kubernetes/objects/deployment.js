@@ -227,6 +227,7 @@ class Deployment {
       if (container.name !== containerName) {
         return
       }
+      console.log(utils.getResources(memory, cpu, limitMemory, limitCpu), '===========')
       container.resources = utils.getResources(memory, cpu, limitMemory, limitCpu)
     })
   }
