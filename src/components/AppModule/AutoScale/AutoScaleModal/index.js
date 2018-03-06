@@ -171,6 +171,9 @@ class AutoScaleModal extends React.Component {
             notify.close()
             notify.success('操作成功')
             resetFields()
+            if (create) {
+              scope.loadExistServices()
+            }
           },
           isAsync: true
         },
