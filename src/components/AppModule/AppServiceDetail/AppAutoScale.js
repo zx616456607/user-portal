@@ -479,7 +479,9 @@ class AppAutoScale extends Component {
       return callback('请输入阈值')
     }
     if (type === 'qps') {
-      return callback()
+      if (value < 1) {
+        return callback('阈值需大于1')
+      }
     }
     if (value < 1 || value > 99) {
       return callback('阈值范围为1至99')
@@ -629,7 +631,7 @@ class AppAutoScale extends Component {
                     rules: [{
                       validator: (rules, value, callback) => this.checkValue(rules, value, callback, getFieldValue(`type${key}`))
                     }],
-                    initialValue: getFieldValue(`type${key}`) === 'qps' ? 100 : 80
+                    initialValue: optItem[Object.keys(optItem)[0]]
                   })}/>
                 {
                   getFieldValue(`type${key}`) !== 'qps' ? '%' : '次/s'
