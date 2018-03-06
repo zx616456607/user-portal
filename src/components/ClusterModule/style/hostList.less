@@ -1,3 +1,4 @@
+@import "../../../assets/style/site/core";
 #cluster__hostlist{
   .operaBox {
     position: relative;
@@ -324,6 +325,71 @@
             fill: #666;
             transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
           }
+        }
+      }
+    }
+  }
+}
+
+.maintainModal {
+  .maintainScene {
+    margin: 4px 0;
+    span {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      color: white;
+      background-color: @primary-color;
+      margin-right: 10px;
+      text-align: center;
+      line-height: 14px;
+      border-radius: @border-radius-sm;
+    }
+  }
+  .extraInfo {
+    border-top: @border-width-base @border-style-base @border-color-base;
+    margin-top: 20px;
+    padding-top: 20px;
+    .errorInfo {
+      font-size: @font-size-medium;
+      margin-bottom: 20px;
+      i {
+        color: @warning-color;
+        font-size: @font-size-large;
+      }
+    }
+    .container {
+      margin-bottom: 20px;
+      .titleLabel {
+        height: 14px;
+        line-height: 14px;
+        border-left: 4px @border-style-base @primary-color;
+        font-size: @font-size-medium;
+        padding-left: 8px;
+      }
+      .globalList {
+        display: flex;
+        align-items: center;
+        margin: 10px 0 0 12px;
+        i {
+          display: inline-block;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          margin-right: 5px;
+          border: 2px @border-style-base #999;
+        }
+      }
+    }
+  }
+  .podTable {
+    overflow-y: auto;
+    max-height: 200px;
+    thead {
+      tr {
+        th {
+          background-color: white;
+          border-bottom: @border-width-base @border-style-base @border-color-base;
         }
       }
     }

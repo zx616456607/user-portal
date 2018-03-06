@@ -541,6 +541,9 @@ class MonitorDetail extends React.Component {
               } else if (res.message.message.indexOf('name') > -1) {
                 notify.warn(currentIngress ? '修改失败' : '创建失败', '该监听名称已经存在')
                 return
+              } else {
+                notify.warn(currentIngress ? '修改失败' : '创建失败', '禁止同一个服务的同一个端口，被同一个lb中的不同ingress使用')
+                return
               }
             }
             notify.warn(currentIngress ? '修改失败' : '创建失败', res.message.message || res.message)

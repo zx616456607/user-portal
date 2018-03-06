@@ -265,7 +265,7 @@ class ContainerMonitior extends Component {
   componentDidMount() {
     const { loadContainerAllOfMetrics, cluster, containerName } = this.props
     const { currentValue } = this.state
-    loadContainerAllOfMetrics(cluster, containerName, { start: this.changeTime(currentValue) })
+    loadContainerAllOfMetrics(cluster, containerName, { start: this.changeTime(currentValue), end: new Date().toISOString() })
     this.setIntervalFunc()
   }
 
@@ -288,7 +288,7 @@ class ContainerMonitior extends Component {
         currentStart: this.changeTime(currentValue)
       }, () => {
         const { currentStart } = this.state
-        let query = {start: currentStart};
+        let query = {start: currentStart, end: new Date().toISOString()};
         loadContainerAllOfMetrics(cluster, containerName, query)
       })
     }, UPDATE_INTERVAL);
