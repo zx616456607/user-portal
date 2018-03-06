@@ -360,7 +360,9 @@ class AutoScaleModal extends React.Component {
       return callback('请输入阈值')
     }
     if (type === 'qps') {
-      return callback()
+      if (value < 1) {
+        return callback('阈值需大于1')
+      }
     }
     if (value < 1 || value > 99) {
       return callback('阈值范围为1至99')
