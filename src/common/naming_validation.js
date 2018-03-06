@@ -386,3 +386,51 @@ export function autoScaleNameCheck(value) {
   }
   return 'success'
 }
+
+/**
+ * this function for ingress name check
+ */
+
+export function ingressNameCheck(value) {
+  if (!value) {
+    return '请输入监听器名称'
+  }
+  let regx = /^[a-zA-Z0-9]+([-.~/][a-zA-Z0-9]+)*$/
+  if (!regx.test(value)) {
+    return '可由数字、中划线、下划线组成，以字母或者数字开头，字母或者数字结尾'
+  }
+  return 'success'
+}
+
+/**
+ * this function for ingress relayRule check
+ */
+
+export function ingressRelayRuleCheck(value) {
+  if (!value) {
+    return '请输入校验规则'
+  }
+  let regx = /^[a-zA-Z0-9/]+([-.~/][a-zA-Z0-9]+)*$/
+  if (!regx.test(value)) {
+    return '可由数字、中划线、下划线组成，以字母、数字或者/开头，字母或者数字结尾'
+  }
+  return 'success'
+}
+
+/**
+ * this function for loadbalance name check
+ */
+
+export function lbNameCheck(value) {
+  if (!value) {
+    return '请输入负载均衡器名称'
+  }
+  if (value.length < 3) {
+    return '负载均衡器名称不少于3个字符'
+  }
+  let regx = /^[a-zA-Z0-9]+[_\-]*[a-zA-Z0-9]+$/
+  if (!regx.test(value)) {
+    return '可由数字、中划线、下划线组成，以字母或者数字开头，字母或者数字结尾'
+  }
+  return 'success'
+}

@@ -16,6 +16,7 @@ import {
 import classNames from 'classnames'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../../constants'
 import HealthCheckModal from '../../../LoadBalance/HealthCheckModal'
+import { ingressNameCheck, ingressRelayRuleCheck } from '../../../../../common/naming_validation'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
@@ -87,13 +88,13 @@ class IngressModal extends React.Component {
   confirmModal = () => {
     const { healthOptions, healthCheck } = this.state
     const { closeModal, form, callback } = this.props
-    this.setState({
-      confirmLoading: true
-    })
     form.validateFields((errors, values) => {
       if (!!errors) {
         return
       }
+      this.setState({
+        confirmLoading: true
+      })
       this.confirmSetTimeout = setTimeout(() => {
         this.setState({
           confirmLoading: false
@@ -107,9 +108,10 @@ class IngressModal extends React.Component {
 
   monitorNameCheck = (rules, value, callback) => {
     const { checkIngressNameAndHost, clusterID, lbname, form } = this.props
-    if (!value) {
-      return callback('请输入监听器名称')
-    } 
+    let message = ingressNameCheck(value)
+    if (message !== 'success') {
+      return callback(message)
+    }
     clearTimeout(this.nameTimeout)
     this.nameTimeout = setTimeout(() => {
       checkIngressNameAndHost(clusterID, lbname, {
@@ -135,8 +137,9 @@ class IngressModal extends React.Component {
   
   hostCheck = (rules, value, callback) => {
     const { checkIngressNameAndHost, clusterID, lbname, form } = this.props
-    if (!value) {
-      return callback('请输入校验规则')
+    let message = ingressRelayRuleCheck(value)
+    if (message !== 'success') {
+      return callback(message)
     }
     clearTimeout(this.nameTimeout)
     this.nameTimeout = setTimeout(() => {
@@ -213,7 +216,7 @@ class IngressModal extends React.Component {
       initialValue: currentIngress ? currentIngress.port : ''
     })
   
-    const showSlider = getFieldValue('sessionSticky')
+    const showSlider = getFieldValue('sessionSticky') && (getFieldValue('lbAlgorithm') !== 'ip_hash')
     return (
       <Modal
         title="配置监听器"
@@ -294,7 +297,7 @@ class IngressModal extends React.Component {
             label="添加 HTTP头 "
             {...formItemLayout}
           >
-            <p className="ant-form-text">已开启客户端真是 IP<span className="hintColor">（通过 X-Forwarded-For 头字段获取）</span></p>
+            <p className="ant-form-text">已开启客户端真实 IP<span className="hintColor">（通过 X-Forwarded-For 头字段获取）</span></p>
             <p className="ant-form-text">已开启负载均衡监听协议<span className="hintColor">（通过 X-Forwarded-Proto 头字段获取）</span></p>
           </FormItem>
           <FormItem

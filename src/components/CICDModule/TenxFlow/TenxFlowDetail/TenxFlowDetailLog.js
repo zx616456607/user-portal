@@ -75,7 +75,7 @@ const menusText = defineMessages({
   },
 })
 
-function checkStatusSpan(status, scope, isApproving) {
+function checkStatusSpan(status, scope, isWaitingApproval) {
   //this function for user input the status return current words
   const { formatMessage } = scope.props.intl;
   switch(status) {
@@ -84,7 +84,7 @@ function checkStatusSpan(status, scope, isApproving) {
     case 1:
       return formatMessage(menusText.fail);
     case 2:
-      return isApproving ? '等待审批' : formatMessage(menusText.running);
+      return isWaitingApproval ? '等待审批' : formatMessage(menusText.running);
     case 3:
       return formatMessage(menusText.wait);
     case 33:
@@ -96,7 +96,7 @@ function checkStatusSpan(status, scope, isApproving) {
   }
 }
 
-function checkStatusClass(status, isApproving) {
+function checkStatusClass(status, isWaitingApproval) {
   //this function for user input the status return current className
   switch(status) {
     case 0:
@@ -106,7 +106,7 @@ function checkStatusClass(status, isApproving) {
     case 34:
       return 'fail';
     case 2:
-      return isApproving ? 'approving' : 'runing';
+      return isWaitingApproval ? 'approving' : 'runing';
     case 3:
       return 'wait';
   }
@@ -207,6 +207,14 @@ let MyComponent = React.createClass({
           this.setState({
             approvalBtnLoading: false,
           })
+          const { statusCode, message } = err
+          if (statusCode === 400 && message.message === 'approval daemon is not ready') {
+            this.setState({
+              approvalModal: false,
+            })
+            notification.warn('审批流程启动中，请稍后进行操作')
+            return
+          }
           notification.error('审批失败')
         },
         isAsync: true,
@@ -241,14 +249,14 @@ let MyComponent = React.createClass({
       //     </Menu.Item>
       //   </Menu>
       // );
-      const { isApproving, waitingApprovalStages } = item
+      const { isUserNeedApproving, isWaitingApproval, waitingApprovalStages } = item
       return (
         <div className='LogDetail' key={item.buildId + index} >
           <div className='leftBox'>
-            <p className={ checkStatusClass(item.status, isApproving) + ' title' }>
-              { checkStatusSpan(item.status, scope, isApproving) }
+            <p className={ checkStatusClass(item.status, isWaitingApproval) + ' title' }>
+              { checkStatusSpan(item.status, scope, isWaitingApproval) }
             </p>
-            <i className={ checkStatusClass(item.status, isApproving) + ' fa fa-dot-circle-o dot' } />
+            <i className={ checkStatusClass(item.status, isWaitingApproval) + ' fa fa-dot-circle-o dot' } />
           </div>
           <div className='rightBox'>
             <p className='title'>
@@ -265,7 +273,7 @@ let MyComponent = React.createClass({
               </span>
               <span className='costTime'>
                 <Icon type='clock-circle-o' />
-                { item.status != 2 ? [<FormattedMessage {...menusText.cost} />] : null }
+                { item.status != 2 ? <FormattedMessage {...menusText.cost} /> : null }
                 { dateSizeFormat(item.creationTime, item.endTime, scope) }
               </span>
               <span className='costTime' style={{width:'105px'}}>
@@ -279,13 +287,12 @@ let MyComponent = React.createClass({
                   <FormattedMessage {...menusText.bulidLog} />
                 </Button>
                 {
-                  isApproving && [
+                  isUserNeedApproving && [
                     <Button
                       key="deny"
                       size="large"
                       className="operaBtn deny"
                       icon="minus-circle-o"
-                      // onClick={() => this.approveFlowStage(item.buildId, waitingApprovalStages[0].stageId, 'deny')}
                       onClick={() => this.setState({
                         approvalModal: true,
                         approvalObj: {
@@ -302,7 +309,6 @@ let MyComponent = React.createClass({
                       size="large"
                       className="operaBtn approve"
                       icon="check-circle-o"
-                      // onClick={() => this.approveFlowStage(item.buildId, waitingApprovalStages[0].stageId, 'approve')}
                       onClick={() => this.setState({
                         approvalModal: true,
                         approvalObj: {
@@ -441,10 +447,11 @@ function mapStateToProps(state, props) {
   const { space } = current
   const spaceName = space.spaceName || space.projectName
   const { getTenxflowBuildLogs, getTenxflowBuildDetailLogs } = state.cicd_flow
-  const { logs, waitingApprovalStages, isFetching } = getTenxflowBuildLogs || defaultLogs
+  const { logs = [], waitingApprovalStages, isWaitingApproval, isFetching } = getTenxflowBuildLogs || defaultLogs
   logs.forEach(log => {
+    log.isWaitingApproval = isWaitingApproval
     if (waitingApprovalStages && waitingApprovalStages[0] && waitingApprovalStages[0].flowBuildId === log.buildId) {
-      log.isApproving = true
+      log.isUserNeedApproving = true
       log.waitingApprovalStages = waitingApprovalStages
     }
   })

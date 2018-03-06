@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import {
   Button, Row, Col, InputNumber, Icon, Switch,
-  Modal, Form, Select, Input, Tabs
+  Modal, Form, Select, Input, Tabs, Tooltip
 } from 'antd'
 import {
   loadAutoScale,
@@ -26,6 +26,9 @@ import {
 import {
   loadNotifyGroups
 } from '../../../actions/alert'
+import {
+  getServiceLBList
+} from '../../../actions/load_balance'
 import AppAutoScaleLogs from './AppAutoScaleLogs'
 import './style/AppAutoScale.less'
 import NotificationHandler from '../../../components/Notification'
@@ -51,7 +54,7 @@ const sendEmailOpt = [{
   type: 'SendNoEmail',
   text: '不发送邮件'
 }]
-const thresholdKey = ['cpu', 'memory']
+const thresholdKey = ['cpu', 'memory', 'qps']
 
 class AppAutoScale extends Component {
   constructor() {
@@ -126,12 +129,14 @@ class AppAutoScale extends Component {
                   const { strategyName } = metadata.labels
                   const { alertStrategy: alert_strategy, alertgroupId: alert_group, status } = metadata.annotations
                   const { maxReplicas: max, minReplicas: min, metrics } = spec
-                  let cpu, memory
+                  let cpu, memory, qps
                   metrics.forEach(item => {
                     if (item.resource.name === 'memory') {
                       memory = item.resource.targetAverageUtilization
                     } else if (item.resource.name === 'cpu') {
                       cpu = item.resource.targetAverageUtilization
+                    } else if (item.resource.name === 'qps') {
+                      qps = item.resource.targetAverageUtilization
                     }
                   })
                   const scaleDetail = {
@@ -143,6 +148,7 @@ class AppAutoScale extends Component {
                     min,
                     cpu,
                     memory,
+                    qps,
                     type: status === 'RUN' ? 1 : 0
                   }
                   this.setState({
@@ -430,8 +436,8 @@ class AppAutoScale extends Component {
     callback()
   }
   checkType = (rule, value, callback, key) => {
-    const { form } = this.props
-    const { getFieldValue } = form
+    const { form, getServiceLBList, cluster } = this.props
+    const { getFieldValue, getFieldError } = form
     const { thresholdArr } = this.state
     if (!value) {
       return callback('请选择类型')
@@ -449,11 +455,33 @@ class AppAutoScale extends Component {
     if (result) {
       return callback('阈值类型重复')
     }
-    callback()
+    const serviceName = form.getFieldValue('serviceName')
+    if (!serviceName || value !== 'qps') return callback()
+    if (getFieldError(`type${key}`)) return callback()
+    clearTimeout(this.checkSerivceIsLB)
+    this.checkSerivceIsLB = setTimeout(() => {
+      getServiceLBList(cluster, serviceName, {
+        success: {
+          func: res => {
+            if (isEmpty(res.data)) {
+              return callback('该服务未绑定任何【负载均衡】，无法基于 QPS 创建伸缩策略')
+            } else {
+              callback()
+            }
+          },
+          isAsync: true
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
   }
-  checkValue = (rule, value, callback) => {
+  checkValue = (rule, value, callback, type) => {
     if (!value) {
       return callback('请输入阈值')
+    }
+    if (type === 'qps') {
+      if (value < 1) {
+        return callback('阈值需大于1')
+      }
     }
     if (value < 1 || value > 99) {
       return callback('阈值范围为1至99')
@@ -470,7 +498,6 @@ class AppAutoScale extends Component {
       if (!!errors) {
         return
       }
-
       let copyThresholdArr = thresholdArr.slice(0)
       this.uuid++
       copyThresholdArr = copyThresholdArr.concat(this.uuid)
@@ -530,13 +557,13 @@ class AppAutoScale extends Component {
     }
     const scaleName = getFieldProps('strategyName', {
       rules: [{
-        validator: this.checkScaleName.bind(this),
+        validator: this.checkScaleName,
       }],
       initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.strategyName
     })
     const selectService = getFieldProps('serviceName', {
       rules: [{
-        validator: isEdit ? null : this.checkServiceName.bind(this),
+        validator: isEdit ? null : this.checkServiceName,
       }],
       initialValue: isEmpty(scaleDetail) ? serviceName: scaleDetail.serviceName
     })
@@ -565,49 +592,66 @@ class AppAutoScale extends Component {
       initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.alert_group
     })
     let thresholdItem
+    let message = '所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩'
     thresholdItem = thresholdArr.map((key) => {
       let optItem = cpuAndMemory[key] || { 'cpu': 80 }
       return (
-        <Row type="flex" align="middle" key={key} className="strategyBox">
-          <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginBottom: 24, textAlign: 'right'}}>
-            {
-              thresholdArr.indexOf(key) === 0 ? <span className="threshold">阈值</span> : ''
-            }
-          </Col>
-          <Col span={6}>
-            <FormItem>
-              <Select
-                disabled={!isEdit}
-                style={{width: 120}}
-                {...getFieldProps(`type${key}`, {
-                  rules: [{
-                    validator: (rule, value, callback) => this.checkType(rule, value, callback, key)
-                  }],
-                  initialValue: Object.keys(optItem)[0]
-                }) }
-              >
-                <Option value="cpu">CPU阈值</Option>
-                <Option value="memory">内存阈值</Option>
-              </Select>
-            </FormItem>
-          </Col>
-          <Col span={5}>
-            <FormItem>
-              <InputNumber
-                disabled={!isEdit}
-                {...getFieldProps(`value${key}`, {
-                  rules: [{
-                    validator: this.checkValue
-                  }],
-                  initialValue: optItem[Object.keys(optItem)[0]]
-                })}/> %
-            </FormItem>
-          </Col>
-          <Col span={4} style={{ marginBottom: 24 }}>
-            <Button type="primary" size="large" icon="plus" disabled={!isEdit} onClick={this.addRule}/>&nbsp;
-            <Button type="ghost" size="large" icon="cross" disabled={!isEdit} onClick={() => this.delRule(key)}/>
-          </Col>
-        </Row>
+        <div>
+          <Row key={key} className="strategyBox">
+            <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginTop: 8, textAlign: 'right'}}>
+              {
+                thresholdArr.indexOf(key) === 0
+                  ? <div> 阈值 <Tooltip title={message}><Icon type="exclamation-circle-o"/></Tooltip>：</div>
+                  : ''
+              }
+            </Col>
+            <Col span={6}>
+              <FormItem>
+                <Select
+                  disabled={!isEdit}
+                  style={{width: 120}}
+                  {...getFieldProps(`type${key}`, {
+                    rules: [{
+                      validator: (rule, value, callback) => this.checkType(rule, value, callback, key)
+                    }],
+                    initialValue: Object.keys(optItem)[0]
+                  }) }
+                >
+                  <Option value="cpu">CPU阈值</Option>
+                  <Option value="memory">内存阈值</Option>
+                  <Option value="qps">QPS阈值</Option>
+                </Select>
+              </FormItem>
+            </Col>
+            <Col span={5}>
+              <FormItem>
+                <InputNumber
+                  disabled={!isEdit}
+                  {...getFieldProps(`value${key}`, {
+                    rules: [{
+                      validator: (rules, value, callback) => this.checkValue(rules, value, callback, getFieldValue(`type${key}`))
+                    }],
+                    initialValue: optItem[Object.keys(optItem)[0]]
+                  })}/>
+                {
+                  getFieldValue(`type${key}`) !== 'qps' ? '%' : '次/s'
+                }
+              </FormItem>
+            </Col>
+            <Col span={4} style={{ marginBottom: 24 }}>
+              <Button type="primary" size="large" icon="plus" disabled={!isEdit} onClick={this.addRule}/>&nbsp;
+              <Button type="ghost" size="large" icon="cross" disabled={!isEdit} onClick={() => this.delRule(key)}/>
+            </Col>
+          </Row>
+          {
+            getFieldValue(`type${key}`) === 'qps' &&
+            <Row style={{margin: '0 0 20px'}}>
+              <Col offset={4} span={20}>
+                <Icon type="exclamation-circle-o"/> 该阈值统计该服务通过【负载均衡】的 QPS，若绑定了多个 LB，则统计为 QPS 之和
+              </Col>
+            </Row>
+          }
+        </div>
       )
     })
     return(
@@ -662,12 +706,6 @@ class AppAutoScale extends Component {
                     <InputNumber disabled={!isEdit} {...maxReplicas}/> 个
                   </FormItem>
                   {thresholdItem}
-                  <Row style={{margin: '0 0 20px'}}>
-                    <Col span={4}/>
-                    <Col span={20}>
-                      <Icon type="exclamation-circle-o"/> 所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩
-                    </Col>
-                  </Row>
                   <FormItem
                     {...formItemLargeLayout}
                     label="发送邮件"
@@ -777,5 +815,6 @@ export default connect(mapStateToProps, {
   getAutoScaleLogs,
   checkAutoScaleName,
   loadNotifyGroups,
-  loadServiceDetail
+  loadServiceDetail,
+  getServiceLBList
 })(Form.create()(AppAutoScale))

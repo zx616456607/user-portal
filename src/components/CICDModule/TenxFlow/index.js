@@ -359,9 +359,8 @@ let MyComponent = React.createClass({
         default:
           status = "等待中..."
       }
-      let isApproving = false
-      if (item.waitingApprovalStages && Object.keys(item.waitingApprovalStages).length > 0) {
-        isApproving = 'true'
+      const isUserNeedApproving = item.waitingApprovalStages && Object.keys(item.waitingApprovalStages).length > 0
+      if (item.isWaitingApproval === true) {
         status = '等待审批'
       }
       return (
@@ -378,7 +377,7 @@ let MyComponent = React.createClass({
               </Tooltip>
             </span>
           </div>
-          <div className={`status status-${item.status} ${isApproving ? 'status-approving' : ''}`} style={{width: '25%'}}>
+          <div className={`status status-${item.status} ${item.isWaitingApproval ? 'status-approving' : ''}`} style={{width: '25%'}}>
             <span>
               <i className="fa fa-circle"></i>
               {status} <span style={{color: '#747474'}}>
@@ -386,8 +385,8 @@ let MyComponent = React.createClass({
               </span>
             </span>
             {
-              isApproving &&
-              <Link className="go-approving" to={`/ci_cd/tenx_flow/tenx_flow_build?${item.flowId}&${item.status}#flow-build-logs`}>
+              isUserNeedApproving &&
+              <Link className="go-approving" to={`/ci_cd/tenx_flow/tenx_flow_build?${item.flowId}&${item.status}`}>
                 前往审批 <i className="fa fa-arrow-circle-o-right" />
               </Link>
             }
@@ -649,7 +648,7 @@ class TenxFlowList extends Component {
               <FormattedMessage {...menusText.create} />
             </Button>
             <Button className="refreshBtn"  size='large' type="ghost" onClick={this.loadData.bind(this, null)}>
-              <i className='fa fa-refresh' /> 刷新
+              <i className='fa fa-refresh' /> 刷 新
             </Button>
             <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' value={this.state.searchValue}
                    onChange={(e)=> this.setState({searchValue:e.target.value})} onPressEnter={()=>this.onSearchFlow()}

@@ -266,8 +266,8 @@ exports.autoScaleService = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
   const body = this.request.body
-  if (!body || !body.min || !body.max || (!body.cpu && !body.memory)) {
-    const err = new Error('min, max, cpu/memory are required.')
+  if (!body || !body.min || !body.max || (!body.cpu && !body.memory && !body.qps)) {
+    const err = new Error('min, max, cpu/memory/qps are required.')
     err.status = 400
     throw err
   }
@@ -275,6 +275,7 @@ exports.autoScaleService = function* () {
   let max = parseInt(body.max)
   let cpu = parseInt(body.cpu)
   let memory = parseInt(body.memory)
+  let qps = parseInt(body.qps)
   let scale_strategy_name = body.scale_strategy_name
   let alert_strategy = body.alert_strategy
   let alert_group = body.alert_group
@@ -300,9 +301,9 @@ exports.autoScaleService = function* () {
   const api = apiFactory.getK8sApi(loginUser)
   let result
   if (operationType === 'create') {
-    result = yield api.createBy([cluster, 'services', serviceName, 'autoscale'], null, { min, max, cpu ,memory, scale_strategy_name, alert_strategy, alert_group, type })
+    result = yield api.createBy([cluster, 'services', serviceName, 'autoscale'], null, { min, max, cpu ,memory, qps, scale_strategy_name, alert_strategy, alert_group, type })
   } else {
-    result = yield api.updateBy([cluster, 'services', serviceName, 'autoscale', scale_strategy_name], null, { min, max, cpu ,memory, alert_strategy, alert_group, type })
+    result = yield api.updateBy([cluster, 'services', serviceName, 'autoscale', scale_strategy_name], null, { min, max, cpu ,memory, qps, alert_strategy, alert_group, type })
   }
   this.body = {
     cluster,

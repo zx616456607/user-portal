@@ -1188,7 +1188,7 @@ let EditTenxFlowModal = React.createClass({
             shellList.push(values['shellCode' + item]);
           }
         });
-        if (this.state.otherFlowType != 3 && shellList.length === 0) {
+        if (this.state.otherFlowType != 3 && this.state.otherFlowType != 6 && shellList.length === 0) {
           this.setState({
             noShell: true,
           })
@@ -1196,7 +1196,7 @@ let EditTenxFlowModal = React.createClass({
           return
         }
       } else if (_this.state.shellCodeType == 'scripts') {
-        if (this.state.otherFlowType != 3 && (!_this.state.scriptsId || _this.state.scriptsId === '')) {
+        if (this.state.otherFlowType != 3 && this.state.otherFlowType != 6 && (!_this.state.scriptsId || _this.state.scriptsId === '')) {
           this.setState({
             noShell: true,
           })
@@ -1253,7 +1253,7 @@ let EditTenxFlowModal = React.createClass({
         body.spec.uniformRepo = this.props.uniformRepo
       }
       // 增加 scripts id
-      if (_this.state.shellCodeType === 'scripts') {
+      if (_this.state.shellCodeType === 'scripts' && this.state.otherFlowType != 3 && this.state.otherFlowType != 6) {
         body.spec.container.scripts_id = _this.state.scriptsId
       }
       //if user select the customer type (5), ths customType must be input
@@ -1641,6 +1641,10 @@ let EditTenxFlowModal = React.createClass({
       }
       return true
     })
+    let approvingTimeoutWithUnit = approvingTimeout / TIME_EXCHANGE_IN_SECOND[approvalConfig.approvingTimeoutUnit]
+    if (isNaN(approvingTimeoutWithUnit)) {
+      approvingTimeoutWithUnit = 7
+    }
     if (imageList === undefined || imageList.length === 0) {
       return (<div></div>)
     }
@@ -2466,7 +2470,8 @@ let EditTenxFlowModal = React.createClass({
                         placeholder="请选择平台用户"
                         {
                           ...getFieldProps('approvingBy' , {
-                            initialValue: approvalConfig.approvingBy.map(id => id + ''),
+                            initialValue: approvalConfig.approvingBy &&
+                              approvalConfig.approvingBy.map(id => id + ''),
                             rules: [
                               { message: '请选择平台用户', required: true },
                             ],
@@ -2492,7 +2497,7 @@ let EditTenxFlowModal = React.createClass({
                         placeholder="请填写超时时间"
                         {
                           ...getFieldProps('approvingTimeout' , {
-                            initialValue: approvingTimeout / TIME_EXCHANGE_IN_SECOND[approvalConfig.approvingTimeoutUnit],
+                            initialValue: approvingTimeoutWithUnit,
                             rules: [
                               { message: '请填写超时时间', required: true },
                             ],
@@ -2505,9 +2510,9 @@ let EditTenxFlowModal = React.createClass({
                         placeholder="请填写超时时间"
                         {
                           ...getFieldProps('approvingTimeoutUnit' , {
-                            initialValue: approvalConfig.approvingTimeoutUnit || 'm',
+                            initialValue: approvalConfig.approvingTimeoutUnit || 'd',
                             rules: [
-                              { message: '请填写超时时间', required: true },
+                              { message: '请填写超时时间单位', required: true },
                             ],
                           })
                         }

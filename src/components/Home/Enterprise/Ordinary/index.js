@@ -396,7 +396,7 @@ class Ordinary extends Component {
   }
   useClusterCount(value) {
     const { clusterUseList } = this.state
-    let count = ''
+    let count = 0
     if (clusterUseList) {
       Object.keys(clusterUseList).forEach((item, index) => {
         if (item === value) {
@@ -406,6 +406,25 @@ class Ordinary extends Component {
       })
     }
     return count
+  }
+  renderProcessNumber(key, span = {}) {
+    const usedCount = this.useClusterCount(key)
+    const maxCount = this.maxClusterCount(key)
+    const { left = 10, right = 10 } = span
+    let overUesd = false
+    if (usedCount > maxCount && maxCount !== -1) {
+      overUesd = true
+    }
+    return (
+      <Row className="number-row">
+        <Col span={left}></Col>
+        <Col span={right} className="number">
+          <span style={{ color: overUesd ? 'red' : '#ccc' }}>{usedCount}</span>
+          /
+          <p>{maxCount === -1 ? '无限制' : maxCount}</p>
+        </Col>
+      </Row>
+    )
   }
   filterPercent(value, count) {
     let max = 100
@@ -1517,24 +1536,16 @@ class Ordinary extends Component {
               <div className="calculation" style={{ display: isComputing ? 'block' : 'none' }}>
                 {
                   computeList.map((item, index) => (
-                    <div className="info">
+                    <div className="info" key={`calculation-${index}`}>
                       <Row>
                         <Col span={6}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={9}>
+                        <Col span={18}>
                           <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
-                        <Col span={8}>
-                          {
-                            this.useClusterCount(item.key) > this.maxClusterCount(item.key) ?
-                              this.maxClusterCount(item.key) === -1 ?
-                                <span>{this.useClusterCount(item.key)}</span> :
-                                <span style={{ color: 'red' }}>{this.useClusterCount(item.key)}</span> :
-                              <span>{this.useClusterCount(item.key)}</span>
-                          }/<p>{this.maxClusterCount(item.key) === -1 ? '无限制' : this.maxClusterCount(item.key)}</p>
-                        </Col>
                       </Row>
+                      {this.renderProcessNumber(item.key, { left: 6, right: 18})}
                     </div>
                   ))
                 }
@@ -1542,24 +1553,16 @@ class Ordinary extends Component {
               <div className="application" style={{ overflowY: 'auto', display: isApplication ? 'block' : 'none' }}>
                 {
                   platformList.map((item, index) => (
-                    <div className="info">
+                    <div className="info" key={`application-${index}`}>
                       <Row>
                         <Col span={9}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={7}>
+                        <Col span={15}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
-                        <Col span={7}>
-                          {
-                            this.useClusterCount(item.key) > this.maxClusterCount(item.key) ?
-                              this.maxClusterCount(item.key) === -1 ?
-                                <span>{this.useClusterCount(item.key)}</span> :
-                                <span style={{ color: 'red' }}>{this.useClusterCount(item.key)}</span> :
-                              <span>{this.useClusterCount(item.key)}</span>
-                          }/<p>{this.maxClusterCount(item.key) === -1 ? '无限制' : this.maxClusterCount(item.key)}</p>
-                        </Col>
                       </Row>
+                      {this.renderProcessNumber(item.key, { left: 9, right: 15})}
                     </div>
                   ))
                 }
@@ -1567,24 +1570,16 @@ class Ordinary extends Component {
               <div className="service" style={{ overflowY: 'auto', display: isService ? 'block' : 'none' }}>
                 {
                   serviceList.map((item, index) => (
-                    <div className="info">
+                    <div className="info" key={`service-${index}`}>
                       <Row>
-                        <Col span={12} style={{ minWidth: '129px' }}>
+                        <Col span={14}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={3}>
-                          <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
-                        </Col>
-                        <Col span={7}>
-                          {
-                            this.useClusterCount(item.key) > this.maxClusterCount(item.key) ?
-                              this.maxClusterCount(item.key) === -1 ?
-                                <span>{this.useClusterCount(item.key)}</span> :
-                                <span style={{ color: 'red' }}>{this.useClusterCount(item.key)}</span> :
-                              <span>{this.useClusterCount(item.key)}</span>
-                          }/<p>{this.maxClusterCount(item.key) === -1 ? '无限制' : this.maxClusterCount(item.key)}</p>
+                        <Col span={10}>
+                          <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
                       </Row>
+                      {this.renderProcessNumber(item.key, { left: 14, right: 10})}
                     </div>
                   ))
                 }

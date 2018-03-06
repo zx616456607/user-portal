@@ -907,7 +907,7 @@ let CreateTenxFlowModal = React.createClass({
             shellList.push(values['shellCode' + item]);
           }
         });
-        if (this.state.otherFlowType != 3 && shellList.length === 0) {
+        if (this.state.otherFlowType != 3 && this.state.otherFlowType != 6 && shellList.length === 0) {
           this.setState({
             noShell: true,
           })
@@ -915,7 +915,7 @@ let CreateTenxFlowModal = React.createClass({
           return
         }
       } else if (_this.state.shellCodeType == 'scripts') {
-        if (this.state.otherFlowType != 3 && (!this.state.scriptsTextarea || this.state.scriptsTextarea.replace(/\s/g, '') === '#!/bin/sh')) {
+        if (this.state.otherFlowType != 3 && this.state.otherFlowType != 6 && (!this.state.scriptsTextarea || this.state.scriptsTextarea.replace(/\s/g, '') === '#!/bin/sh')) {
           this.setState({
             noShell: true,
           })
@@ -1094,8 +1094,8 @@ let CreateTenxFlowModal = React.createClass({
           }
         });
       }
-      // 使用命令或构建镜像时直接创建 stage 跳过创建脚本
-      if (_this.state.shellCodeType === 'cmd' || _this.state.shellCodeType == 'default' || body.metadata.type === 3) {
+      // 使用命令或构建镜像时或人工审批时直接创建 stage 跳过创建脚本
+      if (_this.state.shellCodeType === 'cmd' || _this.state.shellCodeType == 'default' || body.metadata.type === 3 || body.metadata.type === 6) {
         return _createTenxFlowState()
       }
       const { createScripts } = _this.props
@@ -1239,6 +1239,9 @@ let CreateTenxFlowModal = React.createClass({
             notification.error('获取项目成员失败')
           }
         },
+      })
+      setFieldsValue({
+        uniformRepo: false
       })
     }
     setFieldsValue({
@@ -2169,6 +2172,7 @@ let CreateTenxFlowModal = React.createClass({
                         placeholder="请填写超时时间"
                         {
                           ...getFieldProps('approvingTimeout' , {
+                            initialValue: 7,
                             rules: [
                               { message: '请填写超时时间', required: true },
                             ],
@@ -2181,9 +2185,9 @@ let CreateTenxFlowModal = React.createClass({
                         placeholder="请填写超时时间"
                         {
                           ...getFieldProps('approvingTimeoutUnit' , {
-                            initialValue: 'm',
+                            initialValue: 'd',
                             rules: [
-                              { message: '请填写超时时间', required: true },
+                              { message: '请填写超时时间单位', required: true },
                             ],
                           })
                         }

@@ -695,7 +695,9 @@ class ClusterPlugin extends Component {
               <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
                 <Menu.Item key="start">启动插件</Menu.Item>
                 <Menu.Item key="delete">卸载插件</Menu.Item>
-                <Menu.Item key="reinstall">重新部署</Menu.Item>
+                <Menu.Item key="reinstall" disabled={row.serviceInfo.isDeamonSet}>
+                  重新部署
+                </Menu.Item>
               </Menu>
             )
           } else if (row.name == 'elasticsearch-logging') {
@@ -712,7 +714,9 @@ class ClusterPlugin extends Component {
               menu = (
                 <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
                   <Menu.Item key="delete">卸载插件</Menu.Item>
-                  <Menu.Item key="reinstall">重新部署</Menu.Item>
+                  <Menu.Item key="reinstall" disabled={row.serviceInfo.isDeamonSet}>
+                    重新部署
+                  </Menu.Item>
                 </Menu>
               )
             } else {
@@ -720,7 +724,9 @@ class ClusterPlugin extends Component {
                 <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
                   <Menu.Item key="stop">停止插件</Menu.Item>
                   <Menu.Item key="delete">卸载插件</Menu.Item>
-                  <Menu.Item key="reinstall">重新部署</Menu.Item>
+                  <Menu.Item key="reinstall" disabled={row.serviceInfo.isDeamonSet}>
+                    重新部署
+                  </Menu.Item>
                 </Menu>
               )
             }
@@ -731,7 +737,9 @@ class ClusterPlugin extends Component {
               <Menu className="Settingplugin">
                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="start">启动插件</Menu.Item>
                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
-                <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)}>重新部署</Menu.Item>
+                <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)} disabled={row.serviceInfo.isDeamonSet}>
+                  重新部署
+                </Menu.Item>
                 {this.getStateusForEvent(row)}
               </Menu>
             )
@@ -740,7 +748,9 @@ class ClusterPlugin extends Component {
               <Menu className="Settingplugin">
                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="stop">停止插件</Menu.Item>
                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
-                <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)}>重新部署</Menu.Item>
+                <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)} disabled={row.serviceInfo.isDeamonSet}>
+                  重新部署
+                </Menu.Item>
                 {this.getStateusForEvent(row)}
               </Menu>
             )
@@ -762,7 +772,9 @@ class ClusterPlugin extends Component {
                   设置插件
                </Dropdown.Button>}
               </div>
-              {/*<Button type="primary" onClick={() => this.showResetModal(row.name)}>重新部署</Button>
+              {/*<Button type="primary" onClick={() => this.showResetModal(row.name)} disabled={row.serviceInfo.isDeamonSet}>
+                重新部署
+              </Button>
               <Button className="setup" type="ghost" onClick={()=> this.showSetModal(row.name)}>设置</Button>*/}
             </div>
           return result

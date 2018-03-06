@@ -261,7 +261,7 @@ class ServiceMonitior extends Component {
       currentValue: value
     }, () => {
       const { currentValue } = this.state
-      loadServiceAllOfMetrics(cluster, serviceName, { start: this.changeTime(currentValue) })
+      loadServiceAllOfMetrics(cluster, serviceName, { start: this.changeTime(currentValue), end: new Date().toISOString() })
       this.setIntervalFunc()
     })
   }
@@ -269,7 +269,7 @@ class ServiceMonitior extends Component {
   componentWillMount() {
     const { loadServiceAllOfMetrics, cluster, serviceName } = this.props
     const { currentValue } = this.state
-    loadServiceAllOfMetrics(cluster, serviceName, { start: this.changeTime(currentValue)})
+    loadServiceAllOfMetrics(cluster, serviceName, { start: this.changeTime(currentValue), end: new Date().toISOString() })
     this.setIntervalFunc()
   }
 
@@ -279,7 +279,7 @@ class ServiceMonitior extends Component {
     if (serviceName === this.props.serviceName) {
       return
     }
-    loadServiceAllOfMetrics(cluster, serviceName, { start: this.changeTime(currentValue)})
+    loadServiceAllOfMetrics(cluster, serviceName, { start: this.changeTime(currentValue), end: new Date().toISOString() })
     this.setIntervalFunc()
   }
 

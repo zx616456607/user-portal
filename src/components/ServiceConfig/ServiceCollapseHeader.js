@@ -10,7 +10,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row, Col, Modal, Button, Icon, Checkbox, Menu, Dropdown, Input, Upload } from 'antd'
+import { Row, Col, Modal, Button, Icon, Checkbox, Menu, Dropdown, Tooltip } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { createConfigFiles, deleteConfigGroup, deleteConfigFiles, addConfigFile } from '../../actions/configs'
 import { connect } from 'react-redux'
@@ -121,7 +121,9 @@ class CollapseHeader extends Component {
           <Checkbox checked={(this.props.configArray.indexOf(collapseHeader.name) >-1)} onChange={(e) => this.handChage(e, collapseHeader.name)} onClick={(e) => this.handleDropdown(e)}/>
           <Icon type="folder-open" />
           <Icon type="folder" />
-          <span>{collapseHeader.name}</span>
+          <Tooltip title={collapseHeader.name}>
+            <span className="textoverflow">{collapseHeader.name}</span>
+          </Tooltip>
         </Col>
         <Col span="6">
           配置文件 &nbsp;

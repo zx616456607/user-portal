@@ -702,6 +702,7 @@ function getTenxflowBuildLogs(state = {}, action) {
         isFetching: false,
         logs: action.response.result.data.results.results || [],
         waitingApprovalStages: action.response.result.data.results.waitingApprovalStages,
+        isWaitingApproval: action.response.result.data.results.isWaitingApproval,
       })
     case ActionTypes.GET_FLOW_BUILD_LOG_FAILURE:
       return merge({}, defaultState, state, {
