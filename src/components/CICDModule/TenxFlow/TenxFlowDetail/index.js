@@ -166,6 +166,12 @@ class TenxFlowDetail extends Component {
     getTenxFlowDetail(search, {
       success: {
         func: (res) => {
+          if (res.data.results.isWaitingApproval === true) {
+            const status = '等待审批'
+            this.setState({
+              status
+            })
+          }
           getCdInimage(search)
           const stages = res.data.results.stageInfo || []
           const firstStage = stages[0]
@@ -382,6 +388,9 @@ class TenxFlowDetail extends Component {
             default:
               status = "等待中..."
           }
+          if (result.data.results.isWaitingApproval === true) {
+            status = '等待审批'
+          }
           self.setState({
             status,
             statusName
@@ -558,7 +567,12 @@ class TenxFlowDetail extends Component {
             </div>
             <p className='flow-title'>{flowInfo.name}</p>
             <div className='msgBox'>
-              状态：<span className={'status-' + this.state.statusName}>
+              状态：<span className={
+                'status-' + (this.state.status == '等待审批'
+                  ? 'null'
+                  : this.state.statusName)
+                }
+              >
               <i className="fa fa-circle" style={{ marginRight: '5px' }}></i>
               {this.state.status}
               </span>
