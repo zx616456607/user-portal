@@ -132,7 +132,7 @@ function currentStatus(status, stateType) {
   //this function for show different status
   const podName = status ? status.podName : ''
   const stageStatus = !!status ? status.status : 3;
-  const noRunningCheckDetail = <p style={{bottom: '60px'}}>
+  const noRunningCheckDetail = <p className="detail-link">
     <Tooltip title="任务未运行">
       <span className="diabledColor">查看详情</span>
     </Tooltip>
@@ -171,7 +171,7 @@ function currentStatus(status, stateType) {
         <div className='runningStatus status'>
           <i className='fa fa-cog fa-spin fa-3x fa-fw' />
           <p><FormattedMessage {...menusText.running} /></p>
-          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看详情</Link> : ''}</p>
+          <p className="detail-link">{podName ? <Link to={`/app_manage/container/${podName}`}>查看详情</Link> : ''}</p>
         </div>
       );
     case 3:
@@ -615,43 +615,8 @@ class TenxFlowDetailFlowCard extends Component {
                     </div>
                     <div className='infoBox'>
                       <div className='name commonInfo'>
-                        <div className='title'>
-                          <FormattedMessage {...menusText.name} />
-                        </div>
                         <div className='info'>
                           <span className='infoSpan'>{config.metadata.name}</span>
-                        </div>
-                        <div style={{ clear: 'both' }}></div>
-                      </div>
-                      <div className='type commonInfo'>
-                        <div className='title'>
-                          <FormattedMessage {...menusText.type} />
-                        </div>
-                        <div className='info'>
-                          <i className='fa fa-cog' />
-                          {currentFlowType(config.metadata.type, config.metadata.customType, imageList)}
-                        </div>
-                        <div style={{ clear: 'both' }}></div>
-                      </div>
-                      <div className='code commonInfo'>
-                        <div className='title'>
-                          <FormattedMessage {...menusText.code} />
-                        </div>
-                        <div className='info'>
-                          <i className='fa fa-github' />
-                          <span className='infoSpan'>{!!config.spec.project ? fetchCodeStoreName(config.spec.project.id, codeList) : null}</span>
-                          <div style={{ clear: 'both' }}></div>
-                        </div>
-                        <div style={{ clear: 'both' }}></div>
-                      </div>
-                      <div className='branch commonInfo'>
-                        <div className='title'>
-                          <FormattedMessage {...menusText.branch} />
-                        </div>
-                        <div className='info'>
-                          <i className='fa fa-sitemap' />
-                          <span className='infoSpan'>{!!config.spec.project ? config.spec.project.branch : null}</span>
-                          <div style={{ clear: 'both' }}></div>
                         </div>
                         <div style={{ clear: 'both' }}></div>
                       </div>
@@ -714,7 +679,7 @@ class TenxFlowDetailFlowCard extends Component {
                     })
                     this.loadTenxflowCIRules()
                   }}>
-                  CI：{this.state.ciRulesOpened ? '开启' : '关闭'}
+                  CI 已{this.state.ciRulesOpened ? '开启' : '关闭'}
                   </a>
                 </div>
               )
