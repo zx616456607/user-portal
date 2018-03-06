@@ -642,7 +642,6 @@ class MonitorDetail extends React.Component {
     const serviceChild = (allServices || []).map(item =>{
       return <Option key={item.metadata.name}>{item.metadata.name}</Option>
     })
-    console.log(currentIngress)
     const serviceList = getFieldValue('keys').length ? getFieldValue('keys').map(item => {
       return (
         <Row className="serviceList" type="flex" align="middle" key={`service${item}`}>
