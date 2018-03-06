@@ -132,7 +132,7 @@ function currentStatus(status, stateType) {
   //this function for show different status
   const podName = status ? status.podName : ''
   const stageStatus = !!status ? status.status : 3;
-  const noRunningCheckDetail = <p style={{bottom: '60px'}}>
+  const noRunningCheckDetail = <p className="detail-link">
     <Tooltip title="任务未运行">
       <span className="diabledColor">查看详情</span>
     </Tooltip>
@@ -171,7 +171,7 @@ function currentStatus(status, stateType) {
         <div className='runningStatus status'>
           <i className='fa fa-cog fa-spin fa-3x fa-fw' />
           <p><FormattedMessage {...menusText.running} /></p>
-          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看详情</Link> : ''}</p>
+          <p className="detail-link">{podName ? <Link to={`/app_manage/container/${podName}`}>查看详情</Link> : ''}</p>
         </div>
       );
     case 3:
@@ -333,8 +333,6 @@ class TenxFlowDetailFlowCard extends Component {
   constructor(props) {
     super(props);
     this.editFlow = this.editFlow.bind(this);
-    this.viewCicdBox = this.viewCicdBox.bind(this);
-    this.viewCicdBoxP = this.viewCicdBoxP.bind(this);
     this.cancelEditCard = this.cancelEditCard.bind(this);
     this.buildFlow = this.buildFlow.bind(this);
     this.ciRulesChangeSuccess = this.ciRulesChangeSuccess.bind(this);
@@ -342,12 +340,14 @@ class TenxFlowDetailFlowCard extends Component {
     this.closeTenxFlowDeployLogModal = this.closeTenxFlowDeployLogModal.bind(this);
     this.openSettingStageFile = this.openSettingStageFile.bind(this);
     this.renderBuildBtn = this.renderBuildBtn.bind(this);
+    this.loadTenxflowCIRules = this.loadTenxflowCIRules.bind(this);
     this.state = {
       editStatus: false,
       cicdSetModalShow: false,
-      ciRulesOpened: false,
+      ciRulesOpened: props.config.spec.ci.enabled == 1,
       TenxFlowDeployLogModal: false,
-      setStageFileModal: false
+      setStageFileModal: false,
+      currentConfig: null,
     }
   }
 
@@ -371,66 +371,6 @@ class TenxFlowDetailFlowCard extends Component {
       currentFlowEdit: index,
       createNewFlow: false
     });
-  }
-
-  viewCicdBox(value, isSvn) {
-    //this function for user change open cicd or not
-    const { getTenxflowCIRules, UpdateTenxflowCIRules, flowId, config } = this.props;
-    const _this = this;
-    let notification = new NotificationHandler()
-    if (value) {
-      if (isSvn) {
-        let body = {
-          enabled: 1,
-        }
-        UpdateTenxflowCIRules(flowId, body, {
-          success: {
-            func: (res) => {
-              notification.success('持续集成', '开启持续集成成功');
-              _this.setState({
-                ciRulesOpened: true,
-              });
-            },
-            isAsync: true
-          }
-        })
-        return
-      }
-      getTenxflowCIRules(flowId);
-      this.setState({
-        cicdSetModalShow: true,
-      });
-      return
-    }
-    const _config = config.spec.ci.config || {}
-    confirm({
-      title: '确定关闭持续集成？',
-      content: `关闭持续集成`,
-      onOk() {
-        let body = {
-          enabled: 0,
-          config: {
-            branch: null,
-            tag: null,
-            mergeRequest: null,
-            buildCluster: _config.buildCluster
-          }
-        }
-        UpdateTenxflowCIRules(flowId, body, {
-          success: {
-            func: (res) => {
-              notification.success('持续集成', '关闭持续集成成功');
-            },
-            isAsync: true
-          }
-        });
-        _this.setState({
-          cicdSetModalShow: false,
-          ciRulesOpened: false
-        });
-      },
-      onCancel() { }
-    })
   }
 
   operaMenuClick(item) {
@@ -479,14 +419,6 @@ class TenxFlowDetailFlowCard extends Component {
     })
     scope.onSetup(scope.state.socket, buildingList)
   }
-  viewCicdBoxP(e) {
-    //this function for open the modal of cicd
-    const { getTenxflowCIRules, flowId } = this.props;
-    getTenxflowCIRules(flowId);
-    this.setState({
-      cicdSetModalShow: true
-    });
-  }
 
   cancelEditCard() {
     //this function for user cancel edit the card
@@ -518,9 +450,6 @@ class TenxFlowDetailFlowCard extends Component {
     const scope = this.props.scope
     const flowId = scope.props.flowId
     scope.props.getTenxFlowStateList(flowId)
-    this.setState({
-      ciRulesOpened: true
-    })
   }
 
   openTenxFlowDeployLogModal(stageId) {
@@ -642,6 +571,11 @@ class TenxFlowDetailFlowCard extends Component {
     )
   }
 
+  loadTenxflowCIRules() {
+    const { getTenxflowCIRules, flowId } = this.props
+    getTenxflowCIRules(flowId)
+  }
+
   render() {
     let {
       config, preStage, index, scope, uniformRepo,
@@ -681,43 +615,8 @@ class TenxFlowDetailFlowCard extends Component {
                     </div>
                     <div className='infoBox'>
                       <div className='name commonInfo'>
-                        <div className='title'>
-                          <FormattedMessage {...menusText.name} />
-                        </div>
                         <div className='info'>
                           <span className='infoSpan'>{config.metadata.name}</span>
-                        </div>
-                        <div style={{ clear: 'both' }}></div>
-                      </div>
-                      <div className='type commonInfo'>
-                        <div className='title'>
-                          <FormattedMessage {...menusText.type} />
-                        </div>
-                        <div className='info'>
-                          <i className='fa fa-cog' />
-                          {currentFlowType(config.metadata.type, config.metadata.customType, imageList)}
-                        </div>
-                        <div style={{ clear: 'both' }}></div>
-                      </div>
-                      <div className='code commonInfo'>
-                        <div className='title'>
-                          <FormattedMessage {...menusText.code} />
-                        </div>
-                        <div className='info'>
-                          <i className='fa fa-github' />
-                          <span className='infoSpan'>{!!config.spec.project ? fetchCodeStoreName(config.spec.project.id, codeList) : null}</span>
-                          <div style={{ clear: 'both' }}></div>
-                        </div>
-                        <div style={{ clear: 'both' }}></div>
-                      </div>
-                      <div className='branch commonInfo'>
-                        <div className='title'>
-                          <FormattedMessage {...menusText.branch} />
-                        </div>
-                        <div className='info'>
-                          <i className='fa fa-sitemap' />
-                          <span className='infoSpan'>{!!config.spec.project ? config.spec.project.branch : null}</span>
-                          <div style={{ clear: 'both' }}></div>
                         </div>
                         <div style={{ clear: 'both' }}></div>
                       </div>
@@ -772,22 +671,17 @@ class TenxFlowDetailFlowCard extends Component {
             }
             {
               (index == 0 && currentFlowEdit != index) && (
-                (config.spec.project && config.spec.project.repoType === 'svn')
-                ? (
-                  <Tooltip title="开启持续集成（SVN 暂不支持修改规则）">
-                    <div className='cicdBox' key='cicdBox'>
-                      <Switch onChange={value => this.viewCicdBox(value, true)} checked={this.state.ciRulesOpened} />
-                      <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
-                    </div>
-                  </Tooltip>
-                )
-                : (
-                  <div className='cicdBox' key='cicdBox'>
-                    <Switch onChange={this.viewCicdBox} checked={this.state.ciRulesOpened} />
-                    <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
-                    <p className='viewP' onClick={()=>this.viewCicdBoxP()}><FormattedMessage {...menusText.view} /></p>
-                  </div>
-                )
+                <div className='cicdBox' key='cicdBox'>
+                  <a onClick={() => {
+                    this.setState({
+                      cicdSetModalShow: true,
+                      currentConfig: config,
+                    })
+                    this.loadTenxflowCIRules()
+                  }}>
+                  CI 已{this.state.ciRulesOpened ? '开启' : '关闭'}
+                  </a>
+                </div>
               )
             }
           </Card>
@@ -825,8 +719,16 @@ class TenxFlowDetailFlowCard extends Component {
             onCancel={()=>this.setState({cicdSetModalShow:false})}
             maskClosable={true}
             >
-            <CICDSettingModal scope={scopeThis} flowId={flowId}
-              ciRules={ciRules} isFetching={isFetching} visible={this.state.cicdSetModalShow}/>
+            <CICDSettingModal
+              scope={scopeThis}
+              flowId={flowId}
+              ciRules={ciRules}
+              isFetching={isFetching}
+              visible={this.state.cicdSetModalShow}
+              config={this.state.currentConfig}
+              ciRulesOpened={this.state.ciRulesOpened}
+              loadTenxflowCIRules={this.loadTenxflowCIRules}
+            />
           </Modal>
           <Modal
             visible={this.state.TenxFlowDeployLogModal}
