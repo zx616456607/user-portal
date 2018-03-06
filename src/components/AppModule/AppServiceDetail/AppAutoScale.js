@@ -629,7 +629,7 @@ class AppAutoScale extends Component {
                     rules: [{
                       validator: (rules, value, callback) => this.checkValue(rules, value, callback, getFieldValue(`type${key}`))
                     }],
-                    initialValue: getFieldValue(`type${key}`) === 'qps' ? 100 : 80
+                    initialValue: optItem[Object.keys(optItem)[0]]
                   })}/>
                 {
                   getFieldValue(`type${key}`) !== 'qps' ? '%' : '次/s'

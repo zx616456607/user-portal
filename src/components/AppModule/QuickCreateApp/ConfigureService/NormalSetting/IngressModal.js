@@ -297,7 +297,7 @@ class IngressModal extends React.Component {
             label="添加 HTTP头 "
             {...formItemLayout}
           >
-            <p className="ant-form-text">已开启客户端真是 IP<span className="hintColor">（通过 X-Forwarded-For 头字段获取）</span></p>
+            <p className="ant-form-text">已开启客户端真实 IP<span className="hintColor">（通过 X-Forwarded-For 头字段获取）</span></p>
             <p className="ant-form-text">已开启负载均衡监听协议<span className="hintColor">（通过 X-Forwarded-Proto 头字段获取）</span></p>
           </FormItem>
           <FormItem
