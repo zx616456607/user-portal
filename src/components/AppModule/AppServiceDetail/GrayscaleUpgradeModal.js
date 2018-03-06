@@ -283,7 +283,7 @@ class GrayscaleUpgradeModal extends React.Component {
             label="总实例数"
           >
             {/* <InputNumber placeholder="总实例数" />&nbsp;个 */}
-            {replicas} 个
+            {replicas} 个 {newCount > 0 && newCount != replicas ? <span style={{color:"#bbb9b9"}}>(+1 个过渡实例) <Tooltip title="在灰度过程中，会有一个当前版本的过渡实例存在，灰度完成或回滚将删除该过渡实例"><Icon type="question-circle-o" /></Tooltip></span>: ""}
           </FormItem>
           <FormItem
             {...formItemLayout}
@@ -300,6 +300,15 @@ class GrayscaleUpgradeModal extends React.Component {
               </Col>
             </Row>
           </FormItem>
+          { isRollingUpdate && newCount === 0 &&<FormItem
+            {...formItemLayout}
+            label={<span></span>}>
+            <div>
+              <span className="rollback_tip">
+                <Icon type="exclamation-circle-o" className="tips_icon"/>目标版本实例减少，回滚只确保最终状态为该比例，期间当前版本实例会删除重建
+              </span>
+            </div></FormItem>
+          }
           <Row className="target-tag">
             <Col span={4}>目标版本</Col>
             <Col span={20}>
@@ -356,6 +365,7 @@ class GrayscaleUpgradeModal extends React.Component {
           >
             <InputNumber min={10} placeholder="建议 2~60s" {...intervalProps} />
           </FormItem>
+
         </Form>
       </Modal>
     )
