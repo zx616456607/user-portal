@@ -468,7 +468,8 @@ class AppAutoScale extends Component {
             } else {
               callback()
             }
-          }
+          },
+          isAsync: true
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)

@@ -88,13 +88,13 @@ class IngressModal extends React.Component {
   confirmModal = () => {
     const { healthOptions, healthCheck } = this.state
     const { closeModal, form, callback } = this.props
-    this.setState({
-      confirmLoading: true
-    })
     form.validateFields((errors, values) => {
       if (!!errors) {
         return
       }
+      this.setState({
+        confirmLoading: true
+      })
       this.confirmSetTimeout = setTimeout(() => {
         this.setState({
           confirmLoading: false

@@ -416,3 +416,18 @@ export function ingressRelayRuleCheck(value) {
   }
   return 'success'
 }
+
+/**
+ * this function for loadbalance name check
+ */
+
+export function lbNameCheck(value) {
+  if (!value) {
+    return '请输入负载均衡器名称'
+  }
+  let regx = /^[a-zA-Z0-9]+([-.~/][a-zA-Z0-9]+)*$/
+  if (!regx.test(value)) {
+    return '可由数字、中划线、下划线组成，以字母或者数字开头，字母或者数字结尾'
+  }
+  return 'success'
+}
