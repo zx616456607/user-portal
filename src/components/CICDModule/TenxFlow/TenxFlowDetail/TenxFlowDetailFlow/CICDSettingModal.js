@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Checkbox, Alert, Icon, Spin, Tooltip } from 'antd'
+import { Button, Input, Form, Checkbox, Alert, Icon, Spin, Tooltip, Switch } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -18,7 +18,6 @@ import { UpdateTenxflowCIRules } from '../../../../../actions/cicd_flow'
 import './style/CICDSettingModal.less'
 import { browserHistory } from 'react-router';
 import NotificationHandler from '../../../../../components/Notification'
-
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -310,7 +309,7 @@ let CICDSettingModal = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope, UpdateTenxflowCIRules, flowId, form } = this.props;
+    const { scope, UpdateTenxflowCIRules, flowId, form, loadTenxflowCIRules } = this.props;
     const { validateFields, getFieldValue } = form
     const _this = this;
     const { useBranch, useTag, useRequest } = this.state;
@@ -321,6 +320,7 @@ let CICDSettingModal = React.createClass({
       noBranch: false,
       tagInput: false
     })
+    const ciRulesOpened = getFieldValue('ciRulesOpened')
 
     if(useBranch) {
       validateFields(['branch'],(errors, values) => {
@@ -356,13 +356,13 @@ let CICDSettingModal = React.createClass({
     if(!checkFlag) {
       return;
     }
-    if(!useBranch && !useTag && !useRequest){
+    if(ciRulesOpened && !useBranch && !useTag && !useRequest){
       let notification = new NotificationHandler();
       return notification.error('请选择至少一个触发规则')
     }
     const _config = scope.props.config.spec.ci.config || {}
     let body = {
-      enabled: 1,
+      enabled: ciRulesOpened ? 1 : 0,
       config: {
         branch: null,
         tag: null,
@@ -387,7 +387,7 @@ let CICDSettingModal = React.createClass({
     }
     scope.setState({
       cicdSetModalShow: false,
-      ciRulesOpened: true
+      ciRulesOpened,
     });
     UpdateTenxflowCIRules(flowId, body, {
       success: {
@@ -400,6 +400,7 @@ let CICDSettingModal = React.createClass({
             editBranch: false,
             editTag: false
           })
+          loadTenxflowCIRules()
         },
         isAsync: true
       }
@@ -407,141 +408,176 @@ let CICDSettingModal = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { scope, isFetching, ciRules  } = this.props;
+    const { scope, isFetching, ciRules, config, ciRulesOpened } = this.props;
     const { oldConfig, editBranch, editTag } = this.state;
-    if(isFetching || !Boolean(ciRules) ) {
+    if (isFetching) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
       )
     }
-    const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
-    const branchProps = getFieldProps('branch', {
-      rules: [
-        { required: true, message: '请输入Branch名称' },
-      ],
-      initialValue: checkBranchInit(ciRules.results).name,
-    });
-    const isBranchRegProps = getFieldProps('isBranchReg', {
+    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
+    const ciRulesOpenedProps = getFieldProps('ciRulesOpened', {
       valuePropName: 'checked',
-      initialValue: checkBranchInit(ciRules.results).matchWay === REG_EXP,
-    })
-    const tagProps = getFieldProps('tag', {
-      rules: [
-        { required: true, message: '请输入Tag名称' },
-      ],
-      initialValue: checkTagInit(ciRules.results).name,
-      onChange: e => {
-        const value = e.target.value
-        if (value && value.trim()) {
-          this.setState({
-            noTag: false,
-          })
-        } else {
-          this.setState({
-            noTag: true,
-          })
-        }
+      initialValue: ciRulesOpened,
+      onChange: () => {
+        this.setState({
+          useBranch: false,
+          useTag: false,
+          useRequest: false,
+          editBranch: false,
+          editTag: false
+        })
       }
     });
-    const isTagRegProps = getFieldProps('isTagReg', {
-      valuePropName: 'checked',
-      initialValue: checkTagInit(ciRules.results).matchWay === REG_EXP,
-    })
+    const isNoCiDetail = (config.spec.project && config.spec.project.repoType === 'svn')
+      || !getFieldValue('ciRulesOpened')
+    let branchProps, isBranchRegProps, tagProps, isTagRegProps
+    if (!isNoCiDetail) {
+      branchProps = getFieldProps('branch', {
+        rules: [
+          { required: true, message: '请输入Branch名称' },
+        ],
+        initialValue: ciRules ? checkBranchInit(ciRules.results).name : '',
+      });
+      isBranchRegProps = getFieldProps('isBranchReg', {
+        valuePropName: 'checked',
+        initialValue: ciRules ? checkBranchInit(ciRules.results).matchWay === REG_EXP : false,
+      })
+      tagProps = getFieldProps('tag', {
+        rules: [
+          { required: true, message: '请输入Tag名称' },
+        ],
+        initialValue: ciRules ? checkTagInit(ciRules.results).name : '',
+        onChange: e => {
+          const value = e.target.value
+          if (value && value.trim()) {
+            this.setState({
+              noTag: false,
+            })
+          } else {
+            this.setState({
+              noTag: true,
+            })
+          }
+        }
+      });
+      isTagRegProps = getFieldProps('isTagReg', {
+        valuePropName: 'checked',
+        initialValue: ciRules ? checkTagInit(ciRules.results).matchWay === REG_EXP : false,
+      })
+    }
     return (
-    <Form horizontal>
-      <div id='CICDSettingModal' key='CICDSettingModal'>
-        <div className='titleBox'>
-          <span><FormattedMessage {...menusText.cicdTitle} /></span>
-          <Icon type='cross' onClick={this.handleReset} />
+      <Form horizontal>
+        <div id='CICDSettingModal' key='CICDSettingModal'>
+          <div className='titleBox'>
+            <span><FormattedMessage {...menusText.cicdTitle} /></span>
+            <Icon type='cross' onClick={this.handleReset} />
+          </div>
+          <div className='paddingBox'>
+            <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
+            {
+              (config.spec.project && config.spec.project.repoType === 'svn')
+              ? (
+                <Tooltip title="开启持续集成（SVN 暂不支持修改规则）">
+                  <div className='cicdBox' key='cicdBox'>
+                    <Switch {...ciRulesOpenedProps} />
+                    <span>CI 持续集成开关</span>
+                  </div>
+                </Tooltip>
+              )
+              : (
+                <div className='cicdBox' key='cicdBox'>
+                  <Switch {...ciRulesOpenedProps} />
+                  <span>CI 持续集成开关</span>
+                </div>
+              )
+            }
+            {
+              !isNoCiDetail && [
+                <div key="branch" className='branch commonBox'>
+                  <div className='checkBox'>
+                    <FormItem>
+                      <Checkbox onChange={this.onChangeUseBranch} checked={this.state.useBranch}><FormattedMessage {...menusText.branch} /></Checkbox>
+                    </FormItem>
+                  </div>
+                  <div className='inputBox'>
+                    <FormItem style={{ width:'300px',float:'left',marginRight:'18px' }}>
+                      <Input
+                        className={ this.state.noBranch ? 'noBranchInput' : '' }
+                        key='branchInput'
+                        {...branchProps}
+                        type='text'
+                        id='branchInput'
+                        size='large'
+                        disabled={ (!this.state.editBranch) }
+                        placeholder="branch名称，支持正则表达式，如：^feature.*"
+                      />
+                        { this.state.noBranch ? <span className='noValueSpan'>请输入Branch名称</span> : null}
+                    </FormItem>
+                    <FormItem style={{ width:'80px', float:'left' }}>
+                      <Checkbox {...isBranchRegProps} disabled={!this.state.editBranch}>正则</Checkbox>
+                    </FormItem>
+                    {
+                      !this.state.editBranch ?
+                        <i className='fa fa-pencil-square-o' onClick={this.onEditBranch} />
+                      : <Button size='large' onClick={()=>this.onCancelEditBranch()}><FormattedMessage {...menusText.cancel} /></Button>
+                    }
+                    <div style={{ clear:'both' }}></div>
+                  </div>
+                </div>,
+                <div key="tag" className='tag commonBox'>
+                  <div className='checkBox'>
+                    <FormItem>
+                      <Checkbox onChange={this.onChangeUseTag} checked={this.state.useTag}><FormattedMessage {...menusText.tag} /></Checkbox>
+                    </FormItem>
+                  </div>
+                  <div className='request inputBox'>
+                    <FormItem style={{ width:'300px',float:'left',marginRight:'18px' }}>
+                      <Input
+                        className={ this.state.noTag ? 'noTagInput' : '' }
+                        key='tagInput'
+                        {...tagProps}
+                        type='text'
+                        id='tagInput'
+                        size='large'
+                        disabled={ !this.state.editTag}
+                        placeholder="tag名称，支持正则表达式，如：^feature.*"
+                      />
+                      { this.state.noTag ? <span className='noValueSpan'>请输入Tag名称</span> : null}
+                    </FormItem>
+                    <FormItem style={{ width:'80px', float:'left' }}>
+                      <Checkbox {...isTagRegProps} disabled={!this.state.editTag}>正则</Checkbox>
+                    </FormItem>
+                    {
+                      !this.state.editTag ?
+                        <i className='fa fa-pencil-square-o' onClick={this.onEditTag} />
+                      : <Button size='large' onClick={this.onCancelEditTag}><FormattedMessage {...menusText.cancel} /></Button>
+                    }
+                    <div style={{ clear:'both' }}></div>
+                  </div>
+                </div>,
+                <div key="mr" className='commonBox'>
+                  <div className='checkBox'>
+                    <FormItem>
+                      <Checkbox onChange={this.onChangeUseRequest} checked={this.state.useRequest}><FormattedMessage {...menusText.request} /></Checkbox>
+                    </FormItem>
+                  </div>
+                </div>
+              ]
+            }
+          </div>
+          <div className='BtnBox'>
+            <Button size='large' onClick={this.handleReset}>
+              <FormattedMessage {...menusText.cancel} />
+            </Button>
+            <Button size='large' type='primary' onClick={this.handleSubmit}>
+              <FormattedMessage {...menusText.submit} />
+            </Button>
+          </div>
         </div>
-        <div className='paddingBox'>
-          <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
-            <div className='branch commonBox'>
-              <div className='checkBox'>
-                <FormItem>
-                  <Checkbox onChange={this.onChangeUseBranch} checked={this.state.useBranch}><FormattedMessage {...menusText.branch} /></Checkbox>
-                </FormItem>
-              </div>
-              <div className='inputBox'>
-                <FormItem style={{ width:'300px',float:'left',marginRight:'18px' }}>
-                  <Input
-                    className={ this.state.noBranch ? 'noBranchInput' : '' }
-                    key='branchInput'
-                    {...branchProps}
-                    type='text'
-                    id='branchInput'
-                    size='large'
-                    disabled={ (!this.state.editBranch) }
-                    placeholder="branch名称，支持正则表达式，如：^feature.*"
-                  />
-                    { this.state.noBranch ? [<span className='noValueSpan'>请输入Branch名称</span>] : null}
-                </FormItem>
-                <FormItem style={{ width:'80px', float:'left' }}>
-                  <Checkbox {...isBranchRegProps} disabled={!this.state.editBranch}>正则</Checkbox>
-                </FormItem>
-                {
-                  !this.state.editBranch ? [
-                    <i className='fa fa-pencil-square-o' onClick={this.onEditBranch} />
-                  ] : [
-                    <Button size='large' onClick={()=>this.onCancelEditBranch()}><FormattedMessage {...menusText.cancel} /></Button>
-                  ]
-                }
-                <div style={{ clear:'both' }}></div>
-              </div>
-            </div>
-            <div className='tag commonBox'>
-              <div className='checkBox'>
-                <FormItem>
-                  <Checkbox onChange={this.onChangeUseTag} checked={this.state.useTag}><FormattedMessage {...menusText.tag} /></Checkbox>
-                </FormItem>
-              </div>
-              <div className='request inputBox'>
-                <FormItem style={{ width:'300px',float:'left',marginRight:'18px' }}>
-                  <Input
-                    className={ this.state.noTag ? 'noTagInput' : '' }
-                    key='tagInput'
-                    {...tagProps}
-                    type='text'
-                    id='tagInput'
-                    size='large'
-                    disabled={ !this.state.editTag}
-                    placeholder="tag名称，支持正则表达式，如：^feature.*"
-                  />
-                  { this.state.noTag ? <span className='noValueSpan'>请输入Tag名称</span> : null}
-                </FormItem>
-                <FormItem style={{ width:'80px', float:'left' }}>
-                  <Checkbox {...isTagRegProps} disabled={!this.state.editTag}>正则</Checkbox>
-                </FormItem>
-                {
-                  !this.state.editTag ? [
-                    <i className='fa fa-pencil-square-o' onClick={this.onEditTag} />
-                  ] : [
-                    <Button size='large' onClick={this.onCancelEditTag}><FormattedMessage {...menusText.cancel} /></Button>
-                  ]
-                }
-                <div style={{ clear:'both' }}></div>
-              </div>
-            </div>
-            <div className='commonBox'>
-              <div className='checkBox'>
-                <FormItem>
-                  <Checkbox onChange={this.onChangeUseRequest} checked={this.state.useRequest}><FormattedMessage {...menusText.request} /></Checkbox>
-                </FormItem>
-              </div>
-            </div>
-        </div>
-        <div className='BtnBox'>
-          <Button size='large' onClick={this.handleReset}>
-            <FormattedMessage {...menusText.cancel} />
-          </Button>
-          <Button size='large' type='primary' onClick={this.handleSubmit}>
-            <FormattedMessage {...menusText.submit} />
-          </Button>
-        </div>
-      </div>
-    </Form>
+      </Form>
     )
   }
 });
