@@ -113,9 +113,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     deployment.setLabelSelector(bindLabel)
   }
   // 设置资源
-  console.log(resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU, '0000000000')
   const { cpu, memory, limitCpu, limitMemory } = getResourceByMemory(resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU)
-  console.log(cpu, memory, limitCpu, limitMemory, '-----------')
   deployment.setContainerResources(serviceName, memory, cpu, limitMemory, limitCpu)
   // 服务类型&存储
   const storage = []

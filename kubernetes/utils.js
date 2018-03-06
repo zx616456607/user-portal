@@ -69,8 +69,8 @@ exports.getResources = function (memory, cpu, limitMemory, limitCpu) {
     }
   }
   if (enterpriseFlag && cpu) {
-    resources.requests.cpu = `${cpu}m`
-    resources.limits.cpu = `${limitCpu}m`
+    resources.requests.cpu = `${cpu * 1000}m`
+    resources.limits.cpu = `${limitCpu * 1000}m`
   }
   return resources
 }

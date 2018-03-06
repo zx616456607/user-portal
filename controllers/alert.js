@@ -450,9 +450,6 @@ exports.getTargetInstant = function* () {
         }
         totalMemoryByte += memory
       })
-      console.log('~~~~~~~~~~', JSON.stringify(containers))
-      console.log('~~~~~~~~~~', replicas)
-      console.log('~~~~~~~~~~~', totalMemoryByte)
       totalMemoryByte = replicas * totalMemoryByte
     } else {
       const err = new Error('the pod is not exist')
