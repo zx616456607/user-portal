@@ -39,6 +39,7 @@ class AutoScale extends React.Component {
   componentWillMount() {
     const { clusterID } = this.props
     this.loadData(clusterID, 1)
+    this.loadExistServices()
   }
   componentWillReceiveProps(nextProps) {
     const { clusterID: newClusterID, spaceName: newSpaceName } = nextProps
@@ -64,16 +65,10 @@ class AutoScale extends React.Component {
         func: res => {
           let scaleList = res.data
           scaleList = Object.values(scaleList)
-          let existServices = []
-          scaleList.forEach(item => {
-            item = Object.assign(item, { key: item.metadata.name })
-            existServices.push(item.metadata.name)
-          })
           this.setState({
             scaleList,
             totalCount: res.totalCount,
             tableLoading: false,
-            existServices,
           })
         },
         isAsync: true
@@ -83,7 +78,35 @@ class AutoScale extends React.Component {
           this.setState({
             scaleList: [],
             totalCount: 0,
-            tableLoading: false,
+            tableLoading: false
+          })
+        }
+      }
+    })
+  }
+  loadExistServices = () => {
+    const { loadAutoScaleList, clusterID } = this.props
+    loadAutoScaleList(clusterID, {
+      page: 1,
+      size: 100
+    }, {
+      success: {
+        func: res => {
+          let scaleList = res.data
+          scaleList = Object.values(scaleList)
+          let existServices = []
+          scaleList.forEach(item => {
+            item = Object.assign(item, { key: item.metadata.name })
+            existServices.push(item.metadata.name)
+          })
+          this.setState({
+            existServices
+          })
+        }
+      },
+      failed: {
+        func: () => {
+          this.setState({
             existServices: []
           })
         }
