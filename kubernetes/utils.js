@@ -21,8 +21,8 @@ exports.getResources = function (memory, cpu, limitMemory, limitCpu) {
   let resources = clone(DEFAULT_CONTAINER_RESOURCES)
   const intMemory = parseInt(memory || DEFAULT_CONTAINER_RESOURCES_MEMORY)
   if (memory && limitMemory) {
-    resources.limits.memory = limitMemory
-    resources.requests.memory = memory
+    resources.limits.memory = `${limitMemory}Mi`
+    resources.requests.memory = `${memory}Mi`
   } else {
     switch (intMemory) {
       case 256:
@@ -64,13 +64,13 @@ exports.getResources = function (memory, cpu, limitMemory, limitCpu) {
         resources.requests.cpu = '4000m'
         break
       default:
-        resources.limits.memory = limitMemory
-        resources.requests.memory = memory
+        resources.limits.memory = `${limitMemory}Mi`
+        resources.requests.memory = `${memory}Mi`
     }
   }
   if (enterpriseFlag && cpu) {
-    resources.requests.cpu = cpu
-    resources.limits.cpu = limitCpu
+    resources.requests.cpu = `${cpu}m`
+    resources.limits.cpu = `${limitCpu}m`
   }
   return resources
 }
