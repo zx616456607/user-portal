@@ -480,12 +480,14 @@ let CICDSettingModal = React.createClass({
             {
               (config.spec.project && config.spec.project.repoType === 'svn')
               ? (
-                <Tooltip title="开启持续集成（SVN 暂不支持修改规则）">
-                  <div className='cicdBox' key='cicdBox'>
-                    <Switch {...ciRulesOpenedProps} />
-                    <span>CI 持续集成开关</span>
-                  </div>
-                </Tooltip>
+                <div className='cicdBox' key='cicdBox'>
+                  <Tooltip title="开启持续集成（SVN 暂不支持修改规则）">
+                    <span>
+                      <Switch {...ciRulesOpenedProps} />
+                      <span>CI 持续集成开关</span>
+                    </span>
+                  </Tooltip>
+                </div>
               )
               : (
                 <div className='cicdBox' key='cicdBox'>
