@@ -569,7 +569,7 @@ class AutoScale extends React.Component {
             pagination={pagination}
             rowSelection={rowSelection}
             columns={columns}
-            rowKey={record => record.key}
+            rowKey={record => record.metadata.name}
             onRowClick={this.onRowClick}
             onChange={this.tableFilter}
             dataSource={scaleList} />

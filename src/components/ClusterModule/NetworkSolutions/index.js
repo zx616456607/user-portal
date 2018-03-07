@@ -11,12 +11,13 @@ import React, { Component, PropTypes } from 'react'
 import { Checkbox, Row, Col, Modal, Button, Tabs, Tooltip, Icon, Form, Input } from 'antd'
 import './style/NetworkSolutions.less'
 import { connect } from 'react-redux'
-import { getNetworkSolutions } from '../../actions/cluster_node'
-import { updateClusterConfig } from '../../actions/cluster'
-import { loadTeamClustersList } from '../../actions/team'
-import NotificationHandler from '../../components/Notification'
-import { setCurrent } from '../../actions/entities'
-import { genRandomString } from '../../common/tools'
+import { getNetworkSolutions } from '../../../actions/cluster_node'
+import { updateClusterConfig } from '../../../actions/cluster'
+import { loadTeamClustersList } from '../../../actions/team'
+import NotificationHandler from '../../../components/Notification'
+import { setCurrent } from '../../../actions/entities'
+import { genRandomString } from '../../../common/tools'
+import KubeproxyConfig from './KubeproxyConfig'
 
 const createOrder = `calicoctl create -f policy.yaml`
 const deleteOrder = `calicoctl delete policy failsafe`
@@ -329,7 +330,7 @@ class NetworkSolutions extends Component {
       wrapperCol: { span: 22 },
     }
     let images = [
-      { src: require('../../assets/img/sketch.png') }
+      { src: require('../../../assets/img/sketch.png') }
     ]
     const formItems = getFieldValue('keys').map((k) => {
       return (
@@ -365,151 +366,154 @@ class NetworkSolutions extends Component {
     })
 
     return (
-      <div id="networksolutions">
-        <div className='header'>
-          集群网络方案
-        </div>
-        <div className='body'>
-          {this.handlebodyTemplate()}
-        </div>
-        <div className="footer">
-          {this.handlefooterTemplate()}
-        </div>
-        {/* <div className="bottom">
-          <div className="header">外部DNS <span>配置需要访问的外部 DNS ，如公司内网 DNS 等，最多 3 个外部 DNS</span>
-          <a onClick={() => this.handleSketch()}>查看示意图</a></div>
-          <Form form={this.props.form}>
-            {formItems}
-            <a className="btn-add" onClick={() => this.handleAdd()}><Icon type="plus-circle-o" style={{ color: '#2db7f5' }} /> 添加DNS</a>
-          </Form>
-        </div> */}
-        <Modal
-          title={<span>{networkPolicySupported ? '禁止变更' : '允许变更'}</span>}
-          visible={this.state.permissionVisible}
-          closable={true}
-          onOk={this.confirmSettingPermsission}
-          onCancel={() => this.setState({ permissionVisible: false })}
-          maskClosable={false}
-          confirmLoading={this.state.confirmLoading}
-          wrapClassName="set_permission_modal"
-          okText={<span>{networkPolicySupported ? '确定' : '已添加，开启允许'}</span>}
-          cancelText={<span>{networkPolicySupported ? '取消' : '尚未添加'}</span>}
-        >
-          {
-            networkPolicySupported
-              ? <div className='info_box_close'>
-                <i className="fa fa-exclamation-triangle warning_icon" aria-hidden="true"></i>
-                <div>
-                  将关闭『允许当前集群用户开启 inbound 隔离』的功能。
-                </div>
-              </div>
-              : <div className='info_box'>
-                <i className="fa fa-exclamation-triangle warning_icon" aria-hidden="true"></i>
-                <div>
-                  将允许当前集群用户开启 inbound 隔离，请提前创建允许所有代理出口 ip/网段 访问集群服务的策略，具体查看
-                  <span className='help_button' onClick={() => this.setState({
-                    helpVisible: true,
-                    modalHelp: true,
-                    permissionVisible: false
-                  })}>帮助</span>
-                  信息。
-                </div>
-              </div>
-          }
-        </Modal>
-        <Modal
-          title="帮助"
-          visible={this.state.helpVisible}
-          closable={true}
-          onOk={this.closeHelpModal}
-          onCancel={this.closeHelpModal}
-          maskClosable={false}
-          wrapClassName="help_modal"
-        >
-          <div className='tips_area'>
-            <div className='tips'>
-              在 master 控制节点上，保存以下内容为 policy.yaml 到任意目录，注意修改 net 字段中的内容为主机节点的网段信息。
-            </div>
+      <div>
+        <div className="networksolutions">
+          <div className='header'>
+            集群网络方案
           </div>
-          <Tabs
-            className='tabs_area'
-            activeKey={this.state.activeKey}
-            onChange={(key) => this.setState({ activeKey: key })}
+          <div className='body'>
+            {this.handlebodyTemplate()}
+          </div>
+          <div className="footer">
+            {this.handlefooterTemplate()}
+          </div>
+          {/* <div className="bottom">
+            <div className="header">外部DNS <span>配置需要访问的外部 DNS ，如公司内网 DNS 等，最多 3 个外部 DNS</span>
+            <a onClick={() => this.handleSketch()}>查看示意图</a></div>
+            <Form form={this.props.form}>
+              {formItems}
+              <a className="btn-add" onClick={() => this.handleAdd()}><Icon type="plus-circle-o" style={{ color: '#2db7f5' }} /> 添加DNS</a>
+            </Form>
+          </div> */}
+          <Modal
+            title={<span>{networkPolicySupported ? '禁止变更' : '允许变更'}</span>}
+            visible={this.state.permissionVisible}
+            closable={true}
+            onOk={this.confirmSettingPermsission}
+            onCancel={() => this.setState({ permissionVisible: false })}
+            maskClosable={false}
+            confirmLoading={this.state.confirmLoading}
+            wrapClassName="set_permission_modal"
+            okText={<span>{networkPolicySupported ? '确定' : '已添加，开启允许'}</span>}
+            cancelText={<span>{networkPolicySupported ? '取消' : '尚未添加'}</span>}
           >
-            <Tabs.TabPane key="open" tab="添加节点允许访问策略" className='height open_area'>
-              <pre className='order create_area'>
-                {yamlFile}
-                <Tooltip title={this.state.copyCMDSuccess ? '复制成功' : '点击复制'}>
-                  <a
-                    className={this.state.copyCMDSuccess ? "actions copyBtn copy_icon" : "copyBtn copy_icon"}
-                    onClick={this.copyYmal}
-                    onMouseLeave={() => setTimeout(() => this.setState({ copyCMDSuccess: false }), 500)}
-                  >
-                    <Icon type="copy" />
-                  </a>
-                </Tooltip>
-                <textarea
-                  id={this.state.yamlTextarea}
-                  style={{ position: "absolute", opacity: "0", top: '0' }}
-                  value={yamlFile}
-                />
-              </pre>
-              <div className='title'>在安装了 calicoctl 命令的 master 控制节点上运行以下命令：</div>
-              <pre className='order'>
-                {createOrder}
-                <Tooltip title={this.state.copyCMDSuccess ? '复制成功' : '点击复制'}>
-                  <a
-                    className={this.state.copyCMDSuccess ? "actions copyBtn" : "copyBtn"}
-                    onClick={this.copyOrder}
-                    onMouseLeave={() => setTimeout(() => this.setState({ copyCMDSuccess: false }), 500)}
-                  >
-                    <Icon type="copy" style={{ marginLeft: 8 }} />
-                  </a>
-                </Tooltip>
-                <input
-                  id={this.state.openInputId}
-                  style={{ position: "absolute", opacity: "0", top: '0' }}
-                  value={createOrder}
-                />
-              </pre>
-            </Tabs.TabPane>
-            <Tabs.TabPane key="close" tab="关闭节点允许访问策略" className='height'>
-              <div className='title'>在安装了 calicoctl 命令的 master 控制节点上运行以下命令：</div>
-              <pre className='order'>
-                {deleteOrder}
-                <Tooltip title={this.state.copyCMDSuccess ? '复制成功' : '点击复制'}>
-                  <a
-                    className={this.state.copyCMDSuccess ? "actions copyBtn" : "copyBtn"}
-                    onClick={this.copyCloseOrder}
-                    onMouseLeave={() => setTimeout(() => this.setState({ copyCMDSuccess: false }), 500)}
-                  >
-                    <Icon type="copy" style={{ marginLeft: 8 }} />
-                  </a>
-                </Tooltip>
-                <input
-                  id={this.state.closeInputId}
-                  style={{ position: "absolute", opacity: "0", top: '0' }}
-                  value={deleteOrder}
-                />
-              </pre>
-            </Tabs.TabPane>
-          </Tabs>
-        </Modal>
-        <Modal title="删除" visible={this.state.deleteVisible}
-          onCancel={() => this.handleDelClose()}
-          onOk={() => this.handleOk()}>
-          <div className="deleteRow">
-            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-            <span> 如果有服务使用了该DNS解析的域名，删除之后可能无法正常访问外部的服务，是否确定删除 ？</span>
-          </div>
-        </Modal>
-        <Modal title="集群内服务访问其它服务 DNS 策略示意图" visible={this.state.sketchVisible}
-          onCancel={() => this.handleSketchClose()}
-          footer={[
-            <Button key="back" type="primary" onClick={() => this.handleSketchClose()}>知道了</Button>,
-          ]}>
-          <img src={images[0].src} />
-        </Modal>
+            {
+              networkPolicySupported
+                ? <div className='info_box_close'>
+                  <i className="fa fa-exclamation-triangle warning_icon" aria-hidden="true"></i>
+                  <div>
+                    将关闭『允许当前集群用户开启 inbound 隔离』的功能。
+                  </div>
+                </div>
+                : <div className='info_box'>
+                  <i className="fa fa-exclamation-triangle warning_icon" aria-hidden="true"></i>
+                  <div>
+                    将允许当前集群用户开启 inbound 隔离，请提前创建允许所有代理出口 ip/网段 访问集群服务的策略，具体查看
+                    <span className='help_button' onClick={() => this.setState({
+                      helpVisible: true,
+                      modalHelp: true,
+                      permissionVisible: false
+                    })}>帮助</span>
+                    信息。
+                  </div>
+                </div>
+            }
+          </Modal>
+          <Modal
+            title="帮助"
+            visible={this.state.helpVisible}
+            closable={true}
+            onOk={this.closeHelpModal}
+            onCancel={this.closeHelpModal}
+            maskClosable={false}
+            wrapClassName="help_modal"
+          >
+            <div className='tips_area'>
+              <div className='tips'>
+                在 master 控制节点上，保存以下内容为 policy.yaml 到任意目录，注意修改 net 字段中的内容为主机节点的网段信息。
+              </div>
+            </div>
+            <Tabs
+              className='tabs_area'
+              activeKey={this.state.activeKey}
+              onChange={(key) => this.setState({ activeKey: key })}
+            >
+              <Tabs.TabPane key="open" tab="添加节点允许访问策略" className='height open_area'>
+                <pre className='order create_area'>
+                  {yamlFile}
+                  <Tooltip title={this.state.copyCMDSuccess ? '复制成功' : '点击复制'}>
+                    <a
+                      className={this.state.copyCMDSuccess ? "actions copyBtn copy_icon" : "copyBtn copy_icon"}
+                      onClick={this.copyYmal}
+                      onMouseLeave={() => setTimeout(() => this.setState({ copyCMDSuccess: false }), 500)}
+                    >
+                      <Icon type="copy" />
+                    </a>
+                  </Tooltip>
+                  <textarea
+                    id={this.state.yamlTextarea}
+                    style={{ position: "absolute", opacity: "0", top: '0' }}
+                    value={yamlFile}
+                  />
+                </pre>
+                <div className='title'>在安装了 calicoctl 命令的 master 控制节点上运行以下命令：</div>
+                <pre className='order'>
+                  {createOrder}
+                  <Tooltip title={this.state.copyCMDSuccess ? '复制成功' : '点击复制'}>
+                    <a
+                      className={this.state.copyCMDSuccess ? "actions copyBtn" : "copyBtn"}
+                      onClick={this.copyOrder}
+                      onMouseLeave={() => setTimeout(() => this.setState({ copyCMDSuccess: false }), 500)}
+                    >
+                      <Icon type="copy" style={{ marginLeft: 8 }} />
+                    </a>
+                  </Tooltip>
+                  <input
+                    id={this.state.openInputId}
+                    style={{ position: "absolute", opacity: "0", top: '0' }}
+                    value={createOrder}
+                  />
+                </pre>
+              </Tabs.TabPane>
+              <Tabs.TabPane key="close" tab="关闭节点允许访问策略" className='height'>
+                <div className='title'>在安装了 calicoctl 命令的 master 控制节点上运行以下命令：</div>
+                <pre className='order'>
+                  {deleteOrder}
+                  <Tooltip title={this.state.copyCMDSuccess ? '复制成功' : '点击复制'}>
+                    <a
+                      className={this.state.copyCMDSuccess ? "actions copyBtn" : "copyBtn"}
+                      onClick={this.copyCloseOrder}
+                      onMouseLeave={() => setTimeout(() => this.setState({ copyCMDSuccess: false }), 500)}
+                    >
+                      <Icon type="copy" style={{ marginLeft: 8 }} />
+                    </a>
+                  </Tooltip>
+                  <input
+                    id={this.state.closeInputId}
+                    style={{ position: "absolute", opacity: "0", top: '0' }}
+                    value={deleteOrder}
+                  />
+                </pre>
+              </Tabs.TabPane>
+            </Tabs>
+          </Modal>
+          <Modal title="删除" visible={this.state.deleteVisible}
+            onCancel={() => this.handleDelClose()}
+            onOk={() => this.handleOk()}>
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+              <span> 如果有服务使用了该DNS解析的域名，删除之后可能无法正常访问外部的服务，是否确定删除 ？</span>
+            </div>
+          </Modal>
+          <Modal title="集群内服务访问其它服务 DNS 策略示意图" visible={this.state.sketchVisible}
+            onCancel={() => this.handleSketchClose()}
+            footer={[
+              <Button key="back" type="primary" onClick={() => this.handleSketchClose()}>知道了</Button>,
+            ]}>
+            <img src={images[0].src} />
+          </Modal>
+        </div>
+        <KubeproxyConfig clusterID={this.props.currentClusterID} />
       </div>
     )
   }
@@ -533,6 +537,7 @@ function mapStateToProp(state, props) {
     space,
     networkPolicySupported,
     result,
+    currentClusterID: props.clusterID
   }
 }
 

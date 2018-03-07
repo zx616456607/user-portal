@@ -89,7 +89,7 @@ export default class MonitorTable extends React.Component {
     if (!row.items || !row.items.length) {
       return
     }
-    const isRoundRobin = row.lbAlgorithm === 'round-robin'
+    const isRoundRobin = row.lbAlgorithm !== 'ip_hash'
     
     return (
       <div>

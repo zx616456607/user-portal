@@ -43,9 +43,7 @@ exports.getRecords = function* () {
 
 exports.deleteRecords = function* () {
   const cluster = this.params.cluster
-  let query = {
-    strategyID: '',
-  }
+  const query = this.query
   if (this.query && this.query.strategyID) {
     query.strategyID = this.query.strategyID
   }
