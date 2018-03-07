@@ -71,15 +71,29 @@ class Snapshot extends Component {
       createFalse: false,
       rollbackSuccess: false,
       hasAlreadyGetStorageList: false,
+      isFirstLoad: true,
     }
   }
 
-  loadSnapshotList(){
+  loadSnapshotList(from){
     const { cluster, SnapshotList } = this.props
+    if (from === 'refresh') {
+      this.setState({ isFirstLoad: true })
+    }
     const body = {
       clusterID: cluster,
     }
-    SnapshotList(body)
+    SnapshotList(body, {
+      success: {
+        func: () => {
+          const { isFirstLoad } = this.state
+          if (isFirstLoad) {
+            this.setState({ isFirstLoad: false })
+          }
+        },
+        isAsync: true,
+      }
+    })
   }
 
   getStorageList(type, operate){
@@ -498,8 +512,11 @@ class Snapshot extends Component {
   }
 
   render() {
-    const { snapshotDataList, currentCluster, storageList, currentImagePool } = this.props
-    const { selectedRowKeys, DeleteSnapshotButton, currentSnapshot, delelteSnapshotNum, currentVolume } = this.state
+    const { snapshotDataList, currentCluster, storageList, currentImagePool, isFetching } = this.props
+    const {
+      selectedRowKeys, DeleteSnapshotButton, currentSnapshot,
+      delelteSnapshotNum, currentVolume, SnapshotList, isFirstLoad,
+    } = this.state
     let currentStorageList= []
     if(storageList[currentImagePool]){
       currentStorageList = storageList[currentImagePool].storageList
@@ -521,71 +538,46 @@ class Snapshot extends Component {
       }
     }
 
-    const menu = snapshotDataList.map((item, index) => {
-      return <Menu onClick={this.handleDropdown.bind(this,index)} style={{width:'80px'}}>
-        <Menu.Item key="deleteSnapshot">删除</Menu.Item>
-        <Menu.Item key="cloneSnapshot">创建</Menu.Item>
-      </Menu>
-    })
-
-    const snapshotcolumns = [{
-        title:'快照名称',
-        key:'name',
-        dataIndex:'name',
-        width:'16%',
-      },{
-        title:'状态',
-        key:'status',
-        dataIndex:'status',
-        width:'10%',
+    const snapshotcolumns = [
+      { title: '快照名称', key: 'name', dataIndex: 'name', width: '16%' },
+      {
+        title: '状态', key: 'status', dataIndex: 'status', width: '10%',
         render: (text) => <div className={iconclassName('正常')}>
-          { this.formatStatus(text)}
+          {this.formatStatus(text)}
         </div>
-      },{
-        title:'格式',
-        key:'type',
-        dataIndex:'fstype',
-        width:'8%',
+      }, {
+        title: '格式', key: 'type', dataIndex: 'fstype', width: '8%',
         render: (fstype) => <div>{fstype}</div>
-      },{
-        title:'大小',
-        key:'size',
-        dataIndex:'size',
-        width:'8%',
+      }, {
+        title: '大小', key: 'size', dataIndex: 'size', width: '8%',
         render: (size) => <div>{size} M</div>
-      },{
-        title:'关联卷',
-        key:'volume',
-        dataIndex:'volume',
-        width:'10%',
+      }, {
+        title: '关联卷', key: 'volume', dataIndex: 'volume', width: '10%',
         render: (volume) => <div>
-          <Link to={`/app_manage/storage/exclusiveMemory/${DEFAULT_IMAGE_POOL}/${this.props.cluster}/${volume}`} >
+          <Link to={`/app_manage/storage/exclusiveMemory/${DEFAULT_IMAGE_POOL}/${this.props.cluster}/${volume}`}>
             {volume}
           </Link>
         </div>
-      },{
-        title: '卷类型',
-        key: 'storageServer',
-        dataIndex: 'storageServer',
-        width: '15%',
-        render: (text, record, index) => <div style={{wordBreak: 'break-all'}}>块存储 ({text})</div>
-      },{
-        title:'创建时间',
-        key:'CreateTime',
-        width:'18%',
-        dataIndex:'createTime',
+      }, {
+        title: '卷类型', key: 'storageServer', dataIndex: 'storageServer', width: '15%',
+        render: (text, record, index) => <div style={{ wordBreak: 'break-all' }}>块存储 ({text})</div>
+      }, {
+        title: '创建时间', key: 'CreateTime', width: '18%', dataIndex: 'createTime',
         render: (createTime) => <div>{formatDate(createTime)}</div>,
-        sorter:(a, b) => soterCreateTime(a.createTime, b.createTime)
-      },{
-        title:'操作',
-        key:'Handle',
-        dataIndex:'key',
-        width:'15%',
-        render: (key) => <div>
-          <Dropdown.Button onClick={ this.handleRollbackSnapback.bind(this, key)} overlay={menu[key]} type="ghost">
-            回滚
-          </Dropdown.Button>
-        </div>
+        sorter: (a, b) => soterCreateTime(a.createTime, b.createTime)
+      }, {
+        title: '操作', key: 'Handle', dataIndex: 'key', width: '15%',
+        render: (key, record, index) => {
+          const menu = <Menu onClick={this.handleDropdown.bind(this, index)} style={{ width: '80px' }}>
+            <Menu.Item key="deleteSnapshot">删除</Menu.Item>
+            <Menu.Item key="cloneSnapshot">创建</Menu.Item>
+          </Menu>
+          return <div>
+            <Dropdown.Button onClick={this.handleRollbackSnapback.bind(this, key)} overlay={menu} type="ghost">
+              回滚
+            </Dropdown.Button>
+          </div>
+        }
       }]
     const rowSelection = {
       selectedRowKeys,
@@ -596,30 +588,31 @@ class Snapshot extends Component {
       <div id="appmanage_snapshot" key='appmanage_snapshot'>
         <Title title="快照" />
         <div className='appmanage_snapshot_header'>
+          <Button size="large" onClick={() => this.loadSnapshotList('refresh')} style={{ marginRight: 8 }}>
+            <i className="fa fa-refresh" aria-hidden="true" style={{ marginRight: 8 }}/>
+            刷新
+          </Button>
           <Button icon="delete" size='large' onClick={this.handleDeleteSnapshots} disabled={DeleteSnapshotButton}>删除</Button>
           <span className='searchBox'>
             <Input className='searchInput' placeholder='按快照名称搜索' size="large" onPressEnter={this.handelEnterSearch} id="searchSnapshot"/>
             <i className="fa fa-search searchIcon" aria-hidden="true" onClick={this.handelEnterSearch}></i>
           </span>
           {
-            this.state.SnapshotList && this.state.SnapshotList.length !== 0
-              ? <span className='totalNum'>共计<span className='item'>{this.state.SnapshotList.length}</span>条</span>
+            SnapshotList && SnapshotList.length !== 0
+              ? <span className='totalNum'>共计 <span className='item'>{SnapshotList.length}</span> 条</span>
               : <span></span>
           }
         </div>
         <div className='appmanage_snapshot_main'>
-          {
-            snapshotDataList
-            ?<Table
-              columns={snapshotcolumns}
-              dataSource={this.state.SnapshotList}
-              rowSelection={rowSelection}
-              onRowClick={this.handleTableRowClick}
-              pagination={{ simple: true }}
-            >
-            </Table>
-            :<div className='nodata'><Spin/></div>
-          }
+          <Table
+            columns={snapshotcolumns}
+            dataSource={SnapshotList}
+            rowSelection={rowSelection}
+            onRowClick={this.handleTableRowClick}
+            pagination={{ simple: true }}
+            loading={isFirstLoad && isFetching}
+          >
+          </Table>
         </div>
 
         <Modal
@@ -788,7 +781,7 @@ class Snapshot extends Component {
 function mapStateToProps(state, props){
   const { cluster } = state.entities.current
   const { snapshotList } = state.storage
-  const snapshotDataList = snapshotList.result || []
+  const { result: snapshotDataList, isFetching } = snapshotList
   for(let i = 0; i < snapshotDataList.length; i++){
     snapshotDataList[i].key = i
   }
@@ -805,6 +798,7 @@ function mapStateToProps(state, props){
     currentImagePool: DEFAULT_IMAGE_POOL,
     cluster: cluster.clusterID,
     snapshotDataList,
+    isFetching,
     currentCluster: cluster,
     storageClassType: defaultStorageClassType,
   }

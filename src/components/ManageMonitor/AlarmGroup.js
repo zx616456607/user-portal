@@ -21,13 +21,15 @@ import { setCurrent } from '../../actions/entities'
 import NotificationHandler from '../../components/Notification'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
-import { formatDate } from '../../common/tools'
+import { formatDate, adjustBrowserUrl } from '../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import Title from '../Title'
 
 class AlarmGroup extends Component {
   constructor(props) {
     super(props)
+    this.loadData = this.loadData.bind(this)
+    this.handSearch = this.handSearch.bind(this)
     this.state = {
       search: '',
       createGroup: false,
@@ -41,9 +43,24 @@ class AlarmGroup extends Component {
     }
   }
   componentWillMount() {
-    const { loadNotifyGroups } = this.props
-    const clusterID = this.props.cluster.clusterID
-    loadNotifyGroups("", clusterID)
+    this.loadData({}, true)
+  }
+  loadData(query = {}, isFirstLoad) {
+    const { loadNotifyGroups, cluster, location } = this.props
+    const { clusterID } = cluster
+    loadNotifyGroups("", clusterID, {
+      success: {
+        func: () => {
+          this.setState({
+            selectedRowKeys: [],
+            selectedRows: [],
+            search: '',
+          })
+          adjustBrowserUrl(location, query, isFirstLoad)
+        },
+        isAsync: true,
+      }
+    })
   }
   dropdowns(record, group) {
     // Dropdown delete btn
@@ -86,7 +103,10 @@ class AlarmGroup extends Component {
         func: (result) => {
           this.closeDeleteModal()
           notification.success(`删除成功`)
-          loadNotifyGroups("", clusterID)
+          const { location } = this.props
+          const { query } = location
+          const { search } = this.state
+          this.handSearch({ page: query.page || 1, search })
         },
         isAsync: true
       },
@@ -170,11 +190,23 @@ class AlarmGroup extends Component {
       </div>
     )
   }
-  handSearch() {
+  handSearch(query = { page: 1 }) {
     const { search } = this.state
-    const { loadNotifyGroups } = this.props
-    const clusterID = this.props.cluster.clusterID
-    loadNotifyGroups(search, clusterID)
+    const { loadNotifyGroups, cluster, location } = this.props
+    const { clusterID } = cluster
+    loadNotifyGroups(search, clusterID, {
+      success: {
+        func: () => {
+          this.setState({
+            selectedRowKeys: [],
+            selectedRows: [],
+          }, () => {
+            adjustBrowserUrl(location, { search, page: query.page })
+          })
+        },
+        isAsync: true,
+      }
+    })
   }
   getSelectedGroups() {
     let groupIDs = []
@@ -227,7 +259,19 @@ class AlarmGroup extends Component {
       return <div>{item.name}</div>
     }) : '-'
   }
+  onPageChange(page) {
+    const { location } = this.props
+    const { search } = this.state
+    const query = {
+      page,
+      search,
+    }
+    adjustBrowserUrl(location, query)
+  }
   render() {
+    const { search } = this.state
+    const { location } = this.props
+    const { query = {} } = location
     if (!this.props.groups) {
       return (
         <div className="loadingBox">
@@ -319,6 +363,12 @@ class AlarmGroup extends Component {
       },
       selectedRowKeys: this.state.selectedRowKeys,
     }
+    const paginationProps = {
+      simple: true,
+      pageSize: 10,
+      current: parseInt(query.page) || 1,
+      onChange: page => this.onPageChange(page),
+    }
     return (
       <QueueAnim className="alarmGroup">
         <div id="AlarmGroup" key="demo">
@@ -328,33 +378,21 @@ class AlarmGroup extends Component {
               <i className="fa fa-plus" style={{ marginRight: '5px' }} />
               创建
             </Button>
-            <Button size="large" type="ghost" onClick={() => this.props.loadNotifyGroups("", clusterID)}><i className="fa fa-refresh" />刷新</Button>
+            <Button size="large" type="ghost" onClick={() => this.handSearch({ search, page: parseInt(query.page || 1)})}><i className="fa fa-refresh" />刷新</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length === 0} onClick={(e) => this.openDeleteModal(e, this.getSelectedGroups())} type="ghost"><i className="fa fa-trash-o" aria-hidden="true"/>删除</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length !== 1} onClick={() => this.openModifyModal(this.getModifyingGroup())} type="ghost"><Icon type="edit"
               style={{ marginRight: 0 }}/>修改</Button>
             <div className="Search">
-              <Input size="large" placeholder="搜索" id="AlarmGroupInput" onChange={(e) => this.setState({ search: e.target.value.trim()})} onPressEnter={() => this.handSearch()} />
-              <i className="fa fa-search" onClick={() => this.handSearch()} />
+              <Input size="large" placeholder="搜索" id="AlarmGroupInput" onChange={(e) => this.setState({ search: e.target.value.trim()})} onPressEnter={() => this.handSearch({ page: 1 })} />
+              <i className="fa fa-search" onClick={() => this.handSearch({ page: 1 })} />
             </div>
-            {/*<div className="rightPage pageBox">
-              <span className='totalPage'>共计 {tableData.length} 条</span>
-              <div className='paginationBox'>
-                <Pagination
-                  simple
-                  className='inlineBlock'
-                  onChange={(page)=> this.onPageChange(page)}
-                  current={DEFAULT_PAGE}
-                  pageSize={5}
-                  total={ tableData.length } />
-              </div>
-            </div>*/}
           </div>
           <Card className='alarmGroupContent'>
             <Table
               className="strategyTable"
               columns={tableColumns}
               dataSource={tableData}
-              pagination={{ simple: true }}
+              pagination={paginationProps}
               rowSelection={rowSelection}
               loading={this.props.isFetching}
               onRowClick={(e) => this.handClickRow(e)}

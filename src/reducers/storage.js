@@ -364,6 +364,10 @@ export default function storageReducer(state = {
     isFetching: false,
     storageList: [],
     searchList: [],
+  },
+  snapshotList: {
+    isFetching: false,
+    result: [],
   }
 }, action) {
   return {
@@ -380,6 +384,6 @@ export default function storageReducer(state = {
     uploadFileOptions: changeUploadFileOptions(state.uploadFileOptions, action),
     // exportFile: exportFile(state.exportFile, action),
     avaliableVolume: avaliableVolume(state.avaliableVolume, action),
-    snapshotList:snapshotList(state.snapshotList,action)
+    snapshotList: snapshotList(state.snapshotList, action)
   }
 }
