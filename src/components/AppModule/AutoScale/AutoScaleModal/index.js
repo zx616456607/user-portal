@@ -259,6 +259,13 @@ class AutoScaleModal extends React.Component {
                     value: 'qps'
                   }
                 })
+              } else {
+                form.setFields({
+                  [`type${currentKey}`]: {
+                    errors: null,
+                    value: 'qps'
+                  }
+                })
               }
             }
           }
