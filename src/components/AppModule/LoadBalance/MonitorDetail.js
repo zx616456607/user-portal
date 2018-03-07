@@ -74,7 +74,7 @@ class MonitorDetail extends React.Component {
           })
         }
       }
-      if (currentIngress.lbAlgorithm !== 'ip_hash') {
+      if (currentIngress.lbAlgorithm === 'round-robin') {
         this.setState({
           sessionSticky: currentIngress.sessionSticky,
           sessionPersistent: parseInt(currentIngress.sessionPersistent)
@@ -381,7 +381,7 @@ class MonitorDetail extends React.Component {
         })
       })
     } 
-    if (e.target.value !== 'ip_hash') {
+    if (e.target.value === 'round-robin') {
       setFieldsValue({
         sessionSticky,
         sessionPersistent
@@ -445,7 +445,7 @@ class MonitorDetail extends React.Component {
         validateArr.push(`weight-${endIndexValue}`)
       }
     }
-    if (getFieldValue('lbAlgorithm') !== 'ip_hash') {
+    if (getFieldValue('lbAlgorithm') === 'round-robin') {
       validateArr.push('sessionSticky')
       if (getFieldValue('sessionSticky')) {
         validateArr.push('sessionPersistent')
@@ -582,7 +582,7 @@ class MonitorDetail extends React.Component {
       labelCol: { span: 3 },
       wrapperCol: { span: 10 }
     }
-    const showSlider = getFieldValue('sessionSticky') && (getFieldValue('lbAlgorithm') !== 'ip_hash')
+    const showSlider = getFieldValue('sessionSticky') && (getFieldValue('lbAlgorithm') === 'round-robin')
     const showWeight = getFieldValue('lbAlgorithm') !== 'ip_hash'
     getFieldProps('keys', {
       initialValue: [],
@@ -783,7 +783,7 @@ class MonitorDetail extends React.Component {
             </RadioGroup>
           </FormItem>
           {
-            getFieldValue('lbAlgorithm') !== 'ip_hash' &&
+            getFieldValue('lbAlgorithm') === 'round-robin' &&
             <FormItem
               label="会话保持"
               {...formItemLayout}

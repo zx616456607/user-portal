@@ -259,6 +259,13 @@ class AutoScaleModal extends React.Component {
                     value: 'qps'
                   }
                 })
+              } else {
+                form.setFields({
+                  [`type${currentKey}`]: {
+                    errors: null,
+                    value: 'qps'
+                  }
+                })
               }
             }
           }
@@ -360,15 +367,16 @@ class AutoScaleModal extends React.Component {
   }
   checkValue = (rule, value, callback, type) => {
     if (!value && value !== 0) {
-      return callback('请输入阈值')
+      return callback(`请输入${type}阈值`)
     }
     if (type === 'qps') {
       if (value < 1) {
-        return callback('阈值需大于1')
+        return callback(`${type}阈值必须为正整数`)
       }
+      return callback()
     }
     if (value < 1 || value > 99) {
-      return callback('阈值范围为1至99')
+      return callback(`${type}阈值范围为1至99`)
     }
     callback()
   }

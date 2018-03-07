@@ -644,7 +644,42 @@ class ClusterDetail extends Component {
     formatData.data.push({metrics, containerName: nodeName})
     return formatData
   }
-
+  
+  renderStatus(hostInfo){
+    const { maintainStatus, current, total } = hostInfo.objectMeta.annotations || { maintainStatus: 'fetching', current: 0, total: 0 }
+    let message = '异常'
+    let classname = 'errorSpan'
+    if (hostInfo.ready === 'True') {
+      if (hostInfo.objectMeta.annotations.maintenance === 'true') {
+        message = '维护中'
+        classname = 'themeColor'
+      } else if (maintainStatus === 'processing') {
+        message = '服务迁移中'
+        classname = 'themeColor'
+      } else {
+        message = '运行中'
+        classname = 'runningSpan'
+      }
+    }
+    return (
+      <span>
+        <span className={classname}>
+          <i className='fa fa-circle'/>&nbsp;&nbsp;{message}
+          {
+            maintainStatus === 'processing' &&
+            <Tooltip
+              title="服务迁移过程最好不要进行其他操作，避免发生未知错误！"
+            >
+              <Icon type="exclamation-circle-o" />
+            </Tooltip>
+          }
+        </span>
+        {
+          maintainStatus === 'processing' && <div>已迁移服务 <span>{total - current}</span>/{total}</div>
+        }
+      </span>
+    )
+  }
   render() {
     if (this.props.hostInfo.isFetching) {
       return (
@@ -680,6 +715,7 @@ class ClusterDetail extends Component {
     }
     let runningtime = calcuDate(hostInfo.objectMeta.creationTimestamp)
     runningtime = runningtime.substring(0,runningtime.length-1)
+    const isMaintaining = hostInfo.objectMeta.annotations.maintenance === 'true'
     return (
       <div id="clusterDetail">
         <Title title="基础设施"/>
@@ -694,7 +730,7 @@ class ClusterDetail extends Component {
           <div className="clusterTable" style={{ paddingTop: '30px' }}>
             <div className="formItem">
               <div className="h2">{ hostInfo.address ? hostInfo.address:'' }</div>
-              <div className="list">运行状态：<span className={hostInfo.ready == 'True' ? 'runningSpan' : 'errorSpan'}><i className='fa fa-circle' />&nbsp;&nbsp;{hostInfo.ready == 'True' ? '运行中' : '异常'}</span></div>
+              <div className="list">运行状态：{this.renderStatus(hostInfo)}</div>
               <div className="list">节点角色：<span className="role">{hostInfo.isMaster ? MASTER : SLAVE}</span></div>
             </div>
             <div className="formItem">
@@ -705,8 +741,15 @@ class ClusterDetail extends Component {
             <div className="formItem">
               <div className="h2"></div>
               <div className="list">调度状态：
-                <span className="role"><Switch checked={ this.state.schedulable }
-                  onChange={this.changeSchedulable.bind(this, this.props.clusterName)} checkedChildren="开" unCheckedChildren="关" /></span>
+                <span className="role">
+                  <Tooltip title={isMaintaining ? '维护状态禁止使用调度开关' : ''}>
+                    <Switch checked={ this.state.schedulable }
+                            onChange={
+                              isMaintaining ? () => null :
+                              this.changeSchedulable.bind(this, this.props.clusterName)}
+                            checkedChildren="开" unCheckedChildren="关" />
+                  </Tooltip>
+                </span>
               </div>
 
             </div>
