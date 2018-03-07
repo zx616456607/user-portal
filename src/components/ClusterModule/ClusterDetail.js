@@ -715,6 +715,7 @@ class ClusterDetail extends Component {
     }
     let runningtime = calcuDate(hostInfo.objectMeta.creationTimestamp)
     runningtime = runningtime.substring(0,runningtime.length-1)
+    const isMaintaining = hostInfo.objectMeta.annotations.maintenance === 'true'
     return (
       <div id="clusterDetail">
         <Title title="基础设施"/>
@@ -740,8 +741,15 @@ class ClusterDetail extends Component {
             <div className="formItem">
               <div className="h2"></div>
               <div className="list">调度状态：
-                <span className="role"><Switch checked={ this.state.schedulable }
-                  onChange={this.changeSchedulable.bind(this, this.props.clusterName)} checkedChildren="开" unCheckedChildren="关" /></span>
+                <span className="role">
+                  <Tooltip title={isMaintaining ? '维护状态禁止使用调度开关' : ''}>
+                    <Switch checked={ this.state.schedulable }
+                            onChange={
+                              isMaintaining ? () => null :
+                              this.changeSchedulable.bind(this, this.props.clusterName)}
+                            checkedChildren="开" unCheckedChildren="关" />
+                  </Tooltip>
+                </span>
               </div>
 
             </div>
