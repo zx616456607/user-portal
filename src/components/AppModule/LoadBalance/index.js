@@ -218,7 +218,7 @@ class LoadBalance extends React.Component {
       title: '监听端口',
       dataIndex: 'port',
       width: '10%',
-      render: () => 'http: 80'
+      render: (_, record) => `http${parseInt(record.metadata.annotations.ingressCount) ? ':80' : ''}`
     }, {
       title: '监听器数量',
       width: '10%',

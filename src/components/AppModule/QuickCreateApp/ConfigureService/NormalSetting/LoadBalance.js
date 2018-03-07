@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Select, Radio, Form,
-  Button, Input, Row, Col 
+  Button, Input, Row, Col, Icon 
 } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 
@@ -117,9 +117,24 @@ class LoadBalance extends React.Component {
     this.addItem(configs)
   }
   
-  
+  reloadLB = async () => {
+    const { clusterID, getLBList } = this.props
+    this.setState({
+      lbLoading: true
+    })
+    const result = await getLBList(clusterID)
+    if (result.error) {
+      this.setState({
+        lbLoading: false
+      })
+      return
+    }
+    this.setState({
+      lbLoading: false
+    })
+  }
   render() {
-    const { ingressVisible, currentIngress } = this.state
+    const { ingressVisible, currentIngress, lbLoading } = this.state
     const { form, loadBalanceList, checkIngressNameAndHost, clusterID } = this.props
     const { getFieldProps, getFieldValue } = form
     
@@ -203,27 +218,40 @@ class LoadBalance extends React.Component {
           />
         }
         <Col span={20} offset={4}>
-          <FormItem
-            wrapperCol={{ span: 8 }}
-          >
-            <Select placeholder="选择应用负载均衡" {...lbSelectProps}>
-              {
-                (loadBalanceList || []).map(item => 
-                  <Option key={item.metadata.name}>{item.metadata.annotations.displayName}</Option>
-                )
-              }
-            </Select>
-          </FormItem>
-          <Button className="addConfig" type="ghost" icon="plus" onClick={() => this.openIngressModal(0)}>添加监听器配置</Button>
-          <Row className="monitorConfigHeader">
-            <Col span={4}>名称</Col>
-            <Col span={4}>调度算法</Col>
-            <Col span={4}>会话保持</Col>
-            <Col span={4}>转发规则</Col>
-            <Col span={4}>服务端口</Col>
-            <Col span={4}>操作</Col>
+          <Row>
+            <Col span={8}>
+              <FormItem
+                wrapperCol={{ span: 22 }}
+              >
+                <Select placeholder="选择应用负载均衡" {...lbSelectProps}>
+                  {
+                    (loadBalanceList || []).map(item =>
+                      <Option key={item.metadata.name}>{item.metadata.annotations.displayName}</Option>
+                    )
+                  }
+                </Select>
+              </FormItem>
+            </Col>
+            <Col span={2}><Button type="ghost" size="large" onClick={this.reloadLB}>
+              {lbLoading ? <Icon type="loading" /> : <Icon type="reload" />}</Button></Col>
+            <Col span={3}><Button type="primary" size="large" onClick={() => window.open('/app_manage/load_balance') }>创建负载均衡</Button></Col>
           </Row>
-          {serviceList}
+          {
+            getFieldValue('loadBalance') &&
+            <Button className="addConfig" type="ghost" icon="plus" onClick={() => this.openIngressModal(0)}>添加监听器配置</Button>
+          }
+          {
+            getFieldValue('loadBalance') &&
+            <Row className="monitorConfigHeader">
+              <Col span={4}>名称</Col>
+              <Col span={4}>调度算法</Col>
+              <Col span={4}>会话保持</Col>
+              <Col span={4}>转发规则</Col>
+              <Col span={4}>服务端口</Col>
+              <Col span={4}>操作</Col>
+            </Row>
+          }
+          {getFieldValue('loadBalance') && serviceList}
         </Col>
       </Row>
     )

@@ -141,7 +141,7 @@ class LoadBalanceModal extends React.Component {
         }
       }
       if (composeType === RESOURCES_DIY) {
-        resources = getResources(DIYMinMemory + 'Mi', DIYMinCPU * 1000 + 'm', DIYMaxMemory + 'Mi', DIYMaxCPU * 1000 + 'm')
+        resources = getResources(DIYMinMemory, DIYMinCPU, DIYMaxMemory, DIYMaxCPU)
         const { requests, limits } = resources
         defaultLimits = limits
         defaultRequests = requests
