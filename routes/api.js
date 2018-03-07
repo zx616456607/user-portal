@@ -115,6 +115,9 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/configs', clusterController.updateConfigs)
   router.del('/clusters/:cluster', clusterController.deleteCluster)
   router.get('/clusters/:cluster/summary', clusterController.getClusterSummary)
+  router.get('/clusters/:cluster/kubeproxy', clusterController.getKubeproxy)
+  router.put('/clusters/:cluster/kubeproxy', clusterController.updateKubeproxy)
+
   // For bind node when create service(lite only)
   router.get('/clusters/:cluster/nodes', clusterController.getNodes)
   router.get('/clusters/add-cluster-cmd', clusterController.getAddClusterCMD)

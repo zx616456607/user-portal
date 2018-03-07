@@ -836,3 +836,54 @@ export function deleteStorageClass(cluster, name, callback){
     return dispatch(fetchDeleteStorageClass(cluster, name, callback))
   }
 }
+
+export const UPDATE_KUBEPROXY_REQUEST = 'UPDATE_KUBEPROXY_REQUEST'
+export const UPDATE_KUBEPROXY_SUCCESS = 'UPDATE_KUBEPROXY_SUCCESS'
+export const UPDATE_KUBEPROXY_FAILURE = 'UPDATE_KUBEPROXY_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateKubeproxy(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_KUBEPROXY_REQUEST, UPDATE_KUBEPROXY_SUCCESS, UPDATE_KUBEPROXY_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/kubeproxy`,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function updateKubeproxy(cluster, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateKubeproxy(cluster, body, callback))
+  }
+}
+
+export const GET_KUBEPROXY_REQUEST = 'GET_KUBEPROXY_REQUEST'
+export const GET_KUBEPROXY_SUCCESS = 'GET_KUBEPROXY_SUCCESS'
+export const GET_KUBEPROXY_FAILURE = 'GET_KUBEPROXY_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchGetKubeproxy(cluster, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [GET_KUBEPROXY_REQUEST, GET_KUBEPROXY_SUCCESS, GET_KUBEPROXY_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/kubeproxy`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function getKubeproxy(cluster, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchGetKubeproxy(cluster, callback))
+  }
+}
