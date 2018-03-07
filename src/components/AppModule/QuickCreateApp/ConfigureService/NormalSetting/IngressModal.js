@@ -216,7 +216,7 @@ class IngressModal extends React.Component {
       initialValue: currentIngress ? currentIngress.port : ''
     })
   
-    const showSlider = getFieldValue('sessionSticky') && (getFieldValue('lbAlgorithm') !== 'ip_hash')
+    const showSlider = getFieldValue('sessionSticky') && (getFieldValue('lbAlgorithm') === 'round-robin')
     return (
       <Modal
         title="配置监听器"
@@ -255,7 +255,7 @@ class IngressModal extends React.Component {
             </RadioGroup>
           </FormItem>
           {
-            getFieldValue('lbAlgorithm') !== 'ip_hash' &&
+            getFieldValue('lbAlgorithm') === 'round-robin' &&
             <FormItem
               label="会话保持"
               {...formItemLayout}
