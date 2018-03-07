@@ -148,7 +148,8 @@ const MyComponent = React.createClass({
   async nodeIsMigrate(currentNode) {
     const { getNotMigratedPodCount, clusterID, scope } = this.props
     const result = await getNotMigratedPodCount(clusterID, currentNode.objectMeta.name)
-    const { current } = result.response.result.data
+    const res = result.response.result.data
+    const { current } = res[Object.keys(res)[0]]
     if (current === 0) {
       scope.setState({
         deleteNode: currentNode,
