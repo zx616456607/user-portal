@@ -24,13 +24,18 @@ import { getHostInfo } from '../../actions/cluster'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 //import no_alarm from '../../assets/img/no_data/no_alarm.png'
-import { formatDate } from '../../common/tools.js'
+import { formatDate, mergeQueryFunc, adjustBrowserUrl } from '../../common/tools.js'
 import './style/AlarmRecord.less'
 import cloneDeep from 'lodash/cloneDeep'
 import Title from '../Title'
 import classNames from 'classnames'
 
 const Option = Select.Option
+const DEFAULT_QUERY = {
+  from: DEFAULT_PAGE - 1,
+  size: DEFAULT_PAGE_SIZE,
+  page: DEFAULT_PAGE,
+}
 
 let MyComponent = React.createClass({
   getInitialState() {
@@ -385,7 +390,7 @@ let MyComponent = React.createClass({
               { (data.rxRate / 1024).toFixed(2) + 'Kb/s' }
             </span>
           </div>
-          { targetType && <div className={diskListsStyle}>
+          { targetType ? <div className={diskListsStyle}>
             <span className="keys">磁盘</span>
             <Progress
               className="progress"
@@ -394,36 +399,24 @@ let MyComponent = React.createClass({
               format={ percent => percent + '%'}
               status={ data.disk > 80 ? 'exception' : ''}
             />
-          </div> }
+          </div> : null}
           {
-            targetType &&
+            targetType ?
             <div className={connectNum}>
               <span className="keys">TCP 连接数</span>
-              {
-                data.tcpListen &&
-                <span className="keys">
+              <span className="keys">
                 listen {parseInt(data.tcpListen)} 个
               </span>
-              }
-              {
-                data.tcpEst &&
-                <span className="keys">
+              <span className="keys">
                 established {parseInt(data.tcpEst)} 个
               </span>
-              }
-              {
-                data.tcpClose &&
-                <span className="keys">
+              <span className="keys">
                 close_wait {parseInt(data.tcpClose)} 个
               </span>
-              }
-              {
-                data.tcpTime &&
-                <span className="keys">
+              <span className="keys">
                 time_wait {parseInt(data.tcpTime)} 个
               </span>
-              }
-            </div>
+            </div> : null
           }
         </div>
       </div>
@@ -683,6 +676,8 @@ class AlarmSetting extends Component {
     super(props);
     this.nextStep = this.nextStep.bind(this)
     this.cancelModal = this.cancelModal.bind(this)
+    this.loadData = this.loadData.bind(this)
+    this.refreshPage = this.refreshPage.bind(this)
     this.state = {
       createGroup: false,
       step: 1, // first step create AlarmModal
@@ -692,15 +687,25 @@ class AlarmSetting extends Component {
       data: [],
       canStart: false,
       canStop: false,
-      needUpdate: false
+      needUpdate: false,
+      search: '',
     }
   }
-  componentWillMount() {
-    const { getSettingList, clusterID } = this.props
-    getSettingList(clusterID, {
-      from: DEFAULT_PAGE - 1,
-      size: DEFAULT_PAGE_SIZE
+  loadData(query = {}, isFirstLoad) {
+    const { getSettingList, clusterID, location } = this.props
+    const mergedQuery = mergeQueryFunc(DEFAULT_QUERY, query)
+    query = Object.assign({}, mergedQuery)
+    getSettingList(clusterID, query, false, {
+      success: {
+        func: () => {
+          adjustBrowserUrl(location, mergedQuery, isFirstLoad)
+        },
+        isAsync: true,
+      }
     })
+  }
+  componentWillMount() {
+    this.loadData({}, true)
   }
   componentWillReceiveProps(nextProps) {
     const { getSettingList } = this.props
@@ -729,23 +734,11 @@ class AlarmSetting extends Component {
   handSearch(e) {
     // search data
     const { search } = this.state
-    const { getSettingList, clusterID, teamID } = this.props
-    this.setState({
-      currentPage: 1
+    this.loadData({
+      from: 0,
+      search: search ? true : false,
+      strategyName: search
     })
-    if(search) {
-      getSettingList(clusterID, {
-        from: 0,
-        size: DEFAULT_PAGE_SIZE,
-        search: true,
-        strategyName: search
-      })
-    } else {
-      getSettingList(clusterID, {
-        from: 0,
-        size: DEFAULT_PAGE_SIZE
-      })
-    }
   }
   description(rule) {
     // Dropdown more info
@@ -766,25 +759,16 @@ class AlarmSetting extends Component {
     })
   }
   onPageChange(page) {
-    if (page == this.state.currentPage) return
     this.setState({
       currentPage: page
     })
-    const { getSettingList, clusterID } = this.props
-    const search = document.getElementById('alarmSearch').value
-    if (search) {
-      getSettingList(clusterID, {
-        from: 0,
-        size: DEFAULT_PAGE_SIZE,
-        search: true,
-        strategyName: search
-      })
-    } else {
-      getSettingList(clusterID, {
-        from: (page - 1) * DEFAULT_PAGE_SIZE,
-        size: DEFAULT_PAGE_SIZE
-      })
-    }
+    const { search } = this.state
+    this.loadData({
+      from: parseInt(page - 1) * DEFAULT_PAGE_SIZE,
+      page,
+      search: search ? true : false,
+      strategyName: search,
+    })
   }
   deleteRecords() {
     const data = this.state.data
@@ -803,7 +787,7 @@ class AlarmSetting extends Component {
       })
     }
     const notify = new NotificationHandler()
-    const { clusterID, deleteSetting, getSettingList } = this.props
+    const { clusterID, deleteSetting } = this.props
     notify.spin('删除中')
     strategyID.length > 0 && deleteSetting(clusterID, strategyID,strategyName, {
       success: {
@@ -817,11 +801,22 @@ class AlarmSetting extends Component {
           })
           notify.close()
           notify.success('策略删除成功')
-          getSettingList(clusterID, {
-            from: (this.state.currentPage - 1) * DEFAULT_PAGE_SIZE,
-            size: DEFAULT_PAGE_SIZE
-          })
+          const { total, location } = this.props
+          const { search } = this.state
+          const { query = {} } = location
           this.disableButton()
+          if (parseInt(total % DEFAULT_PAGE_SIZE) === strategyID.length) {
+            const page = (parseInt(query.page) || 1) - 2
+            const from = page * DEFAULT_PAGE_SIZE <= 0 ? 0 : page * DEFAULT_PAGE_SIZE
+            this.loadData({
+              from,
+              page: parseInt(query.page) - 1 || 1,
+              search: search ? true : false,
+              strategyName: search,
+            })
+            return
+          }
+          this.refreshPage()
         },
         isAsync: true
       },
@@ -885,15 +880,20 @@ class AlarmSetting extends Component {
     })
   }
   refreshPage() {
-    const { clusterID, getSettingList } = this.props
-    getSettingList(clusterID, {
-      from: (this.state.currentPage - 1) * DEFAULT_PAGE_SIZE,
-      size: DEFAULT_PAGE_SIZE
-    })
+    const { location } = this.props
+    const { query = {} } = location
+    const { search } = this.state
+    const page = parseInt(query.page) || 1
     this.setState({
       needUpdate: true
+    }, () => {
+      this.loadData({
+        from: (page - 1) * DEFAULT_PAGE_SIZE,
+        page,
+        search: search ? true : false,
+        strategyName: search,
+      })
     })
-    this.disableButton()
   }
   getCheckecSettingName() {
     const checkedName = []
@@ -1095,6 +1095,9 @@ class AlarmSetting extends Component {
     // const rowSelection = {
     //   // checkbox select callback
     // }
+    const { location } = this.props
+    const { query = {} } = location
+    const { search } = this.state
     const _this = this
     const modalFunc=  {
       scope : this,
@@ -1132,8 +1135,15 @@ class AlarmSetting extends Component {
             <Button type="ghost" disabled={this.state.isDelete} onClick={()=> this.setState({deleteModal: true})} size="large"><i className='fa fa-trash-o' /> 删 除</Button>
             {/*<Button icon="edit" type="ghost" disabled={!canEdit} size="large" onClick={() => this.editSetting()} > 修改</Button>*/}
             <div className="inputGrop">
-              <Input size="large" id="alarmSearch" placeholder="按策略名称搜索" onChange={(e)=> this.setState({search:e.target.value.trim()})} onPressEnter={()=> this.handSearch()}/>
-              <i className="fa fa-search" onClick={()=> this.handSearch()}/>
+              <Input
+                size="large"
+                id="alarmSearch"
+                placeholder="按策略名称搜索"
+                value={search}
+                onChange={(e) => this.setState({ search: e.target.value.trim() })}
+                onPressEnter={() => this.handSearch()}
+              />
+              <i className="fa fa-search" onClick={() => this.handSearch()}/>
             </div>
             {this.props.setting.length > 0 ?
             <div className="rightPage pageBox">
@@ -1142,7 +1152,7 @@ class AlarmSetting extends Component {
                 simple
                 className='inlineBlock'
                 onChange={(page)=> this.onPageChange(page)}
-                current={this.state.currentPage}
+                current={parseInt(query.page) || 1}
                 pageSize={DEFAULT_PAGE_SIZE}
                 total={ this.props.total } />
             </div>
@@ -1156,8 +1166,11 @@ class AlarmSetting extends Component {
             maskClosable={false}
             footer={null}
           >
-            <CreateAlarm funcs={modalFunc} strategy={editStrategy} isEdit={this.state.isEdit} isShow={this.state.alarmModal}
-              getSettingList={() => this.refreshPage()} />
+            <CreateAlarm funcs={modalFunc} strategy={editStrategy} isEdit={this.state.isEdit}
+              isShow={this.state.alarmModal}
+              getSettingList={() => this.refreshPage()}
+              loadData={this.loadData}
+            />
           </Modal>
           {/* 通知组 */}
           <Modal title="创建新通知组" visible={this.state.createGroup}

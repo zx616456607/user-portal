@@ -35,7 +35,20 @@ exports.getClusterNodes = function* () {
   if (!license.max_clusters || license.max_clusters < DEFAULT_LICENSE.max_clusters) {
     license.max_clusters = DEFAULT_LICENSE.max_clusters
   }
-  clusters.nodes.nodes.forEach(node => node.objectMeta.labels = JSON.stringify(node.objectMeta.labels))
+  const isMaintainingReqArr = []
+  clusters.nodes.nodes.forEach(node => {
+    node.objectMeta.labels = JSON.stringify(node.objectMeta.labels)
+    isMaintainingReqArr.push(api.clusters.getBy([cluster, 'nodes', node.objectMeta.name, 'drain', 'podmetric']))
+  })
+  const isMaintainingResult = yield isMaintainingReqArr
+  clusters.nodes.nodes.forEach((node, index) => {
+    let { current, total } = isMaintainingResult[index].data
+    if (current < total && current !== 0) {
+      node.objectMeta.annotations.maintainStatus = 'processing'
+      node.objectMeta.annotations.current = current
+      node.objectMeta.annotations.total = total
+    }
+  })
   this.body = {
     data: {
       clusters,
@@ -133,6 +146,15 @@ exports.getClustersInfo = function* () {
   const node = this.params.node
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster,'nodes',node])
+  if (result.data) {
+    const maintainResult = yield api.getBy([cluster, 'nodes', node, 'drain', 'podmetric'])
+    let { current, total } = maintainResult.data
+    if (current < total && current !== 0) {
+      result.data.node.objectMeta.annotations.maintainStatus = 'processing'
+      result.data.node.objectMeta.annotations.current = current
+      result.data.node.objectMeta.annotations.total = total
+    }
+  }
   this.body = result ? result.data : {}
 }
 //  host metrics

@@ -17,32 +17,48 @@ import './style/index.less'
 import cloneDeep from 'lodash/cloneDeep'
 import { loadStorageList, searchStorage} from '../../../actions/storage'
 import { DEFAULT_IMAGE_POOL } from '../../../constants'
-import { formatDate } from '../../../common/tools'
+import { formatDate, adjustBrowserUrl, mergeQueryFunc } from '../../../common/tools'
+
+const DEFAULT_QUERY = {
+  storagetype: 'host',
+  srtype: 'host'
+}
 
 class HostMemory extends Component {
   constructor(props) {
     super(props)
     this.onSelectChange = this.onSelectChange.bind(this)
     this.tableRowClick = this.tableRowClick.bind(this)
+    this.searchHostVolume = this.searchHostVolume.bind(this)
     this.state = {
       selectedRowKeys: [],
       confirmLoading: false,
       deleteModalVisible: false,
+      searchInput: '',
     }
   }
 
-  reloadData(){
-    const { loadStorageList, cluster } = this.props
+  loadData(query, isFirstLoad){
+    const { loadStorageList, cluster, location } = this.props
     const clusterID = cluster.clusterID
-    const query = {
-      storagetype: 'host',
-      srtype: 'host'
-    }
-    loadStorageList(DEFAULT_IMAGE_POOL, clusterID, query)
+    const { searchInput } = this.state
+    query = Object.assign({}, mergeQueryFunc(DEFAULT_QUERY, query))
+    loadStorageList(DEFAULT_IMAGE_POOL, clusterID, mergeQueryFunc(DEFAULT_QUERY, query), {
+      success: {
+        func: () => {
+          this.setState({ selectedRowKeys: [] })
+          if (searchInput) {
+            return this.searchHostVolume(query)
+          }
+          adjustBrowserUrl(location, query, isFirstLoad)
+        },
+        isAsync: true,
+      }
+    })
   }
 
   componentWillMount() {
-    this.reloadData()
+    this.loadData({}, true)
   }
 
   deleteItem(){
@@ -80,18 +96,23 @@ class HostMemory extends Component {
     this.setState({ selectedRowKeys });
   }
 
-  searchHostVolume(){
-    const searchValue = document.getElementById('search_host_volume').value.trim()
+  searchHostVolume(query = { page: 1 }){
+    const { location } = this.props
+    const { searchInput } = this.state
+    const searchValue = searchInput.trim()
     const { searchStorage } = this.props
     searchStorage(searchValue, 'host')
+    const mergedQuery = mergeQueryFunc(DEFAULT_QUERY, { page: query.page, search: searchInput })
+    adjustBrowserUrl(location, mergedQuery)
   }
 
   render() {
     const {
       selectedRowKeys, deleteModalVisible,
-      confirmLoading,
+      confirmLoading, searchInput,
     } = this.state
-    const { storageList } = this.props
+    const { storageList, location } = this.props
+    const { query = {} } = location
     const columns = [
       {
         key: 'id',
@@ -140,6 +161,11 @@ class HostMemory extends Component {
     }
     const dataSource = storageList.storageList || []
     const isFetching = storageList.isFetching
+    const paginationProps = {
+      simple: true,
+      current: parseInt(query.page) || 1,
+      onChange: page => adjustBrowserUrl(location, mergeQueryFunc(DEFAULT_QUERY, { page, search: query.search })),
+    }
     return(
       <QueueAnim className='host_memory'>
         <div id='host_memory' key="host_memory">
@@ -151,9 +177,11 @@ class HostMemory extends Component {
               <Button
                 size="large"
                 className='button_refresh'
-                onClick={() => this.reloadData()}
+                onClick={() => this.loadData({ page: parseInt(query.page) || 1, search: searchInput })}
               >
-                <i className="fa fa-refresh button_icon" aria-hidden="true"></i>
+                <i className="fa fa-refresh button_icon" aria-hidden="true"
+                  onClick={() => this.loadData({ page: parseInt(query.page) || 1, search: searchInput })}
+                />
                 刷新
               </Button>
               {/*<Button
@@ -170,9 +198,11 @@ class HostMemory extends Component {
                   size="large"
                   placeholder="按服务名称搜索"
                   id='search_host_volume'
-                  onPressEnter={() => this.searchHostVolume()}
+                  onChange={e => this.setState({ searchInput: e.target.value })}
+                  onPressEnter={() => this.searchHostVolume({ page: 1 })}
                 />
-                <i className="fa fa-search search_icon" aria-hidden="true" onClick={() => this.searchHostVolume()}></i>
+                <i className="fa fa-search search_icon" aria-hidden="true"
+                  onClick={() => this.searchHostVolume({ page: 1 })} />
               </div>
               {
                 dataSource.length
@@ -185,7 +215,7 @@ class HostMemory extends Component {
                 columns={columns}
                 dataSource={dataSource}
                 //rowSelection={rowSelection}
-                pagination={{ simple: true }}
+                pagination={paginationProps}
                 loading={isFetching}
                 //onRowClick={this.tableRowClick}
               />

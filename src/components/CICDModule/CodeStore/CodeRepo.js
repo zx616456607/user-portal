@@ -266,6 +266,16 @@ const MyComponent = React.createClass({
         func: () => {
           notification.success(formatMessage(menusText.UndoSuccessful))
         }
+      },
+      failed: {
+        func: (err) => {
+          if (err && err.statusCode === 400 && err.message && err.message.message.indexOf('remove the reference') > 0 ) {
+            var result = err.message.message.match(/.*'(.*)'/)
+            notification.error('构建任务 ' + result[1] + ' 正在使用该代码仓库，请移除对应关联后重试.')
+            return
+          }
+          notification.error('撤销代码仓库失败：' + JSON.stringify(err))
+        }
       }
     })
   },

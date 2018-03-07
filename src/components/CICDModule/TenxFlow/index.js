@@ -648,7 +648,7 @@ class TenxFlowList extends Component {
               <FormattedMessage {...menusText.create} />
             </Button>
             <Button className="refreshBtn"  size='large' type="ghost" onClick={this.loadData.bind(this, null)}>
-              <i className='fa fa-refresh' /> 刷新
+              <i className='fa fa-refresh' /> 刷 新
             </Button>
             <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' value={this.state.searchValue}
                    onChange={(e)=> this.setState({searchValue:e.target.value})} onPressEnter={()=>this.onSearchFlow()}

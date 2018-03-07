@@ -1930,16 +1930,21 @@ class OperationalAudit extends Component {
 
   refreshLogs() {
     const { getOperationLogList } = this.props
+    const {
+      from = 0, size = 15, namespace = null, operation = null,
+      resource = null, start_time = null, end_time = null,
+      status = null,
+    } = this.state
     let body = {
-      from: 0,
-      size: 15,
-      namespace: null,
-      operation: null,
-      resource: null,
-      start_time: null,
-      end_time: null
+      from: (from - 1) * size,
+      size,
+      namespace,
+      operation,
+      resource,
+      start_time,
+      end_time,
+      status,
     }
-    let notification = new NotificationHandler()
     getOperationLogList(body)
   }
 
@@ -2217,7 +2222,7 @@ class OperationalAudit extends Component {
               <i className='fa fa-wpforms'></i> <FormattedMessage {...menusText.search} />
             </Button>
             <Button type="ghost" size="large" className='refresh' onClick={this.refreshLogs}>
-              刷 新
+              <i className='fa fa-refresh' style={{marginRight: 5 }}/>刷 新
             </Button>
             { this.state.totalNum !== 0 && <div className='bottomBox'>
               <div className='pageBox'>

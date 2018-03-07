@@ -140,7 +140,7 @@ class ConfigModal extends Component {
     const serviceName = service.metadata.name
     let resources = getResources(composeType)
     if (composeType === RESOURCES_DIY) {
-      resources = getResources(DIYMemory + 'Mi', DIYCPU * 1000 + 'm', DIYMaxMemory + 'Mi', DIYMaxCPU * 1000 + 'm')
+      resources = getResources(DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU)
     }
     const { requests, limits } = resources
     let notification = new NotificationHandler()

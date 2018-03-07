@@ -52,6 +52,9 @@ class PanelModal extends React.Component {
     if (value.length > 24) {
       return callback('面板名称不能超过24个字符')
     }
+    this.setState({
+      disabled: true
+    })
     clearTimeout(this.nameTimeout)
     this.nameTimeout = setTimeout(() => {
       checkPanelName(clusterID, encodeURIComponent(value), {
@@ -61,6 +64,9 @@ class PanelModal extends React.Component {
               callback('该名称已经存在')
             } else {
               callback()
+              this.setState({
+                disabled: false
+              })
             }
           }
         }
@@ -212,7 +218,7 @@ class PanelModal extends React.Component {
   }
   
   renderFooter() {
-    const { confirmLoading } = this.state
+    const { confirmLoading, disabled } = this.state
     const { currentPanel } = this.props
     return (
       [
@@ -221,7 +227,7 @@ class PanelModal extends React.Component {
         <Button 
           style={{ borderColor: 'red', color: 'red' }} 
           onClick={this.deletePanel} size="large" type="ghost" key="delete">删除</Button>,
-        <Button type="primary" key="confirm" size="large" loading={confirmLoading} onClick={this.confirmModal}>{currentPanel ? '确定' : '立即创建'}</Button>
+        <Button type="primary" key="confirm" size="large" disabled={disabled} loading={confirmLoading} onClick={this.confirmModal}>{currentPanel ? '确定' : '立即创建'}</Button>
       ]
     )
   }

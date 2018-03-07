@@ -57,6 +57,7 @@ let ProjectManage = React.createClass({
       closeCreateProject: false,
       originalKeys: [],
       deleteSingleChecked: false,
+      confirmLoading: false,
       userCountSort: undefined,
       clusterCountSort: undefined,
       balanceSort: undefined,
@@ -65,7 +66,8 @@ let ProjectManage = React.createClass({
       roleFilter: '',
       clearInput: false,
       searchName: '',
-      filteredInfo: {}
+      filteredInfo: {},
+      currentPage: 1,
     }
   },
 
@@ -245,8 +247,9 @@ let ProjectManage = React.createClass({
 
   deleteProject(modal) {
     const {DeleteProjects} = this.props;
-    const {deleteSinglePro} = this.state;
+    const { deleteSinglePro, currentPage } = this.state;
     let notify = new Notification()
+    this.setState({ confirmLoading: true })
     DeleteProjects({
       body: {
         projects: [deleteSinglePro[0].projectName],
@@ -255,12 +258,15 @@ let ProjectManage = React.createClass({
       success: {
         func: (res) => {
           if (res.statusCode === 200) {
-            this.loadProjectList(null)
+            this.loadProjectList(currentPage)
             notify.success('项目删除成功')
             this.setState({[modal]: false, deleteSingleChecked: false})
           }
         },
         isAsync: true
+      },
+      finally: {
+        func: () => this.setState({ confirmLoading: false })
       }
     })
   },
@@ -347,7 +353,8 @@ let ProjectManage = React.createClass({
             })
             this.setState({
               projectList: result.data,
-              tableLoading: false
+              tableLoading: false,
+              currentPage: n || 1,
             })
           }
         },
@@ -606,28 +613,30 @@ let ProjectManage = React.createClass({
   },
 
   deleteProjectFooter() {
-    const {deleteSingleChecked} = this.state;
+    const { deleteSingleChecked, confirmLoading } = this.state;
     return (
       <div>
         <Button type="ghost" size="large" onClick={this.singleCancel}>取消</Button>
-        <Button type="primary" size="large" disabled={!deleteSingleChecked}
+        <Button type="primary" size="large" disabled={!deleteSingleChecked} loading={confirmLoading}
                 onClick={() => this.deleteProject('delSingle')}>确认</Button>
       </div>
     )
   },
 
   refreshTeamList() {
-    this.setState({
-      userCountSort: undefined,
-      clusterCountSort: undefined,
-      balanceSort: undefined,
-      creation_timeSort: undefined,
-      sort: 'a,name',
-      clearInput: true,
-      searchName: ''
-    }, () => {
-      this.loadProjectList()
-    })
+    const { currentPage } = this.state
+    this.loadProjectList(currentPage)
+    //this.setState({
+    //  userCountSort: undefined,
+    //  clusterCountSort: undefined,
+    //  balanceSort: undefined,
+    //  creation_timeSort: undefined,
+    //  sort: 'a,name',
+    //  clearInput: true,
+    //  searchName: ''
+    //}, () => {
+    //  this.loadProjectList()
+    //})
   },
 
   handleSort(sortStr) {
@@ -671,14 +680,15 @@ let ProjectManage = React.createClass({
     const step = this.props.location.query.step || '';
     const {roleNum, billingEnabled} = this.props;
     const {payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal,
-      paySinglePro, userList, deleteSingleChecked, filteredInfo, systemRoleID
+      paySinglePro, userList, deleteSingleChecked, filteredInfo, systemRoleID, currentPage,
     } = this.state;
     const pageOption = {
       simple: true,
       total: !isEmpty(projectList) && projectList['listMeta'].total || 0,
       defaultPageSize: 10,
       defaultCurrent: 1,
-      onChange: (n) => this.loadProjectList(n)
+      onChange: (n) => this.loadProjectList(n),
+      current: currentPage,
     };
     const adminFilter = [{
       text: '项目成员',
@@ -834,7 +844,7 @@ let ProjectManage = React.createClass({
       <QueueAnim>
         <div key='account_projectManage' id="account_projectManage">
           <Title title="项目管理"/>
-          <div className='alertRow'>
+          <div className='alertRow' style={{ fontSize: 14 }}>
           项目之间是相互隔离的，通过创建项目实现一些人在项目中有一些权限。创建项目时应为项目申请授权集群，系统管理员在『基础设施』中审批通过后为已授权状态即可使用。系统管理员可将普通成员设置为『可以创建项目』的人，项目创建者为项目管理者，项目中也可添加其他的项目管理者。
           </div>
           <Modal title="删除项目" visible={delModal} width={610} height={570}
@@ -947,7 +957,7 @@ let ProjectManage = React.createClass({
             <CommonSearchInput clearInput={this.state.clearInput} placeholder="按项目名称搜索" size="large"
                                onSearch={(value) => this.projectNameSearch(value)}/>
             { !isEmpty(projectList) && projectList.listMeta.total !== 0 && <Pagination {...pageOption}/>}
-            { !isEmpty(projectList) && projectList.listMeta.total !== 0 && <div className="total">共{!isEmpty(projectList) && projectList.listMeta.total || 0}个</div>}
+            { !isEmpty(projectList) && projectList.listMeta.total !== 0 && <div className="total">共计 {!isEmpty(projectList) && projectList.listMeta.total || 0} 个</div>}
           </Row>
           <Row className={classNames("projectList", {'hidden': step !== ''})}>
             <Card>

@@ -36,8 +36,8 @@ function storageList(state = {}, action) {
       return Object.assign({}, defaultState, {
         [pool]: {
           isFetching: false,
-          storageList: action.response.result.data,
-          searchList: action.response.result.data,
+          storageList: action.response.result.data || [],
+          searchList: action.response.result.data || [],
           pool: pool
         }
       })
@@ -359,7 +359,17 @@ function snapshotList(state = {}, action) {
 }
 
 
-export default function storageReducer(state = {}, action) {
+export default function storageReducer(state = {
+  storageList: {
+    isFetching: false,
+    storageList: [],
+    searchList: [],
+  },
+  snapshotList: {
+    isFetching: false,
+    result: [],
+  }
+}, action) {
   return {
     storageList: storageList(state.storageList, action),
     deleteStorage: deleteStorage(state.deleteStorage, action),
@@ -374,6 +384,6 @@ export default function storageReducer(state = {}, action) {
     uploadFileOptions: changeUploadFileOptions(state.uploadFileOptions, action),
     // exportFile: exportFile(state.exportFile, action),
     avaliableVolume: avaliableVolume(state.avaliableVolume, action),
-    snapshotList:snapshotList(state.snapshotList,action)
+    snapshotList: snapshotList(state.snapshotList, action)
   }
 }

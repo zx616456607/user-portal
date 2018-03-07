@@ -19,6 +19,7 @@ import classNames from 'classnames'
 import './style/LoadBalanceModal.less'
 import { getLBIPList, createLB, editLB } from '../../../actions/load_balance'
 import { getResources } from '../../../../kubernetes/utils'
+import { lbNameCheck } from '../../../common/naming_validation'
 import Notification from '../../Notification'
 import {
   RESOURCES_MEMORY_MAX,
@@ -94,8 +95,9 @@ class LoadBalanceModal extends React.Component {
   }
   
   nameCheck = (rule, value, callback) => {
-    if (!value) {
-      return callback('请输入负载均衡器的名称')
+    let message = lbNameCheck(value)
+    if (message !== 'success') {
+      return callback(message)
     }
     callback()
   }
@@ -139,7 +141,7 @@ class LoadBalanceModal extends React.Component {
         }
       }
       if (composeType === RESOURCES_DIY) {
-        resources = getResources(DIYMinMemory + 'Mi', DIYMinCPU * 1000 + 'm', DIYMaxMemory + 'Mi', DIYMaxCPU * 1000 + 'm')
+        resources = getResources(DIYMinMemory, DIYMinCPU, DIYMaxMemory, DIYMaxCPU)
         const { requests, limits } = resources
         defaultLimits = limits
         defaultRequests = requests

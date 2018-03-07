@@ -632,6 +632,7 @@ class Membermanagement extends Component {
     super(props)
     this.showModal = this.showModal.bind(this)
     this.userOnSubmit = this.userOnSubmit.bind(this)
+    this.loadData = this.loadData.bind(this)
     this.state = {
       searchResult: [],
       notFound: false,
@@ -653,6 +654,7 @@ class Membermanagement extends Component {
       sendEmailSuccess: false,
       searchFilter: '',
       tableFilter: '',
+      confirmLoading: false,
     }
   }
   showInfo = (title, content) => {
@@ -674,7 +676,8 @@ class Membermanagement extends Component {
       document.getElementById('newUser').focus()
     }, 500);
   }
-  loadData = query => {
+  loadData( query = {} ) {
+    const { loadUserList } = this.props
     const { sort, page, pageSize, filter } = this.state
     const defaultQuery = {
       page,
@@ -682,7 +685,7 @@ class Membermanagement extends Component {
       sort,
       filter,
     }
-    this.props.loadUserList(Object.assign({}, defaultQuery, query))
+    loadUserList(Object.assign({}, defaultQuery, query))
   }
   componentWillMount() {
     this.loadData()
@@ -693,14 +696,25 @@ class Membermanagement extends Component {
     let notification = new NotificationHandler()
     let sendEmailSuccess = false
     notification.spin(`创建用户 ${user.userName} 中...`)
+    this.setState({ confirmLoading: true })
     createUser(user, {
       success: {
         func: (response) => {
-          loadUserList({
-            page,
+          this.setState({
+            page: 1,
             size: pageSize,
-            sort,
-            filter,
+            sort: "a,userName",
+            filter: "",
+            visible: false,
+            current: 1,
+            searchFilter: '',
+          }, () => {
+            loadUserList({
+              page: 1,
+              size: 10,
+              sort: "a,userName",
+              filter: "",
+            })
           })
           notification.close()
           if (response.data && response.data == "SEND_MAIL_ERROR") {
@@ -724,6 +738,9 @@ class Membermanagement extends Component {
           notification.close()
           notification.error(`创建用户 ${user.userName} 失败`, err.message.message)
         }
+      },
+      finally: {
+        func: () => this.setState({ confirmLoading: false })
       }
     })
   }
@@ -811,7 +828,10 @@ class Membermanagement extends Component {
   render() {
     const { users, checkUserName, loadAllUserList, userDetail, teams, onlineTotal, usersIsFetching } = this.props
     const scope = this
-    const { visible, memberList, hasSelected, createUserErrorMsg, sendEmailSuccess } = this.state
+    const {
+      visible, memberList, hasSelected, createUserErrorMsg,
+      sendEmailSuccess, confirmLoading,
+    } = this.state
     const { billingConfig } = userDetail
     const { enabled: billingEnabled } = billingConfig
     const searchIntOption = {
@@ -859,12 +879,13 @@ class Membermanagement extends Component {
             <Icon type="delete" />批量删除
           </Button> */}
           <SearchInput scope={scope} searchIntOption={searchIntOption} />
-          <CreateUserModal
+          { visible && <CreateUserModal
             visible={visible}
             scope={scope}
             onSubmit={this.userOnSubmit}
             funcs={funcs}
-          />
+            confirmLoading={confirmLoading}
+          /> }
           <Modal
             title="创建成员成功"
             visible={this.state.createUserSuccessModalVisible}

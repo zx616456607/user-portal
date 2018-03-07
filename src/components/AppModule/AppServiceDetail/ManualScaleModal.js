@@ -145,7 +145,7 @@ class ManualScaleModal extends Component {
         <div id="ManualScaleModal">
           <Row>
             <Col className='alertRow'>
-              Tips: {!incloudPrivate ? '实例数量调整 , 保存后系统将调整实例数量至设置预期. (若自动伸缩开启, 则无法手动扩展)' :
+              Tips： {!incloudPrivate ? '实例数量调整，保存后系统将调整实例数量至设置预期。（若自动伸缩开启，则无法手动扩展）' :
               '挂载独享型存储的服务不支持水平扩展'}
             </Col>
           </Row>

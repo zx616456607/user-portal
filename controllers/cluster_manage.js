@@ -402,3 +402,38 @@ exports.updateKubeproxy = function* () {
   const result = yield api.updateBy([ cluster, 'kubeproxy' ], null, body)
   this.body = result
 }
+exports.getNodeDetail = function* (){
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'nodes', name, 'drain', 'preliminary'])
+  this.body = result
+}
+exports.nodeMaintain = function* (){
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'nodes', name, 'drain'], null, body)
+  this.body = result
+}
+
+exports.exitMaintain = function* (){
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'nodes', name, 'uncordon'])
+  this.body = result
+}
+
+exports.getNotMigratedCount = function* (){
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'nodes', name, 'drain', 'podmetric'])
+  this.body = result
+}

@@ -24,6 +24,7 @@ import HealthCheckModal from './HealthCheckModal'
 
 import { loadAllServices } from '../../../actions/services'
 import { createIngress, updateIngress, getLBDetail, checkIngressNameAndHost } from '../../../actions/load_balance'
+import { ingressNameCheck, ingressRelayRuleCheck } from '../../../common/naming_validation'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -73,7 +74,7 @@ class MonitorDetail extends React.Component {
           })
         }
       }
-      if (currentIngress.lbAlgorithm !== 'ip_hash') {
+      if (currentIngress.lbAlgorithm === 'round-robin') {
         this.setState({
           sessionSticky: currentIngress.sessionSticky,
           sessionPersistent: parseInt(currentIngress.sessionPersistent)
@@ -88,7 +89,7 @@ class MonitorDetail extends React.Component {
             [`port-${uidd}`]: item.servicePort
           })
           this.selectService(item.serviceName, uidd)
-          if (currentIngress.lbAlgorithm === '') {
+          if (currentIngress.lbAlgorithm !== 'ip_hash') {
             form.setFieldsValue({
               [`weight-${uidd}`]: item.weight
             })
@@ -280,8 +281,9 @@ class MonitorDetail extends React.Component {
     if (currentIngress && (currentIngress.displayName === value)) {
       return callback()
     }
-    if (!value) {
-      return callback('请输入监听器名称')
+    let message = ingressNameCheck(value)
+    if (message !== 'success') {
+      return callback(message)
     }
     const query = {
       displayName: value,
@@ -316,8 +318,9 @@ class MonitorDetail extends React.Component {
     if (currentIngress && (`${currentIngress.host}${currentIngress.path}` === value)) {
       return callback()
     }
-    if (!value) {
-      return callback('请输入校验规则')
+    let message = ingressRelayRuleCheck(value)
+    if (message !== 'success') {
+      return callback(message)
     }
     clearTimeout(this.nameTimeout)
     const query = {
@@ -378,7 +381,7 @@ class MonitorDetail extends React.Component {
         })
       })
     } 
-    if (e.target.value !== 'ip_hash') {
+    if (e.target.value === 'round-robin') {
       setFieldsValue({
         sessionSticky,
         sessionPersistent
@@ -442,7 +445,7 @@ class MonitorDetail extends React.Component {
         validateArr.push(`weight-${endIndexValue}`)
       }
     }
-    if (getFieldValue('lbAlgorithm') !== 'ip_hash') {
+    if (getFieldValue('lbAlgorithm') === 'round-robin') {
       validateArr.push('sessionSticky')
       if (getFieldValue('sessionSticky')) {
         validateArr.push('sessionPersistent')
@@ -471,7 +474,7 @@ class MonitorDetail extends React.Component {
         port,
         lbAlgorithm: strategy,
         host: hostname,
-        path: '/' + path.join('/'),
+        path: path ? '/' + path.join('/') : '',
         items: this.getServiceList()
       }
       if (currentIngress) {
@@ -538,6 +541,9 @@ class MonitorDetail extends React.Component {
               } else if (res.message.message.indexOf('name') > -1) {
                 notify.warn(currentIngress ? '修改失败' : '创建失败', '该监听名称已经存在')
                 return
+              } else {
+                notify.warn(currentIngress ? '修改失败' : '创建失败', '禁止同一个服务的同一个端口，被同一个lb中的不同ingress使用')
+                return
               }
             }
             notify.warn(currentIngress ? '修改失败' : '创建失败', res.message.message || res.message)
@@ -563,6 +569,7 @@ class MonitorDetail extends React.Component {
   selectService = (name, key) => {
     const { allServices } = this.state
     const currentService = allServices.filter(item => item.metadata.name === name)[0]
+    if (!currentService) return
     this.setState({
       [`port-${key}`]: currentService.spec.ports.map(item => item.port)
     })
@@ -575,8 +582,8 @@ class MonitorDetail extends React.Component {
       labelCol: { span: 3 },
       wrapperCol: { span: 10 }
     }
-    const showSlider = getFieldValue('sessionSticky') && (getFieldValue('lbAlgorithm') !== 'ip_hash')
-    const showWeight = getFieldValue('lbAlgorithm') === 'round-robin'
+    const showSlider = getFieldValue('sessionSticky') && (getFieldValue('lbAlgorithm') === 'round-robin')
+    const showWeight = getFieldValue('lbAlgorithm') !== 'ip_hash'
     getFieldProps('keys', {
       initialValue: [],
     });
@@ -776,7 +783,7 @@ class MonitorDetail extends React.Component {
             </RadioGroup>
           </FormItem>
           {
-            getFieldValue('lbAlgorithm') !== 'ip_hash' &&
+            getFieldValue('lbAlgorithm') === 'round-robin' &&
             <FormItem
               label="会话保持"
               {...formItemLayout}
@@ -795,7 +802,7 @@ class MonitorDetail extends React.Component {
                 >
                   <Slider max={3600} {...getFieldProps('sessionPersistent', 
                     { 
-                      initialValue: currentIngress && currentIngress.sessionPersistent ? parseInt(currentIngress.sessionPersistent) : 100 
+                      initialValue: (currentIngress && currentIngress.sessionPersistent) ? parseInt(currentIngress.sessionPersistent) : 100 
                     })}/>
                 </FormItem>
               </Col>

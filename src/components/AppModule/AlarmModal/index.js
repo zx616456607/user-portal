@@ -1018,7 +1018,8 @@ class AlarmModal extends Component {
     }
   }
   submitRule() {
-    const { form, getSettingList, pathname, activeCluster } = this.props;
+    const { form, getSettingList, pathname, activeCluster, loadData, funcs } = this.props;
+    const { scope } = funcs
     form.validateFields((error, values) => {
       if (!!error) {
         return
@@ -1036,6 +1037,8 @@ class AlarmModal extends Component {
         } else if (obj.metricType == 'memory/usage') {
           obj.value = obj.value * 1024 * 1024
         } else if (obj.metricType === 'cpu/usage_rate') {
+          obj.value = obj.value * 100
+        } else if (obj.metricType === 'disk/usage') {
           obj.value = obj.value * 100
         }
         obj.value = obj.value.toString()
@@ -1089,14 +1092,14 @@ class AlarmModal extends Component {
               form.resetFields()
               this.state.firstForm.resetFields()
               this.state.secondForm.resetFields()
+              if (getSettingList) {
+                getSettingList()
+              }
               if (funcs.callback) {
                 funcs.callback()
                 return
               }
               funcs.nextStep(1)
-              if (getSettingList) {
-                getSettingList()
-              }
             },
             isAsync: true
           },
@@ -1134,6 +1137,15 @@ class AlarmModal extends Component {
               if (getSettingList) {
                 getSettingList()
               }
+              scope && scope.setState({
+                currentPage: 1,
+                search: '',
+              }, () => {
+                loadData && loadData({
+                  from: 0,
+                  page: 1,
+                })
+              })
             },
             isAsync: true
           },

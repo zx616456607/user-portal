@@ -358,3 +358,98 @@ export function checkLablesToService(body,callback) {
     callback
   }
 }
+
+export const GET_NODE_DETAIL_REQUEST = 'GET_NODE_DETAIL_REQUEST'
+export const GET_NODE_DETAIL_SUCCESS = 'GET_NODE_DETAIL_SUCCESS'
+export const GET_NODE_DETAIL_FAILURE = 'GET_NODE_DETAIL_FAILURE'
+
+const fetchNodeDetail = (cluster, name, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        GET_NODE_DETAIL_REQUEST,
+        GET_NODE_DETAIL_SUCCESS,
+        GET_NODE_DETAIL_FAILURE
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/nodes/${name}/drain/preliminary`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export const getNodeDetail = (cluster, name, callback) =>
+  dispatch => dispatch(fetchNodeDetail(cluster, name, callback))
+
+export const NODE_MAINTAIN_REQUEST = 'NODE_MAINTAIN_REQUEST'
+export const NODE_MAINTAIN_SUCCESS = 'NODE_MAINTAIN_SUCCESS'
+export const NODE_MAINTAIN_FAILURE = 'NODE_MAINTAIN_FAILURE'
+
+const fetchNodeMaintain = (cluster, name, body, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        NODE_MAINTAIN_REQUEST,
+        NODE_MAINTAIN_SUCCESS,
+        NODE_MAINTAIN_FAILURE
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/nodes/${name}/drain`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export const maintainNode = (cluster, name, body, callback) =>
+  dispatch => dispatch(fetchNodeMaintain(cluster, name, body, callback))
+
+export const NODE_EXIT_MAINTAIN_REQUEST = 'NODE_EXIT_MAINTAIN_REQUEST'
+export const NODE_EXIT_MAINTAIN_SUCCESS = 'NODE_EXIT_MAINTAIN_SUCCESS'
+export const NODE_EXIT_MAINTAIN_FAILURE = 'NODE_EXIT_MAINTAIN_FAILURE'
+
+const fetchExitNodeMaintain = (cluster, name, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        NODE_EXIT_MAINTAIN_REQUEST,
+        NODE_EXIT_MAINTAIN_SUCCESS,
+        NODE_EXIT_MAINTAIN_FAILURE
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/nodes/${name}/uncordon`,
+      schema: {},
+      options: {
+        method: 'PUT'
+      }
+    },
+    callback
+  }
+}
+
+export const exitMaintainNode = (cluster, name, callback) =>
+  dispatch => dispatch(fetchExitNodeMaintain(cluster, name, callback))
+
+export const FETCH_NOT_MIGRATED_POD_COUNT_REQUEST = 'FETCH_NOT_MIGRATED_POD_COUNT_REQUEST'
+export const FETCH_NOT_MIGRATED_POD_COUNT_SUCCESS = 'FETCH_NOT_MIGRATED_POD_COUNT_SUCCESS'
+export const FETCH_NOT_MIGRATED_POD_COUNT_FAILURE = 'FETCH_NOT_MIGRATED_POD_COUNT_FAILURE'
+
+const fetchNotMigratedPodCount = (cluster, name, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        FETCH_NOT_MIGRATED_POD_COUNT_REQUEST,
+        FETCH_NOT_MIGRATED_POD_COUNT_SUCCESS,
+        FETCH_NOT_MIGRATED_POD_COUNT_FAILURE
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/nodes/${name}/drain/podmetric`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export const getNotMigratedPodCount = (cluster, name, callback) => 
+  dispatch => dispatch(fetchNotMigratedPodCount(cluster, name, callback))

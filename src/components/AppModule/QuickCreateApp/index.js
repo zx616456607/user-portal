@@ -397,7 +397,7 @@ class QuickCreateApp extends Component {
             })
             const body = {
               host: hostname,
-              path: host ? '/' + path.join('/') : '',
+              path: path ? '/' + path.join('/') : '',
               items
             }
             lbBody.push(Object.assign(fields[key][`ingress-${item}`].value, body))

@@ -134,6 +134,10 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/plugins/:name/init', middlewares.isAdminUser, clusterController.initPlugins)
   router.delete('/clusters/:cluster/plugins', middlewares.isAdminUser, clusterController.batchDeletePlugins)
   router.post('/clusters/:cluster/plugins', middlewares.isAdminUser, clusterController.createPlugins)
+  router.get('/clusters/:cluster/nodes/:name/drain/preliminary', clusterController.getNodeDetail)
+  router.put('/clusters/:cluster/nodes/:name/drain', clusterController.nodeMaintain)
+  router.put('/clusters/:cluster/nodes/:name/uncordon', clusterController.exitMaintain)
+  router.get('/clusters/:cluster/nodes/:name/drain/podmetric', clusterController.getNotMigratedCount)
 
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
