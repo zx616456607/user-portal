@@ -1,3 +1,14 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ */
+
+/**
+ * Kubeproxy config component
+ *
+ * 2018-03-07
+ * @author Zhangpc
+ */
 
 import React from 'react'
 import { Modal, Button, Form, Input, Select } from 'antd'
