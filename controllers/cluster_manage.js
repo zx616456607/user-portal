@@ -387,3 +387,18 @@ function FilterEmoji(str) {
 }
 
 exports.FilterEmoji = FilterEmoji
+
+exports.getKubeproxy = function* () {
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.getBy([ cluster, 'kubeproxy' ])
+  this.body = result.data
+}
+
+exports.updateKubeproxy = function* () {
+  const cluster = this.params.cluster
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.updateBy([ cluster, 'kubeproxy' ], null, body)
+  this.body = result
+}

@@ -180,15 +180,43 @@ function clusterStorage(state = {}, action){
   }
 }
 
+function kubeproxy(state = {}, action){
+  const cluster = action.cluster
+  switch(action.type){
+    case ActionTypes.GET_KUBEPROXY_REQUEST:
+      return Object.assign({}, state, {
+        [cluster]: {
+          isFetching: true,
+        }
+      })
+    case ActionTypes.GET_KUBEPROXY_SUCCESS:
+      return Object.assign({}, state, {
+        [cluster]: {
+          isFetching: false,
+          data: action.response.result
+        }
+      })
+    case ActionTypes.GET_KUBEPROXY_FAILURE:
+      return Object.assign({}, state, {
+        [cluster]: {
+          isFetching: false,
+        }
+      })
+    default:
+      return state
+  }
+}
 
 export default function cluster(state = {
   clusters: {},
   hostMetrics: {},
-  hostInfo: {}
+  hostInfo: {},
+  kubeproxy: {},
 }, action) {
   return {
     clusters: clusters(state.clusters, action),
     proxy: getProxy(state.proxy, action),
+    kubeproxy: kubeproxy(state.kubeproxy, action),
     createCluster: reducerFactory({
       REQUEST: ActionTypes.CREATE_CLUSTER_REQUEST,
       SUCCESS: ActionTypes.CREATE_CLUSTER_SUCCESS,
