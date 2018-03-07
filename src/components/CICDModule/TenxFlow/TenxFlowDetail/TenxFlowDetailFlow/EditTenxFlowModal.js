@@ -1640,7 +1640,7 @@ let EditTenxFlowModal = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
     const currenImageUrl = config.spec.container.image
-    const approvalConfig = config.spec.ci.config.approvalConfig || {}
+    const approvalConfig = config.spec.ci.config && config.spec.ci.config.approvalConfig || {}
     const containerEnv = config.spec.container.env || []
     let approvingTimeout
     containerEnv.every(({ name, value }) => {
