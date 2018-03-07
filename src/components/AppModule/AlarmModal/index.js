@@ -1092,14 +1092,14 @@ class AlarmModal extends Component {
               form.resetFields()
               this.state.firstForm.resetFields()
               this.state.secondForm.resetFields()
+              if (getSettingList) {
+                getSettingList()
+              }
               if (funcs.callback) {
                 funcs.callback()
                 return
               }
               funcs.nextStep(1)
-              if (getSettingList) {
-                getSettingList()
-              }
             },
             isAsync: true
           },
@@ -1134,6 +1134,9 @@ class AlarmModal extends Component {
               this.state.firstForm.resetFields()
               this.state.secondForm.resetFields()
               funcs.nextStep(1)
+              if (getSettingList) {
+                getSettingList()
+              }
               scope && scope.setState({
                 currentPage: 1,
                 search: '',

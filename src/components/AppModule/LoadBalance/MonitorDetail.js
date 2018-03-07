@@ -802,7 +802,7 @@ class MonitorDetail extends React.Component {
                 >
                   <Slider max={3600} {...getFieldProps('sessionPersistent', 
                     { 
-                      initialValue: currentIngress && currentIngress.sessionPersistent ? parseInt(currentIngress.sessionPersistent) : 100 
+                      initialValue: (currentIngress && currentIngress.sessionPersistent) ? parseInt(currentIngress.sessionPersistent) : 100 
                     })}/>
                 </FormItem>
               </Col>

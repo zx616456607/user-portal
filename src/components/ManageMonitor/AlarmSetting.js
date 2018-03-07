@@ -390,7 +390,7 @@ let MyComponent = React.createClass({
               { (data.rxRate / 1024).toFixed(2) + 'Kb/s' }
             </span>
           </div>
-          { targetType && <div className={diskListsStyle}>
+          { targetType ? <div className={diskListsStyle}>
             <span className="keys">磁盘</span>
             <Progress
               className="progress"
@@ -399,9 +399,9 @@ let MyComponent = React.createClass({
               format={ percent => percent + '%'}
               status={ data.disk > 80 ? 'exception' : ''}
             />
-          </div> }
+          </div> : null}
           {
-            targetType &&
+            targetType ?
             <div className={connectNum}>
               <span className="keys">TCP 连接数</span>
               <span className="keys">
@@ -416,7 +416,7 @@ let MyComponent = React.createClass({
               <span className="keys">
                 time_wait {parseInt(data.tcpTime)} 个
               </span>
-            </div>
+            </div> : null
           }
         </div>
       </div>

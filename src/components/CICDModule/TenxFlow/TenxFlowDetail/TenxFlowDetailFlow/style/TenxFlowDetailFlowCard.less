@@ -1,3 +1,4 @@
+@card-height: 130px;
 .TenxFlowDetailFlowCard {
   float: left;
   margin-bottom: 20px;
@@ -13,7 +14,7 @@
     position: relative;
     float: left;
     width: 400px;
-    min-height: 240px;
+    min-height: @card-height;
     box-shadow: 0 0 10px #dadada;
     .ant-card-body {
       padding: 0 !important;
@@ -23,22 +24,25 @@
       top:0;
       left: 0;
       width: 90px;
-      height: 240px;
+      height: @card-height;
       text-align: center;
       background-color: #f8f8f8;
       .status {
         width: 90px;
-        height: 240px;
+        height: @card-height;
         i {
-          line-height: 220px;
-          font-size: 30px;
+          line-height: 80px;
+          font-size: 24px;
         }
         p {
           position: absolute;
           font-size: 14px;
-          bottom: 80px;
+          bottom: 50px;
           width: 100%;
           text-align: center;
+        }
+        .detail-link {
+          bottom: 30px;
         }
       }
       .finishStatus {
@@ -169,7 +173,7 @@
       padding-top: 15px;
       top: 0;
       right: 0;
-      height: 85px;
+      height: 40px;
       width: 85px;
       text-align: center;
       background-color: #ffffff;
@@ -194,31 +198,31 @@
     margin-left: 10px;
     margin-right: 10px;
     width: 80px;
-    height: 240px;
-    line-height: 240px;
+    height: @card-height;
+    line-height: @card-height;
     font-size: 79px;
     .fileButton {
       z-index: 10;
       padding-left: 12px;
       position: absolute;
-      top: 70px;
+      top: 23px;
       width: 100%;
       text-align: center;
     }
     .fileUrl {
       position: absolute;
       width: 100%;
-      top: 140px;
+      top: 75px;
       left: 0;
       font-size: 12px;
-      line-height:20px;
+      line-height: 20px;
       color: #00A1EA;
       word-break: break-all;
     }
     .addBtn {
       position: absolute;
       width: 100%;
-      top: 140px;
+      top: 75px;
       left: 0;
       font-size: 12px;
       line-height: 20px;
@@ -233,7 +237,7 @@
   }
   svg {
     width: 80px;
-    height: 240px;
+    height: @card-height;
   }
 }
 .TenxFlowDetailFlowCardBigDiv {

@@ -260,7 +260,7 @@ class ImageCheckTable extends React.Component {
       title: '提交信息',
       dataIndex: 'requestMessage',
       key: 'requestMessage',
-      width: '6%',
+      width: '8%',
       render: text => <Tooltip title={text}><div style={{ maxWidth: 90 }} className="textoverflow">{text}</div></Tooltip>
     }, {
       title: '分类名称',
@@ -271,7 +271,7 @@ class ImageCheckTable extends React.Component {
       title: '发布名称',
       dataIndex: 'fileNickName',
       key: 'fileNickName',
-      width: '10%',
+      width: '8%',
     }, {
       title: '原镜像名称',
       dataIndex: 'originID',
