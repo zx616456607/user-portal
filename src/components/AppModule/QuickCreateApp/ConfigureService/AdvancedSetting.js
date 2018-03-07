@@ -89,12 +89,36 @@ const AdvancedSetting = React.createClass({
       })
     })
   },
-  checkEnv(rule, value, callback) {
+  checkEnv(currentKey, rule, value, callback) {
     if (!value) {
       return callback()
     }
-    let errorMsg = appEnvCheck(value, '环境变量');
+    const { form } = this.props
+    const { setFieldsValue, getFieldValue } = form
+    const envKeys = getFieldValue('envKeys') || []
+    let errorMsg = appEnvCheck(value, '环境变量')
+    if (this.existKey && this.existKey.value !== currentKey.value) {
+      form.validateFields([ `envName${this.existKey.value}` ], { force: true })
+      this.existKey = null
+    }
     if (errorMsg === 'success') {
+      let isExist = false
+      envKeys.every(key => {
+        if (currentKey.value !== key.value) {
+          const envNameKey = `envName${key.value}`
+          const envName = getFieldValue(envNameKey)
+          if (envName === value) {
+            isExist = true
+            return false
+          }
+          return true
+        }
+        return true
+      })
+      if (isExist) {
+        this.existKey = currentKey
+        return callback(`键 ${value} 已存在`)
+      }
       return callback()
     }
     callback(errorMsg)
@@ -112,7 +136,7 @@ const AdvancedSetting = React.createClass({
     const envNameProps = getFieldProps(envNameKey, {
       rules: [
         { required: true, message: '请填写键' },
-        { validator: this.checkEnv },
+        { validator: this.checkEnv.bind(this, key) },
       ],
     })
     const envValueTypeProps = getFieldProps(envValueTypeKey, {
@@ -131,7 +155,7 @@ const AdvancedSetting = React.createClass({
     const envValueInputClass = classNames({
       hide: envValueType !== 'normal',
     })
-    const envValueSelectClass = classNames('ant-input-wrapper ant-input-group', {
+    const envValueSelectClass = classNames('ant-input-wrapper ant-input-group secret-form-item', {
       hide: envValueType !== 'secret',
     })
     const selectBefore = (
@@ -152,27 +176,28 @@ const AdvancedSetting = React.createClass({
           </FormItem>
         </Col>
         <Col span={12}>
-          <FormItem>
-            <span className={envValueInputClass}>
-              <Input
-                size="default"
-                disabled={key.disabled}
-                placeholder="请填写值"
-                {...envValueProps}
-                addonBefore={selectBefore}
-              />
+          <FormItem className={envValueInputClass}>
+            <Input
+              size="default"
+              disabled={key.disabled}
+              placeholder="请填写值"
+              {...envValueProps}
+              addonBefore={selectBefore}
+            />
+          </FormItem>
+          <span className={envValueSelectClass}>
+            <span className="ant-input-group-addon">
+              {selectBefore}
             </span>
-            <span className={envValueSelectClass}>
-              <span className="ant-input-group-addon">
-                {selectBefore}
-              </span>
+            <FormItem className="ant-input-group-cascader">
               <Cascader
+                size="default"
                 {...envValueProps}
                 placeholder="请选择加密对象"
                 options={secretsOptions}
               />
-            </span>
-          </FormItem>
+            </FormItem>
+          </span>
         </Col>
         <Col span={4}>
           <Tooltip title="删除">

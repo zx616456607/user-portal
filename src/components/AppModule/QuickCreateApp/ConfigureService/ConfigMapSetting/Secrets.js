@@ -140,7 +140,7 @@ const SecretsConfigMap = React.createClass({
             <Input type="textarea" size="default" placeholder="挂载目录，例如：/App" {...secretConfigMapMountPathProps} />
           </FormItem>
         </Col>
-        <Col span={5}>
+        <Col span={6}>
           <FormItem>
             <RadioGroup {...secretConfigMapIsWholeDirProps}>
               <Radio key="severalFiles" value={false}>
@@ -201,7 +201,7 @@ const SecretsConfigMap = React.createClass({
             )
           }
         </Col>
-        <Col span={4}>
+        <Col span={3}>
           <Tooltip title="删除">
             <Button
               className="deleteBtn"
@@ -329,7 +329,7 @@ const SecretsConfigMap = React.createClass({
               <Col span={5}>
                 挂载目录
               </Col>
-              <Col span={5}>
+              <Col span={6}>
                 覆盖方式
               </Col>
               <Col span={5}>
@@ -338,7 +338,7 @@ const SecretsConfigMap = React.createClass({
               <Col span={5}>
                 加密对象
               </Col>
-              <Col span={4}>
+              <Col span={3}>
                 操作
               </Col>
             </Row>

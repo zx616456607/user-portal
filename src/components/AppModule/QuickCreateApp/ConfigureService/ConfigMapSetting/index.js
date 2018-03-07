@@ -172,7 +172,7 @@ const ConfigMapSetting = React.createClass({
             <Input type="textarea" size="default" placeholder="挂载目录，例如：/App" {...configMapMountPathProps} />
           </FormItem>
         </Col>
-        <Col span={5}>
+        <Col span={6}>
           <FormItem>
             <RadioGroup {...configMapIsWholeDirProps}>
               <Radio key="severalFiles" value={false}>
@@ -223,7 +223,7 @@ const ConfigMapSetting = React.createClass({
             )
           }
         </Col>
-        <Col span={4}>
+        <Col span={3}>
           <Tooltip title="删除">
             <Button
               className="deleteBtn"
@@ -349,7 +349,7 @@ const ConfigMapSetting = React.createClass({
                     <Col span={5}>
                       挂载目录
                     </Col>
-                    <Col span={5}>
+                    <Col span={6}>
                       覆盖方式
                     </Col>
                     <Col span={5}>
@@ -358,7 +358,7 @@ const ConfigMapSetting = React.createClass({
                     <Col span={5}>
                       配置文件
                     </Col>
-                    <Col span={4}>
+                    <Col span={3}>
                       操作
                     </Col>
                   </Row>

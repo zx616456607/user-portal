@@ -923,50 +923,6 @@ class AppServiceDetailInfo extends Component {
     })
     return ele
   }
-  getConfigMap(container) {
-    let ele = []
-    let volumes = container.spec.template.spec.volumes
-    let configMaps = []
-    if (container.spec.template.spec.containers[0].volumeMounts) {
-     container.spec.template.spec.containers[0].volumeMounts.forEach((volume) => {
-        if (volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') { return }
-        volumes.forEach(item => {
-          if(!item) return false
-          if (item.name === volume.name) {
-            if (item.configMap) {
-              if (item.configMap.items) {
-                item.configMap.items.forEach(configMap => {
-                  let arr = volume.mountPath.split('/')
-                  if(arr[arr.length - 1] == configMap.path) {
-                    configMap.mountPath = volume.mountPath
-                    configMap.configMapName = item.configMap.name
-                    configMaps.push(configMap)
-                  }
-                })
-              } else {
-                configMaps.push({
-                  mountPath: volume.mountPath,
-                  key: '已挂载整个配置组',
-                  configMapName: item.configMap.name,
-                })
-              }
-            }
-          }
-        })
-      })
-      configMaps.forEach((item, index) => {
-        ele.push(
-          <div key={item.name + item.key + '-' + index}>
-            <div className="commonTitle"><Link to="/app_manage/configs">{item.configMapName}</Link></div>
-            <div className="commonTitle">{item.key}</div>
-            <div className="commonTitle">{item.mountPath}</div>
-            <div style={{ clear: "both" }}></div>
-          </div>
-        )
-      })
-      return ele
-    }
-  }
 
   loadServiceList(){
     const { loadAllServices, page, size, name, cluster } = this.props
@@ -1218,24 +1174,6 @@ class AppServiceDetailInfo extends Component {
             >
               <Icon type="plus" />添加一个容器目录
             </span>
-          </div>
-        </div>
-        <div className="storage commonBox">
-          <span className="titleSpan">服务配置</span>
-          <div className="titleBox">
-            <div className="commonTitle">
-              配置组
-            </div>
-            <div className="commonTitle">
-              配置文件
-            </div>
-            <div className="commonTitle">
-              挂载点
-            </div>
-            <div style={{ clear: "both" }}></div>
-          </div>
-          <div className="dataBox">
-            {this.getConfigMap(serviceDetail)}
           </div>
         </div>
         <Modal
