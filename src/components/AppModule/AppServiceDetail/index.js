@@ -42,6 +42,7 @@ import { camelize } from 'humps'
 import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 import Title from '../../Title'
 import { SHOW_BILLING } from '../../../constants'
+import { getServiceStatus } from '../../../common/status_identify'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -246,10 +247,15 @@ class AppServiceDetail extends Component {
     //当点击停止的时候，只有status为Running的时候才可以点击
     //当点击重新部署的时候，只有status不为Stopped的时候才可以点击
     //当状态为启动中的时候，只可进行删除操作
-    if (service.status) {
-      if (key === 'stop' && service.status.phase === 'Stopped') {
+    const status = getServiceStatus(service)
+    if (status) {
+      if (key === 'stop' && status.phase === 'Stopped') {
         return true
-      } else if (key === 'restart' && service.status.phase === 'Stopped') {
+      } else if (key === 'restart' && status.phase === 'Stopped') {
+        return true
+      } else if (key === 'restart' && (
+        status.phase === 'RollingUpdate' || status.phase === 'ScrollRelease'
+      )) {
         return true
       }
     }
