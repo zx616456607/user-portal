@@ -582,7 +582,11 @@ let MyComponent = React.createClass({
             onClick={(e) => { this.showAction(e, 'format', record) } }
             style={{ width: '80px' }}
           >
-            <Menu.Item key='resize' disabled={record.status == 'pending'}>
+            <Menu.Item
+              key='resize'
+              disabled={record.status == 'pending' || record.status == 'used'}
+              title="使用中存储不能进行扩容操作"
+            >
               <FormattedMessage {...messages.dilation} />
             </Menu.Item>
             <Menu.Item key="createSnapshot" disabled={record.status == 'pending'}>
@@ -690,22 +694,24 @@ let MyComponent = React.createClass({
             </div>
             :null
             }
-            <div className="confirm-resize">
-              <Checkbox
-                checked={confirmChecked}
-                onChange={e => this.setState({
-                  resizeConfirmBtnDisabled: !e.target.checked,
-                  confirmChecked: e.target.checked,
-                })}
-              >
-                存储扩容后，将重新部署服务&nbsp;
-                  <a target="_blank" href={`/app_manage/service?serName=${currentVolumeServiceName}`}>
-                  {currentVolumeServiceName || '-'}
-                  </a>
-                &nbsp;
-              </Checkbox>
-            </div>
-
+            {
+              currentVolumeServiceName &&
+              <div className="confirm-resize">
+                <Checkbox
+                  checked={confirmChecked}
+                  onChange={e => this.setState({
+                    resizeConfirmBtnDisabled: !e.target.checked,
+                    confirmChecked: e.target.checked,
+                  })}
+                >
+                  存储扩容后，将重新部署服务&nbsp;
+                    <a target="_blank" href={`/app_manage/service?serName=${currentVolumeServiceName}`}>
+                    {currentVolumeServiceName}
+                    </a>
+                  &nbsp;
+                </Checkbox>
+              </div>
+            }
           </div>
           <div className={this.state.modalType === 'format' ? 'show' : 'hide'}>
             <div style={{ height: '30px' }}>确定格式化存储卷 {this.state.modalName} 吗？

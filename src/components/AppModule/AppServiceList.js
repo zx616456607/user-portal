@@ -93,7 +93,7 @@ const MyComponent = React.createClass({
           restartBtn: true,
         })
       }
-      if (checkedList[0].status.phase === 'RollingUpdate') {
+      if (checkedList[0].status.phase === 'RollingUpdate' || checkedList[0].status.phase === 'ScrollRelease') {
         scope.setState({
           restartBtn: false,
         })
@@ -108,7 +108,7 @@ const MyComponent = React.createClass({
           runCount++
         } else if (item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
           pending++
-        } else if (item.status.phase === 'RollingUpdate') {
+        } else if (item.status.phase === 'RollingUpdate' || item.status.phase === 'ScrollRelease') {
           rollingUpdateCount++
         } else {
           stopCount++
@@ -346,6 +346,7 @@ const MyComponent = React.createClass({
         redeployDisable = false
       }
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
+      const isRollingUpdateOrScrollRelease = item.status.phase == 'RollingUpdate' || item.status.phase === 'ScrollRelease'
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width:'100px'}} id="appservicelistDropdownMenu">
           {
@@ -372,10 +373,13 @@ const MyComponent = React.createClass({
           {
             redeployDisable
             ? <Menu.Item
-                key="batchRestartService"
-                disabled={isRollingUpdate}
-                title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}
-              >
+              key="batchRestartService"
+              disabled={isRollingUpdateOrScrollRelease}
+              title={
+                isRollingUpdateOrScrollRelease &&
+                `请在${isRollingUpdate ? '灰度升级完成或回滚' : '滚动升级'}后操作` || ''
+              }
+            >
               重新部署
             </Menu.Item>
             : <Menu.Item style={{display:'none'}}></Menu.Item>
@@ -391,24 +395,61 @@ const MyComponent = React.createClass({
              灰度发布
           </Menu.Item>
           <SubMenu title="扩展">
-            <Menu.Item key="manualScale" style={{width:'102px'}} disabled={isRollingUpdate} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
+            <Menu.Item
+              key="manualScale" style={{width:'102px'}}
+              disabled={isRollingUpdateOrScrollRelease}
+              title={
+                isRollingUpdateOrScrollRelease &&
+                `请在${isRollingUpdate ? '灰度升级完成或回滚' : '滚动升级'}后操作` || ''
+              }
+            >
               水平扩展
             </Menu.Item>
-            <Menu.Item key="autoScale" disabled={isRollingUpdate} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
+            <Menu.Item
+              key="autoScale" disabled={isRollingUpdateOrScrollRelease}
+              title={
+                isRollingUpdateOrScrollRelease &&
+                `请在${isRollingUpdate ? '灰度升级完成或回滚' : '滚动升级'}后操作` || ''
+              }
+            >
               自动伸缩
             </Menu.Item>
           </SubMenu>
           <SubMenu title="变更设置">
-            <Menu.Item key="config" disabled={isRollingUpdate} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
+            <Menu.Item
+              key="config" disabled={isRollingUpdateOrScrollRelease}
+              title={
+                isRollingUpdateOrScrollRelease &&
+                `请在${isRollingUpdate ? '灰度升级完成或回滚' : '滚动升级'}后操作` || ''
+              }
+            >
               更改配置
             </Menu.Item>
-            <Menu.Item key="basic" disabled={isRollingUpdate} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
+            <Menu.Item
+              key="basic" disabled={isRollingUpdateOrScrollRelease}
+              title={
+                isRollingUpdateOrScrollRelease &&
+                `请在${isRollingUpdate ? '灰度升级完成或回滚' : '滚动升级'}后操作` || ''
+              }
+            >
               修改环境变量
             </Menu.Item>
-            <Menu.Item key="ports" disabled={isRollingUpdate} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
+            <Menu.Item
+              key="ports" disabled={isRollingUpdateOrScrollRelease}
+              title={
+                isRollingUpdateOrScrollRelease &&
+                `请在${isRollingUpdate ? '灰度升级完成或回滚' : '滚动升级'}后操作` || ''
+              }
+            >
               修改端口
             </Menu.Item>
-            <Menu.Item key="livenessprobe" disabled={isRollingUpdate} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
+            <Menu.Item
+              key="livenessprobe" disabled={isRollingUpdateOrScrollRelease}
+              title={
+                isRollingUpdateOrScrollRelease &&
+                `请在${isRollingUpdate ? '灰度升级完成或回滚' : '滚动升级'}后操作` || ''
+              }
+            >
               设置高可用
             </Menu.Item>
           </SubMenu>
