@@ -380,6 +380,10 @@ class WrapCheck extends React.Component {
           notify.close()
           notify.success('通过审批成功')
           this.getWrapPublishList()
+          Modal.info({
+            title: `应用包审核流程已完成，发布商店还差一步！`,
+            content: '申请者在应用包列表操作发布后，即可展示至应用包商店'
+          })
         },
         isAsync: true
       },
