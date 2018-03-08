@@ -606,6 +606,14 @@ const menusText = defineMessages({
   Unbind: {
     id: 'ManageMonitor.operationalAudit.Unbind',
     defaultMessage: '解绑'
+  },
+  Drain: {
+    id: 'ManageMonitor.operationalAudit.Drain',
+    defaultMessage: '维护'
+  },
+  UnCordon: {
+    id: 'ManageMonitor.operationalAudit.UnCordon',
+    defaultMessage: '退出维护'
   }
 });
 
@@ -774,6 +782,14 @@ function returnOperationList(scope) {
     {
       value: '42',
       label: (<FormattedMessage {...menusText.Unbind}/>)
+    },
+    {
+      value: '43',
+      label: (<FormattedMessage {...menusText.Drain}/>)
+    },
+    {
+      value: '44',
+      label: (<FormattedMessage {...menusText.UnCordon}/>)
     }
   ];
   return operationalList;
@@ -1138,6 +1154,10 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.DownloadDocs)
     case '42':
       return formatMessage(menusText.Unbind)
+    case '43':
+      return formatMessage(menusText.Drain)
+    case '44':
+      return formatMessage(menusText.UnCordon)
   }
 }
 
@@ -1580,7 +1600,8 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[1]);
       case '24':
         //Node
-        showOperationalList = [];
+        showOperationalList.push(operationalList[40]);
+        showOperationalList.push(operationalList[41]);
         break;
       case '25':
         //NodeMetrics
@@ -2002,6 +2023,9 @@ class OperationalAudit extends Component {
           value: '23',
           label: formatMessage(menusText.Config),
         }],
+      }, {
+        value: '24',
+        label: formatMessage(menusText.Node),
       }, {
         value: '70',
         label: formatMessage(menusText.SecretConfig),
