@@ -651,7 +651,7 @@ let MyComponent = React.createClass({
               key="submit"
               type="primary"
               size="large"
-              disabled={this.state.modalType === 'resize' && resizeConfirmBtnDisabled}
+              // disabled={this.state.modalType === 'resize' && resizeConfirmBtnDisabled}
               loading={isActing}
               loading={this.state.loading}
               onClick={(e) => { this.handleSure() } }
