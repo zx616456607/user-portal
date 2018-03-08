@@ -162,7 +162,7 @@ class KubeproxyConfig extends React.Component {
               {...formItemLayout}
             >
               <Select disabled={!isEdit} {...kubeproxyModeProps} placeholder="请选择负载均衡模式">
-                <Option value="IPVS">IPVS (Beta)</Option>
+                <Option value="IPVS">IPVS</Option>
                 <Option value="IPTables">IPTables</Option>
               </Select>
             </FormItem>
