@@ -127,7 +127,7 @@ class AppAutoScale extends Component {
                   const { metadata, spec } = res.data
                   const { name: serviceName } = metadata
                   const { strategyName } = metadata.labels
-                  const { alertStrategy: alert_strategy, alertgroupId: alert_group, status } = metadata.annotations
+                  const { alertStrategy: alert_strategy, alertgroupId: alert_group, status, qpsValid } = metadata.annotations
                   const { maxReplicas: max, minReplicas: min, metrics } = spec
                   let cpu, memory, qps
                   metrics.forEach(item => {
@@ -149,6 +149,7 @@ class AppAutoScale extends Component {
                     cpu,
                     memory,
                     qps,
+                    qpsValid,
                     type: status === 'RUN' ? 1 : 0
                   }
                   this.setState({
@@ -642,6 +643,14 @@ class AppAutoScale extends Component {
             <Col span={4} style={{ marginBottom: 24 }}>
               <Button type="primary" size="large" icon="plus" disabled={!isEdit} onClick={this.addRule}/>&nbsp;
               <Button type="ghost" size="large" icon="cross" disabled={!isEdit} onClick={() => this.delRule(key)}/>
+              {
+                scaleDetail && scaleDetail.qpsValid === 'false' && getFieldValue(`type${key}`) === 'qps' &&
+                <Tooltip
+                  title="服务绑定LB被删除"
+                >
+                  <span className="failedColor">【失效】</span>
+                </Tooltip>
+              }
             </Col>
           </Row>
           {

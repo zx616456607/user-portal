@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Button, Table, Menu, Dropdown, Icon, Modal } from 'antd'
+import { Button, Table, Menu, Dropdown, Icon, Modal, Tooltip } from 'antd'
 import {
   loadAutoScaleList, deleteAutoScale, updateAutoScale,
   updateAutoScaleStatus
@@ -161,7 +161,7 @@ class AutoScale extends React.Component {
     const serviceName = metadata.name
     const alert_strategy = metadata.annotations.alertStrategy
     const alert_group = metadata.annotations.alertgroupId
-    const { status } = metadata.annotations
+    const { status, qpsValid } = metadata.annotations
     const { maxReplicas: max, minReplicas: min, metrics } = spec
     let memory
     let cpu
@@ -213,7 +213,7 @@ class AutoScale extends React.Component {
         }
       })
     } else if (e.key === 'edit') {
-      let scaleDetail = Object.assign(body, { type: status === 'RUN' ? 1 : 0, }, { serviceName })
+      let scaleDetail = Object.assign(body, { type: status === 'RUN' ? 1 : 0, }, { serviceName, qpsValid })
       this.setState({
         scaleModal: true,
         scaleDetail,
@@ -235,30 +235,36 @@ class AutoScale extends React.Component {
       break
     }
   }
-  formatMetrics = record => {
-    let str = ''
-    record && record.length && record.forEach(item => {
-      if (item.resource && item.resource.name === 'memory') {
-        str += `内存 ${item.resource.targetAverageUtilization}%;`
-      } else if (item.resource && item.resource.name === 'cpu') {
-        str += `CPU ${item.resource.targetAverageUtilization}%;`
-      } else if (item.resource && item.resource.name === 'qps') {
-        str += `QPS ${item.resource.targetAverageUtilization}次/s`
+  formatMetrics = (metrics, record) => {
+    function formatTextAndUnit(str) {
+      switch(str) {
+        case 'memory':
+          return { text: '内存', unit: '%' }
+        case 'cpu':
+          return { text: 'CPU', unit: '%' }
+        case 'qps':
+          return { text: 'qps', unit: '次/s' }
+      }
+    }
+    const { qpsValid } = record.metadata.annotations
+    return metrics && metrics.length && metrics.map((item, index) => {
+      if (item.resource) {
+        const { text, unit } = formatTextAndUnit(item.resource.name)
+        return (
+          <div key={`${item.resource.name}-${index}`}>
+            {`${text} ${item.resource.targetAverageUtilization} ${unit}`}
+            {
+              text === 'qps' && qpsValid === 'false' &&
+              <Tooltip
+                title="服务绑定LB被删除"
+              >
+                <span className="failedColor">【失效】</span>
+              </Tooltip>
+            }
+          </div>
+        )
       }
     })
-    if (str.split(';')[1] !== '') {
-      return [
-        <div key="metricsOne">{str.split(';')[0]}</div>,
-        <div key="metricsTwo">{str.split(';')[1]}</div>
-      ]
-    } else if (str.split(';')[2] !== '') {
-      return [
-        <div key="metricsOne">{str.split(';')[0]}</div>,
-        <div key="metricsTwo">{str.split(';')[1]}</div>,
-        <div key="metricsThree">{str.split(';')[2]}</div>
-      ]
-    }
-    return str.split(';')[0]
   }
   scaleStatus = text => {
     return <div className={classNames('status',{'successStatus': text === 'RUN', 'errorStatus': text === 'STOP'})}><i/>{text === 'RUN' ? '开启' : '关闭'}</div>
@@ -425,13 +431,13 @@ class AutoScale extends React.Component {
     }, {
       title: '开启状态',
       dataIndex: 'metadata.annotations.status',
-      width: '10%',
+      width: '8%',
       render: text => <div>{this.scaleStatus(text)}</div>
     }, {
       title: '阈值',
       dataIndex: 'spec.metrics',
-      width: '10%',
-      render: (text) => <div>{this.formatMetrics(text)}</div>
+      width: '14%',
+      render: (text, record) => <div>{this.formatMetrics(text, record)}</div>
     }, {
       title: '最小实例数',
       dataIndex: 'spec.minReplicas',
@@ -443,7 +449,7 @@ class AutoScale extends React.Component {
     }, {
       title: '发送邮件',
       dataIndex: 'metadata.annotations.alertStrategy',
-      width: '14%',
+      width: '12%',
       render: text => <div>{this.emailSendType(text)}</div>
     }, {
       title: '告警通知组',

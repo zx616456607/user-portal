@@ -179,7 +179,7 @@ export default class MonitorTable extends React.Component {
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
-            确定删除该监听？
+            删除监听器会导致对应服务基于 QPS 的弹性伸缩策略失效，是否确定删除？
           </div>
         </Modal>
         <div className="layout-content-btns">

@@ -872,7 +872,7 @@ class hostList extends Component {
           <div className="titleLabel">全局问题</div>
           {
             (node || []).map(item => {
-              if (item.resourceName) {
+              if (item.resourceKind === 'loadbalance') {
                 return <div className="globalList"><i/>{`该节点被 ${item.namespace} 项目 ${item.resourceName} 负载均衡占用`}</div>
               }
               return <div className="globalList"><i/>该节点被设为集群网络出口</div>
