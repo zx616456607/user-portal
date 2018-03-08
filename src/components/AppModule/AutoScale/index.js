@@ -291,7 +291,7 @@ class AutoScale extends React.Component {
   }
   checkScaleStatus() {
     const { selectedRowKeys, scaleList } = this.state
-    const selectList = scaleList.filter(item => selectedRowKeys.includes(item.key))
+    const selectList = scaleList.filter(item => selectedRowKeys.includes(item.metadata.name))
     let allStatus = 'MIX'
     let runStatus = selectList.every(item => item.metadata.annotations.status === 'RUN')
     if (runStatus) {
@@ -569,7 +569,7 @@ class AutoScale extends React.Component {
             pagination={pagination}
             rowSelection={rowSelection}
             columns={columns}
-            rowKey={record => record.key}
+            rowKey={record => record.metadata.name}
             onRowClick={this.onRowClick}
             onChange={this.tableFilter}
             dataSource={scaleList} />

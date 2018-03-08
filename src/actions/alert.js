@@ -59,10 +59,10 @@ export const ALERT_DELETE_RECORDS_REQUEST = 'ALERT_DELETE_RECORDS_REQUEST'
 export const ALERT_DELETE_RECORDS_SUCCESS = 'ALERT_DELETE_RECORDS_SUCCESS'
 export const ALERT_DELETE_RECORDS_FAILURE = 'ALERT_DELETE_RECORDS_FAILURE'
 
-function fetchDeleteRecords(strategyID, clusterID, callback) {
+function fetchDeleteRecords(clusterID, query, callback) {
   let endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/records`
-  if (strategyID) {
-    endpoint += `?strategyID=${strategyID}`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
   }
   return {
     [FETCH_API]: {
@@ -77,9 +77,9 @@ function fetchDeleteRecords(strategyID, clusterID, callback) {
   }
 }
 
-export function deleteRecords(strategyID,clusterID, callback) {
+export function deleteRecords(clusterID, query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDeleteRecords(strategyID, clusterID, callback))
+    return dispatch(fetchDeleteRecords(clusterID, query, callback))
   }
 }
 

@@ -314,8 +314,13 @@ class AlarmStrategy extends Component {
     if(!this.state.clearStraregy.strategyID) {
       return notify.error('请选择要清除记录的策略')
     }
+    const { strategyID, strategyName } = this.state.clearStraregy
+    const query = {
+      strategyID,
+      strategyName
+    }
     notify.spin('策略告警记录清除中')
-    deleteRecords(this.state.clearStraregy.strategyID, clusterID, {
+    deleteRecords(clusterID, query, {
       success: {
         func: () => {
           notify.close()

@@ -479,8 +479,8 @@ class AppAutoScale extends Component {
       return callback(`请输入${type}阈值`)
     }
     if (type === 'qps') {
-      if (value < 1) {
-        return callback(`${type}阈值必须为正整数`)
+      if (value < 1 || value > 1000000) {
+        return callback(`${type}阈值范围为1至1000000`)
       }
       return callback()
     }

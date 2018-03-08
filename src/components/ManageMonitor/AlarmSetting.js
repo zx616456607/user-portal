@@ -129,7 +129,12 @@ let MyComponent = React.createClass({
       return notify.error('请选择要清除记录的策略')
     }
     notify.spin('策略告警记录清除中')
-    deleteRecords(this.state.clearStraregy.strategyID, clusterID, {
+    const { strategyID, strategyName } = this.state.clearStraregy
+    const query = {
+      strategyID,
+      strategyName
+    }
+    deleteRecords(clusterID, query, {
       success: {
         func: () => {
           notify.close()

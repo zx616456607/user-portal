@@ -715,7 +715,7 @@ class ClusterDetail extends Component {
     }
     let runningtime = calcuDate(hostInfo.objectMeta.creationTimestamp)
     runningtime = runningtime.substring(0,runningtime.length-1)
-    const isMaintaining = hostInfo.objectMeta.annotations.maintenance === 'true'
+    const isMaintaining = hostInfo.objectMeta.annotations && hostInfo.objectMeta.annotations.maintenance === 'true'
     return (
       <div id="clusterDetail">
         <Title title="基础设施"/>
