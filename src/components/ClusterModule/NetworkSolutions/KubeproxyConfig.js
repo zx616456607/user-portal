@@ -15,6 +15,7 @@ import { Modal, Button, Form, Input, Select } from 'antd'
 import './style/KubeproxyConfig.less'
 import { connect } from 'react-redux'
 import { getKubeproxy, updateKubeproxy } from '../../../actions/cluster'
+import NotificationHandler from '../../../components/Notification'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -94,15 +95,22 @@ class KubeproxyConfig extends React.Component {
     this.setState({ confirmLoading: true })
     const { clusterID, updateKubeproxy, form } = this.props
     const { kubeproxyMode, scheduler } = form.getFieldsValue()
+
+    // Default scheduler should be empty string
+    let updatedScheduler = scheduler
+    if (updatedScheduler === 'default') {
+      updatedScheduler = ''
+    }
     const body = {
-      enabled: kubeproxyMode === 'IPVS',
-      scheduler,
+      enabled: kubeproxyMode === 'ipvs',
+      scheduler: updatedScheduler,
     }
     updateKubeproxy(clusterID, body).then(res => {
       if (res.error) {
         this.setState({ confirmLoading: false })
         return
       }
+      new NotificationHandler().success('更新成功')
       this.loadData()
     })
   }
@@ -112,14 +120,14 @@ class KubeproxyConfig extends React.Component {
     const { enabled, scheduler } = kubeproxy
     const { getFieldProps, getFieldValue } = form
     const kubeproxyModeProps = getFieldProps('kubeproxyMode', {
-      initialValue: enabled ? 'IPVS' : 'IPTables',
+      initialValue: enabled ? 'ipvs' : 'iptables',
       rules: [
         { required: true, message: '请选择负载均衡模式' },
       ],
     })
     const kubeproxyMode = getFieldValue('kubeproxyMode')
     let schedulerProps
-    if (kubeproxyMode === 'IPVS') {
+    if (kubeproxyMode === 'ipvs') {
       schedulerProps = getFieldProps('scheduler', {
         initialValue: scheduler || 'default',
         rules: [
@@ -162,8 +170,8 @@ class KubeproxyConfig extends React.Component {
               {...formItemLayout}
             >
               <Select disabled={!isEdit} {...kubeproxyModeProps} placeholder="请选择负载均衡模式">
-                <Option value="IPVS">IPVS (Beta)</Option>
-                <Option value="IPTables">IPTables</Option>
+                <Option value="ipvs">ipvs</Option>
+                <Option value="iptables">iptables</Option>
               </Select>
             </FormItem>
             {
