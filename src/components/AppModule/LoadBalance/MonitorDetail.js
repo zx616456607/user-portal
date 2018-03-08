@@ -850,6 +850,7 @@ class MonitorDetail extends React.Component {
           <Row>
             <Col span={20} offset={3}>
               <Button type="ghost" className="bundleBtn" onClick={this.addItem}><Icon type="link" /> 绑定后端服务</Button>
+              <div className="hintColor qpsHint"><Icon type="info-circle-o" /> 删除或修改监听器绑定后端服务，会导致该服务基于QPS的弹性伸缩策略失效！</div>
               <Row className="serviceHeader">
                 <Col span={8}>服务</Col>
                 <Col span={4}>服务端口</Col>

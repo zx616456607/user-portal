@@ -547,6 +547,14 @@ class AutoScaleModal extends React.Component {
             <Col span={7} style={{ marginBottom: 24 }}>
               <Button type="primary" size="large" icon="plus" onClick={this.addRule}/>&nbsp;
               <Button type="ghost" size="large" icon="cross" onClick={this.delRule.bind(this, key)}/>
+              {
+                scaleDetail && scaleDetail.qpsValid === 'false' && getFieldValue(`type${key}`) === 'qps' &&
+                <Tooltip
+                  title="服务绑定LB被删除"
+                >
+                  <span className="failedColor">【失效】</span>
+                </Tooltip>
+              }
             </Col>
           </Row>
           {

@@ -11,6 +11,7 @@
 var path = require('path')
 var webpack = require('webpack')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
+var tsImportPluginFactory = require('ts-import-plugin')
 var postcssConfig = require('./webpack.config.postcss')
 var nodeModulesPath = path.join(__dirname, '/node_modules/')
 var hotMiddleWareConfig = 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000'
@@ -43,7 +44,7 @@ module.exports = {
       path.join(__dirname, './src'),
       'node_modules',
     ],
-    extensions: [ '.js', '.jsx', '.json' ],
+    extensions: [ '.js', '.jsx', '.json', '.ts', '.tsx' ],
     // alias: {
     //   '@': path.join(__dirname, './src'),
     // },
@@ -59,6 +60,27 @@ module.exports = {
 
   module: {
     rules: [
+      {
+        test: /\.tsx?$/,
+        use: {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: true,
+            getCustomTransformers: () => ({
+              before: [
+                tsImportPluginFactory({
+                  libraryName: 'antd',
+                  libraryDirectory: 'lib',
+                })
+              ]
+            }),
+            compilerOptions: {
+              module: 'es2015'
+            }
+          },
+        },
+        exclude: /node_modules/
+      },
       {
         test: /\.js$/,
         exclude: /node_modules/,

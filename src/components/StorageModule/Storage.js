@@ -147,6 +147,9 @@ let MyComponent = React.createClass({
       tipsModal: false,
       dilation: false,
       selectedRowKeys: [],
+      resizeConfirmBtnDisabled: true,
+      confirmChecked: false,
+      currentVolume: {},
     };
   },
   propTypes: {
@@ -253,6 +256,8 @@ let MyComponent = React.createClass({
   cancelModal() {
     this.setState({
       visible: false,
+      resizeConfirmBtnDisabled: true,
+      confirmChecked: false,
     });
   },
   onChange(value) {
@@ -273,7 +278,7 @@ let MyComponent = React.createClass({
        createSnapModal: true,
        volumeName: item.name,
        volumeFormat: item.format,
-       volumeSize: item.totalSize,
+       volumeSize: item.desireSize,
       })
       setTimeout(function() {
         document.getElementById('snapshotName').focus()
@@ -292,8 +297,9 @@ let MyComponent = React.createClass({
         visible: true,
         modalType: 'resize',
         modalName: item.name,
-        modalSize: item.totalSize,
-        size: item.totalSize,
+        modalSize: item.desireSize,
+        size: item.desireSize,
+        currentVolume: item,
         modalTitle: '扩容'
       });
       return
@@ -479,7 +485,13 @@ let MyComponent = React.createClass({
       isFetching, storage, billingEnabled, location,
       scope, form, imagePool, cluster,
     } = this.props
-    const { selectedRowKeys } = this.state
+    const {
+      selectedRowKeys, currentVolume, resizeConfirmBtnDisabled,
+      confirmChecked,
+    } = this.state
+    const currentVolumeServiceName = currentVolume.deployServiceList
+      && currentVolume.deployServiceList[0]
+      && currentVolume.deployServiceList[0].serviceName
     const { formatMessage } = this.props.intl
     const { query = {} } = location
     let storageList = storage.storageList
@@ -517,10 +529,10 @@ let MyComponent = React.createClass({
         render: storageServer => <div>块存储 ({storageServer || '-'})</div>
       },{
         title: '大小',
-        key: 'totalSize',
-        dataIndex: 'totalSize',
+        key: 'desireSize',
+        dataIndex: 'desireSize',
         width: '9%',
-        render: totalSize => <div>{totalSize == 0 ? '-' : totalSize} M</div>
+        render: desireSize => <div>{desireSize == 0 ? '-' : desireSize} M</div>
       },{
         title: '格式',
         key: 'format',
@@ -531,7 +543,13 @@ let MyComponent = React.createClass({
         key: 'deployServiceList',
         dataIndex: 'deployServiceList',
         width: '10%',
-        render: deployServiceList => <div>{deployServiceList && deployServiceList.length ? deployServiceList[0].serviceName : '未挂载服务'}</div>
+        render: deployServiceList => {
+          const serviceName = deployServiceList && deployServiceList[0] && deployServiceList[0].serviceName
+          if (!serviceName) {
+            return '未挂载服务'
+          }
+          return <Link to={`/app_manage/service?serName=${serviceName}`}>{serviceName}</Link>
+        }
       //},{
       //  title: <div>
       //    回收策略
@@ -564,7 +582,11 @@ let MyComponent = React.createClass({
             onClick={(e) => { this.showAction(e, 'format', record) } }
             style={{ width: '80px' }}
           >
-            <Menu.Item key='resize' disabled={record.status == 'pending'}>
+            <Menu.Item
+              key='resize'
+              disabled={record.status == 'pending' || record.status == 'used'}
+              title="使用中存储不能进行扩容操作"
+            >
               <FormattedMessage {...messages.dilation} />
             </Menu.Item>
             <Menu.Item key="createSnapshot" disabled={record.status == 'pending'}>
@@ -625,7 +647,15 @@ let MyComponent = React.createClass({
           onCancel= {() => this.cancelModal() }
           footer={[
             <Button key="back" type="ghost" size="large" onClick={(e) => { this.cancelModal() } }>取消</Button>,
-            <Button key="submit" type="primary" size="large" disabled={isActing} loading={this.state.loading} onClick={(e) => { this.handleSure() } }>
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              disabled={this.state.modalType === 'resize' && resizeConfirmBtnDisabled}
+              loading={isActing}
+              loading={this.state.loading}
+              onClick={(e) => { this.handleSure() } }
+            >
               确定
             </Button>
           ]}
@@ -664,7 +694,24 @@ let MyComponent = React.createClass({
             </div>
             :null
             }
-
+            {
+              currentVolumeServiceName &&
+              <div className="confirm-resize">
+                <Checkbox
+                  checked={confirmChecked}
+                  onChange={e => this.setState({
+                    resizeConfirmBtnDisabled: !e.target.checked,
+                    confirmChecked: e.target.checked,
+                  })}
+                >
+                  存储扩容后，将重新部署服务&nbsp;
+                    <a target="_blank" href={`/app_manage/service?serName=${currentVolumeServiceName}`}>
+                    {currentVolumeServiceName}
+                    </a>
+                  &nbsp;
+                </Checkbox>
+              </div>
+            }
           </div>
           <div className={this.state.modalType === 'format' ? 'show' : 'hide'}>
             <div style={{ height: '30px' }}>确定格式化存储卷 {this.state.modalName} 吗？

@@ -9,8 +9,8 @@ import { Card, Button, Tooltip, Icon, Input, Spin, Menu, Dropdown, Switch, Tag, 
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { 
-  getAllClusterNodes, getClusterNodesMetrics, getKubectlsPods, 
+import {
+  getAllClusterNodes, getClusterNodesMetrics, getKubectlsPods,
   deleteClusterNode, getClusterLabel, changeClusterNodeSchedule,
   getNodeDetail, maintainNode, exitMaintainNode, getNotMigratedPodCount
 } from '../../actions/cluster_node'
@@ -124,7 +124,7 @@ const MyComponent = React.createClass({
     }
     if (handle === 'exitMaintain') {
       this.nodeIsMigrate(node)
-      
+
     }
   },
   async loadNodeDetail(currentNode){
@@ -209,7 +209,7 @@ const MyComponent = React.createClass({
         <span className={classname}>
           <i className='fa fa-circle'/>&nbsp;&nbsp;{message}
           {
-            maintainStatus === 'processing' && 
+            maintainStatus === 'processing' &&
             <Tooltip
               title="服务迁移过程最好不要进行其他操作，避免发生未知错误！"
             >
@@ -361,23 +361,18 @@ const MyComponent = React.createClass({
                 <span className='scheduleSpan'>
                   {
                     item.schedulable
-                      ? (
-          
-                        <span>
-                          正常调度&nbsp;
-                          <Tooltip title={`允许分配新容器`}>
-                            <Icon type="question-circle-o" />
-                          </Tooltip>
-                        </span>
-                      )
-                      : (
-                        <span>
-                          暂停调度&nbsp;
-                          <Tooltip title={`不允许分配新容器，正常运行的不受影响`}>
-                            <Icon type="question-circle-o" />
-                          </Tooltip>
-                        </span>
-                      )
+                      ? <span>
+                        正常调度&nbsp;
+                        <Tooltip title={`允许分配${item.isMaster ? '系统' : '新'}容器`}>
+                          <Icon type="question-circle-o" />
+                        </Tooltip>
+                      </span>
+                      : <span>
+                        暂停调度&nbsp;
+                        <Tooltip title={`不允许分配${item.isMaster ? '系统' : '新'}容器，正常运行的不受影响`}>
+                          <Icon type="question-circle-o" />
+                        </Tooltip>
+                      </span>
                   }
                 </span>
               </div>
@@ -750,19 +745,19 @@ class hostList extends Component {
       manageLabelModal: false
     })
   }
-  
+
   maintainConfirm = () => {
     this.setState({
       confirmModal: true
     })
   }
-  
+
   maintainCancel = () => {
     this.setState({
       maintainModal: false
     })
   }
-  
+
   renderFooter = () => {
     const { canMaintain } = this.state
     if (canMaintain) {
@@ -773,7 +768,7 @@ class hostList extends Component {
     }
     return <Button type="primary" onClick={() => this.setState({ maintainModal: false })}>知道了</Button>
   }
-  
+
   doubleConfirm = async () => {
     const { deleteNode } = this.state
     const { maintainNode, clusterID } = this.props
@@ -800,13 +795,13 @@ class hostList extends Component {
     notify.close()
     notify.success('节点维护开始成功')
   }
-  
+
   doubleCancel = () => {
     this.setState({
       confirmModal: false
     })
   }
-  
+
   exitMaintainConfirm = async () => {
     const { exitMaintainNode, clusterID } = this.props
     const { deleteNode } = this.state
@@ -844,7 +839,7 @@ class hostList extends Component {
         return
     }
   }
-  
+
   renderInfo = () => {
     const { canMaintain } = this.state
     const { nodeInfo } = this.props
@@ -879,7 +874,7 @@ class hostList extends Component {
           <div className="titleLabel">全局问题</div>
           {
             (node || []).map(item => {
-              if (item.resourceName) {
+              if (item.resourceKind === 'loadbalance') {
                 return <div className="globalList"><i/>{`该节点被 ${item.namespace} 项目 ${item.resourceName} 负载均衡占用`}</div>
               }
               return <div className="globalList"><i/>该节点被设为集群网络出口</div>
@@ -900,7 +895,7 @@ class hostList extends Component {
   }
   render() {
     const { addNodeCMD, labels } = this.props
-    const { 
+    const {
       deleteNode, podCount, summary, nodeList,
       maintainModal, confirmModal, doubleConfirmLoading,
       exitMaintainModal, exitMaintainLoading
@@ -1078,9 +1073,9 @@ export default connect(mapStateToProps, {
   deleteClusterNode,
   getClusterLabel,
   changeClusterNodeSchedule,
-  getNodeDetail, 
-  maintainNode, 
-  exitMaintainNode, 
+  getNodeDetail,
+  maintainNode,
+  exitMaintainNode,
   getNotMigratedPodCount
 })(injectIntl(hostList, {
   withRef: true,

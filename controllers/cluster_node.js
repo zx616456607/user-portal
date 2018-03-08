@@ -168,52 +168,62 @@ exports.getClustersMetrics = function* () {
   let cpuq = {
     type: 'cpu/usage_rate',
     source: 'prometheus',
-    start: query.start
+    start: query.start,
+    end: query.end
   }
   let memoryq = {
     type: 'memory/usage',
     source: 'prometheus',
-    start: query.start
+    start: query.start,
+    end: query.end
   }
   let re_rateq = {
     type: 'network/rx_rate',
     source: 'prometheus',
-    start:query.start
+    start:query.start,
+    end: query.end
   }
   let te_rateq = {
     type: 'network/tx_rate',
     source: 'prometheus',
-    start: query.start
+    start: query.start,
+    end: query.end
   }
   let te_disk_read = {
     type: 'disk/node_readio',
     source: 'prometheus',
-    start: query.start
+    start: query.start,
+    end: query.end
   }
   let te_disk_write = {
     type: 'disk/node_writeio',
     source: 'prometheus',
-    start: query.start
+    start: query.start,
+    end: query.end
   }
   let tcp_listen = {
     type: 'tcp/listen_state',
     source: 'prometheus',
-    start: query.start
+    start: query.start,
+    end: query.end
   }
   let tcp_est = {
     type: 'tcp/est_state',
     source: 'prometheus',
-    start: query.start
+    start: query.start,
+    end: query.end
   }
   let tcp_close_wait_state = {
     type: 'tcp/close_wait_state',
     source: 'prometheus',
-    start: query.start
+    start: query.start,
+    end: query.end
   }
   let tcp_time_wait_state = {
     type: 'tcp/time_wait_state',
     source: 'prometheus',
-    start: query.start
+    start: query.start,
+    end: query.end
   }
   const reqArray = []
   // metrics cpu use

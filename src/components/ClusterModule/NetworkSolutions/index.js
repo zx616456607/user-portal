@@ -17,7 +17,7 @@ import { loadTeamClustersList } from '../../../actions/team'
 import NotificationHandler from '../../../components/Notification'
 import { setCurrent } from '../../../actions/entities'
 import { genRandomString } from '../../../common/tools'
-import KubeproxyConfig from './KubeproxyConfig'
+import KubeproxyConfig from '../../../../client/containers/ClusterModule/NetworkSolutions/KubeproxyConfig'
 
 const createOrder = `calicoctl create -f policy.yaml`
 const deleteOrder = `calicoctl delete policy failsafe`

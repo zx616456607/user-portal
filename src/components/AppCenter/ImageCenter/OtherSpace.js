@@ -278,8 +278,8 @@ class OtherSpace extends Component {
                   id={imageId}
                   placeholder={
                     otherHead.type === 'dockerhub'
-                    ? '搜索 Docker Hub 公有镜像'
-                    : '搜索'
+                    ? '搜索 Docker Hub 公开镜像'
+                    : '按镜像名称搜索'
                   }
                   onPressEnter={e => this.searchImage(e.target.value)}
                   onChange={e => this.setState({ searchInput: e.target.value.trim() })}
