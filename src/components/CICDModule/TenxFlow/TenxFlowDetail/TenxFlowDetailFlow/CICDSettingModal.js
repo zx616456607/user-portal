@@ -484,7 +484,7 @@ let CICDSettingModal = React.createClass({
                   <Tooltip title="开启持续集成（SVN 暂不支持修改规则）">
                     <span>
                       <Switch {...ciRulesOpenedProps} />
-                      <span>CI 持续集成开关</span>
+                      <span> CI 持续集成开关</span>
                     </span>
                   </Tooltip>
                 </div>
@@ -492,7 +492,7 @@ let CICDSettingModal = React.createClass({
               : (
                 <div className='cicdBox' key='cicdBox'>
                   <Switch {...ciRulesOpenedProps} />
-                  <span>CI 持续集成开关</span>
+                  <span> CI 持续集成开关</span>
                 </div>
               )
             }
