@@ -880,7 +880,7 @@ class hostList extends Component {
           {
             (node || []).map(item => {
               if (item.resourceName) {
-                return <div className="globalList"><i/>{`该节点被负载均衡 ${item.resourceName} 占用`}</div>
+                return <div className="globalList"><i/>{`该节点被 ${item.namespace} 项目 ${item.resourceName} 负载均衡占用`}</div>
               }
               return <div className="globalList"><i/>该节点被设为集群网络出口</div>
             })

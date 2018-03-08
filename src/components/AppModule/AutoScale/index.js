@@ -291,7 +291,7 @@ class AutoScale extends React.Component {
   }
   checkScaleStatus() {
     const { selectedRowKeys, scaleList } = this.state
-    const selectList = scaleList.filter(item => selectedRowKeys.includes(item.key))
+    const selectList = scaleList.filter(item => selectedRowKeys.includes(item.metadata.name))
     let allStatus = 'MIX'
     let runStatus = selectList.every(item => item.metadata.annotations.status === 'RUN')
     if (runStatus) {

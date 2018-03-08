@@ -374,11 +374,21 @@ class MonitorDetail extends React.Component {
     const { sessionSticky,  sessionPersistent } = this.state
     const { getFieldValue, setFieldsValue } = this.props.form
     const keys = getFieldValue('keys')
-    if (e.target.value === 'round-robin' && !isEmpty(keys)) {
+    if (!isEmpty(keys)) {
+      
       keys.forEach(item => {
-        setFieldsValue({
-          [`weight-${item}`]: this.state[`weight-${item}`] || 1
-        })
+        if (e.target.value === 'ip_hash') {
+          this.setState({
+            [`weight-${item}`]: 1
+          })
+          setFieldsValue({
+            [`weight-${item}`]: 1
+          })
+        } else {
+          setFieldsValue({
+            [`weight-${item}`]: this.state[`weight-${item}`]
+          })
+        }
       })
     } 
     if (e.target.value === 'round-robin') {
