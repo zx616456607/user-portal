@@ -1486,6 +1486,7 @@ class OperationalAudit extends Component {
         break;
       case '13':
         //ServiceAutoScale
+        showOperationalList.push(operationalList[0]);
         showOperationalList.push(operationalList[2]);
         showOperationalList.push(operationalList[1]);
         break;
