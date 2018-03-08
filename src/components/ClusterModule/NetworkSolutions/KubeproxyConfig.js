@@ -105,12 +105,14 @@ class KubeproxyConfig extends React.Component {
       enabled: kubeproxyMode === 'ipvs',
       scheduler: updatedScheduler,
     }
+    const notification = new NotificationHandler()
     updateKubeproxy(clusterID, body).then(res => {
       if (res.error) {
         this.setState({ confirmLoading: false })
+        notification.console.warn('更新失败')
         return
       }
-      new NotificationHandler().success('更新成功')
+      notification.success('更新成功')
       this.loadData()
     })
   }
