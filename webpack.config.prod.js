@@ -12,6 +12,7 @@ var path = require('path')
 var webpack = require('webpack')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
 var WebpackMd5Hash = require('webpack-md5-hash')
+var tsImportPluginFactory = require('ts-import-plugin')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
 var postcssConfig = require('./webpack.config.postcss')
 
@@ -37,7 +38,7 @@ module.exports = {
       path.join(__dirname, './src'),
       'node_modules',
     ],
-    extensions: [ '.js', '.jsx', '.json' ],
+    extensions: [ '.js', '.jsx', '.json', '.ts', '.tsx' ],
     alias: {
       '@': path.join(__dirname, './src'),
     },
@@ -53,6 +54,27 @@ module.exports = {
 
   module: {
     rules: [
+      {
+        test: /\.tsx?$/,
+        use: {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: true,
+            getCustomTransformers: () => ({
+              before: [
+                tsImportPluginFactory({
+                  libraryName: 'antd',
+                  libraryDirectory: 'lib',
+                })
+              ]
+            }),
+            compilerOptions: {
+              module: 'es2015'
+            }
+          },
+        },
+        exclude: /node_modules/
+      },
       {
         test: /\.js$/,
         exclude: /node_modules/,
