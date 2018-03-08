@@ -273,7 +273,7 @@ class LoadBalance extends React.Component {
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
-            删除后将失去负载均衡器内的所有监听
+            删除后将失去负载均衡器内的所有监听，并且基于该负载均衡创建的QPS弹性伸缩策略会失效，是否确定删除？
           </div>
         </Modal>
         <div className="layout-content-btns" key="layout-content-btns">
