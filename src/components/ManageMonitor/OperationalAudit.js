@@ -1422,12 +1422,12 @@ class OperationalAudit extends Component {
       selectOperationalList: [],
       from: 1,
       size: 15,
-      namespace: null,
-      operation: null,
-      resource: null,
-      start_time: null,
-      end_time: null,
-      status: null,
+      namespace: undefined,
+      operation: undefined,
+      resource: undefined,
+      start_time: undefined,
+      end_time: undefined,
+      status: undefined,
       totalNum: 0
     }
   }
@@ -1858,7 +1858,11 @@ class OperationalAudit extends Component {
     }
     this.setState({
       selectOperationalList: showOperationalList,
-      resource: parseInt(eventCode)
+      resource: parseInt(eventCode),
+      operation: undefined,
+      status: undefined,
+      start_time: undefined,
+      end_time: undefined,
     });
   }
 
@@ -2211,6 +2215,10 @@ class OperationalAudit extends Component {
         <Option key={item.value} value={item.value}>{item.label}</Option>
       )
     });
+    let { operation, status, start_time, end_time } = this.state
+    if (operation !== undefined) {
+      operation += ''
+    }
     return (
       <QueueAnim className='operationalAuditBox' type='right'>
         <div id='operationalAudit' key='operationalAudit'>
@@ -2229,20 +2237,36 @@ class OperationalAudit extends Component {
             <Select showSearch className='eventSelect'
               placeholder={formatMessage(menusText.selectEvent)}
               onChange={this.onChangeObject} size='large' allowClear={true}
+              value={operation}
             >
               {operationalSelectOptions}
             </Select>
             <Select showSearch className='statusSelect'
               onChange={this.onChangeStatus} size='large' allowClear={true}
               placeholder={formatMessage(menusText.selectStatus)}
+              value={status}
             >
               <Option value=''><FormattedMessage {...menusText.allstatus} /></Option>
               <Option value='running'>未完成</Option>
               <Option value='success'><FormattedMessage {...menusText.success} /></Option>
               <Option value='failed'><FormattedMessage {...menusText.failed} /></Option>
             </Select>
-            <DatePicker onChange={this.onChangeStartTime} style={{ marginRight: 20, marginTop: 10, float: 'left' }} showTime format='yyyy-MM-dd HH:mm:ss' size='large' />
-            <DatePicker onChange={this.onChangeEndTime} style={{ marginRight: 20, marginTop: 10, float: 'left' }} showTime format='yyyy-MM-dd HH:mm:ss' size='large' />
+            <DatePicker
+              onChange={this.onChangeStartTime}
+              style={{ marginRight: 20, marginTop: 10, float: 'left' }}
+              showTime
+              format='yyyy-MM-dd HH:mm:ss'
+              size='large'
+              value={start_time}
+            />
+            <DatePicker
+              onChange={this.onChangeEndTime}
+              style={{ marginRight: 20, marginTop: 10, float: 'left' }}
+              showTime
+              format='yyyy-MM-dd HH:mm:ss'
+              size='large'
+              value={end_time}
+            />
             <Button className='searchBtn' size='large' onClick={this.submitSearch} type='primary'>
               <i className='fa fa-wpforms'></i> <FormattedMessage {...menusText.search} />
             </Button>
