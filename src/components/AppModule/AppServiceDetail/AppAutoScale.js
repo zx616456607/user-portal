@@ -640,7 +640,7 @@ class AppAutoScale extends Component {
                 }
               </FormItem>
             </Col>
-            <Col span={4} style={{ marginBottom: 24 }}>
+            <Col span={9} style={{ marginBottom: 24 }}>
               <Button type="primary" size="large" icon="plus" disabled={!isEdit} onClick={this.addRule}/>&nbsp;
               <Button type="ghost" size="large" icon="cross" disabled={!isEdit} onClick={() => this.delRule(key)}/>
               {
