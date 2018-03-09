@@ -483,6 +483,9 @@ let EditTenxFlowModal = React.createClass({
         }
       })
     }
+    if (otherFlowType == 6) {
+      this.getProjectsMembers()
+    }
     if (otherFlowType != 3) {
       this.setState({
         otherFlowType: otherFlowType,
@@ -493,9 +496,6 @@ let EditTenxFlowModal = React.createClass({
         currentCodeStoreName: codeStoreName,
         currentCodeStoreBranch: config.spec.project.branch
       });
-      if (otherFlowType == 6) {
-        this.getProjectsMembers({ byProjectNamespace: 1 })
-      }
     } else {
       let useDockerfile = (config.spec.build && config.spec.build.dockerfileFrom == 1) ? true : false;
       let ImageStoreType = (config.spec.build && config.spec.build.registryType == 3) ? true : false;
@@ -1480,13 +1480,33 @@ let EditTenxFlowModal = React.createClass({
     return callback()
   },
   getProjectsMembers() {
-    const { GetProjectsMembers } = this.props
+    const { GetProjectsMembers, config } = this.props
     const notification = new NotificationHandler()
     GetProjectsMembers({ byProjectNamespace: 1 }, {
       success: {
         func: res => {
+          const approvalConfig = config.spec.ci.config && config.spec.ci.config.approvalConfig || {}
+          const userIds = approvalConfig.approvingBy || []
+          const projectMembers = res.data || []
+          userIds.forEach(id => {
+            let isExist = false
+            projectMembers.every(({ userId }) => {
+              if (userId === id) {
+                isExist = true
+                return false
+              }
+              return true
+            })
+            if (!isExist) {
+              projectMembers.push({
+                userId: id,
+                userName: '该账号已删除',
+                disabled: true,
+              })
+            }
+          })
           this.setState({
-            projectMembers: res.data || [],
+            projectMembers,
           })
         }
       },
@@ -1508,7 +1528,7 @@ let EditTenxFlowModal = React.createClass({
       otherFlowType: groupKey,
     })
     if (groupKey == 6) {
-      this.getProjectsMembers({ byProjectNamespace: 1 })
+      this.getProjectsMembers()
     }
     setFieldsValue({
       imageName: key
@@ -2479,8 +2499,8 @@ let EditTenxFlowModal = React.createClass({
                         }
                       >
                         {
-                          this.state.projectMembers.map(({ userId, userName }) =>
-                          <Option key={userId}>{userName}</Option>)
+                          this.state.projectMembers.map(({ userId, userName, disabled }) =>
+                          <Option key={userId} disabled={disabled}>{userName}</Option>)
                         }
                       </Select>
                     </FormItem>
