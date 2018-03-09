@@ -293,12 +293,13 @@ let MyComponent = React.createClass({
         })
         return
       }
+      const size = item.desireSize || item.totalSize
       this.setState({
         visible: true,
         modalType: 'resize',
         modalName: item.name,
-        modalSize: item.desireSize,
-        size: item.desireSize,
+        modalSize: size,
+        size,
         currentVolume: item,
         modalTitle: '扩容'
       });
@@ -532,7 +533,10 @@ let MyComponent = React.createClass({
         key: 'desireSize',
         dataIndex: 'desireSize',
         width: '9%',
-        render: desireSize => <div>{desireSize == 0 ? '-' : desireSize} M</div>
+        render: (desireSize, record) => {
+          const size = record.desireSize || record.totalSize
+          return <div>{size == 0 ? '-' : size} M</div>
+        }
       },{
         title: '格式',
         key: 'format',
