@@ -154,7 +154,7 @@ class AutoScale extends React.Component {
     })
   }
   handleMenuClick = (e, record) => {
-    const { clusterID, updateAutoScale } = this.props
+    const { clusterID, updateAutoScaleStatus } = this.props
     const { strategyName } = record.metadata.labels
     const notify = new Notification()
     const { metadata, spec } = record
@@ -191,10 +191,10 @@ class AutoScale extends React.Component {
         deleteModal: true
       })
     } else if (e.key === 'start' || e.key === 'stop') {
-      let opt = Object.assign(body, {type: e.key === 'start' ? 1 : 0, operationType: 'update'})
+      let opt = Object.assign({type: e.key === 'start' ? 1 : 0, services: [serviceName]})
       const mesSpin = e.key === 'start' ? '启用中' : '停用中'
       notify.spin(mesSpin)
-      updateAutoScale(clusterID, serviceName, opt, {
+      updateAutoScaleStatus(clusterID, opt, {
         success: {
           func: () => {
             const mesSuc = e.key === 'start' ? '启用成功' : '停用成功'
