@@ -18,8 +18,8 @@ const appCenterRoutes = [
     path: 'stack_center',
     component: require('../components/AppCenter/Stack').default,
   },{
-    path: 'app_template',
-    component: require('../components/AppCenter/AppTemplate').default,
+    path: 'template',
+    component: require('../../client/containers/AppCenter/AppTemplate').default,
   },{
     path: 'app_template/create',
     component: require('../components/AppCenter/AppTemplate/Create').default,
