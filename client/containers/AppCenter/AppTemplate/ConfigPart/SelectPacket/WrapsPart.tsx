@@ -155,7 +155,7 @@ class WrapsPart extends React.Component<any, IState> {
     };
     return (
       <Table
-        className="wrapTable"
+        className="wrapTable reset_antd_table_header"
         loading={isFetching}
         dataSource={dataSource && dataSource.pkgs}
         columns={columns}
