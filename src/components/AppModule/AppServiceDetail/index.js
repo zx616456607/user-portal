@@ -341,7 +341,7 @@ class AppServiceDetail extends Component {
           onCancel={()=>this.cancelDeleteModal()}
           onOk={()=>this.okDeleteModal()}
         >
-        确定要删除服务{service.metadata.name}吗？
+        删除服务，该服务下的自动弹性伸缩策略也会被删除，确定要删除服务{service.metadata.name}吗？
         </Modal>
         <div className='titleBox'>
           <Title title={`${service.metadata.name} 服务详情页`} />
