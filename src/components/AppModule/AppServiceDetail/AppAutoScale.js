@@ -603,7 +603,7 @@ class AppAutoScale extends Component {
             <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginTop: 8, textAlign: 'right'}}>
               {
                 thresholdArr.indexOf(key) === 0
-                  ? <div> 阈值 <Tooltip title={message}><Icon type="exclamation-circle-o"/></Tooltip>：</div>
+                  ? <div> 阈值 <Tooltip title={message}><Icon type="exclamation-circle-o"/></Tooltip><span style={{ margin: '0 8px 0 2px' }}>:</span></div>
                   : ''
               }
             </Col>
