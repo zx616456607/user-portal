@@ -144,6 +144,12 @@ class Deployment {
               if (ct.command) {
                 container.command = ct.command
               }
+              if (ct.livenessProbe) {
+                container.livenessProbe = ct.livenessProbe
+              }
+              if (ct.readinessProbe) {
+                container.readinessProbe = ct.readinessProbe
+              }
               if (ct.args) {
                 container.args = ct.args
               }
