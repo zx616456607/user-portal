@@ -19,7 +19,15 @@ const appCenterRoutes = [
     component: require('../components/AppCenter/Stack').default,
   },{
     path: 'template',
-    component: require('../../client/containers/AppCenter/AppTemplate').default,
+    indexRoute: {
+      component: require('../../client/containers/AppCenter/AppTemplate').default,
+    },
+    childRoutes: [
+      {
+        path: 'create',
+        component: require('../../client/containers/AppCenter/AppTemplate/CreateTemplate').default,
+      }
+    ]
   },{
     path: 'app_template/create',
     component: require('../components/AppCenter/AppTemplate/Create').default,
