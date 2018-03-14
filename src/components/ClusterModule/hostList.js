@@ -127,6 +127,34 @@ const MyComponent = React.createClass({
 
     }
   },
+  combineForceBody(node, pod) {
+    const body = {};
+    (pod || []).forEach(item => {
+      switch (item.msgType) {
+        case 0:
+          Object.assign(body, { deleteLocalStoragePod: true })
+          break;
+        case 1:
+          Object.assign(body, { deleteLabelPod: true })
+          break;
+        case 2:
+          Object.assign(body, { deleteNodeSelector: true })
+          break;
+        default:
+          break;
+      }
+    })
+    if (body.hasOwnProperty('deleteLabelPod')) {
+      return body
+    }
+    (node || []).forEach(item => {
+      if (item.resourceKind === 'loadbalance') {
+        Object.assign(body, { deleteLabelPod: true })
+        return
+      }
+    })
+    return body
+  },
   async loadNodeDetail(currentNode){
     const { getNodeDetail, clusterID, scope } = this.props
     const result = await getNodeDetail(clusterID, currentNode.objectMeta.name)
@@ -142,7 +170,8 @@ const MyComponent = React.createClass({
       return
     }
     scope.setState({
-      canMaintain: false
+      canMaintain: false,
+      forceBody: this.combineForceBody(node, pod)
     })
   },
   async nodeIsMigrate(currentNode) {
@@ -747,7 +776,8 @@ class hostList extends Component {
 
   maintainCancel = () => {
     this.setState({
-      maintainModal: false
+      maintainModal: false,
+      forceBody: null
     })
   }
 
@@ -759,34 +789,39 @@ class hostList extends Component {
         <Button key="confirm" type="primary" onClick={this.maintainConfirm}>确定</Button>,
       ]
     }
-    return <Button type="primary" onClick={() => this.setState({ maintainModal: false })}>知道了</Button>
+    return [
+      <Button type="ghost" onClick={() => this.setState({ maintainModal: false })}>取消</Button>,
+      <Button type="primary" onClick={() => this.setState({ forceModal: true })}>删除问题资源，强制维护</Button>
+    ]
   }
 
-  doubleConfirm = async () => {
-    const { deleteNode } = this.state
+  doubleConfirm = async (isForce) => {
+    const { deleteNode, forceBody } = this.state
     const { maintainNode, clusterID } = this.props
     let notify = new NotificationHandler()
     this.setState({
-      doubleConfirmLoading: true
+      [isForce ? 'forceLoading' : 'doubleConfirmLoading']: true
     })
     notify.spin('节点维护开启中')
-    const res = await maintainNode(clusterID, deleteNode.objectMeta.name)
+    const res = await maintainNode(clusterID, deleteNode.objectMeta.name, forceBody)
     if (res.error) {
       this.setState({
-        doubleConfirmLoading: false
+        [isForce ? 'forceLoading' : 'doubleConfirmLoading']: false
       })
       notify.close()
-      notify.warn('节点维护开始失败', res.error.message.message || res.error.message)
+      notify.warn('节点维护开启失败', res.error.message.message || res.error.message)
       return
     }
     this.loadData()
     this.setState({
-      doubleConfirmLoading: false,
+      [isForce ? 'forceLoading' : 'doubleConfirmLoading']: false,
       confirmModal: false,
-      maintainModal: false
+      maintainModal: false,
+      forceModal: false,
+      forceBody: null
     })
     notify.close()
-    notify.success('节点维护开始成功')
+    notify.success('节点维护开启成功')
   }
 
   doubleCancel = () => {
@@ -794,6 +829,14 @@ class hostList extends Component {
       confirmModal: false
     })
   }
+
+  forceCancel = () => {
+    this.setState({
+      forceModal: false,
+      forceBody: null
+    })
+  }
+
 
   exitMaintainConfirm = async () => {
     const { exitMaintainNode, clusterID } = this.props
@@ -861,7 +904,7 @@ class hostList extends Component {
     return (
       <div className="extraInfo">
         <div className="errorInfo">
-          <i className="fa fa-exclamation-triangle" aria-hidden="true"/> 该节点存在以下问题无法进入维护状态！
+          <i className="fa fa-exclamation-triangle" aria-hidden="true"/> 该节点存在以下问题，部分容器有迁移风险
         </div>
         <div className="container">
           <div className="titleLabel">全局问题</div>
@@ -891,7 +934,8 @@ class hostList extends Component {
     const {
       deleteNode, podCount, summary, nodeList,
       maintainModal, confirmModal, doubleConfirmLoading,
-      exitMaintainModal, exitMaintainLoading
+      exitMaintainModal, exitMaintainLoading, forceModal,
+      forceLoading
     } = this.state
     const scope = this;
     return <div id="cluster__hostlist">
@@ -1004,6 +1048,17 @@ class hostList extends Component {
       >
         <div className="deleteRow">
           <i className="fa fa-exclamation-triangle" aria-hidden="true"/> 进入维护状态，会迁移容器，将会导致服务中断，请谨慎操作！
+        </div>
+      </Modal>
+      <Modal
+        title="再次确认"
+        visible={forceModal}
+        onCancel={this.forceCancel}
+        onOk={this.doubleConfirm.bind(this, true)}
+        confirmLoading={forceLoading}
+      >
+        <div className="deleteRow">
+          <i className="fa fa-exclamation-triangle" aria-hidden="true"/> 强制维护会强制迁移节点上所有容器资源，迁移过程会导致服务中断，请谨慎操作!
         </div>
       </Modal>
       <Modal
