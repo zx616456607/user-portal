@@ -17,9 +17,9 @@ import './style/index.less';
 interface IProps {
   value: string;
   placeholder: string;
-  size?: string;
+  size?: string; // one of ['large', 'default', 'small']
   style?: object;
-  onchange(value: string);
+  onChange?(value: string);
   onSearch(value: string);
 }
 
