@@ -134,7 +134,7 @@ class ImageVersion extends Component {
           id: index,
           edition: item,
         }
-        curData.push(curColums)
+        curData.unshift(curColums)
       })
     }
     this.setState({
