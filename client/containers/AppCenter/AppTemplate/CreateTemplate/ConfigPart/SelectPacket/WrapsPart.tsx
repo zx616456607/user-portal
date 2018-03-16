@@ -198,6 +198,7 @@ class WrapsPart extends React.Component<any, IState> {
             <span className="total">共 {total} 条</span>
           </div>
         </div>
+        <div style={{ clear: 'both' }}/>
         {this.renderTable()}
       </div>
     );

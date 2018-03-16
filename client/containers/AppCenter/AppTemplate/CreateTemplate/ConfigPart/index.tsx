@@ -12,17 +12,21 @@
 
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
+import { browserHistory } from 'react-router';
 import { Button, Steps } from 'antd';
 import classNames from 'classnames';
 import './style/index.less';
 import ImagesPart from './SelectPacket/ImagesPart';
 import WrapsPart from './SelectPacket/WrapsPart';
 import TemplateConfigs from './TemplateConfig';
+import { toQuerystring, encodeImageFullname, genRandomString } from '../../../../../../src/common/tools';
+import ConfigureTemplate from '../../../../../../src/components/AppModule/QuickCreateApp/ConfigureService';
 
 const Step = Steps.Step;
 
 interface IState {
   activeKey: string;
+  templateSum: number;
 }
 
 const tabsOpts = [{
@@ -34,9 +38,11 @@ const tabsOpts = [{
 }];
 
 export default class ConfigPart extends React.Component<any, IState> {
-  state = {
-    activeKey: 'image',
-  };
+  constructor(props) {
+    this.state = {
+      activeKey: 'image',
+    };
+  }
 
   tabChange = (activeKey: string) => {
     this.setState({
@@ -59,21 +65,45 @@ export default class ConfigPart extends React.Component<any, IState> {
     );
   }
 
+  selectPacket = (imageName, registryServer) => {
+    const { stepChange } = this.props;
+    const query = {
+      imageName: encodeImageFullname(imageName),
+      registryServer,
+    };
+    this.setState({
+      imageName,
+      registryServer,
+    });
+    browserHistory.push(`/app_center/template/create?${toQuerystring(query)}`);
+    stepChange(1);
+  }
   renderStep = () => {
-    const { activeKey } = this.state;
-    const { currentStep, stepChange } = this.props;
+    const { activeKey, imageName, registryServer } = this.state;
+    const { currentStep, stepChange, location, getFormAndConfig, id, configureMode } = this.props;
     if (currentStep === 0) {
       return (
         <div>
           <ul className="tabs_header_style configTabs">
             {this.renderTabs()}
           </ul>
-            {activeKey === 'image' && <ImagesPart stepChange={stepChange}/>}
-            {activeKey === 'wrap' && <WrapsPart stepChange={stepChange}/>}
+            {activeKey === 'image' && <ImagesPart selectPacket={this.selectPacket}/>}
+            {activeKey === 'wrap' && <WrapsPart selectPacket={this.selectPacket}/>}
         </div>
       );
     }
-    return <TemplateConfigs stepChange={this.stepChange}/>;
+    return (
+      <ConfigureTemplate
+        mode={configureMode}
+        id={id}
+        {...{ imageName, registryServer }}
+        callback={getFormAndConfig}
+        isTemplate
+        action={'createTemplate'}
+        AdvancedSettingKey={1}
+        {...this.props}
+      />
+    );
   }
   render() {
     const { currentStep } = this.props;

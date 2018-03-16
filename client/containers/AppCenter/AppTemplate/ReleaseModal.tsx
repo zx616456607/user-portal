@@ -45,7 +45,6 @@ class ReleaseModal extends React.Component<any, IProps> {
   }
 
   render() {
-    const { fileList } = this.state;
     const { visible } = this.props;
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -116,8 +115,16 @@ class ReleaseModal extends React.Component<any, IProps> {
                   <div className="ant-upload-text">上传icon</div>
                 </Upload>
               </Col>
-              <Col span={4}>预览</Col>
-              <Col>1</Col>
+              <Col span={4} style={{ textAlign: 'center' }}>预览</Col>
+              <Col>
+                <div className="preview">
+                  <div className="previewBody">123</div>
+                  <Row className="previewFooter" type="flex" align="middle" justify="spance-between">
+                    <Col span={12}>应用名称</Col>
+                    <Col span={12}><Button type="ghost">部署</Button></Col>
+                  </Row>
+                </div>
+              </Col>
             </Row>
             <div className="uploadHint hintColor">上传照片支持（jpg/jpeg/png/bmp 图片格式，大小不超过3M）</div>
           </Col>
