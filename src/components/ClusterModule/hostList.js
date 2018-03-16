@@ -1033,10 +1033,11 @@ class hostList extends Component {
         <div>进入维护状态之后，节点调度状态将会关闭，节点上容器将会被随机迁移到其它可调度节点上；点击确定后进入维护状态，容器迁移完成后，才能退出维护状态</div>
         <br/>
         <div>适用场景：</div>
-        <p className="maintainScene"><span>1</span>节点内核升级</p>
-        <p className="maintainScene"><span>2</span>硬件系统维护</p>
-        <p className="maintainScene"><span>3</span>替换集群节点</p>
-        <p className="maintainScene">......</p>
+        <div className="sceneBox">
+          <p className="maintainScene"><span>1</span>节点内核升级</p>
+          <p className="maintainScene"><span>2</span>硬件系统维护</p>
+          <p className="maintainScene"><span>3</span>替换集群节点</p>
+        </div>
         {this.renderInfo()}
       </Modal>
       <Modal
