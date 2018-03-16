@@ -333,18 +333,22 @@
 
 .maintainModal {
   top: 40px;
-  .maintainScene {
-    margin: 4px 0;
-    span {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      color: white;
-      background-color: @primary-color;
-      margin-right: 10px;
-      text-align: center;
-      line-height: 14px;
-      border-radius: @border-radius-sm;
+  .sceneBox {
+    display: flex;
+    justify-content: space-between;
+    .maintainScene {
+      margin: 4px 0;
+      span {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        color: white;
+        background-color: @primary-color;
+        margin-right: 10px;
+        text-align: center;
+        line-height: 14px;
+        border-radius: @border-radius-sm;
+      }
     }
   }
   .extraInfo {
