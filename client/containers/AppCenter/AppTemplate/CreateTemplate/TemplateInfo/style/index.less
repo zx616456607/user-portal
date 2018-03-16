@@ -16,6 +16,10 @@
   }
   .tempInfoBody {
     padding: 20px;
+    .ant-form-item-label {
+      text-align: left;
+      padding-left: 10px;
+    }
     &:extend(.defalutBorder);
     .serviceBox {
       .serviceHeader {
@@ -26,6 +30,13 @@
       .serviceRow {
         &:extend(.defaultRow);
         margin-top: 20px;
+      }
+      .addServiceBtn {
+        color: @primary-color;
+        border-color: @primary-color;
+        display: block;
+        margin: 30px 15px 0;
+        width: calc(~"100% - 30px");
       }
     }
     .resourcePrice{

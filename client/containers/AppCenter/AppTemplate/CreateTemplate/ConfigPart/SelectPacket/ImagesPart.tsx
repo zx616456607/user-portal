@@ -105,9 +105,10 @@ class ImagePart extends React.Component<IProps, IState> {
     }
   }
 
-  addImage = () => {
-    const { stepChange } = this.props;
-    stepChange(2);
+  addImage = row => {
+    const { selectPacket, images } = this.props;
+    const { server } = images;
+    selectPacket(row.repositoryName, server);
   }
 
   renderImageTable = () => {
@@ -142,12 +143,12 @@ class ImagePart extends React.Component<IProps, IState> {
       key: 'deploy',
       width: '10%',
       render: (text, row) => {
-        let str = row.repositoryName;
-        let server = images.server;
-        if (imageType === IMAGE_STORE) {
-          server = row.resourceLink.split('/')[0];
-          str = encodeImageFullname(row.resourceName);
-        }
+        // let str = row.repositoryName;
+        // let server = images.server;
+        // if (imageType === IMAGE_STORE) {
+        //   server = row.resourceLink.split('/')[0];
+        //   str = encodeImageFullname(row.resourceName);
+        // }
         return (
           <div className="deployBox">
             <Button
@@ -215,6 +216,7 @@ class ImagePart extends React.Component<IProps, IState> {
             <span className="total">共 {total} 条</span>
           </div>
         </div>
+        <div style={{ clear: 'both' }}/>
         {this.renderImageTable()}
       </div>
     );

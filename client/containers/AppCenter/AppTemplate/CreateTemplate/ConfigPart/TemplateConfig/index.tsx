@@ -22,6 +22,7 @@ const Option = Select.Option;
 
 class TemplateConfigs extends React.Component<any> {
   render() {
+    const { form } = this.props;
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 8 },
