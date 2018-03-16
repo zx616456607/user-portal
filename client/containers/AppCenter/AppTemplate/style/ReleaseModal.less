@@ -1,0 +1,25 @@
+@import '../../../../../src/assets/style/site/core';
+.releaseModal {
+  .ant-form-item-label {
+    label {
+      &::after {
+        content: '';
+      }
+    }
+  }
+  .uploadBox {
+    .ant-upload {
+      border: @border-width-base dashed @border-color-base;
+      width: 140px;
+      height: 126px;
+      background-color: #fbfbfb;
+      border-radius: @border-radius-base;
+      display: flex;
+      align-items: center;
+      text-align: center;
+    }
+  }
+  .uploadHint {
+    margin-top: 15px;
+  }
+}

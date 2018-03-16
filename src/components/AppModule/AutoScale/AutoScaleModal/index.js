@@ -21,8 +21,8 @@ import {
 import {
   loadNotifyGroups
 } from '../../../../actions/alert'
-import { 
-  getServiceLBList 
+import {
+  getServiceLBList
 } from '../../../../actions/load_balance'
 import Notification from '../../../Notification'
 import {ASYNC_VALIDATOR_TIMEOUT} from '../../../../constants'
@@ -203,7 +203,7 @@ class AutoScaleModal extends React.Component {
   checkScaleName = (rule, value, callback) => {
     const {checkAutoScaleName, clusterID, form, create, scaleDetail} = this.props
     const {getFieldValue} = form
-    let message = autoScaleNameCheck(value) 
+    let message = autoScaleNameCheck(value)
     if (message !== 'success') {
       return callback(message)
     }
@@ -504,8 +504,8 @@ class AutoScaleModal extends React.Component {
     thresholdItem = thresholdArr.map((key) => {
       let optItem = cpuAndMemory[key] || { 'cpu': 80 }
       return (
-        <div>
-          <Row key={key} className="strategyBox">
+        <div key={key}>
+          <Row className="strategyBox">
             <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginTop: 8, textAlign: 'right' }}>
               {
                 thresholdArr.indexOf(key) === 0
