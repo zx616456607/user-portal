@@ -41,7 +41,7 @@ class TimingClean extends Component {
       stopContainer: false,
       stopContainerEdit: false,
       cicdScope: '1',
-      cicdCycle: 'day', 
+      cicdCycle: 'day',
       cicdDate: '1',
       cicdTime: formatDate(new Date(new Date().setHours(0,0,0,0)), 'HH:mm:ss'),
       systemScope: '1',
@@ -124,7 +124,6 @@ class TimingClean extends Component {
         this.setState({
           [`${type}Checked`]: false
         })
-        return
       }
     } else {
       if (str.meta.automatic) {
@@ -136,7 +135,6 @@ class TimingClean extends Component {
           this.setState({
             [`${type}Checked`]: false
           })
-          return
         }
       }
     }
@@ -310,13 +308,13 @@ class TimingClean extends Component {
       })
     })
   }
-  
+
   systemHandleEdit = () => {
     this.setState({
       systemEdit: false
     })
   }
-  
+
   systemHandleCancel = () => {
     this.getSystemSetting()
     this.setState({
@@ -338,7 +336,7 @@ class TimingClean extends Component {
       return <Option value={`${item + 1}`} key={`month${item}`}>{`每月${item + 1}号`}</Option>
     })
   }
-  
+
   cicdCloseFun() {
     const { startClean, userName, form } = this.props
     const { getFieldsValue } = form
@@ -384,7 +382,7 @@ class TimingClean extends Component {
       }
     })
   }
-  
+
   CICDEditChange = (toggle) => {
     const { cicdChecked } = this.state
     const { form, startClean, userName } = this.props
@@ -457,20 +455,20 @@ class TimingClean extends Component {
       })
     })
   }
-  
+
   cicdHandleEdit = () => {
     this.setState({
       cicdEdit: false
     })
   }
-  
+
   cicdHandleCancel = () => {
     this.getSettings()
     this.setState({
       cicdEdit: true
     })
   }
-  
+
   getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime, type) {
     let time = typeof CICDcacheTime === 'string' ? CICDcacheTime.split(':') : String(formatDate(CICDcacheTime, 'HH mm')).split(' ')
     time.length === 3 && time.splice(0, 1)
@@ -502,7 +500,7 @@ class TimingClean extends Component {
     }
   }
   mirrorImageChange(mirrorImageValue){
-    const { mirrorImage } = this.state 
+    const { mirrorImage } = this.state
     if(mirrorImage){
       this.setState({
         mirrorImage: mirrorImageValue,
@@ -849,7 +847,7 @@ class TimingClean extends Component {
                             <Button type="primary" size="large" onClick={this.cicdHandleEdit}>编辑</Button>
                             :
                             [
-                              <Button 
+                              <Button
                                 style={{ marginRight: 12 }}
                                 key="cicdSave" type="primary" size="large" onClick={() => this.CICDEditChange(false)}>保存</Button>,
                               <Button key="cicdCancel" type="ghost" size="large" onClick={this.cicdHandleCancel}>取消</Button>
