@@ -705,7 +705,7 @@ class ClusterPlugin extends Component {
               <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
                 <Menu.Item key="stop">停止插件</Menu.Item>
                 <Menu.Item key="delete">卸载插件</Menu.Item>
-                <Menu.Item key="deployIndextpl">部署索引模版</Menu.Item>
+                {/*<Menu.Item key="deployIndextpl">部署索引模版</Menu.Item>*/}
                 <Menu.Item key="reinstall">重新部署</Menu.Item>
               </Menu>
             )
