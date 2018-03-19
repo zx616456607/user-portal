@@ -59,7 +59,7 @@ let ConfigureService = React.createClass({
     const { callback, imageName, registryServer, form, mode, location } = this.props
     let  { appName,templateName } = this.props
     const { setFieldsValue } = form
-    callback(form)
+    callback && callback(form)
     if (mode === 'create') {
       const values = {
         imageUrl: `${registryServer}/${imageName}`,
@@ -72,12 +72,12 @@ let ConfigureService = React.createClass({
       if (appName) {
         values.appName = appName
       }
-      if (location.pathname ==='/app_center/app_template/create') {
-        values.templateName = ''
-      }
-      if (templateName) {
-        values.templateName = templateName
-      }
+      // if (location.pathname ==='/app_center/template/create') {
+      //   values.templateName = ''
+      // }
+      // if (templateName) {
+      //   values.templateName = templateName
+      // }
       setFieldsValue(values)
     }
     this.loadImageTags(this.props)
@@ -87,12 +87,22 @@ let ConfigureService = React.createClass({
     ref && ref.refs.input.focus()
   },
   componentDidMount() {
+    const { isTemplate } = this.props;
     setTimeout(() => {
       const disabled = this.getAppNameDisabled()
-      if (!disabled) {
-        this.focusInput('appNameInput')
+      if (isTemplate) {
+        if (!disabled) {
+          let tempName = document.getElementById('templateName');
+          tempName && tempName.focus()
+        } else {
+          this.focusInput('serviceNameInput')
+        }
       } else {
-        this.focusInput('serviceNameInput')
+        if (!disabled) {
+          this.focusInput('appNameInput')
+        } else {
+          this.focusInput('serviceNameInput')
+        }
       }
     }, 50)
     const { location, form } = this.props
@@ -253,7 +263,7 @@ let ConfigureService = React.createClass({
       imageConfigs: configs,
     })
     const { callback, form, location } = this.props
-    callback(form, configs)
+    callback && callback(form, configs)
     const { setFieldsValue } = form
     let {
       mountPath,
@@ -447,22 +457,27 @@ let ConfigureService = React.createClass({
     const {
       form, imageTags, currentFields,
       standardFlag, loadFreeVolume, createStorage,
-      current, id, allFields, location, AdvancedSettingKey
+      current, id, allFields, location, AdvancedSettingKey,
+      isTemplate
     } = this.props
     const allFieldsKeys = Object.keys(allFields) || []
     const { imageConfigs } = this.state
     const { getFieldProps } = form
-    let isTemplate = false
-    // is app template or display appName
-    if (location.pathname === '/app_center/app_template/create') {
-      isTemplate = true
+    let appNameProps;
+    if (!isTemplate) {
+      appNameProps = getFieldProps('appName', {
+        rules: [
+          { required: !isTemplate, message: '应用名称至少为3个字符' },
+          { validator: this.checkAppName }
+        ],
+      })
     }
-    const appNameProps = getFieldProps('appName', {
-      rules: [
-        { required: !isTemplate, message: '应用名称至少为3个字符' },
-        { validator: this.checkAppName }
-      ],
-    })
+    let templateNameProps;
+    let templateDescProps;
+    if (isTemplate) {
+      templateNameProps = getFieldProps('templateName');
+      templateDescProps = getFieldProps('templateDesc')
+    }
     const serviceNameProps = getFieldProps('serviceName', {
       rules: [
         { required: true, message: '服务名称至少为3个字符' },
@@ -507,6 +522,40 @@ let ConfigureService = React.createClass({
                 disabled={this.getAppNameDisabled()}
               />
             </FormItem>
+            }
+            {isTemplate &&
+              <FormItem
+                label="模板名称"
+                hasFeedback
+                key="templateName"
+                {...formItemLayout}
+                wrapperCol={{ span: 8 }}
+              >
+                <Input
+                  size="large"
+                  placeholder="请输入模板名称"
+                  autoComplete="off"
+                  ref="templateNameInput"
+                  disabled={this.getAppNameDisabled()}
+                  {...templateNameProps}
+                />
+              </FormItem>
+            }
+            {isTemplate &&
+              <FormItem
+                label="模板描述"
+                key="templateDesc"
+                {...formItemLayout}
+                wrapperCol={{ span: 8 }}
+              >
+                <Input
+                  size="large"
+                  type="textarea"
+                  placeholder="请输入模板描述"
+                  disabled={this.getAppNameDisabled()}
+                  {...templateDescProps}
+                />
+              </FormItem>
             }
             <FormItem
               {...formItemLayout}

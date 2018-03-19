@@ -13,6 +13,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Button, Input, Icon, Form, Row, Col } from 'antd';
+import classNames from 'classnames';
 import './style/index.less';
 
 const FormItem = Form.Item;
@@ -20,13 +21,27 @@ const FormItem = Form.Item;
 class TemplateInfo extends React.Component<any> {
 
   renderServices = () => {
+    const { fields } = this.props;
+    let serviceList: Array<string> = [];
+    for (let [key, value] of Object.entries(fields)) {
+      const { serviceName } = value;
+      if (serviceName && serviceName.value) {
+        serviceList.push(serviceName);
+      }
+    }
     const serviceArr: Array<string> = ['服务1', '服务2'];
-    return serviceArr.map(item =>
-      <Row key={item} className="serviceRow">
-        <Col span={22}>{item}</Col>
-        <Col span={2}><Icon type="delete" /></Col>
-      </Row>,
-    );
+    return serviceList.map(item => {
+      const rowClass = classNames({
+        'serviceRow': true,
+        // 'active': isRowActive,
+      });
+      return (
+        <Row key={item.value} className={rowClass}>
+          <Col span={22}>{item.value}</Col>
+          <Col span={2}><Icon type="delete" /></Col>
+        </Row>
+      );
+    });
   }
 
   renderResourcePrice = () => {
@@ -73,7 +88,18 @@ class TemplateInfo extends React.Component<any> {
     const { stepChange } = this.props;
     stepChange(0);
   }
+
+  getTemplateInfo = (key: string) => {
+    const { fields } = this.props;
+    const firstConfig = Object.values(fields)[0];
+    if (!firstConfig || !firstConfig[key]) {
+      return;
+    }
+    return firstConfig[key].value;
+  }
+
   render() {
+    const { genConfigureServiceKey, saveService } = this.props;
     const formItemLayout = {
       labelCol: { span: 7 },
       wrapperCol: { span: 16 },
@@ -86,13 +112,13 @@ class TemplateInfo extends React.Component<any> {
             label="模板名称"
             {...formItemLayout}
           >
-            <Input/>
+            <Input disabled value={this.getTemplateInfo('templateName')}/>
           </FormItem>
           <FormItem
             label="模板描述"
             {...formItemLayout}
           >
-            <Input type="textarea"/>
+            <Input disabled value={this.getTemplateInfo('templateDesc')} type="textarea"/>
           </FormItem>
           <div className="serviceBox">
             <Row className="serviceHeader" type="flex" justify="space-between">
@@ -100,6 +126,9 @@ class TemplateInfo extends React.Component<any> {
               <Col>操作</Col>
             </Row>
             {this.renderServices()}
+            <Button type="ghost" size="large" className="addServiceBtn" onClick={saveService}>
+              <i className="fa fa-plus" /> 继续添加服务
+            </Button>
           </div>
           {this.renderResourcePrice()}
         </div>
@@ -113,12 +142,15 @@ class TemplateInfo extends React.Component<any> {
 }
 
 const mapStateToProps = state => {
-  const { current, loginUser } = state.entities;
+  const { entities, quickCreateApp } = state;
+  const { current, loginUser } = entities;
   const { billingConfig } = loginUser.info;
   const { enabled: billingEnabled } = billingConfig;
+  const { fields } = quickCreateApp;
   return {
     current,
     billingEnabled,
+    fields,
   };
 };
 
