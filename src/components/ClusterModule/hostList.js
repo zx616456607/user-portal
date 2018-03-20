@@ -770,6 +770,7 @@ class hostList extends Component {
 
   maintainConfirm = () => {
     this.setState({
+      maintainModal: false,
       confirmModal: true
     })
   }
@@ -791,7 +792,7 @@ class hostList extends Component {
     }
     return [
       <Button type="ghost" onClick={() => this.setState({ maintainModal: false })}>取消</Button>,
-      <Button type="primary" onClick={() => this.setState({ forceModal: true })}>删除问题资源，强制维护</Button>
+      <Button type="primary" onClick={() => this.setState({ forceModal: true, maintainModal: false })}>删除问题资源，强制维护</Button>
     ]
   }
 
