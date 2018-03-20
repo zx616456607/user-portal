@@ -21,6 +21,11 @@ class NfsDeplyment {
       strategy: {
         type: 'Recreate'
       },
+      selector: {
+        matchLabels:{
+          app: nfsname,
+        }
+      },
       template:{
         metadata: {
           labels: {
