@@ -12,56 +12,108 @@
 
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { browserHistory, Link } from 'react-router';
 import { Button, Input, Icon, Form, Row, Col } from 'antd';
 import classNames from 'classnames';
+import { getFieldsValues } from '../../../../../../src/components/AppModule/QuickCreateApp/utils';
+import { parseAmount, getResourceByMemory } from '../../../../../../src/common/tools';
 import './style/index.less';
 
 const FormItem = Form.Item;
 
+const TEMPLATE_EDIT_HASH = '#edit-template';
+
 class TemplateInfo extends React.Component<any> {
 
   renderServices = () => {
-    const { fields } = this.props;
-    let serviceList: Array<string> = [];
+    const { fields, id, editServiceKey, configureMode, saveService, deleteService } = this.props;
+    let serviceList: Array = [];
     for (let [key, value] of Object.entries(fields)) {
-      const { serviceName } = value;
+      const { serviceName, appPkgID } = value;
+      let isWrap = false;
       if (serviceName && serviceName.value) {
-        serviceList.push(serviceName);
+        const isActive = false;
+        if (configureMode === 'create') {
+          isActive = key === id;
+        } else {
+          isActive = key === editServiceKey;
+      }
+        if (appPkgID) {
+          isWrap = true;
+        }
+        const rowClass = classNames({
+          'serviceRow': true,
+          'active': isActive,
+        });
+        const classOpt = classNames('newText', {
+          'hidden': id !== key || configureMode === 'edit',
+        });
+        serviceList.push(
+          <Row key={serviceName.value} className={rowClass}>
+            <Col span={22} className="serviceName" onClick={() => saveService(key, isWrap)}>
+              <div className={classNames('newService', { 'successColor':  id === key && configureMode === 'create' })}>
+                {serviceName.value}
+                <span className={classOpt}>new</span>
+              </div>
+            </Col>
+            <Col span={2} className="deleteBtn" onClick={() => deleteService(key)}><Icon type="delete" /></Col>
+          </Row>,
+      );
       }
     }
-    const serviceArr: Array<string> = ['服务1', '服务2'];
-    return serviceList.map(item => {
-      const rowClass = classNames({
-        'serviceRow': true,
-        // 'active': isRowActive,
-      });
-      return (
-        <Row key={item.value} className={rowClass}>
-          <Col span={22}>{item.value}</Col>
-          <Col span={2}><Icon type="delete" /></Col>
-        </Row>
-      );
-    });
+    return serviceList;
+  }
+
+  getAppResources() {
+    const { current } = this.props;
+    const fields = this.props.fields || {};
+    let newCpuTotal = 0; // unit: C
+    let newMemoryTotal = 0; // unit: G
+    let newPriceHour = 0; // unit: T/￥
+    for (let key in fields) {
+      if (fields.hasOwnProperty(key) && fields[key].serviceName) {
+        const { resourceType, DIYMemory, DIYCPU, replicas } = getFieldsValues(fields[key]);
+        const { memoryShow, cpuShow, config } = getResourceByMemory(resourceType, DIYMemory, DIYCPU);
+        newCpuTotal += cpuShow * replicas;
+        newMemoryTotal += memoryShow * replicas;
+        let price = current.cluster.resourcePrice[config];
+        if (price) {
+          newPriceHour += price * replicas;
+        } else {
+          // @Todo: need diy resource price
+        }
+      }
+    }
+    newCpuTotal = Math.ceil(newCpuTotal * 100) / 100;
+    newMemoryTotal = Math.ceil(newMemoryTotal * 100) / 100;
+    const priceMonth = parseAmount(newPriceHour * 24 * 30, 4).amount;
+    newPriceHour = parseAmount(newPriceHour, 4).amount;
+    return {
+      resource: `${newCpuTotal}C ${newMemoryTotal}G`,
+      priceHour: newPriceHour,
+      priceMonth,
+    };
   }
 
   renderResourcePrice = () => {
     const { current, billingEnabled } = this.props;
     const { unit } = current;
+    const { resource, priceHour, priceMonth } = this.getAppResources();
     function renderTotalPrice() {
       if (unit === '￥') {
         return (
           <div className="price">
             合计：
-            <span className="hourPrice"><font>¥</font> 1/小时</span>
-            <span className="monthPrice">（合 <font>¥</font> 2/月）</span>
+            <span className="hourPrice"><font>¥</font> {priceHour}/小时</span>
+            <span className="monthPrice">（合 <font>¥</font> {priceMonth}/月）</span>
           </div>
         );
       }
       return (
         <div className="price">
           合计：
-          <span className="hourPrice">1 T/小时</span>
-          <span className="monthPrice">（合 1 T/月）</span>
+          <span className="hourPrice">{priceHour} {unit}/小时</span>
+          <span className="monthPrice">（合 {priceMonth} {unit}/月）</span>
         </div>
       );
     }
@@ -72,16 +124,11 @@ class TemplateInfo extends React.Component<any> {
       <div className="resourcePrice">
         <div className="resource">
           计算资源：
-          <span>1</span>
+          <span>{resource}</span>
         </div>
         {renderTotalPrice()}
       </div>
     );
-  }
-
-  cancelTemplate = () => {
-    const { stepChange } = this.props;
-    stepChange(0);
   }
 
   confirmTemplate = () => {
@@ -98,12 +145,31 @@ class TemplateInfo extends React.Component<any> {
     return firstConfig[key].value;
   }
 
+  renderCancelBtn = () => {
+    const { currentStep, location, cancelTemplate } = this.props;
+    const { query } = location;
+    const { hash } = query;
+    return (
+      <Button
+        type="ghost"
+        size="large"
+        onClick={cancelTemplate}
+        disabled={currentStep === 1 && hash === TEMPLATE_EDIT_HASH}
+      >
+        {currentStep === 0 ? '取消' : '上一步'}
+      </Button>
+    );
+  }
   render() {
-    const { genConfigureServiceKey, saveService } = this.props;
+    const { saveService, fields, currentStep } = this.props;
     const formItemLayout = {
       labelCol: { span: 7 },
       wrapperCol: { span: 16 },
     };
+    let showAddBtn = false;
+    if (Object.keys(fields) && Object.keys(fields).length) {
+      showAddBtn = true;
+    }
     return (
       <div className="templateInfo">
         <div className="tempInfoHeader">信息总览</div>
@@ -121,19 +187,24 @@ class TemplateInfo extends React.Component<any> {
             <Input disabled value={this.getTemplateInfo('templateDesc')} type="textarea"/>
           </FormItem>
           <div className="serviceBox">
-            <Row className="serviceHeader" type="flex" justify="space-between">
+            <Row className={classNames('serviceHeader', { 'hidden': !showAddBtn })} type="flex" justify="space-between">
               <Col>服务</Col>
               <Col>操作</Col>
             </Row>
             {this.renderServices()}
-            <Button type="ghost" size="large" className="addServiceBtn" onClick={saveService}>
+            <Button
+              type="ghost"
+              size="large"
+              className={classNames('addServiceBtn', { 'hidden': !showAddBtn || currentStep === 0 })}
+              onClick={() => saveService()}
+            >
               <i className="fa fa-plus" /> 继续添加服务
             </Button>
           </div>
           {this.renderResourcePrice()}
         </div>
         <Row className="tempInfoFooter" type="flex" align="middle" justify="center">
-          <Col><Button type="ghost" size="large" onClick={this.cancelTemplate}>取消</Button></Col>
+          <Col>{this.renderCancelBtn()}</Col>
           <Col><Button type="primary" size="large" onClick={this.confirmTemplate}>创建</Button></Col>
         </Row>
       </div>

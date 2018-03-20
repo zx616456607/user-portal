@@ -14,12 +14,14 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import QueueAnim from 'rc-queue-anim';
-import { Button, Row, Col } from 'antd';
+import { browserHistory } from 'react-router';
+import { Button, Row, Col, Modal } from 'antd';
 import Title from '../../../../../src/components/Title';
 import ConfigPart from './ConfigPart';
 import TemplateInfo from './TemplateInfo';
 import { genRandomString } from '../../../../../src/common/tools';
 import * as QuickCreateAppActions from '../../../../../src/actions/quick_create_app';
+import NotificationHandler from '../../../../../src/components/Notification';
 import './style/index.less';
 
 const TEMPLATE_EDIT_HASH = '#edit-template';
@@ -40,6 +42,15 @@ class AppTemplate extends React.Component<any, IState> {
 
   componentWillMount() {
     this.setConfig(this.props);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { location } = this.props;
+    const { location } = nextProps;
+    const { hash, query } = location;
+    if (hash !== this.props.location.hash || query.key !== this.props.location.query.key) {
+      this.setConfig(nextProps);
+    }
   }
 
   componentWillUnmount() {
@@ -63,8 +74,8 @@ class AppTemplate extends React.Component<any, IState> {
     const { hash, query } = location;
     const { key } = query;
     const configureMode = hash === TEMPLATE_EDIT_HASH ? 'edit' : 'create';
+    this.configureMode = configureMode;
     if (configureMode === 'edit') {
-      // this.configureServiceKey = key
       this.editServiceKey = key;
     }
   }
@@ -80,11 +91,24 @@ class AppTemplate extends React.Component<any, IState> {
     this.imageConfig = imageConfig;
   }
 
-  saveService = () => {
+  saveService = (key: string, isWrap: boolean) => {
+    const { currentStep } = this.state;
     const { fields } = this.props;
     const { validateFieldsAndScroll } = this.form;
+    const url = `/app_center/template/create?key=${key}&isWrap=${isWrap}${TEMPLATE_EDIT_HASH}`;
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
+        return;
+      }
+      // if query has key that mean edit template
+      if (key) {
+        if (this.configureMode === 'create' && key === this.configureServiceKey) {
+          return;
+        }
+        if (currentStep === 0) {
+          this.stepChange(1);
+        }
+        browserHistory.push(url);
         return;
       }
       const fieldsKeys = Object.keys(fields) || [];
@@ -96,19 +120,86 @@ class AppTemplate extends React.Component<any, IState> {
       }
       // if create service, update the configure service key
       // use timeout: when history change generate a new configure serivce key
-      if (this.configureMode === 'create') {
-        // setTimeout(() => {
-          this.genConfigureServiceKey();
-        // }, 50);
-      }
       browserHistory.push('/app_center/template/create');
+      this.genConfigureServiceKey();
       this.stepChange(0);
     });
   }
 
+  deleteService = (key) => {
+    this.setState({
+      deleteVisible: true,
+      deleteKey: key,
+    });
+  }
+
+  cancelDelete = () => {
+    this.setState({
+      deleteVisible: false,
+    });
+  }
+
+  confirmDelete = () => {
+    const { removeFormFields, fields } = this.props;
+    const { deleteKey, currentStep } = this.state;
+    const serviceLength = Object.keys(fields).length;
+    const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey;
+    let notify = new NotificationHandler();
+    if (serviceLength === 1) {
+      notify.warn('删除错误', '至少保留一个服务');
+      return;
+    }
+    // 删除的是当前的服务
+    if (deleteKey === id) {
+      this.configureMode = 'edit';
+      this.editServiceKey = Object.keys(fields)[0];
+    }
+    // 如果实在选择镜像页则生成一个新的id
+    if (currentStep === 0) {
+      this.genConfigureServiceKey();
+    }
+    setTimeout(() => {
+      removeFormFields(deleteKey);
+    });
+    this.setState({
+      deleteVisible: false,
+    });
+  }
+
+  cancelTemplate = () => {
+    if (this.configureMode === 'create') {
+      this.setState({
+        goBackVisible: true,
+      });
+      return;
+    }
+    this.stepChange(0);
+    browserHistory.push('/app_center/template/create');
+  }
+
+  cancelGoBack = () => {
+    this.setState({
+      goBackVisible: false,
+    });
+  }
+
+  confirmGoBack = () => {
+    const { removeFormFields } = this.props;
+    const id = this.configureServiceKey;
+    browserHistory.push('/app_center/template/create');
+    this.stepChange(0);
+    setTimeout(() => {
+      removeFormFields(id);
+    });
+    this.setState({
+      goBackVisible: false,
+    });
+  }
+
   render() {
-    const { currentStep, templateName, templateDesc } = this.state;
+    const { currentStep, templateName, templateDesc, deleteVisible, goBackVisible } = this.state;
     const { location, removeFormFields, removeAllFormFields, setFormFields, fields } = this.props;
+    const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey;
     const parentProps = {
       stepChange: this.stepChange,
       currentStep,
@@ -116,8 +207,9 @@ class AppTemplate extends React.Component<any, IState> {
       removeFormFields,
       removeAllFormFields,
       setFormFields,
-      id: this.configureServiceKey,
+      id,
       configureMode: this.configureMode,
+      editServiceKey: this.editServiceKey,
       saveService: this.saveService,
       templateName,
       templateDesc,
@@ -138,9 +230,33 @@ class AppTemplate extends React.Component<any, IState> {
             <TemplateInfo
               {...this.state}
               {...parentProps}
+              deleteService={this.deleteService}
+              cancelTemplate={this.cancelTemplate}
             />
           </Col>
         </Row>
+        <Modal
+          title="删除服务"
+          visible={deleteVisible}
+          onCancel={this.cancelDelete}
+          onOk={this.confirmDelete}
+        >
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
+            删除服务无法恢复，是否确认删除？
+          </div>
+        </Modal>
+        <Modal
+          title="返回上一步"
+          visible={goBackVisible}
+          onCancel={this.cancelGoBack}
+          onOk={this.confirmGoBack}
+        >
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
+            返回上一步，将会放弃当前正在编辑的配置信息，本次编辑的信息将不会保留，是否返回上一步？
+          </div>
+        </Modal>
       </QueueAnim>
     );
   }

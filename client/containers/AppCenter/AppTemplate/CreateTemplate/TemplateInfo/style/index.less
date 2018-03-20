@@ -25,11 +25,59 @@
       .serviceHeader {
         &:extend(.defaultRow);
         padding-bottom: 15px;
+        margin-bottom: 20px;
         &:extend(.defalutBorder);
       }
       .serviceRow {
         &:extend(.defaultRow);
-        margin-top: 20px;
+        height: 40px;
+        line-height: 40px;
+        border-left: 2px @border-style-base white;
+        .serviceName {
+          cursor: pointer;
+          .newService {
+            position: relative;
+            display: inline-block;
+            .newText {
+              position: absolute;
+              top: 0;
+              right: -30px;
+              background-color: @success-color;
+              color: white;
+              height: 18px;
+              line-height: 18px;
+              border-radius: @border-radius-base;
+              padding: 0 2px;
+              &::after {
+                content: '';
+                position: absolute;
+                bottom:-5px;
+                left: 8px;
+                width: 0;
+                height: 0;
+                border-left: 0 @border-style-base transparent;
+                border-right: 5px @border-style-base transparent;
+                border-top: 5px @border-style-base @success-color;
+              }
+            }
+          }
+          &:hover {
+            color: @primary-color;
+          }
+        }
+        .deleteBtn {
+          cursor: pointer;
+          &:hover {
+            color: @primary-color;
+          }
+        }
+      }
+      .active {
+        background-color: #e4f5fd;
+        border-left: 2px @border-style-base @primary-color;
+        .serviceName {
+          color: @primary-color;
+        }
       }
       .addServiceBtn {
         color: @primary-color;
