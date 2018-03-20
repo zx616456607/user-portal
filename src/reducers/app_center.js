@@ -306,6 +306,26 @@ function getAppCenterBindUser(state = {}, action) {
   }
 }
 
+function wrapTemplate(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.GET_REGISTRY_TEMPLATE_REQUEST:
+      return merge({}, state, {
+        isFetching: true,
+      })
+    case ActionTypes.GET_REGISTRY_TEMPLATE_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        ...action.response.result,
+      })
+    case ActionTypes.GET_REGISTRY_TEMPLATE_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state;
+  }
+}
+
 export function images(state = { publicImages: {} }, action) {
   return {
     privateImages: privateImages(state.privateImages, action),
@@ -362,7 +382,8 @@ export function images(state = { publicImages: {} }, action) {
       SUCCESS: ActionTypes.GET_WRAP_GROUP_DETAIL_LIST_SUCCESS,
       FAILURE: ActionTypes.GET_WRAP_GROUP_DETAIL_LIST_FALIURE,
     }, state.wrapGroupDetailList, action, {overwrite: true}),
-    wrapDetail: wrapDetail(state.wrapDetail, action)
+    wrapDetail: wrapDetail(state.wrapDetail, action),
+    wrapTemplate: wrapTemplate(state.wrapTemplate, action)
     // deleteStack: deleteStack(state.deleteStack, action)
   }
 }

@@ -33,6 +33,7 @@ import LivenessSetting from './LivenessSetting'
 import ConfigMapSetting from './ConfigMapSetting'
 import AdvancedSetting from './AdvancedSetting'
 import LogCollection from './LogCollection'
+import OperationEnv from './OperationEnv'
 import './style/index.less'
 import NotificationHandler from '../../../../components/Notification'
 
@@ -56,31 +57,40 @@ let ConfigureService = React.createClass({
     }
   },
   componentWillMount() {
-    const { callback, imageName, registryServer, form, mode, location } = this.props
-    let  { appName,templateName } = this.props
+    const { callback, imageName, registryServer, form, mode, location, isTemplate, template } = this.props
+    let  { appName,templateName, templateDesc } = this.props
     const { setFieldsValue } = form
     callback && callback(form)
+    let newImageName = ''
     if (mode === 'create') {
       const values = {
         imageUrl: `${registryServer}/${imageName}`,
       }
       if (location.query.appPkgID) {
-        let { registryServer,imageName} = location.query
+        let { registryServer,imageName, fileType } = location.query
         values.imageUrl = `${registryServer}/${imageName}`
         appName = location.query.appName || appName
+        if (isTemplate) {
+          let currentTemplate = template.filter(item => item.type === fileType)[0]
+          newImageName = currentTemplate.name;
+          values.imageUrl = `${registryServer}/${newImageName}`
+          this.setState({
+            newImageName
+          })
+        }
       }
       if (appName) {
         values.appName = appName
       }
-      // if (location.pathname ==='/app_center/template/create') {
-      //   values.templateName = ''
-      // }
-      // if (templateName) {
-      //   values.templateName = templateName
-      // }
+      if (templateName) {
+        values.templateName = templateName
+      }
+      if (templateDesc) {
+        values.templateDesc = templateDesc
+      }
       setFieldsValue(values)
     }
-    this.loadImageTags(this.props)
+    this.loadImageTags(this.props, newImageName)
   },
   focusInput(refId) {
     const ref = this.refs[refId]
@@ -122,7 +132,7 @@ let ConfigureService = React.createClass({
     clearTimeout(setFormFieldsTimeout)
     initForm = false
   },
-  loadImageTags(props) {
+  loadImageTags(props, name) {
     const {
       location, getOtherImageTag, form,
       currentFields, mode, loadRepositoriesTags
@@ -137,6 +147,9 @@ let ConfigureService = React.createClass({
     }
     if (location.query　&& location.query.imageName) {
       imageName = location.query.imageName
+    }
+    if (name) {
+      imageName = name;
     }
     if (other) {
       getOtherImageTag({ id: other, imageName }, {
@@ -405,6 +418,18 @@ let ConfigureService = React.createClass({
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   },
+  checkTempName (rule, value, callback) {
+    if (!value) {
+      return callback('请输入模板名称')
+    }
+    callback()
+  },
+  checkTempDesc (rule, value, callback) {
+    if (!value) {
+      return callback('请输入模板描述')
+    }
+    callback()
+  },
   checkServiceName(rule, value, callback) {
     if (!value) {
       return callback()
@@ -461,8 +486,10 @@ let ConfigureService = React.createClass({
       isTemplate
     } = this.props
     const allFieldsKeys = Object.keys(allFields) || []
-    const { imageConfigs } = this.state
+    const { imageConfigs, newImageName } = this.state
     const { getFieldProps } = form
+    const { query } = location
+    const { isWrap } = query || { isWrap: 'false' }
     let appNameProps;
     if (!isTemplate) {
       appNameProps = getFieldProps('appName', {
@@ -475,8 +502,20 @@ let ConfigureService = React.createClass({
     let templateNameProps;
     let templateDescProps;
     if (isTemplate) {
-      templateNameProps = getFieldProps('templateName');
-      templateDescProps = getFieldProps('templateDesc')
+      templateNameProps = getFieldProps('templateName', {
+        rules: [
+          {
+            validator: this.checkTempName
+          }
+        ]
+      });
+      templateDescProps = getFieldProps('templateDesc', {
+        rules: [
+          {
+            validator: this.checkTempDesc
+          }
+        ]
+      })
     }
     const serviceNameProps = getFieldProps('serviceName', {
       rules: [
@@ -572,13 +611,13 @@ let ConfigureService = React.createClass({
                 ref="serviceNameInput"
               />
             </FormItem>
-            {window.WrapListTable &&
+            {isWrap === 'true' &&
             <FormItem {...formItemLayout}
               wrapperCol={{ span: 8 }}
               label="应用包"
               hasFeedback
               key="Appwrap">
-              <Input readOnly value={window.WrapListTable.fileName  + ' | '+ window.WrapListTable.fileTag} />
+              <Input readOnly value={newImageName || window.WrapListTable.fileName  + ' | '+ window.WrapListTable.fileTag} />
             </FormItem>
             }
             <FormItem
@@ -607,7 +646,7 @@ let ConfigureService = React.createClass({
                 showSearch
                 optionFilterProp="children"
                 {...imageTagProps}
-                disabled={location.query.tag}
+                disabled={isWrap === 'true'}
               >
                 {
                   imageTags.list.map(tag => (
@@ -622,6 +661,10 @@ let ConfigureService = React.createClass({
             />
           </Form>
         </div>
+        {
+          isWrap === 'true' &&
+          <OperationEnv/>
+        }
         <NormalSetting
           id={id}
           form={form}
@@ -689,7 +732,7 @@ const createFormOpts = {
 ConfigureService = Form.create(createFormOpts)(ConfigureService)
 
 function mapStateToProps(state, props) {
-  const { quickCreateApp, entities, getImageTag, harbor } = state
+  const { quickCreateApp, entities, getImageTag, harbor, images } = state
   const { otherImageTag } = getImageTag
   const { imageTags } = harbor
   const { imageName, location, id } = props
@@ -708,6 +751,8 @@ function mapStateToProps(state, props) {
       tagsIsFetching = currentImageTags.isFetching
     }
   }
+  const { wrapTemplate } = images
+  const { template } = wrapTemplate || { template: [] }
   return {
     allFields: fields,
     currentFields,
@@ -715,7 +760,8 @@ function mapStateToProps(state, props) {
     imageTags: {
       list: tags,
       isFetching: tagsIsFetching
-    }
+    },
+    template
   }
 }
 
