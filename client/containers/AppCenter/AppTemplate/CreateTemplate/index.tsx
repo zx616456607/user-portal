@@ -116,6 +116,7 @@ class AppTemplate extends React.Component<any, IState> {
         this.setState({
           templateName: values.templateName,
           templateDesc: values.templateDesc,
+          templateVersion: values.templateVersion,
         });
       }
       // if create service, update the configure service key
@@ -197,7 +198,7 @@ class AppTemplate extends React.Component<any, IState> {
   }
 
   render() {
-    const { currentStep, templateName, templateDesc, deleteVisible, goBackVisible } = this.state;
+    const { currentStep, templateName, templateDesc, templateVersion, deleteVisible, goBackVisible } = this.state;
     const { location, removeFormFields, removeAllFormFields, setFormFields, fields } = this.props;
     const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey;
     const parentProps = {
@@ -213,6 +214,7 @@ class AppTemplate extends React.Component<any, IState> {
       saveService: this.saveService,
       templateName,
       templateDesc,
+      templateVersion,
     };
     return (
       <QueueAnim>
