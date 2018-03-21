@@ -17,8 +17,10 @@ import { browserHistory } from 'react-router';
 import { Button, Radio, Table } from 'antd';
 import CommonSearchInput from '../../../../../../components/SearchInput';
 import { DEFAULT_PAGE_SIZE } from '../../../../../../../constants';
+import { DEFAULT_REGISTRY } from '../../../../../../../src/constants';
 import { formatDate } from '../../../../../../../src/common/tools';
 import * as appCenterActions from '../../../../../../../src/actions/app_center';
+import isEmpty from 'lodash/isEmpty';
 import './style/WrapsPart.less';
 
 const RadioButton = Radio.Button;
@@ -40,6 +42,14 @@ class WrapsPart extends React.Component<any, IState> {
   state = {
     currentType: TRID_TYPE,
   };
+
+  componentDidMount() {
+    const { getImageTempate, template } = this.props;
+    this.getWrapList();
+    if (isEmpty(template)) {
+      getImageTempate(DEFAULT_REGISTRY);
+    }
+  }
 
   getStoreList = (query: IQuery) => {
     const { getWrapStoreList } = this.props;
@@ -101,16 +111,17 @@ class WrapsPart extends React.Component<any, IState> {
     }
   }
 
-  addWrap = record => {
-    const { stepChange } = this.props;
-    stepChange(1);
+  addWrap = (record, registry) => {
+    const { selectPacket } = this.props;
+    window.WrapListTable = record;
+    selectPacket(record, registry, true);
   }
 
   renderTable = () => {
     const { currentType } = this.state;
     const { wrapList, wrapStoreList } = this.props;
     let isFetching: boolean;
-    let dataSource: { isFetching: boolean,  pkgs: Array };
+    let dataSource: { isFetching: boolean,  pkgs: Array, server: string };
     if (currentType === TRID_TYPE) {
       dataSource = wrapList;
       isFetching = wrapList.isFetching;
@@ -118,6 +129,7 @@ class WrapsPart extends React.Component<any, IState> {
       dataSource = wrapStoreList;
       isFetching = wrapStoreList.isFetching;
     }
+    const { registry } = dataSource;
     const columns = [
       {
         title: '包名称',
@@ -143,7 +155,7 @@ class WrapsPart extends React.Component<any, IState> {
       {
         title: '操作',
         width: '20%',
-        render: (_, record) => <Button type="primary" onClick={() => this.addWrap(record)}>添加</Button>,
+        render: (_, record) => <Button type="primary" onClick={() => this.addWrap(record, registry)}>添加</Button>,
       },
     ];
     const paginationOpts = {
@@ -206,7 +218,7 @@ class WrapsPart extends React.Component<any, IState> {
 }
 
 const mapStateToProps = state => {
-  const { wrapList, wrapStoreList } = state.images;
+  const { wrapList, wrapStoreList, wrapTemplate } = state.images;
   const { result: storeList } = wrapStoreList || { result: {} };
   const { data: storeData } = storeList || { data: [] };
   const list = wrapList || {};
@@ -214,9 +226,11 @@ const mapStateToProps = state => {
   if (list.result) {
     datalist = list.result.data;
   }
+  const { template } = wrapTemplate || { template: [] };
   return {
     wrapList: datalist,
     wrapStoreList: storeData,
+    template,
   };
 };
 

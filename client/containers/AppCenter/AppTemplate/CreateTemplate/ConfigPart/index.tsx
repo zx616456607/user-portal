@@ -65,22 +65,42 @@ export default class ConfigPart extends React.Component<any, IState> {
     );
   }
 
-  selectPacket = (imageName, registryServer) => {
+  selectPacket = (image: object, registryServer: string, isWrap?: boolean) => {
     const { stepChange } = this.props;
-    const query = {
-      imageName: encodeImageFullname(imageName),
-      registryServer,
-    };
     this.setState({
-      imageName,
+      imageName: image.fileName || encodeImageFullname(image.repositoryName),
       registryServer,
     });
-    browserHistory.push(`/app_center/template/create?${toQuerystring(query)}`);
-    stepChange(1);
+    if (isWrap) {
+      const pkgQuery = {
+        imageName: image.fileName,
+        registryServer,
+        appPkgID: image.id,
+        fileType: image.fileType,
+        isWrap,
+      };
+      browserHistory.push(`/app_center/template/create?${toQuerystring(pkgQuery)}`);
+      setTimeout(() => {
+        stepChange(1);
+      });
+      return;
+    }
+    const imageQuery = {
+      imageName: encodeImageFullname(image.repositoryName),
+      registryServer,
+    };
+    browserHistory.push(`/app_center/template/create?${toQuerystring(imageQuery)}`);
+    setTimeout(() => {
+      stepChange(1);
+    });
   }
+
   renderStep = () => {
     const { activeKey, imageName, registryServer } = this.state;
-    const { currentStep, stepChange, location, getFormAndConfig, id, configureMode } = this.props;
+    const {
+      currentStep, stepChange, location, getFormAndConfig,
+      id, configureMode, templateName, templateDesc,
+     } = this.props;
     if (currentStep === 0) {
       return (
         <div>
