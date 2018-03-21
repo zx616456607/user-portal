@@ -108,7 +108,7 @@ class ImagePart extends React.Component<IProps, IState> {
   addImage = row => {
     const { selectPacket, images } = this.props;
     const { server } = images;
-    selectPacket(row.repositoryName, server);
+    selectPacket(row, server);
   }
 
   renderImageTable = () => {

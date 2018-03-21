@@ -124,7 +124,6 @@ const MyComponent = React.createClass({
     }
     if (handle === 'exitMaintain') {
       this.nodeIsMigrate(node)
-
     }
   },
   combineForceBody(node, pod) {
@@ -179,7 +178,7 @@ const MyComponent = React.createClass({
     const result = await getNotMigratedPodCount(clusterID, currentNode.objectMeta.name)
     const res = result.response.result.data
     const { current } = res[Object.keys(res)[0]]
-    if (current === 0) {
+    if (current === 0 || currentNode.objectMeta.annotations.maintenance === 'failed') {
       scope.setState({
         deleteNode: currentNode,
         exitMaintainModal: true
@@ -225,6 +224,9 @@ const MyComponent = React.createClass({
       if (record.objectMeta.annotations.maintenance === 'true') {
         message = '维护中'
         classname = 'themeColor'
+      } else if (record.objectMeta.annotations.maintenance === 'failed') {
+        message = '迁移失败'
+        classname = 'errorSpan'
       } else if (maintainStatus === 'processing') {
         message = '服务迁移中'
         classname = 'themeColor'
@@ -297,7 +299,7 @@ const MyComponent = React.createClass({
               <span>删除节点</span>
             </Menu.Item>
             {
-              item.objectMeta.annotations.maintenance === 'true'
+              ['true', 'failed'].includes(item.objectMeta.annotations.maintenance)
                 ?
                 <Menu.Item key={'exitMaintain/'+item.address}>
                   <span>退出维护</span>
@@ -770,6 +772,7 @@ class hostList extends Component {
 
   maintainConfirm = () => {
     this.setState({
+      maintainModal: false,
       confirmModal: true
     })
   }
@@ -791,7 +794,7 @@ class hostList extends Component {
     }
     return [
       <Button type="ghost" onClick={() => this.setState({ maintainModal: false })}>取消</Button>,
-      <Button type="primary" onClick={() => this.setState({ forceModal: true })}>删除问题资源，强制维护</Button>
+      <Button type="primary" onClick={() => this.setState({ forceModal: true, maintainModal: false })}>删除问题资源，强制维护</Button>
     ]
   }
 
@@ -809,7 +812,15 @@ class hostList extends Component {
         [isForce ? 'forceLoading' : 'doubleConfirmLoading']: false
       })
       notify.close()
-      notify.warn('节点维护开启失败', res.error.message.message || res.error.message)
+      let errorMessage = res.error.message.message || res.error.message;
+      if (res.error.statusCode === 409) {
+        const { namespace, resourceName } = res.error.message.data;
+        errorMessage = `用户${namespace}的节点${resourceName}违反了自己的pdb策略`
+      }
+      notify.warn('节点维护开启失败', errorMessage)
+      this.setState({
+        forceModal: false
+      })
       return
     }
     this.loadData()

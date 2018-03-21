@@ -314,7 +314,8 @@ class WrapManage extends Component {
       return
     }
     const { appName, action} = location.query
-    let imageName ='?imageName='+this.state.template[defaultTemplate].name +`&tag=${tag}`+`&registryServer=${registry}&appPkgID=${row.id}&entryPkgID=${(row.appRegistryMap && Object.keys(row.appRegistryMap).length > 0) ? row.id : ''}`
+    let imageName ='?imageName='+this.state.template[defaultTemplate].name +`&tag=${tag}&isWrap=true`+
+                    `&registryServer=${registry}&appPkgID=${row.id}&entryPkgID=${(row.appRegistryMap && Object.keys(row.appRegistryMap).length > 0) ? row.id : ''}`
     if (appName) {
       imageName += `&appName=${appName}&action=${action}`
     }
