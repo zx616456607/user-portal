@@ -969,13 +969,16 @@ class AlarmModal extends Component {
   }
 
   componentDidMount() {
-    const { notifyGroup, loadNotifyGroups, isEdit, strategy, getAlertSetting, cluster } = this.props
-    const clusterID = this.props.cluster.clusterID
+    const { notifyGroup, loadNotifyGroups, isEdit, strategy, getAlertSetting, cluster, pathname, activeCluster } = this.props
+    let clusterID = cluster.clusterID
+    if (startsWith(pathname, '/cluster') && activeCluster) {
+      clusterID = activeCluster
+    }
     if (!notifyGroup.result) {
       loadNotifyGroups("", clusterID)
     }
     if (isEdit) {
-      getAlertSetting(cluster.clusterID, {
+      getAlertSetting(clusterID, {
         strategy: strategy.strategyID
       }, {
         success: {
@@ -996,13 +999,18 @@ class AlarmModal extends Component {
       this.state.firstForm.resetFields()
       //this.state.secondForm.resetFields()
     }
+    const { isEdit, strategy, getAlertSetting, cluster, pathname, activeCluster } = nextProps
+    let clusterID = cluster.clusterID
+    if (startsWith(pathname, '/cluster') && activeCluster) {
+      clusterID = activeCluster
+    }
     if(nextProps.space.spaceID && nextProps.space.spaceID !== this.props.space.spaceID) {
-      loadNotifyGroups('', nextProps.cluster.clusterID)
+      
+      loadNotifyGroups('', clusterID)
     }
     if (nextProps.isShow && nextProps.isShow != this.props.isShow) {
-      const { isEdit, strategy, getAlertSetting, cluster } = nextProps
       if (isEdit) {
-        getAlertSetting(cluster.clusterID, {
+        getAlertSetting(clusterID, {
           strategy: strategy.strategyID
         }, {
           success: {
@@ -1081,7 +1089,11 @@ class AlarmModal extends Component {
           delete requestBody.receiversGroup
         }
         notification.spin('告警策略更新中')
-        this.props.updateAlertSetting(cluster.clusterID, strategy.strategyID, requestBody, {
+        let clusterID = cluster.clusterID
+        if (startsWith(pathname, '/cluster') && activeCluster) {
+          clusterID = activeCluster
+        }
+        this.props.updateAlertSetting(clusterID, strategy.strategyID, requestBody, {
           success: {
             func: () => {
               notification.close()
@@ -1185,8 +1197,11 @@ class AlarmModal extends Component {
     })
   }
   loadNotifyGroups() {
-    const { loadNotifyGroups } = this.props
-    const clusterID = this.props.cluster.clusterID
+    const { loadNotifyGroups, pathname, activeCluster } = this.props
+    let clusterID = this.props.cluster.clusterID
+    if (startsWith(pathname, '/cluster')) {
+      clusterID = activeCluster
+    }
     loadNotifyGroups("", clusterID)
   }
   notifyGroup(rule, value, callback) {
