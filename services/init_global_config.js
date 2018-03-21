@@ -66,9 +66,11 @@ exports.initGlobalConfig = function* () {
       let port = arr[1]
       let host = arr[0]
       //使用引用类型
-      globalConfig.mail_server.secure = configDetail.secure
+      const secure = configDetail.secure
+      const defaultPort = secure ? 465 : 25
+      globalConfig.mail_server.secure = secure
       globalConfig.mail_server.host = host
-      globalConfig.mail_server.port = port || 25
+      globalConfig.mail_server.port = port || defaultPort
       globalConfig.mail_server.auth.user = configDetail.senderMail
       globalConfig.mail_server.auth.pass = configDetail.senderPassword
       globalConfig.mail_server.service_mail = configDetail.senderMail
