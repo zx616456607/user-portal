@@ -1,0 +1,74 @@
+@import '../../../../../assets/style/site/core';
+.operationEnv {
+  .operationEnvBody {
+    padding: 30px 0;
+    .templateBox {
+      .templateButton{
+        border: none;
+        margin-right: 20px;
+        margin-bottom: 10px;
+        height: 80px;
+        width: 80px;
+        padding: 0;
+        position: relative;
+        .template {
+          display: inline-block;
+          border: @border-width-base @border-style-base @border-color-base;
+          height: 80px;
+          width: 80px;
+          border-radius: @border-radius-base;
+          text-align: center;
+          overflow: hidden;
+          img{max-width: 65%;max-height: 65%;display: block;margin: 0 auto;}
+          .triangle {
+            display: block;
+            width: 0;
+            height: 0;
+            border-bottom: 0 solid transparent;
+            border-top: 20px solid transparent;
+            border-right: 22px solid #2db7f5;
+            font-size: 0;
+            line-height: 0;
+            position: absolute;
+            bottom: 0px;
+            right: 0;
+          }
+          .anticon-check{color: white;position: absolute;font-size: 12px;bottom: 0;right: 0;}
+        }
+        .template_version{position: absolute;left: 0;text-align: center;width: 80px;bottom: -25px;}
+      }
+    }
+    .wrap_hint{
+      color: #f5cc4e;
+      margin-top: 20px;
+    }
+    .configBtnBox {
+      margin: 25px 0;
+      .configBtn {
+        margin-right: 10px;
+      }
+    }
+    .selectBox {
+      display: flex;
+      align-items: center;
+      .selectLabel {
+        flex: 0 0 80px;
+      }
+    }
+    .weblogicBox {
+      .oracleBox {
+        margin: 15px 0;
+        .wrap_key {
+          display: inline-block;
+          width: 80px;
+        }
+      }
+      .ant-form-item-label {
+        label {
+          padding: 0 !important;
+          font-size: 12px !important;
+        }
+      }
+    }
+  }
+}

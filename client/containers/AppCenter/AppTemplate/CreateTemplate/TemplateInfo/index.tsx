@@ -174,18 +174,18 @@ class TemplateInfo extends React.Component<any> {
       <div className="templateInfo">
         <div className="tempInfoHeader">信息总览</div>
         <div className="tempInfoBody">
-          <FormItem
-            label="模板名称"
-            {...formItemLayout}
-          >
-            <Input disabled value={this.getTemplateInfo('templateName')}/>
-          </FormItem>
-          <FormItem
-            label="模板描述"
-            {...formItemLayout}
-          >
-            <Input disabled value={this.getTemplateInfo('templateDesc')} type="textarea"/>
-          </FormItem>
+          <div className="customizeItem">
+            <div className="label">模板名称</div>
+            <Input size="large" readOnly value={this.getTemplateInfo('templateName')}/>
+          </div>
+          <div className="customizeItem">
+            <div className="label">模板版本</div>
+            <Input size="large" readOnly value={this.getTemplateInfo('templateVersion')}/>
+          </div>
+          <div className="customizeItem">
+            <div className="label">模板描述</div>
+            <Input size="large" type="textarea" readOnly value={this.getTemplateInfo('templateDesc')}/>
+          </div>
           <div className="serviceBox">
             <Row className={classNames('serviceHeader', { 'hidden': !showAddBtn })} type="flex" justify="space-between">
               <Col>服务</Col>

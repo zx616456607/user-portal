@@ -16,9 +16,13 @@
   }
   .tempInfoBody {
     padding: 20px;
-    .ant-form-item-label {
+    .customizeItem {
       text-align: left;
       padding-left: 10px;
+      margin-bottom: 20px;
+      .label {
+        margin-bottom: 10px;
+      }
     }
     &:extend(.defalutBorder);
     .serviceBox {
@@ -40,6 +44,7 @@
             display: inline-block;
             .newText {
               position: absolute;
+              transform: scale(.7);
               top: 0;
               right: -30px;
               background-color: @success-color;
