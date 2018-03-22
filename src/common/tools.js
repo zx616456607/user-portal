@@ -643,6 +643,15 @@ export function isResourcePermissionError(err) {
   const { statusCode, message } = err
   return statusCode === 403 && (message && message.details && message.details.kind === 'ResourcePermission')
 }
+
+export function isResourceQuotaError(err) {
+  if (!err) {
+    return false
+  }
+  const { statusCode, message } = err
+  return statusCode === 412 && (message && message.details && message.details.kind === 'resourcequota')
+}
+
 /**
  * encode image fullname
  * `carrot/node/edge` -> `carrot/node%2Fedge`
