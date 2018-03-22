@@ -132,7 +132,12 @@ let NetworkConfiguration = React.createClass ({
       nodes = nodeList[clusterID].nodes.clusters.nodes.nodes
     }
     return nodes.map(node => {
-      return <Option key={node.objectMeta.name} value={node.objectMeta.name}>{node.objectMeta.name}</Option>
+      let isDisabled = false;
+      let key = node.objectMeta.labels['ingress-lb'];
+      if (key && key === 'true') {
+        isDisabled = true;
+      }
+      return <Option key={node.objectMeta.name} disabled={isDisabled} value={node.objectMeta.name}>{node.objectMeta.name}</Option>
     })
   },
   isExistRepeat(type, config, key) {

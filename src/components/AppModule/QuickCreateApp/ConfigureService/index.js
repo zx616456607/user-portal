@@ -58,7 +58,7 @@ let ConfigureService = React.createClass({
   },
   componentWillMount() {
     const { callback, imageName, registryServer, form, mode, location, isTemplate, template } = this.props
-    let  { appName,templateName, templateDesc } = this.props
+    let  { appName,templateName, templateVersion, templateDesc } = this.props
     const { setFieldsValue } = form
     callback && callback(form)
     let newImageName = ''
@@ -84,6 +84,9 @@ let ConfigureService = React.createClass({
       }
       if (templateName) {
         values.templateName = templateName
+      }
+      if (templateVersion) {
+        values.templateVersion = templateVersion
       }
       if (templateDesc) {
         values.templateDesc = templateDesc
@@ -424,6 +427,12 @@ let ConfigureService = React.createClass({
     }
     callback()
   },
+  checkTempVersion (rule, value, callback) {
+    if (!value) {
+      return callback('请输入模板版本')
+    }
+    callback()
+  },
   checkTempDesc (rule, value, callback) {
     if (!value) {
       return callback('请输入模板描述')
@@ -483,13 +492,13 @@ let ConfigureService = React.createClass({
       form, imageTags, currentFields,
       standardFlag, loadFreeVolume, createStorage,
       current, id, allFields, location, AdvancedSettingKey,
-      isTemplate
+      isTemplate, template, setFormFields
     } = this.props
     const allFieldsKeys = Object.keys(allFields) || []
     const { imageConfigs, newImageName } = this.state
     const { getFieldProps } = form
     const { query } = location
-    const { isWrap } = query || { isWrap: 'false' }
+    const { isWrap, fileType, registryServer } = query || { isWrap: 'false' }
     let appNameProps;
     if (!isTemplate) {
       appNameProps = getFieldProps('appName', {
@@ -500,6 +509,7 @@ let ConfigureService = React.createClass({
       })
     }
     let templateNameProps;
+    let templateVersionProps;
     let templateDescProps;
     if (isTemplate) {
       templateNameProps = getFieldProps('templateName', {
@@ -509,6 +519,13 @@ let ConfigureService = React.createClass({
           }
         ]
       });
+      templateVersionProps = getFieldProps('templateVersion', {
+        rules: [
+          {
+            validator: this.checkTempVersion
+          }
+        ]
+      })
       templateDescProps = getFieldProps('templateDesc', {
         rules: [
           {
@@ -566,7 +583,7 @@ let ConfigureService = React.createClass({
               <FormItem
                 label="模板名称"
                 hasFeedback
-                key="templateName"
+                key="templateVersion"
                 {...formItemLayout}
                 wrapperCol={{ span: 8 }}
               >
@@ -577,6 +594,21 @@ let ConfigureService = React.createClass({
                   ref="templateNameInput"
                   disabled={this.getAppNameDisabled()}
                   {...templateNameProps}
+                />
+              </FormItem>
+            }
+            {isTemplate &&
+              <FormItem
+                label="模板版本"
+                key="templateName"
+                {...formItemLayout}
+                wrapperCol={{ span: 8 }}
+              >
+                <Input
+                  size="large"
+                  placeholder="请输入模板版本"
+                  disabled={this.getAppNameDisabled()}
+                  {...templateVersionProps}
                 />
               </FormItem>
             }
@@ -620,50 +652,67 @@ let ConfigureService = React.createClass({
               <Input readOnly value={newImageName || window.WrapListTable.fileName  + ' | '+ window.WrapListTable.fileTag} />
             </FormItem>
             }
-            <FormItem
-              {...formItemLayout}
-              wrapperCol={{ span: 8 }}
-              label={location.query.appPkgID ? '运行环境':"镜像"}
-              key="image"
-            >
-              <Input
-                size="large"
-                placeholder={`请输入${location.query.appPkgID ?'运行环境':"镜像"}地址`}
-                autoComplete="off"
-                readOnly
-                {...imageUrlProps}
-              />
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              wrapperCol={{ span: 6 }}
-              label={location.query.appPkgID ?'环境版本':"镜像版本"}
-              key="imageTag"
-            >
-              <Select
-                size="large"
-                placeholder={`请输入${location.query.appPkgID ?'运行':"镜像"}版本`}
-                showSearch
-                optionFilterProp="children"
-                {...imageTagProps}
-                disabled={isWrap === 'true'}
+            {
+              !isTemplate || (isTemplate && isWrap !== 'true') &&
+              <FormItem
+                {...formItemLayout}
+                wrapperCol={{ span: 8 }}
+                label={location.query.appPkgID ? '运行环境':"镜像"}
+                key="image"
               >
-                {
-                  imageTags.list.map(tag => (
-                    <Option key={tag}>{tag}</Option>
-                  ))
-                }
-              </Select>
-            </FormItem>
-            <ApmSetting
-              form={form}
-              formItemLayout={formItemLayout}
-            />
+                <Input
+                  size="large"
+                  placeholder={`请输入${location.query.appPkgID ?'运行环境':"镜像"}地址`}
+                  autoComplete="off"
+                  readOnly
+                  {...imageUrlProps}
+                />
+              </FormItem>
+            }
+            {
+              !isTemplate || (isTemplate && isWrap !== 'true') &&
+              <FormItem
+                {...formItemLayout}
+                wrapperCol={{ span: 6 }}
+                label={location.query.appPkgID ?'环境版本':"镜像版本"}
+                key="imageTag"
+              >
+                <Select
+                  size="large"
+                  placeholder={`请输入${location.query.appPkgID ?'运行':"镜像"}版本`}
+                  showSearch
+                  optionFilterProp="children"
+                  {...imageTagProps}
+                  disabled={isWrap === 'true'}
+                >
+                  {
+                    imageTags.list.map(tag => (
+                      <Option key={tag}>{tag}</Option>
+                    ))
+                  }
+                </Select>
+              </FormItem>
+            }
+              <ApmSetting
+                form={form}
+                formItemLayout={formItemLayout}
+              />
           </Form>
         </div>
         {
-          isWrap === 'true' &&
-          <OperationEnv/>
+          isWrap === 'true' && isTemplate &&
+          <OperationEnv
+            form={form}
+            formItemLayout={formItemLayout}
+            id={id}
+            template={template}
+            fileType={fileType}
+            registryServer={registryServer}
+            imageTagProps={imageTagProps}
+            currentFields={currentFields}
+            setFormFields={setFormFields}
+            key="operation"
+          />
         }
         <NormalSetting
           id={id}
