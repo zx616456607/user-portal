@@ -102,7 +102,7 @@ const Ports = React.createClass({
       return
     }
     const keyValue = key.value
-    const { form, currentCluster } = this.props
+    const { form, currentCluster, isTemplate } = this.props
     const { getFieldProps, getFieldValue } = form
     const { bindingDomains } = currentCluster
     const accessMethod = getFieldValue('accessMethod')
@@ -176,7 +176,7 @@ const Ports = React.createClass({
                   mappingPortTypeProps
                     ? (
                     <FormItem>
-                      <Select size="default" {...mappingPortTypeProps}>
+                      <Select size="default" {...mappingPortTypeProps} disabled={isTemplate}>
                         <Option value={MAPPING_PORT_AUTO}>动态生成</Option>
                         <Option value={MAPPING_PORT_SPECIAL}>指定端口</Option>
                       </Select>
@@ -267,10 +267,10 @@ const Ports = React.createClass({
     const portsKeys = getFieldValue('portsKeys') || []
     return (
       <Row className="portsConfigureService">
-        <Col span={formItemLayout.labelCol.span} className="formItemLabel">
+        <Col offset={formItemLayout.labelCol.span} className="formItemLabel">
           映射端口
         </Col>
-        <Col span={formItemLayout.wrapperCol.span}>
+        <Col offset={formItemLayout.labelCol.span}>
           <div className="portList">
             <Row className="portsHeader">
               <Col span={5}>

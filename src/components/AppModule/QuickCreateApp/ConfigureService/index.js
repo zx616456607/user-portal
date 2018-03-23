@@ -723,6 +723,7 @@ let ConfigureService = React.createClass({
           loadFreeVolume={loadFreeVolume}
           createStorage={createStorage}
           imageConfigs={imageConfigs}
+          isTemplate={isTemplate}
           key="normal"
         />
         <AssistSetting

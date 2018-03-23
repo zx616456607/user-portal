@@ -54,6 +54,7 @@ const quotaController = require('../controllers/quota')
 const cleanController = require('../controllers/clean')
 const appStoreController = require('../controllers/app_store')
 const loadBalanceController = require('../controllers/load_balance')
+const helmTemplateController = require('../controllers/template')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -164,6 +165,13 @@ module.exports = function (Router) {
   router.post('/templates', appTemplateController.createTemplate)
   router.delete('/templates/:templateid', appTemplateController.deleteTemplate)
   router.put('/templates/:templateid', appTemplateController.updateTemplate)
+
+  // Helm templates
+  router.put('/templates/helm/clusters/:cluster', helmTemplateController.createTemplate)
+  router.get('/templates/helm', helmTemplateController.getTemplateList)
+  router.del('/templates/helm/:name', helmTemplateController.deleteTemplate)
+  router.get('/templates/helm/:name', helmTemplateController.getTemplateDetail)
+  router.post('/templates/helm/:name/clusters/:cluster', helmTemplateController.deployTemplateCheck)
 
   // Services
   router.put('/clusters/:cluster/services/batch-start', serviceController.startServices)

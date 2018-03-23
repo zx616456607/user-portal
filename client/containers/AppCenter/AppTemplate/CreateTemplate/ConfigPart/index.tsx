@@ -120,7 +120,6 @@ export default class ConfigPart extends React.Component<any, IState> {
         callback={getFormAndConfig}
         isTemplate
         action={'createTemplate'}
-        AdvancedSettingKey={1}
         {...this.props}
       />
     );
@@ -133,7 +132,7 @@ export default class ConfigPart extends React.Component<any, IState> {
           <Step title="添加服务" />
           <Step title="服务配置" />
         </Steps>
-        <div className="configBody">
+        <div className="configWrapper">
           {this.renderStep()}
         </div>
       </div>
