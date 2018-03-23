@@ -134,7 +134,8 @@ let NetworkConfiguration = React.createClass ({
     return nodes.map(node => {
       let isDisabled = false;
       let key = node.objectMeta.labels['ingress-lb'];
-      if (key && key === 'true') {
+      const { maintenance } = node.objectMeta.annotations;
+      if (key && key === 'true' || maintenance === 'false') {
         isDisabled = true;
       }
       return <Option key={node.objectMeta.name} disabled={isDisabled} value={node.objectMeta.name}>{node.objectMeta.name}</Option>
