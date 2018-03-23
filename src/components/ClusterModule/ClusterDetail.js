@@ -644,7 +644,7 @@ class ClusterDetail extends Component {
     formatData.data.push({metrics, containerName: nodeName})
     return formatData
   }
-  
+
   renderStatus(hostInfo){
     const { maintainStatus, current, total } = hostInfo.objectMeta.annotations || { maintainStatus: 'fetching', current: 0, total: 0 }
     let message = '异常'
@@ -653,6 +653,9 @@ class ClusterDetail extends Component {
       if (hostInfo.objectMeta.annotations.maintenance === 'true') {
         message = '维护中'
         classname = 'themeColor'
+      } else if (hostInfo.objectMeta.annotations.maintenance === 'failed') {
+        message = '迁移失败'
+        classname = 'errorSpan'
       } else if (maintainStatus === 'processing') {
         message = '服务迁移中'
         classname = 'themeColor'
@@ -715,7 +718,7 @@ class ClusterDetail extends Component {
     }
     let runningtime = calcuDate(hostInfo.objectMeta.creationTimestamp)
     runningtime = runningtime.substring(0,runningtime.length-1)
-    const isMaintaining = hostInfo.objectMeta.annotations && hostInfo.objectMeta.annotations.maintenance === 'true'
+    const isMaintaining = hostInfo.objectMeta.annotations && ['true', 'failed'].includes(hostInfo.objectMeta.annotations.maintenance)
     return (
       <div id="clusterDetail">
         <Title title="基础设施"/>
