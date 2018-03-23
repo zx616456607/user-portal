@@ -165,8 +165,12 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   renderDifferentType(type, volume) {
+    const { isTemplate } = this.props;
     if(type == 'host' ) {
       return this.renderHostType()
+    }
+    if (type === 'share' && volume === 'create' && isTemplate) {
+      return;
     }
     if(type !== 'host' && volume == 'create'){
       const { form } = this.props
@@ -182,16 +186,19 @@ let ContainerCatalogueModal = React.createClass({
           wrapperCol={{ span: 20 }}
           className='volume_setting'
         >
-          <FormItem className='name' style={{width}}>
-            <Input
-              placeholder="请输入存储名称"
-              {...getFieldProps('name', {
-                rules: [{
-                  validator: this.checkVolumeName
-                }]
-              }) }
-            />
-          </FormItem>
+          {
+            !isTemplate &&
+            <FormItem className='name' style={{width}}>
+              <Input
+                placeholder="请输入存储名称"
+                {...getFieldProps('name', {
+                  rules: [{
+                    validator: this.checkVolumeName
+                  }]
+                }) }
+              />
+            </FormItem>
+          }
           {
             type == 'private'
               ? <div>
@@ -447,7 +454,7 @@ let ContainerCatalogueModal = React.createClass({
       form, replicas, isAutoScale,
       volumes, from, storageList,
       nfsList, cephList, fieldsList,
-      currentIndex
+      currentIndex, isTemplate
     } = this.props
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
@@ -482,6 +489,7 @@ let ContainerCatalogueModal = React.createClass({
           required: true,
           message: '存储卷不能为空'
         }],
+        initialValue: isTemplate ? 'create' : '',
         onChange: this.onVolumeChange,
       })
       volume = form.getFieldValue('volume')
@@ -572,7 +580,7 @@ let ContainerCatalogueModal = React.createClass({
                       <Select
                         placeholder="请选择存储卷"
                         {...volumeProps}
-                        disabled={isEdit && fieldsList[currentIndex].oldVolume}
+                        disabled={isTemplate || isEdit && fieldsList[currentIndex].oldVolume}
                       >
                         {this.renderVolumesOptions()}
                       </Select>

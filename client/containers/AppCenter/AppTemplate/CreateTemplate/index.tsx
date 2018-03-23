@@ -16,6 +16,7 @@ import { connect } from 'react-redux';
 import QueueAnim from 'rc-queue-anim';
 import { browserHistory } from 'react-router';
 import { Button, Row, Col, Modal } from 'antd';
+import isEmpty from 'lodash/isEmpty';
 import Title from '../../../../../src/components/Title';
 import ConfigPart from './ConfigPart';
 import TemplateInfo from './TemplateInfo';
@@ -41,15 +42,25 @@ class AppTemplate extends React.Component<any, IState> {
   }
 
   componentWillMount() {
+    const { location } = this.props;
     this.setConfig(this.props);
+    if (!isEmpty(location.query)) {
+      this.stepChange(1);
+    }
   }
 
   componentWillReceiveProps(nextProps) {
-    const { location } = this.props;
-    const { location } = nextProps;
-    const { hash, query } = location;
-    if (hash !== this.props.location.hash || query.key !== this.props.location.query.key) {
+    const { location: oldLocation } = this.props;
+    const { location: newLocation } = nextProps;
+    const { hash, query } = newLocation;
+    if (hash !== oldLocation.hash || query.key !== oldLocation.query.key) {
       this.setConfig(nextProps);
+    }
+    if (!oldLocation.query && newLocation.query) {
+      this.stepChange(1);
+    }
+    if (oldLocation.query && !newLocation.query) {
+      this.stepChange(0);
     }
   }
 
@@ -155,7 +166,7 @@ class AppTemplate extends React.Component<any, IState> {
       this.configureMode = 'edit';
       this.editServiceKey = Object.keys(fields)[0];
     }
-    // 如果实在选择镜像页则生成一个新的id
+    // 如果在选择镜像页则生成一个新的id
     if (currentStep === 0) {
       this.genConfigureServiceKey();
     }
@@ -198,7 +209,10 @@ class AppTemplate extends React.Component<any, IState> {
   }
 
   render() {
-    const { currentStep, templateName, templateDesc, templateVersion, deleteVisible, goBackVisible } = this.state;
+    const {
+      currentStep, templateName, templateDesc, templateVersion,
+      deleteVisible, goBackVisible,
+    } = this.state;
     const { location, removeFormFields, removeAllFormFields, setFormFields, fields } = this.props;
     const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey;
     const parentProps = {
@@ -234,6 +248,7 @@ class AppTemplate extends React.Component<any, IState> {
               {...parentProps}
               deleteService={this.deleteService}
               cancelTemplate={this.cancelTemplate}
+              imageConfig={this.imageConfig}
             />
           </Col>
         </Row>

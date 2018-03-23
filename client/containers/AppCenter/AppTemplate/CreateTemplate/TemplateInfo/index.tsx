@@ -13,17 +13,24 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { browserHistory, Link } from 'react-router';
+import yaml from 'js-yaml';
 import { Button, Input, Icon, Form, Row, Col } from 'antd';
 import classNames from 'classnames';
-import { getFieldsValues } from '../../../../../../src/components/AppModule/QuickCreateApp/utils';
+import isEmpty from 'lodash/isEmpty';
+import { buildJson, getFieldsValues } from '../../../../../../src/components/AppModule/QuickCreateApp/utils';
 import { parseAmount, getResourceByMemory } from '../../../../../../src/common/tools';
+import * as templateActions from '../../../../../actions/template';
 import './style/index.less';
+import NotificationHandler from '../../../../../../src/components/Notification';
 
 const FormItem = Form.Item;
 
 const TEMPLATE_EDIT_HASH = '#edit-template';
+const notify = new NotificationHandler();
 
 class TemplateInfo extends React.Component<any> {
+
+  state = {};
 
   renderServices = () => {
     const { fields, id, editServiceKey, configureMode, saveService, deleteService } = this.props;
@@ -131,9 +138,104 @@ class TemplateInfo extends React.Component<any> {
     );
   }
 
-  confirmTemplate = () => {
-    const { stepChange } = this.props;
-    stepChange(0);
+  formatTemplateInfo = (serviceArray: Array): Array => {
+    let copyArr = [];
+    copyArr.push(serviceArray[0]);
+    serviceArray.forEach((item, index) => {
+      if (index > 0) {
+        copyArr[index - 1].dependencies = [item];
+      }
+    });
+    return copyArr;
+  }
+
+  formatTemplateBody = () => {
+    const { fields, imageConfig, current, loginUser } = this.props;
+    const serviceArray: Array = [];
+    let accessType: string = '';
+    let loadBalanceName: string = '';
+    let chart: object = {};
+    let info: Array = [];
+    for (let [key, value] of Object.entries(fields)) {
+      let serviceOption = {};
+      let content: Array = [];
+      if (fields.hasOwnProperty(key)) {
+        let json = buildJson(value, current.cluster, loginUser, imageConfig);
+        content.push(yaml.dump(json.deployment));
+        content.push(yaml.dump(json.service));
+        json.storage.forEach(item => {
+          content.push(yaml.dump(item));
+        });
+        if (value.accessType && value.accessType.value === 'loadBalance') {
+          accessType = value.accessType.value;
+          let lbKeys = value.lbKeys.value;
+          lbKeys.forEach(item => {
+            const items = [];
+            const { host } = value[`ingress-${item}`].value;
+            const [hostname, ...path] = host.split('/');
+            items.push({
+              serviceName: value.serviceName.value,
+              servicePort: parseInt(value[`port-${item}`].value, 10),
+              weight: 1,
+            });
+            const body = {
+              host: hostname,
+              path: path ? '/' + path.join('/') : '',
+              items,
+            };
+            let ingress: Array = [];
+            if (!loadBalanceName) {
+              loadBalanceName = getFieldsValues(value).loadBalance;
+            }
+            if (loadBalanceName) {
+              Object.assign(serviceOption, { loadBalanceName });
+            }
+            ingress.push(Object.assign(value[`ingress-${item}`].value, body));
+            if (!isEmpty(ingress)) {
+              Object.assign(serviceOption, { ingress });
+            }
+          });
+        }
+        content = content.join('---\n');
+        Object.assign(serviceOption, { content });
+        if (!chart.name) {
+          chart.name = getFieldsValues(value).templateName;
+        }
+        if (!chart.version) {
+          chart.version = getFieldsValues(value).templateVersion;
+        }
+        if (!chart.description) {
+          chart.description = getFieldsValues(value).templateDesc;
+        }
+      }
+      serviceArray.push(serviceOption);
+    }
+    info = this.formatTemplateInfo(serviceArray);
+    return { chart, info };
+  }
+
+  confirmTemplate = async () => {
+    const { current, loginUser, createTemplate  } = this.props;
+    const { clusterID } = current.cluster;
+    const body = this.formatTemplateBody();
+    notify.spin('模板创建中');
+    this.setState({
+      confirmLoading: true,
+    });
+    const result = await createTemplate(clusterID, body);
+    if (result.error) {
+      notify.close();
+      this.setState({
+        confirmLoading: false,
+      });
+      return notify.warn('创建失败', result.error.message.message || result.error.message);
+    }
+    notify.close();
+    notify.success('模板创建成功');
+    this.setState({
+      confirmLoading: false,
+    });
+    browserHistory.push('/app_center/template');
   }
 
   getTemplateInfo = (key: string) => {
@@ -162,6 +264,7 @@ class TemplateInfo extends React.Component<any> {
   }
   render() {
     const { saveService, fields, currentStep } = this.props;
+    const { confirmLoading } = this.state;
     const formItemLayout = {
       labelCol: { span: 7 },
       wrapperCol: { span: 16 },
@@ -205,7 +308,9 @@ class TemplateInfo extends React.Component<any> {
         </div>
         <Row className="tempInfoFooter" type="flex" align="middle" justify="center">
           <Col>{this.renderCancelBtn()}</Col>
-          <Col><Button type="primary" size="large" onClick={this.confirmTemplate}>创建</Button></Col>
+          <Col>
+            <Button type="primary" loading={confirmLoading} size="large" onClick={this.confirmTemplate}>创建</Button
+          ></Col>
         </Row>
       </div>
     );
@@ -220,11 +325,12 @@ const mapStateToProps = state => {
   const { fields } = quickCreateApp;
   return {
     current,
+    loginUser,
     billingEnabled,
     fields,
   };
 };
 
 export default connect(mapStateToProps, {
-
+  createTemplate: templateActions.createTemplate,
 })(TemplateInfo);
