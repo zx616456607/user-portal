@@ -653,7 +653,7 @@ class ClusterDetail extends Component {
       if (hostInfo.objectMeta.annotations.maintenance === 'true') {
         message = '维护中'
         classname = 'themeColor'
-      } else if (record.objectMeta.annotations.maintenance === 'failed') {
+      } else if (hostInfo.objectMeta.annotations.maintenance === 'failed') {
         message = '迁移失败'
         classname = 'errorSpan'
       } else if (maintainStatus === 'processing') {
@@ -718,7 +718,7 @@ class ClusterDetail extends Component {
     }
     let runningtime = calcuDate(hostInfo.objectMeta.creationTimestamp)
     runningtime = runningtime.substring(0,runningtime.length-1)
-    const isMaintaining = hostInfo.objectMeta.annotations && ['true', 'failed'].includes(item.objectMeta.annotations.maintenance)
+    const isMaintaining = hostInfo.objectMeta.annotations && ['true', 'failed'].includes(hostInfo.objectMeta.annotations.maintenance)
     return (
       <div id="clusterDetail">
         <Title title="基础设施"/>
