@@ -160,7 +160,7 @@ class TemplateInfo extends React.Component<any> {
       let serviceOption = {};
       let content: Array = [];
       if (fields.hasOwnProperty(key)) {
-        let json = buildJson(value, current.cluster, loginUser, imageConfig);
+        let json = buildJson(value, current.cluster, loginUser, imageConfig, true);
         content.push(yaml.dump(json.deployment));
         content.push(yaml.dump(json.service));
         json.storage.forEach(item => {

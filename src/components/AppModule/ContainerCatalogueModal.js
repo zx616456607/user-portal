@@ -65,8 +65,11 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   componentWillMount() {
-    const { currentIndex, fieldsList } = this.props
+    const { currentIndex, fieldsList, isTemplate, getClusterStorageList, clusterID } = this.props
     this.restFormValues(fieldsList[currentIndex])
+    if (isTemplate) {
+      getClusterStorageList(clusterID)
+    }
   },
 
   componentWillReceiveProps(nextProps) {
@@ -290,7 +293,7 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   addOrEditFields(type) {
-    const { callbackFields, form } = this.props
+    const { callbackFields, form, isTemplate } = this.props
     this.setState({
       isResetComponent: true
     })
@@ -352,6 +355,11 @@ let ContainerCatalogueModal = React.createClass({
             //'fsType',
           ]
         }
+      }
+      if (isTemplate) {
+        let validateSet = new Set(array);
+        validateSet.delete('name');
+        array = Array.from(validateSet);
       }
       array.forEach(item => {
         validateArray.push(item)
