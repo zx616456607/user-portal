@@ -10,8 +10,8 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { 
-  Modal, Form, Select, Radio, Input, 
+import {
+  Modal, Form, Select, Radio, Input,
   Checkbox, Row, Col, Button, Icon, InputNumber
 } from 'antd'
 import isEmpty from 'lodash/isEmpty'
@@ -29,7 +29,8 @@ import {
   RESOURCES_CPU_STEP,
   RESOURCES_CPU_MIN,
   RESOURCES_CPU_DEFAULT,
-  RESOURCES_DIY
+  RESOURCES_DIY,
+  UPGRADE_EDITION_REQUIRED_CODE,
 } from '../../../constants'
 
 const FormItem = Form.Item
@@ -41,7 +42,7 @@ class LoadBalanceModal extends React.Component {
   state = {
     composeType: 512
   }
-  
+
   componentDidMount() {
     const { clusterID, getLBIPList, currentBalance, form } = this.props
     getLBIPList(clusterID)
@@ -67,7 +68,7 @@ class LoadBalanceModal extends React.Component {
       }
     }
   }
-  
+
   formatMemory = memory => {
     if (memory.indexOf('Gi') > -1) {
       memory = parseInt(memory) * 1024
@@ -76,7 +77,7 @@ class LoadBalanceModal extends React.Component {
     }
     return memory
   }
-  
+
   formatCPU = cpu => {
     if (cpu.indexOf('m') > -1) {
       cpu = parseInt(cpu)
@@ -86,14 +87,14 @@ class LoadBalanceModal extends React.Component {
     }
     return cpu
   }
-  
+
   nodeCheck = (rule, value, callback) => {
     if (!value || !value.length) {
       return callback('请选择节点')
     }
     callback()
   }
-  
+
   nameCheck = (rule, value, callback) => {
     let message = lbNameCheck(value)
     if (message !== 'success') {
@@ -106,7 +107,7 @@ class LoadBalanceModal extends React.Component {
     form.resetFields()
     closeModal()
   }
-  
+
   confirmModal = () => {
     const { composeType } = this.state
     const { closeModal, form, createLB, editLB, clusterID, callback, currentBalance } = this.props
@@ -115,7 +116,7 @@ class LoadBalanceModal extends React.Component {
         return
       }
       if (!composeType) {
-        notify.close() 
+        notify.close()
         notify.info('请选择配置')
         return
       }
@@ -123,12 +124,12 @@ class LoadBalanceModal extends React.Component {
         confirmLoading: true
       })
       notify.spin(currentBalance ? '修改中' : '创建中')
-      const { 
-        displayName, useGzip, node, monitorType, description, 
-        DIYMinMemory, DIYMaxMemory, DIYMinCPU, DIYMaxCPU 
+      const {
+        displayName, useGzip, node, monitorType, description,
+        DIYMinMemory, DIYMaxMemory, DIYMinCPU, DIYMaxCPU
       } = values
       let resources
-      let defaultRequests 
+      let defaultRequests
       let defaultLimits
       if (composeType === 512) {
         defaultRequests = {
@@ -152,7 +153,7 @@ class LoadBalanceModal extends React.Component {
         monitorType,
         nodeName: currentBalance ? currentBalance.metadata.annotations.nodeName : node.split('/')[1],
         ip: currentBalance ? currentBalance.metadata.annotations.allocatedIP : node.split('/')[0],
-        requests: defaultRequests, 
+        requests: defaultRequests,
         limits: defaultLimits,
         description
       }
@@ -186,6 +187,9 @@ class LoadBalanceModal extends React.Component {
                 return
               }
             }
+            if (res.statusCode === UPGRADE_EDITION_REQUIRED_CODE) {
+              return callback()
+            }
             notify.warn(currentBalance ? '修改失败' : '创建失败', res.message.message || res.message)
           }
         },
@@ -205,22 +209,22 @@ class LoadBalanceModal extends React.Component {
       createLB(clusterID, body, actionCallback)
     })
   }
-  
+
   selectComposeType = type => {
     this.setState({
       composeType: type
     })
   }
-  
+
   DIYMinMemoryCheck = (rules, value, callback) => {
     if (!value) {
       return callback('最小内存不能为空')
     }
     callback()
   }
-  
+
   DIYMinMemoryChange = value => {
-    const { form } = this.props  
+    const { form } = this.props
     const { getFieldValue, setFieldsValue } = form
     const maxMemoryValue = getFieldValue('DIYMaxMemory')
     if (value >= maxMemoryValue) {
@@ -229,21 +233,21 @@ class LoadBalanceModal extends React.Component {
       })
     }
   }
-  
+
   DIYMaxMemoryCheck = (rules, value, callback) => {
     if (!value) {
       return callback('最大内存不能为空')
     }
     callback()
   }
-  
+
   DIYMinCPUCheck = (rules, value, callback) => {
     if (!value) {
       return callback('最小CPU不能为空')
     }
     callback()
   }
-  
+
   DIYMinCPUChange = value => {
     const { form } = this.props
     const { getFieldValue, setFieldsValue } = form
@@ -254,7 +258,7 @@ class LoadBalanceModal extends React.Component {
       })
     }
   }
-  
+
   DIYMaxCPUCheck = (rules, value, callback) => {
     if (!value) {
       return callback('最大CPU不能为空')
@@ -269,7 +273,7 @@ class LoadBalanceModal extends React.Component {
       labelCol: { span: 5 },
       wrapperCol: { span: 18 }
     }
-  
+
     const nodeProps = getFieldProps('node', {
       rules: [
         {
@@ -278,11 +282,11 @@ class LoadBalanceModal extends React.Component {
       ],
       initialValue: currentBalance ? currentBalance.metadata.annotations.nodeName : ''
     })
-  
+
     const monitorTypeProps = getFieldProps('monitorType', {
       initialValue: 'HTTP'
     })
-    
+
     const nameProps = getFieldProps('displayName', {
       rules: [
         {
@@ -291,7 +295,7 @@ class LoadBalanceModal extends React.Component {
       ],
       initialValue: currentBalance ? currentBalance.metadata.annotations.displayName : ''
     })
-    
+
     const DIYMinMemoryProps = getFieldProps('DIYMinMemory', {
       rules: [
         {
@@ -301,7 +305,7 @@ class LoadBalanceModal extends React.Component {
       initialValue: RESOURCES_MEMORY_MIN,
       onChange: this.DIYMinMemoryChange
     })
-    
+
     const DIYMaxMemoryProps = getFieldProps('DIYMaxMemory', {
       rules: [
         {
@@ -310,7 +314,7 @@ class LoadBalanceModal extends React.Component {
       ],
       initialValue: RESOURCES_MEMORY_MIN
     })
-    
+
     const DIYMinCPUProps = getFieldProps('DIYMinCPU', {
       rules: [
         {
@@ -320,7 +324,7 @@ class LoadBalanceModal extends React.Component {
       initialValue: RESOURCES_CPU_DEFAULT,
       onChange: this.DIYMinCPUChange
     })
-    
+
     const DIYMaxCPUProps = getFieldProps('DIYMaxCPU', {
       rules: [
         {
@@ -329,18 +333,18 @@ class LoadBalanceModal extends React.Component {
       ],
       initialValue: RESOURCES_CPU_DEFAULT
     })
-    const gzipProps = getFieldProps('useGzip', { 
-      initialValue: currentBalance ? currentBalance.metadata.annotations.usegzip === 'true' : false, 
-      valuePropName: 'checked' 
+    const gzipProps = getFieldProps('useGzip', {
+      initialValue: currentBalance ? currentBalance.metadata.annotations.usegzip === 'true' : false,
+      valuePropName: 'checked'
     })
-    
+
     const descProps = getFieldProps('description', {
       initialValue: currentBalance ? currentBalance.metadata.annotations.description : ''
     })
-    const nodesChild = isEmpty(ips) ? [] : ips.map(item => 
+    const nodesChild = isEmpty(ips) ? [] : ips.map(item =>
       <Option key={`${item.ip}/${item.name}`}>{item.name}</Option>
     )
-    
+
     return (
       <Modal
         className="loadBalanceModal"
@@ -464,7 +468,7 @@ class LoadBalanceModal extends React.Component {
           >
             <Checkbox {...gzipProps}>开启 gzip</Checkbox>
           </FormItem>
-          
+
           <FormItem
             label="备注"
             {...formItemLayout}
