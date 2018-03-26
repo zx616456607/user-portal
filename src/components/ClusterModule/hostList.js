@@ -371,7 +371,7 @@ const MyComponent = React.createClass({
           title: '调度状态',
           dataIndex: 'schedulable',
           render: (text, item, index) => {
-            const isMaintaining = item.objectMeta.annotations.maintenance === 'true'
+            const isMaintaining = ['true', 'failed'].includes(item.objectMeta.annotations.maintenance)
             return (
               <div>
                 <Tooltip

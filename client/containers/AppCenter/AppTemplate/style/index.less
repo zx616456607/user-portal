@@ -1,6 +1,42 @@
-.templateList {
-  .templateTable {
-    background-color: white;
-    padding: 10px 20px 40px;
+@import '../../../../../src/assets/style/site/core';
+.templateWrapper {
+  .templateBody {
+    .templateList {
+      width: 200px;
+      height: 180px;
+      border: 1px solid @primary-color;
+      border-radius: 4px;
+      display: inline-block;
+      margin: 10px;
+      overflow: hidden;
+      &::after {
+        content: '';
+        clear: both;
+      }
+      .version {
+        float: left;
+      }
+      .operation {
+        float: right;
+      }
+      .tempLogo {
+        margin: 20px auto;
+        display: block;
+      }
+      .templateFooter {
+        background-color: wheat;
+        height: 58px;
+        .descAndDeploy {
+          display: flex;
+          align-items: center;
+          .tempDesc {
+            flex: 0 1 120px;
+          }
+          .deploy {
+            flex: 0 0 80;
+          }
+        }
+      }
+    }
   }
 }

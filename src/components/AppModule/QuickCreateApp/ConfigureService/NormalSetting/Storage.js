@@ -383,6 +383,7 @@ const Storage = React.createClass({
     const {
       formItemLayout, form, isCanCreateVolume,
       fields, avaliableVolume, currentFields,
+      isTemplate
     } = this.props
     const { getFieldProps, getFieldValue } = form
     const { serviceType } = fields || {}
@@ -470,6 +471,7 @@ const Storage = React.createClass({
             replicas={currentFields.replicas && currentFields.replicas.value || 1}
             isAutoScale={false}
             from={'createApp'}
+            isTemplate={isTemplate}
             isBindNode={this.getServiceIsBindNode()}
           />
         </Modal>

@@ -393,7 +393,7 @@ const Normal = React.createClass({
       formItemLayout, form, standardFlag,
       fields, currentCluster, clusterNodes,
       isCanCreateVolume, imageConfigs,
-      id,
+      id, isTemplate
     } = this.props
     const { replicasInputDisabled, memoryMin, cpuMin } = this.state
     const { getFieldProps } = form
@@ -480,6 +480,7 @@ const Normal = React.createClass({
             mountPath={mountPath}
             key="storage"
             id={id}
+            isTemplate={isTemplate}
           />
           <FormItem
             {...formItemLayout}
@@ -512,6 +513,7 @@ const Normal = React.createClass({
               fields={fields}
               containerPorts={containerPorts}
               currentCluster={currentCluster}
+              isTemplate={isTemplate}
               key="ports"
             />
           }
