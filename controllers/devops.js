@@ -1055,7 +1055,7 @@ exports.getDeploymentOrAppCDRule = function* () {
   }
   let appService = { isEmptyObject: true }
   const loginUser = this.session.loginUser
-  if(type == 'app') {
+  if (type == 'app') {
     appService.isEmptyObject = false
     const appApi = apiFactory.getK8sApi(loginUser)
     const result = yield appApi.getBy([cluster, 'apps', name])
@@ -1085,24 +1085,36 @@ exports.getDeploymentOrAppCDRule = function* () {
     }
   }
   const api =  apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.getBy(['cd-rules'], {
-    cluster,
-    name: name.join ? name.join(',') : name
-  })
-  const body = []
-  if(!appService.isEmptyObject) {
-    result.results.forEach(item => {
-      const deploymentName = item.binding_deployment_name
-      body.push({
-        appname: appService[deploymentName],
-        service: item
-      })
-    })
-    this.body = {
-      results: body
-    }
-    return
+  let result = {
+    results: []
   }
+  try {
+    result = yield api.getBy(['cd-rules'], {
+      cluster,
+      name: name.join ? name.join(',') : name
+    })
+    const body = []
+    if(!appService.isEmptyObject) {
+      result.results.forEach(item => {
+        const deploymentName = item.binding_deployment_name
+        body.push({
+          appname: appService[deploymentName],
+          service: item
+        })
+      })
+      this.body = {
+        results: body
+      }
+      return
+    }
+  } catch (err) {
+    if (err.statusCode === 403) {
+      logger.warn("Failed to get cd rules as it's not permitted")
+    } else {
+      throw err
+    }
+  }
+
   this.body = result
 }
 
