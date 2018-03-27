@@ -221,9 +221,9 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   // 模板访问方式
   let templateGroup = "none"
   switch(accessMethod){
-    case 'PublicNetwork': groupID = publicNetwork; templateGroup = 'PublicNetwork'; break;
-    case 'Internaletwork': groupID = internaletwork; templateGroup = 'Internaletwork'; break;
-    case 'Cluster':
+      case 'PublicNetwork': groupID = publicNetwork; templateGroup = 'PublicNetwork'; break;
+      case 'Internaletwork': groupID = internaletwork; templateGroup = 'Internaletwork'; break;
+      case 'Cluster':
     default:
       groupID = 'none'; templateGroup = 'Cluster'; break
   }

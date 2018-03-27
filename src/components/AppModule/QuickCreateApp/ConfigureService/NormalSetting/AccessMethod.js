@@ -297,7 +297,7 @@ class AccessMethod extends Component {
   }
   render() {
     const { activeKey } = this.state
-    const { formItemLayout, form, clusterID } = this.props
+    const { formItemLayout, form, clusterID, isTemplate } = this.props
     const { getFieldProps, getFieldValue } = form
     const imageComposeStyle = classNames({
       'tabs_item_style': true,
@@ -319,7 +319,7 @@ class AccessMethod extends Component {
           label="访问方式"
           className='radioBox'
         >
-  
+
           <ul className='tabs_header_style'>
             <li className={imageComposeStyle}
                 onClick={this.tabChange.bind(this, "netExport")}
@@ -345,10 +345,20 @@ class AccessMethod extends Component {
           activeKey === 'netExport' &&
           <Row className='tipsRow'>
             <Col span="4" />
-            <Col span="20">{this.accessMethodTips(accessMethodValue)}</Col>
+            <Col span="20">
+            {
+              !isTemplate
+                ? this.accessMethodTips(accessMethodValue)
+                :
+                <div className="themeColor">
+                  <Icon type="info-circle-o" />&nbsp;
+                  模板中只需选择网络出口类型，部署应用时，会自动选择对应类型网络出口！
+                </div>
+            }
+            </Col>
           </Row>
         }
-        {activeKey === 'netExport' && this.accessMethodContent(accessMethodValue)}
+        {activeKey === 'netExport' && !isTemplate && this.accessMethodContent(accessMethodValue)}
         {
           activeKey === 'loadBalance' &&
           <LoadBalance

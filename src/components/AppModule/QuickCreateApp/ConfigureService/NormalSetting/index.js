@@ -504,6 +504,7 @@ const Normal = React.createClass({
             form={form}
             currentCluster={currentCluster}
             key="accessmethod"
+            isTemplate={isTemplate}
           />
           {
             (!accessType || accessType.value !== 'loadBalance') &&

@@ -167,7 +167,7 @@ module.exports = function (Router) {
   router.put('/templates/:templateid', appTemplateController.updateTemplate)
 
   // Helm templates
-  router.put('/templates/helm/clusters/:cluster', helmTemplateController.createTemplate)
+  router.put('/templates/helm', helmTemplateController.createTemplate)
   router.get('/templates/helm', helmTemplateController.getTemplateList)
   router.del('/templates/helm/:name', helmTemplateController.deleteTemplate)
   router.get('/templates/helm/:name', helmTemplateController.getTemplateDetail)
