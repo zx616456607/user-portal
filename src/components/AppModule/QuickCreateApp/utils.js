@@ -35,7 +35,7 @@ export function formatValuesToFields(values) {
   return fields
 }
 
-export function buildJson(fields, cluster, loginUser, imageConfigs) {
+export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) {
   const fieldsValues = getFieldsValues(fields)
   // 获取各字段值
   const {
@@ -118,6 +118,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
   // 服务类型&存储
   const storage = []
   if (serviceType) {
+    const storageForTemplate = []
     storageList.forEach((item, index) => {
       // volume
       const volume = {
@@ -172,7 +173,29 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
             claimName: image,
             readOnly,
           }
+          if (isTemplate) {
+            delete volume.persistentVolumeClaim.claimName
+            let storageType = type === 'private' ? 'ceph' : 'nfs'
+            volume.name = `${storageType}-volume-${index}`
+            let volumeObj = {
+              name: volume.name,
+              storageClassName,
+              readOnly
+            }
+            if (type === 'private') {
+              Object.assign(volumeObj, {
+                fsType,
+                storage: size ? `${size}Mi` : '512Mi',
+              })
+            }
+            storageForTemplate.push(volumeObj)
+          }
           deployment.addContainerVolumeV2(serviceName, volume, volumeMounts)
+        }
+        if (isTemplate) {
+          deployment.setAnnotations({
+            'system/registry/template': storageForTemplate
+          })
         }
       }
       /* if (storageType == 'rbd') {
@@ -195,12 +218,14 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
   const { proxyType } = loginUser
   // 设置访问方式
   let groupID = "none"
+  // 模板访问方式
+  let templateGroup = "none"
   switch(accessMethod){
-    case 'PublicNetwork': groupID = publicNetwork; break;
-    case 'Internaletwork': groupID = internaletwork; break;
-    case 'Cluster':
+      case 'PublicNetwork': groupID = publicNetwork; templateGroup = 'PublicNetwork'; break;
+      case 'Internaletwork': groupID = internaletwork; templateGroup = 'Internaletwork'; break;
+      case 'Cluster':
     default:
-      groupID = 'none'; break
+      groupID = 'none'; templateGroup = 'Cluster'; break
   }
   if (accessType === 'loadBalance') {
     // 访问方式为负载均衡
@@ -211,7 +236,11 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
       service.addPort(proxyType, name, null, port, port)
     })
   } else {
-    service.addLBGroupAnnotation(groupID)
+    if (isTemplate) {
+      service.addLBGroupAnnotation(templateGroup)
+    } else {
+      service.addLBGroupAnnotation(groupID)
+    }
     portsKeys && portsKeys.forEach(key => {
       if (key.deleted) {
         return

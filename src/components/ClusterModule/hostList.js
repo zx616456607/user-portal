@@ -806,7 +806,11 @@ class hostList extends Component {
       [isForce ? 'forceLoading' : 'doubleConfirmLoading']: true
     })
     notify.spin('节点维护开启中')
-    const res = await maintainNode(clusterID, deleteNode.objectMeta.name, forceBody)
+    const res = await maintainNode(clusterID, deleteNode.objectMeta.name, forceBody, {
+      failed: {
+        func: () => null
+      }
+    })
     if (res.error) {
       this.setState({
         [isForce ? 'forceLoading' : 'doubleConfirmLoading']: false
@@ -816,6 +820,12 @@ class hostList extends Component {
       if (res.error.statusCode === 409) {
         const { namespace, resourceName } = res.error.message.data;
         errorMessage = `用户${namespace}的节点${resourceName}违反了自己的pdb策略`
+        this.loadData()
+        notify.warn('容器迁移失败', errorMessage)
+        this.setState({
+          forceModal: false
+        })
+        return
       }
       notify.warn('节点维护开启失败', errorMessage)
       this.setState({

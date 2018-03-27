@@ -21,7 +21,10 @@ import {
 } from '../../../../actions/app_center'
 import { loadRepositoriesTags, loadRepositoriesTagConfigInfo } from '../../../../actions/harbor'
 import QueueAnim from 'rc-queue-anim'
-import { appNameCheck, validateK8sResourceForServiceName } from '../../../../common/naming_validation'
+import {
+  appNameCheck, validateK8sResourceForServiceName,
+  templateNameCheck
+} from '../../../../common/naming_validation'
 import {
   DEFAULT_REGISTRY,
   ASYNC_VALIDATOR_TIMEOUT,
@@ -422,8 +425,9 @@ let ConfigureService = React.createClass({
     }, ASYNC_VALIDATOR_TIMEOUT)
   },
   checkTempName (rule, value, callback) {
-    if (!value) {
-      return callback('请输入模板名称')
+    let errorMsg = templateNameCheck(value)
+    if (errorMsg !== 'success') {
+      return callback(errorMsg)
     }
     callback()
   },
@@ -436,6 +440,9 @@ let ConfigureService = React.createClass({
   checkTempDesc (rule, value, callback) {
     if (!value) {
       return callback('请输入模板描述')
+    }
+    if (value.length > 1000) {
+      return callback('模板描述不能超过1000个字符')
     }
     callback()
   },
@@ -653,7 +660,7 @@ let ConfigureService = React.createClass({
             </FormItem>
             }
             {
-              !isTemplate || (isTemplate && isWrap !== 'true') &&
+              (!isTemplate || (isTemplate && isWrap !== 'true')) &&
               <FormItem
                 {...formItemLayout}
                 wrapperCol={{ span: 8 }}
@@ -670,7 +677,7 @@ let ConfigureService = React.createClass({
               </FormItem>
             }
             {
-              !isTemplate || (isTemplate && isWrap !== 'true') &&
+              (!isTemplate || (isTemplate && isWrap !== 'true')) &&
               <FormItem
                 {...formItemLayout}
                 wrapperCol={{ span: 6 }}

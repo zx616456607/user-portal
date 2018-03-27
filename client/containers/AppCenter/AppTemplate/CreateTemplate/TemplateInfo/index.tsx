@@ -150,7 +150,7 @@ class TemplateInfo extends React.Component<any> {
   }
 
   formatTemplateBody = () => {
-    const { fields, imageConfig, current, loginUser } = this.props;
+    const { fields, imageConfig, current, loginUser, loadBalanceList } = this.props;
     const serviceArray: Array = [];
     let accessType: string = '';
     let loadBalanceName: string = '';
@@ -160,7 +160,7 @@ class TemplateInfo extends React.Component<any> {
       let serviceOption = {};
       let content: Array = [];
       if (fields.hasOwnProperty(key)) {
-        let json = buildJson(value, current.cluster, loginUser, imageConfig);
+        let json = buildJson(value, current.cluster, loginUser, imageConfig, true);
         content.push(yaml.dump(json.deployment));
         content.push(yaml.dump(json.service));
         json.storage.forEach(item => {
@@ -188,7 +188,14 @@ class TemplateInfo extends React.Component<any> {
               loadBalanceName = getFieldsValues(value).loadBalance;
             }
             if (loadBalanceName) {
-              Object.assign(serviceOption, { loadBalanceName });
+              const currentLB = loadBalanceList.filter(lb => loadBalanceName === lb.metadata.name)[0];
+              const { displayName, className } = currentLB.metadata.annotations;
+              const lbObj = {
+                lbName: loadBalanceName,
+                displayName,
+                className,
+              };
+              Object.assign(serviceOption, { loadbalance: lbObj });
             }
             ingress.push(Object.assign(value[`ingress-${item}`].value, body));
             if (!isEmpty(ingress)) {
@@ -215,14 +222,13 @@ class TemplateInfo extends React.Component<any> {
   }
 
   confirmTemplate = async () => {
-    const { current, loginUser, createTemplate  } = this.props;
-    const { clusterID } = current.cluster;
+    const { loginUser, createTemplate  } = this.props;
     const body = this.formatTemplateBody();
     notify.spin('模板创建中');
     this.setState({
       confirmLoading: true,
     });
-    const result = await createTemplate(clusterID, body);
+    const result = await createTemplate(body);
     if (result.error) {
       notify.close();
       this.setState({
@@ -318,16 +324,19 @@ class TemplateInfo extends React.Component<any> {
 }
 
 const mapStateToProps = state => {
-  const { entities, quickCreateApp } = state;
+  const { entities, quickCreateApp, loadBalance } = state;
   const { current, loginUser } = entities;
   const { billingConfig } = loginUser.info;
   const { enabled: billingEnabled } = billingConfig;
   const { fields } = quickCreateApp;
+  const { loadBalanceList } = loadBalance || { loadBalanceList: {} };
+  const { data: loadBalanceList } = loadBalanceList || { data: [] };
   return {
     current,
     loginUser,
     billingEnabled,
     fields,
+    loadBalanceList,
   };
 };
 
