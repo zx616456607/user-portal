@@ -16,7 +16,7 @@ export const CREATE_APP_TEMPLATE_REQUEST = 'CREATE_APP_TEMPLATE_REQUEST';
 export const CREATE_APP_TEMPLATE_SUCCESS = 'CREATE_APP_TEMPLATE_SUCCESS';
 export const CREATE_APP_TEMPLATE_FAILURE = 'CREATE_APP_TEMPLATE_FAILURE';
 
-const fetchCreateTemplate = (body, callback) => {
+const fetchCreateTemplate = (clusterID, body, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -24,7 +24,7 @@ const fetchCreateTemplate = (body, callback) => {
         CREATE_APP_TEMPLATE_SUCCESS,
         CREATE_APP_TEMPLATE_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/templates/helm`,
+      endpoint: `${API_URL_PREFIX}/templates/helm/clusters/${clusterID}`,
       schema: {},
       options: {
         method: 'PUT',
@@ -35,8 +35,8 @@ const fetchCreateTemplate = (body, callback) => {
   };
 };
 
-export const createTemplate = (body: object, callback?: function) =>
-  dispatch => dispatch(fetchCreateTemplate(body, callback));
+export const createTemplate = (clusterID: string, body: object, callback?: function) =>
+  dispatch => dispatch(fetchCreateTemplate(clusterID, body, callback));
 
 export const APP_TEMPLATE_LIST_REQUEST = 'APP_TEMPLATE_LIST_REQUEST';
 export const APP_TEMPLATE_LIST_SUCCESS = 'APP_TEMPLATE_LIST_SUCCESS';

@@ -228,9 +228,13 @@ class Deployment {
     this.spec.template.metadata.labels[APM_SERVICE_LABEL_KEY] = type
   }
 
-  setContainerResources(containerName, memory, cpu, limitMemory, limitCpu) {
+  setContainerResources(containerName, memory, cpu, limitMemory, limitCpu, GPU) {
     this.spec.template.spec.containers.map((container) => {
       if (container.name !== containerName) {
+        return
+      }
+      if (GPU) {
+        container.resources = utils.getGPUResources(GPU, memory, cpu, limitMemory, limitCpu)
         return
       }
       container.resources = utils.getResources(memory, cpu, limitMemory, limitCpu)

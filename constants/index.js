@@ -95,3 +95,6 @@ exports.TENX_STORE = 'tenx_store'
 
 //timeout 2min
 exports.MAX_TIMEOUT = 120000
+
+// GPU key
+exports.RESOURCES_GPU_KEY = 'nvidia.com/gpu'

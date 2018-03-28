@@ -188,10 +188,10 @@ class LoadBalanceModal extends React.Component {
               }
             }
             if (res.statusCode === UPGRADE_EDITION_REQUIRED_CODE) {
-              return callback()
+              return
             }
             notify.warn(currentBalance ? '修改失败' : '创建失败', res.message.message || res.message)
-          }
+          },
         },
         finally: {
           func: () => {

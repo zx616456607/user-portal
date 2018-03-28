@@ -14,6 +14,7 @@ const constants = require('../constants')
 const clone = require('lodash/cloneDeep')
 const DEFAULT_CONTAINER_RESOURCES = constants.DEFAULT_CONTAINER_RESOURCES
 const DEFAULT_CONTAINER_RESOURCES_MEMORY = constants.DEFAULT_CONTAINER_RESOURCES_MEMORY
+const RESOURCES_GPU_KEY = constants.RESOURCES_GPU_KEY
 const ENTERPRISE_MODE = require('../configs/constants').ENTERPRISE_MODE
 const mode = require('../configs/model').mode
 const enterpriseFlag = ENTERPRISE_MODE == mode
@@ -72,6 +73,12 @@ exports.getResources = function (memory, cpu, limitMemory, limitCpu) {
     resources.requests.cpu = `${cpu * 1000}m`
     resources.limits.cpu = `${limitCpu * 1000}m`
   }
+  return resources
+}
+
+exports.getGPUResources = function (gpu, memory, cpu, limitMemory, limitCpu) {
+  const resources = exports.getResources(memory, cpu, limitMemory, limitCpu)
+  resources.requests[RESOURCES_GPU_KEY] = resources.limits[RESOURCES_GPU_KEY] = gpu;
   return resources
 }
 // only enterprise

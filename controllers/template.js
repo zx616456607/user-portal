@@ -14,9 +14,10 @@ const apiFactory = require('../services/api_factory')
 // create template
 exports.createTemplate = function* () {
   const loginUser = this.session.loginUser;
+  const cluster = this.params.cluster;
   const body = this.request.body;
   const api = apiFactory.getApi(loginUser);
-  const result = yield api.templates.updateBy(['helm'], null, body);
+  const result = yield api.templates.updateBy(['helm', 'clusters', cluster], null, body);
   this.body = result;
 }
 

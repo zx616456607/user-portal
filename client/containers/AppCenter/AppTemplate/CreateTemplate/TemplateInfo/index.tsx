@@ -17,6 +17,7 @@ import yaml from 'js-yaml';
 import { Button, Input, Icon, Form, Row, Col } from 'antd';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 import { buildJson, getFieldsValues } from '../../../../../../src/components/AppModule/QuickCreateApp/utils';
 import { parseAmount, getResourceByMemory } from '../../../../../../src/common/tools';
 import * as templateActions from '../../../../../actions/template';
@@ -139,14 +140,14 @@ class TemplateInfo extends React.Component<any> {
   }
 
   formatTemplateInfo = (serviceArray: Array): Array => {
-    let copyArr = [];
-    copyArr.push(serviceArray[0]);
-    serviceArray.forEach((item, index) => {
-      if (index > 0) {
-        copyArr[index - 1].dependencies = [item];
+    const copyArr = cloneDeep(serviceArray);
+    copyArr = copyArr.reverse();
+    copyArr.forEach((item, index, arr) => {
+      if (index < arr.length - 1) {
+        item.dependencies = [copyArr[index + 1]];
       }
     });
-    return copyArr;
+    return [copyArr[0]];
   }
 
   formatTemplateBody = () => {
@@ -222,13 +223,14 @@ class TemplateInfo extends React.Component<any> {
   }
 
   confirmTemplate = async () => {
-    const { loginUser, createTemplate  } = this.props;
+    const { loginUser, createTemplate, current } = this.props;
+    const { clusterID } = current.cluster;
     const body = this.formatTemplateBody();
     notify.spin('模板创建中');
     this.setState({
       confirmLoading: true,
     });
-    const result = await createTemplate(body);
+    const result = await createTemplate(clusterID, body);
     if (result.error) {
       notify.close();
       this.setState({

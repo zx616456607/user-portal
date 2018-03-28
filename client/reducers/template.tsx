@@ -30,8 +30,29 @@ function templates(state = {}, action) {
   }
 }
 
+function templateDetail(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.APP_TEMPLATE_DETAIL_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      });
+    case ActionTypes.APP_TEMPLATE_DETAIL_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data,
+      });
+    case ActionTypes.APP_TEMPLATE_DETAIL_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      });
+    default:
+      return state;
+  }
+}
+
 export default function appTemplates(state = {}, action) {
   return {
     templates: templates(state.templates, action),
+    templateDetail: templateDetail(state.templateDetail, action),
   };
 }
