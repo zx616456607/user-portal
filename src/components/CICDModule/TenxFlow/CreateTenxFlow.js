@@ -420,10 +420,10 @@ let CreateTenxFlow = React.createClass({
               forEdit: false
             })
             if(buildImage) {
-              browserHistory.push(`/ci_cd/build_image/tenx_flow_build?${res.data.flowId}&showCard=${true}`)
+              browserHistory.push(`/ci_cd/build_image/tenx_flow_build?flowId=${res.flowId}&showCard=${true}`)
               return
             }
-            browserHistory.push(`/ci_cd/tenx_flow/tenx_flow_build?${res.data.flowId}`)
+            browserHistory.push(`/ci_cd/tenx_flow/tenx_flow_build?flowId=${res.flowId}`)
           },
           isAsync: true
         },

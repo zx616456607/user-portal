@@ -377,7 +377,7 @@ let MyComponent = React.createClass({
         <div className='tenxflowDetail' key={item.name} >
           <div className='name'>
             <Tooltip placement='topLeft' title={item.name}>
-              <Link to={`/ci_cd/build_image/tenx_flow_build?${item.flowId}&${flowListState[index].status}`}>
+              <Link to={`/ci_cd/build_image/tenx_flow_build?flowId=${item.flowId}&status=${flowListState[index].status}`}>
                 <span>{item.name}</span>
               </Link>
             </Tooltip>
