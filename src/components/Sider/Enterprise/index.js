@@ -551,11 +551,12 @@ class Sider extends Component {
                     </span>
                   }
                 >
-                  <Menu.Item key='app_template'>
+                {/*  <Menu.Item key='app_template'>
                     <Link to='/app_center/template'>
                       <span><div className='sideCircle'></div> 应用模板</span>
                     </Link>
                   </Menu.Item>
+                */}
                   <Menu.Item key='projects'>
                     <Link to='/app_center/projects'>
                       <span><div className='sideCircle'></div> 镜像仓库</span>
