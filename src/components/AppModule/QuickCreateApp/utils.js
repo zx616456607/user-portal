@@ -17,6 +17,7 @@ import { getResourceByMemory } from '../../../common/tools'
 import {
   RESOURCES_DIY,
   SYSTEM_DEFAULT_SCHEDULE,
+  GPU_ALGORITHM,
  } from '../../../constants'
 
 export function getFieldsValues(fields) {
@@ -47,6 +48,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
     bindNode, // 绑定节点
     bindNodeType,//绑定节点类型
     bindLabel,//主机标签绑定
+    resourceAlgorithm, // 容器配置算法 one of [X86, GPU]
+    GPULimits, // GPU limits 数量
     resourceType, // 容器配置
     DIYMemory, // 自定义配置-内存
     DIYCPU, // 自定义配置-CPU
@@ -114,7 +117,11 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   }
   // 设置资源
   const { cpu, memory, limitCpu, limitMemory } = getResourceByMemory(resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU)
-  deployment.setContainerResources(serviceName, memory, cpu, limitMemory, limitCpu)
+  const paramsArray = [serviceName, memory, cpu, limitMemory, limitCpu]
+  if (resourceAlgorithm === GPU_ALGORITHM) {
+    paramsArray.push(GPULimits)
+  }
+  deployment.setContainerResources.apply(deployment, paramsArray)
   // 服务类型&存储
   const storage = []
   if (serviceType) {

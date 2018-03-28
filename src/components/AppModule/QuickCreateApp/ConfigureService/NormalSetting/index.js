@@ -21,7 +21,8 @@ import { getNodes, getClusterLabel } from '../../../../../actions/cluster_node'
 import {
   SYSTEM_DEFAULT_SCHEDULE,
   RESOURCES_DIY, RESOURCES_MEMORY_MIN,
-  RESOURCES_CPU_MIN
+  RESOURCES_CPU_MIN, RESOURCES_GPU_MIN,
+  DEFAULT_ALGORITHM, GPU_ALGORITHM
  } from '../../../../../constants'
 import './style/index.less'
 import TagDropDown from '../../../../ClusterModule/TagDropdown'
@@ -95,7 +96,7 @@ const Normal = React.createClass({
       bindNodeType: 'hostname',
     })
   },
-  onResourceChange({ resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU }) {
+  onResourceChange({ resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU, resourceAlgorithm }) {
     const { form, id } = this.props
     const { setFieldsValue } = form
     const values = { resourceType }
@@ -110,6 +111,9 @@ const Normal = React.createClass({
     }
     if (DIYMaxCPU) {
       values.DIYMaxCPU = DIYMaxCPU
+    }
+    if (resourceAlgorithm) {
+      values.resourceAlgorithm = resourceAlgorithm
     }
     setFieldsValue(values)
   },
@@ -388,6 +392,15 @@ const Normal = React.createClass({
       })
     }
   },
+  algorithmChange(e) {
+    const { setFieldsValue } = this.props.form
+    if (e.target.value === GPU_ALGORITHM) {
+      this.setResourceTypeToDIY()
+      setFieldsValue({
+        GPULimits: RESOURCES_GPU_MIN
+      })
+    }
+  },
   render() {
     const {
       formItemLayout, form, standardFlag,
@@ -396,7 +409,7 @@ const Normal = React.createClass({
       id, isTemplate
     } = this.props
     const { replicasInputDisabled, memoryMin, cpuMin } = this.state
-    const { getFieldProps } = form
+    const { getFieldProps, setFieldsValue } = form
     const { mountPath, containerPorts } = imageConfigs
     const { resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU, accessType } = fields || {}
     const replicasProps = getFieldProps('replicas', {
@@ -421,6 +434,13 @@ const Normal = React.createClass({
     })
     const DIYMaxCPUProps = getFieldProps('DIYMaxCPU', {
       onChange: this.setResourceTypeToDIY,
+    })
+    const algorithmProps = getFieldProps('resourceAlgorithm', {
+      initialValue: DEFAULT_ALGORITHM,
+      onChange: this.algorithmChange
+    })
+    const GPULimitsProps = getFieldProps('GPULimits', {
+      initialValue: RESOURCES_GPU_MIN
     })
     return (
       <div id="normalConfigureService">
@@ -450,7 +470,10 @@ const Normal = React.createClass({
             <Col span={formItemLayout.wrapperCol.span}>
               <ResourceSelect
                 form={form}
-                {...{DIYMemoryProps, DIYCPUProps, DIYMaxMemoryProps, DIYMaxCPUProps, memoryMin, cpuMin}}
+                {...{
+                  DIYMemoryProps, DIYCPUProps, DIYMaxMemoryProps, DIYMaxCPUProps,
+                  GPULimitsProps, algorithmProps, memoryMin, cpuMin
+                }}
                 standardFlag={standardFlag}
                 onChange={this.onResourceChange}
                 resourceType={resourceType && resourceType.value}
