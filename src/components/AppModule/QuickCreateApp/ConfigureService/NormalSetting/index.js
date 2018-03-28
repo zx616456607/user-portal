@@ -469,7 +469,7 @@ const Normal = React.createClass({
             // 4 通过IP或labels
           }
           <div className='bindNodes'>
-            { this.handleBindNodeTempalte() }
+            { !isTemplate && this.handleBindNodeTempalte() }
           </div>
           <Storage
             formItemLayout={formItemLayout}

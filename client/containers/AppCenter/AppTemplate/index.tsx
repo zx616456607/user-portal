@@ -102,7 +102,7 @@ class TemplateList extends React.Component<any> {
   }
 
   handleEdit = (temp: object) => {
-    browserHistory.push('/app_center/template/create?name=12');
+    browserHistory.push(`/app_center/template/create?name=${temp.name}`);
   }
   cancelRelease = () => {
     this.setState({

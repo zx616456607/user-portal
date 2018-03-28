@@ -139,6 +139,13 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         volume.hostPath = {
           path: hostPath
         }
+        let volumeObj = {
+          name: `${type}-${volume.name}`,
+          storageClassName: `${type}-volume`,
+          hostPath,
+          readOnly
+        }
+        storageForTemplate.push(volumeObj)
         deployment.addContainerVolumeV2(serviceName, volume, volumeMounts)
       } else {
         let volumeInfo = item.volume
@@ -194,7 +201,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         }
         if (isTemplate) {
           deployment.setAnnotations({
-            'system/registry/template': storageForTemplate
+            'system/template': storageForTemplate
           })
         }
       }
@@ -222,7 +229,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   let templateGroup = "none"
   switch(accessMethod){
       case 'PublicNetwork': groupID = publicNetwork; templateGroup = 'PublicNetwork'; break;
-      case 'Internaletwork': groupID = internaletwork; templateGroup = 'Internaletwork'; break;
+      case 'Internaletwork': groupID = internaletwork; templateGroup = 'InternalNetwork'; break;
       case 'Cluster':
     default:
       groupID = 'none'; templateGroup = 'Cluster'; break

@@ -20,10 +20,12 @@ import isEmpty from 'lodash/isEmpty';
 import Title from '../../../../../src/components/Title';
 import ConfigPart from './ConfigPart';
 import TemplateInfo from './TemplateInfo';
-import { genRandomString } from '../../../../../src/common/tools';
+import { genRandomString, toQuerystring } from '../../../../../src/common/tools';
 import * as QuickCreateAppActions from '../../../../../src/actions/quick_create_app';
+import * as templateActions from '../../../../actions/template';
 import NotificationHandler from '../../../../../src/components/Notification';
 import './style/index.less';
+import { parseToFields } from './parseToFields';
 
 const TEMPLATE_EDIT_HASH = '#edit-template';
 
@@ -31,22 +33,37 @@ interface IState {
   currentStep: number;
 }
 
-class AppTemplate extends React.Component<any, IState> {
+interface IProps {
+  setFormFields(id: string, fields: object, callback?: any);
+  getAppTemplateDetail(name: string, callback?: any): any;
+}
+
+class AppTemplate extends React.Component<IProps, IState> {
   constructor(props) {
     this.state = {
       currentStep: 0,
     };
     this.templateSum = 0;
     this.configureMode = 'create';
-    this.configureServiceKey = this.genConfigureServiceKey();
+    const { location } = props;
+    const { query } = location;
+    if (query && !query.name) {
+      this.configureServiceKey = this.genConfigureServiceKey();
+    }
   }
 
   componentWillMount() {
-    const { location } = this.props;
-    this.setConfig(this.props);
-    if (!isEmpty(location.query)) {
-      this.stepChange(1);
+    const { location, getAppTemplateDetail } = this.props;
+    const { query } = location;
+    if (query && query.name) {
+      getAppTemplateDetail(query.name).then(res => {
+        if (res.error) {
+          return;
+        }
+        this.parseTempDetail(res.response.result.data);
+      });
     }
+    this.setConfig(this.props);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -68,15 +85,61 @@ class AppTemplate extends React.Component<any, IState> {
     this.removeAllFormFieldsAsync(this.props);
   }
 
+  parseTempDetail = data => {
+    const { setFormFields } = this.props;
+    const { detail, chart } = data;
+    const templateArray = [];
+    this.formatService2Arrry(detail[0], templateArray);
+    templateArray.reverse();
+    templateArray.forEach(temp => {
+      const id = this.genConfigureServiceKey();
+      const values = parseToFields(temp, chart);
+      setFormFields(id, values);
+    });
+    setTimeout(() => {
+      this.toConfigPart();
+    }, 100);
+  }
+
+  toConfigPart = () => {
+    const { fields } = this.props;
+    const firstID = Object.keys(fields)[0];
+    this.configureMode = 'edit';
+    this.editServiceKey = firstID;
+    const currentFields = fields[firstID];
+    const { imageUrl } = currentFields;
+    const [registryServer, ...imageArray] = imageUrl.value.split('/');
+    const imageName = imageArray.join('/');
+    const query = {
+      imageName,
+      registryServer,
+      key: firstID,
+    };
+    browserHistory.push(`/app_center/template/create?${toQuerystring(query)}${TEMPLATE_EDIT_HASH}`);
+    this.stepChange(1);
+  }
+
+  formatService2Arrry = (detail, templateArray) => {
+    const { deployment, service } = detail;
+    templateArray.push({
+      deployment,
+      service,
+    });
+    if (!detail.dependencies) {
+      return;
+    }
+    const copyDetail = detail.dependencies[0];
+    this.formatService2Arrry(copyDetail, templateArray);
+  }
+
   removeAllFormFieldsAsync = props => {
     // 异步清除 fields，即等 QuickCreateApp 组件卸载后再清除，否者会出错
     const { removeAllFormFields } = props;
     setTimeout(removeAllFormFields);
   }
 
-  genConfigureServiceKey = () => {
+  genConfigureServiceKey = (): string => {
     this.templateSum ++;
-    this.configureServiceKey = `${this.templateSum}-${genRandomString('0123456789')}`;
     return `${this.templateSum}-${genRandomString('0123456789')}`;
   }
 
@@ -133,7 +196,7 @@ class AppTemplate extends React.Component<any, IState> {
       // if create service, update the configure service key
       // use timeout: when history change generate a new configure serivce key
       browserHistory.push('/app_center/template/create');
-      this.genConfigureServiceKey();
+      this.configureServiceKey = this.genConfigureServiceKey();
       this.stepChange(0);
     });
   }
@@ -168,7 +231,7 @@ class AppTemplate extends React.Component<any, IState> {
     }
     // 如果在选择镜像页则生成一个新的id
     if (currentStep === 0) {
-      this.genConfigureServiceKey();
+      this.configureServiceKey = this.genConfigureServiceKey();
     }
     setTimeout(() => {
       removeFormFields(deleteKey);
@@ -290,4 +353,5 @@ export default connect(mapStateToProps, {
   removeFormFields: QuickCreateAppActions.removeFormFields,
   removeAllFormFields: QuickCreateAppActions.removeAllFormFields,
   setFormFields: QuickCreateAppActions.setFormFields,
+  getAppTemplateDetail: templateActions.getAppTemplateDetail,
 })(AppTemplate);
