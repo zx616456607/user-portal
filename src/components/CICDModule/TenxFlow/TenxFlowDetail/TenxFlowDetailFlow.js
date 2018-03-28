@@ -223,7 +223,7 @@ class TenxFlowDetailFlow extends Component {
           getTenxFlowStateList(flowId, {
             success: {
               func: (res) => {
-                const { flowId } = scope.location.query
+                const { flowId } = scope.props.location.query
                 _this.props.scope.props.getCdInimage(flowId)
               },
               isAsync: true
