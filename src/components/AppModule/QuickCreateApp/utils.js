@@ -17,6 +17,7 @@ import { getResourceByMemory } from '../../../common/tools'
 import {
   RESOURCES_DIY,
   SYSTEM_DEFAULT_SCHEDULE,
+  GPU_ALGORITHM,
  } from '../../../constants'
 
 export function getFieldsValues(fields) {
@@ -35,7 +36,7 @@ export function formatValuesToFields(values) {
   return fields
 }
 
-export function buildJson(fields, cluster, loginUser, imageConfigs) {
+export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) {
   const fieldsValues = getFieldsValues(fields)
   // 获取各字段值
   const {
@@ -47,6 +48,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     bindNode, // 绑定节点
     bindNodeType,//绑定节点类型
     bindLabel,//主机标签绑定
+    resourceAlgorithm, // 容器配置算法 one of [X86, GPU]
+    GPULimits, // GPU limits 数量
     resourceType, // 容器配置
     DIYMemory, // 自定义配置-内存
     DIYCPU, // 自定义配置-CPU
@@ -114,10 +117,15 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
   }
   // 设置资源
   const { cpu, memory, limitCpu, limitMemory } = getResourceByMemory(resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU)
-  deployment.setContainerResources(serviceName, memory, cpu, limitMemory, limitCpu)
+  const paramsArray = [serviceName, memory, cpu, limitMemory, limitCpu]
+  if (resourceAlgorithm === GPU_ALGORITHM) {
+    paramsArray.push(GPULimits)
+  }
+  deployment.setContainerResources.apply(deployment, paramsArray)
   // 服务类型&存储
   const storage = []
   if (serviceType) {
+    const storageForTemplate = []
     storageList.forEach((item, index) => {
       // volume
       const volume = {
@@ -138,6 +146,13 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
         volume.hostPath = {
           path: hostPath
         }
+        let volumeObj = {
+          name: `${type}-${volume.name}`,
+          storageClassName: `${type}-volume`,
+          hostPath,
+          readOnly
+        }
+        storageForTemplate.push(volumeObj)
         deployment.addContainerVolumeV2(serviceName, volume, volumeMounts)
       } else {
         let volumeInfo = item.volume
@@ -172,7 +187,29 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
             claimName: image,
             readOnly,
           }
+          if (isTemplate) {
+            delete volume.persistentVolumeClaim.claimName
+            let storageType = type === 'private' ? 'ceph' : 'nfs'
+            volume.name = `${storageType}-volume-${index}`
+            let volumeObj = {
+              name: volume.name,
+              storageClassName,
+              readOnly
+            }
+            if (type === 'private') {
+              Object.assign(volumeObj, {
+                fsType,
+                storage: size ? `${size}Mi` : '512Mi',
+              })
+            }
+            storageForTemplate.push(volumeObj)
+          }
           deployment.addContainerVolumeV2(serviceName, volume, volumeMounts)
+        }
+        if (isTemplate) {
+          deployment.setAnnotations({
+            'system/template': storageForTemplate
+          })
         }
       }
       /* if (storageType == 'rbd') {
@@ -195,12 +232,14 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
   const { proxyType } = loginUser
   // 设置访问方式
   let groupID = "none"
+  // 模板访问方式
+  let templateGroup = "none"
   switch(accessMethod){
-    case 'PublicNetwork': groupID = publicNetwork; break;
-    case 'Internaletwork': groupID = internaletwork; break;
-    case 'Cluster':
+      case 'PublicNetwork': groupID = publicNetwork; templateGroup = 'PublicNetwork'; break;
+      case 'Internaletwork': groupID = internaletwork; templateGroup = 'InternalNetwork'; break;
+      case 'Cluster':
     default:
-      groupID = 'none'; break
+      groupID = 'none'; templateGroup = 'Cluster'; break
   }
   if (accessType === 'loadBalance') {
     // 访问方式为负载均衡
@@ -211,7 +250,11 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
       service.addPort(proxyType, name, null, port, port)
     })
   } else {
-    service.addLBGroupAnnotation(groupID)
+    if (isTemplate) {
+      service.addLBGroupAnnotation(templateGroup)
+    } else {
+      service.addLBGroupAnnotation(groupID)
+    }
     portsKeys && portsKeys.forEach(key => {
       if (key.deleted) {
         return

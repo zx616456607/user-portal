@@ -130,10 +130,10 @@ class TenxFlowDetail extends Component {
     }
   }
   flowState() {
-    let { search } = this.props.location;
+    const { query } = this.props.location
+    const { status: flowStatus } = query
     let status = ''
-    search = search.split('&')[1]
-    switch (search) {
+    switch (flowStatus) {
       case '0':
         status = '成功'
         break;
@@ -154,16 +154,16 @@ class TenxFlowDetail extends Component {
     }
     this.setState({
       status,
-      statusName: search
+      statusName: flowStatus
     })
   }
   componentWillMount() {
     const { getTenxFlowDetail, getCdInimage, getRepoBranchesAndTagsByProjectId } = this.props;
-    let { search } = this.props.location;
-    search = search.split('?')[1].split('&')[0]
+    const { query } = this.props.location;
+    const { flowId } = query
     const notification = new NotificationHandler()
     const self = this
-    getTenxFlowDetail(search, {
+    getTenxFlowDetail(flowId, {
       success: {
         func: (res) => {
           if (res.data.results.isWaitingApproval === true) {
@@ -361,10 +361,10 @@ class TenxFlowDetail extends Component {
   refreshStageList() {
     //this function for refrash
     const { getTenxFlowStatus } = this.props;
-    let { search } = this.props.location;
-    search = search.split('?')[1].split('&')[0]
+    const { query } = this.props.location;
+    const { flowId } = query
     const self = this
-    getTenxFlowStatus(search, {
+    getTenxFlowStatus(flowId, {
       success: {
         func: (result) => {
           let statusName = result.data.results.status;

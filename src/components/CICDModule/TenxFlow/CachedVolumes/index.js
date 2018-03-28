@@ -123,7 +123,7 @@ class CachedVolumes extends React.Component {
           return '-'
         }
         return (
-          <Link to={`/ci_cd/tenx_flow/tenx_flow_build?${record.ownerFlowId}`}>
+          <Link to={`/ci_cd/tenx_flow/tenx_flow_build?flowId=${record.ownerFlowId}`}>
             {text}
           </Link>
         )

@@ -162,7 +162,7 @@ const Storage = React.createClass({
     this.setState({ volumeSize: value })
   },
   renderStorageList() {
-    const { form } = this.props
+    const { form, isTemplate } = this.props
     const { getFieldValue, getFieldProps } = form
     const storageListProps = getFieldProps('storageList')
     const serviceType = getFieldValue('serviceType')
@@ -178,15 +178,24 @@ const Storage = React.createClass({
         if (volume === 'create') {
           if(type == 'private'){
             volumeName = `${name} ${fsType || '-'} ${size}`
+            if (isTemplate) {
+              volumeName = `${fsType || '-'} ${size}`
+            }
           }
           if(type == 'share'){
             volumeName = `${name}`
+            if (isTemplate) {
+              volumeName = '-'
+            }
           }
           if(type == 'host'){
             if(this.getServiceIsBindNode()){
               volumeName = '已绑定'
             } else {
               volumeName = '未绑定'
+            }
+            if (isTemplate) {
+              volumeName = '-'
             }
           }
         } else {

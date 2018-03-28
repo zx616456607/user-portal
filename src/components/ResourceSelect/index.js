@@ -11,7 +11,8 @@
  */
 
 import React, { PropTypes, Component } from 'react'
-import { Input, Button, Icon, InputNumber, Form, Row, Col  } from 'antd'
+import { Input, Button, Icon, InputNumber, Form, Row, Col, Radio  } from 'antd'
+import classNames from 'classnames'
 import {
   RESOURCES_MEMORY_MAX,
   RESOURCES_MEMORY_MIN,
@@ -21,10 +22,15 @@ import {
   RESOURCES_CPU_MIN,
   RESOURCES_CPU_DEFAULT,
   RESOURCES_DIY,
+  DEFAULT_ALGORITHM,
+  RESOURCES_GPU_MAX,
+  RESOURCES_GPU_MIN,
+  RESOURCES_GPU_STEP
 } from '../../constants'
 import './style/index.less'
 
 const FormItem = Form.Item
+const RadioGroup = Radio.Group
 
 export default class ResourceSelect extends Component {
   static propTypes = {
@@ -41,7 +47,8 @@ export default class ResourceSelect extends Component {
       DIYMemory: DIYMemory || RESOURCES_MEMORY_MIN,
       DIYCPU: DIYCPU || RESOURCES_CPU_DEFAULT,
       DIYMaxMemory: DIYMaxMemory || RESOURCES_MEMORY_MIN,
-      DIYMaxCPU: DIYMaxCPU || RESOURCES_CPU_DEFAULT
+      DIYMaxCPU: DIYMaxCPU || RESOURCES_CPU_DEFAULT,
+      resourceAlgorithm: DEFAULT_ALGORITHM,
     }
   }
 
@@ -71,11 +78,23 @@ export default class ResourceSelect extends Component {
   }
 
   render() {
-    const { standardFlag, DIYMemoryProps, DIYCPUProps, DIYMaxMemoryProps, DIYMaxCPUProps, memoryMin, cpuMin } = this.props
+    const {
+      standardFlag, DIYMemoryProps, DIYCPUProps, DIYMaxMemoryProps, DIYMaxCPUProps,
+      GPURequestProps, GPULimitsProps, algorithmProps, memoryMin, cpuMin, form
+      } = this.props
     const { resourceType, DIYMemory, DIYCPU } = this.state
+    const { getFieldProps } = form;
     return (
       <div className="resourceSelect">
-        <ul className="resourceList">
+        <FormItem>
+          <RadioGroup {...algorithmProps}>
+            <Radio key="X86" value="X86">X86 计算</Radio>
+            <Radio key="GPU" value="GPU">高性能计算 GPU</Radio>
+          </RadioGroup>
+        </FormItem>
+        <ul className={classNames("resourceList", {
+          'hidden': algorithmProps.value !== DEFAULT_ALGORITHM
+        })}>
           {/*<li className="resourceDetail">
             <Button type={resourceType == 256 ? "primary" : "ghost"}
               onClick={() => this.selectResourceType(256)}>
@@ -225,6 +244,102 @@ export default class ResourceSelect extends Component {
                   <div className="triangle"/>
                   <Icon type="check" />
                 </div>
+              </div>
+            </li>
+          }
+        </ul>
+        <ul className={classNames("resourceList", {
+          'hidden': algorithmProps.value === DEFAULT_ALGORITHM
+        })}>
+          {
+            !standardFlag &&
+            <li className="resourceDetail DIY GPU">
+              <div
+                className="btn ant-btn-primary">
+                <div className="topBox">
+                  自定义
+                </div>
+                <div className="bottomBox">
+                  <Row>
+                    <Col span={8}>
+                      <FormItem>
+                        <InputNumber
+                          {...DIYMemoryProps}
+                          step={RESOURCES_MEMORY_STEP}
+                          min={RESOURCES_MEMORY_MIN}
+                          max={RESOURCES_MEMORY_MAX}
+                          size="default"/>
+                      </FormItem>
+                    </Col>
+                    <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
+                    <Col span={8}>
+                      <FormItem>
+                        <InputNumber
+                          {...DIYMaxMemoryProps}
+                          step={RESOURCES_MEMORY_STEP}
+                          min={memoryMin}
+                          max={RESOURCES_MEMORY_MAX}
+                          size="default"
+                        />
+                      </FormItem>
+                    </Col>
+                    <Col span={7} style={{ lineHeight: '32px' }}>MB&nbsp;内存</Col>
+                  </Row>
+                  <Row>
+                    <Col span={8}>
+                      <FormItem>
+                        <InputNumber
+                          {...DIYCPUProps}
+                          step={RESOURCES_CPU_STEP}
+                          min={RESOURCES_CPU_MIN}
+                          max={RESOURCES_CPU_MAX}
+                          size="default"/>
+                      </FormItem>
+                    </Col>
+                    <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
+                    <Col span={8}>
+                      <FormItem>
+                        <InputNumber
+                          {...DIYMaxCPUProps}
+                          step={RESOURCES_CPU_STEP}
+                          min={cpuMin}
+                          max={RESOURCES_CPU_MAX}
+                          size="default"
+                        />
+                      </FormItem>
+                    </Col>
+                    <Col span={7} style={{ lineHeight: '32px' }}>核 CPU</Col>
+                  </Row>
+                  <Row>
+                  <Col span={8}>
+                    <FormItem>
+                      <InputNumber
+                        disabled
+                        value={GPULimitsProps.value}
+                        size="default"
+                      />
+                    </FormItem>
+                    </Col>
+                    <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
+                    <Col span={8}>
+                      <FormItem>
+                        <InputNumber
+                          {...GPULimitsProps}
+                          step={RESOURCES_GPU_STEP}
+                          min={RESOURCES_GPU_MIN}
+                          max={RESOURCES_GPU_MAX}
+                          size="default"
+                        />
+                      </FormItem>
+                    </Col>
+                    <Col span={7} style={{ lineHeight: '32px' }}>颗 GPU</Col>
+                  </Row>
+                  <div className="triangle"/>
+                  <Icon type="check" />
+                </div>
+              </div>
+              <div className="hintColor">
+                * GPU 配置仅支持整数颗，GPU 型号根据不同节点，类型可能不同。
               </div>
             </li>
           }

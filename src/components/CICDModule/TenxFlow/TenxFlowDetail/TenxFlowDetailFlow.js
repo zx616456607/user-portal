@@ -192,7 +192,7 @@ class TenxFlowDetailFlow extends Component {
   buildFlow(stageId, options) {
     //this function for user build stage
     //and user can build single one
-    const { CreateTenxflowBuild, getTenxFlowStateList, flowId } = this.props;
+    const { scope, CreateTenxflowBuild, getTenxFlowStateList, flowId } = this.props;
     let buildFlag = true;
     const _this = this;
     let notification = new NotificationHandler()
@@ -223,9 +223,8 @@ class TenxFlowDetailFlow extends Component {
           getTenxFlowStateList(flowId, {
             success: {
               func: (res) => {
-                let search = location.search
-                search = search.split('?')[1].split('&')[0]
-                _this.props.scope.props.getCdInimage(search)
+                const { flowId } = scope.props.location.query
+                _this.props.scope.props.getCdInimage(flowId)
               },
               isAsync: true
             }
