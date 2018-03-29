@@ -312,6 +312,7 @@ class AppTemplate extends React.Component<IProps, IState> {
               deleteService={this.deleteService}
               cancelTemplate={this.cancelTemplate}
               imageConfig={this.imageConfig}
+              form={this.form}
             />
           </Col>
         </Row>

@@ -86,10 +86,11 @@ const AssistSetting = React.createClass({
     })
   },
   renderArgs() {
-    const { argsType } = this.state
+    // const { argsType } = this.state
     const { form, formItemLayout } = this.props
     const { getFieldProps, getFieldValue } = form
     const argsKeys = getFieldValue('argsKeys') || []
+    const argsType = getFieldValue('argsType')
     return argsKeys.map((key, index) => {
       if (key.deleted) {
         return
@@ -141,6 +142,10 @@ const AssistSetting = React.createClass({
     const { argsType } = this.state
     const { getFieldProps } = form
     const commandProps = getFieldProps('command')
+    const argsTypePorps = getFieldProps('argsType', {
+      initialValue: 'default',
+      onChange: e => this.setState({ argsType: e.target.value })
+    })
     const imagePullPolicyProps = getFieldProps('imagePullPolicy', {
       initialValue: 'always',
       rules: [
@@ -181,7 +186,7 @@ const AssistSetting = React.createClass({
                 label="启动命令"
                 key="args"
               >
-                <RadioGroup value={argsType} onChange={this.onArgsTypeChange}>
+                <RadioGroup {...argsTypePorps}>
                   <Radio value="default">镜像默认</Radio>
                   <Radio value="DIY">自定义</Radio>
                 </RadioGroup>
