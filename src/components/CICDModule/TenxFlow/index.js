@@ -366,7 +366,7 @@ let MyComponent = React.createClass({
       return (
         <div className='tenxflowDetail' key={item.name} >
           <div className='name'>
-            <Link to={`/ci_cd/tenx_flow/tenx_flow_build?${item.flowId}&${item.status}`}>
+            <Link to={`/ci_cd/tenx_flow/tenx_flow_build?flowId=${item.flowId}&status=${item.status}`}>
               <span>{item.name}</span>
             </Link>
           </div>
@@ -386,7 +386,7 @@ let MyComponent = React.createClass({
             </span>
             {
               isUserNeedApproving &&
-              <Link className="go-approving" to={`/ci_cd/tenx_flow/tenx_flow_build?${item.flowId}&${item.status}`}>
+              <Link className="go-approving" to={`/ci_cd/tenx_flow/tenx_flow_build?flowId=${item.flowId}&status=${item.status}`}>
                 前往审批 <i className="fa fa-arrow-circle-o-right" />
               </Link>
             }

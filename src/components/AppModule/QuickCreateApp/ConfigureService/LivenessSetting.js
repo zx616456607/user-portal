@@ -179,12 +179,12 @@ const LivenessSetting = React.createClass({
                       </Row>
                       {
                         livenessPathProps && [
-                          <Row className="configHeader">
+                          <Row className="configHeader" key="configHeader">
                             <Col span={6}>
                               Path 路径
                             </Col>
                           </Row>,
-                          <Row className="configBody">
+                          <Row className="configBody" key="configBody">
                             <Col span={6}>
                               <FormItem>
                                 <Input
