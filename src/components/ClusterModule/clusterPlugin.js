@@ -695,9 +695,7 @@ class ClusterPlugin extends Component {
               <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
                 <Menu.Item key="start">启动插件</Menu.Item>
                 <Menu.Item key="delete">卸载插件</Menu.Item>
-                <Menu.Item key="reinstall" disabled={row.serviceInfo.isDeamonSet}>
-                  重新部署
-                </Menu.Item>
+                { !row.serviceInfo.isDeamonSet && <Menu.Item key="reinstall">重新部署</Menu.Item> }
               </Menu>
             )
           } else if (row.name == 'elasticsearch-logging') {
@@ -706,7 +704,7 @@ class ClusterPlugin extends Component {
                 <Menu.Item key="stop">停止插件</Menu.Item>
                 <Menu.Item key="delete">卸载插件</Menu.Item>
                 <Menu.Item key="deployIndextpl">部署索引模版</Menu.Item>
-                <Menu.Item key="reinstall">重新部署</Menu.Item>
+                { !row.serviceInfo.isDeamonSet && <Menu.Item key="reinstall">重新部署</Menu.Item> }
               </Menu>
             )
           } else {
@@ -714,9 +712,7 @@ class ClusterPlugin extends Component {
               menu = (
                 <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
                   <Menu.Item key="delete">卸载插件</Menu.Item>
-                  <Menu.Item key="reinstall" disabled={row.serviceInfo.isDeamonSet}>
-                    重新部署
-                  </Menu.Item>
+                  { !row.serviceInfo.isDeamonSet && <Menu.Item key="reinstall">重新部署</Menu.Item> }
                 </Menu>
               )
             } else {
@@ -724,9 +720,7 @@ class ClusterPlugin extends Component {
                 <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
                   <Menu.Item key="stop">停止插件</Menu.Item>
                   <Menu.Item key="delete">卸载插件</Menu.Item>
-                  <Menu.Item key="reinstall" disabled={row.serviceInfo.isDeamonSet}>
-                    重新部署
-                  </Menu.Item>
+                  { !row.serviceInfo.isDeamonSet && <Menu.Item key="reinstall">重新部署</Menu.Item> }
                 </Menu>
               )
             }
@@ -737,9 +731,9 @@ class ClusterPlugin extends Component {
               <Menu className="Settingplugin">
                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="start">启动插件</Menu.Item>
                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
-                <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)} disabled={row.serviceInfo.isDeamonSet}>
+                { !row.serviceInfo.isDeamonSet && <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)}>
                   重新部署
-                </Menu.Item>
+                </Menu.Item> }
                 {this.getStateusForEvent(row)}
               </Menu>
             )
@@ -748,9 +742,9 @@ class ClusterPlugin extends Component {
               <Menu className="Settingplugin">
                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="stop">停止插件</Menu.Item>
                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
-                <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)} disabled={row.serviceInfo.isDeamonSet}>
+                { !row.serviceInfo.isDeamonSet && <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)}>
                   重新部署
-                </Menu.Item>
+                </Menu.Item> }
                 {this.getStateusForEvent(row)}
               </Menu>
             )

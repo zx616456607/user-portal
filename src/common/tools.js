@@ -612,11 +612,11 @@ export function getResourceByMemory(memory, DIYMemory, DIYCPU, DIYMaxMemory, DIY
       break
     case RESOURCES_DIY:
       memoryShow = Math.ceil(DIYMemory / 1024 * 100) / 100
-      memory = Math.ceil(DIYMemory) + 'Mi'
+      memory = Math.ceil(DIYMemory)
       cpuShow = DIYCPU
       cpu = DIYCPU
       limitCpu = DIYMaxCPU
-      limitMemory = Math.ceil(DIYMaxMemory) + 'Mi'
+      limitMemory = Math.ceil(DIYMaxMemory)
       config = RESOURCES_DIY
       break
     default:

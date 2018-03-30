@@ -39,19 +39,19 @@ let MyComponent = React.createClass({
       showList = this.formatEnv(config);
     }
     const columns = [{
+      title: '变量名',
       dataIndex: 'envName',
       width: '30%'
     }, {
+      title: '默认值',
       dataIndex: 'envData',
       width: '70%'
     }]
     return (
       <Table
-        showHeader={false}
         columns={columns}
         dataSource={showList}
         bordered
-        title={() => '变量名默认值'}
         pagination={false}
       />
     );

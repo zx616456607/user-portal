@@ -82,8 +82,9 @@ class AlarmDetail extends Component {
   }
   refreshPage() {
     const id = this.props.params.id
-    const { getAlertSetting, cluster } = this.props
-    getAlertSetting(cluster.clusterID, {
+    const { getAlertSetting, location } = this.props
+    const { clusterID } = location.query
+    getAlertSetting(clusterID, {
       strategy: id
     })
   }
