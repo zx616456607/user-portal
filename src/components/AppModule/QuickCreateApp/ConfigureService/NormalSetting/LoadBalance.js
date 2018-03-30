@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Select, Radio, Form,
-  Button, Input, Row, Col, Icon 
+  Button, Input, Row, Col, Icon
 } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 
@@ -26,33 +26,47 @@ const RadioGroup = Radio.Group
 let uidd = 0
 
 class LoadBalance extends React.Component {
-  
+
   state = {
-    
+
   }
-  
+
   componentWillMount() {
-    const { clusterID, getLBList } = this.props
+    const { clusterID, getLBList, form } = this.props
     getLBList(clusterID)
+    const lbKeys = form.getFieldValue('lbKeys');
+    if (lbKeys) {
+      lbKeys.forEach(key => {
+        const sourceOptons = form.getFieldValue(`ingress-${key}`)
+        const targetOptions = cloneDeep(sourceOptons)
+        delete targetOptions.healthCheck
+        delete targetOptions.displayName
+        targetOptions.monitorName = sourceOptons.displayName
+        targetOptions.healthOptions = sourceOptons.healthCheck
+        this.setState({
+          [`config-${key}`]: targetOptions
+        })
+      })
+    }
   }
-  
+
   checkLoadBalance = (rule, value, callback) => {
     if (!value) {
       return callback('请选择负载均衡')
     }
     callback()
   }
-  
+
   addItem = configs => {
     const { editKey } = this.state
     const { form } = this.props
     const { getFieldValue, setFieldsValue } = form
     const currentKeys = getFieldValue('lbKeys')
-    const copyKey = editKey || ++ uidd
+    const copyKey = editKey || uidd
     this.setState({
       [`config-${copyKey}`]: configs
     })
-    const { 
+    const {
       healthCheck, healthOptions, host, lbAlgorithm, monitorName, port,
       sessionSticky, sessionPersistent
     } = configs
@@ -81,14 +95,14 @@ class LoadBalance extends React.Component {
     })
     if (!editKey) {
       setFieldsValue({
-        lbKeys: currentKeys.concat(uidd)
+        lbKeys: currentKeys.concat(uidd ++)
       })
     }
     this.setState({
       editKey: 0
     })
   }
-  
+
   removeKey = key => {
     const { form } = this.props
     const { getFieldValue, setFieldsValue } = form
@@ -106,17 +120,17 @@ class LoadBalance extends React.Component {
       ingressVisible: true
     })
   }
-  
+
   closeIngressModal = () => {
     this.setState({
       ingressVisible: false
     })
   }
-  
+
   getIngressConfig = configs => {
     this.addItem(configs)
   }
-  
+
   reloadLB = async () => {
     const { clusterID, getLBList } = this.props
     this.setState({
@@ -137,7 +151,7 @@ class LoadBalance extends React.Component {
     const { ingressVisible, currentIngress, lbLoading } = this.state
     const { form, loadBalanceList, checkIngressNameAndHost, clusterID } = this.props
     const { getFieldProps, getFieldValue } = form
-    
+
     getFieldProps('lbKeys', {
       initialValue: [],
     });
@@ -191,7 +205,7 @@ class LoadBalance extends React.Component {
                 </Input>
               </FormItem>
             </Col>
-            <Col span={4}>   
+            <Col span={4}>
               <Button type="dashed" key={`edit${item}`}
                       className="editServiceBtn" onClick={() => this.openIngressModal(item)}>
                 <i className="fa fa-pencil-square-o" aria-hidden="true"/></Button>

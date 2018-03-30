@@ -120,10 +120,11 @@ class AppTemplate extends React.Component<IProps, IState> {
   }
 
   formatService2Arrry = (detail, templateArray) => {
-    const { deployment, service } = detail;
+    const { deployment, service, ingress } = detail;
     templateArray.push({
       deployment,
       service,
+      ingress,
     });
     if (!detail.dependencies) {
       return;
