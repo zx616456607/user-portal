@@ -146,13 +146,19 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         volume.hostPath = {
           path: hostPath
         }
-        let volumeObj = {
-          name: `${type}-${volume.name}`,
-          storageClassName: `${type}-volume`,
-          hostPath,
-          readOnly
+        if (isTemplate) {
+          let volumeObj = {
+            name: `${type}-${volume.name}`,
+            storageClassName: `${type}-volume`,
+            mountPath,
+            hostPath,
+            readOnly
+          }
+          storageForTemplate.push(volumeObj)
+          deployment.setAnnotations({
+            'system/template': JSON.stringify(storageForTemplate)
+          })
         }
-        storageForTemplate.push(volumeObj)
         deployment.addContainerVolumeV2(serviceName, volume, volumeMounts)
       } else {
         let volumeInfo = item.volume
@@ -194,6 +200,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
             let volumeObj = {
               name: volume.name,
               storageClassName,
+              mountPath,
               readOnly
             }
             if (type === 'private') {
@@ -208,7 +215,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         }
         if (isTemplate) {
           deployment.setAnnotations({
-            'system/template': storageForTemplate
+            'system/template': JSON.stringify(storageForTemplate)
           })
         }
       }
@@ -358,9 +365,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         const envValueType = fieldsValues[`envValueType${keyValue}`]
         const envValue = fieldsValues[`envValue${keyValue}`]
         if (envName && envValue !== envObj[envName]) {
-          if (envValueType === 'normal') {
-            deployment.addContainerEnv(serviceName, envName, envValue)
-          } else {
+          if (envValueType === 'secret') {
             const valueFrom = {
               secretKeyRef: {
                 name: envValue[0],
@@ -368,6 +373,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
               }
             }
             deployment.addContainerEnv(serviceName, envName, null, valueFrom)
+          } else {
+            deployment.addContainerEnv(serviceName, envName, envValue)
           }
         }
       }
