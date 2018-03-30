@@ -669,7 +669,7 @@ export function encodeImageFullname(fullname) {
 }
 
 /**
- * 
+ *
  * @param bytes
  * @param size
  * @returns

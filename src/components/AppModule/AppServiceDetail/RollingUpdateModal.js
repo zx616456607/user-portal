@@ -16,9 +16,6 @@ import { rollingUpdateService } from '../../../actions/services'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../components/Notification'
 
-const Option = Select.Option
-const OptGroup = Select.OptGroup
-
 function loadTags(props, imageFullName) {
   const { loadRepositoriesTags, registry } = props
   loadRepositoriesTags(registry, imageFullName)
@@ -248,6 +245,7 @@ class RollingUpdateModal extends Component {
       <Modal
         visible={visible}
         maskClosable={false}
+        width={600}
         title="灰度升级" onOk={this.handleOK} onCancel={this.handleCancel}
         footer={[
           <Button
@@ -296,6 +294,8 @@ class RollingUpdateModal extends Component {
               tag = service.wrapper.appPkgTag
               showText = '应用包：'
             }
+            let imageTags =  this.props[item.imageObj.fullName]
+            imageTags = imageTags && imageTags.tag || []
             return (
               <div key={item.name}>
               <Row style={{marginBottom: "10px"}}>
@@ -319,24 +319,22 @@ class RollingUpdateModal extends Component {
                       return <Select.Option value={item.fileName +'.'+ item.fileType + ':'+item.fileTag+'||'+item.iD} disabled={item.fileTag == tag} key={index}>{item.fileTag}</Select.Option>
                     })
                     :
-                    <OptGroup label="请选择目标版本">
+                    <Select.OptGroup label="请选择目标版本">
                       {
-
-                        this.props[item.imageObj.fullName] && this.props[item.imageObj.fullName].tag && this.props[item.imageObj.fullName].tag.map((tag) => {
+                       imageTags.map((tag) => {
                           let disabled = false
                           if (tag === item.imageObj.tag) {
                             disabled = true
                           }
                           return (
-                            <Option value={tag} disabled={disabled}>
+                            <Select.Option key={tag} value={tag} disabled={disabled} title={tag}>
                               {tag}
-                            </Option>
+                            </Select.Option>
                           )
                         })
                       }
-                    </OptGroup>
+                    </Select.OptGroup>
                   }
-
                   </Select>
                 </Col>
                 <Col span={6}>
