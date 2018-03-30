@@ -353,6 +353,7 @@ class RollingUpdateModal extends Component {
                         value={item.fileName +'.'+ item.fileType + ':'+item.fileTag+'||'+item.iD}
                         disabled={item.fileTag == tag}
                         key={index}
+                        title={item.fileTag}
                       >
                         {item.fileTag}
                       </Option>
@@ -366,7 +367,7 @@ class RollingUpdateModal extends Component {
                             disabled = true
                           }
                           return (
-                            <Option key={tag} value={tag} disabled={disabled}>
+                            <Option key={tag} value={tag} disabled={disabled} title={tag}>
                               {tag}
                             </Option>
                           )
