@@ -32,10 +32,10 @@ class AccessMethod extends Component {
   }
 
   componentWillMount() {
-    const { getProxy, currentCluster, form } = this.props
+    const { getProxy, currentCluster, form, isTemplate } = this.props
     const clusterID = currentCluster.clusterID
     let clusterId = camelize(currentCluster.clusterID)
-    getProxy(clusterID, {
+    !isTemplate && getProxy(clusterID, {
       success: {
         func: (res) => {
           let data = res[clusterId].data

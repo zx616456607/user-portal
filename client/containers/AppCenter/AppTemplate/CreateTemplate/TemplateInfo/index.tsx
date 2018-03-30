@@ -223,27 +223,32 @@ class TemplateInfo extends React.Component<any> {
   }
 
   confirmTemplate = async () => {
-    const { loginUser, createTemplate, current } = this.props;
+    const { loginUser, createTemplate, current, form } = this.props;
     const { clusterID } = current.cluster;
-    const body = this.formatTemplateBody();
-    notify.spin('模板创建中');
-    this.setState({
-      confirmLoading: true,
-    });
-    const result = await createTemplate(clusterID, body);
-    if (result.error) {
+    form.validateFields(async (errors, values) => {
+      if (!!errors) {
+        return;
+      }
+      const body = this.formatTemplateBody();
+      notify.spin('模板创建中');
+      this.setState({
+        confirmLoading: true,
+      });
+      const result = await createTemplate(clusterID, body);
+      if (result.error) {
+        notify.close();
+        this.setState({
+          confirmLoading: false,
+        });
+        return notify.warn('创建失败', result.error.message.message || result.error.message);
+      }
       notify.close();
+      notify.success('模板创建成功');
       this.setState({
         confirmLoading: false,
       });
-      return notify.warn('创建失败', result.error.message.message || result.error.message);
-    }
-    notify.close();
-    notify.success('模板创建成功');
-    this.setState({
-      confirmLoading: false,
+      browserHistory.push('/app_center/template');
     });
-    browserHistory.push('/app_center/template');
   }
 
   getTemplateInfo = (key: string) => {
