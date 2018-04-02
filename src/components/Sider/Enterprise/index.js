@@ -934,17 +934,30 @@ class Sider extends Component {
                   <div className='sline'></div>
                 </SubMenu>
                 {role == ROLE_SYS_ADMIN ?
-                  <Menu.Item key='cluster'>
+                  <SubMenu key='clusterWrapper'
+                  title={
+                    <span>
+                      <svg className='setting commonImg'>
+                        <use xlinkHref='#setting' />
+                      </svg>
+                      <span className='commonSiderSpan'>基础设施</span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                >
+                <Menu.Item key='cluster'>
                     <Link to='/cluster'>
                       <span>
                         <svg className='system commonImg'>
                           <use xlinkHref='#siderinfrastructure' />
                         </svg>
-                        <span className='commonSiderSpan'>基础设施</span>
+                        <span className='commonSiderSpan'>集群管理</span>
                         <div style={{ clear: 'both' }}></div>
                       </span>
                     </Link>
-                  </Menu.Item> : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
+                  </Menu.Item>
+                </SubMenu>
+                   : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
                 }
               </Menu>
             </div>

@@ -385,7 +385,7 @@ class Ordinary extends Component{
       tab6: false,
       statefulApp: 'MySQL',
     }
-    const onStatefulAppOptionClick = function (app) { 
+    const onStatefulAppOptionClick = function (app) {
       const tab = statefulAppTabMapping[app]
       const newState = {
         [tab]: true,
