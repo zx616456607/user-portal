@@ -27,7 +27,7 @@ export default class Cluster extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      clusterSiderStyle: 'normal'
+      containerSiderStyle: 'normal'
     }
   }
 
@@ -41,11 +41,14 @@ export default class Cluster extends Component {
           key='CICDSiderAnimate'
           type='left'
           >
-          <div className={ this.state.clusterSiderStyle == 'normal' ? 'ClusterContent CommonSecondContent' : 'hiddenContent ClusterContent CommonSecondContent' } key='cicdSider'>
+          {/* <div className={ this.state.clusterSiderStyle == 'normal' ? 'ClusterContent CommonSecondContent' : 'hiddenContent ClusterContent CommonSecondContent' } key='cicdSider'>
+            <SecondSider menuList={menuList} scope={scope} />
+          </div> */}
+          <div className={ this.state.containerSiderStyle == 'normal' ?  'imageMenu CommonSecondMenu' : 'hiddenMenu imageMenu CommonSecondMenu'} key='imageSider'>
             <SecondSider menuList={menuList} scope={scope} />
           </div>
         </QueueAnim>
-        <div className={ this.state.clusterSiderStyle == 'normal' ? 'ClusterContent CommonSecondContent' : 'hiddenContent ClusterContent CommonSecondContent' } >
+        <div className={ this.state.containerSiderStyle == 'normal' ? 'ClusterContent CommonSecondContent' : 'hiddenContent ClusterContent CommonSecondContent' } >
           {children}
         </div>
       </div>

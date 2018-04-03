@@ -1085,7 +1085,7 @@ class AppList extends Component {
                   onChange={this.onPageChange}
                   onShowSizeChange={this.onShowSizeChange}
                   current={page}
-                  pageSize={size}
+                  pageSize={2}
                   total={total} />
               </div>
             </div>}
@@ -1144,7 +1144,7 @@ class AppList extends Component {
                   onChange={this.onPageChange}
                   onShowSizeChange={this.onShowSizeChange}
                   current={page}
-                  pageSize={size}
+                  pageSize={2}
                   total={total} />
               </div>
             </div>}

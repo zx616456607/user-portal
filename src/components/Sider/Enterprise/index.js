@@ -262,6 +262,7 @@ class Sider extends Component {
     const { billingConfig } = loginUser
     const { enabled: billingEnabled } = billingConfig
     const scope = this
+    // console.log('currentOpenMenu', this.state.currentOpenMenu)
     return (
       <div id='sider' className={`oemMenu-drek-${backColor}`}>
         <Modal title='上传文件' wrapClassName='vertical-center-modal' footer=''
@@ -410,12 +411,12 @@ class Sider extends Component {
               </li>
               {role == ROLE_SYS_ADMIN ?
                 [
-                  <li onClick={()=> this.selectModel('cluster')}
-                    className={currentKey == 'cluster' ? 'selectedLi' : ''}>
+                  <li onClick={() => this.selectModel('cluster')}// onClick={()=> this.selectModel('cluster')
+                    className={currentKey == '.' ? 'selectedLi' : ''}>
                     <Tooltip placement='right' title='基础设施'
                       getTooltipContainer={() => document.getElementById('siderTooltip')}>
                       <Link to='/cluster'>
-                        <svg className='setting commonImg'>
+                        <svg className='cluster commonImg'>
                           <use xlinkHref='#siderinfrastructure' />
                         </svg>
                       </Link>
@@ -934,10 +935,10 @@ class Sider extends Component {
                   <div className='sline'></div>
                 </SubMenu>
                 {role == ROLE_SYS_ADMIN ?
-                  <SubMenu key='clusterWrapper'
+                <SubMenu key='cluster'
                   title={
                     <span>
-                      <svg className='setting commonImg'>
+                      <svg className='clusterWrapper commonImg'>
                         <use xlinkHref='#setting' />
                       </svg>
                       <span className='commonSiderSpan'>基础设施</span>
@@ -945,17 +946,28 @@ class Sider extends Component {
                     </span>
                   }
                 >
-                <Menu.Item key='cluster'>
-                    <Link to='/cluster'>
-                      <span>
-                        <svg className='system commonImg'>
-                          <use xlinkHref='#siderinfrastructure' />
-                        </svg>
-                        <span className='commonSiderSpan'>集群管理</span>
-                        <div style={{ clear: 'both' }}></div>
-                      </span>
-                    </Link>
-                  </Menu.Item>
+                <Menu.Item key='cluster_default'>
+                  <Link to='/cluster'>
+                    <span>
+                      <svg className='cluster commonImg'>
+                        <use xlinkHref='#siderinfrastructure' />
+                      </svg>
+                      <span className='commonSiderSpan'>集群管理</span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='cluster_autoscale'>
+                  <Link to='/cluster/cluster_autoscale'>
+                    <span>
+                      <svg className='clusterAutoScale commonImg'>
+                        <use xlinkHref='#siderinfrastructure' />
+                      </svg>
+                      <span className='commonSiderSpan'>集群伸缩策略</span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  </Link>
+                </Menu.Item>
                 </SubMenu>
                    : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
                 }
