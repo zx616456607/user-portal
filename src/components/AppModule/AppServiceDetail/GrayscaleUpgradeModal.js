@@ -324,7 +324,7 @@ class GrayscaleUpgradeModal extends React.Component {
                             disabled = true
                           }
                           return (
-                            <Option key={tag} value={tag} disabled={disabled}>
+                            <Option key={tag} value={tag} disabled={disabled} title={tag}>
                               {tag}
                             </Option>
                           )

@@ -9,8 +9,8 @@
  */
 
 import React from 'react'
-import { 
-  Modal, Form, Input, InputNumber, 
+import {
+  Modal, Form, Input, InputNumber,
   Radio, Checkbox, Slider, Row, Col
 } from 'antd'
 import classNames from 'classnames'
@@ -23,9 +23,9 @@ const RadioGroup = Radio.Group
 
 class IngressModal extends React.Component {
   state = {
-    
+
   }
-  
+
   componentWillMount() {
     const { currentIngress } = this.props
     if (currentIngress) {
@@ -44,19 +44,19 @@ class IngressModal extends React.Component {
   componentWillUnmount() {
     clearTimeout(this.confirmSetTimeout)
   }
-  
+
   openCheckModal = () => {
     this.setState({
       checkVisible: true
     })
   }
-  
+
   closeCheckModal = () => {
     this.setState({
       checkVisible: false
     })
   }
-  
+
   getHealthData = values => {
     const {
       isCheck, httpSend, interval, fall, rise,
@@ -79,12 +79,12 @@ class IngressModal extends React.Component {
       }
     })
   }
-  
+
   cancelModal = () => {
     const { closeModal } = this.props
     closeModal()
   }
-  
+
   confirmModal = () => {
     const { healthOptions, healthCheck } = this.state
     const { closeModal, form, callback } = this.props
@@ -134,7 +134,7 @@ class IngressModal extends React.Component {
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
-  
+
   hostCheck = (rules, value, callback) => {
     const { checkIngressNameAndHost, clusterID, lbname, form } = this.props
     let message = ingressRelayRuleCheck(value)
@@ -179,7 +179,7 @@ class IngressModal extends React.Component {
     const { confirmLoading, checkVisible, healthOptions, healthCheck } = this.state
     const { visible, form, currentIngress } = this.props
     const { getFieldProps, getFieldValue, setFieldsValue, getFieldError, isFieldValidating } = form
-  
+
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 18 }
@@ -192,7 +192,7 @@ class IngressModal extends React.Component {
       ],
       initialValue: currentIngress ? currentIngress.monitorName : ''
     })
-    const lbAlgorithmProps = getFieldProps('lbAlgorithm', { 
+    const lbAlgorithmProps = getFieldProps('lbAlgorithm', {
       initialValue: currentIngress ? currentIngress.lbAlgorithm : 'round-robin'
     })
     const sessionProps = getFieldProps('sessionSticky', {
@@ -215,7 +215,7 @@ class IngressModal extends React.Component {
       ],
       initialValue: currentIngress ? currentIngress.port : ''
     })
-  
+
     const showSlider = getFieldValue('sessionSticky') && (getFieldValue('lbAlgorithm') === 'round-robin')
     return (
       <Modal

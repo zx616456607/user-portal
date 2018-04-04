@@ -16,6 +16,7 @@ const K8S_NODE_SELECTOR_KEY = constants.K8S_NODE_SELECTOR_KEY;
 import { parseCpuToNumber } from '../../../../../src/common/tools';
 import { RESOURCES_DIY } from '../../../../../src/constants';
 import merge from 'lodash/merge';
+import isEmpty from 'lodash/isEmpty';
 
 const APM_SERVICE_LABEL_KEY = 'system/apmService';
 const TENX_SCHEMA_LBGROUP = 'system/lbgroup';
@@ -23,6 +24,7 @@ const TENX_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname';
 const PORT = 'port'; // 端口
 const PORT_PROTOCOL = 'portProtocol'; // 端口协议(HTTP, TCP)
 const MAPPING_PORTTYPE = 'mappingPortType'; // 映射服务端口类型(auto, special)
+const TEMPLATE_STORAGE = 'system/template'; // 模板存储
 
 const MAPPING_PORT_AUTO = 'auto';
 
@@ -49,6 +51,12 @@ const CPU_ARRAY = [
     limitsCpu: 2,
   },
 ];
+
+/**
+ * 转换为表单标准格式
+ *
+ * @param values
+ */
 
 const formatValues = values => {
   const newValues = {};
@@ -83,6 +91,13 @@ const parseResourceIsDiy = (DIYMemory: number, DIYCPU, DIYMaxCPU): boolean => {
   }
   return false;
 };
+
+/**
+ * 内存格式转换
+ *
+ * @param memory
+ * @return {number}
+ */
 
 const parseMemory = memory => {
   let newMemory = parseInt(memory, 10);
@@ -123,6 +138,12 @@ const parseResource = containers => {
   };
 };
 
+/**
+ * 启动命令
+ *
+ * @param containers
+ */
+
 const parseCommandArgs = containers => {
   const { args } = containers;
   let argsType = 'default';
@@ -148,6 +169,13 @@ const parseCommandArgs = containers => {
   };
 };
 
+/**
+ * 时区
+ *
+ * @param constainer
+ * @return {boolean}
+ */
+
 const parseTimeZone = constainer => {
   const { volumeMounts } = constainer;
   if (!volumeMounts) {
@@ -156,6 +184,12 @@ const parseTimeZone = constainer => {
   const flag = volumeMounts.some(item => item.name === TENX_LOCAL_TIME_VOLUME.name);
   return flag;
 };
+
+/**
+ * 日志采集
+ *
+ * @param annotations
+ */
 
 const parseLogCollection = annotations => {
   const { applogs } = annotations;
@@ -173,6 +207,118 @@ const parseLogCollection = annotations => {
     path, // 日志采集-日志目录
     inregex, // 日志采集-采集规则
     exregex, // 日志采集-排除规则
+  };
+};
+
+/**
+ * 格式化存储类型
+ *
+ * @param type
+ * @return {string}
+ */
+
+const formatStorageType = type => {
+  switch (type) {
+    case 'ceph': return 'private';
+    case 'nfs' : return 'share';
+    case 'host' : return 'host';
+    default: return '未知';
+  }
+};
+
+/**
+ * 解析存储
+ *
+ * @param annotations
+ */
+
+const parseStorage = annotations => {
+  let serviceType: boolean = false;
+  if (!annotations[TEMPLATE_STORAGE]) {
+    return { serviceType };
+  }
+  serviceType = true;
+  let storageOpts = annotations[TEMPLATE_STORAGE].replace(/&#34;/g, '\"');
+  storageOpts = JSON.parse(storageOpts);
+  let storageParent = {};
+  const storageList: object[] = [];
+  storageOpts.forEach(item => {
+    const sourceType = item.name.split('-')[0];
+    let type: string = formatStorageType(sourceType);
+
+    storageList.push({
+      ...item,
+      volume: 'create',
+      size: parseInt(item.storage, 10),
+      type,
+    });
+  });
+  return {
+    serviceType, // 服务状态
+    storageList, // 存储的配置列表
+  };
+};
+
+/**
+ * 解析高可用
+ *
+ * @param containers
+ */
+
+const parseLiveness = containers => {
+  const { livenessProbe } = containers;
+  let livenessProtocol: tring = 'none';
+  if (!livenessProbe) {
+    return { livenessProtocol };
+  }
+  const { initialDelaySeconds, timeoutSeconds, periodSeconds } = livenessProbe;
+  let agreement: object;
+  if (livenessProbe.httpGet) {
+    livenessProtocol = 'HTTP';
+    agreement = livenessProbe.httpGet;
+  } else {
+    livenessProtocol = 'TCP';
+    agreement = livenessProbe.tcpSocket;
+  }
+  const { path, port } = agreement;
+  return {
+    livenessProtocol, // 高可用类型
+    livenessPort: port, // 端口
+    livenessPath: path, // 路径
+    livenessInitialDelaySeconds: initialDelaySeconds, // 检查延时
+    livenessTimeoutSeconds: timeoutSeconds, // 检查超时
+    livenessPeriodSeconds: periodSeconds, // 检查间隔
+  };
+};
+
+const parseAdvancedEnv = containers => {
+  const { env } = containers;
+  if (!env) {
+    return;
+  }
+  const envKeys: number[] = [];
+  const envParent: object = {};
+  env.forEach((item, index) => {
+    let envValue: string;
+    if (item.value) {
+      envValue = item.value;
+    } else {
+      const { name, key } = item.valueFrom.secretKeyRef;
+      envValue = [name, key];
+    }
+    merge(envParent, {
+      [`envName${index}`]: item.name,
+      [`envValueType${index}`]: item.valueFrom ? 'secret' : 'normal',
+      [`envValue${index}`]: envValue,
+    });
+    envKeys.push({
+      value: index,
+    });
+  });
+
+  return {
+    envKeys,
+    ...envParent,
   };
 };
 
@@ -207,7 +353,10 @@ const parseDeployment = deployment => {
     ...parseCommandArgs(containers[0]),
     imagePullPolicy: containers[0].imagePullPolicy, // 重新部署时拉取镜像的方式(Always, IfNotPresent)
     timeZone: parseTimeZone(containers[0]), // 时区设置
-    ...parseLogCollection(annotations),
+    ...parseLogCollection(annotations), // 日志
+    ...parseStorage(annotations), // 存储
+    ...parseLiveness(containers[0]), // 高可用
+    ...parseAdvancedEnv(containers[0]), // 环境变量
   };
   return values;
 };
@@ -221,6 +370,9 @@ const parseDeployment = deployment => {
 
 const parseMappingPorts = (annotations, spec) => {
   const { ports } = spec;
+  if (!annotations || !annotations[TENX_SCHEMA_PORTNAME]) {
+    return;
+  }
   const portString = annotations[TENX_SCHEMA_PORTNAME];
   if (!portString) {
     return;
@@ -267,10 +419,66 @@ const parseService = service => {
   const { annotations } = metadata;
 
   const values = {
-    accessMethod: annotations[TENX_SCHEMA_LBGROUP], // 访问方式
+    accessMethod: annotations && annotations[TENX_SCHEMA_LBGROUP] || 'none', // 访问方式
     ...parseMappingPorts(annotations, spec),
   };
   return values;
+};
+
+const parseIngress = ingress => {
+  let accessType = 'netExport';
+  if (!ingress) {
+    return { accessType };
+  }
+  accessType = 'loadBalance';
+  let loadBalance: string;
+  let lbKeys: Array = [];
+  let ingressParent: object = {};
+  ingress.forEach((item, index) => {
+    const {
+      controllerInfo, displayName, lbAlgorithm, sessionSticky,
+      sessionPersistent, protocol, items, path, healthCheck,
+    } = item;
+    if (!loadBalance) {
+      loadBalance = controllerInfo.name;
+    }
+    lbKeys.push(index);
+    const [ host, ...path ] = path.split('/');
+    const hostValue = isEmpty(path[0]) ? host : host + '/' + path.join('/');
+    const ingressOptions = {
+      host: hostValue,
+      lbAlgorithm,
+      displayName,
+      port: items[0].servicePort,
+    };
+    if (sessionSticky) {
+      merge(ingressOptions, {
+        sessionSticky,
+        sessionPersistent: parseInt(sessionPersistent, 10),
+      });
+    }
+    if (healthCheck) {
+      merge(ingressOptions, {
+        healthCheck,
+      });
+    }
+    merge(ingressParent, {
+      [`displayName-${index}`]: displayName, // 监听器名称
+      [`lbAlgorithm-${index}`]: lbAlgorithm, // 调度算法
+      [`sessionPersistent-${index}`]: sessionSticky ? `已启用(${sessionPersistent}s)` : '未启用', // 会话保持
+      [`sessionSticky-${index}`]: sessionSticky, // 会话保持是否开启
+      [`protocol-${index}`]: protocol, // 监听协议
+      [`port-${index}`]: items[0].servicePort, // 服务端口
+      [`host-${index}`]: hostValue, // 转发规则
+      [`ingress-${index}`]: ingressOptions,
+    });
+  });
+  return {
+    accessType, // 是否为负载均衡
+    loadBalance, // 负载均衡器名称
+    lbKeys, // 负载均衡器监听的端口组
+    ...ingressParent,
+  };
 };
 
 /**
@@ -282,7 +490,7 @@ const parseService = service => {
  */
 
 export const parseToFields = (templateDetail, chart) => {
-  const { deployment, service } = templateDetail;
+  const { deployment, service, ingress } = templateDetail;
   const { name, version, description } = chart;
   const values = {
     templateName: name, // 模板名称
@@ -290,6 +498,7 @@ export const parseToFields = (templateDetail, chart) => {
     templateDesc: description, // 模板描述
     ...parseDeployment(deployment),
     ...parseService(service),
+    ...parseIngress(ingress),
   };
   return formatValues(values);
 };
