@@ -184,7 +184,7 @@ class TemplateInfo extends React.Component<any> {
               path: path ? '/' + path.join('/') : '',
               items,
             };
-            let ingress: Array = [];
+            let ingresses: Array = [];
             if (!loadBalanceName) {
               loadBalanceName = getFieldsValues(value).loadBalance;
             }
@@ -198,9 +198,9 @@ class TemplateInfo extends React.Component<any> {
               };
               Object.assign(serviceOption, { loadbalance: lbObj });
             }
-            ingress.push(Object.assign(value[`ingress-${item}`].value, body));
-            if (!isEmpty(ingress)) {
-              Object.assign(serviceOption, { ingress });
+            ingresses.push(Object.assign(value[`ingress-${item}`].value, body));
+            if (!isEmpty(ingresses)) {
+              Object.assign(serviceOption, { ingresses });
             }
           });
         }

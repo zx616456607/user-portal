@@ -33,12 +33,12 @@ class MonitorPanel extends React.Component {
       activeKey: ''
     }
   }
-  
+
   componentDidMount() {
     this.getPanes(true)
   }
-  
-  
+
+
   getPanes(callback, create) {
     const { getPanelList, clusterID, getChartList } = this.props
     const cb = {
@@ -60,7 +60,7 @@ class MonitorPanel extends React.Component {
     }
     getPanelList(clusterID, callback && cb)
   }
-  
+
   onChange(activeKey) {
     const { getChartList, clusterID } = this.props
     this.setState({ activeKey });
@@ -80,7 +80,7 @@ class MonitorPanel extends React.Component {
       currentPanel: null
     })
   }
-  
+
   openChartModal(panel_id,currentChart) {
     this.setState({
       chartModal: true,
@@ -88,14 +88,14 @@ class MonitorPanel extends React.Component {
       panel_id
     })
   }
-  
+
   closeChartModal() {
     this.setState({
       chartModal: false,
       currentChart: null
     })
   }
-  
+
   render() {
     const { panels, clusterID, isFetching, isAdmin } = this.props
     const { activeKey, panelModal, currentPanel, chartModal, currentChart, panel_id } = this.state
@@ -121,7 +121,7 @@ class MonitorPanel extends React.Component {
       isAdmin
     }
     const contentFunc = {
-      openModal: this.openPanelModal, 
+      openModal: this.openPanelModal,
       openChartModal: this.openChartModal,
       clusterID,
       activeKey
@@ -190,7 +190,7 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   getPanelList,
-  createPanel, 
+  createPanel,
   updatePanel,
   getChartList
 })(MonitorPanel)

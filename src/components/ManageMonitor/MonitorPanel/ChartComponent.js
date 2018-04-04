@@ -14,14 +14,14 @@ import { decamelize } from 'humps'
 import EchartsOption from '../../Metrics/EchartsOption'
 import { formatDate, bytesToSize } from "../../../common/tools"
 
-const exceptByte = ['个', 's']
+const exceptByte = ['个', 's', '%']
 export default class ChartComponent extends React.Component {
-  
+
   componentWillMount() {
-    const { updateUnit, sourceData, metrics } = this.props
+    const { updateUnit, sourceData, metrics, unit } = this.props
     const { data } = sourceData
     let reg = /byte/
-    if (reg.test(metrics)) {
+    if (reg.test(metrics) || reg.test(unit)) {
       let maxValue = 0
       data && data.forEach(item => {
         item && item.metrics && item.metrics.length && item.metrics.forEach(metric => {

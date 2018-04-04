@@ -18,7 +18,6 @@ import classNames from 'classnames';
 import './style/index.less';
 import ImagesPart from './SelectPacket/ImagesPart';
 import WrapsPart from './SelectPacket/WrapsPart';
-import TemplateConfigs from './TemplateConfig';
 import { toQuerystring, encodeImageFullname, genRandomString } from '../../../../../../src/common/tools';
 import ConfigureTemplate from '../../../../../../src/components/AppModule/QuickCreateApp/ConfigureService';
 

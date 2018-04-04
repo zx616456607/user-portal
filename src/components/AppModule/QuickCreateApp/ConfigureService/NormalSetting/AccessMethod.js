@@ -34,6 +34,10 @@ class AccessMethod extends Component {
   componentWillMount() {
     const { getProxy, currentCluster, form, isTemplate } = this.props
     const clusterID = currentCluster.clusterID
+    const activeKey = form.getFieldValue('accessType');
+    if (activeKey) {
+      this.setState({ activeKey })
+    }
     let clusterId = camelize(currentCluster.clusterID)
     !isTemplate && getProxy(clusterID, {
       success: {
