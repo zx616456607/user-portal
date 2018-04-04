@@ -237,6 +237,22 @@ const clusterTypeOpt = {
   'diskReadIo': 'disk/node_readio',
   'diskWriteIo': 'disk/node_writeio'
 }
+
+exports.loadClustersTypeMetrics = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const node = this.params.node
+  const query = this.query
+  const api = apiFactory.getK8sApi(loginUser)
+  let newQuery = {
+    source: 'prometheus',
+    type: query.type,
+    start: query.start
+  }
+  const result = yield api.getBy([cluster,'metric','nodes',node,'metrics'], newQuery)
+  this.body = result
+}
+
 // host cpu || memory || rxrate || txrate || readio || writeio
 exports.getClustersTypeMetrics = function* () {
   const loginUser = this.session.loginUser

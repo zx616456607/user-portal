@@ -12,9 +12,11 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Card, Icon, Spin, Row, Col, Tooltip } from 'antd'
 import isEmpty from 'lodash/isEmpty'
-import { getMonitorMetrics } from '../../../actions/manage_monitor'
+import { getMonitorMetrics, getServicesMetrics, getClustersMetrics } from '../../../actions/manage_monitor'
 import ChartComponent from './ChartComponent'
 import { bytesToSize } from '../../../common/tools'
+
+const nodeAndService = ['service', 'node']
 
 class MonitorChartTemp extends React.Component {
   constructor() {
@@ -24,7 +26,7 @@ class MonitorChartTemp extends React.Component {
       unit: '个'
     }
   }
-  
+
   componentWillMount() {
     const { currentChart } = this.props
     this.getMetrics(this.props)
@@ -32,7 +34,7 @@ class MonitorChartTemp extends React.Component {
       unit: currentChart.unit || '个'
     })
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const { timeRange: oldRange } = this.props
     const { timeRange: newRange } = nextProps
@@ -40,10 +42,13 @@ class MonitorChartTemp extends React.Component {
       this.getMetrics(nextProps)
     }
   }
-  
+
   getMetrics(props) {
-    const { currentChart, getMonitorMetrics, clusterID, currentPanel, timeRange } = props
-    const { content, metrics } = currentChart
+    const {
+      currentChart, getMonitorMetrics, clusterID, currentPanel, timeRange,
+      getServicesMetrics, getClustersMetrics
+     } = props
+    const { content, metrics, type } = currentChart
     let parseContent = JSON.parse(content)
     let lbgroup = Object.keys(parseContent)[0]
     let services = parseContent[lbgroup]
@@ -53,16 +58,28 @@ class MonitorChartTemp extends React.Component {
       start: new Date(timeRange[0]).toISOString(),
       end: new Date(timeRange[1]).toISOString()
     }
-    getMonitorMetrics(currentPanel.iD, currentChart.id, clusterID, lbgroup, services, query)
+    switch (type) {
+      case 'nexport':
+        getMonitorMetrics(currentPanel.iD, currentChart.id, clusterID, lbgroup, services, query)
+        break
+      case 'service':
+        getServicesMetrics(currentPanel.iD, currentChart.id, clusterID, services, query)
+        break
+      case 'node':
+        getClustersMetrics(currentPanel.iD, currentChart.id, clusterID, services, query)
+        break
+      default:
+        break
+    }
   }
-  
+
   updateUnit(bytes) {
     const { unit } = bytesToSize(bytes)
     this.setState({
       unit
     })
   }
-  
+
   cardExtra() {
     const { openChartModal, currentPanel, currentChart } = this.props
     return [
@@ -70,7 +87,7 @@ class MonitorChartTemp extends React.Component {
       <Icon key="setting" type="setting" onClick={() => openChartModal(currentPanel.iD, currentChart)}/>
     ]
   }
-  
+
   renderType(chart) {
     const { type } = chart
     switch(type) {
@@ -84,7 +101,7 @@ class MonitorChartTemp extends React.Component {
         return '未知'
     }
   }
-  
+
   render() {
     const { unit } = this.state
     const { currentChart, monitorMetrics  } = this.props
@@ -108,7 +125,7 @@ class MonitorChartTemp extends React.Component {
                 <Tooltip
                   placement="topLeft"
                   title={this.renderType(currentChart)}
-                  
+
                 >
                   <Col span={12} className="textoverflow">{this.renderType(currentChart)}</Col>
                 </Tooltip>
@@ -129,13 +146,24 @@ class MonitorChartTemp extends React.Component {
 function mapStateToProps(state, props) {
   const { manageMonitor } = state
   const { currentPanel, currentChart } = props
+  const { type } = currentChart
   const monitorID =  currentPanel.iD + currentChart.id
-  const { monitorMetrics } = manageMonitor
+  const { monitorMetrics, serviceMetrics, nodeMetrics } = manageMonitor
+  let finallyData
+  if (type === 'nexport') {
+    finallyData = monitorMetrics[monitorID] || { data: [], isFetching: true }
+  } else if (type === 'service') {
+    finallyData = serviceMetrics[monitorID] || { data: [], isFetching: true }
+  } else {
+    finallyData = nodeMetrics[monitorID] || { data: [], isFetching: true }
+  }
   return {
-    monitorMetrics: monitorMetrics[monitorID] || { data: [], isFetching: true }
+    monitorMetrics: finallyData
   }
 }
 
 export default connect(mapStateToProps, {
-  getMonitorMetrics
+  getMonitorMetrics,
+  getServicesMetrics,
+  getClustersMetrics
 })(MonitorChartTemp)

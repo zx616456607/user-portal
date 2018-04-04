@@ -273,7 +273,7 @@ exports.getMetrics = function* () {
   const cluster = this.params.cluster
   const query = this.query
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'metric'], query) 
+  const result = yield api.getBy([cluster, 'metric'], query)
   this.body = result
 }
 
