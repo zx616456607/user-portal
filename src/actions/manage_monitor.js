@@ -472,3 +472,45 @@ function fetchMonitorMetrics(panelID, chartID, clusterID, lbgroup, services, que
 export function getMonitorMetrics(panelID, chartID, clusterID, lbgroup, services, query, callback) {
   return dispatch => dispatch(fetchMonitorMetrics(panelID, chartID, clusterID, lbgroup, services, query, callback))
 }
+
+export const GET_SERVICES_METRICS_REQUEST = 'GET_SERVICES_METRICS_REQUEST'
+export const GET_SERVICES_METRICS_SUCCESS = 'GET_SERVICES_METRICS_SUCCESS'
+export const GET_SERVICES_METRICS_FAILURE = 'GET_SERVICES_METRICS_FAILURE'
+
+function fetchServicesMetrics(panelID, chartID, clusterID, services, query, callback) {
+  let monitorID = chartID ? panelID + chartID : panelID
+  return {
+    monitorID,
+    [FETCH_API]: {
+      types: [GET_SERVICES_METRICS_REQUEST, GET_SERVICES_METRICS_SUCCESS, GET_SERVICES_METRICS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/services/${services}/metrics?${toQuerystring(query)}`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getServicesMetrics(panelID, chartID, clusterID, services, query, callback) {
+  return dispatch => dispatch(fetchServicesMetrics(panelID, chartID, clusterID, services, query, callback))
+}
+
+export const GET_CLUSTERS_METRICS_REQUEST = 'GET_CLUSTERS_METRICS_REQUEST'
+export const GET_CLUSTERS_METRICS_SUCCESS = 'GET_CLUSTERS_METRICS_SUCCESS'
+export const GET_CLUSTERS_METRICS_FAILURE = 'GET_CLUSTERS_METRICS_FAILURE'
+
+function fetchClustersMetrics(panelID, chartID, clusterID, nodes, query, callback) {
+  let monitorID = chartID ? panelID + chartID : panelID
+  return {
+    monitorID,
+    [FETCH_API]: {
+      types: [GET_CLUSTERS_METRICS_REQUEST, GET_CLUSTERS_METRICS_SUCCESS, GET_CLUSTERS_METRICS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cluster-nodes/${clusterID}/${nodes}/panel/metrics?${toQuerystring(query)}`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getClustersMetrics(panelID, chartID, clusterID, nodes, query, callback) {
+  return dispatch => dispatch((fetchClustersMetrics(panelID, chartID, clusterID, nodes, query, callback)))
+}
