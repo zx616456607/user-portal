@@ -398,7 +398,7 @@ function mapStateToProps(state, props) {
   configGroup.length > 0 && configGroup.forEach(item => {
     if (item.annotations.length) {
       labels = labels.concat(item.annotations)
-    } else if (!labels.includes('未配置分类组')) {
+    } else if (!labels.includes('未分类配置组')) {
       labels = labels.concat(['未分类配置组'])
     }
   })

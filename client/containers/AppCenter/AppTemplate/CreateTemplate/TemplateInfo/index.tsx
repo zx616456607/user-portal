@@ -157,7 +157,10 @@ class TemplateInfo extends React.Component<any> {
     let loadBalanceName: string = '';
     let chart: object = {};
     let info: Array = [];
+    let count = 0;
+    const fieldsLength = Object.keys(fields).length;
     for (let [key, value] of Object.entries(fields)) {
+      count ++;
       let serviceOption = {};
       let content: Array = [];
       if (fields.hasOwnProperty(key)) {
@@ -166,6 +169,13 @@ class TemplateInfo extends React.Component<any> {
         content.push(yaml.dump(json.service));
         json.storage.forEach(item => {
           content.push(yaml.dump(item));
+        });
+        Object.assign(serviceOption, {
+          chart: {
+            name: count === fieldsLength ? value.templateName.value : value.serviceName.value,
+            version: value.templateVersion.value,
+            description: value.templateDesc.value,
+          },
         });
         if (value.accessType && value.accessType.value === 'loadBalance') {
           accessType = value.accessType.value;
@@ -290,15 +300,15 @@ class TemplateInfo extends React.Component<any> {
       <div className="templateInfo">
         <div className="tempInfoHeader">信息总览</div>
         <div className="tempInfoBody">
-          <div className="customizeItem">
+          <div className="customizeItem hidden">
             <div className="label">模板名称</div>
             <Input size="large" readOnly value={this.getTemplateInfo('templateName')}/>
           </div>
-          <div className="customizeItem">
+          <div className="customizeItem hidden">
             <div className="label">模板版本</div>
             <Input size="large" readOnly value={this.getTemplateInfo('templateVersion')}/>
           </div>
-          <div className="customizeItem">
+          <div className="customizeItem hidden">
             <div className="label">模板描述</div>
             <Input size="large" type="textarea" readOnly value={this.getTemplateInfo('templateDesc')}/>
           </div>

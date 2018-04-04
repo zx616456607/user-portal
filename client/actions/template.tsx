@@ -64,7 +64,7 @@ export const DELETE_APP_TEMPLATE_REQUEST = 'DELETE_APP_TEMPLATE_REQUEST';
 export const DELETE_APP_TEMPLATE_SUCCESS = 'DELETE_APP_TEMPLATE_SUCCESS';
 export const DELETE_APP_TEMPLATE_FAILURE = 'DELETE_APP_TEMPLATE_FAILURE';
 
-const fetchDeleteAppTemplete = (name, callback) => {
+const fetchDeleteAppTemplete = (name, version, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -72,7 +72,7 @@ const fetchDeleteAppTemplete = (name, callback) => {
         DELETE_APP_TEMPLATE_SUCCESS,
         DELETE_APP_TEMPLATE_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/templates/helm/${name}`,
+      endpoint: `${API_URL_PREFIX}/templates/helm/${name}/versions/${version}`,
       schema: {},
       options: {
         method: 'DELETE',
@@ -82,14 +82,14 @@ const fetchDeleteAppTemplete = (name, callback) => {
   };
 };
 
-export const deleteAppTemplate = (name: string, callback?: function) =>
-  dispatch => dispatch(fetchDeleteAppTemplete(name, callback));
+export const deleteAppTemplate = (name: string, version: string, callback?: function) =>
+  dispatch => dispatch(fetchDeleteAppTemplete(name, version, callback));
 
 export const APP_TEMPLATE_DETAIL_REQUEST = 'APP_TEMPLATE_DETAIL_REQUEST';
 export const APP_TEMPLATE_DETAIL_SUCCESS = 'APP_TEMPLATE_DETAIL_SUCCESS';
 export const APP_TEMPLATE_DETAIL_FAILURE = 'APP_TEMPLATE_DETAIL_FAILURE';
 
-const fetchAppTemplateDetail = (name, callback) => {
+const fetchAppTemplateDetail = (name, version, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -97,15 +97,15 @@ const fetchAppTemplateDetail = (name, callback) => {
         APP_TEMPLATE_DETAIL_SUCCESS,
         APP_TEMPLATE_DETAIL_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/templates/helm/${name}`,
+      endpoint: `${API_URL_PREFIX}/templates/helm/${name}/versions/${version}`,
       schema: {},
     },
     callback,
   };
 };
 
-export const getAppTemplateDetail = (name: string, callback?: function) =>
-  dispatch => dispatch(fetchAppTemplateDetail(name, callback));
+export const getAppTemplateDetail = (name: string, version: string, callback?: function) =>
+  dispatch => dispatch(fetchAppTemplateDetail(name, version, callback));
 
 export const APP_TEMPLATE_DEPLOY_CHECK_REQUEST = 'APP_TEMPLATE_DEPLOY_CHECK_REQUEST';
 export const APP_TEMPLATE_DEPLOY_CHECK_SUCCESS = 'APP_TEMPLATE_DEPLOY_CHECK_SUCCESS';

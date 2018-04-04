@@ -14,6 +14,7 @@ import Deployment from '../../../../kubernetes/objects/deployment'
 import Service from '../../../../kubernetes/objects/service'
 import PersistentVolumeClaim from '../../../../kubernetes/objects/persistentVolumeClaim'
 import { getResourceByMemory } from '../../../common/tools'
+import isEmpty from 'lodash/isEmpty'
 import {
   RESOURCES_DIY,
   SYSTEM_DEFAULT_SCHEDULE,
@@ -383,6 +384,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
 
   // 设置普通配置目录
   if (configMapKeys) {
+    const wholeDir = {}
     configMapKeys.forEach(key => {
       if (!key.deleted) {
         const keyValue = key.value
@@ -390,8 +392,12 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         const configMapIsWholeDir = fieldsValues[`configMapIsWholeDir${keyValue}`]
         const configGroupName = fieldsValues[`configGroupName${keyValue}`]
         const configMapSubPathValues = fieldsValues[`configMapSubPathValues${keyValue}`]
+        let volumeName = `noClassify/configmap-volume-${keyValue}`
+        if (configGroupName && configGroupName[0] !== '未分类配置组') {
+          volumeName = `${configGroupName[0]}/configmap-volume-${keyValue}`
+        }
         const volume = {
-          name: `configmap-volume-${keyValue}`,
+          name: volumeName,
           configMap: {
             name: configGroupName && configGroupName[1],
             items: configMapSubPathValues.map(value => {
@@ -404,13 +410,19 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         }
         let volumeMounts = []
         if (configMapIsWholeDir) {
+          Object.assign(wholeDir, {
+            [volumeName]: true
+          })
           volumeMounts.push({
             mountPath: configMapMountPath,
           })
         } else {
+          Object.assign(wholeDir, {
+            [volumeName]: false
+          })
           configMapSubPathValues.map(value => {
             volumeMounts.push({
-              name: `configmap-volume-${keyValue}`,
+              name: volumeName,
               mountPath: configMapMountPath + '/' + value,
               subPath: value,
             })
@@ -419,6 +431,11 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         deployment.addContainerVolume(serviceName, volume, volumeMounts, configMapIsWholeDir)
       }
     })
+    if (!isEmpty(wholeDir)) {
+      deployment.setAnnotations({
+        wholeDir: JSON.stringify(wholeDir)
+      })
+    }
   }
 
   // 设置加密配置目录
@@ -436,14 +453,14 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
             secretName: secretConfigGroupName,
           },
         }
-        if (!secretConfigMapIsWholeDir) {
+        // if (!secretConfigMapIsWholeDir) {
           volume.secret.items = secretConfigMapSubPathValues.map(value => {
             return {
               key: value,
               path: value,
             }
           })
-        }
+        // }
         const volumeMounts = []
         volumeMounts.push({
           name: `secret-volume-${keyValue}`,

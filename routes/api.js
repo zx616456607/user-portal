@@ -169,8 +169,8 @@ module.exports = function (Router) {
   // Helm templates
   router.put('/templates/helm/clusters/:cluster', helmTemplateController.createTemplate)
   router.get('/templates/helm', helmTemplateController.getTemplateList)
-  router.del('/templates/helm/:name', helmTemplateController.deleteTemplate)
-  router.get('/templates/helm/:name', helmTemplateController.getTemplateDetail)
+  router.del('/templates/helm/:name/versions/:version', helmTemplateController.deleteTemplate)
+  router.get('/templates/helm/:name/versions/:version', helmTemplateController.getTemplateDetail)
   router.post('/templates/helm/:name/clusters/:cluster', helmTemplateController.deployTemplateCheck)
 
   // Services

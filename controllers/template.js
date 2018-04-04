@@ -34,8 +34,9 @@ exports.getTemplateList = function* () {
 exports.deleteTemplate = function* () {
   const loginUser = this.session.loginUser;
   const name = this.params.name;
+  const version = this.params.version;
   const api = apiFactory.getApi(loginUser);
-  const result = yield api.templates.deleteBy(['helm', name]);
+  const result = yield api.templates.deleteBy(['helm', name, 'versions', version]);
   this.body = result;
 }
 
@@ -43,8 +44,9 @@ exports.deleteTemplate = function* () {
 exports.getTemplateDetail = function* () {
   const loginUser = this.session.loginUser;
   const name = this.params.name;
+  const version = this.params.version;
   const api = apiFactory.getApi(loginUser);
-  const result = yield api.templates.getBy(['helm', name]);
+  const result = yield api.templates.getBy(['helm', name, 'versions', version]);
   this.body = result;
 }
 

@@ -84,7 +84,7 @@ class TemplateList extends React.Component<any> {
       deleteLoading: true,
     });
     notify.spin('模板删除中');
-    const result = await deleteAppTemplate(selectedTemp.name);
+    const result = await deleteAppTemplate(selectedTemp.name, selectedTemp.versions[0].version);
     if (result.error) {
       notify.close();
       notify.warn('删除失败', result.error.message.message || result.error.message);
@@ -102,7 +102,7 @@ class TemplateList extends React.Component<any> {
   }
 
   handleEdit = (temp: object) => {
-    browserHistory.push(`/app_center/template/create?name=${temp.name}`);
+    browserHistory.push(`/app_center/template/create?name=${temp.name}&version=${temp.versions[0].version}`);
   }
   cancelRelease = () => {
     this.setState({
@@ -129,7 +129,7 @@ class TemplateList extends React.Component<any> {
       );
       return (
         <div key={temp.name} className="templateList">
-          <span className="version">{temp.apiVersion}</span>
+          <span className="version">{temp.versions[0].apiVersion}</span>
           <Popover placement="right" content={content}>
             <Icon className="operation" type="bars" />
           </Popover>
@@ -137,7 +137,7 @@ class TemplateList extends React.Component<any> {
           <div className="templateFooter">
             <div>{temp.name}</div>
             <div className="descAndDeploy">
-              <div className="tempDesc">{formatDate(temp.lastUpdate)}</div>
+              <div className="tempDesc">{formatDate(temp.versions[0].lastUpdate)}</div>
               <Button className="deploy" type="primary" onClick={() => this.handleDeploy()}>部署</Button>
             </div>
           </div>
