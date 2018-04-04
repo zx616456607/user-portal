@@ -534,6 +534,7 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster/:node/instant', clusternodesController.getClustersInstant)
   router.get('/cluster-nodes/:cluster/label-summary', clusternodesController.getLabelSummary)
   router.get('/cluster-nodes/:cluster/:node/metrics/:type', clusternodesController.getClustersTypeMetrics)
+  router.get('/cluster-nodes/:cluster/:node/panel/metrics', clusternodesController.loadClustersTypeMetrics)
 
   // manipulate node's labels
   router.get('/cluster-nodes/:cluster/:node/labels', clusternodesController.getNodeLabels)
