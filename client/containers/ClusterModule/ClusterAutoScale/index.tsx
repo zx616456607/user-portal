@@ -22,23 +22,33 @@ class ClusterAutoScale extends React.Component {
   tabChange = () => {
     // console.log(arguments);
   }
-
+  getTitle = (name) => {
+    return (
+      <div className="tabTitle"><span className="common-style"> {name} </span></div>
+    );
+  }
   render() {
     const { children, location } = this.props;
+    const tabTitle1 = this.getTitle('伸缩策略');
+    const tabTitle2 = this.getTitle('资源池配置');
     return (
       <QueueAnim className="clusterAutoScaleBox" type="right">
-        <Tabs onChange={this.tabChange} type="card">
-          <TabPane tab="伸缩策略" key="1">
-            <div className="tabContent">
-              <Tab1
-               />
-            </div>
+        <Tabs onChange={this.tabChange} type="card" key="1">
+          <TabPane className="tabTitle" tab={tabTitle1} key="2">
+            <QueueAnim type="right">
+              <div className="tabContent" key="3">
+                <Tab1
+                />
+              </div>
+            </QueueAnim>
           </TabPane>
-          <TabPane tab="资源池配置" key="2">
-            <div className="tabContent">
-              <Tab2
-               />
-            </div>
+          <TabPane className="tabTitle" tab={tabTitle2} key="4">
+            <QueueAnim type="right">
+              <div className="tabContent" key="5">
+                <Tab2
+                />
+              </div>
+            </QueueAnim>
           </TabPane>
         </Tabs>
       </QueueAnim>

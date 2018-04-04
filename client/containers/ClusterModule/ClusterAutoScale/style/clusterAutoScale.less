@@ -1,4 +1,70 @@
 .clusterAutoScaleBox {
   padding: 20px 20px 0 20px;
-
+  .ant-tabs-bar {
+    background: #e9ecf1;
+    border-radius: 4px;
+    font-size: 12px;
+    overflow: hidden;
+    transition: all 0.3s;
+    border-bottom: 1px solid #d9d9d9;
+    margin-bottom: 24px;
+    .ant-tabs-nav-container{
+      height: 40px;
+    }
+    .ant-tabs-ink-bar {
+      height: 100% !important;
+      background-color: #F8F8F8;
+    }
+    .ant-tabs-nav {
+      height: 40px;
+      line-height: 40px;
+      .ant-tabs-tab-inner{
+        padding:0;
+        text-align: center;
+      }
+      .ant-tabs-tab {
+        z-index: 10;
+        margin-right: 0 !important;
+        .tabTitle{
+          position: relative;
+          width: 145px;
+          padding: 0 10px;
+          text-align: left;
+          .common-style {
+            display: inline-block;
+            text-align: left;
+            width: 135px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .builder-style {
+            width: 112px;
+          }
+          .clusterImg{
+            position: absolute;
+            top: 10px;
+            left: 120px;
+          }
+        }
+      }
+      .ant-tabs-tab-active{
+        background: #eceff4;
+        border:1px solid #30baf9;
+        border-bottom: none;
+      }
+    }
+    .ant-tabs-tab-prev,
+    .ant-tabs-tab-next {
+      margin-top: 0 !important;
+      line-height: 40px !important;
+      z-index: 11;
+    }
+    .ant-tabs-nav :nth-child(5) {
+      border-left: 1px solid #efefef;
+    }
+    &:hover {
+      box-shadow: 0 1px 6px rgba(100, 100, 100, 0.2);
+    }
+  }
 }
