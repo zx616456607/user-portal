@@ -1,0 +1,132 @@
+
+.ant-modal-header {
+  background-color: #333333 !important;
+  color: #fff !important;
+}
+.topIconContainer{
+  padding:30px 20px;
+  border-bottom: 1px dashed #ccc;
+  .iconCon{
+    box-sizing: border-box;
+    width: 90px;
+    float: left;
+    height: 80px;
+    position: relative;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 0 10px;
+    cursor: pointer;
+    .icon{
+      position: absolute;
+      top: 0;
+      height: ~"calc(100% - 28px)";
+      width: 100%;
+      background-image: url('../../../../../src/assets/img/cluster/nfs.png');
+      background-position: center center;
+      background-size: 50% auto;
+      background-repeat: no-repeat;
+    }
+    .name{
+      position: absolute;
+      bottom: 0;
+      padding: 5px 0;
+      text-align: center;
+      color: #ccc;
+      width: 100%;
+    }
+  }
+  .iconCon:hover {
+    cursor: pointer;
+    border: 2px solid #00a1ea;
+    color:#00a1ea;
+    use{
+      fill: #00a1ea !important;
+    }
+  }
+  .selectedBox{
+    border: 2px solid #00a1ea;
+    color:#00a1ea;
+    use{
+      fill: #00a1ea !important;
+    }
+    .commonSelectedImg{
+      display: block;
+      position: absolute;
+      bottom: 0px;
+      right: 0px;
+      width: 30px;
+      height: 30px;
+    }
+    .fa-check{
+      display: block;
+      position: absolute;
+      bottom: 3px;
+      right: 3px;
+      color: #FFFFFF;
+    }
+  }
+  .commonSelectedImg,
+  .fa-check{
+    display: none;
+  }
+}
+.btnConatainer{
+  text-align: center;
+  padding:40px 0 24px 0;
+}
+.formContainer{
+  .panel{
+    border-bottom: 1px dashed #ccc;
+    margin-bottom: 10px;
+    padding: 10px 0;
+    .row{
+      margin: 15px 0;
+      .right, .left{
+        float: left;
+      }
+      .left{
+        width:100px;
+        text-align: right;
+        height: 30px;
+        line-height: 30px;
+        padding-right:10px;
+      }
+      .right{
+        width: ~"calc(100% - 100px)";
+        padding-right: 20px;
+        line-height: 30px;
+        .unit{
+          display: inline-block;
+          margin-left: 10px;
+        }
+        .hint{
+          display: inline-block;
+          float: right;
+          height: 28px;
+          line-height: 28px;
+        }
+        .min, .max{
+          width: 50%;
+          .name{
+            width: 100%;
+          }
+          .formItem .item{
+            width: 150px;
+          }
+          float: left;
+        }
+      }
+      .clearBoth{
+        clear: both;
+      }
+    }
+    .row.noMB{
+      margin-bottom: 0px;
+    }
+  }
+}
+.stepContainer{
+  padding: 10px 100px;
+  border-bottom: 1px dashed #ccc;
+  margin-bottom: 10px;
+}

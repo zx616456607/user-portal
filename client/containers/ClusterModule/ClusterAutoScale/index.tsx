@@ -14,13 +14,14 @@ const TabPane = Tabs.TabPane;
 
 class ClusterAutoScale extends React.Component {
   state = {
-    activeTab: 1,
+    activeKey: "pane1",
     state2: false,
     state3: false,
   };
 
   tabChange = () => {
     // console.log(arguments);
+    this.setState({activeKey: this.state.activeKey == "pane1"? "pane2" : "pane1" });
   }
   getTitle = (name) => {
     return (
@@ -33,8 +34,8 @@ class ClusterAutoScale extends React.Component {
     const tabTitle2 = this.getTitle('资源池配置');
     return (
       <QueueAnim className="clusterAutoScaleBox" type="right">
-        <Tabs onChange={this.tabChange} type="card" key="1">
-          <TabPane className="tabTitle" tab={tabTitle1} key="2">
+        <Tabs activeKey={this.state.activeKey} onChange={this.tabChange} type="card" key="1">
+          <TabPane className="tabTitle" tab={tabTitle1} key="pane1">
             <QueueAnim type="right">
               <div className="tabContent" key="3">
                 <Tab1
@@ -42,7 +43,7 @@ class ClusterAutoScale extends React.Component {
               </div>
             </QueueAnim>
           </TabPane>
-          <TabPane className="tabTitle" tab={tabTitle2} key="4">
+          <TabPane className="tabTitle" tab={tabTitle2} key="pane2">
             <QueueAnim type="right">
               <div className="tabContent" key="5">
                 <Tab2
