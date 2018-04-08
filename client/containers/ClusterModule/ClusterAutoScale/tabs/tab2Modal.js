@@ -1,8 +1,10 @@
 import React from 'react'
-import { Modal, Button, Input, Select } from 'antd'
-import '../style/tab2Modal.less'
+import { Modal, Button, Input, Select, Row, Col, Form } from 'antd'
+import '../style/tabModal.less'
 import classNames from 'classNames'
 const Option = Select.Option;
+const FormItem = Form.Item;
+let randomKey = Math.random();//重置表单
 
 
 class Tab1Modal extends React.Component {
@@ -29,6 +31,11 @@ class Tab1Modal extends React.Component {
       'iconCon': true,
       'selectedBox': this.state.current == "4",
     });
+    const formItemLargeLayout = {
+      labelCol: { span: 6},
+      wrapperCol: { span: 14}
+    }
+    if(!this.props.visible) randomKey = Math.random();//重置表单
     return (
       <div>
         <Modal
@@ -38,6 +45,8 @@ class Tab1Modal extends React.Component {
           title="新建资源池配置"
           okText="保存"
           width="550"
+          key={randomKey}
+          maskClosable={true}
           >
           <div className="topIconContainer">
             <div className={iconClass1} data-index="1" onClick={this.clickIcon}>
@@ -74,39 +83,44 @@ class Tab1Modal extends React.Component {
             </div>
             <div style={{clear:"both"}}></div>
           </div>
-          <div className="formConatainer">
-            <div className="row">
-              <div className="left">容器集群</div>
-              <div className="right">
+          <div className="bottom-line"></div>
+          <div className="formContainer">
+            <Row key="row1">
+              <FormItem
+                {...formItemLargeLayout}
+                label="容器集群"
+              >
                 <Select placeholder="请选择容器集群" style={{width: "100%", }}>
                   {/* <Option value="0">请选择容器集群</Option> */}
                   <Select.Option value="1">1.1.1.1</Select.Option>
                   <Select.Option value="2">2.2.2.2</Select.Option>
                 </Select>
-              </div>
-              <div className="clearBoth"></div>
-            </div>
-            <div className="row">
-              <div className="left">vSphere</div>
-              <div className="right">
-                <Input  />
-              </div>
-              <div className="clearBoth"></div>
-            </div>
-            <div className="row">
-              <div className="left">登录用户名</div>
-              <div className="right">
-                <Input  />
-              </div>
-              <div className="clearBoth"></div>
-            </div>
-            <div className="row noMB">
-              <div className="left">登录密码</div>
-              <div className="right">
-                <Input  />
-              </div>
-              <div className="clearBoth"></div>
-            </div>
+              </FormItem>
+            </Row>
+            <Row key="row2">
+              <FormItem
+                {...formItemLargeLayout}
+                label="vSphere"
+              >
+                <Input  placeholder="请输入vSphere" />
+              </FormItem>
+            </Row>
+            <Row key="row3">
+              <FormItem
+                {...formItemLargeLayout}
+                label="登录用户名"
+              >
+                <Input  placeholder="请输入登录用户名" />
+              </FormItem>
+            </Row>
+            <Row key="row4">
+              <FormItem
+                {...formItemLargeLayout}
+                label="登录密码"
+              >
+                <Input  placeholder="请输入登录密码" />
+              </FormItem>
+            </Row>
           </div>
         </Modal>
       </div>

@@ -4,9 +4,8 @@ import { Menu, Button, Card, Input, Dropdown, Spin, Modal,
   message, Icon, Checkbox, Tooltip,  Row, Col, Tabs } from 'antd';
 import QueueAnim from 'rc-queue-anim';
 import classNames from 'classnames';
-import * as clusterActions from '../../../../src/actions/cluster';
+import * as autoScalerActions from '../../../actions/clusterAutoScaler';
 import { connect } from 'react-redux';
-import * as templateActions from '../../../actions/template';
 import './style/clusterAutoScale.less';
 import Tab1 from './tabs/tab1';
 import Tab2 from './tabs/tab2';
@@ -14,14 +13,19 @@ const TabPane = Tabs.TabPane;
 
 class ClusterAutoScale extends React.Component {
   state = {
-    activeKey: "pane1",
+    activeKey: 'pane1',
     state2: false,
     state3: false,
   };
 
+  componentDidMount() {
+    const { getAutoScalerList } = this.props;
+    getAutoScalerList();
+  }
+
   tabChange = () => {
     // console.log(arguments);
-    this.setState({activeKey: this.state.activeKey == "pane1"? "pane2" : "pane1" });
+    this.setState({ activeKey: this.state.activeKey === 'pane1' ? 'pane2' : 'pane1' });
   }
   getTitle = (name) => {
     return (
@@ -29,6 +33,15 @@ class ClusterAutoScale extends React.Component {
     );
   }
   render() {
+    const { getAutoScalerList, isFetching } = this.props;
+    if (isFetching) {
+      return (
+        <div className="loadingBox">
+          <Spin size="large"/>
+        </div>
+      );
+    }
+
     const { children, location } = this.props;
     const tabTitle1 = this.getTitle('伸缩策略');
     const tabTitle2 = this.getTitle('资源池配置');
@@ -57,11 +70,21 @@ class ClusterAutoScale extends React.Component {
   }
 }
 
-const mapStateToProps = (state, props) => {
-  const { clusterID } = props;
-  const { kubeproxy } = state.cluster;
+const mapStateToProps = state => {
+  const { appAutoScaler } = state;
+  const { services } = appAutoScaler;
+  const { data: data, isFetching } = services || { data: {} };
+  const { data: servicesList, total } = data || { data: [], total: 1 };
   return {
-    kubeproxy: kubeproxy && kubeproxy[clusterID] && kubeproxy[clusterID].data || {},
+    servicesList,
+    total,
+    isFetching,
   };
 };
-export default ClusterAutoScale;
+
+export default connect(mapStateToProps, {
+  getAutoScalerList: autoScalerActions.getAutoScalerList,
+  addAutoScaler: autoScalerActions.createAutoScaler,
+  updateAutoScaler: autoScalerActions.updateAutoScaler,
+  deleteAutoScaler: autoScalerActions.deleteAutoScaler,
+})(ClusterAutoScale);

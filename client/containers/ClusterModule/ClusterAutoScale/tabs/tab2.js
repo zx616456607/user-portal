@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Icon, Input, Table, Menu, Dropdown, Card, Select, Pagination, Timeline} from 'antd';
+import { Button, Icon, Input, Table, Menu, Dropdown, Card, Select, Pagination, Timeline, Row, Col} from 'antd';
 import moment from 'moment'
 import classNames from 'classNames'
 import '../style/tab1.less';
@@ -176,6 +176,7 @@ class Tab2 extends React.Component {
             <span className='totalPage'>共 {total} 条</span>
             <div className='paginationBox'>
               <Pagination
+                simple
                 className='inlineBlock'
                 onChange={this.onPageChange}
                 // onShowSizeChange={this.onShowSizeChange}

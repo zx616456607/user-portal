@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Icon, Input, Table, Menu, Dropdown, Card, Select, Pagination, Timeline} from 'antd';
+import { Button, Icon, Input, Table, Menu, Dropdown, Card, Select, Pagination, Timeline, Row, Col} from 'antd';
 import classNames from 'classNames';
 import '../style/tab1.less';
 import QueueAnim from 'rc-queue-anim';
@@ -71,7 +71,7 @@ class Tab1 extends React.Component {
     currentData: tableData[0] || {},//点击名称缓存当前选中行元素
     isShowTab1: true, //伸缩策略中显示第一页， false第二页
     selectedRowKeys: [], //选中行元素的keys
-    isTab1ModalShow: true, //新建策略modal 显示状态
+    isTab1ModalShow: false, //新建策略modal 显示状态
   }
   //顶部按钮事件
   add = () => {
@@ -266,6 +266,7 @@ class Tab1 extends React.Component {
                   <span className='totalPage'>共 {total} 条</span>
                   <div className='paginationBox'>
                     <Pagination
+                      simple
                       className='inlineBlock'
                       onChange={this.onPageChange}
                       // onShowSizeChange={this.onShowSizeChange}

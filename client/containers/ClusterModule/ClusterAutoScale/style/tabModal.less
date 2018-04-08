@@ -1,11 +1,10 @@
-
 .ant-modal-header {
   background-color: #333333 !important;
   color: #fff !important;
 }
 .topIconContainer{
   padding:30px 20px;
-  border-bottom: 1px dashed #ccc;
+  // border-bottom: 1px dashed #ccc;
   .iconCon{
     box-sizing: border-box;
     width: 90px;
@@ -23,7 +22,7 @@
       width: 100%;
       background-image: url('../../../../../src/assets/img/cluster/nfs.png');
       background-position: center center;
-      background-size: 50% auto;
+      background-size: 50px auto;
       background-repeat: no-repeat;
     }
     .name{
@@ -32,7 +31,7 @@
       padding: 5px 0;
       text-align: center;
       color: #ccc;
-      width: 100%;
+      width: 90px;
     }
   }
   .iconCon:hover {
@@ -41,6 +40,11 @@
     color:#00a1ea;
     use{
       fill: #00a1ea !important;
+    }
+    .name{
+      bottom: -1px;
+      width: 88px;
+      /*解决box-sizing hover 出现border时错位问题*/
     }
   }
   .selectedBox{
@@ -64,21 +68,81 @@
       right: 3px;
       color: #FFFFFF;
     }
+    .name{
+      bottom: -1px;
+      width: 88px;
+      /*解决box-sizing hover 出现border时错位问题*/
+    }
   }
   .commonSelectedImg,
   .fa-check{
     display: none;
   }
 }
+.bottom-line{
+  width: 100%;
+  height: 1px;
+  background-image: linear-gradient(to right, #ccc 0%, #ccc 50%, transparent 50%);
+  background-size: 10px 1px;
+  background-repeat: repeat-x;
+  position: absolute;
+  left: 0;
+}
 .btnConatainer{
   text-align: center;
   padding:40px 0 24px 0;
 }
+.stepContainer{
+  padding: 10px 100px;
+  // border-bottom: 1px dashed #ccc;
+  margin-top: 5px;
+}
+.vmTemplateDetail {
+  .path{
+    padding-right: 10px;
+    width: 100%;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    word-break: break-all;
+    white-space: nowrap;
+  }
+  .lowcase {
+    color: #999999;
+  }
+}
+
 .formContainer{
+  padding-top: 30px;
   .panel{
-    border-bottom: 1px dashed #ccc;
+    // border-bottom: 1px dashed #ccc;
     margin-bottom: 10px;
-    padding: 10px 0;
+    .ant-row{
+      .unit{
+        display: inline-block;
+        margin-left: 10px;
+      }
+      .hint{
+        display: inline-block;
+        float: right;
+        height: 32px;
+        line-height: 32px;
+      }
+      .min, .max{
+        width: 50%;
+        .name{
+          width: 100%;
+        }
+        .formItem .item{
+          width: 100px;
+        }
+        float: left;
+      }
+      .ant-form-item{
+        margin-bottom: 15px;
+      }
+    }
     .row{
       margin: 15px 0;
       .right, .left{
@@ -124,9 +188,8 @@
       margin-bottom: 0px;
     }
   }
-}
-.stepContainer{
-  padding: 10px 100px;
-  border-bottom: 1px dashed #ccc;
-  margin-bottom: 10px;
+  .panel.noBottom{
+    border-bottom: none !important;
+    margin-bottom: 0px !important;
+  }
 }
