@@ -51,6 +51,9 @@ class Tab2ModalContent extends React.Component {
     })
     return value;
   }
+  getNewServerObj = () => {
+    return this.state;
+  }
   render(){
     const { clusterList, isFetching, getServerList } = this.props;
     if (isFetching) {
@@ -179,7 +182,7 @@ const mapStateToProps = state => {
   const { appAutoScaler } = state;
   const { getClusterList } = appAutoScaler;
   const { clusterList, isFetching } = getClusterList || {clusterList: [], isFetching: false};
-
+  debugger;
   return {
     clusterList,
     isFetching,

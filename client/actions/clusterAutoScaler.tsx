@@ -132,6 +132,14 @@ const fetchClusterList = (query, callback) => {
 
 export const getClusterList = (query?: object, callback?: function) =>
   dispatch => dispatch(fetchClusterList(query, callback));
+
+// todo
+// export const setOpenKeys = (state) => {
+//   return {
+//     type: 'SET_OPENKEYS',
+//     state
+//   }
+// }
 // export const APP_SERVER_DETAIL_REQUEST = 'APP_SERVER_DETAIL_REQUEST';
 // export const APP_SERVER_DETAIL_SUCCESS = 'APP_SERVER_DETAIL_SUCCESS';
 // export const APP_SERVER_DETAIL_FAILURE = 'APP_SERVER_DETAIL_FAILURE';

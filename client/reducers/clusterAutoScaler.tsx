@@ -56,35 +56,10 @@ function getClusterList(state = {}, action) {
       return state;
   }
 }
-function getNewCluster(state = {}, action) {
-  // todo
-  let res = null;
-  switch (action.type) {
-    case ActionTypes.APP_CLUSTER_LIST_REQUEST:
-      res = Object.assign({}, state, {
-        isFetching: true,
-      });
-      return res;
-    case ActionTypes.APP_CLUSTER_LIST_SUCCESS:
-      res = Object.assign({}, state, {
-        isFetching: false,
-        clusterList: action.response.result.data,
-      });
-      return res;
-    case ActionTypes.APP_CLUSTER_LIST_FAILURE:
-      res = Object.assign({}, state, {
-        isFetching: false,
-      });
-      return res;
-    default:
-      return state;
-  }
-}
 
 export default function appAutoScaler(state = {}, action) {
   return {
     getServerList: getServerList(state.getServerList, action),
     getClusterList: getClusterList(state.getClusterList, action),
-    getNewCluster: getNewCluster(state.getNewCluster, action),
   };
 }

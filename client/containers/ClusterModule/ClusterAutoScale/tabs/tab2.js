@@ -47,8 +47,8 @@ class Tab2 extends React.Component {
       current: 1,
       defaultCurrent: 1,
       pageSize: 5,
-    },//分页配置
-    paginationCurrent: 1,//当前页
+    }, //分页配置
+    paginationCurrent: 1, //当前页
     isTab2ModalShow: false,
     tableData: [],
   }
@@ -61,8 +61,7 @@ class Tab2 extends React.Component {
     console.log("delItem", arguments);
   }
   //顶部按钮事件
-  add = () => {
-    console.log("add");
+  openModal = () => {
     this.setState({isTab2ModalShow: true});
   }
   delitems = () => {
@@ -110,7 +109,8 @@ class Tab2 extends React.Component {
   onTab2ModalOk = () => {
     //新增、修改接口
     console.log("sendParams",this.refs["tab2MC"]);
-
+    debugger
+    //this.props.addServer(this.refs)
   }
   render() {
     const { serverList, isFetching, getServerList } = this.props;
@@ -188,7 +188,7 @@ class Tab2 extends React.Component {
     return (
       <div className="tab2Content">
         <div className="btnPanel">
-          <Button className="btnItem" onClick={this.add} type="primary" ><Icon type="plus" />新建资源池配置</Button>
+          <Button className="btnItem" onClick={this.openModal} type="primary" ><Icon type="plus" />新建资源池配置</Button>
           <Button className="btnItem" onClick={this.delitems} type="ghost" disabled={isbtnDisabled} ><Icon type="delete" />删除</Button>
           <Input.Group className={searchCls}>
             <Input size='large' placeholder='请输入服务名搜索' value={this.state.searchValue} onChange={this.handleInputChange}
@@ -237,14 +237,6 @@ class Tab2 extends React.Component {
   componentDidMount() {
     const { getServerList } = this.props;
     getServerList({});
-    // , (res) => {
-    //   if (res.statusCode !== 200) {
-    //     return;
-    //   }
-    //   this.setState({
-    //     tableData: res.data,
-    //   });
-    // }
   }
 }
 
