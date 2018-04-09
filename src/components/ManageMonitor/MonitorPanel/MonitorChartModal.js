@@ -99,13 +99,7 @@ class MonitorChartModal extends React.Component {
   }
 
   componentWillMount() {
-    const { clusterID, getAllClusterNodes, loadAllServices, getProxy, currentChart } = this.props
-    getProxy(clusterID)
-    getAllClusterNodes(clusterID)
-    loadAllServices(clusterID, {
-      pageIndex: 1,
-      pageSize: 100
-    })
+    const { clusterID, currentChart } = this.props
     if (currentChart) {
       let content = JSON.parse(currentChart.content)
       const contentKey = Object.keys(content)[0]
@@ -226,9 +220,22 @@ class MonitorChartModal extends React.Component {
   }
 
   changeTargetType(type) {
-    const { getMetrics, form, clusterID } = this.props
+    const {
+      getMetrics, form, clusterID, getProxy, getAllClusterNodes, loadAllServices,
+      allServiceList, nodeList, proxiesServices
+     } = this.props
     const { getFieldValue, resetFields } = form
     const preType = getFieldValue('metrics_type')
+    if (type === 'service' && isEmpty(allServiceList)) {
+      loadAllServices(clusterID, {
+        pageIndex: 1,
+        pageSize: 100
+      })
+    } else if (type === 'node' && isEmpty(nodeList)) {
+      getAllClusterNodes(clusterID)
+    } else if (type === 'nexport' && isEmpty(proxiesServices)) {
+      getProxy(clusterID)
+    }
     if (preType !== type) {
       resetFields(['target'])
     }
