@@ -369,11 +369,11 @@ class Deployment {
       }
       if (volume.configMap) {
         let configMap = {}
-        if (isWholeDir) {
-          configMap = {
-            name: volume.configMap.name
-          }
-        } else {
+        // if (isWholeDir) {
+        //   configMap = {
+        //     name: volume.configMap.name
+        //   }
+        // } else {
           configMap = {
             name: volume.configMap.name,
             items: volume.configMap.items.map((item) => {
@@ -384,7 +384,7 @@ class Deployment {
               }
             })
           }
-        }
+        // }
         this.spec.template.spec.volumes.push({
           name: volume.name,
           configMap

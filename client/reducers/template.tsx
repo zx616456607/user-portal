@@ -9,6 +9,22 @@
  */
 
 import * as ActionTypes from '../actions/template';
+import isEmpty from 'lodash/isEmpty';
+
+function formatTempData(source) {
+  const { data, total } = source;
+  if (isEmpty(data)) {
+    return;
+  }
+  const newData = [];
+  for (let [key, value] of Object.entries(data)) {
+    newData.push({
+      name: key,
+      versions: value,
+    });
+  }
+  return { data: newData, total };
+}
 
 function templates(state = {}, action) {
   switch (action.type) {
@@ -19,7 +35,7 @@ function templates(state = {}, action) {
     case ActionTypes.APP_TEMPLATE_LIST_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        data: action.response.result.data,
+        data: formatTempData(action.response.result.data),
       });
     case ActionTypes.APP_TEMPLATE_LIST_FAILURE:
       return Object.assign({}, state, {

@@ -55,8 +55,9 @@ class AppTemplate extends React.Component<IProps, IState> {
   componentWillMount() {
     const { location, getAppTemplateDetail } = this.props;
     const { query } = location;
-    if (query && query.name) {
-      getAppTemplateDetail(query.name).then(res => {
+    if (query && query.name && query.version) {
+      const { name, version } = query;
+      getAppTemplateDetail(name, version).then(res => {
         if (res.error) {
           return;
         }
@@ -89,7 +90,7 @@ class AppTemplate extends React.Component<IProps, IState> {
     const { setFormFields } = this.props;
     const { detail, chart } = data;
     const templateArray = [];
-    this.formatService2Arrry(detail[0], templateArray);
+    this.formatService2Arrry(detail, templateArray);
     templateArray.reverse();
     templateArray.forEach(temp => {
       const id = this.genConfigureServiceKey();
