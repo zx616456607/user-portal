@@ -2,12 +2,15 @@ import React from 'react'
 import { Modal, Button, Select, Input, Steps, Icon, Tooltip, Radio, Row, Col, Form } from 'antd'
 import '../style/tabModal.less'
 import classNames from 'classNames'
+import * as autoScalerActions from '../../../../actions/clusterAutoScaler';
+import { connect } from 'react-redux';
 const FormItem = Form.Item;
 let randomKey = Math.random();//重置表单
 
 class Tab1Modal extends React.Component {
   clickIcon = (e) => {
-    let obj = e.target.parentElement.attributes['data-index'] || e.target.attributes['data-index']
+    let obj = e.target.parentElement.attributes['data-index'] || e.target.attributes['data-index'];
+    if(this.state.disabledIconCon.indexOf(obj.value) > -1){ return; }
     this.setState({currentIcon: obj.value});
   }
   fun1 = () => {
@@ -28,6 +31,7 @@ class Tab1Modal extends React.Component {
       currentIcon: "0",
       checkExist: false, //查看已有模块 false默认
       currentStep: 0,//0 第一步 1 第二步（保存）
+      disabledIconCon: ["2", "3", "4"],
     }
   }
   // state = {
@@ -39,18 +43,22 @@ class Tab1Modal extends React.Component {
     const iconClass1 = classNames({
       'iconCon': true,
       'selectedBox': this.state.currentIcon == "1",
+      'iconConDis': this.state.disabledIconCon.indexOf("1") > -1,
     });
     const iconClass2 = classNames({
       'iconCon': true,
       'selectedBox': this.state.currentIcon == "2",
+      'iconConDis': this.state.disabledIconCon.indexOf("2") > -1,
     });
     const iconClass3 = classNames({
       'iconCon': true,
       'selectedBox': this.state.currentIcon == "3",
+      'iconConDis': this.state.disabledIconCon.indexOf("3") > -1,
     });
     const iconClass4 = classNames({
       'iconCon': true,
       'selectedBox': this.state.currentIcon == "4",
+      'iconConDis': this.state.disabledIconCon.indexOf("4") > -1,
     });
     const footer = (() => {
         return (

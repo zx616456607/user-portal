@@ -1,25 +1,32 @@
 import React, { Component } from 'react';
-import { Button, Icon, Input, Table, Menu, Dropdown, Card, Select, Pagination, Timeline, Row, Col} from 'antd';
+import { Button, Icon, Input, Table, Menu, Dropdown, Card, Select, Pagination, Timeline, Row, Col, Spin, Modal} from 'antd';
 import moment from 'moment'
 import classNames from 'classNames'
+import * as autoScalerActions from '../../../../actions/clusterAutoScaler';
+import { connect } from 'react-redux';
 import '../style/tab1.less';
 import '../style/tab2.less';
-import Tab2Modal from './tab2Modal.js';
+import Tab2ModalContent from './tab2ModalContent.js';
 
-const edit = () => {
-  console.log("edit", arguments);
-  // todo;
-}
-const delItem = () => {
-  console.log("delItem", arguments);
-}
+// {
+//   "cluster": "CID-80eb6ec3c47b",    //集群id（不需要展示）
+//   "clustername": "gyw测试集群",     //集群名字
+//   "configname": "cloud-provider",  //配置名字（不需要展示）
+//   "date": "2018/10/09 11:11:05",   //创建时间
+//   "issa": "vmware",                //issa
+//   "name": "gaoyawei",              //账号
+//   "password": "Dream008",          //密码（不需要展示）
+//   "server": "192.168.1.171"        //地址
+// }
 let tableData = [{
-  id: 0,
+  cluster: "CID-80eb6ec3c47b",
+  clustername: "",//对应集群
+  configname: "autoscaler-server",
+  issa: "vmware",
   name: "名称1",
-  xxx: 0,
-  ipAddr: "1.1.1.1",
-  account: "账号1",
-  createdTime: "2017-12-12 18:00:00",
+  password: "Dream008",
+  server: "192.168.1.171",
+  date: "2017-12-12 18:00:00",
 }];
 for(let i = 0; i < 20 ;i++){
   tableData.push({
@@ -28,7 +35,7 @@ for(let i = 0; i < 20 ;i++){
     xxx: i + 1 ,
     ipAddr: "1.1.1.1",
     account: "账号" + (i + 2),
-    createdTime: "2017-12-12 18:00:" + ( (i+1 < 10) ? "0" : "") + (i+1),
+    date: "2017-12-12 18:00:" + ( (i+1 < 10) ? "0" : "") + (i+1),
   });
 }
 class Tab2 extends React.Component {
@@ -43,6 +50,15 @@ class Tab2 extends React.Component {
     },//分页配置
     paginationCurrent: 1,//当前页
     isTab2ModalShow: false,
+    tableData: [],
+  }
+
+  edit = (rowData) => {
+    console.log("edit", rowData);
+    // todo;
+  }
+  delItem = () => {
+    console.log("delItem", arguments);
   }
   //顶部按钮事件
   add = () => {
@@ -66,6 +82,10 @@ class Tab2 extends React.Component {
   }
   //search
   handleSearch = (e) => {
+    const { getServerList } = this.props;
+    getServerList({keyword: this.state.searchValue});
+  }
+  handleInputChange = (e) => {
     this.setState({searchValue: e.target.value});
   }
   onRowChange = (selectedRowKeys, selectedRowsData) => {
@@ -89,18 +109,36 @@ class Tab2 extends React.Component {
   }
   onTab2ModalOk = () => {
     //新增、修改接口
-    console.log("sendParams");
+    console.log("sendParams",this.refs["tab2MC"]);
+
   }
   render() {
+    const { serverList, isFetching, getServerList } = this.props;
+    if (isFetching) {
+      return (
+        <div className="loadingBox">
+          <Spin size="large"/>
+        </div>
+      );
+    }
     const searchCls = classNames({
       'ant-search-input': true,
       'ant-search-input-focus': this.state.isSearchFocus,
     });
     const columns = (() => {
       const clickTableRowName = this.clickTableRowName.bind(this);
+      const _that = this;
+      const renderOperation = (text, rowData) => {
+        return (
+          <div>
+            <Button type="primary" style={{marginRight: "10px"}} onClick={() => {_that.edit(rowData)}}>编辑</Button>
+            <Button onClick={() => {_that.delItem(rowData)}}>删除</Button>
+          </div>
+        )
+      }
       return [{
-        title: 'laaS',
-        dataIndex: 'name',
+        title: 'IaaS',
+        dataIndex: 'issa',
         width: 100,
         //render: text => <a href="#">{text}</a>,
         render: (text, rowData) => {
@@ -108,38 +146,26 @@ class Tab2 extends React.Component {
         }
       }, {
         title: '对应集群',
-        dataIndex: 'xxx',
+        dataIndex: 'clustername',
         width: 100,
       }, {
         title: '地址',
-        dataIndex: 'ipAddr',
+        dataIndex: 'server',
         width: 100,
       }, {
         title: '账号',
-        dataIndex: 'account',
+        dataIndex: 'name',
         width: 100,
       }, {
         title: '创建时间',
-        dataIndex: 'createdTime',
+        dataIndex: 'date',
         width: 100,
         sorter: (a, b) => {let da = new Date(a.createdTime), db = new Date(b.createdTime); return da.getTime() - db.getTime();},
       }, {
         title: '操作',
+        // dataIndex: 'operation',
         width: 120,
-        render: function(text, rowData){
-          return (
-            <div>
-              <Button type="primary" style={{marginRight: "10px"}} onClick={() => {edit(rowData.id)}}>编辑</Button>
-              <Button onClick={() => {delItem(rowData.id)}}>删除</Button>
-            </div>
-            // <Select defaultValue="lucy" style={{ width: 120 }} onChange={handleChange}>
-            //   <Option value="jack">Jack</Option>
-            //   <Option value="lucy">Lucy</Option>
-            //   <Option value="disabled" disabled>Disabled</Option>
-            //   <Option value="yiminghe">yiminghe</Option>
-            // </Select>
-          )
-        },
+        render: renderOperation,
       }];
     }).bind(this)();
     const isbtnDisabled = !!!this.state.selectedRowKeys.length;
@@ -147,7 +173,7 @@ class Tab2 extends React.Component {
       'ant-search-btn': true,
       'ant-search-btn-noempty': !!this.state.searchValue.trim(),
     });
-    const total = tableData.length;
+    let total = tableData.length;
 
     const rowSelection = {
       onChange: this.onRowChange,
@@ -158,6 +184,7 @@ class Tab2 extends React.Component {
         console.log(selected, selectedRows, changeRows);
       },
     };
+    if(!!this.props.serverList){ tableData = this.props.serverList; total = this.props.serverList.length}
     return (
       <div className="tab2Content">
         <div className="btnPanel">
@@ -192,10 +219,48 @@ class Tab2 extends React.Component {
             </Table>
           </Card>
         </div>
-        <Tab2Modal visible={this.state.isTab2ModalShow} onOk={this.onTab2ModalOk} onCancel={this.onTab2ModalCancel} onClose={this.onTab2ModalCancel}/>
+
+        <Modal
+          visible={this.state.isTab2ModalShow}
+          onOk={this.onTab2ModalOk}
+          onCancel={this.onTab2ModalCancel}
+          onClose={this.onTab2ModalCancel}
+          title="新建资源池配置"
+          okText="保存"
+          width="550"
+          >
+            <Tab2ModalContent ref="tab2MC" isShow={this.state.isTab2ModalShow}/>
+        </Modal>
       </div>
     )
   }
+  componentDidMount() {
+    const { getServerList } = this.props;
+    getServerList({});
+    // , (res) => {
+    //   if (res.statusCode !== 200) {
+    //     return;
+    //   }
+    //   this.setState({
+    //     tableData: res.data,
+    //   });
+    // }
+  }
 }
 
-export default Tab2;
+const mapStateToProps = state => {
+  const { appAutoScaler } = state;
+  const { getServerList } = appAutoScaler;
+  const { serverList, isFetching } = getServerList || {serverList: [], isFetching: false};
+  return {
+    serverList,
+    isFetching,
+  };
+};
+
+export default connect(mapStateToProps, {
+  getServerList: autoScalerActions.getServerList,
+  addServer: autoScalerActions.createServer,
+  updateServer: autoScalerActions.updateServer,
+  deleteServer: autoScalerActions.deleteServer,
+})(Tab2);

@@ -24,6 +24,13 @@ exports.getServers = function* () {
   this.body = yield api.autoscaler.getBy([ 'server' ])
 }
 
+exports.getCluster = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  this.body = yield api.autoscaler.getBy([ 'cluster' ])
+}
+
+
 exports.createServer = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
