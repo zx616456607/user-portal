@@ -13,7 +13,7 @@ const TabPane = Tabs.TabPane;
 
 class ClusterAutoScale extends React.Component {
   state = {
-    activeKey: 'pane2',
+    activeKey: 'pane1',
     state2: false,
     state3: false,
   };

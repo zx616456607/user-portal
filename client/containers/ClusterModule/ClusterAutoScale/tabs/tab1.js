@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
-import { Button, Icon, Input, Table, Menu, Dropdown, Card, Select, Pagination, Timeline, Row, Col} from 'antd';
+import { Spin, Button, Icon, Input, Table, Menu, Dropdown, Card, Select, Pagination, Timeline, Row, Col} from 'antd';
 import classNames from 'classNames';
 import '../style/tab1.less';
+import * as autoScalerActions from '../../../../actions/clusterAutoScaler';
+import { connect } from 'react-redux';
 import QueueAnim from 'rc-queue-anim';
 import Tab1Modal from './tab1Modal';
+import Tab2Modal from './tab2Modal';
+import NotificationHandler from '../../../../../src/components/Notification';
 
 const InputGroup = Input.InputGroup;
+let getAppList;
 
 const tableExdClick = () => {
   console.log(arguments);
@@ -22,41 +27,31 @@ const delItem = () => {
 const onItem = () => {
   console.log("delItem", arguments);
 }
-
+// {
+//   "name": "策略1",                                                                //策略名称
+//   "cluster": "CID-80eb6ec3c47b",                                                  //集群id GET /api/v2/autoscaler/cluster
+//   "iaas": "vmware",                                                               //iaas平台   原型中最上的4个图标选项
+//   "datacenter":"/office",                                                         //数据中心
+//   "templatePath": "/测试机器/虚机模版([T]Template)/template-for-autoscaling-test", //模板路径
+//   "targetPath": "/测试机器/个人使用([S]Staff Personal)/gaoyawei/",                 //选择路径 测试数据可填写（/测试机器/个人使用([S]Staff Personal)/gaoyawei/）
+//   "resourcePoolPath": "/塔式服务器/Resources",                                     //计算资源池路径
+//   "datastorePath": "/内部数据黑盘",                                                //存储资源池
+//   "removeAndDelete": "1",                                                         //减少节点  1为移除并删除节点 0为仅移除集群
+//   "min": "1",                                                                     //最大节点
+//   "max": "10",                                                                    //最小节点
+//   "email": "466463985@qq.com",                                                    //邮箱
+//   "duration": "10"                                                                //冷却时间
+// }
 let tableData = [{
   id: 0,
   name: "名称1",
   isOn: 0,
-  xxx1: "如果节点的 CPU 利用率在 5 分钟内最大值 >70，连续发生 3 次则触发扩容",
-  xxx2: "集群1",
-  xxx3: "200",
-  xxx4: "500",
-  xxx5: "告警通知组1",
-  isSendEmail: 0,
-},{
-  id: 1,
-  name: "名称2",
-  isOn: 1,
-  xxx1: "阈值2",
-  xxx2: "集群2",
-  xxx3: "最小实例数2",
-  xxx4: "最大实例数2",
-  xxx5: "告警通知组2",
-  isSendEmail: 1,
+  //yuzhi: "如果节点的 CPU 利用率在 5 分钟内最大值 >70，连续发生 3 次则触发扩容",
+  clustername: "集群1",
+  min: "200",
+  max: "500",
+  email: "email",
 }];
-for(let i = 0; i < 20 ;i++){
-  tableData.push({
-    id: i + 2,
-    name: "名称" + (3 + i),
-    isOn: 1,
-    xxx1: "阈值" + (3 + i),
-    xxx2: "集群" + (3 + i),
-    xxx3: "最小实例数" + (3 + i),
-    xxx4: "最大实例数" + (3 + i),
-    xxx5: "告警通知组" + (3 + i),
-    isSendEmail: 1,
-  });
-}
 
 class Tab1 extends React.Component {
   state = {
@@ -69,7 +64,7 @@ class Tab1 extends React.Component {
     },//分页配置
     paginationCurrent: 1,//当前页
     currentData: tableData[0] || {},//点击名称缓存当前选中行元素
-    isShowTab1: true, //伸缩策略中显示第一页， false第二页
+    isShowTab1List: true, //伸缩策略中显示第一页， false第二页
     selectedRowKeys: [], //选中行元素的keys
     isTab1ModalShow: false, //新建策略modal 显示状态
   }
@@ -123,10 +118,10 @@ class Tab1 extends React.Component {
   clickTableRowName = (rowData) => {
     //console.log(rowData);
     const temp = JSON.parse(JSON.stringify(rowData));
-    this.setState({currentData: temp,isShowTab1: false});
+    this.setState({currentData: temp,isShowTab1List: false});
   }
   returnPart1 = () =>{
-    this.setState({isShowTab1: true});
+    this.setState({isShowTab1List: true});
   }
   onqaEnd = () => {
     // debugger
@@ -141,14 +136,26 @@ class Tab1 extends React.Component {
 
   // 通过 rowSelection 对象表明需要行选择
 
+  loadData() {
+    getAppList({});
+  }
   render() {
+    const { appList, isFetching } = this.props;
+    getAppList = this.props.getAppList;
+    if (isFetching) {
+      return (
+        <div className="loadingBox">
+          <Spin size="large"/>
+        </div>
+      );
+    }
     const searchCls = classNames({
       'ant-search-input': true,
       'ant-search-input-focus': this.state.isSearchFocus,
     });
     const btnCls = classNames({
       'ant-search-btn': true,
-      'ant-search-btn-noempty': !!this.state.searchValue.trim(),
+      'ant-search-btn-noempty': !!this.state.searchValue,
     });
     const rowSelection = {
       onChange: this.onRowChange,
@@ -172,37 +179,37 @@ class Tab1 extends React.Component {
             <a href="#" onClick={() => {clickTableRowName(rowData)}} data-row={rowData}>{text}</a>
           )
         }
-      }, {
+      },
+      {
         title: '开启状态',
         dataIndex: 'isOn',
         width: 100,
         render: isOn => isOn ? <div className="isOnCon"><i className="fa fa-circle"></i>开启</div> : <div className="isOffCon"><i className="fa fa-circle"></i>关闭</div>,
-      }, {
-        title: '阈值',
-        dataIndex: 'xxx1',
-        width: 100,
-      }, {
+      },
+      // {
+      //   title: '阈值',
+      //   dataIndex: 'yuzhi',
+      //   width: 100,
+      // },
+      {
         title: '集群',
-        dataIndex: 'xxx2',
+        dataIndex: 'clustername',
         width: 100,
       }, {
         title: '最小实例数',
-        dataIndex: 'xxx3',
+        dataIndex: 'min',
         width: 100,
       }, {
         title: '最大实例数',
-        dataIndex: 'xxx4',
+        dataIndex: 'max',
         width: 100,
       }, {
-        title: '发送邮件',
-        dataIndex: 'isSendEmail',
+        title: 'email',
+        dataIndex: 'email',
         width: 100,
         render: isSendEmail => isSendEmail ? <span>是</span> : <span>否</span>,
-      }, {
-        title: '告警通知组',
-        dataIndex: 'xxx5',
-        width: 100,
-      }, {
+      },
+      {
         title: '操作',
         width: 100,
         render: function(text, rowData){
@@ -231,18 +238,22 @@ class Tab1 extends React.Component {
     }).bind(this)();
     const part1Class = classNames({
       'part1': true,
-      'sliderIn': this.state.isShowTab1,
-      'hidden': !this.state.isShowTab1,
+      'sliderIn': this.state.isShowTab1List,
+      'hidden': !this.state.isShowTab1List,
     });
     const part2Class = classNames({
       'part2': true,
-      'sliderIn': !this.state.isShowTab1,
-      'hidden': this.state.isShowTab1,
+      'sliderIn': !this.state.isShowTab1List,
+      'hidden': this.state.isShowTab1List,
     });
-    const total = tableData.length;
+    let total = tableData.length;
     const currentData = this.state.currentData;
-    //this.state.isShowTab1
+    //this.state.isShowTab1List
     const isbtnDisabled = !!!this.state.selectedRowKeys.length;
+    if(!!appList){
+      tableData = appList;
+      total = appList.length;
+    }
     return (
       <div className="tab1Content">
           <QueueAnim>
@@ -300,32 +311,51 @@ class Tab1 extends React.Component {
                         <span className="rightContent isOffCon"><i className="fa fa-circle"></i>关闭</span>
                       }
                     </p>
-                    <p><span className="leftTitle">数据中心</span><span className="rightContent">office</span></p>
-                    <p><span className="leftTitle">虚拟机模版</span><span className="rightContent">xxx</span></p>
-                    <p><span className="leftTitle">计算资源池</span><span className="rightContent">xxx</span></p>
-                    <p><span className="leftTitle">存储资源池</span><span className="rightContent">xxx</span></p>
+                    <p><span className="leftTitle">数据中心</span><span className="rightContent">{currentData.Name}</span></p>
+                    <p><span className="leftTitle">虚拟机模版</span><span className="rightContent">{currentData.Name}</span></p>
+                    <p><span className="leftTitle">计算资源池</span><span className="rightContent">{currentData.Name}</span></p>
+                    <p><span className="leftTitle">存储资源池</span><span className="rightContent">{currentData.Name}</span></p>
                   </div>
                   <div className="cardPart">
-                    <p><span className="leftTitle">最小实例数</span><span className="rightContent">{currentData.xxx3 + " 个"}</span></p>
-                    <p><span className="leftTitle">最大实例数</span><span className="rightContent">{currentData.xxx4 + " 个"}</span></p>
-                    <p><span className="leftTitle">阈值</span><span className="rightContent">{currentData.xxx1}</span></p>
-                    <p><span className="leftTitle">伸缩活动</span><span className="rightContent">增加 x 台</span></p>
+                    <p><span className="leftTitle">最小实例数</span><span className="rightContent">{currentData.min + " 个"}</span></p>
+                    <p><span className="leftTitle">最大实例数</span><span className="rightContent">{currentData.max + " 个"}</span></p>
+                    {/* <p><span className="leftTitle">阈值</span><span className="rightContent">{currentData.xxx1}</span></p> */}
+                    <p><span className="leftTitle">伸缩活动</span><span className="rightContent">{"增加 " + currentData.max + " 台"}</span></p>
                   </div>
                   <div className="cardPart">
                     <p><span className="leftTitle">发送邮件</span><span className="rightContent">{currentData.isSendEmail ? "是" : "否"}</span></p>
-                    <p><span className="leftTitle">邮件通知</span><span className="rightContent">{currentData.xxx5}</span></p>
-                    <p><span className="leftTitle">策略冷却时间</span><span className="rightContent">120秒</span></p>
+                    <p><span className="leftTitle">策略冷却时间</span><span className="rightContent">{currentData.duration}</span></p>
 
                   </div>
                   <div style={{clear: "both"}}></div>
                 </Card>
                 <Card className="right" title="伸缩日志" bordered={false}>
-                  <Timeline>
-                    <Timeline.Item>创建服务现场 2015-09-01</Timeline.Item>
-                    <Timeline.Item>初步排除网络异常 2015-09-01</Timeline.Item>
-                    <Timeline.Item>技术测试异常 2015-09-01</Timeline.Item>
-                    <Timeline.Item color="green">网络异常正在修复 2015-09-01</Timeline.Item>
-                  </Timeline>
+                  <div className="appAutoScaleLogs">
+                    {
+                      (!!currentData.log && currentData.log.length > 0) ?
+                        <Timeline>
+                          {
+                            currentData.log.map(item => {
+                              const diff = item.diff;//增加还是减少
+                              if (diff) {
+                                color = "#2cb8f6";
+                              }else{
+                                color = "#2fba67";
+                              }
+
+                              return
+                              (
+                                <TimelineItem dot={<Icon type="check-circle" style={{fontSize: 16, color: color}}/>} key={item.message}>
+                                  <span style={{ color: color }}>{o.message}</span>
+                                  <span>{formatDate(item.date)}</span>
+                                </TimelineItem>
+                              )
+                            })
+                          }
+                        </Timeline>
+                        : <div style={{ textAlign: 'center' }}>暂无数据</div>
+                    }
+                  </div>
                 </Card>
               </div>
             </div>
@@ -334,5 +364,21 @@ class Tab1 extends React.Component {
       </div>
     )
   }
+  componentDidMount() {
+    this.loadData();
+  }
 };
-export default Tab1;
+const mapStateToProps = state => {
+  const { appAutoScaler } = state;
+  const { getAppList } = appAutoScaler;
+  const { appList, isFetching } = getAppList || {appList: [], isFetching: false};
+  return {
+    appList,
+    isFetching,
+  };
+};
+
+export default connect(mapStateToProps, {
+  getAppList: autoScalerActions.getAutoScalerAppList,
+  deleteApp: autoScalerActions.deleteApp,
+})(Tab1);

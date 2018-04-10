@@ -48,9 +48,39 @@ exports.updateServer = function* () {
 }
 
 exports.deleteServer = function* () {
+  const loginUser = this.session.loginUser
+  const { cluster, configname } = this.request.query
+  const api = apiFactory.getApi(loginUser)
+  this.body = yield api.autoscaler.deleteBy([ 'server', cluster, configname ])
+}
+
+
+exports.getApps = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  this.body = yield api.autoscaler.getBy([ 'app' ])
+}
+
+exports.createApp = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const body = this.request.body
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.autoscaler.deleteBy([ 'server' ], null, body)
+  this.body = yield api.autoscaler.createBy([ 'app' ], null, body)
+}
+
+exports.updateApp = function* () {
+  const cluster = this.params.cluster
+  const loginUser = this.session.loginUser
+  const body = this.request.body
+  const api = apiFactory.getApi(loginUser)
+  this.body = yield api.autoscaler.updateBy([ 'app' ], null, body)
+}
+
+exports.deleteApp = function* () {
+  const cluster = this.params.cluster
+  const loginUser = this.session.loginUser
+  const body = this.request.body
+  const api = apiFactory.getApi(loginUser)
+  this.body = yield api.autoscaler.deleteBy([ 'app' ], null, body)
 }

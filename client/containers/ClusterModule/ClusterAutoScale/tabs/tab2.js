@@ -6,18 +6,13 @@ import * as autoScalerActions from '../../../../actions/clusterAutoScaler';
 import { connect } from 'react-redux';
 import '../style/tab1.less';
 import '../style/tab2.less';
-import Tab2ModalContent from './tab2ModalContent.js';
+import Tab2Modal from './tab2Modal.js';
+import NotificationHandler from '../../../../../src/components/Notification';
 
-// {
-//   "cluster": "CID-80eb6ec3c47b",    //集群id（不需要展示）
-//   "clustername": "gyw测试集群",     //集群名字
-//   "configname": "cloud-provider",  //配置名字（不需要展示）
-//   "date": "2018/10/09 11:11:05",   //创建时间
-//   "issa": "vmware",                //issa
-//   "name": "gaoyawei",              //账号
-//   "password": "Dream008",          //密码（不需要展示）
-//   "server": "192.168.1.171"        //地址
-// }
+const notify = new NotificationHandler();
+
+let formData = {};
+let getServerList;
 let tableData = [{
   cluster: "CID-80eb6ec3c47b",
   clustername: "",//对应集群
@@ -51,18 +46,50 @@ class Tab2 extends React.Component {
     paginationCurrent: 1, //当前页
     isTab2ModalShow: false,
     tableData: [],
+    isEdit: false,
+    currData: "",//编辑时当前行数据
+    deleteLoading: false, //删除确定按钮
+    isShowDelModal: false,
   }
-
   edit = (rowData) => {
     console.log("edit", rowData);
+    this.setState({isTab2ModalShow: true, isEdit: true, currData: rowData});
     // todo;
   }
-  delItem = () => {
-    console.log("delItem", arguments);
+  showDelModal = async (rowData) => {
+    console.log("showDelModal", arguments);
+    this.setState({
+      currData: rowData,
+      isShowDelModal: true,
+    });
+  }
+  del = async () => {
+    const rowData = this.state.currData;
+    const { deleteServer } = this.props;
+    this.setState({
+      deleteLoading: true,
+    }, async () => {
+      notify.spin('配置删除中');
+      const result = await deleteServer({cluster: rowData.cluster, configname: rowData.configname});
+      if (result.error) {
+        notify.close();
+        notify.warn('删除失败', result.error.message.message || result.error.message);
+        this.setState({
+          deleteLoading: false,
+        });
+      }
+      this.loadData();
+      notify.close();
+      notify.success('删除成功');
+      this.setState({
+        deleteLoading: false,
+        isShowDelModal: false,
+      });
+    });
   }
   //顶部按钮事件
   openModal = () => {
-    this.setState({isTab2ModalShow: true});
+    this.setState({isTab2ModalShow: true, isEdit: false, currData: ""});
   }
   delitems = () => {
     let selectedRowKeys = this.state.selectedRowKeys.join(",");
@@ -81,7 +108,6 @@ class Tab2 extends React.Component {
   }
   //search
   handleSearch = (e) => {
-    const { getServerList } = this.props;
     getServerList({keyword: this.state.searchValue});
   }
   handleInputChange = (e) => {
@@ -102,18 +128,18 @@ class Tab2 extends React.Component {
     pagination.current = page;
     this.setState({pagination: pagination, paginationCurrent: page});
   }
-
   onTab2ModalCancel = () => {
     this.setState({isTab2ModalShow: false});
   }
-  onTab2ModalOk = () => {
-    //新增、修改接口
-    console.log("sendParams",this.refs["tab2MC"]);
-    debugger
-    //this.props.addServer(this.refs)
+  onCancel = () => {
+    this.setState({isShowDelModal: false});
+  }
+  loadData() {
+    getServerList({});
   }
   render() {
-    const { serverList, isFetching, getServerList } = this.props;
+    const { serverList, isFetching } = this.props;
+    getServerList = this.props.getServerList;
     if (isFetching) {
       return (
         <div className="loadingBox">
@@ -132,7 +158,7 @@ class Tab2 extends React.Component {
         return (
           <div>
             <Button type="primary" style={{marginRight: "10px"}} onClick={() => {_that.edit(rowData)}}>编辑</Button>
-            <Button onClick={() => {_that.delItem(rowData)}}>删除</Button>
+            <Button onClick={() => {_that.showDelModal(rowData)}}>删除</Button>
           </div>
         )
       }
@@ -185,6 +211,10 @@ class Tab2 extends React.Component {
       },
     };
     if(!!this.props.serverList){ tableData = this.props.serverList; total = this.props.serverList.length}
+    const func = {
+      scope: this,
+      loadData: this.loadData,
+    };
     return (
       <div className="tab2Content">
         <div className="btnPanel">
@@ -220,23 +250,30 @@ class Tab2 extends React.Component {
           </Card>
         </div>
 
-        <Modal
+        <Tab2Modal
           visible={this.state.isTab2ModalShow}
-          onOk={this.onTab2ModalOk}
           onCancel={this.onTab2ModalCancel}
           onClose={this.onTab2ModalCancel}
-          title="新建资源池配置"
-          okText="保存"
-          width="550"
-          >
-            <Tab2ModalContent ref="tab2MC" isShow={this.state.isTab2ModalShow}/>
+          isEdit={this.state.isEdit}
+          currData={this.state.currData}
+          func={func}
+          ref="tab2MC"/>
+
+        <Modal
+          visible={this.state.isShowDelModal}
+          onOk={this.del}
+          onCancel={this.onCancel}
+          onClose={this.onCancel}
+          confirmLoading={this.state.deleteLoading}
+          title="删除资源池配置"
+          okText="确定" >
+          <div style={{color: "#00a0ea"}}>确定删除资源 {this.state.currData.name || ""} ?</div>
         </Modal>
       </div>
     )
   }
   componentDidMount() {
-    const { getServerList } = this.props;
-    getServerList({});
+    this.loadData();
   }
 }
 
@@ -252,7 +289,6 @@ const mapStateToProps = state => {
 
 export default connect(mapStateToProps, {
   getServerList: autoScalerActions.getServerList,
-  addServer: autoScalerActions.createServer,
   updateServer: autoScalerActions.updateServer,
   deleteServer: autoScalerActions.deleteServer,
 })(Tab2);

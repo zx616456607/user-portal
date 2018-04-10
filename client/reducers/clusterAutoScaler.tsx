@@ -33,21 +33,45 @@ function getServerList(state = {}, action) {
       return state;
   }
 }
-function getClusterList(state = {}, action) {
+function getAutoScalerClusterList(state = {}, action) {
   let res = null;
   switch (action.type) {
     case ActionTypes.APP_CLUSTER_LIST_REQUEST:
       res = Object.assign({}, state, {
-        isFetching: true,
+        isModalFetching: true,
       });
       return res;
     case ActionTypes.APP_CLUSTER_LIST_SUCCESS:
       res = Object.assign({}, state, {
-        isFetching: false,
+        isModalFetching: false,
         clusterList: action.response.result.data,
       });
       return res;
     case ActionTypes.APP_CLUSTER_LIST_FAILURE:
+      res = Object.assign({}, state, {
+        isModalFetching: false,
+      });
+      return res;
+    default:
+      return state;
+  }
+}
+
+function getAppList(state = {}, action) {
+  let res = null;
+  switch (action.type) {
+    case ActionTypes.APP_AUTOSCALERAPP_LIST_REQUEST:
+      res = Object.assign({}, state, {
+        isFetching: true,
+      });
+      return res;
+    case ActionTypes.APP_AUTOSCALERAPP_LIST_SUCCESS:
+      res = Object.assign({}, state, {
+        isFetching: false,
+        appList: action.response.result.data,
+      });
+      return res;
+    case ActionTypes.APP_AUTOSCALERAPP_LIST_FAILURE:
       res = Object.assign({}, state, {
         isFetching: false,
       });
@@ -57,9 +81,11 @@ function getClusterList(state = {}, action) {
   }
 }
 
+// x
 export default function appAutoScaler(state = {}, action) {
   return {
     getServerList: getServerList(state.getServerList, action),
-    getClusterList: getClusterList(state.getClusterList, action),
+    getAutoScalerClusterList: getAutoScalerClusterList(state.getAutoScalerClusterList, action),
+    getAppList: getAppList(state.getAppList, action),
   };
 }

@@ -760,5 +760,10 @@ module.exports = function (Router) {
   router.del('/autoscaler/server', autoScalerController.deleteServer)
   router.get('/autoscaler/cluster', autoScalerController.getCluster)
 
+  router.get('/autoscaler/app', autoScalerController.getApps)
+  router.post('/autoscaler/app', autoScalerController.createApp)
+  router.put('/autoscaler/app', autoScalerController.updateApp)
+  router.del('/autoscaler/app', autoScalerController.deleteApp)
+
   return router.routes()
 }

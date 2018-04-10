@@ -34,11 +34,6 @@ class Tab1Modal extends React.Component {
       disabledIconCon: ["2", "3", "4"],
     }
   }
-  // state = {
-  //   currentIcon: "0",
-  //   checkExist: true, //查看已有模块 false默认
-  //   currentStep: 0,//0 第一步 1 第二步（保存）
-  // }
   render(){
     const iconClass1 = classNames({
       'iconCon': true,
@@ -124,6 +119,22 @@ class Tab1Modal extends React.Component {
             <div style={{clear:"both"}}></div>
           </div>
           <div className="bottom-line"></div>
+          <div className="formContainer">
+            <div className="panel noBottom">
+              <Row key="row2">
+                <FormItem
+                  {...formItemLargeLayout}
+                  label="容器集群"
+                >
+                  <Select placeholder="请选择容器集群" style={{width: "100%", }}>
+                    {/* <Option value="0">请选择容器集群</Option> */}
+                    <Select.Option value="1">1.1.1.1</Select.Option>
+                    <Select.Option value="2">2.2.2.2</Select.Option>
+                  </Select>
+                </FormItem>
+              </Row>
+            </div>
+          </div>
           {this.state.checkExist ?
             <div>
               <div className="stepContainer">
@@ -134,7 +145,6 @@ class Tab1Modal extends React.Component {
               </div>
               <div className="bottom-line"></div>
               <div className="formContainer">
-
               {this.state.currentStep === 0 ?
                 <div className="panel noBottom">
                   <Row key="row1">
@@ -143,18 +153,6 @@ class Tab1Modal extends React.Component {
                       label="策略名称"
                     >
                       <Input onChange={this.roleNameChange} placeholder="支持 100 字以内的中英文" />
-                    </FormItem>
-                  </Row>
-                  <Row key="row2">
-                    <FormItem
-                      {...formItemLargeLayout}
-                      label="容器集群"
-                    >
-                      <Select placeholder="请选择容器集群" style={{width: "100%", }}>
-                        {/* <Option value="0">请选择容器集群</Option> */}
-                        <Select.Option value="1">1.1.1.1</Select.Option>
-                        <Select.Option value="2">2.2.2.2</Select.Option>
-                      </Select>
                     </FormItem>
                   </Row>
                   <Row key="row3">
@@ -167,6 +165,14 @@ class Tab1Modal extends React.Component {
                         <Select.Option value="1">1.1.1.1</Select.Option>
                         <Select.Option value="2">2.2.2.2</Select.Option>
                       </Select>
+                    </FormItem>
+                  </Row>
+                  <Row key="row33">
+                    <FormItem
+                      {...formItemLargeLayout}
+                      label="选择路径"
+                    >
+                    <Input placeholder="如 /paas/vms/autoscaling-group" />
                     </FormItem>
                   </Row>
                   <Row key="row4">
@@ -301,7 +307,6 @@ class Tab1Modal extends React.Component {
             :
             <div className="btnConatainer">
               <Button style={{marginRight: "10px"}} type="primary" onClick={this.fun1}>前往配置 vSphere</Button>
-              <Button type="primary" onClick={this.fun2}>查看已有配置 vSphere</Button>
             </div>
           }
         </Modal>

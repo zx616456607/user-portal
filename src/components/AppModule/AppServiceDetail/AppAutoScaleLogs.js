@@ -66,7 +66,7 @@ export default class AppAutoScaleLogs extends React.Component {
         return '，邮件正在发送。'
       case 1 :
         return '，邮件发送成功。'
-      case 2 : 
+      case 2 :
         return '，邮件发送失败。'
       default :
         return '，不发送邮件。'
