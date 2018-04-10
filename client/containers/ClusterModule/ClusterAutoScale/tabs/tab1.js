@@ -10,6 +10,7 @@ import Tab2Modal from './tab2Modal';
 import NotificationHandler from '../../../../../src/components/Notification';
 
 const InputGroup = Input.InputGroup;
+const TimelineItem = Timeline.Item;
 let getAppList;
 
 const tableExdClick = () => {
@@ -75,6 +76,7 @@ class Tab1 extends React.Component {
   reflesh = () => {
     let selectedRowKeys = this.state.selectedRowKeys.join(",");
     console.log("reflesh", selectedRowKeys);
+    this.loadData();
   }
   on = () => {
     let selectedRowKeys = this.state.selectedRowKeys.join(",");
@@ -135,20 +137,23 @@ class Tab1 extends React.Component {
   }
 
   // 通过 rowSelection 对象表明需要行选择
-
+  renderLineItem(item) {
+    let color = "#2fba67";
+    if (item.diff) {
+      color = "#2cb8f6";
+    }
+    return
+      <TimelineItem dot={<Icon type="check-circle" style={{fontSize: 16, color: color}}/>} key={item.message}>
+        <span style={{ color: color }}>{item.message}</span>
+        <span>{item.date}</span>
+      </TimelineItem>
+  }
   loadData() {
     getAppList({});
   }
   render() {
     const { appList, isFetching } = this.props;
     getAppList = this.props.getAppList;
-    if (isFetching) {
-      return (
-        <div className="loadingBox">
-          <Spin size="large"/>
-        </div>
-      );
-    }
     const searchCls = classNames({
       'ant-search-input': true,
       'ant-search-input-focus': this.state.isSearchFocus,
@@ -254,6 +259,22 @@ class Tab1 extends React.Component {
       tableData = appList;
       total = appList.length;
     }
+    let log = [
+      {
+        diff:true,
+        message: "message",
+        date: "2017-09-08 19:00:00"
+      }
+    ];// currentData["log"];
+    const _that = this;
+    console.log(log);
+    const linelist = log.map((item) =>
+    {
+      const line = _that.renderLineItem(item)
+      console.log(line);
+      return line;
+    });
+    console.log(linelist)
     return (
       <div className="tab1Content">
           <QueueAnim>
@@ -289,8 +310,15 @@ class Tab1 extends React.Component {
               </div>
               <div className="tablePanel">
                 <Card>
-                  <Table rowSelection={rowSelection} columns={columns} dataSource={tableData} pagination={this.state.pagination}>
-                  </Table>
+                {
+                    !!isFetching ?
+                    <div className="loadingBox">
+                      <Spin size="large"/>
+                    </div>
+                    :
+                    <Table rowSelection={rowSelection} columns={columns} dataSource={tableData} pagination={this.state.pagination}>
+                    </Table>
+                }
                 </Card>
               </div>
             </div>
@@ -303,7 +331,7 @@ class Tab1 extends React.Component {
               <div className="cardContainer">
                 <Card className="left" title="基本属性" bordered={false}>
                   <div className="cardPart">
-                    <p><span className="leftTitle">策略名称</span><span className="rightContent">{currentData.Name}</span></p>
+                    <p><span className="leftTitle">策略名称</span><span className="rightContent">{currentData.name}</span></p>
                     <p><span className="leftTitle">开启状态</span>
                       {currentData.isOn?
                         <span className="rightContent isOnCon"><i className="fa fa-circle"></i>开启</span>
@@ -311,10 +339,10 @@ class Tab1 extends React.Component {
                         <span className="rightContent isOffCon"><i className="fa fa-circle"></i>关闭</span>
                       }
                     </p>
-                    <p><span className="leftTitle">数据中心</span><span className="rightContent">{currentData.Name}</span></p>
-                    <p><span className="leftTitle">虚拟机模版</span><span className="rightContent">{currentData.Name}</span></p>
-                    <p><span className="leftTitle">计算资源池</span><span className="rightContent">{currentData.Name}</span></p>
-                    <p><span className="leftTitle">存储资源池</span><span className="rightContent">{currentData.Name}</span></p>
+                    <p><span className="leftTitle">数据中心</span><span className="rightContent">{currentData.datacenter}</span></p>
+                    <p><span className="leftTitle">虚拟机模版</span><span className="rightContent">{currentData.templatePath}</span></p>
+                    <p><span className="leftTitle">计算资源池</span><span className="rightContent">{currentData.resourcePoolPath}</span></p>
+                    <p><span className="leftTitle">存储资源池</span><span className="rightContent">{currentData.datastorePath}</span></p>
                   </div>
                   <div className="cardPart">
                     <p><span className="leftTitle">最小实例数</span><span className="rightContent">{currentData.min + " 个"}</span></p>
@@ -332,26 +360,9 @@ class Tab1 extends React.Component {
                 <Card className="right" title="伸缩日志" bordered={false}>
                   <div className="appAutoScaleLogs">
                     {
-                      (!!currentData.log && currentData.log.length > 0) ?
+                      !!log ?
                         <Timeline>
-                          {
-                            currentData.log.map(item => {
-                              const diff = item.diff;//增加还是减少
-                              if (diff) {
-                                color = "#2cb8f6";
-                              }else{
-                                color = "#2fba67";
-                              }
-
-                              return
-                              (
-                                <TimelineItem dot={<Icon type="check-circle" style={{fontSize: 16, color: color}}/>} key={item.message}>
-                                  <span style={{ color: color }}>{o.message}</span>
-                                  <span>{formatDate(item.date)}</span>
-                                </TimelineItem>
-                              )
-                            })
-                          }
+                          {linelist}
                         </Timeline>
                         : <div style={{ textAlign: 'center' }}>暂无数据</div>
                     }
@@ -380,5 +391,5 @@ const mapStateToProps = state => {
 
 export default connect(mapStateToProps, {
   getAppList: autoScalerActions.getAutoScalerAppList,
-  deleteApp: autoScalerActions.deleteApp,
+  // deleteApp: autoScalerActions.deleteApp,
 })(Tab1);

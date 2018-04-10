@@ -17,7 +17,7 @@ let tableData = [{
   cluster: "CID-80eb6ec3c47b",
   clustername: "",//对应集群
   configname: "autoscaler-server",
-  issa: "vmware",
+  iaas: "vmware",
   name: "名称1",
   password: "Dream008",
   server: "192.168.1.171",
@@ -54,7 +54,6 @@ class Tab2 extends React.Component {
   edit = (rowData) => {
     console.log("edit", rowData);
     this.setState({isTab2ModalShow: true, isEdit: true, currData: rowData});
-    // todo;
   }
   showDelModal = async (rowData) => {
     console.log("showDelModal", arguments);
@@ -164,7 +163,7 @@ class Tab2 extends React.Component {
       }
       return [{
         title: 'IaaS',
-        dataIndex: 'issa',
+        dataIndex: 'iaas',
         width: 100,
         //render: text => <a href="#">{text}</a>,
         render: (text, rowData) => {

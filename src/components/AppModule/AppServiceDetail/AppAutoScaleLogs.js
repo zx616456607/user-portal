@@ -87,13 +87,15 @@ export default class AppAutoScaleLogs extends React.Component {
   }
   render() {
     const { logList } = this.state
+    console.log(logList)
     return(
       <div className="appAutoScaleLogs">
         {
           logList.length > 0 ?
             <Timeline>
               {
-                logList.map(item => {
+                logList.map(item => {debugger
+                  console.log(this.renderLineTiem(item));
                   return this.renderLineTiem(item)
                 })
               }
