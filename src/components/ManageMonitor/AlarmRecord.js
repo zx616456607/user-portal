@@ -116,7 +116,7 @@ class AlarmRecord extends Component {
     const clusterID = this.props.clusterID
     let notification = new NotificationHandler()
     this.setState({ deleteModal: false })
-    deleteRecords('', clusterID, {
+    deleteRecords(clusterID, null, {
       success: {
         func: () => {
           loadRecords()
