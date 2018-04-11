@@ -12,8 +12,9 @@
 
 import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { Row, Col, Form, InputNumber, Tooltip, Icon, Switch, Select, Radio, Tag } from 'antd'
+import { Row, Col, Form, InputNumber, Tooltip, Icon, Switch, Select, Radio, Tag, Button, Input, Checkbox } from 'antd'
 import ResourceSelect from '../../../../ResourceSelect'
+import Title from '../../../../Title'
 import Storage from './Storage'
 import Ports from './Ports'
 import AccessMethod from './AccessMethod'
@@ -26,7 +27,7 @@ import {
 import './style/index.less'
 import TagDropDown from '../../../../ClusterModule/TagDropdown'
 import cloneDeep from 'lodash/cloneDeep'
-
+const Option = Select.Option;
 const FormItem = Form.Item
 
 const Normal = React.createClass({
@@ -165,7 +166,7 @@ const Normal = React.createClass({
       return <span key={item.nodeName} style={{paddingRight:'5px'}}>{item.nodeName}</span>
     })
     return <div className='hostlabel'>
-      <TagDropDown
+      {/* <TagDropDown
         labels={labels}
         footer={false}
         scope={scope}
@@ -180,7 +181,7 @@ const Normal = React.createClass({
             </Tooltip>
             个
           </span>
-          : <span>未选标签，使用系统调度</span>
+          : -----------------------------------<span>未选标签，使用系统调度</span>
         }
       </div>
       {
@@ -191,7 +192,129 @@ const Normal = React.createClass({
           </Form.Item>
         </div>
         : <span></span>
-      }
+      } */}
+      <Title title="服务与节点亲和" />
+      <div className="title">
+        服务与节点亲和
+        <Tooltip placement="top" title='决定服务实例可以部署在哪些主机上'>
+          <Icon type="question-circle-o" />
+        </Tooltip>
+      </div>
+      <div>
+        <div className="serverAndPoint">
+          <div className="serverAnd">
+            <FormItem
+            id="select"
+            label="当前服务"
+            labelCol={{ span: 4 }}
+            wrapperCol={{ span: 2 }}
+            >
+              <Select id="select" size="large" defaultValue="最好" style={{ width: 80 }}>
+                <Option value="最好" key="maybe">最好</Option>
+                <Option value="必须" key="must">必须</Option>
+              </Select>
+            </FormItem>
+              <span className="serverText">调度到主机（ </span>
+            <FormItem
+              id="select"
+              wrapperCol={{ span: 2 }}
+            >
+              <Select id="select" size="large" defaultValue="主机标签键" style={{ width: 100 }}>
+                <Option value="主机标签键" key="tag">主机标签键</Option>
+                <Option value="oass" key="aa">oass</Option>
+              </Select>
+            </FormItem>
+            <FormItem
+              id="select"
+              wrapperCol={{ span: 2 }}
+            >
+              <Select id="select" size="large" placeholder="操作符" style={{ width: 100 }}>
+                <Option value="in" key="in">in</Option>
+                <Option value="not in" key="not">not in</Option>
+                <Option value=">" key="big"> > </Option>
+                <Option value="&lt;" key="small">	&lt;</Option>
+                <Option value="exists" key="exists">	exists </Option>
+                <Option value="DoesNotExists" key="does">	DoesNotExists </Option>
+              </Select>
+            </FormItem>
+            <FormItem id="select" wrapperCol={{ span: 2 }}>
+              <Select id="select" size="large" defaultValue="主机标签键" style={{ width: 100 }}>
+                <Option value="主机标签键" key="tagKey">主机标签键</Option>
+                <Option value="7" key="seven">7</Option>
+                <Option value="os" key="os"> os </Option>
+              </Select>
+            </FormItem>
+            ）
+            <Button type="primary">添加</Button>
+          </div>
+          <div className="pointTag"></div>
+        </div>
+      </div>
+      <Title title="服务与服务亲和" />
+      <div className="title">
+        服务与服务亲和
+        <Tooltip placement="top" title='决定服务实例可以和那些服务实例部署在同一拓扑域 (具有相同的主机标签键) 上'>
+          <Icon type="question-circle-o" />
+        </Tooltip>
+      </div>
+      <div>
+        <div className="serverAndServer">
+          <div className="serverAnd">
+          <FormItem
+          id="select"
+          label="当前服务"
+          className="serverLabel"
+          labelCol={{ span: 4 }}
+          wrapperCol={{ span: 2 }}
+          >
+            <Select id="select" size="large" defaultValue="最好" style={{ width: 80 }}>
+              <Option value="最好" key="maybedo">最好</Option>
+              <Option value="最好不" key="donotmust">最好不</Option>
+              <Option value="必须" key="maybedo">必须</Option>
+              <Option value="必须不" key="mustnot">必须不</Option>
+            </Select>
+          </FormItem>
+            <span className="serverText">与服务（  </span>
+            <FormItem
+                id="control-input"
+                wrapperCol={{ span: 14 }}
+              >
+                <Input id="control-input" placeholder="服务标签键" style={{ width: 80 }}/>
+              </FormItem>
+          <FormItem
+            id="select"
+            wrapperCol={{ span: 2 }}
+          >
+            <Select id="select" size="large" defaultValue="操作符" style={{ width: 100 }}>
+              <Option value="in" key="in">in</Option>
+              <Option value="oss" key="not">not in</Option>
+              <Option value=">" key="big"> > </Option>
+              <Option value="&lt;" key="small">	&lt;</Option>
+              <Option value="exists" key="exists">	exists </Option>
+              <Option value="DoesNotExists" key="does">	DoesNotExists </Option>
+            </Select>
+          </FormItem>
+          <FormItem
+            id="control-input"
+            wrapperCol={{ span: 14 }}
+          >
+            <Input id="control-input" placeholder="服务标签键" style={{ width: 90 }}/>
+          </FormItem> ）
+          <span className="serverText"> 在同一拓扑域 </span>
+          <span className="serverText"> (具有相同的主机标签键) </span>
+          <Button type="primary">添加</Button>
+          </div>
+          <div className="serverTag"></div>
+          <FormItem
+
+        >
+          <Checkbox {...getFieldProps('agreement', { initialValue: true, valuePropName: 'checked' })}>
+            高级设置：【当前服务】中的容器实例最好『分散』再不同的节点上
+          </Checkbox>
+        </FormItem>
+        </div>
+
+      </div>
     </div>
   },
   handelhostnameTemplate(){
@@ -249,16 +372,16 @@ const Normal = React.createClass({
     switch(listNodes){
       case 2:
         return <Radio.Group {...bindNodeTypeProps}>
-          <Radio value="hostname">主机名及IP</Radio>
+          <Radio value="hostname">指定主机名及IP上运行</Radio>
         </Radio.Group>
       case 3:
         return <Radio.Group {...bindNodeTypeProps}>
-          <Radio value="hostlabel">主机标签</Radio>
+          <Radio value="hostlabel">定义服务实例与节点亲和性 & 服务实例与服务实例的亲和性</Radio>
         </Radio.Group>
       case 4:
         return <Radio.Group {...bindNodeTypeProps}>
-          <Radio value="hostname" key="hostname">主机名及IP</Radio>
-          <Radio value="hostlabel" key="hostlabel">主机标签</Radio>
+          <Radio value="hostname" key="hostname">指定主机名及IP上运行</Radio>
+          <Radio value="hostlabel" key="hostlabel">定义服务实例与节点亲和性 & 服务实例与服务实例的亲和性</Radio>
         </Radio.Group>
       default:
         return <span></span>
@@ -294,7 +417,7 @@ const Normal = React.createClass({
         return <div >
           <Row>
             <Col span={formItemLayout.labelCol.span} className="title">
-              <span>绑定节点</span>
+              <span>节点调度</span>
             </Col>
             <Col span={formItemLayout.wrapperCol.span}>
               <Form.Item>

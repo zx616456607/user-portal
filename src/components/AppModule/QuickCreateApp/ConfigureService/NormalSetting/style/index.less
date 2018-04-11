@@ -24,14 +24,59 @@
         font-size: 14px;
         padding-left: 25px;
       }
+      .serverAndPoint, .serverAndServer {
+        margin-bottom: 20px;
+        .serverAnd {
+          display: flex;
+          justify-content: flex-start;
+          flex-wrap: wrap;
+          min-height: 32px;
+          height: auto!important;
+          height: 32px;
+          line-height: 32px;
+          margin-bottom: 20px;
+          .ant-form-item-label {
+            width: 60px;
+            padding: 0px;
+            label {
+              padding: 0px;
+            }
+          }
+          .serverText {
+            margin: 0px 5px;
+            display: inline-block;
+          }
+          .ant-form-item {
+            margin-right: 10px;
+          }
+        }
+        .pointTag, .serverTag{
+          min-height: 50px;
+          height: auto!important;
+          height: 50px;
+          border: 1px dashed #dbdbdb;
+        }
+      }
       .content{
-        margin-top: 5px;
+        margin-top: 6px;
         .hostname{
           width:30%;
         }
       }
       .hostlabel{
         position: relative;
+        .title {
+          height: 14px;
+          line-height: 14px;
+          font-size: 14px;
+          border-left: 5px solid #46b2fa;
+          padding-left: 9px;
+          margin-bottom: 20px;
+          padding-top: 0px;
+          .anticon {
+            margin-left: 5px;
+          }
+        }
         .tips{
           position: absolute;
           top:0;

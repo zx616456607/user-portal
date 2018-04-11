@@ -225,6 +225,8 @@ const MyComponent = React.createClass({
         return scope.batchRestartService()
       case 'delete':
         return scope.batchDeleteServices()
+      case 'serverTag':
+        return this.showServiceDetail('serverTag')
       case 'rollingUpdate':
         return this.showRollingUpdateModal()
       case 'grayscaleUpgrade':
@@ -445,6 +447,9 @@ const MyComponent = React.createClass({
               设置HTTPS
             </Menu.Item>
           </SubMenu>
+            <Menu.Item key="serverTag" >
+              服务标签
+            </Menu.Item>
         </Menu>
       );
       const svcDomain = parseServiceDomain(item, bindingDomains,bindingIPs)
@@ -465,7 +470,7 @@ const MyComponent = React.createClass({
           }
           const key = camelize('ingress-lb')
           if (
-            k8sService.metadata.annotations && 
+            k8sService.metadata.annotations &&
             k8sService.metadata.annotations[key] &&
             !isEmpty(k8sService.metadata.annotations[key])
           ) {

@@ -246,6 +246,8 @@ const MyComponent = React.createClass({
         return this.showServiceDetail('binddomain')
       case 'https':
         return this.showServiceDetail('https')
+      case 'serverTag':
+        return this.showServiceDetail('serverTag')
     }
   },
   showRollingUpdateModal() {
@@ -461,7 +463,11 @@ const MyComponent = React.createClass({
               设置HTTPS
             </Menu.Item>
           </SubMenu>
+          <Menu.Item key="serverTag">
+            服务标签
+          </Menu.Item>
         </Menu>
+
       );
       const svcDomain = parseServiceDomain(item, bindingDomains, bindingIPs)
       let volume = false
