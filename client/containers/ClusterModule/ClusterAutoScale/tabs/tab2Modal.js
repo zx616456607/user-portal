@@ -101,7 +101,7 @@ class Tab2Modal extends React.Component {
         success: {
           func: () => {
             notify.success(`配置 ${params.name} 更新成功`);
-            if(!!funcTab2){
+            if(!!funcTab2){//tab2打开编辑页时 逻辑 同理funcTab1 todo
               func.loadData();
               func.scope.setState({
                 isTab2ModalShow:false,

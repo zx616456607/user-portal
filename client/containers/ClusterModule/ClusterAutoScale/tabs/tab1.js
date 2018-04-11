@@ -12,27 +12,15 @@ import Tab1Modal from './tab1Modal';
 import Tab2Modal from './tab2Modal';
 import NotificationHandler from '../../../../../src/components/Notification';
 
+const notify = new NotificationHandler();
+
 const InputGroup = Input.InputGroup;
 const TimelineItem = Timeline.Item;
+const pageSize = 5;
 
 let getAppList;
 let tableData = [];
 
-const tableExdClick = () => {
-  console.log(arguments);
-}
-const clone = () => {
-  console.log("clone", arguments);
-}
-const edit = () => {
-  console.log("edit", arguments);
-}
-const delItem = () => {
-  console.log("delItem", arguments);
-}
-const onItem = () => {
-  console.log("delItem", arguments);
-}
 
 class Tab1 extends React.Component {
   state = {
@@ -41,7 +29,7 @@ class Tab1 extends React.Component {
     pagination: {
       current: 1,
       defaultCurrent: 1,
-      pageSize: 5,
+      pageSize: pageSize,
     },//分页配置
     paginationCurrent: 1,//当前页
     currentData: tableData[0] || {},//点击名称缓存当前选中行元素
@@ -49,10 +37,44 @@ class Tab1 extends React.Component {
     selectedRowKeys: [], //选中行元素的keys
     isTab1ModalShow: false, //新建策略modal 显示状态
     isTab2ModalShow: false, //新建配置modal 显示状态
+    isEdit: false,
   }
   //顶部按钮事件
   add = () => {
-    this.setState({isTab1ModalShow: true});
+    this.setState({isTab1ModalShow: true, isEdit: false, currentData: {}});
+  }
+  dropDown = (e, rowData) => {
+    switch(e.key){
+      case "edit":
+        this.edit(rowData);
+        break;
+      case "onOff":
+        this.onOffItem(rowData);
+        break;
+      case "del":
+        this.delItem(rowData);
+        break;
+      }
+  }
+  edit = (rowData) => {
+    this.setState({
+      isTab1ModalShow: true,
+      isEdit: true,
+      currentData: rowData,
+    })
+    //console.log("edit", arguments);
+  }
+  delItem = () => {
+    console.log("delItem", arguments);
+    //刷新列表 todo
+  }
+  clone = () => {
+    console.log("clone", arguments);
+  }
+
+  onOffItem = () => {
+    console.log("onOffItem", arguments);
+    //刷新列表 todo
   }
   reflesh = () => {
     let selectedRowKeys = this.state.selectedRowKeys.join(",");
@@ -90,9 +112,9 @@ class Tab1 extends React.Component {
     console.log(arguments[0].target.value);
   }
   //行操作列点击事件
-  tableExdClick = () => {
+  // tableExdClick = () => {
 
-  }
+  // }
   onPageChange = (page) => {
     let pagination = JSON.parse(JSON.stringify(this.state.pagination));
     pagination.current = page;
@@ -107,15 +129,62 @@ class Tab1 extends React.Component {
   returnPart1 = () =>{
     this.setState({isShowTab1List: true});
   }
-  onqaEnd = () => {
-    // debugger
-  }
   onTab1ModalCancel = () => {
     this.setState({isTab1ModalShow: false});
   }
-  onTab1ModalOk = (values) => {
+  onTab1ModalOk = (params) => {
+    //add
+    const { addApp, updateApp } = this.props;
+    const resetState = {
+      isTab1ModalShow:false,
+      pagination: {
+        current: 1,
+        defaultCurrent: 1,
+        pageSize: pageSize,
+        currentData: {},
+        isEdit: false,
+      }, //分页配置
+      paginationCurrent: 1,
+    }
+    params.duration = params.duration + "";//转字符串
     //新增、修改接口
-    console.log("sendParams", values);
+    if(this.state.isEdit){
+      updateApp(params,{
+        success: {
+          func: () => {
+            notify.success(`策略 ${params.name} 更新成功`);
+              this.loadData();
+              this.setState(resetState);
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: err => {
+            const { statusCode } = err
+            notify.error(`更新策略 ${params.name} 失败，错误代码: ${statusCode}`)
+          },
+        }
+      })
+    }else{
+      addApp(params,
+        {
+          success: {
+            func: () => {
+              notify.success(`策略 ${params.name} 新建成功`)
+                this.loadData()
+                this.setState(resetState)
+            },
+            isAsync: true,
+          },
+          failed: {
+            func: err => {
+              const { statusCode } = err;
+              notify.error(`新建策略 ${params.name} 失败，错误代码: ${statusCode}`)
+            },
+          }
+        })
+    }
+    console.log("sendParams", params);
   }
 
   // 通过 rowSelection 对象表明需要行选择
@@ -172,7 +241,7 @@ class Tab1 extends React.Component {
         console.log(selected, selectedRows, changeRows);
       },
     };
-
+    const _that = this;
     const columns = (() => {
       const clickTableRowName = this.clickTableRowName.bind(this);
       return [{
@@ -188,9 +257,9 @@ class Tab1 extends React.Component {
       },
       {
         title: '开启状态',
-        dataIndex: 'isOn',
+        dataIndex: 'status',
         width: 100,
-        render: isOn => isOn ? <div className="isOnCon"><i className="fa fa-circle"></i>开启</div> : <div className="isOffCon"><i className="fa fa-circle"></i>关闭</div>,
+        render: status => status === "on" ? <div className="isOnCon"><i className="fa fa-circle"></i>开启</div> : <div className="isOffCon"><i className="fa fa-circle"></i>关闭</div>,
       },
       // {
       //   title: '阈值',
@@ -220,15 +289,15 @@ class Tab1 extends React.Component {
         width: 100,
         render: function(text, rowData){
           const menu = (
-            <Menu onClick={tableExdClick}>
-              <Menu.Item onClick={() => {onItem(rowData.id)}} key="1">启用</Menu.Item>
-              <Menu.Item onClick={() => {edit(rowData.id)}} key="2">编辑</Menu.Item>
-              <Menu.Item onClick={() => {delItem(rowData.id)}} key="3">删除</Menu.Item>
+            <Menu onClick={(e) => {_that.dropDown(e, rowData)}}>
+              <Menu.Item key="onOff">{ rowData.status === "on" ? "启用" : "停用"}</Menu.Item>
+              <Menu.Item key="edit">编辑</Menu.Item>
+              <Menu.Item key="del">删除</Menu.Item>
             </Menu>
           )
           return (
             <div>
-              <Dropdown.Button onClick={() => {clone(rowData.id)}} overlay={menu} type="ghost">
+              <Dropdown.Button onClick={() => {_that.clone(rowData)}} overlay={menu} type="ghost">
                 克隆
               </Dropdown.Button>
             </div>
@@ -260,7 +329,7 @@ class Tab1 extends React.Component {
       tableData = appList;
       total = appList.length;
     }
-    let loglen = 0,linelist = <div></div>;
+    let loglen = 0,linelist = <div style={{ textAlign: 'center' }}>暂无数据</div>;
     if(!!logList && logList.log){
       loglen = logList.log.length;
       linelist = logList.log.map((item, i) =>
@@ -271,6 +340,9 @@ class Tab1 extends React.Component {
       });
     }
     const func = {
+      scope: this,
+    }
+    const funcTab1 = {
       scope: this,
     }
     return (
@@ -379,7 +451,10 @@ class Tab1 extends React.Component {
               </div>
             </div>
           </QueueAnim>
-          <Tab1Modal closeTab1Modal={this.closeTab1Modal} visible={this.state.isTab1ModalShow} onOk={this.onTab1ModalOk} onCancel={this.onTab1ModalCancel} onClose={this.onTab1ModalCancel}/>
+          <Tab1Modal
+            isEdit={this.state.isEdit}
+            currentData={this.state.currentData}
+            func={funcTab1} closeTab1Modal={this.closeTab1Modal} visible={this.state.isTab1ModalShow} onOk={this.onTab1ModalOk} onCancel={this.onTab1ModalCancel} onClose={this.onTab1ModalCancel}/>
           <Tab2Modal
             visible={this.state.isTab2ModalShow}
             onCancel={this.onTab2ModalCancel}
@@ -411,5 +486,7 @@ const mapStateToProps = state => {
 export default connect(mapStateToProps, {
   getAppList: autoScalerActions.getAutoScalerAppList,
   getLogList: autoScalerActions.getAutoScalerLogList,
-  // deleteApp: autoScalerActions.deleteApp,
+  addApp: autoScalerActions.createApp,
+  updateApp: autoScalerActions.updateApp,
+  deleteApp: autoScalerActions.deleteApp,
 })(Tab1);
