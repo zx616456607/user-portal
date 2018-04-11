@@ -1,5 +1,8 @@
-import React, { Component } from 'react';
-import { Spin, Button, Icon, Input, Table, Menu, Dropdown, Card, Select, Pagination, Timeline, Row, Col} from 'antd';
+import React from 'react';
+import {
+  Spin, Button, Icon, Input, Table, Menu, Dropdown,
+  Card, Select, Pagination, Row, Col, Timeline,
+} from 'antd';
 import classNames from 'classNames';
 import '../style/tab1.less';
 import * as autoScalerActions from '../../../../actions/clusterAutoScaler';
@@ -11,7 +14,9 @@ import NotificationHandler from '../../../../../src/components/Notification';
 
 const InputGroup = Input.InputGroup;
 const TimelineItem = Timeline.Item;
+
 let getAppList;
+let tableData = [];
 
 const tableExdClick = () => {
   console.log(arguments);
@@ -28,31 +33,6 @@ const delItem = () => {
 const onItem = () => {
   console.log("delItem", arguments);
 }
-// {
-//   "name": "策略1",                                                                //策略名称
-//   "cluster": "CID-80eb6ec3c47b",                                                  //集群id GET /api/v2/autoscaler/cluster
-//   "iaas": "vmware",                                                               //iaas平台   原型中最上的4个图标选项
-//   "datacenter":"/office",                                                         //数据中心
-//   "templatePath": "/测试机器/虚机模版([T]Template)/template-for-autoscaling-test", //模板路径
-//   "targetPath": "/测试机器/个人使用([S]Staff Personal)/gaoyawei/",                 //选择路径 测试数据可填写（/测试机器/个人使用([S]Staff Personal)/gaoyawei/）
-//   "resourcePoolPath": "/塔式服务器/Resources",                                     //计算资源池路径
-//   "datastorePath": "/内部数据黑盘",                                                //存储资源池
-//   "removeAndDelete": "1",                                                         //减少节点  1为移除并删除节点 0为仅移除集群
-//   "min": "1",                                                                     //最大节点
-//   "max": "10",                                                                    //最小节点
-//   "email": "466463985@qq.com",                                                    //邮箱
-//   "duration": "10"                                                                //冷却时间
-// }
-let tableData = [{
-  id: 0,
-  name: "名称1",
-  isOn: 0,
-  //yuzhi: "如果节点的 CPU 利用率在 5 分钟内最大值 >70，连续发生 3 次则触发扩容",
-  clustername: "集群1",
-  min: "200",
-  max: "500",
-  email: "email",
-}];
 
 class Tab1 extends React.Component {
   state = {
@@ -68,6 +48,7 @@ class Tab1 extends React.Component {
     isShowTab1List: true, //伸缩策略中显示第一页， false第二页
     selectedRowKeys: [], //选中行元素的keys
     isTab1ModalShow: false, //新建策略modal 显示状态
+    isTab2ModalShow: false, //新建配置modal 显示状态
   }
   //顶部按钮事件
   add = () => {
@@ -121,6 +102,7 @@ class Tab1 extends React.Component {
     //console.log(rowData);
     const temp = JSON.parse(JSON.stringify(rowData));
     this.setState({currentData: temp,isShowTab1List: false});
+    this.props.getLogList({cluster: rowData.cluster});
   }
   returnPart1 = () =>{
     this.setState({isShowTab1List: true});
@@ -131,28 +113,47 @@ class Tab1 extends React.Component {
   onTab1ModalCancel = () => {
     this.setState({isTab1ModalShow: false});
   }
-  onTab1ModalOk = () => {
+  onTab1ModalOk = (values) => {
     //新增、修改接口
-    console.log("sendParams");
+    console.log("sendParams", values);
   }
 
   // 通过 rowSelection 对象表明需要行选择
-  renderLineItem(item) {
+  renderLineItem = (item, i, isLast) => {
     let color = "#2fba67";
     if (item.diff) {
       color = "#2cb8f6";
     }
-    return
-      <TimelineItem dot={<Icon type="check-circle" style={{fontSize: 16, color: color}}/>} key={item.message}>
-        <span style={{ color: color }}>{item.message}</span>
-        <span>{item.date}</span>
-      </TimelineItem>
+    const className = "ant-timeline-item " + (isLast ? "ant-timeline-item-last" : "" );
+    return <li className={className}>
+        <div className="ant-timeline-item-tail"></div>
+        <div className="ant-timeline-item-head ant-timeline-item-head-custom ant-timeline-item-head-blue">
+          <i className="anticon anticon-check-circle" style={{ fontSize: 16, color: "#2cb8f6" }}></i>
+        </div>
+        <div className="ant-timeline-item-content">
+          <span style={{ color: "#2cb8f6" }}>{item.message}</span>
+          <span>{item.date}</span>
+        </div>
+      </li>
+  }
+  closeTab1Modal = () => {
+    //逻辑 todo
+    this.setState({
+      isTab1ModalShow:false
+    },() => {
+      this.setState({
+        isTab2ModalShow:true
+      })
+    })
+  }
+  onTab2ModalCancel = () => {
+    this.setState({isTab2ModalShow: false});
   }
   loadData() {
     getAppList({});
   }
   render() {
-    const { appList, isFetching } = this.props;
+    const { appList, isTab1Fetching, logList, isLogFetching } = this.props;
     getAppList = this.props.getAppList;
     const searchCls = classNames({
       'ant-search-input': true,
@@ -259,22 +260,19 @@ class Tab1 extends React.Component {
       tableData = appList;
       total = appList.length;
     }
-    let log = [
-      {
-        diff:true,
-        message: "message",
-        date: "2017-09-08 19:00:00"
-      }
-    ];// currentData["log"];
-    const _that = this;
-    console.log(log);
-    const linelist = log.map((item) =>
-    {
-      const line = _that.renderLineItem(item)
-      console.log(line);
-      return line;
-    });
-    console.log(linelist)
+    let loglen = 0,linelist = <div></div>;
+    if(!!logList && logList.log){
+      loglen = logList.log.length;
+      linelist = logList.log.map((item, i) =>
+        {
+          const isLast = loglen === (i + 1);
+          const line = this.renderLineItem(item, i, isLast)
+          return line;
+      });
+    }
+    const func = {
+      scope: this,
+    }
     return (
       <div className="tab1Content">
           <QueueAnim>
@@ -311,7 +309,7 @@ class Tab1 extends React.Component {
               <div className="tablePanel">
                 <Card>
                 {
-                    !!isFetching ?
+                    !!isTab1Fetching ?
                     <div className="loadingBox">
                       <Spin size="large"/>
                     </div>
@@ -360,18 +358,36 @@ class Tab1 extends React.Component {
                 <Card className="right" title="伸缩日志" bordered={false}>
                   <div className="appAutoScaleLogs">
                     {
-                      !!log ?
-                        <Timeline>
+
+                      isLogFetching ?
+                      <div className="loadingBox">
+                        <Spin size="large"/>
+                      </div>
+                      :
+                      !!logList ?
+                        <ul className="ant-timeline">
                           {linelist}
-                        </Timeline>
+                        </ul>
                         : <div style={{ textAlign: 'center' }}>暂无数据</div>
                     }
+
+                    {/*<Timeline>
+                      {linelist}
+                    </Timeline>*/}
                   </div>
                 </Card>
               </div>
             </div>
           </QueueAnim>
-          <Tab1Modal visible={this.state.isTab1ModalShow} onOk={this.onTab1ModalOk} onCancel={this.onTab1ModalCancel} onClose={this.onTab1ModalCancel}/>
+          <Tab1Modal closeTab1Modal={this.closeTab1Modal} visible={this.state.isTab1ModalShow} onOk={this.onTab1ModalOk} onCancel={this.onTab1ModalCancel} onClose={this.onTab1ModalCancel}/>
+          <Tab2Modal
+            visible={this.state.isTab2ModalShow}
+            onCancel={this.onTab2ModalCancel}
+            onClose={this.onTab2ModalCancel}
+            isEdit={false}
+            currData={null}
+            funcTab1={func}
+            ref="tab2MC"/>
       </div>
     )
   }
@@ -381,15 +397,19 @@ class Tab1 extends React.Component {
 };
 const mapStateToProps = state => {
   const { appAutoScaler } = state;
-  const { getAppList } = appAutoScaler;
-  const { appList, isFetching } = getAppList || {appList: [], isFetching: false};
+  const { getAppList, getLogList } = appAutoScaler;
+  const { appList, isTab1Fetching } = getAppList || {appList: [], isTab1Fetching: false};
+  const { logList, isLogFetching } = getLogList || {logList: [], isLogFetching: false};
   return {
     appList,
-    isFetching,
+    isTab1Fetching,
+    logList,
+    isLogFetching,
   };
 };
 
 export default connect(mapStateToProps, {
   getAppList: autoScalerActions.getAutoScalerAppList,
+  getLogList: autoScalerActions.getAutoScalerLogList,
   // deleteApp: autoScalerActions.deleteApp,
 })(Tab1);

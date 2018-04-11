@@ -24,7 +24,7 @@ const fetchCreateServer = (body, callback) => {
         CREATE_APP_SERVER_SUCCESS,
         CREATE_APP_SERVER_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/autoscaler/server`,
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/server`,
       schema: {},
       options: {
         method: 'POST',
@@ -50,7 +50,7 @@ const fetchServerList = (query, callback) => {
         APP_SERVER_LIST_SUCCESS,
         APP_SERVER_LIST_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/autoscaler/server?${toQuerystring(query)}`,
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/server?${toQuerystring(query)}`,
       schema: {},
     },
     callback,
@@ -72,7 +72,7 @@ const fetchDeleteServer = (query, callback) => {
         DELETE_APP_SERVER_SUCCESS,
         DELETE_APP_SERVER_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/autoscaler/server?${toQuerystring(query)}`,
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/server?${toQuerystring(query)}`,
       schema: {},
       options: {
         method: 'DELETE',
@@ -97,7 +97,7 @@ const fetchUpdateServer = (body, callback) => {
         UPDATE_APP_SERVER_SUCCESS,
         UPDATE_APP_SERVER_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/autoscaler/server`,
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/server`,
       schema: {},
       options: {
         method: 'PUT',
@@ -123,7 +123,7 @@ const fetchAutoScalerClusterList = (query, callback) => {
         APP_CLUSTER_LIST_SUCCESS,
         APP_CLUSTER_LIST_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/autoscaler/cluster?${toQuerystring(query)}`,
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/cluster?${toQuerystring(query)}`,
       schema: {},
     },
     callback,
@@ -135,7 +135,7 @@ export const getAutoScalerClusterList = (query?: object, callback?: function) =>
 
 // server end
 
-export const APP_AUTOSCALERAPP_LIST_REQUEST = 'APP_APP_LIST_REQUEST';
+export const APP_AUTOSCALERAPP_LIST_REQUEST = 'APP_AUTOSCALERAPP_LIST_REQUEST';
 export const APP_AUTOSCALERAPP_LIST_SUCCESS = 'APP_AUTOSCALERAPP_LIST_SUCCESS';
 export const APP_AUTOSCALERAPP_LIST_FAILURE = 'APP_AUTOSCALERAPP_LIST_FAILURE';
 
@@ -147,7 +147,7 @@ const fetchAutoScalerList = (query, callback) => {
         APP_AUTOSCALERAPP_LIST_SUCCESS,
         APP_AUTOSCALERAPP_LIST_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/autoscaler/app?${toQuerystring(query)}`,
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/app?${toQuerystring(query)}`,
       schema: {},
     },
     callback,
@@ -156,3 +156,48 @@ const fetchAutoScalerList = (query, callback) => {
 
 export const getAutoScalerAppList = (query?: object, callback?: function) =>
   dispatch => dispatch(fetchAutoScalerList(query, callback));
+
+export const APP_AUTOSCALERLOG_LIST_REQUEST = 'APP_AUTOSCALERLOG_LIST_REQUEST';
+export const APP_AUTOSCALERLOG_LIST_SUCCESS = 'APP_AUTOSCALERLOG_LIST_SUCCESS';
+export const APP_AUTOSCALERLOG_LIST_FAILURE = 'APP_AUTOSCALERLOG_LIST_FAILURE';
+
+const fetchAutoScalerLogList = (query, callback) => {
+    return {
+      [FETCH_API]: {
+        types: [
+          APP_AUTOSCALERLOG_LIST_REQUEST,
+          APP_AUTOSCALERLOG_LIST_SUCCESS,
+          APP_AUTOSCALERLOG_LIST_FAILURE,
+        ],
+        endpoint: `${API_URL_PREFIX}/clusters/autoscaler/app/log?${toQuerystring(query)}`,
+        schema: {},
+      },
+      callback,
+    };
+  };
+
+export const getAutoScalerLogList = (query?: object, callback?: function) =>
+  dispatch => dispatch(fetchAutoScalerLogList(query, callback));
+
+
+export const APP_AUTOSCALERRES_LIST_REQUEST = 'APP_AUTOSCALERRES_LIST_REQUEST';
+export const APP_AUTOSCALERRES_LIST_SUCCESS = 'APP_AUTOSCALERRES_LIST_SUCCESS';
+export const APP_AUTOSCALERRES_LIST_FAILURE = 'APP_AUTOSCALERRES_LIST_FAILURE';
+
+const fetchAutoScalerResList = (query, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        APP_AUTOSCALERRES_LIST_REQUEST,
+        APP_AUTOSCALERRES_LIST_SUCCESS,
+        APP_AUTOSCALERRES_LIST_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/resource?${toQuerystring(query)}`,
+      schema: {},
+    },
+    callback,
+  };
+};
+
+export const getAutoScalerResList = (query?: object, callback?: function) =>
+  dispatch => dispatch(fetchAutoScalerResList(query, callback));

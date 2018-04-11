@@ -33,7 +33,19 @@ class Tab2Modal extends React.Component {
   }
   componentDidMount() {
     //接收参数
-   this.getQueryData();
+    this.getQueryData();
+  }
+  componentWillReceiveProps() {
+    if(isGetParams && this.props.visible){
+      isGetParams = false;
+      this.getQueryData();
+    }
+    if(!this.props.visible){
+      isGetParams = true;
+    }
+    if( this.props.isEdit && !!this.props.currData){
+      isEdit = true;
+    }else{ isEdit = false }
   }
   getQueryData(){
     const { getAutoScalerClusterList } = this.props;
@@ -61,7 +73,7 @@ class Tab2Modal extends React.Component {
       }
     });
   }
-  onChange(value){
+  onChange = (value) => {
     this.setState({
       selectValue: value,
       currentIcon: "",
@@ -73,7 +85,7 @@ class Tab2Modal extends React.Component {
   }
   onTab2ModalOk = () => {
     //新增、修改接口
-    const { addServer, updateServer, func } = this.props;
+    const { addServer, updateServer, funcTab1, funcTab2 } = this.props;
     const date = new Date();
     const dateString = date.Format("yyyy-MM-dd HH:mm:ss")
     const params = {
@@ -89,18 +101,18 @@ class Tab2Modal extends React.Component {
         success: {
           func: () => {
             notify.success(`配置 ${params.name} 更新成功`);
-            console.log(func);
-            func.loadData();
-            func.scope.setState({
-              isTab2ModalShow:false,
-              pagination: {
-                current: 1,
-                defaultCurrent: 1,
-                pageSize: 5,
-              }, //分页配置
-              paginationCurrent: 1,
-            });
-            console.log(func);
+            if(!!funcTab2){
+              func.loadData();
+              func.scope.setState({
+                isTab2ModalShow:false,
+                pagination: {
+                  current: 1,
+                  defaultCurrent: 1,
+                  pageSize: 5,
+                }, //分页配置
+                paginationCurrent: 1,
+              });
+            }
           },
           isAsync: true,
         },
@@ -117,14 +129,16 @@ class Tab2Modal extends React.Component {
           success: {
             func: () => {
               notify.success(`配置 ${params.name} 新建成功`)
-              func.loadData()
-              func.scope.setState({ isTab2ModalShow:false,
-                pagination: {
-                  current: 1,
-                  defaultCurrent: 1,
-                  pageSize: 5,
-                }, //分页配置
-                paginationCurrent: 1, })
+              if(!!funcTab2){
+                func.loadData()
+                func.scope.setState({ isTab2ModalShow:false,
+                  pagination: {
+                    current: 1,
+                    defaultCurrent: 1,
+                    pageSize: 5,
+                  }, //分页配置
+                  paginationCurrent: 1, })
+              }
             },
             isAsync: true,
           },
@@ -149,20 +163,9 @@ class Tab2Modal extends React.Component {
   render(){
     const { clusterList, isModalFetching, getData, isGetFormData } = this.props;
 
-    if(this.props.visible && isGetParams){
-      isGetParams = false;
-      this.getQueryData();
-    }
-    if(!this.props.visible){
-      isGetParams = true;
-    }
-    if( this.props.isEdit && !!this.props.currData){
-      isEdit = true;
-    }else{ isEdit = false }
-
     const options = !!clusterList ?
     clusterList.map((o,i,objs) => <Select.Option key={i} value={o.clusterid}>{o.clustername}</Select.Option>) : null;
-
+    !!options && options.unshift(<Select.Option key="-1" value="">请选择容器集群</Select.Option>)
     let objDisabled = _.filter(clusterList, {clusterid: this.state.selectValue})[0];
     if(isEdit){ objDisabled = null; }
     const iconClass1 = classNames({
@@ -243,14 +246,13 @@ class Tab2Modal extends React.Component {
               <div style={{clear:"both"}}></div>
             </div>
             <div className="bottom-line"></div>
-            <div className="formContainer">
+            <div className="formContainer" style={{paddingTop: 20}}>
               <Row key="row1">
                 <FormItem
                   {...formItemLargeLayout}
                   label="容器集群"
                 >
                   <Select disabled={this.state.disabled} value={this.state.selectValue} onChange={(value) => {this.onChange(value)}} placeholder="请选择容器集群" style={{width: "100%", }}>
-                    <Option value="">请选择容器集群</Option>
                     {options}
                   </Select>
                 </FormItem>

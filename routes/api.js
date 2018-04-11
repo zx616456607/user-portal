@@ -754,16 +754,18 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/loadbalances/:lbname/ingresses/exist', loadBalanceController.nameAndHostCheck)
 
   // autoscaler
-  router.get('/autoscaler/server', autoScalerController.getServers)
-  router.post('/autoscaler/server', autoScalerController.createServer)
-  router.put('/autoscaler/server', autoScalerController.updateServer)
-  router.del('/autoscaler/server', autoScalerController.deleteServer)
-  router.get('/autoscaler/cluster', autoScalerController.getCluster)
+  router.get('/clusters/autoscaler/server', autoScalerController.getServers)
+  router.post('/clusters/autoscaler/server', autoScalerController.createServer)
+  router.put('/clusters/autoscaler/server', autoScalerController.updateServer)
+  router.del('/clusters/autoscaler/server', autoScalerController.deleteServer)
+  router.get('/clusters/autoscaler/cluster', autoScalerController.getCluster)
 
-  router.get('/autoscaler/app', autoScalerController.getApps)
-  router.post('/autoscaler/app', autoScalerController.createApp)
-  router.put('/autoscaler/app', autoScalerController.updateApp)
-  router.del('/autoscaler/app', autoScalerController.deleteApp)
+  router.get('/clusters/autoscaler/app', autoScalerController.getApps)
+  router.post('/clusters/autoscaler/app', autoScalerController.createApp)
+  router.put('/clusters/autoscaler/app', autoScalerController.updateApp)
+  router.del('/clusters/autoscaler/app', autoScalerController.deleteApp)
+  router.get('/clusters/autoscaler/app/log', autoScalerController.getLogs)
 
+  router.get('/clusters/autoscaler/resource', autoScalerController.getRes)
   return router.routes()
 }

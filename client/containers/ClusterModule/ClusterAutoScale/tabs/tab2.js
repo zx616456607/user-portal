@@ -255,7 +255,7 @@ class Tab2 extends React.Component {
           onClose={this.onTab2ModalCancel}
           isEdit={this.state.isEdit}
           currData={this.state.currData}
-          func={func}
+          funcTab2={func}
           ref="tab2MC"/>
 
         <Modal

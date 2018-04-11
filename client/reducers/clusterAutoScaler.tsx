@@ -62,18 +62,66 @@ function getAppList(state = {}, action) {
   switch (action.type) {
     case ActionTypes.APP_AUTOSCALERAPP_LIST_REQUEST:
       res = Object.assign({}, state, {
-        isFetching: true,
+        isTab1Fetching: true,
       });
       return res;
     case ActionTypes.APP_AUTOSCALERAPP_LIST_SUCCESS:
       res = Object.assign({}, state, {
-        isFetching: false,
+        isTab1Fetching: false,
         appList: action.response.result.data,
       });
       return res;
     case ActionTypes.APP_AUTOSCALERAPP_LIST_FAILURE:
       res = Object.assign({}, state, {
-        isFetching: false,
+        isTab1Fetching: false,
+      });
+      return res;
+    default:
+      return state;
+  }
+}
+
+function getLogList(state = {}, action) {
+  let res = null;
+  switch (action.type) {
+    case ActionTypes.APP_AUTOSCALERLOG_LIST_REQUEST:
+      res = Object.assign({}, state, {
+        isLogFetching: true,
+      });
+      return res;
+    case ActionTypes.APP_AUTOSCALERLOG_LIST_SUCCESS:
+      res = Object.assign({}, state, {
+        isLogFetching: false,
+        logList: action.response.result.data,
+      });
+      return res;
+    case ActionTypes.APP_AUTOSCALERLOG_LIST_FAILURE:
+      res = Object.assign({}, state, {
+        isLogFetching: false,
+      });
+      return res;
+    default:
+      return state;
+  }
+}
+
+function getResList(state = {}, action) {
+  let res = null;
+  switch (action.type) {
+    case ActionTypes.APP_AUTOSCALERRES_LIST_REQUEST:
+      res = Object.assign({}, state, {
+        isResFetching: true,
+      });
+      return res;
+    case ActionTypes.APP_AUTOSCALERRES_LIST_SUCCESS:
+      res = Object.assign({}, state, {
+        isResFetching: false,
+        resList: action.response.result.data,
+      });
+      return res;
+    case ActionTypes.APP_AUTOSCALERRES_LIST_FAILURE:
+      res = Object.assign({}, state, {
+        isResFetching: false,
       });
       return res;
     default:
@@ -87,5 +135,7 @@ export default function appAutoScaler(state = {}, action) {
     getServerList: getServerList(state.getServerList, action),
     getAutoScalerClusterList: getAutoScalerClusterList(state.getAutoScalerClusterList, action),
     getAppList: getAppList(state.getAppList, action),
+    getLogList: getLogList(state.getLogList, action),
+    getResList: getResList(state.getResList, action),
   };
 }

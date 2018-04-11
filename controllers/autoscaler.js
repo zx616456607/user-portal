@@ -21,13 +21,13 @@ const portHelper = require('./port_helper')
 exports.getServers = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.autoscaler.getBy([ 'server' ])
+  this.body = yield api.clusters.getBy(['autoscaler', 'server' ])
 }
 
 exports.getCluster = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.autoscaler.getBy([ 'cluster' ])
+  this.body = yield api.clusters.getBy(['autoscaler',  'clusterstatus' ])
 }
 
 
@@ -36,7 +36,7 @@ exports.createServer = function* () {
   const loginUser = this.session.loginUser
   const body = this.request.body
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.autoscaler.createBy([ 'server' ], null, body)
+  this.body = yield api.clusters.createBy(['autoscaler', 'server' ], null, body)
 }
 
 exports.updateServer = function* () {
@@ -44,21 +44,21 @@ exports.updateServer = function* () {
   const loginUser = this.session.loginUser
   const body = this.request.body
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.autoscaler.updateBy([ 'server' ], null, body)
+  this.body = yield api.clusters.updateBy(['autoscaler', 'server' ], null, body)
 }
 
 exports.deleteServer = function* () {
   const loginUser = this.session.loginUser
   const { cluster, configname } = this.request.query
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.autoscaler.deleteBy([ 'server', cluster, configname ])
+  this.body = yield api.clusters.deleteBy(['autoscaler', 'server', cluster, configname ])
 }
 
 
 exports.getApps = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.autoscaler.getBy([ 'app' ])
+  this.body = yield api.clusters.getBy(['autoscaler', 'app' ])
 }
 
 exports.createApp = function* () {
@@ -66,7 +66,7 @@ exports.createApp = function* () {
   const loginUser = this.session.loginUser
   const body = this.request.body
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.autoscaler.createBy([ 'app' ], null, body)
+  this.body = yield api.clusters.createBy(['autoscaler', 'app' ], null, body)
 }
 
 exports.updateApp = function* () {
@@ -74,7 +74,7 @@ exports.updateApp = function* () {
   const loginUser = this.session.loginUser
   const body = this.request.body
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.autoscaler.updateBy([ 'app' ], null, body)
+  this.body = yield api.clusters.updateBy(['autoscaler', 'app' ], null, body)
 }
 
 exports.deleteApp = function* () {
@@ -82,5 +82,20 @@ exports.deleteApp = function* () {
   const loginUser = this.session.loginUser
   const body = this.request.body
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.autoscaler.deleteBy([ 'app' ], null, body)
+  this.body = yield api.clusters.deleteBy(['autoscaler', 'app' ], null, body)
 }
+
+exports.getLogs = function* () {
+  const loginUser = this.session.loginUser
+  const { cluster } = this.request.query
+  const api = apiFactory.getApi(loginUser)
+  this.body = yield api.clusters.getBy(['autoscaler', 'app', 'log', cluster ])
+}
+
+exports.getRes = function* () {
+  const loginUser = this.session.loginUser
+  const { cluster, type } = this.request.query
+  const api = apiFactory.getApi(loginUser)
+  this.body = yield api.clusters.getBy(['autoscaler', 'resource', cluster, type ])
+}
+
