@@ -987,7 +987,15 @@ class AppServiceList extends Component {
     }
 
 
-    const serviceNames = checkedServiceList.map((service) => service.metadata.name)
+    const serviceNames = []
+    const releaseNames = []
+    checkedServiceList.forEach(service => {
+      serviceNames.push(service.metadata.name)
+      let releaseName = service.metadata.labels.releaseName
+      if (releaseName && !serviceNames.includes(releaseName)) {
+        releaseNames.push(releaseName)
+      }
+    })
     const allServices = self.state.serviceList
     allServices.map((service) => {
       if (serviceNames.indexOf(service.metadata.name) > -1) {
@@ -998,7 +1006,7 @@ class AppServiceList extends Component {
       DeleteServiceModal: false,
       serviceList: allServices
     })
-    deleteServices(cluster, serviceNames, {
+    deleteServices(cluster, {services: serviceNames, releaseNames}, {
       success: {
         func: () => {
           self.loadServices(self.props)

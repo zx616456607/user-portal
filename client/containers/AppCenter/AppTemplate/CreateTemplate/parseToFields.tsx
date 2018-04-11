@@ -73,6 +73,19 @@ const formatValues = values => {
 };
 
 /**
+ * 解析应用包
+ * @param annotations
+ */
+
+const parseAppPkgID = annotations => {
+  const { appPkgID } = annotations;
+  if (!appPkgID) {
+    return;
+  }
+  return { appPkgID };
+};
+
+/**
  * 判断是否为自定义配置
  *
  * @param {number} DIYMemory
@@ -417,6 +430,7 @@ const parseDeployment = deployment => {
     serviceName: outerMetadata.name, // 服务名称
     imageUrl, // 镜像地址
     imageTag, // 镜像版本
+    ...parseAppPkgID(annotations), // 应用包
     apm: labels[APM_SERVICE_LABEL_KEY] === 'pinpoint', // 是否开通 APM
     ...parseResource(containers[0]),
     replicas, // 实例数量
@@ -488,10 +502,11 @@ const parseMappingPorts = (annotations, spec) => {
 
 const parseService = service => {
   const { metadata, spec } = service;
-  const { annotations } = metadata;
+  const { annotations, labels } = metadata;
 
   const values = {
     accessMethod: annotations && annotations[TENX_SCHEMA_LBGROUP] || 'none', // 访问方式
+    originalName: labels.name, // 服务的原始名称
     ...parseMappingPorts(annotations, spec),
   };
   return values;

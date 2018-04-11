@@ -171,7 +171,9 @@ module.exports = function (Router) {
   router.get('/templates/helm', helmTemplateController.getTemplateList)
   router.del('/templates/helm/:name/versions/:version', helmTemplateController.deleteTemplate)
   router.get('/templates/helm/:name/versions/:version', helmTemplateController.getTemplateDetail)
-  router.post('/templates/helm/:name/clusters/:cluster', helmTemplateController.deployTemplateCheck)
+  router.get('/templates/helm/:name/versions/:version/clusters/:cluster', helmTemplateController.deployTemplateCheck)
+  router.post('/templates/helm/:name/versions/:version/clusters/:cluster', helmTemplateController.deployTemplate)
+  router.get('/templates/helm/:name', helmTemplateController.templateNameCheck)
 
   // Services
   router.put('/clusters/:cluster/services/batch-start', serviceController.startServices)

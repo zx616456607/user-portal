@@ -111,7 +111,7 @@ export const APP_TEMPLATE_DEPLOY_CHECK_REQUEST = 'APP_TEMPLATE_DEPLOY_CHECK_REQU
 export const APP_TEMPLATE_DEPLOY_CHECK_SUCCESS = 'APP_TEMPLATE_DEPLOY_CHECK_SUCCESS';
 export const APP_TEMPLATE_DEPLOY_CHECK_FAILURE = 'APP_TEMPLATE_DEPLOY_CHECK_FAILURE';
 
-const fetchAppTemplateDeployCheck = (cluster, name, body, callback) => {
+const fetchAppTemplateDeployCheck = (cluster, name, version, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -119,10 +119,68 @@ const fetchAppTemplateDeployCheck = (cluster, name, body, callback) => {
         APP_TEMPLATE_DEPLOY_CHECK_SUCCESS,
         APP_TEMPLATE_DEPLOY_CHECK_FAILURE,
       ],
+      endpoint: `${API_URL_PREFIX}/templates/helm/${name}/versions/${version}/clusters/${cluster}`,
+      schema: {},
     },
     callback,
   };
 };
 
-export const appTemplateDeployCheck = (cluster: string, name: string, body: object, callback?: function) =>
-  dispatch => dispatch(fetchAppTemplateDeployCheck(cluster, name, body, callback));
+export const appTemplateDeployCheck = (cluster: string, name: string, version, callback?: function) =>
+  dispatch => dispatch(fetchAppTemplateDeployCheck(cluster, name, version, callback));
+
+const APP_TEMPLATE_DEPLOY_REQUEST = 'APP_TEMPLATE_DEPLOY_REQUEST';
+const APP_TEMPLATE_DEPLOY_SUCCESS = 'APP_TEMPLATE_DEPLOY_SUCCESS';
+const APP_TEMPLATE_DEPLOY_FAILURE = 'APP_TEMPLATE_DEPLOY_FAILURE';
+
+const fetchAppTemplateDeploy = (cluster, name, version, body, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        APP_TEMPLATE_DEPLOY_REQUEST,
+        APP_TEMPLATE_DEPLOY_SUCCESS,
+        APP_TEMPLATE_DEPLOY_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/templates/helm/${name}/versions/${version}/clusters/${cluster}`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      },
+    },
+  };
+};
+
+export const appTemplateDeploy = (cluster, name, version, body, callback) =>
+  dispatch => dispatch(fetchAppTemplateDeploy(cluster, name, version, body, callback));
+
+export const REMOVE_APP_TEMPLATE_DEPLOY_CHECK = 'REMOVE_APP_TEMPLATE_DEPLOY_CHECK';
+
+export const removeAppTemplateDeployCheck = (callback) => {
+  return {
+    type: REMOVE_APP_TEMPLATE_DEPLOY_CHECK,
+    callback,
+  };
+};
+
+const APP_TEMPLATE_NAME_CHECK_REQUEST = 'APP_TEMPLATE_NAME_CHECK_REQUEST';
+const APP_TEMPLATE_NAME_CHECK_SUCCESS = 'APP_TEMPLATE_NAME_CHECK_SUCCESS';
+const APP_TEMPLATE_NAME_CHECK_FAILURE = 'APP_TEMPLATE_NAME_CHECK_FAILURE';
+
+const fetchAppTemplateNameCheck = (name, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        APP_TEMPLATE_NAME_CHECK_REQUEST,
+        APP_TEMPLATE_NAME_CHECK_SUCCESS,
+        APP_TEMPLATE_NAME_CHECK_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/templates/helm/${name}`,
+      schema: {},
+    },
+    callback,
+  };
+};
+
+export const appTemplateNameCheck = (name, callback) =>
+  dispatch => dispatch(fetchAppTemplateNameCheck(name, callback));

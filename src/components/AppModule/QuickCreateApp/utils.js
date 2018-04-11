@@ -44,6 +44,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
     serviceName, // 服务名称
     systemRegistry, // 镜像服务类型
     imageUrl, // 镜像地址
+    appPkgID, // 应用包
     imageTag, // 镜像版本
     apm, //是否开通 APM
     bindNode, // 绑定节点
@@ -101,6 +102,12 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   deployment.setAnnotations({
     'system/registry': systemRegistry
   })
+  // 设置应用包appPkgID
+  if (isTemplate && appPkgID) {
+    deployment.setAnnotations({
+      appPkgID
+    })
+  }
   // 设置镜像地址
   deployment.addContainer(serviceName, `${imageUrl}:${imageTag}`)
   // 设置 APM
@@ -294,7 +301,9 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
     deployment.addContainerCommand(serviceName, command)
   }
   // 设置启动命令
-  if ((argsType && argsType !== 'default') && argsKeys) {
+  // if ((argsType && argsType !== 'default') && argsKeys) {
+  // 模板需要将默认启动命令添加进去
+  if (argsType && argsKeys) {
     const args = []
     argsKeys.forEach(key => {
       if (!key.deleted) {
@@ -454,7 +463,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
           },
         }
         // if (!secretConfigMapIsWholeDir) {
-          volume.secret.items = secretConfigMapSubPathValues.map(value => {
+          volume.secret.items = (secretConfigMapSubPathValues || []).map(value => {
             return {
               key: value,
               path: value,
