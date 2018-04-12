@@ -18,21 +18,29 @@ import { Button, Icon, Pagination, Dropdown, Menu, Modal, Spin, Popover } from '
 import classNames from 'classnames';
 import SearchInput from '../../../components/SearchInput';
 import Title from '../../../../src/components/Title';
-import { formatDate } from '../../../../src/common/tools';
+import {
+  formatDate, genRandomString, toQuerystring, formatServiceToArrry,
+  getWrapFileType,
+} from '../../../../src/common/tools';
 import ReleaseModal from './ReleaseModal';
-import * as templateActions from '../../../actions/template';
+import * as TemplateActions from '../../../actions/template';
+import * as QuickCreateAppActions from '../../../../src/actions/quick_create_app';
 import defaultApp from '../../../../static/img/appstore/defaultapp.png';
 import './style/index.less';
 import NotificationHandler from '../../../../src/components/Notification';
+import { parseToFields } from './CreateTemplate/parseToFields';
 
 const notify = new NotificationHandler();
 
 const DEFAULT_SIZE = 12;
+const SERVICE_CONFIG_HASH = '#configure-service';
 
 class TemplateList extends React.Component<any> {
 
   state = {
   };
+
+  serviceSum = 0;
 
   componentWillMount() {
     this.loadTemplateList();
@@ -58,10 +66,6 @@ class TemplateList extends React.Component<any> {
 
   createTemplate = () => {
     browserHistory.push('/app_center/template/create');
-  }
-
-  handleDeploy = () => {
-
   }
 
   handleDelete = (temp: object) => {
@@ -110,6 +114,52 @@ class TemplateList extends React.Component<any> {
     });
   }
 
+  genConfigureServiceKey() {
+    this.serviceSum ++;
+    return `${this.serviceSum}-${genRandomString('0123456789')}`;
+  }
+
+  handleDeploy = async record => {
+    const { getAppTemplateDetail, setFormFields } = this.props;
+    const { name } = record;
+    const version = record.versions[0].version;
+    const result = await getAppTemplateDetail(name, version);
+    if (result.error) {
+      return;
+    }
+    const { detail, chart } = result.response.result.data;
+    const templateArray = [];
+    formatServiceToArrry(detail, templateArray);
+    templateArray.reverse();
+    templateArray.forEach(temp => {
+      const id = this.genConfigureServiceKey();
+      const values = parseToFields(temp, chart);
+      setFormFields(id, values);
+    });
+    setTimeout(() => {
+      const { fields } = this.props;
+      const firstID = Object.keys(fields)[0];
+      const currentFields = fields[firstID];
+      const { imageUrl, imageTag, appPkgID } = currentFields;
+      const [registryServer, ...imageArray] = imageUrl.value.split('/');
+      const imageName = imageArray.join('/');
+      const query = {
+        imageName,
+        registryServer,
+        tag: imageTag.value,
+        key: firstID,
+        from: 'appcenter',
+        template: 'true',
+      };
+      if (appPkgID) {
+        const type = imageName.split('/')[1];
+        const fileType = getWrapFileType(type);
+        Object.assign(query, { appPkgID: appPkgID.value, isWrap: true, fileType });
+      }
+      browserHistory.push(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_CONFIG_HASH}`);
+    });
+  }
+
   renderTemplateList = () => {
     const { templateList, isFetching } = this.props;
     if (isFetching) {
@@ -121,25 +171,30 @@ class TemplateList extends React.Component<any> {
     }
     return (templateList || []).map(temp => {
       const content = (
-        <div>
-          <div key="delete" className="pointer" onClick={() => this.handleDelete(temp)}>删除</div>
+        <div className="templateInnerPopover">
+          {/* <div key="clone" className="pointer">克隆</div> */}
           <div key="edit" className="pointer" onClick={() => this.handleEdit(temp)}>修改</div>
-          <div key="clone" className="pointer">克隆</div>
+          <div key="delete" className="pointer" onClick={() => this.handleDelete(temp)}>删除</div>
         </div>
       );
       return (
         <div key={temp.name} className="templateList">
-          <span className="version">{temp.versions[0].apiVersion}</span>
-          <Popover placement="right" content={content}>
-            <Icon className="operation" type="bars" />
-          </Popover>
-          <img className="tempLogo" src={defaultApp}/>
+          <div className="templateHeader">
+            {/* <span className="version">{temp.versions[0].apiVersion}</span> */}
+            <Popover
+              placement="bottomLeft"
+              content={content}
+              overlayClassName="templatePopover"
+              overlayStyle={{ width: 100 }}
+            >
+              <Icon className="operation" type="setting" />
+            </Popover>
+            <img className="tempLogo" src={defaultApp}/>
+            <div className="templateDesc">{temp.versions[0].description}</div>
+          </div>
           <div className="templateFooter">
-            <div>{temp.name}</div>
-            <div className="descAndDeploy">
-              <div className="tempDesc">{formatDate(temp.versions[0].lastUpdate)}</div>
-              <Button className="deploy" type="primary" onClick={() => this.handleDeploy()}>部署</Button>
-            </div>
+            <div className="templateName">{temp.name}</div>
+            <Button className="deploy" type="ghost" onClick={() => this.handleDeploy(temp)}>部署</Button>
           </div>
         </div>
       );
@@ -199,7 +254,7 @@ class TemplateList extends React.Component<any> {
 }
 
 const mapStateToProps = state => {
-  const { appTemplates } = state;
+  const { appTemplates, quickCreateApp } = state;
   const { templates } = appTemplates;
   const { data: templateData, isFetching } = templates || { data: {} };
   const { data: templateList, total } = templateData || { data: [], total: 1 };
@@ -207,10 +262,13 @@ const mapStateToProps = state => {
     templateList,
     total,
     isFetching,
+    fields: quickCreateApp.fields,
   };
 };
 
 export default connect(mapStateToProps, {
-  getAppTemplateList: templateActions.getTemplateList,
-  deleteAppTemplate: templateActions.deleteAppTemplate,
+  getAppTemplateList: TemplateActions.getTemplateList,
+  deleteAppTemplate: TemplateActions.deleteAppTemplate,
+  getAppTemplateDetail: TemplateActions.getAppTemplateDetail,
+  setFormFields: QuickCreateAppActions.setFormFields,
 })(TemplateList);

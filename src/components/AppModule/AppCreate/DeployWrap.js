@@ -13,7 +13,7 @@ import QueueAnim from 'rc-queue-anim'
 import { Link, browserHistory } from 'react-router'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { wrapManageList, getWrapStoreList,getImageTempate } from '../../../actions/app_center'
+import { wrapManageList, getWrapStoreList,getImageTemplate } from '../../../actions/app_center'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../constants'
 import { API_URL_PREFIX } from '../../../constants'
 import { formatDate } from '../../../common/tools'
@@ -48,7 +48,7 @@ class WrapManage extends Component {
   componentWillMount() {
     const { location } = this.props
     const { from, fileName } = location.query
-    this.props.getImageTempate(DEFAULT_REGISTRY,{
+    this.props.getImageTemplate(DEFAULT_REGISTRY,{
       success:{
         func:(res) => {
           window.template = res.template
@@ -542,6 +542,6 @@ WrapManage = Form.create()(WrapManage)
 
 export default connect(mapStateToProps, {
   wrapManageList,
-  getImageTempate,
+  getImageTemplate,
   getWrapStoreList
 })(WrapManage)

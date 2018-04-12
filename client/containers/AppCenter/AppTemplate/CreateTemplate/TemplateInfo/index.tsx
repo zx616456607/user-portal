@@ -23,6 +23,7 @@ import { parseAmount, getResourceByMemory } from '../../../../../../src/common/t
 import * as templateActions from '../../../../../actions/template';
 import './style/index.less';
 import NotificationHandler from '../../../../../../src/components/Notification';
+import { formatTemplateBody } from './formatTemplateBody';
 
 const FormItem = Form.Item;
 
@@ -139,107 +140,14 @@ class TemplateInfo extends React.Component<any> {
     );
   }
 
-  formatTemplateInfo = (serviceArray: Array): Array => {
-    const copyArr = cloneDeep(serviceArray);
-    copyArr = copyArr.reverse();
-    copyArr.forEach((item, index, arr) => {
-      if (index < arr.length - 1) {
-        item.dependencies = [copyArr[index + 1]];
-      }
-    });
-    return [copyArr[0]];
-  }
-
-  formatTemplateBody = () => {
-    const { fields, imageConfig, current, loginUser, loadBalanceList } = this.props;
-    const serviceArray: Array = [];
-    let accessType: string = '';
-    let loadBalanceName: string = '';
-    let chart: object = {};
-    let info: Array = [];
-    let count = 0;
-    const fieldsLength = Object.keys(fields).length;
-    for (let [key, value] of Object.entries(fields)) {
-      count ++;
-      let serviceOption = {};
-      let content: Array = [];
-      if (fields.hasOwnProperty(key)) {
-        let json = buildJson(value, current.cluster, loginUser, imageConfig, true);
-        content.push(yaml.dump(json.deployment));
-        content.push(yaml.dump(json.service));
-        json.storage.forEach(item => {
-          content.push(yaml.dump(item));
-        });
-        Object.assign(serviceOption, {
-          chart: {
-            name: count === fieldsLength ? value.templateName.value : value.serviceName.value,
-            version: value.templateVersion.value,
-            description: value.templateDesc.value,
-          },
-        });
-        if (value.accessType && value.accessType.value === 'loadBalance') {
-          accessType = value.accessType.value;
-          let lbKeys = value.lbKeys.value;
-          lbKeys.forEach(item => {
-            const items = [];
-            const { host } = value[`ingress-${item}`].value;
-            const [hostname, ...path] = host.split('/');
-            items.push({
-              serviceName: value.serviceName.value,
-              servicePort: parseInt(value[`port-${item}`].value, 10),
-              weight: 1,
-            });
-            const body = {
-              host: hostname,
-              path: path ? '/' + path.join('/') : '',
-              items,
-            };
-            let ingresses: Array = [];
-            if (!loadBalanceName) {
-              loadBalanceName = getFieldsValues(value).loadBalance;
-            }
-            if (loadBalanceName) {
-              const currentLB = loadBalanceList.filter(lb => loadBalanceName === lb.metadata.name)[0];
-              const { displayName, className } = currentLB.metadata.annotations;
-              const lbObj = {
-                lbName: loadBalanceName,
-                displayName,
-                className,
-              };
-              Object.assign(serviceOption, { loadbalance: lbObj });
-            }
-            ingresses.push(Object.assign(value[`ingress-${item}`].value, body));
-            if (!isEmpty(ingresses)) {
-              Object.assign(serviceOption, { ingresses });
-            }
-          });
-        }
-        content = content.join('---\n');
-        Object.assign(serviceOption, { content });
-        if (!chart.name) {
-          chart.name = getFieldsValues(value).templateName;
-        }
-        if (!chart.version) {
-          chart.version = getFieldsValues(value).templateVersion;
-        }
-        if (!chart.description) {
-          chart.description = getFieldsValues(value).templateDesc;
-        }
-      }
-      serviceArray.push(serviceOption);
-    }
-    info = this.formatTemplateInfo(serviceArray);
-    return { chart, info };
-  }
-
   confirmTemplate = async () => {
-    const { loginUser, createTemplate, current, form } = this.props;
+    const { loginUser, createTemplate, current, form, imageConfig } = this.props;
     const { clusterID } = current.cluster;
     form.validateFields(async (errors, values) => {
       if (!!errors) {
         return;
       }
-      const body = this.formatTemplateBody();
+      const body = formatTemplateBody(this.props, imageConfig);
       notify.spin('模板创建中');
       this.setState({
         confirmLoading: true,

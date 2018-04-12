@@ -54,9 +54,30 @@ exports.getTemplateDetail = function* () {
 exports.deployTemplateCheck = function* () {
   const loginUser = this.session.loginUser;
   const cluster = this.params.cluster;
+  const name = this.params.name;
+  const version = this.params.version;
+  const api = apiFactory.getApi(loginUser);
+  const result = yield api.templates.getBy(['helm', name, 'versions', version, 'clusters', cluster]);
+  this.body = result;
+}
+
+// deploy template
+exports.deployTemplate = function* () {
+  const loginUser = this.session.loginUser;
+  const name = this.params.name;
+  const version = this.params.version;
+  const cluster = this.params.cluster;
   const body = this.request.body;
+  const api = apiFactory.getApi(loginUser);
+  const result = yield api.templates.createBy(['helm', name, 'versions', version, 'clusters', cluster], null, body);
+  this.body = result;
+}
+
+// template name check
+exports.templateNameCheck = function* () {
+  const loginUser = this.session.loginUser;
   const name = this.params.name;
   const api = apiFactory.getApi(loginUser);
-  const result = yield api.templates.createBy(['helm', name, 'clusters', cluster], query, body);
+  const result = yield api.templates.getBy(['helm', name]);
   this.body = result;
 }

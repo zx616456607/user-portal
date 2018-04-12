@@ -11,27 +11,34 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Card, Row, Col, Steps, Button, Modal, Icon, Tooltip, Spin } from 'antd'
+import { Card, Row, Col, Steps, Button, Modal, Icon, Tooltip, Spin, Timeline, Popover } from 'antd'
 import { browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
 import yaml from 'js-yaml'
+import isEmpty from 'lodash/isEmpty'
 import SelectImage from './SelectImage'
 import ConfigureService from './ConfigureService'
 import DepolyWrap from '../AppCreate/DeployWrap'
+import TemplateTable from '../../../../client/containers/AppModule/QuickCreateApp/SelectTemplate'
 import ResourceQuotaModal from '../../ResourceQuotaModal'
 import NotificationHandler from '../../../components/Notification'
 import {
   genRandomString, toQuerystring, getResourceByMemory, parseAmount,
-  isResourcePermissionError,
+  isResourcePermissionError, formatServiceToArrry, getWrapFileType
 } from '../../../common/tools'
+import { DEFAULT_REGISTRY } from '../../../constants'
 import { removeFormFields, removeAllFormFields, setFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
 import { addService, loadServiceList } from '../../../actions/services'
 import { createAppIngress } from '../../../actions/load_balance'
+import { getAppTemplateDetail, appTemplateDeploy, appTemplateDeployCheck, removeAppTemplateDeployCheck } from '../../../../client/actions/template'
+import { getImageTemplate } from '../../../actions/app_center'
 import { buildJson, getFieldsValues, formatValuesToFields } from './utils'
 import './style/index.less'
 import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
+import { parseToFields } from '../../../../client/containers/AppCenter/AppTemplate/CreateTemplate/parseToFields'
+import { formatTemplateBody } from '../../../../client/containers/AppCenter/AppTemplate/CreateTemplate/TemplateInfo/formatTemplateBody'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -51,7 +58,7 @@ class QuickCreateApp extends Component {
     this.renderFooterSteps = this.renderFooterSteps.bind(this)
     this.goSelectCreateAppMode = this.goSelectCreateAppMode.bind(this)
     this.saveService = this.saveService.bind(this)
-    this.editService = this.editService.bind(this)
+    // this.editService = this.editService.bind(this)
     this.setConfig = this.setConfig.bind(this)
     this.genConfigureServiceKey = this.genConfigureServiceKey.bind(this)
     this.getAppResources = this.getAppResources.bind(this)
@@ -115,10 +122,47 @@ class QuickCreateApp extends Component {
 
   componentWillMount() {
     this.setConfig(this.props)
-    const { location, fields } = this.props
+    const { location, fields, template:templateList, getImageTemplate } = this.props
     const { hash, query } = location
-    const { imageName, registryServer, key } = query
+    const { imageName, registryServer, key, from, template } = query
+    if (template && key) {
+      this.deployCheck(this.props)
+    }
+    if (isEmpty(templateList)) {
+      getImageTemplate(DEFAULT_REGISTRY)
+    }
     this.getExistentServices()
+    // 从交付中心跳转过来
+    if (from && from === 'appcenter') {
+      this.configureMode = 'edit';
+      this.editServiceKey = key;
+      const currentFields = fields[key]
+      if (currentFields.appPkgID) {
+        const { imageUrl, appPkgID } = currentFields
+        const [registryServer, ...imageArray] = imageUrl.value.split('/');
+        const imageName = imageArray.join('/');
+        const type = imageName.split('/')[1];
+        const fileType = getWrapFileType(type);
+        let newTemplateList = templateList
+        if (isEmpty(templateList)) {
+          getImageTemplate(DEFAULT_REGISTRY).then(res => {
+            newTemplateList = res.response.result.template
+            let currentTemplate = newTemplateList.filter(item => item.type === fileType)[0]
+            let newImageName = currentTemplate.name;
+            this.setState({
+              newImageName
+            })
+          })
+        } else {
+          let currentTemplate = newTemplateList.filter(item => item.type === fileType)[0]
+          let newImageName = currentTemplate.name;
+          this.setState({
+            newImageName
+          })
+        }
+      }
+      return
+    }
     if ((hash === SERVICE_CONFIG_HASH && !imageName) || hash === SERVICE_EDIT_HASH) {
       browserHistory.replace('/app_manage/app_create/quick_create')
     } else if (hash !== SERVICE_CONFIG_HASH && imageName && registryServer) {
@@ -128,7 +172,13 @@ class QuickCreateApp extends Component {
 
   componentWillUnmount() {
     this.removeAllFormFieldsAsync(this.props)
+    this.removeDeployCheck(this.props)
     window.WrapListTable = null
+  }
+
+  removeDeployCheck = (props) => {
+    const { removeAppTemplateDeployCheck } = this.props;
+    setTimeout(removeAppTemplateDeployCheck);
   }
 
   getExistentServices() {
@@ -209,6 +259,27 @@ class QuickCreateApp extends Component {
     if (query.imageName) {
       this.setState({imageName:query.imageName})
     }
+    if (query.key && !this.props.location.query.key) {
+      this.deployCheck(nextProps)
+    }
+  }
+
+  deployCheck = async (props) => {
+    const { appTemplateDeployCheck, current, templateDetail } = props;
+    const { clusterID } = current.cluster;
+    const { data } = templateDetail;
+    const { chart } = data;
+    const { name, version } = chart;
+    const result = await appTemplateDeployCheck(clusterID, name, version)
+    const { templateDeployCheck } = this.props;
+    if (isEmpty(templateDeployCheck.data)) {
+      return
+    }
+    const errorData = templateDeployCheck.data;
+    const flag = errorData.some(item => !isEmpty(item.content))
+    this.setState({
+      resourceError: flag
+    })
   }
 
   setConfig(props) {
@@ -245,6 +316,51 @@ class QuickCreateApp extends Component {
       registryServer,
     }
     browserHistory.push(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_CONFIG_HASH}`)
+  }
+
+  onSelectTemplate = async record => {
+    const { getAppTemplateDetail, setFormFields } = this.props;
+    const { name } = record;
+    const version = record.versions[0].version;
+    const result = await getAppTemplateDetail(name, version);
+    if (result.error) {
+      return;
+    }
+    const { detail, chart } = result.response.result.data;
+    const templateArray = [];
+    formatServiceToArrry(detail, templateArray);
+    templateArray.reverse();
+    templateArray.forEach(temp => {
+      const id = this.genConfigureServiceKey();
+      const values = parseToFields(temp, chart);
+      setFormFields(id, values);
+    });
+    let url = '/app_manage/app_create/quick_create'
+    setTimeout(() => {
+      const { fields, location } = this.props;
+      const firstID = Object.keys(fields)[0];
+      const currentFields = fields[firstID];
+      const { imageUrl, imageTag } = currentFields;
+      const [registryServer, ...imageArray] = imageUrl.value.split('/');
+      const imageName = imageArray.join('/');
+      const query = {
+        imageName,
+        registryServer,
+        tag: imageTag.value,
+        key: firstID,
+      };
+      Object.assign(query, {...location.query})
+      if (location.query.appName) {
+        this.configureMode = 'create';
+        this.configureServiceKey = firstID;
+        url += `?${toQuerystring(query)}${SERVICE_CONFIG_HASH}`
+      } else {
+        this.configureMode = 'edit';
+        this.editServiceKey = firstID;
+        url += `?${toQuerystring(query)}${SERVICE_EDIT_HASH}`
+      }
+      browserHistory.push(url)
+    });
   }
 
   goSelectCreateAppMode() {
@@ -291,16 +407,24 @@ class QuickCreateApp extends Component {
   }
 
   goSelectImage() {
-    if (this.configureMode === 'edit') {
+    const { template } = this.props.location.query
+    if (!template && this.configureMode === 'edit') {
       return
     }
     this.setState({
       stepStatus: 'process',
     })
-    const { removeFormFields, location } = this.props
+    const { removeAllFormFields, location } = this.props
     if (location.query.appPkgID) {
       // browserHistory.push('/app_manage/deploy_wrap')
       browserHistory.goBack()
+      return
+    }
+    if (template) {
+      setTimeout(() => {
+        removeAllFormFields()
+      })
+      browserHistory.push('/app_manage/app_create/quick_create?template=true')
       return
     }
     const { validateFieldsAndScroll } = this.form
@@ -358,6 +482,35 @@ class QuickCreateApp extends Component {
     })
   }
 
+  createAppByTemplate = async () => {
+    const { appTemplateDeploy, fields, current } = this.props;
+    const { clusterID } = current.cluster
+    const body = formatTemplateBody(this.props, this.imageConfigs, true);
+    const firstField = Object.values(fields)[0];
+    const appName = getFieldsValues(firstField).appName;
+    body.name = appName;
+    const { name, version } = body.chart;
+    const result = await appTemplateDeploy(clusterID, name, version, body);
+    if (result.error) {
+      return
+      this.setState({
+        stepStatus: 'error',
+        isCreatingApp: false,
+      })
+    }
+    this.setState({
+      stepStatus: 'finish',
+      isCreatingApp: false,
+    })
+    let redirectUrl
+    if (this.action === 'addService') {
+      redirectUrl = `/app_manage/detail/${this.state.appName}`
+    } else {
+      redirectUrl = '/app_manage'
+    }
+    browserHistory.push(redirectUrl)
+  }
+
   createAppOrAddService() {
     this.setState({
       isCreatingApp: true,
@@ -368,6 +521,10 @@ class QuickCreateApp extends Component {
       createApp, addService,location,
       createAppIngress
     } = this.props
+    if (location.query.template) {
+      this.createAppByTemplate()
+      return
+    }
     const { clusterID } = current.cluster
     let template = []
     let appPkgID = {}
@@ -559,8 +716,8 @@ class QuickCreateApp extends Component {
   renderBody() {
     const { location } = this.props
     const { hash, query } = location
-    const { key, addWrap } = query
-    const { imageName, registryServer, appName, editServiceLoading, AdvancedSettingKey } = this.state
+    const { key, addWrap, template } = query
+    const { imageName, registryServer, appName, editServiceLoading, AdvancedSettingKey, newImageName } = this.state
     if ((hash === SERVICE_CONFIG_HASH && imageName) || (hash === SERVICE_EDIT_HASH && key)) {
       const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey
       if (editServiceLoading) {
@@ -576,7 +733,7 @@ class QuickCreateApp extends Component {
               this.imageConfigs = configs
             }
           }
-          {...{imageName, registryServer, appName}}
+          {...{imageName, registryServer, appName, newImageName}}
           {...this.props}
           AdvancedSettingKey={AdvancedSettingKey}
         />
@@ -584,6 +741,8 @@ class QuickCreateApp extends Component {
     }
     if (addWrap) {
       return <DepolyWrap goBack={this.goSelectCreateAppMode}  location={location} quick_create={'quick_create'}/>
+    } else if (template) {
+      return <TemplateTable location={location} onChange={this.onSelectTemplate}/>
     }
     return <SelectImage location={location} onChange={this.onSelectImage} />
   }
@@ -640,11 +799,12 @@ class QuickCreateApp extends Component {
   renderFooterSteps() {
     const { location } = this.props
     const { hash, query } = location
+    const { template } = query;
     if (hash === SERVICE_CONFIG_HASH || hash === SERVICE_EDIT_HASH) {
       return (
         <div className="footerSteps">
           <div className="configureSteps">
-            <div className="left">
+            <div className={classNames("left", {'hidden': template})}>
               继续添加：
               <Button.Group>
                 <Button size="large" onClick={this.saveService}>容器镜像</Button>
@@ -655,7 +815,7 @@ class QuickCreateApp extends Component {
               <Button
                 size="large"
                 onClick={this.goSelectImage}
-                disabled={this.configureMode === 'edit'}
+                disabled={!template && this.configureMode === 'edit'}
               >
                 上一步
               </Button>
@@ -681,10 +841,28 @@ class QuickCreateApp extends Component {
     )
   }
 
-  editService(key) {
-    const { location } = this.props
-    const { hash } = location
+  editService = (key) => {
+    const { location, fields, template } = this.props
+    const { hash, query: oldQuery } = location
     const query = { key }
+    const currentFields = fields[key]
+
+    if (oldQuery.template) {
+      Object.assign(query, { template: oldQuery.template })
+    }
+    if (currentFields.appPkgID) {
+      const { imageUrl, appPkgID } = currentFields
+      const [registryServer, ...imageArray] = imageUrl.value.split('/');
+      const imageName = imageArray.join('/');
+      const type = imageName.split('/')[1];
+      const fileType = getWrapFileType(type);
+      Object.assign(query, { isWrap: true, fileType, appPkgID: appPkgID.value })
+      let currentTemplate = template.filter(item => item.type === fileType)[0]
+      let newImageName = currentTemplate.name;
+      this.setState({
+        newImageName
+      })
+    }
     const url = `/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_EDIT_HASH}`
     const currentStep = this.getStepsCurrent()
     // 在选择镜像界面
@@ -704,6 +882,12 @@ class QuickCreateApp extends Component {
           }
           notification.warn(message)
           return
+        }
+        if (values.appName) {
+          this.setState({
+            appName: values.appName
+          })
+          this.action = 'addService'
         }
         this.setState({ editServiceLoading: true }, () => {
           this.saveService({ noJumpPage: true })
@@ -735,9 +919,42 @@ class QuickCreateApp extends Component {
     })
   }
 
+  renderServiceError = name => {
+    const { templateDeployCheck, fields } = this.props
+    if (isEmpty(templateDeployCheck) || !templateDeployCheck.data) {
+      return
+    }
+    const { data } = templateDeployCheck
+    const valuesArray = Object.values(fields)
+    const currentFields = valuesArray.filter(item => item.serviceName.value === name)[0]
+    let errorArray = []
+    for (let [key, value] of Object.entries(currentFields)) {
+      if (value.errors) {
+        errorArray = errorArray.concat(value.errors)
+      }
+    }
+    if (isEmpty(errorArray)) {
+      return
+    }
+    const children = errorArray.map(item =>
+      <div>{item}</div>
+    )
+    const content = (
+      <div>
+        {children}
+      </div>
+    )
+    return (
+      <Popover content={content} placement="topLeft">
+        <Icon type="exclamation-circle-o" className="failedColor" style={{ marginLeft: 10 }}/>
+      </Popover>
+    )
+  }
+
   renderServiceList() {
     const { fields, location } = this.props
     const { serviceList } = this.state
+    const { template } = location.query
     let newServiceList = []
     const currentStep = this.getStepsCurrent()
     const _serviceNameList = []
@@ -762,18 +979,18 @@ class QuickCreateApp extends Component {
           _serviceNameList.push(serviceName.value)
           newServiceList.push(
             <Row className={rowClass} key={serviceName.value}>
-              <Col span={12} className="textoverflow">
-                {serviceName.value}
+              <Col span={12} className={classNames("textoverflow", { 'pointer': template })} onClick={template ? () => this.editService(key) : null}>
+                {serviceName.value}{this.renderServiceError(serviceName.value)}
               </Col>
               <Col span={12} className="btns">
                 {
-                  (currentStep === 1 || !isRowActive) && (
+                  !template && (currentStep === 1 || !isRowActive) && (
                     <div>
                       <Tooltip title="修改">
                         <Button
                           type="dashed"
                           size="small"
-                          onClick={this.editService.bind(this, key)}
+                          onClick={() => this.editService(key)}
                         >
                           <Icon type="edit" />
                         </Button>
@@ -841,16 +1058,80 @@ class QuickCreateApp extends Component {
     }
   }
 
+  formatErrorType = record => {
+    const { setFields, getFieldsValue } = this.form;
+    switch (record.type) {
+      case 0:
+        return <span>nfs集群 <span className="themeColor">{record.resourceName}</span> 不存在</span>
+      case 1:
+        return <span>ceph集群 <span  className="themeColor">{record.resourceName}</span> 不存在</span>
+      case 2:
+        return <span>应用负载均衡器 <span className="themeColor">{record.resourceName}</span> 不存在</span>
+      case 3:
+        return <span>集群未添加公网出口</span>
+      case 4:
+        return <span>集群未添加内网出口</span>
+      case 5:
+        return <span>配置组 <span  className="themeColor">{record.resourceName}</span> 名称重复</span>
+      case 6:
+        return <span>加密配置 <span  className="themeColor">{record.resourceName}</span> 不存在</span>
+      case 7:
+        return <span>集群禁用本地存储</span>
+      case 8:
+        return <span>没有安装amp</span>
+      default:
+        return
+    }
+  }
+
+  renderResourceError = () => {
+    const { templateDeployCheck } = this.props;
+    if (isEmpty(templateDeployCheck) || !templateDeployCheck.data) {
+      return
+    }
+    const { data } = templateDeployCheck
+    const children = data.map(item => {
+      return (
+        <div className="resourceList">
+          <div className="themeColor serviceName">{item.name}</div>
+          <Timeline className="resourceTimeline">
+            {
+              item.content.map(record => {
+                return <Timeline.Item>{this.formatErrorType(record)}</Timeline.Item>
+              })
+            }
+          </Timeline>
+        </div>
+      )
+    })
+    return (
+      <div>
+        <div className="resourceHint">以下模板引用资源不存在或不可用，您可以点击放弃，待解决资源故障后再行创建应用；或点击继续，手动修改服务配置，然后创建应用</div>
+        {children}
+      </div>
+    )
+  }
+
+  cancelResourceModal = () => {
+    const { removeAllFormFields } = this.props;
+    this.setState({
+      resourceError: false
+    })
+    setTimeout(removeAllFormFields);
+    browserHistory.goBack()
+  }
+
   render() {
     const { current, location, billingEnabled } = this.props
     const {
       confirmGoBackModalVisible, confirmSaveModalVisible, isCreatingApp,
-      stepStatus,
+      stepStatus, resourceError
     } = this.state
+    const { template } = location.query
     const steps = (
       <Steps size="small" className="steps" status={stepStatus} current={this.getStepsCurrent()}>
         <Step title="部署方式" />
-        <Step title="选择镜像" />
+        <Step title={template ? '选择模板' : "选择镜像"} />
         <Step title="配置服务" />
       </Steps>
     )
@@ -959,6 +1240,17 @@ class QuickCreateApp extends Component {
             closeModal={() => this.setState({resourceQuotaModal: false})}
             {...this.state.resourceQuota}
           />
+          <Modal
+            className="resourceErrorModal"
+            title="资源故障"
+            visible={resourceError}
+            onCancel={this.cancelResourceModal}
+            onOk={() => this.setState({ resourceError: false })}
+            okText="继续"
+            cancelText="放弃"
+          >
+            {this.renderResourceError()}
+          </Modal>
         </div>
       </div>
     )
@@ -966,14 +1258,18 @@ class QuickCreateApp extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { quickCreateApp, entities } = state
+  const { quickCreateApp, entities, loadBalance, appTemplates } = state
   const { location } = props
-  const { wrapList } = state.images
+  const { wrapList, wrapTemplate } = state.images
   const { loginUser, current } = entities
   const { billingConfig } = loginUser.info
   const { enabled: billingEnabled } = billingConfig
+  const { loadBalanceList } = loadBalance || { loadBalanceList: {} };
+  const { data: lbList } = loadBalanceList || { data: [] };
+  const { templateDetail, templateDeployCheck } = appTemplates;
   const list = wrapList || {}
   let datalist = { pkgs: [], total: 0 }
+  const { template } = wrapTemplate || { template: [] }
   if (list.result) {
     datalist = list.result.data
   }
@@ -983,7 +1279,11 @@ function mapStateToProps(state, props) {
     current: current,
     loginUser: loginUser.info,
     wrapList: datalist,
-    billingEnabled
+    billingEnabled,
+    loadBalanceList: lbList,
+    templateDetail,
+    templateDeployCheck,
+    template
   }
 }
 
@@ -994,5 +1294,10 @@ export default connect(mapStateToProps, {
   addService,
   loadServiceList,
   setFormFields,
-  createAppIngress
+  createAppIngress,
+  getAppTemplateDetail,
+  appTemplateDeploy,
+  appTemplateDeployCheck,
+  removeAppTemplateDeployCheck,
+  getImageTemplate
 })(QuickCreateApp)

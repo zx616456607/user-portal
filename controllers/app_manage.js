@@ -144,7 +144,8 @@ exports.getApps = function* () {
 
 exports.deleteApps = function* () {
   const cluster = this.params.cluster
-  const apps = this.request.body
+  const body = this.request.body
+  const apps = body.apps
   if (!apps) {
     const err = new Error('App names is required.')
     err.status = 400
@@ -173,7 +174,7 @@ exports.deleteApps = function* () {
       })
     }
   }
-  const result = yield api.batchDeleteBy([cluster, 'apps', 'batch-delete'], null, { apps })
+  const result = yield api.batchDeleteBy([cluster, 'apps', 'batch-delete'], null, body)
   this.body = {
     cluster,
     data: result

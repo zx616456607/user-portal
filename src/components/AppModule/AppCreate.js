@@ -18,7 +18,7 @@ class AppCreate extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      createModel: 'quick'
+      createModel: 'template'
     }
   }
   render() {

@@ -465,7 +465,7 @@ const MyComponent = React.createClass({
           }
           const key = camelize('ingress-lb')
           if (
-            k8sService.metadata.annotations && 
+            k8sService.metadata.annotations &&
             k8sService.metadata.annotations[key] &&
             !isEmpty(k8sService.metadata.annotations[key])
           ) {
@@ -1078,8 +1078,15 @@ class ServiceList extends Component {
         removeTerminal(cluster, item.metadata.name)
       })
     }
-
-    const serviceNames = checkedServiceList.map((service) => service.metadata.name)
+    const serviceNames = []
+    const releaseNames = []
+    checkedServiceList.forEach(service => {
+      serviceNames.push(service.metadata.name)
+      let releaseName = service.metadata.labels.releaseName
+      if (releaseName && !releaseNames.includes(releaseName)) {
+        releaseNames.push(releaseName)
+      }
+    })
     const allServices = self.state.serviceList
 
     allServices.map((service) => {
@@ -1095,7 +1102,7 @@ class ServiceList extends Component {
       restartBtn:false,
       serviceList: allServices
     })
-    deleteServices(cluster, serviceNames, {
+    deleteServices(cluster, {services: serviceNames, releaseNames}, {
       success: {
         func: () => {
           self.loadServices(self.props)
