@@ -142,7 +142,20 @@ module.exports = {
         use: [
           'style-loader',
           'css-loader',
-          'less-loader',
+          {
+            loader: 'less-loader',
+            options: {
+              modifyVars: {
+                // "@primary-color": "#2db7f5",
+                // "@success-color": "#5cb85c",
+                // "@warning-color": "#ffbf00",
+                // "@error-color": "#f85a5a",
+                // "@a-hover-color": "#57cfff",
+                // "@font-size-base": "12px",
+                "@icon-url": "'/font/antd_local_webfont/1.11/iconfont'"
+              }
+            }
+          },
           {
             loader: 'postcss-loader',
             options: postcssConfig,
