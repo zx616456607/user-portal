@@ -40,17 +40,6 @@ import ChartComponent from './ChartComponent'
 const FormItem = Form.Item
 const Option = Select.Option
 
-const adminTypeArr = [{
-  key: 'service',
-  text: '服务'
-}, {
-  key: 'node',
-  text: '节点'
-}, {
-  key: 'nexport',
-  text: '网络出口'
-}]
-
 const defaultTypeArr = [{
   key: 'service',
   text: '服务'
@@ -360,10 +349,8 @@ class MonitorChartModal extends React.Component {
       failed: {
         func: res => {
           notify.close()
-          if (res.statusCode < 500) {
-            notify.warn('删除失败', res.message)
-          } else {
-            notify.error('删除失败', res.message)
+          if (res.statusCode !== 403) {
+            notify.warn('删除失败', res.message.message || res.message)
           }
           this.setState({
             deleteModal: false,
@@ -436,10 +423,8 @@ class MonitorChartModal extends React.Component {
           failed: {
             func: res => {
               notify.close()
-              if (res.statusCode < 500) {
-                notify.warn('修改失败', res.message)
-              } else {
-                notify.error('修改失败', res.message)
+              if (res.statusCode !== 403) {
+                notify.warn('修改失败', res.message.message || res.message)
               }
               this.cancelModal()
               this.setState({
@@ -466,10 +451,8 @@ class MonitorChartModal extends React.Component {
           failed: {
             func: res => {
               notify.close()
-              if (res.statusCode < 500) {
-                notify.warn('创建失败', res.message)
-              } else {
-                notify.error('创建失败', res.message)
+              if (res.statusCode !== 403) {
+                notify.warn('创建失败', res.message.message || res.message)
               }
               this.cancelModal()
               this.setState({
@@ -519,6 +502,7 @@ class MonitorChartModal extends React.Component {
       labelCol: { span: 7 },
       wrapperCol: { span: 17 }
     }
+    let metrics_type = getFieldValue('metrics_type')
     let chartDate = !isEmpty(previewMetrics.data) ? previewMetrics : monitorMetrics
     let defaultNexport = ''
     let initialTarget
@@ -530,6 +514,9 @@ class MonitorChartModal extends React.Component {
         defaultNexport = contentKey
       }
       initialTarget = content[contentKey]
+      if (metrics_type === 'service') {
+        initialTarget = initialTarget[0]
+      }
     }
     const nameProps = getFieldProps('name', {
       rules: [
@@ -565,7 +552,6 @@ class MonitorChartModal extends React.Component {
       ]
     })
 
-    let metrics_type = getFieldValue('metrics_type')
     const isNexport = metrics_type === 'nexport'
     let targetTypeChildren
     let targetChildren
@@ -578,7 +564,7 @@ class MonitorChartModal extends React.Component {
           validator: this.targetCheck
         }
       ],
-      initialValue: initialTarget ? initialTarget : [],
+      initialValue: initialTarget ? initialTarget : (metrics_type === 'service' ? '' : []),
       onChange: this.changeTarget
     })
     if (isNexport) {
@@ -593,8 +579,7 @@ class MonitorChartModal extends React.Component {
       })
     }
 
-    let typeArr = isAdmin ? adminTypeArr : defaultTypeArr
-    targetTypeChildren = typeArr.map(item => {
+    targetTypeChildren = defaultTypeArr.map(item => {
       return <Option key={item.key} disabled={item.disabled}>{item.text}</Option>
     })
 
