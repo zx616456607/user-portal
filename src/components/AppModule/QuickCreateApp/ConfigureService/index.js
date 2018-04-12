@@ -61,7 +61,7 @@ let ConfigureService = React.createClass({
     }
   },
   componentWillMount() {
-    const { callback, imageName, registryServer, form, mode, location, isTemplate, template, newImageName } = this.props
+    const { callback, imageName, registryServer, form, mode, location, template, newImageName } = this.props
     let  { appName,templateName, templateVersion, templateDesc } = this.props
     const { setFieldsValue } = form
     callback && callback(form)
@@ -74,7 +74,7 @@ let ConfigureService = React.createClass({
       const values = {
         imageUrl: `${registryServer}/${imageName}`,
       }
-      if (location.query.appPkgID) {
+      if (location.query.appPkgID && location.query.template) {
         values.imageUrl = `${registryServer}/${newImageName}`
       }
       appName = location.query.appName || appName
@@ -241,8 +241,7 @@ let ConfigureService = React.createClass({
       loadOtherDetailTagConfig,
       loadRepositoriesTagConfigInfo,
       imageName,
-      location,
-      isTemplate
+      location
     } = this.props
     if (images) {
       imageName = images
@@ -255,10 +254,9 @@ let ConfigureService = React.createClass({
     const callback = {
       success: {
         func: (result) => {
-          if (mode !== 'create' || (pathname.includes('app_manage/app_create/quick_create') && query.template)) {
-            return
+          if (mode === 'create' || (mode === 'edit' && pathname.includes('app_manage/app_create/quick_create') && query.template)) {
+            this.setConfigsToForm(result.configInfo || result.data)
           }
-          this.setConfigsToForm(result.configInfo || result.data)
         },
         isAsync: true
       }
@@ -428,6 +426,7 @@ let ConfigureService = React.createClass({
     if (errorMsg !== 'success') {
       return callback(errorMsg)
     }
+    return callback()
     clearTimeout(this.templateNameCheckTimeout)
     this.templateNameCheckTimeout = setTimeout(() => {
       appTemplateNameCheck(value, {
@@ -670,7 +669,7 @@ let ConfigureService = React.createClass({
                 ref="serviceNameInput"
               />
             </FormItem>
-            {isWrap === 'true' && newImageName &&
+            {isWrap === 'true' &&
             <FormItem {...formItemLayout}
               wrapperCol={{ span: 8 }}
               label="应用包"
@@ -680,7 +679,6 @@ let ConfigureService = React.createClass({
             </FormItem>
             }
             {
-              // (!isTemplate || (isTemplate && isWrap !== 'true')) &&
               (!queryTemplate || (queryTemplate && isWrap !== 'true')) &&
               <FormItem
                 {...formItemLayout}
@@ -698,7 +696,6 @@ let ConfigureService = React.createClass({
               </FormItem>
             }
             {
-              // (!isTemplate || ((isTemplate || queryTemplate) && isWrap !== 'true')) &&
               (!queryTemplate || (queryTemplate && isWrap !== 'true')) &&
               <FormItem
                 {...formItemLayout}
@@ -753,6 +750,7 @@ let ConfigureService = React.createClass({
           createStorage={createStorage}
           imageConfigs={imageConfigs}
           isTemplate={isTemplate}
+          {...{location}}
           key="normal"
         />
         <AssistSetting

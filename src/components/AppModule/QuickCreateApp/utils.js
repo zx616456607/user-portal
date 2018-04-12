@@ -251,7 +251,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   let templateGroup = "none"
   switch(accessMethod){
       case 'PublicNetwork': groupID = publicNetwork; templateGroup = 'PublicNetwork'; break;
-      case 'Internaletwork': groupID = internaletwork; templateGroup = 'InternalNetwork'; break;
+      case 'InternalNetwork': groupID = internaletwork; templateGroup = 'InternalNetwork'; break;
       case 'Cluster':
     default:
       groupID = 'none'; templateGroup = 'Cluster'; break

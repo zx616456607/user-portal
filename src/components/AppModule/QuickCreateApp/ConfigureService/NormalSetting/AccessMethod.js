@@ -32,14 +32,14 @@ class AccessMethod extends Component {
   }
 
   componentWillMount() {
-    const { getProxy, currentCluster, form, isTemplate } = this.props
+    const { getProxy, currentCluster, form, isTemplate, location } = this.props
     const clusterID = currentCluster.clusterID
     const activeKey = form.getFieldValue('accessType');
     if (activeKey) {
       this.setState({ activeKey })
     }
     let clusterId = camelize(currentCluster.clusterID)
-    !isTemplate && getProxy(clusterID, {
+    !location.query.template && getProxy(clusterID, {
       success: {
         func: (res) => {
           let data = res[clusterId].data
@@ -60,7 +60,7 @@ class AccessMethod extends Component {
               if(data[i].type == 'private'){
                 setTimeout(() => {
                   form.setFieldsValue({
-                    accessMethod: 'Internaletwork',
+                    accessMethod: 'InternalNetwork',
                     internaletwork: data[i].id
                   }, 200)
                 })
@@ -86,7 +86,7 @@ class AccessMethod extends Component {
     if (type == 'PublicNetwork') {
       return <span>服务可通过公网访问，选择一个网络出口；</span>
     }
-    if (type == 'Internaletwork') {
+    if (type == 'InternalNetwork') {
       return <span>服务可通过内网访问，选择一个网络出口；</span>
     }
     return <span>服务仅提供给集群内其他服务访问；</span>
@@ -212,7 +212,7 @@ class AccessMethod extends Component {
         </Col>
       </Row>
     }
-    if (type == 'Internaletwork') {
+    if (type == 'InternalNetwork') {
       internaletworkProps = getFieldProps('internaletwork', {
         initialValue: defaultGroup || undefined,
         rules: [{ required: true, message: '请选择一个网络出口' }],
@@ -226,7 +226,7 @@ class AccessMethod extends Component {
             {...internaletworkProps}
             placeholder='选择网络出口'
           >
-            {this.selectOption('Internaletwork')}
+            {this.selectOption('InternalNetwork')}
           </Select>
           </Form.Item>
         </Col>
@@ -261,7 +261,7 @@ class AccessMethod extends Component {
       })
       return
     }
-    if (type == 'Internaletwork') {
+    if (type == 'InternalNetwork') {
       form.setFieldsValue({
         'internaletwork': defaultGroup
       })
@@ -279,7 +279,7 @@ class AccessMethod extends Component {
         if(arr[i].isDefault){
           switch(arr[i].type){
             case "private":
-              return defaultValue = "Internaletwork"
+              return defaultValue = "InternalNetwork"
             case "public":
               return defaultValue = 'PublicNetwork'
             default:
@@ -340,7 +340,7 @@ class AccessMethod extends Component {
             activeKey === 'netExport' &&
             <Radio.Group {...accessMethodProps}>
               <Radio value="PublicNetwork" key="PublicNetwork">可公网访问</Radio>
-              <Radio value="Internaletwork" key="Internaletwork">内网访问</Radio>
+              <Radio value="InternalNetwork" key="InternalNetwork">内网访问</Radio>
               <Radio value="Cluster" key="Cluster">仅在集群内访问</Radio>
             </Radio.Group>
           }

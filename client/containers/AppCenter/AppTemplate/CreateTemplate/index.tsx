@@ -172,7 +172,7 @@ class AppTemplate extends React.Component<IProps, IState> {
     this.imageConfig = imageConfig;
   }
 
-  saveService = async (key: string, isWrap: boolean) => {
+  saveService = (key: string, isWrap: boolean) => {
     const { currentStep } = this.state;
     const { fields, template, getImageTemplate } = this.props;
     const { validateFieldsAndScroll } = this.form;
@@ -182,7 +182,7 @@ class AppTemplate extends React.Component<IProps, IState> {
       template: true,
     };
     let url = `/app_center/template/create`;
-    validateFieldsAndScroll(async (errors, values) => {
+    validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
         return;
       }
@@ -198,12 +198,26 @@ class AppTemplate extends React.Component<IProps, IState> {
         const { appPkgID, imageUrl } = currentFields;
         const [registryServer, ...imageArray] = imageUrl.value.split('/');
         const imageName = imageArray.join('/');
+        let newTemplateList = template;
+        const type = imageName.split('/')[1];
+        const fileType: string = getWrapFileType(type);
         if (appPkgID) {
           if (isEmpty(template)) {
-            await getImageTemplate(DEFAULT_REGISTRY);
+            getImageTemplate(DEFAULT_REGISTRY).then(res => {
+              newTemplateList = res.response.result.template;
+              let currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
+              let newImageName = currentTemplate.name;
+              this.setState({
+                newImageName,
+              });
+            });
+          } else {
+            let currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
+            let newImageName = currentTemplate.name;
+            this.setState({
+              newImageName,
+            });
           }
-          const type = imageName.split('/')[1];
-          const fileType: string = getWrapFileType(type);
 
           Object.assign(query, { isWrap: true, fileType, imageName, registryServer, appPkgID: appPkgID.value });
         }
@@ -406,5 +420,5 @@ export default connect(mapStateToProps, {
   removeAllFormFields: QuickCreateAppActions.removeAllFormFields,
   setFormFields: QuickCreateAppActions.setFormFields,
   getAppTemplateDetail: templateActions.getAppTemplateDetail,
-  getImageTemplate: appCenterActions.getImageTempate,
+  getImageTemplate: appCenterActions.getImageTemplate,
 })(AppTemplate);

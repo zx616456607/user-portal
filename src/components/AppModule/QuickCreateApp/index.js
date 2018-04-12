@@ -33,7 +33,7 @@ import { createApp } from '../../../actions/app_manage'
 import { addService, loadServiceList } from '../../../actions/services'
 import { createAppIngress } from '../../../actions/load_balance'
 import { getAppTemplateDetail, appTemplateDeploy, appTemplateDeployCheck, removeAppTemplateDeployCheck } from '../../../../client/actions/template'
-import { getImageTempate } from '../../../actions/app_center'
+import { getImageTemplate } from '../../../actions/app_center'
 import { buildJson, getFieldsValues, formatValuesToFields } from './utils'
 import './style/index.less'
 import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
@@ -122,14 +122,14 @@ class QuickCreateApp extends Component {
 
   componentWillMount() {
     this.setConfig(this.props)
-    const { location, fields, template:templateList, getImageTempate } = this.props
+    const { location, fields, template:templateList, getImageTemplate } = this.props
     const { hash, query } = location
     const { imageName, registryServer, key, from, template } = query
     if (template && key) {
       this.deployCheck(this.props)
     }
     if (isEmpty(templateList)) {
-      getImageTempate(DEFAULT_REGISTRY)
+      getImageTemplate(DEFAULT_REGISTRY)
     }
     this.getExistentServices()
     // 从交付中心跳转过来
@@ -145,7 +145,7 @@ class QuickCreateApp extends Component {
         const fileType = getWrapFileType(type);
         let newTemplateList = templateList
         if (isEmpty(templateList)) {
-          getImageTempate(DEFAULT_REGISTRY).then(res => {
+          getImageTemplate(DEFAULT_REGISTRY).then(res => {
             newTemplateList = res.response.result.template
             let currentTemplate = newTemplateList.filter(item => item.type === fileType)[0]
             let newImageName = currentTemplate.name;
@@ -1299,5 +1299,5 @@ export default connect(mapStateToProps, {
   appTemplateDeploy,
   appTemplateDeployCheck,
   removeAppTemplateDeployCheck,
-  getImageTempate
+  getImageTemplate
 })(QuickCreateApp)

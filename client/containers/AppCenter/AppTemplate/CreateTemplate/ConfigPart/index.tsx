@@ -86,7 +86,7 @@ export default class ConfigPart extends React.Component<any, IState> {
       let currentTemplate: string;
       let newImageName: string;
       if (isEmpty(template)) {
-        getImageTempate(DEFAULT_REGISTRY).then(res => {
+        getImageTemplate(DEFAULT_REGISTRY).then(res => {
           newTemplateList = res.response.result.template;
           currentTemplate = newTemplateList.filter(item => item.type === image.fileType)[0];
           newImageName = currentTemplate.name;

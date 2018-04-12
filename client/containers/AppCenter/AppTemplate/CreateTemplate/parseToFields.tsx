@@ -456,28 +456,15 @@ const parseDeployment = deployment => {
 
 const parseMappingPorts = (annotations, spec) => {
   const { ports } = spec;
-  if (!annotations || !annotations[TENX_SCHEMA_PORTNAME]) {
+  if (isEmpty(ports)) {
     return;
   }
-  const portString = annotations[TENX_SCHEMA_PORTNAME];
-  if (!portString) {
-    return;
-  }
-  const portsArray = portString.includes(',') ? portString.split(',') : [portString];
   const portsKeys = [];
-  const portsObjArray = portsArray.map((port, index) => {
+  const portsParent = {};
+  ports.forEach((port, index) => {
     portsKeys.push({
       value: index,
     });
-    const [name, protocol] = port.split('/');
-    return {
-      name,
-      protocol,
-    };
-  });
-  const newPorts = merge([], ports, portsObjArray);
-  const portsParent = {};
-  newPorts.forEach((port, index) => {
     merge(portsParent, {
       [`${PORT}${index}`]: port.port,
       [`${PORT_PROTOCOL}${index}`]: port.protocol,
