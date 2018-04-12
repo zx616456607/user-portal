@@ -73,7 +73,8 @@ exports.restartServices = function* () {
 
 exports.deleteServices = function* () {
   const cluster = this.params.cluster
-  const services = this.request.body
+  const body = this.request.body
+  const services = body.services
   if (!services) {
     const err = new Error('Service names are required.')
     err.status = 400
@@ -81,7 +82,7 @@ exports.deleteServices = function* () {
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.batchDeleteBy([cluster, 'services', 'batch-delete'], null, { services })
+  const result = yield api.batchDeleteBy([cluster, 'services', 'batch-delete'], null, body)
   const devOpsApi = apiFactory.getDevOpsApi(loginUser)
   try {
     yield devOpsApi.deleteBy(['cd-rules'], {

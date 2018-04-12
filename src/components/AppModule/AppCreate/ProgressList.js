@@ -27,6 +27,37 @@ export default class ProgressList extends Component {
         >
         <div>
           <div className="blockBox"></div>
+          {createModel == "template" ?
+            <QueueAnim className="ProgressList" type="left">
+              <div key="a">
+                <div className="firstStep step">
+                  <svg className="commonCircle">
+                    <use xlinkHref="#step" />
+                  </svg>
+                  <svg className="commonLine">
+                    <use xlinkHref="#stepline" />
+                  </svg>
+                  <span>部署方式</span>
+                </div>
+                <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
+                  <svg className="commonCircle">
+                    <use xlinkHref="#step" />
+                  </svg>
+                  <svg className="commonLine">
+                    <use xlinkHref="#stepline" />
+                  </svg>
+                  <span>选择模板</span>
+                </div>
+                <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
+                  <svg className="commonCircle">
+                    <use xlinkHref="#step" />
+                  </svg>
+                  <span>配置服务</span>
+                </div>
+              </div>
+            </QueueAnim>
+           : null
+          }
           {createModel == "quick" ?
             <QueueAnim className="ProgressList" type="left">
               <div key="a">

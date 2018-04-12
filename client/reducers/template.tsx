@@ -66,9 +66,46 @@ function templateDetail(state = {}, action) {
   }
 }
 
+function formatDeployCheck(data) {
+  if (isEmpty(data)) {
+    return;
+  }
+  const newData = [];
+  for (let [key, value] of Object.entries(data)) {
+    newData.push({
+      name: key,
+      content: value,
+    });
+  }
+  return newData;
+}
+
+function templateDeployCheck(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.APP_TEMPLATE_DEPLOY_CHECK_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      });
+    case ActionTypes.APP_TEMPLATE_DEPLOY_CHECK_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: formatDeployCheck(action.response.result.data),
+      });
+    case ActionTypes.APP_TEMPLATE_DEPLOY_CHECK_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      });
+    case ActionTypes.REMOVE_APP_TEMPLATE_DEPLOY_CHECK:
+      return {};
+    default:
+      return state;
+  }
+}
+
 export default function appTemplates(state = {}, action) {
   return {
     templates: templates(state.templates, action),
     templateDetail: templateDetail(state.templateDetail, action),
+    templateDeployCheck: templateDeployCheck(state.templateDeployCheck, action),
   };
 }

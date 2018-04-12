@@ -11,7 +11,7 @@
  */
 
 import React, { PropTypes } from 'react'
-import { Form, Input, Row, Col, Select } from 'antd'
+import { Form, Input, Row, Col, Select, Modal } from 'antd'
 import { connect } from 'react-redux'
 import { setFormFields } from '../../../../actions/quick_create_app'
 import { checkAppName, checkServiceName } from '../../../../actions/app_manage'
@@ -20,6 +20,7 @@ import {
   loadOtherDetailTagConfig,
 } from '../../../../actions/app_center'
 import { loadRepositoriesTags, loadRepositoriesTagConfigInfo } from '../../../../actions/harbor'
+import { appTemplateNameCheck } from '../../../../../client/actions/template'
 import QueueAnim from 'rc-queue-anim'
 import {
   appNameCheck, validateK8sResourceForServiceName,
@@ -60,28 +61,23 @@ let ConfigureService = React.createClass({
     }
   },
   componentWillMount() {
-    const { callback, imageName, registryServer, form, mode, location, isTemplate, template } = this.props
+    const { callback, imageName, registryServer, form, mode, location, template, newImageName } = this.props
     let  { appName,templateName, templateVersion, templateDesc } = this.props
     const { setFieldsValue } = form
     callback && callback(form)
-    let newImageName = ''
+    if (location.query.template && appName) {
+      setFieldsValue({
+        appName
+      })
+    }
     if (mode === 'create') {
       const values = {
         imageUrl: `${registryServer}/${imageName}`,
       }
-      if (location.query.appPkgID) {
-        let { registryServer,imageName, fileType } = location.query
-        values.imageUrl = `${registryServer}/${imageName}`
-        appName = location.query.appName || appName
-        if (isTemplate) {
-          let currentTemplate = template.filter(item => item.type === fileType)[0]
-          newImageName = currentTemplate.name;
-          values.imageUrl = `${registryServer}/${newImageName}`
-          this.setState({
-            newImageName
-          })
-        }
+      if (location.query.appPkgID && location.query.template) {
+        values.imageUrl = `${registryServer}/${newImageName}`
       }
+      appName = location.query.appName || appName
       if (appName) {
         values.appName = appName
       }
@@ -103,7 +99,8 @@ let ConfigureService = React.createClass({
     ref && ref.refs.input.focus()
   },
   componentDidMount() {
-    const { isTemplate } = this.props;
+    const { isTemplate, location, form, template: templateList } = this.props;
+    const { template, appPkgID } = location.query;
     setTimeout(() => {
       const disabled = this.getAppNameDisabled()
       if (isTemplate) {
@@ -114,14 +111,13 @@ let ConfigureService = React.createClass({
           this.focusInput('serviceNameInput')
         }
       } else {
-        if (!disabled) {
+        if (template || !disabled) {
           this.focusInput('appNameInput')
         } else {
           this.focusInput('serviceNameInput')
         }
       }
     }, 50)
-    const { location, form } = this.props
     if (location.query.appPkgID) {
       form.getFieldProps('appPkgID')
       form.setFieldsValue({'appPkgID': location.query.appPkgID})
@@ -144,7 +140,7 @@ let ConfigureService = React.createClass({
       currentFields, mode, loadRepositoriesTags
     } = props
     let { imageName } = props
-    const { other } = location.query
+    const { other, isWrap } = location.query
     const { setFieldsValue } = form
     let notify = new NotificationHandler()
     if (mode !== 'create') {
@@ -254,13 +250,13 @@ let ConfigureService = React.createClass({
     // if (location.query　&& location.query.imageName) {
     //   imageName = location.query.imageName
     // }
+    let { pathname, query } = location
     const callback = {
       success: {
         func: (result) => {
-          if (mode !== 'create') {
-            return
+          if (mode === 'create' || (mode === 'edit' && pathname.includes('app_manage/app_create/quick_create') && query.template)) {
+            this.setConfigsToForm(result.configInfo || result.data)
           }
-          this.setConfigsToForm(result.configInfo || result.data)
         },
         isAsync: true
       }
@@ -425,11 +421,29 @@ let ConfigureService = React.createClass({
     }, ASYNC_VALIDATOR_TIMEOUT)
   },
   checkTempName (rule, value, callback) {
+    const { appTemplateNameCheck } = this.props
     let errorMsg = templateNameCheck(value)
     if (errorMsg !== 'success') {
       return callback(errorMsg)
     }
-    callback()
+    return callback()
+    clearTimeout(this.templateNameCheckTimeout)
+    this.templateNameCheckTimeout = setTimeout(() => {
+      appTemplateNameCheck(value, {
+        success: {
+          func: () => {
+            callback()
+          }
+        },
+        failed: {
+          func: res=> {
+            if (res.statusCode === 409) {
+              callback('应用模板名称重复')
+            }
+          }
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT);
   },
   checkTempVersion (rule, value, callback) {
     if (!value) {
@@ -456,12 +470,16 @@ let ConfigureService = React.createClass({
     }
     for (let key in allFields) {
       if (allFields.hasOwnProperty(key)) {
-        if (key !== id) {
           const serviceName = allFields[key].serviceName || {}
+        if (key !== id) {
           if (serviceName.value === value) {
             callback(appNameCheck(value, '服务名称', true))
             return
           }
+        } else {
+          if (serviceName.value === value) {
+            return callback()
+        }
         }
       }
     }
@@ -499,13 +517,13 @@ let ConfigureService = React.createClass({
       form, imageTags, currentFields,
       standardFlag, loadFreeVolume, createStorage,
       current, id, allFields, location, AdvancedSettingKey,
-      isTemplate, template, setFormFields
+      isTemplate, template, setFormFields, appName, newImageName
     } = this.props
     const allFieldsKeys = Object.keys(allFields) || []
-    const { imageConfigs, newImageName } = this.state
+    const { imageConfigs } = this.state
     const { getFieldProps } = form
     const { query } = location
-    const { isWrap, fileType, registryServer } = query || { isWrap: 'false' }
+    const { isWrap, fileType, registryServer, template: queryTemplate } = query || { isWrap: 'false' }
     let appNameProps;
     if (!isTemplate) {
       appNameProps = getFieldProps('appName', {
@@ -516,6 +534,7 @@ let ConfigureService = React.createClass({
       })
     }
     let templateNameProps;
+    // 暂时不支持模板版本
     let templateVersionProps;
     let templateDescProps;
     if (isTemplate) {
@@ -526,13 +545,13 @@ let ConfigureService = React.createClass({
           }
         ]
       });
-      templateVersionProps = getFieldProps('templateVersion', {
-        rules: [
-          {
-            validator: this.checkTempVersion
-          }
-        ]
-      })
+      // templateVersionProps = getFieldProps('templateVersion', {
+      //   rules: [
+      //     {
+      //       validator: this.checkTempVersion
+      //     }
+      //   ]
+      // })
       templateDescProps = getFieldProps('templateDesc', {
         rules: [
           {
@@ -582,7 +601,7 @@ let ConfigureService = React.createClass({
                 autoComplete="off"
                 {...appNameProps}
                 ref="appNameInput"
-                disabled={this.getAppNameDisabled()}
+                disabled={appName && this.getAppNameDisabled()}
               />
             </FormItem>
             }
@@ -604,7 +623,7 @@ let ConfigureService = React.createClass({
                 />
               </FormItem>
             }
-            {isTemplate &&
+            {/* {isTemplate &&
               <FormItem
                 label="模板版本"
                 key="templateName"
@@ -618,7 +637,7 @@ let ConfigureService = React.createClass({
                   {...templateVersionProps}
                 />
               </FormItem>
-            }
+            } */}
             {isTemplate &&
               <FormItem
                 label="模板描述"
@@ -660,7 +679,7 @@ let ConfigureService = React.createClass({
             </FormItem>
             }
             {
-              (!isTemplate || (isTemplate && isWrap !== 'true')) &&
+              (!queryTemplate || (queryTemplate && isWrap !== 'true')) &&
               <FormItem
                 {...formItemLayout}
                 wrapperCol={{ span: 8 }}
@@ -677,7 +696,7 @@ let ConfigureService = React.createClass({
               </FormItem>
             }
             {
-              (!isTemplate || (isTemplate && isWrap !== 'true')) &&
+              (!queryTemplate || (queryTemplate && isWrap !== 'true')) &&
               <FormItem
                 {...formItemLayout}
                 wrapperCol={{ span: 6 }}
@@ -707,7 +726,7 @@ let ConfigureService = React.createClass({
           </Form>
         </div>
         {
-          isWrap === 'true' && isTemplate &&
+          isWrap === 'true' && queryTemplate &&
           <OperationEnv
             form={form}
             formItemLayout={formItemLayout}
@@ -731,6 +750,7 @@ let ConfigureService = React.createClass({
           createStorage={createStorage}
           imageConfigs={imageConfigs}
           isTemplate={isTemplate}
+          {...{location}}
           key="normal"
         />
         <AssistSetting
@@ -829,7 +849,8 @@ ConfigureService = connect(mapStateToProps, {
   getOtherImageTag,
   loadOtherDetailTagConfig,
   loadRepositoriesTagConfigInfo,
-  loadRepositoriesTags
+  loadRepositoriesTags,
+  appTemplateNameCheck
 })(ConfigureService)
 
 export default ConfigureService

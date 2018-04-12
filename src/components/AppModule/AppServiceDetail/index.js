@@ -220,6 +220,8 @@ class AppServiceDetail extends Component {
   okDeleteModal() {
     const { deleteServices, scope, serviceDetail, loadServices } = this.props
     const service = scope.state.currentShowInstance || serviceDetail
+    console.log(service, 'service')
+    return
     deleteServices(service.cluster,[service.metadata.name],{
       success:{
         func: (res) => {
