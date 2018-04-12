@@ -295,7 +295,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   // 设置进入点
   let {
     entrypoint,
-  } = imageConfigs
+  } = imageConfigs || { entrypoint: '' }
   entrypoint = entrypoint && entrypoint.join(' ')
   if (command && command !== entrypoint) {
     deployment.addContainerCommand(serviceName, command)
@@ -361,7 +361,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   // 设置环境变量
   let {
     defaultEnv,
-  } = imageConfigs
+  } = imageConfigs || { defaultEnv: '' }
   if (envKeys) {
     const envObj = {}
     defaultEnv && defaultEnv.forEach(env => {

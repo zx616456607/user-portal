@@ -254,9 +254,10 @@ let ConfigureService = React.createClass({
     const callback = {
       success: {
         func: (result) => {
-          if (mode === 'create' || (mode === 'edit' && pathname.includes('app_manage/app_create/quick_create') && query.template)) {
-            this.setConfigsToForm(result.configInfo || result.data)
+          if (mode !== 'create') {
+            return
           }
+          this.setConfigsToForm(result.configInfo || result.data)
         },
         isAsync: true
       }
@@ -464,7 +465,7 @@ let ConfigureService = React.createClass({
     if (!value) {
       return callback()
     }
-    const { current, checkServiceName, allFields, id } = this.props
+    const { current, checkServiceName, allFields, id, location } = this.props
     if (!validateK8sResourceForServiceName(value)) {
       return callback('服务名称可由 3~60 位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
     }
@@ -478,7 +479,7 @@ let ConfigureService = React.createClass({
           }
         } else {
           if (serviceName.value === value) {
-            return callback()
+            // return callback()
         }
         }
       }

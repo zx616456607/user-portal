@@ -265,18 +265,58 @@ class QuickCreateApp extends Component {
   }
 
   deployCheck = async (props) => {
-    const { appTemplateDeployCheck, current, templateDetail } = props;
+    const { appTemplateDeployCheck, current, templateDetail, fields } = props;
     const { clusterID } = current.cluster;
     const { data } = templateDetail;
     const { chart } = data;
     const { name, version } = chart;
     const result = await appTemplateDeployCheck(clusterID, name, version)
     const { templateDeployCheck } = this.props;
+    const { setFields } = this.form;
     if (isEmpty(templateDeployCheck.data)) {
       return
     }
     const errorData = templateDeployCheck.data;
-    const flag = errorData.some(item => !isEmpty(item.content))
+    let flag = false;
+    for (let [key, value] of Object.entries(fields)) {
+      const errorFields = {};
+      const currentError = errorData.filter(item => item.name === value.serviceName.value)[0]
+      if (!isEmpty(currentError.content)) {
+        flag = true
+        currentError.content.every(item => {
+          switch(item.type) {
+            case 0:
+            case 1:
+            case 2:
+              Object.assign(errorFields, {
+                loadBalance: {
+                  name: 'loadBalance',
+                  value: '',
+                  errors: [`应用负载均衡器 ${item.resourceName} 不存在`]
+                }
+              })
+            case 3:
+              Object.assign(errorFields, {
+                accessMethod: {
+                  name: 'accessMethod',
+                  value: value.accessMethod.value,
+                  errors: ['集群未添加公网出口']
+                }
+              })
+            case 4:
+              Object.assign(errorFields, {
+                accessMethod: {
+                  name: 'accessMethod',
+                  value: value.accessMethod.value,
+                  errors: ['集群未添加内网出口']
+                }
+              })
+          }
+        })
+        setFormFields(key, Object.assign(value, errorFields))
+      }
+    }
+
     this.setState({
       resourceError: flag
     })
