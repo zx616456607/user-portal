@@ -40,17 +40,6 @@ import ChartComponent from './ChartComponent'
 const FormItem = Form.Item
 const Option = Select.Option
 
-const adminTypeArr = [{
-  key: 'service',
-  text: '服务'
-}, {
-  key: 'node',
-  text: '节点'
-}, {
-  key: 'nexport',
-  text: '网络出口'
-}]
-
 const defaultTypeArr = [{
   key: 'service',
   text: '服务'
@@ -593,8 +582,7 @@ class MonitorChartModal extends React.Component {
       })
     }
 
-    let typeArr = isAdmin ? adminTypeArr : defaultTypeArr
-    targetTypeChildren = typeArr.map(item => {
+    targetTypeChildren = defaultTypeArr.map(item => {
       return <Option key={item.key} disabled={item.disabled}>{item.text}</Option>
     })
 
