@@ -209,7 +209,7 @@ class Tab1 extends React.Component {
         failed: {
           func: err => {
             const { statusCode, message } = err
-            notify.error(`更新策略 ${params.name} 失败，错误代码: ${statusCode}， ${message.message}`)
+            notify.error(`更新策略 ${params.name} 失败，错误代码: ${statusCode}， ${message}`)
           },
         }
       })
@@ -227,7 +227,7 @@ class Tab1 extends React.Component {
           failed: {
             func: err => {
               const { statusCode, message } = err;
-              notify.error(`新建策略 ${params.name} 失败，错误代码: ${statusCode}， ${message.message}`)
+              notify.error(`新建策略 ${params.name} 失败，错误代码: ${statusCode}， ${message}`)
             },
           }
         })

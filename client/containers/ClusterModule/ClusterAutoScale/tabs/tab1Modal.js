@@ -16,6 +16,11 @@ let datacenterList = [], templatePathList = {}, datastorePathList = {}, resource
 let currentData = "";
 let cluster = "", iaas = "";
 let updateTimer, addTimer;
+let form1Fun;
+const formItemLargeLayout = {
+  labelCol: { span: 6},
+  wrapperCol: { span: 14}
+}
 const diskFormat = (num) => {
   if (num < 1024) {
     return num + 'MB'
@@ -27,6 +32,146 @@ const diskFormat = (num) => {
   num = parseInt(num / 1024);
   return num + 'TB'
 }
+class Form1 extends React.Component {
+  roleNameChange = (e) => {
+    e.target.value = e.target.value.substr(0, 100);
+  }
+  render () {
+    const { getFieldProps } = this.props.form;
+    const { datacenter, datastorePath, resourcePoolPath, templatePath, targetPath, name, template, datastore, resourcePool } = this.props;
+    form1Fun = this;
+    return (
+      <Form horizontal className={"step1 panel noBottom " + ( this.props.currentStep === 0 ? "" : "hide") } >
+        <Row key="row1">
+          <FormItem
+            {...formItemLargeLayout}
+            label="策略名称"
+          >
+            <Input {...getFieldProps('name', { initialValue: name,
+              validate: [{
+                rules: [
+                  { required: true, message: '策略名称' },
+                ],
+              }],
+          onChange: this.roleNameChange })} placeholder="支持 100 字以内的中英文" />
+          </FormItem>
+        </Row>
+        <Row key="row3">
+          <FormItem
+            {...formItemLargeLayout}
+            label="数据中心"
+          >
+            <Select {...getFieldProps('datacenter', {
+              initialValue: datacenter,
+              validate: [{
+                rules: [
+                  { required: true, message: '请选择数据中心' },
+                ],
+              }],
+              onChange: this.props.onDataCenterChange
+              })} placeholder="请选择数据中心" style={{width: "100%", }}>
+              <Select.Option value="">请选择数据中心</Select.Option>
+              {
+                datacenterList.map((item) => {
+                  return <Select.Option key={item}>{item}</Select.Option>
+                })
+              }
+            </Select>
+          </FormItem>
+        </Row>
+        <Row key="row33">
+          <FormItem
+            {...formItemLargeLayout}
+            label="选择路径"
+          >
+          <Input {...getFieldProps('targetPath', { initialValue: targetPath,
+              validate: [{
+                rules: [
+                  { required: true, message: '请选择路径' },
+                ],
+              }],})}
+          placeholder="如 /paas/vms/autoscaling-group" />
+          </FormItem>
+        </Row>
+        <Row key="row4">
+          <FormItem
+            {...formItemLargeLayout}
+            label="选择虚拟机模板"
+          >
+            <Select {...getFieldProps('templatePath', { initialValue: templatePath,
+              validate: [{
+                rules: [
+                  { required: true, message: '请选择虚拟机模板' },
+                ],
+              }], })} placeholder="请选择虚拟机模板" style={{width: "100%", }}>
+              <Select.Option value="">请选择虚拟机模板</Select.Option>
+              {
+                template.map((item) =>
+                {
+                  return (
+                    <Select.Option value={item.path} key="1">
+                      <div className='vmTemplateDetail'>
+                        <Tooltip placement="right" title={item.path}>
+                          <p className='path'>{item.path}</p>
+                        </Tooltip>
+                        <p className='lowcase'>客户机操作系统：{item.type}</p>
+                        <p className='lowcase'>虚拟机版本：{item.version}</p>
+                        <p className='lowcase'>CPU/内存：{item.cpuNumber + 'C'}/{diskFormat(item.memoryTotal)}</p>
+                      </div>
+                    </Select.Option>)
+                })
+              }
+            </Select>
+          </FormItem>
+        </Row>
+        <Row key="row5">
+          <FormItem
+            {...formItemLargeLayout}
+            label="计算资源池"
+          >
+            <Select {...getFieldProps('resourcePoolPath', { initialValue: resourcePoolPath,
+              validate: [{
+                rules: [
+                  { required: true, message: '请选择计算资源池' },
+                ],
+              }], })} placeholder="请选择计算资源池" style={{width: "100%", }}>
+              <Select.Option value="">请选择计算资源池</Select.Option>
+              {
+                resourcePool.map((item) =>
+                  {
+                    return (<Select.Option key={item}>{item}</Select.Option>)
+                  })
+              }
+            </Select>
+          </FormItem>
+        </Row>
+        <Row key="row6">
+          <FormItem
+            {...formItemLargeLayout}
+            label="存储资源池"
+          >
+            <Select {...getFieldProps('datastorePath', { initialValue: datastorePath,
+              validate: [{
+                rules: [
+                  { required: true, message: '请选择存储资源池' },
+                ],
+              }], })} placeholder="请选择存储资源池" style={{width: "100%", }}>
+              <Select.Option value="">请选择存储资源池</Select.Option>
+              {
+                datastore.map((item) =>
+                  {
+                    return (<Select.Option key={item}>{item}</Select.Option>)
+                  })
+              }
+            </Select>
+          </FormItem>
+        </Row>
+      </Form>
+    )
+  }
+};
+Form1 = Form.create()(Form1);
+
 class Tab1Modal extends React.Component {
   constructor() {
     super()
@@ -77,12 +222,15 @@ class Tab1Modal extends React.Component {
     if(!this.checkParams()) return;
     this.setState({checkExist: true});
   }
-  roleNameChange = (e) => {
-    e.target.value = e.target.value.substr(0, 100);
-  }
   nextStep = () => {
     // 切换逻辑
-    this.setState({currentStep: 1});
+    form1Fun.props.form.validateFields((errors, values) => {
+      if (!!errors) {
+        console.log('Errors in form1!!!');
+        return;
+      }
+      this.setState({currentStep: 1, form1Data: values});
+    });
   }
   returnStep = () => {
     // 切换逻辑
@@ -111,7 +259,9 @@ class Tab1Modal extends React.Component {
       console.log('Submit!!!');
       console.log(values);
       // var values = this.props.form.getFieldsValue();
-      var temp = JSON.parse(JSON.stringify(values));
+      const temp1 = JSON.parse(JSON.stringify(values));
+      const temp2 = JSON.parse(JSON.stringify(form1Data));
+      let temp = Object.assign({}, temp1, temp2);
       temp["cluster"] = !!cluster ? cluster : this.state.selectValue;
       temp["iaas"] = !!iaas ? iaas : this.state.currentIcon;
       this.props.onOk(temp);
@@ -240,10 +390,6 @@ class Tab1Modal extends React.Component {
           </div>
         )
     }).bind(this)();
-    const formItemLargeLayout = {
-      labelCol: { span: 6},
-      wrapperCol: { span: 14}
-    }
     if(!this.props.visible) randomKey = Math.random();//重置表单
     if(!!resList){
       let j = 0;
@@ -344,137 +490,24 @@ class Tab1Modal extends React.Component {
                     <Steps.Step key="0" title="节点自动配置" description="" />
                     <Steps.Step key="1" title="集群伸缩方案" description="" />
                   </Steps>
-                  <div class="bottom-line"></div>
+                  <div className="bottom-line" style={{ bottom: "-10px" }}></div>
                 </div>
                 <div className="formContainer">
-                  <Form horizontal onSubmit={this.formSubmit}>
-                      <div className={"step1 panel noBottom " + ( this.state.currentStep === 0 ? "" : "hide") }>
-                        <Row key="row1">
-                          <FormItem
-                            {...formItemLargeLayout}
-                            label="策略名称"
-                          >
-                            <Input {...getFieldProps('name', { initialValue: name,
-                              validate: [{
-                                rules: [
-                                  { required: true, message: '策略名称' },
-                                ],
-                              }],
-                           onChange: this.roleNameChange })} placeholder="支持 100 字以内的中英文" />
-                          </FormItem>
-                        </Row>
-                        <Row key="row3">
-                          <FormItem
-                            {...formItemLargeLayout}
-                            label="数据中心"
-                          >
-                            <Select {...getFieldProps('datacenter', {
-                              initialValue: datacenter,
-                              validate: [{
-                                rules: [
-                                  { required: true, message: '请选择数据中心' },
-                                ],
-                              }],
-                              onChange: this.onDataCenterChange
-                              })} placeholder="请选择数据中心" style={{width: "100%", }}>
-                              <Select.Option value="">请选择数据中心</Select.Option>
-                              {
-                                datacenterList.map((item) => {
-                                  return <Select.Option key={item}>{item}</Select.Option>
-                                })
-                              }
-                            </Select>
-                          </FormItem>
-                        </Row>
-                        <Row key="row33">
-                          <FormItem
-                            {...formItemLargeLayout}
-                            label="选择路径"
-                          >
-                          <Input {...getFieldProps('targetPath', { initialValue: targetPath,
-                              validate: [{
-                                rules: [
-                                  { required: true, message: '请选择路径' },
-                                ],
-                              }],})}
-                          placeholder="如 /paas/vms/autoscaling-group" />
-                          </FormItem>
-                        </Row>
-                        <Row key="row4">
-                          <FormItem
-                            {...formItemLargeLayout}
-                            label="选择虚拟机模板"
-                          >
-                            <Select {...getFieldProps('templatePath', { initialValue: templatePath,
-                              validate: [{
-                                rules: [
-                                  { required: true, message: '请选择虚拟机模板' },
-                                ],
-                              }], })} placeholder="请选择虚拟机模板" style={{width: "100%", }}>
-                              <Select.Option value="">请选择虚拟机模板</Select.Option>
-                              {
-                                template.map((item) =>
-                                {
-                                  return (
-                                    <Select.Option value={item.path} key="1">
-                                      <div className='vmTemplateDetail'>
-                                        <Tooltip placement="right" title={item.path}>
-                                          <p className='path'>{item.path}</p>
-                                        </Tooltip>
-                                        <p className='lowcase'>客户机操作系统：{item.type}</p>
-                                        <p className='lowcase'>虚拟机版本：{item.version}</p>
-                                        <p className='lowcase'>CPU/内存：{item.cpuNumber + 'C'}/{diskFormat(item.memoryTotal)}</p>
-                                      </div>
-                                    </Select.Option>)
-                                })
-                              }
-                            </Select>
-                          </FormItem>
-                        </Row>
-                        <Row key="row5">
-                          <FormItem
-                            {...formItemLargeLayout}
-                            label="计算资源池"
-                          >
-                            <Select {...getFieldProps('resourcePoolPath', { initialValue: resourcePoolPath,
-                              validate: [{
-                                rules: [
-                                  { required: true, message: '请选择计算资源池' },
-                                ],
-                              }], })} placeholder="请选择计算资源池" style={{width: "100%", }}>
-                              <Select.Option value="">请选择计算资源池</Select.Option>
-                              {
-                                resourcePool.map((item) =>
-                                  {
-                                    return (<Select.Option key={item}>{item}</Select.Option>)
-                                  })
-                              }
-                            </Select>
-                          </FormItem>
-                        </Row>
-                        <Row key="row6">
-                          <FormItem
-                            {...formItemLargeLayout}
-                            label="存储资源池"
-                          >
-                            <Select {...getFieldProps('datastorePath', { initialValue: datastorePath,
-                              validate: [{
-                                rules: [
-                                  { required: true, message: '请选择存储资源池' },
-                                ],
-                              }], })} placeholder="请选择存储资源池" style={{width: "100%", }}>
-                              <Select.Option value="">请选择存储资源池</Select.Option>
-                              {
-                                datastore.map((item) =>
-                                  {
-                                    return (<Select.Option key={item}>{item}</Select.Option>)
-                                  })
-                              }
-                            </Select>
-                          </FormItem>
-                        </Row>
-                      </div>
-                      <div className={"step2 " + ( this.state.currentStep === 0 ? "hide" : "")}>
+                  <Form1
+                  datacenter={datacenter}
+                  datastorePath={datastorePath}
+                  resourcePoolPath={resourcePoolPath}
+                  templatePath={templatePath}
+                  targetPath={targetPath}
+                  name={name}
+                  template={template}
+                  datastore={datastore}
+                  resourcePool={resourcePool}
+                  currentStep={this.state.currentStep}
+                  onDataCenterChange={this.onDataCenterChange}
+                   />
+                  <Form className={"step2 " + ( this.state.currentStep === 0 ? "hide" : "")} horizontal>
+                      <div>
                         <div className="panel">
                           <Row key="row7">
                             <FormItem
