@@ -78,11 +78,18 @@ exports.updateApp = function* () {
 }
 
 exports.deleteApp = function* () {
-  const cluster = this.params.cluster
   const loginUser = this.session.loginUser
+  const { cluster } = this.request.query
   const body = this.request.body
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.clusters.deleteBy(['autoscaler', 'app' ], null, body)
+  this.body = yield api.clusters.deleteBy(['autoscaler', 'app', cluster ], null, body)
+}
+
+exports.setAppsStatus = function* () {
+  const loginUser = this.session.loginUser
+  const { cluster } = this.request.query
+  const api = apiFactory.getApi(loginUser)
+  this.body = yield api.clusters.getBy(['autoscaler', 'app', 'status', cluster ])
 }
 
 exports.getLogs = function* () {

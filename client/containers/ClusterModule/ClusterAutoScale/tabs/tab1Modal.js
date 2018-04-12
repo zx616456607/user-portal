@@ -13,7 +13,7 @@ let isGetParams = true; //是否获取接口数据
 let disabledIconCon = ["aws", "azure", "ali"]; //禁用的图标按钮集合
 let isEdit = false;
 let datacenterList = [], templatePathList = {}, datastorePathList = {}, resourcePoolPathList = {};
-
+let currentData = "";
 let cluster = "", iaas = "";
 let updateTimer, addTimer;
 const diskFormat = (num) => {
@@ -41,6 +41,8 @@ class Tab1Modal extends React.Component {
   }
   clickIcon = (e) => {
     let obj = e.target.parentElement.attributes['data-name'] || e.target.attributes['data-name'];
+    if(!!e.target.className && e.target.className.indexOf("selectedBox") > -1){ return; }
+    if(!!e.target.parentElement.className && e.target.parentElement.className.indexOf("selectedBox") > -1){ return; }
     if(disabledIconCon.indexOf(obj.value) > -1){ return; }
     if(!!e.target.className && e.target.className.indexOf("Dis") > -1){ return; }
     if(!!e.target.parentElement.className && e.target.parentElement.className.indexOf("Dis") > -1){ return; }
@@ -48,8 +50,9 @@ class Tab1Modal extends React.Component {
     this.getDataCenter(obj.value);
   }
   fun1 = () => {
+    let _that =  this;
     if(!this.checkParams()) return;
-    this.props.closeTab1Modal();
+    this.props.closeTab1Modal(_that);
   }
   checkParams = () => {
     return this.checkIaas() && this.checkCluster()
@@ -78,8 +81,12 @@ class Tab1Modal extends React.Component {
     e.target.value = e.target.value.substr(0, 100);
   }
   nextStep = () => {
-    //todo 切换逻辑
+    // 切换逻辑
     this.setState({currentStep: 1});
+  }
+  returnStep = () => {
+    // 切换逻辑
+    this.setState({currentStep: 0});
   }
   onSelChange = (value) => {
     //先选集群 再点击iaas ICon
@@ -93,11 +100,22 @@ class Tab1Modal extends React.Component {
     })
   }
   formSubmit = () => {
-    var values = this.props.form.getFieldsValue();
-    var temp = JSON.parse(JSON.stringify(values));
-    temp["cluster"] = !!cluster ? cluster : this.state.selectValue;
-    temp["iaas"] = !!iaas ? iaas : this.state.currentIcon;
-    this.props.onOk(temp);
+    this.props.form.validateFields((errors, values) => {
+      if (!!errors) {
+        console.log('Errors in form!!!');
+        this.setState({
+          currentStep: 0,
+        })
+        return;
+      }
+      console.log('Submit!!!');
+      console.log(values);
+      // var values = this.props.form.getFieldsValue();
+      var temp = JSON.parse(JSON.stringify(values));
+      temp["cluster"] = !!cluster ? cluster : this.state.selectValue;
+      temp["iaas"] = !!iaas ? iaas : this.state.currentIcon;
+      this.props.onOk(temp);
+    });
   }
   onDataCenterChange = (value) =>{
     this.setState({
@@ -106,6 +124,16 @@ class Tab1Modal extends React.Component {
   }
   onInputNumChange = (value) => {
     //console.log(e.target.value);
+  }
+  resetState = () => {
+    this.setState({
+      currentIcon: "",
+      checkExist: false, //查看已有模块 false没配过, true 配过
+      beforecheckExist: true, //是否在 check 之前
+      currentStep: 0,//0 第一步 1 第二步（保存）
+      selDisabled: false,
+      selectValue: "",
+    });
   }
   render(){
     const { clusterList, isModalFetching,
@@ -136,39 +164,44 @@ class Tab1Modal extends React.Component {
         cluster, iaas
       }
       = this.props.currentData;//cluster, iaas 编辑时使用的 clusterId 和 Iaas
+      if(JSON.stringify(currentData) !== JSON.stringify(this.props.currentData)){
+        updateTimer = null;
+        currentData = this.props.currentData;
+      }
       if(!!!updateTimer){
         updateTimer = setTimeout(() => {
           this.getDataCenter(iaas);
-        }, 1000);
+        }, 200);
       }
       addTimer = null;
     }else{
       if(!!!addTimer){
         addTimer = setTimeout(() => {
-          this.setState({
-            currentIcon: "",
-            checkExist: false, //查看已有模块 false没配过, true 配过
-            beforecheckExist: true, //是否在 check 之前
-            currentStep: 0,//0 第一步 1 第二步（保存）
-            selDisabled: false,
-            selectValue: "",
-          });
-        }, 500);
+          this.resetState();
+        }, 200);
       }
       isEdit = false, updateTimer = null;
       datacenterList = []; templatePathList = {}; datastorePathList = {}; resourcePoolPathList = {};
       cluster = ""; iaas = "";
     }
-
+    let isCreated = {};
     const options = !!clusterList ?
-    clusterList.map((o,i,objs) => <Select.Option key={i} value={o.clusterid}>{o.clustername}</Select.Option>) : null;
+    clusterList.map((o,i,objs) => {
+      isCreated[o.clusterid] = {
+        ali: o.ali,
+        aws: o.aws,
+        azure: o.azure,
+        vmware: o.vmware,
+      }
+      return <Select.Option key={i} value={o.clusterid}>{o.clustername}</Select.Option>
+    }) : null;
     !!options && options.unshift(<Select.Option key="-1" value="">请选择容器集群</Select.Option>)
     let objDisabled = _.filter(clusterList, {clusterid: this.state.selectValue})[0];
 
     const iconClass1 = classNames({
       'iconCon': true,
       'selectedBox': !!iaas ? iaas === "vmware" : this.state.currentIcon === "vmware",
-      'iconConDis': !!iaas ? true : disabledIconCon.indexOf("vmware") > -1,
+      'iconConDis': !!iaas ? true : disabledIconCon.indexOf("vmware") > -1, // !!isCreated[this.state.selectValue] && isCreated[this.state.selectValue].vmware ? true :
     });
     const iconClass2 = classNames({
       'iconCon': true,
@@ -188,19 +221,22 @@ class Tab1Modal extends React.Component {
     const footer = (() => {
         return (
           <div>
+            <Button onClick={() => {!!!this.props.isModalFetching && !!!isResFetching && this.props.onCancel()}}>取消</Button>
             {
             this.state.beforecheckExist ?
               null
             :
               this.state.currentStep === 0 ?
-                (this.props.isResFetching || !this.state.checkExist) ?
+                ( this.props.isResFetching || !this.state.checkExist) ?
                 null
                 :
                 <Button type="primary" onClick={this.nextStep}>下一步</Button>
                 :
+                [
+                <Button type="primary" onClick={this. returnStep}>上一步</Button>,
                 <Button type="primary" onClick={this.formSubmit}>保存</Button>
+                ]
             }
-            <Button onClick={this.props.onCancel}>取消</Button>
           </div>
         )
     }).bind(this)();
@@ -241,10 +277,25 @@ class Tab1Modal extends React.Component {
             </div>
             :
             <div>
+            <div className="panel noBottom">
+              <Row key="row2">
+                <FormItem
+                  {...formItemLargeLayout}
+                  label="容器集群"
+                >
+                  <Select disabled={!!cluster ? true : this.state.selDisabled} value={!!cluster ? cluster : this.state.selectValue}
+                    onChange={(value) => {this.onSelChange(value)}}
+                    placeholder="请选择容器集群" style={{width: "100%", }}>
+                    {options}
+                  </Select>
+                </FormItem>
+              </Row>
+            </div>
+            <div className="bottom-line"></div>
             <div className="topIconContainer">
               <div className={iconClass1} data-name="vmware" onClick={this.clickIcon}>
                 <div className="icon"></div>
-                <div className="name">vnware</div>
+                <div className="name">vmware</div>
                 <svg className="commonSelectedImg">
                   <use xlinkHref="#appcreatemodelselect" />
                 </svg>
@@ -276,21 +327,6 @@ class Tab1Modal extends React.Component {
               </div>
               <div style={{clear:"both"}}></div>
             </div>
-            <div className="bottom-line"></div>
-            <div className="panel noBottom">
-              <Row key="row2">
-                <FormItem
-                  {...formItemLargeLayout}
-                  label="容器集群"
-                >
-                  <Select disabled={!!cluster ? true : this.state.selDisabled} value={!!cluster ? cluster : this.state.selectValue}
-                    onChange={(value) => {this.onSelChange(value)}}
-                    placeholder="请选择容器集群" style={{width: "100%", }}>
-                    {options}
-                  </Select>
-                </FormItem>
-              </Row>
-            </div>
             {
               this.state.beforecheckExist ?
               null
@@ -302,13 +338,14 @@ class Tab1Modal extends React.Component {
                 </div>
               :
               <div>
+                <div className="bottom-line"></div>
                 <div className="stepContainer">
                   <Steps size="small" current={this.state.currentStep} status="process">
                     <Steps.Step key="0" title="节点自动配置" description="" />
                     <Steps.Step key="1" title="集群伸缩方案" description="" />
                   </Steps>
+                  <div class="bottom-line"></div>
                 </div>
-                <div className="bottom-line"></div>
                 <div className="formContainer">
                   <Form horizontal onSubmit={this.formSubmit}>
                       <div className={"step1 panel noBottom " + ( this.state.currentStep === 0 ? "" : "hide") }>
@@ -318,6 +355,11 @@ class Tab1Modal extends React.Component {
                             label="策略名称"
                           >
                             <Input {...getFieldProps('name', { initialValue: name,
+                              validate: [{
+                                rules: [
+                                  { required: true, message: '策略名称' },
+                                ],
+                              }],
                            onChange: this.roleNameChange })} placeholder="支持 100 字以内的中英文" />
                           </FormItem>
                         </Row>
@@ -328,6 +370,11 @@ class Tab1Modal extends React.Component {
                           >
                             <Select {...getFieldProps('datacenter', {
                               initialValue: datacenter,
+                              validate: [{
+                                rules: [
+                                  { required: true, message: '请选择数据中心' },
+                                ],
+                              }],
                               onChange: this.onDataCenterChange
                               })} placeholder="请选择数据中心" style={{width: "100%", }}>
                               <Select.Option value="">请选择数据中心</Select.Option>
@@ -344,7 +391,12 @@ class Tab1Modal extends React.Component {
                             {...formItemLargeLayout}
                             label="选择路径"
                           >
-                          <Input {...getFieldProps('targetPath', { initialValue: targetPath})}
+                          <Input {...getFieldProps('targetPath', { initialValue: targetPath,
+                              validate: [{
+                                rules: [
+                                  { required: true, message: '请选择路径' },
+                                ],
+                              }],})}
                           placeholder="如 /paas/vms/autoscaling-group" />
                           </FormItem>
                         </Row>
@@ -353,7 +405,12 @@ class Tab1Modal extends React.Component {
                             {...formItemLargeLayout}
                             label="选择虚拟机模板"
                           >
-                            <Select {...getFieldProps('templatePath', { initialValue: templatePath })} placeholder="请选择虚拟机模板" style={{width: "100%", }}>
+                            <Select {...getFieldProps('templatePath', { initialValue: templatePath,
+                              validate: [{
+                                rules: [
+                                  { required: true, message: '请选择虚拟机模板' },
+                                ],
+                              }], })} placeholder="请选择虚拟机模板" style={{width: "100%", }}>
                               <Select.Option value="">请选择虚拟机模板</Select.Option>
                               {
                                 template.map((item) =>
@@ -379,7 +436,12 @@ class Tab1Modal extends React.Component {
                             {...formItemLargeLayout}
                             label="计算资源池"
                           >
-                            <Select {...getFieldProps('resourcePoolPath', { initialValue: resourcePoolPath })} placeholder="请选择计算资源池" style={{width: "100%", }}>
+                            <Select {...getFieldProps('resourcePoolPath', { initialValue: resourcePoolPath,
+                              validate: [{
+                                rules: [
+                                  { required: true, message: '请选择计算资源池' },
+                                ],
+                              }], })} placeholder="请选择计算资源池" style={{width: "100%", }}>
                               <Select.Option value="">请选择计算资源池</Select.Option>
                               {
                                 resourcePool.map((item) =>
@@ -395,7 +457,12 @@ class Tab1Modal extends React.Component {
                             {...formItemLargeLayout}
                             label="存储资源池"
                           >
-                            <Select {...getFieldProps('datastorePath', { initialValue: datastorePath })} placeholder="请选择存储资源池" style={{width: "100%", }}>
+                            <Select {...getFieldProps('datastorePath', { initialValue: datastorePath,
+                              validate: [{
+                                rules: [
+                                  { required: true, message: '请选择存储资源池' },
+                                ],
+                              }], })} placeholder="请选择存储资源池" style={{width: "100%", }}>
                               <Select.Option value="">请选择存储资源池</Select.Option>
                               {
                                 datastore.map((item) =>
@@ -421,13 +488,23 @@ class Tab1Modal extends React.Component {
                                   </Tooltip>
                                 </div>
                                 <div className="formItem">
-                                  <Input {...getFieldProps('min', { initialValue: min })} className="item" placeholder="1" /><span className="unit">个</span>
+                                  <Input {...getFieldProps('min', { initialValue: min,
+                                    validate: [{
+                                      rules: [
+                                        { required: true, message: '最小节点数' },
+                                      ],
+                                    }], })} className="item" placeholder="1" /><span className="unit">个</span>
                                 </div>
                               </div>
                               <div className="max">
                                 <div className="name">最大节点数</div>
                                 <div className="formItem">
-                                  <Input {...getFieldProps('max', { initialValue: max })} className="item" placeholder="1" /><span className="unit">个</span>
+                                  <Input {...getFieldProps('max', { initialValue: max,
+                                    validate: [{
+                                      rules: [
+                                        { required: true, message: '最大节点数' },
+                                      ],
+                                    }], })} className="item" placeholder="1" /><span className="unit">个</span>
                                 </div>
                               </div>
                             </FormItem>
@@ -448,7 +525,12 @@ class Tab1Modal extends React.Component {
                               {...formItemLargeLayout}
                               label="减少节点"
                             >
-                            <Radio.Group {...getFieldProps('removeAndDelete', { initialValue: removeAndDelete })}>
+                            <Radio.Group {...getFieldProps('removeAndDelete', { initialValue: removeAndDelete,
+                                validate: [{
+                                  rules: [
+                                    { required: true, message: '请选择减少节点方式' },
+                                  ],
+                                }], })}>
                                 <Radio key="a" value="0">仅移出集群</Radio>
                                 <Radio key="b" value="1">移出集群并删除节点</Radio>
                               </Radio.Group>
@@ -466,6 +548,7 @@ class Tab1Modal extends React.Component {
                                 validate: [{
                                   rules: [
                                     { type: 'email', message: '请输入正确的邮箱地址' },
+                                    { required: true, message: '请输入邮箱地址' },
                                   ],
                                   trigger: ['onBlur', 'onChange'],
                                 }]
@@ -478,7 +561,12 @@ class Tab1Modal extends React.Component {
                               {...formItemLargeLayout}
                               label="策略冷却时间"
                             >
-                              <InputNumber {...getFieldProps('duration', { initialValue: duration })} style={{width:"90px"}} placeholder="120" min={1} max={1000} />
+                              <InputNumber {...getFieldProps('duration', { initialValue: duration,
+                                validate: [{
+                                  rules: [
+                                    { required: true, message: '请输入策略冷却时间' },
+                                  ],
+                                }], })} style={{width:"90px"}} placeholder="120" min={1} max={1000} />
                               <span className="unit">秒</span>
                               <span className="hint">策略连续两次触发的最小时间</span>
                             </FormItem>

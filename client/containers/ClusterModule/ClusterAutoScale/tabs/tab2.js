@@ -55,7 +55,7 @@ class Tab2 extends React.Component {
     console.log("edit", rowData);
     this.setState({isTab2ModalShow: true, isEdit: true, currData: rowData});
   }
-  showDelModal = async (rowData) => {
+  showDelModal = (rowData) => {
     console.log("showDelModal", arguments);
     this.setState({
       currData: rowData,
@@ -128,7 +128,7 @@ class Tab2 extends React.Component {
     this.setState({pagination: pagination, paginationCurrent: page});
   }
   onTab2ModalCancel = () => {
-    this.setState({isTab2ModalShow: false});
+    this.setState({isTab2ModalShow: false, currData: ""});
   }
   onCancel = () => {
     this.setState({isShowDelModal: false});
@@ -215,18 +215,22 @@ class Tab2 extends React.Component {
       loadData: this.loadData,
     };
     return (
-      <div className="tab2Content">
+      <div className="tab2Content sliderIn">
         <div className="btnPanel">
-          <Button className="btnItem" onClick={this.openModal} type="primary" ><Icon type="plus" />新建资源池配置</Button>
-          <Button className="btnItem" onClick={this.delitems} type="ghost" disabled={isbtnDisabled} ><Icon type="delete" />删除</Button>
-          <Input.Group className={searchCls}>
-            <Input size='large' placeholder='请输入服务名搜索' value={this.state.searchValue} onChange={this.handleInputChange}
+          <Button type="primary" size="large" onClick={this.openModal} style={{ marginRight: "10px" }}>
+            <i className="fa fa-plus" />新建资源池配置
+          </Button>
+          {/*<Button className="btnItem" onClick={this.openModal} type="primary" ><Icon type="plus" />新建资源池配置</Button>*/}
+          {/*<Button className="btnItem" onClick={this.delitems} type="ghost" disabled={isbtnDisabled} ><Icon type="delete" />删除</Button>*/}
+          {/*<Input.Group className={searchCls}>
+            <Input size='large' placeholder='请输入配置名称搜索' value={this.state.searchValue} onChange={this.handleInputChange}
               onFocus={this.handleFocusBlur} onBlur={this.handleFocusBlur} onPressEnter={this.handleSearch}
             />
             <div className="ant-input-group-wrap">
               <Button type="ghost" icon="search" className={btnCls} onClick={this.handleSearch} />
             </div>
           </Input.Group>
+          */}
 
           { total !== 0 && <div className='pageBox'>
             <span className='totalPage'>共 {total} 条</span>
@@ -244,8 +248,9 @@ class Tab2 extends React.Component {
         </div>
         <div className="tablePanel">
           <Card>
-            <Table rowSelection={rowSelection} columns={columns} dataSource={tableData} pagination={this.state.pagination}>
-            </Table>
+            <div className="reset_antd_table_header">
+            <Table columns={columns} dataSource={tableData} pagination={this.state.pagination} />
+            </div>
           </Card>
         </div>
 

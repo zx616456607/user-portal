@@ -277,3 +277,28 @@ const fetchUpdateApp = (body, callback) => {
 
 export const updateApp = (body: object, callback?: function) =>
   dispatch => dispatch(fetchUpdateApp(body, callback));
+
+export const STATUS_APP_AUTOSCALER_REQUEST = 'STATUS_APP_AUTOSCALER_REQUEST';
+export const STATUS_APP_AUTOSCALER_SUCCESS = 'STATUS_APP_AUTOSCALER_SUCCESS';
+export const STATUS_APP_AUTOSCALER_FAILURE = 'STATUS_APP_AUTOSCALER_FAILURE';
+
+const fetchChangeAppStatus = (query, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        STATUS_APP_AUTOSCALER_REQUEST,
+        STATUS_APP_AUTOSCALER_SUCCESS,
+        STATUS_APP_AUTOSCALER_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/app/status?${toQuerystring(query)}`,
+      schema: {},
+      options: {
+        method: 'GET',
+      },
+    },
+    callback,
+  };
+};
+
+export const changeAppStatus = (query?: object, callback?: function) =>
+  dispatch => dispatch(fetchChangeAppStatus(query, callback));

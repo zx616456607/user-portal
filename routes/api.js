@@ -764,6 +764,7 @@ module.exports = function (Router) {
   router.post('/clusters/autoscaler/app', autoScalerController.createApp)
   router.put('/clusters/autoscaler/app', autoScalerController.updateApp)
   router.del('/clusters/autoscaler/app', autoScalerController.deleteApp)
+  router.get('/clusters/autoscaler/app/status', autoScalerController.setAppsStatus)
   router.get('/clusters/autoscaler/app/log', autoScalerController.getLogs)
 
   router.get('/clusters/autoscaler/resource', autoScalerController.getRes)

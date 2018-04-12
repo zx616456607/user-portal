@@ -11,11 +11,12 @@ import Tab1 from './tabs/tab1';
 import Tab2 from './tabs/tab2';
 const TabPane = Tabs.TabPane;
 
+let _that;
+
 class ClusterAutoScale extends React.Component {
   state = {
     activeKey: 'pane1',
-    state2: false,
-    state3: false,
+    isTab2ModalShow: false,
   };
 
   componentDidMount() {
@@ -30,17 +31,32 @@ class ClusterAutoScale extends React.Component {
       <div className="tabTitle"><span className="common-style"> {name} </span></div>
     );
   }
+  openTab2Modal(tab) {
+    let obj = {};
+    obj['isTab2ModalShowFrom' + tab] = true;
+    _that.setState(obj);
+  }
+  closeTab2Modal(tab) {
+    let obj = {};
+    obj['isTab2ModalShowFrom' + tab] = true;
+    _that.setState(obj);
+  }
   render() {
     const { children, location } = this.props;
     const tabTitle1 = this.getTitle('伸缩策略');
     const tabTitle2 = this.getTitle('资源池配置');
+    _that = this;
     return (
       <QueueAnim className="clusterAutoScaleBox" type="right">
-        <Tabs activeKey={this.state.activeKey} onChange={this.tabChange} type="card" key="1">
+        <div className="bline" />
+        <Tabs className="autoScalerTab" activeKey={this.state.activeKey} onChange={this.tabChange} type="card" key="1">
           <TabPane className="tabTitle" tab={tabTitle1} key="pane1">
             <QueueAnim type="right">
               <div className="tabContent" key="3">
                 <Tab1
+                  openTab2Modal={this.openTab2Modal}
+                  closeTab2Modal={this.closeTab2Modal}
+                  isTab2ModalShow={this.state.isTab2ModalShowFromTab1}
                 />
               </div>
             </QueueAnim>
@@ -49,6 +65,9 @@ class ClusterAutoScale extends React.Component {
             <QueueAnim type="right">
               <div className="tabContent" key="5">
                 <Tab2
+                  openTab2Modal={this.openTab2Modal}
+                  closeTab2Modal={this.closeTab2Modal}
+                  isTab2ModalShow={this.state.isTab2ModalShowFromTab2}
                 />
               </div>
             </QueueAnim>
@@ -56,6 +75,12 @@ class ClusterAutoScale extends React.Component {
         </Tabs>
       </QueueAnim>
     );
+  }
+  componentDidMount() {
+    // tslint:disable-next-line:no-unused-expression
+    // const div = document.createElement('div');
+    // div.setAttribute('class', 'bline');
+    // document.querySelector('.autoScalerTab .ant-tabs-bar').appendChild(div);
   }
 }
 

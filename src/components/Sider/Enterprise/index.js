@@ -939,7 +939,7 @@ class Sider extends Component {
                   title={
                     <span>
                       <svg className='clusterWrapper commonImg'>
-                        <use xlinkHref='#setting' />
+                        <use xlinkHref='#siderinfrastructure' />
                       </svg>
                       <span className='commonSiderSpan'>基础设施</span>
                       <div style={{ clear: 'both' }}></div>
@@ -947,26 +947,32 @@ class Sider extends Component {
                   }
                 >
                 <Menu.Item key='cluster_default'>
-                  <Link to='/cluster'>
-                    <span>
-                      <svg className='cluster commonImg'>
-                        <use xlinkHref='#siderinfrastructure' />
+                  <div className="adminBox">
+                    <Tooltip title="仅系统管理员可见" placement="right">
+                      <svg className="start forAdmin">
+                        <use xlinkHref='#start' />
                       </svg>
-                      <span className='commonSiderSpan'>集群管理</span>
-                      <div style={{ clear: 'both' }}></div>
-                    </span>
-                  </Link>
+                    </Tooltip>
+                    <Link to='/cluster'>
+                      <span>
+                        集群管理
+                      </span>
+                    </Link>
+                  </div>
                 </Menu.Item>
                 <Menu.Item key='cluster_autoscale'>
-                  <Link to='/cluster/cluster_autoscale'>
-                    <span>
-                      <svg className='clusterAutoScale commonImg'>
-                        <use xlinkHref='#siderinfrastructure' />
+                  <div className="adminBox">
+                    <Tooltip title="仅系统管理员可见" placement="right">
+                      <svg className="start forAdmin">
+                        <use xlinkHref='#start' />
                       </svg>
-                      <span className='commonSiderSpan'>集群伸缩策略</span>
-                      <div style={{ clear: 'both' }}></div>
-                    </span>
-                  </Link>
+                    </Tooltip>
+                    <Link to='/cluster/cluster_autoscale'>
+                      <span>
+                      集群伸缩策略
+                      </span>
+                    </Link>
+                  </div>
                 </Menu.Item>
                 </SubMenu>
                    : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>

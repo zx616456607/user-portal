@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, Button, Input, Select, Row, Col, Form, Spin } from 'antd'
+import { Modal, Button, Input, Select, Row, Col, Form, Spin, Icon } from 'antd'
 import '../style/tabModal.less'
 import classNames from 'classNames'
 import * as autoScalerActions from '../../../../actions/clusterAutoScaler';
@@ -18,6 +18,8 @@ let isEdit = false;
 class Tab2Modal extends React.Component {
   clickIcon = (e) => {
     let obj = e.target.parentElement.attributes['data-name'] || e.target.attributes['data-name'];
+    if(!!e.target.className && e.target.className.indexOf("selectedBox") > -1){ return; }
+    if(!!e.target.parentElement.className && e.target.parentElement.className.indexOf("selectedBox") > -1){ return; }
     if(this.currentIcon === obj.value){ return; }
     if(!!e.target.className && e.target.className.indexOf("Dis") > -1){ return; }
     if(!!e.target.parentElement.className && e.target.parentElement.className.indexOf("Dis") > -1){ return; }
@@ -30,27 +32,15 @@ class Tab2Modal extends React.Component {
     password: "",
     vSphere: "",
     disabled: false,
+    isShowPassword: false,
   }
   componentDidMount() {
     //接收参数
-    this.getQueryData();
+    //this.getQueryData();
   }
-  componentWillReceiveProps() {
-    if(isGetParams && this.props.visible){
-      isGetParams = false;
-      this.getQueryData();
-    }
-    if(!this.props.visible){
-      isGetParams = true;
-    }
-    if( this.props.isEdit && !!this.props.currData){
-      isEdit = true;
-    }else{ isEdit = false }
-  }
-  getQueryData(){
-    const { getAutoScalerClusterList } = this.props;
-    const _that = this, currData = _that.props.currData;
-    getAutoScalerClusterList().then(() => {
+  componentWillReceiveProps(next) {
+    const _that = this, currData = next.currData;
+    setTimeout(() => {
       if(isEdit){
         _that.setState({
           disabled: true,
@@ -69,9 +59,25 @@ class Tab2Modal extends React.Component {
           password: "",
           vSphere: "",
           selectValue: "",
+          isShowPassword: false,
         })
       }
-    });
+    }, 200);
+    if(isGetParams && next.visible){
+      isGetParams = false;
+      this.getQueryData();
+      return;
+    }
+    // if(!this.props.visible){
+    //   isGetParams = true;
+    // }
+    if( next.isEdit && !!next.currData){
+      isEdit = true;
+    }else{ isEdit = false }
+  }
+  getQueryData(){
+    const { getAutoScalerClusterList } = this.props;
+    getAutoScalerClusterList();
   }
   onChange = (value) => {
     this.setState({
@@ -89,7 +95,7 @@ class Tab2Modal extends React.Component {
     const date = new Date();
     const dateString = date.Format("yyyy-MM-dd HH:mm:ss")
     const params = {
-      issa: this.state.currentIcon,
+      iaas: this.state.currentIcon,
       name: this.state.name,
       password: this.state.password,
       server: this.state.vSphere,
@@ -101,7 +107,7 @@ class Tab2Modal extends React.Component {
         success: {
           func: () => {
             notify.success(`配置 ${params.name} 更新成功`);
-            if(!!funcTab2){//tab2打开编辑页时 逻辑 同理funcTab1 todo
+            if(!!funcTab2){//tab2打开编辑页时 逻辑 同理funcTab1
               func.loadData();
               func.scope.setState({
                 isTab2ModalShow:false,
@@ -130,14 +136,16 @@ class Tab2Modal extends React.Component {
             func: () => {
               notify.success(`配置 ${params.name} 新建成功`)
               if(!!funcTab2){
-                func.loadData()
-                func.scope.setState({ isTab2ModalShow:false,
+                funcTab2.loadData();
+                funcTab2.scope.setState({ isTab2ModalShow:false,
                   pagination: {
                     current: 1,
                     defaultCurrent: 1,
                     pageSize: 5,
                   }, //分页配置
                   paginationCurrent: 1, })
+              }else if(!!funcTab1){
+                funcTab1.scope.onTab2ModalCancel();
               }
             },
             isAsync: true,
@@ -159,6 +167,11 @@ class Tab2Modal extends React.Component {
   }
   inputnameChange = (e) => {
     this.setState({name: e.target.value});
+  }
+  changePasswordType = () => {
+    this.setState({
+      isShowPassword: !this.state.isShowPassword,
+    })
   }
   render(){
     const { clusterList, isModalFetching, getData, isGetFormData } = this.props;
@@ -210,6 +223,17 @@ class Tab2Modal extends React.Component {
           </div>
           :
           <div key={randomKey} >
+            <Row key="row1">
+              <FormItem
+                {...formItemLargeLayout}
+                label="容器集群"
+              >
+                <Select disabled={this.state.disabled} value={this.state.selectValue} onChange={(value) => {this.onChange(value)}} placeholder="请选择容器集群" style={{width: "100%", }}>
+                  {options}
+                </Select>
+              </FormItem>
+            </Row>
+            <div className="bottom-line"></div>
             <div className="topIconContainer">
               <div className={iconClass1} data-name="vmware" onClick={this.clickIcon}>
                 <div className="icon"></div>
@@ -247,16 +271,6 @@ class Tab2Modal extends React.Component {
             </div>
             <div className="bottom-line"></div>
             <div className="formContainer" style={{paddingTop: 20}}>
-              <Row key="row1">
-                <FormItem
-                  {...formItemLargeLayout}
-                  label="容器集群"
-                >
-                  <Select disabled={this.state.disabled} value={this.state.selectValue} onChange={(value) => {this.onChange(value)}} placeholder="请选择容器集群" style={{width: "100%", }}>
-                    {options}
-                  </Select>
-                </FormItem>
-              </Row>
               <Row key="row2">
                 <FormItem
                   {...formItemLargeLayout}
@@ -278,7 +292,8 @@ class Tab2Modal extends React.Component {
                   {...formItemLargeLayout}
                   label="登录密码"
                 >
-                  <Input value={this.state.password} onChange={this.inputpasswordChange} placeholder="请输入登录密码" />
+                  <Input style={{ width: "95%", }} type={this.state.isShowPassword ? "text" : "password"} value={this.state.password} onChange={this.inputpasswordChange} placeholder="请输入登录密码" />
+                  <Icon style={{pointer: "cursor", width: "5%", textAlign: "center"}} type="eye-o" onClick={this.changePasswordType} />
                 </FormItem>
               </Row>
             </div>
