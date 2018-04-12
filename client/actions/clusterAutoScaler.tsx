@@ -179,7 +179,6 @@ const fetchAutoScalerLogList = (query, callback) => {
 export const getAutoScalerLogList = (query?: object, callback?: function) =>
   dispatch => dispatch(fetchAutoScalerLogList(query, callback));
 
-
 export const APP_AUTOSCALERRES_LIST_REQUEST = 'APP_AUTOSCALERRES_LIST_REQUEST';
 export const APP_AUTOSCALERRES_LIST_SUCCESS = 'APP_AUTOSCALERRES_LIST_SUCCESS';
 export const APP_AUTOSCALERRES_LIST_FAILURE = 'APP_AUTOSCALERRES_LIST_FAILURE';
