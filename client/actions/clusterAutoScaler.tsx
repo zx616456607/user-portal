@@ -139,7 +139,7 @@ export const APP_AUTOSCALERAPP_LIST_REQUEST = 'APP_AUTOSCALERAPP_LIST_REQUEST';
 export const APP_AUTOSCALERAPP_LIST_SUCCESS = 'APP_AUTOSCALERAPP_LIST_SUCCESS';
 export const APP_AUTOSCALERAPP_LIST_FAILURE = 'APP_AUTOSCALERAPP_LIST_FAILURE';
 
-const fetchAutoScalerList = (query, callback) => {
+const fetchAutoScalerAppList = (query, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -155,7 +155,7 @@ const fetchAutoScalerList = (query, callback) => {
 };
 
 export const getAutoScalerAppList = (query?: object, callback?: function) =>
-  dispatch => dispatch(fetchAutoScalerList(query, callback));
+  dispatch => dispatch(fetchAutoScalerAppList(query, callback));
 
 export const APP_AUTOSCALERLOG_LIST_REQUEST = 'APP_AUTOSCALERLOG_LIST_REQUEST';
 export const APP_AUTOSCALERLOG_LIST_SUCCESS = 'APP_AUTOSCALERLOG_LIST_SUCCESS';
@@ -200,3 +200,80 @@ const fetchAutoScalerResList = (query, callback) => {
 
 export const getAutoScalerResList = (query?: object, callback?: function) =>
   dispatch => dispatch(fetchAutoScalerResList(query, callback));
+
+export const CREATE_APP_AUTOSCALER_REQUEST = 'CREATE_APP_AUTOSCALER_REQUEST';
+export const CREATE_APP_AUTOSCALER_SUCCESS = 'CREATE_APP_AUTOSCALER_SUCCESS';
+export const CREATE_APP_AUTOSCALER_FAILURE = 'CREATE_APP_AUTOSCALER_FAILURE';
+
+const fetchCreateApp = (body, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        CREATE_APP_AUTOSCALER_REQUEST,
+        CREATE_APP_AUTOSCALER_SUCCESS,
+        CREATE_APP_AUTOSCALER_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/app`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      },
+    },
+    callback,
+  };
+};
+
+export const createApp = (body: object, callback?: function) =>
+  dispatch => dispatch(fetchCreateApp(body, callback));
+
+export const DELETE_APP_AUTOSCALER_REQUEST = 'DELETE_APP_AUTOSCALER_REQUEST';
+export const DELETE_APP_AUTOSCALER_SUCCESS = 'DELETE_APP_AUTOSCALER_SUCCESS';
+export const DELETE_APP_AUTOSCALER_FAILURE = 'DELETE_APP_AUTOSCALER_FAILURE';
+
+const fetchDeleteApp = (query, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        DELETE_APP_AUTOSCALER_REQUEST,
+        DELETE_APP_AUTOSCALER_SUCCESS,
+        DELETE_APP_AUTOSCALER_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/app?${toQuerystring(query)}`,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      },
+    },
+    callback,
+  };
+};
+
+export const deleteApp = (query?: object, callback?: function) =>
+  dispatch => dispatch(fetchDeleteApp(query, callback));
+
+export const UPDATE_APP_AUTOSCALER_REQUEST = 'UPDATE_APP_AUTOSCALER_REQUEST';
+export const UPDATE_APP_AUTOSCALER_SUCCESS = 'UPDATE_APP_AUTOSCALER_SUCCESS';
+export const UPDATE_APP_AUTOSCALER_FAILURE = 'UPDATE_APP_AUTOSCALER_FAILURE';
+
+const fetchUpdateApp = (body, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        UPDATE_APP_AUTOSCALER_REQUEST,
+        UPDATE_APP_AUTOSCALER_SUCCESS,
+        UPDATE_APP_AUTOSCALER_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/app`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body,
+      },
+    },
+    callback,
+  };
+};
+
+export const updateApp = (body: object, callback?: function) =>
+  dispatch => dispatch(fetchUpdateApp(body, callback));
