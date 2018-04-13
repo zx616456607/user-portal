@@ -16,6 +16,7 @@ import QueueAnim from 'rc-queue-anim';
 import { browserHistory } from 'react-router';
 import { Button, Icon, Pagination, Dropdown, Menu, Modal, Spin, Popover } from 'antd';
 import classNames from 'classnames';
+import isEmpty from 'lodash/isEmpty';
 import SearchInput from '../../../components/SearchInput';
 import Title from '../../../../src/components/Title';
 import {
@@ -168,6 +169,15 @@ class TemplateList extends React.Component<any> {
           <Spin size="large"/>
         </div>
       );
+    }
+    if (isEmpty(templateList)) {
+      return [
+        <div className="noTemplateData" key="noTemplateData"/>,
+        <div className="noTemplateText" key="noTemplateText">
+          您还没有应用模板，创建一个吧!
+          <Button type="primary" size="large" onClick={this.createTemplate}>创建</Button>
+        </div>,
+      ];
     }
     return (templateList || []).map(temp => {
       const content = (
