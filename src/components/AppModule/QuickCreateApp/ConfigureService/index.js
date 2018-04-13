@@ -477,10 +477,6 @@ let ConfigureService = React.createClass({
             callback(appNameCheck(value, '服务名称', true))
             return
           }
-        } else {
-          if (serviceName.value === value) {
-            // return callback()
-        }
         }
       }
     }

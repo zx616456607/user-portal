@@ -392,8 +392,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   }
 
   // 设置普通配置目录
+  const wholeDir = {}
   if (configMapKeys) {
-    const wholeDir = {}
     configMapKeys.forEach(key => {
       if (!key.deleted) {
         const keyValue = key.value
@@ -440,11 +440,6 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         deployment.addContainerVolume(serviceName, volume, volumeMounts, configMapIsWholeDir)
       }
     })
-    if (!isEmpty(wholeDir)) {
-      deployment.setAnnotations({
-        wholeDir: JSON.stringify(wholeDir)
-      })
-    }
   }
 
   // 设置加密配置目录
@@ -462,14 +457,15 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
             secretName: secretConfigGroupName,
           },
         }
-        // if (!secretConfigMapIsWholeDir) {
-          volume.secret.items = (secretConfigMapSubPathValues || []).map(value => {
-            return {
-              key: value,
-              path: value,
-            }
-          })
-        // }
+        Object.assign(wholeDir, {
+          [volume.name]: secretConfigMapIsWholeDir
+        })
+        volume.secret.items = (secretConfigMapSubPathValues || []).map(value => {
+          return {
+            key: value,
+            path: value,
+          }
+        })
         const volumeMounts = []
         volumeMounts.push({
           name: `secret-volume-${keyValue}`,
@@ -478,6 +474,11 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         })
         deployment.addContainerVolume(serviceName, volume, volumeMounts, true)
       }
+    })
+  }
+  if (!isEmpty(wholeDir)) {
+    deployment.setAnnotations({
+      wholeDir: JSON.stringify(wholeDir)
     })
   }
 

@@ -28,6 +28,9 @@ const CheckboxGroup = Checkbox.Group
 const PATH_REG = /^\//
 
 const ConfigMapSetting = React.createClass({
+  componentDidMount() {
+    this.loadConfigGroups()
+  },
   componentDidUpdate() {
     this.addClick()
   },

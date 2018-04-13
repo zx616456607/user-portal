@@ -132,33 +132,33 @@ class TemplateList extends React.Component<any> {
     const templateArray = [];
     formatServiceToArrry(detail, templateArray);
     templateArray.reverse();
+    const setArray = [];
     templateArray.forEach(temp => {
       const id = this.genConfigureServiceKey();
       const values = parseToFields(temp, chart);
-      setFormFields(id, values);
+      setArray.push(setFormFields(id, values));
     });
-    setTimeout(() => {
-      const { fields } = this.props;
-      const firstID = Object.keys(fields)[0];
-      const currentFields = fields[firstID];
-      const { imageUrl, imageTag, appPkgID } = currentFields;
-      const [registryServer, ...imageArray] = imageUrl.value.split('/');
-      const imageName = imageArray.join('/');
-      const query = {
-        imageName,
-        registryServer,
-        tag: imageTag.value,
-        key: firstID,
-        from: 'appcenter',
-        template: 'true',
-      };
-      if (appPkgID) {
-        const type = imageName.split('/')[1];
-        const fileType = getWrapFileType(type);
-        Object.assign(query, { appPkgID: appPkgID.value, isWrap: true, fileType });
-      }
-      browserHistory.push(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_CONFIG_HASH}`);
-    });
+    await Promise.all(setArray);
+    const { fields } = this.props;
+    const firstID = Object.keys(fields)[0];
+    const currentFields = fields[firstID];
+    const { imageUrl, imageTag, appPkgID } = currentFields;
+    const [registryServer, ...imageArray] = imageUrl.value.split('/');
+    const imageName = imageArray.join('/');
+    const query = {
+      imageName,
+      registryServer,
+      tag: imageTag.value,
+      key: firstID,
+      from: 'appcenter',
+      template: 'true',
+    };
+    if (appPkgID) {
+      const type = imageName.split('/')[1];
+      const fileType = getWrapFileType(type);
+      Object.assign(query, { appPkgID: appPkgID.value, isWrap: true, fileType });
+    }
+    browserHistory.push(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_CONFIG_HASH}`);
   }
 
   renderTemplateList = () => {
