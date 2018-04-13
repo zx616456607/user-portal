@@ -20,9 +20,8 @@
       top: 0;
       height: ~"calc(100% - 28px)";
       width: 100%;
-      background-image: url('../../../../../src/assets/img/cluster/nfs.png');
       background-position: center center;
-      background-size: 50px auto;
+      background-size: auto auto;
       background-repeat: no-repeat;
     }
     .name{
@@ -34,8 +33,21 @@
       width: 90px;
     }
   }
+  .iconvmware .icon{
+    background-image: url('../../../../assets/img/clusterAutoScaler/vmware.png');
+  }
+  .iconazure .icon{
+    background-image: url('../../../../assets/img/clusterAutoScaler/azure.png');
+  }
+  .iconaws .icon{
+    background-image: url('../../../../assets/img/clusterAutoScaler/aws.png');
+  }
+  .iconali .icon{
+    background-image: url('../../../../assets/img/clusterAutoScaler/ali.png');
+  }
   .iconConDis{
     opacity: 0.5;
+    background-color: #d9d9d9;
   }
   .iconCon:hover {
     cursor: pointer;
@@ -110,7 +122,7 @@
   .path{
     padding-right: 10px;
     width: 100%;
-    font-size: 14px;
+    /* font-size: 14px; */
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
@@ -127,9 +139,14 @@
   .panel{
     // border-bottom: 1px dashed #ccc;
     margin-bottom: 10px;
+    .rowtext{
+      color: #f5cc4e;
+    }
     .ant-row{
       .unit{
         display: inline-block;
+        position: absolute;
+        margin-left: 5px;
       }
       .hint{
         display: inline-block;
@@ -192,8 +209,8 @@
         clear: both;
       }
     }
-    .row.noMB{
-      margin-bottom: 0px;
+    .noMB{
+      margin-bottom: 0px !important;
     }
   }
   .panel.noBottom{
@@ -206,4 +223,14 @@
 }
 .step1.hide, step2.hide{
   display: none;
+}
+.iconEye{
+  position: absolute;
+  right: -20px;
+  top: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+.optionValueNull{
+  color: #e8e9e8 !important;
 }

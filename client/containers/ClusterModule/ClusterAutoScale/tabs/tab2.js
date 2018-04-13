@@ -270,7 +270,8 @@ class Tab2 extends React.Component {
           onClose={this.onCancel}
           confirmLoading={this.state.deleteLoading}
           title="删除资源池配置"
-          okText="确定" >
+          okText="确定"
+          maskClosable={false} >
           <div style={{color: "#00a0ea"}}>确定删除资源 {this.state.currData.name || ""} ?</div>
         </Modal>
       </div>

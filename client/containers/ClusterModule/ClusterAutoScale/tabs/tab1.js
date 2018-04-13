@@ -41,6 +41,7 @@ class Tab1 extends React.Component {
     isTab2ModalShow: false, //新建配置modal 显示状态
     isEdit: false,
     deleteLoading: false, //删除确定按钮
+    submitTab1Loading: false,
     isShowDelModal: false,
   }
   //顶部按钮事件
@@ -85,26 +86,32 @@ class Tab1 extends React.Component {
       this.setState({
         isShowDelModal: false,
         currentData: "",
+        deleteLoading: false,
       })
     }
-    this.props.deleteApp({ cluster: this.state.currentData.cluster }, {
-      success: {
-        func: () => {
-          notify.success(`策略 ${this.state.currentData.name} 删除成功`);
-            //刷新列表
-          this.loadData();
-          common();
-        },
-        isAsync: true,
+    this.setState({
+      deleteLoading: true,
       },
-      failed: {
-        func: err => {
-          const { statusCode, message } = err;
-          notify.error(`删除策略 ${this.state.currentData.name} 失败，错误代码: ${statusCode}， ${message.message}`);
-          common();
-        },
-      }
-    });
+      () => {
+        this.props.deleteApp({ cluster: this.state.currentData.cluster }, {
+          success: {
+            func: () => {
+              notify.success(`策略 ${this.state.currentData.name} 删除成功`);
+                //刷新列表
+              this.loadData();
+              common();
+            },
+            isAsync: true,
+          },
+          failed: {
+            func: err => {
+              const { statusCode, message } = err;
+              notify.error(`删除策略 ${this.state.currentData.name} 失败，错误代码: ${statusCode}， ${message.message}`);
+              common();
+            },
+          }
+        });
+    })
   }
   clone = () => {
     console.log("clone", arguments);
@@ -181,58 +188,62 @@ class Tab1 extends React.Component {
     this.setState({isTab1ModalShow: false});
   }
   onTab1ModalOk = (params) => {
-    //add
-    const { addApp, updateApp } = this.props;
-    const resetState = {
-      isTab1ModalShow:false,
-      pagination: {
-        current: 1,
-        defaultCurrent: 1,
-        pageSize: pageSize,
-        currentData: {},
-        isEdit: false,
-      }, //分页配置
-      paginationCurrent: 1,
-    }
-    params.duration = params.duration + "";//转字符串
-    //新增、修改接口
-    if(this.state.isEdit){
-      updateApp(params,{
-        success: {
-          func: () => {
-            notify.success(`策略 ${params.name} 更新成功`);
-              this.loadData();
-              this.setState(resetState);
-          },
-          isAsync: true,
-        },
-        failed: {
-          func: err => {
-            const { statusCode, message } = err
-            notify.error(`更新策略 ${params.name} 失败，错误代码: ${statusCode}， ${message}`)
-          },
-        }
-      })
-    }else{
-      addApp(params,
-        {
+    this.setState({
+      submitTab1Loading: true,
+    }, () => {
+      const { addApp, updateApp } = this.props;
+      const resetState = {
+        isTab1ModalShow:false,
+        pagination: {
+          current: 1,
+          defaultCurrent: 1,
+          pageSize: pageSize,
+          currentData: {},
+          isEdit: false,
+        }, //分页配置
+        paginationCurrent: 1,
+        submitTab1Loading: false,
+      }
+      params.duration = params.duration + "";//转字符串
+      //新增、修改接口
+      if(this.state.isEdit){
+        updateApp(params,{
           success: {
             func: () => {
-              notify.success(`策略 ${params.name} 新建成功`)
-                this.loadData()
-                this.setState(resetState)
+              notify.success(`策略 ${params.name} 更新成功`);
+                this.loadData();
+                this.setState(resetState);
             },
             isAsync: true,
           },
           failed: {
             func: err => {
-              const { statusCode, message } = err;
-              notify.error(`新建策略 ${params.name} 失败，错误代码: ${statusCode}， ${message}`)
+              const { statusCode, message } = err
+              notify.error(`更新策略 ${params.name} 失败，错误代码: ${statusCode}， ${message.message}`)
             },
           }
         })
-    }
-    console.log("sendParams", params);
+      }else{
+        addApp(params,
+          {
+            success: {
+              func: () => {
+                notify.success(`策略 ${params.name} 新建成功`)
+                  this.loadData()
+                  this.setState(resetState)
+              },
+              isAsync: true,
+            },
+            failed: {
+              func: err => {
+                const { statusCode, message } = err;
+                notify.error(`新建策略 ${params.name} 失败，错误代码: ${statusCode}， ${message.message}`)
+              },
+            }
+          })
+      }
+      console.log("sendParams", params);
+    })
   }
 
   renderLineItem = (item, i, isLast) => {
@@ -318,15 +329,23 @@ class Tab1 extends React.Component {
         title: '集群',
         dataIndex: 'clustername',
         width: 100,
-      }, {
-        title: '最小实例数',
+      },
+      {
+        title: '最小节点数',
         dataIndex: 'min',
         width: 100,
       }, {
-        title: '最大实例数',
+        title: '最大节点数',
         dataIndex: 'max',
         width: 100,
-      }, {
+      },
+
+      // {
+      //   title: '最大节点数',
+      //   dataIndex: 'xxx',
+      //   width: 100,
+      // },
+      {
         title: 'Email',
         dataIndex: 'email',
         width: 100,
@@ -374,7 +393,8 @@ class Tab1 extends React.Component {
     let loglen = 0,linelist = <div style={{ textAlign: 'center' }}>暂无数据</div>;
     if(!!logList && logList.log){
       loglen = logList.log.length;
-      linelist = logList.log.reverse().map((item, i) =>
+      const sortlogList = _.sortBy(logList.log, o => new Date(o.date) )
+      linelist = sortlogList.reverse().map((item, i) =>
         {
           const isLast = loglen === (i + 1);
           const line = this.renderLineItem(item, i, isLast)
@@ -457,7 +477,7 @@ class Tab1 extends React.Component {
                   <div className="cardPart">
                     <p><span className="leftTitle">策略名称</span><span className="rightContent">{currentData.name}</span></p>
                     <p><span className="leftTitle">开启状态</span>
-                      {currentData.isOn?
+                      {currentData.status === "on"?
                         <span className="rightContent isOnCon"><i className="fa fa-circle"></i>启用</span>
                         :
                         <span className="rightContent isOffCon"><i className="fa fa-circle"></i>停用</span>
@@ -469,10 +489,10 @@ class Tab1 extends React.Component {
                     <p><span className="leftTitle">存储资源池</span><span className="rightContent">{currentData.datastorePath}</span></p>
                   </div>
                   <div className="cardPart">
-                    <p><span className="leftTitle">最小实例数</span><span className="rightContent">{currentData.min + " 个"}</span></p>
-                    <p><span className="leftTitle">最大实例数</span><span className="rightContent">{currentData.max + " 个"}</span></p>
+                    <p><span className="leftTitle">最小节点数</span><span className="rightContent">{currentData.min + " 个"}</span></p>
+                    <p><span className="leftTitle">最大节点数</span><span className="rightContent">{currentData.max + " 个"}</span></p>
                     {/* <p><span className="leftTitle">阈值</span><span className="rightContent">{currentData.xxx1}</span></p> */}
-                    <p><span className="leftTitle">伸缩活动</span><span className="rightContent">{"增加 " + currentData.max + " 台"}</span></p>
+                    {/* <p><span className="leftTitle">伸缩活动</span><span className="rightContent">{"增加 " + currentData.max + " 台"}</span></p> */}
                   </div>
                   <div className="cardPart">
                     <p><span className="leftTitle">Email</span><span className="rightContent">{currentData.email ? currentData.email : "-"}</span></p>
@@ -507,6 +527,7 @@ class Tab1 extends React.Component {
           <Tab1Modal
             isEdit={this.state.isEdit}
             currentData={this.state.currentData}
+            confirmLoading={this.state.submitTab1Loading}
             func={func} closeTab1Modal={this.closeTab1Modal} visible={this.state.isTab1ModalShow} onOk={this.onTab1ModalOk} onCancel={this.onTab1ModalCancel} onClose={this.onTab1ModalCancel}/>
           <Tab2Modal
             visible={this.state.isTab2ModalShow}
@@ -523,7 +544,9 @@ class Tab1 extends React.Component {
             onClose={this.onCancel}
             confirmLoading={this.state.deleteLoading}
             title="删除伸缩策略"
-            okText="确定" >
+            okText="确定"
+            maskClosable={false}
+            >
             <div style={{color: "#00a0ea"}}>确定删除策略 {this.state.currentData.name || ""} ?</div>
           </Modal>
       </div>

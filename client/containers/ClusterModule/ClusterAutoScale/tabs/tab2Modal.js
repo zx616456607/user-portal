@@ -10,7 +10,6 @@ import NotificationHandler from '../../../../../src/components/Notification';
 const notify = new NotificationHandler();
 const Option = Select.Option;
 const FormItem = Form.Item;
-let randomKey = Math.random();//重置表单
 let isGetParams = true; //是否获取接口数据
 let disabledIconCon = ["aws", "azure", "ali"]; //禁用的图标按钮集合
 let isEdit = false;
@@ -28,11 +27,10 @@ class Tab2Modal extends React.Component {
   state = {
     currentIcon: "",
     selectValue: "",
-    name: "",
-    password: "",
-    vSphere: "",
     disabled: false,
     isShowPassword: false,
+    isPasswordReadOnly: true, //防止密码填充表单
+    submitLoading: false,
   }
   componentDidMount() {
     //接收参数
@@ -41,25 +39,18 @@ class Tab2Modal extends React.Component {
   componentWillReceiveProps(next) {
     const _that = this, currData = next.currData;
     setTimeout(() => {
-      if(isEdit){
+      if(isEdit && !!currData){
         _that.setState({
           disabled: true,
-          currentIcon: currData.issa,
-          name: currData.name,
-          password: currData.password,
-          vSphere: currData.server,
+          currentIcon: currData.iaas,
           selectValue: currData.cluster,
         });
       }
-      else{
+      if(!next.visible){
         _that.setState({
           disabled: false,
           currentIcon: "",
-          name: "",
-          password: "",
-          vSphere: "",
           selectValue: "",
-          isShowPassword: false,
         })
       }
     }, 200);
@@ -83,90 +74,95 @@ class Tab2Modal extends React.Component {
     this.setState({
       selectValue: value,
       currentIcon: "",
-      name: "",
-      password: "",
-      vSphere: "",
     })
     return value;
   }
   onTab2ModalOk = () => {
-    //新增、修改接口
-    const { addServer, updateServer, funcTab1, funcTab2 } = this.props;
-    const date = new Date();
-    const dateString = date.Format("yyyy-MM-dd HH:mm:ss")
-    const params = {
-      iaas: this.state.currentIcon,
-      name: this.state.name,
-      password: this.state.password,
-      server: this.state.vSphere,
-      cluster: this.state.selectValue,
-      date: dateString,
-    };
-    if(isEdit){
-      updateServer(params,{
-        success: {
-          func: () => {
-            notify.success(`配置 ${params.name} 更新成功`);
-            if(!!funcTab2){//tab2打开编辑页时 逻辑 同理funcTab1
-              func.loadData();
-              func.scope.setState({
-                isTab2ModalShow:false,
-                pagination: {
-                  current: 1,
-                  defaultCurrent: 1,
-                  pageSize: 5,
-                }, //分页配置
-                paginationCurrent: 1,
-              });
+    this.setState({
+      submitLoading: true,
+    }, () => {
+      if(!!!this.state.currentIcon){
+        notify.warn('请选择Iaas平台');
+        return ;
+      }
+      this.props.form.validateFields((errors, values) => {
+        if (!!errors || (errors === null && JSON.stringify(values) === "{}")) {
+          console.log('Errors in form!!!');
+          return;
+        }
+        //新增、修改接口
+        const { addServer, updateServer, funcTab1, funcTab2 } = this.props;
+        const date = new Date();
+        const dateString = date.Format("yyyy-MM-dd HH:mm:ss")
+        const params = Object.assign({}, {
+          iaas: this.state.currentIcon,
+          // name: this.state.name,
+          // password: this.state.password,
+          // server: this.state.vSphere,
+          cluster: this.state.selectValue,
+          date: dateString,
+        });
+        params.name = values.Username;
+        params.password = values.Userpassword;
+        params.server = values.server;
+        if(isEdit){
+          updateServer(params,{
+            success: {
+              func: () => {
+                notify.success(`配置 ${params.name} 更新成功`);
+                if(!!funcTab2){//tab2打开编辑页时 逻辑 同理funcTab1
+                  funcTab2.loadData();
+                  funcTab2.scope.setState({
+                    isTab2ModalShow:false,
+                    pagination: {
+                      current: 1,
+                      defaultCurrent: 1,
+                      pageSize: 5,
+                    }, //分页配置
+                    paginationCurrent: 1,
+                  });
+                }
+              },
+              isAsync: true,
+            },
+            failed: {
+              func: err => {
+                const { statusCode } = err
+                notify.error(`更新配置 ${params.name} 失败，错误代码: ${statusCode}`)
+              },
             }
-          },
-          isAsync: true,
-        },
-        failed: {
-          func: err => {
-            const { statusCode } = err
-            notify.error(`更新配置 ${params.name} 失败，错误代码: ${statusCode}`)
-          },
+          })
+        }else{
+          addServer(params,
+          {
+            success: {
+              func: () => {
+                notify.success(`配置 ${params.name} 新建成功`)
+                if(!!funcTab2){
+                  funcTab2.loadData();
+                  funcTab2.scope.setState({ isTab2ModalShow:false,
+                    pagination: {
+                      current: 1,
+                      defaultCurrent: 1,
+                      pageSize: 5,
+                    }, //分页配置
+                    paginationCurrent: 1, })
+                }else if(!!funcTab1){
+                  funcTab1.scope.onTab2ModalCancel();
+                }
+              },
+              isAsync: true,
+            },
+            failed: {
+              func: err => {
+                const { statusCode } = err;
+                notify.error(`新建配置 ${params.name} 失败，错误代码: ${statusCode}`)
+              },
+            }
+          })
         }
       })
-    }else{
-      addServer(params,
-        {
-          success: {
-            func: () => {
-              notify.success(`配置 ${params.name} 新建成功`)
-              if(!!funcTab2){
-                funcTab2.loadData();
-                funcTab2.scope.setState({ isTab2ModalShow:false,
-                  pagination: {
-                    current: 1,
-                    defaultCurrent: 1,
-                    pageSize: 5,
-                  }, //分页配置
-                  paginationCurrent: 1, })
-              }else if(!!funcTab1){
-                funcTab1.scope.onTab2ModalCancel();
-              }
-            },
-            isAsync: true,
-          },
-          failed: {
-            func: err => {
-              const { statusCode } = err;
-              notify.error(`新建配置 ${params.name} 失败，错误代码: ${statusCode}`)
-            },
-          }
-        })
-    }
-  }
-  inputvSphereChange = (e) => {
-    this.setState({vSphere: e.target.value});
-  }
-  inputpasswordChange = (e) => {
-    this.setState({password: e.target.value});
-  }
-  inputnameChange = (e) => {
-    this.setState({name: e.target.value});
+    })
   }
   changePasswordType = () => {
     this.setState({
@@ -175,29 +171,33 @@ class Tab2Modal extends React.Component {
   }
   render(){
     const { clusterList, isModalFetching, getData, isGetFormData } = this.props;
-
+    const { getFieldProps } = this.props.form;
     const options = !!clusterList ?
     clusterList.map((o,i,objs) => <Select.Option key={i} value={o.clusterid}>{o.clustername}</Select.Option>) : null;
-    !!options && options.unshift(<Select.Option key="-1" value="">请选择容器集群</Select.Option>)
+    !!options && options.unshift(<Select.Option key="-1" value=""><span className="optionValueNull">请选择容器集群</span></Select.Option>)
     let objDisabled = _.filter(clusterList, {clusterid: this.state.selectValue})[0];
     if(isEdit){ objDisabled = null; }
     const iconClass1 = classNames({
       'iconCon': true,
+      'iconvmware': true,
       'selectedBox': this.state.currentIcon == "vmware",
       'iconConDis': disabledIconCon.indexOf("vmware") < 0 && !!objDisabled ? !!objDisabled["vmware"] : true,
     });
     const iconClass2 = classNames({
       'iconCon': true,
+      'iconaws': true,
       'selectedBox': this.state.currentIcon == "aws",
       'iconConDis': disabledIconCon.indexOf("aws") < 0 && !!objDisabled ? !!objDisabled["aws"] : true,
     });
     const iconClass3 = classNames({
       'iconCon': true,
+      'iconazure': true,
       'selectedBox': this.state.currentIcon == "azure",
       'iconConDis': disabledIconCon.indexOf("azure") < 0 && !!objDisabled ? !!objDisabled["azure"] : true,
     });
     const iconClass4 = classNames({
       'iconCon': true,
+      'iconali': true,
       'selectedBox': this.state.currentIcon == "ali",
       'iconConDis': disabledIconCon.indexOf("ali") < 0 && !!objDisabled ? !!objDisabled["ali"] : true,
     });
@@ -205,7 +205,9 @@ class Tab2Modal extends React.Component {
       labelCol: { span: 6},
       wrapperCol: { span: 14}
     }
-    if(!this.props.visible) randomKey = Math.random();//重置表单
+    const server = !!this.props.currData ? this.props.currData["server"] : ''
+    const name = !!this.props.currData ? this.props.currData["name"] : ''
+    const password = !!this.props.currData ? this.props.currData["password"] : ''
     return (
       <Modal
         visible={this.props.visible}
@@ -215,6 +217,8 @@ class Tab2Modal extends React.Component {
         title="新建资源池配置"
         okText="保存"
         width="550"
+        maskClosable={false}
+        confirmLoading={this.state.submitLoading}
         >
         {isModalFetching ?
 
@@ -222,7 +226,7 @@ class Tab2Modal extends React.Component {
             <Spin size="large"/>
           </div>
           :
-          <div key={randomKey} >
+          <Form horizontal >
             <Row key="row1">
               <FormItem
                 {...formItemLargeLayout}
@@ -276,7 +280,15 @@ class Tab2Modal extends React.Component {
                   {...formItemLargeLayout}
                   label="vSphere地址"
                 >
-                  <Input value={this.state.vSphere} onChange={this.inputvSphereChange} placeholder="请输入vSphere地址" />
+                  <Input {...getFieldProps('server', { initialValue: server,
+                    validate: [{
+                      rules: [
+                        { required: true, message: '请输入vSphere地址' },
+                      ],
+                      trigger: ['onBlur', 'onChange'] ,
+                    }],
+                  },
+                  )} placeholder="请输入vSphere地址" />
                 </FormItem>
               </Row>
               <Row key="row3">
@@ -284,7 +296,15 @@ class Tab2Modal extends React.Component {
                   {...formItemLargeLayout}
                   label="登录用户名"
                 >
-                  <Input value={this.state.name} onChange={this.inputnameChange} placeholder="请输入登录用户名" />
+                  <Input {...getFieldProps('Username', { initialValue: name,
+                    validate: [{
+                      rules: [
+                        { required: true, message: '请输入登录用户名' },
+                      ],
+                      trigger: ['onBlur', 'onChange'] ,
+                    }],
+                  },
+                  )} placeholder="请输入登录用户名" />
                 </FormItem>
               </Row>
               <Row key="row4">
@@ -292,12 +312,29 @@ class Tab2Modal extends React.Component {
                   {...formItemLargeLayout}
                   label="登录密码"
                 >
-                  <Input style={{ width: "95%", }} type={this.state.isShowPassword ? "text" : "password"} value={this.state.password} onChange={this.inputpasswordChange} placeholder="请输入登录密码" />
-                  <Icon style={{pointer: "cursor", width: "5%", textAlign: "center"}} type="eye-o" onClick={this.changePasswordType} />
+                  <Input {...getFieldProps('Userpassword', { initialValue: password,
+                        validate: [{
+                          rules: [
+                            { required: true, message: '请输入登录密码' },
+                          ],
+                          trigger: ['onBlur', 'onChange'] ,
+                        }],
+                      }
+                      )} autoComplete="new-password"
+                      readOnly={this.state.isPasswordReadOnly}
+                      onFocus={() => this.setState({ isPasswordReadOnly: false })}
+                      onBlur={() => this.setState({ isPasswordReadOnly: true })}
+                      type={this.state.isShowPassword ? "text" : "password"} placeholder="请输入登录密码" />
+                  {
+                    this.state.isShowPassword ?
+                    <Icon className="iconEye" type="eye-o" onClick={this.changePasswordType} />
+                    :
+                    <Icon className="iconEye" type="eye" onClick={this.changePasswordType} />
+                  }
                 </FormItem>
               </Row>
             </div>
-          </div>
+          </Form>
         }
       </Modal>
     )
@@ -325,6 +362,8 @@ Date.prototype.Format = function (fmt) {
   }
   return fmt;
 }
+
+Tab2Modal = Form.create()(Tab2Modal);
 
 const mapStateToProps = state => {
   const { appAutoScaler } = state;

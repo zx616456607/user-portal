@@ -52,6 +52,7 @@ class Form1 extends React.Component {
                 rules: [
                   { required: true, message: '策略名称' },
                 ],
+                trigger: ['onBlur', 'onChange'] ,
               }],
           onChange: this.roleNameChange })} placeholder="支持 100 字以内的中英文" />
           </FormItem>
@@ -67,10 +68,11 @@ class Form1 extends React.Component {
                 rules: [
                   { required: true, message: '请选择数据中心' },
                 ],
+                trigger: ['onChange'],
               }],
               onChange: this.props.onDataCenterChange
               })} placeholder="请选择数据中心" style={{width: "100%", }}>
-              <Select.Option value="">请选择数据中心</Select.Option>
+              <Select.Option value=""><span className="optionValueNull">请选择数据中心</span></Select.Option>
               {
                 datacenterList.map((item) => {
                   return <Select.Option key={item}>{item}</Select.Option>
@@ -89,6 +91,7 @@ class Form1 extends React.Component {
                 rules: [
                   { required: true, message: '请选择路径' },
                 ],
+                trigger: ['onBlur', 'onChange'] ,
               }],})}
           placeholder="如 /paas/vms/autoscaling-group" />
           </FormItem>
@@ -103,8 +106,9 @@ class Form1 extends React.Component {
                 rules: [
                   { required: true, message: '请选择虚拟机模板' },
                 ],
+                trigger: ['onChange'],
               }], })} placeholder="请选择虚拟机模板" style={{width: "100%", }}>
-              <Select.Option value="">请选择虚拟机模板</Select.Option>
+              <Select.Option value=""><span className="optionValueNull">请选择虚拟机模板</span></Select.Option>
               {
                 template.map((item) =>
                 {
@@ -134,8 +138,9 @@ class Form1 extends React.Component {
                 rules: [
                   { required: true, message: '请选择计算资源池' },
                 ],
+                trigger: ['onChange'],
               }], })} placeholder="请选择计算资源池" style={{width: "100%", }}>
-              <Select.Option value="">请选择计算资源池</Select.Option>
+              <Select.Option value=""><span className="optionValueNull">请选择计算资源池</span></Select.Option>
               {
                 resourcePool.map((item) =>
                   {
@@ -155,8 +160,9 @@ class Form1 extends React.Component {
                 rules: [
                   { required: true, message: '请选择存储资源池' },
                 ],
+                trigger: ['onChange'],
               }], })} placeholder="请选择存储资源池" style={{width: "100%", }}>
-              <Select.Option value="">请选择存储资源池</Select.Option>
+              <Select.Option value=""><span className="optionValueNull">请选择存储资源池</span></Select.Option>
               {
                 datastore.map((item) =>
                   {
@@ -248,12 +254,13 @@ class Tab1Modal extends React.Component {
     })
   }
   formSubmit = () => {
+    const form1Data = this.state.form1Data;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         console.log('Errors in form!!!');
-        this.setState({
-          currentStep: 0,
-        })
+        // this.setState({
+        //   currentStep: 0,
+        // })
         return;
       }
       console.log('Submit!!!');
@@ -284,6 +291,12 @@ class Tab1Modal extends React.Component {
       selDisabled: false,
       selectValue: "",
     });
+  }
+  modalCancel = () => {
+    this.props.onCancel();
+    this.resetState();
+    updateTimer = null;
+    addTimer = null;
   }
   render(){
     const { clusterList, isModalFetching,
@@ -318,14 +331,14 @@ class Tab1Modal extends React.Component {
         updateTimer = null;
         currentData = this.props.currentData;
       }
-      if(!!!updateTimer){
+      if(!!!updateTimer && isModalFetching === false){
         updateTimer = setTimeout(() => {
           this.getDataCenter(iaas);
         }, 200);
       }
       addTimer = null;
     }else{
-      if(!!!addTimer){
+      if(!!!addTimer && isModalFetching===false){
         addTimer = setTimeout(() => {
           this.resetState();
         }, 200);
@@ -345,33 +358,37 @@ class Tab1Modal extends React.Component {
       }
       return <Select.Option key={i} value={o.clusterid}>{o.clustername}</Select.Option>
     }) : null;
-    !!options && options.unshift(<Select.Option key="-1" value="">请选择容器集群</Select.Option>)
+    !!options && options.unshift(<Select.Option key="-1" value=""><span className="optionValueNull">请选择容器集群</span></Select.Option>)
     let objDisabled = _.filter(clusterList, {clusterid: this.state.selectValue})[0];
 
     const iconClass1 = classNames({
       'iconCon': true,
+      'iconvmware': true,
       'selectedBox': !!iaas ? iaas === "vmware" : this.state.currentIcon === "vmware",
       'iconConDis': !!iaas ? true : disabledIconCon.indexOf("vmware") > -1, // !!isCreated[this.state.selectValue] && isCreated[this.state.selectValue].vmware ? true :
     });
     const iconClass2 = classNames({
       'iconCon': true,
+      'iconaws': true,
       'selectedBox': !!iaas ? iaas === "aws" :  this.state.currentIcon === "aws",
       'iconConDis': !!iaas ? true : disabledIconCon.indexOf("aws") > -1,
     });
     const iconClass3 = classNames({
       'iconCon': true,
+      'iconazure': true,
       'selectedBox': !!iaas ? iaas === "azure" :  this.state.currentIcon === "azure",
       'iconConDis': !!iaas ? true : disabledIconCon.indexOf("azure") > -1,
     });
     const iconClass4 = classNames({
       'iconCon': true,
+      'iconali': true,
       'selectedBox': !!iaas ? iaas === "ali" :  this.state.currentIcon === "ali",
       'iconConDis': !!iaas ? true : disabledIconCon.indexOf("ali") > -1,
     });
     const footer = (() => {
         return (
           <div>
-            <Button onClick={() => {!!!this.props.isModalFetching && !!!isResFetching && this.props.onCancel()}}>取消</Button>
+            <Button onClick={() => {!!!this.props.isModalFetching && !!!isResFetching && this.modalCancel()}}>取消</Button>
             {
             this.state.beforecheckExist ?
               null
@@ -383,8 +400,8 @@ class Tab1Modal extends React.Component {
                 <Button type="primary" onClick={this.nextStep}>下一步</Button>
                 :
                 [
-                <Button type="primary" onClick={this. returnStep}>上一步</Button>,
-                <Button type="primary" onClick={this.formSubmit}>保存</Button>
+                <Button type="primary" onClick={this.returnStep}>上一步</Button>,
+                <Button type="primary" onClick={this.formSubmit} loading={this.props.confirmLoading}>保存</Button>
                 ]
             }
           </div>
@@ -410,11 +427,12 @@ class Tab1Modal extends React.Component {
         <Modal
           visible={this.props.visible}
           title="弹性伸缩策略"
-          onCancel={this.props.onCancel}
           width="550"
           footer={footer}
           key={randomKey}
-          maskClosable={true}
+          maskClosable={false}
+          confirmLoadin={this.props.confirmLoading}
+          onClose={() => {!!!this.props.isModalFetching && !!!isResFetching && this.modalCancel()}}
           >
           {
             isModalFetching?
@@ -510,15 +528,15 @@ class Tab1Modal extends React.Component {
                       <div>
                         <div className="panel">
                           <Row key="row7">
-                            <FormItem
+                            <FormItem className="noMB"
                               {...formItemLargeLayout}
                               label="节点数量"
                             >
                             <div className="min">
                                 <div className="name">最小节点数
-                                  <Tooltip placement="right" title="注：最小实例数需大于或等于手动添加的实例总数">
+                                  {/*<Tooltip placement="right" title="注：最小实例数需大于或等于手动添加的实例总数">
                                     <Icon style={{marginLeft: "5px", cursor: "pointer"}} type="info-circle-o" />
-                                  </Tooltip>
+                                  </Tooltip>*/}
                                 </div>
                                 <div className="formItem">
                                   <Input {...getFieldProps('min', { initialValue: min,
@@ -526,6 +544,7 @@ class Tab1Modal extends React.Component {
                                       rules: [
                                         { required: true, message: '最小节点数' },
                                       ],
+                                      trigger: ['onBlur', 'onChange'] ,
                                     }], })} className="item" placeholder="1" /><span className="unit">个</span>
                                 </div>
                               </div>
@@ -537,10 +556,44 @@ class Tab1Modal extends React.Component {
                                       rules: [
                                         { required: true, message: '最大节点数' },
                                       ],
+                                      trigger: ['onBlur', 'onChange'] ,
                                     }], })} className="item" placeholder="1" /><span className="unit">个</span>
                                 </div>
                               </div>
                             </FormItem>
+                            <Row style={{marginBottom: "15px"}} className="rowtext" key="rowtext">
+                              <Col span={6}>
+                              </Col>
+                              <Col span={16}>
+                                <span>
+                                  <i className="tips_icon anticon anticon-exclamation-circle-o"></i>
+                                  注：这里的数量仅计算自动伸缩的节点，手动添加节点除外
+                                </span>
+                              </Col>
+                            </Row>
+                            {/*<FormItem
+                              {...formItemLargeLayout}
+                              label={ (() => {
+                                return (
+                                  ["节点数量",
+                                  <Tooltip placement="right" title="注：最小实例数需大于或等于手动添加的实例总数">
+                                    <Icon style={{margin: "3px 0 0 3px", cursor: "pointer"}} type="info-circle-o" />
+                                  </Tooltip>]
+                                )
+                              })()
+                              }
+                            >
+                              <Input {...getFieldProps('xxx', { initialValue: email ,
+                                validate: [{
+                                  rules: [
+                                    { required: true, message: '请输入节点数量' },
+                                  ],
+                                  trigger: ['onBlur', 'onChange'],
+                                }]
+                              },
+                              )} placeholder="请输入节点数量" />
+                              <span className="unit">个</span>
+                            </FormItem>*/}
                           </Row>
                           {/*<Row key="row8">
                             <FormItem
@@ -563,6 +616,7 @@ class Tab1Modal extends React.Component {
                                   rules: [
                                     { required: true, message: '请选择减少节点方式' },
                                   ],
+                                  trigger: ['onClick'],
                                 }], })}>
                                 <Radio key="a" value="0">仅移出集群</Radio>
                                 <Radio key="b" value="1">移出集群并删除节点</Radio>
@@ -581,7 +635,6 @@ class Tab1Modal extends React.Component {
                                 validate: [{
                                   rules: [
                                     { type: 'email', message: '请输入正确的邮箱地址' },
-                                    { required: true, message: '请输入邮箱地址' },
                                   ],
                                   trigger: ['onBlur', 'onChange'],
                                 }]
@@ -599,6 +652,7 @@ class Tab1Modal extends React.Component {
                                   rules: [
                                     { required: true, message: '请输入策略冷却时间' },
                                   ],
+                                  trigger: ['onBlur', 'onChange'] ,
                                 }], })} style={{width:"90px"}} placeholder="120" min={1} max={1000} />
                               <span className="unit">秒</span>
                               <span className="hint">策略连续两次触发的最小时间</span>
