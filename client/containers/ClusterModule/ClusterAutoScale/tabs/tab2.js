@@ -209,7 +209,12 @@ class Tab2 extends React.Component {
         console.log(selected, selectedRows, changeRows);
       },
     };
-    if(!!this.props.serverList){ tableData = this.props.serverList; total = this.props.serverList.length}
+    if(!!this.props.serverList){
+      // tableData = [].concat(this.props.serverList,this.props.serverList,this.props.serverList,this.props.serverList,this.props.serverList);
+      // total = this.props.serverList.length*5;
+      tableData = this.props.serverList;
+      total = this.props.serverList.length;
+    }
     const func = {
       scope: this,
       loadData: this.loadData,
@@ -241,7 +246,7 @@ class Tab2 extends React.Component {
                 onChange={this.onPageChange}
                 // onShowSizeChange={this.onShowSizeChange}
                 current={this.state.paginationCurrent}
-                pageSize={5}
+                pageSize={this.state.pagination.pageSize}
                 total={total} />
             </div>
           </div>}
