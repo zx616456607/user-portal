@@ -186,6 +186,10 @@ class QuickCreateApp extends Component {
     let newCpuTotal = 0
     let newMemoryTotal = 0
     let newPriceHour = 0
+    const appName = location.query.appName
+    if (!appName) {
+      return
+    }
     loadServiceList(current.cluster.clusterID, location.query.appName, null, {
       success: {
         func: res => {

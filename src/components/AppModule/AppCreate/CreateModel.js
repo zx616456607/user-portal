@@ -46,8 +46,8 @@ class CreateModel extends Component {
     this.serviceSum = 0
     this.configureServiceKey = this.genConfigureServiceKey()
     this.state = {
-      createModel: "template",
-      linkUrl: "template",
+      createModel: "quick",
+      linkUrl: "quick_create",
       disabled: false,
       moreService: false
     }
@@ -98,7 +98,7 @@ class CreateModel extends Component {
         linkUrl = 'wrap_store'
         break
       }
-      default: linkUrl = 'template'
+      default: linkUrl = 'quick_create'
     }
 
     const parentScope = this.props.scope;
@@ -156,17 +156,6 @@ class CreateModel extends Component {
         <div className="CreateModel" key="CreateModel">
           <div className="topBox">
             <div className="contentBox">
-            <div className={createModel == "template" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"} onClick={this.selectCreateModel.bind(this, "template")}>
-                <img src={createModel == "template" ? appTemplateHover : appTemplate} />
-                <div className="infoBox">
-                  <p>应用模板</p>
-                  <span>通过应用模板创建应用</span>
-                </div>
-                <svg className="commonSelectedImg">
-                  <use xlinkHref="#appcreatemodelselect" />
-                </svg>
-                <i className="fa fa-check"></i>
-              </div>
               <div className={createModel == "quick" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"} onClick={this.selectCreateModel.bind(this, "quick")}>
                 <img src={createModel == "quick" ? imageHover : image} />
                 <div className="infoBox">
@@ -205,6 +194,17 @@ class CreateModel extends Component {
                 <div className="infoBox">
                   <p>应用包商店</p>
                   <span>通过应用商店创建应用</span>
+                </div>
+                <svg className="commonSelectedImg">
+                  <use xlinkHref="#appcreatemodelselect" />
+                </svg>
+                <i className="fa fa-check"></i>
+              </div>
+              <div className={createModel == "template" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"} onClick={this.selectCreateModel.bind(this, "template")}>
+                <img src={createModel == "template" ? appTemplateHover : appTemplate} />
+                <div className="infoBox">
+                  <p>应用模板</p>
+                  <span>通过应用模板创建应用</span>
                 </div>
                 <svg className="commonSelectedImg">
                   <use xlinkHref="#appcreatemodelselect" />
