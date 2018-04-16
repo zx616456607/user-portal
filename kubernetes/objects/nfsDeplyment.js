@@ -11,7 +11,7 @@
 class NfsDeplyment {
   constructor(nfsname, ip, path, image){
     this.kind = 'Deployment'
-    this.apiVersion = 'extensions/v1beta1'
+    this.apiVersion = 'apps/v1'
     this.metadata = {
       name: nfsname,
       namespace: 'kube-system'
@@ -20,6 +20,11 @@ class NfsDeplyment {
       replicas: 1,
       strategy: {
         type: 'Recreate'
+      },
+      selector: {
+        matchLabels:{
+          app: nfsname,
+        }
       },
       template:{
         metadata: {

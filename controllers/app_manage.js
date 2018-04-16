@@ -8,6 +8,7 @@
  * @author Zhangpc
  */
 'use strict'
+const logger = require('../utils/logger.js').getLogger("app_manage")
 const yaml = require('js-yaml')
 const apiFactory = require('../services/api_factory')
 const Deployment = require('../kubernetes/objects/deployment')
@@ -167,11 +168,19 @@ exports.deleteApps = function* () {
       }
     })
     const devOpsApi = apiFactory.getDevOpsApi(loginUser)
-    if(deleteCDRuleServiceName.length > 0) {
-      yield devOpsApi.deleteBy(['cd-rules'], {
-        cluster,
-        name: deleteCDRuleServiceName.join(',')
-      })
+    if (deleteCDRuleServiceName.length > 0) {
+      try {
+        yield devOpsApi.deleteBy(['cd-rules'], {
+          cluster,
+          name: deleteCDRuleServiceName.join(',')
+        })
+      } catch (err) {
+        if (err.statusCode === 403) {
+          logger.warn("Failed to delete cd rules as it's not permitted")
+        } else {
+          throw err
+        }
+      }
     }
   }
   const result = yield api.batchDeleteBy([cluster, 'apps', 'batch-delete'], null, body)

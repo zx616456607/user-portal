@@ -11,7 +11,7 @@
 
 class NfsStorage {
   constructor(name, nfsname){
-    this.apiVersion = 'storage.k8s.io/v1beta1'
+    this.apiVersion = 'storage.k8s.io/v1'
     this.kind =  'StorageClass'
     this.metadata = {
       annotations:{

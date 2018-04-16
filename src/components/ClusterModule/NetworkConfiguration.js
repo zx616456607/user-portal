@@ -135,7 +135,8 @@ let NetworkConfiguration = React.createClass ({
       let isDisabled = false;
       let key = node.objectMeta.labels['ingress-lb'];
       const { maintenance } = node.objectMeta.annotations;
-      if (key && key === 'true' || maintenance === 'false') {
+      // Disable the node if it's ingress-controller, or it's under maintenance/maintenance-failure
+      if (key && key === 'true' || (maintenance === 'true' || maintenance === 'failed')) {
         isDisabled = true;
       }
       return <Option key={node.objectMeta.name} disabled={isDisabled} value={node.objectMeta.name}>{node.objectMeta.name}</Option>
