@@ -51,7 +51,7 @@ exports.deleteServer = function* () {
   const loginUser = this.session.loginUser
   const { cluster, configname } = this.request.query
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.clusters.deleteBy(['autoscaler', 'server', cluster, configname ])
+  this.body = yield api.clusters.deleteBy(['autoscaler', 'server', cluster ])
 }
 
 

@@ -23,7 +23,6 @@ let getAppList;
 let tableData = [];
 let _tab1modal;
 
-
 class Tab1 extends React.Component {
   state = {
     isSearchFocus: false, //搜索框选中状态
@@ -44,8 +43,8 @@ class Tab1 extends React.Component {
     submitTab1Loading: false,
     isShowDelModal: false,
   }
-  //顶部按钮事件
-  add = () => {
+
+  openModalByAdd = () => {
     this.setState({isTab1ModalShow: true, isEdit: false, currentData: {}});
   }
   dropDown = (key, rowData) => {
@@ -53,7 +52,7 @@ class Tab1 extends React.Component {
       case "edit":
         this.edit(rowData);
         break;
-      case "onOff":
+      case "changeStatus":
         this.onOffItem(rowData);
         break;
       case "del":
@@ -176,7 +175,6 @@ class Tab1 extends React.Component {
     this.setState({pagination: pagination, paginationCurrent: page});
   }
   clickTableRowName = (rowData) => {
-    //console.log(rowData);
     const temp = JSON.parse(JSON.stringify(rowData));
     this.setState({currentData: temp,isShowTab1List: false});
     this.props.getLogList({cluster: rowData.cluster});
@@ -187,7 +185,7 @@ class Tab1 extends React.Component {
   onTab1ModalCancel = () => {
     this.setState({isTab1ModalShow: false});
   }
-  onTab1ModalOk = (params) => {
+  onTab1ModalOk = (params, _cb) => {
     this.setState({
       submitTab1Loading: true,
     }, () => {
@@ -212,7 +210,9 @@ class Tab1 extends React.Component {
             func: () => {
               notify.success(`策略 ${params.name} 更新成功`);
                 this.loadData();
-                this.setState(resetState);
+                this.setState(resetState, function(){
+                  !!_cb && _cb();
+                });
             },
             isAsync: true,
           },
@@ -230,7 +230,9 @@ class Tab1 extends React.Component {
               func: () => {
                 notify.success(`策略 ${params.name} 新建成功`)
                   this.loadData()
-                  this.setState(resetState)
+                  this.setState(resetState, function(){
+                    !!_cb && _cb();
+                  })
               },
               isAsync: true,
             },
@@ -273,9 +275,10 @@ class Tab1 extends React.Component {
       })
     })
   }
-  onTab2ModalCancel = () => {
+  onTab2ModalCancel = (_cb) => {
     this.setState({isTab2ModalShow: false, isTab1ModalShow: true}, () => {
       _tab1modal.resetState();
+      !!_cb && _cb();
     });
   }
   loadData() {
@@ -339,12 +342,6 @@ class Tab1 extends React.Component {
         dataIndex: 'max',
         width: 100,
       },
-
-      // {
-      //   title: '最大节点数',
-      //   dataIndex: 'xxx',
-      //   width: 100,
-      // },
       {
         title: 'Email',
         dataIndex: 'email',
@@ -357,7 +354,7 @@ class Tab1 extends React.Component {
         render: function(text, rowData){
           const menu = (
             <Menu onClick={(e) => {_that.dropDown(e.key, rowData)}}>
-              <Menu.Item key="onOff">{ rowData.status === "on" ? "停用" : "启用"}</Menu.Item>
+              <Menu.Item key="changeStatus">{ rowData.status === "on" ? "停用" : "启用"}</Menu.Item>
               {/*<Menu.Item key="clone">克隆</Menu.Item>*/}
               <Menu.Item key="del">删除</Menu.Item>
             </Menu>
@@ -384,7 +381,6 @@ class Tab1 extends React.Component {
     });
     let total = tableData.length;
     const currentData = this.state.currentData;
-    //this.state.isShowTab1List
     const isbtnDisabled = !!!this.state.selectedRowKeys.length;
     if(!!appList){
       tableData = appList;
@@ -412,13 +408,13 @@ class Tab1 extends React.Component {
           <QueueAnim>
             <div className={part1Class} key="part1">
               <div className="btnPanel">
-                <Button type="primary" size="large" onClick={this.add} style={{ marginRight: "10px" }}>
+                <Button type="primary" size="large" onClick={this.openModalByAdd} style={{ marginRight: "10px" }}>
                   <i className="fa fa-plus" />新建策略
                 </Button>
                 <Button className="refreshBtn" size='large' onClick={this.reflesh}>
                   <i className='fa fa-refresh' />刷新
                 </Button>
-                {/*<Button className="btnItem" onClick={this.add} type="primary" ><Icon type="plus" />新建策略</Button>
+                {/*<Button className="btnItem" onClick={this.openModalByAdd} type="primary" ><Icon type="plus" />新建策略</Button>
                 <Button className="btnItem" onClick={this.reflesh} type="ghost" ><Icon type="retweet" />刷新</Button>*/}
                 {/*<Button className="btnItem" onClick={this.on} type="ghost" disabled={isbtnDisabled} ><Icon type="caret-right" />启用</Button>
                 <Button className="btnItem" onClick={this.off} type="ghost" disabled={isbtnDisabled} ><Icon type="pause" />停用</Button>
@@ -501,7 +497,14 @@ class Tab1 extends React.Component {
                   </div>
                   <div style={{clear: "both"}}></div>
                 </Card>
-                <Card className="right" title="伸缩日志" bordered={false}>
+                <Card className="right" title={(() => {
+                    return (
+                      [
+                      <span>伸缩日志</span>,
+                      <span style={{ fontSize: "12px", color: "#d9d9d9", fontWeight: "normal"}}>&nbsp;日志暂只支持保留一小时</span>
+                      ]
+                    )
+                  })()} bordered={false}>
                   <div className="appAutoScaleLogs">
                     {
                       isLogFetching ?
@@ -528,7 +531,12 @@ class Tab1 extends React.Component {
             isEdit={this.state.isEdit}
             currentData={this.state.currentData}
             confirmLoading={this.state.submitTab1Loading}
-            func={func} closeTab1Modal={this.closeTab1Modal} visible={this.state.isTab1ModalShow} onOk={this.onTab1ModalOk} onCancel={this.onTab1ModalCancel} onClose={this.onTab1ModalCancel}/>
+            func={func}
+            closeTab1Modal={this.closeTab1Modal}
+            visible={this.state.isTab1ModalShow}
+            onOk={this.onTab1ModalOk}
+            onCancel={this.onTab1ModalCancel}
+            onClose={this.onTab1ModalCancel}/>
           <Tab2Modal
             visible={this.state.isTab2ModalShow}
             onCancel={this.onTab2ModalCancel}

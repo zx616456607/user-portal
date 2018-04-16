@@ -133,8 +133,6 @@ const fetchAutoScalerClusterList = (query, callback) => {
 export const getAutoScalerClusterList = (query?: object, callback?: function) =>
   dispatch => dispatch(fetchAutoScalerClusterList(query, callback));
 
-// server end
-
 export const APP_AUTOSCALERAPP_LIST_REQUEST = 'APP_AUTOSCALERAPP_LIST_REQUEST';
 export const APP_AUTOSCALERAPP_LIST_SUCCESS = 'APP_AUTOSCALERAPP_LIST_SUCCESS';
 export const APP_AUTOSCALERAPP_LIST_FAILURE = 'APP_AUTOSCALERAPP_LIST_FAILURE';

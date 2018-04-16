@@ -129,7 +129,6 @@ function getResList(state = {}, action) {
   }
 }
 
-// x
 export default function appAutoScaler(state = {}, action) {
   return {
     getServerList: getServerList(state.getServerList, action),

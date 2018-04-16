@@ -11,8 +11,8 @@ const notify = new NotificationHandler();
 const Option = Select.Option;
 const FormItem = Form.Item;
 let isGetParams = true; //是否获取接口数据
-let disabledIconCon = ["aws", "azure", "ali"]; //禁用的图标按钮集合
 let isEdit = false;
+const disabledIcons = ["aws", "azure", "ali"]; //不支持的资源池
 
 class Tab2Modal extends React.Component {
   clickIcon = (e) => {
@@ -73,23 +73,53 @@ class Tab2Modal extends React.Component {
   onChange = (value) => {
     this.setState({
       selectValue: value,
-      currentIcon: "",
+      //currentIcon: "",
     })
     return value;
   }
-  onTab2ModalOk = () => {
+  checkParams = () => {
+    return this.checkIaas() && this.checkCluster()
+  }
+  checkIaas = () => {
+    let b = true;
+    if(!!!this.state.currentIcon){
+      notify.warn('请选择Iaas平台');
+      b = false;
+    }
+    return b;
+  }
+  checkCluster = () => {
+    let b = true;
+    if(!!!this.state.selectValue){
+      notify.warn('请选择容器集群');
+      b = false;
+    }
+    return b;
+  }
+  onCancel = () => {
+    this.props.form.resetFields();
+    this.props.onCancel(this.resetState);
+  }
+  resetState = () => {
     this.setState({
-      submitLoading: true,
-    }, () => {
-      if(!!!this.state.currentIcon){
-        notify.warn('请选择Iaas平台');
-        return ;
+      currentIcon: "",
+      selectValue: "",
+      disabled: false,
+      isShowPassword: false,
+      isPasswordReadOnly: true, //防止密码填充表单
+      submitLoading: false,
+    });
+  }
+  onTab2ModalOk = () => {
+    if(!this.checkParams()) return;
+    this.props.form.validateFields((errors, values) => {
+      if (!!errors || (errors === null && JSON.stringify(values) === "{}")) {
+        console.log('Errors in form!!!');
+        return;
       }
-      this.props.form.validateFields((errors, values) => {
-        if (!!errors || (errors === null && JSON.stringify(values) === "{}")) {
-          console.log('Errors in form!!!');
-          return;
-        }
+      this.setState({
+        submitLoading: true,
+      }, () => {
         //新增、修改接口
         const { addServer, updateServer, funcTab1, funcTab2 } = this.props;
         const date = new Date();
@@ -110,7 +140,7 @@ class Tab2Modal extends React.Component {
             success: {
               func: () => {
                 notify.success(`配置 ${params.name} 更新成功`);
-                if(!!funcTab2){//tab2打开编辑页时 逻辑 同理funcTab1
+                if(!!funcTab2){
                   funcTab2.loadData();
                   funcTab2.scope.setState({
                     isTab2ModalShow:false,
@@ -127,8 +157,11 @@ class Tab2Modal extends React.Component {
             },
             failed: {
               func: err => {
-                const { statusCode } = err
-                notify.error(`更新配置 ${params.name} 失败，错误代码: ${statusCode}`)
+                const { statusCode, message } = err
+                notify.error(`更新配置 ${params.name} 失败，错误代码: ${statusCode}，${message.message}`);
+                this.setState({
+                  submitLoading: false,
+                });
               },
             }
           })
@@ -155,8 +188,11 @@ class Tab2Modal extends React.Component {
             },
             failed: {
               func: err => {
-                const { statusCode } = err;
-                notify.error(`新建配置 ${params.name} 失败，错误代码: ${statusCode}`)
+                const { statusCode, message } = err;
+                notify.error(`新建配置 ${params.name} 失败，错误代码: ${statusCode}，${message.message}`);
+                this.setState({
+                  submitLoading: false,
+                });
               },
             }
           })
@@ -173,33 +209,45 @@ class Tab2Modal extends React.Component {
     const { clusterList, isModalFetching, getData, isGetFormData } = this.props;
     const { getFieldProps } = this.props.form;
     const options = !!clusterList ?
-    clusterList.map((o,i,objs) => <Select.Option key={i} value={o.clusterid}>{o.clustername}</Select.Option>) : null;
+    clusterList.map((o,i,objs) => <Select.Option disabled={!!this.props.allClusterIds && this.props.allClusterIds.indexOf(o.clusterid) > -1} key={i} value={o.clusterid}>{o.clustername}</Select.Option>) : null;
     !!options && options.unshift(<Select.Option key="-1" value=""><span className="optionValueNull">请选择容器集群</span></Select.Option>)
-    let objDisabled = _.filter(clusterList, {clusterid: this.state.selectValue})[0];
-    if(isEdit){ objDisabled = null; }
+    let objCluster = _.filter(clusterList, {clusterid: this.state.selectValue})[0];
+    let objProvider;
+    !!objCluster ? objProvider = objCluster.provider : objProvider = {
+      vmware: false,
+      aws: false,
+      azure: false,
+      ali: false,
+    }
+    if(isEdit){ objProvider = {
+      vmware: true,
+      aws: true,
+      azure: true,
+      ali: true,
+    }}
     const iconClass1 = classNames({
       'iconCon': true,
       'iconvmware': true,
       'selectedBox': this.state.currentIcon == "vmware",
-      'iconConDis': disabledIconCon.indexOf("vmware") < 0 && !!objDisabled ? !!objDisabled["vmware"] : true,
+      'iconConDis': disabledIcons.indexOf("vmware") > -1 || !!objProvider && objProvider["vmware"],//true 为已配置 false为未配置
     });
     const iconClass2 = classNames({
       'iconCon': true,
       'iconaws': true,
       'selectedBox': this.state.currentIcon == "aws",
-      'iconConDis': disabledIconCon.indexOf("aws") < 0 && !!objDisabled ? !!objDisabled["aws"] : true,
+      'iconConDis': disabledIcons.indexOf("aws") > -1 || !!objProvider && objProvider["aws"],
     });
     const iconClass3 = classNames({
       'iconCon': true,
       'iconazure': true,
       'selectedBox': this.state.currentIcon == "azure",
-      'iconConDis': disabledIconCon.indexOf("azure") < 0 && !!objDisabled ? !!objDisabled["azure"] : true,
+      'iconConDis': disabledIcons.indexOf("azure") > -1 || !!objProvider && objProvider["azure"],
     });
     const iconClass4 = classNames({
       'iconCon': true,
       'iconali': true,
       'selectedBox': this.state.currentIcon == "ali",
-      'iconConDis': disabledIconCon.indexOf("ali") < 0 && !!objDisabled ? !!objDisabled["ali"] : true,
+      'iconConDis': disabledIcons.indexOf("ali") > -1 || !!objProvider && objProvider["ali"],
     });
     const formItemLargeLayout = {
       labelCol: { span: 6},
@@ -212,7 +260,7 @@ class Tab2Modal extends React.Component {
       <Modal
         visible={this.props.visible}
         onOk={this.onTab2ModalOk}
-        onCancel={this.props.onCancel}
+        onCancel={this.onCancel}
         onClose={this.props.onClose}
         title="新建资源池配置"
         okText="保存"

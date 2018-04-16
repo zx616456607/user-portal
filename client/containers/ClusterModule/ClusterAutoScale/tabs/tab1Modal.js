@@ -17,6 +17,7 @@ let currentData = "";
 let cluster = "", iaas = "";
 let updateTimer, addTimer;
 let form1Fun;
+let isCreated = {};//是否创建过策略的集群汇总
 const formItemLargeLayout = {
   labelCol: { span: 6},
   wrapperCol: { span: 14}
@@ -183,7 +184,8 @@ class Tab1Modal extends React.Component {
     super()
     this.state = {
       currentIcon: "",
-      checkExist: false, //查看已有模块 false没配过, true 配过
+      checkExistProvider: false, //查看已有模块 false没配过, true 配过
+      checkExistStrategy: false, //查看是否已经配过当前这个集群下的策略了 false没配过, true 配过
       beforecheckExist: true, //是否在 check 之前
       currentStep: 0,//0 第一步 1 第二步（保存）
       selDisabled: false,
@@ -205,6 +207,9 @@ class Tab1Modal extends React.Component {
     if(!this.checkParams()) return;
     this.props.closeTab1Modal(_that);
   }
+  fun2 = () => {
+    this.modalCancel();
+  }
   checkParams = () => {
     return this.checkIaas() && this.checkCluster()
   }
@@ -223,10 +228,6 @@ class Tab1Modal extends React.Component {
       b = false;
     }
     return b;
-  }
-  fun2 = () => {
-    if(!this.checkParams()) return;
-    this.setState({checkExist: true});
   }
   nextStep = () => {
     // 切换逻辑
@@ -248,7 +249,8 @@ class Tab1Modal extends React.Component {
       selectValue: value,
       currentIcon: "",
       beforecheckExist: true,
-      checkExist: false,
+      checkExistProvider: false,
+      checkExistStrategy: false,
       currentStep: 0,
       currDataCenter: ""
     })
@@ -265,13 +267,14 @@ class Tab1Modal extends React.Component {
       }
       console.log('Submit!!!');
       console.log(values);
-      // var values = this.props.form.getFieldsValue();
       const temp1 = JSON.parse(JSON.stringify(values));
       const temp2 = JSON.parse(JSON.stringify(form1Data));
       let temp = Object.assign({}, temp1, temp2);
       temp["cluster"] = !!cluster ? cluster : this.state.selectValue;
       temp["iaas"] = !!iaas ? iaas : this.state.currentIcon;
-      this.props.onOk(temp);
+      this.props.onOk(temp, () => {
+        this.resetState();
+      });
     });
   }
   onDataCenterChange = (value) =>{
@@ -285,7 +288,8 @@ class Tab1Modal extends React.Component {
   resetState = () => {
     this.setState({
       currentIcon: "",
-      checkExist: false, //查看已有模块 false没配过, true 配过
+      checkExistProvider: false, //查看已有模块 false没配过, true 配过
+      checkExistStrategy: false, //查看是否已经配过当前这个集群下的策略了 false没配过, true 配过
       beforecheckExist: true, //是否在 check 之前
       currentStep: 0,//0 第一步 1 第二步（保存）
       selDisabled: false,
@@ -347,14 +351,13 @@ class Tab1Modal extends React.Component {
       datacenterList = []; templatePathList = {}; datastorePathList = {}; resourcePoolPathList = {};
       cluster = ""; iaas = "";
     }
-    let isCreated = {};
     const options = !!clusterList ?
     clusterList.map((o,i,objs) => {
       isCreated[o.clusterid] = {
-        ali: o.ali,
-        aws: o.aws,
-        azure: o.azure,
-        vmware: o.vmware,
+        ali: o.strategy.ali,
+        aws: o.strategy.aws,
+        azure: o.strategy.azure,
+        vmware: o.strategy.vmware,
       }
       return <Select.Option key={i} value={o.clusterid}>{o.clustername}</Select.Option>
     }) : null;
@@ -394,7 +397,7 @@ class Tab1Modal extends React.Component {
               null
             :
               this.state.currentStep === 0 ?
-                ( this.props.isResFetching || !this.state.checkExist) ?
+                ( this.props.isResFetching || !this.state.checkExistProvider || (this.state.checkExistStrategy && isEdit === false)) ?
                 null
                 :
                 <Button type="primary" onClick={this.nextStep}>下一步</Button>
@@ -495,177 +498,184 @@ class Tab1Modal extends React.Component {
               this.state.beforecheckExist ?
               null
               :
-              this.state.checkExist ?
-              isResFetching ?
-                <div className="loadingBox">
-                  <Spin size="large"/>
-                </div>
-              :
-              <div>
-                <div className="bottom-line"></div>
-                <div className="stepContainer">
-                  <Steps size="small" current={this.state.currentStep} status="process">
-                    <Steps.Step key="0" title="节点自动配置" description="" />
-                    <Steps.Step key="1" title="集群伸缩方案" description="" />
-                  </Steps>
-                  <div className="bottom-line" style={{ bottom: "-10px" }}></div>
-                </div>
-                <div className="formContainer">
-                  <Form1
-                  datacenter={datacenter}
-                  datastorePath={datastorePath}
-                  resourcePoolPath={resourcePoolPath}
-                  templatePath={templatePath}
-                  targetPath={targetPath}
-                  name={name}
-                  template={template}
-                  datastore={datastore}
-                  resourcePool={resourcePool}
-                  currentStep={this.state.currentStep}
-                  onDataCenterChange={this.onDataCenterChange}
-                   />
-                  <Form className={"step2 " + ( this.state.currentStep === 0 ? "hide" : "")} horizontal>
-                      <div>
-                        <div className="panel">
-                          <Row key="row7">
-                            <FormItem className="noMB"
-                              {...formItemLargeLayout}
-                              label="节点数量"
-                            >
-                            <div className="min">
-                                <div className="name">最小节点数
-                                  {/*<Tooltip placement="right" title="注：最小实例数需大于或等于手动添加的实例总数">
-                                    <Icon style={{marginLeft: "5px", cursor: "pointer"}} type="info-circle-o" />
-                                  </Tooltip>*/}
-                                </div>
-                                <div className="formItem">
-                                  <Input {...getFieldProps('min', { initialValue: min,
-                                    validate: [{
-                                      rules: [
-                                        { required: true, message: '最小节点数' },
-                                      ],
-                                      trigger: ['onBlur', 'onChange'] ,
-                                    }], })} className="item" placeholder="1" /><span className="unit">个</span>
-                                </div>
-                              </div>
-                              <div className="max">
-                                <div className="name">最大节点数</div>
-                                <div className="formItem">
-                                  <Input {...getFieldProps('max', { initialValue: max,
-                                    validate: [{
-                                      rules: [
-                                        { required: true, message: '最大节点数' },
-                                      ],
-                                      trigger: ['onBlur', 'onChange'] ,
-                                    }], })} className="item" placeholder="1" /><span className="unit">个</span>
-                                </div>
-                              </div>
-                            </FormItem>
-                            <Row style={{marginBottom: "15px"}} className="rowtext" key="rowtext">
-                              <Col span={6}>
-                              </Col>
-                              <Col span={16}>
-                                <span>
-                                  <i className="tips_icon anticon anticon-exclamation-circle-o"></i>
-                                  注：这里的数量仅计算自动伸缩的节点，手动添加节点除外
-                                </span>
-                              </Col>
-                            </Row>
-                            {/*<FormItem
-                              {...formItemLargeLayout}
-                              label={ (() => {
-                                return (
-                                  ["节点数量",
-                                  <Tooltip placement="right" title="注：最小实例数需大于或等于手动添加的实例总数">
-                                    <Icon style={{margin: "3px 0 0 3px", cursor: "pointer"}} type="info-circle-o" />
-                                  </Tooltip>]
-                                )
-                              })()
-                              }
-                            >
-                              <Input {...getFieldProps('xxx', { initialValue: email ,
-                                validate: [{
-                                  rules: [
-                                    { required: true, message: '请输入节点数量' },
-                                  ],
-                                  trigger: ['onBlur', 'onChange'],
-                                }]
-                              },
-                              )} placeholder="请输入节点数量" />
-                              <span className="unit">个</span>
-                            </FormItem>*/}
-                          </Row>
-                          {/*<Row key="row8">
-                            <FormItem
-                              {...formItemLargeLayout}
-                              label="节点伸缩"
-                            >
-                            <Radio.Group {...getFieldProps('datastorePath', { initialValue: '' })}>
-                                <Radio key="a" value={1}>通过阈值触发</Radio>
-                                <Radio key="b" value={2}>定时触发</Radio>
-                              </Radio.Group>
-                            </FormItem>
-                          </Row> */}
-                          <Row key="row9">
-                            <FormItem
-                              {...formItemLargeLayout}
-                              label="减少节点"
-                            >
-                            <Radio.Group {...getFieldProps('removeAndDelete', { initialValue: removeAndDelete,
-                                validate: [{
-                                  rules: [
-                                    { required: true, message: '请选择减少节点方式' },
-                                  ],
-                                  trigger: ['onClick'],
-                                }], })}>
-                                <Radio key="a" value="0">仅移出集群</Radio>
-                                <Radio key="b" value="1">移出集群并删除节点</Radio>
-                              </Radio.Group>
-                            </FormItem>
-                          </Row>
-                        </div>
-                        <div className="bottom-line"></div>
-                        <div className="panel noBottom">
-                          <Row key="row10">
-                            <FormItem
-                              {...formItemLargeLayout}
-                              label="伸缩通知"
-                            >
-                              <Input {...getFieldProps('email', { initialValue: email ,
-                                validate: [{
-                                  rules: [
-                                    { type: 'email', message: '请输入正确的邮箱地址' },
-                                  ],
-                                  trigger: ['onBlur', 'onChange'],
-                                }]
-                              },
-                              )} placeholder="通知邮件为空，将不发送通知" />
-                            </FormItem>
-                          </Row>
-                          <Row key="row11">
-                            <FormItem
-                              {...formItemLargeLayout}
-                              label="策略冷却时间"
-                            >
-                              <InputNumber {...getFieldProps('duration', { initialValue: duration,
-                                validate: [{
-                                  rules: [
-                                    { required: true, message: '请输入策略冷却时间' },
-                                  ],
-                                  trigger: ['onBlur', 'onChange'] ,
-                                }], })} style={{width:"90px"}} placeholder="120" min={1} max={1000} />
-                              <span className="unit">秒</span>
-                              <span className="hint">策略连续两次触发的最小时间</span>
-                            </FormItem>
-                          </Row>
-                        </div>
+              this.state.checkExistProvider ?
+                this.state.checkExistStrategy && isEdit === false ?
+                  <div className="btnConatainer">
+                    <Button type="primary" onClick={this.fun2}>已存在策略, 请在列表选择相应策略编辑</Button>
+                  </div>
+                  :
+                  isResFetching ?
+                    <div className="loadingBox">
+                      <Spin size="large"/>
+                    </div>
+                    :
+                    <div>
+                      <div className="bottom-line"></div>
+                      <div className="stepContainer">
+                        <Steps size="small" current={this.state.currentStep} status="process">
+                          <Steps.Step key="0" title="节点自动配置" description="" />
+                          <Steps.Step key="1" title="集群伸缩方案" description="" />
+                        </Steps>
+                        <div className="bottom-line" style={{ bottom: "-10px" }}></div>
                       </div>
-                  </Form>
-                </div>
-              </div>
+                      <div className="formContainer">
+                        <Form1
+                        datacenter={datacenter}
+                        datastorePath={datastorePath}
+                        resourcePoolPath={resourcePoolPath}
+                        templatePath={templatePath}
+                        targetPath={targetPath}
+                        name={name}
+                        template={template}
+                        datastore={datastore}
+                        resourcePool={resourcePool}
+                        currentStep={this.state.currentStep}
+                        onDataCenterChange={this.onDataCenterChange}
+                        />
+                        <Form className={"step2 " + ( this.state.currentStep === 0 ? "hide" : "")} horizontal>
+                            <div>
+                              <div className="panel">
+                                <Row key="row7">
+                                  <div className="ant-col-6 ant-form-item-label"><label>节点数量</label></div>
+                                  <div className="ant-col-14">
+                                    <FormItem>
+                                      <div className="min">
+                                        <div className="name">最小节点数
+                                          {/*<Tooltip placement="right" title="注：最小实例数需大于或等于手动添加的实例总数">
+                                            <Icon style={{marginLeft: "5px", cursor: "pointer"}} type="info-circle-o" />
+                                          </Tooltip>*/}
+                                        </div>
+                                        <div className="formItem">
+                                          <Input {...getFieldProps('min', { initialValue: min,
+                                            validate: [{
+                                              rules: [
+                                                { required: true, message: '最小节点数' },
+                                              ],
+                                              trigger: ['onBlur', 'onChange'] ,
+                                            }], })} className="item" placeholder="1" /><span className="unit">个</span>
+                                        </div>
+                                      </div>
+                                    </FormItem>
+                                    <FormItem>
+                                      <div className="max">
+                                        <div className="name">最大节点数</div>
+                                        <div className="formItem">
+                                          <Input {...getFieldProps('max', { initialValue: max,
+                                            validate: [{
+                                              rules: [
+                                                { required: true, message: '最大节点数' },
+                                              ],
+                                              trigger: ['onBlur', 'onChange'] ,
+                                            }], })} className="item" placeholder="1" /><span className="unit">个</span>
+                                        </div>
+                                      </div>
+                                    </FormItem>
+                                  </div>
+                                  <Row style={{marginBottom: "15px"}} className="rowtext" key="rowtext">
+                                    <Col span={6}>
+                                    </Col>
+                                    <Col span={16}>
+                                      <span>
+                                        <i className="tips_icon anticon anticon-exclamation-circle-o"></i>
+                                        注：这里的数量仅计算自动伸缩的节点，手动添加节点除外
+                                      </span>
+                                    </Col>
+                                  </Row>
+                                  {/*<FormItem
+                                    {...formItemLargeLayout}
+                                    label={ (() => {
+                                      return (
+                                        ["节点数量",
+                                        <Tooltip placement="right" title="注：最小实例数需大于或等于手动添加的实例总数">
+                                          <Icon style={{margin: "3px 0 0 3px", cursor: "pointer"}} type="info-circle-o" />
+                                        </Tooltip>]
+                                      )
+                                    })()
+                                    }
+                                  >
+                                    <Input {...getFieldProps('xxx', { initialValue: email ,
+                                      validate: [{
+                                        rules: [
+                                          { required: true, message: '请输入节点数量' },
+                                        ],
+                                        trigger: ['onBlur', 'onChange'],
+                                      }]
+                                    },
+                                    )} placeholder="请输入节点数量" />
+                                    <span className="unit">个</span>
+                                  </FormItem>*/}
+                                </Row>
+                                {/*<Row key="row8">
+                                  <FormItem
+                                    {...formItemLargeLayout}
+                                    label="节点伸缩"
+                                  >
+                                  <Radio.Group {...getFieldProps('datastorePath', { initialValue: '' })}>
+                                      <Radio key="a" value={1}>通过阈值触发</Radio>
+                                      <Radio key="b" value={2}>定时触发</Radio>
+                                    </Radio.Group>
+                                  </FormItem>
+                                </Row> */}
+                                <Row key="row9">
+                                  <FormItem
+                                    {...formItemLargeLayout}
+                                    label="减少节点"
+                                  >
+                                  <Radio.Group {...getFieldProps('removeAndDelete', { initialValue: removeAndDelete,
+                                      validate: [{
+                                        rules: [
+                                          { required: true, message: '请选择减少节点方式' },
+                                        ],
+                                        trigger: ['onClick'],
+                                      }], })}>
+                                      <Radio key="a" value="0">仅移出集群</Radio>
+                                      <Radio key="b" value="1">移出集群并删除节点</Radio>
+                                    </Radio.Group>
+                                  </FormItem>
+                                </Row>
+                              </div>
+                              <div className="bottom-line"></div>
+                              <div className="panel noBottom">
+                                <Row key="row10">
+                                  <FormItem
+                                    {...formItemLargeLayout}
+                                    label="伸缩通知"
+                                  >
+                                    <Input {...getFieldProps('email', { initialValue: email ,
+                                      validate: [{
+                                        rules: [
+                                          { type: 'email', message: '请输入正确的邮箱地址' },
+                                        ],
+                                        trigger: ['onBlur', 'onChange'],
+                                      }]
+                                    },
+                                    )} placeholder="通知邮件为空，将不发送通知" />
+                                  </FormItem>
+                                </Row>
+                                <Row key="row11">
+                                  <FormItem
+                                    {...formItemLargeLayout}
+                                    label="策略冷却时间"
+                                  >
+                                    <InputNumber {...getFieldProps('duration', { initialValue: duration,
+                                      validate: [{
+                                        rules: [
+                                          { required: true, message: '请输入策略冷却时间' },
+                                        ],
+                                        trigger: ['onBlur', 'onChange'] ,
+                                      }], })} style={{width:"90px"}} placeholder="120" min={1} max={1000} />
+                                    <span className="unit">秒</span>
+                                    <span className="hint">策略连续两次触发的最小时间</span>
+                                  </FormItem>
+                                </Row>
+                              </div>
+                            </div>
+                        </Form>
+                      </div>
+                    </div>
               :
               <div className="btnConatainer">
-                <Button style={{marginRight: "10px"}} type="primary" onClick={this.fun1}>前往配置 vSphere</Button>
+                <Button type="primary" onClick={this.fun1}>前往配置 vSphere</Button>
               </div>
             }
             </div>
@@ -680,15 +690,17 @@ class Tab1Modal extends React.Component {
   }
   getDataCenter = (value) => {
     this.setState({currentIcon: value, beforecheckExist:false}, () => {
-      //true 配置过 false 没配过
-      const b = _.filter(this.props.clusterList, {clusterid: !!cluster ? cluster : this.state.selectValue})[0][this.state.currentIcon];
-      this.setState({checkExist: b});
-      if(b){
-        this.props.getResList({
-          cluster: !!cluster ? cluster : this.state.selectValue,
-          type: !!iaas ? iaas : this.state.currentIcon,
-        });
-      }
+      const filObj = _.filter(this.props.clusterList, {clusterid: !!cluster ? cluster : this.state.selectValue})[0];
+      const b1 = filObj.provider[this.state.currentIcon];
+      const b2 = filObj.strategy[this.state.currentIcon];
+      this.setState({checkExistProvider: b1, checkExistStrategy: b2}, () => {
+        if((b1 && !b2) || isEdit){
+          this.props.getResList({
+            cluster: !!cluster ? cluster : this.state.selectValue,
+            type: !!iaas ? iaas : this.state.currentIcon,
+          });
+        }
+      });
     });
   }
   getQueryData(){

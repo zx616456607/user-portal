@@ -12,6 +12,7 @@ import NotificationHandler from '../../../../../src/components/Notification';
 const notify = new NotificationHandler();
 
 let formData = {};
+let allClusterIds = "";//所有行元素的id集合
 let getServerList;
 let tableData = [{
   cluster: "CID-80eb6ec3c47b",
@@ -69,7 +70,7 @@ class Tab2 extends React.Component {
       deleteLoading: true,
     }, async () => {
       notify.spin('配置删除中');
-      const result = await deleteServer({cluster: rowData.cluster, configname: rowData.configname});
+      const result = await deleteServer({cluster: rowData.cluster});
       if (result.error) {
         notify.close();
         notify.warn('删除失败', result.error.message.message || result.error.message);
@@ -127,8 +128,10 @@ class Tab2 extends React.Component {
     pagination.current = page;
     this.setState({pagination: pagination, paginationCurrent: page});
   }
-  onTab2ModalCancel = () => {
-    this.setState({isTab2ModalShow: false, currData: ""});
+  onTab2ModalCancel = (_cb) => {
+    this.setState({isTab2ModalShow: false, currData: ""}, function(){
+      !!_cb && _cb();
+    });
   }
   onCancel = () => {
     this.setState({isShowDelModal: false});
@@ -214,6 +217,7 @@ class Tab2 extends React.Component {
       // total = this.props.serverList.length*5;
       tableData = this.props.serverList;
       total = this.props.serverList.length;
+      allClusterIds = this.props.serverList.map( item => item.cluster );
     }
     const func = {
       scope: this,
@@ -266,6 +270,7 @@ class Tab2 extends React.Component {
           isEdit={this.state.isEdit}
           currData={this.state.currData}
           funcTab2={func}
+          allClusterIds={allClusterIds}
           ref="tab2MC"/>
 
         <Modal
