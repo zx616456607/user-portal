@@ -34,6 +34,10 @@ const logger = require('./utils/logger').getLogger('app')
 const app = koa()
 const terminal = require('./controllers/web_terminal')
 
+// Cross-Origin Resource Sharing(CORS) for koa
+const cors = require('kcors')
+app.use(cors())
+
 //get global config
 co(function*(){
   try{
