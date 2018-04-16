@@ -15,10 +15,10 @@ import './style/AppCenter.less'
 import { ROLE_USER, ROLE_SYS_ADMIN } from '../../../constants'
 
 const menuList = [
-  // {
-  //  url: '/app_center/template',
-  //  name: '应用模板'
-  // },
+  {
+   url: '/app_center/template',
+   name: '应用模板'
+  },
   {
     url: '/app_center/projects',
     name: '镜像仓库'
