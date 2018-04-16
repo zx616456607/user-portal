@@ -347,7 +347,6 @@ const parseConfigMap = (containers, volumes, annotations) => {
         const mountPathArray = mountPath.split('/');
         mountPathArray.pop();
         configMountPath = mountPathArray.join('/');
-        // configMapSubPathValues.push(subPath);
       }
       merge(configParent, {
         [`configMapMountPath${configId}`]: configMountPath,
@@ -355,9 +354,18 @@ const parseConfigMap = (containers, volumes, annotations) => {
         [`configGroupName${configId}`]: configGroupName,
         [`configMapSubPathValues${configId}`]: configMapSubPathValues,
       });
-    } else {
+    } else if (item.name.includes('secret')) {
+      const { secret } = item;
+      const { secretName, items: secretItems } = secret;
+      const secretConfigMapSubPathValues = secretItems.map(secretKey => secretKey.key);
       secretConfigMapKeys.push({
         value: ++ secretId,
+      });
+      merge(configParent, {
+        [`secretConfigMapMountPath${secretId}`]: mountPath,
+        [`secretConfigMapIsWholeDir${secretId}`]: configMapIsWholeDir,
+        [`secretConfigGroupName${secretId}`]: secretName,
+        [`secretConfigMapSubPathValues${secretId}`]: secretConfigMapSubPathValues,
       });
     }
   });

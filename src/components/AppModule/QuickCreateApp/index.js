@@ -58,7 +58,6 @@ class QuickCreateApp extends Component {
     this.renderFooterSteps = this.renderFooterSteps.bind(this)
     this.goSelectCreateAppMode = this.goSelectCreateAppMode.bind(this)
     this.saveService = this.saveService.bind(this)
-    // this.editService = this.editService.bind(this)
     this.setConfig = this.setConfig.bind(this)
     this.genConfigureServiceKey = this.genConfigureServiceKey.bind(this)
     this.getAppResources = this.getAppResources.bind(this)
@@ -263,56 +262,114 @@ class QuickCreateApp extends Component {
       this.deployCheck(nextProps)
     }
   }
+  formatConfigMapErrors = (currentFields, isSecret) => {
+    const { templateDeployCheck } = this.props
+    const { configMapKeys, secretConfigMapKeys, serviceName } = currentFields
+    const keys = isSecret ? secretConfigMapKeys : configMapKeys
+    const { data } = templateDeployCheck
+    const configMapErrors = {}
+    const currentErrors = data.filter(err => err.name === serviceName.value)[0]
+    currentErrors.content.forEach(item => {
+
+      keys.value.forEach(key => {
+        const nameString = isSecret ? 'secretConfigGroupName' : 'configGroupName'
+        const field = `${nameString}${key.value}`
+        const configGroupName =
+          isSecret ?
+            currentFields[`${nameString}${key.value}`].value
+            :
+            currentFields[`${nameString}${key.value}`].value[1]
+        if (item.resourceName === configGroupName) {
+          Object.assign(configMapErrors, {
+            [field]: {
+              name: field,
+              value: '',
+              errors: [{
+                message: isSecret ? `加密配置 ${configGroupName} 不存在` : `配置组 ${configGroupName} 名称重复`,
+                field
+              }]
+  }
+          })
+          return
+        }
+      })
+    })
+
+    return configMapErrors
+  }
 
   deployCheck = async (props) => {
-    const { appTemplateDeployCheck, current, templateDetail, fields } = props;
+    const { appTemplateDeployCheck, current, templateDetail, fields, setFormFields } = props;
     const { clusterID } = current.cluster;
     const { data } = templateDetail;
     const { chart } = data;
     const { name, version } = chart;
     const result = await appTemplateDeployCheck(clusterID, name, version)
-    const { templateDeployCheck } = this.props;
-    const { setFields } = this.form;
-    if (isEmpty(templateDeployCheck.data)) {
+    if (result.error) {
       return
     }
-    const errorData = templateDeployCheck.data;
     let flag = false;
     for (let [key, value] of Object.entries(fields)) {
       const errorFields = {};
-      const currentError = errorData.filter(item => item.name === value.serviceName.value)[0]
-      if (!isEmpty(currentError.content)) {
+      const currentError = result.response.result.data[value.serviceName.value]
+      if (!isEmpty(currentError)) {
         flag = true
-        currentError.content.every(item => {
+        currentError.forEach(item => {
           switch(item.type) {
             case 0:
+              break
             case 1:
+              break
             case 2:
               Object.assign(errorFields, {
                 loadBalance: {
                   name: 'loadBalance',
                   value: '',
-                  errors: [`应用负载均衡器 ${item.resourceName} 不存在`]
+                  errors: [{
+                    message: `应用负载均衡器 ${item.resourceName} 不存在`,
+                    filed: 'loadBalance'
+                  }]
                 }
               })
+              break
             case 3:
               Object.assign(errorFields, {
                 accessMethod: {
                   name: 'accessMethod',
                   value: value.accessMethod.value,
-                  errors: ['集群未添加公网出口']
+                  errors: [{
+                    message: '集群未添加公网出口',
+                    filed: 'accessMethod'
+                  }]
                 }
               })
+              break
             case 4:
               Object.assign(errorFields, {
                 accessMethod: {
                   name: 'accessMethod',
                   value: value.accessMethod.value,
-                  errors: ['集群未添加内网出口']
+                  errors: [{
+                    message: '集群未添加内网出口',
+                    filed: 'accessMethod'
+                  }]
                 }
               })
+              break
+            case 5:
+              const configMapErrors = this.formatConfigMapErrors(value, false)
+              Object.assign(errorFields, configMapErrors)
+              break
+            case 6:
+              const secretErrors = this.formatConfigMapErrors(value, true)
+              Object.assign(errorFields, secretErrors)
+              break
+            default:
+              break
           }
         })
+      }
+      if (!isEmpty(errorFields)) {
         setFormFields(key, Object.assign(value, errorFields))
       }
     }
@@ -964,28 +1021,27 @@ class QuickCreateApp extends Component {
     if (isEmpty(templateDeployCheck) || !templateDeployCheck.data) {
       return
     }
-    const { data } = templateDeployCheck
     const valuesArray = Object.values(fields)
     const currentFields = valuesArray.filter(item => item.serviceName.value === name)[0]
     let errorArray = []
     for (let [key, value] of Object.entries(currentFields)) {
       if (value.errors) {
-        errorArray = errorArray.concat(value.errors)
+        errorArray = errorArray.concat(value.errors.map(item => item.message))
       }
     }
     if (isEmpty(errorArray)) {
       return
     }
     const children = errorArray.map(item =>
-      <div>{item}</div>
+      <Timeline.Item color="red" key={item}>{item}</Timeline.Item>
     )
     const content = (
-      <div>
+      <Timeline className="serviceErrorTimeline">
         {children}
-      </div>
+      </Timeline>
     )
     return (
-      <Popover content={content} placement="topLeft">
+      <Popover content={content} placement="right" arrowPointAtCenter={true}>
         <Icon type="exclamation-circle-o" className="failedColor" style={{ marginLeft: 10 }}/>
       </Popover>
     )
@@ -1132,12 +1188,12 @@ class QuickCreateApp extends Component {
     const { data } = templateDeployCheck
     const children = data.map(item => {
       return (
-        <div className="resourceList">
+        <div className="resourceList" key={item.name}>
           <div className="themeColor serviceName">{item.name}</div>
           <Timeline className="resourceTimeline">
             {
               item.content.map(record => {
-                return <Timeline.Item>{this.formatErrorType(record)}</Timeline.Item>
+                return <Timeline.Item key={record.resourceName}>{this.formatErrorType(record)}</Timeline.Item>
               })
             }
           </Timeline>
