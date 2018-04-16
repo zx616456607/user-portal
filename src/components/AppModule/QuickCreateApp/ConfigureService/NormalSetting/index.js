@@ -406,7 +406,7 @@ const Normal = React.createClass({
       formItemLayout, form, standardFlag,
       fields, currentCluster, clusterNodes,
       isCanCreateVolume, imageConfigs,
-      id, isTemplate
+      id, isTemplate, location
     } = this.props
     const { replicasInputDisabled, memoryMin, cpuMin } = this.state
     const { getFieldProps, setFieldsValue } = form
@@ -528,6 +528,7 @@ const Normal = React.createClass({
             currentCluster={currentCluster}
             key="accessmethod"
             isTemplate={isTemplate}
+            {...{location}}
           />
           {
             (!accessType || accessType.value !== 'loadBalance') &&

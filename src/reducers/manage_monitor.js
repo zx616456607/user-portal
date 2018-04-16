@@ -202,7 +202,7 @@ function monitorPanel(state = {}, action) {
 }
 
 function panelCharts(state = {}, action) {
-  const { panelId } = action 
+  const { panelId } = action
   switch(action.type) {
     case ActionTypes.GET_CHART_LIST_REQUEST:
       return {
@@ -340,6 +340,72 @@ function monitorMetrics(state = {}, action) {
       return state
   }
 }
+
+function serviceMetrics(state = {}, action) {
+  const { monitorID, type } = action
+  switch(type) {
+    case ActionTypes.GET_SERVICES_METRICS_REQUEST:
+      return {
+        ...state,
+        [monitorID]: Object.assign({}, state[monitorID], {
+          isFetching: true
+        })
+      }
+    case ActionTypes.GET_SERVICES_METRICS_SUCCESS:
+      return {
+        ...state,
+        [monitorID]: Object.assign({}, state[monitorID], {
+          isFetching: false,
+          data: action.response.result.data.map(item => {
+            return {
+              name: item.containerName.split('-')[0],
+              metrics: item.metrics
+            }
+          })
+        })
+      }
+    case ActionTypes.GET_SERVICES_METRICS_FAILURE:
+      return {
+        ...state,
+        [monitorID]: Object.assign({}, state[monitorID], {
+          isFetching: false
+        })
+      }
+    default:
+      return state
+  }
+}
+
+function nodeMetrics(state = {}, action) {
+  const { monitorID, type } = action
+  switch(type) {
+    case ActionTypes.GET_CLUSTERS_METRICS_REQUEST:
+      return {
+        ...state,
+        [monitorID]: Object.assign({}, state[monitorID], {
+          isFetching: true
+        })
+      }
+    case ActionTypes.GET_CLUSTERS_METRICS_SUCCESS:
+      return {
+        ...state,
+        [monitorID]: Object.assign({}, state[monitorID], {
+          isFetching: false,
+          data: formatMetric(action.response.result)
+        })
+      }
+    case ActionTypes.GET_CLUSTERS_METRICS_FAILURE:
+      return {
+        ...state,
+        [monitorID]: Object.assign({}, state[monitorID], {
+          isFetching: false
+        })
+      }
+    default:
+      return state
+  }
+}
+
 export function manageMonitor(state = { manageMonitor: {} }, action) {
   return {
     operationAuditLog: operationAuditLog(state.operationAuditLog, action),
@@ -351,6 +417,8 @@ export function manageMonitor(state = { manageMonitor: {} }, action) {
     panelCharts: panelCharts(state.panelCharts, action),
     metrics: metrics(state.metrics, action),
     proxiesServices: proxiesServices(state.proxiesServices, action),
-    monitorMetrics: monitorMetrics(state.monitorMetrics, action)
+    monitorMetrics: monitorMetrics(state.monitorMetrics, action),
+    serviceMetrics: serviceMetrics(state.serviceMetrics, action),
+    nodeMetrics: nodeMetrics(state.nodeMetrics, action)
   }
 }

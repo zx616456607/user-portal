@@ -14,6 +14,7 @@ import Deployment from '../../../../kubernetes/objects/deployment'
 import Service from '../../../../kubernetes/objects/service'
 import PersistentVolumeClaim from '../../../../kubernetes/objects/persistentVolumeClaim'
 import { getResourceByMemory } from '../../../common/tools'
+import isEmpty from 'lodash/isEmpty'
 import {
   RESOURCES_DIY,
   SYSTEM_DEFAULT_SCHEDULE,
@@ -43,6 +44,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
     serviceName, // 服务名称
     systemRegistry, // 镜像服务类型
     imageUrl, // 镜像地址
+    appPkgID, // 应用包
     imageTag, // 镜像版本
     apm, //是否开通 APM
     bindNode, // 绑定节点
@@ -100,6 +102,12 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   deployment.setAnnotations({
     'system/registry': systemRegistry
   })
+  // 设置应用包appPkgID
+  if (isTemplate && appPkgID) {
+    deployment.setAnnotations({
+      appPkgID
+    })
+  }
   // 设置镜像地址
   deployment.addContainer(serviceName, `${imageUrl}:${imageTag}`)
   // 设置 APM
@@ -243,7 +251,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   let templateGroup = "none"
   switch(accessMethod){
       case 'PublicNetwork': groupID = publicNetwork; templateGroup = 'PublicNetwork'; break;
-      case 'Internaletwork': groupID = internaletwork; templateGroup = 'InternalNetwork'; break;
+      case 'InternalNetwork': groupID = internaletwork; templateGroup = 'InternalNetwork'; break;
       case 'Cluster':
     default:
       groupID = 'none'; templateGroup = 'Cluster'; break
@@ -287,13 +295,15 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   // 设置进入点
   let {
     entrypoint,
-  } = imageConfigs
+  } = imageConfigs || { entrypoint: '' }
   entrypoint = entrypoint && entrypoint.join(' ')
   if (command && command !== entrypoint) {
     deployment.addContainerCommand(serviceName, command)
   }
   // 设置启动命令
-  if ((argsType && argsType !== 'default') && argsKeys) {
+  // if ((argsType && argsType !== 'default') && argsKeys) {
+  // 模板需要将默认启动命令添加进去
+  if (argsType && argsKeys) {
     const args = []
     argsKeys.forEach(key => {
       if (!key.deleted) {
@@ -351,7 +361,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   // 设置环境变量
   let {
     defaultEnv,
-  } = imageConfigs
+  } = imageConfigs || { defaultEnv: '' }
   if (envKeys) {
     const envObj = {}
     defaultEnv && defaultEnv.forEach(env => {
@@ -382,6 +392,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   }
 
   // 设置普通配置目录
+  const wholeDir = {}
   if (configMapKeys) {
     configMapKeys.forEach(key => {
       if (!key.deleted) {
@@ -390,8 +401,12 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         const configMapIsWholeDir = fieldsValues[`configMapIsWholeDir${keyValue}`]
         const configGroupName = fieldsValues[`configGroupName${keyValue}`]
         const configMapSubPathValues = fieldsValues[`configMapSubPathValues${keyValue}`]
+        let volumeName = `noClassify/configmap-volume-${keyValue}`
+        if (configGroupName && configGroupName[0] !== '未分类配置组') {
+          volumeName = `${configGroupName[0]}/configmap-volume-${keyValue}`
+        }
         const volume = {
-          name: `configmap-volume-${keyValue}`,
+          name: volumeName,
           configMap: {
             name: configGroupName && configGroupName[1],
             items: configMapSubPathValues.map(value => {
@@ -404,13 +419,19 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         }
         let volumeMounts = []
         if (configMapIsWholeDir) {
+          Object.assign(wholeDir, {
+            [volumeName]: true
+          })
           volumeMounts.push({
             mountPath: configMapMountPath,
           })
         } else {
+          Object.assign(wholeDir, {
+            [volumeName]: false
+          })
           configMapSubPathValues.map(value => {
             volumeMounts.push({
-              name: `configmap-volume-${keyValue}`,
+              name: volumeName,
               mountPath: configMapMountPath + '/' + value,
               subPath: value,
             })
@@ -436,14 +457,15 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
             secretName: secretConfigGroupName,
           },
         }
-        if (!secretConfigMapIsWholeDir) {
-          volume.secret.items = secretConfigMapSubPathValues.map(value => {
-            return {
-              key: value,
-              path: value,
-            }
-          })
-        }
+        Object.assign(wholeDir, {
+          [volume.name]: secretConfigMapIsWholeDir
+        })
+        volume.secret.items = (secretConfigMapSubPathValues || []).map(value => {
+          return {
+            key: value,
+            path: value,
+          }
+        })
         const volumeMounts = []
         volumeMounts.push({
           name: `secret-volume-${keyValue}`,
@@ -452,6 +474,11 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         })
         deployment.addContainerVolume(serviceName, volume, volumeMounts, true)
       }
+    })
+  }
+  if (!isEmpty(wholeDir)) {
+    deployment.setAnnotations({
+      wholeDir: JSON.stringify(wholeDir)
     })
   }
 

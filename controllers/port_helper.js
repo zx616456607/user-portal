@@ -36,7 +36,7 @@ exports.addPort =  function (deployment, serviceList, lbgroupSettings) {
 
   for (let i = 0; i < serviceList.length; i++) {
     if (serviceList[i].metadata.name === deployment.metadata.name) {
-      if (serviceList[i].spec.externalIPs && serviceList[i].spec.externalIPs.length > 0 && serviceList[i].spec.ports && serviceList[i].spec.ports.length > 0) {
+      if (serviceList[i].spec.ports && serviceList[i].spec.ports.length > 0) {
         serviceList[i].spec.ports.forEach(function(port) {
           if (!serviceList[i].metadata.annotations) {
             return

@@ -15,11 +15,15 @@ import * as PropTypes from 'prop-types';
 import { browserHistory } from 'react-router';
 import { Button, Steps } from 'antd';
 import classNames from 'classnames';
+import isEmpty from 'lodash/isEmpty';
+import { getWrapFileType } from '../../../../../../src/common/tools';
 import './style/index.less';
 import ImagesPart from './SelectPacket/ImagesPart';
 import WrapsPart from './SelectPacket/WrapsPart';
 import { toQuerystring, encodeImageFullname, genRandomString } from '../../../../../../src/common/tools';
 import ConfigureTemplate from '../../../../../../src/components/AppModule/QuickCreateApp/ConfigureService';
+import * as appCenterActions from '../../../../../../src/actions/app_center';
+import { DEFAULT_REGISTRY } from '../../../../../../src/constants';
 
 const Step = Steps.Step;
 
@@ -65,7 +69,7 @@ export default class ConfigPart extends React.Component<any, IState> {
   }
 
   selectPacket = (image: object, registryServer: string, isWrap?: boolean) => {
-    const { stepChange } = this.props;
+    const { stepChange, getImageTemplate, template, getNewImageName } = this.props;
     this.setState({
       imageName: image.fileName || encodeImageFullname(image.repositoryName),
       registryServer,
@@ -78,6 +82,21 @@ export default class ConfigPart extends React.Component<any, IState> {
         fileType: image.fileType,
         isWrap,
       };
+      let newTemplateList = template;
+      let currentTemplate: string;
+      let newImageName: string;
+      if (isEmpty(template)) {
+        getImageTemplate(DEFAULT_REGISTRY).then(res => {
+          newTemplateList = res.response.result.template;
+          currentTemplate = newTemplateList.filter(item => item.type === image.fileType)[0];
+          newImageName = currentTemplate.name;
+          getNewImageName(newImageName);
+        });
+      } else {
+        currentTemplate = newTemplateList.filter(item => item.type === image.fileType)[0];
+        newImageName = currentTemplate.name;
+        getNewImageName(newImageName);
+      }
       browserHistory.push(`/app_center/template/create?${toQuerystring(pkgQuery)}`);
       setTimeout(() => {
         stepChange(1);

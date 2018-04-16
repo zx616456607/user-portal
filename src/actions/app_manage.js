@@ -145,7 +145,7 @@ export const APP_BATCH_DELETE_REQUEST = 'APP_BATCH_DELETE_REQUEST'
 export const APP_BATCH_DELETE_SUCCESS = 'APP_BATCH_DELETE_SUCCESS'
 export const APP_BATCH_DELETE_FAILURE = 'APP_BATCH_DELETE_FAILURE'
 
-function fetchDeleteApps(cluster, appList, callback) {
+function fetchDeleteApps(cluster, body, callback) {
   return {
     cluster,
     [FETCH_API]: {
@@ -153,7 +153,7 @@ function fetchDeleteApps(cluster, appList, callback) {
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/batch-delete`,
       options: {
         method: 'POST',
-        body: appList
+        body
       },
       schema: {}
     },
@@ -161,9 +161,9 @@ function fetchDeleteApps(cluster, appList, callback) {
   }
 }
 
-export function deleteApps(cluster, appList, callback) {
+export function deleteApps(cluster, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDeleteApps(cluster, appList, callback))
+    return dispatch(fetchDeleteApps(cluster, body, callback))
   }
 }
 

@@ -15,8 +15,12 @@ import QueueAnim from 'rc-queue-anim'
 import './style/CreateModel.less'
 import { connect } from 'react-redux'
 import { MY_SPACE } from '../../../constants'
+import appTemplate from '../../../assets/img/app/appTemplate.png'
+import appTemplateHover from '../../../assets/img/app/appTemplateHover.png'
 import image from '../../../assets/img/app/image.png'
 import imageHover from '../../../assets/img/app/imageHover.png'
+import imageStore from '../../../assets/img/app/imageStore.png'
+import imageStoreHover from '../../../assets/img/app/imageStoreHover.png'
 import appStore from '../../../assets/img/app/appStore.png'
 import appStoreHover from '../../../assets/img/app/appStoreHover.png'
 import wrapManageHover from '../../../assets/img/app/wrapManageHover.png'
@@ -42,8 +46,8 @@ class CreateModel extends Component {
     this.serviceSum = 0
     this.configureServiceKey = this.genConfigureServiceKey()
     this.state = {
-      createModel: "quick",
-      linkUrl: "quick_create",
+      createModel: "template",
+      linkUrl: "template",
       disabled: false,
       moreService: false
     }
@@ -67,7 +71,10 @@ class CreateModel extends Component {
     let linkUrl = ""
     // compose_file
     switch(currentSelect) {
-      case 'quick_create': {
+      case 'template':
+        linkUrl = 'template'
+        break
+      case 'quick': {
         linkUrl = 'quick_create'
         break
       }
@@ -91,7 +98,7 @@ class CreateModel extends Component {
         linkUrl = 'wrap_store'
         break
       }
-      default: linkUrl = 'quick_create'
+      default: linkUrl = 'template'
     }
 
     const parentScope = this.props.scope;
@@ -115,6 +122,10 @@ class CreateModel extends Component {
       const { query } = location
       let next = linkUrl
       switch (linkUrl) {
+        case 'template':
+          next = 'quick_create'
+          query.template = true
+          break
         case 'image_store':
           next = 'quick_create'
           query.imageType = 'imageStore'
@@ -145,6 +156,17 @@ class CreateModel extends Component {
         <div className="CreateModel" key="CreateModel">
           <div className="topBox">
             <div className="contentBox">
+            <div className={createModel == "template" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"} onClick={this.selectCreateModel.bind(this, "template")}>
+                <img src={createModel == "template" ? appTemplateHover : appTemplate} />
+                <div className="infoBox">
+                  <p>应用模板</p>
+                  <span>通过应用模板创建应用</span>
+                </div>
+                <svg className="commonSelectedImg">
+                  <use xlinkHref="#appcreatemodelselect" />
+                </svg>
+                <i className="fa fa-check"></i>
+              </div>
               <div className={createModel == "quick" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"} onClick={this.selectCreateModel.bind(this, "quick")}>
                 <img src={createModel == "quick" ? imageHover : image} />
                 <div className="infoBox">
@@ -157,7 +179,7 @@ class CreateModel extends Component {
                 <i className="fa fa-check"></i>
               </div>
               <div className={createModel == "image_store" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"} onClick={this.selectCreateModel.bind(this, "image_store")}>
-                <img src={createModel == "image_store" ? appStoreHover : appStore} />
+                <img src={createModel == "image_store" ? imageStoreHover : imageStore} />
                 <div className="infoBox">
                   <p>镜像商店</p>
                   <span>通过镜像商店创建应用</span>

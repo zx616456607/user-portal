@@ -9,6 +9,7 @@
  */
 'use strict'
 
+const logger = require('../utils/logger.js').getLogger("service_manage")
 const constants = require('../constants')
 const INSTANCE_MAX_NUM = constants.INSTANCE_MAX_NUM
 const INSTANCE_AUTO_SCALE_MAX_CPU = constants.INSTANCE_AUTO_SCALE_MAX_CPU
@@ -72,7 +73,8 @@ exports.restartServices = function* () {
 
 exports.deleteServices = function* () {
   const cluster = this.params.cluster
-  const services = this.request.body
+  const body = this.request.body
+  const services = body.services
   if (!services) {
     const err = new Error('Service names are required.')
     err.status = 400
@@ -80,12 +82,20 @@ exports.deleteServices = function* () {
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.batchDeleteBy([cluster, 'services', 'batch-delete'], null, { services })
+  const result = yield api.batchDeleteBy([cluster, 'services', 'batch-delete'], null, body)
   const devOpsApi = apiFactory.getDevOpsApi(loginUser)
-  const deleteCDRuleResult = yield devOpsApi.deleteBy(['cd-rules'], {
-    cluster,
-    name: services.join(',')
-  })
+  try {
+    yield devOpsApi.deleteBy(['cd-rules'], {
+      cluster,
+      name: services.join(',')
+    })
+  } catch (err) {
+    if (err.statusCode === 403) {
+      logger.warn("Failed to delete cd rules as it's not permitted")
+    } else {
+      throw err
+    }
+  }
   this.body = {
     cluster,
     data: result

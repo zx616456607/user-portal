@@ -1,3 +1,4 @@
+@import '../../../../assets/style/site/core';
 @blueColor: #2db7f5;
 #quickCreateApp {
   width: 100%;
@@ -108,6 +109,39 @@
     .createApp {
       text-align: center;
       padding: 25px 20px 0 20px;
+    }
+  }
+}
+.resourceErrorModal {
+  .resourceHint {
+    margin-bottom: 10px;
+  }
+  .resourceList {
+    margin-bottom: 10px;
+    &:not(:last-of-type) {
+      border-bottom: @border-width-base dashed @border-color-base;
+    }
+    .serviceName {
+      margin-bottom: 10px;
+    }
+    .resourceTimeline {
+      .ant-timeline-item-head {
+        border-color: @border-color-base;
+      }
+    }
+  }
+}
+.serviceErrorTimeline {
+  padding: 12px 0 0;
+  .ant-timeline-item {
+    &:last-of-type {
+      padding-bottom: 0;
+      .ant-timeline-item-content {
+        padding-bottom: 0;
+      }
+    }
+    .ant-timeline-item-content {
+      padding-bottom: 0;
     }
   }
 }

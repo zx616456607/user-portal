@@ -44,10 +44,10 @@ class WrapsPart extends React.Component<any, IState> {
   };
 
   componentDidMount() {
-    const { getImageTempate, template } = this.props;
+    const { getImageTemplate, template } = this.props;
     this.getWrapList();
     if (isEmpty(template)) {
-      getImageTempate(DEFAULT_REGISTRY);
+      getImageTemplate(DEFAULT_REGISTRY);
     }
   }
 
@@ -237,5 +237,5 @@ const mapStateToProps = state => {
 export default connect(mapStateToProps, {
   wrapManageList: appCenterActions.wrapManageList,
   getWrapStoreList: appCenterActions.getWrapStoreList,
-  getImageTempate: appCenterActions.getImageTempate,
+  getImageTemplate: appCenterActions.getImageTemplate,
 })(WrapsPart);

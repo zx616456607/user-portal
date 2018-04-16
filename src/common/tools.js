@@ -757,3 +757,39 @@ export function adjustBrowserUrl(location = {}, mergedQuery = {}, isFirstLoad) {
   }
   browserHistory.push(`${pathname}?${toQuerystring(mergedQuery)}`)
 }
+
+/**
+ * 转换模板服务为一维数组
+ *
+ * @param {object} detail
+ * @param {array} templateArray
+ */
+export function formatServiceToArrry(detail, templateArray) {
+  const { deployment, service, ingress } = detail;
+    templateArray.push({
+      deployment,
+      service,
+      ingress,
+    });
+    if (!detail.dependencies) {
+      return;
+    }
+    const copyDetail = detail.dependencies[0];
+    formatServiceToArrry(copyDetail, templateArray);
+}
+
+/**
+ * 获取应用包文件类型
+ *
+ * @param {string} type
+ */
+export function getWrapFileType(type) {
+  switch (type) {
+    case 'java':
+      return 'jar';
+    case 'tomcat':
+      return 'war';
+    default:
+      return 'jar';
+  }
+}

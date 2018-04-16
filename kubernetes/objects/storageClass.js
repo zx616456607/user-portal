@@ -34,7 +34,7 @@ class StorageClass {
       userId: adminId,
       userSecretName: secretName,
       imageFormat: "2",
-      imageFeatures: "1",
+      imageFeatures: "layering",
     }
   }
 }

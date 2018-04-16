@@ -16,40 +16,36 @@ import { Modal, Form, Input, Button, Select, Row, Col } from 'antd'
 import { camelize } from 'humps'
 import isEmpty from 'lodash/isEmpty'
 import cloneDeep from 'lodash/cloneDeep'
+import classNames from 'classnames'
 import './style/MonitorChartModal.less'
 import { bytesToSize } from '../../../common/tools'
 import { getAllClusterNodes } from '../../../actions/cluster_node'
 import { loadAllServices } from '../../../actions/services'
 import { getProxy } from '../../../actions/cluster'
-import { 
-  createChart, updateChart, deleteChart, 
+import {
+  createChart, updateChart, deleteChart,
   getChartList, getMetrics, getProxiesService,
-  checkChartName, getMonitorMetrics
+  checkChartName, getMonitorMetrics, getServicesMetrics,
+  getClustersMetrics
 } from '../../../actions/manage_monitor'
+import {
+  loadHostCpu, loadHostMemory, loadHostRxrate, loadHostTxrate,
+  loadHostDiskReadIo, loadHostDiskWriteIo
+} from '../../../actions/cluster'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
+import { METRICS_DEFAULT_SOURCE } from '../../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import ChartComponent from './ChartComponent'
 
 const FormItem = Form.Item
 const Option = Select.Option
 
-const adminTypeArr = [{
+const defaultTypeArr = [{
   key: 'service',
-  text: '服务',
-  disabled: true
-}, {
-  key: 'node',
-  text: '节点',
-  disabled: true
+  text: '服务'
 }, {
   key: 'nexport',
   text: '网络出口'
-}]
-
-const defaultTypeArr = [{
-  key: 'service',
-  text: '服务',
-  disabled: true
 }]
 
 function formatMetric(result) {
@@ -90,15 +86,9 @@ class MonitorChartModal extends React.Component {
       }
     }
   }
-  
+
   componentWillMount() {
-    const { clusterID, getAllClusterNodes, loadAllServices, getProxy, currentChart } = this.props
-    getProxy(clusterID)
-    getAllClusterNodes(clusterID)
-    loadAllServices(clusterID, {
-      pageIndex: 1,
-      pageSize: 100
-    })
+    const { clusterID, currentChart } = this.props
     if (currentChart) {
       let content = JSON.parse(currentChart.content)
       const contentKey = Object.keys(content)[0]
@@ -111,7 +101,7 @@ class MonitorChartModal extends React.Component {
       })
     }
   }
-  
+
   componentDidMount() {
     let nameInput = document.getElementById('name')
     nameInput && nameInput.focus()
@@ -120,31 +110,71 @@ class MonitorChartModal extends React.Component {
     })
   }
   getMonitorMetric() {
-    const { getMonitorMetrics, clusterID, panel_id } = this.props
+    const { getMonitorMetrics, getServicesMetrics, getClustersMetrics, clusterID, panel_id, form } = this.props
     const { nexport, target, metricsName } = this.state
-    if (!metricsName || !nexport || !target || !target.length) {
-      return
-    }
-    const query = {
-      type: metricsName,
-      source: 'prometheus',
+    const metricsType = form.getFieldValue('metrics_type')
+    const defaultQuery = {
+      source: METRICS_DEFAULT_SOURCE,
       start: new Date(Date.parse(new Date()) - (60 * 60 * 1000)).toISOString(), // 一小时前
       end: new Date().toISOString()
     }
-    getMonitorMetrics(panel_id, null, clusterID, nexport, target, query, {
-      success: {
-        func: res => {
-          this.setState({
-            previewMetrics:{
-              isFetching: false,
-              data: formatMetric(res)
-            }
-          })
-        }
+    if (metricsType === 'nexport') {
+      if (!metricsName || !nexport || isEmpty(target)) {
+        return
       }
-    })
+      const query = Object.assign({}, defaultQuery, {
+        type: metricsName
+      })
+      getMonitorMetrics(panel_id, null, clusterID, nexport, target, query, {
+        success: {
+          func: res => {
+            this.setState({
+              previewMetrics:{
+                isFetching: false,
+                data: formatMetric(res)
+              }
+            })
+          }
+        }
+      })
+    } else if (metricsType === 'service') {
+      if (!metricsName || isEmpty(target)) {
+        return
+      }
+      const query = Object.assign({}, defaultQuery, {
+        type: metricsName
+      })
+      getServicesMetrics(panel_id, null, clusterID, target, query).then(res => {
+        this.setState({
+          previewMetrics: {
+            isFetching: false,
+            data: res.response.result.data.map(item => {
+              return {
+                name: item.containerName.split('-')[0],
+                metrics: item.metrics
+              }
+            })
+          }
+        })
+      })
+    } else if (metricsType === 'node') {
+      if (!metricsName || isEmpty(target)) {
+        return
+      }
+      const query = Object.assign({}, defaultQuery, {
+        type: metricsName
+      })
+      getClustersMetrics(panel_id, null, clusterID, target, query).then(res => {
+        this.setState({
+          previewMetrics: {
+            isFetching: false,
+            data: formatMetric(res.response.result)
+          }
+        })
+      })
+    }
   }
-  
+
   nameCheck(rule, value, callback) {
     const { checkChartName, clusterID, currentChart } = this.props
     if (currentChart) {
@@ -154,7 +184,7 @@ class MonitorChartModal extends React.Component {
     }
     if (!value) {
       return callback('请输入名称')
-    } 
+    }
     clearTimeout(this.nameTimeout)
     this.nameTimeout = setTimeout(() => {
       checkChartName(clusterID, encodeURIComponent(value), {
@@ -170,31 +200,47 @@ class MonitorChartModal extends React.Component {
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
-  
+
   targetTypeCheck(rule, value, callback) {
     if (!value) {
       return callback('请选择对象类型')
-    } 
+    }
     callback()
   }
-  
+
   changeTargetType(type) {
-    const { getMetrics, form, clusterID } = this.props
-    const { getFieldValue, resetFields } = form
+    const {
+      getMetrics, form, clusterID, getProxy, getAllClusterNodes, loadAllServices,
+      allServiceList, nodeList, proxiesServices
+     } = this.props
+    const { getFieldValue, setFieldsValue } = form
     const preType = getFieldValue('metrics_type')
-    if (preType !== type) {
-      resetFields(['target'])
+    if (type === 'service' && isEmpty(allServiceList)) {
+      loadAllServices(clusterID, {
+        pageIndex: 1,
+        pageSize: 100
+      })
+    } else if (type === 'node' && isEmpty(nodeList)) {
+      getAllClusterNodes(clusterID)
+    } else if (type === 'nexport' && isEmpty(proxiesServices)) {
+      getProxy(clusterID)
+    }
+    if (preType && (preType !== type)) {
+      setFieldsValue({
+        metrics_id: '',
+        target: type === 'service' ? '' : []
+      })
     }
     getMetrics(clusterID, { type })
   }
-  
+
   exportCheck(rule, value, callback) {
     if (!value) {
       return callback('请选择网络出口对象')
-    } 
+    }
     callback()
   }
-  
+
   changeExport(proxyID) {
     const { getProxiesService, clusterID, form } = this.props
     const { getFieldValue, resetFields } = form
@@ -212,42 +258,45 @@ class MonitorChartModal extends React.Component {
       target: []
     }, this.getMonitorMetric)
   }
-  
+
   targetCheck(rule, value, callback) {
     if (!value || !value.length) {
       return callback('请选择监控对象')
     }
     callback()
   }
-  
+
   changeTarget(target) {
     this.setState({
       target
     }, this.getMonitorMetric)
   }
-  
+
   metricsCheck(rule, value, callback) {
     if (!value) {
       return callback('请选择监控指标')
     }
     callback()
   }
-  
+
   changeMetrics(nickName) {
     const { metricList } = this.props
     if (!metricList ||!metricList.length) return
     let name = ''
+    let unit = '个'
     for (let i = 0; i < metricList.length; i++) {
       if (nickName === metricList[i].nickName) {
         name = metricList[i].name
+        unit = metricList[i].unit
         break
       }
     }
     this.setState({
-      metricsName: name
+      metricsName: name,
+      unit
     }, this.getMonitorMetric)
   }
-  
+
   aggregationCheck(rule, value, callback) {
     if (!value) {
       return callback('请选择统计方式')
@@ -260,13 +309,13 @@ class MonitorChartModal extends React.Component {
     closeModal()
     resetFields()
   }
-  
+
   handleDelete() {
     this.setState({
       deleteModal: true
     })
   }
-  
+
   deleteCancel() {
     this.setState({
       deleteModal: false
@@ -300,10 +349,8 @@ class MonitorChartModal extends React.Component {
       failed: {
         func: res => {
           notify.close()
-          if (res.statusCode < 500) {
-            notify.warn('删除失败', res.message)
-          } else {
-            notify.error('删除失败', res.message)
+          if (res.statusCode !== 403) {
+            notify.warn('删除失败', res.message.message || res.message)
           }
           this.setState({
             deleteModal: false,
@@ -314,7 +361,7 @@ class MonitorChartModal extends React.Component {
       }
     })
   }
-  
+
   confirmModal() {
     const { form, createChart, updateChart, panel_id, clusterID, currentChart, getChartList, metricList } = this.props
     const { validateFields, getFieldValue } = form
@@ -340,8 +387,19 @@ class MonitorChartModal extends React.Component {
         name,
         metrics_id: id,
         panel_id,
-        content: JSON.stringify({
-          [nexport]: target
+      }
+      if (metrics_type === 'nexport') {
+        Object.assign(body, {
+          content: JSON.stringify({
+            [nexport]: target
+          })
+        })
+      } else {
+        let newTarget = metrics_type === 'service' ? [target] : target
+        Object.assign(body, {
+          content: JSON.stringify({
+            [metrics_type]: newTarget
+          })
         })
       }
       this.setState({
@@ -365,10 +423,8 @@ class MonitorChartModal extends React.Component {
           failed: {
             func: res => {
               notify.close()
-              if (res.statusCode < 500) {
-                notify.warn('修改失败', res.message)
-              } else {
-                notify.error('修改失败', res.message)
+              if (res.statusCode !== 403) {
+                notify.warn('修改失败', res.message.message || res.message)
               }
               this.cancelModal()
               this.setState({
@@ -395,10 +451,8 @@ class MonitorChartModal extends React.Component {
           failed: {
             func: res => {
               notify.close()
-              if (res.statusCode < 500) {
-                notify.warn('创建失败', res.message)
-              } else {
-                notify.error('创建失败', res.message)
+              if (res.statusCode !== 403) {
+                notify.warn('创建失败', res.message.message || res.message)
               }
               this.cancelModal()
               this.setState({
@@ -410,14 +464,14 @@ class MonitorChartModal extends React.Component {
       }
     })
   }
-  
+
   updateUnit(bytes) {
     const { unit } = bytesToSize(bytes)
     this.setState({
       unit
     })
   }
-  
+
   renderFooter() {
     const { confirmLoading } = this.state
     const { currentChart } = this.props
@@ -426,15 +480,15 @@ class MonitorChartModal extends React.Component {
       currentChart &&
       <Button
         onClick={this.handleDelete}
-        style={{ borderColor: 'red', color: 'red' }} 
+        style={{ borderColor: 'red', color: 'red' }}
         size="large" key="delete">删除</Button>,
       <Button key="confirm" type="primary" size="large" loading={confirmLoading} onClick={this.confirmModal}>确认</Button>
     ]
   }
-  
+
   render() {
-    const { 
-      visible, form, nodeList, allServiceList, 
+    const {
+      visible, form, nodeList, allServiceList,
       proxyList, metricList, proxiesServices, monitorMetrics,
       isAdmin
     } = this.props
@@ -448,6 +502,7 @@ class MonitorChartModal extends React.Component {
       labelCol: { span: 7 },
       wrapperCol: { span: 17 }
     }
+    let metrics_type = getFieldValue('metrics_type')
     let chartDate = !isEmpty(previewMetrics.data) ? previewMetrics : monitorMetrics
     let defaultNexport = ''
     let initialTarget
@@ -459,6 +514,9 @@ class MonitorChartModal extends React.Component {
         defaultNexport = contentKey
       }
       initialTarget = content[contentKey]
+      if (metrics_type === 'service') {
+        initialTarget = initialTarget[0]
+      }
     }
     const nameProps = getFieldProps('name', {
       rules: [
@@ -477,24 +535,6 @@ class MonitorChartModal extends React.Component {
       initialValue: currentChart ? currentChart.type : '',
       onChange: this.changeTargetType
     })
-    const exportProps = getFieldProps('nexport', {
-      rules: [
-        {
-          validator: this.exportCheck
-        }
-      ],
-      initialValue: defaultNexport,
-      onChange: this.changeExport
-    })
-    const targetProps = getFieldProps('target', {
-      rules: [
-        {
-          validator: this.targetCheck
-        }
-      ],
-      initialValue: initialTarget ? initialTarget : [],
-      onChange: this.changeTarget
-    })
     const metricsProps = getFieldProps('metrics_id', {
       rules: [
         {
@@ -511,19 +551,38 @@ class MonitorChartModal extends React.Component {
         }
       ]
     })
-    
-    let metrics_type = getFieldValue('metrics_type')
-    
+
+    const isNexport = metrics_type === 'nexport'
     let targetTypeChildren
     let targetChildren
     let exportChildren
     let metricsChildren
-    
-    let typeArr = isAdmin ? adminTypeArr : defaultTypeArr
-    targetTypeChildren = typeArr.map(item => {
+    let exportProps
+    let targetProps = getFieldProps('target', {
+      rules: [
+        {
+          validator: this.targetCheck
+        }
+      ],
+      initialValue: initialTarget ? initialTarget : (metrics_type === 'service' ? '' : []),
+      onChange: this.changeTarget
+    })
+    if (isNexport) {
+      exportProps = getFieldProps('nexport', {
+        rules: [
+          {
+            validator: this.exportCheck
+          }
+        ],
+        initialValue: defaultNexport,
+        onChange: this.changeExport
+      })
+    }
+
+    targetTypeChildren = defaultTypeArr.map(item => {
       return <Option key={item.key} disabled={item.disabled}>{item.text}</Option>
     })
-    
+
     if (metrics_type === 'service') {
       targetChildren = allServiceList && allServiceList.length ? allServiceList.map(item => {
         return <Option key={item.metadata.name}>{item.metadata.name}</Option>
@@ -576,55 +635,17 @@ class MonitorChartModal extends React.Component {
           >
             <Input placeholder="请输入名称" {...nameProps}/>
           </FormItem>
-          <Row gutter={16}>
-            <Col span={11}>
-              <FormItem
-                label="监控对象"
-                {...formSmallLayout}
-              >
-                <Select
-                  showSearch={true}
-                  {...targetTypeProps}
-                >
-                  {targetTypeChildren}
-                </Select>
-              </FormItem>
-            </Col>
-            {
-              metrics_type === 'nexport' &&
-                [
-                  <Col span={9} key="nexportCol">
-                    <FormItem>
-                      <Select
-                        {...exportProps}
-                        showSearch={true}
-                        placeholder="搜索选择网络出口对象（单选）"
-                      >
-                        {exportChildren}
-                      </Select>
-                    </FormItem>
-                  </Col>,
-                  <Col className="hintColor" span={4} style={{ lineHeight: '32px' }} key="exportText">
-                    多代理节点的汇总
-                  </Col>
-                ]
-            }
-          </Row>
-          <Row gutter={16}>
-            <Col span={17} offset={3}>
-              <FormItem>
-                <Select
-                  {...targetProps}
-                  showSearch={true}
-                  multiple={true}
-                  placeholder="搜索选择对象（可多选）"
-                >
-                  {targetChildren}
-                </Select>
-              </FormItem>
-            </Col>
-            <Col className="hintColor" span={4} style={{ lineHeight: '32px' }}>推荐不多于5个</Col>
-          </Row>
+          <FormItem
+            label="统计维度"
+            {...formItemLayout}
+          >
+            <Select
+              showSearch={true}
+              {...targetTypeProps}
+            >
+              {targetTypeChildren}
+            </Select>
+          </FormItem>
           <FormItem
             label="监控指标"
             {...formItemLayout}
@@ -637,6 +658,43 @@ class MonitorChartModal extends React.Component {
               {metricsChildren}
             </Select>
           </FormItem>
+          {
+            isNexport &&
+            <Row gutter={16} type="flex" align="middle" style={{ marginBottom: 24 }}>
+              <Col span={3} style={{ textAlign: "right" }}>监控对象</Col>
+              <Col span={17}>
+                <FormItem style={{ marginBottom: 0 }}>
+                  <Select
+                    {...exportProps}
+                    showSearch={true}
+                    placeholder="搜索选择网络出口对象（单选）"
+                  >
+                    {exportChildren}
+                  </Select>
+                </FormItem>
+              </Col>
+              <Col className="hintColor" span={4} style={{ lineHeight: '32px' }}>多代理节点的汇总</Col>
+            </Row>
+          }
+          <Row gutter={16} type="flex" align="middle" style={{ marginBottom: 24 }}>
+            {
+              !isNexport &&
+              <Col span={3} style={{ textAlign: "right" }}>监控对象</Col>
+            }
+            <Col span={17} offset={isNexport ? 3 : 0}>
+              <FormItem style={{ marginBottom: 0 }}>
+                <Select
+                  {...targetProps}
+                  showSearch={true}
+                  multiple={metrics_type !== 'service'}
+                  placeholder="搜索选择对象"
+                >
+                  {targetChildren}
+                </Select>
+              </FormItem>
+            </Col>
+            <Col className={classNames("hintColor", {'hidden': metrics_type === 'service'})} span={4} style={{ lineHeight: '32px' }}>推荐不多于5个</Col>
+          </Row>
           {/*<FormItem*/}
             {/*label="汇聚统计"*/}
             {/*{...formItemLayout}*/}
@@ -689,15 +747,15 @@ function mapStateToProps(state, props) {
   const { nodes: nodeList } = nodeData || { nodes: {} }
   const { serviceList } = services
   const { services: allServiceList } = serviceList
-  
+
   const { proxy } = cluster || { proxy: {} }
   const { result } = proxy || { result: {} }
   const { data: proxyList } = result && result[camelize(clusterID)] || { data: [] }
-  
+
   const { metrics, proxiesServices, monitorMetrics } = manageMonitor || { metrics: {}, proxiesServices: {}, monitorMetrics: {} }
   const { metricType } = metrics || { metricType: '' }
   const { proxyID } = proxiesServices || { proxyID: '' }
-  
+
   let monitorID =  ''
   if (currentChart) {
     monitorID = panel_id + currentChart.id
@@ -716,12 +774,14 @@ export default connect(mapStateToProps, {
   getAllClusterNodes,
   loadAllServices,
   getProxy,
-  createChart, 
+  createChart,
   updateChart,
   deleteChart,
   getChartList,
   getMetrics,
   getProxiesService,
   checkChartName,
-  getMonitorMetrics
+  getMonitorMetrics,
+  getServicesMetrics,
+  getClustersMetrics
 })(MonitorChartModal)

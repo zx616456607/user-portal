@@ -189,23 +189,23 @@ exports.getAlertSetting = function* () {
     return
   }
   rules.forEach(rule => {
-    let condition = rule.annotation.condition
-    condition = condition.split(rule.condition.operation)
+    let condition = rule.annotations.condition
+    condition = condition.split(rule.annotations.operator)
     let item = {
       type: condition[0],
-      operation: rule.condition.operation,
+      operation: rule.annotations.operator,
       threshold: condition[condition.length - 1],
-      createTime: rule.annotation.createTime,
+      createTime: rule.annotations.createTime,
       recordCount: 0,
-      name: rule.name,
-      key: rule.name
+      name: rule.alert,
+      key: rule.alert
     }
     switchType(item)
     result.push(item)
     strategyID = rule.labels.tenxStrategyID
     specs.push({
-      triggerRule: rule.annotation.condition,
-      ruleName: rule.name
+      triggerRule: rule.annotations.condition,
+      ruleName: rule.alert
     })
   })
   let recordCount = yield api.createBy([cluster, 'alerts/records', 'count'], null, {

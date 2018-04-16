@@ -28,12 +28,11 @@ class Service {
       ports: [],
       selector: {
         name
-      },
-      externalIPs: []
+      }
     }
-    if (cluster && cluster.publicIPs) {
+    /*if (cluster && cluster.publicIPs) {
       this.spec.externalIPs = JSON.parse(cluster.publicIPs)
-    }
+    }*/
   }
   // Call from server side only
   importFromK8SService(k8sService) {

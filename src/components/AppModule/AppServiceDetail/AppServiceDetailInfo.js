@@ -303,7 +303,7 @@ class MyComponent extends Component {
         <Menu.Item key="1"><Icon type="edit" />&nbsp;编辑</Menu.Item>
       </Menu>
       let value = env.value
-      if (env.valueFrom) {
+      if (env.valueFrom && env.valueFrom.secretKeyRef) {
         value = [ env.valueFrom.secretKeyRef.name, env.valueFrom.secretKeyRef.key ]
       }
       const valueString = Array.isArray(value) ? value.join('/') : value

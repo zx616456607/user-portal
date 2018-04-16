@@ -1,40 +1,64 @@
 @import '../../../../../src/assets/style/site/core';
 .templateWrapper {
   .templateBody {
+    .noTemplateText {
+      text-align: center;
+      button {
+        margin-left: 10px;
+      }
+    }
     .templateList {
-      width: 200px;
-      height: 180px;
-      border: 1px solid @primary-color;
+      width: 260px;
+      height: 195;
       border-radius: 4px;
       display: inline-block;
       margin: 10px;
       overflow: hidden;
-      &::after {
-        content: '';
-        clear: both;
-      }
-      .version {
-        float: left;
-      }
-      .operation {
-        float: right;
-      }
-      .tempLogo {
-        margin: 20px auto;
-        display: block;
+      background-color: white;
+      .templateHeader {
+        padding: 10px 15px;
+        height: 140px;
+        &::after {
+          content: '';
+          clear: both;
+        }
+        .operation {
+          float: right;
+        }
+        .tempLogo {
+          margin: 12px auto 0;
+          display: block;
+        }
+        .templateDesc {
+          width: 160px;
+          text-align: center;
+          margin: 5px auto 0;
+        }
       }
       .templateFooter {
-        background-color: wheat;
+        border-top: @border-width-base @border-style-base @border-color-base;
         height: 58px;
-        .descAndDeploy {
-          display: flex;
-          align-items: center;
-          .tempDesc {
-            flex: 0 1 120px;
-          }
-          .deploy {
-            flex: 0 0 80;
-          }
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        .templateName {
+          flex: 0 1 120px;
+        }
+        .deploy {
+          flex: 0 0 80;
+        }
+      }
+    }
+  }
+}
+.templatePopover {
+  width: 100px !important;
+  &>div {
+    line-height: 30px;
+    .templateInnerPopover {
+      &>div {
+        &:hover {
+          background-color: #f5fafe;
         }
       }
     }

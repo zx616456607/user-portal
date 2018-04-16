@@ -30,7 +30,7 @@ class PanelModal extends React.Component {
       deleteModal: false
     }
   }
-  
+
   componentDidMount() {
     let nameInput = document.getElementById('name')
     nameInput && nameInput.focus()
@@ -38,7 +38,7 @@ class PanelModal extends React.Component {
   componentWillUnmount() {
     clearTimeout(this.nameTimeout)
   }
-  
+
   checkName(rule, value, callback) {
     const { checkPanelName, clusterID, currentPanel } = this.props
     if (currentPanel) {
@@ -73,19 +73,19 @@ class PanelModal extends React.Component {
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
-  
+
   deletePanel() {
     this.setState({
       deleteModal: true
     })
   }
-  
+
   deleteCancel() {
     this.setState({
       deleteModal: false
     })
   }
-  
+
   deleteConfirm() {
     const { currentPanel, deletePanel, clusterID, getPanes } = this.props
     let notify = new NotificationHandler()
@@ -114,10 +114,8 @@ class PanelModal extends React.Component {
       failed: {
         func: res => {
           notify.close()
-          if (res.statusCode < 500) {
-            notify.warn('删除失败', res.message)
-          } else {
-            notify.error('删除失败', res.message)
+          if (res.statusCode !== 403) {
+            notify.warn('删除失败', res.message.message || res.message)
           }
           this.setState({
             deleteModal: false,
@@ -128,17 +126,17 @@ class PanelModal extends React.Component {
       }
     })
   }
-  
+
   cancelModal() {
     const { closeModal, form } = this.props
     closeModal()
     form.resetFields()
   }
-  
+
   confirmModal() {
-    const { 
+    const {
       form, currentPanel, getPanes,
-      createPanel, updatePanel, clusterID 
+      createPanel, updatePanel, clusterID
     } = this.props
     const { validateFields } = form
     let notify = new NotificationHandler()
@@ -172,10 +170,8 @@ class PanelModal extends React.Component {
           failed: {
             func: res => {
               notify.close()
-              if (res.statusCode < 500) {
-                notify.warn('修改失败', res.message)
-              } else {
-                notify.error('请求失败', res.message)
+              if (res.statusCode !== 403) {
+                notify.warn('修改失败', res.message.message || res.message)
               }
               this.setState({
                 confirmLoading: false
@@ -202,10 +198,8 @@ class PanelModal extends React.Component {
         failed: {
           func: res => {
             notify.close()
-            if (res.statusCode < 500) {
-              notify.warn('创建失败', res.message)
-            } else {
-              notify.error('创建失败', res.message)
+            if (res.statusCode !== 403) {
+              notify.warn('创建失败', res.message.message || res.message)
             }
             this.cancelModal()
             this.setState({
@@ -216,22 +210,22 @@ class PanelModal extends React.Component {
       })
     })
   }
-  
+
   renderFooter() {
     const { confirmLoading, disabled } = this.state
     const { currentPanel } = this.props
     return (
       [
         <Button onClick={this.cancelModal} size="large" key="cancel">取消</Button>,
-        currentPanel && 
-        <Button 
-          style={{ borderColor: 'red', color: 'red' }} 
+        currentPanel &&
+        <Button
+          style={{ borderColor: 'red', color: 'red' }}
           onClick={this.deletePanel} size="large" type="ghost" key="delete">删除</Button>,
         <Button type="primary" key="confirm" size="large" disabled={disabled} loading={confirmLoading} onClick={this.confirmModal}>{currentPanel ? '确定' : '立即创建'}</Button>
       ]
     )
   }
-  
+
   render() {
     const { deleteModal, deleteLoading } = this.state
     const { form, visible, currentPanel } = this.props
@@ -289,12 +283,12 @@ PanelModal = Form.create()(PanelModal)
 
 function mapStateToProps(state) {
   return {
-    
+
   }
 }
 export default connect(mapStateToProps, {
-  createPanel, 
+  createPanel,
   updatePanel,
   deletePanel,
   checkPanelName
-})(PanelModal) 
+})(PanelModal)

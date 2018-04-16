@@ -25,6 +25,7 @@ const PORT = 'port'; // 端口
 const PORT_PROTOCOL = 'portProtocol'; // 端口协议(HTTP, TCP)
 const MAPPING_PORTTYPE = 'mappingPortType'; // 映射服务端口类型(auto, special)
 const TEMPLATE_STORAGE = 'system/template'; // 模板存储
+const NO_CLASSIFY = 'noClassify'; // 未分类配置组
 
 const MAPPING_PORT_AUTO = 'auto';
 
@@ -69,6 +70,19 @@ const formatValues = values => {
     });
   }
   return newValues;
+};
+
+/**
+ * 解析应用包
+ * @param annotations
+ */
+
+const parseAppPkgID = annotations => {
+  const { appPkgID } = annotations;
+  if (!appPkgID) {
+    return;
+  }
+  return { appPkgID };
 };
 
 /**
@@ -291,6 +305,84 @@ const parseLiveness = containers => {
   };
 };
 
+const parseConfigMap = (containers, volumes, annotations) => {
+  const { volumeMounts } = containers;
+  const wholeDir = annotations.wholeDir;
+  let parseIsWholeDir: any;
+  if (wholeDir) {
+    parseIsWholeDir = wholeDir.replace(/&#34;/g, '\"');
+    parseIsWholeDir = JSON.parse(parseIsWholeDir);
+  }
+  const mergeVolumes = merge([], volumeMounts, volumes);
+  const configMapKeys: number[] = [];
+  const secretConfigMapKeys: number[] = [];
+  let configId = 0;
+  let secretId = 0;
+  if (isEmpty(mergeVolumes)) {
+    return;
+  }
+  const configParent: object = {};
+  mergeVolumes.forEach((item) => {
+    const { name, mountPath, subPath, configMap } = item;
+    const { name: innerName, items } = configMap || { name: '', items: [] };
+    let configMapIsWholeDir: boolean = false;
+    if (parseIsWholeDir) {
+      configMapIsWholeDir = parseIsWholeDir[name];
+    }
+    if (item.name.includes('configmap')) {
+      let classifyName = item.name.split('/')[0];
+      let configMountPath: string = mountPath;
+      const configMapSubPathValues: string[] = [];
+      items.forEach(sub => {
+        configMapSubPathValues.push(sub.key);
+      });
+      if (classifyName === NO_CLASSIFY) {
+        classifyName = '未分类配置组';
+      }
+      let configGroupName: string[] = [classifyName, innerName];
+      configMapKeys.push({
+        value: ++ configId,
+      });
+      if (!configMapIsWholeDir) {
+        const mountPathArray = mountPath.split('/');
+        mountPathArray.pop();
+        configMountPath = mountPathArray.join('/');
+      }
+      merge(configParent, {
+        [`configMapMountPath${configId}`]: configMountPath,
+        [`configMapIsWholeDir${configId}`]: configMapIsWholeDir,
+        [`configGroupName${configId}`]: configGroupName,
+        [`configMapSubPathValues${configId}`]: configMapSubPathValues,
+      });
+    } else if (item.name.includes('secret')) {
+      const { secret } = item;
+      const { secretName, items: secretItems } = secret;
+      const secretConfigMapSubPathValues = secretItems.map(secretKey => secretKey.key);
+      secretConfigMapKeys.push({
+        value: ++ secretId,
+      });
+      merge(configParent, {
+        [`secretConfigMapMountPath${secretId}`]: mountPath,
+        [`secretConfigMapIsWholeDir${secretId}`]: configMapIsWholeDir,
+        [`secretConfigGroupName${secretId}`]: secretName,
+        [`secretConfigMapSubPathValues${secretId}`]: secretConfigMapSubPathValues,
+      });
+    }
+  });
+
+  return {
+    configMapKeys,
+    secretConfigMapKeys,
+    ...configParent,
+  };
+};
+
+/**
+ * 解析环境变量
+ *
+ * @param containers
+ */
+
 const parseAdvancedEnv = containers => {
   const { env } = containers;
   if (!env) {
@@ -333,7 +425,7 @@ const parseDeployment = deployment => {
   const { metadata: outerMetadata, spec: outerSpec } = deployment;
   const { template, replicas } = outerSpec;
   const { spec: innerSpec, metadata: innerMetadata } = template;
-  const { containers } = innerSpec;
+  const { containers, volumes } = innerSpec;
   const { labels, annotations } = innerMetadata;
   const imageArray = containers[0].image.split(':');
   let imageUrl: string = imageArray[0];
@@ -346,6 +438,7 @@ const parseDeployment = deployment => {
     serviceName: outerMetadata.name, // 服务名称
     imageUrl, // 镜像地址
     imageTag, // 镜像版本
+    ...parseAppPkgID(annotations), // 应用包
     apm: labels[APM_SERVICE_LABEL_KEY] === 'pinpoint', // 是否开通 APM
     ...parseResource(containers[0]),
     replicas, // 实例数量
@@ -356,6 +449,7 @@ const parseDeployment = deployment => {
     ...parseLogCollection(annotations), // 日志
     ...parseStorage(annotations), // 存储
     ...parseLiveness(containers[0]), // 高可用
+    ...parseConfigMap(containers[0], volumes, annotations), // 配置管理
     ...parseAdvancedEnv(containers[0]), // 环境变量
   };
   return values;
@@ -370,28 +464,15 @@ const parseDeployment = deployment => {
 
 const parseMappingPorts = (annotations, spec) => {
   const { ports } = spec;
-  if (!annotations || !annotations[TENX_SCHEMA_PORTNAME]) {
+  if (isEmpty(ports)) {
     return;
   }
-  const portString = annotations[TENX_SCHEMA_PORTNAME];
-  if (!portString) {
-    return;
-  }
-  const portsArray = portString.includes(',') ? portString.split(',') : [portString];
   const portsKeys = [];
-  const portsObjArray = portsArray.map((port, index) => {
+  const portsParent = {};
+  ports.forEach((port, index) => {
     portsKeys.push({
       value: index,
     });
-    const [name, protocol] = port.split('/');
-    return {
-      name,
-      protocol,
-    };
-  });
-  const newPorts = merge([], ports, portsObjArray);
-  const portsParent = {};
-  newPorts.forEach((port, index) => {
     merge(portsParent, {
       [`${PORT}${index}`]: port.port,
       [`${PORT_PROTOCOL}${index}`]: port.protocol,
@@ -416,10 +497,11 @@ const parseMappingPorts = (annotations, spec) => {
 
 const parseService = service => {
   const { metadata, spec } = service;
-  const { annotations } = metadata;
+  const { annotations, labels } = metadata;
 
   const values = {
     accessMethod: annotations && annotations[TENX_SCHEMA_LBGROUP] || 'none', // 访问方式
+    originalName: labels.name, // 服务的原始名称
     ...parseMappingPorts(annotations, spec),
   };
   return values;

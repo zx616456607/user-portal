@@ -15,14 +15,16 @@ import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import QueueAnim from 'rc-queue-anim';
 import { browserHistory } from 'react-router';
-import { Button, Row, Col, Modal } from 'antd';
+import { Button, Row, Col, Modal, Spin } from 'antd';
 import isEmpty from 'lodash/isEmpty';
 import Title from '../../../../../src/components/Title';
 import ConfigPart from './ConfigPart';
 import TemplateInfo from './TemplateInfo';
-import { genRandomString, toQuerystring } from '../../../../../src/common/tools';
+import { genRandomString, toQuerystring, formatServiceToArrry, getWrapFileType } from '../../../../../src/common/tools';
 import * as QuickCreateAppActions from '../../../../../src/actions/quick_create_app';
 import * as templateActions from '../../../../actions/template';
+import * as appCenterActions from '../../../../../src/actions/app_center';
+import { DEFAULT_REGISTRY } from '../../../../../src/constants';
 import NotificationHandler from '../../../../../src/components/Notification';
 import './style/index.less';
 import { parseToFields } from './parseToFields';
@@ -55,9 +57,16 @@ class AppTemplate extends React.Component<IProps, IState> {
   componentWillMount() {
     const { location, getAppTemplateDetail } = this.props;
     const { query } = location;
-    if (query && query.name) {
-      getAppTemplateDetail(query.name).then(res => {
+    if (query && query.name && query.version) {
+      const { name, version } = query;
+      this.setState({
+        loading: true,
+      });
+      getAppTemplateDetail(name, version).then(res => {
         if (res.error) {
+          this.setState({
+            loading: false,
+          });
           return;
         }
         this.parseTempDetail(res.response.result.data);
@@ -89,7 +98,7 @@ class AppTemplate extends React.Component<IProps, IState> {
     const { setFormFields } = this.props;
     const { detail, chart } = data;
     const templateArray = [];
-    this.formatService2Arrry(detail[0], templateArray);
+    formatServiceToArrry(detail, templateArray);
     templateArray.reverse();
     templateArray.forEach(temp => {
       const id = this.genConfigureServiceKey();
@@ -98,6 +107,9 @@ class AppTemplate extends React.Component<IProps, IState> {
     });
     setTimeout(() => {
       this.toConfigPart();
+      this.setState({
+        loading: false,
+      });
     }, 100);
   }
 
@@ -107,30 +119,24 @@ class AppTemplate extends React.Component<IProps, IState> {
     this.configureMode = 'edit';
     this.editServiceKey = firstID;
     const currentFields = fields[firstID];
-    const { imageUrl } = currentFields;
+    const { imageUrl, imageTag, appPkgID } = currentFields;
     const [registryServer, ...imageArray] = imageUrl.value.split('/');
     const imageName = imageArray.join('/');
     const query = {
       imageName,
       registryServer,
+      tag: imageTag.value,
       key: firstID,
+      template: true,
     };
+    if (appPkgID) {
+      const type = imageName.split('/')[1];
+      const fileType: string = getWrapFileType(type);
+
+      Object.assign(query, { isWrap: true, fileType });
+    }
     browserHistory.push(`/app_center/template/create?${toQuerystring(query)}${TEMPLATE_EDIT_HASH}`);
     this.stepChange(1);
-  }
-
-  formatService2Arrry = (detail, templateArray) => {
-    const { deployment, service, ingress } = detail;
-    templateArray.push({
-      deployment,
-      service,
-      ingress,
-    });
-    if (!detail.dependencies) {
-      return;
-    }
-    const copyDetail = detail.dependencies[0];
-    this.formatService2Arrry(copyDetail, templateArray);
   }
 
   removeAllFormFieldsAsync = props => {
@@ -168,9 +174,14 @@ class AppTemplate extends React.Component<IProps, IState> {
 
   saveService = (key: string, isWrap: boolean) => {
     const { currentStep } = this.state;
-    const { fields } = this.props;
+    const { fields, template, getImageTemplate } = this.props;
     const { validateFieldsAndScroll } = this.form;
-    const url = `/app_center/template/create?key=${key}&isWrap=${isWrap}${TEMPLATE_EDIT_HASH}`;
+    const query = {
+      key,
+      isWrap,
+      template: true,
+    };
+    let url = `/app_center/template/create`;
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
         return;
@@ -183,7 +194,42 @@ class AppTemplate extends React.Component<IProps, IState> {
         if (currentStep === 0) {
           this.stepChange(1);
         }
-        browserHistory.push(url);
+        const currentFields = fields[key];
+        const { appPkgID, imageUrl } = currentFields;
+        const [registryServer, ...imageArray] = imageUrl.value.split('/');
+        const imageName = imageArray.join('/');
+        let newTemplateList = template;
+        const type = imageName.split('/')[1];
+        const fileType: string = getWrapFileType(type);
+        if (appPkgID) {
+          if (isEmpty(template)) {
+            getImageTemplate(DEFAULT_REGISTRY).then(res => {
+              newTemplateList = res.response.result.template;
+              let currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
+              let newImageName = currentTemplate.name;
+              this.setState({
+                newImageName,
+              });
+            });
+          } else {
+            let currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
+            let newImageName = currentTemplate.name;
+            this.setState({
+              newImageName,
+            });
+          }
+
+          Object.assign(query, { isWrap: true, fileType, imageName, registryServer, appPkgID: appPkgID.value });
+        }
+        url += `?${toQuerystring(query)}${TEMPLATE_EDIT_HASH}`;
+        this.setState({
+          loading: true,
+        }, () => {
+          browserHistory.push(url);
+          this.setState({
+            loading: false,
+          });
+        });
         return;
       }
       const fieldsKeys = Object.keys(fields) || [];
@@ -196,7 +242,7 @@ class AppTemplate extends React.Component<IProps, IState> {
       }
       // if create service, update the configure service key
       // use timeout: when history change generate a new configure serivce key
-      browserHistory.push('/app_center/template/create');
+      browserHistory.push(url);
       this.configureServiceKey = this.genConfigureServiceKey();
       this.stepChange(0);
     });
@@ -272,12 +318,21 @@ class AppTemplate extends React.Component<IProps, IState> {
     });
   }
 
+  getNewImageName = name => {
+    this.setState({
+      newImageName: name,
+    });
+  }
+
   render() {
     const {
       currentStep, templateName, templateDesc, templateVersion,
-      deleteVisible, goBackVisible,
+      deleteVisible, goBackVisible, loading, newImageName,
     } = this.state;
-    const { location, removeFormFields, removeAllFormFields, setFormFields, fields } = this.props;
+    const {
+      location, removeFormFields, removeAllFormFields, setFormFields, fields,
+      getImageTemplate, template,
+     } = this.props;
     const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey;
     const parentProps = {
       stepChange: this.stepChange,
@@ -294,6 +349,9 @@ class AppTemplate extends React.Component<IProps, IState> {
       templateDesc,
       templateVersion,
     };
+    if (loading) {
+      return <div className="loadingBox"><Spin size="large" /></div>;
+    }
     return (
       <QueueAnim>
         <Row className="appTemplate" key="appTemplate" gutter={16}>
@@ -304,6 +362,9 @@ class AppTemplate extends React.Component<IProps, IState> {
               {...this.state}
               {...parentProps}
               getFormAndConfig={this.getFormAndConfig}
+              getNewImageName={this.getNewImageName}
+              getImageTemplate={getImageTemplate}
+              template={template}
             />
             </Col>
           <Col span={6}>
@@ -345,9 +406,12 @@ class AppTemplate extends React.Component<IProps, IState> {
 }
 
 const mapStateToProps = (state, props) => {
-  const { quickCreateApp, entities } = state;
+  const { quickCreateApp, entities, images } = state;
+  const { wrapTemplate } = images;
+  const { template } = wrapTemplate || { template: [] };
   return {
     fields: quickCreateApp.fields,
+    template,
   };
 };
 
@@ -356,4 +420,5 @@ export default connect(mapStateToProps, {
   removeAllFormFields: QuickCreateAppActions.removeAllFormFields,
   setFormFields: QuickCreateAppActions.setFormFields,
   getAppTemplateDetail: templateActions.getAppTemplateDetail,
+  getImageTemplate: appCenterActions.getImageTemplate,
 })(AppTemplate);

@@ -133,7 +133,7 @@ export const SERVICE_BATCH_DELETE_REQUEST = 'SERVICE_BATCH_DELETE_REQUEST'
 export const SERVICE_BATCH_DELETE_SUCCESS = 'SERVICE_BATCH_DELETE_SUCCESS'
 export const SERVICE_BATCH_DELETE_FAILURE = 'SERVICE_BATCH_DELETE_FAILURE'
 
-function fetchDeleteServices(cluster, serviceList, callback) {
+function fetchDeleteServices(cluster, body, callback) {
   return {
     cluster,
     [FETCH_API]: {
@@ -141,7 +141,7 @@ function fetchDeleteServices(cluster, serviceList, callback) {
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/batch-delete`,
       options: {
         method: 'POST',
-        body: serviceList
+        body
       },
       schema: {}
     },
@@ -149,9 +149,9 @@ function fetchDeleteServices(cluster, serviceList, callback) {
   }
 }
 
-export function deleteServices(cluster, serviceList, callback) {
+export function deleteServices(cluster, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDeleteServices(cluster, serviceList, callback))
+    return dispatch(fetchDeleteServices(cluster, body, callback))
   }
 }
 

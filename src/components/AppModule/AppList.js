@@ -856,6 +856,7 @@ class AppList extends Component {
     const checkedAppList = appList.filter((app) => app.checked)
 
     const appNames = checkedAppList.map((app) => app.name)
+    const releaseNames = []
     if(terminalList.length){
       const deleteAppList = cloneDeep(checkedAppList)
       const deleteServiceList = []
@@ -872,6 +873,12 @@ class AppList extends Component {
     allApps.map((app) => {
       if (appNames.indexOf(app.name) > -1) {
         app.status.phase = 'Terminating'
+        if (app.k8sServices) {
+          let releaseName = app.k8sServices[0].metadata.labels.releaseName
+          if (releaseName && !releaseNames.includes(releaseName)) {
+            releaseNames.push(releaseName)
+          }
+        }
       }
     })
     self.setState({
@@ -882,7 +889,7 @@ class AppList extends Component {
       restartBtn:false,
       appList: allApps
     })
-    deleteApps(cluster, appNames, {
+    deleteApps(cluster, {apps: appNames, releaseNames}, {
       success: {
         func: () => {
           self.loadData(self.props)
