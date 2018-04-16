@@ -215,14 +215,14 @@ class MonitorChartModal extends React.Component {
      } = this.props
     const { getFieldValue, setFieldsValue } = form
     const preType = getFieldValue('metrics_type')
-    if (type === 'service' && isEmpty(allServiceList)) {
+    if (type === 'service') {
       loadAllServices(clusterID, {
         pageIndex: 1,
         pageSize: 100
       })
-    } else if (type === 'node' && isEmpty(nodeList)) {
+    } else if (type === 'node') {
       getAllClusterNodes(clusterID)
-    } else if (type === 'nexport' && isEmpty(proxiesServices)) {
+    } else if (type === 'nexport') {
       getProxy(clusterID)
     }
     if (preType && (preType !== type)) {
