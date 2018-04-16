@@ -8,7 +8,6 @@ import NotificationHandler from '../../../../../src/components/Notification';
 
 const notify = new NotificationHandler();
 const FormItem = Form.Item;
-let randomKey = Math.random();//重置表单
 let isGetParams = true; //是否获取接口数据
 let disabledIconCon = ["aws", "azure", "ali"]; //禁用的图标按钮集合
 let isEdit = false;
@@ -75,8 +74,8 @@ class Form1 extends React.Component {
               })} placeholder="请选择数据中心" style={{width: "100%", }}>
               <Select.Option value=""><span className="optionValueNull">请选择数据中心</span></Select.Option>
               {
-                datacenterList.map((item) => {
-                  return <Select.Option key={item}>{item}</Select.Option>
+                datacenterList.map((item, i) => {
+                  return <Select.Option key={i} value={item}>{item}</Select.Option>
                 })
               }
             </Select>
@@ -111,10 +110,10 @@ class Form1 extends React.Component {
               }], })} placeholder="请选择虚拟机模板" style={{width: "100%", }}>
               <Select.Option value=""><span className="optionValueNull">请选择虚拟机模板</span></Select.Option>
               {
-                template.map((item) =>
+                template.map((item, i) =>
                 {
                   return (
-                    <Select.Option value={item.path} key="1">
+                    <Select.Option value={item.path} key={i}>
                       <div className='vmTemplateDetail'>
                         <Tooltip placement="right" title={item.path}>
                           <p className='path'>{item.path}</p>
@@ -143,9 +142,9 @@ class Form1 extends React.Component {
               }], })} placeholder="请选择计算资源池" style={{width: "100%", }}>
               <Select.Option value=""><span className="optionValueNull">请选择计算资源池</span></Select.Option>
               {
-                resourcePool.map((item) =>
+                resourcePool.map((item, i) =>
                   {
-                    return (<Select.Option key={item}>{item}</Select.Option>)
+                    return (<Select.Option key={i}>{item}</Select.Option>)
                   })
               }
             </Select>
@@ -165,9 +164,9 @@ class Form1 extends React.Component {
               }], })} placeholder="请选择存储资源池" style={{width: "100%", }}>
               <Select.Option value=""><span className="optionValueNull">请选择存储资源池</span></Select.Option>
               {
-                datastore.map((item) =>
+                datastore.map((item, i) =>
                   {
-                    return (<Select.Option key={item}>{item}</Select.Option>)
+                    return (<Select.Option key={i}>{item}</Select.Option>)
                   })
               }
             </Select>
@@ -286,6 +285,15 @@ class Tab1Modal extends React.Component {
     //console.log(e.target.value);
   }
   resetState = () => {
+  isGetParams = true; //是否获取接口数据
+  disabledIconCon = ["aws", "azure", "ali"]; //禁用的图标按钮集合
+  isEdit = false;
+  datacenterList = [], templatePathList = {}, datastorePathList = {}, resourcePoolPathList = {};
+  currentData = "";
+  cluster = "", iaas = "";
+  updateTimer, addTimer;
+  form1Fun;
+  isCreated = {};//是否创建过策略的集群汇总
     this.setState({
       currentIcon: "",
       checkExistProvider: false, //查看已有模块 false没配过, true 配过
@@ -326,11 +334,9 @@ class Tab1Modal extends React.Component {
       isGetParams = true;
     }
     if( this.props.isEdit && !!this.props.currentData){
-      isEdit = true,
-      { datacenter, datastorePath, duration, email, max, min, name, removeAndDelete, resourcePoolPath, templatePath, targetPath,
+      isEdit = true, { datacenter, datastorePath, duration, email, max, min, name, removeAndDelete, resourcePoolPath, templatePath, targetPath,
         cluster, iaas
-      }
-      = this.props.currentData;//cluster, iaas 编辑时使用的 clusterId 和 Iaas
+      } = this.props.currentData;//cluster, iaas 编辑时使用的 clusterId 和 Iaas
       if(JSON.stringify(currentData) !== JSON.stringify(this.props.currentData)){
         updateTimer = null;
         currentData = this.props.currentData;
@@ -342,12 +348,13 @@ class Tab1Modal extends React.Component {
       }
       addTimer = null;
     }else{
+      isEdit = false;
       if(!!!addTimer && isModalFetching===false){
         addTimer = setTimeout(() => {
           this.resetState();
         }, 200);
       }
-      isEdit = false, updateTimer = null;
+      updateTimer = null;
       datacenterList = []; templatePathList = {}; datastorePathList = {}; resourcePoolPathList = {};
       cluster = ""; iaas = "";
     }
@@ -410,9 +417,9 @@ class Tab1Modal extends React.Component {
           </div>
         )
     }).bind(this)();
-    if(!this.props.visible) randomKey = Math.random();//重置表单
     if(!!resList){
       let j = 0;
+      datacenterList = [];
       for ( let i in resList ){
         datacenterList.push(i);
         let dt = resList[i];
@@ -432,7 +439,6 @@ class Tab1Modal extends React.Component {
           title="弹性伸缩策略"
           width="550"
           footer={footer}
-          key={randomKey}
           maskClosable={false}
           confirmLoadin={this.props.confirmLoading}
           onClose={() => {!!!this.props.isModalFetching && !!!isResFetching && this.modalCancel()}}
@@ -514,7 +520,26 @@ class Tab1Modal extends React.Component {
                       <div className="stepContainer">
                         <Steps size="small" current={this.state.currentStep} status="process">
                           <Steps.Step key="0" title="节点自动配置" description="" />
-                          <Steps.Step key="1" title="集群伸缩方案" description="" />
+                          <Steps.Step key="1" title={
+                            (() => {
+                              return (
+                                [
+                                  <span>集群伸缩方案</span>,
+                                  <Tooltip placement="right" title={(() => {
+                                    return (
+                                      [
+                                        <div>平台将在以下情况，进行节点伸缩，调整集群大小：</div>,
+                                        <div>1、增加节点：由于资源不足，无法在集群中正常调度服务实例</div>,
+                                        <div>2、减少节点：集群中的某些节点在很长一段时间未被充分使用</div>
+                                      ]
+                                    )
+                                  })()}>
+                                    <Icon style={{marginLeft: "5px", color: "#ccc"}} type="question-circle-o" />
+                                  </Tooltip>
+                                ]
+                              )
+                            })()
+                          } description="" />
                         </Steps>
                         <div className="bottom-line" style={{ bottom: "-10px" }}></div>
                       </div>
@@ -535,16 +560,18 @@ class Tab1Modal extends React.Component {
                         <Form className={"step2 " + ( this.state.currentStep === 0 ? "hide" : "")} horizontal>
                             <div>
                               <div className="panel">
-                                <Row key="row7">
+                                <Row className="jiedianContainer" key="row7">
                                   <div className="ant-col-6 ant-form-item-label"><label>节点数量</label></div>
                                   <div className="ant-col-14">
-                                    <FormItem>
+                                    <FormItem labelCol={{ span: 24}} wrapperCol={{ span: 14 }}
+                                      label="最小节点数"
+                                    >
                                       <div className="min">
-                                        <div className="name">最小节点数
-                                          {/*<Tooltip placement="right" title="注：最小实例数需大于或等于手动添加的实例总数">
+                                        {/*<div className="name">
+                                          <Tooltip placement="right" title="注：最小实例数需大于或等于手动添加的实例总数">
                                             <Icon style={{marginLeft: "5px", cursor: "pointer"}} type="info-circle-o" />
-                                          </Tooltip>*/}
-                                        </div>
+                                          </Tooltip>
+                                        </div>*/}
                                         <div className="formItem">
                                           <Input {...getFieldProps('min', { initialValue: min,
                                             validate: [{
@@ -556,9 +583,11 @@ class Tab1Modal extends React.Component {
                                         </div>
                                       </div>
                                     </FormItem>
-                                    <FormItem>
+                                    <FormItem labelCol={{ span: 24 }} wrapperCol={{ span: 14 }}
+                                      label="最大节点数"
+                                    >
                                       <div className="max">
-                                        <div className="name">最大节点数</div>
+                                        {/*<div className="name">最大节点数</div>*/}
                                         <div className="formItem">
                                           <Input {...getFieldProps('max', { initialValue: max,
                                             validate: [{
@@ -571,7 +600,7 @@ class Tab1Modal extends React.Component {
                                       </div>
                                     </FormItem>
                                   </div>
-                                  <Row style={{marginBottom: "15px"}} className="rowtext" key="rowtext">
+                                  <Row className="rowtext" key="rowtext">
                                     <Col span={6}>
                                     </Col>
                                     <Col span={16}>
@@ -698,6 +727,8 @@ class Tab1Modal extends React.Component {
           this.props.getResList({
             cluster: !!cluster ? cluster : this.state.selectValue,
             type: !!iaas ? iaas : this.state.currentIcon,
+          }).then(() => {
+            if(isEdit) this.setState({currDataCenter: this.props.currentData.datacenter});
           });
         }
       });

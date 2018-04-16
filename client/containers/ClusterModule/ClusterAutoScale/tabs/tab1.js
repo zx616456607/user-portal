@@ -105,7 +105,7 @@ class Tab1 extends React.Component {
           failed: {
             func: err => {
               const { statusCode, message } = err;
-              notify.error(`删除策略 ${this.state.currentData.name} 失败，错误代码: ${statusCode}， ${message.message}`);
+              notify.warn(`删除策略 ${this.state.currentData.name} 失败，错误代码: ${statusCode}， ${message.message}`);
               common();
             },
           }
@@ -129,7 +129,7 @@ class Tab1 extends React.Component {
       failed: {
         func: err => {
           const { statusCode, message } = err
-          notify.error(`删除策略 ${rowData.name} 失败，错误代码: ${statusCode}， ${message}`)
+          notify.warn(`删除策略 ${rowData.name} 失败，错误代码: ${statusCode}， ${message}`)
         },
       }
     });
@@ -219,7 +219,7 @@ class Tab1 extends React.Component {
           failed: {
             func: err => {
               const { statusCode, message } = err
-              notify.error(`更新策略 ${params.name} 失败，错误代码: ${statusCode}， ${message.message}`)
+              notify.warn(`更新策略 ${params.name} 失败，错误代码: ${statusCode}， ${message.message}`)
             },
           }
         })
@@ -239,7 +239,7 @@ class Tab1 extends React.Component {
             failed: {
               func: err => {
                 const { statusCode, message } = err;
-                notify.error(`新建策略 ${params.name} 失败，错误代码: ${statusCode}， ${message.message}`)
+                notify.warn(`新建策略 ${params.name} 失败，错误代码: ${statusCode}， ${message.message}`)
               },
             }
           })
@@ -254,7 +254,7 @@ class Tab1 extends React.Component {
       color = "#2cb8f6";
     }
     const className = "ant-timeline-item " + (isLast ? "ant-timeline-item-last" : "" );
-    return <li className={className}>
+    return <li className={className} key={i}>
         <div className="ant-timeline-item-tail"></div>
         <div className="ant-timeline-item-head ant-timeline-item-head-custom ant-timeline-item-head-blue">
           <i className="anticon anticon-exclamation-circle" style={{ fontSize: 16, color: "#2cb8f6" }}></i>
