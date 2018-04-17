@@ -1230,12 +1230,13 @@ class ProjectDetail extends Component {
                     </ul>
                     {
                       (roleNum === 1 || isManager) &&
-                      [
-                        <Button key="addRoles" type="primary" size="large" icon="plus" onClick={() => this.setState({ addCharacterModal: true })}> 添加已有角色</Button>,
-                        <br />,
-                        <Button key="createRole" type="ghost" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
-                      ]
+                      <Button key="createRole" type="primary" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
                     }
+                    {/*[
+                      <Button key="addRoles" type="primary" size="large" icon="plus" onClick={() => this.setState({ addCharacterModal: true })}> 添加已有角色</Button>,
+                      <br />,
+                      <Button key="createRole" type="ghost" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
+                    ]*/}
                   </div>
                   <div className="connectRight pull-left">
                     <p className="rightTitle">角色关联成员</p>

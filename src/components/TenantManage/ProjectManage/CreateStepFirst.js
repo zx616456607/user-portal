@@ -217,7 +217,6 @@ let CreateStepFirst = React.createClass({
 })
 
 function mapStateToFristProp(state, props) {
-
   return {
 
   }
