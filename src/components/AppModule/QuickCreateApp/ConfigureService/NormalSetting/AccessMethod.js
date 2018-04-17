@@ -34,38 +34,59 @@ class AccessMethod extends Component {
   componentWillMount() {
     const { getProxy, currentCluster, form, isTemplate, location } = this.props
     const clusterID = currentCluster.clusterID
-    const activeKey = form.getFieldValue('accessType');
+    const { accessType: activeKey, accessMethod } = form.getFieldsValue(['accessType', 'accessMethod'])
     if (activeKey) {
       this.setState({ activeKey })
     }
     let clusterId = camelize(currentCluster.clusterID)
-    !location.query.template && getProxy(clusterID, {
+    getProxy(clusterID, {
       success: {
         func: (res) => {
           let data = res[clusterId].data
           for (let i = 0; i < data.length; i++) {
-            if (data[i].isDefault) {
+            if (location.query.template) {
               this.setState({
                 lbgroup: data[i].id || '暂无',
               })
-              if(data[i].type == 'public'){
-                setTimeout(() => {
+              if (accessMethod === 'PublicNetwork') {
+                if (data[i].type === 'public') {
                   form.setFieldsValue({
-                    accessMethod: 'PublicNetwork',
                     publicNetwork: data[i].id
-                  }, 200)
-                })
-                return
-              }
-              if(data[i].type == 'private'){
-                setTimeout(() => {
+                  })
+                  break
+                }
+              } else if (accessMethod === 'InternalNetwork') {
+                if (data[i].type === 'private') {
                   form.setFieldsValue({
-                    accessMethod: 'InternalNetwork',
                     internaletwork: data[i].id
-                  }, 200)
-                })
+                  })
+                  break
+                }
               }
-              break
+            } else {
+              if (data[i].isDefault) {
+                this.setState({
+                  lbgroup: data[i].id || '暂无',
+                })
+                if(data[i].type == 'public'){
+                  setTimeout(() => {
+                    form.setFieldsValue({
+                      accessMethod: 'PublicNetwork',
+                      publicNetwork: data[i].id
+                    }, 200)
+                  })
+                  return
+                }
+                if(data[i].type == 'private'){
+                  setTimeout(() => {
+                    form.setFieldsValue({
+                      accessMethod: 'InternalNetwork',
+                      internaletwork: data[i].id
+                    }, 200)
+                  })
+                }
+                break
+              }
             }
           }
         }
