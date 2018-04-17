@@ -81,6 +81,7 @@ export default class ConfigPart extends React.Component<any, IState> {
         appPkgID: image.id,
         fileType: image.fileType,
         isWrap,
+        template: true,
       };
       let newTemplateList = template;
       let currentTemplate: string;
@@ -106,6 +107,7 @@ export default class ConfigPart extends React.Component<any, IState> {
     const imageQuery = {
       imageName: encodeImageFullname(image.repositoryName),
       registryServer,
+      template: true,
     };
     browserHistory.push(`/app_center/template/create?${toQuerystring(imageQuery)}`);
     setTimeout(() => {

@@ -114,7 +114,7 @@ class AppTemplate extends React.Component<IProps, IState> {
   }
 
   toConfigPart = () => {
-    const { fields } = this.props;
+    const { fields, template, getImageTemplate } = this.props;
     const firstID = Object.keys(fields)[0];
     this.configureMode = 'edit';
     this.editServiceKey = firstID;
@@ -134,6 +134,24 @@ class AppTemplate extends React.Component<IProps, IState> {
       const fileType: string = getWrapFileType(type);
 
       Object.assign(query, { isWrap: true, fileType });
+
+      let newTemplateList = template;
+      if (isEmpty(template)) {
+        getImageTemplate(DEFAULT_REGISTRY).then(res => {
+          newTemplateList = res.response.result.template;
+          let currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
+          let newImageName = currentTemplate.name;
+          this.setState({
+            newImageName,
+          });
+        });
+      } else {
+        let currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
+        let newImageName = currentTemplate.name;
+        this.setState({
+          newImageName,
+        });
+      }
     }
     browserHistory.push(`/app_center/template/create?${toQuerystring(query)}${TEMPLATE_EDIT_HASH}`);
     this.stepChange(1);
@@ -176,6 +194,7 @@ class AppTemplate extends React.Component<IProps, IState> {
     const { currentStep } = this.state;
     const { fields, template, getImageTemplate } = this.props;
     const { validateFieldsAndScroll } = this.form;
+    let notify = new NotificationHandler();
     const query = {
       key,
       isWrap,
@@ -184,6 +203,7 @@ class AppTemplate extends React.Component<IProps, IState> {
     let url = `/app_center/template/create`;
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
+        notify.warn('请先修改错误的表单');
         return;
       }
       // if query has key that mean edit template
@@ -289,14 +309,18 @@ class AppTemplate extends React.Component<IProps, IState> {
   }
 
   cancelTemplate = () => {
+    const { currentStep } = this.state;
     if (this.configureMode === 'create') {
-      this.setState({
-        goBackVisible: true,
-      });
-      return;
+      if (currentStep === 1) {
+        this.setState({
+          goBackVisible: true,
+        });
+        this.stepChange(0);
+        browserHistory.push('/app_center/template/create');
+        return;
+      }
     }
-    this.stepChange(0);
-    browserHistory.push('/app_center/template/create');
+    browserHistory.push('/app_center/template');
   }
 
   cancelGoBack = () => {
