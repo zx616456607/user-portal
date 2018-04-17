@@ -46,7 +46,8 @@ class CreateRoleModal extends Component{
       this.setState({
         expandedKeys: [],
         checkedKeys: [],
-        selectedKeys: []
+        selectedKeys: [],
+        type: "0", //0 所有权限 （原） 1 指定权限（新）
       })
     }
   }
@@ -166,14 +167,18 @@ class CreateRoleModal extends Component{
         name: roleName,
         comment: roleDesc,
         type: type,
-        pids: checkedKeys.map(item => Number(item))
+        pids: type === "0" ? checkedKeys.map(item => Number(item)) : []
       },{
         success:{
           func: (res) => {
             if (res.data.statusCode === 200) {
               notify.success('创建角色成功')
               loadData && loadData()
-              scope.setState({characterModal:false})
+              // targetKeys = _.deepClone(scope.state.targetKeys);
+              // targetKeys.push(res.data.data.roleID);
+              scope.setState({characterModal:false}, () => {
+                scope.addCharacterOk(res.data.data.roleID);
+              })
             }
           },
           isAsync: true

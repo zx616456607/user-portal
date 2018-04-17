@@ -308,7 +308,7 @@ class ProjectDetail extends Component {
   onSelect = (selectedKeys, info) => {
     this.setState({ selectedKeys });
   }
-  addCharacterOk() {
+  addCharacterOk(roleid) {
     const { UpdateProjectsRelatedRoles } = this.props;
     const { projectDetail, targetKeys } = this.state;
     let notify = new Notification()
@@ -317,6 +317,8 @@ class ProjectDetail extends Component {
       let key = targetKeys[i].split(',')[0]
       updateRoles.push(key)
     }
+    //roleid 添加角色时 返回role id 直接关联到已添加角色
+    !!roleid && updateRoles.push(roleid);
     UpdateProjectsRelatedRoles({
       projectsName: projectDetail.projectName,
       body: {
@@ -1230,13 +1232,13 @@ class ProjectDetail extends Component {
                     </ul>
                     {
                       (roleNum === 1 || isManager) &&
-                      <Button key="createRole" type="primary" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
+                      [
+                        <Button key="addRoles" type="primary" size="large" icon="plus" onClick={() => this.setState({ addCharacterModal: true })}> 添加已有角色</Button>,
+                        <br />,
+                        <Button key="createRole" type="ghost" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
+                      ]
                     }
-                    {/*[
-                      <Button key="addRoles" type="primary" size="large" icon="plus" onClick={() => this.setState({ addCharacterModal: true })}> 添加已有角色</Button>,
-                      <br />,
-                      <Button key="createRole" type="ghost" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
-                    ]*/}
+                    {/*<Button key="createRole" type="primary" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>*/}
                   </div>
                   <div className="connectRight pull-left">
                     <p className="rightTitle">角色关联成员</p>
