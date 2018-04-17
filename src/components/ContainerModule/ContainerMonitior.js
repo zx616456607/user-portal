@@ -65,13 +65,11 @@ class ContainerMonitior extends Component {
       switchDisk: false,
       currentValue: '1',
       currentStart: this.changeTime('1'),
-      instantValue: 30
     }
   }
   getMetricsCpu() {
     const { loadContainerMetricsCPU, cluster, containerName } = this.props
-    const { currentCpuStart } = this.state
-    loadContainerMetricsCPU(cluster, containerName, {start: currentCpuStart, source: 'influxdb'}, {
+    loadContainerMetricsCPU(cluster, containerName, {start: this.changeTime(1), end: new Date().toISOString(), source: 'prometheus'}, {
       finally: {
         func: () => {
           this.setState({
@@ -83,8 +81,7 @@ class ContainerMonitior extends Component {
   }
   getMetricsMemory() {
     const { loadContainerMetricsMemory, cluster, containerName } = this.props
-    const { currentMemoryStart } = this.state
-    loadContainerMetricsMemory(cluster, containerName, {start: currentMemoryStart, source: 'influxdb'}, {
+    loadContainerMetricsMemory(cluster, containerName, {start: this.changeTime(1), end: new Date().toISOString(), source: 'prometheus'}, {
       finally: {
         func: () => {
           this.setState({
@@ -96,9 +93,8 @@ class ContainerMonitior extends Component {
   }
   getMetricsNetworkRx() {
     const { loadContainerMetricsNetworkReceived, cluster, containerName } = this.props
-    const { currentNetworkStart } = this.state
     return new Promise(resolve => {
-      loadContainerMetricsNetworkReceived(cluster, containerName, {start: currentNetworkStart, source: 'influxdb'}, {
+      loadContainerMetricsNetworkReceived(cluster, containerName, {start: this.changeTime(1), end: new Date().toISOString(), source: 'prometheus'}, {
         finally: {
           func: () => {
             resolve()
@@ -109,9 +105,8 @@ class ContainerMonitior extends Component {
   }
   getMetricsNetworkTx() {
     const { loadContainerMetricsNetworkTransmitted, cluster, containerName } = this.props
-    const { currentNetworkStart } = this.state
     return new Promise(resolve => {
-      loadContainerMetricsNetworkTransmitted(cluster, containerName, {start: currentNetworkStart, source: 'influxdb'}, {
+      loadContainerMetricsNetworkTransmitted(cluster, containerName, {start: this.changeTime(1), end: new Date().toISOString(), source: 'prometheus'}, {
         finally: {
           func: () => {
             resolve()
@@ -122,9 +117,8 @@ class ContainerMonitior extends Component {
   }
   getMetricsDiskRead() {
     const { loadContainerMetricsDiskRead, cluster, containerName } = this.props
-    const { currentDiskStart } = this.state
     return new Promise(resolve => {
-      loadContainerMetricsDiskRead(cluster, containerName, {start: currentDiskStart}, {
+      loadContainerMetricsDiskRead(cluster, containerName, {start: this.changeTime(1), end: new Date().toISOString()}, {
         finally: {
           func: () => {
             resolve()
@@ -135,9 +129,8 @@ class ContainerMonitior extends Component {
   }
   getMetricsDiskWrite() {
     const { loadContainerMetricsDiskWrite, cluster, containerName } = this.props
-    const { currentDiskStart } = this.state
     return new Promise(resolve => {
-      loadContainerMetricsDiskWrite(cluster, containerName, {start: currentDiskStart}, {
+      loadContainerMetricsDiskWrite(cluster, containerName, {start: this.changeTime(1), end: new Date().toISOString()}, {
         finally: {
           func: () => {
             resolve()
@@ -147,7 +140,6 @@ class ContainerMonitior extends Component {
     })
   }
   switchChange(flag, type) {
-    const { instantValue } = this.state
     this.setState({
       [`switch${type}`]: flag,
       [`${type}Loading`]: flag
@@ -156,34 +148,18 @@ class ContainerMonitior extends Component {
       case 'Cpu':
         clearInterval(this.cpuInterval)
         if (flag) {
-          this.setState({
-            [`current${type}Start`]: this.changeMinutes(instantValue)
-          }, () => {
-            this.getMetricsCpu()
-          })
+          this.getMetricsCpu()
           this.cpuInterval = setInterval(() => {
-            this.setState({
-              [`current${type}Start`]: this.changeMinutes(instantValue)
-            }, () => {
-              this.getMetricsCpu()
-            })
+            this.getMetricsCpu()
           }, LOAD_INSTANT_INTERVAL)
         }
         break
       case 'Memory':
         clearInterval(this.memoryInterval)
         if (flag) {
-          this.setState({
-            [`current${type}Start`]: this.changeMinutes(instantValue)
-          }, () => {
-            this.getMetricsMemory()
-          })
+          this.getMetricsMemory()
           this.memoryInterval = setInterval(() => {
-            this.setState({
-              [`current${type}Start`]: this.changeMinutes(instantValue)
-            }, () => {
-              this.getMetricsMemory()
-            })
+            this.getMetricsMemory()
           }, LOAD_INSTANT_INTERVAL)
         }
         break
@@ -191,21 +167,13 @@ class ContainerMonitior extends Component {
         clearInterval(this.networkRxInterval)
         clearInterval(this.networkTxInterval)
         if (flag) {
-          this.setState({
-            [`current${type}Start`]: this.changeMinutes(instantValue)
-          }, () => {
-            Promise.all([this.getMetricsNetworkRx(), this.getMetricsNetworkTx()]).then(() => {
-              this.setState({
-                NetworkLoading: false
-              })
+          Promise.all([this.getMetricsNetworkRx(), this.getMetricsNetworkTx()]).then(() => {
+            this.setState({
+              NetworkLoading: false
             })
           })
           this.networkRxInterval = setInterval(() => {
-            this.setState({
-              [`current${type}Start`]: this.changeMinutes(instantValue)
-            }, () => {
-              this.getMetricsNetworkRx()
-            })
+            this.getMetricsNetworkRx()
           }, LOAD_INSTANT_INTERVAL)
           this.networkTxInterval = setInterval(() => this.getMetricsNetworkTx(), LOAD_INSTANT_INTERVAL)
         }
@@ -214,21 +182,13 @@ class ContainerMonitior extends Component {
         clearInterval(this.diskReadInterval)
         clearInterval(this.diskWriteInterval)
         if (flag) {
-          this.setState({
-            [`current${type}Start`]: this.changeMinutes(instantValue)
-          }, () => {
-            Promise.all([this.getMetricsDiskRead(), this.getMetricsDiskWrite()]).then(() => {
-              this.setState({
-                DiskLoading: false
-              })
+          Promise.all([this.getMetricsDiskRead(), this.getMetricsDiskWrite()]).then(() => {
+            this.setState({
+              DiskLoading: false
             })
           })
           this.diskReadInterval = setInterval(() => {
-            this.setState({
-              [`current${type}Start`]: this.changeMinutes(instantValue)
-            }, () => {
-              this.getMetricsDiskRead()
-            })
+            this.getMetricsDiskRead()
           }, LOAD_INSTANT_INTERVAL)
           this.diskWriteInterval = setInterval(() => this.getMetricsDiskWrite(), LOAD_INSTANT_INTERVAL)
         }
@@ -237,12 +197,6 @@ class ContainerMonitior extends Component {
   changeTime(hours) {
     let d = new Date()
     d.setHours(d.getHours() - hours)
-    return d.toISOString()
-  }
-
-  changeMinutes(min) {
-    let d = new Date()
-    d.setMinutes(d.getMinutes() - min)
     return d.toISOString()
   }
 
