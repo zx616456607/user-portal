@@ -358,7 +358,7 @@ function serviceMetrics(state = {}, action) {
           isFetching: false,
           data: action.response.result.data.map(item => {
             return {
-              name: item.containerName.split('-')[0],
+              name: item.containerName,
               metrics: item.metrics
             }
           })
