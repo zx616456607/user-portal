@@ -1,11 +1,11 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
  *
- * Redux reducers for app template
+ * Redux actions for clusterAutoScaler
  *
- * v0.1 - 2018-04-09
- * @author rsw
+ * v0.1 - 2018-04-08
+ * @author rensiwei
  */
 
 import * as ActionTypes from '../actions/clusterAutoScaler';

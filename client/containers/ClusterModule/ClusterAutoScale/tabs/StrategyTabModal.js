@@ -1,3 +1,10 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * v0.1 - 2018-04-08
+ * @author rensiwei
+ */
 import React from 'react'
 import { Modal, Button, Input, Select, Row, Col, Form, Spin, Icon } from 'antd'
 import '../style/tabModal.less'

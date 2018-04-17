@@ -1,3 +1,12 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ *IaasTabModal tabModal1
+ *
+ * v0.1 - 2018-04-08
+ * @author rensiwei
+ */
 import React from 'react'
 import { Modal, Button, Select, Input, Steps, Icon, Tooltip, Radio, Row, Col, Form, Spin, InputNumber } from 'antd'
 import '../style/tabModal.less'
@@ -545,17 +554,17 @@ class Tab1Modal extends React.Component {
                       </div>
                       <div className="formContainer">
                         <Form1
-                        datacenter={datacenter}
-                        datastorePath={datastorePath}
-                        resourcePoolPath={resourcePoolPath}
-                        templatePath={templatePath}
-                        targetPath={targetPath}
-                        name={name}
-                        template={template}
-                        datastore={datastore}
-                        resourcePool={resourcePool}
-                        currentStep={this.state.currentStep}
-                        onDataCenterChange={this.onDataCenterChange}
+                          datacenter={datacenter}
+                          datastorePath={datastorePath}
+                          resourcePoolPath={resourcePoolPath}
+                          templatePath={templatePath}
+                          targetPath={targetPath}
+                          name={name}
+                          template={template}
+                          datastore={datastore}
+                          resourcePool={resourcePool}
+                          currentStep={this.state.currentStep}
+                          onDataCenterChange={this.onDataCenterChange}
                         />
                         <Form className={"step2 " + ( this.state.currentStep === 0 ? "hide" : "")} horizontal>
                             <div>

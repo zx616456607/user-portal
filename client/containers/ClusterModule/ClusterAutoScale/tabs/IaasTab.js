@@ -1,3 +1,12 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * IaasTab Tab1
+ *
+ * v0.1 - 2018-04-08
+ * @author rensiwei
+ */
 import React from 'react';
 import {
   Spin, Button, Icon, Input, Table, Menu, Dropdown,
@@ -5,12 +14,12 @@ import {
   Modal
 } from 'antd';
 import classNames from 'classNames';
-import '../style/tab1.less';
+import '../style/IaasTab.less';
 import * as autoScalerActions from '../../../../actions/clusterAutoScaler';
 import { connect } from 'react-redux';
 import QueueAnim from 'rc-queue-anim';
-import Tab1Modal from './tab1Modal';
-import Tab2Modal from './tab2Modal';
+import Tab1Modal from './IaasTabModal';
+import Tab2Modal from './StrategyTabModal';
 import NotificationHandler from '../../../../../src/components/Notification';
 
 const notify = new NotificationHandler();

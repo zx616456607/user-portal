@@ -1,8 +1,8 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2017 TenxCloud. All Rights Reserved.
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
  *
- * Redux actions for template
+ * Redux actions for clusterAutoScaler
  *
  * v0.1 - 2018-04-08
  * @author rensiwei

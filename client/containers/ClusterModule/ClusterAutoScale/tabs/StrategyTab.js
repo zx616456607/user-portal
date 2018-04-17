@@ -1,12 +1,21 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ *StrategyTab tab2
+ *
+ * v0.1 - 2018-04-08
+ * @author rensiwei
+ */
 import React, { Component } from 'react';
 import { Button, Icon, Input, Table, Menu, Dropdown, Card, Select, Pagination, Timeline, Row, Col, Spin, Modal} from 'antd';
 import moment from 'moment'
 import classNames from 'classNames'
 import * as autoScalerActions from '../../../../actions/clusterAutoScaler';
 import { connect } from 'react-redux';
-import '../style/tab1.less';
-import '../style/tab2.less';
-import Tab2Modal from './tab2Modal.js';
+import '../style/IaasTab.less';
+import '../style/StrategyTab.less';
+import Tab2Modal from './StrategyTabModal.js';
 import NotificationHandler from '../../../../../src/components/Notification';
 
 const notify = new NotificationHandler();

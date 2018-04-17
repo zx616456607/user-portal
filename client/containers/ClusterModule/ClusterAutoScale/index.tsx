@@ -1,3 +1,10 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * v0.1 - 2018-04-08
+ * @author rensiwei
+ */
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { Menu, Button, Card, Input, Dropdown, Spin, Modal,
@@ -7,8 +14,8 @@ import classNames from 'classnames';
 import * as autoScalerActions from '../../../actions/clusterAutoScaler';
 import { connect } from 'react-redux';
 import './style/clusterAutoScale.less';
-import Tab1 from './tabs/tab1';
-import Tab2 from './tabs/tab2';
+import Tab1 from './tabs/IaasTab';
+import Tab2 from './tabs/StrategyTab';
 const TabPane = Tabs.TabPane;
 
 class ClusterAutoScale extends React.Component {
