@@ -114,7 +114,7 @@ class AppTemplate extends React.Component<IProps, IState> {
   }
 
   toConfigPart = () => {
-    const { fields } = this.props;
+    const { fields, template, getImageTemplate } = this.props;
     const firstID = Object.keys(fields)[0];
     this.configureMode = 'edit';
     this.editServiceKey = firstID;
@@ -134,6 +134,24 @@ class AppTemplate extends React.Component<IProps, IState> {
       const fileType: string = getWrapFileType(type);
 
       Object.assign(query, { isWrap: true, fileType });
+
+      let newTemplateList = template;
+      if (isEmpty(template)) {
+        getImageTemplate(DEFAULT_REGISTRY).then(res => {
+          newTemplateList = res.response.result.template;
+          let currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
+          let newImageName = currentTemplate.name;
+          this.setState({
+            newImageName,
+          });
+        });
+      } else {
+        let currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
+        let newImageName = currentTemplate.name;
+        this.setState({
+          newImageName,
+        });
+      }
     }
     browserHistory.push(`/app_center/template/create?${toQuerystring(query)}${TEMPLATE_EDIT_HASH}`);
     this.stepChange(1);

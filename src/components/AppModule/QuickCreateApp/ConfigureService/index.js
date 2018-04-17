@@ -71,8 +71,9 @@ let ConfigureService = React.createClass({
       })
     }
     if (mode === 'create') {
+      let queryServer = location.query.registryServer || registryServer
       const values = {
-        imageUrl: `${registryServer}/${imageName}`,
+        imageUrl: `${queryServer}/${imageName}`,
       }
       if (location.query.appPkgID && location.query.template) {
         values.imageUrl = `${registryServer}/${newImageName}`
