@@ -235,8 +235,9 @@ exports.checkChartName = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
   const name = this.params.name
+  const query = this.query
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'metric', 'charts', name, 'check'])
+  const result = yield api.getBy([cluster, 'metric', 'charts', name, 'check'], query)
   this.body = result
 }
 

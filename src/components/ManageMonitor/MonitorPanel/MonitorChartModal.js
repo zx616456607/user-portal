@@ -176,7 +176,7 @@ class MonitorChartModal extends React.Component {
   }
 
   nameCheck(rule, value, callback) {
-    const { checkChartName, clusterID, currentChart } = this.props
+    const { checkChartName, clusterID, currentChart, panel_id } = this.props
     if (currentChart) {
       if (value === currentChart.name) {
         return callback()
@@ -187,7 +187,7 @@ class MonitorChartModal extends React.Component {
     }
     clearTimeout(this.nameTimeout)
     this.nameTimeout = setTimeout(() => {
-      checkChartName(clusterID, encodeURIComponent(value), {
+      checkChartName(clusterID, encodeURIComponent(value), { panel: panel_id }, {
         success: {
           func: res => {
             if (res.data.exist) {
@@ -714,7 +714,7 @@ class MonitorChartModal extends React.Component {
             <Col span={3} className="viewText">预览</Col>
             <Col span={17} className="chartBox">
               {
-                isEmpty(chartDate.data) ?
+                isEmpty(chartDate) ?
                   <div className="noChartData"/>
                   :
                   <ChartComponent
