@@ -1,0 +1,104 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * v0.1 - 2018-04-08
+ * @author rensiwei
+ */
+.clusterAutoScaleBox {
+  padding: 20px 20px 10px 20px;
+  .ant-tabs-bar {
+    // background: #e9ecf1;
+    border-radius: 4px;
+    font-size: 12px;
+    overflow: hidden;
+    transition: all 0.3s;
+    margin-bottom: 24px;
+    .ant-tabs-nav-container{
+      height: 42px !important;
+    }
+    .ant-tabs-ink-bar {
+      height: 100% !important;
+      background-color: #F8F8F8;
+    }
+    .ant-tabs-nav {
+      height: 40px;
+      line-height: 40px;
+      .ant-tabs-tab-inner{
+        padding:0;
+        text-align: center;
+      }
+      .ant-tabs-tab {
+        z-index: 10;
+        margin-right: 0 !important;
+        .tabTitle{
+          position: relative;
+          width: 145px;
+          padding: 0 10px;
+          text-align: left;
+          font-size: 12px;
+          .common-style {
+            width: 145px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            float: left;
+            display: inline-block;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            transform: translateX(-10px);
+          }
+          .builder-style {
+            width: 112px;
+          }
+          .clusterImg{
+            position: absolute;
+            top: 10px;
+            left: 120px;
+          }
+        }
+      }
+      .ant-tabs-tab-active{
+        color: #2db7f5;
+        border-color: #2db7f5;
+        border-bottom-color: #ecf0f4;
+        background: #eceff4;
+      }
+    }
+    .ant-tabs-tab-prev,
+    .ant-tabs-tab-next {
+      margin-top: 0 !important;
+      line-height: 40px !important;
+      z-index: 11;
+    }
+    .ant-tabs-nav :nth-child(5) {
+      border-left: 1px solid #efefef;
+    }
+    /*&:hover {
+      box-shadow: 0 1px 6px rgba(100, 100, 100, 0.2);
+    }*/
+  }
+}
+.clusterAutoScaleBox{
+  position: relative;
+  .bline{
+    height: 1px;
+    background: #d9d9d9;
+    width: ~"calc(100% - 334px)";
+    position: absolute;
+    left: 314px;
+    top: 59px;
+  }
+  .clusterAutoScaleBox .ant-tabs-bar{
+    border-bottom: none !important;
+  }
+  .ant-tabs-tab{
+    border-bottom: 1px solid #dadad9 !important;
+  }
+  .ant-tabs-tab-active{
+    border-bottom: none !important;
+  }
+}

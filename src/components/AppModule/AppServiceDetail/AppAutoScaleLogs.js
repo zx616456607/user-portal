@@ -66,7 +66,7 @@ export default class AppAutoScaleLogs extends React.Component {
         return '，邮件正在发送。'
       case 1 :
         return '，邮件发送成功。'
-      case 2 : 
+      case 2 :
         return '，邮件发送失败。'
       default :
         return '，不发送邮件。'
@@ -87,13 +87,15 @@ export default class AppAutoScaleLogs extends React.Component {
   }
   render() {
     const { logList } = this.state
+    console.log(logList)
     return(
       <div className="appAutoScaleLogs">
         {
           logList.length > 0 ?
             <Timeline>
               {
-                logList.map(item => {
+                logList.map(item => {debugger
+                  console.log(this.renderLineTiem(item));
                   return this.renderLineTiem(item)
                 })
               }

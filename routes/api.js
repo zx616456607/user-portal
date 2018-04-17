@@ -55,6 +55,7 @@ const cleanController = require('../controllers/clean')
 const appStoreController = require('../controllers/app_store')
 const loadBalanceController = require('../controllers/load_balance')
 const helmTemplateController = require('../controllers/template')
+const autoScalerController = require('../controllers/autoscaler')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -759,5 +760,20 @@ module.exports = function (Router) {
   router.del('/clusters/:cluster/loadbalances/:lbname/services/:servicename', loadBalanceController.unbindService)
   router.get('/clusters/:cluster/loadbalances/:lbname/ingresses/exist', loadBalanceController.nameAndHostCheck)
 
+  // autoscaler
+  router.get('/clusters/autoscaler/server', autoScalerController.getServers)
+  router.post('/clusters/autoscaler/server', autoScalerController.createServer)
+  router.put('/clusters/autoscaler/server', autoScalerController.updateServer)
+  router.del('/clusters/autoscaler/server', autoScalerController.deleteServer)
+  router.get('/clusters/autoscaler/cluster', autoScalerController.getCluster)
+
+  router.get('/clusters/autoscaler/app', autoScalerController.getApps)
+  router.post('/clusters/autoscaler/app', autoScalerController.createApp)
+  router.put('/clusters/autoscaler/app', autoScalerController.updateApp)
+  router.del('/clusters/autoscaler/app', autoScalerController.deleteApp)
+  router.get('/clusters/autoscaler/app/status', autoScalerController.setAppsStatus)
+  router.get('/clusters/autoscaler/app/log', autoScalerController.getLogs)
+
+  router.get('/clusters/autoscaler/resource', autoScalerController.getRes)
   return router.routes()
 }

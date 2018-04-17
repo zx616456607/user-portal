@@ -107,6 +107,9 @@ module.exports = function (config) {
   // ~ project
   this.projects = collections.create('projects')
 
+  // ~ autoscaler
+  this.autoscaler = collections.create('autoscaler')
+
   ////////////////////////////////////////////////////////////////////////////////////
   ///////////////  Standard mode (Public Clould Only) ////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////
@@ -142,7 +145,7 @@ module.exports = function (config) {
 
   // ~ clean
   this.cleaner = collections.create('cleaner')
-  
+
   // ~ appstore
   this.appstore =  collections.create('appstore')
 

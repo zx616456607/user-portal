@@ -56,6 +56,8 @@ import * as apm from './apm'
 import appStore from './app_store'
 import loadBalance from './load_balance'
 import appTemplates from '../../client/reducers/template'
+import appAutoScaler from '../../client/reducers/clusterAutoScaler'
+
 import {
   LOGIN_EXPIRED_MESSAGE,
   PAYMENT_REQUIRED_CODE,
@@ -180,7 +182,8 @@ const rootReducer = combineReducers({
   ...apm,
   appStore,
   loadBalance,
-  appTemplates
+  appTemplates,
+  appAutoScaler,
 })
 
 export default rootReducer
