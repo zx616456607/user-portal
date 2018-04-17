@@ -1191,6 +1191,9 @@ class QuickCreateApp extends Component {
     }
     const { data } = templateDeployCheck
     const children = data.map(item => {
+      if (isEmpty(item.content)) {
+        return
+      }
       return (
         <div className="resourceList" key={item.name}>
           <div className="themeColor serviceName">{item.name}</div>
