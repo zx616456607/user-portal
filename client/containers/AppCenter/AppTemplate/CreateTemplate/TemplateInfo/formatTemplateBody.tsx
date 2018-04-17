@@ -40,7 +40,7 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
           name: count === fieldsLength ? value.templateName.value : value.serviceName.value,
           // version: value.templateVersion.value,
           version: 'v1',
-          description: value.templateDesc.value,
+          description: value.templateDesc ? value.templateDesc.value : '',
         },
       });
       if (value.accessType && value.accessType.value === 'loadBalance') {

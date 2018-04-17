@@ -454,7 +454,10 @@ let ConfigureService = React.createClass({
     callback()
   },
   checkTempDesc (rule, value, callback) {
-    if (value.length > 1000) {
+    if (!value) {
+      return callback()
+    }
+    if (value && value.length > 1000) {
       return callback('模板描述不能超过1000个字符')
     }
     callback()
