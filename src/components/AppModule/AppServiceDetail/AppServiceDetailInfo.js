@@ -9,7 +9,7 @@
 import React, { Component } from 'react'
 import {
   Card, Spin, Icon, Form, Input, Select, Button, Dropdown,
-  Menu, Tooltip, Modal, Row, Col, Checkbox, Cascader
+  Menu, Tooltip, Modal, Row, Col, Checkbox, Cascader, Tag
 } from 'antd'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
@@ -592,8 +592,28 @@ class BindNodes extends Component {
     switch (bindNodesData.type) {
       case "ScheduleBySystem":
         return <span>
-          <div className="commonTitle">--</div>
-          <div>系统默认调度</div>
+          {/* <div className="commonTitle">--</div>
+          <div>系统默认调度</div> */}
+{/*-----  text 调试样式-----*/}
+          <div className="pointManage">
+            <div className="commonTitle">主机标签</div>
+            <div className="commonCont">
+              <span> {  }  {  }</span>
+              <Tag closable color="blue"> 必须在 | gpu > 3 </Tag>
+              <Tag closable color="green"> 必须在 | gpu > 3 </Tag>
+              <Tag closable color="red">  必须不 | true </Tag>
+              <Tag closable color="red">  必须不 | true </Tag>
+            </div>
+          </div>
+          <div className="pointManage">
+            <div className="commonTitle">匹配服务实例</div>
+            <div className="commonCont">
+              <span> {  }  {  }</span>
+              <Tag closable color="blue"> 必须在 | gpu > 3 </Tag>
+              <Tag closable color="yellow"> 必须在 | gpu > 3 </Tag>
+              <Tag closable color="red">  必须不 | true </Tag>
+            </div>
+          </div>
         </span>
       case "ScheduleByHostNameOrIP":
         return <span>
@@ -616,7 +636,7 @@ class BindNodes extends Component {
 
   render() {
     return <div className='commonBox bindNodes'>
-      <span className="titleSpan">绑定节点</span>
+      <span className="titleSpan">节点调度</span>
       <div className="titleBox">
         <div className="commonTitle">
           绑定方式

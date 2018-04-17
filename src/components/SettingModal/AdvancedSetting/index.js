@@ -8,7 +8,7 @@
  * @author ZhangChengZheng
  */
 import React, { Component, propTypes } from 'react'
-import { Switch, Checkbox, Spin, Modal, Icon, Form, Radio, Button, Card } from 'antd';
+import { Switch, Checkbox, Spin, Modal, Icon, Form, Radio, Button, Card, Tooltip } from 'antd';
 import './style/AdvancedSetting.less'
 import { connect } from 'react-redux'
 import { updateClusterConfig } from '../../../actions/cluster'
@@ -20,6 +20,8 @@ import NotificationHandler from '../../../components/Notification'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
+const FormItem = Form.Item;
+const RadioGroup = Radio.Group;
 
 class AdvancedSetting extends Component {
   constructor(props){
@@ -38,6 +40,9 @@ class AdvancedSetting extends Component {
     this.handleImageProjectRight = this.handleImageProjectRight.bind(this)
     this.handleCancelImageProjectRight = this.handleCancelImageProjectRight.bind(this)
     this.handleSaveImageProjectRight = this.handleSaveImageProjectRight.bind(this)
+    this.changeEditionStatus = this.changeEditionStatus.bind(this)
+    this.candleEditionPoint = this.candleEditionPoint.bind(this)
+    this.saveEditionPoint = this.saveEditionPoint.bind(this)
     this.state = {
       swicthChecked: true,
       switchVisible: false,
@@ -53,6 +58,7 @@ class AdvancedSetting extends Component {
       traditionBtnLoading: false,
       traditionChecked: props.vmWrapConfig.enabled || false,
       isTradition: false,
+      startEdition: true,
     }
   }
 
@@ -270,13 +276,13 @@ class AdvancedSetting extends Component {
       // billingChecked: checked
     })
   }
-  
+
   cancelBilling = () => {
     this.setState({
       billingVisible: false
     })
   }
-  
+
   confirmBilling = () => {
     const { billingChecked } = this.state
     const { updateGlobalConfig, cluster, billingConfig, loadLoginUserDetail } = this.props
@@ -507,11 +513,49 @@ class AdvancedSetting extends Component {
       })
   }
 
+  pointBind() {
+    return (
+      <span>允许用户绑定节点
+        <Tooltip placement="top" title={this.pointHover()}>
+          <Icon type="question-circle-o"  />
+        </Tooltip>
+      </span>
+    )
+  }
+
+  pointHover() {
+    return <div>
+      <p>创建服务时，可以将服务对应</p>
+      <p>容器实例，固定在节点或者某</p>
+      <p>些标签的节点上来调度</p>
+    </div>
+  }
+
+  changeEditionStatus() {
+    const { resetFields } = this.props.form;
+    resetFields()
+    this.setState({
+      startEdition: false
+    })
+  }
+
+  candleEditionPoint() {
+    const { resetFields } = this.props.form;
+    resetFields()
+    this.setState({
+      startEdition: true
+    })
+  }
+
+  saveEditionPoint() {
+
+  }
+
   render() {
-    const { 
-      traditionChecked, traditiondisable, swicthChecked, Ipcheckbox, TagCheckbox, 
+    const {
+      traditionChecked, traditiondisable, swicthChecked, Ipcheckbox, TagCheckbox,
       switchdisable, Tagdisabled, Ipdisabled, imageProjectRightIsEdit, billingChecked,
-      billingVisible, billingLoading
+      billingVisible, billingLoading, startEdition
     } = this.state
     const { cluster, form, configurations, harbor } = this.props
     const { listNodes } = cluster
@@ -542,40 +586,98 @@ class AdvancedSetting extends Component {
       <div className='title'>高级设置</div>
       <div className='content'>
         <div className='nodes'>
-          <div className='contentheader'>允许用户绑定节点（所有集群）</div>
-          <div className='contentbody'>
-            <div className='contentbodytitle alertRow'>
-              即创建服务时，可以将服务对应容器实例，固定在节点或者某些『标签』的节点上来调度
-            </div>
-            <div>
-              <div className='contentbodycontainers'>
-                <span className="switchLabel">
-                 {/* {
-                    swicthChecked
-                      ? <span>开启</span>
-                      : <span>关闭</span>
-                  }*/}
-                  绑定节点
-                  </span>
-                <Switch checkedChildren="开" unCheckedChildren="关" checked={swicthChecked} onChange={this.handleSwitch} className='switchstyle' disabled={switchdisable} />
-              </div>
-              {
-                swicthChecked
-                  ? <div className='contentfooter'>
-                    <div className='item'>
-                      <Checkbox onChange={this.handleName}
-                        checked={Ipcheckbox} disabled={Ipdisabled}>允许用户通过『主机名及IP』来实现绑定【单个节点】</Checkbox>
+
+          <div className='contentheader'>容器调度策略设置（所有集群）</div>
+            <div className='contentbody firstCont'>
+                    <div className='contentbodytitle alertRow'>
+                      系统默认: 不允许『节点端口』被其他容器实例占用; 不允许容器实例创建在『空闲资源』不足的节点。
                     </div>
-                    <div className='item'>
-                      <Checkbox onChange={this.handleTag}
-                        checked={TagCheckbox} disabled={Tagdisabled}>用户可通过『主机标签』绑定【某类节点】</Checkbox>
-                    </div>
-                  </div>
-                  : <div></div>
-              }
-            </div>
+                    <Form horizontal disabled={ startEdition }>
+                      <FormItem
+                        label="允许设置服务间的亲和性"
+                        labelCol={{ span: 6 }}
+                        wrapperCol={{ span: 18 }}
+                        className="formAdvance"
+                      >
+                        <Checkbox disabled={ startEdition } className="ant-checkbox-vertical" key="shouldServerPop"
+                          {...getFieldProps('abc', { initialValue: true, valuePropName: 'checked' })}
+                        >允许用户通过『服务实例亲和性』定义服务实例可以和哪些服务实例部署在同一主机上</Checkbox>
+                      </FormItem>
+
+                      <FormItem
+                        label={this.pointBind()}
+                        labelCol={{ span: 6 }}
+                        wrapperCol={{ span: 18 }}
+                        className="formAdvance"
+                      >
+                        <Checkbox className="ant-checkbox-vertical"
+                          key="anglePoint"
+                          {...getFieldProps('abcd', { initialValue: true, valuePropName: 'checked' })}
+                          disabled={ startEdition }
+                        >允许用户通过『主机名及 IP 』来实现绑定【单个节点】</Checkbox>
+                        <Checkbox className="ant-checkbox-vertical" key="manyPoint"
+                          disabled={ startEdition }
+                          {...getFieldProps('abcde', { initialValue: true, valuePropName: 'checked' })}
+                          >用户可通过『主机标签』绑定【某类节点】</Checkbox>
+                      </FormItem>
+
+                      <FormItem
+                        label="默认调度策略"
+                        labelCol={{ span: 6 }}
+                        wrapperCol={{ span: 18 }}
+                        className="formAdvance"
+                        {...getFieldProps('celue',{
+                          rules: [],
+                          initialValue: '优先调度到使用率低的节点',
+                      })}
+                      >
+                        <RadioGroup disabled={ startEdition } defaultValue="优先调度到使用率低的节点">
+                          <Radio value="优先调度到使用率低的节点" key="slow">优先调度到使用率<span className="useText">低</span>的节点</Radio>
+                          <Radio value="优先调度到使用率高的节点" key="high">优先调度到使用率<span className="useText">高</span>的节点</Radio>
+                        </RadioGroup>
+                        <Checkbox disabled={ startEdition } className="ant-checkbox-vertical"
+                         {...getFieldProps('abcdef', { initialValue: true, valuePropName: 'checked' })}>允许用户通过『主机名及 IP 』来实现绑定【单个节点】</Checkbox>
+                      </FormItem>
+
+                      {
+                        startEdition ? <div className="formAdvance formBtnAdvance">
+                          <Button type="primary" onClick={ this.changeEditionStatus }>编辑</Button>
+                        </div> : <div className="formAdvance formBtnAdvance">
+                          <Button onClick={ this.candleEditionPoint }>取消</Button>
+                          <Button type="primary" onClick={ this.saveEditionPoint }>保存</Button>
+                        </div>
+                      }
+
+                    </Form>
+                             {/* <div>    div className='contentbodycontainers'>
+                                           <span className="switchLabel"> */}
+                                          {/* {
+                                              swicthChecked
+                                                ? <span>开启</span>
+                                                : <span>关闭</span>
+                                            }*/}
+                                            {/* </span>
+                                          <Switch checkedChildren="开" unCheckedChildren="关" checked={swicthChecked}
+                                          onChange={this.handleSwitch} className='switchstyle' disabled={switchdisable} /> */}
+                                       {/* </div>
+                                      {
+                                        swicthChecked
+                                          ? <div className='contentfooter'>
+                                            <div className='item'>
+                                              <Checkbox onChange={this.handleName}
+                                                checked={Ipcheckbox} disabled={Ipdisabled}>允许用户通过『主机名及IP』来实现绑定【单个节点】</Checkbox>
+                                            </div>
+                                            <div className='item'>
+                                              <Checkbox onChange={this.handleTag}
+                                                checked={TagCheckbox} disabled={Tagdisabled}>用户可通过『主机标签』绑定【某类节点】</Checkbox>
+                                            </div>
+                                          </div>
+                                          : <div></div>
+                                      }
+                            </div> */}
           </div>
         </div>
+
         {harbor.hasAdminRole ? <div className='imageprojectright'>
           <div className="contentheader imageproject">仓库组创建权限</div>
           <div className="contentbody">

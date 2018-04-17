@@ -27,6 +27,7 @@ import ServiceMonitor from './ServiceMonitor'
 import AppAutoScale from './AppAutoScale'
 import VisitType from './VisitType'
 import AlarmStrategy from '../../ManageMonitor/AlarmStrategy'
+import AppServerTag from './AppServerTag'
 import { loadServiceDetail, loadServiceContainerList, loadK8sService, deleteServices } from '../../../actions/services'
 import { addTerminal } from '../../../actions/terminal'
 import CommmonStatus from '../../CommonStatus'
@@ -547,6 +548,16 @@ class AppServiceDetail extends Component {
                 <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} type={'replicaset'} serviceDetailmodalShow={serviceDetailmodalShow}/>
               </TabPane>
               }
+              <TabPane tab='服务标签' key='#serverTag'>
+                <AppServerTag
+                  // activeKey={activeTabKey}
+                  // containers={containers}
+                  serviceName={service.metadata.name}
+                  // cluster={service.cluster}
+                  // serviceDetailmodalShow={serviceDetailmodalShow}
+                  // serviceDetail={serviceDetail}
+                relative/>
+              </TabPane>
             </Tabs>
           </div>
           <div className='contentBox'>

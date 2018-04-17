@@ -1,0 +1,66 @@
+.appServerTag {
+  .topModual {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    .pageBox {
+      .totalPage {
+        line-height: 35px;
+        display: inline-block;
+        vertical-align: bottom;
+        margin-right: 15px;
+      }
+    }
+  }
+  .tableModual {
+    .serverTagTable {
+      padding: 0px;
+      .ant-table-thead > tr > th, .ant-table-tbody > tr > td {
+        padding-left: 40px;
+        background: #fff;
+      }
+      .ant-table-thead > tr > th {
+        border-bottom: 1px solid #f7f7f7;
+      }
+    }
+  }
+}
+.serverTagModal {
+  .manageTagContent {
+    .manageTagContTop {
+      display: flex;
+      flex-direction: row;
+      .serverTagKey, .serverTagVal {
+        flex: 4;
+        .ant-form-item {
+          margin-bottom: 10px;
+        }
+        .ant-input {
+          width: 185px;
+          margin: 10px 0px;
+        }
+      }
+      .serverTagOperate {
+        flex: 1;
+        .operateDel {
+          line-height: 32px;
+          padding: 10px 0px;
+          .anticon-delete {
+            border-radius: 5px;
+            padding: 10px;
+            border: 1px dashed #929292;
+          }
+          .anticon-delete:hover {
+            color: #2db7f5;
+            border-color: #2db7f5;
+          }
+        }
+      }
+      p {
+        font-size: 12px;
+        line-height: 24px;
+      }
+    }
+
+  }
+}
