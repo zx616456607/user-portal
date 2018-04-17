@@ -330,7 +330,6 @@ class ClusterDetail extends Component {
       switchDisk: false,
       currentValue: '1',
       currentStart: this.changeTime('1'),
-      instantValue: 30
     }
   }
   componentWillMount() {
@@ -424,8 +423,7 @@ class ClusterDetail extends Component {
   }
   getHostCpu() {
     const { loadHostCpu, clusterID, clusterName } = this.props
-    const { currentCpuStart } = this.state
-    loadHostCpu({clusterID, clusterName}, {start: currentCpuStart, source: 'influxdb'}, {
+    loadHostCpu({clusterID, clusterName}, {start: this.changeTime(1), end: new Date().toISOString(), source: 'influxdb'}, {
       success: {
         func: () => {
           this.setState({
@@ -444,8 +442,7 @@ class ClusterDetail extends Component {
   }
   getHostMemory() {
     const { loadHostMemory, clusterID, clusterName } = this.props
-    const { currentMemoryStart } = this.state
-    loadHostMemory({clusterID, clusterName}, {start: currentMemoryStart, source: 'influxdb'}, {
+    loadHostMemory({clusterID, clusterName}, {start: this.changeTime(1), end: new Date().toISOString(), source: 'influxdb'}, {
       success: {
         func: () => {
           this.setState({
@@ -464,9 +461,8 @@ class ClusterDetail extends Component {
   }
   getHostRxrate() {
     const { loadHostRxrate, clusterID, clusterName } = this.props
-    const { currentNetworkStart } = this.state
     return new Promise((resolve, reject) => {
-      loadHostRxrate({clusterID, clusterName}, {start: currentNetworkStart, source: 'influxdb'}, {
+      loadHostRxrate({clusterID, clusterName}, {start: this.changeTime(1), end: new Date().toISOString(), source: 'influxdb'}, {
         finally: {
           func: () => {
             resolve()
@@ -477,9 +473,8 @@ class ClusterDetail extends Component {
   }
   getHostTxrate() {
     const { loadHostTxrate, clusterID, clusterName } = this.props
-    const { currentNetworkStart } = this.state
     return new Promise((resolve, reject) => {
-      loadHostTxrate({clusterID, clusterName}, {start: currentNetworkStart, source: 'influxdb'}, {
+      loadHostTxrate({clusterID, clusterName}, {start: this.changeTime(1), end: new Date().toISOString(), source: 'influxdb'}, {
         finally: {
           func: () => {
             resolve()
@@ -490,9 +485,8 @@ class ClusterDetail extends Component {
   }
   getHostReadIo() {
     const { loadHostDiskReadIo, clusterID, clusterName } = this.props
-    const { currentDiskStart } = this.state
     return new Promise((resolve, reject) => {
-      loadHostDiskReadIo({clusterID, clusterName}, {start: currentDiskStart, source: 'influxdb'}, {
+      loadHostDiskReadIo({clusterID, clusterName}, {start: this.changeTime(1), end: new Date().toISOString(), source: 'influxdb'}, {
         finally: {
           func: () => {
             resolve()
@@ -503,9 +497,8 @@ class ClusterDetail extends Component {
   }
   getHostWriteIo() {
     const { loadHostDiskWriteIo, clusterID, clusterName } = this.props
-    const { currentDiskStart } = this.state
     return new Promise((resolve, reject) => {
-      loadHostDiskWriteIo({clusterID, clusterName}, {start: currentDiskStart, source: 'influxdb'}, {
+      loadHostDiskWriteIo({clusterID, clusterName}, {start: this.changeTime(1), end: new Date().toISOString(), source: 'influxdb'}, {
         finally: {
           func: () => {
             resolve()
@@ -515,7 +508,6 @@ class ClusterDetail extends Component {
     })
   }
   switchChange(flag, type) {
-    const { instantValue } = this.state
     this.setState({
       [`switch${type}`]: flag,
       [`${type}Loading`]: flag
@@ -524,34 +516,18 @@ class ClusterDetail extends Component {
       case 'Cpu':
         clearInterval(this.cpuInterval)
         if (flag) {
-          this.setState({
-            [`current${type}Start`]: this.changeMinutes(instantValue)
-          }, () => {
-            this.getHostCpu()
-          })
+          this.getHostCpu()
           this.cpuInterval = setInterval(() => {
-            this.setState({
-              [`current${type}Start`]: this.changeMinutes(instantValue)
-            }, () => {
-              this.getHostCpu()
-            })
+            this.getHostCpu()
           }, LOAD_INSTANT_INTERVAL)
         }
         break
       case 'Memory':
         clearInterval(this.memoryInterval)
         if (flag) {
-          this.setState({
-            [`current${type}Start`]: this.changeMinutes(instantValue)
-          }, () => {
-            this.getHostMemory()
-          })
+          this.getHostMemory()
           this.memoryInterval = setInterval(() => {
-            this.setState({
-              [`current${type}Start`]: this.changeMinutes(instantValue)
-            }, () => {
-              this.getHostMemory()
-            })
+            this.getHostMemory()
           }, LOAD_INSTANT_INTERVAL)
         }
         break
@@ -559,21 +535,13 @@ class ClusterDetail extends Component {
         clearInterval(this.rxRateInterval)
         clearInterval(this.txRateInterval)
         if (flag) {
-          this.setState({
-            [`current${type}Start`]: this.changeMinutes(instantValue)
-          }, () => {
-            Promise.all([this.getHostRxrate(), this.getHostTxrate()]).then(() => {
-              this.setState({
-                NetworkLoading: false
-              })
+          Promise.all([this.getHostRxrate(), this.getHostTxrate()]).then(() => {
+            this.setState({
+              NetworkLoading: false
             })
           })
           this.rxRateInterval = setInterval(() => {
-            this.setState({
-              [`current${type}Start`]: this.changeMinutes(instantValue)
-            }, () => {
-              this.getHostRxrate()
-            })
+            this.getHostRxrate()
           }, LOAD_INSTANT_INTERVAL)
           this.txRateInterval = setInterval(() => this.getHostTxrate(), LOAD_INSTANT_INTERVAL)
         }
@@ -582,21 +550,13 @@ class ClusterDetail extends Component {
         clearInterval(this.readIoInterval)
         clearInterval(this.writeIoInterval)
         if (flag) {
-          this.setState({
-            [`current${type}Start`]: this.changeMinutes(instantValue)
-          }, () => {
-            Promise.all([this.getHostReadIo(), this.getHostWriteIo()]).then(() => {
-              this.setState({
-                DiskLoading: false
-              })
+          Promise.all([this.getHostReadIo(), this.getHostWriteIo()]).then(() => {
+            this.setState({
+              DiskLoading: false
             })
           })
           this.readIoInterval = setInterval(() => {
-            this.setState({
-              [`current${type}Start`]: this.changeMinutes(instantValue)
-            }, () => {
-              this.getHostReadIo()
-            })
+            this.getHostReadIo()
           }, LOAD_INSTANT_INTERVAL)
           this.writeIoInterval = setInterval(() => this.getHostWriteIo(), LOAD_INSTANT_INTERVAL)
         }
@@ -607,11 +567,7 @@ class ClusterDetail extends Component {
     d.setHours(d.getHours() - hours)
     return d.toISOString()
   }
-  changeMinutes(min) {
-    let d = new Date()
-    d.setMinutes(d.getMinutes() - min)
-    return d.toISOString()
-  }
+
   handleTimeChange(e) {
     const { value } = e.target
     const intervalTime = timeFrequency[value]['second']
