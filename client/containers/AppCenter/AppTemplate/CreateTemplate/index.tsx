@@ -194,6 +194,7 @@ class AppTemplate extends React.Component<IProps, IState> {
     const { currentStep } = this.state;
     const { fields, template, getImageTemplate } = this.props;
     const { validateFieldsAndScroll } = this.form;
+    let notify = new NotificationHandler();
     const query = {
       key,
       isWrap,
@@ -202,6 +203,7 @@ class AppTemplate extends React.Component<IProps, IState> {
     let url = `/app_center/template/create`;
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
+        notify.warn('请先修改错误的表单');
         return;
       }
       // if query has key that mean edit template
