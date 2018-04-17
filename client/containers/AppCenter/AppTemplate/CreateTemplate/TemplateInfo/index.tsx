@@ -179,7 +179,7 @@ class TemplateInfo extends React.Component<any> {
   }
 
   renderCancelBtn = () => {
-    const { currentStep, location, cancelTemplate } = this.props;
+    const { currentStep, location, cancelTemplate, configureMode } = this.props;
     const { query } = location;
     const { hash } = query;
     return (
@@ -189,12 +189,12 @@ class TemplateInfo extends React.Component<any> {
         onClick={cancelTemplate}
         disabled={currentStep === 1 && hash === TEMPLATE_EDIT_HASH}
       >
-        {currentStep === 0 ? '取消' : '上一步'}
+        {currentStep === 0 || configureMode === 'edit' ? '取消' : '上一步'}
       </Button>
     );
   }
   render() {
-    const { saveService, fields, currentStep } = this.props;
+    const { saveService, fields, currentStep, configureMode } = this.props;
     const { confirmLoading } = this.state;
     const formItemLayout = {
       labelCol: { span: 7 },
@@ -240,8 +240,10 @@ class TemplateInfo extends React.Component<any> {
         <Row className="tempInfoFooter" type="flex" align="middle" justify="center">
           <Col>{this.renderCancelBtn()}</Col>
           <Col>
-            <Button type="primary" loading={confirmLoading} size="large" onClick={this.confirmTemplate}>创建</Button
-          ></Col>
+            <Button type="primary" loading={confirmLoading} size="large" onClick={this.confirmTemplate}>
+              {configureMode === 'edit' ? '保存' : '创建'}
+            </Button>
+          </Col>
         </Row>
       </div>
     );

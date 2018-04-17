@@ -309,14 +309,18 @@ class AppTemplate extends React.Component<IProps, IState> {
   }
 
   cancelTemplate = () => {
+    const { currentStep } = this.state;
     if (this.configureMode === 'create') {
-      this.setState({
-        goBackVisible: true,
-      });
-      return;
+      if (currentStep === 1) {
+        this.setState({
+          goBackVisible: true,
+        });
+        this.stepChange(0);
+        browserHistory.push('/app_center/template/create');
+        return;
+      }
     }
-    this.stepChange(0);
-    browserHistory.push('/app_center/template/create');
+    browserHistory.push('/app_center/template');
   }
 
   cancelGoBack = () => {
