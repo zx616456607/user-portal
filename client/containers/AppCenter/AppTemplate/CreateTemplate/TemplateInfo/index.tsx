@@ -145,6 +145,7 @@ class TemplateInfo extends React.Component<any> {
     const { clusterID } = current.cluster;
     form.validateFields(async (errors, values) => {
       if (!!errors) {
+        notify.warn('表单信息有误');
         return;
       }
       const body = formatTemplateBody(this.props, imageConfig);
