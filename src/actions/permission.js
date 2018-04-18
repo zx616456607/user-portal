@@ -110,3 +110,24 @@ export function AllowUpdateRole(body, callback) {
 		return dispatch(fetchDependent(body, callback))
 	}
 }
+
+export const PERMISSION_RESOURCE_LIST_REQUEST = 'PERMISSION_RESOURCE_LIST_REQUEST'
+export const PERMISSION_RESOURCE_LIST_SUCCESS = 'PERMISSION_RESOURCE_LIST_SUCCESS'
+export const PERMISSION_RESOURCE_LIST_FAILURE = 'PERMISSION_RESOURCE_LIST_FAILURE'
+
+function fetchPermissionResource(callback) {
+  return {
+    [FETCH_API]: {
+      types: [PERMISSION_RESOURCE_LIST_REQUEST, PERMISSION_RESOURCE_LIST_SUCCESS, PERMISSION_RESOURCE_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/permission/resource-operations`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function PermissionResource(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchPermissionResource(callback))
+	}
+}

@@ -16,6 +16,7 @@ import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import { Permission } from '../../../actions/permission'
 import Notification from '../../../components/Notification'
 
+
 class CreateRoleModal extends Component{
   constructor(props) {
     super(props)
@@ -26,7 +27,7 @@ class CreateRoleModal extends Component{
       selectedKeys: [],
       allPermission: [],
       permissionCount: 0,
-      type: "0"
+      permissionPolicyType: 1,
     }
   }
   componentWillMount() {
@@ -47,7 +48,7 @@ class CreateRoleModal extends Component{
         expandedKeys: [],
         checkedKeys: [],
         selectedKeys: [],
-        type: "0", //0 所有权限 （原） 1 指定权限（新）
+        permissionPolicyType: 1, //1 所有权限 （原） 2 指定权限（新）
       })
     }
   }
@@ -150,11 +151,17 @@ class CreateRoleModal extends Component{
   }
   cancelModal() {
     const { scope } = this.props;
-    scope.setState({characterModal:false})
+    let tempState = {permissionPolicyType: 1}
+
+    if(scope.state.characterModal === true)tempState.characterModal = false
+    else tempState.isShowperallEditModal = false
+
+    scope.setState(tempState);
+    this.props.form.resetFields();
   }
   okCreateModal() {
     const { CreateRole, loadData, scope, form } = this.props;
-    const { checkedKeys, type } = this.state;
+    const { checkedKeys, permissionPolicyType } = this.state;
     const { validateFields } = form;
     let notify = new Notification()
     validateFields([ 'roleName', 'roleDesc' ], (errors,values)=>{
@@ -163,12 +170,13 @@ class CreateRoleModal extends Component{
       }
       let roleDesc = values.roleDesc
       let roleName = values.roleName
-      CreateRole({
+      let params = {
         name: roleName,
         comment: roleDesc,
-        type: type,
-        pids: type === "0" ? checkedKeys.map(item => Number(item)) : []
-      },{
+        permissionPolicyType: permissionPolicyType,
+      };
+      if(permissionPolicyType === 1) params.pids = checkedKeys.map(item => Number(item));
+      CreateRole(params,{
         success:{
           func: (res) => {
             if (res.data.statusCode === 200) {
@@ -231,8 +239,13 @@ class CreateRoleModal extends Component{
   }
   typeClick = (e) => {
     const value = e.target.value;
-    if(this.state.type === value) return;
-    this.setState({type: e.target.value});
+    if(this.state.permissionPolicyType === value) return;
+    let tempState = {permissionPolicyType: e.target.value}
+    if(value === 2){
+      tempState.checkedKeys = [];
+      tempState.selectedKeys = [];
+    }
+    this.setState(tempState);
   }
   render() {
     const TreeNode = Tree.TreeNode;
@@ -278,7 +291,7 @@ class CreateRoleModal extends Component{
             }) }/>
           </Form.Item>
           <Form.Item label="授权方式" {...formItemLayout}>
-            <Radio.Group {...getFieldProps('xxxx', { initialValue: '0',
+            <Radio.Group {...getFieldProps('permissionPolicyType', { initialValue: 1,
               validate: [{
                 rules: [
                   { required: true, message: '请选择授权方式' },
@@ -287,8 +300,8 @@ class CreateRoleModal extends Component{
               }],
               onChange: this.typeClick
               })}>
-              <Radio key="a" value="0">所有资源统一授权</Radio>
-              <Radio key="b" value="1">指定具体资源授权</Radio>
+              <Radio key="a" value={1}>所有资源统一授权</Radio>
+              <Radio key="b" value={2}>指定具体资源授权</Radio>
             </Radio.Group>
           </Form.Item>
           {/*<FormItem
@@ -312,7 +325,7 @@ class CreateRoleModal extends Component{
             </Select>
           </FormItem>*/}
         </Form>
-        { this.state.type === '0' ?
+        { this.state.permissionPolicyType === 1 ?
           <div className="authChooseProject">
             <span className="authChooseText">权限选择 :</span>
             <div className="authBox inlineBlock">
