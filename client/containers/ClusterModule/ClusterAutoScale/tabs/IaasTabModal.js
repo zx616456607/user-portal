@@ -10,7 +10,7 @@
 import React from 'react'
 import { Modal, Button, Select, Input, Steps, Icon, Tooltip, Radio, Row, Col, Form, Spin, InputNumber } from 'antd'
 import '../style/tabModal.less'
-import classNames from 'classNames'
+import classNames from 'classnames'
 import * as autoScalerActions from '../../../../actions/clusterAutoScaler';
 import { connect } from 'react-redux';
 import NotificationHandler from '../../../../../src/components/Notification';
