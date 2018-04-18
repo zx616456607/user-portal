@@ -640,6 +640,7 @@ module.exports = function (Router) {
   router.get('/permission/access-controls', permissionController.getAccessControlsOfRole)
   router.post('/permission/access-controls', permissionController.setAccessControlsForRole)
   router.delete('/permission/access-controls/:ruleIds', permissionController.removeAccessControlsFromRole)
+  router.get('/permission/access-controls/overview', permissionController.overview)
 
   //role
   router.post('/role', roleController.create)
