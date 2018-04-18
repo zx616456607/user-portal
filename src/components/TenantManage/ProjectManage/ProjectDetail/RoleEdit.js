@@ -9,9 +9,10 @@
  */
 
 import React, { Component } from 'react'
+
+import { UpdateRole, CreateRole, ExistenceRole, RemovePermissionRole, AddPermissionRole } from '../../../../actions/role'
 import { Row, Col, Button, Input, Modal, Transfer, Tree, Form, Icon } from 'antd'
 import { connect } from 'react-redux'
-import { UpdateRole, CreateRole, ExistenceRole, RemovePermissionRole, AddPermissionRole } from '../../../../actions/role'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import { Permission } from '../../../../actions/permission'
 import NotificationHandler from '../../../../components/Notification'

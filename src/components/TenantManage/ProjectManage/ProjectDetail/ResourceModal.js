@@ -10,6 +10,8 @@
 
 import React, { Component } from 'react'
 import { Modal, Button } from 'antd'
+import { connect } from 'react-redux'
+import { Permission } from '../../../../actions/permission'
 
 class ResourceModal extends Component {
   state={
@@ -42,7 +44,7 @@ class ResourceModal extends Component {
     const footer = (() => {
       return (
         <div>
-          <Button onClick={() => {!!!this.props.isModalFetching && !!!isResFetching && this.modalCancel()}}>取消</Button>
+          <Button onClick={() => {this.modalCancel()}}>取消</Button>
           {
             this.state.currentStep === 0 ?
               <Button type="primary" onClick={this.nextStep}>下一步</Button>
@@ -79,9 +81,9 @@ class ResourceModal extends Component {
   }
 }
 
-function mapStateToThirdProp(state, props) {
+function mapStateToSecondProp(state, props) {
   return {}
 }
-export default ResourceModal = connect(mapStateToThirdProp, {
-  getfuwu,
+export default ResourceModal = connect(mapStateToSecondProp, {
+  Permission,
 })(ResourceModal)
