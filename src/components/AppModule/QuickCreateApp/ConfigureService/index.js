@@ -647,7 +647,6 @@ let ConfigureService = React.createClass({
                   size="large"
                   type="textarea"
                   placeholder="请输入模板描述"
-                  disabled={this.getAppNameDisabled()}
                   {...templateDescProps}
                 />
               </FormItem>
