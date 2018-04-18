@@ -68,14 +68,12 @@ class ServiceMonitior extends Component {
       switchDisk: false,
       currentStart: this.changeTime('1'),
       currentValue: '1',
-      instantValue: 30
     }
   }
 
   getServiceCpu() {
     const { loadServiceMetricsCPU, cluster, serviceName } = this.props
-    const { currentCpuStart } = this.state
-    loadServiceMetricsCPU(cluster, serviceName, {start: currentCpuStart}, {
+    loadServiceMetricsCPU(cluster, serviceName, {start: this.changeTime(1), end: new Date().toISOString()}, {
       finally: {
         func: () => {
           this.setState({
@@ -87,8 +85,7 @@ class ServiceMonitior extends Component {
   }
   getServiceMemory() {
     const { loadServiceMetricsMemory, cluster, serviceName } = this.props
-    const { currentMemoryStart } = this.state
-    loadServiceMetricsMemory(cluster, serviceName, {start: currentMemoryStart}, {
+    loadServiceMetricsMemory(cluster, serviceName, {start: this.changeTime(1), end: new Date().toISOString()}, {
       finally: {
         func: () => {
           this.setState({
@@ -100,9 +97,8 @@ class ServiceMonitior extends Component {
   }
   getServiceNetworkRx() {
     const { loadServiceMetricsNetworkReceived, cluster, serviceName } = this.props
-    const { currentNetworkStart } = this.state
     return new Promise(resolve => {
-      loadServiceMetricsNetworkReceived(cluster, serviceName, {start: currentNetworkStart}, {
+      loadServiceMetricsNetworkReceived(cluster, serviceName, {start: this.changeTime(1), end: new Date().toISOString()}, {
         finally: {
           func: () => {
             resolve()
@@ -113,9 +109,8 @@ class ServiceMonitior extends Component {
   }
   getServiceNetworkTx() {
     const { loadServiceMetricsNetworkTransmitted, cluster, serviceName } = this.props
-    const { currentNetworkStart } = this.state
     return new Promise(resolve => {
-      loadServiceMetricsNetworkTransmitted(cluster, serviceName, {start: currentNetworkStart}, {
+      loadServiceMetricsNetworkTransmitted(cluster, serviceName, {start: this.changeTime(1), end: new Date().toISOString()}, {
         finally: {
           func: () => {
             resolve()
@@ -126,9 +121,8 @@ class ServiceMonitior extends Component {
   }
   getServiceDiskRead() {
     const { loadServiceMetricsDiskRead, cluster, serviceName } = this.props
-    const { currentDiskStart } = this.state
     return new Promise(resolve => {
-      loadServiceMetricsDiskRead(cluster, serviceName, {start: currentDiskStart}, {
+      loadServiceMetricsDiskRead(cluster, serviceName, {start: this.changeTime(1), end: new Date().toISOString()}, {
         finally: {
           func: () => {
             resolve()
@@ -139,9 +133,8 @@ class ServiceMonitior extends Component {
   }
   getServiceDiskWrite() {
     const { loadServiceMetricsDiskWrite, cluster, serviceName } = this.props
-    const { currentDiskStart } = this.state
     return new Promise(resolve => {
-      loadServiceMetricsDiskWrite(cluster, serviceName, {start: currentDiskStart}, {
+      loadServiceMetricsDiskWrite(cluster, serviceName, {start: this.changeTime(1), end: new Date().toISOString()}, {
         finally: {
           func: () => {
             resolve()
@@ -151,7 +144,6 @@ class ServiceMonitior extends Component {
     })
   }
   switchChange(flag, type) {
-    const { instantValue } = this.state
     this.setState({
       [`switch${type}`]: flag,
       [`${type}Loading`]: flag
@@ -160,34 +152,18 @@ class ServiceMonitior extends Component {
       case 'Cpu':
         clearInterval(this.cpuInterval)
         if (flag) {
-          this.setState({
-            [`current${type}Start`]: this.changeMinutes(instantValue)
-          }, () => {
-            this.getServiceCpu()
-          })
+          this.getServiceCpu()
           this.cpuInterval = setInterval(() => {
-            this.setState({
-              [`current${type}Start`]: this.changeMinutes(instantValue)
-            }, () => {
-              this.getServiceCpu()
-            })
+            this.getServiceCpu()
           }, LOAD_INSTANT_INTERVAL)
         }
         break
       case 'Memory':
         clearInterval(this.memoryInterval)
         if (flag) {
-          this.setState({
-            [`current${type}Start`]: this.changeMinutes(instantValue)
-          }, () => {
-            this.getServiceMemory()
-          })
+          this.getServiceMemory()
           this.memoryInterval = setInterval(() => {
-            this.setState({
-              [`current${type}Start`]: this.changeMinutes(instantValue)
-            }, () => {
-              this.getServiceMemory()
-            })
+            this.getServiceMemory()
           }, LOAD_INSTANT_INTERVAL)
         }
         break
@@ -195,21 +171,13 @@ class ServiceMonitior extends Component {
         clearInterval(this.networkRxInterval)
         clearInterval(this.networkTxInterval)
         if (flag) {
-          this.setState({
-            [`current${type}Start`]: this.changeMinutes(instantValue)
-          }, () => {
-            Promise.all([this.getServiceNetworkRx(), this.getServiceNetworkTx()]).then(() => {
-              this.setState({
-                NetworkLoading: false
-              })
+          Promise.all([this.getServiceNetworkRx(), this.getServiceNetworkTx()]).then(() => {
+            this.setState({
+              NetworkLoading: false
             })
           })
           this.networkRxInterval = setInterval(() => {
-            this.setState({
-              [`current${type}Start`]: this.changeMinutes(instantValue)
-            }, () => {
-              this.getServiceNetworkRx()
-            })
+            this.getServiceNetworkRx()
           }, LOAD_INSTANT_INTERVAL)
           this.networkTxInterval = setInterval(() => this.getServiceNetworkTx(), LOAD_INSTANT_INTERVAL)
         }
@@ -218,21 +186,13 @@ class ServiceMonitior extends Component {
         clearInterval(this.diskReadInterval)
         clearInterval(this.diskWriteInterval)
         if (flag) {
-          this.setState({
-            [`current${type}Start`]: this.changeMinutes(instantValue)
-          }, () => {
-            Promise.all([this.getServiceDiskRead(), this.getServiceDiskWrite()]).then(() => {
-              this.setState({
-                DiskLoading: false
-              })
+          Promise.all([this.getServiceDiskRead(), this.getServiceDiskWrite()]).then(() => {
+            this.setState({
+              DiskLoading: false
             })
           })
           this.diskReadInterval = setInterval(() => {
-            this.setState({
-              [`current${type}Start`]: this.changeMinutes(instantValue)
-            }, () => {
-              this.getServiceDiskRead()
-            })
+            this.getServiceDiskRead()
           }, LOAD_INSTANT_INTERVAL)
           this.diskWriteInterval = setInterval(() => this.getServiceDiskWrite(), LOAD_INSTANT_INTERVAL)
         }
@@ -241,12 +201,6 @@ class ServiceMonitior extends Component {
   changeTime(hours) {
     let d = new Date()
     d.setHours(d.getHours() - hours)
-    return d.toISOString()
-  }
-
-  changeMinutes(min) {
-    let d = new Date()
-    d.setMinutes(d.getMinutes() - min)
     return d.toISOString()
   }
 

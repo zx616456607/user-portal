@@ -12,6 +12,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Card, Icon, Spin, Row, Col, Tooltip } from 'antd'
 import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
 import { getMonitorMetrics, getServicesMetrics, getClustersMetrics } from '../../../actions/manage_monitor'
 import ChartComponent from './ChartComponent'
 import { bytesToSize } from '../../../common/tools'
@@ -36,9 +37,9 @@ class MonitorChartTemp extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { timeRange: oldRange } = this.props
-    const { timeRange: newRange } = nextProps
-    if (oldRange[0] !== newRange[0] || oldRange[1] !== newRange[1]) {
+    const { timeRange: oldRange, currentChart: oldChart } = this.props
+    const { timeRange: newRange, currentChart: newChart } = nextProps
+    if (oldRange[0] !== newRange[0] || oldRange[1] !== newRange[1] || !isEqual(oldChart, newChart)) {
       this.getMetrics(nextProps)
     }
   }

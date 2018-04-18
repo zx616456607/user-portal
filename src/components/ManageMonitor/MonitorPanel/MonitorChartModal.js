@@ -150,7 +150,7 @@ class MonitorChartModal extends React.Component {
             isFetching: false,
             data: res.response.result.data.map(item => {
               return {
-                name: item.containerName.split('-')[0],
+                name: item.containerName,
                 metrics: item.metrics
               }
             })
@@ -176,7 +176,7 @@ class MonitorChartModal extends React.Component {
   }
 
   nameCheck(rule, value, callback) {
-    const { checkChartName, clusterID, currentChart } = this.props
+    const { checkChartName, clusterID, currentChart, panel_id } = this.props
     if (currentChart) {
       if (value === currentChart.name) {
         return callback()
@@ -187,7 +187,7 @@ class MonitorChartModal extends React.Component {
     }
     clearTimeout(this.nameTimeout)
     this.nameTimeout = setTimeout(() => {
-      checkChartName(clusterID, encodeURIComponent(value), {
+      checkChartName(clusterID, encodeURIComponent(value), { panel: panel_id }, {
         success: {
           func: res => {
             if (res.data.exist) {
@@ -490,9 +490,9 @@ class MonitorChartModal extends React.Component {
     const {
       visible, form, nodeList, allServiceList,
       proxyList, metricList, proxiesServices, monitorMetrics,
-      isAdmin
+      isAdmin, currentChart
     } = this.props
-    const { previewMetrics, unit, deleteModal, deleteLoading, metricsName, currentChart } = this.state
+    const { previewMetrics, unit, deleteModal, deleteLoading, metricsName } = this.state
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     const formItemLayout = {
       labelCol: { span: 3 },
@@ -714,7 +714,7 @@ class MonitorChartModal extends React.Component {
             <Col span={3} className="viewText">预览</Col>
             <Col span={17} className="chartBox">
               {
-                isEmpty(chartDate.data) ?
+                isEmpty(chartDate) ?
                   <div className="noChartData"/>
                   :
                   <ChartComponent
@@ -752,13 +752,22 @@ function mapStateToProps(state, props) {
   const { result } = proxy || { result: {} }
   const { data: proxyList } = result && result[camelize(clusterID)] || { data: [] }
 
-  const { metrics, proxiesServices, monitorMetrics } = manageMonitor || { metrics: {}, proxiesServices: {}, monitorMetrics: {} }
+  const { metrics, proxiesServices, monitorMetrics, serviceMetrics, nodeMetrics } = manageMonitor || { metrics: {}, proxiesServices: {}, monitorMetrics: {} }
   const { metricType } = metrics || { metricType: '' }
   const { proxyID } = proxiesServices || { proxyID: '' }
 
   let monitorID =  ''
+  let finallyData
   if (currentChart) {
     monitorID = panel_id + currentChart.id
+    const { type } = currentChart
+    if (type === 'nexport') {
+      finallyData = monitorMetrics[monitorID] || { data: [], isFetching: true }
+    } else if (type === 'service') {
+      finallyData = serviceMetrics[monitorID] || { data: [], isFetching: true }
+    } else {
+      finallyData = nodeMetrics[monitorID] || { data: [], isFetching: true }
+    }
   }
   return {
     clusterID,
@@ -767,7 +776,7 @@ function mapStateToProps(state, props) {
     proxyList,
     metricList: metricType ? metrics[metricType].metrics : [],
     proxiesServices: proxyID ? proxiesServices[proxyID].data : [],
-    monitorMetrics: monitorMetrics[monitorID] || { data: [], isFetching: false },
+    monitorMetrics: finallyData,
   }
 }
 export default connect(mapStateToProps, {
