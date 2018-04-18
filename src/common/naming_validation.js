@@ -441,14 +441,14 @@ export function lbNameCheck(value) {
 
  export function templateNameCheck(value) {
    if (!value) {
-     return '请输入负载均衡名称'
+     return '请输入应用模板名称'
    }
    if (value.length < 3 || value.length > 60) {
      return '模板名称需在3-60位之间'
    }
-   let regx = /^[a-zA-Z0-9]+[a-zA-Z0-9_\-]*[a-zA-Z0-9]+$/
+   let regx = /^[a-zA-Z0-9]+[a-zA-Z0-9_]*[a-zA-Z0-9]+$/
    if (!regx.test(value)) {
-     return '可由数字、中划线、下划线组成，以字母或者数字开头，字母或者数字结尾'
+     return '可由数字、字母、下划线组成，以字母或者数字开头，字母或者数字结尾'
    }
    return 'success'
  }
