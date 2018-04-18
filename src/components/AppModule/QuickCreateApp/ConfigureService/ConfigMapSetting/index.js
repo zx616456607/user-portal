@@ -18,6 +18,7 @@ import {
 import includes from 'lodash/includes'
 import classNames from 'classnames'
 import { loadConfigGroup, configGroupName } from '../../../../../actions/configs'
+import { getSecrets } from '../../../../../actions/secrets'
 import SecretsConfigMap from './Secrets'
 import './style/ConfigMapSetting.less'
 
@@ -138,13 +139,19 @@ const ConfigMapSetting = React.createClass({
     const configMapIsWholeDir = getFieldValue(configMapIsWholeDirKey)
     const currentConfigGroup = this.getConfigGroupByName(configGroupList, configGroupName && configGroupName[1])
     let configMapSubPathOptions = []
-    if (currentConfigGroup) {
-      configMapSubPathOptions = currentConfigGroup.configs.map(config => {
-        return {
-          label: config.name,
-          value: config.name,
-        }
-      })
+    let subPathValue
+    if (templateDeploy) {
+      subPathValue = getFieldValue(configMapSubPathValuesKey)
+      configMapSubPathOptions = subPathValue
+    } else {
+      if (currentConfigGroup) {
+        configMapSubPathOptions = currentConfigGroup.configs.map(config => {
+          return {
+            label: config.name,
+            value: config.name,
+          }
+        })
+      }
     }
     const configMapMountPathProps = getFieldProps(configMapMountPathKey, {
       rules: [
@@ -203,7 +210,7 @@ const ConfigMapSetting = React.createClass({
         </Col>
         <Col span={5}>
           {
-            !currentConfigGroup
+            !currentConfigGroup && !templateDeploy
             ? <FormItem>请选择配置组</FormItem>
             : (
               <div>
@@ -211,7 +218,7 @@ const ConfigMapSetting = React.createClass({
                   <Checkbox
                     onChange={this.handleSelectAll.bind(this, keyValue, currentConfigGroup)}
                     checked={this.getSelectAllChecked(keyValue, currentConfigGroup)}
-                    disabled={configMapIsWholeDir}
+                    disabled={templateDeploy || configMapIsWholeDir}
                   >
                     全选
                   </Checkbox>
@@ -220,7 +227,7 @@ const ConfigMapSetting = React.createClass({
                   <CheckboxGroup
                     {...configMapSubPathValuesProps}
                     options={configMapSubPathOptions}
-                    disabled={configMapIsWholeDir}
+                    disabled={templateDeploy || configMapIsWholeDir}
                   />
                   <div className="clearBoth"></div>
                 </FormItem>
@@ -314,8 +321,15 @@ const ConfigMapSetting = React.createClass({
     })
   },
   getSelectAllChecked(keyValue, currentConfigGroup) {
-    const { form } = this.props
+    const { form, location, isTemplate } = this.props
     const { getFieldValue } = form
+    const templateDeploy = location.query.template && !isTemplate
+    if (templateDeploy) {
+      return true
+    }
+    if (!currentConfigGroup) {
+      return false
+    }
     const allConfigMapSubPathValues = currentConfigGroup.configs.map(config => config.name)
     const configMapSubPathValues = getFieldValue(`configMapSubPathValues${keyValue}`) || []
     if (allConfigMapSubPathValues.length === configMapSubPathValues.length) {
@@ -366,7 +380,7 @@ const ConfigMapSetting = React.createClass({
                     <Col span={5}>
                       配置文件
                     </Col>
-                    <Col span={3} className={{'hidden': templateDeploy}}>
+                    <Col span={3} className={classNames({'hidden': templateDeploy})}>
                       操作
                     </Col>
                   </Row>
@@ -472,4 +486,5 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   loadConfigGroup,
   configGroupName,
+  getSecrets
 })(ConfigMapSetting)

@@ -103,6 +103,11 @@ const SecretsConfigMap = React.createClass({
     const secretConfigMapIsWholeDir = getFieldValue(secretConfigMapIsWholeDirKey)
     const currentConfigGroup = this.getConfigGroupByName(secretsList, secretConfigGroupName)
     let configMapSubPathOptions = []
+    let subPathValue
+    if (templateDeploy) {
+      subPathValue = getFieldValue(secretConfigMapSubPathValuesKey)
+      configMapSubPathOptions = subPathValue
+    }
     if (currentConfigGroup) {
       configMapSubPathOptions = Object.keys(currentConfigGroup.data || {}).map(key => {
         return {
@@ -178,7 +183,7 @@ const SecretsConfigMap = React.createClass({
         </Col>
         <Col span={5}>
           {
-            !currentConfigGroup
+            !currentConfigGroup && !templateDeploy
             ? <FormItem>请选择配置组</FormItem>
             : (
               <div>
@@ -206,7 +211,7 @@ const SecretsConfigMap = React.createClass({
         <Col span={3}>
           <Tooltip title="删除">
             <Button
-              className={classNames("deleteBtn", {'hidden': templateDeploy})}
+              className="deleteBtn"
               type="dashed"
               size="small"
               onClick={this.removeConfigMapKey.bind(this, keyValue)}
@@ -289,8 +294,16 @@ const SecretsConfigMap = React.createClass({
     })
   },
   getSelectAllChecked(keyValue, currentConfigGroup) {
-    const { form } = this.props
+    const { form, location, isTemplate } = this.props
     const { getFieldValue } = form
+    const templateDeploy = location.query.template && !isTemplate
+
+    if (templateDeploy) {
+      return true
+    }
+    if (!currentConfigGroup) {
+      return false
+    }
     const allConfigMapSubPathValues = Object.keys(currentConfigGroup.data || {})
     const secretConfigMapSubPathValues = getFieldValue(`secretConfigMapSubPathValues${keyValue}`) || []
     if (allConfigMapSubPathValues.length === secretConfigMapSubPathValues.length) {
@@ -347,7 +360,7 @@ const SecretsConfigMap = React.createClass({
             </Row>
             <div className="configMapBody">
               {secretConfigMapKeys.map(this.renderConfigMapItem)}
-              <span className={classNames("addConfigMap", {'hidden': templateDeploy})} onClick={this.addConfigMapKey}>
+              <span className="addConfigMap" onClick={this.addConfigMapKey}>
                 <Icon type="plus-circle-o" />
                 <span>添加配置目录</span>
               </span>
