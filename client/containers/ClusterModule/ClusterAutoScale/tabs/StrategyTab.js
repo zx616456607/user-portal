@@ -10,7 +10,7 @@
 import React, { Component } from 'react';
 import { Button, Icon, Input, Table, Menu, Dropdown, Card, Select, Pagination, Timeline, Row, Col, Spin, Modal} from 'antd';
 import moment from 'moment'
-import classNames from 'classNames'
+import classNames from 'classnames'
 import * as autoScalerActions from '../../../../actions/clusterAutoScaler';
 import { connect } from 'react-redux';
 import '../style/IaasTab.less';
@@ -23,26 +23,7 @@ const notify = new NotificationHandler();
 let formData = {};
 let allClusterIds = "";//所有行元素的id集合
 let getServerList;
-let tableData = [{
-  cluster: "CID-80eb6ec3c47b",
-  clustername: "",//对应集群
-  configname: "autoscaler-server",
-  iaas: "vmware",
-  name: "名称1",
-  password: "Dream008",
-  server: "192.168.1.171",
-  date: "2017-12-12 18:00:00",
-}];
-for(let i = 0; i < 20 ;i++){
-  tableData.push({
-    id: i + 1,
-    name: "名称" + (2 + i),
-    xxx: i + 1 ,
-    ipAddr: "1.1.1.1",
-    account: "账号" + (i + 2),
-    date: "2017-12-12 18:00:" + ( (i+1 < 10) ? "0" : "") + (i+1),
-  });
-}
+let tableData = [];
 class Tab2 extends React.Component {
   state = {
     isSearchFocus: false, //搜索框选中状态

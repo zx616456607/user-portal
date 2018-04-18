@@ -8,7 +8,7 @@
 import React from 'react'
 import { Modal, Button, Input, Select, Row, Col, Form, Spin, Icon } from 'antd'
 import '../style/tabModal.less'
-import classNames from 'classNames'
+import classNames from 'classnames'
 import * as autoScalerActions from '../../../../actions/clusterAutoScaler';
 import { connect } from 'react-redux';
 import _ from 'lodash';

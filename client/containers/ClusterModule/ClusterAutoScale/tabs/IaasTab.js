@@ -13,7 +13,7 @@ import {
   Card, Select, Pagination, Row, Col, Timeline,
   Modal
 } from 'antd';
-import classNames from 'classNames';
+import classNames from 'classnames';
 import '../style/IaasTab.less';
 import * as autoScalerActions from '../../../../actions/clusterAutoScaler';
 import { connect } from 'react-redux';
