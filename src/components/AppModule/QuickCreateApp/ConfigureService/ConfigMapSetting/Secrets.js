@@ -16,6 +16,7 @@ import {
   Form, Collapse, Row, Col, Icon, Input, Select, Radio, Tooltip, Button,
   Checkbox,
 } from 'antd'
+import classNames from 'classnames'
 import includes from 'lodash/includes'
 import { getSecrets } from '../../../../../actions/secrets'
 
@@ -84,8 +85,9 @@ const SecretsConfigMap = React.createClass({
     callback(error)
   },
   renderConfigMapItem(key) {
-    const { form, secretsList, defaultSelectValue } = this.props
+    const { form, secretsList, defaultSelectValue, location, isTemplate } = this.props
     const { getFieldProps, getFieldValue, setFieldsValue } = form
+    const templateDeploy = location.query.template && !isTemplate
     const keyValue = key.value
     const secretConfigMapSubPathValuesKey = `secretConfigMapSubPathValues${keyValue}`
     if (key.deleted) {
@@ -204,7 +206,7 @@ const SecretsConfigMap = React.createClass({
         <Col span={3}>
           <Tooltip title="删除">
             <Button
-              className="deleteBtn"
+              className={classNames("deleteBtn", {'hidden': templateDeploy})}
               type="dashed"
               size="small"
               onClick={this.removeConfigMapKey.bind(this, keyValue)}
@@ -297,9 +299,10 @@ const SecretsConfigMap = React.createClass({
     return false
   },
   render() {
-    const { formItemLayout, form } = this.props
+    const { formItemLayout, form, location, isTemplate } = this.props
     const { getFieldValue } = form
     const secretConfigMapKeys = getFieldValue('secretConfigMapKeys') || []
+    const templateDeploy = location.query.template && !isTemplate
     const header = (
       <div className="headerBox">
         <Row className="configBoxHeader" key="header">
@@ -344,7 +347,7 @@ const SecretsConfigMap = React.createClass({
             </Row>
             <div className="configMapBody">
               {secretConfigMapKeys.map(this.renderConfigMapItem)}
-              <span className="addConfigMap" onClick={this.addConfigMapKey}>
+              <span className={classNames("addConfigMap", {'hidden': templateDeploy})} onClick={this.addConfigMapKey}>
                 <Icon type="plus-circle-o" />
                 <span>添加配置目录</span>
               </span>

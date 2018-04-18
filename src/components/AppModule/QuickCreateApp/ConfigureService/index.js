@@ -770,6 +770,7 @@ let ConfigureService = React.createClass({
         <ConfigMapSetting
           form={form}
           formItemLayout={formItemLayout}
+          {...{location, isTemplate}}
           key="configMap"
         />
         <AdvancedSetting

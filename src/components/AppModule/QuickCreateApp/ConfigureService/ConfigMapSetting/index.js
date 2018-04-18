@@ -16,6 +16,7 @@ import {
   Form, Collapse, Row, Col, Icon, Input, Select, Radio, Tooltip, Button, Checkbox, Cascader
 } from 'antd'
 import includes from 'lodash/includes'
+import classNames from 'classnames'
 import { loadConfigGroup, configGroupName } from '../../../../../actions/configs'
 import SecretsConfigMap from './Secrets'
 import './style/ConfigMapSetting.less'
@@ -119,8 +120,9 @@ const ConfigMapSetting = React.createClass({
     callback(error)
   },
   renderConfigMapItem(key) {
-    const { form, configGroupList, selectOptions, defaultSelectValue } = this.props
+    const { form, configGroupList, selectOptions, defaultSelectValue, location, isTemplate } = this.props
     const { getFieldProps, getFieldValue, setFieldsValue } = form
+    const templateDeploy = location.query.template && !isTemplate
     const keyValue = key.value
     const configMapSubPathValuesKey = `configMapSubPathValues${keyValue}`
     if (key.deleted) {
@@ -229,7 +231,7 @@ const ConfigMapSetting = React.createClass({
         <Col span={3}>
           <Tooltip title="删除">
             <Button
-              className="deleteBtn"
+              className={classNames("deleteBtn", {'hidden': templateDeploy})}
               type="dashed"
               size="small"
               onClick={this.removeConfigMapKey.bind(this, keyValue)}
@@ -322,9 +324,12 @@ const ConfigMapSetting = React.createClass({
     return false
   },
   render() {
-    const { formItemLayout, form } = this.props
+    const { formItemLayout, form, location, isTemplate } = this.props
     const { getFieldValue } = form
     const configMapKeys = getFieldValue('configMapKeys') || []
+
+    const templateDeploy = location.query.template && !isTemplate
+
     const header = (
       <div className="headerBox">
         <Row className="configBoxHeader" key="header">
@@ -361,13 +366,13 @@ const ConfigMapSetting = React.createClass({
                     <Col span={5}>
                       配置文件
                     </Col>
-                    <Col span={3}>
+                    <Col span={3} className={{'hidden': templateDeploy}}>
                       操作
                     </Col>
                   </Row>
                   <div className="configMapBody">
                     {configMapKeys.map(this.renderConfigMapItem)}
-                    <span className="addConfigMap" onClick={this.addConfigMapKey}>
+                    <span className={classNames("addConfigMap", {'hidden': templateDeploy})} onClick={this.addConfigMapKey}>
                       <Icon type="plus-circle-o" />
                       <span>添加配置目录</span>
                     </span>
@@ -378,6 +383,7 @@ const ConfigMapSetting = React.createClass({
             <SecretsConfigMap
               form={form}
               formItemLayout={formItemLayout}
+              {...{location, isTemplate}}
             />
           </Panel>
         </Collapse>
