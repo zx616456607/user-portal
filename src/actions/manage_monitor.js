@@ -350,19 +350,19 @@ export const CHECK_CHART_NAME_REQUEST = 'CHECK_CHART_NAME_REQUEST'
 export const CHECK_CHART_NAME_SUCCESS = 'CHECK_CHART_NAME_SUCCESS'
 export const CHECK_CHART_NAME_FAILURE = 'CHECK_CHART_NAME_FAILURE'
 
-function fetchCheckChartName(clusterID, name, callback) {
+function fetchCheckChartName(clusterID, name, query, callback) {
   return {
     [FETCH_API]: {
       types: [CHECK_CHART_NAME_REQUEST,CHECK_CHART_NAME_SUCCESS,CHECK_CHART_NAME_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/metric/charts/${name}/check`,
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/metric/charts/${name}/check?${toQuerystring(query)}`,
       schema: {},
     },
     callback
   }
 }
 
-export function checkChartName(clusterID, name, callback) {
-  return dispatch => dispatch(fetchCheckChartName(clusterID, name, callback))
+export function checkChartName(clusterID, name, query, callback) {
+  return dispatch => dispatch(fetchCheckChartName(clusterID, name, query, callback))
 }
 
 export const UPDATE_CHART_REQUEST = 'UPDATE_CHART_REQUEST'

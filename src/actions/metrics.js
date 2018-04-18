@@ -9,7 +9,7 @@
  */
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
-import { METRICS_CPU, METRICS_MEMORY, METRICS_NETWORK_RECEIVED, METRICSS_NETWORK_TRANSMITTED, METRICSS_DISK_READ, METRICSS_DISK_WRITE, METRICS_INFLUXDB } from '../../constants'
+import { METRICS_CPU, METRICS_MEMORY, METRICS_NETWORK_RECEIVED, METRICSS_NETWORK_TRANSMITTED, METRICSS_DISK_READ, METRICSS_DISK_WRITE, METRICS_DEFAULT_SOURCE } from '../../constants'
 import { toQuerystring } from '../common/tools'
 
 // ~~ container
@@ -218,7 +218,7 @@ function fetchServiceMetricsCPU(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICS_CPU
   if (!query.source) {
-    query.source = METRICS_INFLUXDB
+    query.source = METRICS_DEFAULT_SOURCE
   }
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -249,7 +249,7 @@ function fetchServiceMetricsMemory(cluster, serviceName, query = {}, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICS_MEMORY
   if (!query.source) {
-    query.source = METRICS_INFLUXDB
+    query.source = METRICS_DEFAULT_SOURCE
   }
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -280,7 +280,7 @@ function fetchServiceMetricsNetworkReceived(cluster, serviceName, query = {}, ca
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICS_NETWORK_RECEIVED
   if (!query.source) {
-    query.source = METRICS_INFLUXDB
+    query.source = METRICS_DEFAULT_SOURCE
   }
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -311,7 +311,7 @@ function fetchServiceMetricsNetworkTransmitted(cluster, serviceName, query = {},
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICSS_NETWORK_TRANSMITTED
   if (!query.source) {
-    query.source = METRICS_INFLUXDB
+    query.source = METRICS_DEFAULT_SOURCE
   }
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -342,7 +342,7 @@ function fetchServiceMetricsDiskRead(cluster, serviceName, query = {}, callback)
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICSS_DISK_READ
   if (!query.source) {
-    query.source = METRICS_INFLUXDB
+    query.source = METRICS_DEFAULT_SOURCE
   }
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -373,7 +373,7 @@ function fetchServiceMetricsDiskWrite(cluster, serviceName, query = {}, callback
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
   query.type = METRICSS_DISK_WRITE
   if (!query.source) {
-    query.source = METRICS_INFLUXDB
+    query.source = METRICS_DEFAULT_SOURCE
   }
   if (query) {
     endpoint += `?${toQuerystring(query)}`

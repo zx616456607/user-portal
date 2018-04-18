@@ -11,6 +11,8 @@
 import React from 'react'
 import ReactEcharts from 'echarts-for-react'
 import { decamelize } from 'humps'
+import isEqual from 'lodash/isEqual'
+import isEmpty from 'lodash/isEmpty'
 import EchartsOption from '../../Metrics/EchartsOption'
 import { formatDate, bytesToSize } from "../../../common/tools"
 
@@ -18,21 +20,40 @@ const exceptByte = ['个', 's', '%']
 export default class ChartComponent extends React.Component {
 
   componentWillMount() {
-    const { updateUnit, sourceData, metrics, unit } = this.props
+    this.transformUnit(this.props)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { sourceData, metrics, unit } = nextProps
+    if (isEqual(sourceData, this.props.sourceData)) {
+      return
+    }
+    this.transformUnit(nextProps)
+  }
+
+  transformUnit = props => {
+    const { updateUnit, sourceData, metrics, unit } = props
     const { data } = sourceData
     let reg = /byte/
+    if (isEmpty(data)) {
+      return
+    }
     if (reg.test(metrics) || reg.test(unit)) {
       let maxValue = 0
-      data && data.forEach(item => {
-        item && item.metrics && item.metrics.length && item.metrics.forEach(metric => {
+      data.forEach(item => {
+        !isEmpty(item.metrics) && item.metrics.forEach(metric => {
           if (metric.floatValue > maxValue) {
             maxValue = metric.floatValue
           }
         })
       })
-      updateUnit && updateUnit(maxValue)
+      if (!maxValue) {
+        return
+      }
+      updateUnit(maxValue)
     }
   }
+
   render() {
     const { sourceData, className, unit  } = this.props
     const { isFetching, data } = sourceData
