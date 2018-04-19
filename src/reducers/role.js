@@ -81,10 +81,31 @@ function permissionList(state = {}, action) {
   }
 }
 
+function permissionOverview(state = {}, action) {
+  switch(action.type) {
+    case ActionTypesPermission.PERMISSION_OVERVIEW_REQUEST:
+      return merge({}, state, {
+        isFetching: true
+      })
+    case ActionTypesPermission.PERMISSION_OVERVIEW_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        ...action.response.result
+      })
+    case ActionTypesPermission.PERMISSION_OVERVIEW_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 export default function role(state = { roleList: {} }, action) {
   return {
     roleList: roleList(state.roleList, action),
     roleDetail: roleDetail(state.roleDetail, action),
-    permissionList: permissionList(state.permissionList, action)
+    permissionList: permissionList(state.permissionList, action),
+    permissionOverview: permissionOverview(state.permissionOverview, action)
   }
 }

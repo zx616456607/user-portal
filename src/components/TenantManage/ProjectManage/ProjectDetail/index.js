@@ -11,7 +11,10 @@
 import React, { Component } from 'react'
 import classNames from 'classnames';
 import './style/ProjectDetail.less'
-import { Row, Col, Button, Input, Table, Collapse, Card, Icon, Modal, Checkbox, Tooltip, Transfer, InputNumber, Tree, Alert, Form, Tabs, Popover } from 'antd'
+import {
+  Row, Col, Button, Input, Table, Collapse, Card, Icon, Modal, Checkbox, Tooltip,
+  Transfer, InputNumber, Tree, Alert, Form, Tabs, Popover, Select
+ } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
@@ -19,7 +22,7 @@ import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjec
 import { chargeProject } from '../../../../actions/charge'
 import { loadNotifyRule, setNotifyRule } from '../../../../actions/consumption'
 import { ListRole, CreateRole, ExistenceRole, GetRole, roleWithMembers, usersAddRoles, usersLoseRoles } from '../../../../actions/role'
-import { PermissionResource } from '../../../../actions/permission'
+import { permissionOverview } from '../../../../actions/permission'
 import { parseAmount } from '../../../../common/tools'
 import Notification from '../../../../components/Notification'
 import TreeComponent from '../../../TreeForMembers'
@@ -33,12 +36,15 @@ import { PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID, ROLE_SYS_ADMIN } from
 import ResourceQuota from '../../../ResourceLimit'
 import { formatDate } from '../../../../common/tools'
 import { getGlobaleQuota, getGlobaleQuotaList, getClusterQuota } from '../../../../actions/quota'
+import { loadClusterList } from '../../../../actions/cluster'
 import { REG } from '../../../../constants'
 import ResourceModal from './ResourceModal'
+import PermissionOverview from './PermissionOverview'
 
 let checkedKeysDetail = []
 const TabPane = Tabs.TabPane;
 const Panel = Collapse.Panel;
+const Option = Select.Option;
 
 class ProjectDetail extends Component {
   constructor(props) {
@@ -89,6 +95,7 @@ class ProjectDetail extends Component {
     }
   }
   componentWillMount() {
+    const { loadClusterList } = this.props
     this.getProjectDetail();
     this.getClustersWithStatus();
     // this.getProjectMember();
@@ -97,6 +104,7 @@ class ProjectDetail extends Component {
     this.setState({
       tabsKey: key.tabs,
     })
+    loadClusterList()
   }
   getClustersWithStatus() {
     const { name } = this.props.location.query;
@@ -401,7 +409,7 @@ class ProjectDetail extends Component {
   };
   getCurrentRole(id) {
     if (!id) return
-    const { GetRole, roleWithMembers, PermissionResource } = this.props;
+    const { GetRole, roleWithMembers, permissionOverview } = this.props;
     const { projectDetail } = this.state;
     checkedKeysDetail.length = 0;
     let permissionPolicyType = 1;
@@ -428,29 +436,10 @@ class ProjectDetail extends Component {
                   expandedKeys: checkedKeysDetail,
                   checkedKeys: checkedKeysDetail,
                   currpermissionPolicyType: permissionPolicyType,
-                }, () => {
-                  if(permissionPolicyType === 2){
-                    PermissionResource({}, {
-                      success: {
-                        func: res => {
-                          this.setState({
-                            currPRO: res.data.data
-                          })
-                        },
-                        isAsync: true
-                      },
-                      failed: {
-                        func: res => {
-                          notification.error(`获取资源列表失败`)
-                          this.setState({
-                            currPRO: []
-                          })
-                        },
-                        isAsync: true
-                      },
-                    })
-                  }
                 })
+                if(permissionPolicyType === 2){
+                  permissionOverview({roleId: id})
+                }
               }
             },
             isAsync: true
@@ -842,7 +831,7 @@ class ProjectDetail extends Component {
       filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster
     } = this.state;
     const TreeNode = Tree.TreeNode;
-    const { form, roleNum, projectClusters, location, billingEnabled } = this.props;
+    const { form, roleNum, projectClusters, location, billingEnabled, clusterList } = this.props;
     const { getFieldProps } = form;
     const quota = location.query.tabs
     const url = quota ? '/' : '/tenant_manage/project_manage'
@@ -1449,9 +1438,24 @@ class ProjectDetail extends Component {
                         </div>
                         :
                         <div className="type2">
+                          <div className="clusterSelectBox">
+                            <span className="clusterSelectLabel">授权集群</span>
+                            <Select showSearch
+                              style={{ width: 200 }}
+                              placeholder="请选择集群"
+                              optionFilterProp="children"
+                              notFoundContent="无法找到"
+                            >
+                              {
+                                (clusterList || []).map(item =>
+                                  <Option key={item.clusterID}>{item.clusterName}</Option>
+                                )
+                              }
+                            </Select>
+                          </div>
                           <div className="hint">该角色成员可操作的资源</div>
                           <div className="panelStyle">
-                            {perPanels}
+                            <PermissionOverview/>
                           </div>
                         </div>
                       }
@@ -1537,11 +1541,15 @@ function mapStateToThirdProp(state, props) {
   const { projectClusterList } = state.projectAuthority
   const currentProjectClusterList = projectClusterList[name] || {}
   const projectClusters = currentProjectClusterList.data || []
+
+  const { clusters } = state.cluster
+  const { clusterList } = clusters
   return {
     name,
     roleNum,
     projectClusters,
-    billingEnabled
+    billingEnabled,
+    clusterList
   }
 }
 
@@ -1563,5 +1571,6 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   usersLoseRoles,
   getGlobaleQuota,
   getGlobaleQuotaList,
-  PermissionResource,
+  permissionOverview,
+  loadClusterList
 })(ProjectDetail)
