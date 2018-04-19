@@ -11,19 +11,26 @@
 */
 
 
-const CICDRoutes = [{
-  path: 'coderepo',
-  component: require('../components/CICDModule/CodeStore/CodeRepo').default,
-}, {
-  path: 'tenx_flow',
-  indexRoute: {
-    component: require('../components/CICDModule/TenxFlow').default,
+const CICDRoutes = [
+  {
+    path: 'coderepo',
+    component: require('../components/CICDModule/CodeStore/CodeRepo').default,
   },
-  childRoutes: [{
-    path: 'tenx_flow_build',
-    component: require('../components/CICDModule/TenxFlow/TenxFlowDetail').default,
-  }],
-},{
+  {
+    path: 'pipelines',
+    component: require('../../client/containers/Pipeline').default,
+  },
+  /* {
+    path: 'tenx_flow',
+    indexRoute: {
+      component: require('../components/CICDModule/TenxFlow').default,
+    },
+    childRoutes: [{
+      path: 'tenx_flow_build',
+      component: require('../components/CICDModule/TenxFlow/TenxFlowDetail').default,
+    }],
+}, */
+{
   path: 'docker_file',
   component: require('../components/CICDModule/DockerFile').default,
 },{

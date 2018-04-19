@@ -29,8 +29,10 @@ if (NEED_BUILD_IMAGE) {
 }
 
 menuList = menuList.concat({
-  url: '/ci_cd/tenx_flow',
-  name: 'TenxFlow'
+  // url: '/ci_cd/tenx_flow',
+  // name: 'TenxFlow'
+  url: '/ci_cd/pipelines',
+  name: '流水线'
 }, {
     url: '/ci_cd/docker_file',
     name: 'Dockerfile'
