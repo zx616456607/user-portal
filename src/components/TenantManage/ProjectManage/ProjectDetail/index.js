@@ -22,7 +22,7 @@ import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjec
 import { chargeProject } from '../../../../actions/charge'
 import { loadNotifyRule, setNotifyRule } from '../../../../actions/consumption'
 import { ListRole, CreateRole, ExistenceRole, GetRole, roleWithMembers, usersAddRoles, usersLoseRoles } from '../../../../actions/role'
-import { permissionOverview } from '../../../../actions/permission'
+import { permissionOverview, PermissionResource } from '../../../../actions/permission'
 import { parseAmount } from '../../../../common/tools'
 import Notification from '../../../../components/Notification'
 import TreeComponent from '../../../TreeForMembers'
@@ -410,7 +410,7 @@ class ProjectDetail extends Component {
   };
   getCurrentRole(id) {
     if (!id) return
-    const { GetRole, roleWithMembers, permissionOverview } = this.props;
+    const { GetRole, roleWithMembers, permissionOverview, PermissionResource } = this.props;
     const { projectDetail } = this.state;
     checkedKeysDetail.length = 0;
     let permissionPolicyType = 1;
@@ -440,6 +440,7 @@ class ProjectDetail extends Component {
                 })
                 if(permissionPolicyType === 2){
                   permissionOverview({roleId: id})
+                  PermissionResource()
                 }
               }
             },
@@ -1464,7 +1465,9 @@ class ProjectDetail extends Component {
                           </div>
                           <div className="hint">该角色成员可操作的资源</div>
                           <div className="panelStyle">
-                            <PermissionOverview/>
+                            <PermissionOverview
+                              clusterID={selectedCluster}
+                            />
                           </div>
                         </div>
                       }
@@ -1584,5 +1587,6 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   getGlobaleQuota,
   getGlobaleQuotaList,
   permissionOverview,
-  loadClusterList
+  loadClusterList,
+  PermissionResource
 })(ProjectDetail)

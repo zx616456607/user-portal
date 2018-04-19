@@ -126,7 +126,7 @@ function fetchPermissionResource(callback) {
   }
 }
 
-export function PermissionResource(body, callback) {
+export function PermissionResource(callback) {
 	return (dispatch) => {
 		return dispatch(fetchPermissionResource(callback))
 	}

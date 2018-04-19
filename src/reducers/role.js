@@ -81,6 +81,40 @@ function permissionList(state = {}, action) {
   }
 }
 
+function permissionResource(state = {}, action) {
+  switch(action.type) {
+    case ActionTypesPermission.PERMISSION_RESOURCE_LIST_REQUEST:
+      return merge({}, state, {
+        isFetching: true
+      })
+    case ActionTypesPermission.PERMISSION_RESOURCE_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        ...action.response.result.data
+      })
+    case ActionTypesPermission.PERMISSION_RESOURCE_LIST_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function formatOverview(result) {
+  for(let [key, value] of Object.entries(result)) {
+    const resourceList = []
+    for(let [innerKey, innerValue] of Object.entries(value.acls.fixed)) {
+      resourceList.push({
+        name: innerKey,
+        permissionList: innerValue
+      })
+    }
+    value.acls.resourceList = resourceList
+  }
+  return result
+}
+
 function permissionOverview(state = {}, action) {
   switch(action.type) {
     case ActionTypesPermission.PERMISSION_OVERVIEW_REQUEST:
@@ -90,7 +124,7 @@ function permissionOverview(state = {}, action) {
     case ActionTypesPermission.PERMISSION_OVERVIEW_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        ...action.response.result
+        ...formatOverview(action.response.result)
       })
     case ActionTypesPermission.PERMISSION_OVERVIEW_FAILURE:
       return merge({}, state, {
@@ -106,6 +140,7 @@ export default function role(state = { roleList: {} }, action) {
     roleList: roleList(state.roleList, action),
     roleDetail: roleDetail(state.roleDetail, action),
     permissionList: permissionList(state.permissionList, action),
+    permissionResource: permissionResource(state.permissionResource, action),
     permissionOverview: permissionOverview(state.permissionOverview, action)
   }
 }

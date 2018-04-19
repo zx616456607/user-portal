@@ -20,9 +20,15 @@ class PermissionOverview extends React.Component{
     const { clusterID, loadAppList } = this.props
     loadAppList(clusterID, { page: 1, size: 10 })
   }
+
+  renderOverview = () => {
+    const { permissionOverview } = this.props
+    const { application, service, container, volume, configuration } = permissionOverview
+    const overviewList = []
+  }
   render() {
     return(
-      <div>overview</div>
+      <div>{this.renderOverview()}</div>
     )
   }
 }
@@ -35,7 +41,6 @@ const mapStateToProps = state => {
   const { appList, isFetching, total } = appItems[clusterID] || { appList: []}
   const { permissionOverview } = role
   return {
-    clusterID,
     appList,
     permissionOverview
   }
