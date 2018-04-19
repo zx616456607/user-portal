@@ -92,6 +92,7 @@ class ProjectDetail extends Component {
       currPRO: [],//permission/resource-operations
       currResourceType: "",
       isShowResourceModal: true,
+      selectedCluster: props.clusterID
     }
   }
   componentWillMount() {
@@ -825,10 +826,16 @@ class ProjectDetail extends Component {
       isShowResourceModal: false,
     })
   }
+
+  changeCluster = value => {
+    this.setState({
+      selectedCluster: value
+    })
+  }
   render() {
     const { payNumber, projectDetail, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
-      filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster
+      filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster, selectedCluster
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters, location, billingEnabled, clusterList } = this.props;
@@ -1445,6 +1452,8 @@ class ProjectDetail extends Component {
                               placeholder="请选择集群"
                               optionFilterProp="children"
                               notFoundContent="无法找到"
+                              onChange={this.changeCluster}
+                              value={selectedCluster}
                             >
                               {
                                 (clusterList || []).map(item =>
@@ -1522,7 +1531,7 @@ ProjectDetail = Form.create()(ProjectDetail)
 function mapStateToThirdProp(state, props) {
   const { query } = props.location
   const { name } = query
-  const { loginUser } = state.entities
+  const { loginUser, current } = state.entities
   const { globalRoles, role, billingConfig } = loginUser.info || { globalRoles: [], role: 0 }
   const { enabled: billingEnabled } = billingConfig
   let roleNum = 0
@@ -1544,12 +1553,15 @@ function mapStateToThirdProp(state, props) {
 
   const { clusters } = state.cluster
   const { clusterList } = clusters
+
+  const { clusterID } = current.cluster
   return {
     name,
     roleNum,
     projectClusters,
     billingEnabled,
-    clusterList
+    clusterList,
+    clusterID
   }
 }
 
