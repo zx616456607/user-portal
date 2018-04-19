@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import { Card, Button, Tooltip, Popover, Icon, Menu, Modal, Radio, Upload, Badge } from 'antd'
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import './style/sider.less'
 import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, uploadFileOptions, getVolumeBindInfo, changeStorageDetail } from '../../../actions/storage'
 import cloneDeep from 'lodash/cloneDeep'
@@ -627,7 +627,18 @@ class Sider extends Component {
                     </Link>
                   </Menu.Item> */}
                   <Menu.Item key='pipelines'>
-                    <Link to='/ci_cd/pipelines'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/ci_cd/pipelines')
+                          if (window.devFlowPortalHistory) {
+                            window.devFlowPortalHistory.push('/devops/pipelines')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
                       <span><div className='sideCircle'></div> 流水线</span>
                     </Link>
                   </Menu.Item>

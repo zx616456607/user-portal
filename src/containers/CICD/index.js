@@ -11,6 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import SecondSider from '../../components/SecondSider'
 import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
+import { browserHistory } from 'react-router'
 import './style/CICD.less'
 import { NEED_BUILD_IMAGE } from '../../constants'
 
@@ -35,6 +36,7 @@ menuList = menuList.concat({
   name: '流水线',
   onClick: () => {
     try {
+      browserHistory.push('/ci_cd/pipelines')
       if (window.devFlowPortalHistory) {
         window.devFlowPortalHistory.push('/devops/pipelines')
       }
