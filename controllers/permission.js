@@ -70,8 +70,7 @@ exports.listResourceOperations = function* () {
 
 exports.getAccessControlsOfRole = function* () {
   const api = apiFactory.getPermissionApi(this.session.loginUser)
-  const cluster = this.params.cluster
-  const result = yield api.getBy(['clusters', cluster, 'access-controls'], this.query)
+  const result = yield api.getBy(['access-controls'], this.query)
   this.body = {
     data: result.data
   }
@@ -79,8 +78,7 @@ exports.getAccessControlsOfRole = function* () {
 
 exports.setAccessControlsForRole = function* () {
   const api = apiFactory.getPermissionApi(this.session.loginUser)
-  const cluster = this.params.cluster
-  const result = yield api.createBy(['clusters', cluster, 'access-controls'], null, this.request.body)
+  const result = yield api.createBy(['access-controls'], null, this.request.body)
   this.body = {
     data: result.data
   }
@@ -88,8 +86,7 @@ exports.setAccessControlsForRole = function* () {
 
 exports.removeAccessControlsFromRole = function* () {
   const api = apiFactory.getPermissionApi(this.session.loginUser)
-  const cluster = this.params.cluster
-  const result = yield api.deleteBy(['clusters', cluster, 'access-controls', this.params.ruleIds])
+  const result = yield api.deleteBy(['access-controls', this.params.ruleIds])
   this.body = {
     data: result.data
   }
@@ -102,7 +99,7 @@ function* getAcls(cluster, roleId, api, keys) {
   for (let i = 0; i < length; ++i) {
     const key = keys[i]
     mapping[key] = i
-    requests.push(api.getBy(['clusters', cluster, 'access-controls'], {roleId: roleId, resourceType: key}))
+    requests.push(api.getBy(['access-controls'], {roleId: roleId, resourceType: key}))
   }
   const result = yield requests
   const acls = {}

@@ -136,7 +136,7 @@ export const DELETE_PERMISSION_CONTROL_REQUEST = 'DELETE_PERMISSION_CONTROL_REQU
 export const DELETE_PERMISSION_CONTROL_SUCCESS = 'DELETE_PERMISSION_CONTROL_SUCCESS'
 export const DELETE_PERMISSION_CONTROL_FAILURE = 'DELETE_PERMISSION_CONTROL_FAILURE'
 
-function fetchDeletePermissionControl(cluster, ruleIds, callback) {
+function fetchDeletePermissionControl(ruleIds, callback) {
   return {
     [FETCH_API]: {
       types: [
@@ -144,7 +144,7 @@ function fetchDeletePermissionControl(cluster, ruleIds, callback) {
         DELETE_PERMISSION_CONTROL_SUCCESS,
         DELETE_PERMISSION_CONTROL_FAILURE
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/permission/access-controls/${ruleIds}`,
+      endpoint: `${API_URL_PREFIX}/permission/access-controls/${ruleIds}`,
       schema: {},
       options: {
         method: "DELETE"
@@ -154,9 +154,9 @@ function fetchDeletePermissionControl(cluster, ruleIds, callback) {
   }
 }
 
-export function deletePermissionControl(cluster, ruleIds, callback) {
+export function deletePermissionControl(ruleIds, callback) {
   return dispatch => {
-    return dispatch(fetchDeletePermissionControl(cluster, ruleIds, callback))
+    return dispatch(fetchDeletePermissionControl(ruleIds, callback))
   }
 }
 
@@ -164,7 +164,7 @@ export const PERMISSION_OVERVIEW_REQUEST = 'PERMISSION_OVERVIEW_REQUEST'
 export const PERMISSION_OVERVIEW_SUCCESS = 'PERMISSION_OVERVIEW_SUCCESS'
 export const PERMISSION_OVERVIEW_FAILURE = 'PERMISSION_OVERVIEW_FAILURE'
 
-const fetchPermissionOverview = (cluster,query, callback) => {
+const fetchPermissionOverview = (query, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -172,7 +172,7 @@ const fetchPermissionOverview = (cluster,query, callback) => {
         PERMISSION_OVERVIEW_SUCCESS,
         PERMISSION_OVERVIEW_FAILURE
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/permission/access-controls/overview?${toQuerystring(query)}`,
+      endpoint: `${API_URL_PREFIX}/permission/access-controls/overview?${toQuerystring(query)}`,
       schema: {},
     },
     callback
@@ -186,7 +186,7 @@ const SET_PERMISSION_REQUEST = 'SET_PERMISSION_REQUEST'
 const SET_PERMISSION_SUCCESS = 'SET_PERMISSION_SUCCESS'
 const SET_PERMISSION_FAILURE = 'SET_PERMISSION_FAILURE'
 
-const fetchSetPermission = (cluster, body, callback) => {
+const fetchSetPermission = (body, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -194,7 +194,7 @@ const fetchSetPermission = (cluster, body, callback) => {
         SET_PERMISSION_SUCCESS,
         SET_PERMISSION_FAILURE
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${clusters}/permission/access-controls`,
+      endpoint: `${API_URL_PREFIX}/permission/access-controls`,
       schema: {},
       options: {
         method: 'POST',
@@ -205,5 +205,5 @@ const fetchSetPermission = (cluster, body, callback) => {
   }
 }
 
-export const setPermission = (cluster, body, callback) =>
-  dispatch => dispatch(fetchSetPermission(cluster, body, callback))
+export const setPermission = (body, callback) =>
+  dispatch => dispatch(fetchSetPermission(body, callback))
