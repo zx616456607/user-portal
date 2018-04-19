@@ -181,3 +181,29 @@ const fetchPermissionOverview = (query, callback) => {
 
 export const permissionOverview = (query, callback) =>
   dispatch => dispatch(fetchPermissionOverview(query, callback))
+
+const SET_PERMISSION_REQUEST = 'SET_PERMISSION_REQUEST'
+const SET_PERMISSION_SUCCESS = 'SET_PERMISSION_SUCCESS'
+const SET_PERMISSION_FAILURE = 'SET_PERMISSION_FAILURE'
+
+const fetchSetPermission = (body, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        SET_PERMISSION_REQUEST,
+        SET_PERMISSION_SUCCESS,
+        SET_PERMISSION_FAILURE
+      ],
+      endpoint: `${API_URL_PREFIX}/permission/access-controls`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export const setPermission = (body, callback) =>
+  dispatch => dispatch(fetchSetPermission(body, callback))
