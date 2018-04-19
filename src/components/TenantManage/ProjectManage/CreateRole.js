@@ -9,12 +9,13 @@
  */
 
 import React, { Component } from 'react'
-import { Input, Modal, Tree, Form } from 'antd'
+import { Input, Modal, Tree, Form, Radio } from 'antd'
 import { connect } from 'react-redux'
 import { CreateRole, ExistenceRole } from '../../../actions/role'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import { Permission } from '../../../actions/permission'
 import Notification from '../../../components/Notification'
+
 
 class CreateRoleModal extends Component{
   constructor(props) {
@@ -25,7 +26,8 @@ class CreateRoleModal extends Component{
       checkedKeys: [],
       selectedKeys: [],
       allPermission: [],
-      permissionCount: 0
+      permissionCount: 0,
+      permissionPolicyType: 1,
     }
   }
   componentWillMount() {
@@ -45,7 +47,8 @@ class CreateRoleModal extends Component{
       this.setState({
         expandedKeys: [],
         checkedKeys: [],
-        selectedKeys: []
+        selectedKeys: [],
+        permissionPolicyType: 1, //1 所有权限 （原） 2 指定权限（新）
       })
     }
   }
@@ -60,7 +63,7 @@ class CreateRoleModal extends Component{
   onCheck(key, e) {
     const { checkedKeys } = this.state
     const categoryKey = this.fetchNode(e.node.props.category)
-    
+
     categoryKey.forEach(item => {
       if (checkedKeys.length === 0) {
         key.push(item)
@@ -70,7 +73,7 @@ class CreateRoleModal extends Component{
         }
       }
     })
-    
+
     this.setState({
       checkedKeys: key
     })
@@ -139,15 +142,26 @@ class CreateRoleModal extends Component{
     },ASYNC_VALIDATOR_TIMEOUT)
   }
   roleDesc(rule, value, callback) {
+    const { ExistenceRole } = this.props;
+    if (!value) {
+      callback(new Error('请输入描述'))
+      return
+    }
     callback()
   }
   cancelModal() {
     const { scope } = this.props;
-    scope.setState({characterModal:false})
+    let tempState = {permissionPolicyType: 1}
+
+    if(scope.state.characterModal === true)tempState.characterModal = false
+    else tempState.isShowperallEditModal = false
+
+    scope.setState(tempState);
+    this.props.form.resetFields();
   }
   okCreateModal() {
     const { CreateRole, loadData, scope, form } = this.props;
-    const { checkedKeys } = this.state;
+    const { checkedKeys, permissionPolicyType } = this.state;
     const { validateFields } = form;
     let notify = new Notification()
     validateFields([ 'roleName', 'roleDesc' ], (errors,values)=>{
@@ -156,17 +170,23 @@ class CreateRoleModal extends Component{
       }
       let roleDesc = values.roleDesc
       let roleName = values.roleName
-      CreateRole({
+      let params = {
         name: roleName,
         comment: roleDesc,
-        pids: checkedKeys.map(item => Number(item))
-      },{
+        permissionPolicyType: permissionPolicyType,
+      };
+      if(permissionPolicyType === 1) params.pids = checkedKeys.map(item => Number(item));
+      CreateRole(params,{
         success:{
           func: (res) => {
             if (res.data.statusCode === 200) {
               notify.success('创建角色成功')
               loadData && loadData()
-              scope.setState({characterModal:false})
+              // targetKeys = _.deepClone(scope.state.targetKeys);
+              // targetKeys.push(res.data.data.roleID);
+              scope.setState({characterModal:false}, () => {
+                scope.addCharacterOk(res.data.data.roleID);
+              })
             }
           },
           isAsync: true
@@ -179,7 +199,7 @@ class CreateRoleModal extends Component{
         }
       })
     })
-    
+
   }
   fetchNode(category) {
     const { allPermission } = this.state
@@ -208,7 +228,7 @@ class CreateRoleModal extends Component{
       }
       children.push(RowData.id)
     }
-    
+
     children.forEach((key, index) => {
       if (data[index]["children"] !== undefined) {
         if (data[index].children.length !== 0) {
@@ -216,6 +236,16 @@ class CreateRoleModal extends Component{
         }
       }
     })
+  }
+  typeClick = (e) => {
+    const value = e.target.value;
+    if(this.state.permissionPolicyType === value) return;
+    let tempState = {permissionPolicyType: e.target.value}
+    if(value === 2){
+      tempState.checkedKeys = [];
+      tempState.selectedKeys = [];
+    }
+    this.setState(tempState);
   }
   render() {
     const TreeNode = Tree.TreeNode;
@@ -248,7 +278,7 @@ class CreateRoleModal extends Component{
           >
             <Input placeholder="请输入名称" {...getFieldProps(`roleName`, {
               rules: [
-                { validator: (rules,value,callback)=>this.roleName(rules,value,callback)}
+                { validator: (rules,value,callback)=>this.roleName(rules,value,callback)},
               ],
             }) }
             />
@@ -256,31 +286,69 @@ class CreateRoleModal extends Component{
           <Form.Item label="描述" {...formItemLayout}>
             <Input type="textarea" {...getFieldProps(`roleDesc`, {
               rules: [
-                { validator: (rules,value,callback)=>this.roleDesc(rules,value,callback)}
+                { validator: (rules,value,callback)=>this.roleDesc(rules,value,callback)},
               ],
             }) }/>
           </Form.Item>
-        </Form>
-        <div className="authChooseProject">
-          <span className="authChooseText">权限选择 :</span>
-          <div className="authBox inlineBlock">
-            <div className="authTitle clearfix">所有权限 <div className="pull-right">共<span style={{color:'#59c3f5'}}>{permissionCount}</span> 个</div></div>
-            <div className="treeBox">
+          <Form.Item label="授权方式" {...formItemLayout}>
+            <Radio.Group {...getFieldProps('permissionPolicyType', { initialValue: 1,
+              validate: [{
+                rules: [
+                  { required: true, message: '请选择授权方式' },
+                ],
+                trigger: ['onClick'],
+              }],
+              onChange: this.typeClick
+              })}>
+              <Radio key="a" value={1}>所有资源统一授权</Radio>
+              <Radio key="b" value={2}>指定具体资源授权</Radio>
+            </Radio.Group>
+          </Form.Item>
+          {/*<FormItem
+            {...formItemLargeLayout}
+            label="角色模板"
+          >
+            <Select {...getFieldProps('xxx', {
+              initialValue: '',
+              validate: [{
+                rules: [
+                  //{ required: true, message: '请选择数据中心' },
+                ],
+                trigger: ['onChange'],
+              }],
+              })} placeholder="选择角色模板" style={{width: "100%", }}>
               {
-                allPermission.length > 0 &&
-                <Tree
-                  checkable
-                  onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
-                  autoExpandParent={this.state.autoExpandParent}
-                  onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
-                  onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
-                >
-                  {loop(allPermission)}
-                </Tree>
+                xxxList.map((item, i) => {
+                  return <Select.Option key={i} value={item}>{item}</Select.Option>
+                })
               }
+            </Select>
+          </FormItem>*/}
+        </Form>
+        { this.state.permissionPolicyType === 1 ?
+          <div className="authChooseProject">
+            <span className="authChooseText">权限选择 :</span>
+            <div className="authBox inlineBlock">
+              <div className="authTitle clearfix">所有权限 <div className="pull-right">共<span style={{color:'#59c3f5'}}>{permissionCount}</span> 个</div></div>
+              <div className="treeBox">
+                {
+                  allPermission.length > 0 &&
+                  <Tree
+                    checkable
+                    onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
+                    autoExpandParent={this.state.autoExpandParent}
+                    onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
+                    onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
+                  >
+                    {loop(allPermission)}
+                  </Tree>
+                }
+              </div>
             </div>
           </div>
-        </div>
+          :
+          null
+        }
       </Modal>
     )
   }
@@ -288,9 +356,9 @@ class CreateRoleModal extends Component{
 
 
 function mapStateToSecondProp(state, props) {
-  
+
   return {
-  
+
   }
 }
 

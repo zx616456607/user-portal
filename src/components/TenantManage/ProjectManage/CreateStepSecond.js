@@ -82,7 +82,7 @@ class CreateStepSecond extends Component{
       }
     })
   }
-  
+
   filterOption(inputValue, option) {
     return option.title.indexOf(inputValue) > -1;
   }
@@ -103,7 +103,7 @@ class CreateStepSecond extends Component{
       characterModal:true
     })
   }
-  
+
   renderItem(item) {
     return(
       <Row key={item&&item.key}>
@@ -160,9 +160,9 @@ class CreateStepSecond extends Component{
 }
 
 function mapStateToSecondProp(state, props) {
-  
+
   return {
-  
+
   }
 }
 

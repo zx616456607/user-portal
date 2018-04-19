@@ -269,7 +269,7 @@ class CreateStepThird extends Component{
         </li>
       )
     }) : <li className="pointer" onClick={()=>browserHistory.replace('/tenant_manage/project_manage?step=second')}>请选择角色</li>
-    
+
     const loop = data => data.length >0 && data.map((item) => {
       if (item['children'] !== undefined) {
         return (
@@ -283,7 +283,7 @@ class CreateStepThird extends Component{
     const loopFunc = data => data.length >0 && data.map((item) => {
       return <TreeNode key={item.id} title={item.userName} disableCheckbox={true}/>;
     });
-    
+
     return (
       <div id="projectCreateStepThird">
         <div className="inputBox" style={{marginBottom:0}}>
