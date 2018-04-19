@@ -637,10 +637,10 @@ module.exports = function (Router) {
   router.get('/permission/withCount', permissionController.listWithCount)
   router.get('/permission/:id/dependent', permissionController.getAllDependent)
   router.get('/permission/resource-operations', permissionController.listResourceOperations)
-  router.get('/permission/access-controls', permissionController.getAccessControlsOfRole)
-  router.post('/permission/access-controls', permissionController.setAccessControlsForRole)
-  router.delete('/permission/access-controls/:ruleIds', permissionController.removeAccessControlsFromRole)
-  router.get('/permission/access-controls/overview', permissionController.overview)
+  router.get('/clusters/:cluster/permission/access-controls', permissionController.getAccessControlsOfRole)
+  router.post('/clusters/:cluster/permission/access-controls', permissionController.setAccessControlsForRole)
+  router.delete('/clusters/:cluster/permission/access-controls/:ruleIds', permissionController.removeAccessControlsFromRole)
+  router.get('/clusters/:cluster/permission/access-controls/overview', permissionController.overview)
 
   //role
   router.post('/role', roleController.create)
