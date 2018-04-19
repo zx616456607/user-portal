@@ -621,9 +621,14 @@ class Sider extends Component {
                       </Link>
                     </Menu.Item> : <Menu.Item key='integration-none' style={{ display: 'none' }}></Menu.Item>
                   }
-                  <Menu.Item key='tenx_flow'>
+                  {/* <Menu.Item key='tenx_flow'>
                     <Link to='/ci_cd/tenx_flow'>
                       <span><div className='sideCircle'></div> TenxFlow</span>
+                    </Link>
+                  </Menu.Item> */}
+                  <Menu.Item key='pipelines'>
+                    <Link to='/ci_cd/pipelines'>
+                      <span><div className='sideCircle'></div> 流水线</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='docker_file'>
