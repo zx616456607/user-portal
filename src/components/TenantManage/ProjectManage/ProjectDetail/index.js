@@ -91,7 +91,7 @@ class ProjectDetail extends Component {
       isShowperallEditModal: false,
       currPRO: [],//permission/resource-operations
       currResourceType: "",
-      isShowResourceModal: true,
+      isShowResourceModal: false,
       selectedCluster: props.clusterID
     }
   }
@@ -437,6 +437,31 @@ class ProjectDetail extends Component {
                   expandedKeys: checkedKeysDetail,
                   checkedKeys: checkedKeysDetail,
                   currpermissionPolicyType: permissionPolicyType,
+                }, () => {
+                  if(permissionPolicyType === 2){
+                    PermissionResource({
+                      success: {
+                        func: res => {
+                          this.setState({
+                            currPRO: res.data
+                          })
+                        },
+                        isAsync: true
+                      },
+                      failed: {
+                        func: res => {
+                          notification.error(`获取资源列表失败`)
+                          this.setState({
+                            currPRO: []
+                          })
+                        },
+                        isAsync: true
+                      },
+                    })
+                  }
+                  if(permissionPolicyType === 2){
+                    permissionOverview({roleId: id})
+                  }
                 })
                 if(permissionPolicyType === 2){
                   permissionOverview({roleId: id})
@@ -1359,6 +1384,7 @@ class ProjectDetail extends Component {
             visible={this.state.isShowResourceModal}
             onCancel={this.closeResourceModal}
             currResourceType={this.state.currResourceType}
+            scope={this}
           />
 
           <div className="projectMember">
@@ -1465,6 +1491,7 @@ class ProjectDetail extends Component {
                           </div>
                           <div className="hint">该角色成员可操作的资源</div>
                           <div className="panelStyle">
+                            {perPanels}
                             <PermissionOverview
                               clusterID={selectedCluster}
                             />

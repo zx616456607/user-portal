@@ -7,7 +7,7 @@
  */
 import React from 'react'
 import { Modal, Button, Input, Row, Popover, Col, Form, Spin, Icon } from 'antd'
-import classNames from 'classNames'
+import classNames from 'classnames'
 import './style/ProjectManage.less'
 import { CheckProjects } from '../../../actions/project'
 import { loadClusterList } from '../../../actions/cluster'
