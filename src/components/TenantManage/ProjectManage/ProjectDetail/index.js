@@ -463,6 +463,10 @@ class ProjectDetail extends Component {
                     permissionOverview({roleId: id})
                   }
                 })
+                if(permissionPolicyType === 2){
+                  permissionOverview({roleId: id})
+                  PermissionResource()
+                }
               }
             },
             isAsync: true
@@ -1487,8 +1491,10 @@ class ProjectDetail extends Component {
                           </div>
                           <div className="hint">该角色成员可操作的资源</div>
                           <div className="panelStyle">
-                            <PermissionOverview/>
                             {perPanels}
+                            <PermissionOverview
+                              clusterID={selectedCluster}
+                            />
                           </div>
                         </div>
                       }
