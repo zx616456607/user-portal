@@ -434,7 +434,7 @@ class ProjectDetail extends Component {
                       success: {
                         func: res => {
                           this.setState({
-                            currPRO: res.data.data
+                            currPRO: res.data
                           })
                         },
                         isAsync: true
@@ -1362,6 +1362,7 @@ class ProjectDetail extends Component {
             visible={this.state.isShowResourceModal}
             onCancel={this.closeResourceModal}
             currResourceType={this.state.currResourceType}
+            scope={this}
           />
 
           <div className="projectMember">
