@@ -411,7 +411,7 @@ class ProjectDetail extends Component {
   getCurrentRole(id) {
     if (!id) return
     const { GetRole, roleWithMembers, permissionOverview, PermissionResource } = this.props;
-    const { projectDetail } = this.state;
+    const { projectDetail, selectedCluster } = this.state;
     checkedKeysDetail.length = 0;
     let permissionPolicyType = 1;
     this.setState({
@@ -464,7 +464,7 @@ class ProjectDetail extends Component {
                   }
                 })
                 if(permissionPolicyType === 2){
-                  permissionOverview({roleId: id})
+                  permissionOverview({roleId: id, clusterId: selectedCluster})
                   PermissionResource()
                 }
               }
@@ -1473,7 +1473,7 @@ class ProjectDetail extends Component {
                         :
                         <div className="type2">
                           <div className="clusterSelectBox">
-                            <span className="clusterSelectLabel">授权集群</span>
+                            <span className="clusterSelectLabel">集群</span>
                             <Select showSearch
                               style={{ width: 200 }}
                               placeholder="请选择集群"
@@ -1491,9 +1491,10 @@ class ProjectDetail extends Component {
                           </div>
                           <div className="hint">该角色成员可操作的资源</div>
                           <div className="panelStyle">
-                            {perPanels}
+                            {/* {perPanels} */}
                             <PermissionOverview
                               clusterID={selectedCluster}
+                              openPermissionModal={this.editPermission}
                             />
                           </div>
                         </div>

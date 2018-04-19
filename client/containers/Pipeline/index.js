@@ -11,6 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Spin } from 'antd'
+import { browserHistory } from 'react-router'
 import { toQuerystring } from '../../../src/common/tools'
 import { loadApiInfo } from '../../../src/actions/open_api'
 import './style/index.less'
@@ -20,6 +21,21 @@ const HEADER_HEIGHT = 60
 class Pipeline extends React.Component {
   state = {
     windowHeight: window.innerHeight,
+  }
+
+  componentWillMount() {
+    window.pipelineIframeCallBack = (action, data) => {
+      switch (action) {
+        case 'redirect':
+          browserHistory.push(data.pathname)
+          break;
+        case 'devFlowPortalHistory':
+          window.devFlowPortalHistory = data
+          break;
+        default:
+          break;
+      }
+    }
   }
 
   componentDidMount() {

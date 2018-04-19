@@ -32,7 +32,16 @@ menuList = menuList.concat({
   // url: '/ci_cd/tenx_flow',
   // name: 'TenxFlow'
   url: '/ci_cd/pipelines',
-  name: '流水线'
+  name: '流水线',
+  onClick: () => {
+    try {
+      if (window.devFlowPortalHistory) {
+        window.devFlowPortalHistory.push('/devops/pipelines')
+      }
+    } catch (error) {
+      //
+    }
+  }
 }, {
     url: '/ci_cd/docker_file',
     name: 'Dockerfile'
