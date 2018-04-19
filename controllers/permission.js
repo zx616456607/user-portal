@@ -70,7 +70,8 @@ exports.listResourceOperations = function* () {
 
 exports.getAccessControlsOfRole = function* () {
   const api = apiFactory.getPermissionApi(this.session.loginUser)
-  const result = yield api.getBy(['access-controls'], this.query)
+  const cluster = this.params.cluster
+  const result = yield api.getBy(['clusters', cluster, 'access-controls'], this.query)
   this.body = {
     data: result.data
   }
@@ -78,7 +79,8 @@ exports.getAccessControlsOfRole = function* () {
 
 exports.setAccessControlsForRole = function* () {
   const api = apiFactory.getPermissionApi(this.session.loginUser)
-  const result = yield api.createBy(['access-controls'], null, this.request.body)
+  const cluster = this.params.cluster
+  const result = yield api.createBy(['clusters', cluster, 'access-controls'], null, this.request.body)
   this.body = {
     data: result.data
   }
@@ -86,20 +88,21 @@ exports.setAccessControlsForRole = function* () {
 
 exports.removeAccessControlsFromRole = function* () {
   const api = apiFactory.getPermissionApi(this.session.loginUser)
-  const result = yield api.deleteBy(['access-controls', this.params.ruleIds])
+  const cluster = this.params.cluster
+  const result = yield api.deleteBy(['clusters', cluster, 'access-controls', this.params.ruleIds])
   this.body = {
     data: result.data
   }
 }
 
-function* getAcls(roleId, api, keys) {
+function* getAcls(cluster, roleId, api, keys) {
   const length = keys.length
   const mapping = {}
   const requests = []
   for (let i = 0; i < length; ++i) {
     const key = keys[i]
     mapping[key] = i
-    requests.push(api.getBy(['access-controls'], {roleId: roleId, resourceType: key}))
+    requests.push(api.getBy(['clusters', cluster, 'access-controls'], {roleId: roleId, resourceType: key}))
   }
   const result = yield requests
   const acls = {}
@@ -180,10 +183,11 @@ function handleOneResource(aclOfResource, operations) {
 exports.overview = function* () {
   const api = apiFactory.getPermissionApi(this.session.loginUser)
   const roleId = this.query.roleId
+  const cluster = this.params.cluster
   const operationsResponse = yield api.getBy(['resource-operations'])
   const operations = operationsResponse.data
   const keys = Object.getOwnPropertyNames(operations)
-  const acls = yield getAcls(roleId, api, keys)
+  const acls = yield getAcls(cluster, roleId, api, keys)
   const result = {}
   const length = keys.length
   for (let i = 0; i < length; ++i) {
