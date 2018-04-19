@@ -428,7 +428,7 @@ let ConfigureService = React.createClass({
     if (errorMsg !== 'success') {
       return callback(errorMsg)
     }
-    return callback()
+    // return callback()
     clearTimeout(this.templateNameCheckTimeout)
     this.templateNameCheckTimeout = setTimeout(() => {
       appTemplateNameCheck(value, {
@@ -770,6 +770,7 @@ let ConfigureService = React.createClass({
         <ConfigMapSetting
           form={form}
           formItemLayout={formItemLayout}
+          {...{location, isTemplate}}
           key="configMap"
         />
         <AdvancedSetting

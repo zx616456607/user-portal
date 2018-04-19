@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Form, Radio, Select, Row, Col, Icon, Tooltip } from 'antd'
+import { Form, Radio, Select, Row, Col, Icon, Tooltip, Modal } from 'antd'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
 import './style/AccessMethod.less'
@@ -312,7 +312,13 @@ class AccessMethod extends Component {
     return defaultValue
   }
   tabChange = activeKey => {
-    const { form } = this.props
+    const { form, isTemplate, location } = this.props
+    if (!isTemplate && location.query.template) {
+      Modal.info({
+        title: '部署时只能使用模板中配置的访问方式'
+      })
+      return
+    }
     this.setState({
       activeKey
     })
@@ -322,7 +328,7 @@ class AccessMethod extends Component {
   }
   render() {
     const { activeKey } = this.state
-    const { formItemLayout, form, clusterID, isTemplate } = this.props
+    const { formItemLayout, form, clusterID, isTemplate, location } = this.props
     const { getFieldProps, getFieldValue } = form
     const imageComposeStyle = classNames({
       'tabs_item_style': true,
@@ -388,6 +394,7 @@ class AccessMethod extends Component {
           activeKey === 'loadBalance' &&
           <LoadBalance
             form={form}
+            {...{isTemplate, location}}
           />
         }
       </div>
