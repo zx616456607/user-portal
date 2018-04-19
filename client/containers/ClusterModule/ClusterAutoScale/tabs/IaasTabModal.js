@@ -153,7 +153,7 @@ class Form1 extends React.Component {
               {
                 resourcePool.map((item, i) =>
                   {
-                    return (<Select.Option key={i}>{item}</Select.Option>)
+                    return (<Select.Option key={i} value={item}>{item}</Select.Option>)
                   })
               }
             </Select>
@@ -175,7 +175,7 @@ class Form1 extends React.Component {
               {
                 datastore.map((item, i) =>
                   {
-                    return (<Select.Option key={i}>{item}</Select.Option>)
+                    return (<Select.Option key={i} value={item}>{item}</Select.Option>)
                   })
               }
             </Select>
