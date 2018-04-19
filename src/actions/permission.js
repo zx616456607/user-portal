@@ -131,3 +131,53 @@ export function PermissionResource(body, callback) {
 		return dispatch(fetchPermissionResource(callback))
 	}
 }
+
+export const DELETE_PERMISSION_CONTROL_REQUEST = 'DELETE_PERMISSION_CONTROL_REQUEST'
+export const DELETE_PERMISSION_CONTROL_SUCCESS = 'DELETE_PERMISSION_CONTROL_SUCCESS'
+export const DELETE_PERMISSION_CONTROL_FAILURE = 'DELETE_PERMISSION_CONTROL_FAILURE'
+
+function fetchDeletePermissionControl(ruleIds, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        DELETE_PERMISSION_CONTROL_REQUEST,
+        DELETE_PERMISSION_CONTROL_SUCCESS,
+        DELETE_PERMISSION_CONTROL_FAILURE
+      ],
+      endpoint: `${API_URL_PREFIX}/permission/access-controls/${ruleIds}`,
+      schema: {},
+      options: {
+        method: "DELETE"
+      },
+    },
+    callback
+  }
+}
+
+export function deletePermissionControl(ruleIds, callback) {
+  return dispatch => {
+    return dispatch(fetchDeletePermissionControl(ruleIds, callback))
+  }
+}
+
+export const PERMISSION_OVERVIEW_REQUEST = 'PERMISSION_OVERVIEW_REQUEST'
+export const PERMISSION_OVERVIEW_SUCCESS = 'PERMISSION_OVERVIEW_SUCCESS'
+export const PERMISSION_OVERVIEW_FAILURE = 'PERMISSION_OVERVIEW_FAILURE'
+
+const fetchPermissionOverview = (query, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        PERMISSION_OVERVIEW_REQUEST,
+        PERMISSION_OVERVIEW_SUCCESS,
+        PERMISSION_OVERVIEW_FAILURE
+      ],
+      endpoint: `${API_URL_PREFIX}/permission/access-controls/overview?${toQuerystring(query)}`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export const permissionOverview = (query, callback) =>
+  dispatch => dispatch(fetchPermissionOverview(query, callback))
