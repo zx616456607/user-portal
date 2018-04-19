@@ -179,8 +179,8 @@ const fetchPermissionOverview = (query, callback) => {
   }
 }
 
-export const permissionOverview = (cluster,query, callback) =>
-  dispatch => dispatch(fetchPermissionOverview(cluster, query, callback))
+export const permissionOverview = (query, callback) =>
+  dispatch => dispatch(fetchPermissionOverview(query, callback))
 
 const SET_PERMISSION_REQUEST = 'SET_PERMISSION_REQUEST'
 const SET_PERMISSION_SUCCESS = 'SET_PERMISSION_SUCCESS'

@@ -92,14 +92,14 @@ exports.removeAccessControlsFromRole = function* () {
   }
 }
 
-function* getAcls(cluster, roleId, api, keys) {
+function* getAcls(roleId, clusterId, api, keys) {
   const length = keys.length
   const mapping = {}
   const requests = []
   for (let i = 0; i < length; ++i) {
     const key = keys[i]
     mapping[key] = i
-    requests.push(api.getBy(['access-controls'], {roleId: roleId, resourceType: key}))
+    requests.push(api.getBy(['access-controls'], {roleId, clusterId, resourceType: key}))
   }
   const result = yield requests
   const acls = {}
@@ -180,11 +180,11 @@ function handleOneResource(aclOfResource, operations) {
 exports.overview = function* () {
   const api = apiFactory.getPermissionApi(this.session.loginUser)
   const roleId = this.query.roleId
-  const cluster = this.params.cluster
+  const clusterId = this.query.clusterId
   const operationsResponse = yield api.getBy(['resource-operations'])
   const operations = operationsResponse.data
   const keys = Object.getOwnPropertyNames(operations)
-  const acls = yield getAcls(cluster, roleId, api, keys)
+  const acls = yield getAcls(roleId, clusterId, api, keys)
   const result = {}
   const length = keys.length
   for (let i = 0; i < length; ++i) {
