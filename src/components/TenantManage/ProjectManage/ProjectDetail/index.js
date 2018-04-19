@@ -22,7 +22,7 @@ import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjec
 import { chargeProject } from '../../../../actions/charge'
 import { loadNotifyRule, setNotifyRule } from '../../../../actions/consumption'
 import { ListRole, CreateRole, ExistenceRole, GetRole, roleWithMembers, usersAddRoles, usersLoseRoles } from '../../../../actions/role'
-import { permissionOverview } from '../../../../actions/permission'
+import { permissionOverview, PermissionResource } from '../../../../actions/permission'
 import { parseAmount } from '../../../../common/tools'
 import Notification from '../../../../components/Notification'
 import TreeComponent from '../../../TreeForMembers'
@@ -91,7 +91,7 @@ class ProjectDetail extends Component {
       isShowperallEditModal: false,
       currPRO: [],//permission/resource-operations
       currResourceType: "",
-      isShowResourceModal: true,
+      isShowResourceModal: false,
       selectedCluster: props.clusterID
     }
   }
@@ -410,7 +410,7 @@ class ProjectDetail extends Component {
   };
   getCurrentRole(id) {
     if (!id) return
-    const { GetRole, roleWithMembers, permissionOverview } = this.props;
+    const { GetRole, roleWithMembers, permissionOverview, PermissionResource } = this.props;
     const { projectDetail } = this.state;
     checkedKeysDetail.length = 0;
     let permissionPolicyType = 1;
@@ -437,10 +437,9 @@ class ProjectDetail extends Component {
                   expandedKeys: checkedKeysDetail,
                   checkedKeys: checkedKeysDetail,
                   currpermissionPolicyType: permissionPolicyType,
-<<<<<<< HEAD
                 }, () => {
                   if(permissionPolicyType === 2){
-                    PermissionResource({}, {
+                    PermissionResource({
                       success: {
                         func: res => {
                           this.setState({
@@ -460,12 +459,10 @@ class ProjectDetail extends Component {
                       },
                     })
                   }
-=======
->>>>>>> 79048cdb2ed30dc4dc8c161c0caf358342d2a8b4
+                  if(permissionPolicyType === 2){
+                    permissionOverview({roleId: id})
+                  }
                 })
-                if(permissionPolicyType === 2){
-                  permissionOverview({roleId: id})
-                }
               }
             },
             isAsync: true
@@ -1491,6 +1488,7 @@ class ProjectDetail extends Component {
                           <div className="hint">该角色成员可操作的资源</div>
                           <div className="panelStyle">
                             <PermissionOverview/>
+                            {perPanels}
                           </div>
                         </div>
                       }
@@ -1610,5 +1608,6 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   getGlobaleQuota,
   getGlobaleQuotaList,
   permissionOverview,
-  loadClusterList
+  loadClusterList,
+  PermissionResource
 })(ProjectDetail)

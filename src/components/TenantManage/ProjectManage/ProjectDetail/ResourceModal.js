@@ -43,8 +43,8 @@ class ResourceModal extends Component {
     alreadyAllChecked: false,
     originalMembers: [],
     deleteMembers: [],
-    treeName: [],
-    filterOutPermissionInfo: [],
+    treeNames: [],
+    selNames: [],
     leftValue: '',
     rightValue: '',
     sourceData: [],
@@ -99,7 +99,16 @@ class ResourceModal extends Component {
     this.setState({ targetKeys });
   }
   selectAll = () => {
-
+    if(e.target.checked){
+      this.setState({
+        checkedKeys: arr,
+      })
+    }
+    if(!e.target.checked){
+      this.setState({
+        checkedKeys: [],
+      })
+    }
   }
   getSelected = () => {
 
@@ -195,15 +204,15 @@ class ResourceModal extends Component {
     }
   }
   addPermission = () => {
-    const { checkedKeys, outPermissionInfo,filterOutPermissionInfo, originalMembers, permissionInfo, treeName, sourceData } = this.state
-    let newOutPermissionInfo = _.cloneDeep(filterOutPermissionInfo)
+    const { checkedKeys, outPermissionInfo,selNames, originalMembers, permissionInfo, treeNames, sourceData } = this.state
+    let newOutPermissionInfo = _.cloneDeep(selNames)
     let uniqCheckedKeys = Array.from(new Set(checkedKeys))
     let diff = xor(uniqCheckedKeys,originalMembers);
     let newCheck = intersection(uniqCheckedKeys,diff)
     if(!checkedKeys.length) return
     let permissList = this.transformMultiArrayToLinearArray(newOutPermissionInfo)
     let arr = []
-    let per = treeName.slice(0)
+    let per = treeNames.slice(0)
     let alreadyCheck = []
     let rightCheck = []
     let addKey = this.findParentNode(permissList,uniqCheckedKeys)
@@ -241,7 +250,7 @@ class ResourceModal extends Component {
       checkedKeys:withParent,
       disableCheckArr:withParent,
       permissionInfo:per,
-      treeName: per,
+      treeNames: per,
       alreadyCheckedKeys:alreadyCheck
     },()=>{
       this.isReadyCheck()
@@ -250,10 +259,10 @@ class ResourceModal extends Component {
   }
 
   removePerssion = () => {
-    const { alreadyCheckedKeys, permissionInfo, outPermissionInfo,filterOutPermissionInfo,treeName, disableCheckArr, checkedKeys } = this.state
+    const { alreadyCheckedKeys, permissionInfo, outPermissionInfo,selNames,treeNames, disableCheckArr, checkedKeys } = this.state
     let oldPermissonInfo = _.cloneDeep(permissionInfo)
-    let newPermissonInfo = _.cloneDeep(treeName)
-    let newOutPermissionInfo = this.transformMultiArrayToLinearArray(_.cloneDeep(filterOutPermissionInfo))
+    let newPermissonInfo = _.cloneDeep(treeNames)
+    let newOutPermissionInfo = this.transformMultiArrayToLinearArray(_.cloneDeep(selNames))
     if(!alreadyCheckedKeys.length) return
     let oldArr = []
     let backArr = []
@@ -296,7 +305,7 @@ class ResourceModal extends Component {
     }
     this.setState({
       permissionInfo: oldArr,
-      treeName: newArr,
+      treeNames: newArr,
       alreadyCheckedKeys: [],
       disableCheckArr:difference(disableCheckArr,backArr),
       checkedKeys:difference(checkedKeys,backArr)
@@ -321,10 +330,18 @@ class ResourceModal extends Component {
         </div>
       )
     })();
-    const autoCheckCount = 0;
-    const text = 1, filterUser = 0, selectProps = 0, modalStatus = 0;
-    const filterOutPermissionInfo = this.state.treeName, roleMember = "roleMember";
-    const { disableCheckArr, alreadyAllChecked, treeName, leftValue, rightValue } = this.state//filterOutPermissionInfo
+    const selectProps = {
+      defaultValue: '成员',
+      selectOptions : [{
+        key: 'user',
+        value: '成员'
+      }, {
+        key: 'team',
+        value: '团队'
+      }]
+    }
+    const filterUser = "";
+    const { disableCheckArr, alreadyAllChecked, treeNames, leftValue, rightValue, selNames } = this.state;
 
     const loopFunc = data => data.length >0 && data.map((name, i) => {
       return <TreeNode key={i} title={name} disableCheckbox={disableCheckArr.indexOf(`${name}`) > -1}/>;
@@ -365,15 +382,14 @@ class ResourceModal extends Component {
                       <Col span="10">
                         <div className='leftBox'>
                           <div className='header'>
-                            <Checkbox onClick={this.selectAll}>可选 {text}</Checkbox>
-                            <div className='numberBox'>共 <span className='number'>{autoCheckCount}</span> 条</div>
+                            <Checkbox onClick={this.selectAll}>可选</Checkbox>
+                            <div className='numberBox'>共 <span className='number'>{treeNames.length}</span> 条</div>
                           </div>
                           <CommonSearchInput
                             getOption={this.getSelected}
                             onSearch={filterUser}
                             placeholder='请输入搜索内容'
                             selectProps={selectProps}
-                            modalStatus={modalStatus}
                             value={leftValue}
                             onChange={(leftValue) => this.setState({leftValue})}
                             style={{width: '90%', margin: '10px auto', display: 'block'}}/>
@@ -381,7 +397,7 @@ class ResourceModal extends Component {
                           <div className='body'>
                             <div>
                               {
-                                filterOutPermissionInfo.length
+                                treeNames.length
                                   ? <Tree
                                   checkable
                                   onExpand={this.onExpand}
@@ -389,9 +405,9 @@ class ResourceModal extends Component {
                                   checkedKeys={this.state.checkedKeys}
                                   key="tree"
                                 >
-                                  {loopFunc(filterOutPermissionInfo)}
+                                  {loopFunc(treeNames)}
                                 </Tree>
-                                  : <span className='noPermission'>暂无{text}</span>
+                                  : <span className='noPermission'>暂无</span>
                               }
                             </div>
                           </div>
@@ -412,8 +428,8 @@ class ResourceModal extends Component {
                       <Col span="10">
                         <div className='rightBox'>
                           <div className='header'>
-                            <Checkbox onClick={this.alreadySelectAll} checked={alreadyAllChecked}>已选1{text}</Checkbox>
-                            <div className='numberBox'>共 <span className='number'>{roleMember}</span> 条</div>
+                            <Checkbox onClick={this.alreadySelectAll} checked={alreadyAllChecked}>已选</Checkbox>
+                            <div className='numberBox'>共 <span className='number'>{selNames.length}</span> 条</div>
                           </div>
                           <CommonSearchInput
                             placeholder="请输入搜索内容"
@@ -426,16 +442,16 @@ class ResourceModal extends Component {
                           <div className='body'>
                             <div>
                               {
-                                treeName.length
+                                selNames.length
                                   ? <Tree
                                   checkable multiple
                                   onCheck={this.onAlreadyCheck}
                                   checkedKeys={this.state.alreadyCheckedKeys}
                                   key={this.state.rightTreeKey}
                                 >
-                                  {loop(treeName)}
+                                  {loop(selNames)}
                                 </Tree>
-                                  : <span className='noPermission'>暂无{text}</span>
+                                  : <span className='noPermission'>暂无</span>
                               }
                             </div>
                           </div>
@@ -499,7 +515,7 @@ class ResourceModal extends Component {
           let arr = [];
           res.data.map( item => arr.push(item.name));
           this.setState({
-            treeName: arr,
+            treeNames: arr,
           })
         },
         isAsync: true
@@ -518,7 +534,7 @@ class ResourceModal extends Component {
           let arr = [];
           res.data.services.map( item => arr.push(item.service.metadata.name));
           this.setState({
-            treeName: arr,
+            treeNames: arr,
           })
         },
         isAsync: true
@@ -537,7 +553,7 @@ class ResourceModal extends Component {
           let arr = [];
           res.data.map( item => arr.push(item.metadata.generateName));
           this.setState({
-            treeName: arr,
+            treeNames: arr,
           })
         },
         isAsync: true
@@ -553,7 +569,7 @@ class ResourceModal extends Component {
           let arr = [];
           res.data.map( item => arr.push(item.name));
           this.setState({
-            treeName: arr,
+            treeNames: arr,
           })
         },
         isAsync: true,
@@ -568,7 +584,7 @@ class ResourceModal extends Component {
           let arr = [];
           res.data.map( item => arr.push(item.name));
           this.setState({
-            treeName: arr,
+            treeNames: arr,
           })
         },
         isAsync: true,
@@ -577,7 +593,7 @@ class ResourceModal extends Component {
   }
 
   componentDidMount = () => {
-    this.props.PermissionResource({}, {
+    this.props.PermissionResource({
       success: {
         func: res => {
           this.setState({
@@ -600,7 +616,11 @@ class ResourceModal extends Component {
 }
 
 function mapStateToSecondProp(state, props) {
-  return {}
+  const { role } = state
+  const { permissionOverview } = role
+  return {
+    permissionOverview
+  }
 }
 export default ResourceModal = connect(mapStateToSecondProp, {
   PermissionResource,
