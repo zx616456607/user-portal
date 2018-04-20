@@ -423,12 +423,15 @@ let ConfigureService = React.createClass({
     }, ASYNC_VALIDATOR_TIMEOUT)
   },
   checkTempName (rule, value, callback) {
-    const { appTemplateNameCheck } = this.props
+    const { appTemplateNameCheck, isTemplate, location, mode } = this.props
+    const { query } = location
     let errorMsg = templateNameCheck(value)
     if (errorMsg !== 'success') {
       return callback(errorMsg)
     }
-    // return callback()
+    if (isTemplate && query.template && (mode === 'edit')) {
+      return callback()
+    }
     clearTimeout(this.templateNameCheckTimeout)
     this.templateNameCheckTimeout = setTimeout(() => {
       appTemplateNameCheck(value, {

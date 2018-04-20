@@ -32,7 +32,7 @@ export function fetchStorageList(pool, cluster, query, callback) {
 export function loadStorageList(pool, cluster, query, callback) {
   return (dispath, getState) => {
     const state = getState().storage.storageList
-    dispath(fetchStorageList(pool, cluster, query, callback))
+    return dispath(fetchStorageList(pool, cluster, query, callback))
   }
 }
 

@@ -13,6 +13,7 @@
 import * as ActionTypes from '../actions/role'
 import * as ActionTypesPermission from '../actions/permission'
 import merge from 'lodash/merge'
+import isEmpty from 'lodash/isEmpty'
 
 function roleList(state = {}, action){
   switch(action.type){
@@ -110,7 +111,19 @@ function formatOverview(result) {
         permissionList: innerValue
       })
     }
-    value.acls.resourceList = resourceList
+    const regexList = []
+    value.acls.regex.forEach(item => {
+      const repeatArr = value.acls.regex.filter(res => res.filter === item.filter)
+      const flag = regexList.some(res => res.name === item.filter)
+      if (!flag) {
+        regexList.push({
+          name: item.filter,
+          isReg: true,
+          permissionList: repeatArr.map(item => item)
+        })
+      }
+    })
+    value.acls.resourceList = resourceList.concat(regexList)
   }
   return result
 }
