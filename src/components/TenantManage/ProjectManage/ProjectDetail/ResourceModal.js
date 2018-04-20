@@ -45,12 +45,40 @@ class ResourceModal extends Component {
     originalMembers: [],
     deleteMembers: [],
     leftSelableNames: [],
+    leftShowNames: [],
     rightSeledNames: [],
+    rightShowNames: [],
     leftValue: '',
     rightValue: '',
     sourceData: [],
     currPRO: [],
     permissionKeys: [],
+  }
+  resetState = () =>{
+    this.setState({
+      currentStep: 0,
+      confirmLoading: false,
+      RadioValue: 'regex',
+      regex: "",
+      checkedKeys: [],
+      outPermissionInfo: [],
+      alreadyCheckedKeys: [],
+      permissionInfo: [],
+      disableCheckArr:[],
+      alreadyAllChecked: false,
+      originalMembers: [],
+      deleteMembers: [],
+      leftSelableNames: [],
+      leftShowNames: [],
+      rightSeledNames: [],
+      rightShowNames: [],
+      leftValue: '',
+      rightValue: '',
+      sourceData: [],
+      currPRO: {},
+      permissionKeys: [],
+    });
+    currType = "";
   }
   nextStep = () => {
     let b = false;
@@ -95,6 +123,7 @@ class ResourceModal extends Component {
             })
             notify.success('授权成功');
             !!this.props.onOk && this.props.onOk();
+            !!this.props.onCancel && this.props.onCancel();
             this.resetState();
           },
           isAsync: true
@@ -145,58 +174,40 @@ class ResourceModal extends Component {
     this.props.onCancel();
     this.resetState();
   }
-  resetState = () =>{
-    this.setState({
-      currentStep: 0,
-      confirmLoading: false,
-      RadioValue: 'regex',
-      regex: "",
-      checkedKeys: [],
-      outPermissionInfo: [],
-      alreadyCheckedKeys: [],
-      permissionInfo: [],
-      disableCheckArr:[],
-      alreadyAllChecked: false,
-      originalMembers: [],
-      deleteMembers: [],
-      leftSelableNames: [],
-      leftShowNames: [],
-      rightSeledNames: [],
-      rightShowNames: [],
-      leftValue: '',
-      rightValue: '',
-      sourceData: [],
-      currPRO: {},
-      permissionKeys: [],
-    });
-    currType = "";
-  }
   onRadioChange = (e) => {
     this.setState({
       RadioValue: e.target.value
     })
   }
 
-  addCheckNames = () => {
-    const { checkedKeys, rightSeledNames, leftSelableNames } = this.state
-    let res = _.cloneDeep(leftSelableNames);
+  addCheckNames = () => {debugger
+    const { checkedKeys, rightSeledNames, leftShowNames, leftSelableNames } = this.state
+    let res = _.cloneDeep(leftSelableNames);//左侧剩余 (总 names)
     checkedKeys.map(item => res = _.without(res, item));
     this.setState({
       rightSeledNames: [].concat(rightSeledNames, checkedKeys),
+      rightShowNames: [].concat(rightSeledNames, checkedKeys),
       leftSelableNames: res,
+      leftShowNames: res,
       alreadyCheckedKeys: [],
+      leftValue: "",
+      rightValue: "",
       checkedKeys: [],
     })
   }
 
   removeCheckNames = () => {
-    const { alreadyCheckedKeys, rightSeledNames, leftSelableNames } = this.state
+    const { alreadyCheckedKeys, rightSeledNames, leftSelableNames, rightShowNames } = this.state
     let res = _.cloneDeep(rightSeledNames);
     alreadyCheckedKeys.map(item => res = _.without(res, item));
     this.setState({
       leftSelableNames: [].concat(leftSelableNames, alreadyCheckedKeys),
+      leftShowNames: [].concat(leftSelableNames, alreadyCheckedKeys),
       rightSeledNames: res,
+      rightShowNames: res,
       alreadyCheckedKeys: [],
+      leftValue: "",
+      rightValue: "",
       checkedKeys: [],
     })
   }
@@ -204,7 +215,7 @@ class ResourceModal extends Component {
   selectAllSel = (e) => {
     if(e.target.checked){
       this.setState({
-        alreadyCheckedKeys: this.state.rightSeledNames,
+        alreadyCheckedKeys: this.state.rightShowNames,
       })
     }
     if(!e.target.checked){
@@ -216,7 +227,7 @@ class ResourceModal extends Component {
   selectAll = (e) => {
     if(e.target.checked){
       this.setState({
-        checkedKeys: this.state.leftSelableNames,
+        checkedKeys: this.state.leftShowNames,
       })
     }
     if(!e.target.checked){
@@ -268,7 +279,44 @@ class ResourceModal extends Component {
       alreadyCheckedKeys:keys,
     });
   }
-
+  onRightSearchChange = (rightValue) => {debugger
+    this.setState({rightValue}, () => {
+      let temp = _.cloneDeep(this.state.rightSeledNames);
+      let resNames = [];
+      if(rightValue === ""){
+        resNames = temp;
+      }else{
+        temp.map((item) => {
+          if(item.indexOf(rightValue) > -1){
+            resNames.push(item);
+          }
+        });
+      }
+      console.log(resNames);
+      this.setState({
+        rightShowNames: resNames
+      });
+    });
+  }
+  onLeftSearchChange = (leftValue) => {
+    this.setState({leftValue}, () => {
+      let temp = _.cloneDeep(this.state.leftSelableNames);
+      let resNames = [];
+      if(leftValue === ""){
+        resNames = temp;
+      }else{
+        temp.map((item) => {
+          if(item.indexOf(leftValue) > -1){
+            resNames.push(item);
+          }
+        });
+      }
+      console.log(resNames);
+      this.setState({
+        leftShowNames: resNames
+      });
+    });
+  }
   render(){
     const footer = (() => {
       return (
@@ -287,7 +335,8 @@ class ResourceModal extends Component {
       )
     })();
     const filterUser = "";
-    const { disableCheckArr, alreadyAllChecked, leftSelableNames, leftValue, rightValue, rightSeledNames, checkedKeys, alreadyCheckedKeys, currPRO, permissionKeys } = this.state;
+    const { disableCheckArr, alreadyAllChecked, leftSelableNames, leftValue, rightValue, rightSeledNames,
+      checkedKeys, alreadyCheckedKeys, currPRO, permissionKeys, leftShowNames, rightShowNames } = this.state;
 
     const loopFunc = data => data.length >0 && data.map((name, i) => {
       return <TreeNode key={name} title={name} disableCheckbox={disableCheckArr.indexOf(`${name}`) > -1}/>;
@@ -336,21 +385,21 @@ class ResourceModal extends Component {
                       <Col span="10">
                         <div className='leftBox'>
                           <div className='header'>
-                            <Checkbox checked={checkedKeys.toString() === leftSelableNames.toString() && leftSelableNames.toString() !== ""} onClick={this.selectAll}>可选</Checkbox>
-                            <div className='numberBox'>共 <span className='number'>{leftSelableNames.length}</span> 条</div>
+                            <Checkbox checked={checkedKeys.toString() === leftShowNames.toString() && leftShowNames.toString() !== ""} onClick={this.selectAll}>可选</Checkbox>
+                            <div className='numberBox'>共 <span className='number'>{leftShowNames.length}</span> 条</div>
                           </div>
                           <CommonSearchInput
                             getOption={this.getSelected}
                             onSearch={filterUser}
                             placeholder='请输入搜索内容'
                             value={leftValue}
-                            onChange={(leftValue) => this.setState({leftValue})}
+                            onChange={(leftValue) => this.onLeftSearchChange(leftValue)}
                             style={{width: '90%', margin: '10px auto', display: 'block'}}/>
                           <hr className="underline"/>
                           <div className='body'>
                             <div>
                               {
-                                leftSelableNames.length
+                                leftShowNames.length
                                   ? <Tree
                                   checkable
                                   onExpand={this.onExpand}
@@ -358,7 +407,7 @@ class ResourceModal extends Component {
                                   checkedKeys={this.state.checkedKeys}
                                   key="tree"
                                 >
-                                  {loopFunc(leftSelableNames)}
+                                  {loopFunc(leftShowNames)}
                                 </Tree>
                                   : <span className='noPermission'>暂无</span>
                               }
@@ -381,28 +430,28 @@ class ResourceModal extends Component {
                       <Col span="10">
                         <div className='rightBox'>
                           <div className='header'>
-                            <Checkbox onClick={this.selectAllSel} checked={alreadyCheckedKeys.toString() === rightSeledNames.toString() && rightSeledNames.toString() !== ""}>已选</Checkbox>
-                            <div className='numberBox'>共 <span className='number'>{rightSeledNames.length}</span> 条</div>
+                            <Checkbox onClick={this.selectAllSel} checked={alreadyCheckedKeys.toString() === rightShowNames.toString() && rightShowNames.toString() !== ""}>已选</Checkbox>
+                            <div className='numberBox'>共 <span className='number'>{rightShowNames.length}</span> 条</div>
                           </div>
                           <CommonSearchInput
                             placeholder="请输入搜索内容"
                             style={{width: '90%', margin: '10px auto', display: 'block'}}
                             onSearch={this.filterPermission}
                             value={rightValue}
-                            onChange={(rightValue) => this.setState({rightValue})}
+                            onChange={(rightValue) => this.onRightSearchChange(rightValue)}
                           />
                           <hr className="underline"/>
                           <div className='body'>
                             <div>
                               {
-                                rightSeledNames.length
+                                rightShowNames.length
                                   ? <Tree
                                   checkable multiple
                                   onCheck={this.onAlreadyCheck}
                                   checkedKeys={this.state.alreadyCheckedKeys}
                                   key={this.state.rightTreeKey}
                                 >
-                                  {loop(rightSeledNames)}
+                                  {loop(rightShowNames)}
                                 </Tree>
                                   : <span className='noPermission'>暂无</span>
                               }
@@ -491,6 +540,7 @@ class ResourceModal extends Component {
           });
           this.setState({
             leftSelableNames: arr,
+            leftShowNames: arr,
           })
         },
         isAsync: true
@@ -514,6 +564,7 @@ class ResourceModal extends Component {
           });
           this.setState({
             leftSelableNames: arr,
+            leftShowNames: arr,
           })
         },
         isAsync: true
@@ -537,6 +588,7 @@ class ResourceModal extends Component {
           });
           this.setState({
             leftSelableNames: arr,
+            leftShowNames: arr,
           })
         },
         isAsync: true
@@ -557,6 +609,7 @@ class ResourceModal extends Component {
           });
           this.setState({
             leftSelableNames: arr,
+            leftShowNames: arr,
           })
         },
         isAsync: true,
@@ -576,6 +629,7 @@ class ResourceModal extends Component {
           });
           this.setState({
             leftSelableNames: arr,
+            leftShowNames: arr,
           })
         },
         isAsync: true,
