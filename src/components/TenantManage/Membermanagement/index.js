@@ -672,9 +672,6 @@ class Membermanagement extends Component {
     this.setState({
       visible: true,
     })
-    setTimeout(function () {
-      document.getElementById('newUser').focus()
-    }, 500);
   }
   loadData( query = {} ) {
     const { loadUserList } = this.props
