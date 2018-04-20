@@ -34,7 +34,7 @@ class ResourceModal extends Component {
   state={
     currentStep: 0,
     confirmLoading: false,
-    RadioValue: 'regex',
+    RadioValue: 'fixed',
     regex: "",
     checkedKeys: [],
     outPermissionInfo: [],
@@ -85,7 +85,14 @@ class ResourceModal extends Component {
     const { RadioValue, regex, rightSeledNames } = this.state
     if(RadioValue === "regex") {
       if(regex !== ""){
-        b = true;
+        let regex = this.props.permissionOverview[this.props.currResourceType].acls.regex;
+        let temp = _.filter(regex, {filter: this.state.regex, filterType: "regex"})[0];
+        if(!!temp){
+          document.getElementById("permissionRegex").focus();
+          notify.info('已存在该正则表达式, 请重新输入');
+        }else{
+          b = true;
+        }
       }else{
         notify.info('请输入表达式');
       }
@@ -378,7 +385,7 @@ class ResourceModal extends Component {
                 <div className="">
                 <RadioGroup onChange={this.onRadioChange} value={this.state.RadioValue}>
                   <Radio key="a" value="regex">通过表达式选择资源( 可包含后续新建的资源 )</Radio>
-                  <div className="panel"><Input onChange={this.onReguxChange} placeholder="填写正则表达式, 筛选资源" value={this.state.regex} /></div>
+                  <div className="panel"><Input id="permissionRegex" onChange={this.onReguxChange} placeholder="填写正则表达式, 筛选资源" value={this.state.regex} /></div>
                   <Radio key="b" value="fixed">直接选择资源</Radio>
                   <div className="panel">
                     <Row>
