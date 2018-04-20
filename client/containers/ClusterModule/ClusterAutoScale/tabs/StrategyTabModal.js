@@ -165,7 +165,7 @@ class Tab2Modal extends React.Component {
             failed: {
               func: err => {
                 const { statusCode, message } = err
-                notify.warn(`更新配置 ${params.name} 失败，错误代码: ${statusCode}，${message.message}`);
+                notify.warn(`更新配置 ${params.name} 失败，错误代码: ${statusCode}，${message}`);
                 this.setState({
                   submitLoading: false,
                 });
@@ -196,7 +196,7 @@ class Tab2Modal extends React.Component {
             failed: {
               func: err => {
                 const { statusCode, message } = err;
-                notify.warn(`新建配置 ${params.name} 失败，错误代码: ${statusCode}，${message.message}`);
+                notify.warn(`新建配置 ${params.name} 失败，错误代码: ${statusCode}，${message}`);
                 this.setState({
                   submitLoading: false,
                 });

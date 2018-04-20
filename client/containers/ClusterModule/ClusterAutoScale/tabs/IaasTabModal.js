@@ -319,6 +319,47 @@ class Tab1Modal extends React.Component {
     updateTimer = null;
     addTimer = null;
   }
+  addClass = (ele, cls) => {
+    if (!this.hasClass(ele, cls)) {
+      ele.className = ele.className == '' ? cls : ele.className + ' ' + cls;
+    }
+  }
+
+  removeClass = (ele, cls) => {
+    if (this.hasClass(ele, cls)) {
+      var newClass = ' ' + ele.className.replace(/[\t\r\n]/g, '') + ' ';
+      while (newClass.indexOf(' ' + cls + ' ') >= 0) {
+        newClass = newClass.replace(' ' + cls + ' ', ' ');
+      }
+      ele.className = newClass.replace(/^\s+|\s+$/g, '');
+    }
+  }
+  hasClass = (ele, cls) => {
+    cls = cls || '';
+    if (cls.replace(/\s/g, '').length == 0) return false; //当cls没有参数时，返回false
+    return new RegExp(' ' + cls + ' ').test(' ' + ele.className + ' ');
+  }
+  setClass = (e) => {
+    let wapper = e.target.parentElement.parentElement.parentElement.parentElement;
+    if(!!!parseInt(e.target.value)){
+      this.addClass(wapper, "has-error");
+    }
+    else{
+      this.removeClass(wapper, "has-error");
+    }
+  }
+  minChange = (e) => {
+    this.setClass(e)
+  }
+  minBlur = (e) => {
+    this.setClass(e)
+  }
+  maxChange = (e) => {
+    this.setClass(e)
+  }
+  maxBlur = (e) => {
+    this.setClass(e)
+  }
   render(){
     const { clusterList, isModalFetching,
       getData, isGetFormData,
@@ -332,7 +373,7 @@ class Tab1Modal extends React.Component {
     max= "",
     min= "",
     name= "",
-    removeAndDelete= "",
+    removeAndDelete= "0",
     resourcePoolPath= "",
     templatePath= "";//默认值 edit时存放行数据
     if(this.props.visible && isGetParams){
@@ -573,7 +614,7 @@ class Tab1Modal extends React.Component {
                                 <Row className="jiedianContainer" key="row7">
                                   <div className="ant-col-6 ant-form-item-label"><label>伸缩节点数量</label></div>
                                   <div className="ant-col-14">
-                                    <FormItem labelCol={{ span: 24}} wrapperCol={{ span: 14 }}
+                                    <FormItem className="unitWapper" labelCol={{ span: 24}} wrapperCol={{ span: 14 }}
                                       label="最少保留"
                                     >
                                       <div className="min">
@@ -582,32 +623,39 @@ class Tab1Modal extends React.Component {
                                             <Icon style={{marginLeft: "5px", cursor: "pointer"}} type="info-circle-o" />
                                           </Tooltip>
                                         </div>*/}
-                                        <div className="formItem">
+                                        <div className="mmItem">
                                           <Input {...getFieldProps('min', { initialValue: min,
                                             validate: [{
                                               rules: [
                                                 { required: true, message: '请输入最少保留数' },
                                               ],
                                               trigger: ['onBlur', 'onChange'] ,
-                                            }], })} className="item" placeholder="1" /><span className="unit">个</span>
+                                            }],
+                                            onChange: this.minChange,
+                                            onBlur: this.minBlur,
+                                            })} className="item" placeholder="1" />
                                         </div>
                                       </div>
+                                      <span className="unit">个</span>
                                     </FormItem>
-                                    <FormItem labelCol={{ span: 24 }} wrapperCol={{ span: 14 }}
+                                    <FormItem className="unitWapper" labelCol={{ span: 24 }} wrapperCol={{ span: 14 }}
                                       label="最大拓展"
                                     >
                                       <div className="max">
                                         {/*<div className="name">最大节点数</div>*/}
-                                        <div className="formItem">
+                                        <div className="mmItem">
                                           <Input {...getFieldProps('max', { initialValue: max,
                                             validate: [{
                                               rules: [
                                                 { required: true, message: '请输入最大拓展数' },
                                               ],
                                               trigger: ['onBlur', 'onChange'] ,
-                                            }], })} className="item" placeholder="1" /><span className="unit">个</span>
+                                            }],
+                                            onChange: this.maxChange,
+                                            onBlur: this.maxBlur,})} className="item" placeholder="1" />
                                         </div>
                                       </div>
+                                      <span className="unit">个</span>
                                     </FormItem>
                                   </div>
                                   <Row className="rowtext" key="rowtext">

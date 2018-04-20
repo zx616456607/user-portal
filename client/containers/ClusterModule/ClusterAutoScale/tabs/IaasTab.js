@@ -104,19 +104,20 @@ class Tab1 extends React.Component {
         this.props.deleteApp({ cluster: this.state.currentData.cluster }, {
           success: {
             func: () => {
-              notify.success(`策略 ${this.state.currentData.name} 删除成功`);
-                //刷新列表
+              //刷新列表
               this.loadData();
               common();
+              notify.success(`策略 ${this.state.currentData.name} 删除成功`);
             },
             isAsync: true,
           },
           failed: {
             func: err => {
               const { statusCode, message } = err;
-              notify.warn(`删除策略 ${this.state.currentData.name} 失败，错误代码: ${statusCode}， ${message.message}`);
               common();
+              notify.warn(`删除策略 ${this.state.currentData.name} 失败，错误代码: ${statusCode}， ${message}`);
             },
+            isAsync: true,
           }
         });
     })
@@ -388,12 +389,15 @@ class Tab1 extends React.Component {
       'sliderIn': !this.state.isShowTab1List,
       'hidden': this.state.isShowTab1List,
     });
-    let total = tableData.length;
     const currentData = this.state.currentData;
     const isbtnDisabled = !!!this.state.selectedRowKeys.length;
+    let total = tableData.length;
     if(!!appList){
       tableData = appList;
       total = appList.length;
+    }else{
+      tableData = [];
+      total = 0;
     }
     let loglen = 0,linelist = <div style={{ textAlign: 'center' }}>暂无数据</div>;
     if(!!logList && logList.log){

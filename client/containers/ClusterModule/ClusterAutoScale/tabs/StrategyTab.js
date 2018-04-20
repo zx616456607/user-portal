@@ -67,6 +67,7 @@ class Tab2 extends React.Component {
         this.setState({
           deleteLoading: false,
         });
+        return;
       }
       this.loadData();
       notify.close();
@@ -208,6 +209,9 @@ class Tab2 extends React.Component {
       tableData = this.props.serverList;
       total = this.props.serverList.length;
       allClusterIds = this.props.serverList.map( item => item.cluster );
+    }else{
+      tableData = [];
+      total = 0;
     }
     const func = {
       scope: this,
