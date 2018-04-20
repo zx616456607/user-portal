@@ -1019,7 +1019,7 @@ class ProjectDetail extends Component {
     const clusterMenu = (
       <Menu onClick={this.changeCluster}>
         {
-          clusterList.map(item => {
+          !!clusterList && clusterList.length > 0 && clusterList.map(item => {
             return (
               <Menu.Item key={item.clusterID}>
                 {item.clusterName}
@@ -1362,13 +1362,17 @@ class ProjectDetail extends Component {
               />
             }
           </Modal>
-          <ResourceModal
-            visible={this.state.isShowResourceModal}
-            onCancel={this.closeResourceModal}
-            currResourceType={this.state.currResourceType}
-            scope={this}
-            onOk={this.getPermissionOverview}
-          />
+          {
+            this.state.isShowResourceModal ?
+            <ResourceModal
+              visible={this.state.isShowResourceModal}
+              onCancel={this.closeResourceModal}
+              currResourceType={this.state.currResourceType}
+              scope={this}
+              onOk={this.getPermissionOverview}
+            />
+            : null
+          }
 
           <div className="projectMember">
             <Tabs className="clearfix connectCard" defaultActiveKey={this.state.tabsKey}>
@@ -1408,7 +1412,7 @@ class ProjectDetail extends Component {
                         <span className="title">该角色权限</span>
                         <Dropdown overlay={clusterMenu} trigger={['click']}>
                           <a className="ant-dropdown-link" href="#">
-                            {(clusterList || []).filter(item => item.clusterID === selectedCluster)[0].clusterName} <Icon type="down" />
+                            {!!clusterList && clusterList.length > 0 &&  clusterList.filter(item => item.clusterID === selectedCluster)[0].clusterName} <Icon type="down" />
                           </a>
                         </Dropdown>
                         <span className="desc">{this.state.currpermissionPolicyType === 1 ? "所有资源统一授权" : "指定资源授权"}</span>
