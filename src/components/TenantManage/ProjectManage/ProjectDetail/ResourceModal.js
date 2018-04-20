@@ -11,30 +11,31 @@
 import React, { Component } from 'react'
 import { Modal, Button, Row, Col, Radio, Transfer, Input, Checkbox, Tree } from 'antd'
 import { connect } from 'react-redux'
-import { PermissionResource } from '../../../../actions/permission'
+import { PermissionResource, setPermission } from '../../../../actions/permission'
 import { loadAppList } from '../../../../actions/app_manage'
 import { loadAllServices } from '../../../../actions/services'
 import { loadContainerList } from '../../../../actions/app_manage'
 import { DEFAULT_IMAGE_POOL } from '../../../../constants'
 import { loadStorageList } from '../../../../actions/storage'
 import { loadConfigGroup } from '../../../../actions/configs'
+import Notification from '../../../../components/Notification'
 import xor from 'lodash/xor'
 import intersection from 'lodash/intersection'
 import './style/ResourceModal.less'
 import CommonSearchInput from '../../../CommonSearchInput'
 import _ from 'lodash'
 
+const notify = new Notification()
 const RadioGroup = Radio.Group;
 const TreeNode = Tree.TreeNode;
-let isGetpr = true, currType = "";
+let currType = "";
 
 class ResourceModal extends Component {
   state={
     currentStep: 0,
     confirmLoading: false,
-    RadioValue: 1,
-    mockData: [],
-    targetKeys: [],
+    RadioValue: 'regex',
+    regex: "",
     checkedKeys: [],
     outPermissionInfo: [],
     alreadyCheckedKeys: [],
@@ -43,17 +44,35 @@ class ResourceModal extends Component {
     alreadyAllChecked: false,
     originalMembers: [],
     deleteMembers: [],
-    treeNames: [],
-    selNames: [],
+    leftSelableNames: [],
+    rightSeledNames: [],
     leftValue: '',
     rightValue: '',
     sourceData: [],
     currPRO: [],
+    permissionKeys: [],
   }
   nextStep = () => {
-    this.setState({
-      currentStep: 1
-    })
+    let b = false;
+    const { RadioValue, regex, rightSeledNames } = this.state
+    if(RadioValue === "regex") {
+      if(regex !== ""){
+        b = true;
+      }else{
+        notify.info('请输入表达式');
+      }
+    }else if( RadioValue === "fixed" ){
+      if(rightSeledNames.toString() === ""){
+        notify.info('请选择资源');
+      } else{
+        b = true;
+      }
+    }
+    if(b){
+      this.setState({
+        currentStep: 1
+      })
+    }
   }
   returnStep = () => {
     this.setState({
@@ -61,47 +80,143 @@ class ResourceModal extends Component {
     })
   }
   formSubmit = () => {
+    if(this.state.permissionKeys.length < 1)
+    {notify.info('请选择权限');return;}
     this.setState({
       confirmLoading: true,
-    })
+    }, () => {
+      const params = this.getParams();
+      this.props.setPermission(params, {
+        success: {
+          func: (res) => {
+            console.log(res);
+            this.setState({
+              confirmLoading: false
+            })
+            notify.success('授权成功');
+            !!this.props.onOk && this.props.onOk();
+            this.resetState();
+          },
+          isAsync: true
+        },
+        failed: {
+          func: res => {
+            notify.error('授权失败');
+            this.setState({
+              confirmLoading: false
+            })
+          },
+          isAsync: true
+        }
+      })
+    });
+  }
+  getParams = () => {
+    const obj = {
+      permissionId: 0,
+      roleId: this.props.scope.state.currentRoleInfo.id,
+      clusterId: this.props.scope.state.selectedCluster,
+      filterType: "",  // regex - 正则匹配
+      policyType: "white",
+      filter: ""  // 由于 filterType == "regex"，所以这个字段是个正则表达式，前端需要验证一下正则表达式是否是符合语法的正则表达式
+    };
+    let res = [], _that = this;
+    this.state.permissionKeys.map((item) => {
+      let temp = _.cloneDeep(obj);
+      temp.permissionId = Number(item);
+      temp.filterType = _that.state.RadioValue;
+      temp.filter = _that.state.RadioValue === "regex" ? _that.state.regex : "";
+      res.push(temp);
+    });
+    if(this.state.RadioValue === "fixed"){
+      let tempRes = _.cloneDeep(res);
+      res = [];
+      this.state.rightSeledNames.map( (name) => {
+        for(let i = 0; i < tempRes.length; i++){
+          tempRes[i].filter = name;
+          res.push(tempRes[i]);
+        }
+      })
+    }
+    console.log(res);
+    return res;
   }
   modalCancel = () => {
     this.props.onCancel();
+    this.resetState();
+  }
+  resetState = () =>{
     this.setState({
       currentStep: 0,
       confirmLoading: false,
-    })
+      RadioValue: 'regex',
+      regex: "",
+      checkedKeys: [],
+      outPermissionInfo: [],
+      alreadyCheckedKeys: [],
+      permissionInfo: [],
+      disableCheckArr:[],
+      alreadyAllChecked: false,
+      originalMembers: [],
+      deleteMembers: [],
+      leftSelableNames: [],
+      leftShowNames: [],
+      rightSeledNames: [],
+      rightShowNames: [],
+      leftValue: '',
+      rightValue: '',
+      sourceData: [],
+      currPRO: {},
+      permissionKeys: [],
+    });
+    currType = "";
   }
   onRadioChange = (e) => {
     this.setState({
       RadioValue: e.target.value
     })
   }
-  getMock = () => {
-    const targetKeys = [];
-    const mockData = [];
-    for (let i = 0; i < 20; i++) {
-      const data = {
-        key: i,
-        title: `内容${i + 1}`,
-        description: `内容${i + 1}的描述`,
-        chosen: Math.random() * 2 > 1,
-      };
-      if (data.chosen) {
-        targetKeys.push(data.key);
-      }
-      mockData.push(data);
-    }
-    this.setState({ mockData, targetKeys });
+
+  addCheckNames = () => {
+    const { checkedKeys, rightSeledNames, leftSelableNames } = this.state
+    let res = _.cloneDeep(leftSelableNames);
+    checkedKeys.map(item => res = _.without(res, item));
+    this.setState({
+      rightSeledNames: [].concat(rightSeledNames, checkedKeys),
+      leftSelableNames: res,
+      alreadyCheckedKeys: [],
+      checkedKeys: [],
+    })
   }
-  handleChange(targetKeys, direction, moveKeys) {
-    console.log(targetKeys, direction, moveKeys);
-    this.setState({ targetKeys });
+
+  removeCheckNames = () => {
+    const { alreadyCheckedKeys, rightSeledNames, leftSelableNames } = this.state
+    let res = _.cloneDeep(rightSeledNames);
+    alreadyCheckedKeys.map(item => res = _.without(res, item));
+    this.setState({
+      leftSelableNames: [].concat(leftSelableNames, alreadyCheckedKeys),
+      rightSeledNames: res,
+      alreadyCheckedKeys: [],
+      checkedKeys: [],
+    })
   }
-  selectAll = () => {
+
+  selectAllSel = (e) => {
     if(e.target.checked){
       this.setState({
-        checkedKeys: arr,
+        alreadyCheckedKeys: this.state.rightSeledNames,
+      })
+    }
+    if(!e.target.checked){
+      this.setState({
+        alreadyCheckedKeys: [],
+      })
+    }
+  }
+  selectAll = (e) => {
+    if(e.target.checked){
+      this.setState({
+        checkedKeys: this.state.leftSelableNames,
       })
     }
     if(!e.target.checked){
@@ -110,209 +225,50 @@ class ResourceModal extends Component {
       })
     }
   }
-  getSelected = () => {
 
+  selectPermissionAll = (e) => {
+    if(e.target.checked){
+      this.setState({
+        permissionKeys: this.state.currPRO[this.props.currResourceType].map( item => item.permissionId.toString() ),
+      })
+    }
+    if(!e.target.checked){
+      this.setState({
+        permissionKeys: [],
+      })
+    }
   }
-  onExpand = () => {
-
+  onReguxChange = (e) => {
+    let b = true;
+    try{
+      new RegExp(e.target.value)
+    }catch(e){
+     console.log('无效正则')
+     b = false;
+    }
+    this.setState({
+      regex: e.target.value,
+    });
+    if(!b){ e.target.focus();
+      notify.info('表达式输入有误, 请验证后输入表达式');
+    }
   }
   onTreeCheck = (keys) => {
     this.setState({
       checkedKeys:keys,
     });
   }
-  removePerssion = () => {
-
-  }
-  alreadySelectAll = () => {
-
-  }
-  filterPermission = () => {
-
-  }
-  transformMultiArrayToLinearArray = data => {
-    let LinearArray = []
-    for (let i = 0; i < data.length; i++) {
-      LinearArray.push(data[i])
-      if (data[i].children) {
-        for (let j = 0; j < data[i].children.length; j++) {
-          LinearArray.push(data[i].children[j])
-        }
-      }
-    }
-    return LinearArray
-  }
-  findParentNode(permissList,checkedKeys) {
-    let parentKey = []
-    let addKey = []
-    for (let j = 0; j < checkedKeys.length; j++) {
-      for (let i = 0; i < permissList.length; i++) {
-        if ((checkedKeys[j] === `${permissList[i].id}`) && permissList[i].parent) {
-          parentKey.push(permissList[i].parent)
-        }
-      }
-    }
-    for (let i = 0; i < parentKey.length; i++) {
-      let flag = false
-      for (let j = 0; j < permissList.length; j++) {
-        if (permissList[j].id === parentKey[i]) {
-          let branch = permissList[j].children
-          flag = branch.every(item => {
-            return checkedKeys.indexOf(`${item.id}`) > -1
-          })
-        }
-      }
-      if (flag) {
-        addKey.push(parentKey[i])
-      }
-    }
-    return addKey
-  }
-  deleteRepeatPermission = data => {
-    let arr = []
-    for(let i = 0; i < data.length; i++){
-      let repeat = false
-      for(let j = 0; j < arr.length; j++){
-        if(data[i].id === arr[j].id){
-          repeat = true
-          break
-        }
-      }
-      if(!repeat){
-        arr.push(data[i])
-      }
-    }
-    return arr
-  }
-  stringToNumber(arr) {
-    let newArr = []
-    arr.forEach(item => {
-      newArr.push(Number(item))
-    })
-    return newArr
-  }
-  isReadyCheck = () => {
-    const { permissionInfo, alreadyCheckedKeys} = this.state;
-    if ((permissionInfo.length > 0) && (alreadyCheckedKeys.length > 0) && (permissionInfo.length === alreadyCheckedKeys.length)) {
-      this.setState({
-        alreadyAllChecked: true
-      })
-    } else {
-      this.setState({
-        alreadyAllChecked: false
-      })
-    }
-  }
-  addPermission = () => {
-    const { checkedKeys, outPermissionInfo,selNames, originalMembers, permissionInfo, treeNames, sourceData } = this.state
-    let newOutPermissionInfo = _.cloneDeep(selNames)
-    let uniqCheckedKeys = Array.from(new Set(checkedKeys))
-    let diff = xor(uniqCheckedKeys,originalMembers);
-    let newCheck = intersection(uniqCheckedKeys,diff)
-    if(!checkedKeys.length) return
-    let permissList = this.transformMultiArrayToLinearArray(newOutPermissionInfo)
-    let arr = []
-    let per = treeNames.slice(0)
-    let alreadyCheck = []
-    let rightCheck = []
-    let addKey = this.findParentNode(permissList,uniqCheckedKeys)
-    //左侧穿梭框选中状态
-    for(let i = 0; i < uniqCheckedKeys.length; i++){
-      for(let j = 0; j < permissList.length; j++){
-        let id = typeof permissList[j].id === 'number' ? `${permissList[j].id}` : permissList[j].id
-        if(id === uniqCheckedKeys[i]){
-          if (typeof permissList[j].id === 'number') {
-            per.unshift(permissList[j])
-            rightCheck.push(id)
-          }
-          arr.push(id)
-        }
-      }
-    }
-    //右侧穿梭框状态
-    for(let i = 0; i < newCheck.length; i++){
-      for(let j = 0; j < sourceData.length; j++){
-        let id = typeof sourceData[j].id === 'number' ? `${sourceData[j].id}` : sourceData[j].id
-        if(id === newCheck[i]){
-          if (typeof sourceData[j].id === 'number') {
-            // per.unshift(permissList[j])
-            alreadyCheck.push(id)
-          }
-        }
-      }
-    }
-    let withParent = Array.from(new Set(arr.concat(addKey)))
-    per = this.deleteRepeatPermission(per)
-    let alreadySet = new Set(alreadyCheck);
-    alreadyCheck = Array.from(alreadySet)
-    let toNumber = this.stringToNumber(Array.from(new Set(rightCheck.concat(originalMembers))))
+  onPermissionCheck = (keys) => {
     this.setState({
-      checkedKeys:withParent,
-      disableCheckArr:withParent,
-      permissionInfo:per,
-      treeNames: per,
-      alreadyCheckedKeys:alreadyCheck
-    },()=>{
-      this.isReadyCheck()
-    })
-
+      permissionKeys:keys,
+    });
   }
-
-  removePerssion = () => {
-    const { alreadyCheckedKeys, permissionInfo, outPermissionInfo,selNames,treeNames, disableCheckArr, checkedKeys } = this.state
-    let oldPermissonInfo = _.cloneDeep(permissionInfo)
-    let newPermissonInfo = _.cloneDeep(treeNames)
-    let newOutPermissionInfo = this.transformMultiArrayToLinearArray(_.cloneDeep(selNames))
-    if(!alreadyCheckedKeys.length) return
-    let oldArr = []
-    let backArr = []
-    let oldStayKey = []
-    let newArr = []
-    let newStayKey = []
-    for(let i = 0; i < newOutPermissionInfo.length; i++) {
-      for(let j = 0; j < alreadyCheckedKeys.length; j++) {
-        if(`${newOutPermissionInfo[i].id}` === alreadyCheckedKeys[j]) {
-          backArr.push(`${newOutPermissionInfo[i].id}`)
-          if (newOutPermissionInfo[i].parent) {
-            backArr.push(newOutPermissionInfo[i].parent)
-          }
-        }
-      }
-    }
-    for (let i = 0; i < oldPermissonInfo.length; i++) {
-      let flag = false;
-      for (let j = 0; j < alreadyCheckedKeys.length; j++) {
-        if (`${oldPermissonInfo[i].id}` === alreadyCheckedKeys[j]) {
-          flag = true
-        }
-      }
-      if (!flag) {
-        oldArr.push(oldPermissonInfo[i])
-        oldStayKey.push(oldPermissonInfo[i].id)
-      }
-    }
-    for (let i = 0; i < newPermissonInfo.length; i++) {
-      let flag = false;
-      for (let j = 0; j < alreadyCheckedKeys.length; j++) {
-        if (`${newPermissonInfo[i].id}` === alreadyCheckedKeys[j]) {
-          flag = true
-        }
-      }
-      if (!flag) {
-        newArr.push(newPermissonInfo[i])
-        newStayKey.push(newPermissonInfo[i].id)
-      }
-    }
+  onAlreadyCheck = (keys) => {
     this.setState({
-      permissionInfo: oldArr,
-      treeNames: newArr,
-      alreadyCheckedKeys: [],
-      disableCheckArr:difference(disableCheckArr,backArr),
-      checkedKeys:difference(checkedKeys,backArr)
-    },()=>{
-      this.isReadyCheck()
-    })
+      alreadyCheckedKeys:keys,
+    });
   }
+
   render(){
     const footer = (() => {
       return (
@@ -324,31 +280,29 @@ class ResourceModal extends Component {
               :
               [
               <Button type="primary" onClick={this.returnStep}>上一步</Button>,
-              <Button type="primary" onClick={this.formSubmit} loading={this.props.confirmLoading}>保存</Button>
+              <Button type="primary" onClick={this.formSubmit} loading={this.state.confirmLoading}>保存</Button>
               ]
           }
         </div>
       )
     })();
-    const selectProps = {
-      defaultValue: '成员',
-      selectOptions : [{
-        key: 'user',
-        value: '成员'
-      }, {
-        key: 'team',
-        value: '团队'
-      }]
-    }
     const filterUser = "";
-    const { disableCheckArr, alreadyAllChecked, treeNames, leftValue, rightValue, selNames } = this.state;
+    const { disableCheckArr, alreadyAllChecked, leftSelableNames, leftValue, rightValue, rightSeledNames, checkedKeys, alreadyCheckedKeys, currPRO, permissionKeys } = this.state;
 
     const loopFunc = data => data.length >0 && data.map((name, i) => {
-      return <TreeNode key={i} title={name} disableCheckbox={disableCheckArr.indexOf(`${name}`) > -1}/>;
+      return <TreeNode key={name} title={name} disableCheckbox={disableCheckArr.indexOf(`${name}`) > -1}/>;
     });
     const loop = data => data.map((name, i) => {
-      return <TreeNode key={i} title={name}/>;
+      return <TreeNode key={name} title={name}/>;
     });
+    const loopPermission = data => data.map((item, i) => {
+      return <TreeNode key={item.permissionId} title={item.name}/>;
+    });
+
+    let permission = [];
+    if(currPRO.toString() !== "{}" && !!currPRO[this.props.currResourceType]){
+      permission = currPRO[this.props.currResourceType];
+    }
     return (
       <Modal
         visible={this.props.visible}
@@ -374,22 +328,21 @@ class ResourceModal extends Component {
               <Col span={21}>
                 <div className="">
                 <RadioGroup onChange={this.onRadioChange} value={this.state.RadioValue}>
-                  <Radio key="a" value="regux">通过表达式选择资源( 可包含后续新建的资源 )</Radio>
-                  <div className="panel"><Input placeholder="填写正则表达式, 筛选资源" /></div>
+                  <Radio key="a" value="regex">通过表达式选择资源( 可包含后续新建的资源 )</Radio>
+                  <div className="panel"><Input onChange={this.onReguxChange} placeholder="填写正则表达式, 筛选资源" value={this.state.regex} /></div>
                   <Radio key="b" value="fixed">直接选择资源</Radio>
                   <div className="panel">
                     <Row>
                       <Col span="10">
                         <div className='leftBox'>
                           <div className='header'>
-                            <Checkbox onClick={this.selectAll}>可选</Checkbox>
-                            <div className='numberBox'>共 <span className='number'>{treeNames.length}</span> 条</div>
+                            <Checkbox checked={checkedKeys.toString() === leftSelableNames.toString() && leftSelableNames.toString() !== ""} onClick={this.selectAll}>可选</Checkbox>
+                            <div className='numberBox'>共 <span className='number'>{leftSelableNames.length}</span> 条</div>
                           </div>
                           <CommonSearchInput
                             getOption={this.getSelected}
                             onSearch={filterUser}
                             placeholder='请输入搜索内容'
-                            selectProps={selectProps}
                             value={leftValue}
                             onChange={(leftValue) => this.setState({leftValue})}
                             style={{width: '90%', margin: '10px auto', display: 'block'}}/>
@@ -397,7 +350,7 @@ class ResourceModal extends Component {
                           <div className='body'>
                             <div>
                               {
-                                treeNames.length
+                                leftSelableNames.length
                                   ? <Tree
                                   checkable
                                   onExpand={this.onExpand}
@@ -405,7 +358,7 @@ class ResourceModal extends Component {
                                   checkedKeys={this.state.checkedKeys}
                                   key="tree"
                                 >
-                                  {loopFunc(treeNames)}
+                                  {loopFunc(leftSelableNames)}
                                 </Tree>
                                   : <span className='noPermission'>暂无</span>
                               }
@@ -415,11 +368,11 @@ class ResourceModal extends Component {
                       </Col>
                       <Col span="4">
                         <div className='middleBox'>
-                          <Button size='small' onClick={this.removePerssion}>
+                          <Button size='small' onClick={this.removeCheckNames}>
                             <i className="fa fa-angle-left" aria-hidden="true" style={{ marginRight: '8px'}}/>
                             移除
                           </Button>
-                          <Button size='small' className='add' onClick={this.addPermission}>
+                          <Button size='small' className='add' onClick={this.addCheckNames}>
                             添加
                             <i className="fa fa-angle-right" aria-hidden="true" style={{ marginLeft: '8px'}}/>
                           </Button>
@@ -428,8 +381,8 @@ class ResourceModal extends Component {
                       <Col span="10">
                         <div className='rightBox'>
                           <div className='header'>
-                            <Checkbox onClick={this.alreadySelectAll} checked={alreadyAllChecked}>已选</Checkbox>
-                            <div className='numberBox'>共 <span className='number'>{selNames.length}</span> 条</div>
+                            <Checkbox onClick={this.selectAllSel} checked={alreadyCheckedKeys.toString() === rightSeledNames.toString() && rightSeledNames.toString() !== ""}>已选</Checkbox>
+                            <div className='numberBox'>共 <span className='number'>{rightSeledNames.length}</span> 条</div>
                           </div>
                           <CommonSearchInput
                             placeholder="请输入搜索内容"
@@ -442,14 +395,14 @@ class ResourceModal extends Component {
                           <div className='body'>
                             <div>
                               {
-                                selNames.length
+                                rightSeledNames.length
                                   ? <Tree
                                   checkable multiple
                                   onCheck={this.onAlreadyCheck}
                                   checkedKeys={this.state.alreadyCheckedKeys}
                                   key={this.state.rightTreeKey}
                                 >
-                                  {loop(selNames)}
+                                  {loop(rightSeledNames)}
                                 </Tree>
                                   : <span className='noPermission'>暂无</span>
                               }
@@ -466,12 +419,30 @@ class ResourceModal extends Component {
           </div>
           :
           <div className="step2">
-            <Transfer
-              dataSource={this.state.mockData}
-              targetKeys={this.state.targetKeys}
-              onChange={this.handleChange}
-              render={item => item.title}
-            />
+            <Row id="TreeForPermission">
+              <Col span={3}><div className="title">选择权限</div></Col>
+              <Col span={21}>
+                <div className='leftBox'>
+                  <div className='header'>
+                    <Checkbox onClick={this.selectPermissionAll}><div className='numberBox'>共 <span className='number'>{permission.length}</span> 条</div></Checkbox>
+                    <div className='numberBox floatRight'>已选 <span className='number'>{permissionKeys.length}</span> 条</div>
+                  </div>
+                  <div className='body'>
+                    <div>
+                    <Tree
+                      checkable multiple
+                      onCheck={this.onPermissionCheck}
+                      checkedKeys={permissionKeys}
+                      key="permissionTree"
+                    >
+                      {loopPermission(permission)}
+                    </Tree>
+                    </div>
+                  </div>
+                </div>
+
+              </Col>
+            </Row>
           </div>
         }
       </Modal>
@@ -508,14 +479,18 @@ class ResourceModal extends Component {
     const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time" }
     const scope = this.props.scope;
     //scope.props.projectClusters
-    this.props.loadAppList(scope.props.projectClusters[0].clusterID, query, {
+    this.props.loadAppList(scope.state.selectedCluster, query, {
       success: {
         func: (res) => {
           console.log(res)
           let arr = [];
-          res.data.map( item => arr.push(item.name));
+          res.data.map( (item) => {
+            let fixed = this.props.permissionOverview[this.props.currResourceType].acls.fixed;
+            if(fixed[item.name]) return;
+            arr.push(item.name)
+          });
           this.setState({
-            treeNames: arr,
+            leftSelableNames: arr,
           })
         },
         isAsync: true
@@ -527,14 +502,18 @@ class ResourceModal extends Component {
     const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time" }
     const scope = this.props.scope;
     //scope.props.projectClusters
-    this.props.loadAllServices(scope.props.projectClusters[0].clusterID, query, {
+    this.props.loadAllServices(scope.state.selectedCluster, query, {
       success: {
         func: (res) => {
           console.log(res)
           let arr = [];
-          res.data.services.map( item => arr.push(item.service.metadata.name));
+          res.data.services.map( (item) => {
+            let fixed = this.props.permissionOverview[this.props.currResourceType].acls.fixed;
+            if(fixed[item.service.metadata.name]) return;
+            arr.push(item.service.metadata.name)
+          });
           this.setState({
-            treeNames: arr,
+            leftSelableNames: arr,
           })
         },
         isAsync: true
@@ -546,14 +525,18 @@ class ResourceModal extends Component {
     const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time" }
     const scope = this.props.scope;
     //scope.props.projectClusters
-    this.props.loadContainerList(scope.props.projectClusters[0].clusterID, query, {
+    this.props.loadContainerList(scope.state.selectedCluster, query, {
       success: {
         func: (res) => {
           console.log(res)
           let arr = [];
-          res.data.map( item => arr.push(item.metadata.generateName));
+          res.data.map( (item) => {
+            let fixed = this.props.permissionOverview[this.props.currResourceType].acls.fixed;
+            if(fixed[item.metadata.generateName]) return;
+            arr.push(item.metadata.generateName)
+          });
           this.setState({
-            treeNames: arr,
+            leftSelableNames: arr,
           })
         },
         isAsync: true
@@ -563,13 +546,17 @@ class ResourceModal extends Component {
   loadStorageList = () => {
     const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time",storagetype: "ceph", srtype: "private" }
     const scope = this.props.scope;
-    this.props.loadStorageList(DEFAULT_IMAGE_POOL, scope.props.projectClusters[0].clusterID, query, {
+    this.props.loadStorageList(DEFAULT_IMAGE_POOL, scope.state.selectedCluster, query, {
       success: {
         func: (res) => {
           let arr = [];
-          res.data.map( item => arr.push(item.name));
+          res.data.map( (item) => {
+            let fixed = this.props.permissionOverview[this.props.currResourceType].acls.fixed;
+            if(fixed[item.name]) return;
+            arr.push(item.name)
+          });
           this.setState({
-            treeNames: arr,
+            leftSelableNames: arr,
           })
         },
         isAsync: true,
@@ -578,13 +565,17 @@ class ResourceModal extends Component {
   }
   loadConfigGroup() {
     const scope = this.props.scope;
-    this.props.loadConfigGroup(scope.props.projectClusters[0].clusterID, {
+    this.props.loadConfigGroup(scope.state.selectedCluster, {
       success: {
         func: (res) => {
           let arr = [];
-          res.data.map( item => arr.push(item.name));
+          res.data.map( (item) => {
+            let fixed = this.props.permissionOverview[this.props.currResourceType].acls.fixed;
+            if(fixed[item.name]) return;
+            arr.push(item.name)
+          });
           this.setState({
-            treeNames: arr,
+            leftSelableNames: arr,
           })
         },
         isAsync: true,
@@ -606,7 +597,7 @@ class ResourceModal extends Component {
         func: res => {
           notification.error(`获取资源列表失败`)
           this.setState({
-            currPRO: []
+            currPRO: {}
           })
         },
         isAsync: true
@@ -624,6 +615,7 @@ function mapStateToSecondProp(state, props) {
 }
 export default ResourceModal = connect(mapStateToSecondProp, {
   PermissionResource,
+  setPermission,
   loadAppList,
   loadAllServices,
   loadContainerList,

@@ -459,9 +459,6 @@ class ProjectDetail extends Component {
                       },
                     })
                   }
-                  if(permissionPolicyType === 2){
-                    permissionOverview({roleId: id})
-                  }
                 })
                 if(permissionPolicyType === 2){
                   permissionOverview({roleId: id, clusterId: selectedCluster})
