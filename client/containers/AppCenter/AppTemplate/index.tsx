@@ -267,7 +267,7 @@ const mapStateToProps = state => {
   const { appTemplates, quickCreateApp } = state;
   const { templates } = appTemplates;
   const { data: templateData, isFetching } = templates || { data: {} };
-  const { data: templateList, total } = templateData || { data: [], total: 1 };
+  const { data: templateList, total } = templateData || { data: [], total: 0 };
   return {
     templateList,
     total,
