@@ -444,6 +444,7 @@ class Tab1Modal extends React.Component {
     return (
       <div>
         <Modal
+          className="aotuScalerModal"
           visible={this.props.visible}
           title="弹性伸缩策略"
           width="550"
