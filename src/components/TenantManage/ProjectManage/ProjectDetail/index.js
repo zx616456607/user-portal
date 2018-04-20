@@ -813,41 +813,6 @@ class ProjectDetail extends Component {
       </div>
     )
   }
-  getPerPanels = () => {
-    let res = [];
-    const columns = (() => {
-      return [{
-        title: '服务名称',
-        dataIndex: 'name',
-        width: 100,
-      },
-      {
-        title: '授权操作',
-        width: 100,
-        render: function(text, rowData){
-          return (
-            <div> <a className="">删除授权</a><a className="rightA">管理权限</a> </div>
-          )
-        },
-      }
-    ]
-    })();
-    _.forIn(this.state.currPRO, (value, key) => {
-      res.push(
-        <Collapse>
-          <Panel header={this.getPanelHeader(key)}>
-            <div className='btnContainer'>
-              <Button type="primary" size="large" icon="plus" onClick={() => this.editPermission(key)}>编辑权限</Button>
-            </div>
-            <div className='reset_antd_table_header'>
-              <Table columns={columns} dataSource={value} />
-            </div>
-          </Panel>
-        </Collapse>
-      )
-    });
-    return res;
-  }
   editPermission = (currResourceType) => {
     this.setState({
       currResourceType: currResourceType,
@@ -1050,10 +1015,6 @@ class ProjectDetail extends Component {
     items = (
       <div className="nodata">暂无成员</div>
     )
-    let perPanels = null;
-    if(this.state.currpermissionPolicyType === 2 && !!this.state.currPRO){
-      perPanels = this.getPerPanels(this.state.currPRO);
-    }
 
     const clusterMenu = (
       <Menu onClick={this.changeCluster}>
