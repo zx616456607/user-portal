@@ -362,7 +362,7 @@ class Tab1 extends React.Component {
         width: 100,
         render: function(text, rowData){
           const menu = (
-            <Menu onClick={(e) => {_that.dropDown(e.key, rowData)}}>
+            <Menu className='tab1DropdownMenu' onClick={(e) => {_that.dropDown(e.key, rowData)}}>
               <Menu.Item key="changeStatus">{ rowData.status === "on" ? "停用" : "启用"}</Menu.Item>
               {/*<Menu.Item key="clone">克隆</Menu.Item>*/}
               <Menu.Item key="del">删除</Menu.Item>
