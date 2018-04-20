@@ -20,7 +20,7 @@ function configGroupList(state = {}, action) {
     [cluster]: {
       isFetching: false,
       cluster,
-      configGroup: {}
+      configGroup: []
     }
   }
   switch (action.type) {
