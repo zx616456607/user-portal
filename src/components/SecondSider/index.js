@@ -111,7 +111,7 @@ export default class SecondSider extends Component {
         return (
           <Menu.Item key={'secondSider' + index}>
             <div onClick={item.onClick}>
-              <Link to={item.url}>{item.name}</Link>
+            {item.name}
             </div>
           </Menu.Item>
         )
