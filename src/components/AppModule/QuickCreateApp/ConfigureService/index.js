@@ -429,7 +429,7 @@ let ConfigureService = React.createClass({
     if (errorMsg !== 'success') {
       return callback(errorMsg)
     }
-    if (isTemplate && query.template && (mode === 'edit')) {
+    if (mode === 'edit' || (query.action && query.action === 'addTemplate')) {
       return callback()
     }
     clearTimeout(this.templateNameCheckTimeout)

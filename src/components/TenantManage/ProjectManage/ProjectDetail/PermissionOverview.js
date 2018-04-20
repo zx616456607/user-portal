@@ -332,7 +332,11 @@ class PermissionOverview extends React.Component{
         title: '授权操作',
         width: '50%',
         render: (_, record) => {
-          const currentPermission = value.acls.fixed[record.name]
+          let currentPermission = value.acls.fixed[record.name]
+          if (record.isReg) {
+            currentPermission = value.acls.resourceList.filter(item => item.name === record.name)[0].permissionList
+          }
+
           return (
             <div>
               <Popover placement="right" trigger="click"
