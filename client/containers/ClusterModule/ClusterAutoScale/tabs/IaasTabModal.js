@@ -444,6 +444,7 @@ class Tab1Modal extends React.Component {
     return (
       <div>
         <Modal
+          className="aotuScalerModal"
           visible={this.props.visible}
           title="弹性伸缩策略"
           width="550"
@@ -570,10 +571,10 @@ class Tab1Modal extends React.Component {
                             <div>
                               <div className="panel">
                                 <Row className="jiedianContainer" key="row7">
-                                  <div className="ant-col-6 ant-form-item-label"><label>节点数量</label></div>
+                                  <div className="ant-col-6 ant-form-item-label"><label>伸缩节点数量</label></div>
                                   <div className="ant-col-14">
                                     <FormItem labelCol={{ span: 24}} wrapperCol={{ span: 14 }}
-                                      label="最小节点数"
+                                      label="最少保留"
                                     >
                                       <div className="min">
                                         {/*<div className="name">
@@ -585,7 +586,7 @@ class Tab1Modal extends React.Component {
                                           <Input {...getFieldProps('min', { initialValue: min,
                                             validate: [{
                                               rules: [
-                                                { required: true, message: '最小节点数' },
+                                                { required: true, message: '请输入最少保留数' },
                                               ],
                                               trigger: ['onBlur', 'onChange'] ,
                                             }], })} className="item" placeholder="1" /><span className="unit">个</span>
@@ -593,7 +594,7 @@ class Tab1Modal extends React.Component {
                                       </div>
                                     </FormItem>
                                     <FormItem labelCol={{ span: 24 }} wrapperCol={{ span: 14 }}
-                                      label="最大节点数"
+                                      label="最大拓展"
                                     >
                                       <div className="max">
                                         {/*<div className="name">最大节点数</div>*/}
@@ -601,7 +602,7 @@ class Tab1Modal extends React.Component {
                                           <Input {...getFieldProps('max', { initialValue: max,
                                             validate: [{
                                               rules: [
-                                                { required: true, message: '最大节点数' },
+                                                { required: true, message: '请输入最大拓展数' },
                                               ],
                                               trigger: ['onBlur', 'onChange'] ,
                                             }], })} className="item" placeholder="1" /><span className="unit">个</span>

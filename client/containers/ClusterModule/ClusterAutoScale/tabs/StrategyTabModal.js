@@ -265,6 +265,7 @@ class Tab2Modal extends React.Component {
     const password = !!this.props.currData ? this.props.currData["password"] : ''
     return (
       <Modal
+        className="aotuScalerModal"
         visible={this.props.visible}
         onOk={this.onTab2ModalOk}
         onCancel={this.onCancel}
