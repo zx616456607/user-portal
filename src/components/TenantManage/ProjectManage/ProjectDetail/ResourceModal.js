@@ -75,7 +75,6 @@ class ResourceModal extends Component {
       leftValue: '',
       rightValue: '',
       sourceData: [],
-      currPRO: {},
       permissionKeys: [],
     });
     currType = "";
@@ -504,33 +503,33 @@ class ResourceModal extends Component {
       </Modal>
     )
   }
-  componentWillReceiveProps = (next) => {
-    if(next.currResourceType !== currType){
-      currType = next.currResourceType;
-      switch (currType){
-        case "application":
-          //console.log("application");
-          this.loadApplist();
-          break;
-        case "service":
-          this.loadAllServices();
-          //console.log("service");
-          break;
-        case "container":
-          this.loadContainerList();
-          //console.log("container");
-          break;
-        case "volume":
-          this.loadStorageList();
-          //console.log("volume");
-          break;
-        case "configuration":
-          this.loadConfigGroup();
-          //console.log("configuration");
-          break;
-      }
-    }
-  }
+  // componentWillReceiveProps = (next) => {
+  //   if(next.currResourceType !== currType){
+  //     currType = next.currResourceType;
+  //     switch (currType){
+  //       case "application":
+  //         //console.log("application");
+  //         this.loadApplist();
+  //         break;
+  //       case "service":
+  //         this.loadAllServices();
+  //         //console.log("service");
+  //         break;
+  //       case "container":
+  //         this.loadContainerList();
+  //         //console.log("container");
+  //         break;
+  //       case "volume":
+  //         this.loadStorageList();
+  //         //console.log("volume");
+  //         break;
+  //       case "configuration":
+  //         this.loadConfigGroup();
+  //         //console.log("configuration");
+  //         break;
+  //     }
+  //   }
+  // }
   loadApplist = () => {
     const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time" }
     const scope = this.props.scope;
@@ -664,6 +663,28 @@ class ResourceModal extends Component {
         isAsync: true
       },
     })
+    switch (this.props.currResourceType){
+      case "application":
+        //console.log("application");
+        this.loadApplist();
+        break;
+      case "service":
+        this.loadAllServices();
+        //console.log("service");
+        break;
+      case "container":
+        this.loadContainerList();
+        //console.log("container");
+        break;
+      case "volume":
+        this.loadStorageList();
+        //console.log("volume");
+        break;
+      case "configuration":
+        this.loadConfigGroup();
+        //console.log("configuration");
+        break;
+    }
   }
 }
 
