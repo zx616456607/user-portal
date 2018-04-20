@@ -315,8 +315,6 @@ class AppTemplate extends React.Component<IProps, IState> {
         this.setState({
           goBackVisible: true,
         });
-        this.stepChange(0);
-        browserHistory.push('/app_center/template/create');
         return;
       }
     }
