@@ -1,7 +1,10 @@
-.step1{
+.step1, .step2{
   font-size: 14px;
   padding-top: 20px;
   color: #999;
+  .numberBox{
+    font-size: 14px;
+  }
   .title{
     padding: 0px 20px 20px 0;
   }
@@ -16,7 +19,17 @@
     }
   }
 }
-#TreeForResource{
+#TreeForPermission .leftBox .body {
+  height: 250px !important;
+  li a{
+    color: #999 !important;
+    font-size: 13px;
+  }
+}
+#TreeForResource, #TreeForPermission{
+  .floatRight{
+    float: right;
+  }
   .leftBox,
   .rightBox{
     height:295px;
@@ -42,7 +55,8 @@
         display: inline-block;
         width: 100%;
         text-align: center;
-        margin-top: 115px;
+        margin: 50% 0 0 50%;
+        transform: translate(-50% , -50%);
       }
     }
     .underline{
