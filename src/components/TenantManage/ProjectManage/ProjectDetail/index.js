@@ -13,7 +13,7 @@ import classNames from 'classnames';
 import './style/ProjectDetail.less'
 import {
   Row, Col, Button, Input, Table, Collapse, Card, Icon, Modal, Checkbox, Tooltip,
-  Transfer, InputNumber, Tree, Alert, Form, Tabs, Popover, Select
+  Transfer, InputNumber, Tree, Alert, Form, Tabs, Popover, Select, Dropdown, Menu
  } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link } from 'react-router'
@@ -408,6 +408,16 @@ class ProjectDetail extends Component {
       }
     });
   };
+
+  getPermissionOverview = () => {
+    const { permissionOverview } = this.props
+    const { currentRoleInfo, selectedCluster } = this.state
+    permissionOverview({
+      roleId: currentRoleInfo.id,
+      clusterId: selectedCluster
+    })
+  }
+
   getCurrentRole(id) {
     if (!id) return
     const { GetRole, roleWithMembers, permissionOverview, PermissionResource } = this.props;
@@ -461,7 +471,7 @@ class ProjectDetail extends Component {
                   }
                 })
                 if(permissionPolicyType === 2){
-                  permissionOverview({roleId: id, clusterId: selectedCluster})
+                  this.getPermissionOverview()
                   PermissionResource()
                 }
               }
@@ -850,9 +860,9 @@ class ProjectDetail extends Component {
     })
   }
 
-  changeCluster = value => {
+  changeCluster = e => {
     this.setState({
-      selectedCluster: value
+      selectedCluster: e.key
     })
   }
   render() {
@@ -1044,6 +1054,20 @@ class ProjectDetail extends Component {
     if(this.state.currpermissionPolicyType === 2 && !!this.state.currPRO){
       perPanels = this.getPerPanels(this.state.currPRO);
     }
+
+    const clusterMenu = (
+      <Menu onClick={this.changeCluster}>
+        {
+          clusterList.map(item => {
+            return (
+              <Menu.Item key={item.clusterID}>
+                {item.clusterName}
+              </Menu.Item>
+            )
+          })
+        }
+      </Menu>
+    )
     return (
       <QueueAnim>
         <div key='projectDetailBox' className="projectDetailBox">
@@ -1382,6 +1406,7 @@ class ProjectDetail extends Component {
             onCancel={this.closeResourceModal}
             currResourceType={this.state.currResourceType}
             scope={this}
+            onOk={this.getPermissionOverview}
           />
 
           <div className="projectMember">
@@ -1418,7 +1443,15 @@ class ProjectDetail extends Component {
                       }
                     </div>
                     <div className="permissionContainer">
-                      <div className="titleContainer"><span className="title">该角色权限</span><span className="desc">{this.state.currpermissionPolicyType === 1 ? "所有资源统一授权" : "指定资源授权"}</span></div>
+                      <div className="titleContainer">
+                        <span className="title">该角色权限</span>
+                        <Dropdown overlay={clusterMenu} trigger={['click']}>
+                          <a className="ant-dropdown-link" href="#">
+                            {(clusterList || []).filter(item => item.clusterID === selectedCluster)[0].clusterName} <Icon type="down" />
+                          </a>
+                        </Dropdown>
+                        <span className="desc">{this.state.currpermissionPolicyType === 1 ? "所有资源统一授权" : "指定资源授权"}</span>
+                      </div>
 
                       <div className="bottom-line"></div>
                       {
@@ -1469,29 +1502,14 @@ class ProjectDetail extends Component {
                         </div>
                         :
                         <div className="type2">
-                          <div className="clusterSelectBox">
-                            <span className="clusterSelectLabel">集群</span>
-                            <Select showSearch
-                              style={{ width: 200 }}
-                              placeholder="请选择集群"
-                              optionFilterProp="children"
-                              notFoundContent="无法找到"
-                              onChange={this.changeCluster}
-                              value={selectedCluster}
-                            >
-                              {
-                                (clusterList || []).map(item =>
-                                  <Option key={item.clusterID}>{item.clusterName}</Option>
-                                )
-                              }
-                            </Select>
-                          </div>
                           <div className="hint">该角色成员可操作的资源</div>
                           <div className="panelStyle">
                             {/* {perPanels} */}
                             <PermissionOverview
                               clusterID={selectedCluster}
+                              roleId={currentRoleInfo.id}
                               openPermissionModal={this.editPermission}
+                              callback={this.getPermissionOverview}
                             />
                           </div>
                         </div>

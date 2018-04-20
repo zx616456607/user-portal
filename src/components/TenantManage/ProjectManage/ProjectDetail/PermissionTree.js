@@ -14,7 +14,6 @@ import { Table, Collapse, Button, Row, Col, Popover } from 'antd'
 import CheckboxTree from 'react-checkbox-tree';
 import { loadAppList } from '../../../../actions/app_manage'
 import 'react-checkbox-tree/lib/react-checkbox-tree.css';
-import './style/PermissionTree.less'
 
 export default class PermissionTree extends React.Component {
 
@@ -41,12 +40,19 @@ export default class PermissionTree extends React.Component {
   }
 
   getTrees = (type, data, record) => {
+    const { onChange } = this.props
     const { operations, acls } = data
     const { fixed } = acls
     const parentNode = this.formatType(type)
+    const expanded = [type]
     const children = []
-    const currentPermission = fixed[record.name]
+    let currentPermission
 
+    if (!record.isReg) {
+      currentPermission = acls.fixed[record.name]
+    } else {
+      currentPermission = acls.resourceList.filter(item => item.name === record.name)[0].permissionList
+    }
     for(let [key, value] of Object.entries(operations)) {
       children.push({
         value: String(value.permissionId),
@@ -54,16 +60,26 @@ export default class PermissionTree extends React.Component {
       })
     }
     const nodes = [{
-      value: parentNode,
+      value: type,
       label: parentNode,
       children
     }]
 
     const checked = currentPermission.map(item => String(item.permissionId))
+
+    onChange(checked)
+
     this.setState({
       nodes,
-      checked
+      checked,
+      expanded
     })
+  }
+
+  onCheck = checked => {
+    const { onChange } = this.props
+    this.setState({ checked })
+    onChange(checked)
   }
 
   componentDidMount() {
@@ -76,11 +92,10 @@ export default class PermissionTree extends React.Component {
 
     return (
       <CheckboxTree
-        className="permissionTree"
         nodes={nodes}
         checked={this.state.checked}
         expanded={this.state.expanded}
-        onCheck={checked => this.setState({ checked })}
+        onCheck={this.onCheck}
         onExpand={expanded => this.setState({ expanded })}
       />
     );
