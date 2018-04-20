@@ -124,7 +124,7 @@ class ResourceModal extends Component {
       this.props.setPermission(params, {
         success: {
           func: (res) => {
-            console.log(res);
+            //console.log(res);
             this.setState({
               confirmLoading: false
             })
@@ -174,7 +174,7 @@ class ResourceModal extends Component {
         }
       })
     }
-    console.log(res);
+    //console.log(res);
     return res;
   }
   modalCancel = () => {
@@ -187,7 +187,7 @@ class ResourceModal extends Component {
     })
   }
 
-  addCheckNames = () => {debugger
+  addCheckNames = () => {
     const { checkedKeys, rightSeledNames, leftShowNames, leftSelableNames } = this.state
     let res = _.cloneDeep(leftSelableNames);//左侧剩余 (总 names)
     checkedKeys.map(item => res = _.without(res, item));
@@ -261,7 +261,7 @@ class ResourceModal extends Component {
     try{
       new RegExp(e.target.value)
     }catch(e){
-     console.log('无效正则')
+     //console.log('无效正则')
      b = false;
     }
     this.setState({
@@ -286,7 +286,7 @@ class ResourceModal extends Component {
       alreadyCheckedKeys:keys,
     });
   }
-  onRightSearchChange = (rightValue) => {debugger
+  onRightSearchChange = (rightValue) => {
     this.setState({rightValue}, () => {
       let temp = _.cloneDeep(this.state.rightSeledNames);
       let resNames = [];
@@ -299,7 +299,7 @@ class ResourceModal extends Component {
           }
         });
       }
-      console.log(resNames);
+      //console.log(resNames);
       this.setState({
         rightShowNames: resNames
       });
@@ -318,7 +318,7 @@ class ResourceModal extends Component {
           }
         });
       }
-      console.log(resNames);
+      //console.log(resNames);
       this.setState({
         leftShowNames: resNames
       });
@@ -509,24 +509,24 @@ class ResourceModal extends Component {
       currType = next.currResourceType;
       switch (currType){
         case "application":
-          console.log("application");
+          //console.log("application");
           this.loadApplist();
           break;
         case "service":
           this.loadAllServices();
-          console.log("service");
+          //console.log("service");
           break;
         case "container":
           this.loadContainerList();
-          console.log("container");
+          //console.log("container");
           break;
         case "volume":
           this.loadStorageList();
-          console.log("volume");
+          //console.log("volume");
           break;
         case "configuration":
           this.loadConfigGroup();
-          console.log("configuration");
+          //console.log("configuration");
           break;
       }
     }
@@ -538,7 +538,7 @@ class ResourceModal extends Component {
     this.props.loadAppList(scope.state.selectedCluster, query, {
       success: {
         func: (res) => {
-          console.log(res)
+          //console.log(res)
           let arr = [];
           res.data.map( (item) => {
             let fixed = this.props.permissionOverview[this.props.currResourceType].acls.fixed;
@@ -562,7 +562,7 @@ class ResourceModal extends Component {
     this.props.loadAllServices(scope.state.selectedCluster, query, {
       success: {
         func: (res) => {
-          console.log(res)
+          //console.log(res)
           let arr = [];
           res.data.services.map( (item) => {
             let fixed = this.props.permissionOverview[this.props.currResourceType].acls.fixed;
@@ -586,7 +586,7 @@ class ResourceModal extends Component {
     this.props.loadContainerList(scope.state.selectedCluster, query, {
       success: {
         func: (res) => {
-          console.log(res)
+          //console.log(res)
           let arr = [];
           res.data.map( (item) => {
             let fixed = this.props.permissionOverview[this.props.currResourceType].acls.fixed;
