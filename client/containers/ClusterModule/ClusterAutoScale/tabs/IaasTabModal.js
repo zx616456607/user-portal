@@ -231,7 +231,7 @@ class Tab1Modal extends React.Component {
   }
   checkCluster = () => {
     let b = true;
-    if(!!!this.state.selectValue){
+    if(!isEdit && !!!this.state.selectValue){
       notify.warn('请选择容器集群');
       b = false;
     }
@@ -266,11 +266,25 @@ class Tab1Modal extends React.Component {
   formSubmit = () => {
     const form1Data = this.state.form1Data;
     this.props.form.validateFields((errors, values) => {
+      let b = true;
       if (!!errors) {
         console.log('Errors in form!!!');
         // this.setState({
         //   currentStep: 0,
         // })
+        b = false;
+      }
+      const min = document.getElementById("min");
+      const max = document.getElementById("max");
+      if(min.value === ""){
+        this.setClassByEle(min);
+        b = false;
+      }
+      if(max.value === ""){
+        this.setClassByEle(min);
+        b = false;
+      }
+      if(!b){
         return;
       }
       console.log('Submit!!!');
@@ -339,9 +353,18 @@ class Tab1Modal extends React.Component {
     if (cls.replace(/\s/g, '').length == 0) return false; //当cls没有参数时，返回false
     return new RegExp(' ' + cls + ' ').test(' ' + ele.className + ' ');
   }
-  setClass = (e) => {
+  setClass = (e, type) => {
     let wapper = e.target.parentElement.parentElement.parentElement.parentElement;
     if(!!!parseInt(e.target.value)){
+      this.addClass(wapper, "has-error");
+    }
+    else{
+      this.removeClass(wapper, "has-error");
+    }
+  }
+  setClassByEle = (e) => {
+    let wapper = e.parentElement.parentElement.parentElement.parentElement;
+    if(!!!parseInt(e.value)){
       this.addClass(wapper, "has-error");
     }
     else{
@@ -624,7 +647,7 @@ class Tab1Modal extends React.Component {
                                           </Tooltip>
                                         </div>*/}
                                         <div className="mmItem">
-                                          <Input {...getFieldProps('min', { initialValue: min,
+                                          <Input id="minInput" {...getFieldProps('min', { initialValue: min,
                                             validate: [{
                                               rules: [
                                                 { required: true, message: '请输入最少保留数' },
@@ -644,7 +667,7 @@ class Tab1Modal extends React.Component {
                                       <div className="max">
                                         {/*<div className="name">最大节点数</div>*/}
                                         <div className="mmItem">
-                                          <Input {...getFieldProps('max', { initialValue: max,
+                                          <Input id="maxInput" {...getFieldProps('max', { initialValue: max,
                                             validate: [{
                                               rules: [
                                                 { required: true, message: '请输入最大拓展数' },
