@@ -410,17 +410,40 @@ class ProjectDetail extends Component {
   };
 
   getPermissionOverview = () => {
-    const { permissionOverview } = this.props
+    const { permissionOverview, location } = this.props
     const { currentRoleInfo, selectedCluster } = this.state
     permissionOverview({
       roleId: currentRoleInfo.id,
-      clusterId: selectedCluster
+      clusterId: selectedCluster,
+      headers: {
+        project: location.query.name
+      }
     })
   }
 
+  getPermissionResource = () => {
+    const { PermissionResource, currentRoleInfo, location } = this.props
+    const headers = { project: location.query.name }
+    PermissionResource(headers, {
+      success: {
+        func: res => {
+          this.setState({
+            currPRO: res.data
+          })
+        },
+      },
+      failed: {
+        func: res => {
+          this.setState({
+            currPRO: []
+          })
+        },
+      },
+    })
+  }
   getCurrentRole(id) {
     if (!id) return
-    const { GetRole, roleWithMembers, permissionOverview, PermissionResource } = this.props;
+    const { GetRole, roleWithMembers, PermissionResource } = this.props;
     const { projectDetail, selectedCluster } = this.state;
     checkedKeysDetail.length = 0;
     let permissionPolicyType = 1;
@@ -449,31 +472,10 @@ class ProjectDetail extends Component {
                   currpermissionPolicyType: permissionPolicyType,
                 }, () => {
                   if(permissionPolicyType === 2){
-                    PermissionResource({
-                      success: {
-                        func: res => {
-                          this.setState({
-                            currPRO: res.data
-                          })
-                        },
-                        isAsync: true
-                      },
-                      failed: {
-                        func: res => {
-                          notification.error(`获取资源列表失败`)
-                          this.setState({
-                            currPRO: []
-                          })
-                        },
-                        isAsync: true
-                      },
-                    })
+                    this.getPermissionResource()
+                    this.getPermissionOverview()
                   }
                 })
-                if(permissionPolicyType === 2){
-                  this.getPermissionOverview()
-                  PermissionResource()
-                }
               }
             },
             isAsync: true
@@ -1471,6 +1473,7 @@ class ProjectDetail extends Component {
                           <div className="panelStyle">
                             {/* {perPanels} */}
                             <PermissionOverview
+                              project={location.query.name}
                               clusterID={selectedCluster}
                               roleId={currentRoleInfo.id}
                               openPermissionModal={this.editPermission}

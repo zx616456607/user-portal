@@ -23,8 +23,13 @@ exports.getVolumeListByPool = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const query = this.query
+  const { project } = this.request.headers || { project: null }
+  const headers = {}
+  if (project) {
+    Object.assign(headers, { project })
+  }
   const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
-  const response = yield volumeApi.getBy([cluster, 'volumes'], query)
+  const response = yield volumeApi.getBy([cluster, 'volumes'], query, { headers })
   this.status = response.code
   this.body = response
 }

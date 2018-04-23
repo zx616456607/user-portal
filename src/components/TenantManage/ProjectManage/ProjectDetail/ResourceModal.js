@@ -531,8 +531,10 @@ class ResourceModal extends Component {
   //   }
   // }
   loadApplist = () => {
-    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time" }
     const scope = this.props.scope;
+    const { name } = scope.props.location.query
+    const headers = { project: name }
+    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time", headers }
     //scope.props.projectClusters
     this.props.loadAppList(scope.state.selectedCluster, query, {
       success: {
@@ -555,8 +557,10 @@ class ResourceModal extends Component {
   }
 
   loadAllServices = () => {
-    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time" }
     const scope = this.props.scope;
+    const { name } = scope.props.location.query
+    const headers = { project: name }
+    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time", headers }
     //scope.props.projectClusters
     this.props.loadAllServices(scope.state.selectedCluster, query, {
       success: {
@@ -579,8 +583,10 @@ class ResourceModal extends Component {
   }
 
   loadContainerList = () => {
-    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time" }
     const scope = this.props.scope;
+    const { name } = scope.props.location.query
+    const headers = { project: name }
+    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time", headers }
     //scope.props.projectClusters
     this.props.loadContainerList(scope.state.selectedCluster, query, {
       success: {
@@ -602,8 +608,10 @@ class ResourceModal extends Component {
     })
   }
   loadStorageList = () => {
-    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time",storagetype: "ceph", srtype: "private" }
     const scope = this.props.scope;
+    const { name } = scope.props.location.query
+    const headers = { project: name }
+    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time",storagetype: "ceph", srtype: "private", headers }
     this.props.loadStorageList(DEFAULT_IMAGE_POOL, scope.state.selectedCluster, query, {
       success: {
         func: (res) => {
@@ -624,7 +632,9 @@ class ResourceModal extends Component {
   }
   loadConfigGroup() {
     const scope = this.props.scope;
-    this.props.loadConfigGroup(scope.state.selectedCluster, {
+    const { name } = scope.props.location.query
+    const headers = { project: name }
+    this.props.loadConfigGroup(scope.state.selectedCluster, headers,{
       success: {
         func: (res) => {
           let arr = [];
@@ -644,7 +654,10 @@ class ResourceModal extends Component {
   }
 
   componentDidMount = () => {
-    this.props.PermissionResource({
+    const { scope } = this.props
+    const { location } = scope.props
+    const headers = { project: location.query.name }
+    this.props.PermissionResource(headers ,{
       success: {
         func: res => {
           this.setState({

@@ -62,7 +62,8 @@ exports.getAllDependent = function* () {
 
 exports.listResourceOperations = function* () {
   const api = apiFactory.getPermissionApi(this.session.loginUser)
-  const result = yield api.getBy(['resource-operations'])
+  const { project } = this.request.headers
+  const result = yield api.getBy(['resource-operations'], null, { headers: { project } })
   this.body = {
     data: result.data
   }
@@ -181,7 +182,8 @@ exports.overview = function* () {
   const api = apiFactory.getPermissionApi(this.session.loginUser)
   const roleId = this.query.roleId
   const clusterId = this.query.clusterId
-  const operationsResponse = yield api.getBy(['resource-operations'])
+  const { project } = this.request.headers
+  const operationsResponse = yield api.getBy(['resource-operations'], null, { headers: { project } })
   const operations = operationsResponse.data
   const keys = Object.getOwnPropertyNames(operations)
   const acls = yield getAcls(roleId, clusterId, api, keys)

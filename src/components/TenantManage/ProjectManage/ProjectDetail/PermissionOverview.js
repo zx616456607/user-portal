@@ -53,19 +53,20 @@ class PermissionOverview extends React.Component{
   componentDidMount() {
     const {
       clusterID, loadAppList, loadAllServices, loadContainerList,
-      loadStorageList, loadConfigGroup, getSecrets
+      loadStorageList, loadConfigGroup, getSecrets, project
     } = this.props
     let storageList = []
-    loadAppList(clusterID, { page: 1, size: 100 })
-    loadAllServices(clusterID, { pageIndex: 1, pageSize: 100 })
-    loadContainerList(clusterID, { page: 1, size: 100 })
-    loadConfigGroup(clusterID)
-    getSecrets(clusterID)
+    const headers = { project }
+    loadAppList(clusterID, { page: 1, size: 100, headers })
+    loadAllServices(clusterID, { pageIndex: 1, pageSize: 100, headers })
+    loadContainerList(clusterID, { page: 1, size: 100, headers })
+    loadConfigGroup(clusterID, headers)
+    // getSecrets(clusterID, { headers })
 
     const storageReqArr = [
-      loadStorageList(DEFAULT_IMAGE_POOL, clusterID, PRIVATE_QUERY),
-      loadStorageList(DEFAULT_IMAGE_POOL, clusterID, SHARE_QUERY),
-      loadStorageList(DEFAULT_IMAGE_POOL, clusterID, HOST_QUERY)
+      loadStorageList(DEFAULT_IMAGE_POOL, clusterID, Object.assign({}, PRIVATE_QUERY, { headers })),
+      loadStorageList(DEFAULT_IMAGE_POOL, clusterID, Object.assign({}, SHARE_QUERY, { headers })),
+      loadStorageList(DEFAULT_IMAGE_POOL, clusterID, Object.assign({}, HOST_QUERY, { headers }))
     ]
     Promise.all(storageReqArr).then(storageResult => {
       storageResult.forEach(res => {
@@ -407,14 +408,14 @@ const mapStateToProps = (state, props) => {
   const { containerList } = containerItems[clusterID] || { containerList: [] }
   const { configGroupList } = configReducers
   const { configGroup } = configGroupList[clusterID] || { configGroup: [] }
-  const { list } = secrets
-  const { data: secretList } = list[clusterID] || { data: [] }
+  // const { list } = secrets
+  // const { data: secretList } = list[clusterID] || { data: [] }
   return {
     appList,
     permissionOverview,
     allServices,
     containerList,
-    allConfig: configGroup.concat(secretList)
+    allConfig: configGroup
   }
 }
 
