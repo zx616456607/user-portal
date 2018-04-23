@@ -193,7 +193,7 @@ function monitorPanel(state = {}, action) {
         ...action.response.result.data
       })
     case ActionTypes.GET_PANEL_LIST_FAILURE:
-      return Object.assign({}, state, {
+      return Object.assign({}, {
         isFetching: false
       })
     default:
