@@ -117,8 +117,8 @@ class LDAP extends Component {
     if (!value) {
       return callback()
     }
-    if (!/^([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
-      return callback('请填入合法的 LDAP 服务地址')
+    if (!/^([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^(ldap:\/\/)?[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+      return callback('请填入合法的 LDAP 服务地址，如果输入协议，协议只能为 ldap')
     }
     callback()
   }
