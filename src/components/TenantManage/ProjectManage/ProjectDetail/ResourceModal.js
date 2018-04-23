@@ -610,7 +610,8 @@ class ResourceModal extends Component {
 
   loadStorageList = () => {
     const { name } = scope.props.location.query
-    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time", project: name };
+    const headers = {project: name};
+    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time" , headers};
     const PRIVATE_QUERY = {
       storagetype: 'ceph',
       srtype: 'private',
