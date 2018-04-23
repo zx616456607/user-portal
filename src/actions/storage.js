@@ -18,12 +18,17 @@ export const STORAGE_LIST_SUCCESS = 'STORAGE_LIST_SUCCESS'
 export const STORAGE_LIST_FAILURE = 'STORAGE_LIST_FAILURE'
 
 export function fetchStorageList(pool, cluster, query, callback) {
+  const newQuery = Object.assign({}, query)
+  delete query.headers
   return {
     pool,
     [FETCH_API]: {
       types: [STORAGE_LIST_REQUEST, STORAGE_LIST_SUCCESS, STORAGE_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes?${toQuerystring(query)}`,
-      schema: {}//Schemas.STORAGE
+      schema: {},//Schemas.STORAGE
+      options: {
+        headers: newQuery.headers
+      }
     },
     callback: callback
   }
