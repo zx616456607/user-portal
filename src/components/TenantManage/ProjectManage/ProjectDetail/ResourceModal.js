@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Modal, Button, Row, Col, Radio, Transfer, Input, Checkbox, Tree } from 'antd'
+import { Modal, Button, Row, Col, Radio, Transfer, Input, Checkbox, Tree, Spin } from 'antd'
 import { connect } from 'react-redux'
 import { PermissionResource, setPermission } from '../../../../actions/permission'
 import { loadAppList } from '../../../../actions/app_manage'
@@ -53,6 +53,7 @@ class ResourceModal extends Component {
     sourceData: [],
     currPRO: [],
     permissionKeys: [],
+    spinning: true,
   }
   resetState = () =>{
     this.setState({
@@ -76,6 +77,7 @@ class ResourceModal extends Component {
       rightValue: '',
       sourceData: [],
       permissionKeys: [],
+      spinning: true,
     });
     currType = "";
   }
@@ -386,7 +388,7 @@ class ResourceModal extends Component {
                   <Radio key="a" value="regex">通过表达式选择资源( 可包含后续新建的资源 )</Radio>
                   <div className="panel"><Input id="permissionRegex" onChange={this.onReguxChange} placeholder="填写正则表达式, 筛选资源" value={this.state.regex} /></div>
                   <Radio key="b" value="fixed">直接选择资源</Radio>
-                  <div className="panel">
+                  <Spin spinning={this.state.spinning} className="panel">
                     <Row>
                       <Col span="10">
                         <div className='leftBox'>
@@ -466,7 +468,7 @@ class ResourceModal extends Component {
                         </div>
                       </Col>
                     </Row>
-                  </div>
+                  </Spin>
                 </RadioGroup>
                 </div>
               </Col>
@@ -530,6 +532,13 @@ class ResourceModal extends Component {
   //     }
   //   }
   // }
+  setleftTree = (arr) => {
+    this.setState({
+      leftSelableNames: arr,
+      leftShowNames: arr,
+      spinning: false,
+    });
+  }
   loadApplist = () => {
     const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time" }
     const scope = this.props.scope;
@@ -544,10 +553,7 @@ class ResourceModal extends Component {
             if(fixed[item.name]) return;
             arr.push(item.name)
           });
-          this.setState({
-            leftSelableNames: arr,
-            leftShowNames: arr,
-          })
+          this.setleftTree(arr);
         },
         isAsync: true
       }
@@ -568,10 +574,7 @@ class ResourceModal extends Component {
             if(fixed[item.service.metadata.name]) return;
             arr.push(item.service.metadata.name)
           });
-          this.setState({
-            leftSelableNames: arr,
-            leftShowNames: arr,
-          })
+          this.setleftTree(arr);
         },
         isAsync: true
       }
@@ -592,34 +595,46 @@ class ResourceModal extends Component {
             if(fixed[item.metadata.generateName]) return;
             arr.push(item.metadata.generateName)
           });
-          this.setState({
-            leftSelableNames: arr,
-            leftShowNames: arr,
-          })
+          this.setleftTree(arr);
         },
         isAsync: true
       }
     })
   }
+
   loadStorageList = () => {
-    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time",storagetype: "ceph", srtype: "private" }
+    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time" };
+    const PRIVATE_QUERY = {
+      storagetype: 'ceph',
+      srtype: 'private',
+    };
+    const SHARE_QUERY = {
+      storagetype: 'nfs',
+      srtype: 'share',
+    };
+    const HOST_QUERY = {
+      storagetype: 'host',
+      srtype: 'host'
+    };
     const scope = this.props.scope;
-    this.props.loadStorageList(DEFAULT_IMAGE_POOL, scope.state.selectedCluster, query, {
-      success: {
-        func: (res) => {
-          let arr = [];
-          res.data.map( (item) => {
+
+    const storageReqArr = [
+      this.props.loadStorageList(DEFAULT_IMAGE_POOL, scope.state.selectedCluster, Object.assign({}, query, PRIVATE_QUERY)),
+      this.props.loadStorageList(DEFAULT_IMAGE_POOL, scope.state.selectedCluster, Object.assign({}, query, SHARE_QUERY)),
+      this.props.loadStorageList(DEFAULT_IMAGE_POOL, scope.state.selectedCluster, Object.assign({}, query, HOST_QUERY)),
+    ];
+    let arr = [];
+    Promise.all(storageReqArr).then(storageResult => {
+      storageResult.forEach(res => {
+        if (!!res.response.result.data) {
+          res.response.result.data.map( (item) => {
             let fixed = this.props.permissionOverview[this.props.currResourceType].acls.fixed;
             if(fixed[item.name]) return;
             arr.push(item.name)
           });
-          this.setState({
-            leftSelableNames: arr,
-            leftShowNames: arr,
-          })
-        },
-        isAsync: true,
-      }
+        }
+      })
+      this.setleftTree(arr);
     })
   }
   loadConfigGroup() {
@@ -633,10 +648,7 @@ class ResourceModal extends Component {
             if(fixed[item.name]) return;
             arr.push(item.name)
           });
-          this.setState({
-            leftSelableNames: arr,
-            leftShowNames: arr,
-          })
+          this.setleftTree(arr);
         },
         isAsync: true,
       }

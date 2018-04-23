@@ -217,6 +217,7 @@ class Tab2 extends React.Component {
     }else{
       tableData = [];
       total = 0;
+      allClusterIds = [];
     }
     const func = {
       scope: this,
