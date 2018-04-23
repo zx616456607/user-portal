@@ -29,6 +29,11 @@ let CreateUserModal = React.createClass({
       disabled: false
     }
   },
+  componentDidMount() {
+    setTimeout(function () {
+      document.getElementById('newUser').focus()
+    }, 500);
+  },
   userExists(rule, value, callback) {
     const _this = this
     const msg = serviceNameCheck(value, '用户名')

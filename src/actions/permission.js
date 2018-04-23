@@ -115,12 +115,15 @@ export const PERMISSION_RESOURCE_LIST_REQUEST = 'PERMISSION_RESOURCE_LIST_REQUES
 export const PERMISSION_RESOURCE_LIST_SUCCESS = 'PERMISSION_RESOURCE_LIST_SUCCESS'
 export const PERMISSION_RESOURCE_LIST_FAILURE = 'PERMISSION_RESOURCE_LIST_FAILURE'
 
-function fetchPermissionResource(callback) {
+function fetchPermissionResource(headers ,callback) {
   return {
     [FETCH_API]: {
       types: [PERMISSION_RESOURCE_LIST_REQUEST, PERMISSION_RESOURCE_LIST_SUCCESS, PERMISSION_RESOURCE_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/permission/resource-operations`,
-      schema: {}
+      schema: {},
+      options: {
+        headers
+      }
     },
     callback
   }
@@ -165,6 +168,8 @@ export const PERMISSION_OVERVIEW_SUCCESS = 'PERMISSION_OVERVIEW_SUCCESS'
 export const PERMISSION_OVERVIEW_FAILURE = 'PERMISSION_OVERVIEW_FAILURE'
 
 const fetchPermissionOverview = (query, callback) => {
+  const newQuery = Object.assign({}, query)
+  delete newQuery.headers
   return {
     [FETCH_API]: {
       types: [
@@ -172,8 +177,11 @@ const fetchPermissionOverview = (query, callback) => {
         PERMISSION_OVERVIEW_SUCCESS,
         PERMISSION_OVERVIEW_FAILURE
       ],
-      endpoint: `${API_URL_PREFIX}/permission/access-controls/overview?${toQuerystring(query)}`,
+      endpoint: `${API_URL_PREFIX}/permission/access-controls/overview?${toQuerystring(newQuery)}`,
       schema: {},
+      options: {
+        headers: query.headers
+      }
     },
     callback
   }

@@ -14,13 +14,16 @@ export const CONFIG_LIST_REQUEST = 'CONFIG_LIST_REQUEST'
 export const CONFIG_LIST_SUCCESS = 'CONFIG_LIST_SUCCESS'
 export const CONFIG_LIST_FAILURE = 'CONFIG_LIST_FAILURE'
 
-export function loadConfigGroup(cluster, callback) {
+export function loadConfigGroup(cluster, headers, callback) {
   return {
     cluster,
     [FETCH_API]: {
       types: [CONFIG_LIST_REQUEST, CONFIG_LIST_SUCCESS, CONFIG_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/configgroups`,
-      schema: Schemas.CONFIGS
+      schema: Schemas.CONFIGS,
+      options: {
+        headers
+      }
     },
     callback: callback
   }

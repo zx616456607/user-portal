@@ -262,7 +262,7 @@ class AppTemplate extends React.Component<IProps, IState> {
       }
       // if create service, update the configure service key
       // use timeout: when history change generate a new configure serivce key
-      browserHistory.push(url);
+      browserHistory.push(url + '?action=addTemplate');
       this.configureServiceKey = this.genConfigureServiceKey();
       this.stepChange(0);
     });
@@ -315,8 +315,6 @@ class AppTemplate extends React.Component<IProps, IState> {
         this.setState({
           goBackVisible: true,
         });
-        this.stepChange(0);
-        browserHistory.push('/app_center/template/create');
         return;
       }
     }

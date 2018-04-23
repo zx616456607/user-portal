@@ -96,6 +96,11 @@ exports.getApps = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const query = this.query || {}
+  const { project } = this.request.headers || { project: null }
+  const headers = {}
+  if (project) {
+    Object.assign(headers, { project })
+  }
   let page = parseInt(query.page || DEFAULT_PAGE)
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
   let name = query.name
@@ -117,7 +122,7 @@ exports.getApps = function* () {
     queryObj.sort_by = query.sortBy
   }
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'apps'], queryObj)
+  const result = yield api.getBy([cluster, 'apps'], queryObj, { headers })
   const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
   const apps = result.data.apps
   apps.map((app) => {

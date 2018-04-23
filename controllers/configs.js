@@ -14,8 +14,13 @@ const apiFactory = require('../services/api_factory')
 exports.listConfigGroups = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
+  const { project } = this.request.headers || { project: null }
+  const headers = {}
+  if (project) {
+    Object.assign(headers, { project })
+  }
   const api = apiFactory.getK8sApi(loginUser)
-  let response = yield api.getBy([cluster, 'configgroups'])
+  let response = yield api.getBy([cluster, 'configgroups'], null, { headers })
   this.status = response.code
   if (response.code >= 400) {
     const err = new Error(`list configgrups fails, error: ${response.data}`)
@@ -51,7 +56,7 @@ exports.getConfigGroupName = function* () {
   let configName = this.params.name
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  
+
   let response = yield api.getBy([cluster, 'configgroups', configName])
   this.status = response.code
   this.body = {

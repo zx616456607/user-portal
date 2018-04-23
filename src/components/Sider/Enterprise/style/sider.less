@@ -2093,3 +2093,58 @@
   background: @shallowColor2;
   color: rgba(255, 255, 255, 0.8);
 }
+
+#sider.oemMenu-drek-2,
+#sider.oemMenu-drek-3,
+#sider.oemMenu-drek-4,
+#sider.oemMenu-drek-5,
+#sider.oemMenu-drek-6,
+#sider.oemMenu-drek-7,
+#sider.oemMenu-drek-8,
+{
+  .siderBigger {
+    .ant-menu-item {
+      .adminBox {
+        a {
+          color:#fff !important;
+        }
+        .start {
+          use {
+            fill: #fff !important;
+          }
+        }
+        .forAdmin {
+          margin: 0 15px 0 -2px;
+        }
+        a {
+          display: inline-block;
+          color: #fff;
+        }
+      }
+      &:hover {
+        .adminBox {
+          .start {
+            use {
+              fill: #FFFFFF !important;
+            }
+          }
+        }
+      }
+    }
+    .ant-menu-item-selected {
+      .adminBox {
+        color: #FFF;
+        .start {
+          use {
+            fill: #FFFFFF !important;
+          }
+        }
+        a {
+          span {
+            color: #FFF;
+          }
+        }
+      }
+    }
+  }
+}
