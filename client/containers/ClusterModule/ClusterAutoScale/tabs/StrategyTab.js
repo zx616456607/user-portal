@@ -42,6 +42,11 @@ class Tab2 extends React.Component {
     deleteLoading: false, //删除确定按钮
     isShowDelModal: false,
   }
+  reflesh = () => {
+    let selectedRowKeys = this.state.selectedRowKeys.join(",");
+    console.log("reflesh", selectedRowKeys);
+    this.loadData();
+  }
   edit = (rowData) => {
     console.log("edit", rowData);
     this.setState({isTab2ModalShow: true, isEdit: true, currData: rowData});
@@ -222,6 +227,9 @@ class Tab2 extends React.Component {
         <div className="btnPanel">
           <Button type="primary" size="large" onClick={this.openModal} style={{ marginRight: "10px" }}>
             <i className="fa fa-plus" />新建资源池配置
+          </Button>
+          <Button className="refreshBtn" size='large' onClick={this.reflesh}>
+            <i className='fa fa-refresh' />刷新
           </Button>
           {/*<Button className="btnItem" onClick={this.openModal} type="primary" ><Icon type="plus" />新建资源池配置</Button>*/}
           {/*<Button className="btnItem" onClick={this.delitems} type="ghost" disabled={isbtnDisabled} ><Icon type="delete" />删除</Button>*/}
