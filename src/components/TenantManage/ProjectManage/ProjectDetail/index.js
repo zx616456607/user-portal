@@ -1417,7 +1417,12 @@ class ProjectDetail extends Component {
                             {!!clusterList && clusterList.length > 0 &&  clusterList.filter(item => item.clusterID === selectedCluster)[0].clusterName} <Icon type="down" />
                           </a>
                         </Dropdown>
-                        <span className="desc">{this.state.currpermissionPolicyType === 1 ? "所有资源统一授权" : "指定资源授权"}</span>
+                        <span className="desc">
+                          <svg className="permissionIcon">
+                            <use xlinkHref="#permission" />
+                          </svg>
+                          {this.state.currpermissionPolicyType === 1 ? "所有资源统一授权" : "指定资源授权"}
+                        </span>
                       </div>
 
                       <div className="bottom-line"></div>
