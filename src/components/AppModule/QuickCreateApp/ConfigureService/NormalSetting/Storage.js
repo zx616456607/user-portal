@@ -394,17 +394,19 @@ const Storage = React.createClass({
     const { getFieldError } = form
     const storageErrors = getFieldError('storageList')
     return storageErrors.filter(error => {
-      let flag = storageTypeArray.some(type => error.includes(type))
-      let innerFlag = false
-      storageTypeArray.forEach(item => {
-
-        list.forEach(record => {
-          if (record.name.includes(item)) {
-            innerFlag = true
-          }
-        })
+      let flag = false
+      let currentType = ''
+      storageTypeArray.forEach(type => {
+        if (error.includes(type)) {
+          currentType = type
+        }
       })
-      return flag * innerFlag
+      list.forEach(record => {
+        if (record.name.includes(currentType)) {
+          flag = true
+        }
+      })
+      return flag
     })
   },
   deleteStorage(index) {
@@ -413,9 +415,6 @@ const Storage = React.createClass({
     const list = cloneDeep(storageList)
     list.splice(index, 1)
     this.setReplicasStatus(list)
-    // form.setFieldsValue({
-    //   storageList: list,
-    // })
     form.setFields({
       storageList: {
         value: list,
