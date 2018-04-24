@@ -146,7 +146,7 @@ class Tab2Modal extends React.Component {
           updateServer(params,{
             success: {
               func: () => {
-                notify.success(`配置 ${params.name} 更新成功`);
+                notify.success(`资源池配置更新成功`);
                 if(!!funcTab2){
                   funcTab2.loadData();
                   funcTab2.scope.setState({
@@ -165,7 +165,7 @@ class Tab2Modal extends React.Component {
             failed: {
               func: err => {
                 const { statusCode, message } = err
-                notify.warn(`更新配置 ${params.name} 失败，错误代码: ${statusCode}，${message}`);
+                notify.warn(`更新资源池配置失败，${message}`);
                 this.setState({
                   submitLoading: false,
                 });
@@ -177,7 +177,7 @@ class Tab2Modal extends React.Component {
           {
             success: {
               func: () => {
-                notify.success(`配置 ${params.name} 新建成功`)
+                notify.success(`资源池配置新建成功`)
                 if(!!funcTab2){
                   funcTab2.loadData();
                   funcTab2.scope.setState({ isTab2ModalShow:false,
@@ -196,7 +196,7 @@ class Tab2Modal extends React.Component {
             failed: {
               func: err => {
                 const { statusCode, message } = err;
-                notify.warn(`新建配置 ${params.name} 失败，错误代码: ${statusCode}，${message}`);
+                notify.warn(`新建资源池配置失败，${message}`);
                 this.setState({
                   submitLoading: false,
                 });
