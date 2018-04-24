@@ -443,12 +443,26 @@ export function lbNameCheck(value) {
    if (!value) {
      return '请输入应用模板名称'
    }
-   if (value.length < 3 || value.length > 60) {
-     return '模板名称需在3-60位之间'
+   if (value.length < 3 || value.length > 63) {
+     return '模板名称需在3-63位之间'
    }
-   let regx = /^[a-zA-Z0-9]([-_.~/][a-zA-Z0-9])*$/
-   if (!regx.test(value)) {
-     return '由字母、数字、中划线-、下划线_组成'
-   }
+    //a-zA-Z start check
+  let startCheck = new RegExp('^[A-Za-z]{1}');
+  if (!startCheck.test(name)) {
+    errorMsg = '请以字母开头';
+    return errorMsg;
+  }
+  //a-zA-Z0-9_- body check
+  let bodyCheck = new RegExp('^[A-Za-z]{1}[A-Za-z0-9_-]*$');
+  if (!bodyCheck.test(name)) {
+    errorMsg = '由字母、数字、中划线-、下划线_组成';
+    return errorMsg;
+  }
+  //a-zA-Z0-9 end check
+  let endCheck = new RegExp('^[A-Za-z]{1}[A-Za-z0-9_\-]{1,61}[A-Za-z0-9]$');
+  if (!endCheck.test(name)) {
+    errorMsg = '由字母或数字结尾';
+    return errorMsg;
+  }
    return 'success'
  }
