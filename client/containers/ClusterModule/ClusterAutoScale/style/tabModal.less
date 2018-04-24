@@ -147,6 +147,9 @@
     .panel{
       .unitWapper{
         position: relative;
+        label::after{
+          content: "" !important;
+        }
       }
       // border-bottom: 1px dashed #ccc;
       margin-bottom: 10px;
@@ -253,6 +256,9 @@
     color: #e8e9e8 !important;
   }
   .jiedianContainer{
+    .ant-input-number {
+      width: 100% !important;
+    }
     .ant-col-24 {
       width: 100%;
       text-align: left;

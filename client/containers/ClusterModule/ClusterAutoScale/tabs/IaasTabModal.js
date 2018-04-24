@@ -587,16 +587,16 @@ class Tab1Modal extends React.Component {
                                       <FormItem className="unitWapper" labelCol={{ span: 24}} wrapperCol={{ span: 18 }}
                                         label="最少保留"
                                       >
-                                          <Input id="minInput" {...getFieldProps('min', { initialValue: min,
-                                            validate: [{
-                                              rules: [
-                                                { required: true, message: '请输入最少保留数' },
-                                              ],
-                                              trigger: ['onBlur', 'onChange'] ,
-                                            }],
-                                            onChange: this.minChange,
-                                            onBlur: this.minBlur,
-                                            })} className="item" placeholder="1" />
+                                        <InputNumber min={0} max={this.props.form.getFieldValue("max")} id="minInput" {...getFieldProps('min', { initialValue: min,
+                                          validate: [{
+                                            rules: [
+                                              { required: true, message: '请输入最少保留数' },
+                                            ],
+                                            trigger: ['onBlur', 'onChange'] ,
+                                          }],
+                                          onChange: this.minChange,
+                                          onBlur: this.minBlur,
+                                          })} className="item" placeholder="1" />
                                     </FormItem>
                                         {/*</div>
                                       </div>*/}
@@ -607,15 +607,15 @@ class Tab1Modal extends React.Component {
                                       {/*<div className="max">
                                         <div className="name">最大节点数</div>
                                         <div className="mmItem">*/}
-                                          <Input id="maxInput" {...getFieldProps('max', { initialValue: max,
-                                            validate: [{
-                                              rules: [
-                                                { required: true, message: '请输入最大拓展数' },
-                                              ],
-                                              trigger: ['onBlur', 'onChange'] ,
-                                            }],
-                                            onChange: this.maxChange,
-                                            onBlur: this.maxBlur,})} className="item" placeholder="1" />
+                                        <InputNumber min={this.props.form.getFieldValue("min")} id="maxInput" {...getFieldProps('max', { initialValue: max,
+                                          validate: [{
+                                            rules: [
+                                              { required: true, message: '请输入最大拓展数' },
+                                            ],
+                                            trigger: ['onBlur', 'onChange'] ,
+                                          }],
+                                          onChange: this.maxChange,
+                                          onBlur: this.maxBlur,})} className="item" placeholder="1" />
                                         {/*</div>
                                       </div>*/}
                                     </FormItem>
