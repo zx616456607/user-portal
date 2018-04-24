@@ -373,6 +373,7 @@ class ResourceModal extends Component {
         title="编辑权限"
         width="700"
         onClose={() => {this.modalCancel()}}
+        className="ResourceModalWrapper"
       >
         <ul className="stepBox">
           <li className={"active"}>
