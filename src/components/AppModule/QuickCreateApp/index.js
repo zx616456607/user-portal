@@ -318,11 +318,34 @@ class QuickCreateApp extends Component {
       const currentError = result.response.result.data[value.serviceName.value]
       if (!isEmpty(currentError)) {
         flag = true
+        const storageErrors = []
         currentError.forEach(item => {
           switch(item.type) {
             case 0:
+              storageErrors.push({
+                message: `nfs集群 ${item.resourceName} 不存在`,
+                filed: 'storageList'
+              })
+              Object.assign(errorFields, {
+                storageList: {
+                  name: 'storageList',
+                  value: value.storageList.value,
+                  errors: storageErrors
+                }
+              })
               break
             case 1:
+              storageErrors.push({
+                message: `ceph集群 ${item.resourceName} 不存在`,
+                filed: 'storageList'
+              })
+              Object.assign(errorFields, {
+                storageList: {
+                  name: 'storageList',
+                  value: value.storageList.value,
+                  errors: storageErrors
+                }
+              })
               break
             case 2:
               Object.assign(errorFields, {
@@ -367,6 +390,19 @@ class QuickCreateApp extends Component {
             case 6:
               const secretErrors = this.formatConfigMapErrors(value, true)
               Object.assign(errorFields, secretErrors)
+              break
+            case 7:
+              storageErrors.push({
+                message: `集群禁用本地（host）存储`,
+                filed: 'storageList'
+              })
+              Object.assign(errorFields, {
+                storageList: {
+                  name: 'storageList',
+                  value: value.storageList.value,
+                  errors: storageErrors
+                }
+              })
               break
             default:
               break
@@ -1176,7 +1212,7 @@ class QuickCreateApp extends Component {
       case 6:
         return <span>加密配置 <span  className="themeColor">{record.resourceName}</span> 不存在</span>
       case 7:
-        return <span>集群禁用本地存储</span>
+        return <span>集群禁用本地（host）存储</span>
       case 8:
         return <span>没有安装amp</span>
       default:

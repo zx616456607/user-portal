@@ -13,6 +13,7 @@
 import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
 import cloneDeep from 'lodash/cloneDeep'
+import isEmpty from 'lodash/isEmpty'
 import {
   Form, Tooltip, Icon,
   Switch, Radio, Input,
@@ -263,6 +264,23 @@ const Storage = React.createClass({
       storageKeys: storageKeys.filter(_key => _key !== key)
     })
   },
+  renderStorageErrors(){
+    const { form } = this.props
+    const { getFieldError } = form
+    const storageErrors = form.getFieldError('storageList')
+    if (isEmpty(storageErrors)) {
+      return
+    }
+    return (
+      <div className="ant-form-explain">
+        {
+          storageErrors.map((error, index, arr) => {
+            return <span>{error}{index !== arr.length -1 ? '，' : ''}</span>
+          })
+        }
+      </div>
+    )
+  },
   renderConfigure() {
     const { avaliableVolume, form } = this.props
     const { isFetching } = avaliableVolume
@@ -276,6 +294,9 @@ const Storage = React.createClass({
       <div>
         <div>
           {this.renderStorageList()}
+          <div className="has-error storageErrorBox">
+            {this.renderStorageErrors()}
+          </div>
         </div>
         <div className={bindVolumesClass} key="storageKeys">
           <span className="addMountPath"
@@ -367,14 +388,44 @@ const Storage = React.createClass({
       setReplicasToDefault(incloudPrivate)
     }
   },
+  getCurrentErrors(list){
+    const storageTypeArray = ['nfs', 'ceph', 'host']
+    const { form } = this.props
+    const { getFieldError } = form
+    const storageErrors = getFieldError('storageList')
+    return storageErrors.filter(error => {
+      let flag = storageTypeArray.some(type => error.includes(type))
+      let innerFlag = false
+      storageTypeArray.forEach(item => {
+
+        list.forEach(record => {
+          if (record.name.includes(item)) {
+            innerFlag = true
+          }
+        })
+      })
+      return flag * innerFlag
+    })
+  },
   deleteStorage(index) {
     const { form } = this.props
     const storageList = form.getFieldValue('storageList')
     const list = cloneDeep(storageList)
     list.splice(index, 1)
     this.setReplicasStatus(list)
-    form.setFieldsValue({
-      storageList: list,
+    // form.setFieldsValue({
+    //   storageList: list,
+    // })
+    form.setFields({
+      storageList: {
+        value: list,
+        errors: this.getCurrentErrors(list).map(error => {
+          return {
+            message: error,
+            filed: 'storageList'
+          }
+        })
+      }
     })
   },
   getServiceIsBindNode(){

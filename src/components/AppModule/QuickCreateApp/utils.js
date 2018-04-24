@@ -157,7 +157,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         if (isTemplate) {
           let volumeObj = {
             name: `${type}-${volume.name}`,
-            storageClassName: `${type}-volume`,
+            storageClassName: `${type}-storage`,
             mountPath,
             hostPath,
             readOnly
