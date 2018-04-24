@@ -448,17 +448,17 @@ export function lbNameCheck(value) {
    }
     //a-zA-Z start check
   let startCheck = new RegExp('^[A-Za-z]{1}');
-  if (!startCheck.test(name)) {
+  if (!startCheck.test(value)) {
     return '请以字母开头'
   }
   //a-zA-Z0-9_- body check
   let bodyCheck = new RegExp('^[A-Za-z]{1}[A-Za-z0-9_-]*$');
-  if (!bodyCheck.test(name)) {
+  if (!bodyCheck.test(value)) {
     return '由字母、数字、中划线-、下划线_组成'
   }
   //a-zA-Z0-9 end check
   let endCheck = new RegExp('^[A-Za-z]{1}[A-Za-z0-9_\-]{1,61}[A-Za-z0-9]$');
-  if (!endCheck.test(name)) {
+  if (!endCheck.test(value)) {
     return '由字母或数字结尾'
   }
    return 'success'
