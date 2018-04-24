@@ -122,6 +122,11 @@ class ResourceModal extends Component {
       confirmLoading: true,
     }, () => {
       const params = this.getParams();
+      // console.log(params);
+      // this.setState({
+      //   confirmLoading: false,
+      // })
+      // return;
       this.props.setPermission(params, {
         success: {
           func: (res) => {
@@ -169,9 +174,10 @@ class ResourceModal extends Component {
       let tempRes = _.cloneDeep(res);
       res = [];
       this.state.rightSeledNames.map( (name) => {
-        for(let i = 0; i < tempRes.length; i++){
-          tempRes[i].filter = name;
-          res.push(tempRes[i]);
+        let tempRes1 = _.cloneDeep(tempRes);
+        for(let i = 0; i < tempRes1.length; i++){
+          tempRes1[i].filter = name;
+          res.push(tempRes1[i]);
         }
       })
     }
@@ -366,6 +372,7 @@ class ResourceModal extends Component {
         footer={footer}
         title="编辑权限"
         width="700"
+        onClose={() => {this.modalCancel()}}
       >
         <ul className="stepBox">
           <li className={"active"}>
@@ -586,12 +593,11 @@ class ResourceModal extends Component {
   }
 
   loadContainerList = () => {
-    const scope = this.props.scope;
-    const { name } = scope.props.location.query
+    const { name } = this.props.scope.props.location.query
     const headers = { project: name }
     const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time", headers }
     //scope.props.projectClusters
-    this.props.loadContainerList(scope.state.selectedCluster, query, {
+    this.props.loadContainerList(this.props.scope.state.selectedCluster, query, {
       success: {
         func: (res) => {
           //console.log(res)
@@ -609,6 +615,7 @@ class ResourceModal extends Component {
   }
 
   loadStorageList = () => {
+    const scope = this.props.scope;
     const { name } = scope.props.location.query
     const headers = {project: name};
     const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time" , headers};
@@ -624,7 +631,6 @@ class ResourceModal extends Component {
       storagetype: 'host',
       srtype: 'host'
     };
-    const scope = this.props.scope;
 
     const storageReqArr = [
       this.props.loadStorageList(DEFAULT_IMAGE_POOL, scope.state.selectedCluster, Object.assign({}, query, PRIVATE_QUERY)),
