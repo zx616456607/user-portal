@@ -243,12 +243,14 @@ class MonitorChartModal extends React.Component {
 
   changeExport(proxyID) {
     const { getProxiesService, clusterID, form } = this.props
-    const { getFieldValue, resetFields } = form
+    const { getFieldValue, resetFields, setFieldsValue } = form
     const { currentChart } = this.state
     getProxiesService(clusterID, proxyID)
     const preID = getFieldValue('nexport')
-    if (preID && preID !== proxyID) {
-      resetFields(['target'])
+    if (preID && (preID !== proxyID)) {
+      setFieldsValue({
+        target: []
+      })
       if (currentChart && currentChart.content) {
         currentChart.content = null
       }
