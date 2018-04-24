@@ -20,6 +20,7 @@ import { connect } from 'react-redux';
 import QueueAnim from 'rc-queue-anim';
 import Tab1Modal from './IaasTabModal';
 import Tab2Modal from './StrategyTabModal';
+import { LOAD_INSTANT_INTERVAL } from '../../../../../src/constants/index';
 import NotificationHandler from '../../../../../src/components/Notification';
 
 const notify = new NotificationHandler();
@@ -139,7 +140,7 @@ class Tab1 extends React.Component {
       failed: {
         func: err => {
           const { statusCode, message } = err
-          notify.warn(`删除策略 ${rowData.name} 失败，错误代码: ${statusCode}， ${message}`)
+          notify.warn(`${rowData.status === "on" ? "停用" : "启用"} 失败，错误代码: ${statusCode}， ${message}`)
         },
       }
     });
@@ -292,11 +293,19 @@ class Tab1 extends React.Component {
     });
   }
   loadData() {
-    getAppList({});
+    this.props.getAppList({});
+  }
+  loadDataDidMount() {
+    this.props.getAppList({});
+    // console.log(LOAD_INSTANT_INTERVAL)
+    // this.props.getAppList({}).then((res) => {
+    //   setInterval(() => {
+    //     this.props.getAppList({});
+    //   }, LOAD_INSTANT_INTERVAL)
+    // });
   }
   render() {
     const { appList, isTab1Fetching, logList, isLogFetching } = this.props;
-    getAppList = this.props.getAppList;
     const searchCls = classNames({
       'ant-search-input': true,
       'ant-search-input-focus': this.state.isSearchFocus,
@@ -457,16 +466,16 @@ class Tab1 extends React.Component {
               </div>
               <div className="tablePanel">
                 <Card>
-                {
+                {/*{
                     !!isTab1Fetching ?
                     <div className="loadingBox">
                       <Spin size="large"/>
                     </div>
-                    :
+                :*/}
                     <div className='reset_antd_table_header'>
-                      <Table columns={columns} dataSource={tableData} pagination={this.state.pagination} />
+                      <Table columns={columns} loading={isTab1Fetching} dataSource={tableData} pagination={this.state.pagination} />
                     </div>
-                }
+                {/*}*/}
                 </Card>
               </div>
             </div>
@@ -573,8 +582,13 @@ class Tab1 extends React.Component {
       </div>
     )
   }
+  componentWillReceiveProps(next) {
+    if(next.isTab2Deleted){
+      this.loadData();
+    }
+  }
   componentDidMount() {
-    this.loadData();
+    this.loadDataDidMount();
   }
 };
 const mapStateToProps = state => {

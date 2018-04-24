@@ -22,6 +22,7 @@ class ClusterAutoScale extends React.Component {
   state = {
     activeKey: 'pane1',
     isTab2ModalShow: false,
+    isTab2Deleted: false,
   };
 
   tabChange = () => {
@@ -43,6 +44,15 @@ class ClusterAutoScale extends React.Component {
     obj['isTab2ModalShowFrom' + tab] = true;
     this.setState(obj);
   }
+  delCallBack = () => {
+    this.setState({
+      isTab2Deleted: true,
+    }, () => {
+      this.setState({
+        isTab2Deleted: false,
+      });
+    });
+  }
   render() {
     const { children, location } = this.props;
     const tabTitle1 = this.getTitle('伸缩策略');
@@ -58,6 +68,8 @@ class ClusterAutoScale extends React.Component {
                   openTab2Modal={this.openTab2Modal}
                   closeTab2Modal={this.closeTab2Modal}
                   isTab2ModalShow={this.state.isTab2ModalShowFromTab1}
+                  isTab2Deleted={this.state.isTab2Deleted}
+                  scope={this}
                 />
               </div>
             </QueueAnim>
@@ -69,6 +81,8 @@ class ClusterAutoScale extends React.Component {
                   openTab2Modal={this.openTab2Modal}
                   closeTab2Modal={this.closeTab2Modal}
                   isTab2ModalShow={this.state.isTab2ModalShowFromTab2}
+                  scope={this}
+                  delCallBack={this.delCallBack}
                 />
               </div>
             </QueueAnim>
