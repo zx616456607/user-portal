@@ -277,8 +277,8 @@ class Tab1Modal extends React.Component {
       if(!b){
         return;
       }
-      console.log('Submit!!!');
-      console.log(values);
+      //console.log('Submit!!!');
+      //console.log(values);
       const temp1 = JSON.parse(JSON.stringify(values));
       const temp2 = JSON.parse(JSON.stringify(form1Data));
       let temp = Object.assign({}, temp1, temp2);
@@ -322,6 +322,18 @@ class Tab1Modal extends React.Component {
     this.resetState();
     updateTimer = null;
     addTimer = null;
+  }
+  minBlur = (e) => {
+    //console.log("minBlur", e.target.value)
+  }
+  minChange = (value) => {
+    //console.log("minChange", value)
+  }
+  maxBlur = (e) => {
+    //console.log("maxBlur", e.target.value)
+  }
+  maxChange = (e) => {
+    //console.log("maxChange", value)
   }
   render(){
     const { clusterList, isModalFetching,
@@ -370,6 +382,7 @@ class Tab1Modal extends React.Component {
       updateTimer = null;
       datacenterList = []; templatePathList = {}; datastorePathList = {}; resourcePoolPathList = {};
       cluster = ""; iaas = "";
+      max = 10;//新增时 max 默认值
     }
     const options = !!clusterList ?
     clusterList.map((o,i,objs) => {
@@ -587,16 +600,15 @@ class Tab1Modal extends React.Component {
                                       <FormItem className="unitWapper" labelCol={{ span: 24}} wrapperCol={{ span: 18 }}
                                         label="最少保留"
                                       >
-                                          <Input id="minInput" {...getFieldProps('min', { initialValue: min,
-                                            validate: [{
-                                              rules: [
-                                                { required: true, message: '请输入最少保留数' },
-                                              ],
-                                              trigger: ['onBlur', 'onChange'] ,
-                                            }],
-                                            onChange: this.minChange,
-                                            onBlur: this.minBlur,
-                                            })} className="item" placeholder="1" />
+                                        <InputNumber min={0} max={parseInt(this.props.form.getFieldValue("max"))} {...getFieldProps('min', { initialValue: min,
+                                          validate: [{
+                                            rules: [
+                                              { required: true, message: '请输入最少保留数' },
+                                            ],
+                                          }],
+                                          onChange: this.minChange,
+                                          onBlur: this.minBlur,
+                                          })} className="item" placeholder="1" />
                                     </FormItem>
                                         {/*</div>
                                       </div>*/}
@@ -607,15 +619,14 @@ class Tab1Modal extends React.Component {
                                       {/*<div className="max">
                                         <div className="name">最大节点数</div>
                                         <div className="mmItem">*/}
-                                          <Input id="maxInput" {...getFieldProps('max', { initialValue: max,
-                                            validate: [{
-                                              rules: [
-                                                { required: true, message: '请输入最大拓展数' },
-                                              ],
-                                              trigger: ['onBlur', 'onChange'] ,
-                                            }],
-                                            onChange: this.maxChange,
-                                            onBlur: this.maxBlur,})} className="item" placeholder="1" />
+                                        <InputNumber min={parseInt(this.props.form.getFieldValue("min"))} {...getFieldProps('max', { initialValue: max,
+                                          validate: [{
+                                            rules: [
+                                              { required: true, message: '请输入最大拓展数' },
+                                            ],
+                                          }],
+                                          onChange: this.maxChange,
+                                          onBlur: this.maxBlur,})} className="item" placeholder="1" />
                                         {/*</div>
                                       </div>*/}
                                     </FormItem>

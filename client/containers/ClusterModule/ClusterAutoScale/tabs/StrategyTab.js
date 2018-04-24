@@ -15,6 +15,7 @@ import * as autoScalerActions from '../../../../actions/clusterAutoScaler';
 import { connect } from 'react-redux';
 import '../style/IaasTab.less';
 import '../style/StrategyTab.less';
+import { LOAD_INSTANT_INTERVAL } from '../../../../../src/constants/index';
 import Tab2Modal from './StrategyTabModal.js';
 import NotificationHandler from '../../../../../src/components/Notification';
 
@@ -77,6 +78,7 @@ class Tab2 extends React.Component {
       this.loadData();
       notify.close();
       notify.success('删除成功');
+      this.props.delCallBack();//删除之后 刷新 tab1列表
       this.setState({
         deleteLoading: false,
         isShowDelModal: false,
@@ -132,19 +134,20 @@ class Tab2 extends React.Component {
   onCancel = () => {
     this.setState({isShowDelModal: false});
   }
-  loadData() {
-    getServerList({});
+  loadData = () => {
+    this.props.getServerList({});
+  }
+  loadDataDidMount = () => {
+    this.props.getServerList({});
+    // console.log(LOAD_INSTANT_INTERVAL)
+    // this.props.getServerList({}).then((res) => {
+    //   setInterval(() => {
+    //     this.props.getServerList({});
+    //   }, LOAD_INSTANT_INTERVAL)
+    // });;
   }
   render() {
     const { serverList, isFetching } = this.props;
-    getServerList = this.props.getServerList;
-    if (isFetching) {
-      return (
-        <div className="loadingBox">
-          <Spin size="large"/>
-        </div>
-      );
-    }
     const searchCls = classNames({
       'ant-search-input': true,
       'ant-search-input-focus': this.state.isSearchFocus,
@@ -217,6 +220,7 @@ class Tab2 extends React.Component {
     }else{
       tableData = [];
       total = 0;
+      allClusterIds = [];
     }
     const func = {
       scope: this,
@@ -257,13 +261,21 @@ class Tab2 extends React.Component {
             </div>
           </div>}
         </div>
-        <div className="tablePanel">
-          <Card>
-            <div className="reset_antd_table_header">
-            <Table columns={columns} dataSource={tableData} pagination={this.state.pagination} />
-            </div>
-          </Card>
-        </div>
+        {/*{
+          isFetching ?
+          <div className="loadingBox">
+            <Spin size="large"/>
+          </div>
+        : */}
+          <div className="tablePanel">
+            <Card>
+              <div className="reset_antd_table_header">
+              <Table columns={columns} loading={isFetching} dataSource={tableData} pagination={this.state.pagination} />
+              </div>
+            </Card>
+          </div>
+       {/* }*/}
+
 
         <Tab2Modal
           visible={this.state.isTab2ModalShow}
@@ -290,7 +302,7 @@ class Tab2 extends React.Component {
     )
   }
   componentDidMount() {
-    this.loadData();
+    this.loadDataDidMount();
   }
 }
 

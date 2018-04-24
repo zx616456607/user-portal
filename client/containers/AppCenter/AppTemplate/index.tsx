@@ -14,7 +14,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import QueueAnim from 'rc-queue-anim';
 import { browserHistory } from 'react-router';
-import { Button, Icon, Pagination, Dropdown, Menu, Modal, Spin, Popover } from 'antd';
+import { Button, Icon, Pagination, Dropdown, Menu, Modal, Spin, Popover, Tooltip } from 'antd';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import SearchInput from '../../../components/SearchInput';
@@ -200,7 +200,9 @@ class TemplateList extends React.Component<any> {
               <Icon className="operation" type="setting" />
             </Popover>
             <img className="tempLogo" src={defaultApp}/>
-            <div className="templateDesc">{temp.versions[0].description}</div>
+            <Tooltip title={temp.versions[0].description} placement="top">
+              <div className="templateDesc textoverflow">{temp.versions[0].description}</div>
+            </Tooltip>
           </div>
           <div className="templateFooter">
             <div className="templateName">{temp.name}</div>
