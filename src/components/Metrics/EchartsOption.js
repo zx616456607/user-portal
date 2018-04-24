@@ -11,7 +11,7 @@
 
 import ColorHash from 'color-hash'
 const colorHash = new ColorHash()
-import { formatDate } from "../../common/tools";
+import { formatDate, genRandomString } from "../../common/tools";
 
 export default class EchartsOption {
   constructor(text) {
@@ -78,7 +78,7 @@ export default class EchartsOption {
   setXAxis(key, option) {
     this.xAxis[key] = option
   }
-  
+
   setGrid(grid) {
     this.grid = grid
   }
@@ -90,11 +90,11 @@ export default class EchartsOption {
   setToolTipUnit(unit) {
     this.tooltipUnit = unit
   }
-  
+
   setTooltip(key, value) {
     this.tooltip[key] = value
   }
-  
+
   setXAxisData(data) {
     this.xAxis.data = data
   }
@@ -148,7 +148,8 @@ export default class EchartsOption {
     }
     if (name) {
       seriesItem.name = name
-      seriesItem.itemStyle.normal.color = colorHash.hex(name.substr(name.lastIndexOf('-') + 1))
+      seriesItem.itemStyle.normal.color = colorHash.hex(genRandomString())
+      // seriesItem.itemStyle.normal.color = colorHash.hex(name.substr(name.lastIndexOf('-') + 1))
       this.legend.data.push(name)
 
     }

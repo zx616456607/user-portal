@@ -38,7 +38,7 @@ export default class ChartComponent extends React.Component {
     if (isEmpty(data)) {
       return
     }
-    if (reg.test(metrics) || reg.test(unit)) {
+    if (reg.test(metrics) || reg.test(unit) || /B/.test(unit)) {
       let maxValue = 0
       data.forEach(item => {
         !isEmpty(item.metrics) && item.metrics.forEach(metric => {
