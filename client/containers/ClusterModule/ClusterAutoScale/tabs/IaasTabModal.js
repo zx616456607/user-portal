@@ -277,8 +277,8 @@ class Tab1Modal extends React.Component {
       if(!b){
         return;
       }
-      console.log('Submit!!!');
-      console.log(values);
+      //console.log('Submit!!!');
+      //console.log(values);
       const temp1 = JSON.parse(JSON.stringify(values));
       const temp2 = JSON.parse(JSON.stringify(form1Data));
       let temp = Object.assign({}, temp1, temp2);
