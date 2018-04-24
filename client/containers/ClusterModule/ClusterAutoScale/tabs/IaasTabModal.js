@@ -324,18 +324,16 @@ class Tab1Modal extends React.Component {
     addTimer = null;
   }
   minBlur = (e) => {
-    console.log("minBlur", e.target.value)
+    //console.log("minBlur", e.target.value)
   }
-  minChange = (e) => {
-    console.log("minChange", e)
-    //console.log(e.target.value)
+  minChange = (value) => {
+    //console.log("minChange", value)
   }
   maxBlur = (e) => {
-    console.log("maxBlur", e.target.value)
+    //console.log("maxBlur", e.target.value)
   }
   maxChange = (e) => {
-    console.log("maxChange", e)
-    //console.log(e.target.value)
+    //console.log("maxChange", value)
   }
   render(){
     const { clusterList, isModalFetching,
