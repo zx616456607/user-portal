@@ -565,6 +565,11 @@ class ResourceModal extends Component {
           this.setleftTree(arr);
         },
         isAsync: true
+      },
+      failed: {
+        func: () => {
+          this.setleftTree([]);
+        }
       }
     })
   }
@@ -588,6 +593,11 @@ class ResourceModal extends Component {
           this.setleftTree(arr);
         },
         isAsync: true
+      },
+      failed: {
+        func: () => {
+          this.setleftTree([]);
+        }
       }
     })
   }
@@ -610,6 +620,11 @@ class ResourceModal extends Component {
           this.setleftTree(arr);
         },
         isAsync: true
+      },
+      failed: {
+        func: () => {
+          this.setleftTree([]);
+        }
       }
     })
   }
@@ -667,6 +682,11 @@ class ResourceModal extends Component {
           this.setleftTree(arr);
         },
         isAsync: true,
+      },
+      failed: {
+        func: () => {
+          this.setleftTree([]);
+        }
       }
     })
   }
