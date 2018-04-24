@@ -116,7 +116,7 @@ class Tab1 extends React.Component {
             func: err => {
               const { statusCode, message } = err;
               common();
-              notify.warn(`删除策略 ${this.state.currentData.name} 失败，错误代码: ${statusCode}， ${message}`);
+              notify.warn(`删除策略 ${this.state.currentData.name} 失败， ${message}`);
             },
             isAsync: true,
           }
@@ -140,7 +140,7 @@ class Tab1 extends React.Component {
       failed: {
         func: err => {
           const { statusCode, message } = err
-          notify.warn(`${rowData.status === "on" ? "停用" : "启用"} 失败，错误代码: ${statusCode}， ${message}`)
+          notify.warn(`${rowData.status === "on" ? "停用" : "启用"} 失败， ${message}`)
         },
       }
     });
