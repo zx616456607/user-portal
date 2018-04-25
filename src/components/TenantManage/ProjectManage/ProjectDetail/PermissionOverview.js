@@ -23,6 +23,7 @@ import { DEFAULT_IMAGE_POOL } from '../../../../constants'
 import { loadConfigGroup } from '../../../../actions/configs'
 import { getSecrets } from '../../../../actions/secrets'
 import { deletePermissionControl, setPermission } from '../../../../actions/permission'
+import { wrapManageList } from '../../../../actions/app_center'
 import './style/PermissionOverview.less'
 import PermissionTree from './PermissionTree'
 import Notification from '../../../Notification'
@@ -53,7 +54,7 @@ class PermissionOverview extends React.Component{
   componentDidMount() {
     const {
       clusterID, loadAppList, loadAllServices, loadContainerList,
-      loadStorageList, loadConfigGroup, getSecrets, project
+      loadStorageList, loadConfigGroup, getSecrets, project, wrapManageList
     } = this.props
     let storageList = []
     const headers = { project }
@@ -78,6 +79,8 @@ class PermissionOverview extends React.Component{
         storageList
       })
     })
+
+    wrapManageList({ from: 0, size: 100, headers })
   }
 
   getPanelHeader = (title) => {
@@ -97,6 +100,9 @@ class PermissionOverview extends React.Component{
         break;
       case "volume":
         titleCn = "存储";
+        break;
+      case "applicationPackage":
+        titleCn = "应用包";
         break;
     }
     return (
@@ -288,7 +294,7 @@ class PermissionOverview extends React.Component{
 
   renderOverview = () => {
     const { storageList } = this.state
-    const { permissionOverview, openPermissionModal, appList, allServices, containerList, allConfig } = this.props
+    const { permissionOverview, openPermissionModal, appList, allServices, containerList, allConfig, pkgs } = this.props
     const { application, service, container, volume, configuration } = permissionOverview
     const overviewList = []
 
@@ -317,6 +323,9 @@ class PermissionOverview extends React.Component{
               break;
             case 'config':
               existed = allConfig.some(item => item.name === record.name)
+              break;
+            case 'applicationPackage':
+              existed = pkgs.some(item => item.fileName === record.name)
               break;
             default:
               break;
@@ -397,7 +406,7 @@ class PermissionOverview extends React.Component{
 }
 
 const mapStateToProps = (state, props) => {
-  const { entities, apps, role, services, containers, configReducers, secrets } = state
+  const { entities, apps, role, services, containers, configReducers, secrets, images } = state
   const { clusterID } = props
   const { appItems } = apps
   const { appList } = appItems[clusterID] || { appList: []}
@@ -410,12 +419,19 @@ const mapStateToProps = (state, props) => {
   const { configGroup } = configGroupList[clusterID] || { configGroup: [] }
   // const { list } = secrets
   // const { data: secretList } = list[clusterID] || { data: [] }
+
+  const { wrapList } = images
+  const { result } = wrapList || { result: {} }
+  const { data: pkgData } = result || { data: [] }
+  const { pkgs } = pkgData || { pkgs: [] }
+
   return {
     appList,
     permissionOverview,
     allServices,
     containerList,
-    allConfig: configGroup
+    allConfig: configGroup,
+    pkgs
   }
 }
 
@@ -427,5 +443,6 @@ export default connect(mapStateToProps,{
   loadContainerList,
   loadStorageList,
   loadConfigGroup,
-  getSecrets
+  getSecrets,
+  wrapManageList
 })(PermissionOverview)
