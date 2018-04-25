@@ -46,7 +46,9 @@ export const GET_SECRETS_FAILURE = 'GET_SECRETS_FAILURE'
 
 function fetchGetSecrets(clusterID, query) {
   let endpoint = `${API_URL_PREFIX}/clusters/${clusterID}/secrets`
+  const newQuery = Object.assign({}, query)
   if (query) {
+    delete query.headers
     endpoint += `?${toQuerystring(query)}`
   }
   return {
@@ -54,7 +56,10 @@ function fetchGetSecrets(clusterID, query) {
     [FETCH_API]: {
       types: [ GET_SECRETS_REQUEST, GET_SECRETS_SUCCESS, GET_SECRETS_FAILURE ],
       endpoint,
-      schema: {}
+      schema: {},
+      options: {
+        headers: newQuery.headers
+      }
     }
   }
 }

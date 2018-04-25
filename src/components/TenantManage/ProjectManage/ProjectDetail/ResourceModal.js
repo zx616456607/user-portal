@@ -18,6 +18,8 @@ import { loadContainerList } from '../../../../actions/app_manage'
 import { DEFAULT_IMAGE_POOL } from '../../../../constants'
 import { loadStorageList } from '../../../../actions/storage'
 import { loadConfigGroup } from '../../../../actions/configs'
+import { wrapManageList } from '../../../../actions/app_center'
+import { getSecrets } from '../../../../actions/secrets'
 import Notification from '../../../../components/Notification'
 import xor from 'lodash/xor'
 import intersection from 'lodash/intersection'
@@ -697,6 +699,59 @@ class ResourceModal extends Component {
       this.setleftTree(arr);
     })
   }
+  getSecrets() {
+    const scope = this.props.scope;
+    const { name } = scope.props.location.query
+    const headers = { project: name };
+    const query = { from: 0, size: 9999, sortOrder:"desc", sortBy: "create_time" , headers};
+    //scope.state.selectedCluster,
+    this.props.getSecrets(this.props.scope.state.selectedCluster, query, {
+      success: {
+        func: (res) => {
+          let arr = [];
+          res.data.map( (item) => {
+            let fixed = this.props.permissionOverview[this.props.currResourceType].acls.fixed;
+            if(fixed[item.name]) return;
+            arr.push(item.name)
+          });
+          this.setleftTree(arr);
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          this.setleftTree([]);
+        }
+      }
+    })
+  }
+  wrapManageList() {
+    const scope = this.props.scope;
+    const { name } = scope.props.location.query
+    const headers = { project: name };
+    const query = { from: 0, size: 9999, sortOrder:"desc", sortBy: "create_time" , headers};
+    //scope.state.selectedCluster,
+    this.props.wrapManageList(query, {
+      success: {
+        func: (res) => {
+          let arr = [];
+          res.data.pkgs.map( (item) => {
+            let fixed = this.props.permissionOverview[this.props.currResourceType].acls.fixed;
+            if(fixed[item.fileName]) return;
+            arr.push(item.fileName)
+          });
+          arr = _.uniq(arr); //去重
+          this.setleftTree(arr);
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          this.setleftTree([]);
+        }
+      }
+    })
+  }
   loadConfigGroup() {
     const scope = this.props.scope;
     const { name } = scope.props.location.query
@@ -766,6 +821,16 @@ class ResourceModal extends Component {
         this.loadConfigGroup();
         //console.log("configuration");
         break;
+      case "applicationPackage":
+        this.wrapManageList();
+        //console.log("applicationPackage");
+        break;
+      case "secret":
+        this.getSecrets();
+        //console.log("secret");
+        break;
+
+
     }
   }
 }
@@ -785,4 +850,6 @@ export default ResourceModal = connect(mapStateToSecondProp, {
   loadContainerList,
   loadStorageList,
   loadConfigGroup,
+  wrapManageList,
+  getSecrets,
 })(ResourceModal)
