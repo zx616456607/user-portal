@@ -82,7 +82,7 @@ export default class PermissionTree extends React.Component {
     onChange(checked)
   }
 
-  componentDidMount() {
+  componentWillMount() {
     const { type, value, record } = this.props
     this.getTrees(type, value, record)
   }
