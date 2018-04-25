@@ -133,9 +133,10 @@ class TemplateList extends React.Component<any> {
     formatServiceToArrry(detail, templateArray);
     templateArray.reverse();
     const setArray = [];
-    templateArray.forEach(temp => {
+    templateArray.forEach((temp, index, _array) => {
+      const isLast = index === _array.length - 1;
       const id = this.genConfigureServiceKey();
-      const values = parseToFields(temp, chart);
+      const values = parseToFields(temp, chart, isLast);
       setArray.push(setFormFields(id, values));
     });
     await Promise.all(setArray);
