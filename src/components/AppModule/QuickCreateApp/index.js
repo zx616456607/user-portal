@@ -279,10 +279,11 @@ class QuickCreateApp extends Component {
         const nameString = isSecret ? 'secretConfigGroupName' : 'configGroupName'
         const field = `${nameString}${key.value}`
         const configGroupName =
-          isSecret ?
-            currentFields[`${nameString}${key.value}`].value
-            :
-            currentFields[`${nameString}${key.value}`].value[1]
+                isSecret
+                ?
+                currentFields[`${nameString}${key.value}`].value
+                :
+                currentFields[`${nameString}${key.value}`].value[1]
         if (item.resourceName === configGroupName) {
           Object.assign(configMapErrors, {
             [field]: {
@@ -292,7 +293,7 @@ class QuickCreateApp extends Component {
                 message: isSecret ? `加密配置 ${configGroupName} 不存在` : `配置组 ${configGroupName} 名称重复`,
                 field
               }]
-  }
+            }
           })
           return
         }
@@ -300,6 +301,37 @@ class QuickCreateApp extends Component {
     })
 
     return configMapErrors
+  }
+
+  formatSecretEnvErrors = currentFields => {
+    const { templateDeployCheck } = this.props
+    const { envKeys, serviceName } = currentFields
+    const { data } = templateDeployCheck
+    const secretEnvErrors = {}
+    const currentErrors = data.filter(err => err.name === serviceName.value)[0]
+
+    currentErrors.content.forEach(item => {
+
+      envKeys.value.forEach(key => {
+        const field = `envValue${key.value}`
+        const fieldValue = currentFields[field].value[0]
+        if (item.resourceName === fieldValue) {
+          Object.assign(secretEnvErrors, {
+            [field]: {
+              name: field,
+              value: '',
+              errors: [{
+                message: `加密变量 ${fieldValue} 不存在`,
+                field
+              }]
+            }
+          })
+          return
+        }
+      })
+    })
+
+    return secretEnvErrors
   }
 
   deployCheck = async (props) => {
@@ -403,6 +435,10 @@ class QuickCreateApp extends Component {
                   errors: storageErrors
                 }
               })
+              break
+            case 9:
+              const secretEnvErrors = this.formatSecretEnvErrors(value)
+              Object.assign(errorFields, secretEnvErrors)
               break
             default:
               break
@@ -1215,6 +1251,8 @@ class QuickCreateApp extends Component {
         return <span>集群禁用本地（host）存储</span>
       case 8:
         return <span>没有安装amp</span>
+      case 9:
+        return <span>加密变量 <span className="themeColor">{record.resourceName}</span> 不存在</span>
       default:
         return
     }
