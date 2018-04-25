@@ -18,6 +18,7 @@ import 'whatwg-fetch' // For Edge browser
 const SKIP_CAMELIZE_KEYS_ENDPOINTS = [
   /^\/clusters\/[\-\w]+\/secrets/,
   /^\/devops\/ci\-flows\/[\-\w]+\/getBuildLogs/,
+  /^\/permission\/access\-controls\/overview/,
 ]
 
 // Fetches an API response

@@ -278,9 +278,14 @@ class ResourceModal extends Component {
       notify.info('表达式输入有误, 请验证后输入表达式');
     }
   }
-  onTreeCheck = (keys) => {
+  onleftTreeCheck = (keys) => {
     this.setState({
       checkedKeys:keys,
+    });
+  }
+  onrightTreeCheck = (keys) => {
+    this.setState({
+      alreadyCheckedKeys:keys,
     });
   }
   onPermissionCheck = (keys) => {
@@ -288,9 +293,20 @@ class ResourceModal extends Component {
       permissionKeys:keys,
     });
   }
-  onAlreadyCheck = (keys) => {
+
+  onleftTreeSelect = (keys) => {
+    this.setState({
+      checkedKeys:keys,
+    });
+  }
+  onrightTreeSelect = (keys) => {
     this.setState({
       alreadyCheckedKeys:keys,
+    });
+  }
+  onPermissionSelect = (keys) => {
+    this.setState({
+      permissionKeys:keys,
     });
   }
   onRightSearchChange = (rightValue) => {
@@ -401,7 +417,7 @@ class ResourceModal extends Component {
                       <Col span="10">
                         <div className='leftBox'>
                           <div className='header'>
-                            <Checkbox checked={checkedKeys.toString() === leftShowNames.toString() && leftShowNames.toString() !== ""} onClick={this.selectAll}>可选</Checkbox>
+                            <Checkbox checked={checkedKeys.length === leftShowNames.length && leftShowNames.toString() !== ""} onClick={this.selectAll}>可选</Checkbox>
                             <div className='numberBox'>共 <span className='number'>{leftShowNames.length}</span> 条</div>
                           </div>
                           <CommonSearchInput
@@ -418,10 +434,12 @@ class ResourceModal extends Component {
                                 leftShowNames.length
                                   ? <Tree
                                   checkable
-                                  onExpand={this.onExpand}
-                                  onCheck={this.onTreeCheck}
-                                  checkedKeys={this.state.checkedKeys}
-                                  key="tree"
+                                  multiple={true}
+                                  onCheck={this.onleftTreeCheck}
+                                  onSelect={this.onleftTreeSelect}
+                                  checkedKeys={checkedKeys}
+                                  selectedKeys={checkedKeys}
+                                  key="leftTree"
                                 >
                                   {loopFunc(leftShowNames)}
                                 </Tree>
@@ -446,7 +464,9 @@ class ResourceModal extends Component {
                       <Col span="10">
                         <div className='rightBox'>
                           <div className='header'>
-                            <Checkbox onClick={this.selectAllSel} checked={alreadyCheckedKeys.toString() === rightShowNames.toString() && rightShowNames.toString() !== ""}>已选</Checkbox>
+                            <Checkbox onClick={this.selectAllSel} checked={(() => {
+                              return alreadyCheckedKeys.length === rightShowNames.length && rightShowNames.toString() !== ""
+                            })()}>已选</Checkbox>
                             <div className='numberBox'>共 <span className='number'>{rightShowNames.length}</span> 条</div>
                           </div>
                           <CommonSearchInput
@@ -462,10 +482,13 @@ class ResourceModal extends Component {
                               {
                                 rightShowNames.length
                                   ? <Tree
-                                  checkable multiple
-                                  onCheck={this.onAlreadyCheck}
-                                  checkedKeys={this.state.alreadyCheckedKeys}
-                                  key={this.state.rightTreeKey}
+                                  checkable
+                                  multiple={true}
+                                  onCheck={this.onrightTreeCheck}
+                                  onSelect={this.onrightTreeSelect}
+                                  checkedKeys={alreadyCheckedKeys}
+                                  selectedKeys={alreadyCheckedKeys}
+                                  key="rightTree"
                                 >
                                   {loop(rightShowNames)}
                                 </Tree>
@@ -489,15 +512,22 @@ class ResourceModal extends Component {
               <Col span={21}>
                 <div className='leftBox'>
                   <div className='header'>
-                    <Checkbox onClick={this.selectPermissionAll}><div className='numberBox'>共 <span className='number'>{permission.length}</span> 条</div></Checkbox>
+                    <Checkbox onClick={this.selectPermissionAll} checked={(() => {
+                              return permissionKeys.length === permission.length && permission.toString() !== ""
+                            })()}>
+                      <div className='numberBox'>共 <span className='number'>{permission.length}</span> 条</div>
+                    </Checkbox>
                     <div className='numberBox floatRight'>已选 <span className='number'>{permissionKeys.length}</span> 条</div>
                   </div>
                   <div className='body'>
                     <div>
                     <Tree
-                      checkable multiple
+                      checkable
+                      multiple={true}
                       onCheck={this.onPermissionCheck}
+                      onSelect={this.onPermissionSelect}
                       checkedKeys={permissionKeys}
+                      selectedKeys={permissionKeys}
                       key="permissionTree"
                     >
                       {loopPermission(permission)}
@@ -615,8 +645,8 @@ class ResourceModal extends Component {
           let arr = [];
           res.data.map( (item) => {
             let fixed = this.props.permissionOverview[this.props.currResourceType].acls.fixed;
-            if(fixed[item.metadata.generateName]) return;
-            arr.push(item.metadata.generateName)
+            if(fixed[item.metadata.name]) return;
+            arr.push(item.metadata.name)
           });
           this.setleftTree(arr);
         },

@@ -165,7 +165,7 @@ class Tab2Modal extends React.Component {
             failed: {
               func: err => {
                 const { statusCode, message } = err
-                notify.warn(`更新资源池配置失败，${message}`);
+                notify.warn(`更新资源池配置失败，${typeof message === "object" ? message.message : message}`);
                 this.setState({
                   submitLoading: false,
                 });
@@ -196,7 +196,7 @@ class Tab2Modal extends React.Component {
             failed: {
               func: err => {
                 const { statusCode, message } = err;
-                notify.warn(`新建资源池配置失败，${message}`);
+                notify.warn(`新建资源池配置失败，${typeof message === "object" ? message.message : message}`);
                 this.setState({
                   submitLoading: false,
                 });
