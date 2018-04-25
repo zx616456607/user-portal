@@ -846,7 +846,9 @@ export const GET_WRAP_MANAGE_LIST_FAILURE = 'GET_WRAP_MANAGE_LIST_FAILURE'
 
 function fetchWrapManageList(query,callback) {
   let endpointUrl = `${API_URL_PREFIX}/pkg`
+  const newQuery = Object.assign({}, query)
   if (query) {
+    delete query.headers
     endpointUrl += `?${toQuerystring(query)}`
   }
   return {
@@ -854,6 +856,9 @@ function fetchWrapManageList(query,callback) {
       types: [GET_WRAP_MANAGE_LIST_REQUEST, GET_WRAP_MANAGE_LIST_SUCCESS, GET_WRAP_MANAGE_LIST_FAILURE],
       endpoint: endpointUrl,
       schema: Schemas.REGISTRYS,
+      options: {
+        headers: newQuery.headers
+      }
     },
     callback
   }

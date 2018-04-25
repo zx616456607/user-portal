@@ -23,6 +23,11 @@ exports.getPkgManageList = function*() {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const query = this.query
+  const { project } = this.request.headers || { project: null }
+  const headers = {}
+  if (project) {
+    Object.assign(headers, { project })
+  }
   // let page = parseInt(query.page || DEFAULT_PAGE)
   // let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
   // let name = query.filename
@@ -38,7 +43,7 @@ exports.getPkgManageList = function*() {
   //   queryObj.filter = `filename ${name}`
   // }
 
-  const list = yield api.pkg.get(query)
+  const list = yield api.pkg.get(query, { headers })
   if (list.data) {
     list.data.registry = global.globalConfig.registryConfig.url
   }
