@@ -42,8 +42,8 @@ export default class ChartComponent extends React.Component {
       let maxValue = 0
       data.forEach(item => {
         !isEmpty(item.metrics) && item.metrics.forEach(metric => {
-          if (metric.floatValue > maxValue) {
-            maxValue = metric.floatValue
+          if (metric.floatValue > maxValue || metric.value > maxValue) {
+            maxValue = metric.floatValue || metric.value
           }
         })
       })
