@@ -330,7 +330,7 @@ class PermissionOverview extends React.Component{
     const { permissionOverview, openPermissionModal, appList, allServices, containerList, allConfig, pkgs, secretList } = this.props
     const { application, service, container, volume, configuration, applicationPackage, secret } = permissionOverview
     const overviewList = []
-    const sortArr = ["application", "service", "container", "volume", "applicationPackage", "configuration", "secret"];
+    const sortArr = ["application", "service", "container", "volume", "configuration", "secret", "applicationPackage"];
     let overviewArr = [];
     let tempOverview = Object.entries(permissionOverview);
     loop:for(let i = 0; i < sortArr.length; i++){
