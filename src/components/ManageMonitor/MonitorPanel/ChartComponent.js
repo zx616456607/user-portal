@@ -89,7 +89,7 @@ export default class ChartComponent extends React.Component {
           defaultValue
         ])
       })
-      option.addSeries(dataArr, decamelize(item.name, { separator: '-' }))
+      option.addSeries(dataArr, item.name)
       option.setXAxis('axisLabel', {
         formatter: value => formatDate(value, 'HH:mm')
       })
