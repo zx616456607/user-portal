@@ -26,6 +26,7 @@ export default class EchartsOption {
       show: false
     }
     this.tooltipUnit = ''
+    this.isNexport = false
     this.tooltip = {
       trigger: 'axis',
       formatter: (params) => {
@@ -91,6 +92,10 @@ export default class EchartsOption {
     this.tooltipUnit = unit
   }
 
+  setNexportFlag(flag) {
+    this.isNexport = flag
+  }
+
   setTooltip(key, value) {
     this.tooltip[key] = value
   }
@@ -148,8 +153,11 @@ export default class EchartsOption {
     }
     if (name) {
       seriesItem.name = name
-      seriesItem.itemStyle.normal.color = colorHash.hex(genRandomString())
-      // seriesItem.itemStyle.normal.color = colorHash.hex(name.substr(name.lastIndexOf('-') + 1))
+      let colorString = name.substr(name.lastIndexOf('-') + 1)
+      if (this.isNexport) {
+        colorString = name
+      }
+      seriesItem.itemStyle.normal.color = colorHash.hex(colorString)
       this.legend.data.push(name)
 
     }
