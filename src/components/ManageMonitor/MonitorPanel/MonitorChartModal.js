@@ -55,13 +55,13 @@ function formatMetric(result, currentName) {
       break
     }
     if (!i.includes(currentName)) {
-      continue
+      break
     }
-    i = i.replace(`-${currentName}`, '')
-    const lastIndex = i.lastIndexOf('-')
-    i = i.slice(0, lastIndex)
+    let copyKey = i.replace(`-${currentName}`, '')
+    const lastIndex = copyKey.lastIndexOf('-')
+    copyKey = copyKey.slice(0, lastIndex)
     let obj = {
-      name: i,
+      name: copyKey,
       ...result[i]
     }
     data.push(obj)
