@@ -483,11 +483,10 @@ const MyComponent = React.createClass({
 
     return (
       <div className='imageList'>
-        <Pagination simple defaultCurrent={1} total={nodeList && nodeList.length}/>
         <Table
           columns={column}
           dataSource={nodeList}
-          pagination={false}
+          pagination={{simple: true}}
           loading={isFetching}
         />
       </div>
