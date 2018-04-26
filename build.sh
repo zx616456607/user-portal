@@ -25,7 +25,7 @@ build_user_portal_backend() {
   set -x
   set +e
   echo "start build backtend files ..."
-  outputPath="dist"
+  outputPath="backend"
   tmp="user_portal_tmp"
 
   # 如果在私有云，在构建之前删除只有在 standard 模式下用到的代码（支付宝、微信配置等）
