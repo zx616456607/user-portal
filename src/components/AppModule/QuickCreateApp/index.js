@@ -665,11 +665,11 @@ class QuickCreateApp extends Component {
     const { name, version } = body.chart;
     const result = await appTemplateDeploy(clusterID, name, version, body);
     if (result.error) {
-      return
       this.setState({
         stepStatus: 'error',
         isCreatingApp: false,
       })
+      return
     }
     this.setState({
       stepStatus: 'finish',

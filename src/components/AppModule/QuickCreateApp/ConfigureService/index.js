@@ -484,6 +484,9 @@ let ConfigureService = React.createClass({
         }
       }
     }
+    if (location && location.query && location.query.template) {
+      return callback()
+    }
     clearTimeout(this.serviceNameExistsTimeout)
     this.serviceNameExistsTimeout = setTimeout(() => {
       checkServiceName(current.cluster.clusterID, value, {
