@@ -357,7 +357,7 @@ class Tab1 extends React.Component {
         dataIndex: 'min',
         width: 100,
       }, {
-        title: '最大拓展',
+        title: '最大扩展',
         dataIndex: 'max',
         width: 100,
       },
@@ -508,7 +508,7 @@ class Tab1 extends React.Component {
                   </div>
                   <div className="cardPart">
                     <p><span className="leftTitle">最少保留</span><span className="rightContent">{currentData.min + " 个"}</span></p>
-                    <p><span className="leftTitle">最大拓展</span><span className="rightContent">{currentData.max + " 个"}</span></p>
+                    <p><span className="leftTitle">最大扩展</span><span className="rightContent">{currentData.max + " 个"}</span></p>
                     {/* <p><span className="leftTitle">阈值</span><span className="rightContent">{currentData.xxx1}</span></p> */}
                     {/* <p><span className="leftTitle">伸缩活动</span><span className="rightContent">{"增加 " + currentData.max + " 台"}</span></p> */}
                   </div>

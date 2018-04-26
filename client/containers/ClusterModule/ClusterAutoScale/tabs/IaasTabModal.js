@@ -614,7 +614,7 @@ class Tab1Modal extends React.Component {
                                       </div>*/}
                                     <span className="unit count">个</span>
                                     <FormItem className="unitWapper" labelCol={{ span: 24 }} wrapperCol={{ span: 18 }}
-                                      label="最大拓展"
+                                      label="最大扩展"
                                     >
                                       {/*<div className="max">
                                         <div className="name">最大节点数</div>
@@ -622,7 +622,7 @@ class Tab1Modal extends React.Component {
                                         <InputNumber min={parseInt(this.props.form.getFieldValue("min"))} {...getFieldProps('max', { initialValue: max,
                                           validate: [{
                                             rules: [
-                                              { required: true, message: '请输入最大拓展数' },
+                                              { required: true, message: '请输入最大扩展数' },
                                             ],
                                           }],
                                           onChange: this.maxChange,
