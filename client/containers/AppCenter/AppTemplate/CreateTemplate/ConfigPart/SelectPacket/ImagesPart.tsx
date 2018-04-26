@@ -96,7 +96,7 @@ class ImagePart extends React.Component<IProps, IState> {
       imageType,
     });
     if (imageType === IMAGE_STORE) {
-      if (imageStoreList && isEmpty(imageStoreList.apps)) {
+      if (isEmpty(imageStoreList) || isEmpty(imageStoreList.apps)) {
         this.loadImageStore();
       }
       return;

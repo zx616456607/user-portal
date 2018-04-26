@@ -70,8 +70,14 @@ export default class ConfigPart extends React.Component<any, IState> {
 
   selectPacket = (image: object, registryServer: string, isWrap?: boolean) => {
     const { stepChange, getImageTemplate, template, getNewImageName, location } = this.props;
+    let finallyName = image.fileName;
+    if (image.repositoryName) {
+      finallyName = encodeImageFullname(image.repositoryName);
+    } else if (image.resourceName) {
+      finallyName = encodeImageFullname(image.resourceName);
+    }
     this.setState({
-      imageName: image.fileName || encodeImageFullname(image.repositoryName),
+      imageName: finallyName,
       registryServer,
     });
     if (isWrap) {
@@ -108,7 +114,7 @@ export default class ConfigPart extends React.Component<any, IState> {
       return;
     }
     const imageQuery = {
-      imageName: encodeImageFullname(image.repositoryName),
+      imageName: finallyName,
       registryServer,
       template: true,
     };
