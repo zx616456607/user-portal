@@ -163,11 +163,13 @@ const Storage = React.createClass({
     this.setState({ volumeSize: value })
   },
   renderStorageList() {
-    const { form, isTemplate } = this.props
+    const { form, isTemplate, location } = this.props
     const { getFieldValue, getFieldProps } = form
+    const { template } = location.query
     const storageListProps = getFieldProps('storageList')
     const serviceType = getFieldValue('serviceType')
     const storageList = getFieldValue('storageList') || []
+    const templateStorage = getFieldValue('templateStorage') || []
     if (serviceType && storageList.length > 0) {
       return storageList.map((item, index) => {
         let {
@@ -219,12 +221,20 @@ const Storage = React.createClass({
           'storage_row_style': true,
           'first_row': index == 0,
         })
+        let finallyName = volumeName || '-'
+        if (templateStorage.includes(name)) {
+          if (type !== 'host') {
+            finallyName = '动态生成'
+          } else {
+            finallyName = '-'
+          }
+        }
         return <Row key={`storagelist${index}`} className={rowClassName}>
           <Col span="4" className='text'>
             {this.formatType(type)}
           </Col>
           <Col span="4" className='text'>
-            {volumeName || '-'}
+            {finallyName}
           </Col>
           <Col span="8" className='text mountPath_style'>
             <Input value={mountPath} disabled />
