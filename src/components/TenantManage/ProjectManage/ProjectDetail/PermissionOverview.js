@@ -330,8 +330,19 @@ class PermissionOverview extends React.Component{
     const { permissionOverview, openPermissionModal, appList, allServices, containerList, allConfig, pkgs, secretList } = this.props
     const { application, service, container, volume, configuration, applicationPackage, secret } = permissionOverview
     const overviewList = []
-
-    for(let [key, value] of Object.entries(permissionOverview)) {
+    const sortArr = ["application", "service", "container", "volume", "applicationPackage", "configuration", "secret"];
+    let overviewArr = [];
+    let tempOverview = Object.entries(permissionOverview);
+    loop:for(let i = 0; i < sortArr.length; i++){
+      for(let j of tempOverview){
+        if(j[0] === sortArr[i]){
+          overviewArr.push(j);
+          continue loop;
+        }
+      }
+    }
+    //console.log(overviewArr);
+    for(let [key, value] of overviewArr) {
       if (key === 'isFetching') {
         continue
       }

@@ -270,7 +270,7 @@ class Tab2Modal extends React.Component {
         onOk={this.onTab2ModalOk}
         onCancel={this.onCancel}
         onClose={this.props.onClose}
-        title="新建资源池配置"
+        title={ isEdit ? "编辑资源池配置" : "新建资源池配置"}
         okText="保存"
         width="550"
         maskClosable={false}
