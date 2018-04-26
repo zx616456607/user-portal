@@ -728,6 +728,7 @@ class MonitorChartModal extends React.Component {
                   <ChartComponent
                     unit={unit}
                     metrics={currentChart ? currentChart.metrics : metricsName}
+                    type={currentChart ? currentChart.type : getFieldValue('metrics_type')}
                     updateUnit={this.updateUnit}
                     sourceData={chartDate}
                   />
