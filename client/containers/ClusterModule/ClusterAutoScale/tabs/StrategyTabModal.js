@@ -165,7 +165,7 @@ class Tab2Modal extends React.Component {
             failed: {
               func: err => {
                 const { statusCode, message } = err
-                notify.warn(`更新资源池配置失败，${message}`);
+                notify.warn(`更新资源池配置失败，${typeof message === "object" ? message.message : message}`);
                 this.setState({
                   submitLoading: false,
                 });
@@ -196,7 +196,7 @@ class Tab2Modal extends React.Component {
             failed: {
               func: err => {
                 const { statusCode, message } = err;
-                notify.warn(`新建资源池配置失败，${message}`);
+                notify.warn(`新建资源池配置失败，${typeof message === "object" ? message.message : message}`);
                 this.setState({
                   submitLoading: false,
                 });
@@ -270,7 +270,7 @@ class Tab2Modal extends React.Component {
         onOk={this.onTab2ModalOk}
         onCancel={this.onCancel}
         onClose={this.props.onClose}
-        title="新建资源池配置"
+        title={ isEdit ? "编辑资源池配置" : "新建资源池配置"}
         okText="保存"
         width="550"
         maskClosable={false}

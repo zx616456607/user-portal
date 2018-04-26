@@ -27,13 +27,17 @@ export default class PermissionTree extends React.Component {
       case "application":
         return "应用";
       case "configuration":
-        return "配置";
+        return "普通配置";
       case "container":
         return "容器";
       case "service":
         return "服务";
       case "volume":
         return "存储";
+      case "applicationPackage":
+        return "应用包管理";
+      case "secret":
+        return "加密配置";
       default:
         return '未知';
     }

@@ -139,10 +139,23 @@ class TreeComponent extends Component {
       autoExpandParent: false,
     });
   }
+  onSelect = (keys) => {
+    this.setState({
+      checkedKeys:keys,
+      autoExpandParent: false,
+    });
+  }
 
   onAlreadyCheck = (checkedKeys) => {
     this.setState({
       alreadyCheckedKeys: checkedKeys,
+    },()=>{
+      this.isReadyCheck()
+    });
+  }
+  onAlreadySelect = (selectedKeys) => {
+    this.setState({
+      alreadyCheckedKeys: selectedKeys,
     },()=>{
       this.isReadyCheck()
     });
@@ -478,12 +491,14 @@ class TreeComponent extends Component {
                     filterLoading ? <span className='noPermission'><Spin/></span> :
                     filterOutPermissionInfo.length
                       ? <Tree
-                      checkable
+                      checkable multiple
                       // checkStrictly={true}
                       onExpand={this.onExpand}
                       onCheck={this.onCheck}
+                      onSelect={this.onSelect}
                       expandedKeys={this.state.expandedKeys}
                       checkedKeys={this.state.checkedKeys}
+                      selectedKeys={this.state.checkedKeys}
                       autoExpandParent={this.state.autoExpandParent}
                       key="tree"
                     >
@@ -528,7 +543,9 @@ class TreeComponent extends Component {
                       ? <Tree
                       checkable multiple
                       onCheck={this.onAlreadyCheck}
+                      onSelect={this.onAlreadySelect}
                       checkedKeys={this.state.alreadyCheckedKeys}
+                      selectedKeys={this.state.alreadyCheckedKeys}
                       key={this.state.rightTreeKey}
                     >
                       {loop(filterPermissionInfo)}

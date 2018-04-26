@@ -36,9 +36,14 @@ exports.removeGroup = function* () {
 exports.getGroups = function* () {
   const loginUser = this.session.loginUser
   const clusterID = this.params.clusterID
+  const { project } = this.request.headers || { project: null }
+  const headers = {}
+  if (project) {
+    Object.assign(headers, { project })
+  }
   const api = apiFactory.getK8sApi(loginUser)
 
-  const result = yield api.getBy([ clusterID, 'secrets'])
+  const result = yield api.getBy([ clusterID, 'secrets'], null, { headers })
   this.body = result
 }
 

@@ -62,7 +62,7 @@ class PermissionOverview extends React.Component{
     loadAllServices(clusterID, { pageIndex: 1, pageSize: 100, headers })
     loadContainerList(clusterID, { page: 1, size: 100, headers })
     loadConfigGroup(clusterID, headers)
-    // getSecrets(clusterID, { headers })
+    getSecrets(clusterID, { headers })
 
     const storageReqArr = [
       loadStorageList(DEFAULT_IMAGE_POOL, clusterID, Object.assign({}, PRIVATE_QUERY, { headers })),
@@ -82,15 +82,17 @@ class PermissionOverview extends React.Component{
 
     wrapManageList({ from: 0, size: 100, headers })
   }
-
-  getPanelHeader = (title) => {
-    let titleCn = "";
+  getColumnsTitle = (title) => {
+    let titleCn;
     switch(title){
       case "application":
         titleCn = "应用";
         break;
       case "configuration":
-        titleCn = "配置";
+        titleCn = "普通配置";
+        break;
+      case "secret":
+        titleCn = "加密配置";
         break;
       case "container":
         titleCn = "容器";
@@ -102,9 +104,40 @@ class PermissionOverview extends React.Component{
         titleCn = "存储";
         break;
       case "applicationPackage":
-        titleCn = "应用包";
+        titleCn = "应用包管理";
         break;
     }
+    return titleCn;
+  }
+  getTitle = (title) => {
+    let titleCn;
+    switch(title){
+      case "application":
+        titleCn = "应用";
+        break;
+      case "configuration":
+        titleCn = "服务配置 | 普通配置";
+        break;
+      case "secret":
+        titleCn = "服务配置 | 加密配置";
+        break;
+      case "container":
+        titleCn = "容器";
+        break;
+      case "service":
+        titleCn = "服务";
+        break;
+      case "volume":
+        titleCn = "存储";
+        break;
+      case "applicationPackage":
+        titleCn = "应用包管理";
+        break;
+    }
+    return titleCn;
+  }
+  getPanelHeader = (title) => {
+    let titleCn = this.getTitle(title);
     return (
       <div className="headerBox">
         <Row className="configBoxHeader" key="header">
@@ -294,16 +327,28 @@ class PermissionOverview extends React.Component{
 
   renderOverview = () => {
     const { storageList } = this.state
-    const { permissionOverview, openPermissionModal, appList, allServices, containerList, allConfig, pkgs } = this.props
-    const { application, service, container, volume, configuration } = permissionOverview
+    const { permissionOverview, openPermissionModal, appList, allServices, containerList, allConfig, pkgs, secretList } = this.props
+    const { application, service, container, volume, configuration, applicationPackage, secret } = permissionOverview
     const overviewList = []
-
-    for(let [key, value] of Object.entries(permissionOverview)) {
+    const sortArr = ["application", "service", "container", "volume", "applicationPackage", "configuration", "secret"];
+    let overviewArr = [];
+    let tempOverview = Object.entries(permissionOverview);
+    loop:for(let i = 0; i < sortArr.length; i++){
+      for(let j of tempOverview){
+        if(j[0] === sortArr[i]){
+          overviewArr.push(j);
+          continue loop;
+        }
+      }
+    }
+    //console.log(overviewArr);
+    for(let [key, value] of overviewArr) {
       if (key === 'isFetching') {
         continue
       }
+      let _that = this;
       const columns = [{
-        title: '服务名称',
+        title: _that.getColumnsTitle(key) + "名称",
         dataIndex: 'name',
         width: '50%',
         render: (text, record) =>{
@@ -321,11 +366,14 @@ class PermissionOverview extends React.Component{
             case 'container':
               existed = containerList.some(item => item.metadata.name === record.name)
               break;
-            case 'config':
+            case 'configuration':
               existed = allConfig.some(item => item.name === record.name)
               break;
             case 'applicationPackage':
               existed = pkgs.some(item => item.fileName === record.name)
+              break;
+            case 'secret':
+              existed = secretList.some(item => item.name === record.name)
               break;
             default:
               break;
@@ -417,8 +465,8 @@ const mapStateToProps = (state, props) => {
   const { containerList } = containerItems[clusterID] || { containerList: [] }
   const { configGroupList } = configReducers
   const { configGroup } = configGroupList[clusterID] || { configGroup: [] }
-  // const { list } = secrets
-  // const { data: secretList } = list[clusterID] || { data: [] }
+  const { list } = secrets
+  const { data: secretList } = list[clusterID] || { data: [] }
 
   const { wrapList } = images
   const { result } = wrapList || { result: {} }
@@ -431,6 +479,7 @@ const mapStateToProps = (state, props) => {
     allServices,
     containerList,
     allConfig: configGroup,
+    secretList,
     pkgs
   }
 }

@@ -181,7 +181,7 @@ class CreateRoleModal extends Component{
           func: (res) => {
             if (res.data.statusCode === 200) {
               notify.success('创建角色成功')
-              loadData && loadData()
+              loadData && loadData(res.data.data.roleID)
               // targetKeys = _.deepClone(scope.state.targetKeys);
               // targetKeys.push(res.data.data.roleID);
               scope.setState({characterModal:false}, () => {
@@ -285,10 +285,11 @@ class CreateRoleModal extends Component{
           </Form.Item>
           <Form.Item label="描述" {...formItemLayout}>
             <Input type="textarea" {...getFieldProps(`roleDesc`, {
-              rules: [
-                { validator: (rules,value,callback)=>this.roleDesc(rules,value,callback)},
-              ],
+
             }) }/>
+            {/*rules: [
+              { validator: (rules,value,callback)=>this.roleDesc(rules,value,callback)},
+            ],*/}
           </Form.Item>
           <Form.Item label="授权方式" {...formItemLayout}>
             <Radio.Group {...getFieldProps('permissionPolicyType', { initialValue: 1,

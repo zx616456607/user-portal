@@ -114,7 +114,7 @@ class ProjectDetail extends Component {
       projectsName: name
     })
   }
-  loadRoleList() {
+  loadRoleList(roleId) {
     const { ListRole } = this.props;
     const { projectDetail } = this.state;
     const targetKeys = [];
@@ -148,10 +148,16 @@ class ProjectDetail extends Component {
                 }
                 roleList.push(newData)
               }
-              this.setState({
+              //currentRoleInfo
+              let tempState = {
                 choosableList: roleList,
                 targetKeys
-              })
+              };
+              if(!!roleId){
+                const currRoleInfo = _.filter(roleList, {id: roleId})[0];
+                tempState.currentRoleInfo = currRoleInfo;
+              }
+              this.setState(tempState);
             }
           },
           isAsync: true
@@ -441,22 +447,22 @@ class ProjectDetail extends Component {
       },
     })
   }
-  getCurrentRole(id) {
+  getCurrentRole(id, type) {
     if (!id) return
     const { GetRole, roleWithMembers, PermissionResource } = this.props;
-    const { projectDetail, selectedCluster } = this.state;
+    const { projectDetail, selectedCluster, currentRoleInfo } = this.state;
     checkedKeysDetail.length = 0;
     let permissionPolicyType = 1;
     this.setState({
       checkedKeys: [],
       expandedKeys: [],
-      currentRoleInfo: {},
+      //currentRoleInfo: {},
       currentRolePermission: [],
       currentMembers: [],
       getRoleLoading: true
     }, () => {
       GetRole({
-        roleId: id
+        roleId: type === "click" ? id : !!currentRoleInfo && JSON.stringify(currentRoleInfo) !== "{}" ? currentRoleInfo.id : id
       }, {
           success: {
             func: (res) => {
@@ -977,7 +983,7 @@ class ProjectDetail extends Component {
 
     const roleList = projectDetail.relatedRoles && projectDetail.relatedRoles.map((item, index) => {
       return (
-        <li key={item.roleId} className={classNames({ 'active': currentRoleInfo && currentRoleInfo.id === item.roleId })} onClick={() => this.getCurrentRole(item.roleId)}>{item.roleName}
+        <li key={item.roleId} className={classNames({ 'active': currentRoleInfo && currentRoleInfo.id === item.roleId })} onClick={() => this.getCurrentRole(item.roleId, "click")}>{item.roleName}
           {
             (roleNum !== 3 || isManager) && !includes(disabledArr, item.roleId) &&
             <Tooltip placement="top" title="移除角色">
@@ -1412,6 +1418,12 @@ class ProjectDetail extends Component {
                     <div className="permissionContainer">
                       <div className="titleContainer">
                         <span className="title">该角色权限</span>
+                        <span className="clusterTitle">
+                          <svg className="clusterSvg">
+                            <use xlinkHref="#headercluster" />
+                          </svg>
+                          集群
+                        </span>
                         <Dropdown overlay={clusterMenu} trigger={['click']}>
                           <a className="ant-dropdown-link" href="#">
                             {!!clusterList && clusterList.length > 0 &&  clusterList.filter(item => item.clusterID === selectedCluster)[0].clusterName} <Icon type="down" />
@@ -1421,7 +1433,7 @@ class ProjectDetail extends Component {
                           <svg className="permissionIcon">
                             <use xlinkHref="#permission" />
                           </svg>
-                          {this.state.currpermissionPolicyType === 1 ? "所有资源统一授权" : "指定资源授权"}
+                          授权方式：{this.state.currpermissionPolicyType === 1 ? "所有资源统一授权" : "指定资源授权"}
                         </span>
                       </div>
 
