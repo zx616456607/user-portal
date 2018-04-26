@@ -16,6 +16,7 @@ import isEqual from 'lodash/isEqual'
 import { getMonitorMetrics, getServicesMetrics, getClustersMetrics } from '../../../actions/manage_monitor'
 import ChartComponent from './ChartComponent'
 import { bytesToSize } from '../../../common/tools'
+import { DEFAULT_REGISTRY } from '../../../constants'
 
 const nodeAndService = ['service', 'node']
 
@@ -145,14 +146,32 @@ class MonitorChartTemp extends React.Component {
 }
 
 function mapStateToProps(state, props) {
-  const { manageMonitor } = state
+  const { manageMonitor, entities } = state
   const { currentPanel, currentChart } = props
   const { type } = currentChart
   const monitorID =  currentPanel.iD + currentChart.id
   const { monitorMetrics, serviceMetrics, nodeMetrics } = manageMonitor
+  const { current, loginUser } = entities
+  const { projectName, userName: spaceUserName } = current.space
+  const { userName } = loginUser.info
+  let currentName = userName
+  if (projectName !== DEFAULT_REGISTRY) {
+    currentName = projectName
+  } else if (spaceUserName && (spaceUserName !== userName)) {
+    currentName = spaceUserName
+  }
+
   let finallyData
   if (type === 'nexport') {
     finallyData = monitorMetrics[monitorID] || { data: [], isFetching: true }
+    !isEmpty(finallyData.data) && finallyData.data.forEach(item => {
+      if (!item.name.includes(currentName)) {
+        return
+      }
+      item.name = item.name.replace(`-${currentName}`, '')
+      const lastIndex = item.name.lastIndexOf('-')
+      item.name = item.name.slice(0, lastIndex)
+    })
   } else if (type === 'service') {
     finallyData = serviceMetrics[monitorID] || { data: [], isFetching: true }
   } else {

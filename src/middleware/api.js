@@ -13,6 +13,13 @@ import { camelizeKeys } from 'humps'
 import { genRandomString, getType } from '../common/tools'
 import 'whatwg-fetch' // For Edge browser
 
+// These endpoints will skip camelize
+const SKIP_CAMELIZE_KEYS_ENDPOINTS = [
+  /^\/clusters\/[\-\w]+\/secrets/,
+  /^\/devops\/ci\-flows\/[\-\w]+\/getBuildLogs/,
+  /^\/clusters\/[\-\w]+\/services\/[\-\w]+\/metrics/,
+  /^\/clusters\/[\-\w]+\/metric\/nexport/,
+]
 // Fetches an API response
 function fetchApi(endpoint, options, schema) {
   if (!options) {
