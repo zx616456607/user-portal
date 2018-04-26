@@ -100,7 +100,7 @@ exports.getServiceMetrics = function* () {
   const result = yield api.getBy([cluster, 'metric', 'services', serviceName, 'metrics'], query)
   const data = result.data.map(item => {
     return {
-      ...item,
+      metrics: item.metrics,
       type: query.type,
       containerName: item.container_name
     }
