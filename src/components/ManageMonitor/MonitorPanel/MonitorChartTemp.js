@@ -119,6 +119,7 @@ class MonitorChartTemp extends React.Component {
               <ChartComponent
                 unit={unit}
                 metrics={currentChart.metrics}
+                type={currentChart.type}
                 updateUnit={this.updateUnit}
                 className="monitorChart"
                 sourceData={monitorMetrics}
