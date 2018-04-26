@@ -97,16 +97,24 @@ exports.getServiceMetrics = function* () {
     throw err
   }
   const api = apiFactory.getK8sApi(user)
-  const result = yield api.getBy([cluster, 'instances', 'services', serviceName, 'instances'])
-  const instances = result.data.instances || []
-  const promiseArray = instances.map((instance) => {
-    return _getContainerMetrics(user, cluster, instance, query)
+  const result = yield api.getBy([cluster, 'metric', 'services', serviceName, 'metrics'], query)
+  const data = result.data.map(item => {
+    return {
+      ...item,
+      type: query.type,
+      containerName: item.container_name
+    }
   })
-  const results = yield promiseArray
+  // const result = yield api.getBy([cluster, 'instances', 'services', serviceName, 'instances'])
+  // const instances = result.data.instances || []
+  // const promiseArray = instances.map((instance) => {
+  //   return _getContainerMetrics(user, cluster, instance, query)
+  // })
+  // const results = yield promiseArray
   this.body = {
     cluster,
     serviceName,
-    data: results
+    data
   }
 }
 
