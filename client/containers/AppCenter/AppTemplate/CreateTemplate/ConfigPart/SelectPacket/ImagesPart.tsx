@@ -40,6 +40,7 @@ interface IState {
 class ImagePart extends React.Component<IProps, IState> {
   state = {
     imageType: PUBLIC_IMAGES,
+    currentPage: 1,
   };
 
   componentWillMount() {
@@ -65,11 +66,11 @@ class ImagePart extends React.Component<IProps, IState> {
 
   loadImageStore() {
     const { getAppsList } = this.props;
-    const { searchInput, currentPage } = this.state;
+    const { searchValue, currentPage } = this.state;
     let notify = new NotificationHandler();
     let filter = 'type,2,publish_status,2';
-    if (searchInput) {
-      filter += `,file_nick_name,${searchInput}`;
+    if (searchValue) {
+      filter += `,file_nick_name,${searchValue}`;
     }
     let query = {
       form: (currentPage - 1) * 10,
@@ -122,8 +123,8 @@ class ImagePart extends React.Component<IProps, IState> {
     }
     const columns = [{
       title: '镜像名称',
-      dataIndex: imageType === IMAGE_STORE ? 'resourceName' : 'repositoryName',
-      key: imageType === IMAGE_STORE ? 'resourceName' : 'repositoryName',
+      dataIndex: imageType === IMAGE_STORE ? 'appName' : 'repositoryName',
+      key: imageType === IMAGE_STORE ? 'appName' : 'repositoryName',
       render(text, row) {
         return (
           <div>
@@ -168,7 +169,8 @@ class ImagePart extends React.Component<IProps, IState> {
       simple: true,
       current: currentPage,
       pageSize: DEFAULT_PAGE_SIZE,
-      onChange: current => this.setState({ currentPage: current }, imageType === IMAGE_STORE && this.loadImageStore()),
+      onChange: current =>
+        this.setState({ currentPage: current }, imageType === IMAGE_STORE ? this.loadImageStore() : this.loadImage()),
     };
     return (
       <Table
@@ -209,7 +211,7 @@ class ImagePart extends React.Component<IProps, IState> {
               placeholder="请输入镜像名称搜索"
               size="large"
               style={{ width: 200 }}
-              onSearch={() => this.loadImage()}
+              onSearch={() => imageType !== IMAGE_STORE ? this.loadImage() : this.loadImageStore()}
             />
           </span>
           <div className="page-box pageBox">
