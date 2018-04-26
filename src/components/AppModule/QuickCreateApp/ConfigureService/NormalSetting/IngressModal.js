@@ -181,7 +181,7 @@ class IngressModal extends React.Component {
     const { getFieldProps, getFieldValue, setFieldsValue, getFieldError, isFieldValidating } = form
 
     const formItemLayout = {
-      labelCol: { span: 4 },
+      labelCol: { span: 5 },
       wrapperCol: { span: 18 }
     }
     const monitorNameProps = getFieldProps('monitorName', {

@@ -256,7 +256,9 @@ const parseStorage = annotations => {
   storageOpts = JSON.parse(storageOpts);
   let storageParent = {};
   const storageList: object[] = [];
+  const templateStorage: string[] = [];
   storageOpts.forEach(item => {
+    templateStorage.push(item.name);
     const sourceType = item.name.split('-')[0];
     let type: string = formatStorageType(sourceType);
 
@@ -270,6 +272,7 @@ const parseStorage = annotations => {
   return {
     serviceType, // 服务状态
     storageList, // 存储的配置列表
+    templateStorage, // 模板中的存储
   };
 };
 

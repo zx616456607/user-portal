@@ -448,6 +448,8 @@ class App extends Component {
         return '编排文件'
       case 'applicationPackage':
         return '应用包'
+      case 'loadbalance':
+        return '应用负载均衡'
       default:
         return type
     }
