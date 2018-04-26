@@ -41,6 +41,7 @@ class WrapsPart extends React.Component<any, IState> {
 
   state = {
     currentType: TRID_TYPE,
+    page: 1,
   };
 
   componentDidMount() {
@@ -57,6 +58,8 @@ class WrapsPart extends React.Component<any, IState> {
     const newQuery = {
       from: (current - 1) * DEFAULT_PAGE_SIZE,
       size: DEFAULT_PAGE_SIZE,
+      sort_by: 'publish_time',
+      sort_order: 'desc',
     };
     if (query && query.value) {
       Object.assign(newQuery, { file_name: query.value });
@@ -163,7 +166,12 @@ class WrapsPart extends React.Component<any, IState> {
       pageSize: DEFAULT_PAGE_SIZE,
       current: this.state.page || 1,
       total: dataSource && dataSource.total,
-      onChange: current => currentType === TRID_TYPE ? this.getWrapList({ current }) : this.getStoreList({ current }),
+      onChange: current => {
+        this.setState({
+          page: current,
+        });
+        currentType === TRID_TYPE ? this.getWrapList({ current }) : this.getStoreList({ current });
+      },
     };
     return (
       <Table
