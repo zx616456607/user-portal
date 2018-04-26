@@ -192,8 +192,8 @@ class Tab1Modal extends React.Component {
     super()
     this.state = {
       currentIcon: "",
-      checkExistProvider: false, //查看已有模块 false没配过, true 配过
-      checkExistStrategy: false, //查看是否已经配过当前这个集群下的策略了 false没配过, true 配过
+      checkExistProvider: false, //查看已有[资源池配置状态] false没配过, true 配过
+      checkExistStrategy: false, //查看是否已经配过当前这个集群下的[策略配置状态]了 false没配过, true 配过
       beforecheckExist: true, //是否在 check 之前
       currentStep: 0,//0 第一步 1 第二步（保存）
       selDisabled: false,
@@ -298,15 +298,15 @@ class Tab1Modal extends React.Component {
     //console.log(e.target.value);
   }
   resetState = () => {
-  isGetParams = true; //是否获取接口数据
-  disabledIconCon = ["aws", "azure", "ali"]; //禁用的图标按钮集合
-  isEdit = false;
-  datacenterList = [], templatePathList = {}, datastorePathList = {}, resourcePoolPathList = {};
-  currentData = "";
-  cluster = "", iaas = "";
-  updateTimer, addTimer;
-  form1Fun;
-  isCreated = {};//是否创建过策略的集群汇总
+    isGetParams = true; //是否获取接口数据
+    disabledIconCon = ["aws", "azure", "ali"]; //禁用的图标按钮集合
+    isEdit = false;
+    datacenterList = [], templatePathList = {}, datastorePathList = {}, resourcePoolPathList = {};
+    currentData = "";
+    cluster = "", iaas = "";
+    updateTimer = null, addTimer = null;
+    form1Fun;
+    isCreated = {};//是否创建过策略的集群汇总
     this.setState({
       currentIcon: "",
       checkExistProvider: false, //查看已有模块 false没配过, true 配过
@@ -320,8 +320,6 @@ class Tab1Modal extends React.Component {
   modalCancel = () => {
     this.props.onCancel();
     this.resetState();
-    updateTimer = null;
-    addTimer = null;
   }
   minBlur = (e) => {
     //console.log("minBlur", e.target.value)
@@ -734,10 +732,13 @@ class Tab1Modal extends React.Component {
                         </Form>
                       </div>
                     </div>
-              :
-              <div className="btnConatainer">
-                <Button type="primary" onClick={this.fun1}>前往配置 vSphere</Button>
-              </div>
+                :
+                isEdit ?
+                <div className="descContainer">资源池已删除，当前策略依然可用<br />若需编辑，请重新配置对应资源池，或重新创建策略</div>
+                :
+                <div className="btnConatainer">
+                  <Button type="primary" onClick={this.fun1}>前往配置 vSphere</Button>
+                </div>
             }
             </div>
           }
@@ -759,9 +760,20 @@ class Tab1Modal extends React.Component {
           this.props.getResList({
             cluster: !!cluster ? cluster : this.state.selectValue,
             type: !!iaas ? iaas : this.state.currentIcon,
-          }).then(() => {
-            if(isEdit) this.setState({currDataCenter: this.props.currentData.datacenter});
-          });
+          }, {
+            success: {
+              func: res => {
+                if(isEdit) this.setState({currDataCenter: this.props.currentData.datacenter});
+              },
+              isAsync: true
+            },
+            failed: {
+              func: res => {
+                notify.warn(res.message.message || res.message)
+              },
+              isAsync: true
+            },
+          })
         }
       });
     });
