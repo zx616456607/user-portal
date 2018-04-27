@@ -1419,7 +1419,7 @@ class ProjectDetail extends Component {
                       <div className="titleContainer">
                         <span className="title">该角色权限</span>
                         <span className="clusterTitle">
-                          <svg className="clusterSvg">
+                          <svg className="clusterSvg" fill="#999">
                             <use xlinkHref="#headercluster" />
                           </svg>
                           集群
