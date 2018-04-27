@@ -329,7 +329,7 @@ class Header extends Component {
     this.props.setSwitchSpaceOrCluster()
     let msg = `${zone}已成功切换到 [${cluster.clusterName}]`
     if (current.cluster.namespace !== current.space.namespace) {
-      msg = `${team}已成功切换到 [${current.space.spaceName}]，${msg}`
+      msg = `${team}已成功切换到 [${current.space.userName}]，${msg}`
     }
     let notification = new NotificationHandler()
     notification.success(msg)
