@@ -329,7 +329,7 @@ class TimingClean extends Component {
       })
     }
     const monthArray = []
-    for(let i = 0; i <= 31; i++){
+    for(let i = 0; i < 28; i++){
       monthArray.push(i)
     }
     return monthArray.map(item => {
@@ -471,7 +471,7 @@ class TimingClean extends Component {
 
   getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime, type) {
     let time = typeof CICDcacheTime === 'string' ? CICDcacheTime.split(':') : String(formatDate(CICDcacheTime, 'HH mm')).split(' ')
-    time.length === 3 && time.splice(0, 1)
+    time.length === 3 && time.splice(2, 1)
     time = time.map(item => {
       return item.indexOf(0) === 0 ? item.substring(1) : item
     })
