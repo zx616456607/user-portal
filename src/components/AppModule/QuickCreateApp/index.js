@@ -273,6 +273,7 @@ class QuickCreateApp extends Component {
     const { data } = templateDeployCheck
     const configMapErrors = {}
     const currentErrors = data.filter(err => err.name === serviceName.value)[0]
+    const configMapErrorFields = []
     currentErrors.content.forEach(item => {
 
       keys.value.forEach(key => {
@@ -295,11 +296,19 @@ class QuickCreateApp extends Component {
               }]
             }
           })
+          if (!isSecret) {
+            configMapErrorFields.push(field)
+          }
           return
         }
       })
     })
-
+    Object.assign(configMapErrors, {
+      configMapErrorFields: {
+        name: 'configMapErrorFields',
+        value: configMapErrorFields,
+      }
+    })
     return configMapErrors
   }
 

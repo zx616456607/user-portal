@@ -201,7 +201,7 @@ class CreateModel extends Component {
                 <i className="fa fa-check"></i>
               </div>
               <Tooltip title={moreService ? '添加服务暂不支持应用模板' : ''}>
-                <div className={moreService ? "otherStack fastCreate disabled" : createModel == "template" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"}
+                <div className={moreService ? "fastCreate disabled" : createModel == "template" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"}
                   onClick={moreService ? () => false : this.selectCreateModel.bind(this, "template")}>
                   <img src={createModel == "template" ? appTemplateHover : appTemplate} />
                   <div className="infoBox">
