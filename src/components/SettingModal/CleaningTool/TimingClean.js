@@ -160,10 +160,10 @@ class TimingClean extends Component {
   }
   getTime(m, h, type) {
     let newH = Number(h)
-    if (type === 'system') {
-      newH += 8
-      newH = newH > 24 ? (newH - 24) : newH
-    }
+    // if (type === 'system') {
+    //   newH += 8
+    //   newH = newH > 24 ? (newH - 24) : newH
+    // }
     newH = String(newH)
     let minute = m.length === 1 ? `0${m}`: m
     let hour = newH.length === 1 ? `0${newH}` : newH
