@@ -30,10 +30,12 @@ const menuList = [
   },{
     url: '/tenant_manage/project_manage',
     name: '项目管理'
-  },{
-    url: '/tenant_manage/rolemanagement',
-    name: '项目角色'
-  },{
+  },
+  // {
+  //   url: '/tenant_manage/rolemanagement',
+  //   name: '项目角色'
+  // },
+  {
     url: '/tenant_manage/allpermissions',
     name: '项目权限'
   }

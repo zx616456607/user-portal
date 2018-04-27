@@ -822,11 +822,11 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 项目管理</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='rolemanagement'>
+                  {/*<Menu.Item key='rolemanagement'>
                     <Link to='/tenant_manage/rolemanagement'>
                       <span><div className='sideCircle'></div> 项目角色</span>
                     </Link>
-                  </Menu.Item>
+                  </Menu.Item>*/}
                   <Menu.Item key='allpermissions'>
                     <Link to='/tenant_manage/allpermissions'>
                       <span><div className='sideCircle'></div> 项目权限</span>
