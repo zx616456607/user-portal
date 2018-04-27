@@ -286,7 +286,8 @@ class Tab1Modal extends React.Component {
       temp["iaas"] = !!iaas ? iaas : this.state.currentIcon;
       this.props.onOk(temp, () => {
         this.resetState(() => {
-          updateTimer = null, addTimer = null;
+          updateTimer = null;
+          addTimer = null;
         });
       });
     });
@@ -324,7 +325,8 @@ class Tab1Modal extends React.Component {
   modalCancel = () => {
     this.props.onCancel();
     this.resetState(() => {
-      updateTimer = null, addTimer = null;
+      updateTimer = null;
+      addTimer = null;
     });
   }
   minBlur = (e) => {
@@ -369,7 +371,6 @@ class Tab1Modal extends React.Component {
       if(!!!updateTimer && isModalFetching === false){
         updateTimer = setTimeout(() => {
           this.getDataCenter(iaas);
-          console.log("update")
         }, 200);
       }
     }else{
