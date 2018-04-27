@@ -140,7 +140,7 @@ class Tab1 extends React.Component {
       failed: {
         func: err => {
           const { statusCode, message } = err
-          notify.warn(`${rowData.status === "on" ? "停用" : "启用"} 失败， ${message}`)
+          notify.warn(`${rowData.status === "on" ? "停用" : "启用"} 失败， ${message.message || message}`)
         },
       }
     });
