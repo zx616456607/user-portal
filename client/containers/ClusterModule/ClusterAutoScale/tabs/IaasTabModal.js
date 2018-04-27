@@ -45,6 +45,18 @@ class Form1 extends React.Component {
   roleNameChange = (e) => {
     e.target.value = e.target.value.substr(0, 100);
   }
+  checkName = (rule, value, callback) => {
+    if(!isEdit){
+      !!_.filter(this.props.allData, {name: value})[0] ? callback(new Error('策略名称重复')) : callback();
+      return;
+    }else{
+      if(value !== this.props.currentData.name){//修改时改了名字
+        !!_.filter(this.props.allData, {name: value})[0] ? callback(new Error('策略名称重复')) : callback();
+        return;
+      }
+      callback();
+    }
+  }
   render () {
     const { getFieldProps } = this.props.form;
     const { datacenter, datastorePath, resourcePoolPath, templatePath, targetPath, name, template, datastore, resourcePool } = this.props;
@@ -60,6 +72,7 @@ class Form1 extends React.Component {
               validate: [{
                 rules: [
                   { required: true, message: '策略名称' },
+                  { validator: this.checkName }
                 ],
                 trigger: ['onBlur', 'onChange'] ,
               }],
@@ -573,6 +586,8 @@ class Tab1Modal extends React.Component {
                       </div>
                       <div className="formContainer">
                         <Form1
+                          allData={this.props.allData}
+                          currentData={this.props.currentData}
                           datacenter={datacenter}
                           datastorePath={datastorePath}
                           resourcePoolPath={resourcePoolPath}
