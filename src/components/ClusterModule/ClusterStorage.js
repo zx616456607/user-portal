@@ -13,7 +13,8 @@ import { Switch, Icon, Form, Select, Input, Button, Modal, Spin } from 'antd'
 import { connect } from 'react-redux'
 import './style/ClusterStorage.less'
 import cloneDeep from 'lodash/cloneDeep'
-import { IP_REGEX } from '../../../constants/index'
+import isEmpty from 'lodash/isEmpty'
+import { IP_REGEX, IP_PATH_REGEX } from '../../../constants/index'
 import CephImg from '../../assets/img/setting/globalconfigceph.png'
 import HostImg from '../../assets/img/integration/host.png'
 import NfsImg from '../../assets/img/cluster/nfs.png'
@@ -659,16 +660,17 @@ class ClusterStorage extends Component {
     const { nfsArray } = this.state
     const validateArray = [
       `nfs_service_name${item.index}`,
-      `nfs_service_adderss${item.index}`,
-      `nfs_service_path${item.index}`
+      `nfs_service_adderss${item.index}`
     ]
     form.validateFields(validateArray, (errors, values) => {
       if(!!errors){
         return
       }
       const name = values[`nfs_service_name${item.index}`]
-      const ip = values[`nfs_service_adderss${item.index}`]
-      const path = values[`nfs_service_path${item.index}`]
+      const ipWithPath = values[`nfs_service_adderss${item.index}`]
+      let [ip, ...path] = ipWithPath.split('/')
+      path = '/' + path.join('/')
+
       const server = registryConfig.server
       const serverArray = server.split('//')
       const image = `${serverArray[1]}/tenx_containers/nfs-client-provisioner:latest`
@@ -780,7 +782,6 @@ class ClusterStorage extends Component {
       })
       const nfsNameValues = getFieldsValue(nfsNameArray)
       const currentValue = getFieldValue(`nfs_service_name${config.index}`)
-      console.log('currentValue=',currentValue)
       nfsArray.listArray.forEach(item => {
         if(nfsNameValues[`nfs_service_name${item.index}`] == currentValue && item.index !== config.index){
           nfsIsExit = true
@@ -813,7 +814,6 @@ class ClusterStorage extends Component {
     } else {
       validateArray = []
     }
-    console.log('validateArray=',validateArray)
     form.validateFields(validateArray, (error, values) => {
       validating = false
     })
@@ -878,40 +878,18 @@ class ClusterStorage extends Component {
             {...formItemLayout}
           >
             <Input
-              placeholder='如：192.168.1.1'
+              placeholder='如：192.168.1.1/var/nfs'
               disabled={item.disabled}
               size="large"
               {...getFieldProps(`nfs_service_adderss${item.index}`, {
-                initialValue: parameters ? parameters.ip : undefined,
+                initialValue: !isEmpty(parameters) ? parameters.ip + parameters.path : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value){
                       return callback('服务地址不能为空')
                     }
-                    if(!IP_REGEX.test(value)){
+                    if(!IP_PATH_REGEX.test(value)){
                       return callback('请输入正确的服务地址')
-                    }
-                    return callback()
-                  }
-                }]
-              })}
-            />
-          </FormItem>
-          <FormItem
-            label="服务挂载路径"
-            key="service_path"
-            {...formItemLayout}
-          >
-            <Input
-              placeholder='如：/var/nfs'
-              disabled={item.disabled}
-              size="large"
-              {...getFieldProps(`nfs_service_path${item.index}`, {
-                initialValue: parameters ? parameters.path : undefined,
-                rules: [{
-                  validator: (rule, value, callback) => {
-                    if(!value){
-                      return callback('服务挂载路径不能为空')
                     }
                     return callback()
                   }

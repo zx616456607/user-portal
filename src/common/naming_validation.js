@@ -447,19 +447,19 @@ export function lbNameCheck(value) {
      return '模板名称需在3-63位之间'
    }
     //a-zA-Z start check
-  let startCheck = new RegExp('^[A-Za-z]{1}');
+  let startCheck = new RegExp('^[A-Za-z0-9]{1}');
   if (!startCheck.test(value)) {
-    return '请以字母开头'
-  }
-  //a-zA-Z0-9_- body check
-  let bodyCheck = new RegExp('^[A-Za-z]{1}[A-Za-z0-9_-]*$');
-  if (!bodyCheck.test(value)) {
-    return '由字母、数字、中划线-、下划线_组成'
+    return '请以字母或数字开头'
   }
   //a-zA-Z0-9 end check
-  let endCheck = new RegExp('^[A-Za-z]{1}[A-Za-z0-9_\-]{1,61}[A-Za-z0-9]$');
+  let endCheck = new RegExp('[A-Za-z0-9]$');
   if (!endCheck.test(value)) {
     return '由字母或数字结尾'
+  }
+  //a-zA-Z0-9_- body check
+  let bodyCheck = new RegExp('^[a-zA-Z0-9]+([-_.~/][a-zA-Z0-9]+)*$');
+  if (!bodyCheck.test(value)) {
+    return '由字母、数字、中划线-、下划线_组成，特殊符号不能连续出现'
   }
    return 'success'
  }
