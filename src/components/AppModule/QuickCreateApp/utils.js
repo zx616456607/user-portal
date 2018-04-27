@@ -402,13 +402,17 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         const configGroupName = fieldsValues[`configGroupName${keyValue}`]
         const configMapSubPathValues = fieldsValues[`configMapSubPathValues${keyValue}`]
         let volumeName = `noClassify/configmap-volume-${keyValue}`
-        if (configGroupName && configGroupName[0] !== '未分类配置组') {
-          volumeName = `${configGroupName[0]}/configmap-volume-${keyValue}`
+        if (Array.isArray(configGroupName)) {
+          if (configGroupName[0] !== '未分类配置组') {
+            volumeName = `${configGroupName[0]}/configmap-volume-${keyValue}`
+          }
+        } else {
+          volumeName = `未分类配置组/configmap-volume-${keyValue}`
         }
         const volume = {
           name: volumeName,
           configMap: {
-            name: configGroupName && configGroupName[1],
+            name: Array.isArray(configGroupName) ? configGroupName[1] : configGroupName,
             items: configMapSubPathValues.map(value => {
               return {
                 key: value,
