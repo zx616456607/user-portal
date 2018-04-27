@@ -107,16 +107,16 @@ class Tab1 extends React.Component {
             func: () => {
               //刷新列表
               this.loadData();
-              common();
               notify.success(`策略 ${this.state.currentData.name} 删除成功`);
+              common();
             },
             isAsync: true,
           },
           failed: {
             func: err => {
               const { statusCode, message } = err;
-              common();
               notify.warn(`删除策略 ${this.state.currentData.name} 失败， ${message}`);
+              common();
             },
             isAsync: true,
           }
@@ -551,6 +551,7 @@ class Tab1 extends React.Component {
           </QueueAnim>
           <Tab1Modal
             isEdit={this.state.isEdit}
+            allData={this.props.appList}
             currentData={this.state.currentData}
             confirmLoading={this.state.submitTab1Loading}
             func={func}
