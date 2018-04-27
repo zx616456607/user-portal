@@ -21,10 +21,10 @@ let isGetParams = true; //是否获取接口数据
 let disabledIconCon = ["aws", "azure", "ali"]; //禁用的图标按钮集合
 let isEdit = false;
 let datacenterList = [], templatePathList = {}, datastorePathList = {}, resourcePoolPathList = {};
-let currentData = "";
 let cluster = "", iaas = "";
 let updateTimer, addTimer;
 let form1Fun;
+let firstAdd = 1;//第一次新增
 let isCreated = {};//是否创建过策略的集群汇总
 const formItemLargeLayout = {
   labelCol: { span: 6},
@@ -285,7 +285,10 @@ class Tab1Modal extends React.Component {
       temp["cluster"] = !!cluster ? cluster : this.state.selectValue;
       temp["iaas"] = !!iaas ? iaas : this.state.currentIcon;
       this.props.onOk(temp, () => {
-        this.resetState();
+        this.resetState(() => {
+          updateTimer = null;
+          addTimer = null;
+        });
       });
     });
   }
@@ -297,14 +300,12 @@ class Tab1Modal extends React.Component {
   onInputNumChange = (value) => {
     //console.log(e.target.value);
   }
-  resetState = () => {
+  resetState = (_cb) => {
     isGetParams = true; //是否获取接口数据
     disabledIconCon = ["aws", "azure", "ali"]; //禁用的图标按钮集合
     isEdit = false;
     datacenterList = [], templatePathList = {}, datastorePathList = {}, resourcePoolPathList = {};
-    currentData = "";
     cluster = "", iaas = "";
-    updateTimer = null, addTimer = null;
     form1Fun;
     isCreated = {};//是否创建过策略的集群汇总
     this.setState({
@@ -315,11 +316,18 @@ class Tab1Modal extends React.Component {
       currentStep: 0,//0 第一步 1 第二步（保存）
       selDisabled: false,
       selectValue: "",
+    }, () => {
+      setTimeout(() => {
+        !!_cb && _cb();
+      }, 2000);
     });
   }
   modalCancel = () => {
     this.props.onCancel();
-    this.resetState();
+    this.resetState(() => {
+      updateTimer = null;
+      addTimer = null;
+    });
   }
   minBlur = (e) => {
     //console.log("minBlur", e.target.value)
@@ -360,24 +368,19 @@ class Tab1Modal extends React.Component {
       isEdit = true, { datacenter, datastorePath, duration, email, max, min, name, removeAndDelete, resourcePoolPath, templatePath, targetPath,
         cluster, iaas
       } = this.props.currentData;//cluster, iaas 编辑时使用的 clusterId 和 Iaas
-      if(JSON.stringify(currentData) !== JSON.stringify(this.props.currentData)){
-        updateTimer = null;
-        currentData = this.props.currentData;
-      }
       if(!!!updateTimer && isModalFetching === false){
         updateTimer = setTimeout(() => {
           this.getDataCenter(iaas);
         }, 200);
       }
-      addTimer = null;
     }else{
       isEdit = false;
       if(!!!addTimer && isModalFetching===false){
         addTimer = setTimeout(() => {
           this.resetState();
-        }, 200);
+          firstAdd = null;
+        }, firstAdd || 200);
       }
-      updateTimer = null;
       datacenterList = []; templatePathList = {}; datastorePathList = {}; resourcePoolPathList = {};
       cluster = ""; iaas = "";
       max = 10;//新增时 max 默认值
