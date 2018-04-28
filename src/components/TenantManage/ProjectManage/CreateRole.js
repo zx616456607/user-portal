@@ -175,7 +175,13 @@ class CreateRoleModal extends Component{
         comment: roleDesc,
         permissionPolicyType: permissionPolicyType,
       };
-      if(permissionPolicyType === 1) params.pids = checkedKeys.map(item => Number(item));
+      if(permissionPolicyType === 1) {
+        if(checkedKeys.length === 0){
+          notify.warn('请至少选择一个权限');
+          return;
+        }
+        params.pids = checkedKeys.map(item => Number(item));
+      }
       CreateRole(params,{
         success:{
           func: (res) => {
@@ -193,7 +199,12 @@ class CreateRoleModal extends Component{
         },
         failed:{
           func: (res) => {
-            notify.error('创建角色失败')
+            if(err.statusCode === 403){
+              notification.warn(`创建角色失败, 用户没有权限修改角色`)
+            }
+            else{
+              notification.warn(`创建角色失败`)
+            }
             scope.setState({characterModal:false})
           }
         }

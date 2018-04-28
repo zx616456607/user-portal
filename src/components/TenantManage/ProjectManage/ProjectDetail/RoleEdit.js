@@ -244,7 +244,12 @@ class RoleEditModal extends React.Component {
             },
             failed: {
               func: (err) => {
-                notification.error(`更新失败`)
+                if(err.statusCode === 403){
+                  notification.warn(`更新失败, 用户没有权限修改角色`)
+                }
+                else{
+                  notification.warn(`更新失败`)
+                }
                 scope.setState({
                   isShowperallEditModal: false
                 })
