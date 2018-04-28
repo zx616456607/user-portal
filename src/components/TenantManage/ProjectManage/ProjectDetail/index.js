@@ -92,7 +92,7 @@ class ProjectDetail extends Component {
       currPRO: [],//permission/resource-operations
       currResourceType: "",
       isShowResourceModal: false,
-      selectedCluster: props.clusterID,
+      selectedCluster: "",
       isChangeCluster: false,
     }
   }
@@ -113,6 +113,15 @@ class ProjectDetail extends Component {
     const { GetProjectsAllClusters } = this.props;
     GetProjectsAllClusters({
       projectsName: name
+    },{
+      success: {
+        func: (res) => {
+          const cluster0 = !!_.filter(res.data.clusters, {status: 2}) && _.filter(res.data.clusters, {status: 2})[0];
+          this.setState({
+            selectedCluster: cluster0.clusterID
+          })
+        }
+      }
     })
   }
   loadRoleList(roleId) {
@@ -490,7 +499,7 @@ class ProjectDetail extends Component {
           }
         })
       roleWithMembers({
-        roleID: id,
+        roleID: type === "click" ? id : !!currentRoleInfo && JSON.stringify(currentRoleInfo) !== "{}" ? currentRoleInfo.id : id,
         scope: 'project',
         scopeID: `${projectDetail.pid}`
       }, {
@@ -626,7 +635,12 @@ class ProjectDetail extends Component {
         },
         failed: {
           func: () => {
-            notify.error('删除角色失败')
+            if(err.statusCode === 403){
+              notify.warn(`删除角色失败, 用户没有权限`)
+            }
+            else{
+              notify.warn(`删除角色失败`)
+            }
             this.setState({
               deleteRoleModal: false
             })
@@ -693,7 +707,12 @@ class ProjectDetail extends Component {
         failed: {
           func: () => {
             if (flag) {
-              notify.error('关联成员操作失败')
+              if(err.statusCode === 403){
+                notify.warn(`关联成员操作失败, 用户没有权限`)
+              }
+              else{
+                notify.warn(`关联成员操作失败`)
+              }
               this.setState({
                 connectModal: false,
                 memberType: 'user'
@@ -853,7 +872,7 @@ class ProjectDetail extends Component {
       filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster, selectedCluster
     } = this.state;
     const TreeNode = Tree.TreeNode;
-    const { form, roleNum, projectClusters, location, billingEnabled, clusterList } = this.props;
+    const { form, roleNum, projectClusters, location, billingEnabled } = this.props;
     const { getFieldProps } = form;
     const quota = location.query.tabs
     const url = quota ? '/' : '/tenant_manage/project_manage'
@@ -1033,10 +1052,11 @@ class ProjectDetail extends Component {
       <div className="nodata">暂无成员</div>
     )
 
+    const clusters = _.filter(projectClusters, {status: 2});
     const clusterMenu = (
       <Menu onClick={this.changeCluster}>
         {
-          !!clusterList && clusterList.length > 0 && clusterList.map(item => {
+          !!clusters && clusters.length > 0 && clusters.map(item => {
             return (
               <Menu.Item key={item.clusterID}>
                 {item.clusterName}
@@ -1356,7 +1376,7 @@ class ProjectDetail extends Component {
             characterModal={characterModal}
             loadData={this.loadRoleList.bind(this)}
           />
-          <Modal title="关联成员" width={765} visible={connectModal}
+          <Modal title="角色成员管理" width={765} visible={connectModal}
             onCancel={() => this.closeMemberModal()}
             onOk={() => this.submitMemberModal()}
           >
@@ -1402,8 +1422,10 @@ class ProjectDetail extends Component {
                       {roleList}
                     </ul>
                     {
-                      (roleNum === 1 || isManager) &&
-                      <Button key="createRole" type="primary" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
+                      (() => {
+                        //console.log("b",roleNum === 1 || isManager);
+                        return (roleNum === 1 || isManager) && <Button key="createRole" type="primary" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
+                      })()
                     }
                     {/*
                       [
@@ -1433,11 +1455,20 @@ class ProjectDetail extends Component {
                           </svg>
                           集群
                         </span>
-                        <Dropdown overlay={clusterMenu} trigger={['click']}>
-                          <a className="ant-dropdown-link" href="#">
-                            {!!clusterList && clusterList.length > 0 &&  clusterList.filter(item => item.clusterID === selectedCluster)[0].clusterName} <Icon type="down" />
-                          </a>
-                        </Dropdown>
+                        {
+                          !selectedCluster ?
+                          null
+                          :
+                          <Dropdown overlay={clusterMenu} trigger={['click']}>
+                            <a className="ant-dropdown-link" href="#">
+                              {
+                                (() => {
+                                  return !!clusters && clusters.length > 0 && !!_.filter(clusters, {clusterID: selectedCluster})[0] && [_.filter(clusters, {clusterID: selectedCluster})[0].clusterName , <Icon type="down" />]
+                                })()
+                              }
+                            </a>
+                          </Dropdown>
+                        }
                         <span className="desc">
                           <svg className="permissionIcon">
                             <use xlinkHref="#permission" />
@@ -1451,7 +1482,7 @@ class ProjectDetail extends Component {
                         this.state.currpermissionPolicyType === 1?
                         <div className="type1">
                           <div className="btnContainer">
-                            <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客"} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>编辑权限</Button><span className="hint">以下权限对项目内所有资源生效</span>
+                            <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客"} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
                           </div>
                           <div className="permissionType1Container">
                             <div className="authBox inlineBlock">
@@ -1597,7 +1628,6 @@ function mapStateToThirdProp(state, props) {
   const projectClusters = currentProjectClusterList.data || []
 
   const { clusters } = state.cluster
-  const { clusterList } = clusters
 
   const { clusterID } = current.cluster
   return {
@@ -1605,7 +1635,6 @@ function mapStateToThirdProp(state, props) {
     roleNum,
     projectClusters,
     billingEnabled,
-    clusterList,
     clusterID
   }
 }
