@@ -309,11 +309,11 @@ export const DELETE_CODE_STORE_REQUEST = 'DELETE_CODE_STORE_REQUEST'
 export const DELETE_CODE_STORE_SUCCESS = 'DELETE_CODE_STORE_SUCCESS'
 export const DELETE_CODE_STORE_FAILURE = 'DELETE_CODE_STORE_FAILURE'
 
-function fetchRemoveProject(projectId, callback) {
+function fetchRemoveProject(projectId, forceDeleteActive, callback) {
   return {
     [FETCH_API]: {
       types: [DELETE_CODE_STORE_REQUEST, DELETE_CODE_STORE_SUCCESS, DELETE_CODE_STORE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/managed-projects/${projectId}`,
+      endpoint: `${API_URL_PREFIX}/devops/managed-projects/${projectId}?isForceDel=${forceDeleteActive}`,
       schema: {},
       options: {
         method: 'DELETE',
@@ -324,9 +324,9 @@ function fetchRemoveProject(projectId, callback) {
   }
 }
 
-export function removeProject(projectId, callback) {
+export function removeProject(projectId, forceDeleteActive, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchRemoveProject(projectId, callback))
+    return dispatch(fetchRemoveProject(projectId, forceDeleteActive, callback))
   }
 }
 
