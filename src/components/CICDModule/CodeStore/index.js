@@ -8,7 +8,7 @@
 * @author BaiYu
 */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, message, Tooltip, Icon, Dropdown, Modal, Spin } from 'antd'
+import { Alert, Menu, Button, Card, Input, message, Tooltip, Icon, Dropdown, Modal, Spin, Checkbox } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -80,7 +80,7 @@ const MyComponent = React.createClass({
     scope: React.PropTypes.object
   },
   getInitialState() {
-    return { showModal: false, keyModal: false }
+    return { showModal: false, keyModal: false, forceDeleteActive: false }
   },
   operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
@@ -150,7 +150,7 @@ const MyComponent = React.createClass({
   targeActive() {
     this.setState({activeModal: false})
     let notification = new NotificationHandler()
-    this.props.scope.props.removeProject(this.state.activeId, {
+    this.props.scope.props.removeProject(this.state.activeId, this.state.forceDeleteActive ? 1 : 0, {
       success: {
         func: () => {
           notification.success('解除激活成功')
@@ -315,6 +315,10 @@ const MyComponent = React.createClass({
           onOk={()=> this.targeActive()} onCancel={()=> this.setState({activeModal: false})}
           >
           <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要解除激活这项操作?</div>
+          <Checkbox
+            checked={this.state.forceDeleteActive}
+            style={{ marginTop: 20, marginBottom: 20 }}
+            onChange={e => this.setState({ forceDeleteActive: e.target.checked })}>强制解除激活（引用的流水线将无法执行，需编辑重选新代码源）</Checkbox>
         </Modal>
       </div>
     );
