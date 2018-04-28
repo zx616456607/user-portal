@@ -92,7 +92,8 @@ class ProjectDetail extends Component {
       currPRO: [],//permission/resource-operations
       currResourceType: "",
       isShowResourceModal: false,
-      selectedCluster: props.clusterID
+      selectedCluster: props.clusterID,
+      isChangeCluster: false,
     }
   }
   componentWillMount() {
@@ -834,8 +835,15 @@ class ProjectDetail extends Component {
   }
 
   changeCluster = e => {
+    if(e.key === this.state.selectedCluster) return;
     this.setState({
-      selectedCluster: e.key
+      selectedCluster: e.key,
+      isChangeCluster: true,
+    }, () => {
+      this.getPermissionOverview();
+      this.setState({
+        isChangeCluster: false,
+      })
     })
   }
   render() {
@@ -1489,13 +1497,18 @@ class ProjectDetail extends Component {
                           <div className="hint">该角色成员可操作的资源</div>
                           <div className="panelStyle">
                             {/* {perPanels} */}
-                            <PermissionOverview
-                              project={location.query.name}
-                              clusterID={selectedCluster}
-                              roleId={currentRoleInfo.id}
-                              openPermissionModal={this.editPermission}
-                              callback={this.getPermissionOverview}
-                            />
+                            {
+                              this.state.isChangeCluster ?
+                                null
+                                :
+                                <PermissionOverview
+                                  project={location.query.name}
+                                  clusterID={selectedCluster}
+                                  roleId={currentRoleInfo.id}
+                                  openPermissionModal={this.editPermission}
+                                  callback={this.getPermissionOverview}
+                                />
+                            }
                           </div>
                         </div>
                       }
