@@ -118,7 +118,7 @@ class TimingClean extends Component {
     let cronArr = str.spec.cron.split(' ')
     cronArr.length === 6 && cronArr.splice(0, 1)
     if (type === 'cicd') {
-      if (str.meta.automatic) {
+      if (str.meta.automatic || str.meta.type === 'auto') {
         this.setState({
           [`${type}Checked`]: true
         })
@@ -432,7 +432,7 @@ class TimingClean extends Component {
         return
       }
       const { CICDcacheScope, CICDcacheCycle, CICDcacheTime, CICDcacheDate } = values
-      if(toggle && cicdChecked){
+      if(toggle && !cicdChecked){
         this.cicdCloseFun()
         return
       }
@@ -443,7 +443,7 @@ class TimingClean extends Component {
             automatic: toggle ? true : cicdChecked,
             cleaner: userName,
             target: "cicd_clean",
-            type: !cicdChecked ? "auto" : "stop"
+            type: cicdChecked ? "auto" : "stop"
           },
           spec: {
             cron: this.getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime),
@@ -455,11 +455,8 @@ class TimingClean extends Component {
           func: () => {
             notify.close()
             notify.success(toggle ? 'cicd定时清理开启成功' : 'cicd定时编辑成功')
-            // this.getSettings()
             if (toggle) {
-              this.setState({
-                cicdChecked: !cicdChecked
-              })
+              this.getSettings()
             } else {
               this.setState({
                 cicdEdit: true
@@ -787,7 +784,7 @@ class TimingClean extends Component {
                             [
                               <Button
                                 style={{ marginRight: 12 }}
-                                key="cicdSave" type="primary" size="large" onClick={() => this.systemChange(false)}>保存</Button>,
+                                key="cicdSave" type="primary" size="large" onClick={checked => this.setState({cicdChecked: checked}, () => this.CICDEditChange(false))}>保存</Button>,
                               <Button key="cicdCancel" type="ghost" size="large" onClick={this.systemHandleCancel}>取消</Button>
                             ]
                         }
@@ -805,7 +802,7 @@ class TimingClean extends Component {
                       unCheckedChildren="关"
                       className='switch_style'
                       checked={cicdChecked}
-                      onChange={() => this.CICDEditChange(true)}
+                      onChange={checked => this.setState({cicdChecked: checked}, () => this.CICDEditChange(true))}
                     />
                   </div>
                   <div className="body">
