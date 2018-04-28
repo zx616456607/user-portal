@@ -462,8 +462,8 @@ exports.removeManagedProject = function* () {
   const project_id = this.params.project_id
 
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.deleteBy(["managed-projects", project_id], null)
-
+  const query = this.query
+  const result = yield api.deleteBy(["managed-projects", project_id], query)
   this.body = {
     data: result
   }
