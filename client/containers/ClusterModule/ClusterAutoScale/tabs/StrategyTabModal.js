@@ -41,41 +41,20 @@ class Tab2Modal extends React.Component {
   }
   componentDidMount() {
     //接收参数
-    //this.getQueryData();
+    isEdit = this.props.isEdit;
+    this.getQueryData();
   }
-  componentWillReceiveProps(next) {
-    const _that = this, currData = next.currData;
-    setTimeout(() => {
+  getQueryData(){
+    const { getAutoScalerClusterList, currData } = this.props;
+    getAutoScalerClusterList().then(() => {
       if(isEdit && !!currData){
-        _that.setState({
+        this.setState({
           disabled: true,
           currentIcon: currData.iaas,
           selectValue: currData.cluster,
         });
       }
-      if(!next.visible){
-        _that.setState({
-          disabled: false,
-          currentIcon: "",
-          selectValue: "",
-        })
-      }
-    }, 200);
-    if(isGetParams && next.visible){
-      isGetParams = false;
-      this.getQueryData();
-      return;
-    }
-    // if(!this.props.visible){
-    //   isGetParams = true;
-    // }
-    if( next.isEdit && !!next.currData){
-      isEdit = true;
-    }else{ isEdit = false }
-  }
-  getQueryData(){
-    const { getAutoScalerClusterList } = this.props;
-    getAutoScalerClusterList();
+    });
   }
   onChange = (value) => {
     this.setState({
@@ -216,7 +195,7 @@ class Tab2Modal extends React.Component {
     const { clusterList, isModalFetching, getData, isGetFormData } = this.props;
     const { getFieldProps } = this.props.form;
     const options = !!clusterList ?
-    clusterList.map((o,i,objs) => <Select.Option disabled={!!this.props.allClusterIds && this.props.allClusterIds.indexOf(o.clusterid) > -1} key={i} value={o.clusterid}>{o.clustername}</Select.Option>) : null;
+    clusterList.map((o,i,objs) => <Select.Option disabled={false} key={i} value={o.clusterid}>{o.clustername}</Select.Option>) : null;
     !!options && options.unshift(<Select.Option key="-1" value=""><span className="optionValueNull">请选择容器集群</span></Select.Option>)
     let objCluster = _.filter(clusterList, {clusterid: this.state.selectValue})[0];
     let objProvider;
