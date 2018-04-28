@@ -141,11 +141,11 @@ class PermissionOverview extends React.Component{
     return (
       <div className="headerBox">
         <Row className="configBoxHeader" key="header">
-          <Col span={4} className="headerLeft" key="left">
+          <Col span={8} className="headerLeft" key="left">
             <div className="line"></div>
             <span className="title">{titleCn}</span>
           </Col>
-          <Col span={20} key="right">
+          <Col span={16} key="right">
             <div className="desc"></div>
           </Col>
         </Row>
