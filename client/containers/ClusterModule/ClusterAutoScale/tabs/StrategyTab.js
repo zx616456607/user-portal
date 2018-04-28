@@ -276,16 +276,20 @@ class Tab2 extends React.Component {
           </div>
        {/* }*/}
 
-
-        <Tab2Modal
-          visible={this.state.isTab2ModalShow}
-          onCancel={this.onTab2ModalCancel}
-          onClose={this.onTab2ModalCancel}
-          isEdit={this.state.isEdit}
-          currData={this.state.currData}
-          funcTab2={func}
-          allClusterIds={allClusterIds}
-          ref="tab2MC"/>
+        {
+          this.state.isTab2ModalShow ?
+            <Tab2Modal
+              visible={this.state.isTab2ModalShow}
+              onCancel={this.onTab2ModalCancel}
+              onClose={this.onTab2ModalCancel}
+              isEdit={this.state.isEdit}
+              currData={this.state.currData}
+              funcTab2={func}
+              allClusterIds={allClusterIds}
+              ref="tab2MC"/>
+            :
+            null
+        }
 
         <Modal
           visible={this.state.isShowDelModal}
