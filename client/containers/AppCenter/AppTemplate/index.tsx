@@ -26,7 +26,7 @@ import {
 import ReleaseModal from './ReleaseModal';
 import * as TemplateActions from '../../../actions/template';
 import * as QuickCreateAppActions from '../../../../src/actions/quick_create_app';
-import defaultApp from '../../../../static/img/appstore/defaultapp.png';
+import defaultApp from '../../../assets/img/AppCenter/app_template.png';
 import './style/index.less';
 import NotificationHandler from '../../../../src/components/Notification';
 import { parseToFields } from './CreateTemplate/parseToFields';
