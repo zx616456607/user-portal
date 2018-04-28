@@ -420,6 +420,7 @@ class ProjectDetail extends Component {
     const { permissionOverview, location } = this.props
     const { currentRoleInfo, selectedCluster } = this.state
     permissionOverview({
+
       roleId: currentRoleInfo.id,
       clusterId: selectedCluster,
       headers: {
