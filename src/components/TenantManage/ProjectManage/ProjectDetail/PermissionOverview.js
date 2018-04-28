@@ -192,7 +192,12 @@ class PermissionOverview extends React.Component{
       result.map(res => {
         if (res.error) {
           notify.close()
-          notify.warn('操作失败')
+          if(err.statusCode === 403){
+            notify.warn(`操作失败, 用户没有权限`)
+          }
+          else{
+            notify.warn(`操作失败`)
+          }
           this.setState({
             confirmLoading: false,
             [`visible-${record.name}`]: false
@@ -213,7 +218,12 @@ class PermissionOverview extends React.Component{
       const result = await setPermission(addBody)
       if (result.error) {
         notify.close()
-        notify.warn('操作失败')
+        if(err.statusCode === 403){
+          notify.warn(`操作失败, 用户没有权限`)
+        }
+        else{
+          notify.warn(`操作失败`)
+        }
         this.setState({
           confirmLoading: false,
           [`visible-${record.name}`]: false
@@ -233,7 +243,12 @@ class PermissionOverview extends React.Component{
       const result = await deletePermissionControl(delIds.join(','))
       if (result.error) {
         notify.close()
-        notify.warn('操作失败')
+        if(err.statusCode === 403){
+          notify.warn(`操作失败, 用户没有权限`)
+        }
+        else{
+          notify.warn(`操作失败`)
+        }
         this.setState({
           confirmLoading: false,
           [`visible-${record.name}`]: false
@@ -277,7 +292,12 @@ class PermissionOverview extends React.Component{
       this.setState({
         deleteConfirmLoading: false
       })
-      notify.warn('删除授权失败')
+      if(err.statusCode === 403){
+        notify.warn(`删除授权失败, 用户没有权限`)
+      }
+      else{
+        notify.warn(`删除授权失败`)
+      }
       return
     }
 

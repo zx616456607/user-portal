@@ -145,7 +145,12 @@ class ResourceModal extends Component {
         },
         failed: {
           func: res => {
-            notify.error('授权失败');
+            if(err.statusCode === 403){
+              notify.warn(`授权失败, 用户没有权限`)
+            }
+            else{
+              notify.warn(`授权失败`)
+            }
             this.setState({
               confirmLoading: false
             })
@@ -792,7 +797,12 @@ class ResourceModal extends Component {
       },
       failed: {
         func: res => {
-          notification.error(`获取资源列表失败`)
+          if(err.statusCode === 403){
+            notification.warn(`获取资源列表失败, 用户没有权限`)
+          }
+          else{
+            notification.warn(`获取资源列表失败`)
+          }
           this.setState({
             currPRO: {}
           })

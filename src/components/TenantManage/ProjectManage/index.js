@@ -369,7 +369,7 @@ let ProjectManage = React.createClass({
             tableLoading: false
           })
           let notify = new Notification()
-          notify.error("读取项目列表失败：" + res.message.message)
+          notify.warn("读取项目列表失败：" + res.message.message)
         },
       }
     })
@@ -489,7 +489,12 @@ let ProjectManage = React.createClass({
       failed: {
         func: () => {
           if (flag) {
-            notify.error('操作失败')
+            if(err.statusCode === 403){
+              notify.warn(`操作失败, 用户没有权限`)
+            }
+            else{
+              notify.warn(`操作失败`)
+            }
             this.setState({
               rightModal: false
             })
@@ -525,7 +530,12 @@ let ProjectManage = React.createClass({
       failed: {
         func: () => {
           if (flag) {
-            notify.error('操作失败')
+            if(err.statusCode === 403){
+              notify.warn(`操作失败, 用户没有权限`)
+            }
+            else{
+              notify.warn(`操作失败`)
+            }
             this.setState({
               rightModal: false
             })
@@ -591,7 +601,12 @@ let ProjectManage = React.createClass({
       },
       failed: {
         func: res => {
-          notify.error('创建项目失败')
+          if(err.statusCode === 403){
+            notify.warn(`创建项目失败, 用户没有权限`)
+          }
+          else{
+            notify.warn(`创建项目失败`)
+          }
         },
         isAsync: true
       }
@@ -712,7 +727,12 @@ let ProjectManage = React.createClass({
       },
       failed: {
         func: res => {
-          notify.error('创建项目失败')
+          if(err.statusCode === 403){
+            notify.warn(`创建项目失败, 用户没有权限`)
+          }
+          else{
+            notify.warn(`创建项目失败`)
+          }
           !!_cb && _cb();
         },
         isAsync: true
