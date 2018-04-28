@@ -195,7 +195,7 @@ class Tab2Modal extends React.Component {
     const { clusterList, isModalFetching, getData, isGetFormData } = this.props;
     const { getFieldProps } = this.props.form;
     const options = !!clusterList ?
-    clusterList.map((o,i,objs) => <Select.Option disabled={false} key={i} value={o.clusterid}>{o.clustername}</Select.Option>) : null;
+    clusterList.map((o,i,objs) => <Select.Option disabled={!!this.props.allClusterIds && this.props.allClusterIds.indexOf(o.clusterid) > -1} key={i} value={o.clusterid}>{o.clustername}</Select.Option>) : null;
     !!options && options.unshift(<Select.Option key="-1" value=""><span className="optionValueNull">请选择容器集群</span></Select.Option>)
     let objCluster = _.filter(clusterList, {clusterid: this.state.selectValue})[0];
     let objProvider;
