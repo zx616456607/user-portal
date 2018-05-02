@@ -55,8 +55,12 @@ class Pipeline extends React.Component {
   }
 
   render(){
-    const { project, token, username, location } = this.props
-    const query = Object.assign({}, location.query, { token, username, project })
+    const { project, onbehalfuser, token, username, location } = this.props
+    const query = Object.assign(
+      {},
+      location.query,
+      { token, username, project, onbehalfuser }
+    )
     const { windowHeight } = this.state
     const style = {
       height: windowHeight - HEADER_HEIGHT,

@@ -145,7 +145,7 @@ class Header extends Component {
       visible: false,
       allUsers: [],
     }
-    this.isSysAdmin = (props.loginUser.role == ROLE_SYS_ADMIN && props.pathname !== '/ci_cd/pipelines')
+    this.isSysAdmin = props.loginUser.role == ROLE_SYS_ADMIN
   }
 
   handleDocVisible(){
