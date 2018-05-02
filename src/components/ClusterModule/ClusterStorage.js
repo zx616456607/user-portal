@@ -991,7 +991,7 @@ class ClusterStorage extends Component {
               disabled={item.disabled}
               size="large"
               {...getFieldProps(`gfs_service_agent${item.index}`, {
-                initialValue: metadata && metadata.annotations ? metadata.annotations['tenxcloud.com/storageagent'] : undefined,
+                initialValue: "http://192.168.1.123:8001",// || metadata && metadata.annotations ? metadata.annotations['tenxcloud.com/storageagent'] : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value){
@@ -1061,6 +1061,7 @@ class ClusterStorage extends Component {
               disabled={item.disabled}
               size="large"
               type="password"
+              autoComplete="new-password"
               {...getFieldProps(`gfs_service_key${item.index}`, {
                 initialValue: parameters ? parameters.key : undefined,
                 rules: [{
