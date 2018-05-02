@@ -1437,7 +1437,10 @@ class ProjectDetail extends Component {
                   <div className="connectRight pull-left">
                     <div className="title">
                       <span>该角色成员</span>
-                      <span className="manageMembers" onClick={() => this.getProjectMember('user')}><a><Icon type="setting" />管理成员</a></span>
+                      {
+                        (roleNum === 1 || isManager) ? <span className="manageMembers" onClick={() => this.getProjectMember('user')}><a><Icon type="setting" />管理成员</a></span>
+                        : null
+                      }
                     </div>
                     <div className="bottom-line"></div>
                     <div className="memberContainer">
@@ -1481,7 +1484,7 @@ class ProjectDetail extends Component {
                         this.state.currpermissionPolicyType === 1?
                         <div className="type1">
                           <div className="btnContainer">
-                            <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客"} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
+                            <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客" || !isManager} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
                           </div>
                           <div className="permissionType1Container">
                             <div className="authBox inlineBlock">
