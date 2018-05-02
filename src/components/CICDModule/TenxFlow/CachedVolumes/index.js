@@ -115,15 +115,15 @@ class CachedVolumes extends React.Component {
       key: 'volumeSize',
       render: text => text.replace(/i$/, ''),
     }, {
-      title: 'TenxFlow',
-      dataIndex: 'ownerFlowName',
-      key: 'ownerFlowName',
+      title: '流水线',
+      dataIndex: 'ownerPipelineName',
+      key: 'ownerPipelineName',
       render: (text, record) => {
         if (!text) {
           return '-'
         }
         return (
-          <Link to={`/ci_cd/tenx_flow/tenx_flow_build?flowId=${record.ownerFlowId}`}>
+          <Link to={`/ci_cd/pipelines?redirect=/devops/pipelines/${record.ownerPipelineId}`}>
             {text}
           </Link>
         )
@@ -203,7 +203,7 @@ class CachedVolumes extends React.Component {
 function mapStateToProps(state) {
   const { cachedVolumes } = state.cicd_flow
   return {
-    volumes: cachedVolumes && cachedVolumes.result && cachedVolumes.result.volumes || [],
+    volumes: cachedVolumes && cachedVolumes.result && cachedVolumes.result.results && cachedVolumes.result.results.volumes || [],
     isFetching: cachedVolumes && cachedVolumes.isFetching,
   }
 }
