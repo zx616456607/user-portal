@@ -119,7 +119,6 @@ class RoleEditModal extends React.Component {
         func: (res) => {
           if (REG.test(res.data.code)) {
             let result = res.data.data.permissions;
-            debugger
             let tempres = _.cloneDeep(result);
             let allPermission = [];
             allPermission.push(_.filter(tempres, {id:10000, code: "SYSTEM_ALL_PRIVILEGES"})[0])
