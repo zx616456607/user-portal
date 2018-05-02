@@ -9,12 +9,13 @@
  */
 
 import React, { Component } from 'react'
-import { Input, Modal, Tree, Form, Radio } from 'antd'
+import { Input, Modal, Tree, Form, Radio, Col } from 'antd'
 import { connect } from 'react-redux'
 import { CreateRole, ExistenceRole } from '../../../actions/role'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import { Permission } from '../../../actions/permission'
 import Notification from '../../../components/Notification'
+import './style/CreateRole.less'
 
 
 class CreateRoleModal extends Component{
@@ -43,7 +44,8 @@ class CreateRoleModal extends Component{
       this.getPermission()
     }
     if (!characterModal && this.props.characterModal) {
-      form.resetFields(['roleName', 'roleDesc'])
+      //form.resetFields(['roleName', 'roleDesc'])
+      form.resetFields(['roleName'])
       this.setState({
         expandedKeys: [],
         checkedKeys: [],
@@ -164,15 +166,16 @@ class CreateRoleModal extends Component{
     const { checkedKeys, permissionPolicyType } = this.state;
     const { validateFields } = form;
     let notify = new Notification()
-    validateFields([ 'roleName', 'roleDesc' ], (errors,values)=>{
+    validateFields([ 'roleName' ], (errors,values)=>{
+    // validateFields([ 'roleName', 'roleDesc' ], (errors,values)=>{
       if (!!errors) {
         return
       }
-      let roleDesc = values.roleDesc
+      //let roleDesc = values.roleDesc
       let roleName = values.roleName
       let params = {
         name: roleName,
-        comment: roleDesc,
+        //comment: roleDesc,
         permissionPolicyType: permissionPolicyType,
       };
       if(permissionPolicyType === 1) {
@@ -294,14 +297,15 @@ class CreateRoleModal extends Component{
             }) }
             />
           </Form.Item>
-          <Form.Item label="描述" {...formItemLayout}>
+
+          {/*<Form.Item label="描述" {...formItemLayout}>
             <Input type="textarea" {...getFieldProps(`roleDesc`, {
 
-            }) }/>
+            }) }/>*/}
             {/*rules: [
               { validator: (rules,value,callback)=>this.roleDesc(rules,value,callback)},
             ],*/}
-          </Form.Item>
+          {/*</Form.Item>*/}
           <Form.Item label="授权方式" {...formItemLayout}>
             <Radio.Group {...getFieldProps('permissionPolicyType', { initialValue: 1,
               validate: [{
@@ -359,7 +363,11 @@ class CreateRoleModal extends Component{
             </div>
           </div>
           :
-          null
+
+          <div className="bottomDesc">
+            <Col className="gutter-row" span={24}>角色创建好后，可以给项目内指定的资源进行授权</Col>
+            <div style={{clear: "both"}}></div>
+          </div>
         }
       </Modal>
     )
