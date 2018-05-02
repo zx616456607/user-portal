@@ -112,6 +112,8 @@ class TimingClean extends Component {
     })
   }
   parseCron(str, type) {
+    const { form } = this.props
+    const { setFieldsValue } = form
     if (!str.spec.cron) return
     let cronArr = str.spec.cron.split(' ')
     cronArr.length === 6 && cronArr.splice(0, 1)
@@ -139,38 +141,67 @@ class TimingClean extends Component {
       }
     }
     if (cronArr[4] !== '?') {
-      this.setState({
-        [`${type}Cycle`]: 'week',
-        [`${type}Date`]: cronArr[4]
-      })
+      if (type === 'system') {
+        setFieldsValue({
+          systemCleaningCycle: 'week',
+          systemCleaningDate: cronArr[4]
+        })
+      } else {
+        setFieldsValue({
+          CICDcacheCycle: 'week',
+          CICDcacheDate: cronArr[4]
+        })
+      }
     } else if (cronArr[2] === '1/1') {
-      this.setState({
-        [`${type}Cycle`]: 'day',
-      })
+      if (type === 'system') {
+        setFieldsValue({
+          systemCleaningCycle: 'day',
+        })
+      } else {
+        setFieldsValue({
+          CICDcacheCycle: 'day',
+        })
+      }
     } else {
-      this.setState({
-        [`${type}Cycle`]: 'month',
-        [`${type}Date`]: cronArr[2]
-      })
+      if (type === 'system') {
+        setFieldsValue({
+          systemCleaningCycle: 'month',
+          systemCleaningDate: cronArr[2]
+        })
+      } else {
+        setFieldsValue({
+          CICDcacheCycle: 'month',
+          CICDcacheDate: cronArr[2]
+        })
+      }
     }
     this.getTime(cronArr[0], cronArr[1], type)
-    this.setState({
-      [`${type}Scope`]: `${str.spec.scope}`
-    })
+    if (type === 'system') {
+      setFieldsValue({
+        systemCleaningScope: `${str.spec.scope}`
+      })
+    } else {
+      setFieldsValue({
+        CICDcacheScope: `${str.spec.scope}`
+      })
+    }
   }
   getTime(m, h, type) {
+    const { setFieldsValue } = this.props.form
     let newH = Number(h)
-    if (type === 'system') {
-      newH += 8
-      newH = newH > 24 ? (newH - 24) : newH
-    }
     newH = String(newH)
     let minute = m.length === 1 ? `0${m}`: m
     let hour = newH.length === 1 ? `0${newH}` : newH
     let time = `${hour}:${minute}:00`
-    this.setState({
-      [`${type}Time`]: time
-    })
+    if (type === 'system') {
+      setFieldsValue({
+        systemCleaningTime: time
+      })
+    } else {
+      setFieldsValue({
+        CICDcacheTime: time
+      })
+    }
   }
   systemReset = () => {
     const { cleanSystemLogs } = this.props

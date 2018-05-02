@@ -16,6 +16,7 @@ import {
   Form, Collapse, Row, Col, Icon, Input, Select, Radio, Tooltip, Button, Checkbox, Cascader
 } from 'antd'
 import includes from 'lodash/includes'
+import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import { loadConfigGroup, configGroupName } from '../../../../../actions/configs'
 import { getSecrets } from '../../../../../actions/secrets'
@@ -136,6 +137,7 @@ const ConfigMapSetting = React.createClass({
     const configMapIsWholeDirKey = `configMapIsWholeDir${keyValue}`
     const configGroupNameKey = `configGroupName${keyValue}`
     const configGroupName = getFieldValue(configGroupNameKey)
+    const configMapErrorFields = getFieldValue('configMapErrorFields')
     const configMapIsWholeDir = getFieldValue(configMapIsWholeDirKey)
     const currentConfigGroup = this.getConfigGroupByName(configGroupList, configGroupName && configGroupName[1])
     let configMapSubPathOptions = []
@@ -204,8 +206,13 @@ const ConfigMapSetting = React.createClass({
         </Col>
         <Col span={5}>
           <FormItem>
-            <Cascader displayRender={label=> label.join('：')} options={selectOptions} placeholder="配置分类：配置组" {...configGroupNameProps}
-            />
+            {
+              !isEmpty(configMapErrorFields) && configMapErrorFields.includes(configGroupNameKey)
+                ?
+                <Input placeholder="请输入配置组" {...configGroupNameProps}/>
+                :
+                <Cascader displayRender={label=> label.join('：')} options={selectOptions} placeholder="配置分类：配置组" {...configGroupNameProps}/>
+            }
           </FormItem>
         </Col>
         <Col span={5}>
