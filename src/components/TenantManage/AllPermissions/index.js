@@ -117,15 +117,17 @@ class AllPermissions extends React.Component{
       dataIndex: 'desc',
       key: 'desc',
       width: '30%',
-    }, {
-      title: '被角色引用次数',
-      dataIndex: 'count',
-      key: 'count',
-      code: 'code',
-      render: (text, record) => (
-        <div>{record.code !== '' ? text : '-'}</div>
-      )
-    }];
+    },
+    // {
+    //   title: '被角色引用次数',
+    //   dataIndex: 'count',
+    //   key: 'count',
+    //   code: 'code',
+    //   render: (text, record) => (
+    //     <div>{record.code !== '' ? text : '-'}</div>
+    //   )
+    // }
+    ];
 
     return(
       <QueueAnim className="AllPermissions">

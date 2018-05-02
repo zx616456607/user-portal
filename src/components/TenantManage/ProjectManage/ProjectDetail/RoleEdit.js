@@ -118,9 +118,16 @@ class RoleEditModal extends React.Component {
       success: {
         func: (res) => {
           if (REG.test(res.data.code)) {
-            let result = res.data.data.permissions
+            let result = res.data.data.permissions;
+            debugger
+            let tempres = _.cloneDeep(result);
+            let allPermission = [];
+            allPermission.push(_.filter(tempres, {id:10000, code: "SYSTEM_ALL_PRIVILEGES"})[0])
+            allPermission[0].children = _.filter(tempres, (item) => {
+              return item.id !== 10000 && item.code !== "SYSTEM_ALL_PRIVILEGES";
+            });
             this.setState({
-              allPermission: result,
+              allPermission: allPermission,
               total: res.data.data.total
             })
           }
@@ -272,7 +279,7 @@ class RoleEditModal extends React.Component {
   }
   screenInfo() {
     let notification = new NotificationHandler()
-    const { RemovePermissionRole } = this.props
+    const { RemovePermissionRole, scope } = this.props
     const { rowPermissionID, checkedKeys, isChecked, codeKey } = this.state
     let checkedId = []
     let ary = []
@@ -316,6 +323,7 @@ class RoleEditModal extends React.Component {
               func: (res) => {
                 if (REG.test(res.data.code)) {
                   notification.success('移除权限成功')
+                  scope.getCurrentRole(this.props.roleId);
                 }
               },
               isAsync: true
@@ -389,8 +397,10 @@ class RoleEditModal extends React.Component {
           </TreeNode>
         )
       }
+      if(item.name === "所有资源权限" && item.desc === "所有资源权限" && item.code === "SYSTEM_ALL_PRIVILEGES") return <span></span>;
       return <TreeNode key={item.id} code={item.code} title={item.name} category={item.category} />;
     })
+    const allPermissionTreeNode = _.filter(allPermission, {name: "所有资源权限", desc: "所有资源权限", category: 0, code: "SYSTEM_ALL_PRIVILEGES"})[0];
     return (
       <Modal title='管理权限' wrapClassName="createCharacterModal" visible={visible} width={570}
         onCancel={() => this.cancelModal()}
