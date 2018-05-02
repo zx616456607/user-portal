@@ -22,6 +22,8 @@ import yaml from 'js-yaml'
 import StorageClass from '../../../kubernetes/objects/storageClass'
 import Secret from '../../../kubernetes/objects/secret'
 import NfsStorage from '../../../kubernetes/objects/nfsStorage'
+import GfsSecret from '../../../kubernetes/objects/gfsSecret'
+import GfsStorage from '../../../kubernetes/objects/gfsStorage'
 import NfsDeplyment from '../../../kubernetes/objects/nfsDeplyment'
 import HostTemplate from '../../../kubernetes/objects/hostTemplate'
 import { createCephStorage, getClusterStorageList, deleteStorageClass, updateStorageClass } from '../../actions/cluster'
@@ -400,7 +402,7 @@ class ClusterStorage extends Component {
     return callback()
   }
 
-  addGlusterFSItem(){debugger
+  addGlusterFSItem(){
     const { gfsArray } = this.state
     const newGfsArray = cloneDeep(gfsArray)
     const listArray = newGfsArray.listArray
@@ -412,7 +414,7 @@ class ClusterStorage extends Component {
       newAdd: true,
     })
     setTimeout(() => {
-      const id = `gfs_service_name${index + 1}`
+      const id = `gfs_name${index + 1}`
       const node = document.getElementById(id)
       inputFocusMethod(node)
     }, 100)
@@ -758,37 +760,37 @@ class ClusterStorage extends Component {
     const { form, createCephStorage, cluster, updateStorageClass, registryConfig, clusterStorage } = this.props
     const { gfsArray } = this.state
     const validateArray = [
-      `gfs_service_name${item.index}`,
-      `gfs_service_agent${item.index}`,
-      `gfs_service_path${item.index}`,
-      `gfs_service_adminId${item.index}`,
-      `gfs_service_key${item.index}`
+      `gfs_name${item.index}`,
+      `gfs_agent${item.index}`,
+      `gfs_path${item.index}`,
+      `gfs_adminId${item.index}`,
+      `gfs_password${item.index}`
     ];
     form.validateFields(validateArray, (errors, values) => {
       if(!!errors){
         return
       }
-      const name = values[`gfs_service_name${item.index}`]
-      const ip = values[`gfs_service_adderss${item.index}`]
-      const path = values[`gfs_service_path${item.index}`]
-      const server = registryConfig.server
-      const serverArray = server.split('//')
-      const image = `${serverArray[1]}/tenx_containers/gfs-client-provisioner:latest`
+      const name = values[`gfs_name${item.index}`] //集群名称
+      const agent = values[`gfs_agent${item.index}`] //集群地址
+      const path = values[`gfs_path${item.index}`] //集群id
+      const adminId = values[`gfs_adminId${item.index}`] //认证用户 用户认证密钥
+      const password = values[`gfs_password${item.index}`] //用户认证密钥
+
       const gfsList = clusterStorage.gfsList || []
-      let index = gfsList.length
-      let gfsName = ''
+      let gname = ''
       if(item.newAdd){
-        gfsName = `tenx-gfs${index}`
+        let len = gfsList.length
+        gname = `tenx-glusterfs${len}`
       } else {
-        const config = gfsList[item.index]
-        gfsName = config.metadata.name
+        gname = cephList[item.index].metadata.name
       }
-      const gfsStorage = new NfsStorage(name, gfsName)
-      const gfsDeployment = new NfsDeplyment(gfsName, ip, path, image)
+      const gfsStorage = new GfsStorage(gname, name, agent, path, adminId);
+      const gfsSecret = new GfsSecret(password);
+
       const clusterID = cluster.clusterID
       const template = []
       template.push(yaml.dump(gfsStorage))
-      template.push(yaml.dump(gfsDeployment))
+      template.push(yaml.dump(gfsSecret))
       debugger
       const body = {
         template: template.join('---\n')
@@ -916,7 +918,7 @@ class ClusterStorage extends Component {
       })
     } else if(type == 'gfs'){
       nfsArray.listArray.forEach(item => {
-        validateArray.push(`gfs_service_name${item.index}`)
+        validateArray.push(`gfs_name${item.index}`)
       })
     } else {
       validateArray = []
@@ -928,7 +930,6 @@ class ClusterStorage extends Component {
   }
 
   renderGlusterFSList(){
-    debugger
     const { gfsArray } = this.state
     const { clusterStorage } = this.props
     let isFetching = clusterStorage.isFetching
@@ -961,7 +962,7 @@ class ClusterStorage extends Component {
               disabled={ item.disabled || !item.newAdd }
               size="large"
               className='formItem_child_style'
-              {...getFieldProps(`gfs_service_name${item.index}`, {
+              {...getFieldProps(`gfs_name${item.index}`, {
                 initialValue: metadata && metadata.annotations ? metadata.annotations[`tenxcloud.com/scName`] : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {
@@ -990,7 +991,7 @@ class ClusterStorage extends Component {
               placeholder='如：http://192.168.1.123:8001'
               disabled={item.disabled}
               size="large"
-              {...getFieldProps(`gfs_service_agent${item.index}`, {
+              {...getFieldProps(`gfs_agent${item.index}`, {
                 initialValue: "http://192.168.1.123:8001",// || metadata && metadata.annotations ? metadata.annotations['tenxcloud.com/storageagent'] : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {
@@ -1016,7 +1017,7 @@ class ClusterStorage extends Component {
               placeholder='请输入集群 ID'
               disabled={item.disabled}
               size="large"
-              {...getFieldProps(`gfs_service_path${item.index}`, {
+              {...getFieldProps(`gfs_path${item.index}`, {
                 initialValue: parameters ? parameters.path : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {
@@ -1038,7 +1039,7 @@ class ClusterStorage extends Component {
               placeholder='如： admin'
               disabled={item.disabled}
               size="large"
-              {...getFieldProps(`gfs_service_adminId${item.index}`, {
+              {...getFieldProps(`gfs_adminId${item.index}`, {
                 initialValue: parameters ? parameters.adminId : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {
@@ -1062,7 +1063,7 @@ class ClusterStorage extends Component {
               size="large"
               type="password"
               autoComplete="new-password"
-              {...getFieldProps(`gfs_service_key${item.index}`, {
+              {...getFieldProps(`gfs_password${item.index}`, {
                 initialValue: parameters ? parameters.key : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {

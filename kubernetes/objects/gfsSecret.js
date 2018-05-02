@@ -10,18 +10,25 @@
 'use strict'
 
 class GfsSecret {
-  constructor(secretName, password){
+  constructor(password){
     this.apiVersion = 'v1'
     this.kind = 'Secret'
     this.metadata = {
-      name: secretName,
-      namespace: 'kube-system',
+      name: 'tenx-glusterfs',
+      //namespace: 'kube-system',
     }
-    this.type = 'kubernetes.io/glusterfs'
     this.data = {
       key: password,
     }
+    this.type = 'kubernetes.io/glusterfs'
   }
+  // apiVersion: v1
+  // kind: Secret
+  // metadata:
+  //   name: tenx-glusterfs
+  // data:
+  //   key: "12345678" // 对应原型中的【用户认证密钥】注意已经确定是明文，不是秘文
+  // type: kubernetes.io/glusterfs
 }
 
 module.exports = GfsSecret
