@@ -276,7 +276,7 @@ class TimingClean extends Component {
         return
       }
       const { systemCleaningScope, systemCleaningCycle, systemCleaningTime, systemCleaningDate } = values
-      if(toggle && systemChecked){
+      if(toggle && !systemChecked){
         this.systemCloseFun()
         return
       }
@@ -304,6 +304,7 @@ class TimingClean extends Component {
                 systemEdit: true
               })
             }
+            this.getSystemSetting()
           },
           isAsync: true
         },
@@ -333,6 +334,7 @@ class TimingClean extends Component {
                 systemEdit: false
               })
             }
+            this.getSystemSetting()
           },
           isAsync: true
         }
@@ -409,6 +411,7 @@ class TimingClean extends Component {
           this.setState({
             cicdChecked: true
           })
+          this.getSettings()
         }
       }
     })
@@ -709,7 +712,7 @@ class TimingClean extends Component {
                       unCheckedChildren="关"
                       className='switch_style'
                       checked={systemChecked}
-                      onChange={() => this.systemChange(true)}
+                      onChange={checked => this.setState({ systemChecked: checked}, () =>  this.systemChange(true))}
                     />
                   </div>
                   <div className="body">
@@ -784,7 +787,7 @@ class TimingClean extends Component {
                             [
                               <Button
                                 style={{ marginRight: 12 }}
-                                key="cicdSave" type="primary" size="large" onClick={checked => this.setState({cicdChecked: checked}, () => this.CICDEditChange(false))}>保存</Button>,
+                                key="cicdSave" type="primary" size="large" onClick={() => this.systemChange(false)}>保存</Button>,
                               <Button key="cicdCancel" type="ghost" size="large" onClick={this.systemHandleCancel}>取消</Button>
                             ]
                         }
