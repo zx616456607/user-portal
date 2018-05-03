@@ -76,11 +76,16 @@ class ImageVersion extends Component {
       detailVisible: false,
       imageDetail: null,
       processedName: '',
+      deleteAll: false,
       selectedRowKeys: [],
     }
   }
 
   componentWillMount() {
+    this.loadData()
+  }
+
+  loadData() {
     const { loadRepositoriesTags, loadRepositoriesTagConfigInfo, detailAry } = this.props
     const imageDetail = this.props.config
     let processedName = encodeImageFullname(imageDetail.name)
@@ -171,7 +176,7 @@ class ImageVersion extends Component {
 
   handleOk() {
     const { deleteAlone, scopeDetail, loadRepositoriesTags, config, isWrapStore } = this.props
-    const { aryName, delValue, isBatchDel } = this.state
+    const { aryName, delValue, isBatchDel, deleteAll } = this.state
     let notify = new NotificationHandler()
     if (isWrapStore) {
       this.offShelfImage()
@@ -195,9 +200,12 @@ class ImageVersion extends Component {
             deleteVisible: false,
             selectedRowKeys: [],
           })
-          // scopeDetail.setState({
-          //   imageDetailModalShow: false,
-          // })
+          this.loadData()
+          if(deleteAll) {
+            scopeDetail.setState({
+              imageDetailModalShow: false,
+            })
+          }
           scopeDetail.loadRepos()
           loadRepositoriesTags(DEFAULT_REGISTRY, config.name)
         },
@@ -264,9 +272,19 @@ class ImageVersion extends Component {
   handleBatchDel() {
     const { selectedRowKeys, dataAry } = this.state
     let names = ''
-    if (selectedRowKeys) {
+    if(dataAry.length < 2) {
+      this.setState({
+        deleteAll: true,
+        deleteVisible: true,
+        aryName: dataAry[0].edition,
+      })
+    } else if (selectedRowKeys) {
       selectedRowKeys.forEach(item => {
-        names += `,${dataAry[item].edition}`
+        dataAry.forEach(value => {
+          if(value.id === item.id) {
+            names += `,${value.edition}`
+          }
+        })
       })
       this.setState({
         aryName: names.replace(',', ''),
@@ -289,9 +307,9 @@ class ImageVersion extends Component {
     }
   }
 
-  onSelectChange(selectedRowKeys) {
+  onSelectChange = (selectedRowKeys, selectedRows) => {
     this.setState({
-      selectedRowKeys
+      selectedRowKeys: selectedRows
     })
   }
 
@@ -317,13 +335,11 @@ class ImageVersion extends Component {
 
   render() {
     const { isFetching, detailAry, isAdminAndHarbor, isWrapStore } = this.props
-    const { edition, dataAry, delValue, aryName, isBatchDel, selectedRowKeys } = this.state
+    const { edition, dataAry, delValue, aryName, isBatchDel, selectedRowKeys, deleteAll } = this.state
     const imageDetail = this.props.config
     const rowSelection = {
-      selectedRowKeys,
-      onChange: this.onSelectChange.bind(this)
+      onChange: this.onSelectChange,
     }
-
     const columns = [{
       id: 'id',
       title: '版本',
@@ -436,7 +452,10 @@ class ImageVersion extends Component {
           onOk={this.handleOk.bind(this)}>
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-            <span>确认要删除镜像版本 {isBatchDel ? aryName : delValue} ？</span>
+            {
+              deleteAll ? <p>该仓库中仅剩最后一个镜像版本，删除后整个{aryName}镜像仓库将被删除。</p> :
+                <span>确认要删除镜像版本 {isBatchDel ? aryName : delValue} ？</span>
+            }
           </div>
         </Modal>
       </Card>
