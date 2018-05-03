@@ -407,7 +407,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
             volumeName = `${configGroupName[0]}/configmap-volume-${keyValue}`
           }
         } else {
-          volumeName = `未分类配置组/configmap-volume-${keyValue}`
+          volumeName = `noClassify/configmap-volume-${keyValue}`
         }
         const volume = {
           name: volumeName,

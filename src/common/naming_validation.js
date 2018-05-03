@@ -457,9 +457,9 @@ export function lbNameCheck(value) {
     return '由字母或数字结尾'
   }
   //a-zA-Z0-9_- body check
-  let bodyCheck = new RegExp('^[a-zA-Z0-9]+([-_.~/][a-zA-Z0-9]+)*$');
+  let bodyCheck = new RegExp('^[a-zA-Z0-9]+([_.~/][a-zA-Z0-9]+)*$');
   if (!bodyCheck.test(value)) {
-    return '由字母、数字、中划线-、下划线_组成，特殊符号不能连续出现'
+    return '由字母、数字、下划线_组成，特殊符号不能连续出现'
   }
    return 'success'
  }

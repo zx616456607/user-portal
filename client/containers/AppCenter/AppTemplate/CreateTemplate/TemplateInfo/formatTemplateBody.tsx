@@ -88,6 +88,19 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
         Object.assign(serviceOption, {
           originalName: getFieldsValues(value).originalName,
         });
+        const configMapKeys = getFieldsValues(value).configMapKeys;
+        const configMaps = {};
+        if (configMapKeys) {
+          configMapKeys.map(_key => {
+            const originalName = value[`configGroupOriginalName${_key.value}`].value[1];
+            Object.assign(configMaps, {
+              [originalName]: value[`configGroupName${_key.value}`].value,
+            });
+          });
+        }
+        if (!isEmpty(configMaps)) {
+          Object.assign(serviceOption, { configMaps });
+        }
       }
       if (!chart.name) {
         chart.name = getFieldsValues(value).templateName;

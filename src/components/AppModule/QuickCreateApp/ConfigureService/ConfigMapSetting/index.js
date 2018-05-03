@@ -83,6 +83,9 @@ const ConfigMapSetting = React.createClass({
     const configMapIsWholeDir = getFieldValue(`configMapIsWholeDir${keyValue}`)
     if (configMapIsWholeDir) {
       const currentConfigGroup = this.getConfigGroupByName(configGroupList, value [1])
+      if (!currentConfigGroup) {
+        return
+      }
       this.handleSelectAll(keyValue, currentConfigGroup, { target: { checked: true } })
     }
   },
