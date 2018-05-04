@@ -225,8 +225,6 @@ const MyComponent = React.createClass({
         return scope.batchRestartService()
       case 'delete':
         return scope.batchDeleteServices()
-      case 'serverTag':
-        return this.showServiceDetail('serverTag')
       case 'rollingUpdate':
         return this.showRollingUpdateModal()
       case 'grayscaleUpgrade':
@@ -250,6 +248,8 @@ const MyComponent = React.createClass({
         return this.showServiceDetail('binddomain')
       case 'https':
         return this.showServiceDetail('https')
+      case 'serverTag':
+        return this.showServiceDetail('serverTag')
     }
   },
   showRollingUpdateModal() {

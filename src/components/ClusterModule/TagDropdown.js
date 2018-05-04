@@ -87,9 +87,11 @@ class TagDropdown extends Component {
         newData[label.key].push(label)
       } else {
         newData[label.key] = [label]
+        // newData[label.affinity] = []     //label的信息
+        //console.log( "label",newData )
       }
     })
-
+    console.log( "newData",newData )
     let arr = []
     for (let i in newData) {
       let item = {}
@@ -119,6 +121,8 @@ class TagDropdown extends Component {
           {tagvalue[index]}
         </SubMenu>
       })
+      //neirong
+
     } else {
       result =  <Menu.Item className='notag'>暂无标签</Menu.Item>
     }
@@ -210,6 +214,7 @@ class TagDropdown extends Component {
             {this.handleDropdownContext()}
           </Button>
         </Dropdown>
+
       </div>
     )
   }

@@ -451,5 +451,101 @@ const fetchNotMigratedPodCount = (cluster, name, callback) => {
   }
 }
 
-export const getNotMigratedPodCount = (cluster, name, callback) => 
+export const getNotMigratedPodCount = (cluster, name, callback) =>
   dispatch => dispatch(fetchNotMigratedPodCount(cluster, name, callback))
+
+
+export const GET_ALL_SERVICE_TAG_REQUEST = 'GET_ALL_SERVICE_TAG_REQUEST'
+export const GET_ALL_SERVICE_TAG_SUCCESS = 'GET_ALL_SERVICE_TAG_SUCCESS'
+export const GET_ALL_SERVICE_TAG_FAILURE = 'GET_ALL_SERVICE_TAG_FAILURE'
+
+function fetchGetServiceTag( cluster, callback ) {
+  return {
+    [FETCH_API]: {
+      types: [ GET_ALL_SERVICE_TAG_REQUEST, GET_ALL_SERVICE_TAG_SUCCESS, GET_ALL_SERVICE_TAG_FAILURE ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getAllServiceTag( cluster, callback ) {
+  return dispatch => {
+    return dispatch(fetchGetServiceTag(cluster, callback))
+  }
+}
+
+export const ADD_SERVICE_TAG_REQUEST = 'ADD_SERVICE_TAG_REQUEST'
+export const ADD_SERVICE_TAG_SUCCESS = 'ADD_SERVICE_TAG_SUCCESS'
+export const ADD_SERVICE_TAG_FAILURE = 'ADD_SERVICE_TAG_FAILURE'
+
+function fetchAddServiceTag(body, cluster, service, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ADD_SERVICE_TAG_REQUEST, ADD_SERVICE_TAG_SUCCESS, ADD_SERVICE_TAG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/labels`,
+      options: {
+        method:'POST',
+        body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function addServiceTag(body, cluster, service, callback) {
+  return (dispatch) => {
+    return dispatch(fetchAddServiceTag(body, cluster, service, callback))
+  }
+}
+
+export const UPDATA_SERVICE_TAG_REQUEST = 'UPDATA_SERVICE_TAG_REQUEST'
+export const UPDATA_SERVICE_TAG_SUCCESS = 'UPDATA_SERVICE_TAG_SUCCESS'
+export const UPDATA_SERVICE_TAG_FAILURE = 'UPDATA_SERVICE_TAG_FAILURE'
+
+function fetchUpdataServiceTag(body, cluster, service, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATA_SERVICE_TAG_REQUEST, UPDATA_SERVICE_TAG_SUCCESS, UPDATA_SERVICE_TAG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/labels`,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function updataServiceTag(body, cluster, service, callback) {
+  return (dispatch) => {
+    return dispatch(fetchUpdataServiceTag(body, cluster, service, callback))
+  }
+}
+
+export const DELTE_SERVICE_TAG_REQUEST = 'DELTE_SERVICE_TAG_REQUEST'
+export const DELTE_SERVICE_TAG_SUCCESS = 'DELTE_SERVICE_TAG_SUCCESS'
+export const DELTE_SERVICE_TAG_FAILURE = 'DELTE_SERVICE_TAG_FAILURE'
+
+function fetchDelteServiceTag(labels, cluster, service, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELTE_SERVICE_TAG_REQUEST, DELTE_SERVICE_TAG_SUCCESS, DELTE_SERVICE_TAG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/labels/${labels}`,
+      options: {
+        method: 'DELETE',
+      },
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function delteServiceTag(labels, cluster, service, callback) {
+  return (dispatch) => {
+    return dispatch(fetchDelteServiceTag(labels, cluster, service, callback))
+  }
+}
