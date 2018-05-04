@@ -9,11 +9,12 @@
  */
 
 import React, { Component } from 'react'
-import { Card, Row, Col, Tabs, Spin } from 'antd'
+import { Card, Row, Col, Tabs, Spin, Progress } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ShareStorageDetail.less'
 import Title from '../../Title'
+import { FormattedMessage } from 'react-intl'
 import storagePNG from '../../../assets/img/storage.png'
 import { browserHistory } from 'react-router'
 import { loadStorageInfo } from '../../../actions/storage'
@@ -31,8 +32,8 @@ class ShareStorageDetail extends Component {
   }
 
   componentWillMount() {
-    const { loadStorageInfo, params } = this.props
-    loadStorageInfo(params.cluster, params.share_name)
+    const { loadStorageInfo, params } = this.props;
+    loadStorageInfo(params.cluster, params.share_name, {fstype: this.props.location.query.diskType})
   }
 
   render() {
@@ -45,19 +46,19 @@ class ShareStorageDetail extends Component {
       )
     }
     const clusterID = cluster.clusterID
-    const volumeName = params.share_name
+    const volumeName = params.share_name;debugger
     return(
       <QueueAnim type="right">
         <Title title="存储详情"/>
         <div id='share_storage_detail' key="share_storage_detail">
           <div className="topRow">
-              <span
-                className="back"
-                onClick={() => browserHistory.push(`/app_manage/storage/shared`)}
-              >
-                <span className="backjia"></span>
-                <span className="btn-back">返回</span>
-              </span>
+            <span
+              className="back"
+              onClick={() => browserHistory.push(`/app_manage/storage/shared`)}
+            >
+              <span className="backjia"></span>
+              <span className="btn-back">返回</span>
+            </span>
             <span className="title">存储详情</span>
           </div>
           <Card className='topCard'>
@@ -71,7 +72,7 @@ class ShareStorageDetail extends Component {
               <div className="info">
                 <Row>
                   <Col span="9">
-                    存储类型：共享型（NFS）
+                    存储类型：共享型（{ this.props.location.query.diskType === 'glusterfs' ? 'GlusterFS' : 'NFS' }）
                   </Col>
                   <Col span="15">
                     <div className="createDate">
@@ -82,6 +83,13 @@ class ShareStorageDetail extends Component {
                 <Row>
                   <Col span="9">
                     存储server：{ StorageInfo.storageServer }
+                  </Col>
+                  <Col span="15">
+                    <div className="use">用量
+                      ：&nbsp;&nbsp;
+                      <Progress strokeWidth={8} showInfo={false} status="active" percent={ StorageInfo.consumption * 100 } />
+                      &nbsp;&nbsp;{ StorageInfo.consumption * parseInt(StorageInfo.size) } / { parseInt(StorageInfo.size) }M
+                    </div>
                   </Col>
                 </Row>
               </div>

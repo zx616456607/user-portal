@@ -9,7 +9,7 @@
  */
 
 import React, { PropTypes } from 'react'
-import { Form, Select, Row, Col, Radio, Input, Tooltip, Icon, InputNumber, Button } from 'antd'
+import { Form, Select, Row, Col, Radio, Input, Tooltip, Icon, InputNumber, Button, Spin } from 'antd'
 import { connect } from 'react-redux'
 import cloneDeep from 'lodash/cloneDeep'
 import { loadFreeVolume, getCheckVolumeNameExist } from '../../actions/storage'
@@ -37,6 +37,8 @@ let ContainerCatalogueModal = React.createClass({
     return {
       isResetComponent: false,
       confirmLoading: false,
+      type_1Value: 'nfs',
+      loading: true,
     }
   },
 
@@ -77,9 +79,10 @@ let ContainerCatalogueModal = React.createClass({
     if (!visible && nextProps.visible) {
       this.restFormValues(nextProps.fieldsList[nextProps.currentIndex])
       if(nextProps.fieldsList.length !== nextProps.currentIndex){
-        const srtype = nextProps.fieldsList[nextProps.currentIndex].type
+        const srtype = nextProps.fieldsList[nextProps.currentIndex].type;
+        const type_1 = nextProps.fieldsList[nextProps.currentIndex].type_1;
         if(srtype !== 'host'){
-          loadFreeVolume(clusterID, { srtype })
+          loadFreeVolume(clusterID, { srtype, storagetype: type_1 })
         }
       }
     }
@@ -102,7 +105,14 @@ let ContainerCatalogueModal = React.createClass({
       ])
     }
     if (type === 'share') {
-      loadFreeVolume(clusterID, { srtype: 'share' })
+      loadFreeVolume(clusterID, { srtype: 'share', storagetype: this.state.type_1Value }, {
+        success:{
+          func: (res) => {
+            //success
+          },
+          isAsync: true
+        }
+      })
       setFieldsValue({
         type_1: 'nfs',
       })
@@ -190,17 +200,45 @@ let ContainerCatalogueModal = React.createClass({
           className='volume_setting'
         >
           {
-            !isTemplate &&
-            <FormItem className='name' style={{width}}>
-              <Input
-                placeholder="请输入存储名称"
-                {...getFieldProps('name', {
-                  rules: [{
-                    validator: this.checkVolumeName
-                  }]
-                }) }
-              />
-            </FormItem>
+            !isTemplate ?
+            <div>
+              <div style={{ width : this.state.type_1Value === 'glusterfs' ? 175 : '100%'}}>
+                <FormItem className={this.state.type_1Value === 'glusterfs' ? 'glusterfsName name' : 'name'} style={{width: this.state.type_1Value !== 'glusterfs' ? width : "100%"}}>
+                  <Input
+                    placeholder="请输入存储名称"
+                    {...getFieldProps('name', {
+                      rules: [{
+                        validator: this.checkVolumeName
+                      }]
+                    }) }
+                  />
+                </FormItem>
+              </div>
+              {
+                this.state.type_1Value === 'glusterfs' ?
+                <div>
+                  <FormItem style={{ width: 175 }} className="inputNumWid">
+                    <InputNumber
+                        className="inputNum"
+                        placeholder="请输入存储大小" min={1} max={20}
+                        {...getFieldProps('storage', {
+                          initialValue: 1,
+                          onChange: this.onSliderChange,
+                          rules:[{
+                            type: "number"
+                            //validator: this.checkVolumeNameExist
+                          }],
+                        })}
+                      />
+                  </FormItem>
+                  <div className="unit">GB</div>
+                </div>
+                :
+                null
+              }
+            </div>
+            :
+            null
           }
           {
             type == 'private'
@@ -354,6 +392,10 @@ let ContainerCatalogueModal = React.createClass({
             //'size',
             //'fsType',
           ]
+          if(this.state.type_1Value === 'glusterfs')
+          {
+            array.push('storage');
+          }
         }
       }
       if (isTemplate) {
@@ -363,7 +405,7 @@ let ContainerCatalogueModal = React.createClass({
       }
       array.forEach(item => {
         validateArray.push(item)
-      })
+      });
       form.validateFields(validateArray, (errors, values) => {
         this.setState({
           confirmLoading: false
@@ -448,20 +490,43 @@ let ContainerCatalogueModal = React.createClass({
             key={value}
             disabled={disabled}
           >
-            {name}
+            {name} {size}
           </Option>
         )
       }
     })
     return options
   },
-
+  type_1Change(value) {
+    this.setState({
+      type_1Value: value
+    }, () => {
+      const { form, loadFreeVolume, clusterID } = this.props
+      const { resetFields, setFieldsValue, getFieldValue } = form
+      const type = getFieldValue('type');
+      if (type === 'share') {
+        loadFreeVolume(clusterID, { srtype: 'share', storagetype: value }, {
+          success:{
+            func: (res) => {
+              // todo
+            },
+            isAsync: true
+          }
+        })
+      }
+      resetFields([
+        "volume",
+        'mountPath',
+        'readOnly',
+      ])
+    })
+  },
   render() {
     const { storageClassType } = this.props
     const {
       form, replicas, isAutoScale,
       volumes, from, storageList,
-      nfsList, cephList, fieldsList,
+      nfsList, cephList, glusterfsList, fieldsList,
       currentIndex, isTemplate
     } = this.props
     const { getFieldProps, getFieldValue } = form
@@ -481,13 +546,15 @@ let ContainerCatalogueModal = React.createClass({
       onChange: this.typeChange
     })
     const type = getFieldValue('type')
+    const type_1 = getFieldValue('type_1')
     let volumeProps
     let volumeIsOldProps
     let volume
     let typeWidth = "100%"
     let typeSpan = 24
     const serverList = type === 'share'
-      ? nfsList
+      ? (type_1 === 'nfs' ?
+      nfsList : glusterfsList)
       : cephList
     if (type === 'private' || type === "share") {
       typeWidth = 175
@@ -561,13 +628,14 @@ let ContainerCatalogueModal = React.createClass({
                             rules: [ {
                               required: true,
                               message: '不能为空'
-                            } ]
+                            } ],
+                            onChange: this.type_1Change
                           })}
                         >
                           {
                             type === 'private'
                               ? <Option type="rbd" value="rbd">块存储（rbd）</Option>
-                              : <Option type="nfs" value="nfs">NFS</Option>
+                              : [<Option type="nfs" value="nfs">NFS</Option>,<Option type="glusterfs" value="glusterfs">GlusterFS</Option>]
                           }
                         </Select>
                       </FormItem>
@@ -584,15 +652,17 @@ let ContainerCatalogueModal = React.createClass({
                 >
                 <Row>
                   <Col span={volumeSpan}>
-                    <FormItem style={{ width: volumeWidth }}>
-                      <Select
-                        placeholder="请选择存储卷"
-                        {...volumeProps}
-                        disabled={isTemplate || isEdit && fieldsList[currentIndex].oldVolume}
-                      >
-                        {this.renderVolumesOptions()}
-                      </Select>
-                    </FormItem>
+                    <Spin loading={this.state.loading} >
+                      <FormItem style={{ width: volumeWidth }}>
+                        <Select
+                          placeholder="请选择存储卷"
+                          {...volumeProps}
+                          disabled={isTemplate || isEdit && fieldsList[currentIndex].oldVolume}
+                        >
+                          {this.renderVolumesOptions()}
+                        </Select>
+                      </FormItem>
+                    </Spin>
                   </Col>
                   { volume === 'create' &&  <Col span={12}>
                     <FormItem className='not_host_type'>
@@ -731,6 +801,7 @@ function mapStateToProp(state, props) {
   const clusterID = current.cluster.clusterID
   const clusterStorage = cluster.clusterStorage && cluster.clusterStorage[clusterID] || {}
   const nfsList = clusterStorage.nfsList || []
+  const glusterfsList = clusterStorage.glusterfsList || []
   const cephList = clusterStorage.cephList || []
   const avaliableVolume = storage.avaliableVolume || {}
   let defaultStorageClassType = {
@@ -750,6 +821,7 @@ function mapStateToProp(state, props) {
     },
     nfsList,
     cephList,
+    glusterfsList,
   }
 }
 

@@ -18,6 +18,7 @@ import { IP_REGEX, IP_PATH_REGEX } from '../../../constants/index'
 import CephImg from '../../assets/img/setting/globalconfigceph.png'
 import HostImg from '../../assets/img/integration/host.png'
 import NfsImg from '../../assets/img/cluster/nfs.png'
+import GlusterImg from '../../assets/img/cluster/glusterfs.png'
 import yaml from 'js-yaml'
 import StorageClass from '../../../kubernetes/objects/storageClass'
 import Secret from '../../../kubernetes/objects/secret'
@@ -107,8 +108,10 @@ class ClusterStorage extends Component {
         func: (res) => {
           const cephlist = res.data.cephlist
           const nfslist = res.data.nfslist
+          const gfslist = res.data.glusterfsList
           let cephArray = []
           let nfsArray = []
+          let gfsArray = []
           cephlist.forEach((cephItem, index) => {
             let item = {
               index,
@@ -125,6 +128,14 @@ class ClusterStorage extends Component {
             }
             nfsArray.push(item)
           })
+          gfslist.forEach((gfstem, index) => {
+            let item = {
+              index,
+              disabled: true,
+              newAdd: false,
+            }
+            gfsArray.push(item)
+          })
           this.setState({
             cephArray: {
               key: cephArray.length ? cephArray.length : -1,
@@ -133,6 +144,10 @@ class ClusterStorage extends Component {
             nfsArray: {
               key: nfsArray.length ? nfsArray.length : -1,
               listArray: nfsArray,
+            },
+            gfsArray: {
+              key: gfsArray.length ? gfsArray.length : -1,
+              listArray: gfsArray,
             }
           })
         }
@@ -776,27 +791,26 @@ class ClusterStorage extends Component {
       const adminId = values[`gfs_adminId${item.index}`] //认证用户 用户认证密钥
       const password = values[`gfs_password${item.index}`] //用户认证密钥
 
-      const gfsList = clusterStorage.gfsList || []
+      const gfsList = clusterStorage.glusterfsList || []
       let gname = ''
       if(item.newAdd){
         let len = gfsList.length
         gname = `tenx-glusterfs${len}`
       } else {
-        gname = cephList[item.index].metadata.name
+        gname = gfsList[item.index].metadata.name
       }
       const gfsStorage = new GfsStorage(gname, name, agent, path, adminId);
-      const gfsSecret = new GfsSecret(password);
+      const gfsSecret = new GfsSecret(btoa(password));//btoa base 64 加密
 
       const clusterID = cluster.clusterID
       const template = []
       template.push(yaml.dump(gfsStorage))
       template.push(yaml.dump(gfsSecret))
-      debugger
       const body = {
         template: template.join('---\n')
       }
       if(item.newAdd){
-        return createCephStorage(clusterID, {type: 'gfs'}, body, {
+        return createCephStorage(clusterID, {type: 'glusterfs'}, body, {
           success: {
             func: () => {
               Notification.success('添加 GFS 存储配置成功')
@@ -813,7 +827,7 @@ class ClusterStorage extends Component {
           }
         })
       }
-      return updateStorageClass(clusterID, {type: 'gfs'}, body, {
+      return updateStorageClass(clusterID, {type: 'glusterfs'}, body, {
         success: {
           func: () => {
             Notification.success('修改 GFS 存储配置成功')
@@ -856,7 +870,49 @@ class ClusterStorage extends Component {
     })
   }
   cancelGfs(item){
-
+    const { gfsArray } = this.state
+    const { form } = this.props
+    const newGfsArray = cloneDeep(gfsArray)
+    const listArray = newGfsArray.listArray
+    for(let i = 0; i < listArray.length; i++){
+      if(listArray[i].index == item.index){
+        if(listArray[i].newAdd){
+          listArray.splice(i, 1)
+          break
+        }
+        form.resetFields([
+          `gfs_name${item.index}`,
+          `gfs_agent${item.index}`,
+          `gfs_path${item.index}`,
+          `gfs_adminId${item.index}`,
+          `gfs_password${item.index}`,
+        ])
+        listArray[i].disabled = true
+        break
+      }
+    }
+    this.setState({
+      gfsArray: newGfsArray
+    })
+  }
+  editGfs(item){
+    const { gfsArray } = this.state
+    const newGfsArray = cloneDeep(gfsArray)
+    const listArray = newGfsArray.listArray
+    for(let i = 0; i < listArray.length; i++){
+      if(listArray[i].index == item.index){
+        listArray[i].disabled = false
+        break
+      }
+    }
+    setTimeout(() => {
+      const id = `gfs_name${item.index}`
+      const node = document.getElementById(id)
+      inputFocusMethod(node)
+    }, 100)
+    this.setState({
+      gfsArray: newGfsArray
+    })
   }
 
   isExitName(type, config){
@@ -894,9 +950,26 @@ class ClusterStorage extends Component {
       })
       return { nfsIsExit }
     }
+    if(type == 'glusterfs'){debugger
+      let gfsIsExit = false
+      const { gfsArray } = this.state
+      const gfsNameArray = []
+      gfsArray.listArray.forEach(item => {
+        gfsNameArray.push(`gfs_name${item.index}`)
+      })
+      const gfsNameValues = getFieldsValue(gfsNameArray)
+      const currentValue = getFieldValue(`gfs_name${config.index}`)
+      gfsArray.listArray.forEach(item => {
+        if(gfsNameValues[`gfs_name${item.index}`] == currentValue && item.index !== config.index){
+          gfsIsExit = true
+        }
+      })
+      return { gfsIsExit }
+    }
     return {
       cephIsExit: false,
       nfsIsExit: false,
+      gfsIsExit: false,
     }
   }
 
@@ -946,7 +1019,8 @@ class ClusterStorage extends Component {
       labelCol: {span: 6},
       wrapperCol: {span: 18}
     }
-    const gfsListData = clusterStorage.gfsList || []
+    const gfsListData = clusterStorage.glusterfsList || []
+    //debugger
     let gfsList = listArray.map(item => {
       const metadata = gfsListData[item.index] ? gfsListData[item.index].metadata : {}
       const parameters = gfsListData[item.index] ? gfsListData[item.index].parameters : {}
@@ -972,8 +1046,8 @@ class ClusterStorage extends Component {
                     if(!/^[\u4e00-\u9fa5|a-zA-Z_\-0-9]{3,36}$/.test(value)){
                       return callback('集群名称由数字、字母、下划线、汉字组成，长度为3到36位')
                     }
-                    {/* this.validateAllName('ceph') */}
-                    if(this.isExitName('ceph', item).cephIsExit){
+                    {/* this.validateAllName('glusterfs') */}
+                    if(this.isExitName('glusterfs', item).gfsIsExit){
                       return callback('集群名称已存在！')
                     }
                     return callback()
@@ -983,7 +1057,7 @@ class ClusterStorage extends Component {
             />
           </FormItem>
           <FormItem
-            label="集群地址"
+            label="agent 地址"
             key="agent_address"
             {...formItemLayout}
           >
@@ -992,7 +1066,7 @@ class ClusterStorage extends Component {
               disabled={item.disabled}
               size="large"
               {...getFieldProps(`gfs_agent${item.index}`, {
-                initialValue: "http://192.168.1.123:8001",// || metadata && metadata.annotations ? metadata.annotations['tenxcloud.com/storageagent'] : undefined,
+                initialValue: parameters && parameters.resturl ? parameters.resturl : '',
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value){
@@ -1018,7 +1092,7 @@ class ClusterStorage extends Component {
               disabled={item.disabled}
               size="large"
               {...getFieldProps(`gfs_path${item.index}`, {
-                initialValue: parameters ? parameters.path : undefined,
+                initialValue: parameters ? parameters.clusterid : '',
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value){
@@ -1040,7 +1114,7 @@ class ClusterStorage extends Component {
               disabled={item.disabled}
               size="large"
               {...getFieldProps(`gfs_adminId${item.index}`, {
-                initialValue: parameters ? parameters.adminId : undefined,
+                initialValue: parameters ? parameters.restuser : '',
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value){
@@ -1070,8 +1144,8 @@ class ClusterStorage extends Component {
                     if(!value){
                       return callback('用户认证密钥不能为空')
                     }
-                    if(value.length < 4 || value.length > 63){
-                      return callback('长度为4～63个字符')
+                    if(value.length < 4 || value.length > 64){
+                      return callback('长度为4～64个字符')
                     }
                     return callback()
                   }
@@ -1263,6 +1337,9 @@ class ClusterStorage extends Component {
     if(currentItem.type == 'nfs'){
       type = 'nfs'
     }
+    if(currentItem.type == 'gfs'){
+      type = 'glusterfs'
+    }
     deleteStorageClass(clusterID, name, {
       success: {
         func: () => {
@@ -1327,7 +1404,7 @@ class ClusterStorage extends Component {
         </div>
         <div className='ceph'>
           <div className="header">
-            块存储集群（rbd）- 独享性
+            块存储集群（rbd）- 独享型
           </div>
           <div className="body">
             <div className="img_box ceph_img">
@@ -1344,7 +1421,7 @@ class ClusterStorage extends Component {
         </div>
         <div className='nfs'>
           <div className="header">
-            网络文件系统（NFS）- 共享性
+            网络文件系统（NFS）- 共享型
           </div>
           <div className="body">
             <div className="img_box nfs_img">
@@ -1361,11 +1438,11 @@ class ClusterStorage extends Component {
         </div>
         <div className='ceph'>
           <div className="header">
-            分布式文件系统集群（GlusterFS）- 共享性
+            分布式文件系统（GlusterFS）- 共享型
           </div>
           <div className="body">
-            <div className="img_box ceph_img">
-              <img src={CephImg} alt=""/>
+            <div className="img_box nfs_img">
+              <img src={GlusterImg} alt=""/>
             </div>
             <div className="container">
               { this.renderGlusterFSList() }
@@ -1428,7 +1505,7 @@ function mapStateToProp(state, props) {
     isFetching: false,
     cephList: [],
     nfsList: [],
-    gfsLust: [],
+    glusterfsList: [],
   }
   if(state.cluster.clusterStorage && state.cluster.clusterStorage[clusterID]){
     clusterStorage = state.cluster.clusterStorage[clusterID]

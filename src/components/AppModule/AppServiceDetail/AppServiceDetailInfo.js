@@ -746,23 +746,24 @@ class AppServiceDetailInfo extends Component {
               let strategy = false
               let claimName = '-'
               let type = 'host'
+              let type_1 = ''
               if(item.persistentVolumeClaim){
                 strategy = item.persistentVolumeClaim.strategy
                 claimName = item.persistentVolumeClaim.claimName
                 for(let i = 0; i < volume.length; i++){
                   if(volume[i].volumeName == claimName){
                     type = volume[i].srType
+                    type_1 = volume[i].storageType
                     size = volume[i].size
                     fsType = volume[i].fsType
                   }
                 }
               }
-              let type_1 = ''
-              if(type == 'private'){
-                type_1 = 'rbd'
-              } else {
-                type_1 = 'nfs'
-              }
+              // if(type == 'private'){
+              //   type_1 = 'rbd'
+              // } else {
+              //   type_1 = 'nfs'
+              // }
               const container = {
                 mountPath,
                 readOnly,
@@ -890,12 +891,18 @@ class AppServiceDetailInfo extends Component {
     })
   }
 
-  formatVolumeType(type){
+  formatVolumeType(type, type_1){debugger;
     switch(type){
       case 'private':
         return <span>独享型（rbd）</span>
       case 'share':
-        return <span>共享型（NFS）</span>
+        if(!!type_1 && type_1 === 'glusterfs')
+        {
+          return <span>共享型（GlusterFS）</span>
+        }
+        else{
+          return <span>共享型（NFS）</span>
+        }
       case 'host':
         return <span>本地存储</span>
       default:
@@ -921,7 +928,7 @@ class AppServiceDetailInfo extends Component {
     }
     ele = volumeList.map((item, index) => {
       return <Row key={`volume${index}`} className='volume_row_style'>
-        <Col span="6" className='text_overfow'>{ this.formatVolumeType(item.type) }</Col>
+        <Col span="6" className='text_overfow'>{ this.formatVolumeType(item.type, item.type_1) }</Col>
         <Col span="6" className='text_overfow'>{ this.renderVolumeName(item) }</Col>
         <Col span="5" className='text_overfow'>{item.mountPath}</Col>
         <Col span="7">
@@ -955,6 +962,7 @@ class AppServiceDetailInfo extends Component {
   }
 
   saveVolumnsChange = async () => {
+    debugger
     const { cluster, serviceName, createStorage, editServiceVolume } = this.props
     const { volumeList } = this.state
     const notification = new NotificationHandler()
@@ -981,8 +989,11 @@ class AppServiceDetailInfo extends Component {
           const { name, storageClassName } = item
           body = {
             name,
-            storageType: 'nfs',
+            storageType: item.type_1,
             storageClassName,
+          }
+          if(item.type_1 == 'glusterfs'){
+            body.storage = item.storage
           }
         }
         const persistentVolumeClaim = new PersistentVolumeClaim(body)

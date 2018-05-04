@@ -27,7 +27,7 @@ class PersistentVolumeClaim {
     if (!srType) {
       if (storageType === 'ceph') {
         srType = 'private'
-      } else if (storageType === 'nfs') {
+      } else if (storageType === 'nfs' || storageType === 'glusterfs') {
         srType = 'share'
       }
     }
@@ -37,23 +37,30 @@ class PersistentVolumeClaim {
     if (!accessModes) {
       if (storageType === 'ceph') {
         accessModes = 'ReadWriteOnce'
-      } else if (storageType === 'nfs') {
+      } else if (storageType === 'nfs' || storageType === 'glusterfs') {
         accessModes = 'ReadWriteMany'
       }
     }
     if (!storage) {
       storage = '512Mi'
+    }else if(storageType === "glusterfs"){
+      storage += 'Gi'
+    }
+    let labels = {
+      'tenxcloud.com/storageType': storageType,
+      'texncloud.com/srType': srType,
+      'tenxcloud.com/reclaimPolicy': reclaimPolicy,
+    }
+    if(storageType !== "glusterfs"){
+      labels['tenxcloud.com/fsType'] = fsType
+    }else{
+      labels['tenxcloud.com/fsType'] = 'ext4'
     }
     this.kind = 'PersistentVolumeClaim'
     this.apiVersion = 'v1'
     this.metadata = {
       name,
-      labels: {
-        'tenxcloud.com/fsType': fsType,
-        'tenxcloud.com/storageType': storageType,
-        'texncloud.com/srType': srType,
-        'tenxcloud.com/reclaimPolicy': reclaimPolicy,
-      }
+      labels: labels
     }
     this.spec = {
       accessModes: [
@@ -66,6 +73,21 @@ class PersistentVolumeClaim {
         }
       }
     }
+    // kind: PersistentVolumeClaim
+    // apiVersion: v1
+    // metadata:
+    //   name: glusterfs-wx
+    //   labels:
+    //     tenxcloud.com/storageType: glusterfs
+    //     texncloud.com/srType: share
+    //     tenxcloud.com/reclaimPolicy: retain
+    // spec:
+    //   accessModes:
+    //     - ReadWriteMany
+    //   storageClassName: tenx-glusterfs1
+    //   resources:
+    //     requests:
+    //       storage: 1Gi
   }
 }
 

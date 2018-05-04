@@ -24,8 +24,8 @@ class GfsStorage {
       resturl: agent,
       clusterid: path,
       restuser: adminId,
-      secretName: "tenx-glusterfs", // 用户秘钥在k8s对应namespace中的名称。这里目前用这个默认值即可。
-      secretNamespace: "kube-system",  // 用户秘钥在k8s对应namespace中的名称。这里目前用这个默认值即可。
+      secretName: 'tenx-glusterfs', // 用户秘钥在k8s对应namespace中的名称。这里目前用这个默认值即可。
+      secretNamespace: 'kube-system',  // 用户秘钥在k8s对应namespace中的名称。这里目前用这个默认值即可。
       volumetype: 'replicate:3',
     }
   }
