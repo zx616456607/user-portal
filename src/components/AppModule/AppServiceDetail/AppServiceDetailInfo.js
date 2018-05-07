@@ -728,7 +728,7 @@ class AppServiceDetailInfo extends Component {
             }
           }
           // 为兼容旧服务，需要在 spec 不同的位置取当前服务的 container
-          const list = []
+          const list = [];
           volumeList.forEach((item, index) => {
             let mountPath = ''
             let readOnly = false
@@ -746,23 +746,26 @@ class AppServiceDetailInfo extends Component {
               let strategy = false
               let claimName = '-'
               let type = 'host'
+              let type_1 = ''
+              let isGfs = false
               if(item.persistentVolumeClaim){
                 strategy = item.persistentVolumeClaim.strategy
                 claimName = item.persistentVolumeClaim.claimName
                 for(let i = 0; i < volume.length; i++){
                   if(volume[i].volumeName == claimName){
                     type = volume[i].srType
+                    type_1 = volume[i].storageType
                     size = volume[i].size
                     fsType = volume[i].fsType
+                    if(type_1 === "glusterfs"){ isGfs = true }
                   }
                 }
               }
-              let type_1 = ''
-              if(type == 'private'){
-                type_1 = 'rbd'
-              } else {
-                type_1 = 'nfs'
-              }
+              // if(type == 'private'){
+              //   type_1 = 'rbd'
+              // } else {
+              //   type_1 = 'nfs'
+              // }
               const container = {
                 mountPath,
                 readOnly,
@@ -779,6 +782,7 @@ class AppServiceDetailInfo extends Component {
                 storageType: type,
                 hostPath: mountPath,
               }
+              if(isGfs){ container.volume = `${claimName} ${fsType} ${size}` }
               // 过滤掉 hostPath 的 path 为 '/etc/localtime' 和 '/etc/timezone' 的情况
               if(item.hostPath){
                 if(item.hostPath.path !== '/etc/localtime' && item.hostPath.path !== '/etc/timezone'){
@@ -890,12 +894,18 @@ class AppServiceDetailInfo extends Component {
     })
   }
 
-  formatVolumeType(type){
+  formatVolumeType(type, type_1){
     switch(type){
       case 'private':
         return <span>独享型（rbd）</span>
       case 'share':
-        return <span>共享型（NFS）</span>
+        if(!!type_1 && type_1 === 'glusterfs')
+        {
+          return <span>共享型（GlusterFS）</span>
+        }
+        else{
+          return <span>共享型（NFS）</span>
+        }
       case 'host':
         return <span>本地存储</span>
       default:
@@ -921,7 +931,7 @@ class AppServiceDetailInfo extends Component {
     }
     ele = volumeList.map((item, index) => {
       return <Row key={`volume${index}`} className='volume_row_style'>
-        <Col span="6" className='text_overfow'>{ this.formatVolumeType(item.type) }</Col>
+        <Col span="6" className='text_overfow'>{ this.formatVolumeType(item.type, item.type_1) }</Col>
         <Col span="6" className='text_overfow'>{ this.renderVolumeName(item) }</Col>
         <Col span="5" className='text_overfow'>{item.mountPath}</Col>
         <Col span="7">
@@ -981,8 +991,11 @@ class AppServiceDetailInfo extends Component {
           const { name, storageClassName } = item
           body = {
             name,
-            storageType: 'nfs',
+            storageType: item.type_1,
             storageClassName,
+          }
+          if(item.type_1 == 'glusterfs'){
+            body.storage = item.storage
           }
         }
         const persistentVolumeClaim = new PersistentVolumeClaim(body)

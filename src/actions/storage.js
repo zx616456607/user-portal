@@ -91,11 +91,11 @@ export const STORAGE_DETAIL_REQUEST = 'STORAGE_DETAIL_REQUEST'
 export const STORAGE_DETAIL_SUCCESS = 'STORAGE_DETAIL_SUCCESS'
 export const STORAGE_DETAIL_FAILURE = 'STORAGE_DETAIL_FAILURE'
 export const STORAGE_DETAIL_CHANGE = 'STORAGE_DETAIL_CHANGE'
-export function loadStorageInfo(cluster, name, callback) {
+export function loadStorageInfo(cluster, name, query, callback) {
   return {
     [FETCH_API]: {
       types: [STORAGE_DETAIL_REQUEST, STORAGE_DETAIL_SUCCESS, STORAGE_DETAIL_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/volumes/${name}/consumption`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/volumes/${name}/consumption?${toQuerystring(query)}`,
       options: {
         method: 'GET'
       },
@@ -377,21 +377,22 @@ export const STORAGE_GET_FREE_VOLUME_REQUEST = 'IMAGE_GET_FREE_VOLUME_REQUEST'
 export const STORAGE_GET_FREE_VOLUME_SUCCESS = 'IMAGE_GET_FREE_VOLUME_SUCCESS'
 export const STORAGE_GET_FREE_VOLUME_FAIULRE = 'IMAGE_GET_FREE_VOLUME_FAIULRE'
 
-export function fetchFreeVolume(cluster, query) {
+export function fetchFreeVolume(cluster, query, callback) {
   return {
     cluster,
     [FETCH_API]: {
       types: [STORAGE_GET_FREE_VOLUME_REQUEST, STORAGE_GET_FREE_VOLUME_SUCCESS, STORAGE_GET_FREE_VOLUME_FAIULRE],
       endpoint: `${API_URL_PREFIX}/storage-pools/${cluster}/volumes/available?${toQuerystring(query)}`,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
 
-export function loadFreeVolume(cluster, query) {
+export function loadFreeVolume(cluster, query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchFreeVolume(cluster, query))
+    return dispatch(fetchFreeVolume(cluster, query, callback))
   }
 }
 

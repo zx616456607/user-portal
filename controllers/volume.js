@@ -135,7 +135,7 @@ exports.getVolumeDetail = function* () {
   const cluster = this.params.cluster
   const volumeName = this.params.name
   const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
-  const response = yield volumeApi.getBy([cluster, 'volumes', volumeName, 'consumption'])
+  const response = yield volumeApi.getBy([cluster, 'volumes', volumeName, 'consumption'], this.request.query)
   this.status = response.code
   this.body = {
     body: response.data

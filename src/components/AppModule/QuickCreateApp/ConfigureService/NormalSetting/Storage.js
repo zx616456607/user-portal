@@ -175,7 +175,7 @@ const Storage = React.createClass({
         let {
           type, mountPath, strategy,
           readOnly, volume, name,
-          size, fsType
+          size, fsType, type_1
         } = item
         let volumeName = volume
         if (volume === 'create') {
@@ -229,9 +229,10 @@ const Storage = React.createClass({
             finallyName = '-'
           }
         }
+        //this.formatType(type, type_1)
         return <Row key={`storagelist${index}`} className={rowClassName}>
           <Col span="4" className='text'>
-            {this.formatType(type)}
+            {this.formatType(type, type_1)}
           </Col>
           <Col span="4" className='text'>
             {finallyName}
@@ -363,13 +364,16 @@ const Storage = React.createClass({
       })
     }
   },
-  formatType(type) {
+  formatType(type, type_1) {
     switch (type) {
       case 'host':
         return <span>本地存储</span>
       case 'private':
         return <span>独享型（rbd）</span>
       case 'share':
+        if(!!type_1 && type_1 === "glusterfs"){
+          return <span>共享型（GlusterFS）</span>
+        }
         return <span>共享型（NFS）</span>
       default:
         return <span>未知</span>
@@ -399,7 +403,7 @@ const Storage = React.createClass({
     }
   },
   getCurrentErrors(list){
-    const storageTypeArray = ['nfs', 'ceph', 'host']
+    const storageTypeArray = ['nfs', 'ceph', 'host', 'glusterfs']
     const { form } = this.props
     const { getFieldError } = form
     const storageErrors = getFieldError('storageList')
