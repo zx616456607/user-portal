@@ -45,6 +45,9 @@ let CreateConfigModal = React.createClass({
             func: (res) => {
               parentScope.setState({ createModal: false })
               let errorText
+              if(res.message.code === 403){
+                return;
+              }
               switch (res.message.code) {
                 case 403: errorText = '未授权创建配置组'; break
                 case 409: errorText = '配置组已存在'; break

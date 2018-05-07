@@ -1485,7 +1485,7 @@ class ProjectDetail extends Component {
                         this.state.currpermissionPolicyType === 1?
                         <div className="type1">
                           <div className="btnContainer">
-                            <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客" || !isManager} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
+                            <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客" || (!isManager && roleNum !== 1)} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
                           </div>
                           <div className="permissionType1Container">
                             <div className="authBox inlineBlock">
