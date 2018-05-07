@@ -346,7 +346,6 @@ class PermissionOverview extends React.Component{
   }
 
   renderOverview = () => {
-    console.log("isset", this.props.isDisabled)
     const { storageList } = this.state
     const { permissionOverview, openPermissionModal, appList, allServices, containerList, allConfig, pkgs, secretList } = this.props
     const { application, service, container, volume, configuration, applicationPackage, secret } = permissionOverview
