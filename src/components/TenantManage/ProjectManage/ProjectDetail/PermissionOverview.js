@@ -338,7 +338,7 @@ class PermissionOverview extends React.Component{
         }
         <Row  className="permissionFooter" type="flex" align="middle" justify="space-around">
           <Col span={12}><Button type="ghost" onClick={() => this.setState({[`visible-${record.name}`]: false})}>取消</Button></Col>
-          <Col span={12}><Button type="primary" loading={confirmLoading} onClick={() => this.handleConfirm(currentPermission, record, oldChecked)}>保存</Button></Col>
+          <Col span={12}><Button disabled={this.props.isDisabled} type="primary" loading={confirmLoading} onClick={() => this.handleConfirm(currentPermission, record, oldChecked)}>保存</Button></Col>
         </Row>
       </div>
     )
@@ -347,7 +347,8 @@ class PermissionOverview extends React.Component{
 
   renderOverview = () => {
     const { storageList } = this.state
-    const { permissionOverview, openPermissionModal, appList, allServices, containerList, allConfig, pkgs, secretList } = this.props
+    let { permissionOverview, openPermissionModal, appList, allServices, containerList, allConfig, pkgs, secretList } = this.props
+    if(!!!pkgs){pkgs = []}
     const { application, service, container, volume, configuration, applicationPackage, secret } = permissionOverview
     const overviewList = []
     const sortArr = ["application", "service", "container", "volume", "configuration", "secret", "applicationPackage"];
@@ -421,7 +422,7 @@ class PermissionOverview extends React.Component{
                 visible={this.state[`visible-${record.name}`]}
                 onVisibleChange={visible => this.setState({[`visible-${record.name}`]: visible})}
                 content={this.renderPermissionModal(key, value, record)}>
-                <Button disabled={this.props.isDisabled} type="primary" className="controlBtn">管理权限（{record.permissionList.length || 0}）</Button>
+                <Button type="primary" className="controlBtn">管理权限（{record.permissionList.length || 0}）</Button>
               </Popover>
               <Button disabled={this.props.isDisabled} type="ghost" onClick={() => this.deletePermission(currentPermission)}>删除授权</Button>
             </div>
