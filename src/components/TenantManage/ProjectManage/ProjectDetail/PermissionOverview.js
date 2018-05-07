@@ -71,7 +71,7 @@ class PermissionOverview extends React.Component{
     ]
     Promise.all(storageReqArr).then(storageResult => {
       storageResult.forEach(res => {
-        if (res.response.result.data) {
+        if (!!res.response && res.response.result.data) {
           storageList = storageList.concat(res.response.result.data)
         }
       })
@@ -346,6 +346,7 @@ class PermissionOverview extends React.Component{
   }
 
   renderOverview = () => {
+    console.log("isset", this.props.isDisabled)
     const { storageList } = this.state
     const { permissionOverview, openPermissionModal, appList, allServices, containerList, allConfig, pkgs, secretList } = this.props
     const { application, service, container, volume, configuration, applicationPackage, secret } = permissionOverview
@@ -421,9 +422,9 @@ class PermissionOverview extends React.Component{
                 visible={this.state[`visible-${record.name}`]}
                 onVisibleChange={visible => this.setState({[`visible-${record.name}`]: visible})}
                 content={this.renderPermissionModal(key, value, record)}>
-                <Button type="primary" className="controlBtn">管理权限（{record.permissionList.length || 0}）</Button>
+                <Button disabled={this.props.isDisabled} type="primary" className="controlBtn">管理权限（{record.permissionList.length || 0}）</Button>
               </Popover>
-              <Button type="ghost" onClick={() => this.deletePermission(currentPermission)}>删除授权</Button>
+              <Button disabled={this.props.isDisabled} type="ghost" onClick={() => this.deletePermission(currentPermission)}>删除授权</Button>
             </div>
           )
         },
@@ -432,7 +433,7 @@ class PermissionOverview extends React.Component{
         <Collapse key={key}>
           <Panel header={this.getPanelHeader(key)}>
             <div className='btnContainer'>
-              <Button type="primary" size="large" icon="plus" onClick={() => openPermissionModal(key)}>编辑权限</Button>
+              <Button disabled={this.props.isDisabled} type="primary" size="large" icon="plus" onClick={() => openPermissionModal(key)}>编辑权限</Button>
             </div>
             <div className='reset_antd_table_header'>
               <Table

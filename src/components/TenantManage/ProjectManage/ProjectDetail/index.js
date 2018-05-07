@@ -1013,7 +1013,7 @@ class ProjectDetail extends Component {
       return (
         <li key={item.roleId} className={classNames({ 'active': currentRoleInfo && currentRoleInfo.id === item.roleId })} onClick={() => this.getCurrentRole(item.roleId, "click")}>{item.roleName}
           {
-            (roleNum !== 3 || isManager) && !includes(disabledArr, item.roleId) &&
+            (roleNum === 1 || isManager) && !includes(disabledArr, item.roleId) &&
             <Tooltip placement="top" title="移除角色">
               <Icon type="delete" className="pointer" onClick={(e) => this.deleteRole(e, item)} />
             </Tooltip>
@@ -1439,7 +1439,7 @@ class ProjectDetail extends Component {
                     <div className="title">
                       <span>该角色成员</span>
                       {
-                        (roleNum === 1 || isManager) ? <span className="manageMembers" onClick={() => this.getProjectMember('user')}><a><Icon type="setting" />管理成员</a></span>
+                        (roleNum === 1 || isManager) ? <span className="manageMembers" onClick={() => this.getProjectMember('user')}><a><Icon type="setting" />角色成员</a></span>
                         : null
                       }
                     </div>
@@ -1542,6 +1542,7 @@ class ProjectDetail extends Component {
                                   roleId={currentRoleInfo.id}
                                   openPermissionModal={this.editPermission}
                                   callback={this.getPermissionOverview}
+                                  isDisabled={!(roleNum === 1 || isManager)}
                                 />
                             }
                           </div>
