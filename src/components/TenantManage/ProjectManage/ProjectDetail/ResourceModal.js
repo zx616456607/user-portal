@@ -393,7 +393,7 @@ class ResourceModal extends Component {
       <Modal
         visible={this.props.visible}
         footer={footer}
-        title="编辑权限"
+        title="授权资源"
         width="700"
         onClose={() => {this.modalCancel()}}
         className="ResourceModalWrapper"

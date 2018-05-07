@@ -433,7 +433,7 @@ class PermissionOverview extends React.Component{
         <Collapse key={key}>
           <Panel header={this.getPanelHeader(key)}>
             <div className='btnContainer'>
-              <Button disabled={this.props.isDisabled} type="primary" size="large" icon="plus" onClick={() => openPermissionModal(key)}>编辑权限</Button>
+              <Button disabled={this.props.isDisabled} type="primary" size="large" icon="plus" onClick={() => openPermissionModal(key)}>授权资源</Button>
             </div>
             <div className='reset_antd_table_header'>
               <Table
