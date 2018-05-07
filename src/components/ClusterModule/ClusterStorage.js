@@ -950,7 +950,7 @@ class ClusterStorage extends Component {
       })
       return { nfsIsExit }
     }
-    if(type == 'glusterfs'){debugger
+    if(type == 'glusterfs'){
       let gfsIsExit = false
       const { gfsArray } = this.state
       const gfsNameArray = []
@@ -1020,7 +1020,7 @@ class ClusterStorage extends Component {
       wrapperCol: {span: 18}
     }
     const gfsListData = clusterStorage.glusterfsList || []
-    //debugger
+
     let gfsList = listArray.map(item => {
       const metadata = gfsListData[item.index] ? gfsListData[item.index].metadata : {}
       const parameters = gfsListData[item.index] ? gfsListData[item.index].parameters : {}

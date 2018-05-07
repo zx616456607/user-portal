@@ -44,7 +44,7 @@ class PersistentVolumeClaim {
     if (!storage) {
       storage = '512Mi'
     }else if(storageType === "glusterfs"){
-      storage += 'Gi'
+      storage += 'G'
     }
     let labels = {
       'tenxcloud.com/storageType': storageType,

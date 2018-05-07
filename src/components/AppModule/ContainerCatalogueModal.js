@@ -22,6 +22,7 @@ import './style/ContainerCatalogueModal.less'
 const FormItem = Form.Item
 const Option = Select.Option
 const PATH_REG = /^\//
+let firstShowModal = true;
 
 let ContainerCatalogueModal = React.createClass({
   propTypes: {
@@ -76,7 +77,7 @@ let ContainerCatalogueModal = React.createClass({
 
   componentWillReceiveProps(nextProps) {
     const { visible, clusterID, loadFreeVolume } = this.props
-    if (!visible && nextProps.visible) {
+    if (!visible && nextProps.visible || firstShowModal) {
       this.restFormValues(nextProps.fieldsList[nextProps.currentIndex])
       if(nextProps.fieldsList.length !== nextProps.currentIndex){
         const srtype = nextProps.fieldsList[nextProps.currentIndex].type;
@@ -85,6 +86,7 @@ let ContainerCatalogueModal = React.createClass({
           loadFreeVolume(clusterID, { srtype, storagetype: type_1 })
         }
       }
+      firstShowModal = false;
     }
   },
 
@@ -333,12 +335,13 @@ let ContainerCatalogueModal = React.createClass({
   addOrEditFields(type) {
     const { callbackFields, form, isTemplate } = this.props
     this.setState({
-      isResetComponent: true
+      isResetComponent: true,
     })
     if (type === 'cancel') {
       const obj = {
         type,
       }
+      this.resetLoading();
       return callbackFields(obj)
     }
     if (type === 'confirm') {
@@ -417,10 +420,20 @@ let ContainerCatalogueModal = React.createClass({
           type,
           values,
         }
+        this.resetLoading();
         return callbackFields(obj)
       })
     }
+
     return null
+  },
+
+  resetLoading(){
+    setTimeout(() => {
+      this.setState({
+        loading: true, //选择存储loading 状态
+      })
+    },1000);
   },
 
   onVolumeChange(value) {
@@ -502,7 +515,7 @@ let ContainerCatalogueModal = React.createClass({
       type_1Value: value
     }, () => {
       const { form, loadFreeVolume, clusterID } = this.props
-      const { resetFields, setFieldsValue, getFieldValue } = form
+      const { resetFields, getFieldValue } = form
       const type = getFieldValue('type');
       if (type === 'share') {
         loadFreeVolume(clusterID, { srtype: 'share', storagetype: value }, {
@@ -588,6 +601,11 @@ let ContainerCatalogueModal = React.createClass({
       volumeWidth = 175
       volumeSpan = 12
     }
+    setTimeout(() => {
+      this.setState({
+        loading: false, //选择存储loading 状态
+      })
+    },1000);
     return (
       <div id='container_catalogue'>
         <div className="body">
@@ -652,7 +670,7 @@ let ContainerCatalogueModal = React.createClass({
                 >
                 <Row>
                   <Col span={volumeSpan}>
-                    <Spin loading={this.state.loading} >
+                    <Spin spinning={this.state.loading} >
                       <FormItem style={{ width: volumeWidth }}>
                         <Select
                           placeholder="请选择存储卷"

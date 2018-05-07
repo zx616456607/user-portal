@@ -487,7 +487,7 @@ class App extends Component {
           <Spin size="large" />
         </div>
       )
-    }//debugger
+    }
     return (
       <div className={this.props.License ? 'tenx-layout toptips' : 'tenx-layout'} id='siderTooltip'>
         {this.renderErrorMessage()}

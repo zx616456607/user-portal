@@ -46,7 +46,7 @@ class ShareStorageDetail extends Component {
       )
     }
     const clusterID = cluster.clusterID
-    const volumeName = params.share_name;debugger
+    const volumeName = params.share_name;
     return(
       <QueueAnim type="right">
         <Title title="存储详情"/>
@@ -85,11 +85,17 @@ class ShareStorageDetail extends Component {
                     存储server：{ StorageInfo.storageServer }
                   </Col>
                   <Col span="15">
-                    <div className="use">用量
+                  {
+                    this.props.location.query.diskType === 'glusterfs' ?
+                    <div className="use">总量:  { parseInt(StorageInfo.size) } M</div>
+                    :
+                    null
+                  }
+                  {/*<div className="use">用量
                       ：&nbsp;&nbsp;
                       <Progress strokeWidth={8} showInfo={false} status="active" percent={ StorageInfo.consumption * 100 } />
                       &nbsp;&nbsp;{ StorageInfo.consumption * parseInt(StorageInfo.size) } / { parseInt(StorageInfo.size) }M
-                    </div>
+                    </div>*/}
                   </Col>
                 </Row>
               </div>

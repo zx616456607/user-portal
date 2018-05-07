@@ -728,7 +728,7 @@ class AppServiceDetailInfo extends Component {
             }
           }
           // 为兼容旧服务，需要在 spec 不同的位置取当前服务的 container
-          const list = []
+          const list = [];
           volumeList.forEach((item, index) => {
             let mountPath = ''
             let readOnly = false
@@ -747,6 +747,7 @@ class AppServiceDetailInfo extends Component {
               let claimName = '-'
               let type = 'host'
               let type_1 = ''
+              let isGfs = false
               if(item.persistentVolumeClaim){
                 strategy = item.persistentVolumeClaim.strategy
                 claimName = item.persistentVolumeClaim.claimName
@@ -756,6 +757,7 @@ class AppServiceDetailInfo extends Component {
                     type_1 = volume[i].storageType
                     size = volume[i].size
                     fsType = volume[i].fsType
+                    if(type_1 === "glusterfs"){ isGfs = true }
                   }
                 }
               }
@@ -780,6 +782,7 @@ class AppServiceDetailInfo extends Component {
                 storageType: type,
                 hostPath: mountPath,
               }
+              if(isGfs){ container.volume = `${claimName} ${fsType} ${size}` }
               // 过滤掉 hostPath 的 path 为 '/etc/localtime' 和 '/etc/timezone' 的情况
               if(item.hostPath){
                 if(item.hostPath.path !== '/etc/localtime' && item.hostPath.path !== '/etc/timezone'){
@@ -891,7 +894,7 @@ class AppServiceDetailInfo extends Component {
     })
   }
 
-  formatVolumeType(type, type_1){debugger;
+  formatVolumeType(type, type_1){
     switch(type){
       case 'private':
         return <span>独享型（rbd）</span>
@@ -962,7 +965,6 @@ class AppServiceDetailInfo extends Component {
   }
 
   saveVolumnsChange = async () => {
-    debugger
     const { cluster, serviceName, createStorage, editServiceVolume } = this.props
     const { volumeList } = this.state
     const notification = new NotificationHandler()

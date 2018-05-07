@@ -182,7 +182,6 @@ class ShareMemory extends Component {
         cluster: clusterID,
         template: yaml.dump(persistentVolumeClaim),
       }
-      debugger
       createStorage(body, {
         success: {
           func: () => {
@@ -520,7 +519,7 @@ class ShareMemory extends Component {
                     :
                     gfsList.map(gfs =>
                       <Option key={gfs.metadata.name}>
-                        {gfs.metadata.annotations['tenxcloud.com/scName'] || gfs.metadata.name}
+                        {(!!gfs.metadata.annotations && gfs.metadata.annotations['tenxcloud.com/scName']) || gfs.metadata.name}
                       </Option>
                     )
                   }
