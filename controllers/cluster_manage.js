@@ -135,8 +135,8 @@ exports.getClusterSummary = function* () {
     static: {},
     dynamic: {}
   }
-  reqArray.push(api.getBy([cluster, 'summary', 'static']))
-  reqArray.push(api.getBy([cluster, 'summary', 'dynamic']))
+  reqArray.push(api.getBy([cluster, 'summary', 'static'], this.query))
+  reqArray.push(api.getBy([cluster, 'summary', 'dynamic'], this.query))
   try {
     const results = yield reqArray
     resData.static = results[0].data
