@@ -547,6 +547,7 @@ class App extends Component {
         }
         <Xterm />
         <Modal
+          style={{width: "550px"}}
           title="当前操作未被授权"
           visible={resourcePermissionModal}
           maskClosable={false}
