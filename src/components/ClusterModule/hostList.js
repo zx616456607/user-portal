@@ -189,7 +189,7 @@ const MyComponent = React.createClass({
       });
     }
   },
-  getDiskStage(node) {
+  getDiskStatus(node) {
     const conditions = node.conditions || []
     let color = 'green'
     let text = '健康'
@@ -197,13 +197,13 @@ const MyComponent = React.createClass({
       const { type, status } = condition
       switch (type) {
         case 'DiskPressure':
-          if (status !== 'False') {
+          if (status !== 'False' && status !== 'Unknown') {
             color = 'yellow'
             text = '不足'
           }
           break
         case 'OutOfDisk':
-          if (status !== 'False') {
+          if (status !== 'False' && status !== 'Unknown') {
             color = 'red'
             text = '告警'
           }
@@ -413,7 +413,7 @@ const MyComponent = React.createClass({
         },{
           title: '磁盘情况',
           dataIndex: 'conditions',
-          render: (text, item, index) => <div>{this.getDiskStage(item)}</div>,
+          render: (text, item, index) => <div>{this.getDiskStatus(item)}</div>,
           sorter: (a, b) => diskSorter(a.conditions) - diskSorter(b.conditions)
         },{
           title: '加入集群时间',
