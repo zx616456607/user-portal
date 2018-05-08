@@ -48,9 +48,6 @@ exports.delateServiceTag = function* () {
   const cluster = this.params.cluster
   const service = this.params.service
   const labels = this.params.labels
-  // const body = this.request.body
-  // const key = this.request.key
-  console.log('this.params~~~~~~~', this.params.labels)
   const result = yield api.deleteBy([cluster, 'services', service, 'labels', labels], null, labels)
   this.body = result
 }

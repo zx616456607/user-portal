@@ -39,7 +39,6 @@ export function formatValuesToFields(values) {
 
 export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) {
   const fieldsValues = getFieldsValues(fields)
-  console.log( "fieldsValues",fieldsValues )
   // 获取各字段值
   const {
     serviceName, // 服务名称

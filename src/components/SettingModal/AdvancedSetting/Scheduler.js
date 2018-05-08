@@ -362,7 +362,14 @@ class Scheduler extends Component {
               >允许用户通过『服务标签』定义服务实例可以和哪些服务实例部署在同一主机上 (具有相同的主机标签键)</Checkbox>
           </FormItem>
 
-          <div className='advanceSet' onClick={this.hanldeSetScheduler}><span></span>高级设置</div>
+          <div className='advanceSet' onClick={this.hanldeSetScheduler}>
+            {
+              this.state.setScheduler?
+              <Icon type="minus-square" /> :
+              <Icon type="plus-square" />
+            }
+            高级设置
+          </div>
           {
             this.state.setScheduler ?
             <FormItem

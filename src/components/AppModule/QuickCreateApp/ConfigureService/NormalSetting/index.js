@@ -31,6 +31,7 @@ import TagDropDown from '../../../../ClusterModule/TagDropdown'
 import cloneDeep from 'lodash/cloneDeep'
 import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
+import { SetCalamariUrl } from '../../../../../actions/storage';
 
 const FormItem = Form.Item
 
@@ -46,7 +47,8 @@ const Normal = React.createClass({
       serviceBottomTag: [],
       allTag: [],
       showService: 'single',
-      showServiceBetween: 'single'
+      showServiceBetween: 'single',
+      showNodeValue: ''
     }
   },
   // componentDidUpdate() {
@@ -87,27 +89,41 @@ const Normal = React.createClass({
     }
     const { currentCluster } = this.props
     const { listNodes, clusterID } = currentCluster
-    let tagArr = []
+    let tagArg = {}
     getNodes(clusterID).then( res=> {
       const nodeList = res.response.result.data
       nodeList.map( item=>{
         getNodeLabels(clusterID, item.name).then( res => {
           let resObj = res.response.result.raw
           resObj = JSON.parse( resObj )
+          console.log( '22result',resObj )
           for (let key in resObj ) {
-            if( tagArr.hasOwnProperty(key) && resObj[key] == allTag[key] ) {
-              return
+            if (tagArg.hasOwnProperty(key)) {
+              tagArg[key].push(resObj[key])
+              tagArg[key] = Array.from(new Set(tagArg[key]))
+            }else if (!tagArg.hasOwnProperty(key)){
+              tagArg[key] = []
+              tagArg[key].push(resObj[key])
             }
-            tagArr.push({
-              key: key,
-              value: resObj[key]
-            })
           }
-          this.setState({
-            allTag: tagArr
-          })
+          console.log('111', tagArg  )
+          this.dealDataSelectData(tagArg)
         })
       })
+    })
+  },
+  dealDataSelectData(tagArg){
+    console.log( '111`````',tagArg )
+    let tagArr = []
+    for ( let key in tagArg ) {
+      tagArr.push({
+        [key]: tagArg[key]
+      })
+    }
+    this.setState({
+      allTag: tagArr
+    },()=>{
+      console.log( this.state.allTag )
     })
   },
   showServiceAffinity(num) {
@@ -152,7 +168,22 @@ const Normal = React.createClass({
         })
     }
   },
-
+  showSelectServiceNodeValue() {
+    const { allTag, showNodeValue} = this.state
+    const { form } = this.props
+    const { setFieldsValue } = form
+    const options = []
+    allTag.map( item=>{
+      if (item.hasOwnProperty(showNodeValue)) {
+        console.log('item',item[showNodeValue] )
+        item[showNodeValue].map( ele=>{
+          options.push(<Select.Option value={ele} key={item.index + ele}>{ele}</Select.Option>)
+        })
+        //setFieldsValue({serverTagKey: value})
+      }
+    })
+    return options
+  },
   changeServiceSelectShow() {
     const { showService } = this.state
     const { form } = this.props
@@ -161,7 +192,7 @@ const Normal = React.createClass({
       case 'single':
         return <FormItem id="select" wrapperCol={{ span: 2 }}>
         <Select id="select" size="large"
-            style={{ width: 100 }}
+            style={{ width: 120 }}
             placeholder = '主机标签值'
           {...getFieldProps('serverTagKey',{
             rules: [
@@ -172,8 +203,11 @@ const Normal = React.createClass({
             ]
           })}
         >
-          <Select.Option value="7" key="seven">7</Select.Option>
-          <Select.Option value="os" key="os"> os </Select.Option>
+        {
+          this.state.allTag.length>0?
+          this.showSelectServiceNodeValue()
+          :null
+        }
         </Select>
       </FormItem>
       case 'more':
@@ -181,7 +215,7 @@ const Normal = React.createClass({
           <Select
             multiple
             style={{ width: 260 ,height:30 }}
-            placeholder = '主机标签值'
+            placeholder = '主机标签值，e.g. abc,123'
             {...getFieldProps('serverTagKey',{
               rules: [
                 {
@@ -192,22 +226,32 @@ const Normal = React.createClass({
             })}
             onChange={this.handleChangeMoreSelect}
           >
-            <Select.Option value="qqe" key="seven">qqee</Select.Option>
-            <Select.Option value="eee" key="os">eee</Select.Option>
+            {
+              this.state.allTag.length>0?
+              this.showSelectServiceNodeValue()
+              :null
+            }
           </Select>
         </FormItem>
       case 'no':
         return null
       default:
-
+        return null
     }
   },
   handleChangeMoreSelect(value) {
     const { form } = this.props
     const { setFieldsValue } = form
-    console.log( this.state.serverTagKey )
     setFieldsValue({serverTagKey: value})
-    console.log( value )
+  },
+  handleChangeServiceKeyShowValue(value) {
+    const { form } = this.props
+    const { setFieldsValue } = form
+    setFieldsValue({serverKey: value})
+    this.setState({
+      showNodeValue: value
+    })
+
   },
 
   showServicePointAffinity() {
@@ -215,7 +259,7 @@ const Normal = React.createClass({
     const { getFieldProps, setFieldsValue, getFieldValue } = form
     const serviceTag = getFieldValue('serviceTag')
     return <div>
-      <Title title="服务与节点亲和" />
+      <Title title="应用列表" />
       <div className="title">
         服务与节点亲和
         <Tooltip placement="top" title='决定服务实例可以部署在哪些主机上'>
@@ -260,11 +304,13 @@ const Normal = React.createClass({
                     }
                   ],
                 })}
+                onChange={this.handleChangeServiceKeyShowValue}
               >
               {
                 this.state.allTag.length >0 ?
                 this.state.allTag.map( (item,index)=>{
-                  return <Select.Option value={item.key} key={item.index + item.key}>{item.key}</Select.Option>
+                  const itemKey = Object.keys(item)[0]
+                  return <Select.Option value={itemKey} key={item.index + itemKey}>{itemKey}</Select.Option>
                 })
                 : null
               }
@@ -289,7 +335,7 @@ const Normal = React.createClass({
                 <Select.Option value="NotIn" key="not">NotIn</Select.Option>
                 <Select.Option value="Gt" key="big"> > </Select.Option>
                 <Select.Option value="Lt" key="small">	&lt;</Select.Option>
-                <Select.Option value="Exists" key="exists">	exists </Select.Option>
+                <Select.Option value="Exists" key="exists">	Exists </Select.Option>
                 <Select.Option value="DoesNotExists" key="does">	DoesNotExists </Select.Option>
               </Select>
             </FormItem>
@@ -343,7 +389,7 @@ const Normal = React.createClass({
           id="control-input"
           wrapperCol={{ span: 14 }}
         >
-          <Input id="control-input" placeholder="服务标签值" style={{ width: 90 }}
+          <Input id="control-input" placeholder="服务标签值，e.g. abc,123" style={{ width: 155 }}
             {...getFieldProps('serverBottomValue',{
               rules: [
                 {
@@ -365,7 +411,7 @@ const Normal = React.createClass({
     const { getFieldProps, setFieldsValue, getFieldValue } = form
     const serviceBottomTag = getFieldValue('serviceBottomTag')
     return <div>
-      <Title title="服务与服务亲和" />
+      <Title title="应用列表" />
       <div className="title">
         服务与服务亲和
         <Tooltip placement="top" title='决定服务实例可以和那些服务实例部署在同一拓扑域 (具有相同的主机标签键) 上'>
@@ -513,7 +559,8 @@ const Normal = React.createClass({
       serviceTag = fields.serviceTag.value
     }
     const arr = serviceTag.map((_item, index) => {
-      const item = Object.assign({}, _item)
+      // const item = Object.assign({}, _item)
+      const item = cloneDeep(_item)
       if ( item.point === '必须' ) {
         item.color = "#2db7f5"
         item.class = 'tag-font-white'
@@ -552,7 +599,7 @@ const Normal = React.createClass({
       serviceBottomTag = fields.serviceBottomTag.value
     }
     const arr = serviceBottomTag.map((_item, index) => {
-      const item = Object.assign({}, _item)
+      const item =cloneDeep(_item)
       if ( item.point === '必须' ) {
         item.color = "#2db7f5"
         item.class = 'tag-font-white'
@@ -579,9 +626,9 @@ const Normal = React.createClass({
           <span> {item.key} </span>
           <span> {item.mark} </span>
           {
-            item.value ?
-            <span> {item.value}</span>
-            : null
+           item.value ?
+           <span> {item.value} </span>
+           : null
           }
         </Tag>
       )
@@ -913,15 +960,17 @@ const Normal = React.createClass({
     }
     let cloneTag = cloneDeep(serviceTag)
     let flag = true
-    const tagVal = getFieldProps('serverTagKey' ).value
     let fieldsArr = []
     let resetArr = []
-    if ( tagVal == undefined ) {
-      fieldsArr = ['serverKey','serverPoint','serverMark']
-      resetArr = ['serverKey','serverMark']
-    }else {
+    console.log( fields.serverMark , '==========',fields.serverTagKey.value, )
+    if (!fields.hasOwnProperty('serverMark')) {
       fieldsArr = ['serverKey','serverPoint','serverTagKey','serverMark']
-      resetArr = ['serverKey','serverMark','serverTagKey']
+    }else {
+      if (fields.serverMark.value=='Exists' || fields.serverMark.value=='DoesNotExists') {
+        fieldsArr = ['serverKey','serverPoint','serverMark']
+      }else {
+        fieldsArr = ['serverKey','serverPoint','serverTagKey','serverMark']
+      }
     }
     validateFields( fieldsArr,(errors) => {
       if (errors) {
@@ -929,30 +978,31 @@ const Normal = React.createClass({
       }
     })
     let newlabel = {}
-    if (fields.serverMark.value == 'In' ||  fields.serverMark.value== 'NotIn'){
-        let str = ''
-        fields.serverTagKey.value.map( item=>{
-          str += item+','
-        })
+    if ( fields.serverMark.value == 'Exists' ||  fields.serverMark.value== 'DoesNotExists'  ) {
+      newlabel = {
+        key: fields.serverKey.value,
+        mark: fields.serverMark.value,
+        point: fields.serverPoint.value,
+      }
+    }else if (fields.serverMark.value == 'In' ||  fields.serverMark.value== 'NotIn') {
+      let str = ''
+      fields.serverTagKey.value.map( item=>{
+        str += item +','
+      })
+      str = str.substr(0, str.length-1);
       newlabel = {
         key: fields.serverKey.value,
         value: str,
         mark: fields.serverMark.value,
         point: fields.serverPoint.value,
       }
-    }else if ( fields.serverMark.value == 'Exists' ||  fields.serverMark.value== 'DoesNotExists'  ) {
+    }else{
       newlabel = {
         key: fields.serverKey.value,
+        value: fields.serverTagKey.value,
         mark: fields.serverMark.value,
         point: fields.serverPoint.value,
       }
-    }else if (fields.serverMark.value == 'Gt' ||  fields.serverMark.value== 'Lt') {
-       newlabel = {
-          key: fields.serverKey.value,
-          value: fields.serverTagKey.value,
-          mark: fields.serverMark.value,
-          point: fields.serverPoint.value,
-        }
     }
     if (!cloneTag.length) {
       cloneTag.push(newlabel)
@@ -970,7 +1020,6 @@ const Normal = React.createClass({
     setFieldsValue({
       serviceTag: cloneTag
     })
-    // resetFields(resetArr)
   },
   handleAddBottomLabel() {
     const { fields, form } = this.props
@@ -981,16 +1030,16 @@ const Normal = React.createClass({
     }
     let cloneTag = cloneDeep(serviceBottomTag)
     let flag = true
-
     let fieldsArr = []
     let resetArr = []
-    let tagVal = getFieldProps('serverBottomValue' ).value
-    if ( tagVal == undefined ) {
-      fieldsArr = ['serverBottomKey','serverBottomMark','serverBottomPoint']
-      resetArr = ['serverBottomKey','serverBottomMark']
-    }else {
+    if (!fields.hasOwnProperty('serverBottomMark')) {
       fieldsArr = ['serverBottomKey','serverBottomValue','serverBottomMark','serverBottomPoint']
-      resetArr = ['serverBottomKey','serverBottomValue','serverBottomMark',]
+    }else {
+      if (fields.serverBottomMark.value=='Exists' || fields.serverBottomMark.value=='DoesNotExists') {
+        fieldsArr = ['serverBottomKey','serverBottomMark','serverBottomPoint']
+      }else {
+        fieldsArr = ['serverBottomKey','serverBottomValue','serverBottomMark','serverBottomPoint']
+      }
     }
     validateFields( fieldsArr ,(errors)=>{
       if (errors) {

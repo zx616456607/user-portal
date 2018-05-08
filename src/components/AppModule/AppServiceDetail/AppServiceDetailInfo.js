@@ -525,7 +525,7 @@ class BindNodes extends Component {
   getSchedulingPolicy(data) {
     const template = data.spec.template
     const spec = template.spec
-    const labels = this.getNodeAffinityLabels(spec)
+    // const labels = this.getNodeAffinityLabels(spec)
     const node = this.getNodeSelectorTarget(spec)
     const haveLabel = this.getLabelType(spec)
     const policy = {
@@ -551,6 +551,7 @@ class BindNodes extends Component {
       return
     }
     let labelType = ''
+    console.log( 'spec====spec===spec',spec )
     const nodeData = this.getNodeListData(spec)
     const podData = this.getPodListData(spec)
     const podAntiData = this.getPodAntiListData(spec)
@@ -584,13 +585,12 @@ class BindNodes extends Component {
         preferTag.push(item)
       })
     }
-    if (spec.affinity.nodeAffinity.hasOwnProperty('requiredDuringSchedulingIgnoredDuringExecution')) {
+    const reqFlag = spec.affinity.nodeAffinity.hasOwnProperty('requiredDuringSchedulingIgnoredDuringExecution')
+    if (reqFlag) {
       const reqData = spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution
-      if (reqData.length>0) {
-        reqData.nodeSelectorTerms[0].matchExpressions.map( item=>{
-          requireTag.push(item)
-        })
-      }
+      reqData.nodeSelectorTerms[0].matchExpressions.map( item=>{
+        requireTag.push(item)
+      })
     }
     return {
       requireTag,
@@ -617,8 +617,6 @@ class BindNodes extends Component {
         podReqList.push(item)
       })
     }
-    console.log('-------', podPreData , podReqData)
-    console.log('-------', podReqList , podPreList)
     return {
       podReqList,
       podPreList
@@ -644,7 +642,6 @@ class BindNodes extends Component {
         reqAntiData.push(item)
       })
     }
-    console.log('-------', reqAntiData , preAntiData)
     return {
       reqAntiData,
       preAntiData
@@ -696,10 +693,21 @@ class BindNodes extends Component {
     return arr
   }
   showLabelValues(item) {
-    if (item.operator=='In' || item.operator=='NotIn') {
-      return item.values[0]
-    }else if (item.operator=='Gt' || item.operator=='Lt') {
+    console.log( 'item---======---', item.operator, item.values ,JSON.stringify(item))
+    const cloneItem = cloneDeep(item)
+    if (cloneItem.operator=='In' || cloneItem.operator=='NotIn') {
+      console.log(  cloneItem.values )
+      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + cloneItem.values[0]
 
+    }else if (cloneItem.operator=='Gt' || cloneItem.operator=='Lt') {
+      if (cloneItem.operator=='Gt') {
+        cloneItem.operator = '>'
+      }else if (cloneItem.operator=='<') {
+        cloneItem.operator = '<'
+      }
+      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + cloneItem.values[0]
+    }else if (cloneItem.operator=='Exists' || cloneItem.operator=='DoesNotExists') {
+      return cloneItem.key + ' ' + cloneItem.operator
     }
   }
   showServiceNodeLabels(data) {
@@ -708,15 +716,16 @@ class BindNodes extends Component {
     return <span>
       {
         nodeData.preferTag.length > 0 ?
-        nodeData.preferTag.map( item=>{
-          return <Tag closable={false} className='preferedTag' key={item.key+ item.operator + item.values[0]}> 最好 | {item.key} {item.operator} {this.showLabelValues(item)} </Tag>
+        nodeData.preferTag.map( (item,index)=>{
+           console.log(item)
+          return <Tag closable={false} className='preferedTag' key={item.key+ item.operator + item.index}> 最好 | {this.showLabelValues(item)} </Tag>
         })
         : null
       }
       {
         nodeData.requireTag.length > 0 ?
         nodeData.requireTag.map( item=>{
-          return <Tag closable={false} color="blue" key={item.key+ item.operator + item.values[0]}> 必须 | {item.key} {item.operator} {item.values[0]} </Tag>
+          return <Tag closable={false} color="blue" key={item.index + item.key+ item.operator }> 必须 | {this.showLabelValues(item)} </Tag>
         })
         : null
       }
@@ -728,28 +737,28 @@ class BindNodes extends Component {
       {
         podData.podPreList.length>0 ?
         podData.podPreList.map( item=>{
-          return <Tag closable={false} className='preferedTag' key={'prefered'+item.key+ item.operator + item.values[0]}> 最好 | {item.key} {item.operator} {item.values[0]} </Tag>
+          return <Tag closable={false} className='preferedTag' key={'prefered'+item.key+ item.operator + + item.index}> 最好 | {this.showLabelValues(item)} </Tag>
         })
         : null
       }
       {
         podData.podReqList.length>0 ?
         podData.podReqList.map( item=>{
-          return <Tag closable={false} color="blue" key={'required'+item.key+ item.operator + item.values[0]}> 必须 | {item.key} {item.operator} {item.values[0]} </Tag>
+          return <Tag closable={false} color="blue" key={'required'+item.key+ item.operator + item.index}> 必须 | {this.showLabelValues(item)} </Tag>
         })
         : null
       }
       {
         podAntiData.preAntiData.length>0 ?
         podAntiData.preAntiData.map( item=>{
-          return <Tag closable={false} className='preferAntiTag' key={'preferAnti'+item.key+ item.operator + item.values[0]}> 最好不 | {item.key} {item.operator} {item.values[0]} </Tag>
+          return <Tag closable={false} className='preferAntiTag' key={'preferAnti'+item.key+ item.operator + item.index}> 最好不 | {this.showLabelValues(item)} </Tag>
         })
         : null
       }
       {
         podAntiData.reqAntiData.length>0 ?
         podAntiData.reqAntiData.map( item=>{
-          return <Tag closable={false} className='requireAntiTag' key={ 'reuqiredAnti'+ item.key+ item.operator + item.values[0]}> 必须不 | {item.key} {item.operator} {item.values[0]} </Tag>
+          return <Tag closable={false} className='requireAntiTag' key={ 'reuqiredAnti'+ item.key+ item.operator + item.index}> 必须不 | {this.showLabelValues(item)} </Tag>
         })
         : null
       }

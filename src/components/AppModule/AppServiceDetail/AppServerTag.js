@@ -15,7 +15,6 @@ import './style/AppServerTag.less'
 import NotificationHandler from '../../../components/Notification'
 import { getClusterLabel, addLabels, editLabels, searchLabels, } from '../../../actions/cluster_node'
 import {  getAllServiceTag, addServiceTag, delteServiceTag, updataServiceTag } from '../../../actions/cluster_node'
-// import { loadServiceDetail } from '../../../actions/services'
 import cloneDeep from 'lodash/cloneDeep'
 import { KubernetesValidator } from '../../../common/naming_validation'
 import { calcuDate } from '../../../common/tools'
@@ -45,26 +44,8 @@ class AppServerTag extends Component{
       tagList: []
     }
   }
-  // loadData() {
-  //   const { clusterID, getClusterLabel, serviceTag, serviceName } = this.props
-    // getClusterLabel(clusterID).then( res=>{
-    //   conosle.log( 'res',res )
-    // })
-    // loadServiceDetail( clusterID, serviceName,{
-    //   success: {
-    //     func: () => {
-    //       console.log( "loadData-props",this.props.serviceTag )
-    //     }
-    //   }
-    // })
-  //}
-
-  // componentWillMount(){
-  //   this.loadData(this)
-  // }
   componentDidMount() {
     const { clusterID, serviceDetail, getClusterLabel, serviceTag, getAllServiceTag } = this.props
-    // getClusterLabel(clusterID)
     getAllServiceTag(clusterID)
     .then(res=>{
       console.log( res.data )
@@ -97,22 +78,6 @@ class AppServerTag extends Component{
   }
 
   handleDeleteButton(row){
-  // console.log( id )
-  // const notificat = new NotificationHandler()
-  // const {delteServiceTag, serviceName, clusterID} = this.props
-  // const tag = {
-  //   [row.key]: row.value
-  // }
-  // console.log( 'tag',tag )
-
-  // delteServiceTag(tag ,clusterID, serviceName, {
-  //   success: {
-  //     func: () => {
-  //       notificat.close()
-  //       notificat.success('删除标签成功！')
-  //     }
-  //   }
-  // })
     this.setState({
       deleteVisible : true,
       deleteLabelNum : row.id
@@ -130,12 +95,6 @@ class AppServerTag extends Component{
     const { deleteLabelNum } = this.state
     const { result, clusterID, serviceName, delteServiceTag } = this.props
     const notificat = new NotificationHandler()
-    // const _this = this
-    // const body = {
-    //   id:deleteLabelNum,
-    //   cluster:this.props.clusterID
-    // }
-    // console.log( deleteLabelNum,"result",result,  )
     result.map((item,index)=>{
       if( item.id === deleteLabelNum ) {
         notificat.spin('删除中')
@@ -158,18 +117,6 @@ class AppServerTag extends Component{
       }
     })
 
-    // this.props.editLabels(body,'DELETE',{
-    //   success:{
-    //     func: () => {
-    //       notificat.success('删除标签成功！')
-    //     }
-    //   },
-    //   failed: {
-    //     func: (ret) => {
-    //       notificat.error('删除标签失败！',ret.message.message || ret.message)
-    //     }
-    //   }
-    // })
     this.setState({
       deleteVisible : false,
     })
@@ -247,7 +194,6 @@ class AppServerTag extends Component{
     callback()
   }
   handleEditOkModal(){
-    //  e.preventDefault();
     const { addLabels, editLabels, clusterID, form,serviceName, addServiceTag, getAllServiceTag, updataServiceTag } = this.props
     const _this = this
     const notificat = new NotificationHandler()
@@ -261,16 +207,8 @@ class AppServerTag extends Component{
         this.handleEditCancelModal()
         values.keys.map((item)=> {
           labels[values[`key${item}`]] = values[`value${item}`]
-          // labels.push({
-          //   key:,
-          //   value:,
-          //   target:'node',
-          //   clusterID
-          // })
         })
-
     console.log( "val",values )
-    // console.log( "labels",clusterID,serviceName )
         console.log( 'labels', labels )
     addServiceTag(labels,clusterID,serviceName,{
       success: {
@@ -288,24 +226,6 @@ class AppServerTag extends Component{
         }
       }
     })
-        // notificat.spin('添加中...')
-        // addLabels(labels,clusterID,{
-        //   success: {
-        //     func:(ret)=> {
-        //       notificat.close()
-        //       notificat.success('添加成功！')
-        //       this.loadData()
-        //     },
-        //     isAsync:true
-        //   },
-        //   failed:{
-        //     func:(ret)=> {
-        //       notificat.close()
-        //       notificat.error('添加失败！')
-        //     }
-        //   }
-        // })
-
       })
 
     } else {
@@ -318,6 +238,13 @@ class AppServerTag extends Component{
           key: values.key0,
           value: values.value0
         }
+
+        //遍历添加
+        // values.keys.map((item)=> {
+        //   labels[values[`key${item}`]] = values[`value${item}`]
+        // })
+        // 修改发送labels
+
         if (targets.key == labels.key && targets.value == labels.value) {
           notificat.info('未作更改，无需更新！')
           uuid = 0
@@ -330,32 +257,8 @@ class AppServerTag extends Component{
         body = JSON.stringify(body)
 
         console.log( "body",body )
-        // const body = {
-        //   id: targets.id,
-        //   labels,
-        //   cluster:clusterID
-        // }
         this.handleEditCancelModal()
         notificat.spin('修改中...')
-        // editLabels(body,'PUT',{
-        //   success: {
-        //     func: ()=> {
-        //       notificat.close()
-        //       this.loadData()
-        //       notificat.success('修改成功！')
-        //     },
-        //     isAsync: true
-        //   },
-        //   failed: {
-        //     func:()=> {
-        //       notificat.close()
-        //       notificat.error('修改失败！')
-        //     }
-        //   },
-        //   finally: {
-        //     func:()=> uuid = 0
-        //   }
-        // })
         updataServiceTag( body, clusterID, serviceName, {
           success: {
             func: ()=> {
@@ -384,9 +287,6 @@ class AppServerTag extends Component{
       document.getElementById('key0').focus()
     },300)
   }
-  // handHost(key) {
-  //   this.props.callbackActiveKey('host',[key])
-  // }
   render(){
     const { form,  result } = this.props   //isFetching
     const { getFieldProps, getFieldValue } = form
@@ -553,18 +453,7 @@ AppServerTag = Form.create()(AppServerTag)
 function mapStateToProps(state,props) {
   const { clusterLabel } = state.cluster_nodes || {}
   const cluster = props.clusterID
-
-  // if (!clusterLabel[cluster]) {
-  //   return props
-  // }
-  // let { isFetching, result } = clusterLabel[cluster]
-  // if (!isFetching) {
-  //   isFetching = false
-  // }
-  // if (!result) {
-  //   result = {summary:[]}
-  // }
-console.log( '---========------',props )
+  console.log( '---========------',props )
   const { serviceTag } = props
   const { tagList } = state
   let listData = []
@@ -577,8 +466,6 @@ console.log( '---========------',props )
     })
   })
   return {
-    // isFetching,
-    //  result:result.summary
    result: listData
   }
 
@@ -586,11 +473,6 @@ console.log( '---========------',props )
 }
 
 export default connect(mapStateToProps, {
-  // getClusterLabel,
-  // addLabels,
-  // editLabels,
-  // searchLabels,
-
   getAllServiceTag,
   addServiceTag,
   delteServiceTag,
