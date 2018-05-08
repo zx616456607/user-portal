@@ -37,7 +37,7 @@ class ContainerStatus extends Component {
     if (phase === 'Abnormal') {
       status.abnormalText = `${formatMessage(messages.ContainerAbnormalMsg, { restartCount })}`
     }
-    status.disableReplicasElement = true
+    status.disableReplicasElement = true;
     return (
       <TenxStatus
         phase={phase}

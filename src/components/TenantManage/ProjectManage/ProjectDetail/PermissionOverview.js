@@ -154,7 +154,7 @@ class PermissionOverview extends React.Component{
   }
 
   handleConfirm = async (currentPermission, record, oldChecked, type) => {
-    const { deletePermissionControl, setPermission, roleId, clusterID, callback } = this.props
+    const { deletePermissionControl, setPermission, roleId, clusterID, callback, project } = this.props
     const { checked } = this.state
 
     const filterName = record.name
@@ -187,7 +187,7 @@ class PermissionOverview extends React.Component{
       })
     }
     if (!isEmpty(add) && !isEmpty(delIds)) {
-      const setArray = [setPermission(addBody), deletePermissionControl(delIds.join(','))]
+      const setArray = [setPermission(addBody, null, project), deletePermissionControl(delIds.join(','), project)]
       const result = await setArray
       result.map(res => {
         if (res.error) {
@@ -215,7 +215,7 @@ class PermissionOverview extends React.Component{
         [`visible-${type}-${record.name}`]: false
       })
     } else if (!isEmpty(add) && isEmpty(delIds)) {
-      const result = await setPermission(addBody)
+      const result = await setPermission(addBody, null, project)
       if (result.error) {
         notify.close()
         if(result.error.statusCode === 403){
@@ -240,7 +240,7 @@ class PermissionOverview extends React.Component{
         [`visible-${type}-${record.name}`]: false
       })
     } else if (isEmpty(add) && !isEmpty(delIds)) {
-      const result = await deletePermissionControl(delIds.join(','))
+      const result = await deletePermissionControl(delIds.join(','), project)
       if (result.error) {
         notify.close()
         if(result.error.statusCode === 403){
@@ -282,9 +282,9 @@ class PermissionOverview extends React.Component{
   }
 
   deleteConfirm = async () => {
-    const { deletePermissionControl, callback } = this.props
+    const { deletePermissionControl, callback, project } = this.props
     const { delIds } = this.state
-    const result = await deletePermissionControl(delIds.join(','))
+    const result = await deletePermissionControl(delIds.join(','), project)
     this.setState({
       deleteConfirmLoading: true
     })

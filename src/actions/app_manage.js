@@ -473,8 +473,6 @@ function fetchDeleteContainers(cluster, body, query, callback) {
   let endpoint =`${API_URL_PREFIX}/clusters/${cluster}/containers/batch-delete`
   if (callback && Object.keys(query).length) {
     endpoint += `?${toQuerystring(query)}`
-  } else {
-    callback = query
   }
   return {
     cluster,

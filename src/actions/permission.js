@@ -139,7 +139,7 @@ export const DELETE_PERMISSION_CONTROL_REQUEST = 'DELETE_PERMISSION_CONTROL_REQU
 export const DELETE_PERMISSION_CONTROL_SUCCESS = 'DELETE_PERMISSION_CONTROL_SUCCESS'
 export const DELETE_PERMISSION_CONTROL_FAILURE = 'DELETE_PERMISSION_CONTROL_FAILURE'
 
-function fetchDeletePermissionControl(ruleIds, callback) {
+function fetchDeletePermissionControl(ruleIds, project, callback) {
   return {
     [FETCH_API]: {
       types: [
@@ -150,16 +150,17 @@ function fetchDeletePermissionControl(ruleIds, callback) {
       endpoint: `${API_URL_PREFIX}/permission/access-controls/${ruleIds}`,
       schema: {},
       options: {
-        method: "DELETE"
+        method: "DELETE",
+        headers: { project: project }
       },
     },
     callback
   }
 }
 
-export function deletePermissionControl(ruleIds, callback) {
+export function deletePermissionControl(ruleIds, project, callback) {
   return dispatch => {
-    return dispatch(fetchDeletePermissionControl(ruleIds, callback))
+    return dispatch(fetchDeletePermissionControl(ruleIds, project, callback))
   }
 }
 
@@ -194,7 +195,7 @@ const SET_PERMISSION_REQUEST = 'SET_PERMISSION_REQUEST'
 const SET_PERMISSION_SUCCESS = 'SET_PERMISSION_SUCCESS'
 const SET_PERMISSION_FAILURE = 'SET_PERMISSION_FAILURE'
 
-const fetchSetPermission = (body, callback) => {
+const fetchSetPermission = (body, callback, project) => {
   return {
     [FETCH_API]: {
       types: [
@@ -206,12 +207,13 @@ const fetchSetPermission = (body, callback) => {
       schema: {},
       options: {
         method: 'POST',
-        body
+        body,
+        headers: { project: project }
       }
     },
     callback
   }
 }
 
-export const setPermission = (body, callback) =>
-  dispatch => dispatch(fetchSetPermission(body, callback))
+export const setPermission = (body, callback, project) =>
+  dispatch => dispatch(fetchSetPermission(body, callback, project))

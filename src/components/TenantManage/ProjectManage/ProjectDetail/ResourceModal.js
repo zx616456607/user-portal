@@ -145,7 +145,7 @@ class ResourceModal extends Component {
         },
         failed: {
           func: res => {
-            if(err.statusCode === 403){
+            if(res.statusCode === 403){
               notify.warn(`授权失败, 用户没有权限`)
             }
             else{
@@ -157,7 +157,7 @@ class ResourceModal extends Component {
           },
           isAsync: true
         }
-      })
+      }, this.props.scope.props.location.query.name)
     });
   }
   getParams = () => {
