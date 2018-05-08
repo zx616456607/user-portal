@@ -45,11 +45,11 @@ let CreateConfigModal = React.createClass({
             func: (res) => {
               parentScope.setState({ createModal: false })
               let errorText
-              if(res.message.code === 403){
+              let message = res.message;
+              if(message.code === 403 && (message && message.details && message.details.kind === 'ResourcePermission')){
                 return;
               }
               switch (res.message.code) {
-                case 403: errorText = '未授权创建配置组'; break
                 case 409: errorText = '配置组已存在'; break
                 case 500: errorText = '网络异常'; break
                 default: errorText = '缺少参数或格式错误'
