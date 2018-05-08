@@ -118,7 +118,7 @@ class TimingClean extends Component {
     let cronArr = str.spec.cron.split(' ')
     cronArr.length === 6 && cronArr.splice(0, 1)
     if (type === 'cicd') {
-      if (str.meta.automatic) {
+      if (str.meta.automatic || str.meta.type === 'auto') {
         this.setState({
           [`${type}Checked`]: true
         })
@@ -276,7 +276,7 @@ class TimingClean extends Component {
         return
       }
       const { systemCleaningScope, systemCleaningCycle, systemCleaningTime, systemCleaningDate } = values
-      if(toggle && systemChecked){
+      if(toggle && !systemChecked){
         this.systemCloseFun()
         return
       }
@@ -304,6 +304,7 @@ class TimingClean extends Component {
                 systemEdit: true
               })
             }
+            this.getSystemSetting()
           },
           isAsync: true
         },
@@ -333,6 +334,7 @@ class TimingClean extends Component {
                 systemEdit: false
               })
             }
+            this.getSystemSetting()
           },
           isAsync: true
         }
@@ -409,6 +411,7 @@ class TimingClean extends Component {
           this.setState({
             cicdChecked: true
           })
+          this.getSettings()
         }
       }
     })
@@ -432,7 +435,7 @@ class TimingClean extends Component {
         return
       }
       const { CICDcacheScope, CICDcacheCycle, CICDcacheTime, CICDcacheDate } = values
-      if(toggle && cicdChecked){
+      if(toggle && !cicdChecked){
         this.cicdCloseFun()
         return
       }
@@ -443,7 +446,7 @@ class TimingClean extends Component {
             automatic: toggle ? true : cicdChecked,
             cleaner: userName,
             target: "cicd_clean",
-            type: !cicdChecked ? "auto" : "stop"
+            type: cicdChecked ? "auto" : "stop"
           },
           spec: {
             cron: this.getCronString(CICDcacheCycle,CICDcacheDate, CICDcacheTime),
@@ -455,11 +458,8 @@ class TimingClean extends Component {
           func: () => {
             notify.close()
             notify.success(toggle ? 'cicd定时清理开启成功' : 'cicd定时编辑成功')
-            // this.getSettings()
             if (toggle) {
-              this.setState({
-                cicdChecked: !cicdChecked
-              })
+              this.getSettings()
             } else {
               this.setState({
                 cicdEdit: true
@@ -712,7 +712,7 @@ class TimingClean extends Component {
                       unCheckedChildren="关"
                       className='switch_style'
                       checked={systemChecked}
-                      onChange={() => this.systemChange(true)}
+                      onChange={checked => this.setState({ systemChecked: checked}, () =>  this.systemChange(true))}
                     />
                   </div>
                   <div className="body">
@@ -805,7 +805,7 @@ class TimingClean extends Component {
                       unCheckedChildren="关"
                       className='switch_style'
                       checked={cicdChecked}
-                      onChange={() => this.CICDEditChange(true)}
+                      onChange={checked => this.setState({cicdChecked: checked}, () => this.CICDEditChange(true))}
                     />
                   </div>
                   <div className="body">

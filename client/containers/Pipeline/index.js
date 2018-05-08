@@ -55,7 +55,12 @@ class Pipeline extends React.Component {
   }
 
   render(){
-    const { project, token, username } = this.props
+    const { project, onbehalfuser, token, username, location } = this.props
+    const query = Object.assign(
+      {},
+      location.query,
+      { token, username, project, onbehalfuser }
+    )
     const { windowHeight } = this.state
     const style = {
       height: windowHeight - HEADER_HEIGHT,
@@ -66,7 +71,7 @@ class Pipeline extends React.Component {
       </div>
     }
     return <div className="pipeline" style={style}>
-      <iframe id="pipeline" src={`/devops?${toQuerystring({ token, username, project })}`}  />
+      <iframe id="pipeline" src={`/devops?${toQuerystring(query)}`}  />
     </div>
   }
 }

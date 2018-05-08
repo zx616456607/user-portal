@@ -355,6 +355,7 @@ const parseConfigMap = (containers, volumes, annotations) => {
         [`configMapMountPath${configId}`]: configMountPath,
         [`configMapIsWholeDir${configId}`]: configMapIsWholeDir,
         [`configGroupName${configId}`]: configGroupName,
+        [`configGroupOriginalName${configId}`]: configGroupName,
         [`configMapSubPathValues${configId}`]: configMapSubPathValues,
       });
     } else if (item.name.includes('secret')) {

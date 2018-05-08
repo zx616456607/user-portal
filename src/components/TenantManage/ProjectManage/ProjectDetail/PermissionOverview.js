@@ -153,7 +153,7 @@ class PermissionOverview extends React.Component{
     )
   }
 
-  handleConfirm = async (currentPermission, record, oldChecked) => {
+  handleConfirm = async (currentPermission, record, oldChecked, type) => {
     const { deletePermissionControl, setPermission, roleId, clusterID, callback } = this.props
     const { checked } = this.state
 
@@ -192,7 +192,7 @@ class PermissionOverview extends React.Component{
       result.map(res => {
         if (res.error) {
           notify.close()
-          if(err.statusCode === 403){
+          if(res.error.statusCode === 403){
             notify.warn(`操作失败, 用户没有权限`)
           }
           else{
@@ -200,7 +200,7 @@ class PermissionOverview extends React.Component{
           }
           this.setState({
             confirmLoading: false,
-            [`visible-${record.name}`]: false
+            [`visible-${type}-${record.name}`]: false
           })
           return
         }
@@ -212,13 +212,13 @@ class PermissionOverview extends React.Component{
 
       this.setState({
         confirmLoading: false,
-        [`visible-${record.name}`]: false
+        [`visible-${type}-${record.name}`]: false
       })
     } else if (!isEmpty(add) && isEmpty(delIds)) {
       const result = await setPermission(addBody)
       if (result.error) {
         notify.close()
-        if(err.statusCode === 403){
+        if(result.error.statusCode === 403){
           notify.warn(`操作失败, 用户没有权限`)
         }
         else{
@@ -226,7 +226,7 @@ class PermissionOverview extends React.Component{
         }
         this.setState({
           confirmLoading: false,
-          [`visible-${record.name}`]: false
+          [`visible-${type}-${record.name}`]: false
         })
         return
       }
@@ -237,13 +237,13 @@ class PermissionOverview extends React.Component{
 
       this.setState({
         confirmLoading: false,
-        [`visible-${record.name}`]: false
+        [`visible-${type}-${record.name}`]: false
       })
     } else if (isEmpty(add) && !isEmpty(delIds)) {
       const result = await deletePermissionControl(delIds.join(','))
       if (result.error) {
         notify.close()
-        if(err.statusCode === 403){
+        if(result.error.statusCode === 403){
           notify.warn(`操作失败, 用户没有权限`)
         }
         else{
@@ -251,7 +251,7 @@ class PermissionOverview extends React.Component{
         }
         this.setState({
           confirmLoading: false,
-          [`visible-${record.name}`]: false
+          [`visible-${type}-${record.name}`]: false
         })
         return
       }
@@ -262,12 +262,12 @@ class PermissionOverview extends React.Component{
 
       this.setState({
         confirmLoading: false,
-        [`visible-${record.name}`]: false
+        [`visible-${type}-${record.name}`]: false
       })
     } else {
       this.setState({
         confirmLoading: false,
-        [`visible-${record.name}`]: false
+        [`visible-${type}-${record.name}`]: false
       })
     }
   }
@@ -292,7 +292,7 @@ class PermissionOverview extends React.Component{
       this.setState({
         deleteConfirmLoading: false
       })
-      if(err.statusCode === 403){
+      if(result.error.statusCode === 403){
         notify.warn(`删除授权失败, 用户没有权限`)
       }
       else{
@@ -330,15 +330,15 @@ class PermissionOverview extends React.Component{
           <Col span={12}>已选 <span className="themeColor">{checked && checked.length}</span> 个</Col>
         </Row>
         {
-          this.state[`visible-${record.name}`] &&
+          this.state[`visible-${type}-${record.name}`] &&
           <PermissionTree
             {...{type, value, record}}
             onChange={checked => this.setState({checked})}
           />
         }
         <Row  className="permissionFooter" type="flex" align="middle" justify="space-around">
-          <Col span={12}><Button type="ghost" onClick={() => this.setState({[`visible-${record.name}`]: false})}>取消</Button></Col>
-          <Col span={12}><Button disabled={this.props.isDisabled} type="primary" loading={confirmLoading} onClick={() => this.handleConfirm(currentPermission, record, oldChecked)}>保存</Button></Col>
+          <Col span={12}><Button type="ghost" onClick={() => this.setState({[`visible-${type}-${record.name}`]: false})}>取消</Button></Col>
+          <Col span={12}><Button type="primary" loading={confirmLoading} onClick={() => this.handleConfirm(currentPermission, record, oldChecked, type)}>保存</Button></Col>
         </Row>
       </div>
     )
@@ -419,8 +419,8 @@ class PermissionOverview extends React.Component{
           return (
             <div>
               <Popover placement="right" trigger="click"
-                visible={this.state[`visible-${record.name}`]}
-                onVisibleChange={visible => this.setState({[`visible-${record.name}`]: visible})}
+                visible={this.state[`visible-${key}-${record.name}`]}
+                onVisibleChange={visible => this.setState({[`visible-${key}-${record.name}`]: visible})}
                 content={this.renderPermissionModal(key, value, record)}>
                 <Button type="primary" className="controlBtn">管理权限（{record.permissionList.length || 0}）</Button>
               </Popover>

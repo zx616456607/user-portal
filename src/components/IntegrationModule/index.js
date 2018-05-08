@@ -314,7 +314,7 @@ class Integration extends Component {
                               <div style={{ clear:'both' }}></div>
                             </div>
                           ] : null }
-                          <div className='cephDetail appDetail'>
+                          {/* <div className='cephDetail appDetail'>
                             <div className='leftBox'>
                               <img src={cephImg} />
                             </div>
@@ -356,7 +356,7 @@ class Integration extends Component {
                               </Button>
                             </div>
                             <div style={{ clear:'both' }}></div>
-                          </div>
+                          </div> */}
                         </div>
                       </QueueAnim>
                     ] : null}
