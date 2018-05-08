@@ -400,7 +400,7 @@ let MyComponent = React.createClass({
         </Menu>
       );
       const images = this.getImages(item)
-      const status = item.status || {};debugger
+      const status = item.status || {};
       return (
         <div className={item.checked ? 'selectedContainer containerDetail' : 'containerDetail'}
           key={item.metadata.name}
