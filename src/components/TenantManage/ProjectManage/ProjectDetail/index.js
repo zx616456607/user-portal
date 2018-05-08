@@ -116,7 +116,7 @@ class ProjectDetail extends Component {
     },{
       success: {
         func: (res) => {
-          const cluster0 = !!_.filter(res.data.clusters, {status: 2}) && _.filter(res.data.clusters, {status: 2})[0];
+          const cluster0 = !!_.filter(res.data.clusters, {status: 2}) && _.filter(res.data.clusters, {status: 2})[0] || {};
           this.setState({
             selectedCluster: cluster0.clusterID
           })
@@ -1460,7 +1460,7 @@ class ProjectDetail extends Component {
                         </span>
                         {
                           !selectedCluster ?
-                          null
+                          <span className="zanwu">暂无集群</span>
                           :
                           <Dropdown overlay={clusterMenu} trigger={['click']}>
                             <a className="ant-dropdown-link" href="#">
@@ -1533,8 +1533,8 @@ class ProjectDetail extends Component {
                           <div className="panelStyle">
                             {/* {perPanels} */}
                             {
-                              this.state.isChangeCluster ?
-                                null
+                              this.state.isChangeCluster || !selectedCluster ?
+                                <div className="zanwuDiv"><span className="">暂无可操作资源</span></div>
                                 :
                                 <PermissionOverview
                                   project={location.query.name}
