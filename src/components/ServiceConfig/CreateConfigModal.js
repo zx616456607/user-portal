@@ -1,6 +1,7 @@
 import { Button, Form, Input, Row, Col, Modal, Select } from 'antd';
 import React from 'react'
 import { USERNAME_REG_EXP_NEW } from '../../constants'
+import { isResourcePermissionError } from '../../common/tools'
 import { validateK8sResource } from '../../common/naming_validation'
 import NotificationHandler from '../../components/Notification'
 const createForm = Form.create;
@@ -45,8 +46,11 @@ let CreateConfigModal = React.createClass({
             func: (res) => {
               parentScope.setState({ createModal: false })
               let errorText
+              if(isResourcePermissionError(res)){
+                //403 没权限判断 在App/index中统一处理 这里直接返回
+                return;
+              }
               switch (res.message.code) {
-                case 403: errorText = '未授权创建配置组'; break
                 case 409: errorText = '配置组已存在'; break
                 case 500: errorText = '网络异常'; break
                 default: errorText = '缺少参数或格式错误'

@@ -298,6 +298,7 @@ class Header extends Component {
           setCurrent({
             team: { teamID: project.userName },
             space: project,
+            cluster: firstCluster,//切换之后默认选中第一个集群
           })
           // get storageClassType
           this.loadStorageClassType(firstCluster)

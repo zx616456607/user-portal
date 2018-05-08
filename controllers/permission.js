@@ -79,7 +79,8 @@ exports.getAccessControlsOfRole = function* () {
 
 exports.setAccessControlsForRole = function* () {
   const api = apiFactory.getPermissionApi(this.session.loginUser)
-  const result = yield api.createBy(['access-controls'], null, this.request.body)
+  const { project } = this.request.headers
+  const result = yield api.createBy(['access-controls'], null, this.request.body, { headers: { project } })
   this.body = {
     data: result.data
   }
@@ -87,7 +88,8 @@ exports.setAccessControlsForRole = function* () {
 
 exports.removeAccessControlsFromRole = function* () {
   const api = apiFactory.getPermissionApi(this.session.loginUser)
-  const result = yield api.deleteBy(['access-controls', this.params.ruleIds])
+  const { project } = this.request.headers
+  const result = yield api.deleteBy(['access-controls', this.params.ruleIds], null, { headers: { project } })
   this.body = {
     data: result.data
   }

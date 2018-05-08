@@ -71,7 +71,7 @@ class PermissionOverview extends React.Component{
     ]
     Promise.all(storageReqArr).then(storageResult => {
       storageResult.forEach(res => {
-        if (res.response.result.data) {
+        if (!!res.response && res.response.result.data) {
           storageList = storageList.concat(res.response.result.data)
         }
       })
@@ -154,7 +154,7 @@ class PermissionOverview extends React.Component{
   }
 
   handleConfirm = async (currentPermission, record, oldChecked, type) => {
-    const { deletePermissionControl, setPermission, roleId, clusterID, callback } = this.props
+    const { deletePermissionControl, setPermission, roleId, clusterID, callback, project } = this.props
     const { checked } = this.state
 
     const filterName = record.name
@@ -187,7 +187,7 @@ class PermissionOverview extends React.Component{
       })
     }
     if (!isEmpty(add) && !isEmpty(delIds)) {
-      const setArray = [setPermission(addBody), deletePermissionControl(delIds.join(','))]
+      const setArray = [setPermission(addBody, null, project), deletePermissionControl(delIds.join(','), project)]
       const result = await setArray
       result.map(res => {
         if (res.error) {
@@ -215,7 +215,7 @@ class PermissionOverview extends React.Component{
         [`visible-${type}-${record.name}`]: false
       })
     } else if (!isEmpty(add) && isEmpty(delIds)) {
-      const result = await setPermission(addBody)
+      const result = await setPermission(addBody, null, project)
       if (result.error) {
         notify.close()
         if(result.error.statusCode === 403){
@@ -240,7 +240,7 @@ class PermissionOverview extends React.Component{
         [`visible-${type}-${record.name}`]: false
       })
     } else if (isEmpty(add) && !isEmpty(delIds)) {
-      const result = await deletePermissionControl(delIds.join(','))
+      const result = await deletePermissionControl(delIds.join(','), project)
       if (result.error) {
         notify.close()
         if(result.error.statusCode === 403){
@@ -282,9 +282,9 @@ class PermissionOverview extends React.Component{
   }
 
   deleteConfirm = async () => {
-    const { deletePermissionControl, callback } = this.props
+    const { deletePermissionControl, callback, project } = this.props
     const { delIds } = this.state
-    const result = await deletePermissionControl(delIds.join(','))
+    const result = await deletePermissionControl(delIds.join(','), project)
     this.setState({
       deleteConfirmLoading: true
     })
@@ -347,7 +347,8 @@ class PermissionOverview extends React.Component{
 
   renderOverview = () => {
     const { storageList } = this.state
-    const { permissionOverview, openPermissionModal, appList, allServices, containerList, allConfig, pkgs, secretList } = this.props
+    let { permissionOverview, openPermissionModal, appList, allServices, containerList, allConfig, pkgs, secretList } = this.props
+    if(!!!pkgs){pkgs = []}
     const { application, service, container, volume, configuration, applicationPackage, secret } = permissionOverview
     const overviewList = []
     const sortArr = ["application", "service", "container", "volume", "configuration", "secret", "applicationPackage"];
@@ -423,7 +424,7 @@ class PermissionOverview extends React.Component{
                 content={this.renderPermissionModal(key, value, record)}>
                 <Button type="primary" className="controlBtn">管理权限（{record.permissionList.length || 0}）</Button>
               </Popover>
-              <Button type="ghost" onClick={() => this.deletePermission(currentPermission)}>删除授权</Button>
+              <Button disabled={this.props.isDisabled} type="ghost" onClick={() => this.deletePermission(currentPermission)}>删除授权</Button>
             </div>
           )
         },
@@ -432,7 +433,7 @@ class PermissionOverview extends React.Component{
         <Collapse key={key}>
           <Panel header={this.getPanelHeader(key)}>
             <div className='btnContainer'>
-              <Button type="primary" size="large" icon="plus" onClick={() => openPermissionModal(key)}>编辑权限</Button>
+              <Button disabled={this.props.isDisabled} type="primary" size="large" icon="plus" onClick={() => openPermissionModal(key)}>授权资源</Button>
             </div>
             <div className='reset_antd_table_header'>
               <Table

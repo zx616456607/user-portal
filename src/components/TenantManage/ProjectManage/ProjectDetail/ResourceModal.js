@@ -145,7 +145,7 @@ class ResourceModal extends Component {
         },
         failed: {
           func: res => {
-            if(err.statusCode === 403){
+            if(res.statusCode === 403){
               notify.warn(`授权失败, 用户没有权限`)
             }
             else{
@@ -157,7 +157,7 @@ class ResourceModal extends Component {
           },
           isAsync: true
         }
-      })
+      }, this.props.scope.props.location.query.name)
     });
   }
   getParams = () => {
@@ -393,7 +393,7 @@ class ResourceModal extends Component {
       <Modal
         visible={this.props.visible}
         footer={footer}
-        title="编辑权限"
+        title="授权资源"
         width="700"
         onClose={() => {this.modalCancel()}}
         className="ResourceModalWrapper"

@@ -70,7 +70,7 @@ class CreateModal extends React.Component {
         clusterArr.push(value.clusterID)
       })
       //updateCluster(clusterArr)
-      console.log(clusterArr);
+/*  */      //console.log(clusterArr);
       this.setState({
         authorizedCluster: clusterArr,
       })
@@ -156,6 +156,10 @@ class CreateModal extends React.Component {
     this.props.onCancel();
   }
   onOk = () => {
+    if(this.state.authorizedCluster.length < 1){
+      notify.warn("请选择集群");
+      return;
+    }
     this.props.form.validateFields(['projectName'], (error, values) => {
       if(!!error){
         console.log(error);
@@ -271,12 +275,6 @@ class CreateModal extends React.Component {
                       <span className="pointer">请选择授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
                     </div>
                   </Popover>
-                  <Input type="hidden" {...getFieldProps('projectDesc', {
-                    rules: [
-                      { validator: (rules,value)=>this.projectDesc(rules,value,this.updateProjectDesc)}
-                    ],
-                    initialValue: '',
-                  }) }/>
                 </Col>
               </Row>
             </div>

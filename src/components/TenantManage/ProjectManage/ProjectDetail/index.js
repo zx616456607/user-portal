@@ -1013,7 +1013,7 @@ class ProjectDetail extends Component {
       return (
         <li key={item.roleId} className={classNames({ 'active': currentRoleInfo && currentRoleInfo.id === item.roleId })} onClick={() => this.getCurrentRole(item.roleId, "click")}>{item.roleName}
           {
-            (roleNum !== 3 || isManager) && !includes(disabledArr, item.roleId) &&
+            (roleNum === 1 || isManager) && !includes(disabledArr, item.roleId) &&
             <Tooltip placement="top" title="移除角色">
               <Icon type="delete" className="pointer" onClick={(e) => this.deleteRole(e, item)} />
             </Tooltip>
@@ -1439,7 +1439,7 @@ class ProjectDetail extends Component {
                     <div className="title">
                       <span>该角色成员</span>
                       {
-                        (roleNum === 1 || isManager) ? <span className="manageMembers" onClick={() => this.getProjectMember('user')}><a><Icon type="setting" />管理成员</a></span>
+                        (roleNum === 1 || isManager) ? <span className="manageMembers" onClick={() => this.getProjectMember('user')}><a><Icon type="setting" />角色成员</a></span>
                         : null
                       }
                     </div>
@@ -1485,7 +1485,7 @@ class ProjectDetail extends Component {
                         this.state.currpermissionPolicyType === 1?
                         <div className="type1">
                           <div className="btnContainer">
-                            <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客" || !isManager} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
+                            <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客" || (!isManager && roleNum !== 1)} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
                           </div>
                           <div className="permissionType1Container">
                             <div className="authBox inlineBlock">
@@ -1542,6 +1542,7 @@ class ProjectDetail extends Component {
                                   roleId={currentRoleInfo.id}
                                   openPermissionModal={this.editPermission}
                                   callback={this.getPermissionOverview}
+                                  isDisabled={!(roleNum === 1 || isManager)}
                                 />
                             }
                           </div>
