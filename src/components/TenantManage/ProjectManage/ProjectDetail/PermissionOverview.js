@@ -310,10 +310,16 @@ class PermissionOverview extends React.Component{
   }
 
   renderPermissionModal = (type, value, record) => {
+    const { getPermission } = this.props
     const { confirmLoading, checked } = this.state
     let currentPermission
-    let oldChecked
+    let oldChecked;
+
+    let total = Object.keys(value.operations).length
+
     if (!record.isReg) {
+      let copyOperations = Object.values(value.operations)
+      total = getPermission(copyOperations, type).length
       currentPermission = value.acls.fixed[record.name]
       oldChecked = currentPermission.map(item => String(item.permissionId))
     } else {
@@ -321,7 +327,6 @@ class PermissionOverview extends React.Component{
       oldChecked = currentPermission.map(item => String(item.permissionId))
     }
 
-    const total = Object.keys(value.operations).length
 
     return(
       <div className="permissionModal">
@@ -332,7 +337,7 @@ class PermissionOverview extends React.Component{
         {
           this.state[`visible-${type}-${record.name}`] &&
           <PermissionTree
-            {...{type, value, record}}
+            {...{type, value, record, getPermission: this.props.getPermission}}
             onChange={checked => this.setState({checked})}
           />
         }

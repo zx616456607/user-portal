@@ -866,6 +866,27 @@ class ProjectDetail extends Component {
       })
     })
   }
+  getPermission = (tempPermission, type) => {debugger
+    let permission = _.cloneDeep(tempPermission);
+    switch (type) {
+      case "application":
+        permission = _.without(permission, _.filter(permission, {name: "创建应用"})[0])
+        break;
+      case "volume":
+        permission = _.without(permission, _.filter(permission, {name: "创建存储"})[0])
+        break;
+      case "configuration":
+        permission = _.without(permission, _.filter(permission, {name: "创建配置组"})[0])
+        break;
+      case "secret":
+        permission = _.without(permission, _.filter(permission, {name: "创建加密配置"})[0])
+        break;
+      case "applicationPackage":
+        permission = _.without(permission, _.filter(permission, {name: "上传包文件"})[0])
+        break;
+    }
+    return permission;
+  }
   render() {
     const { payNumber, projectDetail, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
@@ -1402,6 +1423,7 @@ class ProjectDetail extends Component {
           {
             this.state.isShowResourceModal ?
             <ResourceModal
+              getPermission={this.getPermission}
               visible={this.state.isShowResourceModal}
               onCancel={this.closeResourceModal}
               currResourceType={this.state.currResourceType}
@@ -1543,6 +1565,7 @@ class ProjectDetail extends Component {
                                   openPermissionModal={this.editPermission}
                                   callback={this.getPermissionOverview}
                                   isDisabled={!(roleNum === 1 || isManager)}
+                                  getPermission={this.getPermission}
                                 />
                             }
                           </div>
