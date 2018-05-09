@@ -343,7 +343,7 @@ class PermissionOverview extends React.Component{
         }
         <Row  className="permissionFooter" type="flex" align="middle" justify="space-around">
           <Col span={12}><Button type="ghost" onClick={() => this.setState({[`visible-${type}-${record.name}`]: false})}>取消</Button></Col>
-          <Col span={12}><Button type="primary" loading={confirmLoading} onClick={() => this.handleConfirm(currentPermission, record, oldChecked, type)}>保存</Button></Col>
+          <Col span={12}><Button type="primary" disabled={this.props.isDisabled} loading={confirmLoading} onClick={() => this.handleConfirm(currentPermission, record, oldChecked, type)}>保存</Button></Col>
         </Row>
       </div>
     )

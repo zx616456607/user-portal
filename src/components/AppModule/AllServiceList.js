@@ -50,6 +50,7 @@ import CreateAlarm from './AlarmModal'
 import CreateGroup from './AlarmModal/CreateGroup'
 import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
+import { isResourcePermissionError } from '../../common/tools'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -844,22 +845,33 @@ class ServiceList extends Component {
     self.setState({
       serviceList: allServices
     })
+    this.setState({
+      StartServiceModal: false,
+      runBtn: false,
+      stopBtn: false,
+      restartBtn: false,
+    })
     startServices(cluster, serviceNames, {
       success: {
         func: () => {
-          this.setState({
-            StartServiceModal: false,
-            runBtn: false,
-            stopBtn: false,
-            restartBtn: false,
-          })
+          // this.setState({
+          //   StartServiceModal: false,
+          //   runBtn: false,
+          //   stopBtn: false,
+          //   restartBtn: false,
+          // })
         },
         isAsync: true
       },
       failed: {
         func: (err) => {
           if(statusCode !== PAYMENT_REQUIRED_CODE){
-            errorHandler(err, intl)
+            if(isResourcePermissionError(err)){
+              //403 没权限判断 在App/index中统一处理 这里直接返回
+              //return;
+            }else{
+              errorHandler(err, intl)
+            }
           }
           self.loadServices(self.props)
         },
@@ -911,21 +923,32 @@ class ServiceList extends Component {
       notification.error('请选择要停止的服务')
       return
     }
+    this.setState({
+      StopServiceModal: false,
+      runBtn: false,
+      stopBtn: false,
+      restartBtn: false,
+    })
     stopServices(cluster, serviceNames, {
       success: {
         func: () => {
-          this.setState({
-            StopServiceModal: false,
-            runBtn: false,
-            stopBtn: false,
-            restartBtn: false,
-          })
+          // this.setState({
+          //   StopServiceModal: false,
+          //   runBtn: false,
+          //   stopBtn: false,
+          //   restartBtn: false,
+          // })
         },
         isAsync: true
       },
       failed: {
         func: (err) => {
-          errorHandler(err, intl)
+          if(isResourcePermissionError(err)){
+            //403 没权限判断 在App/index中统一处理 这里直接返回
+            //return;
+          }else{
+            errorHandler(err, intl)
+          }
           self.loadServices(self.props)
         },
         isAsync: true
@@ -980,22 +1003,32 @@ class ServiceList extends Component {
       serviceList: allServices,
       RestarServiceModal: false,
     })
-
+    this.setState({
+      runBtn: false,
+      stopBtn: false,
+      restartBtn: false,
+      redeploybtn: false,
+    })
     restartServices(cluster, serviceNames, {
       success: {
         func: () => {
-          this.setState({
-            runBtn: false,
-            stopBtn: false,
-            restartBtn: false,
-            redeploybtn: false,
-          })
+          // this.setState({
+          //   runBtn: false,
+          //   stopBtn: false,
+          //   restartBtn: false,
+          //   redeploybtn: false,
+          // })
         },
         isAsync: true
       },
       failed: {
         func: (err) => {
-          errorHandler(err, intl)
+          if(isResourcePermissionError(err)){
+            //403 没权限判断 在App/index中统一处理 这里直接返回
+            //return;
+          }else{
+            errorHandler(err, intl)
+          }
           self.loadServices(self.props)
         },
         isAsync: true
@@ -1040,22 +1073,33 @@ class ServiceList extends Component {
     self.setState({
       serviceList
     })
+    this.setState({
+      QuickRestarServiceModal: false,
+      runBtn: false,
+      stopBtn: false,
+      restartBtn: false,
+    })
     quickRestartServices(cluster, serviceNames, {
       success: {
         func: () => {
-          this.setState({
-            QuickRestarServiceModal: false,
-            runBtn: false,
-            stopBtn: false,
-            restartBtn: false,
-          })
+          // this.setState({
+          //   QuickRestarServiceModal: false,
+          //   runBtn: false,
+          //   stopBtn: false,
+          //   restartBtn: false,
+          // })
           self.loadServices(self.props)
         },
         isAsync: true
       },
       failed: {
         func: (err) => {
-          errorHandler(err, intl)
+          if(isResourcePermissionError(err)){
+            //403 没权限判断 在App/index中统一处理 这里直接返回
+            //return;
+          }else{
+            errorHandler(err, intl)
+          }
           this.setState({
             QuickRestarServiceModal: false,
             runBtn: false,
@@ -1128,7 +1172,12 @@ class ServiceList extends Component {
       },
       failed: {
         func: (err) => {
-          errorHandler(err, intl)
+          if(isResourcePermissionError(err)){
+            //403 没权限判断 在App/index中统一处理 这里直接返回
+            //return;
+          }else{
+            errorHandler(err, intl)
+          }
           self.loadServices(self.props)
         },
         isAsync: true
