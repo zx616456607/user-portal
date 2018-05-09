@@ -866,7 +866,7 @@ class ProjectDetail extends Component {
       })
     })
   }
-  getPermission = (tempPermission, type) => {debugger
+  getPermission = (tempPermission, type) => {
     let permission = _.cloneDeep(tempPermission);
     switch (type) {
       case "application":
@@ -1481,6 +1481,7 @@ class ProjectDetail extends Component {
                           集群
                         </span>
                         {
+                          this.state.currpermissionPolicyType === 1 ? <span className="zanwu">所有集群</span> :
                           !selectedCluster ?
                           <span className="zanwu">暂无集群</span>
                           :
