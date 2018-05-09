@@ -335,7 +335,11 @@ class Snapshot extends Component {
     })
   }
 
-  handleRollbackSnapback(key, e){
+  handleRollbackSnapback(isUsed, key, e){
+    if(isUsed){
+      notificationHandler.warn("存储卷使用中, 快照不能回滚");
+      return;
+    }
     e.stopPropagation()
     const { hasAlreadyGetStorageList } = this.state
     if(hasAlreadyGetStorageList){
@@ -573,7 +577,7 @@ class Snapshot extends Component {
             <Menu.Item key="cloneSnapshot">创建</Menu.Item>
           </Menu>
           return <div>
-            <Dropdown.Button onClick={this.handleRollbackSnapback.bind(this, key)} overlay={menu} type="ghost">
+            <Dropdown.Button onClick={this.handleRollbackSnapback.bind(this, record.volumeStatus === "used", key)} overlay={menu} type="ghost">
               回滚
             </Dropdown.Button>
           </div>
