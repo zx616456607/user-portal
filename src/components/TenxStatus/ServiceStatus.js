@@ -22,12 +22,12 @@ class ServiceStatus extends Component {
   render() {
     const { service, smart } = this.props
     const status = getServiceStatus(service)
-    const { phase, progress, replicas, readyReplicas } = status
+    const { phase, progress, replicas, availableReplicas } = status
     return (
       <TenxStatus
         phase={phase}
         progress={progress}
-        status={{ replicas: parseInt(replicas), readyReplicas }}
+        status={{ replicas: parseInt(replicas), availableReplicas }}
         smart={smart} />
     )
   }
