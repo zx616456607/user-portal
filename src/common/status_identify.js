@@ -84,6 +84,7 @@ export function getServiceStatus(_service) {
     updatedReplicas,
     unavailableReplicas,
     observedGeneration,
+    readyReplicas,
   } = status
   const { strategy = {} } = service.spec || {}
   if (status.replicas > specReplicas && strategy.type === 'RollingUpdate') {
@@ -104,7 +105,7 @@ export function getServiceStatus(_service) {
     return status
   }
   if (observedGeneration >= metadata.generation && replicas === updatedReplicas && replicas > 0) {
-    status.availableReplicas = updatedReplicas
+    status.availableReplicas = readyReplicas
     status.phase = 'Running'
   } else if (unavailableReplicas > 0 && (!availableReplicas || availableReplicas < replicas)) {
     status.phase = 'Pending'
