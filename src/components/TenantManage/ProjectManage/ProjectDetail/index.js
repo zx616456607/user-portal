@@ -1481,7 +1481,7 @@ class ProjectDetail extends Component {
                           集群
                         </span>
                         {
-                          this.state.currpermissionPolicyType === 1 ? <span className="zanwu">所有集群</span> :
+                          this.state.currpermissionPolicyType === 1 ? <span className="zanwu">所有已授权集群</span> :
                           !selectedCluster ?
                           <span className="zanwu">暂无集群</span>
                           :
