@@ -103,11 +103,14 @@ export function getServiceStatus(_service) {
   if (phase && phase !== 'Running') {
     return status
   }
-  if (unavailableReplicas > 0 && (!availableReplicas || availableReplicas < replicas)) {
-    status.phase = 'Pending'
-  } else if (observedGeneration >= metadata.generation && replicas === updatedReplicas && replicas > 0) {
+  if (observedGeneration >= metadata.generation && replicas === updatedReplicas && replicas > 0) {
     status.availableReplicas = updatedReplicas
     status.phase = 'Running'
+  } else if (unavailableReplicas > 0 && (!availableReplicas || availableReplicas < replicas)) {
+    status.phase = 'Pending'
+  } else if (specReplicas > 0 && availableReplicas < 1) {
+    status.unavailableReplicas = specReplicas
+    status.phase = 'Pending'
   } else if (updatedReplicas && unavailableReplicas) {
     status.phase = 'Deploying'
     status.progress = { status: false }
@@ -120,9 +123,6 @@ export function getServiceStatus(_service) {
   // Add spec.replicas analyzing conditions
   if (specReplicas === 0 && availableReplicas > 0) {
     status.phase = 'Stopping'
-  } else if (specReplicas > 0 && availableReplicas < 1) {
-    status.unavailableReplicas = specReplicas
-    status.phase = 'Pending'
   }
   return status
 }
