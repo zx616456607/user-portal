@@ -104,7 +104,7 @@ export function getServiceStatus(_service) {
   if (phase && phase !== 'Running') {
     return status
   }
-  if (observedGeneration >= metadata.generation && replicas === updatedReplicas && replicas > 0) {
+  if (observedGeneration >= metadata.generation && replicas === updatedReplicas && readyReplicas > 0) {
     status.availableReplicas = readyReplicas
     status.phase = 'Running'
   } else if (unavailableReplicas > 0 && (!availableReplicas || availableReplicas < replicas)) {
