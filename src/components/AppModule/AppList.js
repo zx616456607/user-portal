@@ -34,6 +34,7 @@ import CreateGroup from './AlarmModal/CreateGroup'
 import DeployEnvModal from '../DeployEnvModal'
 import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
+import { isResourcePermissionError } from '../../common/tools'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -720,7 +721,12 @@ class AppList extends Component {
       },
       failed: {
         func: (err) => {
-          errorHandler(err, intl)
+          if(isResourcePermissionError(err)){
+            //403 没权限判断 在App/index中统一处理 这里直接返回
+            //return;
+          }else{
+            errorHandler(err, intl)
+          }
           self.loadData(self.props)
         },
         isAsync: true
@@ -773,7 +779,13 @@ class AppList extends Component {
       },
       failed: {
         func: (err) => {
-          errorHandler(err, intl)
+          if(isResourcePermissionError(err)){
+            //403 没权限判断 在App/index中统一处理 这里直接返回
+            //return;
+          }
+          else{
+            errorHandler(err, intl)
+          }
           self.loadData(self.props)
         },
         isAsync: true
@@ -838,7 +850,12 @@ class AppList extends Component {
       },
       failed: {
         func: (err) => {
-          errorHandler(err, intl)
+          if(isResourcePermissionError(err)){
+            //403 没权限判断 在App/index中统一处理 这里直接返回
+            //return;
+          }else{
+            errorHandler(err, intl)
+          }
           self.loadData(self.props)
         },
         isAsync: true
@@ -910,7 +927,12 @@ class AppList extends Component {
       },
       failed: {
         func: (err) => {
-          errorHandler(err, intl)
+          if(isResourcePermissionError(err)){
+            //403 没权限判断 在App/index中统一处理 这里直接返回
+            //return;
+          }else{
+            errorHandler(err, intl)
+          }
           self.loadData(self.props)
         },
         isAsync: true

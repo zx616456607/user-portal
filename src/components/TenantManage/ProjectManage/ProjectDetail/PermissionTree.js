@@ -44,7 +44,7 @@ export default class PermissionTree extends React.Component {
   }
 
   getTrees = (type, data, record) => {
-    const { onChange } = this.props
+    const { onChange, getPermission } = this.props
     const { operations, acls } = data
     const { fixed } = acls
     const parentNode = this.formatType(type)
@@ -52,17 +52,25 @@ export default class PermissionTree extends React.Component {
     const children = []
     let currentPermission
 
+    let copyOperations = Object.values(operations)
     if (!record.isReg) {
+      copyOperations = getPermission(copyOperations, type)
       currentPermission = acls.fixed[record.name]
     } else {
       currentPermission = acls.resourceList.filter(item => item.name === record.name)[0].permissionList
     }
-    for(let [key, value] of Object.entries(operations)) {
+    copyOperations.map(item => {
       children.push({
-        value: String(value.permissionId),
-        label: value.name
+        value: String(item.permissionId),
+        label: item.name
       })
-    }
+    })
+    // for(let [key, value] of Object.entries(copyOperations)) {
+    //   children.push({
+    //     value: String(value.permissionId),
+    //     label: value.name
+    //   })
+    // }
     const nodes = [{
       value: type,
       label: parentNode,
