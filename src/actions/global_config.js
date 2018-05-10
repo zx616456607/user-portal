@@ -133,7 +133,3 @@ export function sendEmailVerification(body, callback) {
     callback
   }
 }
-
-
-
-

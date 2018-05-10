@@ -667,7 +667,6 @@ class QuickCreateApp extends Component {
         }
       }
     }
-  console.log( 'template',template )
     const callback = {
       success: {
         func: res => {

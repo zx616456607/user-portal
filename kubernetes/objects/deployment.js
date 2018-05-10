@@ -513,17 +513,17 @@ class Deployment {
     // policy.nodeSelectorTerms = policy.nodeSelectorTerms || []
 
     //新增的 自定义属性 的默认值
-    nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution = nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
-    const preMode = nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution
+    // nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution = nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
+    // const preMode = nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution
 
-    affinity.podAffinity = affinity.podAffinity || {}
-    affinity.podAntiAffinity = affinity.podAntiAffinity || {}
-    const podAffinity = affinity.podAffinity
-    const podAntiAffinity = affinity.podAntiAffinity
-    podAffinity.requiredDuringSchedulingIgnoredDuringExecution = podAffinity.requiredDuringSchedulingIgnoredDuringExecution || []
-    podAffinity.preferredDuringSchedulingIgnoredDuringExecution = podAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
-    podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution =  podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution || []
-    podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution = podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
+    // affinity.podAffinity = affinity.podAffinity || {}
+    // affinity.podAntiAffinity = affinity.podAntiAffinity || {}
+    // const podAffinity = affinity.podAffinity
+    // const podAntiAffinity = affinity.podAntiAffinity
+    // podAffinity.requiredDuringSchedulingIgnoredDuringExecution = podAffinity.requiredDuringSchedulingIgnoredDuringExecution || []
+    // podAffinity.preferredDuringSchedulingIgnoredDuringExecution = podAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
+    // podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution =  podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution || []
+    // podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution = podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
   }
 
   setLabelSelector(labels) {
@@ -556,7 +556,6 @@ class Deployment {
         reqMode.nodeSelectorTerms = reqMode.nodeSelectorTerms || []
         const reqArr = reqMode.nodeSelectorTerms
         reqMode.nodeSelectorTerms = reqArr.concat(this.makeNodeRequiredAffinity(requiredTag))
-        console.log( reqMode.nodeSelectorTerms )
       }
       if (preferredTag && preferredTag.length && preferredTag.length > 0) {
         policy.preferredDuringSchedulingIgnoredDuringExecution = policy.preferredDuringSchedulingIgnoredDuringExecution || []
@@ -587,7 +586,6 @@ class Deployment {
       // this.ensureNodeAffinityDefaultValue()
       this.spec.template.spec.affinity = this.spec.template.spec.affinity || {}
       const affinity = this.spec.template.spec.affinity
-      console.log( requiredTag,preferredTag , notRequiredTag, notPreferredTag)
       if (requiredTag.length>0 || preferredTag.length>0) {
         affinity.podAffinity = affinity.podAffinity ||{}
         const pod = affinity.podAffinity
@@ -719,7 +717,6 @@ class Deployment {
       }
 
     })
-    console.log('aaaarrrgg',arg)
     return arg
   }
 
