@@ -45,11 +45,8 @@ class AppServerTag extends Component{
     }
   }
   componentDidMount() {
-    const { clusterID, serviceDetail, getClusterLabel, serviceTag, getAllServiceTag } = this.props
+    const { clusterID, getAllServiceTag } = this.props
     getAllServiceTag(clusterID)
-    .then(res=>{
-      console.log( res.data )
-    })
   }
 
   handleSearchInput(){
@@ -202,32 +199,29 @@ class AppServerTag extends Component{
         if (errors) {
           return
         }
-        const labels = {}
-        // const labels =[]
+        let labels = {}
         this.handleEditCancelModal()
         values.keys.map((item)=> {
           labels[values[`key${item}`]] = values[`value${item}`]
         })
-    console.log( "val",values )
-        console.log( 'labels', labels )
-    addServiceTag(labels,clusterID,serviceName,{
-      success: {
-        func:(ret)=>{
-          notificat.close()
-          notificat.success('添加成功！')
-          this.props.loadDataAllData()
-        },
-        isAsync:true
-      },
-      failed:{
-        func:(ret)=> {
-          notificat.close()
-          notificat.error('添加失败！')
-        }
-      }
-    })
+        //多个 key 同有问题。('if', '多个key同 err' , '发送=> labels', labels  ,"val",values )
+        addServiceTag(labels,clusterID,serviceName,{
+          success: {
+            func:(ret)=>{
+              notificat.close()
+              notificat.success('添加成功！')
+              this.props.loadDataAllData()
+            },
+            isAsync:true
+          },
+          failed:{
+            func:(ret)=> {
+              notificat.close()
+              notificat.error('添加失败！')
+            }
+          }
+        })
       })
-
     } else {
       const { targets } = this.state
       form.validateFields((errors, values) => {
@@ -238,25 +232,15 @@ class AppServerTag extends Component{
           key: values.key0,
           value: values.value0
         }
-
-        //遍历添加
-        // values.keys.map((item)=> {
-        //   labels[values[`key${item}`]] = values[`value${item}`]
-        // })
-        // 修改发送labels
-
         if (targets.key == labels.key && targets.value == labels.value) {
           notificat.info('未作更改，无需更新！')
           uuid = 0
           return
         }
-        console.log( "labels",labels )
         let body = {
           [labels.key]:labels.value
         }
         body = JSON.stringify(body)
-
-        console.log( "body",body )
         this.handleEditCancelModal()
         notificat.spin('修改中...')
         updataServiceTag( body, clusterID, serviceName, {
@@ -453,7 +437,6 @@ AppServerTag = Form.create()(AppServerTag)
 function mapStateToProps(state,props) {
   const { clusterLabel } = state.cluster_nodes || {}
   const cluster = props.clusterID
-  console.log( '---========------',props )
   const { serviceTag } = props
   const { tagList } = state
   let listData = []

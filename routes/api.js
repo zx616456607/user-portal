@@ -778,12 +778,10 @@ module.exports = function (Router) {
   router.get('/clusters/autoscaler/resource', autoScalerController.getRes)
 
   // scheduler
-  // router.post('/scheduler/LeastRequested', schedulerController.leastRequested)
-  // router.get('/clusters/:cluster/services', schedulerController.services)
-
   router.get('/clusters/:cluster/services', schedulerController.getAllServiceTag)
   router.post('/clusters/:cluster/services/:service/labels', schedulerController.addServiceTag)
   router.put('/clusters/:cluster/services/:service/labels', schedulerController.updataServiceTag)
   router.del('/clusters/:cluster/services/:service/labels/:labels', schedulerController.delateServiceTag)
+
   return router.routes()
 }

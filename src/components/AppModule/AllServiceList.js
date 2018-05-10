@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Input, Alert, } from 'antd'
+import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Input, Alert, Select  } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -51,6 +51,7 @@ import CreateGroup from './AlarmModal/CreateGroup'
 import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
 
+const Option = Select.Option;
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const confirm = Modal.confirm
@@ -639,7 +640,9 @@ class ServiceList extends Component {
     this.cancelModal = this.cancelModal.bind(this)
     this.nextStep = this.nextStep.bind(this)
     this.handleCheckboxvalue = this.handleCheckboxvalue.bind(this)
-
+    this.handleSearchNameOrLabel = this.handleSearchNameOrLabel.bind(this)
+    this.selectSearchType = this.selectSearchType.bind(this)
+    this.searchServiceKey = this.searchServiceKey.bind(this)
     this.state = {
       modalShow: false,
       currentShowInstance: null,
@@ -665,6 +668,8 @@ class ServiceList extends Component {
       step:1 ,// create alarm step
       alarmStrategy: true,
       grayscaleUpgradeModalVisible: false,
+      showPlaceholder: '按服务名称搜索',
+      showInpVal: ''
     }
   }
   getInitialState() {
@@ -680,6 +685,7 @@ class ServiceList extends Component {
       pageSize: size,
       name
     }
+    console.log( 'name',name ,'setState:searchValue')
     if(name) {
       this.setState({
         searchInputValue: name
@@ -1203,7 +1209,32 @@ class ServiceList extends Component {
   searchServices() {
     const { page, size, name, pathname } = this.props
     if (this.state.searchInputValue != name) {
-      const query = { page, size, name: this.state.searchInputValue }
+      const query = { page, size, name: this.state.searchInputValue,  }
+      browserHistory.push({
+        pathname,
+        query
+      })
+    }
+  }
+  searchServiceKey(cloneList) {
+    const {searchInputValue} = this.state
+    const serviceArg = []
+    let list = []
+    const nowData = []
+    cloneList.map( item=>{
+      const name = item.metadata.name
+      const temp = item.spec.template
+      const lab = temp.metadata.labels
+      lab.map( eve=>{
+        if (eve==searchInputValue) {
+          list.push(name)
+        }
+      })
+    })
+    list = Array.from(new Set(list))
+    const { page, size, name, pathname } = this.props
+    if (this.state.searchInputValue != name) {
+      const query = { page, size, name: list  }
       browserHistory.push({
         pathname,
         query
@@ -1269,7 +1300,34 @@ class ServiceList extends Component {
       })
     }
   }
-
+  handleSearchNameOrLabel(value) {
+    switch (value) {
+      case '服务名称':
+        return this.setState({
+          showPlaceholder: '按服务名称搜索'
+        })
+      case '服务标签键':
+        return this.setState({
+          showPlaceholder: '按服务标签键搜索'
+        })
+      default:
+        return null
+    }
+  }
+  selectSearchType() {
+    const { serviceList } = this.props
+    //( 'serviceList',serviceList )
+    const cloneList = cloneDeep(serviceList)
+    const {showPlaceholder} = this.state
+    switch (showPlaceholder) {
+      case '按服务名称搜索':
+        return this.searchServices()
+      case '按服务标签键搜索':
+        return  //this.searchServiceKey(cloneList)  需要修改
+      default:
+        return this.searchServices()
+    }
+  }
   render() {
     const parentScope = this
     let {
@@ -1282,6 +1340,7 @@ class ServiceList extends Component {
       runBtn, stopBtn, restartBtn,
       redeploybtn,
       grayscaleUpgradeModalVisible,
+      showPlaceholder
     } = this.state
     const {
       pathname, page, size, total, isFetching, cluster,
@@ -1329,6 +1388,12 @@ class ServiceList extends Component {
       cancelModal: this.cancelModal,
       nextStep: this.nextStep
     }
+    const selectBefore = (
+      <Select defaultValue="服务名称" style={{ width: 90 }} onChange={this.handleSearchNameOrLabel}>
+        <Option value="服务名称">服务名称</Option>
+        <Option value="服务标签键">服务标签键</Option>
+      </Select>
+    );
     return (
       <div id="AppServiceList">
         <Title title="服务列表" />
@@ -1384,10 +1449,10 @@ class ServiceList extends Component {
             </div>
             <div className='rightBox'>
               <div className='littleLeft'>
-                <i className='fa fa-search' onClick={() => this.searchServices()}></i>
+                <i className='fa fa-search' onClick={() => this.selectSearchType()}></i>
               </div>
               <div className='littleRight'>
-                <Input
+                {/* <Input
                   size='large'
                   onChange={(e) => {
                     this.setState({
@@ -1397,7 +1462,23 @@ class ServiceList extends Component {
                   value={this.state.searchInputValue}
                   placeholder='按服务名称搜索'
                   style={{paddingRight: '28px'}}
-                  onPressEnter={() => this.searchServices()} />
+                  onPressEnter={() => this.searchServices()} /> */}
+
+                  <Input
+                    size='large'
+                    className='selectInp'
+                    addonBefore={selectBefore}
+                    onChange={(e) => {
+                      this.setState({
+                        searchInputValue: e.target.value,
+                      })
+                    }}
+                    value={this.state.searchInputValue}
+                    placeholder={showPlaceholder}
+                    style={{paddingRight: '28px'}}
+                    onPressEnter={() => this.selectSearchType()}
+                    />
+
               </div>
             </div>
             { total !== 0 && <div className='pageBox'>

@@ -551,11 +551,9 @@ class BindNodes extends Component {
       return
     }
     let labelType = ''
-    console.log( 'spec====spec===spec',spec )
     const nodeData = this.getNodeListData(spec)
     const podData = this.getPodListData(spec)
     const podAntiData = this.getPodAntiListData(spec)
-    console.log( '```````',nodeData,podData, podAntiData)
     if ( (nodeData.preferTag.length ||  nodeData.requireTag.length) && (podData.podReqList.length || podData.podPreList.length || podAntiData.reqAntiData.length || podAntiData.preAntiData.length)  ) {
       labelType = 'all'
     }else if ( nodeData.preferTag.length ||  nodeData.requireTag.length  ) {
@@ -563,7 +561,6 @@ class BindNodes extends Component {
     }else if (podData.podReqList.length || podData.podPreList.length || podAntiData.reqAntiData.length || podAntiData.preAntiData.length ) {
       labelType = 'pod'
     }
-    console.log( labelType )
     return {
       labelType,
       data:{
@@ -579,7 +576,6 @@ class BindNodes extends Component {
     const preferTag = []
     const preData = spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution || {}
     const ln = Object.keys(preData)
-    console.log( spec,ln, preData )
     if (ln.length>0) {
       preData[0].preference.matchExpressions.map( item=>{
         preferTag.push(item)
@@ -602,7 +598,6 @@ class BindNodes extends Component {
     const podReqList = []
     let podPreData = []
     let podReqData = []
-    console.log( '---',spec )
     if (spec.affinity.podAffinity) {
       podPreData = spec.affinity.podAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
       podReqData = spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution || []
@@ -693,10 +688,9 @@ class BindNodes extends Component {
     return arr
   }
   showLabelValues(item) {
-    console.log( 'item---======---', item.operator, item.values ,JSON.stringify(item))
+    //( 'item----', item.operator, item.values ,JSON.stringify(item))
     const cloneItem = cloneDeep(item)
     if (cloneItem.operator=='In' || cloneItem.operator=='NotIn') {
-      console.log(  cloneItem.values )
       return  cloneItem.key + ' ' + cloneItem.operator + ' ' + cloneItem.values[0]
 
     }else if (cloneItem.operator=='Gt' || cloneItem.operator=='Lt') {
@@ -711,13 +705,11 @@ class BindNodes extends Component {
     }
   }
   showServiceNodeLabels(data) {
-    console.log( data.nodeData )
     const { nodeData } = data
     return <span>
       {
         nodeData.preferTag.length > 0 ?
         nodeData.preferTag.map( (item,index)=>{
-           console.log(item)
           return <Tag closable={false} className='preferedTag' key={item.key+ item.operator + item.index}> 最好 | {this.showLabelValues(item)} </Tag>
         })
         : null
