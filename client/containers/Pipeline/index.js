@@ -17,6 +17,8 @@ import { loadApiInfo } from '../../../src/actions/open_api'
 import './style/index.less'
 
 const HEADER_HEIGHT = 60
+// replace hash when build, for clear cache
+const hash = "<DEVOPS_PORTAL_HASH>"
 
 class Pipeline extends React.Component {
   state = {
@@ -59,7 +61,7 @@ class Pipeline extends React.Component {
     const query = Object.assign(
       {},
       location.query,
-      { token, username, project, onbehalfuser }
+      { token, username, project, onbehalfuser, hash }
     )
     const { windowHeight } = this.state
     const style = {
