@@ -18,7 +18,7 @@ import './style/index.less'
 
 const HEADER_HEIGHT = 60
 // replace hash when build, for clear cache
-const hash = "<DEVOPS_PORTAL_HASH>"
+const hash = process.env.DEVOPS_PORTAL_HASH
 
 class Pipeline extends React.Component {
   state = {
