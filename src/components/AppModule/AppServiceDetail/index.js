@@ -68,15 +68,27 @@ class AppServiceDetail extends Component {
     this.stopService = this.stopService.bind(this)
     this.openTerminalModal = this.openTerminalModal.bind(this)
     this.onHttpsComponentSwitchChange = this.onHttpsComponentSwitchChange.bind(this)
+    this.loadServiceTagData = this.loadServiceTagData.bind(this)
 
     this.state = {
       activeTabKey: props.selectTab || DEFAULT_TAB,
       currentContainer: [],
       httpIcon: 'http',
-      deleteModal: false
+      deleteModal: false,
+      serviceTag: {}
     }
   }
 
+  loadServiceTagData() {
+    const { cluster, serviceName, loadServiceDetail} = this.props
+    loadServiceDetail(cluster, serviceName).then( res => {
+      const data = res.response.result.data || {}
+      const labels = data.spec.template.metadata.labels || {}
+      this.setState({
+        serviceTag: labels
+      })
+    })
+  }
   loadData(nextProps) {
     const self = this
     const {
@@ -87,7 +99,13 @@ class AppServiceDetail extends Component {
       loadServiceContainerList,
     } = nextProps || this.props
     const query = {}
-    loadServiceDetail(cluster, serviceName)
+    loadServiceDetail(cluster, serviceName).then( res => {
+      const data = res.response.result.data || {}
+      const labels = data.spec.template.metadata.labels || {}
+      this.setState({
+        serviceTag: labels
+      })
+    })
     loadK8sService(cluster, serviceName, {
       success: {
         func: (result) => {
@@ -140,7 +158,7 @@ class AppServiceDetail extends Component {
     addTerminal(cluster, item)
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.loadData()
   }
 
@@ -553,9 +571,12 @@ class AppServiceDetail extends Component {
                   // activeKey={activeTabKey}
                   // containers={containers}
                   serviceName={service.metadata.name}
-                  // cluster={service.cluster}
+                  serviceTag={this.state.serviceTag}
+                  loadDataAllData = { this.loadServiceTagData }
+                  clusterID={service.cluster}
                   // serviceDetailmodalShow={serviceDetailmodalShow}
                   // serviceDetail={serviceDetail}
+                  serviceName={this.props.serviceName}
                 relative/>
               </TabPane>
             </Tabs>

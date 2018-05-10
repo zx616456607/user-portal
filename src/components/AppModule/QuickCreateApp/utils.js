@@ -87,6 +87,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
     envKeys, // 环境变量的 keys(数组)
     configMapKeys, // 普通配置目录的 keys(数组)
     secretConfigMapKeys, // 加密配置目录的 keys(数组)
+    serviceTag,         // 服务与节点 标签
+    serviceBottomTag,  // 服务与服务 标签
   } = fieldsValues
   const MOUNT_PATH = 'mountPath' // 容器目录
   const VOLUME = 'volume' // 存储卷(rbd)
@@ -121,7 +123,12 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
     }
   } else if (bindNodeType == 'hostlabel') {
     // 设置主机标签绑定节点
-    deployment.setLabelSelector(bindLabel)
+    //deployment.setLabelSelector(bindLabel)
+
+    //设置服务 标签
+    deployment.setServicePointSelector(serviceTag)
+    deployment.setServicePodSelector(serviceBottomTag)
+
   }
   // 设置资源
   const { cpu, memory, limitCpu, limitMemory } = getResourceByMemory(resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU)

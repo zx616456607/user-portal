@@ -251,6 +251,28 @@ function getNodeDetail(state, action) {
       return state
   }
 }
+function getAllserviceLabel(state, action) {
+  switch (action.type) {
+    case ActionTypes.GET_ALL_SERVICE_TAG_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+        data: []
+      })
+    case ActionTypes.GET_ALL_SERVICE_TAG_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data
+      })
+    case ActionTypes.GET_ALL_SERVICE_TAG_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: []
+      })
+    default:
+      return state
+  }
+}
+
 export function cluster_nodes(state = { cluster_nodes: {}, clusterLabel: {} }, action) {
   return {
     getAllClusterNodes: getAllClusterNodes(state.getAllClusterNodes, action),
@@ -274,6 +296,7 @@ export function cluster_nodes(state = { cluster_nodes: {}, clusterLabel: {} }, a
     clusterLabel: clusterLabel(state.clusterLabel, action),
     networksolutions: networksolutions(state.networksolutions, action),
     nodeLabel: getNodeLabels(state.nodeLabel, action),
-    nodeDetail: getNodeDetail(state.nodeDetail, action)
+    nodeDetail: getNodeDetail(state.nodeDetail, action),
+    //serviceTag: getAllserviceLabel(state.serviceTag, action)
   }
 }

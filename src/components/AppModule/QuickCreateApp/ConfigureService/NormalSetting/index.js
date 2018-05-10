@@ -10,15 +10,16 @@
  * @author Zhangpc
  */
 
-import React, { PropTypes } from 'react'
+import React, { PropTypes, Component } from 'react'
 import { connect } from 'react-redux'
-import { Row, Col, Form, InputNumber, Tooltip, Icon, Switch, Select, Radio, Tag, Button, Input, Checkbox } from 'antd'
+import { Row, Col, Form, InputNumber, Tooltip, Icon, Switch, Select, Radio, Tag,
+     Button, Input, Checkbox, Collapse } from 'antd'
 import ResourceSelect from '../../../../ResourceSelect'
 import Title from '../../../../Title'
 import Storage from './Storage'
 import Ports from './Ports'
 import AccessMethod from './AccessMethod'
-import { getNodes, getClusterLabel } from '../../../../../actions/cluster_node'
+import { getNodes, getClusterLabel, addLabels, getNodeLabels } from '../../../../../actions/cluster_node'
 import {
   SYSTEM_DEFAULT_SCHEDULE,
   RESOURCES_DIY, RESOURCES_MEMORY_MIN,
@@ -26,10 +27,17 @@ import {
   DEFAULT_ALGORITHM, GPU_ALGORITHM
  } from '../../../../../constants'
 import './style/index.less'
+import Notification from '../../../../../components/Notification'
 import TagDropDown from '../../../../ClusterModule/TagDropdown'
 import cloneDeep from 'lodash/cloneDeep'
-const Option = Select.Option;
+import isEqual from 'lodash/isEqual'
+import isEmpty from 'lodash/isEmpty'
+import { SetCalamariUrl } from '../../../../../actions/storage';
+import { NodeAffinity, PodAffinity } from './NodeAndPodAffinity'
+
 const FormItem = Form.Item
+const Panel = Collapse.Panel
+const RadioGroup = Radio.Group
 
 const Normal = React.createClass({
   getInitialState() {
@@ -38,50 +46,137 @@ const Normal = React.createClass({
       summary: [],
       createApp: true,
       memoryMin: RESOURCES_MEMORY_MIN,
-      cpuMin: RESOURCES_CPU_MIN
+      cpuMin: RESOURCES_CPU_MIN,
+      allTag: [],
     }
   },
   componentWillMount() {
-    const { fields, getNodes, currentCluster, getClusterLabel } = this.props
+    const { fields, getNodes, currentCluster, getClusterLabel, getNodeLabels, form } = this.props
+    const { setFieldsValue } = form
+    const { listNodes } = currentCluster
     if (!fields || !fields.replicas) {
       this.setReplicasToDefault()
     }
     if (!fields || !fields.bindNode) {
       this.setBindNodeToDefault()
     }
-    const { listNodes, clusterID } = currentCluster
-    // get cluster nodes for bind
-    if (listNodes === 2 || listNodes === 4) {
-      getNodes(clusterID, {
-        failed: {
-          func: () => {
-            //
-          },
-        }
-      })
-    }
-    if (listNodes === 3 || listNodes === 4) {
-      getClusterLabel(clusterID)
+    switch(listNodes){
+      case 1:
+        return
+      case 2:
+      case 3:
+      case 4:
+        return form.setFieldsValue({'bindNodeType': 'hostlabel'})
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+        return form.setFieldsValue({'bindNodeType': 'hostname'})
     }
   },
   componentDidMount(){
-    const { fields } = this.props
+    const { allTag } = this.state
+    const { fields, getNodes, getNodeLabels, form } = this.props
+    form.setFieldsValue({ serverPoint : '最好', serverBottomPoint: '最好'})
     if(fields && fields.bindLabel){
       this.setState({
         summary: fields.bindLabel.value
       })
     }
-    const { currentCluster, form } = this.props
-    const { listNodes } = currentCluster
-    switch(listNodes){
-      case 1:
-        return
-      case 2:
-      case 4:
-        return form.setFieldsValue({'bindNodeType': 'hostname'})
-      case 3:
-        return form.setFieldsValue({'bindNodeType': 'hostlabel'})
+    const { currentCluster } = this.props
+    const { listNodes, clusterID } = currentCluster
+    let tagArg = {}
+    getNodes(clusterID).then( res=> {
+      const nodeList = res.response.result.data
+      nodeList.map( item=>{
+        getNodeLabels(clusterID, item.name).then( res => {
+          let resObj = res.response.result.raw
+          resObj = JSON.parse( resObj )
+          for (let key in resObj ) {
+            if (tagArg.hasOwnProperty(key)) {
+              tagArg[key].push(resObj[key])
+              tagArg[key] = Array.from(new Set(tagArg[key]))
+            }else if (!tagArg.hasOwnProperty(key)){
+              tagArg[key] = []
+              tagArg[key].push(resObj[key])
+            }
+          }
+          this.dealDataSelectData(tagArg)
+        })
+      })
+    })
+  },
+  dealDataSelectData(tagArg){
+    let tagArr = []
+    for ( let key in tagArg ) {
+      tagArr.push({
+        [key]: tagArg[key]
+      })
     }
+    this.setState({
+      allTag: tagArr
+    })
+  },
+  showServiceAffinity(num) {
+    switch (num) {
+      case 2:
+      case 6:
+        return this.showBetweenServiceAffinity()
+      case 3:
+      case 7:
+        return this.showServicePointAffinity()
+      case 4:
+      case 8:
+        return <div>
+          {this.showServicePointAffinity()}
+          {this.showBetweenServiceAffinity()}
+        </div>
+      default:
+        return
+    }
+  },
+  showServicePointAffinity() {
+    const { currentCluster, fields } = this.props
+    const { form } = this.props
+    const { getFieldProps, setFieldsValue, getFieldValue } = form
+    getFieldProps('serviceTag')
+    const serviceTag = getFieldValue('serviceTag')
+    return <div>
+      <Title title="应用列表" />
+      <div className="title">
+        服务与节点亲和
+        <Tooltip placement="top" title='决定服务实例可以部署在哪些主机上'>
+          <Icon type="question-circle-o" />
+        </Tooltip>
+      </div>
+      <NodeAffinity
+        currentCluster={currentCluster}
+        fields={fields}
+        parentsForm={form}
+        serviceTag={serviceTag}
+        allTag={this.state.allTag}
+        />
+    </div>
+  },
+  showBetweenServiceAffinity() {
+    const { form, fields } = this.props
+    const { getFieldProps, setFieldsValue, getFieldValue } = form
+    getFieldProps('serviceBottomTag')
+    const serviceBottomTag = getFieldValue('serviceBottomTag')
+    return <div>
+      <Title title="应用列表" />
+      <div className="title">
+        服务与服务亲和
+        <Tooltip placement="top" title='决定服务实例可以和那些服务实例部署在同一拓扑域 (具有相同的主机标签键) 上'>
+          <Icon type="question-circle-o" />
+        </Tooltip>
+      </div>
+      <PodAffinity
+        fields={fields}
+        serviceBottomTag={serviceBottomTag}
+        parentsForm={form}
+        />
+    </div>
   },
   setReplicasToDefault(disabled) {
     this.props.form.setFieldsValue({
@@ -127,55 +222,29 @@ const Normal = React.createClass({
     }
     callback()
   },
-  formTagContainer(){
-    const { summary } = this.state
-    const arr = summary.map((item, index) => {
-      return (
-        <div color="blue" key={item.key + index} className='tagStyle'>
-          <span>{item.key}</span>
-          <span className='point'>:</span>
-          <span>{item.value}</span>
-          <Icon type="cross" onClick={() => this.handleClose(item)} className='cross'/>
-        </div>
-      )
-    })
-    return arr
-  },
-  handleClose(item){
-    const { summary } = this.state
-    const tag = cloneDeep(summary)
-    for(let i=0;i<tag.length;i++){
-      if(tag[i].key == item.key && tag[i].value == item.value){
-        tag.splice(i, 1)
-      }
-    }
-    this.setState({
-      summary: tag
-    })
-    const { form } = this.props
-    form.setFieldsValue({'bindLabel': tag})
-  },
   handledDropDownSetvalues(arr){
     const { form } = this.props
     form.setFieldsValue({'bindLabel': arr})
   },
   handleLabelTemplate(){
-    const { labels, form, nodes } = this.props
+    const { labels, form, nodes, currentCluster } = this.props
+    const { listNodes } = currentCluster
     const { getFieldProps } = form
-    const { summary } = this.state
-    const scope = this
+    const { summary, } = this.state
+    //const scope = this
     const bindLabelProps = getFieldProps('bindLabel')
     let nodesArray = this.matchedNodes(summary, nodes)
     let nodesNameList = nodesArray.map((item, index) => {
       return <span key={item.nodeName} style={{paddingRight:'5px'}}>{item.nodeName}</span>
     })
     return <div className='hostlabel'>
-      {/* <TagDropDown
+    { this.showServiceAffinity(listNodes) }
+    {/*    <TagDropDown
         labels={labels}
         footer={false}
         scope={scope}
       />
-      <div className='tips'>
+     <div className='tips'>
         满足条件的节点：
         {
           summary.length
@@ -185,7 +254,7 @@ const Normal = React.createClass({
             </Tooltip>
             个
           </span>
-          : -----------------------------------<span>未选标签，使用系统调度</span>
+          :<span>未选标签，使用系统调度</span>
         }
       </div>
       {
@@ -196,131 +265,11 @@ const Normal = React.createClass({
           </Form.Item>
         </div>
         : <span></span>
-      } */}
-      <Title title="服务与节点亲和" />
-      <div className="title">
-        服务与节点亲和
-        <Tooltip placement="top" title='决定服务实例可以部署在哪些主机上'>
-          <Icon type="question-circle-o" />
-        </Tooltip>
-      </div>
-      <div>
-        <div className="serverAndPoint">
-          <div className="serverAnd">
-            <FormItem
-            id="select"
-            label="当前服务"
-            labelCol={{ span: 4 }}
-            wrapperCol={{ span: 2 }}
-            >
-              <Select id="select" size="large" defaultValue="最好" style={{ width: 80 }}>
-                <Option value="最好" key="maybe">最好</Option>
-                <Option value="必须" key="must">必须</Option>
-              </Select>
-            </FormItem>
-              <span className="serverText">调度到主机（ </span>
-            <FormItem
-              id="select"
-              wrapperCol={{ span: 2 }}
-            >
-              <Select id="select" size="large" defaultValue="主机标签键" style={{ width: 100 }}>
-                <Option value="主机标签键" key="tag">主机标签键</Option>
-                <Option value="oass" key="aa">oass</Option>
-              </Select>
-            </FormItem>
-            <FormItem
-              id="select"
-              wrapperCol={{ span: 2 }}
-            >
-              <Select id="select" size="large" placeholder="操作符" style={{ width: 100 }}>
-                <Option value="in" key="in">in</Option>
-                <Option value="not in" key="not">not in</Option>
-                <Option value=">" key="big"> > </Option>
-                <Option value="&lt;" key="small">	&lt;</Option>
-                <Option value="exists" key="exists">	exists </Option>
-                <Option value="DoesNotExists" key="does">	DoesNotExists </Option>
-              </Select>
-            </FormItem>
-            <FormItem id="select" wrapperCol={{ span: 2 }}>
-              <Select id="select" size="large" defaultValue="主机标签键" style={{ width: 100 }}>
-                <Option value="主机标签键" key="tagKey">主机标签键</Option>
-                <Option value="7" key="seven">7</Option>
-                <Option value="os" key="os"> os </Option>
-              </Select>
-            </FormItem>
-            ）
-            <Button type="primary">添加</Button>
-          </div>
-          <div className="pointTag"></div>
-        </div>
-      </div>
-      <Title title="服务与服务亲和" />
-      <div className="title">
-        服务与服务亲和
-        <Tooltip placement="top" title='决定服务实例可以和那些服务实例部署在同一拓扑域 (具有相同的主机标签键) 上'>
-          <Icon type="question-circle-o" />
-        </Tooltip>
-      </div>
-      <div>
-        <div className="serverAndServer">
-          <div className="serverAnd">
-          <FormItem
-          id="select"
-          label="当前服务"
-          className="serverLabel"
-          labelCol={{ span: 4 }}
-          wrapperCol={{ span: 2 }}
-          >
-            <Select id="select" size="large" defaultValue="最好" style={{ width: 80 }}>
-              <Option value="最好" key="maybedo">最好</Option>
-              <Option value="最好不" key="donotmust">最好不</Option>
-              <Option value="必须" key="maybedo">必须</Option>
-              <Option value="必须不" key="mustnot">必须不</Option>
-            </Select>
-          </FormItem>
-            <span className="serverText">与服务（  </span>
-            <FormItem
-                id="control-input"
-                wrapperCol={{ span: 14 }}
-              >
-                <Input id="control-input" placeholder="服务标签键" style={{ width: 80 }}/>
-              </FormItem>
-          <FormItem
-            id="select"
-            wrapperCol={{ span: 2 }}
-          >
-            <Select id="select" size="large" defaultValue="操作符" style={{ width: 100 }}>
-              <Option value="in" key="in">in</Option>
-              <Option value="oss" key="not">not in</Option>
-              <Option value=">" key="big"> > </Option>
-              <Option value="&lt;" key="small">	&lt;</Option>
-              <Option value="exists" key="exists">	exists </Option>
-              <Option value="DoesNotExists" key="does">	DoesNotExists </Option>
-            </Select>
-          </FormItem>
-          <FormItem
-            id="control-input"
-            wrapperCol={{ span: 14 }}
-          >
-            <Input id="control-input" placeholder="服务标签键" style={{ width: 90 }}/>
-          </FormItem> ）
-          <span className="serverText"> 在同一拓扑域 </span>
-          <span className="serverText"> (具有相同的主机标签键) </span>
-          <Button type="primary">添加</Button>
-          </div>
-          <div className="serverTag"></div>
-          <FormItem
+      }*/}
 
-        >
-          <Checkbox {...getFieldProps('agreement', { initialValue: true, valuePropName: 'checked' })}>
-            高级设置：【当前服务】中的容器实例最好『分散』再不同的节点上
-          </Checkbox>
-        </FormItem>
-        </div>
-
-      </div>
     </div>
   },
+
   handelhostnameTemplate(){
     const { form, clusterNodes } = this.props
     const { getFieldProps } = form
@@ -365,6 +314,7 @@ const Normal = React.createClass({
       </FormItem>
     </div>
   },
+  //listnodes -8-
   handleBindnodeTypeTemlate(listNodes){
     const { form } = this.props
     const { getFieldProps } = form
@@ -374,15 +324,33 @@ const Normal = React.createClass({
       ],
     })
     switch(listNodes){
-      case 2:
+      case 5:
         return <Radio.Group {...bindNodeTypeProps}>
           <Radio value="hostname">指定主机名及IP上运行</Radio>
         </Radio.Group>
+      case 2:
+        return <Radio.Group {...bindNodeTypeProps}>
+          <Radio value="hostlabel">服务实例与服务实例的亲和性</Radio>
+        </Radio.Group>
       case 3:
+        return <Radio.Group {...bindNodeTypeProps}>
+          <Radio value="hostlabel">定义服务实例与节点亲和性</Radio>
+        </Radio.Group>
+      case 4:
         return <Radio.Group {...bindNodeTypeProps}>
           <Radio value="hostlabel">定义服务实例与节点亲和性 & 服务实例与服务实例的亲和性</Radio>
         </Radio.Group>
-      case 4:
+      case 6:
+        return <Radio.Group {...bindNodeTypeProps}>
+          <Radio value="hostname" key="hostname">指定主机名及IP上运行</Radio>
+          <Radio value="hostlabel" key="hostlabel">服务实例与服务实例的亲和性</Radio>
+        </Radio.Group>
+      case 7:
+        return <Radio.Group {...bindNodeTypeProps}>
+          <Radio value="hostname" key="hostname">指定主机名及IP上运行</Radio>
+          <Radio value="hostlabel" key="hostlabel">定义服务实例与节点亲和性</Radio>
+        </Radio.Group>
+      case 8:
         return <Radio.Group {...bindNodeTypeProps}>
           <Radio value="hostname" key="hostname">指定主机名及IP上运行</Radio>
           <Radio value="hostlabel" key="hostlabel">定义服务实例与节点亲和性 & 服务实例与服务实例的亲和性</Radio>
@@ -396,11 +364,15 @@ const Normal = React.createClass({
     const { getFieldValue } = form
     const values = getFieldValue('bindNodeType')
     switch(listNodes){
-      case 2:
+      case 5:
         return <div>{this.handelhostnameTemplate()}</div>
+      case 2:
       case 3:
-        return <div>{this.handleLabelTemplate()}</div>
       case 4:
+        return <div>{this.handleLabelTemplate()}</div>
+      case 6:
+      case 7:
+      case 8:
         return <div>{
           values == 'hostname'
           ? <div>{this.handelhostnameTemplate()}</div>
@@ -418,6 +390,10 @@ const Normal = React.createClass({
       case 2:
       case 3:
       case 4:
+      case 5:
+      case 6:
+      case 7:
+      case 8:
         return <div >
           <Row>
             <Col span={formItemLayout.labelCol.span} className="title">
@@ -565,6 +541,18 @@ const Normal = React.createClass({
     const GPULimitsProps = getFieldProps('GPULimits', {
       initialValue: RESOURCES_GPU_MIN
     })
+    const schedulerHeader = (
+      <Row className="configBoxHeader" key="header">
+          <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
+            <div className="line"></div>
+            <span className="title">节点调度</span>
+          </Col>
+          <Col span={formItemLayout.wrapperCol.span} key="right">
+            <div className="desc">容器调度策略支持：指定主机名及IP上运行、服务实例与节点亲和性、服务实例与服务实例的亲和性
+              </div>
+          </Col>
+        </Row>
+    )
     return (
       <div id="normalConfigureService">
         <Row className="configBoxHeader" key="header">
@@ -576,6 +564,7 @@ const Normal = React.createClass({
             <div className="desc">服务的计算资源、服务类型、以及实例个数等设置</div>
           </Col>
         </Row>
+
         <div className="body" key="body">
           <Row>
             <Col span={formItemLayout.labelCol.span} className="formItemLabel label">
@@ -607,16 +596,6 @@ const Normal = React.createClass({
               />
             </Col>
           </Row>
-          {
-            // listNode
-            // 1 不可以
-            // 2 通过IP
-            // 3 通过labels
-            // 4 通过IP或labels
-          }
-          <div className='bindNodes'>
-            { !isTemplate && this.handleBindNodeTempalte() }
-          </div>
           <Storage
             formItemLayout={formItemLayout}
             form={form}
@@ -666,6 +645,24 @@ const Normal = React.createClass({
               key="ports"
             />
           }
+          {/* // listNode   left IP   right class pod
+                  1           0               0    0
+                  2           0               0    1
+                  3           0               1    0
+                  4           0               1    1
+                  5           1               0    0
+                  6           1               0    1
+                  7           1               1    0
+                  8           1               1    1   */}
+          <div id='nodeScheduler'>
+            <Collapse>
+              <Panel header={schedulerHeader}>
+                <div className='bindNodes'>
+                  { !isTemplate && this.handleBindNodeTempalte() }
+                </div>
+              </Panel>
+            </Collapse>
+          </div>
         </div>
       </div>
     )
@@ -696,4 +693,8 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   getNodes,
   getClusterLabel,
+  addLabels,
+  getNodeLabels
 })(Normal)
+
+

@@ -1,0 +1,648 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ */
+
+/**
+ * Create app: normal configure for nodeScheduler ( NodeAffinity + PodAffinity )
+ *
+ * v0.1 - 2018-05-06
+ * @author lvjunfeng
+ */
+import React, { PropTypes, Component } from 'react'
+import { Row, Col, Form, InputNumber, Tooltip, Icon, Switch, Select, Radio, Tag,
+     Button, Input, Checkbox, Collapse } from 'antd'
+import Notification from '../../../../../components/Notification'
+import cloneDeep from 'lodash/cloneDeep'
+import isEqual from 'lodash/isEqual'
+import isEmpty from 'lodash/isEmpty'
+
+const FormItem = Form.Item
+const Panel = Collapse.Panel
+const RadioGroup = Radio.Group
+
+class NodeAffinity extends Component {
+  constructor(props) {
+    super(props)
+    this.handleChangeServiceKeyShowValue = this.handleChangeServiceKeyShowValue.bind(this)
+    this.handleChangeServiceContent = this.handleChangeServiceContent.bind(this)
+    this.changeServiceSelectShow = this.changeServiceSelectShow.bind(this)
+    this.showSelectServiceNodeValue = this.showSelectServiceNodeValue.bind(this)
+    this.handleChangeMoreSelect = this.handleChangeMoreSelect.bind(this)
+    this.handleAddLabel = this.handleAddLabel.bind(this)
+    this.formTagContainer = this.formTagContainer.bind(this)
+    this.handleClose = this.handleClose.bind(this)
+    this.state = {
+      showService: 'single',
+      showNodeValue: '',
+    }
+  }
+
+  handleChangeServiceKeyShowValue(value) {
+    const { form } = this.props
+    const { setFieldsValue, resetFields } = form
+    setFieldsValue({serverKey: value})
+    this.setState({
+      showNodeValue: value
+    })
+    resetFields(['serverTagKey'])
+  }
+
+  handleChangeServiceContent(value) {
+    const { form } = this.props
+    const { setFieldsValue, resetFields } = form
+    setFieldsValue({serverMark: value})
+    resetFields(['serverTagKey'])
+    switch (value) {
+      case 'In':
+      case 'NotIn':
+        return this.setState({
+          showService: 'more'
+        })
+      case 'Gt':
+      case 'Lt':
+        return this.setState({
+          showService: 'single'
+        })
+      case 'Exists':
+      case 'DoesNotExists':
+        return this.setState({
+          showService: 'no'
+        })
+    }
+  }
+
+  changeServiceSelectShow() {
+    const { showService } = this.state
+    const { form } = this.props
+    const { getFieldProps } = form
+    switch (showService) {
+      case 'single':
+        return <FormItem id="select" wrapperCol={{ span: 2 }}>
+        <Select id="select" size="large"
+            style={{ width: 120 }}
+            placeholder = '主机标签值'
+          {...getFieldProps('serverTagKey',{
+            rules: [
+              {
+                required: true,
+                message: "“必填信息"
+              }
+            ]
+          })}
+        >
+        {
+          this.props.allTag.length>0?
+          this.showSelectServiceNodeValue()
+          :null
+        }
+        </Select>
+      </FormItem>
+      case 'more':
+        return <FormItem id="select" wrapperCol={{ span: 2 }}>
+          <Select
+            multiple
+            style={{ width: 260 ,height:30 }}
+            placeholder = '主机标签值'
+            {...getFieldProps('serverTagKey',{
+              rules: [
+                {
+                  required: true,
+                  message: "“必填信息"
+                }
+              ]
+            })}
+            onChange={this.handleChangeMoreSelect}
+          >
+            {
+              this.props.allTag.length>0?
+              this.showSelectServiceNodeValue()
+              :null
+            }
+          </Select>
+        </FormItem>
+      case 'no':
+        return null
+      default:
+        return null
+    }
+  }
+
+  //  key select content
+  showSelectServiceNodeValue() {
+    const { showNodeValue } = this.state
+    const { form, allTag} = this.props
+    const { setFieldsValue } = form
+    const options = []
+    allTag.map( item=>{
+      if (item.hasOwnProperty(showNodeValue)) {
+        item[showNodeValue].map( ele=>{
+          options.push(<Select.Option value={ele} key={item.index + ele}>{ele}</Select.Option>)
+        })
+      }
+    })
+    return options
+  }
+
+  // more onchange
+  handleChangeMoreSelect(value) {
+    const { form } = this.props
+    const { setFieldsValue } = form
+    setFieldsValue({serverTagKey: value})
+  }
+
+  handleAddLabel() {
+    const { fields, form } = this.props
+    const { validateFields, setFieldsValue, getFieldProps, resetFields, getFieldsValue } = form
+    const  notificat = new Notification()
+    let serviceTag = []
+    if (fields.serviceTag && fields.serviceTag.value && fields.serviceTag.value.length>0) {
+      serviceTag = fields.serviceTag.value
+    }
+    let cloneTag = cloneDeep(serviceTag)
+    let flag = true
+    let fieldsArr = []
+    let resetArr = []
+    const mark = getFieldsValue(['serverMark'])
+    if (mark.serverMark=='Exists' || mark.serverMark=='DoesNotExists') {
+      fieldsArr = ['serverKey','serverPoint','serverMark']
+    }else {
+      fieldsArr = ['serverKey','serverPoint','serverTagKey','serverMark']
+    }
+    validateFields( fieldsArr,(errors, values) => {
+      if (errors) {
+        return
+      }
+      let newlabel = {}
+      if ( values.serverMark == 'Exists' ||  values.serverMark=='DoesNotExists'  ) {
+        newlabel = {
+          key: values.serverKey,
+          mark: values.serverMark,
+          point: values.serverPoint,
+        }
+      }else if (values.serverMark=='In' ||  values.serverMark=='NotIn') {
+        let str = ''
+        values.serverTagKey.map( item=>{
+          str += item +','
+        })
+        str = str.substr(0, str.length-1);
+        newlabel = {
+          key: values.serverKey,
+          value: str,
+          mark: values.serverMark,
+          point: values.serverPoint,
+        }
+      }else{
+        newlabel = {
+          key: values.serverKey,
+          value: values.serverTagKey,
+          mark: values.serverMark,
+          point: values.serverPoint,
+        }
+      }
+      if (!cloneTag.length) {
+        cloneTag.push(newlabel)
+      }else if (cloneTag.length) {
+        cloneTag.map( item => {
+          if (isEqual(item, newlabel)) {
+            flag = false
+            notificat.info('已添加')
+          }
+        })
+        if (flag) {
+          cloneTag.push(newlabel)
+        }
+      }
+      this.props.parentsForm.setFieldsValue({
+        serviceTag: cloneTag
+      })
+      resetFields()
+    })
+  }
+
+  formTagContainer(){
+    const { fields } = this.props
+    let serviceTag = []
+    if (fields.serviceTag && fields.serviceTag.value) {
+      serviceTag = fields.serviceTag.value
+    }
+    const arr = serviceTag.map((_item, index) => {
+      const item = cloneDeep(_item)
+      if ( item.point === '必须' ) {
+        item.color = "#2db7f5"
+        item.class = 'tag-font-white'
+      }else if (item.point === '最好') {
+        item.color = '#f3fbfe'
+        item.class = "tag-font-blue"
+      }
+      return (
+        <Tag
+          closable
+          onClose={() => this.handleClose(item)}
+          className={ item.class }
+          color={item.color}
+          key={item.point + item.key + item.mark + item.value}
+        >
+          <span>{item.point}</span>
+          <span> | </span>
+          <span>{item.key} </span>
+          {item.mark== 'Gt' ? '>' :null}
+          {item.mark== 'Lt' ? '<' :null}
+          {item.mark!= 'Gt' && item.mark!= 'Lt'? <span> {item.mark} </span> :null}
+          {
+            item.value ?
+            <span> {item.value} </span>
+            : null
+          }
+        </Tag>
+      )
+    })
+    return arr
+  }
+
+  handleClose(item) {
+    const { form, fields, serviceTag } = this.props
+    const { setFieldsValue } = form
+    const tag = cloneDeep(serviceTag)
+    tag.map( (ele,index)=>{
+      if( ele.key == item.key
+          && ele.value == item.value
+          && ele.point == item.point
+          && ele.mark == item.mark){
+        tag.splice(index, 1)
+        this.props.parentsForm.setFieldsValue({
+          serviceTag: tag
+        })
+      }
+    })
+  }
+
+  render() {
+    const { form, serviceTag } = this.props
+    const { getFieldProps } = form
+    return <div>
+      <div className="serverAndPoint">
+        <div className="serverAnd">
+          <FormItem
+          id="select"
+          label="当前服务"
+          labelCol={{ span: 4 }}
+          wrapperCol={{ span: 2 }}
+          >
+            <Select id="select" size="large" style={{ width: 80 }}
+              {...getFieldProps('serverPoint',{
+                rules: [
+                  {
+                    required: true,
+                    message: "“必填信息"
+                  }
+                ],
+                initialValue: '最好',
+              })} >
+              <Select.Option value="最好" key="maybe">最好</Select.Option>
+              <Select.Option value="必须" key="must">必须</Select.Option>
+            </Select>
+          </FormItem>
+            <span className="serverText"> 调度到主机（ </span>
+          <FormItem
+            id="select"
+            wrapperCol={{ span: 2 }}
+          >
+            <Select id="select" size="large" style={{ width: 200 }}
+              placeholder = "主机标签键"
+              {...getFieldProps('serverKey',{
+                rules: [
+                  {
+                    required: true,
+                    message: "“必填信息"
+                  }
+                ],
+              })}
+              onChange={this.handleChangeServiceKeyShowValue}
+            >
+            {
+              this.props.allTag.length >0 ?
+              this.props.allTag.map( (item,index)=>{
+                const itemKey = Object.keys(item)[0]
+                return <Select.Option value={itemKey} key={item.index + itemKey}>{itemKey}</Select.Option>
+              })
+              : null
+            }
+            </Select>
+          </FormItem>
+          <FormItem
+            id="select"
+            wrapperCol={{ span: 2 }}
+          >
+            <Select id="select" size="large" placeholder="操作符" style={{ width: 100 }}
+              {...getFieldProps('serverMark',{
+                rules: [
+                  {
+                    required: true,
+                    message: "“必填信息"
+                  }
+                ]
+              })}
+              onChange={this.handleChangeServiceContent}
+            >
+              <Select.Option value="In" key="in">In</Select.Option>
+              <Select.Option value="NotIn" key="not">NotIn</Select.Option>
+              <Select.Option value="Gt" key="big"> > </Select.Option>
+              <Select.Option value="Lt" key="small">	&lt;</Select.Option>
+              <Select.Option value="Exists" key="exists">	Exists </Select.Option>
+              <Select.Option value="DoesNotExists" key="does">	DoesNotExists </Select.Option>
+            </Select>
+          </FormItem>
+          {
+            this.changeServiceSelectShow()
+          }
+          <span> ） </span>
+          <Button type="primary" onClick = { this.handleAddLabel } className="handleBtn" >添加</Button>
+        </div>
+        <div className='pointTag'>
+          {
+            !isEmpty(serviceTag) &&
+            <Form.Item >
+              { this.formTagContainer() }
+            </Form.Item>
+          }
+        </div>
+      </div>
+    </div>
+  }
+}
+NodeAffinity = Form.create({})(NodeAffinity);
+
+class PodAffinity extends Component {
+  constructor(props) {
+    super(props)
+    this.handleChangeServicerBetweenContent = this.handleChangeServicerBetweenContent.bind(this)
+    this.changeServiceBetweenSelectShow = this.changeServiceBetweenSelectShow.bind(this)
+
+    this.handleAddBottomLabel = this.handleAddBottomLabel.bind(this)
+    this.formTagBottomContainer = this.formTagBottomContainer.bind(this)
+    this.handleBottomClose = this.handleBottomClose.bind(this)
+    this.state = {
+      showServiceBetween: 'single',
+    }
+  }
+
+  handleChangeServicerBetweenContent(value) {
+    const { form } = this.props
+    const { setFieldsValue } = form
+    setFieldsValue({serverBottomMark: value})
+    switch (value) {
+      case 'In':
+      case 'NotIn':
+        return this.setState({
+          showServiceBetween: 'single'
+        })
+      case 'Exists':
+      case 'DoesNotExists':
+        return this.setState({
+          showServiceBetween: 'no'
+        })
+    }
+  }
+
+  changeServiceBetweenSelectShow() {
+    const { showServiceBetween } = this.state
+    const { form } = this.props
+    const { getFieldProps } = form
+    switch (showServiceBetween) {
+      case 'single':
+        return <FormItem
+          id="control-input"
+          wrapperCol={{ span: 14 }}
+        >
+          <Input id="control-input" placeholder="服务标签值，e.g. abc,123" style={{ width: 155 }}
+            {...getFieldProps('serverBottomValue',{
+              rules: [
+                {
+                  required: true,
+                  message: "“必填信息"
+                }
+              ]
+            })}
+          />
+        </FormItem>
+      case 'no':
+        return null
+    }
+  }
+
+  handleAddBottomLabel() {
+    const { fields, form } = this.props
+    const { validateFields, setFieldsValue, resetFields, getFieldsValue } = form
+    const  notificat = new Notification()
+    let serviceBottomTag = []
+    if (fields.serviceBottomTag && fields.serviceBottomTag.value && fields.serviceBottomTag.value.length>0) {
+      serviceBottomTag = fields.serviceBottomTag.value
+    }
+    let cloneTag = cloneDeep(serviceBottomTag)
+    let flag = true
+    let fieldsArr = []
+    let resetArr = []
+    const mark = getFieldsValue(['serverBottomMark'])
+    if (mark.serverBottomMark=='Exists' || mark.serverBottomMark=='DoesNotExists') {
+      fieldsArr = ['serverBottomKey','serverBottomMark','serverBottomPoint']
+    }else {
+      fieldsArr = ['serverBottomKey','serverBottomValue','serverBottomMark','serverBottomPoint']
+    }
+    validateFields( fieldsArr ,(errors,values)=>{
+      if (errors) {
+        return
+      }
+      let newlabel = {}
+      if (values.serverBottomMark == 'Exists' ||  values.serverBottomMark== 'DoesNotExists') {
+        newlabel = {
+          key: values.serverBottomKey,
+          mark: values.serverBottomMark,
+          point: values.serverBottomPoint,
+        }
+      }else{
+        newlabel = {
+          key: values.serverBottomKey,
+          value: values.serverBottomValue,
+          mark: values.serverBottomMark,
+          point: values.serverBottomPoint,
+        }
+      }
+      if (!cloneTag.length) {
+        cloneTag.push(newlabel)
+      }else if (cloneTag.length) {
+        cloneTag.map( item => {
+          if (isEqual(item, newlabel)) {
+            flag = false
+            notificat.info('已添加')
+          }
+        })
+        if (flag) {
+          cloneTag.push(newlabel)
+        }
+      }
+      this.props.parentsForm.setFieldsValue({
+        serviceBottomTag: cloneTag
+      })
+      resetFields()
+    })
+  }
+
+  formTagBottomContainer(){
+    const { fields } = this.props
+    let serviceBottomTag = []
+    if (fields.serviceBottomTag && fields.serviceBottomTag.value) {
+      serviceBottomTag = fields.serviceBottomTag.value
+    }
+    const cloneLabel = cloneDeep(serviceBottomTag)
+    const arr = cloneLabel.map((item, index) => {
+      if ( item.point === '必须' ) {
+        item.color = "#2db7f5"
+        item.class = 'tag-font-white'
+      }else if (item.point === '最好') {
+        item.color = '#f3fbfe'
+        item.class = "tag-font-blue"
+      }else if (item.point === '必须不') {
+        item.color = '#f85a59'
+        item.class = "tag-font-white"
+      }else if (item.point === '最好不') {
+        item.color = '#fef2f2'
+        item.class = "tag-font-orign"
+      }
+      return (
+        <Tag
+          closable
+          onClose={() => this.handleBottomClose(item)}
+          className = { item.class }
+          color={item.color}
+          key={item.point + item.key + item.mark + item.value}
+        >
+          <span> {item.point} </span>
+          <span> | </span>
+          <span> {item.key} </span>
+          <span> {item.mark} </span>
+          {
+           item.value ?
+           <span> {item.value} </span>
+           : null
+          }
+        </Tag>
+      )
+    })
+    return arr
+  }
+
+  handleBottomClose(item){
+    const { form, fields, serviceBottomTag } = this.props
+    const { setFieldsValue } = form
+    const tag = cloneDeep(serviceBottomTag)
+    tag.map( (ele,index)=>{
+      if( ele.key == item.key
+          && ele.value == item.value
+          && ele.point == item.point
+          && ele.mark == item.mark) {
+        tag.splice(index, 1)
+        this.props.parentsForm.setFieldsValue({
+          serviceBottomTag: tag
+        })
+      }
+    })
+  }
+
+  render() {
+    const { form, serviceBottomTag } = this.props
+    const { getFieldProps } = form
+    return <div>
+      <div className="serverAndServer">
+        <div className="serverAnd">
+        <FormItem
+        id="select"
+        label="当前服务"
+        className="serverLabel"
+        labelCol={{ span: 4 }}
+        wrapperCol={{ span: 2 }}
+        >
+          <Select id="select" size="large" style={{ width: 80 }}
+            {...getFieldProps('serverBottomPoint',{
+              rules: [
+                {
+                  required: true,
+                  message: "“必填信息"
+                }
+              ],
+              initialValue: '最好',
+            })}
+          >
+            <Select.Option value="最好" key="maybedo">最好</Select.Option>
+            <Select.Option value="最好不" key="donotmust">最好不</Select.Option>
+            <Select.Option value="必须" key="maybedo">必须</Select.Option>
+            <Select.Option value="必须不" key="mustnot">必须不</Select.Option>
+          </Select>
+        </FormItem>
+          <span className="serverText"> 与服务（  </span>
+          <FormItem
+              id="control-input"
+              wrapperCol={{ span: 14 }}
+            >
+              <Input id="control-input" placeholder="服务标签键" style={{ width: 80 }}
+                {...getFieldProps('serverBottomKey',{
+                  rules: [
+                    {
+                      required: true,
+                      message: "“必填信息"
+                    }
+                  ]
+                })}
+              />
+            </FormItem>
+        <FormItem
+          id="select"
+          wrapperCol={{ span: 2 }}
+        >
+          <Select id="select" size="large" style={{ width: 100 }}
+              placeholder = '操作符'
+            {...getFieldProps('serverBottomMark',{
+              rules: [
+                {
+                  required: true,
+                  message: "“必填信息"
+                }
+              ]
+            })}
+            onChange={this.handleChangeServicerBetweenContent}
+          >
+            <Select.Option value="In" key="in">In</Select.Option>
+            <Select.Option value="NotIn" key="not">notin</Select.Option>
+            <Select.Option value="Exists" key="exists">	exists </Select.Option>
+            <Select.Option value="DoesNotExists" key="does">	DoesNotExists </Select.Option>
+          </Select>
+        </FormItem>
+        {
+          this.changeServiceBetweenSelectShow()
+        }
+        <span className="serverText">)</span>
+        <span className="serverText"> 在同一拓扑域</span>
+        <span className="serverText"> (具有相同的主机标签键) </span>
+        <Button type="primary"  onClick = { this.handleAddBottomLabel } className="handleBtn">添加</Button>
+        </div>
+        <div className="serverTag">
+          {
+          !isEmpty(serviceBottomTag) &&
+          <Form.Item >
+            { this.formTagBottomContainer() }
+          </Form.Item>
+          }
+        </div>
+        <FormItem>
+        <Checkbox {...getFieldProps('agreement', { initialValue: false, valuePropName: 'checked' })}>
+          高级设置：【当前服务】中的容器实例最好『分散』再不同的节点上
+        </Checkbox>
+      </FormItem>
+      </div>
+    </div>
+  }
+}
+PodAffinity = Form.create({})(PodAffinity);
+
+export { NodeAffinity, PodAffinity }
+

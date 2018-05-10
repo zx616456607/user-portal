@@ -56,6 +56,7 @@ const appStoreController = require('../controllers/app_store')
 const loadBalanceController = require('../controllers/load_balance')
 const helmTemplateController = require('../controllers/template')
 const autoScalerController = require('../controllers/autoscaler')
+const schedulerController = require('../controllers/scheduler')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -776,5 +777,12 @@ module.exports = function (Router) {
   router.get('/clusters/autoscaler/app/log', autoScalerController.getLogs)
 
   router.get('/clusters/autoscaler/resource', autoScalerController.getRes)
+
+  // scheduler
+  router.get('/clusters/:cluster/services', schedulerController.getAllServiceTag)
+  router.post('/clusters/:cluster/services/:service/labels', schedulerController.addServiceTag)
+  router.put('/clusters/:cluster/services/:service/labels', schedulerController.updataServiceTag)
+  router.del('/clusters/:cluster/services/:service/labels/:labels', schedulerController.delateServiceTag)
+
   return router.routes()
 }
