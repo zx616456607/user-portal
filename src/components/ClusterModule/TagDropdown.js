@@ -87,11 +87,8 @@ class TagDropdown extends Component {
         newData[label.key].push(label)
       } else {
         newData[label.key] = [label]
-        // newData[label.affinity] = []     //label的信息
-        //console.log( "label",newData )
       }
     })
-    console.log( "newData",newData )
     let arr = []
     for (let i in newData) {
       let item = {}
@@ -332,7 +329,7 @@ class ManageTagModal extends Component {
           })
         }
       } else {
-        //console.log('href....',this.props.scope)
+        //  ('href....',this.props.scope)
         // ManagLabelModal.js in scope
         let userCreateLabel = cloneDeep(scope.state.userCreateLabel)
         userCreateLabel[obj.keyPath[1]] = obj.keyPath[0]

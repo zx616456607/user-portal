@@ -685,7 +685,6 @@ class ServiceList extends Component {
       pageSize: size,
       name
     }
-    console.log( 'name',name ,'setState:searchValue')
     if(name) {
       this.setState({
         searchInputValue: name
