@@ -203,6 +203,7 @@ class ShareMemory extends Component {
           func: () => {
             this.setState({
               confirmLoading: false,
+              modalStorageType: 'nfs'
             })
           }
         }
@@ -477,7 +478,7 @@ class ShareMemory extends Component {
             visible={createShareMemoryVisible}
             closable={true}
             onOk={() => this.confirmCreateShareMemory()}
-            onCancel={() => this.setState({createShareMemoryVisible:false})}
+            onCancel={() => this.setState({createShareMemoryVisible:false, modalStorageType: 'nfs'})}
             width="570px"
             maskClosable={false}
             confirmLoading={confirmLoading}
