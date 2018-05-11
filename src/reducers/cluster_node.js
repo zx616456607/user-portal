@@ -44,6 +44,19 @@ function getAllClusterNodes(state = {}, action) {
           nodes: Object.assign({}, state[cluster].nodes, action.response.result.data || {})
         }
       })
+    case ActionTypes.GET_CLUSTER_RESOURCE_CONSUMPTION_SUCCESS:
+      return Object.assign({}, state, {
+        [cluster]: {
+          isFetching: false,
+          nodes: Object.assign(
+            {},
+            state[cluster].nodes,
+            {
+              resourceConsumption: action.response.result.data || {}
+            }
+          )
+        }
+      })
     case ActionTypes.GET_ALL_CLUSTER_NODES_FAILURE:
       return merge({}, defaultState, state, {
         [cluster]: {

@@ -66,6 +66,39 @@ export function getClusterNodesMetrics(cluster, query, callback) {
   }
 }
 
+export const GET_CLUSTER_RESOURCE_CONSUMPTION_REQUEST = 'GET_CLUSTER_RESOURCE_CONSUMPTION_REQUEST'
+export const GET_CLUSTER_RESOURCE_CONSUMPTION_SUCCESS = 'GET_CLUSTER_RESOURCE_CONSUMPTION_SUCCESS'
+export const GET_CLUSTER_RESOURCE_CONSUMPTION_FAILURE = 'GET_CLUSTER_RESOURCE_CONSUMPTION_FAILURE'
+
+function fetchClusterResourceConsumption(cluster, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${cluster}/nodes/resource-consumption`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [
+        GET_CLUSTER_RESOURCE_CONSUMPTION_REQUEST,
+        GET_CLUSTER_RESOURCE_CONSUMPTION_SUCCESS,
+        GET_CLUSTER_RESOURCE_CONSUMPTION_FAILURE
+      ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'GET'
+      },
+    },
+    callback
+  }
+}
+
+export function getClusterResourceConsumption(cluster, query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchClusterResourceConsumption(cluster, query, callback))
+  }
+}
+
 export const CHANGE_CLUSTER_NODE_SCHEDULE_REQUEST = 'CHANGE_CLUSTER_NODE_SCHEDULE_REQUEST'
 export const CHANGE_CLUSTER_NODE_SCHEDULE_SUCCESS = 'CHANGE_CLUSTER_NODE_SCHEDULE_SUCCESS'
 export const CHANGE_CLUSTER_NODE_SCHEDULE_FAILURE = 'CHANGE_CLUSTER_NODE_SCHEDULE_FAILURE'
@@ -451,5 +484,5 @@ const fetchNotMigratedPodCount = (cluster, name, callback) => {
   }
 }
 
-export const getNotMigratedPodCount = (cluster, name, callback) => 
+export const getNotMigratedPodCount = (cluster, name, callback) =>
   dispatch => dispatch(fetchNotMigratedPodCount(cluster, name, callback))
