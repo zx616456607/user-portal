@@ -383,7 +383,9 @@ class ShareMemory extends Component {
     const paginationProps = {
       simple: true,
       current: parseInt(query.page) || 1,
-      onChange: page => adjustBrowserUrl(location, mergedQuery),
+      onChange: (page) => {
+        adjustBrowserUrl(location, Object.assign({}, mergedQuery, {page}));
+      },
     }
     return(
       <QueueAnim className='share_memory'>
