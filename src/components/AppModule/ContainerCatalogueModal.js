@@ -98,35 +98,41 @@ let ContainerCatalogueModal = React.createClass({
       'readOnly',
     ])
     if (type == 'private') {
-      loadFreeVolume(clusterID, { srtype: 'private' })
-      setFieldsValue({
-        type_1: 'rbd',
+      loadFreeVolume(clusterID, { srtype: 'private' }, {
+        success:{
+          func: (res) => {
+
+          },
+          isAsync: true
+        }
+      }).then(() =>{
+        setFieldsValue({
+          type_1: 'rbd',
+          type: 'private'
+        })
+        resetFields([
+          "volume"
+        ])
       })
-      resetFields([
-        "volume"
-      ])
     }
     if (type === 'share') {
       loadFreeVolume(clusterID, { srtype: 'share', storagetype: this.state.type_1Value }, {
         success:{
           func: (res) => {
-            //success
+
           },
           isAsync: true
         }
+      }).then(() =>{
+        setFieldsValue({
+          type_1: 'nfs',
+          type: 'share'
+        })
+        resetFields([
+          "volume"
+        ])
       })
-      setFieldsValue({
-        type_1: 'nfs',
-      })
-      resetFields([
-        "volume"
-      ])
     }
-    /* if (type == 'host') {
-      setFieldsValue({
-        'strategy': true
-      })
-    } */
   },
 
   checkVolumeName(rule, value, callback) {
