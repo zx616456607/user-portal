@@ -89,7 +89,6 @@ class TagDropdown extends Component {
         newData[label.key] = [label]
       }
     })
-
     let arr = []
     for (let i in newData) {
       let item = {}
@@ -119,6 +118,8 @@ class TagDropdown extends Component {
           {tagvalue[index]}
         </SubMenu>
       })
+      //neirong
+
     } else {
       result =  <Menu.Item className='notag'>暂无标签</Menu.Item>
     }
@@ -210,6 +211,7 @@ class TagDropdown extends Component {
             {this.handleDropdownContext()}
           </Button>
         </Dropdown>
+
       </div>
     )
   }
@@ -327,7 +329,7 @@ class ManageTagModal extends Component {
           })
         }
       } else {
-        //console.log('href....',this.props.scope)
+        //  ('href....',this.props.scope)
         // ManagLabelModal.js in scope
         let userCreateLabel = cloneDeep(scope.state.userCreateLabel)
         userCreateLabel[obj.keyPath[1]] = obj.keyPath[0]

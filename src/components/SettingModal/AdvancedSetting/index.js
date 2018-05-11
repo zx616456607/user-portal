@@ -11,10 +11,11 @@ import React, { Component, propTypes } from 'react'
 import { Switch, Checkbox, Spin, Modal, Icon, Form, Radio, Button, Card, Tooltip } from 'antd';
 import './style/AdvancedSetting.less'
 import { connect } from 'react-redux'
+import Scheduler from './Scheduler.js'
 import { updateClusterConfig } from '../../../actions/cluster'
 import { setCurrent } from '../../../actions/entities'
 import { updateConfigurations, getConfigurations } from '../../../actions/harbor'
-import { saveGlobalConfig, getConfigByType, updateGlobalConfig } from '../../../actions/global_config'
+import { saveGlobalConfig, getConfigByType, updateGlobalConfig, } from '../../../actions/global_config'
 import { loadLoginUserDetail } from '../../../actions/entities'
 import NotificationHandler from '../../../components/Notification'
 import { DEFAULT_REGISTRY } from '../../../constants'
@@ -26,31 +27,28 @@ const RadioGroup = Radio.Group;
 class AdvancedSetting extends Component {
   constructor(props){
     super(props)
-    this.handleSwitch = this.handleSwitch.bind(this)
+    //this.handleSwitch = this.handleSwitch.bind(this)
     this.handleTradition = this.handleTradition.bind(this)
-    this.handleName = this.handleName.bind(this)
-    this.handleTag = this.handleTag.bind(this)
-    this.updataClusterListNodes = this.updataClusterListNodes.bind(this)
+    //this.handleName = this.handleName.bind(this)
+    //this.handleTag = this.handleTag.bind(this)
+    //this.updataClusterListNodes = this.updataClusterListNodes.bind(this)
     this.handleConfirmTradition = this.handleConfirmTradition.bind(this)
     this.handleCancelTradition = this.handleCancelTradition.bind(this)
-    this.handleConfirmSwitch = this.handleConfirmSwitch.bind(this)
-    this.handleCancelSwitch = this.handleCancelSwitch.bind(this)
-    this.handleListNodeStatus = this.handleListNodeStatus.bind(this)
-    this.handleUpdataConfigMessage = this.handleUpdataConfigMessage.bind(this)
+    //this.handleConfirmSwitch = this.handleConfirmSwitch.bind(this)
+    //this.handleCancelSwitch = this.handleCancelSwitch.bind(this)
+    //this.handleListNodeStatus = this.handleListNodeStatus.bind(this)
+    //this.handleUpdataConfigMessage = this.handleUpdataConfigMessage.bind(this)
     this.handleImageProjectRight = this.handleImageProjectRight.bind(this)
     this.handleCancelImageProjectRight = this.handleCancelImageProjectRight.bind(this)
     this.handleSaveImageProjectRight = this.handleSaveImageProjectRight.bind(this)
-    this.changeEditionStatus = this.changeEditionStatus.bind(this)
-    this.candleEditionPoint = this.candleEditionPoint.bind(this)
-    this.saveEditionPoint = this.saveEditionPoint.bind(this)
     this.state = {
-      swicthChecked: true,
+      //swicthChecked: true,
       switchVisible: false,
-      Ipdisabled: false,
-      Tagdisabled: false,
-      switchdisable: false,
-      Ipcheckbox: false,
-      TagCheckbox: false,
+      //Ipdisabled: false,
+      //Tagdisabled: false,
+      // switchdisable: false,
+      // Ipcheckbox: true,
+      // TagCheckbox: true,
       confirmlodaing: false,
       imageProjectRightIsEdit: false,
       traditionDisable: false,
@@ -58,14 +56,11 @@ class AdvancedSetting extends Component {
       traditionBtnLoading: false,
       traditionChecked: props.vmWrapConfig.enabled || false,
       isTradition: false,
-      startEdition: true,
     }
   }
 
   componentWillMount(){
-    const { cluster, getConfigurations, harbor, billingConfig } = this.props
-    const { listNodes } = cluster
-    this.handleListNodeStatus(listNodes)
+    const { getConfigurations, harbor, billingConfig } = this.props
     if(!harbor.hasAdminRole) {
       return
     }
@@ -100,37 +95,38 @@ class AdvancedSetting extends Component {
       billingChecked: enabled
     })
   }
-  handleUpdataConfigMessage(status,num){
-    const Notification = new NotificationHandler()
-    if(status == 'success'){
-      switch(num){
-        case 1:
-          return Notification.success('关闭绑定节点成功！')
-        case 2:
-          return Notification.success('开启【主机名及IP】绑定成功！')
-        case 3:
-          return Notification.success('开启【主机标签】绑定成功！')
-        case 4:
-          return Notification.success('开启【主机名及IP】与【主机标签】绑定成功！')
-        default:
-          return
-      }
-    }
-    if(status == 'failed'){
-      switch(num){
-        case 1:
-          return Notification.success('关闭绑定节点失败！')
-        case 2:
-          return Notification.success('开启【主机名及IP】绑定失败！')
-        case 3:
-          return Notification.success('开启【主机标签】绑定失败！')
-        case 4:
-          return Notification.success('开启【主机名及IP】与【主机标签】绑定失败！')
-        default:
-          return
-      }
-    }
-  }
+
+  // handleUpdataConfigMessage(status,num){
+  //   const Notification = new NotificationHandler()
+  //   if(status == 'success'){
+  //     switch(num){
+  //       case 1:
+  //         return Notification.success('关闭绑定节点成功！')
+  //       case 2:
+  //         return Notification.success('开启【主机名及IP】绑定成功！')
+  //       case 3:
+  //         return Notification.success('开启【主机标签】绑定成功！')
+  //       case 4:
+  //         return Notification.success('开启【主机名及IP】与【主机标签】绑定成功！')
+  //       default:
+  //         return
+  //     }
+  //   }
+  //   if(status == 'failed'){
+  //     switch(num){
+  //       case 1:
+  //         return Notification.success('关闭绑定节点失败！')
+  //       case 2:
+  //         return Notification.success('开启【主机名及IP】绑定失败！')
+  //       case 3:
+  //         return Notification.success('开启【主机标签】绑定失败！')
+  //       case 4:
+  //         return Notification.success('开启【主机名及IP】与【主机标签】绑定失败！')
+  //       default:
+  //         return
+  //     }
+  //   }
+  // }
 
   handleTraditionMessage(num){
     const Notification = new NotificationHandler()
@@ -142,81 +138,82 @@ class AdvancedSetting extends Component {
     }
   }
 
-  handleListNodeStatus(listNodes){
-    switch(listNodes){
-      case 0:
-      case 1:
-        return this.setState({
-          swicthChecked: false,
-        })
-      case 2:
-        return this.setState({
-          swicthChecked: true,
-          Ipcheckbox: true,
-          TagCheckbox: false,
-        })
-      case 3:
-        return this.setState({
-          swicthChecked: true,
-          Ipcheckbox: false,
-          TagCheckbox: true,
-        })
-      case 4:
-        return this.setState({
-          swicthChecked: true,
-          Ipcheckbox: true,
-          TagCheckbox: true,
-        })
-      default:
-        return this.setState({
-          swicthChecked: false,
-        })
-    }
-  }
+//   handleListNodeStatus(listNodes){
+//     switch(listNodes){
+//       case 0:
+//       case 1:
+//         return this.setState({
+//           swicthChecked: false,
+//         })
+//       case 2:
+//         return this.setState({
+//           swicthChecked: true,
+//           Ipcheckbox: true,
+//           TagCheckbox: false,
+//         })
+//       case 3:
+//         return this.setState({
+//           swicthChecked: true,
+//           Ipcheckbox: false,
+//           TagCheckbox: true,
+//         })
+//       case 4:
+//         return this.setState({
+//           swicthChecked: true,
+//           Ipcheckbox: true,
+//           TagCheckbox: true,
+//         })
+//       default:
+//         return this.setState({
+//           swicthChecked: false,
+//         })
+//     }
+//   }
 
+//?????
   componentWillReceiveProps(nextProps){
     const num = nextProps.cluster.listNodes
     if(!this.props.cluster.listNodes || this.props.cluster.clusterID !== nextProps.cluster.clusterID || this.props.cluster.listNodes !== nextProps.cluster.listNodes){
-      this.handleListNodeStatus(num)
+      //this.handleListNodeStatus(num)
     }
   }
 
-  updataClusterListNodes(num){
-    const {updateClusterConfig, cluster, setCurrent} = this.props
-    const {clusterID} = cluster
-    this.setState({
-      confirmlodaing: true
-    })
-    updateClusterConfig(clusterID, {ListNodes: num}, {
-      success: {
-        func: () =>{
-          cluster.listNodes = num
-          setCurrent({
-            cluster,
-          })
-          this.handleUpdataConfigMessage('success',num)
-          this.setState({
-            switchdisable: false,
-            Tagdisabled: false,
-            Ipdisabled: false,
-            confirmlodaing: false
-          })
-          this.handleListNodeStatus(num)
-        },
-        isAsync: true
-      },
-      falied: {
-        func: () => {
-          this.handleUpdataConfigMessage('failed',num)
-          this.setState({
-            switchdisable: false,
-            Tagdisabled: false,
-            Ipdisabled: false,
-          })
-        }
-      }
-    })
-  }
+  // updataClusterListNodes(num){
+  //   const {updateClusterConfig, cluster, setCurrent} = this.props
+  //   const {clusterID} = cluster
+  //   this.setState({
+  //     confirmlodaing: true
+  //   })
+  //   updateClusterConfig(clusterID, {ListNodes: num}, {
+  //     success: {
+  //       func: () =>{
+  //         cluster.listNodes = num
+  //         setCurrent({
+  //           cluster,
+  //         })
+  //         //this.handleUpdataConfigMessage('success',num)
+  //         this.setState({
+  //           switchdisable: false,
+  //           Tagdisabled: false,
+  //           Ipdisabled: false,
+  //           confirmlodaing: false
+  //         })
+  //         this.handleListNodeStatus(num)
+  //       },
+  //       isAsync: true
+  //     },
+  //     falied: {
+  //       func: () => {
+  //         //this.handleUpdataConfigMessage('failed',num)
+  //         this.setState({
+  //           switchdisable: false,
+  //           Tagdisabled: false,
+  //           Ipdisabled: false,
+  //         })
+  //       }
+  //     }
+  //   })
+  // }
 
   TraditionState(ListNode){
     switch (ListNode){
@@ -239,14 +236,14 @@ class AdvancedSetting extends Component {
     }
   }
 
-  handleSwitch(){
-    return this.setState({
-      switchVisible: true,
-      switchdisable: true,
-      Ipdisabled: true,
-      Tagdisabled: true,
-    })
-  }
+  // handleSwitch(){
+  //   return this.setState({
+  //     switchVisible: true,
+  //     switchdisable: true,
+  //     Ipdisabled: true,
+  //     Tagdisabled: true,
+  //   })
+  // }
   vmInfo(){
     Modal.info({
       title: '请先完成全局配置内传统应用配置',
@@ -385,84 +382,84 @@ class AdvancedSetting extends Component {
     })
   }
 
-  handleConfirmSwitch(){
-    const { swicthChecked } = this.state
-    this.setState({
-      switchVisible : false
-    })
-    if(swicthChecked == true){
-      this.updataClusterListNodes(1)
-      return
-    }
-    if(swicthChecked == false){
-      this.updataClusterListNodes(2)
-      return
-    }
-  }
+  // handleConfirmSwitch(){
+  //   const { swicthChecked } = this.state
+  //   this.setState({
+  //     switchVisible : false
+  //   })
+  //   if(swicthChecked == true){
+  //     this.updataClusterListNodes(1)
+  //     return
+  //   }
+  //   if(swicthChecked == false){
+  //     this.updataClusterListNodes(2)
+  //     return
+  //   }
+  // }
 
-  handleCancelSwitch(){
-    this.setState({
-      switchVisible: false,
-      switchdisable: false,
-      Ipdisabled: false,
-      Tagdisabled: false,
-    })
-  }
-
-  handleName(){
-    const { Ipcheckbox, TagCheckbox } = this.state
-    this.setState({
-      Ipdisabled: true,
-      Tagdisabled: true,
-    })
-    if(TagCheckbox == true){
-      switch(Ipcheckbox){
-        case true:
-          return this.updataClusterListNodes(3)
-        case false:
-          return this.updataClusterListNodes(4)
-        default:
-          return
-      }
-    }
-    if(TagCheckbox == false){
-      switch(Ipcheckbox){
-        case true:
-          return this.updataClusterListNodes(1)
-        case false:
-        default:
-          return
-      }
-    }
-  }
-
-  handleTag(){
-    const { Ipcheckbox, TagCheckbox } = this.state
-    this.setState({
-      Ipdisabled: true,
-      Tagdisabled: true,
-    })
-    if(Ipcheckbox == true ){
-      switch(TagCheckbox){
-        case true:
-          return this.updataClusterListNodes(2)
-        case false:
-          return this.updataClusterListNodes(4)
-        default:
-          return
-      }
-    }
-    if(Ipcheckbox == false){
-      switch(TagCheckbox){
-        case true:
-          return this.updataClusterListNodes(1)
-        case false:
-          return this.updataClusterListNodes(3)
-        default:
-          return
-      }
-    }
-  }
+  // handleCancelSwitch(){
+  //   this.setState({
+  //     switchVisible: false,
+  //     switchdisable: false,
+  //     Ipdisabled: false,
+  //     Tagdisabled: false,
+  //   })
+  // }
+// ----------------------delate
+// handleName(){
+//   const { Ipcheckbox, TagCheckbox } = this.state
+//   this.setState({
+//     Ipdisabled: true,
+//     Tagdisabled: true,
+//   })
+    // if(TagCheckbox == true){
+    //   switch(Ipcheckbox){
+    //     case true:
+    //       return this.updataClusterListNodes(3)
+    //     case false:
+    //       return this.updataClusterListNodes(4)
+    //     default:
+    //       return
+    //   }
+    // }
+    // if(TagCheckbox == false){
+    //   switch(Ipcheckbox){
+    //     case true:
+    //       return this.updataClusterListNodes(1)
+    //     case false:
+    //     default:
+    //       return
+    //   }
+    // }
+// }
+//----------------------------------------------------------需要修改！！！！
+// handleTag(){
+//   const { Ipcheckbox, TagCheckbox } = this.state
+//   this.setState({
+//     Ipdisabled: true,
+//     Tagdisabled: true,
+//   })
+//   if(Ipcheckbox == true ){
+//     switch(TagCheckbox){
+//       case true:
+//         return this.updataClusterListNodes(2)
+//       case false:
+//         return this.updataClusterListNodes(4)
+//       default:
+//         return
+//     }
+//   }
+//   if(Ipcheckbox == false){
+//     switch(TagCheckbox){
+//       case true:
+//         return this.updataClusterListNodes(1)
+//       case false:
+//         return this.updataClusterListNodes(3)
+//       default:
+//         return
+//     }
+//   }
+// }
 
   handleImageProjectRight(){
     this.setState({
@@ -513,56 +510,56 @@ class AdvancedSetting extends Component {
       })
   }
 
-  pointBind() {
-    return (
-      <span>允许用户绑定节点
-        <Tooltip placement="top" title={this.pointHover()}>
-          <Icon type="question-circle-o"  />
-        </Tooltip>
-      </span>
-    )
-  }
-
-  pointHover() {
-    return <div>
-      <p>创建服务时，可以将服务对应</p>
-      <p>容器实例，固定在节点或者某</p>
-      <p>些标签的节点上来调度</p>
-    </div>
-  }
-
-  changeEditionStatus() {
+  handleChangeEditionScheduler() {
     const { resetFields } = this.props.form;
-    resetFields()
+    //点击 编辑 获取 全局的数据，给 checkBox
+    // getSchedulerConfigDetail(values,{
+    //   success: {
+    //     func: () => {
+    //       notification.close()
+    //       notification.success('开始编辑')
+    //       this.setState({
+    //         startEdition: false,
+    //         currentScheduler: values
+    //       })
+    //       setFieldsValue({
+    //         : currentScheduler;
+    //       })
+    //     },
+    //     isAsync: true
+    //   },
+    //   failed: {
+    //     func: () => {
+    //       notification.close()
+    //       notification.error('编辑失败','请再次编辑')
+    //       this.setState({
+    //         startEdition: true,
+    //       })
+    //     },
+    //     isAsync: true
+    //   }
+    // })
     this.setState({
       startEdition: false
     })
   }
 
-  candleEditionPoint() {
-    const { resetFields } = this.props.form;
-    resetFields()
-    this.setState({
-      startEdition: true
-    })
-  }
-
-  saveEditionPoint() {
-
-  }
-
   render() {
     const {
-      traditionChecked, traditiondisable, swicthChecked, Ipcheckbox, TagCheckbox,
-      switchdisable, Tagdisabled, Ipdisabled, imageProjectRightIsEdit, billingChecked,
-      billingVisible, billingLoading, startEdition
+      traditionChecked, traditiondisable,
+      //swicthChecked, Ipcheckbox, TagCheckbox, switchdisable, Tagdisabled, Ipdisabled,
+      imageProjectRightIsEdit, billingChecked,
+      billingVisible, billingLoading, startEdition,
+      singleCheckBox, classCheckBox,resourceCheckBox, utilizationRate
     } = this.state
     const { cluster, form, configurations, harbor } = this.props
     const { listNodes } = cluster
     const { getFieldProps  } = form
-    if(listNodes == undefined || (harbor.hasAdminRole && (!configurations[DEFAULT_REGISTRY] || configurations[DEFAULT_REGISTRY].isFetching))) {
-      return <div className='nodata'><Spin></Spin></div>
-    }
+
+// listNodes
+if(listNodes == undefined || (harbor.hasAdminRole && (!configurations[DEFAULT_REGISTRY] || configurations[DEFAULT_REGISTRY].isFetching))) {
+  return <div className='nodata'><Spin></Spin></div>
+}
     let projectCreationRestriction
     if(harbor.hasAdminRole && configurations[DEFAULT_REGISTRY].data) {
       projectCreationRestriction  = configurations[DEFAULT_REGISTRY].data.projectCreationRestriction
@@ -582,102 +579,37 @@ class AdvancedSetting extends Component {
     return (
       <QueueAnim>
       <div id="AdvancedSetting" key='AdvancedSetting'>
-      <Title title="高级设置" />
-      <div className='title'>高级设置</div>
-      <div className='content'>
-        <div className='nodes'>
-
-          <div className='contentheader'>容器调度策略设置（所有集群）</div>
-            <div className='contentbody firstCont'>
-                    <div className='contentbodytitle alertRow'>
-                      系统默认: 不允许『节点端口』被其他容器实例占用; 不允许容器实例创建在『空闲资源』不足的节点。
+        <Title title="高级设置" />
+        <div className='title'>高级设置</div>
+          <div className='content'>
+          <Scheduler />
+          {/* <div>
+                <div className='contentbodycontainers'>
+                  <span className="switchLabel">
+                {
+                  swicthChecked
+                    ? <span>开启</span>
+                    : <span>关闭</span>
+                }
+                    </span>
+                                  <Switch checkedChildren="开" unCheckedChildren="关" checked={swicthChecked}
+                                    onChange={this.handleSwitch} className='switchstyle' disabled={switchdisable} />
+              </div>
+              {
+                swicthChecked
+                  ? <div className='contentfooter'>
+                      <div className='item'>
+                                  <Checkbox onChange={this.handleName}
+                                    checked={Ipcheckbox} disabled={Ipdisabled}>允许用户通过『主机名及IP』来实现绑定【单个节点】</Checkbox>
+                      </div>
+                      <div className='item'>
+                                  <Checkbox onChange={this.handleTag}
+                                    checked={TagCheckbox} disabled={Tagdisabled}>用户可通过『主机标签』绑定【某类节点】</Checkbox>
+                      </div>
                     </div>
-                    <Form horizontal disabled={ startEdition }>
-                      <FormItem
-                        label="允许设置服务间的亲和性"
-                        labelCol={{ span: 6 }}
-                        wrapperCol={{ span: 18 }}
-                        className="formAdvance"
-                      >
-                        <Checkbox disabled={ startEdition } className="ant-checkbox-vertical" key="shouldServerPop"
-                          {...getFieldProps('abc', { initialValue: true, valuePropName: 'checked' })}
-                        >允许用户通过『服务实例亲和性』定义服务实例可以和哪些服务实例部署在同一主机上</Checkbox>
-                      </FormItem>
-
-                      <FormItem
-                        label={this.pointBind()}
-                        labelCol={{ span: 6 }}
-                        wrapperCol={{ span: 18 }}
-                        className="formAdvance"
-                      >
-                        <Checkbox className="ant-checkbox-vertical"
-                          key="anglePoint"
-                          {...getFieldProps('abcd', { initialValue: true, valuePropName: 'checked' })}
-                          disabled={ startEdition }
-                        >允许用户通过『主机名及 IP 』来实现绑定【单个节点】</Checkbox>
-                        <Checkbox className="ant-checkbox-vertical" key="manyPoint"
-                          disabled={ startEdition }
-                          {...getFieldProps('abcde', { initialValue: true, valuePropName: 'checked' })}
-                          >用户可通过『主机标签』绑定【某类节点】</Checkbox>
-                      </FormItem>
-
-                      <FormItem
-                        label="默认调度策略"
-                        labelCol={{ span: 6 }}
-                        wrapperCol={{ span: 18 }}
-                        className="formAdvance"
-                        {...getFieldProps('celue',{
-                          rules: [],
-                          initialValue: '优先调度到使用率低的节点',
-                      })}
-                      >
-                        <RadioGroup disabled={ startEdition } defaultValue="优先调度到使用率低的节点">
-                          <Radio value="优先调度到使用率低的节点" key="slow">优先调度到使用率<span className="useText">低</span>的节点</Radio>
-                          <Radio value="优先调度到使用率高的节点" key="high">优先调度到使用率<span className="useText">高</span>的节点</Radio>
-                        </RadioGroup>
-                        <Checkbox disabled={ startEdition } className="ant-checkbox-vertical"
-                         {...getFieldProps('abcdef', { initialValue: true, valuePropName: 'checked' })}>允许用户通过『主机名及 IP 』来实现绑定【单个节点】</Checkbox>
-                      </FormItem>
-
-                      {
-                        startEdition ? <div className="formAdvance formBtnAdvance">
-                          <Button type="primary" onClick={ this.changeEditionStatus }>编辑</Button>
-                        </div> : <div className="formAdvance formBtnAdvance">
-                          <Button onClick={ this.candleEditionPoint }>取消</Button>
-                          <Button type="primary" onClick={ this.saveEditionPoint }>保存</Button>
-                        </div>
-                      }
-
-                    </Form>
-                             {/* <div>    div className='contentbodycontainers'>
-                                           <span className="switchLabel"> */}
-                                          {/* {
-                                              swicthChecked
-                                                ? <span>开启</span>
-                                                : <span>关闭</span>
-                                            }*/}
-                                            {/* </span>
-                                          <Switch checkedChildren="开" unCheckedChildren="关" checked={swicthChecked}
-                                          onChange={this.handleSwitch} className='switchstyle' disabled={switchdisable} /> */}
-                                       {/* </div>
-                                      {
-                                        swicthChecked
-                                          ? <div className='contentfooter'>
-                                            <div className='item'>
-                                              <Checkbox onChange={this.handleName}
-                                                checked={Ipcheckbox} disabled={Ipdisabled}>允许用户通过『主机名及IP』来实现绑定【单个节点】</Checkbox>
-                                            </div>
-                                            <div className='item'>
-                                              <Checkbox onChange={this.handleTag}
-                                                checked={TagCheckbox} disabled={Tagdisabled}>用户可通过『主机标签』绑定【某类节点】</Checkbox>
-                                            </div>
-                                          </div>
-                                          : <div></div>
-                                      }
-                            </div> */}
-          </div>
-        </div>
-
+                  : <div></div>
+              }
+          </div> */}
         {harbor.hasAdminRole ? <div className='imageprojectright'>
           <div className="contentheader imageproject">仓库组创建权限</div>
           <div className="contentbody">
@@ -750,7 +682,8 @@ class AdvancedSetting extends Component {
           <Switch checkedChildren="开" unCheckedChildren="关" checked={billingChecked} onChange={this.handleBilling} className='switchstyle' />
         </Card>
       </div>
-      <Modal
+
+      {/* <Modal
         title={swicthChecked ? '关闭绑定节点' : '开启绑定节点'}
         visible={this.state.switchVisible}
         maskClosable={false}
@@ -770,7 +703,7 @@ class AdvancedSetting extends Component {
             <div className='item color'><Icon type="question-circle-o" style={{marginRight:'8px'}}/>确认开启允许绑定节点功能？</div>
           </div>
         }
-      </Modal>
+      </Modal> */}
       <Modal
         title='传统应用管理'
         visible={this.state.traditionVisible}
@@ -866,5 +799,5 @@ export default connect(mapPropsToState,{
   saveGlobalConfig,
   loadLoginUserDetail,
   getConfigByType,
-  updateGlobalConfig
+  updateGlobalConfig,
 })(AdvancedSetting)

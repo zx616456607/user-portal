@@ -29,6 +29,7 @@ import ContainerCatalogueModal from '../ContainerCatalogueModal'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import yaml from 'js-yaml'
+import { HARBOR_ALL_PROJECT_FAILURE } from '../../../actions/harbor';
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
@@ -515,6 +516,7 @@ class BindNodes extends Component {
     this.getNodeSelectorTarget = this.getNodeSelectorTarget.bind(this)
     this.template = this.template.bind(this)
     this.labelsTemplate = this.labelsTemplate.bind(this)
+    this.showServiceNodeLabels = this.showServiceNodeLabels.bind(this)
     this.state = {
       bindNodesData: {}
     }
@@ -523,23 +525,123 @@ class BindNodes extends Component {
   getSchedulingPolicy(data) {
     const template = data.spec.template
     const spec = template.spec
-    const labels = this.getNodeAffinityLabels(spec)
+    // const labels = this.getNodeAffinityLabels(spec)
     const node = this.getNodeSelectorTarget(spec)
+    const haveLabel = this.getLabelType(spec)
     const policy = {
       type: scheduleBySystem,
     }
-    if (node) {
-      // Check node policy first
-      policy.type = scheduleByHostNameOrIP
-      policy.node = node
-    } else if (labels) {
-      // Then check label policy
-      policy.type = scheduleByLabels
-      policy.labels = labels
+    if (haveLabel.labelType) {
+      policy.type = haveLabel.labelType
+      policy.data = haveLabel.data
     }
+    // if (node) {
+    //   // Check node policy first
+    //   policy.type = scheduleByHostNameOrIP
+    //   policy.node = node
+    // } else if (labels) {
+    //   // Then check label policy
+    //   policy.type = scheduleByLabels
+    //   policy.labels = labels
+    // }
     return policy
   }
+  getLabelType(spec) {
+    if (!spec.affinity) {
+      return
+    }
+    let labelType = ''
+    const nodeData = this.getNodeListData(spec)
+    const podData = this.getPodListData(spec)
+    const podAntiData = this.getPodAntiListData(spec)
+    if ( (nodeData.preferTag.length ||  nodeData.requireTag.length) && (podData.podReqList.length || podData.podPreList.length || podAntiData.reqAntiData.length || podAntiData.preAntiData.length)  ) {
+      labelType = 'all'
+    }else if ( nodeData.preferTag.length ||  nodeData.requireTag.length  ) {
+      labelType = 'node'
+    }else if (podData.podReqList.length || podData.podPreList.length || podAntiData.reqAntiData.length || podAntiData.preAntiData.length ) {
+      labelType = 'pod'
+    }
+    return {
+      labelType,
+      data:{
+        nodeData,
+        podData,
+        podAntiData
+      }
+    }
+  }
 
+  getNodeListData(spec) {
+    const requireTag = []
+    const preferTag = []
+    const preData = spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution || {}
+    const ln = Object.keys(preData)
+    if (ln.length>0) {
+      preData[0].preference.matchExpressions.map( item=>{
+        preferTag.push(item)
+      })
+    }
+    const reqFlag = spec.affinity.nodeAffinity.hasOwnProperty('requiredDuringSchedulingIgnoredDuringExecution')
+    if (reqFlag) {
+      const reqData = spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution
+      reqData.nodeSelectorTerms[0].matchExpressions.map( item=>{
+        requireTag.push(item)
+      })
+    }
+    return {
+      requireTag,
+      preferTag
+    }
+  }
+  getPodListData(spec) {
+    const podPreList = []
+    const podReqList = []
+    let podPreData = []
+    let podReqData = []
+    if (spec.affinity.podAffinity) {
+      podPreData = spec.affinity.podAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
+      podReqData = spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution || []
+    }
+    if (podPreData.length>0) {
+      podPreData[0].podAffinityTerm.labelSelector.matchExpressions.map( item=>{
+        podPreList.push(item)
+      })
+    }
+    if (podReqData.length>0) {
+      podReqData[0].labelSelector.matchExpressions.map( item=>{
+        podReqList.push(item)
+      })
+    }
+    return {
+      podReqList,
+      podPreList
+    }
+  }
+
+  getPodAntiListData(spec) {
+    const preAntiData = []
+    const reqAntiData = []
+    let podPreData = []
+    let podReqData = []
+    if (spec.affinity.podAntiAffinity) {
+      podPreData = spec.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
+      podReqData = spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution || []
+    }
+    if (podPreData && podPreData.length>0) {
+      podPreData[0].podAffinityTerm.labelSelector.matchExpressions.map( item=>{
+        preAntiData.push(item)
+      })
+    }
+    if (podReqData && podReqData.length>0) {
+      podReqData[0].labelSelector.matchExpressions.map( item=>{
+        reqAntiData.push(item)
+      })
+    }
+    return {
+      reqAntiData,
+      preAntiData
+    }
+  }
   getNodeSelectorTarget(spec) {
     const hostNameKey = 'kubernetes.io/hostname'
     if (!spec.hasOwnProperty('nodeSelector') || !spec.nodeSelector.hasOwnProperty(hostNameKey)) {
@@ -585,45 +687,136 @@ class BindNodes extends Component {
     })
     return arr
   }
+  showLabelValues(item) {
+    //( 'item----', item.operator, item.values ,JSON.stringify(item))
+    const cloneItem = cloneDeep(item)
+    if (cloneItem.operator=='In' || cloneItem.operator=='NotIn') {
+      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + cloneItem.values[0]
 
+    }else if (cloneItem.operator=='Gt' || cloneItem.operator=='Lt') {
+      if (cloneItem.operator=='Gt') {
+        cloneItem.operator = '>'
+      }else if (cloneItem.operator=='<') {
+        cloneItem.operator = '<'
+      }
+      return  cloneItem.key + ' ' + cloneItem.operator + ' ' + cloneItem.values[0]
+    }else if (cloneItem.operator=='Exists' || cloneItem.operator=='DoesNotExists') {
+      return cloneItem.key + ' ' + cloneItem.operator
+    }
+  }
+  showServiceNodeLabels(data) {
+    const { nodeData } = data
+    return <span>
+      {
+        nodeData.preferTag.length > 0 ?
+        nodeData.preferTag.map( (item,index)=>{
+          return <Tag closable={false} className='preferedTag' key={item.key+ item.operator + item.index}> 最好 | {this.showLabelValues(item)} </Tag>
+        })
+        : null
+      }
+      {
+        nodeData.requireTag.length > 0 ?
+        nodeData.requireTag.map( item=>{
+          return <Tag closable={false} color="blue" key={item.index + item.key+ item.operator }> 必须 | {this.showLabelValues(item)} </Tag>
+        })
+        : null
+      }
+      </span>
+  }
+  showServicePodAffinityLabel(data) {
+    const { podAntiData, podData } = data
+    return <span>
+      {
+        podData.podPreList.length>0 ?
+        podData.podPreList.map( item=>{
+          return <Tag closable={false} className='preferedTag' key={'prefered'+item.key+ item.operator + + item.index}> 最好 | {this.showLabelValues(item)} </Tag>
+        })
+        : null
+      }
+      {
+        podData.podReqList.length>0 ?
+        podData.podReqList.map( item=>{
+          return <Tag closable={false} color="blue" key={'required'+item.key+ item.operator + item.index}> 必须 | {this.showLabelValues(item)} </Tag>
+        })
+        : null
+      }
+      {
+        podAntiData.preAntiData.length>0 ?
+        podAntiData.preAntiData.map( item=>{
+          return <Tag closable={false} className='preferAntiTag' key={'preferAnti'+item.key+ item.operator + item.index}> 最好不 | {this.showLabelValues(item)} </Tag>
+        })
+        : null
+      }
+      {
+        podAntiData.reqAntiData.length>0 ?
+        podAntiData.reqAntiData.map( item=>{
+          return <Tag closable={false} className='requireAntiTag' key={ 'reuqiredAnti'+ item.key+ item.operator + item.index}> 必须不 | {this.showLabelValues(item)} </Tag>
+        })
+        : null
+      }
+    </span>
+  }
   template() {
     const { serviceDetail } = this.props
     let bindNodesData = this.getSchedulingPolicy(serviceDetail)
     switch (bindNodesData.type) {
       case "ScheduleBySystem":
         return <span>
-          {/* <div className="commonTitle">--</div>
-          <div>系统默认调度</div> */}
-{/*-----  text 调试样式-----*/}
+          <div className="commonTitle">--</div>
+          <div>系统默认调度</div>
+        </span>
+      case 'all':
+        return <span>
           <div className="pointManage">
-            <div className="commonTitle">主机标签</div>
+            <div className="commonTitle">服务与节点标签</div>
             <div className="commonCont">
-              <span> {  }  {  }</span>
-              <Tag closable color="blue"> 必须在 | gpu > 3 </Tag>
-              <Tag closable color="green"> 必须在 | gpu > 3 </Tag>
-              <Tag closable color="red">  必须不 | true </Tag>
-              <Tag closable color="red">  必须不 | true </Tag>
+            {
+              this.showServiceNodeLabels( bindNodesData.data )
+            }
             </div>
           </div>
           <div className="pointManage">
-            <div className="commonTitle">匹配服务实例</div>
+            <div className="commonTitle">服务与服务标签</div>
             <div className="commonCont">
-              <span> {  }  {  }</span>
-              <Tag closable color="blue"> 必须在 | gpu > 3 </Tag>
-              <Tag closable color="yellow"> 必须在 | gpu > 3 </Tag>
-              <Tag closable color="red">  必须不 | true </Tag>
+              {
+                this.showServicePodAffinityLabel( bindNodesData.data )
+              }
             </div>
           </div>
         </span>
+      case 'node':
+        return <span>
+          <div className="pointManage">
+            <div className="commonTitle">服务与节点标签</div>
+            <div className="commonCont">
+            {
+              this.showServiceNodeLabels( bindNodesData.data )
+            }
+            </div>
+          </div>
+        </span>
+      case 'pod':
+        return <span>
+          <div className="pointManage">
+            <div className="commonTitle">服务与节点标签</div>
+            <div className="commonCont">
+              {
+                this.showServicePodAffinityLabel( bindNodesData.data )
+              }
+            </div>
+          </div>
+      </span>
       case "ScheduleByHostNameOrIP":
         return <span>
-          <div className="commonTitle">主机名及IP</div>
+          <div className="commonTitle">指定主机名及 IP 上运行</div>
           <div>{bindNodesData.node}</div>
         </span>
       case "ScheduleByLabels":
         return <span>
-          <div className="commonTitle bindnodeTitle">主机标签</div>
-          <div>{this.labelsTemplate(bindNodesData.labels)}</div>
+          <div>
+            <div className="commonTitle bindnodeTitle">主机标签</div>
+            <div>{this.labelsTemplate(bindNodesData.labels)}</div>
+          </div>
         </span>
       case "Error":
       default:
@@ -838,6 +1031,10 @@ class AppServiceDetailInfo extends Component {
       currentService: serviceName
     })
   }
+  // componentDidMount() {
+  //   const { serviceDetail } = this.props
+
+  // }
 
   componentWillReceiveProps(nextProps) {
     if(this.props.serviceName !== nextProps.serviceName){

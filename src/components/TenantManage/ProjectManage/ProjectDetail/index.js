@@ -116,7 +116,7 @@ class ProjectDetail extends Component {
     },{
       success: {
         func: (res) => {
-          const cluster0 = !!_.filter(res.data.clusters, {status: 2}) && _.filter(res.data.clusters, {status: 2})[0];
+          const cluster0 = !!_.filter(res.data.clusters, {status: 2}) && _.filter(res.data.clusters, {status: 2})[0] || {};
           this.setState({
             selectedCluster: cluster0.clusterID
           })
@@ -866,6 +866,27 @@ class ProjectDetail extends Component {
       })
     })
   }
+  getPermission = (tempPermission, type) => {
+    let permission = _.cloneDeep(tempPermission);
+    switch (type) {
+      case "application":
+        permission = _.without(permission, _.filter(permission, {name: "创建应用"})[0])
+        break;
+      case "volume":
+        permission = _.without(permission, _.filter(permission, {name: "创建存储"})[0])
+        break;
+      case "configuration":
+        permission = _.without(permission, _.filter(permission, {name: "创建配置组"})[0])
+        break;
+      case "secret":
+        permission = _.without(permission, _.filter(permission, {name: "创建加密配置"})[0])
+        break;
+      case "applicationPackage":
+        permission = _.without(permission, _.filter(permission, {name: "上传包文件"})[0])
+        break;
+    }
+    return permission;
+  }
   render() {
     const { payNumber, projectDetail, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
@@ -1402,6 +1423,7 @@ class ProjectDetail extends Component {
           {
             this.state.isShowResourceModal ?
             <ResourceModal
+              getPermission={this.getPermission}
               visible={this.state.isShowResourceModal}
               onCancel={this.closeResourceModal}
               currResourceType={this.state.currResourceType}
@@ -1459,8 +1481,9 @@ class ProjectDetail extends Component {
                           集群
                         </span>
                         {
+                          this.state.currpermissionPolicyType === 1 ? <span className="zanwu">所有已授权集群</span> :
                           !selectedCluster ?
-                          null
+                          <span className="zanwu">暂无集群</span>
                           :
                           <Dropdown overlay={clusterMenu} trigger={['click']}>
                             <a className="ant-dropdown-link" href="#">
@@ -1533,8 +1556,8 @@ class ProjectDetail extends Component {
                           <div className="panelStyle">
                             {/* {perPanels} */}
                             {
-                              this.state.isChangeCluster ?
-                                null
+                              this.state.isChangeCluster || !selectedCluster ?
+                                <div className="zanwuDiv"><span className="">暂无可操作资源</span></div>
                                 :
                                 <PermissionOverview
                                   project={location.query.name}
@@ -1543,6 +1566,7 @@ class ProjectDetail extends Component {
                                   openPermissionModal={this.editPermission}
                                   callback={this.getPermissionOverview}
                                   isDisabled={!(roleNum === 1 || isManager)}
+                                  getPermission={this.getPermission}
                                 />
                             }
                           </div>

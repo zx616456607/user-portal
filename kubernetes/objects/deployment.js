@@ -504,11 +504,26 @@ class Deployment {
   }
 
   ensureNodeAffinityDefaultValue() {
-    const affinity = this.spec.template.spec.affinity = this.spec.template.spec.affinity || {}
-    const nodeAffinity = affinity.nodeAffinity = affinity.nodeAffinity || {}
-    const policy = nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution =
-      nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution || {}
-    policy.nodeSelectorTerms = policy.nodeSelectorTerms || []
+    this.spec.template.spec.affinity = this.spec.template.spec.affinity || {}
+    const affinity = this.spec.template.spec.affinity
+    affinity.nodeAffinity = affinity.nodeAffinity || {}
+    const nodeAffinity = affinity.nodeAffinity
+    nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution = nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution || {}
+    // const policy = nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution
+    // policy.nodeSelectorTerms = policy.nodeSelectorTerms || []
+
+    //新增的 自定义属性 的默认值
+    // nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution = nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
+    // const preMode = nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution
+
+    // affinity.podAffinity = affinity.podAffinity || {}
+    // affinity.podAntiAffinity = affinity.podAntiAffinity || {}
+    // const podAffinity = affinity.podAffinity
+    // const podAntiAffinity = affinity.podAntiAffinity
+    // podAffinity.requiredDuringSchedulingIgnoredDuringExecution = podAffinity.requiredDuringSchedulingIgnoredDuringExecution || []
+    // podAffinity.preferredDuringSchedulingIgnoredDuringExecution = podAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
+    // podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution =  podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution || []
+    // podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution = podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution || []
   }
 
   setLabelSelector(labels) {
@@ -516,6 +531,89 @@ class Deployment {
       this.ensureNodeAffinityDefaultValue()
       const policy = this.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution
       policy.nodeSelectorTerms = policy.nodeSelectorTerms.concat(this.makeNodeAffinity(labels))
+    }
+  }
+
+  setServicePointSelector(tag) {
+    if (tag && tag.length && tag.length > 0) {
+      this.spec.template.spec.affinity = this.spec.template.spec.affinity || {}
+      const affinity = this.spec.template.spec.affinity
+      affinity.nodeAffinity = affinity.nodeAffinity || {}
+      const requiredTag = []
+      const preferredTag = []
+      tag.map( (item,index) => {
+        if (item.point === '必须') {
+          requiredTag.push(item)
+        }else if (item.point === '最好') {
+          preferredTag.push(item)
+        }
+      })
+      // this.ensureNodeAffinityDefaultValue()
+      const policy = affinity.nodeAffinity
+      if (requiredTag && requiredTag.length && requiredTag.length > 0) {
+        policy.requiredDuringSchedulingIgnoredDuringExecution = policy.requiredDuringSchedulingIgnoredDuringExecution || {}
+        const reqMode = policy.requiredDuringSchedulingIgnoredDuringExecution
+        reqMode.nodeSelectorTerms = reqMode.nodeSelectorTerms || []
+        const reqArr = reqMode.nodeSelectorTerms
+        reqMode.nodeSelectorTerms = reqArr.concat(this.makeNodeRequiredAffinity(requiredTag))
+      }
+      if (preferredTag && preferredTag.length && preferredTag.length > 0) {
+        policy.preferredDuringSchedulingIgnoredDuringExecution = policy.preferredDuringSchedulingIgnoredDuringExecution || []
+        let preMode = policy.preferredDuringSchedulingIgnoredDuringExecution
+        policy.preferredDuringSchedulingIgnoredDuringExecution = preMode.concat( this.nodePrederredAffinity(preferredTag) )
+      }
+    }
+  }
+
+  //服务与服务的亲和性
+  setServicePodSelector(tag) {
+    if (tag && tag.length && tag.length > 0) {
+      const requiredTag = []
+      const preferredTag = []
+      const notRequiredTag = []
+      const notPreferredTag = []
+      tag.map( (item,index) => {
+        if (item.point === '必须') {
+          requiredTag.push(item)
+        }else if (item.point === '最好') {
+          preferredTag.push(item)
+        }else if (item.point === '必须不') {
+          notRequiredTag.push(item)
+        }else if (item.point === '最好不') {
+          notPreferredTag.push(item)
+        }
+      })
+      // this.ensureNodeAffinityDefaultValue()
+      this.spec.template.spec.affinity = this.spec.template.spec.affinity || {}
+      const affinity = this.spec.template.spec.affinity
+      if (requiredTag.length>0 || preferredTag.length>0) {
+        affinity.podAffinity = affinity.podAffinity ||{}
+        const pod = affinity.podAffinity
+        if (requiredTag && requiredTag.length && requiredTag.length > 0) {
+          pod.requiredDuringSchedulingIgnoredDuringExecution = pod.requiredDuringSchedulingIgnoredDuringExecution || []
+          let reqMode = pod.requiredDuringSchedulingIgnoredDuringExecution
+          pod.requiredDuringSchedulingIgnoredDuringExecution = reqMode.concat( this.podRequiredAffinity(requiredTag) )
+        }
+        if (preferredTag && preferredTag.length && preferredTag.length > 0) {
+          pod.preferredDuringSchedulingIgnoredDuringExecution = pod.preferredDuringSchedulingIgnoredDuringExecution || []
+          let preMode = pod.preferredDuringSchedulingIgnoredDuringExecution
+          pod.preferredDuringSchedulingIgnoredDuringExecution = preMode.concat( this.podPreferredAffinity(preferredTag) )
+        }
+      }
+      if (notRequiredTag.length>0 || notPreferredTag.length>0) {
+        affinity.podAntiAffinity =  affinity.podAntiAffinity || {}
+        const antiPod = affinity.podAntiAffinity
+        if (notRequiredTag && notRequiredTag.length && notRequiredTag.length > 0) {
+          antiPod.requiredDuringSchedulingIgnoredDuringExecution = antiPod.requiredDuringSchedulingIgnoredDuringExecution || []
+          let antiReqMode = antiPod.requiredDuringSchedulingIgnoredDuringExecution
+          antiPod.requiredDuringSchedulingIgnoredDuringExecution = antiReqMode.concat( this.podRequiredAffinity(notRequiredTag) )
+        }
+        if (notPreferredTag && notPreferredTag.length && notPreferredTag.length > 0) {
+          antiPod.preferredDuringSchedulingIgnoredDuringExecution = antiPod.preferredDuringSchedulingIgnoredDuringExecution || []
+          let antiPreMode = antiPod.preferredDuringSchedulingIgnoredDuringExecution
+          antiPod.preferredDuringSchedulingIgnoredDuringExecution = antiPreMode.concat( this.podPreferredAffinity(notPreferredTag) )
+        }
+      }
     }
   }
 
@@ -546,26 +644,104 @@ class Deployment {
     return [
       {
         matchExpressions: Object.getOwnPropertyNames(multiMap).map(
-          key => this.multiMapEntryToMatchExpression(key, multiMap[key]))
+          key => this.multiMapEntryToMatchExpression(key, multiMap.operator, multiMap[key]))
       }
     ]
   }
 
+  makeNodeRequiredAffinity(labels) {
+    return [
+      {
+        matchExpressions: this.setItemIntoArr(labels)
+      }
+    ]
+  }
+
+  nodePrederredAffinity(tags) {
+    return [
+      {
+        weight: 1,
+        preference: {
+          matchExpressions: this.setItemIntoArr(tags) //tagArr
+        }
+      }
+    ]
+  }
+
+  podRequiredAffinity(tags) {
+    return [
+      {
+        labelSelector: {
+          matchExpressions: this.setItemIntoArr(tags)  //podArr
+        },
+        topologyKey: 'kubernetes.io/hostname'
+      }
+    ]
+  }
+
+  podPreferredAffinity(tags) {
+    return {
+        weight: 1,
+        podAffinityTerm: {
+          labelSelector: {
+            matchExpressions: this.setItemIntoArr(tags)
+          },
+          topologyKey: 'beta.kubernetes.io/os'
+        }
+      }
+
+  }
+
+  setItemIntoArr(items) {
+    const arg = []
+    items.map( item => {
+      if (item.mark == 'In' || item.mark == 'NotIn') {
+        arg.push({
+          key: item.key,
+          operator: item.mark,
+          values: [item.value]
+        })
+      }else if (item.mark == 'Exists' || item.mark == 'DoesNotExists') {
+        arg.push({
+          key: item.key,
+          operator: item.mark,
+        })
+      }else if(item.mark == 'Gt' || item.mark == 'Lt') {
+        arg.push({
+          key: item.key,
+          operator: item.mark,
+          values: [
+            item.value
+          ]
+        })
+      }
+
+    })
+    return arg
+  }
+
   mergeLabelsToMultiMap(multiMap, label) {
     const key = label.key
+    const operator = label.mark
     const value = label.value
-    if (multiMap.hasOwnProperty(key)) {
-      multiMap[key].push(value)
+    if (multiMap.hasOwnProperty(key) && multiMap.key == operator ) {
+      // multiMap[key].push(value)
+
     } else {
-      multiMap[key] = [value]
+      multiMap[key] = value
+      multiMap.operator = operator
+      multiMap.push({
+
+      })
     }
   }
 
-  multiMapEntryToMatchExpression(key, values) {
+  multiMapEntryToMatchExpression(key, operators, values) {
     return {
-      key,
-      operator: "In",
-      values,
+      'key':key,
+      'operator': operators,
+      //operator: "In",
+      'values': values,
     }
   }
 

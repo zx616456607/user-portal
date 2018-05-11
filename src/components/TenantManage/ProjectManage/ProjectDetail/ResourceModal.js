@@ -387,7 +387,11 @@ class ResourceModal extends Component {
 
     let permission = [];
     if(currPRO.toString() !== "{}" && !!currPRO[this.props.currResourceType]){
-      permission = currPRO[this.props.currResourceType];
+      if(this.state.RadioValue === 'fixed'){
+        permission = this.props.getPermission(currPRO[this.props.currResourceType], this.props.currResourceType, currPRO);
+      }else{
+        permission = currPRO[this.props.currResourceType];
+      }
     }
     return (
       <Modal
@@ -739,8 +743,8 @@ class ResourceModal extends Component {
     this.props.wrapManageList(query, {
       success: {
         func: (res) => {
-          let arr = [];
-          res.data.pkgs.map( (item) => {
+          let arr = [], pkgs = res.data.pkgs || [];
+          pkgs.map( (item) => {
             let fixed = this.props.permissionOverview[this.props.currResourceType].acls.fixed;
             if(fixed[item.fileName]) return;
             arr.push(item.fileName)

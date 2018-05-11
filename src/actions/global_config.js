@@ -54,7 +54,7 @@ function fetchConfigByType(cluster, configType, callback) {
 export function getConfigByType(cluster, type, callback) {
   return (dispatch) => {
     return dispatch(fetchConfigByType(cluster, type, callback))
-  } 
+  }
 }
 
 export const SAVE_GLOBAL_CONFIG_REQUEST = 'SAVE_GLOBAL_CONFIG_REQUEST'
