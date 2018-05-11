@@ -129,7 +129,7 @@ class ResourcesOverview extends React.Component {
       集群资源分配情况
       <Checkbox onChange={this.onCheckChange} disabled={this.state.loading}>
         仅显示计算节点&nbsp;
-        <Tooltip title="计算节点指的是去除添加了 taint 的 node 节点">
+        <Tooltip title="集群内节点分为计算节点、其他节点（添加了 taint 用以专门用途的 node 节点）">
           <Icon type="question-circle-o" />
         </Tooltip>
       </Checkbox>
