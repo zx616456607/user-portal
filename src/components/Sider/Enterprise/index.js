@@ -259,7 +259,7 @@ class Sider extends Component {
   render() {
     const { siderStyle, role,backColor,oemInfo, loginUser } = this.props
     const { currentKey } = this.state
-    const { billingConfig } = loginUser
+    const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
     const scope = this
     // console.log('currentOpenMenu', this.state.currentOpenMenu)
