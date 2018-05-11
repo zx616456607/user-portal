@@ -203,6 +203,7 @@ class ShareMemory extends Component {
           func: () => {
             this.setState({
               confirmLoading: false,
+              modalStorageType: 'nfs'
             })
           }
         }
@@ -383,7 +384,9 @@ class ShareMemory extends Component {
     const paginationProps = {
       simple: true,
       current: parseInt(query.page) || 1,
-      onChange: page => adjustBrowserUrl(location, mergedQuery),
+      onChange: (page) => {
+        adjustBrowserUrl(location, Object.assign({}, mergedQuery, {page}));
+      },
     }
     return(
       <QueueAnim className='share_memory'>
@@ -475,7 +478,7 @@ class ShareMemory extends Component {
             visible={createShareMemoryVisible}
             closable={true}
             onOk={() => this.confirmCreateShareMemory()}
-            onCancel={() => this.setState({createShareMemoryVisible:false})}
+            onCancel={() => this.setState({createShareMemoryVisible:false, modalStorageType: 'nfs'})}
             width="570px"
             maskClosable={false}
             confirmLoading={confirmLoading}

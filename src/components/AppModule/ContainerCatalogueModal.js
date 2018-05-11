@@ -347,7 +347,7 @@ let ContainerCatalogueModal = React.createClass({
       const obj = {
         type,
       }
-      this.resetLoading();
+      this.resetState();
       return callbackFields(obj)
     }
     if (type === 'confirm') {
@@ -426,7 +426,7 @@ let ContainerCatalogueModal = React.createClass({
           type,
           values,
         }
-        this.resetLoading();
+        this.resetState();
         return callbackFields(obj)
       })
     }
@@ -434,10 +434,11 @@ let ContainerCatalogueModal = React.createClass({
     return null
   },
 
-  resetLoading(){
+  resetState(){
     setTimeout(() => {
       this.setState({
         loading: true, //选择存储loading 状态
+        type_1Value: "nfs"
       })
     },1000);
   },

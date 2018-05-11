@@ -771,7 +771,6 @@ class ClusterStorage extends Component {
     })
   }
   saveGfs(item){
-    //todo save Gfs
     const { form, createCephStorage, cluster, updateStorageClass, registryConfig, clusterStorage } = this.props
     const { gfsArray } = this.state
     const validateArray = [
@@ -820,7 +819,7 @@ class ClusterStorage extends Component {
           },
           failed: {
             func: (res) => {
-              let message = '添加 GFS 存储配置失败，请重试'
+              let message = this.getErrorMessage(res.code) || '添加 GFS 存储配置失败，请重试';
               message = this.formatMessage(message, res)
               Notification.error(message)
             }
@@ -837,13 +836,26 @@ class ClusterStorage extends Component {
         },
         failed: {
           func: (res) => {
-            let message = '修改 GFS 存储配置失败，请重试'
+            let message = this.getErrorMessage(res) || '修改 GFS 存储配置失败，请重试';
             message = this.formatMessage(message, res)
             Notification.error(message)
           }
         }
       })
     })
+  }
+  getErrorMessage = (res) => {
+    let message = "";
+    if(res.code === 401 && res.reason === "GLUSTERFS_AUTH_FAILURE"){
+      message = "由于用户名/密码不正确，连接失败";
+    }
+    if(res.code === 500 && res.reason === "GLUSTERFS_AGENT_ADDRESS_ERROR"){
+      message = "由于 agent 地址不正确，连接失败";
+    }
+    if(res.code === 404 && res.reason === "GLUSTERFS_CLUSTER_NOT_FOUND"){
+      message = "由于集群id不正确，连接失败";
+    }
+    return message;
   }
   cancelNfs(item){
     const { nfsArray } = this.state

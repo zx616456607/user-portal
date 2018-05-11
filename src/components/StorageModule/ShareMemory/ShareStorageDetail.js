@@ -87,7 +87,7 @@ class ShareStorageDetail extends Component {
                   <Col span="15">
                   {
                     this.props.location.query.diskType === 'glusterfs' ?
-                    <div className="use">总量:  { parseInt(StorageInfo.size) } M</div>
+                    <div className="use">总量:  { StorageInfo.size } </div>
                     :
                     null
                   }
