@@ -225,7 +225,7 @@ function mapStateToProps(state, props) {
   const { space } = state.entities.current
 
   return {
-    stackList,
+    stackList: stackList.templates,
     isFetching,
     registry,
     space,

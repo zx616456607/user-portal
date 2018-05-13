@@ -320,7 +320,7 @@ function mapStateToProps(state, props) {
   const { space } = state.entities.current
 
   return {
-    myStackList,
+    myStackList: myStackList.templates,
     isFetching,
     registry,
     space,
