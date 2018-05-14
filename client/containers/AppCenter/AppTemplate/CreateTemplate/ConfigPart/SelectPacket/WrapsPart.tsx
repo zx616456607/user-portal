@@ -14,7 +14,7 @@ import * as React from 'react';
 import { Input } from 'antd';
 import { connect } from 'react-redux';
 import { browserHistory } from 'react-router';
-import { Button, Radio, Table } from 'antd';
+import { Button, Radio, Table, Pagination } from 'antd';
 import CommonSearchInput from '../../../../../../components/SearchInput';
 import { DEFAULT_PAGE_SIZE } from '../../../../../../../constants';
 import { DEFAULT_REGISTRY } from '../../../../../../../src/constants';
@@ -31,6 +31,7 @@ const STORE_TYPE = 'store';
 
 interface IState {
   currentType: string;
+  page: number;
 }
 
 interface IQuery {
@@ -161,25 +162,13 @@ class WrapsPart extends React.Component<any, IState> {
         render: (_, record) => <Button type="primary" onClick={() => this.addWrap(record, registry)}>添加</Button>,
       },
     ];
-    const paginationOpts = {
-      simple: true,
-      pageSize: DEFAULT_PAGE_SIZE,
-      current: this.state.page || 1,
-      total: dataSource && dataSource.total,
-      onChange: current => {
-        this.setState({
-          page: current,
-        });
-        currentType === TRID_TYPE ? this.getWrapList({ current }) : this.getStoreList({ current });
-      },
-    };
     return (
       <Table
         className="wrapTable reset_antd_table_header"
         loading={isFetching}
         dataSource={dataSource && dataSource.pkgs}
         columns={columns}
-        pagination={paginationOpts}
+        pagination={false}
       />
     );
   }
@@ -187,6 +176,18 @@ class WrapsPart extends React.Component<any, IState> {
     const { currentType, searchValue } = this.state;
     const { wrapList, wrapStoreList } = this.props;
     let total: number = currentType === TRID_TYPE ? wrapList.total : wrapStoreList.total;
+    const paginationOpts = {
+      simple: true,
+      pageSize: DEFAULT_PAGE_SIZE,
+      current: this.state.page || 1,
+      total,
+      onChange: current => {
+        this.setState({
+          page: current,
+        });
+        currentType === TRID_TYPE ? this.getWrapList({ current }) : this.getStoreList({ current });
+      },
+    };
     return(
       <div className="wrapPart layout-content">
         <div className="wrapHeader layout-content-btns">
@@ -216,6 +217,7 @@ class WrapsPart extends React.Component<any, IState> {
           </Button>
           <div className="page-box pageBox">
             <span className="total">共 {total} 条</span>
+            <Pagination {...paginationOpts}/>
           </div>
         </div>
         <div style={{ clear: 'both' }}/>
