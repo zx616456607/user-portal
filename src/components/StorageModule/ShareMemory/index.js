@@ -402,7 +402,6 @@ class ShareMemory extends Component {
       simple: true,
       current: parseInt(query.page) || 1,
       onChange: (page) => {
-        console.log("page", Object.assign({}, mergedQuery, {page}))
         adjustBrowserUrl(location, Object.assign({}, mergedQuery, {page}));
       },
     }
