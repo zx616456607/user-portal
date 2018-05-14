@@ -14,6 +14,7 @@ import { Spin } from 'antd'
 import { browserHistory } from 'react-router'
 import { toQuerystring } from '../../../src/common/tools'
 import { loadApiInfo } from '../../../src/actions/open_api'
+import Title from '../../../src/components/Title'
 import './style/index.less'
 
 const HEADER_HEIGHT = 60
@@ -69,10 +70,12 @@ class Pipeline extends React.Component {
     }
     if (!token) {
       return <div className="loading">
+        <Title title="流水线" />
         <Spin size="large" />
       </div>
     }
     return <div className="pipeline" style={style}>
+      <Title title="流水线" />
       <iframe id="pipeline" src={`/devops?${toQuerystring(query)}`}  />
     </div>
   }
