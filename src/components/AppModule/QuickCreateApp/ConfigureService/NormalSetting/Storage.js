@@ -55,13 +55,15 @@ const Storage = React.createClass({
     loadFreeVolume(currentCluster.clusterID)
   },
   componentWillMount() {
-    const { fields } = this.props
+    const { fields, form } = this.props
     if (!fields || !fields.storageType) {
       // this.setStorageTypeToDefault()
     }
     if (!fields || !fields.serviceType) {
       this.setServiceTypeToDefault()
     }
+    let storageList = form.getFieldValue('storageList') || []
+    this.setReplicasStatus(storageList)
     this.getVolumes()
   },
   /* setStorageTypeToDefault() {
