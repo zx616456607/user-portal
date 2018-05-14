@@ -97,7 +97,7 @@ class ProjectDetail extends Component {
       projectLoading: true,
     }
   }
-  componentDidMount() {debugger;
+  componentDidMount() {
     const { loadClusterList } = this.props
     this.getProjectDetail()
     this.getClustersWithStatus();
