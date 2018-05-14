@@ -567,7 +567,7 @@ class App extends Component {
           <div>
             <Icon type="cross-circle" />
             <span>
-              当前操作未被授权'{this.state.message403}'，请联系管理员进行授权后，再进行操作
+              当前操作未被授权{!!this.state.message403 ? ('"' + this.state.message403 + '"') : "" }，请联系管理员进行授权后，再进行操作
             </span>
           </div>
         </Modal>
