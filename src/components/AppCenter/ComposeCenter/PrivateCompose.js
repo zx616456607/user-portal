@@ -112,7 +112,7 @@ class PrivateCompose extends Component {
       stackItemName: '',
       pagination:{},
       currentPage:1,
-      pageSize:10
+      pageSize:20
     }
   }
 

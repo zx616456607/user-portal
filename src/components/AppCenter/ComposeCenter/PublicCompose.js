@@ -98,7 +98,7 @@ class PublicCompose extends Component {
       stackItemContent: '',
       createModalShow: false,
       stackItem: '',
-      pageSize:10,
+      pageSize:20,
       currentPage:1
     }
   }
