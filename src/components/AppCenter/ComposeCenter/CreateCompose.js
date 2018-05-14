@@ -16,7 +16,7 @@ import './style/CreateCompose.less'
 import YamlEditor from '../../Editor/Yaml'
 import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../components/Notification'
-import { UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
+import {DEFAULT_REGISTRY, UPGRADE_EDITION_REQUIRED_CODE} from '../../../constants'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -32,7 +32,8 @@ class CreateCompose extends Component {
     this.onChangeYamlEditor = this.onChangeYamlEditor.bind(this)
     this.state = {
       composeType: 'stack',
-      composeAttr: props.parentState.stackItem.isPublic === 1 ? true : false,
+      //composeAttr: props.parentState.stackItem.isPublic === 1 ? true : false,
+      composeAttr: true,
       currentYaml: ''
     }
   }
@@ -167,11 +168,19 @@ class CreateCompose extends Component {
               stackItem: ''
             });
             notification.close()
-            notification.success(`更新编排 ${values.name} 成功`)
+            notification.success(`更新编排 ${values.name} 成功`);
             scope.props.form.resetFields();
             scope.setState({
               currentYaml: ""
             });
+            this.props.loadMyStack(//更新后刷新数据
+              DEFAULT_REGISTRY,
+              {
+                from:(parentScope.state.currentPage - 1)* parentScope.state.pageSize,
+                size:parentScope.state.pageSize,
+                filter:'owned'
+              }
+            );
           },
           isAsync: true
         },

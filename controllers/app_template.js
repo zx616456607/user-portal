@@ -24,10 +24,9 @@ other value will only list public ones
 exports.listTemplates = function* () {
   const loginUser = this.session.loginUser
   const query = this.query || {}
-  var filter = query.filter
 
   const api = apiFactory.getTemplateApi(loginUser)
-  const result = yield api.get({"filter": filter})
+  const result = yield api.get(query)
 
   this.body = {
     data: result
