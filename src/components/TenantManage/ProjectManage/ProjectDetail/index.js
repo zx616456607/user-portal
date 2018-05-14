@@ -13,7 +13,7 @@ import classNames from 'classnames';
 import './style/ProjectDetail.less'
 import {
   Row, Col, Button, Input, Table, Collapse, Card, Icon, Modal, Checkbox, Tooltip,
-  Transfer, InputNumber, Tree, Alert, Form, Tabs, Popover, Select, Dropdown, Menu
+  Transfer, InputNumber, Tree, Alert, Form, Tabs, Popover, Select, Dropdown, Menu, Spin
  } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link } from 'react-router'
@@ -94,11 +94,12 @@ class ProjectDetail extends Component {
       isShowResourceModal: false,
       selectedCluster: "",
       isChangeCluster: false,
+      projectLoading: true,
     }
   }
-  componentWillMount() {
+  componentDidMount() {debugger;
     const { loadClusterList } = this.props
-    this.getProjectDetail();
+    this.getProjectDetail()
     this.getClustersWithStatus();
     // this.getProjectMember();
     // this.loadRoleList()
@@ -194,7 +195,8 @@ class ProjectDetail extends Component {
               }
               this.setState({
                 projectDetail: res.data,
-                comment: res.data.description
+                comment: res.data.description,
+                projectLoading: false,
               }, () => {
                 const { projectDetail } = this.state;
                 this.loadRoleList()
@@ -1436,188 +1438,190 @@ class ProjectDetail extends Component {
           <div className="projectMember">
             <Tabs className="clearfix connectCard" defaultActiveKey={this.state.tabsKey}>
               <TabPane tab="项目角色及关联成员" key="project">
-                {/* <Card title="项目中角色关联的对象" className="clearfix connectCard"> */}
-                <div className="project">
-                  <div className="title">项目角色</div>
-                  <div className="connectLeft pull-left">
-                    <ul className={classNames("characterListBox", { 'borderHide': projectDetail.relatedRoles === null })}>
-                      {roleList}
-                    </ul>
-                    {
-                      (() => {
-                        //console.log("b",roleNum === 1 || isManager);
-                        return (roleNum === 1 || isManager) && <Button key="createRole" type="primary" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
-                      })()
-                    }
-                    {/*
-                      [
-                        <Button key="addRoles" type="primary" size="large" icon="plus" onClick={() => this.setState({ addCharacterModal: true })}> 添加已有角色</Button>,
-                        <br />,
-                        <Button key="createRole" type="ghost" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
-                      ]
-                    */}
-                  </div>
-                  <div className="connectRight pull-left">
-                    <div className="title">
-                      <span>该角色成员</span>
+                <Spin spinning={this.state.projectLoading}>
+                  {/* <Card title="项目中角色关联的对象" className="clearfix connectCard"> */}
+                  <div className="project">
+                    <div className="title">项目角色</div>
+                    <div className="connectLeft pull-left">
+                      <ul className={classNames("characterListBox", { 'borderHide': projectDetail.relatedRoles === null })}>
+                        {roleList}
+                      </ul>
                       {
-                        (roleNum === 1 || isManager) ? <span className="manageMembers" onClick={() => this.getProjectMember('user')}><a><Icon type="setting" />角色成员</a></span>
-                        : null
+                        (() => {
+                          //console.log("b",roleNum === 1 || isManager);
+                          return (roleNum === 1 || isManager) && <Button key="createRole" type="primary" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
+                        })()
                       }
+                      {/*
+                        [
+                          <Button key="addRoles" type="primary" size="large" icon="plus" onClick={() => this.setState({ addCharacterModal: true })}> 添加已有角色</Button>,
+                          <br />,
+                          <Button key="createRole" type="ghost" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
+                        ]
+                      */}
                     </div>
-                    <div className="bottom-line"></div>
-                    <div className="memberContainer">
-                      {
-                        items
-                      }
-                    </div>
-                    <div className="permissionContainer">
-                      <div className="titleContainer">
-                        <span className="title">该角色权限</span>
-                        <span className="clusterTitle">
-                          <svg className="clusterSvg" fill="#999">
-                            <use xlinkHref="#headercluster" />
-                          </svg>
-                          集群
-                        </span>
+                    <div className="connectRight pull-left">
+                      <div className="title">
+                        <span>该角色成员</span>
                         {
-                          this.state.currpermissionPolicyType === 1 ? <span className="zanwu">所有已授权集群</span> :
-                          !selectedCluster ?
-                          <span className="zanwu">暂无集群</span>
-                          :
-                          <Dropdown overlay={clusterMenu} trigger={['click']}>
-                            <a className="ant-dropdown-link" href="#">
-                              {
-                                (() => {
-                                  return !!clusters && clusters.length > 0 && !!_.filter(clusters, {clusterID: selectedCluster})[0] && [_.filter(clusters, {clusterID: selectedCluster})[0].clusterName , <Icon type="down" />]
-                                })()
-                              }
-                            </a>
-                          </Dropdown>
+                          (roleNum === 1 || isManager) ? <span className="manageMembers" onClick={() => this.getProjectMember('user')}><a><Icon type="setting" />角色成员</a></span>
+                          : null
                         }
-                        <span className="desc">
-                          <svg className="permissionIcon">
-                            <use xlinkHref="#permission" />
-                          </svg>
-                          授权方式：{this.state.currpermissionPolicyType === 1 ? "所有资源统一授权" : "指定资源授权"}
-                        </span>
                       </div>
-
                       <div className="bottom-line"></div>
-                      {
-                        this.state.currpermissionPolicyType === 1?
-                        <div className="type1">
-                          <div className="btnContainer">
-                            <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客" || (!isManager && roleNum !== 1)} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
-                          </div>
-                          <div className="permissionType1Container">
-                            <div className="authBox inlineBlock">
-                              <p className="authTitle">该角色共 <span style={{ color: '#59c3f5' }}>{currentRoleInfo && currentRoleInfo.total || 0}</span> 个权限</p>
-                              <div className="treeBox">
+                      <div className="memberContainer">
+                        {
+                          items
+                        }
+                      </div>
+                      <div className="permissionContainer">
+                        <div className="titleContainer">
+                          <span className="title">该角色权限</span>
+                          <span className="clusterTitle">
+                            <svg className="clusterSvg" fill="#999">
+                              <use xlinkHref="#headercluster" />
+                            </svg>
+                            集群
+                          </span>
+                          {
+                            this.state.currpermissionPolicyType === 1 ? <span className="zanwu">所有已授权集群</span> :
+                            !selectedCluster ?
+                            <span className="zanwu">暂无集群</span>
+                            :
+                            <Dropdown overlay={clusterMenu} trigger={['click']}>
+                              <a className="ant-dropdown-link" href="#">
                                 {
-                                  currentRolePermission &&
-                                  <Tree
-                                    checkable
-                                    onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
-                                    autoExpandParent={this.state.autoExpandParent}
-                                    onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
-                                    onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
-                                  >
-                                    {loop(currentRolePermission)}
-                                  </Tree>
+                                  (() => {
+                                    return !!clusters && clusters.length > 0 && !!_.filter(clusters, {clusterID: selectedCluster})[0] && [_.filter(clusters, {clusterID: selectedCluster})[0].clusterName , <Icon type="down" />]
+                                  })()
                                 }
+                              </a>
+                            </Dropdown>
+                          }
+                          <span className="desc">
+                            <svg className="permissionIcon">
+                              <use xlinkHref="#permission" />
+                            </svg>
+                            授权方式：{this.state.currpermissionPolicyType === 1 ? "所有资源统一授权" : "指定资源授权"}
+                          </span>
+                        </div>
+
+                        <div className="bottom-line"></div>
+                        {
+                          this.state.currpermissionPolicyType === 1?
+                          <div className="type1">
+                            <div className="btnContainer">
+                              <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客" || (!isManager && roleNum !== 1)} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
+                            </div>
+                            <div className="permissionType1Container">
+                              <div className="authBox inlineBlock">
+                                <p className="authTitle">该角色共 <span style={{ color: '#59c3f5' }}>{currentRoleInfo && currentRoleInfo.total || 0}</span> 个权限</p>
+                                <div className="treeBox">
+                                  {
+                                    currentRolePermission &&
+                                    <Tree
+                                      checkable
+                                      onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
+                                      autoExpandParent={this.state.autoExpandParent}
+                                      onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
+                                      onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
+                                    >
+                                      {loop(currentRolePermission)}
+                                    </Tree>
+                                  }
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          {/* <Modal
-                            visible={this.state.isShowperallEditModal}
-                            onOk={this.perallEditModalOk}
-                            onCancel={this.perallEditModalCancel}
-                          >
-                                todo
-                          </Modal>*/}
-                          {
-                            this.state.isShowperallEditModal ?
-                            <RoleEditModal
-                              form={form}
-                              scope={this}
-                              isAdd={false}
-                              isTotal={true}
-                              totalSelected={currentRoleInfo.total}
-                              roleId={currentRoleInfo.id}
+                            {/* <Modal
                               visible={this.state.isShowperallEditModal}
-                              isDetail={true}
-                            /> : null
-                          }
-                        </div>
-                        :
-                        <div className="type2">
-                          <div className="hint">该角色成员可操作的资源</div>
-                          <div className="panelStyle">
-                            {/* {perPanels} */}
+                              onOk={this.perallEditModalOk}
+                              onCancel={this.perallEditModalCancel}
+                            >
+                                  todo
+                            </Modal>*/}
                             {
-                              this.state.isChangeCluster || !selectedCluster ?
-                                <div className="zanwuDiv"><span className="">暂无可操作资源</span></div>
-                                :
-                                <PermissionOverview
-                                  project={location.query.name}
-                                  clusterID={selectedCluster}
-                                  roleId={currentRoleInfo.id}
-                                  openPermissionModal={this.editPermission}
-                                  callback={this.getPermissionOverview}
-                                  isDisabled={!(roleNum === 1 || isManager)}
-                                  getPermission={this.getPermission}
-                                />
+                              this.state.isShowperallEditModal ?
+                              <RoleEditModal
+                                form={form}
+                                scope={this}
+                                isAdd={false}
+                                isTotal={true}
+                                totalSelected={currentRoleInfo.total}
+                                roleId={currentRoleInfo.id}
+                                visible={this.state.isShowperallEditModal}
+                                isDetail={true}
+                              /> : null
+                            }
+                          </div>
+                          :
+                          <div className="type2">
+                            <div className="hint">该角色成员可操作的资源</div>
+                            <div className="panelStyle">
+                              {/* {perPanels} */}
+                              {
+                                this.state.isChangeCluster || !selectedCluster ?
+                                  <div className="zanwuDiv"><span className="">暂无可操作资源</span></div>
+                                  :
+                                  <PermissionOverview
+                                    project={location.query.name}
+                                    clusterID={selectedCluster}
+                                    roleId={currentRoleInfo.id}
+                                    openPermissionModal={this.editPermission}
+                                    callback={this.getPermissionOverview}
+                                    isDisabled={!(roleNum === 1 || isManager)}
+                                    getPermission={this.getPermission}
+                                  />
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                      {/*<div className="rightContainer">
+                        <div className="authBox inlineBlock">
+                          <p className="authTitle">该角色共 <span style={{ color: '#59c3f5' }}>{currentRoleInfo && currentRoleInfo.total || 0}</span> 个权限</p>
+                          <div className="treeBox">
+                            {
+                              currentRolePermission &&
+                              <Tree
+                                checkable
+                                onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
+                                autoExpandParent={this.state.autoExpandParent}
+                                onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
+                                onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
+                              >
+                                {loop(currentRolePermission)}
+                              </Tree>
                             }
                           </div>
                         </div>
-                      }
-                    </div>
-                    {/*<div className="rightContainer">
-                      <div className="authBox inlineBlock">
-                        <p className="authTitle">该角色共 <span style={{ color: '#59c3f5' }}>{currentRoleInfo && currentRoleInfo.total || 0}</span> 个权限</p>
-                        <div className="treeBox">
-                          {
-                            currentRolePermission &&
-                            <Tree
-                              checkable
-                              onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
-                              autoExpandParent={this.state.autoExpandParent}
-                              onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
-                              onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
-                            >
-                              {loop(currentRolePermission)}
-                            </Tree>
-                          }
+                        <div className="memberBox inlineBlock">
+                          <div className="memberTitle">
+                            <span className="connectMemberCount">该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
+                            {
+                              (roleNum === 1 || isManager) && !getRoleLoading && currentMembers.length > 0 && <Button type="primary" size="large" onClick={() => this.getProjectMember('user')}>继续关联成员</Button>
+                            }
+                          </div>
+                          <div className="memberTableBox">
+                            {
+                              !getRoleLoading ? currentMembers.length > 0 ?
+                                <Tree
+                                  checkable multiple
+                                  checkedKeys={currentMembers.map(item => `${item.key}`)}
+                                >
+                                  {loopFunc(currentMembers)}
+                                </Tree>
+                                :
+                                (roleNum === 1 || isManager) && <Button type="primary" size="large" className="addMemberBtn" onClick={() => this.getProjectMember('user')}>关联成员</Button>
+                                : null
+                            }
+                          </div>
                         </div>
                       </div>
-                      <div className="memberBox inlineBlock">
-                        <div className="memberTitle">
-                          <span className="connectMemberCount">该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
-                          {
-                            (roleNum === 1 || isManager) && !getRoleLoading && currentMembers.length > 0 && <Button type="primary" size="large" onClick={() => this.getProjectMember('user')}>继续关联成员</Button>
-                          }
-                        </div>
-                        <div className="memberTableBox">
-                          {
-                            !getRoleLoading ? currentMembers.length > 0 ?
-                              <Tree
-                                checkable multiple
-                                checkedKeys={currentMembers.map(item => `${item.key}`)}
-                              >
-                                {loopFunc(currentMembers)}
-                              </Tree>
-                              :
-                              (roleNum === 1 || isManager) && <Button type="primary" size="large" className="addMemberBtn" onClick={() => this.getProjectMember('user')}>关联成员</Button>
-                              : null
-                          }
-                        </div>
-                      </div>
+                      */}
                     </div>
-                    */}
                   </div>
-                </div>
-                {/* </Card> */}
+                  {/* </Card> */}
+                </Spin>
               </TabPane>
               <TabPane tab="资源配额管理" key="quota">
                 <ResourceQuota isProject={true} projectName={projectDetail.projectName} />
