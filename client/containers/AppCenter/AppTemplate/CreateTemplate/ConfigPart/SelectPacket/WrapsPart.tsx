@@ -201,7 +201,7 @@ class WrapsPart extends React.Component<any, IState> {
             <CommonSearchInput
               value={searchValue}
               onChange={value => this.setState({ searchValue: value })}
-              placeholder="请输入包名称或者标签搜索"
+              placeholder="请输入包名称搜索"
               size="large"
               style={{ width: 200 }}
               onSearch={this.searchData}
