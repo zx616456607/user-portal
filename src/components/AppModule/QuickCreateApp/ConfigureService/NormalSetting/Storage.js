@@ -407,7 +407,10 @@ const Storage = React.createClass({
     const { form } = this.props
     const { getFieldError } = form
     const storageErrors = getFieldError('storageList')
-    return !isEmpty(storageErrors) && storageErrors.filter(error => {
+    if (isEmpty(storageErrors)) {
+      return
+    }
+    return storageErrors.filter(error => {
       let flag = false
       let currentType = ''
       storageTypeArray.forEach(type => {
@@ -429,16 +432,22 @@ const Storage = React.createClass({
     const list = cloneDeep(storageList)
     list.splice(index, 1)
     this.setReplicasStatus(list)
-    form.setFields({
-      storageList: {
-        value: list,
+    let errorMessage = this.getCurrentErrors(list)
+    let storageObject = {
+      value: list
+    }
+    if (errorMessage) {
+      storageObject = Object.assign({}, storageObject, {
         errors: this.getCurrentErrors(list).map(error => {
           return {
             message: error,
             filed: 'storageList'
           }
         })
-      }
+      })
+    }
+    form.setFields({
+      storageList: storageObject
     })
   },
   getServiceIsBindNode(){
