@@ -31,7 +31,7 @@ import { DEFAULT_REGISTRY } from '../../../constants'
 import { removeFormFields, removeAllFormFields, setFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
 import { addService, loadServiceList } from '../../../actions/services'
-import { createAppIngress } from '../../../actions/load_balance'
+import { createAppIngress, getLBList } from '../../../actions/load_balance'
 import { getAppTemplateDetail, appTemplateDeploy, appTemplateDeployCheck, removeAppTemplateDeployCheck } from '../../../../client/actions/template'
 import { getImageTemplate } from '../../../actions/app_center'
 import { buildJson, getFieldsValues, formatValuesToFields } from './utils'
@@ -665,8 +665,11 @@ class QuickCreateApp extends Component {
   }
 
   createAppByTemplate = async () => {
-    const { appTemplateDeploy, fields, current } = this.props;
+    const { appTemplateDeploy, fields, current, getLBList, loadBalanceList } = this.props;
     const { clusterID } = current.cluster
+    if (isEmpty(loadBalanceList)) {
+      await getLBList(clusterID)
+    }
     const body = formatTemplateBody(this.props, this.imageConfigs, true);
     const firstField = Object.values(fields)[0];
     const appName = getFieldsValues(firstField).appName;
@@ -1485,5 +1488,6 @@ export default connect(mapStateToProps, {
   appTemplateDeploy,
   appTemplateDeployCheck,
   removeAppTemplateDeployCheck,
-  getImageTemplate
+  getImageTemplate,
+  getLBList
 })(QuickCreateApp)
