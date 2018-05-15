@@ -681,7 +681,7 @@ class ResourceModal extends Component {
       srtype: 'private',
     };
     const SHARE_QUERY = {
-      storagetype: 'nfs',
+      storagetype: 'nfs,glusterfs',
       srtype: 'share',
     };
     const HOST_QUERY = {
